@@ -68,7 +68,10 @@ export function DestinationMarker() {
     const target = playerState.moveTarget;
     if (target) {
       group.current.visible = true;
-      group.current.position.set(target.x, 0.06, target.z);
+      // Sit the ring on the ground (terrain regions: farm / magma / jungle).
+      const region = getRegion(useSession.getState().currentRegionId);
+      const gy = region && region.slideAt && region.groundHeight ? region.groundHeight(target.x, target.z) : 0;
+      group.current.position.set(target.x, gy + 0.06, target.z);
       t.current += delta * 4;
       const s = 1 + Math.sin(t.current) * 0.15; // gentle pulse
       group.current.scale.set(s, s, s);

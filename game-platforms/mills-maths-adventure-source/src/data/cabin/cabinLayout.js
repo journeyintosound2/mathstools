@@ -18,6 +18,8 @@
  * fireside addition by the hearth. 1 unit = 1 metre.
  */
 
+import { SNOW_LODGE } from "../snow/snowLayout.js";
+
 export const CABIN_BOUNDS = { shape: "rect", width: 60, height: 44, center: [0, 0] };
 
 // Arrive just inside the south door, facing the fire.
@@ -30,9 +32,12 @@ export const CABIN_DOOR = { position: [0, 20.6], radius: 1.4 };
 // Where the matching doors stand in EACH world (door-to-door travel):
 // the lodge's front door in the snow world, and the arrive points that put
 // the traveller just inside/outside the right doorway (not at region spawn).
-export const LODGE_DOOR_SNOW = { position: [0, -26.9], radius: 1.4 };
+// (The snow world was rebuilt 2026-10-08: these follow SNOW_LODGE wherever
+// it stands — its front face is SNOW_LODGE.z + d/2.)
+const LODGE_FACE_Z = SNOW_LODGE.z + SNOW_LODGE.d / 2;
+export const LODGE_DOOR_SNOW = { position: [SNOW_LODGE.x, LODGE_FACE_Z + 1.1], radius: 1.4 };
 export const CABIN_ARRIVE_FROM_SNOW = [0, 17.5]; // == CABIN_SPAWN (inside the door)
-export const SNOW_ARRIVE_FROM_CABIN = [0, -25.2]; // just outside the lodge door
+export const SNOW_ARRIVE_FROM_CABIN = [SNOW_LODGE.x, LODGE_FACE_Z + 2.8]; // just outside the lodge door
 
 // Wall geometry (the log courses + colliders both read these).
 export const CABIN_WALL = { halfW: 29, halfD: 21, height: 4.2 };

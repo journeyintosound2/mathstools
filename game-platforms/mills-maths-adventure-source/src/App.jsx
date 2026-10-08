@@ -32,6 +32,8 @@ import QuestLog from "./ui/QuestLog.jsx";
 import TrophyRoom from "./ui/TrophyRoom.jsx";
 import FarmTrophyGrid from "./ui/FarmTrophyGrid.jsx";
 import SnowTrophyGrid from "./ui/SnowTrophyGrid.jsx";
+import MagmaTrophyGrid from "./ui/MagmaTrophyGrid.jsx";
+import MagmaPanels from "./ui/magma/MagmaPanels.jsx";
 import ResultsCentre from "./ui/ResultsCentre.jsx";
 import HowToPlay from "./ui/HowToPlay.jsx";
 import TeacherPilotCard from "./ui/TeacherPilotCard.jsx";
@@ -70,6 +72,7 @@ export default function App() {
   const trophyOpen = useUI((s) => s.trophyOpen);
   const farmTrophyOpen = useUI((s) => s.farmTrophyOpen);
   const snowTrophyOpen = useUI((s) => s.snowTrophyOpen);
+  const magmaTrophyOpen = useUI((s) => s.magmaTrophyOpen);
   const resultsOpen = useUI((s) => s.resultsOpen);
   const howToOpen = useUI((s) => s.howToOpen);
   const pilotOpen = useUI((s) => s.pilotOpen);
@@ -90,7 +93,7 @@ export default function App() {
 
   // Global "a modal/overlay is open" flag on <body>. CSS uses .modal-open to
   // hide ALL in-world (drei <Html>) labels so they never sit over a modal.
-  const anyModalOpen = Boolean(activeEncounterId) || questLogOpen || trophyOpen || farmTrophyOpen || snowTrophyOpen || resultsOpen || howToOpen || pilotOpen || cloudLoginOpen;
+  const anyModalOpen = Boolean(activeEncounterId) || questLogOpen || trophyOpen || farmTrophyOpen || snowTrophyOpen || magmaTrophyOpen || resultsOpen || howToOpen || pilotOpen || cloudLoginOpen;
   useEffect(() => {
     document.body.classList.toggle("modal-open", anyModalOpen);
     return () => document.body.classList.remove("modal-open");
@@ -168,11 +171,13 @@ export default function App() {
       <CaveCrystalsPanel />
       <LodgeYardPanel />
       <AuroraLookoutPanel />
+      <MagmaPanels />
       <BlockedGatePrompt />
       <QuestLog />
       <TrophyRoom />
       <FarmTrophyGrid />
       <SnowTrophyGrid />
+      <MagmaTrophyGrid />
       <ResultsCentre />
       {activeEncounterId === "__dialogue__" ? (
         <div className="modal-overlay"><DynamicDialogue /></div>

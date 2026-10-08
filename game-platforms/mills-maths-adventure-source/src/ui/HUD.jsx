@@ -13,6 +13,7 @@ import { studentChipLabel } from "../cloud/studentSession.js";
 import { Bi, LanguageSelector } from "../i18n/i18n.jsx";
 import TaskCompass from "./TaskCompass.jsx";
 import { useActiveSnowChallenge } from "../game/farmChallengeActive.js";
+import { useActiveMagmaChallenge } from "../game/magma/magmaActive.js";
 import { firstOutstandingTask, taskObjectiveText } from "../data/taskCompass.js";
 
 /**
@@ -51,6 +52,7 @@ export default function HUD() {
   // at the BOTTOM of the screen — the movement hint is irrelevant then and
   // would sit under the card, so it steps aside.
   const snowChallenge = useActiveSnowChallenge();
+  const magmaChallenge = useActiveMagmaChallenge();
   const toggleCameraLock = useUI((s) => s.toggleCameraLock);
   const cogOpen = useUI((s) => s.cogOpen);
   const toggleCog = useUI((s) => s.toggleCog);
@@ -256,7 +258,7 @@ export default function HUD() {
       {/* Mission Tracker (only shown when a teacher mission is active) */}
       <MissionTracker />
 
-      {!snowChallenge && <div className="hud-panel hud-controls">
+      {!snowChallenge && !magmaChallenge && <div className="hud-panel hud-controls">
         {cameraLock
           ? <Bi>WASD / Arrows to move · Space to jump · Shift to run · E to interact · Q for quests · Camera follows you</Bi>
           : <Bi>WASD / Arrows to move · Space to jump · Shift to run · E to interact · Z / X to rotate camera · Q for quests</Bi>}

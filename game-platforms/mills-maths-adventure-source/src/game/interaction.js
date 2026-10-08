@@ -32,6 +32,7 @@ import { useCaveCrystals } from "./caveCrystalsStore.js";
 import { useLodgeYard } from "./lodgeYardStore.js";
 import { useAuroraLookout } from "./auroraLookoutStore.js";
 import { farmRecordLines } from "../data/farm/farmRecords.js";
+import { exitMagmaExcept, magmaStore } from "./magma/magmaActive.js";
 
 // Only one in-world challenge (farm OR snow) runs at a time — starting one
 // exits the others.
@@ -56,6 +57,8 @@ function exitFarmChallengesExcept(keep) {
   if (keep !== "snowcave") useCaveCrystals.getState().exit();
   if (keep !== "snowyard") useLodgeYard.getState().exit();
   if (keep !== "snowlights") useAuroraLookout.getState().exit();
+  // Magma Multiples keys are the challenge keys themselves ("columns" …).
+  exitMagmaExcept(keep);
 }
 
 // The random treasure chest gives a small coins bonus, once per session.
@@ -64,6 +67,7 @@ let chestOpened = false;
 // The Fraction Farm chest — its own once-per-session bonus, tracked separately.
 const FARM_CHEST_COINS = 15;
 let farmChestOpened = false;
+let snowChestOpened = false;
 
 /**
  * Run the interaction for an interactable — the single source of truth shared by
@@ -106,6 +110,21 @@ export function triggerInteraction(interactable) {
       prog.awardRewards({ coins: FARM_CHEST_COINS });
       useUI.getState().pushToast({ type: "reward", icon: "🪙", title: "Treasure!", message: `You found ${FARM_CHEST_COINS} coins.` });
       openDlg({ speaker: "Treasure Chest", lines: [`Tucked behind the hay… ${FARM_CHEST_COINS} shiny coins! ✨`] });
+    } else {
+      openDlg({ speaker: "Treasure Chest", lines: ["Empty now — you already grabbed the coins. Another chest will turn up next visit!"] });
+    }
+    return;
+  }
+
+  // The Snowball Sums treasure chest — its own once-per-session bonus.
+  if (interactable.id === "snow-chest") {
+    const prog = useProgress.getState();
+    const openDlg = useSession.getState().openDialogue;
+    if (!snowChestOpened) {
+      snowChestOpened = true;
+      prog.awardRewards({ coins: FARM_CHEST_COINS });
+      useUI.getState().pushToast({ type: "reward", icon: "🪙", title: "Treasure!", message: `You found ${FARM_CHEST_COINS} coins.` });
+      openDlg({ speaker: "Treasure Chest", lines: [`Frozen shut… crack! ${FARM_CHEST_COINS} icy coins! ❄️`] });
     } else {
       openDlg({ speaker: "Treasure Chest", lines: ["Empty now — you already grabbed the coins. Another chest will turn up next visit!"] });
     }
@@ -254,6 +273,20 @@ export function triggerInteraction(interactable) {
     exitFarmChallengesExcept("snowlights");
     const lights = useAuroraLookout.getState();
     if (lights.status === "idle") lights.start();
+    return;
+  }
+
+  // ---- Magma Multiples: each host (magma-<key>-host) starts its challenge;
+  // the plaza trophy stand opens the magma trophy grid. ----
+  const magmaHost = /^magma-([a-z]+)-host$/.exec(interactable.id || "");
+  if (magmaHost && magmaStore(magmaHost[1])) {
+    exitFarmChallengesExcept(magmaHost[1]);
+    const st = magmaStore(magmaHost[1]).getState();
+    if (st.status === "idle") st.start();
+    return;
+  }
+  if (interactable.id === "magma-records") {
+    useUI.getState().setMagmaTrophy(true);
     return;
   }
 

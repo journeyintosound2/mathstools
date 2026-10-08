@@ -16,12 +16,22 @@ import { EffectComposer, N8AO, Bloom, SMAA, Vignette, HueSaturation, BrightnessC
  *              in ONE place — no per-mesh recolouring.
  *  - SMAA      clean edge anti-aliasing (the composer bypasses the canvas MSAA).
  *  - Vignette  a faint darkening at the corners to focus the eye (very subtle).
+ *
+ * KEYED on the look (snow vs standard): the effects' props must never change
+ * on a LIVE composer. When they did (walking island ↔ snow swapped the Bloom
+ * threshold), R3F rebuilt the Bloom effect and re-appended it at the END of
+ * the chain — merged with the Vignette after SMAA — and that pipeline wiped a
+ * whole colour channel: the snow world went YELLOW (no blue) and the island
+ * cyan-green (no red) until the graphics setting was toggled. A fresh
+ * composer per look always builds the chain in order. (2026-10-08)
  */
-export default function Effects() {
+export default function Effects({ snow = false }) {
   return (
-    <EffectComposer multisampling={0} enableNormalPass>
-      <N8AO halfRes aoRadius={1.6} distanceFalloff={1} intensity={2.2} />
-      <Bloom luminanceThreshold={0.8} intensity={0.5} mipmapBlur />
+    <EffectComposer key={snow ? "snow" : "standard"} multisampling={0} enableNormalPass>
+      <N8AO halfRes aoRadius={1.6} distanceFalloff={1} intensity={snow ? 1.4 : 2.2} />
+      {/* The snow world is bright white everywhere — only its lamps, glowing
+          windows + ice glints should bloom, not the whole snowfield. */}
+      <Bloom luminanceThreshold={snow ? 0.985 : 0.8} intensity={snow ? 0.4 : 0.5} mipmapBlur />
       {/* Palette unification (W5-D): a gentle nudge only — enough to feel
           art-directed without the greens going neon. */}
       <HueSaturation saturation={0.04} />

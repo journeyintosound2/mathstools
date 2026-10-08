@@ -18,6 +18,7 @@ import { useColonyPairs } from "./colonyPairsStore.js";
 import { useCaveCrystals } from "./caveCrystalsStore.js";
 import { useLodgeYard } from "./lodgeYardStore.js";
 import { useAuroraLookout } from "./auroraLookoutStore.js";
+import { MAGMA_STORES, useActiveMagmaChallenge } from "./magma/magmaActive.js";
 
 // Every in-world challenge store, in one list. Add a new challenge here and
 // BOTH the hook and the non-reactive getter pick it up.
@@ -26,6 +27,8 @@ const CHALLENGE_STORES = [
   useWeighStation, useTradingPost, useVeggiePlot, usePlankGap, useFarmShop,
   useSnowballRange, useRinkGlide, useGroveLights, useMeadowLevel, useSledSlope,
   useVillageSplit, useColonyPairs, useCaveCrystals, useLodgeYard, useAuroraLookout,
+  // Magma Multiples (the ten multiplicative challenges).
+  ...MAGMA_STORES.map(([, store]) => store),
 ];
 
 /**
@@ -82,7 +85,7 @@ export function useActiveSnowChallenge() {
 }
 
 /**
- * Is ANY in-world challenge (Fraction Farm OR Snowball Sums) currently
+ * Is ANY in-world challenge (Fraction Farm, Snowball Sums OR Magma Multiples) currently
  * running? Used to suppress the generic interaction UI ("Press E …" /
  * tap-confirm) while a challenge has the screen — the challenge panels own
  * the interface then. Also drives the world-quieting pass (badges hidden,
@@ -109,5 +112,6 @@ export function useFarmChallengeActive() {
   const r = useCaveCrystals((s) => s.status !== "idle");
   const t = useLodgeYard((s) => s.status !== "idle");
   const u = useAuroraLookout((s) => s.status !== "idle");
-  return a || b || c || d || e || f || g || h || i || j || k || l || m || n || o || p || q || r || t || u;
+  const mg = useActiveMagmaChallenge();
+  return a || b || c || d || e || f || g || h || i || j || k || l || m || n || o || p || q || r || t || u || mg !== null;
 }

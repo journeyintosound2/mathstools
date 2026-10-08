@@ -1,420 +1,408 @@
 /**
- * SNOWBALL SUMS — LAYOUT (S1) — the single source of truth for the FOURTH
- * region: a LARGE, FLAT snow world reached through an IGLOO gate on the
- * island, just east of Integer Dunes (between the dunes and the Retrieval
- * Practice Playground portal). Scenery, colliders and the (future) in-world
- * challenges all read this file so they can never drift apart.
+ * SNOWBALL SUMS — LAYOUT (rebuilt 2026-10-08) — the single source of truth
+ * for the snow world. It used to be a flat 120 × 96 field; it is now a big,
+ * rolling ALPINE VALLEY the size of Fraction Farm / the Emerald Jungle, ringed
+ * by jagged peaks: rising snowfields, big hills you can SLIDE down (toboggan
+ * chutes + a chairlift back up), a frozen river and pond you SKATE on, a
+ * glacier lake of icy water with snowy islands joined by plank bridges, the
+ * lodge village with glowing windows, pine forests, an ice cave under the
+ * escarpment and a high lookout ridge under the aurora.
  *
- * Coordinate space is the region's own: x ∈ [-60, 60], z ∈ [-48, 48] — the
- * SAME dimensions as Fraction Farm. Ground is flat (height 0). Twilight
- * lighting with an aurora overhead (see SnowScenery + World.jsx).
+ * Coordinates: x ∈ [-142, 142] (west → east), z ∈ [-126, 126] (north → south)
+ * inside the rim; the terrain is modelled out to ±186 / ±170 so the peaks rise
+ * on past it. You arrive in the SOUTH looking NORTH up the valley. 1 unit = 1 m.
  *
- * The world is deliberately laid out around TEN reserved challenge areas
- * (SNOW_CHALLENGE_SPOTS) so ten in-world maths challenges can land here one
- * at a time without ever fighting the scenery for space. 1 unit = 1 metre.
+ * The ten challenges are unchanged — each claims a themed area here and its
+ * stage stands on a level PAD (data/snow/snowTerrain.js lifts it there). Every
+ * stage is still authored relative to its AREA and filmed from the SOUTH, so
+ * all of a challenge's constants below are its area + the same offsets as
+ * before (the 3D stages + cameras never had to change shape).
  *
- * All snowmen / Christmas trees / penguins / igloos are primitive MARKERS for
- * now — teacher glbs will replace them (wire like the farm characters).
+ * Pure data (no three, no React) — the headless checks import it.
  */
 
-export const SNOW_BOUNDS = { shape: "rect", width: 120, height: 96, center: [0, 0] };
+const at = (A, dx, dz) => [A.x + dx, A.z + dz];
 
-// Player arrives at the south edge, looking north up the main lane (the same
-// arrival pattern as Fraction Farm, so travel always feels familiar).
-export const SNOW_SPAWN = { x: 0, z: 40 };
+// ---------------------------------------------------------------------------
+// THE VALLEY
+// ---------------------------------------------------------------------------
+/** The rim: the valley floor ends here and the mountains rise (slide back). */
+export const SNOW_BOUNDARY = { halfW: 142, halfD: 126 };
+export const SNOW_BOUNDS = { shape: "rect", width: 290, height: 258, center: [0, 0] };
 
-// Return Teleport Gate → back to the island. Behind the arrival point.
-export const SNOW_RETURN_PORTAL = [0, 44.5];
+// You arrive on the arrival plaza in the south, looking north up the valley.
+export const SNOW_SPAWN = { x: 0, z: 104 };
+// The igloo gate home stands just behind-right of the arrival (clear of the
+// follow camera, which sits behind the player), facing the arrivals.
+export const SNOW_RETURN_PORTAL = [9.5, 113.5];
+export const SNOW_RETURN_PORTAL_YAW = -2.5;
+export const SNOW_WELCOME_SIGN = { position: [-6.5, 98.5], rotationY: 0.45, text: "Welcome to Snowball Sums!" };
+// The trophy cabinet (trophy.glb — identical to the farm's) on the plaza's
+// west side, facing east toward the arrivals.
+export const SNOW_RECORDS_STAND = { id: "snow-records", position: [-13.5, 108.5], rotationY: -Math.PI / 2 + 0.3 };
+// The welcome ARCH over the main trail just ahead of the arrival (two
+// snow-block pillars + a snowy sign) and the painted TRAIL MAP beside it.
+export const SNOW_ARCH = { position: [0.2, 95.5], width: 7.6, height: 5.4, text: "SNOWBALL SUMS" };
+export const SNOW_MAP_BOARD = { position: [8.5, 97.5], rotationY: -0.45 };
 
-// A big welcome sign just inside the entrance, facing the arrival point.
-export const SNOW_WELCOME_SIGN = {
-  position: [5, 36],
-  rotationY: -0.5,
-  text: "Welcome to Snowball Sums!",
-};
-
-// The trophy stand (trophy.glb — identical to Fraction Farm's: ten pigeonhole
-// spaces + the grand-trophy top spot). On the NORTH boundary west of the
-// return portal so it greets players by the entrance. Faces south.
-export const SNOW_RECORDS_STAND = { id: "snow-records", position: [-11, 43], rotationY: Math.PI };
-
-// Packed-snow lanes — axis-aligned rects { x, z, w, d } (centre + size).
-export const SNOW_LANES = [
-  { id: "snow-main-lane", x: 0, z: 12, w: 5, d: 68 },   // south entrance → lodge yard
-  { id: "snow-cross-lane", x: 0, z: 12, w: 70, d: 4 },  // east–west spur to the areas
+// ---------------------------------------------------------------------------
+// THE LODGE VILLAGE — the ski lodge (its AJAR door leads into the Lodge
+// Interior region), log cabins with glowing windows, the village square.
+// ---------------------------------------------------------------------------
+export const SNOW_LODGE = { x: -8, z: 50, w: 14, d: 10, wall: "#7a5638", roof: "#3d4a63", trim: "#f3ead6" };
+/** The lodge's front door (south face) — the snow-to-cabin portal sits in it. */
+export const LODGE_DOOR = [SNOW_LODGE.x, SNOW_LODGE.z + SNOW_LODGE.d / 2 + 0.1];
+// Log cabins round the village: [x, z, rotY, w, d] (door faces +z rotated).
+export const SNOW_CABINS = [
+  [-31, 79.5, 3.0, 7, 6],
+  [-33, 51, 1.25, 6.5, 5.5],
+  [45, 52, -1.0, 7, 6],
+  [47, 69, -0.55, 6.5, 6],
+  [18, 40, 2.9, 6, 5],
+  [-21, 38, -2.75, 6, 5],
 ];
+/** The big decorated tree in the middle of the village square. */
+export const VILLAGE_TREE = [4, 66];
 
-// The lodge yard — a packed-snow circle in front of the ski lodge.
-export const SNOW_YARD = { center: [0, -24], radius: 11 };
+// ---------------------------------------------------------------------------
+// TEN CHALLENGE AREAS. Each challenge's constants are its AREA + offsets.
+// ---------------------------------------------------------------------------
 
-// The big alpine SKI LODGE (the barn analogue — warm glowing windows, the
-// only cosy light in the twilight). Door faces south, toward the lane.
-export const SNOW_LODGE = { x: 0, z: -33, w: 14, d: 10, wall: "#7a5638", roof: "#3d4a63", trim: "#f3ead6" };
+// THE SNOWBALL RANGE (SR) — "range": up on Fort Frost, the snow-fort plateau
+// in the south-east. Bridging to ten with a ten-frame crate.
+export const RANGE_AREA = { x: 101, z: 50 };
+export const RANGE_FRAME_POS = at(RANGE_AREA, 0, -3.5);
+export const RANGE_CRATE_POS = at(RANGE_AREA, -3, -2.5);
+export const RANGE_VIEW_SPOT = at(RANGE_AREA, 0, 4.5);
+export const RANGE_SIGN = { position: at(RANGE_AREA, 4.5, 3.5) };
 
-// ==========================================================================
-// THE ICE RINK — an elliptical sheet of real SLIPPERY ice (Player.jsx gives
-// movement momentum + glide while on it) ringed by a low snow bank the
-// player can hop (jumpable colliders), with a southern entrance gap onto
-// the cross lane. Reserved as a future challenge area too.
-// ==========================================================================
-export const ICE_RINK = { center: [16, 4], rx: 12, rz: 8.5 };
-// The bank's entrance gap: centred on the SOUTH edge (toward the cross lane),
-// as a half-angle (radians) around the ellipse parameter θ = +π/2.
-export const RINK_GATE_HALF_ANGLE = 0.35;
-
-/** True when (x, z) is ON the rink ice — Player.jsx switches to slide physics. */
-export function isOnIce(x, z) {
-  const dx = (x - ICE_RINK.center[0]) / ICE_RINK.rx;
-  const dz = (z - ICE_RINK.center[1]) / ICE_RINK.rz;
-  return dx * dx + dz * dz <= 1;
-}
-
-/** True when (x, z) is on walkable SNOW (footprints show) — anywhere in the
- *  region that isn't the rink ice. */
-export function isOnSnow(x, z) {
-  const hw = SNOW_BOUNDS.width / 2;
-  const hh = SNOW_BOUNDS.height / 2;
-  return Math.abs(x) <= hw && Math.abs(z) <= hh && !isOnIce(x, z);
-}
-
-// ==========================================================================
-// TEN RESERVED CHALLENGE AREAS — one per future in-world maths challenge
-// (topics TBD). Each is an open clearing the scenery keeps out of; the
-// checks assert they stay in bounds, well apart, and clear of colliders.
-// The ids are also the trophy-slot keys in data/snow/snowRecords.js.
-// ==========================================================================
-export const SNOW_CHALLENGE_SPOTS = [
-  { id: "rink", label: "The Ice Rink", center: [16, 4] },       // the rink itself
-  { id: "village", label: "Igloo Village", center: [-36, 4] },  // west (cow-paddock analogue)
-  { id: "colony", label: "Penguin Colony", center: [-14, -2] }, // the penguins wander here
-  { id: "snowmen", label: "Snowman Meadow", center: [-32, 36] },// south-west clearing
-  { id: "pines", label: "Christmas Tree Grove", center: [36, 20] }, // eastern grove
-  { id: "range", label: "Snowball Range", center: [33, 36.5] }, // south-east clearing
-  { id: "cave", label: "Ice Cave", center: [-40, -28] },        // north-west corner
-  { id: "sled", label: "Sledding Slope", center: [48, -38] },   // north-east corner
-  { id: "lodgeyard", label: "Lodge Yard", center: [13, -25] },  // east of the lodge
-  { id: "lights", label: "Aurora Lookout", center: [38, -14] }, // eastern gap
-];
-
-// ==========================================================================
-// THE SNOWBALL RANGE (SR) — the first built snow challenge, claiming the
-// "range" reserved area (south-east clearing). Bridging to ten: a ten-frame
-// snowball CRATE on a stand, the student splits their handful to fill it to
-// the next ten before the throw. 3D lives in game/SnowballRangeChallenge.jsx;
-// pure maths in snowballRangeChallenge.js.
-// ==========================================================================
-export const RANGE_AREA = { x: 33, z: 36.5 }; // == SNOW_CHALLENGE_SPOTS "range"
-// The ten-frame crate stand (north of the area centre, facing the camera).
-export const RANGE_FRAME_POS = [33, 33];
-// Idle dressing: a stack of packed snowball crates beside the stand.
-export const RANGE_CRATE_POS = [30, 34];
-// Where the player parks during the challenge (tap/type-only, front-on view).
-export const RANGE_VIEW_SPOT = [33, 41];
-// Pip hosts from beside the range (clear of the throw line + the view spot).
-export const RANGE_SIGN = { position: [37.5, 40] };
-
-// ==========================================================================
-// THE ICE RINK — GLIDE BY TENS (RG) — the second built snow challenge,
-// claiming the "rink" reserved area: the rink ice becomes a giant 0–100
-// number line and Fern's penguin glides the queued jumps. 3D lives in
-// game/RinkGlideChallenge.jsx; pure maths in rinkGlideChallenge.js.
-// ==========================================================================
-// The etched number line across the rink ice (0–100 maps xMin → xMax along
-// the ellipse's long axis, comfortably inside the rim).
-export const RINK_GLIDE_LINE = { z: 4, xMin: 5, xMax: 27 };
-// Where the player parks during the challenge — on the ice, off to the
-// south-west so they never block the camera's view of the line.
-export const RINK_GLIDE_VIEW_SPOT = [9.5, 8.5];
-// Fern hosts from just outside the rink's southern entrance gap.
-export const RINK_GLIDE_SIGN = { position: [12.2, 14.8] };
-
+// THE ICE RINK — GLIDE BY TENS (RG) — "rink": the south end of the FROZEN
+// POND in the middle of the valley; the ice itself is the number line.
+export const SNOW_POND = { center: [0, 14], rx: 30, rz: 15 };
+export const RINK_GLIDE_LINE = { z: 20, xMin: -11, xMax: 11 };
+export const RINK_GLIDE_VIEW_SPOT = [-6.5, 24.5];
+export const RINK_GLIDE_SIGN = { position: [-3.8, 30.9] };
+/** Kept for the checks/scenery: the rink = the pond's ice. */
+export const ICE_RINK = { center: SNOW_POND.center, rx: SNOW_POND.rx, rz: SNOW_POND.rz };
 /** World x of a number-line value (0–100) on the rink. Pure. */
 export function rinkGlideX(value) {
   const { xMin, xMax } = RINK_GLIDE_LINE;
   return xMin + (Math.max(0, Math.min(100, value)) / 100) * (xMax - xMin);
 }
 
-// ==========================================================================
-// CHRISTMAS TREE GROVE — LIGHT THE TREE (GV) — the third built snow
-// challenge, claiming the "pines" reserved area (eastern grove):
-// compensation with bundles of ten fairy lights. 3D lives in
-// game/GroveLightsChallenge.jsx; pure maths in groveLightsChallenge.js.
-// ==========================================================================
-export const GROVE_AREA = { x: 36, z: 20 }; // == SNOW_CHALLENGE_SPOTS "pines"
-// The big light-up tree (north of the area centre, facing the camera).
-export const GROVE_TREE_POS = [36, 16.5];
-// The bundle box (crate of ten-light bundles + slow loose singles).
-export const GROVE_BOX_POS = [33.2, 16.8];
-// Where the player parks during the challenge (button/type-only).
-export const GROVE_VIEW_SPOT = [32.8, 23.5];
-// Alby hosts from the eastern side of the grove clearing.
-export const GROVE_SIGN = { position: [39.5, 23] };
+// CHRISTMAS TREE GROVE — LIGHT THE TREE (GV) — "pines": a clearing in the
+// pine forest on Pine Hill's sunny south-east flank (west of the valley).
+export const GROVE_AREA = { x: -99, z: -8 };
+export const GROVE_TREE_POS = at(GROVE_AREA, 0, -3.5);
+export const GROVE_BOX_POS = at(GROVE_AREA, -2.8, -3.2);
+export const GROVE_VIEW_SPOT = at(GROVE_AREA, -3.2, 3.5);
+export const GROVE_SIGN = { position: at(GROVE_AREA, 3.5, 3) };
 
-// ==========================================================================
-// SNOWMAN MEADOW — LEVEL THE TWINS (ML) — the fourth built snow challenge,
-// claiming the "snowmen" reserved area (south-west clearing): levelling a
-// sum into a double by hopping snowballs between two snowman towers. 3D in
-// game/MeadowLevelChallenge.jsx; pure maths in meadowLevelChallenge.js.
-// ==========================================================================
-export const MEADOW_AREA = { x: -32, z: 36 }; // == SNOW_CHALLENGE_SPOTS "snowmen"
-// The two snowman towers (north of the centre, facing the camera).
-export const MEADOW_TOWER_LEFT = [-33.8, 33.5];
-export const MEADOW_TOWER_RIGHT = [-30.2, 33.5];
-// Where the player parks during the challenge (button/type-only).
-export const MEADOW_VIEW_SPOT = [-28.9, 41.3];
-// The placeholder host ("Frosty" — no glb yet) beside the towers.
-export const MEADOW_SIGN = { position: [-28.2, 38.2] };
+// SNOWMAN MEADOW — LEVEL THE TWINS (ML) — "snowmen": the rolling meadow in
+// the south-west, below Snowman Hill and its GIANT snowman.
+export const MEADOW_AREA = { x: -84, z: 64 };
+export const MEADOW_TOWER_LEFT = at(MEADOW_AREA, -1.8, -2.5);
+export const MEADOW_TOWER_RIGHT = at(MEADOW_AREA, 1.8, -2.5);
+export const MEADOW_VIEW_SPOT = at(MEADOW_AREA, 3.1, 5.3);
+export const MEADOW_SIGN = { position: at(MEADOW_AREA, 3.8, 2.2) };
 
-// ==========================================================================
-// SLEDDING SLOPE — THE ROPED SLEDS (SL) — the fifth built snow challenge,
-// claiming the "sled" reserved area (north-east corner). The corner gets a
-// REAL HILL: the only non-flat ground in the snow world. The hill is a
-// smooth bump that rises to `peak` near its crest and falls back to ZERO
-// before every zone edge — so the flat world, the boundary bank and every
-// other challenge area are untouched. Player physics just works (the walk
-// step is far below the per-frame rise), and regions.js points the region's
-// groundHeight at snowGroundHeight() below. 3D in game/SledSlopeChallenge.jsx
-// + the SlopeHill terrain mesh in SnowScenery; maths in sledSlopeChallenge.js.
-// ==========================================================================
-export const SLOPE = {
-  xMin: 40, xCrest: 54, xMax: 58, // rises west→crest, falls crest→bank
-  zMin: -46, zCrest: -38, zMax: -30,
-  peak: 2.8,
-};
+// SLEDDING SLOPE — THE ROPED SLEDS (SL) — "sled": a groomed run up the
+// west flank of Big Sled Hill. The run is a real incline (snowTerrain.js
+// builds it as a tilted pad): values increase UPHILL, to the east.
+export const SLOPE_LANE = { z: -22, xBottom: 74, xTop: 85.5 };
+/** Rise of the groomed run per metre east (the run is 3.1 m tall). */
+export const SLOPE_RUN_GRADE = 0.27;
+export const SLOPE_VIEW_SPOT = [SLOPE_LANE.xBottom, SLOPE_LANE.z + 9.5];
+export const SLOPE_SIGN = { position: [SLOPE_LANE.xBottom + 9.5, SLOPE_LANE.z + 6.5] };
 
-/** A smooth 0→1→0 bump: 0 at/outside [a, b], 1 at peakT (smoothstep). Pure. */
-function slopeBump(t, a, peakT, b) {
-  if (t <= a || t >= b) return 0;
-  const u = t < peakT ? (t - a) / (peakT - a) : (b - t) / (b - peakT);
-  return u * u * (3 - 2 * u);
-}
+// IGLOO VILLAGE — JOIN THE IGLOOS (VG) — "village": on IGLOO ISLAND out in the
+// glacier lake (plank bridges from the south shore + to the Penguin Floe).
+export const IGLOO_ISLAND = { center: [14, -58], rx: 14.5, rz: 13.5 };
+export const VILLAGE_AREA = { x: 14, z: -61.5 };
+export const VILLAGE_LEFT_STAND = at(VILLAGE_AREA, -3.5, -2);
+export const VILLAGE_RIGHT_STAND = at(VILLAGE_AREA, 3.5, -2);
+export const VILLAGE_BUILD_SITE = at(VILLAGE_AREA, 0, -5.5);
+export const VILLAGE_VIEW_SPOT = at(VILLAGE_AREA, -2.8, 7.3);
+export const VILLAGE_SIGN = { position: at(VILLAGE_AREA, 4, 3.5) };
 
-/** Ground height anywhere in the snow world — the sled hill, else 0. Pure. */
-export function snowGroundHeight(x, z) {
-  return (
-    SLOPE.peak *
-    slopeBump(x, SLOPE.xMin, SLOPE.xCrest, SLOPE.xMax) *
-    slopeBump(z, SLOPE.zMin, SLOPE.zCrest, SLOPE.zMax)
-  );
-}
+// PENGUIN COLONY — PAIR THE PENGUINS (PC) — "colony": the PENGUIN FLOE, a
+// big flat ice-floe island east of Igloo Island.
+export const PENGUIN_FLOE = { center: [55, -69], rx: 14, rz: 13 };
+export const COLONY_AREA = { x: 55, z: -72 };
+export const COLONY_ROWS = { z1: COLONY_AREA.z - 1.4, z2: COLONY_AREA.z + 0.8 };
+export const COLONY_VIEW_SPOT = at(COLONY_AREA, 5.5, 5.8);
+export const COLONY_SIGN = { position: at(COLONY_AREA, -5, 5) };
 
-// The groomed RUN down the fall line (the crest's z), where the number
-// window + the roped sleds live. Values increase DOWNHILL (toward -x).
-export const SLOPE_LANE = { z: SLOPE.zCrest, xTop: 53.5, xBottom: 42 };
-// Where the player parks during the challenge (button/type-only) — on the
-// flat, off the camera's sightline.
-export const SLOPE_VIEW_SPOT = [42, -28.5];
-// The placeholder host ("Flake" — no glb yet) on the slope's shoulder.
-export const SLOPE_SIGN = { position: [51.5, -31.5] };
+// THE ICE CAVE — LIGHT THE CRYSTALS (IC) — "cave": a cave mouth in the foot
+// of the north-west escarpment.
+export const CAVE_AREA = { x: -88, z: -91 };
+export const CAVE_WALL = { z: CAVE_AREA.z - 4.5, xMin: CAVE_AREA.x - 5.5, xMax: CAVE_AREA.x + 5.5 };
+export const CAVE_DOME = { center: at(CAVE_AREA, 0, -6), radius: 7.5 };
+/** The cave's rocky MOUTH in the escarpment foot behind the stage: an arch
+ *  of radius r whose dark tunnel runs `depth` metres into the cliff. */
+export const CAVE_MOUTH = { x: CAVE_AREA.x, z: CAVE_AREA.z - 8.7, r: 4.4, depth: 6 };
+export const CAVE_VIEW_SPOT = at(CAVE_AREA, 4, 4.5);
+export const CAVE_SIGN = { position: at(CAVE_AREA, 4.5, 1.5) };
 
-// ==========================================================================
-// IGLOO VILLAGE — JOIN THE IGLOOS (VG) — the "village" reserved area:
-// partitioning with ten-blocks + one-blocks. 3D in GroveLights-style
-// game/VillageSplitChallenge.jsx; maths in villageSplitChallenge.js.
-// ==========================================================================
-export const VILLAGE_AREA = { x: -36, z: 4 }; // == SNOW_CHALLENGE_SPOTS "village"
-export const VILLAGE_LEFT_STAND = [-39.5, 2]; // the first igloo's block stand
-export const VILLAGE_RIGHT_STAND = [-32.5, 2]; // the second igloo's block stand
-export const VILLAGE_BUILD_SITE = [-36, -1.5]; // where the new igloo assembles
-export const VILLAGE_VIEW_SPOT = [-38.8, 11.3];
-export const VILLAGE_SIGN = { position: [-32, 7.5] };
+// THE LODGE YARD — COCOA CHANGE (LY) — "lodgeyard": the cocoa stall on the
+// east side of the village square, beside the ski lodge.
+export const YARD_AREA = { x: 27, z: 60 };
+export const YARD_STALL = at(YARD_AREA, -1.5, -3);
+export const YARD_BOARD = at(YARD_AREA, 3, -2.5);
+export const YARD_VIEW_SPOT = at(YARD_AREA, -3.5, 5);
+export const YARD_SIGN = { position: at(YARD_AREA, 3.5, 3) };
 
-// ==========================================================================
-// PENGUIN COLONY — PAIR THE PENGUINS (PC) — the "colony" reserved area:
-// doubles + near-doubles via pairing rows. 3D in game/ColonyPairsChallenge.jsx;
-// maths in colonyPairsChallenge.js.
-// ==========================================================================
-export const COLONY_AREA = { x: -14, z: -2 }; // == SNOW_CHALLENGE_SPOTS "colony"
-export const COLONY_ROWS = { z1: -3.4, z2: -1.2 }; // the two pairing rows
-export const COLONY_VIEW_SPOT = [-8.5, 3.8];
-export const COLONY_SIGN = { position: [-19, 3] };
+// AURORA LOOKOUT — THE STRATEGY PICKER (AL) — "lights": a viewing deck on the
+// summit of Big Sled Hill (the valley's high point), facing north over the
+// lake and the peaks to the aurora. Ride the chairlift up, sled back down.
+export const LOOKOUT_AREA = { x: 121, z: -47 };
+export const LOOKOUT_DECK = at(LOOKOUT_AREA, 2.5, -2.5);
+export const LOOKOUT_VIEW_SPOT = at(LOOKOUT_AREA, -1, 4.5);
+export const LOOKOUT_SIGN = { position: at(LOOKOUT_AREA, -3.5, 3) };
 
-// ==========================================================================
-// THE ICE CAVE — LIGHT THE CRYSTALS (IC) — the "cave" reserved area:
-// think-addition (count up vs count back) on a numbered crystal wall inside
-// a dark cave mouth. 3D in game/CaveCrystalsChallenge.jsx; maths in
-// caveCrystalsChallenge.js.
-// ==========================================================================
-export const CAVE_AREA = { x: -40, z: -28 }; // == SNOW_CHALLENGE_SPOTS "cave"
-export const CAVE_WALL = { z: -32.5, xMin: -45.5, xMax: -34.5 }; // crystal arc
-export const CAVE_DOME = { center: [-40, -34], radius: 7.5 }; // the dark mouth
-export const CAVE_VIEW_SPOT = [-36, -23.5];
-export const CAVE_SIGN = { position: [-35.5, -26.5] };
+/** The ten reserved areas (ids = the trophy-slot keys in snowRecords.js). */
+export const SNOW_CHALLENGE_SPOTS = [
+  { id: "rink", label: "The Ice Rink", center: [0, 20] },
+  { id: "village", label: "Igloo Village", center: [VILLAGE_AREA.x, VILLAGE_AREA.z] },
+  { id: "colony", label: "Penguin Colony", center: [COLONY_AREA.x, COLONY_AREA.z] },
+  { id: "snowmen", label: "Snowman Meadow", center: [MEADOW_AREA.x, MEADOW_AREA.z] },
+  { id: "pines", label: "Christmas Tree Grove", center: [GROVE_AREA.x, GROVE_AREA.z] },
+  { id: "range", label: "Snowball Range", center: [RANGE_AREA.x, RANGE_AREA.z] },
+  { id: "cave", label: "Ice Cave", center: [CAVE_AREA.x, CAVE_AREA.z] },
+  { id: "sled", label: "Sledding Slope", center: [(SLOPE_LANE.xBottom + SLOPE_LANE.xTop) / 2, SLOPE_LANE.z] },
+  { id: "lodgeyard", label: "Lodge Yard", center: [YARD_AREA.x, YARD_AREA.z] },
+  { id: "lights", label: "Aurora Lookout", center: [LOOKOUT_AREA.x, LOOKOUT_AREA.z] },
+];
 
-// ==========================================================================
-// THE LODGE YARD — COCOA CHANGE (LY) — the "lodgeyard" reserved area:
-// friends of 100 counted up on a hundred-bead cocoa board beside the
-// lodge's hot-chocolate stall. 3D in game/LodgeYardChallenge.jsx; maths in
-// lodgeYardChallenge.js.
-// ==========================================================================
-export const YARD_AREA = { x: 13, z: -25 }; // == SNOW_CHALLENGE_SPOTS "lodgeyard"
-export const YARD_STALL = [11.5, -28]; // the cocoa stall (trading-post analogue)
-export const YARD_BOARD = [16, -27.5]; // the hundred-bead board on its stand
-export const YARD_VIEW_SPOT = [9.5, -20];
-export const YARD_SIGN = { position: [16.5, -22] };
-
-// ==========================================================================
-// AURORA LOOKOUT — THE STRATEGY PICKER (AL) — the "lights" reserved area:
-// the capstone. The aurora writes a sum in the sky over a raised viewing
-// deck; the play is CHOOSING the strategy. 3D in game/AuroraLookoutChallenge.jsx;
-// maths in auroraLookoutChallenge.js.
-// ==========================================================================
-export const LOOKOUT_AREA = { x: 38, z: -14 }; // == SNOW_CHALLENGE_SPOTS "lights"
-export const LOOKOUT_DECK = [40.5, -16.5]; // the raised viewing platform
-export const LOOKOUT_VIEW_SPOT = [37, -9.5];
-export const LOOKOUT_SIGN = { position: [34.5, -11] };
-
-// Where the penguins waddle — an open rectangle around the Penguin Colony,
-// clear of the lanes, the rink ice and every collider (they're walk-through
-// markers like the farm cows, so they never block the player).
-export const PENGUIN_WANDER = { minX: -22, maxX: -6, minZ: -8, maxZ: 6 };
-export const PENGUIN_COUNT = 6;
-
-// Two extra penguins belly-slide back and forth across the rink (pure fun).
-export const RINK_SLIDERS = 2;
-
-// ==========================================================================
-// PETE — the snow world's wandering local (game/WanderingPete.jsx).
-// He is ambient life, not an interactable: he strolls the open snow, stops
-// for a few seconds, throws a spin jump, then walks on. He NEVER runs.
-//
-// The wander box sits well inside the boundary bank (±58/±46) so he can
-// never walk into it, and `isPeteSpotOk` keeps him off the rink ice (he has
-// no slide physics) and out of the ten challenge clearings — a stranger
-// strolling through the shot while a student works a challenge is exactly
-// the distraction the world-quieting pass exists to remove.
-// ==========================================================================
-// Pete's three-beat loop, by clip name in pete.glb. Kept HERE (pure data)
-// rather than only in characterModels.js so the headless checks can assert
-// them — characterModels.js reads `import.meta.env` and can't be imported
-// outside vite. characterModels spreads this into the `pete` entry.
-// NOTE there is deliberately NO run clip: Pete only ever walks.
-export const PETE_CLIPS = {
-  idle: "Idle_6",
-  walk: "Walking",
-  spin: "360_Power_Spin_Jump",
-};
-
-export const PETE_WANDER = { minX: -50, maxX: 50, minZ: -38, maxZ: 38 };
-export const PETE_START = [4, 24]; // open snow south of the rink
-export const PETE_WALK_SPEED = 1.15; // world units/sec — a stroll, never a run
-export const PETE_IDLE_MS = [3000, 5000]; // pause before the spin jump
-// How far Pete keeps clear of a challenge clearing's centre.
-export const PETE_CHALLENGE_CLEARANCE = 11;
-
-/**
- * Is (x, z) somewhere Pete may walk to? In the wander box, off the rink ice,
- * and clear of every reserved challenge clearing. Pure — the checks use it.
- */
-export function isPeteSpotOk(x, z) {
-  const b = PETE_WANDER;
-  if (x < b.minX || x > b.maxX || z < b.minZ || z > b.maxZ) return false;
-  if (isOnIce(x, z)) return false;
-  for (const spot of SNOW_CHALLENGE_SPOTS) {
-    const d = Math.hypot(x - spot.center[0], z - spot.center[1]);
-    if (d < PETE_CHALLENGE_CLEARANCE) return false;
-  }
-  return true;
-}
-
-// ==========================================================================
-// CHALLENGE VIEW CORRIDORS (2026-09-28 audit). Every snow challenge is
-// filmed from the SOUTH. While one runs, anything standing between the
-// camera and the activity — scenery props, the host NPCs, the parked player
-// — is hidden: it's world dressing, and a lamp post or a two-metre penguin
-// in front of the ten-frame is the difference between a Year 7 reading the
-// maths and not. A corridor is a box in x/z: ±halfW around the activity's
-// centre x, from `back` metres behind its front line `z` to `depth` metres
-// in front of it (toward the camera). Keys match the snow challenge keys in
-// game/farmChallengeActive.js.
-// ==========================================================================
+// ---------------------------------------------------------------------------
+// CHALLENGE VIEW CORRIDORS — every snow challenge is filmed from the SOUTH.
+// While one runs, anything standing between the camera and the activity
+// (scenery props, host NPCs, the parked player) is hidden. A corridor is a box
+// in x/z: ±halfW round the activity's centre x, from `back` metres behind its
+// front line `z` to `depth` metres in front of it (toward the camera). Keys
+// match the snow challenge keys in game/farmChallengeActive.js.
+// ---------------------------------------------------------------------------
 export const SNOW_CHALLENGE_VIEWS = {
-  range: { x: 33, z: 33, halfW: 9, back: 1.5, depth: 24 },
-  rink: { x: 16, z: 4, halfW: 15, back: 1.5, depth: 30 },
-  grove: { x: 35, z: 16.5, halfW: 9, back: 1.5, depth: 26 },
-  meadow: { x: -32, z: 33.5, halfW: 9, back: 1.5, depth: 26 },
-  sled: { x: 47.75, z: -38, halfW: 11, back: 5, depth: 24 },
-  village: { x: -36, z: -1.5, halfW: 9, back: 1.5, depth: 26 },
-  colony: { x: -14, z: -3.4, halfW: 12, back: 1.5, depth: 26 },
-  cave: { x: -40, z: -32.5, halfW: 9, back: 1.0, depth: 26 },
-  yard: { x: 14, z: -28, halfW: 9, back: 1.5, depth: 24 },
-  lights: { x: 38, z: -20, halfW: 12, back: 1.5, depth: 26 },
+  range: { x: RANGE_AREA.x, z: RANGE_AREA.z - 3.5, halfW: 9, back: 1.5, depth: 24 },
+  rink: { x: 0, z: RINK_GLIDE_LINE.z, halfW: 15, back: 1.5, depth: 30 },
+  grove: { x: GROVE_AREA.x - 1, z: GROVE_AREA.z - 3.5, halfW: 9, back: 1.5, depth: 26 },
+  meadow: { x: MEADOW_AREA.x, z: MEADOW_AREA.z - 2.5, halfW: 9, back: 1.5, depth: 26 },
+  sled: { x: (SLOPE_LANE.xBottom + SLOPE_LANE.xTop) / 2, z: SLOPE_LANE.z, halfW: 11, back: 5, depth: 24 },
+  village: { x: VILLAGE_AREA.x, z: VILLAGE_AREA.z - 5.5, halfW: 9, back: 1.5, depth: 26 },
+  colony: { x: COLONY_AREA.x, z: COLONY_AREA.z - 1.4, halfW: 12, back: 1.5, depth: 26 },
+  cave: { x: CAVE_AREA.x, z: CAVE_AREA.z - 4.5, halfW: 9, back: 1.0, depth: 26 },
+  yard: { x: YARD_AREA.x + 1, z: YARD_AREA.z - 3, halfW: 9, back: 1.5, depth: 24 },
+  lights: { x: LOOKOUT_AREA.x, z: LOOKOUT_AREA.z - 6, halfW: 12, back: 1.5, depth: 26 },
 };
-
 /** Is world point (x, z) inside the running challenge's view corridor? Pure. */
 export function inSnowChallengeView(key, x, z) {
   const v = key && SNOW_CHALLENGE_VIEWS[key];
   if (!v) return false;
   return Math.abs(x - v.x) <= v.halfW && z >= v.z - v.back && z <= v.z + v.depth;
 }
+/** Is (x, z) inside ANY challenge's corridor (the scatter keeps out of them all)? */
+export function inAnySnowChallengeView(x, z, margin = 0) {
+  for (const v of Object.values(SNOW_CHALLENGE_VIEWS)) {
+    if (Math.abs(x - v.x) <= v.halfW + margin && z >= v.z - v.back - margin && z <= v.z + v.depth + margin) return true;
+  }
+  return false;
+}
 
-// ==========================================================================
-// SCENERY PLACEMENT — everything below is markers/props (glb-replaceable).
-// Positions are kept clear of the lanes, the rink, the ten challenge areas
-// (≥ ~2.5 m from each centre) and each other.
-// ==========================================================================
+// ---------------------------------------------------------------------------
+// TERRAIN FEATURES (read by snowTerrain.js). Hills: { c, rx, rz, h, flat,
+// warp } ellipses, or ridge capsules { a, b, rw, re, h, flat, warp }; a
+// negative h scoops a basin.
+// ---------------------------------------------------------------------------
+export const SNOW_HILLS = [
+  // Snowman Hill — the giant snowman's hill between the village and meadow.
+  { id: "snowman-hill", c: [-50, 44], rx: 34, rz: 31, h: 12.5, flat: 0.2, warp: 0.06 },
+  // Pine Hill — the forested west hill; the grove sits on its south-east flank.
+  { id: "pine-hill", c: [-128, -38], rx: 46, rz: 52, h: 24, flat: 0.1, warp: 0.08 },
+  // Big Sled Hill — the east hill with the toboggan run + chairlift — and
+  // the gentle Sledding Bank at its west foot (the sled challenge's run).
+  { id: "sled-hill", c: [120, -40], rx: 36, rz: 34, h: 16, flat: 0.24, warp: 0.06 },
+  { id: "sled-bank", c: [96, -24], rx: 22, rz: 14, h: 6.5, flat: 0, warp: 0.04 },
+  // The lookout ridge along the north-east (the deck sits on its crest).
+  { id: "lookout-ridge", a: [66, -104], b: [138, -100], rw: 26, re: 26, h: 13, flat: 0.14, warp: 0.06 },
+  // Frosty Knoll between the pond and the sled hill + the other rolls that
+  // break the valley into rooms.
+  { id: "frosty-knoll", c: [46, -4], rx: 22, rz: 18, h: 9, flat: 0, warp: 0.1 },
+  { id: "pond-knoll", c: [-14, -13], rx: 15, rz: 10, h: 5, flat: 0, warp: 0.12 },
+  { id: "west-rolls", a: [-80, 14], b: [-66, -14], rw: 15, re: 15, h: 8, flat: 0, warp: 0.1 },
+  { id: "village-east", c: [64, 36], rx: 18, rz: 13, h: 8, flat: 0, warp: 0.1 },
+  { id: "south-ridge", a: [24, 96], b: [92, 84], rw: 15, re: 15, h: 7, flat: 0, warp: 0.1 },
+  { id: "meadow-rolls", c: [-122, 58], rx: 22, rz: 28, h: 11, flat: 0, warp: 0.1 },
+  { id: "cave-knoll", c: [-118, -76], rx: 20, rz: 16, h: 9, flat: 0, warp: 0.1 },
+  // Fort Frost's plateau rise (the range) and the south-east knolls.
+  { id: "fort-rise", c: [112, 60], rx: 30, rz: 26, h: 6, flat: 0.3, warp: 0.06 },
+  { id: "drift-knoll", c: [60, 96], rx: 24, rz: 18, h: 8, flat: 0, warp: 0.1 },
+  { id: "west-drifts", c: [-108, 96], rx: 30, rz: 22, h: 9, flat: 0, warp: 0.1 },
+  { id: "arrival-rise", c: [-52, 104], rx: 22, rz: 16, h: 6, flat: 0, warp: 0.1 },
+  // Grove Knoll, west of the river.
+  { id: "river-knoll", c: [-70, -40], rx: 16, rz: 22, h: 7, flat: 0, warp: 0.12 },
+  // The glacier lake's basin (scooped out).
+  { id: "lake-basin", c: [34, -63], rx: 60, rz: 36, h: -7, flat: 0.35, warp: 0.05 },
+];
+/** The north-west ESCARPMENT: a cliff-topped shelf along the valley's north. */
+export const SNOW_ESCARPMENT = { z0: -98, z1: -110, h: 16, xEnd: 52 };
 
-// Igloos around (not on) the Igloo Village centre — [x, z, rotY].
+/** LEVEL PADS — superellipse { c, rx, rz, p }; `levelOf` shares another
+ *  pad's level; `incline` tilts it (the sled run). Challenge stages stand on
+ *  these (CHALLENGE_PAD). */
+export const SNOW_PADS = [
+  { id: "arrival", c: [0, 106], rx: 15, rz: 11, p: 2.4 },
+  { id: "square", c: [8, 62], rx: 30, rz: 10.5, p: 2.6 },
+  { id: "lodge", c: [SNOW_LODGE.x, SNOW_LODGE.z], rx: 9.5, rz: 7, p: 3, levelOf: "square" },
+  { id: "pond", c: SNOW_POND.center, rx: SNOW_POND.rx, rz: SNOW_POND.rz, p: 2, ice: true },
+  { id: "range", c: [RANGE_AREA.x, RANGE_AREA.z], rx: 12, rz: 10, p: 2.6 },
+  { id: "grove", c: [GROVE_AREA.x, GROVE_AREA.z - 1], rx: 11, rz: 9.5, p: 2.2 },
+  { id: "meadow", c: [MEADOW_AREA.x, MEADOW_AREA.z + 1], rx: 11, rz: 10, p: 2.2 },
+  { id: "sledrun", c: [(SLOPE_LANE.xBottom + SLOPE_LANE.xTop) / 2 + 1, SLOPE_LANE.z + 3], rx: 10, rz: 9, p: 2.6, incline: { gx: SLOPE_RUN_GRADE, gz: 0 } },
+  { id: "igloo-island", c: IGLOO_ISLAND.center, rx: IGLOO_ISLAND.rx, rz: IGLOO_ISLAND.rz, p: 2.2, island: true },
+  { id: "penguin-floe", c: PENGUIN_FLOE.center, rx: PENGUIN_FLOE.rx, rz: PENGUIN_FLOE.rz, p: 2.6, island: true },
+  { id: "cave", c: [CAVE_AREA.x, CAVE_AREA.z + 0.5], rx: 10, rz: 9, p: 2.4, cliff: true },
+  { id: "snowman-top", c: [-48, 44], rx: 8, rz: 8, p: 2 },
+  { id: "sled-summit", c: [119, -44], rx: 12.5, rz: 10.5, p: 2.4 },
+  { id: "lift-base", c: [88, 19], rx: 5, rz: 4.5, p: 2.4 },
+  { id: "runout", c: [100, 31], rx: 8.5, rz: 5.5, p: 2.2 },
+  { id: "falls-pool", c: [-55, -92], rx: 8, rz: 5, p: 2, ice: true },
+];
+/** Which pad each challenge stage stands on (sled is on the incline: y 0). */
+export const CHALLENGE_PAD = {
+  range: "range", rink: "pond", grove: "grove", meadow: "meadow", sled: null,
+  village: "igloo-island", colony: "penguin-floe", cave: "cave", yard: "square", lights: "sled-summit",
+};
+
+/** THE GLACIER LAKE — open, icy water (too cold to stand in: you hop back
+ *  out). Its shore is an ellipse roughened by noise; the islands are pads. */
+export const SNOW_LAKE = { center: [35, -62], rx: 51, rz: 27.5, rough: 4.5 };
+/** Small floating ice floes (stepping stones you can hop between). */
+export const ICE_FLOES = [
+  // A hop trail from the Penguin Floe east toward the far shore's chest floe.
+  { c: [-3.6, -60.5], r: 1.9 }, { c: [-7.8, -61.8], r: 1.7 }, { c: [-12, -62.6], r: 2.1 },
+  // Decorative floes drifting round the lake.
+  { c: [-3, -66], r: 2.4 }, { c: [30, -46], r: 1.8 }, { c: [36, -82], r: 2.6 }, { c: [6, -78], r: 1.6 },
+];
+/** Plank bridges over the lake: from → to (the decks are thin). */
+export const LAKE_BRIDGES = [
+  { id: "bridge-island", from: [14, -34.5], to: [14, -46.5], hw: 1.5 },
+  { id: "bridge-floe", from: [27.5, -61.5], to: [42.5, -66], hw: 1.4 },
+  { id: "bridge-east", from: [67.5, -70], to: [84, -70.5], hw: 1.4 },
+];
+
+/** THE FROZEN RIVER — from the frozen waterfall under the escarpment down to
+ *  the pond: an ice ribbon you can skate down (gently sloped, slippery). */
+export const FROZEN_RIVER_CTRL = [
+  [-55, -92], [-54, -80], [-49, -64], [-46, -50], [-40, -34], [-34, -20], [-29, -6], [-27, 3], [-25, 9],
+];
+/** Frozen puddles — little slippery patches round the village + trails. */
+export const ICE_PUDDLES = [
+  [-12, 84, 2.6], [14, 88, 2.2], [32, 78, 3.0], [-40, 78, 2.8], [62, 34, 3.2], [-70, 20, 3.0], [70, 64, 2.4],
+];
+
+/** PACKED-SNOW TRAILS (control points, smoothed). */
+export const SNOW_TRAIL_CTRL = [
+  { id: "main", hw: 2.3, ctrl: [[0, 104], [0, 94], [1, 84], [2, 76], [2, 72]] },
+  { id: "pond", hw: 2.1, ctrl: [[2, 52], [1, 44], [-1, 38], [-3, 32.5]] },
+  { id: "west", hw: 2.0, ctrl: [[-21, 64], [-36, 72], [-52, 74], [-66, 70], [-74, 68]] },
+  { id: "snowman-up", hw: 1.6, ctrl: [[-45, 73.6], [-52, 69], [-60, 66], [-67, 60], [-71, 52], [-71, 44], [-67, 37], [-60.5, 35.5], [-54.6, 41.2]] },
+  { id: "meadow-grove", hw: 1.9, ctrl: [[-86, 54], [-92, 40], [-98, 24], [-100, 8], [-99, 3]] },
+  { id: "grove-cave", hw: 1.9, ctrl: [[-106, -18], [-104, -36], [-98, -56], [-94, -72], [-91, -81]] },
+  { id: "river-west", hw: 1.8, ctrl: [[-33.5, 13.5], [-36.5, 4], [-42, -10], [-50, -26], [-58, -46], [-62, -64], [-64, -80], [-72, -90], [-79, -92]] },
+  { id: "grove-east", hw: 1.8, ctrl: [[-88, -10], [-74, -14], [-62, -18], [-46, -24], [-30, -27], [-12, -28], [4, -30], [11, -33]] },
+  { id: "lake-south", hw: 2.0, ctrl: [[2, -0.5], [5, -10], [10, -20], [13, -28], [14, -33]] },
+  { id: "east", hw: 2.0, ctrl: [[38, 62], [54, 60], [70, 56], [84, 54], [90, 52]] },
+  { id: "pond-east", hw: 1.9, ctrl: [[30, 14], [44, 16], [58, 18], [72, 20], [86, 20]] },
+  { id: "lift-range", hw: 1.9, ctrl: [[89, 23.5], [85, 30], [82.5, 38], [82.5, 46], [85, 53.2]] },
+  { id: "sledrun-path", hw: 1.8, ctrl: [[62, 17], [64, 6], [68, -6], [71, -12]] },
+  { id: "sled-hill", hw: 1.6, ctrl: [[87, -31], [94, -48], [104, -62], [118, -65], [126, -59], [121, -55.5]] },
+  { id: "lake-east", hw: 1.8, ctrl: [[74, -32], [84.5, -41], [90.2, -52], [90.8, -62.5], [88, -69.2], [85.6, -70.4]] },
+];
+
+/** TOBOGGAN CHUTES — groomed, icy troughs you SLIDE down (snowTerrain.js
+ *  carves them with a falling profile; Player.jsx rides them). */
+export const SNOW_CHUTES = [
+  // The Big Sled Run: off Big Sled Hill's summit, round its south face, out
+  // onto the flats north of Fort Frost.
+  { id: "big-run", hw: 2.4, ctrl: [[119, -35.5], [123, -25], [125, -16], [119, -8], [110, -4], [104, 3], [102, 11], [107, 17], [105, 23], [100, 27]], top: null, runout: 8 },
+  // The Tumble Run: off Snowman Hill's top, curling north then east onto
+  // the frozen pond (you glide out across the ice).
+  { id: "tumble-run", hw: 2.2, ctrl: [[-49, 38], [-54, 28], [-50, 20], [-42, 17], [-34, 16], [-29, 15.5]], top: null, runout: 0 },
+];
+/** The CHAIRLIFT up Big Sled Hill (bottom station → top station). */
+export const SNOW_LIFT = { from: [88, 19], to: [108.5, -40], speed: 4.2, chairs: 9 };
+
+// ---------------------------------------------------------------------------
+// SCENERY PLACEMENT (markers / props).
+// ---------------------------------------------------------------------------
+/** The giant snowman on top of Snowman Hill (a landmark, not climbable). */
+export const GIANT_SNOWMAN = { position: [-47, 47], rotationY: 0.5 };
+/** The frozen waterfall pouring (frozen!) off the escarpment into its pool. */
+export const FROZEN_FALLS = { position: [-55, -99], width: 9, drop: 14 };
+
+// Igloos round (not on) the Igloo Village stage — [x, z, rotY].
 export const SNOW_IGLOOS = [
-  [-42, 9, 0.9], [-30, 10, -0.7], [-43, -2, 1.6], [-29, -3, 2.6],
+  [5.5, -52, 0.9], [23, -52.5, -0.8], [5, -65, 1.6], [24, -66, 2.6], [-10.5, 90.5, 0.7],
 ];
-
-// Snowmen — a cluster in Snowman Meadow + a few scattered friends. [x, z].
+// Snowmen — the meadow's crowd + a few friends round the valley.
 export const SNOWMEN = [
-  [-36, 32], [-28, 40], [-26, 32], [-38, 40], [-24, 38], // the meadow
-  [8, 20], [-6, 28], [24, -38],                          // scattered
+  [-94, 70], [-74, 70], [-92, 56], [-76, 56], [-98, 64], // the meadow
+  [16, 96], [-20, 92], [36, 46], [-60, 8], [66, -10], [-82, -66],
 ];
-
-// Christmas trees — a grove cluster + scattered singles (all in-bounds; these
-// get colliders). [x, z].
+// Decorated Christmas trees (the grove + the village).
 export const XMAS_TREES = [
-  [41, 24], [31, 25], [42, 15], [30, 14], [36, 27], [41, 18], // the grove
-  [-50, 38], [-52, 12], [-54, -16], [52, 28], [54, 8],        // scattered
-  [26, -44], [-16, -42], [-48, -40], [10, 32], [-22, 20],
+  [-108, -17], [-90, -18], [-111, -6], [-87, -2], [-113, 3],
+  [VILLAGE_TREE[0], VILLAGE_TREE[1]], [-12, 112], [14, 104],
 ];
-
-// Trees scattered OUT past the boundary bank, hazing into the fog (visual
-// only — no colliders).
-export const DISTANT_XMAS = [
-  [-64, 20], [63, -6], [-62, -36], [58, 38], [24, -54], [-30, 53], [70, 12], [-72, -10],
-];
-
-// Lamp posts with warm glowing globes along the lanes (the twilight's path
-// lighting). [x, z] — all just OFF the lane surfaces.
+// Lamp posts with warm globes along the village trails.
 export const SNOW_LAMPS = [
-  [3.4, 32], [-3.4, 22], [3.4, 8], [-3.4, -6], [3.4, -16],
-  [14, 14.6], [-14, 14.6], [28, 14.6], [-28, 14.6],
+  [5.4, 100.5], [-3.4, 88], [4.6, 80], [-2.5, 72.5], [16, 70], [-14, 56.5], [5.6, 52.5], [-3.4, 51.5],
+  [40, 64.5], [58, 63], [-30, 73.5], [-46, 77], [33, 17.5], [56, 21.5],
 ];
-
-// Candy-cane poles flanking the return portal + the rink entrance. [x, z].
-export const CANDY_CANES = [
-  [2.8, 43], [-2.8, 43], [12.5, 13.8], [19.5, 13.8],
+// Candy-cane poles round the arrival plaza.
+export const CANDY_CANES = [[5.5, 109], [-5.5, 109], [12.5, 108], [-3.6, 101.5]];
+// Slalom flags along the Big Sled Run (left/right of the trough).
+export const SLALOM_FLAGS = true;
+// Signposts at the main junctions: { id, p, yaw, arrows: [[label, [x, z]]…] }.
+export const SNOW_SIGNPOSTS = [
+  { id: "arrival", p: [4.2, 93], arrows: [["Lodge Village", [2, 72]], ["Snowman Meadow", [-74, 68]], ["Fort Frost", [101, 50]]] },
+  { id: "square-w", p: [-21, 59], arrows: [["Snowman Hill", [-48, 44]], ["Snowman Meadow", [-74, 68]], ["Frozen Pond", [0, 14]]] },
+  { id: "square-e", p: [39.5, 56.8], arrows: [["Fort Frost", [101, 50]], ["Ice Rink", [0, 20]], ["Lodge Yard", [27, 60]]] },
+  { id: "pond-n", p: [-3.5, -4], arrows: [["Glacier Lake", [14, -46]], ["Frozen River", [-40, -10]], ["Ice Rink", [0, 20]]] },
+  { id: "pond-e", p: [31, 10.5], arrows: [["Big Sled Hill", [119, -44]], ["Sledding Slope", [80, -22]], ["Fort Frost", [101, 50]]] },
+  { id: "meadow", p: [-80, 51.5], arrows: [["Christmas Tree Grove", [-99, -8]], ["Lodge Village", [2, 62]]] },
+  { id: "grove", p: [-93, -17.5], arrows: [["Ice Cave", [-88, -91]], ["Glacier Lake", [14, -46]], ["Snowman Meadow", [-84, 64]]] },
+  { id: "lake-s", p: [8.5, -27], arrows: [["Igloo Village", [14, -58]], ["Christmas Tree Grove", [-99, -8]], ["Frozen Pond", [0, 14]]] },
+  { id: "lift", p: [84, 24], arrows: [["Chairlift", [88, 19]], ["Fort Frost", [101, 50]], ["Sledding Slope", [80, -22]]] },
+  { id: "lake-e", p: [94.6, -55.5], arrows: [["Penguin Colony", [55, -69]], ["Sledding Slope", [80, -22]], ["Aurora Lookout", [121, -47]]] },
 ];
+// The treasure chest's possible spots (one is picked each visit).
+export const SNOW_CHEST_SPOTS = [[-19.5, -63], [-120, 40], [-60, -86], [128, 20], [-40, 26], [30, -91.5]];
 
-// Ice Cave dressing — a snow mound with glowing ice crystals, kept to the
-// BACK of the cave area so the centre stays clear for its future challenge.
-export const ICE_CAVE_MOUND = { position: [-43, -33], radius: 3.0 };
-export const ICE_CRYSTALS = [
-  [-45, -31], [-35, -33], [-44, -23],
-];
+// Penguins waddle on the Penguin Floe; two more belly-slide on the pond.
+export const PENGUIN_WANDER = { minX: PENGUIN_FLOE.center[0] - 10, maxX: PENGUIN_FLOE.center[0] + 10, minZ: PENGUIN_FLOE.center[1] - 9, maxZ: PENGUIN_FLOE.center[1] + 9 };
+export const PENGUIN_COUNT = 7;
+export const RINK_SLIDERS = 2;
 
-// Sledding Slope dressing — a wooden sled + course flags (the "slope" is a
-// marked run for now; the world is flat like the farm).
-export const SLED_PROP = { position: [50, -41], rotationY: -0.6 };
-export const SLED_FLAGS = [
-  [45, -42], [51, -34],
-];
+// ---------------------------------------------------------------------------
+// PETE — the snow world's wandering local (game/WanderingPete.jsx). Ambient
+// life, not an interactable: he strolls round the lodge village, stops, throws
+// a spin jump, then walks on. He NEVER runs.
+// ---------------------------------------------------------------------------
+export const PETE_CLIPS = {
+  idle: "Idle_6",
+  walk: "Walking",
+  spin: "360_Power_Spin_Jump",
+};
+export const PETE_WANDER = { minX: -26, maxX: 50, minZ: 36, maxZ: 100 };
+export const PETE_START = [12, 84];
+export const PETE_WALK_SPEED = 1.15; // world units/sec — a stroll, never a run
+export const PETE_IDLE_MS = [3000, 5000]; // pause before the spin jump
+export const PETE_CHALLENGE_CLEARANCE = 11;
 
-// Boundary snow bank (tall ice-block ridge) just inside the walkable bounds —
-// the property line, NON-jumpable like the farm's picket fence.
-export const SNOW_BOUNDARY = { halfW: 58, halfD: 46 };
-
-// Snowy horizon peaks — [x, z, scaleX, scaleY, scaleZ] (visual only). Every
-// peak's footprint stays ENTIRELY outside the boundary bank so none pokes
-// into the playable world.
+/** Snowy horizon peaks far out past the rim — [x, z, scale, height] (visual). */
 export const SNOW_PEAKS = [
-  [-105, -25, 34, 13, 22], [-95, 40, 30, 11, 20], [-55, -95, 38, 15, 24],
-  [15, -100, 40, 14, 25], [75, -85, 34, 13, 22], [105, -15, 36, 15, 24],
-  [95, 45, 30, 11, 20], [40, 95, 38, 13, 24], [-35, 95, 34, 11, 22],
-  [-105, 15, 28, 9, 18],
+  [-215, -120, 60, 92], [-120, -230, 74, 118], [10, -250, 84, 132], [140, -225, 70, 108], [235, -110, 62, 96],
+  [250, 30, 56, 80], [205, 170, 60, 86], [70, 240, 68, 90], [-90, 235, 64, 88], [-235, 150, 58, 84], [-260, 10, 62, 92],
+  [-170, -190, 50, 76], [190, -170, 52, 80], [-50, -215, 58, 96], [80, -205, 56, 90],
 ];

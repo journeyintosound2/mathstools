@@ -135,7 +135,7 @@ function FallbackBench() {
   );
 }
 
-export default function TrophyStandAssembly({ position, rotationY = 0, entries, groupScale = TROPHY_STAND_GROUP_SCALE }) {
+export default function TrophyStandAssembly({ position, rotationY = 0, entries, groupScale = TROPHY_STAND_GROUP_SCALE, y = 0 }) {
   const [x, z] = position;
   const groupRef = useRef();
   const [box, setBox] = useState(null); // cabinet AABB in WORLD space
@@ -187,7 +187,7 @@ export default function TrophyStandAssembly({ position, rotationY = 0, entries, 
   }, [box, JSON.stringify(entries)]);
 
   return (
-    <group ref={groupRef} position={[x, 0, z]} rotation={[0, rotationY, 0]} scale={groupScale}>
+    <group ref={groupRef} position={[x, y, z]} rotation={[0, rotationY, 0]} scale={groupScale}>
       <StandErrorBoundary fallback={<FallbackBench />}>
         <Suspense fallback={<FallbackBench />}>
           <TrophyStandModel onMeasured={setBox} />

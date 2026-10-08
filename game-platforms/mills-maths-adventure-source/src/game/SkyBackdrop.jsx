@@ -16,10 +16,10 @@ import { GradientTexture } from "@react-three/drei";
  * have scattered pines, hazed by the fog. Purely decorative — no colliders, and
  * the walkable ground is untouched.
  */
-export function SkyDome({ horizon = "#bde0fe", top = "#6ea9e6" }) {
+export function SkyDome({ horizon = "#bde0fe", top = "#6ea9e6", radius = 130 }) {
   return (
     <mesh renderOrder={-1}>
-      <sphereGeometry args={[130, 32, 16]} />
+      <sphereGeometry args={[radius, 32, 16]} />
       <meshBasicMaterial side={THREE.BackSide} fog={false} depthWrite={false} toneMapped={false}>
         <GradientTexture stops={[0, 0.55, 1]} colors={[horizon, mixHex(horizon, top, 0.5), top]} size={512} />
       </meshBasicMaterial>

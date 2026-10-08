@@ -2,7 +2,8 @@ import React, { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
 
-import { SLOPE_LANE, snowGroundHeight } from "../data/snow/snowLayout.js";
+import { SLOPE_LANE } from "../data/snow/snowLayout.js";
+import { terrainHeight as snowGroundHeight } from "../data/snow/snowTerrain.js";
 import { useSledSlope } from "./sledSlopeStore.js";
 import { SLED_RACE_MS } from "../data/snow/sledSlopeChallenge.js";
 import { ConfettiBurst } from "./OrderPartsChallenge.jsx";

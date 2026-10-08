@@ -86,6 +86,45 @@
 > vite-built clean. Everything wants a live `npm run dev` visual pass and a
 > deploy (build → copy `dist` → push website) when troubleshooting is done.
 >
+> **NEW (built 2026-10-02/03, NOT yet deployed): MAGMA MULTIPLES** — the
+> sixth region (volcano/lava world, red portal on the island at [17, 31]) and
+> its TEN multiplicative-thinking challenges (arrays, split arrays/area model,
+> the ×10 terraces, halve & double, factor forge, for-each combos, ratio
+> tables, division by chunking, scaling dragons, the strategy summit), each
+> hosted by a teacher glb, with a trophy stand on the plaza. See the two
+> "DONE (2026-10-0x) — MAGMA MULTIPLES" sections. **535 checks, all passing.**
+>
+> **NEW (built 2026-10-07, NOT yet deployed): EMERALD JUNGLE** — the
+> SEVENTH region (a lush jungle valley, GREEN mossy-arch portal on the island
+> at [-17, 31], mirroring the volcano gate). Land only — no characters, no
+> maths yet: a 2.07× Magma-sized valley of big tree-covered hills, a river
+> from a waterfall to a lily lagoon, a 16 m plateau, and many ways UP (hills,
+> Waterfall Stairs, the ridge crest, vine walls you climb, leaf-pole hops,
+> bouncy mushrooms, the Great Tree's spiral stair → treehouse → rope bridge).
+> TEN open clearings are reserved for future challenges. See "DONE
+> (2026-10-07) — EMERALD JUNGLE". **535 → 543 checks, all passing.**
+>
+> **NEW (built 2026-10-07/08, NOT yet deployed): FRACTION FARM REBUILT** —
+> the old flat 120×96 farm is now a big, ROLLING, explorable farm the size
+> of the Emerald Jungle (1.02× its walkable land; 290 × 258 m inside the
+> boundary fence, −4…16 m of relief). Big hills separate TEN themed areas,
+> each home to one of the ten fraction challenges (unchanged maths), placed
+> to be DISCOVERED along graded farm tracks, a creek with bridges, a duck
+> pond and Windmill Hill. See "DONE (2026-10-08) — FRACTION FARM REBUILT".
+> **543 → 552 checks, all passing; vite build clean.**
+>
+> **NEW (built 2026-10-08, NOT yet deployed): SNOWBALL SUMS REBUILT** — the
+> old flat 120×96 snowfield is now a big alpine VALLEY the size of Fraction
+> Farm (same 290 × 258 m inside the rim): rising snowfields + pine forests,
+> big hills you SLIDE down (two toboggan chutes, a chairlift back up), a
+> frozen river + pond to SKATE on, an icy glacier lake (bounce back out)
+> with snowy islands, floes + plank bridges, the lodge village with glowing
+> windows + smoking chimneys, a giant snowman, an ice cave and frozen falls
+> under the escarpment, jagged peaks + the aurora. The ten snow challenges
+> are unchanged (stages on level pads, cameras pad-relative). See "DONE
+> (2026-10-08) — SNOWBALL SUMS REBUILT". **552 → 562 checks; vite build
+> clean.**
+>
 > **NEXT UP options:** live visual pass + deploy of the snow world + cabin ·
 > teacher glbs for the six placeholder snow/cabin hosts (add each
 > characterId to characterModels.js) · a snow/cabin cloud-completion path
@@ -94,6 +133,541 @@
 > interactive plot-a-point input mode (tap the Cartesian grid) · Stage 5
 > depth (still only 2 sample skills) · more Stage 4 topics (Area extension)
 > · a DevPanel gallery to eyeball every new diagram/chart at once.
+
+## DONE (2026-10-08) — SNOWBALL SUMS REBUILT: a big, playful alpine valley
+Jeff's brief (with four reference images — Banjo-Kazooie's icy water with
+snowy hex floes + plank bridges and its snowy cabins with glowing windows on
+islands, SM64 Cool Cool Mountain's slopes, giant snowman + spiky pines, SSX's
+jagged peaks): upgrade Snowball Sums like the farm — the same size, playful,
+NOT flat: rising snow fields, icy rivers/lakes/puddles, big hills to slide
+down, a polished 3D-game look. The ten challenges' maths/stores/panels/3D
+stages are UNCHANGED; each stage now stands on a level PAD in a themed area
+(every challenge constant is still "its AREA + the same offsets", so the
+stages + cameras never changed shape). **552 → 562 checks (new SW1–SW10 in
+`src/dev/snowWorldChecks.js`; SN1/SN5/SL1 rewritten for the valley, SN2
+lists the new `snow-chest`), all passing; vite build clean.** NOT yet
+deployed.
+- **The map (`src/data/snow/snowLayout.js`, single source of truth):** rim
+  ±142 / ±126 (`SNOW_BOUNDS` 290 × 258, = the farm's), terrain modelled to
+  ±186 / ±170 with jagged rim peaks. You ARRIVE at `SNOW_SPAWN [0, 104]`
+  looking NORTH through the welcome ARCH (`SNOW_ARCH`) up the main trail to
+  the lodge village; the painted TRAIL MAP (`SNOW_MAP_BOARD`) and the
+  trophy cabinet are beside it, the igloo gate home just behind-right.
+  Areas: **Lodge Village** (the ski lodge with its ajar door → the Lodge
+  Interior, six log cabins, the big decorated tree) + **Lodge Yard** (cocoa
+  stall) · **the Frozen Pond** = the Ice Rink · **Snowman Hill** (12.5 m,
+  the GIANT snowman, the Tumble Run down onto the pond) above **Snowman
+  Meadow** · **Christmas Tree Grove** on Pine Hill's flank · **Fort Frost**
+  (snow-block walls round the Snowball Range) · **Big Sled Hill** (25 m
+  summit = the Aurora Lookout; the chairlift up, the Big Sled Run down;
+  the Sledding Slope's groomed run on its west flank) · **the Glacier
+  Lake** (Igloo Island = Igloo Village, the Penguin Floe = Penguin Colony,
+  bridges, floes) · **the Frozen River** from **the Frozen Falls** (an ice
+  curtain draped down the escarpment) to the pond · **the Ice Cave** (a
+  rocky arched mouth in the escarpment foot). 15 graded TRAILS
+  (`SNOW_TRAIL_CTRL`), 10 signposts, 6 chest spots.
+- **Terrain (`src/data/snow/snowTerrain.js`):** the farm's pipeline — 1 m
+  grid (373 × 341) from `rawHeight` (tilted base + fbm + wind drifts, named
+  HILLS incl. the lake basin, the escarpment, rim foothills + a steep wall +
+  ridged peaks) → LEVEL PADS (`SNOW_PADS`; `incline` = the sled run,
+  `island` = lake islands, `ice` = pond + falls pool, `cliff` = the cave)
+  → graded TRAILS (grade ≤ 0.28; a trail that branches off another starts
+  ON its surface; where two crowd each other the NEARER wins and a cut bank
+  forms) → pad tops → the RIVER (ice ribbon, always falling, pinned pool →
+  pond) + the CHUTES (icy trough + 1 m berms, profile always falling 0.07–
+  0.5) — both skipped INSIDE pads so pads stay exactly level → the LAKE
+  (bed, islands, gentle shores that keep trails + their shoulders).
+  `padEdgeDist` fix: a pad's exact centre used to read as "not on the pad".
+- **Player hooks (regions.js snow-sums; Player.jsx):** layered
+  `snowGroundHeight` (bridge decks, floes) · `snowSlideAt` (rim + cliffs) ·
+  **ICE** `iceAt` (pond, river, puddles, chute runouts: momentum + glide,
+  and sloping ice pulls you downhill — `ICE_SLOPE_G`) · **the COLD LAKE**
+  `isLava: snowHazardAt` + `hazardHint`/`hazardSound "splash"` (Magma's
+  bounce-back, re-used: you hop back to the last safe spot with a splash) ·
+  **TOBOGGAN CHUTES** `chuteAt`/`chuteFrame` (step into a trough → a guided
+  ride on a red sled: gravity × grade − drag, steer left/right, released
+  onto the runout ice; `playerState.sledding`) · **THE CHAIRLIFT**
+  `liftBoardAt`/`liftSeatAt`/`liftDismount` (stand on the blue boarding mat
+  → an open gondola carries you up Big Sled Hill and drops you on the
+  summit; `playerState.onLift`). Ride props (sled, gondola) are drawn by
+  Player.jsx `RideProps`. Hints use `playerState.blockedIcon` (no padlock
+  for ride/hazard hints — BlockedGatePrompt). sound.js gained `whoosh` +
+  `splash`.
+- **Cameras (`src/data/snow/snowCameras.js`):** the ten snow challenge
+  views in ONE place (the old per-challenge maths, now pad-relative);
+  Player.jsx's ten snow camera branches collapsed into one (`snowCamKey`).
+  `SnowStage` (like FarmStage) lifts each stage onto its pad and mounts it
+  only within ~120 m.
+- **Scatter + colliders:** `src/data/snow/snowProps.js` (firs, spruces,
+  SM64 spiky pines, birches, boulders, crags, shrubs, drifts, logs, stumps,
+  tufts, ice crystals — off trails/pads/chutes/ice/lake/bridges/the lift
+  line and out of every challenge corridor; building FOOTPRINTS; Fort
+  Frost's walls; lift towers; cave rocks). `snowColliders.js` rewritten
+  (non-jumpable rim, the lodge, the old challenge collider ids, footprints,
+  jumpable fort walls, trees/rocks/logs, height-banded bridge rails).
+- **Rendering (`src/game/SnowScenery.jsx` root + `src/game/snow/`):**
+  `snowMaterials.js` (snow terrain shader: sastrugi ripples, blue hollows,
+  rock on steep faces, crystal GLINTS; glossy ice; the cold lake water with
+  a foam rim; canvas textures: trail, ice, snowy planks, logs, snowy roof,
+  snow blocks), `snowGeometry.js` (procedural trees with LOD/FAR, rocks,
+  shrubs, drifts, logs, crystals, jagged peaks), `SnowTerrain.jsx` (ground
+  chunks + trail ribbons), `SnowWater.jsx` (lake + slush chunks + floes,
+  all the ice, the frozen falls, the splash), `SnowFlora.jsx`,
+  `SnowBuildings.jsx` (lodge + ajar door, cabins dug into the slopes,
+  igloos, Fort Frost, the chairlift with moving gondolas, chute gates +
+  slalom flags + sled racks, snowy rope bridges, signposts, lamps, canes —
+  StaticBatch with a far LOD), `SnowLandmarks.jsx` (arch, trail map,
+  welcome board, giant snowman, cave mouth, snowmen, decorated trees +
+  gifts, and IDLE dressing at each challenge's collider spots — hidden
+  while that challenge runs), `SnowAnimals.jsx` (penguins on the floe,
+  belly-sliders on the pond, snow hares that hop away from you),
+  `SnowAtmosphere.jsx` (winter-afternoon sun following the player, GPU
+  snowfall, aurora curtains over the north, horizon peaks, chimney smoke).
+  World.jsx: sky dome r 640, fog 85/400, Effects `snow` (bloom threshold
+  0.985 + softer AO so the snowfield doesn't glow). Labels only when near.
+- **Performance (SwiftShader, 800×470, arrival):** High ≈ 885 draws /
+  1.5 M tris, Low ≈ 404 / 0.63 M (the farm: 915 / 2.2 M and 430 / 0.71 M).
+  DEV-only: `window.__SNOW_ONLY = ["SnowTrees", …]` draws only those layers.
+- **Verified headlessly:** SW1–SW10 (hooks/gates/spawn · farm-sized
+  (0.85× its walkable land — the lake takes the rest) + 49 m of relief ·
+  every trail walkable · a 0.5 m flood fill from the spawn reaches all ten
+  challenges + hosts, the lift, both chute tops, the islands over the
+  bridges, signposts, every signpost arrow's target and every chest · level
+  pads · every challenge camera clear at 16:9 + 4:3 (and no furniture in a
+  shot) · ice + the cold lake + bridges + floes · chutes always fall onto
+  ice, the gondola clears the hill, the rim slides you home · scatter off
+  everything, rim sealed · ten areas spread out). Driven with the REAL
+  Player physics: all 15 trails walked, both chute rides (Big Sled Run
+  79 m / 25 m drop ≈ 12 s; Tumble Run ≈ 7 s), the lift (≈ 15 s, off at the
+  dismount), the lake bounce-back, ice coasting 3.3 m vs 0 on snow. All ten
+  challenges screenshotted at 16:9 + 4:3.
+- **YELLOW-TINT FIX (2026-10-08, Jeff's live report):** on High graphics
+  the whole snow scene flickered/turned YELLOW (HUD fine). Cause: the
+  EffectComposer persisted across regions while `<Effects snow>` changed
+  Bloom's props, so R3F rebuilt the Bloom effect and re-appended it at the
+  END of the chain (merged with the Vignette after SMAA) — that pipeline
+  zeroed a colour channel (blue in the snow → yellow; red back on the
+  island → cyan-green) until the graphics toggle remounted it. Fix:
+  `Effects.jsx` keys the composer on the look (`snow` / `standard`), so a
+  prop change is always a fresh, correctly ordered chain. Verified on the
+  real Apple GPU through repeated island ↔ snow ↔ jungle ↔ farm ↔ lodge
+  trips. RULE: never change an effect's props on a live composer — key it.
+  Also tidied three reversed GLSL `smoothstep`s in the snow shaders.
+- **Notes / TODO:** a live look on a real GPU + an iPad (snowfall density,
+  the chute ride's feel + camera, gondola timing, bloom on the lamps).
+  Penguin Colony's 4-option card covers its rows on a 16:9/4:3 screen (the
+  card + framing are unchanged from before the rebuild). Farsi/Arabic for
+  the new labels + Mills' new welcome. Pete (WanderingPete.jsx) isn't in
+  this source tree — his checks still pass via `isPeteSpotOk` (now in
+  snowTerrain.js); if Pete returns, wire him to the terrain height.
+
+## DONE (2026-10-08) — FRACTION FARM REBUILT: a big, rolling, explorable farm
+Jeff's brief: expand Fraction Farm to the Emerald Jungle's size, with
+navigable terrain where the player DISCOVERS the challenges — not flat, large
+rolling hills separating areas, each area themed to its challenge, polished
+to the jungle's standard. The ten challenges' maths/stores/panels are
+UNCHANGED; their stages moved onto level pads in themed areas. **543 → 552
+checks (new FW1–FW9 in `src/dev/farmWorldChecks.js`; FA1/FA5/FE1/FG1/FH1/
+FV1/FP1/SN1/MG2 updated for the new layout), all passing; vite build
+clean.** NOT yet deployed.
+- **The map (`src/data/farm/farmLayout.js`, single source of truth):**
+  boundary fence ±142 / ±126 (`FARM_BOUNDS` 290 × 258); terrain modelled
+  out to x ±186 / z ±170 so the hills roll on past the fence. You ARRIVE at
+  `FARM_SPAWN [0, 106]` on the arrival green looking NORTH up the drive
+  through the ENTRY ARCH (cattle grid, "FRACTION FARM" sign) — Mills
+  welcomes you, the painted MAP BOARD shows the whole farm, the trophy
+  cabinet stands west of the gate, the haybale gate home is just behind-right
+  (`FARM_RETURN_PORTAL [8.5, 114.5]`). Themed areas (`FARM_AREAS`, labels
+  show when near): **Farm Gate Shop** at the homestead (shop) · **Orchard &
+  Packing Shed** (crate) · **Carrot Patch** (order) · **The Dairy** +
+  milking shed (milk) · **Cattle Run** (roundup) · **The Old Sawmill** on
+  the creek with a turning water wheel (plank) · **The Long Paddock**
+  (fence) · **Grain Silos** + weighbridge (weigh) · **Glasshouse Gardens**
+  (veggie) · **Market Green** with bunting + marquee (trade) — plus the
+  Homestead (barn, farmhouse, silo, coop, tank, ute), **Windmill Hill**
+  (16 m summit, the big sail windmill, a picnic spot), **Sheep Downs** +
+  shearing shed, the **Duck Pond** + jetty, sunflowers, lavender, wheat,
+  corn, a vineyard, hay meadows and gum belts. 17 graded TRACKS
+  (`FARM_PATH_CTRL`), 10 signposts at the junctions, 3 bridges over the
+  creek, 6 treasure-chest spots.
+- **Terrain (`src/data/farm/farmTerrain.js`):** a 1 m height GRID (373 ×
+  341) built once: `rawHeight` (named capsule/ellipse HILLS + gentle noise)
+  → LEVEL PADS (`FARM_PADS`: superellipse pads with per-angle bank widths and
+  a weighted bank blend; terraces can share a level via `levelOf`; the pad
+  under you always wins) → GRADED TRACKS (each track's profile is smoothed
+  from the padded ground, pinned on pads + at its ends, then run through a
+  grade limiter (0.28) and carved with BATTER cones so cuttings/fills meet
+  the hillside cleanly) → the creek + pond (knee-deep, soft banks kept off
+  pads and tracks). The ground mesh is built from the SAME grid with the
+  SAME triangle split as `terrainHeight`. Region hooks (as the jungle):
+  layered `farmGroundHeight` (bridge decks), `farmSlideAt` (slopes steeper
+  than `F_SLIDE_SLOPE` 1.05 slide — the steep hill faces), `farmSpeedAt`
+  (wading `F_WADE_SPEED` 0.62), `farmIsSafe`, `cameraTerrainClamp`,
+  `maxFrameDelta`, `arriveYaw: 0`. `challengePadY(key)` = the level a
+  challenge stage stands on. Pure helpers shared with the scatter live in
+  `src/data/terrainKit.js`.
+- **Props + colliders:** `src/data/farm/farmProps.js` (deterministic
+  scatter — apple/pear orchards, gums, oaks, poplars, willows, pines, liquid
+  ambers; crops; round + square bales; rocks/logs/stumps; flowers/bushes/
+  reeds/lilies — kept off tracks, pads, paddocks, fences, building
+  `FARM_FOOTPRINTS` and every challenge camera corridor via `clearAt`).
+  `farmColliders.js` was rewritten (vaultable paddock fences with gates,
+  non-jumpable boundary, buildings, trees/rocks/bales/logs, bridge rails
+  with `yMin`/`yMax`; the old challenge collider ids are kept).
+- **Challenge cameras (`src/data/farm/farmCameras.js`):**
+  `farmChallengeView(key, fov, aspect)` frames each stage pad-relative for
+  the live aspect (16:9 and 4:3 verified with screenshots);
+  `farmCameraCorridors()` / `inFarmCameraView()` keep scatter out of shot.
+  Player.jsx's ten farm camera branches collapsed into ONE (`farmCamKey`).
+- **Rendering (`src/game/FarmScenery.jsx` root + `src/game/farm/`):**
+  `farmMaterials.js` (terrain material + procedural canvas textures: track,
+  boards, barn red, weatherboard, corrugated iron (plain/rusty/red/green),
+  wire, shingles, straw, drystone, wheat), `farmGeometry.js` (procedural
+  trees with LOD, crops, bales, fence parts, animal rigs), `farmKit.jsx`
+  (box/cylinder/rod/roof/window/ladder helpers), `FarmTerrain.jsx` (vertex-
+  coloured ground incl. a patchwork-paddock rim, track ribbons),
+  `FarmWater.jsx` (creek + pond surfaces, fish), `FarmFlora.jsx` (instanced
+  trees/crops/undergrowth + the GPU grass field, cleared on challenge pads),
+  `FarmFences.jsx`, `FarmBuildings.jsx` (barn, farmhouse, silos, coop,
+  tractors, ute, water windmill, packing shed, sawmill + water wheel,
+  milking shed, grain silos + weighbridge, glasshouses, shearing shed,
+  troughs — each area merged by StaticBatch with a FAR LOD),
+  `FarmLandmarks.jsx` (entry arch, map board, signposts, bridges, the big
+  windmill, picnic, jetty, scarecrow, Market Green, the big liquid amber
+  with kickable leaves, milk truck glb), `FarmAnimals.jsx` (instanced
+  Holstein/Hereford cows, sheep, pigs, chooks, ducks, rabbits),
+  `FarmAtmosphere.jsx` (late-afternoon sun that follows the player,
+  butterflies, dragonflies, thistledown), `FarmStage.jsx` (see perf).
+  `src/game/FarmGrass.jsx` (old paddock grass) is GONE.
+- **Performance (SwiftShader counts, 800×470, arrival view):** High ≈ 915
+  draws / 2.2 M tris, Low ≈ 430 / 0.71 M (the jungle: 1,090 / 3.0 M and
+  500 / 1.1 M). Got there by: `FarmStage` (each challenge's 3D scene only
+  MOUNTS within 120 m — was ~40 % of all draws), StaticBatch `farDist` (an
+  area beyond 125 m draws as ONE untextured vertex-coloured mesh), region
+  `badgeRange`/`drawRange` in Interactable (farm 55 m / 170 m — badges no
+  longer float over the hills from across the map), and the haybale portal's
+  blades instanced + bales batched (also on the island). DEV-only:
+  `window.__FARM_ONLY = ["FarmTrees", …]` draws only those layers;
+  `window.__cam` / `window.__scene` expose the camera + scene.
+- **Verified headlessly:** all 17 tracks WALKED end to end with the real
+  Player physics (tap-to-move waypoints, no stalls); all ten challenges
+  started and screenshotted at 16:9 and 4:3; area + aerial + low-graphics
+  screenshots; FW1–FW9: hooks/gate/safe spawn · jungle-sized + hilly ·
+  every track walkable (rise ≤ STEP_UP per step) · a 0.5 m flood fill from
+  the spawn reaches every challenge, the summit, signposts and chests ·
+  level pads under all ten stages · every challenge camera clear (16:9 +
+  4:3) · knee-deep water + bridges on every track crossing · scatter off
+  tracks/pads, gates open, fences vaultable, boundary sealed · ten themed
+  areas spread out.
+- **Mills' welcome** now explains exploring (map board + signposts, the ten
+  areas). **TODO:** a live `npm run dev` look on a real GPU + an iPad (frame
+  rate, camera on the steeper hills, the far-LOD swap distance, grass
+  density), Farsi/Arabic strings for the new labels + welcome lines, then
+  deploy.
+
+## DONE (2026-10-07) — EMERALD JUNGLE: the SEVENTH region, a jungle valley (LAND ONLY)
+Jeff's brief (with four reference images — Mario Odyssey's Wooded Kingdom
+giant-tree forest + sunbeams, an N64 palm jungle with a cobbled path, an N64
+rock cliff with vines + leaf-topped poles, a mossy temple arch with a
+stream): a GREEN portal from the main island to a forest/jungle world about
+TWICE the volcano world, NOT flat — large tree-covered hills and "scalable"
+areas; polished, exploration only (maths later). **535 → 543 checks (new
+JG1–JG8 in `src/dev/jungleChecks.js`, wired into `runSystemChecks`), all
+passing; vite build clean.** NOT yet deployed. Region id `emerald-jungle`,
+name **"Emerald Jungle"** (`JUNGLE_NAME` in jungleLayout.js — rename there).
+- **Gates:** `island-to-jungle` at `[-17, 31]` (the volcano gate's mirror,
+  clear of every island collider) and the return gate on the arrival glade's
+  SW edge (`JUNGLE_RETURN_PORTAL`), both `variant: "jungle"` → `JunglePortal`
+  in Portal.jsx (mossy stone arch, GREEN `JUNGLE_SWIRL`). You arrive at
+  `JUNGLE_SPAWN [0, 134.5]` on a rise LOOKING NORTH up the valley to the falls
+  (`arriveYaw: 0`).
+- **Layout (single source of truth) `src/data/jungle/jungleLayout.js`:** an
+  oval VALLEY (≈256 × 336 m, bounds circle r 182) walled by forested RIM
+  mountains (slide hook keeps you in); the northern ESCARPMENT up to a 16 m
+  PLATEAU; HILLS (Canopy Hill 26 m with a spiral trail to the Canopy Lookout
+  deck, Mossback Ridge 23 m — a long crest you can walk up onto the plateau,
+  Fern Hill, Sunny Knoll, plateau rises + knolls); the RIVER from the
+  WATERFALL (drops off the escarpment into the falls pool) down to the LILY
+  LAGOON, the UPPER RIVER on the plateau, the TEMPLE STREAM out of the temple
+  arch — ALL knee-deep (≤ 0.70 m): wade anywhere, slowed (`WADE_SPEED` 0.62).
+  11 smoothed dirt TRAILS (flattened across, stones + ribbons), 4 BRIDGES
+  (plank / stone / log ×2, arched decks you can also wade under) + the rope
+  bridge. TEN reserved clearings `JUNGLE_SPOTS` (Palm Grove, Lily Lagoon,
+  Sunny Knoll, Canopy Lookout, Mushroom Glade, Temple Ruins, The Great Tree,
+  Redwood Hollow, Waterfall Pool, Sky Shrine) — flat, dry, middles OPEN.
+  The terrain is a 1 m height GRID (`getJungleGrid`, 329 × 425) built once
+  from `rawHeight` → path carving → clearing flattening → water carving; the
+  mesh is built from the SAME grid with the SAME triangle split as
+  `terrainHeight`, so what you see is exactly what you stand on.
+- **LAYERED ground (new for this region):** `jungleGroundHeight(x, z, y)`
+  takes the player's height — solid structures (stairs, landings, the temple
+  block, ledges, mushroom caps) always count; THIN ones (bridge decks, leaf
+  pads, lily pads, the treehouse deck, the spiral stair, the toadstool cap)
+  only when at/below y + STEP_UP, so you can walk UNDER a bridge or the
+  toadstool and stand ON it, and the spiral's windings overlap in plan.
+- **Ways up (all driven headlessly with the REAL Player physics):** the
+  WATERFALL STAIRS (40 stone steps against the cliff east of the falls → a
+  landing onto the plateau); the Mossback ridge crest + trail-ridge onto the
+  plateau; the VINE CLIFFS — push INTO a vine wall to climb (`climbAt` hook,
+  `CLIMB_SPEED` 3.1 m/s, mantle over the lip, "climb" sound), either the full
+  wall, or EIGHT zig-zag LEAF POLES (each a hop up) to a mid rock ledge and
+  a second vine wall; the MUSHROOM GLADE — mushroom caps are DOMES
+  (`domeCap`, crown at `top`, rim 0.45 lower, drawn to match) that BOUNCE you
+  (`bounceAt` hook, steer by holding a direction, "boing" sound); the big red
+  one's MEGA bounce (launch speed derived from the ledge height via
+  `BOUNCE_GRAVITY`, which mirrors Player.jsx's GRAVITY) lands you on a high
+  rock ledge, whose orange mushroom bounces you onto the GIANT TOADSTOOL (a
+  thin cap you can also walk under); the GREAT TREE — a 57-step spiral plank
+  stair round the trunk up through a hatch onto a 20 m TREEHOUSE deck (hut,
+  railings) and a sagging ROPE BRIDGE east onto Mossback Ridge; the TEMPLE —
+  two side flights onto its walkable roof; the CANOPY LOOKOUT deck.
+- **Player.jsx (region hooks, only active where a region defines them):**
+  layered `groundHeight(x,z,y)`; `slideAt` (cliffs + rim: slide down, no
+  walking up); `climbAt`; `bounceAt`; `speedAt` (wading); colliders may carry
+  `yMin`/`yMax` (the band your FEET must be in for it to block — railings at
+  deck height, leaf poles only below their pad); airborne fixes; `devCam`
+  (DEV-only debug camera, stripped from builds). sound.js gained `boing` +
+  `climb`.
+- **Rendering (`src/game/JungleScenery.jsx` + `src/game/jungle/`):**
+  `jungleMaterials.js` (terrain material with a slope-based rock blend,
+  foliage material with wind sway + leafy mottling + up-facing normals for
+  double-sided leaves, water with flow/foam, waterfall streaks, sunbeams; all
+  procedural canvas textures); `jungleGeometry.js` (procedural broadleaf /
+  emergent / conifer / giant-redwood / palm trees with LOD + FAR variants,
+  ferns, bushes, big leaves, flowers, mushrooms, reeds, rocks, lilies, logs,
+  stumps, vine strips, grass tufts, rock masses); `InstancedChunks.jsx`
+  (per-tile instanced meshes → frustum + shadow culling, `maxDist` fade for
+  small things, `lodGeometry`/`farGeometry` distance swaps);
+  `StaticBatch.jsx` (merges every static set-piece mesh by material, colour
+  baked into vertex colours → ~40 draws instead of hundreds; animated parts
+  stay outside); `JungleTerrain.jsx` (chunked ground, trail ribbons,
+  distant ranges); `JungleWater.jsx` (river/lagoon surfaces, the waterfall,
+  wade ripples); `JungleTrees.jsx` (≈2,230 trees + hanging vines);
+  `JungleFlora.jsx` (GPU wrapping grass field — High 50 m / Low 32 m patch —
+  plus undergrowth); `JungleSetPieces.jsx`; `JungleAtmosphere.jsx`
+  (late-morning player-following sun, Redwood-Hollow sunbeams, pollen,
+  fireflies, butterflies, birds, falling leaves). Labels (`NearLabel`) for the
+  welcome sign, clearings and landmarks show only when you're near. World.jsx
+  `isJungle` branch (sky dome r 640, fog 70/360) + path footprints.
+- **Performance (SwiftShader counts, 800×470):** High ≈ 1,090 draws /
+  3.0 M tris per frame at the arrival view (was 2,950 / 4.6 M before the
+  batch + LOD pass); Low ≈ 500 draws / 1.1 M tris (Low: no tree shadows —
+  canopy shade is baked into the ground colours — and half the ferns).
+  For comparison Magma's arrival is 720 / 0.83 M (High) and 384 / 0.41 M
+  (Low): the jungle is a forest, so it is heavier — **needs a live check on a
+  school iPad/Chromebook before deploy.** DEV-only profiling: set
+  `window.__JG_ONLY = ["JungleTrees", …]` before entering to draw only those
+  layers.
+- **Colliders `jungleColliders.js`:** tree trunks (rim decoration excluded),
+  rocks, logs + stumps (jumpable), the temple colonnade + rubble, signposts,
+  the Great Tree trunk/stair balustrade/deck railing/hut walls, bridge and
+  stair railings (height-banded), lookout + falls-deck railings, leaf poles,
+  the shrine stones + altar, the lagoon statue. Wired in
+  `worldColliders.getColliders`.
+- **Checks `runJungleChecks()`:** JG1 hooks + both gates + safe spawn +
+  STEP_UP agreement; JG2 size (walkable land 2.07× Magma's); JG3 every trail
+  walkable end to end as the player walks it (rise ≤ STEP_UP per 0.4 m, no
+  slides, no colliders); JG4 a 0.5 m flood fill from the spawn reaches all
+  ten clearings (incl. the plateau's Sky Shrine), the gate, the climbs' feet,
+  the temple roof and both lookouts on foot; JG5 vine walls / leaf poles /
+  every stair flight (walked as routes) / the spiral stair, hatch and rope
+  bridge; JG6 mushroom bounces land on their targets, domes, knee-deep
+  water, wading only when wet, lily pads; JG7 bridges span water (wade-under
+  rails) + the escarpment face slides; JG8 ten open, flat clearings and no
+  props on trails. Writing these found and fixed real bugs: an unclimbable
+  first step on the Waterfall Stairs + temple flights, a mushroom ledge the
+  bounce couldn't reach, too-steep trail sections (Sunny Knoll — now a
+  switchback; the Canopy trail start; the Sky Shrine approach), a mushroom
+  and a temple pillar standing ON trails, shrine stones across the trail, and
+  clearings tilted by river banks.
+- **Future (when the maths lands):** claim a `JUNGLE_SPOTS` clearing per
+  activity (the Magma pattern: registry, stage frames, view corridor, hosts,
+  trophy stand); Farsi/Arabic strings for the new labels; a live `npm run
+  dev` look on a real GPU + an iPad (frame rate, the waterfall/sunbeam
+  transparency, mushroom bounce feel, vine-climb camera), then deploy.
+
+## DONE (2026-10-03) — MAGMA MULTIPLES: the TEN multiplicative challenges + trophy stand
+Jeff's brief: ten challenges that let students PLAY with multiplicative
+strategies (area model, doubling/halving, flexible factoring, ratio tables for
+× and ÷ …), built on Di Siemon's big ideas and the research on multiplicative
+thinking, hosted by the character glbs, plus a trophy stand. **501 → 535
+checks (new `runMagmaChallengeChecks` in `src/dev/magmaChallengeChecks.js`:
+MCF1–MCF4 + three per challenge), all passing; vite build clean.** NOT yet
+deployed. Every challenge was driven in a headless browser (screenshots of
+every phase) and through its REAL store (perfect play = 375, gold).
+- **Research spine** (why these ten, in this order): Siemon's progression
+  from equal groups → ARRAYS → regions/area → "for each" (Cartesian product
+  + ratio) and the factor-factor-product idea; her mental strategies (double,
+  ×10, think-of, factor) and the move from "groups of" to "times as many";
+  Hurst & Hurrell's connected big ideas (the multiplicative structure of place
+  value, the distributive property, the array, the inverse); the National
+  Numeracy Learning Progression MuS5–MuS7; Fosnot & Dolk's models becoming
+  tools (open arrays, ratio tables); Anghileri's high-level chunking for
+  division (and remainders in context); the Mr Short / Mr Tall additive trap.
+  The SCENE owns the maths, the bottom-docked card owns the input; students
+  BUILD the structure (rows, cracks, slides, blasts, fusions, rows of pots,
+  table columns, poured chunks, bones) and the consequence is the feedback.
+- **The ten (trophy order = recommended order; host · stage):**
+  1 **Column Rectangles** (Basalt Columns, Mr. Dawson) — arrays + factor
+  pairs: −/+ the rows, N columns stand themselves up, leftovers glow red,
+  Keep every rectangle, "That's all!" (turned = same rectangle; primes S3,
+  squares S4, rich numbers S5; an early claim REVEALS the missing arrays).
+  2 **Crack the Crystal** (Obsidian Grove, Ms. Mahoney) — distributive /
+  area model: move a lava crack (or push it past the edge to GROW to the next
+  ten), type each piece, then the total; facts → place value → grow (9 × 7 =
+  10 × 7 − 7) → two cracks/four pieces (14 × 23) → mixed; tiles ≤ 360, else
+  an open region. 3 **Tenfold Terraces** (NEW 9th clearing at P(80,155),
+  Ms. Ewings) — the ×10 idea: seven stone terraces Th…th, a FIXED decimal-
+  point orb, ◀ × 10 / ÷ 10 ▶ hop the digit stones, Lock, type; placeholder
+  zeros fade while moving and drop in once said; round 4 is always the
+  "3.5 × 10 ≠ 3.50" trap; S4 tens facts (30 × 40), S5 decimal facts
+  (0.4 × 6). 4 **Halve & Double** (Geyser Flats, Mr. Heywood) — steam cuts
+  the tile terrace and restacks it alongside (same tiles); chain chip
+  16 × 25 = 8 × 50 = 4 × 100; Solve from an easy form (+10); slabs over 900
+  tiles use a √-compressed aspect. 5 **Factor Forge** (Ember Forge, Robot)
+  — hammer an ingot into a factor pair (primes won't break), fuse two by
+  typing their product; +10 only for making a ten ON THE WAY (never the final
+  fusion, so straight multiplication can't earn it), +15 final first try.
+  6 **Flower Combos** (Fire Flower Garden, Trevor) — for each: predict the
+  combos, then plant (one, "this flower in EVERY pot", "copy to every
+  glow"); the array appears only as it's planted; S3 adds glows (layers),
+  S4 the missing factor; adding the counts is named. 7 **Cart Tables**
+  (Cinder Cones, Steve) — ratio table for × AND ÷: tap columns (3D tablets or
+  the card), × 2 ÷ 2 × 10 ÷ 10 + −, carts fill in, the student types rocks;
+  efficiency vs a BFS minimum (`cinderBestPath`), S4 division, S5 non-unit
+  rates (4 : 18). 8 **Lava Channels** (Lava Lake Islet, Mr. Pearce) —
+  division by chunking: pour 1/2/5/10/20/50 rows (or any number) from the
+  cauldron into a channel d wide over the lava; the poured channel is a
+  visible open ARRAY (cells drawn); over-pouring SPLASHES (−3); S4 remainders
+  in context (rafts round up / full bags down / leftovers), S5 sharing
+  (moulds). 9 **Grow the Dragon** (Dragon Bones, Ms. Brookes) — times as
+  many: set the grown-up's bones from the baby's, Raise! — wrong proportions
+  make a wonky dragon with the true one as a gold ghost; the add-the-same
+  trap is detected and named; one retry; S3 shrinks (toy dragon), S5 say the
+  factor first. 10 **Strategy Summit** (crater rim, Ms. Bacon) — the
+  capstone (mirrors Aurora Lookout): three rune tablets, the same problem
+  rewritten three correct ways (halve/double, make a hundred, split, round &
+  adjust, tens, nines, ratio, chunked division); easiest +10, others +5, then
+  do it (+15). The one stage filmed INWARD across the crater.
+  Mills welcomes arrivals at the plaza (`magma-welcome`); the trophy stand
+  (`magma-records`, trophy.glb, groupScale 4.2) is on the plaza's east edge;
+  `MagmaTrophyGrid` (uiStore `magmaTrophyOpen`).
+- **Framework (one place each):** registry `data/magma/magmaChallenges.js`
+  (keys, hosts, STAGE FRAMES — each scene is authored in local coords, x
+  right / +z toward the camera — camera views incl. optional `lift`, park
+  spots, `inMagmaChallengeView` corridor, `TERRACE_GEOM`); pure logic
+  `data/magma/<key>Challenge.js` + `magmaMath.js`; records
+  `magmaRecords.js` (`mma-magma-<key>-best`, 375, LOCAL-ONLY); store
+  factory `game/magma/createMagmaStore.js` (idle → intro → play →
+  celebrate|feedback → done; `award/say/endRound`; state fields must never
+  share a name with a verb — MCF3 guards it); stores
+  `game/magma/stores/*`; `game/magma/magmaActive.js` (MAGMA_STORES,
+  hooks, `exitMagmaExcept`) spread into `farmChallengeActive.js` and
+  `interaction.js` (`magma-<key>-host` intercept); 3D
+  `game/magma/MagmaChallengeStages.jsx` + `stages/*` (only the running
+  scene renders, plus the permanent terraces); 2D `ui/magma/MagmaPanelShell
+  .jsx` + `MagmaPanels.jsx` (reuses the Snowball Sums card parts); Player.jsx
+  magma camera mode (parks + hides the player, camera in the stage frame).
+  World-quieting: clearing labels hide, scatter/obsidian spires in the
+  corridor shrink away, the lake obelisk and the dragon ribcage step aside
+  for their challenges, hosts in shot hide. CSS: MAGMA MULTIPLES block at the
+  end of index.css.
+- **TODO:** live `npm run dev` look on a real GPU + an iPad (4:3 framing of
+  each card, tap targets on ingots/tablets, the lava glare on the lake
+  channel); Farsi/Arabic strings for all new text; a cloud completion path
+  (bests are local-only like the snow world); the crater stays sealed —
+  opening the rune gate after ten golds would be a natural reward.
+
+## DONE (2026-10-02) — MAGMA MULTIPLES: the SIXTH region, a volcano / lava world (LAND ONLY)
+Jeff's brief: a RED portal on the main island → a new volcano/lava world for
+multiplicative relationships later; for now just the land — a large,
+climbable volcano in the middle (crater you can't enter yet), paths around
+lava (inspired by Mario 64's lava levels, but less lava / more paths), about
+THREE times Fraction Farm. No characters, no maths yet. **494 → 501 checks
+(new MG1–MG7 in `runMagmaChecks`), all passing; vite build clean.** NOT yet
+deployed. Region id `magma-multiples`, name **"Magma Multiples"**
+(`MAGMA_NAME` in magmaLayout.js — rename there).
+- **Island gate:** `island-to-magma` at `[17, 31]` (open SE grass between the
+  spawn and the Algebra moat, near the coast), `variant: "volcano"` →
+  `VolcanoPortal` in Portal.jsx (basalt-rock arch, RED `LAVA_SWIRL`, glowing
+  cracks, two flickering braziers). The same variant is the return gate,
+  which sits on the arrival plaza's SW edge (`MAGMA_RETURN_PORTAL`) so it
+  never blocks the first view; you arrive at `[0, 93.3]` LOOKING NORTH up
+  the avenue at the volcano (new optional region field `arriveYaw`).
+- **Layout (single source of truth) `src/data/magma/magmaLayout.js`:** round
+  basalt landmass (shore r≈103–116, `WS = 1.12` world scale) in a LAVA SEA;
+  33,800 m² of land = **2.93× the farm**. THE VOLCANO: r 48 at the foot,
+  36 m tall, flat summit rim r 11–18, crater lava lake inside. A **5.5 m
+  spiral SUMMIT TRAIL** (`trailRadius/trailHeight/trailPoint`, 2 turns,
+  ~400 m, grade ≤ 0.18) is CUT INTO the cone (`inset`): ~5 m rock wall on
+  the inside, a 0.6 m stone KERB + ~1.3 m drop on the outside — the
+  mountain keeps a cone silhouette. Torches + bedded boulders line it; a
+  beacon brazier marks the top. Lowland: a LAVA MOAT (grand stone bridge in
+  the south, three hop-stones in the north), FOUR LAVA RIVERS on the
+  diagonals (moat → sea) splitting the land into quarters, a RING ROAD
+  (r 76) crossing each river on a different bridge (stone arch / wooden
+  planks + rope / iron grate + chains / hexagonal basalt), spokes + outer
+  arcs to **EIGHT reserved clearings** (`MAGMA_CHALLENGE_SPOTS`, paved
+  discs r 7.5, middles kept OPEN): Basalt Columns (+ a climbable hex-column
+  stair), Obsidian Grove, Geyser Flats (erupting steam vents + mud pots),
+  Ember Forge (smithy, furnace, anvil, ore cart), Lava Lake Islet (checker
+  causeway nod to SM64, obelisk, hop-stones out, LAVA FALLS off a cliff),
+  Cinder Cones, Dragon Bones (a fossil ribcage you walk THROUGH), Fire
+  Flower Garden. Plus scattered boulders / charred trees / lava pools /
+  knolls / ring-road lanterns (deterministic scatter, kept off paths).
+- **Terrain functions (all pure, all checked):** `magmaGroundHeight` (bridge
+  decks → platforms → volcano (walls max-filtered 0.35 m so your BODY stops
+  at the rock) → lava surface → a precomputed 1 m land grid that the mesh is
+  built from), `magmaIsLava`, `magmaIsSafe`, `magmaSlideAt` (the bare
+  volcano flank → slide outward), `landSD` (signed distance to lava).
+- **Player.jsx — region hooks (only active where a region defines them):**
+  `isLava` → touching lava never hurts: a "hot-foot" BOUNCE whose arc lands
+  exactly on the last safe spot (`lastSafe`, re-checked every 0.4 m), with a
+  smoke puff (`playerState.lavaHit`), a hint ("Ouch — hot lava!") and a new
+  `lava` sound in sound.js; no colliders/walls mid-bounce (`lavaFlight`).
+  `slideAt` → you can't walk UP the flank and you SLIDE down it (no jump
+  while sliding) — the trail is the way up. `cameraTerrainClamp` → the
+  follow camera rides up over the mountain instead of clipping into it.
+  `maxFrameDelta` (1/15 s) → a frame hitch can't tunnel you through a kerb.
+  `arriveYaw` (see above). ALSO (all regions): a teleport now clears any
+  stale tap-to-move target (a touch player who tapped a portal used to keep
+  walking toward that spot in the NEW region).
+- **Rendering (`src/game/MagmaScenery.jsx` + `src/game/magma/`):**
+  `magmaMaterials.js` (ONE animated lava shader — domain-warped fbm in world
+  space, shared by sea/moat/rivers/lake/pools/crater; a UV-flow variant for
+  falls + flank streams; rock material with a per-vertex `aGlow` emissive so
+  lava BANKS and crater walls glow without lights; procedural canvas
+  textures: cobbles, planks, grate, hex, checker, puffs, embers);
+  `MagmaTerrain.jsx` (lava sea plane under everything; lowland grid mesh;
+  the volcano meshed ALONG THE SPIRAL (rows = spiral angle) so walls/kerbs
+  are crisp; crater bowl; cobbled trail/path ribbons + plazas);
+  `MagmaBridges.jsx`; `MagmaSetPieces.jsx` (instanced props, all eight
+  set-pieces, sealed crater gate, flank lava streams); `MagmaAtmosphere.jsx`
+  (lava clock, a SUNSET key light that FOLLOWS the player so shadows work
+  across the big map, crater point light, smoke plume, ember fountain,
+  ambient embers (High only), distant volcano skyline + sea rocks, hot-foot
+  puff). Tap-to-move taps hit the real terrain. World.jsx: `isMagma` branch
+  (warm hemisphere, no global key light, per-region `fogNear/fogFar` 85/290
+  and `skyTop`, SkyDome `radius` prop 470), ash footprints that follow the
+  terrain height (Footprints gained an optional `heightAt`).
+- **Colliders `magmaColliders.js`:** crater-lip ring (56 overlapping stones,
+  hint "The crater is sealed — far too hot to enter… for now!"), rune-gate
+  pillars, bridge rails, braziers, sign, boulders/trees/lanterns, every
+  set-piece. Wired in `worldColliders.getColliders`.
+- **Checks `runMagmaChecks()`:** MG1 hooks + both gates + safe spawn, MG2
+  size ≈3× farm and mostly land, MG3 the trail climbs (≤ 1 cm rise per 4
+  mrad, no steep/lava on it, tops out at 36 m, wall ≥ 2 m, kerb blocks,
+  flank slides outward), MG4 crater sealed, MG5 no path crosses bare lava
+  (bridges/causeway/hop-stone gaps ≤ 1.2 m/column stair ≤ STEP_UP), MG6 a
+  flood-fill from the spawn reaches all clearings + the trail mouth + the
+  gate ON FOOT, MG7 clearings open, no props on paths or in lava.
+  The full climb was also driven in a headless browser with the REAL
+  Player physics (tap-to-move along the trail): foot → summit, y 0 → 36.
+- **Future (when the maths lands):** claim a `MAGMA_CHALLENGE_SPOTS` entry
+  per activity (farm/snow pattern); the crater is the obvious capstone —
+  open the rune gate (`CRATER_GATE`) and add a path down. Farsi/Arabic
+  strings for the new labels. A live `npm run dev` look on a real GPU +
+  an iPad (lava shader cost, ember counts, shadow follow-light) before deploy.
 
 ## DONE (2026-09-29) — SNOWBALL SUMS ROUND 2 (Jeff's feedback on the audit)
 Nine points from Jeff after playing the audit build. **491 → 494 checks (new
@@ -369,6 +943,11 @@ launched; the same slide happens on the PLAYER's jump. Both are the same bug —
   about right) rather than to re-cut the clip.
 
 ## DONE (2026-07-27) — SNOWBALL SUMS (S1–S2): the FOURTH region, a twilight snow world
+> **2026-10-08:** the snow world's MAP (the flat 120×96 field, the rink
+> bank, the NE slope bump, positions, lanes, cameras in Player.jsx)
+> described in this and the following snow sections is SUPERSEDED by the
+> rebuild — see "DONE (2026-10-08) — SNOWBALL SUMS REBUILT". The ten
+> challenges' mechanics, stores and panels below are unchanged.
 A new 120×96 region (SAME dimensions as Fraction Farm) reached via an IGLOO
 portal on the island at `[-14,-25]` — on the Integer Dunes snow patch, just
 EAST of the dunes, between Pip's clearing and the playground portal. Purpose:
@@ -1260,7 +1839,7 @@ awards the trophy). L1–5 adaptive. Teacher tasks still override (handled upstr
 in interaction.js). Guarded by `runSchoolyardTopicChecks()`. Island NPCs (Pip/
 Fern/Alby) unchanged.
 
-## System checks (482)
+## System checks (562)
 `src/dev/systemChecks.js` → `runSystemChecks()`. Run headlessly: temporarily set
 `package.json` `"type":"module"`, shim `localStorage/window/document`, import and
 run; also babel parse-check `src/`, `portal/`, `functions/`. Restore package.json
@@ -1529,6 +2108,10 @@ tested headlessly; the CHARTS need a live visual pass in `npm run dev`.
   option labels may contain commas.
 
 ## Parts of a Whole Farm (F1–F2, built 2026-07-15, NOT yet deployed)
+> **2026-10-08:** the farm's MAP (positions, paddocks, the flat 120×96
+> ground, cameras) described in this and the follow-up farm sections is
+> SUPERSEDED by the rebuild — see "DONE (2026-10-08) — FRACTION FARM
+> REBUILT". The challenge mechanics, stores and panels below are unchanged.
 The THIRD region — a large (120×96) flat farming world for fraction "in-world
 challenges", reached via a Teleport Gate BEHIND the island spawn (island portal
 at `[2.5, 29]`, clear of the tree at `[-2, 28]`). Farm look: barn + silo +

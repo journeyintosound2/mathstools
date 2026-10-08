@@ -50,6 +50,10 @@ function tone(c, freq, startOffset, duration, type = "sine", peak = 0.06) {
  *   complete      little 3-note arpeggio
  *   levelUp       rising 4-note fanfare
  *   questComplete pleasant two-note chime
+ *   boing         springy wobble (the jungle's bouncy mushrooms)
+ *   climb         little two-step (pulling up over a vine wall's lip)
+ *   whoosh        a falling swoosh (a toboggan chute / the chairlift)
+ *   splash        a cold "plip-plop" (stepping into the snow world's icy lake)
  */
 export function play(name) {
   const c = getCtx();
@@ -73,6 +77,55 @@ export function play(name) {
       break;
     case "levelUp":
       [523, 659, 784, 1047].forEach((f, i) => tone(c, f, i * 0.1, 0.18));
+      break;
+    case "lava": // a quick hiss-and-pop for the hot-foot bounce
+      tone(c, 520, 0, 0.09, "triangle", 0.05);
+      tone(c, 340, 0.06, 0.12, "triangle", 0.05);
+      tone(c, 880, 0.16, 0.1, "sine", 0.04);
+      break;
+    case "boing": { // a springy rising wobble for the jungle's bouncy mushrooms
+      const osc = c.createOscillator();
+      const gain = c.createGain();
+      osc.type = "sine";
+      const t = c.currentTime;
+      osc.frequency.setValueAtTime(180, t);
+      osc.frequency.exponentialRampToValueAtTime(620, t + 0.18);
+      osc.frequency.exponentialRampToValueAtTime(420, t + 0.32);
+      gain.gain.setValueAtTime(0.0001, t);
+      gain.gain.linearRampToValueAtTime(0.07, t + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.38);
+      osc.connect(gain);
+      gain.connect(c.destination);
+      osc.start(t);
+      osc.stop(t + 0.4);
+      break;
+    }
+    case "whoosh": { // a falling swoosh as the sled tips over the lip
+      const osc = c.createOscillator();
+      const gain = c.createGain();
+      osc.type = "triangle";
+      const t = c.currentTime;
+      osc.frequency.setValueAtTime(880, t);
+      osc.frequency.exponentialRampToValueAtTime(260, t + 0.45);
+      gain.gain.setValueAtTime(0.0001, t);
+      gain.gain.linearRampToValueAtTime(0.05, t + 0.04);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.5);
+      osc.connect(gain);
+      gain.connect(c.destination);
+      osc.start(t);
+      osc.stop(t + 0.52);
+      break;
+    }
+    case "splash": // a cold plip-plop, then a shivery little trill
+      tone(c, 420, 0, 0.07, "sine", 0.05);
+      tone(c, 260, 0.06, 0.12, "sine", 0.05);
+      tone(c, 990, 0.2, 0.05, "triangle", 0.03);
+      tone(c, 930, 0.26, 0.05, "triangle", 0.03);
+      tone(c, 990, 0.32, 0.06, "triangle", 0.03);
+      break;
+    case "climb": // a cheerful little two-step when you pull up over a ledge
+      tone(c, 587, 0, 0.08, "triangle", 0.045);
+      tone(c, 880, 0.07, 0.12, "triangle", 0.045);
       break;
     case "questComplete":
       tone(c, 784, 0, 0.16);

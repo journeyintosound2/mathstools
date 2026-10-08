@@ -18,12 +18,35 @@
 import { SCHOOLYARD_CHARACTERS } from "./schoolyard/schoolyardLayout.js";
 import {
   FARM_WELCOME_SIGN, CHALLENGE_SIGN, ROUNDUP_SIGN, ORDER_SIGN, CRATE_SIGN, MILK_SIGN, WEIGH_SIGN, TRADE_SIGN, VEGGIE_SIGN, PLANK_SIGN, SHOP_SIGN, FARM_RECORDS_STAND,
+  FARM_CHEST_SPOTS,
 } from "./farm/farmLayout.js";
 import {
   SNOW_WELCOME_SIGN, SNOW_RECORDS_STAND, RANGE_SIGN, RINK_GLIDE_SIGN, GROVE_SIGN, MEADOW_SIGN, SLOPE_SIGN,
   VILLAGE_SIGN, COLONY_SIGN, CAVE_SIGN, YARD_SIGN, LOOKOUT_SIGN,
+  SNOW_CHEST_SPOTS,
 } from "./snow/snowLayout.js";
 import { CABIN_PIP } from "./cabin/cabinLayout.js";
+import {
+  MAGMA_CHALLENGES, magmaHostId, magmaHostWorld, MAGMA_WELCOME_HOST, MAGMA_RECORDS_STAND,
+} from "./magma/magmaChallenges.js";
+import { MAGMA_REGION_ID } from "./magma/magmaLayout.js";
+
+// Magma Multiples (2026-10-03): ten hosts, one per multiplicative challenge,
+// standing at the inner (volcano) edge of their clearing. Each host is
+// INTERCEPTED in interaction.js → its challenge store's start().
+const MAGMA_HOSTS = MAGMA_CHALLENGES.map((c) => ({
+  id: magmaHostId(c.key),
+  name: c.host.name,
+  encounterId: `magma-${c.key}-challenge`,
+  model: "npc",
+  characterId: c.host.characterId,
+  color: c.host.color,
+  position: magmaHostWorld(c.key),
+  promptLabel: `Talk to ${c.host.name} — ${c.name}`,
+  collision: { type: "circle", radius: 0.7, enabled: true },
+  interactionRadius: 3.6,
+  regionId: MAGMA_REGION_ID,
+}));
 
 // Schoolyard NPCs (W2-D) — Helen / Darby / Elka. Built from the shared layout so
 // positions match the map + colliders. They use the same chain/npcDialogue path
@@ -51,13 +74,14 @@ const CHEST_SPOTS = [
 ];
 export const RANDOM_CHEST_POS = CHEST_SPOTS[Math.floor(Math.random() * CHEST_SPOTS.length)];
 
-// Random FARM treasure-chest spot — the same idea as the island chest, but in
-// open grassy corners of Fraction Farm, clear of the barn/yard, pond, crops and
-// every challenge station, so it's always reachable and never buried.
-const FARM_CHEST_SPOTS = [
-  [8, 12], [-24, -6], [22, 24], [-20, 14],
-];
+// Random FARM treasure-chest spot — the same idea as the island chest, but
+// out in the open grass of the big rolling farm (FARM_CHEST_SPOTS in
+// farmLayout.js — clear of every station, track, building and fence, and
+// reachable: the farm world checks walk to each one).
 export const FARM_CHEST_POS = FARM_CHEST_SPOTS[Math.floor(Math.random() * FARM_CHEST_SPOTS.length)];
+// …and one hidden somewhere in the Snowball Sums valley (SNOW_CHEST_SPOTS —
+// a lakeshore, a floe hop, the woods; the snow world checks reach each one).
+export const SNOW_CHEST_POS = SNOW_CHEST_SPOTS[Math.floor(Math.random() * SNOW_CHEST_SPOTS.length)];
 
 export const INTERACTABLES = [
   // The three original maths NPCs — same look, positions and topics as before.
@@ -533,6 +557,19 @@ export const INTERACTABLES = [
     interactionRadius: 3.6,
     regionId: "cabin",
   },
+  // A hidden treasure chest somewhere in the snowy valley (interaction.js).
+  {
+    id: "snow-chest",
+    name: "Treasure Chest",
+    encounterId: "snow-treasure",
+    model: "chest",
+    color: "#9fdcf2",
+    position: SNOW_CHEST_POS,
+    promptLabel: "Open the chest",
+    collision: { type: "circle", radius: 0.8, enabled: true },
+    interactionRadius: 3.4,
+    regionId: "snow-sums",
+  },
   {
     id: "snow-records",
     name: "Snow Trophies",
@@ -544,6 +581,33 @@ export const INTERACTABLES = [
     collision: { type: "circle", radius: 2.0, enabled: true },
     interactionRadius: 5.0,
     regionId: "snow-sums",
+  },
+  // ---- Magma Multiples ----
+  {
+    id: MAGMA_WELCOME_HOST.id,
+    name: "Mills",
+    encounterId: "magma-welcome",
+    model: "npc",
+    characterId: "sage",
+    color: "#ff7a3d",
+    position: MAGMA_WELCOME_HOST.position,
+    promptLabel: "Talk to Mills",
+    collision: { type: "circle", radius: 0.7, enabled: true },
+    interactionRadius: 3.6,
+    regionId: MAGMA_REGION_ID,
+  },
+  ...MAGMA_HOSTS,
+  {
+    id: MAGMA_RECORDS_STAND.id,
+    name: "Magma Trophies",
+    encounterId: "magma-records",
+    model: "none", // visual = trophy.glb stand + dynamic cups (MagmaScenery)
+    color: "#ff9a4a",
+    position: MAGMA_RECORDS_STAND.position,
+    promptLabel: "Look at your trophies",
+    collision: { type: "circle", radius: 2.0, enabled: true },
+    interactionRadius: 5.0,
+    regionId: MAGMA_REGION_ID,
   },
 ];
 

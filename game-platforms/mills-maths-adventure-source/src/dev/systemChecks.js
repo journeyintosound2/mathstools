@@ -1,4 +1,16 @@
 import { runEngineSelfTest, ENGINES, buildQuestionSet } from "../maths/index.js";
+import {
+  MAGMA_REGION_ID, MAGMA_NAME, MAGMA_BOUNDS, MAGMA_SPAWN, MAGMA_RETURN_PORTAL, MAGMA_PLAZA,
+  VOLCANO, TRAIL_END, TRAIL_PHI, trailPoint, trailHeight, trailRadius, magmaGroundHeight,
+  magmaIsLava, magmaIsSafe, magmaSlideAt, landSD, bridgeDeckAt, platformTopAt, pathEdgeDist,
+  MAGMA_BRIDGES, MAGMA_PATHS, MAGMA_CHALLENGE_SPOTS, MAGMA_PLATFORMS, COLUMN_STAIR, LAKE_CAUSEWAY,
+  RIVERS, RING_ROAD_R, LAVA_Y, CRATER_GATE, isOnTrail,
+} from "../data/magma/magmaLayout.js";
+import { getMagmaColliders, CRATER_HINT } from "../data/magma/magmaColliders.js";
+import { runMagmaChallengeChecks } from "./magmaChallengeChecks.js";
+import { runJungleChecks } from "./jungleChecks.js";
+import { runFarmWorldChecks } from "./farmWorldChecks.js";
+import { CRATER_LIP_STONES } from "../data/magma/magmaProps.js";
 import { makeTriangle, makeQuad, makeGenericQuad, verifyQuad, propertiesOf, SPECIAL_QUADS, TRIANGLE_TYPES } from "../maths/curriculum/stage4/geometry/shapeCatalogue.js";
 import { makeNominal, makeContinuous, makePartsOfWhole, makeTimeSeries, SCENARIOS, TYPE_LABEL } from "../maths/curriculum/stage4/data/datasetGenerator.js";
 import { sectorAngles, sectorAngleOf, niceScale, sum as chartSum } from "../ui/diagrams/chartUtils.js";
@@ -160,7 +172,7 @@ import {
 } from "../data/farm/orderPartsChallenge.js";
 import { FARM_MAX_SCORES, MEDALS, medalFor, farmBestPercent } from "../data/farm/farmRecords.js";
 import { CRATE_AREA, CRATE_SIZES, CRATE_VIEW_SPOT, crateSlotX } from "../data/farm/farmLayout.js";
-import { FARM_BARN } from "../data/farm/farmLayout.js";
+import { FARM_PACKING_SHED, FARM_GRAIN_SILOS, BIG_AMBER, FARM_SAWMILL } from "../data/farm/farmLayout.js";
 import {
   generateCrateSet, gradeCrate, crateFeedback, factorsOf, gcd as crateGcd, crateStageFor,
   CRATE_ROUNDS_PER_SET, CRATE_MAX_PILE, CRATE_FULL_POINTS, CRATE_COMMON_POINTS,
@@ -207,15 +219,14 @@ import {
 } from "../data/farm/fenceChallenge.js";
 import {
   SNOW_BOUNDS, SNOW_SPAWN, SNOW_RETURN_PORTAL, SNOW_CHALLENGE_SPOTS, SNOW_RECORDS_STAND,
-  SNOW_WELCOME_SIGN, SNOW_BOUNDARY, SNOW_LODGE, ICE_RINK, RINK_GATE_HALF_ANGLE, PENGUIN_WANDER,
-  isOnIce, isOnSnow,
+  SNOW_WELCOME_SIGN, SNOW_BOUNDARY, SNOW_LODGE, ICE_RINK, PENGUIN_WANDER,
   PETE_WANDER, PETE_START, PETE_WALK_SPEED, PETE_IDLE_MS, PETE_CHALLENGE_CLEARANCE,
-  PETE_CLIPS, isPeteSpotOk,
+  PETE_CLIPS,
   RANGE_AREA, RANGE_FRAME_POS, RANGE_CRATE_POS, RANGE_VIEW_SPOT, RANGE_SIGN,
   RINK_GLIDE_LINE, RINK_GLIDE_VIEW_SPOT, RINK_GLIDE_SIGN, rinkGlideX,
   GROVE_AREA, GROVE_TREE_POS, GROVE_BOX_POS, GROVE_VIEW_SPOT, GROVE_SIGN,
   MEADOW_AREA, MEADOW_TOWER_LEFT, MEADOW_TOWER_RIGHT, MEADOW_VIEW_SPOT, MEADOW_SIGN,
-  SLOPE, snowGroundHeight, SLOPE_LANE, SLOPE_VIEW_SPOT, SLOPE_SIGN,
+  SLOPE_LANE, SLOPE_VIEW_SPOT, SLOPE_SIGN, SLOPE_RUN_GRADE,
   VILLAGE_AREA, VILLAGE_LEFT_STAND, VILLAGE_RIGHT_STAND, VILLAGE_BUILD_SITE, VILLAGE_VIEW_SPOT, VILLAGE_SIGN,
   COLONY_AREA, COLONY_ROWS, COLONY_VIEW_SPOT, COLONY_SIGN,
   CAVE_AREA, CAVE_WALL, CAVE_DOME, CAVE_VIEW_SPOT, CAVE_SIGN,
@@ -282,7 +293,11 @@ import {
   CABIN_BEDROOM, CABIN_BED, CABIN_PIP, CABIN_HEARTH_RUG,
 } from "../data/cabin/cabinLayout.js";
 import { getCabinColliders } from "../data/cabin/cabinColliders.js";
-import { getSnowColliders, rinkBankColliders } from "../data/snow/snowColliders.js";
+import { getSnowColliders } from "../data/snow/snowColliders.js";
+import {
+  isOnIce, isOnSnow, isPeteSpotOk, terrainHeight as snowTerrainHeight, slopeAt as snowSlopeAt, onPad as onSnowPad,
+} from "../data/snow/snowTerrain.js";
+import { runSnowWorldChecks } from "./snowWorldChecks.js";
 import { SAND_PATCH as ISLAND_SNOW_PATCH } from "../data/worldZones.js";
 import {
   SNOW_CHALLENGE_IDS, SNOW_BEST_KEYS, SNOW_MAX_SCORES, SNOW_TROPHY_META,
@@ -656,6 +671,14 @@ export function runSystemChecks(progressSnapshot) {
   // The Lodge Interior — the fifth region, behind the lodge's ajar door (CB).
   for (const c of runCabinChecks()) checks.push(c);
   for (const c of runSnowAuditChecks()) checks.push(c);
+  for (const c of runMagmaChecks()) checks.push(c);
+  // Magma Multiples — the ten multiplicative challenges (MCF1–4 + 3 each).
+  for (const c of runMagmaChallengeChecks()) checks.push(c);
+  // Emerald Jungle — the seventh region, a jungle valley (JG1–JG8).
+  for (const c of runJungleChecks()) checks.push(c);
+  for (const c of runFarmWorldChecks()) checks.push(c);
+  // Snowball Sums rebuilt as a big alpine valley (SW1–SW10).
+  for (const c of runSnowWorldChecks()) checks.push(c);
 
   return checks;
 }
@@ -4829,16 +4852,18 @@ export function runFarmChecks() {
   const farm = getRegion("farm-parts-whole");
   const island = getRegion("island-1");
 
-  // FA1) Region is valid: rect bounds, spawn inside, flat ground, geometry.
+  // FA1) Region is valid: rect bounds, spawn inside, terrain ground (the
+  //      rebuilt rolling farm — FW1–FW9 check the terrain itself), geometry.
   const spawnIn = clampToBounds(FARM_SPAWN.x, FARM_SPAWN.z, FARM_BOUNDS);
   const fa1 =
     farm && farm.bounds === FARM_BOUNDS && FARM_BOUNDS.shape === "rect" &&
-    FARM_BOUNDS.width > 100 && FARM_BOUNDS.height > 80 && // it must be LARGE
-    typeof farm.groundHeight === "function" && farm.groundHeight(7, -9) === 0 &&
+    FARM_BOUNDS.width > 250 && FARM_BOUNDS.height > 220 && // it must be BIG (jungle-sized)
+    typeof farm.groundHeight === "function" && typeof farm.slideAt === "function" &&
+    Number.isFinite(farm.groundHeight(7, -9)) &&
     spawnIn.x === FARM_SPAWN.x && spawnIn.z === FARM_SPAWN.z &&
     Boolean(farm.geometry && farm.geometry.skyColor);
   checks.push({
-    name: "Farm region: large rect bounds + flat ground + spawn inside",
+    name: "Farm region: big rect bounds + terrain ground + spawn inside",
     pass: fa1,
     detail: fa1 ? `${FARM_BOUNDS.width}×${FARM_BOUNDS.height}, spawn (${FARM_SPAWN.x}, ${FARM_SPAWN.z})` : "region wrong",
   });
@@ -4893,11 +4918,12 @@ export function runFarmChecks() {
   //      that paddock's own fence colliders at the gate centre).
   let gatesOk = true;
   for (const p of FARM_PADDOCKS) {
-    const g = p.gate;
-    const gx = g.side === "east" ? p.x + p.w / 2 : g.side === "west" ? p.x - p.w / 2 : p.x + (g.offset || 0);
-    const gz = g.side === "south" ? p.z + p.d / 2 : g.side === "north" ? p.z - p.d / 2 : p.z + (g.offset || 0);
-    const mine = cols.filter((c) => c.id.startsWith(p.id));
-    if (!mine.length || !mine.every((c) => Math.hypot(c.x - gx, c.z - gz) > c.radius + 0.6)) gatesOk = false;
+    for (const g of [p.gate, p.gate2].filter(Boolean)) {
+      const gx = g.side === "east" ? p.x + p.w / 2 : g.side === "west" ? p.x - p.w / 2 : p.x + (g.offset || 0);
+      const gz = g.side === "south" ? p.z + p.d / 2 : g.side === "north" ? p.z - p.d / 2 : p.z + (g.offset || 0);
+      const mine = cols.filter((c) => c.id.startsWith(`${p.id}-`));
+      if (!mine.length || !mine.every((c) => Math.hypot(c.x - gx, c.z - gz) > c.radius + 0.6)) gatesOk = false;
+    }
   }
   checks.push({
     name: "Paddock gates leave a walkable gap",
@@ -5226,16 +5252,17 @@ export function runFarmRecordsChecks() {
 export function runCratePackingChecks() {
   const checks = [];
 
-  // FE1) Staging geometry: the area sits by the barn, every choice-crate
-  //      slot and the view spot are inside the farm bounds, and the view
-  //      spot is clear of all farm colliders.
+  // FE1) Staging geometry: the area sits at the orchard's packing shed (the
+  //      rolling farm, 2026-10-07), every choice-crate slot and the view spot
+  //      are inside the farm bounds, and the view spot is clear of all farm
+  //      colliders.
   const halfW = FARM_BOUNDS.width / 2, halfH = FARM_BOUNDS.height / 2;
-  const nearBarn = Math.hypot(CRATE_AREA.x - FARM_BARN.x, CRATE_AREA.z - FARM_BARN.z) < 25;
+  const nearBarn = Math.hypot(CRATE_AREA.x - FARM_PACKING_SHED.x, CRATE_AREA.z - FARM_PACKING_SHED.z) < 16;
   const slotsIn = CRATE_SIZES.every((_, i) => Math.abs(crateSlotX(i)) < halfW);
   const cols = getFarmColliders({});
   const spotClear = cols.every((c) => Math.hypot(c.x - CRATE_VIEW_SPOT[0], c.z - CRATE_VIEW_SPOT[1]) > c.radius + 0.5);
   const fe1 = nearBarn && slotsIn && Math.abs(CRATE_VIEW_SPOT[1]) < halfH && spotClear;
-  checks.push({ name: "Crate Packing staging: by the barn, slots + spot clear", pass: fe1, detail: fe1 ? `${CRATE_SIZES.length} choice crates OK` : "geometry wrong" });
+  checks.push({ name: "Crate Packing staging: by the packing shed, slots + spot clear", pass: fe1, detail: fe1 ? `${CRATE_SIZES.length} choice crates OK` : "geometry wrong" });
 
   // FE2) Round maths — 300-set fuzz. 15 rounds, 3 per stage; every round is
   //      SOLUTIONS-FIRST: gcd(n1, n2) === hcf EXACTLY, hcf is in the choice
@@ -5386,15 +5413,16 @@ export function runMilkSplitterChecks() {
 export function runWeighStationChecks() {
   const checks = [];
 
-  // FG1) NE-corner geometry: in bounds, genuinely back-right, view spot
-  //      clear of every farm collider, host near the scale.
+  // FG1) Geometry: at the grain silos (north-east of the homestead), in
+  //      bounds, view spot clear of every farm collider, host near the scale.
   const halfW = FARM_BOUNDS.width / 2, halfH = FARM_BOUNDS.height / 2;
   const cols = getFarmColliders({});
   const spotClear = cols.every((c) => Math.hypot(c.x - WEIGH_VIEW_SPOT[0], c.z - WEIGH_VIEW_SPOT[1]) > c.radius + 0.5);
+  const nearSilos = FARM_GRAIN_SILOS.some(([x, z]) => Math.hypot(x - WEIGH_AREA.x, z - WEIGH_AREA.z) < 30);
   const fg1 = Math.abs(WEIGH_AREA.x) < halfW && Math.abs(WEIGH_AREA.z) < halfH &&
-    WEIGH_AREA.x > 35 && WEIGH_AREA.z < -30 && spotClear &&
+    WEIGH_AREA.x > 35 && WEIGH_AREA.z < -20 && nearSilos && spotClear &&
     Math.hypot(WEIGH_SIGN.position[0] - WEIGH_AREA.x, WEIGH_SIGN.position[1] - WEIGH_AREA.z) < 12;
-  checks.push({ name: "Weigh Station: NE corner, in bounds, spot clear", pass: fg1, detail: fg1 ? "scale + host placed" : "geometry wrong" });
+  checks.push({ name: "Weigh Station: at the grain silos, in bounds, spot clear", pass: fg1, detail: fg1 ? "scale + host placed" : "geometry wrong" });
 
   // FG2) Round fuzz — 300 sets. 15 rounds, 3 per stage; numeric rounds are
   //      SOLUTIONS-FIRST (lower/upper are step multiples bracketing exact;
@@ -5479,13 +5507,14 @@ function WEIGH_JUDGEEMENT_BANK_OK() {
 export function runTradingPostChecks() {
   const checks = [];
 
-  // FH1) Geometry: the stalls sit in the eastern gap BETWEEN the pig pen
-  //      (z ≤ -10) and the sheep paddock (z ≥ 8); the view spot is clear.
+  // FH1) Geometry: the stalls stand on the MARKET GREEN (south-east, under
+  //      the big liquid amber); the view spot is clear.
   const cols = getFarmColliders({});
   const spotClear = cols.every((c) => Math.hypot(c.x - TRADE_VIEW_SPOT[0], c.z - TRADE_VIEW_SPOT[1]) > c.radius + 0.4);
-  const fh1 = TRADE_AREA.x > 25 && TRADE_AREA.z > -8 && TRADE_AREA.z < 6 && spotClear &&
+  const fh1 = TRADE_AREA.x > 25 && TRADE_AREA.z > 40 && spotClear &&
+    Math.hypot(BIG_AMBER.position[0] - TRADE_AREA.x, BIG_AMBER.position[1] - TRADE_AREA.z) < 25 &&
     Math.hypot(TRADE_SIGN.position[0] - TRADE_AREA.x, TRADE_SIGN.position[1] - TRADE_AREA.z) < 12;
-  checks.push({ name: "Trading Post: between the pens, spot clear", pass: fh1, detail: fh1 ? "stalls placed" : "geometry wrong" });
+  checks.push({ name: "Trading Post: on the Market Green, spot clear", pass: fh1, detail: fh1 ? "stalls placed" : "geometry wrong" });
 
   // FH2) Formatting is EXACT across all three notations + the mixed form.
   const fh2 = tradeFraction(600) === "3/5" && tradeDecimal(600) === "0.6" && tradePercent(600) === "60%" &&
@@ -5561,14 +5590,16 @@ export function runVeggiePlotChecks() {
   //      paddock, in bounds; the view spot is clear of every farm collider;
   //      the host is near the bed; the paddock label reads "Veggie Plot".
   const halfW = FARM_BOUNDS.width / 2, halfH = FARM_BOUNDS.height / 2;
-  const paddock = FARM_PADDOCKS.find((p) => p.id === "sheep-paddock");
+  const paddock = FARM_PADDOCKS.find((p) => p.id === "veggie-garden");
   const cols = getFarmColliders({});
   const spotClear = cols.every((c) => Math.hypot(c.x - VEGGIE_VIEW_SPOT[0], c.z - VEGGIE_VIEW_SPOT[1]) > c.radius + 0.5);
-  const centred = paddock && Math.abs(VEGGIE_AREA.x - paddock.x) < 0.01 && Math.abs(VEGGIE_AREA.z - paddock.z) < 0.01;
+  // (Centred across the garden; a little north of its middle so the view
+  //  spot has room in front.)
+  const centred = paddock && Math.abs(VEGGIE_AREA.x - paddock.x) < 0.01 && Math.abs(VEGGIE_AREA.z - paddock.z) < 3;
   const fv1 = Math.abs(VEGGIE_AREA.x) < halfW && Math.abs(VEGGIE_AREA.z) < halfH && centred && spotClear &&
     Boolean(paddock) && paddock.label === "Veggie Plot" && VEGGIE_BED > 0 &&
     Math.hypot(VEGGIE_SIGN.position[0] - VEGGIE_AREA.x, VEGGIE_SIGN.position[1] - VEGGIE_AREA.z) < 14;
-  checks.push({ name: "Veggie Plot: centred in the paddock, spot clear, renamed", pass: fv1, detail: fv1 ? "bed placed" : "geometry wrong" });
+  checks.push({ name: "Veggie Plot: centred in the walled garden, spot clear, labelled", pass: fv1, detail: fv1 ? "bed placed" : "geometry wrong" });
 
   // FV2) Round fuzz — 300 sets. 15 rounds, 3 per stage. AREA rounds are proper
   //      x proper with product ac/bd (grid = the denominators); the typed check
@@ -5630,18 +5661,17 @@ export function runVeggiePlotChecks() {
 export function runPlankGapChecks() {
   const checks = [];
 
-  // FP1) Geometry: the gap sits in the MIDDLE of the cow paddock, in bounds;
-  //      the view spot is clear of every farm collider; the host sign is near
-  //      the gap.
+  // FP1) Geometry: the gap stands in the OLD SAWMILL's yard (the rolling
+  //      farm, 2026-10-07), in bounds; the view spot is clear of every farm
+  //      collider; the host is near the gap.
   const halfW = FARM_BOUNDS.width / 2, halfH = FARM_BOUNDS.height / 2;
-  const paddock = FARM_PADDOCKS.find((p) => p.id === "cow-paddock");
   const cols = getFarmColliders({});
   const spotClear = cols.every((c) => Math.hypot(c.x - PLANK_VIEW_SPOT[0], c.z - PLANK_VIEW_SPOT[1]) > c.radius + 0.5);
-  const centred = paddock && Math.abs(PLANK_AREA.x - paddock.x) < 0.01 && Math.abs(PLANK_AREA.z - paddock.z) < 0.01;
+  const centred = Math.hypot(PLANK_AREA.x - FARM_SAWMILL.x, PLANK_AREA.z - FARM_SAWMILL.z) < 20;
   const fp1 = Math.abs(PLANK_AREA.x) < halfW && Math.abs(PLANK_AREA.z) < halfH && centred && spotClear &&
-    Boolean(paddock) && PLANK_SIGN.id === "farm-plank-sign" && Array.isArray(PLANK_VIEW_SPOT) &&
+    PLANK_SIGN.id === "farm-plank-sign" && Array.isArray(PLANK_VIEW_SPOT) &&
     Math.hypot(PLANK_SIGN.position[0] - PLANK_AREA.x, PLANK_SIGN.position[1] - PLANK_AREA.z) < 20;
-  checks.push({ name: "Plank the Gap: centred in cow paddock, spot clear, host near", pass: fp1, detail: fp1 ? "gap placed" : "geometry wrong" });
+  checks.push({ name: "Plank the Gap: in the sawmill yard, spot clear, host near", pass: fp1, detail: fp1 ? "gap placed" : "geometry wrong" });
 
   // FP2) Round fuzz — 400 sets. 15 rounds, 3 per stage. Stages 0-2 ADD from an
   //      empty gap (pre = 0, total = gap); stages 3-4 SUBTRACT (a trough with a
@@ -5778,14 +5808,14 @@ export function runSnowChecks() {
     Math.hypot(toSnow.position[0] - ISLAND_SNOW_PATCH.center[0], toSnow.position[1] - ISLAND_SNOW_PATCH.center[1]) < ISLAND_SNOW_PATCH.radius; // ON the snow
   const sn1 =
     snow && snow.bounds === SNOW_BOUNDS && SNOW_BOUNDS.shape === "rect" &&
-    SNOW_BOUNDS.width === FARM_BOUNDS.width && SNOW_BOUNDS.height === FARM_BOUNDS.height && // same size as the farm
-    typeof snow.groundHeight === "function" && snow.groundHeight(7, -9) === 0 &&
+    SNOW_BOUNDS.width === FARM_BOUNDS.width && SNOW_BOUNDS.height === FARM_BOUNDS.height && // the (rebuilt) farm's footprint
+    typeof snow.groundHeight === "function" && Number.isFinite(snow.groundHeight(SNOW_SPAWN.x, SNOW_SPAWN.z)) &&
     spawnIn.x === SNOW_SPAWN.x && spawnIn.z === SNOW_SPAWN.z &&
     Boolean(snow.geometry && snow.geometry.skyColor) &&
     gatePlaced && gateClear2 && Boolean(toIslandBack) &&
     Math.hypot(toIslandBack.position[0] - SNOW_SPAWN.x, toIslandBack.position[1] - SNOW_SPAWN.z) > toIslandBack.radius + 1;
   checks.push({
-    name: "Snow region: farm-sized bounds + igloo gate east of Integer Dunes",
+    name: "Snow region: farm-sized valley + igloo gate east of Integer Dunes",
     pass: sn1,
     detail: sn1 ? `${SNOW_BOUNDS.width}×${SNOW_BOUNDS.height}, gate (${toSnow.position[0]}, ${toSnow.position[1]})` : "region/gate wrong",
   });
@@ -5805,7 +5835,7 @@ export function runSnowChecks() {
   const wantedSnowIx = [
     "snow-welcome-sign", "snow-range-sign", "snow-rink-sign", "snow-pines-sign", "snow-snowmen-sign",
     "snow-sled-sign", "snow-village-sign", "snow-colony-sign", "snow-cave-sign", "snow-yard-sign",
-    "snow-lights-sign", "snow-records",
+    "snow-lights-sign", "snow-records", "snow-chest",
   ];
   const ixOk = snowIx.length === wantedSnowIx.length &&
     wantedSnowIx.every((id) => snowIx.some((i) => i.id === id)) &&
@@ -5877,45 +5907,32 @@ export function runSnowChecks() {
     detail: sn4 ? "10 slots, gold/silver/bronze shared with the farm" : `keys:${keysMatch} best:${bestKeysOk} medals:${medalsShared} pct:${pctOk}`,
   });
 
-  // SN5) The ice rink: the ellipse is fully inside the boundary bank; the ice
-  //      test is exact (centre on, spawn/portal/stand off); the snow-bank ring
-  //      sits ON the ellipse, is JUMPABLE, and leaves a genuinely walkable
-  //      southern entrance gap; the penguin wander box stays in bounds and off
-  //      the ice.
+  // SN5) The ice rink = the frozen pond: fully inside the rim; the ice test
+  //      is exact (centre on, spawn/portal/stand off); nothing solid stands
+  //      on the ice (the old bank ring is gone — the pond is open all round);
+  //      the penguins' wander box sits on the Penguin Floe, off the ice.
   const [rcx, rcz] = ICE_RINK.center;
   const rinkInside =
     Math.abs(rcx) + ICE_RINK.rx < SNOW_BOUNDARY.halfW - 1 &&
     Math.abs(rcz) + ICE_RINK.rz < SNOW_BOUNDARY.halfD - 1;
   const iceTestOk =
-    isOnIce(rcx, rcz) && isOnIce(rcx + ICE_RINK.rx * 0.9, rcz) &&
+    isOnIce(rcx, rcz) && isOnIce(rcx + ICE_RINK.rx * 0.85, rcz) &&
     !isOnIce(SNOW_SPAWN.x, SNOW_SPAWN.z) &&
     !isOnIce(SNOW_RETURN_PORTAL[0], SNOW_RETURN_PORTAL[1]) &&
     !isOnIce(SNOW_RECORDS_STAND.position[0], SNOW_RECORDS_STAND.position[1]) &&
     !isOnIce(SNOW_WELCOME_SIGN.position[0], SNOW_WELCOME_SIGN.position[1]) &&
     !isOnSnow(rcx, rcz) && isOnSnow(SNOW_SPAWN.x, SNOW_SPAWN.z);
-  const bank = rinkBankColliders();
-  const bankOnRim = bank.length > 20 && bank.every((c) => {
-    const ex = (c.x - rcx) / ICE_RINK.rx;
-    const ez = (c.z - rcz) / ICE_RINK.rz;
-    return c.jumpable && Math.abs(Math.hypot(ex, ez) - 1) < 0.05;
-  });
-  // The southern gap: the walk-in point on the rim must be comfortably clear
-  // of every bank mound (player diameter ~1.0 needs ≥ ~1.6 to the mounds).
-  const gapPoint = [rcx, rcz + ICE_RINK.rz];
-  const gapWalkable = bank.every((c) => Math.hypot(c.x - gapPoint[0], c.z - gapPoint[1]) > c.radius + 0.9) &&
-    RINK_GATE_HALF_ANGLE > 0.15;
+  const iceOpen = scols.every((c) => !isOnIce(c.x, c.z) || /snow-rail-|snow-lift/.test(c.id));
   const wanderOk =
     PENGUIN_WANDER.minX < PENGUIN_WANDER.maxX && PENGUIN_WANDER.minZ < PENGUIN_WANDER.maxZ &&
-    Math.abs(PENGUIN_WANDER.minX) < SNOW_BOUNDARY.halfW && Math.abs(PENGUIN_WANDER.maxX) < SNOW_BOUNDARY.halfW &&
-    Math.abs(PENGUIN_WANDER.minZ) < SNOW_BOUNDARY.halfD && Math.abs(PENGUIN_WANDER.maxZ) < SNOW_BOUNDARY.halfD &&
     [[PENGUIN_WANDER.minX, PENGUIN_WANDER.minZ], [PENGUIN_WANDER.maxX, PENGUIN_WANDER.minZ],
      [PENGUIN_WANDER.minX, PENGUIN_WANDER.maxZ], [PENGUIN_WANDER.maxX, PENGUIN_WANDER.maxZ]]
-      .every(([px, pz]) => !isOnIce(px, pz));
-  const sn5 = rinkInside && iceTestOk && bankOnRim && gapWalkable && wanderOk;
+      .every(([px, pz]) => !isOnIce(px, pz) && onSnowPad("penguin-floe", px, pz));
+  const sn5 = rinkInside && iceTestOk && iceOpen && wanderOk;
   checks.push({
-    name: "Ice rink: exact ice test, jumpable bank + open gate, penguins off-ice",
+    name: "Ice rink (the frozen pond): exact ice test, open ice, penguins on their floe",
     pass: sn5,
-    detail: sn5 ? `${bank.length} bank mounds, southern gate open` : `inside:${rinkInside} ice:${iceTestOk} bank:${bankOnRim} gap:${gapWalkable} penguins:${wanderOk}`,
+    detail: sn5 ? "pond ice exact + open; penguins on the floe" : `inside:${rinkInside} ice:${iceTestOk} open:${iceOpen} penguins:${wanderOk}`,
   });
 
   return checks;
@@ -6674,31 +6691,21 @@ export function runMeadowLevelChecks() {
 export function runSledSlopeChecks() {
   const checks = [];
 
-  // SL1) The HILL + wiring: the ground bump is zero at the spawn, the lanes,
-  //      the boundary edges and EVERY other challenge-spot centre (only the
-  //      sled corner rises); the crest reaches the configured peak; the
-  //      region's groundHeight IS snowGroundHeight; the run lies inside the
-  //      bump with the top genuinely higher than the bottom; Flake's sign
-  //      (placeholder host) is wired with its collider, OFF the run; the
-  //      view spot is on FLAT ground, clear of every collider.
-  const zeroAt = [
-    [SNOW_SPAWN.x, SNOW_SPAWN.z], [7, -9], [0, 0],
-    [SLOPE.xMin, SLOPE.zCrest], [SLOPE.xMax, SLOPE.zCrest], [SLOPE.xCrest, SLOPE.zMin], [SLOPE.xCrest, SLOPE.zMax],
-    ...SNOW_CHALLENGE_SPOTS.filter((s) => s.id !== "sled").map((s) => s.center),
-  ];
-  const flatOk = zeroAt.every(([x, z]) => snowGroundHeight(x, z) === 0);
-  const sledSpot = SNOW_CHALLENGE_SPOTS.find((s) => s.id === "sled");
-  const crestH = snowGroundHeight(SLOPE.xCrest, SLOPE.zCrest);
-  const hillOk =
-    Math.abs(crestH - SLOPE.peak) < 1e-9 &&
-    snowGroundHeight(sledSpot.center[0], sledSpot.center[1]) > 1 &&
-    snowGroundHeight(SLOPE_LANE.xTop, SLOPE_LANE.z) > snowGroundHeight(SLOPE_LANE.xBottom, SLOPE_LANE.z) + 1.5 &&
-    SLOPE_LANE.xBottom > SLOPE.xMin && SLOPE_LANE.xTop < SLOPE.xMax;
+  // SL1) The RUN + wiring: the groomed run is a real incline up the west
+  //      flank of Big Sled Hill (values increase uphill) at its configured
+  //      grade, walkable (not a slide face), the region's groundHeight is the
+  //      terrain there; Flake's sign (placeholder host) is wired with its
+  //      collider, OFF the run; the view spot is gentle ground, clear of
+  //      every collider.
+  const hb = snowTerrainHeight(SLOPE_LANE.xBottom, SLOPE_LANE.z), ht = snowTerrainHeight(SLOPE_LANE.xTop, SLOPE_LANE.z);
+  const rise = ht - hb;
+  const gradeOk = Math.abs(rise - SLOPE_RUN_GRADE * (SLOPE_LANE.xTop - SLOPE_LANE.xBottom)) < 0.35 && rise > 2.5;
+  let walkable = true;
+  for (let x = SLOPE_LANE.xBottom; x <= SLOPE_LANE.xTop; x += 0.5) if (snowSlopeAt(x, SLOPE_LANE.z) > 0.6) walkable = false;
   const snowRegion = getRegion("snow-sums");
   const regionOk =
-    snowRegion.groundHeight(SLOPE.xCrest, SLOPE.zCrest) === crestH &&
-    snowRegion.groundHeight(7, -9) === 0 &&
-    snowRegion.groundHeight(SLOPE_LANE.xBottom + 2, SLOPE_LANE.z) === snowGroundHeight(SLOPE_LANE.xBottom + 2, SLOPE_LANE.z);
+    Math.abs(snowRegion.groundHeight(SLOPE_LANE.xTop, SLOPE_LANE.z) - ht) < 1e-6 &&
+    Math.abs(snowRegion.groundHeight(SLOPE_LANE.xBottom + 2, SLOPE_LANE.z) - snowTerrainHeight(SLOPE_LANE.xBottom + 2, SLOPE_LANE.z)) < 1e-6;
   const slCols = getSnowColliders({});
   const slSignIx = getInteractable("snow-sled-sign");
   const slSignOk =
@@ -6708,13 +6715,13 @@ export function runSledSlopeChecks() {
     Math.abs(SLOPE_SIGN.position[1] - SLOPE_LANE.z) > 2 && // off the run
     Math.hypot(slSignIx.position[0] - SLOPE_SIGN.position[0], slSignIx.position[1] - SLOPE_SIGN.position[1]) < 0.01;
   const slSpotOk =
-    snowGroundHeight(SLOPE_VIEW_SPOT[0], SLOPE_VIEW_SPOT[1]) === 0 &&
+    snowSlopeAt(SLOPE_VIEW_SPOT[0], SLOPE_VIEW_SPOT[1]) < 0.5 &&
     slCols.every((c) => Math.hypot(c.x - SLOPE_VIEW_SPOT[0], c.z - SLOPE_VIEW_SPOT[1]) > c.radius + 0.9);
-  const sl1 = flatOk && hillOk && regionOk && Boolean(slSignOk) && slSpotOk;
+  const sl1 = gradeOk && walkable && regionOk && Boolean(slSignOk) && slSpotOk;
   checks.push({
-    name: "Sledding Slope: a real hill in the sled corner, flat world untouched",
+    name: "Sledding Slope: a real groomed incline up Big Sled Hill's flank",
     pass: sl1,
-    detail: sl1 ? `crest ${crestH} m, run ${SLOPE_LANE.xBottom}→${SLOPE_LANE.xTop}` : `flat:${flatOk} hill:${hillOk} region:${regionOk} sign:${Boolean(slSignOk)} spot:${slSpotOk}`,
+    detail: sl1 ? `run ${SLOPE_LANE.xBottom}→${SLOPE_LANE.xTop} rises ${rise.toFixed(2)} m` : `grade:${gradeOk} (${rise.toFixed(2)}) walk:${walkable} region:${regionOk} sign:${Boolean(slSignOk)} spot:${slSpotOk}`,
   });
 
   // SL2) Maths fuzz over 300 sets: the back sled is a decade ± ≤2 (never
@@ -7629,6 +7636,253 @@ export function runCabinChecks() {
     name: "Lodge Interior: fire on the north wall, bed in the bedroom, Pip fireside",
     pass: cb3,
     detail: cb3 ? "great room + bedroom furnished" : `fire:${fireOk} tables:${tablesOk} bed:${bedOk} pip:${pipPlaceOk}`,
+  });
+
+  return checks;
+}
+
+
+// ===========================================================================
+// MAGMA MULTIPLES (MG, built 2026-10-02) — the sixth region: a volcano / lava
+// world, LAND ONLY (no characters or maths yet). These guard the geometry the
+// student actually walks: a reachable world, a climbable summit trail, a
+// sealed crater, lava that's always crossable by a bridge or stones, and
+// props that never sit on a path.
+// ===========================================================================
+export function runMagmaChecks() {
+  const checks = [];
+  const region = getRegion(MAGMA_REGION_ID);
+  const island = getRegion("island-1");
+  const colliders = getColliders({}, MAGMA_REGION_ID);
+  const hitsCollider = (x, z, pad = PLAYER_RADIUS) => colliders.some((c) => Math.hypot(x - c.x, z - c.z) < c.radius + pad);
+
+  // MG1) Region + portals: registered with the four terrain hooks; the RED
+  //      volcano gate on Number Island targets it; its return gate goes home;
+  //      spawn is on safe, flat, collider-free ground and outside the return
+  //      portal's trigger (no bounce); both gates sit on land, in bounds.
+  const toMagma = (island.portals || []).find((p) => p.target === MAGMA_REGION_ID);
+  const back = (region.portals || []).find((p) => p.target === "island-1");
+  const hooksOk = region && region.id === MAGMA_REGION_ID && region.name === MAGMA_NAME &&
+    region.bounds === MAGMA_BOUNDS && region.groundHeight === magmaGroundHeight &&
+    region.isLava === magmaIsLava && region.slideAt === magmaSlideAt && region.isSafe === magmaIsSafe &&
+    region.cameraTerrainClamp === true && region.maxFrameDelta > 0 && region.maxFrameDelta <= 0.1;
+  const islandGateOk = Boolean(toMagma) && toMagma.variant === "volcano" &&
+    Math.hypot(toMagma.position[0], toMagma.position[1]) < 37 &&
+    colliders.length > 0 &&
+    getColliders({}, "island-1").every((c) => Math.hypot(c.x - toMagma.position[0], c.z - toMagma.position[1]) > c.radius + 2.2);
+  const backOk = Boolean(back) && back.variant === "volcano" && landSD(back.position[0], back.position[1]) > 3 &&
+    !magmaIsLava(back.position[0], back.position[1]);
+  const sp = MAGMA_SPAWN;
+  const spawnOk = magmaIsSafe(sp.x, sp.z) && Math.abs(magmaGroundHeight(sp.x, sp.z)) < 0.05 &&
+    !hitsCollider(sp.x, sp.z) && Math.hypot(sp.x - back.position[0], sp.z - back.position[1]) > back.radius + 2;
+  const mg1 = hooksOk && islandGateOk && backOk && spawnOk;
+  checks.push({
+    name: "Magma Multiples: region hooks + red island gate + return gate + safe spawn",
+    pass: mg1,
+    detail: mg1 ? `gate at [${toMagma.position}] → ${MAGMA_NAME}; spawn safe` : `hooks:${hooksOk} gate:${islandGateOk} back:${backOk} spawn:${spawnOk}`,
+  });
+
+  // MG2) Size ≈ 3× Fraction Farm, and most of it is LAND (lava is the
+  //      obstacle, not the floor): count 1 m cells.
+  let land = 0, lava = 0;
+  const RB = MAGMA_BOUNDS.radius;
+  for (let x = -RB; x <= RB; x += 1) {
+    for (let z = -RB; z <= RB; z += 1) {
+      if (Math.hypot(x, z) > RB) continue;
+      if (landSD(x, z) >= 0) land++; else if (Math.hypot(x, z) < 100) lava++;
+    }
+  }
+  // (Measured against the ORIGINAL flat Fraction Farm, 120 × 96 m — the farm
+  //  has since grown to the jungle's size.)
+  const farmArea = 120 * 96;
+  const ratio = land / farmArea;
+  const mg2 = ratio > 2.6 && ratio < 3.6 && lava < land * 0.2;
+  checks.push({
+    name: "Magma Multiples: about three times the original farm, mostly walkable land",
+    pass: mg2,
+    detail: `land ${land} m² = ${ratio.toFixed(2)}× the original farm; inland lava ${lava} m² (${((lava / land) * 100).toFixed(0)}% of land)`,
+  });
+
+  // MG3) THE SUMMIT TRAIL: from the mouth to the rim every step is walkable
+  //      (rise ≤ STEP_UP, never steep, never lava) at three lanes across it;
+  //      it tops out at the rim height; the inner wall is unclimbable (taller
+  //      than a jump) and the outer kerb blocks walking off once it rises;
+  //      the bare flank slides you DOWN (outward) everywhere it's sampled.
+  const lanes = [-1.6, -0.3, 1.0];
+  let worstRise = 0, steepOnTrail = 0, lavaOnTrail = 0;
+  for (const u of lanes) {
+    let prev = null;
+    for (let phi = 0.02; phi <= TRAIL_END - 0.02; phi += 0.004) {
+      const [x, z] = trailPoint(phi, u);
+      const h = magmaGroundHeight(x, z);
+      if (prev !== null) worstRise = Math.max(worstRise, Math.abs(h - prev));
+      if (magmaSlideAt(x, z)) steepOnTrail++;
+      if (magmaIsLava(x, z)) lavaOnTrail++;
+      prev = h;
+    }
+  }
+  const [tx, tz] = trailPoint(TRAIL_END - 0.05, 0);
+  const topOk = Math.abs(magmaGroundHeight(tx, tz) - VOLCANO.height) < 0.05 && Math.abs(trailHeight(TRAIL_PHI) - VOLCANO.height) < 1e-6;
+  let wallBad = 0, kerbBad = 0;
+  for (let phi = 1.2; phi < TRAIL_PHI - 0.8; phi += 0.05) {
+    const h = trailHeight(phi);
+    const [wx, wz] = trailPoint(phi, -VOLCANO.pathW / 2 - 0.4);
+    if (magmaGroundHeight(wx, wz) - h < 2.0) wallBad++; // jump is ~1.3 m
+    const [kx, kz] = trailPoint(phi, VOLCANO.pathW / 2 - 0.5);
+    if (magmaGroundHeight(kx, kz) - h < STEP_UP + 0.05) kerbBad++;
+  }
+  let flankBad = 0, flankN = 0;
+  for (let i = 0; i < 400; i++) {
+    const a = i * 2.39996, r = VOLCANO.rRim + 1 + ((i * 0.618) % 1) * (VOLCANO.rBase - VOLCANO.rRim - 2);
+    const x = r * Math.cos(a), z = r * Math.sin(a);
+    if (isOnTrail(x, z)) continue;
+    flankN++;
+    const sl = magmaSlideAt(x, z);
+    if (!sl || sl.x * x + sl.z * z <= 0) flankBad++;
+  }
+  const mg3 = worstRise <= STEP_UP * 0.5 && steepOnTrail === 0 && lavaOnTrail === 0 && topOk && wallBad === 0 && kerbBad === 0 && flankBad === 0 && flankN > 100;
+  checks.push({
+    name: "Magma Multiples: the spiral summit trail climbs the volcano; flank + walls hold",
+    pass: mg3,
+    detail: `rise≤${worstRise.toFixed(3)} steep:${steepOnTrail} lava:${lavaOnTrail} top:${topOk} wall:${wallBad} kerb:${kerbBad} flank:${flankBad}/${flankN}`,
+  });
+
+  // MG4) The crater is SEALED: every point on the lip ring is covered by a
+  //      lip stone (stone radius + player radius), each carries the "not yet"
+  //      hint, and the sealed rune gate sits on the rim.
+  const lip = colliders.filter((c) => c.id.startsWith("mg-lip-"));
+  let gaps = 0;
+  for (let k = 0; k < 720; k++) {
+    const a = (k / 720) * Math.PI * 2;
+    const r = Math.hypot(CRATER_LIP_STONES[0].c[0], CRATER_LIP_STONES[0].c[1]);
+    const x = r * Math.cos(a), z = r * Math.sin(a);
+    if (!lip.some((c) => Math.hypot(x - c.x, z - c.z) < c.radius + PLAYER_RADIUS * 0.9)) gaps++;
+  }
+  const gateR = Math.hypot(CRATER_GATE.position[0], CRATER_GATE.position[1]);
+  const mg4 = lip.length >= 40 && gaps === 0 && lip.every((c) => c.hint === CRATER_HINT) &&
+    gateR > VOLCANO.rCrater && gateR < VOLCANO.rRim;
+  checks.push({
+    name: "Magma Multiples: the crater is sealed (lip ring + rune gate)",
+    pass: mg4,
+    detail: mg4 ? `${lip.length} lip stones, no gaps` : `stones:${lip.length} gaps:${gaps} gateR:${gateR.toFixed(1)}`,
+  });
+
+  // MG5) Lava is always crossable: every path centre point is land or a
+  //      bridge deck / causeway; every bridge spans lava with land at both
+  //      ends, a deck above the lava and rails; the ring road meets each
+  //      river at a bridge; hop-stones are ≤ a standing hop apart.
+  let pathInLava = 0;
+  for (const p of MAGMA_PATHS) {
+    for (let i = 0; i < p.pts.length - 1; i++) {
+      const [ax, az] = p.pts[i], [bx, bz] = p.pts[i + 1];
+      const n = Math.ceil(Math.hypot(bx - ax, bz - az) / 0.5);
+      for (let k = 0; k <= n; k++) {
+        const x = ax + ((bx - ax) * k) / n, z = az + ((bz - az) * k) / n;
+        if (magmaIsLava(x, z)) pathInLava++;
+      }
+    }
+  }
+  const bridgeOk = MAGMA_BRIDGES.every((b) => {
+    const mx = (b.from[0] + b.to[0]) / 2, mz = (b.from[1] + b.to[1]) / 2;
+    const rails = colliders.filter((c) => c.id.startsWith(`mg-rail-${b.id}-`)).length;
+    return landSD(mx, mz) < 0 && bridgeDeckAt(mx, mz) > LAVA_Y + 0.5 && !magmaIsLava(mx, mz) &&
+      landSD(b.from[0], b.from[1]) > 1 && landSD(b.to[0], b.to[1]) > 1 && rails >= 8;
+  });
+  const riverBridged = RIVERS.every((rv) => MAGMA_BRIDGES.some((b) => b.id === `bridge-${rv.id}`));
+  const moatBridged = MAGMA_BRIDGES.some((b) => b.id === "bridge-moat");
+  const causewayOk = [LAKE_CAUSEWAY.x1 - 0.3, (LAKE_CAUSEWAY.x1 + LAKE_CAUSEWAY.x2) / 2, LAKE_CAUSEWAY.x2 + 0.3]
+    .every((x) => !magmaIsLava(x, LAKE_CAUSEWAY.z) && platformTopAt(x, LAKE_CAUSEWAY.z) !== null);
+  const hop = (ids) => {
+    const st = ids.map((id) => MAGMA_PLATFORMS.find((p) => p.id === id));
+    for (let i = 0; i < st.length - 1; i++) {
+      const gap = Math.hypot(st[i].c[0] - st[i + 1].c[0], st[i].c[1] - st[i + 1].c[1]) - st[i].r - st[i + 1].r;
+      if (gap > 1.2 || gap < 0.2) return false;
+    }
+    return true;
+  };
+  const stonesOk = hop(["moat-stone-0", "moat-stone-1", "moat-stone-2"]) && hop(["lake-stone-0", "lake-stone-1", "lake-stone-2"]);
+  const stairOk = COLUMN_STAIR.every((c, i) => i === 0 || c.top - COLUMN_STAIR[i - 1].top <= STEP_UP || c.id === "col-top");
+  const mg5 = pathInLava === 0 && bridgeOk && riverBridged && moatBridged && causewayOk && stonesOk && stairOk;
+  checks.push({
+    name: "Magma Multiples: paths never cross bare lava (bridges, causeway, hop-stones)",
+    pass: mg5,
+    detail: mg5 ? `${MAGMA_BRIDGES.length} bridges, causeway + 6 hop-stones, column stair` : `pathLava:${pathInLava} bridges:${bridgeOk} rivers:${riverBridged} moat:${moatBridged} causeway:${causewayOk} stones:${stonesOk} stair:${stairOk}`,
+  });
+
+  // MG6) Everything is REACHABLE on foot (no hops needed): flood-fill a 1 m
+  //      grid of walkable lowland (non-lava, not steep, not inside a
+  //      collider, height steps ≤ STEP_UP) from the spawn and confirm it
+  //      reaches all eight clearings, the trail mouth and the return gate.
+  const O = MAGMA_BOUNDS.radius, N = 2 * O + 1;
+  const idx = (i, j) => j * N + i;
+  const walk = new Int8Array(N * N);
+  const hgt = new Float32Array(N * N);
+  for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) {
+    const x = i - O, z = j - O;
+    const r = Math.hypot(x, z);
+    if (r > O - 1 || r < VOLCANO.rBase + 0.5) continue; // the lowland + apron
+    if (magmaIsLava(x, z) || magmaSlideAt(x, z) || hitsCollider(x, z, 0.45)) continue;
+    walk[idx(i, j)] = 1;
+    hgt[idx(i, j)] = magmaGroundHeight(x, z);
+  }
+  const seen = new Int8Array(N * N);
+  const q = [idx(Math.round(sp.x) + O, Math.round(sp.z) + O)];
+  seen[q[0]] = 1;
+  while (q.length) {
+    const k = q.pop();
+    const i = k % N, j = (k - i) / N;
+    for (const [di, dj] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+      const ni = i + di, nj = j + dj;
+      if (ni < 0 || nj < 0 || ni >= N || nj >= N) continue;
+      const nk = idx(ni, nj);
+      if (seen[nk] || !walk[nk] || Math.abs(hgt[nk] - hgt[k]) > STEP_UP) continue;
+      seen[nk] = 1;
+      q.push(nk);
+    }
+  }
+  const reach = ([x, z]) => {
+    for (let dj = -1; dj <= 1; dj++) for (let di = -1; di <= 1; di++) {
+      const k = idx(Math.round(x) + O + di, Math.round(z) + O + dj);
+      if (seen[k]) return true;
+    }
+    return false;
+  };
+  const mouth = trailPoint(0.05, VOLCANO.pathW / 2 + 0.8);
+  const targets = [
+    ...MAGMA_CHALLENGE_SPOTS.filter((s) => s.id !== "lake").map((s) => [s.id, s.center]),
+    ["lake-causeway", [LAKE_CAUSEWAY.x1 + 1.2, LAKE_CAUSEWAY.z]],
+    ["trail-mouth", mouth],
+    ["return-gate", [back.position[0] + 1.5, back.position[1] - 1.5]],
+  ];
+  const unreached = targets.filter(([, p]) => !reach(p)).map(([id]) => id);
+  const mg6 = unreached.length === 0;
+  checks.push({
+    name: "Magma Multiples: every clearing, the trail and the gate are reachable on foot",
+    pass: mg6,
+    detail: mg6 ? `${targets.length} targets reached from the spawn` : `unreached: ${unreached.join(", ")}`,
+  });
+
+  // MG7) The clearings are real, open spaces: NINE of them (the Tenfold
+  //      Terraces joined with the ten challenges, 2026-10-03), ≥ 14 m apart,
+  //      on land, and no prop collider intrudes on any path or a clearing's
+  //      open middle (the challenges' own hosts + the terraces staircase
+  //      are the clearing's apparatus, so they may); no scenery collider
+  //      stands in lava.
+  const spots = MAGMA_CHALLENGE_SPOTS;
+  let apart = true;
+  for (let a = 0; a < spots.length; a++) for (let b = a + 1; b < spots.length; b++) {
+    if (Math.hypot(spots[a].center[0] - spots[b].center[0], spots[a].center[1] - spots[b].center[1]) < 14) apart = false;
+  }
+  const onLand = spots.every((s) => landSD(s.center[0], s.center[1]) > 2 && !magmaIsLava(s.center[0], s.center[1]));
+  const scatter = colliders.filter((c) => /^mg-(boulder|tree|lantern|col|obsidian|cinder|ember-tree|g\d)/.test(c.id));
+  const onPath = scatter.filter((c) => pathEdgeDist(c.x, c.z) < c.radius).map((c) => c.id);
+  const middleBlocked = spots.filter((s) => colliders.some((c) => Math.hypot(c.x - s.center[0], c.z - s.center[1]) < Math.min(3.5, s.radius - 0.5) + c.radius && !/^mg-(obelisk|rib|host|terrace)/.test(c.id))).map((s) => s.id);
+  const inLava = colliders.filter((c) => !/^mg-(rail|lip|cliff)/.test(c.id) && magmaIsLava(c.x, c.z)).map((c) => c.id);
+  const mg7 = spots.length === 9 && apart && onLand && onPath.length === 0 && middleBlocked.length === 0 && inLava.length === 0;
+  checks.push({
+    name: "Magma Multiples: nine open clearings; no props on paths or in lava",
+    pass: mg7,
+    detail: mg7 ? `${spots.length} clearings, ${scatter.length} scatter props clear` : `apart:${apart} land:${onLand} onPath:${onPath.slice(0, 4)} middle:${middleBlocked} lava:${inLava.slice(0, 4)}`,
   });
 
   return checks;

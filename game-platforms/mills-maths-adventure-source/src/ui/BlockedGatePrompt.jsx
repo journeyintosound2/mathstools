@@ -19,16 +19,20 @@ export default function BlockedGatePrompt() {
   const questLogOpen = useUI((s) => s.questLogOpen);
   const trophyOpen = useUI((s) => s.trophyOpen);
   const [hint, setHint] = useState(null);
+  const [icon, setIcon] = useState("🔒");
 
   useEffect(() => {
     const t = setInterval(() => {
       const active = playerState.blockedHint && Date.now() < playerState.blockedExpiry;
       setHint(active ? playerState.blockedHint : null);
+      // Locked gates show a padlock; ride / hazard hints (chutes, the lift,
+      // the icy lake, lava, bounces) set blockedIcon = "" for none.
+      setIcon(playerState.blockedIcon ?? "🔒");
     }, 150); // poll (smooth, no per-frame React churn / flicker)
     return () => clearInterval(t);
   }, []);
 
   const modalOpen = Boolean(activeEncounterId) || questLogOpen || trophyOpen;
   if (!hint || modalOpen) return null;
-  return <div className="blocked-gate-prompt">🔒 {hint}</div>;
+  return <div className="blocked-gate-prompt">{icon ? `${icon} ` : ""}{hint}</div>;
 }

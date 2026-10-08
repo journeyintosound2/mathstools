@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
 
@@ -11,6 +11,9 @@ import { getRegion } from "../data/regions.js";
 import CharacterAvatar from "./characters/CharacterAvatar.jsx";
 import { useFarmChallengeActive, useActiveSnowChallenge } from "./farmChallengeActive.js";
 import { inSnowChallengeView } from "../data/snow/snowLayout.js";
+import { useActiveMagmaChallenge } from "./magma/magmaActive.js";
+import { inMagmaChallengeView } from "../data/magma/magmaChallenges.js";
+import { MAGMA_REGION_ID } from "../data/magma/magmaLayout.js";
 
 // Default interaction range (in world units) if an object doesn't set one.
 // NOTE: this is the INTERACTION radius (when "Press E" appears), which is
@@ -43,9 +46,12 @@ export default function Interactable({ data }) {
   // camera's line (Pip beside the range, the placeholder hosts) steps out of
   // the picture entirely while its challenge runs.
   const snowKey = useActiveSnowChallenge();
+  const magmaKey = useActiveMagmaChallenge();
   const outOfShot =
-    Boolean(snowKey) && data.regionId === "snow-sums" &&
-    inSnowChallengeView(snowKey, data.position[0], data.position[1]);
+    (Boolean(snowKey) && data.regionId === "snow-sums" &&
+      inSnowChallengeView(snowKey, data.position[0], data.position[1])) ||
+    (Boolean(magmaKey) && data.regionId === MAGMA_REGION_ID &&
+      inMagmaChallengeView(magmaKey, data.position[0], data.position[1]));
   const completed = useProgress((s) =>
     s.completedEncounters.includes(data.encounterId)
   );
@@ -66,6 +72,17 @@ export default function Interactable({ data }) {
   const quietRef = useRef(quiet);
   quietRef.current = quiet;
 
+  // Big rolling regions (the farm) set `badgeRange` / `drawRange`: a badge
+  // only shows within badgeRange metres (world badges don't hide behind
+  // hills, so a far one would float over the scenery), and a character is
+  // only drawn within drawRange (beyond it, it's a speck in the haze).
+  const region = getRegion(useSession((s) => s.currentRegionId));
+  const badgeRange = region.badgeRange || Infinity;
+  const drawRange = region.drawRange || Infinity;
+  const [badgeFar, setBadgeFar] = useState(false);
+  const badgeFarRef = useRef(false);
+  const drawGate = useRef();
+
   // Proximity check each frame (cheap; reads the shared non-reactive position).
   // Uses the object's INTERACTION radius (larger than its collision radius).
   // NPCs also smoothly rotate to face the player as they move around.
@@ -73,6 +90,11 @@ export default function Interactable({ data }) {
     const dist = Math.hypot(playerState.x - x, playerState.z - z);
     if (dist <= interactRange) setNearby(data.id);
     else clearNearby(data.id);
+    if (badgeRange < Infinity) {
+      const far = badgeFarRef.current ? dist > badgeRange - 6 : dist > badgeRange;
+      if (far !== badgeFarRef.current) { badgeFarRef.current = far; setBadgeFar(far); }
+    }
+    if (drawGate.current && drawRange < Infinity) drawGate.current.visible = dist < drawRange;
 
     // While a challenge (or an encounter modal) is running the NPC holds
     // still rather than tracking the player — no peripheral motion competing
@@ -89,7 +111,6 @@ export default function Interactable({ data }) {
 
   // Sit the object ON its surface, using the ACTIVE region's ground (the
   // Schoolyard's tiers, or island-1's plateau/stairs) so it isn't buried/floating.
-  const region = getRegion(useSession((s) => s.currentRegionId));
   const surfaceY = region.groundHeight ? region.groundHeight(x, z) : groundHeightAt(x, z);
 
   // Touch (W4-C): tapping this object walks the player to the edge of its
@@ -109,6 +130,7 @@ export default function Interactable({ data }) {
 
   return (
     <group position={[x, surfaceY, z]} visible={!outOfShot}>
+     <group ref={drawGate}>
       {/* Glowing interaction pad, brighter when in range. Fades right down
           while a challenge runs so the ground stays clean under the action. */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.02, 0]} receiveShadow>
@@ -141,6 +163,7 @@ export default function Interactable({ data }) {
           <Model model={data.model} color={data.color} open={completed} />
         </group>
       )}
+     </group>
 
       {/* Floating status badge (icon + name + caption), styled by tone.
           Faded out while a modal is open OR a challenge is running, so no
@@ -149,7 +172,7 @@ export default function Interactable({ data }) {
       <Html position={[0, badgeY, 0]} center distanceFactor={11} className="ix-badge-anchor" zIndexRange={[24, 0]}>
         <div
           className={`ix-badge tone-${status.tone} ${isNearby && !quiet ? "near" : ""} ${
-            quiet ? "ix-hidden" : ""
+            quiet || badgeFar ? "ix-hidden" : ""
           }`}
         >
           <span className="ix-badge-icon">{status.icon}</span>

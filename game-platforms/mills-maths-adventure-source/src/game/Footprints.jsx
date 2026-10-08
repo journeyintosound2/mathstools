@@ -17,10 +17,10 @@ const POOL = 28;
 const LIFE = 1.0; // seconds a print lasts
 const STRIDE = 0.55; // distance walked between prints
 
-export default function Footprints({ center, radius, color = "#aebfca", test, life = LIFE, stride = STRIDE, size = 0.17 }) {
+export default function Footprints({ center, radius, color = "#aebfca", test, life = LIFE, stride = STRIDE, size = 0.17, heightAt }) {
   const refs = useRef([]);
   const prints = useMemo(
-    () => Array.from({ length: POOL }, () => ({ born: -999, x: 0, z: 0 })),
+    () => Array.from({ length: POOL }, () => ({ born: -999, x: 0, z: 0, y: 0.05 })),
     []
   );
   const cursor = useRef(0);
@@ -51,6 +51,8 @@ export default function Footprints({ center, radius, color = "#aebfca", test, li
         p.born = t;
         p.x = playerState.x + px * 0.16 * side.current;
         p.z = playerState.z + pz * 0.16 * side.current;
+        // Optional terrain-following height (regions with hills/mountains).
+        p.y = heightAt ? heightAt(p.x, p.z) + 0.05 : 0.05;
         side.current *= -1;
         cursor.current = (cursor.current + 1) % POOL;
       }
@@ -65,7 +67,7 @@ export default function Footprints({ center, radius, color = "#aebfca", test, li
         continue;
       }
       m.visible = true;
-      m.position.set(prints[i].x, 0.05, prints[i].z);
+      m.position.set(prints[i].x, prints[i].y, prints[i].z);
       m.material.opacity = 0.5 * (1 - age / life);
     }
   });

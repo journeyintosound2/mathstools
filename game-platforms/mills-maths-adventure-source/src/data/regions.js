@@ -20,8 +20,21 @@ import { WALKABLE_RADIUS, OCEAN_RADIUS } from "./worldZones.js";
 import { SPAWN_POINT } from "./worldSpawnPoints.js";
 import { SCHOOLYARD_BOUNDS, SCHOOLYARD_SPAWN } from "./schoolyard/schoolyardLayout.js";
 import { schoolyardGroundHeight } from "./schoolyard/schoolyardTerrain.js";
-import { FARM_BOUNDS, FARM_SPAWN, FARM_RETURN_PORTAL } from "./farm/farmLayout.js";
-import { SNOW_BOUNDS, SNOW_SPAWN, SNOW_RETURN_PORTAL, snowGroundHeight } from "./snow/snowLayout.js";
+import { FARM_BOUNDS, FARM_SPAWN, FARM_RETURN_PORTAL, FARM_RETURN_PORTAL_YAW } from "./farm/farmLayout.js";
+import { farmGroundHeight, farmSlideAt, farmSpeedAt, farmIsSafe } from "./farm/farmTerrain.js";
+import { SNOW_BOUNDS, SNOW_SPAWN, SNOW_RETURN_PORTAL, SNOW_RETURN_PORTAL_YAW } from "./snow/snowLayout.js";
+import {
+  snowGroundHeight, snowSlideAt, snowIceAt, snowHazardAt, snowIsSafe, snowChuteAt, chuteFrame,
+  liftBoardAt, liftSeatAt, LIFT, LIFT_DISMOUNT,
+} from "./snow/snowTerrain.js";
+import {
+  MAGMA_REGION_ID, MAGMA_NAME, MAGMA_BOUNDS, MAGMA_SPAWN, MAGMA_RETURN_PORTAL, MAGMA_RETURN_PORTAL_YAW,
+  magmaGroundHeight, magmaIsLava, magmaIsSafe, magmaSlideAt,
+} from "./magma/magmaLayout.js";
+import {
+  JUNGLE_REGION_ID, JUNGLE_NAME, JUNGLE_BOUNDS, JUNGLE_SPAWN, JUNGLE_RETURN_PORTAL, JUNGLE_RETURN_PORTAL_YAW,
+  jungleGroundHeight, jungleSlideAt, jungleClimbAt, jungleBounceAt, jungleSpeedAt, jungleIsSafe,
+} from "./jungle/jungleLayout.js";
 import {
   CABIN_BOUNDS, CABIN_SPAWN, CABIN_DOOR, LODGE_DOOR_SNOW,
   CABIN_ARRIVE_FROM_SNOW, SNOW_ARRIVE_FROM_CABIN,
@@ -58,6 +71,15 @@ export const REGIONS = {
       // Playground portal), so it sits naturally on the existing snow.
       // rotationY faces the doorway back toward the map centre.
       { id: "island-to-snow", position: [-14, -25], radius: 2.0, rotationY: Math.atan2(14, 25), target: "snow-sums", label: "Snowball Sums", variant: "igloo" },
+      // Magma Multiples gate — a basalt arch with a RED lava swirl on the open
+      // south-east grass (between the spawn and the Algebra moat, near the
+      // coast). rotationY faces the doorway back toward the map centre.
+      { id: "island-to-magma", position: [17, 31], radius: 2.0, rotationY: Math.atan2(-17, -31), target: MAGMA_REGION_ID, label: MAGMA_NAME, variant: "volcano" },
+      // Emerald Jungle gate — a mossy stone arch with a GREEN swirl on the
+      // open SOUTH-WEST grass, mirroring the volcano gate across the spawn
+      // (between the farm gate and the spawn, near the coast). rotationY
+      // faces the doorway back toward the map centre.
+      { id: "island-to-jungle", position: [-17, 31], radius: 2.0, rotationY: Math.atan2(17, -31), target: JUNGLE_REGION_ID, label: JUNGLE_NAME, variant: "jungle" },
     ],
   },
 
@@ -88,29 +110,47 @@ export const REGIONS = {
     ],
   },
 
-  // Parts of a Whole Farm (F1) — a LARGE, flat farming region rendered by
-  // FarmScenery.jsx: paddocks (kept empty for future Meshy animals), a barn,
-  // crops, a pond — and the in-world CHALLENGE FENCE (fractions of a length).
-  // Reached via the Farm Gate behind the island spawn point.
+  // FRACTION FARM (rebuilt 2026-10-07) — a big, ROLLING farm about the
+  // Emerald Jungle's size: rolling hills separate themed areas (the
+  // homestead, the orchard + packing shed, the carrot patch, the old sawmill
+  // on the creek, the dairy, the cattle run, the long paddock, the grain
+  // silos, the glasshouse gardens, the market green), each home to one of
+  // the ten fraction challenges, found by exploring the farm tracks.
+  // Everything lives in data/farm/ + game/FarmScenery.jsx. Hooks (as the
+  // jungle's): LAYERED ground (bridge decks), the steep outer hills slide,
+  // wading the knee-deep creek + duck pond is slower.
   "farm-parts-whole": {
     id: "farm-parts-whole",
     name: "Fraction Farm",
     spawn: { x: FARM_SPAWN.x, z: FARM_SPAWN.z },
     bounds: FARM_BOUNDS,
-    groundHeight: () => 0, // flat farmland (island plateau/stairs don't apply)
+    groundHeight: farmGroundHeight,
+    slideAt: farmSlideAt,
+    speedAt: farmSpeedAt,
+    isSafe: farmIsSafe,
+    cameraTerrainClamp: true,
+    maxFrameDelta: 1 / 15,
+    arriveYaw: 0, // arrive looking north, up the drive through the farm gate
+    // The farm is big + hilly: host badges show within 55 m (they'd float
+    // over the hills otherwise) and characters draw within 170 m.
+    badgeRange: 55,
+    drawRange: 170,
     geometry: {
-      // Ground is drawn by FarmScenery; only skyColor is used by World.
-      // Warm peach horizon = the farm's LATE-AFTERNOON light (fog matches,
-      // so the rolling hills haze into a golden distance).
-      skyColor: "#f6d9a8",
+      // Ground is drawn by FarmScenery; skyColor = the warm peach horizon of
+      // the farm's LATE-AFTERNOON light (fog matches, so the rolling hills
+      // haze into a golden distance).
+      skyColor: "#f4dcae",
+      skyTop: "#5aa6e0",
+      fogNear: 80,
+      fogFar: 380,
       grassColor: "#8ecf6a",
       beachColor: "#8ecf6a",
       oceanColor: "#8ecf6a",
-      walkableRadius: 60,
-      oceanRadius: 70,
+      walkableRadius: 160,
+      oceanRadius: 170,
     },
     portals: [
-      { id: "farm-to-island", position: FARM_RETURN_PORTAL, radius: 2.0, rotationY: Math.PI, target: "island-1", label: "Number Island" },
+      { id: "farm-to-island", position: FARM_RETURN_PORTAL, radius: 2.0, rotationY: FARM_RETURN_PORTAL_YAW, target: "island-1", label: "Number Island", variant: "haybale" },
     ],
   },
 
@@ -124,22 +164,47 @@ export const REGIONS = {
     name: "Snowball Sums",
     spawn: { x: SNOW_SPAWN.x, z: SNOW_SPAWN.z },
     bounds: SNOW_BOUNDS,
-    // Flat snowfield EXCEPT the sledding hill in the NE corner (SL) — the
-    // bump falls back to zero before every edge, so everywhere else stays 0.
-    groundHeight: (x, z) => snowGroundHeight(x, z),
+    // Rebuilt 2026-10-08: a big alpine valley (data/snow/). LAYERED ground
+    // (bridge decks + ice floes); the rim + cliffs slide you back; the pond,
+    // frozen river, puddles + runouts are slippery ice (sloping ice pulls
+    // you downhill); the glacier lake is too cold to stand in (you hop back
+    // out, like Magma's lava); the toboggan CHUTES ride you down on a sled;
+    // the CHAIRLIFT carries you up Big Sled Hill.
+    groundHeight: snowGroundHeight,
+    slideAt: snowSlideAt,
+    iceAt: snowIceAt,
+    isLava: snowHazardAt,
+    hazardHint: "Brrr — that water's freezing! 🥶 Use the bridges (or hop the ice floes).",
+    hazardSound: "splash",
+    isSafe: snowIsSafe,
+    chuteAt: snowChuteAt,
+    chuteFrame,
+    liftBoardAt,
+    liftSeatAt,
+    liftDismount: LIFT_DISMOUNT,
+    liftSpeed: LIFT.speed,
+    liftLength: LIFT.len,
+    cameraTerrainClamp: true,
+    maxFrameDelta: 1 / 15,
+    arriveYaw: 0, // arrive looking north up the valley
+    badgeRange: 55,
+    drawRange: 170,
     geometry: {
-      // Ground is drawn by SnowScenery; only skyColor is used by World.
-      // Dusky indigo horizon = the snow world's TWILIGHT (fog matches, so the
-      // peaks + distant trees haze into a purple-blue distance under the aurora).
-      skyColor: "#3a3f6b",
-      grassColor: "#e8eef8",
-      beachColor: "#e8eef8",
-      oceanColor: "#e8eef8",
-      walkableRadius: 60,
-      oceanRadius: 70,
+      // A crisp WINTER AFTERNOON turning to dusk: a pale lilac-white horizon
+      // (the fog — distant peaks haze into it), deep blue overhead, the low
+      // sun warm on the snow, cabin windows already glowing.
+      skyColor: "#e3e3ef",
+      skyTop: "#3f6fc0",
+      fogNear: 85,
+      fogFar: 400,
+      grassColor: "#eef3fa",
+      beachColor: "#eef3fa",
+      oceanColor: "#eef3fa",
+      walkableRadius: 140,
+      oceanRadius: 150,
     },
     portals: [
-      { id: "snow-to-island", position: SNOW_RETURN_PORTAL, radius: 2.0, rotationY: Math.PI, target: "island-1", label: "Number Island" },
+      { id: "snow-to-island", position: SNOW_RETURN_PORTAL, radius: 2.0, rotationY: SNOW_RETURN_PORTAL_YAW, target: "island-1", label: "Number Island", variant: "igloo" },
       // The lodge's AJAR front door → the Lodge Interior (CB). The door
       // visual lives on the lodge (SnowScenery LodgeDoor) — variant
       // "cabindoor" renders NO portal swirl. Door-to-door travel: `arrive`
@@ -149,6 +214,92 @@ export const REGIONS = {
         rotationY: 0, target: "cabin", label: "The Lodge", variant: "cabindoor",
         arrive: CABIN_ARRIVE_FROM_SNOW,
       },
+    ],
+  },
+
+  // --- MAGMA MULTIPLES — the SIXTH region: a volcano / lava world about
+  // three times Fraction Farm's area. A 32 m volcano in the middle with a
+  // spiral summit trail (the crater is sealed for now), a lava moat, four
+  // lava rivers, a lava lake and eight reserved clearings joined by a ring
+  // road + bridges. Land only (no characters / maths yet). Everything lives
+  // in data/magma/ + game/MagmaScenery.jsx. The extra hooks below are read
+  // by Player.jsx and are only defined for this region:
+  //   isLava(x,z)   → touching lava pops you back to the last safe spot
+  //   isSafe(x,z)   → solid ground worth remembering as "safe"
+  //   slideAt(x,z)  → the volcano's steep flank: slide down, can't walk up
+  //   cameraTerrainClamp → keep the follow camera above the mountain
+  [MAGMA_REGION_ID]: {
+    id: MAGMA_REGION_ID,
+    name: MAGMA_NAME,
+    spawn: { x: MAGMA_SPAWN.x, z: MAGMA_SPAWN.z },
+    bounds: MAGMA_BOUNDS,
+    groundHeight: magmaGroundHeight,
+    isLava: magmaIsLava,
+    isSafe: magmaIsSafe,
+    slideAt: magmaSlideAt,
+    cameraTerrainClamp: true,
+    maxFrameDelta: 1 / 15,
+    arriveYaw: 0, // arrive looking north, straight up the avenue at the volcano
+    geometry: {
+      // Ground is drawn by MagmaScenery; skyColor = the hazy sunset horizon
+      // (fog matches). The world is big, so the fog sits much further out
+      // than the other regions' 55–98 — the volcano reads from the spawn.
+      skyColor: "#e0834f",
+      skyTop: "#4a1631",
+      fogNear: 85,
+      fogFar: 290,
+      grassColor: "#3e302c",
+      beachColor: "#3e302c",
+      oceanColor: "#3e302c",
+      walkableRadius: 100,
+      oceanRadius: 110,
+    },
+    portals: [
+      { id: "magma-to-island", position: MAGMA_RETURN_PORTAL, radius: 2.0, rotationY: MAGMA_RETURN_PORTAL_YAW, target: "island-1", label: "Number Island", variant: "volcano" },
+    ],
+  },
+
+  // --- EMERALD JUNGLE — the SEVENTH region: a lush jungle valley about
+  // twice Magma Multiples' land. A river runs the length of the valley from a
+  // waterfall off the northern plateau to the Lily Lagoon; tree-covered hills
+  // (Canopy Hill, Mossback Ridge), the Temple Ruins, Redwood Hollow, the
+  // Great Tree and ten reserved clearings. Land only (no maths yet).
+  // Everything lives in data/jungle/ + game/JungleScenery.jsx. Hooks read by
+  // Player.jsx (only defined here):
+  //   groundHeight(x,z,y) → LAYERED ground (bridges/decks/stairs you can be under)
+  //   slideAt(x,z,y)      → cliffs + the rim: slide down, can't walk up
+  //   climbAt(x,z,y)      → vine walls: push into them to climb
+  //   bounceAt(x,z,y)     → bouncy mushroom caps launch you on landing
+  //   speedAt(x,z,y)      → wading through the knee-deep water is slower
+  [JUNGLE_REGION_ID]: {
+    id: JUNGLE_REGION_ID,
+    name: JUNGLE_NAME,
+    spawn: { x: JUNGLE_SPAWN.x, z: JUNGLE_SPAWN.z },
+    bounds: JUNGLE_BOUNDS,
+    groundHeight: jungleGroundHeight,
+    slideAt: jungleSlideAt,
+    climbAt: jungleClimbAt,
+    bounceAt: jungleBounceAt,
+    speedAt: jungleSpeedAt,
+    isSafe: jungleIsSafe,
+    cameraTerrainClamp: true,
+    maxFrameDelta: 1 / 15,
+    arriveYaw: 0, // arrive looking north, up the river valley toward the falls
+    geometry: {
+      // Ground is drawn by JungleScenery; skyColor = the soft blue-green haze
+      // on the horizon (fog matches — Wooded-Kingdom-style misty distance).
+      skyColor: "#bcdcd3",
+      skyTop: "#3f93dc",
+      fogNear: 70,
+      fogFar: 360,
+      grassColor: "#5a9838",
+      beachColor: "#5a9838",
+      oceanColor: "#5a9838",
+      walkableRadius: 160,
+      oceanRadius: 170,
+    },
+    portals: [
+      { id: "jungle-to-island", position: JUNGLE_RETURN_PORTAL, radius: 2.0, rotationY: JUNGLE_RETURN_PORTAL_YAW, target: "island-1", label: "Number Island", variant: "jungle" },
     ],
   },
 

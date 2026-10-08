@@ -31,50 +31,44 @@ import { useCaveCrystals } from "./caveCrystalsStore.js";
 import { useLodgeYard } from "./lodgeYardStore.js";
 import { useAuroraLookout } from "./auroraLookoutStore.js";
 import { useActiveSnowChallenge } from "./farmChallengeActive.js";
+import { activeMagmaChallengeKey, useActiveMagmaChallenge, magmaStore } from "./magma/magmaActive.js";
+import { getMagmaChallenge } from "../data/magma/magmaChallenges.js";
+import { MAGMA_REGION_ID } from "../data/magma/magmaLayout.js";
 import { useResults } from "../results/resultStore.js";
 import { isPlaygroundUnlocked } from "../results/resultUtils.js";
 import {
-  CHALLENGE_FENCE, CHALLENGE_FENCE_LENGTH, ROUNDUP_FIELD, ROUNDUP_PEN,
-  ORDER_GARDEN, ORDER_VIEW_SPOT, CRATE_AREA, CRATE_ROW, CRATE_VIEW_SPOT,
+  CHALLENGE_FENCE,
+  ORDER_VIEW_SPOT, CRATE_AREA, CRATE_VIEW_SPOT,
   MILK_AREA, MILK_VIEW_SPOT, WEIGH_AREA, WEIGH_VIEW_SPOT,
   TRADE_AREA, TRADE_VIEW_SPOT, VEGGIE_AREA, VEGGIE_VIEW_SPOT,
   PLANK_AREA, PLANK_VIEW_SPOT,
   SHOP_AREA, SHOP_VIEW_SPOT,
 } from "../data/farm/farmLayout.js";
-import {
-  isOnIce, RANGE_AREA, RANGE_VIEW_SPOT,
-  RINK_GLIDE_LINE, RINK_GLIDE_VIEW_SPOT,
-  GROVE_TREE_POS, GROVE_VIEW_SPOT,
-  MEADOW_TOWER_LEFT, MEADOW_TOWER_RIGHT, MEADOW_VIEW_SPOT,
-  SLOPE_LANE, SLOPE_VIEW_SPOT, snowGroundHeight,
-  VILLAGE_BUILD_SITE, VILLAGE_VIEW_SPOT,
-  COLONY_AREA, COLONY_VIEW_SPOT,
-  CAVE_AREA, CAVE_VIEW_SPOT,
-  YARD_AREA, YARD_VIEW_SPOT,
-  LOOKOUT_AREA, LOOKOUT_VIEW_SPOT,
-} from "../data/snow/snowLayout.js";
+import { farmChallengeView, FARM_CAMERA_SHAKES, ROUNDUP_CAM_YAW } from "../data/farm/farmCameras.js";
+import { challengePadY } from "../data/farm/farmTerrain.js";
+import { snowChallengeView, snowParkSpot, SNOW_DOCK_LIFT } from "../data/snow/snowCameras.js";
+import { challengePadY as snowStagePadY } from "../data/snow/snowTerrain.js";
 
-// The five late snow challenges (VG/PC/IC/LY/AL) share one camera treatment:
-// park at a viewing spot, front-on locked view of their area. Resolved as a
-// single priority-picked mode; per-mode framing lives here.
-//   spot  where the player parks · look  the camera's look-at point ·
-//   fit   half-width the frame must fit · lift  camera-height factor
-const LATE_SNOW_VIEW = {
-  // Round 2 (2026-09-29): tighter + centred between the stands and the build
-  // site, so every rod and cube is big enough to tap.
-  village: { spot: VILLAGE_VIEW_SPOT, look: [VILLAGE_BUILD_SITE[0], 0.9, VILLAGE_BUILD_SITE[1] + 2.3], fit: 6.8, base: 2.6, minDist: 8.5 },
-  colony: { spot: COLONY_VIEW_SPOT, look: [COLONY_AREA.x, 1.1, COLONY_AREA.z - 1.4], fit: 9.5, base: 2.4 },
-  cave: { spot: CAVE_VIEW_SPOT, look: [CAVE_AREA.x, 1.1, CAVE_AREA.z - 4.0], fit: 6.6, base: 2.2, minDist: 8.5 },
-  // Centred on the counting-up board (round 2, 2026-09-29) — close enough
-  // to read every cent on the line; the stall peeks in at the left.
-  yard: { spot: YARD_VIEW_SPOT, look: [YARD_AREA.x + 2.6, 1.55, YARD_AREA.z - 2.5], fit: 4.3, base: 2.2, minDist: 6.5 },
-  lights: { spot: LOOKOUT_VIEW_SPOT, look: [LOOKOUT_AREA.x, 4.6, LOOKOUT_AREA.z - 6.0], fit: 10.5, base: 3.4 },
-};
+// The Snowball Sums challenge cameras live in data/snow/snowCameras.js (one
+// recipe per challenge, pad-relative — the snow valley rolls). They look a
+// little BELOW their activity (SNOW_DOCK_LIFT) so the scene rides up clear of
+// the bottom-docked card; the Magma cameras share that lift.
 
-// Snowball Sums cards dock at the BOTTOM of the screen (2026-09-28 audit),
-// so every snow camera looks a little BELOW its activity — the maths rides up
-// into the clear upper part of the frame instead of sitting under the card.
-const SNOW_DOCK_LIFT = 0.14;
+// Magma Multiples (2026-10-03): every challenge is authored in a STAGE FRAME
+// (data/magma/magmaChallenges.js) and filmed from its inner side looking
+// outward (the summit: inward over the crater). Resolve its world-space
+// parking spot + look point once per challenge.
+const _magmaViews = {};
+function magmaViewFor(key) {
+  if (_magmaViews[key]) return _magmaViews[key];
+  const c = getMagmaChallenge(key);
+  if (!c) return null;
+  const [lx, ly, lz] = c.view.look;
+  const [wx, wz] = c.frame.toWorld(lx, lz);
+  const v = { key, frame: c.frame, view: c.view, spot: c.frame.toWorld(c.parkAt[0], c.parkAt[1]), lookWorld: [wx, c.frame.y + ly, wz] };
+  _magmaViews[key] = v;
+  return v;
+}
 
 // Short decaying camera wobble for wrong answers (triggered by the challenge
 // panels via playerState.camShake = { start, dur }).
@@ -124,39 +118,41 @@ const CAM_FOLLOW = 3.0;
 // momentum and glides to a stop. Lower grip = slipperier.
 const ICE_GRIP = 1.5; // s⁻¹ — how quickly input takes hold (and glide decays)
 const ICE_STOP_SPEED = 0.06; // below this the glide is considered stopped
+// Ice on a slope pulls you downhill (the frozen river drifts you to the pond).
+const ICE_SLOPE_G = 9; // m/s² per unit of grade
+
+// Snowball Sums TOBOGGAN CHUTES (regions with chuteAt / chuteFrame): drop
+// into a chute's trough and you ride it down on a sled — gravity along the
+// chute's fall, a little drag, steer left/right inside the berms.
+const CHUTE_GRAVITY = 15; // m/s² per unit of grade
+const CHUTE_DRAG = 0.42; // s⁻¹
+const CHUTE_MIN_SPEED = 3.5;
+const CHUTE_MAX_SPEED = 14;
+const CHUTE_STEER = 4.5; // m/s across the trough
+const CHUTE_HINT = "Wheee! 🛷 Steer left and right to carve down the run.";
+// …and the CHAIRLIFT (liftBoardAt / liftSeatAt): step onto the boarding spot.
+const LIFT_HINT = "All aboard! 🚡 The chairlift will carry you up to the top.";
+
+// Magma Multiples (regions with the isLava / slideAt hooks):
+const SLIDE_SPEED = 9; // m/s down a too-steep volcano flank
+const LAVA_BOUNCE_VY = 9.5; // the "hot-foot" pop back to safety
+const LAVA_HINT = "Ouch — hot lava! 🔥 Stick to the paths, bridges and stones.";
+const CAM_TERRAIN_CLEARANCE = 1.4; // keep the follow camera this far above the ground
+
+// Emerald Jungle (regions with the climbAt / bounceAt / speedAt hooks):
+const CLIMB_SPEED = 3.1; // m/s up a vine wall (×1.4 holding Shift)
+const CLIMB_SIDE_SPEED = 1.8; // m/s sideways along a vine wall
+const CLIMB_GRIP_OUT = 0.45; // how far in front of the vines the body hangs
+const BOUNCE_HINT = "Boing! 🍄 Hold a direction while you bounce to steer.";
 
 // Fence Challenge camera mode (F2 feedback): while the challenge runs, the
 // camera glides to a fixed SIDE-ON view that frames the WHOLE fence (a giant
 // physical number line), and the player walks LEFT/RIGHT only along a line
 // just in front of it. The walk-line offset south of the fence:
 const FENCE_WALK_OFFSET = 2.4;
-const FENCE_CAM_MIN = 20; // never closer than this
-const FENCE_CAM_MAX = 50; // never further (fog starts at 55)
-
-// Round-Up camera mode (F3 feedback): while the herding challenge runs, the
-// camera glides to a raised vantage SOUTH-EAST of the herd field + pen,
-// looking DOWN at ~45° so the whole herd is visible at once. The player
-// still walks normally (WASD/arrows/tap) — the movement basis is aligned to
-// the locked view so the controls stay intuitive.
-const ROUNDUP_CAM_YAW = Math.PI / 4; // camera sits to the SE (+x, +z)
-const ROUNDUP_CAM_MIN = 26; // zoomed out enough to always see the whole herd
-const ROUNDUP_CAM_MAX = 50;
-// Centre of everything the view must contain (field + pen), from the layout.
-const RU_LOOK_X = (Math.min(ROUNDUP_FIELD.x1, ROUNDUP_PEN.x - ROUNDUP_PEN.w / 2) +
-  Math.max(ROUNDUP_FIELD.x2, ROUNDUP_PEN.x + ROUNDUP_PEN.w / 2)) / 2;
-const RU_LOOK_Z = ((ROUNDUP_PEN.z - ROUNDUP_PEN.d / 2) + ROUNDUP_FIELD.z2) / 2;
-
-// Order-the-Parts camera mode (F4): a close, front-on view of the carrot row
-// (this challenge is tap-only, so the player parks at the viewing spot).
-const ORDER_CAM_MIN = 11;
-const ORDER_CAM_MAX = 30;
-
-// Crate Packing camera mode (F6): a STEEP (~48° down), close view of the
-// staging area so the fruit + crate sockets read large and nothing occludes
-// the groups/leftovers (teacher feedback). Camera pulls back to the SOUTH.
-const CRATE_CAM_MIN = 10;
-const CRATE_CAM_MAX = 26;
-const CRATE_LOOK_Z_OFFSET = -0.5; // centre piles + row + the big count chips
+// The challenge camera framings live in data/farm/farmCameras.js (shared
+// with the headless checks); the Round-Up view sits to the SE, so the
+// movement basis turns to ROUNDUP_CAM_YAW while it runs.
 
 // Locked-gate/boundary hint: show when within this distance of a hinted
 // collider, and keep it on screen for this long after the last near-contact.
@@ -190,7 +186,7 @@ export const CAMERA_DISTANCE_VALUE = CAMERA_DISTANCE; // re-export for DevPanel
 export default function Player() {
   const group = useRef();
   const keys = useKeyboard();
-  const { camera } = useThree();
+  const { camera, scene: devScene } = useThree();
 
   const profile = useProgress((s) => s.profile);
   const activeEncounterId = useSession((s) => s.activeEncounterId);
@@ -200,6 +196,8 @@ export default function Player() {
   // the camera — step the avatar out of shot so it never stands between the
   // student and the maths (2026-09-28 audit: it hid the range's handful row).
   const snowChallenge = useActiveSnowChallenge();
+  // …and the same for a running Magma Multiples challenge.
+  const magmaChallenge = useActiveMagmaChallenge();
 
   // Colliders depend on unlock-affecting progress AND the active region → rebuild
   // only when those change (not every frame).
@@ -232,6 +230,17 @@ export default function Player() {
   const camLook = useRef(new THREE.Vector3()); // lerped look-at point (locked modes)
   const lockedPrev = useRef(false); // seed camLook on entering a locked camera mode
   const iceVel = useRef({ x: 0, z: 0 }); // persistent skate velocity on the rink ice
+  const chuteRide = useRef(null); // { chute, s, off, v } while sledding down a chute
+  const liftRide = useRef(null); // { t } while riding the chairlift
+  const liftCooldown = useRef(0); // no instant re-boarding
+  const lastSafe = useRef(null); // last solid, non-lava spot (lava regions bounce you here)
+  const lavaFlight = useRef(false); // mid "hot-foot" bounce: no colliders/walls until landing
+  const climbing = useRef(null); // { wall, t } while hanging on a vine wall (Emerald Jungle)
+  const prevYClimb = useRef(0); // last frame's height (climb animation)
+  // Colliders with a height range (yMin / yMax = the band your FEET must be
+  // in) only block at those heights — e.g. the treehouse railings 20 m up, a
+  // stair's balustrade, or a leaf pole below its pad.
+  const hasYRange = useMemo(() => colliders.some((c) => c.yMin !== undefined || c.yMax !== undefined), [colliders]);
 
   useFrame((_, delta) => {
     if (!group.current) return;
@@ -243,13 +252,44 @@ export default function Player() {
       group.current.position.y = 0;
       vy.current = 0;
       grounded.current = true;
+      {
+        // Teleports land on safe ground; if one ever didn't, fall back to the spawn.
+        const tr = getRegion(useSession.getState().currentRegionId);
+        const okHere = !tr.isSafe || tr.isSafe(playerState.teleport.x, playerState.teleport.z);
+        // A tap-to-move target from the OLD spot (e.g. the portal you walked
+      // into) means nothing after a teleport — drop it so you don't wander.
+      if (playerState.moveTarget) clearMoveTarget();
+      lastSafe.current = okHere
+          ? { x: playerState.teleport.x, y: 0, z: playerState.teleport.z }
+          : { x: tr.spawn.x, y: 0, z: tr.spawn.z };
+        // Regions with a signature view (Magma Multiples: the volcano) turn
+        // the player + camera to face it on arrival.
+        if (typeof tr.arriveYaw === "number") {
+          camYaw.current = tr.arriveYaw;
+          group.current.rotation.y = tr.arriveYaw + Math.PI;
+        }
+      }
+      lavaFlight.current = false;
+      climbing.current = null;
+      chuteRide.current = null;
+      liftRide.current = null;
       playerState.teleport = null;
     }
 
     // Active region: its bounds clamp the player and its own ground function (the
     // Schoolyard's tiers/stairs) drives height, else island-1's plateau/stairs.
     const region = getRegion(useSession.getState().currentRegionId);
-    const groundAt = (x, z) => (region.groundHeight ? region.groundHeight(x, z) : groundHeightAt(x, z));
+    // LAYERED ground (Emerald Jungle): the region's ground function may take
+    // the player's current height, so thin structures (bridges, decks, a
+    // spiral stair) only count when you're at / above them. Regions that
+    // ignore the third argument behave exactly as before.
+    const groundAt = (x, z, y) => (region.groundHeight
+      ? region.groundHeight(x, z, y === undefined ? group.current.position.y : y)
+      : groundHeightAt(x, z));
+    // Big-terrain regions (Magma Multiples) cap the frame step so a hitch
+    // (tab switch, slow device) can't tunnel the player through a trail
+    // kerb or fling them down the volcano in a single frame.
+    if (region.maxFrameDelta) delta = Math.min(delta, region.maxFrameDelta);
 
     const k = keys.current;
     // Freeze locomotion while an encounter modal is open OR in first-person look
@@ -307,52 +347,34 @@ export default function Player() {
       !fenceMode && !roundUpMode && !orderMode && !crateMode && !milkMode && !weighMode && !tradeMode && !veggieMode && !plankMode &&
       region.id === "farm-parts-whole" && useFarmShop.getState().status !== "idle";
 
-    // Snowball Range mode (SR): front-on camera on the ten-frame crate in the
-    // snow world; tap/type-only (its own region, so no farm-mode overlap).
-    const rangeMode = region.id === "snow-sums" && useSnowballRange.getState().status !== "idle";
+    const farmCamKey = fenceMode ? "fence" : roundUpMode ? "roundup" : orderMode ? "order" : crateMode ? "crate"
+      : milkMode ? "milk" : weighMode ? "weigh" : tradeMode ? "trade" : veggieMode ? "veggie" : plankMode ? "plank"
+        : shopMode ? "shop" : null;
 
-    // Ice Rink glide mode (RG): side-on camera framing the whole rink number
-    // line; the plan is button/tap-only, so the player parks off to the side.
-    const rinkGlideMode =
-      !rangeMode && region.id === "snow-sums" && useRinkGlide.getState().status !== "idle";
-
-    // Christmas Tree Grove mode (GV): front-on camera on the big light-up
-    // tree; button/type-only, so the player parks at the viewing spot.
-    const groveMode =
-      !rangeMode && !rinkGlideMode && region.id === "snow-sums" &&
-      useGroveLights.getState().status !== "idle";
-
-    // Snowman Meadow mode (ML): front-on camera on the two snowman towers;
-    // button/type-only, so the player parks at the viewing spot.
-    const meadowMode =
-      !rangeMode && !rinkGlideMode && !groveMode && region.id === "snow-sums" &&
-      useMeadowLevel.getState().status !== "idle";
-
-    // Sledding Slope mode (SL): side-on camera on the hill's number window;
-    // button/type-only, so the player parks at the viewing spot.
-    const sledMode =
-      !rangeMode && !rinkGlideMode && !groveMode && !meadowMode &&
-      region.id === "snow-sums" && useSledSlope.getState().status !== "idle";
-
-    // The five late snow challenges (VG/PC/IC/LY/AL) — one priority pick.
-    const lateSnowMode =
-      region.id === "snow-sums" && !rangeMode && !rinkGlideMode && !groveMode && !meadowMode && !sledMode
-        ? useVillageSplit.getState().status !== "idle"
-          ? "village"
-          : useColonyPairs.getState().status !== "idle"
-            ? "colony"
-            : useCaveCrystals.getState().status !== "idle"
-              ? "cave"
-              : useLodgeYard.getState().status !== "idle"
-                ? "yard"
-                : useAuroraLookout.getState().status !== "idle"
-                  ? "lights"
-                  : null
-        : null;
+    // Snowball Sums challenges — ONE locked mode (data/snow/snowCameras.js
+    // frames each from the south, pad-relative). They're mutually exclusive.
+    const snowCamKey = region.id === "snow-sums"
+      ? (useSnowballRange.getState().status !== "idle" ? "range"
+        : useRinkGlide.getState().status !== "idle" ? "rink"
+        : useGroveLights.getState().status !== "idle" ? "grove"
+        : useMeadowLevel.getState().status !== "idle" ? "meadow"
+        : useSledSlope.getState().status !== "idle" ? "sled"
+        : useVillageSplit.getState().status !== "idle" ? "village"
+        : useColonyPairs.getState().status !== "idle" ? "colony"
+        : useCaveCrystals.getState().status !== "idle" ? "cave"
+        : useLodgeYard.getState().status !== "idle" ? "yard"
+        : useAuroraLookout.getState().status !== "idle" ? "lights" : null)
+      : null;
+    // Magma Multiples challenges share the same parked, locked-camera
+    // treatment (their own stage-frame camera below).
+    const magmaKey = region.id === MAGMA_REGION_ID ? activeMagmaChallengeKey() : null;
+    const magmaView = magmaKey ? magmaViewFor(magmaKey) : null;
+    // Any parked, locked "stage" camera (snow or magma).
+    const stageMode = snowCamKey || (magmaView ? `magma:${magmaKey}` : null);
 
     // --- Camera orbit (Z / X, or the on-screen rotate buttons) ---
     // (disabled in the locked challenge views)
-    if (!frozen && !fenceMode && !roundUpMode && !orderMode && !crateMode && !milkMode && !weighMode && !tradeMode && !veggieMode && !plankMode && !shopMode && !rangeMode && !rinkGlideMode && !groveMode && !meadowMode && !sledMode && !lateSnowMode) {
+    if (!frozen && !fenceMode && !roundUpMode && !orderMode && !crateMode && !milkMode && !weighMode && !tradeMode && !veggieMode && !plankMode && !shopMode && !stageMode) {
       if (k.rotateLeft || touchInput.rotateLeft) camYaw.current -= ROTATE_SPEED * delta;
       if (k.rotateRight || touchInput.rotateRight) camYaw.current += ROTATE_SPEED * delta;
     }
@@ -375,7 +397,7 @@ export default function Player() {
     // --- Movement (camera-relative; fence mode = world left/right only;
     // order/crate/milk modes = tap-only, no locomotion) ---
     move.current.set(0, 0, 0);
-    if (!frozen && !orderMode && !crateMode && !milkMode && !weighMode && !tradeMode && !veggieMode && !plankMode && !shopMode && !rangeMode && !rinkGlideMode && !groveMode && !meadowMode && !sledMode && !lateSnowMode) {
+    if (!frozen && !orderMode && !crateMode && !milkMode && !weighMode && !tradeMode && !veggieMode && !plankMode && !shopMode && !stageMode) {
       if (fenceMode) {
         // Left/right arrows (or A/D, or the on-screen rotate buttons) slide
         // the player along the fence in WORLD x — screen-left is west (red
@@ -422,14 +444,26 @@ export default function Player() {
     // persistent velocity (momentum + glide) rather than setting displacement
     // directly. Off the ice the velocity just mirrors the input, so stepping
     // onto the rink carries the walk/run speed in and gliding feels seamless.
-    const onIce = region.id === "snow-sums" && isOnIce(prevX, prevZ);
+    // (Regions with an iceAt hook — the Snowball Sums pond, frozen river,
+    // puddles and chute runouts.)
+    const onIce = Boolean(region.iceAt && grounded.current && region.iceAt(prevX, prevZ, pos.y));
     const hasInput = move.current.lengthSq() > 0;
     if (hasInput) move.current.normalize();
-    const targetSpeed = MOVE_SPEED * (running ? RUN_MULTIPLIER : 1);
+    // Wading through water (Emerald Jungle's speedAt hook) slows you down.
+    const terrainSpeed = region.speedAt ? region.speedAt(prevX, prevZ, pos.y) : 1;
+    const targetSpeed = MOVE_SPEED * (running ? RUN_MULTIPLIER : 1) * terrainSpeed;
     if (onIce) {
       const grip = 1 - Math.exp(-ICE_GRIP * delta);
       iceVel.current.x += (move.current.x * targetSpeed - iceVel.current.x) * grip;
       iceVel.current.z += (move.current.z * targetSpeed - iceVel.current.z) * grip;
+      // Sloping ice pulls you downhill.
+      if (!frozen) {
+        const e = 0.6;
+        const gx = (groundAt(prevX + e, prevZ) - groundAt(prevX - e, prevZ)) / (2 * e);
+        const gz = (groundAt(prevX, prevZ + e) - groundAt(prevX, prevZ - e)) / (2 * e);
+        iceVel.current.x -= gx * ICE_SLOPE_G * delta;
+        iceVel.current.z -= gz * ICE_SLOPE_G * delta;
+      }
     } else {
       iceVel.current.x = move.current.x * targetSpeed;
       iceVel.current.z = move.current.z * targetSpeed;
@@ -437,14 +471,146 @@ export default function Player() {
     const glideSpeed = Math.hypot(iceVel.current.x, iceVel.current.z);
     const gliding = !frozen && !hasInput && onIce && glideSpeed > ICE_STOP_SPEED;
 
+    // --- TOBOGGAN CHUTES + THE CHAIRLIFT (Snowball Sums) -----------------
+    // Step down into a chute's trough and you're on a sled: gravity along
+    // its fall, steer across inside the berms, then shoot out onto the
+    // runout ice. Step onto the chairlift's boarding spot and a chair
+    // carries you up to the top station.
+    let riding = false;
+    let liftRiding = false;
+    if (!frozen && !stageMode && region.liftBoardAt) {
+      if (!liftRide.current && !chuteRide.current && grounded.current && Date.now() - liftCooldown.current > 2500 &&
+          region.liftBoardAt(pos.x, pos.z)) {
+        liftRide.current = { t: 0 };
+        if (playerState.moveTarget) clearMoveTarget();
+        playerState.blockedHint = LIFT_HINT;
+        playerState.blockedIcon = "";
+        playerState.blockedExpiry = Date.now() + 3200;
+        useUI.getState().playSound("whoosh");
+      }
+      const lr = liftRide.current;
+      if (lr) {
+        riding = true;
+        liftRiding = true;
+        lr.t = Math.min(1, lr.t + (region.liftSpeed / region.liftLength) * delta);
+        const seat = region.liftSeatAt(lr.t);
+        pos.set(seat.x, seat.y, seat.z);
+        group.current.rotation.y = seat.yaw;
+        camYaw.current = lerpAngle(camYaw.current, seat.yaw + Math.PI, 1 - Math.exp(-2 * delta));
+        vy.current = 0;
+        iceVel.current.x = 0; iceVel.current.z = 0;
+        if (lr.t >= 1) {
+          // Step off onto the summit.
+          liftRide.current = null;
+          liftRiding = false;
+          liftCooldown.current = Date.now();
+          pos.x = region.liftDismount[0];
+          pos.z = region.liftDismount[1];
+          pos.y = groundAt(pos.x, pos.z, pos.y + 3);
+          grounded.current = true;
+        }
+      }
+    }
+    if (!frozen && !stageMode && region.chuteAt && !liftRide.current) {
+      if (!chuteRide.current && grounded.current) {
+        const c = region.chuteAt(pos.x, pos.z, pos.y);
+        if (c) {
+          const f0 = region.chuteFrame(c.chute, c.s);
+          const v0 = Math.max(CHUTE_MIN_SPEED, iceVel.current.x * f0.tx + iceVel.current.z * f0.tz);
+          chuteRide.current = { chute: c.chute, s: c.s, off: c.off, v: v0 };
+          if (playerState.moveTarget) clearMoveTarget();
+          playerState.blockedHint = CHUTE_HINT;
+          playerState.blockedIcon = "";
+          playerState.blockedExpiry = Date.now() + 2600;
+          useUI.getState().playSound("whoosh");
+        }
+      }
+      const cr = chuteRide.current;
+      if (cr) {
+        riding = true;
+        const f = region.chuteFrame(cr.chute, cr.s);
+        cr.v += (CHUTE_GRAVITY * f.grade - CHUTE_DRAG * cr.v) * delta;
+        cr.v = Math.min(CHUTE_MAX_SPEED, Math.max(CHUTE_MIN_SPEED, cr.v));
+        cr.s += cr.v * delta;
+        const steer = hasInput ? move.current.x * -f.tz + move.current.z * f.tx : 0;
+        const lim = cr.chute.hw - 0.55;
+        cr.off = Math.max(-lim, Math.min(lim, cr.off + steer * CHUTE_STEER * delta));
+        const g = region.chuteFrame(cr.chute, cr.s);
+        pos.x = g.x - g.tz * cr.off;
+        pos.z = g.z + g.tx * cr.off;
+        pos.y = groundAt(pos.x, pos.z, g.h + 0.3);
+        vy.current = 0;
+        grounded.current = true;
+        group.current.rotation.y = Math.atan2(g.tx, g.tz);
+        camYaw.current = lerpAngle(camYaw.current, Math.atan2(-g.tx, -g.tz), 1 - Math.exp(-3.5 * delta));
+        iceVel.current.x = g.tx * cr.v;
+        iceVel.current.z = g.tz * cr.v;
+        // Off the bottom: out onto the runout ice (still gliding).
+        if (cr.s >= cr.chute.len - 0.25) chuteRide.current = null;
+      }
+    }
+    playerState.sledding = Boolean(chuteRide.current);
+    playerState.onLift = Boolean(liftRide.current);
+
     // Horizontal locomotion. GROUNDED → live input (or ice glide) drives it.
     // AIRBORNE → the launch velocity locked in at take-off drives it and live
     // input is IGNORED, so a jump follows a fixed arc (no mid-air steering) and
     // lands wherever its trajectory carries it — like a real leap.
+    // --- VINE CLIMBING (regions with a climbAt hook) ---------------------
+    // Push INTO a vine wall to climb it; let go by pushing away or jumping.
+    // At the top you pull yourself up over the lip onto the ledge above.
+    let climbingNow = false;
+    if (region.climbAt && !frozen && !lavaFlight.current) {
+      if (!climbing.current && hasInput) {
+        const c = region.climbAt(pos.x, pos.z, pos.y);
+        if (c && -(move.current.x * c.wall.nx + move.current.z * c.wall.nz) > 0.55) {
+          climbing.current = { wall: c.wall, t: c.t };
+          jumpVel.current.x = 0; jumpVel.current.z = 0;
+        }
+      }
+      const cl = climbing.current;
+      if (cl) {
+        const w = cl.wall;
+        const into = hasInput ? -(move.current.x * w.nx + move.current.z * w.nz) : 0;
+        const side = hasInput ? move.current.x * w.tx + move.current.z * w.tz : 0;
+        const jumpNow = (k.jump || touchInput.jump) && !jumpHeld.current;
+        if (jumpNow || into < -0.5) {
+          // Let go: a little push-off backwards, then fall.
+          climbing.current = null;
+          grounded.current = false;
+          vy.current = jumpNow ? 4 : 0;
+          jumpVel.current.x = w.nx * 2.2; jumpVel.current.z = w.nz * 2.2;
+          if (jumpNow) jumpHeld.current = true;
+        } else {
+          climbingNow = true;
+          if (into > 0.3) pos.y += CLIMB_SPEED * (running ? 1.4 : 1) * delta;
+          cl.t = Math.max(0.35, Math.min(w.len - 0.35, cl.t + side * CLIMB_SIDE_SPEED * delta));
+          const f = Math.max(0, Math.min(1, (pos.y - w.base) / Math.max(0.5, w.top - w.base)));
+          const sOut = CLIMB_GRIP_OUT - f * w.cliffW;
+          pos.x = w.a[0] + w.tx * cl.t + w.nx * sOut;
+          pos.z = w.a[1] + w.tz * cl.t + w.nz * sOut;
+          group.current.rotation.y = Math.atan2(-w.nx, -w.nz);
+          vy.current = 0;
+          grounded.current = false;
+          if (playerState.moveTarget && into <= 0.3 && Math.abs(side) < 0.2) clearMoveTarget();
+          if (pos.y >= w.top - 0.05) {
+            // Mantle over the lip onto the ledge above.
+            climbing.current = null;
+            climbingNow = false;
+            pos.x = w.a[0] + w.tx * cl.t - w.nx * (w.cliffW + 1.3);
+            pos.z = w.a[1] + w.tz * cl.t - w.nz * (w.cliffW + 1.3);
+            pos.y = groundAt(pos.x, pos.z, w.top + 0.3);
+            grounded.current = true;
+            useUI.getState().playSound("climb");
+          }
+        }
+      }
+    }
+
     const airborne = !grounded.current;
     const hv = airborne ? jumpVel.current : iceVel.current;
     const hvLen = Math.hypot(hv.x, hv.z);
-    const applyHoriz = airborne ? (!frozen && hvLen > 1e-6) : (hasInput || gliding);
+    const applyHoriz = !climbingNow && !riding && (airborne ? (!frozen && hvLen > 1e-6) : (hasInput || gliding));
     if (applyHoriz) {
       const steeringToTarget = !airborne && Boolean(playerState.moveTarget) && !k.forward && !k.backward && !k.left && !k.right;
       // Facing/camera direction follows the ACTUAL velocity (input direction off
@@ -474,17 +640,33 @@ export default function Player() {
       // Solid-object collision: push out of any collider (slides naturally).
       // While AIRBORNE (mid-jump, y > ~0.9), drop `jumpable` colliders so Space
       // vaults paddock / challenge fences — border fences stay non-jumpable.
-      const activeColliders = pos.y > 0.9 ? colliders.filter((c) => !c.jumpable) : colliders;
+      // (Terrain regions measure "aloft" from the ground under you, not y = 0.)
+      const aloft = region.slideAt ? airborne && pos.y - groundAt(pos.x, pos.z) > 0.6 : pos.y > 0.9;
+      let activeColliders = lavaFlight.current ? [] : aloft ? colliders.filter((c) => !c.jumpable) : colliders;
+      if (hasYRange && activeColliders.length) {
+        activeColliders = activeColliders.filter((c) => (c.yMin === undefined || pos.y >= c.yMin) && (c.yMax === undefined || pos.y <= c.yMax));
+      }
       const res = resolveCircle(nx, nz, activeColliders, PLAYER_RADIUS);
       nx = res.x;
       nz = res.z;
 
       // Ground "walls": can't walk UP a surface taller than STEP_UP above the
       // current height (plateau side / final stair). Slide along it per-axis.
-      if (groundAt(nx, nz) > pos.y + STEP_UP) {
+      if (!lavaFlight.current && groundAt(nx, nz) > pos.y + STEP_UP) {
         if (groundAt(nx, prevZ) <= pos.y + STEP_UP) nz = prevZ;
         else if (groundAt(prevX, nz) <= pos.y + STEP_UP) nx = prevX;
         else { nx = prevX; nz = prevZ; }
+      }
+
+      // Too-steep ground (Magma Multiples' volcano flank): you can't walk UP
+      // onto it — the summit trail is the way up. Slide per-axis like a wall.
+      if (region.slideAt && !airborne) {
+        const steepUp = (x, z) => region.slideAt(x, z, pos.y) && groundAt(x, z) > pos.y + 0.02;
+        if (steepUp(nx, nz)) {
+          if (!steepUp(nx, prevZ)) nz = prevZ;
+          else if (!steepUp(prevX, nz)) nx = prevX;
+          else { nx = prevX; nz = prevZ; }
+        }
       }
 
       // Hitting a wall mid-air kills the horizontal launch velocity, so the jump
@@ -541,9 +723,9 @@ export default function Player() {
 
     // Order/crate/milk modes: smoothly park the player at the viewing spot
     // (the challenges are tap-only) and ignore stray tap-to-move targets.
-    if ((orderMode || crateMode || milkMode || weighMode || tradeMode || veggieMode || plankMode || shopMode || rangeMode || rinkGlideMode || groveMode || meadowMode || sledMode || lateSnowMode) && !frozen) {
+    if ((orderMode || crateMode || milkMode || weighMode || tradeMode || veggieMode || plankMode || shopMode || stageMode) && !frozen) {
       if (playerState.moveTarget) clearMoveTarget();
-      const spot = lateSnowMode ? LATE_SNOW_VIEW[lateSnowMode].spot : rangeMode ? RANGE_VIEW_SPOT : rinkGlideMode ? RINK_GLIDE_VIEW_SPOT : groveMode ? GROVE_VIEW_SPOT : meadowMode ? MEADOW_VIEW_SPOT : sledMode ? SLOPE_VIEW_SPOT : orderMode ? ORDER_VIEW_SPOT : crateMode ? CRATE_VIEW_SPOT : milkMode ? MILK_VIEW_SPOT : weighMode ? WEIGH_VIEW_SPOT : tradeMode ? TRADE_VIEW_SPOT : veggieMode ? VEGGIE_VIEW_SPOT : plankMode ? PLANK_VIEW_SPOT : SHOP_VIEW_SPOT;
+      const spot = magmaView ? magmaView.spot : snowCamKey ? snowParkSpot(snowCamKey) : orderMode ? ORDER_VIEW_SPOT : crateMode ? CRATE_VIEW_SPOT : milkMode ? MILK_VIEW_SPOT : weighMode ? WEIGH_VIEW_SPOT : tradeMode ? TRADE_VIEW_SPOT : veggieMode ? VEGGIE_VIEW_SPOT : plankMode ? PLANK_VIEW_SPOT : SHOP_VIEW_SPOT;
       const odx = spot[0] - pos.x;
       const odz = spot[1] - pos.z;
       const od = Math.hypot(odx, odz);
@@ -567,22 +749,8 @@ export default function Player() {
         group.current.rotation.y = Math.atan2(VEGGIE_AREA.x - pos.x, VEGGIE_AREA.z - pos.z);
       } else if (plankMode) {
         group.current.rotation.y = Math.atan2(PLANK_AREA.x - pos.x, PLANK_AREA.z - pos.z);
-      } else if (rangeMode) {
-        group.current.rotation.y = Math.atan2(RANGE_AREA.x - pos.x, RANGE_AREA.z - pos.z);
-      } else if (rinkGlideMode) {
-        // Face the middle of the rink number line.
-        const lineMidX = (RINK_GLIDE_LINE.xMin + RINK_GLIDE_LINE.xMax) / 2;
-        group.current.rotation.y = Math.atan2(lineMidX - pos.x, RINK_GLIDE_LINE.z - pos.z);
-      } else if (groveMode) {
-        group.current.rotation.y = Math.atan2(GROVE_TREE_POS[0] - pos.x, GROVE_TREE_POS[1] - pos.z);
-      } else if (meadowMode) {
-        const towersMidX = (MEADOW_TOWER_LEFT[0] + MEADOW_TOWER_RIGHT[0]) / 2;
-        group.current.rotation.y = Math.atan2(towersMidX - pos.x, MEADOW_TOWER_LEFT[1] - pos.z);
-      } else if (sledMode) {
-        const laneMidX = (SLOPE_LANE.xTop + SLOPE_LANE.xBottom) / 2;
-        group.current.rotation.y = Math.atan2(laneMidX - pos.x, SLOPE_LANE.z - pos.z);
-      } else if (lateSnowMode) {
-        const lk = LATE_SNOW_VIEW[lateSnowMode].look;
+      } else if (stageMode) {
+        const lk = magmaView ? magmaView.lookWorld : snowChallengeView(snowCamKey).look;
         group.current.rotation.y = Math.atan2(lk[0] - pos.x, lk[2] - pos.z);
       } else {
         group.current.rotation.y = Math.atan2(SHOP_AREA.x - pos.x, SHOP_AREA.z - pos.z);
@@ -602,13 +770,24 @@ export default function Player() {
     }
     if (bestHint && bestD <= HINT_RANGE) {
       playerState.blockedHint = bestHint;
+      playerState.blockedIcon = "🔒";
       playerState.blockedExpiry = Date.now() + HINT_LINGER;
+    }
+
+    // Steep flank: if you're standing on it (fell or hopped off the trail),
+    // you slide straight down it — no climbing the volcano the short way.
+    const onFace = Boolean(region.slideAt && grounded.current && !frozen && !climbingNow && !riding && region.slideAt(pos.x, pos.z, pos.y));
+    if (onFace) {
+      const sl = region.slideAt(pos.x, pos.z, pos.y);
+      pos.x += sl.x * SLIDE_SPEED * delta;
+      pos.z += sl.z * SLIDE_SPEED * delta;
+      if (playerState.moveTarget) clearMoveTarget();
     }
 
     // --- Jump (Shift or the on-screen Jump button): edge-triggered + only when
     // grounded → no flying. ---
     const jumpPressed = k.jump || touchInput.jump;
-    if (!frozen && !fenceMode && !orderMode && !crateMode && !milkMode && !weighMode && !tradeMode && !veggieMode && !plankMode && !shopMode && !rangeMode && !rinkGlideMode && !groveMode && !meadowMode && !sledMode && !lateSnowMode) {
+    if (!frozen && !onFace && !climbingNow && !riding && !lavaFlight.current && !fenceMode && !orderMode && !crateMode && !milkMode && !weighMode && !tradeMode && !veggieMode && !plankMode && !shopMode && !stageMode) {
       if (jumpPressed && !jumpHeld.current && grounded.current) {
         vy.current = JUMP_VELOCITY;
         grounded.current = false;
@@ -631,8 +810,10 @@ export default function Player() {
 
     // --- Verticality: follow the ground height; fall off ledges; land after a
     // jump. The walkable surface comes from groundHeightAt (plateau + stairs). ---
-    const ground = groundAt(pos.x, pos.z);
-    if (grounded.current) {
+    const ground = climbingNow || liftRiding ? pos.y : groundAt(pos.x, pos.z);
+    if (climbingNow || liftRiding) {
+      // Hanging on the vines / sitting on the chairlift — gravity waits.
+    } else if (grounded.current) {
       if (ground >= pos.y - STEP_DOWN) {
         pos.y = ground; // walk up small steps / stay / step down smoothly
       } else {
@@ -653,6 +834,52 @@ export default function Player() {
         grounded.current = true;
         jumpVel.current.x = 0; // landed → clear the locked launch velocity
         jumpVel.current.z = 0;
+        // Bouncy mushroom cap (Emerald Jungle): landing launches you again —
+        // steer the bounce by holding a direction.
+        const pad = region.bounceAt ? region.bounceAt(pos.x, pos.z, pos.y) : null;
+        if (pad) {
+          vy.current = pad.vy;
+          grounded.current = false;
+          jumpVel.current.x = iceVel.current.x * 0.75;
+          jumpVel.current.z = iceVel.current.z * 0.75;
+          playerState.bounceHit = { id: pad.id, t: Date.now() };
+          if (!playerState.blockedHint || Date.now() > (playerState.blockedExpiry || 0)) {
+            playerState.blockedHint = BOUNCE_HINT;
+            playerState.blockedIcon = "";
+            playerState.blockedExpiry = Date.now() + 1800;
+          }
+          useUI.getState().playSound("boing");
+        }
+      }
+    }
+
+    // --- LAVA (regions with an isLava hook) ------------------------------
+    // Touching lava never hurts: the player pops up in a "hot-foot" bounce
+    // whose arc lands exactly on the last safe spot they stood on.
+    if (region.isLava && !frozen && !riding) {
+      if (lavaFlight.current && grounded.current) lavaFlight.current = false;
+      if (grounded.current && region.isLava(pos.x, pos.z, pos.y)) {
+        const safe = lastSafe.current || { x: region.spawn.x, y: 0, z: region.spawn.z };
+        const dy = pos.y - safe.y;
+        const tFlight = (LAVA_BOUNCE_VY + Math.sqrt(Math.max(0, LAVA_BOUNCE_VY * LAVA_BOUNCE_VY + 2 * GRAVITY * dy))) / GRAVITY;
+        jumpVel.current.x = (safe.x - pos.x) / tFlight;
+        jumpVel.current.z = (safe.z - pos.z) / tFlight;
+        vy.current = LAVA_BOUNCE_VY;
+        grounded.current = false;
+        lavaFlight.current = true;
+        if (playerState.moveTarget) clearMoveTarget();
+        playerState.lavaHit = { x: pos.x, y: pos.y, z: pos.z, t: Date.now() };
+        // (Regions name their own hazard: Magma's lava, the snow world's icy lake.)
+        playerState.blockedHint = region.hazardHint || LAVA_HINT;
+        playerState.blockedIcon = "";
+        playerState.blockedExpiry = Date.now() + 2600;
+        useUI.getState().playSound(region.hazardSound || "lava");
+      } else if (grounded.current && !lavaFlight.current && !onFace) {
+        // Remember solid ground (re-checked every ~0.4 m, not every frame).
+        const ls = lastSafe.current;
+        if (!ls || Math.hypot(pos.x - ls.x, pos.z - ls.z) > 0.4) {
+          if (!region.isSafe || region.isSafe(pos.x, pos.z)) lastSafe.current = { x: pos.x, y: pos.y, z: pos.z };
+        }
       }
     }
 
@@ -667,12 +894,19 @@ export default function Player() {
     // Animation mode for the rigged player model (PlayerCharacter.jsx):
     // airborne → jump; actually moving this frame → run/walk; else idle.
     // (Displacement covers keyboard, tap-to-move AND the auto walk-ins.)
-    const movedThisFrame = Math.hypot(pos.x - prevX, pos.z - prevZ) > 0.004;
-    playerState.animMode = !grounded.current
+    const movedThisFrame = Math.hypot(pos.x - prevX, pos.z - prevZ) > 0.004 || (climbingNow && Math.abs(pos.y - prevYClimb.current) > 1e-3);
+    playerState.climbing = climbingNow;
+    playerState.animMode = riding
+      ? "idle"
+      : climbingNow
+      ? (movedThisFrame || (hasInput && pos.y > prevYClimb.current + 1e-4) ? "walk" : "idle")
+      : !grounded.current
       ? "jump"
       : movedThisFrame
         ? (running ? "run" : "walk")
         : "idle";
+
+    prevYClimb.current = pos.y;
 
     // Teleport Gates: stepping into a portal travels to its target region (with a
     // short cooldown so arriving next to one can't bounce you straight back).
@@ -684,6 +918,7 @@ export default function Player() {
           // it just shows the hint (BlockedGatePrompt) instead of travelling.
           if (portal.lock === "playground" && !isPlaygroundUnlocked(useResults.getState().results)) {
             playerState.blockedHint = "Score at least 80% with Pip, Fern and Alby to open this gate.";
+            playerState.blockedIcon = "🔒";
             playerState.blockedExpiry = Date.now() + HINT_LINGER;
             break;
           }
@@ -720,222 +955,59 @@ export default function Player() {
         p.z + Math.cos(fpvYaw.current) * cp
       );
       camera.lookAt(camTarget.current);
-    } else if (fenceMode) {
+    } else if (farmCamKey) {
       fpvInit.current = false;
-      // --- Fence Challenge camera (F2): a fixed, slightly elevated SIDE-ON
-      // view framing the WHOLE fence. Distance is computed from the camera's
-      // real fov/aspect so both end posts are always on screen (capped inside
-      // the fog). Position AND look-at both ease in → a smooth glide. ---
-      const midX = (CHALLENGE_FENCE.x1 + CHALLENGE_FENCE.x2) / 2;
-      const halfW = Math.tan((camera.fov * Math.PI) / 360) * camera.aspect;
-      const dist = Math.min(FENCE_CAM_MAX, Math.max(FENCE_CAM_MIN, (CHALLENGE_FENCE_LENGTH / 2 + 5) / halfW));
+      // --- Fraction Farm challenge cameras (F2–F13): each challenge glides to
+      // its own fixed view (data/farm/farmCameras.js — side-on along the
+      // fence, 45° down over the Round-Up field, front-on at the stations).
+      // Distances come from the live fov/aspect so the whole stage always
+      // fits; the views are pad-relative, so the pad's height is added (the
+      // farm is hilly now). Position AND look-at ease in → a smooth glide. ---
+      const view = farmChallengeView(farmCamKey, camera.fov, camera.aspect);
+      const padY = challengePadY(farmCamKey);
       if (!lockedPrev.current) camLook.current.set(p.x, p.y + 1, p.z); // seed from the player
-      camTarget.current.set(midX, 5 + dist * 0.22, CHALLENGE_FENCE.z + dist);
+      camTarget.current.set(view.pos[0], view.pos[1] + padY, view.pos[2]);
       camera.position.lerp(camTarget.current, 1 - Math.pow(0.01, delta));
-      camLook.current.lerp({ x: midX, y: 1.0, z: CHALLENGE_FENCE.z }, 1 - Math.pow(0.01, delta));
+      camLook.current.lerp({ x: view.look[0], y: view.look[1] + padY, z: view.look[2] }, 1 - Math.pow(0.01, delta));
       camera.lookAt(camLook.current);
-    } else if (roundUpMode) {
+      if (FARM_CAMERA_SHAKES[farmCamKey]) applyCamShake(camera); // wrong-answer wobble (the panels)
+    } else if (snowCamKey) {
       fpvInit.current = false;
-      // --- Round-Up camera (F3): raised SE vantage looking down ~45° at the
-      // whole herd field + sorting pen. Distance from live fov/aspect so
-      // every cow fits; position + look-at both ease in (smooth glide). ---
-      const halfW = Math.tan((camera.fov * Math.PI) / 360) * camera.aspect;
-      const dist = Math.min(ROUNDUP_CAM_MAX, Math.max(ROUNDUP_CAM_MIN, 15 / halfW));
-      if (!lockedPrev.current) camLook.current.set(p.x, p.y + 1, p.z); // seed from the player
-      // 45° down from the SE: horizontal offset (0.5·d, 0.5·d), height 0.707·d.
-      camTarget.current.set(RU_LOOK_X + dist * 0.5, dist * 0.707, RU_LOOK_Z + dist * 0.5);
-      camera.position.lerp(camTarget.current, 1 - Math.pow(0.01, delta));
-      camLook.current.lerp({ x: RU_LOOK_X, y: 0, z: RU_LOOK_Z }, 1 - Math.pow(0.01, delta));
-      camera.lookAt(camLook.current);
-    } else if (orderMode) {
-      fpvInit.current = false;
-      // --- Order-the-Parts camera (F4): close, front-on view of the carrot
-      // row so the value chips are easy to read + tap. ---
-      const halfW = Math.tan((camera.fov * Math.PI) / 360) * camera.aspect;
-      const dist = Math.min(ORDER_CAM_MAX, Math.max(ORDER_CAM_MIN, 7.5 / halfW));
+      // --- Snowball Sums challenge cameras: each glides to its own locked
+      // front-on view from the south (data/snow/snowCameras.js — distances
+      // from the live fov/aspect). Pad-relative: the stage's pad height is
+      // added (the sled run's view is absolute — its pad is 0). ---
+      const view = snowChallengeView(snowCamKey, camera.fov, camera.aspect);
+      const padY = snowStagePadY(snowCamKey);
       if (!lockedPrev.current) camLook.current.set(p.x, p.y + 1, p.z);
-      camTarget.current.set(ORDER_GARDEN.x, 3.2 + dist * 0.28, ORDER_GARDEN.z + dist);
+      camTarget.current.set(view.pos[0], view.pos[1] + padY, view.pos[2]);
       camera.position.lerp(camTarget.current, 1 - Math.pow(0.01, delta));
-      camLook.current.lerp({ x: ORDER_GARDEN.x, y: 0.9, z: ORDER_GARDEN.z }, 1 - Math.pow(0.01, delta));
+      camLook.current.lerp({ x: view.look[0], y: view.look[1] + padY, z: view.look[2] }, 1 - Math.pow(0.01, delta));
       camera.lookAt(camLook.current);
-    } else if (crateMode) {
+      applyCamShake(camera); // wrong-answer wobble (the snow panels)
+    } else if (magmaView) {
       fpvInit.current = false;
-      // --- Crate Packing camera (F6): steep top-down-ish view (~48°) close
-      // over the staging area, so fruit/sockets/groups read LARGE. ---
+      // --- Magma Multiples camera: placed in the challenge's STAGE FRAME —
+      // on the inner side of the clearing looking outward (the summit looks
+      // inward across the crater), at the view's elevation, far enough back
+      // that `fit` metres either side of the look point fill the screen. A
+      // store may widen the fit for a round (viewFit). Looks a little BELOW
+      // the stage so the scene rides up clear of the bottom-docked card. ---
+      const { frame: fr, view: vw } = magmaView;
+      const fit = magmaStore(magmaKey)?.getState().viewFit || vw.fit;
       const halfW = Math.tan((camera.fov * Math.PI) / 360) * camera.aspect;
-      const dist = Math.min(CRATE_CAM_MAX, Math.max(CRATE_CAM_MIN, 7.0 / halfW));
-      const lookZ = (CRATE_AREA.z + CRATE_ROW.z) / 2 + CRATE_LOOK_Z_OFFSET;
+      const dist = Math.min(vw.maxDist ?? 30, Math.max(vw.minDist ?? 9, fit / halfW));
+      const [lx, ly, lz] = vw.look;
+      const [cx, cz] = fr.toWorld(lx, lz + Math.cos(vw.elev) * dist);
       if (!lockedPrev.current) camLook.current.set(p.x, p.y + 1, p.z);
-      camTarget.current.set(CRATE_AREA.x, dist * 0.78, lookZ + dist * 0.7);
+      camTarget.current.set(cx, fr.y + ly + Math.sin(vw.elev) * dist, cz);
       camera.position.lerp(camTarget.current, 1 - Math.pow(0.01, delta));
-      camLook.current.lerp({ x: CRATE_AREA.x, y: 0, z: lookZ }, 1 - Math.pow(0.01, delta));
+      camLook.current.lerp(
+        { x: magmaView.lookWorld[0], y: magmaView.lookWorld[1] - (vw.lift ?? SNOW_DOCK_LIFT) * dist, z: magmaView.lookWorld[2] },
+        1 - Math.pow(0.01, delta)
+      );
       camera.lookAt(camLook.current);
-      applyCamShake(camera); // wrong-answer wobble (CratePackingPanel)
-    } else if (milkMode) {
-      fpvInit.current = false;
-      // --- Milk Splitter camera (F8): front-on view of the machine, its
-      // chutes and the notation jugs in the dairy corner. ---
-      const halfW = Math.tan((camera.fov * Math.PI) / 360) * camera.aspect;
-      const dist = Math.min(28, Math.max(11, 8.0 / halfW));
-      if (!lockedPrev.current) camLook.current.set(p.x, p.y + 1, p.z);
-      camTarget.current.set(MILK_AREA.x, 2.8 + dist * 0.3, MILK_AREA.z + 1.5 + dist);
-      camera.position.lerp(camTarget.current, 1 - Math.pow(0.01, delta));
-      camLook.current.lerp({ x: MILK_AREA.x, y: 1.4, z: MILK_AREA.z - 0.5 }, 1 - Math.pow(0.01, delta));
-      camera.lookAt(camLook.current);
-      applyCamShake(camera); // wrong-answer wobble (MilkSplitterPanel)
-    } else if (weighMode) {
-      fpvInit.current = false;
-      // --- Weigh Station camera (F9): front-on view of the scale, its
-      // zoomed beam and the ≈ signs. ---
-      const halfW = Math.tan((camera.fov * Math.PI) / 360) * camera.aspect;
-      // Closer than the other stations so the (now central, bigger) number
-      // line fills the screen.
-      const dist = Math.min(22, Math.max(9, 6.2 / halfW));
-      if (!lockedPrev.current) camLook.current.set(p.x, p.y + 1, p.z);
-      // The beam is CENTRED on the weigh area now, so look straight at it
-      // (x = WEIGH_AREA.x) and frame its centre (beam sits ~1.9 toward camera).
-      camTarget.current.set(WEIGH_AREA.x, 2.4 + dist * 0.28, WEIGH_AREA.z + 1.9 + dist);
-      camera.position.lerp(camTarget.current, 1 - Math.pow(0.01, delta));
-      camLook.current.lerp({ x: WEIGH_AREA.x, y: 2.2, z: WEIGH_AREA.z + 1.4 }, 1 - Math.pow(0.01, delta));
-      camera.lookAt(camLook.current);
-      applyCamShake(camera); // wrong-answer wobble (WeighStationPanel)
-    } else if (tradeMode) {
-      fpvInit.current = false;
-      // --- Trading Post camera (F10): front-on view of the three stalls +
-      // the trading table between the pens. ---
-      const halfW = Math.tan((camera.fov * Math.PI) / 360) * camera.aspect;
-      // Steeper (~45°) and closer so the stall tags read LARGE.
-      const dist = Math.min(24, Math.max(10, 7.5 / halfW));
-      if (!lockedPrev.current) camLook.current.set(p.x, p.y + 1, p.z);
-      camTarget.current.set(TRADE_AREA.x, dist * 0.72, TRADE_AREA.z + 1.5 + dist * 0.66);
-      camera.position.lerp(camTarget.current, 1 - Math.pow(0.01, delta));
-      camLook.current.lerp({ x: TRADE_AREA.x, y: 0.8, z: TRADE_AREA.z - 0.6 }, 1 - Math.pow(0.01, delta));
-      camera.lookAt(camLook.current);
-      applyCamShake(camera); // wrong-answer wobble (TradingPostPanel)
-    } else if (veggieMode) {
-      fpvInit.current = false;
-      // --- Veggie Plot camera (F11): a steep (~50°), close top-down-ish view of
-      // the garden bed so the grid + shaded overlap read clearly from above. ---
-      const halfW = Math.tan((camera.fov * Math.PI) / 360) * camera.aspect;
-      const dist = Math.min(24, Math.max(10, 7.5 / halfW));
-      if (!lockedPrev.current) camLook.current.set(p.x, p.y + 1, p.z);
-      camTarget.current.set(VEGGIE_AREA.x, dist * 0.82, VEGGIE_AREA.z + 1.0 + dist * 0.6);
-      camera.position.lerp(camTarget.current, 1 - Math.pow(0.01, delta));
-      camLook.current.lerp({ x: VEGGIE_AREA.x, y: 0.2, z: VEGGIE_AREA.z }, 1 - Math.pow(0.01, delta));
-      camera.lookAt(camLook.current);
-      applyCamShake(camera); // wrong-answer wobble (VeggiePlotPanel)
-    } else if (plankMode) {
-      fpvInit.current = false;
-      // --- Plank the Gap camera (F12): front-on, slightly raised view of the
-      // fence gap so the twelfths grid + laid planks read clearly. ---
-      const halfW = Math.tan((camera.fov * Math.PI) / 360) * camera.aspect;
-      const dist = Math.min(26, Math.max(11, 9.0 / halfW));
-      if (!lockedPrev.current) camLook.current.set(p.x, p.y + 1, p.z);
-      camTarget.current.set(PLANK_AREA.x, 2.4 + dist * 0.32, PLANK_AREA.z + 1.6 + dist);
-      camera.position.lerp(camTarget.current, 1 - Math.pow(0.01, delta));
-      camLook.current.lerp({ x: PLANK_AREA.x, y: 0.7, z: PLANK_AREA.z }, 1 - Math.pow(0.01, delta));
-      camera.lookAt(camLook.current);
-      applyCamShake(camera); // wrong-answer wobble (PlankGapPanel)
-    } else if (shopMode) {
-      fpvInit.current = false;
-      // --- Farm Shop camera (F13): front-on view of the market stall so the
-      // striped awning, produce crate and chalkboard ledger read clearly. ---
-      const halfW = Math.tan((camera.fov * Math.PI) / 360) * camera.aspect;
-      const dist = Math.min(26, Math.max(12, 9.5 / halfW));
-      if (!lockedPrev.current) camLook.current.set(p.x, p.y + 1, p.z);
-      camTarget.current.set(SHOP_AREA.x, 2.8 + dist * 0.34, SHOP_AREA.z + 2.0 + dist);
-      camera.position.lerp(camTarget.current, 1 - Math.pow(0.01, delta));
-      camLook.current.lerp({ x: SHOP_AREA.x, y: 1.4, z: SHOP_AREA.z }, 1 - Math.pow(0.01, delta));
-      camera.lookAt(camLook.current);
-      applyCamShake(camera); // wrong-answer wobble (FarmShopPanel)
-    } else if (rangeMode) {
-      fpvInit.current = false;
-      // --- Snowball Range camera (SR): front-on view of the ten-frame crate
-      // stand with the handful row in the foreground — the split + throw
-      // read like a fairground game booth. The half-width fits the frame,
-      // the crate stack west of it and the spare-pile tray east of it (≈ 6.4
-      // either side of centre) and no more, so the ten-frame fills the shot
-      // instead of sitting small in the middle of the snowfield. ---
-      const halfW = Math.tan((camera.fov * Math.PI) / 360) * camera.aspect;
-      const dist = Math.min(20, Math.max(9, 6.6 / halfW));
-      if (!lockedPrev.current) camLook.current.set(p.x, p.y + 1, p.z);
-      camTarget.current.set(RANGE_AREA.x, 2.4 + dist * 0.26, RANGE_AREA.z + 1.2 + dist);
-      camera.position.lerp(camTarget.current, 1 - Math.pow(0.01, delta));
-      camLook.current.lerp({ x: RANGE_AREA.x, y: 1.9 - SNOW_DOCK_LIFT * dist, z: RANGE_AREA.z - 2.4 }, 1 - Math.pow(0.01, delta));
-      camera.lookAt(camLook.current);
-      applyCamShake(camera); // wrong-answer wobble (SnowballRangePanel)
-    } else if (rinkGlideMode) {
-      fpvInit.current = false;
-      // --- Ice Rink glide camera (RG): a raised side-on view from the SOUTH
-      // framing the WHOLE 0–100 number line (fence-style: distance computed
-      // from live fov/aspect so both ends always fit, capped inside the fog). ---
-      const lineMidX = (RINK_GLIDE_LINE.xMin + RINK_GLIDE_LINE.xMax) / 2;
-      const lineHalf = (RINK_GLIDE_LINE.xMax - RINK_GLIDE_LINE.xMin) / 2;
-      const halfW = Math.tan((camera.fov * Math.PI) / 360) * camera.aspect;
-      const dist = Math.min(44, Math.max(18, (lineHalf + 3.5) / halfW));
-      if (!lockedPrev.current) camLook.current.set(p.x, p.y + 1, p.z);
-      camTarget.current.set(lineMidX, 3.5 + dist * 0.3, RINK_GLIDE_LINE.z + dist);
-      camera.position.lerp(camTarget.current, 1 - Math.pow(0.01, delta));
-      camLook.current.lerp({ x: lineMidX, y: 0.6 - SNOW_DOCK_LIFT * dist, z: RINK_GLIDE_LINE.z }, 1 - Math.pow(0.01, delta));
-      camera.lookAt(camLook.current);
-      applyCamShake(camera); // wrong-landing wobble (RinkGlidePanel)
-    } else if (groveMode) {
-      fpvInit.current = false;
-      // --- Grove camera (GV): front-on view of the big light-up tree with
-      // the bundle box beside it — the whole spiral of lights readable. ---
-      const halfW = Math.tan((camera.fov * Math.PI) / 360) * camera.aspect;
-      const dist = Math.min(26, Math.max(11, 8.5 / halfW));
-      if (!lockedPrev.current) camLook.current.set(p.x, p.y + 1, p.z);
-      camTarget.current.set(GROVE_TREE_POS[0], 2.8 + dist * 0.3, GROVE_TREE_POS[1] + 2.0 + dist);
-      camera.position.lerp(camTarget.current, 1 - Math.pow(0.01, delta));
-      camLook.current.lerp({ x: GROVE_TREE_POS[0], y: 2.2 - SNOW_DOCK_LIFT * dist, z: GROVE_TREE_POS[1] }, 1 - Math.pow(0.01, delta));
-      camera.lookAt(camLook.current);
-      applyCamShake(camera); // wrong-answer wobble (GroveLightsPanel)
-    } else if (meadowMode) {
-      fpvInit.current = false;
-      // --- Meadow camera (ML): front-on view of the two snowman towers so
-      // both stacks + the equation chain read clearly. ---
-      const towersMidX = (MEADOW_TOWER_LEFT[0] + MEADOW_TOWER_RIGHT[0]) / 2;
-      const halfW = Math.tan((camera.fov * Math.PI) / 360) * camera.aspect;
-      // Closer than before (fit 8.0 → 7.2, audit 2026-09-28) so each snowball
-      // in the towers is big enough to count.
-      const dist = Math.min(26, Math.max(9, 7.2 / halfW));
-      if (!lockedPrev.current) camLook.current.set(p.x, p.y + 1, p.z);
-      camTarget.current.set(towersMidX, 2.6 + dist * 0.3, MEADOW_TOWER_LEFT[1] + 2.0 + dist);
-      camera.position.lerp(camTarget.current, 1 - Math.pow(0.01, delta));
-      camLook.current.lerp({ x: towersMidX, y: 2.3 - SNOW_DOCK_LIFT * dist, z: MEADOW_TOWER_LEFT[1] }, 1 - Math.pow(0.01, delta));
-      camera.lookAt(camLook.current);
-      applyCamShake(camera); // wrong-answer wobble (MeadowLevelPanel)
-    } else if (sledMode) {
-      fpvInit.current = false;
-      // --- Sledding Slope camera (SL): a raised side-on view from the SOUTH
-      // framing the whole run in profile, so the hill's rise, the number
-      // window and the taut rope all read at once. ---
-      const laneMidX = (SLOPE_LANE.xTop + SLOPE_LANE.xBottom) / 2;
-      const laneMidH = snowGroundHeight(laneMidX, SLOPE_LANE.z);
-      const halfW = Math.tan((camera.fov * Math.PI) / 360) * camera.aspect;
-      // Closer (fit 9.5 → 7.2, audit 2026-09-28) — the ticks and sleds read.
-      const dist = Math.min(30, Math.max(10, 7.2 / halfW));
-      if (!lockedPrev.current) camLook.current.set(p.x, p.y + 1, p.z);
-      camTarget.current.set(laneMidX, laneMidH + 2.6 + dist * 0.26, SLOPE_LANE.z + dist);
-      camera.position.lerp(camTarget.current, 1 - Math.pow(0.01, delta));
-      camLook.current.lerp({ x: laneMidX, y: laneMidH + 1.1 - SNOW_DOCK_LIFT * dist, z: SLOPE_LANE.z }, 1 - Math.pow(0.01, delta));
-      camera.lookAt(camLook.current);
-      applyCamShake(camera); // wrong-answer wobble (SledSlopePanel)
-    } else if (lateSnowMode) {
-      fpvInit.current = false;
-      // --- Late snow challenges (VG/PC/IC/LY/AL): a shared front-on camera
-      // from the SOUTH of each area, framed per-mode (the Lookout's aims
-      // high so the aurora's written sum owns the screen). ---
-      const view = LATE_SNOW_VIEW[lateSnowMode];
-      const halfW = Math.tan((camera.fov * Math.PI) / 360) * camera.aspect;
-      const dist = Math.min(28, Math.max(view.minDist ?? 11, view.fit / halfW));
-      if (!lockedPrev.current) camLook.current.set(p.x, p.y + 1, p.z);
-      camTarget.current.set(view.look[0], view.base + dist * 0.3, view.look[2] + 3.0 + dist);
-      camera.position.lerp(camTarget.current, 1 - Math.pow(0.01, delta));
-      camLook.current.lerp({ x: view.look[0], y: view.look[1] - SNOW_DOCK_LIFT * dist, z: view.look[2] }, 1 - Math.pow(0.01, delta));
-      camera.lookAt(camLook.current);
-      applyCamShake(camera); // wrong-answer wobble (the five late panels)
+      applyCamShake(camera); // wrong-answer wobble (MagmaPanelShell)
     } else {
       fpvInit.current = false;
       // --- Third-person camera follow (orbited by camYaw) ---
@@ -945,10 +1017,27 @@ export default function Player() {
         p.y + CAMERA_HEIGHT,
         p.z + cos * CAMERA_DISTANCE
       );
+      // Big-terrain regions (the volcano): never let the camera dip into the
+      // mountain behind/beside the player — ride up over it instead.
+      if (region.cameraTerrainClamp) {
+        const minY = groundAt(camTarget.current.x, camTarget.current.z) + CAM_TERRAIN_CLEARANCE;
+        if (camTarget.current.y < minY) camTarget.current.y = minY;
+      }
       camera.position.lerp(camTarget.current, 1 - Math.pow(0.001, delta));
+      if (region.cameraTerrainClamp) {
+        const minY = groundAt(camera.position.x, camera.position.z) + 1.0;
+        if (camera.position.y < minY) camera.position.y = minY;
+      }
       camera.lookAt(p.x, p.y + 1, p.z);
     }
-    lockedPrev.current = fenceMode || roundUpMode || orderMode || crateMode || milkMode || weighMode || tradeMode || veggieMode || plankMode || shopMode || rangeMode || rinkGlideMode || groveMode || meadowMode || sledMode || Boolean(lateSnowMode);
+    // Dev-only photo camera (headless screenshots): playerState.devCam =
+    // { pos: [x,y,z], look: [x,y,z] } overrides the view. Never set in play.
+    if (import.meta.env.DEV) { window.__cam = camera; window.__scene = devScene; }
+    if (import.meta.env.DEV && playerState.devCam) {
+      camera.position.set(...playerState.devCam.pos);
+      camera.lookAt(...playerState.devCam.look);
+    }
+    lockedPrev.current = fenceMode || roundUpMode || orderMode || crateMode || milkMode || weighMode || tradeMode || veggieMode || plankMode || shopMode || Boolean(stageMode);
   });
 
   // The player's initial position = the active region's spawn (island-1 default).
@@ -960,9 +1049,77 @@ export default function Player() {
           (primitive avatar fallback until the model loads). HIDDEN in
           first-person view so the camera (at the eyes) never sits inside the
           character mesh. */}
-      <group visible={!fpv && !snowChallenge}>
+      <group visible={!fpv && !snowChallenge && !magmaChallenge}>
         <PlayerCharacter profile={profile} />
+        {/* Snowball Sums: a sled under your feet on a toboggan chute, a
+            chair under you on the chairlift. */}
+        <RideProps />
       </group>
     </group>
+  );
+}
+
+/** The sled (on a chute) / the lift chair (on the chairlift) under the player. */
+function RideProps() {
+  const sled = useRef();
+  const chair = useRef();
+  useFrame((state) => {
+    if (sled.current) {
+      sled.current.visible = Boolean(playerState.sledding);
+      if (playerState.sledding) sled.current.rotation.z = Math.sin(state.clock.elapsedTime * 9) * 0.03;
+    }
+    if (chair.current) chair.current.visible = Boolean(playerState.onLift);
+  });
+  return (
+    <>
+      <group ref={sled} visible={false}>
+        {[-0.3, 0.3].map((x) => (
+          <mesh key={x} position={[x, 0.05, 0]} castShadow>
+            <boxGeometry args={[0.07, 0.07, 1.7]} />
+            <meshStandardMaterial color="#b9c2cc" metalness={0.6} roughness={0.35} />
+          </mesh>
+        ))}
+        <mesh position={[0.0, 0.05, 0.86]} rotation={[-0.9, 0, 0]} castShadow>
+          <boxGeometry args={[0.66, 0.06, 0.32]} />
+          <meshStandardMaterial color="#b9c2cc" metalness={0.6} roughness={0.35} />
+        </mesh>
+        <mesh position={[0, 0.17, -0.05]} castShadow>
+          <boxGeometry args={[0.8, 0.09, 1.45]} />
+          <meshStandardMaterial color="#c0392b" roughness={0.6} />
+        </mesh>
+        <mesh position={[0, 0.25, 0.62]} castShadow>
+          <boxGeometry args={[0.8, 0.12, 0.12]} />
+          <meshStandardMaterial color="#e8d5b0" roughness={0.7} />
+        </mesh>
+      </group>
+      <group ref={chair} visible={false}>
+        {/* An open GONDOLA cabin: floor, waist rails, corner posts, roof and
+            the grip arm up to the cable (≈3.4 m above your feet). */}
+        <mesh position={[0, -0.08, 0]} castShadow>
+          <boxGeometry args={[1.5, 0.12, 1.5]} />
+          <meshStandardMaterial color="#2f6fb5" roughness={0.5} />
+        </mesh>
+        {[[-0.72, 0], [0.72, 0], [0, -0.72], [0, 0.72]].map(([x, z], i) => (
+          <mesh key={i} position={[x, 0.55, z]} castShadow>
+            <boxGeometry args={[x ? 0.06 : 1.5, 0.95, z ? 0.06 : 1.5]} />
+            <meshStandardMaterial color={i % 2 ? "#e9eef3" : "#2f6fb5"} transparent opacity={0.92} roughness={0.5} />
+          </mesh>
+        ))}
+        {[[-0.7, -0.7], [0.7, -0.7], [-0.7, 0.7], [0.7, 0.7]].map(([x, z], i) => (
+          <mesh key={`p${i}`} position={[x, 1.25, z]}>
+            <cylinderGeometry args={[0.035, 0.035, 2.5, 6]} />
+            <meshStandardMaterial color="#9aa3ad" metalness={0.7} roughness={0.3} />
+          </mesh>
+        ))}
+        <mesh position={[0, 2.55, 0]} castShadow>
+          <boxGeometry args={[1.62, 0.12, 1.62]} />
+          <meshStandardMaterial color="#c0392b" roughness={0.6} />
+        </mesh>
+        <mesh position={[0, 3.0, 0]}>
+          <cylinderGeometry args={[0.05, 0.05, 0.85, 6]} />
+          <meshStandardMaterial color="#9aa3ad" metalness={0.7} roughness={0.3} />
+        </mesh>
+      </group>
+    </>
   );
 }

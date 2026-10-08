@@ -193,13 +193,14 @@ export const ENCOUNTERS = {
     id: "farm-welcome", type: "dialogue", title: "Fraction Farm",
     config: { speaker: "Mills", lines: [
       "G'day — welcome to Fraction Farm! 🚜",
-      "Everything here is about fractions — of lengths, of herds, and in order.",
-      "There are ten fraction challenges dotted around the farm, and each one has its own trophy.",
-      "Your job is to collect all ten! Every trophy is earned by how well you score:",
+      "Everything here is about fractions — of lengths, of herds, of crates, of prices.",
+      "The farm's a big one: rolling hills, a creek, paddocks and sheds. Ten fraction challenges are hidden around it, and each one has its own trophy.",
+      "Your job is to find all ten and collect their trophies! Every trophy is earned by how well you score:",
       "🥇 Gold for 100%, 🥈 Silver for 75%, and 🥉 Bronze for 50%.",
       "Play a challenge again any time to polish a bronze or silver up to gold.",
-      "Pip's at the long front fence, Fern's by the sorting pen, and Alby minds the carrot garden.",
-      "Your trophies go on the trophy bench right here. Off you go — let's fill that bench with gold!",
+      "Lost? Check the big map board by the gate, and follow the signposts at every crossroads — the farm tracks lead to every challenge.",
+      "Start at the Farm Gate Shop up at the homestead, then explore: the orchard, the carrot patch, the old sawmill, the dairy, the cattle run, the long paddock, the grain silos, the glasshouses and the market green.",
+      "Your trophies go in the trophy cabinet right here. Off you go — let's fill it with gold!",
     ] },
   },
   // Fallback dialogue for the farm treasure chest (interaction.js intercepts the
@@ -283,13 +284,18 @@ export const ENCOUNTERS = {
   "snow-welcome": {
     id: "snow-welcome", type: "dialogue", title: "Snowball Sums",
     config: { speaker: "Mills", lines: [
-      "Brrr — welcome to Snowball Sums! ❄️",
-      "It's always twilight here. Look up — that's the aurora dancing over the peaks!",
-      "Ten maths challenges are coming to the snow world, one for every clearing you can see.",
-      "Each one will earn its own trophy on the stand by the igloo gate — 🥇 for 100%, 🥈 for 75%, 🥉 for 50%.",
-      "While you wait, try the ice rink — real ice, properly slippery. Get a run up and glide!",
-      "Say hello to the penguins at the colony, and don't miss the ski lodge up the lane.",
+      "Brrr — welcome to Snowball Sums! ❄️ This whole valley is yours to explore.",
+      "Check the trail map by the arch, then follow the signposts — ten snow challenges are hiding out there, from the Ice Rink to the Aurora Lookout.",
+      "Ride the CHAIRLIFT up Big Sled Hill, then step into a sled run and slide all the way down! 🛷",
+      "The frozen pond and river are slippery — get a run-up and glide. But keep out of the glacier lake: that water's freezing! Cross on the bridges or hop the ice floes.",
+      "Every challenge earns a trophy on the stand by the igloo gate — 🥇 for 100%, 🥈 for 75%, 🥉 for 50%.",
+      "And keep your eyes peeled — there's a treasure chest hidden somewhere in the snow!",
     ] },
+  },
+  // Safety net only: the snow chest is handled in interaction.js.
+  "snow-treasure": {
+    id: "snow-treasure", type: "dialogue", title: "Treasure Chest",
+    config: { speaker: "Treasure Chest", lines: ["Frozen shut… crack! A few icy coins! ❄️"] },
   },
   // The Snowball Range sign is INTERCEPTED in interaction.js (starts the
   // challenge) — this dialogue is a fallback only.
@@ -377,6 +383,34 @@ export const ENCOUNTERS = {
       "Your best efforts at the snow-world challenges will be recorded here.",
     ] },
   },
+
+  // ---- Magma Multiples (2026-10-03): ten multiplicative challenges. Each
+  // host is INTERCEPTED in interaction.js (starts its challenge) — these
+  // one-liners are fallbacks only. ----
+  "magma-welcome": {
+    id: "magma-welcome", type: "dialogue", title: "Magma Multiples",
+    config: { speaker: "Mills", lines: [
+      "Welcome to Magma Multiples! 🌋 Mind the lava — it only bounces you back, but it's HOT.",
+      "This is where we think in MULTIPLES — groups, arrays, times as many, for each.",
+      "Ten teachers are waiting round the ring road, each with a challenge. Start with Mr. Dawson at the Basalt Columns (east), then work your way round.",
+      "The last one is at the very top — climb the spiral trail to Ms. Bacon at the Strategy Summit!",
+      "Every challenge earns a trophy on the stand right here — 🥇 100%, 🥈 75%, 🥉 50%.",
+    ] },
+  },
+  "magma-records": {
+    id: "magma-records", type: "dialogue", title: "Magma Trophies",
+    config: { speaker: "Magma Trophies", lines: ["Your best Magma Multiples scores are kept here."] },
+  },
+  "magma-columns-challenge": { id: "magma-columns-challenge", type: "dialogue", title: "Column Rectangles", config: { speaker: "Mr. Dawson", lines: ["Every number makes rectangles — some make lots, primes make just one!"] } },
+  "magma-obsidian-challenge": { id: "magma-obsidian-challenge", type: "dialogue", title: "Crack the Crystal", config: { speaker: "Ms. Mahoney", lines: ["Too big to know? Crack it into pieces you DO know."] } },
+  "magma-terraces-challenge": { id: "magma-terraces-challenge", type: "dialogue", title: "Tenfold Terraces", config: { speaker: "Ms. Ewings", lines: ["Times ten moves every digit up a terrace. The point never moves!"] } },
+  "magma-geysers-challenge": { id: "magma-geysers-challenge", type: "dialogue", title: "Halve & Double", config: { speaker: "Mr. Heywood", lines: ["Half as many rows, twice as long — same tiles, same answer."] } },
+  "magma-forge-challenge": { id: "magma-forge-challenge", type: "dialogue", title: "Factor Forge", config: { speaker: "Robot", lines: ["BEEP. Hammer it into factors. Fuse a friendly ten. BEEP."] } },
+  "magma-garden-challenge": { id: "magma-garden-challenge", type: "dialogue", title: "Flower Combos", config: { speaker: "Trevor", lines: ["For EACH flower, a whole row of pots — that's how combos grow."] } },
+  "magma-cinder-challenge": { id: "magma-cinder-challenge", type: "dialogue", title: "Cart Tables", config: { speaker: "Steve", lines: ["Double it, halve it, times ten — the table does the rest."] } },
+  "magma-lake-challenge": { id: "magma-lake-challenge", type: "dialogue", title: "Lava Channels", config: { speaker: "Mr. Pearce", lines: ["Pour in big chunks — ten rows at a time if it fits!"] } },
+  "magma-bones-challenge": { id: "magma-bones-challenge", type: "dialogue", title: "Grow the Dragon", config: { speaker: "Ms. Brookes", lines: ["Grown-ups are TIMES as long, not just a bit longer."] } },
+  "magma-summit-challenge": { id: "magma-summit-challenge", type: "dialogue", title: "Strategy Summit", config: { speaker: "Ms. Bacon", lines: ["Look at the numbers first — then pick the easiest way."] } },
 
   // Schoolyard NPC completion dialogues are GENERATED from the character list
   // (W2-F) — see the loop just after ENCOUNTERS.

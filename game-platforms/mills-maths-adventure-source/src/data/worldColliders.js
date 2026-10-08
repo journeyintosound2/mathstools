@@ -23,6 +23,10 @@ import { getSchoolyardColliders } from "./schoolyard/schoolyardColliders.js";
 import { getFarmColliders } from "./farm/farmColliders.js";
 import { getSnowColliders } from "./snow/snowColliders.js";
 import { getCabinColliders } from "./cabin/cabinColliders.js";
+import { getMagmaColliders } from "./magma/magmaColliders.js";
+import { MAGMA_REGION_ID } from "./magma/magmaLayout.js";
+import { getJungleColliders } from "./jungle/jungleColliders.js";
+import { JUNGLE_REGION_ID } from "./jungle/jungleLayout.js";
 
 // Decorative trees (also rendered by World.jsx) — each is solid.
 export const TREE_POSITIONS = [
@@ -107,6 +111,8 @@ export function getColliders(snapshot = {}, regionId = "island-1") {
   if (regionId === "farm-parts-whole") return getFarmColliders(snapshot);
   if (regionId === "snow-sums") return getSnowColliders(snapshot);
   if (regionId === "cabin") return getCabinColliders(snapshot);
+  if (regionId === MAGMA_REGION_ID) return getMagmaColliders();
+  if (regionId === JUNGLE_REGION_ID) return getJungleColliders();
   return [
     ...STATIC_COLLIDERS,
     ...gateColliders(snapshot),

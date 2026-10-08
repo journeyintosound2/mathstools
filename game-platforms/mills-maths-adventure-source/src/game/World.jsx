@@ -25,8 +25,8 @@ import TradingPostChallenge from "./TradingPostChallenge.jsx";
 import VeggiePlotChallenge from "./VeggiePlotChallenge.jsx";
 import PlankGapChallenge from "./PlankGapChallenge.jsx";
 import FarmShopChallenge from "./FarmShopChallenge.jsx";
-import FarmGrass from "./FarmGrass.jsx";
-import { isOnFarmPath } from "../data/farm/farmLayout.js";
+import { isOnFarmPath, terrainHeight as farmTerrainHeight } from "../data/farm/farmTerrain.js";
+import FarmStage from "./farm/FarmStage.jsx";
 import SnowScenery from "./SnowScenery.jsx";
 import SnowballRangeChallenge from "./SnowballRangeChallenge.jsx";
 import RinkGlideChallenge from "./RinkGlideChallenge.jsx";
@@ -39,8 +39,13 @@ import CaveCrystalsChallenge from "./CaveCrystalsChallenge.jsx";
 import LodgeYardChallenge from "./LodgeYardChallenge.jsx";
 import AuroraLookoutChallenge from "./AuroraLookoutChallenge.jsx";
 import CabinScenery from "./CabinScenery.jsx";
-import { isOnSnow } from "../data/snow/snowLayout.js";
-import Portal, { HaybalePortal, IglooPortal } from "./Portal.jsx";
+import { isOnSnow, terrainHeight as snowTerrainHeight } from "../data/snow/snowTerrain.js";
+import SnowStage from "./snow/SnowStage.jsx";
+import Portal, { HaybalePortal, IglooPortal, VolcanoPortal, JunglePortal } from "./Portal.jsx";
+import JungleScenery from "./JungleScenery.jsx";
+import { JUNGLE_REGION_ID, isOnJunglePath, terrainHeight as jungleTerrainHeight } from "../data/jungle/jungleLayout.js";
+import MagmaScenery from "./MagmaScenery.jsx";
+import { MAGMA_REGION_ID, isOnAsh, magmaGroundHeight } from "../data/magma/magmaLayout.js";
 import { GroundTapCatcher, DestinationMarker } from "./TapToMove.jsx";
 import { SkyDome, DistantIslands } from "./SkyBackdrop.jsx";
 import WindGrass from "./WindGrass.jsx";
@@ -93,6 +98,15 @@ export default function World() {
   // The Lodge Interior (CB) runs on FIRELIGHT: a warm dim key + a deep warm
   // hemisphere, with the fire + candles carrying the local glow.
   const isCabin = regionId === "cabin";
+  // Magma Multiples runs on a hazy LAVA SUNSET: a low warm-red key light that
+  // follows the player (the world is far bigger than one shadow frustum), a
+  // warm sky / dark-red bounce hemisphere, and lots of emissive lava.
+  const isMagma = regionId === MAGMA_REGION_ID;
+  // Emerald Jungle runs on bright LATE-MORNING light: a warm sun that
+  // follows the player (shadows across the big valley), a pale sky / deep
+  // green bounce hemisphere, misty blue-green haze in the distance.
+  const isJungle = regionId === JUNGLE_REGION_ID;
+  const region = getRegion(regionId);
   const touchMode = useUI((s) => s.touchMode);
   const highGfx = useUI((s) => s.graphicsQuality) === "high";
   return (
@@ -100,12 +114,12 @@ export default function World() {
       {/* Soft sky background (per region). Fog warmed slightly toward the sky so
           the horizon reads as atmospheric depth (soft-cartoon look, W5-A). */}
       <color attach="background" args={[geo.skyColor]} />
-      <fog attach="fog" args={[geo.skyColor, 55, 98]} />
+      <fog attach="fog" args={[geo.skyColor, geo.fogNear || 55, geo.fogFar || 98]} />
 
       {/* Gradient sky dome + hazy distant islands (W5-E). Sky is cheap → always
           on; islands (island region only) add a little geometry → High only.
           Horizon colour = fog colour so the fogged distance blends in. */}
-      <SkyDome horizon={geo.skyColor} top={isSnow ? "#1f2547" : isCabin ? "#120c07" : undefined} />
+      <SkyDome horizon={geo.skyColor} top={isCabin ? "#120c07" : geo.skyTop || undefined} radius={isMagma ? 470 : isJungle || isFarm || isSnow ? 640 : undefined} />
       {highGfx && isIsland && <DistantIslands />}
 
       {/* --- Soft-cartoon lighting (W5-A) ---
@@ -119,13 +133,14 @@ export default function World() {
           brightness (otherwise High just looks washed-out vs Low). */}
       <hemisphereLight
         args={[
-          isFarm ? "#ffe2bd" : isSnow ? "#7d86c9" : isCabin ? "#ffcf9e" : "#fff4e0",
-          isFarm ? "#b3a06e" : isSnow ? "#424a73" : isCabin ? "#3a2716" : "#a9cf97",
-          isSnow ? (highGfx ? 0.55 : 0.9) : isCabin ? (highGfx ? 0.4 : 0.6) : highGfx ? 0.45 : 0.8,
+          isFarm ? "#fff0d8" : isSnow ? "#dce6ff" : isCabin ? "#ffcf9e" : isMagma ? "#ffc29a" : isJungle ? "#e4f4ff" : "#fff4e0",
+          isFarm ? "#6f8a4a" : isSnow ? "#8f97b8" : isCabin ? "#3a2716" : isMagma ? "#6a2a1c" : isJungle ? "#4d6e33" : "#a9cf97",
+          isSnow ? (highGfx ? 0.62 : 0.95) : isCabin ? (highGfx ? 0.4 : 0.6) : isMagma ? (highGfx ? 0.75 : 1.15) : isJungle || isFarm ? (highGfx ? 0.62 : 0.95) : highGfx ? 0.45 : 0.8,
         ]}
       />
-      <ambientLight intensity={isSnow ? (highGfx ? 0.18 : 0.34) : isCabin ? (highGfx ? 0.16 : 0.28) : highGfx ? 0.12 : 0.28} />
-      <directionalLight
+      <ambientLight intensity={isSnow ? (highGfx ? 0.12 : 0.26) : isCabin ? (highGfx ? 0.16 : 0.28) : highGfx ? 0.12 : 0.28} />
+      {/* Magma Multiples, Emerald Jungle + Fraction Farm bring their OWN player-following key light. */}
+      {!isMagma && !isJungle && !isFarm && !isSnow && <directionalLight
         position={isFarm ? [-30, 14, 12] : isSnow ? [22, 28, -18] : isCabin ? [-8, 22, 10] : [20, 30, 16]}
         intensity={isFarm ? 1.35 : isSnow ? 0.95 : isCabin ? 0.55 : 1.5}
         color={isFarm ? "#ffd9a0" : isSnow ? "#bdcdff" : isCabin ? "#ffcf9e" : "#fff0cc"}
@@ -137,7 +152,7 @@ export default function World() {
         shadow-camera-right={40}
         shadow-camera-top={40}
         shadow-camera-bottom={-40}
-      />
+      />}
       {/* Cool rim/back light — no shadow, cheap; gives the edge glow. */}
       <directionalLight position={[-18, 12, -22]} intensity={0.8} color="#bcd8ff" />
 
@@ -207,21 +222,21 @@ export default function World() {
       {regionId === "farm-parts-whole" && (
         <>
           <FarmScenery />
-          <FenceChallenge />
-          <RoundUpChallenge />
-          <OrderPartsChallenge />
-          <CratePackingChallenge />
-          <MilkSplitterChallenge />
-          <WeighStationChallenge />
-          <TradingPostChallenge />
-          <VeggiePlotChallenge />
-          <PlankGapChallenge />
-          <FarmShopChallenge />
-          {/* Walkable grass tufts inside the paddocks (bend away from the
-              player), High graphics only — matches Number Island. */}
-          {highGfx && <FarmGrass />}
-          {/* Footprints stamped along the dirt lanes + barn yard as you walk. */}
-          <Footprints test={isOnFarmPath} color="#5a3d28" life={2.6} stride={0.5} size={0.15} />
+          {/* The ten challenge stages, each lifted onto its level pad (the
+              farm rolls now — data/farm/farmTerrain.js challengePadY) and
+              only mounted while the player is near it (FarmStage). */}
+          <FarmStage k="fence"><FenceChallenge /></FarmStage>
+          <FarmStage k="roundup"><RoundUpChallenge /></FarmStage>
+          <FarmStage k="order"><OrderPartsChallenge /></FarmStage>
+          <FarmStage k="crate"><CratePackingChallenge /></FarmStage>
+          <FarmStage k="milk"><MilkSplitterChallenge /></FarmStage>
+          <FarmStage k="weigh"><WeighStationChallenge /></FarmStage>
+          <FarmStage k="trade"><TradingPostChallenge /></FarmStage>
+          <FarmStage k="veggie"><VeggiePlotChallenge /></FarmStage>
+          <FarmStage k="plank"><PlankGapChallenge /></FarmStage>
+          <FarmStage k="shop"><FarmShopChallenge /></FarmStage>
+          {/* Footprints stamped along the dirt tracks as you walk. */}
+          <Footprints test={isOnFarmPath} heightAt={farmTerrainHeight} color="#5a3d28" life={2.6} stride={0.5} size={0.15} />
         </>
       )}
 
@@ -231,18 +246,21 @@ export default function World() {
       {isSnow && (
         <>
           <SnowScenery />
-          <SnowballRangeChallenge />
-          <RinkGlideChallenge />
-          <GroveLightsChallenge />
-          <MeadowLevelChallenge />
-          <SledSlopeChallenge />
-          <VillageSplitChallenge />
-          <ColonyPairsChallenge />
-          <CaveCrystalsChallenge />
-          <LodgeYardChallenge />
-          <AuroraLookoutChallenge />
-          {/* Footprints stamped in the snow everywhere off the rink ice. */}
-          <Footprints test={isOnSnow} color="#aabdd8" life={2.4} stride={0.5} size={0.16} />
+          {/* The ten challenge stages, each lifted onto its level pad (the
+              valley rolls now — data/snow/snowTerrain.js challengePadY) and
+              only mounted while the player is near it (SnowStage). */}
+          <SnowStage k="range"><SnowballRangeChallenge /></SnowStage>
+          <SnowStage k="rink"><RinkGlideChallenge /></SnowStage>
+          <SnowStage k="grove"><GroveLightsChallenge /></SnowStage>
+          <SnowStage k="meadow"><MeadowLevelChallenge /></SnowStage>
+          <SnowStage k="sled"><SledSlopeChallenge /></SnowStage>
+          <SnowStage k="village"><VillageSplitChallenge /></SnowStage>
+          <SnowStage k="colony"><ColonyPairsChallenge /></SnowStage>
+          <SnowStage k="cave"><CaveCrystalsChallenge /></SnowStage>
+          <SnowStage k="yard"><LodgeYardChallenge /></SnowStage>
+          <SnowStage k="lights"><AuroraLookoutChallenge /></SnowStage>
+          {/* Footprints stamped in the snow everywhere off the ice + water. */}
+          <Footprints test={isOnSnow} heightAt={snowTerrainHeight} color="#aabdd8" life={2.4} stride={0.5} size={0.16} />
         </>
       )}
 
@@ -250,15 +268,39 @@ export default function World() {
           room behind the lodge's ajar door. --- */}
       {isCabin && <CabinScenery />}
 
+      {/* --- MAGMA MULTIPLES (the sixth region): the volcano / lava world.
+          Land only for now — the eight clearings are reserved for future
+          multiplicative challenges. Ash footprints on the open rock. --- */}
+      {isMagma && (
+        <>
+          <MagmaScenery />
+          <Footprints test={isOnAsh} heightAt={magmaGroundHeight} color="#241a17" life={2.2} stride={0.55} size={0.16} />
+        </>
+      )}
+
+      {/* --- EMERALD JUNGLE (the seventh region): the jungle valley. Land
+          only for now — ten clearings are reserved for future challenges.
+          Footprints on the dirt trails. --- */}
+      {isJungle && (
+        <>
+          <JungleScenery />
+          <Footprints test={isOnJunglePath} heightAt={jungleTerrainHeight} color="#4e3820" life={2.4} stride={0.55} size={0.15} />
+        </>
+      )}
+
       {/* Teleport Gates for the active region (W2-C) — walk in to travel. The
           Fraction Farm gate uses the haybale variant; the Snowball Sums gate
           is an igloo; "cabindoor" portals draw NO swirl — their visuals are
           the matching ajar doors (SnowScenery LodgeDoor / CabinScenery). */}
-      {(getRegion(regionId).portals || []).map((p) =>
-        p.variant === "cabindoor" ? null : p.variant === "igloo" ? (
-          <IglooPortal key={p.id} position={p.position} rotationY={p.rotationY} label={p.label} />
+      {(region.portals || []).map((p) =>
+        p.variant === "cabindoor" ? null : p.variant === "jungle" ? (
+          <JunglePortal key={p.id} position={p.position} rotationY={p.rotationY} label={p.label} y={region.groundHeight ? region.groundHeight(p.position[0], p.position[1]) : 0} />
+        ) : p.variant === "volcano" ? (
+          <VolcanoPortal key={p.id} position={p.position} rotationY={p.rotationY} label={p.label} />
+        ) : p.variant === "igloo" ? (
+          <IglooPortal key={p.id} position={p.position} rotationY={p.rotationY} label={p.label} y={isSnow && region.groundHeight ? region.groundHeight(p.position[0], p.position[1]) : 0} />
         ) : p.variant === "haybale" ? (
-          <HaybalePortal key={p.id} position={p.position} rotationY={p.rotationY} label={p.label} />
+          <HaybalePortal key={p.id} position={p.position} rotationY={p.rotationY} label={p.label} y={isFarm && region.groundHeight ? region.groundHeight(p.position[0], p.position[1]) : 0} />
         ) : (
           <Portal
             key={p.id}
@@ -286,7 +328,7 @@ export default function World() {
       <Player />
 
       {/* Post-processing (W5-B): AO + subtle bloom, High graphics only. */}
-      {highGfx && <Effects />}
+      {highGfx && <Effects snow={isSnow} />}
     </>
   );
 }
