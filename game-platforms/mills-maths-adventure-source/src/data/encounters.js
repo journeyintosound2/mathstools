@@ -62,7 +62,7 @@ export const ENCOUNTERS = {
       lines: [
         "Welcome to Number Island, young explorer!",
         "Pip, Fern and Alby each have a maths puzzle for you — Pip under Frosty Peak, Fern in the ash fields below Ember Peak, and Alby out at the lighthouse.",
-        "Solve all three with a pass mark of 80% and the school gate on Schoolhouse Hill — the Retrieval Practice Playground — will swing open.",
+        "Up on Schoolhouse Hill, the school gate leads to the Retrieval Practice Playground — the teachers there each hold a key.",
         "Every other world has its own gate: the igloo in Igloo Hollow, the volcano arch on the Ember Terrace, the haybales out in Haybale Meadows and the mossy arch by the Emerald Lagoon.",
         "The signposts and the big map by the arch show the way. And that wall beside the arch is your Achievements Wall — press Enter in front of it to see everything you've won.",
         "Off you go — adventure awaits!",
@@ -182,7 +182,11 @@ export const ENCOUNTERS = {
   "schoolyard-welcome": {
     id: "schoolyard-welcome", type: "dialogue", title: "Mills",
     config: { speaker: "Mills", lines: [
+      "Welcome to Coffs Harbour High — the Retrieval Practice Playground! 🏫",
       "Test your Stage 4 skills across a range of topics.",
+      "Eight teachers are hiding round the school, and each one holds a KEY. Find them — some are up on the top-floor balconies, so take the stair towers and walk the corridors.",
+      "Collect all eight keys to unlock the padlocked School Hall, where the Head Teacher is waiting.",
+      "Check the campus map by the plaza, follow the signposts — and climb the bush track to the Sky Pier for the best view of the harbour. There's a treasure chest hidden somewhere too!",
     ] },
   },
 
@@ -291,6 +295,11 @@ export const ENCOUNTERS = {
       "Every challenge earns a trophy on the stand by the igloo gate — 🥇 for 100%, 🥈 for 75%, 🥉 for 50%.",
       "And keep your eyes peeled — there's a treasure chest hidden somewhere in the snow!",
     ] },
+  },
+  // Safety net only: the Playground chest is handled in interaction.js.
+  "school-treasure": {
+    id: "school-treasure", type: "dialogue", title: "Treasure Chest",
+    config: { speaker: "Treasure Chest", lines: ["Lost property… a few shiny coins! ✨"] },
   },
   // Safety net only: the snow chest is handled in interaction.js.
   "snow-treasure": {

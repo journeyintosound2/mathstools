@@ -15,13 +15,13 @@
  *   position     [x, z] on the ground plane
  *   promptLabel  text for the "Press E" prompt
  */
-import { SCHOOLYARD_CHARACTERS } from "./schoolyard/schoolyardLayout.js";
+import { SCHOOLYARD_CHARACTERS, SCHOOLYARD_WELCOME, SCHOOL_CHEST_SPOTS } from "./schoolyard/schoolyardLayout.js";
 import {
   FARM_WELCOME_SIGN, CHALLENGE_SIGN, ROUNDUP_SIGN, ORDER_SIGN, CRATE_SIGN, MILK_SIGN, WEIGH_SIGN, TRADE_SIGN, VEGGIE_SIGN, PLANK_SIGN, SHOP_SIGN, FARM_RECORDS_STAND,
   FARM_CHEST_SPOTS,
 } from "./farm/farmLayout.js";
 import {
-  SNOW_WELCOME_SIGN, SNOW_RECORDS_STAND, RANGE_SIGN, RINK_GLIDE_SIGN, GROVE_SIGN, MEADOW_SIGN, SLOPE_SIGN,
+  SNOW_WELCOME_SIGN, SNOW_WELCOME_HOST, SNOW_RECORDS_STAND, RANGE_SIGN, RINK_GLIDE_SIGN, GROVE_SIGN, MEADOW_SIGN, SLOPE_SIGN,
   VILLAGE_SIGN, COLONY_SIGN, CAVE_SIGN, YARD_SIGN, LOOKOUT_SIGN,
   SNOW_CHEST_SPOTS,
 } from "./snow/snowLayout.js";
@@ -83,6 +83,9 @@ export const FARM_CHEST_POS = FARM_CHEST_SPOTS[Math.floor(Math.random() * FARM_C
 // …and one hidden somewhere in the Snowball Sums valley (SNOW_CHEST_SPOTS —
 // a lakeshore, a floe hop, the woods; the snow world checks reach each one).
 export const SNOW_CHEST_POS = SNOW_CHEST_SPOTS[Math.floor(Math.random() * SNOW_CHEST_SPOTS.length)];
+// …and one tucked away somewhere round the school (SCHOOL_CHEST_SPOTS — the
+// oval's edge, the bush, behind the TAS block, the car park…).
+export const SCHOOL_CHEST_POS = SCHOOL_CHEST_SPOTS[Math.floor(Math.random() * SCHOOL_CHEST_SPOTS.length)];
 
 export const INTERACTABLES = [
   // The three original maths NPCs — same look, positions and topics as before.
@@ -201,7 +204,7 @@ export const INTERACTABLES = [
     model: "npc",
     characterId: "sage",
     color: "#52b788",
-    position: [0, 12], // just north of the spawn, on the way to the plaza
+    position: SCHOOLYARD_WELCOME.position, // on the arrival plaza, just north of the gate
     promptLabel: "Talk to Mills",
     collision: { type: "circle", radius: 0.7, enabled: true },
     interactionRadius: 3.4,
@@ -210,6 +213,19 @@ export const INTERACTABLES = [
 
   // The Schoolyard NPCs (W2-D).
   ...SCHOOLYARD_NPCS,
+  // A hidden treasure chest somewhere round the school (interaction.js).
+  {
+    id: "school-chest",
+    name: "Treasure Chest",
+    encounterId: "school-treasure",
+    model: "chest",
+    color: "#f2c21b",
+    position: SCHOOL_CHEST_POS,
+    promptLabel: "Open the chest",
+    collision: { type: "circle", radius: 0.8, enabled: true },
+    interactionRadius: 3.4,
+    regionId: "schoolyard",
+  },
 
   // ---- Fraction Farm (F1–F5) ----
   // The three island friends host the farm challenges (via `characterId` they
@@ -389,7 +405,7 @@ export const INTERACTABLES = [
     model: "npc",
     characterId: "sage",
     color: "#52b788",
-    position: SNOW_WELCOME_SIGN.position,
+    position: SNOW_WELCOME_HOST.position,
     promptLabel: "Talk to Mills",
     collision: { type: "circle", radius: 0.7, enabled: true },
     interactionRadius: 3.6,

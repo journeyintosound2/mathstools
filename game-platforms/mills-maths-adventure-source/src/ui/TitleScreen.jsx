@@ -34,7 +34,7 @@ import { useCloud } from "../cloud/cloudSession.js";
 const TIPS = [
   "Stand in front of the Achievements Wall on Harbour Green and press Enter to see every trophy you've won.",
   "Every world has its own gate on Number Island — the igloo, the volcano arch, the haybales, the mossy arch and the school gate.",
-  "Score 80% with Pip, Fern and Alby to unlock the Retrieval Practice Playground.",
+  "Pip, Fern and Alby each have a warm-up — score 80% or more to pass.",
   "Signposts point the way at every junction. The painted map by the arch shows the whole island.",
   "Hold Shift to run, press Space to jump.",
 ];

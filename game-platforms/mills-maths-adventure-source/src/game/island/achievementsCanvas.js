@@ -231,11 +231,11 @@ function paintIsland(g, P) {
     g.font = `34px ${ROUNDED}`; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText(b.icon, x, y + 3);
     g.globalAlpha = 1;
   });
-  // Gate status.
+  // The three friends at a glance.
   g.textAlign = "center"; g.textBaseline = "alphabetic";
   g.font = `800 26px ${ROUNDED}`;
-  g.fillStyle = P.gateOpen ? "#2a8a3e" : "#8a5a08";
-  g.fillText(P.gateOpen ? "✓ The Playground gate is open!" : `Pass all three at ${P.passMark}% to open the Playground gate`, PW / 2, PH - 40);
+  g.fillStyle = P.allPassed ? "#2a8a3e" : "#8a5a08";
+  g.fillText(P.allPassed ? "✓ Pip, Fern and Alby all passed!" : `Pass Pip, Fern and Alby at ${P.passMark}% — ${P.passedFriends} of 3 so far`, PW / 2, PH - 40);
 }
 
 function drawKey(g, x, y, s, done, color) {
@@ -300,8 +300,7 @@ function paintPlayground(g, P) {
   const line = P.boss && P.boss.done ? `Beaten! Well done, Champion.` : `${P.boss ? P.boss.name : "The Head Teacher"} — collect all ${P.totalKeys} keys first`;
   fitText(g, line, PW - 310, `700 {s}px ${ROUNDED}`, 24);
   g.fillText(line, 250, y + 124);
-  if (!P.gateOpen) stamp(g, "Gate locked", PW - 170, 196, "rgba(138,90,8,0.75)", 0.08);
-  else if (P.visited === false) stamp(g, "Not visited yet", PW - 175, PH - 128, "rgba(90,90,90,0.55)", -0.06);
+  if (P.visited === false) stamp(g, "Not visited yet", PW - 175, PH - 128, "rgba(90,90,90,0.55)", -0.06);
   footerBar(g, P, Math.round(((P.keys + (P.boss && P.boss.done ? 1 : 0)) / (P.totalKeys + 1)) * 100), "Keys + the cup");
 }
 

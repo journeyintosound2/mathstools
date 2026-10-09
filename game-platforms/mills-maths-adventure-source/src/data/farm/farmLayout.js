@@ -48,9 +48,15 @@ export const FARM_RETURN_PORTAL_YAW = -2.4;
 export const FARM_ENTRY_ARCH = { position: [0, 95.5], width: 9.5, height: 6.2, text: "FRACTION FARM" };
 // Mills greets arrivals just inside the arch (the interactable keeps this name).
 export const FARM_WELCOME_SIGN = { position: [-6.5, 100.5], rotationY: 0.5, text: "Welcome to Fraction Farm!" };
-// The trophy cabinet stands on the arrival green, west of the gate, facing
-// east toward the arrivals (rotationY π/2 → front west; −π/2 → front east).
-export const FARM_RECORDS_STAND = { id: "farm-records", position: [-12, 110.5], rotationY: -Math.PI / 2 + 0.25 };
+// The trophy cabinet stands on the arrival green, west of the gate, its open
+// front turned to face the arrival spot. trophy.glb's front (the pigeonholes)
+// is its local +z, so rotationY = atan2(dx, dz) toward the target (π/2 →
+// front east). It used to face away (−π/2) — fixed 2026-10-09.
+const FARM_RECORDS_AT = [-12, 110.5];
+export const FARM_RECORDS_STAND = {
+  id: "farm-records", position: FARM_RECORDS_AT,
+  rotationY: Math.atan2(FARM_SPAWN.x - FARM_RECORDS_AT[0], FARM_SPAWN.z - FARM_RECORDS_AT[1]),
+};
 // A painted map of the farm on a big board by the drive, so students can
 // plan where to explore.
 export const FARM_MAP_BOARD = { position: [7.5, 99], rotationY: -0.35 };

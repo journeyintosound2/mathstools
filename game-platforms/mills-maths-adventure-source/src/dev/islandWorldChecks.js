@@ -354,7 +354,7 @@ export function runIslandWorldChecks() {
       farm.counts.gold === 1 && farm.counts.bronze === 1 && farm.earned === 2 && farm.total === 10 && farm.visited === true /* bests imply a visit */ &&
       byId.jungle.visited === true && byId.playground.keys === 2 && byId.playground.boss.done === true &&
       byId.island.level === 3 && byId.island.friends.find((f) => f.id === "pip").passed === true && byId.island.passedFriends === 1 &&
-      byId.island.badgesEarned === 1 && byId.island.gateOpen === false &&
+      byId.island.badgesEarned === 1 && byId.island.allPassed === false && !("gateOpen" in byId.island) &&
       s.totals.trophies === 2 + byId.snow.earned + byId.magma.earned && s.name === "Sam";
     dataDetail = `farm ${farm.counts.gold}g/${farm.counts.silver}s/${farm.counts.bronze}b, keys ${byId.playground.keys}, level ${byId.island.level}`;
   } catch (e) {

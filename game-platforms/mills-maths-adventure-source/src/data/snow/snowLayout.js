@@ -37,9 +37,22 @@ export const SNOW_SPAWN = { x: 0, z: 104 };
 export const SNOW_RETURN_PORTAL = [9.5, 113.5];
 export const SNOW_RETURN_PORTAL_YAW = -2.5;
 export const SNOW_WELCOME_SIGN = { position: [-6.5, 98.5], rotationY: 0.45, text: "Welcome to Snowball Sums!" };
+// Mills greets arrivals standing just to the board's left (as you face it),
+// not ON it — he used to share the board's spot and stood through it.
+// Local offset (−2.1 across, 0.7 out in front) in the board's own frame.
+export const SNOW_WELCOME_HOST = (() => {
+  const [bx, bz] = SNOW_WELCOME_SIGN.position, r = SNOW_WELCOME_SIGN.rotationY;
+  const lx = -2.1, lz = 0.7;
+  return { position: [bx + lx * Math.cos(r) + lz * Math.sin(r), bz - lx * Math.sin(r) + lz * Math.cos(r)] };
+})();
 // The trophy cabinet (trophy.glb — identical to the farm's) on the plaza's
-// west side, facing east toward the arrivals.
-export const SNOW_RECORDS_STAND = { id: "snow-records", position: [-13.5, 108.5], rotationY: -Math.PI / 2 + 0.3 };
+// west side, its open front (local +z) turned to face the arrival spot. It
+// used to face away (−π/2 + 0.3) — fixed 2026-10-09.
+const SNOW_RECORDS_AT = [-13.5, 108.5];
+export const SNOW_RECORDS_STAND = {
+  id: "snow-records", position: SNOW_RECORDS_AT,
+  rotationY: Math.atan2(SNOW_SPAWN.x - SNOW_RECORDS_AT[0], SNOW_SPAWN.z - SNOW_RECORDS_AT[1]),
+};
 // The welcome ARCH over the main trail just ahead of the arrival (two
 // snow-block pillars + a snowy sign) and the painted TRAIL MAP beside it.
 export const SNOW_ARCH = { position: [0.2, 95.5], width: 7.6, height: 5.4, text: "SNOWBALL SUMS" };

@@ -11,7 +11,7 @@
  * block at deck height (yMin / yMax).
  */
 import {
-  SNOW_BOUNDARY, SNOW_WELCOME_SIGN, SNOW_RECORDS_STAND,
+  SNOW_BOUNDARY, SNOW_WELCOME_SIGN, SNOW_WELCOME_HOST, SNOW_RECORDS_STAND,
   RANGE_FRAME_POS, RANGE_CRATE_POS, RANGE_SIGN, RINK_GLIDE_SIGN, GROVE_TREE_POS, GROVE_BOX_POS, GROVE_SIGN,
   MEADOW_TOWER_LEFT, MEADOW_TOWER_RIGHT, MEADOW_SIGN, SLOPE_SIGN, VILLAGE_LEFT_STAND, VILLAGE_RIGHT_STAND,
   VILLAGE_BUILD_SITE, VILLAGE_SIGN, COLONY_SIGN, CAVE_SIGN, YARD_STALL, YARD_BOARD, YARD_SIGN, LOOKOUT_DECK,
@@ -81,7 +81,13 @@ function buildStatic() {
   const out = [
     ...boundaryColliders(),
     ...lodgeColliders(),
-    { id: "snow-welcome-sign", kind: "boundary", x: SNOW_WELCOME_SIGN.position[0], z: SNOW_WELCOME_SIGN.position[1], radius: 0.6 },
+    // Mills (the interactable keeps the old id) + the welcome board's span.
+    { id: "snow-welcome-sign", kind: "boundary", x: SNOW_WELCOME_HOST.position[0], z: SNOW_WELCOME_HOST.position[1], radius: 0.6 },
+    ...[-0.85, 0, 0.85].map((lx, i) => ({
+      id: `snow-welcome-board-${i}`, kind: "boundary", radius: 0.4,
+      x: SNOW_WELCOME_SIGN.position[0] + lx * Math.cos(SNOW_WELCOME_SIGN.rotationY),
+      z: SNOW_WELCOME_SIGN.position[1] - lx * Math.sin(SNOW_WELCOME_SIGN.rotationY),
+    })),
     { id: "snow-records", kind: "interactable", x: SNOW_RECORDS_STAND.position[0], z: SNOW_RECORDS_STAND.position[1], radius: 3.6 },
     // The ten challenges' props + hosts (same ids as ever).
     { id: "snow-range-frame", kind: "boundary", x: RANGE_FRAME_POS[0], z: RANGE_FRAME_POS[1], radius: 0.9 },

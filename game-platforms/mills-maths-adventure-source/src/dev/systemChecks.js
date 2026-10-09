@@ -11,6 +11,7 @@ import { runMagmaChallengeChecks } from "./magmaChallengeChecks.js";
 import { runJungleChecks } from "./jungleChecks.js";
 import { runFarmWorldChecks } from "./farmWorldChecks.js";
 import { runIslandWorldChecks } from "./islandWorldChecks.js";
+import { runSchoolyardWorldChecks } from "./schoolyardWorldChecks.js";
 import { CRATER_LIP_STONES } from "../data/magma/magmaProps.js";
 import { makeTriangle, makeQuad, makeGenericQuad, verifyQuad, propertiesOf, SPECIAL_QUADS, TRIANGLE_TYPES } from "../maths/curriculum/stage4/geometry/shapeCatalogue.js";
 import { makeNominal, makeContinuous, makePartsOfWhole, makeTimeSeries, SCENARIOS, TYPE_LABEL } from "../maths/curriculum/stage4/data/datasetGenerator.js";
@@ -684,6 +685,8 @@ export function runSystemChecks(progressSnapshot) {
   for (const c of runSnowWorldChecks()) checks.push(c);
   // Number Island rebuilt (~2.5× across), the Achievements Wall + the title flyover (IL1–IL10).
   for (const c of runIslandWorldChecks()) checks.push(c);
+  // The Retrieval Practice Playground rebuilt as a big hillside high school (SY1–SY10).
+  for (const c of runSchoolyardWorldChecks()) checks.push(c);
 
   return checks;
 }

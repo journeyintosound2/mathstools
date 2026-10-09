@@ -6,7 +6,7 @@
  * onto its boards and the viewer reads aloud.
  *
  *   island      Level + XP, coins, the three island friends' best scores
- *               (Pip / Fern / Alby — the Playground gate needs 80% each),
+ *               (Pip / Fern / Alby — a pass is 80%),
  *               the badge collection.
  *   playground  The Retrieval Practice Playground: the eight staff keys +
  *               the Head Teacher's trophy.
@@ -17,7 +17,7 @@
  *               still to come: ten clearings are waiting).
  */
 import { deriveLevel, XP_PER_LEVEL } from "../../progress/store.js";
-import { summariseByTopic, isPlaygroundUnlocked, PLAYGROUND_PASS_MARK } from "../../results/resultUtils.js";
+import { summariseByTopic, PLAYGROUND_PASS_MARK } from "../../results/resultUtils.js";
 import { getAllBadges } from "../badges.js";
 import { SCHOOLYARD_CHARACTERS } from "../schoolyard/schoolyardLayout.js";
 import { farmTrophyRows, MEDALS } from "../farm/farmRecords.js";
@@ -87,11 +87,10 @@ export function achievementsSummary(progress = {}, results = []) {
   });
   const passedFriends = friends.filter((f) => f.passed).length;
   const badges = getAllBadges().map((b) => ({ id: b.badgeId, icon: b.icon, name: b.badgeName, earned: earnedIds.has(b.badgeId) }));
-  const gateOpen = isPlaygroundUnlocked(results);
   const island = {
     id: "island", title: "Number Island", icon: "🌴", color: "#1f7fc4", deep: "#134f7d", light: "#e3f3ff", kind: "island",
     level: lvl.level, xpInto: lvl.xpIntoLevel, xpFor: XP_PER_LEVEL, xp, coins: progress.coins || 0,
-    friends, passedFriends, badges, badgesEarned: badges.filter((b) => b.earned).length, gateOpen,
+    friends, passedFriends, allPassed: passedFriends === friends.length, badges, badgesEarned: badges.filter((b) => b.earned).length,
     passMark: PLAYGROUND_PASS_MARK,
     headline: `Level ${lvl.level}`,
     summary: `Level ${lvl.level} with ${progress.coins || 0} coins. ${passedFriends} of 3 island friends passed at ${PLAYGROUND_PASS_MARK}% or more. ${badges.filter((b) => b.earned).length} of ${badges.length} badges.`,
@@ -106,13 +105,13 @@ export function achievementsSummary(progress = {}, results = []) {
     id: "playground", title: "Retrieval Practice Playground", short: "The Playground", icon: "🏫",
     color: "#d9822b", deep: "#8a4a12", light: "#fff1e0", kind: "playground", regionId: "schoolyard",
     visited: hasVisited("schoolyard") || keys > 0 || bossDone,
-    staff, keys, totalKeys: staff.length, boss: boss ? { name: boss.name, done: bossDone } : null, gateOpen,
+    staff, keys, totalKeys: staff.length, boss: boss ? { name: boss.name, done: bossDone } : null,
     headline: bossDone ? "Champion!" : `${keys} / ${staff.length} keys`,
     summary: bossDone
       ? `All ${staff.length} keys and the Head Teacher's trophy — Schoolyard Champion!`
-      : gateOpen
+      : keys
         ? `${keys} of ${staff.length} staff keys collected.${keys === staff.length ? " The Head Teacher is waiting!" : ""}`
-        : `The Playground gate opens when Pip, Fern and Alby are each passed at ${PLAYGROUND_PASS_MARK}%.`,
+        : `Go through the school gate on Schoolhouse Hill — ${staff.length} teachers each hold a key.`,
   };
 
   // --- The three trophy worlds ------------------------------------------------

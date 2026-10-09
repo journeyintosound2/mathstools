@@ -1,6 +1,7 @@
 import React, { Suspense, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { useGLTF, useAnimations } from "@react-three/drei";
+import { SkeletonUtils } from "three-stdlib";
 
 import { modelConfig, modelUrl, playerModelKey, PLAYER_CHARACTERS } from "./characterModels.js";
 import { playerState } from "../sessionStore.js";
@@ -39,6 +40,14 @@ function findClip(names, patterns, fallback) {
 function RiggedPlayer({ modelKey, modeOverride }) {
   const cfg = modelConfig(modelKey);
   const { scene, animations } = useGLTF(modelUrl(cfg.file));
+  // Each player character gets its OWN copy of the model. useGLTF hands every
+  // caller the same cached scene, and a three.js object can only live in one
+  // place: the title screen's character turntable (its own little canvas)
+  // would take it from the in-game player behind the title — and when the
+  // card closed, the player was left with nothing to draw (the "invisible
+  // character" bug, 2026-10-09). SkeletonUtils.clone rebinds the skin to the
+  // clone's own bones, so each copy animates independently.
+  const model = useMemo(() => SkeletonUtils.clone(scene), [scene]);
   const ref = useRef();
 
   // Which clip is the jump — resolved from the config (or the jump/obstacle
@@ -117,7 +126,7 @@ function RiggedPlayer({ modelKey, modeOverride }) {
 
   return (
     <group ref={ref} scale={cfg.modelScale || 1} position={[0, cfg.yOffset || 0, 0]} rotation={[0, cfg.rotationY || 0, 0]}>
-      <primitive object={scene} />
+      <primitive object={model} />
     </group>
   );
 }

@@ -17,7 +17,7 @@
  *   C   MISSION PLAZA — a raised stone plaza (four stair flights) with the
  *       Number Fountain, the Mission Board and the Trophy Stand.
  *   N   SCHOOLHOUSE HILL — the little island school; the Retrieval Practice
- *       Playground gate is its yard gate (padlocked until the 80% passes).
+ *       Playground gate is its yard gate (open — the 80% lock was removed 2026-10-09).
  *   NW  FROSTY PEAK — a snow-capped mountain. The Snowball Sums IGLOO sits in
  *       Igloo Hollow on its flank; Pip the Penguin keeps his giant
  *       thermometer number line at the snow's edge below.
@@ -99,7 +99,7 @@ function gate(id, position, faceToward, arriveDist = 5.5) {
   return { id, position, yaw, arrive, arriveYaw: yaw + Math.PI };
 }
 export const GATES = {
-  // Retrieval Practice Playground — the school's yard gate (padlocked).
+  // Retrieval Practice Playground — the school's yard gate.
   playground: gate("playground", [0, -50.5], [0, -30]),
   // Snowball Sums — the igloo in Igloo Hollow, facing down to the plaza.
   snow: gate("snow", [-47.5, -46.5], [-30, -26]),

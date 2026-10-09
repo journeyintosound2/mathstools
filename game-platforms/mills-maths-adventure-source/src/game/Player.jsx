@@ -34,8 +34,6 @@ import { useActiveSnowChallenge } from "./farmChallengeActive.js";
 import { activeMagmaChallengeKey, useActiveMagmaChallenge, magmaStore } from "./magma/magmaActive.js";
 import { getMagmaChallenge } from "../data/magma/magmaChallenges.js";
 import { MAGMA_REGION_ID } from "../data/magma/magmaLayout.js";
-import { useResults } from "../results/resultStore.js";
-import { isPlaygroundUnlocked } from "../results/resultUtils.js";
 import {
   CHALLENGE_FENCE,
   ORDER_VIEW_SPOT, CRATE_AREA, CRATE_VIEW_SPOT,
@@ -938,15 +936,9 @@ export default function Player({ cinematic = false }) {
     if (!frozen) {
       for (const portal of region.portals || []) {
         if (Math.hypot(pos.x - portal.position[0], pos.z - portal.position[1]) <= portal.radius) {
-          // Locked gate: the Retrieval Practice Playground stays shut until Pip,
-          // Fern and Alby have each been passed with at least 80%. Stepping onto
-          // it just shows the hint (BlockedGatePrompt) instead of travelling.
-          if (portal.lock === "playground" && !isPlaygroundUnlocked(useResults.getState().results)) {
-            playerState.blockedHint = "Score at least 80% with Pip, Fern and Alby to open this gate.";
-            playerState.blockedIcon = "🔒";
-            playerState.blockedExpiry = Date.now() + HINT_LINGER;
-            break;
-          }
+          // (The Retrieval Practice Playground used to be a LOCKED gate until
+          // Pip, Fern and Alby were each passed at 80% — removed 2026-10-09 at
+          // Jeff's request; every gate on the island is open.)
           if (Date.now() - lastTravel.current > 1200) {
             lastTravel.current = Date.now();
             useSession.getState().setRegion(portal.target);
@@ -1060,6 +1052,10 @@ export default function Player({ cinematic = false }) {
         const minY = groundAt(camTarget.current.x, camTarget.current.z) + CAM_TERRAIN_CLEARANCE;
         if (camTarget.current.y < minY) camTarget.current.y = minY;
       }
+      // Regions with buildings you walk round (the Playground): keep the
+      // camera out of the blocks and UNDER the corridor decks / roofs it
+      // looks beneath, so a verandah or stair tower never hides the player.
+      if (region.cameraFit) region.cameraFit(p.x, p.y, p.z, camTarget.current);
       if (introGlide.current > 0) {
         // The title flyover → the game: a slower SWOOP down behind the
         // player — the camera stays high while it's far away (clear of the
@@ -1079,6 +1075,7 @@ export default function Player({ cinematic = false }) {
         const minY = groundAt(camera.position.x, camera.position.z) + 1.0;
         if (camera.position.y < minY) camera.position.y = minY;
       }
+      if (region.cameraFit && introGlide.current <= 0) region.cameraFit(p.x, p.y, p.z, camera.position);
       if (introGlide.current > 0) camera.lookAt(camLook.current);
       else camera.lookAt(p.x, p.y + 1, p.z);
     }

@@ -191,7 +191,7 @@ const SAGE_LINES = {
   "meet-sage": [
     "Welcome, Explorer! I'm Mills, and this is Number Island — the whole island is yours to explore.",
     "Pip, Fern and Alby each have a quick number warm-up: Pip is under Frosty Peak, Fern is in the ash fields below Ember Peak, and Alby is out at the lighthouse.",
-    "Score 80% with all three and the school gate on Schoolhouse Hill opens — the Retrieval Practice Playground.",
+    "The school gate on Schoolhouse Hill leads to the Retrieval Practice Playground — nine teachers, nine keys and the Head Teacher.",
     "Every other world has its own gate too — the igloo, the volcano arch, the haybales and the mossy arch. Follow the signposts, or check the big map by the arch.",
     "And see the wall beside the arch? That's your Achievements Wall. Stand in front of it and press Enter (or tap a board) to see everything you've won.",
   ],
@@ -209,7 +209,7 @@ const SAGE_LINES = {
     "Alby is out at the lighthouse — take the east road and cross the rope bridge.",
   ],
   grove: [
-    "Wonderful work! The school gate on Schoolhouse Hill is open — the Retrieval Practice Playground awaits.",
+    "Wonderful work — Pip, Fern and Alby are all done! The Retrieval Practice Playground is through the school gate on Schoolhouse Hill.",
     "Wander in whenever you like.",
   ],
   champion: [
@@ -349,7 +349,7 @@ export const CHAMPION_CLAIM_LINES = [
 export const UNLOCK_CELEBRATIONS = {
   "bridge-fdp": { icon: "🌉", message: "The Fraction Bridge rises!" },
   "gate-algebra": { icon: "⚡", message: "The Algebra path is open!" },
-  "reward-grove": { icon: "🏆", message: "Retrieval Practice Playground is open!" },
+  "reward-grove": { icon: "🏆", message: "Pip, Fern and Alby — all done!" },
 };
 
 /**

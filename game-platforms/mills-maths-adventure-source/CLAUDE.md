@@ -140,6 +140,24 @@
 > recovered from its transcript). See "DONE (2026-10-09) — NUMBER ISLAND
 > REBUILT". **562 → 566 checks; vite build clean.**
 >
+> **NEW (2026-10-09 evening): four fixes from Jeff's first look** —
+> invisible player (shared GLTF scene stolen by the title turntable),
+> farm/snow trophy stands turned to face the arrivals, snow Mills moved off
+> the welcome board, the Playground's 80% lock removed. See "DONE
+> (2026-10-09, evening)".
+>
+> **NEW (built 2026-10-09 night, NOT yet deployed): THE RETRIEVAL PRACTICE
+> PLAYGROUND REBUILT** as a big hillside HIGH SCHOOL after Coffs Harbour
+> High (Jeff's aerial + photos): red-brick blocks under terracotta roofs on
+> three storeys, open concrete corridors + stair towers, the fig quad, the
+> garden courtyard, the red-roofed school hall (the Head Teacher behind
+> padlocked doors — one padlock opens per staff key), the canteen, oval,
+> courts + COLA, ag plot, a bush track up to the Sky Pier — and the town,
+> Jetty Beach, the jetty, the harbour + Muttonbird Island beyond the fence.
+> Snowball Sums-sized (280 × 255). See "DONE (2026-10-09, night) — THE
+> RETRIEVAL PRACTICE PLAYGROUND REBUILT". **566 → 576 checks; vite build
+> clean.**
+>
 > **NEXT UP options:** live visual pass + deploy of the snow world + cabin ·
 > teacher glbs for the six placeholder snow/cabin hosts (add each
 > characterId to characterModels.js) · a snow/cabin cloud-completion path
@@ -148,6 +166,169 @@
 > interactive plot-a-point input mode (tap the Cartesian grid) · Stage 5
 > depth (still only 2 sample skills) · more Stage 4 topics (Area extension)
 > · a DevPanel gallery to eyeball every new diagram/chart at once.
+
+## DONE (2026-10-09, night) — THE RETRIEVAL PRACTICE PLAYGROUND REBUILT
+Jeff's brief: bring the Playground up to the quality + size of Snowball Sums
+and the Emerald Jungle, inspired by an aerial + photos of Coffs Harbour High
+(a school on several levels — stairs + corridors — with the big orange-roofed
+hall), and use the ocean nearby for the background / non-accessible areas.
+The nine staff, their keys, missions, random Stage 4 topics and the boss are
+UNCHANGED (data-driven from `SCHOOLYARD_CHARACTERS`); only their spots moved.
+**566 → 576 checks (new SY1–SY10 in `src/dev/schoolyardWorldChecks.js`), all
+passing; vite build clean.** NOT yet deployed. (Built across a usage stop;
+checkpoints `../Claude outputs/mma-school-cp*.tgz`.)
+- **The map (`src/data/schoolyard/schoolyardLayout.js`, single source of
+  truth):** fence 280 × 255 (`SCHOOL_FENCE`, 95% of the snow world's area).
+  Frame: x east, z south; the site SLOPES DOWN to the sea in the south.
+  LEVELS in 3 m storeys that line up with the terraces: L0 front lawns /
+  plaza / oval / car parks · L1 the asphalt QUAD (canteen, hall floor,
+  courts, COLA) · L2 the paved GARDEN COURTYARD (ground floor of Blocks A + B)
+  · L3 the UPPER TERRACE lawn (staff car park, ag plot, TAS) · L4 the top
+  corridors · the Sky Pier at 21.6 m. You arrive through the FRONT GATE on
+  the plaza (`SCHOOLYARD_SPAWN [14,112]`, looking north at the school); Mills
+  welcomes you at `SCHOOLYARD_WELCOME`; the CAMPUS MAP board + school sign
+  are beside the plaza; the gate home is behind-right. Buildings
+  (`SCHOOL_BUILDINGS`, each a frame `{c, yaw}` with long axis local x and its
+  corridor on local +z): **Block A** (library, 3 storeys, corridors on 2
+  decks, a stair TOWER, the library BAY), **Block B** (science, 3 storeys,
+  tower, the south-end LOOKOUT balcony with Ms. Ewings' telescope), **Block
+  C** (split-level, balcony + a broad stair to the oval lawn), the **Art
+  block** (the OCEAN MURAL from the photo), **the School HALL** (gable red
+  Colorbond, skylight stripes, porch, timber floor, stage + curtains, wall
+  thickness + doorway), the **canteen** (servery), **front office**, **TAS
+  workshops** (roller doors), the sports shed. Free flights, ramps (the
+  photo's zig-zag access ramps ≤ 1:12) + landings in `SCHOOL_FLIGHTS` /
+  `SCHOOL_RAMPS` / `SCHOOL_LANDINGS`. Staff: Pearce canteen · Mahoney the
+  library bay (top floor) · Ewings science lookout (top floor) · Dawson the
+  SKY PIER · Heywood the oval · Morgan the ag plot · Bacon the mural ·
+  Brookes the courtyard · Mrs. Kellahan on the hall stage.
+- **Terrain + structures (`schoolyardTerrain.js`):** the island/snow
+  pipeline — 1 m grid from `rawHeight` (campus slope, the bush hill, the
+  town falling to Jetty Beach, Beacon Hill), pads, graded paths (the bush
+  track switchbacks up to the pier), carving under the terraces. STRUCTURES:
+  SOLID (terraces, flights, ramps, landings, planters, the stage) and THIN
+  (corridor decks, end decks, bays, the tower's upper flights + landings, the
+  Sky Pier) — LAYERED `schoolGroundHeight(x,z,y)`: thin decks only count at /
+  above you, so you walk UNDER the corridors. Hooks: `schoolSlideAt` (the
+  hill's steep faces), `schoolIsSafe`, and NEW `cameraFit` (region field,
+  called by Player.jsx + TitleCamera's orbit): `schoolCameraFit` pulls the
+  follow camera in front of building bodies (+ the hall walls) and keeps the
+  sight line UNDER every deck / corridor roof / tower + bay roof / COLA / hall
+  ceiling it passes beneath. Stair TOWERS (`towerPieces`): per storey a
+  flight up the outer strip, a half landing, a flight back, a full-width
+  FLOOR LANDING level with the corridor.
+- **Rails (`schoolyardRails.js`):** worked out from the structures — every
+  edge walked in 0.5 m steps; where the ground just beyond is a real drop
+  (and isn't a wall, the next flight or a same-level deck) it gets a rail:
+  brick parapets on the terraces, a concrete upstand + galvanised rail on the
+  decks, pipe rails on stairs/ramps/landings/the pier. Colliders + renderer
+  both read them; rail colliders are HEIGHT-BANDED to their level.
+- **Colliders (`schoolyardColliders.js`):** NEW oriented-box colliders
+  (`boxCollider` in collisionEngine.js — `box:true, hx, hz, cos, sin`;
+  `resolveCircle` has an OBB branch) for building bodies, the hall walls
+  (doorway open), rails, boards; `schoolColumns()` (corridor / balcony / bay
+  columns + tower posts, floor to roof); staff + props banded to their level;
+  the pond, the hall's key sign + proscenium jambs; the hall DOORS
+  (`sy-gate-*`) only while the 8 keys aren't all earned.
+- **Props (`schoolyardProps.js`):** ~250 trees (the quad's three figs in
+  brick planters, Norfolk Island pines, jacarandas in bloom, gums,
+  paperbarks, tree ferns, Bangalow palms, frangipani, the ag plot's
+  bananas), ~900 shrubs (red cordylines, lomandra, agapanthus, bushes, the
+  office hedge) and ~190 pieces of furniture from the photos (aluminium
+  benches + picnic sets, slotted bins, wheelie bins, the white van, the blue
+  skip with the red lid, disc-head light poles, bubblers, bike racks,
+  bollards, flagpoles, the bus + shelter, cars, hoops, goal posts, the
+  scoreboard, garden beds, chook pen, greenhouse, the telescope, the hall's
+  chairs + lectern). `inPierView()` keeps a wedge in front of the Sky Pier
+  free of tall trees so the harbour shows.
+- **Rendering (`src/game/SchoolyardScenery.jsx` + `src/game/schoolyard/`):**
+  `schoolMaterials.js` (procedural canvas textures: brick ×3, terracotta
+  tiles with lichen, Colorbond red/grey/cream/green, concrete, asphalt,
+  pavers, windows with blinds, doors, the OCEAN MURAL, the basketball court;
+  the ground + SEA shaders), `schoolKit.js` (a geometry accumulator: every
+  wall/slab/step/rail/roof plane/window appended per MATERIAL with metre
+  UVs → each material ONE mesh), `SchoolGround.jsx` (terrain, far land, the
+  sea, terraces + brick retaining walls, paved surfaces + line markings,
+  planters, the pond, tracks, painted playground games), `SchoolStructures`
+  (stairs with yellow nosings + tactile pads, ramps, landings, decks,
+  columns, tower roofs, the COLA, the Sky Pier on its steel frame, all
+  rails), `SchoolBuildings` (bodies with windows/doors/floor bands, hip /
+  gable / skillion / flat roofs over body + corridors + bays, the hall
+  inside + out, the mural, servery, office entry, roller doors, signs),
+  `schoolGeometry.js` + `SchoolFlora` (instanced + LOD), `SchoolFurniture`
+  (merged + fluttering flags), `SchoolLandmarks` (school sign + crest, the
+  campus map board drawn from the layout, signposts, the hall doors with
+  EIGHT padlocks that open one per key + a key-count sign, doors swing open
+  at 8/8), `SchoolBackdrop` (streets + traffic, ~houses + the town centre,
+  town trees, Norfolk pines on the foreshore, the bush on Beacon Hill, the
+  JETTY, rock breakwalls, MUTTONBIRD ISLAND, the marina's boats, yachts,
+  the school's palisade fence + front gates, power poles), `SchoolAtmosphere`
+  (a morning sun that follows the player, gulls, rainbow lorikeets).
+  World.jsx: `isSchool` (sky dome r 640 with the true horizon, fog 150/860 so
+  the harbour stays in view, no default key light). DEV-only:
+  `window.__SY_ONLY = ["SchoolBuildings", …]`.
+- **Also:** a hidden treasure CHEST (`school-chest`, `SCHOOL_CHEST_SPOTS`,
+  interaction.js), Mills' welcome now explains the keys / stair towers / map
+  / pier, the beach was brought to ~124 m beyond the fence and the town slope
+  steepened so the sea shows over the roofs; the Sky Pier sits behind the
+  TAS block aimed at the harbour over the low COLA / courts / car park.
+- **Performance (SwiftShader, 800×470, arrival):** High ≈ 760 draws /
+  1.6 M tris, Low ≈ 360 / 0.66 M (the farm: 915 / 2.2 M and 430 / 0.71 M).
+- **Verified:** SY1–SY10 (hooks + arrival + gate home · Snowball-Sums size,
+  3 storeys, L0–L4 + the pier · every flight + ramp climbable + joined · a
+  flood fill on foot reaches every staff member, every corridor deck, the
+  pier, signposts + chest spots, and the hall ONLY with 8 keys · staff on
+  their level, off stairs, clear of rails/columns · every real drop guarded
+  · the hall doors span the doorway until 8 keys · 192 camera fits under the
+  corridors clear · scatter clear + the pier view open · beach + town beyond
+  the fence, the pier's sight lines to the jetty + Muttonbird clear). Driven
+  with the REAL Player physics: plaza → front stairs → quad → courtyard
+  stairs → Block A's tower → the 1st- and top-floor decks → the library
+  bay; the whole bush track → the Sky Pier. Screenshots of every area.
+- **Notes / TODO:** `public/models/front.glb` + `tree.glb` (the old
+  Playground's scanned mural building + tree) are no longer used — delete
+  them to slim the build. `kellahan.glb` is referenced by characterModels
+  but missing from this copy (she falls back to a primitive) — check the
+  Mac copy. A live look on a real GPU + an iPad (frame rate, the camera on
+  the stair towers + under the corridors, the mural). The 16 area labels,
+  the welcome line, Mills' new lines + the chest's line HAVE Farsi + Arabic
+  (i18n/translations.js); the building/map/sign canvas textures are
+  English-only (painted signs, like a real school's).
+
+## DONE (2026-10-09, evening) — Jeff's feedback on the island build (4 fixes)
+**566 checks, all passing; vite build clean.** Built + staged for deploy.
+- **Invisible player (all regions):** `RiggedPlayer` (characters/
+  PlayerCharacter.jsx) mounted useGLTF's SHARED cached scene. The title
+  screen's character turntable is its own `<Canvas>`, and World renders the
+  (cinematic, hidden) Player behind the title — so opening the character card
+  (Start adventure / Change character / ⚙ Edit character) re-parented the one
+  model into the turntable, and when the card closed the in-game player had
+  nothing to draw. Fix: `SkeletonUtils.clone(scene)` per instance (the
+  CharacterModel.jsx pattern). Reproduced headlessly before/after (card flow
+  → no skinned mesh at the player; with the fix → present + visible).
+  RULE: never `<primitive object={gltf.scene}>` a model that can be mounted
+  twice — clone it.
+- **Trophy stands faced away** on the farm + snow arrival greens. trophy.glb's
+  open front (the pigeonholes) is its LOCAL +z, so `rotationY = atan2(dx, dz)`
+  toward the target. `FARM_RECORDS_STAND` / `SNOW_RECORDS_STAND` now compute
+  that toward their `*_SPAWN` (the old −π/2 values pointed the backs at the
+  arrivals; the farm comment had the sense backwards). Magma's was already
+  right.
+- **Snow Mills stood in the welcome board:** new `SNOW_WELCOME_HOST`
+  (snowLayout.js — 2.1 m to the board's left, 0.7 m in front, in the board's
+  own frame); the `snow-welcome-sign` interactable + its collider use it; the
+  board gets three colliders along its span; props keep clear of both
+  (`welcome-host`); SW4 reaches Mills' spot.
+- **The Retrieval Practice Playground is no longer locked.** Removed the
+  `lock: "playground"` portal field (regions.js), the travel block in
+  Player.jsx and the `locked` prop in World.jsx (Portal.jsx keeps the generic
+  locked visual, unused). Wording updated: Mills' island dialogue +
+  SAGE_LINES (mainQuest.js), the `reward-grove` banner, the title-screen tip,
+  the Achievements Wall (island board footer now "Pass Pip, Fern and Alby at
+  80% — n of 3 so far" / "✓ all passed"; the Playground board lost its "Gate
+  locked" stamp; summary text). `PLAYGROUND_PASS_MARK` (80) stays as the
+  friends' pass mark; `isPlaygroundUnlocked` kept for reference only.
+  IL6 now asserts `allPassed` and no `gateOpen` field.
 
 ## DONE (2026-10-09) — NUMBER ISLAND REBUILT + TITLE SCREEN + ACHIEVEMENTS WALL
 Jeff's brief: (1) upgrade the starting screen to a polished, professional
@@ -1983,7 +2164,7 @@ awards the trophy). L1–5 adaptive. Teacher tasks still override (handled upstr
 in interaction.js). Guarded by `runSchoolyardTopicChecks()`. Island NPCs (Pip/
 Fern/Alby) unchanged.
 
-## System checks (566)
+## System checks (576)
 `src/dev/systemChecks.js` → `runSystemChecks()`. Run headlessly: temporarily set
 `package.json` `"type":"module"`, shim `localStorage/window/document`, import and
 run; also babel parse-check `src/`, `portal/`, `functions/`. Restore package.json

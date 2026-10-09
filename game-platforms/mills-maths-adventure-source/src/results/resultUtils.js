@@ -13,9 +13,10 @@ function avg(nums) {
 }
 
 /**
- * PLAYGROUND GATE — the Retrieval Practice Playground stays locked until the
- * three Number Island friends (Pip = integers, Fern = fdp, Alby = algebra) have
- * each been passed with a best score of at least PLAYGROUND_PASS_MARK percent.
+ * The island friends' PASS MARK (Pip = integers, Fern = fdp, Alby = algebra) —
+ * the Achievements Wall ticks a friend off at this best score. (Until
+ * 2026-10-09 it also kept the Retrieval Practice Playground locked; that gate
+ * is open now. isPlaygroundUnlocked is kept for reference/back-compat only.)
  */
 export const PLAYGROUND_PASS_MARK = 80;
 export const PLAYGROUND_REQUIRED_TOPICS = ["integers", "fdp", "algebra"];

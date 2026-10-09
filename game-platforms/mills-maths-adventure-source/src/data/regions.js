@@ -22,8 +22,10 @@ import { ISLAND_BOUNDS, GATES as ISLAND_GATES } from "./island/islandLayout.js";
 import {
   islandGroundHeight, islandSlideAt, islandSpeedAt, islandHazardAt, islandHazardInfo, islandIsSafe, SEA_HINT,
 } from "./island/islandTerrain.js";
-import { SCHOOLYARD_BOUNDS, SCHOOLYARD_SPAWN } from "./schoolyard/schoolyardLayout.js";
-import { schoolyardGroundHeight } from "./schoolyard/schoolyardTerrain.js";
+import {
+  SCHOOLYARD_BOUNDS, SCHOOLYARD_SPAWN, SCHOOLYARD_RETURN_PORTAL, SCHOOLYARD_RETURN_PORTAL_YAW, SCHOOLYARD_REGION_NAME,
+} from "./schoolyard/schoolyardLayout.js";
+import { schoolGroundHeight, schoolSlideAt, schoolIsSafe, schoolCameraFit } from "./schoolyard/schoolyardTerrain.js";
 import { FARM_BOUNDS, FARM_SPAWN, FARM_RETURN_PORTAL, FARM_RETURN_PORTAL_YAW } from "./farm/farmLayout.js";
 import { farmGroundHeight, farmSlideAt, farmSpeedAt, farmIsSafe } from "./farm/farmTerrain.js";
 import { SNOW_BOUNDS, SNOW_SPAWN, SNOW_RETURN_PORTAL, SNOW_RETURN_PORTAL_YAW } from "./snow/snowLayout.js";
@@ -88,7 +90,7 @@ export const REGIONS = {
     },
     // The five world gates (positions + facings from islandLayout GATES).
     portals: [
-      { id: "island-to-schoolyard", position: ISLAND_GATES.playground.position, radius: 2.0, rotationY: ISLAND_GATES.playground.yaw, target: "schoolyard", label: "Retrieval Practice Playground", lock: "playground" },
+      { id: "island-to-schoolyard", position: ISLAND_GATES.playground.position, radius: 2.0, rotationY: ISLAND_GATES.playground.yaw, target: "schoolyard", label: "Retrieval Practice Playground" },
       { id: "island-to-farm", position: ISLAND_GATES.farm.position, radius: 2.0, rotationY: ISLAND_GATES.farm.yaw, target: "farm-parts-whole", label: "Fraction Farm", variant: "haybale" },
       { id: "island-to-snow", position: ISLAND_GATES.snow.position, radius: 2.0, rotationY: ISLAND_GATES.snow.yaw, target: "snow-sums", label: "Snowball Sums", variant: "igloo" },
       { id: "island-to-magma", position: ISLAND_GATES.magma.position, radius: 2.0, rotationY: ISLAND_GATES.magma.yaw, target: MAGMA_REGION_ID, label: MAGMA_NAME, variant: "volcano" },
@@ -96,30 +98,47 @@ export const REGIONS = {
     ],
   },
 
-  // The Schoolyard (W2) — a flat, rectangular second region rendered by
-  // SchoolyardScenery.jsx. `flatGround` tells the Player to use height 0 here
-  // (island-1's plateau/stairs don't apply). Reached via the Teleport Gate (W2-C).
+  // RETRIEVAL PRACTICE PLAYGROUND (rebuilt 2026-10-09) — a big hillside
+  // high school on the Coffs Coast (Snowball Sums-sized): red-brick blocks
+  // under terracotta roofs, open concrete corridors on three storeys linked
+  // by stair towers, the fig quad, the garden courtyard, the big red-roofed
+  // hall (the Head Teacher, behind padlocked doors), the oval, the courts +
+  // COLA, the ag plot, the bush track up to the Sky Pier — and the harbour
+  // out past the town. Everything lives in data/schoolyard/ +
+  // game/SchoolyardScenery.jsx. Hooks: LAYERED ground (you walk UNDER the
+  // corridor decks), the bush hill's steep faces slide, and `cameraFit`
+  // keeps the follow camera under the corridor ceilings + out of the blocks.
   "schoolyard": {
     id: "schoolyard",
-    name: "Retrieval Practice Playground",
+    name: SCHOOLYARD_REGION_NAME,
     spawn: { x: SCHOOLYARD_SPAWN.x, z: SCHOOLYARD_SPAWN.z },
     bounds: SCHOOLYARD_BOUNDS,
-    // Terraced ground (three tiers + central stairs). Player/Interactables read
-    // this instead of island-1's plateau/stairs.
-    groundHeight: schoolyardGroundHeight,
+    groundHeight: schoolGroundHeight,
+    slideAt: schoolSlideAt,
+    isSafe: schoolIsSafe,
+    cameraTerrainClamp: true,
+    cameraFit: schoolCameraFit,
+    maxFrameDelta: 1 / 15,
+    arriveYaw: 0, // arrive looking north, up the hill at the school
+    badgeRange: 46,
+    drawRange: 150,
     geometry: {
-      // Ground is drawn by SchoolyardScenery; only skyColor is used by World.
-      skyColor: "#cfe8ff",
-      grassColor: "#717a85",
-      beachColor: "#717a85",
-      oceanColor: "#717a85",
-      walkableRadius: 30,
-      oceanRadius: 40,
+      // A bright Coffs Coast spring morning: pale blue horizon, deep blue overhead.
+      skyColor: "#cfe6f6",
+      skyTop: "#3d86d8",
+      // Far fog: the harbour, the jetty + Muttonbird Island stay in view.
+      fogNear: 150,
+      fogFar: 860,
+      grassColor: "#78b04f",
+      beachColor: "#e9d8a6",
+      oceanColor: "#2f8fbf",
+      walkableRadius: 140,
+      oceanRadius: 600,
     },
-    // Return Teleport Gate → back to the island. On the front tier's east edge,
-    // clear of the trees/NPCs/planters (moved anticlockwise off the corner tree).
+    // The gate home stands just behind-right of the arrival (door-to-door:
+    // walking back through it lands you in front of the island's school gate).
     portals: [
-      { id: "schoolyard-to-island", position: [34, 12], radius: 2.0, rotationY: -Math.PI / 2, target: "island-1", label: "Number Island", arrive: ISLAND_GATES.playground.arrive, arriveYaw: ISLAND_GATES.playground.arriveYaw },
+      { id: "schoolyard-to-island", position: SCHOOLYARD_RETURN_PORTAL, radius: 2.0, rotationY: SCHOOLYARD_RETURN_PORTAL_YAW, target: "island-1", label: "Number Island", arrive: ISLAND_GATES.playground.arrive, arriveYaw: ISLAND_GATES.playground.arriveYaw },
     ],
   },
 

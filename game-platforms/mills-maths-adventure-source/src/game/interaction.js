@@ -68,6 +68,7 @@ let chestOpened = false;
 const FARM_CHEST_COINS = 15;
 let farmChestOpened = false;
 let snowChestOpened = false;
+let schoolChestOpened = false;
 
 /**
  * Run the interaction for an interactable — the single source of truth shared by
@@ -125,6 +126,21 @@ export function triggerInteraction(interactable) {
       prog.awardRewards({ coins: FARM_CHEST_COINS });
       useUI.getState().pushToast({ type: "reward", icon: "🪙", title: "Treasure!", message: `You found ${FARM_CHEST_COINS} coins.` });
       openDlg({ speaker: "Treasure Chest", lines: [`Frozen shut… crack! ${FARM_CHEST_COINS} icy coins! ❄️`] });
+    } else {
+      openDlg({ speaker: "Treasure Chest", lines: ["Empty now — you already grabbed the coins. Another chest will turn up next visit!"] });
+    }
+    return;
+  }
+
+  // The Playground's treasure chest — its own once-per-session bonus.
+  if (interactable.id === "school-chest") {
+    const prog = useProgress.getState();
+    const openDlg = useSession.getState().openDialogue;
+    if (!schoolChestOpened) {
+      schoolChestOpened = true;
+      prog.awardRewards({ coins: FARM_CHEST_COINS });
+      useUI.getState().pushToast({ type: "reward", icon: "🪙", title: "Treasure!", message: `You found ${FARM_CHEST_COINS} coins.` });
+      openDlg({ speaker: "Treasure Chest", lines: [`Lost property… ${FARM_CHEST_COINS} shiny coins! Finders keepers ✨`] });
     } else {
       openDlg({ speaker: "Treasure Chest", lines: ["Empty now — you already grabbed the coins. Another chest will turn up next visit!"] });
     }

@@ -6,7 +6,7 @@
  * ten challenge stages + their cameras genuinely agree.
  */
 import {
-  SNOW_BOUNDS, SNOW_BOUNDARY, SNOW_SPAWN, SNOW_RETURN_PORTAL, SNOW_WELCOME_SIGN, SNOW_RECORDS_STAND, CHALLENGE_PAD,
+  SNOW_BOUNDS, SNOW_BOUNDARY, SNOW_SPAWN, SNOW_RETURN_PORTAL, SNOW_WELCOME_SIGN, SNOW_WELCOME_HOST, SNOW_RECORDS_STAND, CHALLENGE_PAD,
   SNOW_PADS, SNOW_SIGNPOSTS, SNOW_CHEST_SPOTS, SNOW_CHALLENGE_SPOTS, SNOW_LAKE, ICE_FLOES, ICE_PUDDLES, SNOW_LODGE,
   GIANT_SNOWMAN, FROZEN_FALLS, IGLOO_ISLAND, PENGUIN_FLOE, LODGE_DOOR,
   RANGE_FRAME_POS, RANGE_CRATE_POS, RANGE_VIEW_SPOT, RANGE_SIGN, RINK_GLIDE_LINE, RINK_GLIDE_VIEW_SPOT, RINK_GLIDE_SIGN,
@@ -258,7 +258,7 @@ export function runSnowWorldChecks() {
   const targets = [
     ...SNOW_CAMERA_KEYS.map((k) => [`${k}-view`, snowParkSpot(k), 1.4]),
     ...SNOW_CAMERA_KEYS.map((k) => [`${k}-host`, SIGN_OF[k].position, 2.2]),
-    ["welcome", SNOW_WELCOME_SIGN.position, 2.2],
+    ["welcome", SNOW_WELCOME_HOST.position, 2.2],
     ["records", SNOW_RECORDS_STAND.position, 4.6],
     ["return-gate", [bx, bz - 2.5], 1.8],
     ["lodge-door", [LODGE_DOOR[0], LODGE_DOOR[1] + 1.6], 1.4],

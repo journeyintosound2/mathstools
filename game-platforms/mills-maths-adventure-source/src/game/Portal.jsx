@@ -16,9 +16,9 @@ import StaticBatch from "./jungle/StaticBatch.jsx";
  * no collider). Optional floating label shows the destination.
  *
  * When `locked` is true it is shown SHUT: the swirl is off, a wooden gate with a
- * padlock is drawn across the ring, and the label reads as locked. Used for the
- * Retrieval Practice Playground until Pip, Fern and Alby are each passed at ≥80%
- * (the travel is blocked in Player.jsx; this is the matching visual).
+ * padlock is drawn across the ring, and the label reads as locked. (Kept for a
+ * future locked gate; the Retrieval Practice Playground's 80% lock that used it
+ * was removed 2026-10-09 — no portal passes `locked` today.)
  */
 export default function Portal({ position, rotationY = 0, label, locked = false, y = 0, labelRange = 0 }) {
   const spinA = useRef();

@@ -46,8 +46,6 @@ import { GroundTapCatcher, DestinationMarker } from "./TapToMove.jsx";
 import { SkyDome } from "./SkyBackdrop.jsx";
 import Footprints from "./Footprints.jsx";
 import TitleCamera from "./TitleCamera.jsx";
-import { useResults } from "../results/resultStore.js";
-import { isPlaygroundUnlocked } from "../results/resultUtils.js";
 
 /**
  * The whole 3D scene: lighting, the island, scenery, the player and the NPCs.
@@ -61,10 +59,6 @@ import { isPlaygroundUnlocked } from "../results/resultUtils.js";
 export default function World({ title = false }) {
   // Geometry/colours + which scenery to render come from the ACTIVE region.
   const regionId = useSession((s) => s.currentRegionId);
-  // Gate state for the Retrieval Practice Playground portal (re-renders the
-  // locked gate → open when Pip/Fern/Alby are each passed at ≥80%).
-  const results = useResults((r) => r.results);
-  const playgroundLocked = !isPlaygroundUnlocked(results);
   const geo = getRegion(regionId).geometry;
   const isIsland = regionId === "island-1";
   // Fraction Farm runs on LATE-AFTERNOON light: a lower, more golden sun.
@@ -83,6 +77,11 @@ export default function World({ title = false }) {
   // follows the player (shadows across the big valley), a pale sky / deep
   // green bounce hemisphere, misty blue-green haze in the distance.
   const isJungle = regionId === JUNGLE_REGION_ID;
+  // The Retrieval Practice Playground runs on a bright COFFS COAST MORNING: a
+  // sun that follows the player (shadows across the big school), a pale sea
+  // horizon (the SkyDome's true horizon, like the island) and a soft
+  // sky / lawn-green bounce.
+  const isSchool = regionId === "schoolyard";
   const region = getRegion(regionId);
   const touchMode = useUI((s) => s.touchMode);
   const highGfx = useUI((s) => s.graphicsQuality) === "high";
@@ -96,7 +95,7 @@ export default function World({ title = false }) {
       {/* Gradient sky dome + hazy distant islands (W5-E). Sky is cheap → always
           on; islands (island region only) add a little geometry → High only.
           Horizon colour = fog colour so the fogged distance blends in. */}
-      <SkyDome horizon={geo.skyColor} top={isCabin ? "#120c07" : geo.skyTop || undefined} radius={isMagma ? 470 : isJungle || isFarm || isSnow || isIsland ? 640 : undefined} trueHorizon={isIsland} />
+      <SkyDome horizon={geo.skyColor} top={isCabin ? "#120c07" : geo.skyTop || undefined} radius={isMagma ? 470 : isJungle || isFarm || isSnow || isIsland || isSchool ? 640 : undefined} trueHorizon={isIsland || isSchool} />
 
       {/* --- Soft-cartoon lighting (W5-A) ---
           A warm key light (soft shadows), a warm sky/ground hemisphere fill, and
@@ -109,14 +108,14 @@ export default function World({ title = false }) {
           brightness (otherwise High just looks washed-out vs Low). */}
       <hemisphereLight
         args={[
-          isFarm ? "#fff0d8" : isSnow ? "#dce6ff" : isCabin ? "#ffcf9e" : isMagma ? "#ffc29a" : isJungle ? "#e4f4ff" : isIsland ? "#eaf6ff" : "#fff4e0",
-          isFarm ? "#6f8a4a" : isSnow ? "#8f97b8" : isCabin ? "#3a2716" : isMagma ? "#6a2a1c" : isJungle ? "#4d6e33" : isIsland ? "#7aa65a" : "#a9cf97",
-          isSnow ? (highGfx ? 0.62 : 0.95) : isCabin ? (highGfx ? 0.4 : 0.6) : isMagma ? (highGfx ? 0.75 : 1.15) : isJungle || isFarm || isIsland ? (highGfx ? 0.62 : 0.95) : highGfx ? 0.45 : 0.8,
+          isFarm ? "#fff0d8" : isSnow ? "#dce6ff" : isCabin ? "#ffcf9e" : isMagma ? "#ffc29a" : isJungle ? "#e4f4ff" : isIsland || isSchool ? "#eaf6ff" : "#fff4e0",
+          isFarm ? "#6f8a4a" : isSnow ? "#8f97b8" : isCabin ? "#3a2716" : isMagma ? "#6a2a1c" : isJungle ? "#4d6e33" : isIsland ? "#7aa65a" : isSchool ? "#8f9a74" : "#a9cf97",
+          isSnow ? (highGfx ? 0.62 : 0.95) : isCabin ? (highGfx ? 0.4 : 0.6) : isMagma ? (highGfx ? 0.75 : 1.15) : isJungle || isFarm || isIsland || isSchool ? (highGfx ? 0.62 : 0.95) : highGfx ? 0.45 : 0.8,
         ]}
       />
       <ambientLight intensity={isSnow ? (highGfx ? 0.12 : 0.26) : isCabin ? (highGfx ? 0.16 : 0.28) : highGfx ? 0.12 : 0.28} />
-      {/* Number Island, Magma Multiples, Emerald Jungle, Fraction Farm + Snowball Sums bring their OWN player-following key light. */}
-      {!isMagma && !isJungle && !isFarm && !isSnow && !isIsland && <directionalLight
+      {/* Number Island, Magma Multiples, Emerald Jungle, Fraction Farm, Snowball Sums + the Playground bring their OWN player-following key light. */}
+      {!isMagma && !isJungle && !isFarm && !isSnow && !isIsland && !isSchool && <directionalLight
         position={isFarm ? [-30, 14, 12] : isSnow ? [22, 28, -18] : isCabin ? [-8, 22, 10] : [20, 30, 16]}
         intensity={isFarm ? 1.35 : isSnow ? 0.95 : isCabin ? 0.55 : 1.5}
         color={isFarm ? "#ffd9a0" : isSnow ? "#bdcdff" : isCabin ? "#ffcf9e" : "#fff0cc"}
@@ -226,7 +225,7 @@ export default function World({ title = false }) {
         // Gates stand on the ground (the island, farm, snow + jungle roll);
         // on the big island their labels show only when you're near.
         const gy = region.groundHeight ? region.groundHeight(p.position[0], p.position[1]) : 0;
-        const lr = isIsland ? 42 : 0;
+        const lr = isIsland ? 42 : isSchool ? 30 : 0;
         return p.variant === "cabindoor" ? null : p.variant === "jungle" ? (
           <JunglePortal key={p.id} position={p.position} rotationY={p.rotationY} label={p.label} y={gy} labelRange={lr} />
         ) : p.variant === "volcano" ? (
@@ -241,9 +240,8 @@ export default function World({ title = false }) {
             position={p.position}
             rotationY={p.rotationY}
             label={p.label}
-            y={isIsland ? gy : 0}
+            y={isIsland || isSchool ? gy : 0}
             labelRange={lr}
-            locked={p.lock === "playground" && playgroundLocked}
           />
         );
       })}

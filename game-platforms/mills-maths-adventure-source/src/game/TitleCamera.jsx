@@ -3,6 +3,7 @@ import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 
 import { playerState } from "./sessionStore.js";
+import { getRegion } from "../data/regions.js";
 import { terrainHeight } from "../data/island/islandTerrain.js";
 import { TITLE_SHOTS, TITLE_PERIOD, TITLE_MIN_CLEARANCE } from "../data/island/titleShots.js";
 
@@ -61,6 +62,10 @@ export default function TitleCamera({ regionId }) {
     const o = orbitAt.current;
     const a = t * 0.07;
     tmpP.set(o.x + Math.sin(a) * 15, o.y + 7, o.z + Math.cos(a) * 15);
+    // Worlds with buildings (the Playground): keep the orbit out of the
+    // blocks + under the corridor roofs, as the follow camera does.
+    const region = getRegion(regionId);
+    if (region && region.cameraFit) region.cameraFit(o.x, o.y, o.z, tmpP);
     camera.position.lerp(tmpP, 1 - Math.pow(0.1, delta));
     camera.lookAt(o.x, o.y + 1.4, o.z);
   });
