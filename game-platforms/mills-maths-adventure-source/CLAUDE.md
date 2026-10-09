@@ -3,13 +3,17 @@
 > This folder is the **game source** (and the Cloud Functions). As of
 > **2026-08-17** it lives INSIDE the website repo at
 > `game-platforms/mills-maths-adventure-source/` (repo
-> `github.com/jeffmills2-rgb/mathstools`, cloned locally at
-> `~/Documents/GitHub/Mills Maths Tools/`, deployed to millsmathstools.au via
-> Netlify on push to `main`). There is no separate `mathstools-main 2` / `Mills
+> `github.com/journeyintosound2/mathstools` — moved from `jeffmills2-rgb` on
+> 2026-10-08, the old URL redirects — cloned locally at
+> `~/Documents/GitHub/Mills Maths Tools/`, deployed to millsmathstools.au by
+> GitHub Pages on push to `main`; Netlify is retired). There is no separate `mathstools-main 2` / `Mills
 > Maths Adventure` folder any more. The BUILT/deployed game is the sibling
 > `game-platforms/mills-maths-adventure/`. **Deploy:** `npm run build` here →
-> copy `dist/.` into `../mills-maths-adventure/` → `git add`, commit, push
-> (Netlify auto-deploys). Older references below to a separate website folder
+> copy `dist/.` into `../mills-maths-adventure/` and delete the previous
+> build's hashed bundles there → run `node tools/build-pwa.mjs` from the repo
+> root (refreshes `precache-manifest.js`, the service worker's offline list)
+> → commit + push (GitHub Pages deploys in ~1 min). Pushing the SOURCE alone
+> changes nothing students see — the game is the built copy. Older references below to a separate website folder
 > are superseded by this. See the repo-root `CLAUDE.md` for the whole-site view.
 > Last reviewed: 2026-07-22 (newest work in the DONE 2026-07-22 section below). **All LIVE** (deployed 2026-07-08, commit `aad2142`):
 > W3–W6, the Phase 3A–3G question-bank expansion (6 topics) + Linear teacher UI

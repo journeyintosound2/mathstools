@@ -45,10 +45,14 @@
 > `game-platforms/mills-maths-adventure-source/` (the Vite project), with its
 > BUILT/deployed copy in the sibling `game-platforms/mills-maths-adventure/`.
 > There is now ONE folder for everything: the local clone at
-> `~/Documents/GitHub/Mills Maths Tools/` (GitHub repo `jeffmills2-rgb/mathstools`,
-> Netlify-deployed on push to `main`). **Deploy an Adventure change:** edit in
+> `~/Documents/GitHub/Mills Maths Tools/` (GitHub repo **`journeyintosound2/mathstools`**
+> — moved from `jeffmills2-rgb` on 2026-10-08; the old URL redirects — deployed by
+> **GitHub Pages** on push to `main`, custom domain via `CNAME`; Netlify is retired).
+> **Deploy an Adventure change:** edit in
 > `game-platforms/mills-maths-adventure-source/` → `npm run build` → copy `dist/.`
-> into `../mills-maths-adventure/` → `git add -A && git commit && git push`.
+> into `../mills-maths-adventure/` (and DELETE the old hashed bundles there —
+> each build's `assets/index-*.js`, `index-*.css`, `MathAnswerInput-*.js`) →
+> `node tools/build-pwa.mjs` → `git add -A && git commit && git push`.
 > §2 "TWO folders", §3 deploy paths and §5's `mathstools-main 2` heading below
 > describe the OLD layout — this block supersedes them.
 >
@@ -3217,8 +3221,8 @@ A hub-and-spoke website of interactive maths tools for NSW Years 7–10, built b
 NSW maths teacher. It now also has a **secure Student/Teacher Platform** and
 **Mills Maths Adventure** (a 3D low-poly maths game), all live.
 
-- **Live site:** https://www.millsmathstools.au (Netlify + custom domain)
-- **GitHub repo (the website):** https://github.com/jeffmills2-rgb/mathstools (branch `main`)
+- **Live site:** https://www.millsmathstools.au (GitHub Pages + custom domain via `CNAME`; Netlify retired 2026-10-08)
+- **GitHub repo (the website):** https://github.com/journeyintosound2/mathstools (branch `main`; was `jeffmills2-rgb/mathstools` — the old URL redirects)
 - **Firebase project:** `mills-maths-tools` (Blaze plan)
 
 ## 2. TWO folders / two projects (important)
