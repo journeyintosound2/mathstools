@@ -9,6 +9,7 @@ import {
 import { getMagmaColliders, CRATER_HINT } from "../data/magma/magmaColliders.js";
 import { runMagmaChallengeChecks } from "./magmaChallengeChecks.js";
 import { runJungleChecks } from "./jungleChecks.js";
+import { runJungleChallengeChecks } from "./jungleChallengeChecks.js";
 import { runFarmWorldChecks } from "./farmWorldChecks.js";
 import { runIslandWorldChecks } from "./islandWorldChecks.js";
 import { runSchoolyardWorldChecks } from "./schoolyardWorldChecks.js";
@@ -680,6 +681,8 @@ export function runSystemChecks(progressSnapshot) {
   for (const c of runMagmaChallengeChecks()) checks.push(c);
   // Emerald Jungle — the seventh region, a jungle valley (JG1–JG8).
   for (const c of runJungleChecks()) checks.push(c);
+  // Emerald Jungle — the vine-ladder challenges (2026-10-10 pilot).
+  for (const c of runJungleChallengeChecks()) checks.push(c);
   for (const c of runFarmWorldChecks()) checks.push(c);
   // Snowball Sums rebuilt as a big alpine valley (SW1–SW10).
   for (const c of runSnowWorldChecks()) checks.push(c);

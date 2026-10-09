@@ -421,6 +421,26 @@ export const ENCOUNTERS = {
   "magma-bones-challenge": { id: "magma-bones-challenge", type: "dialogue", title: "Grow the Dragon", config: { speaker: "Ms. Brookes", lines: ["Grown-ups are TIMES as long, not just a bit longer."] } },
   "magma-summit-challenge": { id: "magma-summit-challenge", type: "dialogue", title: "Strategy Summit", config: { speaker: "Ms. Bacon", lines: ["Look at the numbers first — then pick the easiest way."] } },
 
+  // ---- Emerald Jungle (2026-10-10): proportional reasoning on the VINE
+  // LADDER (the jungle's double number line). The pilot builds two
+  // challenges; the other eight clearings are "coming soon". ----
+  "jungle-welcome": {
+    id: "jungle-welcome", type: "dialogue", title: "Emerald Jungle",
+    config: { speaker: "Mills", lines: [
+      "Welcome to the Emerald Jungle! 🌿 Out here we think in PROPORTION — if 3 of these are worth 2 of those, what are 30 worth?",
+      "Explorers use a VINE LADDER: two vines tied together at 0, with a bamboo rung for every pair that matches. It's called a double number line.",
+      "Start with Mr. Morgan's Monkey Swap in the Palm Grove (just up the trail, on the left), then Mr. Pearce's Sunny Market on top of Sunny Knoll.",
+      "Whatever you do to one vine, do to the other — add the same number to both and the vines come untied!",
+      "Every challenge earns a trophy on the stand right here — 🥇 100%, 🥈 75%, 🥉 50%. More clearings are coming soon.",
+    ] },
+  },
+  "jungle-records": {
+    id: "jungle-records", type: "dialogue", title: "Jungle Trophies",
+    config: { speaker: "Jungle Trophies", lines: ["Your best Emerald Jungle scores are kept here."] },
+  },
+  "jungle-swap-challenge": { id: "jungle-swap-challenge", type: "dialogue", title: "Monkey Swap", config: { speaker: "Mr. Morgan", lines: ["Every fair swap is another rung on the same ladder."] } },
+  "jungle-market-challenge": { id: "jungle-market-challenge", type: "dialogue", title: "Sunny Market", config: { speaker: "Mr. Pearce", lines: ["Split it to find ONE — or a friendlier piece — then stretch it."] } },
+
   // Schoolyard NPC completion dialogues are GENERATED from the character list
   // (W2-F) — see the loop just after ENCOUNTERS.
 

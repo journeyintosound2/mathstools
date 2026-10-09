@@ -158,6 +158,19 @@
 > RETRIEVAL PRACTICE PLAYGROUND REBUILT". **566 → 576 checks; vite build
 > clean.**
 >
+> **NEW (built 2026-10-10, NOT yet deployed): EMERALD JUNGLE — THE
+> PROPORTIONAL-REASONING PILOT.** The jungle's first maths: the shared VINE
+> LADDER (a double number line — two vines tied at 0, rungs you build with
+> moves and finish by typing the partner), **Monkey Swap** (Palm Grove, Mr.
+> Morgan) and **Sunny Market** (Sunny Knoll, Mr. Pearce), a jungle trophy
+> stand + grid on the arrival glade, the Achievements Wall's jungle board as
+> a trophy panel, and Mills' welcome. The other eight challenges are
+> designed (project doc `claude/emerald-jungle-challenges-plan.md`, also
+> `docs/emerald-jungle-challenges-plan.md`) and show as "coming soon".
+> Jeff's calls: pilot first · metric only · no trick rounds · reuse the staff
+> glbs. See "DONE (2026-10-10) — EMERALD JUNGLE PILOT". **576 → 587 checks;
+> vite build clean.**
+>
 > **NEXT UP options:** live visual pass + deploy of the snow world + cabin ·
 > teacher glbs for the six placeholder snow/cabin hosts (add each
 > characterId to characterModels.js) · a snow/cabin cloud-completion path
@@ -166,6 +179,92 @@
 > interactive plot-a-point input mode (tap the Cartesian grid) · Stage 5
 > depth (still only 2 sample skills) · more Stage 4 topics (Area extension)
 > · a DevPanel gallery to eyeball every new diagram/chart at once.
+
+## DONE (2026-10-10) — EMERALD JUNGLE PILOT: the Vine Ladder + Monkey Swap + Sunny Market
+Jeff's brief: ten challenges for the jungle on PROPORTIONAL reasoning (after
+additive Snowball Sums and multiplicative Magma), built around the double
+number line in many contexts, interactive not question-answering, with a
+trophy stand + the Achievements Wall. A design for all ten went to Jeff
+first (project doc `claude/emerald-jungle-challenges-plan.md`; copy in
+`docs/`). His calls: **1 pilot first · 2 metric only, no imperial · 3 no
+trick rounds** (read as: no non-proportional rounds sprinkled into sets or
+the capstone; the Temple of Truth stays its own explicit challenge) **· 4
+reuse the staff glbs**. **576 → 587 checks (new `runJungleChallengeChecks`
+in `src/dev/jungleChallengeChecks.js`: JCF1–JCF5 + three per challenge;
+JG8 now skips the clearings built challenges claim), all passing; vite
+build clean.** NOT yet deployed.
+- **The Vine Ladder (`data/jungle/vineLadder.js`, pure):** every value is
+  an INTEGER in base units (fruit, cents, grams) — no float dust. Moves
+  `LADDER_MOVES`: again (another copy of the starting rung), x2, h2, x10,
+  d10, split n, times n (`SPLIT_CHOICES` / `TIMES_CHOICES`), join, gap.
+  `tryMove(L, drive, op, from, n, base, maxDrive)` → `{ok, value, partner,
+  rung}` or `{ok:false, why}` (`drive-part` = part of a fruit,
+  `partner-part` = part of a cent/fruit on the other vine, `too-big`,
+  `same`, `pick`). The scene fills the DRIVE vine; the student TYPES the
+  partner (`parseVal`: "$17.50" / "17.5" / "1750c", "1.5 kg"). The
+  add-the-same mistake: `additivePartner` detects it, `untiedZero` says
+  where the slid vine's 0 lands (3↔2 → 6↔5 unties at 1). `fewestMoves` =
+  BFS over the SET of rungs (cached, frontier cap 5000) → efficiency
+  10 / 6 / 3; `reachPoints(misses) = max(6, 15 − 3m)`; 8 new rungs max.
+- **Registry `data/jungle/jungleChallenges.js`:** ten keys in trophy order
+  (swap, market, race, tape, potion, barrels, map, fireflies, temple,
+  pathfinder), `built` flags, hosts (staff glbs), stage frames via Magma's
+  `makeFrame` (`clearingFrame(spot, camDeg)` — each stage is filmed ACROSS
+  its clearing's trail), `LADDER_GEOM`, one `LADDER_VIEW`,
+  `inJungleChallengeView` (camera corridor — tall scatter is kept out of
+  every BUILT challenge's corridor permanently, jungleProps.js),
+  `JUNGLE_WELCOME_HOST`, `JUNGLE_RECORDS_STAND` (faces the spawn).
+- **Rounds:** `swapChallenge.js` — S1 build up (again only; real fruit hangs
+  on the vines) · S2 jump (× 2, × 10, join; ≤ 100) · S3 backwards (drive =
+  mangoes) · S4 half a swap (path must use ÷ 2) · S5 the SMALLEST swap
+  (a·m ↔ b·m, claim when it won't split). `marketChallenge.js` — S1 through
+  one · S2 a friendlier piece (ONE isn't whole cents) · S3 how many can I
+  buy (drive = dollars) · S4 best buy by count · S5 best buy by kg; best
+  buys put the stall with MORE fruit at the higher total price (the trap)
+  and carry `better` + `plan` (the cheapest common rung).
+- **Stores:** `game/jungle/ladderStore.js` `createLadderStore` on Magma's
+  `createMagmaStore` (now takes an optional `world` override: meta, bests,
+  rounds, points, icon) — verbs select / setActive / choose / pickN /
+  submit / cancel / undo / claim / call. Scoring: reach = reachPoints +
+  efficiency; smallest = max(4, reach − 5 × early claims) + efficiency;
+  best buy = max(4, 10 − 2 × misses) for the common rung, +15 for the right
+  call. `stores/swapStore.js`, `stores/marketStore.js` hold the kid wording;
+  `jungleActive.js` (JUNGLE_STORES, exitJungleExcept) is spread into
+  farmChallengeActive + interaction.js (`jungle-<key>-host` intercept,
+  `jungle-records` opens `ui/JungleTrophyGrid.jsx`).
+- **3D (`game/jungle/`):** `stages/VineLadder.jsx` (vines, zero + end posts,
+  rungs, crooked rung, untied-zero overlay, ghost goal rung / off-scale
+  flag, chip stagger, eased rescale `useLadderScale`/`ladderEnd`, and
+  `CompareLadder` — THREE vines [Stall A $, fruit, Stall B $] so a common
+  fruit amount lines up straight down both), `JungleProps.jsx` (thatch +
+  awning stalls, crates, a cheering monkey, sign boards), `SwapStage`,
+  `MarketStage`, `JungleChallengeStages.jsx` (mount within 110 m, labels
+  within 26 m). Player.jsx: one jungle stage camera (`jungleViewFor`, store
+  `viewFit`), player parked + hidden.
+- **Card (`ui/jungle/JunglePanels.jsx`):** Magma's `MagmaPanelShell`
+  (now takes regionId / getMeta / total / backLabel / dockClass) with the
+  shared `LadderPlay` — rung strips (tap = select), the move buttons, the
+  split/times picker, the partner box, Undo; best buys put "✅ Better buy"
+  on each stall's strip. CSS: EMERALD JUNGLE block at the end of index.css.
+  The HUD movement hint hides during a jungle challenge.
+- **Trophies + wall:** `data/jungle/jungleRecords.js` (`mma-jungle-<key>-best`,
+  375, LOCAL-ONLY; `soon` = not built). The stand (trophy.glb, groupScale
+  2.6) is front-left of the arrival; Mills (sage glb) by the welcome sign.
+  `achievements.js` jungle board = `trophyPanel(...)` with "Coming soon"
+  rows (achievementsCanvas.js), the explorer's-log painting was removed.
+- **Verified:** perfect play through BOTH real stores = 375 / gold (every
+  round 25); 300-set generation fuzz per challenge (every best path walks
+  to its target); the traps (add-the-same unties the zero; a half banana,
+  an early smallest-claim, part cents, calling before a common rung, a
+  wrong call) behave; stages on flat dry pads, colliders off the trails,
+  camera sight lines clear at 16:9, 4:3 and portrait. Screenshots of every
+  stage phase at 16:9 + 4:3 (headless harness, SwiftShader).
+- **TODO:** Jeff plays the pilot (then the other eight: race, tape —
+  metric only — potion, barrels, map, fireflies, temple, pathfinder, no
+  trick rounds outside the Temple); Farsi/Arabic for all new jungle text;
+  a live look on a real GPU + an iPad (chip crowding at large scales,
+  tap targets on the 3D rungs); a cloud completion path (bests are
+  local-only, like snow + magma); deploy.
 
 ## DONE (2026-10-09, night) — THE RETRIEVAL PRACTICE PLAYGROUND REBUILT
 Jeff's brief: bring the Playground up to the quality + size of Snowball Sums
@@ -2164,7 +2263,7 @@ awards the trophy). L1–5 adaptive. Teacher tasks still override (handled upstr
 in interaction.js). Guarded by `runSchoolyardTopicChecks()`. Island NPCs (Pip/
 Fern/Alby) unchanged.
 
-## System checks (576)
+## System checks (587)
 `src/dev/systemChecks.js` → `runSystemChecks()`. Run headlessly: temporarily set
 `package.json` `"type":"module"`, shim `localStorage/window/document`, import and
 run; also babel parse-check `src/`, `portal/`, `functions/`. Restore package.json

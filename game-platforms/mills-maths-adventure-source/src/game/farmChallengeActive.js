@@ -19,6 +19,7 @@ import { useCaveCrystals } from "./caveCrystalsStore.js";
 import { useLodgeYard } from "./lodgeYardStore.js";
 import { useAuroraLookout } from "./auroraLookoutStore.js";
 import { MAGMA_STORES, useActiveMagmaChallenge } from "./magma/magmaActive.js";
+import { JUNGLE_STORES, useActiveJungleChallenge } from "./jungle/jungleActive.js";
 
 // Every in-world challenge store, in one list. Add a new challenge here and
 // BOTH the hook and the non-reactive getter pick it up.
@@ -29,6 +30,8 @@ const CHALLENGE_STORES = [
   useVillageSplit, useColonyPairs, useCaveCrystals, useLodgeYard, useAuroraLookout,
   // Magma Multiples (the ten multiplicative challenges).
   ...MAGMA_STORES.map(([, store]) => store),
+  // Emerald Jungle (the vine-ladder challenges).
+  ...JUNGLE_STORES.map(([, store]) => store),
 ];
 
 /**
@@ -113,5 +116,6 @@ export function useFarmChallengeActive() {
   const t = useLodgeYard((s) => s.status !== "idle");
   const u = useAuroraLookout((s) => s.status !== "idle");
   const mg = useActiveMagmaChallenge();
-  return a || b || c || d || e || f || g || h || i || j || k || l || m || n || o || p || q || r || t || u || mg !== null;
+  const jg = useActiveJungleChallenge();
+  return a || b || c || d || e || f || g || h || i || j || k || l || m || n || o || p || q || r || t || u || mg !== null || jg !== null;
 }

@@ -4,7 +4,7 @@
  * with the world's name, a big headline, then the world's own content —
  * trophy rows with real medals (drawn, not emoji, so they read anywhere),
  * the island's level / friends / badges, the Playground's keys + the Head
- * Teacher's cup, or the jungle's explorer's log — and a progress footer.
+ * Teacher's cup — and a progress footer.
  * Plus the wall's header sign ("Sam's Achievements").
  */
 import * as THREE from "three";
@@ -171,7 +171,7 @@ function paintTrophies(g, P) {
     fitText(g, name, colW - 100, `700 {s}px ${ROUNDED}`, 25);
     g.fillStyle = "#2b2118"; g.fillText(name, x + 84, y + 38);
     g.font = `600 21px ${ROUNDED}`; g.fillStyle = r.medal ? P.deep : "rgba(43,33,24,0.5)";
-    g.fillText(r.best > 0 ? `Best ${r.pct}%` : "Not played yet", x + 84, y + 68);
+    g.fillText(r.soon ? "Coming soon" : r.best > 0 ? `Best ${r.pct}%` : "Not played yet", x + 84, y + 68);
   });
   footerBar(g, P, P.pct, "Overall");
   if (P.visited === false) stamp(g, "Not visited yet", PW - 175, PH - 128, "rgba(90,90,90,0.55)", -0.06);
@@ -304,37 +304,6 @@ function paintPlayground(g, P) {
   footerBar(g, P, Math.round(((P.keys + (P.boss && P.boss.done ? 1 : 0)) / (P.totalKeys + 1)) * 100), "Keys + the cup");
 }
 
-function drawLeaf(g, x, y, s, col) {
-  g.save(); g.translate(x, y); g.rotate(-0.6); g.scale(s, s);
-  g.fillStyle = col;
-  g.beginPath(); g.moveTo(0, -14); g.quadraticCurveTo(12, 0, 0, 14); g.quadraticCurveTo(-12, 0, 0, -14); g.fill();
-  g.strokeStyle = "rgba(255,255,255,0.6)"; g.lineWidth = 1.5; g.beginPath(); g.moveTo(0, -12); g.lineTo(0, 12); g.stroke();
-  g.restore();
-}
-function paintJungle(g, P) {
-  headline(g, P, 238);
-  g.font = `700 24px ${ROUNDED}`; g.fillStyle = "rgba(43,33,24,0.72)"; g.textAlign = "left";
-  g.fillText("Explorer's log — ten clearings, ten challenges coming soon:", 40, 280);
-  P.spots.forEach((name, i) => {
-    const col = i % 2, row = Math.floor(i / 2);
-    const x = 40 + col * ((PW - 80) / 2), y = 318 + row * 72;
-    drawLeaf(g, x + 22, y + 22, 1.1, P.visited ? "#2fae5b" : "rgba(31,154,76,0.35)");
-    g.font = `700 26px ${ROUNDED}`; g.fillStyle = "#2b2118"; g.textBaseline = "middle";
-    g.fillText(name, x + 50, y + 22);
-  });
-  // A "coming soon" ribbon.
-  g.save();
-  g.translate(PW / 2, 760); g.rotate(-0.04);
-  rr(g, -250, -44, 500, 88, 14); g.fillStyle = P.color; g.fill();
-  g.font = `400 46px ${DISPLAY}`; g.fillStyle = "#ffffff"; g.textAlign = "center"; g.textBaseline = "middle";
-  g.fillText("Challenges coming soon!", 0, 4);
-  g.restore();
-  g.textBaseline = "alphabetic";
-  if (P.visited) stamp(g, "Explored ✓", PW - 150, 196, "rgba(31,120,60,0.85)", 0.1);
-  g.font = `700 24px ${ROUNDED}`; g.fillStyle = P.deep; g.textAlign = "center";
-  g.fillText(P.visited ? "You've found the mossy arch — keep exploring!" : "Find the mossy arch by the Emerald Lagoon", PW / 2, PH - 50);
-}
-
 /** Paint one board into `cv` (a canvas PW × PH). */
 export function paintBoard(cv, P) {
   const g = cv.getContext("2d");
@@ -343,7 +312,6 @@ export function paintBoard(cv, P) {
   header(g, P);
   if (P.kind === "island") paintIsland(g, P);
   else if (P.kind === "playground") paintPlayground(g, P);
-  else if (P.kind === "jungle") paintJungle(g, P);
   else paintTrophies(g, P);
   // A thin inner frame line.
   g.lineWidth = 6; g.strokeStyle = "rgba(0,0,0,0.12)";

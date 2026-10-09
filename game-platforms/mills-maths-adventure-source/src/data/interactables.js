@@ -33,6 +33,27 @@ import {
   MAGMA_CHALLENGES, magmaHostId, magmaHostWorld, MAGMA_WELCOME_HOST, MAGMA_RECORDS_STAND,
 } from "./magma/magmaChallenges.js";
 import { MAGMA_REGION_ID } from "./magma/magmaLayout.js";
+import {
+  BUILT_JUNGLE_CHALLENGES, jungleHostId, jungleHostWorld, JUNGLE_WELCOME_HOST, JUNGLE_RECORDS_STAND,
+} from "./jungle/jungleChallenges.js";
+import { JUNGLE_REGION_ID } from "./jungle/jungleLayout.js";
+
+// Emerald Jungle (2026-10-10): one host per BUILT vine-ladder challenge,
+// standing at the edge of its clearing. Each host is INTERCEPTED in
+// interaction.js → its challenge store's start().
+const JUNGLE_HOSTS = BUILT_JUNGLE_CHALLENGES.map((c) => ({
+  id: jungleHostId(c.key),
+  name: c.host.name,
+  encounterId: `jungle-${c.key}-challenge`,
+  model: "npc",
+  characterId: c.host.characterId,
+  color: c.host.color,
+  position: jungleHostWorld(c.key),
+  promptLabel: `Talk to ${c.host.name} — ${c.name}`,
+  collision: { type: "circle", radius: 0.7, enabled: true },
+  interactionRadius: 3.6,
+  regionId: JUNGLE_REGION_ID,
+}));
 
 // Magma Multiples (2026-10-03): ten hosts, one per multiplicative challenge,
 // standing at the inner (volcano) edge of their clearing. Each host is
@@ -628,6 +649,33 @@ export const INTERACTABLES = [
     collision: { type: "circle", radius: 2.0, enabled: true },
     interactionRadius: 5.0,
     regionId: MAGMA_REGION_ID,
+  },
+  // ---- Emerald Jungle ----
+  {
+    id: JUNGLE_WELCOME_HOST.id,
+    name: "Mills",
+    encounterId: "jungle-welcome",
+    model: "npc",
+    characterId: "sage",
+    color: "#1f9a4c",
+    position: JUNGLE_WELCOME_HOST.position,
+    promptLabel: "Talk to Mills",
+    collision: { type: "circle", radius: 0.7, enabled: true },
+    interactionRadius: 3.6,
+    regionId: JUNGLE_REGION_ID,
+  },
+  ...JUNGLE_HOSTS,
+  {
+    id: JUNGLE_RECORDS_STAND.id,
+    name: "Jungle Trophies",
+    encounterId: "jungle-records",
+    model: "none", // visual = trophy.glb stand + dynamic cups (JungleScenery)
+    color: "#2fae5b",
+    position: JUNGLE_RECORDS_STAND.position,
+    promptLabel: "Look at your trophies",
+    collision: { type: "circle", radius: 2.0, enabled: true },
+    interactionRadius: 4.6,
+    regionId: JUNGLE_REGION_ID,
   },
 ];
 

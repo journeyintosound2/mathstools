@@ -20,6 +20,7 @@ import { landSD, MAGMA_BOUNDS } from "../data/magma/magmaLayout.js";
 import { getRegion } from "../data/regions.js";
 import { onPad } from "../data/island/islandTerrain.js";
 import { getColliders } from "../data/worldColliders.js";
+import { BUILT_JUNGLE_CHALLENGES } from "../data/jungle/jungleChallenges.js";
 import { PLAYER_RADIUS, STEP_UP } from "../systems/collisionEngine.js";
 
 const JUMP_V = 7.2, G = 20, WALK = 7;
@@ -467,8 +468,9 @@ export function runJungleChecks() {
     detail: jg7 ? `${JUNGLE_BRIDGES.length - 1} water bridges; cliff face slides at ${faceSlides}/${faceN} samples` : brFails.slice(0, 6).join("; "),
   });
 
-  // JG8) The ten CLEARINGS are open spaces for future challenges: ten of
-  //      them, ≥ 14 m apart, dry and flat, nothing solid in their middles,
+  // JG8) The ten CLEARINGS are open spaces for the challenges: ten of
+  //      them, ≥ 14 m apart, dry and flat, nothing solid in the middles of
+  //      the ones not yet claimed by a built challenge,
   //      and no tree/rock/log collider anywhere on a trail.
   const spots = JUNGLE_SPOTS;
   let apart = true;
@@ -476,7 +478,10 @@ export function runJungleChecks() {
     if (Math.hypot(spots[a].center[0] - spots[b].center[0], spots[a].center[1] - spots[b].center[1]) < 14) apart = false;
   }
   const flatDry = spots.filter((s) => jungleWaterAt(s.center[0], s.center[1]) !== null || slopeAt(s.center[0], s.center[1]) > 0.15).map((s) => s.id);
-  const middleBlocked = spots.filter((s) => colliders.some((c) => c.yMin === undefined &&
+  // Clearings CLAIMED by a built challenge (the vine ladders, 2026-10-10)
+  // are checked by the challenge checks (JC*) instead.
+  const claimed = new Set(BUILT_JUNGLE_CHALLENGES.map((c) => c.spot));
+  const middleBlocked = spots.filter((s) => !claimed.has(s.id) && colliders.some((c) => c.yMin === undefined &&
     Math.hypot(c.x - s.center[0], c.z - s.center[1]) < Math.min(3.5, s.radius - 0.5) + c.radius)).map((s) => s.id);
   const scatter = colliders.filter((c) => /^jg-(broadleaf|conifer|giant|palm|emergent|rock|log|stump)/.test(c.id));
   const onPath = scatter.filter((c) => pathEdgeDist(c.x, c.z) < c.radius).map((c) => c.id);

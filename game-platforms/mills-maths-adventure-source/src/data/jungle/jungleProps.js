@@ -14,6 +14,7 @@ import {
   ensureJungleStructures, ROPE_BRIDGE, JUNGLE_BRIDGES, LEAF_PADS, BOUNCE_PADS, TOADSTOOL, TEMPLE,
   VINE_WALLS, MID_LEDGE, FALLS, GRID, GREAT_STAIR, STAIR_FLIGHTS, FALLS_DECK, LOOKOUT, cliffWidthAt as escarpWidthAt,
 } from "./jungleLayout.js";
+import { inAnyJungleChallengeView, JUNGLE_RECORDS_STAND, JUNGLE_WELCOME_HOST } from "./jungleChallenges.js";
 
 const TAU = Math.PI * 2;
 
@@ -27,6 +28,8 @@ function keepClearList() {
     { c: ARRIVAL_GLADE.center, r: ARRIVAL_GLADE.radius + 3.5 },
     { c: JUNGLE_RETURN_PORTAL, r: 5.5 },
     { c: JUNGLE_WELCOME_SIGN.position, r: 2.5 },
+    { c: JUNGLE_RECORDS_STAND.position, r: 4.6 }, // the trophy stand
+    { c: JUNGLE_WELCOME_HOST.position, r: 1.6 }, // Mills
     { c: TEMPLE_ANCHOR.c, r: 18 },
     { c: GREAT_TREE.center, r: GREAT_TREE.deckR + 2.5 },
     { c: MUSHROOM_LEDGE.center, r: MUSHROOM_LEDGE.radius + 2.2 },
@@ -112,6 +115,7 @@ export function getJungleProps() {
       const a = rand() * TAU, r = Math.sqrt(rand()) * H.radius;
       const x = H.center[0] + Math.cos(a) * r * 1.15, z = H.center[1] + Math.sin(a) * r;
       if (inKeepClear(x, z, 1.5) || pathEdgeDist(x, z) < 3.4 || waterEdgeDist(x, z) < 4) continue;
+      if (inAnyJungleChallengeView(x, z)) continue;
       if (slopeAt(x, z) > 0.55) continue;
       if (T.giant.some((g) => Math.hypot(g.x - x, g.z - z) < 10.5)) continue;
       const s = 0.85 + rand() * 0.4;
@@ -140,6 +144,7 @@ export function getJungleProps() {
       if (sl > 0.98) return null; // cliffs + the rim's face are bare rock
       if (inKeepClear(x, z)) return null;
       if (inArrivalView(x, z)) return null;
+      if (inAnyJungleChallengeView(x, z)) return null; // a challenge camera's line
       if (pathEdgeDist(x, z) < 1.6) return null;
       if (waterEdgeDist(x, z) < 1.4) return null;
       if (nearBridge(x, z, 2.5)) return null;
@@ -194,7 +199,7 @@ export function getJungleProps() {
         tries++;
         const a = rand() * TAU, r = gv.r * (0.45 + rand() * 0.55);
         const x = gv.c[0] + Math.cos(a) * r, z = gv.c[1] + Math.sin(a) * r;
-        if (inKeepClear(x, z) || inArrivalView(x, z) || pathEdgeDist(x, z) < 1.5 || waterEdgeDist(x, z) < 1.2 || slopeAt(x, z) > 0.6) continue;
+        if (inKeepClear(x, z) || inArrivalView(x, z) || inAnyJungleChallengeView(x, z) || pathEdgeDist(x, z) < 1.5 || waterEdgeDist(x, z) < 1.2 || slopeAt(x, z) > 0.6) continue;
         const all = [...T.palm, ...T.broadleaf, ...T.emergent, ...T.conifer];
         if (all.some((o) => !o.deco && Math.hypot(o.x - x, o.z - z) < 3.2)) continue;
         T.palm.push({ type: "palm", x, z, y: terrainHeight(x, z), s: 0.8 + rand() * 0.35, rot: rand() * TAU, tint: rand(), lean: 0.06 + rand() * 0.16 });
@@ -251,13 +256,13 @@ export function getJungleProps() {
     return { x, z, y: terrainHeight(x, z), s: 0.7 + r2 * 0.75 + (inHollow ? 0.35 : 0), rot: r3 * TAU, tint: r4 };
   });
   const bushes = jitterScatter(602, 3.4, 1.2, -150, 150, -195, 195, (x, z, r1, r2, r3, r4) => {
-    if (!groundOK(x, z, 1.0) || inKeepClear(x, z, -0.5) || nearTrunk(x, z, 0.6) || inArrivalView(x, z)) return null;
+    if (!groundOK(x, z, 1.0) || inKeepClear(x, z, -0.5) || nearTrunk(x, z, 0.6) || inArrivalView(x, z) || inAnyJungleChallengeView(x, z)) return null;
     const shade = forestShade(x, z);
     if (r1 > 0.05 + shade * 0.32) return null;
     return { x, z, y: terrainHeight(x, z), s: 0.7 + r2 * 0.8, rot: r3 * TAU, tint: r4 };
   });
   const bigleaf = jitterScatter(703, 4.2, 1.5, -150, 150, -195, 195, (x, z, r1, r2, r3, r4) => {
-    if (!groundOK(x, z, 0.7) || inKeepClear(x, z, -1) || nearTrunk(x, z, 0.5)) return null;
+    if (!groundOK(x, z, 0.7) || inKeepClear(x, z, -1) || nearTrunk(x, z, 0.5) || inAnyJungleChallengeView(x, z)) return null;
     const we = waterEdgeDist(x, z);
     const palmy = z > 60 || we < 10;
     const p = (palmy ? 0.32 : 0.1) + forestShade(x, z) * 0.12;
@@ -294,7 +299,7 @@ export function getJungleProps() {
   const rocks = jitterScatter(1107, 6.5, 2.4, -155, 155, -200, 200, (x, z, r1, r2, r3, r4) => {
     const rc = rimCoords(x, z);
     if (rc.q > rc.edge + 0.08) return null;
-    if (inKeepClear(x, z) || pathEdgeDist(x, z) < 1.4 || nearBridge(x, z, 1.5) || nearTrunk(x, z, 1.2)) return null;
+    if (inKeepClear(x, z) || pathEdgeDist(x, z) < 1.4 || nearBridge(x, z, 1.5) || nearTrunk(x, z, 1.2) || inAnyJungleChallengeView(x, z)) return null;
     const we = waterEdgeDist(x, z);
     const inWater = we < -0.6;
     const sl = slopeAt(x, z);
@@ -321,7 +326,7 @@ export function getJungleProps() {
       const x = -130 + rand() * 260, z = -150 + rand() * 300;
       const rc = rimCoords(x, z);
       if (rc.q > rc.edge - 0.04) continue;
-      if (inKeepClear(x, z, 2) || pathEdgeDist(x, z) < 3 || waterEdgeDist(x, z) < 3 || slopeAt(x, z) > 0.4) continue;
+      if (inKeepClear(x, z, 2) || pathEdgeDist(x, z) < 3 || waterEdgeDist(x, z) < 3 || slopeAt(x, z) > 0.4 || inAnyJungleChallengeView(x, z)) continue;
       if (forestShade(x, z) < 0.5) continue;
       const rot = rand() * Math.PI;
       const len = 4 + rand() * 4;
@@ -337,7 +342,7 @@ export function getJungleProps() {
   }
   // Stumps.
   const stumps = jitterScatter(1410, 14, 5, -150, 150, -195, 195, (x, z, r1, r2, r3, r4) => {
-    if (!groundOK(x, z, 1.4) || inKeepClear(x, z) || nearTrunk(x, z, 1.4) || r1 > 0.22) return null;
+    if (!groundOK(x, z, 1.4) || inKeepClear(x, z) || nearTrunk(x, z, 1.4) || r1 > 0.22 || inAnyJungleChallengeView(x, z)) return null;
     return { x, z, y: terrainHeight(x, z), s: 0.7 + r2 * 0.6, rot: r3 * TAU, tint: r4 };
   });
 

@@ -31,14 +31,27 @@ import {
  *                    api.endRound so scoring stays in one place)
  *   onEnter         (optional, inside actions) — what Enter does mid-round
  */
-export function createMagmaStore({ key, generate, fresh, actions }) {
-  const meta = getMagmaChallenge(key);
+export function createMagmaStore({ key, generate, fresh, actions, world }) {
+  // `world` lets another region reuse this lifecycle with its own registry +
+  // records (the Emerald Jungle passes jungle ones); omitted = Magma.
+  const W = {
+    meta: getMagmaChallenge(key),
+    readBest: readMagmaBest,
+    writeBest: writeMagmaBest,
+    rounds: MAGMA_ROUNDS_PER_SET,
+    points: MAGMA_POINTS_PER_ROUND,
+    icon: "🌋",
+    name: "Magma Multiples",
+    ...(world || {}),
+  };
+  const meta = W.meta;
+  const POINTS = W.points;
 
   return create((set, get) => {
     const api = {
       /** Bank points for this round (the round never exceeds 25). */
       award(points) {
-        const p = Math.max(0, Math.min(points, MAGMA_POINTS_PER_ROUND - get().roundPoints));
+        const p = Math.max(0, Math.min(points, POINTS - get().roundPoints));
         if (p > 0) set((s) => ({ score: s.score + p, roundPoints: s.roundPoints + p }));
         return p;
       },
@@ -48,7 +61,7 @@ export function createMagmaStore({ key, generate, fresh, actions }) {
       },
       /** Finish the round: full marks → celebrate, otherwise feedback. */
       endRound(extra = {}) {
-        const full = get().roundPoints >= MAGMA_POINTS_PER_ROUND;
+        const full = get().roundPoints >= POINTS;
         set({ status: full ? "celebrate" : "feedback", ...extra });
       },
     };
@@ -68,7 +81,7 @@ export function createMagmaStore({ key, generate, fresh, actions }) {
       roundPoints: 0,
       note: null,
       results: [],
-      bestScore: readMagmaBest(key),
+      bestScore: W.readBest(key),
       ...fresh(null),
 
       currentRound() {
@@ -84,7 +97,7 @@ export function createMagmaStore({ key, generate, fresh, actions }) {
           roundIndex: 0,
           score: 0,
           results: [],
-          bestScore: readMagmaBest(key),
+          bestScore: W.readBest(key),
           ...reset(rounds[0]),
         });
       },
@@ -98,22 +111,22 @@ export function createMagmaStore({ key, generate, fresh, actions }) {
         const { status, roundIndex, score, roundPoints, rounds } = get();
         if (status !== "feedback" && status !== "celebrate") return;
         const results = [...get().results, { round: rounds[roundIndex], points: roundPoints }];
-        if (roundIndex + 1 < MAGMA_ROUNDS_PER_SET && roundIndex + 1 < rounds.length) {
+        if (roundIndex + 1 < W.rounds && roundIndex + 1 < rounds.length) {
           set({ status: "play", roundIndex: roundIndex + 1, results, ...reset(rounds[roundIndex + 1]) });
           return;
         }
-        writeMagmaBest(key, score);
+        W.writeBest(key, score);
         if (score > 0) {
           const coins = Math.floor(score / 5);
           useProgress.getState().awardRewards({ xp: score, coins });
           useUI.getState().pushToast({
             type: "reward",
-            icon: meta?.icon || "🌋",
-            title: meta?.name || "Magma Multiples",
+            icon: meta?.icon || W.icon,
+            title: meta?.name || W.name,
             message: `${score} points — +${score} XP, +${coins} coins!`,
           });
         }
-        set({ status: "done", results, bestScore: Math.max(readMagmaBest(key), score) });
+        set({ status: "done", results, bestScore: Math.max(W.readBest(key), score) });
       },
 
       exit() {

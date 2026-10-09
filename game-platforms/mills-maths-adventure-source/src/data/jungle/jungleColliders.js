@@ -18,6 +18,9 @@ import {
   FALLS_DECK, JUNGLE_WELCOME_SIGN, terrainHeight, LOOKOUT, TOADSTOOL,
 } from "./jungleLayout.js";
 import { getJungleProps, getJungleSetPieces, TRUNK_R } from "./jungleProps.js";
+import {
+  BUILT_JUNGLE_CHALLENGES, jungleHostWorld, JUNGLE_WELCOME_HOST, JUNGLE_RECORDS_STAND, LADDER_GEOM,
+} from "./jungleChallenges.js";
 
 const TAU = Math.PI * 2;
 function c(id, kind, x, z, radius, extra) {
@@ -168,6 +171,23 @@ export function getJungleColliders() {
   SP.shrine.stones.forEach((s, i) => out.push(c(`jg-shrine-stone-${i}`, "landmark", s.x, s.z, s.fallen ? 0.7 : 0.55)));
   out.push(c("jg-shrine-altar", "landmark", SP.shrine.altar.c[0], SP.shrine.altar.c[1], SP.shrine.altar.r));
   out.push(c("jg-lagoon-statue", "landmark", SP.isle.c[0], SP.isle.c[1], 0.65));
+
+  // --- The vine-ladder challenges (2026-10-10): each built clearing's two
+  // ladder posts + the vine line between them (so you walk round the ladder,
+  // not through it), the stall behind, the host; Mills + the trophy stand
+  // on the arrival glade. ---------------------------------------------------
+  for (const ch of BUILT_JUNGLE_CHALLENGES) {
+    const f = ch.frame;
+    const G = LADDER_GEOM;
+    const w = (x, z) => f.toWorld(x, z);
+    postRow(out, `jg-${ch.key}-vines`, w(G.x0 - 0.12, G.z), w(G.x1 + 0.14, G.z), 0.3, 0.5);
+    const S = G.stall;
+    postRow(out, `jg-${ch.key}-stall`, w(S.x - S.w / 2, S.z), w(S.x + S.w / 2, S.z), 0.55, 0.7);
+    const [hx, hz] = jungleHostWorld(ch.key);
+    out.push(c(`jg-host-${ch.key}`, "interactable", hx, hz, 0.7));
+  }
+  out.push(c("jg-mills", "interactable", JUNGLE_WELCOME_HOST.position[0], JUNGLE_WELCOME_HOST.position[1], 0.7));
+  out.push(c("jg-records", "interactable", JUNGLE_RECORDS_STAND.position[0], JUNGLE_RECORDS_STAND.position[1], 2.0));
 
   _static = out;
   return out;

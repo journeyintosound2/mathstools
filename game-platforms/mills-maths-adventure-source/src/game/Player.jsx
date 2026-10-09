@@ -34,6 +34,9 @@ import { useActiveSnowChallenge } from "./farmChallengeActive.js";
 import { activeMagmaChallengeKey, useActiveMagmaChallenge, magmaStore } from "./magma/magmaActive.js";
 import { getMagmaChallenge } from "../data/magma/magmaChallenges.js";
 import { MAGMA_REGION_ID } from "../data/magma/magmaLayout.js";
+import { activeJungleChallengeKey, useActiveJungleChallenge, jungleStore } from "./jungle/jungleActive.js";
+import { getJungleChallenge } from "../data/jungle/jungleChallenges.js";
+import { JUNGLE_REGION_ID } from "../data/jungle/jungleLayout.js";
 import {
   CHALLENGE_FENCE,
   ORDER_VIEW_SPOT, CRATE_AREA, CRATE_VIEW_SPOT,
@@ -66,6 +69,19 @@ function magmaViewFor(key) {
   const [wx, wz] = c.frame.toWorld(lx, lz);
   const v = { key, frame: c.frame, view: c.view, spot: c.frame.toWorld(c.parkAt[0], c.parkAt[1]), lookWorld: [wx, c.frame.y + ly, wz] };
   _magmaViews[key] = v;
+  return v;
+}
+// Emerald Jungle (2026-10-10): the vine-ladder challenges use the SAME stage
+// camera (their registry has the same frame/view/parkAt shape).
+const _jungleViews = {};
+function jungleViewFor(key) {
+  if (_jungleViews[key]) return _jungleViews[key];
+  const c = getJungleChallenge(key);
+  if (!c || !c.frame) return null;
+  const [lx, ly, lz] = c.view.look;
+  const [wx, wz] = c.frame.toWorld(lx, lz);
+  const v = { key, frame: c.frame, view: c.view, spot: c.frame.toWorld(c.parkAt[0], c.parkAt[1]), lookWorld: [wx, c.frame.y + ly, wz] };
+  _jungleViews[key] = v;
   return v;
 }
 
@@ -197,6 +213,8 @@ export default function Player({ cinematic = false }) {
   const snowChallenge = useActiveSnowChallenge();
   // …and the same for a running Magma Multiples challenge.
   const magmaChallenge = useActiveMagmaChallenge();
+  // …and a running Emerald Jungle challenge.
+  const jungleChallenge = useActiveJungleChallenge();
   // Looking at the Achievements Wall (Number Island) — a first-person look,
   // so the avatar steps out of the way.
   const wallView = useUI((s) => s.wallView);
@@ -389,9 +407,12 @@ export default function Player({ cinematic = false }) {
     // Magma Multiples challenges share the same parked, locked-camera
     // treatment (their own stage-frame camera below).
     const magmaKey = region.id === MAGMA_REGION_ID ? activeMagmaChallengeKey() : null;
-    const magmaView = magmaKey ? magmaViewFor(magmaKey) : null;
-    // Any parked, locked "stage" camera (snow or magma).
-    const stageMode = snowCamKey || (magmaView ? `magma:${magmaKey}` : null);
+    // The Emerald Jungle's vine-ladder challenges share the magma stage camera.
+    const jungleKey = region.id === JUNGLE_REGION_ID ? activeJungleChallengeKey() : null;
+    const magmaView = magmaKey ? magmaViewFor(magmaKey) : jungleKey ? jungleViewFor(jungleKey) : null;
+    const stageStore = magmaKey ? magmaStore(magmaKey) : jungleKey ? jungleStore(jungleKey) : null;
+    // Any parked, locked "stage" camera (snow, magma or jungle).
+    const stageMode = snowCamKey || (magmaView ? `stage:${magmaKey || jungleKey}` : null);
 
     // --- Camera orbit (Z / X, or the on-screen rotate buttons) ---
     // (disabled in the locked challenge views)
@@ -1023,7 +1044,7 @@ export default function Player({ cinematic = false }) {
       // store may widen the fit for a round (viewFit). Looks a little BELOW
       // the stage so the scene rides up clear of the bottom-docked card. ---
       const { frame: fr, view: vw } = magmaView;
-      const fit = magmaStore(magmaKey)?.getState().viewFit || vw.fit;
+      const fit = stageStore?.getState().viewFit || vw.fit;
       const halfW = Math.tan((camera.fov * Math.PI) / 360) * camera.aspect;
       const dist = Math.min(vw.maxDist ?? 30, Math.max(vw.minDist ?? 9, fit / halfW));
       const [lx, ly, lz] = vw.look;
@@ -1098,7 +1119,7 @@ export default function Player({ cinematic = false }) {
           (primitive avatar fallback until the model loads). HIDDEN in
           first-person view so the camera (at the eyes) never sits inside the
           character mesh. */}
-      <group visible={!cinematic && !fpv && !snowChallenge && !magmaChallenge && !wallView}>
+      <group visible={!cinematic && !fpv && !snowChallenge && !magmaChallenge && !jungleChallenge && !wallView}>
         <PlayerCharacter profile={profile} />
         {/* Snowball Sums: a sled under your feet on a toboggan chute, a
             chair under you on the chairlift. */}

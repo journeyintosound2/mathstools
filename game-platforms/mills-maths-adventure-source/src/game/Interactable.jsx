@@ -14,6 +14,9 @@ import { inSnowChallengeView } from "../data/snow/snowLayout.js";
 import { useActiveMagmaChallenge } from "./magma/magmaActive.js";
 import { inMagmaChallengeView } from "../data/magma/magmaChallenges.js";
 import { MAGMA_REGION_ID } from "../data/magma/magmaLayout.js";
+import { useActiveJungleChallenge } from "./jungle/jungleActive.js";
+import { inJungleChallengeView } from "../data/jungle/jungleChallenges.js";
+import { JUNGLE_REGION_ID } from "../data/jungle/jungleLayout.js";
 
 // Default interaction range (in world units) if an object doesn't set one.
 // NOTE: this is the INTERACTION radius (when "Press E" appears), which is
@@ -47,11 +50,14 @@ export default function Interactable({ data }) {
   // the picture entirely while its challenge runs.
   const snowKey = useActiveSnowChallenge();
   const magmaKey = useActiveMagmaChallenge();
+  const jungleKey = useActiveJungleChallenge();
   const outOfShot =
     (Boolean(snowKey) && data.regionId === "snow-sums" &&
       inSnowChallengeView(snowKey, data.position[0], data.position[1])) ||
     (Boolean(magmaKey) && data.regionId === MAGMA_REGION_ID &&
-      inMagmaChallengeView(magmaKey, data.position[0], data.position[1]));
+      inMagmaChallengeView(magmaKey, data.position[0], data.position[1])) ||
+    (Boolean(jungleKey) && data.regionId === JUNGLE_REGION_ID &&
+      inJungleChallengeView(jungleKey, data.position[0], data.position[1]));
   const completed = useProgress((s) =>
     s.completedEncounters.includes(data.encounterId)
   );

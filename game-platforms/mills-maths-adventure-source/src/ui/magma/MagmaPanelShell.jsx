@@ -108,7 +108,12 @@ export function MagmaButton({ children, onClick, className = "plank-piece-btn", 
   );
 }
 
-export default function MagmaPanelShell({ useStore, intro, Play, celebrate, Feedback }) {
+export default function MagmaPanelShell({
+  useStore, intro, Play, celebrate, Feedback,
+  // Other worlds reuse this card (the Emerald Jungle passes its own).
+  regionId: worldRegion = MAGMA_REGION_ID, getMeta = getMagmaChallenge, total = MAGMA_ROUNDS_PER_SET,
+  backLabel = "Back to the volcano", dockClass = "magma-dock",
+}) {
   const status = useStore((s) => s.status);
   const roundIndex = useStore((s) => s.roundIndex);
   const score = useStore((s) => s.score);
@@ -117,12 +122,12 @@ export default function MagmaPanelShell({ useStore, intro, Play, celebrate, Feed
   const round = useStore((s) => s.currentRound());
   const key = useStore((s) => s.key);
   const regionId = useSession((s) => s.currentRegionId);
-  const meta = getMagmaChallenge(key);
+  const meta = getMeta(key);
 
   // Leaving the world ends the challenge.
   useEffect(() => {
-    if (status !== "idle" && regionId !== MAGMA_REGION_ID) useStore.getState().exit();
-  }, [status, regionId, useStore]);
+    if (status !== "idle" && regionId !== worldRegion) useStore.getState().exit();
+  }, [status, regionId, useStore, worldRegion]);
 
   // Keys: Esc quits; Enter advances.
   useEffect(() => {
@@ -164,7 +169,7 @@ export default function MagmaPanelShell({ useStore, intro, Play, celebrate, Feed
   const quit = () => st.exit();
 
   return (
-    <div className="farm-challenge-panel snow-dock magma-dock">
+    <div className={`farm-challenge-panel snow-dock ${dockClass}`}>
       {status === "intro" && (
         <SnowIntro
           icon={meta.icon}
@@ -178,7 +183,7 @@ export default function MagmaPanelShell({ useStore, intro, Play, celebrate, Feed
 
       {status === "play" && round && (
         <div className="farm-challenge-card">
-          <SnowRoundHead icon={meta.icon} roundIndex={roundIndex} total={MAGMA_ROUNDS_PER_SET} score={score} onQuit={quit} />
+          <SnowRoundHead icon={meta.icon} roundIndex={roundIndex} total={total} score={score} onQuit={quit} />
           <Play round={round} />
           <MagmaNote note={note} />
         </div>
@@ -209,7 +214,7 @@ export default function MagmaPanelShell({ useStore, intro, Play, celebrate, Feed
                 st.next();
               }}
             >
-              {roundIndex + 1 < MAGMA_ROUNDS_PER_SET ? "Next round (Enter)" : "Finish (Enter)"}
+              {roundIndex + 1 < total ? "Next round (Enter)" : "Finish (Enter)"}
             </button>
           </div>
         </div>
@@ -230,7 +235,7 @@ export default function MagmaPanelShell({ useStore, intro, Play, celebrate, Feed
               Play again
             </button>
             <button className="link-button" onClick={quit}>
-              Back to the volcano
+              {backLabel}
             </button>
           </div>
         </div>

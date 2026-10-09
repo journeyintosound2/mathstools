@@ -33,6 +33,7 @@ import { useLodgeYard } from "./lodgeYardStore.js";
 import { useAuroraLookout } from "./auroraLookoutStore.js";
 import { farmRecordLines } from "../data/farm/farmRecords.js";
 import { exitMagmaExcept, magmaStore } from "./magma/magmaActive.js";
+import { exitJungleExcept, jungleStore } from "./jungle/jungleActive.js";
 
 // Only one in-world challenge (farm OR snow) runs at a time — starting one
 // exits the others.
@@ -59,6 +60,8 @@ function exitFarmChallengesExcept(keep) {
   if (keep !== "snowlights") useAuroraLookout.getState().exit();
   // Magma Multiples keys are the challenge keys themselves ("columns" …).
   exitMagmaExcept(keep);
+  // Emerald Jungle keys too ("swap", "market" …).
+  exitJungleExcept(keep);
 }
 
 // The random treasure chest gives a small coins bonus, once per session.
@@ -303,6 +306,20 @@ export function triggerInteraction(interactable) {
   }
   if (interactable.id === "magma-records") {
     useUI.getState().setMagmaTrophy(true);
+    return;
+  }
+
+  // ---- Emerald Jungle: each host (jungle-<key>-host) starts its vine-ladder
+  // challenge; the arrival glade's trophy stand opens the jungle trophy grid. ----
+  const jungleHost = /^jungle-([a-z]+)-host$/.exec(interactable.id || "");
+  if (jungleHost && jungleStore(jungleHost[1])) {
+    exitFarmChallengesExcept(jungleHost[1]);
+    const st = jungleStore(jungleHost[1]).getState();
+    if (st.status === "idle") st.start();
+    return;
+  }
+  if (interactable.id === "jungle-records") {
+    useUI.getState().setJungleTrophy(true);
     return;
   }
 

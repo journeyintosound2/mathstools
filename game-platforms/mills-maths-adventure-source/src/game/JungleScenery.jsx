@@ -17,6 +17,10 @@ import {
   JungleClock, JungleLighting, Sunbeams, Pollen, Fireflies, Butterflies, Birds, FallingLeaves,
 } from "./jungle/JungleAtmosphere.jsx";
 import { useFarmChallengeActive } from "./farmChallengeActive.js";
+import JungleChallengeStages from "./jungle/JungleChallengeStages.jsx";
+import TrophyStandAssembly from "./TrophyStand.jsx";
+import { JUNGLE_RECORDS_STAND } from "../data/jungle/jungleChallenges.js";
+import { jungleShelfEntries } from "../data/jungle/jungleRecords.js";
 
 /**
  * EMERALD JUNGLE — scenery root (the seventh region). Land only: the
@@ -81,6 +85,19 @@ export default function JungleScenery() {
 
       {/* Landmarks, bridges, climbable things. */}
       {ON("JungleSetPieces") && <JungleSetPieces highGfx={highGfx} onTap={tap} />}
+
+      {/* The vine-ladder challenges (each built clearing's stage). */}
+      <JungleChallengeStages />
+
+      {/* The trophy stand on the arrival glade — trophy.glb, ten pigeonholes
+          (the same stand as the farm, snow and magma worlds). */}
+      <TrophyStandAssembly
+        position={JUNGLE_RECORDS_STAND.position}
+        y={terrainHeight(JUNGLE_RECORDS_STAND.position[0], JUNGLE_RECORDS_STAND.position[1])}
+        rotationY={JUNGLE_RECORDS_STAND.rotationY}
+        entries={jungleShelfEntries()}
+        groupScale={JUNGLE_RECORDS_STAND.groupScale}
+      />
 
       {/* Sky theatre. */}
       {ON("DistantRanges") && <DistantRanges horizon="#bcdcd3" />}

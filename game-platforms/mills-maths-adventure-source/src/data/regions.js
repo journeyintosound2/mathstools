@@ -317,6 +317,10 @@ export const REGIONS = {
     cameraTerrainClamp: true,
     maxFrameDelta: 1 / 15,
     arriveYaw: 0, // arrive looking north, up the river valley toward the falls
+    // Big valley: host badges only show within 60 m (like the farm), so they
+    // never float over the hills from across the map.
+    badgeRange: 60,
+    drawRange: 170,
     geometry: {
       // Ground is drawn by JungleScenery; skyColor = the soft blue-green haze
       // on the horizon (fog matches — Wooded-Kingdom-style misty distance).

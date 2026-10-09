@@ -102,6 +102,7 @@ export const useUI = create((set, get) => ({
   farmTrophyOpen: false, // the Fraction Farm trophy grid (opened from the stand)
   snowTrophyOpen: false, // the Snowball Sums trophy grid (opened from its stand)
   magmaTrophyOpen: false, // the Magma Multiples trophy grid (opened from its stand)
+  jungleTrophyOpen: false, // the Emerald Jungle trophy grid (opened from its stand)
   // Whether the persistent "Current Quest" card is shown in the HUD (a student
   // preference, saved so it survives refreshes).
   questHudOn: loadQuestHudPref(),
@@ -232,6 +233,9 @@ export const useUI = create((set, get) => ({
   },
   setMagmaTrophy(open) {
     set({ magmaTrophyOpen: open });
+  },
+  setJungleTrophy(open) {
+    set({ jungleTrophyOpen: open });
   },
 
   // Results Centre (Phase 2L) — local attempt history / reporting overlay.
