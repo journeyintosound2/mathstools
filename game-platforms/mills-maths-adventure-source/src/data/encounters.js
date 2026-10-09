@@ -61,10 +61,10 @@ export const ENCOUNTERS = {
       speaker: "Mills",
       lines: [
         "Welcome to Number Island, young explorer!",
-        "The three friends nearby — Pip, Fern and Alby — each have a maths puzzle for you.",
-        "Solve all three with a pass mark of 80% and the gate to the Retrieval Practice Playground will swing open.",
-        "And just to the left of Integer Dunes, look for the big yellow haybale portal — that's the way to Fraction Farm! 🚜",
-        "There are ten fraction challenges on the farm, each with its own trophy to collect.",
+        "Pip, Fern and Alby each have a maths puzzle for you — Pip under Frosty Peak, Fern in the ash fields below Ember Peak, and Alby out at the lighthouse.",
+        "Solve all three with a pass mark of 80% and the school gate on Schoolhouse Hill — the Retrieval Practice Playground — will swing open.",
+        "Every other world has its own gate: the igloo in Igloo Hollow, the volcano arch on the Ember Terrace, the haybales out in Haybale Meadows and the mossy arch by the Emerald Lagoon.",
+        "The signposts and the big map by the arch show the way. And that wall beside the arch is your Achievements Wall — press Enter in front of it to see everything you've won.",
         "Off you go — adventure awaits!",
       ],
     },
@@ -164,7 +164,7 @@ export const ENCOUNTERS = {
     id: "alby-complete", type: "dialogue", title: "Alby the Owl",
     config: { speaker: "Alby", lines: [
       "Every algebra challenge complete — you're a true techniques champion!",
-      "The Champion's Grove awaits. Well done, explorer!",
+      "The school gate on Schoolhouse Hill awaits. Well done, explorer!",
     ] },
   },
 

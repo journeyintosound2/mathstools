@@ -107,6 +107,39 @@ export const TRANSLATIONS = {
     "Fraction Fred": "فردِ کسری",
     "Decimal Dot": "داتِ اعشاری",
     "Percent Penny": "پنیِ درصدی",
+
+    // — Title screen (2026-10-09) —
+    "A maths adventure across Number Island": "یک ماجراجویی ریاضی در سراسر جزیرهٔ اعداد",
+    "Building Number Island…": "در حال ساختن جزیرهٔ اعداد…",
+    "Press Enter or tap to start": "برای شروع Enter را بزن یا ضربه بزن",
+    "Tap to start": "برای شروع ضربه بزن",
+    "Start adventure": "شروع ماجراجویی",
+    "Pick your explorer and set off": "کاوشگرت را انتخاب کن و راه بیفت",
+    "Change character": "تغییر شخصیت",
+    "Your explorer, name and student code": "کاوشگر، نام و کد دانش‌آموزی‌ات",
+    "Sign in with student code": "ورود با کد دانش‌آموزی",
+    "Save your work for your teacher": "کارت را برای معلمت ذخیره کن",
+    "Language, graphics and sound": "زبان، گرافیک و صدا",
+    "Choose your explorer": "کاوشگرت را انتخاب کن",
+    "Set off!": "راه بیفت!",
+    "Save & play": "ذخیره و بازی",
+    "Cancel": "لغو",
+    "Yes, reset": "بله، پاک کن",
+    "This clears everything saved on this device — your trophies, keys and level. Are you sure?":
+      "این کار همه‌چیزِ ذخیره‌شده روی این دستگاه را پاک می‌کند — جام‌ها، کلیدها و سطحت. مطمئنی؟",
+    "High looks richest; Low runs smoother on tablets.": "«زیاد» زیباتر است؛ «کم» روی تبلت روان‌تر اجرا می‌شود.",
+    "Tap to move and on-screen buttons.": "حرکت با ضربه و دکمه‌های روی صفحه.",
+
+    // — The Achievements Wall —
+    "Achievements Wall": "دیوار افتخارات",
+    "Look at the Achievements Wall": "به دیوار افتخارات نگاه کن",
+    "Step back": "عقب برو",
+    "step back": "عقب برو",
+    "Whole wall": "کل دیوار",
+    "Zoom in": "بزرگ‌نمایی",
+    "zoom": "بزرگ‌نمایی",
+    "boards": "تابلوها",
+    "worlds": "دنیاها",
   },
 
   ar: {
@@ -205,5 +238,38 @@ export const TRANSLATIONS = {
     "Fraction Fred": "فريد الكسور",
     "Decimal Dot": "دوت العشرية",
     "Percent Penny": "بيني النسبة",
+
+    // — Title screen (2026-10-09) —
+    "A maths adventure across Number Island": "مغامرة رياضيات في أرجاء جزيرة الأرقام",
+    "Building Number Island…": "جارٍ بناء جزيرة الأرقام…",
+    "Press Enter or tap to start": "اضغط Enter أو المس الشاشة للبدء",
+    "Tap to start": "المس الشاشة للبدء",
+    "Start adventure": "ابدأ المغامرة",
+    "Pick your explorer and set off": "اختر مستكشفك وانطلق",
+    "Change character": "تغيير الشخصية",
+    "Your explorer, name and student code": "مستكشفك واسمك ورمز الطالب",
+    "Sign in with student code": "تسجيل الدخول برمز الطالب",
+    "Save your work for your teacher": "احفظ عملك لمعلمك",
+    "Language, graphics and sound": "اللغة والرسومات والصوت",
+    "Choose your explorer": "اختر مستكشفك",
+    "Set off!": "انطلق!",
+    "Save & play": "احفظ والعب",
+    "Cancel": "إلغاء",
+    "Yes, reset": "نعم، امسح",
+    "This clears everything saved on this device — your trophies, keys and level. Are you sure?":
+      "سيمسح هذا كل ما حُفظ على هذا الجهاز — كؤوسك ومفاتيحك ومستواك. هل أنت متأكد؟",
+    "High looks richest; Low runs smoother on tablets.": "«عالٍ» هو الأجمل؛ «منخفض» أكثر سلاسة على الأجهزة اللوحية.",
+    "Tap to move and on-screen buttons.": "المس للتحرك، مع أزرار على الشاشة.",
+
+    // — The Achievements Wall —
+    "Achievements Wall": "جدار الإنجازات",
+    "Look at the Achievements Wall": "انظر إلى جدار الإنجازات",
+    "Step back": "تراجع",
+    "step back": "تراجع",
+    "Whole wall": "الجدار كله",
+    "Zoom in": "تكبير",
+    "zoom": "تكبير",
+    "boards": "اللوحات",
+    "worlds": "العوالم",
   },
 };

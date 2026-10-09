@@ -130,6 +130,33 @@ export const useUI = create((set, get) => ({
   toggleFpv() { set((s) => ({ fpv: !s.fpv })); },
   setFpv(on) { set({ fpv: Boolean(on) }); },
 
+  // The ACHIEVEMENTS WALL first-person look (Number Island): null when off,
+  // else { panel } — −1 = the whole wall, 0…5 = one world's board up close.
+  // Player.jsx flies the camera there; ui/AchievementsWallUI.jsx drives it.
+  wallView: null,
+  wallLastPanel: 0,
+  openWall(panel = -1) { set({ wallView: { panel }, fpv: false, ...(panel >= 0 ? { wallLastPanel: panel } : {}) }); },
+  closeWall() { set({ wallView: null }); },
+  wallStep(dir) {
+    const v = get().wallView;
+    if (!v) return;
+    const n = 6;
+    const from = v.panel < 0 ? (dir > 0 ? -1 : n) : v.panel;
+    const panel = (from + dir + n) % n;
+    set({ wallView: { panel }, wallLastPanel: panel });
+  },
+  wallZoom(zoomIn) {
+    const v = get().wallView;
+    if (!v) return;
+    if (zoomIn && v.panel < 0) set({ wallView: { panel: get().wallLastPanel } });
+    else if (!zoomIn && v.panel >= 0) set({ wallView: { panel: -1 } });
+  },
+
+  // The title screen's loading curtain lifts once the 3D world has drawn its
+  // first frames (game/WorldReady.jsx flips this).
+  worldReady: false,
+  setWorldReady(on) { if (get().worldReady !== Boolean(on)) set({ worldReady: Boolean(on) }); },
+
   // Graphics quality (W5): "high" | "low". Toggling persists an explicit choice.
   graphicsQuality: loadGraphicsQuality(),
   toggleGraphicsQuality() {

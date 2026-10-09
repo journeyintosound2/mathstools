@@ -25,28 +25,10 @@ import { isUnlockedById } from "../systems/unlockEngine.js";
 
 const FRONT = Math.PI; // wrap the whole ON-ISLAND ring; the ocean seals the rest.
 
-export const WORLD_BOUNDARIES = [
-  // (Integer Dunes' cactus wall was replaced in W6 by a wintry clearing: snowmen
-  //  + Christmas trees + snow dunes, all placed as landmarks — see worldLandmarks.)
-  // Fraction Volcano — lava rocks; opens via the Fraction Bridge.
-  {
-    id: "bnd-fdp", zoneId: "zone-fdp", type: "rock", unlockId: "bridge-fdp",
-    center: [25, -16], radius: 14, gapHalfAngle: 0.42, frontHalfAngle: FRONT,
-    blockerRadius: 1.9, spacing: 3.4,
-  },
-  // Algebra Coast — a river/water channel; opens via the Algebra Gate.
-  {
-    id: "bnd-algebra", zoneId: "zone-algebra", type: "river", unlockId: "gate-algebra",
-    center: [25, 16], radius: 9, gapHalfAngle: 0.5, frontHalfAngle: FRONT,
-    blockerRadius: 1.7, spacing: 3.0,
-  },
-  // Champion's Grove — a hedge ring; opens via the grove gate.
-  {
-    id: "bnd-grove", zoneId: "zone-grove", type: "hedge", unlockId: "reward-grove",
-    center: [0, -32], radius: 8, gapHalfAngle: 0.5, frontHalfAngle: FRONT,
-    blockerRadius: 1.7, spacing: 3.0,
-  },
-];
+// (2026-10-09) The rebuilt island has no zone-boundary arcs — the world is
+// open (sandbox), and its edges are natural: the sea, the cliffs, the plaza
+// wall. Kept as an empty list so the gate machinery keeps working.
+export const WORLD_BOUNDARIES = [];
 
 function unlockHint(unlockId) {
   const u = WORLD_UNLOCKS.find((x) => x.id === unlockId);

@@ -110,6 +110,7 @@ export default function HUD() {
       const tag = (e.target.tagName || "").toLowerCase();
       if (tag === "input" || tag === "textarea") return;
       if (activeEncounterId) return;
+      if (useUI.getState().wallView) return; // the Achievements Wall look owns the keys
       if (e.key.toLowerCase() === "q") toggleQuestLog();
       else if (e.key === "/") { e.preventDefault(); toggleFpv(); }
     }

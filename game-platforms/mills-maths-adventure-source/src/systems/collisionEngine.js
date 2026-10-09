@@ -5,8 +5,7 @@
  *
  * Pure: no React/three/stores.
  */
-import { PLATEAU, STAIRS } from "../data/worldColliders.js";
-import { bridgeHeightAt } from "../data/worldBridges.js";
+import { islandGroundHeight } from "../data/island/islandTerrain.js";
 
 export const PLAYER_RADIUS = 0.5;
 // Largest height the player can walk UP in one step (stairs/kerbs); anything
@@ -16,19 +15,13 @@ export const STEP_UP = 0.45;
 export const STEP_DOWN = 0.55;
 
 /**
- * Surface height at (x, z): plateau height inside the plateau circle, the step
- * height inside a stair band, otherwise 0 (island ground).
+ * Surface height at (x, z) on NUMBER ISLAND (the default region): the
+ * island's terrain + the raised plaza + its stairs + the jetty/pier/bridge
+ * decks (data/island/islandTerrain.js). Regions with their own ground use
+ * their `groundHeight` hook instead.
  */
 export function groundHeightAt(x, z) {
-  // Raised bridge decks override the flat ground (walk up-and-over the moat).
-  const bh = bridgeHeightAt(x, z);
-  if (bh > 0) return bh;
-  // Square plateau (W6-C): inside the straight-edged rectangle → plateau height.
-  if (Math.abs(x - PLATEAU.x) <= PLATEAU.halfW && Math.abs(z - PLATEAU.z) <= PLATEAU.halfD) return PLATEAU.height;
-  for (const s of STAIRS) {
-    if (x >= s.xMin && x <= s.xMax && z >= s.zMin && z <= s.zMax) return s.height;
-  }
-  return 0;
+  return islandGroundHeight(x, z);
 }
 
 /**

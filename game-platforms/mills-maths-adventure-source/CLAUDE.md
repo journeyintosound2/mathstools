@@ -125,6 +125,17 @@
 > (2026-10-08) — SNOWBALL SUMS REBUILT". **552 → 562 checks; vite build
 > clean.**
 >
+> **NEW (built 2026-10-09, NOT yet deployed): NUMBER ISLAND REBUILT + A
+> GAME TITLE SCREEN + THE ACHIEVEMENTS WALL.** The flat 76 m hub island is
+> now a sunny 229 × 205 m tropical island (2.7× across, 7.4× the land) to
+> the rebuilt worlds' standard, every world gate in a little landscape that
+> previews its world; the old welcome card is a full title screen over a
+> live flyover of the island; an Achievements Wall by the arrival arch shows
+> every world's progress, with an Enter-to-look first-person view. Built
+> over two sessions (the first ran out of usage before syncing; its work was
+> recovered from its transcript). See "DONE (2026-10-09) — NUMBER ISLAND
+> REBUILT". **562 → 566 checks; vite build clean.**
+>
 > **NEXT UP options:** live visual pass + deploy of the snow world + cabin ·
 > teacher glbs for the six placeholder snow/cabin hosts (add each
 > characterId to characterModels.js) · a snow/cabin cloud-completion path
@@ -133,6 +144,135 @@
 > interactive plot-a-point input mode (tap the Cartesian grid) · Stage 5
 > depth (still only 2 sample skills) · more Stage 4 topics (Area extension)
 > · a DevPanel gallery to eyeball every new diagram/chart at once.
+
+## DONE (2026-10-09) — NUMBER ISLAND REBUILT + TITLE SCREEN + ACHIEVEMENTS WALL
+Jeff's brief: (1) upgrade the starting screen to a polished, professional
+video-game feel; (2) rebuild the landing world to the standard of the
+rebuilt Snowball Sums / Emerald Jungle, about 2.5× its size, with the portals
+in meaningful, polished places; (3) an ACHIEVEMENTS WALL near the spawn
+summarising every area, with an Enter key that switches to a first-person
+view to read it. **562 → 566 checks (old flat-island checks rewritten; new
+IL1–IL10 in `src/dev/islandWorldChecks.js`), all passing; vite build clean.**
+NOT yet deployed. (Session note: the first session hit its usage limit
+before syncing anything to the Mac; the second rebuilt its exact state by
+replaying the transcript's file writes/edits in order — every recorded
+check result matched — then finished it. Checkpoints were saved to
+`../Claude outputs/mma-hub-*.tgz` along the way.)
+- **Size call:** "2.5× the size" was taken as 2.5× ACROSS (229 × 205 m of
+  land vs the old 76 m circle = 2.7× across, 7.4× the area) — the same
+  scale family as the worlds it links to. If Jeff meant 2.5× the AREA, shrink
+  `COAST.r0` (+ bumps) in islandLayout.js and re-tune pads/paths (IL2 guards
+  the ratio).
+- **The map (`src/data/island/islandLayout.js`, single source of truth):**
+  S **Harbour Green** — you arrive at `ISLAND_SPAWN [0, 84]` off the jetty
+  (compass-rose landing) LOOKING NORTH through the NUMBER ISLAND arch up
+  Main Street; the **Achievements Wall** stands just west of the arch, the
+  painted island MAP board east of it, Mills + the welcome sign on the green.
+  C **Mission Plaza** — a raised octagonal stone plaza (deck 6.2 m, 1.2 m
+  wall, four stair flights) with the Number Fountain, Mission Board and
+  Trophy Stand, reached up cobbled Main Street past four cottages.
+  N **Schoolhouse Hill** — the island school; the Retrieval Practice
+  Playground portal is its padlocked yard gate. NW **Frosty Peak** (snowy
+  ridged mountain, summit trail spiral → cairn + telescope) with **Igloo
+  Hollow** = the Snowball Sums igloo, and **Pip's Number Line** (a giant
+  −10…+10 thermometer) at the snow's edge. NE **Ember Peak** (smoking
+  volcano, lava crater + stream) with the **Ember Terrace** (hex basalt
+  paving) = the Magma Multiples arch, and **Fern's Ash Fields** below.
+  W **Haybale Meadows** (barn, windmill, wheat, sunflowers, hay) = the
+  Fraction Farm haybale gate. SW **Emerald Lagoon** (palms, ferns, Emerald
+  Falls off the bluff) = the Emerald Jungle mossy arch on the ledge. E
+  **Alby's Lighthouse** on its islet over a rope bridge. SE **Sunny Cove**
+  (pier, beach huts, rowboats). 12 graded paths (`ISLAND_PATH_CTRL`),
+  4 signposts, 8 chest spots, 13 named areas (`ISLAND_AREAS`).
+- **Gates + door-to-door return:** the five island portals sit at
+  `GATES` (each faces its approach). Every world's return portal now carries
+  `arrive` / `arriveYaw` (regions.js), so coming home lands you just in front
+  of the gate you left by, looking out — not back at the jetty.
+- **Terrain (`src/data/island/islandTerrain.js`):** the farm/snow pipeline —
+  1 m grid (301 × 281) from `rawHeight` (polar coastline with designed bays,
+  headlands + cliffs, hills, Frosty Peak's ridged spurs, Ember Peak's cone +
+  crater, the shelving sea floor) → level PADS → graded PATHS (≤ 0.28) →
+  pad tops → the LAGOON + its channel → the lava stream. Sea level y = 0
+  everywhere. Hooks (regions.js island-1): layered `islandGroundHeight`
+  (plaza deck + stair flights solid; jetty/pier/rope bridge thin),
+  `islandSlideAt` (cliffs, the upper cones), `islandSpeedAt` (WADE the
+  shallows + lagoon, ×0.62), `islandHazardAt`/`islandHazardInfo` (deep sea →
+  splash bounce-back with `SEA_HINT`; crater + stream → lava bounce),
+  `islandIsSafe`, `cameraTerrainClamp`, `maxFrameDelta`, `arriveYaw: 0`.
+  `collisionEngine.groundHeightAt` now delegates to the island terrain (the
+  old PLATEAU/STAIRS/bridge height-field is gone; worldColliders/worldZones/
+  worldBoundaries/worldBridges/worldLandmarks keep their exports, re-pointed
+  at the new layout, for the DevPanel + older checks).
+- **Scatter + colliders:** `islandProps.js` (≈310 trees — palms on the
+  beaches + lagoon, the lagoon's little jungle, meadow copses, the NORTH
+  WOODS round the school, Frosty Peak's snowy firs/spruces + pines below;
+  ≈400 flowers, bushes, ferns, rocks, shells, driftwood, crops; building
+  FOOTPRINTS; `clearAt`), `islandColliders.js` (circles from the same data;
+  bridge/jetty rails height-banded).
+- **Rendering (`src/game/IslandScenery.jsx` + `src/game/island/`):**
+  `islandMaterials.js` (terrain shader: turf/sand/snow/ash/rock by height +
+  slope; ocean with depth tint, swell, sparkle + shore foam; canvas
+  textures), `IslandTerrain.jsx`, `IslandWater.jsx` (ocean, Emerald Falls,
+  lava, splash/hot-foot), `IslandFlora.jsx` (instanced + LOD, GPU grass),
+  `IslandBuildings.jsx` (plaza, cottages, school, lighthouse + rope bridge,
+  harbour, cove, farm — StaticBatch with far LOD), `IslandLandmarks.jsx`,
+  `IslandAtmosphere.jsx` (player-following sun, clouds, gulls, butterflies,
+  crabs, dolphins, chimney smoke, far islands), `AchievementsWall.jsx`.
+  Area labels (`NearLabel`) show while you APPROACH an area (8 m … 34 m) and
+  step aside near a gate (`GATE_QUIET` 11 m) so they never stack on a gate's
+  own sign. The island's sky is `SkyDome trueHorizon` — an elevation-keyed
+  gradient, so the fogged sea meets the sky without the hard band the UV
+  gradient made from high cameras (other regions unchanged).
+- **Title screen (`src/ui/TitleScreen.jsx`, `styles/title.css`,
+  `game/TitleCamera.jsx`, `game/WorldReady.jsx`):** World renders in `title`
+  mode behind it; TitleCamera flies a closed spline round the island
+  (`data/island/titleShots.js`, IL9 keeps it ≥ ~30 m clear of the ground).
+  Flow: loading CURTAIN (until the world's first frames) → SPLASH (logo,
+  "Press Enter or tap to start") → MENU (Continue for returning players /
+  Start adventure, Change character, Sign in with student code, Options) →
+  CHARACTER card (turntable ‹ ›, name, optional code, Set off!) / OPTIONS
+  (language, graphics, sound, touch). Keeps every old welcome-screen
+  behaviour (?code= auto sign-in, sign-in before play, reset with a confirm).
+  Returning players now see the title too (Continue). Display fonts are
+  bundled (OFL: Lilita One + Baloo 2 in `src/assets/fonts/`, `styles/
+  fonts.css` — no network). Tablet portrait stacks the character card; all
+  new strings have Farsi + Arabic in `i18n/translations.js`.
+  `ui/CharacterCreator.jsx` is no longer imported (kept for reference).
+- **Achievements Wall:** `data/island/achievements.js` (pure — six panels:
+  Number Island level/XP/coins + Pip/Fern/Alby best vs 80% + badges; the
+  Playground's 8 staff keys + Head Teacher's Cup; Fraction Farm / Snowball
+  Sums / Magma Multiples 10 trophies each with medal counts; Emerald Jungle's
+  explorer's log; a world counts as visited if `mma-visited:<region>` is set
+  OR it has any best), `data/island/wallView.js` (geometry + the LOOK
+  camera: whole wall or one board, framed from the live fov/aspect into the
+  band above the caption bar), `game/island/achievementsCanvas.js` (each
+  board is a live canvas texture), `game/island/AchievementsWall.jsx` (the
+  gallery wall: plinth, six framed boards, header with the player's name,
+  canopy, picture lamps), `ui/AchievementsWallUI.jsx` + `styles/wall.css`
+  (Enter prompt in the wall's zone; while looking: ← → boards, ↑ ↓ zoom,
+  1–6 jump, Enter/Esc step back; touch buttons). uiStore `wallView`
+  (`openWall/closeWall/wallStep/wallZoom`); Player.jsx's wall camera mode
+  hides the avatar (first person) and freezes locomotion.
+- **Performance (SwiftShader, 800×470, arrival):** High ≈ 480 draws /
+  1.19 M tris, Low ≈ 190 / 0.37 M — lighter than the farm (915 / 2.2 M) and
+  snow (885 / 1.5 M). DEV-only: `window.__ISL_ONLY = ["IslandTrees", …]`;
+  `window.__gl` (renderer) joins `__cam`/`__scene`/`__ps`.
+- **Verified:** IL1–IL10 (hooks + door-to-door gates · 2.7× across + 16.7 m
+  of relief · all 12 paths walkable · a flood fill reaches every gate,
+  friend, the summit, the wall, the lighthouse, signposts + chests · flat
+  pads + plaza deck + walkable flights · the wall faces the arrivals and all
+  21 look views are clear at 16:9 + 4:3 + its data · wadeable lagoon, deep-sea
+  + lava bounce, dry decks · scatter clear + sealed by the sea · the title
+  flyover stays clear · areas/friends/signposts/gates sane). Real Player
+  physics in a headless browser: jetty → Main Street → the plaza stairs →
+  the deck (y 6.2); walk into the igloo → Snowball Sums → walk into its
+  return gate → back in front of the igloo. Screenshots: title (16:9, 4:3,
+  iPad portrait, phone), all five gates, the wall + its board views, aerials.
+- **TODO:** a live look on a real GPU + a school iPad (the title flyover's
+  frame rate, the wall camera glide, grass density, the lagoon falls);
+  then deploy (build → copy dist → push website — mind the PWA-href gotcha
+  in the 2026-09-28 section). Onboarding text + the island area names have
+  no Farsi/Arabic yet.
 
 ## DONE (2026-10-08) — SNOWBALL SUMS REBUILT: a big, playful alpine valley
 Jeff's brief (with four reference images — Banjo-Kazooie's icy water with
@@ -1839,7 +1979,7 @@ awards the trophy). L1–5 adaptive. Teacher tasks still override (handled upstr
 in interaction.js). Guarded by `runSchoolyardTopicChecks()`. Island NPCs (Pip/
 Fern/Alby) unchanged.
 
-## System checks (562)
+## System checks (566)
 `src/dev/systemChecks.js` → `runSystemChecks()`. Run headlessly: temporarily set
 `package.json` `"type":"module"`, shim `localStorage/window/document`, import and
 run; also babel parse-check `src/`, `portal/`, `functions/`. Restore package.json
@@ -1936,6 +2076,9 @@ A "Zelda-lite" look gated behind a ⚙ **Graphics** toggle (`uiStore.graphicsQua
   no wind sway — mixed greens, High only; excluded from paths/zones/patches).
 
 ## World redesign (W6, built 2026-07-03/04)
+> **2026-10-09:** the island MAP described here (the 38 m circle, the
+> plateau + stairs, Integer Dunes / Fraction Volcano patches, the Algebra
+> moat) is SUPERSEDED — see "DONE (2026-10-09) — NUMBER ISLAND REBUILT".
 - **Cleanup (W6-B):** removed Area Meadow (+ its routes/checks) and the Island-
   Champion claim/podium; Champion's Grove now holds the **SchoolYard portal**
   (`regions.js` island portal at `[0,-32]`) as the progression. Fixed treasure

@@ -25,7 +25,7 @@ export const WORLD_UNLOCKS = [
     id: "bridge-fdp",
     name: "Fraction Bridge",
     type: "bridge",
-    position: [14, -9], // on the path from the hub toward the Fraction Volcano
+    position: [31, 4], // on the path from the plaza toward Fern's ash fields
     rotationY: -0.6,
     color: "#e76f51",
     requires: {},
@@ -37,7 +37,7 @@ export const WORLD_UNLOCKS = [
     id: "gate-algebra",
     name: "Algebra Gate",
     type: "gate",
-    position: [17.5, 11], // at the APEX of the Algebra bridge (see worldBridges)
+    position: [98.5, 4.8], // the middle of the rope bridge to Alby's lighthouse
     rotationY: 0.6,
     color: "#4cc9f0",
     requires: {},
@@ -49,7 +49,7 @@ export const WORLD_UNLOCKS = [
     id: "reward-grove",
     name: "Champion's Grove Gate",
     type: "rewardArea",
-    position: [0, -21], // entrance to the Champion's Grove (north)
+    position: [0, -44], // the foot of Schoolhouse Hill's school gate
     color: "#ffd166",
     requires: {},
     campaignRequires: { badges: ["algebra-apprentice"] },

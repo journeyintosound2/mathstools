@@ -14,11 +14,10 @@
  *   halfWidth half the walkable deck width
  *   apex      peak height at the middle of the span
  */
-export const WORLD_BRIDGES = [
-  // Algebra Coast crossing: over the moat, on the hub→Algebra path. Positioned
-  // clear of the (enlarged) central plateau; the Algebra Gate sits at its apex.
-  { id: "algebra-bridge", from: [15, 9], to: [20, 13], halfWidth: 1.9, apex: 1.7 },
-];
+// (2026-10-09) The rebuilt island's bridge (Alby's rope bridge) + the jetty
+// and the cove pier live in data/island/islandTerrain.js (getIslandDecks) —
+// thin, layered decks. This old flat-island list is kept empty.
+export const WORLD_BRIDGES = [];
 
 // Midpoint (apex) of a bridge — where a gate/landmark can sit at the top.
 export function bridgeApex(id) {

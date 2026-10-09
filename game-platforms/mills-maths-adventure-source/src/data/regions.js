@@ -16,8 +16,12 @@
  *                                | { shape:"rect", width, height, center? }
  *   geometry    ground/ocean sizes + colours for the renderer
  */
-import { WALKABLE_RADIUS, OCEAN_RADIUS } from "./worldZones.js";
+import { OCEAN_RADIUS } from "./worldZones.js";
 import { SPAWN_POINT } from "./worldSpawnPoints.js";
+import { ISLAND_BOUNDS, GATES as ISLAND_GATES } from "./island/islandLayout.js";
+import {
+  islandGroundHeight, islandSlideAt, islandSpeedAt, islandHazardAt, islandHazardInfo, islandIsSafe, SEA_HINT,
+} from "./island/islandTerrain.js";
 import { SCHOOLYARD_BOUNDS, SCHOOLYARD_SPAWN } from "./schoolyard/schoolyardLayout.js";
 import { schoolyardGroundHeight } from "./schoolyard/schoolyardTerrain.js";
 import { FARM_BOUNDS, FARM_SPAWN, FARM_RETURN_PORTAL, FARM_RETURN_PORTAL_YAW } from "./farm/farmLayout.js";
@@ -43,43 +47,52 @@ import {
 export const DEFAULT_REGION_ID = "island-1";
 
 export const REGIONS = {
+  // NUMBER ISLAND (rebuilt 2026-10-09) — the hub: a big, sunny island
+  // (~2.5× across the old one) in a turquoise sea. Everything lives in
+  // data/island/ + game/IslandScenery.jsx. Hooks (the snow/jungle set):
+  // LAYERED ground (the raised plaza + its stairs, the jetty, the pier, the
+  // rope bridge), cliffs + Ember Peak's upper cone slide, the shallows are
+  // slow, and deep water / lava bounce you back to the last dry spot.
+  // Every world gate stands in a landscape that foreshadows its world; you
+  // come BACK through a gate to land right in front of it (`arrive`).
   "island-1": {
     id: "island-1",
     name: "Number Island",
     spawn: { x: SPAWN_POINT.x, z: SPAWN_POINT.z },
-    bounds: { shape: "circle", radius: WALKABLE_RADIUS },
+    bounds: ISLAND_BOUNDS,
+    groundHeight: islandGroundHeight,
+    slideAt: islandSlideAt,
+    speedAt: islandSpeedAt,
+    isLava: islandHazardAt,
+    hazardInfo: islandHazardInfo,
+    hazardHint: SEA_HINT,
+    hazardSound: "splash",
+    isSafe: islandIsSafe,
+    cameraTerrainClamp: true,
+    maxFrameDelta: 1 / 15,
+    arriveYaw: 0, // arrive looking north, through the arch up Main Street
+    badgeRange: 60,
+    drawRange: 180,
     geometry: {
-      walkableRadius: WALKABLE_RADIUS,
+      walkableRadius: ISLAND_BOUNDS.radius,
       oceanRadius: OCEAN_RADIUS,
-      grassColor: "#90cf6f",
-      beachColor: "#ffe5a3",
-      oceanColor: "#4cc9f0",
-      skyColor: "#bde0fe",
+      grassColor: "#7cc35a",
+      beachColor: "#f3e1a6",
+      oceanColor: "#2fb4c8",
+      // A bright tropical morning: a pale aqua horizon (the fog — the far
+      // sea + distant islands haze into it) and a deep blue overhead.
+      skyColor: "#cfeefa",
+      skyTop: "#3f8fe0",
+      fogNear: 95,
+      fogFar: 430,
     },
-    // Teleport Gate — in Champion's Grove (north), the end-of-island reward that
-    // travels you onward to the SchoolYard (W6-B). Walk into it to travel.
+    // The five world gates (positions + facings from islandLayout GATES).
     portals: [
-      { id: "island-to-schoolyard", position: [0, -32], radius: 2.0, rotationY: 0, target: "schoolyard", label: "Retrieval Practice Playground", lock: "playground" },
-      // Farm Gate — out on the WESTERN coastline, about halfway between Mills and
-      // its previous spot (same latitude as Mills), well clear of Integer Dunes
-      // so nothing overlaps. rotationY faces the gate back toward the map centre.
-      // Rendered as a stacked-haybale gate with waving grass + a bright-yellow
-      // portal swirl (variant "haybale").
-      { id: "island-to-farm", position: [-32, 16], radius: 2.0, rotationY: Math.atan2(32, -16), target: "farm-parts-whole", label: "Fraction Farm", variant: "haybale" },
-      // Snowball Sums gate — an IGLOO on the Integer Dunes snow patch, just
-      // EAST of the dunes (between Pip's clearing and the Retrieval Practice
-      // Playground portal), so it sits naturally on the existing snow.
-      // rotationY faces the doorway back toward the map centre.
-      { id: "island-to-snow", position: [-14, -25], radius: 2.0, rotationY: Math.atan2(14, 25), target: "snow-sums", label: "Snowball Sums", variant: "igloo" },
-      // Magma Multiples gate — a basalt arch with a RED lava swirl on the open
-      // south-east grass (between the spawn and the Algebra moat, near the
-      // coast). rotationY faces the doorway back toward the map centre.
-      { id: "island-to-magma", position: [17, 31], radius: 2.0, rotationY: Math.atan2(-17, -31), target: MAGMA_REGION_ID, label: MAGMA_NAME, variant: "volcano" },
-      // Emerald Jungle gate — a mossy stone arch with a GREEN swirl on the
-      // open SOUTH-WEST grass, mirroring the volcano gate across the spawn
-      // (between the farm gate and the spawn, near the coast). rotationY
-      // faces the doorway back toward the map centre.
-      { id: "island-to-jungle", position: [-17, 31], radius: 2.0, rotationY: Math.atan2(17, -31), target: JUNGLE_REGION_ID, label: JUNGLE_NAME, variant: "jungle" },
+      { id: "island-to-schoolyard", position: ISLAND_GATES.playground.position, radius: 2.0, rotationY: ISLAND_GATES.playground.yaw, target: "schoolyard", label: "Retrieval Practice Playground", lock: "playground" },
+      { id: "island-to-farm", position: ISLAND_GATES.farm.position, radius: 2.0, rotationY: ISLAND_GATES.farm.yaw, target: "farm-parts-whole", label: "Fraction Farm", variant: "haybale" },
+      { id: "island-to-snow", position: ISLAND_GATES.snow.position, radius: 2.0, rotationY: ISLAND_GATES.snow.yaw, target: "snow-sums", label: "Snowball Sums", variant: "igloo" },
+      { id: "island-to-magma", position: ISLAND_GATES.magma.position, radius: 2.0, rotationY: ISLAND_GATES.magma.yaw, target: MAGMA_REGION_ID, label: MAGMA_NAME, variant: "volcano" },
+      { id: "island-to-jungle", position: ISLAND_GATES.jungle.position, radius: 2.0, rotationY: ISLAND_GATES.jungle.yaw, target: JUNGLE_REGION_ID, label: JUNGLE_NAME, variant: "jungle" },
     ],
   },
 
@@ -106,7 +119,7 @@ export const REGIONS = {
     // Return Teleport Gate → back to the island. On the front tier's east edge,
     // clear of the trees/NPCs/planters (moved anticlockwise off the corner tree).
     portals: [
-      { id: "schoolyard-to-island", position: [34, 12], radius: 2.0, rotationY: -Math.PI / 2, target: "island-1", label: "Number Island" },
+      { id: "schoolyard-to-island", position: [34, 12], radius: 2.0, rotationY: -Math.PI / 2, target: "island-1", label: "Number Island", arrive: ISLAND_GATES.playground.arrive, arriveYaw: ISLAND_GATES.playground.arriveYaw },
     ],
   },
 
@@ -150,7 +163,7 @@ export const REGIONS = {
       oceanRadius: 170,
     },
     portals: [
-      { id: "farm-to-island", position: FARM_RETURN_PORTAL, radius: 2.0, rotationY: FARM_RETURN_PORTAL_YAW, target: "island-1", label: "Number Island", variant: "haybale" },
+      { id: "farm-to-island", position: FARM_RETURN_PORTAL, radius: 2.0, rotationY: FARM_RETURN_PORTAL_YAW, target: "island-1", label: "Number Island", variant: "haybale", arrive: ISLAND_GATES.farm.arrive, arriveYaw: ISLAND_GATES.farm.arriveYaw },
     ],
   },
 
@@ -204,7 +217,7 @@ export const REGIONS = {
       oceanRadius: 150,
     },
     portals: [
-      { id: "snow-to-island", position: SNOW_RETURN_PORTAL, radius: 2.0, rotationY: SNOW_RETURN_PORTAL_YAW, target: "island-1", label: "Number Island", variant: "igloo" },
+      { id: "snow-to-island", position: SNOW_RETURN_PORTAL, radius: 2.0, rotationY: SNOW_RETURN_PORTAL_YAW, target: "island-1", label: "Number Island", variant: "igloo", arrive: ISLAND_GATES.snow.arrive, arriveYaw: ISLAND_GATES.snow.arriveYaw },
       // The lodge's AJAR front door → the Lodge Interior (CB). The door
       // visual lives on the lodge (SnowScenery LodgeDoor) — variant
       // "cabindoor" renders NO portal swirl. Door-to-door travel: `arrive`
@@ -255,7 +268,7 @@ export const REGIONS = {
       oceanRadius: 110,
     },
     portals: [
-      { id: "magma-to-island", position: MAGMA_RETURN_PORTAL, radius: 2.0, rotationY: MAGMA_RETURN_PORTAL_YAW, target: "island-1", label: "Number Island", variant: "volcano" },
+      { id: "magma-to-island", position: MAGMA_RETURN_PORTAL, radius: 2.0, rotationY: MAGMA_RETURN_PORTAL_YAW, target: "island-1", label: "Number Island", variant: "volcano", arrive: ISLAND_GATES.magma.arrive, arriveYaw: ISLAND_GATES.magma.arriveYaw },
     ],
   },
 
@@ -299,7 +312,7 @@ export const REGIONS = {
       oceanRadius: 170,
     },
     portals: [
-      { id: "jungle-to-island", position: JUNGLE_RETURN_PORTAL, radius: 2.0, rotationY: JUNGLE_RETURN_PORTAL_YAW, target: "island-1", label: "Number Island", variant: "jungle" },
+      { id: "jungle-to-island", position: JUNGLE_RETURN_PORTAL, radius: 2.0, rotationY: JUNGLE_RETURN_PORTAL_YAW, target: "island-1", label: "Number Island", variant: "jungle", arrive: ISLAND_GATES.jungle.arrive, arriveYaw: ISLAND_GATES.jungle.arriveYaw },
     ],
   },
 
@@ -364,7 +377,7 @@ export function clampToBounds(x, z, bounds) {
   }
 
   // Default: circle.
-  const r = bounds.radius || WALKABLE_RADIUS;
+  const r = bounds.radius || ISLAND_BOUNDS.radius;
   const dx = x - cx;
   const dz = z - cz;
   const dist = Math.hypot(dx, dz);

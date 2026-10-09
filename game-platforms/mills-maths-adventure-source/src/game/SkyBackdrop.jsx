@@ -16,13 +16,56 @@ import { GradientTexture } from "@react-three/drei";
  * have scattered pines, hazed by the fog. Purely decorative — no colliders, and
  * the walkable ground is untouched.
  */
-export function SkyDome({ horizon = "#bde0fe", top = "#6ea9e6", radius = 130 }) {
+export function SkyDome({ horizon = "#bde0fe", top = "#6ea9e6", radius = 130, trueHorizon = false }) {
+  if (trueHorizon) return <HorizonSkyDome horizon={horizon} top={top} radius={radius} />;
   return (
     <mesh renderOrder={-1}>
       <sphereGeometry args={[radius, 32, 16]} />
       <meshBasicMaterial side={THREE.BackSide} fog={false} depthWrite={false} toneMapped={false}>
         <GradientTexture stops={[0, 0.55, 1]} colors={[horizon, mixHex(horizon, top, 0.5), top]} size={512} />
       </meshBasicMaterial>
+    </mesh>
+  );
+}
+
+/**
+ * A sky dome whose gradient is keyed to ELEVATION, not the sphere's UVs: the
+ * horizon colour (= the fog colour) holds from below the horizon up to a few
+ * degrees above it, then deepens to the zenith. Used on Number Island, whose
+ * open sea is seen from high up (the title flyover): there the old UV
+ * gradient put a darker band right where the fogged sea meets the sky.
+ */
+function HorizonSkyDome({ horizon, top, radius }) {
+  const mat = useMemo(() => new THREE.ShaderMaterial({
+    uniforms: {
+      uHorizon: { value: new THREE.Color(horizon) },
+      uMid: { value: new THREE.Color(mixHex(horizon, top, 0.5)) },
+      uTop: { value: new THREE.Color(top) },
+    },
+    vertexShader: /* glsl */ `
+      varying vec3 vDir;
+      void main() {
+        vDir = normalize(position);
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }`,
+    fragmentShader: /* glsl */ `
+      uniform vec3 uHorizon; uniform vec3 uMid; uniform vec3 uTop;
+      varying vec3 vDir;
+      void main() {
+        float e = clamp(vDir.y, 0.0, 1.0);
+        vec3 c = mix(uHorizon, uMid, smoothstep(0.03, 0.32, e));
+        c = mix(c, uTop, smoothstep(0.3, 0.95, e));
+        gl_FragColor = vec4(c, 1.0);
+        #include <colorspace_fragment>
+      }`,
+    side: THREE.BackSide,
+    depthWrite: false,
+    fog: false,
+    toneMapped: false,
+  }), [horizon, top]);
+  return (
+    <mesh renderOrder={-1} material={mat}>
+      <sphereGeometry args={[radius, 48, 24]} />
     </mesh>
   );
 }

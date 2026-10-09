@@ -1,8 +1,9 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 
 import World from "./game/World.jsx";
-import CharacterCreator from "./ui/CharacterCreator.jsx";
+import TitleScreen from "./ui/TitleScreen.jsx";
+import WorldReady from "./game/WorldReady.jsx";
 import HUD from "./ui/HUD.jsx";
 import EncounterModal from "./ui/EncounterModal.jsx";
 import InteractionPrompt from "./ui/InteractionPrompt.jsx";
@@ -39,6 +40,7 @@ import HowToPlay from "./ui/HowToPlay.jsx";
 import TeacherPilotCard from "./ui/TeacherPilotCard.jsx";
 import CloudLogin from "./ui/CloudLogin.jsx";
 import BlockedGatePrompt from "./ui/BlockedGatePrompt.jsx";
+import AchievementsWallUI from "./ui/AchievementsWallUI.jsx";
 import OnboardingWelcome from "./ui/OnboardingWelcome.jsx";
 import UnlockCelebration from "./ui/UnlockCelebration.jsx";
 import DynamicDialogue from "./ui/encounters/DynamicDialogue.jsx";
@@ -46,7 +48,6 @@ import ToastLayer from "./ui/effects/ToastLayer.jsx";
 import BilingualLayer from "./i18n/BilingualLayer.jsx";
 
 import { useSession } from "./game/sessionStore.js";
-import { useProgress } from "./progress/store.js";
 import { useUI } from "./ui/effects/uiStore.js";
 import { getInteractable } from "./data/interactables.js";
 import { triggerInteraction } from "./game/interaction.js";
@@ -55,8 +56,13 @@ import { triggerInteraction } from "./game/interaction.js";
  * App is the top-level orchestrator.
  *
  * It switches between two phases:
- *   - "creator": the student sets up their character (name + colour).
+ *   - "creator": the TITLE SCREEN (ui/TitleScreen.jsx) over a live
+ *     flyover of the island — Continue / Start adventure, the character
+ *     card, sign-in and options.
  *   - "playing": the 3D world is shown with the HUD overlaid.
+ *
+ * The ONE <Canvas> stays mounted across both, so pressing Continue glides
+ * the camera straight from the flyover down behind the player.
  *
  * The 3D <Canvas> and the 2D HTML UI (HUD, modal, prompts) are deliberately
  * kept separate. They communicate only through the zustand stores
@@ -78,18 +84,16 @@ export default function App() {
   const pilotOpen = useUI((s) => s.pilotOpen);
   const cloudLoginOpen = useUI((s) => s.cloudLoginOpen);
 
-  // On the FIRST launch only, skip the character creator if a character has
-  // already been designed (they re-open it any time via "Edit character"). Runs
-  // once on mount so re-opening the creator mid-session isn't auto-skipped.
-  const autoSkippedRef = useRef(false);
+  // Returning players now land on the title screen too (its Continue button
+  // goes straight back into the world). The 3D world mounts just AFTER the
+  // first paint, so the title's loading curtain shows while it builds.
+  const [mountWorld, setMountWorld] = useState(false);
   useEffect(() => {
-    if (autoSkippedRef.current) return;
-    autoSkippedRef.current = true;
-    const p = useProgress.getState();
-    if (useSession.getState().phase === "creator" && p.profile.created) {
-      useSession.getState().startGame();
-    }
+    let a = 0, b = 0;
+    a = requestAnimationFrame(() => { b = requestAnimationFrame(() => setMountWorld(true)); });
+    return () => { cancelAnimationFrame(a); cancelAnimationFrame(b); };
   }, []);
+  const title = phase === "creator";
 
   // Global "a modal/overlay is open" flag on <body>. CSS uses .modal-open to
   // hide ALL in-world (drei <Html>) labels so they never sit over a modal.
@@ -106,6 +110,7 @@ export default function App() {
   useEffect(() => {
     function onKeyDown(e) {
       if (e.key.toLowerCase() !== "e") return;
+      if (useUI.getState().wallView) return; // looking at the Achievements Wall
       if (phase === "playing" && nearbyId && !activeEncounterId) {
         const interactable = getInteractable(nearbyId);
         if (interactable) {
@@ -121,16 +126,6 @@ export default function App() {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [phase, nearbyId, activeEncounterId, openEncounter]);
 
-  if (phase === "creator") {
-    return (
-      <>
-        <BilingualLayer />
-        <CharacterCreator />
-        <CloudLogin />
-      </>
-    );
-  }
-
   return (
     <div className="game-shell">
       <BilingualLayer />
@@ -143,9 +138,17 @@ export default function App() {
         camera={{ position: [0, 6, 10], fov: 50 }}
         onCreated={({ gl }) => { gl.toneMappingExposure = 1.0; }}
       >
-        <World />
+        {mountWorld && <World title={title} />}
+        {mountWorld && <WorldReady />}
       </Canvas>
 
+      {title ? (
+        <>
+          <TitleScreen />
+          <CloudLogin />
+        </>
+      ) : (
+      <>
       {/* 2D overlays rendered on top of the canvas. */}
       <HUD />
       <InteractionPrompt />
@@ -173,6 +176,7 @@ export default function App() {
       <AuroraLookoutPanel />
       <MagmaPanels />
       <BlockedGatePrompt />
+      <AchievementsWallUI />
       <QuestLog />
       <TrophyRoom />
       <FarmTrophyGrid />
@@ -190,6 +194,8 @@ export default function App() {
       <CloudLogin />
       <UnlockCelebration />
       <ToastLayer />
+      </>
+      )}
     </div>
   );
 }

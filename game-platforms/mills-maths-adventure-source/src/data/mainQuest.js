@@ -69,7 +69,7 @@ export const MAIN_QUEST_CHAIN = {
     {
       id: "pip",
       label: "Complete Pip's Integer mission",
-      hint: "Find Pip in Pip's Problems",
+      hint: "Find Pip at Pip's Number Line",
       targetId: "pip",
       // Tied to the STORY mission id (npc-pip-1), not just the badge — so a
       // teacher/free Integer mission that happens to award the same badge does
@@ -78,15 +78,15 @@ export const MAIN_QUEST_CHAIN = {
     },
     {
       id: "fern",
-      label: "Complete Fern's FDP mission at Fern's Fun",
-      hint: "Find Fern at Fern's Fun",
+      label: "Complete Fern's FDP mission at Fern's Ash Fields",
+      hint: "Find Fern at Fern's Ash Fields",
       targetId: "fern",
       done: (s) => (s.completedMissions || []).includes("npc-fern-1"),
     },
     {
       id: "alby",
-      label: "Complete Alby's mission at Alby's Addition",
-      hint: "Find Alby at Alby's Addition",
+      label: "Complete Alby's mission at Alby's Lighthouse",
+      hint: "Find Alby at Alby's Lighthouse",
       targetId: "alby",
       done: (s) => (s.completedMissions || []).includes("npc-alby-1"),
     },
@@ -98,7 +98,7 @@ export const MAIN_QUEST_CHAIN = {
 export const CHAMPION_STEP = {
   id: "champion",
   label: "Island explored!",
-  hint: "Head to Retrieval Practice Playground and take the portal to the SchoolYard.",
+  hint: "Head up Schoolhouse Hill and through the school gate to the Retrieval Practice Playground.",
   targetId: null,
   done: () => true,
 };
@@ -189,26 +189,27 @@ export function shouldShowOnboarding(snap = {}) {
 
 const SAGE_LINES = {
   "meet-sage": [
-    "Welcome, Explorer! This is Number Island — the whole island is open to you.",
-    "Wander wherever you like and say hello to Pip, Fern and Alby for a quick number warm-up.",
-    "See that shimmering Teleport Gate to the south-west? Step through to visit the Schoolyard on the Coffs Coast!",
-    "And keep an eye out — your teacher can set special tasks that appear on a character.",
+    "Welcome, Explorer! I'm Mills, and this is Number Island — the whole island is yours to explore.",
+    "Pip, Fern and Alby each have a quick number warm-up: Pip is under Frosty Peak, Fern is in the ash fields below Ember Peak, and Alby is out at the lighthouse.",
+    "Score 80% with all three and the school gate on Schoolhouse Hill opens — the Retrieval Practice Playground.",
+    "Every other world has its own gate too — the igloo, the volcano arch, the haybales and the mossy arch. Follow the signposts, or check the big map by the arch.",
+    "And see the wall beside the arch? That's your Achievements Wall. Stand in front of it and press Enter (or tap a board) to see everything you've won.",
   ],
   pip: [
     "The whole island is open — explore and try a warm-up with any character.",
     "Pip, Fern and Alby each have a quick number challenge for you.",
-    "And the Teleport Gate to the south-west leads to the Coffs Coast Schoolyard — give it a go!",
+    "Up Main Street, through the plaza, then follow the signposts — Pip's thermometer stands under Frosty Peak.",
   ],
   fern: [
     "Nice going! Keep exploring the island at your own pace.",
-    "Fern is near Fern's Fun if you'd like another challenge.",
+    "Fern is down in her ash fields below Ember Peak if you'd like another challenge.",
   ],
   alby: [
     "You're on a roll — the whole island is yours to roam.",
-    "Alby is over at Alby's Addition for a tougher challenge.",
+    "Alby is out at the lighthouse — take the east road and cross the rope bridge.",
   ],
   grove: [
-    "Wonderful work! Retrieval Practice Playground is just to the north.",
+    "Wonderful work! The school gate on Schoolhouse Hill is open — the Retrieval Practice Playground awaits.",
     "Wander in whenever you like.",
   ],
   champion: [
@@ -226,9 +227,9 @@ export function sageDialogue(snap = {}) {
 // ---- Topic-NPC dialogue (before / retry / after a mission) ----------------
 
 const NPC_META = {
-  pip: { speaker: "Pip", zone: "Pip's Problems", unlocks: "Fern's Fun", topic: "integer" },
-  fern: { speaker: "Fern", zone: "Fern's Fun", unlocks: "Alby's Addition", topic: "FDP" },
-  alby: { speaker: "Alby", zone: "Alby's Addition", unlocks: "Retrieval Practice Playground", topic: "algebra" },
+  pip: { speaker: "Pip", zone: "Pip's Number Line", unlocks: "Fern's Ash Fields", topic: "integer" },
+  fern: { speaker: "Fern", zone: "Fern's Ash Fields", unlocks: "Alby's Lighthouse", topic: "FDP" },
+  alby: { speaker: "Alby", zone: "Alby's Lighthouse", unlocks: "Retrieval Practice Playground", topic: "algebra" },
 };
 
 // Schoolyard characters (W2-F) — generated from the layout list with their Coffs

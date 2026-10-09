@@ -1,7 +1,9 @@
-import React, { useRef, useMemo } from "react";
+import React, { useRef, useMemo, useState } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
 import * as THREE from "three";
+
+import { playerState } from "./sessionStore.js";
 
 import { getJungleTextures } from "./jungle/jungleMaterials.js";
 import StaticBatch from "./jungle/StaticBatch.jsx";
@@ -18,7 +20,7 @@ import StaticBatch from "./jungle/StaticBatch.jsx";
  * Retrieval Practice Playground until Pip, Fern and Alby are each passed at ≥80%
  * (the travel is blocked in Player.jsx; this is the matching visual).
  */
-export default function Portal({ position, rotationY = 0, label, locked = false }) {
+export default function Portal({ position, rotationY = 0, label, locked = false, y = 0, labelRange = 0 }) {
   const spinA = useRef();
   const spinB = useRef();
   useFrame((_, dt) => {
@@ -39,7 +41,7 @@ export default function Portal({ position, rotationY = 0, label, locked = false 
   ];
 
   return (
-    <group position={[x, 0, z]} rotation={[0, rotationY, 0]}>
+    <group position={[x, y, z]} rotation={[0, rotationY, 0]}>
       {/* Stone ring frame. */}
       <mesh position={[0, cy, 0]} castShadow>
         <torusGeometry args={[R + 0.06, 0.24, 14, 36]} />
@@ -95,11 +97,33 @@ export default function Portal({ position, rotationY = 0, label, locked = false 
       </mesh>
 
       {label && (
-        <Html position={[0, 2 * R + 1.0, 0]} center distanceFactor={16} className="ix-badge-anchor">
+        <GateLabel at={[0, 2 * R + 1.0, 0]} x={x} z={z} range={labelRange}>
           <div className={`unlock-sign ${locked ? "locked" : "open"}`}>{locked ? "🔒" : "✦"} {label}</div>
-        </Html>
+        </GateLabel>
       )}
     </group>
+  );
+}
+
+/**
+ * A gate's floating destination label. `range` (metres, optional) shows it
+ * only when the player is that close — on the big rebuilt island the five
+ * gates are far apart, and labels floating over the hills from across the
+ * map would clutter the view. 0 = always shown (the smaller regions).
+ */
+function GateLabel({ at, x, z, range = 0, children }) {
+  const [show, setShow] = useState(!range);
+  const last = useRef(!range);
+  useFrame(() => {
+    if (!range) return;
+    const on = Math.hypot(playerState.x - x, playerState.z - z) < range;
+    if (on !== last.current) { last.current = on; setShow(on); }
+  });
+  if (!show) return null;
+  return (
+    <Html position={at} center distanceFactor={16} className="ix-badge-anchor" zIndexRange={[24, 0]}>
+      {children}
+    </Html>
   );
 }
 
@@ -248,7 +272,7 @@ const ICE_SWIRL = {
   arcs: ["#4dd0e1", "#26c6da", "#00acc1"],
 };
 
-export function IglooPortal({ position, rotationY = 0, label, y = 0 }) {
+export function IglooPortal({ position, rotationY = 0, label, y = 0, labelRange = 0 }) {
   const [x, z] = position;
   const R = 2.9; // dome radius
   return (
@@ -303,15 +327,15 @@ export function IglooPortal({ position, rotationY = 0, label, y = 0 }) {
       </mesh>
 
       {label && (
-        <Html position={[0, R + 2.1, 0]} center distanceFactor={16} className="ix-badge-anchor">
+        <GateLabel at={[0, R + 2.1, 0]} x={x} z={z} range={labelRange}>
           <div className="unlock-sign open">✦ {label}</div>
-        </Html>
+        </GateLabel>
       )}
     </group>
   );
 }
 
-export function HaybalePortal({ position, rotationY = 0, label, y = 0 }) {
+export function HaybalePortal({ position, rotationY = 0, label, y = 0, labelRange = 0 }) {
   const [x, z] = position;
   const grassRefs = useRef([]);
   const blades = useMemo(
@@ -383,9 +407,9 @@ export function HaybalePortal({ position, rotationY = 0, label, y = 0 }) {
       </instancedMesh>
 
       {label && (
-        <Html position={[0, 6.4, 0]} center distanceFactor={16} className="ix-badge-anchor">
+        <GateLabel at={[0, 6.4, 0]} x={x} z={z} range={labelRange}>
           <div className="unlock-sign open">✦ {label}</div>
-        </Html>
+        </GateLabel>
       )}
     </group>
   );
@@ -440,7 +464,7 @@ function Brazier({ position }) {
   );
 }
 
-export function VolcanoPortal({ position, rotationY = 0, label }) {
+export function VolcanoPortal({ position, rotationY = 0, label, y = 0, labelRange = 0 }) {
   const [x, z] = position;
   // Each pillar = a stack of tilted faceted rocks (dodecahedra).
   const stack = (sx) => [
@@ -450,7 +474,7 @@ export function VolcanoPortal({ position, rotationY = 0, label }) {
     { p: [sx * 1.45, 3.25, 0], s: 0.6, r: [0.5, 0.4, 1.2] },
   ];
   return (
-    <group position={[x, 0, z]} rotation={[0, rotationY, 0]}>
+    <group position={[x, y, z]} rotation={[0, rotationY, 0]}>
       {[-1, 1].flatMap((sx) => stack(sx)).map((rk, i) => (
         <mesh key={i} castShadow position={rk.p} rotation={rk.r} scale={rk.s}>
           <dodecahedronGeometry args={[1, 0]} />
@@ -489,9 +513,9 @@ export function VolcanoPortal({ position, rotationY = 0, label }) {
       <Brazier position={[-2.7, 0, 1.0]} />
       <Brazier position={[2.7, 0, 1.0]} />
       {label && (
-        <Html position={[0, 5.4, 0]} center distanceFactor={16} className="ix-badge-anchor">
+        <GateLabel at={[0, 5.4, 0]} x={x} z={z} range={labelRange}>
           <div className="unlock-sign open">✦ {label}</div>
-        </Html>
+        </GateLabel>
       )}
     </group>
   );
@@ -516,7 +540,7 @@ const MOSS_STONE = "#8d8a76";
 const MOSS_STONE_DARK = "#6c6a5a";
 const MOSS = "#4f8a2e";
 
-export function JunglePortal({ position, rotationY = 0, label, y = 0 }) {
+export function JunglePortal({ position, rotationY = 0, label, y = 0, labelRange = 0 }) {
   const [x, z] = position;
   const tex = getJungleTextures();
   const vineRefs = useRef([]);
@@ -612,9 +636,9 @@ export function JunglePortal({ position, rotationY = 0, label, y = 0 }) {
         <meshStandardMaterial color="#4f8a35" roughness={1} />
       </mesh>
       {label && (
-        <Html position={[0, 6.6, 0]} center distanceFactor={16} className="ix-badge-anchor">
+        <GateLabel at={[0, 6.6, 0]} x={x} z={z} range={labelRange}>
           <div className="unlock-sign open">✦ {label}</div>
-        </Html>
+        </GateLabel>
       )}
     </group>
   );

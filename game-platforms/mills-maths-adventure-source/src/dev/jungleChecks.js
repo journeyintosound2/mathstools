@@ -18,6 +18,7 @@ import {
 import { getJungleProps } from "../data/jungle/jungleProps.js";
 import { landSD, MAGMA_BOUNDS } from "../data/magma/magmaLayout.js";
 import { getRegion } from "../data/regions.js";
+import { onPad } from "../data/island/islandTerrain.js";
 import { getColliders } from "../data/worldColliders.js";
 import { PLAYER_RADIUS, STEP_UP } from "../systems/collisionEngine.js";
 
@@ -80,7 +81,8 @@ export function runJungleChecks() {
     region.cameraTerrainClamp === true && region.maxFrameDelta > 0 && region.maxFrameDelta <= 0.1;
   const otherGates = (island.portals || []).filter((p) => p !== toJungle);
   const islandGateOk = Boolean(toJungle) && toJungle.variant === "jungle" &&
-    Math.hypot(toJungle.position[0], toJungle.position[1]) < 37 &&
+    // (2026-10-09) On the rebuilt island it stands on the lagoon ledge.
+    onPad("jungle", toJungle.position[0], toJungle.position[1]) &&
     getColliders({}, "island-1").every((c) => Math.hypot(c.x - toJungle.position[0], c.z - toJungle.position[1]) > c.radius + 2.2) &&
     otherGates.every((p) => Math.hypot(p.position[0] - toJungle.position[0], p.position[1] - toJungle.position[1]) > 8);
   const [bx, bz] = JUNGLE_RETURN_PORTAL;

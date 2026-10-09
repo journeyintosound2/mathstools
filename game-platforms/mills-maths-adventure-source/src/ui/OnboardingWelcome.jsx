@@ -6,7 +6,7 @@ import { useUI } from "./effects/uiStore.js";
 
 /**
  * OnboardingWelcome (Phase 2I) — a short, one-time welcome shown only for a
- * BRAND-NEW save. It points the player up the plaza steps to Sage, then gets
+ * BRAND-NEW save. It points the player to Mills on Harbour Green, then gets
  * out of the way (the player stays in control — no cutscene). Closing it sets
  * onboardingSeen, so it never replays after a refresh.
  *
@@ -26,10 +26,10 @@ export default function OnboardingWelcome() {
         <div className="onboarding-emoji">🏝️</div>
         <h2 className="onboarding-title">Welcome to Number Island</h2>
         <p className="onboarding-text">
-          The whole island is open — wander freely and talk to <strong>Pip</strong>, <strong>Fern</strong>
-          and <strong>Alby</strong> for a quick number warm-up (score at least <strong>60%</strong> to pass).
-          Your teacher can set special tasks that appear on a character. Climb the plaza steps and say
-          hello to <strong>Sage</strong> to begin!
+          The whole island is open — follow Main Street through the arch and explore! Say hello to{" "}
+          <strong>Mills</strong> right here on the green, then find <strong>Pip</strong>, <strong>Fern</strong>{" "}
+          and <strong>Alby</strong> for a number warm-up each. Every world has its own gate, and the{" "}
+          <strong>Achievements Wall</strong> beside the arch shows everything you win.
         </p>
         <button className="primary-button" onClick={() => setOnboardingSeen(true)}>
           Let’s go!

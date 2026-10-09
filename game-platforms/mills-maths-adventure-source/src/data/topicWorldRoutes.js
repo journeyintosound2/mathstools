@@ -37,8 +37,8 @@ export const TOPIC_WORLD_ROUTES = [
     npcId: "pip",
     guidanceTarget: "pip",
     fallbackTarget: "mission-board",
-    displayName: "Integer Dunes",
-    missionStartText: "Find Pip in Integer Dunes",
+    displayName: "Pip's Number Line",
+    missionStartText: "Find Pip at his number line under Frosty Peak",
   },
   {
     topicId: "fdp",
@@ -46,8 +46,8 @@ export const TOPIC_WORLD_ROUTES = [
     npcId: "fern",
     guidanceTarget: "fern",
     fallbackTarget: "mission-board",
-    displayName: "Fraction Volcano",
-    missionStartText: "Find Fern at Fraction Volcano",
+    displayName: "Fern's Ash Fields",
+    missionStartText: "Find Fern in the ash fields below Ember Peak",
   },
   {
     topicId: "algebra",
@@ -55,8 +55,8 @@ export const TOPIC_WORLD_ROUTES = [
     npcId: "alby",
     guidanceTarget: "alby",
     fallbackTarget: "mission-board",
-    displayName: "Algebra Coast",
-    missionStartText: "Find Alby at Algebra Coast",
+    displayName: "Alby's Lighthouse",
+    missionStartText: "Find Alby at the lighthouse",
   },
   // (Area Meadow removed in W6-B — "area" and "pythagoras" topics now fall back
   //  safely to the Mission Board, since they have no dedicated on-island zone.)

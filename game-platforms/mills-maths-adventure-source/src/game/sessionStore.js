@@ -49,10 +49,15 @@ export const useSession = create((set, get) => ({
     if (!r || get().currentRegionId === r.id) return;
     set({ currentRegionId: r.id, nearbyId: null, activeEncounterId: null, dynamicDialogue: null });
     requestTeleport(r.spawn.x, r.spawn.z);
+    // The Achievements Wall's explorer's log ("visited ✓" on each world's board).
+    try { localStorage.setItem(`mma-visited:${r.id}`, "1"); } catch { /* a nicety only */ }
   },
 
+  // Has the player been into the world yet this session? (The title screen
+  // opens straight on the character card when "Edit character" brings it back.)
+  started: false,
   startGame() {
-    set({ phase: "playing" });
+    set({ phase: "playing", started: true });
   },
 
   // Re-open the character creator to edit the avatar (keeps all progress).

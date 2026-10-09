@@ -1,0 +1,173 @@
+/* ===================================================================
+   ACHIEVEMENTS WALL — the "look" prompt + the first-person viewer bar.
+   =================================================================== */
+
+/* While looking at the wall the HUD and the other prompts step aside so the
+   boards own the screen (body.wall-view is set by AchievementsWallUI). */
+body.wall-view .hud,
+body.wall-view .hud-compass,
+body.wall-view .touch-controls,
+body.wall-view .interaction-prompt,
+body.wall-view .interact-confirm,
+body.wall-view .ix-badge-anchor {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transition: opacity 0.3s ease;
+}
+
+.wall-prompt {
+  position: absolute;
+  left: 50%;
+  bottom: 116px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px 10px 12px;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #2a5f9e, #173d6a);
+  color: #fffaf0;
+  font: 700 1.05rem/1.2 "MMA Rounded", var(--font);
+  box-shadow: 0 0 0 3px #ffcf4a, 0 10px 26px rgba(10, 30, 60, 0.35);
+  cursor: pointer;
+  z-index: 25;
+  animation: wall-bob 1.6s ease-in-out infinite;
+}
+.wall-prompt kbd {
+  background: #ffcf4a;
+  color: #173d6a;
+  border-radius: 8px;
+  padding: 3px 9px;
+  font: 800 0.92rem/1.2 "MMA Rounded", var(--font);
+}
+.wall-prompt-icon { font-size: 1.25rem; }
+.wall-prompt:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+@keyframes wall-bob {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(-4px); }
+}
+
+.wall-view-ui {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 26;
+  animation: wall-in 0.5s ease both;
+}
+@keyframes wall-in { from { opacity: 0; } to { opacity: 1; } }
+
+.wall-leave {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  pointer-events: auto;
+  border: 0;
+  border-radius: 999px;
+  padding: 9px 16px;
+  background: rgba(16, 32, 52, 0.72);
+  color: #fff;
+  font: 700 0.98rem/1.2 "MMA Rounded", var(--font);
+  backdrop-filter: blur(6px);
+  cursor: pointer;
+}
+.wall-leave:hover { background: rgba(16, 32, 52, 0.88); }
+.wall-leave:focus-visible { outline: 3px solid #ffcf4a; outline-offset: 2px; }
+
+.wall-caption {
+  position: absolute;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  width: min(760px, calc(100% - 32px));
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+  pointer-events: auto;
+}
+.wall-caption-body {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 16px 9px;
+  border-radius: 18px;
+  background: rgba(16, 32, 52, 0.78);
+  color: #fff;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+}
+.wall-caption-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font: 400 1.45rem/1.15 "MMA Display", var(--font);
+  letter-spacing: 0.01em;
+}
+.wall-caption-title::before {
+  content: "";
+  width: 6px;
+  align-self: stretch;
+  border-radius: 3px;
+  background: var(--wall-c, #ffcf4a);
+}
+.wall-caption-icon { font-size: 1.3rem; }
+.wall-caption-count {
+  margin-left: auto;
+  font: 700 0.9rem/1 "MMA Rounded", var(--font);
+  opacity: 0.7;
+}
+.wall-caption-text {
+  margin-top: 4px;
+  font: 500 1rem/1.35 "MMA Rounded", var(--font);
+  color: #e3eefb;
+}
+.wall-caption-keys {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin-top: 7px;
+  font: 600 0.82rem/1.4 "MMA Rounded", var(--font);
+  color: rgba(227, 238, 251, 0.75);
+}
+.wall-caption-keys kbd {
+  display: inline-block;
+  min-width: 1.5em;
+  margin-right: 2px;
+  padding: 0 5px;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  font: 700 0.78rem/1.5 "MMA Rounded", var(--font);
+  text-align: center;
+}
+.wall-chip {
+  border: 0;
+  border-radius: 999px;
+  padding: 5px 14px;
+  background: #ffcf4a;
+  color: #173d6a;
+  font: 800 0.9rem/1.2 "MMA Rounded", var(--font);
+  cursor: pointer;
+}
+.wall-arrow {
+  flex: 0 0 56px;
+  border: 0;
+  border-radius: 18px;
+  background: rgba(16, 32, 52, 0.78);
+  color: #ffcf4a;
+  font: 400 2.4rem/1 "MMA Display", var(--font);
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+}
+.wall-arrow:hover { background: rgba(16, 32, 52, 0.92); }
+.wall-arrow:focus-visible, .wall-chip:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+
+@media (max-width: 560px) {
+  .wall-caption { bottom: 10px; gap: 6px; }
+  .wall-arrow { flex-basis: 44px; font-size: 2rem; }
+  .wall-caption-title { font-size: 1.2rem; }
+  .wall-caption-text { font-size: 0.92rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wall-prompt { animation: none; }
+  .wall-view-ui { animation: none; }
+}

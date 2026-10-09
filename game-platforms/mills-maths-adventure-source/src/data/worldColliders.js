@@ -27,30 +27,35 @@ import { getMagmaColliders } from "./magma/magmaColliders.js";
 import { MAGMA_REGION_ID } from "./magma/magmaLayout.js";
 import { getJungleColliders } from "./jungle/jungleColliders.js";
 import { JUNGLE_REGION_ID } from "./jungle/jungleLayout.js";
+import { getIslandStaticColliders } from "./island/islandColliders.js";
+import { PLAZA } from "./island/islandLayout.js";
+import { PLAZA_DECK_Y, PLAZA_BASE_Y, PLAZA_FLIGHTS } from "./island/islandTerrain.js";
 
-// Decorative trees (also rendered by World.jsx) — each is solid.
-export const TREE_POSITIONS = [
-  [-28, -2], [28, 2], [-2, 28], [-26, 22], [26, 22], [-26, -23], [26, -23],
-  [-12, 26], [12, 26], [-30, 8], [30, -8],
-];
+// (2026-10-09) The island's trees are part of its scatter now
+// (data/island/islandProps.js → islandColliders.js); this old list is empty.
+export const TREE_POSITIONS = [];
 
-// Central Mission Plaza — a real raised plateau the player climbs onto. The
-// Mission Board, Trophy Stand and Sage sit ON it. A wide staircase on the south
-// side is fully WALKABLE (so students are never blocked), while a Shift jump
-// lets you hop straight up the plateau edge as a shortcut.
-// SQUARE plateau (W6-C) — a straight-edged platform so the staircases sit flush
-// against its edges with no gaps. `halfW`/`halfD` are the half-extents; `radius`
-// is kept as a nominal value for the radial path starts. Enlarged so the Mission
-// Board + Trophy Stand sit apart without their interaction radii overlapping.
-export const PLATEAU = { x: 0, z: 0, halfW: 8, halfD: 7, height: 1.1, radius: 7 };
-export const STAIRS = [
-  // South staircase (the player arrives from the south) — flush at the z=+7 edge.
-  { id: "s-step-1", xMin: -4, xMax: 4, zMin: 8.5, zMax: 10.0, height: 0.4 },
-  { id: "s-step-2", xMin: -4, xMax: 4, zMin: 7.0, zMax: 8.5, height: 0.8 },
-  // North staircase (opposite side, toward the grove portal) — flush at z=-7.
-  { id: "n-step-1", xMin: -4, xMax: 4, zMin: -10.0, zMax: -8.5, height: 0.4 },
-  { id: "n-step-2", xMin: -4, xMax: 4, zMin: -8.5, zMax: -7.0, height: 0.8 },
-];
+// The raised MISSION PLAZA (an octagon, data/island/islandLayout.js PLAZA):
+// described here as its inscribed square (`halfW`/`halfD`, all on the deck)
+// with absolute heights, for older code + the checks. `radius` = apothem.
+const _sq = PLAZA.apothem * 0.7;
+export const PLATEAU = {
+  x: PLAZA.center[0], z: PLAZA.center[1], halfW: _sq, halfD: _sq,
+  height: PLAZA_DECK_Y, base: PLAZA_BASE_Y, radius: PLAZA.apothem,
+};
+// Its stair steps (each flight's treads), absolute heights.
+export const STAIRS = PLAZA_FLIGHTS.flatMap((f) => Array.from({ length: f.steps }, (_, k) => {
+  // k = 0 → the bottom step (furthest out).
+  const a0 = PLAZA.apothem + (f.steps - 1 - k) * f.depth, a1 = a0 + f.depth;
+  const cx = PLAZA.center[0], cz = PLAZA.center[1], hw = f.width / 2;
+  const xs = f.nx ? [cx + f.nx * a0, cx + f.nx * a1] : [cx - hw, cx + hw];
+  const zs = f.nz ? [cz + f.nz * a0, cz + f.nz * a1] : [cz - hw, cz + hw];
+  return {
+    id: `${f.id}-step-${k + 1}`, flight: f.id,
+    xMin: Math.min(...xs), xMax: Math.max(...xs), zMin: Math.min(...zs), zMax: Math.max(...zs),
+    height: PLAZA_BASE_Y + (k + 1) * f.rise,
+  };
+}));
 
 // Landmark collision radii by type (0 = not solid). Scaled by the landmark's scale.
 const LANDMARK_RADIUS = {
@@ -99,6 +104,11 @@ export const STATIC_COLLIDERS = [
   ...landmarkColliders(),
   ...interactableColliders(),
 ];
+let _islandStatic = null;
+function islandStatic() {
+  if (!_islandStatic) _islandStatic = [...STATIC_COLLIDERS, ...getIslandStaticColliders()];
+  return _islandStatic;
+}
 
 /**
  * All colliders for the current progress snapshot + ACTIVE REGION. Island-1
@@ -114,7 +124,7 @@ export function getColliders(snapshot = {}, regionId = "island-1") {
   if (regionId === MAGMA_REGION_ID) return getMagmaColliders();
   if (regionId === JUNGLE_REGION_ID) return getJungleColliders();
   return [
-    ...STATIC_COLLIDERS,
+    ...islandStatic(),
     ...gateColliders(snapshot),
     ...getBoundaryColliders(snapshot),
     ...bridgeRailColliders(),

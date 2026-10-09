@@ -4,12 +4,8 @@ import { Environment, Lightformer } from "@react-three/drei";
 import Player from "./Player.jsx";
 import Interactable from "./Interactable.jsx";
 import Effects from "./Effects.jsx";
-import {
-  WorldZones, WorldUnlocks, GuidanceMarker, WorldLandmarks, WorldPaths,
-  WorldTerrain, ColliderDebug, WorldBoundaries, AlgebraMoat, WorldBridges, IslandCoast, SnowEdge, AshPebbles,
-} from "./WorldScenery.jsx";
+import IslandScenery from "./IslandScenery.jsx";
 import { getInteractablesForRegion } from "../data/interactables.js";
-import { TREE_POSITIONS } from "../data/worldColliders.js";
 import { getRegion } from "../data/regions.js";
 import { useSession } from "./sessionStore.js";
 import { useUI } from "../ui/effects/uiStore.js";
@@ -47,41 +43,22 @@ import { JUNGLE_REGION_ID, isOnJunglePath, terrainHeight as jungleTerrainHeight 
 import MagmaScenery from "./MagmaScenery.jsx";
 import { MAGMA_REGION_ID, isOnAsh, magmaGroundHeight } from "../data/magma/magmaLayout.js";
 import { GroundTapCatcher, DestinationMarker } from "./TapToMove.jsx";
-import { SkyDome, DistantIslands } from "./SkyBackdrop.jsx";
-import WindGrass from "./WindGrass.jsx";
+import { SkyDome } from "./SkyBackdrop.jsx";
 import Footprints from "./Footprints.jsx";
-import { SAND_PATCH, ASH_PATCH } from "../data/worldZones.js";
+import TitleCamera from "./TitleCamera.jsx";
 import { useResults } from "../results/resultStore.js";
 import { isPlaygroundUnlocked } from "../results/resultUtils.js";
-
-// Decorative trees (positions come from worldColliders so they're also solid).
-const TREES = TREE_POSITIONS;
-
-function Tree({ position }) {
-  const [x, z] = position;
-  return (
-    <group position={[x, 0, z]}>
-      <mesh castShadow position={[0, 0.6, 0]}>
-        <cylinderGeometry args={[0.18, 0.22, 1.2, 8]} />
-        <meshStandardMaterial color="#8d6e63" />
-      </mesh>
-      <mesh castShadow position={[0, 1.7, 0]}>
-        <coneGeometry args={[0.9, 1.6, 12]} />
-        <meshStandardMaterial color="#52b788" />
-      </mesh>
-      <mesh castShadow position={[0, 2.5, 0]}>
-        <coneGeometry args={[0.65, 1.2, 12]} />
-        <meshStandardMaterial color="#74c69d" />
-      </mesh>
-    </group>
-  );
-}
 
 /**
  * The whole 3D scene: lighting, the island, scenery, the player and the NPCs.
  * Lives inside the <Canvas> in App.jsx.
+ *
+ * `title` = the title screen is up: the same world renders behind the menu,
+ * the player stands still (hidden) and TitleCamera flies the camera — a
+ * cinematic loop round Number Island (or a slow orbit in the other worlds,
+ * when "Edit character" is opened mid-adventure).
  */
-export default function World() {
+export default function World({ title = false }) {
   // Geometry/colours + which scenery to render come from the ACTIVE region.
   const regionId = useSession((s) => s.currentRegionId);
   // Gate state for the Retrieval Practice Playground portal (re-renders the
@@ -119,8 +96,7 @@ export default function World() {
       {/* Gradient sky dome + hazy distant islands (W5-E). Sky is cheap → always
           on; islands (island region only) add a little geometry → High only.
           Horizon colour = fog colour so the fogged distance blends in. */}
-      <SkyDome horizon={geo.skyColor} top={isCabin ? "#120c07" : geo.skyTop || undefined} radius={isMagma ? 470 : isJungle || isFarm || isSnow ? 640 : undefined} />
-      {highGfx && isIsland && <DistantIslands />}
+      <SkyDome horizon={geo.skyColor} top={isCabin ? "#120c07" : geo.skyTop || undefined} radius={isMagma ? 470 : isJungle || isFarm || isSnow || isIsland ? 640 : undefined} trueHorizon={isIsland} />
 
       {/* --- Soft-cartoon lighting (W5-A) ---
           A warm key light (soft shadows), a warm sky/ground hemisphere fill, and
@@ -133,14 +109,14 @@ export default function World() {
           brightness (otherwise High just looks washed-out vs Low). */}
       <hemisphereLight
         args={[
-          isFarm ? "#fff0d8" : isSnow ? "#dce6ff" : isCabin ? "#ffcf9e" : isMagma ? "#ffc29a" : isJungle ? "#e4f4ff" : "#fff4e0",
-          isFarm ? "#6f8a4a" : isSnow ? "#8f97b8" : isCabin ? "#3a2716" : isMagma ? "#6a2a1c" : isJungle ? "#4d6e33" : "#a9cf97",
-          isSnow ? (highGfx ? 0.62 : 0.95) : isCabin ? (highGfx ? 0.4 : 0.6) : isMagma ? (highGfx ? 0.75 : 1.15) : isJungle || isFarm ? (highGfx ? 0.62 : 0.95) : highGfx ? 0.45 : 0.8,
+          isFarm ? "#fff0d8" : isSnow ? "#dce6ff" : isCabin ? "#ffcf9e" : isMagma ? "#ffc29a" : isJungle ? "#e4f4ff" : isIsland ? "#eaf6ff" : "#fff4e0",
+          isFarm ? "#6f8a4a" : isSnow ? "#8f97b8" : isCabin ? "#3a2716" : isMagma ? "#6a2a1c" : isJungle ? "#4d6e33" : isIsland ? "#7aa65a" : "#a9cf97",
+          isSnow ? (highGfx ? 0.62 : 0.95) : isCabin ? (highGfx ? 0.4 : 0.6) : isMagma ? (highGfx ? 0.75 : 1.15) : isJungle || isFarm || isIsland ? (highGfx ? 0.62 : 0.95) : highGfx ? 0.45 : 0.8,
         ]}
       />
       <ambientLight intensity={isSnow ? (highGfx ? 0.12 : 0.26) : isCabin ? (highGfx ? 0.16 : 0.28) : highGfx ? 0.12 : 0.28} />
-      {/* Magma Multiples, Emerald Jungle + Fraction Farm bring their OWN player-following key light. */}
-      {!isMagma && !isJungle && !isFarm && !isSnow && <directionalLight
+      {/* Number Island, Magma Multiples, Emerald Jungle, Fraction Farm + Snowball Sums bring their OWN player-following key light. */}
+      {!isMagma && !isJungle && !isFarm && !isSnow && !isIsland && <directionalLight
         position={isFarm ? [-30, 14, 12] : isSnow ? [22, 28, -18] : isCabin ? [-8, 22, 10] : [20, 30, 16]}
         intensity={isFarm ? 1.35 : isSnow ? 0.95 : isCabin ? 0.55 : 1.5}
         color={isFarm ? "#ffd9a0" : isSnow ? "#bdcdff" : isCabin ? "#ffcf9e" : "#fff0cc"}
@@ -165,54 +141,8 @@ export default function World() {
         </Environment>
       )}
 
-      {/* --- ISLAND-1 scenery (the original Number Island) --- */}
-      {isIsland && (
-        <>
-          {/* Water — extends far past the island so the distant islands sit IN
-              the ocean (not floating in the sky); the fog fades it into the sky
-              at the horizon. */}
-          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.3, 0]}>
-            <circleGeometry args={[180, 80]} />
-            <meshStandardMaterial color={geo.oceanColor} />
-          </mesh>
-          {/* The grassy island + sandy beach — an IRREGULAR coastline (W6-D). */}
-          <IslandCoast grassColor={geo.grassColor} beachColor={geo.beachColor} />
-
-          {TREES.map((pos, i) => (
-            <Tree key={i} position={pos} />
-          ))}
-
-          {/* Integer Dunes SNOW region + a soft grass→snow edge + footprints. */}
-          <SnowEdge center={SAND_PATCH.center} radius={SAND_PATCH.radius} grassColor={geo.grassColor} />
-          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[SAND_PATCH.center[0], 0.02, SAND_PATCH.center[1]]} receiveShadow>
-            <circleGeometry args={[SAND_PATCH.radius, 56]} />
-            <meshStandardMaterial color="#eef4f8" />
-          </mesh>
-          <Footprints center={SAND_PATCH.center} radius={SAND_PATCH.radius} color="#aebfca" />
-
-          {/* Fraction Volcano ASH region: ashy grey ground + pebbles + a soft edge
-              + darker footprints. Extends slightly beyond the rock wall. */}
-          <SnowEdge center={ASH_PATCH.center} radius={ASH_PATCH.radius} grassColor={geo.grassColor} innerColor="#7c7f84" />
-          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[ASH_PATCH.center[0], 0.02, ASH_PATCH.center[1]]} receiveShadow>
-            <circleGeometry args={[ASH_PATCH.radius, 56]} />
-            <meshStandardMaterial color="#7c7f84" />
-          </mesh>
-          <AshPebbles center={ASH_PATCH.center} radius={ASH_PATCH.radius} />
-          <Footprints center={ASH_PATCH.center} radius={ASH_PATCH.radius} color="#4b4d50" />
-
-          <WorldPaths />
-          <WorldTerrain />
-          {highGfx && <WindGrass />}
-          <AlgebraMoat />
-          <WorldBridges />
-          <WorldZones />
-          <WorldLandmarks />
-          <WorldBoundaries />
-          <WorldUnlocks />
-          <GuidanceMarker />
-          <ColliderDebug />
-        </>
-      )}
+      {/* --- NUMBER ISLAND (rebuilt 2026-10-09): the hub — see IslandScenery. --- */}
+      {isIsland && <IslandScenery title={title} />}
 
       {/* --- SCHOOLYARD scenery (the second region, W2-B) --- */}
       {regionId === "schoolyard" && <SchoolyardScenery />}
@@ -292,25 +222,31 @@ export default function World() {
           Fraction Farm gate uses the haybale variant; the Snowball Sums gate
           is an igloo; "cabindoor" portals draw NO swirl — their visuals are
           the matching ajar doors (SnowScenery LodgeDoor / CabinScenery). */}
-      {(region.portals || []).map((p) =>
-        p.variant === "cabindoor" ? null : p.variant === "jungle" ? (
-          <JunglePortal key={p.id} position={p.position} rotationY={p.rotationY} label={p.label} y={region.groundHeight ? region.groundHeight(p.position[0], p.position[1]) : 0} />
+      {(region.portals || []).map((p) => {
+        // Gates stand on the ground (the island, farm, snow + jungle roll);
+        // on the big island their labels show only when you're near.
+        const gy = region.groundHeight ? region.groundHeight(p.position[0], p.position[1]) : 0;
+        const lr = isIsland ? 42 : 0;
+        return p.variant === "cabindoor" ? null : p.variant === "jungle" ? (
+          <JunglePortal key={p.id} position={p.position} rotationY={p.rotationY} label={p.label} y={gy} labelRange={lr} />
         ) : p.variant === "volcano" ? (
-          <VolcanoPortal key={p.id} position={p.position} rotationY={p.rotationY} label={p.label} />
+          <VolcanoPortal key={p.id} position={p.position} rotationY={p.rotationY} label={p.label} y={isIsland ? gy : 0} labelRange={lr} />
         ) : p.variant === "igloo" ? (
-          <IglooPortal key={p.id} position={p.position} rotationY={p.rotationY} label={p.label} y={isSnow && region.groundHeight ? region.groundHeight(p.position[0], p.position[1]) : 0} />
+          <IglooPortal key={p.id} position={p.position} rotationY={p.rotationY} label={p.label} y={isSnow || isIsland ? gy : 0} labelRange={lr} />
         ) : p.variant === "haybale" ? (
-          <HaybalePortal key={p.id} position={p.position} rotationY={p.rotationY} label={p.label} y={isFarm && region.groundHeight ? region.groundHeight(p.position[0], p.position[1]) : 0} />
+          <HaybalePortal key={p.id} position={p.position} rotationY={p.rotationY} label={p.label} y={isFarm || isIsland ? gy : 0} labelRange={lr} />
         ) : (
           <Portal
             key={p.id}
             position={p.position}
             rotationY={p.rotationY}
             label={p.label}
+            y={isIsland ? gy : 0}
+            labelRange={lr}
             locked={p.lock === "playground" && playgroundLocked}
           />
-        )
-      )}
+        );
+      })}
 
       {/* Interactables for the ACTIVE region — island NPCs/board/etc., or the
           schoolyard NPCs (Helen/Darby/Elka). Data-driven + region-scoped. */}
@@ -321,11 +257,13 @@ export default function World() {
       {/* Tap-to-move (W4): an invisible ground catcher + a destination marker,
           only in touch mode. Characters/portals sit above the catcher and take
           taps first, so this only fires on empty ground. */}
-      {touchMode && <GroundTapCatcher />}
-      {touchMode && <DestinationMarker />}
+      {touchMode && !title && <GroundTapCatcher />}
+      {touchMode && !title && <DestinationMarker />}
 
-      {/* The student's character (shared across regions; also drives the camera). */}
-      <Player />
+      {/* The student's character (shared across regions; also drives the
+          camera — except on the title screen, where TitleCamera flies it). */}
+      <Player cinematic={title} />
+      {title && <TitleCamera regionId={regionId} />}
 
       {/* Post-processing (W5-B): AO + subtle bloom, High graphics only. */}
       {highGfx && <Effects snow={isSnow} />}

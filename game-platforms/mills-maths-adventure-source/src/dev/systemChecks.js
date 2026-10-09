@@ -10,6 +10,7 @@ import { getMagmaColliders, CRATER_HINT } from "../data/magma/magmaColliders.js"
 import { runMagmaChallengeChecks } from "./magmaChallengeChecks.js";
 import { runJungleChecks } from "./jungleChecks.js";
 import { runFarmWorldChecks } from "./farmWorldChecks.js";
+import { runIslandWorldChecks } from "./islandWorldChecks.js";
 import { CRATER_LIP_STONES } from "../data/magma/magmaProps.js";
 import { makeTriangle, makeQuad, makeGenericQuad, verifyQuad, propertiesOf, SPECIAL_QUADS, TRIANGLE_TYPES } from "../maths/curriculum/stage4/geometry/shapeCatalogue.js";
 import { makeNominal, makeContinuous, makePartsOfWhole, makeTimeSeries, SCENARIOS, TYPE_LABEL } from "../maths/curriculum/stage4/data/datasetGenerator.js";
@@ -60,7 +61,10 @@ import { SPAWN_POINT } from "../data/worldSpawnPoints.js";
 import { getUnlock } from "../data/worldUnlocks.js";
 import { getRegion, getAllRegions, clampToBounds, DEFAULT_REGION_ID } from "../data/regions.js";
 import { playerState, touchInput, requestMoveTo, clearMoveTarget, useSession } from "../game/sessionStore.js";
-import { WORLD_BRIDGES, bridgeApex } from "../data/worldBridges.js";
+import { ROPE_BRIDGE } from "../data/island/islandLayout.js";
+import {
+  islandGroundHeight, islandHazardAt, terrainHeight as islandTerrainHeight, SEA_Y, onPad as islandOnPad, snowCover as islandSnowCover,
+} from "../data/island/islandTerrain.js";
 import { getColliders, PLATEAU, STAIRS, TREE_POSITIONS } from "../data/worldColliders.js";
 import { resolveCircle, groundHeightAt, PLAYER_RADIUS, STEP_UP } from "../systems/collisionEngine.js";
 import { WORLD_BOUNDARIES, getBoundaryColliders } from "../data/worldBoundaries.js";
@@ -298,7 +302,6 @@ import {
   isOnIce, isOnSnow, isPeteSpotOk, terrainHeight as snowTerrainHeight, slopeAt as snowSlopeAt, onPad as onSnowPad,
 } from "../data/snow/snowTerrain.js";
 import { runSnowWorldChecks } from "./snowWorldChecks.js";
-import { SAND_PATCH as ISLAND_SNOW_PATCH } from "../data/worldZones.js";
 import {
   SNOW_CHALLENGE_IDS, SNOW_BEST_KEYS, SNOW_MAX_SCORES, SNOW_TROPHY_META,
   snowBestPercent, snowTrophyRows, snowShelfEntries,
@@ -679,25 +682,12 @@ export function runSystemChecks(progressSnapshot) {
   for (const c of runFarmWorldChecks()) checks.push(c);
   // Snowball Sums rebuilt as a big alpine valley (SW1–SW10).
   for (const c of runSnowWorldChecks()) checks.push(c);
+  // Number Island rebuilt (~2.5× across), the Achievements Wall + the title flyover (IL1–IL10).
+  for (const c of runIslandWorldChecks()) checks.push(c);
 
   return checks;
 }
 
-// Worst WALKABLE gap (arc length, units) around a zone's boundary ring for a
-// given collider set. Ocean counts as sealed. < player diameter ⇒ no bypass.
-function worstRingGap(b, cols) {
-  let run = 0;
-  let maxGap = 0;
-  for (let a = -Math.PI; a < Math.PI; a += 0.008) {
-    const x = b.center[0] + b.radius * Math.cos(a);
-    const z = b.center[1] + b.radius * Math.sin(a);
-    const ocean = Math.hypot(x, z) > WALKABLE_RADIUS;
-    const inside = cols.some((c) => Math.hypot(x - c.x, z - c.z) < c.radius + PLAYER_RADIUS - 0.05);
-    if (ocean || inside) run = 0;
-    else { run += 0.008 * b.radius; maxGap = Math.max(maxGap, run); }
-  }
-  return maxGap;
-}
 
 /**
  * LOCKED-ZONE BOUNDARY CHECKS (Phase 2H-D). Confirm locked zones are sealed
@@ -722,56 +712,20 @@ export function runBoundaryChecks() {
   const colsL = getColliders(lockedSnap);
   const colsU = getColliders(unlockedSnap);
 
-  // Every locked topic zone has a boundary definition.
-  const gated = WORLD_BOUNDARIES.filter((b) => b.unlockId);
-  checks.push({
-    name: "Locked zones have boundary definitions",
-    pass: gated.length >= 3 && gated.every((b) => b.center && b.radius > 0),
-    detail: `${gated.length} gated boundaries`,
-  });
-
-  // Sandbox model: the world is OPEN — each zone is reachable in free-play (a
-  // walkable gap exists at the gate opening even with no badges earned).
-  for (const id of ["bnd-fdp", "bnd-algebra", "bnd-grove"]) {
-    const b = WORLD_BOUNDARIES.find((x) => x.id === id);
-    const gap = b ? worstRingGap(b, colsL) : 0;
-    const label = { "bnd-fdp": "Fraction Volcano", "bnd-algebra": "Algebra Coast", "bnd-grove": "Champion's Grove" }[id];
+  // (2026-10-09) The rebuilt Number Island is an OPEN sandbox with natural
+  // edges (the sea, cliffs, the plaza wall): no zone-boundary arcs, no
+  // gate-fills, no locked-gate hints — every friend is reachable on foot
+  // (the island checks IL4 flood-fill it).
+  {
+    const gateFills = colsL.filter((c) => String(c.id).endsWith("-gatefill"));
+    const hintCols = colsL.filter((c) => String(c.id).startsWith("bnd-") && c.hint);
+    const openU = colsU.filter((c) => c.kind === "gate").length === 0;
     checks.push({
-      name: `${label} reachable in open world`,
-      pass: gap > PASS,
-      detail: `walkable gap ${gap.toFixed(2)}u > ${PASS}`,
+      name: "Island is open: no zone boundaries, gate-fills or locked hints",
+      pass: WORLD_BOUNDARIES.length === 0 && gateFills.length === 0 && hintCols.length === 0 && openU,
+      detail: `${WORLD_BOUNDARIES.length} boundary arcs, ${gateFills.length} gate-fills, ${hintCols.length} hint colliders`,
     });
   }
-
-  // Unlocking opens the path (a walkable gap appears).
-  const fdp = WORLD_BOUNDARIES.find((x) => x.id === "bnd-fdp");
-  const openGap = worstRingGap(fdp, colsU);
-  checks.push({
-    name: "Unlocking opens the intended path",
-    pass: openGap > PASS,
-    detail: `unlocked gap ${openGap.toFixed(1)}u`,
-  });
-
-  // Decorative boundary blockers (rocks/cacti/river/hedge) remain, but in the
-  // OPEN sandbox there are NO gate-fills sealing the gate openings.
-  const boundaryCols = colsL.filter((c) => c.kind === "boundary");
-  const gateFills = colsL.filter((c) => c.id.endsWith("-gatefill"));
-  checks.push({
-    name: "Boundary blockers remain; no gate-fill (open world)",
-    pass: boundaryCols.length >= 20 && gateFills.length === 0,
-    detail: `${boundaryCols.length} blockers, ${gateFills.length} gate-fills`,
-  });
-
-  // In the OPEN sandbox there are no "locked gate" hints on the boundaries
-  // (nothing is sealed), and none when unlocked either.
-  const fdpHint = colsL.find((c) => c.id.startsWith("bnd-fdp") && c.hint)?.hint || "";
-  const algHint = colsL.find((c) => c.id.startsWith("bnd-algebra") && c.hint)?.hint || "";
-  const fdpUnlockedHint = colsU.find((c) => c.id.startsWith("bnd-fdp"))?.hint || null;
-  checks.push({
-    name: "No locked-gate hints in the open world",
-    pass: fdpHint === "" && algHint === "" && fdpUnlockedHint === null,
-    detail: `fdpHint:'${fdpHint}' algHint:'${algHint}' unlockedHint:${fdpUnlockedHint}`,
-  });
 
   // Region system (W2): the active region is valid and the player clamp keeps a
   // far-away point inside the region's bounds.
@@ -920,8 +874,8 @@ export function runCameraChecks() {
     detail: "localStorage round-trip ok",
   });
 
-  // Plateau/stairs data + a player can stand on the plateau (ground = height).
-  const standOk = groundHeightAt(PLATEAU.x, PLATEAU.z) === PLATEAU.height && PLATEAU.height > 0;
+  // Plateau/stairs data + a player can stand on the plaza deck (ground = deck).
+  const standOk = Math.abs(groundHeightAt(HUB_POINT.x, HUB_POINT.z) - PLATEAU.height) < 1e-6 && PLATEAU.height > PLATEAU.base;
   checks.push({
     name: "Player can stand on the plaza plateau",
     pass: standOk && STAIRS.length >= 2,
@@ -929,12 +883,13 @@ export function runCameraChecks() {
   });
 
   // The stairs are fully WALKABLE (no step exceeds STEP_UP) so students are
-  // never blocked from the plaza.
-  let prevH = 0;
+  // never blocked from the plaza (per flight, from the plaza's base level).
+  let prevH = PLATEAU.base;
   let walkable = true;
-  for (const s of [...STAIRS].sort((a, b) => a.height - b.height)) {
-    if (s.height - prevH > STEP_UP + 1e-9) walkable = false;
-    prevH = s.height;
+  const flight0 = STAIRS.filter((st) => st.flight === STAIRS[0].flight);
+  for (const st of [...flight0].sort((a, b) => a.height - b.height)) {
+    if (st.height - prevH > STEP_UP + 1e-9) walkable = false;
+    prevH = st.height;
   }
   if (PLATEAU.height - prevH > STEP_UP + 1e-9) {
     // final rise onto plateau may need a jump — that's fine, but ensure the jump
@@ -1002,32 +957,29 @@ export function runCollisionChecks() {
     detail: `${cols.length} colliders (trees:${TREE_POSITIONS.length})`,
   });
 
-  // Arched bridge (W5-E): the deck rises to ~apex in the middle and returns to
-  // ~0 at the ends, the climb per player-step stays walkable (≤ STEP_UP), and
-  // rail colliders exist so the moat can't be bypassed.
+  // (2026-10-09) Alby's ROPE BRIDGE (the rebuilt island's bridge, out to the
+  // lighthouse islet): walked as the player walks it — layered ground, every
+  // step ≤ STEP_UP, never in the deep water, with height-banded rails.
   {
-    const b = WORLD_BRIDGES[0];
-    const apex = bridgeApex(b.id);
-    const mid = groundHeightAt(apex.x, apex.z);
-    const endA = groundHeightAt(b.from[0], b.from[1]);
-    const endB = groundHeightAt(b.to[0], b.to[1]);
-    // Walk the centre line and track the biggest height jump over a ~0.12u step.
-    let maxStep = 0;
+    const b = ROPE_BRIDGE;
     const dx = b.to[0] - b.from[0], dz = b.to[1] - b.from[1];
-    let prev = 0;
-    for (let s = 0; s <= 1.0001; s += 0.01) {
-      const h = groundHeightAt(b.from[0] + dx * s, b.from[1] + dz * s);
-      const len = Math.hypot(dx, dz);
-      const stepFrac = 0.12 / len; // ~one frame of movement
-      if (s > 0) maxStep = Math.max(maxStep, Math.abs(h - prev) * (stepFrac / 0.01));
-      prev = h;
+    const L = Math.hypot(dx, dz);
+    let y = islandGroundHeight(b.from[0] - (dx / L) * 2, b.from[1] - (dz / L) * 2);
+    let maxStep = 0, wet = false, minY = Infinity;
+    for (let d = -2; d <= L + 2; d += 0.12) {
+      const x = b.from[0] + (dx / L) * d, z = b.from[1] + (dz / L) * d;
+      const h = islandGroundHeight(x, z, y);
+      maxStep = Math.max(maxStep, h - y);
+      if (islandHazardAt(x, z, h)) wet = true;
+      y = h;
+      if (d > 2 && d < L - 2) minY = Math.min(minY, h);
     }
-    const rails = cols.filter((c) => c.boundaryType === "rail").length;
-    const ok = mid > b.apex * 0.9 && endA < 0.15 && endB < 0.15 && maxStep <= STEP_UP && rails >= 8;
+    const rails = cols.filter((c) => String(c.id).startsWith("island-rail-rope-bridge")).length;
+    const ok = maxStep <= STEP_UP && !wet && minY > SEA_Y + 1 && rails >= 8;
     checks.push({
-      name: "Arched bridge is walkable up-and-over",
+      name: "Rope bridge is walkable end to end",
       pass: ok,
-      detail: `apex=${mid.toFixed(2)} ends=${endA.toFixed(2)}/${endB.toFixed(2)} step=${maxStep.toFixed(3)} rails=${rails}`,
+      detail: `max step ${maxStep.toFixed(3)} · dry ${!wet} · deck ≥ ${minY.toFixed(2)} · rails ${rails}`,
     });
   }
 
@@ -1072,9 +1024,9 @@ export function runCollisionChecks() {
 
   // Plateau/stairs height-field exists and is consistent.
   const heightOk =
-    PLATEAU.height > 0 && STAIRS.length >= 2 &&
-    groundHeightAt(PLATEAU.x, PLATEAU.z) === PLATEAU.height &&
-    groundHeightAt(40, 40) === 0;
+    PLATEAU.height > PLATEAU.base && STAIRS.length >= 2 &&
+    Math.abs(groundHeightAt(HUB_POINT.x, HUB_POINT.z) - PLATEAU.height) < 1e-6 &&
+    Math.abs(groundHeightAt(40, 40) - islandTerrainHeight(40, 40)) < 1e-6;
   checks.push({
     name: "Plateau/stairs height-field exists",
     pass: heightOk,
@@ -1084,14 +1036,15 @@ export function runCollisionChecks() {
   // The plaza stairs are fully WALKABLE (no rise exceeds STEP_UP) so students
   // are never blocked from the Mission Plaza; a Shift jump is an optional
   // shortcut up the plateau side (Phase 2H-C).
-  const sorted = [...STAIRS].sort((a, b) => a.height - b.height);
-  let prevH = 0;
   let allWalkable = true;
-  for (const s of sorted) {
-    if (s.height - prevH > STEP_UP + 1e-9) allWalkable = false;
-    prevH = s.height;
+  for (const fid of new Set(STAIRS.map((st) => st.flight))) {
+    let prevH = PLATEAU.base;
+    for (const st of STAIRS.filter((x) => x.flight === fid).sort((a, b) => a.height - b.height)) {
+      if (st.height - prevH > STEP_UP + 1e-9) allWalkable = false;
+      prevH = st.height;
+    }
+    if (PLATEAU.height - prevH > STEP_UP + 1e-9) allWalkable = false;
   }
-  if (PLATEAU.height - prevH > STEP_UP + 1e-9) allWalkable = false;
   checks.push({
     name: "Plaza stairs fully walkable (no dead-ends)",
     pass: allWalkable,
@@ -5798,14 +5751,14 @@ export function runSnowChecks() {
   const toIslandBack = (snow.portals || []).find((p) => p.target === "island-1");
   const islandCols2 = getColliders({ completedMissions: [], earnedBadges: [], completedEncounters: [] }, "island-1");
   const gateClear2 = toSnow && islandCols2.every((c) => Math.hypot(c.x - toSnow.position[0], c.z - toSnow.position[1]) > c.radius + toSnow.radius);
-  const dunes = getZone("zone-integers");
-  const grovePortal = (island.portals || []).find((p) => p.target === "schoolyard");
+  // (2026-10-09) On the rebuilt island the igloo stands in Igloo Hollow, on
+  // the snow on Frosty Peak's flank, above Pip's number line.
+  const pip = getZone("zone-integers");
   const gatePlaced = Boolean(toSnow) &&
     toSnow.variant === "igloo" &&
-    toSnow.position[0] > dunes.center[0] && toSnow.position[0] < grovePortal.position[0] && // east of the dunes, west of the grove portal
-    Math.hypot(toSnow.position[0] - dunes.center[0], toSnow.position[1] - dunes.center[1]) > dunes.radius + 2 && // clear of Pip's clearing
-    Math.hypot(toSnow.position[0] - grovePortal.position[0], toSnow.position[1] - grovePortal.position[1]) > 8 && // clear of the grove ring
-    Math.hypot(toSnow.position[0] - ISLAND_SNOW_PATCH.center[0], toSnow.position[1] - ISLAND_SNOW_PATCH.center[1]) < ISLAND_SNOW_PATCH.radius; // ON the snow
+    islandOnPad("igloo", toSnow.position[0], toSnow.position[1]) &&
+    islandSnowCover(toSnow.position[0], toSnow.position[1]) > 0.5 &&
+    Math.hypot(toSnow.position[0] - pip.center[0], toSnow.position[1] - pip.center[1]) > pip.radius + 2;
   const sn1 =
     snow && snow.bounds === SNOW_BOUNDS && SNOW_BOUNDS.shape === "rect" &&
     SNOW_BOUNDS.width === FARM_BOUNDS.width && SNOW_BOUNDS.height === FARM_BOUNDS.height && // the (rebuilt) farm's footprint
@@ -5815,7 +5768,7 @@ export function runSnowChecks() {
     gatePlaced && gateClear2 && Boolean(toIslandBack) &&
     Math.hypot(toIslandBack.position[0] - SNOW_SPAWN.x, toIslandBack.position[1] - SNOW_SPAWN.z) > toIslandBack.radius + 1;
   checks.push({
-    name: "Snow region: farm-sized valley + igloo gate east of Integer Dunes",
+    name: "Snow region: farm-sized valley + igloo gate in Igloo Hollow",
     pass: sn1,
     detail: sn1 ? `${SNOW_BOUNDS.width}×${SNOW_BOUNDS.height}, gate (${toSnow.position[0]}, ${toSnow.position[1]})` : "region/gate wrong",
   });
@@ -7666,8 +7619,9 @@ export function runMagmaChecks() {
     region.bounds === MAGMA_BOUNDS && region.groundHeight === magmaGroundHeight &&
     region.isLava === magmaIsLava && region.slideAt === magmaSlideAt && region.isSafe === magmaIsSafe &&
     region.cameraTerrainClamp === true && region.maxFrameDelta > 0 && region.maxFrameDelta <= 0.1;
+  // (2026-10-09) On the rebuilt island it stands on the Ember Terrace.
   const islandGateOk = Boolean(toMagma) && toMagma.variant === "volcano" &&
-    Math.hypot(toMagma.position[0], toMagma.position[1]) < 37 &&
+    islandOnPad("terrace", toMagma.position[0], toMagma.position[1]) &&
     colliders.length > 0 &&
     getColliders({}, "island-1").every((c) => Math.hypot(c.x - toMagma.position[0], c.z - toMagma.position[1]) > c.radius + 2.2);
   const backOk = Boolean(back) && back.variant === "volcano" && landSD(back.position[0], back.position[1]) > 3 &&

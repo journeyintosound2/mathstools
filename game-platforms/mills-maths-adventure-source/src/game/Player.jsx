@@ -47,6 +47,7 @@ import {
 import { farmChallengeView, FARM_CAMERA_SHAKES, ROUNDUP_CAM_YAW } from "../data/farm/farmCameras.js";
 import { challengePadY } from "../data/farm/farmTerrain.js";
 import { snowChallengeView, snowParkSpot, SNOW_DOCK_LIFT } from "../data/snow/snowCameras.js";
+import { wallViewCamera } from "../data/island/wallView.js";
 import { challengePadY as snowStagePadY } from "../data/snow/snowTerrain.js";
 
 // The Snowball Sums challenge cameras live in data/snow/snowCameras.js (one
@@ -183,10 +184,10 @@ export const CAMERA_DISTANCE_VALUE = CAMERA_DISTANCE; // re-export for DevPanel
  * always means "away from the camera, into the screen" no matter which way the
  * camera is facing — keeping the controls feeling natural after rotating.
  */
-export default function Player() {
+export default function Player({ cinematic = false }) {
   const group = useRef();
   const keys = useKeyboard();
-  const { camera, scene: devScene } = useThree();
+  const { camera, scene: devScene, gl: devGl } = useThree();
 
   const profile = useProgress((s) => s.profile);
   const activeEncounterId = useSession((s) => s.activeEncounterId);
@@ -198,6 +199,9 @@ export default function Player() {
   const snowChallenge = useActiveSnowChallenge();
   // …and the same for a running Magma Multiples challenge.
   const magmaChallenge = useActiveMagmaChallenge();
+  // Looking at the Achievements Wall (Number Island) — a first-person look,
+  // so the avatar steps out of the way.
+  const wallView = useUI((s) => s.wallView);
 
   // Colliders depend on unlock-affecting progress AND the active region → rebuild
   // only when those change (not every frame).
@@ -241,9 +245,22 @@ export default function Player() {
   // in) only block at those heights — e.g. the treehouse railings 20 m up, a
   // stair's balustrade, or a leaf pole below its pad.
   const hasYRange = useMemo(() => colliders.some((c) => c.yMin !== undefined || c.yMax !== undefined), [colliders]);
+  // Title screen: the player stands still (hidden) while TitleCamera flies
+  // the camera. When play starts, the camera GLIDES in from the flyover to
+  // its spot behind the player (a slower ease for the first moments).
+  const wasCinematic = useRef(cinematic);
+  const introGlide = useRef(0);
+  const _dir = useMemo(() => new THREE.Vector3(), []);
 
   useFrame((_, delta) => {
     if (!group.current) return;
+    if (cinematic) { wasCinematic.current = true; return; }
+    if (wasCinematic.current) {
+      wasCinematic.current = false;
+      introGlide.current = 2.2;
+      camera.getWorldDirection(_dir);
+      camLook.current.copy(camera.position).addScaledVector(_dir, 30);
+    }
 
     // Teleport request (Return to Hub / DevPanel) — snap and clear.
     if (playerState.teleport) {
@@ -263,10 +280,12 @@ export default function Player() {
           ? { x: playerState.teleport.x, y: 0, z: playerState.teleport.z }
           : { x: tr.spawn.x, y: 0, z: tr.spawn.z };
         // Regions with a signature view (Magma Multiples: the volcano) turn
-        // the player + camera to face it on arrival.
-        if (typeof tr.arriveYaw === "number") {
-          camYaw.current = tr.arriveYaw;
-          group.current.rotation.y = tr.arriveYaw + Math.PI;
+        // the player + camera to face it on arrival; a door-to-door arrival
+        // (a world gate on Number Island) brings its own yaw.
+        const ay = typeof playerState.teleport.yaw === "number" ? playerState.teleport.yaw : tr.arriveYaw;
+        if (typeof ay === "number") {
+          camYaw.current = ay;
+          group.current.rotation.y = ay + Math.PI;
         }
       }
       lavaFlight.current = false;
@@ -292,9 +311,13 @@ export default function Player() {
     if (region.maxFrameDelta) delta = Math.min(delta, region.maxFrameDelta);
 
     const k = keys.current;
+    // The Achievements Wall look (island only — leaving the island closes it).
+    let wv = useUI.getState().wallView;
+    if (wv && region.id !== "island-1") { useUI.getState().closeWall(); wv = null; }
     // Freeze locomotion while an encounter modal is open OR in first-person look
-    // mode (in FPV the arrow/WASD keys steer the camera instead of the player).
-    const frozen = Boolean(activeEncounterId) || fpv;
+    // mode (in FPV the arrow/WASD keys steer the camera instead of the player),
+    // OR while looking at the Achievements Wall (the arrows pick boards there).
+    const frozen = Boolean(activeEncounterId) || fpv || Boolean(wv);
 
     // Fence Challenge mode (F2): fixed side-on camera + left/right-only walking
     // along the fence. Active for the whole challenge (placing → done).
@@ -869,11 +892,13 @@ export default function Player() {
         lavaFlight.current = true;
         if (playerState.moveTarget) clearMoveTarget();
         playerState.lavaHit = { x: pos.x, y: pos.y, z: pos.z, t: Date.now() };
-        // (Regions name their own hazard: Magma's lava, the snow world's icy lake.)
-        playerState.blockedHint = region.hazardHint || LAVA_HINT;
+        // (Regions name their own hazard: Magma's lava, the snow world's icy
+        // lake; Number Island has two — the deep sea and Ember Peak's lava.)
+        const hz = region.hazardInfo ? region.hazardInfo(pos.x, pos.z) : null;
+        playerState.blockedHint = (hz && hz.hint) || region.hazardHint || LAVA_HINT;
         playerState.blockedIcon = "";
         playerState.blockedExpiry = Date.now() + 2600;
-        useUI.getState().playSound(region.hazardSound || "lava");
+        useUI.getState().playSound((hz && hz.sound) || region.hazardSound || "lava");
       } else if (grounded.current && !lavaFlight.current && !onFace) {
         // Remember solid ground (re-checked every ~0.4 m, not every frame).
         const ls = lastSafe.current;
@@ -928,7 +953,7 @@ export default function Player() {
             // Door-to-door travel (CB): land AT the matching doorway rather
             // than the region spawn (overrides setRegion's spawn teleport).
             if (portal.arrive) {
-              playerState.teleport = { x: portal.arrive[0], z: portal.arrive[1] };
+              playerState.teleport = { x: portal.arrive[0], z: portal.arrive[1], yaw: portal.arriveYaw };
             }
           }
           break;
@@ -938,7 +963,19 @@ export default function Player() {
 
     const p = group.current.position;
 
-    if (fpv) {
+    if (wv) {
+      fpvInit.current = false;
+      // --- The Achievements Wall look: the camera glides from behind the
+      // player to eye height in front of the wall (the whole wall, or one
+      // world's board up close — data/island/wallView.js frames each from
+      // the live fov/aspect). Position + look ease in → a smooth glide.
+      const view = wallViewCamera(wv.panel, camera.fov, camera.aspect);
+      if (!lockedPrev.current) camLook.current.set(p.x, p.y + 1.6, p.z);
+      camTarget.current.set(view.pos[0], view.pos[1], view.pos[2]);
+      camera.position.lerp(camTarget.current, 1 - Math.pow(0.004, delta));
+      camLook.current.lerp({ x: view.look[0], y: view.look[1], z: view.look[2] }, 1 - Math.pow(0.002, delta));
+      camera.lookAt(camLook.current);
+    } else if (fpv) {
       // --- First-person look (W6): camera at the eyes; arrows/WASD pan the view.
       if (!fpvInit.current) { fpvYaw.current = group.current.rotation.y; fpvPitch.current = 0; fpvInit.current = true; }
       const LOOK = 1.7 * delta;
@@ -1023,21 +1060,36 @@ export default function Player() {
         const minY = groundAt(camTarget.current.x, camTarget.current.z) + CAM_TERRAIN_CLEARANCE;
         if (camTarget.current.y < minY) camTarget.current.y = minY;
       }
-      camera.position.lerp(camTarget.current, 1 - Math.pow(0.001, delta));
+      if (introGlide.current > 0) {
+        // The title flyover → the game: a slower SWOOP down behind the
+        // player — the camera stays high while it's far away (clear of the
+        // rooftops + trees) and settles as it arrives.
+        introGlide.current -= delta;
+        const e = 1 - Math.pow(0.06, delta);
+        const far = Math.hypot(camera.position.x - camTarget.current.x, camera.position.z - camTarget.current.z);
+        const lift = Math.min(28, far * 0.45);
+        camera.position.x += (camTarget.current.x - camera.position.x) * e;
+        camera.position.z += (camTarget.current.z - camera.position.z) * e;
+        camera.position.y += (Math.max(camTarget.current.y + lift, Math.min(camera.position.y, camTarget.current.y + lift + 6)) - camera.position.y) * e;
+        camLook.current.lerp({ x: p.x, y: p.y + 1, z: p.z }, 1 - Math.pow(0.02, delta));
+      } else {
+        camera.position.lerp(camTarget.current, 1 - Math.pow(0.001, delta));
+      }
       if (region.cameraTerrainClamp) {
         const minY = groundAt(camera.position.x, camera.position.z) + 1.0;
         if (camera.position.y < minY) camera.position.y = minY;
       }
-      camera.lookAt(p.x, p.y + 1, p.z);
+      if (introGlide.current > 0) camera.lookAt(camLook.current);
+      else camera.lookAt(p.x, p.y + 1, p.z);
     }
     // Dev-only photo camera (headless screenshots): playerState.devCam =
     // { pos: [x,y,z], look: [x,y,z] } overrides the view. Never set in play.
-    if (import.meta.env.DEV) { window.__cam = camera; window.__scene = devScene; }
+    if (import.meta.env.DEV) { window.__cam = camera; window.__scene = devScene; window.__gl = devGl; window.__ps = playerState; window.__ui = useUI; window.__session = useSession; }
     if (import.meta.env.DEV && playerState.devCam) {
       camera.position.set(...playerState.devCam.pos);
       camera.lookAt(...playerState.devCam.look);
     }
-    lockedPrev.current = fenceMode || roundUpMode || orderMode || crateMode || milkMode || weighMode || tradeMode || veggieMode || plankMode || shopMode || Boolean(stageMode);
+    lockedPrev.current = fenceMode || roundUpMode || orderMode || crateMode || milkMode || weighMode || tradeMode || veggieMode || plankMode || shopMode || Boolean(stageMode) || Boolean(wv);
   });
 
   // The player's initial position = the active region's spawn (island-1 default).
@@ -1049,7 +1101,7 @@ export default function Player() {
           (primitive avatar fallback until the model loads). HIDDEN in
           first-person view so the camera (at the eyes) never sits inside the
           character mesh. */}
-      <group visible={!fpv && !snowChallenge && !magmaChallenge}>
+      <group visible={!cinematic && !fpv && !snowChallenge && !magmaChallenge && !wallView}>
         <PlayerCharacter profile={profile} />
         {/* Snowball Sums: a sled under your feet on a toboggan chute, a
             chair under you on the chairlift. */}

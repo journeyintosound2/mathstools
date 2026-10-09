@@ -27,6 +27,9 @@ import {
 } from "./snow/snowLayout.js";
 import { CABIN_PIP } from "./cabin/cabinLayout.js";
 import {
+  PIP_SPOT, FERN_SPOT, ALBY_SPOT, MILLS_SPOT, MISSION_BOARD_POS, TROPHY_STAND_POS, ISLAND_CHEST_SPOTS,
+} from "./island/islandLayout.js";
+import {
   MAGMA_CHALLENGES, magmaHostId, magmaHostWorld, MAGMA_WELCOME_HOST, MAGMA_RECORDS_STAND,
 } from "./magma/magmaChallenges.js";
 import { MAGMA_REGION_ID } from "./magma/magmaLayout.js";
@@ -67,11 +70,9 @@ const SCHOOLYARD_NPCS = SCHOOLYARD_CHARACTERS.map((c) => ({
 }));
 
 // Random treasure-chest spot (W6-B): chosen once per load from hand-picked open
-// grassy spots that are clear of the plaza, the topic zones, the grove and the
-// Algebra moat/bridge — so the chest is always reachable and never buried.
-const CHEST_SPOTS = [
-  [12, -2], [-12, -2], [-10, 19], [10, 19], [-14, -20], [14, -20],
-];
+// grassy spots round the island (ISLAND_CHEST_SPOTS — clear of every gate,
+// path, building and the water; the island checks walk to each one).
+const CHEST_SPOTS = ISLAND_CHEST_SPOTS;
 export const RANDOM_CHEST_POS = CHEST_SPOTS[Math.floor(Math.random() * CHEST_SPOTS.length)];
 
 // Random FARM treasure-chest spot — the same idea as the island chest, but
@@ -91,7 +92,7 @@ export const INTERACTABLES = [
     encounterId: "maths-integers",
     model: "npc",
     color: "#ff8a5c",
-    position: [-25, -16], // Integer Dunes
+    position: PIP_SPOT.position, // Pip's number line, under Frosty Peak
     promptLabel: "Talk to Pip",
     collision: { type: "circle", radius: 0.7, enabled: true },
     interactionRadius: 3.6,
@@ -102,7 +103,7 @@ export const INTERACTABLES = [
     encounterId: "maths-fractions",
     model: "npc",
     color: "#9b8cff",
-    position: [25, -16], // Fraction Volcano
+    position: FERN_SPOT.position, // Fern's ash fields, under Ember Peak
     promptLabel: "Talk to Fern",
     collision: { type: "circle", radius: 0.7, enabled: true },
     interactionRadius: 3.6,
@@ -113,7 +114,7 @@ export const INTERACTABLES = [
     encounterId: "maths-algebra",
     model: "npc",
     color: "#4fc3f7",
-    position: [25, 16], // Algebra Coast
+    position: ALBY_SPOT.position, // Alby's lighthouse islet
     promptLabel: "Talk to Alby",
     collision: { type: "circle", radius: 0.7, enabled: true },
     interactionRadius: 3.6,
@@ -126,7 +127,7 @@ export const INTERACTABLES = [
     encounterId: "dialogue-sage",
     model: "npc",
     color: "#52b788",
-    position: [5, 16], // down near the spawn point (off the plaza) — W6-C
+    position: MILLS_SPOT.position, // on Harbour Green, welcoming arrivals
     promptLabel: "Talk to Mills",
     collision: { type: "circle", radius: 0.7, enabled: true },
     interactionRadius: 3.6,
@@ -138,9 +139,11 @@ export const INTERACTABLES = [
     id: "mission-board",
     name: "Mission Board",
     encounterId: "mission-board",
-    model: "board",
+    // The noticeboard itself is drawn by the island scenery (a timber-roofed
+    // board on the plaza); this is its interaction + badge.
+    model: "none",
     color: "#2a9d8f",
-    position: [-5, 0], // left side of the plaza (spaced from the Trophy Stand)
+    position: MISSION_BOARD_POS, // west side of the plaza
     promptLabel: "Read the Mission Board",
     collision: { type: "circle", radius: 1.2, enabled: true },
     interactionRadius: 3.8,
@@ -150,9 +153,10 @@ export const INTERACTABLES = [
     id: "trophy-stand",
     name: "Trophy Stand",
     encounterId: "trophy-board",
-    model: "trophy",
+    // The golden trophy on its plinth is drawn by the island scenery.
+    model: "none",
     color: "#ffd166",
-    position: [5, 0], // right side of the plaza (spaced from the Mission Board)
+    position: TROPHY_STAND_POS, // east side of the plaza
     promptLabel: "View your trophies",
     collision: { type: "circle", radius: 0.7, enabled: true },
     interactionRadius: 3.6,
