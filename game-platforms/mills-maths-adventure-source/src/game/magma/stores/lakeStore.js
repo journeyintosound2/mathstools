@@ -43,7 +43,7 @@ export const useLakeChallenge = createMagmaStore({
       if (!c.valid) return "invalid";
       if (c.correct) api.award(LAKE_ANSWER_POINTS);
       set({ answerCorrect: c.correct });
-      api.endRound();
+      api.endRound({ ok: c.correct });
       return c.correct ? "correct" : "wrong";
     },
   }),

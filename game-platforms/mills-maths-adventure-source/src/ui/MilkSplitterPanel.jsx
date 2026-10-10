@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import RoundCelebrate from "./RoundCelebrate.jsx";
 
 import { useMilkSplitter } from "../game/milkSplitterStore.js";
 import { useSession, playerState } from "../game/sessionStore.js";
@@ -80,16 +81,10 @@ export default function MilkSplitterPanel() {
     }
   }, [status, aCorrect, bCorrect]);
 
-  // Celebrate → auto-next.
-  useEffect(() => {
-    if (status !== "celebrate") return undefined;
-    const t = setTimeout(() => useMilkSplitter.getState().next(), CELEBRATE_MS);
-    return () => clearTimeout(t);
-  }, [status, roundIndex]);
 
   if (status === "idle") return null;
 
-  const inPlay = ["predicting", "pouring", "labelling", "celebrate"].includes(status);
+  const inPlay = ["predicting", "pouring", "labelling"].includes(status);
 
   return (
     <div className="farm-challenge-panel">
@@ -135,6 +130,12 @@ export default function MilkSplitterPanel() {
             </button>
           </div>
         </div>
+      )}
+
+      {status === "celebrate" && round && (
+        <RoundCelebrate useStore={useMilkSplitter} ms={CELEBRATE_MS}>
+          {round.n} L shared by {round.d} — {round.isTerminating ? "it stops ✋" : "it repeats forever 🔁"}
+        </RoundCelebrate>
       )}
 
       {status === "feedback" && round && (

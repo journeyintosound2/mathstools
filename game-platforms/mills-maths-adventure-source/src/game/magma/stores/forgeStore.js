@@ -77,7 +77,7 @@ export const useForgeChallenge = createMagmaStore({
         const first = !get().finalMissed;
         if (first) api.award(FORGE_FINAL_POINTS);
         set({ finalCorrect: first });
-        api.endRound();
+        api.endRound({ ok: true });
       }
       return "correct";
     },

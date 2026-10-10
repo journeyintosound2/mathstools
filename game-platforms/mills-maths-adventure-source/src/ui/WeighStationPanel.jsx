@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import RoundCelebrate from "./RoundCelebrate.jsx";
 
 import { useWeighStation } from "../game/weighStationStore.js";
 import { useSession, playerState } from "../game/sessionStore.js";
@@ -73,12 +74,6 @@ export default function WeighStationPanel() {
     }
   }, [status, roundIndex]);
 
-  // Celebrate → auto-next.
-  useEffect(() => {
-    if (status !== "celebrate") return undefined;
-    const t = setTimeout(() => useWeighStation.getState().next(), CELEBRATE_MS);
-    return () => clearTimeout(t);
-  }, [status, roundIndex]);
 
   if (status === "idle") return null;
 
@@ -192,13 +187,9 @@ export default function WeighStationPanel() {
       )}
 
       {status === "celebrate" && round && (
-        <div className="farm-challenge-card mini">
-          <div className="farm-challenge-head">
-            <span>
-              ✓ {round.kind === "round" ? `${round.exactStr} ≈ ${round.correctStr}` : "Spot on!"} · {score} pts
-            </span>
-          </div>
-        </div>
+        <RoundCelebrate useStore={useWeighStation} ms={CELEBRATE_MS} working={round.working || round.reason}>
+              {round.kind === "round" ? `${round.exactStr} ≈ ${round.correctStr}` : "Spot on!"}
+        </RoundCelebrate>
       )}
 
       {status === "feedback" && round && (

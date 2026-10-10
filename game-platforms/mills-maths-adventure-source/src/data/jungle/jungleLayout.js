@@ -413,6 +413,9 @@ export const JUNGLE_SPAWN = { x: 0, z: 134.5 };
 export const JUNGLE_RETURN_PORTAL = [-8.2, 142.2];
 export const JUNGLE_RETURN_PORTAL_YAW = Math.atan2(8.2, -5.2); // faces the glade centre
 export const JUNGLE_WELCOME_SIGN = { position: [5.6, 129.5], rotationY: -0.3, text: "Welcome to the Emerald Jungle" };
+// The painted MAP board (2026-10-10) on the glade's west side, facing the
+// arrivals. Interact with it to open the full-screen map + set a waypoint.
+export const JUNGLE_MAP_BOARD = { position: [-9.5, 136], rotationY: Math.atan2(0 + 9.5, 134.5 - 136) };
 
 export const JUNGLE_SPOTS = [
   { id: "palm", label: "Palm Grove", center: [-25, 101], radius: 7.5 },

@@ -4,6 +4,7 @@ import { useSnowballRange } from "../game/snowballRangeStore.js";
 import { useSession, playerState } from "../game/sessionStore.js";
 import { RANGE_ROUNDS_PER_SET } from "../data/snow/snowballRangeChallenge.js";
 import { SnowIntro, SnowRoundHead, SnowWorking } from "./SnowCardParts.jsx";
+import RoundCelebrate from "./RoundCelebrate.jsx";
 
 /**
  * SNOWBALL RANGE — 2D panel (SR). Weigh-Station pacing: SPLIT the handful
@@ -75,12 +76,6 @@ export default function SnowballRangePanel() {
     }
   }, [status, roundIndex, attempts]);
 
-  // Celebrate → auto-next.
-  useEffect(() => {
-    if (status !== "celebrate") return undefined;
-    const t = setTimeout(() => useSnowballRange.getState().next(), CELEBRATE_MS);
-    return () => clearTimeout(t);
-  }, [status, roundIndex]);
 
   if (status === "idle") return null;
 
@@ -199,13 +194,9 @@ export default function SnowballRangePanel() {
       )}
 
       {status === "celebrate" && round && (
-        <div className="farm-challenge-card mini">
-          <div className="farm-challenge-head">
-            <span>
-              ✓ {round.start} + {round.comp} = {round.nextTen}, then + {round.rest} = {round.sum}! · ⭐ {score}
-            </span>
-          </div>
-        </div>
+        <RoundCelebrate useStore={useSnowballRange} ms={CELEBRATE_MS} working={round.working || round.reason}>
+              {round.start} + {round.comp} = {round.nextTen}, then + {round.rest} = {round.sum}!
+        </RoundCelebrate>
       )}
 
       {status === "feedback" && round && (

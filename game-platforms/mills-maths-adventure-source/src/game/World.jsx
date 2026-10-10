@@ -39,6 +39,7 @@ import { isOnSnow, terrainHeight as snowTerrainHeight } from "../data/snow/snowT
 import SnowStage from "./snow/SnowStage.jsx";
 import Portal, { HaybalePortal, IglooPortal, VolcanoPortal, JunglePortal } from "./Portal.jsx";
 import JungleScenery from "./JungleScenery.jsx";
+import WaypointBeacon from "./maps/WaypointBeacon.jsx";
 import { JUNGLE_REGION_ID, isOnJunglePath, terrainHeight as jungleTerrainHeight } from "../data/jungle/jungleLayout.js";
 import MagmaScenery from "./MagmaScenery.jsx";
 import { MAGMA_REGION_ID, isOnAsh, magmaGroundHeight } from "../data/magma/magmaLayout.js";
@@ -255,6 +256,9 @@ export default function World({ title = false }) {
       {/* Tap-to-move (W4): an invisible ground catcher + a destination marker,
           only in touch mode. Characters/portals sit above the catcher and take
           taps first, so this only fires on empty ground. */}
+      {/* The waypoint set on the world map: a column of light to walk to. */}
+      {!title && <WaypointBeacon />}
+
       {touchMode && !title && <GroundTapCatcher />}
       {touchMode && !title && <DestinationMarker />}
 

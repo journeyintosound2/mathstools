@@ -62,7 +62,7 @@ export const useTerracesChallenge = createMagmaStore({
       if (!c.valid) return "invalid";
       if (c.correct) api.award(terracePoints(r).result);
       set({ typedCorrect: c.correct });
-      api.endRound();
+      api.endRound({ ok: c.correct });
       return c.correct ? "correct" : "wrong";
     },
     onEnter() {

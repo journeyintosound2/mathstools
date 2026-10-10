@@ -140,7 +140,7 @@ export function runJungleChallengeChecks() {
     const storesOk = JUNGLE_STORES.map(([k]) => k).join() === built.join() && built.join() === "swap,market";
     const spotsOk = new Set(JUNGLE_CHALLENGES.map((c) => c.spot)).size === 10 && JUNGLE_CHALLENGES.every((c) => JUNGLE_SPOTS.some((s) => s.id === c.spot));
     const ids = new Set(INTERACTABLES.filter((i) => i.regionId === JUNGLE_REGION_ID).map((i) => i.id));
-    const ixOk = built.every((k) => ids.has(jungleHostId(k))) && ids.has(JUNGLE_WELCOME_HOST.id) && ids.has(JUNGLE_RECORDS_STAND.id) && ids.size === built.length + 2;
+    const ixOk = built.every((k) => ids.has(jungleHostId(k))) && ids.has(JUNGLE_WELCOME_HOST.id) && ids.has(JUNGLE_RECORDS_STAND.id) && ids.has("emerald-jungle-map") && ids.size === built.length + 3;
     const encOk = built.every((k) => ENCOUNTERS[`jungle-${k}-challenge`]) && ENCOUNTERS["jungle-welcome"] && ENCOUNTERS["jungle-records"];
     const glbOk = JUNGLE_CHALLENGES.every((c) => GLB_CHARACTERS.includes(c.host.characterId));
     const keysOk = JUNGLE_CHALLENGE_KEYS.every((k) => JUNGLE_BEST_KEYS[k] === `mma-jungle-${k}-best` && JUNGLE_MAX_SCORES[k] === 375);
@@ -150,7 +150,7 @@ export function runJungleChallengeChecks() {
     checks.push({
       name: "Jungle challenges: ten in trophy order (two built), real hosts, wiring in lockstep",
       pass,
-      detail: pass ? "10 slots · built swap + market · 4 jungle interactables · mma-jungle-<key>-best (375) · 8 coming soon"
+      detail: pass ? "10 slots · built swap + market · 5 jungle interactables (+ the map board) · mma-jungle-<key>-best (375) · 8 coming soon"
         : `order:${order} stores:${storesOk} spots:${spotsOk} ix:${ixOk} enc:${Boolean(encOk)} glb:${glbOk} keys:${keysOk} rows:${rowsOk}`,
     });
   }

@@ -64,7 +64,7 @@ export const ENCOUNTERS = {
         "Pip, Fern and Alby each have a maths puzzle for you — Pip under Frosty Peak, Fern in the ash fields below Ember Peak, and Alby out at the lighthouse.",
         "Up on Schoolhouse Hill, the school gate leads to the Retrieval Practice Playground — the teachers there each hold a key.",
         "Every other world has its own gate: the igloo in Igloo Hollow, the volcano arch on the Ember Terrace, the haybales out in Haybale Meadows and the mossy arch by the Emerald Lagoon.",
-        "The signposts and the big map by the arch show the way. And that wall beside the arch is your Achievements Wall — press Enter in front of it to see everything you've won.",
+        "The signposts and the big map by the arch show the way — open the map, click a place to set a waypoint and follow the arrow (press M any time). And that wall beside the arch is your Achievements Wall — press Enter in front of it to see everything you've won.",
         "Off you go — adventure awaits!",
       ],
     },
@@ -186,7 +186,7 @@ export const ENCOUNTERS = {
       "Test your Stage 4 skills across a range of topics.",
       "Eight teachers are hiding round the school, and each one holds a KEY. Find them — some are up on the top-floor balconies, so take the stair towers and walk the corridors.",
       "Collect all eight keys to unlock the padlocked School Hall, where the Head Teacher is waiting.",
-      "Check the campus map by the plaza, follow the signposts — and climb the bush track to the Sky Pier for the best view of the harbour. There's a treasure chest hidden somewhere too!",
+      "Check the campus map by the plaza — click a teacher on it to set a waypoint (press M to open it any time) — follow the signposts, and climb the bush track to the Sky Pier for the best view of the harbour. There's a treasure chest hidden somewhere too!",
     ] },
   },
 
@@ -202,7 +202,7 @@ export const ENCOUNTERS = {
       "Your job is to find all ten and collect their trophies! Every trophy is earned by how well you score:",
       "🥇 Gold for 100%, 🥈 Silver for 75%, and 🥉 Bronze for 50%.",
       "Play a challenge again any time to polish a bronze or silver up to gold.",
-      "Lost? Check the big map board by the gate, and follow the signposts at every crossroads — the farm tracks lead to every challenge.",
+      "Lost? Open the big map board by the gate and click a challenge to set a waypoint — an arrow will point the way (press M to open the map any time). The signposts at every crossroads help too.",
       "Start at the Farm Gate Shop up at the homestead, then explore: the orchard, the carrot patch, the old sawmill, the dairy, the cattle run, the long paddock, the grain silos, the glasshouses and the market green.",
       "Your trophies go in the trophy cabinet right here. Off you go — let's fill it with gold!",
     ] },
@@ -289,7 +289,7 @@ export const ENCOUNTERS = {
     id: "snow-welcome", type: "dialogue", title: "Snowball Sums",
     config: { speaker: "Mills", lines: [
       "Brrr — welcome to Snowball Sums! ❄️ This whole valley is yours to explore.",
-      "Check the trail map by the arch, then follow the signposts — ten snow challenges are hiding out there, from the Ice Rink to the Aurora Lookout.",
+      "Check the trail map by the arch — click a challenge on it to set a waypoint and follow the arrow (press M any time). Ten snow challenges are hiding out there, from the Ice Rink to the Aurora Lookout.",
       "Ride the CHAIRLIFT up Big Sled Hill, then step into a sled run and slide all the way down! 🛷",
       "The frozen pond and river are slippery — get a run-up and glide. But keep out of the glacier lake: that water's freezing! Cross on the bridges or hop the ice floes.",
       "Every challenge earns a trophy on the stand by the igloo gate — 🥇 for 100%, 🥈 for 75%, 🥉 for 50%.",
@@ -404,6 +404,7 @@ export const ENCOUNTERS = {
       "Ten teachers are waiting round the ring road, each with a challenge. Start with Mr. Dawson at the Basalt Columns (east), then work your way round.",
       "The last one is at the very top — climb the spiral trail to Ms. Bacon at the Strategy Summit!",
       "Every challenge earns a trophy on the stand right here — 🥇 100%, 🥈 75%, 🥉 50%.",
+      "🗺️ The MAP BOARD here shows every challenge — click one to set a waypoint, then follow the arrow at the top of the screen. Press M to open the map any time.",
     ] },
   },
   "magma-records": {
@@ -429,10 +430,15 @@ export const ENCOUNTERS = {
     config: { speaker: "Mills", lines: [
       "Welcome to the Emerald Jungle! 🌿 Out here we think in PROPORTION — if 3 of these are worth 2 of those, what are 30 worth?",
       "Explorers use a VINE LADDER: two vines tied together at 0, with a bamboo rung for every pair that matches. It's called a double number line.",
-      "Start with Mr. Morgan's Monkey Swap in the Palm Grove (just up the trail, on the left), then Mr. Pearce's Sunny Market on top of Sunny Knoll.",
+      "Start with Mr. Morgan's Monkey Swap in the Palm Grove — up the trail to the LEFT (follow the Palm Grove sign). Then Mr. Pearce's Sunny Market on top of Sunny Knoll — take the trail to the RIGHT towards the Lily Lagoon, then follow the Sunny Knoll sign up the hill.",
+      "🗺️ The MAP BOARD here shows every challenge — click one to set a waypoint, then follow the arrow at the top of the screen. Press M to open the map any time.",
       "Whatever you do to one vine, do to the other — add the same number to both and the vines come untied!",
       "Every challenge earns a trophy on the stand right here — 🥇 100%, 🥈 75%, 🥉 50%. More clearings are coming soon.",
     ] },
+  },
+  "world-map": {
+    id: "world-map", type: "dialogue", title: "World Map",
+    config: { speaker: "World Map", lines: ["Every place in this world is on the map — click one to set a waypoint, then follow the arrow."] },
   },
   "jungle-records": {
     id: "jungle-records", type: "dialogue", title: "Jungle Trophies",

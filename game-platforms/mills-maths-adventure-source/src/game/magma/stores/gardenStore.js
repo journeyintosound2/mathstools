@@ -74,7 +74,7 @@ export const useGardenChallenge = createMagmaStore({
       api.award(c.points);
       const have = new Set(get().planted);
       set({ claimResult: { ...c, missing: gardenAllKeys(r).filter((k) => !have.has(k)) } });
-      api.endRound();
+      api.endRound({ ok: c.all });
     },
     onEnter() {
       if (get().phase === "plant") get().plant();

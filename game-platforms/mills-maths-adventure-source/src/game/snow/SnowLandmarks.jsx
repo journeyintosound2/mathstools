@@ -1,4 +1,5 @@
 import React, { useMemo, useRef } from "react";
+import MapBoard3D from "../maps/MapBoard3D.jsx";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
@@ -89,94 +90,6 @@ function WelcomeArch() {
 // ---------------------------------------------------------------------------
 // THE TRAIL MAP — the whole valley painted on a board at the arrival.
 // ---------------------------------------------------------------------------
-function mapTexture() {
-  if (typeof document === "undefined") return null;
-  ensureSnowStructures();
-  const W = 640, H = 600;
-  const cv = document.createElement("canvas");
-  cv.width = W; cv.height = H;
-  const g = cv.getContext("2d");
-  g.fillStyle = "#dfe8f2"; g.fillRect(0, 0, W, H);
-  const fx = SNOW_BOUNDARY.halfW + 6, fz = SNOW_BOUNDARY.halfD + 6;
-  const m = 22, top = 40;
-  const sx = (W - m * 2) / (fx * 2), sz = (H - m * 2 - top) / (fz * 2);
-  const P = (x, z) => [m + (x + fx) * sx, m + top + (z + fz) * sz];
-  const cols = getSnowGroundColours();
-  const { h } = getSnowGrid();
-  const img = g.getImageData(0, 0, W, H);
-  for (let py = m + top; py < H - m; py++) {
-    for (let px = m; px < W - m; px++) {
-      const x = (px - m) / sx - fx, z = (py - m - top) / sz - fz;
-      const i = Math.round(x - GRID.xMin), j = Math.round(z - GRID.zMin);
-      const k = j * GRID.nx + i;
-      const shade = 1 + (h[k] - h[k + 1]) * 0.22 + (h[k] - h[k + GRID.nx]) * 0.16;
-      const o = (py * W + px) * 4;
-      const c = (v) => Math.max(0, Math.min(255, Math.pow(v, 1 / 2.2) * 255 * shade * 0.9 + 10));
-      let r = c(cols[k * 3]), gg = c(cols[k * 3 + 1]), b = c(cols[k * 3 + 2]);
-      if (lakeEdgeDist(x, z) < 0) { r = 70; gg = 130; b = 185; }
-      img.data[o] = r; img.data[o + 1] = gg; img.data[o + 2] = b;
-    }
-  }
-  g.putImageData(img, 0, 0);
-  const line = (pts, col, wdt, dash = []) => {
-    g.strokeStyle = col; g.lineWidth = wdt; g.setLineDash(dash); g.lineCap = "round"; g.lineJoin = "round";
-    g.beginPath(); pts.forEach(([x, z], i) => { const [a, b] = P(x, z); i ? g.lineTo(a, b) : g.moveTo(a, b); }); g.stroke();
-    g.setLineDash([]);
-  };
-  line(FROZEN_RIVER.pts, "#8fd0ee", 5);
-  for (const p of SNOW_TRAILS) line(p.pts, "#7a5a3c", 2.6);
-  for (const c of SNOW_CHUTE_PATHS) line(c.pts, "#d0342c", 4, [8, 5]);
-  line([LIFT.from, LIFT.to], "#2b2f36", 2.4, [3, 4]);
-  g.fillStyle = "#2f6fb5"; g.font = "bold 22px Georgia, serif"; g.textAlign = "center";
-  g.fillText("SNOWBALL SUMS — TRAIL MAP", W / 2, 34);
-  g.font = "bold 15px Georgia, serif";
-  const tag = (x, z, label, red) => {
-    const [px, py] = P(x, z);
-    const w = g.measureText(label).width + 10;
-    g.fillStyle = red ? "rgba(255,250,240,0.93)" : "rgba(235,244,255,0.88)";
-    g.fillRect(px - w / 2, py - 11, w, 21);
-    g.strokeStyle = red ? "#c0392b" : "#2f6fb5"; g.lineWidth = 2; g.strokeRect(px - w / 2, py - 11, w, 21);
-    g.fillStyle = "#1d2a3a"; g.fillText(label, px, py + 5);
-  };
-  for (const s of SNOW_CHALLENGE_SPOTS) tag(s.center[0], s.center[1], s.label, true);
-  tag(-8, 43, "Lodge", false);
-  tag(GS.position[0], GS.position[1] - 8, "Snowman Hill", false);
-  tag(120, -32, "Big Sled Hill", false);
-  tag(SNOW_LAKE.center[0] + 22, SNOW_LAKE.center[1] + 14, "Glacier Lake", false);
-  tag(-46, -48, "Frozen River", false);
-  tag(LIFT.from[0] - 8, LIFT.from[1] + 6, "Chairlift", false);
-  {
-    const [a, b] = P(SNOW_SPAWN.x, SNOW_SPAWN.z);
-    g.fillStyle = "#e63946"; g.beginPath(); g.arc(a, b, 8, 0, 7); g.fill();
-    g.strokeStyle = "#ffffff"; g.lineWidth = 3; g.stroke();
-    g.fillStyle = "#e63946"; g.font = "bold 16px Georgia, serif"; g.fillText("YOU ARE HERE", a, b - 14);
-  }
-  g.fillStyle = "#1d2a3a"; g.font = "bold 18px Georgia, serif"; g.fillText("N ↑", W - 40, 30);
-  g.strokeStyle = "#2f5f9a"; g.lineWidth = 10; g.strokeRect(5, 5, W - 10, H - 10);
-  const t = new THREE.CanvasTexture(cv);
-  t.colorSpace = THREE.SRGBColorSpace;
-  t.anisotropy = 8;
-  return t;
-}
-function MapBoard() {
-  const B = SNOW_MAP_BOARD;
-  const [x, z] = B.position;
-  const tex = useMemo(mapTexture, []);
-  return (
-    <group position={[x, Y(x, z), z]} rotation={[0, B.rotationY, 0]}>
-      {[-1, 1].map((s) => <Box key={s} p={[s * 1.7, 1.4, -0.05]} s={[0.18, 2.8, 0.18]} m={WOOD_DARK} />)}
-      <Box p={[0, 1.85, -0.08]} s={[3.5, 3.2, 0.1]} m={WOOD} />
-      {tex && (
-        <mesh position={[0, 1.85, -0.02]}>
-          <planeGeometry args={[3.3, 3.1]} />
-          <meshStandardMaterial map={tex} roughness={0.9} />
-        </mesh>
-      )}
-      <Box p={[0, 3.6, 0.1]} r={[0.45, 0, 0]} s={[3.9, 0.14, 0.7]} m={WOOD_DARK} />
-      <Box p={[0, 3.72, 0.12]} r={[0.45, 0, 0]} s={[4.0, 0.12, 0.72]} m="#f4f8fd" cast={false} />
-    </group>
-  );
-}
 
 function WelcomeBoard() {
   const [x, z] = SNOW_WELCOME_SIGN.position;
@@ -573,9 +486,9 @@ export default function SnowLandmarks({ activeKey }) {
   const big = VILLAGE_TREE;
   return (
     <group>
+      <MapBoard3D regionId="snow-sums" roof="#3d4a63" />
       <StaticBatch farDist={FAR}>
         <WelcomeArch />
-        <MapBoard />
         <WelcomeBoard />
         {SNOWMEN.map(([x, z], i) => <Snowman key={i} x={x} z={z} i={i} />)}
         {XMAS_TREES.filter(([x, z]) => !(x === big[0] && z === big[1])).map(([x, z], i) => <XmasTree key={i} x={x} z={z} seed={i} scale={1.15 + (i % 3) * 0.12} />)}

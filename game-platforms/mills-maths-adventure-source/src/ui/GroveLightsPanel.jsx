@@ -7,6 +7,7 @@ import {
   GROVE_ADJUSTMENTS,
 } from "../data/snow/groveLightsChallenge.js";
 import { SnowIntro, SnowRoundHead, SnowWorking } from "./SnowCardParts.jsx";
+import RoundCelebrate from "./RoundCelebrate.jsx";
 
 /**
  * CHRISTMAS TREE GROVE — 2D panel (GV). Three quick parts per round: GRAB
@@ -90,12 +91,6 @@ export default function GroveLightsPanel() {
     }
   }, [status, roundIndex]);
 
-  // Celebrate → auto-next.
-  useEffect(() => {
-    if (status !== "celebrate") return undefined;
-    const t = setTimeout(() => useGroveLights.getState().next(), CELEBRATE_MS);
-    return () => clearTimeout(t);
-  }, [status, roundIndex]);
 
   if (status === "idle") return null;
 
@@ -216,14 +211,10 @@ export default function GroveLightsPanel() {
       )}
 
       {status === "celebrate" && round && (
-        <div className="farm-challenge-card mini">
-          <div className="farm-challenge-head">
-            <span>
-              ✓ {round.start} + {round.grabValue}
-              {round.adjust < 0 ? ` − ${-round.adjust}` : round.adjust > 0 ? ` + ${round.adjust}` : ""} = {round.total}! · ⭐ {score}
-            </span>
-          </div>
-        </div>
+        <RoundCelebrate useStore={useGroveLights} ms={CELEBRATE_MS} working={round.working || round.reason}>
+              {round.start} + {round.grabValue}
+              {round.adjust < 0 ? ` − ${-round.adjust}` : round.adjust > 0 ? ` + ${round.adjust}` : ""} = {round.total}!
+        </RoundCelebrate>
       )}
 
       {status === "feedback" && round && (

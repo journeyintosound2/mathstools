@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from "react";
+import RoundCelebrate from "./RoundCelebrate.jsx";
 
 import { useFarmShop } from "../game/farmShopStore.js";
 import { useSession, playerState } from "../game/sessionStore.js";
@@ -44,11 +45,6 @@ export default function FarmShopPanel() {
     if (status === "feedback") playerState.camShake = { start: Date.now(), dur: 420 };
   }, [status, roundIndex]);
 
-  useEffect(() => {
-    if (status !== "celebrate") return undefined;
-    const t = setTimeout(() => useFarmShop.getState().next(), CELEBRATE_MS);
-    return () => clearTimeout(t);
-  }, [status, roundIndex]);
 
   // Enter/Escape while NOT typing in the field (feedback/celebrate/intro).
   useEffect(() => {
@@ -131,11 +127,9 @@ export default function FarmShopPanel() {
       )}
 
       {status === "celebrate" && round && (
-        <div className="farm-challenge-card mini">
-          <div className="farm-challenge-head">
-            <span>✓ {round.answerStr}! · {score} pts</span>
-          </div>
-        </div>
+        <RoundCelebrate useStore={useFarmShop} ms={CELEBRATE_MS} working={round.working || round.reason}>
+          {round.answerStr}!
+        </RoundCelebrate>
       )}
 
       {status === "feedback" && round && result && (

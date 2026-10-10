@@ -333,7 +333,8 @@ export default function Player({ cinematic = false }) {
     // Freeze locomotion while an encounter modal is open OR in first-person look
     // mode (in FPV the arrow/WASD keys steer the camera instead of the player),
     // OR while looking at the Achievements Wall (the arrows pick boards there).
-    const frozen = Boolean(activeEncounterId) || fpv || Boolean(wv);
+    // …and while the full-screen world map is open.
+    const frozen = Boolean(activeEncounterId) || fpv || Boolean(wv) || useUI.getState().mapOpen;
 
     // Fence Challenge mode (F2): fixed side-on camera + left/right-only walking
     // along the fence. Active for the whole challenge (placing → done).

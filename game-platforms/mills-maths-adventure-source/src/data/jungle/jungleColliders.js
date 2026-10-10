@@ -13,7 +13,7 @@
  * the mushroom caps are TERRAIN / solid structures (the ground function walls
  * them), and water is just slow, not solid.
  */
-import {
+import { JUNGLE_MAP_BOARD,
   ensureJungleStructures, GREAT_TREE, GREAT_STAIR, ROPE_BRIDGE, JUNGLE_BRIDGES, LEAF_PADS, STAIR_FLIGHTS,
   FALLS_DECK, JUNGLE_WELCOME_SIGN, terrainHeight, LOOKOUT, TOADSTOOL,
 } from "./jungleLayout.js";
@@ -188,6 +188,11 @@ export function getJungleColliders() {
   }
   out.push(c("jg-mills", "interactable", JUNGLE_WELCOME_HOST.position[0], JUNGLE_WELCOME_HOST.position[1], 0.7));
   out.push(c("jg-records", "interactable", JUNGLE_RECORDS_STAND.position[0], JUNGLE_RECORDS_STAND.position[1], 2.0));
+  // The map board on the glade (posts + panel).
+  {
+    const [bx, bz] = JUNGLE_MAP_BOARD.position, ry = JUNGLE_MAP_BOARD.rotationY;
+    [-1.6, 0, 1.6].forEach((o, i) => out.push(c(`jg-mapboard-${i}`, "landmark", bx + Math.cos(ry) * o, bz - Math.sin(ry) * o, 0.32)));
+  }
 
   _static = out;
   return out;

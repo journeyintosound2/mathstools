@@ -59,10 +59,15 @@ export function createMagmaStore({ key, generate, fresh, actions, world }) {
       say(text, tone = "warm") {
         set({ note: { text, tone, at: Date.now() } });
       },
-      /** Finish the round: full marks → celebrate, otherwise feedback. */
-      endRound(extra = {}) {
-        const full = get().roundPoints >= POINTS;
-        set({ status: full ? "celebrate" : "feedback", ...extra });
+      /**
+       * Finish the round. `ok` = the round's FINAL answer was right → celebrate
+       * (even if something slipped on the way — the card says so; see
+       * game/roundOutcome.js); otherwise feedback. Without `ok`, full marks
+       * decide (the old rule).
+       */
+      endRound({ ok, ...extra } = {}) {
+        const right = ok === undefined ? get().roundPoints >= POINTS : Boolean(ok);
+        set({ status: right ? "celebrate" : "feedback", ...extra });
       },
     };
 
@@ -118,7 +123,8 @@ export function createMagmaStore({ key, generate, fresh, actions, world }) {
         W.writeBest(key, score);
         if (score > 0) {
           const coins = Math.floor(score / 5);
-          useProgress.getState().awardRewards({ xp: score, coins });
+          // XP was banked round by round as the points landed (roundOutcome.js).
+          useProgress.getState().awardRewards({ coins });
           useUI.getState().pushToast({
             type: "reward",
             icon: meta?.icon || W.icon,

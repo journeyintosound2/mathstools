@@ -7,6 +7,7 @@ import {
   caveLightingMs,
 } from "../data/snow/caveCrystalsChallenge.js";
 import { SnowIntro, SnowRoundHead, SnowWorking } from "./SnowCardParts.jsx";
+import RoundCelebrate from "./RoundCelebrate.jsx";
 
 /**
  * THE ICE CAVE — 2D panel (IC). CHOOSE the direction (buttons or keys 1–2:
@@ -82,11 +83,6 @@ export default function CaveCrystalsPanel() {
     }
   }, [status, roundIndex]);
 
-  useEffect(() => {
-    if (status !== "celebrate") return undefined;
-    const t = setTimeout(() => useCaveCrystals.getState().next(), CELEBRATE_MS);
-    return () => clearTimeout(t);
-  }, [status, roundIndex]);
 
   if (status === "idle") return null;
 
@@ -186,13 +182,9 @@ export default function CaveCrystalsPanel() {
       )}
 
       {status === "celebrate" && round && (
-        <div className="farm-challenge-card mini">
-          <div className="farm-challenge-head">
-            <span>
-              ✓ {round.a} − {round.b} = {round.answer}! · ⭐ {score}
-            </span>
-          </div>
-        </div>
+        <RoundCelebrate useStore={useCaveCrystals} ms={CELEBRATE_MS} working={round.working || round.reason}>
+              {round.a} − {round.b} = {round.answer}!
+        </RoundCelebrate>
       )}
 
       {status === "feedback" && round && (

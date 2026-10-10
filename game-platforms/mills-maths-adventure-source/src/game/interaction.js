@@ -318,6 +318,11 @@ export function triggerInteraction(interactable) {
     if (st.status === "idle") st.start();
     return;
   }
+  // Any world's map board → the full-screen map (waypoints).
+  if (interactable.mapBoard) {
+    useUI.getState().openMap();
+    return;
+  }
   if (interactable.id === "jungle-records") {
     useUI.getState().setJungleTrophy(true);
     return;

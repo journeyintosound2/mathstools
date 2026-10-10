@@ -8,6 +8,7 @@ import {
   meadowMaxHops,
 } from "../data/snow/meadowLevelChallenge.js";
 import { SnowIntro, SnowRoundHead, SnowWorking } from "./SnowCardParts.jsx";
+import RoundCelebrate from "./RoundCelebrate.jsx";
 
 /**
  * SNOWMAN MEADOW — 2D panel (ML). HOP snowballs across one tap at a time
@@ -92,12 +93,6 @@ export default function MeadowLevelPanel() {
     }
   }, [status, roundIndex]);
 
-  // Celebrate → auto-next.
-  useEffect(() => {
-    if (status !== "celebrate") return undefined;
-    const t = setTimeout(() => useMeadowLevel.getState().next(), CELEBRATE_MS);
-    return () => clearTimeout(t);
-  }, [status, roundIndex]);
 
   if (status === "idle") return null;
 
@@ -239,13 +234,9 @@ export default function MeadowLevelPanel() {
       )}
 
       {status === "celebrate" && round && (
-        <div className="farm-challenge-card mini">
-          <div className="farm-challenge-head">
-            <span>
-              ✓ {round.left} + {round.right} = {round.canTwin ? `double ${round.level}` : `double ${round.level} + 1`} = {round.total}! · ⭐ {score}
-            </span>
-          </div>
-        </div>
+        <RoundCelebrate useStore={useMeadowLevel} ms={CELEBRATE_MS} working={round.working || round.reason}>
+              {round.left} + {round.right} = {round.canTwin ? `double ${round.level}` : `double ${round.level} + 1`} = {round.total}!
+        </RoundCelebrate>
       )}
 
       {status === "feedback" && round && (

@@ -38,6 +38,34 @@ import {
 } from "./jungle/jungleChallenges.js";
 import { JUNGLE_REGION_ID } from "./jungle/jungleLayout.js";
 
+import { ISLAND_MAP_BOARD } from "./island/islandLayout.js";
+import { FARM_MAP_BOARD } from "./farm/farmLayout.js";
+import { SNOW_MAP_BOARD } from "./snow/snowLayout.js";
+import { MAGMA_MAP_BOARD } from "./magma/magmaLayout.js";
+import { JUNGLE_MAP_BOARD } from "./jungle/jungleLayout.js";
+import { SCHOOL_MAP_BOARD } from "./schoolyard/schoolyardLayout.js";
+
+// WORLD MAP BOARDS (2026-10-10): every world's painted map board, by its
+// arrival, opens the full-screen map (interaction.js → useUI.openMap). The
+// interaction spot stands just in front of the board's face (+z local).
+const MAP_BOARDS = [
+  ["island-1", ISLAND_MAP_BOARD], ["farm-parts-whole", FARM_MAP_BOARD], ["snow-sums", SNOW_MAP_BOARD],
+  ["magma-multiples", MAGMA_MAP_BOARD], ["emerald-jungle", JUNGLE_MAP_BOARD], ["schoolyard", SCHOOL_MAP_BOARD],
+].map(([regionId, b]) => ({
+  id: `${regionId}-map`,
+  name: "World Map",
+  encounterId: "world-map",
+  mapBoard: true,
+  model: "none",
+  color: "#c98a12",
+  position: [b.position[0] + Math.sin(b.rotationY) * 1.7, b.position[1] + Math.cos(b.rotationY) * 1.7],
+  promptLabel: "Open the map",
+  badgeY: 5.0, // above the board's roof, so it never covers the map
+  collision: { type: "circle", radius: 0.5, enabled: false },
+  interactionRadius: 3.4,
+  regionId,
+}));
+
 // Emerald Jungle (2026-10-10): one host per BUILT vine-ladder challenge,
 // standing at the edge of its clearing. Each host is INTERCEPTED in
 // interaction.js → its challenge store's start().
@@ -665,6 +693,7 @@ export const INTERACTABLES = [
     regionId: JUNGLE_REGION_ID,
   },
   ...JUNGLE_HOSTS,
+  ...MAP_BOARDS,
   {
     id: JUNGLE_RECORDS_STAND.id,
     name: "Jungle Trophies",

@@ -1,0 +1,224 @@
+/* ===========================================================================
+   THE WORLD MAP (2026-10-10) — ui/map/MapViewer.jsx (full screen) and the
+   waypoint chip (ui/map/WaypointCompass.jsx). --accent / --deep / --paper
+   come from the world (data/maps/regionMaps.js).
+   ======================================================================== */
+.map-overlay {
+  position: fixed; inset: 0; z-index: 60;
+  display: grid; place-items: center;
+  background: radial-gradient(ellipse at center, rgba(12, 20, 30, 0.55), rgba(8, 12, 20, 0.82));
+  backdrop-filter: blur(3px);
+  animation: map-fade 220ms ease-out;
+  pointer-events: auto;
+}
+@keyframes map-fade { from { opacity: 0; } to { opacity: 1; } }
+.map-frame {
+  width: min(1480px, 97vw); height: min(940px, 95vh);
+  display: grid; grid-template-rows: auto 1fr auto;
+  background: var(--paper, #f6ecd2);
+  border-radius: 22px;
+  border: 6px solid var(--deep, #5b3a1f);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5), inset 0 0 0 2px rgba(255, 255, 255, 0.45);
+  overflow: hidden;
+  animation: map-unroll 320ms cubic-bezier(0.2, 0.9, 0.3, 1.2);
+}
+@keyframes map-unroll { from { transform: scale(0.94) translateY(16px); opacity: 0; } to { transform: none; opacity: 1; } }
+
+.map-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 10px 16px 10px 18px;
+  background: linear-gradient(180deg, var(--accent), var(--deep));
+  color: #fff;
+}
+.map-title { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.map-title-icon {
+  display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%;
+  background: rgba(255, 255, 255, 0.18); border: 2px solid rgba(255, 255, 255, 0.55);
+  font-size: 1.7rem; flex: none;
+}
+.map-title h2 { margin: 0; font-family: "MMA Display", "Trebuchet MS", sans-serif; font-weight: 400; font-size: 2rem; letter-spacing: 0.02em; line-height: 1; text-shadow: 0 2px 0 rgba(0, 0, 0, 0.25); }
+.map-title p { margin: 3px 0 0; font-weight: 700; opacity: 0.92; font-size: 0.95rem; }
+.map-head-right { display: flex; align-items: center; gap: 12px; }
+.map-wp-chip {
+  display: inline-flex; align-items: center; gap: 8px; padding: 6px 8px 6px 12px; border-radius: 999px;
+  background: rgba(255, 255, 255, 0.95); color: #3b2a12; font-weight: 800; white-space: nowrap;
+}
+.map-wp-chip .link-button { color: #b4321c; margin: 0; font-size: 0.85rem; }
+.map-close {
+  width: 46px; height: 46px; border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.7);
+  background: rgba(0, 0, 0, 0.22); color: #fff; font-size: 1.3rem; font-weight: 900; cursor: pointer;
+}
+.map-close:hover { background: rgba(0, 0, 0, 0.4); }
+
+.map-body { display: grid; grid-template-columns: 1fr 300px; min-height: 0; }
+.map-stage {
+  position: relative; overflow: hidden; min-height: 0;
+  background: repeating-linear-gradient(45deg, #e9dcbc 0 14px, #e2d3b0 14px 28px);
+  cursor: grab; touch-action: none; user-select: none;
+  box-shadow: inset 0 0 0 3px rgba(91, 58, 31, 0.35), inset 0 0 40px rgba(60, 40, 20, 0.25);
+}
+.map-stage.dragging { cursor: grabbing; }
+.map-loading {
+  position: absolute; inset: 0; display: grid; place-items: center;
+  font-weight: 900; font-size: 1.4rem; color: #5b3a1f;
+}
+.map-world { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+.map-canvas { position: absolute; left: 0; top: 0; display: block; border-radius: 4px; box-shadow: 0 6px 24px rgba(0, 0, 0, 0.3); }
+.map-svg { position: absolute; left: 0; top: 0; pointer-events: none; overflow: visible; }
+.map-route { stroke: #ffd23f; stroke-linecap: round; filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.6)); }
+
+.map-area {
+  position: absolute; transform: translate(-50%, -50%) scale(var(--inv));
+  font: 800 17px "MMA Rounded", "Trebuchet MS", sans-serif; color: #2d2318; white-space: nowrap;
+  text-shadow: 0 0 3px #fffaf0, 0 0 3px #fffaf0, 0 0 6px #fffaf0;
+  pointer-events: none; opacity: 0.9;
+}
+
+.map-pin {
+  position: absolute; transform: translate(-50%, -50%) scale(var(--inv));
+  display: flex; flex-direction: column; align-items: center;
+  border: 0; background: none; padding: 0; cursor: pointer; z-index: 2;
+}
+.map-pin-dot {
+  display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%;
+  background: var(--pin); color: #fff; font: 900 15px "MMA Rounded", sans-serif;
+  border: 3px solid var(--ring, #fff);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
+  transition: transform 140ms ease;
+}
+.map-pin.big .map-pin-dot { width: 40px; height: 40px; font-size: 19px; border-width: 4px; }
+.map-pin.soon .map-pin-dot { border-style: dashed; opacity: 0.85; }
+.map-pin-name {
+  margin-top: 4px; padding: 2px 9px; border-radius: 999px;
+  background: rgba(255, 252, 242, 0.95); color: #2d2318; white-space: nowrap;
+  font: 800 13px "MMA Rounded", "Trebuchet MS", sans-serif;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+.map-pin.soon .map-pin-name { color: #6b7280; }
+.map-pin.hot { z-index: 5; }
+.map-pin.hot .map-pin-dot { transform: scale(1.3); box-shadow: 0 0 0 6px rgba(255, 210, 63, 0.55), 0 4px 12px rgba(0, 0, 0, 0.45); }
+.map-pin.hot .map-pin-name { background: var(--deep); color: #fff; }
+.map-pin.wp .map-pin-dot { box-shadow: 0 0 0 6px rgba(255, 210, 63, 0.9), 0 4px 12px rgba(0, 0, 0, 0.45); }
+
+.map-wp {
+  position: absolute; transform: translate(-50%, -100%) scale(var(--inv)); transform-origin: 50% 100%;
+  font-size: 34px; filter: drop-shadow(0 3px 3px rgba(0, 0, 0, 0.45)); pointer-events: none; z-index: 4;
+  animation: map-wp-bob 1.2s ease-in-out infinite;
+}
+@keyframes map-wp-bob { 50% { margin-top: -6px; } }
+
+.map-me {
+  position: absolute; width: 0; height: 0; z-index: 6; pointer-events: none;
+  --rot: 0rad;
+}
+.map-me-arrow {
+  position: absolute; left: 0; top: 0; width: 34px; height: 34px;
+  transform: translate(-50%, -50%) scale(var(--inv)) rotate(var(--rot));
+  background: #e63946; border: 3px solid #fff; border-radius: 50% 50% 50% 0;
+  box-shadow: 0 0 0 6px rgba(230, 57, 70, 0.3), 0 3px 8px rgba(0, 0, 0, 0.45);
+  clip-path: none;
+}
+.map-me-arrow::after {
+  content: ""; position: absolute; left: 50%; top: -12px; transform: translateX(-50%);
+  border-left: 9px solid transparent; border-right: 9px solid transparent; border-bottom: 13px solid #e63946;
+}
+.map-me-arrow { border-radius: 50%; }
+.map-me-label {
+  position: absolute; left: 0; top: 0; transform: translate(-50%, 70%) scale(var(--inv)); transform-origin: 50% 0;
+  font: 900 12px "MMA Rounded", sans-serif; color: #fff; background: #e63946; padding: 1px 7px; border-radius: 999px;
+  white-space: nowrap; margin-top: 14px;
+}
+
+.map-tip {
+  position: absolute; left: 14px; top: 14px; z-index: 8; max-width: 320px;
+  background: rgba(255, 252, 242, 0.97); color: #2d2318;
+  border-radius: 14px; padding: 10px 14px; border: 3px solid var(--accent);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.3); pointer-events: none;
+}
+.map-tip-title { font-weight: 900; font-size: 1.15rem; }
+.map-tip-place { font-weight: 800; color: var(--deep); margin-top: 2px; }
+.map-tip-sub { font-weight: 600; color: #4b5563; margin-top: 2px; }
+.map-tip-medal { margin-top: 4px; font-weight: 800; }
+.map-tip-medal.m-gold { color: #a57d00; } .map-tip-medal.m-silver { color: #6b7280; } .map-tip-medal.m-bronze { color: #9a5b23; }
+.map-tip-medal.m-pass { color: #1c7c45; } .map-tip-medal.m-soon { color: #6b7280; }
+.map-tip-hint { margin-top: 6px; font-size: 0.85rem; font-weight: 800; color: var(--accent); }
+
+.map-zoom {
+  position: absolute; right: 14px; bottom: 14px; z-index: 8;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.map-zoom button {
+  width: 44px; height: 44px; border-radius: 12px; border: 2px solid var(--deep);
+  background: rgba(255, 252, 242, 0.96); color: var(--deep); font-size: 1.35rem; font-weight: 900; cursor: pointer;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
+}
+.map-zoom button:hover { background: #fff; }
+.map-compass {
+  position: absolute; right: 18px; top: 14px; z-index: 7; pointer-events: none;
+  display: flex; flex-direction: column-reverse; align-items: center;
+  font: 900 18px "MMA Rounded", sans-serif; color: var(--deep);
+  text-shadow: 0 0 4px #fffaf0, 0 0 4px #fffaf0;
+}
+.map-compass span { font-size: 26px; line-height: 0.9; }
+.map-notice {
+  position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%); z-index: 9;
+  padding: 10px 18px; border-radius: 999px; font-weight: 900; font-size: 1.05rem; white-space: nowrap;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3); animation: map-pop 260ms ease-out;
+}
+.map-notice.good { background: #1f9a4c; color: #fff; }
+.map-notice.bad { background: #c1341f; color: #fff; }
+.map-notice.warm { background: #fff; color: #7a4a10; }
+@keyframes map-pop { from { transform: translate(-50%, 10px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
+
+.map-side {
+  overflow-y: auto; padding: 10px 12px 14px; border-left: 3px solid rgba(91, 58, 31, 0.25);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.2));
+}
+.map-side h3 {
+  margin: 10px 4px 6px; font: 900 0.8rem "MMA Rounded", sans-serif; letter-spacing: 0.08em; text-transform: uppercase; color: var(--deep);
+}
+.map-side ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.map-row {
+  width: 100%; display: flex; align-items: center; gap: 10px; text-align: left;
+  border: 2px solid transparent; border-radius: 12px; background: rgba(255, 255, 255, 0.75);
+  padding: 6px 8px; cursor: pointer; color: #2d2318;
+}
+.map-row:hover, .map-row.hot { border-color: var(--accent); background: #fff; }
+.map-row.wp { border-color: #e0a817; background: #fff8e1; }
+.map-row.soon { opacity: 0.75; }
+.map-row-dot {
+  display: grid; place-items: center; flex: none; width: 30px; height: 30px; border-radius: 50%;
+  background: var(--pin); color: #fff; font: 900 14px "MMA Rounded", sans-serif; border: 3px solid var(--ring, #fff);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25);
+}
+.map-row-text { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.map-row-text b { font-size: 0.95rem; line-height: 1.15; }
+.map-row-text small { color: #6b5a44; font-weight: 700; font-size: 0.78rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.map-row-medal { font-size: 1.15rem; flex: none; }
+
+.map-foot {
+  padding: 8px 16px; text-align: center; font-weight: 700; color: #4a3a2a; font-size: 0.92rem;
+  border-top: 3px solid rgba(91, 58, 31, 0.2); background: rgba(255, 255, 255, 0.35);
+}
+
+@media (max-width: 900px) {
+  .map-body { grid-template-columns: 1fr; grid-template-rows: 1fr 180px; }
+  .map-side { border-left: 0; border-top: 3px solid rgba(91, 58, 31, 0.25); }
+  .map-title h2 { font-size: 1.5rem; }
+  .map-title p { display: none; }
+}
+
+/* ---- HUD: the compass stack (teacher task + waypoint) ---- */
+.hud-compass-stack {
+  position: absolute; top: 14px; left: 50%; transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 10px; z-index: 6; pointer-events: none;
+}
+.hud-compass-stack .hud-compass { position: static; transform: none; }
+.hud-wp { pointer-events: auto; box-shadow: 0 10px 26px rgba(0, 0, 0, 0.34), 0 0 0 2px rgba(255, 210, 63, 0.6); }
+.hud-wp .hud-compass-arrow { color: #ffd23f; }
+.hud-wp-btn {
+  width: 38px; height: 38px; border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.12); color: #fff; font-size: 1.05rem; font-weight: 900; cursor: pointer;
+  display: grid; place-items: center; padding: 0;
+}
+.hud-wp-btn:hover { background: rgba(255, 255, 255, 0.28); }

@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import RoundCelebrate from "../RoundCelebrate.jsx";
 
 import { useSession, playerState } from "../../game/sessionStore.js";
 import { MAGMA_REGION_ID } from "../../data/magma/magmaLayout.js";
@@ -109,7 +110,7 @@ export function MagmaButton({ children, onClick, className = "plank-piece-btn", 
 }
 
 export default function MagmaPanelShell({
-  useStore, intro, Play, celebrate, Feedback,
+  useStore, intro, Play, celebrate, Feedback, slip, pointsPerRound = 25,
   // Other worlds reuse this card (the Emerald Jungle passes its own).
   regionId: worldRegion = MAGMA_REGION_ID, getMeta = getMagmaChallenge, total = MAGMA_ROUNDS_PER_SET,
   backLabel = "Back to the volcano", dockClass = "magma-dock",
@@ -157,12 +158,6 @@ export default function MagmaPanelShell({
     if (note?.tone === "bad") playerState.camShake = { start: Date.now(), dur: 380 };
   }, [note?.at, note?.tone]);
 
-  // Full-marks rounds move on by themselves.
-  useEffect(() => {
-    if (status !== "celebrate") return undefined;
-    const t = setTimeout(() => useStore.getState().next(), CELEBRATE_MS);
-    return () => clearTimeout(t);
-  }, [status, roundIndex, useStore]);
 
   if (status === "idle" || !meta) return null;
   const st = useStore.getState();
@@ -190,19 +185,21 @@ export default function MagmaPanelShell({
       )}
 
       {status === "celebrate" && round && (
-        <div className="farm-challenge-card mini">
-          <div className="farm-challenge-head">
-            <span>
-              ✓ {celebrate(round, st)} · ⭐ {score}
-            </span>
-          </div>
-        </div>
+        <RoundCelebrate
+          useStore={useStore}
+          max={pointsPerRound}
+          ms={CELEBRATE_MS}
+          working={round.working}
+          detail={slip ? slip(round, st) : null}
+        >
+          {celebrate(round, st)}
+        </RoundCelebrate>
       )}
 
       {status === "feedback" && round && (
         <div className="farm-challenge-card">
           <div className="farm-challenge-verdict warm">
-            {st.roundPoints > 0 ? `+${st.roundPoints} this round — here's the quick way:` : "Here's how it works:"}
+            {st.roundPoints > 0 ? `+${st.roundPoints} XP this round — here's the quick way:` : "Here's how it works:"}
           </div>
           {Feedback && <Feedback round={round} />}
           <SnowWorking lines={round.working} />

@@ -1,4 +1,5 @@
 import React, { Suspense, useMemo, useRef } from "react";
+import MapBoard3D from "../maps/MapBoard3D.jsx";
 import { useFrame } from "@react-three/fiber";
 import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
@@ -88,97 +89,6 @@ function EntryArch() {
 // ---------------------------------------------------------------------------
 // THE FARM MAP — a painted map of the whole property on a timber board.
 // ---------------------------------------------------------------------------
-function mapTexture() {
-  if (typeof document === "undefined") return null;
-  ensureFarmStructures();
-  const W = 640, H = 568;
-  const cv = document.createElement("canvas");
-  cv.width = W; cv.height = H;
-  const g = cv.getContext("2d");
-  g.fillStyle = "#e9dcb8"; g.fillRect(0, 0, W, H);
-  const fx = BOUNDARY_FENCE.halfW, fz = BOUNDARY_FENCE.halfD;
-  const m = 26;
-  const sx = (W - m * 2) / (fx * 2), sz = (H - m * 2 - 30) / (fz * 2);
-  const P = (x, z) => [m + (x + fx) * sx, m + 30 + (z + fz) * sz];
-  // Ground: the terrain's colours, softened + hill-shaded.
-  const cols = getGroundColours();
-  const { h } = getFarmGrid();
-  const img = g.getImageData(0, 0, W, H);
-  for (let py = m + 30; py < H - m; py++) {
-    for (let px = m; px < W - m; px++) {
-      const x = (px - m) / sx - fx, z = (py - m - 30) / sz - fz;
-      const i = Math.round(x - GRID.xMin), j = Math.round(z - GRID.zMin);
-      const k = j * GRID.nx + i;
-      const shade = 1 + (h[k] - h[k + 1]) * 0.18 + (h[k] - h[k + GRID.nx]) * 0.12;
-      const o = (py * W + px) * 4;
-      const c = (v) => Math.max(0, Math.min(255, Math.pow(v, 1 / 2.2) * 255 * shade * 0.92 + 18));
-      img.data[o] = c(cols[k * 3]); img.data[o + 1] = c(cols[k * 3 + 1]); img.data[o + 2] = c(cols[k * 3 + 2]);
-    }
-  }
-  g.putImageData(img, 0, 0);
-  // The creek + pond.
-  g.strokeStyle = "#4f9fd0"; g.lineWidth = 5; g.lineCap = "round"; g.lineJoin = "round";
-  g.beginPath(); FARM_CREEK.pts.forEach(([x, z], i) => { const [a, b] = P(Math.max(-fx, x), z); i ? g.lineTo(a, b) : g.moveTo(a, b); }); g.stroke();
-  g.fillStyle = "#4f9fd0"; { const [a, b] = P(FARM_POND.center[0], FARM_POND.center[1]); g.beginPath(); g.arc(a, b, FARM_POND.radius * sx, 0, 7); g.fill(); }
-  // Tracks.
-  g.strokeStyle = "#8a6438"; g.lineWidth = 3.4; g.setLineDash([]);
-  for (const p of FARM_PATHS) { g.beginPath(); p.pts.forEach(([x, z], i) => { const [a, b] = P(x, z); i ? g.lineTo(a, b) : g.moveTo(a, b); }); g.stroke(); }
-  // Buildings.
-  g.fillStyle = "#7a3a2a";
-  for (const f of FARM_FOOTPRINTS) {
-    if (!/barn|house|shed|mill|silo|glass|coop/.test(f.id)) continue;
-    const [a, b] = P(f.x, f.z);
-    if (f.shape === "circle") { g.beginPath(); g.arc(a, b, Math.max(2, f.r * sx), 0, 7); g.fill(); }
-    else { g.save(); g.translate(a, b); g.rotate(-f.rot); g.fillRect((-f.w / 2) * sx, (-f.d / 2) * sz, f.w * sx, f.d * sz); g.restore(); }
-  }
-  // The fence + title.
-  g.strokeStyle = "#ffffff"; g.lineWidth = 3; g.setLineDash([6, 4]);
-  { const [a, b] = P(-fx, -fz); const [c, d] = P(fx, fz); g.strokeRect(a, b, c - a, d - b); }
-  g.setLineDash([]);
-  g.fillStyle = "#4f321b"; g.font = "bold 30px Georgia, serif"; g.textAlign = "center";
-  g.fillText("FRACTION FARM", W / 2, 36);
-  // Area names with their icons.
-  g.font = "bold 17px Georgia, serif";
-  for (const a of FARM_AREAS) {
-    const [px, py] = P(a.c[0], a.c[1]);
-    const label = `${a.icon} ${a.name}`;
-    const w = g.measureText(label).width + 12;
-    g.fillStyle = a.challenge ? "rgba(255,248,225,0.92)" : "rgba(235,245,225,0.85)";
-    g.fillRect(px - w / 2, py - 13, w, 24);
-    g.strokeStyle = a.challenge ? "#c0392b" : "#5a7a3a"; g.lineWidth = 2; g.strokeRect(px - w / 2, py - 13, w, 24);
-    g.fillStyle = "#3b2414"; g.fillText(label, px, py + 5);
-  }
-  // You are here.
-  { const [a, b] = P(FARM_SPAWN.x, FARM_SPAWN.z);
-    g.fillStyle = "#e63946"; g.beginPath(); g.arc(a, b, 9, 0, 7); g.fill();
-    g.strokeStyle = "#ffffff"; g.lineWidth = 3; g.stroke();
-    g.fillStyle = "#e63946"; g.font = "bold 18px Georgia, serif"; g.fillText("YOU ARE HERE", a, b + 30); }
-  // A compass rose.
-  g.fillStyle = "#4f321b"; g.font = "bold 20px Georgia, serif"; g.fillText("N ↑", W - 44, 34);
-  g.strokeStyle = "#4f321b"; g.lineWidth = 10; g.strokeRect(5, 5, W - 10, H - 10);
-  const t = new THREE.CanvasTexture(cv);
-  t.colorSpace = THREE.SRGBColorSpace;
-  t.anisotropy = 8;
-  return t;
-}
-function MapBoard() {
-  const B = FARM_MAP_BOARD;
-  const [x, z] = B.position;
-  const tex = useMemo(mapTexture, []);
-  return (
-    <group position={[x, Y(x, z), z]} rotation={[0, B.rotationY, 0]}>
-      {[-1, 1].map((s) => <Box key={s} p={[s * 1.7, 1.3, -0.05]} s={[0.16, 2.6, 0.16]} m={WOOD_DARK} />)}
-      <Box p={[0, 1.75, -0.08]} s={[3.5, 2.95, 0.1]} m={WOOD} />
-      {tex && (
-        <mesh position={[0, 1.75, -0.02]}>
-          <planeGeometry args={[3.3, 2.93]} />
-          <meshStandardMaterial map={tex} roughness={0.9} />
-        </mesh>
-      )}
-      <Box p={[0, 3.32, 0.05]} r={[0.5, 0, 0]} s={[3.8, 0.1, 0.5]} m={flatMat("#ffffff", { map: getFarmTextures().redIron, metalness: 0.2 })} />
-    </group>
-  );
-}
 
 // ---------------------------------------------------------------------------
 // SIGNPOSTS — finger-posts at the junctions (each arrow points down its track).
@@ -660,9 +570,9 @@ function ArrivalGarden() {
 export default function FarmLandmarks() {
   return (
     <group>
+      <MapBoard3D regionId="farm-parts-whole" roof="#a33a2a" />
       <StaticBatch>
         <EntryArch />
-        <MapBoard />
         {FARM_SIGNPOSTS.map((s) => <Signpost key={s.id} s={s} />)}
         <Picnic />
         <Jetty />

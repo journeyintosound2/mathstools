@@ -19,6 +19,7 @@ import {
 import { useFarmChallengeActive } from "./farmChallengeActive.js";
 import JungleChallengeStages from "./jungle/JungleChallengeStages.jsx";
 import TrophyStandAssembly from "./TrophyStand.jsx";
+import MapBoard3D from "./maps/MapBoard3D.jsx";
 import { JUNGLE_RECORDS_STAND } from "../data/jungle/jungleChallenges.js";
 import { jungleShelfEntries } from "../data/jungle/jungleRecords.js";
 
@@ -88,6 +89,9 @@ export default function JungleScenery() {
 
       {/* The vine-ladder challenges (each built clearing's stage). */}
       <JungleChallengeStages />
+
+      {/* The painted map board on the glade (opens the full-screen map). */}
+      <MapBoard3D regionId="emerald-jungle" roof="#2f6b2a" />
 
       {/* The trophy stand on the arrival glade — trophy.glb, ten pigeonholes
           (the same stand as the farm, snow and magma worlds). */}

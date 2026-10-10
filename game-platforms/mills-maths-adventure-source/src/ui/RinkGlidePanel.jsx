@@ -9,6 +9,7 @@ import {
   RINK_GLIDE_TAIL_MS,
 } from "../data/snow/rinkGlideChallenge.js";
 import { SnowIntro, SnowRoundHead, SnowWorking } from "./SnowCardParts.jsx";
+import RoundCelebrate from "./RoundCelebrate.jsx";
 
 /**
  * ICE RINK — 2D panel (RG). PLAN a queue of pushes with the big buttons
@@ -89,12 +90,6 @@ export default function RinkGlidePanel() {
     }
   }, [status, roundIndex]);
 
-  // Celebrate → auto-next.
-  useEffect(() => {
-    if (status !== "celebrate") return undefined;
-    const t = setTimeout(() => useRinkGlide.getState().next(), CELEBRATE_MS);
-    return () => clearTimeout(t);
-  }, [status, roundIndex]);
 
   if (status === "idle") return null;
 
@@ -189,13 +184,9 @@ export default function RinkGlidePanel() {
       )}
 
       {status === "celebrate" && round && landResult && (
-        <div className="farm-challenge-card mini">
-          <div className="farm-challenge-head">
-            <span>
-              ✓ Landed on {round.target} with {landResult.pushes} tile{landResult.pushes === 1 ? "" : "s"} — {landResult.effLabel} · ⭐ {score}
-            </span>
-          </div>
-        </div>
+        <RoundCelebrate useStore={useRinkGlide} ms={CELEBRATE_MS} working={round.working || round.reason}>
+              Landed on {round.target} with {landResult.pushes} tile{landResult.pushes === 1 ? "" : "s"} — {landResult.effLabel}
+        </RoundCelebrate>
       )}
 
       {status === "feedback" && round && landResult && (

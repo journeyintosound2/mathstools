@@ -369,7 +369,7 @@ export function runMagmaChallengeChecks() {
       get().submitPiece("1"); get().submitPiece(String(get().pieces[1].value));
       get().submitTotal(String(r.product));
     });
-    checks.push({ name: "Magma obsidian: a clumsy crack + a wrong piece score less (feedback)", pass: clumsy.points < 25 && clumsy.points > 0 && clumsy.status === "feedback", detail: `${clumsy.points} pts, ${clumsy.status}` });
+    checks.push({ name: "Magma obsidian: a clumsy crack + a wrong piece score less (right total → celebrate with a slip)", pass: clumsy.points < 25 && clumsy.points > 0 && clumsy.status === "celebrate", detail: `${clumsy.points} pts, ${clumsy.status}` });
   }
 
   // ---- 3 · TENFOLD TERRACES --------------------------------------------
@@ -392,7 +392,7 @@ export function runMagmaChallengeChecks() {
     checks.push({ name: "Magma terraces: 300 sets — digits stay on the terraces; 3.50 ≠ 35; zeros hold places", pass: bad.length === 0 && trapOk && ph, detail: bad.length ? [...new Set(bad)].slice(0, 6).join(",") : `trap:${trapOk} placeholders:${ph}` });
     checks.push(perfectCheck("terraces", PERFECT.terraces));
     const wrongWay = oneRound("terraces", 0, (r, get) => { get().slide(-Math.sign(r.shift) || -1); get().lock(); get().submitResult(fmtThousandths(r.result)); });
-    checks.push({ name: "Magma terraces: sliding the wrong way loses the slide points (and snaps right)", pass: wrongWay.points === 15 && wrongWay.status === "feedback", detail: `${wrongWay.points} pts, ${wrongWay.status}` });
+    checks.push({ name: "Magma terraces: sliding the wrong way loses the slide points (and snaps right)", pass: wrongWay.points === 15 && wrongWay.status === "celebrate", detail: `${wrongWay.points} pts, ${wrongWay.status}` });
   }
 
   // ---- 4 · HALVE & DOUBLE ----------------------------------------------
@@ -412,7 +412,7 @@ export function runMagmaChallengeChecks() {
     const noSteps = oneRound("geysers", 0, (r, get) => { get().solve(); get().submit(String(r.product)); });
     const odd = oneRound("geysers", 0, (r, get) => { get().move(r.a % 2 ? "rows" : "cols"); });
     const oddOk = odd.state.chain.length === 1 && odd.state.note && /odd/.test(odd.state.note.text);
-    checks.push({ name: "Magma geysers: solving without a blast earns only the product; odd numbers won't halve", pass: noSteps.points === 15 && noSteps.status === "feedback" && oddOk, detail: `no-steps ${noSteps.points} pts · odd refused ${oddOk}` });
+    checks.push({ name: "Magma geysers: solving without a blast earns only the product; odd numbers won't halve", pass: noSteps.points === 15 && noSteps.status === "celebrate" && oddOk, detail: `no-steps ${noSteps.points} pts · odd refused ${oddOk}` });
   }
 
   // ---- 5 · FACTOR FORGE ------------------------------------------------
@@ -432,7 +432,7 @@ export function runMagmaChallengeChecks() {
     // Brute force (type the product straight away) earns only the 15.
     const brute = oneRound("forge", 0, (r, get) => { get().select(0); get().select(1); get().fuse(String(r.product)); });
     const prime = oneRound("forge", 10, (r, get) => { const k = get().ingots.findIndex((v) => isPrime(v) && v > 5); if (k >= 0) { get().select(k); get().split([1, get().ingots[k]]); } });
-    checks.push({ name: "Magma forge: fusing without making a ten earns only the final 15; primes won't split", pass: brute.points === 15 && brute.status === "feedback" && prime.state.ingots.length === 3, detail: `brute ${brute.points} pts · prime round ingots ${prime.state.ingots.length}` });
+    checks.push({ name: "Magma forge: fusing without making a ten earns only the final 15; primes won't split", pass: brute.points === 15 && brute.status === "celebrate" && prime.state.ingots.length === 3, detail: `brute ${brute.points} pts · prime round ingots ${prime.state.ingots.length}` });
   }
 
   // ---- 6 · FLOWER COMBOS -----------------------------------------------
@@ -497,7 +497,7 @@ export function runMagmaChallengeChecks() {
     checks.push({ name: "Magma lake: 300 sets — rafts round UP, full bags round DOWN, leftovers are the remainder", pass: bad.length === 0, detail: bad.length ? [...new Set(bad)].join(",") : "4500 rounds ok" });
     checks.push(perfectCheck("lake", PERFECT.lake));
     const oneAtATime = oneRound("lake", 3, (r, get) => { get().pour(r.q * 2); for (let k = 0; k < r.q; k++) get().pour(1); get().submitAnswer(String(r.answer)); });
-    checks.push({ name: "Magma lake: a spill costs 3 and pouring one row at a time scores low", pass: oneAtATime.points < 15 && oneAtATime.state.spills === 1 && oneAtATime.status === "feedback", detail: `${oneAtATime.points} pts, ${oneAtATime.state.spills} spill` });
+    checks.push({ name: "Magma lake: a spill costs 3 and pouring one row at a time scores low", pass: oneAtATime.points < 15 && oneAtATime.state.spills === 1 && oneAtATime.status === "celebrate", detail: `${oneAtATime.points} pts, ${oneAtATime.state.spills} spill` });
   }
 
   // ---- 9 · GROW THE DRAGON ---------------------------------------------
@@ -541,7 +541,7 @@ export function runMagmaChallengeChecks() {
     checks.push({ name: "Magma summit: 300 sets — 8 archetypes, 3 correct tablets, one easiest, no answer leaks", pass: bad.length === 0, detail: bad.length ? [...new Set(bad)].slice(0, 6).join(",") : "4500 rounds ok" });
     checks.push(perfectCheck("summit", PERFECT.summit));
     const other = oneRound("summit", 0, (r, get) => { get().pick(r.choices.find((c) => !c.best).key); get().submit(String(r.answer)); });
-    checks.push({ name: "Magma summit: a sound-but-harder tablet earns 5 (20 for the round)", pass: other.points === 20 && other.status === "feedback", detail: `${other.points} pts` });
+    checks.push({ name: "Magma summit: a sound-but-harder tablet earns 5 (20 for the round)", pass: other.points === 20 && other.status === "celebrate", detail: `${other.points} pts` });
   }
 
   return checks;

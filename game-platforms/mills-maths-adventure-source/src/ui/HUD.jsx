@@ -12,6 +12,7 @@ import { isFarmTaskDone } from "../cloud/farmCompletion.js";
 import { studentChipLabel } from "../cloud/studentSession.js";
 import { Bi, LanguageSelector } from "../i18n/i18n.jsx";
 import TaskCompass from "./TaskCompass.jsx";
+import WaypointCompass from "./map/WaypointCompass.jsx";
 import { useActiveSnowChallenge } from "../game/farmChallengeActive.js";
 import { useActiveMagmaChallenge } from "../game/magma/magmaActive.js";
 import { useActiveJungleChallenge } from "../game/jungle/jungleActive.js";
@@ -157,7 +158,10 @@ export default function HUD() {
 
   return (
     <div className="hud">
-      <TaskCompass />
+      <div className="hud-compass-stack">
+        <TaskCompass />
+        <WaypointCompass />
+      </div>
       {/* Top-left: player stats */}
       <div className="hud-panel hud-stats">
         <div className="hud-name">{profile.name}</div>

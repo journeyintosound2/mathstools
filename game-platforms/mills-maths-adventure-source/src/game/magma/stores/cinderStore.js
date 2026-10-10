@@ -85,13 +85,13 @@ export const useCinderChallenge = createMagmaStore({
         const used = cols.length - 1;
         api.award(cinderReachPoints(get().misses) + cinderEfficiency(r, used));
         set({ hit: { used, min: r.min } });
-        api.endRound();
+        api.endRound({ ok: true });
         return "correct";
       }
       api.say(`${p.carts} carts → ${p.rocks} rocks ✓`, "good");
       if (cols.length - 1 >= CINDER_MAX_NEW) {
         set({ hit: null });
-        api.endRound();
+        api.endRound({ ok: false });
       }
       return "correct";
     },

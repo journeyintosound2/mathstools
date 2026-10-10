@@ -46,7 +46,7 @@ export const useGeysersChallenge = createMagmaStore({
       if (!g.valid) return "invalid";
       api.award(g.formPoints + g.productPoints);
       set({ solveResult: g });
-      api.endRound();
+      api.endRound({ ok: g.correct });
       return g.correct ? "correct" : "wrong";
     },
     onEnter() {

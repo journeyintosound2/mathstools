@@ -5,6 +5,7 @@ import "./styles/fonts.css";
 import "./styles/index.css";
 import "./styles/wall.css";
 import "./styles/title.css";
+import "./styles/map.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>

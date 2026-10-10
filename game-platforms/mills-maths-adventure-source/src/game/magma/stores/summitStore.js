@@ -27,7 +27,7 @@ export const useSummitChallenge = createMagmaStore({
       if (!c.valid) return "invalid";
       if (c.correct) api.award(SUMMIT_ANSWER_POINTS);
       set({ typedCorrect: c.correct });
-      api.endRound();
+      api.endRound({ ok: c.correct });
       return c.correct ? "correct" : "wrong";
     },
   }),

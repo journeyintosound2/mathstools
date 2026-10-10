@@ -4,6 +4,7 @@ import { useVillageSplit } from "../game/villageSplitStore.js";
 import { useSession, playerState } from "../game/sessionStore.js";
 import { VILLAGE_ROUNDS_PER_SET, villageSite } from "../data/snow/villageSplitChallenge.js";
 import { SnowIntro, SnowRoundHead, SnowWorking } from "./SnowCardParts.jsx";
+import RoundCelebrate from "./RoundCelebrate.jsx";
 
 /**
  * IGLOO VILLAGE — 2D panel (VG). Round 2 (2026-09-29): no multiple-choice
@@ -106,11 +107,6 @@ export default function VillageSplitPanel() {
     if (buildNote?.tone === "bad") playerState.camShake = { start: Date.now(), dur: 400 };
   }, [buildNote?.at, buildNote?.tone]);
 
-  useEffect(() => {
-    if (status !== "celebrate") return undefined;
-    const t = setTimeout(() => useVillageSplit.getState().next(), CELEBRATE_MS);
-    return () => clearTimeout(t);
-  }, [status, roundIndex]);
 
   if (status === "idle") return null;
 
@@ -220,13 +216,9 @@ export default function VillageSplitPanel() {
       )}
 
       {status === "celebrate" && round && (
-        <div className="farm-challenge-card mini">
-          <div className="farm-challenge-head">
-            <span>
-              ✓ {round.a} + {round.b} = {round.total}! · ⭐ {score}
-            </span>
-          </div>
-        </div>
+        <RoundCelebrate useStore={useVillageSplit} ms={CELEBRATE_MS} working={round.working || round.reason}>
+              {round.a} + {round.b} = {round.total}!
+        </RoundCelebrate>
       )}
 
       {status === "feedback" && round && (

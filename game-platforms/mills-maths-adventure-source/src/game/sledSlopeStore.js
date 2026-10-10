@@ -168,7 +168,8 @@ export const useSledSlope = create((set, get) => ({
     writeBest(score);
     if (score > 0) {
       const coins = Math.floor(score / 5);
-      useProgress.getState().awardRewards({ xp: score, coins });
+      // XP was banked round by round as the points landed (game/roundOutcome.js).
+      useProgress.getState().awardRewards({ coins });
       useUI.getState().pushToast({
         type: "reward",
         icon: "🛷",

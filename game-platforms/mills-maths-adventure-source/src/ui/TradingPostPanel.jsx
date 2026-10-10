@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import RoundCelebrate from "./RoundCelebrate.jsx";
 
 import { useTradingPost } from "../game/tradingPostStore.js";
 import { useSession, playerState } from "../game/sessionStore.js";
@@ -52,12 +53,6 @@ export default function TradingPostPanel() {
     }
   }, [status, roundIndex]);
 
-  // Celebrate → auto-next.
-  useEffect(() => {
-    if (status !== "celebrate") return undefined;
-    const t = setTimeout(() => useTradingPost.getState().next(), CELEBRATE_MS);
-    return () => clearTimeout(t);
-  }, [status, roundIndex]);
 
   if (status === "idle") return null;
 
@@ -106,11 +101,9 @@ export default function TradingPostPanel() {
       )}
 
       {status === "celebrate" && round && (
-        <div className="farm-challenge-card mini">
-          <div className="farm-challenge-head">
-            <span>🎉 Traded! {round.chain} · {score} pts</span>
-          </div>
-        </div>
+        <RoundCelebrate useStore={useTradingPost} ms={CELEBRATE_MS} working={round.working || round.reason}>
+          🎉 Traded! {round.chain}
+        </RoundCelebrate>
       )}
 
       {status === "feedback" && round && (

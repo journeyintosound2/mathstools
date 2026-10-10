@@ -89,7 +89,7 @@ export function createLadderStore({ key, generate, texts }) {
         if (r.kind === "reach" && dv === r.target) {
           api.award(reachPoints(get().misses) + efficiencyPoints(used(), r.min));
           set({ hit: { li, i } });
-          api.endRound();
+          api.endRound({ ok: true });
           return;
         }
         if (r.kind === "compare" && get().common === null) {
@@ -105,7 +105,7 @@ export function createLadderStore({ key, generate, texts }) {
         const full = get().ladders[li].added >= (r.kind === "compare" ? 6 : MAX_NEW_RUNGS);
         if (full && !(r.kind === "compare" && get().common !== null)) {
           api.say(texts.full(r), "warm");
-          api.endRound();
+          api.endRound({ ok: false });
         }
       }
 
@@ -229,7 +229,7 @@ export function createLadderStore({ key, generate, texts }) {
           const hitI = rungs.findIndex((x) => x[0] === r.smallest[0]);
           api.award(Math.max(4, reachPoints(get().misses) - 5 * get().claimFails) + efficiencyPoints(used(), r.min, 1));
           set({ hit: { li: 0, i: hitI } });
-          api.endRound();
+          api.endRound({ ok: true });
         },
         /** Pick the better stall (compare rounds). */
         call(i) {
@@ -241,7 +241,7 @@ export function createLadderStore({ key, generate, texts }) {
           }
           set({ called: i });
           if (i === r.better) api.award(15);
-          api.endRound();
+          api.endRound({ ok: i === r.better });
         },
       };
     },

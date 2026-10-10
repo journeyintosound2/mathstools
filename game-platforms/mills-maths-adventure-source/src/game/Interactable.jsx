@@ -68,7 +68,7 @@ export default function Interactable({ data }) {
   const status = getInteractableStatus(data, completed);
   // Lift the floating badge for scaled-up characters (e.g. the boss) so it clears
   // their head instead of covering their face.
-  const badgeY = badgeHeight(data.model) * (data.model === "npc" ? (data.scale || 1) : 1);
+  const badgeY = data.badgeY ?? badgeHeight(data.model) * (data.model === "npc" ? (data.scale || 1) : 1);
   const interactRange = data.interactionRadius || INTERACT_RANGE;
 
   // Ref to the character body so NPCs can turn to face the player.

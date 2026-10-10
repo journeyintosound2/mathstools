@@ -10,6 +10,7 @@ import { getMagmaColliders, CRATER_HINT } from "../data/magma/magmaColliders.js"
 import { runMagmaChallengeChecks } from "./magmaChallengeChecks.js";
 import { runJungleChecks } from "./jungleChecks.js";
 import { runJungleChallengeChecks } from "./jungleChallengeChecks.js";
+import { runMapOutcomeChecks } from "./mapOutcomeChecks.js";
 import { runFarmWorldChecks } from "./farmWorldChecks.js";
 import { runIslandWorldChecks } from "./islandWorldChecks.js";
 import { runSchoolyardWorldChecks } from "./schoolyardWorldChecks.js";
@@ -683,6 +684,8 @@ export function runSystemChecks(progressSnapshot) {
   for (const c of runJungleChecks()) checks.push(c);
   // Emerald Jungle — the vine-ladder challenges (2026-10-10 pilot).
   for (const c of runJungleChallengeChecks()) checks.push(c);
+  // World maps + waypoints, and the one round-outcome rule (2026-10-10).
+  for (const c of runMapOutcomeChecks()) checks.push(c);
   for (const c of runFarmWorldChecks()) checks.push(c);
   // Snowball Sums rebuilt as a big alpine valley (SW1–SW10).
   for (const c of runSnowWorldChecks()) checks.push(c);
@@ -4895,7 +4898,7 @@ export function runFarmChecks() {
   //      by the fence's east end.
   const farmIx = getInteractablesForRegion("farm-parts-whole");
   const signDist = Math.hypot(CHALLENGE_SIGN.position[0] - CHALLENGE_FENCE.x2, CHALLENGE_SIGN.position[1] - CHALLENGE_FENCE.z);
-  const wantedIx = ["farm-welcome-sign", "farm-fence-sign", "farm-roundup-sign", "farm-order-sign", "farm-crate-sign", "farm-milk-sign", "farm-weigh-sign", "farm-trade-sign", "farm-veggie-sign", "farm-plank-sign", "farm-shop-sign", "farm-records", "farm-chest"];
+  const wantedIx = ["farm-welcome-sign", "farm-fence-sign", "farm-roundup-sign", "farm-order-sign", "farm-crate-sign", "farm-milk-sign", "farm-weigh-sign", "farm-trade-sign", "farm-veggie-sign", "farm-plank-sign", "farm-shop-sign", "farm-records", "farm-chest", "farm-parts-whole-map"];
   const fa6 = farmIx.length === wantedIx.length && farmIx.every((i) => ENCOUNTERS[i.encounterId]) &&
     wantedIx.every((id) => farmIx.some((i) => i.id === id)) && signDist < 8;
   checks.push({
@@ -5794,7 +5797,7 @@ export function runSnowChecks() {
   const wantedSnowIx = [
     "snow-welcome-sign", "snow-range-sign", "snow-rink-sign", "snow-pines-sign", "snow-snowmen-sign",
     "snow-sled-sign", "snow-village-sign", "snow-colony-sign", "snow-cave-sign", "snow-yard-sign",
-    "snow-lights-sign", "snow-records", "snow-chest",
+    "snow-lights-sign", "snow-records", "snow-chest", "snow-sums-map",
   ];
   const ixOk = snowIx.length === wantedSnowIx.length &&
     wantedSnowIx.every((id) => snowIx.some((i) => i.id === id)) &&

@@ -34,7 +34,7 @@ export const useColumnsChallenge = createMagmaStore({
       const c = gradeColumnsClaim(round, get().kept);
       api.award(c.findPoints + c.claimPoints);
       set({ claimResult: c, missing: columnsMissing(round, get().kept) });
-      api.endRound();
+      api.endRound({ ok: c.all });
     },
     onEnter() {
       get().keep();

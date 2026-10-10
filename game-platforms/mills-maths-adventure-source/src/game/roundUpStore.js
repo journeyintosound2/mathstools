@@ -25,7 +25,7 @@ import { useUI } from "../ui/effects/uiStore.js";
  */
 
 const BEST_KEY = "mma-farm-roundup-best";
-const XP_PER_CORRECT = 12;
+export const XP_PER_CORRECT = 12;
 const COINS_PER_CORRECT = 6;
 
 function readBest() {
@@ -156,7 +156,8 @@ export const useRoundUp = create((set, get) => ({
     writeBest(score);
     reportFarmCompletion("roundup", score, ROUNDUP_ROUNDS_PER_SET);
     if (score > 0) {
-      useProgress.getState().awardRewards({ xp: score * XP_PER_CORRECT, coins: score * COINS_PER_CORRECT });
+      // XP was banked round by round (game/roundOutcome.js — XP_PER_CORRECT a cow round).
+      useProgress.getState().awardRewards({ coins: score * COINS_PER_CORRECT });
       useUI.getState().pushToast({
         type: "reward",
         icon: "🐄",

@@ -9,7 +9,7 @@
  */
 import {
   MAGMA_BRIDGES, MAGMA_BOULDERS, MAGMA_DEAD_TREES, MAGMA_LANTERNS,
-  MAGMA_WELCOME_SIGN,
+  MAGMA_WELCOME_SIGN, MAGMA_MAP_BOARD,
 } from "./magmaLayout.js";
 import {
   PLAZA_BRAZIERS, BRIDGE_BRAZIERS, BASALT_COLUMNS, OBSIDIAN_CLUSTERS, GEYSERS,
@@ -108,6 +108,11 @@ function buildStatic() {
     out.push(c(`mg-host-${ch.key}`, "interactable", x, z, 0.7));
   });
   out.push(c("mg-welcome-mills", "interactable", MAGMA_WELCOME_HOST.position[0], MAGMA_WELCOME_HOST.position[1], 0.7));
+  // The map board by the plaza (posts + panel).
+  {
+    const [bx, bz] = MAGMA_MAP_BOARD.position, ry = MAGMA_MAP_BOARD.rotationY;
+    [-1.6, 0, 1.6].forEach((o, i) => out.push(c(`mg-mapboard-${i}`, "landmark", bx + Math.cos(ry) * o, bz - Math.sin(ry) * o, 0.32)));
+  }
   out.push(c("mg-records", "interactable", MAGMA_RECORDS_STAND.position[0], MAGMA_RECORDS_STAND.position[1], 2.0));
 
   // Tenfold Terraces: the seven-step stone staircase (two circles a step).

@@ -15,6 +15,8 @@ import { getEncounter } from "../data/encounters.js";
 export function getInteractableStatus(data, completed) {
   const encounter = getEncounter(data.encounterId);
   const type = encounter?.type;
+  // World map boards (2026-10-10) — a map, not a person.
+  if (data.mapBoard) return { icon: "🗺️", tone: "reward", label: "Open the map" };
 
   switch (type) {
     case "mathsChallenge":

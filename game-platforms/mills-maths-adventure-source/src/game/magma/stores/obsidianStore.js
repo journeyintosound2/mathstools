@@ -90,7 +90,7 @@ export const useObsidianChallenge = createMagmaStore({
       if (!c.valid) return "invalid";
       if (c.correct) api.award(OBSIDIAN_TOTAL_POINTS);
       set({ totalCorrect: c.correct });
-      api.endRound();
+      api.endRound({ ok: c.correct });
       return c.correct ? "correct" : "wrong";
     },
     onEnter() {

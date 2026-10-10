@@ -4,6 +4,7 @@ import { useLodgeYard } from "../game/lodgeYardStore.js";
 import { useSession, playerState } from "../game/sessionStore.js";
 import { YARD_ROUNDS_PER_SET, YARD_COINS, yardTillAfter } from "../data/snow/lodgeYardChallenge.js";
 import { SnowIntro, SnowRoundHead, SnowWorking } from "./SnowCardParts.jsx";
+import RoundCelebrate from "./RoundCelebrate.jsx";
 
 /**
  * THE LODGE YARD — 2D panel (LY). Round 2 (2026-09-29): tap COINS to count
@@ -76,11 +77,6 @@ export default function LodgeYardPanel() {
     if (note?.tone === "bad") playerState.camShake = { start: Date.now(), dur: 350 };
   }, [note?.at, note?.tone]);
 
-  useEffect(() => {
-    if (status !== "celebrate") return undefined;
-    const t = setTimeout(() => useLodgeYard.getState().next(), CELEBRATE_MS);
-    return () => clearTimeout(t);
-  }, [status, roundIndex]);
 
   if (status === "idle") return null;
 
@@ -203,13 +199,9 @@ export default function LodgeYardPanel() {
       )}
 
       {status === "celebrate" && round && (
-        <div className="farm-challenge-card mini">
-          <div className="farm-challenge-head">
-            <span>
-              ✓ Your change is {round.change}c — enjoy the hot chocolate! · ⭐ {score}
-            </span>
-          </div>
-        </div>
+        <RoundCelebrate useStore={useLodgeYard} ms={CELEBRATE_MS} working={round.working || round.reason}>
+              Your change is {round.change}c — enjoy the hot chocolate!
+        </RoundCelebrate>
       )}
 
       {status === "feedback" && round && (

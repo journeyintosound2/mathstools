@@ -63,7 +63,7 @@ export const useBonesChallenge = createMagmaStore({
       if (g.all && raises === 1 && !r.askFactor) api.award(BONES_FIRST_TRY);
       set({ raises, earned, grade: g, lastRaise: { at: Date.now() } });
       if (g.all || raises >= 2) {
-        api.endRound();
+        api.endRound({ ok: g.all });
         return;
       }
       const addIdx = g.additive.findIndex(Boolean);

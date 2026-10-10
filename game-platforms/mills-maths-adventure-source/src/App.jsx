@@ -36,6 +36,9 @@ import SnowTrophyGrid from "./ui/SnowTrophyGrid.jsx";
 import MagmaTrophyGrid from "./ui/MagmaTrophyGrid.jsx";
 import MagmaPanels from "./ui/magma/MagmaPanels.jsx";
 import JungleTrophyGrid from "./ui/JungleTrophyGrid.jsx";
+import MapViewer from "./ui/map/MapViewer.jsx";
+import { hasRegionMap } from "./data/maps/regionMaps.js";
+import { isAnyChallengeActive } from "./game/farmChallengeActive.js";
 import JunglePanels from "./ui/jungle/JunglePanels.jsx";
 import ResultsCentre from "./ui/ResultsCentre.jsx";
 import HowToPlay from "./ui/HowToPlay.jsx";
@@ -82,6 +85,7 @@ export default function App() {
   const snowTrophyOpen = useUI((s) => s.snowTrophyOpen);
   const magmaTrophyOpen = useUI((s) => s.magmaTrophyOpen);
   const jungleTrophyOpen = useUI((s) => s.jungleTrophyOpen);
+  const mapOpen = useUI((s) => s.mapOpen);
   const resultsOpen = useUI((s) => s.resultsOpen);
   const howToOpen = useUI((s) => s.howToOpen);
   const pilotOpen = useUI((s) => s.pilotOpen);
@@ -100,11 +104,29 @@ export default function App() {
 
   // Global "a modal/overlay is open" flag on <body>. CSS uses .modal-open to
   // hide ALL in-world (drei <Html>) labels so they never sit over a modal.
-  const anyModalOpen = Boolean(activeEncounterId) || questLogOpen || trophyOpen || farmTrophyOpen || snowTrophyOpen || magmaTrophyOpen || jungleTrophyOpen || resultsOpen || howToOpen || pilotOpen || cloudLoginOpen;
+  const anyModalOpen = Boolean(activeEncounterId) || questLogOpen || trophyOpen || farmTrophyOpen || snowTrophyOpen || magmaTrophyOpen || jungleTrophyOpen || mapOpen || resultsOpen || howToOpen || pilotOpen || cloudLoginOpen;
   useEffect(() => {
     document.body.classList.toggle("modal-open", anyModalOpen);
     return () => document.body.classList.remove("modal-open");
   }, [anyModalOpen]);
+
+  // "M" opens / closes the world map (any world that has one), unless a
+  // challenge, a modal or a text box has the keyboard.
+  useEffect(() => {
+    function onKeyDown(e) {
+      if (e.key.toLowerCase() !== "m" || e.repeat) return;
+      const tag = (e.target && e.target.tagName) || "";
+      if (/input|textarea|select/i.test(tag) || (e.target && e.target.isContentEditable)) return;
+      if (phase !== "playing") return;
+      const ui = useUI.getState();
+      if (ui.mapOpen) { ui.closeMap(); return; }
+      if (activeEncounterId || ui.wallView || isAnyChallengeActive()) return;
+      if (!hasRegionMap(useSession.getState().currentRegionId)) return;
+      ui.openMap();
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [phase, activeEncounterId]);
 
   // Global keyboard listener for the "E" interaction key.
   // We handle it here (outside the Canvas) so that opening the modal,
@@ -114,6 +136,7 @@ export default function App() {
     function onKeyDown(e) {
       if (e.key.toLowerCase() !== "e") return;
       if (useUI.getState().wallView) return; // looking at the Achievements Wall
+      if (useUI.getState().mapOpen) return; // the world map is open
       if (phase === "playing" && nearbyId && !activeEncounterId) {
         const interactable = getInteractable(nearbyId);
         if (interactable) {
@@ -187,6 +210,7 @@ export default function App() {
       <SnowTrophyGrid />
       <MagmaTrophyGrid />
       <JungleTrophyGrid />
+      <MapViewer />
       <ResultsCentre />
       {activeEncounterId === "__dialogue__" ? (
         <div className="modal-overlay"><DynamicDialogue /></div>

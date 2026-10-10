@@ -8,6 +8,7 @@ import {
   COLONY_WADDLE_MS,
 } from "../data/snow/colonyPairsChallenge.js";
 import { SnowIntro, SnowRoundHead, SnowWorking } from "./SnowCardParts.jsx";
+import RoundCelebrate from "./RoundCelebrate.jsx";
 
 /**
  * PENGUIN COLONY — 2D panel (PC). PREDICT the hiding double (buttons or
@@ -85,11 +86,6 @@ export default function ColonyPairsPanel() {
     }
   }, [status, roundIndex]);
 
-  useEffect(() => {
-    if (status !== "celebrate") return undefined;
-    const t = setTimeout(() => useColonyPairs.getState().next(), CELEBRATE_MS);
-    return () => clearTimeout(t);
-  }, [status, roundIndex]);
 
   if (status === "idle") return null;
 
@@ -188,13 +184,9 @@ export default function ColonyPairsPanel() {
       )}
 
       {status === "celebrate" && round && (
-        <div className="farm-challenge-card mini">
-          <div className="farm-challenge-head">
-            <span>
-              ✓ {round.a} + {round.b} = {round.total}! · ⭐ {score}
-            </span>
-          </div>
-        </div>
+        <RoundCelebrate useStore={useColonyPairs} ms={CELEBRATE_MS} working={round.working || round.reason}>
+              {round.a} + {round.b} = {round.total}!
+        </RoundCelebrate>
       )}
 
       {status === "feedback" && round && (

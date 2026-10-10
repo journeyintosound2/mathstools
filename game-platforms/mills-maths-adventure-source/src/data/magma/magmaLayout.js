@@ -88,6 +88,10 @@ export const MAGMA_RETURN_PORTAL = [-6.9, 97.0];
 export const MAGMA_RETURN_PORTAL_YAW = Math.atan2(6.9, -5.2); // faces the plaza centre
 // Welcome sign just north of the spawn, slightly off the avenue.
 export const MAGMA_WELCOME_SIGN = { position: [4.2, 88.0], rotationY: -0.35, text: "Welcome to Magma Multiples" };
+// The painted MAP board (2026-10-10): front-left of the arrival (past Mills),
+// off the paving, facing the spawn. Interact with it to open the full-screen
+// map + set a waypoint.
+export const MAGMA_MAP_BOARD = { position: [-8, 84], rotationY: Math.atan2(0 + 8, 93.3 - 84) };
 
 // ---------------------------------------------------------------------------
 // Shore (lava sea) — an irregular coastline, radius ~103–116.

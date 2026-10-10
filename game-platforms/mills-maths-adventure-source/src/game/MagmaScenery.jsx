@@ -25,6 +25,7 @@ import { inMagmaChallengeView, MAGMA_RECORDS_STAND } from "../data/magma/magmaCh
 import { magmaShelfEntries } from "../data/magma/magmaRecords.js";
 import { useFarmChallengeActive } from "./farmChallengeActive.js";
 import TrophyStandAssembly from "./TrophyStand.jsx";
+import MapBoard3D from "./maps/MapBoard3D.jsx";
 
 /**
  * MAGMA MULTIPLES — scenery root (the sixth region). Land only: terrain,
@@ -116,6 +117,9 @@ export default function MagmaScenery() {
       {/* The ten multiplicative challenges (only the running one is drawn,
           plus the permanent Tenfold Terraces staircase). */}
       <MagmaChallengeStages />
+
+      {/* The painted map board by the plaza (opens the full-screen map). */}
+      <MapBoard3D regionId="magma-multiples" roof="#3a2f2a" />
 
       {/* The trophy stand on the arrival plaza — identical to the farm's and
           the snow world's (trophy.glb, ten pigeonholes, grand trophy). */}

@@ -7,6 +7,7 @@ import {
   SLED_MAX_SLIDES,
 } from "../data/snow/sledSlopeChallenge.js";
 import { SnowIntro, SnowRoundHead, SnowWorking } from "./SnowCardParts.jsx";
+import RoundCelebrate from "./RoundCelebrate.jsx";
 
 /**
  * SLEDDING SLOPE — 2D panel (SL). (The rope thought-experiment was retired
@@ -88,12 +89,6 @@ export default function SledSlopePanel() {
     }
   }, [status, roundIndex]);
 
-  // Celebrate (the race) → auto-next.
-  useEffect(() => {
-    if (status !== "celebrate") return undefined;
-    const t = setTimeout(() => useSledSlope.getState().next(), CELEBRATE_MS);
-    return () => clearTimeout(t);
-  }, [status, roundIndex]);
 
   if (status === "idle") return null;
 
@@ -203,13 +198,9 @@ export default function SledSlopePanel() {
       )}
 
       {status === "celebrate" && round && (
-        <div className="farm-challenge-card mini">
-          <div className="farm-challenge-head">
-            <span>
-              ✓ {round.a} − {round.b} = {round.gap} — and they're off! 🛷🛷 · ⭐ {score}
-            </span>
-          </div>
-        </div>
+        <RoundCelebrate useStore={useSledSlope} ms={CELEBRATE_MS} working={round.working || round.reason}>
+              {round.a} − {round.b} = {round.gap} — and they're off! 🛷🛷
+        </RoundCelebrate>
       )}
 
       {status === "feedback" && round && (

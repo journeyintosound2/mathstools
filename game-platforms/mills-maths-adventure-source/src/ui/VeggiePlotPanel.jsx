@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import RoundCelebrate from "./RoundCelebrate.jsx";
 
 import { useVeggiePlot } from "../game/veggiePlotStore.js";
 import { useSession, playerState } from "../game/sessionStore.js";
@@ -114,12 +115,6 @@ export default function VeggiePlotPanel() {
     }
   }, [status, roundIndex]);
 
-  // Celebrate → auto-next.
-  useEffect(() => {
-    if (status !== "celebrate") return undefined;
-    const t = setTimeout(() => useVeggiePlot.getState().next(), CELEBRATE_MS);
-    return () => clearTimeout(t);
-  }, [status, roundIndex]);
 
   if (status === "idle") return null;
 
@@ -186,13 +181,9 @@ export default function VeggiePlotPanel() {
       )}
 
       {status === "celebrate" && round && (
-        <div className="farm-challenge-card mini">
-          <div className="farm-challenge-head">
-            <span>
-              ✓ {round.kind === "area" ? `${round.widthStr} × ${round.lengthStr} = ${round.productStr}` : (round.grows ? "It grows!" : "It shrinks!")} · {score} pts
-            </span>
-          </div>
-        </div>
+        <RoundCelebrate useStore={useVeggiePlot} ms={CELEBRATE_MS} working={round.working || round.reason}>
+              {round.kind === "area" ? `${round.widthStr} × ${round.lengthStr} = ${round.productStr}` : (round.grows ? "It grows!" : "It shrinks!")}
+        </RoundCelebrate>
       )}
 
       {status === "feedback" && round && (

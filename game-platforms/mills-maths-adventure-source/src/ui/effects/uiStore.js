@@ -103,6 +103,12 @@ export const useUI = create((set, get) => ({
   snowTrophyOpen: false, // the Snowball Sums trophy grid (opened from its stand)
   magmaTrophyOpen: false, // the Magma Multiples trophy grid (opened from its stand)
   jungleTrophyOpen: false, // the Emerald Jungle trophy grid (opened from its stand)
+  // WORLD MAPS (2026-10-10): the full-screen map of the current world (opened
+  // from its map board, the waypoint chip or the M key) + the one waypoint
+  // set on it: { regionId, x, z, label, icon, arrive, at }. Cleared on
+  // arrival, on leaving the world, or with the chip's ✕.
+  mapOpen: false,
+  waypoint: null,
   // Whether the persistent "Current Quest" card is shown in the HUD (a student
   // preference, saved so it survives refreshes).
   questHudOn: loadQuestHudPref(),
@@ -236,6 +242,18 @@ export const useUI = create((set, get) => ({
   },
   setJungleTrophy(open) {
     set({ jungleTrophyOpen: open });
+  },
+  openMap() {
+    set({ mapOpen: true, cogOpen: false });
+  },
+  closeMap() {
+    set({ mapOpen: false });
+  },
+  setWaypoint(wp) {
+    set({ waypoint: wp ? { arrive: 4, ...wp, at: Date.now() } : null });
+  },
+  clearWaypoint() {
+    set({ waypoint: null });
   },
 
   // Results Centre (Phase 2L) — local attempt history / reporting overlay.

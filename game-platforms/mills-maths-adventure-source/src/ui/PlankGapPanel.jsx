@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import RoundCelebrate from "./RoundCelebrate.jsx";
 
 import { usePlankGap } from "../game/plankGapStore.js";
 import { useSession, playerState } from "../game/sessionStore.js";
@@ -53,11 +54,6 @@ export default function PlankGapPanel() {
     if (status === "feedback") playerState.camShake = { start: Date.now(), dur: 500 };
   }, [status, roundIndex]);
 
-  useEffect(() => {
-    if (status !== "celebrate") return undefined;
-    const t = setTimeout(() => usePlankGap.getState().next(), CELEBRATE_MS);
-    return () => clearTimeout(t);
-  }, [status, roundIndex]);
 
   if (status === "idle") return null;
 
@@ -128,11 +124,9 @@ export default function PlankGapPanel() {
       )}
 
       {status === "celebrate" && round && (
-        <div className="farm-challenge-card mini">
-          <div className="farm-challenge-head">
-            <span>✓ Gap filled — {round.gapStr}! · {score} pts</span>
-          </div>
-        </div>
+        <RoundCelebrate useStore={usePlankGap} ms={CELEBRATE_MS} working={round.working || round.reason}>
+          Gap filled — {round.gapStr}!
+        </RoundCelebrate>
       )}
 
       {status === "feedback" && round && result && (

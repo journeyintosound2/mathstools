@@ -7,7 +7,7 @@
  *
  * Every item: { x, z, y (ground), s (scale), rot, tint (0..1), lean? }
  */
-import {
+import { JUNGLE_MAP_BOARD,
   terrainHeight, slopeAt, waterEdgeDist, pathEdgeDist, nearestPath, rimCoords, rng, fbm, smoothstep,
   JUNGLE_SPOTS, ARRIVAL_GLADE, JUNGLE_RETURN_PORTAL, GREAT_TREE, MUSHROOM_LEDGE, LAGOON,
   TEMPLE_ANCHOR, HILLS, escarpZ, PLATEAU_H, FALLS_POOL, JUNGLE_WELCOME_SIGN, JUNGLE_PATHS,
@@ -30,6 +30,7 @@ function keepClearList() {
     { c: JUNGLE_WELCOME_SIGN.position, r: 2.5 },
     { c: JUNGLE_RECORDS_STAND.position, r: 4.6 }, // the trophy stand
     { c: JUNGLE_WELCOME_HOST.position, r: 1.6 }, // Mills
+    { c: JUNGLE_MAP_BOARD.position, r: 3.2 }, // the map board
     { c: TEMPLE_ANCHOR.c, r: 18 },
     { c: GREAT_TREE.center, r: GREAT_TREE.deckR + 2.5 },
     { c: MUSHROOM_LEDGE.center, r: MUSHROOM_LEDGE.radius + 2.2 },
@@ -421,15 +422,26 @@ export function getJungleSetPieces() {
       rubble.push({ x, z, y: terrainHeight(x, z), s: 0.5 + rand() * 0.6, rot: rand() * TAU, tilt: (rand() - 0.5) * 0.5 });
     }
   }
-  // Trail signposts at the main junctions.
-  const sign = (x, z, rot, arrows) => ({ x, z, y: terrainHeight(x, z), rot, arrows });
+  // Trail signposts at the main junctions. Each arrow points at a VIA point a
+  // little way along the trail that leads to its place (so it always points
+  // down the right trail, not across the hills). The arrow board's tip is its
+  // local +x, so the yaw toward (dx, dz) is atan2(−dz, dx).
+  const sign = (x, z, arrows) => ({
+    x, z, y: terrainHeight(x, z), rot: 0,
+    arrows: arrows.map(([label, [vx, vz]]) => [label, Math.atan2(-(vz - z), vx - x)]),
+    via: arrows.map(([label, v]) => ({ label, v })),
+  });
   const signs = [
-    sign(-3.5, 121, 0.4, [["Palm Grove", -0.6], ["Lily Lagoon", 2.2]]),
-    sign(-39, 32.5, 0.2, [["Temple Ruins", 0], ["Canopy Lookout", 2.6]]),
-    sign(-39, -28.5, -0.2, [["Redwood Hollow", 0.2], ["Great Tree", 3.1]]),
-    sign(30.5, -59, -0.6, [["Waterfall Stairs", 0], ["Great Tree", 3.2]]),
-    sign(27.5, -21, 0.3, [["Mossback Ridge", 1.2], ["Temple Ruins", 3.0]]),
-    sign(-11, -78, 0.1, [["Vine Cliffs", 0], ["Waterfall Pool", 2.6]]),
+    sign(-5.5, 122.5, [["Palm Grove", [-12, 111]], ["Canopy Lookout", [-12, 111]]]),
+    // The glade's east exit: the way to the lagoon + Sunny Knoll (Sunny Market).
+    sign(11, 126.5, [["Sunny Knoll", [20, 128]], ["Lily Lagoon", [20, 128]]]),
+    // The lagoon junction: up the hill to Sunny Knoll, or back to the glade.
+    sign(61.5, 98, [["Sunny Knoll", [62.5, 90]], ["Arrival Glade", [54, 111]]]),
+    sign(-39, 32.5, [["Temple Ruins", [-46, 18]], ["Canopy Lookout", [-35, 58]]]),
+    sign(-39, -28.5, [["Redwood Hollow", [-47, -35]], ["Great Tree", [-33, -24]]]),
+    sign(30.5, -59, [["Waterfall Stairs", [39, -70]], ["Great Tree", [36, -39]]]),
+    sign(27.5, -21, [["Mossback Ridge", [47, -27]], ["Temple Ruins", [12, -20]]]),
+    sign(-11, -78, [["Vine Cliffs", [-17, -84]], ["Waterfall Pool", [13, -88.5]]]),
   ];
   // The Great Tree: a little hut on the treehouse deck (west side) and the
   // gap in the deck railing where the rope bridge leaves (east).

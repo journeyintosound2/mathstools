@@ -164,6 +164,16 @@ const MarketPlay = ({ round }) => (
   <LadderPlay round={round} useStore={useMarketChallenge} question={marketQuestion} againLabel="➕ Again" />
 );
 
+/** What slipped on the way (shown on a right-answer card that lost points). */
+function ladderSlip(r, st) {
+  const parts = [];
+  if (st.misses) parts.push(`${st.misses} wrong number${st.misses > 1 ? "s" : ""} on the way`);
+  if (st.claimFails) parts.push(`${st.claimFails} early "smallest" claim${st.claimFails > 1 ? "s" : ""}`);
+  const used = (st.ladders || []).reduce((a, l) => a + l.added, 0);
+  if (r.kind !== "compare" && r.min && used > r.min) parts.push(`${used} new rungs — it can be done in ${r.min}`);
+  return parts.length ? `What slipped: ${parts.join(" · ")}.` : null;
+}
+
 const JUNGLE = {
   regionId: JUNGLE_REGION_ID,
   getMeta: getJungleChallenge,
@@ -186,6 +196,7 @@ export default function JunglePanels() {
           example: "3 🍌 ↔ 2 🥭 → × 10 → 30 🍌 ↔ 20 🥭",
         }}
         Play={SwapPlay}
+        slip={ladderSlip}
         celebrate={(r) => (r.kind === "smallest" ? `the smallest swap is ${r.smallest[0]} 🍌 ↔ ${r.smallest[1]} 🥭` : `${r.goal[0]} 🍌 ↔ ${r.goal[1]} 🥭 — deal!`)}
       />
       <MagmaPanelShell
@@ -199,6 +210,7 @@ export default function JunglePanels() {
           example: "4 🍍 ↔ $10 → ÷ 4 → 1 🍍 ↔ $2.50 → × 7 → 7 🍍 ↔ $17.50",
         }}
         Play={MarketPlay}
+        slip={ladderSlip}
         celebrate={(r) => (r.kind === "compare" ? `${r.ladders[r.better].name} is the better buy` : `${r.fruit.kind === "kg" ? fmtVal("kg", r.goal[0]) : vineChip(r.fruit, r.goal[0])} = ${fmtMoney(r.goal[1])}`)}
       />
     </>

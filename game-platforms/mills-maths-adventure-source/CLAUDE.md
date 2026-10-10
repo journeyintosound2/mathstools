@@ -171,6 +171,18 @@
 > glbs. See "DONE (2026-10-10) — EMERALD JUNGLE PILOT". **576 → 587 checks;
 > vite build clean.**
 >
+> **NEW (built 2026-10-10 afternoon, NOT yet deployed): WORLD MAPS +
+> WAYPOINTS, and ONE ROUND-OUTCOME RULE for every challenge.** Every world
+> (island, farm, snow, magma, jungle, Playground) has a painted map board by
+> its arrival; it (or the M key, or the waypoint chip) opens a full-screen
+> map — hover places, scroll/pinch to zoom, drag, click a place or any spot
+> to set a WAYPOINT (a beam of light in the world + an arrow at the top of
+> the screen). A right final answer after a slip now CELEBRATES (confetti +
+> "a slip along the way" + the XP the round earned); XP banks as points
+> land. Jungle signposts fixed (they pointed the wrong way; Sunny Knoll now
+> signed). See "DONE (2026-10-10, afternoon)". **587 → 594 checks; vite
+> build clean.**
+>
 > **NEXT UP options:** live visual pass + deploy of the snow world + cabin ·
 > teacher glbs for the six placeholder snow/cabin hosts (add each
 > characterId to characterModels.js) · a snow/cabin cloud-completion path
@@ -179,6 +191,98 @@
 > interactive plot-a-point input mode (tap the Cartesian grid) · Stage 5
 > depth (still only 2 sample skills) · more Stage 4 topics (Area extension)
 > · a DevPanel gallery to eyeball every new diagram/chart at once.
+
+## DONE (2026-10-10, afternoon) — WORLD MAPS + WAYPOINTS · ONE ROUND-OUTCOME RULE
+Jeff's feedback after playing the jungle pilot: (1) a round whose final
+answer was right still SHOOK if there'd been a mistake on the way — he wants
+confetti, a note that there was a slip along the way, and XP, for ALL
+challenges in all areas; (2) he couldn't find Mr. Pearce on Sunny Knoll —
+wants a map near each spawn, full screen, mouse/trackpad over it, click an
+area to set a waypoint; polished maps with every challenge's location, for
+all areas. **587 → 594 checks (new `runMapOutcomeChecks` in
+`src/dev/mapOutcomeChecks.js`: MP1–MP4 + RO1–RO3; FA6/SN2/JCF1 list the new
+board interactables; six Magma checks now expect `celebrate` for a right
+final answer with a slip), all passing; vite build clean.** NOT yet deployed.
+- **Round outcomes (`game/roundOutcome.js`):** every in-world challenge
+  store (farm 10, snow 10, magma 10, jungle 2 — `ALL_CHALLENGE_STORES` in
+  farmChallengeActive.js) is tracked: XP is BANKED AS POINTS LAND (1 point =
+  1 XP; the Round-Up's `XP_PER_CORRECT`), so a round's XP is real when its
+  card shows it and quitting keeps it; set ends now pay only COINS (toasts
+  unchanged). `roundPointsOf(store)` / `roundSlipped(store)` /
+  `useRoundOutcome`. **The rule:** final answer right → `celebrate`
+  (confetti — the 3D stages already fire it); final answer wrong →
+  `feedback` (shake). Magma's `createMagmaStore.endRound({ ok })` now takes
+  the final-answer flag (every Magma store + the jungle ladder store pass
+  it; omitted = the old full-marks rule). Farm/snow stores already
+  celebrated on a right final answer. **The card (`ui/RoundCelebrate.jsx`,
+  used by all 16 celebrate-capable farm/snow panels + MagmaPanelShell):**
+  full marks = the slim "✓ … · +25 XP · ⭐" strip that moves on by itself; a
+  slip = a green card: "Right answer! There was a slip along the way, so this
+  round earned N of 25 XP", an optional `detail` (the jungle names it: "1
+  wrong number on the way · 5 new rungs — it can be done in 3"), the quick
+  way (`round.working` / `round.reason`), and Next (it waits). The panels'
+  own celebrate timers were removed (the card owns it). Single-answer farm
+  challenges (fence, round-up, order, crate) have no "on the way", so they
+  are unchanged; Milk/Trading Post end a round at their first wrong part.
+- **World maps — data (`data/maps/regionMaps.js`, pure):** `MAP_REGION_IDS`
+  (not the Lodge — one room), `regionMapSpec(id)` (title, palette, bounds,
+  board, area labels), `regionMapPois(id, {progress, results})` — every
+  challenge in trophy order with its medal and its HOST as the waypoint
+  target (jungle "coming soon" clearings too), Mills, the trophy stand, the
+  Playground's 9 staff (key done ✓), the island's friends (pass ✓) + places,
+  and every gate (from `REGIONS[id].portals`); `worldToMap`/`mapToWorld`;
+  `mapSpotIsWalkable` (the region's `isSafe`).
+- **Painting (`game/maps/paintRegionMap.js`):** each world's own ground
+  colours (island/farm/snow colour grids, school `schoolGroundColour`,
+  stylised jungle + magma) sampled at 1.6/m, hill-shaded from the NW with
+  4 m contours and pale shorelines, upscaled to 2048 px, then crisp vectors:
+  trails, rivers, bridges, buildings/roofs, tree canopy dabs, plazas, the
+  volcano trail, fences; paper grain + vignette. A GENERATOR, so
+  `paintRegionMapAsync` paints in ~10 ms slices (the game keeps running);
+  cached per world. `regionBoardTexture(id, fontsReady)` = the board's
+  texture (title, pins, labels, YOU ARE HERE, north).
+- **Boards (`game/maps/MapBoard3D.jsx`):** one timber board design for all
+  six worlds (replaced the island/farm/snow/campus boards' old paintings;
+  new boards: `MAGMA_MAP_BOARD` [-8, 84] front-left of the plaza,
+  `JUNGLE_MAP_BOARD` [-9.5, 136] on the glade; colliders + keep-clear
+  added). Painted ~1.2 s after arrival. Interactables `<regionId>-map`
+  (`mapBoard: true`, encounter `world-map`, badge "🗺️ Open the map" above
+  the roof via the new `badgeY` field) → interaction.js `openMap()`.
+- **Viewer (`ui/map/MapViewer.jsx` + `styles/map.css`):** full screen,
+  the world's colours; HTML pins (numbered challenges with medal rings,
+  people, trophies, gates) counter-scaled so they stay crisp; hover = a
+  tooltip card + the pin's name; side list grouped (Challenges / People /
+  Trophies / Places / Gates) that highlights its pin; wheel/trackpad pinch
+  zoom (≤ 3.5× fit), drag to pan, two-finger pinch on touch, + / − / ⤢
+  buttons, 0 = fit, Esc; a live YOU arrow and a dashed line to the
+  waypoint. Click a pin/row → waypoint + "follow the arrow" + closes;
+  click open land → "Marked spot" (refused in sea/lava/lake). uiStore
+  `mapOpen`/`openMap`/`closeMap`/`waypoint`/`setWaypoint`/`clearWaypoint`;
+  App: the **M key** toggles the map (not during a challenge/modal/typing),
+  E is ignored while it's open, the player freezes.
+- **Waypoint in the world:** `ui/map/WaypointCompass.jsx` (top-centre chip
+  in a `.hud-compass-stack` under any teacher-task compass: arrow +
+  name + metres, 🗺 reopens the map, ✕ clears; arriving within 4 m clears it
+  with a "You made it!" toast; leaving the world clears it; hidden during
+  challenges) and `game/maps/WaypointBeacon.jsx` (a 46 m gold beam drawn
+  without depth test/fog so it shows over trees and hills, a pulsing ground
+  ring, a bobbing diamond).
+- **Finding Mr. Pearce:** he was there (the glb renders) — the jungle's
+  SIGNPOSTS were the problem: their arrows were hand-angled and pointed the
+  wrong way, the first stood ON trail-west, and nothing pointed to Sunny
+  Knoll. Signposts now point at a VIA point down their trail (`via` kept on
+  each sign); new signs at the glade's east exit (Sunny Knoll / Lily Lagoon)
+  and the lagoon junction (Sunny Knoll / Arrival Glade). Mills' welcome in
+  every world now explains the map board + waypoints + M (the jungle's also
+  gives left/right directions).
+- **Verified headlessly:** maps for all six worlds screenshotted (open,
+  hover, zoom, pick → waypoint → beam + chip), the boards close up, the
+  slip card. Paint cost (SwiftShader, cold grids): island at load, farm ≈
+  1.3 s, snow ≈ 1.4 s, magma ≈ 0.8 s, jungle ≈ 0.5 s, school ≈ 0.3 s —
+  sliced, so no freeze.
+- **TODO:** a live look on a real GPU + iPad (pin sizes on touch, pinch
+  feel, beam brightness against each sky); Farsi/Arabic for the map + slip
+  card text; a HUD map button if Jeff wants one (M + the chip's 🗺 exist).
 
 ## DONE (2026-10-10) — EMERALD JUNGLE PILOT: the Vine Ladder + Monkey Swap + Sunny Market
 Jeff's brief: ten challenges for the jungle on PROPORTIONAL reasoning (after
@@ -2263,7 +2367,7 @@ awards the trophy). L1–5 adaptive. Teacher tasks still override (handled upstr
 in interaction.js). Guarded by `runSchoolyardTopicChecks()`. Island NPCs (Pip/
 Fern/Alby) unchanged.
 
-## System checks (587)
+## System checks (594)
 `src/dev/systemChecks.js` → `runSystemChecks()`. Run headlessly: temporarily set
 `package.json` `"type":"module"`, shim `localStorage/window/document`, import and
 run; also babel parse-check `src/`, `portal/`, `functions/`. Restore package.json

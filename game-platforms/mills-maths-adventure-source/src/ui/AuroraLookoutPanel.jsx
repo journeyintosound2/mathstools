@@ -6,6 +6,7 @@ import {
   LOOKOUT_ROUNDS_PER_SET,
 } from "../data/snow/auroraLookoutChallenge.js";
 import { SnowIntro, SnowRoundHead, SnowWorking } from "./SnowCardParts.jsx";
+import RoundCelebrate from "./RoundCelebrate.jsx";
 
 /**
  * AURORA LOOKOUT — 2D panel (AL). Round 2 (2026-09-29): three BIG tiles,
@@ -74,11 +75,6 @@ export default function AuroraLookoutPanel() {
     }
   }, [status, roundIndex]);
 
-  useEffect(() => {
-    if (status !== "celebrate") return undefined;
-    const t = setTimeout(() => useAuroraLookout.getState().next(), CELEBRATE_MS);
-    return () => clearTimeout(t);
-  }, [status, roundIndex]);
 
   if (status === "idle") return null;
 
@@ -173,14 +169,10 @@ export default function AuroraLookoutPanel() {
       )}
 
       {status === "celebrate" && round && (
-        <div className="farm-challenge-card mini">
-          <div className="farm-challenge-head">
-            <span>
-              ✓ {round.expr} = {round.answer}
-              {pickResult && !pickResult.best ? ` · easiest: ${round.choices.find((c) => c.key === round.best).show}` : ""} · ⭐ {score}
-            </span>
-          </div>
-        </div>
+        <RoundCelebrate useStore={useAuroraLookout} ms={CELEBRATE_MS} working={round.working || round.reason}>
+              {round.expr} = {round.answer}
+              {pickResult && !pickResult.best ? ` · easiest: ${round.choices.find((c) => c.key === round.best).show}` : ""}
+        </RoundCelebrate>
       )}
 
       {status === "feedback" && round && (

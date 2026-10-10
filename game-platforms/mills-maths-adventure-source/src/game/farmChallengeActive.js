@@ -1,5 +1,5 @@
 import { useFarmChallenge } from "./farmChallengeStore.js";
-import { useRoundUp } from "./roundUpStore.js";
+import { useRoundUp, XP_PER_CORRECT } from "./roundUpStore.js";
 import { useOrderParts } from "./orderPartsStore.js";
 import { useCratePacking } from "./cratePackingStore.js";
 import { useMilkSplitter } from "./milkSplitterStore.js";
@@ -20,6 +20,7 @@ import { useLodgeYard } from "./lodgeYardStore.js";
 import { useAuroraLookout } from "./auroraLookoutStore.js";
 import { MAGMA_STORES, useActiveMagmaChallenge } from "./magma/magmaActive.js";
 import { JUNGLE_STORES, useActiveJungleChallenge } from "./jungle/jungleActive.js";
+import { trackChallengeStores } from "./roundOutcome.js";
 
 // Every in-world challenge store, in one list. Add a new challenge here and
 // BOTH the hook and the non-reactive getter pick it up.
@@ -33,6 +34,12 @@ const CHALLENGE_STORES = [
   // Emerald Jungle (the vine-ladder challenges).
   ...JUNGLE_STORES.map(([, store]) => store),
 ];
+
+// One round-outcome rule for them all: XP banked as points land, and a right
+// final answer celebrates even after a slip (game/roundOutcome.js). The
+// Round-Up scores 1 a cow-round, worth XP_PER_CORRECT.
+trackChallengeStores(CHALLENGE_STORES, new Map([[useRoundUp, { xpPerPoint: XP_PER_CORRECT }]]));
+export const ALL_CHALLENGE_STORES = CHALLENGE_STORES;
 
 /**
  * NON-REACTIVE read of the same question, safe to call every frame from a

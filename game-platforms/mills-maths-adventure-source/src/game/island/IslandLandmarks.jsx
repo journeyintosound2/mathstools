@@ -1,4 +1,5 @@
 import React, { useMemo, useRef } from "react";
+import MapBoard3D from "../maps/MapBoard3D.jsx";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
@@ -130,102 +131,6 @@ function Bunting() {
 // ---------------------------------------------------------------------------
 // THE ISLAND MAP BOARD (painted from the real terrain colours)
 // ---------------------------------------------------------------------------
-function mapTexture() {
-  if (typeof document === "undefined") return null;
-  const S = 512;
-  const cv = document.createElement("canvas");
-  cv.width = S; cv.height = S;
-  const g = cv.getContext("2d");
-  // Parchment.
-  g.fillStyle = "#f3e2b8"; g.fillRect(0, 0, S, S);
-  const img = g.getImageData(0, 0, S, S);
-  const { h } = getIslandGrid();
-  const { col, mix } = getIslandGroundColours();
-  const span = 250; // metres shown across
-  const c = new THREE.Color();
-  for (let py = 0; py < S; py++) {
-    for (let px = 0; px < S; px++) {
-      const x = -span / 2 + (px / S) * span + 6, z = -span / 2 + (py / S) * span + 2;
-      const i = Math.round(x - GRID.xMin), j = Math.round(z - GRID.zMin);
-      if (i < 0 || j < 0 || i >= GRID.nx || j >= GRID.nz) continue;
-      const k = j * GRID.nx + i;
-      const o = (py * S + px) * 4;
-      if (h[k] < 0) {
-        const d = Math.min(1, -h[k] / 6);
-        c.setRGB(0.55 - 0.3 * d, 0.85 - 0.25 * d, 0.86 - 0.1 * d);
-      } else {
-        c.setRGB(col[k * 3], col[k * 3 + 1], col[k * 3 + 2]).convertLinearToSRGB();
-        // Painterly: lift the saturation a little + hill shading.
-        const hx = h[k + 1] - h[k - 1] || 0;
-        c.multiplyScalar(1 + Math.max(-0.25, Math.min(0.25, -hx * 0.18)));
-        if (mix[k * 4 + 1] > 0.5) c.setRGB(0.96, 0.97, 1.0);
-      }
-      img.data[o] = Math.min(255, c.r * 255); img.data[o + 1] = Math.min(255, c.g * 255); img.data[o + 2] = Math.min(255, c.b * 255);
-    }
-  }
-  g.putImageData(img, 0, 0);
-  const P = (x, z) => [((x - 6 + span / 2) / span) * S, ((z - 2 + span / 2) / span) * S];
-  // Gates as glowing rings, places as labels.
-  const gateCol = { playground: "#3f79dd", snow: "#26c6da", magma: "#ff4a1a", farm: "#ffb21a", jungle: "#22b04a" };
-  for (const gt of Object.values(GATES)) {
-    const [mx, my] = P(gt.position[0], gt.position[1]);
-    g.beginPath(); g.arc(mx, my, 9, 0, TAU); g.fillStyle = gateCol[gt.id]; g.fill();
-    g.lineWidth = 3; g.strokeStyle = "#ffffff"; g.stroke();
-  }
-  g.font = "800 15px 'MMA Rounded', 'Trebuchet MS', sans-serif";
-  g.textAlign = "center";
-  const show = ["plaza", "school", "frosty", "ember", "meadows", "lagoon", "lighthouse", "cove", "green"];
-  for (const a of ISLAND_AREAS) {
-    if (!show.includes(a.id)) continue;
-    const [mx, my] = P(a.c[0], a.c[1] + (a.id === "green" ? 6 : 0));
-    g.lineWidth = 4; g.strokeStyle = "rgba(255,250,235,0.9)";
-    g.strokeText(a.name, mx, my - 12); g.fillStyle = "#3b2a1d"; g.fillText(a.name, mx, my - 12);
-  }
-  // "You are here" star.
-  const [yx, yy] = P(ISLAND_MAP_BOARD.position[0], ISLAND_MAP_BOARD.position[1]);
-  g.fillStyle = "#e23d3d";
-  g.beginPath();
-  for (let k = 0; k <= 10; k++) {
-    const a = -Math.PI / 2 + (k / 10) * TAU;
-    const r = k % 2 ? 5 : 12;
-    if (k === 0) g.moveTo(yx + Math.cos(a) * r, yy + Math.sin(a) * r); else g.lineTo(yx + Math.cos(a) * r, yy + Math.sin(a) * r);
-  }
-  g.fill();
-  g.font = "800 13px 'MMA Rounded', 'Trebuchet MS', sans-serif";
-  g.fillStyle = "#e23d3d"; g.fillText("You are here", yx, yy + 26);
-  // Title cartouche + compass + a border.
-  g.fillStyle = "rgba(255,247,225,0.92)"; g.fillRect(S / 2 - 150, 12, 300, 46);
-  g.strokeStyle = "#7a5232"; g.lineWidth = 3; g.strokeRect(S / 2 - 150, 12, 300, 46);
-  g.font = "400 34px 'MMA Display', 'Trebuchet MS', sans-serif"; g.fillStyle = "#1f5fa8";
-  g.fillText("NUMBER ISLAND", S / 2, 48);
-  g.save(); g.translate(S - 52, S - 56);
-  g.fillStyle = "#7a5232"; g.beginPath(); g.moveTo(0, -30); g.lineTo(8, 0); g.lineTo(0, 30); g.lineTo(-8, 0); g.closePath(); g.fill();
-  g.fillStyle = "#e23d3d"; g.beginPath(); g.moveTo(0, -30); g.lineTo(8, 0); g.lineTo(-8, 0); g.closePath(); g.fill();
-  g.font = "800 16px 'MMA Rounded', sans-serif"; g.fillStyle = "#3b2a1d"; g.fillText("N", 0, -36);
-  g.restore();
-  g.strokeStyle = "#7a5232"; g.lineWidth = 10; g.strokeRect(5, 5, S - 10, S - 10);
-  const t = new THREE.CanvasTexture(cv);
-  t.colorSpace = THREE.SRGBColorSpace;
-  t.anisotropy = 8;
-  return t;
-}
-function MapBoard() {
-  const ready = useFontsReady();
-  const tex = useMemo(mapTexture, [ready]);
-  const M = ISLAND_MAP_BOARD;
-  const y = gY(M.position[0], M.position[1]);
-  const shingle = getFarmTextures().shingles;
-  return (
-    <group position={[M.position[0], y, M.position[1]]} rotation={[0, M.rotationY, 0]}>
-      {[-2.55, 2.55].map((s) => <Box key={s} p={[s, 1.7, 0]} s={[0.26, 3.4, 0.26]} m="#7a5232" />)}
-      <Box p={[0, 2.0, -0.06]} s={[5.0, 3.5, 0.14]} m="#6b4528" />
-      <mesh position={[0, 2.0, 0.025]}><planeGeometry args={[4.6, 3.2]} /><meshStandardMaterial map={tex} roughness={0.8} /></mesh>
-      <group position={[0, 3.95, 0]}>
-        <GableRoof w={5.6} d={1.1} rise={0.6} oh={0.2} roof={flatMat("#ffffff", { map: shingle })} wall="#6b4528" tile={1.5} />
-      </group>
-    </group>
-  );
-}
 
 // ---------------------------------------------------------------------------
 // SIGNPOSTS, LAMPS, THE LANDING, THE WELCOME SIGN
@@ -576,9 +481,9 @@ function SummitLookout() {
 export default function IslandLandmarks() {
   return (
     <group>
+      <MapBoard3D regionId="island-1" roof="#3f6fa0" />
       <StaticBatch>
         <WelcomeArch />
-        <MapBoard />
         <WelcomeSign />
         {ISLAND_SIGNPOSTS.map((s) => <Signpost key={s.id} s={s} />)}
         {LAMP_POSTS.map(([x, z], i) => <Lamp key={i} x={x} z={z} />)}
