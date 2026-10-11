@@ -14,7 +14,7 @@ import { JUNGLE_MAP_BOARD,
   ensureJungleStructures, ROPE_BRIDGE, JUNGLE_BRIDGES, LEAF_PADS, BOUNCE_PADS, TOADSTOOL, TEMPLE,
   VINE_WALLS, MID_LEDGE, FALLS, GRID, GREAT_STAIR, STAIR_FLIGHTS, FALLS_DECK, LOOKOUT, cliffWidthAt as escarpWidthAt,
 } from "./jungleLayout.js";
-import { inAnyJungleChallengeView, JUNGLE_RECORDS_STAND, JUNGLE_WELCOME_HOST } from "./jungleChallenges.js";
+import { inAnyJungleChallengeView, JUNGLE_RECORDS_STAND, JUNGLE_WELCOME_HOST, BUILT_JUNGLE_CHALLENGES, LADDER_GEOM, jungleHostWorld } from "./jungleChallenges.js";
 
 const TAU = Math.PI * 2;
 
@@ -38,6 +38,10 @@ function keepClearList() {
     ...BOUNCE_PADS.map((p) => ({ c: p.c, r: p.r + 1.6 })),
     { c: [LAGOON.center[0] + 3, LAGOON.center[1] + 1], r: 4.5 },
     { c: [22, escarpZ(22) - 1], r: 6.5 }, // falls lookout deck
+    // Every built challenge's apparatus (the ladder, the stall / cauldron /
+    // barrels / wall behind it) and its host — nothing grows through a stage.
+    ...BUILT_JUNGLE_CHALLENGES.map((ch) => ({ c: ch.frame.toWorld((LADDER_GEOM.x0 + LADDER_GEOM.x1) / 2, -1.6), r: 7.6 })),
+    ...BUILT_JUNGLE_CHALLENGES.map((ch) => ({ c: jungleHostWorld(ch.key), r: 1.8 })),
   ];
   const boxes = [
     { x0: -48, x1: -15, z0: -104, z1: -86 }, // the Vine Cliffs + leaf poles
@@ -46,6 +50,15 @@ function keepClearList() {
   return { circles, boxes };
 }
 let _keep = null;
+/** Inside a built challenge's apparatus (its ladder, the props behind it,
+ * the host's side) — set pieces step aside for a stage. */
+function inAnyStageBox(x, z, pad = 0) {
+  const G = LADDER_GEOM;
+  return BUILT_JUNGLE_CHALLENGES.some((ch) => {
+    const [lx, lz] = ch.frame.toLocal(x, z);
+    return lx > G.x0 - 2.4 - pad && lx < G.x1 + 1.4 + pad && lz > -4.8 - pad && lz < 2.5 + pad;
+  });
+}
 /** The arrival VIEW: a wedge of meadow north of the glade, so you look out
  * over the canopy to the hills and the Great Tree instead of into trunks. */
 export function inArrivalView(x, z) {
@@ -124,7 +137,7 @@ export function getJungleProps() {
     }
     // A few more giants scattered along the foot of the escarpment.
     for (const [x, z] of [[-84, -84], [-72, -90], [-96, -64], [62, -86], [8, -64], [-14, -68], [-88, -6], [94, -66]]) {
-      if (inKeepClear(x, z, 1.5) || pathEdgeDist(x, z) < 3.4 || waterEdgeDist(x, z) < 4) continue;
+      if (inKeepClear(x, z, 1.5) || pathEdgeDist(x, z) < 3.4 || waterEdgeDist(x, z) < 4 || inAnyJungleChallengeView(x, z)) continue;
       T.giant.push({ x, z, y: terrainHeight(x, z), s: 0.8 + ((x * 7 + z * 3) % 10 + 10) % 10 * 0.03, rot: x + z, tint: 0.5 });
     }
   }
@@ -437,11 +450,14 @@ export function getJungleSetPieces() {
     sign(11, 126.5, [["Sunny Knoll", [20, 128]], ["Lily Lagoon", [20, 128]]]),
     // The lagoon junction: up the hill to Sunny Knoll, or back to the glade.
     sign(61.5, 98, [["Sunny Knoll", [62.5, 90]], ["Arrival Glade", [54, 111]]]),
-    sign(-39, 32.5, [["Temple Ruins", [-46, 18]], ["Canopy Lookout", [-35, 58]]]),
-    sign(-39, -28.5, [["Redwood Hollow", [-47, -35]], ["Great Tree", [-33, -24]]]),
+    // (moved to the trail's west side so the Mushroom Potions stage stands clear)
+    sign(-45, 34, [["Temple Ruins", [-46, 18]], ["Canopy Lookout", [-35, 58]]]),
+    // (south of the junction, out of the Temple of Truth's shot)
+    sign(-40, -21, [["Redwood Hollow", [-47, -35]], ["Great Tree", [-33, -24]]]),
     sign(30.5, -59, [["Waterfall Stairs", [39, -70]], ["Great Tree", [36, -39]]]),
     sign(27.5, -21, [["Mossback Ridge", [47, -27]], ["Temple Ruins", [12, -20]]]),
-    sign(-11, -78, [["Vine Cliffs", [-17, -84]], ["Waterfall Pool", [13, -88.5]]]),
+    // (at the junction itself, clear of the Waterfall Barrels stage)
+    sign(-8.5, -84, [["Vine Cliffs", [-17, -84]], ["Waterfall Pool", [13, -88.5]]]),
   ];
   // The Great Tree: a little hut on the treehouse deck (west side) and the
   // gap in the deck railing where the rope bridge leaves (east).
@@ -460,6 +476,8 @@ export function getJungleSetPieces() {
     const np = nearestPath(x, z);
     if (np && np.e < 1.0) continue; // leave the trail through the ring
     if (Math.hypot(x - shrine.altar.c[0], z - shrine.altar.c[1]) < 2.4) continue;
+    if (inAnyStageBox(x, z, 0.6)) continue; // the Pathfinder stage stands here
+
     shrine.stones.push({ x, z, y: terrainHeight(x, z), h: 2.4 + ((i * 5) % 4) * 0.45, rot: a, fallen: i === 4 });
   }
   // The lagoon islet's lotus statue.

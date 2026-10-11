@@ -15,17 +15,16 @@
  *   S1  build it up      "again" only — 3, 4 or 5 swaps
  *   S2  jump ahead       again · × 2 · × 10 · join — 8 to 40 swaps
  *   S3  backwards        the monkey names the MANGOES; you find the bananas
- *   S4  half a swap      even deals (4 ↔ 6): halve the deal to reach 10 bananas
+ *   S4  half a swap      even deals (4 ↔ 6): halving helps reach 10 bananas
  *   S5  the smallest swap a big offer (12 ↔ 8) split down to 3 ↔ 2 — the same
  *                        deal, simplified (equivalent ratios)
  *
- * Scoring (per round, max 25):
- *   reach the target rung      15 (− 3 for each wrong partner, min 6)
- *   efficiency vs the fewest moves: equal 10 · one more 6 · else 3
- *   S5: claiming before the smallest swap costs 5; one extra move is free
+ * Scoring (vineLadder.js): 25 a round, −4 for each wrong number (or early
+ * "smallest" claim), never below 9 — ANY route counts the same.
  */
 import { buildSet, pick, randInt } from "../magma/magmaMath.js";
-import { fewestMoves, rungFor, stepText, vineChip, gcd } from "./vineLadder.js";
+import { fewestMoves, rungFor, vineChip, gcd } from "./vineLadder.js";
+import { planRound, solveLines } from "./roundKit.js";
 
 export const BANANA = { kind: "count", icon: "🍌", one: "banana", many: "bananas" };
 export const MANGO = { kind: "count", icon: "🥭", one: "mango", many: "mangoes" };
@@ -37,9 +36,9 @@ const S5_BASES = [[3, 2], [2, 3], [4, 3], [3, 4], [5, 2], [2, 5], [5, 3], [3, 5]
 export const SWAP_MOVES = [
   ["again"],
   ["again", "x2", "x10", "join"],
-  ["again", "x2", "x10", "join"],
-  ["again", "x2", "h2", "x10", "join"],
-  ["h2", "split"],
+  ["again", "x2", "x10", "join", "gap"],
+  ["again", "x2", "h2", "x10", "join", "gap"],
+  ["h2", "split", "gap"],
 ];
 
 function ladder(a, b) {
@@ -65,7 +64,7 @@ function makeRoundOnce(stage, rand) {
     const L = ladder(a * m, b * m);
     const best = fewestMoves(L, "top", [a * m], a, moves, a * m);
     if (best.min > 3) return null;
-    return finish({ kind: "smallest", L, drive: "top", start: [[a * m, b * m]], target: a, smallest: [a, b], moves, best, m, fruit: false, maxDrive: a * m });
+    return finish({ kind: "smallest", L, drive: "top", start: [[a * m, b * m]], target: a, smallest: [a, b], moves, m, fruit: false, maxDrive: a * m });
   }
   let L, drive = "top", k, target;
   if (stage === 0) {
@@ -103,31 +102,36 @@ function makeRoundOnce(stage, rand) {
   if (!rung) return null;
   // Real fruit hangs from the vines while the numbers stay small.
   const fruit = stage === 0 || (stage === 1 && rung[0] <= 30 && rung[1] <= 30);
-  return finish({ kind: "reach", L, drive, start, target, moves, best, fruit, maxDrive, k });
+  return finish({ kind: "reach", L, drive, start, target, moves, fruit, maxDrive, k });
 }
 
 function finish(r) {
   const { L, drive } = r;
   const goal = rungFor(L, drive, r.target);
-  const working = [`The deal: ${vineChip(L.top, r.start[0][0])} ↔ ${vineChip(L.bottom, r.start[0][1])}`];
-  for (const s of r.best.path) working.push(stepText(L, drive, s));
-  if (r.kind === "smallest") {
-    const g = gcd(r.start[0][0], r.start[0][1]);
-    working.push(`${r.smallest[0]} 🍌 ↔ ${r.smallest[1]} 🥭 won't split into whole fruit — it's the smallest swap.`);
-    working.push(`${r.start[0][0]} ↔ ${r.start[0][1]} is the SAME deal, ${g} times over.`);
-  } else if (drive === "top") {
-    working.push(`${goal[0]} bananas get ${goal[1]} mangoes.`);
-  } else {
-    working.push(`${goal[1]} mangoes cost ${goal[0]} bananas.`);
-  }
-  return {
+  const round = {
     ...r,
     ladders: [{ L, start: r.start }],
+    layout: "single",
     goal,
-    min: r.best.min,
+    phases: r.kind === "smallest"
+      ? [{ type: "smallest", li: 0, smallest: r.smallest }]
+      : [{ type: "build", goals: [{ li: 0, target: r.target }] }],
     sig: `${r.kind}:${L.a}:${L.b}:${drive}>${r.target}`,
-    working,
   };
+  if (!planRound(round, r.kind === "smallest" ? 4 : 5)) return null;
+  round.q = swapQuestion(round);
+  const lines = solveLines(round, `The deal: ${vineChip(L.top, r.start[0][0])} ↔ ${vineChip(L.bottom, r.start[0][1])}`);
+  if (r.kind === "smallest") {
+    const g = gcd(r.start[0][0], r.start[0][1]);
+    lines.push(`${r.smallest[0]} 🍌 ↔ ${r.smallest[1]} 🥭 won't split into whole fruit — it's the smallest swap.`);
+    lines.push(`${r.start[0][0]} ↔ ${r.start[0][1]} is the SAME deal, ${g} times over.`);
+    round.celebrate = `the smallest swap is ${r.smallest[0]} 🍌 ↔ ${r.smallest[1]} 🥭`;
+  } else {
+    lines.push(drive === "top" ? `${goal[0]} bananas get ${goal[1]} mangoes.` : `${goal[1]} mangoes cost ${goal[0]} bananas.`);
+    round.celebrate = `${goal[0]} 🍌 ↔ ${goal[1]} 🥭 — deal!`;
+  }
+  round.working = lines;
+  return round;
 }
 
 export function generateSwapSet(rand = Math.random) {

@@ -31,7 +31,7 @@ export const LADDER_Z = LADDER_GEOM.z;
 // Vine names are right-aligned to a point just left of the zero post (so a
 // long name grows leftward and never covers the "0" chips).
 const NAME_STYLE = { transform: "translateX(-50%)" };
-const xOf = (t, scale) => LX0 + (t / Math.max(1e-6, scale)) * W;
+export const xOf = (t, scale) => LX0 + (t / Math.max(1e-6, scale)) * W;
 
 const VINE = "#3f7d2b";
 const LEAF = "#57b947";
@@ -42,7 +42,7 @@ const GOLD = "#ffd166";
 const ASK = "#7fd4ff";
 const RED = "#e5484d";
 
-function useMats() {
+export function useMats() {
   return useMemo(() => ({
     vine: new THREE.MeshStandardMaterial({ color: VINE, roughness: 0.85 }),
     strand: new THREE.MeshStandardMaterial({ color: "#2f6420", roughness: 0.9 }),
@@ -59,7 +59,7 @@ function useMats() {
 }
 
 /** One vine: a thick stem, a strand twisted round it, leaves along it. */
-function Vine({ y, x0 = LX0, x1 = LX1, mats, leaves = true, mat }) {
+export function Vine({ y, x0 = LX0, x1 = LX1, mats, leaves = true, mat }) {
   const len = x1 - x0;
   const helix = useMemo(() => {
     const pts = [];
@@ -144,7 +144,7 @@ function EndPost({ ys, mats }) {
 }
 
 /** A bamboo rung between the two vines at top-value `t`. */
-function Rung({ t, yTop, yBot, scaleRef, glow, ask, onTap, topChip, botChip, chipClass = "", hideBot, lift = 0 }) {
+function Rung({ t, yTop, yBot, scaleRef, glow, ask, onTap, topChip, botChip, chipClass = "", hideBot, lift = 0, gap = 0.4 }) {
   const ref = useRef();
   useFrame(() => {
     if (ref.current) ref.current.position.x = xOf(t, scaleRef.current);
@@ -181,8 +181,8 @@ function Rung({ t, yTop, yBot, scaleRef, glow, ask, onTap, topChip, botChip, chi
           <meshBasicMaterial transparent opacity={0} depthWrite={false} />
         </mesh>
       )}
-      <Chip position={[0, yTop + 0.4 + lift, 0.1]} df={8} className={`jungle-cell ${chipClass}`}>{topChip}</Chip>
-      {!hideBot && <Chip position={[0, yBot - 0.4 - lift, 0.1]} df={8} className={`jungle-cell ${chipClass}`}>{botChip}</Chip>}
+      <Chip position={[0, yTop + gap + lift, 0.1]} df={8} className={`jungle-cell ${chipClass}`}>{topChip}</Chip>
+      {!hideBot && <Chip position={[0, yBot - gap - lift, 0.1]} df={8} className={`jungle-cell ${chipClass}`}>{botChip}</Chip>}
     </group>
   );
 }
@@ -239,7 +239,7 @@ function HangingFruit({ positions, y, kind, scaleRef }) {
 }
 
 /** A stick from (x(t1), y1) to (x(t2), y2), updated each frame (crooked rung, dashes). */
-function Stick({ t1, y1, t2, y2, scaleRef, radius = 0.075, material, z = LADDER_Z + 0.08 }) {
+export function Stick({ t1, y1, t2, y2, scaleRef, radius = 0.075, material, z = LADDER_Z + 0.08 }) {
   const ref = useRef();
   useFrame(() => {
     const m = ref.current;
@@ -259,7 +259,7 @@ function Stick({ t1, y1, t2, y2, scaleRef, radius = 0.075, material, z = LADDER_
 }
 
 /** A chip that glides with the scale. */
-function MovingChip({ t, y, scaleRef, className, children, dz = 0.12, df = 8 }) {
+export function MovingChip({ t, y, scaleRef, className, children, dz = 0.12, df = 8 }) {
   const ref = useRef();
   useFrame(() => {
     if (ref.current) ref.current.position.x = xOf(t, scaleRef.current);
@@ -277,10 +277,14 @@ function MovingChip({ t, y, scaleRef, className, children, dz = 0.12, df = 8 }) 
  */
 export default function VineLadder({
   L, ys, rungs, scaleRef, drive = "top", sel = [], active = true, pending = null, wrong = null,
-  goal = null, hitTop = null, commonTop = null, startTop, fruit = false, onTap, names, idle = false, dim = false, labels = true,
-  endTop = null,
+  goal = null, goals = null, hitTop = null, hitTops = null, commonTop = null, startTop, fruit = false, onTap, names, idle = false, dim = false, labels = true,
+  endTop = null, posts = true, nameStyle = NAME_STYLE, extra = null, fruitKinds = ["banana", "mango"], chipGap = 0.4, nameAt = null,
 }) {
+  const G = chipGap;
   const mats = useMats();
+  // One target or several (each [top, bottom]); one gold rung or several.
+  const goalList = (goals || (goal ? [goal] : [])).filter(Boolean);
+  const hitList = hitTops || (hitTop !== null && hitTop !== undefined ? [hitTop] : []);
   const [yTop, yBot] = ys;
   const toTop = (b) => (b * L.a) / L.b; // a bottom value's position, in top units
   const showWrong = wrong && pending && since(wrong.at) < 60;
@@ -290,11 +294,12 @@ export default function VineLadder({
   // Ticks at every multiple of the starting rung (only while they're few).
   const ticks = useMemo(() => {
     if (!startTop || idle) return [];
-    const top = endTop || Math.max(maxTopShown, goal ? goal[0] : 0) * 1.25;
+    const top = endTop || Math.max(maxTopShown, ...goalList.map((g) => g[0]), 0) * 1.25;
     const n = Math.floor(top / startTop);
     if (n > 24) return [];
     return Array.from({ length: n }, (_, i) => (i + 1) * startTop);
-  }, [startTop, maxTopShown, goal, idle, endTop]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [startTop, maxTopShown, goalList.length, idle, endTop]);
 
   // Hanging fruit: one piece per unit up to the furthest rung.
   const fruitPos = useMemo(() => {
@@ -308,8 +313,8 @@ export default function VineLadder({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fruit, rungs, maxTopShown]);
 
-  const chipT = (t) => (L.top.kind === "count" ? vineChip(L.top, t) : fmtVal(L.top.kind, t));
-  const chipB = (b) => (L.bottom.kind === "count" ? vineChip(L.bottom, b) : fmtVal(L.bottom.kind, b));
+  const chipT = (t) => vineChip(L.top, t);
+  const chipB = (b) => vineChip(L.bottom, b);
   // Rungs close together on a long vine: stagger their number chips (two
   // heights) so they never sit on top of each other. Decided on the TARGET
   // scale (endTop), so the stagger doesn't flicker while the vine eases.
@@ -317,7 +322,9 @@ export default function VineLadder({
     const end = endTop || 1;
     const all = rungs.map((r, i) => ({ key: `r${i}`, t: r[0] }));
     if (pending) all.push({ key: "p", t: pending.rung[0] });
-    if (goal && !(endTop && goal[0] > endTop * 1.001) && !rungs.some((r) => r[0] === goal[0])) all.push({ key: "g", t: goal[0] });
+    goalList.forEach((g, gi) => {
+      if (!(endTop && g[0] > endTop * 1.001) && !rungs.some((r) => r[0] === g[0])) all.push({ key: `g${gi}`, t: g[0] });
+    });
     all.sort((a, b) => a.t - b.t);
     const out = {};
     let prevX = -99, level = 0;
@@ -328,8 +335,8 @@ export default function VineLadder({
       prevX = x;
     }
     return out;
-  }, [rungs, pending, endTop, goal]);
-  const goalOff = goal && endTop && goal[0] > endTop * 1.001;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rungs, pending, endTop, goalList.map((g) => g[0]).join()]);
   const pSideY = drive === "top" ? yBot : yTop;
   const dSideY = drive === "top" ? yTop : yBot;
 
@@ -337,14 +344,17 @@ export default function VineLadder({
     <group>
       <Vine y={yTop} mats={mats} />
       <Vine y={yBot} mats={mats} />
-      <ZeroPost ys={ys} mats={mats} label={labels} />
-      <EndPost ys={ys} mats={mats} />
+      {posts && <ZeroPost ys={ys} mats={mats} label={labels} />}
+      {posts && <EndPost ys={ys} mats={mats} />}
+      {!posts && labels && ys.map((y, i) => (
+        <Chip key={`z${i}`} position={[LX0 - 0.42, y, LADDER_Z + 0.25]} df={8} className="jungle-zero">0</Chip>
+      ))}
 
       {/* Which vine is which (and which stall, when there are two). */}
       {names && labels && (
         <>
-          <Chip position={[LX0 - 0.72, yTop, LADDER_Z + 0.2]} df={9} style={NAME_STYLE} className={`jungle-vine-name${active ? "" : " dim"}`}>{names[0]}</Chip>
-          <Chip position={[LX0 - 0.72, yBot, LADDER_Z + 0.2]} df={9} style={NAME_STYLE} className={`jungle-vine-name${active ? "" : " dim"}`}>{names[1]}</Chip>
+          <Chip position={nameAt ? nameAt(0) : [LX0 - 0.72, yTop, LADDER_Z + 0.2]} df={9} style={nameStyle} className={`jungle-vine-name${active ? "" : " dim"}`}>{names[0]}</Chip>
+          <Chip position={nameAt ? nameAt(1) : [LX0 - 0.72, yBot, LADDER_Z + 0.2]} df={9} style={nameStyle} className={`jungle-vine-name${active ? "" : " dim"}`}>{names[1]}</Chip>
         </>
       )}
 
@@ -352,35 +362,40 @@ export default function VineLadder({
 
       {!idle && fruitPos && (
         <>
-          <HangingFruit positions={fruitPos.top} y={yTop} kind="banana" scaleRef={scaleRef} />
-          <HangingFruit positions={fruitPos.bot} y={yBot} kind="mango" scaleRef={scaleRef} />
+          <HangingFruit positions={fruitPos.top} y={yTop} kind={fruitKinds[0]} scaleRef={scaleRef} />
+          <HangingFruit positions={fruitPos.bot} y={yBot} kind={fruitKinds[1]} scaleRef={scaleRef} />
         </>
       )}
 
-      {/* The target: a flag on the vine the scene leads with. */}
-      {/* In reach: a faint golden GHOST rung marks the target on the vine
+      {/* In reach: a faint golden GHOST rung marks each target on the vine
           the scene leads with. Beyond the end: a flag waits at the post. */}
-      {!idle && goal && !goalOff && !rungs.some((r) => r[0] === goal[0]) && (
-        <>
-          <Stick t1={goal[0]} y1={yBot} t2={goal[0]} y2={yTop} scaleRef={scaleRef} radius={0.05} material={mats.ghost} z={LADDER_Z - 0.04} />
-          <MovingChip
-            t={goal[0]}
-            y={drive === "top" ? yTop + 0.4 + (lifts.g || 0) : yBot - 0.4 - (lifts.g || 0)}
-            scaleRef={scaleRef}
-            className="jungle-target"
-          >
-            🎯 {drive === "top" ? chipT(goal[0]) : chipB(goal[1])}
-          </MovingChip>
-        </>
-      )}
-      {!idle && goal && goalOff && (
-        <MovingChip t={endTop} y={drive === "top" ? yTop + 0.42 : yBot - 0.42} dz={0.5} scaleRef={scaleRef} className="jungle-target off">
-          🎯 {drive === "top" ? chipT(goal[0]) : chipB(goal[1])} →
-        </MovingChip>
-      )}
+      {!idle && goalList.map((g, gi) => {
+        if (rungs.some((r) => r[0] === g[0])) return null;
+        const off = endTop && g[0] > endTop * 1.001;
+        if (off) {
+          return (
+            <MovingChip key={`go${gi}`} t={endTop} y={drive === "top" ? yTop + G + 0.02 + gi * 0.42 : yBot - G - 0.02 - gi * 0.42} dz={0.5} scaleRef={scaleRef} className="jungle-target off">
+              🎯 {drive === "top" ? chipT(g[0]) : chipB(g[1])} →
+            </MovingChip>
+          );
+        }
+        return (
+          <group key={`g${gi}`}>
+            <Stick t1={g[0]} y1={yBot} t2={g[0]} y2={yTop} scaleRef={scaleRef} radius={0.05} material={mats.ghost} z={LADDER_Z - 0.04} />
+            <MovingChip
+              t={g[0]}
+              y={drive === "top" ? yTop + G + (lifts[`g${gi}`] || 0) : yBot - G - (lifts[`g${gi}`] || 0)}
+              scaleRef={scaleRef}
+              className="jungle-target"
+            >
+              🎯 {drive === "top" ? chipT(g[0]) : chipB(g[1])}
+            </MovingChip>
+          </group>
+        );
+      })}
 
       {!idle && rungs.map(([t, b], i) => {
-        const hit = (hitTop !== null && t === hitTop) || (commonTop !== null && t === commonTop);
+        const hit = hitList.includes(t) || (commonTop !== null && t === commonTop);
         const selected = active && sel.includes(i);
         const hideWhileUntied = untie !== null && !(wrong.src && wrong.src[0] === t && wrong.src[1] === b);
         if (hideWhileUntied) return null;
@@ -397,6 +412,7 @@ export default function VineLadder({
             botChip={chipB(b)}
             chipClass={`${hit ? "hit" : selected ? "sel" : ""}${dim ? " dim" : ""}`}
             lift={lifts[`r${i}`] || 0}
+            gap={G}
           />
         );
       })}
@@ -413,6 +429,7 @@ export default function VineLadder({
           botChip={drive === "top" ? "?" : chipB(pending.rung[1])}
           chipClass="ask"
           lift={lifts.p || 0}
+          gap={G}
         />
       )}
 
@@ -425,10 +442,10 @@ export default function VineLadder({
         return (
           <group key={`w${wrong.at}`}>
             <Stick t1={dTop} y1={dSideY} t2={wClamp} y2={pSideY} scaleRef={scaleRef} material={mats.red} />
-            <MovingChip t={dTop} y={drive === "top" ? yTop + 0.4 : yBot - 0.4} scaleRef={scaleRef} className="jungle-cell ask">
+            <MovingChip t={dTop} y={drive === "top" ? yTop + G : yBot - G} scaleRef={scaleRef} className="jungle-cell ask">
               {drive === "top" ? chipT(dTop) : chipB(pending.rung[1])}
             </MovingChip>
-            <MovingChip t={wClamp} y={drive === "top" ? yBot - 0.4 : yTop + 0.4} scaleRef={scaleRef} className="jungle-cell bad">
+            <MovingChip t={wClamp} y={drive === "top" ? yBot - G : yTop + G} scaleRef={scaleRef} className="jungle-cell bad">
               {drive === "top" ? chipB(wrong.typed) : chipT(wrong.typed)}
             </MovingChip>
           </group>
@@ -445,12 +462,13 @@ export default function VineLadder({
             <Stick t1={0} y1={pY + 0.02} t2={z0} y2={pY + 0.02} scaleRef={scaleRef} radius={0.025} material={mats.red} z={LADDER_Z + 0.2} />
             <MovingChip t={z0} y={pY + (drive === "top" ? -0.45 : 0.45)} scaleRef={scaleRef} className="jungle-cell bad">0 ← slid!</MovingChip>
             <Stick t1={pending.rung[0]} y1={yTop} t2={pending.rung[0]} y2={yBot} scaleRef={scaleRef} material={mats.red} />
-            <MovingChip t={pending.rung[0]} y={drive === "top" ? yBot - 0.4 : yTop + 0.4} scaleRef={scaleRef} className="jungle-cell bad">
+            <MovingChip t={pending.rung[0]} y={drive === "top" ? yBot - G : yTop + G} scaleRef={scaleRef} className="jungle-cell bad">
               {drive === "top" ? chipB(wrong.typed) : chipT(wrong.typed)}
             </MovingChip>
           </group>
         );
       })()}
+      {extra}
     </group>
   );
 }
@@ -477,18 +495,21 @@ export function useLadderScale(target) {
  */
 export function CompareLadder({
   ladders, ys, scaleRef, active, sel = [], pending = null, wrong = null, common = null, onTap, names, endTop, labels = true, called = null, better = null,
+  goals = [], hits = [], nameStyle = NAME_STYLE, extra = null, chipGap = 0.4, midGap = 0.28, nameAt = null, posts = true,
 }) {
   const mats = useMats();
+  const G = chipGap;
   const [yA, yF, yB] = ys;
   const fruit = ladders[0].L.top;
-  const chipF = (t) => (fruit.kind === "count" ? vineChip(fruit, t) : fmtVal(fruit.kind, t));
-  const money = (v) => fmtVal("money", v);
+  const chipF = (t) => vineChip(fruit, t);
+  const outer = (li, v) => vineChip(ladders[li].L.bottom, v);
   const end = endTop || 1;
   // Fruit amounts on the middle vine (shared), staggered when crowded.
   const fruitVals = useMemo(() => {
     const vals = new Set();
     ladders.forEach((l) => l.rungs.forEach((r) => vals.add(r[0])));
     if (pending) vals.add(pending.rung[0]);
+    goals.forEach((g) => vals.add(g.t));
     const sorted = [...vals].sort((a, b) => a - b);
     const out = new Map();
     let prevX = -99, level = 0;
@@ -499,39 +520,67 @@ export function CompareLadder({
       prevX = x;
     }
     return out;
-  }, [ladders, pending, end]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ladders, pending, end, goals.map((g) => g.t).join()]);
   const showWrong = wrong && pending && since(wrong.at) < 60;
   const toTop = (L, b) => (b * L.a) / L.b;
+  // Each outer vine's chips: staggered (two heights) where rungs crowd.
+  const outerLift = useMemo(() => ladders.map((l) => {
+    const out = new Map();
+    let prevX = -99, level = 0;
+    [...l.rungs].map((r) => r[0]).sort((a, b) => a - b).forEach((t) => {
+      const x = (t / end) * W;
+      level = x - prevX < 1.05 ? 1 - level : 0;
+      out.set(t, level * 0.36);
+      prevX = x;
+    });
+    return out;
+  }), [ladders, end]);
   return (
     <group>
       <Vine y={yA} mats={mats} />
       <Vine y={yF} mats={mats} />
       <Vine y={yB} mats={mats} />
-      <ZeroPost ys={ys} mats={mats} label={labels} />
-      <EndPost ys={ys} mats={mats} />
-      {names && labels && names.map((n, i) => (
-        <Chip key={i} position={[LX0 - 0.72, ys[i], LADDER_Z + 0.2]} df={9} style={NAME_STYLE} className={`jungle-vine-name${i === 1 || active === (i === 0 ? 0 : 1) ? "" : " dim"}`}>{n}</Chip>
+      {posts && <ZeroPost ys={ys} mats={mats} label={labels} />}
+      {posts && <EndPost ys={ys} mats={mats} />}
+      {!posts && labels && ys.map((y, i) => (
+        <Chip key={`z${i}`} position={[LX0 - 0.42, y, LADDER_Z + 0.25]} df={8} className="jungle-zero">0</Chip>
       ))}
+      {names && labels && names.map((n, i) => (
+        <Chip key={i} position={nameAt ? nameAt(i) : [LX0 - 0.72, ys[i], LADDER_Z + 0.2]} df={9} style={nameStyle} className={`jungle-vine-name${i === 1 || active === (i === 0 ? 0 : 1) || active === -2 ? "" : " dim"}`}>{n}</Chip>
+      ))}
+      {/* Targets: a ghost bar up (or down) from the shared vine. */}
+      {goals.map((g, gi) => {
+        if (ladders[g.li].rungs.some((r) => r[0] === g.t)) return null;
+        const yM = g.li === 0 ? yA : yB;
+        const dir = g.li === 0 ? 1 : -1;
+        return (
+          <group key={`cg${gi}`}>
+            <Stick t1={g.t} y1={yF} t2={g.t} y2={yM} scaleRef={scaleRef} radius={0.05} material={mats.ghost} z={LADDER_Z - 0.04} />
+            <MovingChip t={g.t} y={yM + dir * G} scaleRef={scaleRef} className="jungle-target">🎯 ?</MovingChip>
+          </group>
+        );
+      })}
       {ladders.map((lad, li) => {
         const yM = li === 0 ? yA : yB;
         const dir = li === 0 ? 1 : -1;
         return lad.rungs.map(([t, b], i) => {
-          const isCommon = common !== null && t === common;
+          const isCommon = (common !== null && t === common) || hits.some((h) => h.li === li && h.t === t);
           const selected = active === li && sel.includes(i);
           const glow = isCommon ? GOLD : selected ? SEL : null;
           const won = called !== null && better === li && isCommon;
           return (
             <group key={`${li}-${i}-${t}`}>
               <Bar t={t} y1={yF} y2={yM} scaleRef={scaleRef} glow={glow} onTap={onTap ? () => onTap(li, i) : undefined} />
-              <MovingChip t={t} y={yM + dir * 0.4} scaleRef={scaleRef} className={`jungle-cell${isCommon ? " hit" : selected ? " sel" : ""}${won ? " best" : ""}`}>
-                {money(b)}
+              <MovingChip t={t} y={yM + dir * (G + (outerLift[li].get(t) || 0))} scaleRef={scaleRef} className={`jungle-cell${isCommon ? " hit" : selected ? " sel" : ""}${won ? " best" : ""}`}>
+                {outer(li, b)}
               </MovingChip>
             </group>
           );
         });
       })}
       {[...fruitVals.entries()].map(([t, level]) => (
-        <MovingChip key={`f${t}`} t={t} y={yF + (level ? -0.3 : 0.28)} dz={0.22} scaleRef={scaleRef} className={`jungle-cell small${common === t ? " hit" : ""}`}>
+        <MovingChip key={`f${t}`} t={t} y={yF + (level ? -midGap : midGap)} dz={0.22} scaleRef={scaleRef} className={`jungle-cell small${common === t || hits.some((h) => h.t === t) ? " hit" : goals.some((g) => g.t === t) ? " goal" : ""}`}>
           {chipF(t)}
         </MovingChip>
       ))}
@@ -541,7 +590,7 @@ export function CompareLadder({
         return (
           <group>
             <Bar t={pending.rung[0]} y1={yF} y2={yM} scaleRef={scaleRef} ask />
-            <MovingChip t={pending.rung[0]} y={yM + dir * 0.4} scaleRef={scaleRef} className="jungle-cell ask">?</MovingChip>
+            <MovingChip t={pending.rung[0]} y={yM + dir * G} scaleRef={scaleRef} className="jungle-cell ask">?</MovingChip>
           </group>
         );
       })()}
@@ -554,16 +603,17 @@ export function CompareLadder({
         return (
           <group key={`w${wrong.at}`}>
             <Stick t1={pending.rung[0]} y1={yF} t2={w} y2={yM} scaleRef={scaleRef} material={mats.red} />
-            <MovingChip t={w} y={yM + dir * 0.4} scaleRef={scaleRef} className="jungle-cell bad">{money(wrong.typed)}</MovingChip>
+            <MovingChip t={w} y={yM + dir * G} scaleRef={scaleRef} className="jungle-cell bad">{outer(pending.li, wrong.typed)}</MovingChip>
           </group>
         );
       })()}
+      {extra}
     </group>
   );
 }
 
 /** A bamboo bar between two heights at top-value t (either order). */
-function Bar({ t, y1, y2, scaleRef, glow, ask, onTap }) {
+export function Bar({ t, y1, y2, scaleRef, glow, ask, onTap }) {
   const ref = useRef();
   useFrame(() => {
     if (ref.current) ref.current.position.x = xOf(t, scaleRef.current);

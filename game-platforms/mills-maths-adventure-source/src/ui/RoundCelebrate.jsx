@@ -15,10 +15,12 @@ import { SnowWorking } from "./SnowCardParts.jsx";
  *                still earned and the quick way, then waits for Next.
  *
  * `children` is the challenge's own one-line summary ("8 + 6 = 14").
- * `detail` (optional) names what slipped ("1 wrong number · 5 moves —
- * it can be done in 3").
+ * `detail` (optional) names what slipped ("3 🍋 ↔ $6.50 — it's $6.75").
+ * `working` (optional) a worked solution under `workingLabel` — the jungle
+ * passes none: any route up its ladder is as good as another, so it never
+ * shows a "quicker" one (Jeff, 2026-10-10).
  */
-export default function RoundCelebrate({ useStore, max = 25, ms = 2200, working, detail, children }) {
+export default function RoundCelebrate({ useStore, max = 25, ms = 2200, working, workingLabel = "The quick way:", detail, children }) {
   const { points, slipped } = useRoundOutcome(useStore, max);
   const roundIndex = useStore((s) => s.roundIndex);
   const total = useStore((s) => (s.rounds && s.rounds.length) || 15);
@@ -64,7 +66,7 @@ export default function RoundCelebrate({ useStore, max = 25, ms = 2200, working,
       {detail && <div className="round-slip-detail">{detail}</div>}
       {lines.length > 0 && (
         <>
-          <div className="round-slip-sub">The quick way:</div>
+          <div className="round-slip-sub">{workingLabel}</div>
           <SnowWorking lines={lines} />
         </>
       )}

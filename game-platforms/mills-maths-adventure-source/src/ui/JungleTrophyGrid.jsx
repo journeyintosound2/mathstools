@@ -48,7 +48,7 @@ export default function JungleTrophyGrid() {
           <button className="dev-close" onClick={() => setJungleTrophy(false)}>✕</button>
         </div>
         <div className="ftrophy-subtitle">
-          {earned}/{rows.length} trophies earned · {golds} gold. {open10} vine-ladder challenges open now (more coming soon) — start with the Monkey Swap in the Palm Grove!
+          {earned}/{rows.length} trophies earned · {golds} gold. {open10 < rows.length ? `${open10} vine-ladder challenges open now (more coming soon)` : `All ${rows.length} vine-ladder challenges are open`} — start with the Monkey Swap in the Palm Grove!
         </div>
 
         {detail ? (

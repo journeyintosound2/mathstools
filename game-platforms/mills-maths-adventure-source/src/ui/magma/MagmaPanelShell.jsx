@@ -111,6 +111,9 @@ export function MagmaButton({ children, onClick, className = "plank-piece-btn", 
 
 export default function MagmaPanelShell({
   useStore, intro, Play, celebrate, Feedback, slip, pointsPerRound = 25,
+  // The jungle shows no "quick way" on a slip (any route is a good route) and
+  // calls its feedback working "one way" (Jeff, 2026-10-10).
+  slipWorking = true, feedbackLead = "here's the quick way:", feedbackZero = "Here's how it works:",
   // Other worlds reuse this card (the Emerald Jungle passes its own).
   regionId: worldRegion = MAGMA_REGION_ID, getMeta = getMagmaChallenge, total = MAGMA_ROUNDS_PER_SET,
   backLabel = "Back to the volcano", dockClass = "magma-dock",
@@ -189,7 +192,7 @@ export default function MagmaPanelShell({
           useStore={useStore}
           max={pointsPerRound}
           ms={CELEBRATE_MS}
-          working={round.working}
+          working={slipWorking ? round.working : null}
           detail={slip ? slip(round, st) : null}
         >
           {celebrate(round, st)}
@@ -199,7 +202,7 @@ export default function MagmaPanelShell({
       {status === "feedback" && round && (
         <div className="farm-challenge-card">
           <div className="farm-challenge-verdict warm">
-            {st.roundPoints > 0 ? `+${st.roundPoints} XP this round — here's the quick way:` : "Here's how it works:"}
+            {st.roundPoints > 0 ? `+${st.roundPoints} XP this round — ${feedbackLead}` : feedbackZero}
           </div>
           {Feedback && <Feedback round={round} />}
           <SnowWorking lines={round.working} />

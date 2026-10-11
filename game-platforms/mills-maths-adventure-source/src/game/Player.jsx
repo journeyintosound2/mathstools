@@ -1047,7 +1047,10 @@ export default function Player({ cinematic = false }) {
       const { frame: fr, view: vw } = magmaView;
       const fit = stageStore?.getState().viewFit || vw.fit;
       const halfW = Math.tan((camera.fov * Math.PI) / 360) * camera.aspect;
-      const dist = Math.min(vw.maxDist ?? 30, Math.max(vw.minDist ?? 9, fit / halfW));
+      // A tall scene (the jungle's tape + graph board) also has a half-HEIGHT to fit.
+      const halfV = Math.tan((camera.fov * Math.PI) / 360);
+      const fitDist = Math.max(fit / halfW, vw.fitH ? vw.fitH / halfV : 0);
+      const dist = Math.min(vw.maxDist ?? 30, Math.max(vw.minDist ?? 9, fitDist));
       const [lx, ly, lz] = vw.look;
       const [cx, cz] = fr.toWorld(lx, lz + Math.cos(vw.elev) * dist);
       if (!lockedPrev.current) camLook.current.set(p.x, p.y + 1, p.z);

@@ -35,7 +35,8 @@ import { isTrackedStore, roundPointsOf, roundSlipped } from "../game/roundOutcom
 import { jungleStore } from "../game/jungle/jungleActive.js";
 import { useSnowballRange } from "../game/snowballRangeStore.js";
 import { useProgress } from "../progress/store.js";
-import { additivePartner, onSide, other, fmtVal } from "../data/jungle/vineLadder.js";
+import { additivePartner } from "../data/jungle/vineLadder.js";
+import { playRound, playPhase } from "./ladderPlayer.js";
 
 const inB = (b, [x, z], pad = 0) => x >= b.x0 - pad && x <= b.x1 + pad && z >= b.z0 - pad && z <= b.z1 + pad;
 
@@ -175,7 +176,7 @@ export function runMapOutcomeChecks() {
     let xpBeforeEnd = 0;
     for (let i = 0; i < 15; i++) {
       const r = S.getState().currentRound();
-      playLadder(S, r);
+      playRound(S, r);
       if (i === 14) xpBeforeEnd = (useProgress.getState().xp || 0) - xp0;
       S.getState().next();
     }
@@ -202,7 +203,7 @@ export function runMapOutcomeChecks() {
     const deal = r.ladders[0].start[0];
     S.getState().submit(String(additivePartner(r.ladders[0].L, "top", deal, p.value)));
     S.getState().submit(String(p.partner));
-    playLadder(S, r, true);
+    playRound(S, r, true);
     const jStatus = S.getState().status, jPts = roundPointsOf(S), jSlip = roundSlipped(S);
     // A wrong final answer is still feedback (the wrong stall on a best buy).
     const M = jungleStore("market");
@@ -210,9 +211,9 @@ export function runMapOutcomeChecks() {
     M.getState().start();
     M.getState().beginRounds();
     const mi = M.getState().rounds.findIndex((q) => q.kind === "compare");
-    M.setState({ roundIndex: mi, ladders: M.getState().rounds[mi].ladders.map((l) => ({ rungs: l.start.map((x) => [...x]), added: 0 })), sel: [0], active: 0 });
+    for (let k = 0; k < mi; k++) { playRound(M, M.getState().currentRound()); M.getState().next(); }
     const rc = M.getState().currentRound();
-    rc.plan.steps.forEach((st, li) => { if (st) stepLadder(M, li, st, rc); });
+    playPhase(M, rc);
     M.getState().call(1 - rc.better);
     const wrongStatus = M.getState().status;
     S.getState().exit();
@@ -239,36 +240,4 @@ export function runMapOutcomeChecks() {
   }
 
   return checks;
-}
-
-// --- ladder players (as in jungleChallengeChecks) --------------------------
-function stepLadder(S, li, step, r) {
-  const get = S.getState;
-  if (get().active !== li) get().setActive(li);
-  const rungs = get().ladders[li].rungs;
-  const want = [rungs.findIndex((x) => onSide(x, r.drive) === step.a)];
-  if (step.b !== undefined) want.push(rungs.findIndex((x) => onSide(x, r.drive) === step.b));
-  for (const i of [...get().sel]) get().select(li, i);
-  for (const i of want) get().select(li, i);
-  get().choose(step.op);
-  if (step.n) get().pickN(step.n);
-  const p = get().pending;
-  if (!p) return;
-  const L = r.ladders[li].L;
-  const kind = (other(r.drive) === "top" ? L.top : L.bottom).kind;
-  get().submit(fmtVal(kind, p.partner));
-}
-function playLadder(S, r, skipBuilt = false) {
-  if (r.kind === "compare") {
-    r.plan.steps.forEach((s, li) => { if (s) stepLadder(S, li, s, r); });
-    S.getState().call(r.better);
-    return;
-  }
-  for (const s of r.best.path) {
-    if (S.getState().status !== "play") break;
-    const have = S.getState().ladders[0].rungs.some((x) => onSide(x, r.drive) === s.v);
-    if (skipBuilt && have) continue;
-    stepLadder(S, 0, s, r);
-  }
-  if (r.kind === "smallest" && S.getState().status === "play") S.getState().claim();
 }

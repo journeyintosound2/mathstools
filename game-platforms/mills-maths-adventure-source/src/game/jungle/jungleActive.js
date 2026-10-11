@@ -1,16 +1,31 @@
 import { useSwapChallenge } from "./stores/swapStore.js";
 import { useMarketChallenge } from "./stores/marketStore.js";
+import { useRaceChallenge } from "./stores/raceStore.js";
+import { useTapeChallenge } from "./stores/tapeStore.js";
+import { usePotionChallenge } from "./stores/potionStore.js";
+import { useBarrelsChallenge } from "./stores/barrelsStore.js";
+import { useMapChallenge } from "./stores/mapStore.js";
+import { useFirefliesChallenge } from "./stores/firefliesStore.js";
+import { useTempleChallenge } from "./stores/templeStore.js";
+import { usePathfinderChallenge } from "./stores/pathfinderStore.js";
 
 /**
- * EMERALD JUNGLE — the BUILT challenge stores in one place (registry order =
+ * EMERALD JUNGLE — the challenge stores in one place (registry order =
  * trophy order). farmChallengeActive.js spreads these in, so the
  * world-quieting pass, the Press-E suppression and the one-challenge-at-a-
- * time rule cover the jungle automatically. (The pilot builds two; add each
- * new store here as it lands.)
+ * time rule cover the jungle automatically.
  */
 export const JUNGLE_STORES = [
   ["swap", useSwapChallenge],
   ["market", useMarketChallenge],
+  ["race", useRaceChallenge],
+  ["tape", useTapeChallenge],
+  ["potion", usePotionChallenge],
+  ["barrels", useBarrelsChallenge],
+  ["map", useMapChallenge],
+  ["fireflies", useFirefliesChallenge],
+  ["temple", useTempleChallenge],
+  ["pathfinder", usePathfinderChallenge],
 ];
 
 export function jungleStore(key) {

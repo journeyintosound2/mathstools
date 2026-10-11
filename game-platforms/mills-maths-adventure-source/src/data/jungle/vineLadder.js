@@ -7,22 +7,32 @@
  * PEDAGOGY (see the project doc "emerald-jungle-challenges-plan.md"):
  *   - a ratio is a COMPOSED UNIT you can repeat (Lamon; Lobato & Ellis) —
  *     "again" adds another copy of the starting rung;
- *   - scaling ALONG the vines first (double, halve, × 10, split into equal
- *     pieces, join two rungs) — ICCAMS found along-the-line reasoning far
- *     easier than the between-the-lines multiplier (Küchemann, Hodgen &
- *     Brown 2014), so the early challenges live here;
+ *   - scaling ALONG the vines (double, halve, × 10, split into equal pieces,
+ *     join two rungs) — ICCAMS found along-the-line reasoning far easier
+ *     than the between-the-lines multiplier (Küchemann, Hodgen & Brown
+ *     2014);
  *   - the zero tie is what makes it proportional: a student who ADDS the
  *     same amount to both vines is caught and SHOWN the vine sliding off
- *     its zero ("now 0 mangoes sits under 1 banana") — Hart's / Karplus's
- *     additive strategy, made visible.
+ *     its zero (Hart's / Karplus's additive strategy, made visible);
+ *   - ACCURACY, NOT SPEED (Jeff, 2026-10-10): any route up the ladder is a
+ *     good route. A round is worth 25 and only MISTAKES cost (a wrong
+ *     number, an early claim, a wrong call) — never the number of moves.
+ *     Students are not steered to "go through one" (the unitary method);
+ *     they may find it themselves, and the teacher names it later.
  *
  * Every quantity is an INTEGER in its vine's base unit (whole fruit, cents,
- * grams), so there is never any float dust: a move that would make half a
- * banana or a third of a cent is refused (and that refusal is itself a
- * lesson — "try a friendlier piece").
+ * grams, tenths of a second …), so there is never any float dust: a move that
+ * would make half a banana or a third of a cent is refused (and that refusal
+ * is itself a lesson — "try a friendlier piece").
  *
  *   L = { top: VINE, bottom: VINE, a, b }   a top-units ↔ b bottom-units
- *   VINE = { kind: "count" | "money" | "kg", icon, one, many }
+ *   VINE = { kind, icon, one, many, unit?, dp? }
+ *     kind "count"  whole things (chip "21 🍌")
+ *          "money"  cents ("$17.50")
+ *          "kg"     grams ("1.5 kg")
+ *          "num"    a metric measure with `dp` decimal places and a `unit`
+ *                   ("30 m", "1.5 h", "250 mL", "0.75 m") — base unit is
+ *                   10^-dp of the display unit
  *   drive = "top" | "bottom" — the vine the SCENE fills in; the student
  *           types the partner on the other vine.
  */
@@ -47,24 +57,50 @@ export function fmtKg(g) {
   return `${fmtThousandths(g)} kg`;
 }
 
-/** A vine value in its own unit, as a student reads it ("21", "$2.50", "1.5 kg"). */
-export function fmtVal(kind, v) {
+/** Decimal places a vine shows. */
+export function vineDp(vine) {
+  if (!vine || typeof vine === "string") return vine === "money" ? 2 : vine === "kg" ? 3 : 0;
+  if (vine.kind === "money") return 2;
+  if (vine.kind === "kg") return 3;
+  if (vine.kind === "num") return vine.dp || 0;
+  return 0;
+}
+/** Base units per display unit (100 for cents, 1000 for grams, 10^dp for measures). */
+export const vineScale = (vine) => Math.pow(10, vineDp(vine));
+
+/** An integer count of base units → its decimal text ("1.5", "0.25", "30"). */
+export function fmtDec(v, dp) {
+  if (!dp) return String(v);
+  const neg = v < 0;
+  const a = Math.abs(v);
+  const s = Math.pow(10, dp);
+  const w = Math.floor(a / s);
+  const f = String(a % s).padStart(dp, "0").replace(/0+$/, "");
+  const t = f ? `${w}.${f}` : `${w}`;
+  return neg ? `−${t}` : t;
+}
+
+const kindOf = (k) => (typeof k === "string" ? k : k && k.kind);
+
+/**
+ * A vine value in its own unit, as a student reads it ("21", "$2.50",
+ * "1.5 kg", "30 m"). Takes a kind string (count / money / kg) or a vine.
+ */
+export function fmtVal(kv, v) {
+  const kind = kindOf(kv);
   if (kind === "money") return fmtMoney(v);
   if (kind === "kg") return fmtKg(v);
+  if (kind === "num") return `${fmtDec(v, kv.dp || 0)}${kv.unit ? ` ${kv.unit}` : ""}`;
   return String(v);
 }
 
-/** The plain number a student thinks in (dollars, kilograms, items). */
-export function dispNum(kind, v) {
-  if (kind === "money") return v / 100;
-  if (kind === "kg") return v / 1000;
-  return v;
+/** The plain number a student thinks in (dollars, kilograms, metres, items). */
+export function dispNum(kv, v) {
+  return v / vineScale(typeof kv === "string" ? kv : kv);
 }
 /** …and back to base units (rounded — only used for whole-unit maths). */
-export function fromDisp(kind, n) {
-  if (kind === "money") return Math.round(n * 100);
-  if (kind === "kg") return Math.round(n * 1000);
-  return Math.round(n);
+export function fromDisp(kv, n) {
+  return Math.round(n * vineScale(typeof kv === "string" ? kv : kv));
 }
 
 /** "$17.50", "17.5", "17", "$17", "1750c", "17.50 dollars" → cents (or null). */
@@ -84,27 +120,56 @@ export function parseKg(text) {
   return parseThousandths(t);
 }
 
-/** Read a typed value for a vine kind → base units, or null if unreadable. */
-export function parseVal(kind, text) {
+/**
+ * A decimal with at most `dp` places → base units (or null). Trailing unit
+ * words ("m", "secs", "mL", "km/h") are ignored; "1,200" and ".5" are fine.
+ */
+export function parseDec(text, dp) {
+  let t = String(text ?? "").trim().toLowerCase().replace(/[a-zµ/°%\s]+$/g, "").replace(/[,\s]/g, "");
+  if (t.startsWith(".")) t = "0" + t;
+  if (!/^\d+(\.\d+)?$/.test(t)) return null;
+  const [w, f = ""] = t.split(".");
+  if (f.length > dp && /[1-9]/.test(f.slice(dp))) return null;
+  const frac = dp ? Number((f + "0".repeat(dp)).slice(0, dp)) : 0;
+  return Number(w) * Math.pow(10, dp) + frac;
+}
+
+/** Read a typed value for a vine (or kind) → base units, or null if unreadable. */
+export function parseVal(kv, text) {
+  const kind = kindOf(kv);
   if (kind === "money") return parseMoney(text);
   if (kind === "kg") {
     const v = parseKg(text);
     return v === null || v < 0 ? null : v;
   }
+  if (kind === "num") return parseDec(text, kv.dp || 0);
   const v = parseWhole(text);
   return v === null || v < 0 ? null : v;
 }
 
-/** "3 bananas" / "1 banana" / "$2.50" / "1.5 kg of grapes". */
+/** "3 bananas" / "1 banana" / "$2.50" / "1.5 kg of grapes" / "30 m". */
 export function vineText(vine, v) {
   if (vine.kind === "money") return fmtMoney(v);
   if (vine.kind === "kg") return `${fmtKg(v)}${vine.many ? ` of ${vine.many}` : ""}`;
+  if (vine.kind === "num") return fmtVal(vine, v);
   return `${v} ${v === 1 ? vine.one : vine.many}`;
 }
-/** Short label for a chip: "21 🍌", "$2.50", "1.5 kg". */
+/** Short label for a chip: "21 🍌", "$2.50", "1.5 kg", "30 m". */
 export function vineChip(vine, v) {
   if (vine.kind === "count") return `${v} ${vine.icon}`;
-  return fmtVal(vine.kind, v);
+  return fmtVal(vine, v);
+}
+
+/** A rough reading of a (possibly fractional) base-unit value on a vine. */
+export function vineApprox(vine, x) {
+  const s = vineScale(vine);
+  const n = x / s;
+  const r = Math.round(n * s * 10) / (s * 10);
+  const txt = Number.isInteger(r) ? String(r) : String(r);
+  if (vine.kind === "money") return `about $${n.toFixed(2)}`;
+  if (vine.kind === "count") return `${txt} ${vine.icon}`;
+  if (vine.kind === "kg") return `${txt} kg`;
+  return `${txt}${vine.unit ? ` ${vine.unit}` : ""}`;
 }
 
 // ---------------------------------------------------------------------------
@@ -112,6 +177,7 @@ export function vineChip(vine, v) {
 // ---------------------------------------------------------------------------
 
 export const other = (side) => (side === "top" ? "bottom" : "top");
+export const vineOn = (L, side) => (side === "top" ? L.top : L.bottom);
 
 /** The partner of value v on the `drive` vine (an integer, or null if it isn't whole). */
 export function partnerOf(L, drive, v) {
@@ -134,6 +200,9 @@ export const onSide = (rung, side) => (side === "top" ? rung[0] : rung[1]);
  * The moves. `again` adds another copy of the STARTING rung (the composed
  * unit), the rest are the moves students trust: double, halve, × 10, ÷ 10,
  * split into n equal pieces, stretch × n, join two rungs, the gap between two.
+ * (`across` — Tall Tree Tape — jumps straight to the target once the student
+ * has found the number that crosses from one vine to the other; it lives in
+ * the store because it isn't a scaling move.)
  */
 export const LADDER_MOVES = {
   again: { arity: 1, label: "Again" },
@@ -145,6 +214,7 @@ export const LADDER_MOVES = {
   times: { arity: 1, label: "✖ Times", needsN: true },
   join: { arity: 2, label: "+ Join" },
   gap: { arity: 2, label: "− Gap" },
+  across: { arity: 0, label: "↔ Across" },
 };
 export const SPLIT_CHOICES = [2, 3, 4, 5, 6, 8, 10, 12];
 export const TIMES_CHOICES = [2, 3, 4, 5, 6, 7, 8, 9, 10, 12];
@@ -175,7 +245,7 @@ export function moveValue(op, a, b, n, base) {
  */
 export function tryMove(L, drive, op, from, n, base, maxDrive) {
   const def = LADDER_MOVES[op];
-  if (!def) return { ok: false, why: "pick" };
+  if (!def || op === "across") return { ok: false, why: "pick" };
   if (from.length !== def.arity) return { ok: false, why: "pick" };
   if (op === "gap" && from[0] === from[1]) return { ok: false, why: "same" };
   const raw =
@@ -198,19 +268,19 @@ export function tryMove(L, drive, op, from, n, base, maxDrive) {
 /**
  * The ADD-THE-SAME mistake: from a source rung, a student who adds the
  * drive's change straight onto the partner (3 🍌 ↔ 2 🥭, "again" → 6 🍌 ↔ 5
- * 🥭). Computed in the numbers students read (dollars, kg, items). Returns
- * the partner value (base units) that mistake gives, or null.
+ * 🥭). Computed in the numbers students read (dollars, kg, metres, items).
+ * Returns the partner value (base units) that mistake gives, or null.
  */
 export function additivePartner(L, drive, src, newDrive) {
-  const dv = drive === "top" ? L.top : L.bottom;
-  const pv = drive === "top" ? L.bottom : L.top;
+  const dv = vineOn(L, drive);
+  const pv = vineOn(L, other(drive));
   const sD = onSide(src, drive);
   const sP = onSide(src, other(drive));
-  const delta = dispNum(dv.kind, newDrive) - dispNum(dv.kind, sD);
-  const p = dispNum(pv.kind, sP) + delta;
+  const delta = dispNum(dv, newDrive) - dispNum(dv, sD);
+  const p = dispNum(pv, sP) + delta;
   if (p <= 0) return null;
-  const v = fromDisp(pv.kind, p);
-  return Math.abs(dispNum(pv.kind, v) - p) < 1e-9 ? v : null;
+  const v = fromDisp(pv, p);
+  return Math.abs(dispNum(pv, v) - p) < 1e-9 ? v : null;
 }
 
 /**
@@ -229,7 +299,9 @@ export function untiedZero(srcPair, newPair) {
 }
 
 // ---------------------------------------------------------------------------
-// The fewest moves (breadth-first over the SET of rungs on the ladder).
+// ONE WAY UP (breadth-first over the SET of rungs on the ladder). The
+// generators use it to keep every target within reach of the moves on offer
+// and to write "one way" for a feedback card — it is NOT a score.
 // ---------------------------------------------------------------------------
 
 function expand(L, drive, vals, ops, base, maxDrive) {
@@ -238,7 +310,7 @@ function expand(L, drive, vals, ops, base, maxDrive) {
     const a = vals[i];
     for (const op of ops) {
       const def = LADDER_MOVES[op];
-      if (def.arity !== 1) continue;
+      if (!def || def.arity !== 1) continue;
       const ns = op === "split" ? SPLIT_CHOICES : op === "times" ? TIMES_CHOICES : [undefined];
       for (const n of ns) {
         const r = tryMove(L, drive, op, [a], n, base, maxDrive);
@@ -247,7 +319,7 @@ function expand(L, drive, vals, ops, base, maxDrive) {
     }
     for (let j = i + 1; j < vals.length; j++) {
       for (const op of ops) {
-        if (LADDER_MOVES[op].arity !== 2) continue;
+        if (!LADDER_MOVES[op] || LADDER_MOVES[op].arity !== 2) continue;
         const r = tryMove(L, drive, op, [vals[i], vals[j]], undefined, base, maxDrive);
         if (r.ok && !vals.includes(r.value)) out.push({ op, a: vals[i], b: vals[j], v: r.value });
       }
@@ -262,7 +334,7 @@ const _cache = new Map();
  * → { min, path: [{op, a, b?, n?, v}] } (min = 9 if not found within depth).
  */
 export function fewestMoves(L, drive, startVals, target, ops, maxDrive, maxDepth = 5) {
-  const key = `${L.a}:${L.b}:${drive}:${startVals.join(",")}>${target}|${ops.join(",")}|${maxDrive}`;
+  const key = `${L.a}:${L.b}:${drive}:${startVals.join(",")}>${target}|${ops.join(",")}|${maxDrive}|${maxDepth}`;
   if (_cache.has(key)) return _cache.get(key);
   const base = startVals[0];
   let res = { min: 9, path: [] };
@@ -301,48 +373,50 @@ export function oneMoveValues(L, drive, start, ops, maxDrive) {
 
 // ---------------------------------------------------------------------------
 // Scoring (shared by every vine-ladder challenge; each round is 25).
+// ACCURACY ONLY: the route never matters, mistakes do.
 // ---------------------------------------------------------------------------
-export const REACH_POINTS = 15;
-export const MISS_PENALTY = 3;
-export const REACH_MIN = 6;
-export const EFF_POINTS = [10, 6, 3];
-export const MAX_NEW_RUNGS = 8;
+export const ROUND_POINTS = 25;
+export const MISTAKE_COST = 4;
+export const ROUND_FLOOR = 9; // a right final answer always earns at least this
+export const MAX_NEW_RUNGS = 14; // per ladder — room for any route
 
-export function reachPoints(misses) {
-  return Math.max(REACH_MIN, REACH_POINTS - MISS_PENALTY * misses);
+/** Points for a round whose final answer was right, after `mistakes` slips. */
+export function accuracyPoints(mistakes) {
+  return Math.max(ROUND_FLOOR, ROUND_POINTS - MISTAKE_COST * mistakes);
 }
-/** Efficiency vs the fewest moves: equal 10 · one more 6 · else 3 (`slack` widens it). */
-export function efficiencyPoints(used, min, slack = 0) {
-  if (used <= min + slack) return EFF_POINTS[0];
-  if (used <= min + slack + 1) return EFF_POINTS[1];
-  return EFF_POINTS[2];
+/** Points kept when the FINAL call was wrong but the work before it was done. */
+export function partialPoints(mistakes, base = 10) {
+  return Math.max(0, base - MISTAKE_COST * mistakes);
 }
 
-/** A step written for the worked solution ("× 10 → 30 🍌 ↔ 20 🥭"). */
+/** A step written for a worked solution ("× 10 → 30 🍌 ↔ 20 🥭"). */
 export function stepText(L, drive, step) {
-  const dv = drive === "top" ? L.top : L.bottom;
+  const dv = vineOn(L, drive);
+  const f = (v) => fmtVal(dv, v);
   const how =
-    step.op === "again" ? "+ one more deal"
-      : step.op === "x2" ? `double ${fmtVal(dv.kind, step.a)}`
-        : step.op === "h2" ? `halve ${fmtVal(dv.kind, step.a)}`
-          : step.op === "x10" ? `${fmtVal(dv.kind, step.a)} × 10`
-            : step.op === "d10" ? `${fmtVal(dv.kind, step.a)} ÷ 10`
-              : step.op === "split" ? `split ${fmtVal(dv.kind, step.a)} into ${step.n}`
-                : step.op === "times" ? `${fmtVal(dv.kind, step.a)} × ${step.n}`
-                  : step.op === "join" ? `${fmtVal(dv.kind, step.a)} + ${fmtVal(dv.kind, step.b)}`
-                    : `${fmtVal(dv.kind, Math.max(step.a, step.b))} − ${fmtVal(dv.kind, Math.min(step.a, step.b))}`;
+    step.op === "again" ? "+ the first rung again"
+      : step.op === "x2" ? `double ${f(step.a)}`
+        : step.op === "h2" ? `halve ${f(step.a)}`
+          : step.op === "x10" ? `${f(step.a)} × 10`
+            : step.op === "d10" ? `${f(step.a)} ÷ 10`
+              : step.op === "split" ? `split ${f(step.a)} into ${step.n}`
+                : step.op === "times" ? `${f(step.a)} × ${step.n}`
+                  : step.op === "join" ? `${f(step.a)} + ${f(step.b)}`
+                    : step.op === "across" ? "straight across"
+                      : `${f(Math.max(step.a, step.b))} − ${f(Math.min(step.a, step.b))}`;
   const rung = rungFor(L, drive, step.v);
   return `${how} → ${vineChip(L.top, rung[0])} ↔ ${vineChip(L.bottom, rung[1])}`;
 }
 
 /** The same move done to the PARTNER (the hint after two misses). */
-export function partnerHint(L, drive, op, fromRungs, n, startRung) {
+export function partnerHint(L, drive, op, fromRungs, n, startRung, k) {
   const ps = other(drive);
-  const pv = ps === "top" ? L.top : L.bottom;
-  const show = (v) => (pv.kind === "count" ? vineChip(pv, v) : fmtVal(pv.kind, v));
+  const pv = vineOn(L, ps);
+  const show = (v) => vineChip(pv, v);
   const f = (r) => show(onSide(r, ps));
   const a = fromRungs[0];
-  if (op === "again") return startRung ? `${f(a)} + ${f(startRung)}` : `${f(a)} + one more deal`;
+  if (op === "across") return k ? `the other vine's number ${k}` : "the across number";
+  if (op === "again") return startRung ? `${f(a)} + ${f(startRung)}` : `${f(a)} + one more`;
   if (op === "x2") return `double ${f(a)}`;
   if (op === "h2") return `half of ${f(a)}`;
   if (op === "x10") return `${f(a)} × 10`;
@@ -358,4 +432,26 @@ export function gcd(a, b) {
   a = Math.abs(a); b = Math.abs(b);
   while (b) [a, b] = [b, a % b];
   return a;
+}
+
+/**
+ * Plan a build phase for the checks + the feedback card: one way to each
+ * goal (shared ladders reuse rungs already hung). Returns steps
+ * [{ li, op, a, b?, n?, v }] or null if some goal is out of reach.
+ */
+export function planGoals(ladders, goals, moves, maxDrive, driveOf, depth = 5) {
+  const vals = ladders.map((l, li) => l.start.map((r) => onSide(r, driveOf(li))));
+  const steps = [];
+  for (const g of goals) {
+    const L = ladders[g.li].L;
+    const d = driveOf(g.li);
+    if (vals[g.li].includes(g.target)) continue;
+    const res = fewestMoves(L, d, vals[g.li], g.target, moves.filter((m) => m !== "across"), maxDrive, depth);
+    if (res.min > depth) return null;
+    for (const s of res.path) {
+      steps.push({ li: g.li, ...s });
+      vals[g.li].push(s.v);
+    }
+  }
+  return steps;
 }

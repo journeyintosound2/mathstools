@@ -913,10 +913,13 @@ export function ensureJungleStructures() {
   TEMPLE = makeTemple();
 
   // --- CANOPY LOOKOUT: a wooden viewing platform on the summit of Canopy
-  // Hill, three steps up (railings + a telescope are set-piece props).
+  // Hill, three steps up (railings + a telescope are set-piece props). It
+  // stands at the clearing's NORTH side so the Treasure Map challenge
+  // (2026-10-10) can string its vine ladder in front of it, filmed from the
+  // south with the lookout + the valley behind.
   {
     const c = JUNGLE_SPOTS.find((q) => q.id === "canopy").center;
-    const pc = [c[0] - 2.5, c[1] - 1.5];
+    const pc = [c[0], c[1] - 3.1];
     const g = terrainHeight(pc[0], pc[1]);
     const top = g + 1.32;
     LOOKOUT = { c: pc, g, top, hx: 3.2, hz: 2.6 };

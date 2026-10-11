@@ -6,6 +6,14 @@ import { playerState } from "../sessionStore.js";
 import { useActiveJungleChallenge } from "./jungleActive.js";
 import SwapStage from "./stages/SwapStage.jsx";
 import MarketStage from "./stages/MarketStage.jsx";
+import RaceStage from "./stages/RaceStage.jsx";
+import TapeStage from "./stages/TapeStage.jsx";
+import PotionStage from "./stages/PotionStage.jsx";
+import BarrelsStage from "./stages/BarrelsStage.jsx";
+import MapStage from "./stages/MapStage.jsx";
+import FirefliesStage from "./stages/FirefliesStage.jsx";
+import TempleStage from "./stages/TempleStage.jsx";
+import PathfinderStage from "./stages/PathfinderStage.jsx";
 
 /**
  * EMERALD JUNGLE — the challenge layer. Each BUILT challenge's scene stands
@@ -16,7 +24,10 @@ import MarketStage from "./stages/MarketStage.jsx";
  * (the farm's FarmStage rule), and always while that challenge runs.
  */
 
-const STAGES = { swap: SwapStage, market: MarketStage };
+const STAGES = {
+  swap: SwapStage, market: MarketStage, race: RaceStage, tape: TapeStage, potion: PotionStage,
+  barrels: BarrelsStage, map: MapStage, fireflies: FirefliesStage, temple: TempleStage, pathfinder: PathfinderStage,
+};
 const MOUNT_RANGE = 110;
 // World chips (HTML) draw over everything, so an idle stage only shows its
 // labels when you're standing near it.

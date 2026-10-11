@@ -178,11 +178,13 @@ export function getJungleColliders() {
   // on the arrival glade. ---------------------------------------------------
   for (const ch of BUILT_JUNGLE_CHALLENGES) {
     const f = ch.frame;
-    const G = LADDER_GEOM;
     const w = (x, z) => f.toWorld(x, z);
-    postRow(out, `jg-${ch.key}-vines`, w(G.x0 - 0.12, G.z), w(G.x1 + 0.14, G.z), 0.3, 0.5);
-    const S = G.stall;
-    postRow(out, `jg-${ch.key}-stall`, w(S.x - S.w / 2, S.z), w(S.x + S.w / 2, S.z), 0.55, 0.7);
+    // Each challenge's solid footprint (registry `solids`: post rows in its
+    // stage frame) — the ladder's vines between its posts, a stall, a
+    // cauldron, the barrels, the gantry, the temple wall…
+    (ch.solids || []).forEach(([x0, z0, x1, z1, r], k) => {
+      postRow(out, `jg-${ch.key}-${k === 0 ? "vines" : `solid${k}`}`, w(x0, z0), w(x1, z1), r, Math.max(0.5, r * 1.3));
+    });
     const [hx, hz] = jungleHostWorld(ch.key);
     out.push(c(`jg-host-${ch.key}`, "interactable", hx, hz, 0.7));
   }

@@ -119,14 +119,14 @@ export function achievementsSummary(progress = {}, results = []) {
   const snow = trophyPanel("snow", "Snowball Sums", "❄️", { color: "#2f95d0", deep: "#17577e", light: "#e8f6ff" }, snowTrophyRows(), "snow-sums");
   const magma = trophyPanel("magma", "Magma Multiples", "🌋", { color: "#d9442a", deep: "#7f1f10", light: "#ffece6" }, magmaTrophyRows(), "magma-multiples");
 
-  // --- Emerald Jungle: the vine-ladder challenges (two built so far) --------
+  // --- Emerald Jungle: the ten vine-ladder challenges -----------------------
   const jungle = trophyPanel("jungle", "Emerald Jungle", "🌿", { color: "#1f9a4c", deep: "#0f5a2b", light: "#e6f8ec" }, jungleTrophyRows(), "emerald-jungle");
   {
     const open = jungle.rows.filter((r) => !r.soon).length;
     if (!jungle.earned) {
       jungle.summary = jungle.visited
-        ? `No trophies yet — ${open} vine-ladder challenges are open, more coming soon.`
-        : `Step through the mossy arch by the lagoon — ${open} vine-ladder challenges are waiting, more coming soon.`;
+        ? `No trophies yet — ${open} vine-ladder challenges are open${open < jungle.rows.length ? ", more coming soon" : ""}.`
+        : `Step through the mossy arch by the lagoon — ${open} vine-ladder challenges are waiting${open < jungle.rows.length ? ", more coming soon" : ""}.`;
     }
   }
 

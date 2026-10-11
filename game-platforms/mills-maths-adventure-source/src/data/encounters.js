@@ -423,17 +423,19 @@ export const ENCOUNTERS = {
   "magma-summit-challenge": { id: "magma-summit-challenge", type: "dialogue", title: "Strategy Summit", config: { speaker: "Ms. Bacon", lines: ["Look at the numbers first — then pick the easiest way."] } },
 
   // ---- Emerald Jungle (2026-10-10): proportional reasoning on the VINE
-  // LADDER (the jungle's double number line). The pilot builds two
-  // challenges; the other eight clearings are "coming soon". ----
+  // LADDER (the jungle's double number line) — all ten challenges. Scoring
+  // rewards ACCURACY, not speed: any route up the ladder scores the same;
+  // only wrong numbers cost XP. ----
   "jungle-welcome": {
     id: "jungle-welcome", type: "dialogue", title: "Emerald Jungle",
     config: { speaker: "Mills", lines: [
       "Welcome to the Emerald Jungle! 🌿 Out here we think in PROPORTION — if 3 of these are worth 2 of those, what are 30 worth?",
       "Explorers use a VINE LADDER: two vines tied together at 0, with a bamboo rung for every pair that matches. It's called a double number line.",
-      "Start with Mr. Morgan's Monkey Swap in the Palm Grove — up the trail to the LEFT (follow the Palm Grove sign). Then Mr. Pearce's Sunny Market on top of Sunny Knoll — take the trail to the RIGHT towards the Lily Lagoon, then follow the Sunny Knoll sign up the hill.",
+      "There are TEN challenges hidden in the jungle's clearings. Start with Mr. Morgan's Monkey Swap in the Palm Grove — up the trail to the LEFT (follow the Palm Grove sign). Mr. Pearce's Sunny Market is on top of Sunny Knoll — take the trail to the RIGHT, then follow the Sunny Knoll sign up the hill.",
       "🗺️ The MAP BOARD here shows every challenge — click one to set a waypoint, then follow the arrow at the top of the screen. Press M to open the map any time.",
+      "Take any route up the ladder you like — halve, double, split, join, one more. Long way or short way, it scores the same. Only a WRONG NUMBER costs you XP, so check each rung before you type it.",
       "Whatever you do to one vine, do to the other — add the same number to both and the vines come untied!",
-      "Every challenge earns a trophy on the stand right here — 🥇 100%, 🥈 75%, 🥉 50%. More clearings are coming soon.",
+      "Every challenge earns a trophy on the stand right here — 🥇 100%, 🥈 75%, 🥉 50%. Collect all ten!",
     ] },
   },
   "world-map": {
@@ -445,7 +447,15 @@ export const ENCOUNTERS = {
     config: { speaker: "Jungle Trophies", lines: ["Your best Emerald Jungle scores are kept here."] },
   },
   "jungle-swap-challenge": { id: "jungle-swap-challenge", type: "dialogue", title: "Monkey Swap", config: { speaker: "Mr. Morgan", lines: ["Every fair swap is another rung on the same ladder."] } },
-  "jungle-market-challenge": { id: "jungle-market-challenge", type: "dialogue", title: "Sunny Market", config: { speaker: "Mr. Pearce", lines: ["Split it to find ONE — or a friendlier piece — then stretch it."] } },
+  "jungle-market-challenge": { id: "jungle-market-challenge", type: "dialogue", title: "Sunny Market", config: { speaker: "Mr. Pearce", lines: ["Halve it, double it, split it, join it — any route to the price you need. Just get every number right!"] } },
+  "jungle-race-challenge": { id: "jungle-race-challenge", type: "dialogue", title: "Lagoon Race", config: { speaker: "Mr. Heywood", lines: ["Who's faster? Line the racers up at the SAME time — or the same distance — and look."] } },
+  "jungle-tape-challenge": { id: "jungle-tape-challenge", type: "dialogue", title: "Tall Tree Tape", config: { speaker: "Ms. Ewings", lines: ["1 metre is 100 centimetres — the same jump on both vines, every time."] } },
+  "jungle-potion-challenge": { id: "jungle-potion-challenge", type: "dialogue", title: "Mushroom Potions", config: { speaker: "Ms. Brookes", lines: ["Same ratio, same colour. Make a bigger batch the proportional way and it won't change a shade."] } },
+  "jungle-barrels-challenge": { id: "jungle-barrels-challenge", type: "dialogue", title: "Waterfall Barrels", config: { speaker: "Trevor", lines: ["Litres PER minute — the waterfall keeps the same rate, so the ladder keeps going."] } },
+  "jungle-map-challenge": { id: "jungle-map-challenge", type: "dialogue", title: "Treasure Map", config: { speaker: "Ms. Mahoney", lines: ["The map vine and the trail vine are tied at 0. Read the scale, then dig in the right spot!"] } },
+  "jungle-fireflies-challenge": { id: "jungle-fireflies-challenge", type: "dialogue", title: "Firefly Graphs", config: { speaker: "Mr. Dawson", lines: ["Stand the ladder up and every rung is a firefly — a true ladder lights one straight line from the roots."] } },
+  "jungle-temple-challenge": { id: "jungle-temple-challenge", type: "dialogue", title: "Temple of Truth", config: { speaker: "Robot", lines: ["Not every pair of vines makes a ladder. Test each tablet — does it hang straight?"] } },
+  "jungle-pathfinder-challenge": { id: "jungle-pathfinder-challenge", type: "dialogue", title: "Pathfinder", config: { speaker: "Ms. Bacon", lines: ["One ladder's answer is the next ladder's start. Plan the whole expedition, leg by leg."] } },
 
   // Schoolyard NPC completion dialogues are GENERATED from the character list
   // (W2-F) — see the loop just after ENCOUNTERS.

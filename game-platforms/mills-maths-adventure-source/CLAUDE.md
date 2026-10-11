@@ -183,6 +183,19 @@
 > signed). See "DONE (2026-10-10, afternoon)". **587 → 594 checks; vite
 > build clean.**
 >
+> **NEW (built 2026-10-10 evening, NOT yet deployed): EMERALD JUNGLE —
+> ALL TEN PROPORTIONAL-REASONING CHALLENGES + THE ACCURACY RULE.** The
+> other eight jungle challenges are built (Lagoon Race, Tall Tree Tape,
+> Mushroom Potions, Waterfall Barrels, Treasure Map, Firefly Graphs, Temple
+> of Truth, Pathfinder) on one generalised vine-ladder store + card, and
+> Jeff's rule now governs the whole world: **reward ACCURACY, not speed** —
+> any route up the ladder scores the same (25 a round), only wrong numbers
+> cost (−4 each, floor 9); no efficiency bonus, no "it can be done in 2",
+> nobody steered to "go through one" (the teacher names the unitary method
+> later). Monkey Swap + Sunny Market reworked to it; Pathfinder redesigned
+> as chained expeditions. See "DONE (2026-10-10, evening)". **594 → 619
+> checks; vite build clean.**
+>
 > **NEXT UP options:** live visual pass + deploy of the snow world + cabin ·
 > teacher glbs for the six placeholder snow/cabin hosts (add each
 > characterId to characterModels.js) · a snow/cabin cloud-completion path
@@ -191,6 +204,99 @@
 > interactive plot-a-point input mode (tap the Cartesian grid) · Stage 5
 > depth (still only 2 sample skills) · more Stage 4 topics (Area extension)
 > · a DevPanel gallery to eyeball every new diagram/chart at once.
+
+## DONE (2026-10-10, evening) — EMERALD JUNGLE: ALL TEN CHALLENGES + REWARD ACCURACY, NOT SPEED
+Jeff's brief after playing the pilot: build the other eight proportional
+challenges ("take your time … make the best pedagogical decisions"), and
+change the scoring everywhere in the jungle: **"develop proportional
+thinking, not necessarily to get the answer the fastest … the person that
+does it in 2 would receive the same XP as the person that does it in 4 so
+long as the person that did it in 4 made no mistakes. The teacher can
+explain the unitary method later but not here."** The Sunny Market slip
+card ("4 new rungs — it can be done in 2", "The quick way") was his
+example. **594 → 619 checks (jungleChallengeChecks.js rewritten: JCF1–JCF6
++ three per challenge × 10), all passing; vite build clean.** NOT yet
+deployed. Design + per-challenge detail: `docs/emerald-jungle-challenges-
+plan.md` (= project doc `claude/emerald-jungle-challenges-plan.md`).
+- **The accuracy rule (`data/jungle/vineLadder.js`):** `ROUND_POINTS` 25,
+  `MISTAKE_COST` 4, `ROUND_FLOOR` 9 → `accuracyPoints(mistakes)`; a wrong
+  FINAL call keeps `partialPoints(m, 10)`; a wrong FIRST call (Temple
+  works/breaks, Fireflies story match — `partial: 0`) keeps 0. Refusals
+  (part fruit/cent, off the vine, duplicate rung) are NOT mistakes.
+  `MAX_NEW_RUNGS` 14 per ladder so long routes are never cut off. The
+  efficiency bands, `reachPoints`, the "can be done in N" slip text and the
+  "quick way" label are GONE: the slip card says "What slipped: …" (first
+  three slips) and the feedback card "here's one way to see it:"
+  (`JunglePanels.jsx`; `RoundCelebrate` gained `workingLabel`,
+  `MagmaPanelShell` `slipWorking`/`feedbackLead`/`feedbackZero`). No intro,
+  hint or encounter line pushes "go through one" (intros' examples were
+  rewritten; Mr. Pearce's line too). **JCF6** proves it in all ten: a round
+  with an extra correct DETOUR still earns 25, one wrong number earns 21.
+- **One ladder engine for all ten.** `data/jungle/roundKit.js`
+  (`planRound` = a worked route per phase for the "one way to see it"
+  working + the checks — never for scoring; `driveFor`, `solveLines`,
+  `goalChip`); `game/jungle/ladderStore.js` rewritten around PHASES:
+  `build` (goals `{li, target}`), `common` (two ladders to the same amount,
+  `planAt`), `call` (options/correct/`final`, optional `ladders` to explore
+  first), `type` (vine/answer, `unlock: "across"`, `hideLadder`),
+  `smallest`; per-phase `drive`/`say`/`ask`/`hint`/`leg`. Layouts:
+  `single` · `shared` (three vines sharing the middle one) · `chain`
+  (Barrels S3, Pathfinder legs) · `graph`. Already-hung goals auto-complete.
+  Shared units in `jungleUnits.js` (`num(unit, dp)` vines: s, min, h, m, km,
+  cm, mm, L, mL, cups, tbsp, tsp, kg, g, $, beats, drums, leaves, rain…).
+  Card: `ui/jungle/LadderPlay.jsx` (strips, moves, picker, partner/type box,
+  call row, 🔍 explore toggle, leg chips, Undo / ✂ Remove);
+  `jungleIntros.jsx` (two steps + one example each). 3D: `LadderSet.jsx`
+  (`useLadderRound`, all layouts) over the shared `VineLadder.jsx`.
+- **The eight new challenges** (logic `data/jungle/<key>Challenge.js`, store
+  `game/jungle/stores/<key>Store.js`, stage `game/jungle/stages/<Key>Stage
+  .jsx`): **Lagoon Race** (s ↔ m; racers swim lanes in front; S3/S4 "who's
+  faster" on a shared seconds/metres vine with the bigger-number trap; S5
+  kayak km ↔ h) · **Tall Tree Tape** (a VERTICAL tape under the Great Tree;
+  spot the across number first — then ↔ Across or keep going along; paces
+  along-only; three-edged m|cm|mm tapes; backwards rounds; metric only) ·
+  **Mushroom Potions** (a real pigment mix colours the brew, plus a vial +
+  meter; same potion? / which is bluer? / part:part:whole cauldron / three
+  ingredients) · **Waterfall Barrels** (s ↔ L; fill + overflow; per minute
+  then per hour as two chained ladders; two pipes; heartbeats, drums, ants,
+  rain) · **Treasure Map** (map cm on parchment ↔ real m = the trail; the
+  explorer digs where you say; 1 : N scales typed first with the ladder
+  HIDDEN) · **Firefly Graphs** (the ladder stood up as a distance–time
+  graph; steeper = faster; match the story with explorable lines; speed in
+  one hour) · **Temple of Truth** (works/breaks + the reason: fee, same
+  difference, stays the same, grows faster, one up/one down; NO °C/°F
+  tablet — metric only; works and breaks shuffled within each stage, first
+  tablet works) · **Pathfinder** (REDESIGNED: the "pick the easiest of
+  three routes" capstone rewarded the fastest route, so it is now chained
+  EXPEDITIONS — leg 1's answer is leg 2's target; stepping stones light leg
+  by leg).
+- **Placement:** every stage stands BESIDE its clearing's trail, never on
+  it, and nothing else stands in it (JCF2 now also fails a CLASH — another
+  collider inside the apparatus — and CLUTTER — a signpost, standing stone,
+  rubble or rock inside or just in front of it; failures are listed
+  grouped). New frames: race lagoon 300/3 · tape greattree 232/−5 · potion
+  mushroom 70/−7 · barrels pool 220/−7 · fireflies hollow 115/4 · temple
+  210/10 · pathfinder shrine 205/−5.5 (the shrine's altar + ring now stand
+  BEHIND the expedition). Props keep clear of every built stage + host
+  (`keepClearList` in jungleProps.js), shrine ring stones step aside for a
+  stage (`inAnyStageBox`), the escarpment giants respect the view
+  corridors, and three trail signposts moved a few metres (mushroom
+  junction → [-45, 34], temple junction → [-40, -21], pool junction →
+  [-8.5, -84]) out of the stages' shots.
+  Views: `RACE_VIEW`, `TAPE_VIEW` (tall, `fitH`), `GRAPH_VIEW`; Player.jsx's
+  stage camera fits `max(fit/halfW, fitH/halfV)`. The Lookout deck moved
+  3.1 m north for the map stage.
+- **Also:** Mills' jungle welcome covers all ten + the accuracy rule;
+  `jungle-<key>-challenge` fallback lines for every host; the trophy grid +
+  Achievements Wall drop "more coming soon" once all ten are open.
+- **Harness (/home/claude/harness, not shipped):** `jc.mjs` (jungle
+  checks), `js.mjs` + `batch.sh` (stage screenshots, sequential only),
+  `stagefit.mjs` / `padfit.mjs` (search a stage frame off the trail),
+  `t13.mjs` (perfect play through all ten stores = 375 each).
+- **TODO:** Jeff plays all ten; a live look on a real GPU + iPad (the tall
+  tape + graph framing at 4:3, chip crowding on three-vine ladders, tap
+  targets); Farsi/Arabic for all jungle text; a cloud completion path
+  (bests are local-only); deploy.
 
 ## DONE (2026-10-10, afternoon) — WORLD MAPS + WAYPOINTS · ONE ROUND-OUTCOME RULE
 Jeff's feedback after playing the jungle pilot: (1) a round whose final
@@ -2367,7 +2473,7 @@ awards the trophy). L1–5 adaptive. Teacher tasks still override (handled upstr
 in interaction.js). Guarded by `runSchoolyardTopicChecks()`. Island NPCs (Pip/
 Fern/Alby) unchanged.
 
-## System checks (594)
+## System checks (619)
 `src/dev/systemChecks.js` → `runSystemChecks()`. Run headlessly: temporarily set
 `package.json` `"type":"module"`, shim `localStorage/window/document`, import and
 run; also babel parse-check `src/`, `portal/`, `functions/`. Restore package.json
