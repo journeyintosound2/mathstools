@@ -3,6 +3,8 @@ import React, { useEffect } from "react";
 import { useRoundUp } from "../game/roundUpStore.js";
 import { useSession } from "../game/sessionStore.js";
 import { ROUNDUP_ROUNDS_PER_SET } from "../data/farm/roundUpChallenge.js";
+import { kh } from "./keyHints.js";
+import { useUI } from "./effects/uiStore.js";
 
 /**
  * THE ROUND-UP — 2D panel (F3). Same live-movement pattern as the Fence
@@ -86,6 +88,35 @@ export default function RoundUpPanel() {
               In the pen: <strong>{penned}</strong>
             </div>
             {hint && <div className="farm-challenge-hint">{hint}</div>}
+            {/* Touch (phones / iPads): the cows are tiny on a small screen, so
+                the pen can be filled from the card too — one cow at a time. */}
+            {useUI.getState().touchMode && (
+              <div className="farm-challenge-buttons">
+                <button
+                  className="plank-piece-btn"
+                  onClick={(e) => {
+                    e.currentTarget.blur();
+                    const st = useRoundUp.getState();
+                    const cow = st.cows.find((c) => c.state === "field");
+                    if (cow) st.toggleCow(cow.id);
+                  }}
+                >
+                  🐄 Pen a cow
+                </button>
+                <button
+                  className="plank-piece-btn"
+                  disabled={!penned}
+                  onClick={(e) => {
+                    e.currentTarget.blur();
+                    const st = useRoundUp.getState();
+                    const last = st.pennedOrder[st.pennedOrder.length - 1];
+                    if (last !== undefined) st.toggleCow(last);
+                  }}
+                >
+                  ↩ Let one out
+                </button>
+              </div>
+            )}
             <div className="farm-challenge-buttons">
               <button
                 className="primary-button"
@@ -94,7 +125,7 @@ export default function RoundUpPanel() {
                   useRoundUp.getState().submit();
                 }}
               >
-                That's the round-up! (Enter)
+                {kh("That's the round-up! (Enter)")}
               </button>
               <button className="link-button" onClick={() => useRoundUp.getState().exit()}>
                 Quit
@@ -117,7 +148,7 @@ export default function RoundUpPanel() {
                   useRoundUp.getState().next();
                 }}
               >
-                {roundIndex + 1 < ROUNDUP_ROUNDS_PER_SET ? "Next round (Enter)" : "Finish (Enter)"}
+                {roundIndex + 1 < ROUNDUP_ROUNDS_PER_SET ? kh("Next round (Enter)") : kh("Finish (Enter)")}
               </button>
             </div>
           </>

@@ -17,6 +17,9 @@ import { useActiveSnowChallenge } from "../game/farmChallengeActive.js";
 import { useActiveMagmaChallenge } from "../game/magma/magmaActive.js";
 import { useActiveJungleChallenge } from "../game/jungle/jungleActive.js";
 import { firstOutstandingTask, taskObjectiveText } from "../data/taskCompass.js";
+import { hasRegionMap } from "../data/maps/regionMaps.js";
+import { useFarmChallengeActive } from "../game/farmChallengeActive.js";
+import { useMediaQuery, COMPACT_QUERY } from "./useMediaQuery.js";
 
 /**
  * The heads-up display overlaid on the 3D view.
@@ -63,6 +66,14 @@ export default function HUD() {
   const toggleTouchMode = useUI((s) => s.toggleTouchMode);
   const graphicsQuality = useUI((s) => s.graphicsQuality);
   const toggleGraphicsQuality = useUI((s) => s.toggleGraphicsQuality);
+  // Phones (either way up): ONE compact row — stats on the left, Map + a
+  // ☰ menu (Quests / Results / Help / Sign in / options) on the right — so
+  // nothing overlaps and every button is a thumb-sized target.
+  const compact = useMediaQuery(COMPACT_QUERY);
+  const regionId = useSession((s) => s.currentRegionId);
+  const challengeActive = useFarmChallengeActive();
+  const openMap = useUI((s) => s.openMap);
+  const showMapBtn = hasRegionMap(regionId) && !challengeActive;
 
   const activeMissionId = useProgress((s) => s.activeMissionId);
   const missionProgress = useProgress((s) => s.missionProgress);
@@ -130,7 +141,11 @@ export default function HUD() {
 
   let trackerBody;
   if (nearby && !activeEncounterId) {
-    trackerBody = (
+    trackerBody = touchMode ? (
+      <div className="tracker-prompt">
+        <Bi>Tap the button</Bi> — <Bi>{nearby.promptLabel}</Bi>
+      </div>
+    ) : (
       <div className="tracker-prompt">
         <Bi>Press</Bi> <kbd>E</kbd> — <Bi>{nearby.promptLabel}</Bi>
       </div>
@@ -163,7 +178,7 @@ export default function HUD() {
         <WaypointCompass />
       </div>
       {/* Top-left: player stats */}
-      <div className="hud-panel hud-stats">
+      <div className={`hud-panel hud-stats${compact ? " is-compact" : ""}`}>
         <div className="hud-name">{profile.name}</div>
 
         <div className="hud-row">
@@ -181,7 +196,13 @@ export default function HUD() {
       </div>
 
       {/* Top-right: controls */}
-      <div className="hud-buttons">
+      <div className={`hud-buttons${compact ? " is-compact" : ""}`}>
+        {showMapBtn && (
+          <button className="hud-icon-btn hud-map-btn" onClick={openMap} title="World map (M)" aria-label="World map">
+            🗺️{!compact && <> <Bi>Map</Bi></>}
+          </button>
+        )}
+        {!compact && <>
         <button className="hud-icon-btn" onClick={toggleQuestLog} title="Quest Log (Q)">
           📜 <Bi>Quests</Bi>
         </button>
@@ -202,19 +223,35 @@ export default function HUD() {
               ? "☁ Demo (local)"
               : "☁ Sign in"}
         </button>
+        </>}
 
-        {/* Options cog (⚙): Camera Lock + Quest HUD live here. */}
+        {/* Options cog (⚙): Camera Lock + Quest HUD live here. On phones it's
+            the ☰ menu and also holds Quests / Results / Help / Sign in. */}
         <div className="cog-wrap">
           <button
-            className={`hud-icon-btn ${cogOpen ? "active" : ""}`}
+            className={`hud-icon-btn hud-cog-btn ${cogOpen ? "active" : ""}`}
             onClick={toggleCog}
-            title="Options"
-            aria-label="Options"
+            title={compact ? "Menu" : "Options"}
+            aria-label={compact ? "Menu" : "Options"}
           >
-            ⚙
+            {compact ? "☰" : "⚙"}
           </button>
           {cogOpen && (
             <div className="cog-menu">
+              {compact && (
+                <div className="cog-main">
+                  <button className="cog-main-btn" onClick={() => { toggleCog(); toggleQuestLog(); }}>📜 <Bi>Quests</Bi></button>
+                  <button className="cog-main-btn" onClick={() => { toggleCog(); toggleResults(); }}>📊 <Bi>Results</Bi></button>
+                  <button className="cog-main-btn" onClick={() => { toggleCog(); toggleHowTo(); }}>❔ <Bi>Help</Bi></button>
+                  <button className={`cog-main-btn cloud-chip cloud-${cloudMode}`} onClick={() => { toggleCog(); setCloudLogin(true); }}>
+                    {cloudMode === "registered" && cloudStudent
+                      ? `☁ ${studentChipLabel(cloudStudent)}`
+                      : cloudMode === "skip"
+                        ? "☁ Demo (local)"
+                        : "☁ Sign in"}
+                  </button>
+                </div>
+              )}
               <div className="cog-item cog-item-static" title="Choose the language shown alongside English">
                 <span><Bi>Language</Bi></span>
                 <LanguageSelector compact />
@@ -231,7 +268,7 @@ export default function HUD() {
                 <span><Bi>Sound</Bi></span>
                 <span className={`cog-switch ${soundEnabled ? "on" : ""}`}><Bi>{soundEnabled ? "On" : "Off"}</Bi></span>
               </button>
-              <button className="cog-item" onClick={toggleTouchMode} title="Tap-to-move + on-screen keypad (for phones/tablets)">
+              <button className="cog-item" onClick={toggleTouchMode} title="On-screen joystick, Talk + Jump buttons and number keypad (for phones/tablets)">
                 <span><Bi>Touch controls</Bi></span>
                 <span className={`cog-switch ${touchMode ? "on" : ""}`}><Bi>{touchMode ? "On" : "Off"}</Bi></span>
               </button>
@@ -265,7 +302,7 @@ export default function HUD() {
       {/* Mission Tracker (only shown when a teacher mission is active) */}
       <MissionTracker />
 
-      {!snowChallenge && !magmaChallenge && !jungleChallenge && <div className="hud-panel hud-controls">
+      {!touchMode && !snowChallenge && !magmaChallenge && !jungleChallenge && <div className="hud-panel hud-controls">
         {cameraLock
           ? <Bi>WASD / Arrows to move · Space to jump · Shift to run · E to interact · Q for quests · Camera follows you</Bi>
           : <Bi>WASD / Arrows to move · Space to jump · Shift to run · E to interact · Z / X to rotate camera · Q for quests</Bi>}

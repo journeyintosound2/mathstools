@@ -132,6 +132,10 @@ export const playerState = {
   // the world-space step it wants here; Player.jsx applies it through the
   // normal bounds/collider/step-up path, then clears it. null = not jumping.
   jumpRootStep: null,
+  // What the on-screen touch controls may do right now (published by the
+  // Player every frame): walk (joystick), walkAxis "x" (the Fence
+  // Challenge slides left/right only), orbit (camera drag), jump.
+  touchCaps: { walk: true, walkAxis: null, orbit: true, jump: true },
 };
 
 /**
@@ -143,6 +147,15 @@ export const touchInput = {
   jump: false,
   rotateLeft: false,
   rotateRight: false,
+  // The on-screen JOYSTICK (2026-10-11): −1…1 each way, y = forward (up the
+  // screen). Camera-relative, exactly like WASD — but analogue, so a small
+  // push walks slowly and a push to the rim RUNS (`run`).
+  moveX: 0,
+  moveY: 0,
+  run: false,
+  // Camera DRAG: radians of yaw waiting to be applied (the Player adds it
+  // on its next frame, when the camera is free to orbit, then zeroes it).
+  yawDelta: 0,
 };
 
 // Request the player be moved to (x, z) on the next frame.

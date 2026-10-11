@@ -9,6 +9,7 @@ import {
 } from "../data/snow/colonyPairsChallenge.js";
 import { SnowIntro, SnowRoundHead, SnowWorking } from "./SnowCardParts.jsx";
 import RoundCelebrate from "./RoundCelebrate.jsx";
+import { kh } from "./keyHints.js";
 
 /**
  * PENGUIN COLONY — 2D panel (PC). PREDICT the hiding double (buttons or
@@ -203,7 +204,7 @@ export default function ColonyPairsPanel() {
                 useColonyPairs.getState().next();
               }}
             >
-              {roundIndex + 1 < COLONY_ROUNDS_PER_SET ? "Next round (Enter)" : "Finish (Enter)"}
+              {roundIndex + 1 < COLONY_ROUNDS_PER_SET ? kh("Next round (Enter)") : kh("Finish (Enter)")}
             </button>
           </div>
         </div>

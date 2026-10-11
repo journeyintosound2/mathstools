@@ -4,6 +4,7 @@ import { Html } from "@react-three/drei";
 
 import { useUI } from "../ui/effects/uiStore.js";
 import { useSession, requestMoveTo, playerState } from "./sessionStore.js";
+import { queueTap } from "./touchGesture.js";
 import { clampToBounds } from "../data/regions.js";
 import { ISLAND_BOUNDS, ISLAND_AREAS, ISLAND_WELCOME, PLAZA, LIGHTHOUSE, GATES } from "../data/island/islandLayout.js";
 import {
@@ -92,7 +93,7 @@ export default function IslandScenery({ title = false }) {
     if (useSession.getState().activeEncounterId) return;
     e.stopPropagation();
     const { x, z } = clampToBounds(e.point.x, e.point.z, ISLAND_BOUNDS);
-    requestMoveTo(x, z, null);
+    queueTap(() => requestMoveTo(x, z, null)); // only if it was a TAP (not a drag)
   }, []);
   const tap = touchMode && !title ? onTap : undefined;
   // DEV-only layer isolation for profiling: window.__ISL_ONLY = ["IslandTrees", …].

@@ -5,6 +5,7 @@ import { useSession, playerState } from "../game/sessionStore.js";
 import { VILLAGE_ROUNDS_PER_SET, villageSite } from "../data/snow/villageSplitChallenge.js";
 import { SnowIntro, SnowRoundHead, SnowWorking } from "./SnowCardParts.jsx";
 import RoundCelebrate from "./RoundCelebrate.jsx";
+import { kh } from "./keyHints.js";
 
 /**
  * IGLOO VILLAGE — 2D panel (VG). Round 2 (2026-09-29): no multiple-choice
@@ -235,7 +236,7 @@ export default function VillageSplitPanel() {
                 useVillageSplit.getState().next();
               }}
             >
-              {roundIndex + 1 < VILLAGE_ROUNDS_PER_SET ? "Next round (Enter)" : "Finish (Enter)"}
+              {roundIndex + 1 < VILLAGE_ROUNDS_PER_SET ? kh("Next round (Enter)") : kh("Finish (Enter)")}
             </button>
           </div>
         </div>

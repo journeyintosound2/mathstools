@@ -10,6 +10,7 @@ import {
 } from "../data/snow/rinkGlideChallenge.js";
 import { SnowIntro, SnowRoundHead, SnowWorking } from "./SnowCardParts.jsx";
 import RoundCelebrate from "./RoundCelebrate.jsx";
+import { kh } from "./keyHints.js";
 
 /**
  * ICE RINK — 2D panel (RG). PLAN a queue of pushes with the big buttons
@@ -168,7 +169,7 @@ export default function RinkGlidePanel() {
                   useRinkGlide.getState().go();
                 }}
               >
-                🚀 Launch! (Enter)
+                {kh("🚀 Launch! (Enter)")}
               </button>
             </div>
           </div>
@@ -203,7 +204,7 @@ export default function RinkGlidePanel() {
                 useRinkGlide.getState().next();
               }}
             >
-              {roundIndex + 1 < RINK_ROUNDS_PER_SET ? "Next round (Enter)" : "Finish (Enter)"}
+              {roundIndex + 1 < RINK_ROUNDS_PER_SET ? kh("Next round (Enter)") : kh("Finish (Enter)")}
             </button>
           </div>
         </div>

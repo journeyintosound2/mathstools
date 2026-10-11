@@ -2,7 +2,9 @@ import React, { useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
 
-import { playerState, useSession, requestMoveTo } from "./sessionStore.js";
+import { playerState, useSession, requestMoveTo, clearMoveTarget } from "./sessionStore.js";
+import { queueTap } from "./touchGesture.js";
+import { triggerInteraction } from "./interaction.js";
 import { useProgress } from "../progress/store.js";
 import { useUI } from "../ui/effects/uiStore.js";
 import { getInteractableStatus } from "./interactableStatus.js";
@@ -119,19 +121,31 @@ export default function Interactable({ data }) {
   // Schoolyard's tiers, or island-1's plateau/stairs) so it isn't buried/floating.
   const surfaceY = region.groundHeight ? region.groundHeight(x, z) : groundHeightAt(x, z);
 
-  // Touch (W4-C): tapping this object walks the player to the edge of its
-  // interaction radius and flags it as the approach target, so the "Interact
-  // with X?" confirm appears on arrival. stopPropagation keeps the tap from also
-  // registering as a plain ground move. Only active in touchMode.
-  function handleTap(e) {
-    if (!touchMode) return;
-    if (useSession.getState().activeEncounterId) return;
-    e.stopPropagation();
+  // Touch (W4-C, reworked 2026-10-11): TAP a character (or its name badge)
+  // to talk. Already close enough → the conversation opens straight away;
+  // further off → the player walks over (running if it's a long way) and it
+  // opens on arrival (TouchControls' approach watcher). stopPropagation keeps
+  // the tap from also registering as a plain ground move. Only in touchMode,
+  // and never while a modal or a challenge owns the screen.
+  function approachOrTalk() {
+    if (useSession.getState().activeEncounterId || quietRef.current) return;
     const dx = playerState.x - x;
     const dz = playerState.z - z;
-    const d = Math.hypot(dx, dz) || 1;
+    const dist = Math.hypot(dx, dz);
+    if (dist <= interactRange) {
+      clearMoveTarget();
+      triggerInteraction(data);
+      return;
+    }
+    const d = dist || 1;
     const stop = Math.max(0, interactRange - 0.8); // land comfortably inside range
     requestMoveTo(x + (dx / d) * stop, z + (dz / d) * stop, data.id);
+  }
+  function handleTap(e) {
+    if (!touchMode) return;
+    if (useSession.getState().activeEncounterId || quietRef.current) return;
+    e.stopPropagation();
+    queueTap(approachOrTalk); // only if the finger lifts as a TAP (not a drag)
   }
 
   return (
@@ -180,6 +194,7 @@ export default function Interactable({ data }) {
           className={`ix-badge tone-${status.tone} ${isNearby && !quiet ? "near" : ""} ${
             quiet || badgeFar ? "ix-hidden" : ""
           }`}
+          onClick={touchMode ? approachOrTalk : undefined}
         >
           <span className="ix-badge-icon">{status.icon}</span>
           <span className="ix-badge-text">

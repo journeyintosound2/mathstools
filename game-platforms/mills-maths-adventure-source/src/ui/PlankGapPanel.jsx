@@ -6,6 +6,7 @@ import { useSession, playerState } from "../game/sessionStore.js";
 import {
   PLANK_ROUNDS_PER_SET, PLANK_PIECES, twDisplay,
 } from "../data/farm/plankGapChallenge.js";
+import { kh } from "./keyHints.js";
 
 /**
  * PLANK THE GAP — 2D panel (F12). Tap plank pieces (½ ⅓ ¼ ⅙ 1/12) to lay them
@@ -70,7 +71,7 @@ export default function PlankGapPanel() {
           </div>
           <div className="farm-challenge-buttons">
             <button className="primary-button" onClick={(e) => { e.currentTarget.blur(); usePlankGap.getState().beginRounds(); }}>
-              Start! (Enter)
+              {kh("Start! (Enter)")}
             </button>
             <button className="link-button" onClick={() => usePlankGap.getState().exit()}>Quit</button>
           </div>
@@ -115,7 +116,7 @@ export default function PlankGapPanel() {
           </div>
           <div className="farm-challenge-buttons">
             <button className="primary-button" onClick={(e) => { e.currentTarget.blur(); usePlankGap.getState().check(); }}>
-              Fill it! (Enter)
+              {kh("Fill it! (Enter)")}
             </button>
             <button className="link-button" onClick={() => usePlankGap.getState().removeLast()}>↶ Undo</button>
             <button className="link-button" onClick={() => usePlankGap.getState().clear()}>Clear</button>
@@ -137,7 +138,7 @@ export default function PlankGapPanel() {
           <div className="farm-challenge-prompt">{round.reason}</div>
           <div className="farm-challenge-buttons">
             <button className="primary-button" onClick={(e) => { e.currentTarget.blur(); usePlankGap.getState().next(); }}>
-              {roundIndex + 1 < PLANK_ROUNDS_PER_SET ? "Next round (Enter)" : "Finish (Enter)"}
+              {roundIndex + 1 < PLANK_ROUNDS_PER_SET ? kh("Next round (Enter)") : kh("Finish (Enter)")}
             </button>
           </div>
         </div>

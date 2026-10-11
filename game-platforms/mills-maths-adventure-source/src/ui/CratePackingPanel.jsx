@@ -3,6 +3,9 @@ import React, { useEffect, useState } from "react";
 import { useCratePacking } from "../game/cratePackingStore.js";
 import { useSession, playerState } from "../game/sessionStore.js";
 import { CRATE_ROUNDS_PER_SET } from "../data/farm/cratePackingChallenge.js";
+import { kh } from "./keyHints.js";
+import { useUI } from "./effects/uiStore.js";
+import { CRATE_SIZES } from "../data/farm/farmLayout.js";
 
 /**
  * CRATE PACKING — 2D panel (F6, v5). The instruction card shows ONCE at the
@@ -104,7 +107,7 @@ export default function CratePackingPanel() {
                 useCratePacking.getState().beginRounds();
               }}
             >
-              Start! (Enter)
+              {kh("Start! (Enter)")}
             </button>
             <button className="link-button" onClick={() => useCratePacking.getState().exit()}>
               Quit
@@ -122,6 +125,20 @@ export default function CratePackingPanel() {
               Quit
             </button>
           </div>
+          {/* Touch: the crates are small on a phone — pick a group size here too. */}
+          {status === "choosing" && useUI.getState().touchMode && (
+            <div className="order-card-row" role="group" aria-label="Group sizes">
+              {CRATE_SIZES.map((size) => (
+                <button
+                  key={size}
+                  className="plank-piece-btn order-card-chip"
+                  onClick={(e) => { e.currentTarget.blur(); useCratePacking.getState().choose(size); }}
+                >
+                  groups of {size}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
@@ -143,7 +160,7 @@ export default function CratePackingPanel() {
                 useCratePacking.getState().next();
               }}
             >
-              {roundIndex + 1 < CRATE_ROUNDS_PER_SET ? "Next round (Enter)" : "Finish (Enter)"}
+              {roundIndex + 1 < CRATE_ROUNDS_PER_SET ? kh("Next round (Enter)") : kh("Finish (Enter)")}
             </button>
           </div>
         </div>

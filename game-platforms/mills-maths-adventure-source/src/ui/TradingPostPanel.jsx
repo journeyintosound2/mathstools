@@ -3,7 +3,37 @@ import RoundCelebrate from "./RoundCelebrate.jsx";
 
 import { useTradingPost } from "../game/tradingPostStore.js";
 import { useSession, playerState } from "../game/sessionStore.js";
-import { TRADE_ROUNDS_PER_SET } from "../data/farm/tradingPostChallenge.js";
+import { TRADE_ROUNDS_PER_SET, TRADE_STALL_NAMES } from "../data/farm/tradingPostChallenge.js";
+import { kh } from "./keyHints.js";
+import { useUI } from "./effects/uiStore.js";
+
+/** The trade, as tappable rows (touch devices). */
+function TouchTrade({ round }) {
+  const resolved = useTradingPost((s) => s.resolved);
+  return (
+    <div className="trade-touch">
+      <div className="farm-challenge-line">{round.prompt}</div>
+      {round.targets.map((t) => {
+        const res = resolved[t.stall];
+        return (
+          <div key={t.stall} className="trade-touch-row">
+            <span className="trade-touch-name">{TRADE_STALL_NAMES[t.stall]}</span>
+            {t.tags.map((tag, i) => (
+              <button
+                key={i}
+                disabled={Boolean(res)}
+                className={`plank-piece-btn order-card-chip${res && res.chosenIndex === i ? (res.correct ? " good" : " bad") : ""}`}
+                onClick={(e) => { e.currentTarget.blur(); useTradingPost.getState().tapTag(t.stall, i); }}
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 
 /**
  * TRADING POST — 2D panel (F10). One-off intro card, then a slim strip; the
@@ -78,7 +108,7 @@ export default function TradingPostPanel() {
                 useTradingPost.getState().beginRounds();
               }}
             >
-              Start! (Enter)
+              {kh("Start! (Enter)")}
             </button>
             <button className="link-button" onClick={() => useTradingPost.getState().exit()}>
               Quit
@@ -97,6 +127,9 @@ export default function TradingPostPanel() {
               Quit
             </button>
           </div>
+          {/* Touch: on a phone the stall tags are small — the seller's price
+              and both stalls' tags are in the card too (same choices). */}
+          {useUI.getState().touchMode && <TouchTrade round={round} />}
         </div>
       )}
 
@@ -118,7 +151,7 @@ export default function TradingPostPanel() {
                 useTradingPost.getState().next();
               }}
             >
-              {roundIndex + 1 < TRADE_ROUNDS_PER_SET ? "Next round (Enter)" : "Finish (Enter)"}
+              {roundIndex + 1 < TRADE_ROUNDS_PER_SET ? kh("Next round (Enter)") : kh("Finish (Enter)")}
             </button>
           </div>
         </div>

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { touchWords } from "../keyHints.js";
 
 import { useProgress } from "../../progress/store.js";
 import { useSession } from "../../game/sessionStore.js";
@@ -69,7 +70,7 @@ export default function DynamicDialogue() {
         <span className="modal-progress">{line + 1} / {lines.length}</span>
       </div>
 
-      <p className="dialogue-line">“{lines[line]}”</p>
+      <p className="dialogue-line">“{touchWords(lines[line])}”</p>
 
       <div className="modal-actions">
         <button className="primary-button" onClick={advance}>{primaryLabel}</button>

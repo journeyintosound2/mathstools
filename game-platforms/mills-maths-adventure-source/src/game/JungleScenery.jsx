@@ -4,6 +4,7 @@ import { Html } from "@react-three/drei";
 
 import { useUI } from "../ui/effects/uiStore.js";
 import { useSession, requestMoveTo, playerState } from "./sessionStore.js";
+import { queueTap } from "./touchGesture.js";
 import { clampToBounds } from "../data/regions.js";
 import {
   JUNGLE_BOUNDS, JUNGLE_SPOTS, JUNGLE_LANDMARKS, JUNGLE_WELCOME_SIGN, terrainHeight, GREAT_TREE,
@@ -60,7 +61,7 @@ export default function JungleScenery() {
     if (useSession.getState().activeEncounterId) return;
     e.stopPropagation();
     const { x, z } = clampToBounds(e.point.x, e.point.z, JUNGLE_BOUNDS);
-    requestMoveTo(x, z, null);
+    queueTap(() => requestMoveTo(x, z, null)); // only if it was a TAP (not a drag)
   }, []);
   const tap = touchMode ? onTap : undefined;
   const [wx, wz] = JUNGLE_WELCOME_SIGN.position;

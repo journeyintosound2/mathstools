@@ -5,6 +5,7 @@ import { useSession, playerState } from "../game/sessionStore.js";
 import { YARD_ROUNDS_PER_SET, YARD_COINS, yardTillAfter } from "../data/snow/lodgeYardChallenge.js";
 import { SnowIntro, SnowRoundHead, SnowWorking } from "./SnowCardParts.jsx";
 import RoundCelebrate from "./RoundCelebrate.jsx";
+import { kh } from "./keyHints.js";
 
 /**
  * THE LODGE YARD — 2D panel (LY). Round 2 (2026-09-29): tap COINS to count
@@ -166,7 +167,7 @@ export default function LodgeYardPanel() {
                 useLodgeYard.getState().giveChange();
               }}
             >
-              💰 Give the change (Enter)
+              {kh("💰 Give the change (Enter)")}
             </button>
           </div>
         </div>
@@ -218,7 +219,7 @@ export default function LodgeYardPanel() {
                 useLodgeYard.getState().next();
               }}
             >
-              {roundIndex + 1 < YARD_ROUNDS_PER_SET ? "Next round (Enter)" : "Finish (Enter)"}
+              {roundIndex + 1 < YARD_ROUNDS_PER_SET ? kh("Next round (Enter)") : kh("Finish (Enter)")}
             </button>
           </div>
         </div>

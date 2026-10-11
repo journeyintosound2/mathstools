@@ -8,6 +8,7 @@ import {
 } from "../data/snow/sledSlopeChallenge.js";
 import { SnowIntro, SnowRoundHead, SnowWorking } from "./SnowCardParts.jsx";
 import RoundCelebrate from "./RoundCelebrate.jsx";
+import { kh } from "./keyHints.js";
 
 /**
  * SLEDDING SLOPE — 2D panel (SL). (The rope thought-experiment was retired
@@ -162,7 +163,7 @@ export default function SledSlopePanel() {
                 useSledSlope.getState().confirmSlide();
               }}
             >
-              That's it! (Enter)
+              {kh("That's it! (Enter)")}
             </button>
           </div>
         </div>
@@ -217,7 +218,7 @@ export default function SledSlopePanel() {
                 useSledSlope.getState().next();
               }}
             >
-              {roundIndex + 1 < SLED_ROUNDS_PER_SET ? "Next round (Enter)" : "Finish (Enter)"}
+              {roundIndex + 1 < SLED_ROUNDS_PER_SET ? kh("Next round (Enter)") : kh("Finish (Enter)")}
             </button>
           </div>
         </div>

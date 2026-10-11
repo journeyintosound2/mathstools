@@ -8,6 +8,7 @@ import {
 } from "../data/snow/groveLightsChallenge.js";
 import { SnowIntro, SnowRoundHead, SnowWorking } from "./SnowCardParts.jsx";
 import RoundCelebrate from "./RoundCelebrate.jsx";
+import { kh } from "./keyHints.js";
 
 /**
  * CHRISTMAS TREE GROVE — 2D panel (GV). Three quick parts per round: GRAB
@@ -231,7 +232,7 @@ export default function GroveLightsPanel() {
                 useGroveLights.getState().next();
               }}
             >
-              {roundIndex + 1 < GROVE_ROUNDS_PER_SET ? "Next round (Enter)" : "Finish (Enter)"}
+              {roundIndex + 1 < GROVE_ROUNDS_PER_SET ? kh("Next round (Enter)") : kh("Finish (Enter)")}
             </button>
           </div>
         </div>

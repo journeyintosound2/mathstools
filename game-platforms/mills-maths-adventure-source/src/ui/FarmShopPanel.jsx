@@ -4,6 +4,7 @@ import RoundCelebrate from "./RoundCelebrate.jsx";
 import { useFarmShop } from "../game/farmShopStore.js";
 import { useSession, playerState } from "../game/sessionStore.js";
 import { SHOP_ROUNDS_PER_SET } from "../data/farm/farmShopChallenge.js";
+import { kh } from "./keyHints.js";
 
 /**
  * THE FARM SHOP — 2D panel (F13). Each round the student TYPES one number (a $
@@ -86,7 +87,7 @@ export default function FarmShopPanel() {
           </div>
           <div className="farm-challenge-buttons">
             <button className="primary-button" onClick={(e) => { e.currentTarget.blur(); useFarmShop.getState().beginRounds(); }}>
-              Open the shop! (Enter)
+              {kh("Open the shop! (Enter)")}
             </button>
             <button className="link-button" onClick={() => useFarmShop.getState().exit()}>Quit</button>
           </div>
@@ -119,8 +120,24 @@ export default function FarmShopPanel() {
             />
             {unit === "%" && <span className="shop-adorn">%</span>}
             {unit === "items" && <span className="shop-adorn">items</span>}
+            {/* A loss is typed as a negative %, but a phone / iPad decimal
+                keypad has no minus key — so a ± button flips the sign. */}
+            {unit === "%" && (
+              <button
+                className="plank-piece-btn shop-sign-btn"
+                title="Make it negative (a loss) / positive"
+                aria-label="Change sign"
+                onClick={(e) => {
+                  e.currentTarget.blur();
+                  const v = (input || "").trim();
+                  useFarmShop.getState().setInput(v.startsWith("-") ? v.slice(1) : `-${v}`);
+                }}
+              >
+                ±
+              </button>
+            )}
             <button className="primary-button" onClick={(e) => { e.currentTarget.blur(); useFarmShop.getState().check(); }}>
-              Ring it up! (Enter)
+              {kh("Ring it up! (Enter)")}
             </button>
           </div>
         </div>
@@ -140,7 +157,7 @@ export default function FarmShopPanel() {
           <div className="farm-challenge-prompt">{round.reason}</div>
           <div className="farm-challenge-buttons">
             <button className="primary-button" onClick={(e) => { e.currentTarget.blur(); useFarmShop.getState().next(); }}>
-              {roundIndex + 1 < SHOP_ROUNDS_PER_SET ? "Next customer (Enter)" : "Finish (Enter)"}
+              {roundIndex + 1 < SHOP_ROUNDS_PER_SET ? kh("Next customer (Enter)") : kh("Finish (Enter)")}
             </button>
           </div>
         </div>

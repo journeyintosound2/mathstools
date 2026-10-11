@@ -21,14 +21,33 @@ const CAMERA_LOCK_KEY = "mills-maths-adventure:cameraLock";
 // forced on/off (so a user can override the auto-detection from the ⚙ menu).
 const TOUCH_KEY = "mills-maths-adventure:touch";
 
-// Detect a touch-first device (phones / iPads). `pointer: coarse` is the modern
-// signal; the ontouchstart check is a belt-and-braces fallback.
+// Detect a touch-FIRST device (phones / iPads). `pointer: coarse` (the main
+// pointer is a finger) is the modern signal; a screen that can't hover but
+// has touch points is the fallback. (2026-10-11: no longer just
+// "ontouchstart" — that switched touch controls on for every touchscreen
+// laptop / Chromebook, whose students mostly use the keyboard + trackpad.
+// They can still turn touch controls on from the menu.)
 function detectTouch() {
   try {
-    if (typeof window !== "undefined" && window.matchMedia) {
+    if (typeof window === "undefined") return false;
+    if (window.matchMedia) {
       if (window.matchMedia("(pointer: coarse)").matches) return true;
+      const touchPts = (typeof navigator !== "undefined" && navigator.maxTouchPoints) || 0;
+      if (touchPts > 0 && window.matchMedia("(hover: none)").matches) return true;
+      return false;
     }
-    return typeof window !== "undefined" && "ontouchstart" in window;
+    return "ontouchstart" in window;
+  } catch {
+    return false;
+  }
+}
+
+// Any touchscreen at all (incl. touchscreen laptops / Chromebooks, whose
+// GPUs are usually modest) — used only for the default graphics quality.
+function hasTouchScreen() {
+  try {
+    return (typeof navigator !== "undefined" && navigator.maxTouchPoints > 0) ||
+      (typeof window !== "undefined" && "ontouchstart" in window);
   } catch {
     return false;
   }
@@ -53,7 +72,7 @@ function loadGraphicsQuality() {
     const v = localStorage.getItem(GRAPHICS_KEY);
     if (v === "high" || v === "low") return v;
   } catch { /* ignore */ }
-  return detectTouch() ? "low" : "high";
+  return detectTouch() || hasTouchScreen() ? "low" : "high";
 }
 
 // Language (bilingual EALD support). "en" = English only; "fa" = Farsi, "ar" =

@@ -53,6 +53,7 @@ export default function MapViewer() {
 }
 
 function MapView({ regionId, spec, pois, waypoint }) {
+  const touch = useUI((s) => s.touchMode);
   const stageRef = useRef(null);
   const canvasRef = useRef(null);
   const meRef = useRef(null);
@@ -335,7 +336,7 @@ function MapView({ regionId, spec, pois, waypoint }) {
                 {hover.place && <div className="map-tip-place">{hover.place}</div>}
                 {hover.sub && <div className="map-tip-sub">{hover.sub}</div>}
                 {hover.medal && <div className={`map-tip-medal m-${hover.medal}`}>{MEDAL_TEXT[hover.medal]}{hover.kind === "challenge" && hover.best ? ` · best ${hover.best}` : ""}</div>}
-                <div className="map-tip-hint">{hover.soon ? "Click to visit the clearing" : "Click to set a waypoint"}</div>
+                <div className="map-tip-hint">{hover.soon ? (touch ? "Tap to visit the clearing" : "Click to visit the clearing") : (touch ? "Tap to set a waypoint" : "Click to set a waypoint")}</div>
               </div>
             )}
 
@@ -377,7 +378,9 @@ function MapView({ regionId, spec, pois, waypoint }) {
         </div>
 
         <footer className="map-foot">
-          Move over the map to see places · scroll or pinch to zoom · drag to move · <b>click a place (or any spot) to set a waypoint</b> · Esc to close
+          {touch
+            ? <>Pinch to zoom · drag to move · <b>tap a place (or any spot) to set a waypoint</b></>
+            : <>Move over the map to see places · scroll or pinch to zoom · drag to move · <b>click a place (or any spot) to set a waypoint</b> · Esc to close</>}
         </footer>
       </div>
     </div>

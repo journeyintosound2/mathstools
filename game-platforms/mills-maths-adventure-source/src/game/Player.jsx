@@ -50,6 +50,33 @@ import { challengePadY } from "../data/farm/farmTerrain.js";
 import { snowChallengeView, snowParkSpot, SNOW_DOCK_LIFT } from "../data/snow/snowCameras.js";
 import { wallViewCamera } from "../data/island/wallView.js";
 import { challengePadY as snowStagePadY } from "../data/snow/snowTerrain.js";
+import { stageFraming, startStageViewportTracker, BASE_FOV } from "./stageViewport.js";
+
+// Phone / iPad (2026-10-11): a locked challenge camera frames its stage into
+// the part of the screen the question card leaves free — an off-axis
+// projection centres the stage there, and a narrow free area widens the fov
+// (game/stageViewport.js). `fr` null eases everything back to normal.
+function applyStageFraming(camera, fr, delta, W, H) {
+  const k = 1 - Math.pow(0.02, delta);
+  const view = camera.view && camera.view.enabled ? camera.view : null;
+  const ox = view ? view.offsetX : 0;
+  const oy = view ? view.offsetY : 0;
+  const tFov = fr ? fr.fov : BASE_FOV;
+  const tx = fr ? fr.offX : 0;
+  const ty = fr ? fr.offY : 0;
+  if (!fr && !view && camera.fov === BASE_FOV) return;
+  const nFov = camera.fov + (tFov - camera.fov) * k;
+  const nx = ox + (tx - ox) * k;
+  const ny = oy + (ty - oy) * k;
+  if (!fr && Math.abs(nFov - BASE_FOV) < 0.05 && Math.abs(nx) < 0.5 && Math.abs(ny) < 0.5) {
+    camera.fov = BASE_FOV;
+    if (view) camera.clearViewOffset();
+    else camera.updateProjectionMatrix();
+    return;
+  }
+  camera.fov = nFov;
+  camera.setViewOffset(W, H, nx, ny, W, H); // (updates the projection)
+}
 
 // The Snowball Sums challenge cameras live in data/snow/snowCameras.js (one
 // recipe per challenge, pad-relative — the snow valley rolls). They look a
@@ -102,6 +129,20 @@ function applyCamShake(camera) {
 
 const MOVE_SPEED = 7; // units per second (a touch faster for the bigger map)
 const RUN_MULTIPLIER = 2; // hold Shift to run
+
+// Touch joystick (2026-10-11): a push smaller than JOY_DEAD is ignored; the
+// walk pace follows the push (a gentle push ambles, never slower than
+// JOY_MIN_PACE); the rim runs (TouchControls sets touchInput.run).
+const JOY_DEAD = 0.12;
+const JOY_MIN_PACE = 0.4;
+function joyPace(mag) {
+  return Math.min(1, JOY_MIN_PACE + (1 - JOY_MIN_PACE) * Math.max(0, (mag - JOY_DEAD) / (0.8 - JOY_DEAD)));
+}
+// A tap-to-move trip longer than this RUNS (until it's nearly there).
+const TAP_RUN_DIST = 12;
+function hasKeyInput(k) {
+  return k.forward || k.backward || k.left || k.right;
+}
 
 // Third-person camera placement, expressed as a distance + height "behind"
 // the player. The "behind" direction is rotated by `camYaw` (Z/X controls).
@@ -201,7 +242,8 @@ export const CAMERA_DISTANCE_VALUE = CAMERA_DISTANCE; // re-export for DevPanel
 export default function Player({ cinematic = false }) {
   const group = useRef();
   const keys = useKeyboard();
-  const { camera, scene: devScene, gl: devGl } = useThree();
+  const { camera, scene: devScene, gl: devGl, size: viewSize } = useThree();
+  useMemo(() => startStageViewportTracker(), []);
 
   const profile = useProgress((s) => s.profile);
   const activeEncounterId = useSession((s) => s.activeEncounterId);
@@ -417,10 +459,14 @@ export default function Player({ cinematic = false }) {
 
     // --- Camera orbit (Z / X, or the on-screen rotate buttons) ---
     // (disabled in the locked challenge views)
-    if (!frozen && !fenceMode && !roundUpMode && !orderMode && !crateMode && !milkMode && !weighMode && !tradeMode && !veggieMode && !plankMode && !shopMode && !stageMode) {
+    const canOrbit = !frozen && !fenceMode && !roundUpMode && !orderMode && !crateMode && !milkMode && !weighMode && !tradeMode && !veggieMode && !plankMode && !shopMode && !stageMode;
+    if (canOrbit) {
       if (k.rotateLeft || touchInput.rotateLeft) camYaw.current -= ROTATE_SPEED * delta;
       if (k.rotateRight || touchInput.rotateRight) camYaw.current += ROTATE_SPEED * delta;
+      // Touch: a finger dragged across the 3D view swings the camera round.
+      if (touchInput.yawDelta) camYaw.current += touchInput.yawDelta;
     }
+    touchInput.yawDelta = 0; // a drag while the camera is locked is simply dropped
     // Align the movement basis with the locked Round-Up view so WASD/arrows
     // keep matching the screen while (and after) the camera glides over.
     if (roundUpMode) {
@@ -440,19 +486,37 @@ export default function Player({ cinematic = false }) {
     // --- Movement (camera-relative; fence mode = world left/right only;
     // order/crate/milk modes = tap-only, no locomotion) ---
     move.current.set(0, 0, 0);
-    if (!frozen && !orderMode && !crateMode && !milkMode && !weighMode && !tradeMode && !veggieMode && !plankMode && !shopMode && !stageMode) {
+    const canWalk = !frozen && !orderMode && !crateMode && !milkMode && !weighMode && !tradeMode && !veggieMode && !plankMode && !shopMode && !stageMode;
+    // The touch joystick (analogue): below JOY_DEAD it's ignored; the push
+    // sets the walking pace; at the rim (touchInput.run) you RUN.
+    const joyMag = Math.min(1, Math.hypot(touchInput.moveX, touchInput.moveY));
+    const joyOn = joyMag > JOY_DEAD;
+    let inputScale = 1; // keyboard = full pace
+    let joyRun = false;
+    if (canWalk) {
       if (fenceMode) {
-        // Left/right arrows (or A/D, or the on-screen rotate buttons) slide
-        // the player along the fence in WORLD x — screen-left is west (red
-        // post), screen-right is east (blue post) in the locked view.
-        const dx =
+        // Left/right arrows (or A/D, or the on-screen rotate buttons, or the
+        // joystick's left/right) slide the player along the fence in WORLD x
+        // — screen-left is west (red post), screen-right is east (blue post)
+        // in the locked view.
+        let dx =
           (k.right ? 1 : 0) - (k.left ? 1 : 0) +
           (touchInput.rotateRight ? 1 : 0) - (touchInput.rotateLeft ? 1 : 0);
+        if (!dx && Math.abs(touchInput.moveX) > JOY_DEAD) {
+          dx = Math.sign(touchInput.moveX);
+          inputScale = joyPace(Math.abs(touchInput.moveX));
+        }
         move.current.x = dx;
         move.current.z = 0;
       } else {
-        const fwd = (k.forward ? 1 : 0) - (k.backward ? 1 : 0);
-        const strafe = (k.right ? 1 : 0) - (k.left ? 1 : 0);
+        let fwd = (k.forward ? 1 : 0) - (k.backward ? 1 : 0);
+        let strafe = (k.right ? 1 : 0) - (k.left ? 1 : 0);
+        if (!fwd && !strafe && joyOn) {
+          fwd = touchInput.moveY;
+          strafe = touchInput.moveX;
+          inputScale = joyPace(joyMag);
+          joyRun = Boolean(touchInput.run);
+        }
         move.current.x = forward.x * fwd + right.x * strafe;
         move.current.z = forward.z * fwd + right.z * strafe;
       }
@@ -480,8 +544,12 @@ export default function Player({ cinematic = false }) {
       }
     }
 
-    // Hold Shift to RUN (2× speed + the run animation).
-    const running = Boolean(k.run) && !frozen;
+    // Hold Shift to RUN (2× speed + the run animation) — or push the touch
+    // joystick to its rim, or tap somewhere far away (a long tap-to-move
+    // trip runs, so the big worlds don't take forever on a tablet).
+    const longTrip = Boolean(playerState.moveTarget) && !hasKeyInput(k) && !joyOn &&
+      Math.hypot(playerState.moveTarget.x - prevX, playerState.moveTarget.z - prevZ) > TAP_RUN_DIST;
+    const running = (Boolean(k.run) || joyRun || longTrip) && !frozen;
 
     // Slippery ice (Snowball Sums rink): while ON the ice, input steers a
     // persistent velocity (momentum + glide) rather than setting displacement
@@ -494,7 +562,7 @@ export default function Player({ cinematic = false }) {
     if (hasInput) move.current.normalize();
     // Wading through water (Emerald Jungle's speedAt hook) slows you down.
     const terrainSpeed = region.speedAt ? region.speedAt(prevX, prevZ, pos.y) : 1;
-    const targetSpeed = MOVE_SPEED * (running ? RUN_MULTIPLIER : 1) * terrainSpeed;
+    const targetSpeed = MOVE_SPEED * (running ? RUN_MULTIPLIER : inputScale) * terrainSpeed;
     if (onIce) {
       const grip = 1 - Math.exp(-ICE_GRIP * delta);
       iceVel.current.x += (move.current.x * targetSpeed - iceVel.current.x) * grip;
@@ -928,6 +996,16 @@ export default function Player({ cinematic = false }) {
       }
     }
 
+    // What the on-screen touch controls may do this frame (TouchControls
+    // shows / hides the joystick + Jump from this).
+    {
+      const caps = playerState.touchCaps;
+      caps.walk = canWalk && !liftRiding; // (a sled on a chute still steers)
+      caps.walkAxis = fenceMode ? "x" : null;
+      caps.orbit = canOrbit && !riding;
+      caps.jump = (canWalk && !fenceMode && !riding) || climbingNow;
+    }
+
     // Publish position for proximity checks (non-reactive shared object).
     playerState.x = pos.x;
     playerState.y = pos.y;
@@ -977,13 +1055,19 @@ export default function Player({ cinematic = false }) {
 
     const p = group.current.position;
 
+    if (!wv && !farmCamKey && !snowCamKey && !magmaView) applyStageFraming(camera, null, delta, viewSize.width, viewSize.height);
     if (wv) {
       fpvInit.current = false;
       // --- The Achievements Wall look: the camera glides from behind the
       // player to eye height in front of the wall (the whole wall, or one
       // world's board up close — data/island/wallView.js frames each from
       // the live fov/aspect). Position + look ease in → a smooth glide.
-      const view = wallViewCamera(wv.panel, camera.fov, camera.aspect);
+      // A screen narrower than 4:3 (a phone / iPad held upright) keeps the
+      // 4:3 framing distance and widens the view, so a whole board fits.
+      const t0 = Math.tan((BASE_FOV * Math.PI) / 360);
+      const wf = camera.aspect < 4 / 3 ? { fov: (2 * Math.atan((t0 * (4 / 3)) / camera.aspect) * 180) / Math.PI, offX: 0, offY: 0 } : null;
+      applyStageFraming(camera, wf, delta, viewSize.width, viewSize.height);
+      const view = wallViewCamera(wv.panel, wf ? wf.fov : BASE_FOV, camera.aspect);
       if (!lockedPrev.current) camLook.current.set(p.x, p.y + 1.6, p.z);
       camTarget.current.set(view.pos[0], view.pos[1], view.pos[2]);
       camera.position.lerp(camTarget.current, 1 - Math.pow(0.004, delta));
@@ -1014,7 +1098,9 @@ export default function Player({ cinematic = false }) {
       // Distances come from the live fov/aspect so the whole stage always
       // fits; the views are pad-relative, so the pad's height is added (the
       // farm is hilly now). Position AND look-at ease in → a smooth glide. ---
-      const view = farmChallengeView(farmCamKey, camera.fov, camera.aspect);
+      const fr = stageFraming();
+      applyStageFraming(camera, fr, delta, viewSize.width, viewSize.height);
+      const view = fr ? farmChallengeView(farmCamKey, fr.viewFov, fr.viewAspect) : farmChallengeView(farmCamKey, BASE_FOV, camera.aspect);
       const padY = challengePadY(farmCamKey);
       if (!lockedPrev.current) camLook.current.set(p.x, p.y + 1, p.z); // seed from the player
       camTarget.current.set(view.pos[0], view.pos[1] + padY, view.pos[2]);
@@ -1028,12 +1114,17 @@ export default function Player({ cinematic = false }) {
       // front-on view from the south (data/snow/snowCameras.js — distances
       // from the live fov/aspect). Pad-relative: the stage's pad height is
       // added (the sled run's view is absolute — its pad is 0). ---
-      const view = snowChallengeView(snowCamKey, camera.fov, camera.aspect);
+      const fr = stageFraming();
+      applyStageFraming(camera, fr, delta, viewSize.width, viewSize.height);
+      const view = fr ? snowChallengeView(snowCamKey, fr.viewFov, fr.viewAspect) : snowChallengeView(snowCamKey, BASE_FOV, camera.aspect);
       const padY = snowStagePadY(snowCamKey);
+      // (The views look a little low so the stage rides above a bottom card
+      // on a computer; the phone framing centres it in the free area itself.)
+      const unLift = fr ? SNOW_DOCK_LIFT * view.dist : 0;
       if (!lockedPrev.current) camLook.current.set(p.x, p.y + 1, p.z);
       camTarget.current.set(view.pos[0], view.pos[1] + padY, view.pos[2]);
       camera.position.lerp(camTarget.current, 1 - Math.pow(0.01, delta));
-      camLook.current.lerp({ x: view.look[0], y: view.look[1] + padY, z: view.look[2] }, 1 - Math.pow(0.01, delta));
+      camLook.current.lerp({ x: view.look[0], y: view.look[1] + padY + unLift, z: view.look[2] }, 1 - Math.pow(0.01, delta));
       camera.lookAt(camLook.current);
       applyCamShake(camera); // wrong-answer wobble (the snow panels)
     } else if (magmaView) {
@@ -1046,9 +1137,11 @@ export default function Player({ cinematic = false }) {
       // the stage so the scene rides up clear of the bottom-docked card. ---
       const { frame: fr, view: vw } = magmaView;
       const fit = stageStore?.getState().viewFit || vw.fit;
-      const halfW = Math.tan((camera.fov * Math.PI) / 360) * camera.aspect;
+      const sf = stageFraming();
+      applyStageFraming(camera, sf, delta, viewSize.width, viewSize.height);
+      const halfW = sf ? sf.halfW : Math.tan((BASE_FOV * Math.PI) / 360) * camera.aspect;
       // A tall scene (the jungle's tape + graph board) also has a half-HEIGHT to fit.
-      const halfV = Math.tan((camera.fov * Math.PI) / 360);
+      const halfV = sf ? sf.halfV : Math.tan((BASE_FOV * Math.PI) / 360);
       const fitDist = Math.max(fit / halfW, vw.fitH ? vw.fitH / halfV : 0);
       const dist = Math.min(vw.maxDist ?? 30, Math.max(vw.minDist ?? 9, fitDist));
       const [lx, ly, lz] = vw.look;
@@ -1057,7 +1150,7 @@ export default function Player({ cinematic = false }) {
       camTarget.current.set(cx, fr.y + ly + Math.sin(vw.elev) * dist, cz);
       camera.position.lerp(camTarget.current, 1 - Math.pow(0.01, delta));
       camLook.current.lerp(
-        { x: magmaView.lookWorld[0], y: magmaView.lookWorld[1] - (vw.lift ?? SNOW_DOCK_LIFT) * dist, z: magmaView.lookWorld[2] },
+        { x: magmaView.lookWorld[0], y: magmaView.lookWorld[1] - (sf ? 0 : (vw.lift ?? SNOW_DOCK_LIFT)) * dist, z: magmaView.lookWorld[2] },
         1 - Math.pow(0.01, delta)
       );
       camera.lookAt(camLook.current);

@@ -4,6 +4,7 @@ import { Html } from "@react-three/drei";
 
 import { useUI } from "../ui/effects/uiStore.js";
 import { useSession, requestMoveTo, playerState } from "./sessionStore.js";
+import { queueTap } from "./touchGesture.js";
 import { clampToBounds } from "../data/regions.js";
 import {
   SNOW_BOUNDS, SNOW_WELCOME_SIGN, SNOW_RECORDS_STAND, SNOW_CHALLENGE_SPOTS, GIANT_SNOWMAN, SNOW_LAKE, SNOW_LODGE,
@@ -74,7 +75,7 @@ export default function SnowScenery() {
     if (useSession.getState().activeEncounterId) return;
     e.stopPropagation();
     const { x, z } = clampToBounds(e.point.x, e.point.z, SNOW_BOUNDS);
-    requestMoveTo(x, z, null);
+    queueTap(() => requestMoveTo(x, z, null)); // only if it was a TAP (not a drag)
   }, []);
   const tap = touchMode ? onTap : undefined;
   const [wx, wz] = SNOW_WELCOME_SIGN.position;

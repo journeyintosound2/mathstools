@@ -11,6 +11,7 @@ import { runMagmaChallengeChecks } from "./magmaChallengeChecks.js";
 import { runJungleChecks } from "./jungleChecks.js";
 import { runJungleChallengeChecks } from "./jungleChallengeChecks.js";
 import { runMapOutcomeChecks } from "./mapOutcomeChecks.js";
+import { runTouchControlChecks } from "./touchChecks.js";
 import { runFarmWorldChecks } from "./farmWorldChecks.js";
 import { runIslandWorldChecks } from "./islandWorldChecks.js";
 import { runSchoolyardWorldChecks } from "./schoolyardWorldChecks.js";
@@ -686,6 +687,8 @@ export function runSystemChecks(progressSnapshot) {
   for (const c of runJungleChallengeChecks()) checks.push(c);
   // World maps + waypoints, and the one round-outcome rule (2026-10-10).
   for (const c of runMapOutcomeChecks()) checks.push(c);
+  // Phone / iPad controls + small-screen challenge framing (2026-10-11).
+  for (const c of runTouchControlChecks()) checks.push(c);
   for (const c of runFarmWorldChecks()) checks.push(c);
   // Snowball Sums rebuilt as a big alpine valley (SW1–SW10).
   for (const c of runSnowWorldChecks()) checks.push(c);

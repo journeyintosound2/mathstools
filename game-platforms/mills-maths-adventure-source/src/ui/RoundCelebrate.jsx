@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 
 import { useRoundOutcome } from "../game/roundOutcome.js";
 import { SnowWorking } from "./SnowCardParts.jsx";
+import { kh } from "./keyHints.js";
 
 /**
  * The ONE "right answer" card every in-world challenge shows (farm, snow,
@@ -78,7 +79,7 @@ export default function RoundCelebrate({ useStore, max = 25, ms = 2200, working,
             useStore.getState().next();
           }}
         >
-          {last ? "Finish (Enter)" : "Next round (Enter)"}
+          {last ? kh("Finish (Enter)") : kh("Next round (Enter)")}
         </button>
         <span className="round-total">⭐ {score}</span>
       </div>

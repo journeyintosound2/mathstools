@@ -10,6 +10,7 @@ import { useUI } from "./effects/uiStore.js";
 export default function HowToPlay() {
   const open = useUI((s) => s.howToOpen);
   const setHowTo = useUI((s) => s.setHowTo);
+  const touch = useUI((s) => s.touchMode);
 
   useEffect(() => {
     if (!open) return undefined;
@@ -29,14 +30,27 @@ export default function HowToPlay() {
           Your mission is to answer maths questions and earn at least <strong>60%</strong>.
           Follow the marker, talk to the character or read the Mission Board, and do your best!
         </p>
-        <ul className="howto-list">
-          <li><strong>Move:</strong> WASD or arrow keys. <strong>Jump:</strong> Shift.</li>
-          <li><strong>Interact:</strong> walk up and press <kbd>E</kbd> (NPCs, Mission Board, markers).</li>
-          <li><strong>Answer:</strong> type your answer or tap the choice buttons, then <strong>Check</strong>.</li>
-          <li><strong>Earn XP</strong> for correct answers — pass a mission to earn its rewards.</li>
-          <li><strong>Quests:</strong> press <kbd>Q</kbd> to see your current mission and progress.</li>
-          <li>Your attempts are <strong>saved on this device</strong> so your teacher can review them.</li>
-        </ul>
+        {touch ? (
+          <ul className="howto-list">
+            <li><strong>Move:</strong> put your left thumb on the screen and push — push to the edge to <strong>run</strong>. Or tap the ground to walk there.</li>
+            <li><strong>Look around:</strong> drag with your right thumb. <strong>Jump:</strong> the yellow Jump button.</li>
+            <li><strong>Talk:</strong> tap a character (or their name), or walk up and tap the blue <strong>Talk</strong> button.</li>
+            <li><strong>Answer:</strong> tap the number keys or the choice buttons, then <strong>Check</strong>.</li>
+            <li><strong>Map:</strong> tap 🗺️ (top right) to see the whole world and set a waypoint.</li>
+            <li><strong>Earn XP</strong> for correct answers — pass a mission to earn its rewards.</li>
+            <li>Your attempts are <strong>saved on this device</strong> so your teacher can review them.</li>
+          </ul>
+        ) : (
+          <ul className="howto-list">
+            <li><strong>Move:</strong> WASD or arrow keys. <strong>Run:</strong> hold Shift. <strong>Jump:</strong> Space.</li>
+            <li><strong>Interact:</strong> walk up and press <kbd>E</kbd> (NPCs, Mission Board, markers).</li>
+            <li><strong>Answer:</strong> type your answer or tap the choice buttons, then <strong>Check</strong>.</li>
+            <li><strong>Map:</strong> press <kbd>M</kbd> (or 🗺️ top right) to see the whole world and set a waypoint.</li>
+            <li><strong>Earn XP</strong> for correct answers — pass a mission to earn its rewards.</li>
+            <li><strong>Quests:</strong> press <kbd>Q</kbd> to see your current mission and progress.</li>
+            <li>Your attempts are <strong>saved on this device</strong> so your teacher can review them.</li>
+          </ul>
+        )}
         <p className="howto-tip">Tip: a 🧭 marker always points to where you need to go next.</p>
         <div className="modal-actions">
           <button className="primary-button" onClick={() => setHowTo(false)}>Got it!</button>

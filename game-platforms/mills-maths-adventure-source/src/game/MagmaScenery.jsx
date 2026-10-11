@@ -4,6 +4,7 @@ import { Html } from "@react-three/drei";
 
 import { useUI } from "../ui/effects/uiStore.js";
 import { useSession, requestMoveTo, playerState } from "./sessionStore.js";
+import { queueTap } from "./touchGesture.js";
 import { clampToBounds } from "../data/regions.js";
 import {
   MAGMA_BOUNDS, MAGMA_CHALLENGE_SPOTS, SUMMIT_SPOT, MAGMA_WELCOME_SIGN, VOLCANO,
@@ -63,7 +64,7 @@ export default function MagmaScenery() {
     if (useSession.getState().activeEncounterId) return;
     e.stopPropagation();
     const { x, z } = clampToBounds(e.point.x, e.point.z, MAGMA_BOUNDS);
-    requestMoveTo(x, z, null);
+    queueTap(() => requestMoveTo(x, z, null)); // only if it was a TAP (not a drag)
   }, []);
   const tap = touchMode ? onTap : undefined;
   const [wx, wz] = MAGMA_WELCOME_SIGN.position;

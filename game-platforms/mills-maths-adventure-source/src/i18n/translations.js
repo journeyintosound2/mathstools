@@ -12,6 +12,23 @@
  */
 export const TRANSLATIONS = {
   fa: {
+    // — Phone / iPad controls (2026-10-11) —
+    "Move": "حرکت",
+    "Slide": "سُر بخور",
+    "RUN": "بدو",
+    "Jump": "پرش",
+    "Talk": "صحبت کن",
+    "Open": "باز کن",
+    "Read": "بخوان",
+    "View": "ببین",
+    "Map": "نقشه",
+    "Thumb here to walk — push to the edge to run": "انگشتت را اینجا بگذار تا راه بروی — تا لبه بکش تا بدوی",
+    "Drag to look around": "بکش تا اطراف را ببینی",
+    "Tap someone to talk": "روی یک نفر بزن تا با او صحبت کنی",
+    "Tap the button": "دکمه را بزن",
+    "On-screen joystick, Talk and Jump buttons.": "دستهٔ کنترل روی صفحه و دکمه‌های صحبت و پرش.",
+    "Turn your phone sideways for a bigger view": "برای دید بزرگ‌تر گوشی را افقی بگیر",
+
     // — Top HUD buttons —
     "Quests": "ماموریت‌ها",
     "Results": "نتایج",
@@ -71,6 +88,7 @@ export const TRANSLATIONS = {
     //    everywhere they appear: 3D NPC badges, zone signs, challenge panels) —
     "Talk to me": "با من حرف بزن",
     "Start! (Enter)": "شروع! (Enter)",
+    "Start!": "شروع!",
     "Quit": "خروج",
     "Continue": "ادامه",
     "Next": "بعدی",
@@ -168,6 +186,23 @@ export const TRANSLATIONS = {
   },
 
   ar: {
+    // — Phone / iPad controls (2026-10-11) —
+    "Move": "تحرّك",
+    "Slide": "انزلق",
+    "RUN": "اركض",
+    "Jump": "اقفز",
+    "Talk": "تحدّث",
+    "Open": "افتح",
+    "Read": "اقرأ",
+    "View": "شاهد",
+    "Map": "الخريطة",
+    "Thumb here to walk — push to the edge to run": "ضع إبهامك هنا لتمشي — ادفع إلى الحافة لتركض",
+    "Drag to look around": "اسحب لتنظر حولك",
+    "Tap someone to talk": "انقر على شخص لتتحدّث معه",
+    "Tap the button": "انقر على الزر",
+    "On-screen joystick, Talk and Jump buttons.": "عصا تحكّم على الشاشة وزرّا التحدّث والقفز.",
+    "Turn your phone sideways for a bigger view": "أدِر هاتفك أفقيًا لترى أكبر",
+
     // — Top HUD buttons —
     "Quests": "المهام",
     "Results": "النتائج",
@@ -227,6 +262,7 @@ export const TRANSLATIONS = {
     //    everywhere they appear: 3D NPC badges, zone signs, challenge panels) —
     "Talk to me": "تحدّث معي",
     "Start! (Enter)": "ابدأ! (Enter)",
+    "Start!": "ابدأ!",
     "Quit": "خروج",
     "Continue": "متابعة",
     "Next": "التالي",

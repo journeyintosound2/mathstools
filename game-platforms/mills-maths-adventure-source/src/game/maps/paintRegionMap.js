@@ -519,7 +519,7 @@ export function regionBoardTexture(regionId, version = 0) {
   g.font = "400 52px 'MMA Display', 'Trebuchet MS', sans-serif";
   g.fillText(spec.title.toUpperCase(), W / 2, 40);
   g.font = "800 22px 'MMA Rounded', 'Trebuchet MS', sans-serif";
-  g.fillStyle = "#4a3a2a"; g.fillText("Press E to open the map · tap a place to set a waypoint", W / 2, 76);
+  g.fillStyle = "#4a3a2a"; g.fillText("Walk up to open the map · pick a place to set a waypoint", W / 2, 76);
   const M = (x, z) => { const [u, v] = worldToMap(spec, x, z); return [pad + u * iw, top + v * ih]; };
   // Area names.
   g.font = "800 17px 'MMA Rounded', 'Trebuchet MS', sans-serif";

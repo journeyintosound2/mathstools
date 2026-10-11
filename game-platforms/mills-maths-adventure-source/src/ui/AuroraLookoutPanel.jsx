@@ -7,6 +7,7 @@ import {
 } from "../data/snow/auroraLookoutChallenge.js";
 import { SnowIntro, SnowRoundHead, SnowWorking } from "./SnowCardParts.jsx";
 import RoundCelebrate from "./RoundCelebrate.jsx";
+import { kh } from "./keyHints.js";
 
 /**
  * AURORA LOOKOUT — 2D panel (AL). Round 2 (2026-09-29): three BIG tiles,
@@ -189,7 +190,7 @@ export default function AuroraLookoutPanel() {
                 useAuroraLookout.getState().next();
               }}
             >
-              {roundIndex + 1 < LOOKOUT_ROUNDS_PER_SET ? "Next round (Enter)" : "Finish (Enter)"}
+              {roundIndex + 1 < LOOKOUT_ROUNDS_PER_SET ? kh("Next round (Enter)") : kh("Finish (Enter)")}
             </button>
           </div>
         </div>

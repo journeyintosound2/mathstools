@@ -4,6 +4,7 @@ import { useFarmChallenge } from "../game/farmChallengeStore.js";
 import { playerState, useSession } from "../game/sessionStore.js";
 import { CHALLENGE_FENCE } from "../data/farm/farmLayout.js";
 import { ROUNDS_PER_SET } from "../data/farm/fenceChallenge.js";
+import { kh } from "./keyHints.js";
 
 /**
  * FENCE CHALLENGE — 2D panel (F2). A small card overlaid on the world while
@@ -110,7 +111,7 @@ export default function FarmChallengePanel() {
                   useFarmChallenge.getState().place(playerState.x);
                 }}
               >
-                {near ? "Place it here (Enter)" : "Walk closer to the fence…"}
+                {near ? kh("Place it here (Enter)") : "Walk closer to the fence…"}
               </button>
               <button className="link-button" onClick={() => useFarmChallenge.getState().exit()}>
                 Quit
@@ -137,7 +138,7 @@ export default function FarmChallengePanel() {
                   useFarmChallenge.getState().next();
                 }}
               >
-                {roundIndex + 1 < ROUNDS_PER_SET ? "Next round (Enter)" : "Finish (Enter)"}
+                {roundIndex + 1 < ROUNDS_PER_SET ? kh("Next round (Enter)") : kh("Finish (Enter)")}
               </button>
             </div>
           </>

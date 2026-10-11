@@ -3,6 +3,8 @@ import React, { useEffect } from "react";
 import { useOrderParts } from "../game/orderPartsStore.js";
 import { useSession } from "../game/sessionStore.js";
 import { ORDER_ROUNDS_PER_SET } from "../data/farm/orderPartsChallenge.js";
+import { kh } from "./keyHints.js";
+import { useUI } from "./effects/uiStore.js";
 
 /**
  * ORDER THE PARTS — 2D panel (F4). Same slim, live (non-modal) card as the
@@ -15,6 +17,8 @@ export default function OrderPartsPanel() {
   const score = useOrderParts((s) => s.score);
   const bestScore = useOrderParts((s) => s.bestScore);
   const selectedId = useOrderParts((s) => s.selectedId);
+  const arrangement = useOrderParts((s) => s.arrangement);
+  const touch = useUI((s) => s.touchMode);
   const regionId = useSession((s) => s.currentRegionId);
   const last = useOrderParts((s) => s.lastResult());
   const lastFeedback = useOrderParts.getState().lastFeedback();
@@ -65,6 +69,25 @@ export default function OrderPartsPanel() {
             <div className="farm-challenge-line">
               {selectedId ? "Now tap the carrot to swap it with." : "Tap two carrots to swap them."}
             </div>
+            {/* Touch: the same row as big chips in the card (the 3D carrots
+                are small on a phone) — tap two to swap, exactly like the field. */}
+            {touch && (
+              <div className="order-card-row" role="group" aria-label="The carrots, left to right">
+                {arrangement.map((id) => {
+                  const it = (useOrderParts.getState().currentRound()?.items || []).find((x) => x.id === id);
+                  if (!it) return null;
+                  return (
+                    <button
+                      key={id}
+                      className={`plank-piece-btn order-card-chip${selectedId === id ? " active" : ""}`}
+                      onClick={(e) => { e.currentTarget.blur(); useOrderParts.getState().tapItem(id); }}
+                    >
+                      🥕 {it.display}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
             <div className="farm-challenge-buttons">
               <button
                 className="primary-button"
@@ -73,7 +96,7 @@ export default function OrderPartsPanel() {
                   useOrderParts.getState().check();
                 }}
               >
-                Check the order! (Enter)
+                {kh("Check the order! (Enter)")}
               </button>
               <button className="link-button" onClick={() => useOrderParts.getState().exit()}>
                 Quit
@@ -96,7 +119,7 @@ export default function OrderPartsPanel() {
                   useOrderParts.getState().next();
                 }}
               >
-                {roundIndex + 1 < ORDER_ROUNDS_PER_SET ? "Next round (Enter)" : "Finish (Enter)"}
+                {roundIndex + 1 < ORDER_ROUNDS_PER_SET ? kh("Next round (Enter)") : kh("Finish (Enter)")}
               </button>
             </div>
           </>

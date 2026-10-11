@@ -6,6 +6,7 @@ import { MAGMA_REGION_ID } from "../../data/magma/magmaLayout.js";
 import { getMagmaChallenge } from "../../data/magma/magmaChallenges.js";
 import { MAGMA_ROUNDS_PER_SET } from "../../data/magma/magmaRecords.js";
 import { SnowIntro, SnowRoundHead, SnowWorking } from "../SnowCardParts.jsx";
+import { kh } from "../keyHints.js";
 
 /**
  * MAGMA MULTIPLES — the shared 2D card for all ten challenges. Same shape as
@@ -214,7 +215,7 @@ export default function MagmaPanelShell({
                 st.next();
               }}
             >
-              {roundIndex + 1 < total ? "Next round (Enter)" : "Finish (Enter)"}
+              {roundIndex + 1 < total ? kh("Next round (Enter)") : kh("Finish (Enter)")}
             </button>
           </div>
         </div>

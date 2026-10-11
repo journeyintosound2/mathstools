@@ -20,6 +20,7 @@ import { GARDEN_FLOWERS, GARDEN_POTS, GARDEN_GLOWS } from "../../data/magma/gard
 import { CINDER_OPS, cinderQuestion, CINDER_MAX_NEW } from "../../data/magma/cinderChallenge.js";
 import { lakeButtons, lakeAnswerPrompt } from "../../data/magma/lakeChallenge.js";
 import { BONE_NAMES } from "../../data/magma/bonesChallenge.js";
+import { kh } from "../keyHints.js";
 
 /**
  * MAGMA MULTIPLES — the ten challenge cards (one shell, ten sets of
@@ -51,7 +52,7 @@ function ColumnsPlay({ round }) {
         <MagmaButton onClick={() => st().stepRows(1)} disabled={rows >= round.n}>+</MagmaButton>
       </div>
       <div className="magma-row">
-        <MagmaButton className="primary-button" onClick={() => st().keep()}>✅ Keep it (Enter)</MagmaButton>
+        <MagmaButton className="primary-button" onClick={() => st().keep()}>{kh("✅ Keep it (Enter)")}</MagmaButton>
         <MagmaButton className="link-button magma-claim" onClick={() => st().claim()}>🏁 That's all of them!</MagmaButton>
       </div>
       <div className="magma-chips">
@@ -95,7 +96,7 @@ function ObsidianPlay({ round }) {
         </div>
         {!rowsStep && C.canGrow && <div className="snow-sub">Push past the edge to GROW it to {C.max}.</div>}
         <div className="magma-row">
-          <MagmaButton className="primary-button" onClick={() => st().lockCrack()}>⚡ Crack! (Enter)</MagmaButton>
+          <MagmaButton className="primary-button" onClick={() => st().lockCrack()}>{kh("⚡ Crack! (Enter)")}</MagmaButton>
         </div>
       </>
     );
@@ -152,7 +153,7 @@ function TerracesPlay({ round }) {
         </div>
         <div className="snow-sub">Digits {moved}</div>
         <div className="magma-row">
-          <MagmaButton className="primary-button" onClick={() => st().lock()}>🔒 Lock it (Enter)</MagmaButton>
+          <MagmaButton className="primary-button" onClick={() => st().lock()}>{kh("🔒 Lock it (Enter)")}</MagmaButton>
         </div>
       </>
     );
@@ -196,7 +197,7 @@ function GeysersPlay() {
         <MagmaButton onClick={() => st().move("cols")} disabled={!geyserMove(a, b, "cols")}>♨️ Halve the {b} <small>double the {a}</small></MagmaButton>
       </div>
       <div className="magma-row">
-        <MagmaButton className="primary-button" onClick={() => st().solve()}>✅ Easy now — solve it! (Enter)</MagmaButton>
+        <MagmaButton className="primary-button" onClick={() => st().solve()}>{kh("✅ Easy now — solve it! (Enter)")}</MagmaButton>
         {chain.length > 1 && <MagmaButton className="link-button" onClick={() => st().restart()}>↺ Start again</MagmaButton>}
       </div>
     </>
@@ -294,7 +295,7 @@ function GardenPlay({ round }) {
         )}
       </div>
       <div className="magma-row">
-        <MagmaButton onClick={() => st().plant()}>🌱 Plant (Enter)</MagmaButton>
+        <MagmaButton onClick={() => st().plant()}>{kh("🌱 Plant (Enter)")}</MagmaButton>
         <MagmaButton onClick={() => st().plantRow()}>🌺 This flower in EVERY pot</MagmaButton>
         {round.g > 1 && <MagmaButton onClick={() => st().copyGlow()}>🌟 Copy to every glow</MagmaButton>}
       </div>
@@ -458,7 +459,7 @@ function BonesPlay({ round }) {
       </div>
       <div className="magma-row">
         <MagmaButton className="primary-button" onClick={() => st().raise()}>
-          🐉 {phase === "retry" ? "Raise it again!" : "Raise!"} (Enter)
+          🐉 {phase === "retry" ? "Raise it again!" : "Raise!"}{kh(" (Enter)")}
         </MagmaButton>
       </div>
     </>

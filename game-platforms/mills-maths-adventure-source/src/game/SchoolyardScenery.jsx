@@ -4,6 +4,7 @@ import { Html } from "@react-three/drei";
 
 import { useUI } from "../ui/effects/uiStore.js";
 import { useSession, requestMoveTo, playerState } from "./sessionStore.js";
+import { queueTap } from "./touchGesture.js";
 import { clampToBounds } from "../data/regions.js";
 import { SCHOOLYARD_BOUNDS, SCHOOL_AREAS, SCHOOLYARD_WELCOME } from "../data/schoolyard/schoolyardLayout.js";
 import { isOnSchoolTrack, terrainHeight } from "../data/schoolyard/schoolyardTerrain.js";
@@ -58,7 +59,7 @@ export default function SchoolyardScenery() {
     if (useSession.getState().activeEncounterId) return;
     e.stopPropagation();
     const { x, z } = clampToBounds(e.point.x, e.point.z, SCHOOLYARD_BOUNDS);
-    requestMoveTo(x, z, null);
+    queueTap(() => requestMoveTo(x, z, null)); // only if it was a TAP (not a drag)
   }, []);
   const tap = touchMode ? onTap : undefined;
   // DEV-only layer isolation for profiling: window.__SY_ONLY = ["SchoolBuildings", …].

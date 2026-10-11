@@ -8,6 +8,7 @@ import {
 } from "../data/snow/caveCrystalsChallenge.js";
 import { SnowIntro, SnowRoundHead, SnowWorking } from "./SnowCardParts.jsx";
 import RoundCelebrate from "./RoundCelebrate.jsx";
+import { kh } from "./keyHints.js";
 
 /**
  * THE ICE CAVE — 2D panel (IC). CHOOSE the direction (buttons or keys 1–2:
@@ -201,7 +202,7 @@ export default function CaveCrystalsPanel() {
                 useCaveCrystals.getState().next();
               }}
             >
-              {roundIndex + 1 < CAVE_ROUNDS_PER_SET ? "Next round (Enter)" : "Finish (Enter)"}
+              {roundIndex + 1 < CAVE_ROUNDS_PER_SET ? kh("Next round (Enter)") : kh("Finish (Enter)")}
             </button>
           </div>
         </div>

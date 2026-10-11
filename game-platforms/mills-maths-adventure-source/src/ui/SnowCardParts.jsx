@@ -1,4 +1,5 @@
 import React from "react";
+import { kh } from "./keyHints.js";
 
 /**
  * SNOWBALL SUMS — shared card pieces (2026-09-28 audit). The ten snow panels
@@ -35,7 +36,7 @@ export function SnowIntro({ icon, title, steps, example, onStart, onQuit }) {
             onStart();
           }}
         >
-          Let's go! (Enter)
+          {kh("Let's go! (Enter)")}
         </button>
         <button className="link-button" onClick={onQuit}>
           Quit

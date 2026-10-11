@@ -38,6 +38,14 @@ const TIPS = [
   "Signposts point the way at every junction. The painted map by the arch shows the whole island.",
   "Hold Shift to run, press Space to jump.",
 ];
+// The same tips for a phone / iPad (no keyboard words).
+const TOUCH_TIPS = [
+  "Stand in front of the Achievements Wall on Harbour Green and tap Look to see every trophy you've won.",
+  TIPS[1],
+  TIPS[2],
+  "Signposts point the way at every junction. Tap 🗺️ to see the whole map and set a waypoint.",
+  "Left thumb to walk — push to the edge to run. Drag with your right thumb to look around.",
+];
 
 function useUrlCode() {
   return useMemo(() => {
@@ -60,6 +68,8 @@ function GameLogo() {
 }
 
 function Curtain({ gone }) {
+  const touch = useUI((s) => s.touchMode);
+  const tips = touch ? TOUCH_TIPS : TIPS;
   const [tip, setTip] = useState(() => Math.floor(Math.random() * TIPS.length));
   useEffect(() => {
     if (gone) return undefined;
@@ -72,7 +82,7 @@ function Curtain({ gone }) {
         <GameLogo />
         <div className="tl-loader" role="progressbar" aria-label="Loading"><span /></div>
         <p className="tl-loading-text"><Bi>Building Number Island…</Bi></p>
-        <p className="tl-tip" key={tip}>{TIPS[tip]}</p>
+        <p className="tl-tip" key={tip}>{tips[tip]}</p>
       </div>
     </div>
   );
@@ -283,7 +293,7 @@ function OptionsCard({ onBack }) {
         <Toggle on={sound} onClick={ui.toggleSound} />
       </div>
       <div className="tl-opt-row">
-        <span className="tl-opt-name"><Bi>Touch controls</Bi><small><Bi>Tap to move and on-screen buttons.</Bi></small></span>
+        <span className="tl-opt-name"><Bi>Touch controls</Bi><small><Bi>On-screen joystick, Talk and Jump buttons.</Bi></small></span>
         <Toggle on={touch} onClick={ui.toggleTouchMode} />
       </div>
       <div className="tl-actions">

@@ -9,6 +9,7 @@ import {
 } from "../data/snow/meadowLevelChallenge.js";
 import { SnowIntro, SnowRoundHead, SnowWorking } from "./SnowCardParts.jsx";
 import RoundCelebrate from "./RoundCelebrate.jsx";
+import { kh } from "./keyHints.js";
 
 /**
  * SNOWMAN MEADOW — 2D panel (ML). HOP snowballs across one tap at a time
@@ -253,7 +254,7 @@ export default function MeadowLevelPanel() {
                 useMeadowLevel.getState().next();
               }}
             >
-              {roundIndex + 1 < MEADOW_ROUNDS_PER_SET ? "Next round (Enter)" : "Finish (Enter)"}
+              {roundIndex + 1 < MEADOW_ROUNDS_PER_SET ? kh("Next round (Enter)") : kh("Finish (Enter)")}
             </button>
           </div>
         </div>

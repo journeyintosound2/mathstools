@@ -1,5 +1,10 @@
 # Mills Maths Adventure — source project brief
 
+> **STANDING RULE (Jeff, 2026-10-11): every new challenge, world, screen or
+> update MUST work on iPhone, iPad and small screens as well as a computer.**
+> It is part of "done", not a follow-up. See "Phone / iPad / small-screen
+> compatibility" under Rules of thumb at the end of this file for the checklist.
+
 > This folder is the **game source** (and the Cloud Functions). As of
 > **2026-08-17** it lives INSIDE the website repo at
 > `game-platforms/mills-maths-adventure-source/` (repo
@@ -196,6 +201,18 @@
 > as chained expeditions. See "DONE (2026-10-10, evening)". **594 → 619
 > checks; vite build clean.**
 >
+> **NEW (built 2026-10-11, NOT yet deployed): PHONE + iPad.** Jeff: on a
+> phone / iPad "you can't run, or interact (talk) with characters" — full
+> audit + fix of the whole game incl. every challenge. A floating JOYSTICK
+> (push to the rim = RUN), drag-to-look, tap a character / its name to go and
+> talk, a big TALK / OPEN button whenever you're by something, a compact
+> phone HUD (🗺️ + ☰), every card fitted to the screen (sideways = docked
+> right), challenge cameras that frame the stage into the free screen area,
+> card buttons for the tiny 3D tap targets, touch wording instead of keyboard
+> hints. STANDING RULE: everything new must work on iPhone / iPad / small
+> screens (top of this file). See "DONE (2026-10-11) — PHONE + iPad".
+> **619 → 624 checks; vite build clean.**
+>
 > **NEXT UP options:** live visual pass + deploy of the snow world + cabin ·
 > teacher glbs for the six placeholder snow/cabin hosts (add each
 > characterId to characterModels.js) · a snow/cabin cloud-completion path
@@ -204,6 +221,111 @@
 > interactive plot-a-point input mode (tap the Cartesian grid) · Stage 5
 > depth (still only 2 sample skills) · more Stage 4 topics (Area extension)
 > · a DevPanel gallery to eyeball every new diagram/chart at once.
+
+## DONE (2026-10-11) — PHONE + iPad: TOUCH CONTROLS, SMALL-SCREEN LAYOUT, EVERY CHALLENGE
+Jeff: "This game works great on a computer, but not so much on a phone/ipad.
+From what I can tell, you can't run, or interact (talk) with characters. Can
+you do a full audit of the whole game and make it small screen and ipad
+friendly … This includes the challenges." He also made it a STANDING RULE:
+every future challenge/update includes iPhone / iPad / small-screen
+compatibility (top of this file + the checklist under Rules of thumb).
+**619 → 624 checks (new `runTouchControlChecks` in `src/dev/touchChecks.js`:
+TC1–TC5), all passing; vite build clean.** Driven in a headless phone/iPad
+emulation (Playwright, real touch events) at 390×664, 750×342, 810×1080 and
+1080×810 — every challenge in every world screenshotted. NOT yet deployed.
+- **What was wrong (the audit):** no way to RUN on touch (Shift only); talking
+  needed a tap EXACTLY on a small character, then a walk, then a confirm card
+  — walk up by tapping the ground and nothing offered to talk; the old
+  ⟲ ⟳ buttons were the only camera control; tap-to-move fired on finger-DOWN
+  so any drag walked you off; the HUD buttons overlapped the stats on a phone;
+  keyboard-only text everywhere ("WASD…", "(Enter)", "press M", "click");
+  `100vh` put the bottom of the game under Safari's toolbar; the character
+  card's Set off! was cut off on an iPhone; challenge cameras framed for
+  16:9 left the stage tiny / under the card on a phone; in-world labels
+  (CSS px) dwarfed the 3D scene and piled up; several challenges were
+  3D-tap-only on targets a few pixels wide; the Farm Shop's negative %
+  couldn't be typed on an iPhone decimal keypad (no minus key); the loading
+  curtain swallowed taps for 0.9 s; the map viewer crashed on touch
+  (`touch` used out of scope — found by the harness, fixed).
+- **Controls (`ui/TouchControls.jsx`, `game/touchGesture.js`):** LEFT THUMB =
+  a floating JOYSTICK (thumb down anywhere in the lower-left, push; analogue
+  pace; push to the rim = RUN, ring turns orange); a dashed ghost shows where
+  it lives. RIGHT THUMB = DRAG anywhere to swing the camera
+  (`touchInput.yawDelta`, 4.2 rad per screen width). TAP the ground = walk
+  there (a trip > 12 m RUNS); TAP a character OR its name badge = walk over
+  and the conversation opens on arrival (already close → opens at once).
+  A big blue TALK / OPEN / READ button (the touch E) appears whenever you
+  stand by anything interactable (`ui/touchActionLabel.js` words + icon);
+  Jump stays bottom-right. `touchGesture.js` decides tap vs drag: world tap
+  handlers (every terrain, the ground catcher, every character) now QUEUE
+  their action (`queueTap`) and it runs only if that finger lifts without
+  moving / being claimed by the joystick or a camera drag. The Player reads
+  `touchInput.moveX/moveY/run` (camera-relative, `JOY_DEAD` 0.12,
+  `joyPace`), publishes `playerState.touchCaps` {walk, walkAxis "x" in the
+  Fence Challenge, orbit, jump} so the joystick/Jump hide whenever a
+  challenge parks you. First-time coach card (3 sessions). The old
+  "Interact with X?" card (`InteractConfirm.jsx`) is no longer rendered —
+  kept for reference. iOS pinch-zoom of the page is blocked (gesturestart);
+  the map's own pinch still works.
+- **Touch detection (`uiStore.detectTouch`):** coarse primary pointer (phones,
+  iPads) OR no-hover + touch points — no longer bare `ontouchstart`, which
+  switched touch controls on for every touchscreen laptop/Chromebook. Their
+  graphics still default LOW (`hasTouchScreen`). The ⚙/☰ toggle overrides.
+- **Challenge cameras on small screens (`game/stageViewport.js` + Player.jsx
+  `applyStageFraming`):** on touch devices / small windows a tracker measures
+  the docked card (and the HUD row) 5×/s and keeps the largest FREE rectangle;
+  the locked camera then uses an off-axis projection (`setViewOffset`) to
+  centre the stage in that rectangle and fits it to its size. A free area
+  narrower than 4:3 keeps the VERIFIED 4:3 camera position (nothing new can
+  stand in the sight line) and widens the fov instead (≈93° on an upright
+  phone). The snow/magma "dock lift" is cancelled there (the offset does that
+  job). Desktop (no touch, window ≥ 760 × 560) is untouched. Works for all
+  40 challenges (farm, snow, magma, jungle) with no per-challenge code.
+- **Layout (`styles/mobile.css`, loaded last; sections 1–6):** `100dvh` +
+  `env(safe-area-inset-*)` everywhere (notch, home bar, PWA); no text
+  selection / callouts / tap flash on touch; inputs ≥ 16 px (no iOS zoom);
+  every button in a card ≥ 44 px on touch. **HUD:** phones get ONE slim row —
+  stats pill + 🗺️ Map + ☰ menu (Quests / Results / Help / Sign in + the
+  options) via `useMediaQuery(COMPACT_QUERY)`; a 🗺️ Map button for everyone
+  (M still works); keyboard hint bar hidden on touch; the stats pill steps
+  aside during a challenge on a phone (`body.challenge-on`). **Cards:** phone
+  upright → full width (snow/magma/jungle drawn at zoom 0.8, ≤ 54 dvh, farm
+  cards under the HUD row); phone sideways → docked down the RIGHT side
+  (zoom 0.72) so the stage fills the left; every card scrolls inside itself
+  with its last button row pinned. **In-world labels** scale with the screen
+  (`--label-zoom` 0.7–0.86 on drei <Html> wrappers). **Title:** card height in
+  dvh, Set off! sticky at the card bottom, compact landscape layout,
+  touch-worded tips. **Modals / quest log / results / trophies / map:** dvh
+  heights, 44 px closes, full-screen map with the list beside it (sideways)
+  or below (upright); the maths keypad sits BESIDE the question when the
+  phone is sideways. Overlays hide the on-screen controls. Phone held
+  upright during a challenge → a small "turn your phone sideways" pill.
+- **Touch extras in the challenges (same choices, bigger targets — the 3D
+  ones are a few px on a phone):** Order the Parts (carrot chips to swap),
+  Crate Packing (group-size chips), Milk Splitter (STOPS / REPEATS + the
+  notation jugs), Trading Post (the seller's line + both stalls' tags),
+  Round-Up (🐄 Pen a cow / ↩ Let one out), Weigh Station (◀ ▶ nudge),
+  Veggie Plot (wide / long nudges), Snowball Range (◀ ▶ pole), Farm Shop
+  (± sign button for a loss). Everything else already had card buttons.
+- **Words:** `ui/keyHints.js` — `kh()` drops "(Enter)/(Esc)" from 47 button
+  labels on touch; `touchWords()` turns story lines' "click" → "tap",
+  "press M" → "tap 🗺️", "press Enter in front of it" → "tap Look" (English
+  only, so translations keep their match). How to play, the title tips, the
+  options text, the map footer/tooltip and the map board's painted line are
+  touch-aware. Farsi + Arabic for the new control words.
+- **Dev:** `window.__mma` (DEV only — App.jsx) exposes the stores,
+  `triggerInteraction`, `INTERACTABLES` and `requestTeleport` for the
+  harness. Harness (not shipped, /home/claude/harness): `lib.mjs` (device
+  presets, CDP touch drags), `ctl.mjs` (joystick walk/run, camera drag, Talk
+  button), `ch.mjs <device> <regex>` (every challenge's intro + first round),
+  `modals.mjs`, `title.mjs`, `wall.mjs`, `checks.mjs` (headless system
+  checks), `queue.sh`, a snapshot dev server on :5174 so screenshots run
+  while editing.
+- **TODO (needs a real device):** a live look on an iPhone + a school iPad —
+  joystick feel / RUN threshold (`RUN_AT` 0.9), camera-drag speed
+  (`YAW_PER_SCREEN`), the fov-widened portrait framing, label zoom, Safari
+  toolbar + notch, frame rate on Low; MathLive's own virtual keyboard on a
+  phone sideways; then deploy.
 
 ## DONE (2026-10-10, evening) — EMERALD JUNGLE: ALL TEN CHALLENGES + REWARD ACCURACY, NOT SPEED
 Jeff's brief after playing the pilot: build the other eight proportional
@@ -2473,7 +2595,7 @@ awards the trophy). L1–5 adaptive. Teacher tasks still override (handled upstr
 in interaction.js). Guarded by `runSchoolyardTopicChecks()`. Island NPCs (Pip/
 Fern/Alby) unchanged.
 
-## System checks (619)
+## System checks (624)
 `src/dev/systemChecks.js` → `runSystemChecks()`. Run headlessly: temporarily set
 `package.json` `"type":"module"`, shim `localStorage/window/document`, import and
 run; also babel parse-check `src/`, `portal/`, `functions/`. Restore package.json
@@ -2528,6 +2650,11 @@ hair style/hat/glasses — with a live spinning 3D preview in the creator.
   from the creator's Save when registered. Fire-and-forget; never blocks play.
 
 ## Touch controls (W4, built 2026-07-02)
+> **2026-10-11:** largely SUPERSEDED — see "DONE (2026-10-11) — PHONE +
+> iPad" (joystick + run, drag-to-look, Talk button, tap-to-talk without the
+> confirm card, tap-vs-drag gestures, the ⟲ ⟳ buttons are gone). The store
+> wiring below (touchMode, requestMoveTo, approachId, TouchKeypad, MathLive
+> policy) is still how it works underneath.
 Phone/tablet support ADDED ALONGSIDE keyboard (both always active). Auto-detected
 via `pointer:coarse`, override in the ⚙ menu ("Touch controls"). `uiStore.touchMode`.
 - **Tap-to-move (W4-B):** an invisible `GroundTapCatcher` plane (`TapToMove.jsx`,
@@ -3020,3 +3147,40 @@ skill ORDER carries the concept progression, levels 1–5 carry numeric
 difficulty per `DIFFICULTY_INTENT`; mirror new topics in the website
 `adventureManifest.js`; add a `run<Topic>Checks()` block; never let a diagram
 datum leave its plotted range.
+
+### Phone / iPad / small-screen compatibility (STANDING RULE, 2026-10-11)
+Jeff's instruction: **all future challenges and updates include iPhone / iPad /
+small-screen compatibility.** Students play on school iPads and their own
+phones as well as computers, so nothing ships that only works with a keyboard
+and mouse. Before calling any change done:
+- **Every action has a touch path.** Anything bound to a key (E, Space, Shift,
+  arrows, Enter, Esc, number keys, M, Q, /) also has an on-screen button or tap
+  target. Never show keyboard-only instructions to a touch player (check
+  `useUI.touchMode` and give touch wording instead).
+- **Tap targets ≥ 44 px** (Apple's minimum) for every button, chip, choice and
+  3D object the student taps; give small 3D objects a bigger invisible hit
+  mesh. Drags must work with a finger (pointer events + `setPointerCapture`,
+  `touch-action: none` on the drag surface only).
+- **Fit the screen, never clip.** Test the layout at iPhone portrait (390 × 664),
+  iPhone landscape (844 × 390), iPad portrait (810 × 1080) and iPad landscape
+  (1080 × 810) as well as desktop. Use `dvh` (with a `vh` fallback), never a
+  bare `100vh`; respect `env(safe-area-inset-*)`; long cards scroll inside
+  themselves; nothing important sits under the on-screen controls or the
+  notch. Bottom-docked challenge cards must leave the 3D stage visible.
+- **Typed answers on touch:** avoid the OS keyboard covering the card — use
+  `inputMode` (numeric/decimal) at minimum, or the on-screen keypad.
+- **Camera framing:** challenge cameras fit from the live aspect — check the
+  stage still reads in portrait and in the short landscape phone view.
+- **Verify** with the Playwright phone/iPad emulation harness (screenshots at
+  the four sizes above, driven with touch taps) before syncing, and note any
+  device-only checks still needed in the DONE section.
+- **Use the kit (2026-10-11):** put a new challenge's card inside a
+  `.farm-challenge-panel` (bottom dock = add `snow-dock`) — the stage-viewport
+  tracker then frames its locked camera into the free screen area on phones
+  for free, and mobile.css fits / scrolls / pins its buttons; wrap button
+  labels that mention keys in `kh("… (Enter)")` and story lines are passed
+  through `touchWords()`; if the scene asks for taps on small 3D objects,
+  give the card the same choices as buttons when `useUI.touchMode`; world
+  tap handlers must go through `queueTap()` (game/touchGesture.js); anything
+  that should hide the joystick/Jump goes through `playerState.touchCaps`.
+

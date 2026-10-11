@@ -7,8 +7,7 @@ import WorldReady from "./game/WorldReady.jsx";
 import HUD from "./ui/HUD.jsx";
 import EncounterModal from "./ui/EncounterModal.jsx";
 import InteractionPrompt from "./ui/InteractionPrompt.jsx";
-import InteractConfirm from "./ui/InteractConfirm.jsx";
-import TouchControls from "./ui/TouchControls.jsx";
+import TouchControls, { RotateHint } from "./ui/TouchControls.jsx";
 import FarmChallengePanel from "./ui/FarmChallengePanel.jsx";
 import RoundUpPanel from "./ui/RoundUpPanel.jsx";
 import OrderPartsPanel from "./ui/OrderPartsPanel.jsx";
@@ -38,7 +37,7 @@ import MagmaPanels from "./ui/magma/MagmaPanels.jsx";
 import JungleTrophyGrid from "./ui/JungleTrophyGrid.jsx";
 import MapViewer from "./ui/map/MapViewer.jsx";
 import { hasRegionMap } from "./data/maps/regionMaps.js";
-import { isAnyChallengeActive } from "./game/farmChallengeActive.js";
+import { isAnyChallengeActive, useFarmChallengeActive } from "./game/farmChallengeActive.js";
 import JunglePanels from "./ui/jungle/JunglePanels.jsx";
 import ResultsCentre from "./ui/ResultsCentre.jsx";
 import HowToPlay from "./ui/HowToPlay.jsx";
@@ -52,10 +51,16 @@ import DynamicDialogue from "./ui/encounters/DynamicDialogue.jsx";
 import ToastLayer from "./ui/effects/ToastLayer.jsx";
 import BilingualLayer from "./i18n/BilingualLayer.jsx";
 
-import { useSession } from "./game/sessionStore.js";
+import { useSession, playerState, requestTeleport } from "./game/sessionStore.js";
 import { useUI } from "./ui/effects/uiStore.js";
-import { getInteractable } from "./data/interactables.js";
+import { getInteractable, INTERACTABLES } from "./data/interactables.js";
 import { triggerInteraction } from "./game/interaction.js";
+
+// DEV-only handles for the headless phone/iPad harness (stripped from builds):
+// jump to any character / challenge host and open it without walking there.
+if (import.meta.env.DEV && typeof window !== "undefined") {
+  window.__mma = { useSession, useUI, playerState, requestTeleport, getInteractable, INTERACTABLES, triggerInteraction };
+}
 
 /**
  * App is the top-level orchestrator.
@@ -101,6 +106,30 @@ export default function App() {
     return () => { cancelAnimationFrame(a); cancelAnimationFrame(b); };
   }, []);
   const title = phase === "creator";
+
+  // Touch devices (phones / iPads): a body class for the touch-only CSS, and
+  // no browser pinch-zoom / double-tap zoom of the whole game (iOS ignores
+  // user-scalable=no) — the map viewer's own pinch uses pointer events.
+  const touchMode = useUI((s) => s.touchMode);
+  useEffect(() => {
+    document.body.classList.toggle("touch-mode", touchMode);
+  }, [touchMode]);
+  // A challenge has the screen (its card + locked camera): phones tuck the
+  // HUD's stats pill away so the card and the stage get the room.
+  const challengeOn = useFarmChallengeActive();
+  useEffect(() => {
+    document.body.classList.toggle("challenge-on", challengeOn);
+    return () => document.body.classList.remove("challenge-on");
+  }, [challengeOn]);
+  useEffect(() => {
+    const stop = (e) => e.preventDefault();
+    document.addEventListener("gesturestart", stop, { passive: false });
+    document.addEventListener("gesturechange", stop, { passive: false });
+    return () => {
+      document.removeEventListener("gesturestart", stop);
+      document.removeEventListener("gesturechange", stop);
+    };
+  }, []);
 
   // Global "a modal/overlay is open" flag on <body>. CSS uses .modal-open to
   // hide ALL in-world (drei <Html>) labels so they never sit over a modal.
@@ -178,8 +207,8 @@ export default function App() {
       {/* 2D overlays rendered on top of the canvas. */}
       <HUD />
       <InteractionPrompt />
-      <InteractConfirm />
       <TouchControls />
+      <RotateHint />
       <FarmChallengePanel />
       <RoundUpPanel />
       <OrderPartsPanel />

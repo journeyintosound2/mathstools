@@ -4,6 +4,8 @@ import RoundCelebrate from "./RoundCelebrate.jsx";
 import { useVeggiePlot } from "../game/veggiePlotStore.js";
 import { useSession, playerState } from "../game/sessionStore.js";
 import { VEGGIE_ROUNDS_PER_SET, VEGGIE_TYPE_POINTS } from "../data/farm/veggiePlotChallenge.js";
+import { kh } from "./keyHints.js";
+import { useUI } from "./effects/uiStore.js";
 
 /**
  * THE VEGGIE PLOT — 2D panel (F11). AREA rounds: DRAG the width + length edges
@@ -142,7 +144,7 @@ export default function VeggiePlotPanel() {
           </div>
           <div className="farm-challenge-buttons">
             <button className="primary-button" onClick={(e) => { e.currentTarget.blur(); useVeggiePlot.getState().beginRounds(); }}>
-              Start! (Enter)
+              {kh("Start! (Enter)")}
             </button>
             <button className="link-button" onClick={() => useVeggiePlot.getState().exit()}>Quit</button>
           </div>
@@ -153,13 +155,24 @@ export default function VeggiePlotPanel() {
         <div className="farm-challenge-card mini">
           <div className="farm-challenge-head">
             <span>
-              🥕 Round {roundIndex + 1}/{VEGGIE_ROUNDS_PER_SET} · {score} pts — drag the bed to {round.widthStr} wide × {round.lengthStr} long (arrows to nudge)
+              🥕 Round {roundIndex + 1}/{VEGGIE_ROUNDS_PER_SET} · {score} pts — drag the bed to {round.widthStr} wide × {round.lengthStr} long{useUI.getState().touchMode ? "" : " (arrows to nudge)"}
             </span>
             <button className="primary-button weigh-lock" onClick={(e) => { e.currentTarget.blur(); useVeggiePlot.getState().lockPlace(); }}>
-              Lock the bed (Enter)
+              {kh("Lock the bed (Enter)")}
             </button>
             <button className="link-button" onClick={() => useVeggiePlot.getState().exit()}>Quit</button>
           </div>
+          {/* Touch: step the two edges with buttons too — the bed is small on a phone. */}
+          {useUI.getState().touchMode && (
+            <div className="farm-challenge-buttons veggie-nudge">
+              <span className="veggie-nudge-label">Wide</span>
+              <button className="plank-piece-btn" aria-label="Narrower" onClick={(e) => { e.currentTarget.blur(); const st = useVeggiePlot.getState(); st.setCols(st.cols - 1); }}>◀</button>
+              <button className="plank-piece-btn" aria-label="Wider" onClick={(e) => { e.currentTarget.blur(); const st = useVeggiePlot.getState(); st.setCols(st.cols + 1); }}>▶</button>
+              <span className="veggie-nudge-label">Long</span>
+              <button className="plank-piece-btn" aria-label="Shorter" onClick={(e) => { e.currentTarget.blur(); const st = useVeggiePlot.getState(); st.setRows(st.rows - 1); }}>▼</button>
+              <button className="plank-piece-btn" aria-label="Longer" onClick={(e) => { e.currentTarget.blur(); const st = useVeggiePlot.getState(); st.setRows(st.rows + 1); }}>▲</button>
+            </div>
+          )}
         </div>
       )}
 
@@ -198,7 +211,7 @@ export default function VeggiePlotPanel() {
           <div className="farm-challenge-prompt">{round.reason}</div>
           <div className="farm-challenge-buttons">
             <button className="primary-button" onClick={(e) => { e.currentTarget.blur(); useVeggiePlot.getState().next(); }}>
-              {roundIndex + 1 < VEGGIE_ROUNDS_PER_SET ? "Next round (Enter)" : "Finish (Enter)"}
+              {roundIndex + 1 < VEGGIE_ROUNDS_PER_SET ? kh("Next round (Enter)") : kh("Finish (Enter)")}
             </button>
           </div>
         </div>

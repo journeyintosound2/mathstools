@@ -2,6 +2,7 @@ import React, { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 
 import { playerState, requestMoveTo, useSession } from "./sessionStore.js";
+import { queueTap } from "./touchGesture.js";
 import { getRegion, clampToBounds } from "../data/regions.js";
 
 /**
@@ -37,7 +38,9 @@ export function GroundTapCatcher() {
     e.stopPropagation();
     const p = e.point; // world-space intersection
     const { x, z } = clampToBounds(p.x, p.z, region.bounds);
-    requestMoveTo(x, z, null); // plain ground move (no interactable to approach)
+    // Plain ground move (no interactable to approach) — only once the finger
+    // lifts as a TAP, so a camera drag / joystick push never walks you off.
+    queueTap(() => requestMoveTo(x, z, null));
   }
 
   return (

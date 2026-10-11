@@ -10,6 +10,8 @@ import {
   milkReasonB,
 } from "../data/farm/milkSplitterChallenge.js";
 import DottedText from "./MilkNotation.jsx";
+import { kh } from "./keyHints.js";
+import { useUI } from "./effects/uiStore.js";
 
 /**
  * MILK SPLITTER — 2D panel (F8). One-off intro card, then a slim strip; the
@@ -108,7 +110,7 @@ export default function MilkSplitterPanel() {
                 useMilkSplitter.getState().beginRounds();
               }}
             >
-              Start! (Enter)
+              {kh("Start! (Enter)")}
             </button>
             <button className="link-button" onClick={() => useMilkSplitter.getState().exit()}>
               Quit
@@ -129,6 +131,26 @@ export default function MilkSplitterPanel() {
               Quit
             </button>
           </div>
+          {/* Touch: the chutes + jugs are small on a phone — the same choices here. */}
+          {status === "predicting" && useUI.getState().touchMode && (
+            <div className="order-card-row">
+              <button className="plank-piece-btn order-card-chip" onClick={(e) => { e.currentTarget.blur(); useMilkSplitter.getState().predict(true); }}>
+                ✋ STOPS
+              </button>
+              <button className="plank-piece-btn order-card-chip" onClick={(e) => { e.currentTarget.blur(); useMilkSplitter.getState().predict(false); }}>
+                🔁 REPEATS
+              </button>
+            </div>
+          )}
+          {status === "labelling" && round && useUI.getState().touchMode && (
+            <div className="order-card-row">
+              {round.options.map((opt, i) => (
+                <button key={i} className="plank-piece-btn order-card-chip milk-notation" onClick={(e) => { e.currentTarget.blur(); useMilkSplitter.getState().chooseNotation(i); }}>
+                  <DottedText text={opt} />
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
@@ -158,7 +180,7 @@ export default function MilkSplitterPanel() {
                 useMilkSplitter.getState().next();
               }}
             >
-              {roundIndex + 1 < MILK_ROUNDS_PER_SET ? "Next round (Enter)" : "Finish (Enter)"}
+              {roundIndex + 1 < MILK_ROUNDS_PER_SET ? kh("Next round (Enter)") : kh("Finish (Enter)")}
             </button>
           </div>
         </div>

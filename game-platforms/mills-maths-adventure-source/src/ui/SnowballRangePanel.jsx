@@ -5,6 +5,8 @@ import { useSession, playerState } from "../game/sessionStore.js";
 import { RANGE_ROUNDS_PER_SET } from "../data/snow/snowballRangeChallenge.js";
 import { SnowIntro, SnowRoundHead, SnowWorking } from "./SnowCardParts.jsx";
 import RoundCelebrate from "./RoundCelebrate.jsx";
+import { kh } from "./keyHints.js";
+import { useUI } from "./effects/uiStore.js";
 
 /**
  * SNOWBALL RANGE — 2D panel (SR). Weigh-Station pacing: SPLIT the handful
@@ -117,9 +119,19 @@ export default function SnowballRangePanel() {
           />
           <div className="snow-q">How many snowballs will fill the crate?</div>
           <div className="snow-sub">
-            Drag the red pole (or use ← →). Balls on its left go in the crate.
+            {useUI.getState().touchMode ? "Drag the red pole (or tap ◀ ▶)." : "Drag the red pole (or use ← →)."} Balls on its left go in the crate.
           </div>
           <div className="farm-challenge-buttons">
+            {/* Touch: nudge buttons — the 3D row is small on a phone. */}
+            {useUI.getState().touchMode && (
+              <button
+                className="plank-piece-btn"
+                aria-label="Move the pole left"
+                onClick={(e) => { e.currentTarget.blur(); const st = useSnowballRange.getState(); st.setSplit(st.splitIndex - 1); }}
+              >
+                ◀
+              </button>
+            )}
             <button
               className="primary-button"
               onClick={(e) => {
@@ -127,8 +139,17 @@ export default function SnowballRangePanel() {
                 useSnowballRange.getState().throwSplit();
               }}
             >
-              Throw! (Enter)
+              {kh("Throw! (Enter)")}
             </button>
+            {useUI.getState().touchMode && (
+              <button
+                className="plank-piece-btn"
+                aria-label="Move the pole right"
+                onClick={(e) => { e.currentTarget.blur(); const st = useSnowballRange.getState(); st.setSplit(st.splitIndex + 1); }}
+              >
+                ▶
+              </button>
+            )}
           </div>
         </div>
       )}
@@ -156,7 +177,7 @@ export default function SnowballRangePanel() {
                 useSnowballRange.getState().retrySplit();
               }}
             >
-              Try again (Enter)
+              {kh("Try again (Enter)")}
             </button>
             <button className="link-button" onClick={() => useSnowballRange.getState().exit()}>
               Quit
@@ -213,7 +234,7 @@ export default function SnowballRangePanel() {
                 useSnowballRange.getState().next();
               }}
             >
-              {roundIndex + 1 < RANGE_ROUNDS_PER_SET ? "Next round (Enter)" : "Finish (Enter)"}
+              {roundIndex + 1 < RANGE_ROUNDS_PER_SET ? kh("Next round (Enter)") : kh("Finish (Enter)")}
             </button>
           </div>
         </div>

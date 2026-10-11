@@ -4,6 +4,8 @@ import RoundCelebrate from "./RoundCelebrate.jsx";
 import { useWeighStation } from "../game/weighStationStore.js";
 import { useSession, playerState } from "../game/sessionStore.js";
 import { WEIGH_ROUNDS_PER_SET, WEIGH_TYPE_POINTS } from "../data/farm/weighStationChallenge.js";
+import { kh } from "./keyHints.js";
+import { useUI } from "./effects/uiStore.js";
 
 /**
  * WEIGH STATION — 2D panel (F9, v2 — Decimal-Zoom-tool flow). Numeric
@@ -109,7 +111,7 @@ export default function WeighStationPanel() {
                 useWeighStation.getState().beginRounds();
               }}
             >
-              Start! (Enter)
+              {kh("Start! (Enter)")}
             </button>
             <button className="link-button" onClick={() => useWeighStation.getState().exit()}>
               Quit
@@ -122,7 +124,7 @@ export default function WeighStationPanel() {
         <div className="farm-challenge-card mini">
           <div className="farm-challenge-head">
             <span>
-              ⚖️ Round {roundIndex + 1}/{WEIGH_ROUNDS_PER_SET} · {score} pts — drag the marker to {round.exactStr} (← → to nudge)
+              ⚖️ Round {roundIndex + 1}/{WEIGH_ROUNDS_PER_SET} · {score} pts — drag the marker to {round.exactStr}{useUI.getState().touchMode ? "" : " (← → to nudge)"}
             </span>
             <button
               className="primary-button weigh-lock"
@@ -131,12 +133,18 @@ export default function WeighStationPanel() {
                 useWeighStation.getState().lockIn();
               }}
             >
-              Lock it in (Enter)
+              {kh("Lock it in (Enter)")}
             </button>
             <button className="link-button" onClick={() => useWeighStation.getState().exit()}>
               Quit
             </button>
           </div>
+          {useUI.getState().touchMode && (
+            <div className="farm-challenge-buttons">
+              <button className="plank-piece-btn" aria-label="Nudge left" onClick={(e) => { e.currentTarget.blur(); const st = useWeighStation.getState(); st.setMarkerFrac(st.markerFrac - NUDGE * 2.5); }}>◀ nudge</button>
+              <button className="plank-piece-btn" aria-label="Nudge right" onClick={(e) => { e.currentTarget.blur(); const st = useWeighStation.getState(); st.setMarkerFrac(st.markerFrac + NUDGE * 2.5); }}>nudge ▶</button>
+            </div>
+          )}
         </div>
       )}
 
@@ -210,7 +218,7 @@ export default function WeighStationPanel() {
                 useWeighStation.getState().next();
               }}
             >
-              {roundIndex + 1 < WEIGH_ROUNDS_PER_SET ? "Next round (Enter)" : "Finish (Enter)"}
+              {roundIndex + 1 < WEIGH_ROUNDS_PER_SET ? kh("Next round (Enter)") : kh("Finish (Enter)")}
             </button>
           </div>
         </div>
