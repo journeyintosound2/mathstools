@@ -2,6 +2,31 @@
 - Before every push: run `node tools/build-pwa.mjs` and commit `precache-manifest.js`.
 - New pages: run `node tools/build-pwa.mjs --inject` once so they get the PWA tags.
 
+## Cloudflare Web Analytics (every page)
+- EVERY new HTML page on the site gets this one line immediately before `</head>`,
+  copied exactly (token belongs to Jeff's personal Cloudflare account, moved from the
+  DoE account 2026-10-13):
+
+  `<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->`
+- Exactly ONE per page. Never use any other token (the old DoE token `c7e5…dc89b` is retired).
+- Exceptions — do NOT add it to: `vibe-code/` (a handout other teachers copy; they must
+  not report into Jeff's account), `game-platforms/mills-maths-adventure-source/` dev
+  copies other than its `index.html` (that one IS tagged, so every Adventure build
+  carries it), and internal test pages (`assessment/exam-builder/layout-check.html`,
+  `assessment/placeholder.html`).
+- Check before a push: `grep -rL cloudflareinsights --include='*.html' .` should list
+  only those exceptions.
+
+## Hosting (2026-10-13)
+- GitHub Pages serves the site; custom domain `millsmathstools.au` (no www — `www`
+  redirects to it). DNS is on Jeff's Cloudflare account (nameservers ashton/bethany),
+  all records grey-cloud **DNS only** — never proxied. The domain stays registered at
+  Crazy Domains; their DNS Settings page is no longer used.
+- `.nojekyll` at the repo root is REQUIRED: without it GitHub Pages hides every folder
+  starting with `_` (e.g. `question-banks/_shared/`) and the Revision Generator loads blank.
+- Pushing: Jeff pushes with GitHub Desktop (Terminal has no saved login for the
+  `journeyintosound2` account). Pull before pushing if GitHub Settings changed `CNAME`.
+
 # Mills Maths Tools — Project Brief
 
 > Hand this file to Claude at the start of any chat to get up to speed without
