@@ -8,6 +8,7 @@ import { triggerInteraction } from "./interaction.js";
 import { useProgress } from "../progress/store.js";
 import { useUI } from "../ui/effects/uiStore.js";
 import { getInteractableStatus } from "./interactableStatus.js";
+import { FRIEND_IDS, friendDone } from "../data/journey.js";
 import { groundHeightAt } from "../systems/collisionEngine.js";
 import { getRegion } from "../data/regions.js";
 import CharacterAvatar from "./characters/CharacterAvatar.jsx";
@@ -60,8 +61,12 @@ export default function Interactable({ data }) {
       inMagmaChallengeView(magmaKey, data.position[0], data.position[1])) ||
     (Boolean(jungleKey) && data.regionId === JUNGLE_REGION_ID &&
       inJungleChallengeView(jungleKey, data.position[0], data.position[1]));
+  // Pip, Fern and Alby (the journey, 2026-10-13): "done" = their warm-up
+  // passed — the step that opens the igloo gate.
   const completed = useProgress((s) =>
-    s.completedEncounters.includes(data.encounterId)
+    FRIEND_IDS.includes(data.id)
+      ? friendDone(data.id, s.completedMissions)
+      : s.completedEncounters.includes(data.encounterId)
   );
 
   const touchMode = useUI((s) => s.touchMode);

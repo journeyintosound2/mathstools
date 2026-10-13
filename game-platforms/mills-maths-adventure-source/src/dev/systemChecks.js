@@ -14,6 +14,7 @@ import { runMapOutcomeChecks } from "./mapOutcomeChecks.js";
 import { runTouchControlChecks } from "./touchChecks.js";
 import { runFarmWorldChecks } from "./farmWorldChecks.js";
 import { runIslandWorldChecks } from "./islandWorldChecks.js";
+import { runJourneyChecks } from "./journeyChecks.js";
 import { runSchoolyardWorldChecks } from "./schoolyardWorldChecks.js";
 import { CRATER_LIP_STONES } from "../data/magma/magmaProps.js";
 import { makeTriangle, makeQuad, makeGenericQuad, verifyQuad, propertiesOf, SPECIAL_QUADS, TRIANGLE_TYPES } from "../maths/curriculum/stage4/geometry/shapeCatalogue.js";
@@ -696,6 +697,8 @@ export function runSystemChecks(progressSnapshot) {
   for (const c of runIslandWorldChecks()) checks.push(c);
   // The Retrieval Practice Playground rebuilt as a big hillside high school (SY1–SY10).
   for (const c of runSchoolyardWorldChecks()) checks.push(c);
+  // The journey — the progression: training, warm-ups, gates opening in turn (JY1–JY11).
+  for (const c of runJourneyChecks()) checks.push(c);
 
   return checks;
 }

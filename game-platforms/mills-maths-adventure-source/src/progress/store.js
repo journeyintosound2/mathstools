@@ -352,6 +352,25 @@ export const useProgress = create((set, get) => ({
     saveProgress(get());
   },
 
+  // ====================================================================
+  // THE JOURNEY (2026-10-13) — the saved story beats of the progression
+  // (data/journey.js). `patch` is merged into `journey`; list helpers add an
+  // id once. Which gates are open is DERIVED, never stored.
+  // ====================================================================
+  updateJourney(patch = {}) {
+    const next = { ...(get().journey || {}), ...patch };
+    set({ journey: next });
+    saveProgress(get());
+    return next;
+  },
+  journeyAdd(listName, id) {
+    const j = get().journey || {};
+    const list = Array.isArray(j[listName]) ? j[listName] : [];
+    if (!id || list.includes(id)) return false;
+    get().updateJourney({ [listName]: [...list, id] });
+    return true;
+  },
+
   // DevPanel: replay the first-time onboarding (welcome + meet Sage).
   resetOnboarding() {
     set({ onboardingSeen: false, sageMet: false });

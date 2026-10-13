@@ -33,8 +33,8 @@ import { useCloud } from "../cloud/cloudSession.js";
 
 const TIPS = [
   "Stand in front of the Achievements Wall on Harbour Green and press Enter to see every trophy you've won.",
-  "Every world has its own gate on Number Island — the igloo, the volcano arch, the haybales, the mossy arch and the school gate.",
-  "Pip, Fern and Alby each have a warm-up — score 80% or more to pass.",
+  "The worlds open one at a time, from the easiest to the hardest — win 7 trophies in a world to open the next.",
+  "Pass Pip's, Fern's and Alby's warm-ups to open the igloo gate to Snowball Sums.",
   "Signposts point the way at every junction. The painted map by the arch shows the whole island.",
   "Hold Shift to run, press Space to jump.",
 ];
@@ -241,7 +241,9 @@ function CharacterCard({ profile, editing, onBack, onDone, urlSignedIn }) {
                   <button className="tl-btn tl-btn-danger" onClick={() => {
                     resetProgress();
                     try {
-                      Object.keys(localStorage).filter((k) => /^mma-(farm|snow|magma)-.*-best$|^mma-visited:/.test(k)).forEach((k) => localStorage.removeItem(k));
+                      // (The jungle's bests too — since the journey, any best keeps a
+                      // world open, so a reset must clear every world's.)
+                      Object.keys(localStorage).filter((k) => /^mma-(farm|snow|magma|jungle)-.*-best$|^mma-visited:/.test(k)).forEach((k) => localStorage.removeItem(k));
                     } catch { /* local only */ }
                     setName(""); setStudentCode(""); setCharacter("explorer"); setConfirmReset(false);
                   }}><Bi>Yes, reset</Bi></button>

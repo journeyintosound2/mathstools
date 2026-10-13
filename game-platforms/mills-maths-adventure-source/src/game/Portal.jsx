@@ -16,11 +16,11 @@ import StaticBatch from "./jungle/StaticBatch.jsx";
  * no collider). Optional floating label shows the destination.
  *
  * When `locked` is true it is shown SHUT: the swirl is off, a wooden gate with a
- * padlock is drawn across the ring, and the label reads as locked. (Kept for a
- * future locked gate; the Retrieval Practice Playground's 80% lock that used it
- * was removed 2026-10-09 — no portal passes `locked` today.)
+ * padlock is drawn across the ring, and the label reads as locked. Since the
+ * JOURNEY (2026-10-13) every Number Island gate style takes `locked` +
+ * `lockNote` (World.jsx passes them from game/journeyStore.js).
  */
-export default function Portal({ position, rotationY = 0, label, locked = false, y = 0, labelRange = 0 }) {
+export default function Portal({ position, rotationY = 0, label, locked = false, lockNote = "", y = 0, labelRange = 0 }) {
   const spinA = useRef();
   const spinB = useRef();
   useFrame((_, dt) => {
@@ -98,7 +98,7 @@ export default function Portal({ position, rotationY = 0, label, locked = false,
 
       {label && (
         <GateLabel at={[0, 2 * R + 1.0, 0]} x={x} z={z} range={labelRange}>
-          <div className={`unlock-sign ${locked ? "locked" : "open"}`}>{locked ? "🔒" : "✦"} {label}</div>
+          <GateSign label={label} locked={locked} note={lockNote} />
         </GateLabel>
       )}
     </group>
@@ -124,6 +124,36 @@ function GateLabel({ at, x, z, range = 0, children }) {
     <Html position={at} center distanceFactor={16} className="ix-badge-anchor" zIndexRange={[24, 0]}>
       {children}
     </Html>
+  );
+}
+
+/**
+ * A gate's sign: "✦ Snowball Sums" when open; "🔒 Magma Multiples" + what
+ * opens it ("4 / 7 ❄️ trophies") while the journey keeps it shut.
+ */
+function GateSign({ label, locked, note }) {
+  if (!locked) return <div className="unlock-sign open">✦ {label}</div>;
+  return (
+    <div className="unlock-sign locked">
+      🔒 {label}
+      {note && <span className="unlock-sign-note">{note}</span>}
+    </div>
+  );
+}
+
+/**
+ * A SEALED doorway (the journey, 2026-10-13): the dark disc in the portal's
+ * frame with the wooden gate + brass padlock across it — dropped in where
+ * the swirl would be, so every gate style (igloo, haybale, volcano arch,
+ * mossy arch) reads as shut until its world opens.
+ */
+function SealedDoor({ R = 1.05 }) {
+  return (
+    <group>
+      <mesh><torusGeometry args={[R + 0.06, 0.18, 14, 36]} /><meshStandardMaterial color="#37436b" metalness={0.35} roughness={0.55} /></mesh>
+      <mesh><circleGeometry args={[R, 44]} /><meshStandardMaterial color="#20242e" side={THREE.DoubleSide} /></mesh>
+      <LockedGate R={R} cy={0} />
+    </group>
   );
 }
 
@@ -272,7 +302,7 @@ const ICE_SWIRL = {
   arcs: ["#4dd0e1", "#26c6da", "#00acc1"],
 };
 
-export function IglooPortal({ position, rotationY = 0, label, y = 0, labelRange = 0 }) {
+export function IglooPortal({ position, rotationY = 0, label, y = 0, labelRange = 0, locked = false, lockNote = "" }) {
   const [x, z] = position;
   const R = 2.9; // dome radius
   return (
@@ -303,7 +333,7 @@ export function IglooPortal({ position, rotationY = 0, label, y = 0, labelRange 
 
       {/* The swirling portal face fills the doorway — icy blue. */}
       <group position={[0, 1.55, R - 0.35]}>
-        <PortalSwirl R={1.02} palette={ICE_SWIRL} />
+        {locked ? <SealedDoor R={1.02} /> : <PortalSwirl R={1.02} palette={ICE_SWIRL} />}
       </group>
 
       {/* Ice crystals flanking the approach. */}
@@ -328,14 +358,14 @@ export function IglooPortal({ position, rotationY = 0, label, y = 0, labelRange 
 
       {label && (
         <GateLabel at={[0, R + 2.1, 0]} x={x} z={z} range={labelRange}>
-          <div className="unlock-sign open">✦ {label}</div>
+          <GateSign label={label} locked={locked} note={lockNote} />
         </GateLabel>
       )}
     </group>
   );
 }
 
-export function HaybalePortal({ position, rotationY = 0, label, y = 0, labelRange = 0 }) {
+export function HaybalePortal({ position, rotationY = 0, label, y = 0, labelRange = 0, locked = false, lockNote = "" }) {
   const [x, z] = position;
   const grassRefs = useRef([]);
   const blades = useMemo(
@@ -398,7 +428,7 @@ export function HaybalePortal({ position, rotationY = 0, label, y = 0, labelRang
       {/* The swirling portal graphic in the opening — bright yellow/gold, so it
           reads as a warm, farm-like doorway. Sits in the centre gap. */}
       <group position={[0, 2.5, 0]}>
-        <PortalSwirl R={1.05} palette={HAY_SWIRL} />
+        {locked ? <SealedDoor R={1.05} /> : <PortalSwirl R={1.05} palette={HAY_SWIRL} />}
       </group>
 
       {/* Waving grass framing the doorway (base pivots so blades sway from the ground). */}
@@ -408,7 +438,7 @@ export function HaybalePortal({ position, rotationY = 0, label, y = 0, labelRang
 
       {label && (
         <GateLabel at={[0, 6.4, 0]} x={x} z={z} range={labelRange}>
-          <div className="unlock-sign open">✦ {label}</div>
+          <GateSign label={label} locked={locked} note={lockNote} />
         </GateLabel>
       )}
     </group>
@@ -464,7 +494,7 @@ function Brazier({ position }) {
   );
 }
 
-export function VolcanoPortal({ position, rotationY = 0, label, y = 0, labelRange = 0 }) {
+export function VolcanoPortal({ position, rotationY = 0, label, y = 0, labelRange = 0, locked = false, lockNote = "" }) {
   const [x, z] = position;
   // Each pillar = a stack of tilted faceted rocks (dodecahedra).
   const stack = (sx) => [
@@ -499,7 +529,7 @@ export function VolcanoPortal({ position, rotationY = 0, label, y = 0, labelRang
       ))}
       {/* The swirl — lava red. */}
       <group position={[0, 2.0, 0]}>
-        <PortalSwirl R={1.15} palette={LAVA_SWIRL} />
+        {locked ? <SealedDoor R={1.15} /> : <PortalSwirl R={1.15} palette={LAVA_SWIRL} />}
       </group>
       {/* A small glowing lava apron under the arch. */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.03, 0.2]}>
@@ -514,7 +544,7 @@ export function VolcanoPortal({ position, rotationY = 0, label, y = 0, labelRang
       <Brazier position={[2.7, 0, 1.0]} />
       {label && (
         <GateLabel at={[0, 5.4, 0]} x={x} z={z} range={labelRange}>
-          <div className="unlock-sign open">✦ {label}</div>
+          <GateSign label={label} locked={locked} note={lockNote} />
         </GateLabel>
       )}
     </group>
@@ -540,7 +570,7 @@ const MOSS_STONE = "#8d8a76";
 const MOSS_STONE_DARK = "#6c6a5a";
 const MOSS = "#4f8a2e";
 
-export function JunglePortal({ position, rotationY = 0, label, y = 0, labelRange = 0 }) {
+export function JunglePortal({ position, rotationY = 0, label, y = 0, labelRange = 0, locked = false, lockNote = "" }) {
   const [x, z] = position;
   const tex = getJungleTextures();
   const vineRefs = useRef([]);
@@ -600,7 +630,7 @@ export function JunglePortal({ position, rotationY = 0, label, y = 0, labelRange
       </group>
       {/* The swirl — emerald green. */}
       <group position={[0, 2.55, 0]}>
-        <PortalSwirl R={1.42} palette={JUNGLE_SWIRL} />
+        {locked ? <SealedDoor R={1.42} /> : <PortalSwirl R={1.42} palette={JUNGLE_SWIRL} />}
       </group>
       {/* Vines trailing from the arch. */}
       {tex.vine && vines.map((v, i) => (
@@ -637,7 +667,7 @@ export function JunglePortal({ position, rotationY = 0, label, y = 0, labelRange
       </mesh>
       {label && (
         <GateLabel at={[0, 6.6, 0]} x={x} z={z} range={labelRange}>
-          <div className="unlock-sign open">✦ {label}</div>
+          <GateSign label={label} locked={locked} note={lockNote} />
         </GateLabel>
       )}
     </group>

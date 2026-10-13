@@ -8,6 +8,8 @@ import {
   hasRegionMap, regionMapSpec, regionMapPois, worldToMap, mapToWorld, mapSpotIsWalkable,
 } from "../../data/maps/regionMaps.js";
 import { paintRegionMapAsync, pinColour, MEDAL_COLOURS } from "../../game/maps/paintRegionMap.js";
+import { currentCoach, useJourney } from "../../game/journeyStore.js";
+import { Bi } from "../../i18n/i18n.jsx";
 
 /**
  * THE WORLD MAP (2026-10-10) — full screen, opened from a world's map board
@@ -32,7 +34,7 @@ function useMapData(regionId, open) {
   return useMemo(() => {
     if (!open || !hasRegionMap(regionId)) return null;
     const spec = regionMapSpec(regionId);
-    const pois = regionMapPois(regionId, { progress, results });
+    const pois = regionMapPois(regionId, { progress, results, journey: useJourney.getState().js });
     return { spec, pois };
   }, [regionId, open, progress, results]);
 }
@@ -54,6 +56,12 @@ export default function MapViewer() {
 
 function MapView({ regionId, spec, pois, waypoint }) {
   const touch = useUI((s) => s.touchMode);
+  // The journey's coach (2026-10-13): when this map step is the lesson, a
+  // banner says what to pick and that pin pulses.
+  const journey = useProgress((s) => s.journey);
+  const cc = currentCoach({ journey }, regionId);
+  const coachMap = cc && cc.step && cc.step.goal && cc.step.goal.track === "waypoints" ? cc : null;
+  const coachPin = coachMap ? (coachMap.scope === "training" ? "p-pip" : (pois.find((p) => p.n === 1) || {}).id) : null;
   const stageRef = useRef(null);
   const canvasRef = useRef(null);
   const meRef = useRef(null);
@@ -285,6 +293,13 @@ function MapView({ regionId, spec, pois, waypoint }) {
             onPointerCancel={onPointerUp}
           >
             {!base && <div className="map-loading">🗺️ Unrolling the map…</div>}
+            {coachMap && (
+              <div className="map-coach" role="note">
+                🎓 {coachMap.scope === "training"
+                  ? (touch ? <Bi>Tap Pip to set a waypoint — a gold beam will lead you there.</Bi> : <Bi>Click Pip to set a waypoint — a gold beam will lead you there.</Bi>)
+                  : (touch ? <Bi>Each numbered pin is a challenge. Tap number 1 to set a waypoint.</Bi> : <Bi>Each numbered pin is a challenge. Click number 1 to set a waypoint.</Bi>)}
+              </div>
+            )}
             <div
               className="map-world"
               style={{
@@ -309,7 +324,7 @@ function MapView({ regionId, spec, pois, waypoint }) {
                     return (
                       <button
                         key={p.id}
-                        className={`map-pin k-${p.kind}${big ? " big" : ""}${p.soon ? " soon" : ""}${hoverId === p.id ? " hot" : ""}${wpHere?.poi === p.id ? " wp" : ""}`}
+                        className={`map-pin k-${p.kind}${big ? " big" : ""}${p.soon ? " soon" : ""}${p.locked ? " locked" : ""}${coachPin === p.id ? " coach-pick" : ""}${hoverId === p.id ? " hot" : ""}${wpHere?.poi === p.id ? " wp" : ""}`}
                         style={{ left: x, top: y, "--pin": pinColour(p, spec.accent), "--ring": p.medal && MEDAL_COLOURS[p.medal] ? MEDAL_COLOURS[p.medal] : "#ffffff" }}
                         onPointerEnter={() => setHoverId(p.id)}
                         onPointerLeave={() => setHoverId((h) => (h === p.id ? null : h))}

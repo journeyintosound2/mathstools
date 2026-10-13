@@ -7,6 +7,7 @@ import { getInteractable } from "../data/interactables.js";
 import { triggerInteraction } from "../game/interaction.js";
 import { useFarmChallengeActive } from "../game/farmChallengeActive.js";
 import { Bi } from "../i18n/i18n.jsx";
+import { useProgress } from "../progress/store.js";
 import { actionIcon, actionText } from "./touchActionLabel.js";
 
 /**
@@ -31,6 +32,7 @@ import { actionIcon, actionText } from "./touchActionLabel.js";
 
 const RUN_AT = 0.9; // fraction of the joystick's reach that starts a run
 const YAW_PER_SCREEN = 4.2; // radians of camera swing for a full-width drag
+const PITCH_PER_SCREEN = 2.2; // first-person view: radians of tilt for a full-height drag
 
 function inJoystickZone(x, y, w, h) {
   const portrait = h > w;
@@ -65,7 +67,7 @@ export default function TouchControls() {
     if (!touchMode) return undefined;
     const id = setInterval(() => {
       const c = playerState.touchCaps;
-      setCaps((p) => (p.walk === c.walk && p.walkAxis === c.walkAxis && p.orbit === c.orbit && p.jump === c.jump ? p : { ...c }));
+      setCaps((p) => (p.walk === c.walk && p.walkAxis === c.walkAxis && p.orbit === c.orbit && p.jump === c.jump && p.look === c.look ? p : { ...c }));
     }, 150);
     return () => clearInterval(id);
   }, [touchMode]);
@@ -109,7 +111,7 @@ export default function TouchControls() {
         joyPtr.current = { id: e.pointerId, x0, y0, r, shown: false, sx: e.clientX, sy: e.clientY };
         return;
       }
-      if (c.orbit) camPtrs.current.set(e.pointerId, { lastX: e.clientX, x0: e.clientX, y0: e.clientY, claimed: false });
+      if (c.orbit || c.look) camPtrs.current.set(e.pointerId, { lastX: e.clientX, lastY: e.clientY, x0: e.clientX, y0: e.clientY, claimed: false });
     };
     const onMove = (e) => {
       const j = joyPtr.current;
@@ -147,8 +149,12 @@ export default function TouchControls() {
           claimPointer(e.pointerId);
         }
         const dx = e.clientX - cp.lastX;
+        const dy = e.clientY - (cp.lastY ?? e.clientY);
         cp.lastX = e.clientX;
-        if (capsRef.current.orbit) touchInput.yawDelta -= (dx / Math.max(320, window.innerWidth)) * YAW_PER_SCREEN;
+        cp.lastY = e.clientY;
+        if (capsRef.current.orbit || capsRef.current.look) touchInput.yawDelta -= (dx / Math.max(320, window.innerWidth)) * YAW_PER_SCREEN;
+        // First-person view: drag up to look up, down to look down.
+        if (capsRef.current.look) touchInput.pitchDelta -= (dy / Math.max(320, window.innerHeight)) * PITCH_PER_SCREEN;
       }
     };
     const onUp = (e) => {
@@ -217,9 +223,13 @@ export default function TouchControls() {
   useEffect(() => { if (usedJoy) { const id = setTimeout(() => setCoach(false), 2500); return () => clearTimeout(id); } return undefined; }, [usedJoy]);
 
   if (blocked) return null;
+  const trainingOn = !useProgress.getState().journey?.trainingDone && !useProgress.getState().journey?.trainingSkipped;
 
   const near = nearbyId && !challengeActive ? getInteractable(nearbyId) : null;
   const act = near ? actionText(near) : null;
+  // The FIRST-PERSON VIEW button (2026-10-13 — the training teaches it):
+  // whenever you could walk, or to come back out of it.
+  const showEye = (caps.walk && caps.walkAxis !== "x" && !challengeActive) || caps.look;
 
   return (
     <div className="touch-layer" aria-hidden={false}>
@@ -258,6 +268,16 @@ export default function TouchControls() {
             </span>
           </button>
         )}
+        {showEye && (
+          <button
+            className={`touch-btn touch-btn-eye${caps.look ? " is-on" : ""}`}
+            aria-label={caps.look ? "Leave first-person view" : "First-person view"}
+            aria-pressed={caps.look}
+            onClick={(e) => { e.currentTarget.blur(); useUI.getState().toggleFpv(); }}
+          >
+            <span aria-hidden="true">👁️</span>
+          </button>
+        )}
         {caps.jump && (
           <button className="touch-btn touch-btn-jump" aria-label="Jump" {...holdHandlers((v) => { touchInput.jump = v; })}>
             <span aria-hidden="true">⤒</span>
@@ -266,7 +286,7 @@ export default function TouchControls() {
         )}
       </div>
 
-      {coach && caps.walk && (
+      {coach && caps.walk && !trainingOn && (
         <div className="touch-coach" role="note">
           <span>👈 <Bi>Thumb here to walk — push to the edge to run</Bi></span>
           <span>👉 <Bi>Drag to look around</Bi></span>

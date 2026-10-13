@@ -156,6 +156,9 @@ export const touchInput = {
   // Camera DRAG: radians of yaw waiting to be applied (the Player adds it
   // on its next frame, when the camera is free to orbit, then zeroes it).
   yawDelta: 0,
+  // First-person view on touch (2026-10-13): a drag UP/DOWN tilts the view
+  // (radians waiting to be applied, like yawDelta).
+  pitchDelta: 0,
 };
 
 // Request the player be moved to (x, z) on the next frame.

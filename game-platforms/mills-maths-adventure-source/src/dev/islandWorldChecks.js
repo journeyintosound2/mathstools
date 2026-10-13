@@ -342,15 +342,18 @@ export function runIslandWorldChecks() {
     localStorage.removeItem("mma-visited:farm-parts-whole");
     const progress = {
       xp: 250, coins: 40, profile: { name: "Sam" },
-      completedMissions: ["warmup-pearce", "warmup-mahoney", "warmup-kellahan"],
+      // (The journey, 2026-10-13: a friend passes on their WARM-UP; a
+      // Playground key keeps every world before it open.)
+      completedMissions: ["warmup-pearce", "warmup-mahoney", "warmup-kellahan", "warmup-pip"],
       earnedBadges: [{ badgeId: "integer-adventurer", earnedAt: 1 }],
     };
-    const results = [{ topicIds: ["integers"], topicNames: ["Integers"], percentage: 85, passed: true, completedAt: 1 }];
+    const results = [{ missionId: "warmup-pip", topicIds: ["number-facts"], topicNames: ["Number facts"], percentage: 85, passed: true, completedAt: 1 }];
     const s = achievementsSummary(progress, results);
     const byId = Object.fromEntries(s.panels.map((p) => [p.id, p]));
     const farm = byId.farm;
     dataOk = s.panels.length === WALL_BOARDS &&
-      ["island", "playground", "farm", "snow", "magma", "jungle"].every((id, i) => s.panels[i].id === id) &&
+      ["island", "snow", "magma", "farm", "jungle", "playground"].every((id, i) => s.panels[i].id === id) &&
+      s.panels.every((p) => !p.locked) && byId.island.friends.find((f) => f.id === "pip").best === 85 &&
       farm.counts.gold === 1 && farm.counts.bronze === 1 && farm.earned === 2 && farm.total === 10 && farm.visited === true /* bests imply a visit */ &&
       byId.jungle.visited === true && byId.playground.keys === 2 && byId.playground.boss.done === true &&
       byId.island.level === 3 && byId.island.friends.find((f) => f.id === "pip").passed === true && byId.island.passedFriends === 1 &&

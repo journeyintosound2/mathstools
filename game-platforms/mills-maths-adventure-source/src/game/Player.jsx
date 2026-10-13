@@ -5,6 +5,7 @@ import * as THREE from "three";
 import { useKeyboard } from "./useKeyboard.js";
 import { useProgress } from "../progress/store.js";
 import { useUI } from "../ui/effects/uiStore.js";
+import { journeyTrack, useJourney, lockedPortalColliders, lockForPortal } from "./journeyStore.js";
 import { useSession, playerState, clearMoveTarget, touchInput } from "./sessionStore.js";
 import { getColliders } from "../data/worldColliders.js";
 import { getRegion, clampToBounds } from "../data/regions.js";
@@ -267,9 +268,16 @@ export default function Player({ cinematic = false }) {
   const earnedBadges = useProgress((s) => s.earnedBadges);
   const completedEncounters = useProgress((s) => s.completedEncounters);
   const currentRegionId = useSession((s) => s.currentRegionId);
+  // The JOURNEY (2026-10-13): a locked Number Island gate is solid, and
+  // standing by it says what opens it (the hinted-collider prompt below).
+  const journeyLocks = useJourney((s) => s.lockSig);
   const colliders = useMemo(
-    () => getColliders({ completedMissions, earnedBadges, completedEncounters }, currentRegionId),
-    [completedMissions, earnedBadges, completedEncounters, currentRegionId]
+    () => [
+      ...getColliders({ completedMissions, earnedBadges, completedEncounters }, currentRegionId),
+      ...lockedPortalColliders(currentRegionId),
+    ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [completedMissions, earnedBadges, completedEncounters, currentRegionId, journeyLocks]
   );
 
   // Camera yaw (radians). 0 = camera directly behind the player on +Z.
@@ -461,12 +469,17 @@ export default function Player({ cinematic = false }) {
     // (disabled in the locked challenge views)
     const canOrbit = !frozen && !fenceMode && !roundUpMode && !orderMode && !crateMode && !milkMode && !weighMode && !tradeMode && !veggieMode && !plankMode && !shopMode && !stageMode;
     if (canOrbit) {
-      if (k.rotateLeft || touchInput.rotateLeft) camYaw.current -= ROTATE_SPEED * delta;
-      if (k.rotateRight || touchInput.rotateRight) camYaw.current += ROTATE_SPEED * delta;
+      if (k.rotateLeft || touchInput.rotateLeft) { camYaw.current -= ROTATE_SPEED * delta; journeyTrack.looked += ROTATE_SPEED * delta; }
+      if (k.rotateRight || touchInput.rotateRight) { camYaw.current += ROTATE_SPEED * delta; journeyTrack.looked += ROTATE_SPEED * delta; }
       // Touch: a finger dragged across the 3D view swings the camera round.
-      if (touchInput.yawDelta) camYaw.current += touchInput.yawDelta;
+      if (touchInput.yawDelta) { camYaw.current += touchInput.yawDelta; journeyTrack.looked += Math.abs(touchInput.yawDelta); }
     }
+    // First-person view on touch (2026-10-13): the same drag looks around
+    // through the explorer's eyes (sideways = turn, up/down = tilt).
+    const fpvDragYaw = fpv && !wv ? touchInput.yawDelta : 0;
+    const fpvDragPitch = fpv && !wv ? touchInput.pitchDelta || 0 : 0;
     touchInput.yawDelta = 0; // a drag while the camera is locked is simply dropped
+    touchInput.pitchDelta = 0;
     // Align the movement basis with the locked Round-Up view so WASD/arrows
     // keep matching the screen while (and after) the camera glides over.
     if (roundUpMode) {
@@ -902,6 +915,7 @@ export default function Player({ cinematic = false }) {
       if (jumpPressed && !jumpHeld.current && grounded.current) {
         vy.current = JUMP_VELOCITY;
         grounded.current = false;
+        journeyTrack.jumps += 1;
         // Lock the horizontal launch velocity for the whole arc (no steering).
         // Moving at take-off → carry that momentum forward; standing → a hop in
         // the facing direction, so a solo jump still leaps ahead and lands there.
@@ -1004,6 +1018,18 @@ export default function Player({ cinematic = false }) {
       caps.walkAxis = fenceMode ? "x" : null;
       caps.orbit = canOrbit && !riding;
       caps.jump = (canWalk && !fenceMode && !riding) || climbingNow;
+      // First-person view: the drag looks around instead (no joystick).
+      caps.look = fpv && !wv;
+    }
+
+    // The journey's training counts real walking + running (not rides,
+    // lava bounces or teleports).
+    {
+      const stepD = Math.hypot(pos.x - prevX, pos.z - prevZ);
+      if (!frozen && !riding && !lavaFlight.current && stepD < 2) {
+        journeyTrack.walked += stepD;
+        if (running) journeyTrack.ran += stepD;
+      }
     }
 
     // Publish position for proximity checks (non-reactive shared object).
@@ -1036,9 +1062,13 @@ export default function Player({ cinematic = false }) {
     if (!frozen) {
       for (const portal of region.portals || []) {
         if (Math.hypot(pos.x - portal.position[0], pos.z - portal.position[1]) <= portal.radius) {
+          // A gate the journey hasn't opened yet goes nowhere (its collider
+          // keeps you out; this is the belt-and-braces).
+          if (region.id === "island-1" && lockForPortal(portal.id)) break;
           // (The Retrieval Practice Playground used to be a LOCKED gate until
           // Pip, Fern and Alby were each passed at 80% — removed 2026-10-09 at
-          // Jeff's request; every gate on the island is open.)
+          // Jeff's request. Since the JOURNEY (2026-10-13) the island gates
+          // open in turn instead — see data/journey.js.)
           if (Date.now() - lastTravel.current > 1200) {
             lastTravel.current = Date.now();
             useSession.getState().setRegion(portal.target);
@@ -1081,6 +1111,8 @@ export default function Player({ cinematic = false }) {
       if (k.right) fpvYaw.current -= LOOK;
       if (k.forward) fpvPitch.current = Math.min(1.2, fpvPitch.current + LOOK);
       if (k.backward) fpvPitch.current = Math.max(-1.0, fpvPitch.current - LOOK);
+      if (fpvDragYaw) fpvYaw.current += fpvDragYaw;
+      if (fpvDragPitch) fpvPitch.current = Math.max(-1.0, Math.min(1.2, fpvPitch.current + fpvDragPitch));
       const eyeY = p.y + 1.7;
       camera.position.set(p.x, eyeY, p.z);
       const cp = Math.cos(fpvPitch.current);

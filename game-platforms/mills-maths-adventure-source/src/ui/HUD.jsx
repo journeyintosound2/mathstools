@@ -20,6 +20,9 @@ import { firstOutstandingTask, taskObjectiveText } from "../data/taskCompass.js"
 import { hasRegionMap } from "../data/maps/regionMaps.js";
 import { useFarmChallengeActive } from "../game/farmChallengeActive.js";
 import { useMediaQuery, COMPACT_QUERY } from "./useMediaQuery.js";
+import { CoachStep } from "./journey/JourneyCoach.jsx";
+import JourneyTracker, { JourneyMini } from "./journey/JourneyTracker.jsx";
+import FpvChip from "./journey/FpvChip.jsx";
 
 /**
  * The heads-up display overlaid on the 3D view.
@@ -176,6 +179,9 @@ export default function HUD() {
       <div className="hud-compass-stack">
         <TaskCompass />
         <WaypointCompass />
+        {/* The journey's training / world-tour coach (2026-10-13) — on
+            phones it sits here, under the top row (computers: under the stats). */}
+        {compact && <CoachStep compact />}
       </div>
       {/* Top-left: player stats */}
       <div className={`hud-panel hud-stats${compact ? " is-compact" : ""}`}>
@@ -192,8 +198,16 @@ export default function HUD() {
         <div className="hud-row">
           <span className="coin">🪙</span>
           <span className="coin-count">{coins}</span>
+          {compact && <JourneyMini />}
         </div>
       </div>
+
+      {/* The journey (2026-10-13): the one next goal — warm-ups, the gate
+          that just opened, or a world's trophies against the 7 that open
+          the next. (Phones: the short segment inside the stats pill.) */}
+      {!compact && <CoachStep />}
+      {!compact && !snowChallenge && !magmaChallenge && !jungleChallenge && !challengeActive && <JourneyTracker />}
+      <FpvChip />
 
       {/* Top-right: controls */}
       <div className={`hud-buttons${compact ? " is-compact" : ""}`}>

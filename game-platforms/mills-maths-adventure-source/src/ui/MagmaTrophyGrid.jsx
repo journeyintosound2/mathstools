@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 
+import JourneyStrip from "./journey/JourneyStrip.jsx";
 import { useUI } from "./effects/uiStore.js";
 import { magmaTrophyRows } from "../data/magma/magmaRecords.js";
 
@@ -50,6 +51,8 @@ export default function MagmaTrophyGrid() {
         <div className="ftrophy-subtitle">
           {earned}/{rows.length} trophies earned · {golds} gold. Ten multiplying challenges — start with the Basalt Columns!
         </div>
+        {/* The journey (2026-10-13): medals + the 7 that open the next world. */}
+        {!detail && <JourneyStrip worldKey="magma" />}
 
         {detail ? (
           <div className="ftrophy-detail">

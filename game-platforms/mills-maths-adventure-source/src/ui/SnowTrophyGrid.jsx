@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 
+import JourneyStrip from "./journey/JourneyStrip.jsx";
 import { useUI } from "./effects/uiStore.js";
 import { snowTrophyRows } from "../data/snow/snowRecords.js";
 
@@ -8,8 +9,8 @@ import { snowTrophyRows } from "../data/snow/snowRecords.js";
  * trophy stand (snow-records). Identical in look + behaviour to the farm's
  * FarmTrophyGrid (it reuses the same .ftrophy-* styles): a grid of the TEN
  * trophy slots showing each earned medal, with a click-through detail view.
- * The ten challenges are still to be designed, so every slot is a placeholder
- * named after its reserved area — the grid says so honestly.
+ * (All ten challenges are built; the old "coming soon" placeholder text went
+ * 2026-10-13.)
  */
 
 const MEDAL_EMOJI = { gold: "🥇", silver: "🥈", bronze: "🥉" };
@@ -49,8 +50,10 @@ export default function SnowTrophyGrid() {
           <button className="dev-close" onClick={() => setSnowTrophy(false)}>✕</button>
         </div>
         <div className="ftrophy-subtitle">
-          {earned}/{rows.length} trophies earned · {golds} gold. Ten new challenges are on their way to the snow world!
+          {earned}/{rows.length} trophies earned · {golds} gold. Ten addition and subtraction strategies round the valley.
         </div>
+        {/* The journey (2026-10-13): medals + the 7 that open the next world. */}
+        {!detail && <JourneyStrip worldKey="snow" />}
 
         {detail ? (
           <div className="ftrophy-detail">
@@ -82,7 +85,7 @@ export default function SnowTrophyGrid() {
                 </div>
                 <div className="ftrophy-tile-name">{r.icon} {r.name}</div>
                 <div className={`ftrophy-tile-best ${r.medal ? "won" : ""}`}>
-                  {r.best > 0 ? `${r.pct}%` : "coming soon"}
+                  {r.best > 0 ? `${r.pct}%` : "not played"}
                 </div>
               </button>
             ))}

@@ -37,6 +37,8 @@ export default function HowToPlay() {
             <li><strong>Talk:</strong> tap a character (or their name), or walk up and tap the blue <strong>Talk</strong> button.</li>
             <li><strong>Answer:</strong> tap the number keys or the choice buttons, then <strong>Check</strong>.</li>
             <li><strong>Map:</strong> tap 🗺️ (top right) to see the whole world and set a waypoint.</li>
+            <li><strong>First-person view:</strong> tap 👁️ to see through your explorer's eyes — drag to look, tap 👁️ again to come back.</li>
+            <li><strong>Your journey:</strong> the worlds open one at a time. Pass Pip's, Fern's and Alby's warm-ups to open Snowball Sums, then win <strong>7 trophies</strong> (bronze or better) in each world to open the next.</li>
             <li><strong>Earn XP</strong> for correct answers — pass a mission to earn its rewards.</li>
             <li>Your attempts are <strong>saved on this device</strong> so your teacher can review them.</li>
           </ul>
@@ -46,8 +48,10 @@ export default function HowToPlay() {
             <li><strong>Interact:</strong> walk up and press <kbd>E</kbd> (NPCs, Mission Board, markers).</li>
             <li><strong>Answer:</strong> type your answer or tap the choice buttons, then <strong>Check</strong>.</li>
             <li><strong>Map:</strong> press <kbd>M</kbd> (or 🗺️ top right) to see the whole world and set a waypoint.</li>
+            <li><strong>Look around:</strong> <kbd>Z</kbd> / <kbd>X</kbd> swing the camera. <kbd>/</kbd> switches to first-person view (arrow keys look, <kbd>/</kbd> again to come back).</li>
+            <li><strong>Your journey:</strong> the worlds open one at a time. Pass Pip's, Fern's and Alby's warm-ups to open Snowball Sums, then win <strong>7 trophies</strong> (bronze or better) in each world to open the next.</li>
             <li><strong>Earn XP</strong> for correct answers — pass a mission to earn its rewards.</li>
-            <li><strong>Quests:</strong> press <kbd>Q</kbd> to see your current mission and progress.</li>
+            <li><strong>Quests:</strong> press <kbd>Q</kbd> to see your journey, your mission and your progress — and to replay the training.</li>
             <li>Your attempts are <strong>saved on this device</strong> so your teacher can review them.</li>
           </ul>
         )}

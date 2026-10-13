@@ -8,6 +8,8 @@ import { useFarmChallengeActive } from "../game/farmChallengeActive.js";
 import { inWallPromptZone, WALL_BOARDS } from "../data/island/wallView.js";
 import { achievementsSummary } from "../data/island/achievements.js";
 import { Bi } from "../i18n/i18n.jsx";
+import { currentCoach } from "../game/journeyStore.js";
+import { WALL_TRAINING_TIPS } from "../data/training.js";
 
 /**
  * THE ACHIEVEMENTS WALL — the prompt ("Enter · Look at the Achievements
@@ -85,11 +87,25 @@ export default function AchievementsWallUI() {
   const results = useResults((r) => r.results);
   const summary = useMemo(() => (wallView ? achievementsSummary(progress, results) : null), [wallView, progress, results]);
 
+  // The journey's training (2026-10-13): while this is the step, a coach
+  // bubble explains what the boards mean.
+  const journey = useProgress((s) => s.journey);
+  const trainingHere = currentCoach({ journey }, "island-1")?.key === "training:wall";
+
   if (wallView && summary) {
     const P = wallView.panel >= 0 ? summary.panels[wallView.panel] : null;
     const t = summary.totals;
     return (
       <div className="wall-view-ui" role="region" aria-label="Achievements Wall">
+        {trainingHere && (
+          <div className="wall-coach" role="note">
+            <span className="wall-coach-kicker">🎓 <Bi>Training</Bi></span>
+            {WALL_TRAINING_TIPS.map((tip) => <span key={tip}><Bi>{tip}</Bi></span>)}
+            <span className="wall-coach-keys">
+              {touchMode ? <Bi>Tap ‹ › to look at each board, then Step back.</Bi> : <Bi>Use ← → to look at each board, then press Esc to step back.</Bi>}
+            </span>
+          </div>
+        )}
         <button className="wall-leave" onClick={() => useUI.getState().closeWall()}>
           <span aria-hidden="true">✕</span> <Bi>Step back</Bi>
         </button>

@@ -45,7 +45,10 @@ import TeacherPilotCard from "./ui/TeacherPilotCard.jsx";
 import CloudLogin from "./ui/CloudLogin.jsx";
 import BlockedGatePrompt from "./ui/BlockedGatePrompt.jsx";
 import AchievementsWallUI from "./ui/AchievementsWallUI.jsx";
-import OnboardingWelcome from "./ui/OnboardingWelcome.jsx";
+import { CoachCard } from "./ui/journey/JourneyCoach.jsx";
+import JourneyCelebration from "./ui/journey/JourneyCelebration.jsx";
+import { startJourney, useJourney } from "./game/journeyStore.js";
+import { useProgress } from "./progress/store.js";
 import UnlockCelebration from "./ui/UnlockCelebration.jsx";
 import DynamicDialogue from "./ui/encounters/DynamicDialogue.jsx";
 import ToastLayer from "./ui/effects/ToastLayer.jsx";
@@ -59,7 +62,7 @@ import { triggerInteraction } from "./game/interaction.js";
 // DEV-only handles for the headless phone/iPad harness (stripped from builds):
 // jump to any character / challenge host and open it without walking there.
 if (import.meta.env.DEV && typeof window !== "undefined") {
-  window.__mma = { useSession, useUI, playerState, requestTeleport, getInteractable, INTERACTABLES, triggerInteraction };
+  window.__mma = { useSession, useUI, playerState, requestTeleport, getInteractable, INTERACTABLES, triggerInteraction, useProgress, useJourney };
 }
 
 /**
@@ -100,6 +103,9 @@ export default function App() {
   // goes straight back into the world). The 3D world mounts just AFTER the
   // first paint, so the title's loading curtain shows while it builds.
   const [mountWorld, setMountWorld] = useState(false);
+  // THE JOURNEY (2026-10-13): the progression engine (gates, training,
+  // world tours, celebrations) starts once and runs in the background.
+  useEffect(() => { startJourney(); }, []);
   useEffect(() => {
     let a = 0, b = 0;
     a = requestAnimationFrame(() => { b = requestAnimationFrame(() => setMountWorld(true)); });
@@ -246,7 +252,10 @@ export default function App() {
       ) : (
         activeEncounterId && <EncounterModal encounterId={activeEncounterId} />
       )}
-      <OnboardingWelcome />
+      {/* The journey (2026-10-13) — replaces the old one-time welcome card
+          (ui/OnboardingWelcome.jsx, kept for reference). */}
+      <CoachCard />
+      <JourneyCelebration />
       <HowToPlay />
       <TeacherPilotCard />
       <CloudLogin />

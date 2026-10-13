@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 
+import JourneyStrip from "./journey/JourneyStrip.jsx";
 import { useUI } from "./effects/uiStore.js";
 import { farmTrophyRows } from "../data/farm/farmRecords.js";
 
@@ -49,6 +50,8 @@ export default function FarmTrophyGrid() {
         <div className="ftrophy-subtitle">
           {earned}/{rows.length} trophies earned · {golds} gold. Gold needs a perfect set!
         </div>
+        {/* The journey (2026-10-13): medals + the 7 that open the next world. */}
+        {!detail && <JourneyStrip worldKey="farm" />}
 
         {detail ? (
           <div className="ftrophy-detail">

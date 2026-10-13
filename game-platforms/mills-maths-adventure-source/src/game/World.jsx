@@ -38,6 +38,7 @@ import CabinScenery from "./CabinScenery.jsx";
 import { isOnSnow, terrainHeight as snowTerrainHeight } from "../data/snow/snowTerrain.js";
 import SnowStage from "./snow/SnowStage.jsx";
 import Portal, { HaybalePortal, IglooPortal, VolcanoPortal, JunglePortal } from "./Portal.jsx";
+import { useJourney, lockForPortal } from "./journeyStore.js";
 import JungleScenery from "./JungleScenery.jsx";
 import WaypointBeacon from "./maps/WaypointBeacon.jsx";
 import { JUNGLE_REGION_ID, isOnJunglePath, terrainHeight as jungleTerrainHeight } from "../data/jungle/jungleLayout.js";
@@ -62,6 +63,8 @@ export default function World({ title = false }) {
   const regionId = useSession((s) => s.currentRegionId);
   const geo = getRegion(regionId).geometry;
   const isIsland = regionId === "island-1";
+  // The journey (2026-10-13): re-render the gates when a lock changes.
+  useJourney((s) => s.lockSig);
   // Fraction Farm runs on LATE-AFTERNOON light: a lower, more golden sun.
   const isFarm = regionId === "farm-parts-whole";
   // Snowball Sums runs on TWILIGHT light: a cool moonlit key, indigo fill and
@@ -227,14 +230,17 @@ export default function World({ title = false }) {
         // on the big island their labels show only when you're near.
         const gy = region.groundHeight ? region.groundHeight(p.position[0], p.position[1]) : 0;
         const lr = isIsland ? 42 : isSchool ? 30 : 0;
+        // A gate the journey hasn't opened yet is drawn SHUT (padlocked).
+        const lock = isIsland ? lockForPortal(p.id) : null;
+        const lk = { locked: Boolean(lock), lockNote: lock ? lock.note : "" };
         return p.variant === "cabindoor" ? null : p.variant === "jungle" ? (
-          <JunglePortal key={p.id} position={p.position} rotationY={p.rotationY} label={p.label} y={gy} labelRange={lr} />
+          <JunglePortal key={p.id} position={p.position} rotationY={p.rotationY} label={p.label} y={gy} labelRange={lr} {...lk} />
         ) : p.variant === "volcano" ? (
-          <VolcanoPortal key={p.id} position={p.position} rotationY={p.rotationY} label={p.label} y={isIsland ? gy : 0} labelRange={lr} />
+          <VolcanoPortal key={p.id} position={p.position} rotationY={p.rotationY} label={p.label} y={isIsland ? gy : 0} labelRange={lr} {...lk} />
         ) : p.variant === "igloo" ? (
-          <IglooPortal key={p.id} position={p.position} rotationY={p.rotationY} label={p.label} y={isSnow || isIsland ? gy : 0} labelRange={lr} />
+          <IglooPortal key={p.id} position={p.position} rotationY={p.rotationY} label={p.label} y={isSnow || isIsland ? gy : 0} labelRange={lr} {...lk} />
         ) : p.variant === "haybale" ? (
-          <HaybalePortal key={p.id} position={p.position} rotationY={p.rotationY} label={p.label} y={isFarm || isIsland ? gy : 0} labelRange={lr} />
+          <HaybalePortal key={p.id} position={p.position} rotationY={p.rotationY} label={p.label} y={isFarm || isIsland ? gy : 0} labelRange={lr} {...lk} />
         ) : (
           <Portal
             key={p.id}
@@ -243,6 +249,7 @@ export default function World({ title = false }) {
             label={p.label}
             y={isIsland || isSchool ? gy : 0}
             labelRange={lr}
+            {...lk}
           />
         );
       })}

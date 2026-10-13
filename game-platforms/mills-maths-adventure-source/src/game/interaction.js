@@ -34,6 +34,8 @@ import { useAuroraLookout } from "./auroraLookoutStore.js";
 import { farmRecordLines } from "../data/farm/farmRecords.js";
 import { exitMagmaExcept, magmaStore } from "./magma/magmaActive.js";
 import { exitJungleExcept, jungleStore } from "./jungle/jungleActive.js";
+import { journeyTrack, useJourney } from "./journeyStore.js";
+import { millsJourneyLines } from "../data/journey.js";
 
 // Only one in-world challenge (farm OR snow) runs at a time — starting one
 // exits the others.
@@ -340,9 +342,15 @@ export function triggerInteraction(interactable) {
   const openEncounter = useSession.getState().openEncounter;
 
   // Mills — the guide (id stays "sage"). Progress-aware lines, then marked "met".
+  // (The journey, 2026-10-13: Mills now talks the student through the
+  // progression — the island warm-ups, which gate is open next and how many
+  // trophies opens the one after. The old main-quest lines stay in
+  // mainQuest.js as a fallback.)
   if (interactable.id === "sage") {
-    const lines = sageDialogue(snap); // compute BEFORE marking met
+    const js = useJourney.getState().js;
+    const lines = js ? millsJourneyLines(js, progress.profile && progress.profile.name) : sageDialogue(snap);
     progress.setSageMet();
+    journeyTrack.millsTalks += 1;
     openDialogue({ speaker: "Mills", lines });
     return;
   }

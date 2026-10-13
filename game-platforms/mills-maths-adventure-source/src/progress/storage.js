@@ -13,6 +13,8 @@
  * ---------------------------------------------------------------------------
  */
 
+import { DEFAULT_JOURNEY } from "../data/journey.js";
+
 const STORAGE_KEY = "mills-maths-adventure:v1";
 
 // The shape we persist. Kept flat and JSON-friendly on purpose.
@@ -57,6 +59,13 @@ export const DEFAULT_PROGRESS = {
   sageMet: false, // the player has spoken to Sage at least once (main quest step 1)
   championClaimed: false, // the Island Champion reward has been claimed (final step)
   seenUnlocks: [], // unlock ids whose celebration banner has been dismissed
+
+  // --- The journey (2026-10-13) — the progression: training on Harbour
+  // Green, then each world's gate opening in turn (see data/journey.js). Only
+  // the story beats are saved here (training step, intros seen, gates
+  // celebrated); which gates are OPEN is always DERIVED from the warm-ups and
+  // trophies, so it can never drift from the real save.
+  journey: DEFAULT_JOURNEY,
 };
 
 export function loadProgress() {
@@ -65,7 +74,11 @@ export function loadProgress() {
     if (!raw) return null;
     const parsed = JSON.parse(raw);
     // Merge with defaults so new fields don't break old saves.
-    return { ...DEFAULT_PROGRESS, ...parsed, profile: { ...DEFAULT_PROGRESS.profile, ...parsed.profile } };
+    return {
+      ...DEFAULT_PROGRESS, ...parsed,
+      profile: { ...DEFAULT_PROGRESS.profile, ...parsed.profile },
+      journey: { ...DEFAULT_JOURNEY, ...(parsed.journey || {}) },
+    };
   } catch (err) {
     console.warn("Could not load saved progress:", err);
     return null;
@@ -93,6 +106,8 @@ export function saveProgress(state) {
       sageMet: state.sageMet,
       championClaimed: state.championClaimed,
       seenUnlocks: state.seenUnlocks,
+      // The journey (2026-10-13).
+      journey: state.journey,
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
   } catch (err) {

@@ -151,6 +151,55 @@ function stamp(g, text, x, y, color, rot = -0.12) {
   g.restore();
 }
 
+/**
+ * THE JOURNEY (2026-10-13): a world that isn't open yet — its board is
+ * washed out under a big brass padlock that says what opens it.
+ */
+function drawPadlock(g, cx, cy, s, color) {
+  g.save();
+  g.translate(cx, cy); g.scale(s, s);
+  g.lineWidth = 16; g.strokeStyle = "#9aa3ad"; g.lineCap = "round";
+  g.beginPath(); g.arc(0, -36, 38, Math.PI, 0); g.lineTo(38, 0); g.moveTo(-38, -36); g.lineTo(-38, 0); g.stroke();
+  rr(g, -62, -8, 124, 98, 18);
+  const gr = g.createLinearGradient(0, -8, 0, 90);
+  gr.addColorStop(0, "#f5cf4f"); gr.addColorStop(1, "#c8962a");
+  g.fillStyle = gr; g.fill();
+  g.lineWidth = 5; g.strokeStyle = "#8a6416"; g.stroke();
+  g.fillStyle = color || "#3b2a1d";
+  g.beginPath(); g.arc(0, 30, 13, 0, TAU); g.fill();
+  g.fillRect(-5, 30, 10, 30);
+  g.restore();
+}
+function paintLocked(g, P) {
+  if (!P.locked) return;
+  const top = 128;
+  g.fillStyle = "rgba(245, 241, 232, 0.82)";
+  g.fillRect(6, top, PW - 12, PH - top - 6);
+  drawPadlock(g, PW / 2, 360, 1.25, P.deep);
+  g.textAlign = "center"; g.textBaseline = "alphabetic";
+  g.font = `400 54px ${DISPLAY}`; g.fillStyle = P.deep;
+  g.fillText("Locked", PW / 2, 548);
+  const text = (P.lockText || "").replace(/ \(\d+\/\d+\)$/, "");
+  // Wrap the "what opens it" line over up to three lines.
+  g.font = `700 30px ${ROUNDED}`; g.fillStyle = "#2b2118";
+  const words = text.split(" ");
+  const lines = [];
+  let line = "";
+  for (const w of words) {
+    const t = line ? `${line} ${w}` : w;
+    if (g.measureText(t).width > PW - 120 && line) { lines.push(line); line = w; } else line = t;
+  }
+  if (line) lines.push(line);
+  lines.slice(0, 3).forEach((l, i) => g.fillText(l, PW / 2, 612 + i * 42));
+  if (P.lockNote) {
+    const y = 612 + Math.min(3, lines.length) * 42 + 46;
+    g.font = `800 34px ${ROUNDED}`;
+    const w = g.measureText(P.lockNote).width + 48;
+    rr(g, PW / 2 - w / 2, y - 38, w, 56, 28); g.fillStyle = P.color; g.fill();
+    g.fillStyle = "#ffffff"; g.fillText(P.lockNote, PW / 2, y);
+  }
+}
+
 // ---------------------------------------------------------------------------
 function paintTrophies(g, P) {
   headline(g, P, 238, (y) => medalChips(g, P.counts, y));
@@ -174,7 +223,8 @@ function paintTrophies(g, P) {
     g.fillText(r.soon ? "Coming soon" : r.best > 0 ? `Best ${r.pct}%` : "Not played yet", x + 84, y + 68);
   });
   footerBar(g, P, P.pct, "Overall");
-  if (P.visited === false) stamp(g, "Not visited yet", PW - 175, PH - 128, "rgba(90,90,90,0.55)", -0.06);
+  if (P.visited === false && !P.locked) stamp(g, "Not visited yet", PW - 175, PH - 128, "rgba(90,90,90,0.55)", -0.06);
+  paintLocked(g, P);
 }
 
 function paintIsland(g, P) {
@@ -197,7 +247,7 @@ function paintIsland(g, P) {
   g.font = `800 26px ${ROUNDED}`; g.fillStyle = "#2b2118"; g.fillText(`${P.coins} coins`, 252, 340);
 
   // The three friends.
-  g.font = `400 36px ${DISPLAY}`; g.fillStyle = P.deep; g.fillText("Island friends", 40, 418);
+  g.font = `400 36px ${DISPLAY}`; g.fillStyle = P.deep; g.fillText("Island warm-ups", 40, 418);
   P.friends.forEach((f, i) => {
     const y = 444 + i * 100;
     rr(g, 40, y, PW - 80, 86, 16); g.fillStyle = "rgba(255,255,255,0.8)"; g.fill();
@@ -235,7 +285,7 @@ function paintIsland(g, P) {
   g.textAlign = "center"; g.textBaseline = "alphabetic";
   g.font = `800 26px ${ROUNDED}`;
   g.fillStyle = P.allPassed ? "#2a8a3e" : "#8a5a08";
-  g.fillText(P.allPassed ? "✓ Pip, Fern and Alby all passed!" : `Pass Pip, Fern and Alby at ${P.passMark}% — ${P.passedFriends} of 3 so far`, PW / 2, PH - 40);
+  g.fillText(P.allPassed ? "✓ All three passed — the igloo gate is open!" : `Pass all three warm-ups to open the igloo gate — ${P.passedFriends} of 3`, PW / 2, PH - 40);
 }
 
 function drawKey(g, x, y, s, done, color) {
@@ -300,8 +350,9 @@ function paintPlayground(g, P) {
   const line = P.boss && P.boss.done ? `Beaten! Well done, Champion.` : `${P.boss ? P.boss.name : "The Head Teacher"} — collect all ${P.totalKeys} keys first`;
   fitText(g, line, PW - 310, `700 {s}px ${ROUNDED}`, 24);
   g.fillText(line, 250, y + 124);
-  if (P.visited === false) stamp(g, "Not visited yet", PW - 175, PH - 128, "rgba(90,90,90,0.55)", -0.06);
+  if (P.visited === false && !P.locked) stamp(g, "Not visited yet", PW - 175, PH - 128, "rgba(90,90,90,0.55)", -0.06);
   footerBar(g, P, Math.round(((P.keys + (P.boss && P.boss.done ? 1 : 0)) / (P.totalKeys + 1)) * 100), "Keys + the cup");
+  paintLocked(g, P);
 }
 
 /** Paint one board into `cv` (a canvas PW × PH). */

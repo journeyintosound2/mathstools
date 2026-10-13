@@ -17,6 +17,7 @@
 import { REGIONS } from "../regions.js";
 import { INTERACTABLES } from "../interactables.js";
 import { achievementsSummary } from "../island/achievements.js";
+import { portalLock } from "../journey.js";
 import {
   ISLAND_SPAWN, ISLAND_AREAS, ISLAND_MAP_BOARD, GATES as ISLAND_GATES, ACHIEVEMENT_WALL, PLAZA, FROSTY_PEAK, EMBER_PEAK, LIGHTHOUSE,
 } from "../island/islandLayout.js";
@@ -127,15 +128,20 @@ const posOf = (id) => {
   return i ? [i.position[0], i.position[1]] : null;
 };
 
-/** The world's gates (from its portals): where they are + where they lead. */
-function gatePois(regionId) {
+/**
+ * The world's gates (from its portals): where they are + where they lead.
+ * On Number Island a gate the journey hasn't opened yet shows 🔒 and what
+ * opens it (ctx.journey = the journey state, 2026-10-13).
+ */
+function gatePois(regionId, ctx = {}) {
   const r = REGIONS[regionId];
   return (r?.portals || []).map((p) => {
     const dest = REGIONS[p.target];
+    const lock = regionId === "island-1" && ctx.journey ? portalLock(ctx.journey, p.id) : null;
     return {
-      id: `gate-${p.id}`, kind: "gate", icon: "🌀", name: p.target === "cabin" ? "The Lodge (go inside)" : `Gate to ${p.label}`,
-      sub: dest ? (p.target === "island-1" ? "Back to the hub" : dest.name) : "", at: [p.position[0], p.position[1]],
-      target: [p.position[0], p.position[1]], arrive: 3.2,
+      id: `gate-${p.id}`, kind: "gate", icon: lock ? "🔒" : "🌀", name: p.target === "cabin" ? "The Lodge (go inside)" : `Gate to ${p.label}`,
+      sub: lock ? `Locked — ${lock.note}` : dest ? (p.target === "island-1" ? "Back to the hub" : dest.name) : "", at: [p.position[0], p.position[1]],
+      target: [p.position[0], p.position[1]], arrive: 3.2, locked: Boolean(lock),
     };
   });
 }
@@ -216,7 +222,7 @@ export function regionMapPois(regionId, ctx = {}) {
       const at = posOf(id);
       if (!at || !f) return null;
       return {
-        id: `p-${id}`, kind: "friend", icon: f.icon, name: ix(id).name, sub: `${f.topic} · best ${f.best}%`,
+        id: `p-${id}`, kind: "friend", icon: f.icon, name: ix(id).name, sub: `${f.topic} warm-up${f.passed ? " · passed ✓" : ""}`,
         at, target: at, medal: f.passed ? "pass" : null, pct: f.best,
       };
     };
@@ -241,7 +247,7 @@ export function regionMapPois(regionId, ctx = {}) {
     });
     add(person("schoolyard-sign", "guide", "👋", "Mills", "Your guide"));
   }
-  out.push(...gatePois(regionId));
+  out.push(...gatePois(regionId, ctx));
   return out;
 }
 

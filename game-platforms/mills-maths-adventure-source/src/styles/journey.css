@@ -1,0 +1,621 @@
+/* ===================================================================
+   THE JOURNEY (2026-10-13) — the training coach, the welcome / world
+   cards, the "gate open!" celebration, the journey tracker, the Quest
+   Log's journey page, the trophy-grid strip and the first-person chip.
+   Same family as the title screen + Achievements Wall: deep navy glass,
+   a warm gold accent, MMA Display titles and MMA Rounded text.
+   =================================================================== */
+
+:root {
+  --j-navy: #173d6a;
+  --j-glass: rgba(16, 32, 52, 0.86);
+  --j-gold: #ffcf4a;
+  --j-gold-deep: #c8962a;
+  --j-paper: #fffaf0;
+  --j-ink: #22303f;
+  --j-good: #3fb950;
+}
+
+/* ---- The live coach step ------------------------------------------- */
+.coach {
+  position: relative;
+  z-index: 26; /* over the world's name badges (≤ 24), under challenge cards (28) */
+  pointer-events: auto;
+  color: #fff;
+  background: var(--j-glass);
+  border-radius: 18px;
+  padding: 10px 14px 10px 16px;
+  box-shadow: 0 0 0 2px rgba(255, 207, 74, 0.55), 0 12px 30px rgba(8, 20, 36, 0.35);
+  backdrop-filter: blur(8px);
+  font-family: "MMA Rounded", var(--font);
+  animation: coach-in 0.35s cubic-bezier(0.2, 1.2, 0.4, 1) both;
+  overflow: hidden;
+}
+.coach::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 6px;
+  background: var(--j-gold);
+}
+.coach.is-tour::before { background: #6fd3ff; }
+.coach.is-side { align-self: flex-start; width: min(360px, 42vw); }
+.coach.is-compact { width: min(460px, calc(100vw - 24px)); padding: 8px 12px 8px 14px; border-radius: 16px; }
+@keyframes coach-in { from { opacity: 0; transform: translateY(-8px) scale(0.97); } to { opacity: 1; transform: none; } }
+
+.coach-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.coach-kicker {
+  font: 800 0.72rem/1.2 "MMA Rounded", var(--font);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--j-gold);
+}
+.coach.is-tour .coach-kicker { color: #9fe3ff; }
+.coach-kicker b { color: #fff; margin-left: 4px; letter-spacing: 0.02em; }
+.coach-skip-all, .coach-skip-step {
+  border: 0;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.72);
+  font: 700 0.78rem/1.2 "MMA Rounded", var(--font);
+  padding: 4px 2px;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.coach-skip-all:hover, .coach-skip-step:hover { color: #fff; }
+.coach-main { display: flex; align-items: center; gap: 12px; margin-top: 4px; }
+.coach-icon {
+  flex: none;
+  width: 46px; height: 46px;
+  border-radius: 14px;
+  display: grid; place-items: center;
+  font-size: 1.6rem;
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.14);
+}
+.coach-text { min-width: 0; }
+.coach-title { font: 400 1.35rem/1.1 "MMA Display", var(--font); letter-spacing: 0.01em; }
+.coach-do { margin-top: 3px; font: 600 0.98rem/1.32 "MMA Rounded", var(--font); color: #e9f1fb; }
+.coach-meter {
+  margin-top: 8px;
+  height: 9px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.16);
+  overflow: hidden;
+}
+.coach-meter span {
+  display: block;
+  height: 100%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--j-gold), #ffe58f);
+  transition: width 0.25s ease;
+}
+.coach.is-tour .coach-meter span { background: linear-gradient(90deg, #6fd3ff, #c8f1ff); }
+.coach-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 7px; min-height: 12px; }
+.coach-dots { display: flex; gap: 5px; }
+.coach-dots span {
+  width: 9px; height: 9px; border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+}
+.coach-dots span.done { background: var(--j-gold); }
+.coach-dots span.now { background: #fff; box-shadow: 0 0 0 3px rgba(255, 207, 74, 0.45); }
+.coach-flash {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, rgba(48, 170, 80, 0.96), rgba(28, 130, 60, 0.96));
+  color: #fff;
+  font: 400 1.45rem/1.1 "MMA Display", var(--font);
+  z-index: 2;
+  animation: coach-flash 1.6s ease both;
+  pointer-events: none;
+}
+.coach-flash-only { min-height: 56px; }
+@keyframes coach-flash {
+  0% { opacity: 0; transform: scale(0.96); }
+  12% { opacity: 1; transform: scale(1.02); }
+  22% { transform: scale(1); }
+  80% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* ---- The centred cards (welcome / training complete / a new world) -- */
+.jcard-overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: calc(16px + var(--safe-t, 0px)) calc(16px + var(--safe-r, 0px)) calc(16px + var(--safe-b, 0px)) calc(16px + var(--safe-l, 0px));
+  background: radial-gradient(ellipse at center, rgba(12, 28, 48, 0.28), rgba(12, 28, 48, 0.55));
+  z-index: 900; /* over the HUD, under encounter modals (1000) */
+  pointer-events: auto;
+  animation: wall-in 0.35s ease both;
+}
+.jcard-wrap {
+  position: relative;
+  width: min(480px, 100%);
+  max-height: calc(100vh - 32px);
+  max-height: calc(100dvh - 32px - var(--safe-t, 0px) - var(--safe-b, 0px));
+  display: flex;
+  flex-direction: column;
+  padding-top: 34px; /* room for the badge that sits over the card's top edge */
+}
+.jcard {
+  position: relative;
+  width: 100%;
+  max-height: 100%;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--j-paper);
+  color: var(--j-ink);
+  border-radius: 26px;
+  padding: 52px 28px 22px;
+  text-align: center;
+  box-shadow: 0 0 0 4px var(--j-gold), 0 24px 60px rgba(8, 20, 36, 0.45);
+  font-family: "MMA Rounded", var(--font);
+  animation: jcard-pop 0.45s cubic-bezier(0.2, 1.3, 0.4, 1) both;
+}
+@keyframes jbadge-pop { from { opacity: 0; transform: translateX(-50%) scale(0.5); } to { opacity: 1; transform: translateX(-50%); } }
+@keyframes jcard-pop { from { opacity: 0; transform: translateY(18px) scale(0.94); } to { opacity: 1; transform: none; } }
+.jcard-badge {
+  position: absolute;
+  top: 0; left: 50%;
+  z-index: 2;
+  transform: translateX(-50%);
+  animation: jbadge-pop 0.5s 0.1s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+  width: 76px; height: 76px;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  font-size: 2.3rem;
+  background: linear-gradient(180deg, #2a5f9e, var(--j-navy));
+  box-shadow: 0 0 0 4px var(--j-gold), 0 10px 22px rgba(8, 20, 36, 0.35);
+}
+.jcard-kicker {
+  font: 800 0.76rem/1.2 "MMA Rounded", var(--font);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--j-gold-deep);
+}
+.jcard-title {
+  margin: 4px 0 2px;
+  font: 400 1.9rem/1.1 "MMA Display", var(--font);
+  color: var(--j-navy);
+}
+.jcard-reward {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 3px 12px;
+  border-radius: 99px;
+  background: #fff1c2;
+  color: #7a5208;
+  font-weight: 800;
+  font-size: 0.92rem;
+}
+.jcard-body { margin-top: 10px; }
+.jcard-body p { margin: 0 0 10px; font-size: 1.04rem; line-height: 1.45; font-weight: 500; }
+.jcard-actions { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px; margin-top: 14px; }
+
+.jbtn {
+  border: 0;
+  border-radius: 999px;
+  padding: 11px 22px;
+  min-height: 46px;
+  font: 800 1.05rem/1.2 "MMA Rounded", var(--font);
+  cursor: pointer;
+  transition: transform 0.12s ease, filter 0.12s ease;
+}
+.jbtn:active { transform: translateY(2px); }
+.jbtn:focus-visible { outline: 3px solid var(--j-navy); outline-offset: 3px; }
+.jbtn-go {
+  background: linear-gradient(180deg, #ffd960, #f5b724);
+  color: #4a3000;
+  box-shadow: 0 4px 0 #b97f0c, 0 8px 18px rgba(185, 127, 12, 0.35);
+}
+.jbtn-go:hover { filter: brightness(1.05); }
+.jbtn-quiet { background: #e8eef6; color: var(--j-navy); }
+.jbtn-quiet:hover { background: #dbe5f1; }
+.jbtn-sm { padding: 6px 14px; min-height: 36px; font-size: 0.9rem; }
+.jcard-link {
+  border: 0; background: transparent; color: #5b6b7d;
+  font: 700 0.92rem/1.2 "MMA Rounded", var(--font);
+  text-decoration: underline; text-underline-offset: 3px; cursor: pointer; padding: 8px;
+}
+
+/* The path of worlds on the welcome card. */
+.jcourse {
+  list-style: none;
+  margin: 4px 0 2px;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 4px;
+}
+.jcourse-stop {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 62px;
+  font-size: 1.5rem;
+}
+.jcourse-stop small { font: 700 0.66rem/1.15 "MMA Rounded", var(--font); color: #5b6b7d; margin-top: 2px; }
+.jcourse-stop + .jcourse-stop::before {
+  content: "";
+  position: absolute;
+  top: 16px; right: calc(50% + 18px);
+  width: 30px;
+  border-top: 3px dotted #c9a24a;
+}
+.jcourse-stop.is-start span { filter: none; }
+
+/* The island friends on the "training complete" card. */
+.jcard-friends { list-style: none; margin: 4px 0 0; padding: 0; display: grid; gap: 8px; text-align: left; }
+.jcard-friends li {
+  display: flex; align-items: center; gap: 12px;
+  padding: 8px 12px;
+  border-radius: 14px;
+  background: #f1f5fa;
+}
+.jcard-friends li.done { background: #e4f6e8; }
+.jcard-friend-icon { font-size: 1.6rem; width: 34px; text-align: center; }
+.jcard-friends li.done .jcard-friend-icon { color: #2a8a3e; font-weight: 900; }
+.jcard-friends b { font-size: 1.05rem; color: var(--j-navy); }
+.jcard-friends small { display: block; font-weight: 600; color: #5b6b7d; font-size: 0.82rem; line-height: 1.25; }
+.jcard-friends small.jcard-where { color: #8a6416; }
+
+/* Bronze / silver / gold. */
+.jmedals { display: flex; justify-content: center; gap: 14px; margin: 2px 0 4px; font-weight: 800; font-size: 0.95rem; color: #4b5563; }
+.jmedals span { display: inline-flex; align-items: center; gap: 4px; }
+.jmedals i { font-style: normal; font-size: 1.25rem; }
+
+/* ---- "Gate open!" ----------------------------------------------------- */
+.jcelebrate-overlay .jcard-wrap { padding-top: 0; }
+.jcelebrate-overlay { z-index: 950; background: radial-gradient(ellipse at center, rgba(255, 220, 120, 0.25), rgba(12, 28, 48, 0.6)); overflow: hidden; }
+.jcelebrate { padding-top: 66px; box-shadow: 0 0 0 4px var(--world, var(--j-gold)), 0 0 0 9px rgba(255, 207, 74, 0.55), 0 30px 70px rgba(8, 20, 36, 0.5); }
+.jcelebrate-ribbon {
+  position: absolute;
+  top: 18px; left: 50%;
+  transform: translateX(-50%) rotate(-2deg);
+  padding: 4px 20px;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #ffd960, #f5b724);
+  color: #4a3000;
+  font: 400 1.05rem/1.2 "MMA Display", var(--font);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  box-shadow: 0 4px 0 #b97f0c;
+}
+.jcelebrate-icon {
+  position: relative;
+  width: 112px; height: 112px;
+  margin: 2px auto 6px;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  background: radial-gradient(circle at 50% 40%, #fff, #f3ead2);
+  box-shadow: inset 0 0 0 5px var(--world, var(--j-gold)), 0 10px 26px rgba(0, 0, 0, 0.18);
+}
+.jcelebrate-world { font-size: 3.6rem; animation: jworld-in 0.6s 0.5s cubic-bezier(0.2, 1.4, 0.4, 1) both; }
+.jcelebrate-lock {
+  position: absolute;
+  top: -6px; right: -6px;
+  font-size: 1.9rem;
+  animation: jlock-off 1.1s 0.2s ease both;
+}
+@keyframes jworld-in { from { opacity: 0; transform: scale(0.3) rotate(-20deg); } to { opacity: 1; transform: none; } }
+@keyframes jlock-off { 0% { transform: translateY(0) rotate(0); } 40% { transform: translateY(-6px) rotate(-12deg); } 100% { transform: translate(14px, -10px) rotate(18deg); opacity: 0.85; } }
+.jcelebrate-topic { font-weight: 800 !important; color: #5b6b7d; font-size: 0.95rem !important; }
+.jconfetti { position: absolute; inset: 0; pointer-events: none; }
+.jconfetti i {
+  position: absolute;
+  top: -20px;
+  width: 10px; height: 16px;
+  border-radius: 2px;
+  animation: jconfetti 2.8s ease-in both;
+}
+@keyframes jconfetti {
+  0% { transform: translateY(0) rotate(0); opacity: 1; }
+  100% { transform: translateY(110vh) rotate(540deg); opacity: 0.9; }
+}
+
+/* ---- The journey tracker (HUD, computers + tablets) ------------------- */
+.jtrack {
+  position: relative;
+  z-index: 26;
+  align-self: flex-start;
+  width: min(340px, 42vw);
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  pointer-events: auto;
+  border-radius: 16px;
+  background: var(--j-glass);
+  color: #fff;
+  box-shadow: 0 0 0 2px rgba(255, 207, 74, 0.45), 0 10px 24px rgba(8, 20, 36, 0.3);
+  backdrop-filter: blur(8px);
+  overflow: hidden;
+}
+.jtrack-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 8px 12px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  font-family: "MMA Rounded", var(--font);
+}
+.jtrack-body:hover { background: rgba(255, 255, 255, 0.06); }
+.jtrack-kicker { font: 800 0.66rem/1.2 "MMA Rounded", var(--font); letter-spacing: 0.1em; text-transform: uppercase; color: var(--j-gold); }
+.jtrack-title { font: 400 1.12rem/1.15 "MMA Display", var(--font); }
+.jtrack-text, .jtrack-sub { font-weight: 600; font-size: 0.86rem; line-height: 1.3; color: #dbe7f5; }
+.jtrack-sub { color: #b9c9dc; font-size: 0.8rem; }
+.jtrack-progress { display: flex; align-items: center; gap: 8px; }
+.jtrack-progress b { font-size: 0.9rem; }
+.jtrack-bar { flex: 1; height: 10px; border-radius: 99px; background: rgba(255, 255, 255, 0.16); overflow: hidden; }
+.jtrack-bar span { display: block; height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--j-gold), #ffe58f); transition: width 0.4s ease; }
+.jtrack-friends { display: flex; align-items: center; gap: 8px; font-size: 1.3rem; }
+.jtrack-friends span { position: relative; opacity: 0.45; filter: grayscale(0.6); }
+.jtrack-friends span.next { opacity: 1; filter: none; animation: jbob 1.4s ease-in-out infinite; }
+.jtrack-friends span.done { opacity: 1; filter: none; }
+.jtrack-friends span i {
+  position: absolute; right: -6px; bottom: -4px;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--j-good); color: #fff;
+  font: 900 0.62rem/16px "MMA Rounded", var(--font); text-align: center; font-style: normal;
+}
+.jtrack-friends b { margin-left: auto; font-size: 0.9rem; }
+@keyframes jbob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+.jtrack-guide {
+  flex: none;
+  width: 52px;
+  border: 0;
+  border-left: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 207, 74, 0.16);
+  color: #fff;
+  font-size: 1.35rem;
+  cursor: pointer;
+}
+.jtrack-guide:hover { background: rgba(255, 207, 74, 0.32); }
+.jtrack.k-travel { box-shadow: 0 0 0 2px var(--j-gold), 0 0 22px rgba(255, 207, 74, 0.45), 0 10px 24px rgba(8, 20, 36, 0.3); animation: jtrack-glow 2.2s ease-in-out infinite; }
+@keyframes jtrack-glow { 50% { box-shadow: 0 0 0 2px var(--j-gold), 0 0 32px rgba(255, 207, 74, 0.7), 0 10px 24px rgba(8, 20, 36, 0.3); } }
+
+/* Phones: the goal as a chip inside the stats pill. */
+.jmini {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-left: 2px;
+  padding: 2px 8px;
+  min-height: 28px;
+  border: 0;
+  border-radius: 99px;
+  background: var(--j-navy);
+  color: #fff;
+  font: 800 0.8rem/1 "MMA Rounded", var(--font);
+  cursor: pointer;
+  pointer-events: auto;
+}
+.jmini.k-travel { background: linear-gradient(180deg, #ffd960, #f5b724); color: #4a3000; animation: jmini-glow 1.6s ease-in-out infinite; }
+@keyframes jmini-glow { 50% { box-shadow: 0 0 0 4px rgba(255, 207, 74, 0.45); } }
+/* Room for the journey chip in the phone stats pill. */
+.hud .hud-stats.is-compact .xp-bar { width: clamp(52px, 17vw, 120px); }
+
+/* ---- The Quest Log's journey page ------------------------------------ */
+.jpanel { margin-bottom: 16px; }
+.jpath { list-style: none; margin: 6px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.jstop {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  border-radius: 14px;
+  background: #f4f7fb;
+  border: 2px solid transparent;
+}
+.jstop-icon { width: 34px; text-align: center; font-size: 1.45rem; flex: none; }
+.jstop-text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.jstop-text b { font-size: 1rem; color: var(--j-navy); }
+.jstop-text small { color: #5b6b7d; font-weight: 600; font-size: 0.82rem; line-height: 1.3; }
+.jstop-friends { display: flex; flex-wrap: wrap; gap: 10px; }
+.jstop-friends span.done { color: #2a8a3e; font-weight: 800; }
+.jstop-count { font-weight: 800; color: var(--j-navy); }
+.jstop-bar { margin-top: 5px; height: 7px; border-radius: 99px; background: #dfe6ee; overflow: hidden; }
+.jstop-bar span { display: block; height: 100%; background: var(--world, var(--j-gold)); border-radius: 99px; }
+.jstop.done { background: #ecf8ef; }
+.jstop.done .jstop-text b::after { content: " ✓"; color: #2a8a3e; }
+.jstop.now { background: #fff7dc; border-color: var(--j-gold); }
+.jstop.locked { background: #f1f2f4; }
+.jstop.locked .jstop-text b { color: #7b8794; }
+.jstop-btn {
+  flex: none;
+  border: 0; border-radius: 99px;
+  padding: 6px 12px;
+  background: #e8eef6; color: var(--j-navy);
+  font: 800 0.82rem/1.2 "MMA Rounded", var(--font);
+  cursor: pointer;
+}
+.jpanel-goal {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  margin-top: 8px; padding: 10px 12px;
+  border-radius: 14px;
+  background: var(--j-navy); color: #fff;
+  font-weight: 600; font-size: 0.9rem; line-height: 1.35;
+}
+
+/* ---- The trophy-grid strip ------------------------------------------- */
+.jstrip {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 8px 0 12px;
+}
+.jstrip-how, .jstrip-goal {
+  border-radius: 14px;
+  padding: 10px 12px;
+  font-size: 0.86rem;
+  line-height: 1.35;
+}
+.jstrip-how { background: #f6f1e4; color: #4a3a22; display: flex; flex-direction: column; gap: 4px; }
+.jstrip-how b { color: #7a5208; }
+.jstrip-how .jmedals { justify-content: flex-start; font-size: 0.86rem; }
+.jstrip-goal { background: var(--j-navy); color: #fff; display: flex; flex-direction: column; justify-content: space-between; gap: 8px; }
+.jstrip.is-open .jstrip-goal { background: #1f7a3c; }
+.jstrip-goal-text b { color: var(--j-gold); }
+.jstrip.is-open .jstrip-goal-text b { color: #fff; }
+.jstrip-slots { display: flex; align-items: center; gap: 4px; }
+.jstrip-slots span {
+  width: 24px; height: 24px; border-radius: 7px;
+  border: 2px dashed rgba(255, 255, 255, 0.35);
+  display: grid; place-items: center; font-size: 0.85rem;
+}
+.jstrip-slots span.on { border: 2px solid var(--j-gold); background: rgba(255, 207, 74, 0.2); }
+.jstrip-slots b { margin-left: auto; font-size: 0.95rem; }
+@media (max-width: 560px) {
+  .jstrip { grid-template-columns: 1fr; }
+  .jstrip-slots span { width: 20px; height: 20px; }
+}
+
+/* ---- First-person view chip ------------------------------------------ */
+.fpv-chip {
+  position: absolute;
+  left: 50%;
+  bottom: 70px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 8px 7px 14px;
+  border-radius: 999px;
+  background: var(--j-glass);
+  color: #fff;
+  font: 600 0.92rem/1.2 "MMA Rounded", var(--font);
+  box-shadow: 0 0 0 2px rgba(255, 207, 74, 0.5), 0 10px 24px rgba(8, 20, 36, 0.3);
+  pointer-events: auto;
+  white-space: nowrap;
+  z-index: 8;
+}
+.fpv-chip b { color: var(--j-gold); }
+.fpv-chip-text { display: flex; align-items: baseline; gap: 10px; min-width: 0; }
+.fpv-chip-eye { font-size: 1.2rem; }
+.fpv-chip-x {
+  width: 32px; height: 32px; border-radius: 50%;
+  border: 0; background: rgba(255, 255, 255, 0.14); color: #fff;
+  font-weight: 900; cursor: pointer;
+}
+
+/* ---- Touch: the first-person (👁️) button ------------------------------ */
+.touch-btn.touch-btn-eye { width: 58px; height: 58px; font-size: 1.5rem; background: rgba(255, 255, 255, 0.85); }
+.touch-btn.touch-btn-eye.is-on { background: var(--j-gold); border-color: #fff; box-shadow: 0 0 0 4px rgba(255, 207, 74, 0.4), var(--shadow); }
+
+/* ---- The Achievements Wall + the map, while training ----------------- */
+.wall-coach {
+  position: absolute;
+  top: 16px; left: 16px;
+  max-width: min(420px, calc(100vw - 150px));
+  display: flex; flex-direction: column; gap: 5px;
+  padding: 10px 14px 10px 16px;
+  border-radius: 16px;
+  background: var(--j-glass);
+  color: #fff;
+  font: 600 0.95rem/1.35 "MMA Rounded", var(--font);
+  box-shadow: 0 0 0 2px rgba(255, 207, 74, 0.55), 0 12px 30px rgba(8, 20, 36, 0.35);
+  pointer-events: none;
+  animation: coach-in 0.4s 0.4s both;
+}
+.wall-coach-kicker { font: 800 0.72rem/1.2 "MMA Rounded", var(--font); letter-spacing: 0.08em; text-transform: uppercase; color: var(--j-gold); }
+.wall-coach-keys { color: #ffe58f; font-weight: 700; }
+
+.map-coach {
+  position: absolute;
+  top: 12px; left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+  max-width: calc(100% - 24px);
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: var(--j-glass);
+  color: #fff;
+  font: 700 0.95rem/1.3 "MMA Rounded", var(--font);
+  box-shadow: 0 0 0 2px rgba(255, 207, 74, 0.6), 0 8px 18px rgba(8, 20, 36, 0.3);
+  pointer-events: none;
+  text-align: center;
+}
+.map-pin.coach-pick .map-pin-dot { animation: coach-pick 1.1s ease-in-out infinite; }
+@keyframes coach-pick {
+  0%, 100% { box-shadow: 0 0 0 3px var(--j-gold), 0 0 0 0 rgba(255, 207, 74, 0.7); }
+  50% { box-shadow: 0 0 0 3px var(--j-gold), 0 0 0 12px rgba(255, 207, 74, 0); }
+}
+.map-pin.locked .map-pin-dot { filter: grayscale(0.7); opacity: 0.85; }
+
+/* A locked gate's sign: "🔒 Magma Multiples" + what opens it. */
+.unlock-sign.locked { background: #4a5462; text-align: center; }
+.unlock-sign-note { display: block; font-size: 0.68rem; font-weight: 700; opacity: 0.92; margin-top: 1px; }
+
+/* The on-screen controls step aside under the journey's cards. */
+.game-shell:has(.jcard-overlay) .touch-layer { display: none; }
+
+/* ---- Phones + short screens ------------------------------------------ */
+@media (max-width: 700px), (max-height: 500px) {
+  .coach-title { font-size: 1.12rem; }
+  .coach-do { font-size: 0.88rem; }
+  .coach-icon { width: 38px; height: 38px; font-size: 1.3rem; border-radius: 12px; }
+  .coach-main { gap: 10px; }
+  .coach-meter { margin-top: 6px; height: 7px; }
+  .coach-foot { margin-top: 5px; }
+  .jcard { padding: 46px 18px 16px; border-radius: 22px; }
+  .jcard-title { font-size: 1.5rem; }
+  .jcard-body p { font-size: 0.95rem; margin-bottom: 8px; }
+  .jcourse-stop { width: 48px; font-size: 1.25rem; }
+  .jcourse-stop + .jcourse-stop::before { width: 20px; right: calc(50% + 14px); }
+  .fpv-chip { bottom: calc(14px + var(--safe-b, 0px)); font-size: 0.8rem; white-space: normal; width: max-content; max-width: calc(100vw - 180px); border-radius: 18px; }
+  .fpv-chip-text { flex-direction: column; gap: 1px; line-height: 1.25; }
+  .wall-coach { font-size: 0.85rem; max-width: calc(100vw - 140px); }
+}
+@media (max-height: 700px) {
+  .jcard-friends { gap: 6px; }
+  .jcard-friends li { padding: 6px 10px; }
+  .jcard-friends small { display: inline; margin-left: 6px; }
+  .jcard-friends small.jcard-where { display: block; margin-left: 0; }
+}
+@media (max-height: 460px) {
+  .jcard-wrap { padding-top: 28px; }
+  .jcard { padding-top: 40px; }
+  .jcard-badge { width: 56px; height: 56px; font-size: 1.7rem; }
+  .jcard-body p { font-size: 0.9rem; line-height: 1.35; }
+  .jcourse { display: none; }
+  .coach-dots { display: none; }
+  .coach.is-compact { padding: 6px 10px 6px 12px; }
+  .coach.is-compact .coach-icon { display: none; }
+  .touch-btn.touch-btn-eye { width: 50px; height: 50px; font-size: 1.3rem; }
+}
+/* While the wall view is up, the HUD (and so the coach) steps aside. */
+body.wall-view .fpv-chip { display: none; }
+
+/* A teacher's task in a world that isn't open yet (no override — Jeff). */
+.hud-compass-lock { font: 600 0.78rem/1.25 "MMA Rounded", var(--font); color: #ffe58f; max-width: 320px; white-space: normal; }
+
+/* The top-centre stack (task compass, waypoint chip and — on phones — the
+   coach) sits over the world's floating name badges (z ≤ 24), under the
+   challenge cards (28). */
+.hud-compass-stack { z-index: 26; }
+
+/* Computers + tablets: the top-centre chips (waypoint, teacher task) used to
+   sit on top of the HUD's button row on anything narrower than ~1600 px. The
+   journey sets waypoints often, so they now tuck in UNDER the buttons, on the
+   right (phones keep their centred spot under the top row). */
+@media (min-width: 701px) and (min-height: 501px) {
+  .hud > .hud-compass-stack {
+    top: calc(70px + var(--safe-t, 0px));
+    left: auto;
+    right: calc(16px + var(--safe-r, 0px));
+    transform: none;
+    align-items: flex-end;
+  }
+}

@@ -6,6 +6,8 @@ import { useProgress } from "../progress/store.js";
 import { isFarmTaskDone } from "../cloud/farmCompletion.js";
 import { planRoute, compassAngle, targetDistance } from "../data/taskCompass.js";
 import { Bi } from "../i18n/i18n.jsx";
+import { useJourney, lockForPortal } from "../game/journeyStore.js";
+import { REGIONS } from "../data/regions.js";
 
 const ARRIVE_RADIUS = 3.2; // metres — show "You're here" when this close in-region
 
@@ -55,7 +57,14 @@ export default function TaskCompass() {
     return () => cancelAnimationFrame(raf);
   }, [route]);
 
+  // The journey (2026-10-13, no teacher override): a task in a world that
+  // isn't open yet says so — the student opens it the usual way.
+  useJourney((s) => s.lockSig);
   if (!plan) return null;
+  const gate = !plan.inRegion && currentRegionId === "island-1"
+    ? (REGIONS["island-1"].portals || []).find((p) => p.position[0] === plan.waypoint.pos[0] && p.position[1] === plan.waypoint.pos[1])
+    : null;
+  const lock = gate ? lockForPortal(gate.id) : null;
   const label = plan.inRegion ? plan.name : (plan.waypoint.label || "the portal");
   const lead = plan.inRegion ? "Go to" : "Head to";
 
@@ -67,8 +76,9 @@ export default function TaskCompass() {
         </svg>
       </div>
       <div className="hud-compass-text">
-        <div className="hud-compass-label"><Bi>{lead}</Bi> {label}</div>
+        <div className="hud-compass-label">{lock ? <>🔒 {label} — <Bi>your teacher's task waits there</Bi></> : <><Bi>{lead}</Bi> {label}</>}</div>
         <div className="hud-compass-dist" ref={distRef}></div>
+        {lock && <div className="hud-compass-lock">{lock.text}</div>}
       </div>
     </div>
   );

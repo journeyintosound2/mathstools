@@ -11,6 +11,7 @@ import { WORLD_LABELS } from "../data/worldLabels.js";
 import { WORLD_LANDMARKS } from "../data/worldLandmarks.js";
 import { getUnlockStates, isUnlockedById } from "../systems/unlockEngine.js";
 import { resolveStudentGuidance, mainQuestSnapshot } from "../data/mainQuest.js";
+import { useJourney, currentCoach } from "./journeyStore.js";
 import { getInteractable } from "../data/interactables.js";
 import { PLATEAU, STAIRS, getColliders } from "../data/worldColliders.js";
 import { getBoundaryColliders } from "../data/worldBoundaries.js";
@@ -598,7 +599,18 @@ export function GuidanceMarker() {
     }),
     activeMission
   );
-  const target = guide.targetId ? getInteractable(guide.targetId) : null;
+  // The journey (2026-10-13): unless a teacher's task is steering, the
+  // marker floats over the journey's next stop — Mills during the
+  // training's "meet Mills" step, then the next island friend to pass.
+  const journey = useProgress((s) => s.journey);
+  const js = useJourney((s) => s.js);
+  let targetId = guide.source === "mission" ? guide.targetId : null;
+  if (!targetId && js) {
+    const cc = currentCoach({ journey }, "island-1");
+    if (cc && cc.key === "training:mills") targetId = "sage";
+    else if (!js.trainingActive && js.goal.kind === "friends") targetId = js.goal.friendId;
+  }
+  const target = targetId ? getInteractable(targetId) : null;
   if (!target || modalOpen) return null;
   const [x, z] = target.position;
 

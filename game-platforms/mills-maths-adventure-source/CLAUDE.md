@@ -213,6 +213,16 @@
 > screens (top of this file). See "DONE (2026-10-11) — PHONE + iPad".
 > **619 → 624 checks; vite build clean.**
 >
+> **NEW (built 2026-10-13, staged for deploy): THE JOURNEY — the worlds open
+> in order.** First visit = an 8-step training on Harbour Green (walk, look,
+> run, jump, first-person view, Mills, the Achievements Wall, the map); Pip,
+> Fern + Alby's warm-ups open the igloo; then 7 bronze-or-better trophies in
+> each world open the next (snow → magma → farm → jungle → Playground).
+> Locked gates are drawn shut + solid; "gate open!" celebrations; a journey
+> tracker + Quest Log page; Snowball Sums gets a guided tour; old saves keep
+> what they reached; no teacher override. See "DONE (2026-10-13) — THE
+> JOURNEY". **624 → 635 checks; vite build clean.**
+>
 > **NEXT UP options:** live visual pass + deploy of the snow world + cabin ·
 > teacher glbs for the six placeholder snow/cabin hosts (add each
 > characterId to characterModels.js) · a snow/cabin cloud-completion path
@@ -221,6 +231,118 @@
 > interactive plot-a-point input mode (tap the Cartesian grid) · Stage 5
 > depth (still only 2 sample skills) · more Stage 4 topics (Area extension)
 > · a DevPanel gallery to eyeball every new diagram/chart at once.
+
+## DONE (2026-10-13) — THE JOURNEY: worlds open in order, Harbour Green training, world tours
+Jeff's brief: the whole map was open with no progression. He wanted a
+first-visit TRAINING (controls, first-person view, the Achievements Wall),
+then Pip / Fern / Alby's easy warm-ups to open the first portal, the portals
+in increasing difficulty, a Snowball Sums intro to the trophy stand + the
+map, and "7 trophies at bronze" to open each next portal. Jeff's answers to
+the design questions: **Fraction Farm goes after the volcano**; **7 of 10 at
+bronze or better**; **no teacher override** (a task in a locked world
+waits); **keep what they've reached** for old saves. **624 → 635 checks
+(JY1–JY11 in `src/dev/journeyChecks.js`), all passing; vite build clean.**
+NOT yet deployed.
+- **The path (`src/data/journey.js`, pure):** training → the three island
+  warm-ups (any order; `warmup-pip/fern/alby`, or a passed teacher task set
+  on that friend) open the IGLOO → ❄️ Snowball Sums → 🌋 Magma Multiples →
+  🌾 Fraction Farm → 🌿 Emerald Jungle → 🏫 the Playground; each world's 7th
+  bronze-or-better trophy (`TROPHIES_TO_OPEN`) opens the next gate. The
+  Lodge is inside the snow. Which gates are open is always DERIVED
+  (`journeyState`) from completedMissions + the local trophy bests — never
+  stored. KEEP WHAT THEY'VE REACHED: any best > 0 in a world (or any
+  Playground key) keeps that world AND every world before it open
+  (`kept`). `portalLock(js, portalId)` → the hint text + "4 / 7 ❄️
+  trophies" note; `millsJourneyLines` → Mills on Harbour Green follows the
+  journey. The wall/map/HUD all read the same state.
+- **Saved beats only** (progress store `journey`, `DEFAULT_JOURNEY`):
+  training step / started / done / skipped, world intros seen + in
+  progress, gates celebrated, `seeded`, `guideTo`. `updateJourney` /
+  `journeyAdd`; loadProgress merges the defaults. First run on any save
+  (`seeded`) marks the gates already open as celebrated — no fanfare for an
+  old save.
+- **Runtime (`src/game/journeyStore.js`):** `useJourney` (js, `lockSig`,
+  `celebrate`, the coach baseline/meter/flash) refreshed on progress
+  changes, region changes and every 1.5 s (bests live in localStorage);
+  `journeyTrack` = non-reactive counters the coach watches (walked / ran /
+  looked / jumps from Player.jsx, millsTalks from interaction.js, fpvExits /
+  wallCloses / waypoints (student-set only — the coach's own carry
+  `auto`) / trophyCloses / challengeStarts from store subscriptions);
+  `currentCoach()`; `guideToGoal()` (the 📍 button: next friend → the open
+  gate → the first un-medalled challenge, via the gate home + `guideTo`
+  when off the island); `lockedPortalColliders()`. `startJourney()` runs
+  once from App.
+- **Training (`src/data/training.js`):** Walk 8 m → Look (Z/X or drag,
+  2.4 rad) → Run 14 m (Shift / joystick rim) → Jump ×3 → First-person view
+  (/ or the new 👁️ touch button, in and back out) → Meet Mills (E / tap) →
+  the Achievements Wall (look + step back; a coach bubble explains the
+  boards + padlocks) → Your map (M → click Pip; Pip's pin pulses + a map
+  banner). Each step ticks itself off on the real counter; "Skip this step"
+  appears after 25 s; "Skip training" any time; the Quest Log can replay
+  it. New saves get a welcome card (Start training / Skip — I know how to
+  play); returning players get "New: the island journey" once. Finale card:
+  +20 XP +10 coins, the three friends + where they are, a waypoint to the
+  next one. Replaces OnboardingWelcome (kept for reference) and hides the
+  old touch coach while it runs.
+- **World tours:** Snowball Sums' first visit = welcome card (Show me
+  around / I'll explore) → the trophy stand (auto waypoint; the grid now
+  has a "How trophies work" + "7 opens Magma Multiples" strip) → the map
+  (pin 1 pulses) → the first challenge. Magma / Farm / Jungle / Playground
+  get one welcome card each. Mills' world welcomes say what 7 trophies open.
+- **Gates:** a locked island gate is SOLID (a hinted collider just wider
+  than its trigger; the travel loop also refuses) and drawn shut — every
+  style (igloo / haybale / volcano arch / mossy arch / school ring) swaps
+  its swirl for `SealedDoor` (dark disc + wooden gate + brass padlock); the
+  sign reads "🔒 Magma Multiples · 4 / 7 ❄️ trophies". Walking up says what
+  opens it (BlockedGatePrompt).
+- **"Gate open!"** (`ui/journey/JourneyCelebration.jsx`): confetti card
+  when a gate opens, waits until the challenge / conversation that earned
+  it has closed; 📍 Show me the way (island → the gate; elsewhere → the
+  gate home, then the new gate on arrival) / Later.
+- **HUD:** `JourneyTracker` under the stats on computers/tablets (warm-up
+  faces with ✓, the "is open — go through the igloo gate" glow, or "4 / 7"
+  + what it opens; 📍 guides; the card opens the Quest Log), `JourneyMini`
+  in the phone stats pill; the coach card sits under the stats (computers)
+  or under the top row (phones); `FpvChip` while first-person is on.
+  Quest Log: "🧭 Your journey" (`JourneyPanel`) replaces the old main quest.
+- **Everywhere else:** the Achievements Wall reads in journey order
+  (island, snow, magma, farm, jungle, Playground) with padlocked boards
+  saying what opens them; its island board shows the warm-ups (60% pass,
+  best try) instead of the old Stage 4 topic bests; island map gates show
+  🔒 + the note; Pip/Fern/Alby's badges say Warm-up / Warm-up passed and
+  the floating marker follows the journey (Mills during "meet Mills", then
+  the next friend); a teacher task in a locked world shows 🔒 + what opens
+  it on its compass (no override). Title tips + How to play updated.
+  Farsi + Arabic for every fixed journey string (JY7 checks the coach's).
+- **First-person view on touch:** the 👁️ button toggles it; while on, a
+  drag turns (x) and tilts (y) the view (`touchInput.pitchDelta`,
+  `touchCaps.look`).
+- **Dev:** `window.__mma` now also has useProgress + useJourney;
+  `window.__journey` = { useJourney, journeyTrack, currentCoach }.
+- **Layout touches that came with it:** the top-centre waypoint / teacher-task
+  chips now tuck in under the HUD buttons on the right on computers and
+  tablets (they sat on the button row below ~1600 px wide); the stack sits
+  over world name badges (z 26); the phone stats pill's XP bar is a little
+  narrower to fit the journey chip. Ending a tour / skipping the training
+  clears the waypoint the coach set. The training's Mills + wall steps set a
+  waypoint to them if none is set. Title-screen reset now also clears the
+  Emerald Jungle's bests (any best keeps a world open now).
+- **Verified:** JY1–JY11 headless; real keyboard play in headless Chromium
+  through every training step (walk / Z look / Shift run / Space jumps / the
+  / view / E on Mills / Enter on the wall / M + click Pip) and the finale;
+  a warm-up passed through the real store path (activate → answers →
+  finalize) → the igloo celebration → walking into the open igloo → the
+  snow tour (stand → grid strip → map pin 1 → first challenge) → 7 bronze
+  bests → the Magma celebration in the snow → "show me the way home" →
+  island arrival with a waypoint to the volcano arch → the Quest Log journey
+  → the wall boards. Screenshots at 960×560, 800×470, iPhone portrait
+  390×664 and iPad landscape 1080×810 (touch: 👁️, joystick, phone chip).
+- **Not done / to watch:** progress is still per-device (localStorage) —
+  a student who changes iPad starts the journey again on that device
+  (only the avatar follows the student code). The Farsi/Arabic want a
+  native speaker's check. A live run-through on an iPad + a phone (the 👁️
+  drag feel, the coach card over the joystick zone on a short landscape
+  phone).
 
 ## DONE (2026-10-11) — PHONE + iPad: TOUCH CONTROLS, SMALL-SCREEN LAYOUT, EVERY CHALLENGE
 Jeff: "This game works great on a computer, but not so much on a phone/ipad.
@@ -2595,7 +2717,7 @@ awards the trophy). L1–5 adaptive. Teacher tasks still override (handled upstr
 in interaction.js). Guarded by `runSchoolyardTopicChecks()`. Island NPCs (Pip/
 Fern/Alby) unchanged.
 
-## System checks (624)
+## System checks (635)
 `src/dev/systemChecks.js` → `runSystemChecks()`. Run headlessly: temporarily set
 `package.json` `"type":"module"`, shim `localStorage/window/document`, import and
 run; also babel parse-check `src/`, `portal/`, `functions/`. Restore package.json
@@ -3147,6 +3269,11 @@ skill ORDER carries the concept progression, levels 1–5 carry numeric
 difficulty per `DIFFICULTY_INTENT`; mirror new topics in the website
 `adventureManifest.js`; add a `run<Topic>Checks()` block; never let a diagram
 datum leave its plotted range.
+**The journey (2026-10-13):** a NEW world gets a slot in `JOURNEY_WORLDS`
+(data/journey.js — its place in the order, its island portal id, gate words)
+and a first-visit card in `WORLD_INTROS` (data/training.js), or its gate is
+simply open. Which gates are open is DERIVED — never store it. New fixed
+coach / card strings need Farsi + Arabic (JY7 checks the coach's).
 
 ### Phone / iPad / small-screen compatibility (STANDING RULE, 2026-10-11)
 Jeff's instruction: **all future challenges and updates include iPhone / iPad /

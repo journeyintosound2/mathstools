@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 
+import JourneyStrip from "./journey/JourneyStrip.jsx";
 import { useUI } from "./effects/uiStore.js";
 import { jungleTrophyRows } from "../data/jungle/jungleRecords.js";
 
@@ -50,6 +51,8 @@ export default function JungleTrophyGrid() {
         <div className="ftrophy-subtitle">
           {earned}/{rows.length} trophies earned · {golds} gold. {open10 < rows.length ? `${open10} vine-ladder challenges open now (more coming soon)` : `All ${rows.length} vine-ladder challenges are open`} — start with the Monkey Swap in the Palm Grove!
         </div>
+        {/* The journey (2026-10-13): medals + the 7 that open the next world. */}
+        {!detail && <JourneyStrip worldKey="jungle" />}
 
         {detail ? (
           <div className="ftrophy-detail">

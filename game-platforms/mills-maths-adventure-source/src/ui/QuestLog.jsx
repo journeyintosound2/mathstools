@@ -5,7 +5,8 @@ import { useUI } from "./effects/uiStore.js";
 import { getAllQuests } from "../data/quests.js";
 import { getEncounter } from "../data/encounters.js";
 import { getQuestStatus, questProgress } from "../quests/questEngine.js";
-import { MainQuestPanel, MissionDetails, BadgeShelf } from "./MissionView.jsx";
+import { MissionDetails, BadgeShelf } from "./MissionView.jsx";
+import JourneyPanel from "./journey/JourneyPanel.jsx";
 
 /**
  * Quest Log — a panel students can open and close.
@@ -56,8 +57,9 @@ export default function QuestLog() {
         </div>
 
         <div className="questlog-body">
-          {/* The guided main quest (Phase 2I). */}
-          <MainQuestPanel />
+          {/* The journey (2026-10-13) — replaces the old "Unlock Number
+              Island" main quest (MainQuestPanel in MissionView.jsx). */}
+          <JourneyPanel />
 
           {/* Teacher-assigned mission + the student's badges (Phase 2D). */}
           <MissionDetails />

@@ -17,6 +17,12 @@ export function getInteractableStatus(data, completed) {
   const type = encounter?.type;
   // World map boards (2026-10-10) — a map, not a person.
   if (data.mapBoard) return { icon: "🗺️", tone: "reward", label: "Open the map" };
+  // The island friends' warm-ups (the journey, 2026-10-13).
+  if (data.id === "pip" || data.id === "fern" || data.id === "alby") {
+    return completed
+      ? { icon: "✓", tone: "done", label: "Warm-up passed" }
+      : { icon: "?", tone: "available", label: "Warm-up" };
+  }
 
   switch (type) {
     case "mathsChallenge":
