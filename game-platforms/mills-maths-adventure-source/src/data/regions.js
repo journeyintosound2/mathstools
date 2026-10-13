@@ -20,7 +20,7 @@ import { OCEAN_RADIUS } from "./worldZones.js";
 import { SPAWN_POINT } from "./worldSpawnPoints.js";
 import { ISLAND_BOUNDS, GATES as ISLAND_GATES } from "./island/islandLayout.js";
 import {
-  islandGroundHeight, islandSlideAt, islandSpeedAt, islandHazardAt, islandHazardInfo, islandIsSafe, SEA_HINT,
+  islandGroundHeight, islandSlideAt, islandSpeedAt, islandHazardAt, islandHazardInfo, islandIsSafe, SEA_HINT, islandWaterAt,
 } from "./island/islandTerrain.js";
 import {
   SCHOOLYARD_BOUNDS, SCHOOLYARD_SPAWN, SCHOOLYARD_RETURN_PORTAL, SCHOOLYARD_RETURN_PORTAL_YAW, SCHOOLYARD_REGION_NAME,
@@ -30,7 +30,7 @@ import { FARM_BOUNDS, FARM_SPAWN, FARM_RETURN_PORTAL, FARM_RETURN_PORTAL_YAW } f
 import { farmGroundHeight, farmSlideAt, farmSpeedAt, farmIsSafe } from "./farm/farmTerrain.js";
 import { SNOW_BOUNDS, SNOW_SPAWN, SNOW_RETURN_PORTAL, SNOW_RETURN_PORTAL_YAW } from "./snow/snowLayout.js";
 import {
-  snowGroundHeight, snowSlideAt, snowIceAt, snowHazardAt, snowIsSafe, snowChuteAt, chuteFrame,
+  snowGroundHeight, snowSlideAt, snowIceAt, snowHazardAt, snowIsSafe, snowChuteAt, chuteFrame, snowWaterLevelAt,
   liftBoardAt, liftSeatAt, LIFT, LIFT_DISMOUNT,
 } from "./snow/snowTerrain.js";
 import {
@@ -54,7 +54,7 @@ export const REGIONS = {
   // data/island/ + game/IslandScenery.jsx. Hooks (the snow/jungle set):
   // LAYERED ground (the raised plaza + its stairs, the jetty, the pier, the
   // rope bridge), cliffs + Ember Peak's upper cone slide, the shallows are
-  // slow, and deep water / lava bounce you back to the last dry spot.
+  // slow; deep water wipes you out back to the spawn, lava hops you back.
   // Every world gate stands in a landscape that foreshadows its world; you
   // come BACK through a gate to land right in front of it (`arrive`).
   "island-1": {
@@ -68,6 +68,9 @@ export const REGIONS = {
     isLava: islandHazardAt,
     hazardInfo: islandHazardInfo,
     hazardHint: SEA_HINT,
+    // Falling in deep water wipes you out back to the spawn (the overlay
+    // starts as you drop below the surface — game/hazardRescue.js).
+    waterLevelAt: islandWaterAt,
     hazardSound: "splash",
     isSafe: islandIsSafe,
     cameraTerrainClamp: true,
@@ -199,13 +202,18 @@ export const REGIONS = {
     // Rebuilt 2026-10-08: a big alpine valley (data/snow/). LAYERED ground
     // (bridge decks + ice floes); the rim + cliffs slide you back; the pond,
     // frozen river, puddles + runouts are slippery ice (sloping ice pulls
-    // you downhill); the glacier lake is too cold to stand in (you hop back
-    // out, like Magma's lava); the toboggan CHUTES ride you down on a sled;
+    // you downhill); the glacier lake is too cold to fall into (it wipes
+    // you out back to the spawn, like the island's sea); the toboggan CHUTES
+    // ride you down on a sled;
     // the CHAIRLIFT carries you up Big Sled Hill.
     groundHeight: snowGroundHeight,
     slideAt: snowSlideAt,
     iceAt: snowIceAt,
     isLava: snowHazardAt,
+    // The lake is WATER: falling in wipes you out back to the spawn.
+    hazardKind: "water",
+    waterLevelAt: snowWaterLevelAt,
+    wipeLine: "You fell into the freezing lake!",
     hazardHint: "Brrr — that water's freezing! 🥶 Use the bridges (or hop the ice floes).",
     hazardSound: "splash",
     isSafe: snowIsSafe,

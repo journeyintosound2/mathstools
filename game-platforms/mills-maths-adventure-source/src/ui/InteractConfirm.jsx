@@ -11,8 +11,8 @@ import { useFarmChallengeActive } from "../game/farmChallengeActive.js";
  *
  * After the player TAPS a character and walks over to it, this card appears
  * (approachId is set AND the player has arrived → nearbyId === approachId).
- * "Interact" runs the exact same logic as pressing E; "Cancel" dismisses it.
- * Touch-only; on desktop the "Press E" prompt is used instead.
+ * "Interact" runs the exact same logic as pressing Enter; "Cancel" dismisses it.
+ * Touch-only; on desktop the "Press Enter" prompt is used instead.
  */
 export default function InteractConfirm() {
   const touchMode = useUI((s) => s.touchMode);

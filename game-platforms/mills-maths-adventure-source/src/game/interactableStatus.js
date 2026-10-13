@@ -17,6 +17,12 @@ export function getInteractableStatus(data, completed) {
   const type = encounter?.type;
   // World map boards (2026-10-10) — a map, not a person.
   if (data.mapBoard) return { icon: "🗺️", tone: "reward", label: "Open the map" };
+  // Every treasure chest (island, farm, snow, school): shut = treasure, open = opened.
+  if (data.model === "chest") {
+    return completed
+      ? { icon: "🪙", tone: "claimed", label: "Opened" }
+      : { icon: "✨", tone: "reward", label: "Treasure!" };
+  }
   // The island friends' warm-ups (the journey, 2026-10-13).
   if (data.id === "pip" || data.id === "fern" || data.id === "alby") {
     return completed
@@ -41,7 +47,7 @@ export function getInteractableStatus(data, completed) {
 
     case "treasure":
       return completed
-        ? { icon: "∅", tone: "claimed", label: "Opened" }
+        ? { icon: "🪙", tone: "claimed", label: "Opened" }
         : { icon: "✨", tone: "reward", label: "Treasure!" };
 
     case "gate":

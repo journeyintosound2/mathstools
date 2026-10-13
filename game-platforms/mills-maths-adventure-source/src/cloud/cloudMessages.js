@@ -27,3 +27,18 @@ export function cloudSaveMessage(status, isStory = false) {
       return "";
   }
 }
+
+/**
+ * The ONE short save line on the (2026-10-13) finish screen — the long
+ * wording above stays for the Results Centre / checks.
+ */
+export function cloudSaveShort(status) {
+  switch (status) {
+    case "pending": return { icon: "☁️", text: "Saving to your class…" };
+    case "saved": return { icon: "✓", text: "Saved to your class" };
+    case "failed": return { icon: "💾", text: "Saved on this device (online save failed)" };
+    case "demo": return { icon: "💾", text: "Saved on this device (demo)" };
+    case "unregistered": return { icon: "💾", text: "Saved on this device" };
+    default: return null;
+  }
+}

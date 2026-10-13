@@ -45,7 +45,7 @@ export default function HowToPlay() {
         ) : (
           <ul className="howto-list">
             <li><strong>Move:</strong> WASD or arrow keys. <strong>Run:</strong> hold Shift. <strong>Jump:</strong> Space.</li>
-            <li><strong>Interact:</strong> walk up and press <kbd>E</kbd> (NPCs, Mission Board, markers).</li>
+            <li><strong>Interact:</strong> walk up and press <kbd>Enter</kbd> (NPCs, Mission Board, markers).</li>
             <li><strong>Answer:</strong> type your answer or tap the choice buttons, then <strong>Check</strong>.</li>
             <li><strong>Map:</strong> press <kbd>M</kbd> (or 🗺️ top right) to see the whole world and set a waypoint.</li>
             <li><strong>Look around:</strong> <kbd>Z</kbd> / <kbd>X</kbd> swing the camera. <kbd>/</kbd> switches to first-person view (arrow keys look, <kbd>/</kbd> again to come back).</li>

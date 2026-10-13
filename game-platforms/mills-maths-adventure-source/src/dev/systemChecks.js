@@ -17,6 +17,7 @@ import { runIslandWorldChecks } from "./islandWorldChecks.js";
 import { runJourneyChecks } from "./journeyChecks.js";
 import { runCloudProgressChecks } from "./cloudProgressChecks.js";
 import { runUxChecks } from "./uxChecks.js";
+import { runPolishChecks } from "./polishChecks.js";
 import { runSchoolyardWorldChecks } from "./schoolyardWorldChecks.js";
 import { CRATER_LIP_STONES } from "../data/magma/magmaProps.js";
 import { makeTriangle, makeQuad, makeGenericQuad, verifyQuad, propertiesOf, SPECIAL_QUADS, TRIANGLE_TYPES } from "../maths/curriculum/stage4/geometry/shapeCatalogue.js";
@@ -703,6 +704,7 @@ export function runSystemChecks(progressSnapshot) {
   for (const c of runJourneyChecks()) checks.push(c);
   for (const c of runCloudProgressChecks()) checks.push(c);
   for (const c of runUxChecks()) checks.push(c);
+  for (const c of runPolishChecks()) checks.push(c);
 
   return checks;
 }

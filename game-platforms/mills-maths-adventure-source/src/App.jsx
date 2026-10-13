@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 
 import World from "./game/World.jsx";
@@ -55,17 +55,20 @@ import { useProgress } from "./progress/store.js";
 import UnlockCelebration from "./ui/UnlockCelebration.jsx";
 import DynamicDialogue from "./ui/encounters/DynamicDialogue.jsx";
 import ToastLayer from "./ui/effects/ToastLayer.jsx";
+import WipeoutOverlay from "./ui/effects/WipeoutOverlay.jsx";
+import { useWipeout } from "./game/hazardRescue.js";
 import BilingualLayer from "./i18n/BilingualLayer.jsx";
 
 import { useSession, playerState, requestTeleport } from "./game/sessionStore.js";
 import { useUI } from "./ui/effects/uiStore.js";
 import { getInteractable, INTERACTABLES } from "./data/interactables.js";
-import { triggerInteraction } from "./game/interaction.js";
+import { triggerInteraction, isInteractKey, isTypingTarget } from "./game/interaction.js";
+import { inWallPromptZone } from "./data/island/wallView.js";
 
 // DEV-only handles for the headless phone/iPad harness (stripped from builds):
 // jump to any character / challenge host and open it without walking there.
 if (import.meta.env.DEV && typeof window !== "undefined") {
-  window.__mma = { useSession, useUI, playerState, requestTeleport, getInteractable, INTERACTABLES, triggerInteraction, useProgress, useJourney };
+  window.__mma = { useSession, useUI, playerState, requestTeleport, getInteractable, INTERACTABLES, triggerInteraction, useProgress, useJourney, useWipeout };
 }
 
 /**
@@ -166,24 +169,41 @@ export default function App() {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [phase, activeEncounterId]);
 
-  // Global keyboard listener for the "E" interaction key.
-  // We handle it here (outside the Canvas) so that opening the modal,
-  // which is plain HTML, is straightforward. The interactable tells us which
-  // encounter to run, so the world never hardcodes encounter logic.
+  // Global keyboard listener for the interaction key — ENTER (E still
+  // works quietly; game/interaction.js). Handled here (outside the Canvas) so
+  // opening the modal, which is plain HTML, is straightforward. The
+  // interactable tells us which encounter to run, so the world never
+  // hardcodes encounter logic. Enter does a lot of jobs, so it only
+  // interacts when nothing else owns it: not while typing, not when another
+  // handler already used this press (the dialogue's Next, a focused button),
+  // not in a challenge / the map / the wall look / a modal, not in front of
+  // the Achievements Wall (its own Enter wins), and not in the half-second
+  // after a conversation closes (a quick double-press can't re-open it).
+  const closedAt = useRef(0);
+  const hadEncounter = useRef(false);
+  useEffect(() => {
+    if (hadEncounter.current && !activeEncounterId) closedAt.current = Date.now();
+    hadEncounter.current = Boolean(activeEncounterId);
+  }, [activeEncounterId]);
   useEffect(() => {
     function onKeyDown(e) {
-      if (e.key.toLowerCase() !== "e") return;
-      if (useUI.getState().wallView) return; // looking at the Achievements Wall
-      if (useUI.getState().mapOpen) return; // the world map is open
-      if (phase === "playing" && nearbyId && !activeEncounterId) {
-        const interactable = getInteractable(nearbyId);
-        if (interactable) {
-          // Prevent this same keystroke from being typed into the answer input
-          // that is about to mount and auto-focus (the "e leaks in" bug).
-          e.preventDefault();
-          // Shared with the touch "Interact with X?" confirm (W4-C).
-          triggerInteraction(interactable);
-        }
+      if (!isInteractKey(e) || e.defaultPrevented || isTypingTarget(e.target)) return;
+      // A button in a card / dialog has the focus → Enter is for that button.
+      if (e.target && e.target.closest && e.target.closest('[role="dialog"], .modal-overlay, .jcelebrate-overlay, .coach, .admin-overlay')) return;
+      if (phase !== "playing" || !nearbyId || activeEncounterId) return;
+      const ui = useUI.getState();
+      if (ui.wallView || ui.mapOpen) return;
+      if (document.body.classList.contains("modal-open") || useWipeout.getState().active) return;
+      if (isAnyChallengeActive()) return;
+      if (e.key === "Enter" && useSession.getState().currentRegionId === "island-1" && inWallPromptZone(playerState.x, playerState.z)) return;
+      if (Date.now() - closedAt.current < 500) return;
+      const interactable = getInteractable(nearbyId);
+      if (interactable) {
+        // Stop this same keystroke reaching a focused button, or being typed
+        // into the answer box that's about to mount (the old "e leaks in").
+        e.preventDefault();
+        // Shared with the touch "Interact with X?" confirm (W4-C).
+        triggerInteraction(interactable);
       }
     }
     window.addEventListener("keydown", onKeyDown);
@@ -266,6 +286,7 @@ export default function App() {
       <CloudLogin />
       <UnlockCelebration />
       <ToastLayer />
+      <WipeoutOverlay />
       </>
       )}
     </div>

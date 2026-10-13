@@ -268,7 +268,7 @@ export function runJourneyChecks() {
         useJourney.setState({ base: null });
         log.push(currentCoach().key);
         J.startTraining();
-        const counters = { walked: 9, looked: 2.5, ran: 15, jumps: 3, fpvExits: 1, millsTalks: 1, wallCloses: 1, waypoints: 1 };
+        const counters = { walked: 9, looked: 2.5, ran: 15, jumps: 3, fpvExits: 1, fpvTours: 1, millsTalks: 1, wallCloses: 1, waypoints: 1 };
         for (const s of TRAINING_STEPS) {
           J.tick(); // takes the baseline
           J.tick(); // nothing done yet → still here

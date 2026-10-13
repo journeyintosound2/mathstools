@@ -34,7 +34,29 @@ import { regionMapPois } from "../data/maps/regionMaps.js";
 export const journeyTrack = {
   walked: 0, ran: 0, looked: 0, jumps: 0, fpvExits: 0, millsTalks: 0,
   wallCloses: 0, waypoints: 0, mapOpens: 0, trophyCloses: 0, challengeStarts: 0,
+  // First-person look-around (2026-10-13, Jeff: "make them use all the arrow
+  // keys to look around for a bit"): how far you've looked each way in
+  // first-person (radians — arrow keys or a drag; Player.jsx), and how many
+  // times you came back out having looked ALL FOUR ways (the step's goal).
+  fpvLook: { left: 0, right: 0, up: 0, down: 0 },
+  fpvTours: 0,
 };
+/** How far (radians, ≈ half a second of holding the key) each way counts. */
+export const FPV_LOOK_NEED = 0.8;
+export const FPV_DIRS = ["left", "right", "up", "down"];
+/** Has the player looked all four ways? */
+export function fpvLookedAll(look = journeyTrack.fpvLook) {
+  return FPV_DIRS.every((d) => (look[d] || 0) >= FPV_LOOK_NEED);
+}
+/** Leaving first-person: counts as the training's look-around only if you
+ *  looked all four ways (the look carries over if you pop out early). */
+export function noteFpvExit() {
+  journeyTrack.fpvExits += 1;
+  if (!fpvLookedAll()) return false;
+  journeyTrack.fpvTours += 1;
+  journeyTrack.fpvLook = { left: 0, right: 0, up: 0, down: 0 };
+  return true;
+}
 
 const TICK_MS = 250;
 const REFRESH_MS = 1500;
@@ -115,7 +137,7 @@ export const useJourney = create((set, get) => ({
     const js = journeyState(journeySnapshot(p, journeyCounts(), visitedMap()));
     const sig = journeySignature(js);
     if (sig !== get().sig) {
-      const lockSig = js.worlds.map((w) => `${w.open ? 1 : 0}:${w.requirement.have}`).join("|");
+      const lockSig = js.worlds.map((w) => `${w.open ? 1 : 0}:${w.requirement.have}${w.visited ? "v" : ""}`).join("|");
       set({ js, sig, ...(lockSig !== get().lockSig ? { lockSig } : {}) });
     }
     // First run on this save: the gates that are ALREADY open (an old save's
@@ -277,6 +299,13 @@ export function guideToGoal() {
 export function lockForPortal(portalId) {
   return portalLock(useJourney.getState().js, portalId);
 }
+/** Is this island gate's world OPEN but not yet visited (the "next stop")? */
+export function freshPortal(portalId) {
+  const js = useJourney.getState().js;
+  if (!js) return false;
+  const w = js.worlds.find((x) => x.portalId === portalId);
+  return Boolean(w && w.open && !w.visited && !w.adminOpen);
+}
 
 /** Solid, hinted colliders across the doorways of the locked island gates. */
 export function lockedPortalColliders(regionId) {
@@ -325,7 +354,7 @@ export function startJourney() {
   });
 
   useUI.subscribe((s, prev) => {
-    if (prev.fpv && !s.fpv) journeyTrack.fpvExits += 1;
+    if (prev.fpv && !s.fpv) noteFpvExit();
     if (prev.wallView && !s.wallView) journeyTrack.wallCloses += 1;
     if (s.mapOpen && !prev.mapOpen) journeyTrack.mapOpens += 1;
     // Only waypoints the STUDENT sets count (not the coach's own).

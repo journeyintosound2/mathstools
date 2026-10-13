@@ -7,6 +7,7 @@ import "./styles/wall.css";
 import "./styles/title.css";
 import "./styles/map.css";
 import "./styles/journey.css";
+import "./styles/polish.css";
 // Phone / iPad / small-screen layer (2026-10-11) — loaded LAST so it wins.
 import "./styles/mobile.css";
 

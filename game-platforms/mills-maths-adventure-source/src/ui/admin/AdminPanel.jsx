@@ -70,8 +70,8 @@ export function AdminChip({ inMenu = false, onClick }) {
   const on = useAdmin((s) => s.on);
   if (!on) return null;
   return (
-    <button className={inMenu ? "cog-main-btn admin-chip" : "hud-icon-btn admin-chip"} title="Admin mode" onClick={() => { onClick && onClick(); useAdmin.getState().openPanel(); }}>
-      🛠️ Admin
+    <button className={inMenu ? "cog-main-btn admin-chip" : "hud-icon-btn admin-chip"} title="Admin mode" onClick={(e) => { e.currentTarget.blur(); onClick && onClick(); useAdmin.getState().openPanel(); }}>
+      {inMenu ? "🛠️ Admin" : <><span className="hb-ico" aria-hidden="true">🛠️</span><span className="hb-lbl">Admin</span></>}
     </button>
   );
 }

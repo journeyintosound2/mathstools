@@ -22,6 +22,7 @@ import { useFarmChallengeActive } from "../game/farmChallengeActive.js";
 import { useMediaQuery, COMPACT_QUERY } from "./useMediaQuery.js";
 import { CoachStep } from "./journey/JourneyCoach.jsx";
 import JourneyTracker, { JourneyMini } from "./journey/JourneyTracker.jsx";
+import NextStopBanner from "./journey/NextStopBanner.jsx";
 import FpvChip from "./journey/FpvChip.jsx";
 import ProgressSyncDot from "./cloud/ProgressSyncDot.jsx";
 import { AdminChip } from "./admin/AdminPanel.jsx";
@@ -152,7 +153,7 @@ export default function HUD() {
       </div>
     ) : (
       <div className="tracker-prompt">
-        <Bi>Press</Bi> <kbd>E</kbd> — <Bi>{nearby.promptLabel}</Bi>
+        <Bi>Press</Bi> <kbd>Enter</kbd> — <Bi>{nearby.promptLabel}</Bi>
       </div>
     );
   } else if (activeQuest) {
@@ -184,24 +185,34 @@ export default function HUD() {
         {/* The journey's training / world-tour coach (2026-10-13) — on
             phones it sits here, under the top row (computers: under the stats). */}
         {compact && <CoachStep compact />}
+        {/* A world just opened → "NEXT STOP" (phones: here, under the top row). */}
+        {compact && <NextStopBanner compact />}
       </div>
-      {/* Top-left: player stats */}
-      <div className={`hud-panel hud-stats${compact ? " is-compact" : ""}`}>
-        <div className="hud-name">{profile.name}</div>
-
-        <div className="hud-row">
-          <span className={`hud-badge ${levelPulse ? "pulse" : ""}`}>Lv {level}</span>
-          <div className="xp-bar">
-            <div className="xp-fill" style={{ width: `${xpPercent}%` }} />
+      {!compact && <NextStopBanner />}
+      {/* Top-left: the PLAYER CARD (2026-10-13 polish — Jeff: "upgrade the
+          look of the panel in the top left showing the level and xp"): a
+          level medallion whose gold ring fills with your XP, your name, the
+          XP bar and a coin purse — navy glass + gold, like the rest of the
+          game. Phones: one slim pill (medallion · XP · coins · journey). */}
+      <div className={`hud-panel hud-stats pcard${compact ? " is-compact" : ""}`} style={{ "--xp": xpPercent / 100 }}>
+        <span className={`pcard-medal${levelPulse ? " pulse" : ""}`} title={`Level ${level}`} aria-label={`Level ${level}`}>
+          <span className="pcard-medal-in">
+            <small>LV</small>
+            <b className="hud-badge">{level}</b>
+          </span>
+        </span>
+        <span className="pcard-body">
+          {!compact && <span className="hud-name">{profile.name}</span>}
+          <span className="xp-bar" title={`${xpIntoLevel} / ${xpForLevel} XP to level ${level + 1}`}>
+            <span className="xp-fill" style={{ width: `${xpPercent}%` }} />
             <span className="xp-text">{xpIntoLevel} / {xpForLevel} XP</span>
-          </div>
-        </div>
-
-        <div className="hud-row">
-          <span className="coin">🪙</span>
+          </span>
+        </span>
+        <span className="pcard-coins" title="Coins">
+          <span className="coin" aria-hidden="true">🪙</span>
           <span className="coin-count">{coins}</span>
-          {compact && <JourneyMini />}
-        </div>
+        </span>
+        {compact && <JourneyMini />}
       </div>
 
       {/* The journey (2026-10-13): the one next goal — warm-ups, the gate
@@ -215,30 +226,36 @@ export default function HUD() {
       <div className={`hud-buttons${compact ? " is-compact" : ""}`}>
         {!compact && <AdminChip />}
         {showMapBtn && (
-          <button className="hud-icon-btn hud-map-btn" onClick={openMap} title="World map (M)" aria-label="World map">
-            🗺️{!compact && <> <Bi>Map</Bi></>}
+          <button className="hud-icon-btn hud-map-btn" onClick={(e) => { e.currentTarget.blur(); openMap(); }} title="World map (M)" aria-label="World map">
+            <span className="hb-ico" aria-hidden="true">🗺️</span>{!compact && <span className="hb-lbl"><Bi block={false}>Map</Bi></span>}
+            {!compact && !touchMode && <kbd className="hb-key" aria-hidden="true">M</kbd>}
           </button>
         )}
         {!compact && <>
-        <button className="hud-icon-btn" onClick={toggleQuestLog} title="Quest Log (Q)">
-          📜 <Bi>Quests</Bi>
+        <button className="hud-icon-btn" onClick={(e) => { e.currentTarget.blur(); toggleQuestLog(); }} title="Quest Log (Q)">
+          <span className="hb-ico" aria-hidden="true">📜</span><span className="hb-lbl"><Bi block={false}>Quests</Bi></span>
+          {!touchMode && <kbd className="hb-key" aria-hidden="true">Q</kbd>}
         </button>
-        <button className="hud-icon-btn" onClick={toggleResults} title="Results Centre">
-          📊 <Bi>Results</Bi>
+        <button className="hud-icon-btn" onClick={(e) => { e.currentTarget.blur(); toggleResults(); }} title="Results Centre">
+          <span className="hb-ico" aria-hidden="true">📊</span><span className="hb-lbl"><Bi block={false}>Results</Bi></span>
         </button>
-        <button className="hud-icon-btn" onClick={toggleHowTo} title="How to play">
-          ❔ <Bi>Help</Bi>
+        <button className="hud-icon-btn" onClick={(e) => { e.currentTarget.blur(); toggleHowTo(); }} title="How to play">
+          <span className="hb-ico" aria-hidden="true">❔</span><span className="hb-lbl"><Bi block={false}>Help</Bi></span>
         </button>
+        <span className="hb-sep" aria-hidden="true" />
         <button
           className={`hud-icon-btn cloud-chip cloud-${cloudMode}`}
-          onClick={() => setCloudLogin(true)}
+          onClick={(e) => { e.currentTarget.blur(); setCloudLogin(true); }}
           title="Cloud sign-in / demo mode"
         >
-          {cloudMode === "registered" && cloudStudent
-            ? `☁ ${studentChipLabel(cloudStudent)}`
-            : cloudMode === "skip"
-              ? "☁ Demo (local)"
-              : "☁ Sign in"}
+          <span className="hb-ico" aria-hidden="true">☁️</span>
+          <span className="hb-lbl">
+            {cloudMode === "registered" && cloudStudent
+              ? studentChipLabel(cloudStudent)
+              : cloudMode === "skip"
+                ? "Demo (local)"
+                : "Sign in"}
+          </span>
           {cloudMode === "registered" && <ProgressSyncDot />}
         </button>
         </>}
@@ -248,11 +265,12 @@ export default function HUD() {
         <div className="cog-wrap">
           <button
             className={`hud-icon-btn hud-cog-btn ${cogOpen ? "active" : ""}`}
-            onClick={toggleCog}
+            onClick={(e) => { e.currentTarget.blur(); toggleCog(); }}
             title={compact ? "Menu" : "Options"}
             aria-label={compact ? "Menu" : "Options"}
           >
-            {compact ? "☰" : "⚙"}
+            <span className="hb-ico" aria-hidden="true">{compact ? "☰" : "⚙️"}</span>
+            {!compact && <span className="hb-lbl"><Bi block={false}>Options</Bi></span>}
           </button>
           {cogOpen && (
             <div className="cog-menu">
@@ -306,7 +324,7 @@ export default function HUD() {
       </div>
 
       {/* Persistent Current Quest card — toggled by the Quest HUD button. When
-          off, contextual "Press E" prompts still appear via InteractionPrompt. */}
+          off, contextual "Press Enter" prompts still appear via InteractionPrompt. */}
       {questHudOn && (
         <div className="hud-panel hud-tracker">
           <span className="tracker-label">Current Quest</span>
@@ -324,8 +342,8 @@ export default function HUD() {
 
       {!touchMode && !snowChallenge && !magmaChallenge && !jungleChallenge && <div className="hud-panel hud-controls">
         {cameraLock
-          ? <Bi>WASD / Arrows to move · Space to jump · Shift to run · E to interact · Q for quests · Camera follows you</Bi>
-          : <Bi>WASD / Arrows to move · Space to jump · Shift to run · E to interact · Z / X to rotate camera · Q for quests</Bi>}
+          ? <Bi>WASD / Arrows to move · Space to jump · Shift to run · Enter to interact · Q for quests · Camera follows you</Bi>
+          : <Bi>WASD / Arrows to move · Space to jump · Shift to run · Enter to interact · Z / X to rotate camera · Q for quests</Bi>}
       </div>}
     </div>
   );

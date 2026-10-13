@@ -1,188 +1,146 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 
-import { useProgress } from "../../progress/store.js";
-import { getAllQuests } from "../../data/quests.js";
-import { getQuestStatus, questProgress } from "../../quests/questEngine.js";
-import { resultSummaryText } from "../../results/resultUtils.js";
-import { useCloud } from "../../cloud/cloudSession.js";
-import { pickCompletionIdentity } from "../../cloud/adventureAttemptMapper.js";
-import { cloudSaveMessage } from "../../cloud/cloudMessages.js";
+import { useUI } from "../effects/uiStore.js";
+import { cloudSaveShort } from "../../cloud/cloudMessages.js";
+import { Bi } from "../../i18n/i18n.jsx";
 
 /**
- * A short, reusable completion screen shown after an encounter finishes.
+ * THE FINISH SCREEN (2026-10-13 — Jeff: "the challenge complete has too much
+ * on it for a small challenge … update this to match the quality and polish
+ * of the rest of the game. There are a number of clickable options that
+ * aren't necessary"). Just what matters, big and bright:
  *
- * Shows: XP earned, coins earned, any quest just completed, and the updated
- * progress of the current active quest. It reads quest state AFTER the encounter
- * was recorded, so the progress bars reflect the new totals.
+ *   • a medal (🏆 90%+, ⭐ a pass, 💪 not yet) with a burst of confetti on a pass
+ *   • the score — a ring that fills to your %, "7 of 8 correct" + a word of praise
+ *   • what you earned (XP + coins, counting up), a level-up, a finished
+ *     teacher mission's badge
+ *   • ONE quiet line about where it saved
+ *   • ONE button: Continue — or, if you didn't pass, Try again + Not now
  *
- * Props:
- *   title    headline (e.g. "Challenge complete!")
- *   subtitle optional line under the title (e.g. the score)
- *   reward   { xp, coins, leveledUp, newLevel, newlyCompletedQuests }
- *   onClose  called by the "Back to the island" button
+ * (Gone: the quest-progress box, "Show teacher / Copy result", "View
+ * Results", "Back to Mission Board" and the long saved-where sentences —
+ * the Results Centre still has every attempt.) Enter = the main button
+ * (after a moment, so a double-press can't skip it), Esc closes.
  */
+function useCountUp(target, ms = 900, delay = 350) {
+  const [v, setV] = useState(0);
+  useEffect(() => {
+    let raf = 0;
+    const t0 = performance.now() + delay;
+    const tick = (now) => {
+      const k = Math.max(0, Math.min(1, (now - t0) / ms));
+      setV(Math.round(target * (1 - Math.pow(1 - k, 3))));
+      if (k < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [target, ms, delay]);
+  return v;
+}
+
 export default function CompletionScreen({
   title,
-  subtitle,
+  band = "",
+  correct = 0,
+  total = 0,
+  pct = 0,
   reward = {},
   missionReward = null,
-  missionSummary = null,
-  savedRecord = null,
   cloudStatus = null,
   passed = true,
+  host = null,
   onRetry = null,
-  onBoard = null,
-  onViewResults = null,
   onClose,
 }) {
-  const completedEncounters = useProgress((s) => s.completedEncounters);
-  const completedQuests = useProgress((s) => s.completedQuests);
-  const snapshot = { completedEncounters, completedQuests };
-  const [copied, setCopied] = useState(false);
+  const touch = useUI((s) => s.touchMode);
+  // One set of chips: the challenge's rewards + a finished mission's bonus.
+  const xp = useCountUp((reward.xp || 0) + ((missionReward && missionReward.rewardXP) || 0));
+  const coins = useCountUp((reward.coins || 0) + ((missionReward && missionReward.rewardCoins) || 0), 900, 500);
+  const mountedAt = useRef(Date.now());
+  const save = cloudSaveShort(cloudStatus);
+  const primary = passed || !onRetry ? onClose : onRetry;
+  const medal = !passed ? "💪" : pct >= 90 ? "🏆" : "⭐";
 
-  // Prefer the Firebase student profile for the identity display when registered
-  // (Phase 3B.1) — otherwise fall back to the local record / "Explorer".
-  const cloudStudent = useCloud((s) => (s.mode === "registered" ? s.student : null));
-  const identity = pickCompletionIdentity(cloudStudent, savedRecord);
-  const isStory = Boolean(savedRecord && savedRecord.missionKind === "story");
+  useEffect(() => {
+    function onKey(e) {
+      if (e.key === "Escape") { e.preventDefault(); onClose(); return; }
+      if (e.key !== "Enter" || e.repeat) return;
+      const tag = (e.target && e.target.tagName ? e.target.tagName : "").toLowerCase();
+      if (tag === "input" || tag === "textarea") return;
+      if (Date.now() - mountedAt.current < 700) return; // the press that finished the last question
+      e.preventDefault();
+      e.stopPropagation();
+      primary();
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [primary, onClose]);
 
-  function copySummary() {
-    if (!savedRecord) return;
-    try { if (navigator.clipboard) navigator.clipboard.writeText(resultSummaryText(savedRecord)); } catch { /* ignore */ }
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1600);
-  }
-
-  const justCompleted = reward.newlyCompletedQuests || [];
-  const activeQuest = getAllQuests().find(
-    (q) => getQuestStatus(q, snapshot) === "active"
-  );
+  const confetti = useMemo(() => Array.from({ length: 22 }, (_, i) => ({
+    left: (i * 41) % 100, delay: (i % 6) * 0.09, hue: [44, 199, 340, 140, 18, 270][i % 6], rot: (i * 47) % 360,
+  })), []);
 
   return (
-    <div className="modal-card completion-card">
-      <button className="modal-close" onClick={onClose} title="Close" aria-label="Close">✕</button>
-      <div className="completion-burst" aria-hidden="true">{passed ? "🎉" : "💪"}</div>
-
-      <h2 className="completion-title">{title}</h2>
-      {subtitle && <p className="completion-subtitle">{subtitle}</p>}
-
-      {/* Teacher/free-choice mission summary (title, topic, skills attempted). */}
-      {missionSummary && (
-        <div className="completion-summary">
-          <div className="completion-summary-title">🎯 {missionSummary.title}</div>
-          <div className="completion-summary-meta">
-            <span>Topics: {missionSummary.topics?.join(", ") || "mixed"}</span>
-            <span>
-              Skills: {missionSummary.skills?.length ? missionSummary.skills.join(", ") : "all in topic"}
-            </span>
-          </div>
-          <div className={`completion-summary-verdict ${passed ? "ok" : "retry"}`}>
-            {passed ? "Passed ✓ (60% or above)" : "Not passed yet — keep going, you need 60%."}
-          </div>
-        </div>
-      )}
-
-      {/* Saved-locally status + who it was saved for (identity prefers the
-          Firebase profile when registered — Phase 3B.1). */}
-      {savedRecord && (
-        <div className="completion-saved">
-          💾 Saved locally on this device for {identity.name}{identity.tag ? ` (${identity.tag})` : ""}.
-        </div>
-      )}
-
-      {/* Cloud save status (Phase 3B/3B.1). */}
-      {cloudStatus && (
-        <div className={`completion-cloud cloud-${cloudStatus}`}>{cloudSaveMessage(cloudStatus, isStory)}</div>
-      )}
-
-      {/* Rewards earned this encounter. */}
-      <div className="completion-rewards">
-        <div className="reward-chip pop" style={{ animationDelay: "0.05s" }}>
-          +{reward.xp || 0} XP
-        </div>
-        <div className="reward-chip pop" style={{ animationDelay: "0.15s" }}>
-          +{reward.coins || 0} 🪙
-        </div>
-      </div>
-
-      {reward.leveledUp && (
-        <p className="completion-levelup pop">⭐ You reached Level {reward.newLevel}!</p>
-      )}
-
-      {/* Mission completion (badge + mission reward), if a mission finished. */}
-      {missionReward && (
-        <div className="completion-mission-done pop">
-          <div className="completion-mission-head">
-            🎯 Mission complete{missionReward.title ? `: ${missionReward.title}` : ""}!
-          </div>
-          {missionReward.badge && (
-            <div className="completion-badge">
-              <span className="completion-badge-icon">{missionReward.badge.icon}</span>
-              <span>
-                Badge earned: <strong>{missionReward.badge.badgeName}</strong>
-              </span>
-            </div>
-          )}
-          <div className="completion-mission-rewards">
-            +{missionReward.rewardXP || 0} XP · +{missionReward.rewardCoins || 0} 🪙
-          </div>
-        </div>
-      )}
-
-      {/* Quest updates. */}
-      {justCompleted.length > 0 && (
-        <div className="completion-quest-done">
-          {justCompleted.map((q) => (
-            <div key={q.id} className="pop">📜 Quest complete: <strong>{q.title}</strong></div>
+    <div className={`modal-card fincard ${passed ? "is-pass" : "is-retry"}`} style={host && host.color ? { "--qc": host.color } : undefined}
+      role="dialog" aria-modal="true" aria-label={title}>
+      {passed && (
+        <div className="fin-confetti" aria-hidden="true">
+          {confetti.map((c, i) => (
+            <i key={i} style={{ left: `${c.left}%`, animationDelay: `${c.delay}s`, background: `hsl(${c.hue} 90% 58%)`, transform: `rotate(${c.rot}deg)` }} />
           ))}
         </div>
       )}
+      <button className="fin-close" onClick={onClose} title="Close" aria-label="Close">✕</button>
 
-      {activeQuest && (
-        <div className="completion-quest-progress">
-          <span className="completion-quest-label">Quest progress</span>
-          <div className="completion-quest-row">
-            <span>{activeQuest.title}</span>
-            {(() => {
-              const { done, total } = questProgress(activeQuest, snapshot);
-              const pct = Math.round((done / total) * 100);
-              return (
-                <span className="completion-quest-track">
-                  <span className="completion-quest-bar">
-                    <span className="completion-quest-fill" style={{ width: `${pct}%` }} />
-                  </span>
-                  {done}/{total}
-                </span>
-              );
-            })()}
-          </div>
+      <div className="fin-medal" aria-hidden="true">
+        <span className="fin-medal-rays" />
+        <span className="fin-medal-face">{medal}</span>
+      </div>
+
+      <h2 className="fin-title"><Bi>{title}</Bi></h2>
+
+      <div className="fin-score">
+        <span className="fin-ring" style={{ "--p": Math.max(0, Math.min(1, pct / 100)) }} aria-hidden="true">
+          <span className="fin-ring-in"><b>{pct}%</b></span>
+        </span>
+        <span className="fin-score-text">
+          <span className="fin-score-main"><b>{correct} / {total}</b> <Bi block={false}>correct</Bi></span>
+          {band && <small><Bi block={false}>{band}</Bi></small>}
+        </span>
+      </div>
+
+      <div className="fin-rewards">
+        <span className="fin-chip fin-xp" style={{ animationDelay: "0.25s" }}>+{xp} <small>XP</small></span>
+        <span className="fin-chip fin-coins" style={{ animationDelay: "0.4s" }}>+{coins} <span aria-hidden="true">🪙</span></span>
+      </div>
+
+      {reward.leveledUp && (
+        <div className="fin-level"><span aria-hidden="true">⭐</span> <Bi block={false}>Level up!</Bi> <b className="fin-level-n">LV {reward.newLevel}</b></div>
+      )}
+
+      {missionReward && (missionReward.badge || missionReward.teacher) && (
+        <div className="fin-mission">
+          <span className="fin-mission-icon" aria-hidden="true">{missionReward.badge ? missionReward.badge.icon : "🎯"}</span>
+          <span>
+            <b><Bi block={false}>Mission complete!</Bi></b>
+            {missionReward.badge && <small>{missionReward.badge.badgeName}</small>}
+          </span>
         </div>
       )}
 
-      <div className="modal-actions completion-actions">
+      {!passed && <p className="fin-retry-note"><Bi>You need 60% to pass — have another go!</Bi></p>}
+
+      <div className="fin-actions">
         {!passed && onRetry && (
-          <button className="primary-button" onClick={onRetry} title="Starts a new attempt">
-            Try again
-          </button>
+          <button className="fin-btn fin-btn-quiet" onClick={onClose}><Bi block={false}>Not now</Bi></button>
         )}
-        {savedRecord && (
-          <button className="link-button" onClick={copySummary}>
-            {copied ? "Copied!" : "Show teacher / Copy result"}
-          </button>
-        )}
-        {onViewResults && (
-          <button className="link-button" onClick={onViewResults}>View Results</button>
-        )}
-        {onBoard && (
-          <button className="link-button" onClick={onBoard}>
-            Back to Mission Board
-          </button>
-        )}
-        <button className={passed && !onRetry ? "primary-button" : "link-button"} onClick={onClose}>
-          {onBoard ? "Continue exploring" : "Back to the island"}
+        <button className="fin-btn fin-btn-go" onClick={primary}>
+          <Bi block={false}>{!passed && onRetry ? "Try again" : "Continue"}</Bi>
+          {!touch && <kbd aria-hidden="true">Enter</kbd>}
         </button>
       </div>
-      {!passed && onRetry && <p className="completion-retry-hint">Try again creates a new attempt — your previous attempt is still saved.</p>}
+
+      {save && <div className={`fin-save fin-save-${cloudStatus}`}><span aria-hidden="true">{save.icon}</span> <Bi block={false}>{save.text}</Bi></div>}
     </div>
   );
 }

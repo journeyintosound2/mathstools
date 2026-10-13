@@ -21,6 +21,9 @@ import { makeAttemptId } from "../../results/resultTypes.js";
 import { routeForMission } from "../../data/topicWorldRoutes.js";
 import { LONG_MISSION_THRESHOLD } from "../../data/missions.js";
 import { useCloud } from "../../cloud/cloudSession.js";
+import { playerState } from "../../game/sessionStore.js";
+import { speakerInfo } from "../dialogue/speakers.js";
+import { Bi } from "../../i18n/i18n.jsx";
 
 // Enter checks the answer for these single-action modes; multiPart/table need
 // an explicit Check click, and math mode lets the MathLive field handle Enter.
@@ -136,6 +139,18 @@ function MathsRun({ encounter, onRetry }) {
   const [finished, setFinished] = useState(false);
   const [reward, setReward] = useState(null);
   const [cloudStatus, setCloudStatus] = useState(null); // null|pending|saved|failed|demo|skipped
+  const [marks, setMarks] = useState([]); // per question: true (right) / false (not yet)
+  const [confirmLeave, setConfirmLeave] = useState(false);
+  // WHO set this challenge (their face on the card): "Pip's Number Warm-up"
+  // → Pip; else whoever you just talked to; else none (a 🎯 badge).
+  const [host] = useState(() => {
+    const m = missionCtx.mission;
+    const fromTitle = m && m.title ? (String(m.title).match(/^(.+?)['’]s\b/) || [])[1] : null;
+    const lh = playerState.lastHost;
+    const recent = lh && lh.model === "npc" && Date.now() - lh.at < 120000 ? lh.name : null;
+    const name = fromTitle || recent || null;
+    return name ? { name, ...speakerInfo(name) } : null;
+  });
 
   const awardedRef = useRef(false);
   const earnedXpRef = useRef(0); // accumulates xpValue of correct answers
@@ -212,6 +227,7 @@ function MathsRun({ encounter, onRetry }) {
       feedback: question.feedback,
     });
 
+    setMarks((mk) => { const n = mk.slice(); n[index] = isCorrect; return n; });
     setStatus(isCorrect ? "correct" : "wrong");
   }
 
@@ -241,7 +257,9 @@ function MathsRun({ encounter, onRetry }) {
   useEffect(() => {
     if (finished) return undefined;
     function onKeyDown(e) {
+      if (e.key === "Escape") { e.preventDefault(); setConfirmLeave((c) => !c); return; }
       if (e.key !== "Enter") return;
+      if (confirmLeaveRef.current) return; // the leave question has the keys
       if (status === "answering") {
         if (mode === "math") return; // MathLive field handles its own Enter
         if (!ENTER_CHECK_MODES.has(mode)) return; // don't submit mid multi-field
@@ -252,6 +270,8 @@ function MathsRun({ encounter, onRetry }) {
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [status, finished, mode]);
+  const confirmLeaveRef = useRef(false);
+  confirmLeaveRef.current = confirmLeave;
 
   // Finish: decide pass/fail, award participation XP always, and only complete
   // the challenge/mission (and grant the mission reward) on a PASS (Phase 2G).
@@ -368,145 +388,157 @@ function MathsRun({ encounter, onRetry }) {
           badge: md.badge ? getBadge(md.badge) : null,
           rewardXP: md.rewardXP,
           rewardCoins: md.rewardCoins,
+          teacher: Boolean(missionCtx.mission && missionCtx.mission.kind === "teacher"),
         }
       : null;
-    // Teacher/free-choice missions get a fuller summary + a "Return to Mission
-    // Board" option. Story (npc-*) missions keep the simple island flow.
-    const m = missionCtx.mission;
-    const isTeacherMission = missionCtx.mode && m && m.kind && m.kind !== "story";
-    const missionSummary = isTeacherMission
-      ? { title: m.title, topics: m.selectedTopics || [], skills: m.selectedSkills || [] }
-      : null;
-    const onBoard = isTeacherMission
-      ? () => { closeEncounter(); openEncounter("mission-board"); }
-      : null;
-    const onViewResults = () => { closeEncounter(); useUI.getState().setResults(true); };
+    // (2026-10-13: the finish screen is just the score, the rewards and one
+    // button — every attempt is still in the Results Centre.)
     return (
       <CompletionScreen
-        title={resultTitle(passed)}
-        subtitle={`${bandMessage(pct)}  (${correctCount} of ${questionCount} correct · ${pct}%)`}
+        title={passed ? "Challenge complete!" : "Nearly there!"}
+        band={bandMessage(pct)}
+        correct={correctCount}
+        total={questionCount}
+        pct={pct}
         passed={passed}
         reward={reward || {}}
         missionReward={missionReward}
-        missionSummary={missionSummary}
-        savedRecord={savedRecordRef.current}
         cloudStatus={cloudStatus}
+        host={host}
         onRetry={passed ? null : onRetry}
-        onBoard={onBoard}
-        onViewResults={onViewResults}
         onClose={closeEncounter}
       />
     );
   }
 
-  function leaveWithConfirm() {
-    const ok = window.confirm(
-      "Leave this challenge? Your progress in this challenge will not be saved."
-    );
-    if (ok) closeEncounter();
-  }
+  const long = questionCount > LONG_MISSION_THRESHOLD;
+  const stars = Math.max(1, Math.min(5, question.difficultyLevel || 1));
+  const kicker = host ? host.name : missionCtx.mode ? "Mission" : "Challenge";
+  const cardTitle = (missionCtx.mode && missionCtx.mission && missionCtx.mission.title) || encounter.title;
 
   return (
-    <div className="modal-card">
-      <button className="modal-close" onClick={leaveWithConfirm} title="Leave challenge" aria-label="Leave challenge">
-        ✕
-      </button>
-      <div className="modal-header">
-        <span className="modal-npc" style={{ color: "#2667cc" }}>
-          {encounter.title}
+    <div className={`modal-card qcard is-${status}`} style={host && host.color ? { "--qc": host.color } : undefined}>
+      {/* The CHALLENGE CARD (2026-10-13 — Jeff: "the dialogue boxes for these
+          challenges is from the original version … update the look to the
+          same quality and polish"): the face of whoever set it, the
+          question big in the middle, results as pips, one main button. */}
+      <div className="qcard-head">
+        <span className="qcard-face" aria-hidden="true">
+          {host && host.img ? <img src={host.img} alt="" draggable="false" /> : <span>{(host && host.icon) || "🎯"}</span>}
         </span>
-        <span className="modal-topic">{question.topicName}</span>
-        {missionCtx.mode && (
-          <span className="mission-chip" title={missionCtx.mission?.title}>
-            🎯 Mission{missionCtx.mission?.adaptiveOn ? " · adaptive" : ""}
+        <span className="qcard-titles">
+          <span className="qcard-kicker">
+            <Bi block={false}>{kicker}</Bi>
+            {question.topicName && <> · <Bi block={false}>{question.topicName}</Bi></>}
+          </span>
+          <span className="qcard-title">{cardTitle}</span>
+        </span>
+        <button className="qcard-close" onClick={() => setConfirmLeave(true)} title="Leave challenge" aria-label="Leave challenge">✕</button>
+      </div>
+
+      <div className="qcard-track">
+        {long ? (
+          <span className="qcard-bar" aria-hidden="true"><span style={{ width: `${Math.round((index / questionCount) * 100)}%` }} /></span>
+        ) : (
+          <span className="qcard-pips" aria-hidden="true">
+            {questions.map((_, i) => (
+              <span key={i} className={marks[i] === true ? "ok" : marks[i] === false ? "miss" : i === index ? "now" : ""}>
+                {marks[i] === true ? "✓" : ""}
+              </span>
+            ))}
           </span>
         )}
-        <span className={`difficulty-chip diff-level-${question.difficultyLevel}`}>
-          {question.difficultyLabel} · +{question.xpValue} XP
-        </span>
-        <span className="modal-progress">
-          Question {index + 1} of {questionCount}
+        <span className="qcard-count"><Bi block={false}>Question</Bi> <b>{index + 1}</b> / {questionCount}</span>
+        <span className={`qcard-diff diff-level-${question.difficultyLevel}`} title={question.difficultyLabel}>
+          <span aria-hidden="true">{"★".repeat(stars)}<i>{"★".repeat(5 - stars)}</i></span> +{question.xpValue} XP
         </span>
       </div>
 
-      {/* Progress: dots for short missions; a clean bar for long ones. */}
-      {questionCount > LONG_MISSION_THRESHOLD ? (
-        <div className="q-progress-bar" aria-hidden="true">
-          <div className="q-progress-fill" style={{ width: `${Math.round((index / questionCount) * 100)}%` }} />
-        </div>
-      ) : (
-        <div className="q-dots" aria-hidden="true">
-          {questions.map((_, i) => (
-            <span key={i} className={`q-dot ${i < index ? "past" : ""} ${i === index ? "current" : ""}`} />
-          ))}
-        </div>
-      )}
+      <div className="qcard-q" key={`q-${index}`}>
+        <QuestionPrompt question={question} />
+        {/* Optional figure for diagram-based questions (e.g. Area). */}
+        {question.diagramType && question.diagramData && (
+          <DiagramRenderer question={question} />
+        )}
+      </div>
 
-      <QuestionPrompt question={question} />
-
-      {/* Optional figure for diagram-based questions (e.g. Area). Renders above
-          the answer input and works with both simple and MathLive input. */}
-      {question.diagramType && question.diagramData && (
-        <DiagramRenderer question={question} />
-      )}
-
-      <AnswerRenderer
-        question={question}
-        value={value}
-        onChange={(v) => { setValue(v); if (validationMsg) setValidationMsg(""); }}
-        disabled={status !== "answering"}
-        invalid={Boolean(validationMsg)}
-        result={lastGrade}
-        onMathEnter={() => handleEnterRef.current()}
-        remountKey={index}
-      />
-
-      {/* On-screen keypad (W4-D): touch devices type numeric answers here instead
-          of the OS keyboard. Only for the simple numeric mode while answering;
-          math uses MathLive's own keyboard, and the button modes need none. */}
-      {touchMode && mode === "simple" && status === "answering" && (
-        <TouchKeypad
-          onKey={(ch) => { setValue((v) => (v || "") + ch); if (validationMsg) setValidationMsg(""); }}
-          onBackspace={() => { setValue((v) => (v || "").slice(0, -1)); if (validationMsg) setValidationMsg(""); }}
-          onClear={() => { setValue(""); if (validationMsg) setValidationMsg(""); }}
+      <div className="qcard-answer">
+        <AnswerRenderer
+          question={question}
+          value={value}
+          onChange={(v) => { setValue(v); if (validationMsg) setValidationMsg(""); }}
+          disabled={status !== "answering"}
+          invalid={Boolean(validationMsg)}
+          result={lastGrade}
+          onMathEnter={() => handleEnterRef.current()}
+          remountKey={index}
         />
-      )}
 
-      {validationMsg && <div className="validation-msg">{validationMsg}</div>}
+        {/* On-screen keypad (W4-D): touch devices type numeric answers here
+            instead of the OS keyboard (simple numeric mode, while answering). */}
+        {touchMode && mode === "simple" && status === "answering" && (
+          <TouchKeypad
+            onKey={(ch) => { setValue((v) => (v || "") + ch); if (validationMsg) setValidationMsg(""); }}
+            onBackspace={() => { setValue((v) => (v || "").slice(0, -1)); if (validationMsg) setValidationMsg(""); }}
+            onClear={() => { setValue(""); if (validationMsg) setValidationMsg(""); }}
+          />
+        )}
+
+        {validationMsg && <div className="validation-msg"><Bi block={false}>{validationMsg}</Bi></div>}
+      </div>
 
       {status === "correct" && (
-        <div className="feedback correct pop">
-          <span className="feedback-head">Correct{lastGrade && lastGrade.total > 1 ? ` — all ${lastGrade.total} parts!` : ""}</span>
-          {question.feedback && <div className="feedback-work">{question.feedback}</div>}
+        <div className="feedback correct pop qcard-fb">
+          <span className="qcard-fb-icon" aria-hidden="true">✓</span>
+          <span>
+            <span className="feedback-head"><Bi block={false}>Correct!</Bi>{lastGrade && lastGrade.total > 1 ? ` — all ${lastGrade.total} parts!` : ""}</span>
+            {question.feedback && <div className="feedback-work">{question.feedback}</div>}
+          </span>
         </div>
       )}
       {status === "wrong" && (
-        <div className="feedback wrong pop">
-          <span className="feedback-head">Let's look at this one</span>
-          {lastGrade && lastGrade.total > 1 && (
-            <div className="part-score">{lastGrade.correctCount} of {lastGrade.total} parts correct (all parts needed)</div>
-          )}
-          <div className="feedback-work">
-            The answer is <strong>{question.answer}</strong>.
-            {question.feedback && <div className="feedback-explain">{question.feedback}</div>}
-          </div>
+        <div className="feedback wrong pop qcard-fb">
+          <span className="qcard-fb-icon" aria-hidden="true">💡</span>
+          <span>
+            <span className="feedback-head"><Bi block={false}>Let's look at this one</Bi></span>
+            {lastGrade && lastGrade.total > 1 && (
+              <div className="part-score">{lastGrade.correctCount} of {lastGrade.total} parts correct (all parts needed)</div>
+            )}
+            <div className="feedback-work">
+              <Bi block={false}>The answer is</Bi> <strong>{question.answer}</strong>.
+              {question.feedback && <div className="feedback-explain">{question.feedback}</div>}
+            </div>
+          </span>
         </div>
       )}
 
-      <div className="modal-actions">
+      <div className="qcard-actions">
+        <button className="qcard-leave" onClick={() => setConfirmLeave(true)}><Bi block={false}>Leave</Bi></button>
         {status === "answering" ? (
-          <button className="primary-button" onClick={checkAnswer}>
-            Check
+          <button className="qcard-go" onClick={checkAnswer}>
+            <Bi block={false}>Check</Bi>
+            {!touchMode && ENTER_CHECK_MODES.has(mode) && <kbd aria-hidden="true">Enter</kbd>}
           </button>
         ) : (
-          <button className="primary-button" onClick={next}>
-            {isLast ? "Finish" : "Next →"}
+          <button className="qcard-go is-next" onClick={next}>
+            <Bi block={false}>{isLast ? "Finish" : "Next"}</Bi> <span aria-hidden="true">▸</span>
+            {!touchMode && <kbd aria-hidden="true">Enter</kbd>}
           </button>
         )}
-        <button className="link-button" onClick={closeEncounter}>
-          Leave
-        </button>
       </div>
+
+      {confirmLeave && (
+        <div className="qcard-confirm" role="alertdialog" aria-modal="true" aria-label="Leave this challenge?">
+          <div className="qcard-confirm-box">
+            <b><Bi>Leave this challenge?</Bi></b>
+            <p><Bi>Your answers so far won't be saved.</Bi></p>
+            <div className="qcard-confirm-actions">
+              <button className="qcard-leave" onClick={closeEncounter}><Bi block={false}>Leave</Bi></button>
+              <button className="qcard-go" autoFocus onClick={() => setConfirmLeave(false)}><Bi block={false}>Keep going</Bi></button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

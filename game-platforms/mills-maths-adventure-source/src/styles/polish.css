@@ -1,0 +1,684 @@
+/* ===================================================================
+   FEEDBACK BATCH 2 (2026-10-13, evening) — the "Wiped out!" fall-in
+   overlay, the HUD's player card + top-right buttons, the challenge
+   question card + its finish screen, the "next stop" banner and the
+   treasure-chest prompt. Same family as the journey: deep navy glass,
+   warm gold, MMA Display titles and MMA Rounded text.
+   =================================================================== */
+
+/* ---- WIPED OUT! (fell into deep water → back to the spawn) ---------- */
+.wipe {
+  position: fixed; inset: 0; z-index: 1050;
+  pointer-events: auto;
+  overflow: hidden;
+  font-family: "MMA Rounded", var(--font);
+}
+/* A blue wash rising from the edges while you sink. */
+.wipe-tint {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 50% 55%, rgba(30, 110, 190, 0.12) 15%, rgba(20, 80, 160, 0.6) 55%, rgba(8, 36, 84, 0.92) 100%);
+  animation: wipe-tint-in 0.6s ease-out both, wipe-fade 0.4s ease-in var(--wipe-open) forwards;
+}
+@keyframes wipe-tint-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes wipe-fade { to { opacity: 0; } }
+/* The cartoon iris: a ring whose hole shrinks to nothing, then opens.
+   (A huge border round a shrinking box — works on every browser.) */
+.wipe-iris {
+  position: absolute; left: 50%; top: 50%;
+  box-sizing: content-box;
+  width: 130vmax; height: 130vmax; /* just past the screen's diagonal */
+  border: 160vmax solid #071a33;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  animation:
+    wipe-shut var(--wipe-shut) cubic-bezier(0.4, 0, 0.7, 0.6) var(--wipe-close) both,
+    wipe-open var(--wipe-opening) cubic-bezier(0.45, 0, 0.6, 1) var(--wipe-open) forwards; /* not "both": its backwards fill would black out the start */
+}
+@keyframes wipe-shut { from { width: 130vmax; height: 130vmax; } to { width: 0; height: 0; } }
+@keyframes wipe-open { from { width: 0; height: 0; } to { width: 130vmax; height: 130vmax; } }
+
+.wipe-card {
+  position: absolute; left: 50%; top: 50%;
+  width: min(420px, calc(100vw - 32px));
+  transform: translate(-50%, -50%);
+  text-align: center; color: #fff;
+  animation:
+    wipe-card-in 0.5s cubic-bezier(0.2, 1.35, 0.4, 1) var(--wipe-card) both,
+    wipe-card-out 0.32s ease-in calc(var(--wipe-open) - 120ms) forwards;
+}
+@keyframes wipe-card-in { from { opacity: 0; transform: translate(-50%, -80%) scale(0.85); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+@keyframes wipe-card-out { to { opacity: 0; transform: translate(-50%, -40%) scale(0.92); } }
+
+.wipe-badge {
+  position: relative;
+  width: 108px; height: 108px; margin: 0 auto 10px;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  background: radial-gradient(circle at 50% 35%, #3f8fd8 0%, #1b5aa0 70%, #123f74 100%);
+  box-shadow: 0 0 0 5px rgba(255, 255, 255, 0.9), 0 0 0 10px rgba(111, 211, 255, 0.35), 0 14px 34px rgba(0, 0, 0, 0.45);
+}
+.wipe-icon { font-size: 3.4rem; line-height: 1; animation: wipe-bob 1.2s ease-in-out infinite; }
+@keyframes wipe-bob { 50% { transform: translateY(6px) rotate(-6deg); } }
+.wipe-bubble {
+  position: absolute; left: calc(20% + var(--i) * 10%); bottom: 18%;
+  width: calc(6px + (var(--i) * 1px)); height: calc(6px + (var(--i) * 1px));
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.18);
+  opacity: 0;
+  animation: wipe-bubble 1.3s ease-in calc(var(--wipe-card) + var(--i) * 140ms) infinite;
+}
+@keyframes wipe-bubble {
+  0% { opacity: 0; transform: translateY(0) scale(0.6); }
+  20% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-110px) translateX(calc((var(--i) - 3) * 6px)) scale(1.1); }
+}
+.wipe-title {
+  margin: 0;
+  font: 400 clamp(2.4rem, 9vw, 3.6rem)/1 "MMA Display", "MMA Rounded", var(--font);
+  letter-spacing: 0.02em;
+  color: #ffcf4a;
+  text-shadow: 0 4px 0 #a2601a, 0 10px 24px rgba(0, 0, 0, 0.5);
+  animation: wipe-wobble 0.9s ease-in-out calc(var(--wipe-card) + 300ms) 2;
+}
+@keyframes wipe-wobble { 25% { transform: rotate(-3deg) scale(1.04); } 75% { transform: rotate(3deg) scale(1.04); } }
+.wipe-title .bi-en { display: block; font-size: 0.42em; color: rgba(255, 255, 255, 0.8); text-shadow: none; margin-top: 4px; }
+.wipe-line { margin: 12px 0 18px; font: 700 1.15rem/1.35 "MMA Rounded", var(--font); color: #e6f2ff; }
+.wipe-back {
+  display: inline-flex; flex-direction: column; align-items: center; gap: 8px;
+  font: 800 0.9rem/1.2 "MMA Rounded", var(--font);
+  color: rgba(255, 255, 255, 0.85);
+  letter-spacing: 0.04em;
+}
+.wipe-bar { width: 180px; height: 8px; border-radius: 999px; background: rgba(255, 255, 255, 0.18); overflow: hidden; }
+.wipe-bar i {
+  display: block; height: 100%; width: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #6fd3ff, #ffcf4a);
+  transform-origin: left center;
+  animation: wipe-fill var(--wipe-fill) linear var(--wipe-card) both;
+}
+@keyframes wipe-fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .wipe-iris { display: none; }
+  .wipe-tint { background: #071a33; animation: wipe-tint-rm var(--wipe-open) ease both, wipe-fade 0.5s ease var(--wipe-open) forwards; }
+  @keyframes wipe-tint-rm { from { opacity: 0; } 30% { opacity: 1; } to { opacity: 1; } }
+  .wipe-icon, .wipe-bubble, .wipe-title { animation: none; }
+  .wipe-bubble { display: none; }
+}
+@media (max-height: 520px) {
+  .wipe-badge { width: 76px; height: 76px; margin-bottom: 6px; }
+  .wipe-icon { font-size: 2.4rem; }
+  .wipe-line { margin: 8px 0 10px; font-size: 1rem; }
+}
+
+/* ---- The interaction prompt: "🙂 Talk to Pip  [Enter ↵]" ------------- */
+.interaction-prompt.ixp {
+  display: flex; align-items: center; gap: 12px;
+  padding: 6px 8px 6px 6px;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #2a5f9e, #173d6a);
+  color: #fffaf0;
+  font: 700 1.08rem/1.2 "MMA Rounded", var(--font);
+  box-shadow: 0 0 0 3px #ffcf4a, 0 12px 28px rgba(10, 30, 60, 0.38);
+  pointer-events: auto;
+  cursor: pointer;
+  z-index: 25;
+  animation: ixp-in 0.32s cubic-bezier(0.2, 1.35, 0.4, 1) both, bob 1.6s ease-in-out 0.4s infinite;
+}
+@keyframes ixp-in { from { opacity: 0; transform: translateX(-50%) translateY(14px) scale(0.92); } to { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); } }
+.ixp:hover { filter: brightness(1.08); }
+.ixp-badge {
+  width: 42px; height: 42px; flex: none;
+  border-radius: 50%; overflow: hidden;
+  display: grid; place-items: center;
+  background: radial-gradient(circle at 50% 30%, #ffffff 0%, #e8eef6 60%, #c9d6e6 100%);
+  box-shadow: 0 0 0 2px #fff;
+}
+.ixp-face { width: 100%; height: 100%; object-fit: cover; }
+.ixp-icon { font-size: 1.45rem; line-height: 1; }
+.ixp-label { white-space: nowrap; max-width: min(52vw, 420px); overflow: hidden; text-overflow: ellipsis; }
+.ixp-label .bi-inline .bi-en { opacity: 0.75; font-size: 0.85em; margin-left: 6px; }
+.interaction-prompt .ixp-key {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 7px 12px 6px; border-radius: 999px;
+  background: linear-gradient(180deg, #ffe08a, #ffcf4a);
+  color: #173d6a;
+  font: 800 0.92rem/1 "MMA Rounded", var(--font);
+  box-shadow: inset 0 -3px 0 rgba(160, 100, 20, 0.45);
+  animation: ixp-key 1.6s ease-in-out infinite;
+}
+@keyframes ixp-key { 0%, 70%, 100% { transform: translateY(0); box-shadow: inset 0 -3px 0 rgba(160, 100, 20, 0.45); } 80% { transform: translateY(2px); box-shadow: inset 0 -1px 0 rgba(160, 100, 20, 0.45); } }
+@media (prefers-reduced-motion: reduce) { .interaction-prompt.ixp, .ixp-key { animation: none; } }
+
+/* ---- NEXT STOP (a world just opened and you haven't been yet) -------- */
+.nextstop {
+  --world: #2f95d0;
+  position: absolute; left: 50%; top: calc(100px + var(--safe-t, 0px));
+  transform: translateX(-50%);
+  z-index: 26;
+  width: min(580px, calc(100vw - 32px));
+  display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 14px;
+  padding: 12px 14px 12px 12px;
+  border: 0; border-radius: 22px;
+  text-align: left; color: #fff; cursor: pointer; pointer-events: auto;
+  background: linear-gradient(120deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0) 45%), var(--world); /* (older browsers) */
+  background:
+    linear-gradient(120deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0) 45%),
+    linear-gradient(180deg, color-mix(in srgb, var(--world) 88%, #fff 12%), color-mix(in srgb, var(--world) 70%, #0b1a2c 30%));
+  box-shadow: 0 0 0 3px #ffcf4a, 0 0 0 7px rgba(255, 207, 74, 0.28), 0 16px 34px rgba(8, 20, 36, 0.4);
+  font-family: "MMA Rounded", var(--font);
+  animation: nextstop-in 0.6s cubic-bezier(0.2, 1.35, 0.4, 1) both, nextstop-glow 2.2s ease-in-out 0.6s infinite;
+}
+@keyframes nextstop-in { from { opacity: 0; transform: translateX(-50%) translateY(-26px) scale(0.92); } to { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); } }
+@keyframes nextstop-glow {
+  0%, 100% { box-shadow: 0 0 0 3px #ffcf4a, 0 0 0 7px rgba(255, 207, 74, 0.28), 0 16px 34px rgba(8, 20, 36, 0.4); }
+  50% { box-shadow: 0 0 0 3px #ffe08a, 0 0 0 12px rgba(255, 207, 74, 0.12), 0 16px 34px rgba(8, 20, 36, 0.4); }
+}
+.nextstop:hover { filter: brightness(1.06); }
+.nextstop-icon { position: relative; width: 64px; height: 64px; display: grid; place-items: center; }
+.nextstop-ring {
+  position: absolute; inset: 0; border-radius: 50%;
+  background: radial-gradient(circle at 50% 35%, #ffffff 0%, #eaf3fb 65%, #cfe0ef 100%);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.9);
+}
+.nextstop-ring::after {
+  content: ""; position: absolute; inset: -6px; border-radius: 50%;
+  border: 3px solid rgba(255, 207, 74, 0.9);
+  animation: nextstop-ping 1.8s ease-out infinite;
+}
+@keyframes nextstop-ping { from { transform: scale(0.85); opacity: 1; } to { transform: scale(1.35); opacity: 0; } }
+.nextstop-emoji { position: relative; font-size: 2.2rem; line-height: 1; animation: wipe-bob 1.8s ease-in-out infinite; }
+.nextstop-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.nextstop-kicker { font: 900 0.74rem/1.1 "MMA Rounded", var(--font); letter-spacing: 0.12em; text-transform: uppercase; color: #ffcf4a; text-shadow: 0 1px 0 rgba(0, 0, 0, 0.3); }
+.nextstop-title { font: 400 1.55rem/1.05 "MMA Display", "MMA Rounded", var(--font); text-shadow: 0 2px 0 rgba(0, 0, 0, 0.22); }
+.nextstop-line { font: 700 0.95rem/1.3 "MMA Rounded", var(--font); color: rgba(255, 255, 255, 0.92); }
+.nextstop .bi-inline .bi-en { opacity: 0.75; font-size: 0.8em; margin-left: 6px; }
+.nextstop-dial {
+  width: 68px; height: 68px; border-radius: 50%;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0;
+  background: rgba(8, 20, 36, 0.32); box-shadow: inset 0 0 0 2px rgba(255, 207, 74, 0.75);
+}
+.nextstop-arrow { display: grid; place-items: center; color: #ffcf4a; transition: transform 0.08s linear; }
+.nextstop-dist { font: 800 0.78rem/1 "MMA Rounded", var(--font); color: #fff; margin-top: 2px; }
+/* While it shows, it IS the guide — the small waypoint chip steps aside. */
+.hud:has(.nextstop) .hud-wp { display: none; }
+/* Phones / small screens: a slimmer bar under the top row. */
+.nextstop.is-compact {
+  position: relative; left: auto; top: auto; transform: none;
+  width: min(440px, calc(100vw - 24px));
+  grid-template-columns: auto 1fr auto; gap: 10px; padding: 8px 10px 8px 8px; border-radius: 18px;
+  animation: nextstop-in-c 0.5s cubic-bezier(0.2, 1.35, 0.4, 1) both, nextstop-glow 2.2s ease-in-out 0.5s infinite;
+}
+@keyframes nextstop-in-c { from { opacity: 0; transform: translateY(-16px) scale(0.94); } to { opacity: 1; transform: none; } }
+.nextstop.is-compact .nextstop-icon { width: 44px; height: 44px; }
+.nextstop.is-compact .nextstop-emoji { font-size: 1.55rem; }
+.nextstop.is-compact .nextstop-title { font-size: 1.15rem; }
+.nextstop.is-compact .nextstop-kicker { font-size: 0.66rem; }
+.nextstop.is-compact .nextstop-dial { width: 50px; height: 50px; }
+.nextstop.is-compact .nextstop-arrow svg { width: 22px; height: 22px; }
+.nextstop.is-compact .nextstop-dist { font-size: 0.68rem; }
+@media (prefers-reduced-motion: reduce) { .nextstop, .nextstop-ring::after, .nextstop-emoji { animation: none; } }
+
+/* The gate itself: "✦ NEW! Snowball Sums — step inside". */
+.unlock-sign.fresh {
+  background: linear-gradient(180deg, #ffd85a, #f2b01e); color: #3b2300;
+  font-size: 0.95rem; padding: 6px 14px; text-align: center;
+  box-shadow: 0 0 0 3px #fff, 0 0 22px rgba(255, 207, 74, 0.85);
+  animation: fresh-sign 1.4s ease-in-out infinite;
+}
+.unlock-sign.fresh b { display: inline-block; margin-right: 6px; padding: 1px 7px; border-radius: 999px; background: #d9442a; color: #fff; font-size: 0.78rem; }
+.unlock-sign-step { display: block; font-size: 0.72rem; font-weight: 800; opacity: 0.85; }
+@keyframes fresh-sign { 50% { transform: translateY(-4px) scale(1.04); } }
+
+/* ---- THE PLAYER CARD (top-left) -------------------------------------- */
+.hud-panel.hud-stats.pcard {
+  --xp: 0;
+  width: auto; min-width: 270px; max-width: min(360px, 70vw);
+  display: flex; align-items: center; gap: 12px;
+  padding: 8px 12px 8px 8px;
+  border-radius: 999px 22px 22px 999px;
+  background: linear-gradient(180deg, rgba(28, 56, 92, 0.92), rgba(14, 30, 50, 0.92));
+  color: #fff;
+  box-shadow: 0 0 0 2px rgba(255, 207, 74, 0.75), 0 10px 26px rgba(8, 20, 36, 0.35);
+  backdrop-filter: blur(6px);
+  font-family: "MMA Rounded", var(--font);
+}
+/* The level medallion: a gold ring that fills with your XP. */
+.pcard-medal {
+  position: relative; flex: none;
+  width: 58px; height: 58px; border-radius: 50%;
+  background: conic-gradient(#ffcf4a calc(var(--xp) * 360deg), rgba(255, 255, 255, 0.16) 0);
+  display: grid; place-items: center;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.85), 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+.pcard-medal-in {
+  width: 46px; height: 46px; border-radius: 50%;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0;
+  background: radial-gradient(circle at 50% 30%, #3b7cc4 0%, #1d4f8a 70%, #163e6e 100%);
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.25);
+}
+.pcard-medal-in small { font: 900 0.56rem/1 "MMA Rounded", var(--font); letter-spacing: 0.12em; color: #ffcf4a; }
+.pcard .hud-badge {
+  background: none; padding: 0; border-radius: 0;
+  font: 400 1.45rem/1 "MMA Display", "MMA Rounded", var(--font); color: #fff;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.3);
+}
+.pcard-medal.pulse { animation: pcard-pulse 0.9s cubic-bezier(0.2, 1.6, 0.4, 1); }
+@keyframes pcard-pulse { 0% { transform: scale(1); } 40% { transform: scale(1.22); box-shadow: 0 0 0 4px #ffcf4a, 0 0 26px rgba(255, 207, 74, 0.9); } 100% { transform: scale(1); } }
+.pcard-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.pcard .hud-name {
+  margin: 0; font: 400 1.18rem/1 "MMA Display", "MMA Rounded", var(--font);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.25);
+}
+.pcard .xp-bar {
+  display: block; position: relative; flex: none;
+  height: 16px; border-radius: 999px; overflow: hidden;
+  background: rgba(0, 0, 0, 0.35); box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+.pcard .xp-fill {
+  display: block; height: 100%; border-radius: inherit;
+  background: linear-gradient(180deg, #ffe08a, #f2b01e);
+  box-shadow: inset 0 -2px 0 rgba(150, 90, 10, 0.35);
+}
+.pcard .xp-text { color: #fff; font: 800 0.66rem/1 "MMA Rounded", var(--font); text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6); letter-spacing: 0.02em; }
+.pcard-coins {
+  flex: none; display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 10px 5px 7px; border-radius: 999px;
+  background: rgba(255, 207, 74, 0.16); box-shadow: inset 0 0 0 1.5px rgba(255, 207, 74, 0.6);
+}
+.pcard .coin { font-size: 1.15rem; line-height: 1; }
+.pcard .coin-count { font: 900 1.05rem/1 "MMA Rounded", var(--font); color: #ffe08a; min-width: 1ch; }
+/* Phones: one slim pill. */
+.hud-panel.hud-stats.pcard.is-compact {
+  min-width: 0; gap: 8px; padding: 4px 8px 4px 4px; border-radius: 999px;
+}
+.pcard.is-compact .pcard-medal { width: 40px; height: 40px; }
+.pcard.is-compact .pcard-medal-in { width: 32px; height: 32px; }
+.pcard.is-compact .pcard-medal-in small { font-size: 0.46rem; }
+.pcard.is-compact .hud-badge { font-size: 1.05rem; }
+.pcard.is-compact .pcard-body { flex: 0 1 auto; }
+.pcard.is-compact .xp-bar { width: clamp(52px, 17vw, 120px); height: 14px; }
+.pcard.is-compact .xp-text { font-size: 0.58rem; }
+.pcard.is-compact .pcard-coins { padding: 3px 8px 3px 5px; }
+.pcard.is-compact .coin-count { font-size: 0.92rem; }
+
+/* ---- THE TOP-RIGHT BAR ---------------------------------------------- */
+.hud-buttons:not(.is-compact) {
+  gap: 2px; padding: 5px;
+  border-radius: 20px;
+  background: linear-gradient(180deg, rgba(28, 56, 92, 0.92), rgba(14, 30, 50, 0.92));
+  box-shadow: 0 0 0 2px rgba(255, 207, 74, 0.6), 0 10px 26px rgba(8, 20, 36, 0.35);
+  backdrop-filter: blur(6px);
+  align-items: stretch;
+}
+.hud-buttons:not(.is-compact) .hud-icon-btn {
+  position: relative;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+  min-width: 64px; padding: 7px 10px 6px;
+  border-radius: 15px;
+  background: transparent; box-shadow: none;
+  color: #fff;
+  font: 800 0.74rem/1 "MMA Rounded", var(--font);
+  transition: background 0.12s ease, transform 0.08s ease;
+}
+.hud-buttons:not(.is-compact) .hud-icon-btn:hover { background: rgba(255, 207, 74, 0.18); }
+.hud-buttons:not(.is-compact) .hud-icon-btn:active { transform: translateY(1px); }
+.hud-buttons:not(.is-compact) .hud-icon-btn.active { background: rgba(255, 207, 74, 0.28); }
+.hb-ico { font-size: 1.3rem; line-height: 1; }
+.hb-lbl { white-space: nowrap; max-width: 120px; overflow: hidden; text-overflow: ellipsis; }
+.hb-lbl .bi-inline .bi-en { display: none; } /* (tight tiles: the translation alone) */
+.hb-key {
+  position: absolute; top: 3px; right: 4px;
+  min-width: 15px; height: 15px; padding: 0 3px; border-radius: 4px;
+  display: grid; place-items: center;
+  font: 900 0.56rem/1 "MMA Rounded", var(--font);
+  background: rgba(255, 207, 74, 0.9); color: #173d6a;
+}
+.hb-sep { width: 1px; margin: 8px 3px; background: rgba(255, 255, 255, 0.22); }
+.hud-buttons:not(.is-compact) .cloud-chip.cloud-registered,
+.hud-buttons:not(.is-compact) .cloud-chip.cloud-skip,
+.hud-buttons:not(.is-compact) .cloud-chip.cloud-pending { background: transparent; color: #fff; }
+.hud-buttons:not(.is-compact) .cloud-chip.cloud-registered .hb-lbl { color: #9be7a8; }
+.hud-buttons:not(.is-compact) .cloud-chip.cloud-skip .hb-lbl { color: rgba(255, 255, 255, 0.7); }
+.hud-buttons:not(.is-compact) .cloud-chip .sync-dot { position: absolute; top: 6px; right: 8px; }
+.hud-buttons:not(.is-compact) .hud-icon-btn.admin-chip { background: rgba(255, 215, 106, 0.16); color: #ffd76a; box-shadow: inset 0 0 0 1.5px #ffd76a; }
+/* Phones: round navy buttons with a gold rim. */
+.hud-buttons.is-compact .hud-icon-btn {
+  background: linear-gradient(180deg, rgba(28, 56, 92, 0.94), rgba(14, 30, 50, 0.94));
+  color: #fff; border-radius: 50%;
+  box-shadow: 0 0 0 2px rgba(255, 207, 74, 0.75), 0 6px 16px rgba(8, 20, 36, 0.35);
+}
+.hud-buttons.is-compact .hud-icon-btn.active { box-shadow: 0 0 0 3px #ffcf4a, 0 6px 16px rgba(8, 20, 36, 0.35); }
+.hud-buttons.is-compact .hb-ico { font-size: 1.3rem; }
+
+/* The options / ☰ menu: the same navy glass. */
+.cog-menu {
+  background: linear-gradient(180deg, rgba(28, 56, 92, 0.97), rgba(14, 30, 50, 0.97));
+  box-shadow: 0 0 0 2px rgba(255, 207, 74, 0.6), 0 16px 34px rgba(8, 20, 36, 0.45);
+  border-radius: 16px; padding: 8px; gap: 5px;
+  font-family: "MMA Rounded", var(--font);
+}
+.cog-item {
+  background: rgba(255, 255, 255, 0.07); border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff; border-radius: 11px; font-family: "MMA Rounded", var(--font);
+}
+.cog-item:hover { background: rgba(255, 207, 74, 0.16); }
+.cog-item-static:hover { background: rgba(255, 255, 255, 0.07); }
+.cog-main { border-bottom-color: rgba(255, 255, 255, 0.14); }
+.cog-main-btn { background: rgba(255, 255, 255, 0.1); color: #fff; font-family: "MMA Rounded", var(--font); }
+.cog-main-btn:hover { background: rgba(255, 207, 74, 0.2); }
+.cog-main-btn.cloud-chip.cloud-registered { background: rgba(63, 185, 80, 0.22); color: #c9f5cf; }
+.cog-main-btn.cloud-chip.cloud-skip, .cog-main-btn.cloud-chip.cloud-pending { background: rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.85); }
+
+/* The controls hint along the bottom. */
+.hud-panel.hud-controls {
+  background: rgba(14, 30, 50, 0.72); color: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 0 0 1px rgba(255, 207, 74, 0.35);
+  font: 700 0.78rem/1.2 "MMA Rounded", var(--font);
+  border-radius: 999px; backdrop-filter: blur(4px);
+}
+.cog-menu .cog-switch { background: rgba(255, 255, 255, 0.16); color: rgba(255, 255, 255, 0.85); }
+.cog-menu .cog-switch.on { background: #3fb950; color: #fff; }
+/* Computers + tablets: the waypoint / task chips tuck in under the taller bar. */
+@media (min-width: 701px) and (min-height: 501px) {
+  .hud > .hud-compass-stack { top: calc(88px + var(--safe-t, 0px)); }
+  .nextstop { top: calc(100px + var(--safe-t, 0px)); }
+}
+/* Over the world's floating name badges (drei <Html>, z ≤ 24). */
+.hud-buttons { z-index: 27; }
+.hud-panel.hud-stats.pcard { position: relative; z-index: 27; }
+/* Tablets held upright / narrow windows: slimmer tiles so the card + bar fit. */
+@media (min-width: 701px) and (max-width: 1020px) {
+  .hud-buttons:not(.is-compact) .hud-icon-btn { min-width: 50px; padding: 7px 6px 6px; font-size: 0.68rem; }
+  .hud-buttons:not(.is-compact) .hb-lbl { max-width: 76px; }
+  .hud-panel.hud-stats.pcard { min-width: 0; max-width: 320px; }
+  .pcard-medal { width: 52px; height: 52px; }
+  .pcard-medal-in { width: 41px; height: 41px; }
+}
+
+/* ---- THE CHALLENGE CARD (MathsEncounter) ----------------------------- */
+.modal-card.qcard {
+  --qc: #2a5f9e;
+  width: min(600px, 94vw);
+  padding: 0 0 16px;
+  gap: 0;
+  border-radius: 26px;
+  background: linear-gradient(180deg, #fffdf7 0%, #fff6e3 100%);
+  color: #22303f;
+  box-shadow: 0 0 0 3px var(--qc), 0 0 0 7px rgba(255, 255, 255, 0.55), 0 22px 50px rgba(6, 16, 30, 0.5);
+  font-family: "MMA Rounded", var(--font);
+  overflow: hidden;
+  animation: qcard-in 0.38s cubic-bezier(0.2, 1.25, 0.4, 1) both;
+}
+@keyframes qcard-in { from { opacity: 0; transform: translateY(24px) scale(0.96); } to { opacity: 1; transform: none; } }
+.qcard-head {
+  position: relative;
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 54px 12px 14px;
+  background: var(--qc); color: #fff;
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(0, 0, 0, 0.08));
+}
+.qcard-face {
+  flex: none; width: 58px; height: 58px; border-radius: 50%; overflow: hidden;
+  display: grid; place-items: center;
+  background: radial-gradient(circle at 50% 30%, #ffffff 0%, #e8eef6 60%, #c9d6e6 100%);
+  box-shadow: 0 0 0 3px #fff, 0 6px 14px rgba(0, 0, 0, 0.25);
+  font-size: 1.9rem;
+}
+.qcard-face img { width: 100%; height: 100%; object-fit: cover; }
+.qcard-titles { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.qcard-kicker { font: 800 0.78rem/1.2 "MMA Rounded", var(--font); letter-spacing: 0.06em; text-transform: uppercase; color: rgba(255, 255, 255, 0.85); }
+.qcard-title { font: 400 1.35rem/1.1 "MMA Display", "MMA Rounded", var(--font); text-shadow: 0 2px 0 rgba(0, 0, 0, 0.18); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.qcard-close {
+  position: absolute; top: 50%; right: 12px; transform: translateY(-50%);
+  width: 34px; height: 34px; border: 0; border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2); color: #fff; font: 900 0.95rem/1 "MMA Rounded", var(--font); cursor: pointer;
+}
+.qcard-close:hover { background: rgba(255, 255, 255, 0.32); }
+.qcard-track {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  padding: 12px 20px 4px;
+}
+.qcard-pips { display: flex; gap: 6px; flex: 1; min-width: 0; flex-wrap: wrap; }
+.qcard-pips span {
+  width: 20px; height: 20px; border-radius: 50%;
+  display: grid; place-items: center;
+  font: 900 0.68rem/1 "MMA Rounded", var(--font); color: #fff;
+  background: #e6dcc6; box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.08);
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+.qcard-pips span.now { background: #ffcf4a; box-shadow: 0 0 0 3px rgba(255, 207, 74, 0.35); transform: scale(1.12); }
+.qcard-pips span.ok { background: #3fb950; }
+.qcard-pips span.miss { background: #f0a24b; }
+.qcard-bar { flex: 1; height: 10px; border-radius: 999px; background: #e6dcc6; overflow: hidden; }
+.qcard-bar span { display: block; height: 100%; background: linear-gradient(90deg, #ffcf4a, #3fb950); border-radius: inherit; transition: width 0.3s ease; }
+.qcard-count { font: 700 0.85rem/1 "MMA Rounded", var(--font); color: #6b5d45; white-space: nowrap; }
+.qcard-count b { color: #22303f; font-size: 1rem; }
+.qcard-diff {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border-radius: 999px;
+  background: #fff; box-shadow: inset 0 0 0 1.5px #ecd9ad;
+  font: 800 0.76rem/1 "MMA Rounded", var(--font); color: #8a5a00; white-space: nowrap;
+}
+.qcard-diff span { color: #f2b01e; letter-spacing: 1px; }
+.qcard-diff i { color: #e6dcc6; font-style: normal; }
+.qcard-q {
+  margin: 10px 20px 0; padding: 18px 18px;
+  border-radius: 18px; background: #fff;
+  box-shadow: 0 0 0 1.5px #efe2c4, 0 6px 16px rgba(120, 90, 30, 0.08);
+  text-align: center;
+  animation: qcard-q 0.35s ease both;
+}
+@keyframes qcard-q { from { opacity: 0; transform: translateX(14px); } to { opacity: 1; transform: none; } }
+.qcard .question-prompt { margin: 0; font: 800 1.55rem/1.3 "MMA Rounded", var(--font); color: #1c2b3d; }
+.qcard .prompt-text { font-size: 1.15rem; font-weight: 700; color: #3c4a5c; }
+.qcard .prompt-expression { font-size: 1.8rem; color: #1c2b3d; text-align: center; }
+.qcard-answer { padding: 14px 20px 0; display: flex; flex-direction: column; gap: 10px; }
+.qcard .text-input {
+  font: 800 1.45rem/1.2 "MMA Rounded", var(--font);
+  text-align: center; padding: 14px 16px;
+  border: 3px solid #e3d3ad; border-radius: 16px; background: #fff;
+  box-shadow: inset 0 2px 4px rgba(120, 90, 30, 0.08);
+}
+.qcard .text-input:focus { border-color: #ffcf4a; box-shadow: 0 0 0 4px rgba(255, 207, 74, 0.3), inset 0 2px 4px rgba(120, 90, 30, 0.08); }
+.qcard .text-input.input-invalid { border-color: #f0a24b; background: #fff8ee; }
+.qcard.is-correct .text-input { border-color: #3fb950; background: #f0fbf2; }
+.qcard.is-wrong .text-input { border-color: #f0a24b; background: #fff8ee; }
+.qcard .validation-msg { margin: 0; text-align: center; color: #b45309; }
+.qcard-fb {
+  display: flex; align-items: flex-start; gap: 12px;
+  margin: 12px 20px 0; padding: 12px 14px; border-radius: 16px;
+}
+.qcard-fb-icon {
+  flex: none; width: 34px; height: 34px; border-radius: 50%;
+  display: grid; place-items: center; font: 900 1.1rem/1 "MMA Rounded", var(--font);
+}
+.feedback.correct .qcard-fb-icon { background: #3fb950; color: #fff; }
+.feedback.wrong .qcard-fb-icon { background: #ffe1b8; }
+.qcard .feedback-head { font: 800 1.08rem/1.25 "MMA Rounded", var(--font); }
+.qcard-actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 20px 0; }
+.qcard-go {
+  display: inline-flex; align-items: center; gap: 8px;
+  min-height: 50px; padding: 0 24px; border: 0; border-radius: 16px;
+  background: linear-gradient(180deg, #43c463, #2f9e4e); color: #fff;
+  font: 800 1.15rem/1 "MMA Rounded", var(--font); cursor: pointer;
+  box-shadow: 0 5px 0 #23763a, 0 10px 18px rgba(35, 118, 58, 0.25);
+  transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.1s ease;
+}
+.qcard-go:hover { filter: brightness(1.06); }
+.qcard-go:active { transform: translateY(4px); box-shadow: 0 1px 0 #23763a; }
+.qcard-go.is-next { background: linear-gradient(180deg, #3b7cc4, #24578f); box-shadow: 0 5px 0 #173d6a, 0 10px 18px rgba(23, 61, 106, 0.25); }
+.qcard-go kbd, .fin-btn kbd {
+  padding: 3px 7px; border-radius: 6px; font: 800 0.66rem/1 "MMA Rounded", var(--font);
+  background: rgba(255, 255, 255, 0.22); color: #fff; border-bottom: 2px solid rgba(0, 0, 0, 0.2);
+}
+.qcard-leave {
+  min-height: 44px; padding: 0 16px; border: 0; border-radius: 14px;
+  background: transparent; color: #6b5d45; box-shadow: inset 0 0 0 2px #e3d3ad;
+  font: 800 0.95rem/1 "MMA Rounded", var(--font); cursor: pointer;
+}
+.qcard-leave:hover { background: rgba(0, 0, 0, 0.04); }
+/* The leave question, inside the card. */
+.qcard-confirm {
+  position: absolute; inset: 0; z-index: 6;
+  display: grid; place-items: center; padding: 20px;
+  background: rgba(16, 32, 52, 0.55); backdrop-filter: blur(3px);
+  animation: wipe-tint-in 0.18s ease both;
+}
+.qcard-confirm-box {
+  width: min(360px, 100%); padding: 20px; border-radius: 20px; text-align: center;
+  background: #fffdf7; box-shadow: 0 0 0 3px #ffcf4a, 0 16px 34px rgba(0, 0, 0, 0.35);
+  animation: qcard-in 0.3s cubic-bezier(0.2, 1.25, 0.4, 1) both;
+}
+.qcard-confirm-box b { font: 400 1.4rem/1.1 "MMA Display", "MMA Rounded", var(--font); color: #1c2b3d; }
+.qcard-confirm-box p { margin: 8px 0 16px; color: #4b5563; font-weight: 700; }
+.qcard-confirm-actions { display: flex; justify-content: center; gap: 10px; }
+/* The touch keypad + the answer modes inside the card. */
+.qcard .touch-keypad { margin: 0 auto; }
+.qcard .choice-btn { border-radius: 14px; font-family: "MMA Rounded", var(--font); font-weight: 800; }
+@media (max-width: 560px), (max-height: 560px) {
+  .modal-card.qcard { padding-bottom: 12px; border-radius: 22px; }
+  .qcard-head { padding: 9px 48px 9px 10px; gap: 10px; }
+  .qcard-face { width: 44px; height: 44px; font-size: 1.4rem; }
+  .qcard-title { font-size: 1.1rem; }
+  .qcard-kicker { font-size: 0.68rem; }
+  .qcard-track { padding: 9px 14px 2px; gap: 8px; }
+  .qcard-pips span { width: 16px; height: 16px; font-size: 0.58rem; }
+  .qcard-q { margin: 8px 14px 0; padding: 12px; }
+  .qcard .question-prompt { font-size: 1.25rem; }
+  .qcard .prompt-expression { font-size: 1.4rem; }
+  .qcard-answer { padding: 10px 14px 0; }
+  .qcard .text-input { font-size: 1.2rem; padding: 10px 12px; }
+  .qcard-fb { margin: 10px 14px 0; padding: 10px 12px; }
+  .qcard-actions { padding: 12px 14px 0; }
+  .qcard-go { min-height: 46px; padding: 0 18px; font-size: 1.05rem; }
+}
+/* (The long phone layout scrolls inside the card, as before.) */
+body.touch-mode .modal-card.qcard { max-height: calc(100dvh - 16px); overflow-y: auto; }
+
+/* ---- THE FINISH SCREEN ------------------------------------------------ */
+.modal-card.fincard {
+  --qc: #2a5f9e;
+  position: relative;
+  width: min(440px, 92vw);
+  padding: 26px 24px 18px;
+  gap: 12px; align-items: center; text-align: center;
+  border-radius: 28px;
+  background: radial-gradient(ellipse at 50% 0%, #fff3cc 0%, #fffdf7 45%, #fff6e3 100%);
+  color: #22303f;
+  box-shadow: 0 0 0 3px #ffcf4a, 0 0 0 8px rgba(255, 207, 74, 0.25), 0 24px 54px rgba(6, 16, 30, 0.55);
+  font-family: "MMA Rounded", var(--font);
+  overflow: hidden;
+  animation: fin-in 0.5s cubic-bezier(0.2, 1.35, 0.4, 1) both;
+}
+.modal-card.fincard.is-retry { background: linear-gradient(180deg, #fffdf7, #fff1e0); box-shadow: 0 0 0 3px #f0a24b, 0 0 0 8px rgba(240, 162, 75, 0.2), 0 24px 54px rgba(6, 16, 30, 0.55); }
+@keyframes fin-in { from { opacity: 0; transform: scale(0.85); } to { opacity: 1; transform: none; } }
+.fin-close {
+  position: absolute; top: 12px; right: 12px; z-index: 3;
+  width: 32px; height: 32px; border: 0; border-radius: 50%;
+  background: rgba(0, 0, 0, 0.06); color: #4b5563; font: 900 0.9rem/1 "MMA Rounded", var(--font); cursor: pointer;
+}
+.fin-confetti { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.fin-confetti i { position: absolute; top: -12px; width: 9px; height: 14px; border-radius: 2px; animation: fin-fall 1.8s ease-in both; }
+@keyframes fin-fall { to { transform: translateY(520px) rotate(540deg); opacity: 0; } }
+.fin-medal { position: relative; width: 96px; height: 96px; display: grid; place-items: center; }
+.fin-medal-rays {
+  position: absolute; inset: -18px; border-radius: 50%;
+  background: repeating-conic-gradient(rgba(255, 207, 74, 0.45) 0 10deg, transparent 10deg 24deg);
+  animation: fin-spin 12s linear infinite;
+  mask-image: radial-gradient(circle, #000 40%, transparent 70%);
+  -webkit-mask-image: radial-gradient(circle, #000 40%, transparent 70%);
+}
+.is-retry .fin-medal-rays { display: none; }
+@keyframes fin-spin { to { transform: rotate(360deg); } }
+.fin-medal-face {
+  position: relative; width: 84px; height: 84px; border-radius: 50%;
+  display: grid; place-items: center; font-size: 2.8rem;
+  background: radial-gradient(circle at 50% 30%, #ffffff, #fff1c4 70%, #f6d77a 100%);
+  box-shadow: 0 0 0 4px #fff, 0 0 0 8px #ffcf4a, 0 10px 22px rgba(160, 100, 20, 0.35);
+  animation: fin-pop 0.6s cubic-bezier(0.2, 1.6, 0.4, 1) 0.15s both;
+}
+.is-retry .fin-medal-face { background: radial-gradient(circle at 50% 30%, #ffffff, #ffe9cf 70%, #f6c38a 100%); box-shadow: 0 0 0 4px #fff, 0 0 0 8px #f0a24b, 0 10px 22px rgba(160, 90, 20, 0.3); }
+@keyframes fin-pop { from { transform: scale(0.3) rotate(-20deg); } to { transform: none; } }
+.fin-title { margin: 0; font: 400 2rem/1.05 "MMA Display", "MMA Rounded", var(--font); color: #1c2b3d; }
+.fin-title .bi-en { display: block; font: 700 0.9rem/1.2 "MMA Rounded", var(--font); color: #6b7280; margin-top: 4px; }
+.fin-score { display: flex; align-items: center; gap: 14px; padding: 8px 16px 8px 8px; border-radius: 999px; background: #fff; box-shadow: 0 0 0 1.5px #efe2c4; }
+.fin-ring {
+  --p: 0;
+  width: 64px; height: 64px; border-radius: 50%; flex: none;
+  display: grid; place-items: center;
+  background: conic-gradient(#3fb950 calc(var(--p) * 360deg), #ece2cc 0);
+  animation: fin-ring 1s ease-out 0.2s both;
+}
+.is-retry .fin-ring { background: conic-gradient(#f0a24b calc(var(--p) * 360deg), #ece2cc 0); }
+@keyframes fin-ring { from { transform: rotate(-90deg) scale(0.6); opacity: 0; } to { transform: rotate(0) scale(1); opacity: 1; } }
+.fin-ring-in { width: 50px; height: 50px; border-radius: 50%; background: #fff; display: grid; place-items: center; }
+.fin-ring-in b { font: 900 1rem/1 "MMA Rounded", var(--font); color: #1c2b3d; }
+.fin-score-text { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; font: 700 1rem/1.2 "MMA Rounded", var(--font); color: #3c4a5c; text-align: left; }
+.fin-score-text b { font-size: 1.3rem; color: #1c2b3d; }
+.fin-score-text small { font-size: 0.86rem; color: #6b7280; font-weight: 700; }
+.fin-rewards { display: flex; gap: 10px; }
+.fin-chip {
+  display: inline-flex; align-items: baseline; gap: 4px;
+  padding: 9px 16px; border-radius: 999px;
+  font: 900 1.25rem/1 "MMA Rounded", var(--font);
+  animation: fin-pop 0.5s cubic-bezier(0.2, 1.6, 0.4, 1) both;
+}
+.fin-chip small { font-size: 0.8rem; }
+.fin-xp { background: linear-gradient(180deg, #3b7cc4, #24578f); color: #fff; box-shadow: 0 4px 0 #173d6a; }
+.fin-coins { background: linear-gradient(180deg, #ffe08a, #f2b01e); color: #5a3a00; box-shadow: 0 4px 0 #b57d10; }
+.fin-level {
+  padding: 8px 16px; border-radius: 14px;
+  background: linear-gradient(90deg, #6d4bd8, #a35bd8); color: #fff;
+  font: 800 1.05rem/1 "MMA Rounded", var(--font);
+  animation: fin-pop 0.5s cubic-bezier(0.2, 1.6, 0.4, 1) 0.6s both;
+}
+.fin-mission {
+  display: flex; align-items: center; gap: 10px; text-align: left;
+  padding: 8px 14px; border-radius: 14px; background: #eef7ff; box-shadow: inset 0 0 0 1.5px #bfdcf7;
+}
+.fin-mission-icon { font-size: 1.6rem; }
+.fin-mission b { display: block; font-size: 1rem; }
+.fin-mission small { color: #4b5563; font-weight: 700; }
+.fin-retry-note { margin: 0; color: #9a5b00; font-weight: 700; font-size: 0.95rem; }
+.fin-actions { display: flex; gap: 10px; justify-content: center; margin-top: 4px; }
+.fin-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  min-height: 52px; padding: 0 26px; border: 0; border-radius: 16px; cursor: pointer;
+  font: 800 1.15rem/1 "MMA Rounded", var(--font);
+}
+.fin-btn-go { background: linear-gradient(180deg, #43c463, #2f9e4e); color: #fff; box-shadow: 0 5px 0 #23763a, 0 10px 18px rgba(35, 118, 58, 0.25); }
+.is-retry .fin-btn-go { background: linear-gradient(180deg, #f6b25a, #e08a1e); box-shadow: 0 5px 0 #a8620e, 0 10px 18px rgba(168, 98, 14, 0.25); }
+.fin-btn-go:active { transform: translateY(4px); box-shadow: 0 1px 0 #23763a; }
+.fin-btn-quiet { background: transparent; color: #6b5d45; box-shadow: inset 0 0 0 2px #e3d3ad; }
+.fin-save { font: 700 0.8rem/1.2 "MMA Rounded", var(--font); color: #6b7280; }
+.fin-save-saved { color: #2f7d43; }
+@media (max-height: 560px) {
+  .modal-card.fincard { padding: 16px 18px 12px; gap: 8px; }
+  .fin-medal { width: 70px; height: 70px; }
+  .fin-medal-face { width: 62px; height: 62px; font-size: 2rem; }
+  .fin-title { font-size: 1.5rem; }
+  .fin-ring { width: 52px; height: 52px; }
+  .fin-ring-in { width: 40px; height: 40px; }
+  .fin-btn { min-height: 46px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .modal-card.qcard, .qcard-q, .modal-card.fincard, .fin-medal-face, .fin-chip, .fin-level, .fin-ring { animation: none; }
+  .fin-medal-rays { animation: none; }
+  .fin-confetti { display: none; }
+}
+.qcard.is-correct .text-input { box-shadow: 0 0 0 4px rgba(63, 185, 80, 0.22); }
+.qcard.is-wrong .text-input { box-shadow: 0 0 0 4px rgba(240, 162, 75, 0.25); }
+.fin-score-main { display: inline-flex; align-items: baseline; gap: 6px; }
+.fin-level-n { margin-left: 4px; padding: 2px 8px; border-radius: 999px; background: rgba(255, 255, 255, 0.22); }
+@media (max-width: 560px) {
+  .qcard-pips { gap: 4px; }
+  .qcard-pips span { width: 14px; height: 14px; font-size: 0.52rem; }
+  .qcard-diff { padding: 3px 7px; gap: 4px; font-size: 0.68rem; }
+  .qcard-count { font-size: 0.78rem; }
+  .qcard .text-input::placeholder { font-size: 0.95rem; }
+}

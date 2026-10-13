@@ -243,6 +243,16 @@
 > (every gate open, jump to any world — progress untouched). See "DONE
 > (2026-10-13, afternoon)". **644 → 650 checks; vite build clean.**
 >
+> **NEW (built 2026-10-13 evening, staged for deploy): FEEDBACK BATCH 2** —
+> falling into deep water now plays a "WIPED OUT!" sequence and puts you
+> back at the world's spawn (the old bounce could loop forever); lava's hop
+> lands exactly on solid ground; ENTER is the interaction key everywhere;
+> the first-person training step needs all four arrow keys; a big "NEXT
+> STOP" banner + beam + NEW! gate when a world opens; a new player card +
+> top bar; a new challenge card + a slimmed finish screen; a proper
+> treasure chest that opens. See "DONE (2026-10-13, evening)". **650 → 659
+> checks; vite build clean.**
+>
 > **NEXT UP options:** live visual pass + deploy of the snow world + cabin ·
 > teacher glbs for the six placeholder snow/cabin hosts (add each
 > characterId to characterModels.js) · a snow/cabin cloud-completion path
@@ -251,6 +261,125 @@
 > interactive plot-a-point input mode (tap the Cartesian grid) · Stage 5
 > depth (still only 2 sample skills) · more Stage 4 topics (Area extension)
 > · a DevPanel gallery to eyeball every new diagram/chart at once.
+
+## DONE (2026-10-13, evening) — FEEDBACK BATCH 2: wiped out, Enter, four-way look, next stop, HUD, challenge card, chest
+Jeff's second batch (7 screenshots), in his order: (1) when Pip, Fern and
+Alby are done "the notification is just a small thing in the top left" —
+make the next step (Snowball Sums) unmissable; (2) the top-left level/XP
+panel + the top-right buttons are first-version — match the polish;
+(3) upgrade the treasure chest and make it look open once opened;
+(4) interact with ENTER, not E, everywhere; (5) the training's "looking
+around" step was just / then / — make them use all the arrow keys for a
+bit; (6) the challenge question card is first-version; (7) the challenge-
+complete screen has too much on it (and too many buttons); (8) IMPORTANT:
+falling into the water looped forever (fall → pushed back → fall…). Mid-way
+he changed (8): "if they fall into the water, play a 'you died' type
+animation and then send them back to the starting spawn point".
+**650 → 659 checks (PL1–PL9 in `src/dev/polishChecks.js`), all passing;
+vite build clean.** Styles for all of it: `src/styles/polish.css` (new,
+loaded after journey.css, before mobile.css).
+- **(8) Falling in (`game/hazardRescue.js` + Player.jsx's hazard block).**
+  The loop: the old "hot-foot" bounce was a ballistic arc to the last safe
+  spot; when that spot was higher than the arc's apex the arc fell short,
+  the player was snapped onto the cliff/bank slope, `slideAt` slid them
+  back into the water, and the same spot was chosen again — forever.
+  Now: **deep WATER = WIPED OUT** — the island's sea (`islandHazardInfo`
+  says `kind: "water"`) and Snowball Sums' lake (`hazardKind: "water"`).
+  It triggers when you stand in deep water OR drop more than 0.3 m below
+  the surface (`waterLevelAt` hook: `islandWaterAt` / `snowWaterLevelAt`),
+  so a fall off the rope bridge goes under at the surface, not on the sea
+  floor. You sink (`WIPE.sinkMs`/`sinkDepth`, controls frozen), the
+  `ui/effects/WipeoutOverlay.jsx` irises shut (a blue wash, then a ring
+  closing — a huge-bordered shrinking circle, works everywhere) onto a
+  card "Wiped out! / You fell into the deep water! (or the freezing lake)
+  / Back to the start…" with bubbles + a filling bar and a "wah-wah-wahhh"
+  (`sound.js` "wipeout"); while dark (`WIPE.teleportAt` 2.2 s) the player
+  is teleported to the region's `spawn`; the iris opens (done at 3.3 s)
+  and the region's hazard hint shows ("stay in the shallows…").
+  **LAVA keeps its hop** (Magma Multiples, Ember Peak) but it's GUIDED:
+  safe spots are remembered along your path every 0.6 m (grounded, not
+  sliding, `isSafe`, and flagged `edge` when hazard is within 1 m); a touch
+  hops (scripted arc, `planHop`/`hopPoint`, physics off) to the newest
+  non-edge spot ≥ 2.2 m back — landing EXACTLY on it — and drops the spots
+  nearer the lava, so a second touch goes further back; a third touch
+  within 10 s goes to the spawn. The camera swings round behind you
+  mid-hop and walking pauses 0.35 s on landing. (`lastSafe` / `lavaFlight`
+  / `LAVA_BOUNCE_VY` are gone.)
+- **(4) Enter interacts (`game/interaction.js` `isInteractKey` /
+  `isTypingTarget`, App.jsx).** E still works quietly. Enter only interacts
+  when nothing else owns it: not on auto-repeat or with Ctrl/Alt/⌘, not
+  while typing (incl. `math-field`), not when another handler already
+  used the press (`defaultPrevented` — the dialogue's Next), not from a
+  focused button inside a card/dialog, not in a challenge / the map / the
+  wall look / a modal / the wipe-out, not in the Achievements Wall's zone
+  (its own Enter wins), and not within 0.5 s of a conversation closing (a
+  quick double-press can't reopen it). Every label says Enter: the new
+  prompt, the HUD hint bar, Help, the training (the talk keycap is "Enter
+  ↵"), the snow tour texts — Farsi/Arabic added. **The prompt itself**
+  (`ui/InteractionPrompt.jsx`) is now a navy pill with a gold rim: the
+  character's portrait (or 🪙 / 🪧 / 🗺️ / 💬), the label and a gold
+  "Enter ↵" keycap; clicking it does the same.
+- **(5) Four-way look (`journeyTrack.fpvLook` / `fpvTours`,
+  `noteFpvExit`).** In first-person, Player.jsx adds how far you look each
+  way (arrows or a drag); leaving first-person counts as the step only once
+  all four reach `FPV_LOOK_NEED` (0.8 rad ≈ half a second of each arrow) —
+  a part-look carries over. The training prompt shows the four arrow keys
+  filling up and turning green with ✓ (touch: a cross of four dials round a
+  👆), saying "Look around with all four arrow keys!" → "Now press / again
+  to come back." (`fpvLook` / `fpvBack` / `fpvAgain` phases).
+- **(1) NEXT STOP (`ui/journey/NextStopBanner.jsx`).** While a world is open
+  but unvisited (the journey's `travel` goal) a big banner in the world's
+  colour sits top-centre (phones: under the top row): "NEXT STOP · ❄️
+  Snowball Sums is open! · Go through the igloo gate — Igloo Hollow, under
+  Frosty Peak." with a live arrow + distance (off the island it points to
+  the gate home first). The first time it shows on the island it drops the
+  waypoint (the golden beam) on the gate; click it to point the way again.
+  The gate's sign shouts "NEW! ✦ Snowball Sums 👉 Step inside" from 95 m
+  (`freshPortal`, a `fresh` prop on every portal style). The small journey
+  tracker steps aside meanwhile (the celebration card is unchanged).
+- **(2) The player card + top bar (HUD.jsx).** Top-left: navy glass with a
+  gold rim — a LEVEL MEDALLION whose gold ring fills with your XP, your
+  name, a gold XP bar, a coin purse (phones: one slim pill + the journey
+  chip). Top-right: one navy bar of icon-over-label tiles (Map ᴍ, Quests ǫ,
+  Results, Help | Sign in, Options) with shortcut keycaps; phones: round
+  navy buttons. The options / ☰ menu, the hint bar along the bottom and the
+  admin chip are restyled to match. Both sit above the world's name badges
+  (z 27).
+- **(6) The challenge card (MathsEncounter's answering view, `.qcard`).**
+  A header strip in the host's colour with their PORTRAIT (from the mission
+  title "Pip's Number Warm-up", else whoever you just talked to —
+  `playerState.lastHost`, set in triggerInteraction; else 🎯), the topic +
+  title; result pips (✓ green / amber / gold now; a bar for long
+  missions), "Question 3 / 8", difficulty stars + XP; the question big in a
+  white box; a big centred answer box (green / amber when marked); feedback
+  as a card with an icon; Leave + one main button (Check → Next ▸ / Finish,
+  with an Enter keycap). Leaving asks INSIDE the card ("Leave this
+  challenge? … Keep going / Leave"; Esc toggles it) — no more
+  `window.confirm`, and the plain Leave link now asks too.
+- **(7) The finish screen (`encounters/CompletionScreen.jsx`, `.fincard`).**
+  A medal (🏆 90%+, ⭐ pass, 💪 not yet) with rays + confetti on a pass,
+  "Challenge complete!" / "Nearly there!", a score ring + "7 / 8 correct" +
+  the praise band, XP + coin chips that count up (a finished mission's
+  bonus folded in), a level-up pill, a badge/teacher-mission box only when
+  there's a badge or it was a teacher task, ONE short save line
+  (`cloudSaveShort`), and ONE button — Continue (or Try again + Not now).
+  Removed: quest progress, "Show teacher / Copy result", "View Results",
+  "Back to Mission Board", the long saved-where sentences. Enter = the main
+  button after 0.7 s (the press that finished can't skip it), Esc closes.
+- **(3) The treasure chest (`game/TreasureChest.jsx`, `game/chestStore.js`).**
+  A planked chest with iron straps, brass corners, feet, a ROUNDED lid with
+  straps and a brass lock plate + keyhole (a glint winks on it while shut).
+  Open chests live in `useChests` (reactive — the four once-per-visit
+  module flags in interaction.js are gone): the lid springs open on its
+  hinge, a heap of coins + two gems glow inside under a warm light, sparkles
+  drift up, and the badge says "🪙 Opened". Every chest (island, farm,
+  snow, school) uses it.
+- **Verified (headless, desktop / phone / iPad):** the wipe-out (off the
+  rope bridge → under at the surface → card → spawn + hint), the Magma lava
+  hop (one touch → 2.8 m back on the path, idle, no repeat), the four-way
+  look keycaps + step completion, the Enter prompt by Mills/Pip, the next-
+  stop banner + waypoint, the new HUD + menu, the challenge card (right,
+  wrong, leave?), the finish screen (pass + not yet), the chest shut/open.
 
 ## DONE (2026-10-13, afternoon) — FEEDBACK BATCH: dialogue box, big training, no skipping, new game, admin mode
 Jeff's feedback after playing the live journey + cloud progress build:
@@ -2935,7 +3064,7 @@ awards the trophy). L1–5 adaptive. Teacher tasks still override (handled upstr
 in interaction.js). Guarded by `runSchoolyardTopicChecks()`. Island NPCs (Pip/
 Fern/Alby) unchanged.
 
-## System checks (650)
+## System checks (659)
 `src/dev/systemChecks.js` → `runSystemChecks()`. Run headlessly: temporarily set
 `package.json` `"type":"module"`, shim `localStorage/window/document`, import and
 run; also babel parse-check `src/`, `portal/`, `functions/`. Restore package.json
@@ -3507,6 +3636,16 @@ speaking character gets an entry in `ui/dialogue/speakers.js` (colour,
 role, and a portrait rendered from its glb into `public/portraits/`). A new
 training step needs `done` + `prompt` ({keys, touch, near?}) in
 training.js, and the TrainingPrompt knows how to draw it.
+
+**Hazards + keys (2026-10-13 evening):** deep water is a WIPE-OUT to the
+spawn (a region marks water with `hazardKind: "water"` or
+`hazardInfo().kind`, plus `waterLevelAt` so a fall triggers at the
+surface); lava is a GUIDED hop (never put the old ballistic bounce back —
+it looped). ENTER is the interaction key: a new Enter handler must
+`preventDefault()` when it uses the press, and interaction never fires
+from a text box, a focused card button or within 0.5 s of a conversation
+closing. A new challenge screen uses the `.qcard` / `.fincard` look
+(polish.css), never a bare first-version modal.
 
 ### Phone / iPad / small-screen compatibility (STANDING RULE, 2026-10-11)
 Jeff's instruction: **all future challenges and updates include iPhone / iPad /

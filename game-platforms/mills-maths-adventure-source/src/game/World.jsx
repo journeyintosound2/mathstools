@@ -38,7 +38,7 @@ import CabinScenery from "./CabinScenery.jsx";
 import { isOnSnow, terrainHeight as snowTerrainHeight } from "../data/snow/snowTerrain.js";
 import SnowStage from "./snow/SnowStage.jsx";
 import Portal, { HaybalePortal, IglooPortal, VolcanoPortal, JunglePortal } from "./Portal.jsx";
-import { useJourney, lockForPortal } from "./journeyStore.js";
+import { useJourney, lockForPortal, freshPortal } from "./journeyStore.js";
 import JungleScenery from "./JungleScenery.jsx";
 import WaypointBeacon from "./maps/WaypointBeacon.jsx";
 import { JUNGLE_REGION_ID, isOnJunglePath, terrainHeight as jungleTerrainHeight } from "../data/jungle/jungleLayout.js";
@@ -232,7 +232,7 @@ export default function World({ title = false }) {
         const lr = isIsland ? 42 : isSchool ? 30 : 0;
         // A gate the journey hasn't opened yet is drawn SHUT (padlocked).
         const lock = isIsland ? lockForPortal(p.id) : null;
-        const lk = { locked: Boolean(lock), lockNote: lock ? lock.note : "" };
+        const lk = { locked: Boolean(lock), lockNote: lock ? lock.note : "", fresh: isIsland && !lock && freshPortal(p.id) };
         return p.variant === "cabindoor" ? null : p.variant === "jungle" ? (
           <JunglePortal key={p.id} position={p.position} rotationY={p.rotationY} label={p.label} y={gy} labelRange={lr} {...lk} />
         ) : p.variant === "volcano" ? (

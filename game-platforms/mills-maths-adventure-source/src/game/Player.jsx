@@ -52,6 +52,7 @@ import { snowChallengeView, snowParkSpot, SNOW_DOCK_LIFT } from "../data/snow/sn
 import { wallViewCamera } from "../data/island/wallView.js";
 import { challengePadY as snowStagePadY } from "../data/snow/snowTerrain.js";
 import { stageFraming, startStageViewportTracker, BASE_FOV } from "./stageViewport.js";
+import { WIPE, useWipeout, TRAIL_STEP, TRAIL_MAX, HOP_REPEAT_MS, HOP_EDGE_R, pickHopTarget, planHop, hopPoint } from "./hazardRescue.js";
 
 // Phone / iPad (2026-10-11): a locked challenge camera frames its stage into
 // the part of the screen the question card leaves free — an off-axis
@@ -192,7 +193,8 @@ const LIFT_HINT = "All aboard! 🚡 The chairlift will carry you up to the top."
 
 // Magma Multiples (regions with the isLava / slideAt hooks):
 const SLIDE_SPEED = 9; // m/s down a too-steep volcano flank
-const LAVA_BOUNCE_VY = 9.5; // the "hot-foot" pop back to safety
+// (Lava hops you back along your path, deep water wipes you out to the
+// spawn — game/hazardRescue.js.)
 const LAVA_HINT = "Ouch — hot lava! 🔥 Stick to the paths, bridges and stones.";
 const CAM_TERRAIN_CLEARANCE = 1.4; // keep the follow camera this far above the ground
 
@@ -303,8 +305,13 @@ export default function Player({ cinematic = false }) {
   const chuteRide = useRef(null); // { chute, s, off, v } while sledding down a chute
   const liftRide = useRef(null); // { t } while riding the chairlift
   const liftCooldown = useRef(0); // no instant re-boarding
-  const lastSafe = useRef(null); // last solid, non-lava spot (lava regions bounce you here)
-  const lavaFlight = useRef(false); // mid "hot-foot" bounce: no colliders/walls until landing
+  // Hazards (game/hazardRescue.js): deep WATER wipes you out back to the
+  // spawn; LAVA hops you back along your path.
+  const safeTrail = useRef([]); // recent safe spots, oldest → newest
+  const hazardHits = useRef([]); // lava touch times (three quick ones → the spawn)
+  const hop = useRef(null); // the guided lava hop in flight
+  const wipe = useRef(null); // { t0, y0 } while sinking after falling in deep water
+  const settleUntil = useRef(0); // a beat after a hop lands before you can walk again
   const climbing = useRef(null); // { wall, t } while hanging on a vine wall (Emerald Jungle)
   const prevYClimb = useRef(0); // last frame's height (climb animation)
   // Colliders with a height range (yMin / yMax = the band your FEET must be
@@ -336,15 +343,14 @@ export default function Player({ cinematic = false }) {
       vy.current = 0;
       grounded.current = true;
       {
-        // Teleports land on safe ground; if one ever didn't, fall back to the spawn.
         const tr = getRegion(useSession.getState().currentRegionId);
-        const okHere = !tr.isSafe || tr.isSafe(playerState.teleport.x, playerState.teleport.z);
         // A tap-to-move target from the OLD spot (e.g. the portal you walked
-      // into) means nothing after a teleport — drop it so you don't wander.
-      if (playerState.moveTarget) clearMoveTarget();
-      lastSafe.current = okHere
-          ? { x: playerState.teleport.x, y: 0, z: playerState.teleport.z }
-          : { x: tr.spawn.x, y: 0, z: tr.spawn.z };
+        // into) means nothing after a teleport — drop it so you don't wander.
+        if (playerState.moveTarget) clearMoveTarget();
+        // Safe spots (for the lava hop) are re-learnt from where you land.
+        safeTrail.current = [];
+        hazardHits.current = [];
+        settleUntil.current = 0;
         // Regions with a signature view (Magma Multiples: the volcano) turn
         // the player + camera to face it on arrival; a door-to-door arrival
         // (a world gate on Number Island) brings its own yaw.
@@ -354,7 +360,8 @@ export default function Player({ cinematic = false }) {
           group.current.rotation.y = ay + Math.PI;
         }
       }
-      lavaFlight.current = false;
+      hop.current = null;
+      wipe.current = null;
       climbing.current = null;
       chuteRide.current = null;
       liftRide.current = null;
@@ -384,7 +391,9 @@ export default function Player({ cinematic = false }) {
     // mode (in FPV the arrow/WASD keys steer the camera instead of the player),
     // OR while looking at the Achievements Wall (the arrows pick boards there).
     // …and while the full-screen world map is open.
-    const frozen = Boolean(activeEncounterId) || fpv || Boolean(wv) || useUI.getState().mapOpen;
+    // …and while a lava hop or a wipe-out (fell in deep water) plays out.
+    const rescuing = Boolean(hop.current) || Boolean(wipe.current);
+    const frozen = Boolean(activeEncounterId) || fpv || Boolean(wv) || useUI.getState().mapOpen || rescuing;
 
     // Fence Challenge mode (F2): fixed side-on camera + left/right-only walking
     // along the fence. Active for the whole challenge (placing → done).
@@ -499,7 +508,7 @@ export default function Player({ cinematic = false }) {
     // --- Movement (camera-relative; fence mode = world left/right only;
     // order/crate/milk modes = tap-only, no locomotion) ---
     move.current.set(0, 0, 0);
-    const canWalk = !frozen && !orderMode && !crateMode && !milkMode && !weighMode && !tradeMode && !veggieMode && !plankMode && !shopMode && !stageMode;
+    const canWalk = !frozen && Date.now() >= settleUntil.current && !orderMode && !crateMode && !milkMode && !weighMode && !tradeMode && !veggieMode && !plankMode && !shopMode && !stageMode;
     // The touch joystick (analogue): below JOY_DEAD it's ignored; the push
     // sets the walking pace; at the rim (touchInput.run) you RUN.
     const joyMag = Math.min(1, Math.hypot(touchInput.moveX, touchInput.moveY));
@@ -684,7 +693,7 @@ export default function Player({ cinematic = false }) {
     // Push INTO a vine wall to climb it; let go by pushing away or jumping.
     // At the top you pull yourself up over the lip onto the ledge above.
     let climbingNow = false;
-    if (region.climbAt && !frozen && !lavaFlight.current) {
+    if (region.climbAt && !frozen) {
       if (!climbing.current && hasInput) {
         const c = region.climbAt(pos.x, pos.z, pos.y);
         if (c && -(move.current.x * c.wall.nx + move.current.z * c.wall.nz) > 0.55) {
@@ -766,7 +775,7 @@ export default function Player({ cinematic = false }) {
       // vaults paddock / challenge fences — border fences stay non-jumpable.
       // (Terrain regions measure "aloft" from the ground under you, not y = 0.)
       const aloft = region.slideAt ? airborne && pos.y - groundAt(pos.x, pos.z) > 0.6 : pos.y > 0.9;
-      let activeColliders = lavaFlight.current ? [] : aloft ? colliders.filter((c) => !c.jumpable) : colliders;
+      let activeColliders = aloft ? colliders.filter((c) => !c.jumpable) : colliders;
       if (hasYRange && activeColliders.length) {
         activeColliders = activeColliders.filter((c) => (c.yMin === undefined || pos.y >= c.yMin) && (c.yMax === undefined || pos.y <= c.yMax));
       }
@@ -776,7 +785,7 @@ export default function Player({ cinematic = false }) {
 
       // Ground "walls": can't walk UP a surface taller than STEP_UP above the
       // current height (plateau side / final stair). Slide along it per-axis.
-      if (!lavaFlight.current && groundAt(nx, nz) > pos.y + STEP_UP) {
+      if (groundAt(nx, nz) > pos.y + STEP_UP) {
         if (groundAt(nx, prevZ) <= pos.y + STEP_UP) nz = prevZ;
         else if (groundAt(prevX, nz) <= pos.y + STEP_UP) nx = prevX;
         else { nx = prevX; nz = prevZ; }
@@ -911,7 +920,7 @@ export default function Player({ cinematic = false }) {
     // --- Jump (Shift or the on-screen Jump button): edge-triggered + only when
     // grounded → no flying. ---
     const jumpPressed = k.jump || touchInput.jump;
-    if (!frozen && !onFace && !climbingNow && !riding && !lavaFlight.current && !fenceMode && !orderMode && !crateMode && !milkMode && !weighMode && !tradeMode && !veggieMode && !plankMode && !shopMode && !stageMode) {
+    if (!frozen && !onFace && !climbingNow && !riding && !fenceMode && !orderMode && !crateMode && !milkMode && !weighMode && !tradeMode && !veggieMode && !plankMode && !shopMode && !stageMode) {
       if (jumpPressed && !jumpHeld.current && grounded.current) {
         vy.current = JUMP_VELOCITY;
         grounded.current = false;
@@ -935,9 +944,10 @@ export default function Player({ cinematic = false }) {
 
     // --- Verticality: follow the ground height; fall off ledges; land after a
     // jump. The walkable surface comes from groundHeightAt (plateau + stairs). ---
-    const ground = climbingNow || liftRiding ? pos.y : groundAt(pos.x, pos.z);
-    if (climbingNow || liftRiding) {
-      // Hanging on the vines / sitting on the chairlift — gravity waits.
+    const ground = climbingNow || liftRiding || rescuing ? pos.y : groundAt(pos.x, pos.z);
+    if (climbingNow || liftRiding || rescuing) {
+      // Hanging on the vines / sitting on the chairlift / mid-hop or sinking
+      // after falling in (scripted below) — gravity waits.
     } else if (grounded.current) {
       if (ground >= pos.y - STEP_DOWN) {
         pos.y = ground; // walk up small steps / stay / step down smoothly
@@ -978,34 +988,106 @@ export default function Player({ cinematic = false }) {
       }
     }
 
-    // --- LAVA (regions with an isLava hook) ------------------------------
-    // Touching lava never hurts: the player pops up in a "hot-foot" bounce
-    // whose arc lands exactly on the last safe spot they stood on.
-    if (region.isLava && !frozen && !riding) {
-      if (lavaFlight.current && grounded.current) lavaFlight.current = false;
-      if (grounded.current && region.isLava(pos.x, pos.z, pos.y)) {
-        const safe = lastSafe.current || { x: region.spawn.x, y: 0, z: region.spawn.z };
-        const dy = pos.y - safe.y;
-        const tFlight = (LAVA_BOUNCE_VY + Math.sqrt(Math.max(0, LAVA_BOUNCE_VY * LAVA_BOUNCE_VY + 2 * GRAVITY * dy))) / GRAVITY;
-        jumpVel.current.x = (safe.x - pos.x) / tFlight;
-        jumpVel.current.z = (safe.z - pos.z) / tFlight;
-        vy.current = LAVA_BOUNCE_VY;
-        grounded.current = false;
-        lavaFlight.current = true;
-        if (playerState.moveTarget) clearMoveTarget();
-        playerState.lavaHit = { x: pos.x, y: pos.y, z: pos.z, t: Date.now() };
-        // (Regions name their own hazard: Magma's lava, the snow world's icy
-        // lake; Number Island has two — the deep sea and Ember Peak's lava.)
-        const hz = region.hazardInfo ? region.hazardInfo(pos.x, pos.z) : null;
+    // --- HAZARDS (regions with an isLava hook) ---------------------------
+    // Deep WATER (the island's sea, the snow world's lake): you sink, the
+    // screen irises shut on "WIPED OUT!" and you're put back at the spawn.
+    // LAVA: a guided "hot-foot" hop back along your path that lands EXACTLY
+    // on a remembered safe spot (game/hazardRescue.js).
+    const nowMs = Date.now();
+    if (wipe.current) {
+      const w = wipe.current;
+      const t = nowMs - w.t0;
+      const s = Math.min(1, t / WIPE.sinkMs);
+      pos.y = w.y0 - WIPE.sinkDepth * s * s;
+      vy.current = 0;
+      grounded.current = false;
+      if (t >= WIPE.teleportAt) {
+        wipe.current = null;
+        playerState.teleport = { x: region.spawn.x, z: region.spawn.z };
+        // Once you're back, a reminder of what to avoid.
+        const hz = region.hazardInfo ? region.hazardInfo(w.x, w.z) : null;
         playerState.blockedHint = (hz && hz.hint) || region.hazardHint || LAVA_HINT;
         playerState.blockedIcon = "";
-        playerState.blockedExpiry = Date.now() + 2600;
-        useUI.getState().playSound((hz && hz.sound) || region.hazardSound || "lava");
-      } else if (grounded.current && !lavaFlight.current && !onFace) {
-        // Remember solid ground (re-checked every ~0.4 m, not every frame).
-        const ls = lastSafe.current;
-        if (!ls || Math.hypot(pos.x - ls.x, pos.z - ls.z) > 0.4) {
-          if (!region.isSafe || region.isSafe(pos.x, pos.z)) lastSafe.current = { x: pos.x, y: pos.y, z: pos.z };
+        playerState.blockedExpiry = nowMs + 5200;
+      }
+    } else if (hop.current) {
+      const h = hop.current;
+      const s = Math.min(1, (nowMs - h.t0) / h.dur);
+      const pt = hopPoint(h, s);
+      pos.set(pt.x, pt.y, pt.z);
+      group.current.rotation.y = Math.atan2(h.to.x - h.from.x, h.to.z - h.from.z);
+      // The free camera swings round behind you, so you face away from the lava.
+      if (h.turnCam) camYaw.current = lerpAngle(camYaw.current, Math.atan2(h.from.x - h.to.x, h.from.z - h.to.z), 1 - Math.exp(-2.5 * delta));
+      vy.current = 0;
+      grounded.current = false;
+      if (s >= 1) {
+        pos.y = groundAt(h.to.x, h.to.z, h.to.y + 0.2);
+        grounded.current = true;
+        jumpVel.current.x = 0; jumpVel.current.z = 0;
+        iceVel.current.x = 0; iceVel.current.z = 0;
+        hop.current = null;
+        settleUntil.current = nowMs + 350;
+      }
+    } else if (region.isLava && !frozen && !riding && !climbingNow) {
+      const hz = region.hazardInfo ? region.hazardInfo(pos.x, pos.z) : null;
+      const kind = (hz && hz.kind) || region.hazardKind || "lava";
+      // Touching it: standing in it, or (water) dropping below its surface.
+      let hit = grounded.current && region.isLava(pos.x, pos.z, pos.y);
+      if (!hit && !grounded.current && vy.current < 0 && kind === "water" && region.waterLevelAt) {
+        const lvl = region.waterLevelAt(pos.x, pos.z);
+        hit = lvl !== null && pos.y < lvl - 0.3 && region.isLava(pos.x, pos.z, pos.y);
+      }
+      if (hit) {
+        if (playerState.moveTarget) clearMoveTarget();
+        playerState.lavaHit = { x: pos.x, y: pos.y, z: pos.z, t: nowMs };
+        jumpVel.current.x = 0; jumpVel.current.z = 0;
+        iceVel.current.x = 0; iceVel.current.z = 0;
+        vy.current = 0;
+        grounded.current = false;
+        if (kind === "water") {
+          wipe.current = { t0: nowMs, y0: pos.y, x: pos.x, z: pos.z };
+          safeTrail.current = [];
+          hazardHits.current = [];
+          playerState.blockedHint = null;
+          useWipeout.getState().start({ kind, line: (hz && hz.wipe) || region.wipeLine || "You fell into the deep water!" });
+          useUI.getState().playSound((hz && hz.sound) || region.hazardSound || "splash");
+          useUI.getState().playSound("wipeout");
+        } else {
+          hazardHits.current = hazardHits.current.filter((t) => nowMs - t < HOP_REPEAT_MS);
+          hazardHits.current.push(nowMs);
+          const from = { x: pos.x, y: pos.y, z: pos.z };
+          const pick = pickHopTarget(safeTrail.current, from, hazardHits.current.length);
+          let to = pick.spot;
+          if (to) safeTrail.current.length = pick.keep;
+          else {
+            // Third touch in a row (or nowhere remembered): back to the spawn.
+            to = { x: region.spawn.x, y: groundAt(region.spawn.x, region.spawn.z, 1e4), z: region.spawn.z };
+            safeTrail.current = [];
+            hazardHits.current = [];
+          }
+          hop.current = { ...planHop(from, to, (x, z) => groundAt(x, z, 1e4)), t0: nowMs, turnCam: canOrbit || cameraLock };
+          playerState.blockedHint = (hz && hz.hint) || region.hazardHint || LAVA_HINT;
+          playerState.blockedIcon = "";
+          playerState.blockedExpiry = nowMs + 2600;
+          useUI.getState().playSound((hz && hz.sound) || region.hazardSound || "lava");
+        }
+      } else if (grounded.current && !onFace) {
+        // Remember safe ground along your path (every TRAIL_STEP metres).
+        const tr = safeTrail.current;
+        const last = tr[tr.length - 1];
+        if ((!last || Math.hypot(pos.x - last.x, pos.z - last.z) > TRAIL_STEP) &&
+            (!region.isSafe || region.isSafe(pos.x, pos.z)) &&
+            !region.isLava(pos.x, pos.z, pos.y) &&
+            !(region.slideAt && region.slideAt(pos.x, pos.z, pos.y))) {
+          let edge = false;
+          for (let i = 0; i < 6 && !edge; i++) {
+            const a = (i / 6) * Math.PI * 2;
+            const sx = pos.x + Math.cos(a) * HOP_EDGE_R;
+            const sz = pos.z + Math.sin(a) * HOP_EDGE_R;
+            edge = region.isLava(sx, sz, groundAt(sx, sz, pos.y));
+          }
+          tr.push({ x: pos.x, y: pos.y, z: pos.z, edge });
+          if (tr.length > TRAIL_MAX) tr.shift();
         }
       }
     }
@@ -1026,7 +1108,7 @@ export default function Player({ cinematic = false }) {
     // lava bounces or teleports).
     {
       const stepD = Math.hypot(pos.x - prevX, pos.z - prevZ);
-      if (!frozen && !riding && !lavaFlight.current && stepD < 2) {
+      if (!frozen && !riding && stepD < 2) {
         journeyTrack.walked += stepD;
         if (running) journeyTrack.ran += stepD;
       }
@@ -1107,12 +1189,17 @@ export default function Player({ cinematic = false }) {
       // --- First-person look (W6): camera at the eyes; arrows/WASD pan the view.
       if (!fpvInit.current) { fpvYaw.current = group.current.rotation.y; fpvPitch.current = 0; fpvInit.current = true; }
       const LOOK = 1.7 * delta;
-      if (k.left) fpvYaw.current += LOOK;
-      if (k.right) fpvYaw.current -= LOOK;
-      if (k.forward) fpvPitch.current = Math.min(1.2, fpvPitch.current + LOOK);
-      if (k.backward) fpvPitch.current = Math.max(-1.0, fpvPitch.current - LOOK);
-      if (fpvDragYaw) fpvYaw.current += fpvDragYaw;
-      if (fpvDragPitch) fpvPitch.current = Math.max(-1.0, Math.min(1.2, fpvPitch.current + fpvDragPitch));
+      // (The training counts how far you look each way — journeyTrack.fpvLook.)
+      const fl = journeyTrack.fpvLook;
+      if (k.left) { fpvYaw.current += LOOK; fl.left += LOOK; }
+      if (k.right) { fpvYaw.current -= LOOK; fl.right += LOOK; }
+      if (k.forward) { fpvPitch.current = Math.min(1.2, fpvPitch.current + LOOK); fl.up += LOOK; }
+      if (k.backward) { fpvPitch.current = Math.max(-1.0, fpvPitch.current - LOOK); fl.down += LOOK; }
+      if (fpvDragYaw) { fpvYaw.current += fpvDragYaw; if (fpvDragYaw > 0) fl.left += fpvDragYaw; else fl.right -= fpvDragYaw; }
+      if (fpvDragPitch) {
+        fpvPitch.current = Math.max(-1.0, Math.min(1.2, fpvPitch.current + fpvDragPitch));
+        if (fpvDragPitch > 0) fl.up += fpvDragPitch * 1.6; else fl.down -= fpvDragPitch * 1.6; // (a tilt is a shorter drag)
+      }
       const eyeY = p.y + 1.7;
       camera.position.set(p.x, eyeY, p.z);
       const cp = Math.cos(fpvPitch.current);

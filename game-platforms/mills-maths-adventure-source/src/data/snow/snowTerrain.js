@@ -767,6 +767,10 @@ export function snowHazardAt(x, z, y) {
   if (y !== undefined && y > LAKE_LEVEL + 0.25) return false; // on a deck / floe
   return structureTopAt(x, z, y === undefined ? Infinity : y + 0.3) === null;
 }
+/** The lake's surface where (x, z) is lake water, else null (falling in). */
+export function snowWaterLevelAt(x, z) {
+  return inLakeWater(x, z) ? LAKE_LEVEL : null;
+}
 /** A good spot to be returned to (dry, not icy, not steep, not in a chute). */
 export function snowIsSafe(x, z) {
   if (inLakeWater(x, z) || iceKind(x, z) !== null || slopeAt(x, z) > 0.7) return false;

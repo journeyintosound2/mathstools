@@ -60,14 +60,16 @@ export const TRAINING_STEPS = [
   },
   {
     id: "fpv", icon: "👁️", title: "First-person view",
-    key: "Press / to see through your explorer's eyes. Look around with the arrow keys, then press / again to come back.",
-    touch: "Tap the 👁️ button to see through your explorer's eyes. Drag to look around, then tap 👁️ again to come back.",
-    goal: { track: "fpvExits", amount: 1 }, meter: "none",
+    key: "Press / to see through your explorer's eyes. Look around with all four arrow keys, then press / again to come back.",
+    touch: "Tap the 👁️ button to see through your explorer's eyes. Drag left, right, up and down to look around, then tap 👁️ again to come back.",
+    // Done = back out of first-person having looked all four ways
+    // (journeyStore's fpvLook / fpvTours).
+    goal: { track: "fpvTours", amount: 1 }, meter: "none",
     done: "You saw through your explorer's eyes!", prompt: { keys: "fpv", touch: "eye" },
   },
   {
     id: "mills", icon: "👋", title: "Meet Mills",
-    key: "Walk up to Mills on the green and press E to talk to him.",
+    key: "Walk up to Mills on the green and press Enter to talk to him.",
     touch: "Tap Mills to walk over and talk to him.",
     goal: { track: "millsTalks", amount: 1 }, meter: "none",
     where: { x: MILLS_SPOT.position[0], z: MILLS_SPOT.position[1] + 2, label: "Mills", icon: "👋", arrive: 3 },
@@ -93,17 +95,21 @@ export const TRAINING_STEPS = [
 /**
  * The big training prompt's live words (ui/journey/TrainingPrompt.jsx):
  * a step can change what it asks for as you go (in first-person → "press /
- * again"; next to Mills → "press E now"). Fixed strings, so they translate.
+ * again"; next to Mills → "press Enter now"). Fixed strings, so they translate.
  */
 export const TRAINING_PROMPTS = {
   key: {
+    fpvLook: "Look around with all four arrow keys!",
     fpvBack: "Now press / again to come back.",
-    talkNear: "Press E to talk to Mills!",
+    fpvAgain: "Press / to look again — try all four arrow keys.",
+    talkNear: "Press Enter to talk to Mills!",
     wallNear: "Press Enter to look at the wall!",
     follow: "Follow the arrow.",
   },
   touch: {
+    fpvLook: "Drag left, right, up and down to look around!",
     fpvBack: "Now tap 👁️ again to come back.",
+    fpvAgain: "Tap 👁️ to look again — drag all four ways.",
     talkNear: "Tap Talk!",
     wallNear: "Tap the Achievements Wall button!",
     follow: "Follow the arrow.",
@@ -141,7 +147,7 @@ export const WORLD_INTROS = {
     },
     {
       id: "trophies", icon: "🏆", title: "Your trophy stand",
-      key: "Follow the arrow to the trophy stand and press E to open it.",
+      key: "Follow the arrow to the trophy stand and press Enter to open it.",
       touch: "Follow the arrow to the trophy stand and tap it to open it.",
       goal: { track: "trophyCloses", amount: 1 }, meter: "none",
       where: { x: SNOW_RECORDS_STAND.position[0], z: SNOW_RECORDS_STAND.position[1], label: "Trophy stand", icon: "🏆", arrive: 3.2 },
@@ -154,7 +160,7 @@ export const WORLD_INTROS = {
     },
     {
       id: "go", icon: "⛸️", title: "Your first challenge",
-      key: "Follow the arrow, then press E by the challenge's sign to play.",
+      key: "Follow the arrow, then press Enter by the challenge's sign to play.",
       touch: "Follow the arrow, then tap the challenge's sign to play.",
       goal: { track: "challengeStarts", amount: 1 }, meter: "none",
     },

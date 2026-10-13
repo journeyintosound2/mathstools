@@ -1,4 +1,4 @@
-import { useSession } from "./sessionStore.js";
+import { useSession, playerState } from "./sessionStore.js";
 import { useProgress } from "../progress/store.js";
 import { useUI } from "../ui/effects/uiStore.js";
 import { getChain } from "../data/npcQuestChains.js";
@@ -36,6 +36,7 @@ import { exitMagmaExcept, magmaStore } from "./magma/magmaActive.js";
 import { exitJungleExcept, jungleStore } from "./jungle/jungleActive.js";
 import { journeyTrack, useJourney } from "./journeyStore.js";
 import { millsJourneyLines } from "../data/journey.js";
+import { useChests } from "./chestStore.js";
 
 // Only one in-world challenge (farm OR snow) runs at a time — starting one
 // exits the others.
@@ -68,30 +69,48 @@ function exitFarmChallengesExcept(keep) {
 
 // The random treasure chest gives a small coins bonus, once per session.
 const CHEST_COINS = 15;
-let chestOpened = false;
+// Which chests are open (reactive — the 3D chest swings its lid open): game/TreasureChest.jsx.
 // The Fraction Farm chest — its own once-per-session bonus, tracked separately.
 const FARM_CHEST_COINS = 15;
-let farmChestOpened = false;
-let snowChestOpened = false;
-let schoolChestOpened = false;
+
+/**
+ * THE INTERACTION KEY is ENTER (2026-10-13 — Jeff: "change the interact
+ * button from 'e' to 'enter' for all interactions"), the same key that goes
+ * on through a conversation and opens the Achievements Wall. E still works
+ * quietly for anyone who learnt it. A held key's auto-repeat never counts
+ * (it would re-open a conversation the same press just closed).
+ */
+export const INTERACT_KEY_LABEL = "Enter";
+export function isInteractKey(e) {
+  if (!e || e.repeat || e.altKey || e.ctrlKey || e.metaKey) return false;
+  return e.key === "Enter" || (typeof e.key === "string" && e.key.toLowerCase() === "e");
+}
+/** Is a key press going into a text box (answer box, MathLive, a form)? */
+export function isTypingTarget(t) {
+  if (!t) return false;
+  const tag = (t.tagName || "").toLowerCase();
+  return tag === "input" || tag === "textarea" || tag === "select" || tag === "math-field" || Boolean(t.isContentEditable);
+}
 
 /**
  * Run the interaction for an interactable — the single source of truth shared by
- * BOTH the keyboard ("E") path in App.jsx AND the touch "Interact with X?"
+ * BOTH the keyboard (Enter) path in App.jsx AND the touch "Interact with X?"
  * confirm (W4-C). Opens the trophy room / the right progress-aware dialogue /
  * the assigned-mission dialogue / the NPC chain, or falls back to the object's
  * encounter. Reads all state via getState() so it works outside React.
  */
 export function triggerInteraction(interactable) {
   if (!interactable) return;
+  // Who you're talking to — the challenge card shows their face (MathsEncounter).
+  playerState.lastHost = { id: interactable.id, name: interactable.name, model: interactable.model, at: Date.now() };
 
   // The random treasure chest (W6-B): a small coins bonus, once per session
   // (re-findable — it moves to a new spot each load).
   if (interactable.id === "chest") {
     const prog = useProgress.getState();
     const openDlg = useSession.getState().openDialogue;
-    if (!chestOpened) {
-      chestOpened = true;
+    if (!useChests.getState().isOpen("chest")) {
+      useChests.getState().open("chest");
       prog.awardRewards({ coins: CHEST_COINS });
       useUI.getState().pushToast({ type: "reward", icon: "🪙", title: "Treasure!", message: `You found ${CHEST_COINS} coins.` });
       openDlg({ speaker: "Treasure Chest", lines: [`You pry open the old chest… ${CHEST_COINS} shiny coins inside! ✨`] });
@@ -105,8 +124,8 @@ export function triggerInteraction(interactable) {
   if (interactable.id === "farm-chest") {
     const prog = useProgress.getState();
     const openDlg = useSession.getState().openDialogue;
-    if (!farmChestOpened) {
-      farmChestOpened = true;
+    if (!useChests.getState().isOpen("farm-chest")) {
+      useChests.getState().open("farm-chest");
       prog.awardRewards({ coins: FARM_CHEST_COINS });
       useUI.getState().pushToast({ type: "reward", icon: "🪙", title: "Treasure!", message: `You found ${FARM_CHEST_COINS} coins.` });
       openDlg({ speaker: "Treasure Chest", lines: [`Tucked behind the hay… ${FARM_CHEST_COINS} shiny coins! ✨`] });
@@ -120,8 +139,8 @@ export function triggerInteraction(interactable) {
   if (interactable.id === "snow-chest") {
     const prog = useProgress.getState();
     const openDlg = useSession.getState().openDialogue;
-    if (!snowChestOpened) {
-      snowChestOpened = true;
+    if (!useChests.getState().isOpen("snow-chest")) {
+      useChests.getState().open("snow-chest");
       prog.awardRewards({ coins: FARM_CHEST_COINS });
       useUI.getState().pushToast({ type: "reward", icon: "🪙", title: "Treasure!", message: `You found ${FARM_CHEST_COINS} coins.` });
       openDlg({ speaker: "Treasure Chest", lines: [`Frozen shut… crack! ${FARM_CHEST_COINS} icy coins! ❄️`] });
@@ -135,8 +154,8 @@ export function triggerInteraction(interactable) {
   if (interactable.id === "school-chest") {
     const prog = useProgress.getState();
     const openDlg = useSession.getState().openDialogue;
-    if (!schoolChestOpened) {
-      schoolChestOpened = true;
+    if (!useChests.getState().isOpen("school-chest")) {
+      useChests.getState().open("school-chest");
       prog.awardRewards({ coins: FARM_CHEST_COINS });
       useUI.getState().pushToast({ type: "reward", icon: "🪙", title: "Treasure!", message: `You found ${FARM_CHEST_COINS} coins.` });
       openDlg({ speaker: "Treasure Chest", lines: [`Lost property… ${FARM_CHEST_COINS} shiny coins! Finders keepers ✨`] });

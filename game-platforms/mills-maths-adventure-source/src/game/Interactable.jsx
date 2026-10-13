@@ -1,6 +1,7 @@
 import React, { useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
+import TreasureChest, { useChests } from "./TreasureChest.jsx";
 
 import { playerState, useSession, requestMoveTo, clearMoveTarget } from "./sessionStore.js";
 import { queueTap } from "./touchGesture.js";
@@ -69,10 +70,12 @@ export default function Interactable({ data }) {
       : s.completedEncounters.includes(data.encounterId)
   );
 
+  // A treasure chest you've opened this visit stays open (game/TreasureChest.jsx).
+  const chestOpen = useChests((s) => data.model === "chest" && Boolean(s.opened[data.id]));
   const touchMode = useUI((s) => s.touchMode);
   const [x, z] = data.position;
   const isNearby = nearbyId === data.id;
-  const status = getInteractableStatus(data, completed);
+  const status = getInteractableStatus(data, completed || chestOpen);
   // Lift the floating badge for scaled-up characters (e.g. the boss) so it clears
   // their head instead of covering their face.
   const badgeY = data.badgeY ?? badgeHeight(data.model) * (data.model === "npc" ? (data.scale || 1) : 1);
@@ -185,7 +188,7 @@ export default function Interactable({ data }) {
         </group>
       ) : (
         <group scale={data.scale || 1} onPointerDown={handleTap}>
-          <Model model={data.model} color={data.color} open={completed} />
+          <Model model={data.model} color={data.color} open={completed || chestOpen} />
         </group>
       )}
      </group>
@@ -234,47 +237,9 @@ function Model({ model, color, open = false }) {
   if (model === "none") return null;
 
   if (model === "chest") {
-    // The lid is hinged at the BACK top edge of the box. Rotating the hinge
-    // group on X swings the lid up/back, so a claimed chest looks open.
-    // `open` comes from completedEncounters, so it persists across refreshes
-    // and returns to closed when progress is reset.
-    return (
-      <group>
-        {/* Box base */}
-        <mesh castShadow position={[0, 0.4, 0]}>
-          <boxGeometry args={[1.2, 0.8, 0.9]} />
-          <meshStandardMaterial color={color} />
-        </mesh>
-
-        {/* Dark interior, only really visible once the lid is open */}
-        <mesh position={[0, 0.55, 0]}>
-          <boxGeometry args={[1.0, 0.4, 0.7]} />
-          <meshStandardMaterial color="#3b2a1a" />
-        </mesh>
-        {/* A little gold glint inside an opened chest */}
-        {open && (
-          <mesh position={[0, 0.62, 0]}>
-            <boxGeometry args={[0.85, 0.12, 0.55]} />
-            <meshStandardMaterial color="#ffd166" emissive="#d4a017" emissiveIntensity={0.4} />
-          </mesh>
-        )}
-
-        {/* Hinged lid (pivot at back-top edge). */}
-        <group position={[0, 0.8, -0.45]} rotation={[open ? -2.0 : 0, 0, 0]}>
-          <mesh castShadow position={[0, 0.15, 0.45]}>
-            <boxGeometry args={[1.25, 0.35, 0.95]} />
-            <meshStandardMaterial color="#8d5524" />
-          </mesh>
-          {/* lock/latch, only shown when closed */}
-          {!open && (
-            <mesh position={[0, -0.05, 0.95]}>
-              <boxGeometry args={[0.2, 0.3, 0.08]} />
-              <meshStandardMaterial color="#ffd166" />
-            </mesh>
-          )}
-        </group>
-      </group>
-    );
+    // The pirate chest (2026-10-13): planks, straps, a rounded lid that
+    // swings open on its hinge to show the coins once you've taken them.
+    return <TreasureChest color={color} open={open} />;
   }
 
   if (model === "gate") {

@@ -5,7 +5,7 @@ import { useSession, playerState } from "../../game/sessionStore.js";
 import { useUI } from "../effects/uiStore.js";
 import { useFarmChallengeActive } from "../../game/farmChallengeActive.js";
 import { useMediaQuery, COMPACT_QUERY } from "../useMediaQuery.js";
-import { useJourney, currentCoach, TRAINING_STUCK_AFTER_MS } from "../../game/journeyStore.js";
+import { useJourney, currentCoach, TRAINING_STUCK_AFTER_MS, journeyTrack, FPV_LOOK_NEED, FPV_DIRS } from "../../game/journeyStore.js";
 import { TRAINING_STEPS, TRAINING_PROMPTS } from "../../data/training.js";
 import { inWallPromptZone } from "../../data/island/wallView.js";
 import { compassAngle, targetDistance } from "../../data/taskCompass.js";
@@ -18,12 +18,12 @@ import { Bi } from "../../i18n/i18n.jsx";
  * teach even very young players:
  *
  *   • one thing at a time, with a big picture of exactly what to press: the
- *     real keys as keycaps (W A S D, Shift, Space, /, E, Enter, M) that LIGHT
+ *     real keys as keycaps (W A S D, Shift, Space, /, ↑ ← ↓ →, Enter, M) that LIGHT
  *     UP the moment you press them — or, on a phone / iPad, a little drawing
  *     of the control plus a pulsing ring and a pointing hand ON the real
  *     joystick / Jump / 👁️ / Talk / 🗺️ button
  *   • the prompt changes as you go (in first-person → "press / again"; next
- *     to Mills → "press E now"), with its own arrow when there's somewhere to
+ *     to Mills → "press Enter now"), with its own arrow when there's somewhere to
  *     walk to
  *   • a progress bar that fills as you do it, then a big green ✓ and a cheer
  *     before the next step slides in
@@ -98,8 +98,61 @@ function MoveCluster({ codes, labels, held, pulse }) {
 
 const C = TRAINING_PROMPTS.caps;
 
+/** How far you've looked each way in first-person (0–1 each), live. */
+function useFpvLook(active) {
+  const read = () => Object.fromEntries(FPV_DIRS.map((d) => [d, Math.min(1, (journeyTrack.fpvLook[d] || 0) / FPV_LOOK_NEED)]));
+  const [look, setLook] = useState(read);
+  useEffect(() => {
+    if (!active) return undefined;
+    const id = setInterval(() => {
+      const n = read();
+      setLook((p) => (FPV_DIRS.some((d) => Math.abs(p[d] - n[d]) > 0.02) ? n : p));
+    }, 120);
+    return () => clearInterval(id);
+  }, [active]);
+  return look;
+}
+
+/**
+ * The four arrow keys for looking around in first-person (Jeff: "make them
+ * use all the arrow keys to look around for a bit"): each fills up as you
+ * look that way and turns green with a ✓ when it's done; the ones still to
+ * do pulse.
+ */
+const LOOK_KEYS = { up: ["ArrowUp", "↑"], left: ["ArrowLeft", "←"], down: ["ArrowDown", "↓"], right: ["ArrowRight", "→"] };
+function LookCluster({ look, held }) {
+  const K = (d) => {
+    const [code, label] = LOOK_KEYS[d];
+    const f = look[d] || 0;
+    const done = f >= 1;
+    return (
+      <span className={`tk tk-look${held.has(code) ? " is-down" : ""}${done ? " is-done" : " is-pulse"}`} style={{ "--f": f }}>
+        <kbd>{label}{done && <i className="tk-tick" aria-hidden="true">✓</i>}</kbd>
+      </span>
+    );
+  };
+  return (
+    <span className="tk-cluster" aria-label="Look with all four arrow keys">
+      <span className="tk-cl-row">{K("up")}</span>
+      <span className="tk-cl-row">{K("left")}{K("down")}{K("right")}</span>
+    </span>
+  );
+}
+/** …and the touch version: drag all four ways. */
+function LookCross({ look }) {
+  const A = (d, ch) => <span className={`tlx tlx-${d}${(look[d] || 0) >= 1 ? " is-done" : ""}`} style={{ "--f": look[d] || 0 }}>{(look[d] || 0) >= 1 ? "✓" : ch}</span>;
+  return (
+    <span className="tg">
+      <span className="tlook" aria-hidden="true">
+        {A("up", "↑")}{A("left", "←")}<b>👆</b>{A("right", "→")}{A("down", "↓")}
+      </span>
+      <small><Bi>{C.drag}</Bi></small>
+    </span>
+  );
+}
+
 /** The keyboard picture for a step. */
-function KeyPicture({ kind, held, phase }) {
+function KeyPicture({ kind, held, phase, look }) {
   switch (kind) {
     case "move":
       return (
@@ -134,11 +187,11 @@ function KeyPicture({ kind, held, phase }) {
     case "fpv":
       return (
         <div className="tk-row">
-          <Key codes={["Slash", "NumpadDivide"]} label="/" cap={C.eyes} held={held} pulse />
-          {phase === "fpvBack" && (
+          <Key codes={["Slash", "NumpadDivide"]} label="/" cap={C.eyes} held={held} pulse={phase !== "fpvLook"} dim={phase === "fpvLook"} />
+          {(phase === "fpvLook" || phase === "fpvBack" || phase === "fpvAgain") && (
             <>
               <span className="tk-or" aria-hidden="true">·</span>
-              <MoveCluster codes={["ArrowUp", "ArrowLeft", "ArrowDown", "ArrowRight"]} labels={["↑", "←", "↓", "→"]} held={held} />
+              <LookCluster look={look} held={held} />
             </>
           )}
         </div>
@@ -146,7 +199,7 @@ function KeyPicture({ kind, held, phase }) {
     case "talk":
       return (
         <div className="tk-row">
-          <Key codes={["KeyE"]} label="E" cap={C.talk} held={held} pulse={phase === "near"} dim={phase !== "near"} />
+          <Key codes={["Enter", "NumpadEnter"]} label="Enter ↵" wide="wide" cap={C.talk} held={held} pulse={phase === "near"} dim={phase !== "near"} />
         </div>
       );
     case "wall":
@@ -169,7 +222,7 @@ function KeyPicture({ kind, held, phase }) {
 }
 
 /** The touch picture for a step (a drawing of the control to use). */
-function TouchPicture({ kind, phase }) {
+function TouchPicture({ kind, phase, look }) {
   switch (kind) {
     case "joy":
       return <span className="tg"><span className="tg-joy"><i /></span><small><Bi>{C.push}</Bi></small></span>;
@@ -180,6 +233,7 @@ function TouchPicture({ kind, phase }) {
     case "jump":
       return <span className="tg"><span className="tg-btn tg-jump">⤒</span><small><Bi>{C.jump}</Bi></small></span>;
     case "eye":
+      if (phase === "fpvLook") return <LookCross look={look} />;
       return <span className="tg"><span className="tg-btn tg-eye">👁️</span><small><Bi>{C.eyes}</Bi></small></span>;
     case "talk":
       return <span className={`tg${phase === "near" ? "" : " is-dim"}`}><span className="tg-btn tg-talk">💬</span><small><Bi>{C.talk}</Bi></small></span>;
@@ -253,12 +307,16 @@ function Spotlight({ selector }) {
 }
 
 /** The step's live phase: what it's asking for right now. */
-function usePhase(step, active) {
+function usePhase(step, active, look) {
   const fpv = useUI((s) => s.fpv);
   const nearbyId = useSession((s) => s.nearbyId);
   const atWall = useAtWall(active && step && step.prompt && step.prompt.near === "wall");
   if (!step || !step.prompt) return "";
-  if (step.prompt.keys === "fpv" && fpv) return "fpvBack";
+  if (step.prompt.keys === "fpv") {
+    const all = FPV_DIRS.every((d) => look[d] >= 1);
+    if (fpv) return all ? "fpvBack" : "fpvLook";
+    return FPV_DIRS.some((d) => look[d] > 0) ? "fpvAgain" : "";
+  }
   if (step.prompt.near === "sage") return nearbyId === "sage" ? "near" : "far";
   if (step.prompt.near === "wall") return atWall ? "near" : "far";
   return "";
@@ -268,6 +326,8 @@ function usePhase(step, active) {
 function sentenceFor(step, phase, touch) {
   const P = touch ? TRAINING_PROMPTS.touch : TRAINING_PROMPTS.key;
   if (phase === "fpvBack") return P.fpvBack;
+  if (phase === "fpvLook") return P.fpvLook;
+  if (phase === "fpvAgain") return P.fpvAgain;
   if (phase === "near") return step.prompt.near === "sage" ? P.talkNear : P.wallNear;
   return touch ? step.touch : step.key;
 }
@@ -280,7 +340,7 @@ function spotFor(step, phase, touch) {
   if (!touch) return null;
   if (k.touch === "joy" || k.touch === "joyRun") return ".touch-joy, .touch-joy-ghost";
   if (k.touch === "jump") return ".touch-btn-jump";
-  if (k.touch === "eye") return ".touch-btn-eye";
+  if (k.touch === "eye") return phase === "fpvLook" ? null : ".touch-btn-eye";
   if (k.touch === "talk" && phase === "near") return ".touch-action";
   return null;
 }
@@ -312,7 +372,8 @@ export default function TrainingPrompt() {
   const placeTop = touch || compact;
 
   const held = useHeldKeys(showStep && !touch);
-  const phase = usePhase(step, showStep);
+  const look = useFpvLook(showStep && step && step.prompt && step.prompt.keys === "fpv");
+  const phase = usePhase(step, showStep, look);
 
   // Tick for the "done" cheer, the stuck valve.
   useEffect(() => {
@@ -330,7 +391,7 @@ export default function TrainingPrompt() {
     return () => { b.remove("training-on"); b.remove("tp-bottom"); };
   }, [trainingOn, placeTop]);
 
-  // The panel's height, so the "Press E" / wall prompts can sit above it.
+  // The panel's height, so the "Press Enter" / wall prompts can sit above it.
   useLayoutEffect(() => {
     const el = panelRef.current;
     if (!el || typeof ResizeObserver === "undefined") return undefined;
@@ -391,11 +452,11 @@ export default function TrainingPrompt() {
           <div className="tp-picture">
             {showArrow ? <WayArrow where={step.where} /> : null}
             {touch
-              ? <TouchPicture kind={step.prompt.touch} phase={phase} />
-              : <KeyPicture kind={step.prompt.keys} held={held} phase={phase} />}
+              ? <TouchPicture kind={step.prompt.touch} phase={phase} look={look} />
+              : <KeyPicture kind={step.prompt.keys} held={held} phase={phase} look={look} />}
           </div>
         </div>
-        <div className={`tp-say${phase === "near" || phase === "fpvBack" ? " is-now" : ""}`}><Bi>{sentence}</Bi></div>
+        <div className={`tp-say${phase === "near" || phase === "fpvBack" || phase === "fpvLook" ? " is-now" : ""}`}><Bi>{sentence}</Bi></div>
         {step.meter === "x" ? (
           <div className="tp-count-pips" aria-hidden="true">
             {Array.from({ length: step.goal.amount }, (_, i) => (
@@ -412,7 +473,7 @@ export default function TrainingPrompt() {
         )}
       </div>
       <Spotlight selector={spotFor(step, phase, touch)} />
-      {touch && step.prompt.touch === "drag" && <div className="tdrag-zone" aria-hidden="true"><span>👆</span></div>}
+      {touch && (step.prompt.touch === "drag" || phase === "fpvLook") && <div className="tdrag-zone" aria-hidden="true"><span>👆</span></div>}
     </>
   );
 }

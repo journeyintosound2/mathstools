@@ -602,7 +602,7 @@ export function islandSpeedAt(x, z, y) {
   const depth = SEA_Y - terrainHeight(x, z);
   return depth > 0.12 ? I_WADE_SPEED : 1;
 }
-/** Deep water + lava send you back to the last dry spot. */
+/** Deep water (wipes you out to the spawn) + lava (hops you back). */
 export function islandHazardAt(x, z, y) {
   if (solidTopAt(x, z) !== null || onDeck(x, z, y)) return false;
   if (SEA_Y - terrainHeight(x, z) > I_DEEP) return true;
@@ -612,7 +612,9 @@ export const SEA_HINT = "Whoa — that water's too deep! 🌊 Stay in the shallo
 export const LAVA_HINT_ISLAND = "Ouch — hot lava! 🔥 Ember Peak's lava is far too hot to touch.";
 /** Which hazard it is (for the hint + sound). */
 export function islandHazardInfo(x, z) {
-  return isLavaAt(x, z) ? { hint: LAVA_HINT_ISLAND, sound: "lava" } : { hint: SEA_HINT, sound: "splash" };
+  return isLavaAt(x, z)
+    ? { kind: "lava", hint: LAVA_HINT_ISLAND, sound: "lava" }
+    : { kind: "water", hint: SEA_HINT, sound: "splash", wipe: "You fell into the deep water!" };
 }
 /** A good, safe spot (dry, not steep, not lava). */
 export function islandIsSafe(x, z) {

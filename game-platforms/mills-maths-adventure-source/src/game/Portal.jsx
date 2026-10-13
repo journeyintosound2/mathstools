@@ -1,6 +1,7 @@
 import React, { useRef, useMemo, useState } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
+import { Bi } from "../i18n/i18n.jsx";
 import * as THREE from "three";
 
 import { playerState } from "./sessionStore.js";
@@ -20,7 +21,7 @@ import StaticBatch from "./jungle/StaticBatch.jsx";
  * JOURNEY (2026-10-13) every Number Island gate style takes `locked` +
  * `lockNote` (World.jsx passes them from game/journeyStore.js).
  */
-export default function Portal({ position, rotationY = 0, label, locked = false, lockNote = "", y = 0, labelRange = 0 }) {
+export default function Portal({ position, rotationY = 0, label, locked = false, lockNote = "", y = 0, labelRange = 0, fresh = false }) {
   const spinA = useRef();
   const spinB = useRef();
   useFrame((_, dt) => {
@@ -97,8 +98,8 @@ export default function Portal({ position, rotationY = 0, label, locked = false,
       </mesh>
 
       {label && (
-        <GateLabel at={[0, 2 * R + 1.0, 0]} x={x} z={z} range={labelRange}>
-          <GateSign label={label} locked={locked} note={lockNote} />
+        <GateLabel at={[0, 2 * R + 1.0, 0]} x={x} z={z} range={fresh ? Math.max(labelRange, 95) : labelRange}>
+          <GateSign label={label} locked={locked} note={lockNote} fresh={fresh} />
         </GateLabel>
       )}
     </group>
@@ -131,7 +132,16 @@ function GateLabel({ at, x, z, range = 0, children }) {
  * A gate's sign: "✦ Snowball Sums" when open; "🔒 Magma Multiples" + what
  * opens it ("4 / 7 ❄️ trophies") while the journey keeps it shut.
  */
-function GateSign({ label, locked, note }) {
+function GateSign({ label, locked, note, fresh = false }) {
+  // Just opened + not been in yet (the journey's "next stop"): it shouts.
+  if (!locked && fresh) {
+    return (
+      <div className="unlock-sign fresh">
+        <b><Bi block={false}>NEW!</Bi></b>✦ {label}
+        <span className="unlock-sign-step">👉 <Bi block={false}>Step inside</Bi></span>
+      </div>
+    );
+  }
   if (!locked) return <div className="unlock-sign open">✦ {label}</div>;
   return (
     <div className="unlock-sign locked">
@@ -302,7 +312,7 @@ const ICE_SWIRL = {
   arcs: ["#4dd0e1", "#26c6da", "#00acc1"],
 };
 
-export function IglooPortal({ position, rotationY = 0, label, y = 0, labelRange = 0, locked = false, lockNote = "" }) {
+export function IglooPortal({ position, rotationY = 0, label, y = 0, labelRange = 0, locked = false, lockNote = "", fresh = false }) {
   const [x, z] = position;
   const R = 2.9; // dome radius
   return (
@@ -357,15 +367,15 @@ export function IglooPortal({ position, rotationY = 0, label, y = 0, labelRange 
       </mesh>
 
       {label && (
-        <GateLabel at={[0, R + 2.1, 0]} x={x} z={z} range={labelRange}>
-          <GateSign label={label} locked={locked} note={lockNote} />
+        <GateLabel at={[0, R + 2.1, 0]} x={x} z={z} range={fresh ? Math.max(labelRange, 95) : labelRange}>
+          <GateSign label={label} locked={locked} note={lockNote} fresh={fresh} />
         </GateLabel>
       )}
     </group>
   );
 }
 
-export function HaybalePortal({ position, rotationY = 0, label, y = 0, labelRange = 0, locked = false, lockNote = "" }) {
+export function HaybalePortal({ position, rotationY = 0, label, y = 0, labelRange = 0, locked = false, lockNote = "", fresh = false }) {
   const [x, z] = position;
   const grassRefs = useRef([]);
   const blades = useMemo(
@@ -437,8 +447,8 @@ export function HaybalePortal({ position, rotationY = 0, label, y = 0, labelRang
       </instancedMesh>
 
       {label && (
-        <GateLabel at={[0, 6.4, 0]} x={x} z={z} range={labelRange}>
-          <GateSign label={label} locked={locked} note={lockNote} />
+        <GateLabel at={[0, 6.4, 0]} x={x} z={z} range={fresh ? Math.max(labelRange, 95) : labelRange}>
+          <GateSign label={label} locked={locked} note={lockNote} fresh={fresh} />
         </GateLabel>
       )}
     </group>
@@ -494,7 +504,7 @@ function Brazier({ position }) {
   );
 }
 
-export function VolcanoPortal({ position, rotationY = 0, label, y = 0, labelRange = 0, locked = false, lockNote = "" }) {
+export function VolcanoPortal({ position, rotationY = 0, label, y = 0, labelRange = 0, locked = false, lockNote = "", fresh = false }) {
   const [x, z] = position;
   // Each pillar = a stack of tilted faceted rocks (dodecahedra).
   const stack = (sx) => [
@@ -543,8 +553,8 @@ export function VolcanoPortal({ position, rotationY = 0, label, y = 0, labelRang
       <Brazier position={[-2.7, 0, 1.0]} />
       <Brazier position={[2.7, 0, 1.0]} />
       {label && (
-        <GateLabel at={[0, 5.4, 0]} x={x} z={z} range={labelRange}>
-          <GateSign label={label} locked={locked} note={lockNote} />
+        <GateLabel at={[0, 5.4, 0]} x={x} z={z} range={fresh ? Math.max(labelRange, 95) : labelRange}>
+          <GateSign label={label} locked={locked} note={lockNote} fresh={fresh} />
         </GateLabel>
       )}
     </group>
@@ -570,7 +580,7 @@ const MOSS_STONE = "#8d8a76";
 const MOSS_STONE_DARK = "#6c6a5a";
 const MOSS = "#4f8a2e";
 
-export function JunglePortal({ position, rotationY = 0, label, y = 0, labelRange = 0, locked = false, lockNote = "" }) {
+export function JunglePortal({ position, rotationY = 0, label, y = 0, labelRange = 0, locked = false, lockNote = "", fresh = false }) {
   const [x, z] = position;
   const tex = getJungleTextures();
   const vineRefs = useRef([]);
@@ -666,8 +676,8 @@ export function JunglePortal({ position, rotationY = 0, label, y = 0, labelRange
         <meshStandardMaterial color="#4f8a35" roughness={1} />
       </mesh>
       {label && (
-        <GateLabel at={[0, 6.6, 0]} x={x} z={z} range={labelRange}>
-          <GateSign label={label} locked={locked} note={lockNote} />
+        <GateLabel at={[0, 6.6, 0]} x={x} z={z} range={fresh ? Math.max(labelRange, 95) : labelRange}>
+          <GateSign label={label} locked={locked} note={lockNote} fresh={fresh} />
         </GateLabel>
       )}
     </group>

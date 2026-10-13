@@ -31,6 +31,8 @@ export default function JourneyTracker() {
   const st = useGoal();
   if (!st) return null;
   const { js, g, regionId } = st;
+  // A world that's just opened has its own big "NEXT STOP" banner.
+  if (g.kind === "travel") return null;
   const openLog = () => useUI.getState().setQuestLog(true);
   const nextWorld = g.nextKey ? journeyWorld(g.nextKey) : null;
   const canGuide = g.kind !== "free";

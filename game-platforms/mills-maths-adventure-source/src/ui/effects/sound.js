@@ -54,6 +54,7 @@ function tone(c, freq, startOffset, duration, type = "sine", peak = 0.06) {
  *   climb         little two-step (pulling up over a vine wall's lip)
  *   whoosh        a falling swoosh (a toboggan chute / the chairlift)
  *   splash        a cold "plip-plop" (stepping into the snow world's icy lake)
+ *   wipeout       a sad "wah-wah-wahhh" (fell in deep water — back to the start)
  */
 export function play(name) {
   const c = getCtx();
@@ -123,6 +124,35 @@ export function play(name) {
       tone(c, 930, 0.26, 0.05, "triangle", 0.03);
       tone(c, 990, 0.32, 0.06, "triangle", 0.03);
       break;
+    case "wipeout": { // the classic game "wah-wah-wahhh" when you fall in deep water
+      tone(c, 392, 0, 0.3, "triangle", 0.05);
+      tone(c, 370, 0.3, 0.3, "triangle", 0.05);
+      tone(c, 349, 0.6, 0.3, "triangle", 0.05);
+      // …and the long, wobbly last note.
+      const osc = c.createOscillator();
+      const gain = c.createGain();
+      const lfo = c.createOscillator();
+      const lfoGain = c.createGain();
+      osc.type = "triangle";
+      const t = c.currentTime + 0.9;
+      osc.frequency.setValueAtTime(330, t);
+      osc.frequency.linearRampToValueAtTime(300, t + 0.9);
+      lfo.frequency.value = 6;
+      lfoGain.gain.value = 9;
+      lfo.connect(lfoGain);
+      lfoGain.connect(osc.frequency);
+      gain.gain.setValueAtTime(0.0001, t);
+      gain.gain.linearRampToValueAtTime(0.055, t + 0.03);
+      gain.gain.setValueAtTime(0.055, t + 0.55);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.95);
+      osc.connect(gain);
+      gain.connect(c.destination);
+      osc.start(t);
+      lfo.start(t);
+      osc.stop(t + 1);
+      lfo.stop(t + 1);
+      break;
+    }
     case "climb": // a cheerful little two-step when you pull up over a ledge
       tone(c, 587, 0, 0.08, "triangle", 0.045);
       tone(c, 880, 0.07, 0.12, "triangle", 0.045);
