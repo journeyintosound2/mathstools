@@ -28,6 +28,7 @@ import { farmTrophyRows } from "./farm/farmRecords.js";
 import { jungleTrophyRows } from "./jungle/jungleRecords.js";
 import { SCHOOLYARD_CHARACTERS } from "./schoolyard/schoolyardLayout.js";
 import { getChain } from "./npcQuestChains.js";
+import { isAdminMode } from "./adminMode.js";
 
 /** Trophies (bronze or better) a world needs before the NEXT world opens. */
 export const TROPHIES_TO_OPEN = 7;
@@ -148,6 +149,8 @@ export function journeySnapshot(progress = {}, counts = journeyCounts(), visited
     journey: { ...DEFAULT_JOURNEY, ...(progress.journey || {}) },
     counts,
     visited,
+    // Admin mode (data/adminMode.js): every gate drawn open, nothing saved.
+    admin: isAdminMode(),
   };
 }
 
@@ -200,7 +203,9 @@ export function journeyState(snap = {}) {
     };
   });
 
-  const trainingActive = !j.trainingDone && !j.trainingSkipped;
+  // Everyone does the training once (Jeff, 2026-10-13: no skipping it — an
+  // old save's trainingSkipped no longer counts as done).
+  const trainingActive = !j.trainingDone;
   const allOpen = worlds.every((w) => w.open);
 
   // ---- The ONE next goal ---------------------------------------------------
@@ -249,9 +254,15 @@ export function journeyState(snap = {}) {
     };
   }
 
+  // ADMIN MODE: every gate is drawn open (`adminOpen` marks the ones only
+  // admin opened) — but the goal above was worked out from the REAL save, and
+  // admin-opened gates are never celebrated (uncelebrated()).
+  const shown = snap.admin ? worlds.map((w) => (w.open ? w : { ...w, open: true, adminOpen: true })) : worlds;
+
   return {
+    admin: Boolean(snap.admin),
     friends, friendsDone, friendsNeed: friends.length,
-    worlds, allOpen, keys, totalKeys: STAFF.length, bossDone,
+    worlds: shown, allOpen, keys, totalKeys: STAFF.length, bossDone,
     trainingActive, trainingDone: j.trainingDone, trainingSkipped: j.trainingSkipped,
     goal,
   };
@@ -284,14 +295,14 @@ export function journeySignature(js) {
   return [
     js.friends.map((f) => (f.done ? 1 : 0)).join(""),
     js.worlds.map((w) => `${w.open ? 1 : 0}${w.medals}${w.visited ? "v" : ""}`).join("."),
-    js.trainingActive ? "T" : "t", js.bossDone ? "B" : "b", js.goal.kind, js.goal.have,
+    js.trainingActive ? "T" : "t", js.bossDone ? "B" : "b", js.goal.kind, js.goal.have, js.admin ? "A" : "a",
   ].join("|");
 }
 
 /** Worlds open now that haven't been celebrated yet (in path order). */
 export function uncelebrated(js, celebrated = []) {
   if (!js) return [];
-  return js.worlds.filter((w) => w.open && !celebrated.includes(w.key)).map((w) => w.key);
+  return js.worlds.filter((w) => w.open && !w.adminOpen && !celebrated.includes(w.key)).map((w) => w.key);
 }
 
 // ---------------------------------------------------------------------------

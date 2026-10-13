@@ -34,7 +34,9 @@ export default function WaypointCompass() {
       const d = targetDistance(playerState.x, playerState.z, w.x, w.z);
       if (d <= (w.arrive || 4)) {
         useUI.getState().clearWaypoint();
-        useUI.getState().pushToast({ type: "reward", icon: "📍", title: "You made it!", message: w.label === "Marked spot" ? "You reached your waypoint." : `You've reached ${w.label}.` });
+        // (During the training its own prompt says what to do next.)
+        const quiet = w.auto && typeof document !== "undefined" && document.body.classList.contains("training-on");
+        if (!quiet) useUI.getState().pushToast({ type: "reward", icon: "📍", title: "You made it!", message: w.label === "Marked spot" ? "You reached your waypoint." : `You've reached ${w.label}.` });
         return;
       }
       const ang = compassAngle(playerState.x, playerState.z, playerState.camYaw || 0, w.x, w.z);

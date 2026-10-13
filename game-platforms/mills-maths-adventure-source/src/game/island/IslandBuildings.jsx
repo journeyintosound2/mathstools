@@ -9,7 +9,7 @@ import { useFontsReady } from "./useFontsReady.js";
 import StaticBatch from "../jungle/StaticBatch.jsx";
 import { playerState } from "../sessionStore.js";
 import {
-  PLAZA, PLAZA_FOUNTAIN, MISSION_BOARD_POS, TROPHY_STAND_POS, PLAZA_BENCHES, COTTAGES, SCHOOLHOUSE, SCHOOL_FENCE,
+  PLAZA, PLAZA_FOUNTAIN, MISSION_BOARD_POS, PLAZA_BENCHES, COTTAGES, SCHOOLHOUSE, SCHOOL_FENCE,
   LIGHTHOUSE, ROPE_BRIDGE, ISLAND_JETTY, COVE_PIER, ISLAND_SAILBOAT, ROWBOATS, BEACH_HUTS, FARM_BARN, FARM_WINDMILL,
   ISLAND_FIELDS, SEA_Y,
 } from "../../data/island/islandLayout.js";
@@ -188,34 +188,6 @@ function MissionBoardPiece() {
       <group position={[0, 2.95, 0]}>
         <GableRoof w={3.1} d={0.9} rise={0.45} oh={0.18} roof={flatMat("#ffffff", { map: shingle })} wall="#6b4528" tile={1.5} />
       </group>
-    </group>
-  );
-}
-
-/** The trophy plinth: a stone pedestal + a big golden cup + a star. */
-function TrophyPiece() {
-  const [x, z] = TROPHY_STAND_POS;
-  const gold = flatMat("#ffcf4a", { roughness: 0.25, metalness: 0.75, emissive: "#a8700a" });
-  const cup = useMemo(() => {
-    const pts = [];
-    const prof = [[0, 0], [0.45, 0], [0.45, 0.1], [0.16, 0.18], [0.12, 0.55], [0.2, 0.65], [0.62, 0.9], [0.68, 1.45], [0.62, 1.5], [0.5, 1.0], [0, 0.95]];
-    prof.forEach(([r, y]) => pts.push(new THREE.Vector2(r, y)));
-    return new THREE.LatheGeometry(pts, 28);
-  }, []);
-  return (
-    <group position={[x, PLAZA_DECK_Y, z]} rotation={[0, -Math.PI / 2, 0]}>
-      <Box p={[0, 0.5, 0]} s={[1.4, 1.0, 1.4]} m={flatMat("#ffffff", { map: T().ashlar })} tile={1} />
-      <Box p={[0, 1.06, 0]} s={[1.6, 0.12, 1.6]} m="#d9cbb0" />
-      <Box p={[0, 1.2, 0]} s={[0.9, 0.18, 0.9]} m="#3b2a1d" />
-      <mesh geometry={cup} material={gold} position={[0, 1.29, 0]} scale={1.05} castShadow />
-      {[-1, 1].map((s) => (
-        <mesh key={s} position={[s * 0.74, 2.45, 0]} rotation={[0, 0, s * 0.2]} material={gold} castShadow>
-          <torusGeometry args={[0.24, 0.06, 8, 18, Math.PI * 1.2]} />
-        </mesh>
-      ))}
-      <mesh position={[0, 3.0, 0]} material={gold}>
-        <octahedronGeometry args={[0.22, 0]} />
-      </mesh>
     </group>
   );
 }
@@ -866,7 +838,6 @@ export default function IslandBuildings({ highGfx }) {
       <StaticBatch>
         <PlazaStructure />
         <MissionBoardPiece />
-        <TrophyPiece />
       </StaticBatch>
       <NumberFountain />
       <PlazaFlags />

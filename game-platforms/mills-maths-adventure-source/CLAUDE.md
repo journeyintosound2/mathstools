@@ -233,6 +233,16 @@
 > saves on the device exactly as before. See "DONE (2026-10-13) — CLOUD
 > PROGRESS". **635 → 644 checks; vite build clean.**
 >
+> **NEW (built 2026-10-13 afternoon, staged for deploy): JEFF'S FEEDBACK
+> BATCH** — the plaza Trophy Stand removed (the Achievements Wall does that
+> job), a NEW DIALOGUE BOX for every conversation (character portraits
+> rendered from their models, name plate, bold key words, back / skip),
+> the training made BIG and clear (a centre prompt with keycaps that light
+> up, a ring + pointing hand on the real touch control) and NOT skippable,
+> "Start new game" on the title menu, and a password-locked ADMIN MODE
+> (every gate open, jump to any world — progress untouched). See "DONE
+> (2026-10-13, afternoon)". **644 → 650 checks; vite build clean.**
+>
 > **NEXT UP options:** live visual pass + deploy of the snow world + cabin ·
 > teacher glbs for the six placeholder snow/cabin hosts (add each
 > characterId to characterModels.js) · a snow/cabin cloud-completion path
@@ -241,6 +251,104 @@
 > interactive plot-a-point input mode (tap the Cartesian grid) · Stage 5
 > depth (still only 2 sample skills) · more Stage 4 topics (Area extension)
 > · a DevPanel gallery to eyeball every new diagram/chart at once.
+
+## DONE (2026-10-13, afternoon) — FEEDBACK BATCH: dialogue box, big training, no skipping, new game, admin mode
+Jeff's feedback after playing the live journey + cloud progress build:
+(1) remove the trophy stand in the middle area — the Achievements Wall does
+it now; (2) upgrade the look, feel and contents of the dialogue boxes (still
+the first-version format); (3) the training "wasn't overly clear … tucked
+away in the corner" — make it prominent and highlight the keys, the way
+games teach even very young players; (4) "Start new game" on the main menu
+(to test); (5) a small admin option on the main screen, password
+"BenjiCharlie", to test future worlds without doing the challenges; then
+(6) remove "skip tutorial" — "knowing my students they will skip it". Late
+on he said to skip (4) + (5) "for now" — both were already built and
+passed a desktop run-through, so they're IN this build (a phone pass of
+them wasn't done). **644 → 650 checks (UX1–UX6 in `src/dev/uxChecks.js`),
+all passing; vite build clean.** Staged for deploy.
+- **(1) Plaza Trophy Stand removed:** the `trophy-stand` interactable,
+  `TrophyPiece` (IslandBuildings), its footprint/collider, the zone npcId,
+  the interaction intercept and the map pin's "Trophy Stand" wording.
+  `TROPHY_STAND_POS` is gone from islandLayout (comment left). The
+  `trophy-board` encounter + `ui/TrophyRoom.jsx` are kept (nothing in the
+  world opens them now). Checks that listed it updated (UX1 guards it).
+- **(2) The dialogue box (`ui/dialogue/DialogueBox.jsx`, styles at the end
+  of journey.css):** every conversation — `DialogueEncounter` (scripted)
+  and `DynamicDialogue` (Mills / friends / teachers / chests) — now docks
+  along the BOTTOM (`.modal-overlay.dlg-overlay`, a soft gradient instead
+  of the dark centred card) so the character stays in view: a round
+  PORTRAIT ringed in the speaker's colour, a name plate with their role
+  ("Your guide", "Times tables", "Teacher"…), the line easing in with the
+  key words in bold (worlds, friends, medals, trophies, numbers —
+  `emphasisParts` in `ui/dialogue/speakers.js`; English only so a
+  translated line still matches its translation), dots for progress,
+  ‹ Back, Skip ›› (jumps to the LAST line, where any choice is), a bouncing
+  ▸ Next with an Enter keycap; click / tap anywhere on the box, Enter,
+  Space or → to go on, ← back, Esc closes. Phones: the portrait sits on the
+  box's corner; sideways phones get a short box. **Portraits:**
+  `public/portraits/*.webp` (17, 192 px, 112 KB total) rendered head-and-
+  shoulders from each character's own glb in the headless harness
+  (`/home/claude/snap/portraits.html` + `tools/portraits.mjs` — not
+  shipped; re-render if a model changes). `speakerInfo(name)` maps speaker
+  names → portrait / colour / role; speakers without a model (snow
+  placeholder hosts, chests, the map, Mrs. Kellahan — kellahan.glb is
+  missing) get an emoji.
+- **(3) The training prompt (`ui/journey/TrainingPrompt.jsx`):** while the
+  Harbour Green training runs ONE big panel owns the screen (bottom-centre
+  on keyboard computers; under the top row on touch / small screens): step
+  pips + "3 / 8", a big icon + title, a PICTURE of what to press — real
+  keycaps (W A S D + arrows, Z / X, Shift + W, Space, /, E, Enter, M) that
+  light up green the instant they're pressed, or on touch a drawing of the
+  control plus a pulsing ring + pointing hand ON the real joystick / Jump /
+  👁️ / Talk / 🗺️ button (`Spotlight` measures the element) and a dashed
+  "drag here" zone for looking — a fill bar (or 3 jump circles), then a big
+  green ✓ + a cheer ("Wow, that's fast!", `done` in training.js) and "Next:
+  …" for 1.5 s. It changes as you go (`TRAINING_PROMPTS`): in first person
+  → "press / again"; next to Mills → "Press E to talk to Mills!" (gold);
+  at the wall → "Press Enter…"; otherwise its own live ARROW + metres to
+  the place. Meanwhile `body.training-on` hides the journey tracker, hint
+  bar, waypoint chip, guidance line + the old touch coach (and the arrival
+  toast for the coach's own waypoints); "Press E" / wall prompts sit above
+  it (`--tp-h`). The old corner `CoachStep` now only runs world tours.
+- **(6) No skipping:** the "Skip training" button + the welcome card's
+  "Skip — I know how to play" are gone (`skipTraining` removed); training
+  is needed until `trainingDone` — an old save's `trainingSkipped` no
+  longer counts (journey.js `trainingActive`, `currentCoach`, TouchControls,
+  JourneyPanel). Returning players' welcome card says everyone does a quick
+  training lap. Safety valve: "Stuck? Skip this step" after a full minute
+  on one step (`TRAINING_STUCK_AFTER_MS` 60 s). World tours keep their
+  "End tour" / "I'll explore".
+- **(4) Start new game** (title menu, for anyone with a save): a confirm
+  card, then sign out (flushing first, so a signed-in student's cloud save
+  is untouched), clear this device's progress, results, every world's
+  bests / visits / farm markers, the progress owner + the touch-coach
+  count, and reload clean (dropping any `?code=`) straight onto the
+  character card (`mma-new-game` sessionStorage flag, read once at module
+  load). Settings + admin mode are kept.
+- **(5) Admin mode** (`data/adminMode.js`, `game/adminStore.js`,
+  `ui/admin/AdminPanel.jsx`): a small "🔒 Admin" link in the title screen's
+  footer → password card (stored only as its SHA-256 — a convenience lock,
+  not security). On: `localStorage mma-admin-mode` = "1" (never synced);
+  `journeySnapshot` adds `admin`, and `journeyState` draws every world open
+  (`adminOpen` marks the ones only admin opened) while the GOAL is still
+  worked out from the real save; `uncelebrated` + first-run seeding ignore
+  admin-opened gates, so nothing is celebrated or written. Every lock,
+  collider, sign, map pin and wall board follows automatically. A 🛠️ Admin
+  chip on the HUD (☰ menu on phones) opens a panel: jump to any world
+  (`setRegion`), finish the training (no reward), turn admin off. The
+  title footer shows "🛠️ Admin on".
+- **Verified:** UX1–UX6 headless; screenshots at 960×560, iPhone 390×664
+  and iPad 1080×810 of the welcome card (no skip), the walk step with W
+  held (lit), Meet Mills far (arrow) / near (gold "Press E", the raised
+  Press-E chip), the jump step's spotlight on the Jump button, the
+  dialogue box with Mills' portrait; a desktop title run: menu → Start new
+  game → wrong password → right password → new game reload → character
+  card → welcome → 🛠️ panel → all five gates open (flagged admin) → jump
+  to Magma Multiples (its intro card, no celebration).
+- **TODO:** a phone/iPad pass of Start new game + admin mode; a live look
+  at the training prompt on a real iPad (the spotlight ring over the
+  joystick while the thumb is down); Farsi/Arabic native check of the new
+  lines.
 
 ## DONE (2026-10-13) — CLOUD PROGRESS: sign in anywhere, carry on
 Jeff: "I want student progress to save to the cloud, so that with each sign
@@ -2817,7 +2925,7 @@ awards the trophy). L1–5 adaptive. Teacher tasks still override (handled upstr
 in interaction.js). Guarded by `runSchoolyardTopicChecks()`. Island NPCs (Pip/
 Fern/Alby) unchanged.
 
-## System checks (644)
+## System checks (650)
 `src/dev/systemChecks.js` → `runSystemChecks()`. Run headlessly: temporarily set
 `package.json` `"type":"module"`, shim `localStorage/window/document`, import and
 run; also babel parse-check `src/`, `portal/`, `functions/`. Restore package.json
@@ -3383,6 +3491,12 @@ the world is added to that pattern; a new progress-store field travels if
 it's in `PROGRESS_FIELDS` and has a merge rule in `mergeProgress` (and in
 `applyCloudProgress`'s list). Never write the cloud doc from anywhere but
 progressSync.js.
+**Dialogue + training (2026-10-13):** every conversation goes through
+`ui/dialogue/DialogueBox.jsx` (never a bare `.modal-card` again); a NEW
+speaking character gets an entry in `ui/dialogue/speakers.js` (colour,
+role, and a portrait rendered from its glb into `public/portraits/`). A new
+training step needs `done` + `prompt` ({keys, touch, near?}) in
+training.js, and the TrainingPrompt knows how to draw it.
 
 ### Phone / iPad / small-screen compatibility (STANDING RULE, 2026-10-11)
 Jeff's instruction: **all future challenges and updates include iPhone / iPad /

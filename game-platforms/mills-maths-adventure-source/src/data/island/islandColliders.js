@@ -47,7 +47,7 @@ function runColliders(idPrefix, a, b, spacing, radius, extra = {}, skip = null) 
 // Footprints with their own (finer) colliders below, or walk-through ones.
 const OWN = new Set([
   "spawn", "arch-w", "arch-e", "achievement-wall", "achievement-view", "map-board", "welcome", "mills", "plaza", "pip",
-  "fern", "alby", "thermometer", "school-fence", "school-yard", "board", "trophy", "fountain", "falls", "sailboat",
+  "fern", "alby", "thermometer", "school-fence", "school-yard", "board", "fountain", "falls", "sailboat",
 ]);
 const SKIP_PREFIX = ["gate-", "chest-", "signpost-", "bale-", "rowboat-"];
 

@@ -12,6 +12,10 @@
  *                 began (metres walked / run, radians looked, jumps, …)
  *   meter         how to show progress: "m" (metres), "x" (a count), "turn"
  *   where         optional — a waypoint the step sets if none is set
+ *   done          the cheer when it's done ("Wow, that's fast!")
+ *   prompt        how the big training prompt (ui/journey/TrainingPrompt)
+ *                 draws it: the keys to show (keyboard) and the on-screen
+ *                 control to point at (touch)
  *
  * Every string here is fixed text (no numbers), so it can be translated in
  * i18n/translations.js.
@@ -31,30 +35,35 @@ export const TRAINING_STEPS = [
     key: "Walk with W A S D or the arrow keys.",
     touch: "Put your left thumb on the screen and push to walk.",
     goal: { track: "walked", amount: 8 }, meter: "m",
+    done: "You can walk!", prompt: { keys: "move", touch: "joy" },
   },
   {
     id: "look", icon: "👀", title: "Look around",
     key: "Press Z or X to swing the camera round you.",
     touch: "Drag a finger across the right side of the screen to look around.",
     goal: { track: "looked", amount: 2.4 }, meter: "turn",
+    done: "Great looking around!", prompt: { keys: "look", touch: "drag" },
   },
   {
     id: "run", icon: "🏃", title: "Run",
     key: "Hold Shift while you walk to run.",
     touch: "Push the joystick right out to its edge — the ring turns orange and you run.",
     goal: { track: "ran", amount: 14 }, meter: "m",
+    done: "Wow, that's fast!", prompt: { keys: "run", touch: "joyRun" },
   },
   {
     id: "jump", icon: "🦘", title: "Jump",
     key: "Press Space to jump. Do three jumps!",
     touch: "Tap the yellow Jump button. Do three jumps!",
     goal: { track: "jumps", amount: 3 }, meter: "x",
+    done: "Great jumping!", prompt: { keys: "jump", touch: "jump" },
   },
   {
     id: "fpv", icon: "👁️", title: "First-person view",
     key: "Press / to see through your explorer's eyes. Look around with the arrow keys, then press / again to come back.",
     touch: "Tap the 👁️ button to see through your explorer's eyes. Drag to look around, then tap 👁️ again to come back.",
     goal: { track: "fpvExits", amount: 1 }, meter: "none",
+    done: "You saw through your explorer's eyes!", prompt: { keys: "fpv", touch: "eye" },
   },
   {
     id: "mills", icon: "👋", title: "Meet Mills",
@@ -62,6 +71,7 @@ export const TRAINING_STEPS = [
     touch: "Tap Mills to walk over and talk to him.",
     goal: { track: "millsTalks", amount: 1 }, meter: "none",
     where: { x: MILLS_SPOT.position[0], z: MILLS_SPOT.position[1] + 2, label: "Mills", icon: "👋", arrive: 3 },
+    done: "You met Mills!", prompt: { keys: "talk", touch: "talk", near: "sage" },
   },
   {
     id: "wall", icon: "🏆", title: "The Achievements Wall",
@@ -69,14 +79,44 @@ export const TRAINING_STEPS = [
     touch: "Walk to the big wall beside the arch and tap “Look at the Achievements Wall”.",
     goal: { track: "wallCloses", amount: 1 }, meter: "none",
     where: { x: WALL_FRONT[0], z: WALL_FRONT[1], label: "Achievements Wall", icon: "🏆", arrive: 4 },
+    done: "That's your Achievements Wall!", prompt: { keys: "wall", touch: "wall", near: "wall" },
   },
   {
     id: "map", icon: "🗺️", title: "Your map",
     key: "Press M (or the 🗺️ Map button) to open the map, then click Pip to set a waypoint.",
     touch: "Tap 🗺️ to open the map, then tap Pip to set a waypoint.",
     goal: { track: "waypoints", amount: 1 }, meter: "none",
+    done: "Waypoint set — follow the arrow!", prompt: { keys: "map", touch: "map" },
   },
 ];
+
+/**
+ * The big training prompt's live words (ui/journey/TrainingPrompt.jsx):
+ * a step can change what it asks for as you go (in first-person → "press /
+ * again"; next to Mills → "press E now"). Fixed strings, so they translate.
+ */
+export const TRAINING_PROMPTS = {
+  key: {
+    fpvBack: "Now press / again to come back.",
+    talkNear: "Press E to talk to Mills!",
+    wallNear: "Press Enter to look at the wall!",
+    follow: "Follow the arrow.",
+  },
+  touch: {
+    fpvBack: "Now tap 👁️ again to come back.",
+    talkNear: "Tap Talk!",
+    wallNear: "Tap the Achievements Wall button!",
+    follow: "Follow the arrow.",
+  },
+  caps: {
+    move: "Move", or: "or", turnLeft: "Turn left", turnRight: "Turn right", hold: "Hold",
+    jump: "Jump", eyes: "Your eyes", talk: "Talk", look: "Look", map: "Map",
+    push: "Push", pushEdge: "Push to the edge", drag: "Drag here",
+  },
+  stuck: "Stuck? Skip this step",
+  training: "Training",
+  next: "Next:",
+};
 
 /** What the coach says while the student is LOOKING at the wall (training). */
 export const WALL_TRAINING_TIPS = [

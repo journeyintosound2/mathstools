@@ -109,5 +109,6 @@ export default function EncounterModal({ encounterId }) {
       );
   }
 
-  return <div className="modal-overlay">{body}</div>;
+  // A conversation docks along the bottom (ui/dialogue/DialogueBox.jsx).
+  return <div className={`modal-overlay${encounter.type === "dialogue" ? " dlg-overlay" : ""}`}>{body}</div>;
 }

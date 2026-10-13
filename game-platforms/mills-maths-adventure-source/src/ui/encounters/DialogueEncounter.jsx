@@ -1,28 +1,27 @@
-import React, { useEffect, useRef, useState } from "react";
-import { touchWords } from "../keyHints.js";
+import React, { useCallback, useRef, useState } from "react";
 
 import { useProgress } from "../../progress/store.js";
 import { useSession } from "../../game/sessionStore.js";
 import { announceResult } from "../effects/announce.js";
+import DialogueBox from "../dialogue/DialogueBox.jsx";
 
 /**
- * DialogueEncounter — shows a short conversation, one line at a time.
+ * DialogueEncounter — a short scripted conversation (encounters.js), shown in
+ * the game's dialogue box (ui/dialogue/DialogueBox.jsx), one line at a time.
  *
  * On the last line, completing the dialogue marks the encounter done and
  * grants any one-time reward (so a chatty student can't farm XP by talking
- * repeatedly). Enter advances the conversation.
+ * repeatedly).
  */
 export default function DialogueEncounter({ encounter }) {
   const { speaker, lines } = encounter.config;
-
   const closeEncounter = useSession((s) => s.closeEncounter);
   const completeEncounter = useProgress((s) => s.completeEncounter);
-
   const [line, setLine] = useState(0);
   const completedRef = useRef(false);
   const isLast = line + 1 >= lines.length;
 
-  function finish() {
+  const finish = useCallback(() => {
     if (!completedRef.current) {
       completedRef.current = true;
       // oneTime so the small reward is granted only on the first conversation.
@@ -35,47 +34,23 @@ export default function DialogueEncounter({ encounter }) {
       announceResult(result); // celebrate any quest/level reached by talking
     }
     closeEncounter();
-  }
+  }, [completeEncounter, closeEncounter, encounter]);
 
-  function advance() {
+  const next = useCallback(() => {
     if (isLast) finish();
-    else setLine((l) => l + 1);
-  }
-
-  // Enter advances the dialogue.
-  useEffect(() => {
-    function onKeyDown(e) {
-      if (e.key !== "Enter") return;
-      e.preventDefault();
-      advance();
-    }
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [line]);
+    else setLine((l) => Math.min(l + 1, lines.length - 1));
+  }, [isLast, finish, lines.length]);
 
   return (
-    <div className="modal-card">
-      <button className="modal-close" onClick={closeEncounter} title="Close" aria-label="Close">✕</button>
-      <div className="modal-header">
-        <span className="modal-npc" style={{ color: "#2d6a4f" }}>
-          {speaker}
-        </span>
-        <span className="modal-progress">
-          {line + 1} / {lines.length}
-        </span>
-      </div>
-
-      <p className="dialogue-line">“{touchWords(lines[line])}”</p>
-
-      <div className="modal-actions">
-        <button className="primary-button" onClick={advance}>
-          {isLast ? "Goodbye" : "Next →"}
-        </button>
-        <button className="link-button" onClick={finish}>
-          Skip
-        </button>
-      </div>
-    </div>
+    <DialogueBox
+      speaker={speaker}
+      lines={lines}
+      index={line}
+      onNext={next}
+      onBack={() => setLine((l) => Math.max(0, l - 1))}
+      onSkipToEnd={() => setLine(lines.length - 1)}
+      onClose={closeEncounter}
+      primaryLabel={isLast ? "Goodbye" : "Next"}
+    />
   );
 }

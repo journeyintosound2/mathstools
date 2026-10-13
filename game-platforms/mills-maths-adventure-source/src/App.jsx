@@ -49,6 +49,8 @@ import { CoachCard } from "./ui/journey/JourneyCoach.jsx";
 import JourneyCelebration from "./ui/journey/JourneyCelebration.jsx";
 import { startJourney, useJourney } from "./game/journeyStore.js";
 import { startProgressAutosave } from "./cloud/progressSync.js";
+import TrainingPrompt from "./ui/journey/TrainingPrompt.jsx";
+import AdminPanel from "./ui/admin/AdminPanel.jsx";
 import { useProgress } from "./progress/store.js";
 import UnlockCelebration from "./ui/UnlockCelebration.jsx";
 import DynamicDialogue from "./ui/encounters/DynamicDialogue.jsx";
@@ -249,13 +251,15 @@ export default function App() {
       <MapViewer />
       <ResultsCentre />
       {activeEncounterId === "__dialogue__" ? (
-        <div className="modal-overlay"><DynamicDialogue /></div>
+        <div className="modal-overlay dlg-overlay"><DynamicDialogue /></div>
       ) : (
         activeEncounterId && <EncounterModal encounterId={activeEncounterId} />
       )}
       {/* The journey (2026-10-13) — replaces the old one-time welcome card
           (ui/OnboardingWelcome.jsx, kept for reference). */}
       <CoachCard />
+      <TrainingPrompt />
+      <AdminPanel />
       <JourneyCelebration />
       <HowToPlay />
       <TeacherPilotCard />

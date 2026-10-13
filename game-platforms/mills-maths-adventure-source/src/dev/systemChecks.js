@@ -16,6 +16,7 @@ import { runFarmWorldChecks } from "./farmWorldChecks.js";
 import { runIslandWorldChecks } from "./islandWorldChecks.js";
 import { runJourneyChecks } from "./journeyChecks.js";
 import { runCloudProgressChecks } from "./cloudProgressChecks.js";
+import { runUxChecks } from "./uxChecks.js";
 import { runSchoolyardWorldChecks } from "./schoolyardWorldChecks.js";
 import { CRATER_LIP_STONES } from "../data/magma/magmaProps.js";
 import { makeTriangle, makeQuad, makeGenericQuad, verifyQuad, propertiesOf, SPECIAL_QUADS, TRIANGLE_TYPES } from "../maths/curriculum/stage4/geometry/shapeCatalogue.js";
@@ -67,7 +68,7 @@ import { SPAWN_POINT } from "../data/worldSpawnPoints.js";
 import { getUnlock } from "../data/worldUnlocks.js";
 import { getRegion, getAllRegions, clampToBounds, DEFAULT_REGION_ID } from "../data/regions.js";
 import { playerState, touchInput, requestMoveTo, clearMoveTarget, useSession } from "../game/sessionStore.js";
-import { ROPE_BRIDGE } from "../data/island/islandLayout.js";
+import { ROPE_BRIDGE, PLAZA_FOUNTAIN as PLAZA_FOUNTAIN_FOR_CHECK } from "../data/island/islandLayout.js";
 import {
   islandGroundHeight, islandHazardAt, terrainHeight as islandTerrainHeight, SEA_Y, onPad as islandOnPad, snowCover as islandSnowCover,
 } from "../data/island/islandTerrain.js";
@@ -701,6 +702,7 @@ export function runSystemChecks(progressSnapshot) {
   // The journey — the progression: training, warm-ups, gates opening in turn (JY1–JY11).
   for (const c of runJourneyChecks()) checks.push(c);
   for (const c of runCloudProgressChecks()) checks.push(c);
+  for (const c of runUxChecks()) checks.push(c);
 
   return checks;
 }
@@ -926,19 +928,20 @@ export function runCameraChecks() {
     return it && Math.abs(it.position[0] - PLATEAU.x) <= PLATEAU.halfW &&
       Math.abs(it.position[1] - PLATEAU.z) <= PLATEAU.halfD && Boolean(it.encounterId);
   };
-  const boardTrophyOn = onRect("mission-board") && onRect("trophy-stand");
+  // (The plaza's Trophy Stand was removed 2026-10-13 — the Achievements Wall
+  // replaces it; it must not come back as a stray interactable.)
+  const boardTrophyOn = onRect("mission-board") && !INTERACTABLES.some((x) => x.id === "trophy-stand");
   const mills = INTERACTABLES.find((x) => x.id === "sage");
   const millsOff = mills && !(Math.abs(mills.position[0] - PLATEAU.x) <= PLATEAU.halfW &&
     Math.abs(mills.position[1] - PLATEAU.z) <= PLATEAU.halfD);
   // And Board + Trophy interaction radii must not overlap (they were cramped).
   const b = INTERACTABLES.find((x) => x.id === "mission-board");
-  const t = INTERACTABLES.find((x) => x.id === "trophy-stand");
-  const spaced = b && t && Math.hypot(b.position[0] - t.position[0], b.position[1] - t.position[1]) >
-    (b.interactionRadius + t.interactionRadius);
+  const f = PLAZA_FOUNTAIN_FOR_CHECK;
+  const spaced = b && Math.hypot(b.position[0] - f.position[0], b.position[1] - f.position[1]) > f.radius + b.collision.radius;
   checks.push({
     name: "Hub objects on the plaza & interactable",
     pass: Boolean(boardTrophyOn && millsOff && spaced),
-    detail: boardTrophyOn ? (millsOff ? (spaced ? "board/trophy on plateau, spaced; Mills off" : "board+trophy radii overlap") : "Mills still on plateau") : "board/trophy off-plateau",
+    detail: boardTrophyOn ? (millsOff ? (spaced ? "board on the plaza clear of the fountain; no trophy stand; Mills off" : "board on the fountain") : "Mills still on plateau") : "board off-plaza, or a trophy stand is back",
   });
 
   return checks;
@@ -1001,7 +1004,7 @@ export function runCollisionChecks() {
   }
 
   // Key NPCs/interactables carry both a collision and an interaction radius.
-  const keyIds = ["pip", "fern", "alby", "sage", "mission-board", "trophy-stand", "chest"];
+  const keyIds = ["pip", "fern", "alby", "sage", "mission-board", "chest"];
   const radiiOk = keyIds.every((id) => {
     const it = INTERACTABLES.find((x) => x.id === id);
     return it && it.collision && it.collision.radius > 0 && it.interactionRadius > it.collision.radius;
@@ -1030,11 +1033,12 @@ export function runCollisionChecks() {
     detail: noGateColliders ? "no gate colliders when unlocked" : "gate still blocks",
   });
 
-  // Mission Board + Trophy Stand remain interactable.
+  // Mission Board remains interactable (the plaza Trophy Stand was removed
+  // 2026-10-13 — the Achievements Wall shows every world's trophies).
   const boardOk = INTERACTABLES.some((i) => i.id === "mission-board" && i.encounterId);
-  const trophyOk = INTERACTABLES.some((i) => i.id === "trophy-stand" && i.encounterId);
+  const trophyOk = !INTERACTABLES.some((i) => i.id === "trophy-stand");
   checks.push({
-    name: "Mission Board & Trophy Stand interactable",
+    name: "Mission Board interactable; no plaza Trophy Stand",
     pass: boardOk && trophyOk,
     detail: `board:${boardOk} trophy:${trophyOk}`,
   });
@@ -1234,7 +1238,7 @@ export function runWorldChecks(progressSnapshot) {
   });
 
   // W8) Each key NPC/interactable is assigned to a zone.
-  const keyNpcs = ["pip", "fern", "alby", "mission-board", "trophy-stand"];
+  const keyNpcs = ["pip", "fern", "alby", "mission-board"];
   const unassigned = keyNpcs.filter((id) => !getZoneForNpc(id));
   checks.push({
     name: "Key NPCs/interactables assigned to zones",

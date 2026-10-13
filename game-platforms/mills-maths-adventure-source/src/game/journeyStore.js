@@ -38,8 +38,14 @@ export const journeyTrack = {
 
 const TICK_MS = 250;
 const REFRESH_MS = 1500;
-/** After this long on one coach step, the card offers "Skip this step". */
+/** After this long on one world-tour step, the card offers "Skip this step". */
 export const STEP_SKIP_AFTER_MS = 25000;
+/**
+ * The training can't be skipped (Jeff, 2026-10-13: "knowing my students they
+ * will skip it") — but a step that somehow can't be done mustn't trap anyone,
+ * so after a full minute on one step a small "Stuck? Skip this step" appears.
+ */
+export const TRAINING_STUCK_AFTER_MS = 60000;
 
 function visitedMap() {
   return Object.fromEntries(JOURNEY_WORLDS.map((w) => [w.regionId, hasVisited(w.regionId)]));
@@ -72,7 +78,7 @@ function clearCoachWaypoint() {
 /** The coach step to show right now (or null). Pure-ish: reads the stores. */
 export function currentCoach(progress = useProgress.getState(), regionId = useSession.getState().currentRegionId) {
   const j = progress.journey || {};
-  if (regionId === "island-1" && !j.trainingDone && !j.trainingSkipped) {
+  if (regionId === "island-1" && !j.trainingDone) {
     if (!j.trainingStarted) return { scope: "training", card: "welcome", key: "training:welcome" };
     const i = j.step || 0;
     if (i < TRAINING_STEPS.length) {
@@ -116,7 +122,7 @@ export const useJourney = create((set, get) => ({
     // worlds, the warm-ups already passed) are not news — mark them seen.
     const j = p.journey || {};
     if (!j.seeded) {
-      p.updateJourney({ seeded: true, celebrated: js.worlds.filter((w) => w.open).map((w) => w.key) });
+      p.updateJourney({ seeded: true, celebrated: js.worlds.filter((w) => w.open && !w.adminOpen).map((w) => w.key) });
       return;
     }
     if (!get().celebrate && useSession.getState().phase === "playing") {
@@ -151,11 +157,11 @@ export const useJourney = create((set, get) => ({
     useProgress.getState().updateJourney({ trainingStarted: true, step: 0 });
     set({ base: null, frac: 0 });
   },
-  skipTraining() {
-    useProgress.getState().updateJourney({ trainingSkipped: true, trainingStarted: true });
+  /** Admin mode only: mark the training done (no reward) to get on with testing. */
+  adminFinishTraining() {
+    useProgress.getState().updateJourney({ trainingStarted: true, trainingDone: true, step: TRAINING_STEPS.length });
     clearCoachWaypoint();
     set({ base: null, frac: 0 });
-    useUI.getState().pushToast({ type: "info", icon: "🧭", title: "Training skipped", message: "Find Pip, Fern and Alby to open the igloo gate." });
   },
   finishTraining() {
     const p = useProgress.getState();
@@ -189,7 +195,7 @@ export const useJourney = create((set, get) => ({
       }
     }
     if (cur.step && !cur.step.card) {
-      set({ flash: { id: cur.step.id, title: cur.step.title, at: Date.now() } });
+      set({ flash: { id: cur.step.id, title: cur.step.title, done: cur.step.done || cur.step.title, scope: cur.scope, at: Date.now() } });
       useUI.getState().playSound("correct");
     }
     set({ base: null, frac: 0 });

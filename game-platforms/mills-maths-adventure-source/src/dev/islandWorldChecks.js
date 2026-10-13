@@ -234,7 +234,7 @@ export function runIslandWorldChecks() {
   const targets = [
     ...gateList.map((g) => [`gate-${g.id}`, g.position, 1.8]),
     ...gateList.map((g) => [`arrive-${g.id}`, g.arrive, 1.0]),
-    ...["pip", "fern", "alby", "sage", "mission-board", "trophy-stand"].map((id) => [id, ix(id).position, ix(id).interactionRadius - 0.6]),
+    ...["pip", "fern", "alby", "sage", "mission-board"].map((id) => [id, ix(id).position, ix(id).interactionRadius - 0.6]),
     ["summit", FROSTY_PEAK.summit, 2.5],
     ["wall-look-spot", wallToWorld(0, 4), 1.0],
     ["lighthouse-islet", [ISLET.center[0] - 3, ISLET.center[1] + 2], 3],

@@ -15,7 +15,7 @@
  *       through the NUMBER ISLAND arch, up Main Street to the plaza. The
  *       ACHIEVEMENTS WALL stands beside the arch; Mills waits on the green.
  *   C   MISSION PLAZA — a raised stone plaza (four stair flights) with the
- *       Number Fountain, the Mission Board and the Trophy Stand.
+ *       Number Fountain and the Mission Board.
  *   N   SCHOOLHOUSE HILL — the little island school; the Retrieval Practice
  *       Playground gate is its yard gate (open — the 80% lock was removed 2026-10-09).
  *   NW  FROSTY PEAK — a snow-capped mountain. The Snowball Sums IGLOO sits in
@@ -74,7 +74,7 @@ export const PLAZA = {
 };
 export const PLAZA_FOUNTAIN = { position: [0, 8], radius: 3.4 };
 export const MISSION_BOARD_POS = [-7.4, 8.5];
-export const TROPHY_STAND_POS = [7.4, 8.5];
+// (TROPHY_STAND_POS [7.4, 8.5] was the plaza Trophy Stand — removed 2026-10-13.)
 
 // ---------------------------------------------------------------------------
 // THE ISLAND FRIENDS (the topic NPCs) + the zones they belong to.

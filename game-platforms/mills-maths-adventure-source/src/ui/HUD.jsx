@@ -24,6 +24,7 @@ import { CoachStep } from "./journey/JourneyCoach.jsx";
 import JourneyTracker, { JourneyMini } from "./journey/JourneyTracker.jsx";
 import FpvChip from "./journey/FpvChip.jsx";
 import ProgressSyncDot from "./cloud/ProgressSyncDot.jsx";
+import { AdminChip } from "./admin/AdminPanel.jsx";
 
 /**
  * The heads-up display overlaid on the 3D view.
@@ -212,6 +213,7 @@ export default function HUD() {
 
       {/* Top-right: controls */}
       <div className={`hud-buttons${compact ? " is-compact" : ""}`}>
+        {!compact && <AdminChip />}
         {showMapBtn && (
           <button className="hud-icon-btn hud-map-btn" onClick={openMap} title="World map (M)" aria-label="World map">
             🗺️{!compact && <> <Bi>Map</Bi></>}
@@ -256,6 +258,7 @@ export default function HUD() {
             <div className="cog-menu">
               {compact && (
                 <div className="cog-main">
+                  <AdminChip inMenu onClick={toggleCog} />
                   <button className="cog-main-btn" onClick={() => { toggleCog(); toggleQuestLog(); }}>📜 <Bi>Quests</Bi></button>
                   <button className="cog-main-btn" onClick={() => { toggleCog(); toggleResults(); }}>📊 <Bi>Results</Bi></button>
                   <button className="cog-main-btn" onClick={() => { toggleCog(); toggleHowTo(); }}>❔ <Bi>Help</Bi></button>

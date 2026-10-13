@@ -645,3 +645,351 @@ body.wall-view .fpv-chip { display: none; }
 }
 .cloud-signout:hover { background: #f1f5ff; }
 .tl-confirm p.tl-reset-note { font-weight: 500; font-size: 0.86rem; opacity: 0.85; }
+
+/* ===================================================================== */
+/* THE TRAINING PROMPT (2026-10-13) — one big, clear prompt while the      */
+/* Harbour Green training runs: keycaps that light up, touch drawings, a   */
+/* ring + hand on the real control, a fill bar, a big green ✓ cheer.        */
+/* ===================================================================== */
+.tprompt {
+  position: fixed;
+  left: 50%;
+  z-index: 27; /* over world badges + the HUD panels, under modals (30+) */
+  width: min(620px, calc(100vw - 32px));
+  transform: translateX(-50%);
+  color: #fff;
+  background: linear-gradient(180deg, rgba(20, 44, 74, 0.95), rgba(12, 28, 48, 0.95));
+  border-radius: 22px;
+  padding: 12px 18px 14px;
+  box-shadow: 0 0 0 3px var(--j-gold), 0 18px 40px rgba(6, 16, 30, 0.45);
+  font-family: "MMA Rounded", var(--font);
+  pointer-events: auto;
+  animation: tp-in 0.42s cubic-bezier(0.2, 1.3, 0.4, 1) both;
+}
+.tprompt.is-bottom { bottom: calc(18px + env(safe-area-inset-bottom, 0px)); }
+.tprompt.is-top { top: calc(124px + env(safe-area-inset-top, 0px)); }
+.tprompt.is-top.is-compact { top: calc(58px + env(safe-area-inset-top, 0px)); padding: 8px 12px 10px; border-radius: 18px; }
+@keyframes tp-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(18px) scale(0.94); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+}
+.tprompt.is-top { animation-name: tp-in-top; }
+@keyframes tp-in-top {
+  from { opacity: 0; transform: translateX(-50%) translateY(-14px) scale(0.94); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+}
+
+.tp-head { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+.tp-kicker { font: 800 0.74rem/1 "MMA Rounded", var(--font); letter-spacing: 0.12em; text-transform: uppercase; color: var(--j-gold); }
+.tp-pips { display: flex; gap: 5px; flex: 1; }
+.tp-pips span { width: 22px; height: 7px; border-radius: 99px; background: rgba(255, 255, 255, 0.22); }
+.tp-pips span.done { background: var(--j-good); }
+.tp-pips span.now { background: var(--j-gold); box-shadow: 0 0 0 2px rgba(255, 207, 74, 0.35); }
+.tp-count { font: 800 0.86rem/1 "MMA Rounded", var(--font); color: rgba(255, 255, 255, 0.75); }
+
+.tp-main { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.tp-title { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.tp-icon { font-size: 2.6rem; line-height: 1; filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.3)); }
+.tp-name { font: 400 2rem/1.05 "MMA Display", "Trebuchet MS", system-ui, sans-serif; letter-spacing: 0.01em; text-shadow: 0 2px 0 rgba(0, 0, 0, 0.25); }
+.tp-picture { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; justify-content: flex-end; }
+.tp-say { margin-top: 8px; font: 700 1.08rem/1.35 "MMA Rounded", var(--font); color: rgba(255, 255, 255, 0.95); }
+.tp-say.is-now { color: var(--j-gold); font-size: 1.22rem; animation: tp-now 1.1s ease-in-out infinite; }
+@keyframes tp-now { 50% { transform: scale(1.03); } }
+.tp-meter { margin-top: 9px; height: 12px; border-radius: 99px; background: rgba(255, 255, 255, 0.16); overflow: hidden; }
+.tp-meter span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #8fe388, var(--j-good)); transition: width 0.25s ease; box-shadow: 0 0 12px rgba(63, 185, 80, 0.7); }
+.tp-count-pips { display: flex; gap: 10px; margin-top: 9px; }
+.tp-count-pips span {
+  width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center;
+  font: 800 1rem/1 "MMA Rounded", var(--font); color: rgba(255, 255, 255, 0.7);
+  border: 3px solid rgba(255, 255, 255, 0.3);
+}
+.tp-count-pips span.on { background: var(--j-good); border-color: #bff0b8; color: #fff; animation: tp-pop 0.35s ease-out; }
+@keyframes tp-pop { 0% { transform: scale(0.5); } 70% { transform: scale(1.18); } 100% { transform: scale(1); } }
+.tp-stuck {
+  display: block; margin: 10px 0 0 auto; padding: 8px 12px; min-height: 40px;
+  border: 0; border-radius: 99px; cursor: pointer; background: rgba(255, 255, 255, 0.12); color: rgba(255, 255, 255, 0.8);
+  font: 700 0.84rem/1 "MMA Rounded", var(--font);
+}
+
+/* The keycaps — they light up as they're pressed. */
+.tk-row { display: flex; align-items: center; gap: 10px; }
+.tk { display: inline-flex; flex-direction: column; align-items: center; gap: 4px; }
+.tk kbd {
+  min-width: 52px; height: 50px; padding: 0 12px; display: grid; place-items: center;
+  border-radius: 11px; font: 800 1.35rem/1 "MMA Rounded", var(--font); color: #1c2b3d;
+  background: linear-gradient(180deg, #ffffff, #e9eef5);
+  border: 2px solid #c7d2e0; border-bottom-width: 6px;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.25);
+  transition: transform 0.06s ease, background 0.1s ease, border-color 0.1s ease;
+}
+.tk small { font: 700 0.72rem/1 "MMA Rounded", var(--font); color: rgba(255, 255, 255, 0.8); white-space: nowrap; }
+.tk-wide kbd { min-width: 104px; font-size: 1.1rem; }
+.tk-space kbd { min-width: 190px; font-size: 1.1rem; }
+.tk.is-pulse kbd { animation: tk-pulse 1.25s ease-in-out infinite; }
+@keyframes tk-pulse {
+  0%, 100% { box-shadow: 0 3px 0 rgba(0, 0, 0, 0.25), 0 0 0 0 rgba(255, 207, 74, 0.0); }
+  50% { box-shadow: 0 3px 0 rgba(0, 0, 0, 0.25), 0 0 0 6px rgba(255, 207, 74, 0.55); }
+}
+.tk.is-down kbd {
+  transform: translateY(4px); border-bottom-width: 2px;
+  background: linear-gradient(180deg, #b7f5ae, #6fd468); border-color: #3fb950; color: #0d3d12;
+  box-shadow: 0 0 18px rgba(63, 185, 80, 0.85);
+}
+.tk.is-dim { opacity: 0.45; }
+.tk-cluster { display: inline-flex; flex-direction: column; align-items: center; gap: 4px; }
+.tk-cl-row { display: flex; gap: 4px; }
+.tk-cluster .tk kbd { min-width: 40px; height: 38px; font-size: 1.05rem; border-bottom-width: 5px; border-radius: 9px; padding: 0 8px; }
+.tk-or { font: 700 0.86rem/1 "MMA Rounded", var(--font); color: rgba(255, 255, 255, 0.6); }
+.tk-plus { font: 800 1.6rem/1 "MMA Rounded", var(--font); color: var(--j-gold); }
+.tk-turn { font-size: 1.5rem; color: var(--j-gold); }
+.tk-chip { padding: 9px 12px; border-radius: 99px; background: rgba(255, 255, 255, 0.92); color: #1c2b3d; font: 800 0.95rem/1 "MMA Rounded", var(--font); }
+
+/* Touch drawings of the controls. */
+.tg { display: inline-flex; flex-direction: column; align-items: center; gap: 4px; }
+.tg small { font: 700 0.76rem/1 "MMA Rounded", var(--font); color: rgba(255, 255, 255, 0.85); white-space: nowrap; }
+.tg.is-dim { opacity: 0.45; }
+.tg-joy { position: relative; width: 62px; height: 62px; border-radius: 50%; border: 3px dashed rgba(255, 255, 255, 0.7); background: rgba(255, 255, 255, 0.1); }
+.tg-joy i { position: absolute; left: 50%; top: 50%; width: 26px; height: 26px; margin: -13px 0 0 -13px; border-radius: 50%; background: #fff; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35); animation: tg-joy 1.8s ease-in-out infinite; }
+.tg-joy.is-run { border-color: #ff9f43; border-style: solid; box-shadow: 0 0 0 4px rgba(255, 159, 67, 0.35); }
+.tg-joy.is-run i { animation: tg-joy-run 1.6s ease-in-out infinite; }
+@keyframes tg-joy { 0%, 100% { transform: translate(0, 0); } 30% { transform: translate(0, -11px); } 60% { transform: translate(9px, -6px); } }
+@keyframes tg-joy-run { 0%, 100% { transform: translate(0, 0); } 40%, 70% { transform: translate(0, -20px); } }
+.tg-drag { position: relative; width: 84px; height: 54px; border-radius: 12px; border: 2px dashed rgba(255, 255, 255, 0.55); }
+.tg-drag b { position: absolute; top: 8px; left: 8px; font-size: 1.7rem; animation: tg-drag 1.6s ease-in-out infinite; }
+@keyframes tg-drag { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(38px); } }
+.tg-btn {
+  width: 58px; height: 58px; border-radius: 50%; display: grid; place-items: center;
+  font-size: 1.7rem; background: rgba(255, 255, 255, 0.95); color: #1c2b3d;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.25); animation: tk-pulse 1.25s ease-in-out infinite;
+}
+.tg-jump { background: #ffd23f; font-weight: 800; }
+.tg-talk { background: #3a86ff; color: #fff; }
+
+/* The live arrow inside the prompt. */
+.tway { display: inline-flex; align-items: center; gap: 8px; }
+.tway-dial { width: 54px; height: 54px; border-radius: 50%; display: grid; place-items: center; background: rgba(255, 207, 74, 0.16); box-shadow: inset 0 0 0 2px rgba(255, 207, 74, 0.6); }
+.tway-arrow { display: grid; place-items: center; color: var(--j-gold); transition: transform 0.08s linear; }
+.tway-text { display: flex; flex-direction: column; gap: 2px; font: 800 0.95rem/1.1 "MMA Rounded", var(--font); }
+.tway-text span { color: rgba(255, 255, 255, 0.75); font-size: 0.86rem; }
+
+/* Done! */
+.tprompt.is-done { box-shadow: 0 0 0 3px #7ee07a, 0 18px 40px rgba(6, 16, 30, 0.45); background: linear-gradient(180deg, rgba(24, 92, 48, 0.96), rgba(13, 58, 30, 0.96)); }
+.tp-done { display: flex; align-items: center; gap: 14px; padding: 4px 0 2px; }
+.tp-check {
+  width: 60px; height: 60px; flex: none; border-radius: 50%; display: grid; place-items: center;
+  font: 800 2.1rem/1 "MMA Rounded", var(--font); color: #0f4a1d; background: #a7f3a0;
+  box-shadow: 0 0 0 6px rgba(167, 243, 160, 0.25), 0 0 26px rgba(126, 224, 122, 0.8);
+  animation: tp-check 0.5s cubic-bezier(0.2, 1.6, 0.4, 1) both;
+}
+@keyframes tp-check { from { transform: scale(0.2) rotate(-25deg); } to { transform: scale(1) rotate(0); } }
+.tp-done-text { font: 400 1.85rem/1.1 "MMA Display", "Trebuchet MS", system-ui, sans-serif; }
+.tp-next { margin-top: 6px; font: 700 0.95rem/1.2 "MMA Rounded", var(--font); color: rgba(255, 255, 255, 0.82); }
+
+/* The ring + hand on the real control. */
+.tspot {
+  position: fixed; z-index: 29; pointer-events: none; border-radius: 22px;
+  box-shadow: 0 0 0 4px var(--j-gold), 0 0 0 9999px rgba(6, 14, 26, 0.0);
+  animation: tspot 1.2s ease-in-out infinite;
+}
+@keyframes tspot {
+  0%, 100% { box-shadow: 0 0 0 4px var(--j-gold), 0 0 0 4px rgba(255, 207, 74, 0.5); }
+  50% { box-shadow: 0 0 0 4px var(--j-gold), 0 0 0 18px rgba(255, 207, 74, 0); }
+}
+.tspot-hand { position: absolute; left: 50%; font-size: 2.3rem; margin-left: -0.6em; filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.45)); }
+.tspot.is-low .tspot-hand { bottom: 100%; animation: tspot-down 0.9s ease-in-out infinite; }
+.tspot.is-high .tspot-hand { top: 100%; animation: tspot-up 0.9s ease-in-out infinite; }
+@keyframes tspot-down { 50% { transform: translateY(8px); } }
+@keyframes tspot-up { 50% { transform: translateY(-8px); } }
+.tdrag-zone {
+  position: fixed; z-index: 25; pointer-events: none;
+  right: 6vw; top: 34%; width: 40vw; height: 28%;
+  border-radius: 26px; border: 3px dashed rgba(255, 207, 74, 0.85); background: rgba(255, 207, 74, 0.08);
+}
+.tdrag-zone span { position: absolute; top: 40%; left: 20%; font-size: 2.6rem; animation: tdrag 1.8s ease-in-out infinite; filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.45)); }
+@keyframes tdrag { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(20vw); } }
+
+/* While the training runs, everything that would compete steps aside. */
+body.training-on .jtrack,
+body.training-on .hud-guidance,
+body.training-on .hud > .hud-compass-stack,
+body.training-on .hud-controls,
+body.training-on .touch-coach { display: none !important; }
+body.training-on.tp-bottom .interaction-prompt,
+body.training-on.tp-bottom .wall-prompt,
+body.training-on.tp-bottom .blocked-gate-prompt { bottom: calc(var(--tp-h, 170px) + 34px); }
+
+/* Small screens: one tighter row. */
+.tprompt.is-compact .tp-icon { font-size: 1.8rem; }
+.tprompt.is-compact .tp-name { font-size: 1.35rem; }
+.tprompt.is-compact .tp-say { font-size: 0.92rem; margin-top: 5px; }
+.tprompt.is-compact .tp-say.is-now { font-size: 1rem; }
+.tprompt.is-compact .tp-pips span { width: 14px; height: 6px; }
+.tprompt.is-compact .tg-btn, .tprompt.is-compact .tg-joy { width: 46px; height: 46px; font-size: 1.3rem; }
+.tprompt.is-compact .tg-joy i { width: 20px; height: 20px; margin: -10px 0 0 -10px; }
+.tprompt.is-compact .tg-drag { width: 64px; height: 44px; }
+.tprompt.is-compact .tway-dial { width: 44px; height: 44px; }
+.tprompt.is-compact .tp-check { width: 44px; height: 44px; font-size: 1.5rem; }
+.tprompt.is-compact .tp-done-text { font-size: 1.35rem; }
+.tprompt.is-compact .tp-meter { height: 9px; margin-top: 6px; }
+.tprompt.is-compact .tp-count-pips span { width: 28px; height: 28px; font-size: 0.86rem; }
+@media (max-height: 460px) {
+  /* A phone held sideways: keep it short so the joystick + Jump stay clear. */
+  .tprompt.is-top.is-compact { top: calc(50px + env(safe-area-inset-top, 0px)); width: min(520px, calc(100vw - 260px)); }
+  .tprompt.is-compact .tp-head { margin-bottom: 2px; }
+  .tprompt.is-compact .tp-say { font-size: 0.84rem; }
+}
+@media (max-width: 560px) {
+  .tprompt .tp-main { gap: 10px; }
+  .tk-space kbd { min-width: 150px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tprompt, .tk.is-pulse kbd, .tg-btn, .tspot, .tspot-hand, .tg-joy i, .tg-drag b, .tdrag-zone span, .tp-say.is-now { animation: none !important; }
+}
+
+/* ===================================================================== */
+/* ADMIN MODE (2026-10-13) — the 🛠️ chip, the panel, the title-screen lock */
+/* ===================================================================== */
+.hud-icon-btn.admin-chip, .cog-main-btn.admin-chip { background: #2b2140; color: #ffd76a; box-shadow: 0 0 0 2px #ffd76a inset; font-weight: 800; }
+
+.admin-card {
+  position: relative; width: min(560px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); overflow: auto;
+  background: #fffaf0; color: #22303f; border-radius: 22px; padding: 22px 22px 18px;
+  box-shadow: 0 0 0 3px #2b2140, 0 22px 50px rgba(6, 16, 30, 0.45); font-family: "MMA Rounded", var(--font);
+}
+.admin-kicker { font: 800 0.78rem/1 "MMA Rounded", var(--font); letter-spacing: 0.12em; text-transform: uppercase; color: #6b4fa0; }
+.admin-title { margin: 6px 0 4px; font: 400 1.7rem/1.1 "MMA Display", "Trebuchet MS", system-ui, sans-serif; color: #2b2140; }
+.admin-note { margin: 0 0 14px; font-size: 0.92rem; line-height: 1.4; color: #4a5568; }
+.admin-sub { margin: 0 0 8px; font: 800 0.95rem/1 "MMA Rounded", var(--font); color: #2b2140; }
+.admin-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.admin-go {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 3px; min-height: 64px; padding: 10px 12px; cursor: pointer;
+  border: 2px solid #e2d8f0; border-radius: 14px; background: #fff; text-align: left; font: inherit; color: inherit;
+}
+.admin-go span { font-size: 1.4rem; line-height: 1; }
+.admin-go b { font-size: 0.92rem; }
+.admin-go small { font-size: 0.74rem; color: #6b7280; }
+.admin-go:hover:not(:disabled) { border-color: #6b4fa0; background: #f7f2ff; }
+.admin-go.is-here { opacity: 0.6; cursor: default; }
+.admin-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+.admin-btn { min-height: 44px; padding: 10px 16px; border-radius: 99px; border: 2px solid #2b2140; background: #fff; color: #2b2140; font: 800 0.92rem/1 "MMA Rounded", var(--font); cursor: pointer; }
+.admin-btn.admin-off { background: #2b2140; color: #ffd76a; margin-left: auto; }
+
+/* ===================================================================== */
+/* THE DIALOGUE BOX (2026-10-13) — every conversation, docked along the   */
+/* bottom: portrait, name plate, the line, back / dots / next.             */
+/* ===================================================================== */
+.modal-overlay.dlg-overlay {
+  align-items: flex-end;
+  background: linear-gradient(to top, rgba(8, 16, 30, 0.62) 0%, rgba(8, 16, 30, 0.18) 42%, rgba(8, 16, 30, 0) 70%);
+  padding: 0 16px calc(18px + env(safe-area-inset-bottom, 0px));
+}
+.dlg {
+  --dlg-c: #2a5f9e;
+  position: relative;
+  width: min(820px, 100%);
+  padding-left: 118px;
+  animation: dlg-in 0.36s cubic-bezier(0.2, 1.25, 0.4, 1) both;
+  font-family: "MMA Rounded", var(--font);
+}
+@keyframes dlg-in { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+.dlg-portrait {
+  position: absolute; left: 0; bottom: 14px; z-index: 2;
+  width: 132px; height: 132px; border-radius: 50%; overflow: hidden;
+  background: radial-gradient(circle at 50% 30%, #ffffff 0%, #e8eef6 60%, #c9d6e6 100%);
+  box-shadow: 0 0 0 5px #fff, 0 0 0 9px var(--dlg-c), 0 14px 30px rgba(6, 16, 30, 0.45);
+  display: grid; place-items: center;
+  animation: dlg-portrait 0.5s cubic-bezier(0.2, 1.5, 0.4, 1) both;
+}
+@keyframes dlg-portrait { from { transform: scale(0.6) translateY(20px); opacity: 0; } to { transform: none; opacity: 1; } }
+.dlg-portrait img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.dlg-portrait-icon { font-size: 4rem; line-height: 1; }
+.dlg-box {
+  position: relative;
+  min-height: 150px;
+  padding: 30px 26px 14px 44px;
+  border-radius: 24px;
+  background: linear-gradient(180deg, #fffdf7 0%, #fff6e3 100%);
+  color: #22303f;
+  box-shadow: 0 0 0 3px var(--dlg-c), 0 0 0 7px rgba(255, 255, 255, 0.55), 0 18px 44px rgba(6, 16, 30, 0.45);
+  cursor: pointer;
+}
+.dlg-plate {
+  position: absolute; left: 30px; top: -20px;
+  display: inline-flex; align-items: baseline; gap: 10px;
+  padding: 7px 18px 8px; border-radius: 14px;
+  background: var(--dlg-c); color: #fff;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.18), 0 8px 18px rgba(6, 16, 30, 0.25);
+}
+.dlg-name { font: 400 1.45rem/1 "MMA Display", "Trebuchet MS", system-ui, sans-serif; letter-spacing: 0.01em; }
+.dlg-role { font: 700 0.82rem/1 "MMA Rounded", var(--font); opacity: 0.88; }
+.dlg-top-actions { position: absolute; right: 12px; top: 10px; display: flex; align-items: center; gap: 4px; }
+.dlg-close, .dlg-skip {
+  border: 0; background: transparent; cursor: pointer; color: #6b7a8c;
+  font: 800 0.86rem/1 "MMA Rounded", var(--font); border-radius: 99px; min-height: 36px; padding: 0 10px;
+}
+.dlg-close { width: 36px; padding: 0; font-size: 1rem; }
+.dlg-close:hover, .dlg-skip:hover { background: rgba(0, 0, 0, 0.06); color: #22303f; }
+.dlg-line {
+  margin: 4px 0 12px;
+  font: 600 1.32rem/1.5 "MMA Rounded", var(--font);
+  color: #1f2a37;
+  animation: dlg-line 0.32s ease-out both;
+}
+.dlg-line strong { color: var(--dlg-c); font-weight: 800; }
+@keyframes dlg-line { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.dlg-foot { display: flex; align-items: center; gap: 12px; }
+.dlg-back, .dlg-back-space { min-width: 86px; }
+.dlg-back {
+  border: 0; background: rgba(0, 0, 0, 0.05); color: #4a5a6c; cursor: pointer; border-radius: 99px;
+  min-height: 44px; padding: 0 14px; font: 800 0.92rem/1 "MMA Rounded", var(--font);
+}
+.dlg-back:hover { background: rgba(0, 0, 0, 0.09); }
+.dlg-dots { display: flex; gap: 6px; flex: 1; justify-content: center; }
+.dlg-dots span { width: 9px; height: 9px; border-radius: 50%; background: #d6dde6; }
+.dlg-dots span.seen { background: color-mix(in srgb, var(--dlg-c) 45%, #fff); }
+.dlg-dots span.now { background: var(--dlg-c); transform: scale(1.3); }
+.dlg-buttons { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+.dlg-btn {
+  min-height: 48px; padding: 0 20px; border-radius: 99px; border: 0; cursor: pointer;
+  font: 800 1.05rem/1 "MMA Rounded", var(--font); display: inline-flex; align-items: center; gap: 8px;
+}
+.dlg-btn-go { background: var(--dlg-c); color: #fff; box-shadow: 0 5px 0 rgba(0, 0, 0, 0.22); transition: transform 0.08s ease, box-shadow 0.08s ease; }
+.dlg-btn-go:hover { filter: brightness(1.08); }
+.dlg-btn-go:active { transform: translateY(4px); box-shadow: 0 1px 0 rgba(0, 0, 0, 0.22); }
+.dlg-btn-go.is-last { background: linear-gradient(180deg, #43c463, #2f9e4e); }
+.dlg-go-arrow { display: inline-block; animation: dlg-nudge 0.9s ease-in-out infinite; }
+@keyframes dlg-nudge { 50% { transform: translateX(4px); } }
+.dlg-kbd {
+  margin-left: 4px; padding: 3px 6px; border-radius: 6px; font: 800 0.66rem/1 "MMA Rounded", var(--font);
+  background: rgba(255, 255, 255, 0.22); color: #fff; border-bottom: 2px solid rgba(0, 0, 0, 0.2);
+}
+.dlg-btn-quiet { background: transparent; color: #4a5a6c; box-shadow: inset 0 0 0 2px #cfd8e3; }
+.dlg-btn-quiet:hover { background: rgba(0, 0, 0, 0.04); }
+
+/* Phones + small windows: portrait sits on the box's top-left corner. */
+@media (max-width: 640px) {
+  .modal-overlay.dlg-overlay { padding: 0 10px calc(10px + env(safe-area-inset-bottom, 0px)); }
+  .dlg { padding-left: 0; padding-top: 40px; }
+  .dlg-portrait { width: 84px; height: 84px; left: 10px; top: 0; bottom: auto; box-shadow: 0 0 0 4px #fff, 0 0 0 7px var(--dlg-c), 0 10px 22px rgba(6, 16, 30, 0.4); }
+  .dlg-portrait-icon { font-size: 2.6rem; }
+  .dlg-box { padding: 52px 16px 12px; min-height: 0; border-radius: 20px; }
+  .dlg-plate { left: 104px; top: -14px; padding: 6px 12px 7px; flex-direction: column; align-items: flex-start; gap: 3px; }
+  .dlg-name { font-size: 1.2rem; }
+  .dlg-role { font-size: 0.72rem; }
+  .dlg-top-actions { top: 6px; right: 6px; }
+  .dlg-line { font-size: 1.08rem; line-height: 1.45; }
+  .dlg-back, .dlg-back-space { min-width: 0; }
+  .dlg-back { padding: 0 12px; }
+  .dlg-btn { min-height: 46px; padding: 0 16px; font-size: 1rem; }
+}
+/* A phone held sideways: short and to the right of the joystick zone. */
+@media (max-height: 460px) {
+  .dlg { padding-left: 92px; width: min(760px, 100%); }
+  .dlg-portrait { width: 84px; height: 84px; bottom: 8px; }
+  .dlg-box { min-height: 0; padding: 22px 18px 10px 28px; }
+  .dlg-line { font-size: 1.02rem; margin-bottom: 8px; }
+  .dlg-name { font-size: 1.15rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dlg, .dlg-portrait, .dlg-line, .dlg-go-arrow { animation: none !important; }
+}

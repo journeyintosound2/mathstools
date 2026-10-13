@@ -16,10 +16,11 @@ import { Bi } from "../../i18n/i18n.jsx";
  *
  *   CoachCard   the welcome / "training complete" / world-welcome cards
  *               (centred, the student chooses)
- *   CoachStep   the slim live step card at the top of the screen: what to
- *               do (keyboard or touch wording), a progress meter, the step
- *               dots, "Skip this step" after a while and "Skip training".
- *               It ticks itself off when the student actually DOES it.
+ *   CoachStep   the slim live step card of a WORLD TOUR: what to do
+ *               (keyboard or touch wording), a progress meter, "Skip this
+ *               step" after a while and "End tour". It ticks itself off when
+ *               the student actually DOES it. (The Harbour Green TRAINING has
+ *               its own big prompt — ui/journey/TrainingPrompt.jsx.)
  */
 function useCoach() {
   const journey = useProgress((s) => s.journey);
@@ -52,7 +53,8 @@ export function CoachStep({ compact = false }) {
     return () => clearInterval(id);
   }, []);
 
-  const showFlash = flash && now - flash.at < 1600;
+  const showFlash = flash && flash.scope !== "training" && now - flash.at < 1600;
+  if (cur && cur.scope === "training") return null; // TrainingPrompt has it
   if (hidden || !cur || cur.card || !cur.step) {
     return showFlash && !hidden ? <FlashCard flash={flash} compact={compact} /> : null;
   }
@@ -71,8 +73,8 @@ export function CoachStep({ compact = false }) {
         <span className="coach-kicker">
           <Bi>{kicker}</Bi> <b>{stepNo} / {stepOf}</b>
         </span>
-        <button className="coach-skip-all" onClick={(e) => { e.currentTarget.blur(); training ? J.skipTraining() : J.closeIntro(cur.regionId); }}>
-          {training ? <Bi>Skip training</Bi> : <Bi>End tour</Bi>}
+        <button className="coach-skip-all" onClick={(e) => { e.currentTarget.blur(); J.closeIntro(cur.regionId); }}>
+          <Bi>End tour</Bi>
         </button>
       </div>
       <div className="coach-main">
@@ -119,7 +121,16 @@ export function CoachCard() {
   const xp = useProgress((s) => s.xp);
   const completedMissions = useProgress((s) => s.completedMissions);
   const js = useJourney((s) => s.js);
-  if (hidden || celebrating || !cur || !cur.card) return null;
+  const flash = useJourney((s) => s.flash);
+  const [, setTick] = useState(0);
+  // Let the last step's big ✓ finish before the "training complete" card.
+  const cheering = Boolean(flash && flash.scope === "training" && Date.now() - flash.at < 1500);
+  useEffect(() => {
+    if (!cheering) return undefined;
+    const id = setTimeout(() => setTick((t) => t + 1), 1550 - (Date.now() - flash.at));
+    return () => clearTimeout(id);
+  }, [cheering, flash]);
+  if (hidden || celebrating || cheering || !cur || !cur.card) return null;
   const J = useJourney.getState();
 
   if (cur.card === "welcome") {
@@ -129,7 +140,7 @@ export function CoachCard() {
         {returning ? (
           <>
             <p><Bi>The worlds now open one at a time, from the easiest to the hardest. Any world you've already played in stays open.</Bi></p>
-            <p><Bi>Want a quick training lap? It covers the controls, the Achievements Wall and the map.</Bi></p>
+            <p><Bi>Everyone starts with a quick training lap — the controls, the Achievements Wall and the map. It only takes a few minutes.</Bi></p>
           </>
         ) : (
           <>
@@ -140,9 +151,6 @@ export function CoachCard() {
         <CourseLine />
         <div className="jcard-actions">
           <button className="jbtn jbtn-go" autoFocus onClick={() => J.startTraining()}><Bi>Start training</Bi></button>
-          <button className={returning ? "jbtn jbtn-quiet" : "jcard-link"} onClick={() => J.skipTraining()}>
-            {returning ? <Bi>Skip training</Bi> : <Bi>Skip — I know how to play</Bi>}
-          </button>
         </div>
       </CardShell>
     );

@@ -85,12 +85,6 @@ let schoolChestOpened = false;
 export function triggerInteraction(interactable) {
   if (!interactable) return;
 
-  // The trophy stand opens the Trophy Room (not an encounter).
-  if (interactable.id === "trophy-stand") {
-    useUI.getState().setTrophy(true);
-    return;
-  }
-
   // The random treasure chest (W6-B): a small coins bonus, once per session
   // (re-findable — it moves to a new spot each load).
   if (interactable.id === "chest") {

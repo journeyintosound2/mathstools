@@ -34,7 +34,7 @@ export default function JourneyPanel() {
           <span className="jstop-icon" aria-hidden="true">🎓</span>
           <span className="jstop-text">
             <b><Bi>Training on Harbour Green</Bi></b>
-            <small>{js.trainingDone ? "✓ Done" : js.trainingSkipped ? "Skipped" : `Step ${Math.min((j.step || 0) + 1, 8)} of 8`}</small>
+            <small>{js.trainingDone ? "✓ Done" : `Step ${Math.min((j.step || 0) + 1, 8)} of 8`}</small>
           </span>
           {!js.trainingActive && regionId === "island-1" && (
             <button className="jstop-btn" onClick={replay}><Bi>Replay</Bi></button>

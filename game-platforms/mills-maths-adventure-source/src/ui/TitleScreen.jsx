@@ -9,6 +9,115 @@ import { PLAYER_CHARACTERS } from "../game/characters/characterModels.js";
 import { Bi, LanguageSelector } from "../i18n/i18n.jsx";
 import { useCloud } from "../cloud/cloudSession.js";
 import { forgetProgressOwner } from "../cloud/progressSync.js";
+import { SYNCED_KEY } from "../cloud/progressMerge.js";
+import { useResults } from "../results/resultStore.js";
+import { useAdmin } from "../game/adminStore.js";
+
+// "Start new game" reloads the page and lands straight on the character card.
+// (Read ONCE as the page loads — not in a render, which React may repeat.)
+const NEW_GAME_FLAG = "mma-new-game";
+const JUST_STARTED_NEW_GAME = (() => {
+  try {
+    const f = sessionStorage.getItem(NEW_GAME_FLAG);
+    if (f) sessionStorage.removeItem(NEW_GAME_FLAG);
+    return Boolean(f);
+  } catch { return false; }
+})();
+
+/**
+ * START NEW GAME (2026-10-13): sign out (sending anything not yet saved, so
+ * a signed-in student's cloud save is untouched), clear EVERYTHING this
+ * device holds for the game — progress, results, every world's trophies,
+ * visits, the journey — then reload clean (dropping any ?code= so it doesn't
+ * sign straight back in) onto the character card. Settings (language,
+ * graphics, sound, touch) and admin mode are kept.
+ */
+async function startNewGame() {
+  const cloud = useCloud.getState();
+  if (cloud.mode === "registered") { try { await cloud.clearSession(); } catch { /* a local reset goes on */ } }
+  useProgress.getState().resetProgress();
+  try { useResults.getState().clearResults(); } catch { /* ok */ }
+  try {
+    Object.keys(localStorage)
+      .filter((k) => SYNCED_KEY.test(k) || /^mma-(farm|snow|magma|jungle)-.*-best$|^mma-visited:|^mma-touch-coach$/.test(k))
+      .forEach((k) => localStorage.removeItem(k));
+  } catch { /* local only */ }
+  forgetProgressOwner();
+  try { sessionStorage.setItem(NEW_GAME_FLAG, "1"); } catch { /* lands on the menu instead */ }
+  window.location.replace(window.location.pathname + window.location.hash);
+}
+
+function NewGameCard({ onBack }) {
+  const [busy, setBusy] = useState(false);
+  const signedIn = useCloud((s) => s.mode === "registered");
+  useEffect(() => {
+    function onKey(e) { if (e.key === "Escape" && !busy) { e.preventDefault(); onBack(); } }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onBack, busy]);
+  return (
+    <section className="tl-card tl-newgame" role="alertdialog" aria-labelledby="tl-new-h">
+      <h2 id="tl-new-h" className="tl-card-title"><Bi>Start a new game?</Bi></h2>
+      <p className="tl-card-text"><Bi>This starts again from the very beginning on this device — the training, the warm-ups, every trophy and your level.</Bi></p>
+      {signedIn && <p className="tl-card-text tl-card-note"><Bi>Signed-in students get their progress back from the cloud next time they sign in.</Bi></p>}
+      <div className="tl-actions">
+        <button className="tl-btn tl-btn-danger" disabled={busy} onClick={async () => { setBusy(true); await startNewGame(); }}>
+          {busy ? <Bi>Starting…</Bi> : <Bi>Yes, start a new game</Bi>}
+        </button>
+        <button className="tl-btn tl-btn-ghost" onClick={onBack} disabled={busy} autoFocus><Bi>Cancel</Bi></button>
+      </div>
+    </section>
+  );
+}
+
+/** Admin mode (data/adminMode.js): the password lock, or switch it off. */
+function AdminCard({ onBack }) {
+  const on = useAdmin((s) => s.on);
+  const [pw, setPw] = useState("");
+  const [err, setErr] = useState("");
+  const [busy, setBusy] = useState(false);
+  const inputRef = useRef(null);
+  useEffect(() => { if (!on && inputRef.current) inputRef.current.focus({ preventScroll: true }); }, [on]);
+  useEffect(() => {
+    function onKey(e) { if (e.key === "Escape") { e.preventDefault(); onBack(); } }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onBack]);
+  async function unlock(e) {
+    e.preventDefault();
+    if (busy) return;
+    setBusy(true);
+    const ok = await useAdmin.getState().unlock(pw);
+    setBusy(false);
+    if (ok) { setPw(""); setErr(""); onBack(); } else { setErr("That isn't the admin password."); setPw(""); }
+  }
+  return (
+    <section className="tl-card tl-admin-card" aria-labelledby="tl-admin-h">
+      <h2 id="tl-admin-h" className="tl-card-title">🛠️ Admin mode</h2>
+      {on ? (
+        <>
+          <p className="tl-card-text">Admin mode is on: every world gate is open, and the 🛠️ button in the game jumps to any world. Your progress isn't changed.</p>
+          <div className="tl-actions">
+            <button className="tl-btn tl-btn-ghost" onClick={onBack} autoFocus>Back</button>
+            <button className="tl-btn tl-btn-danger" onClick={() => { useAdmin.getState().turnOff(); onBack(); }}>Turn admin mode off</button>
+          </div>
+        </>
+      ) : (
+        <form onSubmit={unlock}>
+          <p className="tl-card-text">For testing new worlds: opens every gate without winning the trophies first.</p>
+          <label className="tl-label" htmlFor="tl-admin-pw">Password</label>
+          <input id="tl-admin-pw" ref={inputRef} className="tl-input" type="password" autoComplete="off" value={pw}
+            onChange={(e) => { setPw(e.target.value); setErr(""); }} />
+          {err && <div className="tl-error" role="alert">{err}</div>}
+          <div className="tl-actions">
+            <button className="tl-btn tl-btn-primary" type="submit" disabled={busy || !pw}>{busy ? "Checking…" : "Unlock"}</button>
+            <button className="tl-btn tl-btn-ghost" type="button" onClick={onBack}>Back</button>
+          </div>
+        </form>
+      )}
+    </section>
+  );
+}
 
 /**
  * THE TITLE SCREEN (2026-10-09) — the game's front door, over a live
@@ -323,7 +432,9 @@ export default function TitleScreen() {
   const cloudMode = useCloud((s) => s.mode);
   const cloudStudent = useCloud((s) => s.student);
   const editing = Boolean(profile.created);
-  const [screen, setScreen] = useState(started ? "character" : "splash");
+  const adminOn = useAdmin((s) => s.on);
+  // Just after "Start new game": straight to picking an explorer.
+  const [screen, setScreen] = useState(started || JUST_STARTED_NEW_GAME ? "character" : "splash");
   const [curtainGone, setCurtainGone] = useState(false);
   const [leaving, setLeaving] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -451,13 +562,19 @@ export default function TitleScreen() {
                 <span className="tl-item-sub"><Bi>Your explorer, name and student code</Bi></span>
               </button>
             )}
-            <button className="tl-item" style={{ "--i": 2 }} onClick={() => useUI.getState().setCloudLogin(true)}>
+            {editing && (
+              <button className="tl-item" style={{ "--i": 2 }} onClick={() => setScreen("newgame")}>
+                <span className="tl-item-label"><Bi>Start new game</Bi></span>
+                <span className="tl-item-sub"><Bi>Start again from the very beginning</Bi></span>
+              </button>
+            )}
+            <button className="tl-item" style={{ "--i": 3 }} onClick={() => useUI.getState().setCloudLogin(true)}>
               <span className="tl-item-label"><Bi>Sign in with student code</Bi></span>
               <span className="tl-item-sub">
                 {signedIn ? <>✓ {signedLabel}</> : <Bi>Save your work for your teacher</Bi>}
               </span>
             </button>
-            <button className="tl-item" style={{ "--i": 3 }} onClick={() => setScreen("options")}>
+            <button className="tl-item" style={{ "--i": 4 }} onClick={() => setScreen("options")}>
               <span className="tl-item-label"><Bi>Options</Bi></span>
               <span className="tl-item-sub"><Bi>Language, graphics and sound</Bi></span>
             </button>
@@ -474,11 +591,16 @@ export default function TitleScreen() {
           />
         )}
         {screen === "options" && <OptionsCard onBack={() => setScreen("menu")} />}
+        {screen === "newgame" && <NewGameCard onBack={() => setScreen("menu")} />}
+        {screen === "admin" && <AdminCard onBack={() => setScreen("menu")} />}
 
         {(screen === "splash" || screen === "menu") && (
           <div className="tl-foot">
             <LanguageSelector compact />
             <span className="tl-credit">Mills Maths Tools</span>
+            <button className={`tl-admin-link${adminOn ? " is-on" : ""}`} onClick={() => setScreen("admin")} title="Admin mode">
+              {adminOn ? "🛠️ Admin on" : "🔒 Admin"}
+            </button>
           </div>
         )}
       </div>

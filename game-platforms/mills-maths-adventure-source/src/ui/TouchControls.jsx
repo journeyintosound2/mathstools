@@ -223,7 +223,7 @@ export default function TouchControls() {
   useEffect(() => { if (usedJoy) { const id = setTimeout(() => setCoach(false), 2500); return () => clearTimeout(id); } return undefined; }, [usedJoy]);
 
   if (blocked) return null;
-  const trainingOn = !useProgress.getState().journey?.trainingDone && !useProgress.getState().journey?.trainingSkipped;
+  const trainingOn = !useProgress.getState().journey?.trainingDone;
 
   const near = nearbyId && !challengeActive ? getInteractable(nearbyId) : null;
   const act = near ? actionText(near) : null;

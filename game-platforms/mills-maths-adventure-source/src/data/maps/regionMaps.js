@@ -228,7 +228,7 @@ export function regionMapPois(regionId, ctx = {}) {
     };
     for (const f of island.friends) add(friend(f.id, f));
     add(person("sage", "guide", "👋", "Mills", "Your guide"));
-    add({ id: "plaza", kind: "place", icon: "🏛️", name: "Mission Plaza", sub: "Mission Board + Trophy Stand", at: PLAZA.center, target: [PLAZA.center[0], PLAZA.center[1] + 14] });
+    add({ id: "plaza", kind: "place", icon: "🏛️", name: "Mission Plaza", sub: "Mission Board + the Number Fountain", at: PLAZA.center, target: [PLAZA.center[0], PLAZA.center[1] + 14] });
     add({ id: "wall", kind: "trophies", icon: "🏆", name: "Achievements Wall", sub: "Every world's progress", at: ACHIEVEMENT_WALL.position, target: [ACHIEVEMENT_WALL.position[0], ACHIEVEMENT_WALL.position[1] + 5] });
     add({ id: "frosty", kind: "place", icon: "🏔️", name: "Frosty Peak", sub: "Climb to the summit", at: FROSTY_PEAK.summit, target: FROSTY_PEAK.summit });
     add({ id: "ember", kind: "place", icon: "🌋", name: "Ember Peak", sub: "The island volcano", at: EMBER_PEAK.c, target: [EMBER_PEAK.c[0] - 16, EMBER_PEAK.c[1] + 26] });

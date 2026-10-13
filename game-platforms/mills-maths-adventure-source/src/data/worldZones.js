@@ -33,7 +33,7 @@ export const WORLD_ZONES = [
     center: PLAZA.center,
     radius: PLAZA.apothem,
     sign: [0, PLAZA.center[1] + PLAZA.apothem + 4], // at the foot of the plaza's south stairs
-    npcIds: ["mission-board", "trophy-stand", "sage"],
+    npcIds: ["mission-board", "sage"],
   },
   {
     id: "zone-integers",

@@ -27,7 +27,7 @@ import {
 } from "./snow/snowLayout.js";
 import { CABIN_PIP } from "./cabin/cabinLayout.js";
 import {
-  PIP_SPOT, FERN_SPOT, ALBY_SPOT, MILLS_SPOT, MISSION_BOARD_POS, TROPHY_STAND_POS, ISLAND_CHEST_SPOTS,
+  PIP_SPOT, FERN_SPOT, ALBY_SPOT, MILLS_SPOT, MISSION_BOARD_POS, ISLAND_CHEST_SPOTS,
 } from "./island/islandLayout.js";
 import {
   MAGMA_CHALLENGES, magmaHostId, magmaHostWorld, MAGMA_WELCOME_HOST, MAGMA_RECORDS_STAND,
@@ -200,19 +200,8 @@ export const INTERACTABLES = [
     collision: { type: "circle", radius: 1.2, enabled: true },
     interactionRadius: 3.8,
   },
-  // Trophy stand in the hub — opens the Trophy Room (handled specially in App).
-  {
-    id: "trophy-stand",
-    name: "Trophy Stand",
-    encounterId: "trophy-board",
-    // The golden trophy on its plinth is drawn by the island scenery.
-    model: "none",
-    color: "#ffd166",
-    position: TROPHY_STAND_POS, // east side of the plaza
-    promptLabel: "View your trophies",
-    collision: { type: "circle", radius: 0.7, enabled: true },
-    interactionRadius: 3.6,
-  },
+  // (The plaza's Trophy Stand was removed 2026-10-13 — the Achievements Wall
+  // by the arrival arch shows every world's trophies now.)
   // A hidden treasure chest (W6-B) — placed at a RANDOM, collision-safe, always-
   // reachable spot each load (see RANDOM_CHEST_POS). Opening it gives a small
   // coins bonus, re-findable each session (handled in game/interaction.js).

@@ -1,18 +1,19 @@
-import React, { useEffect, useState } from "react";
-import { touchWords } from "../keyHints.js";
+import React, { useCallback, useState } from "react";
 
 import { useProgress } from "../../progress/store.js";
 import { useSession } from "../../game/sessionStore.js";
+import DialogueBox from "../dialogue/DialogueBox.jsx";
 
 /**
  * DynamicDialogue (Phase 2I) — a progress-aware conversation whose lines are
- * computed at the moment of talking (Sage and the topic NPCs). Unlike the
+ * computed at the moment of talking (Mills and the topic NPCs). Unlike the
  * static DialogueEncounter it grants NO reward and records NO completion, so it
  * is freely repeatable ("remind me what to do").
  *
  * It reads session.dynamicDialogue ({ speaker, lines, action? }). On the last
  * line, if an `action` is present, a button starts that mission (the ONLY way
- * NPC missions begin — by talking to the NPC). Otherwise it just says goodbye.
+ * NPC missions begin — by talking to the NPC) beside "Maybe later". Shown in
+ * the game's dialogue box (ui/dialogue/DialogueBox.jsx).
  */
 export default function DynamicDialogue() {
   const dlg = useSession((s) => s.dynamicDialogue);
@@ -21,14 +22,13 @@ export default function DynamicDialogue() {
   const startGame = useSession((s) => s.startGame);
   const phase = useSession((s) => s.phase);
   const activateMission = useProgress((s) => s.activateMission);
-
   const [line, setLine] = useState(0);
 
   const lines = dlg?.lines || [];
   const action = dlg?.action || null;
   const isLast = line + 1 >= lines.length;
 
-  function beginMission() {
+  const beginMission = useCallback(() => {
     if (action) {
       // Activate only if it's not already the active mission — re-activating
       // would reset progress, so an assigned mission RESUMES instead of restarts.
@@ -40,47 +40,26 @@ export default function DynamicDialogue() {
     } else {
       closeEncounter();
     }
-  }
+  }, [action, activateMission, phase, startGame, openEncounter, closeEncounter]);
 
-  function advance() {
+  const next = useCallback(() => {
     if (isLast) beginMission();
-    else setLine((l) => l + 1);
-  }
-
-  // Enter advances / confirms.
-  useEffect(() => {
-    function onKey(e) {
-      if (e.key !== "Enter") return;
-      e.preventDefault();
-      advance();
-    }
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [line, lines.length, action]);
+    else setLine((l) => Math.min(l + 1, lines.length - 1));
+  }, [isLast, beginMission, lines.length]);
 
   if (!dlg) return null;
-  const primaryLabel = isLast ? (action ? action.label : "Goodbye") : "Next →";
-
   return (
-    <div className="modal-card">
-      <button className="modal-close" onClick={closeEncounter} title="Close" aria-label="Close">✕</button>
-      <div className="modal-header">
-        <span className="modal-npc" style={{ color: "#2d6a4f" }}>{dlg.speaker}</span>
-        <span className="modal-progress">{line + 1} / {lines.length}</span>
-      </div>
-
-      <p className="dialogue-line">“{touchWords(lines[line])}”</p>
-
-      <div className="modal-actions">
-        <button className="primary-button" onClick={advance}>{primaryLabel}</button>
-        {isLast && action && (
-          <button className="link-button" onClick={closeEncounter}>Maybe later</button>
-        )}
-        {!isLast && (
-          <button className="link-button" onClick={beginMission}>Skip</button>
-        )}
-      </div>
-    </div>
+    <DialogueBox
+      speaker={dlg.speaker}
+      lines={lines}
+      index={Math.min(line, Math.max(0, lines.length - 1))}
+      onNext={next}
+      onBack={() => setLine((l) => Math.max(0, l - 1))}
+      onSkipToEnd={() => setLine(lines.length - 1)}
+      onClose={closeEncounter}
+      primaryLabel={isLast ? (action ? action.label : "Goodbye") : "Next"}
+      secondaryLabel={action ? "Maybe later" : null}
+      onSecondary={closeEncounter}
+    />
   );
 }
