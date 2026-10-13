@@ -370,20 +370,93 @@ html.mmt-focus .layout{margin:8px auto;width:calc(100vw - 16px);border-radius:20
 html.mmt-focus .status-card{margin:10px 14px 8px;min-height:0;padding:8px 12px;flex-wrap:wrap;}
 html.mmt-focus .focus-tools{display:flex;gap:8px;margin-left:auto;align-items:center;}
 .focus-tools .btn{display:inline-flex;align-items:center;gap:7px;padding:9px 13px;font-size:14px;min-height:40px;}
-/* A landscape iPad (1024-1080 wide) normally stacks board, scores and dice, so
-   a student scrolls on every turn. In full screen there is room to keep all
-   three side by side on one screen, which is the point of full screen. */
-@media(max-width:1080px) and (min-width:900px) and (orientation:landscape){
-  html.mmt-focus body{overflow:hidden;}
-  html.mmt-focus .app{height:100vh;height:100dvh;}
-  html.mmt-focus .layout{display:grid;overflow:hidden;}
-  html.mmt-focus .play-area{grid-template-columns:190px auto 270px;justify-items:stretch;align-items:start;overflow:auto;gap:12px;padding:0 14px 12px;}
-  html.mmt-focus .score-column,html.mmt-focus .board-card,html.mmt-focus .roll-card{order:0;}
-  html.mmt-focus .score-column{width:auto;grid-template-columns:1fr;}
-  html.mmt-focus .roll-card{width:270px;padding:14px;}
-  html.mmt-focus .choice-card span{font-size:1.3rem;}
-}
 /* ==== end MMT FULL SCREEN ==== */
+
+/* ==== MMT TWO-COLUMN LAYOUT (added 2026-10-14) ============================
+   Teacher feedback: three columns left a lot of empty space and capped the
+   grid. Now ONE side column (dice panel on top — it is the action — then the
+   scores, then How to score) beside the board, and the board has no size cap:
+   fitBoard() sizes it to whatever room the screen leaves. When the side column
+   would not fit the height, fitBoard() adds .no-info (How to score hides; the
+   Rules button has it) and then .compact-scores (score cards two-up).
+   ========================================================================= */
+@media(min-width:1081px){ .play-area{grid-template-columns:var(--sideW,300px) auto;gap:22px;} }
+.side-column{display:grid;gap:12px;align-content:start;width:var(--sideW,300px);padding-top:6px;min-width:0;}
+.side-column>.roll-card{order:0;width:auto;margin-top:0;}
+.side-column>.score-column{order:1;padding-top:0;}
+.play-area.no-info .info-card{display:none;}
+.play-area.compact-scores .score-column{grid-template-columns:1fr 1fr;gap:10px;}
+.play-area.compact-scores .score-card{min-height:58px;padding:9px 10px 9px 15px;gap:6px;}
+.play-area.compact-scores .score-name{font-size:.9rem;}
+.play-area.compact-scores .score-value{font-size:1.4rem;}
+.play-area.compact-scores .score-meta{font-size:.7rem;}
+@media(min-width:1081px) and (max-width:1280px){ .play-area{--sideW:286px;gap:16px;} }
+
+/* Full-screen toggle ON the board, top-right corner — the convention of map
+   and embedded-game players. That corner is always empty: the axis labels sit
+   along the bottom and left, so it can never cover a grid point's label. */
+.board-card{position:relative;}
+.board-fs{position:absolute;top:var(--fsInset,8px);right:var(--fsInset,8px);z-index:2;width:var(--fsSize,40px);height:var(--fsSize,40px);border-radius:12px;border:1px solid #dbe3ef;background:rgba(255,255,255,.92);color:#334155;display:grid;place-items:center;padding:0;box-shadow:0 4px 12px rgba(15,23,42,.08);transition:.16s ease;}
+.board-fs::before{content:"";position:absolute;inset:-8px;} /* bigger tap target than the drawn button */
+.board-card.fs-tiny .board-fs{display:none;} /* phones: the banner button and status-bar Exit cover it */
+.board-fs:hover{background:#eff6ff;color:var(--blue);border-color:#bfdbfe;transform:scale(1.06);}
+.board-fs:focus-visible{outline:3px solid rgba(37,99,235,.45);outline-offset:2px;}
+.board-fs .fsIcon{width:55%;height:55%;}
+.board-fs .fs-out,html.mmt-focus .board-fs .fs-in{display:none;}
+html.mmt-focus .board-fs .fs-out{display:contents;}
+.board-fs .fs-in{display:contents;}
+
+/* Stacked layout (portrait tablets, phones): dice, then board, then scores —
+   so a student can roll and place without scrolling between the two. The side
+   column dissolves (display:contents) so its children order around the board. */
+@media(max-width:1080px){
+  .side-column{display:contents;}
+  .side-column>.roll-card{order:1;width:min(640px,100%);}
+  .board-card{order:2;}
+  .side-column>.score-column{order:3;}
+  /* Compact dice panel: dice on the left, the two options on the right. */
+  .roll-card{grid-template-columns:auto 1fr;justify-items:stretch;align-items:center;column-gap:16px;row-gap:8px;padding:12px 14px;}
+  .roll-card .dice-row{grid-column:1;grid-row:1 / span 2;}
+  .roll-card .choose-title{grid-column:2;grid-row:1;margin:0;text-align:center;}
+  .roll-card .choice-row{grid-column:2;grid-row:2;}
+  .roll-card .message-card{grid-column:1 / -1;}
+  .roll-card .choice-card{min-height:64px;padding:6px;}
+}
+@media(max-width:600px){
+  .roll-card{grid-template-columns:1fr;}
+  .roll-card .dice-row,.roll-card .choose-title,.roll-card .choice-row{grid-column:1;grid-row:auto;}
+}
+/* Full screen status bar on narrow screens: text beside the dot, buttons on their own row. */
+html.mmt-focus .status-card>div:nth-child(2){flex:1 1 220px;min-width:0;}
+@media(max-width:600px){
+  html.mmt-focus .focus-tools{flex:1 1 100%;justify-content:flex-end;}
+  html.mmt-focus .status-card .player-dot{width:28px;height:28px;}
+}
+/* Landscape tablets 860-1080 wide used to stack too, so students scrolled on
+   every turn. There is room for side-by-side, so use it. */
+@media(max-width:1080px) and (min-width:860px) and (orientation:landscape) and (min-height:560px){
+  body{overflow:hidden;}
+  .app{height:100vh;height:100dvh;}
+  .layout{display:grid;overflow:hidden;}
+  .play-area{--sideW:268px;grid-template-columns:var(--sideW) auto;justify-items:stretch;align-items:start;overflow:auto;gap:14px;padding:0 14px 12px;}
+  .side-column{display:grid;order:0;width:var(--sideW);}
+  .board-card{order:0;}
+  .score-column{width:auto;grid-template-columns:1fr;}
+  .roll-card{padding:14px;grid-template-columns:1fr;justify-items:center;}
+  .roll-card .dice-row,.roll-card .choose-title,.roll-card .choice-row,.roll-card .message-card{grid-column:1;grid-row:auto;}
+  .roll-card .choice-row{width:100%;}
+  .roll-card .choice-card{min-height:76px;}
+  .choice-card span{font-size:1.3rem;}
+  /* One-row banner: stacked it took ~170px of a 700px-tall iPad screen. */
+  .mmtTopbar{grid-template-columns:auto auto 1fr;justify-items:start;gap:12px;padding:8px 14px;}
+  .mmtBrand{justify-self:start;margin-left:-6px;padding:4px;}
+  .mmtBrandText{display:none;}
+  .mmtTopTitle{font-size:1.3rem;}
+  .actions{justify-content:flex-end;justify-self:end;gap:8px;}
+  .actions .btn{padding:8px 11px;font-size:14px;}
+  .language-control label{display:none;}
+}
+/* ==== end MMT TWO-COLUMN LAYOUT ==== */
 </style>
 <!-- mmt-pwa -->
 <link rel="manifest" href="../manifest.webmanifest">
@@ -433,6 +506,20 @@ html.mmt-focus .focus-tools{display:flex;gap:8px;margin-left:auto;align-items:ce
       </div>
 
       <div class="play-area">
+        <div class="side-column">
+        <aside class="roll-card">
+          <div class="dice-row">
+            <div class="die" id="dieA">?</div>
+            <div class="die" id="dieB">?</div>
+            <button class="btn btn-green" id="rollBtn" type="button">Roll</button>
+          </div>
+          <div class="choose-title" id="chooseTitle">Choose to place</div>
+          <div class="choice-row">
+            <button class="choice-card" id="choiceA" type="button" disabled><small>OPTION 1</small><span>(x, y)</span></button>
+            <button class="choice-card" id="choiceB" type="button" disabled><small>OPTION 2</small><span>(x, y)</span></button>
+          </div>
+          <div class="message-card purple" id="messageBox">Choose a mode to start.</div>
+        </aside>
         <aside class="score-column">
           <div class="score-card p1">
             <div>
@@ -454,23 +541,13 @@ html.mmt-focus .focus-tools{display:flex;gap:8px;margin-left:auto;align-items:ce
           </div>
         </aside>
 
+        </div>
+
         <section class="board-card">
+          <button class="board-fs" id="boardFsBtn" type="button" aria-label="Full screen" title="Full screen (F)"><span class="fs-in"><svg class="fsIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5"/></svg></span><span class="fs-out"><svg class="fsIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4v5H4M20 9h-5V4M15 20v-5h5M4 15h5v5"/></svg></span></button>
           <svg id="boardSvg" viewBox="0 0 720 720" role="img" aria-label="Capture the Grid coordinate board"></svg>
         </section>
 
-        <aside class="roll-card">
-          <div class="dice-row">
-            <div class="die" id="dieA">?</div>
-            <div class="die" id="dieB">?</div>
-            <button class="btn btn-green" id="rollBtn" type="button">Roll</button>
-          </div>
-          <div class="choose-title" id="chooseTitle">Choose to place</div>
-          <div class="choice-row">
-            <button class="choice-card" id="choiceA" type="button" disabled><small>OPTION 1</small><span>(x, y)</span></button>
-            <button class="choice-card" id="choiceB" type="button" disabled><small>OPTION 2</small><span>(x, y)</span></button>
-          </div>
-          <div class="message-card purple" id="messageBox">Choose a mode to start.</div>
-        </aside>
       </div>
     </div>
 
@@ -1466,27 +1543,37 @@ html.mmt-focus .focus-tools{display:flex;gap:8px;margin-left:auto;align-items:ce
     /* ---- Board fitting + full screen (2026-10-14) — see the CSS block ---- */
     const playArea = document.querySelector('.play-area');
     const boardCard = document.querySelector('.board-card');
+    const sideColumn = document.querySelector('.side-column');
     function fitBoard(){
       if(!playArea || !boardCard) return;
       const focus = document.documentElement.classList.contains('mmt-focus');
       const vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
       const cs = getComputedStyle(playArea);
       const padX = (parseFloat(cs.paddingLeft)||0) + (parseFloat(cs.paddingRight)||0);
+      const stacked = cs.gridTemplateColumns.trim().split(/\s+/).length < 2;
       let size;
-      if(cs.gridTemplateColumns.trim().split(/\s+/).length < 3){
-        // Stacked layout: the page scrolls, so the board just has to fit the visible
-        // screen. In full screen, fit it below the status bar so no scrolling is needed.
-        const below = focus ? boardCard.getBoundingClientRect().top + window.scrollY + 12 : 24;
-        size = Math.min(720, playArea.clientWidth - padX, Math.max(vh - below, vh * 0.55));
+      playArea.classList.remove('no-info','compact-scores');
+      if(stacked){
+        // The page scrolls, so the board just has to fit the visible screen. In
+        // full screen, fit it below the status bar so no scrolling is needed.
+        // The dice sit above the board here, so fit the board below them on the same screen.
+        const below = boardCard.getBoundingClientRect().top + window.scrollY + 12;
+        size = Math.min(760, playArea.clientWidth - padX, Math.max(vh - below, vh * 0.5, 320));
       } else {
-        const cols = cs.gridTemplateColumns.split(' ').map(parseFloat);
-        const side = (cols[0]||0) + (cols[cols.length-1]||0);
-        const gap = (parseFloat(cs.columnGap)||0) * 2;
-        const w = playArea.clientWidth - padX - side - gap;
         const h = playArea.clientHeight - (parseFloat(cs.paddingTop)||0) - (parseFloat(cs.paddingBottom)||0) - 2;
-        size = Math.min(w, h, focus ? 1000 : 740);
+        // Keep the side column on screen too: drop How to score, then pair the scores.
+        if(sideColumn && sideColumn.offsetHeight > h) playArea.classList.add('no-info');
+        if(sideColumn && sideColumn.offsetHeight > h) playArea.classList.add('compact-scores');
+        const w = playArea.clientWidth - padX - (sideColumn ? sideColumn.offsetWidth : 0) - (parseFloat(cs.columnGap)||0);
+        size = Math.min(w, h);
       }
-      size = Math.max(260, Math.floor(size));
+      size = Math.max(240, Math.floor(size));
+      // The corner icon lives in the 72-of-720 margin above the grid, so it scales with the board.
+      const margin = size * 72 / 720;
+      // ~60% of that margin, tucked into the corner, keeps it clear of the (max, max) grid point.
+      boardCard.style.setProperty('--fsSize', Math.round(Math.max(22, Math.min(44, margin * 0.6))) + 'px');
+      boardCard.style.setProperty('--fsInset', Math.round(Math.max(2, Math.min(10, margin * 0.1))) + 'px');
+      boardCard.classList.toggle('fs-tiny', size < 330);
       if(boardCard.style.width !== size + 'px'){
         boardCard.style.width = size + 'px';
         boardCard.style.minWidth = '0';
@@ -1521,6 +1608,13 @@ html.mmt-focus .focus-tools{display:flex;gap:8px;margin-left:auto;align-items:ce
       scheduleFit();
     }
     function toggleFocus(){ document.documentElement.classList.contains('mmt-focus') ? exitFocus() : enterFocus(); }
+    function labelBoardFs(){
+      const on = document.documentElement.classList.contains('mmt-focus');
+      const en = on ? 'Exit full screen' : 'Full screen';
+      const txt = (uiLang === 'en' ? en : tr(en) + ' / ' + en);
+      const btn = $('boardFsBtn'); btn.setAttribute('aria-label', txt); btn.title = txt + (on ? ' (Esc)' : ' (F)');
+    }
+    new MutationObserver(labelBoardFs).observe(document.documentElement, {attributes:true, attributeFilter:['class','lang']});
     function onFsChange(){
       if(fsElement()) inRealFs = true;
       else if(inRealFs){ inRealFs = false; document.documentElement.classList.remove('mmt-focus'); }
@@ -1529,11 +1623,13 @@ html.mmt-focus .focus-tools{display:flex;gap:8px;margin-left:auto;align-items:ce
     document.addEventListener('fullscreenchange', onFsChange);
     document.addEventListener('webkitfullscreenchange', onFsChange);
     $('fullScreenBtn').addEventListener('click', enterFocus);
+    $('boardFsBtn').addEventListener('click', toggleFocus);
     $('exitFocusBtn').addEventListener('click', exitFocus);
     $('focusRulesBtn').addEventListener('click', () => { renderRules(); show(rulesModal); });
 
     syncControlsFromSettings();
     applyLanguage();
+    labelBoardFs();
     fitBoard();
   </script>
   <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
