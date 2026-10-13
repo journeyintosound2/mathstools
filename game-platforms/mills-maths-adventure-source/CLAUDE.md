@@ -263,8 +263,9 @@ games teach even very young players; (4) "Start new game" on the main menu
 "BenjiCharlie", to test future worlds without doing the challenges; then
 (6) remove "skip tutorial" — "knowing my students they will skip it". Late
 on he said to skip (4) + (5) "for now" — both were already built and
-passed a desktop run-through, so they're IN this build (a phone pass of
-them wasn't done). **644 → 650 checks (UX1–UX6 in `src/dev/uxChecks.js`),
+passed a desktop run-through, so they went into the build; once that was
+live he asked for them again, and they got their phone / iPad pass (the
+admin panel was compacted so its buttons fit a phone — see Verified). **644 → 650 checks (UX1–UX6 in `src/dev/uxChecks.js`),
 all passing; vite build clean.** Staged for deploy.
 - **(1) Plaza Trophy Stand removed:** the `trophy-stand` interactable,
   `TrophyPiece` (IslandBuildings), its footprint/collider, the zone npcId,
@@ -345,7 +346,16 @@ all passing; vite build clean.** Staged for deploy.
   game → wrong password → right password → new game reload → character
   card → welcome → 🛠️ panel → all five gates open (flagged admin) → jump
   to Magma Multiples (its intro card, no celebration).
-- **TODO:** a phone/iPad pass of Start new game + admin mode; a live look
+- **Phone / iPad pass of (4) + (5) (same afternoon):** the title flow
+  (menu → Start new game confirm → wrong / right admin password → "🛠️
+  Admin on" → new game reload → character card → welcome) at iPhone
+  390×664 and iPad 1080×810; the in-game panel from the ☰ menu (phone) and
+  the HUD chip (iPad), at 390×664, 844×390 and 1080×810: every gate open,
+  Finish the training (no XP), jump to Fraction Farm (its intro, nothing
+  celebrated). Fix: on a phone the panel's "Turn admin mode off" sat below
+  the fold — the panel now compacts on small screens and its buttons are
+  pinned to the bottom (`.admin-actions` sticky).
+- **TODO:** a live look
   at the training prompt on a real iPad (the spotlight ring over the
   joystick while the thumb is down); Farsi/Arabic native check of the new
   lines.
