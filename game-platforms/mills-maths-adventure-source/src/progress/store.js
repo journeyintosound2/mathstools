@@ -158,6 +158,31 @@ export const useProgress = create((set, get) => ({
     set({ ...DEFAULT_PROGRESS });
   },
 
+  /**
+   * CLOUD PROGRESS (2026-10-13): put a signed-in student's save in place.
+   * `progress` = the merged payload's progress (progressMerge.js). merge →
+   * those fields are set (the merge already kept the best of both); replace →
+   * another student's save was on this device, so everything else goes back
+   * to the defaults too (their active mission included). The profile stays.
+   */
+  applyCloudProgress(progress = {}, { replace = false } = {}) {
+    const keep = [
+      "xp", "coins", "completedEncounters", "completedQuests", "completedMissions", "earnedBadges",
+      "skillProfiles", "onboardingSeen", "sageMet", "championClaimed", "seenUnlocks", "journey",
+    ];
+    const base = replace ? { ...DEFAULT_PROGRESS, profile: get().profile } : {};
+    const patch = {};
+    for (const k of keep) if (progress[k] !== undefined) patch[k] = progress[k];
+    if (patch.journey) {
+      // guideTo is a one-off hint for THIS device — a merge keeps it.
+      const guideTo = replace ? null : ((get().journey || {}).guideTo ?? null);
+      patch.journey = { ...DEFAULT_PROGRESS.journey, ...patch.journey, guideTo };
+    }
+    const xp = Number(patch.xp ?? base.xp ?? get().xp) || 0;
+    set({ ...base, ...patch, xp, level: deriveLevel(xp).level });
+    saveProgress(get());
+  },
+
   // --- Developer helper: force-complete an encounter (DevPanel). ----------
   devCompleteEncounter(encounterId) {
     get().completeEncounter({ encounterId, xp: 0, coins: 0, oneTime: false });

@@ -23,6 +23,7 @@ import { useMediaQuery, COMPACT_QUERY } from "./useMediaQuery.js";
 import { CoachStep } from "./journey/JourneyCoach.jsx";
 import JourneyTracker, { JourneyMini } from "./journey/JourneyTracker.jsx";
 import FpvChip from "./journey/FpvChip.jsx";
+import ProgressSyncDot from "./cloud/ProgressSyncDot.jsx";
 
 /**
  * The heads-up display overlaid on the 3D view.
@@ -236,6 +237,7 @@ export default function HUD() {
             : cloudMode === "skip"
               ? "☁ Demo (local)"
               : "☁ Sign in"}
+          {cloudMode === "registered" && <ProgressSyncDot />}
         </button>
         </>}
 
@@ -263,6 +265,7 @@ export default function HUD() {
                       : cloudMode === "skip"
                         ? "☁ Demo (local)"
                         : "☁ Sign in"}
+                    {cloudMode === "registered" && <ProgressSyncDot />}
                   </button>
                 </div>
               )}

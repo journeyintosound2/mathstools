@@ -48,6 +48,7 @@ export async function ensureConnected() {
         doc: fsMod.doc, collection: fsMod.collection,
         addDoc: fsMod.addDoc, setDoc: fsMod.setDoc, serverTimestamp: fsMod.serverTimestamp,
         query: fsMod.query, where: fsMod.where, getDocs: fsMod.getDocs,
+        getDoc: fsMod.getDoc,
       },
     };
     return _state;
@@ -143,6 +144,43 @@ export async function readClassAssignments(teacherCode, className) {
   );
   const snap = await fns.getDocs(q);
   return snap.docs.map((d) => ({ assignmentId: d.id, ...d.data() }));
+}
+
+/**
+ * CLOUD PROGRESS (2026-10-13) — the signed-in student's ONE save document,
+ * `adventureProgress/{studentCode}` (see progressMerge.js / progressSync.js).
+ * Read once at sign-in; written (replaced whole) by the autosave. The rules let
+ * a student read + write only their OWN doc. Returns null when there isn't one.
+ */
+export async function readProgressDoc(studentCode) {
+  const { db, fns } = await ensureConnected();
+  const snap = await fns.getDoc(fns.doc(db, COLLECTIONS.adventureProgress, studentCode));
+  return snap.exists() ? snap.data() : null;
+}
+
+/** Replace the student's progress document (adds the server timestamp). */
+export async function writeProgressDoc(studentCode, data) {
+  const { db, fns } = await ensureConnected();
+  await fns.setDoc(fns.doc(db, COLLECTIONS.adventureProgress, studentCode), {
+    ...data,
+    updatedAt: fns.serverTimestamp(),
+  });
+}
+
+/**
+ * The signed-in student's own achievement records (the rules allow a student
+ * to read theirs; the query must filter by their studentCode). Used once, to
+ * rebuild a save for students who played signed-in before cloud progress.
+ */
+export async function readMyAchievements(studentCode) {
+  const { db, fns } = await ensureConnected();
+  if (!studentCode) return [];
+  const q = fns.query(
+    fns.collection(db, COLLECTIONS.achievements),
+    fns.where("studentCode", "==", studentCode)
+  );
+  const snap = await fns.getDocs(q);
+  return snap.docs.map((d) => d.data());
 }
 
 // The default client the writer uses (tests inject a mock instead). No direct

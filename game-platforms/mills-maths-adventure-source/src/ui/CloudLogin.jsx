@@ -4,6 +4,8 @@ import { useUI } from "./effects/uiStore.js";
 import { useCloud } from "../cloud/cloudSession.js";
 import { useProgress } from "../progress/store.js";
 import { studentChipLabel } from "../cloud/studentSession.js";
+import { Bi } from "../i18n/i18n.jsx";
+import ProgressSyncLine from "./cloud/ProgressSyncLine.jsx";
 
 /**
  * CloudLogin (Phase 3B) — the optional student-code / demo sign-in overlay.
@@ -21,6 +23,7 @@ export default function CloudLogin() {
   const setOpen = useUI((s) => s.setCloudLogin);
   const registerWithCode = useCloud((s) => s.registerWithCode);
   const skipDemo = useCloud((s) => s.skipDemo);
+  const clearSession = useCloud((s) => s.clearSession);
   const status = useCloud((s) => s.status);
   const mode = useCloud((s) => s.mode);
   const student = useCloud((s) => s.student);
@@ -55,38 +58,50 @@ export default function CloudLogin() {
         <h2 className="cloud-title">☁ Sign in to save online</h2>
 
         {mode === "registered" && student ? (
-          <p className="cloud-signed">Signed in as <strong>{studentChipLabel(student)}</strong> · cloud save on.</p>
+          // Signed in: where their progress is saved + a way out (a shared
+          // iPad's next student signs out, then in with their own code).
+          <>
+            <p className="cloud-signed">Signed in as <strong>{studentChipLabel(student)}</strong> · cloud save on.</p>
+            <ProgressSyncLine />
+            <div className="modal-actions">
+              <button className="cloud-signout" onClick={() => { clearSession(); setOpen(false); }}>
+                <Bi>Sign out</Bi>
+              </button>
+            </div>
+          </>
         ) : (
-          <p className="cloud-intro">
-            Enter your <strong>student code</strong> to save your results to your class account.
-            Don't have one? Use <strong>Demo mode</strong> — your results still save on this device.
-          </p>
+          <>
+            <p className="cloud-intro">
+              Enter your <strong>student code</strong> to save your results to your class account.
+              Don't have one? Use <strong>Demo mode</strong> — your results still save on this device.
+            </p>
+
+            <label className="cloud-field" htmlFor="cloud-code">Student code</label>
+            <input
+              id="cloud-code"
+              className="text-input"
+              type="text"
+              placeholder="e.g. ZK7Q2"
+              value={code}
+              maxLength={16}
+              disabled={busy}
+              onChange={(e) => { setCode(e.target.value.toUpperCase()); setError(""); }}
+              onKeyDown={(e) => e.key === "Enter" && submit()}
+            />
+
+            {error && <div className="validation-msg">{error}</div>}
+            {status === "connecting" && <div className="cloud-status-line">Connecting…</div>}
+
+            <div className="modal-actions">
+              <button className="primary-button" onClick={submit} disabled={busy || !code.trim()}>
+                {busy ? "Checking…" : "Sign in & save online"}
+              </button>
+              <button className="link-button" onClick={() => { skipDemo(); setOpen(false); }}>
+                Skip · Demo mode (local only)
+              </button>
+            </div>
+          </>
         )}
-
-        <label className="cloud-field" htmlFor="cloud-code">Student code</label>
-        <input
-          id="cloud-code"
-          className="text-input"
-          type="text"
-          placeholder="e.g. ZK7Q2"
-          value={code}
-          maxLength={16}
-          disabled={busy}
-          onChange={(e) => { setCode(e.target.value.toUpperCase()); setError(""); }}
-          onKeyDown={(e) => e.key === "Enter" && submit()}
-        />
-
-        {error && <div className="validation-msg">{error}</div>}
-        {status === "connecting" && <div className="cloud-status-line">Connecting…</div>}
-
-        <div className="modal-actions">
-          <button className="primary-button" onClick={submit} disabled={busy || !code.trim()}>
-            {busy ? "Checking…" : "Sign in & save online"}
-          </button>
-          <button className="link-button" onClick={() => { skipDemo(); setOpen(false); }}>
-            Skip · Demo mode (local only)
-          </button>
-        </div>
         <p className="cloud-note">No name is collected here — it comes from your student record. Demo mode never syncs.</p>
       </div>
     </div>

@@ -8,6 +8,7 @@ import PlayerCharacter from "../game/characters/PlayerCharacter.jsx";
 import { PLAYER_CHARACTERS } from "../game/characters/characterModels.js";
 import { Bi, LanguageSelector } from "../i18n/i18n.jsx";
 import { useCloud } from "../cloud/cloudSession.js";
+import { forgetProgressOwner } from "../cloud/progressSync.js";
 
 /**
  * THE TITLE SCREEN (2026-10-09) — the game's front door, over a live
@@ -237,14 +238,21 @@ function CharacterCard({ profile, editing, onBack, onDone, urlSignedIn }) {
             confirmReset ? (
               <div className="tl-confirm" role="alertdialog" aria-labelledby="tl-reset-q">
                 <p id="tl-reset-q"><Bi>This clears everything saved on this device — your trophies, keys and level. Are you sure?</Bi></p>
+                <p className="tl-reset-note"><Bi>Signed-in students get their progress back from the cloud next time they sign in.</Bi></p>
                 <div className="tl-actions">
-                  <button className="tl-btn tl-btn-danger" onClick={() => {
+                  <button className="tl-btn tl-btn-danger" onClick={async () => {
+                    // Signed in? Sign out FIRST (sending anything not yet saved),
+                    // so the reset only clears this device — the student's cloud
+                    // save is untouched and comes back next time they sign in.
+                    const cloud = useCloud.getState();
+                    if (cloud.mode === "registered") { try { await cloud.clearSession(); } catch { /* local reset goes on */ } }
                     resetProgress();
                     try {
                       // (The jungle's bests too — since the journey, any best keeps a
                       // world open, so a reset must clear every world's.)
                       Object.keys(localStorage).filter((k) => /^mma-(farm|snow|magma|jungle)-.*-best$|^mma-visited:/.test(k)).forEach((k) => localStorage.removeItem(k));
                     } catch { /* local only */ }
+                    forgetProgressOwner();
                     setName(""); setStudentCode(""); setCharacter("explorer"); setConfirmReset(false);
                   }}><Bi>Yes, reset</Bi></button>
                   <button className="tl-btn tl-btn-ghost" onClick={() => setConfirmReset(false)}><Bi>Cancel</Bi></button>

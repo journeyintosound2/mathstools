@@ -7,6 +7,14 @@ import { normaliseStudentCode } from "./studentSession.js";
 import { setRuntimeMissions, clearRuntimeMissions } from "../data/missions.js";
 import { setRuntimeAssignments, clearRuntimeAssignments } from "../data/npcQuestChains.js";
 import { useProgress } from "../progress/store.js";
+import { loadCloudProgress, stopProgressSync } from "./progressSync.js";
+
+// Bumps on every sign-in, so a slow sign-out never signs the NEXT student out.
+let _authGen = 0;
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+// How long sign-in waits for the cloud save before letting the student play
+// (the load finishes in the background if the network is slow).
+export const PROGRESS_WAIT_MS = 7000;
 
 /**
  * Apply a cloud-saved explorer avatar (W3-B) to the local profile so the
@@ -78,20 +86,38 @@ export const useCloud = create((set, get) => ({
     if (!code) return { ok: false, error: "Enter your student code first." };
     const connected = await get().connect();
     if (!connected) return { ok: false, error: "Could not connect. You can still play in demo mode." };
+    // Someone else is signed in on this device? Send their last changes while
+    // still signed in as them, then stop saving for them.
+    const prev = get().mode === "registered" ? get().student : null;
+    const switching = Boolean(prev && prev.studentCode && prev.studentCode !== code);
+    if (switching) await stopProgressSync();
+    _authGen++;
     try {
       const student = await exchangeStudentCode(code, pin);
-      if (!student || !student.studentCode) return { ok: false, error: "Student code not found. Check it with your teacher." };
+      if (!student || !student.studentCode) {
+        if (switching) loadCloudProgress(prev); // still them — carry on saving
+        return { ok: false, error: "Student code not found. Check it with your teacher." };
+      }
       set({ mode: "registered", student, error: null });
       // Apply the student's cloud-saved explorer avatar (W3-B), so their
       // character follows them across devices. Non-fatal if there isn't one.
       applyCloudAvatar(student.avatar);
+      // CLOUD PROGRESS (2026-10-13): pick up where they left off. Waits a few
+      // seconds at most; a slow network finishes it in the background.
+      const progressLoad = loadCloudProgress(student);
+      await Promise.race([progressLoad, sleep(PROGRESS_WAIT_MS)]);
       // Load any teacher-set tasks for this class (non-fatal if it fails).
       await get().loadAssignments();
       // Back-fill any Fraction Farm challenges completed locally (e.g. before
-      // signing in) so the teacher sees them. Fire-and-forget; never blocks.
-      try { (await import("./farmCompletion.js")).syncLocalFarmBests(); } catch (e) { /* non-fatal */ }
+      // signing in) so the teacher sees them — AFTER the cloud save is in, so
+      // farm bests already reported from another device aren't sent again.
+      // Fire-and-forget; never blocks.
+      progressLoad.finally(async () => {
+        try { (await import("./farmCompletion.js")).syncLocalFarmBests(); } catch (e) { /* non-fatal */ }
+      });
       return { ok: true, student };
     } catch (err) {
+      if (switching) loadCloudProgress(prev);
       // Cloud Function HttpsError messages surface here (not found / inactive / PIN).
       return { ok: false, error: String((err && err.message) || err) };
     }
@@ -117,6 +143,7 @@ export const useCloud = create((set, get) => ({
 
   /** Explicit demo/skip — local only, no cloud writes. */
   skipDemo() {
+    if (get().mode === "registered") { get().clearSession(); }
     set({ mode: "skip", student: null, error: null });
   },
 
@@ -161,11 +188,20 @@ export const useCloud = create((set, get) => ({
     return (get().farmTasks || []).find((t) => t && t.challengeId === challengeId) || null;
   },
 
-  /** Clear the cloud session (back to pending) + sign out. Never deletes data. */
+  /**
+   * Clear the cloud session (back to pending) + sign out. Never deletes data.
+   * Any progress not yet sent goes first (while still signed in as them).
+   * Returns a promise that settles once signed out.
+   */
   clearSession() {
+    const gen = _authGen;
+    const flushing = stopProgressSync();
     clearRuntimeMissions(); clearRuntimeAssignments();
     set({ mode: "pending", student: null, error: null, lastSave: null, assignments: [], farmTasks: [] });
-    signOutCloud();
+    return flushing.catch(() => {}).then(() => {
+      if (gen === _authGen) return signOutCloud(); // nobody new has signed in meanwhile
+      return undefined;
+    });
   },
 
   /**

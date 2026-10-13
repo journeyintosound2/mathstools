@@ -83,6 +83,25 @@ service cloud.firestore {
       allow create, update, delete: if false;   // via createAdventureTask only
     }
 
+    // -------- Adventure progress (2026-10-13): ONE save per signed-in student,
+    // doc id = studentCode, so a student picks up where they left off on any
+    // device. A student reads + writes ONLY their own; a teacher can read their
+    // class's. The shape is pinned; never deleted from the client.
+    match /adventureProgress/{studentCode} {
+      allow read: if (isStudent() && myStudent() == studentCode)
+                  || (isTeacher() && resource.data.teacherCode == myTeacher());
+      allow create, update: if isStudent()
+        && myStudent() == studentCode
+        && request.resource.data.studentCode == studentCode
+        && request.resource.data.teacherCode == myTeacher()
+        && request.resource.data.v is number
+        && request.resource.data.progress is map
+        && request.resource.data.bests is map
+        && request.resource.data.flags is map
+        && request.resource.data.keys().hasOnly(['v', 'studentCode', 'teacherCode', 'className', 'updatedAt', 'updatedAtClient', 'progress', 'bests', 'flags']);
+      allow delete: if false;
+    }
+
     // -------- Admin / identity writes: server-side (Admin SDK / Functions) only.
     // -------- Default: deny everything else.
     match /{document=**} {

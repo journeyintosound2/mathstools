@@ -48,6 +48,7 @@ import AchievementsWallUI from "./ui/AchievementsWallUI.jsx";
 import { CoachCard } from "./ui/journey/JourneyCoach.jsx";
 import JourneyCelebration from "./ui/journey/JourneyCelebration.jsx";
 import { startJourney, useJourney } from "./game/journeyStore.js";
+import { startProgressAutosave } from "./cloud/progressSync.js";
 import { useProgress } from "./progress/store.js";
 import UnlockCelebration from "./ui/UnlockCelebration.jsx";
 import DynamicDialogue from "./ui/encounters/DynamicDialogue.jsx";
@@ -105,7 +106,7 @@ export default function App() {
   const [mountWorld, setMountWorld] = useState(false);
   // THE JOURNEY (2026-10-13): the progression engine (gates, training,
   // world tours, celebrations) starts once and runs in the background.
-  useEffect(() => { startJourney(); }, []);
+  useEffect(() => { startJourney(); startProgressAutosave(); }, []);
   useEffect(() => {
     let a = 0, b = 0;
     a = requestAnimationFrame(() => { b = requestAnimationFrame(() => setMountWorld(true)); });

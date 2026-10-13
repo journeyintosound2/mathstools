@@ -223,6 +223,16 @@
 > what they reached; no teacher override. See "DONE (2026-10-13) — THE
 > JOURNEY". **624 → 635 checks; vite build clean.**
 >
+> **NEW (built 2026-10-13, staged for deploy): CLOUD PROGRESS — a signed-in
+> student picks up where they left off on any device.** One Firestore doc
+> per student (`adventureProgress/{studentCode}`): read once at sign-in,
+> merged with the device's save (the best of both — never loses anything),
+> saved back at most every ~30 s (milestones within ~8 s). Shared iPads keep
+> each student's save apart. **Needs ONE rule pasted into the Firestore
+> console** (in `firestore.phase3d.claims.rules`) — until then the game
+> saves on the device exactly as before. See "DONE (2026-10-13) — CLOUD
+> PROGRESS". **635 → 644 checks; vite build clean.**
+>
 > **NEXT UP options:** live visual pass + deploy of the snow world + cabin ·
 > teacher glbs for the six placeholder snow/cabin hosts (add each
 > characterId to characterModels.js) · a snow/cabin cloud-completion path
@@ -231,6 +241,97 @@
 > interactive plot-a-point input mode (tap the Cartesian grid) · Stage 5
 > depth (still only 2 sample skills) · more Stage 4 topics (Area extension)
 > · a DevPanel gallery to eyeball every new diagram/chart at once.
+
+## DONE (2026-10-13) — CLOUD PROGRESS: sign in anywhere, carry on
+Jeff: "I want student progress to save to the cloud, so that with each sign
+in, it picks up where they left off? Or will this be expensive on the
+firebase side?" (He's on the Blaze plan.) Cost: one small doc per student —
+1 read per sign-in, ~1–2 writes a minute while playing — well inside
+Firestore's free daily quota (50k reads / 20k writes) for a class or three,
+and cents a month beyond it. **635 → 644 checks (CP1–CP9 in
+`src/dev/cloudProgressChecks.js`), all passing; vite build clean.** Staged
+for deploy; **live only once the rule below is in the Firebase console.**
+- **What travels** (`src/cloud/progressMerge.js`, pure): the progress store's
+  xp, coins, completedEncounters / Quests / Missions (warm-ups, Playground
+  keys, teacher tasks), earnedBadges, skillProfiles (adaptive levels), the
+  story flags, seenUnlocks and the journey beats (`PROGRESS_FIELDS`) + every
+  localStorage key matching `SYNCED_KEY`: all four worlds' `-best`s,
+  `mma-visited:*`, `mma-farm-task-done:*` and the `mma-farm-synced:*`
+  high-water marks (so a new device doesn't re-send every farm best as a new
+  achievement). NOT: the profile/avatar (the avatar already travels via
+  `setStudentAvatar`), the active mission, settings, journey `guideTo` (a
+  one-off hint for this device), the results history (local only; ~200 full
+  attempt records is too big — the teacher has them in `achievements`).
+- **The merge** (`mergeProgress`): max of xp / coins / bests, union of lists
+  (badges by id, earliest earnedAt), OR of one-way flags, the skill profile
+  with more attempts, journey step / introStep max + lists union. Order-free
+  and idempotent (CP2). `cleanPayload` sanitises a cloud doc before it's
+  applied (only `SYNCED_KEY` keys, real numbers, known fields — CP3).
+- **The doc** `adventureProgress/{studentCode}` = { v, studentCode,
+  teacherCode, className, updatedAt (server), updatedAtClient, progress,
+  bests, flags } (`progressDoc`; JSON round-trip strips `undefined`). A full
+  save is ~25 KB (CP5) — the limit is 1 MiB (`MAX_DOC_BYTES` 900 KB guard).
+- **Sign-in** (`src/cloud/progressSync.js`, hooked into
+  `cloudSession.registerWithCode` after the avatar, waits ≤ 7 s
+  `PROGRESS_WAIT_MS`, then finishes in the background): `beginLoad` (shared
+  device switch — see below) → `readProgressDoc` → none? rebuild from the
+  student's own `achievements` (`backfillFromAchievements`: passed (≥ 60%)
+  levelKeys → completedMissions; farm records — by `farm-<id>` levelKey or
+  "Fraction Farm: <name>" title for teacher tasks — → farm bests + task-done
+  markers) → `finishLoad` (merge with the device, put in place) → save the
+  merged copy back if the cloud lacks anything. The farm back-fill
+  (`syncLocalFarmBests`) now runs AFTER the load.
+- **Autosave** (`startProgressAutosave()` from App, next to startJourney):
+  every 2 s `autosaveDue` compares (merge(cloud, device)) with what the
+  cloud has — `changeKind` "major" (missions, badges, journey, story flags,
+  bests, markers) saves after `MAJOR_GAP_MS` 8 s, "minor" (xp, coins, skill
+  profiles) after `MINOR_GAP_MS` 30 s; pagehide / tab hidden flushes. A
+  write that times out (15 s) or fails → status "offline", tries again
+  after the gap; a load that fails retries at 20 s / 60 s / 3 min.
+- **The cloud never goes backwards:** every write is mergeProgress(what the
+  cloud has, this device) — a reset device, an old tab or a bug can only add
+  (CP6). (To really wipe a student's cloud save, delete the doc in the
+  console — clients can't delete.)
+- **Shared devices:** `mma-progress-owner` = whose save this device holds.
+  Same student / none → merge. ANOTHER student → their save (+ their last 40
+  results) is put aside on the device (`mma-local-save:<code>`,
+  `mma-local-results:<code>`) and this student starts from their own stash +
+  cloud copy — done BEFORE the cloud read, so even offline two students
+  never share a save (and nothing is saved until the cloud answers) (CP7).
+  Switching student: `registerWithCode` flushes the previous student first
+  (still signed in as them); `clearSession` flushes then signs out (an
+  `_authGen` guard stops a slow sign-out signing out the NEXT student);
+  `skipDemo` signs out first. First rollout: a device with no owner adopts
+  its existing save into the first student who signs in on it.
+- **UI:** the ☁ chip has a status dot (`ui/cloud/ProgressSyncDot.jsx`:
+  green saved · pulsing blue saving/loading · amber offline · grey "rule not
+  in place"); the sign-in panel, when signed in, shows just the status line
+  (`ProgressSyncLine.jsx`) + a **Sign out** button (new — there was no
+  student sign-out before). Title-screen reset: signs out first (so only
+  the device is cleared; the cloud save comes back next sign-in — a note
+  says so) and forgets the owner. Farsi + Arabic for the new lines.
+- **Rule** (both `firestore.phase3d.claims.rules` and
+  `firestoreRulesDraft.js` `PHASE3D_CLAIMS_RULES`, CP9): student reads /
+  creates / updates ONLY their own doc (`myStudent() == studentCode`, the
+  doc's studentCode + teacherCode must match the claims, shape pinned with
+  `hasOnly`, maps typed); a teacher reads their class's; no delete. Pasted
+  into the console by hand, before the default-deny block. Without it,
+  reads are denied → status "denied", the game carries on locally.
+- **Firebase client:** `getDoc` added to the lazy SDK handles;
+  `readProgressDoc`, `writeProgressDoc`, `readMyAchievements`;
+  `COLLECTIONS.adventureProgress`. Stores: `useProgress.applyCloudProgress(
+  progress, {replace})` (keeps the profile; replace resets the rest; keeps
+  this device's guideTo on a merge), `useResults.replaceResults(list)`.
+- **Verified:** CP1–CP9 headless (the real store + localStorage through
+  `beginLoad`/`finishLoad`/`prepareSave`/`confirmSaved`/`autosaveDue`); the
+  async glue driven with a fake Firestore (`__setProgressApi`): first
+  sign-in rebuilds from achievements and writes once · a new device picks it
+  all up with no extra write · denied → "denied", no retry · a hanging
+  cloud times out → "offline" + retry · a denied write stops saving. The
+  panel + chip screenshotted at 960×560 and iPhone 390×664.
+- **TODO:** paste the rule, then a real two-device test (sign in on a
+  computer, play, sign in on an iPad). Teacher-side: the doc could feed a
+  "where is each student on the journey" view in the Teacher Platform later.
 
 ## DONE (2026-10-13) — THE JOURNEY: worlds open in order, Harbour Green training, world tours
 Jeff's brief: the whole map was open with no progression. He wanted a
@@ -337,9 +438,8 @@ NOT yet deployed.
   island arrival with a waypoint to the volcano arch → the Quest Log journey
   → the wall boards. Screenshots at 960×560, 800×470, iPhone portrait
   390×664 and iPad landscape 1080×810 (touch: 👁️, joystick, phone chip).
-- **Not done / to watch:** progress is still per-device (localStorage) —
-  a student who changes iPad starts the journey again on that device
-  (only the avatar follows the student code). The Farsi/Arabic want a
+- **Not done / to watch:** progress was per-device here — now SUPERSEDED
+  for signed-in students by "CLOUD PROGRESS" (same day). The Farsi/Arabic want a
   native speaker's check. A live run-through on an iPad + a phone (the 👁️
   drag feel, the coach card over the joystick zone on a short landscape
   phone).
@@ -2717,7 +2817,7 @@ awards the trophy). L1–5 adaptive. Teacher tasks still override (handled upstr
 in interaction.js). Guarded by `runSchoolyardTopicChecks()`. Island NPCs (Pip/
 Fern/Alby) unchanged.
 
-## System checks (635)
+## System checks (644)
 `src/dev/systemChecks.js` → `runSystemChecks()`. Run headlessly: temporarily set
 `package.json` `"type":"module"`, shim `localStorage/window/document`, import and
 run; also babel parse-check `src/`, `portal/`, `functions/`. Restore package.json
@@ -2727,7 +2827,9 @@ after (`grep -c '"type"'` should return 0). No npm install; esbuild won't run he
 Completed attempts write a compact `achievements` record + a rich
 `adventureAttempts` record (NO typed answers); demo/skip stays local. Sign-in is
 via the secure code exchange (custom tokens). Never store typed answers; keep the
-secure model. Firebase project `mills-maths-tools`, region us-central1. (The
+secure model. Firebase project `mills-maths-tools`, region us-central1. Since 2026-10-13
+a signed-in student's whole save also lives in `adventureProgress/{code}`
+(see "CLOUD PROGRESS") — one doc, read at sign-in, merged, autosaved. (The
 Adventure is on `mills-maths-tools` — the `mmt-firebase-games` note in the website
 brief is for the OTHER arcade games, not this one.)
 
@@ -3274,6 +3376,13 @@ datum leave its plotted range.
 and a first-visit card in `WORLD_INTROS` (data/training.js), or its gate is
 simply open. Which gates are open is DERIVED — never store it. New fixed
 coach / card strings need Farsi + Arabic (JY7 checks the coach's).
+**Cloud progress (2026-10-13):** a new per-student thing kept in
+localStorage only travels between devices if its key matches `SYNCED_KEY`
+(cloud/progressMerge.js) — a new world's `mma-<world>-<id>-best` keys do if
+the world is added to that pattern; a new progress-store field travels if
+it's in `PROGRESS_FIELDS` and has a merge rule in `mergeProgress` (and in
+`applyCloudProgress`'s list). Never write the cloud doc from anywhere but
+progressSync.js.
 
 ### Phone / iPad / small-screen compatibility (STANDING RULE, 2026-10-11)
 Jeff's instruction: **all future challenges and updates include iPhone / iPad /

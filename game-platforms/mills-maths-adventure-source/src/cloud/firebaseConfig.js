@@ -32,6 +32,8 @@ export const COLLECTIONS = {
   achievements: "achievements",
   adventureAttempts: "adventureAttempts",
   adventureAssignments: "adventureAssignments",
+  // One save per signed-in student (2026-10-13) — doc id = studentCode.
+  adventureProgress: "adventureProgress",
 };
 
 // Master flag — cloud features are opt-in (a student must enter a code). With

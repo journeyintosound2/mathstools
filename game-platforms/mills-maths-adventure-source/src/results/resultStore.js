@@ -68,6 +68,16 @@ export const useResults = create((set, get) => ({
     return get().results[0] || null;
   },
 
+  // Swap in another student's history (cloud progress, a shared device —
+  // progressSync.js keeps each student's list aside on this device).
+  replaceResults(list) {
+    const next = (Array.isArray(list) ? list : []).map((r) => {
+      try { return normaliseResult(r); } catch { return null; }
+    }).filter(Boolean).slice(0, MAX_RESULTS);
+    set({ results: next });
+    saveResults(next);
+  },
+
   // Clear ONLY the results history (never game/story/mission progress).
   clearResults() {
     set({ results: [] });

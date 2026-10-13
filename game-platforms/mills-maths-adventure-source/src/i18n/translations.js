@@ -305,6 +305,15 @@ export const TRANSLATIONS = {
     "Pass Pip's, Fern's and Alby's warm-ups to open the igloo gate to Snowball Sums.": "گرم‌کردن‌های پیپ، فرن و آلبی را قبول شو تا دروازهٔ ایگلو به جمع‌های گلوله‌برفی باز شود.",
 
     "your teacher's task waits there": "کار معلمت آنجا منتظر است",
+
+    // Cloud progress (2026-10-13)
+    "Sign out": "خروج",
+    "Loading your progress…": "در حال بارگذاری پیشرفت تو…",
+    "Saving your progress…": "در حال ذخیرهٔ پیشرفت تو…",
+    "Your progress is saved to your account — sign in on any device to carry on.": "پیشرفت تو در حسابت ذخیره می‌شود — روی هر دستگاهی وارد شو و ادامه بده.",
+    "Can't reach the cloud right now — your progress is saved on this device and will be sent when it can.": "الان به فضای ابری دسترسی نیست — پیشرفت تو روی این دستگاه ذخیره شده و هر وقت ممکن شد فرستاده می‌شود.",
+    "Your progress is saved on this device. (Cloud progress isn't switched on yet.)": "پیشرفت تو روی این دستگاه ذخیره می‌شود. (ذخیرهٔ ابری پیشرفت هنوز فعال نشده است.)",
+    "Signed-in students get their progress back from the cloud next time they sign in.": "دانش‌آموزانی که وارد شده‌اند، دفعهٔ بعد که وارد شوند پیشرفتشان را از فضای ابری پس می‌گیرند.",
   },
 
   ar: {
@@ -601,5 +610,14 @@ export const TRANSLATIONS = {
     "Pass Pip's, Fern's and Alby's warm-ups to open the igloo gate to Snowball Sums.": "انجح في تمارين إحماء بيب وفيرن وألبي لتفتح بوابة الإيغلو إلى مجاميع كرة الثلج.",
 
     "your teacher's task waits there": "مهمّة معلّمك تنتظرك هناك",
+
+    // Cloud progress (2026-10-13)
+    "Sign out": "تسجيل الخروج",
+    "Loading your progress…": "جارٍ تحميل تقدّمك…",
+    "Saving your progress…": "جارٍ حفظ تقدّمك…",
+    "Your progress is saved to your account — sign in on any device to carry on.": "يُحفظ تقدّمك في حسابك — سجّل الدخول من أيّ جهاز وتابع.",
+    "Can't reach the cloud right now — your progress is saved on this device and will be sent when it can.": "لا يمكن الوصول إلى السحابة الآن — تقدّمك محفوظ على هذا الجهاز وسيُرسَل عندما يصبح ذلك ممكنًا.",
+    "Your progress is saved on this device. (Cloud progress isn't switched on yet.)": "يُحفظ تقدّمك على هذا الجهاز. (حفظ التقدّم في السحابة غير مفعّل بعد.)",
+    "Signed-in students get their progress back from the cloud next time they sign in.": "الطلاب الذين سجّلوا الدخول يستعيدون تقدّمهم من السحابة في المرة القادمة التي يسجّلون فيها الدخول.",
   },
 };
