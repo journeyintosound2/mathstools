@@ -352,6 +352,38 @@
   input,select,textarea{font-size:16px;}
 }
 /* ==== end MMT PHONE LAYOUT ==== */
+
+/* ==== MMT FULL SCREEN (added 2026-10-14) ==================================
+   Teacher feedback: on an iPad the bottom of the grid was cut off. Two fixes:
+   1. The board is SIZED BY MEASURING the room it actually has (fitBoard() in
+      the script sets an inline width), not guessed from 100vh, which on iPad
+      Safari counts the toolbars and ignores a wrapped header.
+   2. A Full screen button hides the banner and footer (html.mmt-focus) and,
+      where the browser allows it (iPad Safari, desktops), also asks for real
+      browser full screen. Rules and Exit move into the status bar.
+   ========================================================================= */
+.fsIcon{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto;}
+.fsBtn{display:inline-flex;align-items:center;gap:7px;}
+.focus-tools{display:none;}
+html.mmt-focus .mmtTopbar,html.mmt-focus .brand-footer{display:none;}
+html.mmt-focus .layout{margin:8px auto;width:calc(100vw - 16px);border-radius:20px;}
+html.mmt-focus .status-card{margin:10px 14px 8px;min-height:0;padding:8px 12px;flex-wrap:wrap;}
+html.mmt-focus .focus-tools{display:flex;gap:8px;margin-left:auto;align-items:center;}
+.focus-tools .btn{display:inline-flex;align-items:center;gap:7px;padding:9px 13px;font-size:14px;min-height:40px;}
+/* A landscape iPad (1024-1080 wide) normally stacks board, scores and dice, so
+   a student scrolls on every turn. In full screen there is room to keep all
+   three side by side on one screen, which is the point of full screen. */
+@media(max-width:1080px) and (min-width:900px) and (orientation:landscape){
+  html.mmt-focus body{overflow:hidden;}
+  html.mmt-focus .app{height:100vh;height:100dvh;}
+  html.mmt-focus .layout{display:grid;overflow:hidden;}
+  html.mmt-focus .play-area{grid-template-columns:190px auto 270px;justify-items:stretch;align-items:start;overflow:auto;gap:12px;padding:0 14px 12px;}
+  html.mmt-focus .score-column,html.mmt-focus .board-card,html.mmt-focus .roll-card{order:0;}
+  html.mmt-focus .score-column{width:auto;grid-template-columns:1fr;}
+  html.mmt-focus .roll-card{width:270px;padding:14px;}
+  html.mmt-focus .choice-card span{font-size:1.3rem;}
+}
+/* ==== end MMT FULL SCREEN ==== */
 </style>
 <!-- mmt-pwa -->
 <link rel="manifest" href="../manifest.webmanifest">
@@ -380,6 +412,7 @@
             <option value="fa">Farsi فارسی</option>
           </select>
         </div>
+        <button class="btn fsBtn" id="fullScreenBtn" type="button" title="Full screen (F)"><svg class="fsIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5"/></svg><span id="fullScreenLabel">Full screen</span></button>
         <button class="btn" id="rulesBtn" type="button">Rules</button>
         <button class="btn" id="backMenuBtn" type="button">Back to menu</button>
         <button class="btn btn-primary" id="newGameBtn" type="button">New Game</button>
@@ -392,6 +425,10 @@
         <div>
           <div class="status-title" id="statusTitle">Choose a game mode</div>
           <div class="status-subtitle" id="statusSubtitle">Capture rectangles by owning all four corners.</div>
+        </div>
+        <div class="focus-tools">
+          <button class="btn btn-ghost" id="focusRulesBtn" type="button"><span id="focusRulesLabel">Rules</span></button>
+          <button class="btn btn-blue" id="exitFocusBtn" type="button" title="Exit full screen (Esc)"><svg class="fsIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4v5H4M20 9h-5V4M15 20v-5h5M4 15h5v5"/></svg><span id="exitFocusLabel">Exit full screen</span></button>
         </div>
       </div>
 
@@ -655,7 +692,7 @@
         'Capture scoring':'تسجيل الالتقاط','Score by':'التسجيل حسب','Area captured':'المساحة الملتقطة','Number of captures':'عدد الالتقاطات','Perimeter captured':'المحيط الملتقط','Win target':'هدف الفوز','First to 20':'أول من يصل إلى 20','First to 30':'أول من يصل إلى 30','First to 40':'أول من يصل إلى 40','Board fills / highest score':'امتلاء اللوحة / أعلى نتيجة',
         'Student support':'دعم الطالب','Show possible dots':'إظهار النقاط الممكنة','Shows the two possible points after rolling. Off by default so students work out the coordinate first.':'يُظهر النقطتين الممكنتين بعد الرمي. يكون مغلقاً افتراضياً حتى يحدد الطلاب الإحداثي أولاً.','Allow choosing either die as x':'السماح باختيار أي نرد كـ x','Students may use the roll as either coordinate order.':'يمكن للطلاب استخدام الرمية بأي ترتيب للإحداثيين.','Submit':'إرسال','Close':'إغلاق',
         'Choose to place':'اختر مكان الوضع','OPTION':'الخيار','TAKEN':'مأخوذ','You':'أنت','Computer':'الكمبيوتر','captures':'التقاطات','capture':'التقاط',
-        'Choose a mode to start.':'اختر وضعاً للبدء.','Capture rectangles by owning all four corners.':'التقط المستطيلات بامتلاك الزوايا الأربع.','Roll once, then choose the correct coordinate.':'ارمِ مرة واحدة، ثم اختر الإحداثي الصحيح.','The computer is thinking.':'الكمبيوتر يفكر.','Waiting for the other player to move.':'بانتظار اللاعب الآخر.','Waiting for Player 2':'بانتظار اللاعب 2','Create or join a room.':'أنشئ غرفة أو انضم إليها.','Captured enough regions to win.':'تم التقاط مناطق كافية للفوز.','The board is full.':'امتلأت اللوحة.','Draw game':'تعادل','Your turn':'دورك',
+        'Full screen':'ملء الشاشة','Exit full screen':'الخروج من ملء الشاشة','Choose a mode to start.':'اختر وضعاً للبدء.','Capture rectangles by owning all four corners.':'التقط المستطيلات بامتلاك الزوايا الأربع.','Roll once, then choose the correct coordinate.':'ارمِ مرة واحدة، ثم اختر الإحداثي الصحيح.','The computer is thinking.':'الكمبيوتر يفكر.','Waiting for the other player to move.':'بانتظار اللاعب الآخر.','Waiting for Player 2':'بانتظار اللاعب 2','Create or join a room.':'أنشئ غرفة أو انضم إليها.','Captured enough regions to win.':'تم التقاط مناطق كافية للفوز.','The board is full.':'امتلأت اللوحة.','Draw game':'تعادل','Your turn':'دورك',
         'Capture rectangles by placing counters on coordinate points.':'التقط المستطيلات بوضع العدادات على نقاط الإحداثيات.','How to score':'طريقة التسجيل','Place counters on grid points. If your counters make all four corners of a rectangle, you capture it. Choose first quadrant or four-quadrant play before the game starts.':'ضع العدادات على نقاط الشبكة. إذا كوّنت عداداتك الزوايا الأربع لمستطيل، فإنك تلتقطه. اختر اللعب في الربع الأول أو الأرباع الأربعة قبل بدء اللعبة.',
         'Roll two dice.':'ارمِ نردين.','Choose which value is x and which value is y.':'اختر أي قيمة تمثل x وأي قيمة تمثل y.','Place your counter on that coordinate.':'ضع عدادك على ذلك الإحداثي.','If your four counters make the corners of a rectangle, you capture it.':'إذا كوّنت عداداتك الأربع زوايا مستطيل، فإنك تلتقطه.','The player with the highest score, or the first to the target, wins.':'يفوز اللاعب صاحب أعلى نتيجة أو أول من يصل إلى الهدف.'
       },
@@ -671,7 +708,7 @@
         'Capture scoring':'امتیاز تصاحب','Score by':'امتیاز بر اساس','Area captured':'مساحت تصاحب‌شده','Number of captures':'تعداد تصاحب‌ها','Perimeter captured':'محیط تصاحب‌شده','Win target':'هدف پیروزی','First to 20':'اولین نفر تا ۲۰','First to 30':'اولین نفر تا ۳۰','First to 40':'اولین نفر تا ۴۰','Board fills / highest score':'پر شدن صفحه / بیشترین امتیاز',
         'Student support':'کمک به دانش‌آموز','Show possible dots':'نمایش نقاط ممکن','Shows the two possible points after rolling. Off by default so students work out the coordinate first.':'پس از تاس انداختن دو نقطه ممکن را نشان می‌دهد. به طور پیش‌فرض خاموش است تا دانش‌آموزان ابتدا مختصات را پیدا کنند.','Allow choosing either die as x':'اجازه انتخاب هر تاس به عنوان x','Students may use the roll as either coordinate order.':'دانش‌آموزان می‌توانند نتیجه تاس‌ها را با هر ترتیب مختصات استفاده کنند.','Submit':'ثبت','Close':'بستن',
         'Choose to place':'محل قرار دادن را انتخاب کنید','OPTION':'گزینه','TAKEN':'گرفته شده','You':'شما','Computer':'کامپیوتر','captures':'تصاحب‌ها','capture':'تصاحب',
-        'Choose a mode to start.':'برای شروع یک حالت انتخاب کنید.','Capture rectangles by owning all four corners.':'با داشتن چهار گوشه، مستطیل‌ها را تصاحب کنید.','Roll once, then choose the correct coordinate.':'یک بار تاس بیندازید، سپس مختصات درست را انتخاب کنید.','The computer is thinking.':'کامپیوتر در حال فکر کردن است.','Waiting for the other player to move.':'در انتظار حرکت بازیکن دیگر.','Waiting for Player 2':'در انتظار بازیکن ۲','Create or join a room.':'یک اتاق بسازید یا وارد شوید.','Captured enough regions to win.':'برای برد، ناحیه‌های کافی تصاحب شده است.','The board is full.':'صفحه پر شده است.','Draw game':'مساوی','Your turn':'نوبت شما',
+        'Full screen':'تمام صفحه','Exit full screen':'خروج از تمام صفحه','Choose a mode to start.':'برای شروع یک حالت انتخاب کنید.','Capture rectangles by owning all four corners.':'با داشتن چهار گوشه، مستطیل‌ها را تصاحب کنید.','Roll once, then choose the correct coordinate.':'یک بار تاس بیندازید، سپس مختصات درست را انتخاب کنید.','The computer is thinking.':'کامپیوتر در حال فکر کردن است.','Waiting for the other player to move.':'در انتظار حرکت بازیکن دیگر.','Waiting for Player 2':'در انتظار بازیکن ۲','Create or join a room.':'یک اتاق بسازید یا وارد شوید.','Captured enough regions to win.':'برای برد، ناحیه‌های کافی تصاحب شده است.','The board is full.':'صفحه پر شده است.','Draw game':'مساوی','Your turn':'نوبت شما',
         'Capture rectangles by placing counters on coordinate points.':'با گذاشتن مهره‌ها روی نقاط مختصات، مستطیل‌ها را تصاحب کنید.','How to score':'روش امتیازگیری','Place counters on grid points. If your counters make all four corners of a rectangle, you capture it. Choose first quadrant or four-quadrant play before the game starts.':'مهره‌ها را روی نقاط شبکه قرار دهید. اگر مهره‌های شما چهار گوشه یک مستطیل را بسازند، آن را تصاحب می‌کنید. پیش از شروع بازی، حالت ربع اول یا چهار ربع را انتخاب کنید.',
         'Roll two dice.':'دو تاس بیندازید.','Choose which value is x and which value is y.':'انتخاب کنید کدام مقدار x و کدام مقدار y است.','Place your counter on that coordinate.':'مهره خود را روی آن مختصات بگذارید.','If your four counters make the corners of a rectangle, you capture it.':'اگر چهار مهره شما گوشه‌های یک مستطیل را بسازند، آن را تصاحب می‌کنید.','The player with the highest score, or the first to the target, wins.':'بازیکنی که بیشترین امتیاز را داشته باشد، یا زودتر به هدف برسد، برنده است.'
       }
@@ -734,6 +771,9 @@
       document.documentElement.dir = 'ltr';
       setI18n($('languageMainLabel'),'Language');
       setI18n($('rulesBtn'),'Rules');
+      setI18n($('fullScreenLabel'),'Full screen');
+      setI18n($('focusRulesLabel'),'Rules');
+      setI18n($('exitFocusLabel'),'Exit full screen');
       setI18n($('backMenuBtn'),'Back to menu');
       setI18n($('newGameBtn'),'New Game');
       setI18n($('modeTitle'),'Choose how to play');
@@ -928,7 +968,7 @@
         setI18n(statusTitle, 'Choose a game mode');
         setI18n(statusSubtitle, 'Capture rectangles by owning all four corners.');
       } else {
-        setI18n(statusTitle, `${activeName()}'s turn`);
+        setI18n(statusTitle, activeName() === 'You' ? 'Your turn' : `${activeName()}'s turn`);
         setI18n(statusSubtitle, 'Roll once, then choose the correct coordinate.');
       }
 
@@ -1412,6 +1452,9 @@
     choiceA.addEventListener('click', () => chooseOption(0));
     choiceB.addEventListener('click', () => chooseOption(1));
     window.addEventListener('keydown', e => {
+      const anyModal = !!document.querySelector('.modal-backdrop.open');
+      if(e.key === 'Escape' && !anyModal && document.documentElement.classList.contains('mmt-focus')) exitFocus();
+      if(e.key.toLowerCase() === 'f' && !anyModal && !e.target.matches('input,select,textarea')) toggleFocus();
       if(e.key === 'Escape') { hide(namesModal); hide(onlineModal); hide(setupSettingsModal); hide(rulesModal); }
       if(e.key.toLowerCase() === 'r' && !e.target.matches('input,select,textarea')) rollDice();
       if(e.key === '1' && !e.target.matches('input,select,textarea')) chooseOption(0);
@@ -1420,8 +1463,78 @@
       if(e.key === 'Enter' && setupSettingsModal.classList.contains('open')) $('submitSetupBtn').click();
     });
 
+    /* ---- Board fitting + full screen (2026-10-14) — see the CSS block ---- */
+    const playArea = document.querySelector('.play-area');
+    const boardCard = document.querySelector('.board-card');
+    function fitBoard(){
+      if(!playArea || !boardCard) return;
+      const focus = document.documentElement.classList.contains('mmt-focus');
+      const vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+      const cs = getComputedStyle(playArea);
+      const padX = (parseFloat(cs.paddingLeft)||0) + (parseFloat(cs.paddingRight)||0);
+      let size;
+      if(cs.gridTemplateColumns.trim().split(/\s+/).length < 3){
+        // Stacked layout: the page scrolls, so the board just has to fit the visible
+        // screen. In full screen, fit it below the status bar so no scrolling is needed.
+        const below = focus ? boardCard.getBoundingClientRect().top + window.scrollY + 12 : 24;
+        size = Math.min(720, playArea.clientWidth - padX, Math.max(vh - below, vh * 0.55));
+      } else {
+        const cols = cs.gridTemplateColumns.split(' ').map(parseFloat);
+        const side = (cols[0]||0) + (cols[cols.length-1]||0);
+        const gap = (parseFloat(cs.columnGap)||0) * 2;
+        const w = playArea.clientWidth - padX - side - gap;
+        const h = playArea.clientHeight - (parseFloat(cs.paddingTop)||0) - (parseFloat(cs.paddingBottom)||0) - 2;
+        size = Math.min(w, h, focus ? 1000 : 740);
+      }
+      size = Math.max(260, Math.floor(size));
+      if(boardCard.style.width !== size + 'px'){
+        boardCard.style.width = size + 'px';
+        boardCard.style.minWidth = '0';
+        boardCard.style.maxWidth = 'none';
+      }
+    }
+    let fitQueued = false;
+    function scheduleFit(){ if(fitQueued) return; fitQueued = true; requestAnimationFrame(() => { fitQueued = false; fitBoard(); }); }
+    window.addEventListener('resize', scheduleFit);
+    window.addEventListener('orientationchange', () => setTimeout(scheduleFit, 250));
+    if(window.visualViewport) window.visualViewport.addEventListener('resize', scheduleFit);
+    if(window.ResizeObserver) new ResizeObserver(scheduleFit).observe(playArea);
+
+    const fsElement = () => document.fullscreenElement || document.webkitFullscreenElement || null;
+    let inRealFs = false;
+    function enterFocus(){
+      document.documentElement.classList.add('mmt-focus');
+      scheduleFit();
+      // Real browser full screen where allowed (iPad Safari, desktops). An iPhone
+      // has no element full screen; the focus layout alone still does the job.
+      const el = document.documentElement;
+      const req = el.requestFullscreen || el.webkitRequestFullscreen;
+      if(req){ try{ const p = req.call(el); if(p && p.catch) p.catch(() => {}); }catch(err){} }
+    }
+    function exitFocus(){
+      document.documentElement.classList.remove('mmt-focus');
+      if(fsElement()){
+        const ex = document.exitFullscreen || document.webkitExitFullscreen;
+        try{ const p = ex && ex.call(document); if(p && p.catch) p.catch(() => {}); }catch(err){}
+      }
+      inRealFs = false;
+      scheduleFit();
+    }
+    function toggleFocus(){ document.documentElement.classList.contains('mmt-focus') ? exitFocus() : enterFocus(); }
+    function onFsChange(){
+      if(fsElement()) inRealFs = true;
+      else if(inRealFs){ inRealFs = false; document.documentElement.classList.remove('mmt-focus'); }
+      scheduleFit();
+    }
+    document.addEventListener('fullscreenchange', onFsChange);
+    document.addEventListener('webkitfullscreenchange', onFsChange);
+    $('fullScreenBtn').addEventListener('click', enterFocus);
+    $('exitFocusBtn').addEventListener('click', exitFocus);
+    $('focusRulesBtn').addEventListener('click', () => { renderRules(); show(rulesModal); });
+
     syncControlsFromSettings();
     applyLanguage();
+    fitBoard();
   </script>
   <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
