@@ -115,6 +115,12 @@
 > * Verified: 4696 layout checks (12 patterns × every step × 1366/1920/1024/1280:
 >   inside the board, labels clear, ? cards show nothing, far answer never early,
 >   no page scroll) + 32 interaction checks. Harnesses in session scratch.
+> * **FULL SCREEN** (corner button on the board card, or F): the Fullscreen API
+>   where there is one, plus `body.isMax`, which hides the topbar and gives the
+>   board the window (also the fallback on iPhone). `fitBoard()` measures the
+>   CONTENT (`.layout` bottom), never `scrollHeight` — the page is never shorter
+>   than the window, so measuring it shrank the board 4px per fit and capped it
+>   near 450px even on 1080p. Card width min(1440px) so the header is one row.
 > * Possible next: worksheet creator (sketch figure 4, describe figure 30), a
 >   student quiz, a "make your own pattern" builder.
 >

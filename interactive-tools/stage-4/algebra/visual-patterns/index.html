@@ -146,7 +146,7 @@
 
     /* ---------- layout ---------- */
     .layout{
-      width:min(1280px, calc(100vw - 40px));
+      width:min(1440px, calc(100vw - 40px));
       margin:16px auto 12px;
       background:rgba(255,255,255,.94);
       border:1px solid rgba(226,232,240,.9);
@@ -227,6 +227,26 @@
     .board .notrans,.board .notrans *{ transition:none !important; }
     .board .badge text{ font-weight:900; }
     .board .badges{ pointer-events:none; }
+
+    /* full screen: the corner button, and the board taking the whole screen */
+    .fsBtn{
+      position:absolute; top:10px; right:10px; z-index:6;
+      width:40px; height:40px; border-radius:12px; display:grid; place-items:center;
+      appearance:none; border:1px solid var(--border); background:rgba(255,255,255,.92);
+      color:var(--line); cursor:pointer; box-shadow:0 4px 12px rgba(15,23,42,.10);
+      transition:.16s ease;
+    }
+    .fsBtn:hover{ background:#eef2ff; color:var(--blue-dark); border-color:#c7d2fe; transform:translateY(-1px); }
+    .fsBtn:focus-visible{ outline:none; box-shadow:0 0 0 4px rgba(37,99,235,.25); }
+    .fsBtn svg{ width:20px; height:20px; }
+    .fsBtn .shrink{ display:none; }
+    body.isMax .fsBtn .grow{ display:none; }
+    body.isMax .fsBtn .shrink{ display:block; }
+    body.isMax{ background:#fff; }
+    body.isMax .mmtTopbar{ display:none; }
+    body.isMax .layout{ width:100vw; margin:0; border-radius:0; border:0; box-shadow:none; }
+    body.isMax .stage{ padding:10px 14px 10px; gap:9px; }
+    body.isMax .hint{ display:none; }
 
     /* narration */
     .narrate{
@@ -419,6 +439,10 @@
         </div>
 
         <div class="boardCard" id="boardCard">
+          <button class="fsBtn" id="fsBtn" type="button" title="Full screen (F)" aria-label="Full screen" aria-pressed="false">
+            <svg class="grow" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7.5V3h4.5M12.5 3H17v4.5M17 12.5V17h-4.5M7.5 17H3v-4.5"/></svg>
+            <svg class="shrink" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.5 3v4.5H3M17 7.5h-4.5V3M12.5 17v-4.5H17M3 12.5h4.5V17"/></svg>
+          </button>
           <svg class="board" id="board" viewBox="0 0 1400 520" role="img"
                aria-label="A growing visual pattern, drawn one figure at a time">
             <g id="figLayer"></g>
@@ -434,7 +458,7 @@
           </div>
           <div class="stepCount" id="stepCount">Step 1</div>
           <div class="stepPrompt" id="stepPrompt" aria-live="polite"></div>
-          <p class="hint">Space or &rarr; next &middot; &larr; back &middot; W how do you see it &middot; N what&rsquo;s new &middot; T tap to count &middot; P pen &middot; G patterns</p>
+          <p class="hint">Space or &rarr; next &middot; &larr; back &middot; W how do you see it &middot; N what&rsquo;s new &middot; T tap to count &middot; P pen &middot; G patterns &middot; F full screen</p>
         </div>
 
       </section>
@@ -1573,13 +1597,44 @@ $('galleryBtn').addEventListener('click', openGallery);
 $('galClose').addEventListener('click', closeGallery);
 $('galleryVeil').addEventListener('click', ev=>{ if(ev.target.id==='galleryVeil') closeGallery(); });
 
+/* ---------- full screen ----------
+   The real Fullscreen API where the browser has one; where it does not (an
+   iPhone, some embedded browsers) the same button still hides the top bar
+   and gives the board the whole window. */
+const fsEl = () => document.fullscreenElement || document.webkitFullscreenElement;
+function setMax(on){
+  document.body.classList.toggle('isMax', on);
+  const b = $('fsBtn');
+  b.setAttribute('aria-pressed', String(on));
+  b.title = on ? 'Exit full screen (F)' : 'Full screen (F)';
+  b.setAttribute('aria-label', on ? 'Exit full screen' : 'Full screen');
+  closeMenus();
+  requestAnimationFrame(()=>{ fitBoard(); relayout(0); });
+  setTimeout(()=>{ fitBoard(); relayout(250); }, 260);   /* again once the window has settled */
+}
+function toggleFull(){
+  const root = document.documentElement;
+  const req = root.requestFullscreen || root.webkitRequestFullscreen;
+  const exit = document.exitFullscreen || document.webkitExitFullscreen;
+  if(fsEl()){ exit.call(document); return; }
+  if(document.body.classList.contains('isMax')){ setMax(false); return; }
+  if(req){
+    try{
+      const pr = req.call(root);
+      if(pr && pr.catch) pr.catch(()=>setMax(true));
+    }catch(e){ setMax(true); }
+  } else setMax(true);
+}
+['fullscreenchange','webkitfullscreenchange'].forEach(t=>document.addEventListener(t, ()=>setMax(!!fsEl())));
+$('fsBtn').addEventListener('click', toggleFull);
+
 /* ---------- keyboard ---------- */
 document.addEventListener('keydown', ev=>{
   if(ev.target.closest && ev.target.closest('input,select,textarea')) return;
   if(ev.metaKey || ev.ctrlKey || ev.altKey) return;
   const k = ev.key;
   if(!$('galleryVeil').hidden){ if(k==='Escape') closeGallery(); return; }
-  if(k==='Escape'){ closeMenus(); if(S.pen) togglePen(); if(S.tap) toggleTap(); return; }
+  if(k==='Escape'){ closeMenus(); if(S.pen) togglePen(); if(S.tap) toggleTap(); if(fsEl()) toggleFull(); else if(document.body.classList.contains('isMax')) setMax(false); return; }
   if(k==='ArrowRight' || k===' ' || k==='PageDown'){ if(document.activeElement && document.activeElement.tagName==='BUTTON' && k===' ') return; ev.preventDefault(); next(); }
   else if(k==='ArrowLeft' || k==='PageUp'){ ev.preventDefault(); back(); }
   else if(k==='w' || k==='W') toggleSee();
@@ -1589,17 +1644,21 @@ document.addEventListener('keydown', ev=>{
   else if(k==='p' || k==='P') togglePen();
   else if(k==='g' || k==='G') openGallery();
   else if(k==='r' || k==='R') randomPattern();
+  else if(k==='f' || k==='F') toggleFull();
 });
 
 /* ---------- fit the board to the screen ---------- */
 function fitBoard(){
   const card = $('boardCard');
+  const lay = document.querySelector('.layout');
   for(let pass=0; pass<2; pass++){
+    /* measure the CONTENT, not the page: the page is never shorter than the
+       window, so measuring it would shrink the board a little every time */
     const cur = board.getBoundingClientRect().height;
-    const docH = document.documentElement.scrollHeight;
-    const other = docH - cur;
-    let h = window.innerHeight - other - 4;
-    h = Math.max(280, Math.min(h, 820));
+    const mb = parseFloat(getComputedStyle(lay).marginBottom) || 0;
+    const other = lay.getBoundingClientRect().bottom + window.scrollY + mb - cur;
+    let h = window.innerHeight - other - 2;
+    h = Math.max(280, Math.min(h, 1400));
     board.style.height = h + 'px';
   }
   const r = board.getBoundingClientRect();
