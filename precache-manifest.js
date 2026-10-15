@@ -1,6 +1,6 @@
 /* Written by tools/build-pwa.mjs — do not edit by hand. */
 self.MMT_PRECACHE = {
- "version": "e64a170a0a",
+ "version": "35e253f1f4",
  "files": [
   "./",
   "assessment/exam-builder/app.js",
@@ -720,6 +720,7 @@ self.MMT_PRECACHE = {
   "interactive-tools/stage-4/algebra/substitution/index.html",
   "interactive-tools/stage-4/algebra/substitution/lesson-plan.html",
   "interactive-tools/stage-4/algebra/substitution/logo.png",
+  "interactive-tools/stage-4/algebra/visual-patterns/index.html",
   "interactive-tools/stage-4/measurement-space/angles-parallel-lines/index.html",
   "interactive-tools/stage-4/measurement-space/area-of-a-triangle/index.html",
   "interactive-tools/stage-4/measurement-space/circumference-of-a-circle/index.html",

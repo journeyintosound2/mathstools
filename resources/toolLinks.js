@@ -1167,6 +1167,13 @@ window.MMT_TOOL_LINKS = {
 
   "MA4-LIN-C-01": [
     {
+      title: "Visual Patterns",
+      kind: "Teacher tool",
+      url: "/interactive-tools/stage-4/algebra/visual-patterns/",
+      note: "Reveal a growing pattern one figure at a time: notice and wonder, predict figure 4, go back to figure 0, then 10, 30, 100 and any figure n. Recolour the figures to show different ways of seeing the growth. No tables or rules on screen \u2014 the lead-in to writing a linear rule.",
+      tags: ["visual patterns", "growing patterns", "notice and wonder", "predict", "linear relationship", "rule", "generalise", "constant rate of change", "matchsticks", "equivalent expressions"]
+    },
+    {
       title: "Capture the Grid",
       kind: "Game",
       url: "/games/cartesian-capture.html",

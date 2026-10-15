@@ -81,6 +81,43 @@
 > §2 "TWO folders", §3 deploy paths and §5's `mathstools-main 2` heading below
 > describe the OLD layout — this block supersedes them.
 >
+> **NEW (2026-10-16, session — being pushed): VISUAL PATTERNS.**
+> `interactive-tools/stage-4/algebra/visual-patterns/`, a Stage 4 teaching tool
+> under **MA4-LIN-C-01** (row in `resources/toolLinks.js`, homepage Interactive
+> card, pill 32 -> 33). Built from Jeff's "Visual Patterns" notice/wonder deck,
+> in the spirit of visualpatterns.org (every figure drawn fresh). Self-contained,
+> no Firebase, no registry entry; Tools menu = two greyed rows.
+> * **NO TABLES, NO RULES ON SCREEN (teacher decision).** The board is for
+>   noticing; the table of values and the rule go on Jeff's whiteboard. Counts
+>   are hidden unless the Counts chip is on. Do not add a table view.
+> * **A PATTERN IS ONE FUNCTION `fig(n)` RETURNING PIECES WITH STABLE IDS.** The
+>   same chair has the same id in every figure, so figure 4 is BUILT from figure 3
+>   (moved pieces slide, new ones pop in orange) and far figures GROW step by step.
+>   Harness asserts: constant growth, no piece ever disappears between figures,
+>   ids unique, figure 0 consistent with the rule. Written in y-up units.
+> * **Lesson steps are data (`buildSteps`)**: fig 1 → 2 → 3 (or 1–3 together) →
+>   predict 4 (? card, click it or Next) → build 4 → figure 0 (shrinks figure 1;
+>   empty / "can't be drawn" for 4n and 2n−1) → far figures 10/30/100 (? card, then
+>   grows until it no longer fits: "Too big to draw") → which figure has c? →
+>   any figure n. Back = step−1.
+> * **EVERY FIGURE ON SCREEN SHARES ONE SCALE** (`layout()`), so growth is honest;
+>   a slot is never narrower than its label (MINW). The board's viewBox height is
+>   measured from the real page (`fitBoard`).
+> * **"How do you see it?"** recolours every figure one way of seeing it (each
+>   counted piece carries `g[]`: K = always there, A/a = repeated units, B/C/D =
+>   families). Way names are hover titles only. Also: What's new (fades all but
+>   the last step's additions), Counts, Tap to count, Pen (ink clears when the
+>   picture changes).
+> * 12 patterns, Sweet → Spicy: dots 3n, pinwheel 4n, corner 2n+1, tables and
+>   chairs 3n+2 (Jeff's), matchstick squares 3n+1 / triangles 2n+1 / houses 5n+1,
+>   bridge n+6, plus 4n+1, picture frame 4n+4, cube corner 3n+1, V of dots 2n−1.
+>   Matchstick heads go at whichever end is clear (`placeHeads`), stable as it grows.
+> * Verified: 4696 layout checks (12 patterns × every step × 1366/1920/1024/1280:
+>   inside the board, labels clear, ? cards show nothing, far answer never early,
+>   no page scroll) + 32 interaction checks. Harnesses in session scratch.
+> * Possible next: worksheet creator (sketch figure 4, describe figure 30), a
+>   student quiz, a "make your own pattern" builder.
+>
 > **NEW (2026-09-30, session — being pushed): KIDS CHESS ADVENTURE.**
 > `games/chess-kids.html`, reached from a new first card on the Chess menu (no
 > homepage card of its own; the chess card's search tags gained "kids"). English
