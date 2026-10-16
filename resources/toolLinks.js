@@ -343,6 +343,13 @@ window.MMT_TOOL_LINKS = {
 
   "MA3-MR-02": [
     {
+      title: "Order of Operations \u2014 Say What You See",
+      kind: "Teacher tool",
+      url: "/interactive-tools/stage-4/number/order-of-operations-in-words/",
+      note: "Order of operations without an acronym: 3 \u00d7 5 is \u201c3 groups of 5\u201d and 10 \u00f7 2 is \u201chalf of 10\u201d, each one amount found before the amounts are joined or taken away. Picture, words and symbols in step, with the lesson\u2019s examples built in.",
+      tags: ["order of operations", "number sentences", "brackets", "groups of", "half of", "BODMAS", "misconceptions", "language of mathematics", "visual", "whole-class teaching"]
+    },
+    {
       title: "Division by Grouping \u2014 Bubbles",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-3/number/division-grouping-bubbles/",
@@ -999,6 +1006,13 @@ window.MMT_TOOL_LINKS = {
   ],
 
   "MA4-INT-C-01": [
+    {
+      title: "Order of Operations \u2014 Say What You See",
+      kind: "Teacher tool",
+      url: "/interactive-tools/stage-4/number/order-of-operations-in-words/",
+      note: "No acronym: every expression is read as words and drawn as tiles. 5 + 3 \u00d7 5 is \u201c5 and 3 groups of 5\u201d, 10 \u2212 4 \u00f7 2 is \u201c10 take away half of 4\u201d \u2014 each \u00d7 and \u00f7 names ONE amount, found before the amounts are put together. Integers use yellow and red tiles with zero pairs, and \u2018the other reading\u2019 shows the picture a left-to-right or bracket-dropping student would get.",
+      tags: ["order of operations", "integers", "directed numbers", "BODMAS", "BIDMAS", "PEMDAS", "misconceptions", "groups of", "zero pairs", "brackets", "language of mathematics", "visual", "whole-class teaching"]
+    },
     {
       title: "Integer Add/Subtract — Explore",
       kind: "Teacher tool",

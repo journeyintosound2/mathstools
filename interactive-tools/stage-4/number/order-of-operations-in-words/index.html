@@ -1,0 +1,1877 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Order of Operations — Say What You See | Mills Maths Tools</title>
+
+  <style>
+    :root{
+      --bg:#f8fafc;
+      --card:#ffffff;
+      --ink:#0f172a;
+      --muted:#64748b;
+      --border:#e2e8f0;
+      --shadow:0 18px 45px rgba(15,23,42,.13);
+      --blue:#2563eb;
+      --blue-dark:#1d4ed8;
+      --green:#22c55e;
+      --green-dark:#15803d;
+      --purple:#7c3aed;
+      --purple-dark:#5b21b6;
+      --orange:#f97316;
+      --line:#334155;
+      --line-soft:#94a3b8;
+      --red:#dc2626;
+      --posFill:#fde047;
+      --posStroke:#a16207;
+      --negFill:#ef4444;
+      --negStroke:#991b1b;
+      --uiFont:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+      --mathFont:"STIX Two Math","Cambria Math","Latin Modern Math","Times New Roman",Georgia,serif;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ min-height:100%; }
+    body{
+      margin:0;
+      font-family:var(--uiFont);
+      color:var(--ink);
+      background:
+        radial-gradient(circle at top left,rgba(37,99,235,.14),transparent 32rem),
+        radial-gradient(circle at top right,rgba(124,58,237,.12),transparent 34rem),
+        var(--bg);
+      overflow-x:hidden;
+    }
+    button,input,select{ font:inherit; }
+    [hidden]{ display:none !important; }
+
+    .app{ min-height:100dvh; display:flex; flex-direction:column; min-width:0; }
+
+    /* ---------- topbar (shared MMT shell) ---------- */
+    .mmtTopbar{
+      position:relative; z-index:40;
+      background:linear-gradient(135deg,#0f172a,#123b7a 55%,#2563eb);
+      color:white; padding:14px 24px;
+      display:grid; grid-template-columns:minmax(220px,1fr) auto minmax(320px,1fr);
+      align-items:center; gap:18px;
+      box-shadow:0 10px 28px rgba(15,23,42,.22);
+    }
+    .mmtBrand{
+      display:flex; align-items:center; gap:12px; justify-self:start;
+      text-decoration:none; color:white; border-radius:14px; padding:8px 12px;
+      margin-left:-12px; font-weight:900;
+      transition:background .18s ease,transform .18s ease,box-shadow .18s ease;
+    }
+    .mmtBrand:hover{ background:rgba(255,255,255,.12); transform:translateY(-1px);
+      box-shadow:0 0 10px rgba(124,58,237,.6),0 0 18px rgba(37,99,235,.4); }
+    .mmtBrandLogo{
+      width:44px; height:44px; border-radius:9px; background:white; color:#1d4ed8;
+      display:grid; place-items:center; font-weight:1000; letter-spacing:-.08em;
+      box-shadow:inset 0 -2px 0 rgba(15,23,42,.08); flex:0 0 auto;
+    }
+    .mmtBrandText strong{ display:block; font-size:1.18rem; line-height:1; letter-spacing:-.03em; color:white; }
+    .mmtBrandText span{ display:block; font-size:.78rem; opacity:.82; font-weight:650; color:white; }
+    .mmtTopTitle{
+      font-weight:850; font-size:clamp(1.05rem,1.9vw,1.5rem); letter-spacing:-.04em;
+      text-align:center; color:white; white-space:nowrap;
+    }
+    .topActions{ justify-self:end; display:flex; align-items:center; justify-content:flex-end; gap:10px; flex-wrap:wrap; }
+
+    .btn{
+      appearance:none; border:1px solid rgba(255,255,255,.28); background:rgba(255,255,255,.14);
+      color:white; padding:11px 15px; border-radius:14px; font-weight:900; font-size:15px;
+      cursor:pointer; transition:.18s ease; user-select:none;
+    }
+    .btn:hover:not(:disabled){ background:rgba(255,255,255,.22); transform:translateY(-1px); }
+    .btn:focus-visible{ outline:none; box-shadow:0 0 0 4px rgba(255,255,255,.23); }
+    .btn-primary{ background:white; color:#1d4ed8; border-color:white; }
+    .btn-primary:hover:not(:disabled){ background:#eef2ff; color:#1d4ed8; }
+    .btn:disabled{ opacity:.45; cursor:not-allowed; transform:none; }
+
+    .menuWrap{ position:relative; display:inline-flex; }
+    .dropMenu{ position:absolute; top:calc(100% + 8px); right:0; min-width:250px; background:#fff; color:var(--ink);
+      border:1px solid rgba(226,232,240,.95); border-radius:14px; box-shadow:0 18px 45px rgba(15,23,42,.22);
+      padding:7px; display:none; z-index:120; text-align:left; }
+    .dropMenu.open{ display:grid; gap:4px; }
+    .toolLink{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 12px; border-radius:10px;
+      color:var(--ink); text-decoration:none; font-weight:900; font-size:.9rem; }
+    .toolLink::after{ content:'\203A'; color:var(--blue); font-weight:1000; font-size:1.1rem; line-height:1; }
+    .toolLink:hover,.toolLink:focus-visible{ background:#eef2ff; color:#1d4ed8; outline:none; }
+    .toolLink small{ display:block; font-weight:650; font-size:.74rem; color:var(--muted); }
+    .toolLink.is-disabled{ color:var(--line-soft); cursor:not-allowed; }
+    .toolLink.is-disabled::after{ content:'\2022'; color:var(--line-soft); font-size:.9rem; }
+    .toolLink.is-disabled:hover{ background:transparent; color:var(--line-soft); }
+    .toolLink.is-disabled small{ color:var(--line-soft); }
+
+    .settingsMenu.open{ gap:11px; padding:15px 18px; min-width:340px; max-height:min(78vh,680px); overflow:auto; }
+    .settingsHead{ font-size:.68rem; letter-spacing:.14em; text-transform:uppercase; font-weight:950; color:var(--muted); }
+    .settingsNote{ margin:0; font-size:.76rem; font-weight:650; color:var(--muted); line-height:1.4; }
+    .settingsRule{ height:1px; background:var(--border); margin:1px 0; }
+    .selRow{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .selRow > span{ font-weight:900; font-size:.92rem; color:var(--ink); white-space:nowrap; }
+    .selRow select{
+      appearance:none; border:1.5px solid var(--border);
+      padding:8px 30px 8px 11px; border-radius:11px; font-weight:850; font-size:.88rem; color:var(--line);
+      background:#fff url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' fill='none' stroke='%232563eb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/></svg>") no-repeat right 10px center;
+      background-size:11px; cursor:pointer; min-width:190px;
+    }
+    .selRow select:focus-visible{ outline:none; border-color:var(--blue); box-shadow:0 0 0 4px rgba(37,99,235,.16); }
+    .sw{ display:inline-flex; align-items:center; gap:11px; cursor:pointer; user-select:none; font-weight:850; color:var(--line); font-size:.93rem; }
+    .sw input{ position:absolute; opacity:0; width:0; height:0; }
+    .sw .track{ position:relative; width:50px; height:29px; border-radius:999px; background:#cbd5e1; transition:.18s ease; flex:0 0 auto; box-shadow:inset 0 1px 3px rgba(15,23,42,.18); }
+    .sw .track::after{ content:""; position:absolute; top:3px; left:3px; width:23px; height:23px; border-radius:50%; background:#fff; box-shadow:0 2px 6px rgba(15,23,42,.3); transition:.18s ease; }
+    .sw input:checked + .track{ background:var(--green); }
+    .sw input:checked + .track::after{ transform:translateX(21px); }
+    .sw input:focus-visible + .track{ box-shadow:0 0 0 4px rgba(37,99,235,.28); }
+
+    /* ---------- layout ---------- */
+    .layout{
+      flex:1; width:min(1480px,100%); margin:0 auto; padding:18px 22px 22px;
+      display:grid; grid-template-columns:minmax(0,1fr) clamp(250px,21vw,310px); gap:clamp(12px,1.5vw,18px);
+      align-items:start; min-width:0;
+    }
+    .stage{ display:flex; flex-direction:column; gap:12px; min-width:0; }
+    .side{ display:flex; flex-direction:column; gap:14px; position:sticky; top:16px; min-width:0; }
+    .card{ background:var(--card); border:1px solid var(--border); border-radius:20px; box-shadow:var(--shadow); padding:14px 16px; }
+
+    /* ---------- the expression ---------- */
+    .eqCard{
+      position:relative; background:var(--card); border:1px solid var(--border); border-radius:20px;
+      box-shadow:var(--shadow); padding:12px var(--eqPad,18px); min-height:84px;
+      display:flex; align-items:center; justify-content:center;
+    }
+    .eqCard.isAlt{ border-color:rgba(234,88,12,.45); box-shadow:0 0 0 4px rgba(234,88,12,.10), var(--shadow); }
+    .eqLeft{ position:absolute; left:16px; top:50%; transform:translateY(-50%); display:flex; align-items:center; gap:8px; }
+    .eqActions{ position:absolute; right:16px; top:50%; transform:translateY(-50%); display:flex; align-items:center; gap:8px; }
+    .setTag{
+      font-size:.7rem; letter-spacing:.06em; font-weight:950; text-transform:uppercase; color:var(--muted);
+      background:#f1f5f9; border:1px solid var(--border); padding:6px 10px; border-radius:999px; white-space:nowrap;
+    }
+    .setTag.alt{ color:#9a3412; background:rgba(234,88,12,.10); border-color:rgba(234,88,12,.32); }
+    .lessonNav{ display:inline-flex; gap:4px; }
+    .lessonNav button{
+      appearance:none; border:1.5px solid var(--border); background:#fff; color:var(--line); width:34px; height:34px;
+      border-radius:10px; font-weight:950; cursor:pointer; line-height:1; transition:.15s ease;
+    }
+    .lessonNav button:hover:not(:disabled){ border-color:var(--blue); color:var(--blue-dark); background:#eef2ff; }
+    .lessonNav button:disabled{ opacity:.35; cursor:not-allowed; }
+    .expr{
+      font-family:var(--mathFont); font-size:clamp(1.9rem,4vw,3.1rem); font-weight:600;
+      line-height:1.1; display:flex; align-items:baseline; flex-wrap:nowrap; white-space:nowrap; gap:0;
+    }
+    .expr .tk{ padding:0 .07em; }
+    .expr .tk.op{ padding:0 .2em; color:var(--line); }
+    .expr .tk.br{ color:inherit; }
+    .expr .term{ color:var(--h); display:inline-flex; align-items:baseline; }
+    .expr .term .tk.op{ color:var(--h); }
+    .expr .hot{
+      display:inline-flex; align-items:baseline; border-radius:.18em; padding:0 .04em;
+      background:rgba(37,99,235,.09); box-shadow:inset 0 -.09em 0 var(--blue);
+      animation:hotIn .45s ease;
+    }
+    @keyframes hotIn{ 0%{ background:rgba(37,99,235,.28);} 100%{ background:rgba(37,99,235,.09);} }
+    .expr .orig{ color:var(--line-soft); }
+    .expr .eqs{ color:var(--line); padding:0 .25em; }
+    .expr .ans{ color:var(--green-dark); animation:popIn .5s cubic-bezier(.34,1.5,.5,1); }
+    .expr .ph{ font-family:var(--uiFont); font-size:clamp(1.05rem,1.8vw,1.35rem); font-weight:850; color:var(--line-soft); letter-spacing:-.01em; }
+    .expr.changed{ animation:exprSwap .45s ease; }
+    @keyframes exprSwap{ 0%{ opacity:.25; transform:translateY(6px);} 100%{ opacity:1; transform:none;} }
+    @keyframes popIn{ 0%{ transform:scale(.4); opacity:0;} 60%{ transform:scale(1.16);} 100%{ transform:scale(1); opacity:1;} }
+    .outcomeTag{
+      font-size:.66rem; letter-spacing:.1em; font-weight:950; text-transform:uppercase;
+      color:var(--purple-dark); background:rgba(124,58,237,.11); border:1px solid rgba(124,58,237,.24);
+      padding:5px 9px; border-radius:999px; white-space:nowrap;
+    }
+    .genBtn{
+      appearance:none; border:1.5px solid var(--border); background:#fff; color:var(--line);
+      padding:8px 12px; border-radius:12px; font-weight:900; font-size:.86rem; cursor:pointer;
+      display:inline-flex; align-items:center; gap:7px; transition:.18s ease; white-space:nowrap;
+    }
+    .genBtn:hover:not(:disabled){ border-color:var(--blue); color:var(--blue-dark); background:#eef2ff; transform:translateY(-1px); }
+    .typeInput{
+      font-family:var(--mathFont); font-size:clamp(1.6rem,3.2vw,2.5rem); font-weight:600; text-align:center;
+      width:min(560px,60%); border:none; border-bottom:3px solid var(--blue); background:rgba(37,99,235,.05);
+      border-radius:10px 10px 0 0; padding:4px 10px; color:var(--ink);
+    }
+    .typeInput:focus{ outline:none; background:rgba(37,99,235,.09); }
+    .typeInput.is-bad{ border-bottom-color:var(--red); animation:shake .34s; }
+    @keyframes shake{ 0%,100%{transform:translateX(0);} 20%{transform:translateX(-7px);} 40%{transform:translateX(7px);} 60%{transform:translateX(-4px);} 80%{transform:translateX(4px);} }
+
+    /* ---------- in words ---------- */
+    .wordsCard{
+      background:var(--card); border:1px solid var(--border); border-radius:18px; box-shadow:var(--shadow);
+      padding:10px 16px; display:flex; align-items:center; gap:14px; min-height:58px;
+    }
+    .wordsLab{ font-size:.66rem; letter-spacing:.14em; text-transform:uppercase; font-weight:950; color:var(--muted); flex:0 0 auto; }
+    .words{ font-size:clamp(1.05rem,1.75vw,1.42rem); font-weight:850; color:var(--line); line-height:1.3; letter-spacing:-.01em; flex:1; text-align:center; }
+    .words .term{ color:var(--h); }
+    .words .hotw{ background:rgba(37,99,235,.09); box-shadow:inset 0 -.12em 0 var(--blue); border-radius:.2em; padding:0 .1em; }
+    .words .ph{ color:var(--line-soft); }
+    .words .is{ color:var(--line); }
+    .words .ans{ color:var(--green-dark); }
+    .words.changed{ animation:exprSwap .45s ease; }
+
+    /* ---------- prompt ---------- */
+    .promptBar{
+      display:flex; align-items:center; gap:12px; padding:10px 16px; border-radius:16px;
+      background:linear-gradient(135deg,rgba(37,99,235,.10),rgba(124,58,237,.08));
+      border:1px solid rgba(37,99,235,.20); font-weight:850; color:var(--line); font-size:1rem; line-height:1.35;
+      min-height:50px;
+    }
+    .promptBar .pIco{ font-size:1.25rem; line-height:1; flex:0 0 auto; }
+    .promptBar.is-done{ background:linear-gradient(135deg,rgba(34,197,94,.14),rgba(37,99,235,.08)); border-color:rgba(21,128,61,.28); color:var(--green-dark); }
+    .promptBar.is-alt{ background:linear-gradient(135deg,rgba(234,88,12,.12),rgba(124,58,237,.07)); border-color:rgba(234,88,12,.30); color:#7c2d12; }
+    .promptBar.is-bad{ background:rgba(220,38,38,.08); border-color:rgba(220,38,38,.3); color:#991b1b; }
+
+    /* ---------- board ---------- */
+    .boardCard{ position:relative; background:var(--card); border:1px solid var(--border); border-radius:22px; box-shadow:var(--shadow); padding:6px; overflow:hidden; }
+    #board{ display:block; width:100%; height:440px; }
+    .fsBtn{
+      position:absolute; right:10px; top:10px; z-index:3; appearance:none; border:1.5px solid var(--border); background:rgba(255,255,255,.92);
+      width:38px; height:38px; border-radius:11px; cursor:pointer; color:var(--line); display:grid; place-items:center; transition:.15s ease;
+    }
+    .fsBtn:hover{ border-color:var(--blue); color:var(--blue-dark); background:#eef2ff; }
+    .fsBtn svg{ width:18px; height:18px; }
+    .fsBtn .shrink{ display:none; }
+    .picHide{
+      position:absolute; inset:6px; display:grid; place-items:center; border-radius:18px; pointer-events:none;
+      background:repeating-linear-gradient(135deg,#f8fafc 0 14px,#f1f5f9 14px 28px);
+    }
+    .picHide div{ text-align:center; color:var(--muted); font-weight:900; font-size:clamp(1.1rem,2.2vw,1.6rem); }
+    .picHide span{ display:block; font-size:2.6rem; margin-bottom:8px; }
+
+    #board .tile{ transition:transform var(--mv,620ms) cubic-bezier(.45,.05,.25,1); }
+    #board.notrans .tile{ transition:none !important; }
+    #board .tin{ transform-box:fill-box; transform-origin:50% 50%; }
+    #board .tile rect{ stroke-width:2.5; transition:fill .2s ease, stroke .2s ease; }
+    #board .tile.pos rect{ fill:var(--posFill); stroke:var(--posStroke); }
+    #board .tile.neg rect{ fill:var(--negFill); stroke:var(--negStroke); }
+    #board .tile .mk{ display:none; stroke-width:3.6; stroke-linecap:round; fill:none; }
+    #board.signs .tile .mk{ display:block; }
+    #board .tile.pos .mk{ stroke:rgba(113,63,18,.75); }
+    #board .tile.neg .mk{ stroke:rgba(255,255,255,.95); }
+    #board .tile.pos .mk .vbar{ display:block; }
+    #board .tile.neg .mk .vbar{ display:none; }
+    #board .tile.enter .tin{ animation:tileIn .44s cubic-bezier(.34,1.5,.5,1) both; }
+    #board .tile.leave .tin{ animation:tileOut .3s ease-in forwards; }
+    #board .tile.flip .tin{ animation:flipX .5s ease-in-out; }
+    #board .tile.pulse .tin{ animation:pulseT .5s ease; }
+    @keyframes tileIn{ 0%{ transform:scale(0); opacity:0;} 100%{ transform:scale(1); opacity:1;} }
+    @keyframes tileOut{ 0%{ transform:scale(1); opacity:1;} 40%{ transform:scale(1.18); opacity:1;} 100%{ transform:scale(0); opacity:0;} }
+    @keyframes flipX{ 0%{ transform:scaleX(1);} 50%{ transform:scaleX(.04);} 100%{ transform:scaleX(1);} }
+    @keyframes pulseT{ 0%,100%{ transform:scale(1);} 50%{ transform:scale(1.12);} }
+
+    #gStatic{ transition:opacity .22s ease; }
+    #gStatic.dim{ opacity:0; }
+    #board .fr{ fill:none; }
+    #board .flab{ font-family:var(--uiFont); font-size:20px; font-weight:850; paint-order:stroke; stroke:#fff; stroke-width:5px; stroke-linejoin:round; }
+    #board .partLab{ font-family:var(--uiFont); font-size:19px; font-weight:900; fill:var(--green-dark); paint-order:stroke; stroke:#fff; stroke-width:5px; }
+    #board .zeroLab{ font-family:var(--uiFont); font-size:17px; font-weight:900; fill:var(--line-soft); }
+    #board .ghostLab{ font-family:var(--mathFont); font-size:40px; font-weight:700; fill:#94a3b8; }
+    #board .hotglow{ fill:rgba(37,99,235,.05); stroke:var(--blue); stroke-width:4; animation:glow 1.6s ease-in-out infinite; }
+    @keyframes glow{ 0%,100%{ stroke-opacity:1;} 50%{ stroke-opacity:.35;} }
+    #board .nolabels .flab, #board .nolabels .partLab{ display:none; }
+
+    /* ---------- controls ---------- */
+    .ctrlCard{
+      background:var(--card); border:1px solid var(--border); border-radius:20px; box-shadow:var(--shadow);
+      padding:10px 14px; display:flex; flex-wrap:wrap; align-items:center; gap:10px;
+    }
+    .stepBtn{
+      appearance:none; border:1.5px solid var(--border); background:#fff; color:var(--line);
+      padding:11px 18px; border-radius:15px; font-weight:950; font-size:1rem; cursor:pointer; transition:.16s ease;
+    }
+    .stepBtn:hover:not(:disabled){ border-color:var(--blue); background:#eef2ff; color:var(--blue-dark); transform:translateY(-1px); }
+    .stepBtn:disabled{ opacity:.38; cursor:not-allowed; transform:none; }
+    .nextBtn{
+      appearance:none; border:none; background:linear-gradient(135deg,var(--blue),var(--purple)); color:#fff;
+      padding:12px 30px; border-radius:16px; font-weight:950; font-size:1.08rem; cursor:pointer;
+      box-shadow:0 10px 24px rgba(37,99,235,.30); transition:.18s ease; white-space:nowrap;
+    }
+    .nextBtn:hover:not(:disabled){ transform:translateY(-1px); box-shadow:0 14px 30px rgba(37,99,235,.38); }
+    .nextBtn:disabled{ opacity:.42; cursor:not-allowed; transform:none; box-shadow:none; }
+    .ghostBtn{
+      appearance:none; border:1.5px solid var(--border); background:#fff; color:var(--muted);
+      padding:9px 13px; border-radius:12px; font-weight:900; font-size:.86rem; cursor:pointer; transition:.15s ease; white-space:nowrap;
+    }
+    .ghostBtn:hover:not(:disabled){ border-color:var(--line-soft); color:var(--line); }
+    .ghostBtn:disabled{ opacity:.4; cursor:not-allowed; }
+    .altBtn{ border-color:rgba(234,88,12,.4); color:#9a3412; background:#fff7ed; }
+    .altBtn:hover:not(:disabled){ border-color:#ea580c; color:#7c2d12; background:#ffedd5; }
+    .spacer{ flex:1 1 auto; }
+    .stepDots{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+    .stepDot{ width:11px; height:11px; border-radius:50%; background:#e2e8f0; border:1.5px solid #cbd5e1; }
+    .stepDot.on{ background:var(--blue); border-color:var(--blue-dark); }
+    .stepDot.fin{ background:var(--green); border-color:var(--green-dark); }
+
+    /* ---------- side ---------- */
+    .sideTitle{ font-size:.68rem; letter-spacing:.14em; text-transform:uppercase; font-weight:950; color:var(--muted); }
+    .workRows{ margin-top:10px; display:grid; gap:6px; }
+    .workRow{
+      display:flex; align-items:baseline; justify-content:center; gap:.3em; flex-wrap:wrap;
+      font-family:var(--mathFont); font-size:1.24rem; font-weight:600; color:var(--line);
+      padding:5px 8px; border-radius:11px; background:#f8fafc; border:1px solid var(--border);
+      animation:popIn .4s cubic-bezier(.34,1.5,.5,1);
+    }
+    .workRow .eq{ color:var(--line-soft); }
+    .workRow.is-last{ color:var(--green-dark); border-color:rgba(21,128,61,.3); background:#f0fdf4; }
+    .workEmpty{ margin-top:9px; font-size:.84rem; font-weight:750; color:var(--line-soft); line-height:1.45; }
+    .keyRows{ margin-top:10px; display:grid; gap:7px; }
+    .keyRow{ display:grid; grid-template-columns:2.3em 1fr; align-items:center; gap:10px; }
+    .keySym{
+      font-family:var(--mathFont); font-size:1.45rem; font-weight:700; color:var(--blue-dark); text-align:center;
+      background:#eef2ff; border-radius:10px; line-height:1.5;
+    }
+    .keyWord{ font-weight:900; color:var(--ink); font-size:.95rem; line-height:1.25; }
+    .keyWord small{ display:block; font-weight:700; color:var(--muted); font-size:.76rem; }
+    .keyNote{ margin:10px 0 0; font-size:.78rem; font-weight:750; color:var(--muted); line-height:1.45; }
+    .tileKey{ margin-top:10px; padding-top:10px; border-top:1px solid var(--border); display:grid; gap:7px; }
+    .tkRow{ display:flex; align-items:center; gap:9px; font-weight:850; font-size:.88rem; color:var(--line); }
+    .tkSq{ width:20px; height:20px; border-radius:5px; border:2px solid; display:inline-grid; place-items:center; font-weight:1000; font-size:.8rem; line-height:1; }
+    .tkSq.pos{ background:var(--posFill); border-color:var(--posStroke); color:#713f12; }
+    .tkSq.neg{ background:var(--negFill); border-color:var(--negStroke); color:#fff; }
+
+    /* ---------- full screen ---------- */
+    body.isMax .mmtTopbar{ display:none; }
+    body.isMax .layout{ width:100%; padding:10px 14px 10px; }
+    body.isMax .fsBtn .grow{ display:none; }
+    body.isMax .fsBtn .shrink{ display:block; }
+
+    /* ---------- responsive ---------- */
+    @media (max-width:1180px){
+      .mmtTopbar{ grid-template-columns:auto minmax(0,1fr) auto; padding:12px 16px; gap:12px; }
+      .mmtBrandText{ display:none; }
+      .btn{ padding:10px 13px; font-size:14px; }
+      .layout{ padding:14px 14px 20px; }
+      .genBtn .genLabel{ display:none; }
+    }
+    @media (max-width:1000px){
+      .layout{ grid-template-columns:minmax(0,1fr); }
+      .side{ position:static; display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); }
+    }
+    @media (max-width:900px){
+      .mmtTopbar{ grid-template-columns:1fr; justify-items:center; padding:12px 14px; }
+      .mmtBrand{ margin-left:0; } .topActions{ justify-self:center; justify-content:center; }
+      .dropMenu{ right:auto; left:50%; transform:translateX(-50%); }
+      .eqCard{ flex-direction:column; gap:10px; padding:12px; }
+      .eqLeft,.eqActions{ position:static; transform:none; }
+      .expr{ flex-wrap:wrap; justify-content:center; white-space:normal; }
+      .wordsCard{ flex-direction:column; gap:4px; }
+    }
+    @media (max-height:820px){
+      .eqCard{ min-height:70px; padding-top:8px; padding-bottom:8px; }
+      .expr{ font-size:clamp(1.7rem,3.4vw,2.6rem); }
+      .wordsCard{ min-height:48px; padding:7px 14px; }
+      .promptBar{ min-height:42px; padding:7px 14px; font-size:.95rem; }
+      .stage{ gap:9px; }
+      .layout{ padding-top:12px; padding-bottom:12px; }
+      .ctrlCard{ padding:8px 12px; }
+      .stepBtn{ padding:9px 16px; } .nextBtn{ padding:10px 26px; }
+    }
+    @media (prefers-reduced-motion:reduce){
+      *{ animation-duration:.001ms !important; transition-duration:.001ms !important; }
+    }
+  </style>
+<!-- mmt-pwa -->
+<link rel="manifest" href="../../../../manifest.webmanifest">
+<meta name="theme-color" content="#1f3a5f">
+<link rel="apple-touch-icon" href="../../../../icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="MMT">
+<script src="../../../../pwa.js" defer></script>
+<!-- /mmt-pwa -->
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
+</head>
+<body>
+  <div class="app">
+    <header class="mmtTopbar">
+      <a class="mmtBrand" href="https://www.millsmathstools.au" target="_self" aria-label="Back to Mills Maths Tools">
+        <span class="mmtBrandLogo" aria-hidden="true">MMT</span>
+        <span class="mmtBrandText"><strong>MMT</strong><span>Mills Maths Tools</span></span>
+      </a>
+      <div class="mmtTopTitle">Order of Operations &mdash; Say What You See</div>
+      <div class="topActions">
+        <div class="menuWrap">
+          <button class="btn" id="settingsBtn" type="button" aria-haspopup="true" aria-expanded="false">Settings &#9662;</button>
+          <nav class="dropMenu settingsMenu" id="settingsMenu" aria-label="Settings">
+            <div class="settingsHead">The questions</div>
+            <label class="selRow"><span>Questions</span>
+              <select id="setSel" aria-label="Question set">
+                <option value="lesson" selected>The lesson, in order</option>
+                <option value="s3mul">Stage 3: &times; with + and &minus;</option>
+                <option value="s3div">Stage 3: &divide; joins in</option>
+                <option value="chains">&times; &divide; together, + &minus; together</option>
+                <option value="ints">Stage 4: integers</option>
+                <option value="mixed">Mixed</option>
+              </select>
+            </label>
+            <p class="settingsNote" id="setNote"></p>
+            <label class="selRow"><span>Start with</span>
+              <select id="startSel" aria-label="Start with">
+                <option value="picture" selected>The picture</option>
+                <option value="symbols">The symbols</option>
+              </select>
+            </label>
+            <p class="settingsNote" id="startNote"></p>
+
+            <div class="settingsRule" role="separator"></div>
+            <div class="settingsHead">Language</div>
+            <label class="selRow"><span>&divide; in words</span>
+              <select id="divSel" aria-label="How division is said">
+                <option value="frac" selected>&ldquo;half of 10&rdquo;</option>
+                <option value="share">&ldquo;one share of 10 split 2 ways&rdquo;</option>
+              </select>
+            </label>
+            <p class="settingsNote">Either way &divide; names ONE amount, just as &ldquo;3 groups of 5&rdquo; does &mdash; so 10 &minus; 4 &divide; 2 reads as 10 take away half of 4.</p>
+
+            <div class="settingsRule" role="separator"></div>
+            <div class="settingsHead">On screen</div>
+            <label class="sw"><input type="checkbox" id="wordsToggle" checked><span class="track"></span><span>In words</span></label>
+            <label class="sw"><input type="checkbox" id="workToggle" checked><span class="track"></span><span>Working</span></label>
+            <label class="sw"><input type="checkbox" id="keyToggle" checked><span class="track"></span><span>Say it in words (the signs)</span></label>
+
+            <div class="settingsRule" role="separator"></div>
+            <div class="settingsHead">Animation</div>
+            <label class="selRow"><span>Speed</span>
+              <select id="speedSel" aria-label="Animation speed">
+                <option value="1.5">Calm</option>
+                <option value="1" selected>Normal</option>
+                <option value="0.6">Quick</option>
+                <option value="0">Straight there</option>
+              </select>
+            </label>
+          </nav>
+        </div>
+        <div class="menuWrap">
+          <button class="btn" id="toolsBtn" type="button" aria-haspopup="true" aria-expanded="false">Tools &#9662;</button>
+          <nav class="dropMenu" id="toolsMenu" aria-label="Related tools">
+            <a class="toolLink" href="/interactive-tools/stage-4/number/integer-combined-signs/">Integer Add/Subtract &mdash; Vectors<small>Combined signs such as 5 &minus; (&minus;3) on a number line</small></a>
+            <a class="toolLink" href="/interactive-tools/stage-3/number/division-grouping-bubbles/">Division by Grouping<small>Sharing into equal groups, a chunk at a time</small></a>
+            <span class="toolLink is-disabled" aria-disabled="true">Worksheet Creator<small>Not built yet</small></span>
+            <span class="toolLink is-disabled" aria-disabled="true">Student Quiz<small>Not built yet</small></span>
+          </nav>
+        </div>
+        <button class="btn btn-primary" id="newBtn" type="button">New question</button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="stage">
+
+        <div class="eqCard" id="eqCard">
+          <div class="eqLeft">
+            <span class="setTag" id="setTag">Lesson &middot; 1 of 11</span>
+          </div>
+          <div class="expr" id="expr" aria-live="polite"></div>
+          <input class="typeInput" id="typeInput" type="text" inputmode="text" autocomplete="off" spellcheck="false"
+                 placeholder="e.g. 10 &minus; 4 &divide; 2" aria-label="Type an expression" hidden>
+          <div class="eqActions">
+            <span class="outcomeTag" id="outcomeTag">MA3-MR-02</span>
+            <span class="lessonNav" id="lessonNav">
+              <button type="button" id="prevQ" title="Previous example" aria-label="Previous example">&lsaquo;</button>
+              <button type="button" id="nextQ" title="Next example" aria-label="Next example">&rsaquo;</button>
+            </span>
+            <button class="genBtn" id="typeBtn" type="button" title="Type your own expression (T)">
+              <span aria-hidden="true">&#9998;</span><span class="genLabel">Type your own</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="wordsCard" id="wordsCard">
+          <span class="wordsLab">In words</span>
+          <div class="words" id="words" aria-live="polite"></div>
+        </div>
+
+        <div class="promptBar" id="promptBar">
+          <span class="pIco" id="promptIco" aria-hidden="true">&#128173;</span>
+          <span id="promptText"></span>
+        </div>
+
+        <div class="boardCard" id="boardCard">
+          <button class="fsBtn" id="fsBtn" type="button" title="Full screen (F)" aria-label="Full screen">
+            <svg class="grow" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 8V3h5M17 8V3h-5M3 12v5h5M17 12v5h-5"/></svg>
+            <svg class="shrink" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M8 3v5H3M12 3v5h5M8 17v-5H3M12 17v-5h5"/></svg>
+          </button>
+          <svg id="board" viewBox="0 0 1000 440" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Tile picture of the expression">
+            <g id="gStatic"><g id="gFrames"></g><g id="gGlow"></g><g id="gLabels"></g></g>
+            <g id="gTiles"></g>
+          </svg>
+          <div class="picHide" id="picHide" hidden><div><span aria-hidden="true">&#128065;</span>Close your eyes. What do you see?</div></div>
+        </div>
+
+        <div class="ctrlCard">
+          <button class="stepBtn" id="backBtn" type="button">&#9664; Back</button>
+          <button class="nextBtn" id="nextBtn" type="button">Next &#9654;</button>
+          <div class="stepDots" id="stepDots" aria-hidden="true"></div>
+          <span class="spacer"></span>
+          <button class="ghostBtn altBtn" id="altBtn" type="button" hidden></button>
+          <button class="ghostBtn" id="resetBtn" type="button">Start again</button>
+        </div>
+      </section>
+
+      <aside class="side">
+        <div class="card" id="keyCard">
+          <div class="sideTitle">Say it in words</div>
+          <div class="keyRows">
+            <div class="keyRow"><span class="keySym">+</span><span class="keyWord">and<small>5 + 3 &rarr; 5 and 3</small></span></div>
+            <div class="keyRow"><span class="keySym">&minus;</span><span class="keyWord">take away<small>9 &minus; 4 &rarr; 9 take away 4</small></span></div>
+            <div class="keyRow"><span class="keySym">&times;</span><span class="keyWord">groups of<small>3 &times; 5 &rarr; 3 groups of 5</small></span></div>
+            <div class="keyRow"><span class="keySym">&divide;</span><span class="keyWord" id="keyDiv">half of, a third of&hellip;<small>10 &divide; 2 &rarr; half of 10</small></span></div>
+            <div class="keyRow"><span class="keySym">( )</span><span class="keyWord">one amount<small>(6 + 2) is one thing to work with</small></span></div>
+          </div>
+          <p class="keyNote">&ldquo;3 groups of 5&rdquo; and &ldquo;half of 10&rdquo; each name <b>one amount</b>. Find each amount, then put the amounts together.</p>
+          <div class="tileKey" id="tileKey" hidden>
+            <div class="tkRow"><span class="tkSq pos">+</span>one yellow tile is 1</div>
+            <div class="tkRow"><span class="tkSq neg">&minus;</span>one red tile is &minus;1</div>
+            <div class="tkRow"><span class="tkSq pos">+</span><span class="tkSq neg" style="margin-left:-6px">&minus;</span>a yellow and a red make 0</div>
+          </div>
+        </div>
+        <div class="card" id="workCard">
+          <div class="sideTitle">Working</div>
+          <div class="workRows" id="workRows"></div>
+          <div class="workEmpty" id="workEmpty">Each line is written here as the amounts are found.</div>
+        </div>
+      </aside>
+    </main>
+  </div>
+<script id="ooEngine">
+var OO = (function(){
+  "use strict";
+
+  /* =====================================================================
+     ORDER OF OPERATIONS — SAY WHAT YOU SEE (engine, no DOM)
+
+     An expression is a DESCRIPTION OF A PICTURE. "5 + 3 × 5" says
+     "5, and 3 groups of 5". The 3 is never tiles: it counts groups. So
+     "3 × 5" is ONE amount before anything is added to it, and that is the
+     whole reason the multiplication is "done first".
+
+     Division reads the same way, as a fraction of an amount:
+     "10 − 4 ÷ 2" is "10 take away HALF OF 4" — "half of 4" is one amount,
+     exactly as "3 groups of 5" is. "(10 − 4) ÷ 2" is a different sentence:
+     "half of (10 take away 4)".
+
+     Model: the expression is a tree. A node in the AMOUNT role is drawn as
+     tiles; a node in the COUNT role (how many groups / how many equal parts)
+     is never drawn as tiles. Each press of Next reduces exactly one node
+     (post-order, left first — which IS the conventional order), and every
+     tile keeps a stable id so the picture can move rather than redraw.
+     ===================================================================== */
+
+  const T = 40, GP = 10, P = T + GP;          /* tile, gap, pitch (SVG units) */
+  const LABF = 20, LABH = 30;                 /* frame label font + band */
+  const TERMGAP = 56, CELLGAP = 18;
+
+  let SEQ = 0;
+  const nid = () => "n" + (SEQ++);
+  const sgn = v => v > 0 ? 1 : (v < 0 ? -1 : 0);
+  const MINUS = "−";
+  const fmt = v => (v < 0 ? MINUS : "") + Math.abs(v);
+  const clone = o => JSON.parse(JSON.stringify(o));
+
+  function err(m){ const e = new Error(m); e.oo = true; return e; }
+
+  /* ------------------------------------------------------------ parsing */
+  function tokenize(src){
+    const s = String(src)
+      .replace(/[−–—]/g, "-")
+      .replace(/[×xX*·∙]/g, "*")
+      .replace(/[÷:\/]/g, "/")
+      .replace(/[\[{]/g, "(").replace(/[\]}]/g, ")")
+      .replace(/\s+/g, "");
+    if(!s) throw err("Type an expression first.");
+    if(s.length > 60) throw err("That is too long to picture — keep it to a few numbers.");
+    const out = []; let i = 0;
+    while(i < s.length){
+      const c = s[i];
+      if(/\d/.test(c)){
+        let j = i; while(j < s.length && /\d/.test(s[j])) j++;
+        out.push({k:"n", v:parseInt(s.slice(i, j), 10)}); i = j; continue;
+      }
+      if("+-*/()".includes(c)){ out.push({k:c}); i++; continue; }
+      if(c === "." || c === ",") throw err("Whole numbers only — a tile cannot be cut into pieces.");
+      if(c === "^") throw err("Powers are not part of this tool — try + − × ÷ and brackets.");
+      if(c === "=") throw err("Leave off the equals sign — just the expression.");
+      throw err("“" + c + "” is not something the tiles can show.");
+    }
+    return out;
+  }
+
+  function parse(src){
+    const toks = tokenize(src); let p = 0;
+    const peek = () => toks[p], eat = () => toks[p++];
+    function expr(){
+      let n = term();
+      while(peek() && (peek().k === "+" || peek().k === "-")){
+        const op = eat().k; n = {t:"op", op, a:n, b:term(), id:nid()};
+      }
+      return n;
+    }
+    function term(){
+      let n = factor();
+      while(peek() && (peek().k === "*" || peek().k === "/")){
+        const op = eat().k; n = {t:"op", op, a:n, b:factor(), id:nid()};
+      }
+      return n;
+    }
+    function factor(){
+      const t = peek();
+      if(!t) throw err("The expression stops too soon — something is missing at the end.");
+      if(t.k === "-"){
+        eat(); const u = peek();
+        if(u && u.k === "n"){ eat(); noJuxta(); return {t:"num", v:-u.v, id:nid()}; }
+        throw err("Put a negative sign straight in front of a number, like −3.");
+      }
+      if(t.k === "n"){ eat(); noJuxta(); return {t:"num", v:t.v, id:nid()}; }
+      if(t.k === "("){
+        eat();
+        if(peek() && peek().k === ")") throw err("There is an empty bracket.");
+        const e = expr();
+        if(!peek() || peek().k !== ")") throw err("A bracket is opened but never closed.");
+        eat(); noJuxta();
+        return {t:"grp", e, id:nid()};
+      }
+      if(t.k === ")") throw err("A bracket is closed but never opened.");
+      throw err("Two signs in a row — put a number between them.");
+    }
+    function noJuxta(){
+      const n = peek();
+      if(n && (n.k === "(" || n.k === "n")) throw err("Write the × sign: 3 × (6 + 2), not 3(6 + 2).");
+    }
+    const root = expr();
+    if(p < toks.length) throw err(toks[p].k === ")" ? "A bracket is closed but never opened." : "Something is left over at the end.");
+    return prepare(root);
+  }
+
+  function isVal(n){ return n.t === "num" || (n.t === "pile" && !n.mix); }
+
+  /* A bracket around a single value — (−3), (5) — is notation, not a
+     grouping, so it goes at once. */
+  function normalize(n){
+    if(n.t === "grp"){
+      n.e = normalize(n.e);
+      if(isVal(n.e)){ const c = n.e; if(n.hue != null && c.hue == null) c.hue = n.hue; return c; }
+      return n;
+    }
+    if(n.t === "op"){ n.a = normalize(n.a); n.b = normalize(n.b); }
+    return n;
+  }
+
+  /* Which side of × counts the groups. A plain number does, the left one
+     if both are: "3 × 5" is 3 groups of 5, but "(5 + 3) × 5" is 5 groups of
+     (5 and 3) and "a fifth of 20 × 2" is 2 groups of it. Fixed once, at
+     parse, so it never changes part way through. ÷ always counts parts with
+     its right side. */
+  function assignRoles(n){
+    if(n.t === "op"){
+      if(n.op === "*") n.cnt = n.a.t === "num" ? "a" : (n.b.t === "num" ? "b" : "a");
+      if(n.op === "/") n.cnt = "b";
+      assignRoles(n.a); assignRoles(n.b);
+    } else if(n.t === "grp") assignRoles(n.e);
+  }
+  function topTerms(n){
+    return (n.t === "op" && (n.op === "+" || n.op === "-")) ? topTerms(n.a).concat([n.b]) : [n];
+  }
+  function prepare(root){
+    root = normalize(root);
+    assignRoles(root);
+    topTerms(root).forEach((t, i) => { t.hue = i % 5; });
+    return root;
+  }
+
+  /* ------------------------------------------------------------ values */
+  function val(n){
+    switch(n.t){
+      case "num": return n.v;
+      case "pile": return n.tiles.reduce((s, t) => s + t.s, 0);
+      case "grp": return val(n.e);
+      case "op": {
+        const a = val(n.a), b = val(n.b);
+        if(n.op === "+") return a + b;
+        if(n.op === "-") return a - b;
+        if(n.op === "*") return a * b;
+        if(b === 0) throw err("Dividing by zero cannot be drawn — there are no parts to split into.");
+        if(a % b !== 0) throw err(fmt(a) + " ÷ " + fmt(b) + " does not split into equal parts of whole tiles. Try numbers that divide exactly.");
+        return a / b;
+      }
+    }
+    return 0;
+  }
+  function tilesOf(n){
+    if(n.t === "pile") return n.tiles;
+    const v = val(n), s = sgn(v), out = [];
+    for(let i = 0; i < Math.abs(v); i++) out.push({id:n.id + "." + i, s});
+    return out;
+  }
+  const countSide = n => n.cnt === "a" ? n.a : n.b;
+  const amtSide = n => n.cnt === "a" ? n.b : n.a;
+
+  /* Pairs are always formed the same way, so the picture that lines them
+     up and the step that cancels them agree: the extra tiles of the larger
+     colour are the FIRST ones, the paired ones are the rest. */
+  function pairSplit(tiles){
+    const pos = tiles.filter(t => t.s > 0), neg = tiles.filter(t => t.s < 0);
+    const p = Math.min(pos.length, neg.length);
+    const maj = pos.length >= neg.length ? pos : neg, mino = maj === pos ? neg : pos;
+    const extras = maj.slice(0, maj.length - p), pm = maj.slice(maj.length - p);
+    return {extras, pairs: pm.map((t, i) => [t, mino[i]]), p};
+  }
+
+  function firstHue(n){
+    if(n.hue != null) return n.hue;
+    if(n.t === "op") { const h = firstHue(n.a); return h != null ? h : firstHue(n.b); }
+    if(n.t === "grp") return firstHue(n.e);
+    return null;
+  }
+
+  /* ------------------------------------------------------------ the next step */
+  function findNext(n, role, ck){
+    if(n.t === "grp") return findNext(n.e, role, ck);
+    if(n.t === "num") return null;
+    if(n.t === "pile") return (n.mix && role === "amt") ? {node:n, role, ck} : null;
+    let ra = role, rb = role, ca = ck, cb = ck;
+    if(role !== "cnt"){
+      if(n.op === "*"){ if(n.cnt === "a"){ ra = "cnt"; ca = "groups"; } else { rb = "cnt"; cb = "groups"; } }
+      if(n.op === "/"){ rb = "cnt"; cb = "parts"; }
+    }
+    return findNext(n.a, ra, ca) || findNext(n.b, rb, cb) || {node:n, role, ck};
+  }
+
+  function kindOf(n, role){
+    if(n.t === "pile") return "cancel";
+    if(role === "cnt") return "count";
+    if(n.op === "*") return "mul";
+    if(n.op === "/") return "div";
+    if(n.op === "+"){
+      const sa = sgn(val(n.a)), sb = sgn(val(n.b));
+      return (sa && sb && sa !== sb) ? "addmix" : "add";
+    }
+    const R = val(n.b); if(R === 0) return "sub";
+    const have = tilesOf(n.a).filter(t => t.s === sgn(R)).length;
+    return have >= Math.abs(R) ? "sub" : "zp";
+  }
+
+  function replace(n, id, rep){
+    if(n.id === id) return rep;
+    if(n.t === "op"){ n.a = replace(n.a, id, rep); n.b = replace(n.b, id, rep); }
+    else if(n.t === "grp") n.e = replace(n.e, id, rep);
+    return n;
+  }
+  function findNode(n, id){
+    if(!n) return null;
+    if(n.id === id) return n;
+    if(n.t === "op") return findNode(n.a, id) || findNode(n.b, id);
+    if(n.t === "grp") return findNode(n.e, id);
+    return null;
+  }
+
+  function groupCols(m, k){
+    if(m >= 2 && m <= 12) return m;
+    return autoCols(m * k);
+  }
+
+  function step(root){
+    const f = findNext(root, "amt", null);
+    if(!f) return null;
+    const n = f.node, kind = kindOf(n, f.role);
+    const d = {kind, id:n.id, ck:f.ck};
+    let rep;
+    switch(kind){
+      case "count":
+        rep = {t:"num", v:val(n), id:n.id};
+        if(n.hue != null) rep.hue = n.hue;
+        d.v = rep.v; break;
+      case "mul": {
+        const X = amtSide(n), k = val(countSide(n)), tx = tilesOf(X), tiles = [];
+        for(let j = 0; j < Math.abs(k); j++) tx.forEach(t => tiles.push({id:n.id + "c" + j + ":" + t.id, s:k < 0 ? -t.s : t.s}));
+        rep = {t:"pile", id:n.id, tiles, cols:groupCols(Math.abs(val(X)), Math.abs(k))};
+        d.k = k; d.x = val(X); d.flip = k < 0; break;
+      }
+      case "div": {
+        const X = n.a, k = val(n.b), tx = tilesOf(X), m = tx.length / Math.abs(k);
+        rep = {t:"pile", id:n.id, tiles:tx.slice(0, m).map(t => ({id:t.id, s:k < 0 ? -t.s : t.s})), cols:(m >= 1 && m <= 10) ? m : null};
+        d.k = k; d.x = val(X); d.flip = k < 0; break;
+      }
+      case "add": case "addmix":
+        rep = {t:"pile", id:n.id, tiles:tilesOf(n.a).concat(tilesOf(n.b)), cols:null};
+        /* joined but not cancelled: still READS as the two amounts */
+        if(kind === "addmix"){ rep.mix = true; rep.ja = val(n.a); rep.jb = val(n.b); }
+        d.a = val(n.a); d.b = val(n.b); break;
+      case "cancel": {
+        const sp = pairSplit(n.tiles);
+        rep = {t:"pile", id:n.id, tiles:sp.extras, cols:null};
+        d.p = sp.p; break;
+      }
+      case "zp": {
+        const R = val(n.b), s = sgn(R), L = tilesOf(n.a);
+        const z = Math.abs(R) - L.filter(t => t.s === s).length, add = [];
+        for(let i = 0; i < z; i++){ add.push({id:n.id + "z" + i + "a", s}); add.push({id:n.id + "z" + i + "b", s:-s}); }
+        const pile = {t:"pile", id:n.a.id, tiles:L.concat(add), zp:true, cols:null};
+        if(n.a.hue != null) pile.hue = n.a.hue;
+        rep = Object.assign({}, n, {a:pile});
+        d.z = z; d.a = val(n.a); d.r = R; d.none = (z === Math.abs(R)); break;
+      }
+      case "sub": {
+        const R = val(n.b), s = sgn(R), need = Math.abs(R), L = tilesOf(n.a), idx = [];
+        for(let i = L.length - 1; i >= 0 && idx.length < need; i--) if(L[i].s === s) idx.push(i);
+        idx.reverse();
+        const Rt = tilesOf(n.b);
+        d.pairs = Rt.map((t, i) => [t.id, L[idx[i]].id]);
+        rep = {t:"pile", id:n.id, tiles:L.filter((t, i) => !idx.includes(i)), cols:null};
+        d.a = val(n.a); d.r = R; break;
+      }
+    }
+    if(kind !== "zp" && kind !== "count"){ const h = (kind === "add" || kind === "addmix" || kind === "sub") ? firstHue(n) : n.hue; if(h != null) rep.hue = h; }
+    const out = normalize(replace(clone(root), n.id, clone(rep)));
+    return {root:out, d};
+  }
+
+  function countTiles(n, role){
+    if(role === "cnt") return 0;
+    if(n.t === "num" || n.t === "pile") return n.t === "num" ? Math.abs(n.v) : n.tiles.length;
+    if(n.t === "grp") return countTiles(n.e, role);
+    if(n.op === "*") return Math.abs(val(countSide(n))) * countTiles(amtSide(n), "amt");
+    if(n.op === "/") return countTiles(n.a, "amt");
+    return countTiles(n.a, "amt") + countTiles(n.b, "amt");
+  }
+  function maxCopies(n){
+    if(n.t === "grp") return maxCopies(n.e);
+    if(n.t !== "op") return 0;
+    const own = n.op === "*" ? Math.abs(val(countSide(n))) : (n.op === "/" ? Math.abs(val(n.b)) : 0);
+    return Math.max(own, maxCopies(n.a), maxCopies(n.b));
+  }
+
+  function build(src, limit){
+    limit = limit || 72;
+    const root = parse(src);
+    const value = val(root);              /* checks every division is exact */
+    const states = [root], steps = [];
+    let cur = root;
+    for(let g = 0; g < 80; g++){
+      const r = step(cur); if(!r) break;
+      steps.push(r.d); states.push(r.root); cur = r.root;
+    }
+    let maxT = 0, maxC = 0;
+    states.forEach(s => { maxT = Math.max(maxT, countTiles(s, "amt")); maxC = Math.max(maxC, maxCopies(s)); });
+    if(maxC > 10) throw err("That needs more than 10 groups or parts — too crowded to picture. Try smaller numbers.");
+    if(maxT > limit) throw err("That picture would need " + maxT + " tiles — too many to see. Try smaller numbers.");
+    return {src:symText(root), root, states, steps, value, maxTiles:maxT};
+  }
+
+  /* ------------------------------------------------------------ symbols */
+  const OPS = {"+":"+", "-":MINUS, "*":"×", "/":"÷"};
+  const HUES = ["#7c3aed", "#ea580c", "#0891b2", "#db2777", "#4f46e5"];
+  const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;");
+
+  function numTxt(v, lead){ return v < 0 && !lead ? "(" + fmt(v) + ")" : fmt(v); }
+
+  function symText(n, lead, o){
+    if(lead === undefined) lead = true;
+    o = o || {};
+    if(n.t === "pile" && n.mix) return numTxt(n.ja, lead) + " + " + numTxt(n.jb, false);
+    if(n.t === "num" || n.t === "pile") return numTxt(val(n), lead);
+    if(n.t === "grp") return o.noGroups ? symText(n.e, lead, o) : "(" + symText(n.e, true, o) + ")";
+    return symText(n.a, lead, o) + " " + OPS[n.op] + " " + symText(n.b, false, o);
+  }
+
+  function symHTML(n, hot, lead){
+    let h;
+    if(n.t === "pile" && n.mix){
+      h = '<span class="tk num">' + esc(numTxt(n.ja, lead)) + '</span><span class="tk op">+</span><span class="tk num">' + esc(numTxt(n.jb, false)) + "</span>";
+    } else if(n.t === "num" || n.t === "pile"){
+      const v = val(n);
+      h = '<span class="tk num">' + esc(numTxt(v, lead)) + "</span>";
+    } else if(n.t === "grp"){
+      h = '<span class="tk br">(</span>' + symHTML(n.e, hot, true) + '<span class="tk br">)</span>';
+    } else {
+      h = symHTML(n.a, hot, lead) + '<span class="tk op">' + OPS[n.op] + "</span>" + symHTML(n.b, hot, false);
+    }
+    if(n.id === hot) h = '<span class="hot">' + h + "</span>";
+    if(n.hue != null) h = '<span class="term" style="--h:' + HUES[n.hue] + '">' + h + "</span>";
+    return h;
+  }
+
+  /* ------------------------------------------------------------ words */
+  const ORD = {2:"half", 3:"a third", 4:"a quarter", 5:"a fifth", 6:"a sixth", 7:"a seventh", 8:"an eighth", 9:"a ninth", 10:"a tenth", 11:"an eleventh", 12:"a twelfth"};
+
+  /* o.div: "frac" → "half of 10"; "share" → "one share of 10 split 2 ways".
+     o.html: wrap terms in colour and the hot node in a highlight. */
+  function words(n, role, o, hot){
+    o = o || {}; role = role || "amt";
+    const W = (m, r) => words(m, r, o, hot);
+    const wrapAmt = (X, s) => X.t === "op" ? "(" + s + ")" : s;
+    let h;
+    const nm = v => (v < 0 && role === "amt") ? "negative " + Math.abs(v) : fmt(v);
+    if(n.t === "pile" && n.mix){
+      h = nm(n.ja) + " and " + nm(n.jb);
+    } else if(n.t === "num" || n.t === "pile"){
+      const v = val(n);
+      h = (v < 0 && role === "amt") ? "negative " + Math.abs(v) : fmt(v);
+    } else if(n.t === "grp"){
+      h = "(" + W(n.e, role) + ")";
+    } else if(n.op === "+" || n.op === "-"){
+      h = W(n.a, role) + (n.op === "+" ? " and " : " take away ") + W(n.b, role);
+    } else if(n.op === "*"){
+      const cs = countSide(n), X = amtSide(n);
+      const xw = wrapAmt(X, W(X, role === "cnt" ? "cnt" : "amt"));
+      if(isVal(cs)){
+        const k = val(cs);
+        h = (k < 0 ? "the opposite of " : "") + Math.abs(k) + (Math.abs(k) === 1 ? " group of " : " groups of ") + xw;
+      } else {
+        h = wrapAmt(cs, W(cs, "cnt")) + " groups of " + xw;
+      }
+    } else {
+      const X = n.a, xw = wrapAmt(X, W(X, role === "cnt" ? "cnt" : "amt"));
+      if(isVal(n.b)){
+        const k = val(n.b), ak = Math.abs(k);
+        let base;
+        if(o.div === "share") base = ak === 1 ? "all of " + xw : "one share of " + xw + " split " + ak + " ways";
+        else base = ak === 1 ? "all of " + xw : (ORD[ak] ? ORD[ak] + " of " + xw : "one of " + ak + " equal parts of " + xw);
+        h = (k < 0 ? "the opposite of " : "") + base;
+      } else {
+        h = "one part of " + xw + " split into " + wrapAmt(n.b, W(n.b, "cnt")) + " equal parts";
+      }
+    }
+    if(o.html){
+      if(n.id === hot) h = '<span class="hotw">' + h + "</span>";
+      if(n.hue != null) h = '<span class="term" style="--h:' + HUES[n.hue] + '">' + h + "</span>";
+    }
+    return h;
+  }
+  const wordsPlain = (n, o) => words(n, "amt", Object.assign({}, o, {html:false}));
+
+  /* ------------------------------------------------------------ cues */
+  function colourName(s){ return s > 0 ? "yellow" : "red"; }
+  function amt(v){ return v < 0 ? "negative " + Math.abs(v) : String(v); }
+
+  function cueFor(state, d, o){
+    const n = findNode(state, d.id);
+    const w = n ? wordsPlain(n, o) : "";
+    const W = w.charAt(0).toUpperCase() + w.slice(1);
+    switch(d.kind){
+      case "count":
+        return d.ck === "parts"
+          ? "First, how many equal parts? " + symText(n) + " counts parts, not tiles."
+          : "First, how many groups? " + symText(n) + " counts groups, not tiles.";
+      case "mul":
+        return d.k < 0
+          ? W + " is one amount. Make " + Math.abs(d.k) + " groups, put them together, then flip every tile."
+          : W + " is one amount. Put the groups together — how many tiles?";
+      case "div":
+        return d.k < 0
+          ? W + " is one amount: one of the " + Math.abs(d.k) + " equal parts, flipped."
+          : W + " is one amount: one of the " + Math.abs(d.k) + " equal parts.";
+      case "add": return "Now put " + amt(d.a) + " and " + amt(d.b) + " together.";
+      case "addmix": return "Put " + amt(d.a) + " and " + amt(d.b) + " together — line each yellow tile up with a red one.";
+      case "cancel": return "A yellow and a red make zero. Take away every zero pair — what is left?";
+      case "zp":
+        return (d.none ? "There are no " : "There are not enough ") + colourName(sgn(d.r)) + " tiles to take away " + amt(d.r) +
+          ". Add " + d.z + " zero pair" + (d.z === 1 ? "" : "s") + " — it is still " + amt(d.a) + ".";
+      case "sub": return "Take " + amt(d.r) + " away from " + amt(d.a) + ".";
+    }
+    return "";
+  }
+
+  /* ------------------------------------------------------------ the other reading */
+  function precOf(op){ return (op === "*" || op === "/") ? 2 : 1; }
+  function flatten(n, out){
+    if(n.t === "op"){ flatten(n.a, out); out.push(n.op); flatten(n.b, out); }
+    else out.push(n);
+    return out;
+  }
+  function hasGrp(n){ return n.t === "grp" || (n.t === "op" && (hasGrp(n.a) || hasGrp(n.b))); }
+
+  /* The reading a shortcut-follower would give it:
+     brackets present          → ignore the brackets
+     + − mixed with × ÷        → strictly left to right
+     one kind of operation     → the end grouped first (the boy with the telescope) */
+  function otherReading(root){
+    let kind = null, txt = null;
+    if(hasGrp(root)){
+      kind = "nobr"; txt = symText(root, true, {noGroups:true});
+    } else {
+      const f = flatten(root, []);
+      const ops = f.filter((x, i) => i % 2 === 1);
+      if(ops.length === 0) return null;
+      const classes = new Set(ops.map(precOf));
+      if(classes.size === 2){
+        kind = "ltr";
+        /* bracket what is written so far whenever it holds a weaker sign
+           than the one about to be used — that is what "left to right" means */
+        let acc = numTxt(val(f[0]), true), low = 3;
+        for(let i = 1; i < f.length; i += 2){
+          const pr = precOf(f[i]);
+          if(low < pr) acc = "(" + acc + ")";
+          acc = acc + " " + OPS[f[i]] + " " + numTxt(val(f[i + 1]), false);
+          low = pr;
+        }
+        txt = acc;
+      } else if(ops.length >= 2){
+        kind = "right";
+        const L = f.length;
+        let head = numTxt(val(f[0]), true);
+        for(let i = 1; i < L - 4; i += 2) head += " " + OPS[f[i]] + " " + numTxt(val(f[i + 1]), false);
+        txt = head + " " + OPS[f[L - 4]] + " (" + numTxt(val(f[L - 3]), true) + " " + OPS[f[L - 2]] + " " + numTxt(val(f[L - 1]), false) + ")";
+      } else return null;
+    }
+    try{
+      const run = build(txt, 100);
+      const same = run.value === val(root);
+      if(same && kind !== "right") return null;
+      return {kind, txt:run.src, run, same};
+    }catch(e){ return null; }
+  }
+
+  /* ------------------------------------------------------------ layout */
+  function box(){ return {w:0, h:0, tiles:[], frames:[], labels:[], nb:[]}; }
+  function put(dst, src, dx, dy){
+    src.tiles.forEach(t => dst.tiles.push(Object.assign({}, t, {x:t.x + dx, y:t.y + dy})));
+    src.frames.forEach(f => dst.frames.push(Object.assign({}, f, {x:f.x + dx, y:f.y + dy})));
+    src.labels.forEach(l => dst.labels.push(Object.assign({}, l, {x:l.x + dx, y:l.y + dy})));
+    src.nb.forEach(b => dst.nb.push(Object.assign({}, b, {x:b.x + dx, y:b.y + dy})));
+  }
+  const textW = (s, f) => s.length * (f || LABF) * 0.53 + 6;
+
+  function autoCols(n){
+    if(n <= 5) return Math.max(n, 1);
+    if(n <= 10) return 5;
+    if(n % 10 === 0 && n >= 40) return 10;
+    if(n % 5 === 0 && n <= 35) return 5;
+    for(const c of [8, 6, 9, 7, 4]) if(n % c === 0 && n / c <= c) return c;
+    return n <= 30 ? 5 : 10;
+  }
+
+  const DICE = {1:[[0,0]], 2:[[0,0],[1,1]], 3:[[0,0],[1,1],[2,2]], 4:[[0,0],[1,0],[0,1],[1,1]],
+                5:[[0,0],[2,0],[1,1],[0,2],[2,2]], 6:[[0,0],[1,0],[0,1],[1,1],[0,2],[1,2]]};
+
+  function pileBox(tiles, o){
+    const b = box(), n = tiles.length, pf = o.prefix || "";
+    const at = (t, x, y) => b.tiles.push({id:pf + t.id, s:t.s, x, y});
+    if(n === 0){
+      b.w = T; b.h = T;
+      b.frames.push({kind:"zero", x:0, y:0, w:T, h:T});
+      b.labels.push({x:T / 2, y:T / 2 + 7, text:"0", cls:"zeroLab", anchor:"middle"});
+      return b;
+    }
+    if(o.pairs && tiles.some(t => t.s > 0) && tiles.some(t => t.s < 0)){
+      const sp = pairSplit(tiles), cols = [];
+      sp.extras.forEach(t => cols.push(t.s > 0 ? {top:t} : {bot:t}));
+      sp.pairs.forEach(([a, c]) => cols.push(a.s > 0 ? {top:a, bot:c} : {top:c, bot:a}));
+      const per = 12, BG = 18;
+      const bands = Math.ceil(cols.length / per);
+      cols.forEach((c, i) => {
+        const x = (i % per) * P, y = Math.floor(i / per) * (2 * P + BG);
+        if(c.top) at(c.top, x, y);
+        if(c.bot) at(c.bot, x, y + P);
+      });
+      b.w = Math.min(cols.length, per) * P - GP;
+      b.h = bands * 2 * P - GP + (bands - 1) * BG;
+      return b;
+    }
+    if(o.dice && DICE[n]){
+      let mx = 0, my = 0;
+      DICE[n].forEach(([cx, cy], i) => { at(tiles[i], cx * P, cy * P); mx = Math.max(mx, cx); my = Math.max(my, cy); });
+      b.w = (mx + 1) * P - GP; b.h = (my + 1) * P - GP;
+      return b;
+    }
+    const c = o.cols || autoCols(n), rows = Math.ceil(n / c);
+    tiles.forEach((t, i) => at(t, (i % c) * P, Math.floor(i / c) * P));
+    b.w = Math.min(n, c) * P - GP; b.h = rows * P - GP;
+    return b;
+  }
+
+  /* Put a box inside a frame, with an optional label band above it. */
+  function wrap(inner, o){
+    const b = box(), pad = o.pad || 0, lh = o.label ? LABH : 0;
+    const padX = o.padX != null ? o.padX : pad;
+    b.w = Math.max(inner.w + 2 * padX, o.label ? textW(o.label) + 8 : 0);
+    b.h = lh + inner.h + 2 * pad;
+    put(b, inner, (b.w - inner.w) / 2, lh + pad);
+    b.frames.push({kind:o.kind, x:0, y:lh, w:b.w, h:b.h - lh, hue:o.hue});
+    if(o.label) b.labels.push({x:2, y:lh - 9, text:o.label, cls:"flab", hue:o.hue, anchor:"start", kind:o.kind});
+    return b;
+  }
+  function row(bs, gap){
+    const b = box();
+    b.h = Math.max(...bs.map(x => x.h));
+    let x = 0;
+    bs.forEach((s, i) => { put(b, s, x, (b.h - s.h) / 2); x += s.w + (i < bs.length - 1 ? gap : 0); });
+    b.w = x; return b;
+  }
+  function stack(bs, gap){
+    const b = box();
+    b.w = Math.max(...bs.map(x => x.w));
+    let y = 0;
+    bs.forEach((s, i) => { put(b, s, 0, y); y += s.h + (i < bs.length - 1 ? gap : 0); });
+    b.h = y; return b;
+  }
+  function grid(cells, gap){
+    const k = cells.length, cw = Math.max(...cells.map(c => c.w)), ch = Math.max(...cells.map(c => c.h));
+    let best = 1, bestScore = 1e9;
+    for(let c = 1; c <= k; c++){
+      const r = Math.ceil(k / c);
+      if(r * c - k >= c) continue;
+      const W = c * cw + (c - 1) * gap, H = r * ch + (r - 1) * gap;
+      const score = Math.abs(Math.log((W / H) / 2.6));
+      if(score < bestScore - 1e-9){ bestScore = score; best = c; }
+    }
+    const b = box(), rows = Math.ceil(k / best);
+    cells.forEach((c, i) => {
+      const r = Math.floor(i / best), col = i % best;
+      put(b, c, col * (cw + gap) + (cw - c.w) / 2, r * (ch + gap) + (ch - c.h) / 2);
+    });
+    b.w = best * cw + (best - 1) * gap; b.h = rows * ch + (rows - 1) * gap;
+    return b;
+  }
+
+  function amountBox(n, pf, hue, o){
+    if(n.hue != null) hue = n.hue;
+    let b;
+    if(n.t === "num"){
+      b = pileBox(tilesOf(n), {dice:Math.abs(n.v) <= 6, prefix:pf});
+      /* a top-level amount gets a box in its own colour, so the colour in
+         the words and the symbols can be found in the picture too */
+      if(n.hue != null) b = wrap(b, {kind:"amount", pad:10, hue});
+    } else if(n.t === "pile"){
+      b = pileBox(n.tiles, {cols:n.cols, prefix:pf, pairs:n.mix || n.zp});
+      if(n.zp) b = wrap(b, {kind:"still", pad:8, label:"still " + amt(val(n)), hue});
+      else if(n.hue != null) b = wrap(b, {kind:"amount", pad:10, hue});
+    } else if(n.t === "grp"){
+      b = wrap(amountBox(n.e, pf, hue, o), {kind:"bracket", padX:30, pad:10, hue});
+    } else if(n.op === "+" || n.op === "-"){
+      const A = amountBox(n.a, pf, hue, o);
+      let B = amountBox(n.b, pf, hue, o);
+      if(n.op === "-") B = wrap(B, {kind:"take", pad:10, label:"take away", hue});
+      b = row([A, B], TERMGAP);
+    } else if(n.op === "*"){
+      const X = amtSide(n), k = val(countSide(n)), ak = Math.abs(k), cells = [];
+      /* "2 groups of (a fifth of 20)": drawing the whole 20 twice says
+         something the sentence does not. While the amount still has a
+         division to do, draw ONE group and hold a place for the others;
+         they pop in once that amount has been found. */
+      const defer = ak > 1 && hasDiv(X);
+      for(let j = 0; j < ak; j++){
+        if(defer && j > 0){
+          const g = box(); g.w = 2 * T + 10; g.h = 2 * T + 10;
+          g.frames.push({kind:"ghost", x:0, y:0, w:g.w, h:g.h, hue});
+          g.labels.push({x:g.w / 2, y:g.h / 2 + 12, text:"?", cls:"ghostLab", anchor:"middle"});
+          cells.push(g);
+        } else cells.push(wrap(amountBox(X, pf + n.id + "c" + j + ":", hue, o), {kind:"cell", pad:9, hue}));
+      }
+      let inner;
+      if(ak === 0){ inner = box(); inner.w = T; inner.h = T; inner.labels.push({x:T / 2, y:T / 2 + 7, text:"none", cls:"zeroLab", anchor:"middle"}); }
+      else inner = defer ? row(cells, CELLGAP) : grid(cells, CELLGAP);
+      b = wrap(inner, {kind:k < 0 ? "opposite" : "groups", pad:12, label:wordsPlain(n, o), hue});
+    } else {
+      const X = n.a, k = isVal(n.b) ? val(n.b) : val(n.b), ak = Math.abs(k);
+      if(isVal(X) && ak > 0){
+        const tx = tilesOf(X), m = tx.length / ak, parts = [];
+        for(let j = 0; j < ak; j++){
+          const pb = pileBox(tx.slice(j * m, (j + 1) * m), {cols:(m >= 1 && m <= 10) ? m : autoCols(m), prefix:pf});
+          parts.push(wrap(pb, {kind:j === 0 ? "onepart" : "part", pad:7, hue}));
+        }
+        const lab = (k < 0 ? "opposite of " : "") + (o.div === "share" ? "one share" : (ORD[ak] || "one part"));
+        const lw = textW(lab, 19), withLab = box();
+        if(ak <= 4){
+          /* a few parts: one under another, the part that IS the amount named beside it */
+          const col = stack(parts, 10);
+          put(withLab, col, 0, 0);
+          withLab.labels.push({x:col.w + 12, y:parts[0].h / 2 + 7, text:lab, cls:"partLab", anchor:"start"});
+          withLab.w = col.w + 12 + lw; withLab.h = col.h;
+        } else {
+          /* many parts: a grid, or ten thin rows shrink every tile on the board */
+          const gr = grid(parts, 10);
+          put(withLab, gr, 0, 0);
+          const t2 = "green part: " + lab;
+          withLab.labels.push({x:0, y:gr.h + 26, text:t2, cls:"partLab", anchor:"start"});
+          withLab.w = Math.max(gr.w, textW(t2, 19)); withLab.h = gr.h + 34;
+        }
+        const isNum = X.t === "num" || X.t === "pile";
+        const head = (isNum ? amt(val(X)) : "it") + " split into " + ak + " equal parts";
+        b = wrap(withLab, {kind:k < 0 ? "opposite" : "split", pad:12, label:head, hue});
+      } else {
+        b = wrap(amountBox(X, pf, hue, o), {kind:"groups", pad:12, label:wordsPlain(n, o), hue});
+      }
+    }
+    b.nb.push({nid:n.id, x:0, y:0, w:b.w, h:b.h});
+    return b;
+  }
+
+  function hasDiv(n){
+    if(n.t === "grp") return hasDiv(n.e);
+    if(n.t !== "op") return false;
+    return n.op === "/" || hasDiv(n.a) || hasDiv(n.b);
+  }
+
+  function layout(root, o){ return amountBox(root, "", null, o || {}); }
+
+  return {
+    parse, build, step, val, words, wordsPlain, symText, symHTML, cueFor, otherReading,
+    layout, findNode, countTiles, tilesOf, pairSplit, autoCols, isVal,
+    HUES, T, P, GP, fmt, err
+  };
+})();
+if(typeof module !== "undefined") module.exports = OO;
+</script>
+<script>
+(function(){
+  "use strict";
+  const $ = id => document.getElementById(id);
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  const NS = "http://www.w3.org/2000/svg";
+  const T = OO.T, P = OO.P, MINUS = "−";
+  const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;");
+  const fmt = OO.fmt;
+  const amt = v => v < 0 ? "negative " + Math.abs(v) : String(v);
+
+  /* The lesson, in the order the slides take it: picture → words → symbols,
+     brackets, take away, ÷ as "half of", the "your turn" four, then the two
+     boy-with-the-telescope cases. 10 − 4 ÷ 2 sits beside 8 + 10 ÷ 2 because
+     it is the division case that reads hardest without the words. */
+  const LESSON = ["5 + 3 × 5", "3 × (6 + 2)", "24 − 2 × 3", "8 + 10 ÷ 2", "10 − 4 ÷ 2",
+                  "6 + 2 × 4", "16 − 9 ÷ 3", "4 × (3 + 2)", "15 − 2 × 3", "20 ÷ 5 × 2", "6 × 4 ÷ 2"];
+
+  const SET_NOTE = {
+    lesson: "The examples from the lesson, in order — ending on the two ‘boy with the telescope’ cases.",
+    s3mul: "Whole numbers. × names groups; + and − join and take away whole amounts.",
+    s3div: "Whole numbers. ÷ names a fraction of an amount: half of, a third of…",
+    chains: "Only × and ÷, or only + and −. The words show which amount is made first.",
+    ints: "Yellow tiles are 1 and red tiles are −1: zero pairs, groups of negatives, the opposite of a group.",
+    mixed: "A mix of everything above."
+  };
+  const SET_TAG = { s3mul:"Stage 3 · × with + −", s3div:"Stage 3 · ÷ joins in", chains:"Together: left to right", ints:"Stage 4 · integers", mixed:"Mixed" };
+
+  /* ---------------------------------------------------------- generation */
+  const R = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+  const X = "×", D = "÷", M = "−";
+  const GEN = {
+    s3mul: [
+      () => `${R(2,9)} + ${R(2,4)} ${X} ${R(2,6)}`,
+      () => `${R(2,4)} ${X} ${R(2,6)} + ${R(2,9)}`,
+      () => { const b = R(2,3), c = R(2,5); return `${b*c + R(3,12)} ${M} ${b} ${X} ${c}`; },
+      () => `${R(2,3)} ${X} (${R(2,5)} + ${R(1,4)})`,
+      () => `(${R(2,5)} + ${R(1,4)}) ${X} ${R(2,3)}`,
+      () => `${R(2,3)} ${X} ${R(2,4)} + ${R(2,3)} ${X} ${R(2,4)}`,
+      () => { const a = R(2,4), b = R(3,6); return `${a} ${X} ${b} ${M} ${R(2, a*b - 2)}`; }
+    ],
+    s3div: [
+      () => { const c = R(2,5), q = R(2,5); return `${R(2,9)} + ${c*q} ${D} ${c}`; },
+      () => { const c = R(2,5), q = R(2,5); return `${q + R(2,9)} ${M} ${c*q} ${D} ${c}`; },
+      () => { const c = R(2,4), q = R(2,5); return `${c*q} ${D} ${c} + ${R(2,9)}`; },
+      () => { const c = R(2,4), q = R(2,5), a = R(1, c*q - 1); return `(${a} + ${c*q - a}) ${D} ${c}`; },
+      () => { const c = R(2,4), q = R(3,6); return `${c*q} ${D} ${c} ${M} ${R(1, q - 1)}`; },
+      () => { const c = R(2,3), q = R(2,4); return `${R(2,3)} ${X} ${R(2,4)} + ${c*q} ${D} ${c}`; }
+    ],
+    chains: [
+      () => { const b = R(2,5), q = R(2,4); return `${b*q} ${D} ${b} ${X} ${R(2,3)}`; },
+      () => { const c = R(2,4); return `${R(2,5)} ${X} ${c * R(1,2)} ${D} ${c}`; },
+      () => `${R(9,15)} ${M} ${R(2,5)} + ${R(2,5)}`,
+      () => `${R(12,18)} ${M} ${R(2,5)} ${M} ${R(2,4)}`,
+      () => { const b = R(2,3), q = R(2,3); return `${b*2*q} ${D} ${b} ${D} 2`; }
+    ],
+    ints: [
+      () => `${R(2,6)} + ${R(2,3)} ${X} (${M}${R(2,4)})`,
+      () => `${R(2,6)} ${M} ${R(2,3)} ${X} (${M}${R(2,3)})`,
+      () => `${M}${R(3,9)} + ${R(2,3)} ${X} ${R(2,4)}`,
+      () => `${M}${R(2,3)} ${X} ${R(2,4)} + ${R(3,12)}`,
+      () => { const c = R(2,3), q = R(2,4); return `${R(1,6)} ${M} (${M}${c*q}) ${D} ${c}`; },
+      () => `${R(2,3)} ${X} (${M}${R(3,6)} + ${R(1,2)})`,
+      () => { const b = R(2,3), c = R(2,4); return `${R(1, b*c - 1)} ${M} ${b} ${X} ${c}`; },
+      () => { const c = R(2,3), q = R(2,4); return `${M}${c*q} ${D} ${c} + ${R(1,8)}`; }
+    ]
+  };
+
+  function hasNeg(n){
+    if(!n) return false;
+    if(n.t === "num") return n.v < 0;
+    if(n.t === "pile") return n.tiles.some(t => t.s < 0);
+    if(n.t === "grp") return hasNeg(n.e);
+    return hasNeg(n.a) || hasNeg(n.b);
+  }
+  const runHasNeg = run => run.states.some(hasNeg);
+
+  function generate(set){
+    const pool = set === "mixed" ? ["s3mul","s3div","chains","ints"][R(0,3)] : set;
+    const fs = GEN[pool];
+    for(let a = 0; a < 80; a++){
+      let run;
+      try{ run = OO.build(fs[R(0, fs.length - 1)](), 56); }catch(e){ continue; }
+      if(run.src === S.lastSrc) continue;
+      const neg = runHasNeg(run);
+      if(pool !== "ints" && neg) continue;
+      if(pool === "ints" && !neg) continue;
+      if(pool !== "ints" && a < 50 && !OO.otherReading(run.root)) continue;
+      return run;
+    }
+    return OO.build(LESSON[0]);
+  }
+
+  /* ---------------------------------------------------------- state */
+  const S = {
+    set:"lesson", start:"picture", div:"frac", words:true, work:true, key:true, speed:1,
+    lessonIdx:0, custom:false,
+    main:null, alt:null, mode:"main", pos:0, mainPos:0,
+    busy:false, token:0, lastSrc:"",
+    tiles:new Map(), lays:[], ext:{w:1,h:1}, vb:{w:1000,h:440}
+  };
+  const STORE = "mmtOrderOps.v1";
+  function load(){
+    try{
+      const o = JSON.parse(localStorage.getItem(STORE) || "{}");
+      ["set","start","div"].forEach(k => { if(typeof o[k] === "string") S[k] = o[k]; });
+      ["words","work","key"].forEach(k => { if(typeof o[k] === "boolean") S[k] = o[k]; });
+      if(typeof o.speed === "number") S.speed = o.speed;
+    }catch(e){}
+  }
+  function save(){
+    try{ localStorage.setItem(STORE, JSON.stringify({set:S.set, start:S.start, div:S.div, words:S.words, work:S.work, key:S.key, speed:S.speed})); }catch(e){}
+  }
+
+  const run = () => S.mode === "alt" ? S.alt.run : S.main;
+  const introN = () => S.mode === "alt" ? 1 : (S.words ? 3 : 2);
+  const nViews = () => introN() + run().steps.length;
+
+  /* Picture first:  picture  → + words → + symbols (ready)
+     Symbols first:  symbols  → + words → + picture (ready)
+     Every display below is derived from the view, so Back is pos-- and a repaint. */
+  function viewAt(pos){
+    const r = run(), last = introN() - 1;
+    const si = Math.max(0, pos - last);
+    const v = {pos, si, pic:true, words:S.words, sym:true, ready:pos >= last};
+    if(!v.ready){
+      if(S.start === "picture") v.sym = false; else v.pic = false;
+      v.words = S.words && pos >= 1;
+    }
+    v.labels = v.ready || v.words;
+    v.hot = v.ready && si < r.steps.length ? r.steps[si].id : null;
+    v.done = v.ready && si === r.steps.length;
+    return v;
+  }
+
+  /* ---------------------------------------------------------- board */
+  const board = $("board"), gT = $("gTiles"), gF = $("gFrames"), gG = $("gGlow"), gL = $("gLabels"), gS = $("gStatic");
+  function el(tag, attrs){
+    const e = document.createElementNS(NS, tag);
+    for(const k in attrs) e.setAttribute(k, attrs[k]);
+    return e;
+  }
+  function rgba(hex, a){
+    const n = parseInt(hex.slice(1), 16);
+    return `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${a})`;
+  }
+  function mkTile(t){
+    const g = el("g", {class:"tile " + (t.s > 0 ? "pos" : "neg")});
+    g.dataset.id = t.id;
+    const inn = el("g", {class:"tin"});
+    inn.appendChild(el("rect", {x:0, y:0, width:T, height:T, rx:8}));
+    const mk = el("g", {class:"mk"});
+    mk.appendChild(el("path", {d:"M12 20H28"}));
+    mk.appendChild(el("path", {class:"vbar", d:"M20 12V28"}));
+    inn.appendChild(mk);
+    g.appendChild(inn);
+    return g;
+  }
+  function setPos(g, x, y){
+    g.dataset.x = x; g.dataset.y = y;
+    g.style.transform = `translate(${x}px,${y}px)`;
+  }
+  function setSign(g, s){ g.classList.toggle("pos", s > 0); g.classList.toggle("neg", s < 0); }
+
+  function prepRun(){
+    const r = run();
+    S.lays = r.states.map(st => OO.layout(st, {div:S.div}));
+    S.ext = {w:Math.max(...S.lays.map(l => l.w)), h:Math.max(...S.lays.map(l => l.h))};
+    board.classList.toggle("signs", runHasNeg(r));
+    clearTiles();
+    computeVB();
+  }
+  function clearTiles(){ S.tiles.forEach(g => g.remove()); S.tiles.clear(); }
+
+  function computeVB(){
+    const r = board.getBoundingClientRect();
+    const bw = Math.max(200, r.width), bh = Math.max(160, r.height), M = 26;
+    const s = Math.min(bw / (S.ext.w + 2 * M), bh / (S.ext.h + 2 * M), 1.3);
+    S.vb = {w:bw / s, h:bh / s};
+    board.setAttribute("viewBox", `0 0 ${S.vb.w.toFixed(1)} ${S.vb.h.toFixed(1)}`);
+  }
+  const offOf = lay => ({x:(S.vb.w - lay.w) / 2, y:(S.vb.h - lay.h) / 2});
+
+  function syncTiles(lay, enter){
+    const off = offOf(lay), want = new Set(lay.tiles.map(t => t.id));
+    for(const [id, g] of S.tiles) if(!want.has(id)){ g.remove(); S.tiles.delete(id); }
+    board.classList.add("notrans");
+    lay.tiles.forEach((t, i) => {
+      let g = S.tiles.get(t.id);
+      if(!g){
+        g = mkTile(t);
+        setPos(g, off.x + t.x, off.y + t.y);
+        if(enter){ g.classList.add("enter"); g.querySelector(".tin").style.animationDelay = Math.min(i * 18, 700) + "ms"; }
+        gT.appendChild(g); S.tiles.set(t.id, g);
+      } else {
+        g.classList.remove("enter", "leave", "flip");
+        setSign(g, t.s);
+        setPos(g, off.x + t.x, off.y + t.y);
+      }
+    });
+    void board.getBoundingClientRect();
+    board.classList.remove("notrans");
+  }
+
+  function drawStatics(lay, v){
+    const off = offOf(lay);
+    gF.textContent = ""; gG.textContent = ""; gL.textContent = "";
+    lay.frames.forEach(f => drawFrame(f, off));
+    lay.labels.forEach(l => {
+      const t = el("text", {x:off.x + l.x, y:off.y + l.y, class:l.cls, "text-anchor":l.anchor || "start"});
+      if(l.cls === "flab"){
+        const hue = l.kind === "take" ? "#dc2626" : (l.kind === "still" ? "#475569" : (l.hue != null ? OO.HUES[l.hue] : "#334155"));
+        t.setAttribute("fill", hue);
+      }
+      t.textContent = l.text;
+      gL.appendChild(t);
+    });
+    if(v.hot){
+      lay.nb.filter(b => b.nid === v.hot).forEach(b => {
+        gG.appendChild(el("rect", {class:"hotglow", x:off.x + b.x - 8, y:off.y + b.y - 8, width:b.w + 16, height:b.h + 16, rx:18}));
+      });
+    }
+    gS.classList.toggle("nolabels", !v.labels);
+    gS.classList.remove("dim");
+  }
+
+  function drawFrame(f, off){
+    const x = off.x + f.x, y = off.y + f.y, w = f.w, h = f.h;
+    const hue = f.hue != null ? OO.HUES[f.hue] : "#475569";
+    const rect = (a) => gF.appendChild(el("rect", Object.assign({x, y, width:w, height:h, class:"fr"}, a)));
+    switch(f.kind){
+      case "groups":   rect({rx:16, stroke:hue, "stroke-width":3, fill:rgba(hue, .03)}); break;
+      case "opposite": rect({rx:16, stroke:hue, "stroke-width":3, "stroke-dasharray":"11 7", fill:rgba(hue, .03)}); break;
+      case "amount":   rect({rx:14, stroke:rgba(hue, .55), "stroke-width":2.5, fill:rgba(hue, .035)}); break;
+      case "cell":     rect({rx:12, stroke:rgba(hue, .38), "stroke-width":2, fill:rgba(hue, .08)}); break;
+      case "split":    rect({rx:16, stroke:hue, "stroke-width":3, fill:rgba(hue, .03)}); break;
+      case "part":     rect({rx:10, stroke:"#94a3b8", "stroke-width":2, "stroke-dasharray":"6 5"}); break;
+      case "onepart":  rect({rx:10, stroke:"#15803d", "stroke-width":3.5, fill:"rgba(34,197,94,.13)"}); break;
+      case "take":     rect({rx:14, stroke:"#dc2626", "stroke-width":2.5, "stroke-dasharray":"9 6", fill:"rgba(220,38,38,.04)"}); break;
+      case "still":    rect({rx:12, stroke:"#64748b", "stroke-width":2, "stroke-dasharray":"4 5"}); break;
+      case "ghost":    rect({rx:12, stroke:rgba(hue, .5), "stroke-width":2.5, "stroke-dasharray":"7 6", fill:rgba(hue, .04)}); break;
+      case "zero":     rect({rx:8, stroke:"#cbd5e1", "stroke-width":2, "stroke-dasharray":"5 4"}); break;
+      case "bracket": {
+        const a = {class:"fr", stroke:hue, "stroke-width":4, "stroke-linecap":"round", fill:"none"};
+        gF.appendChild(el("path", Object.assign({d:`M${x+20} ${y+4} Q${x-4} ${y+h/2} ${x+20} ${y+h-4}`}, a)));
+        gF.appendChild(el("path", Object.assign({d:`M${x+w-20} ${y+4} Q${x+w+4} ${y+h/2} ${x+w-20} ${y+h-4}`}, a)));
+        break;
+      }
+    }
+  }
+
+  /* One reduction, played. Order: anything taken away flies onto what it
+     cancels, then leaves; what stays slides into its new home; anything new
+     pops in; anything whose sign changes flips. The board was already drawn
+     in its START state, and paint() afterwards draws the END state, so an
+     abort at any await just leaves paint() to put everything right. */
+  async function animateStep(from, to, d){
+    const tok = ++S.token; S.busy = true;
+    const alive = () => tok === S.token;
+    const L1 = S.lays[to.si], o1 = offOf(L1), sp = S.speed;
+    const Dm = Math.round(640 * sp), Dl = Math.round(320 * sp), De = Math.round(440 * sp);
+    board.style.setProperty("--mv", Dm + "ms");
+    gS.classList.add("dim");
+    const next = new Map(L1.tiles.map(t => [t.id, t]));
+    const leaving = [...S.tiles.keys()].filter(id => !next.has(id));
+
+    if(d.kind === "sub" && d.pairs && d.pairs.length){
+      let flew = false;
+      d.pairs.forEach(([rid, mid]) => {
+        for(const [id, g] of S.tiles){
+          if(id === rid || id.endsWith(":" + rid)){
+            const pg = S.tiles.get(id.slice(0, id.length - rid.length) + mid);
+            if(pg){ setPos(g, +pg.dataset.x + 7, +pg.dataset.y - 7); gT.appendChild(g); flew = true; }
+          }
+        }
+      });
+      if(flew){ await sleep(Dm + 60); if(!alive()) return; }
+    }
+    if(d.kind === "cancel" && leaving.length){
+      const lv = leaving.map(id => S.tiles.get(id));
+      lv.filter(g => g.classList.contains("neg")).forEach(n => {
+        const x = +n.dataset.x, y = +n.dataset.y;
+        const p = lv.find(g => g.classList.contains("pos") && Math.abs(+g.dataset.x - x) < 1 && Math.abs(+g.dataset.y - (y - P)) < 1);
+        if(p){ setPos(p, x, y - P / 2 - 5); setPos(n, x, y - P / 2 + 5); }
+      });
+      await sleep(Math.round(Dm * .8)); if(!alive()) return;
+    }
+    if(leaving.length){
+      leaving.forEach(id => {
+        const g = S.tiles.get(id); S.tiles.delete(id);
+        g.classList.add("leave"); setTimeout(() => g.remove(), Dl + 80);
+      });
+      await sleep(Dl + 40); if(!alive()) return;
+    }
+    let moved = false;
+    next.forEach((t, id) => {
+      const g = S.tiles.get(id); if(!g) return;
+      const x = o1.x + t.x, y = o1.y + t.y;
+      if(Math.abs(+g.dataset.x - x) > .5 || Math.abs(+g.dataset.y - y) > .5){ setPos(g, x, y); moved = true; }
+    });
+    if(moved){ await sleep(Dm + 30); if(!alive()) return; }
+    const entering = L1.tiles.filter(t => !S.tiles.has(t.id));
+    if(entering.length){
+      entering.forEach((t, i) => {
+        const g = mkTile(t); setPos(g, o1.x + t.x, o1.y + t.y);
+        g.classList.add("enter"); g.querySelector(".tin").style.animationDelay = Math.round(Math.min(i * 45, 700) * sp) + "ms";
+        gT.appendChild(g); S.tiles.set(t.id, g);
+      });
+      await sleep(De + Math.round(Math.min(entering.length * 45, 700) * sp)); if(!alive()) return;
+    }
+    const flips = L1.tiles.filter(t => { const g = S.tiles.get(t.id); return g && (t.s > 0) !== g.classList.contains("pos"); });
+    if(flips.length){
+      flips.forEach(t => {
+        const g = S.tiles.get(t.id);
+        g.classList.add("flip");
+        setTimeout(() => setSign(g, t.s), Math.round(250 * sp));
+      });
+      await sleep(Math.round(560 * sp)); if(!alive()) return;
+      flips.forEach(t => { const g = S.tiles.get(t.id); if(g) g.classList.remove("flip"); });
+    }
+    S.busy = false;
+  }
+
+  /* ---------------------------------------------------------- text */
+  function flashEl(e){ e.classList.remove("changed"); void e.offsetWidth; e.classList.add("changed"); }
+
+  function altIntro(){
+    const a = S.alt, w = OO.wordsPlain(a.run.root, {div:S.div});
+    if(a.kind === "ltr") return `Strictly left to right, it would be ${a.txt} — “${w}”. A different sentence, a different picture.`;
+    if(a.kind === "nobr") return `Without the brackets, it would be ${a.txt} — “${w}”. A different sentence, a different picture.`;
+    return `Grouping the end first: ${a.txt} — “${w}”. One line of symbols, two pictures — the boy with the telescope.`;
+  }
+  function togetherWord(){
+    const s = S.main.src;
+    return /[×÷]/.test(s) && !/[+−]/.test(s.replace(/\(−/g, "(")) ? "× and ÷" : "+ and −";
+  }
+  function cueOf(v){
+    const r = run();
+    if(S.mode === "alt" && v.pos === 0) return {t:altIntro(), cls:"is-alt", ico:"🔭"};
+    if(!v.ready){
+      if(S.start === "picture") return v.pos === 0 ? {t:"How would you describe what you see?", ico:"👀"}
+                                                   : {t:"Here it is in words. Each colour is one amount.", ico:"💬"};
+      return v.pos === 0 ? {t:"Close your eyes. Describe what you see when you read this.", ico:"🙈"}
+                         : {t:"In words — each colour is one amount. Now picture it.", ico:"💬"};
+    }
+    if(v.done){
+      if(S.mode === "alt"){
+        const a = S.alt;
+        if(a.same) return {t:`Both readings give ${fmt(a.run.value)} this time — but they are different pictures. When ${togetherWord()} sit together, the sentence is read left to right.`, cls:"is-alt", ico:"🔭"};
+        const why = a.kind === "right" ? `When ${togetherWord()} sit together, the sentence is read left to right.`
+                  : a.kind === "nobr" ? "The brackets made one amount; without them the sentence says something else."
+                  : "Read in words, it never meant this.";
+        return {t:`This reading makes ${fmt(a.run.value)}, but ${S.main.src} is ${fmt(S.main.value)}. ${why}`, cls:"is-alt", ico:"🔭"};
+      }
+      return {t:`One amount is left: ${fmt(r.value)}.` + (S.alt ? " What if someone read it another way?" : ""), cls:"is-done", ico:"✅"};
+    }
+    const d = r.steps[v.si];
+    let t = OO.cueFor(r.states[v.si], d, {div:S.div});
+    return {t, ico:"👉"};
+  }
+
+  function paint(v, o){
+    o = o || {};
+    const r = run(), st = r.states[v.si];
+    // ---- symbols
+    const ex = $("expr");
+    let eh;
+    if(!v.sym) eh = `<span class="ph">${S.start === "picture" ? "What would you write?" : ""}</span>`;
+    else if(v.done) eh = `<span class="orig">${esc(r.src)}</span><span class="eqs">=</span><span class="ans">${esc(fmt(r.value))}</span>`;
+    else eh = OO.symHTML(st, v.hot, true);
+    if(ex.innerHTML !== eh){ ex.innerHTML = eh; if(o.flash) flashEl(ex); }
+    // ---- words
+    $("wordsCard").hidden = !S.words;
+    const wd = $("words");
+    let wh;
+    if(!v.words) wh = `<span class="ph">How would you say it?</span>`;
+    else if(v.done) wh = OO.words(r.root, "amt", {div:S.div, html:true}) + ` <span class="is">is</span> <span class="ans">${esc(amt(r.value))}</span>`;
+    else wh = OO.words(st, "amt", {div:S.div, html:true}, v.hot);
+    if(wd.innerHTML !== wh){ wd.innerHTML = wh; if(o.flash) flashEl(wd); }
+    // ---- prompt
+    const c = cueOf(v), pb = $("promptBar");
+    pb.className = "promptBar" + (c.cls ? " " + c.cls : "");
+    $("promptIco").textContent = c.ico;
+    $("promptText").textContent = c.t;
+    // ---- board: the text above it can wrap to a second line, so re-fit first
+    $("keyCard").hidden = !S.key; $("workCard").hidden = !S.work;
+    const hb = board.style.height; fitBoard();
+    if(board.style.height !== hb) computeVB();
+    $("picHide").hidden = v.pic;
+    if(!v.pic){
+      clearTiles(); gF.textContent = ""; gG.textContent = ""; gL.textContent = "";
+    } else {
+      const lay = S.lays[v.si];
+      if(!o.keepTiles) syncTiles(lay, !!o.enter);
+      drawStatics(lay, v);
+    }
+    // ---- working
+    $("workCard").hidden = !S.work;
+    const rows = $("workRows"); rows.textContent = "";
+    if(v.sym && v.ready){
+      const lines = [];
+      for(let i = 0; i <= v.si; i++){ const t = OO.symText(r.states[i]); if(lines[lines.length - 1] !== t) lines.push(t); }
+      lines.forEach((t, i) => {
+        const d = document.createElement("div");
+        d.className = "workRow" + (v.done && i === lines.length - 1 && i > 0 ? " is-last" : "");
+        d.innerHTML = (i ? '<span class="eq">=</span>' : "") + `<span>${esc(t)}</span>`;
+        rows.appendChild(d);
+      });
+    }
+    $("workEmpty").hidden = rows.childElementCount > 0;
+    // ---- chrome
+    const N = nViews();
+    const dots = $("stepDots"); dots.textContent = "";
+    for(let i = 0; i < N; i++){
+      const s = document.createElement("span");
+      s.className = "stepDot" + (i <= v.pos ? " on" : "") + (v.done && i === N - 1 ? " fin" : "");
+      dots.appendChild(s);
+    }
+    $("backBtn").disabled = v.pos === 0;
+    $("nextBtn").disabled = v.pos >= N - 1;
+    $("resetBtn").disabled = v.pos === 0;
+    const ab = $("altBtn");
+    ab.hidden = !S.alt || (S.mode === "main" && !v.ready);
+    if(S.alt){
+      ab.textContent = S.mode === "alt" ? "◀ Back to " + S.main.src
+        : ({ltr:"Read it left to right?", nobr:"Ignore the brackets?", right:"Group the end first?"})[S.alt.kind];
+    }
+    $("eqCard").classList.toggle("isAlt", S.mode === "alt");
+    const tag = $("setTag");
+    tag.classList.toggle("alt", S.mode === "alt");
+    tag.textContent = S.mode === "alt" ? "Another reading" : (S.custom ? "Your own" : (S.set === "lesson" ? `Lesson · ${S.lessonIdx + 1} of ${LESSON.length}` : SET_TAG[S.set]));
+    $("lessonNav").hidden = S.set !== "lesson" || S.custom || S.mode === "alt";
+    $("prevQ").disabled = S.lessonIdx === 0;
+    $("nextQ").disabled = S.lessonIdx === LESSON.length - 1;
+    $("outcomeTag").textContent = runHasNeg(S.main) ? "MA4-INT-C-01" : "MA3-MR-02";
+    $("tileKey").hidden = !runHasNeg(r);
+    $("keyCard").hidden = !S.key;
+    fitEq();
+  }
+
+  /* The expression is centred in its card whatever the tags on either side
+     are doing: pad BOTH sides by the wider of the two. */
+  function fitEq(){
+    const card = $("eqCard");
+    if(getComputedStyle(card).flexDirection === "column"){ card.style.removeProperty("--eqPad"); return; }
+    const l = document.querySelector(".eqLeft").getBoundingClientRect().width;
+    const r = document.querySelector(".eqActions").getBoundingClientRect().width;
+    card.style.setProperty("--eqPad", (Math.max(l, r) + 28) + "px");
+  }
+
+  /* ---------------------------------------------------------- navigation */
+  function finishNow(){ S.token++; S.busy = false; paint(viewAt(S.pos)); }
+
+  async function next(){
+    if(S.busy){ finishNow(); return; }
+    const N = nViews();
+    if(S.pos >= N - 1) return;
+    const from = viewAt(S.pos);
+    S.pos++;
+    const to = viewAt(S.pos);
+    if(from.si !== to.si){
+      if(S.speed > 0){
+        const tok = S.token + 1;
+        await animateStep(from, to, run().steps[from.si]);
+        if(S.token !== tok) return;
+      }
+      paint(to, {flash:true});
+    } else if(!from.pic && to.pic){
+      paint(to, {enter:S.speed > 0, flash:true});
+    } else {
+      paint(to, {flash:true});
+    }
+  }
+  function back(){
+    if(S.busy){ S.token++; S.busy = false; }
+    if(S.pos === 0) return;
+    S.pos--; paint(viewAt(S.pos));
+  }
+  function restart(){
+    S.token++; S.busy = false; S.pos = 0;
+    clearTiles(); paint(viewAt(0), {enter:S.speed > 0});
+  }
+
+  function useRun(r, opts){
+    opts = opts || {};
+    S.token++; S.busy = false;
+    S.main = r; S.alt = OO.otherReading(r.root);
+    S.mode = "main"; S.pos = opts.atReady ? introN() - 1 : 0; S.lastSrc = r.src;
+    prepRun();
+    paint(viewAt(S.pos), {enter:S.speed > 0});
+  }
+  function loadLesson(i){
+    S.lessonIdx = Math.max(0, Math.min(LESSON.length - 1, i)); S.custom = false;
+    useRun(OO.build(LESSON[S.lessonIdx]));
+  }
+  function newQuestion(){
+    if(S.set === "lesson"){ loadLesson(S.custom ? S.lessonIdx : (S.lessonIdx + 1) % LESSON.length); return; }
+    S.custom = false; useRun(generate(S.set));
+  }
+  function toggleAlt(){
+    if(!S.alt) return;
+    S.token++; S.busy = false;
+    if(S.mode === "main"){ S.mainPos = S.pos; S.mode = "alt"; S.pos = 0; }
+    else { S.mode = "main"; S.pos = S.mainPos; }
+    prepRun();
+    paint(viewAt(S.pos), {enter:S.speed > 0, flash:true});
+  }
+
+  /* ---------------------------------------------------------- type your own */
+  const inp = $("typeInput");
+  function openType(){
+    if(S.mode === "alt") toggleAlt();
+    $("expr").hidden = true; inp.hidden = false;
+    inp.value = S.main ? S.main.src : ""; inp.classList.remove("is-bad");
+    S.typing = true; inp.focus(); inp.select();
+    setPrompt("Type an expression with + − × ÷ and brackets, then press Enter. Use x or * for × and / for ÷.", "", "✏️");
+  }
+  function closeType(){ inp.hidden = true; $("expr").hidden = false; S.typing = false; }
+  function setPrompt(t, cls, ico){
+    $("promptBar").className = "promptBar" + (cls ? " " + cls : "");
+    $("promptIco").textContent = ico || "💭";
+    $("promptText").textContent = t;
+  }
+  function submitType(){
+    let r;
+    try{ r = OO.build(inp.value, 72); }
+    catch(e){
+      inp.classList.remove("is-bad"); void inp.offsetWidth; inp.classList.add("is-bad");
+      setPrompt(e.oo ? e.message : "That could not be read — check the signs and brackets.", "is-bad", "⚠️");
+      return;
+    }
+    closeType(); S.custom = true; useRun(r);
+  }
+  inp.addEventListener("keydown", e => {
+    if(e.key === "Enter"){ e.preventDefault(); submitType(); }
+    else if(e.key === "Escape"){ e.preventDefault(); closeType(); paint(viewAt(S.pos)); }
+  });
+  inp.addEventListener("input", () => inp.classList.remove("is-bad"));
+
+  /* ---------------------------------------------------------- fit */
+  function fitBoard(){
+    const b = $("board"), stage = document.querySelector(".stage"), lay = document.querySelector(".layout");
+    const padB = parseFloat(getComputedStyle(lay).paddingBottom) || 0;
+    for(let pass = 0; pass < 2; pass++){
+      const cur = b.getBoundingClientRect().height;
+      const other = stage.getBoundingClientRect().bottom + window.scrollY - cur + padB;
+      let h = window.innerHeight - other - 2;
+      h = Math.max(260, Math.min(h, 1100));
+      b.style.height = h + "px";
+    }
+  }
+  function refit(){
+    fitBoard();
+    if(!S.main) return;
+    S.token++; S.busy = false;
+    computeVB();
+    paint(viewAt(S.pos));
+  }
+  let rz = null;
+  window.addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(refit, 120); });
+
+  /* ---------------------------------------------------------- menus + settings */
+  function wireMenu(btnId, menuId){
+    const btn = $(btnId), menu = $(menuId);
+    btn.addEventListener("click", e => {
+      e.stopPropagation();
+      const open = !menu.classList.contains("open");
+      document.querySelectorAll(".dropMenu.open").forEach(m => m.classList.remove("open"));
+      document.querySelectorAll("[aria-expanded=true]").forEach(b => b.setAttribute("aria-expanded", "false"));
+      menu.classList.toggle("open", open); btn.setAttribute("aria-expanded", String(open));
+    });
+    menu.addEventListener("click", e => e.stopPropagation());
+  }
+  wireMenu("settingsBtn", "settingsMenu");
+  wireMenu("toolsBtn", "toolsMenu");
+  function closeMenus(){
+    document.querySelectorAll(".dropMenu.open").forEach(m => m.classList.remove("open"));
+    document.querySelectorAll("[aria-expanded=true]").forEach(b => b.setAttribute("aria-expanded", "false"));
+  }
+  document.addEventListener("click", closeMenus);
+
+  function syncSettings(){
+    $("setSel").value = S.set; $("startSel").value = S.start; $("divSel").value = S.div;
+    $("wordsToggle").checked = S.words; $("workToggle").checked = S.work; $("keyToggle").checked = S.key;
+    $("speedSel").value = String(S.speed);
+    $("setNote").textContent = SET_NOTE[S.set] || "";
+    $("startNote").textContent = S.start === "picture"
+      ? "The class describes the picture first; the words and then the symbols follow."
+      : "The class reads the symbols and pictures them first; the tiles come last.";
+    $("keyDiv").innerHTML = S.div === "share"
+      ? "one share of&hellip;<small>10 &divide; 2 &rarr; one share of 10 split 2 ways</small>"
+      : "half of, a third of&hellip;<small>10 &divide; 2 &rarr; half of 10</small>";
+  }
+  $("setSel").addEventListener("change", e => {
+    S.set = e.target.value; save(); syncSettings();
+    if(S.set === "lesson") loadLesson(0); else { S.custom = false; useRun(generate(S.set)); }
+  });
+  $("startSel").addEventListener("change", e => { S.start = e.target.value; save(); syncSettings(); S.mode = "main"; prepRun(); S.pos = 0; paint(viewAt(0), {enter:S.speed > 0}); });
+  $("divSel").addEventListener("change", e => { S.div = e.target.value; save(); syncSettings(); prepRun(); paint(viewAt(S.pos)); });
+  $("wordsToggle").addEventListener("change", e => {
+    const v = viewAt(S.pos);
+    S.words = e.target.checked; save();
+    if(S.mode === "main") S.pos = v.ready ? v.si + introN() - 1 : 0;
+    refit();
+  });
+  $("workToggle").addEventListener("change", e => { S.work = e.target.checked; save(); paint(viewAt(S.pos)); });
+  $("keyToggle").addEventListener("change", e => { S.key = e.target.checked; save(); paint(viewAt(S.pos)); });
+  $("speedSel").addEventListener("change", e => { S.speed = parseFloat(e.target.value); save(); });
+
+  $("nextBtn").addEventListener("click", next);
+  $("backBtn").addEventListener("click", back);
+  $("resetBtn").addEventListener("click", restart);
+  $("altBtn").addEventListener("click", toggleAlt);
+  $("newBtn").addEventListener("click", () => { closeType(); newQuestion(); });
+  $("typeBtn").addEventListener("click", e => { e.stopPropagation(); S.typing ? (closeType(), paint(viewAt(S.pos))) : openType(); });
+  $("prevQ").addEventListener("click", () => loadLesson(S.lessonIdx - 1));
+  $("nextQ").addEventListener("click", () => loadLesson(S.lessonIdx + 1));
+
+  /* ---------------------------------------------------------- full screen */
+  function toggleFull(){
+    const on = !document.body.classList.contains("isMax");
+    document.body.classList.toggle("isMax", on);
+    try{
+      if(on && document.documentElement.requestFullscreen && !document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {});
+      if(!on && document.fullscreenElement && document.exitFullscreen) document.exitFullscreen().catch(() => {});
+    }catch(e){}
+    setTimeout(refit, 60); setTimeout(refit, 400);
+  }
+  document.addEventListener("fullscreenchange", () => {
+    if(!document.fullscreenElement && document.body.classList.contains("isMax")){ document.body.classList.remove("isMax"); setTimeout(refit, 60); }
+  });
+  $("fsBtn").addEventListener("click", toggleFull);
+
+  /* ---------------------------------------------------------- keys */
+  document.addEventListener("keydown", e => {
+    if(S.typing) return;
+    if(e.key === "Escape"){ closeMenus(); return; }
+    const tg = e.target && e.target.tagName;
+    if(tg === "INPUT" || tg === "SELECT" || tg === "TEXTAREA") return;
+    if(e.metaKey || e.ctrlKey || e.altKey) return;
+    if(e.key === "ArrowRight" || e.key === " " || e.key === "PageDown"){ e.preventDefault(); next(); }
+    else if(e.key === "ArrowLeft" || e.key === "PageUp"){ e.preventDefault(); back(); }
+    else if(e.key === "o" || e.key === "O"){ toggleAlt(); }
+    else if(e.key === "f" || e.key === "F"){ toggleFull(); }
+    else if(e.key === "n" || e.key === "N"){ newQuestion(); }
+    else if(e.key === "t" || e.key === "T"){ e.preventDefault(); openType(); }
+  });
+
+  /* ---------------------------------------------------------- boot */
+  load();
+  syncSettings();
+  fitBoard();
+  if(S.set === "lesson") loadLesson(0); else useRun(generate(S.set));
+  window.addEventListener("load", () => setTimeout(refit, 30));
+
+  window.__OO__ = {S, OO, next, back, restart, viewAt, nViews, toggleAlt, useRun, loadLesson, newQuestion, generate, paint, refit, LESSON, GEN};
+})();
+</script>
+</body>
+</html>

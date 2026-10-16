@@ -1,6 +1,6 @@
 /* Written by tools/build-pwa.mjs — do not edit by hand. */
 self.MMT_PRECACHE = {
- "version": "86e51c6886",
+ "version": "afcba5627f",
  "files": [
   "./",
   "assessment/exam-builder/app.js",
@@ -800,6 +800,7 @@ self.MMT_PRECACHE = {
   "interactive-tools/stage-4/number/integer-combined-signs/walk-right-2.png",
   "interactive-tools/stage-4/number/multiplying-fractions-area-model/index.html",
   "interactive-tools/stage-4/number/negatives-on-the-number-line/index.html",
+  "interactive-tools/stage-4/number/order-of-operations-in-words/index.html",
   "interactive-tools/stage-4/number/rounding-decimals/index.html",
   "interactive-tools/stage-4/ratios-rates/divide-a-ratio/index.html",
   "interactive-tools/stage-4/ratios-rates/stacked-bar-ratio/index.html",

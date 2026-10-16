@@ -81,6 +81,40 @@
 > §2 "TWO folders", §3 deploy paths and §5's `mathstools-main 2` heading below
 > describe the OLD layout — this block supersedes them.
 >
+> **NEW (2026-10-16, session 3 — being pushed): ORDER OF OPERATIONS — SAY WHAT YOU SEE.**
+> `interactive-tools/stage-4/number/order-of-operations-in-words/`, built from Jeff's
+> "Order of operations review" deck. Listed under **MA4-INT-C-01** and **MA3-MR-02**
+> (two rows in `resources/toolLinks.js`, one URL), homepage Interactive card (pill
+> 33 -> 34). Self-contained, no Firebase. Tools menu: two live links + two greyed.
+> * **NO ACRONYM, ANYWHERE (teacher decision).** An expression is a description of a
+>   picture: `5 + 3 × 5` is "5 and 3 groups of 5". The 3 counts groups and is NEVER
+>   drawn as tiles. Each × names ONE amount; + and − then join / take away amounts.
+> * **÷ READS AS A FRACTION OF AN AMOUNT** — "half of 10", "a third of 9" (Settings
+>   offers "one share of 10 split 2 ways"). This is the answer to the division case:
+>   `10 − 4 ÷ 2` is "10 take away half of 4"; `(10 − 4) ÷ 2` is "half of (10 take
+>   away 4)". The picture splits the tiles into equal parts, the first part green.
+> * **ENGINE IS DOM-FREE** (`<script id="ooEngine">`, `var OO`): parse → tree; roles
+>   fixed at parse (`cnt` = which side of × counts groups: a plain number, left if
+>   both; ÷ always counts parts with its right side); each Next reduces ONE node,
+>   post-order left-first (= the convention). Every tile has a stable id, so the
+>   board MOVES rather than redraws. Kinds: mul, div, add, addmix (pair up) → cancel,
+>   zp (add zero pairs, "still 4") → sub (taken tiles fly onto the tiles they cancel),
+>   count (a composite count is worked as text, never tiles). Negative count/divisor =
+>   "the opposite of …": build, then flip.
+> * **Steps:** picture → + words → + symbols (or symbols first: "close your eyes"),
+>   then one reduction per press. Each top-level amount has its own colour in the
+>   symbols, the words and the picture frame. The answer appears only on the last step.
+> * **"The other reading"** (button / O): brackets dropped, strictly left to right, or
+>   the end grouped first (the boy-with-the-telescope cases) — drawn as its own run.
+> * **"2 groups of (a fifth of 20)" draws ONE group plus "?" placeholders** until the
+>   fifth is found; drawing the whole 20 twice said something the sentence does not.
+> * Verified: 1050 Playwright checks (1011 runs re-derived by an independent
+>   evaluator, value constant through every state, no answer early, tiles unique /
+>   non-overlapping / on the board, every lesson example + other reading at
+>   1366/1024/1920/1280 with no page scroll, typed-input refusals, animated runs and
+>   fast-click settling). Harness in session scratch.
+> * Possible next: worksheet creator (write the words, draw the tiles), student quiz.
+>
 > **NEW (2026-10-16, session 2 — being pushed): VISUAL PATTERNS — LIBRARY + WORKSHEET.**
 > * **THE PATTERNS NOW LIVE IN ONE SHARED FILE**,
 >   `interactive-tools/stage-4/algebra/visual-patterns/patterns.js` (plain script,
