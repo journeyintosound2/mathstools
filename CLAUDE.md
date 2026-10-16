@@ -160,6 +160,65 @@
 > * Possible next: worksheet creator (sketch figure 4, describe figure 30), a
 >   student quiz, a "make your own pattern" builder.
 >
+> **NEW (2026-10-16, session — being pushed): FULL SCREEN IN EVERY GAME.**
+> One shared script, `games/shared/mmt-fullscreen.js`, loaded by all 22 games
+> (`games/*.html` + `games/Maths Memory/index.html`) with ONE tag before
+> `</body>`: `<script src="shared/mmt-fullscreen.js" data-… defer></script>`
+> (`../shared/…` from Maths Memory). Teacher feedback: on an iPad the board was
+> cut off. The audit found that true of about half the games at 1180×740.
+> * **WHAT IT DOES:** a "⛶ Full screen" button first in the banner's button
+>   row (copies `#rulesBtn`'s class); full screen = `html.mmt-focus` — the
+>   banner becomes ONE slim row (brand text and big title go, every game button
+>   stays: Settings, Undo, New Game are needed mid-game), `.brand-footer` hides,
+>   and the page asks for real browser full screen (iPad Safari, desktops;
+>   iPhones cannot, the slim layout still works). F toggles, Esc leaves — Esc is
+>   checked in the CAPTURE phase so it never steals Esc from an open pop-up.
+>   After each change it fires `resize` twice (most games size their board in a
+>   resize handler). API: `window.MMTFullscreen.{enter,exit,toggle,isOn,refit}`.
+> * **THE BANNER BUTTON MUST NEVER ADD A ROW** to the banner in normal mode (it
+>   did in ~12 game/width combinations, +45px, shrinking boards for everyone):
+>   `fitBanner()` drops the label (icon only) and, if even that wraps and the
+>   game has an on-screen icon (or the screen is phone-width), hides it. Two
+>   traps fixed there: the hide-to-measure must use `setProperty(...,'important')`
+>   (the button's own CSS is `!important`), and it skips when nothing changed,
+>   because some games re-set their banner buttons every second on a timer.
+> * **ON-SCREEN ICON:** `data-icon-host` + `data-icon-pos="end"` appends it as
+>   the LAST item of the game's top row — its `.status-strip .toolbar`, or the
+>   turn card (`.status-strip .turn-card`, `#turnCard` in Chess/Checkers). It
+>   can never cover a square. Corner positions (`tr|tl|br|bl`) exist for boards
+>   with an empty margin. Capture the Grid keeps its own tuned corner icon
+>   (`#boardFsBtn`, sized by its `fitBoard`) which calls `MMTFullscreen.toggle()`;
+>   its old one-off full-screen code (hidden banner, Rules/Exit in the status
+>   card) was removed so it behaves like every other game. No on-screen icon in
+>   Kids Chess, Greedy Pig, Taxed by the King (banner button only).
+> * **MEASURED FIT, FULL SCREEN ONLY** (normal mode untouched): `data-fit`
+>   (element whose width scales the board), `data-fit-bottom` (what must stay on
+>   screen below it), `data-fit-mode` = `width` (inline width) | `var` (sets
+>   `--mmt-fit` on `<html>`; the game's own "MMT FULL SCREEN SIZING" CSS block
+>   reads it — Battleships' two grids, Chess/Checkers/Sudoku's `--bs`) | `zoom`
+>   (CSS zoom, for boards drawn in fixed px: Fraction Hex, Rows & Columns). It
+>   binary-searches the largest size where the bottom is on screen, nothing
+>   scrolls sideways, the board stays inside every enclosing box and overlaps no
+>   neighbouring column (grid tracks do not clip — Chess and Closest to 100 both
+>   spilled over their side panels before those checks). Closest to 100 and Dots
+>   and Boxes also get a side-by-side layout in full screen at 860–1180px
+>   landscape (they stack otherwise and the board was ~250px).
+> * **Not fitted (they size themselves):** Capture the Grid, Crack the
+>   Equation, Crosswise, Dot Detective, Order Up, Total Trail, Nasty Game,
+>   Maths Memory, Greedy Pig, Taxed by the King. Crack/Dot Detective/Total Trail
+>   come back a few px different after leaving full screen — that is their own
+>   resize code (same as any window resize), and they always fit.
+> * **Verified** in headless Chromium at 1180×740, 1366×768, 1024×700,
+>   1920×1000, 820×1180, 390×844 for every game: slim banner (≤60px), footer
+>   gone, board fits and is not smaller, no sideways scroll, Esc/F/icon toggle,
+>   board restored on exit, no new page errors, normal-mode banner height
+>   unchanged. Greedy Pig and Taxed by the King play screens need a live room,
+>   so only their menus were driven. Not yet tried on a real iPad.
+> * **NOT DONE — normal mode is still cut off on iPad** in Battleships, Connect
+>   4, Closest to 100, Dots and Boxes, Fraction Hex, Rows & Columns, Shikaku,
+>   Ultimate, Maths Memory (and Chess/Checkers/Sudoku at 1024×700). The
+>   Capture-the-Grid measured fit is the fix for that if wanted.
+>
 > **NEW (2026-09-30, session — being pushed): KIDS CHESS ADVENTURE.**
 > `games/chess-kids.html`, reached from a new first card on the Chess menu (no
 > homepage card of its own; the chess card's search tags gained "kids"). English

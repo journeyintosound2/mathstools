@@ -358,18 +358,15 @@
    1. The board is SIZED BY MEASURING the room it actually has (fitBoard() in
       the script sets an inline width), not guessed from 100vh, which on iPad
       Safari counts the toolbars and ignores a wrapped header.
-   2. A Full screen button hides the banner and footer (html.mmt-focus) and,
-      where the browser allows it (iPad Safari, desktops), also asks for real
-      browser full screen. Rules and Exit move into the status bar.
+   2. Full screen itself is the SHARED games/shared/mmt-fullscreen.js (2026-10-16):
+      the same banner button, slim banner, F/Esc and real browser full screen
+      as every other game. This game only keeps its own on-board corner icon
+      (#boardFsBtn, sized by fitBoard) which calls MMTFullscreen.toggle().
    ========================================================================= */
 .fsIcon{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto;}
 .fsBtn{display:inline-flex;align-items:center;gap:7px;}
-.focus-tools{display:none;}
-html.mmt-focus .mmtTopbar,html.mmt-focus .brand-footer{display:none;}
 html.mmt-focus .layout{margin:8px auto;width:calc(100vw - 16px);border-radius:20px;}
 html.mmt-focus .status-card{margin:10px 14px 8px;min-height:0;padding:8px 12px;flex-wrap:wrap;}
-html.mmt-focus .focus-tools{display:flex;gap:8px;margin-left:auto;align-items:center;}
-.focus-tools .btn{display:inline-flex;align-items:center;gap:7px;padding:9px 13px;font-size:14px;min-height:40px;}
 /* ==== end MMT FULL SCREEN ==== */
 
 /* ==== MMT TWO-COLUMN LAYOUT (added 2026-10-14) ============================
@@ -426,12 +423,6 @@ html.mmt-focus .board-fs .fs-out{display:contents;}
   .roll-card{grid-template-columns:1fr;}
   .roll-card .dice-row,.roll-card .choose-title,.roll-card .choice-row{grid-column:1;grid-row:auto;}
 }
-/* Full screen status bar on narrow screens: text beside the dot, buttons on their own row. */
-html.mmt-focus .status-card>div:nth-child(2){flex:1 1 220px;min-width:0;}
-@media(max-width:600px){
-  html.mmt-focus .focus-tools{flex:1 1 100%;justify-content:flex-end;}
-  html.mmt-focus .status-card .player-dot{width:28px;height:28px;}
-}
 /* Landscape tablets 860-1080 wide used to stack too, so students scrolled on
    every turn. There is room for side-by-side, so use it. */
 @media(max-width:1080px) and (min-width:860px) and (orientation:landscape) and (min-height:560px){
@@ -485,7 +476,6 @@ html.mmt-focus .status-card>div:nth-child(2){flex:1 1 220px;min-width:0;}
             <option value="fa">Farsi فارسی</option>
           </select>
         </div>
-        <button class="btn fsBtn" id="fullScreenBtn" type="button" title="Full screen (F)"><svg class="fsIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5"/></svg><span id="fullScreenLabel">Full screen</span></button>
         <button class="btn" id="rulesBtn" type="button">Rules</button>
         <button class="btn" id="backMenuBtn" type="button">Back to menu</button>
         <button class="btn btn-primary" id="newGameBtn" type="button">New Game</button>
@@ -498,10 +488,6 @@ html.mmt-focus .status-card>div:nth-child(2){flex:1 1 220px;min-width:0;}
         <div>
           <div class="status-title" id="statusTitle">Choose a game mode</div>
           <div class="status-subtitle" id="statusSubtitle">Capture rectangles by owning all four corners.</div>
-        </div>
-        <div class="focus-tools">
-          <button class="btn btn-ghost" id="focusRulesBtn" type="button"><span id="focusRulesLabel">Rules</span></button>
-          <button class="btn btn-blue" id="exitFocusBtn" type="button" title="Exit full screen (Esc)"><svg class="fsIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4v5H4M20 9h-5V4M15 20v-5h5M4 15h5v5"/></svg><span id="exitFocusLabel">Exit full screen</span></button>
         </div>
       </div>
 
@@ -848,9 +834,6 @@ html.mmt-focus .status-card>div:nth-child(2){flex:1 1 220px;min-width:0;}
       document.documentElement.dir = 'ltr';
       setI18n($('languageMainLabel'),'Language');
       setI18n($('rulesBtn'),'Rules');
-      setI18n($('fullScreenLabel'),'Full screen');
-      setI18n($('focusRulesLabel'),'Rules');
-      setI18n($('exitFocusLabel'),'Exit full screen');
       setI18n($('backMenuBtn'),'Back to menu');
       setI18n($('newGameBtn'),'New Game');
       setI18n($('modeTitle'),'Choose how to play');
@@ -1529,9 +1512,6 @@ html.mmt-focus .status-card>div:nth-child(2){flex:1 1 220px;min-width:0;}
     choiceA.addEventListener('click', () => chooseOption(0));
     choiceB.addEventListener('click', () => chooseOption(1));
     window.addEventListener('keydown', e => {
-      const anyModal = !!document.querySelector('.modal-backdrop.open');
-      if(e.key === 'Escape' && !anyModal && document.documentElement.classList.contains('mmt-focus')) exitFocus();
-      if(e.key.toLowerCase() === 'f' && !anyModal && !e.target.matches('input,select,textarea')) toggleFocus();
       if(e.key === 'Escape') { hide(namesModal); hide(onlineModal); hide(setupSettingsModal); hide(rulesModal); }
       if(e.key.toLowerCase() === 'r' && !e.target.matches('input,select,textarea')) rollDice();
       if(e.key === '1' && !e.target.matches('input,select,textarea')) chooseOption(0);
@@ -1587,27 +1567,9 @@ html.mmt-focus .status-card>div:nth-child(2){flex:1 1 220px;min-width:0;}
     if(window.visualViewport) window.visualViewport.addEventListener('resize', scheduleFit);
     if(window.ResizeObserver) new ResizeObserver(scheduleFit).observe(playArea);
 
-    const fsElement = () => document.fullscreenElement || document.webkitFullscreenElement || null;
-    let inRealFs = false;
-    function enterFocus(){
-      document.documentElement.classList.add('mmt-focus');
-      scheduleFit();
-      // Real browser full screen where allowed (iPad Safari, desktops). An iPhone
-      // has no element full screen; the focus layout alone still does the job.
-      const el = document.documentElement;
-      const req = el.requestFullscreen || el.webkitRequestFullscreen;
-      if(req){ try{ const p = req.call(el); if(p && p.catch) p.catch(() => {}); }catch(err){} }
-    }
-    function exitFocus(){
-      document.documentElement.classList.remove('mmt-focus');
-      if(fsElement()){
-        const ex = document.exitFullscreen || document.webkitExitFullscreen;
-        try{ const p = ex && ex.call(document); if(p && p.catch) p.catch(() => {}); }catch(err){}
-      }
-      inRealFs = false;
-      scheduleFit();
-    }
-    function toggleFocus(){ document.documentElement.classList.contains('mmt-focus') ? exitFocus() : enterFocus(); }
+    // Full screen is the shared games/shared/mmt-fullscreen.js; this board's own
+    // corner icon just asks it to toggle. fitBoard() re-runs on the resize it fires.
+    function toggleFocus(){ if(window.MMTFullscreen) window.MMTFullscreen.toggle(); }
     function labelBoardFs(){
       const on = document.documentElement.classList.contains('mmt-focus');
       const en = on ? 'Exit full screen' : 'Full screen';
@@ -1615,17 +1577,7 @@ html.mmt-focus .status-card>div:nth-child(2){flex:1 1 220px;min-width:0;}
       const btn = $('boardFsBtn'); btn.setAttribute('aria-label', txt); btn.title = txt + (on ? ' (Esc)' : ' (F)');
     }
     new MutationObserver(labelBoardFs).observe(document.documentElement, {attributes:true, attributeFilter:['class','lang']});
-    function onFsChange(){
-      if(fsElement()) inRealFs = true;
-      else if(inRealFs){ inRealFs = false; document.documentElement.classList.remove('mmt-focus'); }
-      scheduleFit();
-    }
-    document.addEventListener('fullscreenchange', onFsChange);
-    document.addEventListener('webkitfullscreenchange', onFsChange);
-    $('fullScreenBtn').addEventListener('click', enterFocus);
     $('boardFsBtn').addEventListener('click', toggleFocus);
-    $('exitFocusBtn').addEventListener('click', exitFocus);
-    $('focusRulesBtn').addEventListener('click', () => { renderRules(); show(rulesModal); });
 
     syncControlsFromSettings();
     applyLanguage();
@@ -1633,5 +1585,6 @@ html.mmt-focus .status-card>div:nth-child(2){flex:1 1 220px;min-width:0;}
     fitBoard();
   </script>
   <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
+  <script src="shared/mmt-fullscreen.js" defer></script>
 </body>
 </html>
