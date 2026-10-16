@@ -1,6 +1,6 @@
 /* Written by tools/build-pwa.mjs — do not edit by hand. */
 self.MMT_PRECACHE = {
- "version": "62413ec432",
+ "version": "4675d47e9d",
  "files": [
   "./",
   "assessment/exam-builder/app.js",
@@ -721,6 +721,7 @@ self.MMT_PRECACHE = {
   "interactive-tools/stage-4/algebra/substitution/lesson-plan.html",
   "interactive-tools/stage-4/algebra/substitution/logo.png",
   "interactive-tools/stage-4/algebra/visual-patterns/index.html",
+  "interactive-tools/stage-4/algebra/visual-patterns/patterns.js",
   "interactive-tools/stage-4/measurement-space/angles-parallel-lines/index.html",
   "interactive-tools/stage-4/measurement-space/area-of-a-triangle/index.html",
   "interactive-tools/stage-4/measurement-space/circumference-of-a-circle/index.html",
@@ -908,6 +909,7 @@ self.MMT_PRECACHE = {
   "worksheet-creators/stage-4/algebra/equations/index.html",
   "worksheet-creators/stage-4/algebra/number-groups.html",
   "worksheet-creators/stage-4/algebra/substitution.html",
+  "worksheet-creators/stage-4/algebra/visual-patterns.html",
   "worksheet-creators/stage-4/measurement-space/angle-relationships/border_page0.png",
   "worksheet-creators/stage-4/measurement-space/angle-relationships/index.html",
   "worksheet-creators/stage-4/measurement-space/area-of-a-triangle.html",

@@ -171,6 +171,10 @@
     .spice.mild{ background:#dcfce7; color:#166534; }
     .spice.medium{ background:#ffedd5; color:#9a3412; }
     .spice.spicy{ background:#fee2e2; color:#991b1b; }
+    .spice.challenge{ background:#1e1b4b; color:#fff; }
+    .creditChip{ font-size:.7rem; font-weight:800; color:var(--muted); text-decoration:none; border-bottom:1px dotted var(--line-soft); white-space:nowrap; }
+    .galNote{ font-size:.78rem; font-weight:700; color:var(--muted); }
+    .galGroup.challengeHead{ margin-top:22px; padding-top:14px; border-top:2px dashed #c7d2fe; flex-wrap:wrap; }
 
     .genBtn{
       appearance:none; border:1px solid #ddd6fe; background:#f5f3ff; color:#5b21b6;
@@ -376,13 +380,13 @@
             <label class="sw"><input type="checkbox" id="growToggle" checked><span class="track"></span><span>Grow far figures step by step</span></label>
             <label class="sw"><input type="checkbox" id="divToggle" checked><span class="track"></span><span>Lines between figures</span></label>
             <p class="settingsNote">Nothing on the board is a table or a rule. The board is for noticing &mdash; the table of values and the rule are yours to build on the whiteboard.</p>
-            <p class="settingsNote">In the spirit of <a href="https://visualpatterns.org/" target="_blank" rel="noopener">visualpatterns.org</a> by Fawn Nguyen. Every figure here is drawn fresh.</p>
+            <p class="settingsNote">In the spirit of <a href="https://visualpatterns.org/" target="_blank" rel="noopener">visualpatterns.org</a> by Fawn Nguyen. Every figure here is drawn fresh; the challenge pattern &ldquo;Two blocks&rdquo; is adapted from that site (CC BY 4.0).</p>
           </nav>
         </div>
         <div class="menuWrap">
           <button class="btn" id="toolsBtn" type="button" aria-haspopup="true" aria-expanded="false">Tools &#9662;</button>
           <nav class="dropMenu" id="toolsMenu" aria-label="Related tools">
-            <span class="toolLink is-disabled" aria-disabled="true">Worksheet Creator<small>Coming soon</small></span>
+            <a class="toolLink" href="/worksheet-creators/stage-4/algebra/visual-patterns.html">Worksheet Creator<small>Describe it, draw figures 0 and 4, table, predict, rule</small></a>
             <span class="toolLink is-disabled" aria-disabled="true">Student Quiz<small>Coming soon</small></span>
           </nav>
         </div>
@@ -407,6 +411,7 @@
             <span class="patName" id="patName"></span>
             <span class="spice" id="patSpice"></span>
             <span class="nounChip" id="nounChip"></span>
+            <a class="creditChip" id="creditChip" href="https://visualpatterns.org/" target="_blank" rel="noopener" hidden>visualpatterns.org</a>
           </div>
           <div class="eqGroup" id="boardTools">
             <button class="chip see" id="seeBtn" type="button" title="Colour every figure one way of seeing it (W)">
@@ -470,7 +475,7 @@
       <div class="galHead">
         <div>
           <h2 id="galTitle">Choose a pattern</h2>
-          <p>Every pattern here grows by the same amount each time &mdash; ready to become a linear rule.</p>
+          <p>Sweet to Spicy grow by the same amount every time &mdash; ready to become a linear rule. The Challenge set at the bottom does not.</p>
         </div>
         <button class="galClose" id="galClose" type="button">Close &#10005;</button>
       </div>
@@ -478,254 +483,23 @@
     </div>
   </div>
 
+<script src="patterns.js"></script>
 <script>
 (function(){
 'use strict';
 
-/* =====================================================================
-   VISUAL PATTERNS
-   ---------------------------------------------------------------------
-   A pattern is ONE function, fig(n), that returns the pieces of figure n.
-   Every piece has a STABLE id: the same chair in figure 3 and figure 4
-   has the same id, so moving from one figure to the next is a matter of
-   sliding the pieces that moved and popping in the ones that are new.
-   That is what lets "build figure 4 from figure 3" and "grow it to figure
-   10" be animations of the real thing rather than cross-fades.
-
-   Pieces are written in y-UP units (one unit = one tile) and flipped to
-   screen coordinates here, once, so every pattern below reads like the
-   graph-paper sketch it came from.
-
-   Each counted piece carries g[] — its colour in each "way of seeing".
-   K = the part that is always there, A/a = the repeated units (alternating
-   so each unit can be told apart), B/C/D = other families. The colours
-   are the argument; nothing on screen ever writes the rule.
-   ===================================================================== */
-
-const H3 = Math.sqrt(3)/2;
-
-function T(id,cx,cy,g){ return { id, t:'sq', x:cx, y:-(cy+1), g }; }
-function Dt(id,x,y,g,r){ return { id, t:'dot', x, y:-y, r:r||0.3, g }; }
-function St(id,x1,y1,x2,y2,g){
-  const dx = x2-x1, dy = -(y2-y1);
-  return { id, t:'stick', x:x1, y:-y1, L:Math.hypot(dx,dy), a:Math.atan2(dy,dx)*180/Math.PI, g };
-}
-function Pg(id,pts){ return { id, t:'poly', x:0, y:0, pts:pts.map(([x,y])=>[x,-y]), count:false }; }
-function Cb(id,X,Y,Z,g){ return { id, t:'cube', X, Y, Z, x:(X-Z)*H3, y:(X+Z)*0.5-Y, g }; }
-const alt = k => (k%2 ? 'a' : 'A');
-
-const PATTERNS = [
-  /* ------------------------------ sweet ------------------------------ */
-  {
-    id:'dotArray', name:'Rows of dots', noun:['dot','dots'], spice:'sweet', base:'dot', align:'bottom',
-    ways:['Columns of three', 'Three rows'],
-    fig(n){
-      if(n<0) return null;
-      const o=[];
-      for(let k=0;k<n;k++) for(let r=0;r<3;r++) o.push(Dt(`d${k}_${r}`, k, r, [alt(k), ['B','C','D'][r]], 0.27));
-      return o;
-    }
-  },
-  {
-    id:'pinwheel', name:'Pinwheel', noun:['square','squares'], spice:'sweet', base:'tile', align:'centre',
-    ways:['Four arms', 'Rings of four'],
-    fig(n){
-      if(n<0) return null;
-      const o=[];
-      for(let i=0;i<n;i++){
-        o.push(T('A'+i, -1, i,      ['A', alt(i)]));
-        o.push(T('B'+i, i, 0,       ['B', alt(i)]));
-        o.push(T('C'+i, 0, -1-i,    ['C', alt(i)]));
-        o.push(T('D'+i, -1-i, -1,   ['D', alt(i)]));
-      }
-      return o;
-    }
-  },
-  {
-    id:'lshape', name:'Corner', noun:['square','squares'], spice:'sweet', base:'tile', align:'bottom',
-    ways:['A corner and two arms', 'A column and a row'],
-    fig(n){
-      if(n<0) return null;
-      const o=[T('c',0,0,['K','B'])];
-      for(let i=1;i<=n;i++){ o.push(T('u'+i,0,i,['A','B'])); o.push(T('r'+i,i,0,['D','C'])); }
-      return o;
-    }
-  },
-
-  /* ------------------------------ mild ------------------------------- */
-  {
-    id:'tables', name:'Tables and chairs', noun:['chair','chairs'], spice:'mild', base:'seat', align:'centre',
-    ways:['Two end chairs, then three for each table', 'Five chairs, then three more each time', 'A top row, a bottom row and two ends'],
-    fig(n){
-      if(n<0) return null;
-      const h=1.3, tables=[], seats=[];
-      const nx=0.933, ny=0.359, off=0.33, r=0.27, gap=0.31;
-      for(let k=0;k<n;k++){
-        const a=1.5*k, up=(k%2===0);
-        tables.push(Pg('tb'+k, up ? [[a,0],[a+2,0],[a+1.5,h],[a+.5,h]] : [[a+.5,0],[a+1.5,0],[a+2,h],[a,h]]));
-        const w1 = k===0 ? 'K' : alt(k);
-        const top = up ? [[a+1,h+gap]] : [[a+.55,h+gap],[a+1.45,h+gap]];
-        const bot = up ? [[a+.55,-gap],[a+1.45,-gap]] : [[a+1,-gap]];
-        top.forEach(([x,y],i)=>seats.push(Dt(`t${k}u${i}`,x,y,[alt(k),w1,'B'],r)));
-        bot.forEach(([x,y],i)=>seats.push(Dt(`t${k}d${i}`,x,y,[alt(k),w1,'C'],r)));
-      }
-      seats.push(Dt('endL', .25-off*nx, h/2+off*ny, ['K','K','K'], r));
-      const a=1.5*(n-1), lastUp=((n-1)%2===0);
-      seats.push(Dt('endR', a+1.75+off*nx, h/2+(lastUp?1:-1)*off*ny, ['K','K','K'], r));
-      return tables.concat(seats);
-    }
-  },
-  {
-    id:'matchSquares', name:'Matchstick squares', noun:['matchstick','matchsticks'], spice:'mild', base:'stick', align:'bottom',
-    ways:['One stick, then three for each square', 'Four for the first square, then three more each time', 'Tops, bottoms and uprights'],
-    fig(n){
-      if(n<0) return null;
-      const o=[St('v0',0,0,0,1,['K','K','D'])];
-      for(let k=0;k<n;k++){
-        const w1 = k===0 ? 'K' : alt(k);
-        o.push(St('t'+k,k,1,k+1,1,[alt(k),w1,'B']));
-        o.push(St('b'+k,k,0,k+1,0,[alt(k),w1,'C']));
-        o.push(St('v'+(k+1),k+1,0,k+1,1,[alt(k),w1,'D']));
-      }
-      return o;
-    }
-  },
-  {
-    id:'matchTriangles', name:'Matchstick triangles', noun:['matchstick','matchsticks'], spice:'mild', base:'stick', align:'bottom',
-    ways:['One stick, then two for each triangle', 'Slanted sticks and flat sticks'],
-    fig(n){
-      if(n<0) return null;
-      const dj = j => j%2===0 ? [j/2,0,j/2+.5,H3] : [(j+1)/2,0,(j-1)/2+.5,H3];
-      const o=[St('d0',...dj(0),['K','B'])];
-      for(let k=0;k<n;k++){
-        /* flats run right to left, so each corner gets one head */
-        if(k%2===0) o.push(St('f'+k,k/2+1,0,k/2,0,[alt(k),'C']));
-        else        o.push(St('f'+k,(k-1)/2+1.5,H3,(k-1)/2+.5,H3,[alt(k),'C']));
-        o.push(St('d'+(k+1),...dj(k+1),[alt(k),'B']));
-      }
-      return o;
-    }
-  },
-  {
-    id:'arch', name:'Bridge', noun:['block','blocks'], spice:'mild', base:'tile', align:'bottom',
-    ways:['The six that are always there, plus the middle', 'A top row and four legs'],
-    fig(n){
-      if(n<0) return null;
-      const m=n+1;
-      const o=[
-        T('legL0',0,0,['K','C']), T('legL1',0,1,['K','C']),
-        T('legR0',m,0,['K','C']), T('legR1',m,1,['K','C']),
-        T('topL',0,2,['K','B']),  T('topR',m,2,['K','B'])
-      ];
-      for(let i=1;i<=n;i++) o.push(T('top'+i,i,2,[alt(i),'B']));
-      return o;
-    }
-  },
-
-  /* ------------------------------ medium ----------------------------- */
-  {
-    id:'plus', name:'Plus sign', noun:['square','squares'], spice:'medium', base:'tile', align:'centre',
-    ways:['A centre and four arms', 'A column and two arms', 'A centre and rings of four'],
-    fig(n){
-      if(n<0) return null;
-      const o=[T('c',0,0,['K','B','K'])];
-      for(let i=1;i<=n;i++){
-        o.push(T('u'+i,0,i,  ['A','B',alt(i)]));
-        o.push(T('r'+i,i,0,  ['B','C',alt(i)]));
-        o.push(T('d'+i,0,-i, ['C','B',alt(i)]));
-        o.push(T('l'+i,-i,0, ['D','C',alt(i)]));
-      }
-      return o;
-    }
-  },
-  {
-    id:'frame', name:'Picture frame', noun:['tile','tiles'], spice:'medium', base:'tile', align:'bottom',
-    ways:['Four corners and four sides', 'Four sides, each with one corner', 'Two long rows and two short sides'],
-    fig(n){
-      if(n<0) return null;
-      const m=n+1;
-      const o=[
-        T('BL',0,0,['K','A','B']), T('BR',m,0,['K','B','B']),
-        T('TL',0,m,['K','D','B']), T('TR',m,m,['K','C','B'])
-      ];
-      for(let i=1;i<=n;i++){
-        o.push(T('b'+i,i,0,['A','A','B']));
-        o.push(T('r'+i,m,i,['B','B','C']));
-        o.push(T('t'+i,i,m,['C','C','B']));
-        o.push(T('l'+i,0,i,['D','D','C']));
-      }
-      return o;
-    }
-  },
-  {
-    id:'cubes', name:'Cube corner', noun:['cube','cubes'], spice:'medium', base:'cube', align:'bottom',
-    ways:['A corner cube and three arms', 'A tower and two arms'],
-    fig(n){
-      if(n<0) return null;
-      const o=[Cb('c',0,0,0,['K','B'])];
-      for(let i=1;i<=n;i++){
-        o.push(Cb('z'+i,0,0,i,['C','C']));
-        o.push(Cb('x'+i,i,0,0,['A','C']));
-        o.push(Cb('y'+i,0,i,0,['B','B']));
-      }
-      return o;
-    }
-  },
-  {
-    id:'houses', name:'Matchstick houses', noun:['matchstick','matchsticks'], spice:'medium', base:'stick', align:'bottom',
-    ways:['One wall, then five for each house', 'Roofs on top of a row of squares', 'Six for the first house, then five more each time'],
-    fig(n){
-      if(n<0) return null;
-      const o=[St('v0',0,0,0,1,['K','D','K'])];
-      for(let k=0;k<n;k++){
-        const w2 = k===0 ? 'K' : alt(k);
-        o.push(St('f'+k,k,0,k+1,0,[alt(k),'D',w2]));
-        o.push(St('c'+k,k,1,k+1,1,[alt(k),'D',w2]));
-        o.push(St('v'+(k+1),k+1,0,k+1,1,[alt(k),'D',w2]));
-        o.push(St('rl'+k,k,1,k+.5,1+H3,[alt(k),'B',w2]));
-        o.push(St('rr'+k,k+.5,1+H3,k+1,1,[alt(k),'B',w2]));
-      }
-      return o;
-    }
-  },
-
-  /* ------------------------------ spicy ------------------------------ */
-  {
-    id:'vdots', name:'V of dots', noun:['dot','dots'], spice:'spicy', base:'dot', align:'bottom',
-    ways:['The point and two arms', 'One long arm and one short arm'],
-    fig(n){
-      if(n<1) return null;            /* figure 0 would need −1 dots */
-      const o=[Dt('v',0,0,['K','B'])];
-      for(let i=1;i<n;i++){ o.push(Dt('L'+i,-i,i,['A','B'])); o.push(Dt('R'+i,i,i,['D','C'])); }
-      return o;
-    }
-  }
-];
+/* The patterns, their colours and the drawing code live in patterns.js beside
+   this file (window.MMT_VP), shared with the worksheet creator. This file is
+   the lesson: the steps, the layout, the animations and the board tools. */
+const VP = window.MMT_VP;
+const { PATTERNS, SPICE_ORDER, SPICE_NAME, H3, E, drawEl, paintEl, elBox, elCentre, boxOf } = VP;
 const PAT_BY_ID = Object.fromEntries(PATTERNS.map(p=>[p.id,p]));
-const SPICE_ORDER = ['sweet','mild','medium','spicy'];
-const SPICE_NAME = { sweet:'Sweet', mild:'Mild', medium:'Medium', spicy:'Spicy' };
-
-/* ---------- colours ---------- */
-const PAL = {
-  tile: { light:'#eaf3ff', mid:'#c9e0fb', side:'#93bbee', dark:'#2f63c9' },
-  seat: { light:'#fff6cc', mid:'#fde68a', side:'#facc15', dark:'#a16207' },
-  dot:  { light:'#e0e7ff', mid:'#6d82ef', side:'#4f63d8', dark:'#1e2f8a' },
-  stick:{ light:'#fdecc8', mid:'#f3c770', side:'#e2a446', dark:'#9a5b13', head:'#d62828' },
-  cube: { light:'#e8f1ff', mid:'#a9c9f6', side:'#6c9fe4', dark:'#1e3f8f' },
-  K:    { light:'#f1ecff', mid:'#c4b5fd', side:'#a78bfa', dark:'#5b21b6' },
-  A:    { light:'#ffedd5', mid:'#fdba74', side:'#fb923c', dark:'#c2410c' },
-  a:    { light:'#fef3c7', mid:'#fbbf24', side:'#f59e0b', dark:'#92400e' },
-  B:    { light:'#dcfce7', mid:'#86efac', side:'#4ade80', dark:'#15803d' },
-  C:    { light:'#fce7f3', mid:'#f9a8d4', side:'#f472b6', dark:'#be185d' },
-  D:    { light:'#e0f2fe', mid:'#7dd3fc', side:'#38bdf8', dark:'#0369a1' },
-  N:    { light:'#ffedd5', mid:'#fb923c', side:'#f97316', dark:'#9a3412' }
-};
-const TABLE = { fill:'#2a9d8f', stroke:'#14665d' };
+const MAXP = 1500;   /* a figure with more pieces than this is "too big to draw" */
 
 /* ---------- state ---------- */
 const STORE = 'mmt-visual-patterns.v1';
 const S = {
-  pat: PATTERNS[3],
+  pat: PATTERNS.find(p=>p.id==='tables'),
   step: 0,
   steps: [],
   target: 7,
@@ -740,74 +514,14 @@ const S = {
 
 /* ---------- small helpers ---------- */
 const $ = id => document.getElementById(id);
-const NS = 'http://www.w3.org/2000/svg';
-function E(tag, attrs, parent){
-  const e = document.createElementNS(NS, tag);
-  if(attrs) for(const k in attrs) e.setAttribute(k, attrs[k]);
-  if(parent) parent.appendChild(e);
-  return e;
-}
 const sleep = ms => new Promise(r=>setTimeout(r, ms));
 const reduceMotion = () => window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-const FIG_CACHE = new Map();
-function fig(n){
-  if(n==null) return [];
-  const key = S.pat.id+':'+n;
-  if(!FIG_CACHE.has(key)) FIG_CACHE.set(key, placeHeads(S.pat.fig(n)));
-  return FIG_CACHE.get(key);
-}
-/* A matchstick's head goes at whichever end is clear of the heads already
-   placed. Sticks are visited in the order the pattern built them, and a
-   figure's sticks are always the sticks of the figure before plus new ones,
-   so a head never changes ends as the pattern grows. */
-function placeHeads(els){
-  if(!els) return els;
-  const heads=[];
-  for(const e of els){
-    if(e.t!=='stick') continue;
-    const r=e.a*Math.PI/180, cs=Math.cos(r), sn=Math.sin(r);
-    const atEnd=[e.x+(e.L-.19)*cs, e.y+(e.L-.19)*sn], atStart=[e.x+.19*cs, e.y+.19*sn];
-    const near=p=>heads.reduce((m,h)=>Math.min(m,Math.hypot(h[0]-p[0],h[1]-p[1])), 9);
-    e.headAtStart = near(atEnd) < .5 && near(atStart) > near(atEnd);
-    heads.push(e.headAtStart ? atStart : atEnd);
-  }
-  return els;
-}
-function countOf(n){ const f = fig(n); return f ? f.filter(e=>e.count!==false).length : null; }
+function fig(n){ return VP.figure(S.pat, n); }
+function countOf(n){ return VP.countOf(S.pat, n); }
+function tooBig(n){ return n!=null && VP.sizeOf(S.pat, n) > MAXP; }
 function nounFor(c){ return c===1 ? S.pat.noun[0] : S.pat.noun[1]; }
 
-/* bounding box of one piece, in screen units */
-function elBox(e){
-  switch(e.t){
-    case 'sq':   return [e.x, e.x+1, e.y, e.y+1];
-    case 'dot':  return [e.x-e.r, e.x+e.r, e.y-e.r, e.y+e.r];
-    case 'stick':{
-      const r=e.a*Math.PI/180, x2=e.x+e.L*Math.cos(r), y2=e.y+e.L*Math.sin(r), w=.09;
-      return [Math.min(e.x,x2)-w, Math.max(e.x,x2)+w, Math.min(e.y,y2)-w, Math.max(e.y,y2)+w];
-    }
-    case 'poly':{
-      const xs=e.pts.map(p=>p[0]), ys=e.pts.map(p=>p[1]);
-      return [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)];
-    }
-    case 'cube': return [e.x-H3, e.x+H3, e.y-1, e.y+1];
-  }
-}
-function elCentre(e){
-  switch(e.t){
-    case 'sq': return [e.x+.5, e.y+.5];
-    case 'stick':{ const r=e.a*Math.PI/180; return [e.x+e.L/2*Math.cos(r), e.y+e.L/2*Math.sin(r)]; }
-    case 'poly':{ const b=elBox(e); return [(b[0]+b[1])/2,(b[2]+b[3])/2]; }
-    case 'cube': return [e.x, e.y-.15];
-    default: return [e.x, e.y];
-  }
-}
-function boxOf(els){
-  if(!els || !els.length) return null;
-  let x0=Infinity,x1=-Infinity,y0=Infinity,y1=-Infinity;
-  for(const e of els){ const b=elBox(e); x0=Math.min(x0,b[0]); x1=Math.max(x1,b[1]); y0=Math.min(y0,b[2]); y1=Math.max(y1,b[3]); }
-  return { minX:x0, maxX:x1, minY:y0, maxY:y1, w:x1-x0, h:y1-y0 };
-}
 function figBox(n){
   const b = boxOf(fig(n));
   if(b) return b;
@@ -897,6 +611,7 @@ function layout(spec, over, opt){
     if(over[sl.key]) Object.assign(it, over[sl.key]);
     if(it.mode==='sep'){ it.fixW=GEO.SEPW; return it; }
     if(it.mode==='none'){ it.fixW=GEO.NONEW; it.fixH=GEO.NONEH; return it; }
+    if(it.mode==='show' && tooBig(it.n)){ it.mode='none'; it.fixW=GEO.NONEW; it.fixH=GEO.NONEH; return it; }
     if(it.mode==='show'){
       const f = fig(it.n);
       if(f===null){ it.mode='impossible'; it.fixW=GEO.ZW; it.fixH=GEO.ZH; return it; }
@@ -953,14 +668,15 @@ function resolveSpec(spec){
   const out = { slots: spec.slots.map(s=>Object.assign({},s)) };
   for(const sl of out.slots){
     if(sl.key==='far' && sl.mode==='ask' && sl.ref>4){
+      if(tooBig(sl.ref)){ sl.ref = 4; continue; }
       const L = layout(out, { far:{ mode:'show', n:sl.ref } });
       if(L.s < GEO.MINS) sl.ref = 4;
     }
   }
   const far = out.slots.find(s=>s.key==='far' && s.mode==='show');
   if(far){
-    const L = layout(out);
-    if(L.s < GEO.MINS){ far.mode='none'; out.tooBig=true; }
+    if(tooBig(far.n)){ far.mode='none'; out.tooBig=true; }
+    else { const L = layout(out); if(L.s < GEO.MINS){ far.mode='none'; out.tooBig=true; } }
   }
   return out;
 }
@@ -970,59 +686,6 @@ function resolveSpec(spec){
    ===================================================================== */
 const board = $('board'), figLayer = $('figLayer'), inkLayer = $('inkLayer');
 const SLOTS = new Map();
-
-function drawEl(e, parent){
-  const g = E('g', { class:'el' });
-  g.dataset.id = e.id;
-  const inner = E('g', { class:'inner' }, g);
-  switch(e.t){
-    case 'sq':
-      E('rect', { class:'shp', x:.035, y:.035, width:.93, height:.93, rx:.1, 'stroke-width':2.2 }, inner); break;
-    case 'dot':
-      E('circle', { class:'shp', cx:0, cy:0, r:e.r, 'stroke-width':1.8 }, inner); break;
-    case 'stick':{
-      const r = E('g', { transform:`rotate(${e.a})` }, inner);
-      E('rect', { class:'shp', x:.06, y:-.066, width:e.L-.12, height:.132, rx:.066, 'stroke-width':1.3 }, r);
-      E('ellipse', { class:'head', cx:e.headAtStart ? .19 : e.L-.19, cy:0, rx:.1, ry:.088, 'stroke-width':1 }, r);
-      break;
-    }
-    case 'poly':
-      E('polygon', { class:'deco', points:e.pts.map(p=>p.join(',')).join(' '), fill:TABLE.fill, stroke:TABLE.stroke, 'stroke-width':2, 'stroke-linejoin':'round' }, inner); break;
-    case 'cube':{
-      const P=(x,y,z)=>[((x-z)*H3).toFixed(4), ((x+z)*.5-y).toFixed(4)].join(',');
-      E('polygon', { class:'cf top',   points:[P(0,1,0),P(1,1,0),P(1,1,1),P(0,1,1)].join(' '), 'stroke-width':1.5, 'stroke-linejoin':'round' }, inner);
-      E('polygon', { class:'cf left',  points:[P(0,0,1),P(1,0,1),P(1,1,1),P(0,1,1)].join(' '), 'stroke-width':1.5, 'stroke-linejoin':'round' }, inner);
-      E('polygon', { class:'cf right', points:[P(1,0,0),P(1,1,0),P(1,1,1),P(1,0,1)].join(' '), 'stroke-width':1.5, 'stroke-linejoin':'round' }, inner);
-      break;
-    }
-  }
-  /* outlines keep their width at any scale (the board and the gallery) */
-  g.querySelectorAll('.shp,.head,.deco,.cf').forEach(x=>x.setAttribute('vector-effect','non-scaling-stroke'));
-  g.style.transform = `translate(${e.x}px,${e.y}px)`;
-  g._el = e;
-  if(parent) parent.appendChild(g);
-  return g;
-}
-
-function paintEl(g, key, faded){
-  const e = g._el;
-  g.style.opacity = faded ? '.22' : '';
-  if(e.t==='poly') return;
-  const c = PAL[key] || PAL.tile;
-  if(e.t==='cube'){
-    g.querySelector('.top').style.fill = c.light;
-    g.querySelector('.left').style.fill = c.mid;
-    g.querySelector('.right').style.fill = c.side;
-    g.querySelectorAll('.cf').forEach(p=>p.style.stroke = c.dark);
-    return;
-  }
-  const shp = g.querySelector('.shp');
-  shp.style.fill = c.mid; shp.style.stroke = c.dark;
-  if(e.t==='stick'){
-    const h = g.querySelector('.head');
-    h.style.fill = c.head || c.dark; h.style.stroke = c.dark;
-  }
-}
 
 /* colour every piece in a slot from the current state */
 function paintSlot(sl){
@@ -1286,10 +949,7 @@ async function render(animate, dur){
 
   if(A.type==='grow'){
     let from = A.from;
-    {
-      const t = layout(res, { far:{ mode:'show', n:from } });
-      if(from>4 && t.s < GEO.MINS) from = 4;
-    }
+    if(from>4 && (tooBig(from) || layout(res, { far:{ mode:'show', n:from } }).s < GEO.MINS)) from = 4;
     if(from >= tgt.n) from = Math.max(1, tgt.n-1);
     setDur(550);
     applyLayout(layout(res, { far:{ mode:'show', n:from } }), {});
@@ -1308,6 +968,7 @@ async function render(animate, dur){
     const total = Math.min(3400, Math.max(1100, steps*430));
     const dt = total/steps;
     for(let m=from+1; m<=N; m++){
+      if(tooBig(m)) break;
       const L = layout(res, { far:{ mode:'show', n:m, label:'Figure '+m } });
       if(L.s < GEO.MINS) break;
       setDur(dt*0.95);
@@ -1398,6 +1059,7 @@ function updateHeader(){
   $('patName').textContent = S.pat.name;
   const sp = $('patSpice'); sp.className = 'spice '+S.pat.spice; sp.textContent = SPICE_NAME[S.pat.spice];
   $('nounChip').textContent = 'Count the ' + S.pat.noun[1];
+  const cr = $('creditChip'); cr.hidden = !S.pat.credit; cr.title = S.pat.credit || '';
   updateSee();
 }
 function updateSee(){
@@ -1421,12 +1083,12 @@ function back(){ if(S.step > 0){ S.step--; render(false, 450); } }
 function restart(){ S.step = 0; S.way=-1; updateSee(); render(false); }
 
 function clearBoard(){
-  for(const sl of SLOTS.values()) sl.g.remove();
+  /* everything goes, including slots still fading out from the last pattern */
+  while(figLayer.firstChild) figLayer.removeChild(figLayer.firstChild);
   SLOTS.clear();
 }
 function loadPattern(p, keepStep){
   S.pat = p;
-  FIG_CACHE.clear();
   S.target = pickTarget();
   S.way = -1;
   S.steps = buildSteps();
@@ -1434,6 +1096,7 @@ function loadPattern(p, keepStep){
   S.step = Math.min(S.step, S.steps.length-1);
   clearBoard();
   updateHeader();
+  fitBoard();      /* a long name can change the header's height */
   render(false);
   save();
 }
@@ -1544,7 +1207,7 @@ $('resetBtn').addEventListener('click', ()=>{
 });
 $('diceBtn').addEventListener('click', randomPattern);
 function randomPattern(){
-  const others = PATTERNS.filter(p=>p!==S.pat);
+  const others = PATTERNS.filter(p=>p!==S.pat && !!p.nonlinear===!!S.pat.nonlinear);
   loadPattern(others[Math.floor(Math.random()*others.length)]);
 }
 
@@ -1556,30 +1219,35 @@ function thumb(p){
   const L = layout(spec, {}, { W:420, H:150, PADX:16, GAP:30, TOP:10, CAP:44, LAB:22, MINW:0 });
   L.items.forEach((it,i)=>{
     const g = E('g', { transform:`translate(${it.tx},${it.ty}) scale(${L.s})` }, svg);
-    const els = fig(it.n);
-    const isCube = els[0] && els[0].t==='cube';
-    const ord = isCube ? [...els].sort((a,b)=>(a.X+a.Y+a.Z)-(b.X+b.Y+b.Z)) : [...els].sort((a,b)=>(a.count===false?0:1)-(b.count===false?0:1));
-    ord.forEach(e=>{ const eg = drawEl(e, g); paintEl(eg, p.base, false); });
+    VP.drawFigure(fig(it.n) || [], g, p.base);
     const t = E('text', { x:it.cx, y:L.base+18, 'text-anchor':'middle', 'font-size':12, 'font-weight':800, fill:'#94a3b8', 'font-family':'system-ui,sans-serif' }, svg);
     t.textContent = String(it.n);
     if(i>0) E('line', { x1:it.left-15, x2:it.left-15, y1:L.top-2, y2:L.base+4, stroke:'#e2e8f0', 'stroke-width':1.5 }, svg);
   });
-  S.pat = was; FIG_CACHE.clear();
+  S.pat = was;
   return svg;
 }
+let galleryBuilt = false;
 function buildGallery(){
   const body = $('galBody');
+  if(galleryBuilt){
+    body.querySelectorAll('.galCard').forEach(c=>c.classList.toggle('current', c.dataset.id===S.pat.id));
+    return;
+  }
+  galleryBuilt = true;
   body.innerHTML = '';
   SPICE_ORDER.forEach(sp=>{
     const list = PATTERNS.filter(p=>p.spice===sp);
     if(!list.length) return;
-    const h = document.createElement('div'); h.className='galGroup';
-    h.innerHTML = `<span class="spice ${sp}">${SPICE_NAME[sp]}</span>`;
+    const h = document.createElement('div'); h.className='galGroup' + (sp==='challenge' ? ' challengeHead' : '');
+    h.innerHTML = sp==='challenge'
+      ? `<span class="spice challenge">Challenge &mdash; not linear</span><span class="galNote">These do <b>not</b> grow by the same amount each time. Use them to stretch a class that has the linear idea, or to ask &ldquo;is this one linear?&rdquo;</span>`
+      : `<span class="spice ${sp}">${SPICE_NAME[sp]}</span><span class="galNote">${PATTERNS.filter(p=>p.spice===sp).length} patterns</span>`;
     body.appendChild(h);
     const grid = document.createElement('div'); grid.className='galGrid';
     list.forEach(p=>{
       const b = document.createElement('button');
-      b.type='button'; b.className='galCard' + (p===S.pat ? ' current' : '');
+      b.type='button'; b.className='galCard' + (p===S.pat ? ' current' : ''); b.dataset.id = p.id;
       b.appendChild(thumb(p));
       const nm = document.createElement('div'); nm.className='galName';
       nm.innerHTML = `<span>${p.name}</span><span class="galNoun">${p.noun[1]}</span>`;
@@ -1589,7 +1257,6 @@ function buildGallery(){
     });
     body.appendChild(grid);
   });
-  FIG_CACHE.clear();
 }
 function openGallery(){ closeMenus(); buildGallery(); $('galleryVeil').hidden=false; const c=document.querySelector('.galCard.current')||document.querySelector('.galCard'); if(c) c.focus(); }
 function closeGallery(){ $('galleryVeil').hidden=true; }

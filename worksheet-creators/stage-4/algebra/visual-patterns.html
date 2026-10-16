@@ -1,0 +1,724 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Visual Patterns — Worksheet Generator</title>
+
+  <style>
+    :root{
+      --bg:#f6f7fb;
+      --card:#ffffff;
+      --ink:#111827;
+      --muted:#6b7280;
+      --border:#e5e7eb;
+      --shadow:0 14px 40px rgba(0,0,0,.10);
+      --radius:18px;
+      --blue:#2563eb;
+      --green:#16a34a;
+      --red:#dc2626;
+      --sweet1:#4ade80;  --sweet2:#16a34a;
+      --mild1:#facc15;   --mild2:#d97706;
+      --medium1:#fb923c; --medium2:#ea580c;
+      --spicy1:#f87171;  --spicy2:#b91c1c;
+      --chal1:#6366f1;   --chal2:#1e1b4b;
+      --footer-h:44px;
+      --mathFont:"Cambria Math","STIX Two Math","STIXGeneral","Times New Roman",serif;
+      --uiFont:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+    }
+    *{ box-sizing:border-box; }
+    body{ margin:0; background:var(--bg); color:var(--ink); font-family:var(--uiFont); padding-bottom:var(--footer-h); }
+    .wrap{ max-width:1280px; margin:14px auto 32px; padding:0 14px; }
+    .card{ background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); padding:16px; }
+    .title{ margin:0 0 4px; font-size:28px; font-weight:1000; letter-spacing:.2px; }
+    .subtitle{ margin:0 0 14px; color:var(--muted); font-weight:850; font-size:15px; line-height:1.35; }
+    .subtitle a{ color:var(--blue); text-decoration:none; font-weight:1000; }
+
+    .controls{ display:grid; gap:10px; }
+    .band{ border:1px solid var(--border); border-radius:18px; padding:12px 14px; background:linear-gradient(180deg,#ffffff,#f9fafb); }
+    .bandHead{ font-size:11px; letter-spacing:.14em; text-transform:uppercase; font-weight:1000; color:var(--muted); margin:0 0 9px; }
+    .bandGrid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; align-items:end; }
+    .bandRow{ display:flex; gap:14px 22px; flex-wrap:wrap; align-items:center; }
+    label{ display:block; margin:0 0 7px; font-size:15px; font-weight:950; }
+    select, input[type="number"]{
+      border:2px solid #e5e7eb; border-radius:14px; padding:11px 13px;
+      font-size:15px; font-weight:900; width:100%; background:#fff; color:var(--ink); font-family:inherit;
+    }
+    select:focus, input:focus{ outline:none; border-color:var(--blue); }
+    .sw{ display:inline-flex; align-items:center; gap:10px; cursor:pointer; user-select:none; font-weight:900; font-size:14.5px; margin:0; }
+    .sw input{ position:absolute; opacity:0; width:0; height:0; }
+    .sw .track{ position:relative; width:46px; height:27px; border-radius:999px; background:#cbd5e1; transition:.16s ease; flex:0 0 auto; }
+    .sw .track::after{ content:""; position:absolute; top:3px; left:3px; width:21px; height:21px; border-radius:50%; background:#fff; box-shadow:0 2px 5px rgba(0,0,0,.28); transition:.16s ease; }
+    .sw input:checked + .track{ background:var(--green); }
+    .sw input:checked + .track::after{ transform:translateX(19px); }
+    .sw input:focus-visible + .track{ box-shadow:0 0 0 4px rgba(37,99,235,.25); }
+
+    .partGrid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(255px,1fr)); gap:10px; }
+    .partOpt{ border:1px solid var(--border); border-radius:14px; padding:10px 12px; background:#fff; display:flex; flex-direction:column; gap:8px; }
+    .partOpt small{ display:block; font-size:12px; font-weight:750; color:var(--muted); line-height:1.35; }
+    .partOpt select{ padding:7px 10px; font-size:13px; border-radius:10px; }
+
+    .note{ margin:9px 0 0; font-size:12.6px; font-weight:800; color:var(--muted); line-height:1.5; }
+    .note b{ color:var(--ink); }
+    .pill{ background:#eef2ff; color:#1d4ed8; border-radius:999px; padding:5px 12px; font-weight:1000; font-size:13px; }
+
+    /* the pattern picker */
+    details.picker{ border:1px solid var(--border); border-radius:14px; background:#fff; margin-top:10px; }
+    details.picker > summary{ cursor:pointer; padding:10px 12px; font-weight:950; font-size:14.5px; list-style:none; display:flex; align-items:center; gap:10px; }
+    details.picker > summary::-webkit-details-marker{ display:none; }
+    details.picker > summary::before{ content:'\25B8'; color:var(--blue); transition:transform .15s ease; }
+    details.picker[open] > summary::before{ transform:rotate(90deg); }
+    .pickBody{ padding:0 12px 12px; }
+    .pickGroup{ margin:10px 0 6px; display:flex; align-items:center; gap:8px; font-size:12px; font-weight:800; color:var(--muted); }
+    .spiceTag{ font-size:11px; font-weight:1000; border-radius:999px; padding:3px 9px; color:#fff; }
+    .spiceTag.sweet{ background:var(--sweet2); } .spiceTag.mild{ background:var(--mild2); } .spiceTag.medium{ background:var(--medium2); }
+    .spiceTag.spicy{ background:var(--spicy2); } .spiceTag.challenge{ background:var(--chal2); }
+    .pickGrid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(168px,1fr)); gap:8px; }
+    .pickCard{ position:relative; border:1.5px solid var(--border); border-radius:12px; padding:6px 7px 6px; cursor:pointer; background:#fff; display:flex; flex-direction:column; gap:3px; }
+    .pickCard:hover{ border-color:#a5b4fc; }
+    .pickCard.on{ border-color:var(--blue); box-shadow:0 0 0 2px rgba(37,99,235,.2); background:#f5f8ff; }
+    .pickCard svg{ width:100%; height:auto; display:block; }
+    .pickCard span{ font-size:12px; font-weight:900; line-height:1.2; }
+    .pickCard .ord{ position:absolute; top:5px; right:5px; width:20px; height:20px; border-radius:50%; background:var(--blue); color:#fff; font-size:11px; font-weight:1000; display:none; place-items:center; }
+    .pickCard.on .ord{ display:grid; }
+    .pickBar{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-top:4px; }
+    .linkBtn{ appearance:none; border:0; background:none; color:var(--blue); font-weight:900; cursor:pointer; padding:0; font-size:13px; }
+
+    .btnRow{ display:flex; gap:10px; flex-wrap:wrap; margin-top:2px; }
+    button.primary, button.ghost, button.danger{ border-radius:14px; padding:13px 18px; font-size:15px; font-weight:1000; cursor:pointer; border:2px solid transparent; font-family:inherit; }
+    button.primary{ background:var(--blue); color:#fff; } button.primary:hover{ background:#1d4ed8; }
+    button.ghost{ background:#fff; color:var(--ink); border-color:var(--border); } button.ghost:hover{ border-color:#c7ccd4; }
+    button.danger{ background:#fff; color:var(--red); border-color:#fecaca; } button.danger:hover{ background:#fef2f2; }
+
+    .outWrap{ margin-top:8px; }
+
+    /* =====================================================================
+       THE PAPER — an A4 page whose writing area is 196 × 281 mm, the same
+       on screen and in print, so what is packed on screen is what prints.
+       ===================================================================== */
+    .page{
+      margin:14px auto 0; background:#fff; border:1px solid var(--border);
+      border-radius:18px; box-shadow:0 10px 26px rgba(15,23,42,.08); overflow:hidden;
+      width:210mm; height:297mm; padding:8mm 7mm; display:flex; flex-direction:column;
+    }
+    .pageHeader{ padding:0 0 1.8mm; border-bottom:2px solid #111827; display:flex; align-items:flex-end; justify-content:space-between; gap:10px; }
+    .hdrTitle{ font-weight:1000; font-size:15px; line-height:1.1; }
+    .hdrSub{ color:var(--muted); font-weight:850; font-size:11px; margin-top:2px; }
+    .nameDate{ display:flex; gap:8px; align-items:flex-end; }
+    .lineField{ display:flex; flex-direction:column; gap:3px; width:120px; }
+    .lineField.wide{ width:170px; }
+    .lineLabel{ font-size:10px; font-weight:950; color:var(--muted); }
+    .lineBox{ height:19px; border-bottom:1.6px solid #111827; }
+    .sheet{ padding:2.6mm 0 0; flex:1 1 auto; display:flex; flex-direction:column; gap:3mm; min-height:0; overflow:hidden; }
+    .intro{ font-size:12.4px; font-weight:850; color:#374151; line-height:1.35; margin:0; }
+    .chalHead{ font-size:13px; font-weight:1000; display:flex; align-items:center; gap:7px; margin:1mm 0 -1mm; }
+    .chalHead .star{ color:#4338ca; }
+
+    .qCard{ border:1.3px solid #cfd5dd; border-radius:10px; padding:2.4mm 3mm 3mm; display:flex; flex-direction:column; gap:2.2mm; break-inside:avoid; }
+    .qTop{ display:flex; align-items:center; gap:7px; }
+    .qNum{ min-width:22px; height:22px; padding:0 6px; border-radius:999px; color:#fff; display:flex; align-items:center; justify-content:center; font-size:11.5px; font-weight:1000; }
+    .qNum.sweet{ background:linear-gradient(180deg,var(--sweet1),var(--sweet2)); }
+    .qNum.mild{ background:linear-gradient(180deg,var(--mild1),var(--mild2)); }
+    .qNum.medium{ background:linear-gradient(180deg,var(--medium1),var(--medium2)); }
+    .qNum.spicy{ background:linear-gradient(180deg,var(--spicy1),var(--spicy2)); }
+    .qNum.challenge{ background:linear-gradient(180deg,var(--chal1),var(--chal2)); }
+    .qHead{ font-size:13px; font-weight:1000; }
+    .qSub{ font-size:11.5px; font-weight:850; color:var(--muted); margin-left:auto; }
+    .strip{ display:block; width:100%; height:auto; }
+    .strip text{ font-family:var(--uiFont); font-weight:800; fill:#374151; }
+    .paper .shp{ stroke-width:1.15px; }
+    .paper .cf{ stroke-width:.9px; }
+    .paper .deco{ stroke-width:1.1px; }
+    .paper .head{ stroke-width:.6px; }
+
+    .parts{ display:grid; grid-template-columns:1fr 1fr; gap:2.4mm 3mm; }
+    .part{ display:flex; flex-direction:column; gap:1.2mm; min-width:0; }
+    .part.span2{ grid-column:span 2; }
+    .pq{ font-size:12px; font-weight:900; line-height:1.3; display:flex; gap:5px; }
+    .pq .lt{ font-weight:1000; flex:0 0 auto; }
+    .lines{ background:repeating-linear-gradient(180deg,transparent 0 6.6mm,#c9ced6 6.6mm calc(6.6mm + 1px)); }
+    .drawBox{ position:relative; border:1.5px dashed #9aa3af; border-radius:9px; overflow:hidden; background:#fff; }
+    .drawBox svg.grid{ position:absolute; inset:0; width:100%; height:100%; }
+    .drawBox .ans{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; }
+    .drawBox .ans svg{ display:block; }
+    .drawBox .cap{ position:absolute; left:2mm; top:1.2mm; font-size:10px; font-weight:950; color:#6b7280; background:#fff; padding:0 1.2mm; border-radius:3px; }
+    table.vt{ border-collapse:collapse; width:100%; table-layout:fixed; font-size:12px; }
+    table.vt th, table.vt td{ border:1.3px solid #111827; text-align:center; height:7.6mm; padding:0 1mm; }
+    table.vt th{ font-weight:900; background:#f3f4f6; }
+    table.vt th.rowHead{ text-align:left; padding-left:2mm; width:34%; }
+    .ansLine{ display:flex; align-items:flex-end; gap:6px; font-size:12px; font-weight:900; margin-top:1mm; flex-wrap:wrap; }
+    .blank{ display:inline-block; min-width:22mm; border-bottom:1.5px solid #111827; height:5.4mm; }
+    .blank.sm{ min-width:13mm; }
+    .blank.lg{ min-width:46mm; }
+    .rule{ font-family:var(--mathFont); font-size:13.5px; font-weight:900; display:flex; align-items:flex-end; gap:5px; flex-wrap:wrap; }
+    .credit{ font-size:9.5px; font-weight:800; color:#6b7280; }
+
+    /* answer key */
+    .isKey .qCard{ border-color:#bbf7d0; background:#f7fdf9; }
+    .key{ color:#15803d; font-weight:1000; }
+    .keyText{ font-size:12px; font-weight:850; color:#14532d; line-height:1.4; background:#ecfdf3; border-radius:6px; padding:1.4mm 2mm; }
+    .keyText b{ color:#15803d; }
+    .isKey table.vt td{ color:#15803d; font-weight:1000; }
+    .keyBlank{ display:inline-block; min-width:13mm; border-bottom:1.5px solid #15803d; color:#15803d; font-weight:1000; text-align:center; padding:0 1mm; }
+
+    .pageFooter{ padding:1.4mm 0 0; border-top:1px solid rgba(229,231,235,.95); display:flex; align-items:center; justify-content:space-between; font-weight:900; color:var(--muted); font-size:10px; }
+    .pageFooter a{ color:#2563eb; text-decoration:none; font-weight:1000; }
+
+    .mmtFooter{ position:fixed; left:0; right:0; bottom:0; height:var(--footer-h); display:flex; align-items:center; justify-content:center; padding:0 12px;
+      background:rgba(255,255,255,.92); border-top:1px solid rgba(229,231,235,.95); backdrop-filter:blur(8px); z-index:500; font-weight:900; color:#111827; text-align:center; font-size:13px; }
+    .mmtFooter a{ color:#2563eb; text-decoration:none; font-weight:950; }
+
+    @media print{
+      @page{ size:A4; margin:8mm 7mm; }
+      html, body{ width:210mm; height:auto; }
+      body{ background:#fff; padding-bottom:0; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+      .wrap{ max-width:none; margin:0; padding:0; }
+      .card{ box-shadow:none; border-radius:0; padding:0; }
+      .controls, .title, .subtitle, .mmtFooter{ display:none !important; }
+      .page{ margin:0; border:none; border-radius:0; box-shadow:none; width:auto; height:281mm; padding:0; page-break-after:always; }
+      .page:last-child{ page-break-after:auto; }
+    }
+  </style>
+<!-- mmt-pwa -->
+<link rel="manifest" href="../../../manifest.webmanifest">
+<meta name="theme-color" content="#1f3a5f">
+<link rel="apple-touch-icon" href="../../../icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="MMT">
+<script src="../../../pwa.js" defer></script>
+<!-- /mmt-pwa -->
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1 class="title">Visual Patterns &mdash; Worksheet Generator</h1>
+      <p class="subtitle">Printable A4 worksheets from the <a href="/interactive-tools/stage-4/algebra/visual-patterns/">Visual Patterns</a> teaching tool &mdash; the same patterns, drawn the same way. Each question shows figures 1, 2 and 3; you choose what the student does with them: put the change into words, draw the next figure and figure&nbsp;0, fill in a table, predict, work backwards and write the rule.</p>
+
+      <div class="controls">
+        <div class="band">
+          <p class="bandHead">The paper</p>
+          <div class="bandGrid">
+            <div>
+              <label for="levelSel">Level</label>
+              <select id="levelSel">
+                <option value="sweet">Sweet &mdash; simple growth, often no constant</option>
+                <option value="mild">Mild</option>
+                <option value="medium">Medium</option>
+                <option value="spicy">Spicy &mdash; negative constants, moving parts</option>
+                <option value="mixed" selected>Mixed &mdash; a ladder from Sweet to Spicy</option>
+              </select>
+            </div>
+            <div>
+              <label for="countSel">Linear patterns</label>
+              <select id="countSel">
+                <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+                <option value="4" selected>4</option><option value="5">5</option><option value="6">6</option><option value="8">8</option>
+              </select>
+            </div>
+            <div>
+              <label for="chalSel">Challenge at the end</label>
+              <select id="chalSel">
+                <option value="0">None</option>
+                <option value="1" selected>One pattern that is not linear</option>
+                <option value="2">Two patterns that are not linear</option>
+              </select>
+            </div>
+          </div>
+          <details class="picker" id="picker">
+            <summary>Or choose the patterns yourself <span class="pill" id="pickPill">Random</span></summary>
+            <div class="pickBody">
+              <div class="pickBar"><span class="note" style="margin:0">Tap patterns in the order you want them on the paper. While any are chosen, the level and the counts above are ignored.</span><button class="linkBtn" id="pickClear" type="button">Clear my choices</button></div>
+              <div id="pickList"></div>
+            </div>
+          </details>
+        </div>
+
+        <div class="band">
+          <p class="bandHead">For each pattern, ask the student to&hellip;</p>
+          <div class="partGrid">
+            <div class="partOpt">
+              <label class="sw"><input type="checkbox" id="pDescribe" checked /><span class="track"></span><span>Describe how it is changing</span></label>
+              <small>In their own words. Ruled lines.</small>
+            </div>
+            <div class="partOpt">
+              <label class="sw"><input type="checkbox" id="pNext" checked /><span class="track"></span><span>Draw the next figure</span></label>
+              <small>Figure 4, in a drawing box.</small>
+            </div>
+            <div class="partOpt">
+              <label class="sw"><input type="checkbox" id="pZero" /><span class="track"></span><span>Draw figure 0</span></label>
+              <small>Go one step backwards &mdash; the part that never grows. Sometimes empty; sometimes it cannot be drawn at all.</small>
+            </div>
+            <div class="partOpt">
+              <label class="sw"><input type="checkbox" id="pTable" checked /><span class="track"></span><span>Fill in a table</span></label>
+              <select id="tableSel" aria-label="Table columns">
+                <option value="1-5" selected>Figures 1 to 5</option>
+                <option value="0-5">Figures 0 to 5</option>
+                <option value="1-5,10">Figures 1 to 5, and 10</option>
+                <option value="1-5,n">Figures 1 to 5, and n</option>
+              </select>
+            </div>
+            <div class="partOpt">
+              <label class="sw"><input type="checkbox" id="pPredict" checked /><span class="track"></span><span>Make a prediction</span></label>
+              <select id="predSel" aria-label="Figure to predict">
+                <option value="rand" selected>A different figure each question (6&ndash;15)</option>
+                <option value="10">Figure 10</option>
+                <option value="20">Figure 20</option>
+                <option value="100">Figure 100</option>
+              </select>
+            </div>
+            <div class="partOpt">
+              <label class="sw"><input type="checkbox" id="pBack" /><span class="track"></span><span>Work backwards</span></label>
+              <small>&ldquo;Which figure has 47 seats?&rdquo;</small>
+            </div>
+            <div class="partOpt">
+              <label class="sw"><input type="checkbox" id="pRule" checked /><span class="track"></span><span>Write the rule</span></label>
+              <select id="ruleSel" aria-label="Rule scaffold">
+                <option value="open">Open: &ldquo;Rule: ________&rdquo;</option>
+                <option value="scaffold" selected>Scaffolded: ___ &times; figure number + ___</option>
+                <option value="both">In words, then in symbols</option>
+              </select>
+            </div>
+            <div class="partOpt">
+              <label class="sw"><input type="checkbox" id="pSee" /><span class="track"></span><span>Show how you see it</span></label>
+              <small>Colour or circle the groups on the figures.</small>
+            </div>
+          </div>
+          <p class="note">The parts print in the order a lesson runs: <b>notice</b> it, <b>draw</b> what comes next, go <b>back</b> to figure&nbsp;0, organise it in a <b>table</b>, <b>predict</b> a far figure, work <b>backwards</b>, then generalise with a <b>rule</b>. The challenge patterns get the same questions; their rule line becomes &ldquo;Can you find a rule?&rdquo;, since none of them is ___&nbsp;&times;&nbsp;n&nbsp;+&nbsp;___.</p>
+        </div>
+
+        <div class="band">
+          <p class="bandHead">Options</p>
+          <div class="bandRow">
+            <label class="sw"><input type="checkbox" id="nameToggle" checked /><span class="track"></span><span>Name and date</span></label>
+            <label class="sw"><input type="checkbox" id="gridToggle" checked /><span class="track"></span><span>Dot grid in drawing boxes</span></label>
+            <label class="sw"><input type="checkbox" id="colourToggle" /><span class="track"></span><span>Print the figures in colour</span></label>
+            <label class="sw"><input type="checkbox" id="keyToggle" checked /><span class="track"></span><span>Answer key pages</span></label>
+          </div>
+          <p class="note">Figures print in <b>black and white</b> unless you choose colour &mdash; they photocopy cleanly. Cube patterns get <b>isometric</b> dot paper in their drawing boxes, everything else a square dot grid. The answer key draws figure&nbsp;4 and figure&nbsp;0, fills the table, and gives the rule with one way of seeing it in words.</p>
+        </div>
+
+        <div class="btnRow">
+          <button id="genBtn" class="primary" type="button">Generate worksheet</button>
+          <button id="printBtn" class="ghost" type="button">Print (Ctrl+P)</button>
+          <button id="resetBtn" class="danger" type="button">Reset</button>
+          <span class="pill" id="sumPill" style="align-self:center"></span>
+        </div>
+      </div>
+
+      <div id="out" class="outWrap"></div>
+    </div>
+  </div>
+
+  <div class="mmtFooter">This tool and more can be found at&nbsp;<a href="https://www.millsmathstools.au">www.millsmathstools.au</a></div>
+
+<script src="../../../interactive-tools/stage-4/algebra/visual-patterns/patterns.js"></script>
+<script>
+(function(){
+'use strict';
+
+const VP = window.MMT_VP;
+const { PATTERNS, SPICE_NAME, E } = VP;
+const $ = id => document.getElementById(id);
+const LINEAR = PATTERNS.filter(p=>!p.nonlinear);
+const CHALLENGE = PATTERNS.filter(p=>p.nonlinear);
+const LADDER = ['sweet','mild','medium','spicy'];
+const STORE = 'mmt-vp-ws.v1';
+const rnd = n => Math.floor(Math.random()*n);
+const shuffle = a => { a=[...a]; for(let i=a.length-1;i>0;i--){ const j=rnd(i+1); [a[i],a[j]]=[a[j],a[i]]; } return a; };
+const esc = s => String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const MM = 3.7795;   /* CSS px per mm, for measuring */
+const BOXH = 30;     /* drawing box height, mm */
+
+/* ---------- settings ---------- */
+const DEF = { level:'mixed', count:4, chal:1, picked:[],
+  describe:true, next:true, zero:false, table:true, tableCols:'1-5', predict:true, pred:'rand', back:false, rule:true, ruleMode:'scaffold', see:false,
+  name:true, grid:true, colour:false, key:true };
+let O = Object.assign({}, DEF);
+try{ const s = JSON.parse(localStorage.getItem(STORE)||'null'); if(s) O = Object.assign({}, DEF, s); }catch(e){}
+O.picked = (O.picked||[]).filter(id=>PATTERNS.some(p=>p.id===id));
+const save = () => { try{ localStorage.setItem(STORE, JSON.stringify(O)); }catch(e){} };
+
+const BIND = [
+  ['levelSel','level','v'], ['countSel','count','n'], ['chalSel','chal','n'],
+  ['pDescribe','describe','c'], ['pNext','next','c'], ['pZero','zero','c'], ['pTable','table','c'], ['tableSel','tableCols','v'],
+  ['pPredict','predict','c'], ['predSel','pred','v'], ['pBack','back','c'], ['pRule','rule','c'], ['ruleSel','ruleMode','v'], ['pSee','see','c'],
+  ['nameToggle','name','c'], ['gridToggle','grid','c'], ['colourToggle','colour','c'], ['keyToggle','key','c']
+];
+function syncControls(){
+  BIND.forEach(([id,k,t])=>{ const el=$(id); if(t==='c') el.checked=!!O[k]; else el.value=String(O[k]); });
+  paintPicker();
+}
+BIND.forEach(([id,k,t])=>{
+  $(id).addEventListener('change', ()=>{
+    const el=$(id); O[k] = t==='c' ? el.checked : t==='n' ? Number(el.value) : el.value;
+    save();
+    /* a layout or wording change keeps the SAME patterns and numbers; only Generate re-rolls */
+    if(PAPER) render(); else summary();
+  });
+});
+
+/* ---------- the picker ---------- */
+function thumb(p){
+  const svg = E('svg', { viewBox:'0 0 160 60', role:'img', 'aria-label':p.name });
+  const figs=[1,2,3].map(n=>VP.figure(p,n)||[]), boxes=figs.map(f=>VP.boxOf(f)||{minX:0,maxX:1,minY:-1,maxY:0,w:1,h:1});
+  const GAP=10, sumW=boxes.reduce((t,b)=>t+b.w,0), maxH=Math.max(...boxes.map(b=>b.h));
+  const s=Math.min(9, (156-2*GAP)/sumW, 52/maxH);
+  let x=(160-(sumW*s+2*GAP))/2;
+  figs.forEach((f,i)=>{ const b=boxes[i];
+    const ty = p.align==='bottom' ? 56 - b.maxY*s : 30 - (b.minY+b.maxY)/2*s;
+    const g=E('g',{transform:`translate(${x-b.minX*s},${ty}) scale(${s})`},svg);
+    VP.drawFigure(f,g,p.base); x+=b.w*s+GAP; });
+  svg.querySelectorAll('.shp,.cf,.deco').forEach(e=>e.setAttribute('stroke-width', .8));
+  return svg;
+}
+let pickerBuilt=false;
+function buildPicker(){
+  if(pickerBuilt) return; pickerBuilt=true;
+  const list=$('pickList');
+  ['sweet','mild','medium','spicy','challenge'].forEach(sp=>{
+    const g=document.createElement('div'); g.className='pickGroup';
+    g.innerHTML=`<span class="spiceTag ${sp}">${sp==='challenge'?'Challenge — not linear':SPICE_NAME[sp]}</span>`;
+    list.appendChild(g);
+    const grid=document.createElement('div'); grid.className='pickGrid';
+    PATTERNS.filter(p=>p.spice===sp).forEach(p=>{
+      const c=document.createElement('button'); c.type='button'; c.className='pickCard'; c.dataset.id=p.id;
+      c.appendChild(thumb(p));
+      const nm=document.createElement('span'); nm.textContent=p.name; c.appendChild(nm);
+      const o=document.createElement('i'); o.className='ord'; c.appendChild(o);
+      c.addEventListener('click', ()=>{
+        const i=O.picked.indexOf(p.id);
+        if(i>=0) O.picked.splice(i,1); else O.picked.push(p.id);
+        save(); paintPicker(); summary();
+      });
+      grid.appendChild(c);
+    });
+    list.appendChild(grid);
+  });
+  paintPicker();
+}
+function paintPicker(){
+  document.querySelectorAll('.pickCard').forEach(c=>{
+    const i=O.picked.indexOf(c.dataset.id);
+    c.classList.toggle('on', i>=0); c.querySelector('.ord').textContent = i>=0 ? String(i+1) : '';
+  });
+  $('pickPill').textContent = O.picked.length ? `${O.picked.length} chosen` : 'Random';
+  ['levelSel','countSel','chalSel'].forEach(id=>$(id).disabled = O.picked.length>0);
+}
+$('picker').addEventListener('toggle', buildPicker);
+$('pickClear').addEventListener('click', ()=>{ O.picked=[]; save(); paintPicker(); summary(); });
+
+function summary(){
+  const n = O.picked.length ? O.picked.length : O.count + O.chal;
+  const parts = ['describe','next','zero','table','predict','back','rule','see'].filter(k=>O[k]).length;
+  $('sumPill').textContent = `${n} question${n===1?'':'s'} · ${parts} part${parts===1?'':'s'} each`;
+}
+
+/* =====================================================================
+   CHOOSING THE PAPER — patterns, and the numbers asked about.
+   Held in PAPER so a change of wording or layout keeps the same paper.
+   ===================================================================== */
+let PAPER = null;
+function choosePatterns(){
+  if(O.picked.length) return O.picked.map(id=>PATTERNS.find(p=>p.id===id));
+  let lin;
+  if(O.level==='mixed'){
+    /* a ladder: spread the questions over Sweet → Spicy */
+    lin=[]; const used=new Set();
+    for(let i=0;i<O.count;i++){
+      const tier = LADDER[Math.min(3, Math.floor(i*4/O.count))];
+      let pool = LINEAR.filter(p=>p.spice===tier && !used.has(p.id));
+      if(!pool.length) pool = LINEAR.filter(p=>!used.has(p.id));
+      const p = pool[rnd(pool.length)]; used.add(p.id); lin.push(p);
+    }
+  } else {
+    let pool = shuffle(LINEAR.filter(p=>p.spice===O.level));
+    if(pool.length < O.count) pool = pool.concat(shuffle(LINEAR.filter(p=>p.spice!==O.level)));
+    lin = pool.slice(0, O.count);
+  }
+  return lin.concat(shuffle(CHALLENGE).slice(0, O.chal));
+}
+function newPaper(){
+  const pats = choosePatterns();
+  const predPool = shuffle([6,7,8,9,11,12,13,14,15]);
+  PAPER = pats.map((p,i)=>{
+    const pred = predPool[i % predPool.length];
+    const backOpts = [5,6,7,8,9,10,11,12].filter(k=>k!==pred);
+    return { p, pred, back: backOpts[rnd(backOpts.length)] };
+  });
+}
+
+/* =====================================================================
+   DRAWING ON PAPER — millimetres throughout
+   ===================================================================== */
+function keyFor(p){ return O.colour ? p.base : 'ink'; }
+function emptyBox(){ return { minX:0, maxX:1, minY:-1, maxY:0, w:1, h:1 }; }
+
+/* figures 1–3 side by side, at ONE scale, in a strip W mm wide and at most H mm tall */
+function stripSVG(p, W, H){
+  const ns=[1,2,3], figs=ns.map(n=>VP.figure(p,n)||[]), boxes=figs.map(f=>VP.boxOf(f)||emptyBox());
+  const GAP=9, LAB=5.5, MINW=18;
+  const sumW=boxes.reduce((t,b)=>t+b.w,0), maxH=Math.max(...boxes.map(b=>b.h));
+  let s=Math.min(11, (W-GAP*2-4)/sumW, (H-LAB-2)/maxH);
+  const slot = b => Math.max(b.w*s, MINW);
+  const total = boxes.reduce((t,b)=>t+slot(b),0) + GAP*2;
+  const h = maxH*s + LAB + 2;
+  const svg = E('svg', { class:'strip', viewBox:`0 0 ${W} ${h.toFixed(2)}`, role:'img', 'aria-label':'Figures 1, 2 and 3' });
+  let x=(W-total)/2;
+  const base = maxH*s + 1, mid = (maxH*s)/2 + 1;
+  figs.forEach((f,i)=>{
+    const b=boxes[i], sw=slot(b), cx=x+sw/2;
+    const tx = cx - b.w*s/2 - b.minX*s;
+    const ty = p.align==='bottom' ? base - b.maxY*s : mid - (b.minY+b.maxY)/2*s;
+    const g=E('g',{transform:`translate(${tx.toFixed(3)},${ty.toFixed(3)}) scale(${s.toFixed(4)})`},svg);
+    VP.drawFigure(f,g,keyFor(p));
+    const t=E('text',{x:cx.toFixed(2), y:(h-.6).toFixed(2), 'text-anchor':'middle', 'font-size':3.4},svg); t.textContent='Figure '+ns[i];
+    if(i>0) E('line',{x1:(x-GAP/2).toFixed(2), x2:(x-GAP/2).toFixed(2), y1:0, y2:(h-1).toFixed(2), stroke:'#d1d5db', 'stroke-width':.35},svg);
+    x+=sw+GAP;
+  });
+  return { svg, s };
+}
+/* one figure drawn to fit a box, no bigger than the strip's scale */
+function figureSVG(p, n, Wmm, Hmm, sMax){
+  const f = VP.figure(p,n);
+  if(!f || !f.length) return null;
+  const b = VP.boxOf(f);
+  const s = Math.min(sMax, (Wmm-6)/b.w, (Hmm-8)/b.h);
+  const w = b.w*s, h = b.h*s;
+  const svg = E('svg', { viewBox:`0 0 ${w.toFixed(2)} ${h.toFixed(2)}`, width:`${w.toFixed(2)}mm`, height:`${h.toFixed(2)}mm` });
+  const g = E('g',{transform:`translate(${(-b.minX*s).toFixed(3)},${(-b.minY*s).toFixed(3)}) scale(${s.toFixed(4)})`},svg);
+  VP.drawFigure(f,g,keyFor(p));
+  return svg;
+}
+let gridId=0;
+function gridSVG(iso){
+  const id='g'+(++gridId);
+  const svg=E('svg',{class:'grid','aria-hidden':'true'});
+  const defs=E('defs',{},svg);
+  if(iso){
+    const pat=E('pattern',{id, width:'8.66mm', height:'5mm', patternUnits:'userSpaceOnUse'},defs);
+    /* user space in px: 1mm = 3.7795px */
+    pat.setAttribute('width', 8.66*MM); pat.setAttribute('height', 5*MM);
+    [[0,0],[4.33,2.5],[8.66,0],[0,5],[8.66,5]].forEach(([x,y])=>E('circle',{cx:x*MM, cy:y*MM, r:.9, fill:'#9ca3af'},pat));
+  } else {
+    const pat=E('pattern',{id, width:5*MM, height:5*MM, patternUnits:'userSpaceOnUse'},defs);
+    E('circle',{cx:2.5*MM, cy:2.5*MM, r:.9, fill:'#9ca3af'},pat);
+  }
+  E('rect',{width:'100%', height:'100%', fill:`url(#${id})`},svg);
+  return svg;
+}
+
+/* =====================================================================
+   ONE QUESTION CARD (the student's, or the key's)
+   ===================================================================== */
+const isCube = p => VP.figure(p,1).some(e=>e.t==='cube');
+function nounOf(p,c){ return c===1 ? p.noun[0] : p.noun[1]; }
+function tableCols(){
+  switch(O.tableCols){
+    case '0-5': return [0,1,2,3,4,5];
+    case '1-5,10': return [1,2,3,4,5,10];
+    case '1-5,n': return [1,2,3,4,5,'n'];
+    default: return [1,2,3,4,5];
+  }
+}
+function zeroText(p){
+  const f=VP.figure(p,0);
+  if(f===null){
+    if(!p.nonlinear){ const b=VP.intercept(p); return `It can’t be drawn: going back a step from figure 1 would leave ${b} ${p.noun[1]}.`; }
+    return 'It can’t be drawn — there is no figure before figure 1.';
+  }
+  const c=VP.countOf(p,0);
+  if(c===0) return `Figure 0 is empty: 0 ${p.noun[1]}.`;
+  return `${c} ${nounOf(p,c)} — the part that is always there.`;
+}
+function ruleWords(p){
+  if(p.nonlinear) return `${p.ways[0]}.`;
+  const m=VP.slope(p);
+  return `${p.ways[0]}. It grows by ${m} ${nounOf(p,m)} each time.`;
+}
+
+function buildCard(q, idx, key, W){
+  const p=q.p, chal=!!p.nonlinear;
+  const card=document.createElement('div'); card.className='qCard';
+  const top=document.createElement('div'); top.className='qTop';
+  top.innerHTML=`<span class="qNum ${p.spice}">${idx}</span><span class="qHead">Question ${idx}${chal?' ★':''}</span><span class="qSub">Count the ${p.noun[1]}</span>`;
+  card.appendChild(top);
+  const st=stripSVG(p, W, 33);
+  card.appendChild(st.svg);
+  if(p.credit){ const c=document.createElement('div'); c.className='credit'; c.textContent=p.credit; card.appendChild(c); }
+
+  const parts=[];   /* {span, node} */
+  let letter=0;
+  const L = () => String.fromCharCode(97 + letter++) + ')';
+  const pq = (txt) => { const d=document.createElement('div'); d.className='pq'; d.innerHTML=`<span class="lt">${L()}</span><span>${txt}</span>`; return d; };
+  const part = (span, ...kids) => { const d=document.createElement('div'); d.className='part'+(span===2?' span2':''); kids.forEach(k=>k&&d.appendChild(k)); parts.push({span, node:d}); return d; };
+  const lines = (n) => { const d=document.createElement('div'); d.className='lines'; d.style.height=(n*6.6+.3)+'mm'; return d; };
+  const keyText = (html) => { const d=document.createElement('div'); d.className='keyText'; d.innerHTML=html; return d; };
+  const drawBox = (n, cap) => {
+    const d=document.createElement('div'); d.className='drawBox'; d.style.height=BOXH+'mm';
+    if(O.grid) d.appendChild(gridSVG(isCube(p)));
+    const c=document.createElement('span'); c.className='cap'; c.textContent=cap; d.appendChild(c);
+    if(key){
+      const a=document.createElement('div'); a.className='ans';
+      const svg=figureSVG(p, n, (W-3)/2, BOXH, st.s);
+      if(svg) a.appendChild(svg); else { const t=document.createElement('div'); t.className='keyText'; t.style.margin='0 6mm'; t.textContent=zeroText(p); a.appendChild(t); }
+      d.appendChild(a);
+    }
+    return d;
+  };
+
+  if(O.describe){
+    part(1, pq('How is the pattern changing? Describe it in your own words.'), key ? keyText(`<b>One way:</b> ${esc(ruleWords(p))}`) : lines(O.next||O.zero ? 4 : 3));
+  }
+  if(O.next) part(1, pq(`Draw figure 4.`), drawBox(4, 'Figure 4'));
+  if(O.zero){
+    const d = part(1, pq('Go backwards. Draw figure 0.'), drawBox(0, 'Figure 0'));
+    if(key && VP.figure(p,0) && VP.figure(p,0).length) d.appendChild(keyText(esc(zeroText(p))));
+  }
+  if(O.table){
+    const cols=tableCols();
+    const t=document.createElement('table'); t.className='vt';
+    const nm = p.noun[1].charAt(0).toUpperCase()+p.noun[1].slice(1);
+    let h=`<tr><th class="rowHead">Figure number</th>${cols.map(c=>`<th>${c==='n'?'<i style="font-family:var(--mathFont)">n</i>':c}</th>`).join('')}</tr>`;
+    h+=`<tr><th class="rowHead">Number of ${p.noun[1]}</th>${cols.map(c=>{
+      if(!key) return '<td></td>';
+      if(c==='n') return `<td style="font-family:var(--mathFont)">${esc(VP.ruleOf(p))}</td>`;
+      const v=VP.countOf(p,c); return `<td>${v==null?'—':v}</td>`;
+    }).join('')}</tr>`;
+    t.innerHTML=h;
+    part(2, pq('Fill in the table.'), t);
+  }
+  if(O.predict){
+    const n = O.pred==='rand' ? q.pred : Number(O.pred);
+    const c = VP.countOf(p,n);
+    const al=document.createElement('div'); al.className='ansLine';
+    al.innerHTML = key ? `<span class="keyBlank">${c}</span><span>${esc(nounOf(p,c))}</span>`
+                       : `<span class="blank sm"></span><span>${esc(p.noun[1])}, because</span><span class="blank" style="flex:1"></span>`;
+    part(1, pq(`How many ${esc(p.noun[1])} will be in figure ${n}?`), al, key ? null : lines(1));
+  }
+  if(O.back){
+    const k=q.back, c=VP.countOf(p,k);
+    const al=document.createElement('div'); al.className='ansLine';
+    al.innerHTML = key ? `<span>Figure</span><span class="keyBlank">${k}</span>` : `<span>Figure</span><span class="blank sm"></span>`;
+    part(1, pq(`Which figure has ${c} ${esc(nounOf(p,c))}?`), al, key ? null : lines(1));
+  }
+  if(O.rule){
+    const nounCap = 'Number of ' + p.noun[1];
+    let body;
+    if(chal){
+      body = document.createElement('div'); body.className='rule';
+      body.innerHTML = key ? `<span>${esc(nounCap)} =</span><span class="key">${esc(p.rule)}</span>` : `<span>★ Challenge: can you find a rule?</span><span class="blank lg"></span>`;
+      if(!key){ const w=document.createElement('div'); w.appendChild(body); w.appendChild(lines(1)); body=w; }
+    } else if(O.ruleMode==='scaffold'){
+      body=document.createElement('div'); body.className='rule';
+      body.innerHTML = key
+        ? `<span>${esc(nounCap)} =</span><span class="keyBlank">${VP.slope(p)}</span><span>× figure number ${VP.intercept(p)<0?'−':'+'}</span><span class="keyBlank">${Math.abs(VP.intercept(p))}</span>`
+        : `<span>${esc(nounCap)} =</span><span class="blank sm"></span><span>× figure number +</span><span class="blank sm"></span>`;
+    } else if(O.ruleMode==='both'){
+      body=document.createElement('div');
+      if(key) body.appendChild(keyText(`<b>In words:</b> ${esc(nounCap.toLowerCase())} = ${VP.slope(p)} × the figure number ${VP.intercept(p)<0?'−':'+'} ${Math.abs(VP.intercept(p))}<br><b>In symbols:</b> <span style="font-family:var(--mathFont)">${esc(VP.ruleOf(p))}</span>`));
+      else { const a=document.createElement('div'); a.className='ansLine'; a.innerHTML='<span>In words:</span>'; body.appendChild(a); body.appendChild(lines(2));
+             const b=document.createElement('div'); b.className='rule'; b.innerHTML='<span>In symbols:</span><span class="blank lg"></span>'; body.appendChild(b); }
+    } else {
+      body=document.createElement('div'); body.className='rule';
+      body.innerHTML = key ? `<span>Rule:</span><span class="key">${esc(nounCap)} = ${esc(VP.ruleOf(p))}</span>` : `<span>Rule:</span><span class="blank lg" style="flex:1"></span>`;
+    }
+    const nt = document.createElement('div');
+    nt.innerHTML = key && !chal && O.ruleMode!=='both' ? `<div class="keyText" style="margin-top:1mm">${esc(nounCap)} = <span style="font-family:var(--mathFont)">${esc(VP.ruleOf(p))}</span>, where <i>n</i> is the figure number.</div>` : '';
+    part(O.ruleMode==='both' && !chal ? 2 : 1, pq(chal ? 'Write a rule for the number of '+esc(p.noun[1])+' in any figure.' : 'Write a rule for the number of '+esc(p.noun[1])+' in figure <i>n</i>.'), body, nt.firstChild);
+  }
+  if(O.see){
+    part(2, pq('How do you see it growing? Colour or circle the groups on figures 1, 2 and 3.'), key ? keyText(esc(p.ways.join('  •  '))) : null);
+  }
+
+  /* a lone half-width part at the end of a row takes the whole row */
+  for(let i=0;i<parts.length;i++){
+    const cur=parts[i];
+    if(cur.span!==1) continue;
+    const nxt=parts[i+1];
+    if(!nxt || nxt.span===2){ cur.node.classList.add('span2'); cur.span=2; }
+    else i++;   /* this one and the next share a row */
+  }
+  if(parts.length){
+    const grid=document.createElement('div'); grid.className='parts';
+    parts.forEach(pt=>grid.appendChild(pt.node));
+    card.appendChild(grid);
+  }
+  return card;
+}
+
+/* =====================================================================
+   PAGES — measured, not estimated. A card is appended; if the sheet has
+   overflowed, it comes off again and starts the next page.
+   ===================================================================== */
+function newPage(out, key, first){
+  const pg=document.createElement('div'); pg.className='page';
+  const hd=document.createElement('div'); hd.className='pageHeader';
+  hd.innerHTML = `<div><div class="hdrTitle">Visual Patterns${key?' — Answer key':''}</div><div class="hdrSub">Stage 4 · Linear relationships</div></div>` +
+    (O.name && !key ? `<div class="nameDate"><div class="lineField wide"><span class="lineLabel">Name</span><span class="lineBox"></span></div><div class="lineField"><span class="lineLabel">Date</span><span class="lineBox"></span></div></div>` : '');
+  const sh=document.createElement('div'); sh.className='sheet';
+  if(first && !key){
+    const p=document.createElement('p'); p.className='intro';
+    p.textContent='For each pattern, look closely at figures 1, 2 and 3. Describe what you notice happening, then answer the questions.';
+    sh.appendChild(p);
+  }
+  const ft=document.createElement('div'); ft.className='pageFooter';
+  ft.innerHTML=`<span><a href="https://www.millsmathstools.au">millsmathstools.au</a> · Visual Patterns</span><span class="pgNo"></span>`;
+  pg.append(hd, sh, ft); out.appendChild(pg);
+  return sh;
+}
+function paginate(out, key){
+  const startCount = out.children.length;
+  let sheet = newPage(out, key, true);
+  const W = 196 - 2*3 - 2*.35;   /* card inner width, mm */
+  let shownChal = false;
+  PAPER.forEach((q,i)=>{
+    const items=[];
+    if(q.p.nonlinear && !shownChal){
+      shownChal=true;
+      const h=document.createElement('div'); h.className='chalHead';
+      h.innerHTML='<span class="star">★</span><span>Challenge &mdash; this pattern does not grow by the same amount each time.</span>';
+      items.push(h);
+    }
+    items.push(buildCard(q, i+1, key, W));
+    const place = () => { items.forEach(it=>sheet.appendChild(it)); return sheet.scrollHeight <= sheet.clientHeight + 1; };
+    if(!place()){
+      const onlyThese = sheet.children.length === items.length + (sheet.querySelector('.intro')?1:0);
+      if(!onlyThese){
+        items.forEach(it=>it.remove());
+        sheet = newPage(out, key, false);
+        place();
+      }
+    }
+  });
+  const pages=[...out.children].slice(startCount);
+  pages.forEach((pg,i)=>pg.querySelector('.pgNo').textContent=`${key?'Key · ':''}Page ${i+1} of ${pages.length}`);
+}
+function render(){
+  if(!PAPER) return;
+  const out=$('out'); out.innerHTML='';
+  out.classList.add('paper');
+  paginate(out, false);
+  if(O.key){
+    const wrapK=document.createElement('div'); wrapK.className='isKey';
+    out.appendChild(wrapK);
+    paginate(wrapK, true);
+  }
+  summary();
+}
+
+$('genBtn').addEventListener('click', ()=>{ newPaper(); render(); });
+$('printBtn').addEventListener('click', ()=>{ if(!PAPER){ newPaper(); render(); } window.print(); });
+$('resetBtn').addEventListener('click', ()=>{ O=Object.assign({}, DEF, {picked:[]}); save(); syncControls(); newPaper(); render(); });
+
+syncControls();
+summary();
+newPaper();
+render();
+
+window.__WS__ = { O, get PAPER(){ return PAPER; }, newPaper, render, VP, set(k,v){ O[k]=v; render(); } };
+})();
+</script>
+</body>
+</html>

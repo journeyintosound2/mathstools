@@ -81,6 +81,42 @@
 > §2 "TWO folders", §3 deploy paths and §5's `mathstools-main 2` heading below
 > describe the OLD layout — this block supersedes them.
 >
+> **NEW (2026-10-16, session 2 — being pushed): VISUAL PATTERNS — LIBRARY + WORKSHEET.**
+> * **THE PATTERNS NOW LIVE IN ONE SHARED FILE**,
+>   `interactive-tools/stage-4/algebra/visual-patterns/patterns.js` (plain script,
+>   `window.MMT_VP`), loaded by the teaching tool AND the worksheet creator. Add a
+>   pattern there and it appears in both. It also holds the colours, `drawEl` /
+>   `paintEl` / `drawFigure`, `countOf`, `sizeOf`, `ruleOf`, `slope`, `intercept`.
+> * **57 patterns: 42 linear (Sweet 11 / Mild 14 / Medium 14 / Spicy 3) + 15
+>   CHALLENGE (`spice:'challenge'`, `nonlinear:true`)** — squares, rectangles,
+>   staircase, triangle and hexagon numbers, step pyramid, diamond, square with a
+>   tail, square missing a corner, matchstick grid, triangle of triangles, cube of
+>   cubes, cube pyramid, doubling, and "Two blocks" (2n²+2n+3, adapted from
+>   visualpatterns.org, CC BY 4.0 — `credit` field, shown on the board and paper).
+>   A challenge pattern carries `count(n)` and `rule`; `sizeOf()` is checked BEFORE a
+>   figure is built (MAXP 1500 in the tool) so figure 30 of the cube of cubes is
+>   never generated. Random "New pattern" stays within linear or within challenge.
+> * **Trapezium tables restyled (copyright):** the teal-table/yellow-chair look is
+>   Make Math Moments' design, so tables are light blue (`TABLE`) and seats are
+>   brown SQUARES (`t:'seat'`, turned square to their edge by `seatOn`). Square,
+>   triangle and hexagon tables use the same style.
+> * Matchstick heads: `placeHeads()` — patterns must build sticks in GROWTH ORDER
+>   (layer by layer) or heads flip ends as the figure grows.
+> * **WORKSHEET CREATOR** `worksheet-creators/stage-4/algebra/visual-patterns.html`
+>   (the tool's Tools menu now links it). Level ladder or pick patterns by hand
+>   (thumbnail picker, in order), 1–8 linear + 0–2 challenge. Parts, in lesson
+>   order: describe in words, draw figure 4, draw figure 0, table (1–5 / 0–5 /
+>   1–5,10 / 1–5,n), predict (a different figure 6–15 each question, or 10/20/100),
+>   work backwards, rule (open / ___ × figure number + ___ / words then symbols),
+>   show how you see it. Dot paper in drawing boxes (isometric for cubes), black and
+>   white unless colour is chosen. Pages are 196 × 281 mm on screen AND in print;
+>   cards are measured and never split. Answer key draws figures 4 and 0, fills the
+>   table, gives the rule and one way of seeing it. Not trilingual (yet).
+> * Verified: 11,345 tool checks (every step of all 57 patterns at 1366/1024), 32
+>   interaction, 30 full screen, 281 worksheet (every rule re-derived, 41 random
+>   configurations with nothing overflowing a page, key answers checked, no answers
+>   on student pages, PDF page count = preview).
+>
 > **NEW (2026-10-16, session — being pushed): VISUAL PATTERNS.**
 > `interactive-tools/stage-4/algebra/visual-patterns/`, a Stage 4 teaching tool
 > under **MA4-LIN-C-01** (row in `resources/toolLinks.js`, homepage Interactive

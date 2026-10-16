@@ -1170,8 +1170,15 @@ window.MMT_TOOL_LINKS = {
       title: "Visual Patterns",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-4/algebra/visual-patterns/",
-      note: "Reveal a growing pattern one figure at a time: notice and wonder, predict figure 4, go back to figure 0, then 10, 30, 100 and any figure n. Recolour the figures to show different ways of seeing the growth. No tables or rules on screen \u2014 the lead-in to writing a linear rule.",
+      note: "57 growing patterns (42 linear, 15 non-linear challenges) revealed one figure at a time: notice and wonder, predict figure 4, go back to figure 0, then 10, 30, 100 and any figure n. Recolour the figures to show different ways of seeing the growth. No tables or rules on screen \u2014 the lead-in to writing a linear rule.",
       tags: ["visual patterns", "growing patterns", "notice and wonder", "predict", "linear relationship", "rule", "generalise", "constant rate of change", "matchsticks", "equivalent expressions"]
+    },
+    {
+      title: "Visual Patterns",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-4/algebra/visual-patterns.html",
+      note: "Printable growing-pattern questions from the teaching tool: describe the change in words, draw figure 4 and figure 0 on dot paper, fill in a table, predict a far figure, work backwards and write the rule. Optional non-linear challenge and an answer key.",
+      tags: ["worksheet generator", "printable", "visual patterns", "table of values", "rule", "linear relationship", "predict", "answer key"]
     },
     {
       title: "Capture the Grid",
