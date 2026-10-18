@@ -562,8 +562,6 @@
       <span class="myPen" id="myPen">Your pen <span class="chip" id="myPenChip"></span></span>
       <button class="tbtn ghostish tog" id="btnSums" type="button" aria-pressed="false" title="Write the total on every join you draw"><span class="box"></span>Sums on joins</button>
       <span class="spacer"></span>
-      <button class="tbtn hint act" id="btnHint" type="button">Hint</button>
-      <button class="tbtn net act" id="btnNet" type="button">Network</button>
       <button class="tbtn ghostish act" id="btnUndo" type="button" title="Undo (Ctrl+Z)" disabled>Undo</button>
       <div class="moreWrap act" id="moreWrap">
         <button class="tbtn ghostish moreBtn" id="btnMore" type="button" aria-expanded="false" aria-controls="moreMenu">More &#9662;</button>
@@ -576,14 +574,6 @@
       <button class="tbtn go act" id="btnCheck2" type="button">Check answer</button>
     </div>
 
-    <div class="hintBox" id="hintBox" role="region" aria-label="Hints" aria-live="polite">
-      <ol id="hintList"></ol>
-      <div class="hintFoot">
-        <span class="count" id="hintCount"></span>
-        <button class="tbtn ghostish" id="btnHintHide" type="button">Hide hints</button>
-        <button class="tbtn hint" id="btnHintNext" type="button">Next hint</button>
-      </div>
-    </div>
 
     <section class="card boardCard">
       <div class="board modeMove" id="board">
@@ -2018,30 +2008,13 @@ var SSC = (function(){
     else if(dead.length > 2) h.push(andList(bits) + ' can each only sit next to one number, so every one of them would have to be an end of the chain&hellip; but a chain only has <b>two</b> ends. What does that tell you?');
     else if(dead.length === 1){ var v = dead[0], u = g.adj[v][0];
       h.push('<b>' + v + '</b> can only sit next to ' + u + ', so ' + v + ' must be one end, with ' + u + ' beside it. What could go on the other side of ' + u + '? Follow it along.'); }
-    h.push('Still stuck? Press <b>Network</b>. Every number is a dot and every pair that makes a square is a line. Try to trace a path that visits every dot once &mdash; and if you can’t, ask <b>why</b> not.');
+    h.push('Still stuck? Make it a network: use <b>Join</b> to connect every pair that makes a square. Then try to trace a path that visits every number once &mdash; and if you can’t, ask <b>why</b> not.');
     return h;
   }
-  var hintBox = document.getElementById('hintBox'), hintList = document.getElementById('hintList');
-  function renderHints(){
-    if(!hintBox) return;
-    var h = hintsFor(N);
-    hintBox.classList.toggle('show', hintLevel > 0);
-    var had = hintList.children.length;
-    hintList.innerHTML = '';
-    for(var i=0; i<hintLevel && i<h.length; i++){
-      var li = document.createElement('li'); li.innerHTML = h[i];
-      if(i >= had) li.className = 'new';
-      hintList.appendChild(li);
-    }
-    document.getElementById('hintCount').textContent = 'Hint ' + Math.min(hintLevel, h.length) + ' of ' + h.length;
-    document.getElementById('btnHintNext').disabled = hintLevel >= h.length;
-    document.getElementById('btnHint').textContent = hintLevel ? 'Next hint' : 'Hint';
-    if(typeof fitBoard === 'function' && trayEl){ var before = board.clientHeight; fitBoard(); if(board.clientHeight !== before) renderBoard(); }
-  }
-  function nextHint(){ hintLevel = Math.min(hintsFor(N).length, hintLevel + 1); renderHints(); }
-  document.getElementById('btnHint').addEventListener('click', nextHint);
-  document.getElementById('btnHintNext').addEventListener('click', nextHint);
-  document.getElementById('btnHintHide').addEventListener('click', function(){ hintLevel = 0; hintList.innerHTML = ''; renderHints(); });
+  // Hints were removed (teacher decision 2026-10-19: they gave the answer away).
+  // hintsFor() is kept for reference; nothing on the page shows it.
+  var hintBox = null;
+  function renderHints(){}
 
   /* ================= sums on the joins (toggle) ================= */
   document.getElementById('btnSums').addEventListener('click', function(){
@@ -2276,7 +2249,16 @@ var SSC = (function(){
       modalEl.classList.remove('show');
       if(lastFocus && lastFocus.focus && lastFocus !== document.body) lastFocus.focus({ preventScroll:true });
     }
-    document.getElementById('btnNet').addEventListener('click', open);
+    // No toolbar button (teacher decision 2026-10-19): students reach the network
+    // view only from the "Solved!" message. Teachers can press N to open it any time
+    // (e.g. to step through why 1 to 18 is impossible).
+    document.addEventListener('keydown', function(e){
+      if(e.key !== 'n' && e.key !== 'N') return;
+      if(e.ctrlKey || e.metaKey || e.altKey) return;
+      var t = e.target; if(t && (t.tagName === 'INPUT' || t.tagName === 'SELECT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+      if(document.querySelector('.modal.show')) return;
+      open();
+    });
     document.getElementById('btnNetClose').addEventListener('click', close);
     modalEl.addEventListener('click', function(e){ if(e.target === modalEl) close(); });
     document.addEventListener('keydown', function(e){ if(e.key === 'Escape') close(); });

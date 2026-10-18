@@ -95,7 +95,9 @@
 >   force both joins; full numbers cross out other joins; "if it were the end" lookahead;
 >   case splits) ending in the chain or a contradiction. Verified for every N: never calls a
 >   possible N impossible, and every forced/crossed-out join agrees with every real chain.
-> * Network view (Trace / Reason it out / Show a chain — gated reveal), 5-step hint ladder
+> * Network view (Trace / Reason it out / Show a chain — gated reveal) — NO toolbar button
+>   (teacher decision 2026-10-19): opened from the "Solved!" message, or the N key for the
+>   teacher. NO hints (removed 2026-10-19 — they gave it away; `hintsFor()` kept, unused)
 >   built from the graph, "Sums on joins" toggle (Move/Join modes), each tool shows only
 >   its own options so the toolbar is one row at 1366.
 > * **APP LAYOUT FOR PHONES / iPADS / 768-HIGH LAPTOPS:** toolbar `position:sticky` top,
