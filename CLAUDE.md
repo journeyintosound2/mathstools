@@ -81,6 +81,24 @@
 > §2 "TWO folders", §3 deploy paths and §5's `mathstools-main 2` heading below
 > describe the OLD layout — this block supersedes them.
 >
+> **NEW (2026-10-19, session — being pushed): NUMBER SUM CHAIN UPGRADE.**
+> `interactive-tools/stage-5/measurement-space/square-sum-chain/` (MA5-NET-P-01), now
+> also a homepage Interactive card (pill 34 -> 35). Notes: project doc `claude/number-sum-chain.md`.
+> * **How-to-play pop-up on load** (`?intro=0` skips, round ? button reopens). Its demo uses
+>   numbers ABOVE 25 (30+34, 30+35, 34·30·51) on purpose: with 1–15, 14 of the 15 square
+>   pairs are links in the unique answer (1+3 is the odd one out), so ANY in-range example
+>   hands over a start. Keep demo numbers above the picker's max.
+> * **N picker 15–25** (`state.n` in the room doc — no rules change, `state` is an open map).
+>   Chains exist for 15/16/17 (one each), 23 (three), 25 (ten); none for 18–22 and 24.
+> * **DOM-free engine `<script id="sscEngine">`, `var SSC`**: `graph`, `solutions`, `deadEnds`,
+>   `reason(n)` — a step-by-step deduction (dead ends are ends; non-ends with two partners
+>   force both joins; full numbers cross out other joins; "if it were the end" lookahead;
+>   case splits) ending in the chain or a contradiction. Verified for every N: never calls a
+>   possible N impossible, and every forced/crossed-out join agrees with every real chain.
+> * Network view (Trace / Reason it out / Show a chain — gated reveal), 5-step hint ladder
+>   built from the graph, "Sums on joins" toggle (Move/Join modes), each tool shows only
+>   its own options so the toolbar is one row at 1366.
+>
 > **NEW (2026-10-16, session 3 — being pushed): ORDER OF OPERATIONS — SAY WHAT YOU SEE.**
 > `interactive-tools/stage-4/number/order-of-operations-in-words/`, built from Jeff's
 > "Order of operations review" deck. Listed under **MA4-INT-C-01** and **MA3-MR-02**

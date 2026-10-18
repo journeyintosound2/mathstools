@@ -111,7 +111,7 @@
     padding:8px 11px; border-radius:12px; font-weight:850; font-size:14px; cursor:pointer;
     box-shadow:0 2px 6px rgba(15,23,42,.06); }
   .toolOpts{ display:inline-flex; gap:8px; align-items:center; }
-  .toolOpts[hidden]{ display:none; }
+  .toolOpts[hidden], .tbtn[hidden]{ display:none; }
   .myPen{ display:none; align-items:center; gap:7px; font-size:.8rem; font-weight:850; color:var(--muted); }
   .myPen .chip{ width:20px; height:20px; border-radius:50%; border:2px solid white; box-shadow:0 0 0 1.5px var(--border); }
 
@@ -236,9 +236,10 @@
   .peopleList{ display:flex; gap:7px; flex-wrap:wrap; margin-bottom:14px; }
 
   /* ---------- intro pop-up (rules + demo) ----------
-     The demo deliberately uses numbers ABOVE 15. With 1-15 there are only 15
-     pairs that make a square, and 14 of them are links in the answer (the odd
-     one out is 1 + 3) — any in-range example would hand the class a start. */
+     The demo deliberately uses numbers ABOVE 25 (the picker's maximum). With
+     1-15 there are only 15 pairs that make a square, and 14 of them are links in
+     the answer (the odd one out is 1 + 3) — any in-range example would hand the
+     class a start. */
   .introBox{ width:min(600px,100%); padding:22px clamp(16px,3vw,28px) 20px; }
   .introKicker{ font-size:.72rem; font-weight:900; letter-spacing:.1em; text-transform:uppercase; color:var(--purple); margin-bottom:4px; }
   .introBox h2{ font-size:clamp(1.25rem,2.6vw,1.55rem); margin:0 0 14px; }
@@ -269,7 +270,7 @@
   .dlink.good .dsum{ background:var(--green-soft); border-color:var(--green); color:#14532d; }
   .dlink.bad::before{ background:var(--red); }
   .dlink.bad .dsum{ background:var(--red-soft); border-color:var(--red); color:#7f1d1d; }
-  .demoDots{ height:126px; margin-top:8px; display:flex; align-items:flex-end; justify-content:center; gap:28px; }
+  .demoDots{ height:132px; margin-top:8px; display:flex; align-items:flex-end; justify-content:center; gap:28px; }
   .dsqWrap{ display:flex; flex-direction:column; align-items:center; gap:6px; animation:dIn .25s ease both; }
   .dsq{ display:grid; gap:var(--g,4px); }
   .dsq i{ width:var(--d,11px); height:var(--d,11px); border-radius:50%; background:#3b82f6; display:block;
@@ -302,6 +303,99 @@
   @media (max-width:520px){
     .dlink.wide{ width:96px; } .dtok{ width:48px; height:48px; font-size:1.1rem; } .dlink{ width:34px; }
     .demoDots{ gap:16px; }
+  }
+
+  /* ---------- how far does it go? ---------- */
+  .nRow{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .nRow label{ font-weight:850; color:#1e293b; }
+  .nSel{ appearance:none; border:1.5px solid #bfdbfe; background:white; color:var(--blue-dark);
+    padding:6px 30px 6px 12px; border-radius:11px; font-weight:1000; font-size:1rem; cursor:pointer;
+    background-image:linear-gradient(45deg,transparent 50%,#1d4ed8 50%),linear-gradient(135deg,#1d4ed8 50%,transparent 50%);
+    background-position:calc(100% - 15px) 52%, calc(100% - 10px) 52%; background-size:5px 5px; background-repeat:no-repeat; }
+  .nSel:focus{ outline:none; box-shadow:0 0 0 4px rgba(37,99,235,.18); }
+  .nRow .nNote{ color:var(--muted); font-weight:700; font-size:.88rem; }
+
+  /* ---------- answer chain: fit one row, or wrap ---------- */
+  .chain{ --slot:54px; --linkW:32px; }
+  .chain .cu{ display:flex; align-items:center; flex:0 0 auto; }
+  .chain .slot{ width:var(--slot); height:var(--slot); }
+  .chain .link{ width:var(--linkW); height:var(--slot); }
+  .chain.wrap{ flex-wrap:wrap; row-gap:26px; min-width:0; }
+  .chain .slot .tok{ font-size:calc(var(--slot) * .4); }
+
+  /* ---------- toolbar extras ---------- */
+  /* tighter toolbar so Move/Join fit one row at 1366 and Pen fits at 1920 */
+  .toolbar{ gap:6px; }
+  .toolbar .tbtn{ padding:9px 11px; }
+  .toolbar .seg button{ padding:7px 11px; }
+  .tbtn.hint{ background:#fffbeb; border-color:#fcd34d; color:#92400e; }
+  .tbtn.net{ background:#f5f3ff; border-color:#c4b5fd; color:#5b21b6; }
+  .tbtn[aria-pressed="true"].tog{ background:#eff6ff; border-color:var(--blue); color:var(--blue-dark); box-shadow:0 0 0 3px rgba(37,99,235,.14); }
+  .tog .box{ display:inline-block; width:14px; height:14px; border-radius:4px; border:2px solid currentColor; margin-right:6px; vertical-align:-2px; position:relative; }
+  .tog[aria-pressed="true"] .box{ background:var(--blue); border-color:var(--blue); }
+  .tog[aria-pressed="true"] .box::after{ content:""; position:absolute; left:3px; top:0; width:4px; height:8px; border:solid white; border-width:0 2px 2px 0; transform:rotate(45deg); }
+
+  /* ---------- hints ---------- */
+  .hintBox{ display:none; background:#fffbeb; border:1.5px solid #fcd34d; border-radius:16px; padding:12px 14px; margin-bottom:12px; }
+  .hintBox.show{ display:block; }
+  .hintBox ol{ margin:0; padding-left:1.3em; display:grid; gap:7px; }
+  .hintBox li{ color:#78350f; font-weight:700; line-height:1.5; }
+  .hintBox li b{ color:#92400e; }
+  .hintBox li.new{ animation:dIn .3s ease both; }
+  .hintFoot{ display:flex; gap:8px; justify-content:flex-end; align-items:center; margin-top:10px; flex-wrap:wrap; }
+  .hintFoot .count{ margin-right:auto; font-size:.78rem; font-weight:900; color:#b45309; text-transform:uppercase; letter-spacing:.07em; }
+
+  /* ---------- sums on the joins ---------- */
+  #wires .wsum rect{ fill:white; stroke:#94a3b8; stroke-width:1.5; }
+  #wires .wsum text{ font:900 13px var(--uiFont); fill:var(--ink); text-anchor:middle; dominant-baseline:central; }
+
+  /* ---------- verdict buttons ---------- */
+  .verdict .acts{ display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+
+  /* ---------- network view ---------- */
+  .netBox{ width:min(1200px,100%); max-height:94vh; padding:18px clamp(14px,2.4vw,24px); display:flex; flex-direction:column; }
+  .netHead{ display:flex; gap:12px; align-items:flex-start; justify-content:space-between; }
+  .netHead h2{ margin:0 0 2px; }
+  .netHead p.sub{ margin:0 0 10px; max-width:70ch; }
+  .xBtn{ appearance:none; border:1px solid var(--border); background:white; width:40px; height:40px; border-radius:12px; font-size:20px; font-weight:900; cursor:pointer; flex:0 0 auto; color:var(--muted); }
+  .xBtn:hover{ color:var(--ink); border-color:#94a3b8; }
+  .netGrid{ display:grid; grid-template-columns:minmax(0,1fr) minmax(300px,380px); gap:16px; min-height:0; flex:1 1 auto; }
+  .netStage{ min-width:0; display:flex; flex-direction:column; align-items:center; min-height:0; }
+  #netSvg{ width:100%; height:auto; max-height:calc(94vh - 190px); display:block; touch-action:manipulation; }
+  #netSvg .e{ stroke-linecap:round; transition:stroke-width .2s, opacity .2s; }
+  #netSvg .node{ cursor:pointer; }
+  #netSvg .node circle{ transition:fill .15s, stroke .15s; }
+  #netSvg .node text{ font:900 17px var(--uiFont); text-anchor:middle; dominant-baseline:central; pointer-events:none; }
+  #netSvg .node:focus{ outline:none; }
+  #netSvg .node:focus-visible circle.body{ stroke:var(--purple); stroke-width:4; }
+  #netSvg .ord{ font:900 11px var(--uiFont); text-anchor:middle; dominant-baseline:central; fill:#15803d; }
+  .legend{ display:flex; gap:7px; flex-wrap:wrap; justify-content:center; margin-top:6px; }
+  .legend span{ display:inline-flex; align-items:center; gap:6px; font-size:.8rem; font-weight:900; color:#334155;
+    background:#f8fafc; border:1px solid var(--border); border-radius:99px; padding:3px 10px; }
+  .legend i{ width:18px; height:4px; border-radius:2px; display:block; }
+  .netSide{ display:flex; flex-direction:column; gap:10px; min-height:0; }
+  .netSide .seg{ align-self:flex-start; }
+  .netPanel{ display:none; flex-direction:column; gap:10px; min-height:0; }
+  .netPanel.show{ display:flex; }
+  .netMsg{ border-radius:14px; padding:11px 13px; font-weight:750; line-height:1.5; background:#f8fafc; border:1.5px solid var(--border); color:#334155; }
+  .netMsg.win{ background:var(--green-soft); border-color:var(--green); color:#14532d; }
+  .netMsg.stuck{ background:var(--red-soft); border-color:var(--red); color:#7f1d1d; }
+  .netMsg.warn{ background:var(--amber-soft); border-color:#f59e0b; color:#78350f; }
+  .netBtns{ display:flex; gap:8px; flex-wrap:wrap; }
+  .steps{ list-style:none; margin:0; padding:0; overflow:auto; max-height:calc(94vh - 330px); min-height:120px;
+    border:1.5px solid var(--border); border-radius:14px; background:#f8fafc; }
+  .steps li{ padding:9px 12px; border-bottom:1px solid var(--border); font-size:.92rem; font-weight:650; line-height:1.45; color:#334155;
+    border-left:4px solid transparent; }
+  .steps li:last-child{ border-bottom:0; }
+  .steps li.cur{ background:white; color:var(--ink); border-left-color:var(--blue); font-weight:750; }
+  .steps li.k-contra{ color:#991b1b; } .steps li.k-contra.cur{ border-left-color:var(--red); }
+  .steps li.k-proved, .steps li.k-done{ color:#14532d; } .steps li.k-proved.cur, .steps li.k-done.cur{ border-left-color:var(--green); }
+  .steps li.k-case{ color:#5b21b6; } .steps li.k-case.cur{ border-left-color:var(--purple); }
+  .stepCount{ font-size:.78rem; font-weight:900; color:var(--muted); text-transform:uppercase; letter-spacing:.07em; }
+  @media (max-width:900px){
+    .netGrid{ grid-template-columns:1fr; }
+    #netSvg{ max-height:60vh; }
+    .steps{ max-height:40vh; }
   }
 
   @media (max-width:900px){
@@ -347,9 +441,14 @@
     <details class="task" id="taskBox" open>
       <summary>The challenge<span class="tag">tap to hide</span></summary>
       <div class="taskBody">
-        <p>Arrange the numbers <b>1 to 15</b> in a single line so that <b>every pair of neighbours adds to a square number</b>.</p>
+        <p>Arrange the numbers <b>1 to <span class="nVal">15</span></b> in a single line so that <b>every pair of neighbours adds to a square number</b>.</p>
         <p>Use the workspace to think it through however you like &mdash; move the tiles around, join them up, write on it.
-           When you are ready, drag tiles into the fifteen spaces and press <b>Check answer</b>.</p>
+           When you are ready, drag tiles into the <span class="nVal">15</span> spaces and press <b>Check answer</b>.</p>
+        <p class="nRow">
+          <label for="nSel">How far does it go? Use the numbers 1 to</label>
+          <select class="nSel" id="nSel" aria-label="Biggest number"></select>
+          <span class="nNote">Start with 15. Then see which bigger ones work &mdash; and which can’t.</span>
+        </p>
       </div>
     </details>
 
@@ -401,12 +500,24 @@
       </div>
 
       <span class="myPen" id="myPen">Your pen <span class="chip" id="myPenChip"></span></span>
+      <button class="tbtn ghostish tog" id="btnSums" type="button" aria-pressed="false" title="Write the total on every join you draw"><span class="box"></span>Sums on joins</button>
       <span class="spacer"></span>
+      <button class="tbtn hint" id="btnHint" type="button">Hint</button>
+      <button class="tbtn net" id="btnNet" type="button">Network</button>
       <button class="tbtn ghostish" id="btnUndo" type="button" title="Undo (Ctrl+Z)" disabled>Undo</button>
       <button class="tbtn ghostish" id="btnTidy" type="button">Tidy tiles</button>
       <button class="tbtn ghostish" id="btnClearBoard" type="button">Clear workspace</button>
       <button class="tbtn ghostish" id="btnClearChain" type="button">Empty the spaces</button>
       <button class="tbtn go" id="btnCheck2" type="button">Check answer</button>
+    </div>
+
+    <div class="hintBox" id="hintBox" role="region" aria-label="Hints" aria-live="polite">
+      <ol id="hintList"></ol>
+      <div class="hintFoot">
+        <span class="count" id="hintCount"></span>
+        <button class="tbtn ghostish" id="btnHintHide" type="button">Hide hints</button>
+        <button class="tbtn hint" id="btnHintNext" type="button">Next hint</button>
+      </div>
     </div>
 
     <section class="card boardCard">
@@ -419,13 +530,68 @@
     <section class="card">
       <div class="cardHead">
         <h2>Your answer</h2>
-        <span class="hint" id="chainHint">0 of 15 spaces filled</span>
+        <span class="hint" id="chainHint">0 of <span class="nVal">15</span> spaces filled</span>
       </div>
       <div class="chainWrap"><div class="chain" id="chain"></div></div>
       <div class="verdict" id="verdict" role="status" aria-live="polite"></div>
     </section>
 
   </main>
+</div>
+
+<!-- ===================== network modal ===================== -->
+<div class="modal" id="netModal" role="dialog" aria-modal="true" aria-labelledby="netTitle">
+  <div class="modalBox netBox">
+    <div class="netHead">
+      <div>
+        <div class="introKicker">Network view</div>
+        <h2 id="netTitle">1 to <span class="nVal">15</span> as a network</h2>
+        <p class="sub">Every number is a dot. Two dots are joined when they add to a square number.
+          A chain is a path along the lines that visits <b>every</b> dot exactly once.</p>
+      </div>
+      <button class="xBtn" id="btnNetClose" type="button" aria-label="Close">&times;</button>
+    </div>
+    <div class="netGrid">
+      <div class="netStage">
+        <svg id="netSvg" viewBox="0 0 640 640" role="img" aria-label="Network of numbers joined when they add to a square"></svg>
+        <div class="legend" id="netLegend"></div>
+      </div>
+      <div class="netSide">
+        <div class="seg" id="netTabs" role="group" aria-label="Network mode">
+          <button type="button" data-tab="trace"  aria-pressed="true">Trace</button>
+          <button type="button" data-tab="reason" aria-pressed="false">Reason it out</button>
+          <button type="button" data-tab="show"   aria-pressed="false">Show a chain</button>
+        </div>
+
+        <div class="netPanel show" id="panTrace">
+          <div class="netMsg" id="traceMsg"></div>
+          <div class="netBtns">
+            <button class="tbtn ghostish" id="btnTraceUndo" type="button">Undo</button>
+            <button class="tbtn ghostish" id="btnTraceClear" type="button">Clear</button>
+            <button class="tbtn go" id="btnTraceUse" type="button" hidden>Put this in my answer</button>
+          </div>
+        </div>
+
+        <div class="netPanel" id="panReason">
+          <div class="netMsg warn" id="reasonIntro"></div>
+          <div class="netBtns">
+            <button class="tbtn ghostish" id="btnStepBack" type="button">&larr; Back</button>
+            <button class="tbtn go" id="btnStepNext" type="button">Next &rarr;</button>
+            <button class="tbtn ghostish" id="btnStepEnd" type="button">Skip to the end</button>
+          </div>
+          <span class="stepCount" id="stepCount"></span>
+          <ol class="steps" id="stepList"></ol>
+        </div>
+
+        <div class="netPanel" id="panShow">
+          <div class="netMsg" id="showMsg"></div>
+          <div class="netBtns">
+            <button class="tbtn ghostish" id="btnShowAnother" type="button">Show another</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- ===================== intro modal ===================== -->
@@ -440,11 +606,11 @@
     <p class="demoCap" id="demoCap" aria-live="polite"></p>
     <div class="pips" id="demoPips" aria-hidden="true"><i></i><i></i><i></i></div>
     <ol class="introRules">
-      <li><span>1</span><div>Use every number from <b>1 to 15</b>, each one exactly once.</div></li>
+      <li><span>1</span><div>Use every number from <b>1 to <span class="nVal">15</span></b>, each one exactly once.</div></li>
       <li><span>2</span><div>Put them in <b>one line</b>.</div></li>
       <li><span>3</span><div>Every pair of neighbours must <b>add to a square number</b>.</div></li>
     </ol>
-    <p class="introNote">The example uses numbers bigger than 15 on purpose &mdash; it won't give anything away.</p>
+    <p class="introNote">The example uses numbers you won’t be using, on purpose &mdash; it doesn’t give anything away.</p>
     <div class="introFoot">
       <button class="tbtn ghostish" id="btnReplay" type="button">Watch again</button>
       <button class="tbtn go big" id="btnGo" type="button">Let's go</button>
@@ -493,6 +659,262 @@
   </div>
 </div>
 
+<script id="sscEngine">
+/* =====================================================================
+   SSC — the Number Sum Chain engine. DOM-free (the harness requires it).
+   graph(n)      every pair from 1..n that adds to a square
+   solutions(n)  every chain (Hamiltonian path), one direction each
+   reason(n)     a step-by-step deduction: dead ends, forced joins, crossed-out
+                 joins and, if needed, cases — ending in a chain or a
+                 contradiction. Every step carries a snapshot for drawing.
+   ===================================================================== */
+var SSC = (function(){
+  "use strict";
+  function isSq(s){ var r = Math.round(Math.sqrt(s)); return r*r === s; }
+  function key(a,b){ return a < b ? a + '_' + b : b + '_' + a; }
+  function ends2(k){ return k.split('_').map(Number); }
+  function list(a){
+    a = a.slice();
+    if(a.length <= 1) return String(a[0] == null ? '' : a[0]);
+    var last = a.pop(); return a.join(', ') + ' and ' + last;
+  }
+
+  var gcache = {};
+  function graph(n){
+    if(gcache[n]) return gcache[n];
+    var adj = {}, edges = [];
+    for(var v=1; v<=n; v++) adj[v] = [];
+    for(var a=1; a<=n; a++) for(var b=a+1; b<=n; b++) if(isSq(a+b)){
+      adj[a].push(b); adj[b].push(a); edges.push({a:a, b:b, s:a+b, k:key(a,b)});
+    }
+    return (gcache[n] = { n:n, adj:adj, edges:edges });
+  }
+  function squaresFor(n){ var out = []; for(var r=2; r*r <= 2*n-1; r++) if(r*r >= 3) out.push(r*r); return out; }
+  function deadEnds(n){ var g = graph(n), out = []; for(var v=1; v<=n; v++) if(g.adj[v].length === 1) out.push(v); return out; }
+
+  var scache = {};
+  function solutions(n, cap){
+    cap = cap || 50;
+    if(scache[n]) return scache[n];
+    var g = graph(n), out = [], used = new Array(n+1).fill(false), path = [];
+    function go(){
+      if(out.length >= cap) return;
+      if(path.length === n){ if(path[0] < path[n-1]) out.push(path.slice()); return; }
+      var last = path[path.length-1];
+      g.adj[last].forEach(function(w){
+        if(used[w] || out.length >= cap) return;
+        used[w] = true; path.push(w); go(); path.pop(); used[w] = false;
+      });
+    }
+    for(var s=1; s<=n; s++){ used[s] = true; path.push(s); go(); path.pop(); used[s] = false; }
+    return (scache[n] = out);
+  }
+
+  /* ---------- the reasoner ---------- */
+  function Contra(text, bad, badEdges){ this.text = text; this.bad = bad || []; this.badEdges = badEdges || []; }
+
+  function reason(n){
+    var g = graph(n), steps = [];
+    function snap(st, extra){
+      var o = { ends: Object.keys(st.ends).map(Number), forced: Object.keys(st.forced),
+                removed: Object.keys(st.removed), focus: [], focusEdges: [], bad: [], badEdges: [] };
+      for(var k in extra) o[k] = extra[k];
+      return o;
+    }
+    function avail(st, v){ return g.adj[v].filter(function(u){ return !st.removed[key(v,u)]; }); }
+    function forcedOf(st, v){ return g.adj[v].filter(function(u){ return st.forced[key(v,u)]; }); }
+    function clone(st){
+      return { ends: Object.assign({}, st.ends), forced: Object.assign({}, st.forced), removed: Object.assign({}, st.removed) };
+    }
+    function loopIn(st){
+      // a cycle among forced joins, returned as its vertices, or null
+      var adj = {}; Object.keys(st.forced).forEach(function(k){ var e = ends2(k);
+        (adj[e[0]] = adj[e[0]] || []).push(e[1]); (adj[e[1]] = adj[e[1]] || []).push(e[0]); });
+      var seen = {};
+      for(var s in adj){
+        if(seen[s]) continue;
+        var stack = [[+s, 0]], parent = {}; parent[s] = 0;
+        while(stack.length){
+          var cur = stack.pop(), v = cur[0], p = cur[1];
+          if(seen[v]) continue; seen[v] = true;
+          for(var i=0; i<adj[v].length; i++){
+            var w = adj[v][i]; if(w === p) continue;
+            if(seen[w]){
+              // walk both back to the common ancestor
+              var a = [], x = v; while(x){ a.push(x); x = parent[x]; }
+              var b = [], y = w; while(y && a.indexOf(y) === -1){ b.push(y); y = parent[y]; }
+              return a.slice(0, a.indexOf(y)+1).concat(b.reverse());
+            }
+            parent[w] = v; stack.push([w, v]);
+          }
+        }
+      }
+      return null;
+    }
+    function check(st){
+      var endList = Object.keys(st.ends).map(Number).sort(function(a,b){ return a-b; });
+      if(endList.length > 2) throw new Contra('That makes ' + endList.length + ' numbers that must be ends (' + list(endList) +
+        ') &mdash; but a chain only has two ends.', endList);
+      for(var v=1; v<=n; v++){
+        var f = forcedOf(st, v), av = avail(st, v);
+        if(av.length === 0) throw new Contra(v + ' has no partner left, so it can’t go anywhere in the chain.', [v]);
+        if(f.length > 2) throw new Contra(v + ' would need three neighbours (' + list(f) + '), but it only has two sides.', [v],
+          f.map(function(u){ return key(v,u); }));
+        if(st.ends[v] && f.length > 1) throw new Contra(v + ' must be an end, but it would need two neighbours (' + list(f) + ').', [v],
+          f.map(function(u){ return key(v,u); }));
+      }
+      var loop = loopIn(st);
+      if(loop){
+        var le = []; for(var i=0; i<loop.length; i++) le.push(key(loop[i], loop[(i+1) % loop.length]));
+        throw new Contra('The forced joins ' + loop.join('–') + '–' + loop[0] + ' close up into a loop, and a loop can’t be part of one straight chain.', loop, le);
+      }
+    }
+    function interior(st, v){ return !st.ends[v] && (Object.keys(st.ends).length === 2 || forcedOf(st, v).length === 2); }
+
+    // One deduction per call, appended to steps. Returns false when stuck.
+    function stepOnce(st, depth, tag){
+      // 1. dead ends
+      var dead = [];
+      for(var v=1; v<=n; v++) if(!st.ends[v] && avail(st, v).length === 1) dead.push(v);
+      if(dead.length){
+        var bits = [];
+        dead.forEach(function(v){ var u = avail(st, v)[0]; st.ends[v] = true; st.forced[key(v,u)] = true; bits.push(v + ' (only ' + u + ')'); });
+        var txt = dead.length === 1
+          ? dead[0] + ' can only sit next to ' + avail(st, dead[0])[0] + ', so ' + dead[0] + ' must be an <b>end</b> of the chain.'
+          : list(bits) + ' each have only one possible neighbour, so they must be <b>ends</b> of the chain.';
+        steps.push(snap(st, { text: txt, kind:'ends', focus: dead, depth: depth, tag: tag }));
+        return true;
+      }
+      // 2. a number that already has all its neighbours: cross out its other joins
+      for(var w=1; w<=n; w++){
+        var f = forcedOf(st, w), need = st.ends[w] ? 1 : (interior(st, w) ? 2 : 0);
+        if(!need || f.length !== need) continue;
+        var drop = avail(st, w).filter(function(u){ return !st.forced[key(w,u)]; });
+        if(!drop.length) continue;
+        drop.forEach(function(u){ st.removed[key(w,u)] = true; });
+        steps.push(snap(st, { text: w + ' already has ' + (need === 1 ? 'its neighbour (' + f[0] + ')' : 'both neighbours (' + list(f) + ')') +
+          ', so it can’t also sit next to ' + list(drop) + '.', kind:'trim', focus:[w],
+          focusEdges: drop.map(function(u){ return key(w,u); }), depth: depth, tag: tag }));
+        return true;
+      }
+      // 3. "if it were the end": a number with one known neighbour and one other
+      //    partner continues, when making it the other end breaks at once.
+      if(Object.keys(st.ends).length < 2){
+        for(var y=1; y<=n; y++){
+          if(st.ends[y]) continue;
+          var fy = forcedOf(st, y), oy = avail(st, y).filter(function(u){ return !st.forced[key(y,u)]; });
+          if(fy.length !== 1 || oy.length !== 1 || st.ends[fy[0]]) continue;
+          var t = clone(st); t.ends[y] = true; t.removed[key(y,oy[0])] = true;
+          var dd = [];
+          for(var z=1; z<=n; z++) if(!t.ends[z] && avail(t, z).length === 1) dd.push(z);
+          var endsAfter = Object.keys(t.ends).length + dd.length;
+          var zero = []; for(var q=1; q<=n; q++) if(avail(t, q).length === 0) zero.push(q);
+          if(endsAfter > 2 || zero.length){
+            st.forced[key(y,oy[0])] = true;
+            var why = zero.length ? zero[0] + ' would have no partner left'
+                    : list(dd) + ' would ' + (dd.length === 1 ? 'become another end' : 'become more ends') +
+                      ' &mdash; too many ends for one chain';
+            steps.push(snap(st, { text: 'If ' + y + ' were the other end, ' + why + '. So ' + y + ' must carry on to ' + oy[0] + '.',
+              kind:'force', focus:[y], focusEdges:[key(y,oy[0])], depth: depth, tag: tag }));
+            return true;
+          }
+        }
+      }
+      // 4. forced pairs (only once we know who is in the middle)
+      var forcedNow = [], fe = [];
+      for(var x=1; x<=n; x++){
+        if(!interior(st, x)) continue;
+        var av = avail(st, x);
+        if(av.length === 2 && forcedOf(st, x).length < 2){
+          forcedNow.push(x + ' (' + av[0] + ', ' + av[1] + ')');
+          av.forEach(function(u){ if(!st.forced[key(x,u)]){ st.forced[key(x,u)] = true; fe.push(key(x,u)); } });
+        }
+      }
+      if(forcedNow.length){
+        var focus = forcedNow.map(function(s){ return +s.split(' ')[0]; });
+        steps.push(snap(st, { text: (forcedNow.length === 1 ? forcedNow[0].split(' ')[0] + ' isn’t an end and has only two partners, so it must sit between them: ' + forcedNow[0] + '.'
+            : 'These numbers aren’t ends and have only two partners each, so both joins must be used: ' + list(forcedNow) + '.'),
+          kind:'force', focus: focus, focusEdges: fe, depth: depth, tag: tag }));
+        return true;
+      }
+      return false;
+    }
+
+    function chainOf(st){
+      var f = Object.keys(st.forced); if(f.length !== n-1) return null;
+      var adj = {}; f.forEach(function(k){ var e = ends2(k); (adj[e[0]] = adj[e[0]] || []).push(e[1]); (adj[e[1]] = adj[e[1]] || []).push(e[0]); });
+      var start = null; for(var v=1; v<=n; v++){ if(!adj[v]) return null; if(adj[v].length === 1 && (start === null || v < start)) start = v; }
+      if(start === null) return null;
+      var out = [start], prev = 0, cur = start;
+      while(out.length < n){ var nx = adj[cur].filter(function(u){ return u !== prev; })[0]; if(!nx) return null; prev = cur; cur = nx; out.push(cur); }
+      return out;
+    }
+
+    // returns 'contra' | 'chain' | 'stuck'
+    function run(st, depth, tag, allowSplit){
+      for(var guard=0; guard<400; guard++){
+        try{ check(st); }catch(c){
+          if(!(c instanceof Contra)) throw c;
+          steps.push(snap(st, { text: c.text, kind:'contra', bad: c.bad, badEdges: c.badEdges, depth: depth, tag: tag }));
+          return 'contra';
+        }
+        var ch = chainOf(st);
+        if(ch){ steps.push(snap(st, { text: 'Every join is now forced. The chain is ' + ch.join(', ') + '.', kind:'done', chain: ch, depth: depth, tag: tag })); return 'chain'; }
+        if(!stepOnce(st, depth, tag)) break;
+      }
+      if(!allowSplit || depth >= 6){
+        steps.push(snap(st, { text: 'Nothing else is forced from here &mdash; you’d have to try a case.', kind:'stuck', depth: depth, tag: tag }));
+        return 'stuck';
+      }
+      // split on a number that has one known neighbour and the fewest choices for the other
+      // A number with one known neighbour either continues to one of its other
+      // partners, or (while an end is still unknown) is itself the other end.
+      var best = null, nEnds = Object.keys(st.ends).length;
+      for(var v=1; v<=n; v++){
+        if(st.ends[v]) continue;
+        var f = forcedOf(st, v), opts = avail(st, v).filter(function(u){ return !st.forced[key(v,u)]; });
+        if(f.length !== 1) continue;
+        var canEnd = nEnds < 2 && !st.ends[f[0]], count = opts.length + (canEnd ? 1 : 0);
+        if(count >= 2 && (!best || count < best.count)) best = { v:v, f:f[0], opts:opts, canEnd:canEnd, count:count };
+      }
+      if(!best){
+        steps.push(snap(st, { text: 'Nothing else is forced from here &mdash; you’d have to try a case.', kind:'stuck', depth: depth, tag: tag }));
+        return 'stuck';
+      }
+      var choices = best.opts.map(function(u){ return { u:u }; });
+      if(best.canEnd) choices.push({ end:true });
+      steps.push(snap(st, { text: best.v + ' sits next to ' + best.f + '. ' +
+        (best.canEnd ? 'Either ' + best.v + ' is the other end, or its other neighbour is ' + best.opts.join(' or ')
+                     : 'Its other neighbour must be ' + best.opts.join(' or ')) +
+        ' &mdash; so try each.', kind:'split', focus:[best.v], focusEdges: best.opts.map(function(u){ return key(best.v,u); }), depth: depth, tag: tag }));
+      var results = [];
+      choices.forEach(function(c, i){
+        var t = (tag ? tag + '.' : '') + 'ABCD'[i];
+        var s2 = clone(st), txt, fe = [];
+        if(c.end){ s2.ends[best.v] = true; txt = '<b>Case ' + t + ':</b> ' + best.v + ' is the other end.'; }
+        else { s2.forced[key(best.v,c.u)] = true; fe = [key(best.v,c.u)]; txt = '<b>Case ' + t + ':</b> put ' + c.u + ' next to ' + best.v + '.'; }
+        steps.push(snap(s2, { text: txt, kind:'case', focus: c.end ? [best.v] : [best.v, c.u], focusEdges: fe, depth: depth+1, tag: t }));
+        results.push(run(s2, depth+1, t, allowSplit));
+      });
+      if(results.every(function(r){ return r === 'contra'; })){
+        steps.push(snap(st, { text: 'Every case breaks, so ' + best.v + ' has nowhere to go.', kind:'contra', bad:[best.v], depth: depth, tag: tag }));
+        return 'contra';
+      }
+      return results.indexOf('chain') !== -1 ? 'chain' : 'stuck';
+    }
+
+    var st = { ends:{}, forced:{}, removed:{} };
+    steps.push(snap(st, { text: 'Here is every pair from 1 to ' + n + ' that adds to a square number. A chain is a path that visits every number exactly once.', kind:'start', depth:0, tag:'' }));
+    var possible = solutions(n).length > 0;
+    var result = run(st, 0, '', !possible);
+    if(result === 'contra') steps.push(snap({ ends:{}, forced:{}, removed:{} }, { text: '<b>So no chain exists for 1 to ' + n + '.</b> There is no path through this network that visits every number once.', kind:'proved', depth:0, tag:'' }));
+    return { steps: steps, result: result };
+  }
+
+  return { isSq:isSq, key:key, graph:graph, squaresFor:squaresFor, deadEnds:deadEnds, solutions:solutions, reason:reason };
+})();
+
+</script>
 <script>
 (function(){
   "use strict";
@@ -504,7 +926,9 @@
      room works across phones, laptops and the projector at the same time.
      ===================================================================== */
 
-  var N = 15;
+  var N = 15, N_MIN = 15, N_MAX = 25;
+  var showSums = false;                  // write the total on every join (local only)
+  var hintLevel = 0;                     // how many hints are showing (local only)
 
   var slots = new Array(N).fill(null);   // index -> number or null
   var pos   = {};                        // number -> {x,y} in 0..1
@@ -526,7 +950,7 @@
     var p = {}; Object.keys(pos).forEach(function(k){ p[k] = pos[k]; });
     var w = {}; Object.keys(wires).forEach(function(k){ w[k] = wires[k]; });
     var k2 = {}; Object.keys(inks).forEach(function(k){ k2[k] = inks[k]; });
-    return { slots: slots.slice(), pos:p, wires:w, inks:k2, checked:checked };
+    return { n:N, slots: slots.slice(), pos:p, wires:w, inks:k2, checked:checked };
   }
   function snap(){
     undoStack.push(snapshot());
@@ -540,6 +964,7 @@
   function undo(){
     if(!undoStack.length) return;
     var s = undoStack.pop();
+    if(s.n && s.n !== N){ N = s.n; nChanged(); }
     slots = s.slots.slice();
     pos = {};   Object.keys(s.pos).forEach(function(k){ pos[k] = s.pos[k]; });
     wires = {}; Object.keys(s.wires).forEach(function(k){ wires[k] = s.wires[k]; });
@@ -590,6 +1015,7 @@
   function newGame(share){
     slots = new Array(N).fill(null);
     wires = {}; inks = {}; checked = false; localNote = ''; selected = null;
+    hintLevel = 0; renderHints();
     layoutGrid(true);
     renderAll();
     if(share !== false) pushAll();
@@ -665,6 +1091,22 @@
         svg.appendChild(l);
       });
     });
+    // Totals go on top of every line, so a pill is never hidden under another join.
+    if(showSums) Object.keys(wires).forEach(function(k){
+      var w = wires[k]; if(!w || !onBoard(w.a) || !onBoard(w.b)) return;
+      var A = pos[w.a], B = pos[w.b]; if(!A || !B) return;
+      svg.appendChild(sumPill(w.a, w.b, (A.x+B.x)/2*W, (A.y+B.y)/2*H));
+    });
+  }
+  function sumPill(a, b, x, y){
+    var g = document.createElementNS(SVGNS,'g'), txt = String(a + b), wd = 14 + txt.length*9;
+    g.setAttribute('class','wsum'); g.dataset.a = a; g.dataset.b = b;
+    g.setAttribute('transform','translate(' + x.toFixed(1) + ' ' + y.toFixed(1) + ')');
+    var r = document.createElementNS(SVGNS,'rect');
+    r.setAttribute('x', -wd/2); r.setAttribute('y', -11); r.setAttribute('width', wd); r.setAttribute('height', 22); r.setAttribute('rx', 11);
+    var t = document.createElementNS(SVGNS,'text'); t.textContent = txt;
+    g.appendChild(r); g.appendChild(t);
+    return g;
   }
 
   // While a tile is being dragged its joins stay attached and stretch with it.
@@ -673,11 +1115,18 @@
       if(+l.dataset.a === v){ l.setAttribute('x1', px); l.setAttribute('y1', py); }
       else if(+l.dataset.b === v){ l.setAttribute('x2', px); l.setAttribute('y2', py); }
     });
+    Array.prototype.forEach.call(svg.querySelectorAll('.wsum'), function(g){
+      var a = +g.dataset.a, b = +g.dataset.b; if(a !== v && b !== v) return;
+      var o = pos[a === v ? b : a]; if(!o) return;
+      g.setAttribute('transform','translate(' + ((px + o.x*BW())/2).toFixed(1) + ' ' + ((py + o.y*BH())/2).toFixed(1) + ')');
+    });
   }
 
   function renderChain(){
     chainEl.innerHTML = '';
+    fitChain();
     for(var i=0;i<N;i++){
+      var cu = document.createElement('div'); cu.className = 'cu'; chainEl.appendChild(cu);
       var s = document.createElement('div');
       s.className = 'slot'; s.dataset.slot = i; s.setAttribute('role','button'); s.tabIndex = 0;
       var idx = document.createElement('span'); idx.className='idx'; idx.textContent = i+1;
@@ -686,15 +1135,26 @@
         s.classList.add('filled'); s.appendChild(makeTok(slots[i]));
         s.setAttribute('aria-label','Space ' + (i+1) + ' holds ' + slots[i]);
       }else s.setAttribute('aria-label','Space ' + (i+1) + ' is empty');
-      chainEl.appendChild(s);
+      cu.appendChild(s);
       if(i < N-1){
         var l = document.createElement('div'); l.className='link'; l.dataset.link = i;
         var sum = document.createElement('span'); sum.className='sum'; sum.textContent='+';
-        l.appendChild(sum); chainEl.appendChild(l);
+        l.appendChild(sum); cu.appendChild(l);
       }
     }
     paintLinks();
     hintEl.textContent = slots.filter(function(x){ return x !== null; }).length + ' of ' + N + ' spaces filled';
+  }
+
+  // One row when every space can be at least 42px; otherwise wrap onto more rows
+  // at full size (a 25-space row at 22px is unreadable on a projector).
+  function fitChain(){
+    var W = (chainEl.parentNode.clientWidth || 1000) - 6, full = tokPx(), linkW = window.innerWidth <= 900 ? 27 : 32;
+    var s = Math.floor((W - (N-1)*linkW) / N);
+    if(s >= 42){ chainEl.classList.remove('wrap'); s = Math.min(full, s); }
+    else { chainEl.classList.add('wrap'); s = full; }
+    chainEl.style.setProperty('--slot', s + 'px');
+    chainEl.style.setProperty('--linkW', linkW + 'px');
   }
 
   // Sums show live (that is only arithmetic). Right/wrong colour appears after Check.
@@ -729,10 +1189,15 @@
       if(!isSquare(s)) bad.push({a:slots[k], b:slots[k+1], s:s});
     }
     if(!bad.length){
+      var count = SSC.solutions(N).length, nextN = N + 1;
       verdictEl.className = 'verdict show win';
       verdictEl.innerHTML = '<span class="big">Solved! Every join is a square number.</span>' +
-        'There is really only <b>one</b> way to do it &mdash; your chain, and the same chain written backwards.' +
-        '<span class="next">Next question: <b>is it possible with 1 to 18?</b></span>';
+        (count === 1 ? 'There is really only <b>one</b> way to do 1 to ' + N + ' &mdash; your chain, and the same chain written backwards.'
+                     : 'There are <b>' + count + '</b> different chains for 1 to ' + N + ' (not counting each one written backwards). Can you find another?') +
+        '<span class="next">' + (N < N_MAX ? 'Next question: <b>what about 1 to ' + nextN + '?</b> Some sizes work and some are impossible.'
+                                            : 'From 25 on, people have checked by computer a long way further &mdash; and it keeps working.') + '</span>' +
+        '<span class="acts">' + (N < N_MAX ? '<button class="tbtn go" type="button" data-act="nextN">Try 1 to ' + nextN + '</button>' : '') +
+        '<button class="tbtn net" type="button" data-act="net">See it as a network</button></span>';
     }else{
       var list = bad.slice(0,4).map(function(p){ return '<b>' + p.a + ' + ' + p.b + ' = ' + p.s + '</b>'; }).join(', ');
       verdictEl.className = 'verdict show miss';
@@ -1021,10 +1486,12 @@
     Array.prototype.forEach.call(document.querySelectorAll('#segMode button'), function(b){
       b.setAttribute('aria-pressed', String(b.dataset.mode === m));
     });
-    document.getElementById('penOpts').hidden  = (m === 'mark');
+    // Each tool shows only its own options, so the toolbar stays one row:
+    // pen colours with Pen, highlighter colours with Highlighter, and the
+    // sums toggle with Move / Join (where the joins are).
+    document.getElementById('penOpts').hidden  = (m !== 'draw');
     document.getElementById('markOpts').hidden = (m !== 'mark');
-    document.getElementById('penOpts').style.opacity  = (m === 'draw') ? '1' : '.45';
-    document.getElementById('markOpts').style.opacity = (m === 'mark') ? '1' : '.45';
+    document.getElementById('btnSums').hidden  = !(m === 'move' || m === 'connect');
     selected = null; renderAll();
   }
   document.getElementById('segMode').addEventListener('click', function(e){
@@ -1201,7 +1668,7 @@
   function currentState(){
     var p = {};
     for(var v=1;v<=N;v++) p['p'+v] = pos[v] || {x:.5,y:.5};
-    return { pos:p, slots: slots.map(function(x){ return x === null ? 0 : x; }), wires:wires, inks:inks, checked:checked };
+    return { n:N, pos:p, slots: slots.map(function(x){ return x === null ? 0 : x; }), wires:wires, inks:inks, checked:checked };
   }
 
   async function enterRoom(code, name){
@@ -1260,6 +1727,8 @@
   function applyRemote(data){
     var st = (data && data.state) || {};
     room.applying = true;
+    var rn = +st.n || 15;
+    if(rn >= N_MIN && rn <= N_MAX && rn !== N){ N = rn; nChanged(); if(!pos[N]) layoutGrid(true); }
 
     if(st.pos){
       Object.keys(st.pos).forEach(function(k){
@@ -1374,11 +1843,289 @@
     this.value = this.value.toUpperCase().replace(/[^A-Z2-9]/g,'').slice(0,4);
   });
 
+  /* ================= how far does it go? (1 to N) ================= */
+  var nSel = document.getElementById('nSel');
+  for(var nn = N_MIN; nn <= N_MAX; nn++){ var o = document.createElement('option'); o.value = nn; o.textContent = nn; nSel.appendChild(o); }
+  nSel.value = N;
+  nSel.addEventListener('change', function(){ setN(+this.value); });
+
+  function nChanged(){
+    Array.prototype.forEach.call(document.querySelectorAll('.nVal'), function(e){ e.textContent = N; });
+    nSel.value = N;
+    selected = null; hintLevel = 0; renderHints();
+    if(net.isOpen()) net.close();
+  }
+  function setN(n){
+    n = Math.max(N_MIN, Math.min(N_MAX, Math.round(n)));
+    if(n === N){ nSel.value = N; return; }
+    snap();
+    N = n; nChanged();
+    newGame(true);
+  }
+
+  /* ================= hints =================
+     Built from the network for the current N, so they are right for every size:
+     which squares matter, then "a number with one partner", then exactly which
+     numbers those are and what that means (two ends / too many ends / one end). */
+  function andList(a){ a = a.slice(); if(a.length < 2) return a.join(''); var l = a.pop(); return a.join(', ') + ' and ' + l; }
+  function hintsFor(n){
+    var g = SSC.graph(n), sq = SSC.squaresFor(n), dead = SSC.deadEnds(n), h = [];
+    h.push('List the square numbers you could make. The smallest total is 1 + 2 = 3 and the biggest is ' + (n-1) + ' + ' + n + ' = ' + (2*n-1) + '.');
+    h.push('So the only squares that matter are <b>' + andList(sq) + '</b>. For each number, which partners make one of those?');
+    h.push('Look for a number with only <b>one</b> possible partner. Where would it have to go in the chain?');
+    var bits = dead.map(function(v){ return '<b>' + v + '</b> (only ' + g.adj[v][0] + ')'; });
+    if(dead.length === 2) h.push(andList(bits) + ' can each only sit next to one number. A number with only one partner has to be at an <b>end</b> &mdash; so the chain starts at one of them and finishes at the other.');
+    else if(dead.length > 2) h.push(andList(bits) + ' can each only sit next to one number, so every one of them would have to be an end of the chain&hellip; but a chain only has <b>two</b> ends. What does that tell you?');
+    else if(dead.length === 1){ var v = dead[0], u = g.adj[v][0];
+      h.push('<b>' + v + '</b> can only sit next to ' + u + ', so ' + v + ' must be one end, with ' + u + ' beside it. What could go on the other side of ' + u + '? Follow it along.'); }
+    h.push('Still stuck? Press <b>Network</b>. Every number is a dot and every pair that makes a square is a line. Try to trace a path that visits every dot once &mdash; and if you can’t, ask <b>why</b> not.');
+    return h;
+  }
+  var hintBox = document.getElementById('hintBox'), hintList = document.getElementById('hintList');
+  function renderHints(){
+    if(!hintBox) return;
+    var h = hintsFor(N);
+    hintBox.classList.toggle('show', hintLevel > 0);
+    var had = hintList.children.length;
+    hintList.innerHTML = '';
+    for(var i=0; i<hintLevel && i<h.length; i++){
+      var li = document.createElement('li'); li.innerHTML = h[i];
+      if(i >= had) li.className = 'new';
+      hintList.appendChild(li);
+    }
+    document.getElementById('hintCount').textContent = 'Hint ' + Math.min(hintLevel, h.length) + ' of ' + h.length;
+    document.getElementById('btnHintNext').disabled = hintLevel >= h.length;
+    document.getElementById('btnHint').textContent = hintLevel ? 'Next hint' : 'Hint';
+  }
+  function nextHint(){ hintLevel = Math.min(hintsFor(N).length, hintLevel + 1); renderHints(); }
+  document.getElementById('btnHint').addEventListener('click', nextHint);
+  document.getElementById('btnHintNext').addEventListener('click', nextHint);
+  document.getElementById('btnHintHide').addEventListener('click', function(){ hintLevel = 0; hintList.innerHTML = ''; renderHints(); });
+
+  /* ================= sums on the joins (toggle) ================= */
+  document.getElementById('btnSums').addEventListener('click', function(){
+    showSums = !showSums;
+    this.setAttribute('aria-pressed', String(showSums));
+    renderWires();
+  });
+
+  /* ================= verdict buttons ================= */
+  verdictEl.addEventListener('click', function(e){
+    var b = e.target.closest('[data-act]'); if(!b) return;
+    if(b.dataset.act === 'nextN') setN(N + 1);
+    else if(b.dataset.act === 'net') net.open();
+  });
+
+  /* ================= network view =================
+     The numbers sit round a circle in order (a neutral layout: it shows the
+     structure without suggesting a route). Three modes:
+       Trace         tap dots along the lines; stuck / complete is reported
+       Reason it out step through SSC.reason(N): ends, forced joins, crossed-out
+                     joins, cases — ending in the chain or in a contradiction
+       Show a chain  a teacher reveal (a found chain, or "there isn't one") */
+  var net = (function(){
+    var modalEl = document.getElementById('netModal'), svgEl = document.getElementById('netSvg');
+    var COLS = { 4:'#f59e0b', 9:'#10b981', 16:'#3b82f6', 25:'#8b5cf6', 36:'#ec4899', 49:'#0d9488' };
+    var tab = 'trace', path = [], tmsg = null, reasonData = null, stepI = 0, showI = 0, revealed = false, lastFocus = null;
+
+    function P(v){ var a = -Math.PI/2 + (v-1) * 2*Math.PI / N; return { x: 320 + 262*Math.cos(a), y: 320 + 262*Math.sin(a), a:a }; }
+    function mk(tag, attrs){ var e = document.createElementNS(SVGNS, tag); for(var k in attrs) e.setAttribute(k, attrs[k]); return e; }
+    function inPath(a, b){ for(var i=0; i<path.length-1; i++){ if((path[i]===a && path[i+1]===b) || (path[i]===b && path[i+1]===a)) return true; } return false; }
+
+    function draw(){
+      var g = SSC.graph(N), step = (tab === 'reason' && reasonData) ? reasonData.steps[stepI] : null;
+      var sol = (tab === 'show' && revealed) ? SSC.solutions(N)[showI] : null;
+      var solE = {}; if(sol) for(var i=0; i<sol.length-1; i++) solE[SSC.key(sol[i], sol[i+1])] = true;
+      var set = function(a){ var o = {}; (a || []).forEach(function(x){ o[x] = true; }); return o; };
+      var F = set(step && step.forced), R = set(step && step.removed), FE = set(step && step.focusEdges), BE = set(step && step.badEdges);
+      var ENDS = set(step && step.ends), FOC = set(step && step.focus), BAD = set(step && step.bad);
+      var chainDone = step && step.kind === 'done';
+      var last = path[path.length-1], visited = set(path);
+      svgEl.innerHTML = '';
+      g.edges.forEach(function(e){
+        var A = P(e.a), B = P(e.b), col = COLS[e.s] || '#64748b', w = 3.2, op = .8, dash = null;
+        if(tab === 'trace' && path.length){
+          if(inPath(e.a, e.b)){ col = '#0f172a'; w = 8; op = 1; }
+          else if((e.a === last && !visited[e.b]) || (e.b === last && !visited[e.a])){ w = 6; op = 1; }
+          else op = .3;
+        }else if(step){
+          if(BE[e.k]){ col = '#dc2626'; w = 8; op = 1; }
+          else if(R[e.k]){ col = FE[e.k] ? '#dc2626' : '#cbd5e1'; w = FE[e.k] ? 4 : 2.5; dash = '6 7'; op = 1; }
+          else if(F[e.k]){ col = FE[e.k] ? '#7c3aed' : '#15803d'; w = 8; op = 1; }
+          else if(FE[e.k]){ col = '#7c3aed'; w = 6; op = 1; dash = '10 7'; }
+          else op = .55;
+        }else if(sol){
+          if(solE[e.k]){ col = '#15803d'; w = 8; op = 1; } else op = .2;
+        }
+        var ln = mk('line', { x1:A.x, y1:A.y, x2:B.x, y2:B.y, stroke:col, 'stroke-width':w, opacity:op, 'class':'e' });
+        if(dash) ln.setAttribute('stroke-dasharray', dash);
+        svgEl.appendChild(ln);
+      });
+      for(var v=1; v<=N; v++){
+        var p = P(v), fill = '#ffffff', stroke = '#1e293b', sw = 2.5, tcol = '#0f172a', ring = null;
+        if(tab === 'trace'){
+          if(visited[v]){ fill = '#2563eb'; stroke = '#1d4ed8'; tcol = '#ffffff'; }
+          if(v === last){ ring = '#7c3aed'; }
+          else if(path.length && !visited[v] && g.adj[last].indexOf(v) !== -1){ fill = '#ede9fe'; stroke = '#7c3aed'; sw = 3; }
+        }else if(step){
+          if(chainDone){ fill = '#dcfce7'; stroke = '#15803d'; }
+          if(FOC[v]){ fill = '#ede9fe'; stroke = '#7c3aed'; sw = 3.5; }
+          if(BAD[v]){ fill = '#fee2e2'; stroke = '#dc2626'; sw = 4.5; }
+          if(ENDS[v]) ring = '#f59e0b';
+        }else if(sol){ fill = '#dcfce7'; stroke = '#15803d'; }
+        var gEl = mk('g', { 'class':'node', tabindex: tab === 'trace' ? 0 : -1, role:'button', 'aria-label':'Number ' + v });
+        gEl.dataset.v = v;
+        if(ring) gEl.appendChild(mk('circle', { cx:p.x, cy:p.y, r:28, fill:'none', stroke:ring, 'stroke-width':5 }));
+        gEl.appendChild(mk('circle', { 'class':'body', cx:p.x, cy:p.y, r:21, fill:fill, stroke:stroke, 'stroke-width':sw }));
+        var t = mk('text', { x:p.x, y:p.y, fill:tcol }); t.textContent = v; gEl.appendChild(t);
+        svgEl.appendChild(gEl);
+        var order = (tab === 'trace' && visited[v]) ? path.indexOf(v) + 1 : (sol ? sol.indexOf(v) + 1 : 0);
+        if(order){ var o = mk('text', { 'class':'ord', x: 320 + 300*Math.cos(p.a), y: 320 + 300*Math.sin(p.a) }); o.textContent = '#' + order; svgEl.appendChild(o); }
+      }
+    }
+
+    function legend(){
+      var g = SSC.graph(N), seen = {};
+      g.edges.forEach(function(e){ seen[e.s] = true; });
+      document.getElementById('netLegend').innerHTML = Object.keys(seen).map(Number).sort(function(a,b){ return a-b; }).map(function(s){
+        return '<span><i style="background:' + (COLS[s] || '#64748b') + '"></i>adds to ' + s + '</span>';
+      }).join('');
+    }
+
+    /* ---- trace ---- */
+    function traceMsg(){
+      var el = document.getElementById('traceMsg'), use = document.getElementById('btnTraceUse');
+      use.hidden = true; el.className = 'netMsg';
+      if(tmsg){ el.className = 'netMsg warn'; el.innerHTML = tmsg; return; }
+      if(!path.length){ el.innerHTML = 'Tap any dot to start. Then tap a dot joined to it to move along a line. Tap your last dot again to step back.'; return; }
+      var g = SSC.graph(N), last = path[path.length-1];
+      var next = g.adj[last].filter(function(u){ return path.indexOf(u) === -1; });
+      if(path.length === N){
+        el.className = 'netMsg win';
+        el.innerHTML = '<b>You traced a path through every number!</b> That is a chain: ' + path.join(', ') + '.';
+        use.hidden = false; return;
+      }
+      if(!next.length){
+        el.className = 'netMsg stuck';
+        el.innerHTML = '<b>Stuck at ' + last + '.</b> Every number it joins to is already used, and ' + (N - path.length) +
+          ' number' + (N - path.length === 1 ? ' is' : 's are') + ' left. Step back and try another way &mdash; or ask whether any way can work.';
+        return;
+      }
+      el.innerHTML = 'Visited <b>' + path.length + ' of ' + N + '</b>. You’re at <b>' + last + '</b> &mdash; it can go to ' + andList(next) + '.';
+    }
+    function tapNode(v){
+      if(tab !== 'trace') return;
+      tmsg = null;
+      var g = SSC.graph(N), last = path[path.length-1];
+      if(!path.length) path.push(v);
+      else if(v === last) path.pop();
+      else if(path.indexOf(v) !== -1) tmsg = v + ' is already in your path. Each number is used once.';
+      else if(g.adj[last].indexOf(v) === -1) tmsg = 'No line joins ' + last + ' and ' + v + ': ' + last + ' + ' + v + ' = ' + (last + v) + ', which isn’t a square number.';
+      else path.push(v);
+      draw(); traceMsg();
+    }
+    svgEl.addEventListener('click', function(e){ var n = e.target.closest('.node'); if(n) tapNode(+n.dataset.v); });
+    svgEl.addEventListener('keydown', function(e){
+      var n = e.target.closest ? e.target.closest('.node') : null;
+      if(n && (e.key === 'Enter' || e.key === ' ')){ e.preventDefault(); var v = +n.dataset.v; tapNode(v);
+        var again = svgEl.querySelector('.node[data-v="' + v + '"]'); if(again) again.focus(); }
+    });
+    document.getElementById('btnTraceUndo').addEventListener('click', function(){ tmsg = null; path.pop(); draw(); traceMsg(); });
+    document.getElementById('btnTraceClear').addEventListener('click', function(){ tmsg = null; path = []; draw(); traceMsg(); });
+    document.getElementById('btnTraceUse').addEventListener('click', function(){
+      if(path.length !== N) return;
+      snap();
+      slots = path.slice(); checked = false; localNote = ''; selected = null;
+      close(); renderAll();
+      pushFields({ 'state.slots': slots.slice(), 'state.checked': false });
+    });
+
+    /* ---- reason it out ---- */
+    function renderSteps(){
+      var steps = reasonData.steps, list = document.getElementById('stepList');
+      document.getElementById('reasonIntro').innerHTML = SSC.solutions(N).length
+        ? 'Step through the logic one deduction at a time. <b>Spoiler:</b> it works out the answer.'
+        : 'Step through the logic one deduction at a time, and see where it leads.';
+      list.innerHTML = '';
+      for(var i=0; i<=stepI; i++){
+        var li = document.createElement('li'), s = steps[i];
+        li.className = 'k-' + s.kind + (i === stepI ? ' cur' : '');
+        li.style.paddingLeft = (12 + s.depth*16) + 'px';
+        li.innerHTML = s.text;
+        list.appendChild(li);
+      }
+      var cur = list.lastElementChild; if(cur) cur.scrollIntoView({ block:'nearest' });
+      document.getElementById('stepCount').textContent = 'Step ' + (stepI + 1) + ' of ' + steps.length;
+      document.getElementById('btnStepBack').disabled = stepI === 0;
+      document.getElementById('btnStepNext').disabled = stepI >= steps.length - 1;
+      document.getElementById('btnStepEnd').disabled = stepI >= steps.length - 1;
+    }
+    document.getElementById('btnStepNext').addEventListener('click', function(){ if(stepI < reasonData.steps.length-1){ stepI++; renderSteps(); draw(); } });
+    document.getElementById('btnStepBack').addEventListener('click', function(){ if(stepI > 0){ stepI--; renderSteps(); draw(); } });
+    document.getElementById('btnStepEnd').addEventListener('click', function(){ stepI = reasonData.steps.length-1; renderSteps(); draw(); });
+
+    /* ---- show a chain ---- */
+    function renderShow(){
+      var sols = SSC.solutions(N), el = document.getElementById('showMsg'), btn = document.getElementById('btnShowAnother');
+      if(!sols.length){
+        el.className = 'netMsg stuck'; btn.hidden = true;
+        el.innerHTML = '<b>There is no chain for 1 to ' + N + '.</b> No path through this network visits every dot. Use <b>Reason it out</b> to see why.';
+        return;
+      }
+      btn.hidden = false;
+      if(!revealed){
+        el.className = 'netMsg warn';
+        el.innerHTML = 'This shows a finished chain. Only reveal it when the class is ready.';
+        btn.textContent = 'Reveal'; btn.disabled = false; return;
+      }
+      el.className = 'netMsg win';
+      el.innerHTML = (sols.length === 1 ? 'The only chain for 1 to ' + N + ' (and its reverse):' : 'Chain ' + (showI+1) + ' of ' + sols.length + ' for 1 to ' + N + ':') +
+        '<br><b>' + sols[showI].join(', ') + '</b>';
+      btn.textContent = 'Show another'; btn.disabled = sols.length < 2;
+    }
+    document.getElementById('btnShowAnother').addEventListener('click', function(){
+      if(!revealed) revealed = true; else showI = (showI + 1) % SSC.solutions(N).length;
+      renderShow(); draw();
+    });
+
+    /* ---- tabs / open / close ---- */
+    function setTab(t){
+      tab = t;
+      Array.prototype.forEach.call(document.querySelectorAll('#netTabs button'), function(b){ b.setAttribute('aria-pressed', String(b.dataset.tab === t)); });
+      document.getElementById('panTrace').classList.toggle('show', t === 'trace');
+      document.getElementById('panReason').classList.toggle('show', t === 'reason');
+      document.getElementById('panShow').classList.toggle('show', t === 'show');
+      if(t === 'trace') traceMsg(); else if(t === 'reason') renderSteps(); else renderShow();
+      draw();
+    }
+    document.getElementById('netTabs').addEventListener('click', function(e){ var b = e.target.closest('button'); if(b) setTab(b.dataset.tab); });
+
+    function open(){
+      lastFocus = document.activeElement;
+      path = []; tmsg = null; stepI = 0; showI = 0; revealed = false;
+      reasonData = SSC.reason(N);
+      legend();
+      modalEl.classList.add('show');
+      setTab('trace');
+      setTimeout(function(){ document.getElementById('btnNetClose').focus({ preventScroll:true }); }, 30);
+    }
+    function close(){
+      if(!modalEl.classList.contains('show')) return;
+      modalEl.classList.remove('show');
+      if(lastFocus && lastFocus.focus && lastFocus !== document.body) lastFocus.focus({ preventScroll:true });
+    }
+    document.getElementById('btnNet').addEventListener('click', open);
+    document.getElementById('btnNetClose').addEventListener('click', close);
+    modalEl.addEventListener('click', function(e){ if(e.target === modalEl) close(); });
+    document.addEventListener('keydown', function(e){ if(e.key === 'Escape') close(); });
+    return { open:open, close:close, isOpen:function(){ return modalEl.classList.contains('show'); } };
+  })();
+
   /* ================= intro pop-up =================
-     Three beats: a pair that works (20 + 16 = 36, drawn as a 6 x 6 square of
-     dots), a pair that doesn't (20 + 17 = 37, one dot left over), then a short
-     chain (16, 20, 29). Every number is above 15 so nothing in the demo is a
-     link in the real answer. A run token lets Close / Watch again stop a
+     Three beats: a pair that works (30 + 34 = 64, drawn as an 8 x 8 square of
+     dots), a pair that doesn't (30 + 35 = 65, one dot left over), then a short
+     chain (34, 30, 51). Every number is above 25 — the biggest the picker
+     allows — so nothing in the demo is ever a link in a real answer. A run token lets Close / Watch again stop a
      timeline part way through. */
   var intro = (function(){
     var modalEl = document.getElementById('introModal');
@@ -1424,17 +2171,17 @@
       try{
         /* beat 1 — a pair that works */
         pip(0); rowEl.innerHTML = ''; dotsEl.innerHTML = ''; capEl.innerHTML = '&nbsp;';
-        var a = tile(20), l = link(true), b = tile(16);
+        var a = tile(30), l = link(true), b = tile(34);
         rowEl.appendChild(a); rowEl.appendChild(l); rowEl.appendChild(b);
         await wait(650, id);
         l.classList.remove('wide');                      // the two slide together
         await wait(600, id);
-        setSum(l, 36, true);
-        capEl.innerHTML = '<b>20 + 16 = 36</b>';
+        setSum(l, 64, true);
+        capEl.innerHTML = '<b>30 + 34 = 64</b>';
         await wait(450, id);
-        dotsEl.appendChild(dotSquare(6, '6 × 6 = 36', { good:true }));
-        await wait(700, id);
-        capEl.innerHTML = '<b>20 + 16 = 36</b>. 36 dots make a perfect square, so 36 is a <b>square number</b>. <span class="y">✓ They can be neighbours.</span>';
+        dotsEl.appendChild(dotSquare(8, '8 × 8 = 64', { good:true, dot:9, gap:4 }));
+        await wait(1000, id);
+        capEl.innerHTML = '<b>30 + 34 = 64</b>. 64 dots make a perfect square, so 64 is a <b>square number</b>. <span class="y">✓ They can be neighbours.</span>';
         await wait(3200, id);
 
         /* beat 2 — a pair that doesn't */
@@ -1442,31 +2189,31 @@
         b.classList.remove('swap'); void b.offsetWidth; b.classList.add('swap');
         l.className = 'dlink';
         await wait(180, id);
-        b.textContent = '17';
+        b.textContent = '35';
         await wait(260, id);
-        setSum(l, 37, false);
+        setSum(l, 65, false);
         dotsEl.innerHTML = '';
-        capEl.innerHTML = '<b>20 + 17 = 37</b>';
+        capEl.innerHTML = '<b>30 + 35 = 65</b>';
         await wait(300, id);
-        dotsEl.appendChild(dotSquare(6, '36 + 1 left over', { extra:1 }));
-        await wait(900, id);
-        capEl.innerHTML = '<b>20 + 17 = 37</b>. 37 dots won’t make a square &mdash; one is left over. <span class="n">✗ They can’t be neighbours.</span>';
+        dotsEl.appendChild(dotSquare(8, '64 + 1 left over', { extra:1, dot:9, gap:4 }));
+        await wait(1200, id);
+        capEl.innerHTML = '<b>30 + 35 = 65</b>. 65 dots won’t make a square &mdash; one is left over. <span class="n">✗ They can’t be neighbours.</span>';
         await wait(3200, id);
 
         /* beat 3 — a chain: every neighbour pair has to work */
         pip(2);
         rowEl.innerHTML = ''; dotsEl.innerHTML = '';
         capEl.innerHTML = 'In a chain, <b>every</b> pair of neighbours has to work.';
-        var c1 = tile(16), l1 = link(), c2 = tile(20), l2 = link(), c3 = tile(29);
+        var c1 = tile(34), l1 = link(), c2 = tile(30), l2 = link(), c3 = tile(51);
         [c1, l1, c2, l2, c3].forEach(function(n){ rowEl.appendChild(n); });
         await wait(700, id);
-        setSum(l1, 36, true);
-        dotsEl.appendChild(dotSquare(6, '16 + 20 = 36', { good:true, dot:9, gap:3 }));
-        await wait(1000, id);
-        setSum(l2, 49, true);
-        dotsEl.appendChild(dotSquare(7, '20 + 29 = 49', { good:true, dot:9, gap:3 }));
-        await wait(900, id);
-        capEl.innerHTML = 'In a chain, <b>every</b> pair of neighbours has to work: <b>36</b> <span class="y">✓</span> and <b>49</b> <span class="y">✓</span>. Your turn &mdash; with <b>1 to 15</b>.';
+        setSum(l1, 64, true);
+        dotsEl.appendChild(dotSquare(8, '34 + 30 = 64', { good:true, dot:8, gap:3 }));
+        await wait(1100, id);
+        setSum(l2, 81, true);
+        dotsEl.appendChild(dotSquare(9, '30 + 51 = 81', { good:true, dot:8, gap:3 }));
+        await wait(1100, id);
+        capEl.innerHTML = 'In a chain, <b>every</b> pair of neighbours has to work: <b>64</b> <span class="y">✓</span> and <b>81</b> <span class="y">✓</span>. Your turn &mdash; with <b>1 to ' + N + '</b>.';
         goBtn.classList.add('nudge');
       }catch(err){ /* stopped */ }
     }
