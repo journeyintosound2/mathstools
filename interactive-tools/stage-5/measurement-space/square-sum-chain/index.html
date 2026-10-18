@@ -58,6 +58,13 @@
   .btn:hover:not(:disabled){ background:rgba(255,255,255,.22); transform:translateY(-1px); }
   .btn.primary{ background:white; color:var(--blue-dark); border-color:white; }
   .btn.primary:hover:not(:disabled){ background:#eff6ff; }
+  .btn.helpBtn{ width:42px; height:42px; padding:0; justify-content:center; border-radius:50%; font-size:18px; }
+  /* The ? button costs ~52px; on 1240-1340px screens tighten the buttons so the
+     top bar stays one row (a projector at 1280x720 is common). */
+  @media (min-width:901px) and (max-width:1340px){
+    .topActions{ gap:7px; } .topActions .btn:not(.helpBtn){ padding:10px 11px; font-size:14px; }
+    .mmtTopbar{ gap:12px; }
+  }
   .btn .dot{ width:9px; height:9px; border-radius:50%; background:#4ade80; box-shadow:0 0 0 3px rgba(74,222,128,.28); }
 
   /* ---------- layout ---------- */
@@ -228,6 +235,75 @@
   .modalFoot{ display:flex; gap:10px; justify-content:flex-end; margin-top:6px; flex-wrap:wrap; }
   .peopleList{ display:flex; gap:7px; flex-wrap:wrap; margin-bottom:14px; }
 
+  /* ---------- intro pop-up (rules + demo) ----------
+     The demo deliberately uses numbers ABOVE 15. With 1-15 there are only 15
+     pairs that make a square, and 14 of them are links in the answer (the odd
+     one out is 1 + 3) — any in-range example would hand the class a start. */
+  .introBox{ width:min(600px,100%); padding:22px clamp(16px,3vw,28px) 20px; }
+  .introKicker{ font-size:.72rem; font-weight:900; letter-spacing:.1em; text-transform:uppercase; color:var(--purple); margin-bottom:4px; }
+  .introBox h2{ font-size:clamp(1.25rem,2.6vw,1.55rem); margin:0 0 14px; }
+  .demo{ border:1px solid #dbeafe; border-radius:18px; padding:16px 12px 12px;
+    background:
+      linear-gradient(#f1f5f9 1px,transparent 1px) 0 0/24px 24px,
+      linear-gradient(90deg,#f1f5f9 1px,transparent 1px) 0 0/24px 24px, #fff; }
+  .demoRow{ height:64px; display:flex; align-items:center; justify-content:center; }
+  .dtok{ flex:0 0 auto; width:56px; height:56px; border-radius:16px; display:grid; place-items:center;
+    font-weight:1000; font-size:1.3rem; letter-spacing:-.03em; color:white;
+    background:linear-gradient(160deg,#3b82f6,#1d4ed8);
+    box-shadow:0 4px 0 rgba(29,78,216,.5),0 9px 18px rgba(15,23,42,.18);
+    animation:dIn .32s ease both; }
+  .dtok.swap{ animation:dSwap .36s ease both; }
+  @keyframes dIn{ from{ opacity:0; transform:translateY(10px) scale(.8); } to{ opacity:1; transform:none; } }
+  @keyframes dSwap{ 0%{ transform:rotateX(0); } 50%{ transform:rotateX(90deg); } 100%{ transform:rotateX(0); } }
+  .dlink{ flex:0 0 auto; width:40px; height:56px; position:relative; display:grid; place-items:center;
+    transition:width .55s cubic-bezier(.3,.9,.3,1); }
+  .dlink.wide{ width:150px; }
+  .dlink::before{ content:""; position:absolute; left:0; right:0; top:50%; height:5px; transform:translateY(-50%);
+    background:#e2e8f0; border-radius:99px; transition:background .2s; }
+  .dsum{ position:relative; z-index:2; min-width:34px; height:28px; padding:0 6px; border-radius:99px;
+    display:grid; place-items:center; font-size:.9rem; font-weight:900; font-variant-numeric:tabular-nums;
+    background:#f1f5f9; border:1.5px solid #e2e8f0; color:var(--muted); opacity:0; transform:scale(.5);
+    transition:opacity .2s, transform .25s cubic-bezier(.3,1.6,.5,1); }
+  .dlink.show .dsum{ opacity:1; transform:scale(1); }
+  .dlink.good::before{ background:var(--green); }
+  .dlink.good .dsum{ background:var(--green-soft); border-color:var(--green); color:#14532d; }
+  .dlink.bad::before{ background:var(--red); }
+  .dlink.bad .dsum{ background:var(--red-soft); border-color:var(--red); color:#7f1d1d; }
+  .demoDots{ height:126px; margin-top:8px; display:flex; align-items:flex-end; justify-content:center; gap:28px; }
+  .dsqWrap{ display:flex; flex-direction:column; align-items:center; gap:6px; animation:dIn .25s ease both; }
+  .dsq{ display:grid; gap:var(--g,4px); }
+  .dsq i{ width:var(--d,11px); height:var(--d,11px); border-radius:50%; background:#3b82f6; display:block;
+    animation:dotIn .22s ease both; }
+  .dsq i.blank{ visibility:hidden; animation:none; }
+  .dsq i.extra{ background:var(--red); box-shadow:0 0 0 3px rgba(220,38,38,.2); }
+  .dsq.good i:not(.blank){ background:var(--green); }
+  @keyframes dotIn{ from{ opacity:0; transform:scale(.2); } to{ opacity:1; transform:none; } }
+  .dsqLab{ font-size:.8rem; font-weight:900; color:var(--muted); font-variant-numeric:tabular-nums; }
+  .demoCap{ min-height:3.1em; margin:12px 2px 0; text-align:center; font-weight:750; font-size:1rem; line-height:1.5; color:#334155; }
+  .demoCap .y{ color:var(--green); font-weight:1000; }
+  .demoCap .n{ color:var(--red); font-weight:1000; }
+  .pips{ display:flex; justify-content:center; gap:7px; margin-top:8px; }
+  .pips i{ width:8px; height:8px; border-radius:50%; background:#cbd5e1; display:block; transition:.2s; }
+  .pips i.on{ background:var(--blue); width:22px; border-radius:99px; }
+  .introRules{ list-style:none; margin:16px 0 0; padding:0; display:grid; gap:8px; }
+  .introRules li{ display:flex; align-items:center; gap:11px; font-weight:750; color:#1e293b; font-size:1rem; line-height:1.35; }
+  .introRules li span{ flex:0 0 auto; width:26px; height:26px; border-radius:50%; display:grid; place-items:center;
+    background:#eff6ff; color:var(--blue-dark); font-weight:1000; font-size:.85rem; }
+  .introRules b{ color:var(--blue-dark); }
+  .introNote{ margin:12px 0 0; font-size:.8rem; font-weight:700; color:var(--muted); }
+  .introFoot{ display:flex; gap:10px; justify-content:flex-end; align-items:center; margin-top:16px; flex-wrap:wrap; }
+  .tbtn.big{ padding:12px 22px; font-size:16px; border-radius:14px; }
+  @keyframes nudge{ 0%,100%{ box-shadow:0 0 0 0 rgba(37,99,235,.45); } 50%{ box-shadow:0 0 0 9px rgba(37,99,235,0); } }
+  .tbtn.nudge{ animation:nudge 1.4s ease 2; }
+  @media (prefers-reduced-motion:reduce){
+    .dtok,.dtok.swap,.dsqWrap,.dsq i,.tbtn.nudge{ animation:none; }
+    .dlink,.dsum{ transition:none; }
+  }
+  @media (max-width:520px){
+    .dlink.wide{ width:96px; } .dtok{ width:48px; height:48px; font-size:1.1rem; } .dlink{ width:34px; }
+    .demoDots{ gap:16px; }
+  }
+
   @media (max-width:900px){
     .mmtTopbar{ grid-template-columns:1fr; justify-items:center; padding:10px 14px; }
     .mmtBrand{ margin-left:0; } .topActions{ justify-self:center; justify-content:center; }
@@ -259,6 +335,7 @@
     </a>
     <div class="mmtTopTitle">Number Sum Chain</div>
     <div class="topActions">
+      <button class="btn helpBtn" id="btnHelp" type="button" aria-label="How to play" title="How to play">?</button>
       <button class="btn" id="btnRoom" type="button">Join / Create Room</button>
       <button class="btn" id="btnReset" type="button">Start again</button>
       <button class="btn primary" id="btnCheck" type="button">Check answer</button>
@@ -349,6 +426,30 @@
     </section>
 
   </main>
+</div>
+
+<!-- ===================== intro modal ===================== -->
+<div class="modal" id="introModal" role="dialog" aria-modal="true" aria-labelledby="introTitle">
+  <div class="modalBox introBox">
+    <div class="introKicker">How it works</div>
+    <h2 id="introTitle">Make every pair of neighbours add to a square number</h2>
+    <div class="demo" aria-hidden="true">
+      <div class="demoRow" id="demoRow"></div>
+      <div class="demoDots" id="demoDots"></div>
+    </div>
+    <p class="demoCap" id="demoCap" aria-live="polite"></p>
+    <div class="pips" id="demoPips" aria-hidden="true"><i></i><i></i><i></i></div>
+    <ol class="introRules">
+      <li><span>1</span><div>Use every number from <b>1 to 15</b>, each one exactly once.</div></li>
+      <li><span>2</span><div>Put them in <b>one line</b>.</div></li>
+      <li><span>3</span><div>Every pair of neighbours must <b>add to a square number</b>.</div></li>
+    </ol>
+    <p class="introNote">The example uses numbers bigger than 15 on purpose &mdash; it won't give anything away.</p>
+    <div class="introFoot">
+      <button class="tbtn ghostish" id="btnReplay" type="button">Watch again</button>
+      <button class="tbtn go big" id="btnGo" type="button">Let's go</button>
+    </div>
+  </div>
 </div>
 
 <!-- ===================== room modal ===================== -->
@@ -1273,9 +1374,128 @@
     this.value = this.value.toUpperCase().replace(/[^A-Z2-9]/g,'').slice(0,4);
   });
 
+  /* ================= intro pop-up =================
+     Three beats: a pair that works (20 + 16 = 36, drawn as a 6 x 6 square of
+     dots), a pair that doesn't (20 + 17 = 37, one dot left over), then a short
+     chain (16, 20, 29). Every number is above 15 so nothing in the demo is a
+     link in the real answer. A run token lets Close / Watch again stop a
+     timeline part way through. */
+  var intro = (function(){
+    var modalEl = document.getElementById('introModal');
+    var rowEl   = document.getElementById('demoRow');
+    var dotsEl  = document.getElementById('demoDots');
+    var capEl   = document.getElementById('demoCap');
+    var pipEls  = document.querySelectorAll('#demoPips i');
+    var goBtn   = document.getElementById('btnGo');
+    var runId = 0, lastFocus = null;
+
+    function el(tag, cls, text){ var e = document.createElement(tag); if(cls) e.className = cls; if(text != null) e.textContent = text; return e; }
+    function wait(ms, id){ return new Promise(function(res, rej){ setTimeout(function(){ id === runId ? res() : rej('stopped'); }, ms); }); }
+    function pip(n){ Array.prototype.forEach.call(pipEls, function(p, i){ p.classList.toggle('on', i === n); }); }
+    function tile(v){ return el('div', 'dtok', v); }
+    function link(wide){ var l = el('div', 'dlink' + (wide ? ' wide' : '')); l.appendChild(el('span', 'dsum')); return l; }
+    function setSum(l, s, ok){ l.querySelector('.dsum').textContent = s; l.classList.add('show', ok ? 'good' : 'bad'); }
+
+    // A side x side square of dots, optionally with `extra` dots hanging off the right of the first rows.
+    function dotSquare(side, label, opts){
+      opts = opts || {};
+      var d = opts.dot || 11, g = opts.gap || 4, extra = opts.extra || 0;
+      var wrap = el('div', 'dsqWrap');
+      var sq = el('div', 'dsq' + (opts.good ? ' good' : ''));
+      var cols = side + (extra ? 1 : 0);
+      sq.style.setProperty('--d', d + 'px'); sq.style.setProperty('--g', g + 'px');
+      sq.style.gridTemplateColumns = 'repeat(' + cols + ', ' + d + 'px)';
+      var n = 0;
+      for(var r = 0; r < side; r++){
+        for(var c = 0; c < cols; c++){
+          var dot = el('i');
+          if(c === side){ if(r < extra){ dot.className = 'extra'; dot.style.animationDelay = (side*side*14 + 120) + 'ms'; } else dot.className = 'blank'; }
+          else dot.style.animationDelay = (n++ * 14) + 'ms';
+          sq.appendChild(dot);
+        }
+      }
+      wrap.appendChild(sq); wrap.appendChild(el('div', 'dsqLab', label));
+      return wrap;
+    }
+
+    async function play(){
+      var id = ++runId;
+      goBtn.classList.remove('nudge');
+      try{
+        /* beat 1 — a pair that works */
+        pip(0); rowEl.innerHTML = ''; dotsEl.innerHTML = ''; capEl.innerHTML = '&nbsp;';
+        var a = tile(20), l = link(true), b = tile(16);
+        rowEl.appendChild(a); rowEl.appendChild(l); rowEl.appendChild(b);
+        await wait(650, id);
+        l.classList.remove('wide');                      // the two slide together
+        await wait(600, id);
+        setSum(l, 36, true);
+        capEl.innerHTML = '<b>20 + 16 = 36</b>';
+        await wait(450, id);
+        dotsEl.appendChild(dotSquare(6, '6 × 6 = 36', { good:true }));
+        await wait(700, id);
+        capEl.innerHTML = '<b>20 + 16 = 36</b>. 36 dots make a perfect square, so 36 is a <b>square number</b>. <span class="y">✓ They can be neighbours.</span>';
+        await wait(3200, id);
+
+        /* beat 2 — a pair that doesn't */
+        pip(1);
+        b.classList.remove('swap'); void b.offsetWidth; b.classList.add('swap');
+        l.className = 'dlink';
+        await wait(180, id);
+        b.textContent = '17';
+        await wait(260, id);
+        setSum(l, 37, false);
+        dotsEl.innerHTML = '';
+        capEl.innerHTML = '<b>20 + 17 = 37</b>';
+        await wait(300, id);
+        dotsEl.appendChild(dotSquare(6, '36 + 1 left over', { extra:1 }));
+        await wait(900, id);
+        capEl.innerHTML = '<b>20 + 17 = 37</b>. 37 dots won’t make a square &mdash; one is left over. <span class="n">✗ They can’t be neighbours.</span>';
+        await wait(3200, id);
+
+        /* beat 3 — a chain: every neighbour pair has to work */
+        pip(2);
+        rowEl.innerHTML = ''; dotsEl.innerHTML = '';
+        capEl.innerHTML = 'In a chain, <b>every</b> pair of neighbours has to work.';
+        var c1 = tile(16), l1 = link(), c2 = tile(20), l2 = link(), c3 = tile(29);
+        [c1, l1, c2, l2, c3].forEach(function(n){ rowEl.appendChild(n); });
+        await wait(700, id);
+        setSum(l1, 36, true);
+        dotsEl.appendChild(dotSquare(6, '16 + 20 = 36', { good:true, dot:9, gap:3 }));
+        await wait(1000, id);
+        setSum(l2, 49, true);
+        dotsEl.appendChild(dotSquare(7, '20 + 29 = 49', { good:true, dot:9, gap:3 }));
+        await wait(900, id);
+        capEl.innerHTML = 'In a chain, <b>every</b> pair of neighbours has to work: <b>36</b> <span class="y">✓</span> and <b>49</b> <span class="y">✓</span>. Your turn &mdash; with <b>1 to 15</b>.';
+        goBtn.classList.add('nudge');
+      }catch(err){ /* stopped */ }
+    }
+
+    function open(){
+      lastFocus = document.activeElement;
+      modalEl.classList.add('show');
+      play();
+      setTimeout(function(){ goBtn.focus({ preventScroll:true }); }, 30);
+    }
+    function close(){
+      if(!modalEl.classList.contains('show')) return;
+      runId++;                                         // stop any running timeline
+      modalEl.classList.remove('show');
+      if(lastFocus && lastFocus.focus && lastFocus !== document.body) lastFocus.focus({ preventScroll:true });
+    }
+    goBtn.addEventListener('click', close);
+    document.getElementById('btnReplay').addEventListener('click', play);
+    document.getElementById('btnHelp').addEventListener('click', open);
+    modalEl.addEventListener('click', function(e){ if(e.target === modalEl) close(); });
+    document.addEventListener('keydown', function(e){ if(e.key === 'Escape') close(); });
+    return { open:open, close:close, isOpen:function(){ return modalEl.classList.contains('show'); } };
+  })();
+
   /* ================= start ================= */
   newGame(false); setMode('move');
   requestAnimationFrame(function(){ layoutGrid(true); renderAll(); });
+  // ?intro=0 skips the pop-up (handy when a teacher re-opens the page mid-lesson).
+  if(!/[?&]intro=0\b/.test(location.search)) intro.open();
 })();
 </script>
 </body>
