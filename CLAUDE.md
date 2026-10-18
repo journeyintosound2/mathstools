@@ -98,6 +98,21 @@
 > * Network view (Trace / Reason it out / Show a chain — gated reveal), 5-step hint ladder
 >   built from the graph, "Sums on joins" toggle (Move/Join modes), each tool shows only
 >   its own options so the toolbar is one row at 1366.
+> * **APP LAYOUT FOR PHONES / iPADS / 768-HIGH LAPTOPS:** toolbar `position:sticky` top,
+>   answer tray (`#trayCard`) sticky bottom, and `fitBoard()` sizes the board to the gap
+>   (or, on a big screen where the whole page fits with a >=440px board, so nothing scrolls).
+>   "Let's go" scrolls to the toolbar when the page doesn't fit. <=1340px: Tidy / Clear /
+>   Empty / Sums live in a **More** menu (Sums is moved there by `placeSums()`). <=700px:
+>   compact header, challenge box starts collapsed, tools as a 5-column row. Tiles shrink
+>   (min 34px) only when a small board must hold many rows. Do NOT put a CSS transition on
+>   the board's height — tiles are positioned from `clientHeight` and land in the wrong place.
+> * **Tap-to-place:** tap a tile → empty spaces glow and the tray says "Tap a space for 8";
+>   tapping empty workspace moves the selected tile there. Dragging near the window edge
+>   scrolls the page (not while over the pinned tray/toolbar).
+> * **Rooms:** tile moves sync both ways (verified with two pages on a stubbed Firestore).
+>   Fixed: a tile dropped outside the workspace/spaces now `sendHome()`s its resting
+>   position (liveDrag had left it half-way on everyone else's screen), and the dragger no
+>   longer sees a ghost copy when a room snapshot redraws the board mid-drag.
 >
 > **NEW (2026-10-16, session 3 — being pushed): ORDER OF OPERATIONS — SAY WHAT YOU SEE.**
 > `interactive-tools/stage-4/number/order-of-operations-in-words/`, built from Jeff's

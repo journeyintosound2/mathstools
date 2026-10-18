@@ -365,7 +365,7 @@
   #netSvg .e{ stroke-linecap:round; transition:stroke-width .2s, opacity .2s; }
   #netSvg .node{ cursor:pointer; }
   #netSvg .node circle{ transition:fill .15s, stroke .15s; }
-  #netSvg .node text{ font:900 17px var(--uiFont); text-anchor:middle; dominant-baseline:central; pointer-events:none; }
+  #netSvg .node text{ font:900 20px var(--uiFont); text-anchor:middle; dominant-baseline:central; pointer-events:none; }
   #netSvg .node:focus{ outline:none; }
   #netSvg .node:focus-visible circle.body{ stroke:var(--purple); stroke-width:4; }
   #netSvg .ord{ font:900 11px var(--uiFont); text-anchor:middle; dominant-baseline:central; fill:#15803d; }
@@ -405,6 +405,66 @@
     .slot{ width:46px; height:46px; border-radius:13px; }
     .link{ width:27px; height:46px; }
     .split{ grid-template-columns:1fr; }
+  }
+
+  /* ===================== phones & tablets (2026-10-19) =====================
+     The workspace is an app screen: toolbar pinned to the top, answer tray
+     pinned to the bottom, and fitBoard() sizes the board to the gap between,
+     so the tiles and the spaces are always on screen together. */
+  .tok,.slot,.btn,.tbtn,.sw,.seg button,#netSvg .node{ -webkit-tap-highlight-color:transparent; -webkit-touch-callout:none; -webkit-user-select:none; }
+  .btn,.tbtn,.seg button,.sw,.sizePick,.nSel{ touch-action:manipulation; }
+  .toolbar{ position:sticky; top:0; z-index:30; padding:8px 0; margin-bottom:6px; background:rgba(248,250,252,.94);
+    -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); }
+  .trayCard{ position:sticky; bottom:0; z-index:25; margin-bottom:0; max-height:48vh; overflow:auto;
+    box-shadow:0 -12px 30px rgba(15,23,42,.10), var(--shadow); }
+  .trayCard .cardHead{ margin-bottom:4px; }
+  .board{ height:clamp(260px,52vh,620px); }
+  /* waiting for a space after a tile was tapped */
+  @keyframes breathe{ 0%,100%{ box-shadow:0 0 0 0 rgba(124,58,237,.0); } 50%{ box-shadow:0 0 0 5px rgba(124,58,237,.22); } }
+  .chain.awaiting .slot:not(.filled){ border-color:var(--purple); background:#faf5ff; animation:breathe 1.3s ease infinite; }
+  #chainHint.ask{ color:var(--purple); }
+  /* the More menu (only a menu at 1340px and below) */
+  .moreBtn{ display:none; }
+  .moreWrap, .moreMenu{ display:contents; }
+  #netSvg .node .hitc{ fill:transparent; }
+
+  @media (max-width:1340px){
+    .moreBtn{ display:inline-flex; }
+    .moreWrap{ display:block; position:relative; }
+    .moreMenu{ display:none; position:absolute; right:0; top:calc(100% + 6px); z-index:60; flex-direction:column; align-items:stretch; gap:6px;
+      background:white; border:1px solid var(--border); border-radius:16px; padding:8px; min-width:210px; box-shadow:0 18px 40px rgba(15,23,42,.2); }
+    .moreMenu.open{ display:flex; }
+    .moreMenu .tbtn{ text-align:left; justify-content:flex-start; }
+    .toolbar .segLabel{ display:none; }
+  }
+  @media (max-width:700px){
+    .mmtTopbar{ grid-template-columns:auto 1fr; justify-items:stretch; gap:8px 10px; padding:8px 12px; }
+    .mmtBrand{ padding:2px; margin:0; } .mmtBrandText{ display:none; } .mmtBrandLogo{ width:36px; height:36px; }
+    .mmtTopTitle{ text-align:left; font-size:1.15rem; }
+    .topActions{ grid-column:1 / -1; justify-self:stretch; display:grid; grid-template-columns:auto 1fr 1fr; gap:8px; }
+    .topActions .btn{ padding:8px 10px; font-size:14px; justify-content:center; }
+    .topActions #btnCheck{ display:none; }
+    main{ padding:10px 10px 0; }
+    details.task > summary{ padding:11px 14px; }
+    .taskBody p{ font-size:.94rem; }
+    .roomBar{ font-size:.8rem; }
+    .toolbar{ gap:6px; padding:6px 0; }
+    #segMode{ order:0; flex:1 1 100%; display:grid; grid-template-columns:repeat(5,1fr); }
+    #segMode button{ padding:8px 2px; font-size:13px; }
+    #penOpts,#markOpts,.myPen{ order:1; }
+    .toolbar .spacer{ display:none; }
+    .toolbar .act{ order:2; flex:1 1 0; }
+    .toolbar .act.tbtn, .toolbar .moreBtn{ width:100%; justify-content:center; padding:9px 4px; font-size:13px; }
+    .board{ border-radius:16px; }
+    .trayCard{ padding:10px 10px 8px; border-radius:16px 16px 0 0; max-height:46vh; }
+    .trayCard .cardHead h2{ font-size:.92rem; } .trayCard .cardHead .hint{ font-size:.8rem; }
+    .chainWrap{ padding:12px 0 4px; }
+    .chain.wrap{ row-gap:20px; }
+    .slot .idx{ top:-13px; font-size:.58rem; }
+    .verdict{ padding:10px 12px; font-size:.92rem; }
+    .verdict .big{ font-size:1.02rem; }
+    .netBox{ padding:12px; max-height:96vh; }
+    .netHead p.sub{ font-size:.82rem; }
   }
   @media print{ .topActions,.toolbar,.roomBar{ display:none; } }
 </style>
@@ -502,13 +562,18 @@
       <span class="myPen" id="myPen">Your pen <span class="chip" id="myPenChip"></span></span>
       <button class="tbtn ghostish tog" id="btnSums" type="button" aria-pressed="false" title="Write the total on every join you draw"><span class="box"></span>Sums on joins</button>
       <span class="spacer"></span>
-      <button class="tbtn hint" id="btnHint" type="button">Hint</button>
-      <button class="tbtn net" id="btnNet" type="button">Network</button>
-      <button class="tbtn ghostish" id="btnUndo" type="button" title="Undo (Ctrl+Z)" disabled>Undo</button>
-      <button class="tbtn ghostish" id="btnTidy" type="button">Tidy tiles</button>
-      <button class="tbtn ghostish" id="btnClearBoard" type="button">Clear workspace</button>
-      <button class="tbtn ghostish" id="btnClearChain" type="button">Empty the spaces</button>
-      <button class="tbtn go" id="btnCheck2" type="button">Check answer</button>
+      <button class="tbtn hint act" id="btnHint" type="button">Hint</button>
+      <button class="tbtn net act" id="btnNet" type="button">Network</button>
+      <button class="tbtn ghostish act" id="btnUndo" type="button" title="Undo (Ctrl+Z)" disabled>Undo</button>
+      <div class="moreWrap act" id="moreWrap">
+        <button class="tbtn ghostish moreBtn" id="btnMore" type="button" aria-expanded="false" aria-controls="moreMenu">More &#9662;</button>
+        <div class="moreMenu" id="moreMenu">
+          <button class="tbtn ghostish" id="btnTidy" type="button">Tidy tiles</button>
+          <button class="tbtn ghostish" id="btnClearBoard" type="button">Clear workspace</button>
+          <button class="tbtn ghostish" id="btnClearChain" type="button">Empty the spaces</button>
+        </div>
+      </div>
+      <button class="tbtn go act" id="btnCheck2" type="button">Check answer</button>
     </div>
 
     <div class="hintBox" id="hintBox" role="region" aria-label="Hints" aria-live="polite">
@@ -527,7 +592,7 @@
       </div>
     </section>
 
-    <section class="card">
+    <section class="card trayCard" id="trayCard">
       <div class="cardHead">
         <h2>Your answer</h2>
         <span class="hint" id="chainHint">0 of <span class="nVal">15</span> spaces filled</span>
@@ -990,7 +1055,14 @@ var SSC = (function(){
 
   function BW(){ return board.clientWidth  || 800; }
   function BH(){ return board.clientHeight || 500; }
-  function tokPx(){ return window.innerWidth <= 900 ? 46 : 54; }
+  function baseTok(){ return window.innerWidth <= 900 ? 46 : 54; }
+  // Tiles shrink (never below 34px) only when a small board has to hold many
+  // rows — e.g. 1 to 25 on an iPhone SE — so they never sit on top of each other.
+  function tokPx(){
+    var base = baseTok(), cols = Math.max(4, Math.min(8, Math.floor(BW() / (base + (BW() < 600 ? 12 : 34)))));
+    var rows = Math.ceil(N / cols), fit = Math.floor(BH() * 0.84 / rows) - 6;
+    return Math.max(34, Math.min(base, fit));
+  }
   function clampFrac(p){
     var mx = (tokPx()/2 + 4)/BW(), my = (tokPx()/2 + 4)/BH();
     p.x = Math.max(mx, Math.min(1-mx, p.x));
@@ -1001,13 +1073,17 @@ var SSC = (function(){
 
   /* ================= layout ================= */
   function layoutGrid(jitter){
-    var cols = Math.max(4, Math.min(8, Math.floor(BW() / (tokPx() + 34))));
+    var cols = Math.max(4, Math.min(8, Math.floor(BW() / (baseTok() + (BW() < 600 ? 12 : 34)))));
     var rows = Math.ceil(N / cols);
     for(var i=0;i<N;i++){
       var v = i+1, c = i % cols, r = Math.floor(i/cols);
       var x = (c + .5)/cols;
       var y = .5 + (r - (rows-1)/2) * Math.min(.26, .84/rows);
-      if(jitter){ x += (Math.random()-.5)*.02; y += (Math.random()-.5)*.05; }
+      if(jitter){
+        // a little irregularity, but never enough to push a tile into its neighbour's row
+        var stepY = Math.min(.26, .84/rows), spare = Math.max(0, stepY - (tokPx() + 6)/BH());
+        x += (Math.random()-.5)*.02; y += (Math.random()-.5)*Math.min(.05, spare);
+      }
       pos[v] = clampFrac({x:x, y:y});
     }
   }
@@ -1032,12 +1108,14 @@ var SSC = (function(){
 
   function renderBoard(){
     Array.prototype.forEach.call(board.querySelectorAll('.tok'), function(t){ t.remove(); });
-    var left = 0, half = tokPx()/2;
+    var left = 0, tp = tokPx(), half = tp/2, small = tp < baseTok();
     for(var v=1;v<=N;v++){
       if(!onBoard(v)) continue;
       left++;
+      if(drag && drag.moved && drag.v === v) continue;   // it is in someone's hand (lifted onto <body>)
       if(!pos[v]) pos[v] = clampFrac({x:.5,y:.5});
       var t = makeTok(v);
+      if(small){ t.style.width = t.style.height = tp + 'px'; t.style.fontSize = Math.round(tp*0.42) + 'px'; t.style.borderRadius = Math.round(tp*0.28) + 'px'; }
       t.style.left = (pos[v].x*BW() - half) + 'px';
       t.style.top  = (pos[v].y*BH() - half) + 'px';
       board.appendChild(t);
@@ -1143,13 +1221,18 @@ var SSC = (function(){
       }
     }
     paintLinks();
-    hintEl.textContent = slots.filter(function(x){ return x !== null; }).length + ' of ' + N + ' spaces filled';
+    var waiting = selected !== null && mode === 'move' && slots.indexOf(selected) === -1;
+    chainEl.classList.toggle('awaiting', waiting);
+    hintEl.classList.toggle('ask', waiting);
+    hintEl.textContent = waiting ? 'Tap a space for ' + selected + ' — or tap the workspace to move it'
+                                 : slots.filter(function(x){ return x !== null; }).length + ' of ' + N + ' spaces filled';
   }
 
   // One row when every space can be at least 42px; otherwise wrap onto more rows
   // at full size (a 25-space row at 22px is unreadable on a projector).
   function fitChain(){
-    var W = (chainEl.parentNode.clientWidth || 1000) - 6, full = tokPx(), linkW = window.innerWidth <= 900 ? 27 : 32;
+    var narrow = window.innerWidth <= 700;
+    var W = (chainEl.parentNode.clientWidth || 1000) - 6, full = narrow ? 42 : baseTok(), linkW = narrow ? 22 : (window.innerWidth <= 900 ? 27 : 32);
     var s = Math.floor((W - (N-1)*linkW) / N);
     if(s >= 42){ chainEl.classList.remove('wrap'); s = Math.min(full, s); }
     else { chainEl.classList.add('wrap'); s = full; }
@@ -1206,7 +1289,30 @@ var SSC = (function(){
     }
   }
 
-  function renderAll(){ renderBoard(); renderChain(); renderVerdict(); }
+  function renderAll(){ renderChain(); fitBoard(); renderBoard(); renderVerdict(); }
+
+  // The board fills the screen between the pinned toolbar and the pinned
+  // answer tray, so tiles and spaces are on screen together on a phone, an
+  // iPad or a 768-high laptop. The verdict is left out of the sum on purpose:
+  // checking an answer must not shrink the board under the tiles.
+  var trayEl = document.getElementById('trayCard'), toolbarEl = document.querySelector('.toolbar');
+  // Two cases. A big screen where the WHOLE page fits (title, challenge,
+  // toolbar, board, tray) at a decent board size: size the board so nothing
+  // needs scrolling. Otherwise "app mode": size it for the scrolled view, where
+  // the pinned toolbar, the board and the pinned tray exactly fill the screen.
+  var wholePageFits = false;
+  function fitBoard(){
+    var vh = window.innerHeight || 768;
+    var tray = trayEl.offsetHeight - (verdictEl.offsetHeight ? verdictEl.offsetHeight + 8 : 0);
+    var hb = document.getElementById('hintBox'); var hint = hb && hb.offsetHeight ? hb.offsetHeight + 12 : 0;
+    var boardTopAtRest = board.getBoundingClientRect().top + window.scrollY;
+    var whole = vh - boardTopAtRest - tray - 14;
+    var h;
+    if(whole >= 440){ wholePageFits = true; h = Math.min(620, whole); }
+    else { wholePageFits = false; h = vh - toolbarEl.offsetHeight - 6 - tray - hint - 16; }
+    h = Math.round(Math.max(260, Math.min(620, h)));
+    if(Math.abs(board.clientHeight - h) > 2) board.style.height = h + 'px';
+  }
 
   function touched(){ if(checked){ checked = false; pushField('state.checked', false); } localNote = ''; }
 
@@ -1265,7 +1371,11 @@ var SSC = (function(){
       return;
     }
     if(mode === 'erase'){ erasing = true; eraseSnapped = false; eraseAt(e); return; }
-    if(!e.target.closest('.tok') && selected !== null){ selected = null; renderAll(); }
+    if(!e.target.closest('.tok') && selected !== null){
+      // Tap-to-move (touch screens): the selected tile goes where you tapped.
+      if(mode === 'move'){ var tp = frac(e); toBoard(selected, tp.x, tp.y); return; }
+      selected = null; renderAll();
+    }
   }, {passive:false});
 
   board.addEventListener('pointermove', function(e){
@@ -1356,11 +1466,33 @@ var SSC = (function(){
     }
     drag.el.style.left = e.clientX + 'px';
     drag.el.style.top  = e.clientY + 'px';
+    edgeScroll(e.clientY);
     var fp = frac(e);
     dragWireEnds(drag.v, fp.x*BW(), fp.y*BH());
     highlight(e.clientX, e.clientY);
     liveDrag(drag.v, e);
   });
+
+  // Dragging near the top or bottom of the window scrolls the page, so a tile
+  // can reach the answer spaces even when they are below the fold (1366x768
+  // with the challenge box open). The lifted tile is position:fixed, so it
+  // stays under the finger while the page moves.
+  var scrollTimer = null, scrollV = 0, lastPX = 0, lastPY = 0;
+  function edgeScroll(y){
+    var EDGE = 60, H = window.innerHeight, trayTop = trayEl.getBoundingClientRect().top, tbBot = toolbarEl.getBoundingClientRect().bottom;
+    if(y >= trayTop - 4 && trayTop < H - 10) scrollV = 0;               // over the pinned tray: you're already there
+    else if(y <= tbBot + 4 && tbBot > 10) scrollV = 0;                    // over the pinned toolbar
+    else scrollV = y > H - EDGE ? Math.ceil((y - (H - EDGE)) / 4) : (y < EDGE ? -Math.ceil((EDGE - y) / 4) : 0);
+    lastPY = y;
+    if(scrollV && !scrollTimer){
+      scrollTimer = setInterval(function(){
+        if(!drag || !drag.moved || !scrollV){ clearInterval(scrollTimer); scrollTimer = null; return; }
+        window.scrollBy(0, scrollV);
+        highlight(lastPX, lastPY);
+      }, 16);
+    }
+  }
+  document.addEventListener('pointermove', function(e){ lastPX = e.clientX; }, true);
 
   function dropTargetAt(x,y){
     var lifted = drag && drag.el, prev;
@@ -1409,12 +1541,19 @@ var SSC = (function(){
     d.el.remove();                                     // the lifted node lives on <body>
     if(t && t.kind === 'slot') toSlot(d.v, t.index);
     else if(t && t.kind === 'board'){ var p = frac(e); toBoard(d.v, p.x, p.y); }
-    else renderAll();
+    else { renderAll(); sendHome(d.v); }
   });
+  // Dropped somewhere that is neither the workspace nor a space: the tile goes
+  // back where it was. In a room, liveDrag has already broadcast the half-way
+  // positions, so push the resting position too or everyone else keeps it there.
+  function sendHome(v){
+    if(!onBoard(v) || !pos[v]) return;
+    pushField('state.pos.p' + v, { x:+pos[v].x.toFixed(4), y:+pos[v].y.toFixed(4) });
+  }
 
   document.addEventListener('pointercancel', function(){
     if(rubber){ if(rubber.el) rubber.el.remove(); rubber = null; }
-    if(drag){ if(drag.moved) drag.el.remove(); drag = null; document.body.style.cursor=''; renderAll(); }
+    if(drag){ var dv = drag.v, mv = drag.moved; if(mv) drag.el.remove(); drag = null; document.body.style.cursor=''; renderAll(); if(mv) sendHome(dv); }
   });
 
   function toggleWire(a,b){
@@ -1491,7 +1630,8 @@ var SSC = (function(){
     // sums toggle with Move / Join (where the joins are).
     document.getElementById('penOpts').hidden  = (m !== 'draw');
     document.getElementById('markOpts').hidden = (m !== 'mark');
-    document.getElementById('btnSums').hidden  = !(m === 'move' || m === 'connect');
+    var sb = document.getElementById('btnSums');
+    sb.hidden = !(m === 'move' || m === 'connect') && sb.parentNode !== document.getElementById('moreMenu');
     selected = null; renderAll();
   }
   document.getElementById('segMode').addEventListener('click', function(e){
@@ -1896,6 +2036,7 @@ var SSC = (function(){
     document.getElementById('hintCount').textContent = 'Hint ' + Math.min(hintLevel, h.length) + ' of ' + h.length;
     document.getElementById('btnHintNext').disabled = hintLevel >= h.length;
     document.getElementById('btnHint').textContent = hintLevel ? 'Next hint' : 'Hint';
+    if(typeof fitBoard === 'function' && trayEl){ var before = board.clientHeight; fitBoard(); if(board.clientHeight !== before) renderBoard(); }
   }
   function nextHint(){ hintLevel = Math.min(hintsFor(N).length, hintLevel + 1); renderHints(); }
   document.getElementById('btnHint').addEventListener('click', nextHint);
@@ -1908,6 +2049,26 @@ var SSC = (function(){
     this.setAttribute('aria-pressed', String(showSums));
     renderWires();
   });
+
+  /* ================= More menu (1340px and below) ================= */
+  var moreMenu = document.getElementById('moreMenu'), moreBtn = document.getElementById('btnMore');
+  var sumsBtn = document.getElementById('btnSums'), sumsHome = sumsBtn.nextSibling;
+  function placeSums(){
+    var compact = window.matchMedia('(max-width:1340px)').matches;
+    if(compact && sumsBtn.parentNode !== moreMenu) moreMenu.insertBefore(sumsBtn, moreMenu.firstChild);
+    else if(!compact && sumsBtn.parentNode === moreMenu) toolbarEl.insertBefore(sumsBtn, sumsHome);
+  }
+  placeSums();
+  window.addEventListener('resize', placeSums);
+  function closeMore(){ moreMenu.classList.remove('open'); moreBtn.setAttribute('aria-expanded','false'); }
+  moreBtn.addEventListener('click', function(e){
+    e.stopPropagation();
+    var open = !moreMenu.classList.contains('open');
+    moreMenu.classList.toggle('open', open); moreBtn.setAttribute('aria-expanded', String(open));
+  });
+  moreMenu.addEventListener('click', function(e){ if(e.target.closest('#btnTidy,#btnClearBoard,#btnClearChain')) closeMore(); });
+  document.addEventListener('pointerdown', function(e){ if(!e.target.closest('#moreWrap')) closeMore(); }, true);
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeMore(); });
 
   /* ================= verdict buttons ================= */
   verdictEl.addEventListener('click', function(e){
@@ -1975,12 +2136,13 @@ var SSC = (function(){
         }else if(sol){ fill = '#dcfce7'; stroke = '#15803d'; }
         var gEl = mk('g', { 'class':'node', tabindex: tab === 'trace' ? 0 : -1, role:'button', 'aria-label':'Number ' + v });
         gEl.dataset.v = v;
-        if(ring) gEl.appendChild(mk('circle', { cx:p.x, cy:p.y, r:28, fill:'none', stroke:ring, 'stroke-width':5 }));
-        gEl.appendChild(mk('circle', { 'class':'body', cx:p.x, cy:p.y, r:21, fill:fill, stroke:stroke, 'stroke-width':sw }));
+        gEl.appendChild(mk('circle', { 'class':'hitc', cx:p.x, cy:p.y, r: Math.min(32, Math.PI*262/N - 1) }));   // finger-sized target
+        if(ring) gEl.appendChild(mk('circle', { cx:p.x, cy:p.y, r:32, fill:'none', stroke:ring, 'stroke-width':5 }));
+        gEl.appendChild(mk('circle', { 'class':'body', cx:p.x, cy:p.y, r:25, fill:fill, stroke:stroke, 'stroke-width':sw }));
         var t = mk('text', { x:p.x, y:p.y, fill:tcol }); t.textContent = v; gEl.appendChild(t);
         svgEl.appendChild(gEl);
         var order = (tab === 'trace' && visited[v]) ? path.indexOf(v) + 1 : (sol ? sol.indexOf(v) + 1 : 0);
-        if(order){ var o = mk('text', { 'class':'ord', x: 320 + 300*Math.cos(p.a), y: 320 + 300*Math.sin(p.a) }); o.textContent = '#' + order; svgEl.appendChild(o); }
+        if(order){ var o = mk('text', { 'class':'ord', x: 320 + 304*Math.cos(p.a), y: 320 + 304*Math.sin(p.a) }); o.textContent = '#' + order; svgEl.appendChild(o); }
       }
     }
 
@@ -2239,6 +2401,14 @@ var SSC = (function(){
   })();
 
   /* ================= start ================= */
+  if(window.matchMedia('(max-width:700px)').matches) document.getElementById('taskBox').open = false;
+  function toWorkspace(){
+    if(wholePageFits) return;
+    var y = toolbarEl.getBoundingClientRect().top + window.scrollY - (document.getElementById('roomBar').classList.contains('show') ? 0 : 0);
+    window.scrollTo({ top: Math.max(0, y - 4), behavior: 'smooth' });
+  }
+  document.getElementById('btnGo').addEventListener('click', function(){ setTimeout(toWorkspace, 60); });
+  document.getElementById('taskBox').addEventListener('toggle', function(){ renderAll(); });
   newGame(false); setMode('move');
   requestAnimationFrame(function(){ layoutGrid(true); renderAll(); });
   // ?intro=0 skips the pop-up (handy when a teacher re-opens the page mid-lesson).
