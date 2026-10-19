@@ -369,6 +369,27 @@
       .ctrlCard{ padding:8px 12px; }
       .stepBtn{ padding:9px 16px; } .nextBtn{ padding:10px 26px; }
     }
+    /* ---------- redesign: the board is the page ---------- */
+    .eqCard{ min-height:58px; padding-top:8px; padding-bottom:8px; }
+    .question{ font-family:var(--mathFont); font-size:clamp(1.15rem,2vw,1.6rem); font-weight:600; color:var(--line-soft); white-space:nowrap; }
+    .question .eqs{ padding:0 .25em; }
+    .question .ans{ color:var(--green-dark); }
+    #board .tile .tin{ transition:opacity .45s ease; }
+    #board .tile.fade .tin{ opacity:.2; }
+    #board .tile.leave .tin{ animation:none; }
+    #board .tile.leave rect{ animation:toWhite .5s ease forwards; }
+    #board .tile.leave .mk{ animation:mkOut .3s ease forwards; }
+    @keyframes toWhite{ 0%{} 70%{ fill:#fff; stroke:#fff; opacity:1;} 100%{ fill:#fff; stroke:#fff; opacity:0;} }
+    @keyframes mkOut{ to{ opacity:0; } }
+    #gText{ transition:opacity .25s ease; }
+    #gText.dim{ opacity:0; }
+    #gText text{ animation:txtIn .4s ease both; }
+    @keyframes txtIn{ 0%{ opacity:0; transform:translateY(8px);} 100%{ opacity:1; transform:none;} }
+    #board text.sym, #board text.op{ font-family:var(--mathFont); font-size:58px; font-weight:600; text-anchor:middle; }
+    #board text.op{ fill:#334155; }
+    #board text.sym.ans{ fill:var(--green-dark); }
+    #board text.word, #board text.opw{ font-family:var(--uiFont); font-size:25px; font-weight:850; text-anchor:middle; }
+    #board text.opw{ fill:#64748b; font-weight:800; }
     @media (prefers-reduced-motion:reduce){
       *{ animation-duration:.001ms !important; transition-duration:.001ms !important; }
     }
@@ -428,9 +449,11 @@
 
             <div class="settingsRule" role="separator"></div>
             <div class="settingsHead">On screen</div>
-            <label class="sw"><input type="checkbox" id="wordsToggle" checked><span class="track"></span><span>In words</span></label>
+            <label class="sw"><input type="checkbox" id="wordsToggle" checked><span class="track"></span><span>Words under the tiles</span></label>
+            <label class="sw"><input type="checkbox" id="promptToggle"><span class="track"></span><span>Teacher prompts</span></label>
             <label class="sw"><input type="checkbox" id="workToggle" checked><span class="track"></span><span>Working</span></label>
             <label class="sw"><input type="checkbox" id="keyToggle" checked><span class="track"></span><span>Say it in words (the signs)</span></label>
+            <p class="settingsNote">The board carries only tiles, the symbols above them and the words below. The questions &mdash; what do you see, what just happened &mdash; are yours to ask.</p>
 
             <div class="settingsRule" role="separator"></div>
             <div class="settingsHead">Animation</div>
@@ -464,7 +487,7 @@
           <div class="eqLeft">
             <span class="setTag" id="setTag">Lesson &middot; 1 of 11</span>
           </div>
-          <div class="expr" id="expr" aria-live="polite"></div>
+          <div class="question" id="question" aria-live="polite"></div>
           <input class="typeInput" id="typeInput" type="text" inputmode="text" autocomplete="off" spellcheck="false"
                  placeholder="e.g. 10 &minus; 4 &divide; 2" aria-label="Type an expression" hidden>
           <div class="eqActions">
@@ -479,12 +502,7 @@
           </div>
         </div>
 
-        <div class="wordsCard" id="wordsCard">
-          <span class="wordsLab">In words</span>
-          <div class="words" id="words" aria-live="polite"></div>
-        </div>
-
-        <div class="promptBar" id="promptBar">
+        <div class="promptBar" id="promptBar" hidden>
           <span class="pIco" id="promptIco" aria-hidden="true">&#128173;</span>
           <span id="promptText"></span>
         </div>
@@ -495,8 +513,9 @@
             <svg class="shrink" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M8 3v5H3M12 3v5h5M8 17v-5H3M12 17v-5h5"/></svg>
           </button>
           <svg id="board" viewBox="0 0 1000 440" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Tile picture of the expression">
-            <g id="gStatic"><g id="gFrames"></g><g id="gGlow"></g><g id="gLabels"></g></g>
             <g id="gTiles"></g>
+            <g id="gText"></g>
+            <g id="gMeasure" aria-hidden="true" style="visibility:hidden"><text class="sym" id="mSym"></text><text class="word" id="mWord"></text></g>
           </svg>
           <div class="picHide" id="picHide" hidden><div><span aria-hidden="true">&#128065;</span>Close your eyes. What do you see?</div></div>
         </div>
@@ -561,8 +580,8 @@ var OO = (function(){
      ===================================================================== */
 
   const T = 40, GP = 10, P = T + GP;          /* tile, gap, pitch (SVG units) */
-  const LABF = 20, LABH = 30;                 /* frame label font + band */
-  const TERMGAP = 56, CELLGAP = 18;
+
+
 
   let SEQ = 0;
   const nid = () => "n" + (SEQ++);
@@ -678,7 +697,41 @@ var OO = (function(){
     root = normalize(root);
     assignRoles(root);
     topTerms(root).forEach((t, i) => { t.hue = i % 5; });
+    markTaken(root);
     return root;
+  }
+
+  /* "24 − 2 × 3": the 6 that go are six OF THE 24 (the deck's morph), so when
+     the first amount already exists as tiles the part taken away is drawn
+     with its tiles from the start. Otherwise ("3 × 5 − 4", or no red tiles to
+     take yet) it is drawn faint until there are tiles to take it from. */
+  function markTaken(n){
+    if(n.t === "grp"){ markTaken(n.e); return; }
+    if(n.t !== "op") return;
+    markTaken(n.a); markTaken(n.b);
+    if(n.op === "-" && isVal(n.a)){
+      const R = val(n.b);
+      if(R !== 0 && tilesOf(n.a).filter(t => t.s === sgn(R)).length >= Math.abs(R)) n.tk = true;
+    }
+  }
+  function lastOfSign(tiles, s, need){
+    const idx = [];
+    for(let i = tiles.length - 1; i >= 0 && idx.length < need; i--) if(tiles[i].s === s) idx.push(i);
+    return idx.reverse().map(i => tiles[i].id);
+  }
+  /* The tiles a part of the tree will have once all its work is done — what
+     step() will produce, run ahead on a copy. Ids are deterministic, so these
+     are the very tiles that will be on the board. */
+  const FUT = new Map();
+  function futureTiles(n){
+    const key = JSON.stringify(n);
+    if(FUT.has(key)) return FUT.get(key);
+    let cur = clone(n);
+    for(let g = 0; g < 80; g++){ const r = step(cur); if(!r) break; cur = r.root; }
+    const out = tilesOf(cur);
+    if(FUT.size > 4000) FUT.clear();
+    FUT.set(key, out);
+    return out;
   }
 
   /* ------------------------------------------------------------ values */
@@ -748,9 +801,9 @@ var OO = (function(){
       const sa = sgn(val(n.a)), sb = sgn(val(n.b));
       return (sa && sb && sa !== sb) ? "addmix" : "add";
     }
-    const R = val(n.b); if(R === 0) return "sub";
+    const R = val(n.b); if(R === 0 || n.tk) return "sub";
     const have = tilesOf(n.a).filter(t => t.s === sgn(R)).length;
-    return have >= Math.abs(R) ? "sub" : "zp";
+    return have >= Math.abs(R) ? "out" : "zp";
   }
 
   function replace(n, id, rep){
@@ -791,7 +844,9 @@ var OO = (function(){
       }
       case "div": {
         const X = n.a, k = val(n.b), tx = tilesOf(X), m = tx.length / Math.abs(k);
-        rep = {t:"pile", id:n.id, tiles:tx.slice(0, m).map(t => ({id:t.id, s:k < 0 ? -t.s : t.s})), cols:(m >= 1 && m <= 10) ? m : null};
+        const ak = Math.abs(k);
+        rep = {t:"pile", id:n.id, tiles:tx.slice(0, m).map(t => ({id:t.id, s:k < 0 ? -t.s : t.s})),
+               cols:(m >= 1 && m <= 12 && ak <= 12) ? (m < ak ? 1 : m) : null};
         d.k = k; d.x = val(X); d.flip = k < 0; break;
       }
       case "add": case "addmix":
@@ -813,17 +868,17 @@ var OO = (function(){
         rep = Object.assign({}, n, {a:pile});
         d.z = z; d.a = val(n.a); d.r = R; d.none = (z === Math.abs(R)); break;
       }
+      case "out":
+        rep = Object.assign({}, n, {tk:true});
+        d.a = val(n.a); d.r = val(n.b); break;
       case "sub": {
-        const R = val(n.b), s = sgn(R), need = Math.abs(R), L = tilesOf(n.a), idx = [];
-        for(let i = L.length - 1; i >= 0 && idx.length < need; i--) if(L[i].s === s) idx.push(i);
-        idx.reverse();
-        const Rt = tilesOf(n.b);
-        d.pairs = Rt.map((t, i) => [t.id, L[idx[i]].id]);
-        rep = {t:"pile", id:n.id, tiles:L.filter((t, i) => !idx.includes(i)), cols:null};
+        const R = val(n.b), L = tilesOf(n.a);
+        const gone = new Set(lastOfSign(L, sgn(R), Math.abs(R)));
+        rep = {t:"pile", id:n.id, tiles:L.filter(t => !gone.has(t.id)), cols:null};
         d.a = val(n.a); d.r = R; break;
       }
     }
-    if(kind !== "zp" && kind !== "count"){ const h = (kind === "add" || kind === "addmix" || kind === "sub") ? firstHue(n) : n.hue; if(h != null) rep.hue = h; }
+    if(kind !== "zp" && kind !== "count" && kind !== "out"){ const h = (kind === "add" || kind === "addmix" || kind === "sub") ? firstHue(n) : n.hue; if(h != null) rep.hue = h; }
     const out = normalize(replace(clone(root), n.id, clone(rep)));
     return {root:out, d};
   }
@@ -969,7 +1024,8 @@ var OO = (function(){
       case "zp":
         return (d.none ? "There are no " : "There are not enough ") + colourName(sgn(d.r)) + " tiles to take away " + amt(d.r) +
           ". Add " + d.z + " zero pair" + (d.z === 1 ? "" : "s") + " — it is still " + amt(d.a) + ".";
-      case "sub": return "Take " + amt(d.r) + " away from " + amt(d.a) + ".";
+      case "out": return "Take " + amt(d.r) + " out of " + amt(d.a) + ".";
+      case "sub": return "Take them away.";
     }
     return "";
   }
@@ -1024,50 +1080,52 @@ var OO = (function(){
     }catch(e){ return null; }
   }
 
-  /* ------------------------------------------------------------ layout */
-  function box(){ return {w:0, h:0, tiles:[], frames:[], labels:[], nb:[]}; }
-  function put(dst, src, dx, dy){
-    src.tiles.forEach(t => dst.tiles.push(Object.assign({}, t, {x:t.x + dx, y:t.y + dy})));
-    src.frames.forEach(f => dst.frames.push(Object.assign({}, f, {x:f.x + dx, y:f.y + dy})));
-    src.labels.forEach(l => dst.labels.push(Object.assign({}, l, {x:l.x + dx, y:l.y + dy})));
-    src.nb.forEach(b => dst.nb.push(Object.assign({}, b, {x:b.x + dx, y:b.y + dy})));
-  }
-  const textW = (s, f) => s.length * (f || LABF) * 0.53 + 6;
+  /* ------------------------------------------------------------ layout
+     Tiles only. No boxes, brackets or labels: structure is spacing, the way
+     the lesson slides draw it. The symbols for each amount sit ABOVE its
+     tiles and the words BELOW, so every part of the sentence points at the
+     part of the picture it describes. */
+  const SYMF = 58, WF = 25, INGAP = 26, CELLGAP = 70;
+  function box(){ return {w:0, h:0, tiles:[]}; }
+  function put(dst, src, dx, dy){ src.tiles.forEach(t => dst.tiles.push(Object.assign({}, t, {x:t.x + dx, y:t.y + dy}))); }
+  function pre(b, p){ if(p) b.tiles.forEach(t => { t.id = p + t.id; }); return b; }
 
+  /* A plain amount is drawn as the neatest rectangle it makes — 8 is 2 × 4,
+     18 is 3 × 6, 24 is 3 × 8 — wider than tall; rows of 5 only when
+     nothing divides it. */
   function autoCols(n){
     if(n <= 5) return Math.max(n, 1);
-    if(n <= 10) return 5;
-    if(n % 10 === 0 && n >= 40) return 10;
-    if(n % 5 === 0 && n <= 35) return 5;
-    for(const c of [8, 6, 9, 7, 4]) if(n % c === 0 && n / c <= c) return c;
+    let best = 0, score = 1e9;
+    for(let c = 3; c <= 12; c++){
+      if(n % c) continue;
+      const r = n / c; if(r > c || r < 2) continue;
+      const sc = Math.abs(Math.log((c / r) / 2));
+      if(sc < score - 1e-9){ score = sc; best = c; }
+    }
+    if(best) return best;
+    if(n <= 12) return Math.ceil(n / 2);
     return n <= 30 ? 5 : 10;
   }
-
   const DICE = {1:[[0,0]], 2:[[0,0],[1,1]], 3:[[0,0],[1,1],[2,2]], 4:[[0,0],[1,0],[0,1],[1,1]],
                 5:[[0,0],[2,0],[1,1],[0,2],[2,2]], 6:[[0,0],[1,0],[0,1],[1,1],[0,2],[1,2]]};
 
   function pileBox(tiles, o){
-    const b = box(), n = tiles.length, pf = o.prefix || "";
-    const at = (t, x, y) => b.tiles.push({id:pf + t.id, s:t.s, x, y});
-    if(n === 0){
-      b.w = T; b.h = T;
-      b.frames.push({kind:"zero", x:0, y:0, w:T, h:T});
-      b.labels.push({x:T / 2, y:T / 2 + 7, text:"0", cls:"zeroLab", anchor:"middle"});
-      return b;
-    }
+    o = o || {};
+    const b = box(), n = tiles.length, om = o.omit;
+    const at = (t, x, y) => { if(!om || !om.has(t.id)) b.tiles.push({id:t.id, s:t.s, x, y}); };
+    if(n === 0){ b.w = T; b.h = T; return b; }
     if(o.pairs && tiles.some(t => t.s > 0) && tiles.some(t => t.s < 0)){
+      /* yellow over red: each column is a zero pair, the extras come first */
       const sp = pairSplit(tiles), cols = [];
       sp.extras.forEach(t => cols.push(t.s > 0 ? {top:t} : {bot:t}));
       sp.pairs.forEach(([a, c]) => cols.push(a.s > 0 ? {top:a, bot:c} : {top:c, bot:a}));
-      const per = 12, BG = 18;
-      const bands = Math.ceil(cols.length / per);
+      const per = 12, BG = 22, bands = Math.ceil(cols.length / per);
       cols.forEach((c, i) => {
         const x = (i % per) * P, y = Math.floor(i / per) * (2 * P + BG);
         if(c.top) at(c.top, x, y);
         if(c.bot) at(c.bot, x, y + P);
       });
-      b.w = Math.min(cols.length, per) * P - GP;
-      b.h = bands * 2 * P - GP + (bands - 1) * BG;
+      b.w = Math.min(cols.length, per) * P - GP; b.h = bands * 2 * P - GP + (bands - 1) * BG;
       return b;
     }
     if(o.dice && DICE[n]){
@@ -1082,35 +1140,46 @@ var OO = (function(){
     return b;
   }
 
-  /* Put a box inside a frame, with an optional label band above it. */
-  function wrap(inner, o){
-    const b = box(), pad = o.pad || 0, lh = o.label ? LABH : 0;
-    const padX = o.padX != null ? o.padX : pad;
-    b.w = Math.max(inner.w + 2 * padX, o.label ? textW(o.label) + 8 : 0);
-    b.h = lh + inner.h + 2 * pad;
-    put(b, inner, (b.w - inner.w) / 2, lh + pad);
-    b.frames.push({kind:o.kind, x:0, y:lh, w:b.w, h:b.h - lh, hue:o.hue});
-    if(o.label) b.labels.push({x:2, y:lh - 9, text:o.label, cls:"flab", hue:o.hue, anchor:"start", kind:o.kind});
-    return b;
+  /* "10 ÷ 2": the ten, in two equal rows, with all but one part faded.
+     Few tiles in a part and many parts → the parts are columns instead. */
+  function partsBox(tiles, k){
+    const b = box(), m = tiles.length / k;
+    if(m === 0){ b.w = T; b.h = T; return b; }
+    if(m <= 12 && k <= 12){
+      const asCols = m < k;
+      tiles.forEach((t, idx) => {
+        const j = Math.floor(idx / m), i = idx % m;
+        b.tiles.push({id:t.id, s:t.s, x:(asCols ? j : i) * P, y:(asCols ? i : j) * P, fade:j > 0});
+      });
+      b.w = (asCols ? k : m) * P - GP; b.h = (asCols ? m : k) * P - GP;
+      return b;
+    }
+    const parts = [];
+    for(let j = 0; j < k; j++){
+      const pb = pileBox(tiles.slice(j * m, (j + 1) * m), {cols:autoCols(m)});
+      if(j > 0) pb.tiles.forEach(t => { t.fade = true; });
+      parts.push(pb);
+    }
+    return stack(parts, GP * 3);
   }
+
   function row(bs, gap){
-    const b = box();
-    b.h = Math.max(...bs.map(x => x.h));
+    const b = box(); b.h = Math.max(...bs.map(x => x.h));
     let x = 0;
     bs.forEach((s, i) => { put(b, s, x, (b.h - s.h) / 2); x += s.w + (i < bs.length - 1 ? gap : 0); });
     b.w = x; return b;
   }
   function stack(bs, gap){
-    const b = box();
-    b.w = Math.max(...bs.map(x => x.w));
+    const b = box(); b.w = Math.max(...bs.map(x => x.w));
     let y = 0;
-    bs.forEach((s, i) => { put(b, s, 0, y); y += s.h + (i < bs.length - 1 ? gap : 0); });
+    bs.forEach((s, i) => { put(b, s, (b.w - s.w) / 2, y); y += s.h + (i < bs.length - 1 ? gap : 0); });
     b.h = y; return b;
   }
   function grid(cells, gap){
     const k = cells.length, cw = Math.max(...cells.map(c => c.w)), ch = Math.max(...cells.map(c => c.h));
-    let best = 1, bestScore = 1e9;
-    for(let c = 1; c <= k; c++){
+    /* up to four groups stand in one row, as the slides draw them */
+    let best = k <= 4 ? k : 1, bestScore = k <= 4 ? -1 : 1e9;
+    for(let c = 1; c <= k && bestScore >= 0; c++){
       const r = Math.ceil(k / c);
       if(r * c - k >= c) continue;
       const W = c * cw + (c - 1) * gap, H = r * ch + (r - 1) * gap;
@@ -1126,90 +1195,117 @@ var OO = (function(){
     return b;
   }
 
-  function amountBox(n, pf, hue, o){
-    if(n.hue != null) hue = n.hue;
-    let b;
-    if(n.t === "num"){
-      b = pileBox(tilesOf(n), {dice:Math.abs(n.v) <= 6, prefix:pf});
-      /* a top-level amount gets a box in its own colour, so the colour in
-         the words and the symbols can be found in the picture too */
-      if(n.hue != null) b = wrap(b, {kind:"amount", pad:10, hue});
-    } else if(n.t === "pile"){
-      b = pileBox(n.tiles, {cols:n.cols, prefix:pf, pairs:n.mix || n.zp});
-      if(n.zp) b = wrap(b, {kind:"still", pad:8, label:"still " + amt(val(n)), hue});
-      else if(n.hue != null) b = wrap(b, {kind:"amount", pad:10, hue});
-    } else if(n.t === "grp"){
-      b = wrap(amountBox(n.e, pf, hue, o), {kind:"bracket", padX:30, pad:10, hue});
-    } else if(n.op === "+" || n.op === "-"){
-      const A = amountBox(n.a, pf, hue, o);
-      let B = amountBox(n.b, pf, hue, o);
-      if(n.op === "-") B = wrap(B, {kind:"take", pad:10, label:"take away", hue});
-      b = row([A, B], TERMGAP);
-    } else if(n.op === "*"){
-      const X = amtSide(n), k = val(countSide(n)), ak = Math.abs(k), cells = [];
-      /* "2 groups of (a fifth of 20)": drawing the whole 20 twice says
-         something the sentence does not. While the amount still has a
-         division to do, draw ONE group and hold a place for the others;
-         they pop in once that amount has been found. */
-      const defer = ak > 1 && hasDiv(X);
-      for(let j = 0; j < ak; j++){
-        if(defer && j > 0){
-          const g = box(); g.w = 2 * T + 10; g.h = 2 * T + 10;
-          g.frames.push({kind:"ghost", x:0, y:0, w:g.w, h:g.h, hue});
-          g.labels.push({x:g.w / 2, y:g.h / 2 + 12, text:"?", cls:"ghostLab", anchor:"middle"});
-          cells.push(g);
-        } else cells.push(wrap(amountBox(X, pf + n.id + "c" + j + ":", hue, o), {kind:"cell", pad:9, hue}));
-      }
-      let inner;
-      if(ak === 0){ inner = box(); inner.w = T; inner.h = T; inner.labels.push({x:T / 2, y:T / 2 + 7, text:"none", cls:"zeroLab", anchor:"middle"}); }
-      else inner = defer ? row(cells, CELLGAP) : grid(cells, CELLGAP);
-      b = wrap(inner, {kind:k < 0 ? "opposite" : "groups", pad:12, label:wordsPlain(n, o), hue});
-    } else {
-      const X = n.a, k = isVal(n.b) ? val(n.b) : val(n.b), ak = Math.abs(k);
-      if(isVal(X) && ak > 0){
-        const tx = tilesOf(X), m = tx.length / ak, parts = [];
-        for(let j = 0; j < ak; j++){
-          const pb = pileBox(tx.slice(j * m, (j + 1) * m), {cols:(m >= 1 && m <= 10) ? m : autoCols(m), prefix:pf});
-          parts.push(wrap(pb, {kind:j === 0 ? "onepart" : "part", pad:7, hue}));
-        }
-        const lab = (k < 0 ? "opposite of " : "") + (o.div === "share" ? "one share" : (ORD[ak] || "one part"));
-        const lw = textW(lab, 19), withLab = box();
-        if(ak <= 4){
-          /* a few parts: one under another, the part that IS the amount named beside it */
-          const col = stack(parts, 10);
-          put(withLab, col, 0, 0);
-          withLab.labels.push({x:col.w + 12, y:parts[0].h / 2 + 7, text:lab, cls:"partLab", anchor:"start"});
-          withLab.w = col.w + 12 + lw; withLab.h = col.h;
-        } else {
-          /* many parts: a grid, or ten thin rows shrink every tile on the board */
-          const gr = grid(parts, 10);
-          put(withLab, gr, 0, 0);
-          const t2 = "green part: " + lab;
-          withLab.labels.push({x:0, y:gr.h + 26, text:t2, cls:"partLab", anchor:"start"});
-          withLab.w = Math.max(gr.w, textW(t2, 19)); withLab.h = gr.h + 34;
-        }
-        const isNum = X.t === "num" || X.t === "pile";
-        const head = (isNum ? amt(val(X)) : "it") + " split into " + ak + " equal parts";
-        b = wrap(withLab, {kind:k < 0 ? "opposite" : "split", pad:12, label:head, hue});
-      } else {
-        b = wrap(amountBox(X, pf, hue, o), {kind:"groups", pad:12, label:wordsPlain(n, o), hue});
-      }
+  function subParts(n, o){
+    const L = n.a, R = n.b, o0 = Object.assign({}, o, {omit:null});
+    if(n.tk){
+      const Rv = val(R), matched = lastOfSign(tilesOf(L), sgn(Rv), Math.abs(Rv));
+      if(o.unsplit) return {L:amountBox(L, o0), R:null};
+      const Lb = amountBox(L, Object.assign({}, o0, {omit:new Set(matched)}));
+      const map = new Map(futureTiles(R).map((t, i) => [t.id, matched[i]]));
+      const Rb = amountBox(R, o0);
+      Rb.tiles.forEach(t => { if(map.has(t.id)) t.id = map.get(t.id); });
+      return {L:Lb, R:Rb};
     }
-    b.nb.push({nid:n.id, x:0, y:0, w:b.w, h:b.h});
+    const Lb = amountBox(L, o0), Rb = amountBox(R, o0);
+    Rb.tiles.forEach(t => { t.fade = true; });
+    return {L:Lb, R:Rb};
+  }
+
+  function amountBox(n, o){
+    const o0 = o.omit ? Object.assign({}, o, {omit:null}) : o;
+    if(n.t === "num") return pileBox(tilesOf(n), {dice:Math.abs(n.v) <= 6, omit:o.omit});
+    if(n.t === "pile") return pileBox(n.tiles, {cols:n.cols, pairs:n.mix || n.zp, omit:o.omit});
+    if(n.t === "grp") return amountBox(n.e, o0);
+    if(n.op === "+") return row([amountBox(n.a, o0), amountBox(n.b, o0)], INGAP);
+    if(n.op === "-"){ const sp = subParts(n, o0); return sp.R ? row([sp.L, sp.R], INGAP) : sp.L; }
+    if(n.op === "*"){
+      const X = amtSide(n), k = val(countSide(n)), ak = Math.abs(k);
+      if(ak === 0){ const b = box(); b.w = T; b.h = T; return b; }
+      /* k groups of a plain number is an ARRAY: one row per group */
+      if(X.t === "num" && Math.abs(X.v) >= 1 && Math.abs(X.v) <= 12){
+        const tiles = [];
+        for(let j = 0; j < ak; j++) for(let i = 0; i < Math.abs(X.v); i++) tiles.push({id:n.id + "c" + j + ":" + X.id + "." + i, s:sgn(X.v)});
+        return pileBox(tiles, {cols:Math.abs(X.v)});
+      }
+      /* groups of anything else stand apart, so each group can be seen */
+      const cells = [];
+      for(let j = 0; j < ak; j++) cells.push(pre(amountBox(X, o0), n.id + "c" + j + ":"));
+      return grid(cells, CELLGAP);
+    }
+    const X = n.a, k = Math.abs(val(n.b));
+    if(isVal(X)) return partsBox(tilesOf(X), k);
+    const fut = futureTiles(X), m = fut.length / k;
+    const keep = new Set(fut.slice(0, m).map(t => t.id)), fs = new Set(fut.map(t => t.id));
+    const b = amountBox(X, o0);
+    b.tiles.forEach(t => { if(fs.has(t.id) && !keep.has(t.id)) t.fade = true; });
     return b;
   }
 
-  function hasDiv(n){
-    if(n.t === "grp") return hasDiv(n.e);
-    if(n.t !== "op") return false;
-    return n.op === "/" || hasDiv(n.a) || hasDiv(n.b);
+  function chainItems(root){
+    const out = [];
+    (function walk(n){
+      if(n.t === "op" && (n.op === "+" || n.op === "-")){ walk(n.a); out.push({node:n.b, op:n.op, join:n}); }
+      else out.push({node:n, op:null, join:null});
+    })(root);
+    return out;
+  }
+  function estW(text, kind){
+    if(kind === "sym"){
+      let w = 0;
+      for(const c of text) w += c === " " ? .26 : (/[()]/.test(c) ? .36 : (/[0-9]/.test(c) ? .52 : .72));
+      return w * SYMF;
+    }
+    return text.length * WF * .56;
   }
 
-  function layout(root, o){ return amountBox(root, "", null, o || {}); }
+  function layout(root, o){
+    o = o || {};
+    const M = o.measure || estW;
+    const items = chainItems(root);
+    const boxes = items.map(it => amountBox(it.node, o));
+    const show = items.map(() => true);
+    items.forEach((it, i) => {
+      if(it.op !== "-") return;
+      if(it.join.tk){
+        const sp = subParts(it.join, o);
+        boxes[i - 1] = sp.L;
+        if(sp.R) boxes[i] = sp.R; else show[i] = false;
+      } else boxes[i].tiles.forEach(t => { t.fade = true; });
+    });
+    const out = {tiles:[], texts:[], w:0, h:0};
+    const slots = [];
+    let first = true;
+    items.forEach((it, i) => {
+      if(!show[i]) return;
+      const sym = symText(it.node, first), wd = wordsPlain(it.node, o);
+      const hue = it.node.hue != null ? it.node.hue : firstHue(it.node);
+      slots.push({it, b:boxes[i], sym, wd, hue, op:first ? null : it.op,
+                  w:Math.max(boxes[i].w, M(sym, "sym"), M(wd, "word"))});
+      first = false;
+    });
+    const picH = Math.max(...slots.map(s => s.b.h));
+    const symY = SYMF * .9, picY = SYMF * 1.25 + 14, wordY = picY + picH + 22 + WF;
+    let x = 0;
+    slots.forEach((s, i) => {
+      if(i > 0){
+        const ow = OPS[s.op], ww = s.op === "+" ? "and" : "take away";
+        const g = Math.max(M(ow, "sym"), M(ww, "word")) + 56;
+        out.texts.push({kind:"op", x:x + g / 2, y:symY, text:ow});
+        out.texts.push({kind:"opw", x:x + g / 2, y:wordY, text:ww});
+        x += g;
+      }
+      put(out, s.b, x + (s.w - s.b.w) / 2, picY + (picH - s.b.h) / 2);
+      out.texts.push({kind:"sym", x:x + s.w / 2, y:symY, text:s.sym, hue:s.hue, id:s.it.node.id});
+      out.texts.push({kind:"word", x:x + s.w / 2, y:wordY, text:s.wd, hue:s.hue, id:s.it.node.id});
+      x += s.w;
+    });
+    out.w = x; out.h = wordY + WF * .5;
+    return out;
+  }
 
   return {
     parse, build, step, val, words, wordsPlain, symText, symHTML, cueFor, otherReading,
-    layout, findNode, countTiles, tilesOf, pairSplit, autoCols, isVal,
+    layout, findNode, countTiles, tilesOf, pairSplit, autoCols, isVal, futureTiles, chainItems, SYMF, WF,
     HUES, T, P, GP, fmt, err
   };
 })();
@@ -1221,27 +1317,24 @@ if(typeof module !== "undefined") module.exports = OO;
   const $ = id => document.getElementById(id);
   const sleep = ms => new Promise(r => setTimeout(r, ms));
   const NS = "http://www.w3.org/2000/svg";
-  const T = OO.T, P = OO.P, MINUS = "−";
+  const T = OO.T, P = OO.P;
   const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;");
   const fmt = OO.fmt;
-  const amt = v => v < 0 ? "negative " + Math.abs(v) : String(v);
 
-  /* The lesson, in the order the slides take it: picture → words → symbols,
-     brackets, take away, ÷ as "half of", the "your turn" four, then the two
-     boy-with-the-telescope cases. 10 − 4 ÷ 2 sits beside 8 + 10 ÷ 2 because
-     it is the division case that reads hardest without the words. */
+  /* The lesson, in the order the slides take it. 10 − 4 ÷ 2 sits beside
+     8 + 10 ÷ 2 because it is the division case that reads hardest. */
   const LESSON = ["5 + 3 × 5", "3 × (6 + 2)", "24 − 2 × 3", "8 + 10 ÷ 2", "10 − 4 ÷ 2",
                   "6 + 2 × 4", "16 − 9 ÷ 3", "4 × (3 + 2)", "15 − 2 × 3", "20 ÷ 5 × 2", "6 × 4 ÷ 2"];
 
   const SET_NOTE = {
     lesson: "The examples from the lesson, in order — ending on the two ‘boy with the telescope’ cases.",
-    s3mul: "Whole numbers. × names groups; + and − join and take away whole amounts.",
-    s3div: "Whole numbers. ÷ names a fraction of an amount: half of, a third of…",
-    chains: "Only × and ÷, or only + and −. The words show which amount is made first.",
+    s3mul: "Whole numbers. × makes an array of groups; + and − join amounts and take them away.",
+    s3div: "Whole numbers. ÷ shows the whole amount with all but one equal part faded.",
+    chains: "Only × and ÷, or only + and − — the ones read left to right.",
     ints: "Yellow tiles are 1 and red tiles are −1: zero pairs, groups of negatives, the opposite of a group.",
     mixed: "A mix of everything above."
   };
-  const SET_TAG = { s3mul:"Stage 3 · × with + −", s3div:"Stage 3 · ÷ joins in", chains:"Together: left to right", ints:"Stage 4 · integers", mixed:"Mixed" };
+  const SET_TAG = { s3mul:"Stage 3 · × with + −", s3div:"Stage 3 · ÷ joins in", chains:"Read left to right", ints:"Stage 4 · integers", mixed:"Mixed" };
 
   /* ---------------------------------------------------------- generation */
   const R = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
@@ -1310,56 +1403,74 @@ if(typeof module !== "undefined") module.exports = OO;
 
   /* ---------------------------------------------------------- state */
   const S = {
-    set:"lesson", start:"picture", div:"frac", words:true, work:true, key:true, speed:1,
+    set:"lesson", start:"picture", div:"frac", words:true, prompts:false, work:true, key:true, speed:1,
     lessonIdx:0, custom:false,
     main:null, alt:null, mode:"main", pos:0, mainPos:0,
-    busy:false, token:0, lastSrc:"",
-    tiles:new Map(), lays:[], ext:{w:1,h:1}, vb:{w:1000,h:440}
+    busy:false, token:0, lastSrc:"", typing:false,
+    tiles:new Map(), lays:[], unsplit:null, ext:{w:1,h:1}, vb:{w:1000,h:440}
   };
-  const STORE = "mmtOrderOps.v1";
+  const STORE = "mmtOrderOps.v2";
   function load(){
     try{
       const o = JSON.parse(localStorage.getItem(STORE) || "{}");
       ["set","start","div"].forEach(k => { if(typeof o[k] === "string") S[k] = o[k]; });
-      ["words","work","key"].forEach(k => { if(typeof o[k] === "boolean") S[k] = o[k]; });
+      ["words","prompts","work","key"].forEach(k => { if(typeof o[k] === "boolean") S[k] = o[k]; });
       if(typeof o.speed === "number") S.speed = o.speed;
     }catch(e){}
   }
   function save(){
-    try{ localStorage.setItem(STORE, JSON.stringify({set:S.set, start:S.start, div:S.div, words:S.words, work:S.work, key:S.key, speed:S.speed})); }catch(e){}
+    try{ localStorage.setItem(STORE, JSON.stringify({set:S.set, start:S.start, div:S.div, words:S.words, prompts:S.prompts, work:S.work, key:S.key, speed:S.speed})); }catch(e){}
   }
 
   const run = () => S.mode === "alt" ? S.alt.run : S.main;
-  const introN = () => S.mode === "alt" ? 1 : (S.words ? 3 : 2);
-  const nViews = () => introN() + run().steps.length;
 
-  /* Picture first:  picture  → + words → + symbols (ready)
-     Symbols first:  symbols  → + words → + picture (ready)
-     Every display below is derived from the view, so Back is pos-- and a repaint. */
-  function viewAt(pos){
-    const r = run(), last = introN() - 1;
-    const si = Math.max(0, pos - last);
-    const v = {pos, si, pic:true, words:S.words, sym:true, ready:pos >= last};
-    if(!v.ready){
-      if(S.start === "picture") v.sym = false; else v.pic = false;
-      v.words = S.words && pos >= 1;
+  /* The views before the first reduction. Picture first follows the slides:
+     the tiles (and, if something is taken away, first the whole amount, then
+     the part coming out of it), then the words, then the symbols.
+     Symbols first: read it, say it, then see it. */
+  function introViews(){
+    if(S.mode === "alt") return [{pic:true, words:S.words, sym:true}];
+    const out = [];
+    if(S.start === "picture"){
+      if(S.unsplit) out.push({pic:true, unsplit:true});
+      out.push({pic:true});
+      if(S.words) out.push({pic:true, words:true});
+      out.push({pic:true, words:S.words, sym:true});
+    } else {
+      out.push({sym:true});
+      if(S.words) out.push({sym:true, words:true});
+      out.push({pic:true, words:S.words, sym:true});
     }
-    v.labels = v.ready || v.words;
-    v.hot = v.ready && si < r.steps.length ? r.steps[si].id : null;
+    return out;
+  }
+  const nViews = () => introViews().length + run().steps.length;
+  function viewAt(pos){
+    const iv = introViews(), last = iv.length - 1, r = run();
+    const base = iv[Math.min(pos, last)];
+    const si = Math.max(0, pos - last);
+    const v = Object.assign({pic:false, words:false, sym:false, unsplit:false}, base, {pos, si, ready:pos >= last});
     v.done = v.ready && si === r.steps.length;
     return v;
   }
 
   /* ---------------------------------------------------------- board */
-  const board = $("board"), gT = $("gTiles"), gF = $("gFrames"), gG = $("gGlow"), gL = $("gLabels"), gS = $("gStatic");
+  const board = $("board"), gT = $("gTiles"), gX = $("gText");
   function el(tag, attrs){
     const e = document.createElementNS(NS, tag);
     for(const k in attrs) e.setAttribute(k, attrs[k]);
     return e;
   }
-  function rgba(hex, a){
-    const n = parseInt(hex.slice(1), 16);
-    return `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${a})`;
+  const MCACHE = new Map();
+  function measure(text, kind){
+    const key = kind + "|" + text;
+    if(MCACHE.has(key)) return MCACHE.get(key);
+    const t = $(kind === "sym" ? "mSym" : "mWord");
+    t.textContent = text;
+    let w = 0;
+    try{ w = t.getComputedTextLength(); }catch(e){}
+    if(!w) w = kind === "sym" ? text.length * 30 : text.length * 14;
+    MCACHE.set(key, w);
+    return w;
   }
   function mkTile(t){
     const g = el("g", {class:"tile " + (t.s > 0 ? "pos" : "neg")});
@@ -1371,6 +1482,7 @@ if(typeof module !== "undefined") module.exports = OO;
     mk.appendChild(el("path", {class:"vbar", d:"M20 12V28"}));
     inn.appendChild(mk);
     g.appendChild(inn);
+    if(t.fade) g.classList.add("fade");
     return g;
   }
   function setPos(g, x, y){
@@ -1380,23 +1492,30 @@ if(typeof module !== "undefined") module.exports = OO;
   function setSign(g, s){ g.classList.toggle("pos", s > 0); g.classList.toggle("neg", s < 0); }
 
   function prepRun(){
-    const r = run();
-    S.lays = r.states.map(st => OO.layout(st, {div:S.div}));
-    S.ext = {w:Math.max(...S.lays.map(l => l.w)), h:Math.max(...S.lays.map(l => l.h))};
+    const r = run(), o = {div:S.div, measure};
+    S.lays = r.states.map(st => OO.layout(st, o));
+    const u = OO.layout(r.states[0], Object.assign({}, o, {unsplit:true}));
+    const hasTk = n => n.t === "grp" ? hasTk(n.e) : (n.t === "op" && (n.tk || hasTk(n.a) || hasTk(n.b)));
+    S.unsplit = (S.mode === "main" && hasTk(r.states[0])) ? u : null;
+    const all = S.lays.concat(S.unsplit ? [S.unsplit] : []);
+    S.ext = {w:Math.max(...all.map(l => l.w)), h:Math.max(...all.map(l => l.h))};
     board.classList.toggle("signs", runHasNeg(r));
     clearTiles();
     computeVB();
   }
   function clearTiles(){ S.tiles.forEach(g => g.remove()); S.tiles.clear(); }
+  const layFor = v => (v.unsplit && S.unsplit) ? S.unsplit : S.lays[v.si];
 
   function computeVB(){
     const r = board.getBoundingClientRect();
-    const bw = Math.max(200, r.width), bh = Math.max(160, r.height), M = 26;
-    const s = Math.min(bw / (S.ext.w + 2 * M), bh / (S.ext.h + 2 * M), 1.3);
+    const bw = Math.max(200, r.width), bh = Math.max(160, r.height), Mg = 30;
+    const s = Math.min(bw / (S.ext.w + 2 * Mg), bh / (S.ext.h + 2 * Mg), 1.5);
     S.vb = {w:bw / s, h:bh / s};
     board.setAttribute("viewBox", `0 0 ${S.vb.w.toFixed(1)} ${S.vb.h.toFixed(1)}`);
   }
-  const offOf = lay => ({x:(S.vb.w - lay.w) / 2, y:(S.vb.h - lay.h) / 2});
+  /* Centred across, but every state sits on the SAME vertical bands, so the
+     symbols and the words never jump up or down between steps. */
+  const offOf = lay => ({x:(S.vb.w - lay.w) / 2, y:(S.vb.h - S.ext.h) / 2});
 
   function syncTiles(lay, enter){
     const off = offOf(lay), want = new Set(lay.tiles.map(t => t.id));
@@ -1407,11 +1526,12 @@ if(typeof module !== "undefined") module.exports = OO;
       if(!g){
         g = mkTile(t);
         setPos(g, off.x + t.x, off.y + t.y);
-        if(enter){ g.classList.add("enter"); g.querySelector(".tin").style.animationDelay = Math.min(i * 18, 700) + "ms"; }
+        if(enter){ g.classList.add("enter"); g.querySelector(".tin").style.animationDelay = Math.min(i * 16, 600) + "ms"; }
         gT.appendChild(g); S.tiles.set(t.id, g);
       } else {
         g.classList.remove("enter", "leave", "flip");
         setSign(g, t.s);
+        g.classList.toggle("fade", !!t.fade);
         setPos(g, off.x + t.x, off.y + t.y);
       }
     });
@@ -1419,103 +1539,67 @@ if(typeof module !== "undefined") module.exports = OO;
     board.classList.remove("notrans");
   }
 
-  function drawStatics(lay, v){
+  function drawTexts(lay, v){
+    gX.textContent = "";
     const off = offOf(lay);
-    gF.textContent = ""; gG.textContent = ""; gL.textContent = "";
-    lay.frames.forEach(f => drawFrame(f, off));
-    lay.labels.forEach(l => {
-      const t = el("text", {x:off.x + l.x, y:off.y + l.y, class:l.cls, "text-anchor":l.anchor || "start"});
-      if(l.cls === "flab"){
-        const hue = l.kind === "take" ? "#dc2626" : (l.kind === "still" ? "#475569" : (l.hue != null ? OO.HUES[l.hue] : "#334155"));
-        t.setAttribute("fill", hue);
-      }
-      t.textContent = l.text;
-      gL.appendChild(t);
+    const r = run();
+    lay.texts.forEach(t => {
+      const isSym = t.kind === "sym" || t.kind === "op", isWord = t.kind === "word" || t.kind === "opw";
+      if(isSym && !v.sym) return;
+      if(isWord && !v.words) return;
+      const e = el("text", {x:off.x + t.x, y:off.y + t.y, class:t.kind + (v.done && t.kind === "sym" ? " ans" : "")});
+      if(t.hue != null && !v.done) e.setAttribute("fill", OO.HUES[t.hue]);
+      else if(v.done && t.kind === "word") e.setAttribute("fill", "#15803d");
+      e.textContent = t.text;
+      gX.appendChild(e);
     });
-    if(v.hot){
-      lay.nb.filter(b => b.nid === v.hot).forEach(b => {
-        gG.appendChild(el("rect", {class:"hotglow", x:off.x + b.x - 8, y:off.y + b.y - 8, width:b.w + 16, height:b.h + 16, rx:18}));
-      });
-    }
-    gS.classList.toggle("nolabels", !v.labels);
-    gS.classList.remove("dim");
+    gX.classList.remove("dim");
   }
 
-  function drawFrame(f, off){
-    const x = off.x + f.x, y = off.y + f.y, w = f.w, h = f.h;
-    const hue = f.hue != null ? OO.HUES[f.hue] : "#475569";
-    const rect = (a) => gF.appendChild(el("rect", Object.assign({x, y, width:w, height:h, class:"fr"}, a)));
-    switch(f.kind){
-      case "groups":   rect({rx:16, stroke:hue, "stroke-width":3, fill:rgba(hue, .03)}); break;
-      case "opposite": rect({rx:16, stroke:hue, "stroke-width":3, "stroke-dasharray":"11 7", fill:rgba(hue, .03)}); break;
-      case "amount":   rect({rx:14, stroke:rgba(hue, .55), "stroke-width":2.5, fill:rgba(hue, .035)}); break;
-      case "cell":     rect({rx:12, stroke:rgba(hue, .38), "stroke-width":2, fill:rgba(hue, .08)}); break;
-      case "split":    rect({rx:16, stroke:hue, "stroke-width":3, fill:rgba(hue, .03)}); break;
-      case "part":     rect({rx:10, stroke:"#94a3b8", "stroke-width":2, "stroke-dasharray":"6 5"}); break;
-      case "onepart":  rect({rx:10, stroke:"#15803d", "stroke-width":3.5, fill:"rgba(34,197,94,.13)"}); break;
-      case "take":     rect({rx:14, stroke:"#dc2626", "stroke-width":2.5, "stroke-dasharray":"9 6", fill:"rgba(220,38,38,.04)"}); break;
-      case "still":    rect({rx:12, stroke:"#64748b", "stroke-width":2, "stroke-dasharray":"4 5"}); break;
-      case "ghost":    rect({rx:12, stroke:rgba(hue, .5), "stroke-width":2.5, "stroke-dasharray":"7 6", fill:rgba(hue, .04)}); break;
-      case "zero":     rect({rx:8, stroke:"#cbd5e1", "stroke-width":2, "stroke-dasharray":"5 4"}); break;
-      case "bracket": {
-        const a = {class:"fr", stroke:hue, "stroke-width":4, "stroke-linecap":"round", fill:"none"};
-        gF.appendChild(el("path", Object.assign({d:`M${x+20} ${y+4} Q${x-4} ${y+h/2} ${x+20} ${y+h-4}`}, a)));
-        gF.appendChild(el("path", Object.assign({d:`M${x+w-20} ${y+4} Q${x+w+4} ${y+h/2} ${x+w-20} ${y+h-4}`}, a)));
-        break;
-      }
-    }
-  }
-
-  /* One reduction, played. Order: anything taken away flies onto what it
-     cancels, then leaves; what stays slides into its new home; anything new
-     pops in; anything whose sign changes flips. The board was already drawn
-     in its START state, and paint() afterwards draws the END state, so an
-     abort at any await just leaves paint() to put everything right. */
-  async function animateStep(from, to, d){
+  /* One step, played the way the slides morph. Tiles that go fade to white;
+     what stays slides to its new home; anything new pops in; anything whose
+     sign changes flips. The board was drawn in its START state and paint()
+     draws the END state, so an abort just leaves paint() to finish. */
+  async function animate(L1, kind){
     const tok = ++S.token; S.busy = true;
     const alive = () => tok === S.token;
-    const L1 = S.lays[to.si], o1 = offOf(L1), sp = S.speed;
-    const Dm = Math.round(640 * sp), Dl = Math.round(320 * sp), De = Math.round(440 * sp);
+    const o1 = offOf(L1), sp = S.speed;
+    const Dm = Math.round(700 * sp), Dl = Math.round(520 * sp), De = Math.round(440 * sp);
     board.style.setProperty("--mv", Dm + "ms");
-    gS.classList.add("dim");
+    gX.classList.add("dim");
     const next = new Map(L1.tiles.map(t => [t.id, t]));
     const leaving = [...S.tiles.keys()].filter(id => !next.has(id));
+    const leave = () => leaving.forEach(id => {
+      const g = S.tiles.get(id); S.tiles.delete(id);
+      g.classList.add("leave"); setTimeout(() => g.remove(), Dl + 80);
+    });
 
-    if(d.kind === "sub" && d.pairs && d.pairs.length){
-      let flew = false;
-      d.pairs.forEach(([rid, mid]) => {
-        for(const [id, g] of S.tiles){
-          if(id === rid || id.endsWith(":" + rid)){
-            const pg = S.tiles.get(id.slice(0, id.length - rid.length) + mid);
-            if(pg){ setPos(g, +pg.dataset.x + 7, +pg.dataset.y - 7); gT.appendChild(g); flew = true; }
-          }
-        }
-      });
-      if(flew){ await sleep(Dm + 60); if(!alive()) return; }
-    }
-    if(d.kind === "cancel" && leaving.length){
+    if(kind === "cancel" && leaving.length){
+      /* each zero pair closes up before it goes */
       const lv = leaving.map(id => S.tiles.get(id));
       lv.filter(g => g.classList.contains("neg")).forEach(n => {
         const x = +n.dataset.x, y = +n.dataset.y;
         const p = lv.find(g => g.classList.contains("pos") && Math.abs(+g.dataset.x - x) < 1 && Math.abs(+g.dataset.y - (y - P)) < 1);
-        if(p){ setPos(p, x, y - P / 2 - 5); setPos(n, x, y - P / 2 + 5); }
+        if(p){ setPos(p, x, y - P / 2 - 21); setPos(n, x, y - P / 2 + 21); }
       });
       await sleep(Math.round(Dm * .8)); if(!alive()) return;
     }
-    if(leaving.length){
-      leaving.forEach(id => {
-        const g = S.tiles.get(id); S.tiles.delete(id);
-        g.classList.add("leave"); setTimeout(() => g.remove(), Dl + 80);
-      });
-      await sleep(Dl + 40); if(!alive()) return;
-    }
     let moved = false;
-    next.forEach((t, id) => {
+    const doMoves = () => next.forEach((t, id) => {
       const g = S.tiles.get(id); if(!g) return;
       const x = o1.x + t.x, y = o1.y + t.y;
       if(Math.abs(+g.dataset.x - x) > .5 || Math.abs(+g.dataset.y - y) > .5){ setPos(g, x, y); moved = true; }
+      if(g.classList.contains("fade") !== !!t.fade){ g.classList.toggle("fade", !!t.fade); moved = true; }
     });
-    if(moved){ await sleep(Dm + 30); if(!alive()) return; }
+    if(kind === "out"){
+      /* the tiles come out of the first amount into the faint places waiting for them */
+      doMoves(); leave();
+      await sleep(Math.max(Dm, Dl) + 40); if(!alive()) return;
+    } else {
+      if(leaving.length){ leave(); await sleep(Dl + 60); if(!alive()) return; }
+      doMoves();
+      if(moved){ await sleep(Dm + 40); if(!alive()) return; }
+    }
     const entering = L1.tiles.filter(t => !S.tiles.has(t.id));
     if(entering.length){
       entering.forEach((t, i) => {
@@ -1538,81 +1622,50 @@ if(typeof module !== "undefined") module.exports = OO;
     S.busy = false;
   }
 
-  /* ---------------------------------------------------------- text */
-  function flashEl(e){ e.classList.remove("changed"); void e.offsetWidth; e.classList.add("changed"); }
-
-  function altIntro(){
+  /* ---------------------------------------------------------- text off the board */
+  function altNote(v){
     const a = S.alt, w = OO.wordsPlain(a.run.root, {div:S.div});
-    if(a.kind === "ltr") return `Strictly left to right, it would be ${a.txt} — “${w}”. A different sentence, a different picture.`;
-    if(a.kind === "nobr") return `Without the brackets, it would be ${a.txt} — “${w}”. A different sentence, a different picture.`;
-    return `Grouping the end first: ${a.txt} — “${w}”. One line of symbols, two pictures — the boy with the telescope.`;
+    if(!v.done) return `Another reading: ${a.txt} — “${w}”.`;
+    if(a.same) return `This reading makes ${fmt(a.run.value)} too — the same amount, a different picture.`;
+    return `This reading makes ${fmt(a.run.value)}. ${S.main.src} makes ${fmt(S.main.value)}.`;
   }
-  function togetherWord(){
-    const s = S.main.src;
-    return /[×÷]/.test(s) && !/[+−]/.test(s.replace(/\(−/g, "(")) ? "× and ÷" : "+ and −";
-  }
-  function cueOf(v){
+  function promptOf(v){
     const r = run();
-    if(S.mode === "alt" && v.pos === 0) return {t:altIntro(), cls:"is-alt", ico:"🔭"};
     if(!v.ready){
-      if(S.start === "picture") return v.pos === 0 ? {t:"How would you describe what you see?", ico:"👀"}
-                                                   : {t:"Here it is in words. Each colour is one amount.", ico:"💬"};
-      return v.pos === 0 ? {t:"Close your eyes. Describe what you see when you read this.", ico:"🙈"}
-                         : {t:"In words — each colour is one amount. Now picture it.", ico:"💬"};
+      if(v.unsplit) return "How many tiles are there?";
+      if(!v.pic) return "Close your eyes. What do you see?";
+      if(!v.words && !v.sym) return S.unsplit ? "What just happened?" : "How would you describe what you see?";
+      return "How would you say it?";
     }
-    if(v.done){
-      if(S.mode === "alt"){
-        const a = S.alt;
-        if(a.same) return {t:`Both readings give ${fmt(a.run.value)} this time — but they are different pictures. When ${togetherWord()} sit together, the sentence is read left to right.`, cls:"is-alt", ico:"🔭"};
-        const why = a.kind === "right" ? `When ${togetherWord()} sit together, the sentence is read left to right.`
-                  : a.kind === "nobr" ? "The brackets made one amount; without them the sentence says something else."
-                  : "Read in words, it never meant this.";
-        return {t:`This reading makes ${fmt(a.run.value)}, but ${S.main.src} is ${fmt(S.main.value)}. ${why}`, cls:"is-alt", ico:"🔭"};
-      }
-      return {t:`One amount is left: ${fmt(r.value)}.` + (S.alt ? " What if someone read it another way?" : ""), cls:"is-done", ico:"✅"};
-    }
-    const d = r.steps[v.si];
-    let t = OO.cueFor(r.states[v.si], d, {div:S.div});
-    return {t, ico:"👉"};
+    if(v.done) return `One amount is left: ${fmt(r.value)}.`;
+    return OO.cueFor(r.states[v.si], r.steps[v.si], {div:S.div});
   }
 
   function paint(v, o){
     o = o || {};
-    const r = run(), st = r.states[v.si];
-    // ---- symbols
-    const ex = $("expr");
-    let eh;
-    if(!v.sym) eh = `<span class="ph">${S.start === "picture" ? "What would you write?" : ""}</span>`;
-    else if(v.done) eh = `<span class="orig">${esc(r.src)}</span><span class="eqs">=</span><span class="ans">${esc(fmt(r.value))}</span>`;
-    else eh = OO.symHTML(st, v.hot, true);
-    if(ex.innerHTML !== eh){ ex.innerHTML = eh; if(o.flash) flashEl(ex); }
-    // ---- words
-    $("wordsCard").hidden = !S.words;
-    const wd = $("words");
-    let wh;
-    if(!v.words) wh = `<span class="ph">How would you say it?</span>`;
-    else if(v.done) wh = OO.words(r.root, "amt", {div:S.div, html:true}) + ` <span class="is">is</span> <span class="ans">${esc(amt(r.value))}</span>`;
-    else wh = OO.words(st, "amt", {div:S.div, html:true}, v.hot);
-    if(wd.innerHTML !== wh){ wd.innerHTML = wh; if(o.flash) flashEl(wd); }
-    // ---- prompt
-    const c = cueOf(v), pb = $("promptBar");
-    pb.className = "promptBar" + (c.cls ? " " + c.cls : "");
-    $("promptIco").textContent = c.ico;
-    $("promptText").textContent = c.t;
-    // ---- board: the text above it can wrap to a second line, so re-fit first
+    const r = run();
+    // ---- the question, small, once the symbols are out
+    const q = $("question");
+    q.innerHTML = (v.sym && (v.si > 0 || S.mode === "alt"))
+      ? esc(r.src) + (v.done ? `<span class="eqs">=</span><span class="ans">${esc(fmt(r.value))}</span>` : "")
+      : "";
+    // ---- prompt bar: alt-reading facts always, teacher prompts only if asked for
+    const pb = $("promptBar");
+    if(!S.typing){
+      if(S.mode === "alt"){ pb.hidden = false; pb.className = "promptBar is-alt"; $("promptIco").textContent = "🔭"; $("promptText").textContent = altNote(v); }
+      else if(S.prompts){ pb.hidden = false; pb.className = "promptBar" + (v.done ? " is-done" : ""); $("promptIco").textContent = v.done ? "✅" : "💭"; $("promptText").textContent = promptOf(v); }
+      else pb.hidden = true;
+    }
     $("keyCard").hidden = !S.key; $("workCard").hidden = !S.work;
     const hb = board.style.height; fitBoard();
     if(board.style.height !== hb) computeVB();
+    // ---- board
     $("picHide").hidden = v.pic;
-    if(!v.pic){
-      clearTiles(); gF.textContent = ""; gG.textContent = ""; gL.textContent = "";
-    } else {
-      const lay = S.lays[v.si];
-      if(!o.keepTiles) syncTiles(lay, !!o.enter);
-      drawStatics(lay, v);
-    }
+    const lay = layFor(v);
+    if(!v.pic) clearTiles();
+    else if(!o.keepTiles) syncTiles(lay, !!o.enter);
+    drawTexts(lay, v);
     // ---- working
-    $("workCard").hidden = !S.work;
     const rows = $("workRows"); rows.textContent = "";
     if(v.sym && v.ready){
       const lines = [];
@@ -1651,41 +1704,39 @@ if(typeof module !== "undefined") module.exports = OO;
     $("nextQ").disabled = S.lessonIdx === LESSON.length - 1;
     $("outcomeTag").textContent = runHasNeg(S.main) ? "MA4-INT-C-01" : "MA3-MR-02";
     $("tileKey").hidden = !runHasNeg(r);
-    $("keyCard").hidden = !S.key;
     fitEq();
   }
 
-  /* The expression is centred in its card whatever the tags on either side
-     are doing: pad BOTH sides by the wider of the two. */
   function fitEq(){
     const card = $("eqCard");
     if(getComputedStyle(card).flexDirection === "column"){ card.style.removeProperty("--eqPad"); return; }
     const l = document.querySelector(".eqLeft").getBoundingClientRect().width;
-    const r = document.querySelector(".eqActions").getBoundingClientRect().width;
-    card.style.setProperty("--eqPad", (Math.max(l, r) + 28) + "px");
+    const rr = document.querySelector(".eqActions").getBoundingClientRect().width;
+    card.style.setProperty("--eqPad", (Math.max(l, rr) + 28) + "px");
   }
 
   /* ---------------------------------------------------------- navigation */
   function finishNow(){ S.token++; S.busy = false; paint(viewAt(S.pos)); }
 
   async function next(){
+    if(S.typing) return;
     if(S.busy){ finishNow(); return; }
     const N = nViews();
     if(S.pos >= N - 1) return;
     const from = viewAt(S.pos);
     S.pos++;
     const to = viewAt(S.pos);
-    if(from.si !== to.si){
-      if(S.speed > 0){
-        const tok = S.token + 1;
-        await animateStep(from, to, run().steps[from.si]);
-        if(S.token !== tok) return;
-      }
-      paint(to, {flash:true});
+    const tileChange = to.pic && from.pic && (from.si !== to.si || from.unsplit !== to.unsplit);
+    if(tileChange && S.speed > 0){
+      const tok = S.token + 1;
+      const kind = from.si !== to.si ? run().steps[from.si].kind : "split";
+      await animate(layFor(to), kind);
+      if(S.token !== tok) return;
+      paint(to);
     } else if(!from.pic && to.pic){
-      paint(to, {enter:S.speed > 0, flash:true});
+      paint(to, {enter:S.speed > 0});
     } else {
-      paint(to, {flash:true});
+      paint(to);
     }
   }
   function back(){
@@ -1698,13 +1749,12 @@ if(typeof module !== "undefined") module.exports = OO;
     clearTiles(); paint(viewAt(0), {enter:S.speed > 0});
   }
 
-  function useRun(r, opts){
-    opts = opts || {};
+  function useRun(r){
     S.token++; S.busy = false;
     S.main = r; S.alt = OO.otherReading(r.root);
-    S.mode = "main"; S.pos = opts.atReady ? introN() - 1 : 0; S.lastSrc = r.src;
+    S.mode = "main"; S.pos = 0; S.lastSrc = r.src;
     prepRun();
-    paint(viewAt(S.pos), {enter:S.speed > 0});
+    paint(viewAt(0), {enter:S.speed > 0});
   }
   function loadLesson(i){
     S.lessonIdx = Math.max(0, Math.min(LESSON.length - 1, i)); S.custom = false;
@@ -1720,24 +1770,25 @@ if(typeof module !== "undefined") module.exports = OO;
     if(S.mode === "main"){ S.mainPos = S.pos; S.mode = "alt"; S.pos = 0; }
     else { S.mode = "main"; S.pos = S.mainPos; }
     prepRun();
-    paint(viewAt(S.pos), {enter:S.speed > 0, flash:true});
+    paint(viewAt(S.pos), {enter:S.speed > 0});
   }
 
   /* ---------------------------------------------------------- type your own */
   const inp = $("typeInput");
+  function setPrompt(t, cls, ico){
+    const pb = $("promptBar"); pb.hidden = false;
+    pb.className = "promptBar" + (cls ? " " + cls : "");
+    $("promptIco").textContent = ico || "💭";
+    $("promptText").textContent = t;
+  }
   function openType(){
     if(S.mode === "alt") toggleAlt();
-    $("expr").hidden = true; inp.hidden = false;
+    $("question").hidden = true; inp.hidden = false;
     inp.value = S.main ? S.main.src : ""; inp.classList.remove("is-bad");
     S.typing = true; inp.focus(); inp.select();
     setPrompt("Type an expression with + − × ÷ and brackets, then press Enter. Use x or * for × and / for ÷.", "", "✏️");
   }
-  function closeType(){ inp.hidden = true; $("expr").hidden = false; S.typing = false; }
-  function setPrompt(t, cls, ico){
-    $("promptBar").className = "promptBar" + (cls ? " " + cls : "");
-    $("promptIco").textContent = ico || "💭";
-    $("promptText").textContent = t;
-  }
+  function closeType(){ inp.hidden = true; $("question").hidden = false; S.typing = false; }
   function submitType(){
     let r;
     try{ r = OO.build(inp.value, 72); }
@@ -1777,49 +1828,51 @@ if(typeof module !== "undefined") module.exports = OO;
   window.addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(refit, 120); });
 
   /* ---------------------------------------------------------- menus + settings */
+  function closeMenus(){
+    document.querySelectorAll(".dropMenu.open").forEach(m => m.classList.remove("open"));
+    document.querySelectorAll("[aria-expanded=true]").forEach(b => b.setAttribute("aria-expanded", "false"));
+  }
   function wireMenu(btnId, menuId){
     const btn = $(btnId), menu = $(menuId);
     btn.addEventListener("click", e => {
       e.stopPropagation();
       const open = !menu.classList.contains("open");
-      document.querySelectorAll(".dropMenu.open").forEach(m => m.classList.remove("open"));
-      document.querySelectorAll("[aria-expanded=true]").forEach(b => b.setAttribute("aria-expanded", "false"));
+      closeMenus();
       menu.classList.toggle("open", open); btn.setAttribute("aria-expanded", String(open));
     });
     menu.addEventListener("click", e => e.stopPropagation());
   }
   wireMenu("settingsBtn", "settingsMenu");
   wireMenu("toolsBtn", "toolsMenu");
-  function closeMenus(){
-    document.querySelectorAll(".dropMenu.open").forEach(m => m.classList.remove("open"));
-    document.querySelectorAll("[aria-expanded=true]").forEach(b => b.setAttribute("aria-expanded", "false"));
-  }
   document.addEventListener("click", closeMenus);
 
   function syncSettings(){
     $("setSel").value = S.set; $("startSel").value = S.start; $("divSel").value = S.div;
-    $("wordsToggle").checked = S.words; $("workToggle").checked = S.work; $("keyToggle").checked = S.key;
+    $("wordsToggle").checked = S.words; $("promptToggle").checked = S.prompts;
+    $("workToggle").checked = S.work; $("keyToggle").checked = S.key;
     $("speedSel").value = String(S.speed);
     $("setNote").textContent = SET_NOTE[S.set] || "";
     $("startNote").textContent = S.start === "picture"
-      ? "The class describes the picture first; the words and then the symbols follow."
-      : "The class reads the symbols and pictures them first; the tiles come last.";
+      ? "Tiles first, then the words under them, then the symbols above them."
+      : "Symbols first (close your eyes and picture it), then the words, then the tiles.";
     $("keyDiv").innerHTML = S.div === "share"
       ? "one share of&hellip;<small>10 &divide; 2 &rarr; one share of 10 split 2 ways</small>"
       : "half of, a third of&hellip;<small>10 &divide; 2 &rarr; half of 10</small>";
   }
+  const keepStep = fn => {
+    const v = viewAt(S.pos), was = introViews().length;
+    fn();
+    if(S.mode === "main") S.pos = v.ready ? v.si + introViews().length - 1 : 0;
+    S.pos = Math.max(0, Math.min(S.pos, nViews() - 1));
+  };
   $("setSel").addEventListener("change", e => {
     S.set = e.target.value; save(); syncSettings();
     if(S.set === "lesson") loadLesson(0); else { S.custom = false; useRun(generate(S.set)); }
   });
   $("startSel").addEventListener("change", e => { S.start = e.target.value; save(); syncSettings(); S.mode = "main"; prepRun(); S.pos = 0; paint(viewAt(0), {enter:S.speed > 0}); });
   $("divSel").addEventListener("change", e => { S.div = e.target.value; save(); syncSettings(); prepRun(); paint(viewAt(S.pos)); });
-  $("wordsToggle").addEventListener("change", e => {
-    const v = viewAt(S.pos);
-    S.words = e.target.checked; save();
-    if(S.mode === "main") S.pos = v.ready ? v.si + introN() - 1 : 0;
-    refit();
-  });
+  $("wordsToggle").addEventListener("change", e => { keepStep(() => { S.words = e.target.checked; }); save(); prepRun(); paint(viewAt(S.pos)); });
+  $("promptToggle").addEventListener("change", e => { S.prompts = e.target.checked; save(); paint(viewAt(S.pos)); });
   $("workToggle").addEventListener("change", e => { S.work = e.target.checked; save(); paint(viewAt(S.pos)); });
   $("keyToggle").addEventListener("change", e => { S.key = e.target.checked; save(); paint(viewAt(S.pos)); });
   $("speedSel").addEventListener("change", e => { S.speed = parseFloat(e.target.value); save(); });
@@ -1829,7 +1882,7 @@ if(typeof module !== "undefined") module.exports = OO;
   $("resetBtn").addEventListener("click", restart);
   $("altBtn").addEventListener("click", toggleAlt);
   $("newBtn").addEventListener("click", () => { closeType(); newQuestion(); });
-  $("typeBtn").addEventListener("click", e => { e.stopPropagation(); S.typing ? (closeType(), paint(viewAt(S.pos))) : openType(); });
+  $("typeBtn").addEventListener("click", e => { e.stopPropagation(); if(S.typing){ closeType(); paint(viewAt(S.pos)); } else openType(); });
   $("prevQ").addEventListener("click", () => loadLesson(S.lessonIdx - 1));
   $("nextQ").addEventListener("click", () => loadLesson(S.lessonIdx + 1));
 
@@ -1867,10 +1920,12 @@ if(typeof module !== "undefined") module.exports = OO;
   load();
   syncSettings();
   fitBoard();
-  if(S.set === "lesson") loadLesson(0); else useRun(generate(S.set));
+  const boot = () => { if(S.set === "lesson") loadLesson(0); else useRun(generate(S.set)); };
+  if(document.fonts && document.fonts.ready) document.fonts.ready.then(() => { MCACHE.clear(); if(S.main){ prepRun(); paint(viewAt(S.pos)); } });
+  boot();
   window.addEventListener("load", () => setTimeout(refit, 30));
 
-  window.__OO__ = {S, OO, next, back, restart, viewAt, nViews, toggleAlt, useRun, loadLesson, newQuestion, generate, paint, refit, LESSON, GEN};
+  window.__OO__ = {S, OO, next, back, restart, viewAt, nViews, toggleAlt, useRun, loadLesson, newQuestion, generate, paint, refit, LESSON, GEN, layFor};
 })();
 </script>
 </body>

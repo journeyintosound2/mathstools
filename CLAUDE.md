@@ -116,38 +116,43 @@
 >   position (liveDrag had left it half-way on everyone else's screen), and the dragger no
 >   longer sees a ghost copy when a room snapshot redraws the board mid-drag.
 >
-> **NEW (2026-10-16, session 3 — being pushed): ORDER OF OPERATIONS — SAY WHAT YOU SEE.**
+> **NEW (2026-10-16, redesigned 2026-10-19 — being pushed): ORDER OF OPERATIONS — SAY WHAT YOU SEE.**
 > `interactive-tools/stage-4/number/order-of-operations-in-words/`, built from Jeff's
 > "Order of operations review" deck. Listed under **MA4-INT-C-01** and **MA3-MR-02**
-> (two rows in `resources/toolLinks.js`, one URL), homepage Interactive card (pill
-> 33 -> 34). Self-contained, no Firebase. Tools menu: two live links + two greyed.
-> * **NO ACRONYM, ANYWHERE (teacher decision).** An expression is a description of a
->   picture: `5 + 3 × 5` is "5 and 3 groups of 5". The 3 counts groups and is NEVER
->   drawn as tiles. Each × names ONE amount; + and − then join / take away amounts.
-> * **÷ READS AS A FRACTION OF AN AMOUNT** — "half of 10", "a third of 9" (Settings
->   offers "one share of 10 split 2 ways"). This is the answer to the division case:
->   `10 − 4 ÷ 2` is "10 take away half of 4"; `(10 − 4) ÷ 2` is "half of (10 take
->   away 4)". The picture splits the tiles into equal parts, the first part green.
+> (two rows in `resources/toolLinks.js`, one URL), homepage Interactive card.
+> Self-contained, no Firebase.
+> * **NO ACRONYM, ANYWHERE (teacher decision).** An expression describes a picture:
+>   `5 + 3 × 5` is "5 and 3 groups of 5"; the 3 counts groups and is never tiles.
+>   ÷ reads as a fraction of an amount: `10 − 4 ÷ 2` is "10 take away half of 4".
+> * **THE BOARD LOOKS LIKE THE SLIDES (teacher feedback 2026-10-19).** Tiles only —
+>   NO boxes, brackets, frames, labels or highlight glows (they were cognitive load
+>   and funnelled answers). Structure is spacing. The SYMBOLS for each top-level
+>   amount sit large ABOVE its tiles, the operator in the gap; the WORDS sit below
+>   (toggle). Teacher-talk prompts are OFF by default ("what do you notice?" is the
+>   teacher's to ask). Do not put explanatory text back on the board.
+> * **Pictures:** k × (plain number) is an ARRAY, one row per group (never repeated
+>   dice — dice-5 next to three dice-5s read as "4 groups of 5"). Groups of anything
+>   else stand apart as clusters (Example 2), up to 4 in one row. Literals ≤ 6 are
+>   dice. `a ÷ k` is the whole amount in k equal rows (columns when parts are
+>   small) with all but one part FADED — never a box around a part.
+> * **SUBTRACTION IS THE DECK'S MORPH: the part taken away comes OUT OF the first
+>   amount, then fades to white.** Never extra tiles laid on top (that was the
+>   "doubled-up squares" bug). `markTaken`: when the first amount already exists as
+>   tiles, the subtracted part is drawn from ITS tiles (ids remapped via
+>   `futureTiles(R)` → `lastOfSign(L)`), and picture-first opens on the whole amount
+>   so Next shows the split ("what just happened?"). Otherwise (3 × 5 − 4, or no red
+>   tiles to take) the part is drawn FAINT until there are tiles: steps `zp` (zero
+>   pairs added) → `out` (tiles slide into the faint places) → `sub` (fade to white).
 > * **ENGINE IS DOM-FREE** (`<script id="ooEngine">`, `var OO`): parse → tree; roles
->   fixed at parse (`cnt` = which side of × counts groups: a plain number, left if
->   both; ÷ always counts parts with its right side); each Next reduces ONE node,
->   post-order left-first (= the convention). Every tile has a stable id, so the
->   board MOVES rather than redraws. Kinds: mul, div, add, addmix (pair up) → cancel,
->   zp (add zero pairs, "still 4") → sub (taken tiles fly onto the tiles they cancel),
->   count (a composite count is worked as text, never tiles). Negative count/divisor =
->   "the opposite of …": build, then flip.
-> * **Steps:** picture → + words → + symbols (or symbols first: "close your eyes"),
->   then one reduction per press. Each top-level amount has its own colour in the
->   symbols, the words and the picture frame. The answer appears only on the last step.
-> * **"The other reading"** (button / O): brackets dropped, strictly left to right, or
->   the end grouped first (the boy-with-the-telescope cases) — drawn as its own run.
-> * **"2 groups of (a fifth of 20)" draws ONE group plus "?" placeholders** until the
->   fifth is found; drawing the whole 20 twice said something the sentence does not.
-> * Verified: 1050 Playwright checks (1011 runs re-derived by an independent
->   evaluator, value constant through every state, no answer early, tiles unique /
->   non-overlapping / on the board, every lesson example + other reading at
->   1366/1024/1920/1280 with no page scroll, typed-input refusals, animated runs and
->   fast-click settling). Harness in session scratch.
+>   fixed at parse; each Next reduces ONE node, post-order left-first; stable tile
+>   ids, so the board moves rather than redraws. Kinds: mul, div, add, addmix →
+>   cancel, zp, out, sub, count. Negative count/divisor = "the opposite of": flip.
+> * **"The other reading"** (button / O): brackets dropped, left to right, or the end
+>   grouped first (boy with the telescope), drawn as its own run.
+> * Verified: 1146 Playwright checks (1011 runs re-derived independently, value
+>   constant through every state, no answer early, symbols above every tile and
+>   words below, no frames, no tiles resting on each other even mid-animation,
+>   every lesson example + other reading at 1366/1024/1920/1280 with no scroll).
 > * Possible next: worksheet creator (write the words, draw the tiles), student quiz.
 >
 > **NEW (2026-10-16, session 2 — being pushed): VISUAL PATTERNS — LIBRARY + WORKSHEET.**
