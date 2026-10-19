@@ -1,6 +1,6 @@
 /* Written by tools/build-pwa.mjs — do not edit by hand. */
 self.MMT_PRECACHE = {
- "version": "849043324d",
+ "version": "3233607181",
  "files": [
   "./",
   "assessment/exam-builder/app.js",
@@ -932,6 +932,7 @@ self.MMT_PRECACHE = {
   "worksheet-creators/stage-4/number/integer-addition.html",
   "worksheet-creators/stage-4/number/multiplying-fractions.html",
   "worksheet-creators/stage-4/number/negatives-on-the-number-line.html",
+  "worksheet-creators/stage-4/number/order-of-operations-in-words.html",
   "worksheet-creators/stage-4/ratios-rates/stacked-bar-ratio.html",
   "worksheet-creators/stage-5/algebra/complete-the-square.html",
   "index.html"

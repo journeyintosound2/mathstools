@@ -1,0 +1,1628 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Order of Operations — Say What You See — Worksheet Generator</title>
+
+  <style>
+    :root{
+      --bg:#f6f7fb;
+      --card:#ffffff;
+      --ink:#111827;
+      --muted:#6b7280;
+      --border:#e5e7eb;
+      --shadow:0 14px 40px rgba(0,0,0,.10);
+      --radius:18px;
+      --blue:#2563eb;
+      --green:#16a34a;
+      --red:#dc2626;
+      --sweet1:#4ade80;  --sweet2:#16a34a;
+      --mild1:#facc15;   --mild2:#d97706;
+      --medium1:#fb923c; --medium2:#ea580c;
+      --spicy1:#f87171;  --spicy2:#b91c1c;
+      --posFill:#4ade80; --posStroke:#15803d;
+      --negFill:#ef4444; --negStroke:#991b1b;
+      --footer-h:44px;
+      --mathFont:"STIX Two Math","Cambria Math","Latin Modern Math","Times New Roman",Georgia,serif;
+      --uiFont:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+    }
+    *{ box-sizing:border-box; }
+    body{ margin:0; background:var(--bg); color:var(--ink); font-family:var(--uiFont); padding-bottom:var(--footer-h); }
+    .wrap{ max-width:1280px; margin:14px auto 32px; padding:0 14px; }
+    .card{ background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); padding:16px; }
+    .title{ margin:0 0 4px; font-size:28px; font-weight:1000; letter-spacing:.2px; }
+    .subtitle{ margin:0 0 14px; color:var(--muted); font-weight:850; font-size:15px; line-height:1.4; }
+    .subtitle a{ color:var(--blue); text-decoration:none; font-weight:1000; }
+
+    .controls{ display:grid; gap:10px; }
+    .band{ border:1px solid var(--border); border-radius:18px; padding:12px 14px; background:linear-gradient(180deg,#ffffff,#f9fafb); }
+    .bandHead{ font-size:11px; letter-spacing:.14em; text-transform:uppercase; font-weight:1000; color:var(--muted); margin:0 0 9px; }
+    .bandGrid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:14px; align-items:end; }
+    .bandRow{ display:flex; gap:16px 22px; flex-wrap:wrap; align-items:center; }
+    label{ display:block; margin:0 0 7px; font-size:15px; font-weight:950; }
+    select, input[type="number"]{ border:2px solid #e5e7eb; border-radius:14px; padding:12px 13px; font-size:15px; font-weight:900; width:100%; background:#fff; color:var(--ink); font-family:inherit; }
+    select:focus, input:focus{ outline:none; border-color:var(--blue); }
+    .sw{ display:inline-flex; align-items:center; gap:10px; cursor:pointer; user-select:none; font-weight:900; font-size:14.5px; margin:0; }
+    .sw input{ position:absolute; opacity:0; width:0; height:0; }
+    .sw .track{ position:relative; width:46px; height:27px; border-radius:999px; background:#cbd5e1; transition:.16s ease; flex:0 0 auto; }
+    .sw .track::after{ content:""; position:absolute; top:3px; left:3px; width:21px; height:21px; border-radius:50%; background:#fff; box-shadow:0 2px 5px rgba(0,0,0,.28); transition:.16s ease; }
+    .sw input:checked + .track{ background:var(--green); }
+    .sw input:checked + .track::after{ transform:translateX(19px); }
+    .sw input:focus-visible + .track{ box-shadow:0 0 0 4px rgba(37,99,235,.25); }
+
+    /* the problem types: a checkbox, what it asks, and what it looks like */
+    .typeGrid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:10px; }
+    .typeOpt{ border:1.5px solid var(--border); border-radius:16px; padding:11px 13px 12px; background:#fff; display:flex; flex-direction:column; gap:7px; transition:.15s ease; }
+    .typeOpt.on{ border-color:var(--tc); box-shadow:inset 4px 0 0 var(--tc); }
+    .typeTop{ display:flex; align-items:center; gap:10px; }
+    .typeTop .sw{ font-size:15px; }
+    .typeLetter{ width:26px; height:26px; border-radius:8px; background:var(--tc); color:#fff; font-weight:1000; display:grid; place-items:center; font-size:14px; flex:0 0 auto; }
+    .typeDesc{ font-size:13px; font-weight:800; color:var(--muted); line-height:1.4; margin:0; }
+    .typeEx{ display:flex; align-items:center; gap:9px; flex-wrap:wrap; background:#f8fafc; border:1px dashed #cbd5e1; border-radius:11px; padding:7px 10px; font-size:13.5px; font-weight:850; }
+    .typeEx .exLab{ font-size:10px; letter-spacing:.12em; text-transform:uppercase; font-weight:1000; color:var(--muted); }
+    .typeEx .m{ font-family:var(--mathFont); font-size:17px; font-weight:600; white-space:nowrap; }
+    .typeEx .arrow{ color:#94a3b8; font-weight:1000; }
+    .typeEx .wd{ color:#6d28d9; }
+    .typeEx svg{ height:30px; width:auto; display:block; }
+    .cntRow{ display:flex; align-items:center; gap:10px; }
+    .cntRow label{ margin:0; font-size:13px; color:var(--muted); white-space:nowrap; }
+    .cntRow input{ width:78px; padding:8px 10px; }
+    .totalRow{ display:flex; align-items:center; gap:10px; margin-top:10px; font-weight:950; font-size:14px; }
+    .pill{ background:#eef2ff; color:#1d4ed8; border-radius:999px; padding:5px 12px; font-weight:1000; font-size:13px; }
+    .note{ margin:9px 0 0; font-size:12.6px; font-weight:800; color:var(--muted); line-height:1.5; }
+    .note b{ color:var(--ink); }
+    .note.warn{ color:#991b1b; font-size:14px; }
+    .btnRow{ display:flex; gap:10px; flex-wrap:wrap; margin-top:2px; }
+    button.primary, button.ghost, button.danger{ border-radius:14px; padding:13px 18px; font-size:15px; font-weight:1000; cursor:pointer; border:2px solid transparent; font-family:inherit; }
+    button.primary{ background:var(--blue); color:#fff; }
+    button.primary:hover{ background:#1d4ed8; }
+    button.ghost{ background:#fff; color:var(--ink); border-color:var(--border); }
+    button.ghost:hover{ border-color:#c7ccd4; }
+    button.danger{ background:#fff; color:var(--red); border-color:#fecaca; }
+    button.danger:hover{ background:#fef2f2; }
+    .outWrap{ margin-top:8px; }
+
+    /* =====================================================================
+       THE PAPER — 196 × 281 mm on screen AND in print (the printable area of
+       A4 at the print margins), so what the preview shows is what prints.
+       ===================================================================== */
+    .page{
+      margin:14px auto 0; background:#fff; border:1px solid var(--border);
+      border-radius:14px; box-shadow:0 10px 26px rgba(15,23,42,.08); overflow:hidden;
+      width:196mm; height:281mm; display:flex; flex-direction:column;
+      --fs:1; --lineH:10mm; --tileMM:7mm;
+    }
+    .page.d-roomy{ --fs:1.18; --lineH:12mm; }
+    .page.d-normal{ --fs:1; --lineH:10mm; }
+    .page.d-tight{ --fs:.86; --lineH:8mm; }
+    .pageHeader{ padding:4mm 5mm 2.6mm; border-bottom:2.2px solid #111827; display:flex; align-items:flex-end; justify-content:space-between; gap:10px; }
+    .hdrTitle{ font-weight:1000; font-size:16px; line-height:1.1; }
+    .hdrSub{ color:var(--muted); font-weight:850; font-size:11px; margin-top:2px; white-space:nowrap; }
+    .nameDate{ display:flex; gap:8px; align-items:flex-end; }
+    .lineField{ display:flex; flex-direction:column; gap:3px; width:34mm; }
+    .lineLabel{ font-size:10px; font-weight:950; color:var(--muted); }
+    .lineBox{ height:6mm; border-bottom:1.6px solid #111827; }
+    .sheet{ padding:3.2mm 5mm 2mm; flex:1 1 auto; display:flex; flex-direction:column; min-height:0; }
+
+    /* "say it in words" — the signs as words, page 1 */
+    .keyStrip{ display:flex; flex-wrap:wrap; gap:2mm; margin-bottom:3mm; align-items:stretch; }
+    .keyStrip .ksHead{ font-size:calc(11px * var(--fs)); font-weight:1000; letter-spacing:.08em; text-transform:uppercase; color:#6d28d9; align-self:center; margin-right:1mm; }
+    .ks{ display:flex; align-items:center; gap:1.6mm; border:1.5px solid #ddd6fe; background:#faf5ff; border-radius:3mm; padding:1.2mm 2.6mm; }
+    .ks .s{ font-family:var(--mathFont); font-weight:700; font-size:calc(18px * var(--fs)); color:#6d28d9; line-height:1; }
+    .ks .w{ font-weight:950; font-size:calc(12.5px * var(--fs)); }
+
+    .section{ margin-bottom:3mm; }
+    .secHead{ display:flex; align-items:center; gap:2.4mm; padding:1.6mm 2.4mm; margin-bottom:2.2mm; border-radius:3mm; background:var(--sc-bg); border:1.4px solid var(--sc); }
+    .secLetter{ font-weight:1000; font-size:calc(14px * var(--fs)); background:var(--sc); color:#fff; border-radius:2mm; padding:.6mm 2.2mm; flex:0 0 auto; }
+    .secText{ font-weight:950; font-size:calc(13.4px * var(--fs)); color:#111827; line-height:1.3; }
+    .secCont{ margin-left:auto; font-size:11px; font-weight:900; color:var(--muted); flex:0 0 auto; }
+    .legend{ display:flex; flex-wrap:wrap; gap:1mm 4mm; margin:-1mm 0 2mm 1mm; font-size:calc(11.2px * var(--fs)); font-weight:850; color:#374151; }
+    .legend span{ display:inline-flex; align-items:center; gap:1.4mm; }
+    .legend svg{ width:4mm; height:4mm; }
+
+    .qGrid{ display:grid; gap:3mm; grid-template-columns:repeat(var(--cols,2),minmax(0,1fr)); margin-bottom:3mm; }
+    .qCard{ border:1.4px solid #d7dce3; border-radius:3.4mm; padding:2.4mm 3mm 3mm; display:flex; flex-direction:column; gap:2mm; break-inside:avoid; background:#fff; min-width:0; }
+    .qCard.full{ grid-column:1 / -1; }
+    .qTop{ display:flex; align-items:center; gap:2.2mm; width:100%; min-width:0; overflow:hidden; }
+    .qNum{ width:calc(22px * var(--fs)); height:calc(22px * var(--fs)); border-radius:999px; color:#fff; display:flex; align-items:center; justify-content:center; font-size:calc(11.5px * var(--fs)); font-weight:1000; flex:0 0 auto; }
+    .qNum.sweet{ background:linear-gradient(180deg,var(--sweet1),var(--sweet2)); }
+    .qNum.mild{ background:linear-gradient(180deg,var(--mild1),var(--mild2)); }
+    .qNum.medium{ background:linear-gradient(180deg,var(--medium1),var(--medium2)); }
+    .qNum.spicy{ background:linear-gradient(180deg,var(--spicy1),var(--spicy2)); }
+    .expr{ font-family:var(--mathFont); font-weight:600; font-size:calc(22px * var(--fs)); line-height:1.15; white-space:nowrap; }
+    .expr .term{ color:var(--h); }
+    .expr .tk{ padding:0 .06em; }
+    .expr .tk.op{ padding:0 .2em; }
+    .expr .eqq{ color:#6b7280; padding-left:.15em; }
+    /* whatever a page leaves is a question the student makes for themselves */
+    .yourTurn{ border:1.8px dashed #c4b5fd; border-radius:3.4mm; padding:2.4mm 3mm 3mm; background:#fdfcff; display:flex; flex-direction:column; gap:2mm; margin-bottom:3mm; }
+    .ytHead{ display:flex; align-items:center; gap:2mm; font-weight:1000; font-size:calc(13.5px * var(--fs)); color:#6d28d9; }
+    .ytHead .star{ font-size:1.2em; }
+    .ytText{ font-weight:850; font-size:calc(12.5px * var(--fs)); color:#374151; line-height:1.35; }
+    .bw .yourTurn{ background:#fff; border-color:#9ca3af; }
+    .bw .ytHead{ color:#111827; }
+    .wordsQ{ font-weight:900; font-size:calc(15px * var(--fs)); line-height:1.35; background:#faf5ff; border:1.4px solid #e9d5ff; border-radius:3mm; padding:1.4mm 2.6mm; }
+    .wordsQ .term{ color:var(--h); }
+    .pic{ display:flex; justify-content:center; padding:1mm 0; }
+    .pic svg{ display:block; }
+    .t{ stroke-width:2.6; }
+    .t.pos{ fill:var(--posFill); stroke:var(--posStroke); }
+    .t.neg{ fill:var(--negFill); stroke:var(--negStroke); }
+    .t.mark{ fill:var(--negFill); stroke:var(--negStroke); }
+    .t.fade{ opacity:.22; }
+    .mk{ stroke-width:3.6; stroke-linecap:round; fill:none; }
+    .pos-mk{ stroke:rgba(5,46,22,.8); }
+    .neg-mk{ stroke:#fff; }
+    .xo{ stroke:#0f172a; stroke-width:4; stroke-linecap:round; fill:none; }
+    .picPair{ display:grid; grid-template-columns:1fr 1fr; gap:3mm; }
+    .picBox{ border:1.2px dashed #cbd5e1; border-radius:3mm; padding:1.4mm; }
+    .picCap{ font-size:calc(11px * var(--fs)); font-weight:1000; color:var(--muted); text-align:center; letter-spacing:.06em; text-transform:uppercase; }
+
+    .say{ display:flex; flex-direction:column; gap:0; }
+    .wl{ height:var(--lineH); border-bottom:1.5px solid #9aa3af; }
+    .ansLine{ display:flex; align-items:flex-end; gap:2mm; font-family:var(--mathFont); font-weight:700; font-size:calc(19px * var(--fs)); }
+    .ansLine .ln{ flex:1 1 auto; height:var(--lineH); border-bottom:1.6px solid #111827; }
+    .ansLine .ln.sm{ flex:0 0 22%; }
+    .ansLine .lab{ font-family:var(--uiFont); font-size:calc(11px * var(--fs)); font-weight:1000; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; align-self:center; }
+    .drawBox{ border:1.8px dashed #9aa3af; border-radius:3mm; height:var(--drawH,42mm); background-image:radial-gradient(#cbd5e1 .9px, transparent 1px); background-size:6mm 6mm; background-position:3mm 3mm; }
+    .work{ border:1.4px dashed #9aa3af; border-radius:3mm; padding:1mm 2.4mm 0; }
+    .workHead{ font-size:calc(10px * var(--fs)); font-weight:1000; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; }
+    .claims{ display:grid; grid-template-columns:1fr 1fr; gap:3mm; }
+    .claim{ border-radius:3mm; padding:1.6mm 2.6mm; font-weight:900; font-size:calc(14px * var(--fs)); line-height:1.35; }
+    .claim.c1{ background:#eff6ff; border:1.4px solid #bfdbfe; }
+    .claim.c2{ background:#fff7ed; border:1.4px solid #fed7aa; }
+    .claim .m{ font-family:var(--mathFont); font-weight:700; font-size:1.15em; }
+
+    /* answer key */
+    .isKey .qCard{ border-color:#bbf7d0; background:#f7fdf9; }
+    .keyAns{ font-family:var(--mathFont); font-weight:700; font-size:calc(18px * var(--fs)); color:#15803d; line-height:1.3; }
+    .keyWords{ font-weight:950; font-size:calc(13.5px * var(--fs)); color:#15803d; line-height:1.35; }
+    .keyWhy{ font-size:calc(11.5px * var(--fs)); font-weight:850; color:#374151; line-height:1.4; }
+
+    /* black and white, for the photocopier */
+    .bw .expr .term, .bw .wordsQ .term{ color:inherit !important; }
+    .bw .wordsQ{ background:#fff; border-color:#9ca3af; }
+    .bw .secHead{ background:#fff !important; border-color:#111827 !important; }
+    .bw .secLetter{ background:#111827 !important; }
+    .bw .t.pos{ fill:#fff; stroke:#111827; }
+    .bw .t.neg{ fill:#6b7280; stroke:#111827; }
+    .bw .t.mark{ fill:#fff; stroke:#111827; }
+    .bw .t.fade{ opacity:1; fill:#fff; stroke:#9ca3af; stroke-dasharray:5 4; }
+    .bw .pos-mk{ stroke:#111827; }
+    .bw .xo{ stroke:#111827; }
+    .bw .ks{ background:#fff; border-color:#9ca3af; }
+    .bw .ks .s, .bw .keyStrip .ksHead{ color:#111827; }
+    .bw .claim{ background:#fff !important; border-color:#9ca3af !important; }
+    .bw .qNum{ background:#111827 !important; }
+
+    .pageFooter{ padding:1.4mm 5mm 2mm; border-top:1px solid rgba(229,231,235,.95); display:flex; align-items:center; justify-content:space-between; font-weight:900; color:var(--muted); font-size:10px; }
+    .pageFooter a{ color:#2563eb; text-decoration:none; font-weight:1000; }
+    .measure{ position:absolute; left:-10000px; top:0; visibility:hidden; }
+    .mmtFooter{ position:fixed; left:0; right:0; bottom:0; height:var(--footer-h); display:flex; align-items:center; justify-content:center; padding:0 12px; background:rgba(255,255,255,.92); border-top:1px solid rgba(229,231,235,.95); backdrop-filter:blur(8px); z-index:500; font-weight:900; color:#111827; text-align:center; font-size:13px; }
+    .mmtFooter a{ color:#2563eb; text-decoration:none; font-weight:950; }
+
+    @media print{
+      @page{ size:A4; margin:8mm 7mm; }
+      html, body{ width:196mm; height:auto; }
+      body{ background:#fff; padding-bottom:0; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+      .wrap{ max-width:none; margin:0; padding:0; }
+      .card{ box-shadow:none; border-radius:0; padding:0; }
+      .controls, .title, .subtitle, .mmtFooter{ display:none !important; }
+      .outWrap{ margin:0; }
+      .page{ height:280.5mm; }
+      .page{ margin:0; border:none; border-radius:0; box-shadow:none; page-break-after:always; }
+      .page:last-child{ page-break-after:auto; }
+    }
+  </style>
+<!-- mmt-pwa -->
+<link rel="manifest" href="../../../manifest.webmanifest">
+<meta name="theme-color" content="#1f3a5f">
+<link rel="apple-touch-icon" href="../../../icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="MMT">
+<script src="../../../pwa.js" defer></script>
+<!-- /mmt-pwa -->
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1 class="title">Order of Operations &mdash; Say What You See &mdash; Worksheet Generator</h1>
+      <p class="subtitle">Printable A4 worksheets from the <a href="/interactive-tools/stage-4/number/order-of-operations-in-words/">Order of Operations &mdash; Say What You See</a> teaching tool. No acronym: every number sentence is read as words and drawn as tiles &mdash; <b>5 + 3 &times; 5</b> is <b>5 and 3 groups of 5</b>, and <b>10 &minus; 4 &divide; 2</b> is <b>10 take away half of 4</b>. The pictures are the board&rsquo;s own.</p>
+
+      <div class="controls">
+        <div class="band">
+          <p class="bandHead">The paper</p>
+          <div class="bandGrid">
+            <div>
+              <label for="levelSel">Level</label>
+              <select id="levelSel">
+                <option value="sweet">Sweet &mdash; &times; with + and &minus;</option>
+                <option value="mild">Mild &mdash; &divide; joins in</option>
+                <option value="medium">Medium &mdash; brackets and left-to-right</option>
+                <option value="spicy">Spicy &mdash; integers (Stage 4)</option>
+                <option value="s3mix">Stage 3 mixed &mdash; &times; and &divide; with + and &minus;</option>
+                <option value="mix3" selected>Mixed &mdash; Stage 3 ladder (no integers)</option>
+                <option value="mix4">Mixed &mdash; Stage 3 and 4 ladder</option>
+              </select>
+            </div>
+            <div>
+              <label for="densitySel">Spacing</label>
+              <select id="densitySel">
+                <option value="roomy" selected>Spacious &mdash; two to a row, large print</option>
+                <option value="normal">Standard &mdash; three to a row</option>
+                <option value="tight">Compact &mdash; four to a row</option>
+              </select>
+            </div>
+            <div>
+              <label for="colourSel">Colour</label>
+              <select id="colourSel">
+                <option value="colour" selected>Colour &mdash; green and red tiles</option>
+                <option value="bw">Black and white &mdash; for photocopying</option>
+              </select>
+            </div>
+          </div>
+          <p class="note"><b>Spacious</b> is made for younger hands: big print, big tiles and tall writing lines. In <b>black and white</b> the tiles are outlined, a negative tile is grey, a tile being taken away is crossed out, and a faded part is dashed.</p>
+        </div>
+
+        <div class="band">
+          <p class="bandHead">Problem types &mdash; tick the ones you want, and how many</p>
+          <div class="typeGrid" id="typeGrid"></div>
+          <div class="totalRow"><span>On the paper:</span><span class="pill" id="totalPill">0 questions</span></div>
+          <p class="note">The order is the lesson: <b>see it</b>, <b>say it</b>, <b>write it</b>, <b>draw it</b>, <b>work it out</b>, then <b>argue about it</b>. Every section climbs its own ladder from its first question to its last.</p>
+        </div>
+
+        <div class="band">
+          <p class="bandHead">Options</p>
+          <div class="bandRow">
+            <label class="sw"><input type="checkbox" id="picToggle" checked /><span class="track"></span><span>Tile diagrams with the questions</span></label>
+            <label class="sw"><input type="checkbox" id="stripToggle" checked /><span class="track"></span><span>&ldquo;Say it in words&rdquo; strip</span></label>
+            <label class="sw"><input type="checkbox" id="workToggle" checked /><span class="track"></span><span>Working space</span></label>
+            <label class="sw"><input type="checkbox" id="nameToggle" checked /><span class="track"></span><span>Name and date</span></label>
+            <label class="sw"><input type="checkbox" id="keyToggle" /><span class="track"></span><span>Answer key pages</span></label>
+          </div>
+          <p class="note"><b>Tile diagrams</b> put the picture beside the symbols in B, C, E and F &mdash; the scaffold. Turn them off once a class can picture it for themselves; <b>A</b> is a picture by definition and <b>D</b> asks the student to draw it. The <b>strip</b> prints the signs as words at the top of page 1: + <i>and</i>, &minus; <i>take away</i>, &times; <i>groups of</i>, &divide; <i>half of, a third of&hellip;</i>, ( ) <i>one amount</i>. The answer key draws every picture and writes every sentence in words.</p>
+        </div>
+
+        <div class="btnRow">
+          <button id="genBtn" class="primary">Generate worksheet</button>
+          <button id="printBtn" class="ghost">Print (Ctrl+P)</button>
+          <button id="resetBtn" class="danger">Reset</button>
+        </div>
+      </div>
+
+      <div id="out" class="outWrap"></div>
+    </div>
+  </div>
+
+  <div class="measure" id="measure" aria-hidden="true"></div>
+
+  <div class="mmtFooter">
+    This tool and more can be found at&nbsp;
+    <a href="https://www.millsmathstools.au">www.millsmathstools.au</a>
+  </div>
+<script id="ooEngine">
+var OO = (function(){
+  "use strict";
+
+  /* =====================================================================
+     ORDER OF OPERATIONS — SAY WHAT YOU SEE (engine, no DOM)
+
+     An expression is a DESCRIPTION OF A PICTURE. "5 + 3 × 5" says
+     "5, and 3 groups of 5". The 3 is never tiles: it counts groups. So
+     "3 × 5" is ONE amount before anything is added to it, and that is the
+     whole reason the multiplication is "done first".
+
+     Division reads the same way, as a fraction of an amount:
+     "10 − 4 ÷ 2" is "10 take away HALF OF 4" — "half of 4" is one amount,
+     exactly as "3 groups of 5" is. "(10 − 4) ÷ 2" is a different sentence:
+     "half of (10 take away 4)".
+
+     Model: the expression is a tree. A node in the AMOUNT role is drawn as
+     tiles; a node in the COUNT role (how many groups / how many equal parts)
+     is never drawn as tiles. Each press of Next reduces exactly one node
+     (post-order, left first — which IS the conventional order), and every
+     tile keeps a stable id so the picture can move rather than redraw.
+     ===================================================================== */
+
+  const T = 40, GP = 10, P = T + GP;          /* tile, gap, pitch (SVG units) */
+
+
+
+  let SEQ = 0;
+  const nid = () => "n" + (SEQ++);
+  const sgn = v => v > 0 ? 1 : (v < 0 ? -1 : 0);
+  const MINUS = "−";
+  const fmt = v => (v < 0 ? MINUS : "") + Math.abs(v);
+  const clone = o => JSON.parse(JSON.stringify(o));
+
+  function err(m){ const e = new Error(m); e.oo = true; return e; }
+
+  /* ------------------------------------------------------------ parsing */
+  function tokenize(src){
+    const s = String(src)
+      .replace(/[−–—]/g, "-")
+      .replace(/[×xX*·∙]/g, "*")
+      .replace(/[÷:\/]/g, "/")
+      .replace(/[\[{]/g, "(").replace(/[\]}]/g, ")")
+      .replace(/\s+/g, "");
+    if(!s) throw err("Type an expression first.");
+    if(s.length > 60) throw err("That is too long to picture — keep it to a few numbers.");
+    const out = []; let i = 0;
+    while(i < s.length){
+      const c = s[i];
+      if(/\d/.test(c)){
+        let j = i; while(j < s.length && /\d/.test(s[j])) j++;
+        out.push({k:"n", v:parseInt(s.slice(i, j), 10)}); i = j; continue;
+      }
+      if("+-*/()".includes(c)){ out.push({k:c}); i++; continue; }
+      if(c === "." || c === ",") throw err("Whole numbers only — a tile cannot be cut into pieces.");
+      if(c === "^") throw err("Powers are not part of this tool — try + − × ÷ and brackets.");
+      if(c === "=") throw err("Leave off the equals sign — just the expression.");
+      throw err("“" + c + "” is not something the tiles can show.");
+    }
+    return out;
+  }
+
+  function parse(src){
+    const toks = tokenize(src); let p = 0;
+    const peek = () => toks[p], eat = () => toks[p++];
+    function expr(){
+      let n = term();
+      while(peek() && (peek().k === "+" || peek().k === "-")){
+        const op = eat().k; n = {t:"op", op, a:n, b:term(), id:nid()};
+      }
+      return n;
+    }
+    function term(){
+      let n = factor();
+      while(peek() && (peek().k === "*" || peek().k === "/")){
+        const op = eat().k; n = {t:"op", op, a:n, b:factor(), id:nid()};
+      }
+      return n;
+    }
+    function factor(){
+      const t = peek();
+      if(!t) throw err("The expression stops too soon — something is missing at the end.");
+      if(t.k === "-"){
+        eat(); const u = peek();
+        if(u && u.k === "n"){ eat(); noJuxta(); return {t:"num", v:-u.v, id:nid()}; }
+        throw err("Put a negative sign straight in front of a number, like −3.");
+      }
+      if(t.k === "n"){ eat(); noJuxta(); return {t:"num", v:t.v, id:nid()}; }
+      if(t.k === "("){
+        eat();
+        if(peek() && peek().k === ")") throw err("There is an empty bracket.");
+        const e = expr();
+        if(!peek() || peek().k !== ")") throw err("A bracket is opened but never closed.");
+        eat(); noJuxta();
+        return {t:"grp", e, id:nid()};
+      }
+      if(t.k === ")") throw err("A bracket is closed but never opened.");
+      throw err("Two signs in a row — put a number between them.");
+    }
+    function noJuxta(){
+      const n = peek();
+      if(n && (n.k === "(" || n.k === "n")) throw err("Write the × sign: 3 × (6 + 2), not 3(6 + 2).");
+    }
+    const root = expr();
+    if(p < toks.length) throw err(toks[p].k === ")" ? "A bracket is closed but never opened." : "Something is left over at the end.");
+    return prepare(root);
+  }
+
+  function isVal(n){ return n.t === "num" || (n.t === "pile" && !n.mix); }
+
+  /* A bracket around a single value — (−3), (5) — is notation, not a
+     grouping, so it goes at once. */
+  function normalize(n){
+    if(n.t === "grp"){
+      n.e = normalize(n.e);
+      if(isVal(n.e)){ const c = n.e; if(n.hue != null && c.hue == null) c.hue = n.hue; return c; }
+      return n;
+    }
+    if(n.t === "op"){ n.a = normalize(n.a); n.b = normalize(n.b); }
+    return n;
+  }
+
+  /* Which side of × counts the groups. A plain number does, the left one
+     if both are: "3 × 5" is 3 groups of 5, but "(5 + 3) × 5" is 5 groups of
+     (5 and 3) and "a fifth of 20 × 2" is 2 groups of it. Fixed once, at
+     parse, so it never changes part way through. ÷ always counts parts with
+     its right side. */
+  function assignRoles(n){
+    if(n.t === "op"){
+      if(n.op === "*") n.cnt = n.a.t === "num" ? "a" : (n.b.t === "num" ? "b" : "a");
+      if(n.op === "/") n.cnt = "b";
+      assignRoles(n.a); assignRoles(n.b);
+    } else if(n.t === "grp") assignRoles(n.e);
+  }
+  function topTerms(n){
+    return (n.t === "op" && (n.op === "+" || n.op === "-")) ? topTerms(n.a).concat([n.b]) : [n];
+  }
+  /* "Bad grammar" (teacher decision 2026-10-19): a chain like 20 ÷ 5 × 2 is
+     written with the brackets the convention puts in — (20 ÷ 5) × 2 — so the
+     sentence says which amount is made first. Only where the reading could
+     differ: a ÷ or − in a run of the same kind of sign. */
+  const NONCOMM = {"-":1, "/":1};
+  const cls = op => (op === "*" || op === "/") ? 2 : 1;
+  function grammar(n){
+    if(n.t === "grp"){ n.e = grammar(n.e); return n; }
+    if(n.t !== "op") return n;
+    n.a = grammar(n.a); n.b = grammar(n.b);
+    if(n.a.t === "op" && cls(n.a.op) === cls(n.op) && (NONCOMM[n.op] || NONCOMM[n.a.op]))
+      n.a = {t:"grp", e:n.a, id:nid(), auto:true};
+    return n;
+  }
+  function prepare(root){
+    root = normalize(grammar(root));
+    assignRoles(root);
+    topTerms(root).forEach((t, i) => { t.hue = i % 5; });
+    markTaken(root);
+    return root;
+  }
+
+  /* "24 − 2 × 3": the 6 that go are six OF THE 24 (the deck's morph), so when
+     the first amount already exists as tiles the part taken away is drawn
+     with its tiles from the start. Otherwise ("3 × 5 − 4", or no red tiles to
+     take yet) it is drawn apart, already red, until there are tiles to take it from. */
+  function markTaken(n){
+    if(n.t === "grp"){ markTaken(n.e); return; }
+    if(n.t !== "op") return;
+    markTaken(n.a); markTaken(n.b);
+    if(n.op === "-" && isVal(n.a)){
+      const R = val(n.b);
+      if(R !== 0 && tilesOf(n.a).filter(t => t.s === sgn(R)).length >= Math.abs(R)) n.tk = true;
+    }
+  }
+  function lastOfSign(tiles, s, need){
+    const idx = [];
+    for(let i = tiles.length - 1; i >= 0 && idx.length < need; i--) if(tiles[i].s === s) idx.push(i);
+    return idx.reverse().map(i => tiles[i].id);
+  }
+  /* The tiles a part of the tree will have once all its work is done — what
+     step() will produce, run ahead on a copy. Ids are deterministic, so these
+     are the very tiles that will be on the board. */
+  const FUT = new Map();
+  function futureTiles(n){
+    const key = JSON.stringify(n);
+    if(FUT.has(key)) return FUT.get(key);
+    let cur = clone(n);
+    for(let g = 0; g < 80; g++){ const r = step(cur); if(!r) break; cur = r.root; }
+    const out = tilesOf(cur);
+    if(FUT.size > 4000) FUT.clear();
+    FUT.set(key, out);
+    return out;
+  }
+
+  /* ------------------------------------------------------------ values */
+  function val(n){
+    switch(n.t){
+      case "num": return n.v;
+      case "pile": return n.tiles.reduce((s, t) => s + t.s, 0);
+      case "grp": return val(n.e);
+      case "op": {
+        const a = val(n.a), b = val(n.b);
+        if(n.op === "+") return a + b;
+        if(n.op === "-") return a - b;
+        if(n.op === "*") return a * b;
+        if(b === 0) throw err("Dividing by zero cannot be drawn — there are no parts to split into.");
+        if(a % b !== 0) throw err(fmt(a) + " ÷ " + fmt(b) + " does not split into equal parts of whole tiles. Try numbers that divide exactly.");
+        return a / b;
+      }
+    }
+    return 0;
+  }
+  function tilesOf(n){
+    if(n.t === "pile") return n.tiles;
+    const v = val(n), s = sgn(v), out = [];
+    for(let i = 0; i < Math.abs(v); i++) out.push({id:n.id + "." + i, s});
+    return out;
+  }
+  const countSide = n => n.cnt === "a" ? n.a : n.b;
+  const amtSide = n => n.cnt === "a" ? n.b : n.a;
+
+  /* Pairs are always formed the same way, so the picture that lines them
+     up and the step that cancels them agree: the extra tiles of the larger
+     colour are the FIRST ones, the paired ones are the rest. */
+  function pairSplit(tiles){
+    const pos = tiles.filter(t => t.s > 0), neg = tiles.filter(t => t.s < 0);
+    const p = Math.min(pos.length, neg.length);
+    const maj = pos.length >= neg.length ? pos : neg, mino = maj === pos ? neg : pos;
+    const extras = maj.slice(0, maj.length - p), pm = maj.slice(maj.length - p);
+    return {extras, pairs: pm.map((t, i) => [t, mino[i]]), p};
+  }
+
+  function firstHue(n){
+    if(n.hue != null) return n.hue;
+    if(n.t === "op") { const h = firstHue(n.a); return h != null ? h : firstHue(n.b); }
+    if(n.t === "grp") return firstHue(n.e);
+    return null;
+  }
+
+  /* ------------------------------------------------------------ the next step */
+  function findNext(n, role, ck){
+    if(n.t === "grp") return findNext(n.e, role, ck);
+    if(n.t === "num") return null;
+    if(n.t === "pile") return (n.mix && role === "amt") ? {node:n, role, ck} : null;
+    let ra = role, rb = role, ca = ck, cb = ck;
+    if(role !== "cnt"){
+      if(n.op === "*"){ if(n.cnt === "a"){ ra = "cnt"; ca = "groups"; } else { rb = "cnt"; cb = "groups"; } }
+      if(n.op === "/"){ rb = "cnt"; cb = "parts"; }
+    }
+    return findNext(n.a, ra, ca) || findNext(n.b, rb, cb) || {node:n, role, ck};
+  }
+
+  function kindOf(n, role){
+    if(n.t === "pile") return "cancel";
+    if(role === "cnt") return "count";
+    if(n.op === "*") return "mul";
+    if(n.op === "/") return "div";
+    if(n.op === "+"){
+      const sa = sgn(val(n.a)), sb = sgn(val(n.b));
+      return (sa && sb && sa !== sb) ? "addmix" : "add";
+    }
+    const R = val(n.b); if(R === 0 || n.tk) return "sub";
+    const have = tilesOf(n.a).filter(t => t.s === sgn(R)).length;
+    return have >= Math.abs(R) ? "out" : "zp";
+  }
+
+  function replace(n, id, rep){
+    if(n.id === id) return rep;
+    if(n.t === "op"){ n.a = replace(n.a, id, rep); n.b = replace(n.b, id, rep); }
+    else if(n.t === "grp") n.e = replace(n.e, id, rep);
+    return n;
+  }
+  function findNode(n, id){
+    if(!n) return null;
+    if(n.id === id) return n;
+    if(n.t === "op") return findNode(n.a, id) || findNode(n.b, id);
+    if(n.t === "grp") return findNode(n.e, id);
+    return null;
+  }
+
+  function groupCols(m, k){
+    if(m >= 2 && m <= 12) return m;
+    return autoCols(m * k);
+  }
+
+  function step(root){
+    const f = findNext(root, "amt", null);
+    if(!f) return null;
+    const n = f.node, kind = kindOf(n, f.role);
+    const d = {kind, id:n.id, ck:f.ck};
+    let rep;
+    switch(kind){
+      case "count":
+        rep = {t:"num", v:val(n), id:n.id};
+        if(n.hue != null) rep.hue = n.hue;
+        d.v = rep.v; break;
+      case "mul": {
+        const X = amtSide(n), k = val(countSide(n)), tx = tilesOf(X), tiles = [];
+        for(let j = 0; j < Math.abs(k); j++) tx.forEach(t => tiles.push({id:n.id + "c" + j + ":" + t.id, s:k < 0 ? -t.s : t.s}));
+        rep = {t:"pile", id:n.id, tiles, cols:groupCols(Math.abs(val(X)), Math.abs(k))};
+        d.k = k; d.x = val(X); d.flip = k < 0; break;
+      }
+      case "div": {
+        const X = n.a, k = val(n.b), tx = tilesOf(X), m = tx.length / Math.abs(k);
+        const ak = Math.abs(k);
+        rep = {t:"pile", id:n.id, tiles:tx.slice(0, m).map(t => ({id:t.id, s:k < 0 ? -t.s : t.s})),
+               cols:(m >= 1 && m <= 12 && ak <= 12) ? (m < ak ? 1 : m) : null};
+        d.k = k; d.x = val(X); d.flip = k < 0; break;
+      }
+      case "add": case "addmix":
+        rep = {t:"pile", id:n.id, tiles:tilesOf(n.a).concat(tilesOf(n.b)), cols:null};
+        /* joined but not cancelled: still READS as the two amounts */
+        if(kind === "addmix"){ rep.mix = true; rep.ja = val(n.a); rep.jb = val(n.b); }
+        d.a = val(n.a); d.b = val(n.b); break;
+      case "cancel": {
+        const sp = pairSplit(n.tiles);
+        rep = {t:"pile", id:n.id, tiles:sp.extras, cols:null};
+        d.p = sp.p; break;
+      }
+      case "zp": {
+        const R = val(n.b), s = sgn(R), L = tilesOf(n.a);
+        const z = Math.abs(R) - L.filter(t => t.s === s).length, add = [];
+        for(let i = 0; i < z; i++){ add.push({id:n.id + "z" + i + "a", s}); add.push({id:n.id + "z" + i + "b", s:-s}); }
+        const pile = {t:"pile", id:n.a.id, tiles:L.concat(add), zp:true, cols:null};
+        if(n.a.hue != null) pile.hue = n.a.hue;
+        rep = Object.assign({}, n, {a:pile});
+        d.z = z; d.a = val(n.a); d.r = R; d.none = (z === Math.abs(R)); break;
+      }
+      case "out":
+        rep = Object.assign({}, n, {tk:true});
+        d.a = val(n.a); d.r = val(n.b); break;
+      case "sub": {
+        const R = val(n.b), L = tilesOf(n.a);
+        const gone = new Set(lastOfSign(L, sgn(R), Math.abs(R)));
+        rep = {t:"pile", id:n.id, tiles:L.filter(t => !gone.has(t.id)), cols:null};
+        d.a = val(n.a); d.r = R; break;
+      }
+    }
+    if(kind !== "zp" && kind !== "count" && kind !== "out"){ const h = (kind === "add" || kind === "addmix" || kind === "sub") ? firstHue(n) : n.hue; if(h != null) rep.hue = h; }
+    const out = normalize(replace(clone(root), n.id, clone(rep)));
+    return {root:out, d};
+  }
+
+  function countTiles(n, role){
+    if(role === "cnt") return 0;
+    if(n.t === "num" || n.t === "pile") return n.t === "num" ? Math.abs(n.v) : n.tiles.length;
+    if(n.t === "grp") return countTiles(n.e, role);
+    if(n.op === "*") return Math.abs(val(countSide(n))) * countTiles(amtSide(n), "amt");
+    if(n.op === "/") return countTiles(n.a, "amt");
+    return countTiles(n.a, "amt") + countTiles(n.b, "amt");
+  }
+  function maxCopies(n){
+    if(n.t === "grp") return maxCopies(n.e);
+    if(n.t !== "op") return 0;
+    const own = n.op === "*" ? Math.abs(val(countSide(n))) : (n.op === "/" ? Math.abs(val(n.b)) : 0);
+    return Math.max(own, maxCopies(n.a), maxCopies(n.b));
+  }
+
+  function build(src, limit){
+    limit = limit || 72;
+    const root = parse(src);
+    const value = val(root);              /* checks every division is exact */
+    const states = [root], steps = [];
+    let cur = root;
+    for(let g = 0; g < 80; g++){
+      const r = step(cur); if(!r) break;
+      steps.push(r.d); states.push(r.root); cur = r.root;
+    }
+    let maxT = 0, maxC = 0;
+    states.forEach(s => { maxT = Math.max(maxT, countTiles(s, "amt")); maxC = Math.max(maxC, maxCopies(s)); });
+    if(maxC > 10) throw err("That needs more than 10 groups or parts — too crowded to picture. Try smaller numbers.");
+    if(maxT > limit) throw err("That picture would need " + maxT + " tiles — too many to see. Try smaller numbers.");
+    return {src:symText(root), root, states, steps, value, maxTiles:maxT};
+  }
+
+  /* ------------------------------------------------------------ symbols */
+  const OPS = {"+":"+", "-":MINUS, "*":"×", "/":"÷"};
+  const HUES = ["#7c3aed", "#ea580c", "#0891b2", "#db2777", "#4f46e5"];
+  const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;");
+
+  function numTxt(v, lead){ return v < 0 && !lead ? "(" + fmt(v) + ")" : fmt(v); }
+
+  function symText(n, lead, o){
+    if(lead === undefined) lead = true;
+    o = o || {};
+    if(n.t === "pile" && n.mix) return numTxt(n.ja, lead) + " + " + numTxt(n.jb, false);
+    if(n.t === "num" || n.t === "pile") return numTxt(val(n), lead);
+    if(n.t === "grp") return (o.noGroups || (o.noAuto && n.auto)) ? symText(n.e, lead, o) : "(" + symText(n.e, true, o) + ")";
+    return symText(n.a, lead, o) + " " + OPS[n.op] + " " + symText(n.b, false, o);
+  }
+
+  function symHTML(n, hot, lead){
+    let h;
+    if(n.t === "pile" && n.mix){
+      h = '<span class="tk num">' + esc(numTxt(n.ja, lead)) + '</span><span class="tk op">+</span><span class="tk num">' + esc(numTxt(n.jb, false)) + "</span>";
+    } else if(n.t === "num" || n.t === "pile"){
+      const v = val(n);
+      h = '<span class="tk num">' + esc(numTxt(v, lead)) + "</span>";
+    } else if(n.t === "grp"){
+      h = '<span class="tk br">(</span>' + symHTML(n.e, hot, true) + '<span class="tk br">)</span>';
+    } else {
+      h = symHTML(n.a, hot, lead) + '<span class="tk op">' + OPS[n.op] + "</span>" + symHTML(n.b, hot, false);
+    }
+    if(n.id === hot) h = '<span class="hot">' + h + "</span>";
+    if(n.hue != null) h = '<span class="term" style="--h:' + HUES[n.hue] + '">' + h + "</span>";
+    return h;
+  }
+
+  /* ------------------------------------------------------------ words */
+  const ORD = {2:"half", 3:"a third", 4:"a quarter", 5:"a fifth", 6:"a sixth", 7:"a seventh", 8:"an eighth", 9:"a ninth", 10:"a tenth", 11:"an eleventh", 12:"a twelfth"};
+
+  /* o.div: "frac" → "half of 10"; "share" → "one share of 10 split 2 ways".
+     o.html: wrap terms in colour and the hot node in a highlight. */
+  function words(n, role, o, hot){
+    o = o || {}; role = role || "amt";
+    const W = (m, r) => words(m, r, o, hot);
+    const wrapAmt = (X, s) => X.t === "op" ? "(" + s + ")" : s;
+    let h;
+    const nm = v => (v < 0 && role === "amt") ? "negative " + Math.abs(v) : fmt(v);
+    if(n.t === "pile" && n.mix){
+      h = nm(n.ja) + " and " + nm(n.jb);
+    } else if(n.t === "num" || n.t === "pile"){
+      const v = val(n);
+      h = (v < 0 && role === "amt") ? "negative " + Math.abs(v) : fmt(v);
+    } else if(n.t === "grp"){
+      h = "(" + W(n.e, role) + ")";
+    } else if(n.op === "+" || n.op === "-"){
+      h = W(n.a, role) + (n.op === "+" ? " and " : " take away ") + W(n.b, role);
+    } else if(n.op === "*"){
+      const cs = countSide(n), X = amtSide(n);
+      const xw = wrapAmt(X, W(X, role === "cnt" ? "cnt" : "amt"));
+      if(isVal(cs)){
+        const k = val(cs);
+        h = (k < 0 ? "the opposite of " : "") + Math.abs(k) + (Math.abs(k) === 1 ? " group of " : " groups of ") + xw;
+      } else {
+        h = wrapAmt(cs, W(cs, "cnt")) + " groups of " + xw;
+      }
+    } else {
+      const X = n.a, xw = wrapAmt(X, W(X, role === "cnt" ? "cnt" : "amt"));
+      if(isVal(n.b)){
+        const k = val(n.b), ak = Math.abs(k);
+        let base;
+        if(o.div === "share") base = ak === 1 ? "all of " + xw : "one share of " + xw + " split " + ak + " ways";
+        else base = ak === 1 ? "all of " + xw : (ORD[ak] ? ORD[ak] + " of " + xw : "one of " + ak + " equal parts of " + xw);
+        h = (k < 0 ? "the opposite of " : "") + base;
+      } else {
+        h = "one part of " + xw + " split into " + wrapAmt(n.b, W(n.b, "cnt")) + " equal parts";
+      }
+    }
+    if(o.html){
+      if(n.id === hot) h = '<span class="hotw">' + h + "</span>";
+      if(n.hue != null) h = '<span class="term" style="--h:' + HUES[n.hue] + '">' + h + "</span>";
+    }
+    return h;
+  }
+  const wordsPlain = (n, o) => words(n, "amt", Object.assign({}, o, {html:false}));
+
+  /* ------------------------------------------------------------ cues */
+  function colourName(s){ return s > 0 ? "green" : "red"; }
+  function amt(v){ return v < 0 ? "negative " + Math.abs(v) : String(v); }
+
+  function cueFor(state, d, o){
+    const n = findNode(state, d.id);
+    const w = n ? wordsPlain(n, o) : "";
+    const W = w.charAt(0).toUpperCase() + w.slice(1);
+    switch(d.kind){
+      case "count":
+        return d.ck === "parts"
+          ? "First, how many equal parts? " + symText(n) + " counts parts, not tiles."
+          : "First, how many groups? " + symText(n) + " counts groups, not tiles.";
+      case "mul":
+        return d.k < 0
+          ? W + " is one amount. Make " + Math.abs(d.k) + " groups, put them together, then flip every tile."
+          : W + " is one amount. Put the groups together — how many tiles?";
+      case "div":
+        return d.k < 0
+          ? W + " is one amount: one of the " + Math.abs(d.k) + " equal parts, flipped."
+          : W + " is one amount: one of the " + Math.abs(d.k) + " equal parts.";
+      case "add": return "Now put " + amt(d.a) + " and " + amt(d.b) + " together.";
+      case "addmix": return "Put " + amt(d.a) + " and " + amt(d.b) + " together — line each green tile up with a red one.";
+      case "cancel": return "A green and a red make zero. Take away every zero pair — what is left?";
+      case "zp":
+        return (d.none ? "There are no " : "There are not enough ") + colourName(sgn(d.r)) + " tiles to take away " + amt(d.r) +
+          ". Add " + d.z + " zero pair" + (d.z === 1 ? "" : "s") + " — it is still " + amt(d.a) + ".";
+      case "out": return "Take " + amt(d.r) + " out of " + amt(d.a) + ".";
+      case "sub": return "Take them away.";
+    }
+    return "";
+  }
+
+  /* ------------------------------------------------------------ the other reading */
+  function precOf(op){ return (op === "*" || op === "/") ? 2 : 1; }
+  function flatten(n, out){
+    if(n.t === "grp" && n.e && n.auto) return flatten(n.e, out);
+    if(n.t === "op"){ flatten(n.a, out); out.push(n.op); flatten(n.b, out); }
+    else out.push(n);
+    return out;
+  }
+  function hasGrp(n){ return (n.t === "grp" && !n.auto) || (n.t === "grp" && hasGrp(n.e)) || (n.t === "op" && (hasGrp(n.a) || hasGrp(n.b))); }
+
+  /* The reading a shortcut-follower would give it:
+     brackets present          → ignore the brackets
+     + − mixed with × ÷        → strictly left to right
+     one kind of operation     → the end grouped first (the boy with the telescope) */
+  function otherReading(root){
+    let kind = null, txt = null;
+    if(hasGrp(root)){
+      kind = "nobr"; txt = symText(root, true, {noGroups:true});
+    } else {
+      const f = flatten(root, []);
+      const ops = f.filter((x, i) => i % 2 === 1);
+      if(ops.length === 0) return null;
+      const classes = new Set(ops.map(precOf));
+      if(classes.size === 2){
+        kind = "ltr";
+        /* bracket what is written so far whenever it holds a weaker sign
+           than the one about to be used — that is what "left to right" means */
+        let acc = numTxt(val(f[0]), true), low = 3;
+        for(let i = 1; i < f.length; i += 2){
+          const pr = precOf(f[i]);
+          if(low < pr) acc = "(" + acc + ")";
+          acc = acc + " " + OPS[f[i]] + " " + numTxt(val(f[i + 1]), false);
+          low = pr;
+        }
+        txt = acc;
+      } else if(ops.length >= 2){
+        kind = "right";
+        const L = f.length;
+        let head = numTxt(val(f[0]), true);
+        for(let i = 1; i < L - 4; i += 2) head += " " + OPS[f[i]] + " " + numTxt(val(f[i + 1]), false);
+        txt = head + " " + OPS[f[L - 4]] + " (" + numTxt(val(f[L - 3]), true) + " " + OPS[f[L - 2]] + " " + numTxt(val(f[L - 1]), false) + ")";
+      } else return null;
+    }
+    try{
+      const run = build(txt, 100);
+      const same = run.value === val(root);
+      if(same && kind !== "right") return null;
+      return {kind, txt:run.src, run, same};
+    }catch(e){ return null; }
+  }
+
+  /* ------------------------------------------------------------ layout
+     Tiles only. No boxes, brackets or labels: structure is spacing, the way
+     the lesson slides draw it. The symbols for each amount sit ABOVE its
+     tiles and the words BELOW, so every part of the sentence points at the
+     part of the picture it describes. */
+  const SYMF = 58, WF = 25, INGAP = 26, CELLGAP = 70;
+  function box(){ return {w:0, h:0, tiles:[]}; }
+  function put(dst, src, dx, dy){ src.tiles.forEach(t => dst.tiles.push(Object.assign({}, t, {x:t.x + dx, y:t.y + dy}))); }
+  function pre(b, p){ if(p) b.tiles.forEach(t => { t.id = p + t.id; }); return b; }
+
+  /* A plain amount is drawn as the neatest rectangle it makes — 8 is 2 × 4,
+     18 is 3 × 6, 24 is 3 × 8 — wider than tall; rows of 5 only when
+     nothing divides it. */
+  function autoCols(n){
+    if(n <= 5) return Math.max(n, 1);
+    let best = 0, score = 1e9;
+    for(let c = 3; c <= 12; c++){
+      if(n % c) continue;
+      const r = n / c; if(r > c || r < 2) continue;
+      const sc = Math.abs(Math.log((c / r) / 2));
+      if(sc < score - 1e-9){ score = sc; best = c; }
+    }
+    if(best) return best;
+    if(n <= 12) return Math.ceil(n / 2);
+    return n <= 30 ? 5 : 10;
+  }
+  const DICE = {1:[[0,0]], 2:[[0,0],[1,1]], 3:[[0,0],[1,1],[2,2]], 4:[[0,0],[1,0],[0,1],[1,1]],
+                5:[[0,0],[2,0],[1,1],[0,2],[2,2]], 6:[[0,0],[1,0],[0,1],[1,1],[0,2],[1,2]]};
+
+  function pileBox(tiles, o){
+    o = o || {};
+    const b = box(), n = tiles.length, om = o.omit;
+    const at = (t, x, y) => { if(!om || !om.has(t.id)) b.tiles.push({id:t.id, s:t.s, x, y}); };
+    if(n === 0){ b.w = T; b.h = T; return b; }
+    if(o.pairs && tiles.some(t => t.s > 0) && tiles.some(t => t.s < 0)){
+      /* yellow over red: each column is a zero pair, the extras come first */
+      const sp = pairSplit(tiles), cols = [];
+      sp.extras.forEach(t => cols.push(t.s > 0 ? {top:t} : {bot:t}));
+      sp.pairs.forEach(([a, c]) => cols.push(a.s > 0 ? {top:a, bot:c} : {top:c, bot:a}));
+      const per = 12, BG = 22, bands = Math.ceil(cols.length / per);
+      cols.forEach((c, i) => {
+        const x = (i % per) * P, y = Math.floor(i / per) * (2 * P + BG);
+        if(c.top) at(c.top, x, y);
+        if(c.bot) at(c.bot, x, y + P);
+      });
+      b.w = Math.min(cols.length, per) * P - GP; b.h = bands * 2 * P - GP + (bands - 1) * BG;
+      return b;
+    }
+    if(o.dice && DICE[n]){
+      let mx = 0, my = 0;
+      DICE[n].forEach(([cx, cy], i) => { at(tiles[i], cx * P, cy * P); mx = Math.max(mx, cx); my = Math.max(my, cy); });
+      b.w = (mx + 1) * P - GP; b.h = (my + 1) * P - GP;
+      return b;
+    }
+    const c = o.cols || autoCols(n), rows = Math.ceil(n / c);
+    tiles.forEach((t, i) => at(t, (i % c) * P, Math.floor(i / c) * P));
+    b.w = Math.min(n, c) * P - GP; b.h = rows * P - GP;
+    return b;
+  }
+
+  /* "10 ÷ 2": the ten, in two equal rows, with all but one part faded.
+     Few tiles in a part and many parts → the parts are columns instead. */
+  function partsBox(tiles, k){
+    const b = box(), m = tiles.length / k;
+    if(m === 0){ b.w = T; b.h = T; return b; }
+    if(m <= 12 && k <= 12){
+      const asCols = m < k;
+      tiles.forEach((t, idx) => {
+        const j = Math.floor(idx / m), i = idx % m;
+        b.tiles.push({id:t.id, s:t.s, x:(asCols ? j : i) * P, y:(asCols ? i : j) * P, fade:j > 0});
+      });
+      b.w = (asCols ? k : m) * P - GP; b.h = (asCols ? m : k) * P - GP;
+      return b;
+    }
+    const parts = [];
+    for(let j = 0; j < k; j++){
+      const pb = pileBox(tiles.slice(j * m, (j + 1) * m), {cols:autoCols(m)});
+      if(j > 0) pb.tiles.forEach(t => { t.fade = true; });
+      parts.push(pb);
+    }
+    return stack(parts, GP * 3);
+  }
+
+  function row(bs, gap){
+    const b = box(); b.h = Math.max(...bs.map(x => x.h));
+    let x = 0;
+    bs.forEach((s, i) => { put(b, s, x, (b.h - s.h) / 2); x += s.w + (i < bs.length - 1 ? gap : 0); });
+    b.w = x; return b;
+  }
+  function stack(bs, gap){
+    const b = box(); b.w = Math.max(...bs.map(x => x.w));
+    let y = 0;
+    bs.forEach((s, i) => { put(b, s, (b.w - s.w) / 2, y); y += s.h + (i < bs.length - 1 ? gap : 0); });
+    b.h = y; return b;
+  }
+  function grid(cells, gap){
+    const k = cells.length, cw = Math.max(...cells.map(c => c.w)), ch = Math.max(...cells.map(c => c.h));
+    /* up to four groups stand in one row, as the slides draw them */
+    let best = k <= 4 ? k : 1, bestScore = k <= 4 ? -1 : 1e9;
+    for(let c = 1; c <= k && bestScore >= 0; c++){
+      const r = Math.ceil(k / c);
+      if(r * c - k >= c) continue;
+      const W = c * cw + (c - 1) * gap, H = r * ch + (r - 1) * gap;
+      const score = Math.abs(Math.log((W / H) / 2.6));
+      if(score < bestScore - 1e-9){ bestScore = score; best = c; }
+    }
+    const b = box(), rows = Math.ceil(k / best);
+    cells.forEach((c, i) => {
+      const r = Math.floor(i / best), col = i % best;
+      put(b, c, col * (cw + gap) + (cw - c.w) / 2, r * (ch + gap) + (ch - c.h) / 2);
+    });
+    b.w = best * cw + (best - 1) * gap; b.h = rows * ch + (rows - 1) * gap;
+    return b;
+  }
+
+  function subParts(n, o){
+    const L = n.a, R = n.b, o0 = Object.assign({}, o, {omit:null});
+    if(n.tk){
+      const Rv = val(R), matched = lastOfSign(tilesOf(L), sgn(Rv), Math.abs(Rv));
+      if(o.unsplit) return {L:amountBox(L, o0), R:null};
+      const Lb = amountBox(L, Object.assign({}, o0, {omit:new Set(matched)}));
+      const map = new Map(futureTiles(R).map((t, i) => [t.id, matched[i]]));
+      const Rb = amountBox(R, o0);
+      Rb.tiles.forEach(t => { if(map.has(t.id)){ t.id = map.get(t.id); t.mark = true; } });
+      return {L:Lb, R:Rb};
+    }
+    /* not out of the first amount yet: the part being taken is still red (the
+       fade belongs only to the part of a fraction that is not counted) */
+    const Lb = amountBox(L, o0), Rb = amountBox(R, o0);
+    Rb.tiles.forEach(t => { if(!t.fade) t.mark = true; });
+    return {L:Lb, R:Rb};
+  }
+
+  function amountBox(n, o){
+    const o0 = o.omit ? Object.assign({}, o, {omit:null}) : o;
+    if(n.t === "num") return pileBox(tilesOf(n), {dice:Math.abs(n.v) <= 6, omit:o.omit});
+    if(n.t === "pile") return pileBox(n.tiles, {cols:n.cols, pairs:n.mix || n.zp, omit:o.omit});
+    if(n.t === "grp") return amountBox(n.e, o0);
+    if(n.op === "+") return row([amountBox(n.a, o0), amountBox(n.b, o0)], INGAP);
+    if(n.op === "-"){ const sp = subParts(n, o0); return sp.R ? row([sp.L, sp.R], INGAP) : sp.L; }
+    if(n.op === "*"){
+      const X = amtSide(n), k = val(countSide(n)), ak = Math.abs(k);
+      if(ak === 0){ const b = box(); b.w = T; b.h = T; return b; }
+      /* k groups of a plain number is an ARRAY: one row per group */
+      if(X.t === "num" && Math.abs(X.v) >= 1 && Math.abs(X.v) <= 12){
+        const tiles = [];
+        for(let j = 0; j < ak; j++) for(let i = 0; i < Math.abs(X.v); i++) tiles.push({id:n.id + "c" + j + ":" + X.id + "." + i, s:sgn(X.v)});
+        return pileBox(tiles, {cols:Math.abs(X.v)});
+      }
+      /* groups of anything else stand apart, so each group can be seen */
+      const cells = [];
+      for(let j = 0; j < ak; j++) cells.push(pre(amountBox(X, o0), n.id + "c" + j + ":"));
+      return grid(cells, CELLGAP);
+    }
+    const X = n.a, k = Math.abs(val(n.b));
+    if(isVal(X)) return partsBox(tilesOf(X), k);
+    const fut = futureTiles(X), m = fut.length / k;
+    const keep = new Set(fut.slice(0, m).map(t => t.id)), fs = new Set(fut.map(t => t.id));
+    const b = amountBox(X, o0);
+    b.tiles.forEach(t => { if(fs.has(t.id) && !keep.has(t.id)) t.fade = true; });
+    return b;
+  }
+
+  function chainItems(root){
+    const out = [];
+    (function walk(n){
+      if(n.t === "op" && (n.op === "+" || n.op === "-")){ walk(n.a); out.push({node:n.b, op:n.op, join:n}); }
+      else out.push({node:n, op:null, join:null});
+    })(root);
+    return out;
+  }
+  function estW(text, kind){
+    if(kind === "sym"){
+      let w = 0;
+      for(const c of text) w += c === " " ? .26 : (/[()]/.test(c) ? .36 : (/[0-9]/.test(c) ? .52 : .72));
+      return w * SYMF;
+    }
+    return text.length * WF * .56;
+  }
+
+  /* Every text has a KEY (the node it names) so the page can morph it from
+     where it was to where it goes, forwards or backwards; and a FROM point,
+     where it first appears. A subtraction whose part comes out of the first
+     amount is ONE group: "24" belongs over the whole of it, not over the 18
+     that are left, and the words and symbols are written as one sentence
+     centred under and over the group. In the words step the group shows the
+     slide's labels instead: 24 over the whole, "2 groups of 3" under the
+     red tiles — and from there they morph into the two sentences. */
+  function layout(root, o){
+    o = o || {};
+    const M = o.measure || estW;
+    const items = chainItems(root);
+    const slots = [];
+    for(let i = 0; i < items.length; i++){
+      const it = items[i], nx = items[i + 1];
+      if(nx && nx.op === "-" && nx.join.tk){
+        const sp = subParts(nx.join, o);
+        if(sp.R) slots.push({type:"group", L:it.node, R:nx.node, join:nx.join, op:it.op, opJoin:it.join, Lb:sp.L, Rb:sp.R});
+        else slots.push({type:"single", node:it.node, op:it.op, opJoin:it.join, b:sp.L});
+        i++; continue;
+      }
+      const b = amountBox(it.node, o);
+      if(it.op === "-") b.tiles.forEach(t => { if(!t.fade) t.mark = true; });
+      slots.push({type:"single", node:it.node, op:it.op, opJoin:it.join, b});
+    }
+    const hueOf = n => n.hue != null ? n.hue : firstHue(n);
+    const GS = 18, GW = 14;
+    let first = true;
+    slots.forEach(sl => {
+      if(sl.type === "single"){
+        sl.sym = symText(sl.node, first); sl.wd = wordsPlain(sl.node, o);
+        sl.box = sl.b;
+        sl.w = Math.max(sl.b.w, M(sl.sym, "sym"), M(sl.wd, "word"));
+      } else {
+        sl.Ls = symText(sl.L, first); sl.Rs = symText(sl.R, false);
+        sl.Lw = wordsPlain(sl.L, o); sl.Rw = wordsPlain(sl.R, o);
+        const gg = Math.max(64, (M(sl.Rw, "word") - sl.Rb.w) / 2 + 34);
+        sl.Rx = sl.Lb.w + gg;
+        sl.box = row([sl.Lb, sl.Rb], gg);
+        sl.Ry = (sl.box.h - sl.Rb.h) / 2;
+        sl.symW = M(sl.Ls, "sym") + M(OPS["-"], "sym") + M(sl.Rs, "sym") + 2 * GS;
+        sl.wdW = M(sl.Lw, "word") + M("take away", "word") + M(sl.Rw, "word") + 2 * GW;
+        sl.w = Math.max(sl.box.w, sl.symW, sl.wdW);
+      }
+      first = false;
+    });
+    const picH = Math.max(...slots.map(s => s.box.h));
+    const symY = SYMF * .9, picY = SYMF * 1.25 + 14, wordY = picY + picH + 22 + WF;
+    const out = {tiles:[], texts:[], wordsTexts:[], w:0, h:0};
+    const T_ = (list, t) => list.push(t);
+    let x = 0;
+    slots.forEach((sl, i) => {
+      if(i > 0){
+        const ow = OPS[sl.op], ww = sl.op === "+" ? "and" : "take away";
+        const g = Math.max(M(ow, "sym"), M(ww, "word")) + 56;
+        const o1 = {key:sl.opJoin.id + ":o", kind:"op", x:x + g / 2, y:symY, text:ow};
+        const o2 = {key:sl.opJoin.id + ":ow", kind:"opw", x:x + g / 2, y:wordY, text:ww};
+        T_(out.texts, o1); T_(out.texts, o2); T_(out.wordsTexts, o2);
+        x += g;
+      }
+      const bx = x + (sl.w - sl.box.w) / 2, by = picY + (picH - sl.box.h) / 2, cx = x + sl.w / 2;
+      put(out, sl.box, bx, by);
+      if(sl.type === "single"){
+        const h = hueOf(sl.node);
+        T_(out.texts, {key:sl.node.id + ":s", kind:"sym", x:cx, y:symY, text:sl.sym, hue:h, ids:[sl.node.id]});
+        const w = {key:sl.node.id + ":w", kind:"word", x:cx, y:wordY, text:sl.wd, hue:h};
+        T_(out.texts, w); T_(out.wordsTexts, w);
+      } else {
+        const hL = hueOf(sl.L), hR = hueOf(sl.R);
+        const top = {x:cx, y:symY};
+        const ra = {x:bx + sl.Rx + sl.Rb.w / 2, y:by + sl.Ry + sl.Rb.h + 36};
+        let sx = cx - sl.symW / 2;
+        const wL = M(sl.Ls, "sym"), wO = M(OPS["-"], "sym"), wR = M(sl.Rs, "sym");
+        T_(out.texts, {key:sl.L.id + ":s", kind:"sym", x:sx + wL / 2, y:symY, text:sl.Ls, hue:hL, from:top});
+        T_(out.texts, {key:sl.join.id + ":o", kind:"op", x:sx + wL + GS + wO / 2, y:symY, text:OPS["-"]});
+        T_(out.texts, {key:sl.R.id + ":s", kind:"sym", x:sx + wL + wO + 2 * GS + wR / 2, y:symY, text:sl.Rs, hue:hR, from:ra});
+        let wx = cx - sl.wdW / 2;
+        const vL = M(sl.Lw, "word"), vO = M("take away", "word"), vR = M(sl.Rw, "word");
+        T_(out.texts, {key:sl.L.id + ":w", kind:"word", x:wx + vL / 2, y:wordY, text:sl.Lw, hue:hL, from:top});
+        T_(out.texts, {key:sl.join.id + ":ow", kind:"opw", x:wx + vL + GW + vO / 2, y:wordY, text:"take away"});
+        T_(out.texts, {key:sl.R.id + ":w", kind:"word", x:wx + vL + vO + 2 * GW + vR / 2, y:wordY, text:sl.Rw, hue:hR, from:ra});
+        /* the words step: the slide's labels */
+        T_(out.wordsTexts, {key:sl.L.id + ":s", kind:"lab", x:top.x, y:top.y, text:sl.Ls, hue:hL});
+        T_(out.wordsTexts, {key:sl.R.id + ":w", kind:"wlab", x:ra.x, y:ra.y, text:sl.Rw, hue:hR});
+      }
+      x += sl.w;
+    });
+    out.w = x; out.h = wordY + WF * .5;
+    return out;
+  }
+
+  /* "New problem": the same sentence, the same shape and signs, with
+     friendly new numbers. Counts of groups stay 2–5 and divisors 2–5; a
+     division of a plain number is built from its answer so it always shares
+     exactly; amounts stay near the size they were. The page checks the
+     result (tile count, signs, same kind of steps) and tries again if not. */
+  function variant(root){
+    const R = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+    const c = clone(root);
+    const amtPick = m => m <= 6 ? R(2, 6) : m <= 12 ? R(4, 12) : m <= 20 ? R(8, 20) : R(12, 30);
+    (function walk(n, role){
+      if(n.t === "grp") return walk(n.e, role);
+      if(n.t === "num"){
+        if(n.v === 0) return;
+        const s = sgn(n.v), m = Math.abs(n.v);
+        n.v = s * (role === "cnt" ? R(2, m >= 5 ? 5 : Math.max(3, m)) : role === "div" ? R(2, 5) : amtPick(m));
+        return;
+      }
+      if(n.t !== "op") return;
+      if(n.op === "*"){ walk(n.a, n.cnt === "a" ? "cnt" : "amt"); walk(n.b, n.cnt === "b" ? "cnt" : "amt"); return; }
+      if(n.op === "/"){
+        const oq = (n.a.t === "num" && n.b.t === "num" && n.b.v) ? Math.abs(n.a.v / n.b.v) : 3;
+        walk(n.b, "div");
+        if(n.a.t === "num" && n.b.t === "num") n.a.v = (n.a.v < 0 ? -1 : 1) * Math.abs(n.b.v) * R(2, Math.max(3, Math.min(6, oq + 2)));
+        else walk(n.a, "amt");
+        return;
+      }
+      walk(n.a, role); walk(n.b, role);
+    })(c, "amt");
+    return symText(c, true, {noAuto:true});
+  }
+
+  return {
+    variant,
+    parse, build, step, val, words, wordsPlain, symText, symHTML, cueFor, otherReading,
+    layout, findNode, countTiles, tilesOf, pairSplit, autoCols, isVal, futureTiles, chainItems, SYMF, WF,
+    HUES, T, P, GP, fmt, err
+  };
+})();
+if(typeof module !== "undefined") module.exports = OO;
+</script>
+<script>
+(() => {
+  "use strict";
+
+  /* ==================================================================
+     ORDER OF OPERATIONS — SAY WHAT YOU SEE — WORKSHEET GENERATOR
+     -------------------------------------------------------------------
+     The printable sibling of the teaching tool. Its engine (the script
+     #ooEngine above) is the TOOL'S OWN, copied verbatim, so a picture on
+     paper is exactly the picture on the board: green tiles, an array for
+     "groups of", a faded part for "half of", red tiles being taken away.
+     Change the tool's engine → re-copy it here.
+
+     Six problem types, in the order of the lesson: see it, say it,
+     write it, draw it, work it out, argue about it.
+     ================================================================== */
+
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;");
+  const SITE = "https://www.millsmathstools.au";
+  const fmt = OO.fmt;
+
+  /* ---------------------------------------------------------- the questions
+     The tool's generators, unchanged. */
+  const R = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+  const pick = a => a[Math.floor(Math.random() * a.length)];
+  const X = "×", D = "÷", M = "−";
+    const GEN = {
+    s3mul: [
+      () => `${R(2,9)} + ${R(2,4)} ${X} ${R(2,6)}`,
+      () => `${R(2,4)} ${X} ${R(2,6)} + ${R(2,9)}`,
+      () => { const b = R(2,3), c = R(2,5); return `${b*c + R(3,12)} ${M} ${b} ${X} ${c}`; },
+      () => `${R(2,3)} ${X} (${R(2,5)} + ${R(1,4)})`,
+      () => `(${R(2,5)} + ${R(1,4)}) ${X} ${R(2,3)}`,
+      () => `${R(2,3)} ${X} ${R(2,4)} + ${R(2,3)} ${X} ${R(2,4)}`,
+      () => { const a = R(2,4), b = R(3,6); return `${a} ${X} ${b} ${M} ${R(2, a*b - 2)}`; }
+    ],
+    s3div: [
+      () => { const c = R(2,5), q = R(2,5); return `${R(2,9)} + ${c*q} ${D} ${c}`; },
+      () => { const c = R(2,5), q = R(2,5); return `${q + R(2,9)} ${M} ${c*q} ${D} ${c}`; },
+      () => { const c = R(2,4), q = R(2,5); return `${c*q} ${D} ${c} + ${R(2,9)}`; },
+      () => { const c = R(2,4), q = R(2,5), a = R(1, c*q - 1); return `(${a} + ${c*q - a}) ${D} ${c}`; },
+      () => { const c = R(2,4), q = R(3,6); return `${c*q} ${D} ${c} ${M} ${R(1, q - 1)}`; },
+      () => { const c = R(2,3), q = R(2,4); return `${R(2,3)} ${X} ${R(2,4)} + ${c*q} ${D} ${c}`; }
+    ],
+    chains: [
+      () => { const b = R(2,5), q = R(2,4); return `${b*q} ${D} ${b} ${X} ${R(2,3)}`; },
+      () => { const c = R(2,4); return `${R(2,5)} ${X} ${c * R(1,2)} ${D} ${c}`; },
+      () => `${R(9,15)} ${M} ${R(2,5)} + ${R(2,5)}`,
+      () => `${R(12,18)} ${M} ${R(2,5)} ${M} ${R(2,4)}`,
+      () => { const b = R(2,3), q = R(2,3); return `${b*2*q} ${D} ${b} ${D} 2`; }
+    ],
+    ints: [
+      () => `${R(2,6)} + ${R(2,3)} ${X} (${M}${R(2,4)})`,
+      () => `${R(2,6)} ${M} ${R(2,3)} ${X} (${M}${R(2,3)})`,
+      () => `${M}${R(3,9)} + ${R(2,3)} ${X} ${R(2,4)}`,
+      () => `${M}${R(2,3)} ${X} ${R(2,4)} + ${R(3,12)}`,
+      () => { const c = R(2,3), q = R(2,4); return `${R(1,6)} ${M} (${M}${c*q}) ${D} ${c}`; },
+      () => `${R(2,3)} ${X} (${M}${R(3,6)} + ${R(1,2)})`,
+      () => { const b = R(2,3), c = R(2,4); return `${R(1, b*c - 1)} ${M} ${b} ${X} ${c}`; },
+      () => { const c = R(2,3), q = R(2,4); return `${M}${c*q} ${D} ${c} + ${R(1,8)}`; }
+    ]
+  };
+
+  const POOL = {
+    sweet: GEN.s3mul,
+    mild: GEN.s3div,
+    medium: GEN.chains.concat([GEN.s3mul[3], GEN.s3mul[4], GEN.s3div[3]]),
+    spicy: GEN.ints
+  };
+  const LEVEL_LABEL = { sweet:"Sweet", mild:"Mild", s3mix:"Stage 3 mixed", medium:"Medium", spicy:"Spicy", mix3:"Mixed — Stage 3", mix4:"Mixed — Stage 3 and 4" };
+
+  const TYPES = [
+    { k:"A", id:"pic", col:"#16a34a", bg:"#f0fdf4", n:4, title:"See it — picture to number sentence",
+      desc:"The tiles are drawn; the student writes the number sentence they show, then finds the amount.",
+      head:"Look at the tiles. Write the number sentence, then find the amount.",
+      ex:() => exPic("5 + 3 × 5") + '<span class="arrow">→</span><span class="m">5 + 3 × 5 = 20</span>' },
+    { k:"B", id:"say", col:"#7c3aed", bg:"#faf5ff", n:4, title:"Say it — number sentence to words",
+      desc:"The number sentence is given; the student writes it in words.",
+      head:"Say it in words. Write each number sentence as words.",
+      ex:() => '<span class="m">6 + 2 × 4</span><span class="arrow">→</span><span class="wd">6 and 2 groups of 4</span>' },
+    { k:"C", id:"words", col:"#0891b2", bg:"#ecfeff", n:2, title:"Write it — words to number sentence",
+      desc:"The words are given; the student writes the number sentence, then finds the amount.",
+      head:"Write the number sentence for the words. Then find the amount.",
+      ex:() => '<span class="wd">10 take away half of 4</span><span class="arrow">→</span><span class="m">10 − 4 ÷ 2 = 8</span>' },
+    { k:"D", id:"draw", col:"#ea580c", bg:"#fff7ed", n:2, title:"Draw it — number sentence to tiles",
+      desc:"The student draws the tiles for the number sentence, then finds the amount. Dot paper is printed in the box.",
+      head:"Draw the tiles. Then find the amount.",
+      ex:() => '<span class="m">3 × (6 + 2)</span><span class="arrow">→</span>' + exPic("3 × (6 + 2)") },
+    { k:"E", id:"find", col:"#2563eb", bg:"#eff6ff", n:4, title:"Work it out — find the amount",
+      desc:"Find the value, one amount at a time, with room to show the thinking.",
+      head:"Find the amount. Show your thinking.",
+      ex:() => '<span class="m">24 − 2 × 3</span><span class="arrow">→</span><span class="m">24 − 6 = 18</span>' },
+    { k:"F", id:"who", col:"#db2777", bg:"#fdf2f8", n:1, title:"Argue it — who read it right?",
+      desc:"Two students read the same number sentence and got different amounts. Which reading did the sentence mean?",
+      head:"Who read it right? Explain your thinking.",
+      ex:() => '<span class="m">5 + 3 × 5</span><span class="arrow">→</span><span>Ali: 40 &nbsp;·&nbsp; Bree: 20 — who is right?</span>' }
+  ];
+  const NAMES = [["Ali","Bree"],["Mia","Sam"],["Noah","Zara"],["Kai","Lily"],["Jai","Ava"],["Leo","Ruby"]];
+
+  function hasNeg(n){
+    if(n.t === "num") return n.v < 0;
+    if(n.t === "pile") return n.tiles.some(t => t.s < 0);
+    if(n.t === "grp") return hasNeg(n.e);
+    return hasNeg(n.a) || hasNeg(n.b);
+  }
+  function levelAt(sel, i, n){
+    if(sel === "s3mix") return ["sweet","mild"][Math.min(1, Math.floor(i * 2 / Math.max(1, n)))];
+    if(sel === "mix3") return ["sweet","mild","medium"][Math.min(2, Math.floor(i * 3 / Math.max(1, n)))];
+    if(sel === "mix4") return ["sweet","mild","medium","spicy"][Math.min(3, Math.floor(i * 4 / Math.max(1, n)))];
+    return sel;
+  }
+  function makeQ(type, level, used){
+    for(let a = 0; a < 400; a++){
+      let run;
+      try{ run = OO.build(pick(POOL[level])(), 40); }catch(e){ continue; }
+      if(used.has(run.src)) continue;
+      const neg = run.states.some(hasNeg);
+      if(level !== "spicy" && neg) continue;
+      if(level === "spicy" && !neg) continue;
+      if(run.value === 0 && a < 300) continue;
+      let alt = null;
+      if(type === "F"){
+        alt = OO.otherReading(run.root);
+        if(!alt || alt.same || alt.run.maxTiles > 60) continue;
+      }
+      used.add(run.src);
+      const q = {type, level, run, alt};
+      if(type === "F"){ q.names = pick(NAMES); q.rightFirst = Math.random() < .5; q.picSwap = Math.random() < .5; }
+      return q;
+    }
+    return null;
+  }
+
+  /* ---------------------------------------------------------- the pictures */
+  function picSVG(root, o){
+    const L = OO.layout(root, {});
+    const ts = L.tiles;
+    const pad = 5;
+    if(!ts.length) return "";
+    let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+    ts.forEach(t => { x0 = Math.min(x0, t.x); y0 = Math.min(y0, t.y); x1 = Math.max(x1, t.x + OO.T); y1 = Math.max(y1, t.y + OO.T); });
+    const W = x1 - x0 + 2 * pad, H = y1 - y0 + 2 * pad;
+    let w = W * o.tileMM / OO.T, h = H * o.tileMM / OO.T;
+    const k = Math.min(1, o.maxW / w, o.maxH / h);
+    w *= k; h *= k;
+    const signs = ts.some(t => t.s < 0);
+    const body = ts.map(t => {
+      const cls = "t " + (t.mark ? "mark" : (t.s > 0 ? "pos" : "neg")) + (t.fade ? " fade" : "");
+      let g = `<g transform="translate(${t.x},${t.y})"><rect class="${cls}" width="40" height="40" rx="7"/>`;
+      if(t.mark && (signs || o.bw)) g += '<path class="xo" d="M9 9L31 31M31 9L9 31"/>';
+      else if(signs && !t.fade) g += t.s > 0 ? '<path class="mk pos-mk" d="M12 20H28M20 12V28"/>' : '<path class="mk neg-mk" d="M12 20H28"/>';
+      else if(signs && t.fade) g += t.s > 0 ? '<path class="mk pos-mk" d="M12 20H28M20 12V28" opacity=".22"/>' : '<path class="mk neg-mk" d="M12 20H28" opacity=".22"/>';
+      return g + "</g>";
+    }).join("");
+    const style = o.px ? `height:${o.px}px;width:auto` : `width:${w.toFixed(2)}mm;height:${h.toFixed(2)}mm`;
+    return `<svg viewBox="${x0 - pad} ${y0 - pad} ${W} ${H}" style="${style}" aria-hidden="true">${body}</svg>`;
+  }
+  function picFeatures(root){
+    const ts = OO.layout(root, {}).tiles;
+    return {mark:ts.some(t => t.mark), fade:ts.some(t => t.fade), neg:ts.some(t => t.s < 0)};
+  }
+  function exPic(src){ return picSVG(OO.build(src).root, {tileMM:4, maxW:999, maxH:999, px:30}); }
+
+  /* ---------------------------------------------------------- sizes */
+  const COLS = { roomy:2, normal:3, tight:4 };
+  const TILE = { roomy:7, normal:5.6, tight:4.4 };
+  const PICH = { roomy:56, normal:42, tight:32 };
+  const DRAWH = { roomy:58, normal:44, tight:34 };
+  const cardInner = (cols, full) => full ? 186 - 8 : (186 - 3 * (cols - 1)) / cols - 8;
+
+  /* ---------------------------------------------------------- cards */
+  const sym = (root, ask) => `<span class="expr">${OO.symHTML(root, null, true)}${ask ? ' <span class="eqq">= ?</span>' : ""}</span>`;
+  const top = (q, n, inner) => `<div class="qTop"><span class="qNum ${q.level}">${n}</span>${inner || ""}</div>`;
+  const lines = k => '<div class="say">' + '<div class="wl"></div>'.repeat(k) + "</div>";
+  const ansLine = (lab, long) => `<div class="ansLine">${lab ? `<span class="lab">${lab}</span>` : ""}${long ? '<span class="ln"></span><span>=</span>' : ""}<span class="ln sm"></span></div>`;
+  function pic(q, opts, full){
+    return `<div class="pic">${picSVG(q.run.root, {tileMM:TILE[opts.density], maxW:cardInner(opts.cols, full), maxH:PICH[opts.density], bw:opts.bw})}</div>`;
+  }
+  function workLines(r){
+    const out = [];
+    r.states.forEach(st => { const t = OO.symText(st); if(out[out.length - 1] !== t) out.push(t); });
+    return out;
+  }
+  const wordsOf = root => OO.wordsPlain(root, {});
+
+  function cardHTML(q, n, opts){
+    const r = q.run;
+    switch(q.type){
+      case "A": return `<div class="qCard">${top(q, n)}${pic(q, opts)}${ansLine("", true)}</div>`;
+      case "B": return `<div class="qCard">${top(q, n, sym(r.root))}${opts.pics ? pic(q, opts) : ""}<div class="workHead">In words</div>${lines(2)}</div>`;
+      case "C": return `<div class="qCard">${top(q, n, `<div class="wordsQ">${OO.words(r.root, "amt", {html:true})}</div>`)}${opts.pics ? pic(q, opts) : ""}${ansLine("", true)}</div>`;
+      case "D": return `<div class="qCard">${top(q, n, sym(r.root))}<div class="drawBox" style="--drawH:${DRAWH[opts.density]}mm"></div>${ansLine("Amount", false)}</div>`;
+      case "E": return `<div class="qCard">${top(q, n, sym(r.root, true))}${opts.pics ? pic(q, opts) : ""}`
+        + (opts.work ? `<div class="work"><div class="workHead">My thinking</div>${lines(2)}</div>` : "")
+        + `${ansLine("Amount", false)}</div>`;
+      case "F": {
+        const [a, b] = q.names, right = r.value, wrong = q.alt.run.value;
+        const c1 = q.rightFirst ? right : wrong, c2 = q.rightFirst ? wrong : right;
+        let html = `<div class="qCard full">${top(q, n, sym(r.root))}`
+          + `<div class="claims"><div class="claim c1">${a} says the amount is <span class="m">${esc(fmt(c1))}</span>.</div>`
+          + `<div class="claim c2">${b} says the amount is <span class="m">${esc(fmt(c2))}</span>.</div></div>`;
+        if(opts.pics){
+          const p1 = q.picSwap ? q.alt.run.root : r.root, p2 = q.picSwap ? r.root : q.alt.run.root;
+          const half = cardInner(1, true) / 2 - 6;
+          const ps = rt => picSVG(rt, {tileMM:TILE[opts.density] * .85, maxW:half, maxH:PICH[opts.density], bw:opts.bw});
+          html += `<div class="picPair"><div class="picBox"><div class="picCap">Picture 1</div><div class="pic">${ps(p1)}</div></div>`
+            + `<div class="picBox"><div class="picCap">Picture 2</div><div class="pic">${ps(p2)}</div></div></div>`
+            + `<div class="workHead">Which picture does the sentence describe? Who is right, and why?</div>`;
+        } else html += `<div class="workHead">Who is right? What did the other person read the sentence as?</div>`;
+        return html + lines(opts.density === "tight" ? 2 : 3) + "</div>";
+      }
+    }
+  }
+
+  function keyCardHTML(q, n, opts){
+    const r = q.run, eq = `${esc(r.src)} = ${esc(fmt(r.value))}`;
+    const words = `<div class="keyWords">“${esc(wordsOf(r.root))}”</div>`;
+    switch(q.type){
+      case "A": return `<div class="qCard">${top(q, n)}${pic(q, opts)}<div class="keyAns">${eq}</div>${words}</div>`;
+      case "B": return `<div class="qCard">${top(q, n, sym(r.root))}${opts.pics ? pic(q, opts) : ""}${words}</div>`;
+      case "C": return `<div class="qCard">${top(q, n, `<div class="wordsQ">${OO.words(r.root, "amt", {html:true})}</div>`)}${opts.pics ? pic(q, opts) : ""}<div class="keyAns">${eq}</div></div>`;
+      case "D": return `<div class="qCard">${top(q, n, sym(r.root))}${pic(q, opts)}<div class="keyAns">= ${esc(fmt(r.value))}</div></div>`;
+      case "E": return `<div class="qCard">${top(q, n, sym(r.root))}${opts.pics ? pic(q, opts) : ""}<div class="keyAns">${workLines(r).map((t, i) => (i ? "= " : "") + esc(t)).join("<br>")}</div>${words}</div>`;
+      case "F": {
+        const [a, b] = q.names, rightName = q.rightFirst ? a : b, wrongName = q.rightFirst ? b : a;
+        const pRight = q.picSwap ? 2 : 1;
+        return `<div class="qCard full">${top(q, n, sym(r.root))}`
+          + `<div class="keyAns">${rightName} is right: ${eq}</div>`
+          + `<div class="keyWhy"><b>${esc(r.src)}</b> says “${esc(wordsOf(r.root))}”${opts.pics ? ` — Picture ${pRight}` : ""}.<br>`
+          + `${wrongName} read it as <b>${esc(q.alt.txt)} = ${esc(fmt(q.alt.run.value))}</b>: “${esc(OO.wordsPlain(q.alt.run.root, {}))}”${opts.pics ? ` — Picture ${3 - pRight}` : ""}.</div></div>`;
+      }
+    }
+  }
+
+  /* ---------------------------------------------------------- page furniture */
+  function stripHTML(){
+    return '<div class="keyStrip"><span class="ksHead">Say it in words</span>'
+      + [["+","and"],["−","take away"],["×","groups of"],["÷","half of, a third of…"],["( )","one amount"]]
+        .map(([s, w]) => `<span class="ks"><span class="s">${s}</span><span class="w">${w}</span></span>`).join("")
+      + "</div>";
+  }
+  const tileIcon = (cls, mark, sign, opts) => `<svg viewBox="-3 -3 46 46"><rect class="t ${cls}" width="40" height="40" rx="7"/>`
+    + (mark ? '<path class="xo" d="M9 9L31 31M31 9L9 31"/>' : "")
+    + (sign === "+" ? '<path class="mk pos-mk" d="M12 20H28M20 12V28"/>' : sign === "-" ? '<path class="mk neg-mk" d="M12 20H28"/>' : "") + "</svg>";
+  function legendHTML(f, opts){
+    const items = [];
+    if(f.neg){
+      items.push(`<span>${tileIcon("pos", false, "+", opts)} = 1</span>`);
+      items.push(`<span>${tileIcon("neg", false, "-", opts)} = −1</span>`);
+    }
+    if(f.mark) items.push(`<span>${f.neg || opts.bw ? tileIcon("mark", true, "", opts) : tileIcon("mark", false, "", opts)} being taken away</span>`);
+    if(f.fade) items.push(`<span>${tileIcon("pos fade", false, "", opts)} faded: not counted</span>`);
+    return items.length ? `<div class="legend">${items.join("")}</div>` : "";
+  }
+  function secHeadHTML(T, cont, legend){
+    return `<div class="secHead" style="--sc:${T.col};--sc-bg:${T.bg}"><span class="secLetter">${T.k}</span>`
+      + `<span class="secText">${esc(T.head)}</span>${cont ? '<span class="secCont">continued</span>' : ""}</div>${legend || ""}`;
+  }
+  function pageHTML(inner, opts, key, no, total){
+    return `<section class="page d-${opts.density}${opts.bw ? " bw" : ""}${key ? " isKey" : ""}">`
+      + '<div class="pageHeader"><div>'
+      + `<div class="hdrTitle">Order of Operations — Say What You See${key ? " — ANSWERS" : ""}</div>`
+      + `<div class="hdrSub">${key ? "Answer key · " : ""}${esc(LEVEL_LABEL[opts.level])} · MA3-MR-02 · MA4-INT-C-01</div></div>`
+      + (!key && opts.name ? '<div class="nameDate"><div class="lineField"><span class="lineLabel">Name</span><span class="lineBox"></span></div>'
+        + '<div class="lineField"><span class="lineLabel">Date</span><span class="lineBox"></span></div></div>' : "")
+      + `</div><div class="sheet">${inner}</div>`
+      + `<div class="pageFooter"><span>Page ${no} of ${total}</span><span><a href="${SITE}">www.millsmathstools.au</a></span></div></section>`;
+  }
+
+  /* ---------------------------------------------------------- build */
+  function readOpts(){
+    const density = $("densitySel").value;
+    return {
+      level:$("levelSel").value, density, cols:COLS[density], bw:$("colourSel").value === "bw",
+      pics:$("picToggle").checked, strip:$("stripToggle").checked, work:$("workToggle").checked,
+      name:$("nameToggle").checked, key:$("keyToggle").checked
+    };
+  }
+  function buildQuestions(opts){
+    const used = new Set(), groups = [];
+    let num = 0, total = 0;
+    TYPES.forEach(T => {
+      if(!$("k" + T.k).checked) return;
+      const n = Math.max(0, Math.min(30, parseInt($("n" + T.k).value, 10) || 0));
+      if(!n) return;
+      const qs = [];
+      for(let i = 0; i < n; i++){
+        const q = makeQ(T.k, levelAt(opts.level, i, n), used);
+        if(q) qs.push(q);
+      }
+      total += qs.length;
+      groups.push({T, qs});
+    });
+    if(!total) return {error:"Tick at least one problem type and give it a number of questions."};
+    groups.forEach(g => g.qs.forEach(q => { q.n = ++num; }));
+    return {groups};
+  }
+
+  /* MEASURED, THEN PACKED. Every row of cards is drawn into a real page in
+     an off-screen measure, at the real width and spacing, and its height is
+     read back — guessing is how a card ends up under the page footer. */
+  function measureAndPack(groups, opts, key){
+    const m = $("measure");
+    m.innerHTML = pageHTML("", opts, key, 1, 1);
+    const sheet = m.querySelector(".sheet");
+    const cs = getComputedStyle(sheet);
+    const room = sheet.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - 2;
+    let stripH = 0;
+    if(opts.strip && !key){ sheet.innerHTML = stripHTML(); stripH = sheet.firstElementChild.getBoundingClientRect().height + 3 / 25.4 * 96; sheet.innerHTML = ""; }
+    const units = [];
+    groups.forEach(g => {
+      const feat = {mark:false, fade:false, neg:false};
+      const showsPics = g.T.k === "A" || (opts.pics && "BCEF".includes(g.T.k)) || (key && g.T.k === "D");
+      if(showsPics) g.qs.forEach(q => { const f = picFeatures(q.run.root); feat.mark ||= f.mark; feat.fade ||= f.fade; feat.neg ||= f.neg; });
+      g.legend = showsPics ? legendHTML(feat, opts) : "";
+      const sec = document.createElement("div"); sec.className = "section";
+      sec.innerHTML = secHeadHTML(g.T, true, g.legend);
+      sheet.appendChild(sec);
+      const headH = sec.getBoundingClientRect().height + 3 / 25.4 * 96;
+      const rows = [];
+      const per = g.T.k === "F" ? 1 : opts.cols;
+      for(let i = 0; i < g.qs.length; i += per) rows.push(g.qs.slice(i, i + per));
+      rows.forEach(r => {
+        const grid = document.createElement("div");
+        grid.className = "qGrid"; grid.style.setProperty("--cols", opts.cols);
+        grid.innerHTML = r.map(q => key ? keyCardHTML(q, q.n, opts) : cardHTML(q, q.n, opts)).join("");
+        sec.appendChild(grid);
+        const h = grid.getBoundingClientRect().height + 3 / 25.4 * 96;
+        grid.remove();
+        units.push({g, row:r, h, headH});
+      });
+      sec.remove();
+    });
+    m.innerHTML = "";
+    const pages = [];
+    let cur = [], used = stripH && !key ? stripH : 0, lastG = null;
+    units.forEach(u => {
+      const cost = (lastG === u.g ? 0 : u.headH) + u.h;
+      if(cur.length && used + cost > room){ pages.push(cur); cur = []; used = 0; lastG = null; }
+      const c2 = (lastG === u.g ? 0 : u.headH) + u.h;
+      used += c2; cur.push(u); lastG = u.g;
+    });
+    if(cur.length) pages.push(cur);
+    /* what each page has left, for the "your turn" box */
+    let idx = 0;
+    const left = [];
+    let u2 = stripH && !key ? stripH : 0, lg = null;
+    pages.forEach((pu, i) => {
+      let used2 = i === 0 && !key ? (stripH || 0) : 0, l2 = null;
+      pu.forEach(u => { used2 += (l2 === u.g ? 0 : u.headH) + u.h; l2 = u.g; });
+      left.push(room - used2);
+    });
+    pages.left = left;
+    return pages;
+  }
+  const PX_MM = 96 / 25.4;
+  function yourTurnHTML(px){
+    const drawPx = Math.min(110 * PX_MM, px - 34 * PX_MM);
+    return '<div class="yourTurn"><div class="ytHead"><span class="star">\u2605</span>Your turn</div>'
+      + '<div class="ytText">Write a number sentence of your own with more than one sign. Draw its tiles, then say it in words.</div>'
+      + '<div class="ansLine"><span class="ln"></span><span>=</span><span class="ln sm"></span></div>'
+      + `<div class="drawBox" style="--drawH:${Math.max(18 * PX_MM, drawPx).toFixed(0)}px"></div></div>`;
+  }
+  function pagesHTML(pages, opts, key){
+    const seen = new Set();
+    return pages.map((pu, i) => {
+      let inner = (i === 0 && opts.strip && !key) ? stripHTML() : "";
+      let lastG = null, open = false;
+      pu.forEach(u => {
+        if(u.g !== lastG){
+          if(open) inner += "</div>";
+          inner += '<div class="section">' + secHeadHTML(u.g.T, seen.has(u.g), u.g.legend);
+          seen.add(u.g); open = true; lastG = u.g;
+        }
+        inner += `<div class="qGrid" style="--cols:${opts.cols}">` + u.row.map(q => key ? keyCardHTML(q, q.n, opts) : cardHTML(q, q.n, opts)).join("") + "</div>";
+      });
+      if(open) inner += "</div>";
+      if(!key && pages.left && pages.left[i] > 62 * PX_MM) inner += yourTurnHTML(pages.left[i] - 4 * PX_MM);
+      return {inner};
+    }).map((p, i, all) => pageHTML(p.inner, opts, key, i + 1, all.length)).join("");
+  }
+
+  let LAST = null;
+  function generate(reroll){
+    const opts = readOpts();
+    if(reroll || !LAST){
+      const b = buildQuestions(opts);
+      if(b.error){ $("out").innerHTML = `<p class="note warn">${esc(b.error)}</p>`; LAST = null; return; }
+      LAST = b;
+    }
+    const pages = measureAndPack(LAST.groups, opts, false);
+    let html = pagesHTML(pages, opts, false);
+    if(opts.key) html += pagesHTML(measureAndPack(LAST.groups, opts, true), opts, true);
+    $("out").innerHTML = html;
+    fitPass();
+  }
+  /* After drawing: an expression never runs past its card (it steps its type
+     down until it fits — only ever shrinking, so the measured pagination
+     still holds), and the "your turn" box gives back any pixel it overran. */
+  function fitPass(){
+    document.querySelectorAll("#out .qCard").forEach(c => {
+      const top_ = c.querySelector(".qTop");
+      if(!top_) return;
+      let guard = 0;
+      while(top_.scrollWidth > top_.clientWidth + 1 && guard++ < 14){
+        const e = top_.querySelector(".expr, .wordsQ"); if(!e) break;
+        const fs = parseFloat(getComputedStyle(e).fontSize);
+        e.style.fontSize = (fs * .93) + "px";
+      }
+    });
+    document.querySelectorAll("#out .page").forEach(p => {
+      const yt = p.querySelector(".yourTurn"); if(!yt) return;
+      const sb = p.querySelector(".sheet").getBoundingClientRect().bottom;
+      const over = yt.getBoundingClientRect().bottom - sb;
+      if(over > -2){
+        const db = yt.querySelector(".drawBox");
+        const h = db.getBoundingClientRect().height - over - 6;
+        if(h < 50) yt.remove(); else db.style.setProperty("--drawH", h + "px");
+      }
+    });
+  }
+
+  /* ---------------------------------------------------------- controls */
+  function buildTypeGrid(){
+    $("typeGrid").innerHTML = TYPES.map(T =>
+      `<div class="typeOpt on" id="opt${T.k}" style="--tc:${T.col}">`
+      + `<div class="typeTop"><span class="typeLetter">${T.k}</span>`
+      + `<label class="sw"><input type="checkbox" id="k${T.k}" checked /><span class="track"></span><span>${esc(T.title)}</span></label></div>`
+      + `<p class="typeDesc">${esc(T.desc)}</p>`
+      + `<div class="typeEx"><span class="exLab">e.g.</span>${T.ex()}</div>`
+      + `<div class="cntRow"><label for="n${T.k}">How many</label><input id="n${T.k}" type="number" min="0" max="30" value="${T.n}" /></div>`
+      + "</div>").join("");
+    TYPES.forEach(T => {
+      const box = $("k" + T.k), cnt = $("n" + T.k), opt = $("opt" + T.k);
+      box.addEventListener("change", () => {
+        if(box.checked && !(parseInt(cnt.value, 10) > 0)) cnt.value = T.n;
+        opt.classList.toggle("on", box.checked); totals(); generate(true);
+      });
+      cnt.addEventListener("change", () => {
+        const v = parseInt(cnt.value, 10) || 0;
+        box.checked = v > 0; opt.classList.toggle("on", v > 0); totals(); generate(true);
+      });
+    });
+  }
+  function totals(){
+    let t = 0;
+    TYPES.forEach(T => { if($("k" + T.k).checked) t += Math.max(0, parseInt($("n" + T.k).value, 10) || 0); });
+    $("totalPill").textContent = t + (t === 1 ? " question" : " questions");
+  }
+  function reset(){
+    $("levelSel").value = "mix3"; $("densitySel").value = "roomy"; $("colourSel").value = "colour";
+    ["picToggle","stripToggle","workToggle","nameToggle"].forEach(id => { $(id).checked = true; });
+    $("keyToggle").checked = false;
+    TYPES.forEach(T => { $("k" + T.k).checked = true; $("n" + T.k).value = T.n; $("opt" + T.k).classList.add("on"); });
+    totals(); generate(true);
+  }
+
+  buildTypeGrid(); totals();
+  $("levelSel").addEventListener("change", () => generate(true));
+  ["densitySel","colourSel","picToggle","stripToggle","workToggle","nameToggle","keyToggle"].forEach(id => $(id).addEventListener("change", () => generate(false)));
+  $("genBtn").addEventListener("click", () => generate(true));
+  $("printBtn").addEventListener("click", () => window.print());
+  $("resetBtn").addEventListener("click", reset);
+  const go = () => generate(true);
+  if(document.fonts && document.fonts.ready) document.fonts.ready.then(go); else go();
+
+  window.__WS__ = {generate, readOpts, get last(){ return LAST; }, TYPES, makeQ, levelAt, cardHTML, keyCardHTML, OO};
+})();
+</script>
+</body>
+</html>

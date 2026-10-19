@@ -477,6 +477,7 @@
                 <option value="lesson" selected>The lesson, in order</option>
                 <option value="s3mul">Stage 3: &times; with + and &minus;</option>
                 <option value="s3div">Stage 3: &divide; joins in</option>
+                <option value="s3mix">Stage 3: mixed</option>
                 <option value="chains">&times; &divide; together, + &minus; together</option>
                 <option value="ints">Stage 4: integers</option>
                 <option value="mixed">Mixed</option>
@@ -524,9 +525,7 @@
         <div class="menuWrap">
           <button class="btn" id="toolsBtn" type="button" aria-haspopup="true" aria-expanded="false">Tools &#9662;</button>
           <nav class="dropMenu" id="toolsMenu" aria-label="Related tools">
-            <a class="toolLink" href="/interactive-tools/stage-4/number/integer-combined-signs/">Integer Add/Subtract &mdash; Vectors<small>Combined signs such as 5 &minus; (&minus;3) on a number line</small></a>
-            <a class="toolLink" href="/interactive-tools/stage-3/number/division-grouping-bubbles/">Division by Grouping<small>Sharing into equal groups, a chunk at a time</small></a>
-            <span class="toolLink is-disabled" aria-disabled="true">Worksheet Creator<small>Not built yet</small></span>
+            <a class="toolLink" href="/worksheet-creators/stage-4/number/order-of-operations-in-words.html">Worksheet Creator<small>Printable A4 sheets with the same tile pictures</small></a>
             <span class="toolLink is-disabled" aria-disabled="true">Student Quiz<small>Not built yet</small></span>
           </nav>
         </div>
@@ -788,7 +787,7 @@ var OO = (function(){
   /* "24 − 2 × 3": the 6 that go are six OF THE 24 (the deck's morph), so when
      the first amount already exists as tiles the part taken away is drawn
      with its tiles from the start. Otherwise ("3 × 5 − 4", or no red tiles to
-     take yet) it is drawn faint until there are tiles to take it from. */
+     take yet) it is drawn apart, already red, until there are tiles to take it from. */
   function markTaken(n){
     if(n.t === "grp"){ markTaken(n.e); return; }
     if(n.t !== "op") return;
@@ -1291,8 +1290,10 @@ var OO = (function(){
       Rb.tiles.forEach(t => { if(map.has(t.id)){ t.id = map.get(t.id); t.mark = true; } });
       return {L:Lb, R:Rb};
     }
+    /* not out of the first amount yet: the part being taken is still red (the
+       fade belongs only to the part of a fraction that is not counted) */
     const Lb = amountBox(L, o0), Rb = amountBox(R, o0);
-    Rb.tiles.forEach(t => { t.fade = true; });
+    Rb.tiles.forEach(t => { if(!t.fade) t.mark = true; });
     return {L:Lb, R:Rb};
   }
 
@@ -1365,7 +1366,7 @@ var OO = (function(){
         i++; continue;
       }
       const b = amountBox(it.node, o);
-      if(it.op === "-") b.tiles.forEach(t => { t.fade = true; });
+      if(it.op === "-") b.tiles.forEach(t => { if(!t.fade) t.mark = true; });
       slots.push({type:"single", node:it.node, op:it.op, opJoin:it.join, b});
     }
     const hueOf = n => n.hue != null ? n.hue : firstHue(n);
@@ -1493,11 +1494,12 @@ if(typeof module !== "undefined") module.exports = OO;
     lesson: "The examples from the lesson, in order — ending on the two ‘boy with the telescope’ cases.",
     s3mul: "Whole numbers. × makes an array of groups; + and − join amounts and take them away.",
     s3div: "Whole numbers. ÷ shows the whole amount with all but one equal part faded.",
+    s3mix: "Both Stage 3 sets mixed: × with + and −, and ÷ joining in. Whole numbers.",
     chains: "Only × and ÷, or only + and − — the ones read left to right.",
     ints: "Green tiles are 1 and red tiles are −1: zero pairs, groups of negatives, the opposite of a group.",
     mixed: "A mix of everything above."
   };
-  const SET_TAG = { s3mul:"Stage 3 · × with + −", s3div:"Stage 3 · ÷ joins in", chains:"Read left to right", ints:"Stage 4 · integers", mixed:"Mixed" };
+  const SET_TAG = { s3mul:"Stage 3 · × with + −", s3div:"Stage 3 · ÷ joins in", s3mix:"Stage 3 · mixed", chains:"Read left to right", ints:"Stage 4 · integers", mixed:"Mixed" };
 
   /* ---------------------------------------------------------- generation */
   const R = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
@@ -1549,7 +1551,8 @@ if(typeof module !== "undefined") module.exports = OO;
   const runHasNeg = run => run.states.some(hasNeg);
 
   function generate(set){
-    const pool = set === "mixed" ? ["s3mul","s3div","chains","ints"][R(0,3)] : set;
+    const pool = set === "mixed" ? ["s3mul","s3div","chains","ints"][R(0,3)]
+               : set === "s3mix" ? ["s3mul","s3div"][R(0,1)] : set;
     const fs = GEN[pool];
     for(let a = 0; a < 80; a++){
       let run;
@@ -1808,7 +1811,9 @@ if(typeof module !== "undefined") module.exports = OO;
       if(g.classList.contains("fade") !== !!t.fade){ g.classList.toggle("fade", !!t.fade); moved = true; }
     });
     if(kind === "out" || backward){
-      /* the tiles come out of the first amount into the faint places waiting for them */
+      /* the tiles come out of the first amount into the red places waiting for
+         them, turning red as they go */
+      if(kind === "out") markDiff().forEach(t => S.tiles.get(t.id).classList.toggle("marked", !!t.mark));
       doMoves(); leave();
       await sleep(Math.max(Dm, Dl) + 40); if(!alive()) return;
     } else {

@@ -141,8 +141,8 @@
 >   tiles, the subtracted part is drawn from ITS tiles (ids remapped via
 >   `futureTiles(R)` → `lastOfSign(L)`), and picture-first opens on the whole amount
 >   so Next shows the split ("what just happened?"). Otherwise (3 × 5 − 4, or no red
->   tiles to take) the part is drawn FAINT until there are tiles: steps `zp` (zero
->   pairs added) → `out` (tiles slide into the faint places) → `sub` (fade to white).
+>   tiles to take) the part is drawn APART, ALREADY RED, until there are tiles: steps
+>   `zp` (zero pairs added) → `out` (tiles slide out, turning red) → `sub` (fade to white).
 > * **REFINEMENTS (teacher feedback 2026-10-19 pm):**
 >   - **Back animates** — `go(dir)` plays the same morph in reverse (`animate(…, "back")`:
 >     marks clear first, tiles slide home, removed tiles `appear` from white). Texts are
@@ -182,7 +182,33 @@
 >   constant through every state, no answer early, symbols above every tile and
 >   words below, no frames, no tiles resting on each other even mid-animation,
 >   every lesson example + other reading at 1366/1024/1920/1280 with no scroll).
-> * Possible next: worksheet creator (write the words, draw the tiles), student quiz.
+> * **RED vs FADED (teacher feedback 2026-10-19, 4pm) — two meanings, never mixed:**
+>   red (`t.mark`) = being taken away; faded (`t.fade`) = the part of a fraction NOT
+>   counted. A take-away not yet out of the first amount ((16 − 5) − 4, 3 × 5 − 4) is
+>   red, not faint; 6 − (−4) ÷ 2 crosses out two tiles and fades the other half.
+>   (`subParts`/`layout`: `if(!t.fade) t.mark = true`.)
+> * **Settings:** question sets include **Stage 3: mixed** (`s3mix` = s3mul + s3div).
+>   Tools menu links only the Worksheet Creator (Student Quiz greyed).
+>
+> **NEW (2026-10-19): ORDER OF OPERATIONS — WORKSHEET CREATOR.**
+> `worksheet-creators/stage-4/number/order-of-operations-in-words.html`. toolLinks
+> "Worksheet maker" rows under MA4-INT-C-01 and MA3-MR-02; homepage mini card in
+> "Worksheet Creators linked to Interactives".
+> * **The tool's engine (`#ooEngine`) and GEN generators are copied VERBATIM** — a
+>   paper picture is the board picture. Change the tool's engine → re-copy it here.
+> * Six problem types (checkboxes + counts, each with a worked example): A See it
+>   (picture → sentence), B Say it (→ words), C Write it (words → sentence), D Draw it
+>   (dot paper), E Work it out, F Argue it (two readings, two pictures, who's right).
+> * Levels: Sweet, Mild, Stage 3 mixed, Medium, Spicy (integers), Mixed S3 ladder,
+>   Mixed S3+4 ladder; each section climbs its own ladder. Spacing: Spacious (default,
+>   2 per row, for younger students) / Standard / Compact. Colour or B&W (taken tiles
+>   crossed, faded parts dashed). Toggles: diagrams, "Say it in words" strip,
+>   working space, name/date, answer key.
+> * Pages 196×281 mm, measured then packed; leftover space → "Your turn" box;
+>   `fitPass()` shrinks anything that overflows; print page count = preview.
+> * Verified: 137 Playwright checks (every level × spacing, no overflow, key mirrors
+>   questions, values re-derived, no negatives below Spicy, PDF pages = preview).
+> * Possible next: student quiz.
 >
 > **NEW (2026-10-16, session 2 — being pushed): VISUAL PATTERNS — LIBRARY + WORKSHEET.**
 > * **THE PATTERNS NOW LIVE IN ONE SHARED FILE**,

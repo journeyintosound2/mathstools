@@ -355,6 +355,13 @@ window.MMT_TOOL_LINKS = {
       url: "/interactive-tools/stage-3/number/division-grouping-bubbles/",
       note: "Finishes every question with both number sentences \u2014 84 \u00f7 6 = 14 and 6 \u00d7 14 = 84 \u2014 so division and multiplication are read as the same fact.",
       tags: ["number sentences", "division", "multiplication", "inverse", "equal groups", "partial quotients", "remainder", "visual", "whole-class teaching"]
+    },
+    {
+      title: "Order of Operations \u2014 Worksheet Creator",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-4/number/order-of-operations-in-words.html",
+      note: "Printable A4 sheets with the tool\u2019s own tile pictures: see it, say it in words, write the number sentence, draw the tiles, work it out, and decide who read it right. Spacious large-print layout for younger students, colour or black and white, answer key.",
+      tags: ["worksheet generator", "printable", "order of operations", "groups of", "half of", "number sentences", "language of mathematics", "visual", "answer key"]
     }
     ,
     {
@@ -1068,6 +1075,13 @@ window.MMT_TOOL_LINKS = {
       url: "/online-quizzes/stage-4/number/negatives-on-the-number-line.html",
       note: "Saves to the student dashboard.",
       tags: ["quiz", "integers", "number line", "missing value"]
+    },
+    {
+      title: "Order of Operations \u2014 Worksheet Creator",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-4/number/order-of-operations-in-words.html",
+      note: "Printable A4 sheets with the tool\u2019s own tile pictures: see it, say it in words, write the number sentence, draw the tiles, work it out, and decide who read it right. Spacious large-print layout for younger students, colour or black and white, answer key.",
+      tags: ["worksheet generator", "printable", "order of operations", "groups of", "half of", "number sentences", "language of mathematics", "visual", "answer key"]
     },
     {
       title: "Integers — Worksheet Generator",
