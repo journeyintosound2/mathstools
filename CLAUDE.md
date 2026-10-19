@@ -116,7 +116,7 @@
 >   position (liveDrag had left it half-way on everyone else's screen), and the dragger no
 >   longer sees a ghost copy when a room snapshot redraws the board mid-drag.
 >
-> **NEW (2026-10-16, redesigned 2026-10-19 — being pushed): ORDER OF OPERATIONS — SAY WHAT YOU SEE.**
+> **NEW (2026-10-16, redesigned 2026-10-19, refined same afternoon — being pushed): ORDER OF OPERATIONS — SAY WHAT YOU SEE.**
 > `interactive-tools/stage-4/number/order-of-operations-in-words/`, built from Jeff's
 > "Order of operations review" deck. Listed under **MA4-INT-C-01** and **MA3-MR-02**
 > (two rows in `resources/toolLinks.js`, one URL), homepage Interactive card.
@@ -143,13 +143,29 @@
 >   so Next shows the split ("what just happened?"). Otherwise (3 × 5 − 4, or no red
 >   tiles to take) the part is drawn FAINT until there are tiles: steps `zp` (zero
 >   pairs added) → `out` (tiles slide into the faint places) → `sub` (fade to white).
+> * **REFINEMENTS (teacher feedback 2026-10-19 pm):**
+>   - **Back animates** — `go(dir)` plays the same morph in reverse (`animate(…, "back")`:
+>     marks clear first, tiles slide home, removed tiles `appear` from white). Texts are
+>     KEYED by node (`TXT` map) and FLIP-morph between positions both ways.
+>   - **Subtraction labels follow Jeff's mock-up:** a taken-away group is ONE slot
+>     (`type:"group"`): the whole amount (24) first, then the part slides out and turns
+>     RED (`t.mark`; crossed out instead on an integer board, where red = −1). Words
+>     step: "24" over the WHOLE group (never over the 18), "2 groups of 3" under the red
+>     tiles (`wordsTexts`, kinds `lab`/`wlab`); these morph into the sentences
+>     "24 − 2 × 3" above and "24 take away 2 groups of 3" below (`from` points).
+>   - **Fade on first load:** `tileIn` animates scale only — animating opacity with
+>     fill-mode `both` overrode `.fade` and showed the faded half solid.
+>   - **"Bad grammar" brackets:** `grammar()` wraps the left operand when a ÷ or − sits
+>     in a run of the same kind of sign — (20 ÷ 5) × 2, (6 × 4) ÷ 2, (12 − 3) − 4.
+>     These grps carry `auto:true`; `otherReading` sees through them, so the
+>     other reading is 20 ÷ (5 × 2).
 > * **ENGINE IS DOM-FREE** (`<script id="ooEngine">`, `var OO`): parse → tree; roles
 >   fixed at parse; each Next reduces ONE node, post-order left-first; stable tile
 >   ids, so the board moves rather than redraws. Kinds: mul, div, add, addmix →
 >   cancel, zp, out, sub, count. Negative count/divisor = "the opposite of": flip.
 > * **"The other reading"** (button / O): brackets dropped, left to right, or the end
 >   grouped first (boy with the telescope), drawn as its own run.
-> * Verified: 1146 Playwright checks (1011 runs re-derived independently, value
+> * Verified: 1176 Playwright checks (incl. animated Back from every step landing exactly); (1011 runs re-derived independently, value
 >   constant through every state, no answer early, symbols above every tile and
 >   words below, no frames, no tiles resting on each other even mid-animation,
 >   every lesson example + other reading at 1366/1024/1920/1280 with no scroll).

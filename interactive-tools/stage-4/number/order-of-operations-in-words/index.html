@@ -257,7 +257,7 @@
     #board .tile.leave .tin{ animation:tileOut .3s ease-in forwards; }
     #board .tile.flip .tin{ animation:flipX .5s ease-in-out; }
     #board .tile.pulse .tin{ animation:pulseT .5s ease; }
-    @keyframes tileIn{ 0%{ transform:scale(0); opacity:0;} 100%{ transform:scale(1); opacity:1;} }
+    @keyframes tileIn{ 0%{ transform:scale(0);} 100%{ transform:scale(1);} }
     @keyframes tileOut{ 0%{ transform:scale(1); opacity:1;} 40%{ transform:scale(1.18); opacity:1;} 100%{ transform:scale(0); opacity:0;} }
     @keyframes flipX{ 0%{ transform:scaleX(1);} 50%{ transform:scaleX(.04);} 100%{ transform:scaleX(1);} }
     @keyframes pulseT{ 0%,100%{ transform:scale(1);} 50%{ transform:scale(1.12);} }
@@ -383,8 +383,20 @@
     @keyframes mkOut{ to{ opacity:0; } }
     #gText{ transition:opacity .25s ease; }
     #gText.dim{ opacity:0; }
-    #gText text{ animation:txtIn .4s ease both; }
-    @keyframes txtIn{ 0%{ opacity:0; transform:translateY(8px);} 100%{ opacity:1; transform:none;} }
+    #gText text.swap{ animation:txtSwap .45s ease; transform-box:fill-box; transform-origin:50% 60%; }
+    @keyframes txtSwap{ 0%{ opacity:.15;} 100%{ opacity:1;} }
+    #board text.lab{ font-family:var(--mathFont); font-size:58px; font-weight:600; text-anchor:middle; }
+    #board text.wlab{ font-family:var(--uiFont); font-size:25px; font-weight:850; text-anchor:middle; }
+    /* the part being taken away turns red (on an integer board, where red already
+       means −1, it is crossed out instead) */
+    #board .tile .xo{ display:none; stroke:#0f172a; stroke-width:4; stroke-linecap:round; fill:none; }
+    #board .tile rect{ transition:fill .45s ease, stroke .45s ease; }
+    #board:not(.signs) .tile.marked rect{ fill:var(--negFill); stroke:var(--negStroke); }
+    #board.signs .tile.marked .xo{ display:block; }
+    #board.signs .tile.marked .mk{ display:none; }
+    #board .tile.vanish .tin{ animation:tileOut .3s ease-in forwards; }
+    #board .tile.appear rect{ animation:fromWhite .5s ease both; }
+    @keyframes fromWhite{ 0%{ fill:#fff; stroke:#fff; opacity:0;} 30%{ opacity:1; fill:#fff; stroke:#fff;} }
     #board text.sym, #board text.op{ font-family:var(--mathFont); font-size:58px; font-weight:600; text-anchor:middle; }
     #board text.op{ fill:#334155; }
     #board text.sym.ans{ fill:var(--green-dark); }
@@ -693,8 +705,22 @@ var OO = (function(){
   function topTerms(n){
     return (n.t === "op" && (n.op === "+" || n.op === "-")) ? topTerms(n.a).concat([n.b]) : [n];
   }
+  /* "Bad grammar" (teacher decision 2026-10-19): a chain like 20 ÷ 5 × 2 is
+     written with the brackets the convention puts in — (20 ÷ 5) × 2 — so the
+     sentence says which amount is made first. Only where the reading could
+     differ: a ÷ or − in a run of the same kind of sign. */
+  const NONCOMM = {"-":1, "/":1};
+  const cls = op => (op === "*" || op === "/") ? 2 : 1;
+  function grammar(n){
+    if(n.t === "grp"){ n.e = grammar(n.e); return n; }
+    if(n.t !== "op") return n;
+    n.a = grammar(n.a); n.b = grammar(n.b);
+    if(n.a.t === "op" && cls(n.a.op) === cls(n.op) && (NONCOMM[n.op] || NONCOMM[n.a.op]))
+      n.a = {t:"grp", e:n.a, id:nid(), auto:true};
+    return n;
+  }
   function prepare(root){
-    root = normalize(root);
+    root = normalize(grammar(root));
     assignRoles(root);
     topTerms(root).forEach((t, i) => { t.hue = i % 5; });
     markTaken(root);
@@ -1033,11 +1059,12 @@ var OO = (function(){
   /* ------------------------------------------------------------ the other reading */
   function precOf(op){ return (op === "*" || op === "/") ? 2 : 1; }
   function flatten(n, out){
+    if(n.t === "grp" && n.e && n.auto) return flatten(n.e, out);
     if(n.t === "op"){ flatten(n.a, out); out.push(n.op); flatten(n.b, out); }
     else out.push(n);
     return out;
   }
-  function hasGrp(n){ return n.t === "grp" || (n.t === "op" && (hasGrp(n.a) || hasGrp(n.b))); }
+  function hasGrp(n){ return (n.t === "grp" && !n.auto) || (n.t === "grp" && hasGrp(n.e)) || (n.t === "op" && (hasGrp(n.a) || hasGrp(n.b))); }
 
   /* The reading a shortcut-follower would give it:
      brackets present          → ignore the brackets
@@ -1203,7 +1230,7 @@ var OO = (function(){
       const Lb = amountBox(L, Object.assign({}, o0, {omit:new Set(matched)}));
       const map = new Map(futureTiles(R).map((t, i) => [t.id, matched[i]]));
       const Rb = amountBox(R, o0);
-      Rb.tiles.forEach(t => { if(map.has(t.id)) t.id = map.get(t.id); });
+      Rb.tiles.forEach(t => { if(map.has(t.id)){ t.id = map.get(t.id); t.mark = true; } });
       return {L:Lb, R:Rb};
     }
     const Lb = amountBox(L, o0), Rb = amountBox(R, o0);
@@ -1258,46 +1285,92 @@ var OO = (function(){
     return text.length * WF * .56;
   }
 
+  /* Every text has a KEY (the node it names) so the page can morph it from
+     where it was to where it goes, forwards or backwards; and a FROM point,
+     where it first appears. A subtraction whose part comes out of the first
+     amount is ONE group: "24" belongs over the whole of it, not over the 18
+     that are left, and the words and symbols are written as one sentence
+     centred under and over the group. In the words step the group shows the
+     slide's labels instead: 24 over the whole, "2 groups of 3" under the
+     red tiles — and from there they morph into the two sentences. */
   function layout(root, o){
     o = o || {};
     const M = o.measure || estW;
     const items = chainItems(root);
-    const boxes = items.map(it => amountBox(it.node, o));
-    const show = items.map(() => true);
-    items.forEach((it, i) => {
-      if(it.op !== "-") return;
-      if(it.join.tk){
-        const sp = subParts(it.join, o);
-        boxes[i - 1] = sp.L;
-        if(sp.R) boxes[i] = sp.R; else show[i] = false;
-      } else boxes[i].tiles.forEach(t => { t.fade = true; });
-    });
-    const out = {tiles:[], texts:[], w:0, h:0};
     const slots = [];
+    for(let i = 0; i < items.length; i++){
+      const it = items[i], nx = items[i + 1];
+      if(nx && nx.op === "-" && nx.join.tk){
+        const sp = subParts(nx.join, o);
+        if(sp.R) slots.push({type:"group", L:it.node, R:nx.node, join:nx.join, op:it.op, opJoin:it.join, Lb:sp.L, Rb:sp.R});
+        else slots.push({type:"single", node:it.node, op:it.op, opJoin:it.join, b:sp.L});
+        i++; continue;
+      }
+      const b = amountBox(it.node, o);
+      if(it.op === "-") b.tiles.forEach(t => { t.fade = true; });
+      slots.push({type:"single", node:it.node, op:it.op, opJoin:it.join, b});
+    }
+    const hueOf = n => n.hue != null ? n.hue : firstHue(n);
+    const GS = 18, GW = 14;
     let first = true;
-    items.forEach((it, i) => {
-      if(!show[i]) return;
-      const sym = symText(it.node, first), wd = wordsPlain(it.node, o);
-      const hue = it.node.hue != null ? it.node.hue : firstHue(it.node);
-      slots.push({it, b:boxes[i], sym, wd, hue, op:first ? null : it.op,
-                  w:Math.max(boxes[i].w, M(sym, "sym"), M(wd, "word"))});
+    slots.forEach(sl => {
+      if(sl.type === "single"){
+        sl.sym = symText(sl.node, first); sl.wd = wordsPlain(sl.node, o);
+        sl.box = sl.b;
+        sl.w = Math.max(sl.b.w, M(sl.sym, "sym"), M(sl.wd, "word"));
+      } else {
+        sl.Ls = symText(sl.L, first); sl.Rs = symText(sl.R, false);
+        sl.Lw = wordsPlain(sl.L, o); sl.Rw = wordsPlain(sl.R, o);
+        const gg = Math.max(64, (M(sl.Rw, "word") - sl.Rb.w) / 2 + 34);
+        sl.Rx = sl.Lb.w + gg;
+        sl.box = row([sl.Lb, sl.Rb], gg);
+        sl.Ry = (sl.box.h - sl.Rb.h) / 2;
+        sl.symW = M(sl.Ls, "sym") + M(OPS["-"], "sym") + M(sl.Rs, "sym") + 2 * GS;
+        sl.wdW = M(sl.Lw, "word") + M("take away", "word") + M(sl.Rw, "word") + 2 * GW;
+        sl.w = Math.max(sl.box.w, sl.symW, sl.wdW);
+      }
       first = false;
     });
-    const picH = Math.max(...slots.map(s => s.b.h));
+    const picH = Math.max(...slots.map(s => s.box.h));
     const symY = SYMF * .9, picY = SYMF * 1.25 + 14, wordY = picY + picH + 22 + WF;
+    const out = {tiles:[], texts:[], wordsTexts:[], w:0, h:0};
+    const T_ = (list, t) => list.push(t);
     let x = 0;
-    slots.forEach((s, i) => {
+    slots.forEach((sl, i) => {
       if(i > 0){
-        const ow = OPS[s.op], ww = s.op === "+" ? "and" : "take away";
+        const ow = OPS[sl.op], ww = sl.op === "+" ? "and" : "take away";
         const g = Math.max(M(ow, "sym"), M(ww, "word")) + 56;
-        out.texts.push({kind:"op", x:x + g / 2, y:symY, text:ow});
-        out.texts.push({kind:"opw", x:x + g / 2, y:wordY, text:ww});
+        const o1 = {key:sl.opJoin.id + ":o", kind:"op", x:x + g / 2, y:symY, text:ow};
+        const o2 = {key:sl.opJoin.id + ":ow", kind:"opw", x:x + g / 2, y:wordY, text:ww};
+        T_(out.texts, o1); T_(out.texts, o2); T_(out.wordsTexts, o2);
         x += g;
       }
-      put(out, s.b, x + (s.w - s.b.w) / 2, picY + (picH - s.b.h) / 2);
-      out.texts.push({kind:"sym", x:x + s.w / 2, y:symY, text:s.sym, hue:s.hue, id:s.it.node.id});
-      out.texts.push({kind:"word", x:x + s.w / 2, y:wordY, text:s.wd, hue:s.hue, id:s.it.node.id});
-      x += s.w;
+      const bx = x + (sl.w - sl.box.w) / 2, by = picY + (picH - sl.box.h) / 2, cx = x + sl.w / 2;
+      put(out, sl.box, bx, by);
+      if(sl.type === "single"){
+        const h = hueOf(sl.node);
+        T_(out.texts, {key:sl.node.id + ":s", kind:"sym", x:cx, y:symY, text:sl.sym, hue:h, ids:[sl.node.id]});
+        const w = {key:sl.node.id + ":w", kind:"word", x:cx, y:wordY, text:sl.wd, hue:h};
+        T_(out.texts, w); T_(out.wordsTexts, w);
+      } else {
+        const hL = hueOf(sl.L), hR = hueOf(sl.R);
+        const top = {x:cx, y:symY};
+        const ra = {x:bx + sl.Rx + sl.Rb.w / 2, y:by + sl.Ry + sl.Rb.h + 36};
+        let sx = cx - sl.symW / 2;
+        const wL = M(sl.Ls, "sym"), wO = M(OPS["-"], "sym"), wR = M(sl.Rs, "sym");
+        T_(out.texts, {key:sl.L.id + ":s", kind:"sym", x:sx + wL / 2, y:symY, text:sl.Ls, hue:hL, from:top});
+        T_(out.texts, {key:sl.join.id + ":o", kind:"op", x:sx + wL + GS + wO / 2, y:symY, text:OPS["-"]});
+        T_(out.texts, {key:sl.R.id + ":s", kind:"sym", x:sx + wL + wO + 2 * GS + wR / 2, y:symY, text:sl.Rs, hue:hR, from:ra});
+        let wx = cx - sl.wdW / 2;
+        const vL = M(sl.Lw, "word"), vO = M("take away", "word"), vR = M(sl.Rw, "word");
+        T_(out.texts, {key:sl.L.id + ":w", kind:"word", x:wx + vL / 2, y:wordY, text:sl.Lw, hue:hL, from:top});
+        T_(out.texts, {key:sl.join.id + ":ow", kind:"opw", x:wx + vL + GW + vO / 2, y:wordY, text:"take away"});
+        T_(out.texts, {key:sl.R.id + ":w", kind:"word", x:wx + vL + vO + 2 * GW + vR / 2, y:wordY, text:sl.Rw, hue:hR, from:ra});
+        /* the words step: the slide's labels */
+        T_(out.wordsTexts, {key:sl.L.id + ":s", kind:"lab", x:top.x, y:top.y, text:sl.Ls, hue:hL});
+        T_(out.wordsTexts, {key:sl.R.id + ":w", kind:"wlab", x:ra.x, y:ra.y, text:sl.Rw, hue:hR});
+      }
+      x += sl.w;
     });
     out.w = x; out.h = wordY + WF * .5;
     return out;
@@ -1481,8 +1554,10 @@ if(typeof module !== "undefined") module.exports = OO;
     mk.appendChild(el("path", {d:"M12 20H28"}));
     mk.appendChild(el("path", {class:"vbar", d:"M20 12V28"}));
     inn.appendChild(mk);
+    inn.appendChild(el("path", {class:"xo", d:"M9 9L31 31M31 9L9 31"}));
     g.appendChild(inn);
     if(t.fade) g.classList.add("fade");
+    if(t.mark) g.classList.add("marked");
     return g;
   }
   function setPos(g, x, y){
@@ -1500,7 +1575,7 @@ if(typeof module !== "undefined") module.exports = OO;
     const all = S.lays.concat(S.unsplit ? [S.unsplit] : []);
     S.ext = {w:Math.max(...all.map(l => l.w)), h:Math.max(...all.map(l => l.h))};
     board.classList.toggle("signs", runHasNeg(r));
-    clearTiles();
+    clearTiles(); clearTexts();
     computeVB();
   }
   function clearTiles(){ S.tiles.forEach(g => g.remove()); S.tiles.clear(); }
@@ -1532,6 +1607,7 @@ if(typeof module !== "undefined") module.exports = OO;
         g.classList.remove("enter", "leave", "flip");
         setSign(g, t.s);
         g.classList.toggle("fade", !!t.fade);
+        g.classList.toggle("marked", !!t.mark);
         setPos(g, off.x + t.x, off.y + t.y);
       }
     });
@@ -1539,22 +1615,62 @@ if(typeof module !== "undefined") module.exports = OO;
     board.classList.remove("notrans");
   }
 
-  function drawTexts(lay, v){
-    gX.textContent = "";
-    const off = offOf(lay);
-    const r = run();
-    lay.texts.forEach(t => {
-      const isSym = t.kind === "sym" || t.kind === "op", isWord = t.kind === "word" || t.kind === "opw";
-      if(isSym && !v.sym) return;
-      if(isWord && !v.words) return;
-      const e = el("text", {x:off.x + t.x, y:off.y + t.y, class:t.kind + (v.done && t.kind === "sym" ? " ans" : "")});
-      if(t.hue != null && !v.done) e.setAttribute("fill", OO.HUES[t.hue]);
-      else if(v.done && t.kind === "word") e.setAttribute("fill", "#15803d");
-      e.textContent = t.text;
-      gX.appendChild(e);
-    });
-    gX.classList.remove("dim");
+  /* Texts are keyed by the node they name. Redrawing MORPHS: a text that is
+     still there slides from where it was; a new one rises from its FROM point
+     (or fades in); one that has gone fades out. So "2 groups of 3" can slide
+     from under the red tiles into the sentence, and back again on Back. */
+  const TXT = new Map();
+  function textsFor(lay, v){
+    if(v.sym) return lay.texts.filter(t => (t.kind === "sym" || t.kind === "op") || (v.words && (t.kind === "word" || t.kind === "opw")));
+    if(v.words) return lay.wordsTexts;
+    return [];
   }
+  function drawTexts(lay, v, anim){
+    const off = offOf(lay), want = textsFor(lay, v), dur = Math.round(700 * S.speed);
+    anim = anim && S.speed > 0;
+    const keep = new Set();
+    want.forEach((t, i) => {
+      const x = off.x + t.x, y = off.y + t.y, key = t.key;
+      keep.add(key);
+      let e = TXT.get(key);
+      const cls = t.kind + (v.done && t.kind === "sym" ? " ans" : "");
+      const fill = v.done ? (t.kind === "word" ? "#15803d" : null) : (t.hue != null ? OO.HUES[t.hue] : null);
+      if(e){
+        const ox = +e.getAttribute("x"), oy = +e.getAttribute("y");
+        if(e.textContent !== t.text){ e.textContent = t.text; if(anim){ e.classList.remove("swap"); void e.getBBox; e.classList.add("swap"); } }
+        e.setAttribute("class", cls + (e.classList.contains("swap") ? " swap" : ""));
+        if(fill) e.setAttribute("fill", fill); else e.removeAttribute("fill");
+        e.setAttribute("x", x); e.setAttribute("y", y);
+        e.style.opacity = "1";
+        if(anim && (Math.abs(ox - x) > .5 || Math.abs(oy - y) > .5)){
+          e.style.transition = "none"; e.style.transform = `translate(${ox - x}px,${oy - y}px)`;
+          void e.getBoundingClientRect();
+          e.style.transition = `transform ${dur}ms cubic-bezier(.45,.05,.25,1), opacity .35s ease`;
+          e.style.transform = "none";
+        } else { e.style.transition = "none"; e.style.transform = "none"; }
+      } else {
+        e = el("text", {x, y, class:cls});
+        if(fill) e.setAttribute("fill", fill);
+        e.textContent = t.text;
+        gX.appendChild(e); TXT.set(key, e);
+        if(anim){
+          const f = t.from ? {x:off.x + t.from.x, y:off.y + t.from.y} : {x, y};
+          e.style.transition = "none"; e.style.opacity = "0";
+          e.style.transform = `translate(${f.x - x}px,${f.y - y}px)`;
+          void e.getBoundingClientRect();
+          e.style.transition = `transform ${dur}ms cubic-bezier(.45,.05,.25,1), opacity ${Math.round(dur * .7)}ms ease`;
+          e.style.transform = "none"; e.style.opacity = "1";
+        }
+      }
+    });
+    for(const [key, e] of TXT){
+      if(keep.has(key)) continue;
+      TXT.delete(key);
+      if(anim){ e.style.transition = "opacity .3s ease"; e.style.opacity = "0"; setTimeout(() => e.remove(), 340); }
+      else e.remove();
+    }
+  }
+  function clearTexts(){ TXT.forEach(e => e.remove()); TXT.clear(); }
 
   /* One step, played the way the slides morph. Tiles that go fade to white;
      what stays slides to its new home; anything new pops in; anything whose
@@ -1566,13 +1682,23 @@ if(typeof module !== "undefined") module.exports = OO;
     const o1 = offOf(L1), sp = S.speed;
     const Dm = Math.round(700 * sp), Dl = Math.round(520 * sp), De = Math.round(440 * sp);
     board.style.setProperty("--mv", Dm + "ms");
-    gX.classList.add("dim");
+    const backward = kind === "back";
     const next = new Map(L1.tiles.map(t => [t.id, t]));
     const leaving = [...S.tiles.keys()].filter(id => !next.has(id));
     const leave = () => leaving.forEach(id => {
       const g = S.tiles.get(id); S.tiles.delete(id);
-      g.classList.add("leave"); setTimeout(() => g.remove(), Dl + 80);
+      g.classList.add(backward ? "vanish" : "leave"); setTimeout(() => g.remove(), Dl + 80);
     });
+    const markDiff = () => L1.tiles.filter(t => { const g = S.tiles.get(t.id); return g && g.classList.contains("marked") !== !!t.mark; });
+    const doMarks = async () => {
+      const md = markDiff();
+      if(!md.length) return true;
+      md.forEach(t => S.tiles.get(t.id).classList.toggle("marked", !!t.mark));
+      await sleep(Math.round(520 * sp));
+      return alive();
+    };
+    /* going back, the red tiles turn back before they slide home */
+    if(backward && !(await doMarks())) return;
 
     if(kind === "cancel" && leaving.length){
       /* each zero pair closes up before it goes */
@@ -1591,7 +1717,7 @@ if(typeof module !== "undefined") module.exports = OO;
       if(Math.abs(+g.dataset.x - x) > .5 || Math.abs(+g.dataset.y - y) > .5){ setPos(g, x, y); moved = true; }
       if(g.classList.contains("fade") !== !!t.fade){ g.classList.toggle("fade", !!t.fade); moved = true; }
     });
-    if(kind === "out"){
+    if(kind === "out" || backward){
       /* the tiles come out of the first amount into the faint places waiting for them */
       doMoves(); leave();
       await sleep(Math.max(Dm, Dl) + 40); if(!alive()) return;
@@ -1604,10 +1730,10 @@ if(typeof module !== "undefined") module.exports = OO;
     if(entering.length){
       entering.forEach((t, i) => {
         const g = mkTile(t); setPos(g, o1.x + t.x, o1.y + t.y);
-        g.classList.add("enter"); g.querySelector(".tin").style.animationDelay = Math.round(Math.min(i * 45, 700) * sp) + "ms";
+        g.classList.add(backward ? "appear" : "enter"); g.querySelector(".tin").style.animationDelay = Math.round(Math.min(i * (backward ? 12 : 45), 700) * sp) + "ms";
         gT.appendChild(g); S.tiles.set(t.id, g);
       });
-      await sleep(De + Math.round(Math.min(entering.length * 45, 700) * sp)); if(!alive()) return;
+      await sleep(De + Math.round(Math.min(entering.length * (backward ? 12 : 45), 700) * sp)); if(!alive()) return;
     }
     const flips = L1.tiles.filter(t => { const g = S.tiles.get(t.id); return g && (t.s > 0) !== g.classList.contains("pos"); });
     if(flips.length){
@@ -1619,6 +1745,8 @@ if(typeof module !== "undefined") module.exports = OO;
       await sleep(Math.round(560 * sp)); if(!alive()) return;
       flips.forEach(t => { const g = S.tiles.get(t.id); if(g) g.classList.remove("flip"); });
     }
+    /* going forward, the tiles that are being taken away turn red once they are out */
+    if(!backward && !(await doMarks())) return;
     S.busy = false;
   }
 
@@ -1664,7 +1792,7 @@ if(typeof module !== "undefined") module.exports = OO;
     const lay = layFor(v);
     if(!v.pic) clearTiles();
     else if(!o.keepTiles) syncTiles(lay, !!o.enter);
-    drawTexts(lay, v);
+    drawTexts(lay, v, !!o.anim);
     // ---- working
     const rows = $("workRows"); rows.textContent = "";
     if(v.sym && v.ready){
@@ -1718,32 +1846,31 @@ if(typeof module !== "undefined") module.exports = OO;
   /* ---------------------------------------------------------- navigation */
   function finishNow(){ S.token++; S.busy = false; paint(viewAt(S.pos)); }
 
-  async function next(){
+  /* Forwards and backwards play the same morph; Back simply plays it in
+     reverse, so a class can go back and forth over the connection. */
+  async function go(dir){
     if(S.typing) return;
     if(S.busy){ finishNow(); return; }
-    const N = nViews();
-    if(S.pos >= N - 1) return;
+    const N = nViews(), to_ = S.pos + dir;
+    if(to_ < 0 || to_ > N - 1) return;
     const from = viewAt(S.pos);
-    S.pos++;
+    S.pos = to_;
     const to = viewAt(S.pos);
     const tileChange = to.pic && from.pic && (from.si !== to.si || from.unsplit !== to.unsplit);
     if(tileChange && S.speed > 0){
       const tok = S.token + 1;
-      const kind = from.si !== to.si ? run().steps[from.si].kind : "split";
+      const kind = dir < 0 ? "back" : (from.si !== to.si ? run().steps[from.si].kind : "split");
       await animate(layFor(to), kind);
       if(S.token !== tok) return;
-      paint(to);
+      paint(to, {anim:true});
     } else if(!from.pic && to.pic){
-      paint(to, {enter:S.speed > 0});
+      paint(to, {enter:S.speed > 0, anim:true});
     } else {
-      paint(to);
+      paint(to, {anim:true});
     }
   }
-  function back(){
-    if(S.busy){ S.token++; S.busy = false; }
-    if(S.pos === 0) return;
-    S.pos--; paint(viewAt(S.pos));
-  }
+  const next = () => go(1);
+  const back = () => go(-1);
   function restart(){
     S.token++; S.busy = false; S.pos = 0;
     clearTiles(); paint(viewAt(0), {enter:S.speed > 0});
