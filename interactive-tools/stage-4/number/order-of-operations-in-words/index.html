@@ -1285,6 +1285,14 @@ var OO = (function(){
       const Rv = val(R), matched = lastOfSign(tilesOf(L), sgn(Rv), Math.abs(Rv));
       if(o.unsplit) return {L:amountBox(L, o0), R:null};
       const Lb = amountBox(L, Object.assign({}, o0, {omit:new Set(matched)}));
+      /* on paper the places the taken tiles left are closed up, so what is left
+         of the 10 sits right against the red part instead of across a hole */
+      if(o.paper && Lb.tiles.length){
+        const x0 = Math.min(...Lb.tiles.map(t => t.x)), y0 = Math.min(...Lb.tiles.map(t => t.y));
+        Lb.tiles.forEach(t => { t.x -= x0; t.y -= y0; });
+        Lb.w = Math.max(...Lb.tiles.map(t => t.x)) + T;
+        Lb.h = Math.max(...Lb.tiles.map(t => t.y)) + T;
+      }
       const map = new Map(futureTiles(R).map((t, i) => [t.id, matched[i]]));
       const Rb = amountBox(R, o0);
       Rb.tiles.forEach(t => { if(map.has(t.id)){ t.id = map.get(t.id); t.mark = true; } });
@@ -1297,13 +1305,22 @@ var OO = (function(){
     return {L:Lb, R:Rb};
   }
 
+  /* On paper there is no morph and no "24" over the group, so a part taken OUT
+     of the first amount is drawn touching what is left of it, at the tiles' own
+     spacing: 10 − 3 × 2 is ten tiles, six of them red. A part that cannot come
+     out yet (2 × 6 − 5) stays apart. On the board the gap is kept: the labels
+     and the slide need it. */
+  function takeGap(n, sp, o){
+    if(!o.paper || !n.tk) return INGAP;
+    return sp.L.tiles.length ? GP : -sp.L.w;
+  }
   function amountBox(n, o){
     const o0 = o.omit ? Object.assign({}, o, {omit:null}) : o;
     if(n.t === "num") return pileBox(tilesOf(n), {dice:Math.abs(n.v) <= 6, omit:o.omit});
     if(n.t === "pile") return pileBox(n.tiles, {cols:n.cols, pairs:n.mix || n.zp, omit:o.omit});
     if(n.t === "grp") return amountBox(n.e, o0);
     if(n.op === "+") return row([amountBox(n.a, o0), amountBox(n.b, o0)], INGAP);
-    if(n.op === "-"){ const sp = subParts(n, o0); return sp.R ? row([sp.L, sp.R], INGAP) : sp.L; }
+    if(n.op === "-"){ const sp = subParts(n, o0); return sp.R ? row([sp.L, sp.R], takeGap(n, sp, o)) : sp.L; }
     if(n.op === "*"){
       const X = amtSide(n), k = val(countSide(n)), ak = Math.abs(k);
       if(ak === 0){ const b = box(); b.w = T; b.h = T; return b; }
@@ -1380,7 +1397,7 @@ var OO = (function(){
       } else {
         sl.Ls = symText(sl.L, first); sl.Rs = symText(sl.R, false);
         sl.Lw = wordsPlain(sl.L, o); sl.Rw = wordsPlain(sl.R, o);
-        const gg = Math.max(64, (M(sl.Rw, "word") - sl.Rb.w) / 2 + 34);
+        const gg = o.paper ? takeGap(sl.join, {L:sl.Lb}, o) : Math.max(64, (M(sl.Rw, "word") - sl.Rb.w) / 2 + 34);
         sl.Rx = sl.Lb.w + gg;
         sl.box = row([sl.Lb, sl.Rb], gg);
         sl.Ry = (sl.box.h - sl.Rb.h) / 2;

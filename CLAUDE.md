@@ -204,9 +204,16 @@
 >   2 per row, for younger students) / Standard / Compact. Colour or B&W (taken tiles
 >   crossed, faded parts dashed). Toggles: diagrams, "Say it in words" strip,
 >   working space, name/date, answer key.
+> * **G Fluency** (off until ticked, default 12): number sentences only, "= ____", no
+>   pictures or working; 2/3/3 per row (`FLU_COLS`). Ticked alone it is a warm-up page.
+> * **Paper pictures use `OO.layout(root, {paper:true})`:** a part taken OUT of the first
+>   amount is drawn TOUCHING what is left of it (holes closed up, tile spacing), so
+>   10 − 3 × 2 shows ten tiles, six red — never "4 and 6 apart" (Jeff spotted the 10
+>   reading as 4). A part that can't come out yet (2 × 6 − 5) stays apart. The board
+>   keeps its gap (labels and the slide need it).
 > * Pages 196×281 mm, measured then packed; leftover space → "Your turn" box;
 >   `fitPass()` shrinks anything that overflows; print page count = preview.
-> * Verified: 137 Playwright checks (every level × spacing, no overflow, key mirrors
+> * Verified: 162 Playwright checks (every level × spacing, with and without fluency, no overflow, key mirrors
 >   questions, values re-derived, no negatives below Spicy, PDF pages = preview).
 > * Possible next: student quiz.
 >

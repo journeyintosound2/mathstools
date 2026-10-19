@@ -161,6 +161,13 @@
 
     .say{ display:flex; flex-direction:column; gap:0; }
     .wl{ height:var(--lineH); border-bottom:1.5px solid #9aa3af; }
+    .qCard.flu{ padding:2.2mm 3mm; }
+    .qCard.flu .qTop{ align-items:flex-end; }
+    .qCard.flu .qNum{ align-self:center; }
+    .qCard.flu .fluEq{ font-family:var(--mathFont); font-weight:700; font-size:calc(22px * var(--fs)); line-height:1.15; flex:0 0 auto; }
+    .qCard.flu .ln{ flex:1 1 auto; min-width:12mm; height:var(--lineH); border-bottom:1.6px solid #111827; }
+    .qCard.flu .fluAns{ font-family:var(--mathFont); font-weight:700; font-size:calc(22px * var(--fs)); color:var(--green-dark, #15803d); }
+    .typeEx .exBlank{ display:inline-block; width:2.2em; border-bottom:1.6px solid currentColor; margin-left:.3em; vertical-align:-.15em; }
     .ansLine{ display:flex; align-items:flex-end; gap:2mm; font-family:var(--mathFont); font-weight:700; font-size:calc(19px * var(--fs)); }
     .ansLine .ln{ flex:1 1 auto; height:var(--lineH); border-bottom:1.6px solid #111827; }
     .ansLine .ln.sm{ flex:0 0 22%; }
@@ -271,7 +278,7 @@
           <p class="bandHead">Problem types &mdash; tick the ones you want, and how many</p>
           <div class="typeGrid" id="typeGrid"></div>
           <div class="totalRow"><span>On the paper:</span><span class="pill" id="totalPill">0 questions</span></div>
-          <p class="note">The order is the lesson: <b>see it</b>, <b>say it</b>, <b>write it</b>, <b>draw it</b>, <b>work it out</b>, then <b>argue about it</b>. Every section climbs its own ladder from its first question to its last.</p>
+          <p class="note">The order is the lesson: <b>see it</b>, <b>say it</b>, <b>write it</b>, <b>draw it</b>, <b>work it out</b>, then <b>argue about it</b>. <b>G Fluency</b> is off until you tick it: a block of number sentences with no pictures &mdash; on its own it makes a quick warm-up page. Every section climbs its own ladder from its first question to its last.</p>
         </div>
 
         <div class="band">
@@ -964,6 +971,14 @@ var OO = (function(){
       const Rv = val(R), matched = lastOfSign(tilesOf(L), sgn(Rv), Math.abs(Rv));
       if(o.unsplit) return {L:amountBox(L, o0), R:null};
       const Lb = amountBox(L, Object.assign({}, o0, {omit:new Set(matched)}));
+      /* on paper the places the taken tiles left are closed up, so what is left
+         of the 10 sits right against the red part instead of across a hole */
+      if(o.paper && Lb.tiles.length){
+        const x0 = Math.min(...Lb.tiles.map(t => t.x)), y0 = Math.min(...Lb.tiles.map(t => t.y));
+        Lb.tiles.forEach(t => { t.x -= x0; t.y -= y0; });
+        Lb.w = Math.max(...Lb.tiles.map(t => t.x)) + T;
+        Lb.h = Math.max(...Lb.tiles.map(t => t.y)) + T;
+      }
       const map = new Map(futureTiles(R).map((t, i) => [t.id, matched[i]]));
       const Rb = amountBox(R, o0);
       Rb.tiles.forEach(t => { if(map.has(t.id)){ t.id = map.get(t.id); t.mark = true; } });
@@ -976,13 +991,22 @@ var OO = (function(){
     return {L:Lb, R:Rb};
   }
 
+  /* On paper there is no morph and no "24" over the group, so a part taken OUT
+     of the first amount is drawn touching what is left of it, at the tiles' own
+     spacing: 10 − 3 × 2 is ten tiles, six of them red. A part that cannot come
+     out yet (2 × 6 − 5) stays apart. On the board the gap is kept: the labels
+     and the slide need it. */
+  function takeGap(n, sp, o){
+    if(!o.paper || !n.tk) return INGAP;
+    return sp.L.tiles.length ? GP : -sp.L.w;
+  }
   function amountBox(n, o){
     const o0 = o.omit ? Object.assign({}, o, {omit:null}) : o;
     if(n.t === "num") return pileBox(tilesOf(n), {dice:Math.abs(n.v) <= 6, omit:o.omit});
     if(n.t === "pile") return pileBox(n.tiles, {cols:n.cols, pairs:n.mix || n.zp, omit:o.omit});
     if(n.t === "grp") return amountBox(n.e, o0);
     if(n.op === "+") return row([amountBox(n.a, o0), amountBox(n.b, o0)], INGAP);
-    if(n.op === "-"){ const sp = subParts(n, o0); return sp.R ? row([sp.L, sp.R], INGAP) : sp.L; }
+    if(n.op === "-"){ const sp = subParts(n, o0); return sp.R ? row([sp.L, sp.R], takeGap(n, sp, o)) : sp.L; }
     if(n.op === "*"){
       const X = amtSide(n), k = val(countSide(n)), ak = Math.abs(k);
       if(ak === 0){ const b = box(); b.w = T; b.h = T; return b; }
@@ -1059,7 +1083,7 @@ var OO = (function(){
       } else {
         sl.Ls = symText(sl.L, first); sl.Rs = symText(sl.R, false);
         sl.Lw = wordsPlain(sl.L, o); sl.Rw = wordsPlain(sl.R, o);
-        const gg = Math.max(64, (M(sl.Rw, "word") - sl.Rb.w) / 2 + 34);
+        const gg = o.paper ? takeGap(sl.join, {L:sl.Lb}, o) : Math.max(64, (M(sl.Rw, "word") - sl.Rb.w) / 2 + 34);
         sl.Rx = sl.Lb.w + gg;
         sl.box = row([sl.Lb, sl.Rb], gg);
         sl.Ry = (sl.box.h - sl.Rb.h) / 2;
@@ -1250,7 +1274,11 @@ if(typeof module !== "undefined") module.exports = OO;
     { k:"F", id:"who", col:"#db2777", bg:"#fdf2f8", n:1, title:"Argue it — who read it right?",
       desc:"Two students read the same number sentence and got different amounts. Which reading did the sentence mean?",
       head:"Who read it right? Explain your thinking.",
-      ex:() => '<span class="m">5 + 3 × 5</span><span class="arrow">→</span><span>Ali: 40 &nbsp;·&nbsp; Bree: 20 — who is right?</span>' }
+      ex:() => '<span class="m">5 + 3 × 5</span><span class="arrow">→</span><span>Ali: 40 &nbsp;·&nbsp; Bree: 20 — who is right?</span>' },
+    { k:"G", id:"flu", col:"#0d9488", bg:"#f0fdfa", n:12, off:true, title:"Fluency — just the number sentences",
+      desc:"Quick practice: number sentences to work out, with no pictures and no working space. Add it after the others, or tick it on its own for a warm-up page.",
+      head:"Fluency. Find each amount.",
+      ex:() => '<span class="m">6 + 2 × 4 =</span><span class="exBlank"></span><span class="m">&nbsp; 20 − 12 ÷ 3 =</span><span class="exBlank"></span>' }
   ];
   const NAMES = [["Ali","Bree"],["Mia","Sam"],["Noah","Zara"],["Kai","Lily"],["Jai","Ava"],["Leo","Ruby"]];
 
@@ -1290,7 +1318,7 @@ if(typeof module !== "undefined") module.exports = OO;
 
   /* ---------------------------------------------------------- the pictures */
   function picSVG(root, o){
-    const L = OO.layout(root, {});
+    const L = OO.layout(root, {paper:true});
     const ts = L.tiles;
     const pad = 5;
     if(!ts.length) return "";
@@ -1313,13 +1341,16 @@ if(typeof module !== "undefined") module.exports = OO;
     return `<svg viewBox="${x0 - pad} ${y0 - pad} ${W} ${H}" style="${style}" aria-hidden="true">${body}</svg>`;
   }
   function picFeatures(root){
-    const ts = OO.layout(root, {}).tiles;
+    const ts = OO.layout(root, {paper:true}).tiles;
     return {mark:ts.some(t => t.mark), fade:ts.some(t => t.fade), neg:ts.some(t => t.s < 0)};
   }
   function exPic(src){ return picSVG(OO.build(src).root, {tileMM:4, maxW:999, maxH:999, px:30}); }
 
   /* ---------------------------------------------------------- sizes */
   const COLS = { roomy:2, normal:3, tight:4 };
+  /* fluency rows are one line each: no picture, so they never need the full card width */
+  const FLU_COLS = { roomy:2, normal:3, tight:3 };
+  const colsFor = (g, opts) => g.T.k === "G" ? FLU_COLS[opts.density] : opts.cols;
   const TILE = { roomy:7, normal:5.6, tight:4.4 };
   const PICH = { roomy:56, normal:42, tight:32 };
   const DRAWH = { roomy:58, normal:44, tight:34 };
@@ -1366,6 +1397,7 @@ if(typeof module !== "undefined") module.exports = OO;
         } else html += `<div class="workHead">Who is right? What did the other person read the sentence as?</div>`;
         return html + lines(opts.density === "tight" ? 2 : 3) + "</div>";
       }
+      case "G": return `<div class="qCard flu">${top(q, n, sym(r.root) + '<span class="fluEq">=</span><span class="ln"></span>')}</div>`;
     }
   }
 
@@ -1386,6 +1418,7 @@ if(typeof module !== "undefined") module.exports = OO;
           + `<div class="keyWhy"><b>${esc(r.src)}</b> says “${esc(wordsOf(r.root))}”${opts.pics ? ` — Picture ${pRight}` : ""}.<br>`
           + `${wrongName} read it as <b>${esc(q.alt.txt)} = ${esc(fmt(q.alt.run.value))}</b>: “${esc(OO.wordsPlain(q.alt.run.root, {}))}”${opts.pics ? ` — Picture ${3 - pRight}` : ""}.</div></div>`;
       }
+      case "G": return `<div class="qCard flu">${top(q, n, sym(r.root) + `<span class="fluEq">=</span><span class="fluAns">${esc(fmt(r.value))}</span>`)}</div>`;
     }
   }
 
@@ -1475,11 +1508,11 @@ if(typeof module !== "undefined") module.exports = OO;
       sheet.appendChild(sec);
       const headH = sec.getBoundingClientRect().height + 3 / 25.4 * 96;
       const rows = [];
-      const per = g.T.k === "F" ? 1 : opts.cols;
+      const gc = colsFor(g, opts), per = g.T.k === "F" ? 1 : gc;
       for(let i = 0; i < g.qs.length; i += per) rows.push(g.qs.slice(i, i + per));
       rows.forEach(r => {
         const grid = document.createElement("div");
-        grid.className = "qGrid"; grid.style.setProperty("--cols", opts.cols);
+        grid.className = "qGrid"; grid.style.setProperty("--cols", gc);
         grid.innerHTML = r.map(q => key ? keyCardHTML(q, q.n, opts) : cardHTML(q, q.n, opts)).join("");
         sec.appendChild(grid);
         const h = grid.getBoundingClientRect().height + 3 / 25.4 * 96;
@@ -1529,7 +1562,7 @@ if(typeof module !== "undefined") module.exports = OO;
           inner += '<div class="section">' + secHeadHTML(u.g.T, seen.has(u.g), u.g.legend);
           seen.add(u.g); open = true; lastG = u.g;
         }
-        inner += `<div class="qGrid" style="--cols:${opts.cols}">` + u.row.map(q => key ? keyCardHTML(q, q.n, opts) : cardHTML(q, q.n, opts)).join("") + "</div>";
+        inner += `<div class="qGrid" style="--cols:${colsFor(u.g, opts)}">` + u.row.map(q => key ? keyCardHTML(q, q.n, opts) : cardHTML(q, q.n, opts)).join("") + "</div>";
       });
       if(open) inner += "</div>";
       if(!key && pages.left && pages.left[i] > 62 * PX_MM) inner += yourTurnHTML(pages.left[i] - 4 * PX_MM);
@@ -1580,9 +1613,9 @@ if(typeof module !== "undefined") module.exports = OO;
   /* ---------------------------------------------------------- controls */
   function buildTypeGrid(){
     $("typeGrid").innerHTML = TYPES.map(T =>
-      `<div class="typeOpt on" id="opt${T.k}" style="--tc:${T.col}">`
+      `<div class="typeOpt${T.off ? "" : " on"}" id="opt${T.k}" style="--tc:${T.col}">`
       + `<div class="typeTop"><span class="typeLetter">${T.k}</span>`
-      + `<label class="sw"><input type="checkbox" id="k${T.k}" checked /><span class="track"></span><span>${esc(T.title)}</span></label></div>`
+      + `<label class="sw"><input type="checkbox" id="k${T.k}"${T.off ? "" : " checked"} /><span class="track"></span><span>${esc(T.title)}</span></label></div>`
       + `<p class="typeDesc">${esc(T.desc)}</p>`
       + `<div class="typeEx"><span class="exLab">e.g.</span>${T.ex()}</div>`
       + `<div class="cntRow"><label for="n${T.k}">How many</label><input id="n${T.k}" type="number" min="0" max="30" value="${T.n}" /></div>`
@@ -1608,7 +1641,7 @@ if(typeof module !== "undefined") module.exports = OO;
     $("levelSel").value = "mix3"; $("densitySel").value = "roomy"; $("colourSel").value = "colour";
     ["picToggle","stripToggle","workToggle","nameToggle"].forEach(id => { $(id).checked = true; });
     $("keyToggle").checked = false;
-    TYPES.forEach(T => { $("k" + T.k).checked = true; $("n" + T.k).value = T.n; $("opt" + T.k).classList.add("on"); });
+    TYPES.forEach(T => { $("k" + T.k).checked = !T.off; $("n" + T.k).value = T.n; $("opt" + T.k).classList.toggle("on", !T.off); });
     totals(); generate(true);
   }
 
