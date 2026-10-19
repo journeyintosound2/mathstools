@@ -23,8 +23,8 @@
       --line:#334155;
       --line-soft:#94a3b8;
       --red:#dc2626;
-      --posFill:#fde047;
-      --posStroke:#a16207;
+      --posFill:#4ade80;
+      --posStroke:#15803d;
       --negFill:#ef4444;
       --negStroke:#991b1b;
       --uiFont:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
@@ -249,7 +249,7 @@
     #board .tile.neg rect{ fill:var(--negFill); stroke:var(--negStroke); }
     #board .tile .mk{ display:none; stroke-width:3.6; stroke-linecap:round; fill:none; }
     #board.signs .tile .mk{ display:block; }
-    #board .tile.pos .mk{ stroke:rgba(113,63,18,.75); }
+    #board .tile.pos .mk{ stroke:rgba(5,46,22,.8); }
     #board .tile.neg .mk{ stroke:rgba(255,255,255,.95); }
     #board .tile.pos .mk .vbar{ display:block; }
     #board .tile.neg .mk .vbar{ display:none; }
@@ -329,7 +329,7 @@
     .tileKey{ margin-top:10px; padding-top:10px; border-top:1px solid var(--border); display:grid; gap:7px; }
     .tkRow{ display:flex; align-items:center; gap:9px; font-weight:850; font-size:.88rem; color:var(--line); }
     .tkSq{ width:20px; height:20px; border-radius:5px; border:2px solid; display:inline-grid; place-items:center; font-weight:1000; font-size:.8rem; line-height:1; }
-    .tkSq.pos{ background:var(--posFill); border-color:var(--posStroke); color:#713f12; }
+    .tkSq.pos{ background:var(--posFill); border-color:var(--posStroke); color:#052e16; }
     .tkSq.neg{ background:var(--negFill); border-color:var(--negStroke); color:#fff; }
 
     /* ---------- full screen ---------- */
@@ -402,6 +402,48 @@
     #board text.sym.ans{ fill:var(--green-dark); }
     #board text.word, #board text.opw{ font-family:var(--uiFont); font-size:25px; font-weight:850; text-anchor:middle; }
     #board text.opw{ fill:#64748b; font-weight:800; }
+    /* ---------- type your own: the equation editor ---------- */
+    .stage{ position:relative; }
+    .typePanel{
+      position:absolute; z-index:60; top:72px; left:50%; transform:translateX(-50%);
+      width:min(660px,96%); background:#fff; border:1px solid var(--border); border-radius:20px;
+      box-shadow:0 24px 60px rgba(15,23,42,.24); padding:14px 16px 16px; display:grid; gap:11px;
+      animation:panelIn .22s ease;
+    }
+    @keyframes panelIn{ 0%{ opacity:0; transform:translate(-50%,-8px);} 100%{ opacity:1; transform:translate(-50%,0);} }
+    .tpHead{ display:flex; align-items:center; justify-content:space-between; }
+    .tpTitle{ font-size:.7rem; letter-spacing:.14em; text-transform:uppercase; font-weight:950; color:var(--muted); }
+    .tpClose{ appearance:none; border:0; background:none; font-size:1.4rem; line-height:1; color:var(--muted); cursor:pointer; padding:2px 6px; border-radius:8px; }
+    .tpClose:hover{ background:#f1f5f9; color:var(--ink); }
+    .tpInput{
+      width:100%; font-family:var(--mathFont); font-size:clamp(1.8rem,3.4vw,2.6rem); font-weight:600; text-align:center;
+      border:1.5px solid #c7d2fe; border-radius:14px; background:rgba(239,246,255,.7); color:var(--ink);
+      padding:10px 14px; letter-spacing:.01em;
+    }
+    .tpInput:focus{ outline:none; border-color:#6366f1; background:rgba(238,242,255,.95); box-shadow:0 0 0 4px rgba(99,102,241,.14); }
+    .tpInput.is-bad{ border-color:var(--red); animation:shake .34s; }
+    .tpRead{ min-height:1.5em; text-align:center; font-weight:800; font-size:.98rem; color:var(--muted); line-height:1.4; }
+    .tpRead .tpSym{ font-family:var(--mathFont); font-weight:600; font-size:1.15em; color:var(--ink); }
+    .tpRead.ok{ color:var(--purple-dark); }
+    .tpRead.bad{ color:#b91c1c; }
+    .tpKeys{ display:grid; grid-template-columns:repeat(6,1fr); gap:7px; }
+    .tpKey{
+      appearance:none; border:1.5px solid var(--border); background:#fff; color:var(--ink);
+      font-family:var(--mathFont); font-size:1.45rem; font-weight:600; border-radius:12px; padding:8px 0; cursor:pointer;
+      transition:.12s ease; line-height:1.15;
+    }
+    .tpKey:hover{ border-color:#a5b4fc; background:#eef2ff; }
+    .tpKey:active{ transform:scale(.96); }
+    .tpKey.op{ color:var(--purple-dark); background:#faf5ff; }
+    .tpKey.fn{ font-family:var(--uiFont); font-size:.9rem; font-weight:900; color:var(--muted); background:#f8fafc; }
+    .tpKey.zero{ grid-column:span 3; }
+    .tpActions .ghostBtn{ flex:0 0 auto; }
+    .tpActions{ display:flex; gap:10px; justify-content:flex-end; align-items:center; }
+    .tpActions .hint{ margin-right:auto; flex:1 1 auto; line-height:1.35; font-size:.76rem; font-weight:750; color:var(--line-soft); }
+    .tpGo{ white-space:nowrap; flex:0 0 auto; appearance:none; border:none; background:linear-gradient(135deg,var(--blue),var(--purple)); color:#fff; padding:11px 24px; border-radius:14px; font-weight:950; font-size:1rem; cursor:pointer; }
+    .tpGo:disabled{ opacity:.4; cursor:not-allowed; }
+    .newProbBtn{ border-color:rgba(37,99,235,.35); color:var(--blue-dark); background:#eff6ff; }
+    .newProbBtn:hover:not(:disabled){ border-color:var(--blue); color:var(--blue-dark); background:#dbeafe; }
     @media (prefers-reduced-motion:reduce){
       *{ animation-duration:.001ms !important; transition-duration:.001ms !important; }
     }
@@ -500,8 +542,6 @@
             <span class="setTag" id="setTag">Lesson &middot; 1 of 11</span>
           </div>
           <div class="question" id="question" aria-live="polite"></div>
-          <input class="typeInput" id="typeInput" type="text" inputmode="text" autocomplete="off" spellcheck="false"
-                 placeholder="e.g. 10 &minus; 4 &divide; 2" aria-label="Type an expression" hidden>
           <div class="eqActions">
             <span class="outcomeTag" id="outcomeTag">MA3-MR-02</span>
             <span class="lessonNav" id="lessonNav">
@@ -512,6 +552,23 @@
               <span aria-hidden="true">&#9998;</span><span class="genLabel">Type your own</span>
             </button>
           </div>
+        </div>
+
+        <div class="typePanel" id="typePanel" hidden>
+          <div class="tpHead"><span class="tpTitle">Type your own</span><button class="tpClose" id="tpClose" type="button" aria-label="Close">&times;</button></div>
+          <input class="tpInput" id="typeInput" type="text" inputmode="text" autocomplete="off" spellcheck="false"
+                 placeholder="24 &minus; 2 &times; 3" aria-label="Type an expression">
+          <div class="tpRead" id="tpRead"></div>
+          <div class="tpKeys" id="tpKeys">
+            <button class="tpKey" type="button" data-k="7">7</button><button class="tpKey" type="button" data-k="8">8</button><button class="tpKey" type="button" data-k="9">9</button>
+            <button class="tpKey op" type="button" data-k="(">(</button><button class="tpKey op" type="button" data-k=")">)</button><button class="tpKey fn" type="button" data-k="back" aria-label="Delete">&#9003;</button>
+            <button class="tpKey" type="button" data-k="4">4</button><button class="tpKey" type="button" data-k="5">5</button><button class="tpKey" type="button" data-k="6">6</button>
+            <button class="tpKey op" type="button" data-k="&times;">&times;</button><button class="tpKey op" type="button" data-k="&divide;">&divide;</button><button class="tpKey fn" type="button" data-k="clear">Clear</button>
+            <button class="tpKey" type="button" data-k="1">1</button><button class="tpKey" type="button" data-k="2">2</button><button class="tpKey" type="button" data-k="3">3</button>
+            <button class="tpKey op" type="button" data-k="+">+</button><button class="tpKey op" type="button" data-k="&minus;">&minus;</button><button class="tpKey op" type="button" data-k="&minus;" title="A negative number: press &minus; before it">(&minus;)</button>
+            <button class="tpKey zero" type="button" data-k="0">0</button>
+          </div>
+          <div class="tpActions"><span class="hint">Whole numbers, + &minus; &times; &divide; and brackets. On a keyboard, x or * is &times; and / is &divide;.</span><button class="ghostBtn" id="tpCancel" type="button">Cancel</button><button class="tpGo" id="tpGo" type="button">Draw it</button></div>
         </div>
 
         <div class="promptBar" id="promptBar" hidden>
@@ -538,6 +595,7 @@
           <div class="stepDots" id="stepDots" aria-hidden="true"></div>
           <span class="spacer"></span>
           <button class="ghostBtn altBtn" id="altBtn" type="button" hidden></button>
+          <button class="ghostBtn newProbBtn" id="newProbBtn" type="button" title="The same kind of problem with new numbers (R)">&#9860; New problem</button>
           <button class="ghostBtn" id="resetBtn" type="button">Start again</button>
         </div>
       </section>
@@ -554,9 +612,9 @@
           </div>
           <p class="keyNote">&ldquo;3 groups of 5&rdquo; and &ldquo;half of 10&rdquo; each name <b>one amount</b>. Find each amount, then put the amounts together.</p>
           <div class="tileKey" id="tileKey" hidden>
-            <div class="tkRow"><span class="tkSq pos">+</span>one yellow tile is 1</div>
+            <div class="tkRow"><span class="tkSq pos">+</span>one green tile is 1</div>
             <div class="tkRow"><span class="tkSq neg">&minus;</span>one red tile is &minus;1</div>
-            <div class="tkRow"><span class="tkSq pos">+</span><span class="tkSq neg" style="margin-left:-6px">&minus;</span>a yellow and a red make 0</div>
+            <div class="tkRow"><span class="tkSq pos">+</span><span class="tkSq neg" style="margin-left:-6px">&minus;</span>a green and a red make 0</div>
           </div>
         </div>
         <div class="card" id="workCard">
@@ -953,7 +1011,7 @@ var OO = (function(){
     o = o || {};
     if(n.t === "pile" && n.mix) return numTxt(n.ja, lead) + " + " + numTxt(n.jb, false);
     if(n.t === "num" || n.t === "pile") return numTxt(val(n), lead);
-    if(n.t === "grp") return o.noGroups ? symText(n.e, lead, o) : "(" + symText(n.e, true, o) + ")";
+    if(n.t === "grp") return (o.noGroups || (o.noAuto && n.auto)) ? symText(n.e, lead, o) : "(" + symText(n.e, true, o) + ")";
     return symText(n.a, lead, o) + " " + OPS[n.op] + " " + symText(n.b, false, o);
   }
 
@@ -1024,7 +1082,7 @@ var OO = (function(){
   const wordsPlain = (n, o) => words(n, "amt", Object.assign({}, o, {html:false}));
 
   /* ------------------------------------------------------------ cues */
-  function colourName(s){ return s > 0 ? "yellow" : "red"; }
+  function colourName(s){ return s > 0 ? "green" : "red"; }
   function amt(v){ return v < 0 ? "negative " + Math.abs(v) : String(v); }
 
   function cueFor(state, d, o){
@@ -1045,8 +1103,8 @@ var OO = (function(){
           ? W + " is one amount: one of the " + Math.abs(d.k) + " equal parts, flipped."
           : W + " is one amount: one of the " + Math.abs(d.k) + " equal parts.";
       case "add": return "Now put " + amt(d.a) + " and " + amt(d.b) + " together.";
-      case "addmix": return "Put " + amt(d.a) + " and " + amt(d.b) + " together — line each yellow tile up with a red one.";
-      case "cancel": return "A yellow and a red make zero. Take away every zero pair — what is left?";
+      case "addmix": return "Put " + amt(d.a) + " and " + amt(d.b) + " together — line each green tile up with a red one.";
+      case "cancel": return "A green and a red make zero. Take away every zero pair — what is left?";
       case "zp":
         return (d.none ? "There are no " : "There are not enough ") + colourName(sgn(d.r)) + " tiles to take away " + amt(d.r) +
           ". Add " + d.z + " zero pair" + (d.z === 1 ? "" : "s") + " — it is still " + amt(d.a) + ".";
@@ -1376,7 +1434,39 @@ var OO = (function(){
     return out;
   }
 
+  /* "New problem": the same sentence, the same shape and signs, with
+     friendly new numbers. Counts of groups stay 2–5 and divisors 2–5; a
+     division of a plain number is built from its answer so it always shares
+     exactly; amounts stay near the size they were. The page checks the
+     result (tile count, signs, same kind of steps) and tries again if not. */
+  function variant(root){
+    const R = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+    const c = clone(root);
+    const amtPick = m => m <= 6 ? R(2, 6) : m <= 12 ? R(4, 12) : m <= 20 ? R(8, 20) : R(12, 30);
+    (function walk(n, role){
+      if(n.t === "grp") return walk(n.e, role);
+      if(n.t === "num"){
+        if(n.v === 0) return;
+        const s = sgn(n.v), m = Math.abs(n.v);
+        n.v = s * (role === "cnt" ? R(2, m >= 5 ? 5 : Math.max(3, m)) : role === "div" ? R(2, 5) : amtPick(m));
+        return;
+      }
+      if(n.t !== "op") return;
+      if(n.op === "*"){ walk(n.a, n.cnt === "a" ? "cnt" : "amt"); walk(n.b, n.cnt === "b" ? "cnt" : "amt"); return; }
+      if(n.op === "/"){
+        const oq = (n.a.t === "num" && n.b.t === "num" && n.b.v) ? Math.abs(n.a.v / n.b.v) : 3;
+        walk(n.b, "div");
+        if(n.a.t === "num" && n.b.t === "num") n.a.v = (n.a.v < 0 ? -1 : 1) * Math.abs(n.b.v) * R(2, Math.max(3, Math.min(6, oq + 2)));
+        else walk(n.a, "amt");
+        return;
+      }
+      walk(n.a, role); walk(n.b, role);
+    })(c, "amt");
+    return symText(c, true, {noAuto:true});
+  }
+
   return {
+    variant,
     parse, build, step, val, words, wordsPlain, symText, symHTML, cueFor, otherReading,
     layout, findNode, countTiles, tilesOf, pairSplit, autoCols, isVal, futureTiles, chainItems, SYMF, WF,
     HUES, T, P, GP, fmt, err
@@ -1404,7 +1494,7 @@ if(typeof module !== "undefined") module.exports = OO;
     s3mul: "Whole numbers. × makes an array of groups; + and − join amounts and take them away.",
     s3div: "Whole numbers. ÷ shows the whole amount with all but one equal part faded.",
     chains: "Only × and ÷, or only + and − — the ones read left to right.",
-    ints: "Yellow tiles are 1 and red tiles are −1: zero pairs, groups of negatives, the opposite of a group.",
+    ints: "Green tiles are 1 and red tiles are −1: zero pairs, groups of negatives, the opposite of a group.",
     mixed: "A mix of everything above."
   };
   const SET_TAG = { s3mul:"Stage 3 · × with + −", s3div:"Stage 3 · ÷ joins in", chains:"Read left to right", ints:"Stage 4 · integers", mixed:"Mixed" };
@@ -1784,6 +1874,32 @@ if(typeof module !== "undefined") module.exports = OO;
       else if(S.prompts){ pb.hidden = false; pb.className = "promptBar" + (v.done ? " is-done" : ""); $("promptIco").textContent = v.done ? "✅" : "💭"; $("promptText").textContent = promptOf(v); }
       else pb.hidden = true;
     }
+    // ---- chrome
+    const N = nViews();
+    const dots = $("stepDots"); dots.textContent = "";
+    for(let i = 0; i < N; i++){
+      const s = document.createElement("span");
+      s.className = "stepDot" + (i <= v.pos ? " on" : "") + (v.done && i === N - 1 ? " fin" : "");
+      dots.appendChild(s);
+    }
+    $("backBtn").disabled = v.pos === 0;
+    $("nextBtn").disabled = v.pos >= N - 1;
+    $("resetBtn").disabled = v.pos === 0;
+    const ab = $("altBtn");
+    ab.hidden = !S.alt || (S.mode === "main" && !v.ready);
+    if(S.alt){
+      ab.textContent = S.mode === "alt" ? "◀ Back to " + S.main.src
+        : ({ltr:"Read it left to right?", nobr:"Ignore the brackets?", right:"Group the end first?"})[S.alt.kind];
+    }
+    $("eqCard").classList.toggle("isAlt", S.mode === "alt");
+    const tag = $("setTag");
+    tag.classList.toggle("alt", S.mode === "alt");
+    tag.textContent = S.mode === "alt" ? "Another reading" : (S.custom ? "Your own" : S.fresh ? "New numbers" : (S.set === "lesson" ? `Lesson · ${S.lessonIdx + 1} of ${LESSON.length}` : SET_TAG[S.set]));
+    $("lessonNav").hidden = S.set !== "lesson" || S.custom || S.mode === "alt";
+    $("prevQ").disabled = S.lessonIdx === 0;
+    $("nextQ").disabled = S.lessonIdx === LESSON.length - 1;
+    $("outcomeTag").textContent = runHasNeg(S.main) ? "MA4-INT-C-01" : "MA3-MR-02";
+    $("tileKey").hidden = !runHasNeg(r);
     $("keyCard").hidden = !S.key; $("workCard").hidden = !S.work;
     const hb = board.style.height; fitBoard();
     if(board.style.height !== hb) computeVB();
@@ -1806,32 +1922,6 @@ if(typeof module !== "undefined") module.exports = OO;
       });
     }
     $("workEmpty").hidden = rows.childElementCount > 0;
-    // ---- chrome
-    const N = nViews();
-    const dots = $("stepDots"); dots.textContent = "";
-    for(let i = 0; i < N; i++){
-      const s = document.createElement("span");
-      s.className = "stepDot" + (i <= v.pos ? " on" : "") + (v.done && i === N - 1 ? " fin" : "");
-      dots.appendChild(s);
-    }
-    $("backBtn").disabled = v.pos === 0;
-    $("nextBtn").disabled = v.pos >= N - 1;
-    $("resetBtn").disabled = v.pos === 0;
-    const ab = $("altBtn");
-    ab.hidden = !S.alt || (S.mode === "main" && !v.ready);
-    if(S.alt){
-      ab.textContent = S.mode === "alt" ? "◀ Back to " + S.main.src
-        : ({ltr:"Read it left to right?", nobr:"Ignore the brackets?", right:"Group the end first?"})[S.alt.kind];
-    }
-    $("eqCard").classList.toggle("isAlt", S.mode === "alt");
-    const tag = $("setTag");
-    tag.classList.toggle("alt", S.mode === "alt");
-    tag.textContent = S.mode === "alt" ? "Another reading" : (S.custom ? "Your own" : (S.set === "lesson" ? `Lesson · ${S.lessonIdx + 1} of ${LESSON.length}` : SET_TAG[S.set]));
-    $("lessonNav").hidden = S.set !== "lesson" || S.custom || S.mode === "alt";
-    $("prevQ").disabled = S.lessonIdx === 0;
-    $("nextQ").disabled = S.lessonIdx === LESSON.length - 1;
-    $("outcomeTag").textContent = runHasNeg(S.main) ? "MA4-INT-C-01" : "MA3-MR-02";
-    $("tileKey").hidden = !runHasNeg(r);
     fitEq();
   }
 
@@ -1884,12 +1974,12 @@ if(typeof module !== "undefined") module.exports = OO;
     paint(viewAt(0), {enter:S.speed > 0});
   }
   function loadLesson(i){
-    S.lessonIdx = Math.max(0, Math.min(LESSON.length - 1, i)); S.custom = false;
+    S.lessonIdx = Math.max(0, Math.min(LESSON.length - 1, i)); S.custom = false; S.fresh = false;
     useRun(OO.build(LESSON[S.lessonIdx]));
   }
   function newQuestion(){
     if(S.set === "lesson"){ loadLesson(S.custom ? S.lessonIdx : (S.lessonIdx + 1) % LESSON.length); return; }
-    S.custom = false; useRun(generate(S.set));
+    S.custom = false; S.fresh = false; useRun(generate(S.set));
   }
   function toggleAlt(){
     if(!S.alt) return;
@@ -1900,37 +1990,127 @@ if(typeof module !== "undefined") module.exports = OO;
     paint(viewAt(S.pos), {enter:S.speed > 0});
   }
 
-  /* ---------------------------------------------------------- type your own */
-  const inp = $("typeInput");
-  function setPrompt(t, cls, ico){
-    const pb = $("promptBar"); pb.hidden = false;
-    pb.className = "promptBar" + (cls ? " " + cls : "");
-    $("promptIco").textContent = ico || "💭";
-    $("promptText").textContent = t;
+  /* ---------------------------------------------------------- type your own: the equation editor
+     A maths box in the spirit of the MMT Screen editor, cut down to what this
+     board can draw: whole numbers, + − × ÷ and brackets. What is typed is
+     tidied AS IT IS TYPED — * and x become ×, / becomes ÷, - becomes −, signs
+     get their spaces — so the box always looks like the sentence on the board.
+     Underneath, it says how the sentence reads, or why it cannot be drawn. */
+  const inp = $("typeInput"), panel = $("typePanel"), tpRead = $("tpRead"), tpGo = $("tpGo");
+  const SYM = {"*":"×", "x":"×", "X":"×", "·":"×", "/":"÷", ":":"÷",
+               "-":"−", "–":"−", "—":"−", "[":"(", "]":")", "{":"(", "}":")"};
+  const OPC = "+−×÷";
+  function tidy(raw, caret){
+    const chars = []; let before = 0;
+    for(let i = 0; i < raw.length; i++){
+      const c = SYM[raw[i]] || raw[i];
+      /* everything but spaces is kept: a "2.5" must stay 2.5 so the box can say
+         why it cannot be drawn, never quietly turn into 25 */
+      if(!/\s/.test(c)){ chars.push(c); if(i < caret) before++; }
+    }
+    let out = "", caretOut = 0;
+    chars.forEach((c, i) => {
+      const prev = chars[i - 1];
+      const unary = c === "−" && (i === 0 || prev === "(" || OPC.includes(prev));
+      if(OPC.includes(c) && !unary) out = out.replace(/ $/, "") + " " + c + " ";
+      else out += c;
+      if(i + 1 === before) caretOut = out.length;
+    });
+    return {text:out, caret:before === 0 ? 0 : caretOut};
+  }
+  function retidy(){
+    const r = tidy(inp.value, inp.selectionStart == null ? inp.value.length : inp.selectionStart);
+    if(r.text !== inp.value){ inp.value = r.text; inp.setSelectionRange(r.caret, r.caret); }
+    readBack(false);
+  }
+  /* strict = the teacher pressed Draw it: an unfinished sentence turns red
+     then, not while it is still being typed */
+  function readBack(strict){
+    inp.classList.remove("is-bad");
+    const v = inp.value.trim();
+    tpRead.className = "tpRead";
+    if(!v){ tpRead.textContent = "Type it, or use the keys."; return null; }
+    try{
+      const r = OO.build(v, 72);
+      tpRead.className = "tpRead ok";
+      tpRead.innerHTML = `<span class="tpSym">${esc(r.src)}</span> &nbsp;—&nbsp; “${esc(OO.wordsPlain(r.root, {div:S.div}))}”`;
+      return r;
+    }catch(e){
+      tpRead.textContent = e.oo ? e.message : "That could not be read — check the signs and brackets.";
+      if(strict){ tpRead.className = "tpRead bad"; void inp.offsetWidth; inp.classList.add("is-bad"); }
+      return null;
+    }
+  }
+  function keyIn(k){
+    let s0 = inp.selectionStart, e0 = inp.selectionEnd;
+    if(s0 == null){ s0 = e0 = inp.value.length; }
+    if(k === "clear") inp.value = "";
+    else if(k === "back"){
+      if(s0 !== e0) inp.setRangeText("", s0, e0, "end");
+      else {
+        let i = s0 - 1;
+        while(i >= 0 && inp.value[i] === " ") i--;
+        if(i >= 0) inp.setRangeText("", i, s0, "end");
+      }
+    }
+    else inp.setRangeText(k, s0, e0, "end");
+    retidy();
+    inp.focus();
   }
   function openType(){
     if(S.mode === "alt") toggleAlt();
-    $("question").hidden = true; inp.hidden = false;
-    inp.value = S.main ? S.main.src : ""; inp.classList.remove("is-bad");
-    S.typing = true; inp.focus(); inp.select();
-    setPrompt("Type an expression with + − × ÷ and brackets, then press Enter. Use x or * for × and / for ÷.", "", "✏️");
+    closeMenus();
+    panel.hidden = false; S.typing = true;
+    inp.value = S.main ? OO.symText(S.main.root, true, {}) : "";
+    retidy();
+    inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length);
   }
-  function closeType(){ inp.hidden = true; $("question").hidden = false; S.typing = false; }
+  function closeType(){ panel.hidden = true; S.typing = false; }
   function submitType(){
-    let r;
-    try{ r = OO.build(inp.value, 72); }
-    catch(e){
-      inp.classList.remove("is-bad"); void inp.offsetWidth; inp.classList.add("is-bad");
-      setPrompt(e.oo ? e.message : "That could not be read — check the signs and brackets.", "is-bad", "⚠️");
-      return;
-    }
-    closeType(); S.custom = true; useRun(r);
+    const r = readBack(true);
+    if(!r) return;
+    closeType(); S.custom = true; S.fresh = false; useRun(r);
   }
+  inp.addEventListener("input", retidy);
   inp.addEventListener("keydown", e => {
     if(e.key === "Enter"){ e.preventDefault(); submitType(); }
     else if(e.key === "Escape"){ e.preventDefault(); closeType(); paint(viewAt(S.pos)); }
+    else if(e.key === "Backspace" && inp.selectionStart === inp.selectionEnd){ e.preventDefault(); keyIn("back"); }
   });
-  inp.addEventListener("input", () => inp.classList.remove("is-bad"));
+  $("tpKeys").addEventListener("mousedown", e => { if(e.target.closest(".tpKey")) e.preventDefault(); });
+  $("tpKeys").addEventListener("click", e => { const b = e.target.closest(".tpKey"); if(b) keyIn(b.dataset.k); });
+  tpGo.addEventListener("click", submitType);
+  $("tpCancel").addEventListener("click", () => { closeType(); paint(viewAt(S.pos)); });
+  $("tpClose").addEventListener("click", () => { closeType(); paint(viewAt(S.pos)); });
+  panel.addEventListener("click", e => e.stopPropagation());
+
+  /* ---------------------------------------------------------- new problem
+     The same kind of problem as the one on the board: same signs, same
+     brackets, same steps (so a part taken out of the first amount stays one),
+     negatives only where it had them — with friendly numbers. */
+  function newProblem(){
+    if(!S.main) return;
+    const base = S.main, wasNeg = runHasNeg(base), kinds = base.steps.map(d => d.kind).join();
+    const baseAlt = OO.otherReading(base.root), wantAlt = baseAlt && !baseAlt.same;
+    let found = null;
+    for(let a = 0; a < 400 && !found; a++){
+      let r;
+      try{ r = OO.build(OO.variant(base.root), 48); }catch(e){ continue; }
+      if(r.src === base.src || r.src === S.lastSrc) continue;
+      if(runHasNeg(r) !== wasNeg) continue;
+      /* friendly: an answer worth finding, and no bigger a picture than before */
+      if(!wasNeg && base.value >= 2 && r.value < 2) continue;
+      if(a < 250 && r.maxTiles > Math.max(base.maxTiles + 8, 24)) continue;
+      if(a < 300 && r.steps.map(d => d.kind).join() !== kinds) continue;
+      if(a < 200 && wantAlt){ const al = OO.otherReading(r.root); if(!al || al.same) continue; }
+      found = r;
+    }
+    if(!found) return;
+    closeType();
+    S.fresh = true; S.custom = false;
+    useRun(found);
+  }
+  $("newProbBtn").addEventListener("click", newProblem);
 
   /* ---------------------------------------------------------- fit */
   function fitBoard(){
@@ -1994,7 +2174,7 @@ if(typeof module !== "undefined") module.exports = OO;
   };
   $("setSel").addEventListener("change", e => {
     S.set = e.target.value; save(); syncSettings();
-    if(S.set === "lesson") loadLesson(0); else { S.custom = false; useRun(generate(S.set)); }
+    if(S.set === "lesson") loadLesson(0); else { S.custom = false; S.fresh = false; useRun(generate(S.set)); }
   });
   $("startSel").addEventListener("change", e => { S.start = e.target.value; save(); syncSettings(); S.mode = "main"; prepRun(); S.pos = 0; paint(viewAt(0), {enter:S.speed > 0}); });
   $("divSel").addEventListener("change", e => { S.div = e.target.value; save(); syncSettings(); prepRun(); paint(viewAt(S.pos)); });
@@ -2040,6 +2220,7 @@ if(typeof module !== "undefined") module.exports = OO;
     else if(e.key === "o" || e.key === "O"){ toggleAlt(); }
     else if(e.key === "f" || e.key === "F"){ toggleFull(); }
     else if(e.key === "n" || e.key === "N"){ newQuestion(); }
+    else if(e.key === "r" || e.key === "R"){ newProblem(); }
     else if(e.key === "t" || e.key === "T"){ e.preventDefault(); openType(); }
   });
 
@@ -2052,7 +2233,7 @@ if(typeof module !== "undefined") module.exports = OO;
   boot();
   window.addEventListener("load", () => setTimeout(refit, 30));
 
-  window.__OO__ = {S, OO, next, back, restart, viewAt, nViews, toggleAlt, useRun, loadLesson, newQuestion, generate, paint, refit, LESSON, GEN, layFor};
+  window.__OO__ = {S, OO, newProblem, next, back, restart, viewAt, nViews, toggleAlt, useRun, loadLesson, newQuestion, generate, paint, refit, LESSON, GEN, layFor};
 })();
 </script>
 </body>

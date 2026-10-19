@@ -159,13 +159,26 @@
 >     in a run of the same kind of sign — (20 ÷ 5) × 2, (6 × 4) ÷ 2, (12 − 3) − 4.
 >     These grps carry `auto:true`; `otherReading` sees through them, so the
 >     other reading is 20 ÷ (5 × 2).
+> * **MORE (teacher requests 2026-10-19, late pm):**
+>   - **Positive tiles are GREEN** (`--posFill:#4ade80`), negatives red; legend and
+>     cues say "green". Whole-number taken-away tiles still turn red.
+>   - **Type your own = an equation editor** (`#typePanel`), in the spirit of the MMT
+>     Screen one but cut to what the board draws. `tidy()` rewrites as you type
+>     (* x → ×, / → ÷, - → −, spacing, caret kept); Backspace deletes through the
+>     spacing; on-screen keypad; `#tpRead` reads it back in words or explains why it
+>     can't be drawn. Unknown characters (2.5, ^) are KEPT so the error can say why —
+>     never silently changed.
+>   - **New problem** (bottom bar, R): `OO.variant(root)` re-picks numbers in the same
+>     tree (groups/divisors 2–5, divisions built from their answer, amounts near their
+>     size); the page keeps it only if signs, step kinds, tile count and a sensible
+>     answer match the current problem. Tag reads "New numbers".
 > * **ENGINE IS DOM-FREE** (`<script id="ooEngine">`, `var OO`): parse → tree; roles
 >   fixed at parse; each Next reduces ONE node, post-order left-first; stable tile
 >   ids, so the board moves rather than redraws. Kinds: mul, div, add, addmix →
 >   cancel, zp, out, sub, count. Negative count/divisor = "the opposite of": flip.
 > * **"The other reading"** (button / O): brackets dropped, left to right, or the end
 >   grouped first (boy with the telescope), drawn as its own run.
-> * Verified: 1176 Playwright checks (incl. animated Back from every step landing exactly); (1011 runs re-derived independently, value
+> * Verified: 1181 Playwright checks (incl. animated Back from every step landing exactly); (1011 runs re-derived independently, value
 >   constant through every state, no answer early, symbols above every tile and
 >   words below, no frames, no tiles resting on each other even mid-animation,
 >   every lesson example + other reading at 1366/1024/1920/1280 with no scroll).
