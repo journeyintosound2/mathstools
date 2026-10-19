@@ -22,7 +22,10 @@
    ---------------
      title  (required)  what shows on the card
      type   (required)  "pdf" | "pptx" | "docx" | "xlsx" | "link" | "video"
-     file   (required unless type:"link")  filename inside the topic folder
+     file   (required unless type:"link" or `path` is given)  filename inside the topic folder
+     path   (optional)  site-root path to a file kept in ANOTHER topic's folder,
+            e.g. "/resources/stage-4/computation-with-integers/deck.pptx" — lists one
+            file under two outcomes without storing it twice
      url    (only for type:"link")  full URL
      note   (optional)  one short line under the title
      year   (optional)  "Year 9" etc — shows as a small chip
@@ -179,7 +182,16 @@ window.MMT_RESOURCES = {
           code: "MA3-MR-02",
           focusArea: "Multiplicative relations A & B",
           statement: "constructs and completes number sentences involving multiplicative relations, applying the order of operations to calculations",
-          resources: []
+          resources: [
+            {
+              title: "Order of Operations Review \u2014 Say What You See",
+              type: "pptx",
+              path: "/resources/stage-4/computation-with-integers/order-of-operations-review.pptx",
+              note: "29-slide deck — no acronym: each expression is described as a picture first (\"5 and 3 groups of 5\"), then written in mathematical language; take-away and fractions of an amount, a your-turn set, and the \"boy with the telescope\" left-to-right rule for × and ÷. The Say What You See interactive is built from it. The file lives with Stage 4 Integers; listed here too because Stage 3 is where the order of operations is first met.",
+              year: "Year 6",
+              tags: ["lesson deck", "presentation", "order of operations", "BODMAS", "describe what you see", "visual", "groups of", "number sentences", "left to right", "boy with the telescope"]
+            }
+          ]
         }
       ]
     },
@@ -366,7 +378,16 @@ window.MMT_RESOURCES = {
           code: "MA4-INT-C-01",
           path: "Core",
           statement: "compares, orders and calculates with integers to solve problems",
-          resources: []
+          resources: [
+            {
+              title: "Order of Operations Review \u2014 Say What You See",
+              type: "pptx",
+              file: "order-of-operations-review.pptx",
+              note: "29-slide deck — no acronym: each expression is described as a picture first (\"5 and 3 groups of 5\"), then written in mathematical language; take-away and fractions of an amount, a your-turn set, and the \"boy with the telescope\" left-to-right rule for × and ÷. The Say What You See interactive is built from it.",
+              year: "Year 7",
+              tags: ["lesson deck", "presentation", "order of operations", "BODMAS", "BIDMAS", "PEMDAS", "describe what you see", "visual", "groups of", "integers", "left to right", "boy with the telescope"]
+            }
+          ]
         }
       ]
     },
@@ -514,7 +535,16 @@ window.MMT_RESOURCES = {
           code: "MA4-LIN-C-01",
           path: "Core",
           statement: "creates and displays number patterns and finds graphical solutions to problems involving linear relationships",
-          resources: []
+          resources: [
+            {
+              title: "Visual Patterns Activity",
+              type: "docx",
+              file: "visual-patterns-activity.docx",
+              note: "Six growing patterns (squares, matchsticks, cubes, circles) \u2014 describe in your own words how each figure changes, then predict a far figure (7, 11, 6, 12, 28). Question 6 is a challenge. Editable Word file.",
+              year: "Year 7",
+              tags: ["worksheet", "visual patterns", "growing patterns", "number patterns", "predict", "describe", "matchsticks", "linear relationships", "notice and wonder", "editable"]
+            }
+          ]
         }
       ]
     },
