@@ -187,9 +187,9 @@ window.MMT_RESOURCES = {
               title: "Order of Operations Review \u2014 Say What You See",
               type: "pptx",
               path: "/resources/stage-4/computation-with-integers/order-of-operations-review.pptx",
-              note: "29-slide deck — no acronym: each expression is described as a picture first (\"5 and 3 groups of 5\"), then written in mathematical language; take-away and fractions of an amount, a your-turn set, and the \"boy with the telescope\" left-to-right rule for × and ÷. The Say What You See interactive is built from it. The file lives with Stage 4 Integers; listed here too because Stage 3 is where the order of operations is first met.",
+              note: "32-slide deck — no acronym: each expression is described as a picture first (\"5 and 3 groups of 5\"), then written in mathematical language; take-away and fractions of an amount, a your-turn set, and the \"boy with the telescope\" left-to-right rule for × and ÷, a link to the Say What You See interactive, and an exit ticket. The file lives with Stage 4 Integers; listed here too because Stage 3 is where the order of operations is first met.",
               year: "Year 6",
-              tags: ["lesson deck", "presentation", "order of operations", "BODMAS", "describe what you see", "visual", "groups of", "number sentences", "left to right", "boy with the telescope"]
+              tags: ["lesson deck", "presentation", "order of operations", "BODMAS", "describe what you see", "visual", "groups of", "number sentences", "left to right", "boy with the telescope", "exit ticket"]
             }
           ]
         }
@@ -383,9 +383,9 @@ window.MMT_RESOURCES = {
               title: "Order of Operations Review \u2014 Say What You See",
               type: "pptx",
               file: "order-of-operations-review.pptx",
-              note: "29-slide deck — no acronym: each expression is described as a picture first (\"5 and 3 groups of 5\"), then written in mathematical language; take-away and fractions of an amount, a your-turn set, and the \"boy with the telescope\" left-to-right rule for × and ÷. The Say What You See interactive is built from it.",
+              note: "32-slide deck — no acronym: each expression is described as a picture first (\"5 and 3 groups of 5\"), then written in mathematical language; take-away and fractions of an amount, a your-turn set, and the \"boy with the telescope\" left-to-right rule for × and ÷, a link to the Say What You See interactive, and an exit ticket.",
               year: "Year 7",
-              tags: ["lesson deck", "presentation", "order of operations", "BODMAS", "BIDMAS", "PEMDAS", "describe what you see", "visual", "groups of", "integers", "left to right", "boy with the telescope"]
+              tags: ["lesson deck", "presentation", "order of operations", "BODMAS", "BIDMAS", "PEMDAS", "describe what you see", "visual", "groups of", "integers", "left to right", "boy with the telescope", "exit ticket"]
             }
           ]
         }
