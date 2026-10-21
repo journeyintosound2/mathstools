@@ -1,0 +1,1025 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Counting Strategies for Linear Relationships — Worksheet Generator</title>
+
+  <style>
+    :root{
+      --bg:#f6f7fb;
+      --card:#ffffff;
+      --ink:#111827;
+      --muted:#6b7280;
+      --border:#e5e7eb;
+      --shadow:0 14px 40px rgba(0,0,0,.10);
+      --radius:18px;
+      --blue:#2563eb;
+      --green:#16a34a;
+      --red:#dc2626;
+      --sweet1:#4ade80;  --sweet2:#16a34a;
+      --mild1:#facc15;   --mild2:#d97706;
+      --medium1:#fb923c; --medium2:#ea580c;
+      --spicy1:#f87171;  --spicy2:#b91c1c;
+      --footer-h:44px;
+      --mathFont:"Cambria Math","STIX Two Math","Latin Modern Math","STIXGeneral","Times New Roman",serif;
+      --uiFont:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+    }
+    *{ box-sizing:border-box; }
+    body{ margin:0; background:var(--bg); color:var(--ink); font-family:var(--uiFont); padding-bottom:var(--footer-h); }
+    .wrap{ max-width:1280px; margin:14px auto 32px; padding:0 14px; }
+    .card{ background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); padding:16px; }
+    .title{ margin:0 0 4px; font-size:28px; font-weight:1000; letter-spacing:.2px; }
+    .subtitle{ margin:0 0 14px; color:var(--muted); font-weight:850; font-size:15px; line-height:1.35; }
+    .subtitle a{ color:var(--blue); text-decoration:none; font-weight:1000; }
+
+    .controls{ display:grid; gap:10px; }
+    .band{ border:1px solid var(--border); border-radius:18px; padding:12px 14px; background:linear-gradient(180deg,#ffffff,#f9fafb); }
+    .bandHead{ font-size:11px; letter-spacing:.14em; text-transform:uppercase; font-weight:1000; color:var(--muted); margin:0 0 9px; }
+    .bandGrid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; align-items:end; }
+    .bandRow{ display:flex; gap:14px 22px; flex-wrap:wrap; align-items:center; }
+    label{ display:block; margin:0 0 7px; font-size:15px; font-weight:950; }
+    select{
+      border:2px solid #e5e7eb; border-radius:14px; padding:11px 13px;
+      font-size:15px; font-weight:900; width:100%; background:#fff; color:var(--ink); font-family:inherit;
+    }
+    select:focus{ outline:none; border-color:var(--blue); }
+    .sw{ display:inline-flex; align-items:center; gap:10px; cursor:pointer; user-select:none; font-weight:900; font-size:14.5px; margin:0; }
+    .sw input{ position:absolute; opacity:0; width:0; height:0; }
+    .sw .track{ position:relative; width:46px; height:27px; border-radius:999px; background:#cbd5e1; transition:.16s ease; flex:0 0 auto; }
+    .sw .track::after{ content:""; position:absolute; top:3px; left:3px; width:21px; height:21px; border-radius:50%; background:#fff; box-shadow:0 2px 5px rgba(0,0,0,.28); transition:.16s ease; }
+    .sw input:checked + .track{ background:var(--green); }
+    .sw input:checked + .track::after{ transform:translateX(19px); }
+    .sw input:focus-visible + .track{ box-shadow:0 0 0 4px rgba(37,99,235,.25); }
+
+    .partGrid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(255px,1fr)); gap:10px; }
+    .partOpt{ border:1px solid var(--border); border-radius:14px; padding:10px 12px; background:#fff; display:flex; flex-direction:column; gap:8px; }
+    .partOpt.off{ background:#f9fafb; }
+    .partOpt.off .partTitle{ color:var(--muted); }
+    .partTop{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
+    .partTitle{ font-weight:950; font-size:14.5px; }
+    .partTitle b{ display:inline-grid; place-items:center; width:22px; height:22px; border-radius:7px; background:#111827; color:#fff; font-size:12px; margin-right:6px; }
+    .partOpt small{ display:block; font-size:12px; font-weight:750; color:var(--muted); line-height:1.35; }
+    .partOpt select{ padding:5px 8px; font-size:13px; border-radius:10px; width:auto; }
+
+    .note{ margin:9px 0 0; font-size:12.6px; font-weight:800; color:var(--muted); line-height:1.5; }
+    .note b{ color:var(--ink); }
+    .pill{ background:#eef2ff; color:#1d4ed8; border-radius:999px; padding:5px 12px; font-weight:1000; font-size:13px; }
+
+    .btnRow{ display:flex; gap:10px; flex-wrap:wrap; margin-top:2px; }
+    button.primary, button.ghost, button.danger{ border-radius:14px; padding:13px 18px; font-size:15px; font-weight:1000; cursor:pointer; border:2px solid transparent; font-family:inherit; }
+    button.primary{ background:var(--blue); color:#fff; } button.primary:hover{ background:#1d4ed8; }
+    button.ghost{ background:#fff; color:var(--ink); border-color:var(--border); } button.ghost:hover{ border-color:#c7ccd4; }
+    button.danger{ background:#fff; color:var(--red); border-color:#fecaca; } button.danger:hover{ background:#fef2f2; }
+
+    .outWrap{ margin-top:8px; }
+
+    /* =====================================================================
+       THE PAPER — an A4 page whose writing area is 196 × 281 mm, the same
+       on screen and in print, so what is packed on screen is what prints.
+       ===================================================================== */
+    .page{
+      margin:14px auto 0; background:#fff; border:1px solid var(--border);
+      border-radius:18px; box-shadow:0 10px 26px rgba(15,23,42,.08); overflow:hidden;
+      width:210mm; height:297mm; padding:8mm 7mm; display:flex; flex-direction:column;
+    }
+    .pageHeader{ padding:0 0 1.8mm; border-bottom:2px solid #111827; display:flex; align-items:flex-end; justify-content:space-between; gap:10px; }
+    .hdrTitle{ font-weight:1000; font-size:15px; line-height:1.1; }
+    .hdrSub{ color:var(--muted); font-weight:850; font-size:11px; margin-top:2px; }
+    .nameDate{ display:flex; gap:8px; align-items:flex-end; }
+    .lineField{ display:flex; flex-direction:column; gap:3px; width:120px; }
+    .lineField.wide{ width:170px; }
+    .lineLabel{ font-size:10px; font-weight:950; color:var(--muted); }
+    .lineBox{ height:19px; border-bottom:1.6px solid #111827; }
+    .sheet{ padding:2.6mm 0 0; flex:1 1 auto; display:flex; flex-direction:column; gap:2.6mm; min-height:0; overflow:hidden; }
+    .intro{ font-size:12.2px; font-weight:850; color:#374151; line-height:1.35; margin:0; }
+
+    .secHead{ display:flex; align-items:baseline; gap:7px; margin:1mm 0 -0.6mm; }
+    .secLetter{ display:inline-grid; place-items:center; min-width:6mm; height:6mm; border-radius:1.6mm; background:#111827; color:#fff; font-size:12px; font-weight:1000; align-self:center; }
+    .secTitle{ font-size:13.5px; font-weight:1000; }
+    .secSub{ font-size:11.5px; font-weight:800; color:#4b5563; }
+    .secCont{ font-size:10.5px; font-weight:850; color:var(--muted); }
+
+    .qRow{ display:grid; gap:3mm; }
+    .qRow.two{ grid-template-columns:1fr 1fr; }
+    .qRow.one{ grid-template-columns:1fr; }
+    .qCard{ border:1.3px solid #cfd5dd; border-radius:10px; padding:2.4mm 3mm 3mm; display:flex; flex-direction:column; gap:2.2mm; min-width:0; }
+    .qTop{ display:flex; align-items:center; gap:7px; }
+    .qNum{ min-width:22px; height:22px; padding:0 6px; border-radius:999px; color:#fff; display:flex; align-items:center; justify-content:center; font-size:11.5px; font-weight:1000; flex:0 0 auto; }
+    .qNum.sweet{ background:linear-gradient(180deg,var(--sweet1),var(--sweet2)); }
+    .qNum.mild{ background:linear-gradient(180deg,var(--mild1),var(--mild2)); }
+    .qNum.medium{ background:linear-gradient(180deg,var(--medium1),var(--medium2)); }
+    .qNum.spicy{ background:linear-gradient(180deg,var(--spicy1),var(--spicy2)); }
+    .instr{ font-size:13.6px; font-weight:1000; line-height:1.25; }
+    .instr .q{ color:#111827; }
+    .ask{ font-size:11.8px; font-weight:850; color:#374151; line-height:1.35; }
+    .ask .lt{ font-weight:1000; margin-right:3px; }
+
+    /* the sequence boxes */
+    .seqBoxes{ display:grid; grid-template-columns:repeat(var(--n,6),minmax(0,1fr)); gap:2.2mm; max-width:100mm; }
+    .seqBox{ height:10mm; border:1.4px solid #111827; border-radius:2mm; display:grid; place-items:center; font-family:var(--mathFont); font-size:14px; min-width:0; }
+
+    /* tables of values */
+    table.tv{ border-collapse:collapse; font-family:var(--mathFont); font-size:14px; }
+    table.tv th, table.tv td{ border:1.3px solid #111827; text-align:center; height:7.4mm; padding:0 1mm; }
+    table.tv th{ font-weight:500; background:#f3f4f6; font-size:15px; }
+    table.tv.vert td, table.tv.vert th{ width:15mm; }
+    table.tv.horiz{ width:100%; table-layout:fixed; }
+    table.tv.horiz th{ width:10mm; }
+    td.wrong{ position:relative; }
+
+    .graphRow{ display:flex; gap:5mm; align-items:stretch; }
+    .graphRow .side{ display:flex; flex-direction:column; gap:2.2mm; flex:0 0 auto; }
+    .graphRow .gwrap{ flex:0 0 auto; display:flex; justify-content:center; align-items:flex-start; }
+    .graphRow .notice{ flex:1 1 auto; min-width:0; display:flex; flex-direction:column; gap:2mm; }
+    .graphRow .notice .lines{ flex:1 1 auto; min-height:20mm; }
+    svg.grid{ display:block; overflow:visible; }
+    svg.grid text{ font-family:var(--uiFont); }
+    .gCenter{ display:flex; justify-content:center; }
+
+    .ansLine{ display:flex; align-items:flex-end; gap:5px; font-size:12px; font-weight:900; flex-wrap:wrap; line-height:1.2; }
+    .ansLine.math{ font-family:var(--mathFont); font-size:15px; font-weight:500; }
+    .blank{ display:inline-block; min-width:20mm; border-bottom:1.5px solid #111827; height:5.4mm; }
+    .blank.sm{ min-width:11mm; }
+    .blank.lg{ min-width:40mm; }
+    .blank.xl{ min-width:58mm; }
+    .grow{ flex:1 1 auto; }
+    .lines{ background:repeating-linear-gradient(180deg,transparent 0 6.6mm,#c9ced6 6.6mm calc(6.6mm + 1px)); }
+    .eq{ font-family:var(--mathFont); font-size:16px; font-weight:500; white-space:nowrap; }
+    .pfill{ flex:1 1 auto; }
+
+    .think{ border:1.3px dashed #9aa3af; border-radius:10px; padding:2.4mm 3mm 3mm; display:flex; flex-direction:column; gap:2mm; flex:1 1 auto; min-height:38mm; max-height:110mm; }
+    .think .lines{ flex:1 1 auto; min-height:20mm; }
+
+    /* answer key */
+    .isKey .qCard{ border-color:#bbf7d0; background:#f7fdf9; }
+    .key{ color:#15803d; font-weight:1000; }
+    .keyMath{ color:#15803d; }
+    .keyText{ font-size:11.6px; font-weight:850; color:#14532d; line-height:1.4; background:#ecfdf3; border-radius:6px; padding:1.4mm 2mm; }
+    .keyText b{ color:#15803d; }
+    .keyBlank{ display:inline-block; min-width:11mm; border-bottom:1.5px solid #15803d; color:#15803d; text-align:center; padding:0 1mm; }
+    .isKey .seqBox, .isKey table.tv td.k{ color:#15803d; font-weight:700; }
+    .isKey td.wrongKey{ background:#fee2e2; }
+
+    .pageFooter{ padding:1.4mm 0 0; border-top:1px solid rgba(229,231,235,.95); display:flex; align-items:center; justify-content:space-between; font-weight:900; color:var(--muted); font-size:10px; }
+    .pageFooter a{ color:#2563eb; text-decoration:none; font-weight:1000; }
+
+    .mmtFooter{ position:fixed; left:0; right:0; bottom:0; height:var(--footer-h); display:flex; align-items:center; justify-content:center; padding:0 12px;
+      background:rgba(255,255,255,.92); border-top:1px solid rgba(229,231,235,.95); backdrop-filter:blur(8px); z-index:500; font-weight:900; color:#111827; text-align:center; font-size:13px; }
+    .mmtFooter a{ color:#2563eb; text-decoration:none; font-weight:950; }
+
+    @media print{
+      @page{ size:A4; margin:8mm 7mm; }
+      html, body{ width:210mm; height:auto; }
+      body{ background:#fff; padding-bottom:0; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+      .wrap{ max-width:none; margin:0; padding:0; }
+      .card{ box-shadow:none; border-radius:0; padding:0; }
+      .controls, .title, .subtitle, .mmtFooter{ display:none !important; }
+      .page{ margin:0; border:none; border-radius:0; box-shadow:none; width:auto; height:281mm; padding:0; page-break-after:always; }
+      .page:last-child{ page-break-after:auto; }
+    }
+  </style>
+<!-- mmt-pwa -->
+<link rel="manifest" href="../../../manifest.webmanifest">
+<meta name="theme-color" content="#1f3a5f">
+<link rel="apple-touch-icon" href="../../../icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="MMT">
+<script src="../../../pwa.js" defer></script>
+<!-- /mmt-pwa -->
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1 class="title">Counting Strategies for Linear Relationships &mdash; Worksheet Generator</h1>
+      <p class="subtitle">Printable A4 worksheets from the <a href="/interactive-tools/stage-4/algebra/counting-strategies-linear/">Counting Strategies</a> teaching tool. Every question starts from an instruction like <b>&ldquo;Start at 5, count up by 3s&rdquo;</b> &mdash; then the student writes the sequence, fills a table, plots it, and writes it as y&nbsp;=&nbsp;5&nbsp;+&nbsp;3x. Later sections run it backwards and argue about mistakes.</p>
+
+      <div class="controls">
+        <div class="band">
+          <p class="bandHead">The paper</p>
+          <div class="bandGrid">
+            <div>
+              <label for="levelSel">Numbers</label>
+              <select id="levelSel">
+                <option value="sweet">Sweet &mdash; start 0&ndash;12, count by 2s to 5s</option>
+                <option value="mild">Mild &mdash; start up to 30, count by 2s to 10s</option>
+                <option value="medium">Medium &mdash; bigger; counting down may pass zero</option>
+                <option value="spicy">Spicy &mdash; negative starts, decimal steps</option>
+                <option value="mixed" selected>Mixed &mdash; each section climbs Sweet to Spicy</option>
+              </select>
+            </div>
+            <div>
+              <label for="dirSel">Count</label>
+              <select id="dirSel">
+                <option value="up">Up only</option>
+                <option value="down">Down only</option>
+                <option value="either" selected>Up or down</option>
+              </select>
+            </div>
+            <div>
+              <label for="formSel">Write equations as</label>
+              <select id="formSel">
+                <option value="start" selected>y = 5 + 3x &mdash; the start first</option>
+                <option value="grad">y = 3x + 5 &mdash; the count first</option>
+                <option value="mix">A mix of both</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="band">
+          <p class="bandHead">Sections &mdash; the scaffold fades from A to F</p>
+          <div class="partGrid" id="partGrid"></div>
+          <p class="note">The sections follow the lesson: <b>count</b> it out, put it in a <b>table</b> and <b>plot</b> it, write it as an <b>equation</b>, then go <b>backwards</b> from an equation or a graph, find the <b>mistake</b> in someone else&rsquo;s work, and use the equation to go <b>further</b> than counting can.</p>
+        </div>
+
+        <div class="band">
+          <p class="bandHead">Options</p>
+          <div class="bandRow">
+            <label class="sw"><input type="checkbox" id="nameToggle" checked /><span class="track"></span><span>Name and date</span></label>
+            <label class="sw"><input type="checkbox" id="numAxesToggle" checked /><span class="track"></span><span>Number the axes for them</span></label>
+            <label class="sw"><input type="checkbox" id="thinkToggle" checked /><span class="track"></span><span>A question to argue about at the end</span></label>
+            <label class="sw"><input type="checkbox" id="keyToggle" checked /><span class="track"></span><span>Answer key pages</span></label>
+          </div>
+          <p class="note">With <b>Number the axes</b> off, the graphs print as blank grids and choosing the scale is part of the question (the key shows one scale that works). Graphs use the same idea as the tool&rsquo;s auto-scale: each axis is scaled to fit its own numbers.</p>
+        </div>
+
+        <div class="btnRow">
+          <button id="genBtn" class="primary" type="button">Generate worksheet</button>
+          <button id="printBtn" class="ghost" type="button">Print (Ctrl+P)</button>
+          <button id="resetBtn" class="danger" type="button">Reset</button>
+          <span class="pill" id="sumPill" style="align-self:center"></span>
+        </div>
+      </div>
+
+      <div id="out" class="outWrap"></div>
+    </div>
+  </div>
+
+  <div class="mmtFooter">This tool and more can be found at&nbsp;<a href="https://www.millsmathstools.au">www.millsmathstools.au</a></div>
+
+<!-- ===== engine: copied VERBATIM from the teaching tool. Change the tool's engine → re-copy it here. ===== -->
+<script id="clEngine">
+var CL = (function(){
+  "use strict";
+
+  // ---------- numbers ----------
+  function round(n){ return Math.round(n * 1e10) / 1e10; }
+  function fmt(n){
+    if(!isFinite(n)) return "";
+    n = round(n);
+    if(Object.is(n, -0)) n = 0;
+    var s = String(n);
+    if(/e/i.test(s)) s = n.toFixed(6).replace(/0+$/, "").replace(/\.$/, "");
+    return s.replace(/^-/, "−");
+  }
+
+  // ---------- the expression parser ----------
+  // Accepts what a teacher types: 5+3x, 3x + 5, 3*x+5, 3(x+1), 20 - 2x, x/2 + 1, -x, 2.5x, x^2.
+  // Unicode the tidier writes (− × ÷ ·, math-italic x/y) is read back as plain ASCII.
+  function normalise(s){
+    return String(s)
+      .replace(/\u{1D465}/gu, "x").replace(/\u{1D466}/gu, "y")
+      .replace(/[−–—]/g, "-")
+      .replace(/[×·⋅*]/g, "*")
+      .replace(/[÷:]/g, "/")
+      .replace(/²/g, "^2").replace(/³/g, "^3")
+      .replace(/[Xx]/g, "x").replace(/[Yy]/g, "y")
+      .replace(/,(?=\d{3}\b)/g, "")
+      .replace(/\s+/g, "");
+  }
+  function tokenize(s){
+    var t = [], i = 0;
+    while(i < s.length){
+      var c = s[i];
+      var m = /^(\d+\.?\d*|\.\d+)/.exec(s.slice(i));
+      if(m){ t.push({k:"n", v:parseFloat(m[1])}); i += m[1].length; continue; }
+      if(c === "x" || c === "y"){ t.push({k:c}); i++; continue; }
+      if("+-*/^()=".indexOf(c) >= 0){ t.push({k:c}); i++; continue; }
+      throw new Error("char");
+    }
+    return t;
+  }
+  // Recursive descent to a tree: {k:'n',v} {k:'x'} {k:'y'} {k:'neg',a} {k:'+'|'-'|'*'|'/'|'^',a,b}
+  function parseTokens(t){
+    var p = 0;
+    function peek(){ return t[p]; }
+    function eat(k){ if(t[p] && t[p].k === k){ p++; return true; } return false; }
+    function expr(){
+      var a = term();
+      while(peek() && (peek().k === "+" || peek().k === "-")){
+        var op = t[p++].k; a = {k:op, a:a, b:term()};
+      }
+      return a;
+    }
+    function startsAtom(tk){ return tk && (tk.k === "n" || tk.k === "x" || tk.k === "y" || tk.k === "("); }
+    function term(){
+      var a = unary();
+      for(;;){
+        var tk = peek();
+        if(tk && (tk.k === "*" || tk.k === "/")){ p++; a = {k:tk.k, a:a, b:unary()}; }
+        else if(startsAtom(tk)){ a = {k:"*", a:a, b:power()}; }   // implicit: 3x, 2(x+1), x(x+1)
+        else break;
+      }
+      return a;
+    }
+    function unary(){
+      if(eat("-")) return {k:"neg", a:unary()};
+      if(eat("+")) return unary();
+      return power();
+    }
+    function power(){
+      var a = atom();
+      if(eat("^")) return {k:"^", a:a, b:unary()};
+      return a;
+    }
+    function atom(){
+      var tk = t[p];
+      if(!tk) throw new Error("end");
+      if(tk.k === "n"){ p++; return {k:"n", v:tk.v}; }
+      if(tk.k === "x" || tk.k === "y"){ p++; return {k:tk.k}; }
+      if(tk.k === "("){ p++; var e = expr(); if(!eat(")")) throw new Error("paren"); return e; }
+      throw new Error("unexpected");
+    }
+    var tree = expr();
+    if(p !== t.length) throw new Error("trail");
+    return tree;
+  }
+  function has(tree, k){
+    if(!tree) return false;
+    if(tree.k === k) return true;
+    return has(tree.a, k) || has(tree.b, k);
+  }
+  function evalTree(tr, x){
+    switch(tr.k){
+      case "n": return tr.v;
+      case "x": return x;
+      case "neg": return -evalTree(tr.a, x);
+      case "+": return evalTree(tr.a, x) + evalTree(tr.b, x);
+      case "-": return evalTree(tr.a, x) - evalTree(tr.b, x);
+      case "*": return evalTree(tr.a, x) * evalTree(tr.b, x);
+      case "/": return evalTree(tr.a, x) / evalTree(tr.b, x);
+      case "^": return Math.pow(evalTree(tr.a, x), evalTree(tr.b, x));
+    }
+    return NaN;
+  }
+  function parseSide(s){ return parseTokens(tokenize(s)); }
+
+  // A table cell: a number, or something that works out to one (1/2, -3, 2.5).
+  function num(s){
+    var n = normalise(s);
+    if(n === "") return NaN;
+    try{
+      var tr = parseSide(n);
+      if(has(tr, "x") || has(tr, "y")) return NaN;
+      var v = evalTree(tr, 0);
+      return isFinite(v) ? v : NaN;
+    }catch(e){ return NaN; }
+  }
+
+  // An equation: returns {kind:'empty'} | {kind:'fn', f} | {kind:'vert', c} | {kind:'err', msg}
+  function equation(raw){
+    var s = normalise(raw);
+    if(s === "" ) return {kind:"empty"};
+    if(s === "y" || s === "y=") return {kind:"err", msg:"Keep going: y = …", soft:true};
+    var parts = s.split("=");
+    if(parts.length > 2) return {kind:"err", msg:"Only one = sign, please"};
+    try{
+      if(parts.length === 1){
+        var tr = parseSide(parts[0]);
+        if(has(tr, "y")) return {kind:"err", msg:"Write it as y = …"};
+        return {kind:"fn", f:function(x){ return evalTree(tr, x); }, linear:linearOf(tr)};
+      }
+      var L = parts[0], R = parts[1];
+      if(R === "") return {kind:"err", msg:"What does it equal?", soft:true};
+      if(L === "") return {kind:"err", msg:"Start with y =", soft:true};
+      if(L === "y" || R === "y"){
+        var side = parseSide(L === "y" ? R : L);
+        if(has(side, "y")) return {kind:"err", msg:"Write it as y = …"};
+        return {kind:"fn", f:function(x){ return evalTree(side, x); }, linear:linearOf(side)};
+      }
+      if(L === "x" || R === "x"){
+        var c = parseSide(L === "x" ? R : L);
+        if(has(c, "x") || has(c, "y")) return {kind:"err", msg:"Write it as y = …"};
+        return {kind:"vert", c:evalTree(c, 0)};
+      }
+      return {kind:"err", msg:"Write it as y = …"};
+    }catch(e){
+      return {kind:"err", msg:"Not finished yet — try something like y = 5 + 3x", soft:true};
+    }
+  }
+  // If f(x) = m x + b exactly (checked at several x), return {m, b}.
+  function linearOf(tr){
+    try{
+      var b = evalTree(tr, 0), m = evalTree(tr, 1) - b;
+      if(!isFinite(b) || !isFinite(m)) return null;
+      var xs = [-7, -2.5, 3, 11, 40];
+      for(var i = 0; i < xs.length; i++){
+        var v = evalTree(tr, xs[i]);
+        if(!isFinite(v) || Math.abs(v - (m * xs[i] + b)) > 1e-7 * Math.max(1, Math.abs(v))) return null;
+      }
+      return {m:round(m), b:round(b)};
+    }catch(e){ return null; }
+  }
+
+  // ---------- tidy what is being typed (pure; caret-preserving) ----------
+  // Returns {text, caret}: text is what goes back in the box, caret a UTF-16 index.
+  // `caretLogical` = how many non-space characters were before the caret.
+  function tidy(raw, caretLogical, alpha){
+    var X = alpha ? "\u{1D465}" : "x", Y = alpha ? "\u{1D466}" : "y";
+    var chars = Array.from(raw).filter(function(c){ return !/\s/.test(c); });
+    var mapped = chars.map(function(c){
+      if(c === "-" || c === "–" || c === "−") return "−";
+      if(c === "*" || c === "·" || c === "×") return "×";
+      if(c === "/" || c === "÷") return "÷";
+      if(c === "x" || c === "X" || c === "\u{1D465}") return X;
+      if(c === "y" || c === "Y" || c === "\u{1D466}") return Y;
+      return c;
+    });
+    // after[i] = where the caret goes once character i has been typed
+    // (past an operator's trailing space, so typing just carries on)
+    var out = "", after = [], prev = null;
+    for(var i = 0; i < mapped.length; i++){
+      var c = mapped[i];
+      var binary = (c === "+" || c === "−") ? (prev !== null && prev !== "(" && prev !== "=" && "+−×÷^".indexOf(prev) < 0)
+                 : (c === "×" || c === "÷" || c === "=");
+      if(binary) out = out.replace(/ $/, "") + " " + c + " ";
+      else out += c;
+      after.push(out.length);
+      prev = c;
+    }
+    var k = Math.min(caretLogical, after.length);
+    var caret = k <= 0 ? 0 : Math.min(after[k - 1], out.length);
+    return {text:out, caret:caret};
+  }
+
+  // ---------- rules: "Start at a, count up/down by b" ----------
+  var LEVELS = {
+    sweet:  {starts:[0,12],  steps:[2,3,4,5]},
+    mild:   {starts:[0,30],  steps:[2,3,4,5,6,7,8,9,10]},
+    medium: {starts:[-20,60],steps:[2,3,4,5,6,7,8,9,11,12,15,20,25]},
+    spicy:  {starts:[-30,40],steps:[0.5,1.5,2.5,0.25,0.2,4,6,7,9,12,15]}
+  };
+  function ri(a, b){ return a + Math.floor(Math.random() * (b - a + 1)); }
+  function pick(a){ return a[Math.floor(Math.random() * a.length)]; }
+  function makeRule(level, dirMode, rows, avoid){
+    var L = LEVELS[level] || LEVELS.mild;
+    for(var tries = 0; tries < 60; tries++){
+      var dir = dirMode === "either" ? (Math.random() < .5 ? "up" : "down") : dirMode;
+      var step = pick(L.steps), start;
+      var span = step * (rows - 1);
+      if(level === "sweet" || level === "mild"){
+        // never below zero inside the table
+        start = dir === "up" ? ri(L.starts[0], L.starts[1]) : Math.ceil(span / step) * step + ri(0, level === "sweet" ? 10 : 20);
+        if(dir === "down" && start - span < 0) continue;
+      } else if(level === "medium"){
+        start = dir === "up" ? ri(L.starts[0], L.starts[1]) : ri(Math.max(10, Math.round(span * .4)), Math.round(span * 1.3) + 10);
+      } else {
+        start = ri(L.starts[0], L.starts[1]);
+        if(step < 1 && Math.random() < .5) start = start + .5;
+      }
+      if(start === 0 && Math.random() < .6) continue;              // 0 is fine sometimes, not often
+      if(step === 1) continue;
+      var r = {start:round(start), step:step, dir:dir};
+      if(avoid && avoid.start === r.start && avoid.step === r.step && avoid.dir === r.dir) continue;
+      return r;
+    }
+    return {start:5, step:3, dir:"up"};
+  }
+  function termOf(rule, x){ return round(rule.start + (rule.dir === "up" ? 1 : -1) * rule.step * x); }
+
+  // ---------- axes ----------
+  function niceStep(raw){
+    if(!(raw > 0) || !isFinite(raw)) return 1;
+    var p = Math.pow(10, Math.floor(Math.log10(raw))), f = raw / p;
+    var n = f < 1.5 ? 1 : f < 3 ? 2 : f < 7 ? 5 : 10;
+    return n * p;
+  }
+  function minorDiv(step){
+    var p = Math.pow(10, Math.floor(Math.log10(step) + 1e-9)), f = Math.round(step / p);
+    return f === 2 ? 4 : 5;
+  }
+  // Include zero when the data are close enough to it for zero to matter.
+  function rangeFor(lo, hi){
+    if(hi - lo < 1e-9){
+      if(lo > 0) lo = 0; else if(hi < 0) hi = 0; else { lo = -1; hi = 1; }
+    } else {
+      if(lo > 0 && lo <= 2 * (hi - lo)) lo = 0;
+      if(hi < 0 && -hi <= 2 * (hi - lo)) hi = 0;
+    }
+    if(hi - lo < 1e-9) hi = lo + 1;
+    return [lo, hi];
+  }
+  // Fit [xlo,xhi] x [ylo,yhi] into a W x H box with pixel padding.
+  // equal=false: each axis stretched on its own (auto-scale). equal=true: one unit is the same length both ways.
+  var PAD = {l:48, r:86, t:24, b:32};   // r: clear of the tools column
+  function fit(xs, ys, W, H, equal){
+    var xr = rangeFor(Math.min.apply(null, xs), Math.max.apply(null, xs));
+    var yr = rangeFor(Math.min.apply(null, ys), Math.max.apply(null, ys));
+    var iw = Math.max(40, W - PAD.l - PAD.r), ih = Math.max(40, H - PAD.t - PAD.b);
+    if(!equal){
+      var sx = niceStep((xr[1] - xr[0]) / Math.max(2, iw / 90)), sy = niceStep((yr[1] - yr[0]) / Math.max(2, ih / 70));
+      xr = [Math.floor(xr[0] / sx + 1e-9) * sx, Math.ceil(xr[1] / sx - 1e-9) * sx];
+      yr = [Math.floor(yr[0] / sy + 1e-9) * sy, Math.ceil(yr[1] / sy - 1e-9) * sy];
+      var ux = (xr[1] - xr[0]) / iw, uy = (yr[1] - yr[0]) / ih;
+      return {x0:xr[0] - PAD.l * ux, x1:xr[1] + PAD.r * ux, y0:yr[0] - PAD.b * uy, y1:yr[1] + PAD.t * uy};
+    }
+    var u = Math.max((xr[1] - xr[0]) / iw, (yr[1] - yr[0]) / ih);
+    var cx = (xr[0] + xr[1]) / 2, cy = (yr[0] + yr[1]) / 2;
+    var halfW = (W / 2) * u, halfH = (H / 2) * u;
+    // centre the data inside the padded box
+    var offX = ((PAD.l - PAD.r) / 2) * u, offY = ((PAD.b - PAD.t) / 2) * u;
+    return {x0:cx - halfW - offX, x1:cx + halfW - offX, y0:cy - halfH - offY, y1:cy + halfH - offY};
+  }
+
+  return {fmt:fmt, num:num, equation:equation, tidy:tidy, normalise:normalise,
+          makeRule:makeRule, termOf:termOf, niceStep:niceStep, minorDiv:minorDiv,
+          rangeFor:rangeFor, fit:fit, PAD:PAD, LEVELS:LEVELS, round:round};
+})();
+if(typeof module !== "undefined") module.exports = CL;
+</script>
+
+<script>
+(function(){
+'use strict';
+
+const $ = id => document.getElementById(id);
+const LADDER = ['sweet','mild','medium','spicy'];
+const STORE = 'mmt-cs-ws.v1';
+const rnd = n => Math.floor(Math.random()*n);
+const pick = a => a[rnd(a.length)];
+const esc = s => String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const F = n => CL.fmt(n);
+const R = n => CL.round(n);
+
+/* ---------- the sections ---------- */
+const SECTIONS = [
+  { id:'A', key:'seq',   title:'Count it out',        sub:'Write the first six numbers.', counts:[0,2,4,6,8], def:4, wide:false,
+    blurb:'The instruction alone. Six empty boxes &mdash; the first one too, because the start is the number students most often skip.' },
+  { id:'B', key:'graph', title:'Table and graph',     sub:'Complete the table, then plot the points.', counts:[0,1,2,3,4], def:2, wide:true,
+    blurb:'The heart of it: the sequence becomes a table (x = 0 to 5), then dots on a grid. Ends with &ldquo;What do you notice about the points?&rdquo;' },
+  { id:'C', key:'eq',    title:'Write the equation',  sub:'', counts:[0,2,4,6,8], def:4, wide:false,
+    blurb:'From the words, or from a table with no words (then the student writes the instruction too).' },
+  { id:'D', key:'back',  title:'Work backwards',      sub:'', counts:[0,2,4,6], def:2, wide:false,
+    blurb:'Given an equation or a graph of dots, write the counting instruction &mdash; the tool&rsquo;s idea read the other way.' },
+  { id:'E', key:'oops',  title:'Spot the mistake',    sub:'', counts:[0,2,4,6], def:2, wide:false,
+    blurb:'Someone else&rsquo;s table or equation: a slip, a slip carried on, starting one count late, or the two numbers swapped in the equation.' },
+  { id:'F', key:'far',   title:'Go further',          sub:'Use the equation where counting would take too long.', counts:[0,2,4,6], def:2, wide:false,
+    blurb:'The equation, then y when x is 20 and 50, and which x gives a number far down the count.' }
+];
+
+/* ---------- settings ---------- */
+const DEF = { level:'mixed', dir:'either', form:'start', name:true, numAxes:true, think:true, key:true,
+  n:{ seq:4, graph:2, eq:4, back:2, oops:2, far:2 } };
+let O = JSON.parse(JSON.stringify(DEF));
+try{ const s = JSON.parse(localStorage.getItem(STORE)||'null'); if(s){ O = Object.assign({}, DEF, s); O.n = Object.assign({}, DEF.n, s.n||{}); } }catch(e){}
+const save = () => { try{ localStorage.setItem(STORE, JSON.stringify(O)); }catch(e){} };
+
+function buildPartGrid(){
+  const g = $('partGrid'); g.innerHTML = '';
+  SECTIONS.forEach(S=>{
+    const d = document.createElement('div'); d.className = 'partOpt'; d.id = 'opt-'+S.key;
+    d.innerHTML = `<div class="partTop"><span class="partTitle"><b>${S.id}</b>${S.title}</span>
+      <select aria-label="${S.title}: number of questions" data-n="${S.key}">${S.counts.map(c=>`<option value="${c}">${c===0?'Off':c+' question'+(c===1?'':'s')}</option>`).join('')}</select></div>
+      <small>${S.blurb}</small>`;
+    g.appendChild(d);
+  });
+  g.querySelectorAll('select[data-n]').forEach(sel=>{
+    sel.addEventListener('change', ()=>{ O.n[sel.dataset.n] = Number(sel.value); save(); paintParts(); newPaper(); render(); });
+  });
+}
+function paintParts(){
+  SECTIONS.forEach(S=>{
+    const sel = document.querySelector(`select[data-n="${S.key}"]`);
+    if(!S.counts.includes(O.n[S.key])) O.n[S.key] = S.def;
+    sel.value = String(O.n[S.key]);
+    $('opt-'+S.key).classList.toggle('off', !O.n[S.key]);
+  });
+}
+const BIND = [ ['levelSel','level','v'], ['dirSel','dir','v'], ['formSel','form','v'],
+  ['nameToggle','name','c'], ['numAxesToggle','numAxes','c'], ['thinkToggle','think','c'], ['keyToggle','key','c'] ];
+/* a change to the numbers re-rolls; a change to the look keeps the SAME questions */
+const REROLL = { level:1, dir:1 };
+function syncControls(){
+  BIND.forEach(([id,k,t])=>{ const el=$(id); if(t==='c') el.checked=!!O[k]; else el.value=String(O[k]); });
+  paintParts();
+}
+BIND.forEach(([id,k,t])=>{
+  $(id).addEventListener('change', ()=>{
+    const el=$(id); O[k] = t==='c' ? el.checked : el.value; save();
+    if(REROLL[k]) newPaper();
+    render();
+  });
+});
+
+/* =====================================================================
+   NUMBERS
+   ===================================================================== */
+function levelAt(i, n){
+  if(O.level !== 'mixed') return O.level;
+  if(n <= 1) return 'mild';
+  return LADDER[Math.min(3, Math.floor(i * 4 / n))];
+}
+/* rows = how many terms must stay at or above zero for Sweet/Mild */
+let USED = new Set();
+function ruleFor(level, rows){
+  for(let t=0;t<40;t++){
+    const r = CL.makeRule(level, O.dir, rows);
+    const k = r.start+'|'+r.step+'|'+r.dir;
+    if(USED.has(k)) continue;
+    /* the start and the count are the same number: the two are impossible to tell apart on paper */
+    if(r.start === r.step) continue;
+    USED.add(k); return r;
+  }
+  return CL.makeRule(level, O.dir, rows);
+}
+const term = (r, x) => CL.termOf(r, x);
+const signedStep = r => r.dir === 'up' ? r.step : -r.step;
+
+/* ---------- writing it down ---------- */
+let ALPHA = false;
+try{
+  const c = document.createElement('canvas').getContext('2d');
+  c.font = '100px "Cambria Math","STIX Two Math","Latin Modern Math",serif';
+  const real = c.measureText('\u{1D465}\u{1D466}\u{1D465}\u{1D466}').width, gone = c.measureText('').width;
+  ALPHA = real > 0 && gone > 0 && Math.abs(real - gone) > 1;
+}catch(e){}
+const X = ALPHA ? '\u{1D465}' : '<i>x</i>';
+const Y = ALPHA ? '\u{1D466}' : '<i>y</i>';
+function instr(r){ return `Start at ${F(r.start)}, count ${r.dir} by ${F(r.step)}s`; }
+/* the equation for a rule, in the chosen order; m×x with no "1x" and no "+ −" */
+function eqHTML(r, form){
+  const m = signedStep(r), b = r.start;
+  const mx = (Math.abs(m) === 1 ? '' : F(Math.abs(m))) + X;
+  if(b === 0) return `${Y} = ${m < 0 ? '−' : ''}${mx}`;
+  if(form === 'grad') return `${Y} = ${m < 0 ? '−' : ''}${mx} ${b < 0 ? '−' : '+'} ${F(Math.abs(b))}`;
+  return `${Y} = ${F(b)} ${m < 0 ? '−' : '+'} ${mx}`;
+}
+function formFor(i){ return O.form === 'mix' ? (i % 2 ? 'grad' : 'start') : O.form; }
+/* the same equation with the two numbers swapped — the classic slip */
+function swappedHTML(r){
+  const b = r.start, m = signedStep(r);
+  return eqHTML({start:m, step:Math.abs(b), dir:b < 0 ? 'down' : 'up'}, 'start');
+}
+
+/* =====================================================================
+   THE PAPER — a list of sections, each a list of questions. Built once by
+   Generate; every look-only option re-renders the SAME questions.
+   ===================================================================== */
+let PAPER = null;
+const NAMES = ['Ari','Mei','Sam','Noah','Priya','Zara','Leo','Ava','Jack','Ruby','Kai','Isla'];
+function newPaper(){
+  USED = new Set();
+  const names = [...NAMES].sort(()=>Math.random()-.5);
+  let nameI = 0;
+  PAPER = SECTIONS.map(S=>{
+    const n = O.n[S.key] || 0, qs = [];
+    /* the four kinds of mistake are dealt from a shuffled deck, so two questions are never the same kind */
+    const deck = ['slip','carry','late','swap'].sort(()=>Math.random()-.5);
+    for(let i=0;i<n;i++){
+      const level = levelAt(i, n);
+      let q = { level };
+      if(S.key === 'seq'){ q.r = ruleFor(level, 6); }
+      else if(S.key === 'graph'){ q.r = ruleFor(level, 7); }
+      else if(S.key === 'eq'){ q.r = ruleFor(level, 6); q.kind = i % 2 ? 'table' : 'words'; q.form = formFor(i); }
+      else if(S.key === 'back'){
+        q.kind = i % 2 ? 'graph' : 'eq'; q.form = formFor(i);
+        q.r = ruleFor(level, 6);
+        for(let t=0; q.kind === 'graph' && t<60 && !readable(q.r, [0,1,2,3,4,5]); t++){ USED.delete(q.r.start+'|'+q.r.step+'|'+q.r.dir); q.r = ruleFor(level, 6); }
+        if(q.kind === 'graph' && !readable(q.r, [0,1,2,3,4,5])){
+          /* rare: build one that is readable by construction — every term a multiple of the count */
+          const st = pick([2,5,10]), dn = O.dir === 'down' || (O.dir === 'either' && Math.random() < .5);
+          q.r = { start: st * (dn ? 5 + rnd(5) : 1 + rnd(6)), step: st, dir: dn ? 'down' : 'up' };
+        }
+      }
+      else if(S.key === 'oops'){
+        q.r = ruleFor(level, 7); q.who = names[nameI++ % names.length];
+        q.kind = deck[i % 4];
+        if(q.kind === 'swap' && (q.r.start === 0 || Math.abs(q.r.start) === q.r.step)) q.kind = 'slip';
+        q.at = 2 + rnd(3);                               /* which x goes wrong */
+        q.off = q.r.step >= 20 ? 10 : (q.r.step < 1 ? 0.1 : 1);
+        /* below Medium no number on the page goes under zero, so a slip only ever overshoots */
+        if(level !== 'sweet' && level !== 'mild' && Math.random() < .5) q.off = -q.off;
+      }
+      else if(S.key === 'far'){
+        q.r = ruleFor(level, 51);
+        q.x1 = 20; q.x2 = 50;
+        q.k = 12 + rnd(19);                              /* the far term they must find the position of */
+        q.form = formFor(i);
+      }
+      qs.push(q);
+    }
+    return { S, qs };
+  }).filter(s=>s.qs.length);
+}
+
+/* =====================================================================
+   GRAPHS — square cells; x is one unit a cell, y is scaled to fit its own
+   numbers (the tool's auto-scale, on paper). Points land on grid crossings
+   whenever a scale allows it.
+   ===================================================================== */
+const STEPS = [0.1,0.2,0.25,0.5,1,2,2.5,5,10,20,25,50,100,200,250,500,1000,2000,2500,5000];
+const MAXSQ = 12;
+const onLines = (vals, f) => vals.every(v=>Math.abs((v - f.a)/f.s - Math.round((v - f.a)/f.s)) < 1e-6);
+/* a graph students must READ has every dot on a grid crossing */
+function readable(r, xs){ const v = xs.map(x=>term(r,x)); return onLines(v, yScale(v)); }
+function yScale(vals){
+  let [lo, hi] = CL.rangeFor(Math.min(...vals), Math.max(...vals));
+  const fits = s => { const a = Math.floor(lo/s + 1e-9)*s, b = Math.ceil(hi/s - 1e-9)*s; return { s, a:R(a), b:R(b), n:Math.round((b-a)/s) }; };
+  const ok = STEPS.map(fits).filter(f=>f.n <= MAXSQ && f.n >= 3);
+  const friendly = f => { const m = Math.round(f.s / Math.pow(10, Math.floor(Math.log10(f.s) + 1e-9)) * 100) / 100; return m === 1 || m === 2 || m === 5; };
+  let f = ok.find(g=>onLines(vals, g)) || ok.find(friendly) || ok[0] || fits(5000);
+  /* a little head-room when the top point would sit on the frame */
+  if(f.n < MAXSQ && Math.max(...vals) >= f.b - 1e-9){ f = { s:f.s, a:f.a, b:R(f.b + f.s), n:f.n + 1 }; }
+  if(f.n < MAXSQ && Math.min(...vals) <= f.a + 1e-9 && f.a !== 0){ f = { s:f.s, a:R(f.a - f.s), b:f.b, n:f.n + 1 }; }
+  return f;
+}
+/* opts: { r, cell(mm), xMax, numbered, pts:[x...] (dots to print), key:{line:true} } */
+function gridSVG(o){
+  const c = o.cell, xMax = o.xMax;
+  const vals = []; for(let x=0;x<=Math.min(5, xMax);x++) vals.push(term(o.r, x));
+  const ys = yScale(vals);
+  const ny = ys.n, W = xMax * c, H = ny * c;
+  const zeroIn = ys.a <= 0 && ys.b >= 0;
+  /* a y-axis that does not start at zero gets a short gap below the grid with a break in it,
+     so the bottom grid line is never mistaken for zero */
+  const gap = zeroIn ? 0 : 4;
+  const L = 11, B = 7 + gap, T = 4, Rm = 5;                 /* margins, mm */
+  const vw = L + W + Rm, vh = T + H + B;
+  const px = x => L + x * c, py = y => T + H - (y - ys.a) / ys.s * c;
+  const axisY = zeroIn ? py(0) : T + H + gap;
+  let s = `<svg class="grid" viewBox="0 0 ${vw} ${vh}" width="${vw}mm" height="${vh}mm" xmlns="http://www.w3.org/2000/svg">`;
+  for(let i=0;i<=xMax;i++) s += `<line x1="${px(i)}" y1="${T}" x2="${px(i)}" y2="${T+H}" stroke="#c7cdd6" stroke-width=".22"/>`;
+  for(let j=0;j<=ny;j++){ const y = T + j * c; s += `<line x1="${L}" y1="${y}" x2="${L+W}" y2="${y}" stroke="#c7cdd6" stroke-width=".22"/>`; }
+  /* axes */
+  s += `<line x1="${L}" y1="${T-2}" x2="${L}" y2="${T+H+gap}" stroke="#111827" stroke-width=".55"/>`;
+  s += `<line x1="${L}" y1="${axisY}" x2="${L+W+2.5}" y2="${axisY}" stroke="#111827" stroke-width=".55"/>`;
+  s += `<path d="M${L-1.1} ${T-0.4} L${L} ${T-2.6} L${L+1.1} ${T-0.4}" fill="none" stroke="#111827" stroke-width=".5"/>`;
+  s += `<path d="M${L+W+0.4} ${axisY-1.1} L${L+W+2.6} ${axisY} L${L+W+0.4} ${axisY+1.1}" fill="none" stroke="#111827" stroke-width=".5"/>`;
+  s += `<text x="${L+W+3.3}" y="${axisY+1.2}" font-size="4" font-style="italic" font-family="serif">x</text>`;
+  s += `<text x="${L+1.6}" y="${T-0.6}" font-size="4" font-style="italic" font-family="serif">y</text>`;
+  /* the y-axis does not start at zero: say so with a break */
+  if(!zeroIn){
+    const yb = T + H + gap / 2;
+    s += `<rect x="${L-1.6}" y="${yb-1.4}" width="3.2" height="2.8" fill="#fff"/><path d="M${L-1.6} ${yb-0.5} l3.2 -1.1 M${L-1.6} ${yb+1} l3.2 -1.1" stroke="#111827" stroke-width=".45"/>`;
+  }
+  if(o.numbered){
+    for(let i=0;i<=xMax;i++){
+      if(i === 0 && zeroIn) continue;
+      s += `<text x="${px(i)}" y="${axisY+4}" font-size="3" text-anchor="middle" fill="#374151">${i}</text>`;
+    }
+    for(let j=0;j<=ny;j++){
+      const v = R(ys.a + j * ys.s);
+      s += `<text x="${L-1.4}" y="${py(v)+1.05}" font-size="3" text-anchor="end" fill="#374151">${F(v)}</text>`;
+    }
+  }
+  if(o.key && o.key.line){
+    /* the line through the dots, clipped to the grid */
+    const y0 = term(o.r, 0), y1 = term(o.r, xMax);
+    const clipY = y => Math.max(ys.a, Math.min(ys.b, y));
+    const m = signedStep(o.r);
+    let xa = 0, xb = xMax;
+    if(y0 > ys.b || y0 < ys.a) xa = (clipY(y0) - o.r.start) / m;
+    if(y1 > ys.b || y1 < ys.a) xb = (clipY(y1) - o.r.start) / m;
+    s += `<line x1="${px(xa)}" y1="${py(term(o.r, xa))}" x2="${px(xb)}" y2="${py(term(o.r, xb))}" stroke="#16a34a" stroke-width=".55" stroke-dasharray="1.6 1.2"/>`;
+  }
+  (o.pts || []).forEach(x=>{
+    const col = o.key && o.key.green ? '#16a34a' : '#111827';
+    s += `<circle cx="${px(x)}" cy="${py(term(o.r, x))}" r="1.15" fill="${col}"/>`;
+  });
+  s += `</svg>`;
+  return { svg:s, scale:ys };
+}
+
+/* =====================================================================
+   CARDS
+   ===================================================================== */
+function numBadge(q, n){ return `<span class="qNum ${q.level}">${n}</span>`; }
+function vertTable(r, key, rows){
+  let h = `<table class="tv vert"><tr><th>${X}</th><th>${Y}</th></tr>`;
+  for(let x=0;x<rows;x++) h += `<tr><td>${x}</td><td class="k">${key ? F(term(r, x)) : ''}</td></tr>`;
+  return h + `</table>`;
+}
+function horizTable(r, cols, yOf, cls){
+  let h = `<table class="tv horiz"><tr><th>${X}</th>${cols.map(x=>`<td>${x}</td>`).join('')}</tr>`;
+  h += `<tr><th>${Y}</th>${cols.map(x=>`<td class="${cls ? cls(x) : ''}">${yOf(x)}</td>`).join('')}</tr></table>`;
+  return h;
+}
+const blank = (k, cls) => k != null ? `<span class="keyBlank">${k}</span>` : `<span class="blank ${cls||''}"></span>`;
+const keyNote = (key, html) => key ? `<div class="keyText">${html}</div>` : '';
+
+function card(sec, q, n, key){
+  const d = document.createElement('div'); d.className = 'qCard';
+  const r = q.r;
+  let h = '';
+  if(sec === 'seq'){
+    h += `<div class="qTop">${numBadge(q,n)}<span class="instr">${instr(r)}</span></div>`;
+    h += `<div class="seqBoxes" style="--n:6">` + [0,1,2,3,4,5].map(x=>`<span class="seqBox">${key ? F(term(r,x)) : ''}</span>`).join('') + `</div>`;
+  }
+  else if(sec === 'graph'){
+    const g = gridSVG({ r, cell:6.6, xMax:6, numbered:O.numAxes || key, pts:key ? [0,1,2,3,4,5] : [], key:key ? {line:true, green:true} : null });
+    h += `<div class="qTop">${numBadge(q,n)}<span class="instr">${instr(r)}</span></div>`;
+    const notice = `<div class="ask"><span class="lt">c</span>What do you notice about the points? Where can you see the ${F(r.start)} and the ${F(r.step)} on your graph?</div>` +
+      (key ? keyNote(key, `The points make a <b>straight line</b>. The <b>${F(r.start)}</b> is where it starts, on the ${Y}-axis (${X} = 0); every step of 1 to the right goes ${r.dir} <b>${F(r.step)}</b>.${!O.numAxes ? ` One scale that works: ${F(g.scale.s)} a square up the ${Y}-axis.` : ''}`)
+           : `<div class="lines"></div>`);
+    h += `<div class="graphRow"><div class="side">
+            <div class="ask"><span class="lt">a</span>Complete the table.</div>
+            ${vertTable(r, key, 6)}
+            <div class="ask"><span class="lt">b</span>Plot the points.</div>
+          </div>
+          <div class="gwrap">${g.svg}</div>
+          <div class="notice">${notice}</div></div>`;
+  }
+  else if(sec === 'eq'){
+    const eq = eqHTML(r, q.form);
+    if(q.kind === 'words'){
+      h += `<div class="qTop">${numBadge(q,n)}<span class="instr">${instr(r)}</span></div>`;
+      h += `<div class="ask">Write this as an equation.</div>`;
+      h += `<div class="ansLine math">${key ? `<span class="keyMath">${eq}</span>` : `${Y} = <span class="blank xl"></span>`}</div>`;
+    } else {
+      h += `<div class="qTop">${numBadge(q,n)}<span class="ask" style="font-weight:1000;color:#111827">This table came from counting.</span></div>`;
+      h += horizTable(r, [0,1,2,3,4], x=>F(term(r,x)));
+      h += `<div class="ansLine">Start at ${blank(key?F(r.start):null,'sm')}, count ${blank(key?r.dir:null,'sm')} by ${blank(key?F(r.step):null,'sm')}s</div>`;
+      h += `<div class="ansLine math">${key ? `<span class="keyMath">${eq}</span>` : `${Y} = <span class="blank xl"></span>`}</div>`;
+    }
+    if(key && r.start !== 0) h += keyNote(key, `Also right: ${eqHTML(r, q.form === 'start' ? 'grad' : 'start')}`);
+  }
+  else if(sec === 'back'){
+    if(q.kind === 'eq'){
+      h += `<div class="qTop">${numBadge(q,n)}<span class="eq" style="font-size:18px">${eqHTML(r, q.form)}</span></div>`;
+      h += `<div class="ask"><span class="lt">a</span>Write the counting instruction.</div>`;
+      h += `<div class="ansLine">Start at ${blank(key?F(r.start):null,'sm')}, count ${blank(key?r.dir:null,'sm')} by ${blank(key?F(r.step):null,'sm')}s</div>`;
+      h += `<div class="ask"><span class="lt">b</span>Write the first five numbers.</div>`;
+      h += `<div class="seqBoxes" style="--n:5">` + [0,1,2,3,4].map(x=>`<span class="seqBox">${key ? F(term(r,x)) : ''}</span>`).join('') + `</div>`;
+    } else {
+      const g = gridSVG({ r, cell:5.4, xMax:5, numbered:true, pts:[0,1,2,3,4], key:key ? {line:true, green:false} : null });
+      h += `<div class="qTop">${numBadge(q,n)}<span class="ask" style="font-weight:1000;color:#111827">These points came from counting.</span></div>`;
+      h += `<div class="gCenter">${g.svg}</div>`;
+      h += `<div class="ansLine">Start at ${blank(key?F(r.start):null,'sm')}, count ${blank(key?r.dir:null,'sm')} by ${blank(key?F(r.step):null,'sm')}s</div>`;
+      h += `<div class="ansLine math">${key ? `<span class="keyMath">${eqHTML(r, q.form)}</span>` : `${Y} = <span class="blank xl"></span>`}</div>`;
+    }
+  }
+  else if(sec === 'oops'){
+    h += oopsCard(q, n, key);
+  }
+  else if(sec === 'far'){
+    const t1 = term(r, q.x1), t2 = term(r, q.x2), tk = term(r, q.k);
+    h += `<div class="qTop">${numBadge(q,n)}<span class="instr">${instr(r)}</span></div>`;
+    h += `<div class="ansLine"><span class="lt" style="font-weight:1000">a</span>&nbsp;Equation:&nbsp;<span class="eq">${key ? `<span class="keyMath">${eqHTML(r, q.form)}</span>` : `${Y} = <span class="blank lg"></span>`}</span></div>`;
+    h += `<div class="ansLine"><span style="font-weight:1000">b</span>&nbsp;When ${X} = ${q.x1}, ${Y} = ${blank(key?F(t1):null)}</div>`;
+    h += `<div class="ansLine"><span style="font-weight:1000">c</span>&nbsp;When ${X} = ${q.x2}, ${Y} = ${blank(key?F(t2):null)}</div>`;
+    h += `<div class="ansLine"><span style="font-weight:1000">d</span>&nbsp;Which ${X} gives ${Y} = ${F(tk)}?&nbsp; ${X} = ${blank(key?String(q.k):null,'sm')}</div>`;
+    h += key ? keyNote(key, `b: ${F(r.start)} ${r.dir==='up'?'+':'−'} ${F(r.step)} × ${q.x1} = ${F(t1)} &nbsp;·&nbsp; d: ${F(tk)} is ${F(Math.abs(R(tk - r.start)))} ${r.dir==='up'?'above':'below'} the start, and ${F(Math.abs(R(tk - r.start)))} ÷ ${F(r.step)} = ${q.k}`)
+             : `<div class="lines" style="height:6.6mm"></div>`;
+  }
+  d.innerHTML = h;
+  return d;
+}
+
+/* E: someone else's work. Every value they write is worked out here, so the key can say exactly what went wrong. */
+function oopsValues(q){
+  const r = q.r, cols = [0,1,2,3,4,5];
+  return cols.map(x=>{
+    const t = term(r, x);
+    if(q.kind === 'slip') return x === q.at ? R(t + q.off) : t;
+    if(q.kind === 'carry') return x >= q.at ? R(t + q.off) : t;
+    if(q.kind === 'late') return term(r, x + 1);
+    return t;
+  });
+}
+function oopsCard(q, n, key){
+  const r = q.r, who = q.who;
+  let h = `<div class="qTop">${numBadge(q,n)}<span class="ask" style="font-weight:850;color:#374151">${who} was told: <span class="instr" style="font-size:13px">${instr(r)}</span></span></div>`;
+  if(q.kind === 'swap'){
+    h += `<div class="ask">${who} wrote: &nbsp;<span class="eq" style="font-size:17px">${swappedHTML(r)}</span></div>`;
+    h += `<div class="ask">Is ${who} right? Test it with ${X} = 2, then explain.</div>`;
+    if(key){
+      const m = signedStep(r), b = r.start;
+      const theirs = R(m + Math.abs(b) * (b < 0 ? -1 : 1) * 2);
+      h += keyNote(key, `<b>No.</b> When ${X} = 2 the count gives ${F(term(r,2))}, but ${who}&rsquo;s equation gives ${F(theirs)}. The start (${F(b)}) is the number on its own; the count (${F(r.step)}) is the one multiplied by ${X}: <b>${eqHTML(r,'start')}</b>.`);
+    } else h += `<div class="lines" style="height:20mm"></div>`;
+    return h;
+  }
+  const vals = oopsValues(q), cols = [0,1,2,3,4,5];
+  const wrong = x => Math.abs(vals[x] - term(r,x)) > 1e-9;
+  h += `<div class="ask">${who}&rsquo;s table:</div>`;
+  h += horizTable(r, cols, x=>F(vals[x]), key ? (x=>wrong(x) ? 'wrongKey' : '') : null);
+  h += `<div class="ask">Is ${who} right? Circle anything wrong, fix it, and say what you think ${who} did.</div>`;
+  if(key){
+    let why = '';
+    if(q.kind === 'slip') why = `When ${X} = ${q.at} it should be <b>${F(term(r,q.at))}</b> (${F(term(r,q.at-1))} ${r.dir==='up'?'+':'−'} ${F(r.step)}). One slip; the numbers after it are right.`;
+    if(q.kind === 'carry') why = `One slip at ${X} = ${q.at} (should be <b>${F(term(r,q.at))}</b>), then ${who} kept counting correctly from the wrong number &mdash; so from there on every number is ${F(Math.abs(q.off))} too ${q.off > 0 ? 'big' : 'small'}.`;
+    if(q.kind === 'late') why = `${who} started one count late: ${X} = 0 should be the start, <b>${F(r.start)}</b>. Every ${Y} is ${F(r.step)} too ${r.dir==='up'?'big':'small'} &mdash; the right table is ${[0,1,2,3,4,5].map(x=>F(term(r,x))).join(', ')}.`;
+    h += keyNote(key, why);
+  } else h += `<div class="lines" style="height:13.4mm"></div>`;
+  return h;
+}
+
+/* =====================================================================
+   PAGES — measured, not estimated. A row is appended; if the sheet has
+   overflowed, it comes off again and starts the next page.
+   ===================================================================== */
+function newPage(out, key, first){
+  const pg=document.createElement('div'); pg.className='page';
+  const hd=document.createElement('div'); hd.className='pageHeader';
+  hd.innerHTML = `<div><div class="hdrTitle">Counting Strategies for Linear Relationships${key?' — Answer key':''}</div><div class="hdrSub">Stage 4 · Linear relationships</div></div>` +
+    (O.name && !key ? `<div class="nameDate"><div class="lineField wide"><span class="lineLabel">Name</span><span class="lineBox"></span></div><div class="lineField"><span class="lineLabel">Date</span><span class="lineBox"></span></div></div>` : '');
+  const sh=document.createElement('div'); sh.className='sheet';
+  if(first && !key){
+    const p=document.createElement('p'); p.className='intro';
+    p.innerHTML=`Each question starts with a counting instruction. The first number is the start &mdash; it goes with ${X} = 0. Then every step adds (or takes away) the same amount.`;
+    sh.appendChild(p);
+  }
+  const ft=document.createElement('div'); ft.className='pageFooter';
+  ft.innerHTML=`<span><a href="https://www.millsmathstools.au">millsmathstools.au</a> · Counting Strategies for Linear Relationships</span><span class="pgNo"></span>`;
+  pg.append(hd, sh, ft); out.appendChild(pg);
+  return sh;
+}
+function secHead(S, cont, qs){
+  const h = document.createElement('div'); h.className = 'secHead';
+  let sub = S.sub;
+  if(S.key === 'eq') sub = qs.some(q=>q.kind==='table') ? 'From the words, or from a table.' : 'Write each instruction as an equation.';
+  if(S.key === 'back') sub = 'From an equation or a graph back to the counting.';
+  if(S.key === 'oops') sub = 'Someone else&rsquo;s work &mdash; find what went wrong.';
+  h.innerHTML = `<span class="secLetter">${S.id}</span><span class="secTitle">${S.title}</span>` +
+    (cont ? `<span class="secCont">(continued)</span>` : `<span class="secSub">${sub}</span>`);
+  return h;
+}
+const fits = sheet => sheet.scrollHeight <= sheet.clientHeight + 1;
+function paginate(out, key){
+  const startCount = out.children.length;
+  let sheet = newPage(out, key, true);
+  let qn = 0;
+  const pageEmpty = () => [...sheet.children].every(c=>c.classList.contains('intro'));
+  PAPER.forEach(({S, qs}, si)=>{
+    const per = S.wide ? 1 : 2;
+    const rows = [];
+    for(let i=0;i<qs.length;i+=per) rows.push(qs.slice(i, i+per));
+    let headDone = false;
+    rows.forEach(rowQs=>{
+      const row = document.createElement('div'); row.className = 'qRow ' + (per === 2 ? 'two' : 'one');
+      rowQs.forEach(q=>row.appendChild(card(S.key, q, ++qn, key)));
+      const items = [];
+      if(!headDone) items.push(secHead(S, false, qs));
+      items.push(row);
+      items.forEach(it=>sheet.appendChild(it));
+      if(!fits(sheet) && !pageEmpty() && !(items.length === sheet.children.length)){
+        items.forEach(it=>it.remove());
+        sheet = newPage(out, key, false);
+        /* a section that carries over says so */
+        if(headDone) sheet.appendChild(secHead(S, true, qs));
+        items.forEach(it=>sheet.appendChild(it));
+      }
+      headDone = true;
+    });
+  });
+  if(O.think && !key){
+    const t = document.createElement('div'); t.className = 'think';
+    t.innerHTML = `<div class="ask" style="font-size:12.6px;color:#111827"><b>Argue about it.</b> Ava says ${eqHTML({start:5,step:3,dir:'up'},'start')} and ${eqHTML({start:5,step:3,dir:'up'},'grad')} are different rules, because the numbers are in a different order. Do you agree? Use the counting instruction to explain.</div><div class="lines"></div>`;
+    sheet.appendChild(t);
+    if(!fits(sheet)){ t.remove(); sheet = newPage(out, key, false); sheet.appendChild(t); }
+  } else if(O.think && key){
+    const t = document.createElement('div'); t.className = 'qCard';
+    t.innerHTML = `<div class="ask"><b>Argue about it.</b></div><div class="keyText">They are the <b>same</b> rule. Both say: start at 5 (the number on its own) and add 3 for every step (the number with ${X}). Adding in either order gives the same ${Y} &mdash; try ${X} = 4: 5 + 12 = 12 + 5 = 17.</div>`;
+    sheet.appendChild(t);
+    if(!fits(sheet)){ t.remove(); sheet = newPage(out, key, false); sheet.appendChild(t); }
+  }
+  const pages=[...out.children].slice(startCount);
+  pages.forEach((pg,i)=>pg.querySelector('.pgNo').textContent=`${key?'Key · ':''}Page ${i+1} of ${pages.length}`);
+  return pages.length;
+}
+function render(){
+  if(!PAPER) return;
+  const out=$('out'); out.innerHTML='';
+  if(!PAPER.length){ out.innerHTML = '<p class="note" style="text-align:center;padding:30px">Every section is off &mdash; choose a number of questions for at least one.</p>'; summary(0,0); return; }
+  const np = paginate(out, false);
+  let nk = 0;
+  if(O.key){
+    const wrapK=document.createElement('div'); wrapK.className='isKey';
+    out.appendChild(wrapK);
+    nk = paginate(wrapK, true);
+  }
+  summary(np, nk);
+}
+function summary(np, nk){
+  const n = PAPER ? PAPER.reduce((a,s)=>a+s.qs.length,0) : 0;
+  $('sumPill').textContent = `${n} question${n===1?'':'s'} · ${np} page${np===1?'':'s'}${nk ? ` + ${nk} key` : ''}`;
+}
+
+$('genBtn').addEventListener('click', ()=>{ newPaper(); render(); });
+$('printBtn').addEventListener('click', ()=>{ if(!PAPER){ newPaper(); render(); } window.print(); });
+$('resetBtn').addEventListener('click', ()=>{ O = JSON.parse(JSON.stringify(DEF)); save(); syncControls(); newPaper(); render(); });
+
+buildPartGrid();
+syncControls();
+newPaper();
+render();
+
+window.__WS__ = { get O(){ return O; }, get PAPER(){ return PAPER; }, newPaper, render, oopsValues, yScale, term, CL,
+  set(k,v){ if(k in O.n) O.n[k]=v; else O[k]=v; newPaper(); render(); } };
+})();
+</script>
+</body>
+</html>

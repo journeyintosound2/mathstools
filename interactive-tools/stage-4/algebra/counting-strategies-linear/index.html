@@ -458,7 +458,7 @@
           <button class="btn" id="toolsBtn" type="button" aria-haspopup="true" aria-expanded="false">Tools &#9662;</button>
           <nav class="dropMenu" id="toolsMenu" aria-label="Related tools">
             <a class="toolLink" href="/interactive-tools/stage-4/algebra/visual-patterns/">Visual Patterns<small>Growing patterns, the lead-in to a linear rule</small></a>
-            <span class="toolLink is-disabled" aria-disabled="true">Worksheet Creator<small>Coming soon</small></span>
+            <a class="toolLink" href="/worksheet-creators/stage-4/algebra/counting-strategies-linear.html">Worksheet Creator<small>Sequence, table, graph, equation &mdash; printable</small></a>
             <span class="toolLink is-disabled" aria-disabled="true">Student Quiz<small>Coming soon</small></span>
           </nav>
         </div>
@@ -531,7 +531,7 @@
             </svg>
             <div class="tip" id="tip" hidden></div>
             <div class="plotTools">
-              <label class="sw small autoChip" title="Stretch each axis to fit the values in the table (A)"><input type="checkbox" id="autoToggle" checked><span class="track"></span><span>Auto-scale</span></label>
+              <label class="sw small autoChip" title="Each axis fits the first ten terms; from the 11th value on, the axes stretch with every entry (A)"><input type="checkbox" id="autoToggle" checked><span class="track"></span><span>Auto-scale</span></label>
               <div class="zoomBox">
                 <button id="zoomIn" type="button" title="Zoom in" aria-label="Zoom in">+</button>
                 <button id="zoomOut" type="button" title="Zoom out" aria-label="Zoom out">&minus;</button>
@@ -1361,15 +1361,16 @@ if(typeof module !== "undefined") module.exports = CL;
   }
 
   // ---------- scaling ----------
+  // AUTO-SCALE FRAMES THE FIRST TEN TERMS OF THE INSTRUCTION, then grows (teacher decision
+  // 2026-10-21). The axes are set before anything is typed, so entering the first ten values
+  // never moves the graph — less to watch while the class is connecting the table to the dots.
+  // Only a point outside that frame (the 11th term onward, or a slip like 180 for 18) rescales,
+  // and from then on every new entry does.
+  var FRAME_TERMS = 10;
   function dataFor(){
-    var pts = validPts(), xs = [], ys = [];
-    if(pts.length){ pts.forEach(function(p){ xs.push(p.x); ys.push(p.y); }); }
-    else {
-      S.rows.forEach(function(r){ var x = CL.num(r.x); if(isFinite(x)) xs.push(x); });
-      if(!xs.length) xs = [0, 7];
-      S.eqs.forEach(function(q){ if(!q.hidden && q.res.kind === "fn") xs.forEach(function(x){ var y = q.res.f(x); if(isFinite(y)) ys.push(y); }); });
-      if(!ys.length) ys = [0, 10];
-    }
+    var xs = [], ys = [];
+    for(var i = 0; i < FRAME_TERMS; i++){ xs.push(i); ys.push(CL.termOf(S.rule, i)); }
+    validPts().forEach(function(p){ xs.push(p.x); ys.push(p.y); });
     return {xs:xs, ys:ys};
   }
   function targetView(equal){ measure(); var d = dataFor(); return CL.fit(d.xs, d.ys, W, H, equal); }

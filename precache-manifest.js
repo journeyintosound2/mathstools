@@ -1,6 +1,6 @@
 /* Written by tools/build-pwa.mjs — do not edit by hand. */
 self.MMT_PRECACHE = {
- "version": "6933024f3b",
+ "version": "19ad61d0ae",
  "files": [
   "./",
   "assessment/exam-builder/app.js",
@@ -907,6 +907,7 @@ self.MMT_PRECACHE = {
   "worksheet-creators/stage-4/algebra/algebraic-techniques/border_page0.png",
   "worksheet-creators/stage-4/algebra/algebraic-techniques/index.html",
   "worksheet-creators/stage-4/algebra/collecting-like-terms.html",
+  "worksheet-creators/stage-4/algebra/counting-strategies-linear.html",
   "worksheet-creators/stage-4/algebra/double-numberline.html",
   "worksheet-creators/stage-4/algebra/equations/border_page0.png",
   "worksheet-creators/stage-4/algebra/equations/index.html",

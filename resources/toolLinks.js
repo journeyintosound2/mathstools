@@ -1216,6 +1216,13 @@ window.MMT_TOOL_LINKS = {
       tags: ["counting on", "skip counting", "sequence", "table of values", "linear relationship", "y = mx + c", "gradient", "y-intercept", "plot points", "cartesian plane", "desmos", "notice and wonder", "rate of change", "misconceptions"]
     },
     {
+      title: "Counting Strategies for Linear Relationships",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-4/algebra/counting-strategies-linear.html",
+      note: "Printable questions from the teaching tool, each starting from \u201cStart at 5, count up by 3s\u201d: write the sequence, complete a table and plot it, write the equation, work backwards from an equation or graph, spot the mistake in someone else\u2019s table, and use the equation to go further. Sweet to Spicy, with an answer key.",
+      tags: ["worksheet generator", "printable", "sequence", "table of values", "plot points", "linear relationship", "equation", "gradient", "y-intercept", "answer key"]
+    },
+    {
       title: "Capture the Grid",
       kind: "Game",
       url: "/games/cartesian-capture.html",

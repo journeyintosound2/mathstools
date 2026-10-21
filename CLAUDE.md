@@ -97,9 +97,13 @@
 >   The box tidies as you type (spacing, − × ÷, Word-style math-italic x/y when the font has
 >   them) keeping the caret; Backspace deletes THROUGH the added spaces or "5 + " could never
 >   lose its +.
-> * **AUTO-SCALE (on by default)** stretches each axis separately to the table's points
->   (zero included when the data are near it — `rangeFor`), animated. Off = equal scale fit to
->   the data; drag/wheel/± pan and zoom, and panning while on switches it off. The tools are
+> * **AUTO-SCALE (on by default) FRAMES THE FIRST TEN TERMS, THEN GROWS** (teacher decision
+>   2026-10-21, to cut cognitive load): `dataFor()` = the instruction's terms at x = 0..9 PLUS
+>   every typed point, so the axes are set before anything is typed and entering the first ten
+>   values never moves the graph. The 11th value (or a slip outside the frame, e.g. 170 for 17)
+>   rescales, and from then on every entry does. Each axis stretched separately (zero
+>   included when the data are near it — `rangeFor`), animated. Off = equal scale fit to
+>   the same data; drag/wheel/± pan and zoom, and panning while on switches it off. The tools are
 >   ONE narrow column at the right and `CL.PAD.r` (86) keeps every point clear of it — the
 >   first build hid (7, 26) under the zoom buttons.
 > * **Reveals (Settings, all OFF by default):** jumps between table rows (an odd jump is red —
@@ -109,7 +113,24 @@
 >   (Sweet/Mild never go below zero inside the table), `fit`. Verified: 54,700 engine checks,
 >   63 UI checks (1366/1024/1280/1920/390, morph both ways, auto-scale stretch vs equal scale,
 >   drag turns it off, odd jumps, through-count, no page scroll). Harnesses in session scratch.
-> * Possible next: worksheet creator (sequence → table → graph → rule), student quiz.
+> * **WORKSHEET CREATOR** `worksheet-creators/stage-4/algebra/counting-strategies-linear.html`
+>   (Tools menu, toolLinks "Worksheet maker" row, homepage mini card). The tool's `clEngine`
+>   is copied VERBATIM — change the tool's engine → re-copy it. Sections A–F, each with its own
+>   count and Sweet→Spicy ladder: A count it out (6 boxes, first one blank too), B table and
+>   graph (table | numbered grid | "what do you notice?"), C write the equation (from words or
+>   from a table), D work backwards (from an equation or a graph of dots), E spot the mistake
+>   (a slip / a slip carried on / started one count late / start and count swapped in the
+>   equation — dealt from a shuffled deck), F go further (x = 20, 50, which x gives a far term).
+>   "Argue about it" (y = 5 + 3x vs y = 3x + 5) fills the last page, on by default.
+>   * Paper graphs: square cells, x one unit a cell, y scaled to its own numbers (≤ 12 squares,
+>     1/2/5 steps unless a 2.5/0.25 step puts every dot on a line). A y-axis that misses zero
+>     gets a gap below the grid with a break. **A graph students must READ (D) only uses rules
+>     whose dots all sit on grid crossings** (`readable()`, with a constructed fallback).
+>   * Sweet/Mild never print a negative (rules made with enough terms; slips only overshoot).
+>   * Verified: 33,627 checks (every rule/table/slip/far term re-derived across all levels ×
+>     count × equation form, nothing spilling a page or card at 8 configurations, key mirrors
+>     the paper, no answers on student pages, PDF pages = preview). Harness: session scratch.
+> * Possible next: student quiz.
 >
 > **NEW (2026-10-19, session — being pushed): NUMBER SUM CHAIN UPGRADE.**
 > `interactive-tools/stage-5/measurement-space/square-sum-chain/` (MA5-NET-P-01), now
