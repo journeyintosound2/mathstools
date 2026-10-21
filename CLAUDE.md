@@ -113,6 +113,18 @@
 >   (Sweet/Mild never go below zero inside the table), `fit`. Verified: 54,700 engine checks,
 >   63 UI checks (1366/1024/1280/1920/390, morph both ways, auto-scale stretch vs equal scale,
 >   drag turns it off, odd jumps, through-count, no page scroll). Harnesses in session scratch.
+> * **WORDED PROBLEMS (2026-10-21).** A toggle at the top of the opening screen: Count up / down
+>   | Worded problem (W). The stories live in ONE shared file, `contexts.js` beside the tool
+>   (`window.MMT_CL_CTX`), loaded by the tool AND the worksheet creator — add a story there and
+>   it appears in both. 33 contexts (18 up, 15 down): each has `dir`, a number `kind`
+>   (money/count/measure/temp/big/percent tiers per level), x and y labels, optional `suf`,
+>   `cap` (battery ≤ 100%), `neg` (temperature may pass zero, Medium+ only) and `lv` (borrow an
+>   easier tier where big numbers stop being believable — a 120 cm candle). `make()` keeps a
+>   story ≥ 0 for every term it must cover. Money prints $2.50. The story morphs into the
+>   heading like the instruction: its width is set in EM (`.rule.story{max-width:27em}`) so
+>   the big and small versions wrap at the same words and the FLIP is a pure scale. Table
+>   headers and axis titles name x and y ("hours", "money left ($)"). Choose a story / New
+>   story / Change the numbers (direction fixed by the story).
 > * **WORKSHEET CREATOR** `worksheet-creators/stage-4/algebra/counting-strategies-linear.html`
 >   (Tools menu, toolLinks "Worksheet maker" row, homepage mini card). The tool's `clEngine`
 >   is copied VERBATIM — change the tool's engine → re-copy it. Sections A–F, each with its own
@@ -122,6 +134,11 @@
 >   (a slip / a slip carried on / started one count late / start and count swapped in the
 >   equation — dealt from a shuffled deck), F go further (x = 20, 50, which x gives a far term).
 >   "Argue about it" (y = 5 + 3x vs y = 3x + 5) fills the last page, on by default.
+>   * **Questions are: counting / worded / a mix (default mix — every other eligible question).**
+>     A worded question prints the story plus "Let x = hours and y = money left ($)"; graphs
+>     name their axes; D asks for a story an equation could tell (key: an example from a
+>     context that fits the numbers) or reads a labelled graph back into equation + story;
+>     E becomes "Priya was given this problem: …". A C table is never a story.
 >   * Paper graphs: square cells, x one unit a cell, y scaled to its own numbers (≤ 12 squares,
 >     1/2/5 steps unless a 2.5/0.25 step puts every dot on a line). A y-axis that misses zero
 >     gets a gap below the grid with a break. **A graph students must READ (D) only uses rules

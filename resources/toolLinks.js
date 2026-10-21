@@ -1212,14 +1212,14 @@ window.MMT_TOOL_LINKS = {
       title: "Counting Strategies for Linear Relationships",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-4/algebra/counting-strategies-linear/",
-      note: "Starts with one instruction — “Start at 5, count up by 3s” — for the class to write as a sequence. Then a Desmos-style table and plane: type the class’s sequence (mistakes and all) into the table, watch the points appear, and type y = 5 + 3x to see the counting is the linear relationship. Auto-scale axes, optional jumps in the table and steps on the graph, up to four equations to compare.",
-      tags: ["counting on", "skip counting", "sequence", "table of values", "linear relationship", "y = mx + c", "gradient", "y-intercept", "plot points", "cartesian plane", "desmos", "notice and wonder", "rate of change", "misconceptions"]
+      note: "Starts with one instruction — “Start at 5, count up by 3s” — for the class to write as a sequence. Then a Desmos-style table and plane: type the class’s sequence (mistakes and all) into the table, watch the points appear, and type y = 5 + 3x to see the counting is the linear relationship. Also a worded-problem mode (\u201cJimmy started with $25 but spent $2 every hour on lollies\u201d) with 33 stories. Auto-scale axes, optional jumps in the table and steps on the graph, up to four equations to compare.",
+      tags: ["counting on", "skip counting", "sequence", "table of values", "linear relationship", "y = mx + c", "gradient", "y-intercept", "plot points", "cartesian plane", "desmos", "notice and wonder", "rate of change", "misconceptions", "worded problems", "context", "story"]
     },
     {
       title: "Counting Strategies for Linear Relationships",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-4/algebra/counting-strategies-linear.html",
-      note: "Printable questions from the teaching tool, each starting from \u201cStart at 5, count up by 3s\u201d: write the sequence, complete a table and plot it, write the equation, work backwards from an equation or graph, spot the mistake in someone else\u2019s table, and use the equation to go further. Sweet to Spicy, with an answer key.",
+      note: "Printable questions from the teaching tool, each starting from \u201cStart at 5, count up by 3s\u201d: write the sequence, complete a table and plot it, write the equation, work backwards from an equation or graph, spot the mistake in someone else\u2019s table, and use the equation to go further. Counting instructions, worded problems or a mix. Sweet to Spicy, with an answer key.",
       tags: ["worksheet generator", "printable", "sequence", "table of values", "plot points", "linear relationship", "equation", "gradient", "y-intercept", "answer key"]
     },
     {

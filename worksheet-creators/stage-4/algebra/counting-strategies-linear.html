@@ -111,6 +111,9 @@
     .qNum.medium{ background:linear-gradient(180deg,var(--medium1),var(--medium2)); }
     .qNum.spicy{ background:linear-gradient(180deg,var(--spicy1),var(--spicy2)); }
     .instr{ font-size:13.6px; font-weight:1000; line-height:1.25; }
+    .instr.story{ font-size:12.8px; font-weight:800; line-height:1.32; }
+    .qTop.st{ align-items:flex-start; }
+    .letXY{ font-size:11.2px; font-weight:800; color:#4b5563; line-height:1.3; }
     .instr .q{ color:#111827; }
     .ask{ font-size:11.8px; font-weight:850; color:#374151; line-height:1.35; }
     .ask .lt{ font-weight:1000; margin-right:3px; }
@@ -216,6 +219,14 @@
                 <option value="up">Up only</option>
                 <option value="down">Down only</option>
                 <option value="either" selected>Up or down</option>
+              </select>
+            </div>
+            <div>
+              <label for="qtypeSel">Questions are</label>
+              <select id="qtypeSel">
+                <option value="count">Counting instructions &mdash; &ldquo;Start at 5, count up by 3s&rdquo;</option>
+                <option value="story">Worded problems &mdash; &ldquo;Jimmy started with $25&hellip;&rdquo;</option>
+                <option value="mix" selected>A mix of both</option>
               </select>
             </div>
             <div>
@@ -541,9 +552,12 @@ var CL = (function(){
 if(typeof module !== "undefined") module.exports = CL;
 </script>
 
+<!-- the worded problems: the SAME file the teaching tool loads -->
+<script src="../../../interactive-tools/stage-4/algebra/counting-strategies-linear/contexts.js"></script>
 <script>
 (function(){
 'use strict';
+const CTX = window.MMT_CL_CTX;
 
 const $ = id => document.getElementById(id);
 const LADDER = ['sweet','mild','medium','spicy'];
@@ -571,7 +585,7 @@ const SECTIONS = [
 ];
 
 /* ---------- settings ---------- */
-const DEF = { level:'mixed', dir:'either', form:'start', name:true, numAxes:true, think:true, key:true,
+const DEF = { level:'mixed', dir:'either', form:'start', qtype:'mix', name:true, numAxes:true, think:true, key:true,
   n:{ seq:4, graph:2, eq:4, back:2, oops:2, far:2 } };
 let O = JSON.parse(JSON.stringify(DEF));
 try{ const s = JSON.parse(localStorage.getItem(STORE)||'null'); if(s){ O = Object.assign({}, DEF, s); O.n = Object.assign({}, DEF.n, s.n||{}); } }catch(e){}
@@ -598,10 +612,10 @@ function paintParts(){
     $('opt-'+S.key).classList.toggle('off', !O.n[S.key]);
   });
 }
-const BIND = [ ['levelSel','level','v'], ['dirSel','dir','v'], ['formSel','form','v'],
+const BIND = [ ['levelSel','level','v'], ['dirSel','dir','v'], ['formSel','form','v'], ['qtypeSel','qtype','v'],
   ['nameToggle','name','c'], ['numAxesToggle','numAxes','c'], ['thinkToggle','think','c'], ['keyToggle','key','c'] ];
 /* a change to the numbers re-rolls; a change to the look keeps the SAME questions */
-const REROLL = { level:1, dir:1 };
+const REROLL = { level:1, dir:1, qtype:1 };
 function syncControls(){
   BIND.forEach(([id,k,t])=>{ const el=$(id); if(t==='c') el.checked=!!O[k]; else el.value=String(O[k]); });
   paintParts();
@@ -624,6 +638,24 @@ function levelAt(i, n){
 }
 /* rows = how many terms must stay at or above zero for Sweet/Mild */
 let USED = new Set();
+function storyFor(level, rows){
+  for(let t=0;t<30;t++){
+    const st = CTX.make(level, O.dir, rows);
+    if(!st) continue;
+    const r = st.rule, k = r.start+'|'+r.step+'|'+r.dir;
+    if(USED.has(k)) continue;
+    USED.add(k); return st;
+  }
+  return null;
+}
+/* fills q.r (and q.st for a worded problem) */
+function fill(q, level, rows){
+  if(q.wantStory){
+    const st = storyFor(level, rows);
+    if(st){ q.st = {id:st.id, name:st.name}; q.r = st.rule; return; }
+  }
+  delete q.st; q.r = ruleFor(level, rows);
+}
 function ruleFor(level, rows){
   for(let t=0;t<40;t++){
     const r = CL.makeRule(level, O.dir, rows);
@@ -649,6 +681,29 @@ try{
 const X = ALPHA ? '\u{1D465}' : '<i>x</i>';
 const Y = ALPHA ? '\u{1D466}' : '<i>y</i>';
 function instr(r){ return `Start at ${F(r.start)}, count ${r.dir} by ${F(r.step)}s`; }
+/* a question is either a counting instruction or a worded problem (q.st = {id, name}) */
+const ctxOf = q => q.st ? CTX.BY[q.st.id] : null;
+function promptHTML(q){
+  return q.st ? `<span class="instr story">${CTX.storyHTML({id:q.st.id, name:q.st.name, rule:q.r})}</span>` : `<span class="instr">${instr(q.r)}</span>`;
+}
+function topHTML(q, n){ return `<div class="qTop${q.st ? ' st' : ''}">${numBadge(q,n)}${promptHTML(q)}</div>`; }
+function letLine(q){ const c = ctxOf(q); return c ? `<div class="letXY">Let ${X} = ${esc(c.x)} and ${Y} = ${esc(c.y)}.</div>` : ''; }
+/* how a value reads in this question: $2.50 in a money story, 2.5 otherwise */
+const valOf = (q, v) => q.st ? CTX.fmtVal(ctxOf(q), v) : F(v);
+const unitOne = c => c ? c.x.replace(/s$/, '') : '';
+/* an example story for an equation — any context going the right way whose numbers would make sense */
+function exampleStory(r){
+  const ok = CTX.CONTEXTS.filter(c=>{
+    if(c.dir !== r.dir) return false;
+    if(c.cap != null && r.start > c.cap) return false;
+    if(c.kind === 'count' && (!Number.isInteger(r.start) || !Number.isInteger(r.step))) return false;
+    if(!c.neg) for(let x=0;x<10;x++) if(term(r,x) < 0) return false;
+    return true;
+  });
+  if(!ok.length) return null;
+  const c = pick(ok);
+  return CTX.storyHTML({id:c.id, name:pick(CTX.NAMES), rule:r});
+}
 /* the equation for a rule, in the chosen order; m×x with no "1x" and no "+ −" */
 function eqHTML(r, form){
   const m = signedStep(r), b = r.start;
@@ -678,24 +733,33 @@ function newPaper(){
     const n = O.n[S.key] || 0, qs = [];
     /* the four kinds of mistake are dealt from a shuffled deck, so two questions are never the same kind */
     const deck = ['slip','carry','late','swap'].sort(()=>Math.random()-.5);
+    /* which questions are worded problems: all, none, or every other one that can be (a C table never is) */
+    let canIdx = 0;
+    const wants = (canBe) => {
+      if(!canBe || O.qtype === 'count') return false;
+      if(O.qtype === 'story') return true;
+      return (canIdx++ % 2) === 1;
+    };
     for(let i=0;i<n;i++){
       const level = levelAt(i, n);
       let q = { level };
-      if(S.key === 'seq'){ q.r = ruleFor(level, 6); }
-      else if(S.key === 'graph'){ q.r = ruleFor(level, 7); }
-      else if(S.key === 'eq'){ q.r = ruleFor(level, 6); q.kind = i % 2 ? 'table' : 'words'; q.form = formFor(i); }
+      if(S.key === 'seq'){ q.wantStory = wants(true); fill(q, level, 10); }
+      else if(S.key === 'graph'){ q.wantStory = wants(true); fill(q, level, 10); }
+      else if(S.key === 'eq'){ q.kind = i % 2 ? 'table' : 'words'; q.form = formFor(i); q.wantStory = wants(q.kind === 'words'); fill(q, level, 10); }
       else if(S.key === 'back'){
         q.kind = i % 2 ? 'graph' : 'eq'; q.form = formFor(i);
-        q.r = ruleFor(level, 6);
-        for(let t=0; q.kind === 'graph' && t<60 && !readable(q.r, [0,1,2,3,4,5]); t++){ USED.delete(q.r.start+'|'+q.r.step+'|'+q.r.dir); q.r = ruleFor(level, 6); }
+        q.wantStory = wants(true);
+        fill(q, level, 10);
+        for(let t=0; q.kind === 'graph' && t<60 && !readable(q.r, [0,1,2,3,4,5]); t++){ USED.delete(q.r.start+'|'+q.r.step+'|'+q.r.dir); fill(q, level, 10); }
         if(q.kind === 'graph' && !readable(q.r, [0,1,2,3,4,5])){
           /* rare: build one that is readable by construction — every term a multiple of the count */
           const st = pick([2,5,10]), dn = O.dir === 'down' || (O.dir === 'either' && Math.random() < .5);
-          q.r = { start: st * (dn ? 5 + rnd(5) : 1 + rnd(6)), step: st, dir: dn ? 'down' : 'up' };
+          q.r = { start: st * (dn ? 5 + rnd(5) : 2 + rnd(5)), step: st, dir: dn ? 'down' : 'up' };
+          delete q.st;
         }
       }
       else if(S.key === 'oops'){
-        q.r = ruleFor(level, 7); q.who = names[nameI++ % names.length];
+        q.wantStory = wants(true); fill(q, level, 10); q.who = names[nameI++ % names.length];
         q.kind = deck[i % 4];
         if(q.kind === 'swap' && (q.r.start === 0 || Math.abs(q.r.start) === q.r.step)) q.kind = 'slip';
         q.at = 2 + rnd(3);                               /* which x goes wrong */
@@ -704,7 +768,7 @@ function newPaper(){
         if(level !== 'sweet' && level !== 'mild' && Math.random() < .5) q.off = -q.off;
       }
       else if(S.key === 'far'){
-        q.r = ruleFor(level, 51);
+        q.wantStory = wants(true); fill(q, level, 51);
         q.x1 = 20; q.x2 = 50;
         q.k = 12 + rnd(19);                              /* the far term they must find the position of */
         q.form = formFor(i);
@@ -746,7 +810,8 @@ function gridSVG(o){
   /* a y-axis that does not start at zero gets a short gap below the grid with a break in it,
      so the bottom grid line is never mistaken for zero */
   const gap = zeroIn ? 0 : 4;
-  const L = 11, B = 7 + gap, T = 4, Rm = 5;                 /* margins, mm */
+  const uc = o.ctx || null;                                  /* a worded problem names its axes */
+  const L = 11, B = 7 + gap + (uc ? 4 : 0), T = 4, Rm = 5;  /* margins, mm */
   const vw = L + W + Rm, vh = T + H + B;
   const px = x => L + x * c, py = y => T + H - (y - ys.a) / ys.s * c;
   const axisY = zeroIn ? py(0) : T + H + gap;
@@ -760,6 +825,10 @@ function gridSVG(o){
   s += `<path d="M${L+W+0.4} ${axisY-1.1} L${L+W+2.6} ${axisY} L${L+W+0.4} ${axisY+1.1}" fill="none" stroke="#111827" stroke-width=".5"/>`;
   s += `<text x="${L+W+3.3}" y="${axisY+1.2}" font-size="4" font-style="italic" font-family="serif">x</text>`;
   s += `<text x="${L+1.6}" y="${T-0.6}" font-size="4" font-style="italic" font-family="serif">y</text>`;
+  if(uc){
+    s += `<text x="${L+4.4}" y="${T-0.8}" font-size="2.7" font-weight="700" fill="#4b5563">${esc(uc.y)}</text>`;
+    s += `<text x="${L+W/2}" y="${axisY+8.2}" font-size="2.7" font-weight="700" fill="#4b5563" text-anchor="middle">${esc(uc.x)}</text>`;
+  }
   /* the y-axis does not start at zero: say so with a break */
   if(!zeroIn){
     const yb = T + H + gap / 2;
@@ -815,14 +884,16 @@ function card(sec, q, n, key){
   const r = q.r;
   let h = '';
   if(sec === 'seq'){
-    h += `<div class="qTop">${numBadge(q,n)}<span class="instr">${instr(r)}</span></div>`;
+    h += topHTML(q, n);
+    if(q.st){ const c = ctxOf(q); h += `<div class="letXY">Let ${X} = ${esc(c.x)} and ${Y} = ${esc(c.y)}. Write ${Y} for ${X} = 0 to 5.</div>`; }
     h += `<div class="seqBoxes" style="--n:6">` + [0,1,2,3,4,5].map(x=>`<span class="seqBox">${key ? F(term(r,x)) : ''}</span>`).join('') + `</div>`;
   }
   else if(sec === 'graph'){
-    const g = gridSVG({ r, cell:6.6, xMax:6, numbered:O.numAxes || key, pts:key ? [0,1,2,3,4,5] : [], key:key ? {line:true, green:true} : null });
-    h += `<div class="qTop">${numBadge(q,n)}<span class="instr">${instr(r)}</span></div>`;
-    const notice = `<div class="ask"><span class="lt">c</span>What do you notice about the points? Where can you see the ${F(r.start)} and the ${F(r.step)} on your graph?</div>` +
-      (key ? keyNote(key, `The points make a <b>straight line</b>. The <b>${F(r.start)}</b> is where it starts, on the ${Y}-axis (${X} = 0); every step of 1 to the right goes ${r.dir} <b>${F(r.step)}</b>.${!O.numAxes ? ` One scale that works: ${F(g.scale.s)} a square up the ${Y}-axis.` : ''}`)
+    const c = ctxOf(q);
+    const g = gridSVG({ r, ctx:c, cell:6.6, xMax:6, numbered:O.numAxes || key, pts:key ? [0,1,2,3,4,5] : [], key:key ? {line:true, green:true} : null });
+    h += topHTML(q, n) + letLine(q);
+    const notice = `<div class="ask"><span class="lt">c</span>What do you notice about the points? Where can you see the ${valOf(q, r.start)} and the ${valOf(q, r.step)} on your graph?</div>` +
+      (key ? keyNote(key, `The points make a <b>straight line</b>. The <b>${valOf(q, r.start)}</b> is where it starts, on the ${Y}-axis (${X} = 0); every step of 1 to the right${c ? ` (one more ${esc(unitOne(c))})` : ''} goes ${r.dir} <b>${valOf(q, r.step)}</b>.${!O.numAxes ? ` One scale that works: ${F(g.scale.s)} a square up the ${Y}-axis.` : ''}`)
            : `<div class="lines"></div>`);
     h += `<div class="graphRow"><div class="side">
             <div class="ask"><span class="lt">a</span>Complete the table.</div>
@@ -835,7 +906,7 @@ function card(sec, q, n, key){
   else if(sec === 'eq'){
     const eq = eqHTML(r, q.form);
     if(q.kind === 'words'){
-      h += `<div class="qTop">${numBadge(q,n)}<span class="instr">${instr(r)}</span></div>`;
+      h += topHTML(q, n) + letLine(q);
       h += `<div class="ask">Write this as an equation.</div>`;
       h += `<div class="ansLine math">${key ? `<span class="keyMath">${eq}</span>` : `${Y} = <span class="blank xl"></span>`}</div>`;
     } else {
@@ -847,12 +918,30 @@ function card(sec, q, n, key){
     if(key && r.start !== 0) h += keyNote(key, `Also right: ${eqHTML(r, q.form === 'start' ? 'grad' : 'start')}`);
   }
   else if(sec === 'back'){
-    if(q.kind === 'eq'){
+    if(q.kind === 'eq' && q.st){
+      /* worded: invent a story the equation could be telling */
+      h += `<div class="qTop">${numBadge(q,n)}<span class="eq" style="font-size:18px">${eqHTML(r, q.form)}</span></div>`;
+      h += `<div class="ask"><span class="lt">a</span>Write a story this equation could tell. Say what ${X} and ${Y} stand for.</div>`;
+      const ex = key ? exampleStory(r) : null;
+      h += key ? keyNote(key, ex ? `For example: ${ex} Any story works if it starts at <b>${F(r.start)}</b> and goes ${r.dir} <b>${F(r.step)}</b> each step.` : `Any story that starts at <b>${F(r.start)}</b> and goes ${r.dir} <b>${F(r.step)}</b> each step.`)
+               : `<div class="lines" style="height:20mm"></div>`;
+      h += `<div class="ask"><span class="lt">b</span>Write the first five values of ${Y}.</div>`;
+      h += `<div class="seqBoxes" style="--n:5">` + [0,1,2,3,4].map(x=>`<span class="seqBox">${key ? F(term(r,x)) : ''}</span>`).join('') + `</div>`;
+    } else if(q.kind === 'eq'){
       h += `<div class="qTop">${numBadge(q,n)}<span class="eq" style="font-size:18px">${eqHTML(r, q.form)}</span></div>`;
       h += `<div class="ask"><span class="lt">a</span>Write the counting instruction.</div>`;
       h += `<div class="ansLine">Start at ${blank(key?F(r.start):null,'sm')}, count ${blank(key?r.dir:null,'sm')} by ${blank(key?F(r.step):null,'sm')}s</div>`;
       h += `<div class="ask"><span class="lt">b</span>Write the first five numbers.</div>`;
       h += `<div class="seqBoxes" style="--n:5">` + [0,1,2,3,4].map(x=>`<span class="seqBox">${key ? F(term(r,x)) : ''}</span>`).join('') + `</div>`;
+    } else if(q.st){
+      /* worded: the axes are named; read the graph back into the equation and the story */
+      const c = ctxOf(q);
+      const g = gridSVG({ r, ctx:c, cell:5.4, xMax:5, numbered:true, pts:[0,1,2,3,4], key:key ? {line:true, green:false} : null });
+      h += `<div class="qTop">${numBadge(q,n)}<span class="ask" style="font-weight:1000;color:#111827">These points show the ${esc(c.y.replace(/ \(.*\)$/, ''))} after ${X} ${esc(c.x)}.</span></div>`;
+      h += `<div class="gCenter">${g.svg}</div>`;
+      h += `<div class="ansLine math"><span class="lt" style="font-family:var(--uiFont);font-weight:1000;font-size:12px">a&nbsp;</span>${key ? `<span class="keyMath">${eqHTML(r, q.form)}</span>` : `${Y} = <span class="blank xl"></span>`}</div>`;
+      h += `<div class="ask"><span class="lt">b</span>Write a story that fits the graph.</div>`;
+      h += key ? keyNote(key, `For example: ${CTX.storyHTML({id:c.id, name:q.st.name, rule:r})}`) : `<div class="lines" style="height:13.4mm"></div>`;
     } else {
       const g = gridSVG({ r, cell:5.4, xMax:5, numbered:true, pts:[0,1,2,3,4], key:key ? {line:true, green:false} : null });
       h += `<div class="qTop">${numBadge(q,n)}<span class="ask" style="font-weight:1000;color:#111827">These points came from counting.</span></div>`;
@@ -866,7 +955,7 @@ function card(sec, q, n, key){
   }
   else if(sec === 'far'){
     const t1 = term(r, q.x1), t2 = term(r, q.x2), tk = term(r, q.k);
-    h += `<div class="qTop">${numBadge(q,n)}<span class="instr">${instr(r)}</span></div>`;
+    h += topHTML(q, n) + letLine(q);
     h += `<div class="ansLine"><span class="lt" style="font-weight:1000">a</span>&nbsp;Equation:&nbsp;<span class="eq">${key ? `<span class="keyMath">${eqHTML(r, q.form)}</span>` : `${Y} = <span class="blank lg"></span>`}</span></div>`;
     h += `<div class="ansLine"><span style="font-weight:1000">b</span>&nbsp;When ${X} = ${q.x1}, ${Y} = ${blank(key?F(t1):null)}</div>`;
     h += `<div class="ansLine"><span style="font-weight:1000">c</span>&nbsp;When ${X} = ${q.x2}, ${Y} = ${blank(key?F(t2):null)}</div>`;
@@ -891,14 +980,16 @@ function oopsValues(q){
 }
 function oopsCard(q, n, key){
   const r = q.r, who = q.who;
-  let h = `<div class="qTop">${numBadge(q,n)}<span class="ask" style="font-weight:850;color:#374151">${who} was told: <span class="instr" style="font-size:13px">${instr(r)}</span></span></div>`;
+  let h = q.st
+    ? `<div class="qTop st">${numBadge(q,n)}<span class="ask" style="font-weight:850;color:#374151">${who} was given this problem:<br>${promptHTML(q)}</span></div>` + letLine(q)
+    : `<div class="qTop">${numBadge(q,n)}<span class="ask" style="font-weight:850;color:#374151">${who} was told: <span class="instr" style="font-size:13px">${instr(r)}</span></span></div>`;
   if(q.kind === 'swap'){
     h += `<div class="ask">${who} wrote: &nbsp;<span class="eq" style="font-size:17px">${swappedHTML(r)}</span></div>`;
     h += `<div class="ask">Is ${who} right? Test it with ${X} = 2, then explain.</div>`;
     if(key){
       const m = signedStep(r), b = r.start;
       const theirs = R(m + Math.abs(b) * (b < 0 ? -1 : 1) * 2);
-      h += keyNote(key, `<b>No.</b> When ${X} = 2 the count gives ${F(term(r,2))}, but ${who}&rsquo;s equation gives ${F(theirs)}. The start (${F(b)}) is the number on its own; the count (${F(r.step)}) is the one multiplied by ${X}: <b>${eqHTML(r,'start')}</b>.`);
+      h += keyNote(key, `<b>No.</b> When ${X} = 2 the count gives ${F(term(r,2))}, but ${who}&rsquo;s equation gives ${F(theirs)}. The start (${F(b)}) is the number on its own; the ${q.st ? 'change each step' : 'count'} (${F(r.step)}) is the one multiplied by ${X}: <b>${eqHTML(r,'start')}</b>.`);
     } else h += `<div class="lines" style="height:20mm"></div>`;
     return h;
   }
@@ -911,7 +1002,7 @@ function oopsCard(q, n, key){
     let why = '';
     if(q.kind === 'slip') why = `When ${X} = ${q.at} it should be <b>${F(term(r,q.at))}</b> (${F(term(r,q.at-1))} ${r.dir==='up'?'+':'−'} ${F(r.step)}). One slip; the numbers after it are right.`;
     if(q.kind === 'carry') why = `One slip at ${X} = ${q.at} (should be <b>${F(term(r,q.at))}</b>), then ${who} kept counting correctly from the wrong number &mdash; so from there on every number is ${F(Math.abs(q.off))} too ${q.off > 0 ? 'big' : 'small'}.`;
-    if(q.kind === 'late') why = `${who} started one count late: ${X} = 0 should be the start, <b>${F(r.start)}</b>. Every ${Y} is ${F(r.step)} too ${r.dir==='up'?'big':'small'} &mdash; the right table is ${[0,1,2,3,4,5].map(x=>F(term(r,x))).join(', ')}.`;
+    if(q.kind === 'late') why = `${who} started one step late: ${X} = 0 should be the start, <b>${F(r.start)}</b>. Every ${Y} is ${F(r.step)} too ${r.dir==='up'?'big':'small'} &mdash; the right table is ${[0,1,2,3,4,5].map(x=>F(term(r,x))).join(', ')}.`;
     h += keyNote(key, why);
   } else h += `<div class="lines" style="height:13.4mm"></div>`;
   return h;
@@ -929,7 +1020,8 @@ function newPage(out, key, first){
   const sh=document.createElement('div'); sh.className='sheet';
   if(first && !key){
     const p=document.createElement('p'); p.className='intro';
-    p.innerHTML=`Each question starts with a counting instruction. The first number is the start &mdash; it goes with ${X} = 0. Then every step adds (or takes away) the same amount.`;
+    const anyStory = PAPER.some(sec=>sec.qs.some(q=>q.st));
+    p.innerHTML=`Each question starts with a counting instruction${anyStory ? ' or a story' : ''}. The first number is the start &mdash; it goes with ${X} = 0. Then every step adds (or takes away) the same amount.`;
     sh.appendChild(p);
   }
   const ft=document.createElement('div'); ft.className='pageFooter';

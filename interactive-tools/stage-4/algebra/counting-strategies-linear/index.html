@@ -183,6 +183,22 @@
       gap:26px; padding:24px 10px 30px; text-align:center;
     }
     .introSlot{ display:flex; justify-content:center; max-width:100%; }
+    /* a worded problem: its line width is set in em, so the big version on the opening screen and
+       the small one in the heading wrap at the same words — the morph is then a pure scale */
+    .rule.story{ font-weight:850; letter-spacing:-.015em; text-wrap:balance; text-align:center; max-width:27em; }
+    .rule.story.big{ font-size:clamp(1.5rem,3.1vw,2.7rem); line-height:1.22; }
+    .rule.story.head{ font-size:clamp(1rem,1.45vw,1.25rem); white-space:normal; line-height:1.22; }
+    .modeSeg{ display:inline-flex; background:#f1f5f9; border:1px solid var(--border); border-radius:999px; padding:4px; gap:2px; }
+    .modeSeg button{ appearance:none; border:0; background:transparent; border-radius:999px; padding:8px 16px; font-weight:900; font-size:.9rem; color:var(--muted); cursor:pointer; transition:.16s ease; white-space:nowrap; }
+    .modeSeg button:hover{ color:var(--ink); }
+    .modeSeg button.on{ background:#fff; color:var(--blue-dark); box-shadow:0 3px 10px rgba(15,23,42,.12); }
+    .modeSeg button:focus-visible{ outline:none; box-shadow:0 0 0 4px rgba(37,99,235,.22); }
+    .storySel{ appearance:none; border:1px solid #ddd6fe; background:#f5f3ff; color:#5b21b6; font-weight:850; font-size:.86rem;
+      padding:8px 30px 8px 14px; border-radius:999px; cursor:pointer; font-family:inherit;
+      background-image:linear-gradient(45deg,transparent 50%,#5b21b6 50%),linear-gradient(135deg,#5b21b6 50%,transparent 50%);
+      background-position:calc(100% - 15px) 52%, calc(100% - 10px) 52%; background-size:5px 5px; background-repeat:no-repeat; }
+    .storySel:focus-visible{ outline:none; box-shadow:0 0 0 4px rgba(124,58,237,.22); }
+    body:not([data-mode="story"]) .storyOnly, body[data-mode="story"] .countOnly{ display:none !important; }
     .introTools{ display:flex; gap:9px; flex-wrap:wrap; justify-content:center; }
     .introEdit{
       display:flex; align-items:center; gap:12px; flex-wrap:wrap; justify-content:center;
@@ -256,6 +272,8 @@
     table.tv th.yh{ border-left:2px solid var(--line); }
     table.tv th .dot{ display:inline-block; width:13px; height:13px; border-radius:50%; background:var(--blue); vertical-align:middle; margin-right:8px; box-shadow:0 0 0 3px #dbeafe; }
     table.tv th.jh{ border-bottom:0; width:74px; }
+    table.tv th .cap{ display:block; font-family:var(--uiFont); font-size:.66rem; font-weight:800; color:var(--muted); line-height:1.15; margin:-2px 0 5px; max-width:96px; margin-inline:auto; white-space:normal; }
+    table.tv th:has(.cap:not(:empty)){ height:auto; padding-top:6px; }
     table.tv td{ height:var(--rowH); padding:0; border-bottom:1px solid var(--border); position:relative; }
     table.tv td.yc{ border-left:2px solid var(--line); }
     table.tv td.jc{ border-bottom:0; }
@@ -317,6 +335,7 @@
     .plot text{ font-family:var(--uiFont); }
     .plot .tick{ font-size:13px; fill:#475569; paint-order:stroke; stroke:#fff; stroke-width:4px; stroke-linejoin:round; font-variant-numeric:tabular-nums; }
     .plot .axTitle{ font-family:var(--mathFont); font-style:italic; font-size:20px; fill:var(--line); paint-order:stroke; stroke:#fff; stroke-width:5px; }
+    .plot .axUnit{ font-family:var(--uiFont); font-style:normal; font-size:13px; font-weight:800; fill:var(--muted); }
     .plot .pt .core{ transform-box:fill-box; transform-origin:center; }
     .plot .pt.pop .core{ animation:pop .45s cubic-bezier(.3,1.6,.5,1) both; }
     @keyframes pop{ from{ transform:scale(0); } to{ transform:scale(1); } }
@@ -471,35 +490,40 @@
 
         <!-- ===== the opening: the instruction and nothing else ===== -->
         <div class="introView" id="introView">
+          <div class="modeSeg" role="group" aria-label="How the problem is given" id="modeSeg">
+            <button type="button" data-mode="count" title="Start at &hellip;, count up or down by &hellip; (W)">Count up / down</button>
+            <button type="button" data-mode="story" title="A worded problem with a context (W)">Worded problem</button>
+          </div>
           <div class="introSlot" id="introSlot">
             <h2 class="rule big" id="rule" aria-live="polite"></h2>
           </div>
           <div class="introEdit" id="introEdit" hidden>
-            <span>Start at</span>
+            <span class="countOnly">Start at</span><span class="storyOnly">Start</span>
             <input id="edStart" type="text" inputmode="decimal" autocomplete="off" aria-label="Start at">
-            <span>count</span>
-            <span class="seg" role="group" aria-label="Count up or down">
+            <span class="countOnly">count</span>
+            <span class="seg countOnly" role="group" aria-label="Count up or down">
               <button type="button" data-ed="up" class="on">up</button><button type="button" data-ed="down">down</button>
             </span>
-            <span>by</span>
+            <span class="countOnly">by</span><span class="storyOnly" id="edStepLbl">changes by</span>
             <input id="edStep" type="text" inputmode="decimal" autocomplete="off" aria-label="Count by">
-            <span>s</span>
+            <span class="countOnly">s</span><span class="storyOnly">each step</span>
             <button class="navBtn" id="edDone" type="button">Done</button>
             <div class="editErr" id="edErr"></div>
           </div>
           <div class="introTools" id="introTools">
-            <button class="genBtn" id="diceBtn" type="button" title="Different numbers (R)"><span aria-hidden="true">&#9860;</span><span>New numbers</span></button>
-            <button class="genBtn" id="editBtn" type="button" title="Type your own (E)"><span aria-hidden="true">&#9998;</span><span>Type your own</span></button>
+            <button class="genBtn" id="diceBtn" type="button" title="Different numbers (R)"><span aria-hidden="true">&#9860;</span><span class="countOnly">New numbers</span><span class="storyOnly">New story</span></button>
+            <select class="storySel storyOnly" id="storySel" aria-label="Choose a story"></select>
+            <button class="genBtn" id="editBtn" type="button" title="Type your own (E)"><span aria-hidden="true">&#9998;</span><span class="countOnly">Type your own</span><span class="storyOnly">Change the numbers</span></button>
           </div>
           <button class="navBtn next" id="nextBtn" type="button">Next &#9654;</button>
-          <p class="hint">Space or &rarr; next &middot; R new numbers &middot; E type your own</p>
+          <p class="hint">Space or &rarr; next &middot; R <span class="countOnly">new numbers</span><span class="storyOnly">new story</span> &middot; E <span class="countOnly">type your own</span><span class="storyOnly">change the numbers</span> &middot; W <span class="countOnly">worded problem</span><span class="storyOnly">count up / down</span></p>
         </div>
 
         <!-- ===== the graphing view ===== -->
         <div class="headStrip" id="headStrip" hidden>
-          <div class="left"><button class="navBtn" id="backBtn" type="button" title="Back to the instruction (&larr;)">&#9664; <span class="lbl">The instruction</span></button></div>
+          <div class="left"><button class="navBtn" id="backBtn" type="button" title="Back to the instruction (&larr;)">&#9664; <span class="lbl countOnly">The instruction</span><span class="lbl storyOnly">The problem</span></button></div>
           <div class="headSlot" id="headSlot"></div>
-          <div class="right"><button class="genBtn" id="newRuleBtn" type="button" title="A new instruction &mdash; clears the table"><span aria-hidden="true">&#9860;</span><span class="lbl">New instruction</span></button></div>
+          <div class="right"><button class="genBtn" id="newRuleBtn" type="button" title="A new instruction &mdash; clears the table"><span aria-hidden="true">&#9860;</span><span class="lbl countOnly">New instruction</span><span class="lbl storyOnly">New story</span></button></div>
         </div>
 
         <div class="graphView" id="graphView" hidden>
@@ -508,7 +532,7 @@
               <div class="secHead"><span>Table of values</span><button class="linkBtn" id="clearTableBtn" type="button">Clear</button></div>
               <div class="tvWrap">
                 <table class="tv noJumps" id="tv">
-                  <thead><tr><th class="xh"><i>x</i></th><th class="yh"><span class="dot" aria-hidden="true"></span><i>y</i></th><th class="jh"></th></tr></thead>
+                  <thead><tr><th class="xh"><span class="cap" id="xCap"></span><i>x</i></th><th class="yh"><span class="cap" id="yCap"></span><span class="dot" aria-hidden="true"></span><i>y</i></th><th class="jh"></th></tr></thead>
                   <tbody id="tvBody"></tbody>
                 </table>
               </div>
@@ -832,10 +856,12 @@ var CL = (function(){
 if(typeof module !== "undefined") module.exports = CL;
 </script>
 
+<script src="contexts.js"></script>
 <script>
 (function(){
   "use strict";
   var $ = function(s){ return document.querySelector(s); };
+  var CTX = window.MMT_CL_CTX;
   var SVGNS = "http://www.w3.org/2000/svg";
   var EQ_COLOURS = ["#7c3aed", "#16a34a", "#db2777", "#0891b2"];
   var PT = "#2563eb", STEP = "#f97316";
@@ -851,7 +877,7 @@ if(typeof module !== "undefined") module.exports = CL;
   var S = {
     phase:"intro",
     set:{
-      level:saved.level || "mild", dir:saved.dir || "either", rows:saved.rows || 8,
+      level:saved.level || "mild", dir:saved.dir || "either", rows:saved.rows || 8, mode:saved.mode === "story" ? "story" : "count",
       jumps:!!saved.jumps, steps:!!saved.steps, labels:!!saved.labels, thru:!!saved.thru,
       minor:saved.minor !== false
     },
@@ -877,18 +903,60 @@ if(typeof module !== "undefined") module.exports = CL;
   var XI = ALPHA ? "\u{1D465}" : "x", YI = ALPHA ? "\u{1D466}" : "y";
 
   // ===================== the worded rule =====================
+  // In "worded problem" mode the same rule is told as a story; S.story = {id, name}.
+  // The two numbers keep their colours: the start blue (= the points), the change orange (= the jumps).
+  function isStory(){ return S.set.mode === "story" && S.story; }
   function ruleHTML(r){
+    if(isStory()){
+      return CTX.storyHTML({id:S.story.id, name:S.story.name, rule:r}, function(k, t){
+        return "<span class=\"num " + k + "\">" + t.replace(/&/g, "&amp;") + "</span>";
+      });
+    }
     return "Start at <span class=\"num start\">" + CL.fmt(r.start) + "</span>, count " +
       "<span class=\"dir\">" + r.dir + "</span> by <span class=\"num step\">" + CL.fmt(r.step) + "</span>s";
   }
   function paintRule(){
     var el = $("#rule");
     el.innerHTML = ruleHTML(S.rule);
+    el.classList.toggle("story", !!isStory());
     el.setAttribute("data-start", S.rule.start); el.setAttribute("data-step", S.rule.step); el.setAttribute("data-dir", S.rule.dir);
+    paintUnits();
   }
-  function newRule(){
-    S.rule = CL.makeRule(S.set.level, S.set.dir, S.set.rows, S.rule);
+  // a story's x and y are named on the table and the axes
+  function paintUnits(){
+    var c = isStory() ? CTX.BY[S.story.id] : null;
+    $("#xCap").textContent = c ? c.x : "";
+    $("#yCap").textContent = c ? c.y : "";
+    if(S.phase === "graph") draw();
+  }
+  // STORY_ROWS: a story that cannot go below zero stays at or above zero for the whole first-ten frame
+  var STORY_ROWS = 10;
+  function newRule(onlyId){
+    if(S.set.mode === "story"){
+      var st = CTX.make(S.set.level, S.set.dir, STORY_ROWS, S.story && !onlyId ? S.story.id : null, onlyId);
+      if(st){ S.story = {id:st.id, name:st.name}; S.rule = st.rule; }
+      $("#storySel").value = S.story ? S.story.id : "";
+    } else {
+      S.rule = CL.makeRule(S.set.level, S.set.dir, S.set.rows, S.rule);
+    }
     paintRule();
+  }
+  function buildStorySel(){
+    var sel = $("#storySel"), h = "";
+    [["up","Going up"],["down","Going down"]].forEach(function(g){
+      h += "<optgroup label=\"" + g[1] + "\">";
+      CTX.CONTEXTS.filter(function(c){ return c.dir === g[0]; }).forEach(function(c){ h += "<option value=\"" + c.id + "\">" + c.title + "</option>"; });
+      h += "</optgroup>";
+    });
+    sel.innerHTML = h;
+  }
+  function setMode(m){
+    if(S.set.mode === m) return;
+    S.set.mode = m; saveSet();
+    document.body.setAttribute("data-mode", m);
+    document.querySelectorAll("#modeSeg [data-mode]").forEach(function(b){ var on = b.getAttribute("data-mode") === m; b.classList.toggle("on", on); b.setAttribute("aria-pressed", String(on)); });
+    $("#introEdit").hidden = true; $("#introTools").hidden = false;
+    newRule(); clearWork();
   }
 
   // Type your own
@@ -897,6 +965,8 @@ if(typeof module !== "undefined") module.exports = CL;
     $("#edStart").value = CL.fmt(S.rule.start).replace("−", "-");
     $("#edStep").value = CL.fmt(S.rule.step);
     edDir = S.rule.dir; paintSeg();
+    // a story already says which way it goes
+    if(isStory()) $("#edStepLbl").textContent = (S.rule.dir === "up" ? "goes up by" : "goes down by");
     $("#edErr").textContent = "";
     $("#introEdit").hidden = false; $("#introTools").hidden = true;
     $("#edStart").focus(); $("#edStart").select();
@@ -907,8 +977,8 @@ if(typeof module !== "undefined") module.exports = CL;
     $("#edStart").classList.toggle("bad", !isFinite(a));
     $("#edStep").classList.toggle("bad", !(b > 0));
     if(!isFinite(a)){ $("#edErr").textContent = "The start needs to be a number."; return false; }
-    if(b < 0){ b = -b; edDir = edDir === "up" ? "down" : "up"; }
-    if(!(b > 0)){ $("#edErr").textContent = "Count by a number bigger than 0."; return false; }
+    if(b < 0 && !isStory()){ b = -b; edDir = edDir === "up" ? "down" : "up"; }
+    if(!(b > 0)){ $("#edErr").textContent = isStory() ? "The change needs to be a number bigger than 0." : "Count by a number bigger than 0."; return false; }
     if(Math.abs(a) > 1e6 || b > 1e6){ $("#edErr").textContent = "Keep the numbers under a million."; return false; }
     S.rule = {start:CL.round(a), step:CL.round(b), dir:edDir};
     paintRule(); clearWork();
@@ -1250,8 +1320,9 @@ if(typeof module !== "undefined") module.exports = CL;
     }
     if(xIn && yIn) out.push("<text class=\"tick\" x=\"" + (ox - 7).toFixed(1) + "\" y=\"" + Math.min(H - 8, oy + 19).toFixed(1) + "\" text-anchor=\"end\">0</text>");
     // axis names
-    if(yIn) out.push("<text class=\"axTitle\" x=\"" + (W - 12) + "\" y=\"" + (oy - 9).toFixed(1) + "\" text-anchor=\"end\">" + XI + "</text>");
-    if(xIn) out.push("<text class=\"axTitle\" x=\"" + (ox + 10).toFixed(1) + "\" y=\"20\">" + YI + "</text>");
+    var uc = isStory() ? CTX.BY[S.story.id] : null;
+    if(yIn) out.push("<text class=\"axTitle\" x=\"" + (W - 12) + "\" y=\"" + (oy - 9).toFixed(1) + "\" text-anchor=\"end\">" + (uc ? "<tspan class=\"axUnit\">" + esc(uc.x) + "  </tspan>" : "") + XI + "</text>");
+    if(xIn) out.push("<text class=\"axTitle\" x=\"" + (ox + 10).toFixed(1) + "\" y=\"20\">" + YI + (uc ? "<tspan class=\"axUnit\">  " + esc(uc.y) + "</tspan>" : "") + "</text>");
     $("#gridLayer").innerHTML = out.join("");
   }
 
@@ -1605,13 +1676,15 @@ if(typeof module !== "undefined") module.exports = CL;
   $("#nextBtn").addEventListener("click", toGraph);
   $("#backBtn").addEventListener("click", toIntro);
   $("#diceBtn").addEventListener("click", function(){ newRule(); clearWork(); });
+  document.querySelectorAll("#modeSeg [data-mode]").forEach(function(b){ b.addEventListener("click", function(){ setMode(b.getAttribute("data-mode")); }); });
+  $("#storySel").addEventListener("change", function(){ newRule(this.value); clearWork(); });
   $("#editBtn").addEventListener("click", openEdit);
   $("#edDone").addEventListener("click", applyEdit);
   document.querySelectorAll("[data-ed]").forEach(function(b){ b.addEventListener("click", function(){ edDir = b.getAttribute("data-ed"); paintSeg(); previewEdit(); }); });
   // the big sentence follows what is typed, so the class sees the instruction being written
   function previewEdit(){
     var a = CL.num($("#edStart").value), b = CL.num($("#edStep").value), d = edDir;
-    if(b < 0){ b = -b; d = d === "up" ? "down" : "up"; }
+    if(b < 0 && !isStory()){ b = -b; d = d === "up" ? "down" : "up"; }
     if(isFinite(a) && b > 0 && Math.abs(a) <= 1e6 && b <= 1e6) $("#rule").innerHTML = ruleHTML({start:CL.round(a), step:CL.round(b), dir:d});
   }
   ["#edStart","#edStep"].forEach(function(s){ $(s).addEventListener("input", function(){ $("#edErr").textContent = ""; this.classList.remove("bad"); previewEdit(); }); });
@@ -1649,6 +1722,7 @@ if(typeof module !== "undefined") module.exports = CL;
       if(e.key === " " || e.key === "ArrowRight" || e.key === "Enter"){ if(t && t.tagName === "BUTTON" && e.key !== "ArrowRight") return; e.preventDefault(); toGraph(); }
       else if(k === "r"){ newRule(); clearWork(); }
       else if(k === "e"){ e.preventDefault(); openEdit(); }
+      else if(k === "w"){ setMode(S.set.mode === "story" ? "count" : "story"); }
     } else {
       if(e.key === "ArrowLeft"){ e.preventDefault(); toIntro(); }
       else if(k === "a"){ setAuto(!S.auto); }
@@ -1661,6 +1735,9 @@ if(typeof module !== "undefined") module.exports = CL;
 
   // ===================== boot =====================
   paintSettings();
+  buildStorySel();
+  document.body.setAttribute("data-mode", S.set.mode);
+  document.querySelectorAll("#modeSeg [data-mode]").forEach(function(b){ var on = b.getAttribute("data-mode") === S.set.mode; b.classList.toggle("on", on); b.setAttribute("aria-pressed", String(on)); });
   newRule();
   freshRows();
   S.eqs = [newEq()];
@@ -1668,7 +1745,7 @@ if(typeof module !== "undefined") module.exports = CL;
   setPhase("intro");
 
   // a small window for the checks to look through
-  window.__CL__ = {S:S, CL:CL, draw:draw, refit:refit, toGraph:toGraph, toIntro:toIntro, sx:sx, sy:sy, dims:function(){ return {W:W, H:H}; }, ALPHA:ALPHA};
+  window.__CL__ = {S:S, CL:CL, setMode:setMode, CTX:CTX, draw:draw, refit:refit, toGraph:toGraph, toIntro:toIntro, sx:sx, sy:sy, dims:function(){ return {W:W, H:H}; }, ALPHA:ALPHA};
 })();
 </script>
 </body>
