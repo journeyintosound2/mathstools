@@ -81,6 +81,36 @@
 > §2 "TWO folders", §3 deploy paths and §5's `mathstools-main 2` heading below
 > describe the OLD layout — this block supersedes them.
 >
+> **NEW (2026-10-21, session — being pushed): COUNTING STRATEGIES FOR LINEAR RELATIONSHIPS.**
+> `interactive-tools/stage-4/algebra/counting-strategies-linear/`, under **MA4-LIN-C-01**
+> (row in `resources/toolLinks.js`, homepage Interactive card; Visual Patterns' Tools menu
+> links to it and it links back). Self-contained, no Firebase. Notes: project doc
+> `claude/counting-strategies-linear.md`.
+> * **TWO PHASES, ONE SENTENCE.** Opens on "Start at 5, count up by 3s" and nothing else
+>   (New numbers / Type your own — the big sentence previews as it is typed). Next FLIPs that
+>   SAME `#rule` element from `#introSlot` into `#headSlot` above the card (and back on Back);
+>   do not swap it for a second copy. Start number is blue (= the points), step orange (= jumps).
+> * **A DESMOS-STYLE CLONE, LIMITED ON PURPOSE:** a table (x prefilled 0..n−1 and editable,
+>   y BLANK — nothing is filled for the class; "Fill the table from the rule" is a buried demo
+>   action in Settings) and up to four equation rows. Points plot as typed; Enter on the last
+>   row adds one. Equations accept y = 5 + 3x, 3x + 5, y=3*x+5, 3(x+1), 20 − 2x, x/2, x=c.
+>   The box tidies as you type (spacing, − × ÷, Word-style math-italic x/y when the font has
+>   them) keeping the caret; Backspace deletes THROUGH the added spaces or "5 + " could never
+>   lose its +.
+> * **AUTO-SCALE (on by default)** stretches each axis separately to the table's points
+>   (zero included when the data are near it — `rangeFor`), animated. Off = equal scale fit to
+>   the data; drag/wheel/± pan and zoom, and panning while on switches it off. The tools are
+>   ONE narrow column at the right and `CL.PAD.r` (86) keeps every point clear of it — the
+>   first build hid (7, 26) under the zoom buttons.
+> * **Reveals (Settings, all OFF by default):** jumps between table rows (an odd jump is red —
+>   spots a slip like 14, 18, 20), rise/run steps on the graph, (x, y) labels, "Goes through
+>   7 of 8 points" under each equation. Hover shows a point's coordinates, click pins it.
+> * **Engine is DOM-free** (`<script id="clEngine">`, `var CL`): parser, tidier, `makeRule`
+>   (Sweet/Mild never go below zero inside the table), `fit`. Verified: 54,700 engine checks,
+>   63 UI checks (1366/1024/1280/1920/390, morph both ways, auto-scale stretch vs equal scale,
+>   drag turns it off, odd jumps, through-count, no page scroll). Harnesses in session scratch.
+> * Possible next: worksheet creator (sequence → table → graph → rule), student quiz.
+>
 > **NEW (2026-10-19, session — being pushed): NUMBER SUM CHAIN UPGRADE.**
 > `interactive-tools/stage-5/measurement-space/square-sum-chain/` (MA5-NET-P-01), now
 > also a homepage Interactive card (pill 34 -> 35). Notes: project doc `claude/number-sum-chain.md`.

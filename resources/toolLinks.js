@@ -1209,6 +1209,13 @@ window.MMT_TOOL_LINKS = {
       tags: ["worksheet generator", "printable", "visual patterns", "table of values", "rule", "linear relationship", "predict", "answer key"]
     },
     {
+      title: "Counting Strategies for Linear Relationships",
+      kind: "Teacher tool",
+      url: "/interactive-tools/stage-4/algebra/counting-strategies-linear/",
+      note: "Starts with one instruction — “Start at 5, count up by 3s” — for the class to write as a sequence. Then a Desmos-style table and plane: type the class’s sequence (mistakes and all) into the table, watch the points appear, and type y = 5 + 3x to see the counting is the linear relationship. Auto-scale axes, optional jumps in the table and steps on the graph, up to four equations to compare.",
+      tags: ["counting on", "skip counting", "sequence", "table of values", "linear relationship", "y = mx + c", "gradient", "y-intercept", "plot points", "cartesian plane", "desmos", "notice and wonder", "rate of change", "misconceptions"]
+    },
+    {
       title: "Capture the Grid",
       kind: "Game",
       url: "/games/cartesian-capture.html",

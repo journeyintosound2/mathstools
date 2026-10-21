@@ -1,6 +1,6 @@
 /* Written by tools/build-pwa.mjs — do not edit by hand. */
 self.MMT_PRECACHE = {
- "version": "caf64d51f9",
+ "version": "6933024f3b",
  "files": [
   "./",
   "assessment/exam-builder/app.js",
@@ -713,6 +713,7 @@ self.MMT_PRECACHE = {
   "interactive-tools/stage-4/algebra/collecting-like-terms/lesson-plan.html",
   "interactive-tools/stage-4/algebra/collecting-like-terms/lock-closed.png",
   "interactive-tools/stage-4/algebra/collecting-like-terms/lock-open.png",
+  "interactive-tools/stage-4/algebra/counting-strategies-linear/index.html",
   "interactive-tools/stage-4/algebra/double-numberline/index.html",
   "interactive-tools/stage-4/algebra/double-numberline/lesson-plan.html",
   "interactive-tools/stage-4/algebra/number-groups/index.html",
