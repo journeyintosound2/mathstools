@@ -52,6 +52,34 @@
     .sw input:checked + .track::after{ transform:translateX(19px); }
     .sw input:focus-visible + .track{ box-shadow:0 0 0 4px rgba(37,99,235,.25); }
 
+    /* levels: four tickable chips in the spice colours */
+    .lvField{ border:0; margin:0 0 14px; padding:0; min-width:0; }
+    .lvLegend{ padding:0; margin:0 0 7px; font-size:15px; font-weight:950; display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; }
+    .lvHint{ font-size:13px; font-weight:850; color:var(--muted); }
+    .lvHint.warn{ color:var(--red); }
+    .lvGrid{ display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; }
+    .lvChip{ position:relative; display:flex; align-items:flex-start; gap:10px; margin:0; padding:10px 12px; border:2px solid #e5e7eb; border-radius:14px; background:#fff; cursor:pointer; user-select:none; transition:.15s ease; }
+    .lvChip:hover{ border-color:#cbd5e1; }
+    .lvChip input{ position:absolute; opacity:0; width:0; height:0; }
+    .lvTick{ flex:0 0 auto; width:22px; height:22px; border-radius:7px; border:2px solid #cbd5e1; background:#fff; display:grid; place-items:center; margin-top:1px; transition:.15s ease; }
+    .lvTick::after{ content:""; width:10px; height:5px; border-left:2.6px solid #fff; border-bottom:2.6px solid #fff; transform:rotate(-45deg) translate(1px,-1px); opacity:0; }
+    .lvText{ display:flex; flex-direction:column; gap:2px; min-width:0; }
+    .lvName{ font-size:15px; font-weight:1000; }
+    .lvChip small{ font-size:12px; font-weight:750; color:var(--muted); line-height:1.3; }
+    .lvChip input:focus-visible ~ .lvTick{ box-shadow:0 0 0 4px rgba(37,99,235,.25); }
+    .lvChip.sweet{ --lv:var(--sweet2); --lvBg:#f0fdf4; }
+    .lvChip.mild{ --lv:var(--mild2); --lvBg:#fffbeb; }
+    .lvChip.medium{ --lv:var(--medium2); --lvBg:#fff7ed; }
+    .lvChip.spicy{ --lv:var(--spicy2); --lvBg:#fef2f2; }
+    .lvChip:has(input:checked){ border-color:var(--lv); background:var(--lvBg); }
+    .lvChip:has(input:checked) .lvTick{ background:var(--lv); border-color:var(--lv); }
+    .lvChip:has(input:checked) .lvTick::after{ opacity:1; }
+    .lvChip:has(input:checked) .lvName{ color:var(--lv); }
+    .lvQuick{ display:flex; gap:6px 16px; flex-wrap:wrap; margin-top:8px; }
+    .linkBtn{ appearance:none; border:0; background:none; color:var(--blue); font-weight:900; cursor:pointer; padding:0; font-size:13px; font-family:inherit; }
+    .linkBtn:hover{ text-decoration:underline; }
+    @media (max-width:900px){ .lvGrid{ grid-template-columns:repeat(2,minmax(0,1fr)); } }
+
     .partGrid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(255px,1fr)); gap:10px; }
     .partOpt{ border:1px solid var(--border); border-radius:14px; padding:10px 12px; background:#fff; display:flex; flex-direction:column; gap:8px; }
     .partOpt.off{ background:#f9fafb; }
@@ -202,17 +230,19 @@
       <div class="controls">
         <div class="band">
           <p class="bandHead">The paper</p>
-          <div class="bandGrid">
-            <div>
-              <label for="levelSel">Numbers</label>
-              <select id="levelSel">
-                <option value="sweet">Sweet &mdash; start 0&ndash;12, count by 2s to 5s</option>
-                <option value="mild">Mild &mdash; start up to 30, count by 2s to 10s</option>
-                <option value="medium">Medium &mdash; bigger; counting down may pass zero</option>
-                <option value="spicy">Spicy &mdash; negative starts, decimal steps</option>
-                <option value="mixed" selected>Mixed &mdash; each section climbs Sweet to Spicy</option>
-              </select>
+          <!-- LEVELS: one control for "a level" and "a mix". Tick one and every question is that level;
+               tick several and each section climbs through just those, easiest first. -->
+          <fieldset class="lvField">
+            <legend class="lvLegend">Levels <span class="lvHint" id="lvHint" aria-live="polite"></span></legend>
+            <div class="lvGrid" id="lvGrid">
+              <label class="lvChip sweet"><input type="checkbox" value="sweet"><span class="lvTick" aria-hidden="true"></span><span class="lvText"><span class="lvName">Sweet</span><small>Start 0&ndash;12, count by 2s to 5s</small></span></label>
+              <label class="lvChip mild"><input type="checkbox" value="mild"><span class="lvTick" aria-hidden="true"></span><span class="lvText"><span class="lvName">Mild</span><small>Start up to 30, count by 2s to 10s</small></span></label>
+              <label class="lvChip medium"><input type="checkbox" value="medium"><span class="lvTick" aria-hidden="true"></span><span class="lvText"><span class="lvName">Medium</span><small>Bigger numbers; counting down may pass zero</small></span></label>
+              <label class="lvChip spicy"><input type="checkbox" value="spicy"><span class="lvTick" aria-hidden="true"></span><span class="lvText"><span class="lvName">Spicy</span><small>Negative starts, decimal steps</small></span></label>
             </div>
+            <div class="lvQuick"><button class="linkBtn" type="button" data-lv="all">All four</button><button class="linkBtn" type="button" data-lv="sweet,mild">Sweet + Mild</button><button class="linkBtn" type="button" data-lv="mild,medium">Mild + Medium</button><button class="linkBtn" type="button" data-lv="medium,spicy">Medium + Spicy</button></div>
+          </fieldset>
+          <div class="bandGrid">
             <div>
               <label for="dirSel">Count</label>
               <select id="dirSel">
@@ -585,10 +615,17 @@ const SECTIONS = [
 ];
 
 /* ---------- settings ---------- */
-const DEF = { level:'mixed', dir:'either', form:'start', qtype:'mix', name:true, numAxes:true, think:true, key:true,
+const DEF = { levels:['sweet','mild','medium','spicy'], dir:'either', form:'start', qtype:'mix', name:true, numAxes:true, think:true, key:true,
   n:{ seq:4, graph:2, eq:4, back:2, oops:2, far:2 } };
 let O = JSON.parse(JSON.stringify(DEF));
-try{ const s = JSON.parse(localStorage.getItem(STORE)||'null'); if(s){ O = Object.assign({}, DEF, s); O.n = Object.assign({}, DEF.n, s.n||{}); } }catch(e){}
+let SAVED = null;
+try{ SAVED = JSON.parse(localStorage.getItem(STORE)||'null'); }catch(e){}
+if(SAVED){ O = Object.assign({}, DEF, SAVED); O.n = Object.assign({}, DEF.n, SAVED.n||{}); }
+/* older saves held one "level" ('mixed' meant all four) */
+if(SAVED && !Array.isArray(SAVED.levels) && SAVED.level) O.levels = SAVED.level === 'mixed' ? DEF.levels.slice() : [SAVED.level];
+delete O.level;
+O.levels = LADDER.filter(l=>(O.levels||[]).includes(l));
+if(!O.levels.length) O.levels = DEF.levels.slice();
 const save = () => { try{ localStorage.setItem(STORE, JSON.stringify(O)); }catch(e){} };
 
 function buildPartGrid(){
@@ -612,14 +649,41 @@ function paintParts(){
     $('opt-'+S.key).classList.toggle('off', !O.n[S.key]);
   });
 }
-const BIND = [ ['levelSel','level','v'], ['dirSel','dir','v'], ['formSel','form','v'], ['qtypeSel','qtype','v'],
+const BIND = [ ['dirSel','dir','v'], ['formSel','form','v'], ['qtypeSel','qtype','v'],
   ['nameToggle','name','c'], ['numAxesToggle','numAxes','c'], ['thinkToggle','think','c'], ['keyToggle','key','c'] ];
 /* a change to the numbers re-rolls; a change to the look keeps the SAME questions */
-const REROLL = { level:1, dir:1, qtype:1 };
+const REROLL = { dir:1, qtype:1 };
 function syncControls(){
   BIND.forEach(([id,k,t])=>{ const el=$(id); if(t==='c') el.checked=!!O[k]; else el.value=String(O[k]); });
   paintParts();
+  paintLevels();
 }
+/* ---------- levels ---------- */
+const LV_NAME = { sweet:'Sweet', mild:'Mild', medium:'Medium', spicy:'Spicy' };
+function paintLevels(warn){
+  document.querySelectorAll('#lvGrid input').forEach(cb=>{ cb.checked = O.levels.includes(cb.value); });
+  const h = $('lvHint');
+  h.classList.toggle('warn', !!warn);
+  if(warn){ h.textContent = 'Keep at least one level ticked.'; return; }
+  const names = O.levels.map(l=>LV_NAME[l]);
+  h.textContent = O.levels.length === 1 ? `Every question is ${names[0]}.`
+    : O.levels.length === 4 ? 'Each section climbs Sweet → Spicy.'
+    : `Each section climbs ${names.join(' → ')}.`;
+}
+function setLevels(list){
+  O.levels = LADDER.filter(l=>list.includes(l));
+  save(); paintLevels(); newPaper(); render();
+}
+document.querySelectorAll('#lvGrid input').forEach(cb=>{
+  cb.addEventListener('change', ()=>{
+    const list = [...document.querySelectorAll('#lvGrid input:checked')].map(c=>c.value);
+    if(!list.length){ cb.checked = true; paintLevels(true); return; }   /* the last one stays on */
+    setLevels(list);
+  });
+});
+document.querySelectorAll('.lvQuick [data-lv]').forEach(b=>{
+  b.addEventListener('click', ()=>setLevels(b.dataset.lv === 'all' ? LADDER.slice() : b.dataset.lv.split(',')));
+});
 BIND.forEach(([id,k,t])=>{
   $(id).addEventListener('change', ()=>{
     const el=$(id); O[k] = t==='c' ? el.checked : el.value; save();
@@ -631,10 +695,12 @@ BIND.forEach(([id,k,t])=>{
 /* =====================================================================
    NUMBERS
    ===================================================================== */
+/* each section climbs through the chosen levels, easiest first, sharing its questions out evenly */
 function levelAt(i, n){
-  if(O.level !== 'mixed') return O.level;
-  if(n <= 1) return 'mild';
-  return LADDER[Math.min(3, Math.floor(i * 4 / n))];
+  const L = O.levels;
+  if(L.length === 1) return L[0];
+  if(n <= 1) return L[Math.floor((L.length - 1) / 2)];
+  return L[Math.min(L.length - 1, Math.floor(i * L.length / n))];
 }
 /* rows = how many terms must stay at or above zero for Sweet/Mild */
 let USED = new Set();

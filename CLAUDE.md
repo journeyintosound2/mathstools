@@ -134,6 +134,12 @@
 >   (a slip / a slip carried on / started one count late / start and count swapped in the
 >   equation — dealt from a shuffled deck), F go further (x = 20, 50, which x gives a far term).
 >   "Argue about it" (y = 5 + 3x vs y = 3x + 5) fills the last page, on by default.
+>   * **LEVELS ARE FOUR TICK-CHIPS, NOT A DROP-DOWN** (teacher request 2026-10-23): `O.levels`
+>     is an array. One ticked = every question that level; several = each section climbs
+>     through just those, easiest first (`levelAt` shares the questions out evenly, so every
+>     chosen level appears once a section has as many questions as levels). The last chip
+>     cannot be unticked. Quick links: All four / Sweet + Mild / Mild + Medium / Medium +
+>     Spicy. Old saves (`level:'mixed'` or one level) migrate on load.
 >   * **Questions are: counting / worded / a mix (default mix — every other eligible question).**
 >     A worded question prints the story plus "Let x = hours and y = money left ($)"; graphs
 >     name their axes; D asks for a story an equation could tell (key: an example from a
