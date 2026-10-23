@@ -2,7 +2,8 @@ rules_version = '2';
 
 // Mills Maths Tools — PRODUCTION claim-based rules (Phase 4A go-live + classes +
 // dashboard tasks + ADMIN CONSOLE 2026-07 + MMT SCREEN saved boards 2026-09-13
-// + MMT SCREEN class lists 2026-09-15 + EMAIL LOG 2026-10-24).
+// + MMT SCREEN class lists 2026-09-15 + ADVENTURE cloud progress 2026-10-13
+// + EMAIL LOG 2026-10-24).
 //
 // Every STUDENT/TEACHER client signs in via the secure code-exchange Cloud
 // Functions (exchangeStudentCode / exchangeTeacherCode), which mint a Firebase
@@ -31,6 +32,7 @@ service cloud.firestore {
     // password). Paste that account's User UID below (Firebase Console →
     // Authentication → Users → copy the UID). Only this UID can manage identity.
     // (You can list several UIDs in the array if you ever add a second admin.)
+    // Keep in step with ADMIN_UIDS in the Cloud Functions (sendAdminEmail).
     function isAdmin() {
       return authed() && request.auth.uid in [
         'FQjmfFBvYrYPHljdX5pHfaYcdG82'
@@ -48,7 +50,8 @@ service cloud.firestore {
     }
 
     // Teachers: a teacher reads only their own doc. The admin reads, lists and
-    // writes any teacher. No other client writes, no other listing.
+    // writes any teacher. No other client writes, no other listing. (A teacher
+    // edits their own profile through the updateMyTeacherProfile Function.)
     match /teachers/{teacherCode} {
       allow get: if isAdmin() || (isTeacher() && myTeacher() == teacherCode);
       allow list: if isAdmin();
@@ -89,6 +92,30 @@ service cloud.firestore {
                       && resource.data.className  == request.auth.token.className
                       && resource.data.active == true);
       allow create, update, delete: if false;
+    }
+
+    // Adventure progress (2026-10-13): ONE save per signed-in student, keyed by
+    // the student code, so a student picks up where they left off on any device.
+    // Written DIRECTLY BY THE GAME (like MMT Screen boards) — it's the student's
+    // own game save, not identity and not a result record. The document id IS
+    // the thing being scoped: a student reads and writes only the doc named with
+    // their own code, the doc must carry their own studentCode + teacherCode
+    // claims, and its shape is pinned. A teacher reads their own class's (query
+    // MUST filter by teacherCode == claim). Never deleted from the client.
+    match /adventureProgress/{studentCode} {
+      allow read: if isAdmin()
+                  || (isStudent() && myStudent() == studentCode)
+                  || (isTeacher() && resource.data.teacherCode == myTeacher());
+      allow create, update: if isStudent()
+        && myStudent() == studentCode
+        && request.resource.data.studentCode == studentCode
+        && request.resource.data.teacherCode == myTeacher()
+        && request.resource.data.v is number
+        && request.resource.data.progress is map
+        && request.resource.data.bests is map
+        && request.resource.data.flags is map
+        && request.resource.data.keys().hasOnly(['v', 'studentCode', 'teacherCode', 'className', 'updatedAt', 'updatedAtClient', 'progress', 'bests', 'flags']);
+      allow delete: if false;
     }
 
     // Dashboard assignments (teacher-set online-quiz tasks): same shape as
@@ -163,9 +190,7 @@ service cloud.firestore {
     // Email log (2026-10-24): one doc per email sent from the admin console's
     // Email page. Written ONLY by the sendAdminEmail Cloud Function (Admin SDK);
     // the admin reads it to show "Sent emails". Holds teacher names + addresses,
-    // so nobody else can read it. (Teacher profile edits need no rule change:
-    // they go through the updateMyTeacherProfile function, and the admin
-    // console already has write access to teachers/{code}.)
+    // so nobody else can read it.
     match /emailLog/{id} {
       allow read: if isAdmin();
       allow write: if false;
