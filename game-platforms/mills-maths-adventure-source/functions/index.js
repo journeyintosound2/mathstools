@@ -131,12 +131,17 @@ exports.exchangeTeacherCode = onCall(async (request) => {
 
   const claims = { role: "teacher", teacherCode: code, school: doc.school || "" };
   const token = await admin.auth().createCustomToken(`teacher:${code}`, claims);
-  const profile = {
-    teacherCode: code,
-    teacherName: doc.teacherName || "",
-    school: doc.school || "",
-    active: doc.active !== false,
-  };
+  const profile = safeTeacherProfile(doc);
+
+  // Last sign-in, for the admin console's teacher list (2026-10-24). Best
+  // effort: a failed stamp must never stop a teacher signing in.
+  try {
+    await snap.ref.update({
+      lastLoginAt: admin.firestore.FieldValue.serverTimestamp(),
+      loginCount: admin.firestore.FieldValue.increment(1),
+    });
+  } catch (e) { /* best effort */ }
+
   return { token, profile, claims };
 });
 
@@ -621,4 +626,278 @@ exports.setDashboardTaskActive = onCall(async (request) => {
   }
   await ref.update({ active, updatedAt: admin.firestore.FieldValue.serverTimestamp() });
   return { assignmentId, active };
+});
+
+/* =========================================================================
+ * TEACHER PROFILES + ADMIN EMAIL (2026-10-24)
+ * ======================================================================= */
+const { defineSecret } = require("firebase-functions/params");
+
+// Resend API key, held in Secret Manager — never in code or the browser.
+//   firebase functions:secrets:set RESEND_API_KEY
+const RESEND_API_KEY = defineSecret("RESEND_API_KEY");
+
+// MUST match isAdmin() in firestore.golive.claims.rules.
+const ADMIN_UIDS = ["FQjmfFBvYrYPHljdX5pHfaYcdG82"];
+
+// Who the emails come from (the domain must be verified in Resend) and where
+// replies go. Change these two lines to change the sender or the reply inbox.
+const MAIL_FROM = "Jeff Mills · Mills Maths Tools <hello@millsmathstools.au>";
+const MAIL_REPLY_TO = "jeff.mills2@det.nsw.edu.au";
+const SITE_URL = "https://millsmathstools.au";
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+function cleanEmail(v, required) {
+  const s = String(v || "").trim().toLowerCase();
+  if (!s) {
+    if (required) throw new HttpsError("invalid-argument", "Enter your email address.");
+    return "";
+  }
+  if (s.length > 254 || !EMAIL_RE.test(s)) throw new HttpsError("invalid-argument", "That email address doesn't look right.");
+  return s;
+}
+function cleanText(v, max) { return String(v || "").replace(/\s+/g, " ").trim().slice(0, max); }
+
+/** The profile the Teacher Platform is allowed to see about its own teacher. */
+function safeTeacherProfile(doc) {
+  return {
+    teacherCode: doc.teacherCode,
+    teacherName: doc.teacherName || "",
+    school: doc.school || "",
+    email: doc.email || "",
+    position: doc.position || "",
+    emailUpdates: doc.emailUpdates !== false,
+    active: doc.active !== false,
+  };
+}
+
+/**
+ * updateMyTeacherProfile({ teacherName, email, school, position, emailUpdates })
+ *   → { profile, studentsUpdated }
+ *
+ * Teacher-only. Writes the CALLER'S OWN teachers/{code} doc (code from the
+ * verified claim, never client input) — identity stays server-written. If the
+ * name or school changed, the copies stamped on that teacher's students are
+ * updated too, so the student portal and the admin console agree.
+ */
+exports.updateMyTeacherProfile = onCall(async (request) => {
+  const auth = request.auth;
+  if (!auth || auth.token.role !== "teacher" || !auth.token.teacherCode) {
+    throw new HttpsError("permission-denied", "Sign in with your teacher code first.");
+  }
+  const code = normaliseCode(auth.token.teacherCode);
+  const d = request.data || {};
+  const teacherName = cleanText(d.teacherName, 80);
+  if (!teacherName) throw new HttpsError("invalid-argument", "Enter your name.");
+  const email = cleanEmail(d.email, true);
+  const school = cleanText(d.school, 120);
+  const position = cleanText(d.position, 80);
+  const emailUpdates = d.emailUpdates !== false;
+
+  const ref = db.collection("teachers").doc(code);
+  const snap = await ref.get();
+  if (!snap.exists) throw new HttpsError("not-found", "Teacher account not found.");
+  const before = snap.data() || {};
+  if (before.active === false) throw new HttpsError("permission-denied", "This teacher code is not active.");
+
+  const fields = {
+    teacherName, email, school, position, emailUpdates,
+    profileUpdatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    profileUpdatedBy: "teacher",
+    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+  };
+  await ref.update(fields);
+
+  let studentsUpdated = 0;
+  if ((before.teacherName || "") !== teacherName || (before.school || "") !== school) {
+    const sSnap = await db.collection("students").where("teacherCode", "==", code).get();
+    const docs = sSnap.docs;
+    for (let i = 0; i < docs.length; i += 400) {
+      const batch = db.batch();
+      docs.slice(i, i + 400).forEach((s) => batch.update(s.ref, {
+        teacherName, teacher: teacherName, school,
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      }));
+      await batch.commit();
+    }
+    studentsUpdated = docs.length;
+  }
+  return { profile: safeTeacherProfile({ ...before, ...fields, teacherCode: code }), studentsUpdated };
+});
+
+// ---- email building -------------------------------------------------------
+function escHtml(s) {
+  return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+/** Plain text → simple HTML: paragraphs, line breaks, **bold**, bare links. */
+function textToHtml(text) {
+  return String(text).replace(/\r\n/g, "\n").trim().split(/\n{2,}/).map((p) => {
+    let h = escHtml(p);
+    h = h.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+    h = h.replace(/(https?:\/\/[^\s<]+[^\s<.,;:!?)\]'"])/g, '<a href="$1" style="color:#1d4ed8">$1</a>');
+    h = h.replace(/\n/g, "<br>");
+    return `<p style="margin:0 0 14px;line-height:1.6">${h}</p>`;
+  }).join("");
+}
+function firstNameOf(name) { return String(name || "").trim().split(/\s+/)[0] || "there"; }
+/** {firstName} {name} {code} {school} — the tokens the admin compose screen offers. */
+function personalise(text, t) {
+  const map = {
+    firstname: firstNameOf(t.teacherName),
+    name: t.teacherName || "there",
+    code: t.teacherCode || "",
+    school: t.school || "your school",
+  };
+  return String(text).replace(/\{(firstName|name|code|school)\}/gi, (m, k) => map[k.toLowerCase()]);
+}
+function footerText(kind) {
+  const base = "You're receiving this because you have a teacher account on Mills Maths Tools (millsmathstools.au). Reply to this email to reach Jeff Mills.";
+  return kind === "update"
+    ? base + " To stop update emails, sign in to the Teacher Platform, open Profile and untick “Email me about updates”."
+    : base;
+}
+function wrapHtml(bodyHtml, kind) {
+  return `<!doctype html><html><body style="margin:0;padding:24px 12px;background:#f1f5f9;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#0f172a">
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0"><tr><td align="center">
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:560px;background:#ffffff;border:1px solid #e2e8f0;border-radius:14px;overflow:hidden">
+<tr><td style="background:#1d4ed8;padding:18px 24px;color:#ffffff;font-weight:800;font-size:18px;letter-spacing:.2px">Mills Maths Tools</td></tr>
+<tr><td style="padding:24px 24px 10px;font-size:15px">${bodyHtml}</td></tr>
+<tr><td style="padding:14px 24px;background:#f8fafc;border-top:1px solid #e2e8f0;color:#64748b;font-size:12px;line-height:1.5">${escHtml(footerText(kind))}</td></tr>
+</table></td></tr></table></body></html>`;
+}
+
+const TEMPLATES = {
+  welcome: {
+    kind: "account",
+    subject: "Your Mills Maths Tools teacher code",
+    message: [
+      "Hi {firstName},",
+      "Welcome to Mills Maths Tools! Your teacher account is ready.",
+      "Your teacher code is: **{code}**",
+      `To sign in, go to ${SITE_URL}/portal/teacher/ and enter your code. From there you can add your classes and students, set quiz and Adventure tasks, and follow your students' results.`,
+      "Please keep your code private — it is the key to your account. Once you're signed in, open Profile (top right) to check your details.",
+      "If you need a hand with anything, just reply to this email.",
+      "Jeff Mills\nMills Maths Tools",
+    ].join("\n\n"),
+  },
+};
+
+function isAdminAuth(auth) { return !!(auth && ADMIN_UIDS.includes(auth.uid)); }
+
+async function resendBatch(key, emails) {
+  const res = await fetch("https://api.resend.com/emails/batch", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+    body: JSON.stringify(emails),
+  });
+  let body = null;
+  try { body = await res.json(); } catch (e) { /* no body */ }
+  if (!res.ok) {
+    const m = (body && (body.message || body.name)) || `HTTP ${res.status}`;
+    throw new Error(m);
+  }
+  return body;
+}
+
+/**
+ * sendAdminEmail(...) — ADMIN ONLY (uid in ADMIN_UIDS).
+ *
+ *   { ping:true }                       → { configured, from, replyTo }
+ *   { recipients:[teacherCode…], subject, message, respectOptOut?, test? }
+ *   { recipients:[teacherCode], template:"welcome", test? }
+ *     → { sent, failed, skipped:[{teacherCode, reason}], test }
+ *
+ * Recipient addresses are read from teachers/{code} SERVER-SIDE; the browser
+ * only names which teachers. One email per teacher (never a shared To/CC
+ * list), personalised with {firstName} {name} {code} {school}. Sent through
+ * Resend's batch API, 100 at a time. Every real send is logged to emailLog;
+ * a test goes only to the admin's own sign-in address and is not logged.
+ */
+exports.sendAdminEmail = onCall({ secrets: [RESEND_API_KEY] }, async (request) => {
+  if (!isAdminAuth(request.auth)) throw new HttpsError("permission-denied", "Admin only.");
+  const d = request.data || {};
+  let key = "";
+  try { key = String(RESEND_API_KEY.value() || "").trim(); } catch (e) { key = ""; }
+  const configured = /^re_/.test(key);
+  if (d.ping) return { configured, from: MAIL_FROM, replyTo: MAIL_REPLY_TO };
+  if (!configured) {
+    throw new HttpsError("failed-precondition", "Email sending isn't set up yet: the RESEND_API_KEY secret is missing or invalid.");
+  }
+
+  const tpl = d.template ? TEMPLATES[String(d.template)] : null;
+  if (d.template && !tpl) throw new HttpsError("invalid-argument", "Unknown email template.");
+  const kind = tpl ? tpl.kind : "update";
+  const subject = tpl ? tpl.subject : cleanText(d.subject, 150);
+  const message = tpl ? tpl.message : String(d.message || "").replace(/\r\n/g, "\n").trim().slice(0, 20000);
+  if (!subject) throw new HttpsError("invalid-argument", "Add a subject.");
+  if (!message) throw new HttpsError("invalid-argument", "Write a message.");
+  const respectOptOut = kind === "update" && d.respectOptOut !== false;
+
+  const codes = [...new Set((Array.isArray(d.recipients) ? d.recipients : []).map(normaliseCode).filter(Boolean))];
+  if (!codes.length) throw new HttpsError("invalid-argument", "Choose at least one teacher.");
+  if (codes.length > 1000) throw new HttpsError("invalid-argument", "That's too many recipients for one send.");
+
+  const snaps = [];
+  for (let i = 0; i < codes.length; i += 300) {
+    snaps.push(...await db.getAll(...codes.slice(i, i + 300).map((c) => db.collection("teachers").doc(c))));
+  }
+  const eligible = [], skipped = [], seen = new Set();
+  snaps.forEach((s, i) => {
+    const code = codes[i];
+    if (!s.exists) { skipped.push({ teacherCode: code, reason: "not found" }); return; }
+    const t = { teacherCode: code, ...s.data() };
+    const email = String(t.email || "").trim().toLowerCase();
+    if (!email || !EMAIL_RE.test(email)) { skipped.push({ teacherCode: code, name: t.teacherName || "", reason: "no email" }); return; }
+    if (respectOptOut && t.emailUpdates === false) { skipped.push({ teacherCode: code, name: t.teacherName || "", reason: "opted out" }); return; }
+    if (seen.has(email)) { skipped.push({ teacherCode: code, name: t.teacherName || "", reason: "duplicate email" }); return; }
+    seen.add(email);
+    eligible.push({ ...t, email });
+  });
+
+  const build = (t, to) => {
+    const body = personalise(message, t);
+    return {
+      from: MAIL_FROM,
+      to: [to],
+      reply_to: MAIL_REPLY_TO,
+      subject: (d.test ? "[TEST] " : "") + personalise(subject, t),
+      html: wrapHtml(textToHtml(body), kind),
+      text: body.replace(/\*\*(.+?)\*\*/g, "$1") + "\n\n—\n" + footerText(kind),
+    };
+  };
+
+  if (d.test) {
+    const me = String((request.auth.token && request.auth.token.email) || "").trim();
+    if (!me) throw new HttpsError("failed-precondition", "Your admin account has no email address to send a test to.");
+    const sample = eligible[0] || { teacherCode: codes[0], teacherName: "Sample Teacher", school: "Sample School" };
+    try { await resendBatch(key, [build(sample, me)]); }
+    catch (e) { throw new HttpsError("internal", `Resend refused the test: ${e.message}`); }
+    return { sent: 1, failed: 0, skipped: [], test: true, to: me };
+  }
+
+  const results = [];
+  for (let i = 0; i < eligible.length; i += 100) {
+    const chunk = eligible.slice(i, i + 100);
+    try {
+      await resendBatch(key, chunk.map((t) => build(t, t.email)));
+      chunk.forEach((t) => results.push({ teacherCode: t.teacherCode, name: t.teacherName || "", email: t.email, status: "sent" }));
+    } catch (e) {
+      chunk.forEach((t) => results.push({ teacherCode: t.teacherCode, name: t.teacherName || "", email: t.email, status: "failed", reason: String(e.message || e).slice(0, 200) }));
+    }
+  }
+  const sent = results.filter((r) => r.status === "sent").length;
+  const failed = results.length - sent;
+
+  try {
+    await db.collection("emailLog").add({
+      subject, message, template: d.template || null, kind, respectOptOut,
+      sentBy: (request.auth.token && request.auth.token.email) || request.auth.uid,
+      sentAt: admin.firestore.FieldValue.serverTimestamp(),
+      sentAtMs: Date.now(),
+      counts: { sent, failed, skipped: skipped.length },
+      recipients: [...results, ...skipped.map((s) => ({ ...s, status: "skipped" }))],
+    });
+  } catch (e) { /* logging is best effort */ }
+
+  return { sent, failed, skipped, test: false };
 });

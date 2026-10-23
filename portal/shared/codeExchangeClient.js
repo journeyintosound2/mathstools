@@ -203,6 +203,28 @@ export async function setDashboardTaskActive(assignmentId, active) {
   return res.data;
 }
 
+/**
+ * Update the signed-in teacher's OWN profile (2026-10-24). Calls the secure
+ * updateMyTeacherProfile Cloud Function, which takes the teacher code from the
+ * verified claim (never from this payload) and writes teachers/{code}
+ * server-side. `payload` = { teacherName, email, school, position, emailUpdates }.
+ * Returns { profile, studentsUpdated } and refreshes the cached session profile.
+ */
+export async function updateTeacherProfile(payload) {
+  initPortal();
+  const call = httpsCallable(_functions, "updateMyTeacherProfile");
+  const res = await call(payload || {});
+  const data = res.data || {};
+  if (data.profile && _session && _session.role === "teacher") persist("teacher", { ..._session.profile, ...data.profile });
+  return data;
+}
+
+/** Merge fresh fields into the cached profile (UI cache only). */
+export function updateCachedProfile(fields) {
+  if (!_session) return;
+  persist(_session.role, { ..._session.profile, ...(fields || {}) });
+}
+
 /** Subscribe to auth restoration (custom-token sessions persist by default). */
 export function onAuth(cb) { initPortal(); return onAuthStateChanged(_auth, cb); }
 

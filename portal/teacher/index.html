@@ -132,6 +132,31 @@
     #printSheet{display:block!important}
   }
 
+  /* ---- Profile, email nudge, help (2026-10-24) -------------------------- */
+  .profile .pf-edit{margin-left:auto;white-space:nowrap}
+  .profile .pf-mail{color:var(--muted);font-size:.85rem}
+  .nudge{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:14px;padding:14px 18px;border:1px solid #c7d2fe;background:linear-gradient(135deg,#eef2ff,#f8fafc);border-radius:var(--radius)}
+  .nudge .nd-ic{font-size:1.5rem}
+  .nudge .nd-tx{flex:1;min-width:220px;font-size:.92rem;color:#1e3a8a}
+  .nudge .nd-tx strong{display:block;font-size:.98rem;color:var(--ink)}
+  .nudge .nd-act{display:flex;gap:8px}
+  .helpcard{display:flex;gap:16px;align-items:flex-start;padding:18px 20px;flex-wrap:wrap}
+  .helpcard .hc-ic{width:44px;height:44px;border-radius:12px;background:#ecfdf5;display:grid;place-items:center;font-size:1.35rem;flex:0 0 auto}
+  .helpcard .hc-tx{flex:1;min-width:240px}
+  .helpcard h3{margin:0 0 4px;font-size:1.02rem}
+  .helpcard p{margin:0;color:#334155;font-size:.9rem;line-height:1.55}
+  .helpcard .hc-act{align-self:center}
+  .loginhelp{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-size:.84rem;color:var(--muted);text-align:center;line-height:1.5}
+  .pf-check{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border:1px solid var(--line);border-radius:11px;cursor:pointer;margin:4px 0 14px}
+  .pf-check input{width:18px;height:18px;margin:2px 0 0;flex:0 0 auto}
+  .pf-check .t{font-weight:700;font-size:.92rem}
+  .pf-check .d{font-size:.8rem;color:var(--muted)}
+  .pf-code{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 14px;background:#f8fafc;border:1px solid var(--line);border-radius:11px;font-size:.85rem;color:var(--muted)}
+  .pf-support{margin-top:16px;padding:13px 15px;border-radius:11px;background:#ecfdf5;border:1px solid #bbf7d0;font-size:.86rem;color:#14532d;line-height:1.55}
+  .field .opt{font-weight:500;color:var(--muted)}
+  .field input:invalid:not(:placeholder-shown){border-color:#fca5a5}
+  @media(max-width:640px){ .grid2{grid-template-columns:1fr} .profile{flex-wrap:wrap} .profile .pf-edit{margin-left:0}
+    .topbar{flex-wrap:wrap;gap:8px 10px;padding:12px 14px} .topbar .sub,.topbar .who{display:none} .topbar .btn{padding:7px 10px;font-size:.85rem} }
   /* ---- Analytics dashboard ---------------------------------------------- */
   .modal.analytics{max-width:min(1120px,96vw)}
   .chart-box{position:relative;height:230px;margin-top:6px}
@@ -175,6 +200,7 @@
   <div class="sub">Teacher Platform</div>
   <div class="spacer"></div>
   <div class="who hidden" id="whoChip"></div>
+  <button class="btn ghost hidden" id="profileBtn" type="button" title="Your name, email and school">👤 Profile</button>
   <button class="btn ghost hidden" id="refreshBtn" type="button" title="Reload results and completions">↻ Refresh</button>
   <button class="btn ghost hidden" id="signoutBtn" type="button">Sign out</button>
 </header>
@@ -195,6 +221,7 @@
     <div class="loginhint" id="loginHint">Getting a secure connection ready…</div>
     <div class="loginprog" id="loginProg"><i></i></div>
     <div class="msg" id="loginMsg"></div>
+    <p class="loginhelp">Don't have a teacher code, or can't find yours?<br>Contact Jeff Mills at <a href="mailto:jeff.mills2@det.nsw.edu.au?subject=Mills%20Maths%20Tools%20%E2%80%93%20teacher%20code">jeff.mills2@det.nsw.edu.au</a>.</p>
     <script>
       // Safety net (runs even if the module below never loads, e.g. a blocked or
       // very slow Firebase CDN): re-enable the button after 12s so a teacher is
@@ -209,8 +236,14 @@
 <main id="dashView" class="wrap hidden">
   <section class="card profile" id="profileCard">
     <div class="avatar" id="avatar">T</div>
-    <div><div class="name" id="profileName">Teacher</div><div class="meta" id="profileMeta">—</div></div>
+    <div><div class="name" id="profileName">Teacher</div><div class="meta" id="profileMeta">—</div><div class="pf-mail" id="profileMail"></div></div>
+    <button class="btn pf-edit" type="button" id="profileEditBtn">Edit profile</button>
   </section>
+  <div class="nudge hidden" id="emailNudge" role="status">
+    <div class="nd-ic">📬</div>
+    <div class="nd-tx"><strong>Add your email address</strong>It's how you'll hear about new tools and any changes to your account. It only takes a moment.</div>
+    <div class="nd-act"><button class="btn primary" type="button" id="nudgeAdd">Add email</button><button class="btn" type="button" id="nudgeLater">Later</button></div>
+  </div>
 
   <div class="cards">
     <div class="card stat"><div class="label">Classes</div><div class="value" id="statClasses">0</div></div>
@@ -246,6 +279,16 @@
       <span class="badgecount" id="bcTasks">0</span></div>
   </div>
   <div class="msg" id="advNote" style="margin-top:16px"></div>
+
+  <div class="sectionlabel">Help &amp; support</div>
+  <section class="card helpcard">
+    <div class="hc-ic">💬</div>
+    <div class="hc-tx">
+      <h3>Need a hand?</h3>
+      <p>For help with your account, setting up classes and students, or anything that isn't working as it should, please contact <strong>Jeff Mills</strong>, creator of Mills Maths Tools, at <a href="mailto:jeff.mills2@det.nsw.edu.au?subject=Mills%20Maths%20Tools%20%E2%80%93%20teacher%20support">jeff.mills2@det.nsw.edu.au</a>. Feedback and ideas for new tools are always welcome too.</p>
+    </div>
+    <a class="btn hc-act" href="mailto:jeff.mills2@det.nsw.edu.au?subject=Mills%20Maths%20Tools%20%E2%80%93%20teacher%20support">✉️ Email Jeff</a>
+  </section>
 </main>
 
 <div class="modal-back" id="modalBack"><div class="modal" id="modal"></div></div>
@@ -255,10 +298,10 @@
 <div id="printSheet" aria-hidden="true"></div>
 
 <script type="module">
-import { initPortal, loginTeacher, logout, normaliseCode, getDb, createStudent, createClass, setClassActive, createAdventureTask, setAdventureTaskActive, updateAdventureTask, createDashboardTask, updateDashboardTask, setDashboardTaskActive } from "../shared/codeExchangeClient.js";
+import { initPortal, loginTeacher, logout, normaliseCode, getDb, updateTeacherProfile, updateCachedProfile, createStudent, createClass, setClassActive, createAdventureTask, setAdventureTaskActive, updateAdventureTask, createDashboardTask, updateDashboardTask, setDashboardTaskActive } from "../shared/codeExchangeClient.js";
 import { COLLECTIONS } from "../shared/firebaseConfig.js";
 import { ADVENTURE_NPCS, ADVENTURE_STAGES, ADVENTURE_BADGES, getStageTopics, npcDefaultTopic } from "../shared/adventureManifest.js";
-import { collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+import { collection, query, where, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 // Chart.js is loaded as a classic global script in <head>; referenced as `Chart`.
 import { getEnabledTools } from "../shared/mmtToolRegistry.js";
 import { normaliseAchievement, summarise, rollupByStudent, toCSV, summaryText, partialLabel } from "../shared/resultUtils.js";
@@ -293,6 +336,13 @@ const FARM_CHALLENGES = [
   {id:"plank",  name:"Plank the Gap",     em:"🪵", skill:"Adding & subtracting fractions",    host:"Woody"},
   {id:"shop",   name:"The Farm Shop",     em:"🛒", skill:"Percentages capstone",              host:"Sunny"},
 ];
+
+// Who teachers contact for help. One place to change it.
+const SUPPORT_NAME = "Jeff Mills";
+const SUPPORT_EMAIL = "jeff.mills2@det.nsw.edu.au";
+const supportMailto = (subject)=>`mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(subject||"Mills Maths Tools – teacher support")}`;
+const NUDGE_KEY = "mmt-teacher-email-nudge-later";
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 initPortal();
 
@@ -330,6 +380,10 @@ $("codeToggle").addEventListener("click", ()=>{ const i=$("codeInput"); const hi
 $("loginBtn").addEventListener("click", doLogin);
 $("signoutBtn").addEventListener("click", async ()=>{ await logout(); location.reload(); });
 $("refreshBtn").addEventListener("click", ()=> refreshData($("refreshBtn")));
+$("profileBtn").addEventListener("click", openProfile);
+$("profileEditBtn").addEventListener("click", openProfile);
+$("nudgeAdd").addEventListener("click", ()=>openProfile("email"));
+$("nudgeLater").addEventListener("click", ()=>{ try{ sessionStorage.setItem(NUDGE_KEY,"1"); }catch{} $("emailNudge").classList.add("hidden"); });
 
 // Login readiness: this module only runs once the page's scripts AND the Firebase
 // SDK modules it imports have finished downloading — which is exactly when the
@@ -376,6 +430,14 @@ async function doLogin(){
 
 async function loadData(){
   const db = getDb();
+  // The teacher's own record — read fresh so the profile shows what the admin
+  // console has on file (rules allow a teacher to get only their own doc).
+  try{
+    const tSnap = await getDoc(doc(db, COLLECTIONS.teachers, teacher.teacherCode));
+    if(tSnap.exists()){ const x=tSnap.data()||{};
+      const fresh={ teacherName:x.teacherName||teacher.teacherName||"", school:x.school||"", email:x.email||"", position:x.position||"", emailUpdates:x.emailUpdates!==false };
+      Object.assign(teacher, fresh); updateCachedProfile(fresh); }
+  }catch(err){ console.warn("Could not read own teacher profile:", err); }
   const sSnap = await getDocs(query(collection(db, COLLECTIONS.students), where("teacherCode","==", teacher.teacherCode)));
   students = sSnap.docs.map(d=>({ id:d.id, studentCode:d.data().studentCode||d.id, ...d.data() }));
   const aSnap = await getDocs(query(collection(db, COLLECTIONS.achievements), where("teacherCode","==", teacher.teacherCode)));
@@ -432,12 +494,75 @@ function rebuildClasses(){
 
 function showDashboard(){
   $("loginView").classList.add("hidden"); $("dashView").classList.remove("hidden");
-  $("whoChip").classList.remove("hidden"); $("signoutBtn").classList.remove("hidden"); $("refreshBtn").classList.remove("hidden");
-  $("whoChip").textContent = `${teacher.teacherName||teacher.teacherCode} · ${teacher.school||""}`;
-  $("avatar").textContent = (teacher.teacherName||"T").slice(0,2).toUpperCase(); $("avatar").style.background = hashColour(teacher.teacherCode);
-  $("profileName").textContent = teacher.teacherName || teacher.teacherCode;
-  $("profileMeta").textContent = `Teacher code: ${teacher.teacherCode} · ${teacher.school||""}`;
+  $("whoChip").classList.remove("hidden"); $("signoutBtn").classList.remove("hidden"); $("refreshBtn").classList.remove("hidden"); $("profileBtn").classList.remove("hidden");
+  paintProfile();
   refreshStats();
+}
+function initialsOf(name){ const p=String(name||"").trim().split(/\s+/).filter(Boolean); return ((p[0]||"T")[0]+(p.length>1?p[p.length-1][0]:(p[0]||"").slice(1,2))).toUpperCase(); }
+function paintProfile(){
+  $("whoChip").textContent = [teacher.teacherName||teacher.teacherCode, teacher.school].filter(Boolean).join(" · ");
+  $("avatar").textContent = initialsOf(teacher.teacherName); $("avatar").style.background = hashColour(teacher.teacherCode);
+  $("profileName").textContent = teacher.teacherName || teacher.teacherCode;
+  $("profileMeta").textContent = [teacher.position, teacher.school, `Teacher code: ${teacher.teacherCode}`].filter(Boolean).join(" · ");
+  $("profileMail").textContent = teacher.email ? teacher.email : "";
+  let later=false; try{ later=sessionStorage.getItem(NUDGE_KEY)==="1"; }catch{}
+  $("emailNudge").classList.toggle("hidden", !!teacher.email || later);
+}
+
+// ============================ PROFILE ============================
+function openProfile(focus){
+  const t=teacher||{};
+  openModal(head("👤 Your profile")+`
+    <div class="modal-body">
+      <p class="hint">Keep your details up to date so you hear about new tools and any changes to your account. They're used only for Mills Maths Tools.</p>
+      <div class="grid2">
+        <div class="field"><label for="pfName">Your name</label><input id="pfName" autocomplete="name" maxlength="80" value="${esc(t.teacherName||"")}" placeholder="e.g. Sam Taylor" style="letter-spacing:0"/></div>
+        <div class="field"><label for="pfEmail">Email address</label><input id="pfEmail" type="email" autocomplete="email" maxlength="254" value="${esc(t.email||"")}" placeholder="name@school.nsw.edu.au" style="letter-spacing:0"/></div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label for="pfSchool">School</label><input id="pfSchool" autocomplete="organization" maxlength="120" value="${esc(t.school||"")}" placeholder="e.g. Coffs Harbour High School" style="letter-spacing:0"/></div>
+        <div class="field"><label for="pfPosition">Role / position <span class="opt">(optional)</span></label><input id="pfPosition" autocomplete="organization-title" maxlength="80" value="${esc(t.position||"")}" placeholder="e.g. Head Teacher Mathematics" style="letter-spacing:0"/></div>
+      </div>
+      <label class="pf-check" for="pfUpdates"><input type="checkbox" id="pfUpdates" ${t.emailUpdates===false?"":"checked"}/>
+        <span><span class="t">Email me about updates and new tools</span><br><span class="d">Occasional news about Mills Maths Tools. Emails about your own account are always sent.</span></span></label>
+      <div class="pf-code">Your teacher code <span class="codechip">${esc(t.teacherCode||"")}</span> <button class="btn sm" type="button" id="pfCopy">Copy</button>
+        <span style="flex-basis:100%">It's your sign-in, so keep it private. If it needs changing, contact ${esc(SUPPORT_NAME)}.</span></div>
+      <div class="pf-support"><strong>Need help?</strong> Questions about your account, or something not working as it should? Contact ${esc(SUPPORT_NAME)} at <a href="${esc(supportMailto())}">${esc(SUPPORT_EMAIL)}</a> and you'll get a reply as soon as possible.</div>
+      <div class="msg" id="pfMsg"></div>
+    </div>
+    ${foot(`<button class="btn primary" id="pfSave" type="button">Save profile</button>`)}`);
+  $("pfSave").addEventListener("click", doSaveProfile);
+  modalEl.querySelectorAll(".modal-body input:not([type=checkbox])").forEach(i=> i.addEventListener("keydown", e=>{ if(e.key==="Enter") doSaveProfile(); }));
+  $("pfCopy").addEventListener("click", async ()=>{ try{ await navigator.clipboard.writeText(t.teacherCode); $("pfCopy").textContent="Copied!"; }catch{ $("pfCopy").textContent="Copy failed"; } setTimeout(()=>{ const b=$("pfCopy"); if(b) b.textContent="Copy"; },1300); });
+  setTimeout(()=>{ const el = focus==="email" || (!t.email && t.teacherName) ? $("pfEmail") : $("pfName"); if(el) el.focus(); }, 40);
+}
+async function doSaveProfile(){
+  const m=$("pfMsg"), btn=$("pfSave");
+  const payload={
+    teacherName:$("pfName").value.trim().replace(/\s+/g," "),
+    email:$("pfEmail").value.trim().toLowerCase(),
+    school:$("pfSchool").value.trim(),
+    position:$("pfPosition").value.trim(),
+    emailUpdates:$("pfUpdates").checked,
+  };
+  const bad=(t,id)=>{ m.className="msg bad show"; m.textContent=t; if(id) $(id).focus(); };
+  if(!payload.teacherName) return bad("Enter your name.","pfName");
+  if(!payload.email) return bad("Enter your email address.","pfEmail");
+  if(!EMAIL_RE.test(payload.email)) return bad("That email address doesn't look right — check it and try again.","pfEmail");
+  btn.disabled=true; btn.textContent="Saving…"; m.className="msg";
+  try{
+    const res=await updateTeacherProfile(payload);
+    Object.assign(teacher, res.profile||payload);
+    paintProfile();
+    if(res.studentsUpdated){ students.forEach(s=>{ s.teacherName=teacher.teacherName; s.school=teacher.school; }); }
+    m.className="msg ok show"; m.textContent="Saved. Thanks for keeping your details up to date.";
+    btn.textContent="✓ Saved"; setTimeout(()=>{ if(back.classList.contains("show") && $("pfSave")===btn) closeModal(); }, 1200);
+  }catch(err){
+    const code=String((err&&err.code)||""); const msg=String((err&&err.message)||"");
+    let t = msg && !/^internal$/i.test(msg) ? msg : "";
+    if(!t || /internal|unavailable|not-found/i.test(code)) t = `Your profile couldn't be saved just now. Please try again in a moment, or email ${SUPPORT_EMAIL}.`;
+    bad(t); btn.disabled=false; btn.textContent="Save profile";
+  }
 }
 
 function refreshStats(){

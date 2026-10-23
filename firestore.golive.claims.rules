@@ -2,7 +2,7 @@ rules_version = '2';
 
 // Mills Maths Tools — PRODUCTION claim-based rules (Phase 4A go-live + classes +
 // dashboard tasks + ADMIN CONSOLE 2026-07 + MMT SCREEN saved boards 2026-09-13
-// + MMT SCREEN class lists 2026-09-15).
+// + MMT SCREEN class lists 2026-09-15 + EMAIL LOG 2026-10-24).
 //
 // Every STUDENT/TEACHER client signs in via the secure code-exchange Cloud
 // Functions (exchangeStudentCode / exchangeTeacherCode), which mint a Firebase
@@ -158,6 +158,17 @@ service cloud.firestore {
                        && myTeacher() == teacherCode
                        && request.resource.data.teacherCode == myTeacher());
       allow delete: if isAdmin() || (isTeacher() && myTeacher() == teacherCode);
+    }
+
+    // Email log (2026-10-24): one doc per email sent from the admin console's
+    // Email page. Written ONLY by the sendAdminEmail Cloud Function (Admin SDK);
+    // the admin reads it to show "Sent emails". Holds teacher names + addresses,
+    // so nobody else can read it. (Teacher profile edits need no rule change:
+    // they go through the updateMyTeacherProfile function, and the admin
+    // console already has write access to teachers/{code}.)
+    match /emailLog/{id} {
+      allow read: if isAdmin();
+      allow write: if false;
     }
 
     // Admin settings (capacity caps etc.): admin-only, read + write. Nobody else

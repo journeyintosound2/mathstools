@@ -89,6 +89,9 @@ export function buildSafeTeacherProfile(teacherDoc = {}) {
     teacherCode: teacherDoc.teacherCode,
     teacherName: teacherDoc.teacherName || "",
     school: teacherDoc.school || "",
+    email: teacherDoc.email || "",
+    position: teacherDoc.position || "",
+    emailUpdates: teacherDoc.emailUpdates !== false,
     active: teacherDoc.active !== false,
   };
 }

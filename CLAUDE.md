@@ -81,6 +81,37 @@
 > §2 "TWO folders", §3 deploy paths and §5's `mathstools-main 2` heading below
 > describe the OLD layout — this block supersedes them.
 >
+> **NEW (2026-10-24, session — being pushed): TEACHER EMAILS, PROFILES AND ADMIN EMAIL.**
+> Notes: project doc `claude/teacher-profiles-and-email.md` (setup steps for Resend).
+> * **Teacher docs now carry `email`, `position`, `emailUpdates`** (absent = true),
+>   plus `lastLoginAt` / `loginCount` (stamped by `exchangeTeacherCode`, best effort)
+>   and `profileUpdatedAt` / `profileUpdatedBy` ("teacher" | "admin").
+> * **TEACHERS EDIT THEIR OWN PROFILE THROUGH A FUNCTION, NOT A RULE** —
+>   `updateMyTeacherProfile` takes the code from the claim, requires a valid email,
+>   and re-stamps `teacherName`/`teacher`/`school` on that teacher's students when
+>   either changes (the student portal reads those copies). The admin console's
+>   Edit does the same propagation client-side. Do not open `teachers/{code}` to
+>   client writes. Teacher portal: 👤 Profile (topbar + "Edit profile" on the card),
+>   a "📬 Add your email" nudge until one is on file ("Later" = this session only),
+>   a Help & support card and a login help line. `loadData()` reads the teacher's own
+>   doc fresh, so an email the admin added shows (and the nudge hides) at once.
+>   Contact address = `SUPPORT_EMAIL` const in `portal/teacher/index.html` (also
+>   hard-coded in the two mailto links in its markup, and `MAIL_REPLY_TO` in functions).
+> * **ADMIN EMAIL = `sendAdminEmail` CALLABLE + RESEND.** Admin-only by uid
+>   (`ADMIN_UIDS` in functions — keep in step with `isAdmin()` in the rules). The
+>   browser names teacher CODES only; addresses are read server-side. One email per
+>   teacher (never a shared To/CC), tokens {firstName} {name} {school} {code}, batch
+>   API 100 at a time, `test:true` goes only to the admin's sign-in address (not
+>   logged), `template:"welcome"` = code + sign-in link (ignores opt-out). Every real
+>   send → `emailLog` (admin read; written by the function only). `{ping:true}` tells
+>   the Email page whether the `RESEND_API_KEY` secret is set; until it is, the page
+>   offers "Open in my email app" (mailto BCC) and "Copy addresses".
+> * **DEPLOY ORDER:** a function declaring a secret prompts for it at deploy. Before
+>   Resend is set up, deploy only `functions:updateMyTeacherProfile,functions:exchangeTeacherCode`.
+> * Rules: one new block, `emailLog` (admin read, no client writes).
+> * Verified: 32 function checks (mocked Admin SDK + Resend), 56 Playwright checks
+>   on both pages with stubbed Firebase. Harnesses in session scratch / `~/fntest`.
+>
 > **NEW (2026-10-21, session — being pushed): COUNTING STRATEGIES FOR LINEAR RELATIONSHIPS.**
 > `interactive-tools/stage-4/algebra/counting-strategies-linear/`, under **MA4-LIN-C-01**
 > (row in `resources/toolLinks.js`, homepage Interactive card; Visual Patterns' Tools menu
