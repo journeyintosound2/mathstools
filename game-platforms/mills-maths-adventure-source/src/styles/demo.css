@@ -1,0 +1,285 @@
+/* ==========================================================================
+   CHALLENGE DEMOS (2026-10-24) — the live "watch how to play" layer
+   (ui/demo/DemoOverlay.jsx), the ready card that replaced the text intros
+   (ui/demo/DemoStartCard.jsx) and the ▶ Demo chip on every round header
+   (ui/demo/DemoButton.jsx). Same family as the .qcard / dialogue box:
+   cream card, navy ink, gold accents, the MMA fonts.
+   ========================================================================== */
+
+.demo-layer { position: fixed; inset: 0; z-index: 1200; pointer-events: none; }
+.demo-blocker { position: absolute; inset: 0; pointer-events: auto; background: transparent; touch-action: none; }
+
+/* While a demo plays the HUD, hints + on-screen controls step aside — the
+   challenge is the whole show. */
+body.demo-on .hud,
+body.demo-on .touch-layer,
+body.demo-on .rotate-hint,
+body.demo-on .interaction-prompt,
+body.demo-on .toast-layer { visibility: hidden !important; }
+
+/* ---------- the console ---------- */
+.demo-console {
+  position: absolute;
+  left: calc(14px + env(safe-area-inset-left, 0px));
+  width: min(430px, 40vw);
+  pointer-events: auto;
+  border-radius: 22px;
+  background: linear-gradient(180deg, #fffdf7 0%, #fff4dc 100%);
+  color: #22303f;
+  box-shadow: 0 0 0 3px #1d2a44, 0 0 0 6px rgba(255, 207, 74, 0.85), 0 18px 40px rgba(6, 16, 30, 0.45);
+  font-family: "MMA Rounded", var(--font);
+  overflow: hidden;
+  animation: demo-in 0.4s cubic-bezier(0.2, 1.25, 0.4, 1) both;
+}
+.demo-console.side-top { top: calc(14px + env(safe-area-inset-top, 0px)); }
+.demo-console.side-bottom { bottom: calc(14px + env(safe-area-inset-bottom, 0px)); }
+@keyframes demo-in { from { opacity: 0; transform: translateY(-14px) scale(0.97); } to { opacity: 1; transform: none; } }
+
+.demo-bar {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  padding: 8px 10px 8px 12px;
+  background: #1d2a44; color: #fff;
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(0, 0, 0, 0.12));
+}
+.demo-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 3px 9px; border-radius: 999px;
+  background: #e5484d; color: #fff;
+  font: 900 0.72rem/1.1 "MMA Rounded", var(--font); letter-spacing: 0.1em;
+}
+.demo-rec { width: 8px; height: 8px; border-radius: 50%; background: #fff; animation: demo-rec 1.2s ease-in-out infinite; }
+@keyframes demo-rec { 50% { opacity: 0.25; } }
+.demo-name { font: 800 0.85rem/1.15 "MMA Rounded", var(--font); color: #1d2a44; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.demo-ex { display: inline-flex; align-items: center; gap: 5px; flex: 1; min-width: 0; }
+.demo-ex i { width: 10px; height: 10px; border-radius: 50%; background: rgba(255, 255, 255, 0.25); }
+.demo-ex i.now { background: #ffcf4a; box-shadow: 0 0 0 3px rgba(255, 207, 74, 0.3); }
+.demo-ex i.done { background: #3fb950; }
+.demo-ex b { font: 800 0.75rem/1 "MMA Rounded", var(--font); color: rgba(255, 255, 255, 0.85); margin-left: 3px; white-space: nowrap; }
+.demo-ctl { display: inline-flex; align-items: center; gap: 6px; margin-left: auto; }
+.demo-icon {
+  width: 34px; height: 34px; border: 0; border-radius: 50%;
+  background: rgba(255, 255, 255, 0.16); color: #fff; cursor: pointer;
+  font: 900 0.85rem/1 "MMA Rounded", var(--font);
+  display: grid; place-items: center;
+}
+.demo-icon:hover { background: rgba(255, 255, 255, 0.28); }
+.demo-icon.on { background: #ffcf4a; color: #1d2a44; }
+.demo-skip {
+  height: 34px; padding: 0 12px; border: 0; border-radius: 999px; cursor: pointer;
+  background: #fff; color: #1d2a44;
+  font: 800 0.85rem/1 "MMA Rounded", var(--font);
+  white-space: nowrap;
+}
+.demo-skip:hover { background: #ffe9a8; }
+.demo-skip.nudge { animation: demo-nudge 0.6s ease; }
+@keyframes demo-nudge { 20% { transform: scale(1.14); box-shadow: 0 0 0 5px rgba(255, 207, 74, 0.7); } 40% { transform: scale(0.96); } 60% { transform: scale(1.06); } }
+
+.demo-talk { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px 14px; }
+.demo-face {
+  flex: none; border-radius: 50%; overflow: hidden;
+  display: grid; place-items: center;
+  background: radial-gradient(circle at 50% 30%, #ffffff 0%, #e8eef6 60%, #c9d6e6 100%);
+  box-shadow: 0 0 0 3px var(--hc, #2a5f9e), 0 0 0 6px #fff, 0 6px 14px rgba(0, 0, 0, 0.22);
+}
+.demo-face img { width: 100%; height: 100%; object-fit: cover; }
+.demo-face-icon { font-size: 1.9em; line-height: 1; }
+.demo-words { flex: 1; min-width: 0; }
+.demo-who { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
+.demo-who > b { font: 800 0.92rem/1.1 "MMA Rounded", var(--font); color: #6b5d45; }
+.demo-step {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 3px 10px 3px 4px; border-radius: 999px;
+  background: #fff; box-shadow: inset 0 0 0 1.5px #ecd9ad;
+  font: 800 0.82rem/1.1 "MMA Rounded", var(--font); color: #1d2a44;
+}
+.demo-step-n {
+  width: 20px; height: 20px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: #3a86ff; color: #fff; font: 900 0.72rem/1 "MMA Rounded", var(--font);
+}
+.demo-line {
+  font: 700 1.16rem/1.38 "MMA Rounded", var(--font); color: #1c2b3d;
+  animation: demo-line 0.32s ease both;
+}
+.demo-line b { color: #b4400f; font-weight: 900; }
+.demo-line.think { color: #4b3fa0; }
+.demo-line.think b { color: #4b3fa0; }
+.demo-think-icon { margin-right: 6px; display: inline-block; animation: demo-bob 1s ease-in-out infinite; }
+@keyframes demo-bob { 50% { transform: translateY(-3px) rotate(-6deg); } }
+@keyframes demo-line { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.demo-thinkbar {
+  height: 8px; margin-top: 8px; border-radius: 999px;
+  background: linear-gradient(90deg, #8f7cf0, #4b3fa0);
+  transform-origin: left center;
+  animation: demo-think linear both;
+}
+@keyframes demo-think { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+.demo-dots { display: inline-flex; gap: 5px; padding: 6px 0; }
+.demo-dots i { width: 8px; height: 8px; border-radius: 50%; background: #c9b78f; animation: demo-dot 1s ease-in-out infinite; }
+.demo-dots i:nth-child(2) { animation-delay: 0.15s; }
+.demo-dots i:nth-child(3) { animation-delay: 0.3s; }
+@keyframes demo-dot { 50% { transform: translateY(-4px); opacity: 0.5; } }
+.demo-paused { margin-top: 6px; font: 800 0.8rem/1.2 "MMA Rounded", var(--font); color: #b4400f; }
+body.demo-paused-on .demo-thinkbar { animation-play-state: paused; }
+
+/* ---------- the hand + highlight ---------- */
+.demo-hand {
+  position: absolute; left: 0; top: 0; width: 0; height: 0;
+  transition: transform 0.62s cubic-bezier(0.45, 0.05, 0.25, 1);
+  will-change: transform;
+  filter: drop-shadow(0 6px 8px rgba(6, 16, 30, 0.35));
+}
+.demo-hand.drag { transition: none; }
+.demo-glove {
+  position: absolute; left: -28px; top: -4px;
+  transform-origin: 28px 4px;
+  transform: rotate(-16deg);
+  transition: transform 0.14s ease;
+}
+.demo-hand.press .demo-glove { transform: rotate(-16deg) scale(0.84); }
+.demo-ripple {
+  position: absolute; left: -22px; top: -22px; width: 44px; height: 44px; border-radius: 50%;
+  border: 4px solid #ffcf4a;
+  animation: demo-ripple 0.6s ease-out forwards;
+}
+@keyframes demo-ripple { from { transform: scale(0.3); opacity: 1; } to { transform: scale(1.5); opacity: 0; } }
+.demo-spot {
+  position: absolute;
+  border-radius: 16px;
+  box-shadow: 0 0 0 3px #ffcf4a, 0 0 0 8px rgba(255, 207, 74, 0.35), 0 0 26px 6px rgba(255, 207, 74, 0.55);
+  transition: left 0.5s ease, top 0.5s ease, width 0.5s ease, height 0.5s ease;
+  animation: demo-spot 1.3s ease-in-out infinite;
+}
+.demo-spot.circle { border-radius: 50%; }
+@keyframes demo-spot { 50% { box-shadow: 0 0 0 3px #ffcf4a, 0 0 0 12px rgba(255, 207, 74, 0.2), 0 0 34px 10px rgba(255, 207, 74, 0.45); } }
+
+/* ---------- Your turn! ---------- */
+.demo-end-wrap {
+  position: absolute; inset: 0; pointer-events: auto;
+  display: grid; place-items: center; padding: 16px;
+  background: radial-gradient(circle at 50% 45%, rgba(6, 16, 30, 0.25), rgba(6, 16, 30, 0.6));
+  animation: demo-fade 0.3s ease both;
+}
+@keyframes demo-fade { from { opacity: 0; } to { opacity: 1; } }
+.demo-end {
+  position: relative; overflow: hidden;
+  width: min(440px, 92vw);
+  padding: 26px 22px 20px;
+  border-radius: 28px;
+  text-align: center;
+  background: linear-gradient(180deg, #fffdf7 0%, #fff4dc 100%);
+  box-shadow: 0 0 0 3px #1d2a44, 0 0 0 7px rgba(255, 207, 74, 0.9), 0 24px 60px rgba(6, 16, 30, 0.55);
+  font-family: "MMA Rounded", var(--font);
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  animation: qcard-in 0.42s cubic-bezier(0.2, 1.25, 0.4, 1) both;
+}
+.demo-end-burst {
+  position: absolute; left: 50%; top: 66px; width: 520px; height: 520px; margin: -260px 0 0 -260px;
+  background: repeating-conic-gradient(from 0deg, rgba(255, 207, 74, 0.22) 0deg 10deg, transparent 10deg 20deg);
+  animation: demo-spin 18s linear infinite;
+  pointer-events: none;
+}
+@keyframes demo-spin { to { transform: rotate(360deg); } }
+.demo-end > *:not(.demo-end-burst) { position: relative; }
+.demo-end-kicker { margin-top: 8px; font: 800 0.85rem/1.2 "MMA Rounded", var(--font); letter-spacing: 0.05em; text-transform: uppercase; color: #6b5d45; }
+.demo-end-title { margin: 0; font: 400 2.4rem/1.05 "MMA Display", "MMA Rounded", var(--font); color: #1d2a44; }
+.demo-end-sub { font: 700 1.05rem/1.3 "MMA Rounded", var(--font); color: #3c4a5c; }
+.demo-end-buttons { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 12px; }
+.demo-again {
+  min-height: 48px; padding: 0 18px; border-radius: 999px; cursor: pointer;
+  border: 0; background: #fff; color: #1d2a44;
+  box-shadow: inset 0 0 0 2px #1d2a44;
+  font: 800 1rem/1 "MMA Rounded", var(--font);
+}
+.demo-again:hover { background: #ffe9a8; }
+.demo-go { min-height: 48px; font-size: 1.08rem !important; padding: 0 22px !important; }
+
+/* ---------- the ready card (replaces the text intros) ---------- */
+.farm-challenge-card.demo-start {
+  position: relative;
+  min-width: min(440px, 92vw);
+  padding: 16px 18px 14px;
+  border-radius: 22px;
+  background: linear-gradient(180deg, #fffdf7 0%, #fff4dc 100%);
+  box-shadow: 0 0 0 3px #1d2a44, 0 0 0 6px rgba(255, 207, 74, 0.75), 0 18px 40px rgba(6, 16, 30, 0.4);
+  font-family: "MMA Rounded", var(--font);
+}
+.demo-start-head { display: flex; align-items: center; gap: 14px; justify-content: center; margin-bottom: 12px; }
+.demo-start-icon { font-size: 2.4rem; }
+.demo-start-titles { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; text-align: left; }
+.demo-start-kicker { font: 800 0.8rem/1.2 "MMA Rounded", var(--font); letter-spacing: 0.06em; text-transform: uppercase; color: #6b5d45; }
+.demo-start-title { font: 400 1.6rem/1.1 "MMA Display", "MMA Rounded", var(--font); color: #1d2a44; }
+.demo-start-buttons { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.demo-watch {
+  display: inline-flex; align-items: center; gap: 10px;
+  min-height: 56px; padding: 6px 18px 6px 8px; border-radius: 999px; cursor: pointer;
+  border: 0; background: #1d2a44; color: #fff; text-align: left;
+  font: 800 1.05rem/1.1 "MMA Rounded", var(--font);
+  box-shadow: 0 4px 0 #0c1426;
+}
+.demo-watch small { display: block; font: 700 0.78rem/1.2 "MMA Rounded", var(--font); color: #ffcf4a; }
+.demo-watch:hover { transform: translateY(-1px); }
+.demo-watch:active { transform: translateY(2px); box-shadow: 0 2px 0 #0c1426; }
+.demo-watch-play {
+  width: 42px; height: 42px; border-radius: 50%; flex: none;
+  display: grid; place-items: center;
+  background: #ffcf4a; color: #1d2a44; font-size: 1.1rem; padding-left: 3px;
+  animation: demo-pulse 1.6s ease-in-out infinite;
+}
+@keyframes demo-pulse { 50% { box-shadow: 0 0 0 7px rgba(255, 207, 74, 0.3); } }
+.demo-letsgo { min-height: 56px; font-size: 1.12rem !important; padding: 0 26px !important; }
+.demo-start-quit { margin-top: 8px; }
+
+/* ---------- the ▶ Demo chip on the round header ---------- */
+.demo-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  height: 30px; padding: 0 11px 0 5px; border-radius: 999px; cursor: pointer;
+  border: 0; background: #1d2a44; color: #fff;
+  font: 800 0.82rem/1 "MMA Rounded", var(--font);
+  white-space: nowrap;
+}
+.demo-chip:hover { background: #2c3e63; }
+.demo-chip-play {
+  width: 22px; height: 22px; border-radius: 50%;
+  display: grid; place-items: center; padding-left: 2px;
+  background: #ffcf4a; color: #1d2a44; font-size: 0.68rem;
+}
+.snow-round-tools { display: inline-flex; align-items: center; gap: 10px; margin-left: auto; }
+
+/* ---------- phones, iPads, small windows ---------- */
+@media (max-width: 760px), (max-height: 560px) {
+  .demo-console {
+    left: calc(8px + env(safe-area-inset-left, 0px));
+    right: calc(8px + env(safe-area-inset-right, 0px));
+    width: auto;
+    border-radius: 18px;
+  }
+  .demo-console.side-top { top: calc(8px + env(safe-area-inset-top, 0px)); }
+  .demo-console.side-bottom { bottom: calc(8px + env(safe-area-inset-bottom, 0px)); }
+  .demo-bar { padding: 6px 8px 6px 10px; gap: 6px; }
+  .demo-talk { padding: 8px 10px 10px; gap: 10px; }
+  .demo-talk .demo-face { width: 42px !important; height: 42px !important; }
+  .demo-line { font-size: 1rem; }
+  .demo-step { font-size: 0.75rem; }
+  .demo-end-title { font-size: 2rem; }
+}
+/* Sideways phone: the card docks down the right, so the console stays left. */
+@media (max-height: 500px) and (orientation: landscape) {
+  .demo-console { right: auto; width: min(400px, 52vw); }
+  .demo-talk { padding: 6px 10px 8px; }
+  .demo-line { font-size: 0.95rem; line-height: 1.3; }
+  .demo-end { padding: 16px 18px 14px; }
+  .demo-end .demo-face { width: 64px !important; height: 64px !important; }
+}
+body.touch-mode .demo-icon, body.touch-mode .demo-skip { min-width: 40px; height: 40px; }
+@media (pointer: coarse) {
+  .demo-chip { height: 40px; padding-right: 14px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .demo-hand { transition-duration: 0.2s; }
+  .demo-end-burst, .demo-rec, .demo-watch-play, .demo-spot { animation: none; }
+}
+
+/* The card ghosts out while the hand works on the stage behind it. */
+.farm-challenge-panel { transition: opacity 0.25s ease; }
+body.demo-ghost-card .farm-challenge-panel { opacity: 0.14; }

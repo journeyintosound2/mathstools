@@ -5,6 +5,13 @@
 > It is part of "done", not a follow-up. See "Phone / iPad / small-screen
 > compatibility" under Rules of thumb at the end of this file for the checklist.
 
+> **STANDING RULE (Jeff, 2026-10-24): every challenge teaches its rules with a
+> LIVE DEMO, never written instructions.** A new challenge ships with a demo
+> script (two worked examples on the real stage + card, the host explaining
+> each step, ▶ Demo on its round header, Skip any time) registered in
+> `src/game/demo/registry.js` — DM1–DM5 fail without it. It is part of
+> "done". See "Challenge demos" under Rules of thumb for the checklist.
+
 > This folder is the **game source** (and the Cloud Functions). As of
 > **2026-08-17** it lives INSIDE the website repo at
 > `game-platforms/mills-maths-adventure-source/` (repo
@@ -253,6 +260,20 @@
 > treasure chest that opens. See "DONE (2026-10-13, evening)". **650 → 659
 > checks; vite build clean.**
 >
+> **NEW (built 2026-10-24, staged for deploy): CHALLENGE DEMOS — every
+> challenge teaches itself.** All 40 in-world challenges (Snowball Sums,
+> Magma Multiples, Fraction Farm, Emerald Jungle — not Pip / Fern / Alby's
+> fluency warm-ups) lost their written "how to play" cards: the challenge
+> PLAYS ITSELF through two worked examples on the real stage and card — a
+> cartoon hand taps the real buttons, drags the real pole / marker / bed
+> edge, walks the real fence; the host explains each step (think-aloud in
+> example 1, "🤔 have a think…" before each move in example 2). It
+> auto-plays the first time a student opens a challenge (Skip any time);
+> afterwards the challenge opens on a ready card (▶ Watch how to play /
+> Let's go!), and ▶ Demo on every round header replays it mid-game and puts
+> the game back exactly. See "DONE (2026-10-24) — CHALLENGE DEMOS".
+> **659 → 664 checks (DM1–DM5); vite build clean.**
+>
 > **NEXT UP options:** live visual pass + deploy of the snow world + cabin ·
 > teacher glbs for the six placeholder snow/cabin hosts (add each
 > characterId to characterModels.js) · a snow/cabin cloud-completion path
@@ -261,6 +282,146 @@
 > interactive plot-a-point input mode (tap the Cartesian grid) · Stage 5
 > depth (still only 2 sample skills) · more Stage 4 topics (Area extension)
 > · a DevPanel gallery to eyeball every new diagram/chart at once.
+
+## DONE (2026-10-24) — CHALLENGE DEMOS: every challenge teaches itself
+Jeff: "currently the students receive 'text-based' explanations of what to
+do. Instead, I want for each challenge to have a demonstration animation …
+the student sees a live demonstration of the task, completing each step.
+There should be two examples for each challenge as well as an option mid
+game to watch the demo again at any point, with also the option to skip
+the demo. This will replace all of the 'text-based' instructions … for all
+existing challenges" — every challenge in the worlds (he clarified: not
+Pip / Fern / Alby, they're fluency questions) — "with all the polish and
+professional touch and pedagogical choices for young learners", and a
+CLAUDE.md rule so every future challenge has one. **659 → 664 checks
+(DM1–DM5 in `src/dev/demoChecks.js`), all passing; vite build clean.**
+Staged for deploy.
+- **The idea — the real game plays itself.** A demo is not a video or a
+  separate drawing: the challenge's REAL store runs two hand-picked rounds,
+  the REAL 3D stage animates them and the REAL card shows them, while a
+  cartoon glove (ui/demo/DemoOverlay.jsx) glides to the actual button and
+  presses it (a ripple + a gold ring on what it's about to touch), types
+  answers into the actual box one digit at a time, drags the pole / marker
+  / bed edge / crack, walks the avatar along the fence and herds the cows.
+  So what students watch is EXACTLY what they'll do, and a demo can never
+  drift out of date silently (DM3 replays them all every check run).
+- **Pedagogy (for young learners):** two worked examples, gradual release —
+  example 1 is "I do": the host thinks aloud through every step ("8 and 2
+  more make 10 — so 2 empty spaces to fill"); example 2 is "you think, then
+  watch": before each decision a 🤔 caption + a purple thinking bar asks the
+  watcher to predict ("How many snowballs will fill the crate to 50?"), then
+  the demo answers. One idea per caption (~15 words), the numbers that
+  matter in **bold**, named on-screen things ("the red pole", "the fish
+  bucket"), a numbered step chip ("Step 2 · Say the total") so the round's
+  structure is visible, the host's own portrait + name, reading time scaled
+  to the words (1.5 s + 0.34 s a word, 2.3–7.6 s), 🔊 read-aloud
+  (speechSynthesis, en-AU voice when there is one; off by default, per
+  device), Pause (Space) and Skip (Esc). Examples are REAL rounds from each
+  challenge's own generator, picked by predicate for friendly numbers and
+  no traps (`roundWhere` in demoKit.js — deterministic seeds). Every demo
+  ends on "Your turn!" (Watch again / Let's go!). The jungle demos keep
+  Jeff's rules: any route is a good route, and no demo route goes "through
+  one" (`noOne` predicates + `commonPlan` lines two ladders up at their
+  lowest common amount, never at 1); the key idea is said every time —
+  "whatever you do to one vine, do to the other".
+- **When it plays:** the FIRST time a student opens a challenge on a device
+  (`mma-demo-seen:<key>`, per device, cleared by Start new game) the demo
+  starts by itself (`installDemoAutoplay`); Skip is always there. After that
+  the challenge opens on the READY CARD (ui/demo/DemoStartCard.jsx — the
+  host's portrait, the challenge name, ▶ Watch how to play · 2 quick
+  examples / Let's go!) — it replaced EVERY written intro: `SnowIntro` (all
+  snow, magma + jungle cards) and the farm cards' own intros (crate, milk,
+  weigh, trade, veggie, plank, shop). Fence / Round-Up / Order the Parts
+  never had an intro and still start straight in. **▶ Demo** sits on every
+  round header (SnowRoundHead — snow, magma, jungle — and all ten farm
+  heads, `DemoButton`): it snapshots the store (+ the round-outcome mark),
+  plays the demo, and "Back to my game" puts everything back exactly (DM5).
+  While a demo plays the round header reads "Demo · Example 1 of 2"
+  (`DemoRound` on the farm heads).
+- **Also removed (the demo teaches them now):** in-card "how to" lines —
+  Snowball Range "Drag the red pole…", Sledding Slope "Slide both sleds…",
+  Factor Forge "Tap ONE ingot…", Cart Tables "Tap a column…" (the column
+  count stays), Order the Parts "Tap two carrots…", the Weigh Station /
+  Veggie Plot strips' "drag the marker… (← → to nudge)" (now "where is
+  2.5 kg?" / "plant 1/3 wide × 1/2 long"), the vine ladder's default "Tap a
+  rung (or two), then a move" (a round's own `hint` still shows), the
+  `steps` / `example` props of every SnowIntro, MagmaPanels' `intro` objects
+  and `JUNGLE_INTROS`. Task prompts, live counters, feedback + worked
+  solutions are unchanged.
+- **While a demo plays:** the student's keys + taps are held back (a
+  capture-phase key listener + a full-screen blocker; synthetic events the
+  demo makes pass), Esc = Skip, Space = Pause, a tap anywhere nudges the
+  Skip button; the HUD, touch controls, prompts + toasts step aside
+  (`body.demo-on`); XP is never banked (`roundOutcome.js` asks
+  `isDemoActive()`) and the set never reaches "done" (no bests, coins or
+  teacher results — DM4); the last example's celebrate card holds under the
+  "Your turn!" card (`useDemo.hold` — RoundCelebrate and Crate Packing's own
+  auto-next respect it); a text box that grabs focus on a phone is blurred
+  (no keyboard popping up). When the hand works on the 3D stage BEHIND the
+  card, the card ghosts to 14% (`body.demo-ghost-card`). The console sits in
+  the corner away from the card (top-left when the card is docked at the
+  bottom, bottom-left for the top-docked farm cards); on phones / iPads it's
+  a full-width strip and `stageViewport.js` frames the stage around it.
+- **Files.** Engine `src/game/demo/`: `demoStore.js` (overlay state, seen
+  flags, read-aloud pref), `demoRunner.js` (start / finish / watch again /
+  skip / pause, the helpers `say think step point tap tapTimes type drag
+  until act cleanup frame`, dry mode for the checks, autoplay),
+  `demoAnchors.js` + `DemoPoint.jsx` + `DemoProjector.jsx` (named invisible
+  points on a stage — `<DemoPoint name="range-gap-3" …/>` or
+  `ref={demoAnchor("range-pole")}` — projected through the live camera),
+  `demoKit.js` (`roundWhere`, `seeded`), `registry.js` (DEMOS),
+  `scripts/snowDemos.js`, `magmaDemos.js`, `farmDemos.js`, `jungleDemos.js`
+  (one generic vine-ladder player for all ten jungle challenges: it plays a
+  round phase by phase — build / common / call / type / smallest — from the
+  round's own plan, `r.solve`, with per-challenge words). UI
+  `src/ui/demo/`: `DemoOverlay.jsx` (console, hand, ring, blocker, Your
+  turn!), `DemoStartCard.jsx`, `DemoButton.jsx` (+ `DemoRound`). Styles
+  `src/styles/demo.css` (loaded last). Anchors added to the stages: range
+  (frame, cells, gaps, pole), rink (start, target), grove (tree, box),
+  meadow (both towers), sled (both sleds), colony (rows, odd one), farm
+  cows / carrots / crates + piles / milk chutes + jugs / weigh beam +
+  marker + goal / trade tags / veggie partition lines. The vine-ladder card
+  tags its buttons (`data-li data-i data-op data-n data-call`);
+  `MagmaButton` passes extra props through; `createMagmaStore` gained
+  `demoStart(rounds)` (magma + jungle).
+- **Checks (`src/dev/demoChecks.js`):** DM1 every challenge store has a
+  demo · DM2 well-formed (host with a face in speakers.js, exactly two
+  examples, two real, different rounds) · DM3 every demo PLAYS headlessly
+  (dry mode: each tap runs its store action instantly) and both examples
+  end on a right answer with full marks (`endsOn: "feedback"` for the
+  one-answer farm challenges, `maxPoints` for the Round-Up) · DM4 no XP /
+  coins · DM5 the mid-game replay restores rounds, round, score + status.
+  DM3–DM5 are async: `runAsyncSystemChecks()` (the harness awaits it after
+  `runSystemChecks()`).
+- **Verified in a headless browser** (SwiftShader, harness
+  `/home/claude/harness/demo2.mjs` + `all.sh <device> [list]`, not
+  shipped): the player is walked up to each challenge first (stages only
+  mount nearby, as in real play), then every one of the 40 demos played
+  start to finish at 1024×640 — captions logged from INSIDE the page (a
+  MutationObserver; polling misses lines when SwiftShader frames take
+  1–5 s), "no target" warnings checked, screenshots mid-demo + of the Your
+  turn! card, Let's go! landing on a fresh Round 1. Then a 12-challenge
+  cross-section (range, sled, columns, cinder, lake, fence, order, weigh,
+  veggie, swap, tape, fireflies) on iPhone 390×664 and iPad 1080×810.
+- **Hardening from those runs:** waits for a 3D animation (`until`) only
+  count time in which the page actually DREW frames, so a slow iPad plays
+  the same demo slower instead of timing out; `type()` re-finds a box the
+  card re-rendered mid-typing and never drops a digit; targets include the
+  Veggie Plot's pinned answer bar (`.veggie-answer-bar`, a sibling of the
+  panel) and the console moves to the top when that bar sits at the bottom;
+  the Fence's walk line says "joystick" on touch / "← →" on keys
+  (`useUI.touchMode`); Halve & Double's example 2 says which number to
+  halve after the 🤔; the vine-ladder player waits for the store to move
+  on after each phase (a slow iPad replayed a finished phase in Firefly
+  Graphs and broke off). DEV-only console warnings: `[demo] no target: …`
+  (a button / anchor a demo couldn't find — it falls back to the store
+  action), `[demo] finished early` / `challenge closed under the demo`
+  (with a stack). A demo that errors goes straight to "Your turn!".
+- **TODO:** Jeff watches a few on a real computer + iPad (pacing — speed is
+  one constant, `readingMs`; `window.__demoSpeed` speeds every demo up for
+  testing); Farsi/Arabic for the demo captions (they're built from the
+  round's numbers, so they need a template-level translation, not the
+  dictionary); a teacher might want a "turn demos off" class setting.
 
 ## DONE (2026-10-13, evening) — FEEDBACK BATCH 2: wiped out, Enter, four-way look, next stop, HUD, challenge card, chest
 Jeff's second batch (7 screenshots), in his order: (1) when Pip, Fern and
@@ -3646,6 +3807,51 @@ it looped). ENTER is the interaction key: a new Enter handler must
 from a text box, a focused card button or within 0.5 s of a conversation
 closing. A new challenge screen uses the `.qcard` / `.fincard` look
 (polish.css), never a bare first-version modal.
+
+### Challenge demos (STANDING RULE, 2026-10-24)
+Jeff's instruction: every challenge teaches its rules with a **live
+demonstration — two worked examples — never written instructions**, with a
+way to watch it again mid-game and to skip it. Before calling a new
+challenge done:
+- **Write its demo** in `src/game/demo/scripts/<world>Demos.js` and add it
+  to `registry.js`: `{ key, name, icon, host, store, rounds(), examples:
+  [ex1, ex2] }` (+ `setup` if `start()` derives per-round state from
+  rounds[0], `endsOn: "feedback"` for one-answer rounds, `maxPoints` if a
+  round isn't worth 25). The host must have a face in
+  `ui/dialogue/speakers.js`.
+- **Two examples, gradual release:** example 1 thinks aloud through every
+  step; example 2 asks the watcher to predict (`d.think`) before each
+  decision, then shows it. One idea per caption, the numbers in `**bold**`,
+  name what's on screen, a `d.step(n, "title")` per part of the round.
+  Pick REAL rounds from the challenge's own generator with `roundWhere`
+  (friendly numbers, no traps — the demo teaches the rules, the game the
+  rest). End each example on the right answer with full marks.
+- **Every action through the helpers**, aiming at what a student would
+  touch AND naming the store action it stands for:
+  `d.tap(d.btn(/Throw/), () => st().throwSplit())`,
+  `d.type(d.input(), 13, (t) => st().submitSum(t))`,
+  `d.drag(from, to, (t) => …)`, `d.until(pred, { dry })` for anything an
+  animation or a panel timer finishes. Small 3D things get a named
+  `<DemoPoint>` (or `ref={demoAnchor(name)}`) on the stage; card buttons
+  are found by their text (or a `data-*` tag). Never set store state behind
+  the student's back where a button exists.
+- **No written how-to on the card:** the challenge opens on `SnowIntro` /
+  `DemoStartCard` (the ready card), its round header carries `DemoButton`
+  (`SnowRoundHead` has it already; farm-style heads add `<DemoButton />`
+  and wrap the round text in `<DemoRound>`). A card keeps its task prompt,
+  live counters and feedback — not "tap X, then Y".
+- **Panel timers that advance a round** must respect
+  `useDemo.getState().hold` (RoundCelebrate does). Anything a demo holds
+  down (a key, a walk target) gets a `d.cleanup(fn)`.
+- **Words that fit the device:** never name a key in a caption without a
+  touch version (`useUI.getState().touchMode` → "joystick", "tap"). An
+  answer box a challenge pins OUTSIDE its panel must be added to `PANEL`
+  in demoRunner.js (targets) and to `useConsoleSide` in DemoOverlay.jsx
+  (so the console never covers it).
+- **Verify:** DM1–DM5 pass (they run every demo headlessly), then play it
+  in the browser harness at desktop + phone + iPad — walk the player to
+  the challenge first (stages only mount nearby) — and read the DEV
+  console for `[demo] no target:` / `[demo] finished early` warnings.
 
 ### Phone / iPad / small-screen compatibility (STANDING RULE, 2026-10-11)
 Jeff's instruction: **all future challenges and updates include iPhone / iPad /

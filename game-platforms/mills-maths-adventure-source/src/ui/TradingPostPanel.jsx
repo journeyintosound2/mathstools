@@ -1,4 +1,6 @@
 import React, { useEffect } from "react";
+import DemoButton, { DemoRound } from "./demo/DemoButton.jsx";
+import DemoStartCard from "./demo/DemoStartCard.jsx";
 import RoundCelebrate from "./RoundCelebrate.jsx";
 
 import { useTradingPost } from "../game/tradingPostStore.js";
@@ -88,41 +90,24 @@ export default function TradingPostPanel() {
 
   return (
     <div className="farm-challenge-panel">
+      {/* The ready card (2026-10-24): the live demo teaches the rules now
+          (game/demo/scripts/farmDemos.js) — no written instructions. */}
       {status === "intro" && (
-        <div className="farm-challenge-card">
-          <div className="farm-challenge-head">
-            <span>🏪 The Trading Post</span>
-          </div>
-          <div className="farm-challenge-line big">
-            Three stalls, three languages — <span className="fc-value">one value!</span>
-          </div>
-          <div className="farm-challenge-line">
-            A crate arrives priced in ONE notation. Tap the tag worth the SAME amount at each
-            of the other two stalls. Watch out for ×10 tricksters!
-          </div>
-          <div className="farm-challenge-buttons">
-            <button
-              className="primary-button"
-              onClick={(e) => {
-                e.currentTarget.blur();
-                useTradingPost.getState().beginRounds();
-              }}
-            >
-              {kh("Start! (Enter)")}
-            </button>
-            <button className="link-button" onClick={() => useTradingPost.getState().exit()}>
-              Quit
-            </button>
-          </div>
-        </div>
+        <DemoStartCard
+          icon="🏪"
+          title="The Trading Post"
+          onStart={() => useTradingPost.getState().beginRounds()}
+          onQuit={() => useTradingPost.getState().exit()}
+        />
       )}
 
       {status === "trading" && round && (
         <div className="farm-challenge-card mini">
           <div className="farm-challenge-head">
             <span>
-              🏪 Round {roundIndex + 1}/{TRADE_ROUNDS_PER_SET} · {score} pts
+              🏪 <DemoRound>Round {roundIndex + 1}/{TRADE_ROUNDS_PER_SET} · {score} pts</DemoRound>
             </span>
+            <DemoButton />
             <button className="link-button" onClick={() => useTradingPost.getState().exit()}>
               Quit
             </button>

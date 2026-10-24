@@ -3,6 +3,7 @@ import React, { useEffect } from "react";
 import { useRoundOutcome } from "../game/roundOutcome.js";
 import { SnowWorking } from "./SnowCardParts.jsx";
 import { kh } from "./keyHints.js";
+import { useDemo } from "../game/demo/demoStore.js";
 
 /**
  * The ONE "right answer" card every in-world challenge shows (farm, snow,
@@ -32,6 +33,8 @@ export default function RoundCelebrate({ useStore, max = 25, ms = 2200, working,
     if (slipped) return undefined;
     const t = setTimeout(() => {
       const st = useStore.getState();
+      // The last example of a demo holds here under the "Your turn!" card.
+      if (useDemo.getState().hold) return;
       if (st.status === "celebrate" && st.roundIndex === roundIndex) st.next();
     }, ms);
     return () => clearTimeout(t);

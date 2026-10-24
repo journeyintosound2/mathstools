@@ -110,11 +110,6 @@ export default function GroveLightsPanel() {
         <SnowIntro
           icon="🎄"
           title="Christmas Tree Grove"
-          steps={[
-            <>Lights come in bundles of <b>10</b>. Pick the bundles closest to what the tree needs.</>,
-            <>Then add or take off a few to make it exact.</>,
-          ]}
-          example="29 more?  3 bundles = 30, take 1 off"
           onStart={() => useGroveLights.getState().beginRounds()}
           onQuit={() => useGroveLights.getState().exit()}
         />

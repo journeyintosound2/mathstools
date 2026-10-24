@@ -69,7 +69,7 @@ export default function LadderPlay({ round, useStore, labels = {} }) {
     const canWork = work.includes(li);
     const many = round.ladders.length > 1;
     return (
-      <div key={li} className={`jungle-rungs${many && canWork && active === li ? " on" : ""}`}>
+      <div key={li} data-li={li} className={`jungle-rungs${many && canWork && active === li ? " on" : ""}`}>
         {many && round.ladders[li].name && (
           <MagmaButton className={`jungle-stall-tag${active === li ? " active" : ""}`} onClick={() => st().setActive(li)}>
             {round.ladders[li].name}
@@ -80,6 +80,7 @@ export default function LadderPlay({ round, useStore, labels = {} }) {
           return (
             <button
               key={i}
+              data-i={i}
               className={`jungle-rung${canWork && active === li && sel.includes(i) ? " active" : ""}${(common !== null && t === common) || hit ? " common" : ""}${canWork ? "" : " still"}`}
               onClick={(e) => { e.currentTarget.blur(); st().select(li, i); }}
             >
@@ -128,7 +129,7 @@ export default function LadderPlay({ round, useStore, labels = {} }) {
         </div>
         <div className="magma-row tight">
           {ns.map((n) => (
-            <MagmaButton key={n} className="plank-piece-btn jungle-n" onClick={() => st().pickN(n)}>
+            <MagmaButton key={n} data-n={n} className="plank-piece-btn jungle-n" onClick={() => st().pickN(n)}>
               {picker === "split" ? `÷ ${n}` : `× ${n}`}
             </MagmaButton>
           ))}
@@ -158,6 +159,7 @@ export default function LadderPlay({ round, useStore, labels = {} }) {
           {ops.map((op) => (
             <MagmaButton
               key={op}
+              data-op={op}
               className={`plank-piece-btn magma-op jungle-op${LADDER_MOVES[op].arity === 2 ? " two" : ""}${op === "across" ? " across" : ""}`}
               onClick={() => st().choose(op)}
             >
@@ -171,7 +173,9 @@ export default function LadderPlay({ round, useStore, labels = {} }) {
           </div>
         )}
         <div className="magma-row tight jungle-foot">
-          <span className="snow-sub">{ph.hint || "Tap a rung (or two), then a move — any route"}</span>
+          {/* How to use the moves is the demo's job now (game/demo/) — only a
+              round's own hint shows here. */}
+          {ph.hint && <span className="snow-sub">{ph.hint}</span>}
           {added > 0 && <MagmaButton className="link-button" onClick={() => st().undo()}>↩ Undo</MagmaButton>}
           {added > 0 && sel1 && <MagmaButton className="link-button" onClick={() => st().remove()}>✂ Remove</MagmaButton>}
         </div>
@@ -184,7 +188,7 @@ export default function LadderPlay({ round, useStore, labels = {} }) {
     <>
       <div className="magma-row jungle-calls">
         {ph.options.map((o, i) => (
-          <MagmaButton key={i} className={`primary-button jungle-callbtn${o.tone ? ` ${o.tone}` : ""}`} onClick={() => st().call(i)}>
+          <MagmaButton key={i} data-call={i} className={`primary-button jungle-callbtn${o.tone ? ` ${o.tone}` : ""}`} onClick={() => st().call(i)}>
             {o.icon ? `${o.icon} ` : ""}{o.label}
           </MagmaButton>
         ))}

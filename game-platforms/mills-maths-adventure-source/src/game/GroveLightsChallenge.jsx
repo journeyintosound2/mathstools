@@ -1,4 +1,5 @@
 import React, { useMemo, useRef } from "react";
+import DemoPoint from "./demo/DemoPoint.jsx";
 import { useFrame } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
 
@@ -82,6 +83,7 @@ function PulseLight({ position, color }) {
 function BigTree({ litCount, overCount, gapCount, golden }) {
   return (
     <group position={[TREE_LOCAL[0], 0, TREE_LOCAL[1]]}>
+      <DemoPoint name="grove-tree" position={[0, 2.6, 0.8]} />
       <mesh castShadow position={[0, 0.45, 0]}>
         <cylinderGeometry args={[0.28, 0.36, 0.9, 10]} />
         <meshStandardMaterial color={TRUNK} />
@@ -123,6 +125,7 @@ function BigTree({ litCount, overCount, gapCount, golden }) {
 function BundleBox() {
   return (
     <group position={[BOX_LOCAL[0], 0, BOX_LOCAL[1]]}>
+      <DemoPoint name="grove-box" position={[0, 0.8, 0]} />
       <mesh castShadow position={[0, 0.32, 0]}>
         <boxGeometry args={[1.5, 0.64, 1.1]} />
         <meshStandardMaterial color={BOX_WOOD} />

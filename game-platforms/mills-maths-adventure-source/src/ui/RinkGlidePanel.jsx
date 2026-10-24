@@ -100,11 +100,6 @@ export default function RinkGlidePanel() {
         <SnowIntro
           icon="⛸️"
           title="The Ice Rink"
-          steps={[
-            <>Use the number tiles to launch the penguin from the <b>flag</b> to the <b>fish bucket</b>.</>,
-            <>Use as few tiles as you can!</>,
-          ]}
-          example="15 → 38:  +10 +10 +1 +1 +1  =  +23"
           onStart={() => useRinkGlide.getState().beginRounds()}
           onQuit={() => useRinkGlide.getState().exit()}
         />

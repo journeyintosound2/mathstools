@@ -105,11 +105,6 @@ export default function ColonyPairsPanel() {
         <SnowIntro
           icon="🐧"
           title="Penguin Colony"
-          steps={[
-            <>Pair up the penguins. Pick the <b>double</b> that helps.</>,
-            <>Then find the total.</>,
-          ]}
-          example="7 + 8  →  double 7 = 14  →  14 + 1 = 15"
           onStart={() => useColonyPairs.getState().beginRounds()}
           onQuit={() => useColonyPairs.getState().exit()}
         />

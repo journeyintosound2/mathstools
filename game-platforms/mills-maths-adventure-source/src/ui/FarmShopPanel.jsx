@@ -1,4 +1,6 @@
 import React, { useEffect, useRef } from "react";
+import DemoButton, { DemoRound } from "./demo/DemoButton.jsx";
+import DemoStartCard from "./demo/DemoStartCard.jsx";
 import RoundCelebrate from "./RoundCelebrate.jsx";
 
 import { useFarmShop } from "../game/farmShopStore.js";
@@ -75,29 +77,22 @@ export default function FarmShopPanel() {
 
   return (
     <div className="farm-challenge-panel">
+      {/* The ready card (2026-10-24): the live demo teaches the rules now
+          (game/demo/scripts/farmDemos.js) — no written instructions. */}
       {status === "intro" && (
-        <div className="farm-challenge-card">
-          <div className="farm-challenge-head"><span>🏪 The Farm Shop</span></div>
-          <div className="farm-challenge-line big">
-            Run the market stall! Price stock, add GST, and read the <span className="fc-value">profit</span>.
-          </div>
-          <div className="farm-challenge-line">
-            Buy at cost, set a % markup, take a rainy-day % off, add {`${10}%`} GST at the till, then work out the
-            profit (or loss) as a % of cost. Type each answer and ring it up.
-          </div>
-          <div className="farm-challenge-buttons">
-            <button className="primary-button" onClick={(e) => { e.currentTarget.blur(); useFarmShop.getState().beginRounds(); }}>
-              {kh("Open the shop! (Enter)")}
-            </button>
-            <button className="link-button" onClick={() => useFarmShop.getState().exit()}>Quit</button>
-          </div>
-        </div>
+        <DemoStartCard
+          icon="🏪"
+          title="The Farm Shop"
+          onStart={() => useFarmShop.getState().beginRounds()}
+          onQuit={() => useFarmShop.getState().exit()}
+        />
       )}
 
       {status === "playing" && round && (
         <div className="farm-challenge-card">
           <div className="farm-challenge-head">
-            <span>🏪 Round {roundIndex + 1}/{SHOP_ROUNDS_PER_SET} · {score} pts</span>
+            <span>🏪 <DemoRound>Round {roundIndex + 1}/{SHOP_ROUNDS_PER_SET} · {score} pts</DemoRound></span>
+            <DemoButton />
             <button className="link-button" onClick={() => useFarmShop.getState().exit()}>Quit</button>
           </div>
           <div className="shop-tag">

@@ -58,6 +58,8 @@ import ToastLayer from "./ui/effects/ToastLayer.jsx";
 import WipeoutOverlay from "./ui/effects/WipeoutOverlay.jsx";
 import { useWipeout } from "./game/hazardRescue.js";
 import BilingualLayer from "./i18n/BilingualLayer.jsx";
+import DemoOverlay from "./ui/demo/DemoOverlay.jsx";
+import DemoProjector from "./game/demo/DemoProjector.jsx";
 
 import { useSession, playerState, requestTeleport } from "./game/sessionStore.js";
 import { useUI } from "./ui/effects/uiStore.js";
@@ -224,6 +226,7 @@ export default function App() {
       >
         {mountWorld && <World title={title} />}
         {mountWorld && <WorldReady />}
+        <DemoProjector />
       </Canvas>
 
       {title ? (
@@ -287,6 +290,8 @@ export default function App() {
       <UnlockCelebration />
       <ToastLayer />
       <WipeoutOverlay />
+      {/* Every challenge's live "watch how to play" demo (2026-10-24). */}
+      <DemoOverlay />
       </>
       )}
     </div>

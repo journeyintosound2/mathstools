@@ -112,6 +112,11 @@ export function createMagmaStore({ key, generate, fresh, actions, world }) {
         set({ status: "play" });
       },
 
+      /** A demo plays these rounds (game/demo/demoRunner.js). */
+      demoStart(rounds) {
+        set({ status: "play", rounds, roundIndex: 0, score: 0, results: [], bestScore: W.readBest(key), ...reset(rounds[0]) });
+      },
+
       next() {
         const { status, roundIndex, score, roundPoints, rounds } = get();
         if (status !== "feedback" && status !== "celebrate") return;

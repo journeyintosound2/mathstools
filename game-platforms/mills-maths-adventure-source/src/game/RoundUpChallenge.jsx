@@ -1,4 +1,5 @@
 import React, { useRef } from "react";
+import DemoPoint from "./demo/DemoPoint.jsx";
 import { useFrame } from "@react-three/fiber";
 
 import {
@@ -149,6 +150,7 @@ function CowMarker({ cow, index }) {
 
   return (
     <group ref={group} position={[cow.fieldSpot[0], 0, cow.fieldSpot[1]]}>
+      <DemoPoint name={`cow-${cow.id}`} position={[0, 0.9, 0]} />
       {/* Highlight ring (equal-groups reveal): green = a counted group. */}
       {formation && (
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.03, 0]}>

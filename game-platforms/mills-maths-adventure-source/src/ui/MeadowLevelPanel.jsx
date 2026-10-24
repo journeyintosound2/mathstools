@@ -112,11 +112,6 @@ export default function MeadowLevelPanel() {
         <SnowIntro
           icon="⛄"
           title="Snowman Meadow"
-          steps={[
-            <>Hop snowballs from the tall snowman to the short one until they <b>match</b>.</>,
-            <>Then use the <b>double</b> to answer the sum.</>,
-          ]}
-          example="8 + 12  =  9 + 11  =  10 + 10  =  double 10 = 20"
           onStart={() => useMeadowLevel.getState().beginRounds()}
           onQuit={() => useMeadowLevel.getState().exit()}
         />

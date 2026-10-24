@@ -108,11 +108,6 @@ export default function SledSlopePanel() {
         <SnowIntro
           icon="🛷"
           title="Sledding Slope"
-          steps={[
-            <>Slide both sleds until the smaller number is a <b>tens number</b>.</>,
-            <>The rope never stretches, so the gap stays the same. Now find it!</>,
-          ]}
-          example="62 − 29  =  63 − 30  =  33"
           onStart={() => useSledSlope.getState().beginRounds()}
           onQuit={() => useSledSlope.getState().exit()}
         />
@@ -129,9 +124,6 @@ export default function SledSlopePanel() {
           />
           <div className="snow-q">
             <span className="fc-value">{round.a + slid} − {round.b + slid}</span>
-          </div>
-          <div className="snow-sub">
-            Slide both sleds until the smaller number is a tens number (like 30).
           </div>
           <div className="plank-pieces">
             <button

@@ -128,11 +128,6 @@ export default function VillageSplitPanel() {
         <SnowIntro
           icon="🧊"
           title="Igloo Village"
-          steps={[
-            <>Move the <b>tens</b> and <b>ones</b> from both igloos into the middle igloo (tap them, or use the buttons).</>,
-            <>10 ones or more? <b>Swap 10 ones for a ten!</b> Then say how many.</>,
-          ]}
-          example="38 + 25 → 5 tens + 13 ones → 6 tens + 3 ones = 63"
           onStart={() => useVillageSplit.getState().beginRounds()}
           onQuit={() => useVillageSplit.getState().exit()}
         />

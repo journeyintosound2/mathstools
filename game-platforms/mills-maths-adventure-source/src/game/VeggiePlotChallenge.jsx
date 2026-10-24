@@ -1,4 +1,5 @@
 import React, { useRef } from "react";
+import DemoPoint from "./demo/DemoPoint.jsx";
 import { useFrame } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
 
@@ -79,6 +80,9 @@ function AreaBed({ round }) {
 
   return (
     <group position={[0, 0.19, 0]}>
+      {/* Demo hand targets: where each partition line can stand. */}
+      {Array.from({ length: gridCols + 1 }, (_, i) => <DemoPoint key={`dw${i}`} name={`veggie-w-${i}`} position={[-HALF + i * cellW, 0.1, -HALF + Math.max(l, cellL) / 2]} />)}
+      {Array.from({ length: gridRows + 1 }, (_, i) => <DemoPoint key={`dl${i}`} name={`veggie-l-${i}`} position={[-HALF + Math.max(w, cellW) / 2, 0.1, -HALF + i * cellL]} />)}
       {/* Grid lines. */}
       {Array.from({ length: gridCols + 1 }, (_, i) => (
         <mesh key={`c${i}`} position={[-HALF + i * cellW, 0.02, 0]}>

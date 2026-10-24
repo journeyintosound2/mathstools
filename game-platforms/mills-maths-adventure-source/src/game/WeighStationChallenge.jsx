@@ -1,4 +1,5 @@
 import React, { useRef } from "react";
+import DemoPoint from "./demo/DemoPoint.jsx";
 import { useFrame } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
 
@@ -101,7 +102,11 @@ function Beam({ round }) {
       )}
 
       {/* The student's ESTIMATE marker — a big orange drag pin. */}
+      {/* Demo hand targets along the beam (frac 0, 0.05 … 1) + the marker. */}
+      {Array.from({ length: 21 }, (_, k) => <DemoPoint key={`wf${k}`} name={`weigh-frac-${k}`} position={[(k / 20 - 0.5) * BEAM_SPAN, 0.78, 0.12]} />)}
+      <DemoPoint name="weigh-goal" position={[(round.needleFrac - 0.5) * BEAM_SPAN, 0.78, 0.12]} />
       <group ref={markerRef} position={[0, 0, 0]}>
+        <DemoPoint name="weigh-marker" position={[0, 0.78, 0.12]} />
         <mesh position={[0, 0.78, 0.07]} rotation={[0, 0, Math.PI / 4]} castShadow>
           <boxGeometry args={[0.5, 0.5, 0.16]} />
           <meshStandardMaterial color={markerColor} emissive={markerColor} emissiveIntensity={0.4} />

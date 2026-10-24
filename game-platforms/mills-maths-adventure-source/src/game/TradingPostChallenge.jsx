@@ -1,4 +1,5 @@
 import React, { Suspense, useMemo, useRef } from "react";
+import DemoPoint from "./demo/DemoPoint.jsx";
 import { useFrame } from "@react-three/fiber";
 import { Html, useGLTF, useAnimations } from "@react-three/drei";
 import { SkeletonUtils } from "three-stdlib";
@@ -229,6 +230,7 @@ function Stall({ stall }) {
           }
           return (
             <group key={i} position={[x, 1.75, 0.35]}>
+              <DemoPoint name={`trade-tag-${stall}-${i}`} position={[0, 0, 0.3]} />
               <mesh
                 onPointerDown={(e) => {
                   const st = useTradingPost.getState();

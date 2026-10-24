@@ -5,6 +5,8 @@ import { Html } from "@react-three/drei";
 import { RANGE_AREA, RANGE_FRAME_POS, RANGE_CRATE_POS } from "../data/snow/snowLayout.js";
 import { useSnowballRange } from "./snowballRangeStore.js";
 import { ConfettiBurst } from "./OrderPartsChallenge.jsx";
+import DemoPoint from "./demo/DemoPoint.jsx";
+import { demoAnchor } from "./demo/demoAnchors.js";
 
 /**
  * THE SNOWBALL RANGE — 3D layer (SR). A ten-frame snowball CRATE on a stand
@@ -265,6 +267,9 @@ function TenFrame({ round, status, splitResult, splitIndex, preview }) {
           <meshStandardMaterial color={WOOD_DARK} />
         </mesh>
       ))}
+      {/* Demo hand targets (game/demo): the board + every cell. */}
+      <DemoPoint name="range-frame" position={[0, FRAME_Y, 0.25]} />
+      {Array.from({ length: 10 }, (_, i) => <DemoPoint key={`d${i}`} name={`range-cell-${i}`} position={cellPos(i)} />)}
       {/* Cells: packed snowballs + empty sockets (glowing when left short). */}
       {Array.from({ length: 10 }, (_, i) => {
         const p = cellPos(i);
@@ -455,9 +460,14 @@ function HandfulRow({ round, status, splitIndex, splitResult }) {
         );
       })}
 
+      {/* Demo hand targets: each gap the pole can stand in. */}
+      {!thrown && Array.from({ length: round.add + 1 }, (_, g) => (
+        <DemoPoint key={`g${g}`} name={`range-gap-${g}`} position={[-rowW / 2 + g * spacing, 1.3, ROW_Z]} />
+      ))}
+
       {/* The divider — a candy-striped pole through the row. */}
       {!thrown && (
-        <group position={[-rowW / 2 + splitIndex * spacing, 0, ROW_Z]}>
+        <group ref={demoAnchor("range-pole")} position={[-rowW / 2 + splitIndex * spacing, 0, ROW_Z]}>
           <mesh castShadow position={[0, 0.85, 0]}>
             <cylinderGeometry args={[0.05, 0.05, 1.1, 8]} />
             <meshStandardMaterial color="#e04747" emissive="#e04747" emissiveIntensity={0.35} />

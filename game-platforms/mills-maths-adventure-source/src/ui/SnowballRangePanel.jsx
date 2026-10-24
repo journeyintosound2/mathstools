@@ -96,11 +96,6 @@ export default function SnowballRangePanel() {
         <SnowIntro
           icon="❄️"
           title="The Snowball Range"
-          steps={[
-            <>Move the <b style={{ color: "#e04747" }}>red pole</b> to fill the crate to <b>exactly 10</b>, then Throw.</>,
-            <>Then say how many snowballs there are altogether.</>,
-          ]}
-          example="8 + 5  →  8 + 2 = 10  →  10 + 3 = 13"
           onStart={() => useSnowballRange.getState().beginRounds()}
           onQuit={() => useSnowballRange.getState().exit()}
         />
@@ -118,9 +113,6 @@ export default function SnowballRangePanel() {
             onQuit={() => useSnowballRange.getState().exit()}
           />
           <div className="snow-q">How many snowballs will fill the crate?</div>
-          <div className="snow-sub">
-            {useUI.getState().touchMode ? "Drag the red pole (or tap ◀ ▶)." : "Drag the red pole (or use ← →)."} Balls on its left go in the crate.
-          </div>
           <div className="farm-challenge-buttons">
             {/* Touch: nudge buttons — the 3D row is small on a phone. */}
             {useUI.getState().touchMode && (

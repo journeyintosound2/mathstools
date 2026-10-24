@@ -6,14 +6,14 @@ import { getJungleChallenge } from "../../data/jungle/jungleChallenges.js";
 import { JUNGLE_ROUNDS_PER_SET } from "../../data/jungle/jungleRecords.js";
 import { JUNGLE_REGION_ID } from "../../data/jungle/jungleLayout.js";
 import { JUNGLE_STORES } from "../../game/jungle/jungleActive.js";
-import { JUNGLE_INTROS, JUNGLE_MOVE_LABELS } from "./jungleIntros.jsx";
+import { JUNGLE_MOVE_LABELS } from "./jungleIntros.jsx";
 
 /**
  * EMERALD JUNGLE — the challenge cards. One shell (the Magma card, reused
  * with the jungle's registry + region) and ONE set of vine-ladder controls
- * (LadderPlay) shared by all ten challenges. Each challenge only brings its
- * two-step intro + example (jungleIntros.jsx) and, optionally, its own names
- * for the moves ("➕ One more swap").
+ * (LadderPlay) shared by all ten challenges. Each challenge only brings,
+ * optionally, its own names for the moves ("➕ One more swap"); the rules are
+ * taught by its live demo (game/demo/scripts/jungleDemos.js).
  *
  * A right answer after a slip shows WHAT slipped (each wrong number with
  * the right one) and no "quick way": any route up the ladder is as good as
@@ -58,7 +58,6 @@ export default function JunglePanels() {
           key={key}
           {...JUNGLE}
           useStore={useStore}
-          intro={JUNGLE_INTROS[key]}
           Play={playFor(key, useStore)}
           slip={ladderSlip}
           celebrate={(r) => r.celebrate || "Right!"}

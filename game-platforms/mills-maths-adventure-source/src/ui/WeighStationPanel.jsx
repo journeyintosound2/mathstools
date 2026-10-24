@@ -1,4 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
+import DemoButton, { DemoRound } from "./demo/DemoButton.jsx";
+import DemoStartCard from "./demo/DemoStartCard.jsx";
 import RoundCelebrate from "./RoundCelebrate.jsx";
 
 import { useWeighStation } from "../game/weighStationStore.js";
@@ -92,40 +94,24 @@ export default function WeighStationPanel() {
 
   return (
     <div className="farm-challenge-panel">
+      {/* The ready card (2026-10-24): the live demo teaches the rules now
+          (game/demo/scripts/farmDemos.js) — no written instructions. */}
       {status === "intro" && (
-        <div className="farm-challenge-card">
-          <div className="farm-challenge-head">
-            <span>⚖️ The Weigh Station</span>
-          </div>
-          <div className="farm-challenge-line big">
-            Slide the marker to where the weight sits — <span className="fc-value">then round it!</span>
-          </div>
-          <div className="farm-challenge-line">
-            Dead centre = 🎯 BULLSEYE. Then type the rounded value. Halfway rounds UP!
-          </div>
-          <div className="farm-challenge-buttons">
-            <button
-              className="primary-button"
-              onClick={(e) => {
-                e.currentTarget.blur();
-                useWeighStation.getState().beginRounds();
-              }}
-            >
-              {kh("Start! (Enter)")}
-            </button>
-            <button className="link-button" onClick={() => useWeighStation.getState().exit()}>
-              Quit
-            </button>
-          </div>
-        </div>
+        <DemoStartCard
+          icon="⚖️"
+          title="The Weigh Station"
+          onStart={() => useWeighStation.getState().beginRounds()}
+          onQuit={() => useWeighStation.getState().exit()}
+        />
       )}
 
       {status === "locating" && round && (
         <div className="farm-challenge-card mini">
           <div className="farm-challenge-head">
             <span>
-              ⚖️ Round {roundIndex + 1}/{WEIGH_ROUNDS_PER_SET} · {score} pts — drag the marker to {round.exactStr}{useUI.getState().touchMode ? "" : " (← → to nudge)"}
+              ⚖️ <DemoRound>Round {roundIndex + 1}/{WEIGH_ROUNDS_PER_SET} · {score} pts</DemoRound> — where is {round.exactStr}?
             </span>
+            <DemoButton />
             <button
               className="primary-button weigh-lock"
               onClick={(e) => {
@@ -185,8 +171,9 @@ export default function WeighStationPanel() {
         <div className="farm-challenge-card mini">
           <div className="farm-challenge-head">
             <span>
-              ⚖️ Round {roundIndex + 1}/{WEIGH_ROUNDS_PER_SET} · {score} pts — {round.prompt}
+              ⚖️ <DemoRound>Round {roundIndex + 1}/{WEIGH_ROUNDS_PER_SET} · {score} pts</DemoRound> — {round.prompt}
             </span>
+            <DemoButton />
             <button className="link-button" onClick={() => useWeighStation.getState().exit()}>
               Quit
             </button>

@@ -16,7 +16,7 @@ import { kh } from "../keyHints.js";
  *
  * Each challenge passes:
  *   useStore   its zustand store (createMagmaStore)
- *   intro      { steps: [node, node], example: string }
+ *   (no intro text — the ready card + live demo teach the rules, game/demo/)
  *   Play       the live-round controls (rendered under the round header)
  *   celebrate  (round, state) → the one-line "✓ …" for a full-marks round
  *   Feedback   (optional) extra lines on the feedback card
@@ -94,9 +94,10 @@ export function MagmaNumberInput({ onSubmit, placeholder = "?", label, unit, max
 }
 
 /** A big tap button that blurs itself (so Enter/Esc keep working). */
-export function MagmaButton({ children, onClick, className = "plank-piece-btn", disabled, title, active }) {
+export function MagmaButton({ children, onClick, className = "plank-piece-btn", disabled, title, active, ...rest }) {
   return (
     <button
+      {...rest}
       className={`${className}${active ? " active" : ""}`}
       disabled={disabled}
       title={title}
@@ -111,7 +112,7 @@ export function MagmaButton({ children, onClick, className = "plank-piece-btn", 
 }
 
 export default function MagmaPanelShell({
-  useStore, intro, Play, celebrate, Feedback, slip, pointsPerRound = 25,
+  useStore, Play, celebrate, Feedback, slip, pointsPerRound = 25,
   // The jungle shows no "quick way" on a slip (any route is a good route) and
   // calls its feedback working "one way" (Jeff, 2026-10-10).
   slipWorking = true, feedbackLead = "here's the quick way:", feedbackZero = "Here's how it works:",
@@ -173,8 +174,6 @@ export default function MagmaPanelShell({
         <SnowIntro
           icon={meta.icon}
           title={meta.name}
-          steps={intro.steps}
-          example={intro.example}
           onStart={() => st.beginRounds()}
           onQuit={quit}
         />

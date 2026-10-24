@@ -1,4 +1,7 @@
 import React, { useEffect, useState } from "react";
+import DemoButton, { DemoRound } from "./demo/DemoButton.jsx";
+import DemoStartCard from "./demo/DemoStartCard.jsx";
+import { useDemo } from "../game/demo/demoStore.js";
 
 import { useCratePacking } from "../game/cratePackingStore.js";
 import { useSession, playerState } from "../game/sessionStore.js";
@@ -75,7 +78,8 @@ export default function CratePackingPanel() {
     if (!lastR) return undefined;
     const animMs = animationMs(lastR.round);
     if (lastR.grade.result === "hcf") {
-      const t = setTimeout(() => st.next(), animMs + 1500);
+      // (The last example of a demo holds here under its "Your turn!" card.)
+      const t = setTimeout(() => { if (!useDemo.getState().hold) st.next(); }, animMs + 1500);
       return () => clearTimeout(t);
     }
     const t = setTimeout(() => {
@@ -89,38 +93,23 @@ export default function CratePackingPanel() {
 
   return (
     <div className="farm-challenge-panel">
+      {/* The ready card (2026-10-24): the live demo teaches the rules now
+          (game/demo/scripts/farmDemos.js) — no written instructions. */}
       {status === "intro" && (
-        <div className="farm-challenge-card">
-          <div className="farm-challenge-head">
-            <span>📦 Crate Packing</span>
-          </div>
-          <div className="farm-challenge-line big">
-            For each pile of apples and pears, tap the <span className="fc-value">biggest group size</span> that
-            leaves no fruit over in either pile.
-          </div>
-          <div className="farm-challenge-line">Both piles must use the same group size.</div>
-          <div className="farm-challenge-buttons">
-            <button
-              className="primary-button"
-              onClick={(e) => {
-                e.currentTarget.blur();
-                useCratePacking.getState().beginRounds();
-              }}
-            >
-              {kh("Start! (Enter)")}
-            </button>
-            <button className="link-button" onClick={() => useCratePacking.getState().exit()}>
-              Quit
-            </button>
-          </div>
-        </div>
+        <DemoStartCard
+          icon="📦"
+          title="Crate Packing"
+          onStart={() => useCratePacking.getState().beginRounds()}
+          onQuit={() => useCratePacking.getState().exit()}
+        />
       )}
 
       {(status === "choosing" || status === "feedback") && !showVerdict && (
         /* Slim strip only — the world stays visible; results play in-world. */
         <div className="farm-challenge-card mini">
           <div className="farm-challenge-head">
-            <span>📦 Round {Math.min(roundIndex + 1, CRATE_ROUNDS_PER_SET)}/{CRATE_ROUNDS_PER_SET} · {score} pts</span>
+            <span>📦 <DemoRound>Round {Math.min(roundIndex + 1, CRATE_ROUNDS_PER_SET)}/{CRATE_ROUNDS_PER_SET} · {score} pts</DemoRound></span>
+            <DemoButton />
             <button className="link-button" onClick={() => useCratePacking.getState().exit()}>
               Quit
             </button>

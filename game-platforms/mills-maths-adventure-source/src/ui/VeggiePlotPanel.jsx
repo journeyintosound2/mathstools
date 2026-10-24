@@ -1,4 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
+import DemoButton, { DemoRound } from "./demo/DemoButton.jsx";
+import DemoStartCard from "./demo/DemoStartCard.jsx";
 import RoundCelebrate from "./RoundCelebrate.jsx";
 
 import { useVeggiePlot } from "../game/veggiePlotStore.js";
@@ -131,32 +133,24 @@ export default function VeggiePlotPanel() {
   return (
     <>
     <div className="farm-challenge-panel">
+      {/* The ready card (2026-10-24): the live demo teaches the rules now
+          (game/demo/scripts/farmDemos.js) — no written instructions. */}
       {status === "intro" && (
-        <div className="farm-challenge-card">
-          <div className="farm-challenge-head">
-            <span>🥕 The Veggie Plot</span>
-          </div>
-          <div className="farm-challenge-line big">
-            Multiply two fractions by <span className="fc-value">planting a bed</span> — the shaded overlap IS the answer!
-          </div>
-          <div className="farm-challenge-line">
-            Drag the two edges, read the harvest, then type it. Later: fertiliser potions — predict grow or shrink!
-          </div>
-          <div className="farm-challenge-buttons">
-            <button className="primary-button" onClick={(e) => { e.currentTarget.blur(); useVeggiePlot.getState().beginRounds(); }}>
-              {kh("Start! (Enter)")}
-            </button>
-            <button className="link-button" onClick={() => useVeggiePlot.getState().exit()}>Quit</button>
-          </div>
-        </div>
+        <DemoStartCard
+          icon="🥬"
+          title="The Veggie Plot"
+          onStart={() => useVeggiePlot.getState().beginRounds()}
+          onQuit={() => useVeggiePlot.getState().exit()}
+        />
       )}
 
       {status === "placing" && round && (
         <div className="farm-challenge-card mini">
           <div className="farm-challenge-head">
             <span>
-              🥕 Round {roundIndex + 1}/{VEGGIE_ROUNDS_PER_SET} · {score} pts — drag the bed to {round.widthStr} wide × {round.lengthStr} long{useUI.getState().touchMode ? "" : " (arrows to nudge)"}
+              🥕 <DemoRound>Round {roundIndex + 1}/{VEGGIE_ROUNDS_PER_SET} · {score} pts</DemoRound> — plant {round.widthStr} wide × {round.lengthStr} long
             </span>
+            <DemoButton />
             <button className="primary-button weigh-lock" onClick={(e) => { e.currentTarget.blur(); useVeggiePlot.getState().lockPlace(); }}>
               {kh("Lock the bed (Enter)")}
             </button>

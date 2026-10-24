@@ -94,11 +94,6 @@ export default function AuroraLookoutPanel() {
         <SnowIntro
           icon="✨"
           title="Aurora Lookout"
-          steps={[
-            <>The lights write a sum in the sky. There are three ways to do it — they all work!</>,
-            <>Pick the <b>easiest</b> way, then do the sum.</>,
-          ]}
-          example="47 + 29 → 47 + 30 − 1 → 77 − 1 = 76"
           onStart={() => useAuroraLookout.getState().beginRounds()}
           onQuit={() => useAuroraLookout.getState().exit()}
         />

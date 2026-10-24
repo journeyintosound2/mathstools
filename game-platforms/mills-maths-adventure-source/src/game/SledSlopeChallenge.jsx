@@ -1,4 +1,5 @@
 import React, { useMemo, useRef } from "react";
+import DemoPoint from "./demo/DemoPoint.jsx";
 import { useFrame } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
 
@@ -120,10 +121,12 @@ function RopedPair({ round }) {
   return (
     <group>
       <group ref={frontRef}>
+        <DemoPoint name="sled-front" position={[0, 0.7, 0]} />
         <Sled color={FRONT_SLED} />
         <FrontChip />
       </group>
       <group ref={backRef}>
+        <DemoPoint name="sled-back" position={[0, 0.7, 0]} />
         <Sled color={BACK_SLED} />
         <BackChip />
       </group>

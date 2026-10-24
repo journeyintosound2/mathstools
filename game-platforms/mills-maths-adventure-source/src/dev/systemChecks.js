@@ -18,6 +18,7 @@ import { runJourneyChecks } from "./journeyChecks.js";
 import { runCloudProgressChecks } from "./cloudProgressChecks.js";
 import { runUxChecks } from "./uxChecks.js";
 import { runPolishChecks } from "./polishChecks.js";
+import { runDemoChecks, runDemoPlayChecks } from "./demoChecks.js";
 import { runSchoolyardWorldChecks } from "./schoolyardWorldChecks.js";
 import { CRATER_LIP_STONES } from "../data/magma/magmaProps.js";
 import { makeTriangle, makeQuad, makeGenericQuad, verifyQuad, propertiesOf, SPECIAL_QUADS, TRIANGLE_TYPES } from "../maths/curriculum/stage4/geometry/shapeCatalogue.js";
@@ -330,6 +331,14 @@ const REQUIRED_QUESTION_FIELDS = [
  * `progressSnapshot` is the current progress store state, used for the
  * save/reload round-trip check.
  */
+/**
+ * The checks that must AWAIT (2026-10-24): each challenge demo is played
+ * through headlessly. The harness runs these after runSystemChecks().
+ */
+export async function runAsyncSystemChecks() {
+  return runDemoPlayChecks();
+}
+
 export function runSystemChecks(progressSnapshot) {
   const checks = [];
 
@@ -705,6 +714,8 @@ export function runSystemChecks(progressSnapshot) {
   for (const c of runCloudProgressChecks()) checks.push(c);
   for (const c of runUxChecks()) checks.push(c);
   for (const c of runPolishChecks()) checks.push(c);
+  // Challenge demos (2026-10-24): every challenge has a live two-example demo.
+  for (const c of runDemoChecks()) checks.push(c);
 
   return checks;
 }

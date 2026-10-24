@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import DemoButton, { DemoRound } from "./demo/DemoButton.jsx";
 
 import { useFarmChallenge } from "../game/farmChallengeStore.js";
 import { playerState, useSession } from "../game/sessionStore.js";
@@ -82,9 +83,10 @@ export default function FarmChallengePanel() {
           <div className="farm-challenge-head">
             <span>🚜 Fence Challenge</span>
             <span>
-              Round {Math.min(roundIndex + 1, ROUNDS_PER_SET)}/{ROUNDS_PER_SET} · {score} pts
+              <DemoRound>Round {Math.min(roundIndex + 1, ROUNDS_PER_SET)}/{ROUNDS_PER_SET} · {score} pts</DemoRound>
               {bullseyes > 0 ? ` · 🎯×${bullseyes}` : ""}
             </span>
+            <DemoButton />
           </div>
         )}
 

@@ -1,4 +1,5 @@
 import React, { useRef } from "react";
+import DemoPoint from "./demo/DemoPoint.jsx";
 import { useFrame } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
 
@@ -42,10 +43,11 @@ function ballPos(i) {
   return [(col - 1.5) * COL_W, 0.24 + row * ROW_H, (col % 2) * 0.06];
 }
 
-function Tower({ local, count, twin }) {
+function Tower({ local, count, twin, demoName }) {
   const cols = Math.max(1, Math.ceil(count / 10));
   return (
     <group position={[local[0], 0, local[1]]}>
+      {demoName && <DemoPoint name={demoName} position={[0, 1.4, 0.4]} />}
       {/* Snow mound base. */}
       <mesh receiveShadow position={[0, 0.05, 0]}>
         <cylinderGeometry args={[1.35, 1.5, 0.16, 18]} />
@@ -169,8 +171,8 @@ export default function MeadowLevelChallenge() {
 
   return (
     <group position={[MEADOW_AREA.x, 0, MEADOW_AREA.z]}>
-      <Tower local={LEFT_LOCAL} count={Math.max(0, drawLeft)} twin={twins} />
-      <Tower local={RIGHT_LOCAL} count={Math.max(0, drawRight)} twin={twins} />
+      <Tower local={LEFT_LOCAL} count={Math.max(0, drawLeft)} twin={twins} demoName="meadow-left" />
+      <Tower local={RIGHT_LOCAL} count={Math.max(0, drawRight)} twin={twins} demoName="meadow-right" />
       <FlyingBall round={shown} hops={hops} hopAt={hopAt} dir={hopDir} />
 
       {/* The growing equation chain — every sum the same, total unshown. */}

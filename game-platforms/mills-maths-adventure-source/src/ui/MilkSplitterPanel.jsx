@@ -1,4 +1,6 @@
 import React, { useEffect } from "react";
+import DemoButton, { DemoRound } from "./demo/DemoButton.jsx";
+import DemoStartCard from "./demo/DemoStartCard.jsx";
 import RoundCelebrate from "./RoundCelebrate.jsx";
 
 import { useMilkSplitter } from "../game/milkSplitterStore.js";
@@ -90,43 +92,26 @@ export default function MilkSplitterPanel() {
 
   return (
     <div className="farm-challenge-panel">
+      {/* The ready card (2026-10-24): the live demo teaches the rules now
+          (game/demo/scripts/farmDemos.js) — no written instructions. */}
       {status === "intro" && (
-        <div className="farm-challenge-card">
-          <div className="farm-challenge-head">
-            <span>🥛 The Milk Splitter</span>
-          </div>
-          <div className="farm-challenge-line big">
-            The machine shares the milk by <span className="fc-value">dividing</span>.
-          </div>
-          <div className="farm-challenge-line">
-            Predict: will each cup's share STOP, or REPEAT forever? Tap a chute —
-            then pick the correct way to WRITE it.
-          </div>
-          <div className="farm-challenge-buttons">
-            <button
-              className="primary-button"
-              onClick={(e) => {
-                e.currentTarget.blur();
-                useMilkSplitter.getState().beginRounds();
-              }}
-            >
-              {kh("Start! (Enter)")}
-            </button>
-            <button className="link-button" onClick={() => useMilkSplitter.getState().exit()}>
-              Quit
-            </button>
-          </div>
-        </div>
+        <DemoStartCard
+          icon="🥛"
+          title="The Milk Splitter"
+          onStart={() => useMilkSplitter.getState().beginRounds()}
+          onQuit={() => useMilkSplitter.getState().exit()}
+        />
       )}
 
       {inPlay && (
         <div className="farm-challenge-card mini">
           <div className="farm-challenge-head">
             <span>
-              🥛 Round {Math.min(roundIndex + 1, MILK_ROUNDS_PER_SET)}/{MILK_ROUNDS_PER_SET} · {score} pts
+              🥛 <DemoRound>Round {Math.min(roundIndex + 1, MILK_ROUNDS_PER_SET)}/{MILK_ROUNDS_PER_SET} · {score} pts</DemoRound>
               {status === "predicting" && round ? ` — ${round.n} L, ${round.d} cups` : ""}
               {status === "labelling" ? " — how is it written?" : ""}
             </span>
+            <DemoButton />
             <button className="link-button" onClick={() => useMilkSplitter.getState().exit()}>
               Quit
             </button>

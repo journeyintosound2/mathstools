@@ -225,7 +225,6 @@ function ForgePlay({ round }) {
           </MagmaButton>
         ))}
       </div>
-      {selected.length === 0 && <div className="snow-sub">Tap ONE ingot to hammer it apart — or TWO to fuse them.</div>}
       {selected.length === 1 && (
         <div className="magma-row">
           {splits.length ? (
@@ -363,7 +362,7 @@ function CinderPlay({ round }) {
             ))}
           </div>
           <div className="magma-row">
-            <span className="snow-sub">Tap a column (or two for + and −), then a move · {cols.length - 1}/{CINDER_MAX_NEW} new columns</span>
+            <span className="snow-sub">{cols.length - 1}/{CINDER_MAX_NEW} new columns</span>
             {cols.length > 1 && <MagmaButton className="link-button" onClick={() => st().undo()}>↩ Undo</MagmaButton>}
           </div>
         </>
@@ -515,91 +514,51 @@ export default function MagmaPanels() {
     <>
       <MagmaPanelShell
         useStore={useColumnsChallenge}
-        intro={{
-          steps: [<>Use <b>− / +</b> to stand the columns in rows. Leftovers glow red.</>, <>A perfect fit? <b>Keep it!</b> Find EVERY rectangle, then say <b>That's all!</b></>],
-          example: "12 → 1 × 12, 2 × 6, 3 × 4 (4 × 3 is 3 × 4 turned!)",
-        }}
         Play={ColumnsPlay}
         celebrate={(r) => `all ${r.pairs.length} rectangle${r.pairs.length > 1 ? "s" : ""} of ${r.n}${r.prime ? " — it's PRIME!" : ""}`}
       />
       <MagmaPanelShell
         useStore={useObsidianChallenge}
-        intro={{
-          steps: [<>Move the <b>crack</b> to split the crystal into pieces you know (or push it past the edge to <b>grow</b> it).</>, <>Work out each piece, then the whole crystal.</>],
-          example: "7 × 8 = 7 × 5 + 7 × 3 = 35 + 21 = 56",
-        }}
         Play={ObsidianPlay}
         celebrate={(r) => `${r.a} × ${r.b} = ${r.product}`}
       />
       <MagmaPanelShell
         useStore={useTerracesChallenge}
-        intro={{
-          steps: [<>Each terrace is <b>ten times</b> the one below. × 10 slides every digit <b>up</b> one terrace; ÷ 10 slides it <b>down</b>.</>, <>The point never moves. Lock your slide, then say the number.</>],
-          example: "3.5 × 10 → 35 (not 3.50!)",
-        }}
         Play={TerracesPlay}
         celebrate={(r) => `${r.text} = ${fmtThousandths(r.result)}`}
       />
       <MagmaPanelShell
         useStore={useGeysersChallenge}
-        intro={{
-          steps: [<>Steam cuts the terrace in half and slides it alongside — <b>half as many rows, twice as long</b>.</>, <>Same tiles, same answer. Stop when it's EASY, then solve it.</>],
-          example: "16 × 25 = 8 × 50 = 4 × 100 = 400",
-        }}
         Play={GeysersPlay}
         celebrate={(r) => `${r.a} × ${r.b} = ${r.product}`}
       />
       <MagmaPanelShell
         useStore={useForgeChallenge}
-        intro={{
-          steps: [<>Tap ONE ingot to <b>hammer</b> it into factors. Tap TWO to <b>fuse</b> them (type their product).</>, <>Fuse into a friendly 10 or 100 first — then finish the job!</>],
-          example: "25 × 24 → 25 × 4 × 6 → 100 × 6 = 600",
-        }}
         Play={ForgePlay}
         celebrate={(r) => `${r.ingots.join(" × ")} = ${r.product}`}
       />
       <MagmaPanelShell
         useStore={useGardenChallenge}
-        intro={{
-          steps: [<>Guess how many different <b>flower + pot</b> combos there are.</>, <>Plant them all — for EACH flower, a whole row of pots. Then say <b>That's every combo!</b></>],
-          example: "3 flowers × 4 pots = 12 combos",
-        }}
         Play={GardenPlay}
         celebrate={(r) => (r.inverse ? `${r.f} × ${r.p} = ${r.total} — ${r.p} pots!` : `${r.total} combos!`)}
       />
       <MagmaPanelShell
         useStore={useCinderChallenge}
-        intro={{
-          steps: [<>Tap a column, then a move: <b>× 2, ÷ 2, × 10, ÷ 10</b> — or tap two columns and <b>+</b> or <b>−</b>.</>, <>The carts fill in; YOU work out the rocks. Reach the target in as few columns as you can.</>],
-          example: "1 → 24 · 10 → 240 · 5 → 120 · 15 → 360",
-        }}
         Play={CinderPlay}
         celebrate={(r) => (r.targetRow === "top" ? `${r.targetCarts} carts → ${r.targetRocks} rocks` : `${r.targetRocks} rocks → ${r.targetCarts} carts`)}
       />
       <MagmaPanelShell
         useStore={useLakeChallenge}
-        intro={{
-          steps: [<>Pour the cauldron into the channel in <b>big chunks</b> — 10 rows at a time if it fits. Too many? It spills!</>, <>When it's poured, answer the question.</>],
-          example: "156 ÷ 12 → 10 rows (120) + 3 rows (36) = 13",
-        }}
         Play={LakePlay}
         celebrate={(r) => (r.kind === "share" ? `${r.D} ÷ ${r.d} = ${r.q} each` : r.ctx ? `${r.answer} ${r.ctx.unit}!` : `${r.D} ÷ ${r.d} = ${r.q}`)}
       />
       <MagmaPanelShell
         useStore={useBonesChallenge}
-        intro={{
-          steps: [<>Look at the skulls: how many TIMES as long is the new one?</>, <>Make EVERY bone that many times as long, then <b>Raise!</b> Adding the same amount makes a wonky dragon.</>],
-          example: "skull 2 → 6 is × 3, so tail 4 → 12",
-        }}
         Play={BonesPlay}
         celebrate={(r) => `a perfect ${r.toy ? "toy" : "grown-up"} dragon — × ${r.factorText}!`}
       />
       <MagmaPanelShell
         useStore={useSummitChallenge}
-        intro={{
-          steps: [<>Three rune tablets — each one the same problem written a different way. All are right!</>, <>Pick the <b>easiest</b> way, then do it.</>],
-          example: "25 × 24 → 25 × 4 × 6 → 100 × 6 = 600",
-        }}
         Play={SummitPlay}
         celebrate={(r) => `${r.q.includes("?") ? r.answer + " coins" : `${r.q} = ${r.answer}`}`}
       />

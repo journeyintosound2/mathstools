@@ -1,4 +1,5 @@
 import { useProgress } from "../progress/store.js";
+import { isDemoActive } from "./demo/demoStore.js";
 
 /**
  * ROUND OUTCOMES — one rule for every in-world challenge (farm, snow, magma,
@@ -39,14 +40,25 @@ export function trackChallengeStore(store, { xpPerPoint = 1 } = {}) {
       m.roundIndex = s.roundIndex ?? 0;
       m.startScore = before; // the total carried into the new round
     }
-    // Bank the XP for points as they land.
+    // Bank the XP for points as they land — never for a demo playing itself
+    // (game/demo/demoRunner.js).
     const gained = score - before;
-    if (gained > 0 && s.status !== "idle") useProgress.getState().awardRewards({ xp: gained * xpPerPoint });
+    if (gained > 0 && s.status !== "idle" && !isDemoActive()) useProgress.getState().awardRewards({ xp: gained * xpPerPoint });
   });
 }
 
 export function trackChallengeStores(stores, options = new Map()) {
   for (const s of stores) trackChallengeStore(s, options.get(s));
+}
+
+/** The round mark, so a mid-game demo can put it back exactly (demoRunner). */
+export function captureRoundMark(store) {
+  const m = marks.get(store);
+  return m ? { ...m } : null;
+}
+export function restoreRoundMark(store, mark) {
+  const m = marks.get(store);
+  if (m && mark) Object.assign(m, mark);
 }
 
 /** Points earned so far THIS round (non-reactive; state = store.getState()). */

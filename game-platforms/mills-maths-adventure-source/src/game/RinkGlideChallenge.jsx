@@ -7,6 +7,7 @@ import { RINK_GLIDE_LINE, rinkGlideX } from "../data/snow/snowLayout.js";
 import { useRinkGlide } from "./rinkGlideStore.js";
 import { glideStops, RINK_PUSH_MS } from "../data/snow/rinkGlideChallenge.js";
 import { ConfettiBurst } from "./OrderPartsChallenge.jsx";
+import DemoPoint from "./demo/DemoPoint.jsx";
 
 /**
  * THE ICE RINK — GLIDE BY TENS — 3D layer (RG). The rink ice carries a giant
@@ -149,10 +150,11 @@ function ValueChip() {
   );
 }
 
-function Flag({ value, color, bucket }) {
+function Flag({ value, color, bucket, demoName }) {
   const x = rinkGlideX(value);
   return (
     <group position={[x, 0, LINE_Z]}>
+      {demoName && <DemoPoint name={demoName} position={[0.1, 1.1, -0.55]} />}
       <mesh castShadow position={[0, 0.7, -0.55]}>
         <cylinderGeometry args={[0.04, 0.04, 1.4, 8]} />
         <meshStandardMaterial color="#8a6a48" />
@@ -291,8 +293,8 @@ export default function RinkGlideChallenge() {
       <HopTrail round={shown} queue={queue} count={trailCount} />
 
       {/* Start flag + the fish-bucket target. */}
-      <Flag value={shown.start} color={START_COLOR} />
-      <Flag value={shown.target} color={TARGET_COLOR} bucket />
+      <Flag value={shown.start} color={START_COLOR} demoName="rink-start" />
+      <Flag value={shown.target} color={TARGET_COLOR} bucket demoName="rink-target" />
 
       {/* Where the penguin actually stopped, when it missed. */}
       {missed && (

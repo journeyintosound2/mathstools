@@ -1,4 +1,5 @@
 import React, { useRef } from "react";
+import DemoPoint from "./demo/DemoPoint.jsx";
 import { useFrame } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
 
@@ -156,6 +157,9 @@ export default function ColonyPairsChallenge() {
         </group>
       ))}
       <WaddlingCrosser round={shown} />
+      {/* Demo hand targets (game/demo). */}
+      <DemoPoint name="colony-rows" position={[0, 0.9, (COLONY_ROWS.z1 + COLONY_ROWS.z2) / 2 - COLONY_AREA.z]} />
+      {row2n > 0 && <DemoPoint name="colony-odd" position={[rowX(row2n - 1, shown.b), 0.9, COLONY_ROWS.z2 - COLONY_AREA.z]} />}
 
       {/* Pair rings light up between the rows, one beat at a time. */}
       {started &&

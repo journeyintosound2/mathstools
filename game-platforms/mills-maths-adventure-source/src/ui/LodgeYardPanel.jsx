@@ -102,11 +102,6 @@ export default function LodgeYardPanel() {
         <SnowIntro
           icon="☕"
           title="The Lodge Yard"
-          steps={[
-            <>A hot chocolate costs less than $1. You pay with <b>$1 (100c)</b>.</>,
-            <>Use coins to <b>count up</b> from the price to 100c. That's your change!</>,
-          ]}
-          example="65c + 5c → 70c,  + 10c + 20c → 100c.  Change: 35c"
           onStart={() => useLodgeYard.getState().beginRounds()}
           onQuit={() => useLodgeYard.getState().exit()}
         />

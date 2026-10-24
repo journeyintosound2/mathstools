@@ -1,4 +1,5 @@
 import React, { useRef, useMemo } from "react";
+import DemoPoint from "./demo/DemoPoint.jsx";
 import { useFrame } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
 
@@ -251,6 +252,7 @@ function Chute({ position, color, label, side }) {
 
   return (
     <group position={[x, 0, z]}>
+      <DemoPoint name={`milk-chute-${side}`} position={[0, 0.9, 0.2]} />
       {/* The chute: an angled tray on legs. */}
       <mesh castShadow position={[0, 0.55, 0]} rotation={[0.35, 0, 0]}>
         <boxGeometry args={[1.5, 0.16, 1.4]} />
@@ -312,6 +314,7 @@ function NotationJugs() {
           : "#7a5200";
         return (
           <group key={i} position={[x, 0, 0]}>
+            <DemoPoint name={`milk-jug-${i}`} position={[0, 0.6, 0.2]} />
             <mesh castShadow position={[0, 0.28, 0]}>
               <cylinderGeometry args={[0.22, 0.28, 0.55, 12]} />
               <meshStandardMaterial color={MILK} />

@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import DemoButton, { DemoRound } from "./demo/DemoButton.jsx";
 
 import { useRoundUp } from "../game/roundUpStore.js";
 import { useSession } from "../game/sessionStore.js";
@@ -72,8 +73,9 @@ export default function RoundUpPanel() {
           <div className="farm-challenge-head">
             <span>🐄 The Round-Up</span>
             <span>
-              Round {Math.min(roundIndex + 1, ROUNDUP_ROUNDS_PER_SET)}/{ROUNDUP_ROUNDS_PER_SET} · Score {score}
+              <DemoRound>Round {Math.min(roundIndex + 1, ROUNDUP_ROUNDS_PER_SET)}/{ROUNDUP_ROUNDS_PER_SET} · Score {score}</DemoRound>
             </span>
+            <DemoButton />
           </div>
         )}
 

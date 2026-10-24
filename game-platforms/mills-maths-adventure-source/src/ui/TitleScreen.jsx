@@ -39,7 +39,7 @@ async function startNewGame() {
   try { useResults.getState().clearResults(); } catch { /* ok */ }
   try {
     Object.keys(localStorage)
-      .filter((k) => SYNCED_KEY.test(k) || /^mma-(farm|snow|magma|jungle)-.*-best$|^mma-visited:|^mma-touch-coach$/.test(k))
+      .filter((k) => SYNCED_KEY.test(k) || /^mma-(farm|snow|magma|jungle)-.*-best$|^mma-visited:|^mma-touch-coach$|^mma-demo-seen:/.test(k))
       .forEach((k) => localStorage.removeItem(k));
   } catch { /* local only */ }
   forgetProgressOwner();
@@ -359,7 +359,7 @@ function CharacterCard({ profile, editing, onBack, onDone, urlSignedIn }) {
                     try {
                       // (The jungle's bests too — since the journey, any best keeps a
                       // world open, so a reset must clear every world's.)
-                      Object.keys(localStorage).filter((k) => /^mma-(farm|snow|magma|jungle)-.*-best$|^mma-visited:/.test(k)).forEach((k) => localStorage.removeItem(k));
+                      Object.keys(localStorage).filter((k) => /^mma-(farm|snow|magma|jungle)-.*-best$|^mma-visited:|^mma-demo-seen:/.test(k)).forEach((k) => localStorage.removeItem(k));
                     } catch { /* local only */ }
                     forgetProgressOwner();
                     setName(""); setStudentCode(""); setCharacter("explorer"); setConfirmReset(false);

@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import DemoButton, { DemoRound } from "./demo/DemoButton.jsx";
 
 import { useOrderParts } from "../game/orderPartsStore.js";
 import { useSession } from "../game/sessionStore.js";
@@ -56,8 +57,9 @@ export default function OrderPartsPanel() {
           <div className="farm-challenge-head">
             <span>🥕 Order the Parts</span>
             <span>
-              Round {Math.min(roundIndex + 1, ORDER_ROUNDS_PER_SET)}/{ORDER_ROUNDS_PER_SET} · {score} pts
+              <DemoRound>Round {Math.min(roundIndex + 1, ORDER_ROUNDS_PER_SET)}/{ORDER_ROUNDS_PER_SET} · {score} pts</DemoRound>
             </span>
+            <DemoButton />
           </div>
         )}
 
@@ -65,9 +67,6 @@ export default function OrderPartsPanel() {
           <>
             <div className="farm-challenge-line big">
               Order the carrots: <span className="fc-value">smallest → largest</span>
-            </div>
-            <div className="farm-challenge-line">
-              {selectedId ? "Now tap the carrot to swap it with." : "Tap two carrots to swap them."}
             </div>
             {/* Touch: the same row as big chips in the card (the 3D carrots
                 are small on a phone) — tap two to swap, exactly like the field. */}

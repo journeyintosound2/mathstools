@@ -1,4 +1,5 @@
 import React, { useRef, useMemo } from "react";
+import DemoPoint from "./demo/DemoPoint.jsx";
 import { useFrame } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
 import * as THREE from "three";
@@ -108,6 +109,7 @@ function Carrot({ item, slotIndex, decorative = false }) {
 
   return (
     <group ref={group} position={[orderSlotX(slotIndex), 0, ROW_Z]}>
+      {!decorative && <DemoPoint name={`carrot-${item.id}`} position={[0, 0.45, 0]} />}
       {/* Leafy top (always visible). */}
       {[-0.14, 0, 0.14].map((dx, i) => (
         <mesh key={i} position={[dx, 0.42, i === 1 ? 0.1 : -0.05]} rotation={[0, 0, dx * 2.2]} castShadow>

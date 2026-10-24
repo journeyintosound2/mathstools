@@ -1,4 +1,5 @@
 import React, { useRef, useMemo } from "react";
+import DemoPoint from "./demo/DemoPoint.jsx";
 import { useFrame } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
 
@@ -146,6 +147,7 @@ function AnimatedPile({ pileIndex, count, color, emoji }) {
 
   return (
     <group position={[px, 0, pz]}>
+      <DemoPoint name={`crate-pile-${pileIndex}`} position={[0, 0.8, 0]} />
       {/* The fruit — one mesh each, animated between array/groups/spill. */}
       {Array.from({ length: count }, (_, i) => (
         <mesh
@@ -239,6 +241,7 @@ function ChoiceCrate({ size, index }) {
 
   return (
     <group ref={group} position={[crateSlotX(index), 0, CRATE_ROW.z]}>
+      <DemoPoint name={`crate-size-${size}`} position={[0, 0.5, 0]} />
       {/* Tray floor + low walls, sized to its capacity. */}
       <mesh castShadow position={[0, 0.06, 0]}>
         <boxGeometry args={[w, 0.12, d]} />

@@ -46,11 +46,22 @@ function measure() {
   let top = 0;
   const stats = document.querySelector(".hud-stats");
   if (stats) { const s = stats.getBoundingClientRect(); if (s.height) top = Math.max(top, s.bottom + 4); }
+  // A playing demo's console (ui/demo/DemoOverlay.jsx) is a strip at the top
+  // or bottom of a small screen — the stage frames itself around it too.
+  let bottom = H;
+  const con = document.querySelector(".demo-console");
+  if (con) {
+    const c = con.getBoundingClientRect();
+    if (c.height > 4 && c.width > W * 0.6) {
+      if (c.top < H / 2) top = Math.max(top, c.bottom + 4);
+      else bottom = Math.min(bottom, c.top - 4);
+    }
+  }
   const cands = [
-    { x0: 0, y0: top, x1: W, y1: r.top - GAP }, // above the card
-    { x0: 0, y0: Math.max(top, r.bottom + GAP), x1: W, y1: H }, // below it
-    { x0: 0, y0: top, x1: r.left - GAP, y1: H }, // left of it
-    { x0: r.right + GAP, y0: top, x1: W, y1: H }, // right of it
+    { x0: 0, y0: top, x1: W, y1: Math.min(bottom, r.top - GAP) }, // above the card
+    { x0: 0, y0: Math.max(top, r.bottom + GAP), x1: W, y1: bottom }, // below it
+    { x0: 0, y0: top, x1: r.left - GAP, y1: bottom }, // left of it
+    { x0: r.right + GAP, y0: top, x1: W, y1: bottom }, // right of it
   ];
   let best = null;
   let bestScore = -1;

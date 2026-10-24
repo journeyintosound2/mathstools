@@ -1,4 +1,6 @@
 import React, { useEffect } from "react";
+import DemoButton, { DemoRound } from "./demo/DemoButton.jsx";
+import DemoStartCard from "./demo/DemoStartCard.jsx";
 import RoundCelebrate from "./RoundCelebrate.jsx";
 
 import { usePlankGap } from "../game/plankGapStore.js";
@@ -60,28 +62,22 @@ export default function PlankGapPanel() {
 
   return (
     <div className="farm-challenge-panel">
+      {/* The ready card (2026-10-24): the live demo teaches the rules now
+          (game/demo/scripts/farmDemos.js) — no written instructions. */}
       {status === "intro" && (
-        <div className="farm-challenge-card">
-          <div className="farm-challenge-head"><span>🪵 Plank the Gap</span></div>
-          <div className="farm-challenge-line big">
-            Fill the gap in the fence <span className="fc-value">exactly</span> — lay planks that add up!
-          </div>
-          <div className="farm-challenge-line">
-            Every plank snaps to the same twelfths grid, so ½ + ⅓ = 6/12 + 4/12. Later: subtraction — fill what's left.
-          </div>
-          <div className="farm-challenge-buttons">
-            <button className="primary-button" onClick={(e) => { e.currentTarget.blur(); usePlankGap.getState().beginRounds(); }}>
-              {kh("Start! (Enter)")}
-            </button>
-            <button className="link-button" onClick={() => usePlankGap.getState().exit()}>Quit</button>
-          </div>
-        </div>
+        <DemoStartCard
+          icon="🪵"
+          title="Plank the Gap"
+          onStart={() => usePlankGap.getState().beginRounds()}
+          onQuit={() => usePlankGap.getState().exit()}
+        />
       )}
 
       {status === "filling" && round && (
         <div className="farm-challenge-card">
           <div className="farm-challenge-head">
-            <span>🪵 Round {roundIndex + 1}/{PLANK_ROUNDS_PER_SET} · {score} pts</span>
+            <span>🪵 <DemoRound>Round {roundIndex + 1}/{PLANK_ROUNDS_PER_SET} · {score} pts</DemoRound></span>
+            <DemoButton />
             <button className="link-button" onClick={() => usePlankGap.getState().exit()}>Quit</button>
           </div>
           {round.kind === "subtract" ? (

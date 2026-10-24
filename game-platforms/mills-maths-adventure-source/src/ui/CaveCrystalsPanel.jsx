@@ -102,11 +102,6 @@ export default function CaveCrystalsPanel() {
         <SnowIntro
           icon="🌌"
           title="The Ice Cave"
-          steps={[
-            <>Count <b>up</b> or count <b>back</b> — pick the quicker way.</>,
-            <>The crystals light up each step. Then answer the sum.</>,
-          ]}
-          example="52 − 49: count up 49 → 52 = 3 steps.   52 − 3: count back 3 → 49"
           onStart={() => useCaveCrystals.getState().beginRounds()}
           onQuit={() => useCaveCrystals.getState().exit()}
         />
