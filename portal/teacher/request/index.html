@@ -35,8 +35,22 @@
   .rq-card .help{font-size:.78rem;color:var(--muted);margin-top:5px}
   .rq-check{display:flex;gap:10px;align-items:flex-start;padding:11px 13px;border:1px solid var(--line);border-radius:11px;cursor:pointer;margin:2px 0 16px;font-size:.88rem;color:#334155}
   .rq-check input{width:18px;height:18px;margin:1px 0 0;flex:0 0 auto}
+  .rq-steps-bar{display:flex;align-items:center;gap:10px;margin:0 0 18px}
+  .rq-step{display:flex;align-items:center;gap:8px;font-size:.84rem;font-weight:700;color:#94a3b8}
+  .rq-step .n{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;border:2px solid #cbd5e1;font-size:.8rem;background:#fff}
+  .rq-step.on{color:var(--ink)} .rq-step.on .n{border-color:var(--mmt-blue);background:var(--mmt-blue);color:#fff}
+  .rq-step.done{color:#15803d} .rq-step.done .n{border-color:#16a34a;background:#16a34a;color:#fff}
+  .rq-steps-bar .line{flex:1;height:2px;background:#e2e8f0;border-radius:2px}
+  .rq-steps-bar .line.done{background:#16a34a}
+  .rq-who{display:flex;align-items:center;gap:10px;background:#f8fafc;border:1px solid var(--line);border-radius:11px;padding:9px 12px;margin:0 0 16px;font-size:.86rem;color:#334155}
+  .rq-who b{color:var(--ink)} .rq-who button{margin-left:auto}
+  .rq-nav{display:flex;gap:10px;align-items:center}
+  .btn.sm{padding:6px 10px;font-size:.82rem;border-radius:8px}
+  .rq-nav .btn.back{flex:0 0 auto}
+  .rq-nav #rqSubmit,.rq-nav #rqNext{flex:1}
   .rq-hp{position:absolute!important;left:-10000px!important;width:1px;height:1px;overflow:hidden}
-  #rqSubmit{width:100%;padding:13px;font-size:1rem;border-radius:12px;box-shadow:0 6px 16px rgba(29,78,216,.25)}
+  #rqSubmit,#rqNext{width:100%;padding:13px;font-size:1rem;border-radius:12px;box-shadow:0 6px 16px rgba(29,78,216,.25)}
+  .rq-nav .btn.back{padding:13px 16px;border-radius:12px}
   .rq-privacy{font-size:.78rem;color:var(--muted);margin:12px 0 0;line-height:1.5;text-align:center}
   .rq-back{display:block;text-align:center;margin-top:16px;font-size:.88rem}
   .rq-done{text-align:center;padding:12px 4px 4px}
@@ -83,18 +97,30 @@
     <section class="card rq-card" id="rqCard" aria-live="polite">
       <form id="rqForm" novalidate onsubmit="event.preventDefault()">
         <h2>Request teacher access</h2>
-        <p class="sub">Fields marked <span class="req">*</span> are required.</p>
-        <div class="rq-row">
-          <div class="field"><label for="rqName">Full name<span class="req">*</span></label><input id="rqName" autocomplete="name" maxlength="80" placeholder="e.g. Sam Taylor" required/></div>
-          <div class="field"><label for="rqEmail">School email<span class="req">*</span></label><input id="rqEmail" type="email" autocomplete="email" maxlength="254" placeholder="name@school.nsw.edu.au" required/></div>
+        <p class="sub">Two quick steps. Fields marked <span class="req">*</span> are required.</p>
+        <div class="rq-steps-bar" aria-hidden="true">
+          <span class="rq-step on" id="rqS1"><span class="n">1</span>About you</span><span class="line" id="rqL1"></span>
+          <span class="rq-step" id="rqS2"><span class="n">2</span>Your school</span>
         </div>
-        <div class="field"><label for="rqSchool">School<span class="req">*</span></label><input id="rqSchool" autocomplete="organization" maxlength="120" placeholder="e.g. Coffs Harbour High School" required/></div>
-        <div id="rqLoc"></div>
-        <div class="field"><label for="rqPosition">Role / position <span class="opt">(optional)</span></label><input id="rqPosition" autocomplete="organization-title" maxlength="80" placeholder="e.g. Classroom teacher, Head Teacher Mathematics"/></div>
-        <div class="field"><label for="rqMessage">Anything else Jeff should know? <span class="opt">(optional)</span></label><textarea id="rqMessage" maxlength="600" placeholder="e.g. Which year groups you teach, or how you heard about Mills Maths Tools"></textarea></div>
-        <div class="rq-hp" aria-hidden="true"><label for="rqWebsite">Website</label><input id="rqWebsite" name="website" tabindex="-1" autocomplete="off"/></div>
-        <label class="rq-check" for="rqUpdates"><input type="checkbox" id="rqUpdates" checked/><span>Email me occasional updates about new tools. <span class="opt">You can change this any time in your profile.</span></span></label>
-        <button class="btn primary" id="rqSubmit" type="submit" disabled>Loading…</button>
+
+        <fieldset id="rqStep1" style="border:0;padding:0;margin:0">
+          <legend class="sr-only" style="position:absolute;left:-9999px">Step 1 of 2: About you</legend>
+          <div class="field"><label for="rqName">Full name<span class="req">*</span></label><input id="rqName" autocomplete="name" maxlength="80" placeholder="e.g. Sam Taylor" required/></div>
+          <div class="field"><label for="rqEmail">School email<span class="req">*</span></label><input id="rqEmail" type="email" autocomplete="email" maxlength="254" placeholder="name@school.nsw.edu.au" required/>
+            <div class="help">Your teacher code is sent here once your request is approved.</div></div>
+          <div class="field"><label for="rqPosition">Role / position <span class="opt">(optional)</span></label><input id="rqPosition" autocomplete="organization-title" maxlength="80" placeholder="e.g. Classroom teacher, Head Teacher Mathematics"/></div>
+          <div class="rq-nav"><button class="btn primary" id="rqNext" type="button" disabled>Loading…</button></div>
+        </fieldset>
+
+        <fieldset id="rqStep2" style="border:0;padding:0;margin:0" hidden>
+          <legend class="sr-only" style="position:absolute;left:-9999px">Step 2 of 2: Your school</legend>
+          <div class="rq-who" id="rqWho"></div>
+          <div class="field" id="rqSchoolPicker"></div>
+          <div class="field"><label for="rqMessage">Anything else Jeff should know? <span class="opt">(optional)</span></label><textarea id="rqMessage" maxlength="600" placeholder="e.g. Which year groups you teach, or how you heard about Mills Maths Tools"></textarea></div>
+          <div class="rq-hp" aria-hidden="true"><label for="rqWebsite">Website</label><input id="rqWebsite" name="website" tabindex="-1" autocomplete="off"/></div>
+          <label class="rq-check" for="rqUpdates"><input type="checkbox" id="rqUpdates" checked/><span>Email me occasional updates about new tools. <span class="opt">You can change this any time in your profile.</span></span></label>
+          <div class="rq-nav"><button class="btn back" id="rqBack" type="button">← Back</button><button class="btn primary" id="rqSubmit" type="button">Send request</button></div>
+        </fieldset>
         <div class="msg" id="rqMsg"></div>
         <p class="rq-privacy">Your details are used only to set up and support your Mills Maths Tools account.</p>
         <a class="rq-back" href="../">← Already have a code? Sign in</a>
@@ -105,39 +131,60 @@
 
 <script type="module">
 import { requestTeacherAccess } from "../../shared/codeExchangeClient.js";
-import { locationFieldsHtml, wireLocation, readLocation, locationProblem } from "../../shared/location.js";
+import { mountSchoolPicker } from "../../shared/schoolPicker.js";
 const $ = (id)=>document.getElementById(id);
 const t0 = Date.now();
-$("rqLoc").innerHTML = locationFieldsHtml("rqLoc", {}, { required:true, reqMark:'<span class="req">*</span>' });
-wireLocation("rqLoc", ()=>["rqLocSuburb","rqLocStateSel","rqLocCountryOther"].forEach(id=>$(id).classList.remove("bad")));
-// The form is inert until this module has loaded (the button starts disabled),
-// so an early click can never fall through to a plain page reload.
-$("rqSubmit").disabled = false; $("rqSubmit").textContent = "Send request";
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const esc = (s)=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const msg = (t,type="bad")=>{ const m=$("rqMsg"); m.className=`msg show ${type}`; m.textContent=t; };
-["rqName","rqEmail","rqSchool"].forEach(id=>$(id).addEventListener("input",()=>$(id).classList.remove("bad")));
+const clearMsg = ()=>{ $("rqMsg").className="msg"; };
+const picker = mountSchoolPicker($("rqSchoolPicker"), { prefix:"rqSp", required:true, label:"Your school", onChange:clearMsg });
+// The form is inert until this module has loaded (the buttons start disabled),
+// so an early click can never fall through to a plain page reload.
+$("rqNext").disabled=false; $("rqNext").textContent="Next: your school →";
+["rqName","rqEmail"].forEach(id=>$(id).addEventListener("input",()=>{ $(id).classList.remove("bad"); clearMsg(); }));
 
-$("rqForm").addEventListener("submit", async (e)=>{
-  e.preventDefault();
+let step=1;
+function showStep(n){
+  step=n;
+  $("rqStep1").hidden = n!==1; $("rqStep2").hidden = n!==2;
+  $("rqS1").className = "rq-step " + (n===1?"on":"done"); $("rqS1").querySelector(".n").textContent = n===1?"1":"✓";
+  $("rqS2").className = "rq-step " + (n===2?"on":""); $("rqL1").className = "line" + (n===2?" done":"");
+  clearMsg();
+  if(n===2){
+    $("rqWho").innerHTML = `<span>👤 <b>${esc($("rqName").value.trim())}</b> · ${esc($("rqEmail").value.trim().toLowerCase())}</span><button type="button" class="btn sm" id="rqEditMe">Edit</button>`;
+    $("rqEditMe").onclick = ()=>showStep(1);
+    setTimeout(()=>picker.focus(), 30);
+  } else setTimeout(()=>$("rqName").focus(), 30);
+  $("rqCard").scrollIntoView({ behavior:"smooth", block:"start" });
+}
+const fail = (id, text)=>{ const el=$(id); if(el){ el.classList.add("bad"); el.focus(); } msg(text); };
+function step1Ok(){
+  const name=$("rqName").value.trim(), email=$("rqEmail").value.trim();
+  if(!name){ fail("rqName","Please enter your name."); return false; }
+  if(!email){ fail("rqEmail","Please enter your email address."); return false; }
+  if(!EMAIL_RE.test(email)){ fail("rqEmail","That email address doesn't look right. Please check it."); return false; }
+  return true;
+}
+$("rqNext").addEventListener("click", ()=>{ if(step1Ok()) showStep(2); });
+$("rqBack").addEventListener("click", ()=>showStep(1));
+// Enter moves forward on step 1 (the picker handles its own Enter while choosing).
+$("rqStep1").addEventListener("keydown", e=>{ if(e.key==="Enter" && e.target.tagName==="INPUT"){ e.preventDefault(); $("rqNext").click(); } });
+
+$("rqSubmit").addEventListener("click", async ()=>{
+  if(!step1Ok()){ showStep(1); return; }
+  const pr = picker.problem(); if(pr){ msg(pr.text); const f=$(pr.focus); if(f) f.focus(); return; }
   const payload = {
     teacherName: $("rqName").value.trim().replace(/\s+/g," "),
     email: $("rqEmail").value.trim().toLowerCase(),
-    school: $("rqSchool").value.trim(),
     position: $("rqPosition").value.trim(),
     message: $("rqMessage").value.trim(),
     emailUpdates: $("rqUpdates").checked,
-    ...readLocation("rqLoc"),
+    ...picker.get(),
     website: $("rqWebsite").value,
     elapsedMs: Date.now() - t0,
   };
-  const fail = (id, text)=>{ $(id).classList.add("bad"); $(id).focus(); msg(text); };
-  if(!payload.teacherName) return fail("rqName","Please enter your name.");
-  if(!payload.email) return fail("rqEmail","Please enter your email address.");
-  if(!EMAIL_RE.test(payload.email)) return fail("rqEmail","That email address doesn't look right. Please check it.");
-  if(!payload.school) return fail("rqSchool","Please enter your school.");
-  const lp = locationProblem(payload, "rqLoc"); if(lp) return fail(lp.focus, lp.text);
-  const btn=$("rqSubmit"); btn.disabled=true; btn.textContent="Sending…"; $("rqMsg").className="msg";
+  const btn=$("rqSubmit"); btn.disabled=true; btn.textContent="Sending…"; clearMsg();
   try{
     await requestTeacherAccess(payload);
     const first = payload.teacherName.split(" ")[0];

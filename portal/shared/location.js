@@ -120,3 +120,29 @@ export function regionOf(o) {
   if (country === "Australia") return String(o.state || "").trim() ? `${o.state.trim()}, Australia` : "Australia";
   return country;
 }
+
+/**
+ * Rough centre of each country — overseas teachers get one pin per country on
+ * the admin map until we geocode towns. Keys match COUNTRIES (+ common extras).
+ */
+export const COUNTRY_CENTRES = {
+  "Australia": [-25.3, 133.8], "New Zealand": [-41.0, 174.0], "United Kingdom": [54.0, -2.5], "Ireland": [53.4, -8.0],
+  "United States": [39.8, -98.6], "Canada": [56.1, -106.3], "Singapore": [1.35, 103.82], "Hong Kong": [22.32, 114.17],
+  "Malaysia": [4.2, 101.97], "Indonesia": [-2.5, 118.0], "Philippines": [12.9, 121.8], "India": [22.0, 79.0],
+  "South Africa": [-29.0, 24.0], "United Arab Emirates": [24.0, 54.0], "Fiji": [-17.7, 178.1],
+  "Papua New Guinea": [-6.3, 145.0], "Japan": [36.2, 138.3], "China": [35.9, 104.2], "Thailand": [15.9, 101.0],
+  "Vietnam": [14.06, 108.28], "Germany": [51.2, 10.45], "France": [46.6, 2.2], "Netherlands": [52.13, 5.29],
+  "Samoa": [-13.76, -172.1], "Tonga": [-21.18, -175.2], "Sri Lanka": [7.87, 80.77], "Pakistan": [30.4, 69.3],
+  "Kenya": [0.0, 37.9], "Nigeria": [9.08, 8.68], "Brazil": [-14.2, -51.9], "Chile": [-35.7, -71.5], "Spain": [40.46, -3.75],
+  "Italy": [41.87, 12.57], "Qatar": [25.35, 51.18], "Saudi Arabia": [23.9, 45.1], "South Korea": [35.9, 127.8],
+  "Taiwan": [23.7, 121.0], "Nepal": [28.4, 84.1], "Bangladesh": [23.7, 90.4], "Cambodia": [12.6, 105.0],
+  "Myanmar": [21.9, 95.96], "Mexico": [23.6, -102.6], "Argentina": [-38.4, -63.6], "Sweden": [60.1, 18.6],
+  "Norway": [60.5, 8.5], "Denmark": [56.26, 9.5], "Switzerland": [46.8, 8.2], "Vanuatu": [-15.4, 166.96],
+  "Solomon Islands": [-9.6, 160.16], "Timor-Leste": [-8.87, 125.73],
+};
+export function countryCentre(country) {
+  const c = String(country || "").trim().toLowerCase();
+  const hit = Object.keys(COUNTRY_CENTRES).find((k) => k.toLowerCase() === c);
+  return hit ? COUNTRY_CENTRES[hit] : null;
+}
+

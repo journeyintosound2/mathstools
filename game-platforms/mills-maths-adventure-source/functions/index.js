@@ -683,6 +683,24 @@ function cleanLocation(d, required) {
   }
   return { suburb, state, country };
 }
+/**
+ * What the school picker adds (2026-10-24): the official school's id/sector/
+ * type/postcode when one was picked, and map coordinates (school, suburb
+ * centre or country centre). All optional; anything malformed is dropped.
+ */
+const SECTORS = ["Government", "Catholic", "Independent"];
+const LOC_SOURCES = ["school", "suburb", "country", "manual"];
+function cleanSchoolMeta(d) {
+  d = d || {};
+  const schoolId = String(d.schoolId || "").trim().replace(/[^A-Za-z0-9-]/g, "").slice(0, 24);
+  const sector = SECTORS.includes(d.sector) ? d.sector : "";
+  const schoolType = cleanText(d.schoolType, 30);
+  const postcode = String(d.postcode || "").trim().replace(/[^A-Za-z0-9 -]/g, "").slice(0, 10);
+  const lat = Number(d.lat), lng = Number(d.lng);
+  const ok = d.lat !== null && d.lat !== undefined && d.lat !== "" && Number.isFinite(lat) && Number.isFinite(lng) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180;
+  const locSource = ok && LOC_SOURCES.includes(d.locSource) ? d.locSource : (ok ? "manual" : "");
+  return { schoolId, sector, schoolType, postcode, lat: ok ? Math.round(lat * 1e5) / 1e5 : null, lng: ok ? Math.round(lng * 1e5) / 1e5 : null, locSource };
+}
 function formatLocation(o) {
   const parts = [o.suburb, o.state].filter(Boolean);
   if (o.country && o.country !== "Australia") parts.push(o.country);
@@ -700,6 +718,13 @@ function safeTeacherProfile(doc) {
     suburb: doc.suburb || "",
     state: doc.state || "",
     country: doc.country || "",
+    schoolId: doc.schoolId || "",
+    sector: doc.sector || "",
+    schoolType: doc.schoolType || "",
+    postcode: doc.postcode || "",
+    lat: typeof doc.lat === "number" ? doc.lat : null,
+    lng: typeof doc.lng === "number" ? doc.lng : null,
+    locSource: doc.locSource || "",
     emailUpdates: doc.emailUpdates !== false,
     active: doc.active !== false,
   };
@@ -728,6 +753,8 @@ exports.updateMyTeacherProfile = onCall(async (request) => {
   const position = cleanText(d.position, 80);
   const emailUpdates = d.emailUpdates !== false;
   const loc = cleanLocation(d, true);
+  if (!school) throw new HttpsError("invalid-argument", "Choose your school.");
+  const meta = cleanSchoolMeta(d);
 
   const ref = db.collection("teachers").doc(code);
   const snap = await ref.get();
@@ -736,7 +763,7 @@ exports.updateMyTeacherProfile = onCall(async (request) => {
   if (before.active === false) throw new HttpsError("permission-denied", "This teacher code is not active.");
 
   const fields = {
-    teacherName, email, school, position, emailUpdates, ...loc,
+    teacherName, email, school, position, emailUpdates, ...loc, ...meta,
     profileUpdatedAt: admin.firestore.FieldValue.serverTimestamp(),
     profileUpdatedBy: "teacher",
     updatedAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -1048,6 +1075,7 @@ exports.requestTeacherAccess = onCall({ secrets: [RESEND_API_KEY] }, async (requ
   const message = String(d.message || "").replace(/\r\n/g, "\n").trim().slice(0, 600);
   const emailUpdates = d.emailUpdates !== false;
   const loc = cleanLocation(d, true);
+  const meta = cleanSchoolMeta(d);
 
   const raw = request.rawRequest || {};
   const ip = String(raw.ip || (raw.headers && raw.headers["x-forwarded-for"]) || "unknown").split(",")[0].trim();
@@ -1057,7 +1085,7 @@ exports.requestTeacherAccess = onCall({ secrets: [RESEND_API_KEY] }, async (requ
   }
 
   const now = Date.now();
-  const fields = { teacherName, email, school, position, message, emailUpdates, ...loc };
+  const fields = { teacherName, email, school, position, message, emailUpdates, ...loc, ...meta };
   const sameEmail = await db.collection("accessRequests").where("email", "==", email).get();
   const pending = sameEmail.docs.find((x) => (x.data() || {}).status === "pending");
   if (pending) {
@@ -1081,7 +1109,7 @@ exports.requestTeacherAccess = onCall({ secrets: [RESEND_API_KEY] }, async (requ
   if (key && await takeToken("accessRequestAlerts", ADMIN_ALERTS_PER_DAY, 86400000)) {
     const lines = [
       "A teacher has asked for access to Mills Maths Tools.",
-      `**Name:** ${teacherName}\n**School:** ${school}\n**Location:** ${formatLocation(loc) || "—"}${loc.country === "Australia" ? ", Australia" : ""}\n**Email:** ${email}` + (position ? `\n**Role:** ${position}` : ""),
+      `**Name:** ${teacherName}\n**School:** ${school}${meta.schoolId ? ` (picked from the official list${meta.sector ? `, ${meta.sector}` : ""})` : " (typed in, not from the official list)"}\n**Location:** ${formatLocation(loc) || "—"}${loc.country === "Australia" ? ", Australia" : ""}\n**Email:** ${email}` + (position ? `\n**Role:** ${position}` : ""),
     ];
     if (message) lines.push(`**Their message:**\n${message}`);
     if (doc.matchesTeacher.length) lines.push(`Note: this email address already belongs to teacher code ${doc.matchesTeacher.join(", ")}.`);
@@ -1160,6 +1188,8 @@ exports.reviewAccessRequest = onCall({ secrets: [RESEND_API_KEY] }, async (reque
     state: o.state !== undefined ? o.state : r.state,
     country: o.country !== undefined ? o.country : r.country,
   }, false);
+  const metaKeys = ["schoolId", "sector", "schoolType", "postcode", "lat", "lng", "locSource"];
+  const meta = cleanSchoolMeta(Object.fromEntries(metaKeys.map((k) => [k, o[k] !== undefined ? o[k] : r[k]])));
 
   const teacherCode = await generateUniqueTeacherCode(teacherName);
   const tRef = db.collection("teachers").doc(teacherCode);
@@ -1167,7 +1197,7 @@ exports.reviewAccessRequest = onCall({ secrets: [RESEND_API_KEY] }, async (reque
     const cur = await tx.get(ref);
     if (!cur.exists || (cur.data() || {}).status !== "pending") throw new HttpsError("failed-precondition", "That request has already been reviewed.");
     tx.create(tRef, {
-      teacherCode, teacherName, email, school, position, ...loc,
+      teacherCode, teacherName, email, school, position, ...loc, ...meta,
       emailUpdates: r.emailUpdates !== false, active: true,
       createdBy: "access-request", accessRequestId: requestId,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),

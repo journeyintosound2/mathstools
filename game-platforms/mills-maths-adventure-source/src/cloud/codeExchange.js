@@ -94,6 +94,13 @@ export function buildSafeTeacherProfile(teacherDoc = {}) {
     suburb: teacherDoc.suburb || "",
     state: teacherDoc.state || "",
     country: teacherDoc.country || "",
+    schoolId: teacherDoc.schoolId || "",
+    sector: teacherDoc.sector || "",
+    schoolType: teacherDoc.schoolType || "",
+    postcode: teacherDoc.postcode || "",
+    lat: typeof teacherDoc.lat === "number" ? teacherDoc.lat : null,
+    lng: typeof teacherDoc.lng === "number" ? teacherDoc.lng : null,
+    locSource: teacherDoc.locSource || "",
     emailUpdates: teacherDoc.emailUpdates !== false,
     active: teacherDoc.active !== false,
   };

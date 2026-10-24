@@ -275,6 +275,28 @@
   .sch-tidy input{flex:1 1 260px;width:auto}
   @media(max-width:760px){ .sch-grid{grid-template-columns:1fr} }
 
+  /* map + back-fill (2026-10-24) */
+  .mmt-map{height:440px;border-radius:12px;border:1px solid var(--line);overflow:hidden;background:#e8eef6;z-index:0}
+  .map-foot{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;margin-top:10px;font-size:.8rem;color:var(--muted)}
+  .map-foot .lg{display:inline-flex;align-items:center;gap:6px}
+  .map-foot .dot{width:11px;height:11px;border-radius:50%;display:inline-block;border:2px solid #fff;box-shadow:0 0 0 1px rgba(15,23,42,.25)}
+  .map-foot #mapMissing{margin-left:auto}
+  .map-pop{font-family:inherit;min-width:190px}
+  .map-pop b{display:block;font-size:.92rem;color:#0f172a}
+  .map-pop .m{color:#64748b;font-size:.78rem;margin:2px 0 6px}
+  .map-pop .n{font-size:.8rem;color:#334155;line-height:1.5}
+  .map-pop button{margin-top:8px;min-height:28px;padding:4px 10px;font-size:.78rem}
+  .map-pop ul{margin:6px 0 0;padding-left:16px;font-size:.8rem}
+  .map-pop a{cursor:pointer}
+  .sector-tag{display:inline-block;font-size:.66rem;font-weight:800;border-radius:999px;padding:1px 7px;margin-left:4px;background:#eef2f7;color:#475569;vertical-align:1px}
+  .sector-tag.Government{background:#e0f2fe;color:#075985}.sector-tag.Catholic{background:#fef3c7;color:#92400e}.sector-tag.Independent{background:#ede9fe;color:#5b21b6}
+  #bfTable td{vertical-align:top}
+  #bfTable select{min-width:240px}
+  .bf-arrow{color:var(--muted);font-weight:600}
+  .bf-new{font-weight:800;color:var(--ink)}
+  .bf-src{font-size:.76rem;color:var(--muted)}
+  .sp-wrap{margin-bottom:6px}
+
   /* access requests (2026-10-24) */
   .nav-item .pill.alert{background:#f59e0b;color:#fff}
   .nav-item.active .pill.alert{background:#fff;color:#b45309}
@@ -309,6 +331,8 @@
   }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
 <!-- mmt-pwa -->
 <link rel="manifest" href="../../manifest.webmanifest">
@@ -374,6 +398,19 @@
       </div>
       <div id="ovRequests"></div>
       <div class="stats" id="statCards"></div>
+      <div class="card" id="mapCard">
+        <div class="sch-head">
+          <div><h3>Where Mills Maths Tools is used</h3><p class="hint">One pin per school, sized by its number of students. Overseas teachers show as one pin per country for now.</p></div>
+          <div class="seg" id="mapViewSeg" style="margin:0"><button type="button" data-mv="nsw" class="on">NSW</button><button type="button" data-mv="aus">Australia</button><button type="button" data-mv="world">World</button></div>
+        </div>
+        <div id="mmtMap" class="mmt-map" role="region" aria-label="Map of schools using Mills Maths Tools"></div>
+        <div class="map-foot">
+          <span class="lg"><i class="dot" style="background:#16a34a"></i>Active in the last 28 days</span>
+          <span class="lg"><i class="dot" style="background:#2563eb"></i>Used before</span>
+          <span class="lg"><i class="dot" style="background:#94a3b8"></i>No tasks yet</span>
+          <span id="mapMissing"></span>
+        </div>
+      </div>
       <div class="card" id="schoolsCard">
         <div class="sch-head">
           <div><h3>Schools</h3><p class="hint">Every school with a teacher on Mills Maths Tools. Click a school for its breakdown.</p></div>
@@ -382,6 +419,7 @@
         <div class="table-tools">
           <input class="grow" id="schoolSearch" placeholder="Search schools"/>
           <select id="schoolRegion"><option value="">All locations</option></select>
+          <select id="schoolSector"><option value="">All sectors</option><option>Government</option><option>Catholic</option><option>Independent</option><option value="__none">Sector unknown</option></select>
           <select id="schoolSort">
             <option value="active">Most active (last 28 days)</option>
             <option value="tasks">Most tasks completed</option>
@@ -430,10 +468,9 @@
           <div class="field"><label for="tEmail">Email address</label><input id="tEmail" type="email" placeholder="name@school.nsw.edu.au" autocomplete="off"/></div>
         </div>
         <div class="grid-2">
-          <div class="field"><label for="tSchool">School</label><input id="tSchool" placeholder="Coffs Harbour HS" autocomplete="off"/></div>
           <div class="field"><label for="tPosition">Role / position <span style="font-weight:500;color:var(--muted)">(optional)</span></label><input id="tPosition" placeholder="Head Teacher Mathematics" autocomplete="off"/></div>
         </div>
-        <div id="tLoc"></div>
+        <div class="field sp-wrap" id="tSchoolPicker"></div>
         <label class="check-row" for="tWelcome"><input type="checkbox" id="tWelcome" checked/><span>Email them their teacher code and a welcome note<small id="tWelcomeNote">Sent from millsmathstools.au as soon as the code is created.</small></span></label>
         <div class="row-actions">
           <button class="btn-primary" id="createTeacherBtn"><span class="spinner"></span><span class="btn-label">Generate teacher code</span></button>
@@ -811,10 +848,9 @@
         <div class="field"><label for="teEmail">Email address</label><input id="teEmail" type="email" autocomplete="off" placeholder="name@school.nsw.edu.au"/></div>
       </div>
       <div class="grid-2">
-        <div class="field"><label for="teSchool">School</label><input id="teSchool" autocomplete="off"/></div>
         <div class="field"><label for="tePosition">Role / position</label><input id="tePosition" autocomplete="off"/></div>
       </div>
-      <div id="teLoc"></div>
+      <div class="field sp-wrap" id="teSchoolPicker"></div>
       <label class="check-row" for="teUpdates"><input type="checkbox" id="teUpdates"/><span>Receives update emails<small>The teacher can change this themselves in their Profile.</small></span></label>
       <div class="row-actions" style="margin-top:6px">
         <button type="submit" class="btn-primary" id="teSaveBtn"><span class="spinner"></span><span class="btn-label">Save changes</span></button>
@@ -823,6 +859,22 @@
       </div>
       <div id="teMsg" class="msg"></div>
     </form>
+  </div>
+</div>
+
+<!-- back-fill: find schools for existing teachers -->
+<div id="bfBackdrop" class="backdrop" role="dialog" aria-modal="true" aria-labelledby="bfTitle">
+  <div class="modal xl">
+    <div class="mx-head"><div><h3 id="bfTitle">Find schools for existing teachers</h3><p>Matches each teacher's typed school against the official list, so they get a pin on the map. Nothing changes until you press Apply.</p></div><button type="button" class="mx-x" id="bfClose" aria-label="Close">✕</button></div>
+    <div class="mx-body">
+      <div id="bfSummary" class="callout" style="margin-bottom:12px">Matching…</div>
+      <div class="table-wrap" style="max-height:52vh"><table id="bfTable" style="min-width:760px"><thead><tr><th class="check-cell"><input type="checkbox" class="allcheck" id="bfAll" title="Select all"/></th><th>Teacher</th><th>They typed</th><th>Will become</th></tr></thead><tbody id="bfBody"></tbody></table></div>
+      <div class="row-actions" style="margin-top:14px">
+        <button class="btn-primary" id="bfApply"><span class="spinner"></span><span class="btn-label">Apply</span></button>
+        <button class="btn-neutral" id="bfCancel">Close</button>
+      </div>
+      <div class="msg" id="bfMsg"></div>
+    </div>
   </div>
 </div>
 
@@ -847,10 +899,9 @@
         <div class="field"><label for="rqApEmail">Email address</label><input id="rqApEmail" type="email" autocomplete="off"/></div>
       </div>
       <div class="grid-2">
-        <div class="field"><label for="rqApSchool">School</label><input id="rqApSchool" autocomplete="off"/></div>
         <div class="field"><label for="rqApPosition">Role / position</label><input id="rqApPosition" autocomplete="off"/></div>
       </div>
-      <div id="rqApLoc"></div>
+      <div class="field sp-wrap" id="rqApSchoolPicker"></div>
       <label class="check-row" for="rqApWelcome"><input type="checkbox" id="rqApWelcome" checked/><span>Email them their teacher code and a welcome note<small id="rqApWelcomeNote">Sent from millsmathstools.au straight away.</small></span></label>
       <div class="row-actions">
         <button type="submit" class="btn-good" id="rqApBtn"><span class="spinner" style="border-color:rgba(22,163,74,.3);border-top-color:var(--good)"></span><span class="btn-label">✓ Approve &amp; create code</span></button>
@@ -914,7 +965,8 @@
   import { initializeAuth, inMemoryPersistence, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
   import { getFirestore, collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, writeBatch, serverTimestamp, query, where } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
   import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-functions.js";
-  import { locationFieldsHtml, wireLocation, readLocation, formatLocation, regionOf } from "../shared/location.js";
+  import { formatLocation, regionOf, countryCentre } from "../shared/location.js";
+  import { mountSchoolPicker, loadSchools, loadSuburbs, matchSchool, matchSuburb } from "../shared/schoolPicker.js";
 
   // Public web config — safe to ship (matches portal/shared/firebaseConfig.js).
   const firebaseConfig = {
@@ -1147,7 +1199,7 @@
       <div class="stat"><div class="k">Teacher emails</div><div class="v">${teachers.filter(hasEmail).length}<span style="font-size:1rem;color:var(--muted);font-weight:800"> / ${teachers.length}</span></div><div class="d">${teachers.length-teachers.filter(hasEmail).length?`${teachers.length-teachers.filter(hasEmail).length} missing — <a href="#" data-goto-noemail>see who</a>`:"every teacher has one on file"}</div></div>
       <div class="stat"><div class="k">Avg class size</div><div class="v">${cActive?Math.round(sActive/cActive):0}</div><div class="d">active students ÷ active classes</div></div>`;
     renderSchoolTable();
-    if($("view-overview").classList.contains("active")) renderGrowthChart();
+    if($("view-overview").classList.contains("active")){ renderGrowthChart(); renderMap(); }
   }
 
   // ================= TEACHERS =================
@@ -1179,7 +1231,7 @@
         <td class="check-cell"><input type="checkbox" class="rowcheck" data-tsel="${esc(t.teacherCode)}" ${tSelected.has(t.teacherCode)?"checked":""}/></td>
         <td${updated}><strong>${esc(t.teacherName||"Unnamed")}</strong>${pos}${mail}</td>
         <td><span class="code copyable" data-ta="copy" data-code="${esc(t.teacherCode)}" title="Click to copy">${esc(t.teacherCode)}</span></td>
-        <td>${esc(t.school||"—")}${formatLocation(t)?`<span class="t-sub">${esc(formatLocation(t))}</span>`:""}</td>
+        <td>${esc(t.school||"—")}${t.sector?`<span class="sector-tag ${esc(t.sector)}">${esc(t.sector)}</span>`:""}${formatLocation(t)?`<span class="t-sub">${esc(formatLocation(t))}${t.schoolId?" ✓":""}</span>`:""}</td>
         <td>${st.classes.length?esc(st.classes.join(", ")):"—"}</td>
         <td><button type="button" class="linkish" data-ta="students" data-code="${esc(t.teacherCode)}" title="${st.active} active of ${st.total} — show ${esc(t.teacherName||"this teacher")}'s students">${st.active} <span style="color:var(--muted);font-weight:600">/ ${st.total}</span></button></td>
         <td title="${t.loginCount?esc(t.loginCount+" sign-ins in total"):""}">${esc(fmtAgo(tsMs(t.lastLoginAt)))}</td>
@@ -1204,7 +1256,7 @@
   }
 
   async function createTeacher(){
-    const name=$("tName").value.trim().replace(/\s+/g," "); const school=$("tSchool").value.trim();
+    const name=$("tName").value.trim().replace(/\s+/g," "); const sch=schoolFields(tPicker.get());
     const email=cleanEmail($("tEmail").value); const position=$("tPosition").value.trim();
     if(!name) throw new Error("Enter a teacher name.");
     if(!email) throw new Error("Enter the teacher's email address.");
@@ -1212,10 +1264,14 @@
     const dup=teachers.find(t=>cleanEmail(t.email)===email);
     if(dup && !confirm(`${dup.teacherName||dup.teacherCode} (${dup.teacherCode}) already uses ${email}. Create another code with the same email anyway?`)) throw new Error("Cancelled — no code was created.");
     const code=await uniqueTeacherCode(name);
-    const loc=readLocation("tLoc");
-    await setDoc(doc(db,"teachers",code),{ teacherCode:code, teacherName:name, email, school, position, ...loc, emailUpdates:true, active:true, createdAt:serverTimestamp(), updatedAt:serverTimestamp() });
+    await setDoc(doc(db,"teachers",code),{ teacherCode:code, teacherName:name, email, position, ...sch, emailUpdates:true, active:true, createdAt:serverTimestamp(), updatedAt:serverTimestamp() });
     return { code, name, email };
   }
+
+  // Everything the school picker produces, in the shape stored on teachers/{code}.
+  const SCHOOL_FIELDS=["school","schoolId","sector","schoolType","suburb","state","postcode","country","lat","lng","locSource"];
+  const schoolFields=v=>Object.fromEntries(SCHOOL_FIELDS.map(k=>[k, v&&v[k]!=null&&v[k]!==undefined ? v[k] : (k==="lat"||k==="lng" ? null : "")]));
+  let tPicker=null, tePicker=null, rqApPicker=null, schPicker=null;
 
   // Copies of the teacher's name/school are stamped on each of their students.
   // Keep them in step whenever the admin changes either.
@@ -1342,8 +1398,8 @@
   function openTeacherEdit(t){
     $("teCode").value=t.teacherCode;
     $("tEditTitle").textContent=`Edit ${t.teacherName||t.teacherCode}`;
-    $("teName").value=t.teacherName||""; $("teEmail").value=t.email||""; $("teSchool").value=t.school||""; $("tePosition").value=t.position||"";
-    $("teLoc").innerHTML=locationFieldsHtml("teLoc",t); wireLocation("teLoc");
+    $("teName").value=t.teacherName||""; $("teEmail").value=t.email||""; $("tePosition").value=t.position||"";
+    tePicker=mountSchoolPicker($("teSchoolPicker"),{ prefix:"teSp", label:"School", value:t });
     $("teUpdates").checked=t.emailUpdates!==false;
     const by=t.profileUpdatedBy==="teacher"?"the teacher":(t.profileUpdatedBy==="admin"?"you":"");
     $("teMeta").innerHTML=`Code <b>${esc(t.teacherCode)}</b>${tsMs(t.createdAt)?` · created ${esc(fmtDate(tsMs(t.createdAt)))}`:""} · last sign-in <b>${esc(fmtAgo(tsMs(t.lastLoginAt)))}</b>${t.loginCount?` (${esc(t.loginCount)} total)`:""}${by?`<br>Profile last updated by ${by} ${esc(fmtAgo(tsMs(t.profileUpdatedAt)).toLowerCase())}`:""}`;
@@ -1355,14 +1411,14 @@
   const closeTeacherEdit=()=>$("tEditBackdrop").classList.remove("show");
   $("teCancelBtn").addEventListener("click",closeTeacherEdit);
   $("tEditBackdrop").addEventListener("click",e=>{ if(e.target===$("tEditBackdrop")) closeTeacherEdit(); });
-  document.addEventListener("keydown",e=>{ if(e.key!=="Escape") return; ["tEditBackdrop","editBackdrop","renameBackdrop","rqApproveBackdrop","rqDeclineBackdrop","schoolBackdrop"].forEach(id=>$(id).classList.remove("show")); });
+  document.addEventListener("keydown",e=>{ if(e.key!=="Escape") return; ["tEditBackdrop","editBackdrop","renameBackdrop","rqApproveBackdrop","rqDeclineBackdrop","schoolBackdrop","bfBackdrop"].forEach(id=>$(id).classList.remove("show")); });
   async function saveTeacherEdit(){
     const code=normCode($("teCode").value); const t=teacherByCode(code); if(!t) throw new Error("That teacher no longer exists — Refresh.");
     const name=$("teName").value.trim().replace(/\s+/g," "); const email=cleanEmail($("teEmail").value);
-    const school=$("teSchool").value.trim(); const position=$("tePosition").value.trim();
+    const sch=schoolFields(tePicker.get()); const school=sch.school; const position=$("tePosition").value.trim();
     if(!name) throw new Error("Enter a teacher name.");
     if(email && !isEmail(email)) throw new Error("That email address doesn't look right.");
-    await updateDoc(doc(db,"teachers",code),{ teacherName:name, email, school, position, ...readLocation("teLoc"), emailUpdates:$("teUpdates").checked, profileUpdatedBy:"admin", profileUpdatedAt:serverTimestamp(), updatedAt:serverTimestamp() });
+    await updateDoc(doc(db,"teachers",code),{ teacherName:name, email, position, ...sch, emailUpdates:$("teUpdates").checked, profileUpdatedBy:"admin", profileUpdatedAt:serverTimestamp(), updatedAt:serverTimestamp() });
     let moved=0;
     if((t.teacherName||"")!==name || (t.school||"")!==school) moved=await propagateTeacherToStudents(code,name,school);
     return { code, name, email, moved };
@@ -1401,7 +1457,7 @@
   let teacherSchool=new Map();    // teacherCode -> key
   function buildSchools(){
     const m=new Map(); const now=Date.now();
-    const blank=k=>({ key:k, name:"", teachers:[], variants:new Map(), locs:new Map(), loc:null, location:"", region:"", students:0, activeStudents:0, classes:0, tasks:0, tasks28:0, tasksPrev28:0,
+    const blank=k=>({ key:k, name:"", teachers:[], variants:new Map(), locs:new Map(), loc:null, location:"", region:"", sectors:new Map(), sector:"", coord:null, official:false, students:0, activeStudents:0, classes:0, tasks:0, tasks28:0, tasksPrev28:0,
       stu28:new Set(), scoreSum:0, scoreN:0, lastActivity:0, firstJoined:0, tools:new Map(), weeks:new Array(12).fill(0), perTeacher:new Map() });
     teacherSchool=new Map();
     // Same-named schools in different suburbs are different schools ("St Mary's"),
@@ -1410,14 +1466,26 @@
     const subKey=t=>String(t.suburb||"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
     const subsByName=new Map();
     teachers.forEach(t=>{ const nk=schoolKey(t.school), sk=subKey(t); if(nk&&sk){ if(!subsByName.has(nk)) subsByName.set(nk,new Set()); subsByName.get(nk).add(sk); } });
-    const keyOf=t=>{ const nk=schoolKey(t.school); if(!nk) return ""; let sk=subKey(t); if(!sk){ const set=subsByName.get(nk); if(set&&set.size===1) sk=[...set][0]; } return nk+"|"+sk; };
+    // A school picked from the official list carries its id, which is the best
+    // key of all; teachers who typed the same name (and suburb) join it.
+    const idByNameSub=new Map(), idsByName=new Map();
+    teachers.forEach(t=>{ if(!t.schoolId) return; const id="id:"+t.schoolId, nk=schoolKey(t.school), sk=subKey(t); idByNameSub.set(nk+"|"+sk,id); if(!idsByName.has(nk)) idsByName.set(nk,new Set()); idsByName.get(nk).add(id); });
+    const keyOf=t=>{ if(t.schoolId) return "id:"+t.schoolId; const nk=schoolKey(t.school); if(!nk) return ""; let sk=subKey(t);
+      if(sk && idByNameSub.has(nk+"|"+sk)) return idByNameSub.get(nk+"|"+sk);
+      if(!sk){ const ids=idsByName.get(nk); if(ids&&ids.size===1) return [...ids][0]; const set=subsByName.get(nk); if(set&&set.size===1) sk=[...set][0]; if(sk && idByNameSub.has(nk+"|"+sk)) return idByNameSub.get(nk+"|"+sk); }
+      return nk+"|"+sk; };
     teachers.forEach(t=>{ const k=keyOf(t); teacherSchool.set(t.teacherCode,k); let e=m.get(k); if(!e){ e=blank(k); m.set(k,e); }
       e.teachers.push(t); const v=String(t.school||"").trim(); if(v) e.variants.set(v,(e.variants.get(v)||0)+1);
+      if(t.sector) e.sectors.set(t.sector,(e.sectors.get(t.sector)||0)+1);
+      if(typeof t.lat==="number"&&typeof t.lng==="number"){ const rank={school:4,suburb:3,manual:2,country:1}[t.locSource]||2; if(!e.coord||rank>e.coord.rank) e.coord={ lat:t.lat, lng:t.lng, src:t.locSource||"manual", rank, country:t.country||"" }; }
+      else if(t.country && t.country!=="Australia"){ const c=countryCentre(t.country); if(c && !e.coord) e.coord={ lat:c[0], lng:c[1], src:"country", rank:0, country:t.country }; }
       const lf=formatLocation(t); if(t.suburb&&lf){ const cur=e.locs.get(lf); e.locs.set(lf,{ n:(cur?cur.n:0)+1, loc:{ suburb:t.suburb, state:t.state||"", country:t.country||"" } }); }
       const j=tsMs(t.createdAt); if(j && (!e.firstJoined || j<e.firstJoined)) e.firstJoined=j;
       e.perTeacher.set(t.teacherCode,{ students:0, classes:0, tasks:0, tasks28:0, last:0 }); });
     m.forEach(e=>{ e.name = e.key ? [...e.variants.entries()].sort((a,b)=>b[1]-a[1]||b[0].length-a[0].length)[0][0] : "No school recorded";
-      const best=[...e.locs.values()].sort((a,b)=>b.n-a.n)[0]; e.loc=best?best.loc:null; e.location=e.loc?formatLocation(e.loc):""; e.region=e.loc?regionOf(e.loc):""; });
+      const best=[...e.locs.values()].sort((a,b)=>b.n-a.n)[0]; e.loc=best?best.loc:null; e.location=e.loc?formatLocation(e.loc):""; e.region=e.loc?regionOf(e.loc):"";
+      e.sector=[...e.sectors.entries()].sort((a,b)=>b[1]-a[1])[0]?.[0]||"";
+      e.official=e.key.startsWith("id:"); if(e.official){ const o=e.teachers.find(t=>t.schoolId); if(o&&o.school) e.name=o.school; } });
     const stuTeacher=new Map(students.map(x=>[x.studentCode||x.id, x.teacherCode]));
     students.forEach(x=>{ const e=m.get(teacherSchool.get(x.teacherCode)); if(!e) return; e.students++; if(x.active!==false) e.activeStudents++; const pt=e.perTeacher.get(x.teacherCode); if(pt) pt.students++; });
     classes.forEach(c=>{ if(c.active===false) return; const e=m.get(teacherSchool.get(c.teacherCode)); if(!e) return; e.classes++; const pt=e.perTeacher.get(c.teacherCode); if(pt) pt.classes++; });
@@ -1437,11 +1505,12 @@
   const avgScore=e=>e.scoreN?Math.round(e.scoreSum/e.scoreN):null;
   const schoolLabel=e=>e.name+(e.variants.size>1?` (${e.variants.size} spellings)`:"");
   function sortedSchools(){
-    const term=($("schoolSearch").value||"").trim().toLowerCase(); const by=$("schoolSort").value; const rg=$("schoolRegion").value;
+    const term=($("schoolSearch").value||"").trim().toLowerCase(); const by=$("schoolSort").value; const rg=$("schoolRegion").value; const sc=$("schoolSector").value;
     const cmp={ active:(a,b)=>b.stu28.size-a.stu28.size||b.tasks28-a.tasks28||b.tasks-a.tasks, tasks:(a,b)=>b.tasks-a.tasks, students:(a,b)=>b.students-a.students,
       teachers:(a,b)=>b.teachers.length-a.teachers.length, newest:(a,b)=>(b.firstJoined||0)-(a.firstJoined||0), name:(a,b)=>a.name.localeCompare(b.name) }[by]||(()=>0);
     return [...schools.values()].filter(e=>!term||[e.name,e.location,...e.variants.keys()].join(" ").toLowerCase().includes(term))
       .filter(e=>!rg||(rg==="__none"?(e.key&&!e.region):e.region===rg))
+      .filter(e=>!sc||(sc==="__none"?(e.key&&!e.sector):e.sector===sc))
       .sort((a,b)=>(a.key?0:1)-(b.key?0:1)||cmp(a,b)||a.name.localeCompare(b.name));
   }
   function renderSchoolTable(){
@@ -1451,7 +1520,7 @@
     $("schoolBody").innerHTML=list.map(e=>{
       const act=e.teachers.filter(t=>t.active!==false).length; const sc=avgScore(e);
       return `<tr data-school="${esc(e.key||"__none")}" tabindex="0" title="Open ${esc(e.name)}">
-        <td><span class="sch-name">${esc(e.name)}</span>${e.location?`<span class="sch-sub" style="color:var(--ink-soft)">📍 ${esc(e.location)}</span>`:""}<span class="sch-sub">${e.variants.size>1?`Also entered as ${esc([...e.variants.keys()].filter(v=>v!==e.name).slice(0,3).join(", "))} · `:""}${e.firstJoined?`joined ${esc(fmtDate(e.firstJoined))}`:""}</span></td>
+        <td><span class="sch-name">${esc(e.name)}</span>${e.sector?`<span class="sector-tag ${esc(e.sector)}">${esc(e.sector)}</span>`:""}${e.location?`<span class="sch-sub" style="color:var(--ink-soft)">📍 ${esc(e.location)}${e.official?" · on the official list":""}</span>`:""}<span class="sch-sub">${e.variants.size>1?`Also entered as ${esc([...e.variants.keys()].filter(v=>v!==e.name).slice(0,3).join(", "))} · `:""}${e.firstJoined?`joined ${esc(fmtDate(e.firstJoined))}`:""}</span></td>
         <td class="num">${act}${act!==e.teachers.length?` <span style="color:var(--muted)">/ ${e.teachers.length}</span>`:""}</td>
         <td class="num">${e.classes}</td>
         <td class="num">${e.activeStudents.toLocaleString()}</td>
@@ -1502,11 +1571,13 @@
     }
     const rc=regionCounts(); const regs=[...rc.entries()].filter(([r])=>r!=="__none").sort((a,b)=>b[1]-a[1]);
     if(regs.length) lines.push(`• Schools in ${regs.map(([r,n])=>`${r.replace(/, Australia$/,"")} (${n})`).join(", ")}`);
+    const secs=new Map(); sch.forEach(e=>{ if(e.sector) secs.set(e.sector,(secs.get(e.sector)||0)+1); });
+    if(secs.size) lines.push(`• Sectors: ${[...secs.entries()].sort((a,b)=>b[1]-a[1]).map(([k,n])=>`${k} (${n})`).join(", ")}`);
     if(sch.length){ lines.push("","Schools:"); sch.forEach(e=>lines.push(`• ${e.name}${e.location?` (${e.location})`:""} — ${e.teachers.filter(t=>t.active!==false).length} teacher${e.teachers.length===1?"":"s"}, ${e.activeStudents.toLocaleString()} students${achAvailable?`, ${e.tasks.toLocaleString()} tasks completed`:""}`)); }
     return lines.join("\n");
   }
   $("copyImpactBtn").addEventListener("click",async()=>{ const okc=await copyText(impactSummary()); toast(okc?"Impact summary copied — paste it anywhere":"Copy failed",okc?"ok":"bad"); });
-  ["schoolSearch","schoolSort","schoolRegion"].forEach(id=>$(id).addEventListener("input",renderSchoolTable));
+  ["schoolSearch","schoolSort","schoolRegion","schoolSector"].forEach(id=>$(id).addEventListener("input",renderSchoolTable));
   function regionCounts(){ const c=new Map(); schools.forEach(e=>{ if(!e.key) return; const r=e.region||"__none"; c.set(r,(c.get(r)||0)+1); }); return c; }
   function fillRegionFilter(){
     const sel=$("schoolRegion"); const keep=sel.value; const c=regionCounts();
@@ -1552,9 +1623,8 @@
         <button class="btn-neutral" id="schCopy">📋 Copy school summary</button>
       </div>
       ${e.key?`<div class="sch-box"><h4>School details</h4>
-        <p class="hint" style="margin:0 0 10px">${e.variants.size>1?`Teachers typed this school ${e.variants.size} different ways (${[...e.variants.keys()].map(esc).join(" · ")}). `:""}${e.teachers.some(t=>!t.suburb)?`${e.teachers.filter(t=>!t.suburb).length} of its teachers have no location yet. `:""}Saving sets this name and location for all ${e.teachers.length} teacher${e.teachers.length===1?"":"s"} here (their students follow). To merge with another school, pick its name.</p>
-        <div class="field" style="margin-bottom:10px"><label for="schNewName">School name</label><input id="schNewName" list="schNames" value="${esc(e.name)}"/><datalist id="schNames">${others.map(n=>`<option value="${esc(n)}">`).join("")}</datalist></div>
-        <div id="schLoc"></div>
+        <p class="hint" style="margin:0 0 10px">${e.variants.size>1?`Teachers typed this school ${e.variants.size} different ways (${[...e.variants.keys()].map(esc).join(" · ")}). `:""}${e.teachers.some(t=>!t.suburb)?`${e.teachers.filter(t=>!t.suburb).length} of its teachers have no location yet. `:""}Choose the school from the official list (or "isn't listed"), then save to set it for all ${e.teachers.length} teacher${e.teachers.length===1?"":"s"} here; their students follow. To merge with another school, pick that school.</p>
+        <div class="field sp-wrap" id="schSchoolPicker"></div>
         <div class="row-actions"><button class="btn-primary btn-tiny" id="schRename"><span class="spinner"></span><span class="btn-label">Save for all ${e.teachers.length} teacher${e.teachers.length===1?"":"s"}</span></button></div><div class="msg" id="schMsg"></div></div>`:""}`;
     const ws=e.weeks; const wl=ws.map((_,i)=>{ const d=new Date(Date.now()-(11-i)*7*DAY_MS); return d.toLocaleDateString("en-AU",{day:"numeric",month:"short"}); });
     $("schoolBackdrop").classList.add("show");
@@ -1564,17 +1634,16 @@
     $("schShowTeachers").addEventListener("click",()=>{ closeSchool(); gotoView("teachers"); $("teacherSchoolFilter").value=e.key||"__none"; $("teacherActiveFilter").value="all"; renderTeachers(); });
     $("schEmail").addEventListener("click",()=>{ closeSchool(); openCompose(e.teachers.filter(t=>t.active!==false).map(t=>t.teacherCode)); });
     $("schCopy").addEventListener("click",async()=>{ const txt=[`${e.name} — Mills Maths Tools`,`• ${act} teacher${act===1?"":"s"}, ${e.activeStudents} students in ${e.classes} classes`,...(achAvailable?[`• ${e.tasks.toLocaleString()} tasks completed (${e.tasks28} in the last 28 days, by ${e.stu28.size} students)`]:[]),...(sc!=null?[`• Average score: ${sc}%`]:[]),...(e.firstJoined?[`• Using Mills Maths Tools since ${fmtDate(e.firstJoined)}`]:[])].join("\n"); const okc=await copyText(txt); toast(okc?"School summary copied":"Copy failed",okc?"ok":"bad"); });
-    if($("schLoc")){ $("schLoc").innerHTML=locationFieldsHtml("schLoc",e.loc||{}); wireLocation("schLoc"); }
+    if($("schSchoolPicker")){ const lead=e.teachers.find(t=>t.schoolId)||e.teachers.find(t=>t.lat!=null)||e.teachers[0]; schPicker=mountSchoolPicker($("schSchoolPicker"),{ prefix:"schSp", label:"School", value:{ ...lead, school:lead.schoolId?lead.school:e.name } }); }
     if($("schRename")) $("schRename").addEventListener("click",async()=>{
-      const nm=$("schNewName").value.trim().replace(/\s+/g," "); if(!nm) return msg($("schMsg"),"Enter a school name.","bad");
-      const loc=readLocation("schLoc");
-      const same=e.variants.size===1 && nm===e.name && e.teachers.every(t=>(t.suburb||"")===loc.suburb&&(t.state||"")===loc.state&&(t.country||"")===loc.country);
+      const loc=schoolFields(schPicker.get()); const nm=loc.school; if(!nm) return msg($("schMsg"),"Choose or type the school first.","bad");
+      const same=e.teachers.every(t=>SCHOOL_FIELDS.every(k=>(t[k]??(k==="lat"||k==="lng"?null:""))===loc[k]));
       if(same) return msg($("schMsg"),"Nothing to change — every teacher already has these details.","warn");
       const where=formatLocation(loc,{country:true});
       if(!confirm(`Set the school to “${nm}”${where?` in ${where}`:""} for ${e.teachers.length} teacher${e.teachers.length===1?"":"s"} and their students?`)) return;
       setLoading($("schRename"),true);
       try{ let moved=0; const first=e.teachers[0].teacherCode;
-        for(const t of e.teachers){ await updateDoc(doc(db,"teachers",t.teacherCode),{ school:nm, ...loc, updatedAt:serverTimestamp() }); moved+=await propagateTeacherToStudents(t.teacherCode,t.teacherName||"",nm); }
+        for(const t of e.teachers){ await updateDoc(doc(db,"teachers",t.teacherCode),{ ...loc, updatedAt:serverTimestamp() }); moved+=await propagateTeacherToStudents(t.teacherCode,t.teacherName||"",nm); }
         toast(`Saved for ${e.teachers.length} teacher${e.teachers.length===1?"":"s"}${moved?` and ${moved} student record${moved===1?"":"s"}`:""}`,"ok");
         await loadAll(); const k=teacherSchool.get(first); if(k!==undefined && schools.has(k)) openSchool(k); else closeSchool(); }
       catch(err){ msg($("schMsg"),writeErr(err),"bad"); }
@@ -1584,6 +1653,113 @@
   function closeSchool(){ $("schoolBackdrop").classList.remove("show"); openSchoolKey=null; if(anCharts.schWeeks){ anCharts.schWeeks.destroy(); delete anCharts.schWeeks; } }
   $("schClose").addEventListener("click",closeSchool);
   $("schoolBackdrop").addEventListener("click",e=>{ if(e.target===$("schoolBackdrop")) closeSchool(); });
+
+  // ================= MAP =================
+  // Leaflet + OpenStreetMap tiles (free, credit shown). One circle per school,
+  // area ∝ students; overseas schools that only know their country share one
+  // pin per country. Opens on NSW; the buttons jump to Australia or the world.
+  const MAP_VIEWS={ nsw:[[-37.6,140.9],[-28.1,153.7]], aus:[[-43.8,112.8],[-10.5,154]] };
+  let lmap=null, lmapLayer=null, mapView="nsw";
+  function mapColour(e){ return e.tasks28>0?"#16a34a":e.tasks>0?"#2563eb":"#94a3b8"; }
+  function renderMap(){
+    const box=$("mmtMap"); if(!box) return;
+    if(typeof L==="undefined"){ box.innerHTML='<div class="an-empty" style="margin:16px">The map library couldn\'t load (check the connection), so the map is hidden. Everything else works.</div>'; return; }
+    if(!lmap){
+      lmap=L.map(box,{ zoomSnap:0.25, worldCopyJump:true, scrollWheelZoom:false });
+      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{ maxZoom:18, attribution:'&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors' }).addTo(lmap);
+      lmapLayer=L.layerGroup().addTo(lmap);
+      lmap.fitBounds(MAP_VIEWS.nsw);
+      box.addEventListener("click",ev=>{ const b=ev.target.closest("[data-open-school]"); if(b){ ev.preventDefault(); lmap.closePopup(); openSchool(b.dataset.openSchool==="__none"?"":b.dataset.openSchool); } });
+      lmap.on("focus",()=>lmap.scrollWheelZoom.enable()); lmap.on("blur",()=>lmap.scrollWheelZoom.disable());
+    }
+    setTimeout(()=>lmap.invalidateSize(),0);
+    lmapLayer.clearLayers();
+    const list=[...schools.values()].filter(e=>e.key&&e.coord);
+    const byCountry=new Map();
+    list.forEach(e=>{
+      if(e.coord.src==="country"){ const k=e.coord.country; if(!byCountry.has(k)) byCountry.set(k,{ coord:e.coord, schools:[] }); byCountry.get(k).schools.push(e); return; }
+      const r=Math.max(6,Math.min(26,5+Math.sqrt(e.activeStudents)*1.6));
+      L.circleMarker([e.coord.lat,e.coord.lng],{ radius:r, color:"#fff", weight:2, fillColor:mapColour(e), fillOpacity:.85 })
+        .bindTooltip(esc(e.name),{ direction:"top", offset:[0,-r] })
+        .bindPopup(`<div class="map-pop"><b>${esc(e.name)}</b><div class="m">${esc(formatLocation(e.loc||e.teachers[0]||{},{country:true}))}${e.sector?` · ${esc(e.sector)}`:""}${e.coord.src==="suburb"?" · pinned at the suburb centre":""}</div>
+          <div class="n">${e.teachers.length} teacher${e.teachers.length===1?"":"s"} · ${e.activeStudents} students<br>${achAvailable?`${e.tasks.toLocaleString()} tasks · ${e.tasks28} in the last 28 days`:""}</div>
+          <button class="btn-soft" data-open-school="${esc(e.key||"__none")}">Open breakdown</button></div>`)
+        .addTo(lmapLayer);
+    });
+    byCountry.forEach((g,country)=>{
+      const teachersN=g.schools.reduce((a,e)=>a+e.teachers.length,0);
+      const active=g.schools.some(e=>e.tasks28>0), used=g.schools.some(e=>e.tasks>0);
+      L.circleMarker([g.coord.lat,g.coord.lng],{ radius:Math.max(8,Math.min(24,6+teachersN*2)), color:"#fff", weight:2, fillColor:active?"#16a34a":used?"#2563eb":"#94a3b8", fillOpacity:.85, dashArray:"4 3" })
+        .bindTooltip(`${esc(country)} — ${g.schools.length} school${g.schools.length===1?"":"s"}`,{ direction:"top" })
+        .bindPopup(`<div class="map-pop"><b>${esc(country)}</b><div class="m">${teachersN} teacher${teachersN===1?"":"s"} · pin at the country's centre</div><ul>${g.schools.map(e=>`<li><a data-open-school="${esc(e.key)}">${esc(e.name)}</a>${e.location?` — ${esc(e.location)}`:""}</li>`).join("")}</ul></div>`)
+        .addTo(lmapLayer);
+    });
+    const missing=teachers.filter(t=>schoolKey(t.school)&&!(typeof t.lat==="number")&&!(t.country&&t.country!=="Australia"&&countryCentre(t.country)));
+    $("mapMissing").innerHTML = missing.length ? `${missing.length} teacher${missing.length===1?" isn't":"s aren't"} on the map yet · <button type="button" class="btn-soft btn-tiny" id="bfOpen">Find their schools</button>` : (teachers.length?"Every teacher with a school is on the map ✓":"");
+    if($("bfOpen")) $("bfOpen").onclick=openBackfill;
+  }
+  $("mapViewSeg").addEventListener("click",e=>{
+    const b=e.target.closest("[data-mv]"); if(!b||!lmap) return; mapView=b.dataset.mv;
+    [...$("mapViewSeg").children].forEach(x=>x.classList.toggle("on",x===b));
+    if(mapView==="world"){ const pts=[...schools.values()].filter(x=>x.key&&x.coord).map(x=>[x.coord.lat,x.coord.lng]); if(pts.length>1) lmap.fitBounds(L.latLngBounds(pts).pad(0.4),{ maxZoom:4 }); else lmap.setView([-10,135],2); }
+    else lmap.fitBounds(MAP_VIEWS[mapView]);
+  });
+
+  // ================= BACK-FILL: find schools for existing teachers =================
+  let bfRows=[];
+  async function openBackfill(){
+    $("bfBackdrop").classList.add("show"); $("bfSummary").textContent="Matching against the school list…"; $("bfBody").innerHTML=""; $("bfMsg").className="msg";
+    const [sd,ud]=await Promise.all([loadSchools(),loadSuburbs()]);
+    const todo=teachers.filter(t=>schoolKey(t.school)&&!(typeof t.lat==="number"));
+    bfRows=todo.map(t=>{
+      const row={ t, options:[], pick:null, kind:"none" };
+      if(t.country&&t.country!=="Australia"){ const c=countryCentre(t.country); if(c){ row.kind="country"; row.pick={ ...schoolFields(t), lat:c[0], lng:c[1], locSource:"country" }; } return row; }
+      const cands=sd.list.length?matchSchool(sd,t.school,{ suburb:t.suburb, state:t.state }):[];
+      if(cands.length===1){ row.kind="school"; row.pick=officialFields(cands[0]); }
+      else if(cands.length>1){ row.kind="choose"; row.options=cands.slice(0,8); }
+      else { const sub=t.suburb?matchSuburb(ud,t.suburb,t.state):null; if(sub){ row.kind="suburb"; row.pick={ ...schoolFields(t), suburb:sub.name, state:sub.state, country:"Australia", lat:sub.lat, lng:sub.lng, locSource:"suburb" }; } }
+      return row;
+    });
+    paintBackfill(sd);
+  }
+  function officialFields(o){ return { school:o.name, schoolId:o.id, sector:o.sector||"", schoolType:o.type||"", suburb:o.suburb, state:o.state, postcode:o.postcode||"", country:"Australia", lat:o.lat, lng:o.lng, locSource:"school" }; }
+  function paintBackfill(sd){
+    const n=k=>bfRows.filter(r=>r.kind===k).length;
+    $("bfSummary").innerHTML = bfRows.length ? `<b>${bfRows.length}</b> teacher${bfRows.length===1?"":"s"} without a map location. Matched to the official list: <b>${n("school")}</b> · more than one possible school: <b>${n("choose")}</b> · suburb centre only: <b>${n("suburb")}</b> · overseas (country pin): <b>${n("country")}</b> · not found: <b>${n("none")}</b>.${sd.list.length?"":" <br><b>The school list isn't installed yet</b>, so only suburbs and countries can be matched."}` : "Every teacher with a school already has a map location ✓";
+    $("bfBody").innerHTML=bfRows.map((r,i)=>{
+      const t=r.t; const typed=`${esc(t.school||"—")}${formatLocation(t)?`<div class="bf-src">${esc(formatLocation(t,{country:true}))}</div>`:""}`;
+      let will="", checked=!!r.pick;
+      if(r.kind==="school") will=`<span class="bf-new">${esc(r.pick.school)}</span>${r.pick.sector?`<span class="sector-tag ${esc(r.pick.sector)}">${esc(r.pick.sector)}</span>`:""}<div class="bf-src">✓ official list · ${esc([r.pick.suburb,r.pick.state,r.pick.postcode].filter(Boolean).join(" "))}${r.pick.school!==t.school?" · name will be tidied":""}</div>`;
+      else if(r.kind==="choose") will=`<select data-bf-choose="${i}"><option value="">Choose the right school…</option>${r.options.map((o,j)=>`<option value="${j}">${esc(o.name)} — ${esc(o.suburb)} ${esc(o.state)}${o.sector?` (${esc(o.sector)})`:""}</option>`).join("")}</select>`;
+      else if(r.kind==="suburb") will=`<span class="bf-new">${esc(t.school)}</span><div class="bf-src">📍 pinned at the centre of ${esc(r.pick.suburb)}, ${esc(r.pick.state)} (not on the school list)</div>`;
+      else if(r.kind==="country") will=`<span class="bf-new">${esc(t.school)}</span><div class="bf-src">🌏 pinned at the centre of ${esc(t.country)}</div>`;
+      else will=`<span class="bf-src">Not found — </span><button type="button" class="btn-soft btn-tiny" data-bf-edit="${esc(t.teacherCode)}">Pick it in Edit</button>`;
+      return `<tr><td class="check-cell"><input type="checkbox" class="rowcheck" data-bf="${i}" ${checked?"checked":""} ${r.pick||r.kind==="choose"?"":"disabled"}/></td><td><strong>${esc(t.teacherName||t.teacherCode)}</strong><div class="bf-src">${esc(t.teacherCode)}</div></td><td>${typed}</td><td>${will}</td></tr>`;
+    }).join("");
+    $("bfApply").disabled=!bfRows.some(r=>r.pick||r.kind==="choose");
+  }
+  $("bfBody").addEventListener("change",e=>{
+    const s=e.target.closest("[data-bf-choose]"); if(s){ const r=bfRows[+s.dataset.bfChoose]; r.pick=s.value===""?null:officialFields(r.options[+s.value]); const cb=$("bfBody").querySelector(`[data-bf="${s.dataset.bfChoose}"]`); if(cb) cb.checked=!!r.pick; }
+  });
+  $("bfBody").addEventListener("click",e=>{ const b=e.target.closest("[data-bf-edit]"); if(!b) return; const t=teacherByCode(b.dataset.bfEdit); if(t){ closeBackfill(); gotoView("teachers"); openTeacherEdit(t); } });
+  $("bfAll").addEventListener("change",e=>$("bfBody").querySelectorAll("[data-bf]:not(:disabled)").forEach(cb=>cb.checked=e.target.checked));
+  const closeBackfill=()=>$("bfBackdrop").classList.remove("show");
+  $("bfClose").addEventListener("click",closeBackfill); $("bfCancel").addEventListener("click",closeBackfill);
+  $("bfBackdrop").addEventListener("click",e=>{ if(e.target===$("bfBackdrop")) closeBackfill(); });
+  $("bfApply").addEventListener("click",async()=>{
+    const go=[...$("bfBody").querySelectorAll("[data-bf]:checked")].map(cb=>bfRows[+cb.dataset.bf]).filter(r=>r.pick);
+    if(!go.length) return msg($("bfMsg"),"Tick at least one teacher with a match (choose a school where there's more than one).","warn");
+    setLoading($("bfApply"),true);
+    try{ let n=0, moved=0;
+      for(const r of go){ const t=r.t; const f=schoolFields(r.pick);
+        await updateDoc(doc(db,"teachers",t.teacherCode),{ ...f, updatedAt:serverTimestamp() });
+        if((t.school||"")!==f.school) moved+=await propagateTeacherToStudents(t.teacherCode,t.teacherName||"",f.school);
+        n++; $("bfApply").querySelector(".btn-label").textContent=`Applying ${n}/${go.length}…`; }
+      toast(`Updated ${n} teacher${n===1?"":"s"}${moved?` (and ${moved} student record${moved===1?"":"s"})`:""}`,"ok");
+      closeBackfill(); await loadAll();
+    }catch(err){ msg($("bfMsg"),writeErr(err),"bad"); }
+    finally{ setLoading($("bfApply"),false); $("bfApply").querySelector(".btn-label").textContent="Apply"; }
+  });
 
   // ================= ACCESS REQUESTS =================
   const pendingRequests = () => (accessRequests||[]).filter(r=>r.status==="pending");
@@ -1642,8 +1818,8 @@
   function openApprove(r){
     $("rqApId").value=r.id;
     $("rqApTitle").textContent=`Approve ${r.teacherName||"request"}`;
-    $("rqApName").value=r.teacherName||""; $("rqApEmail").value=r.email||""; $("rqApSchool").value=r.school||""; $("rqApPosition").value=r.position||"";
-    $("rqApLoc").innerHTML=locationFieldsHtml("rqApLoc",r); wireLocation("rqApLoc");
+    $("rqApName").value=r.teacherName||""; $("rqApEmail").value=r.email||""; $("rqApPosition").value=r.position||"";
+    rqApPicker=mountSchoolPicker($("rqApSchoolPicker"),{ prefix:"rqApSp", label:"School", value:r });
     const dup=teachersWithEmail(r.email);
     $("rqApWarn").innerHTML=dup.length?`<div class="callout setup-warn" style="margin-bottom:14px"><strong>Heads up:</strong> ${dup.map(t=>`${esc(t.teacherName||"A teacher")} (${esc(t.teacherCode)})`).join(", ")} already use${dup.length===1?"s":""} this email. Approving creates a <b>second</b> teacher code.</div>`:"";
     const ready=emailCfg.configured;
@@ -1657,7 +1833,7 @@
   $("rqApproveBackdrop").addEventListener("click",e=>{ if(e.target===$("rqApproveBackdrop")) closeApprove(); });
   $("rqApForm").addEventListener("submit",async e=>{
     e.preventDefault();
-    const overrides={ teacherName:$("rqApName").value.trim().replace(/\s+/g," "), email:cleanEmail($("rqApEmail").value), school:$("rqApSchool").value.trim(), position:$("rqApPosition").value.trim() , ...readLocation("rqApLoc") };
+    const overrides={ teacherName:$("rqApName").value.trim().replace(/\s+/g," "), email:cleanEmail($("rqApEmail").value), position:$("rqApPosition").value.trim(), ...schoolFields(rqApPicker.get()) };
     if(!overrides.teacherName) return msg($("rqApMsg"),"Enter the teacher's name.","bad");
     if(!isEmail(overrides.email)) return msg($("rqApMsg"),"That email address doesn't look right.","bad");
     setLoading($("rqApBtn"),true);
@@ -1893,7 +2069,7 @@
     if(view==="growth") renderGrowth();
     if(view==="email") renderEmailView();
     if(view==="requests") renderRequests();
-    if(view==="overview") renderGrowthChart();
+    if(view==="overview"){ renderGrowthChart(); renderMap(); }
     window.scrollTo({top:0,behavior:"smooth"});
   }
   document.querySelectorAll(".qa").forEach(b=>b.addEventListener("click",()=>gotoView(b.dataset.goto,{open:b.dataset.open})));
@@ -1913,14 +2089,13 @@
         catch(err){ note+=` The welcome email didn't send (${fnErr(err)}). Give them the code yourself, or try again from Edit.`; type="warn"; }
       }
       msg($("teacherMsg"),note,type); toast(`Teacher code ${t.code} created`,"ok");
-      ["tName","tEmail","tSchool","tPosition"].forEach(id=>$(id).value=""); paintCreateLocation(); await loadAll();
+      ["tName","tEmail","tPosition"].forEach(id=>$(id).value=""); tPicker.set({}); await loadAll();
     }
     catch(e){ msg($("teacherMsg"),writeErr(e),"bad"); }
     finally{ setLoading($("createTeacherBtn"),false); }
   });
-  $("clearTeacherBtn").addEventListener("click",()=>{ ["tName","tEmail","tSchool","tPosition"].forEach(id=>$(id).value=""); paintCreateLocation(); });
-  function paintCreateLocation(){ $("tLoc").innerHTML=locationFieldsHtml("tLoc",{},{placeholders:true}); wireLocation("tLoc"); }
-  paintCreateLocation();
+  $("clearTeacherBtn").addEventListener("click",()=>{ ["tName","tEmail","tPosition"].forEach(id=>$(id).value=""); tPicker.set({}); });
+  tPicker=mountSchoolPicker($("tSchoolPicker"),{ prefix:"tSp", label:"School" });
   $("csvTeachersBtn").addEventListener("click",()=>{
     if(!teachers.length) return toast("No teachers to export","warn");
     const q=v=>{ const x=String(v??""); return /[",\n]/.test(x)?`"${x.replace(/"/g,'""')}"`:x; };
