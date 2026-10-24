@@ -1,6 +1,6 @@
 /* Written by tools/build-pwa.mjs — do not edit by hand. */
 self.MMT_PRECACHE = {
- "version": "185481be1b",
+ "version": "3847b315a4",
  "files": [
   "./",
   "assessment/exam-builder/app.js",
@@ -875,6 +875,7 @@ self.MMT_PRECACHE = {
   "online-quizzes/stage-4/number/negatives-on-the-number-line.html",
   "online-quizzes/stage-4/ratios-rates/stacked-bar-ratio.html",
   "portal/admin/index.html",
+  "portal/admin/teacherCsv.js",
   "portal/shared/adventureManifest.js",
   "portal/shared/codeExchangeClient.js",
   "portal/shared/earlySubmit.js",

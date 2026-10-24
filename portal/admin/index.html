@@ -295,6 +295,13 @@
   .bf-arrow{color:var(--muted);font-weight:600}
   .bf-new{font-weight:800;color:var(--ink)}
   .bf-src{font-size:.76rem;color:var(--muted)}
+  .csv-drop{border:2px dashed #cbd5e1;border-radius:14px;padding:22px 16px;text-align:center;background:#f8fafc;color:var(--ink-soft);cursor:pointer;transition:border-color .15s,background .15s}
+  .csv-drop:hover,.csv-drop.over{border-color:var(--brand,#2563eb);background:#eff6ff}
+  .csv-drop b{color:var(--ink)} .csv-drop .big{font-size:1.6rem;display:block;margin-bottom:4px}
+  .csv-steps{margin:0 0 12px;padding-left:20px;font-size:.86rem;line-height:1.6;color:var(--ink-soft)}
+  .csv-diff{font-size:.82rem;line-height:1.5} .csv-diff .f{font-weight:700;color:var(--ink)} .csv-diff s{color:#94a3b8} .csv-diff ins{text-decoration:none;color:#15803d;font-weight:700}
+  .csv-note{font-size:.76rem;color:var(--muted);margin-top:2px} .csv-prob{font-size:.76rem;color:#b45309;margin-top:2px}
+  body.csv-dragging #view-teachers.active .card:has(#teacherBody){outline:3px dashed var(--brand,#2563eb);outline-offset:4px}
   .sp-wrap{margin-bottom:6px}
 
   /* access requests (2026-10-24) */
@@ -484,6 +491,7 @@
           <div class="row-actions">
             <button class="btn-soft btn-tiny" id="copyTeachersBtn">Copy list</button>
             <button class="btn-soft btn-tiny" id="csvTeachersBtn">Export CSV</button>
+            <button class="btn-soft btn-tiny" id="csvImportBtn" title="Fill in or update details from a CSV (matched by teacher code)">⤒ Import CSV</button>
           </div>
         </div>
         <div class="table-tools">
@@ -878,6 +886,32 @@
   </div>
 </div>
 
+<!-- teacher CSV import -->
+<div id="csvBackdrop" class="backdrop" role="dialog" aria-modal="true" aria-labelledby="csvTitle">
+  <div class="modal xl">
+    <div class="mx-head"><div><h3 id="csvTitle">Import teacher details from a CSV</h3><p>Fill in missing details or update them in bulk. Nothing changes until you press Apply.</p></div><button type="button" class="mx-x" id="csvClose" aria-label="Close">✕</button></div>
+    <div class="mx-body">
+      <div id="csvStart">
+        <ol class="csv-steps">
+          <li><b>Export CSV</b> from the Teachers list (it has every teacher and a <b>Teacher code</b> column).</li>
+          <li>Fill in the blanks or change what's wrong, in Excel or Sheets, or ask Claude to fill in the school details. Save it as <b>CSV</b>.</li>
+          <li>Drop it here. Rows are matched by Teacher code. <b>Blank cells are left as they are.</b> Status, classes and sign-in columns are ignored.</li>
+        </ol>
+        <label class="csv-drop" id="csvDrop" tabindex="0"><span class="big">📄</span><b>Drop the CSV file here</b> or click to choose it<input type="file" id="csvFile" accept=".csv,text/csv,.tsv,.txt" hidden/></label>
+      </div>
+      <div id="csvPlan" hidden>
+        <div id="csvSummary" class="callout" style="margin-bottom:12px"></div>
+        <div class="table-wrap" style="max-height:50vh"><table style="min-width:760px"><thead><tr><th class="check-cell"><input type="checkbox" class="allcheck" id="csvAll" title="Select all" checked/></th><th>Teacher</th><th>Changes</th></tr></thead><tbody id="csvBody"></tbody></table></div>
+        <div class="row-actions" style="margin-top:14px">
+          <button class="btn-primary" id="csvApply"><span class="spinner"></span><span class="btn-label">Apply</span></button>
+          <button class="btn-neutral" id="csvAgain">Choose a different file</button>
+        </div>
+      </div>
+      <div class="msg" id="csvMsg"></div>
+    </div>
+  </div>
+</div>
+
 <!-- school detail modal -->
 <div id="schoolBackdrop" class="backdrop" role="dialog" aria-modal="true" aria-labelledby="schTitle">
   <div class="modal xl">
@@ -967,6 +1001,7 @@
   import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-functions.js";
   import { formatLocation, regionOf, countryCentre } from "../shared/location.js";
   import { mountSchoolPicker, loadSchools, loadSuburbs, matchSchool, matchSuburb } from "../shared/schoolPicker.js";
+  import { parseCsv, toCsv, exportRows, planImport } from "./teacherCsv.js";
 
   // Public web config — safe to ship (matches portal/shared/firebaseConfig.js).
   const firebaseConfig = {
@@ -1411,7 +1446,7 @@
   const closeTeacherEdit=()=>$("tEditBackdrop").classList.remove("show");
   $("teCancelBtn").addEventListener("click",closeTeacherEdit);
   $("tEditBackdrop").addEventListener("click",e=>{ if(e.target===$("tEditBackdrop")) closeTeacherEdit(); });
-  document.addEventListener("keydown",e=>{ if(e.key!=="Escape") return; ["tEditBackdrop","editBackdrop","renameBackdrop","rqApproveBackdrop","rqDeclineBackdrop","schoolBackdrop","bfBackdrop"].forEach(id=>$(id).classList.remove("show")); });
+  document.addEventListener("keydown",e=>{ if(e.key!=="Escape") return; ["tEditBackdrop","editBackdrop","renameBackdrop","rqApproveBackdrop","rqDeclineBackdrop","schoolBackdrop","bfBackdrop","csvBackdrop"].forEach(id=>$(id).classList.remove("show")); });
   async function saveTeacherEdit(){
     const code=normCode($("teCode").value); const t=teacherByCode(code); if(!t) throw new Error("That teacher no longer exists — Refresh.");
     const name=$("teName").value.trim().replace(/\s+/g," "); const email=cleanEmail($("teEmail").value);
@@ -2098,12 +2133,71 @@
   tPicker=mountSchoolPicker($("tSchoolPicker"),{ prefix:"tSp", label:"School" });
   $("csvTeachersBtn").addEventListener("click",()=>{
     if(!teachers.length) return toast("No teachers to export","warn");
-    const q=v=>{ const x=String(v??""); return /[",\n]/.test(x)?`"${x.replace(/"/g,'""')}"`:x; };
-    const rows=[["Name","Email","School","Suburb","State","Country","Role","Teacher code","Status","Classes","Active students","Last sign-in","Update emails"]];
-    teachers.slice().sort((a,b)=>String(a.teacherName||"").localeCompare(String(b.teacherName||""))).forEach(t=>{ const st=teacherStats(t.teacherCode); const ll=tsMs(t.lastLoginAt);
-      rows.push([t.teacherName||"",t.email||"",t.school||"",t.suburb||"",t.state||"",t.country||"",t.position||"",t.teacherCode,t.active===false?"Inactive":"Active",st.classes.join(" "),st.active,ll?new Date(ll).toISOString().slice(0,10):"",t.emailUpdates===false?"Off":"On"]); });
-    const blob=new Blob([rows.map(r=>r.map(q).join(",")).join("\n")],{type:"text/csv"});
+    const rows=exportRows(teachers,t=>{ const st=teacherStats(t.teacherCode); const ll=tsMs(t.lastLoginAt); return { classes:st.classes.join(" "), activeStudents:st.active, lastSignIn:ll?new Date(ll).toISOString().slice(0,10):"" }; });
+    const blob=new Blob([toCsv(rows)],{type:"text/csv;charset=utf-8"});
     const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=`mmt-teachers-${new Date().toISOString().slice(0,10)}.csv`; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+  });
+
+  // ---- CSV import: export → fill in → drop back in (matched by teacher code; blanks = no change)
+  let csvPlan=null;
+  function openCsvImport(){ csvPlan=null; $("csvStart").hidden=false; $("csvPlan").hidden=true; $("csvMsg").className="msg"; $("csvFile").value=""; $("csvBackdrop").classList.add("show"); setTimeout(()=>$("csvDrop").focus(),0); }
+  const closeCsv=()=>$("csvBackdrop").classList.remove("show");
+  async function readCsvFile(file){
+    if(!file) return;
+    if(!$("csvBackdrop").classList.contains("show")) openCsvImport();
+    if(/\.(xlsx|xls|numbers|ods)$/i.test(file.name)) return msg($("csvMsg"),"That's a spreadsheet file. In Excel use File → Save As → “CSV UTF-8”, in Google Sheets File → Download → CSV, then drop the .csv here.","warn");
+    if(file.size>5e6) return msg($("csvMsg"),"That file is too big for a teacher list (over 5 MB).","bad");
+    const [sd,ud]=await Promise.all([loadSchools(),loadSuburbs()]);
+    const plan=planImport(parseCsv(await file.text()),teachers,{ schools:sd, suburbs:ud, matchSuburb, countryCentre });
+    if(plan.error) return msg($("csvMsg"),plan.error,"bad");
+    csvPlan=plan; paintCsvPlan(file.name);
+  }
+  function paintCsvPlan(name){
+    const p=csvPlan, ch=p.rows.filter(r=>r.diffs.length), none=p.rows.length-ch.length, probs=p.rows.filter(r=>r.problems.length).length;
+    const bits=[`<b>${esc(name)}</b>: ${p.rows.length} teacher${p.rows.length===1?"":"s"} matched.`, `<b>${ch.length}</b> with changes · ${none} already up to date`];
+    if(probs) bits.push(`<span style="color:#b45309">${probs} with cells that couldn't be used (shown below)</span>`);
+    if(p.unknown.length) bits.push(`Unknown teacher codes skipped: ${p.unknown.slice(0,8).map(esc).join(", ")}${p.unknown.length>8?"…":""}`);
+    if(p.dupes.length) bits.push(`Repeated codes (first row used): ${p.dupes.slice(0,8).map(esc).join(", ")}`);
+    if(p.missingCode) bits.push(`${p.missingCode} row${p.missingCode===1?"":"s"} without a teacher code skipped`);
+    if(p.ignored.length) bits.push(`<span class="bf-src">Columns not imported: ${p.ignored.map(esc).join(", ")}</span>`);
+    $("csvSummary").innerHTML=bits.join("<br>");
+    const show=v=>v===""||v==null?"—":esc(String(v));
+    $("csvBody").innerHTML=ch.length?ch.map(r=>{ const t=r.teacher, i=p.rows.indexOf(r);
+      return `<tr><td class="check-cell"><input type="checkbox" class="rowcheck" data-csv="${i}" checked/></td><td><strong>${esc(t.teacherName||t.teacherCode)}</strong><div class="bf-src">${esc(t.teacherCode)}</div></td><td class="csv-diff">${r.diffs.map(d=>`<div><span class="f">${esc(d.label)}:</span> <s>${show(d.from)}</s> → <ins>${show(d.to)}</ins></div>`).join("")}${r.notes.map(n=>`<div class="csv-note">${esc(n)}</div>`).join("")}${r.problems.map(n=>`<div class="csv-prob">⚠️ ${esc(n)}</div>`).join("")}</td></tr>`; }).join("")
+      :`<tr><td colspan="3"><div class="an-empty" style="margin:8px 0">Nothing to change. Every value in this file already matches.${probs?" Some cells couldn't be used:<br>"+p.rows.filter(r=>r.problems.length).map(r=>`${esc(r.teacher.teacherCode)}: ${r.problems.map(esc).join("; ")}`).join("<br>"):""}</div></td></tr>`;
+    $("csvAll").checked=true; $("csvApply").disabled=!ch.length;
+    $("csvStart").hidden=true; $("csvPlan").hidden=false; $("csvMsg").className="msg";
+  }
+  $("csvImportBtn").addEventListener("click",openCsvImport);
+  $("csvClose").addEventListener("click",closeCsv);
+  $("csvBackdrop").addEventListener("click",e=>{ if(e.target===$("csvBackdrop")) closeCsv(); });
+  $("csvAgain").addEventListener("click",openCsvImport);
+  $("csvFile").addEventListener("change",e=>readCsvFile(e.target.files[0]));
+  $("csvDrop").addEventListener("keydown",e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); $("csvFile").click(); } });
+  $("csvAll").addEventListener("change",e=>$("csvBody").querySelectorAll("[data-csv]").forEach(cb=>cb.checked=e.target.checked));
+  ["dragenter","dragover"].forEach(ev=>$("csvDrop").addEventListener(ev,e=>{ e.preventDefault(); $("csvDrop").classList.add("over"); }));
+  ["dragleave","drop"].forEach(ev=>$("csvDrop").addEventListener(ev,()=>$("csvDrop").classList.remove("over")));
+  $("csvDrop").addEventListener("drop",e=>{ e.preventDefault(); e.stopPropagation(); readCsvFile(e.dataTransfer.files[0]); });
+  // also accept a file dropped anywhere on the Teachers page
+  const hasFile=e=>[...(e.dataTransfer?.types||[])].includes("Files");
+  document.addEventListener("dragover",e=>{ if(hasFile(e)&&$("view-teachers").classList.contains("active")){ e.preventDefault(); document.body.classList.add("csv-dragging"); } });
+  document.addEventListener("dragleave",e=>{ if(!e.relatedTarget) document.body.classList.remove("csv-dragging"); });
+  document.addEventListener("drop",e=>{ document.body.classList.remove("csv-dragging"); if(hasFile(e)&&$("view-teachers").classList.contains("active")&&!e.defaultPrevented){ e.preventDefault(); readCsvFile(e.dataTransfer.files[0]); } });
+  $("csvApply").addEventListener("click",async()=>{
+    const go=[...$("csvBody").querySelectorAll("[data-csv]:checked")].map(cb=>csvPlan.rows[+cb.dataset.csv]).filter(r=>Object.keys(r.changes).length);
+    if(!go.length) return msg($("csvMsg"),"Tick at least one teacher to update.","warn");
+    if(!confirm(`Update ${go.length} teacher${go.length===1?"":"s"} from this file?`)) return;
+    setLoading($("csvApply"),true);
+    let n=0, moved=0;
+    try{
+      for(const r of go){ const t=r.teacher, c=r.changes;
+        await updateDoc(doc(db,"teachers",t.teacherCode),{ ...c, updatedAt:serverTimestamp() });
+        if(c.teacherName!==undefined||c.school!==undefined) moved+=await propagateTeacherToStudents(t.teacherCode,c.teacherName??t.teacherName??"",c.school??t.school??"");
+        n++; $("csvApply").querySelector(".btn-label").textContent=`Saving ${n}/${go.length}…`; }
+      toast(`Updated ${n} teacher${n===1?"":"s"}${moved?` (and ${moved} student record${moved===1?"":"s"})`:""}`,"ok");
+      closeCsv(); await loadAll();
+    }catch(err){ msg($("csvMsg"),`${n} saved, then: ${writeErr(err)}`,"bad"); }
+    finally{ setLoading($("csvApply"),false); $("csvApply").querySelector(".btn-label").textContent="Apply"; }
   });
   $("teacherAllCheck").addEventListener("change",e=>{ teacherRowsShown().forEach(t=>{ if(e.target.checked) tSelected.add(t.teacherCode); else tSelected.delete(t.teacherCode); }); renderTeachers(); });
   $("clearTeacherSelBtn").addEventListener("click",()=>{ tSelected.clear(); renderTeachers(); });
