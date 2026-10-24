@@ -74,7 +74,7 @@
   .side-foot button{width:100%;background:rgba(255,255,255,.08);color:#e2e8f0;font-size:.82rem;min-height:34px}
   .side-foot button:hover{background:rgba(255,255,255,.16)}
 
-  .main{min-width:0;padding:26px 30px 60px;max-width:1180px}
+  .main{min-width:0;padding:26px 30px 60px;max-width:1440px}
   .page-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:20px;flex-wrap:wrap}
   .page-head h2{margin:0;font-size:1.5rem;letter-spacing:-.02em}
   .page-head p{margin:5px 0 0;color:var(--muted);font-size:.92rem;max-width:640px;line-height:1.45}
@@ -195,10 +195,14 @@
 
   /* teachers: email + selection (2026-10-24) */
   .t-sub{display:block;font-size:.78rem;color:var(--muted);font-weight:600;margin-top:2px;overflow-wrap:anywhere}
-  #teacherBody td:nth-child(2){min-width:210px}
+  #teacherBody td:nth-child(2){min-width:190px}
+  #view-teachers th,#view-teachers td{padding-left:10px;padding-right:10px}
   .nav-item{justify-content:flex-start}
   .badge.noemail{color:var(--warn);background:var(--warn-soft);font-size:.7rem;padding:2px 8px;margin-top:3px}
   .code.copyable{cursor:pointer}
+  .linkish{background:none;border:0;min-height:0;padding:2px 0;font:inherit;font-weight:700;color:var(--brand-dark);text-decoration:underline;text-decoration-color:#bfdbfe;text-underline-offset:3px;border-radius:4px;white-space:nowrap}
+  .linkish:hover{transform:none;text-decoration-color:var(--brand)}
+  #view-teachers .t-actions{gap:5px}
   .code.copyable:hover{background:var(--brand-soft);color:var(--brand-dark)}
   .check-row{display:flex;align-items:flex-start;gap:9px;font-weight:600;font-size:.86rem;color:var(--ink-soft);margin:4px 0 12px;cursor:pointer}
   .check-row input{width:17px;height:17px;flex:0 0 auto;margin:1px 0 0;accent-color:var(--brand)}
@@ -241,6 +245,35 @@
   .hist-row .h-when{color:var(--muted);font-size:.8rem;margin-left:auto}
   .hist-row .h-body{white-space:pre-wrap;font-size:.84rem;color:var(--ink-soft);background:#f8fafc;border-radius:10px;padding:10px 12px;margin:10px 0 8px;max-height:220px;overflow:auto}
   .hist-row .h-rcpt{font-size:.8rem;color:var(--muted);line-height:1.6}
+
+  /* schools + impact (2026-10-24) */
+  .sch-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+  .sch-head .hint{margin:2px 0 0}
+  #schoolTable{min-width:860px}
+  #schoolTable tbody tr{cursor:pointer}
+  #schoolTable tbody tr:focus{outline:2px solid var(--brand);outline-offset:-2px}
+  #schoolTable td.num,#schoolTable th.num{text-align:right;font-variant-numeric:tabular-nums}
+  .sch-name{font-weight:800;color:var(--ink)}
+  .sch-sub{display:block;font-size:.76rem;color:var(--muted);font-weight:600;margin-top:2px}
+  .sch-go{color:var(--brand);font-weight:800}
+  .modal.xl{width:min(980px,100%);padding:0}
+  .mx-head{position:sticky;top:0;background:#fff;z-index:2;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:20px 22px 14px;border-bottom:1px solid var(--line)}
+  .mx-head h3{margin:0;font-size:1.3rem}
+  .mx-head p{margin:4px 0 0;color:var(--muted);font-size:.85rem}
+  .mx-x{min-height:34px;width:34px;padding:0;border:1px solid var(--line);background:#fff;color:var(--ink-soft);border-radius:10px;font-size:1rem}
+  .mx-body{padding:18px 22px 22px}
+  .sch-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:10px;margin-bottom:16px}
+  .sch-tile{border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:#fafcff}
+  .sch-tile .k{font-size:.68rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:800}
+  .sch-tile .v{font-size:1.5rem;font-weight:900;letter-spacing:-.02em;margin-top:2px}
+  .sch-tile .d{font-size:.74rem;color:var(--muted);margin-top:2px}
+  .sch-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:16px;margin-bottom:16px}
+  .sch-box{border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+  .sch-box h4{margin:0 0 8px;font-size:.92rem}
+  .sch-box .table-wrap{max-height:none}
+  .sch-tidy{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .sch-tidy input{flex:1 1 260px;width:auto}
+  @media(max-width:760px){ .sch-grid{grid-template-columns:1fr} }
 
   /* access requests (2026-10-24) */
   .nav-item .pill.alert{background:#f59e0b;color:#fff}
@@ -340,6 +373,34 @@
       </div>
       <div id="ovRequests"></div>
       <div class="stats" id="statCards"></div>
+      <div class="card" id="schoolsCard">
+        <div class="sch-head">
+          <div><h3>Schools</h3><p class="hint">Every school with a teacher on Mills Maths Tools. Click a school for its breakdown.</p></div>
+          <button class="btn-soft btn-tiny" id="copyImpactBtn">📋 Copy impact summary</button>
+        </div>
+        <div class="table-tools">
+          <input class="grow" id="schoolSearch" placeholder="Search schools"/>
+          <select id="schoolSort">
+            <option value="active">Most active (last 28 days)</option>
+            <option value="tasks">Most tasks completed</option>
+            <option value="students">Most students</option>
+            <option value="teachers">Most teachers</option>
+            <option value="newest">Newest first</option>
+            <option value="name">Name (A–Z)</option>
+          </select>
+        </div>
+        <div class="table-wrap" style="max-height:none">
+          <table id="schoolTable">
+            <thead><tr><th>School</th><th class="num">Teachers</th><th class="num">Classes</th><th class="num">Students</th><th class="num" title="Students who completed at least one task in the last 28 days">Active students<br><small style="text-transform:none;letter-spacing:0;font-weight:600">last 28 days</small></th><th class="num">Tasks completed</th><th class="num">Tasks<br><small style="text-transform:none;letter-spacing:0;font-weight:600">last 28 days</small></th><th class="num">Avg score</th><th>Last activity</th></tr></thead>
+            <tbody id="schoolBody"></tbody>
+          </table>
+        </div>
+        <div class="empty" id="schoolEmpty">No schools yet — they appear as soon as a teacher has a school on their profile.</div>
+      </div>
+      <div class="card">
+        <div class="sch-head"><div><h3>Growth over time</h3><p class="hint">Students on the platform (line) and tasks completed each month (bars), for up to the last 12 months.</p></div></div>
+        <div class="chart-box"><canvas id="ovGrowth"></canvas></div>
+      </div>
       <div class="card">
         <h3>Quick actions</h3>
         <p class="hint">Jump straight into the most common admin jobs.</p>
@@ -387,6 +448,7 @@
         </div>
         <div class="table-tools">
           <input class="grow" id="teacherSearch" placeholder="Search name, email, code or school"/>
+          <select id="teacherSchoolFilter" style="min-width:200px"><option value="">All schools</option></select>
           <select id="teacherActiveFilter"><option value="all">All</option><option value="active">Active only</option><option value="inactive">Inactive only</option><option value="noemail">Missing email</option></select>
         </div>
         <div class="bulkbar" id="teacherBulk" style="display:none">
@@ -396,7 +458,7 @@
         </div>
         <div class="table-wrap">
           <table>
-            <thead><tr><th class="check-cell"><input type="checkbox" class="allcheck" id="teacherAllCheck" title="Select all shown"/></th><th>Teacher</th><th>Code</th><th>School</th><th>Classes</th><th>Students</th><th>Last sign-in</th><th>Status</th><th>Actions</th></tr></thead>
+            <thead><tr><th class="check-cell"><input type="checkbox" class="allcheck" id="teacherAllCheck" title="Select all shown"/></th><th>Teacher</th><th>Code</th><th>School</th><th>Classes</th><th>Students<br><small style="text-transform:none;letter-spacing:0;font-weight:600">active / all</small></th><th>Last sign-in</th><th>Status</th><th>Actions</th></tr></thead>
             <tbody id="teacherBody"></tbody>
           </table>
         </div>
@@ -760,6 +822,14 @@
   </div>
 </div>
 
+<!-- school detail modal -->
+<div id="schoolBackdrop" class="backdrop" role="dialog" aria-modal="true" aria-labelledby="schTitle">
+  <div class="modal xl">
+    <div class="mx-head"><div><h3 id="schTitle">School</h3><p id="schSub"></p></div><button type="button" class="mx-x" id="schClose" aria-label="Close">✕</button></div>
+    <div class="mx-body" id="schBody"></div>
+  </div>
+</div>
+
 <!-- approve access request modal -->
 <div id="rqApproveBackdrop" class="backdrop" role="dialog" aria-modal="true" aria-labelledby="rqApTitle">
   <div class="modal wide">
@@ -985,7 +1055,9 @@
   }
 
   function renderEverything(){
+    buildSchools();
     populateTeacherSelects();
+    fillSchoolFilter();
     renderOverview();
     renderTeachers();
     renderStudents();
@@ -1043,24 +1115,32 @@
     const tActive=teachers.filter(t=>t.active!==false).length;
     const sActive=students.filter(s=>s.active!==false).length;
     const cActive=classes.filter(c=>c.active!==false).length;
+    const sch=[...schools.values()].filter(e=>e.key);
+    const act28=new Set(achRecords.filter(r=>r.time>=Date.now()-28*DAY_MS).map(r=>r.studentCode).filter(Boolean)).size;
     $("statCards").innerHTML=`
+      <div class="stat"><div class="k">Schools</div><div class="v">${sch.length}</div><div class="d">${sch.filter(e=>e.tasks28>0).length} active in the last 28 days</div></div>
       <div class="stat"><div class="k">Teachers</div><div class="v">${teachers.length}</div><div class="d">${tActive} active · ${teachers.length-tActive} inactive</div>${capBar(teachers.length,caps.teachers)}</div>
       <div class="stat"><div class="k">Classes</div><div class="v">${classes.length}</div><div class="d">${cActive} active</div>${capBar(classes.length,caps.classes)}</div>
       <div class="stat"><div class="k">Students</div><div class="v">${students.length}</div><div class="d">${sActive} active · ${students.length-sActive} inactive</div>${capBar(students.length,caps.students)}</div>
       <div class="stat"><div class="k">Tasks completed</div><div class="v">${achAvailable?totalTasks.toLocaleString():"—"}</div><div class="d">${achAvailable?"across all students, all time":"publish the achievements read rule"}</div></div>
+      <div class="stat"><div class="k">Active this month</div><div class="v">${achAvailable?act28.toLocaleString():"—"}</div><div class="d">${achAvailable?`students who completed a task in the last 28 days`:"publish the achievements read rule"}</div></div>
       <div class="stat"><div class="k">Teacher emails</div><div class="v">${teachers.filter(hasEmail).length}<span style="font-size:1rem;color:var(--muted);font-weight:800"> / ${teachers.length}</span></div><div class="d">${teachers.length-teachers.filter(hasEmail).length?`${teachers.length-teachers.filter(hasEmail).length} missing — <a href="#" data-goto-noemail>see who</a>`:"every teacher has one on file"}</div></div>
       <div class="stat"><div class="k">Avg class size</div><div class="v">${cActive?Math.round(sActive/cActive):0}</div><div class="d">active students ÷ active classes</div></div>`;
+    renderSchoolTable();
+    if($("view-overview").classList.contains("active")) renderGrowthChart();
   }
 
   // ================= TEACHERS =================
   function teacherRowsShown(){
     const term=($("teacherSearch").value||"").trim().toLowerCase();
     const af=$("teacherActiveFilter").value;
+    const sf=$("teacherSchoolFilter").value;
     return teachers.slice().sort((a,b)=>String(a.teacherName||"").localeCompare(String(b.teacherName||""))).filter(t=>{
       const active=t.active!==false;
       if(af==="active"&&!active) return false;
       if(af==="inactive"&&active) return false;
       if(af==="noemail"&&hasEmail(t)) return false;
+      if(sf && schoolKey(t.school)!==(sf==="__none"?"":sf)) return false;
       if(term){ const h=[t.teacherName,t.teacherCode,t.school,t.email,t.position].join(" ").toLowerCase(); if(!h.includes(term)) return false; }
       return true;
     });
@@ -1080,13 +1160,12 @@
         <td><span class="code copyable" data-ta="copy" data-code="${esc(t.teacherCode)}" title="Click to copy">${esc(t.teacherCode)}</span></td>
         <td>${esc(t.school||"—")}</td>
         <td>${st.classes.length?esc(st.classes.join(", ")):"—"}</td>
-        <td>${st.active} active / ${st.total}</td>
+        <td><button type="button" class="linkish" data-ta="students" data-code="${esc(t.teacherCode)}" title="${st.active} active of ${st.total} — show ${esc(t.teacherName||"this teacher")}'s students">${st.active} <span style="color:var(--muted);font-weight:600">/ ${st.total}</span></button></td>
         <td title="${t.loginCount?esc(t.loginCount+" sign-ins in total"):""}">${esc(fmtAgo(tsMs(t.lastLoginAt)))}</td>
         <td><span class="badge ${active?"active":"inactive"}">${active?"Active":"Inactive"}</span></td>
         <td><div class="t-actions">
           <button class="btn-soft btn-tiny" data-ta="edit" data-code="${esc(t.teacherCode)}">Edit</button>
           <button class="btn-soft btn-tiny" data-ta="email" data-code="${esc(t.teacherCode)}" ${hasEmail(t)?"":"disabled title=\"No email on file\""}>Email</button>
-          <button class="btn-neutral btn-tiny" data-ta="students" data-code="${esc(t.teacherCode)}">Students</button>
           <button class="${active?"btn-danger":"btn-good"} btn-tiny" data-ta="toggle" data-code="${esc(t.teacherCode)}">${active?"Disable":"Reactivate"}</button>
           <button class="btn-ghost btn-tiny" data-ta="delete" data-code="${esc(t.teacherCode)}" style="color:var(--bad)">Delete</button>
         </div></td></tr>`;
@@ -1253,7 +1332,7 @@
   const closeTeacherEdit=()=>$("tEditBackdrop").classList.remove("show");
   $("teCancelBtn").addEventListener("click",closeTeacherEdit);
   $("tEditBackdrop").addEventListener("click",e=>{ if(e.target===$("tEditBackdrop")) closeTeacherEdit(); });
-  document.addEventListener("keydown",e=>{ if(e.key!=="Escape") return; ["tEditBackdrop","editBackdrop","renameBackdrop","rqApproveBackdrop","rqDeclineBackdrop"].forEach(id=>$(id).classList.remove("show")); });
+  document.addEventListener("keydown",e=>{ if(e.key!=="Escape") return; ["tEditBackdrop","editBackdrop","renameBackdrop","rqApproveBackdrop","rqDeclineBackdrop","schoolBackdrop"].forEach(id=>$(id).classList.remove("show")); });
   async function saveTeacherEdit(){
     const code=normCode($("teCode").value); const t=teacherByCode(code); if(!t) throw new Error("That teacher no longer exists — Refresh.");
     const name=$("teName").value.trim().replace(/\s+/g," "); const email=cleanEmail($("teEmail").value);
@@ -1282,6 +1361,180 @@
     catch(err){ msg($("teMsg"),fnErr(err),"bad"); }
     finally{ setLoading($("teWelcomeBtn"),false); }
   });
+
+  // ================= SCHOOLS & IMPACT =================
+  // Schools are free text on each teacher, so "Coffs Harbour HS" and "Coffs
+  // Harbour High School" must count as one school. schoolKey() is the grouping
+  // key: lower case, punctuation gone, common abbreviations expanded, and the
+  // words "the" and "school" dropped. Every number here is computed from data
+  // the console has already loaded — no extra reads, nothing new stored.
+  const DAY_MS=86400000;
+  const SCHOOL_WORDS={ hs:"high", ps:"public", cs:"central", sc:"secondary college", shs:"high", st:"saint", mt:"mount", and:"and" };
+  function schoolKey(name){
+    return String(name||"").toLowerCase().replace(/&/g," and ").replace(/[^a-z0-9]+/g," ").trim().split(" ")
+      .filter(w=>w && w!=="the" && w!=="school").map(w=>SCHOOL_WORDS[w]||w).join(" ");
+  }
+  let schools=new Map();          // key -> school entry
+  let teacherSchool=new Map();    // teacherCode -> key
+  function buildSchools(){
+    const m=new Map(); const now=Date.now();
+    const blank=k=>({ key:k, name:"", teachers:[], variants:new Map(), students:0, activeStudents:0, classes:0, tasks:0, tasks28:0, tasksPrev28:0,
+      stu28:new Set(), scoreSum:0, scoreN:0, lastActivity:0, firstJoined:0, tools:new Map(), weeks:new Array(12).fill(0), perTeacher:new Map() });
+    teacherSchool=new Map();
+    teachers.forEach(t=>{ const k=schoolKey(t.school); teacherSchool.set(t.teacherCode,k); let e=m.get(k); if(!e){ e=blank(k); m.set(k,e); }
+      e.teachers.push(t); const v=String(t.school||"").trim(); if(v) e.variants.set(v,(e.variants.get(v)||0)+1);
+      const j=tsMs(t.createdAt); if(j && (!e.firstJoined || j<e.firstJoined)) e.firstJoined=j;
+      e.perTeacher.set(t.teacherCode,{ students:0, classes:0, tasks:0, tasks28:0, last:0 }); });
+    m.forEach(e=>{ e.name = e.key ? [...e.variants.entries()].sort((a,b)=>b[1]-a[1]||b[0].length-a[0].length)[0][0] : "No school recorded"; });
+    const stuTeacher=new Map(students.map(x=>[x.studentCode||x.id, x.teacherCode]));
+    students.forEach(x=>{ const e=m.get(teacherSchool.get(x.teacherCode)); if(!e) return; e.students++; if(x.active!==false) e.activeStudents++; const pt=e.perTeacher.get(x.teacherCode); if(pt) pt.students++; });
+    classes.forEach(c=>{ if(c.active===false) return; const e=m.get(teacherSchool.get(c.teacherCode)); if(!e) return; e.classes++; const pt=e.perTeacher.get(c.teacherCode); if(pt) pt.classes++; });
+    achRecords.forEach(r=>{
+      const tc=r.teacherCode||stuTeacher.get(r.studentCode)||""; const e=m.get(teacherSchool.get(tc)); if(!e) return;
+      const age=now-r.time; e.tasks++;
+      if(age<28*DAY_MS){ e.tasks28++; if(r.studentCode) e.stu28.add(r.studentCode); }
+      else if(age<56*DAY_MS) e.tasksPrev28++;
+      const wk=Math.floor(age/(7*DAY_MS)); if(wk>=0&&wk<12) e.weeks[11-wk]++;
+      if(r.percent!=null && Number.isFinite(r.percent)){ e.scoreSum+=r.percent; e.scoreN++; }
+      if(r.time>e.lastActivity) e.lastActivity=r.time;
+      e.tools.set(r.tool,(e.tools.get(r.tool)||0)+1);
+      const pt=e.perTeacher.get(tc); if(pt){ pt.tasks++; if(age<28*DAY_MS) pt.tasks28++; if(r.time>pt.last) pt.last=r.time; }
+    });
+    schools=m;
+  }
+  const avgScore=e=>e.scoreN?Math.round(e.scoreSum/e.scoreN):null;
+  const schoolLabel=e=>e.name+(e.variants.size>1?` (${e.variants.size} spellings)`:"");
+  function sortedSchools(){
+    const term=($("schoolSearch").value||"").trim().toLowerCase(); const by=$("schoolSort").value;
+    const cmp={ active:(a,b)=>b.stu28.size-a.stu28.size||b.tasks28-a.tasks28||b.tasks-a.tasks, tasks:(a,b)=>b.tasks-a.tasks, students:(a,b)=>b.students-a.students,
+      teachers:(a,b)=>b.teachers.length-a.teachers.length, newest:(a,b)=>(b.firstJoined||0)-(a.firstJoined||0), name:(a,b)=>a.name.localeCompare(b.name) }[by]||(()=>0);
+    return [...schools.values()].filter(e=>!term||[e.name,...e.variants.keys()].join(" ").toLowerCase().includes(term))
+      .sort((a,b)=>(a.key?0:1)-(b.key?0:1)||cmp(a,b)||a.name.localeCompare(b.name));
+  }
+  function renderSchoolTable(){
+    const list=sortedSchools(); const na=v=>achAvailable?v:"—";
+    $("schoolEmpty").classList.toggle("show",list.length===0);
+    $("schoolBody").innerHTML=list.map(e=>{
+      const act=e.teachers.filter(t=>t.active!==false).length; const sc=avgScore(e);
+      return `<tr data-school="${esc(e.key||"__none")}" tabindex="0" title="Open ${esc(e.name)}">
+        <td><span class="sch-name">${esc(e.name)}</span><span class="sch-sub">${e.variants.size>1?`Also entered as ${esc([...e.variants.keys()].filter(v=>v!==e.name).slice(0,3).join(", "))} · `:""}${e.firstJoined?`joined ${esc(fmtDate(e.firstJoined))}`:""}</span></td>
+        <td class="num">${act}${act!==e.teachers.length?` <span style="color:var(--muted)">/ ${e.teachers.length}</span>`:""}</td>
+        <td class="num">${e.classes}</td>
+        <td class="num">${e.activeStudents.toLocaleString()}</td>
+        <td class="num">${na(e.stu28.size.toLocaleString())}</td>
+        <td class="num">${na(e.tasks.toLocaleString())}</td>
+        <td class="num">${achAvailable?`${e.tasks28.toLocaleString()} ${e.tasks28||e.tasksPrev28?deltaHtml(e.tasks28,e.tasksPrev28):""}`:"—"}</td>
+        <td class="num">${sc==null?"—":sc+"%"}</td>
+        <td>${e.lastActivity?esc(fmtAgo(e.lastActivity)):"—"} <span class="sch-go" aria-hidden="true">›</span></td></tr>`;
+    }).join("");
+  }
+  function fillSchoolFilter(){
+    const sel=$("teacherSchoolFilter"); const keep=sel.value;
+    const list=[...schools.values()].sort((a,b)=>(a.key?0:1)-(b.key?0:1)||a.name.localeCompare(b.name));
+    sel.innerHTML='<option value="">All schools</option>'+list.map(e=>`<option value="${esc(e.key||"__none")}">${esc(e.name)} (${e.teachers.length})</option>`).join("");
+    if([...sel.options].some(o=>o.value===keep)) sel.value=keep;
+  }
+  function monthStarts(n){ const out=[]; const d=new Date(); d.setDate(1); d.setHours(0,0,0,0); for(let i=n-1;i>=0;i--){ out.push(new Date(d.getFullYear(),d.getMonth()-i,1)); } return out; }
+  function renderGrowthChart(){
+    const id="ovGrowth"; if(anCharts[id]){ anCharts[id].destroy(); delete anCharts[id]; }
+    if(typeof Chart==="undefined") return;
+    let months=monthStarts(12); let ends=months.map((m,i)=>i<11?months[i+1].getTime():Date.now()+1);
+    let stuCum=ends.map(end=>students.filter(x=>{ const t=tsMs(x.createdAt); return !t || t<end; }).length);
+    let tasks=months.map((m,i)=>achRecords.filter(r=>r.time>=m.getTime()&&r.time<ends[i]).length);
+    // Start at the first month anything happened (keep at least 3 months on screen).
+    const first=Math.min(Math.max(0,stuCum.findIndex((v,i)=>v>0||tasks[i]>0)), months.length-3);
+    if(first>0){ months=months.slice(first); stuCum=stuCum.slice(first); tasks=tasks.slice(first); }
+    const labels=months.map(m=>m.toLocaleDateString("en-AU",{month:"short",year:"2-digit"}));
+    anCharts[id]=new Chart($(id).getContext("2d"),{ data:{ labels, datasets:[
+        { type:"bar", label:"Tasks completed", data:tasks, backgroundColor:hexA("#2563eb",.22), borderColor:"#2563eb", borderWidth:1, borderRadius:6, yAxisID:"y1", order:2 },
+        { type:"line", label:"Students on the platform", data:stuCum, borderColor:"#16a34a", backgroundColor:"#16a34a", borderWidth:2.5, cubicInterpolationMode:"monotone", pointRadius:0, pointHoverRadius:5, yAxisID:"y", order:1 } ] },
+      options:{ responsive:true, maintainAspectRatio:false, interaction:{ mode:"index", intersect:false },
+        plugins:{ legend:{ position:"bottom", labels:{ boxWidth:12, color:"#334155", font:{size:12} } }, tooltip:{ backgroundColor:"#0f1b33", padding:10, cornerRadius:8 } },
+        scales:{ x:{ grid:{display:false}, ticks:{ color:"#64748b", font:{size:11} } },
+          y:{ beginAtZero:true, position:"left", grid:{ color:"#eef2f7" }, border:{display:false}, ticks:{ color:"#16a34a", precision:0, font:{size:11} }, title:{ display:true, text:"Students", color:"#16a34a", font:{size:11,weight:"700"} } },
+          y1:{ beginAtZero:true, position:"right", grid:{display:false}, border:{display:false}, ticks:{ color:"#2563eb", precision:0, font:{size:11} }, title:{ display:true, text:"Tasks per month", color:"#2563eb", font:{size:11,weight:"700"} } } } } });
+  }
+  function impactSummary(){
+    const sch=[...schools.values()].filter(e=>e.key).sort((a,b)=>b.students-a.students);
+    const sAct=students.filter(x=>x.active!==false).length, tAct=teachers.filter(t=>t.active!==false).length, cAct=classes.filter(c=>c.active!==false).length;
+    const act28=new Set(achRecords.filter(r=>r.time>=Date.now()-28*DAY_MS).map(r=>r.studentCode).filter(Boolean)).size;
+    const t28=achRecords.filter(r=>r.time>=Date.now()-28*DAY_MS).length;
+    const scored=achRecords.filter(r=>r.percent!=null&&Number.isFinite(r.percent));
+    const lines=[`Mills Maths Tools — impact snapshot (${new Date().toLocaleDateString("en-AU",{day:"numeric",month:"long",year:"numeric"})})`,"",
+      `• ${sch.length} school${sch.length===1?"":"s"}, ${tAct} teacher${tAct===1?"":"s"} and ${sAct.toLocaleString()} students in ${cAct} classes`];
+    if(achAvailable){
+      lines.push(`• ${totalTasks.toLocaleString()} tasks completed in total; ${t28.toLocaleString()} in the last 28 days by ${act28.toLocaleString()} students`);
+      if(scored.length) lines.push(`• Average score across all tasks: ${Math.round(scored.reduce((a,r)=>a+r.percent,0)/scored.length)}%`);
+    }
+    if(sch.length){ lines.push("","Schools:"); sch.forEach(e=>lines.push(`• ${e.name} — ${e.teachers.filter(t=>t.active!==false).length} teacher${e.teachers.length===1?"":"s"}, ${e.activeStudents.toLocaleString()} students${achAvailable?`, ${e.tasks.toLocaleString()} tasks completed`:""}`)); }
+    return lines.join("\n");
+  }
+  $("copyImpactBtn").addEventListener("click",async()=>{ const okc=await copyText(impactSummary()); toast(okc?"Impact summary copied — paste it anywhere":"Copy failed",okc?"ok":"bad"); });
+  ["schoolSearch","schoolSort"].forEach(id=>$(id).addEventListener("input",renderSchoolTable));
+  const openSchoolFromRow=tr=>{ if(tr) openSchool(tr.dataset.school==="__none"?"":tr.dataset.school); };
+  $("schoolBody").addEventListener("click",e=>openSchoolFromRow(e.target.closest("tr[data-school]")));
+  $("schoolBody").addEventListener("keydown",e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); openSchoolFromRow(e.target.closest("tr[data-school]")); } });
+
+  let openSchoolKey=null;
+  function openSchool(key){
+    const e=schools.get(key); if(!e) return; openSchoolKey=key;
+    const act=e.teachers.filter(t=>t.active!==false).length; const sc=avgScore(e);
+    $("schTitle").textContent=e.name;
+    $("schSub").textContent=[e.firstJoined?`On Mills Maths Tools since ${fmtDate(e.firstJoined)}`:"", e.lastActivity?`last activity ${fmtAgo(e.lastActivity).toLowerCase()}`:"no activity yet"].filter(Boolean).join(" · ");
+    const tile=(k,v,d)=>`<div class="sch-tile"><div class="k">${k}</div><div class="v">${v}</div>${d?`<div class="d">${d}</div>`:""}</div>`;
+    const na=v=>achAvailable?v:"—";
+    const rows=e.teachers.slice().sort((a,b)=>(e.perTeacher.get(b.teacherCode).tasks)-(e.perTeacher.get(a.teacherCode).tasks)||String(a.teacherName||"").localeCompare(String(b.teacherName||""))).map(t=>{ const p=e.perTeacher.get(t.teacherCode);
+      return `<tr data-tcode="${esc(t.teacherCode)}" style="cursor:pointer" title="Edit ${esc(t.teacherName||t.teacherCode)}"><td><strong>${esc(t.teacherName||t.teacherCode)}</strong>${t.position?`<span class="t-sub">${esc(t.position)}</span>`:""}${t.active===false?' <span class="badge inactive" style="font-size:.66rem;padding:1px 7px">Inactive</span>':""}</td><td class="num">${p.classes}</td><td class="num">${p.students}</td><td class="num">${na(p.tasks.toLocaleString())}</td><td class="num">${na(p.tasks28.toLocaleString())}</td><td>${esc(fmtAgo(tsMs(t.lastLoginAt)))}</td><td>${p.last?esc(fmtAgo(p.last)):"—"}</td></tr>`; }).join("");
+    const others=[...schools.values()].filter(x=>x.key&&x.key!==key).map(x=>x.name).sort();
+    $("schBody").innerHTML=`
+      <div class="sch-tiles">
+        ${tile("Teachers",act,act!==e.teachers.length?`${e.teachers.length-act} inactive`:"")}
+        ${tile("Classes",e.classes)}
+        ${tile("Students",e.activeStudents.toLocaleString(),e.students!==e.activeStudents?`${e.students-e.activeStudents} inactive`:"")}
+        ${tile("Active students",na(e.stu28.size.toLocaleString()),"last 28 days")}
+        ${tile("Tasks completed",na(e.tasks.toLocaleString()),"all time")}
+        ${tile("Tasks",na(e.tasks28.toLocaleString()),achAvailable?`last 28 days ${deltaHtml(e.tasks28,e.tasksPrev28)}`:"")}
+        ${tile("Avg score",sc==null?"—":sc+"%",sc==null?"":"across all tasks")}
+      </div>
+      <div class="sch-grid">
+        <div class="sch-box"><h4>Tasks completed each week</h4><div class="chart-box sm"><canvas id="schWeeks"></canvas></div></div>
+        <div class="sch-box"><h4>Most used tools</h4><div class="rank" id="schTools"></div></div>
+      </div>
+      <div class="sch-box" style="margin-bottom:16px"><h4>Teachers</h4>
+        <div class="table-wrap"><table style="min-width:640px"><thead><tr><th>Teacher</th><th class="num">Classes</th><th class="num">Students</th><th class="num">Tasks</th><th class="num">Last 28 days</th><th>Last sign-in</th><th>Last activity</th></tr></thead><tbody id="schTeachers">${rows}</tbody></table></div>
+      </div>
+      <div class="row-actions" style="margin-bottom:16px">
+        <button class="btn-soft" id="schShowTeachers">Show in Teachers list</button>
+        <button class="btn-soft" id="schEmail" ${e.teachers.some(hasEmail)?"":"disabled"}>✉️ Email this school's teachers</button>
+        <button class="btn-neutral" id="schCopy">📋 Copy school summary</button>
+      </div>
+      ${e.key?`<div class="sch-box"><h4>Tidy the school name</h4>
+        <p class="hint" style="margin:0 0 8px">${e.variants.size>1?`Teachers typed this school ${e.variants.size} different ways (${[...e.variants.keys()].map(esc).join(" · ")}). `:""}Set one name for all ${e.teachers.length} teacher${e.teachers.length===1?"":"s"} here (their students follow). To merge with another school, pick its name.</p>
+        <div class="sch-tidy"><input id="schNewName" list="schNames" value="${esc(e.name)}"/><datalist id="schNames">${others.map(n=>`<option value="${esc(n)}">`).join("")}</datalist>
+        <button class="btn-primary btn-tiny" id="schRename"><span class="spinner"></span><span class="btn-label">Save name</span></button></div><div class="msg" id="schMsg"></div></div>`:""}`;
+    const ws=e.weeks; const wl=ws.map((_,i)=>{ const d=new Date(Date.now()-(11-i)*7*DAY_MS); return d.toLocaleDateString("en-AU",{day:"numeric",month:"short"}); });
+    $("schoolBackdrop").classList.add("show");
+    lineChart("schWeeks",wl,ws,"#2563eb");
+    renderRank("schTools",[...e.tools.entries()].sort((a,b)=>b[1]-a[1]).slice(0,6).map(([label,count])=>({label,count})));
+    $("schTeachers").addEventListener("click",ev=>{ const tr=ev.target.closest("tr[data-tcode]"); if(!tr) return; const t=teacherByCode(tr.dataset.tcode); if(t){ closeSchool(); gotoView("teachers"); openTeacherEdit(t); } });
+    $("schShowTeachers").addEventListener("click",()=>{ closeSchool(); gotoView("teachers"); $("teacherSchoolFilter").value=e.key||"__none"; $("teacherActiveFilter").value="all"; renderTeachers(); });
+    $("schEmail").addEventListener("click",()=>{ closeSchool(); openCompose(e.teachers.filter(t=>t.active!==false).map(t=>t.teacherCode)); });
+    $("schCopy").addEventListener("click",async()=>{ const txt=[`${e.name} — Mills Maths Tools`,`• ${act} teacher${act===1?"":"s"}, ${e.activeStudents} students in ${e.classes} classes`,...(achAvailable?[`• ${e.tasks.toLocaleString()} tasks completed (${e.tasks28} in the last 28 days, by ${e.stu28.size} students)`]:[]),...(sc!=null?[`• Average score: ${sc}%`]:[]),...(e.firstJoined?[`• Using Mills Maths Tools since ${fmtDate(e.firstJoined)}`]:[])].join("\n"); const okc=await copyText(txt); toast(okc?"School summary copied":"Copy failed",okc?"ok":"bad"); });
+    if($("schRename")) $("schRename").addEventListener("click",async()=>{
+      const nm=$("schNewName").value.trim().replace(/\s+/g," "); if(!nm) return msg($("schMsg"),"Enter a school name.","bad");
+      if(e.variants.size===1 && nm===e.name) return msg($("schMsg"),"That's already its name.","warn");
+      if(!confirm(`Set the school to “${nm}” for ${e.teachers.length} teacher${e.teachers.length===1?"":"s"} and their students?`)) return;
+      setLoading($("schRename"),true);
+      try{ let moved=0; for(const t of e.teachers){ await updateDoc(doc(db,"teachers",t.teacherCode),{ school:nm, updatedAt:serverTimestamp() }); moved+=await propagateTeacherToStudents(t.teacherCode,t.teacherName||"",nm); }
+        toast(`School set to ${nm} (${e.teachers.length} teacher${e.teachers.length===1?"":"s"}, ${moved} student record${moved===1?"":"s"})`,"ok");
+        await loadAll(); const k=schoolKey(nm); if(schools.has(k)) openSchool(k); else closeSchool(); }
+      catch(err){ msg($("schMsg"),writeErr(err),"bad"); }
+      finally{ if($("schRename")) setLoading($("schRename"),false); }
+    });
+  }
+  function closeSchool(){ $("schoolBackdrop").classList.remove("show"); openSchoolKey=null; if(anCharts.schWeeks){ anCharts.schWeeks.destroy(); delete anCharts.schWeeks; } }
+  $("schClose").addEventListener("click",closeSchool);
+  $("schoolBackdrop").addEventListener("click",e=>{ if(e.target===$("schoolBackdrop")) closeSchool(); });
 
   // ================= ACCESS REQUESTS =================
   const pendingRequests = () => (accessRequests||[]).filter(r=>r.status==="pending");
@@ -1539,6 +1792,7 @@
     if(view==="growth") renderGrowth();
     if(view==="email") renderEmailView();
     if(view==="requests") renderRequests();
+    if(view==="overview") renderGrowthChart();
     window.scrollTo({top:0,behavior:"smooth"});
   }
   document.querySelectorAll(".qa").forEach(b=>b.addEventListener("click",()=>gotoView(b.dataset.goto,{open:b.dataset.open})));
@@ -1582,7 +1836,7 @@
     const text="MMT Teacher Codes\n\n"+teachers.slice().sort((a,b)=>String(a.teacherName||"").localeCompare(String(b.teacherName||""))).map(t=>{ const st=teacherStats(t.teacherCode); return `${t.teacherName||"Teacher"} — ${t.teacherCode} — ${t.email||"no email"} — ${t.school||"No school"} — ${st.classes.join(", ")||"No classes"} — ${st.active} active students`; }).join("\n");
     const okCopy=await copyText(text); toast(okCopy?"Teacher list copied":"Copy failed", okCopy?"ok":"bad");
   });
-  ["teacherSearch","teacherActiveFilter"].forEach(id=>$(id).addEventListener("input",renderTeachers));
+  ["teacherSearch","teacherActiveFilter","teacherSchoolFilter"].forEach(id=>$(id).addEventListener("input",renderTeachers));
   $("teacherBody").addEventListener("change",e=>{ const c=e.target.closest("[data-tsel]"); if(!c) return; if(c.checked) tSelected.add(c.dataset.tsel); else tSelected.delete(c.dataset.tsel); renderTeachers(); });
   $("teacherBody").addEventListener("click",async(e)=>{
     const b=e.target.closest("[data-ta]"); if(!b) return;

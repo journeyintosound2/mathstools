@@ -109,6 +109,22 @@
 > * **DEPLOY ORDER:** a function declaring a secret prompts for it at deploy. Before
 >   Resend is set up, deploy only `functions:updateMyTeacherProfile,functions:exchangeTeacherCode`.
 > * Rules: one new block, `emailLog` (admin read, no client writes).
+> * **SCHOOLS + IMPACT (same day, admin console only, no rules/functions change).**
+>   Everything is computed in the browser from what `loadAll()` already reads.
+>   `schoolKey()` groups free-text schools (lower case, punctuation stripped, HS→high,
+>   PS→public, CS→central, "the"/"school" dropped) so "Coffs Harbour HS" = "Coffs
+>   Harbour High School"; display name = the most common spelling. A task counts for a
+>   school via its record's `teacherCode`, falling back to the student's teacher.
+>   Overview: Schools + "Active this month" tiles, a sortable Schools table, "Growth
+>   over time" (cumulative students line, monotone so it never dips + tasks/month bars,
+>   trimmed to the first active month), and **Copy impact summary** (plain text for
+>   reports). Clicking a school opens `#schoolBackdrop`: tiles, tasks per week, top
+>   tools, per-teacher table (click → Edit), Show in Teachers list, Email this school,
+>   Copy school summary, and **Tidy the school name** (sets one name on every teacher
+>   in the group + their students; picking another school's name merges them).
+>   Teachers page: school filter (`#teacherSchoolFilter`, `__none` = no school),
+>   `.main` widened to 1440px, the Students button became the clickable count, so the
+>   table fits at a 1440px window. Verified: 31 Playwright checks with real Chart.js.
 > * **ACCESS REQUESTS (same day).** Sign-in page redesigned (`.loginpage` / `.login.v2`,
 >   same IDs) with a "Request teacher access" card → `portal/teacher/request/` (public
 >   form: name*, school email*, school*, role, message, update opt-in). It calls
