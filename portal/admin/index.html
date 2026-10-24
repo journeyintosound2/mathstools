@@ -281,6 +281,20 @@
   .map-foot .lg{display:inline-flex;align-items:center;gap:6px}
   .map-foot .dot{width:11px;height:11px;border-radius:50%;display:inline-block;border:2px solid #fff;box-shadow:0 0 0 1px rgba(15,23,42,.25)}
   .map-foot #mapMissing{margin-left:auto}
+  .map-tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .map-fs-btn{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+  .map-fs-btn .ic{font-size:1rem;line-height:1}
+  .map-fs-only{display:none}
+  /* Full screen = the card fills the window (works on iPad/iPhone too, unlike the browser's own full-screen API) */
+  body.map-fs{overflow:hidden}
+  #mapCard.fs{position:fixed;inset:0;z-index:55;margin:0;border-radius:0;border:0;display:flex;flex-direction:column;padding:12px 16px 10px;max-width:none;width:auto;box-shadow:none}
+  #mapCard.fs .sch-head{margin-bottom:10px;align-items:center}
+  #mapCard.fs .sch-head h3{font-size:1.05rem}
+  #mapCard.fs .sch-head .hint{display:none}
+  #mapCard.fs .mmt-map{flex:1;height:auto;min-height:0}
+  #mapCard.fs .map-fs-only{display:inline}
+  #mapCard.fs .map-fs-btn{background:var(--brand,#2563eb);color:#fff;border-color:transparent}
+  @media (max-width:640px){ #mapCard.fs{padding:8px 8px 6px} #mapCard.fs .map-foot .lg{font-size:.72rem} #mapCard.fs .sch-head h3{display:none} }
   .map-pop{font-family:inherit;min-width:190px}
   .map-pop b{display:block;font-size:.92rem;color:#0f172a}
   .map-pop .m{color:#64748b;font-size:.78rem;margin:2px 0 6px}
@@ -408,13 +422,17 @@
       <div class="card" id="mapCard">
         <div class="sch-head">
           <div><h3>Where Mills Maths Tools is used</h3><p class="hint">One pin per school, sized by its number of students. Overseas teachers show as one pin per country for now.</p></div>
-          <div class="seg" id="mapViewSeg" style="margin:0"><button type="button" data-mv="nsw" class="on">NSW</button><button type="button" data-mv="aus">Australia</button><button type="button" data-mv="world">World</button></div>
+          <div class="map-tools">
+            <div class="seg" id="mapViewSeg" style="margin:0"><button type="button" data-mv="nsw" class="on">NSW</button><button type="button" data-mv="aus">Australia</button><button type="button" data-mv="world">World</button></div>
+            <button type="button" class="btn-soft btn-tiny map-fs-btn" id="mapFsBtn" aria-pressed="false" title="Show the map full screen"><span class="ic" aria-hidden="true">⛶</span><span class="lbl">Full screen</span></button>
+          </div>
         </div>
         <div id="mmtMap" class="mmt-map" role="region" aria-label="Map of schools using Mills Maths Tools"></div>
         <div class="map-foot">
           <span class="lg"><i class="dot" style="background:#16a34a"></i>Active in the last 28 days</span>
           <span class="lg"><i class="dot" style="background:#2563eb"></i>Used before</span>
           <span class="lg"><i class="dot" style="background:#94a3b8"></i>No tasks yet</span>
+          <span class="lg map-fs-only">Scroll or pinch to zoom · <b>Esc</b> or Back to exit</span>
           <span id="mapMissing"></span>
         </div>
       </div>
@@ -1740,6 +1758,29 @@
     else lmap.fitBounds(MAP_VIEWS[mapView]);
   });
 
+  // ---- full screen: CSS overlay (works everywhere), exit by button, Esc or the Back button/gesture
+  var mapFs=false; // var: gotoView reads it
+  function setMapFs(on,{fromHistory=false}={}){
+    on=!!on; if(on===mapFs) return; mapFs=on;
+    const keep=lmap?lmap.getBounds():null;
+    $("mapCard").classList.toggle("fs",on); document.body.classList.toggle("map-fs",on);
+    const b=$("mapFsBtn"); b.setAttribute("aria-pressed",String(on)); b.title=on?"Exit full screen (Esc)":"Show the map full screen";
+    b.querySelector(".ic").textContent=on?"✕":"⛶"; b.querySelector(".lbl").textContent=on?"Exit full screen":"Full screen";
+    if(on){ try{ history.pushState({ mmtMapFs:true },""); }catch{} }
+    else if(!fromHistory){ try{ if(history.state&&history.state.mmtMapFs) history.back(); }catch{} }
+    if(lmap){ if(on) lmap.scrollWheelZoom.enable(); else if(document.activeElement!==$("mmtMap")) lmap.scrollWheelZoom.disable();
+      requestAnimationFrame(()=>{ lmap.invalidateSize({ pan:false }); if(keep) lmap.fitBounds(keep,{ animate:false }); }); }
+    if(on) setTimeout(()=>b.focus(),0); else if(!fromHistory) b.focus();
+  }
+  $("mapFsBtn").addEventListener("click",()=>setMapFs(!mapFs));
+  window.addEventListener("popstate",()=>{ if(mapFs) setMapFs(false,{ fromHistory:true }); });
+  document.addEventListener("keydown",e=>{
+    if(e.key!=="Escape"||!mapFs) return;
+    if(document.querySelector(".backdrop.show")) return;                       // Esc closes the open pop-up first
+    const pop=document.querySelector("#mmtMap .leaflet-popup"); if(pop&&lmap){ lmap.closePopup(); return; } // then a map popup
+    e.preventDefault(); setMapFs(false);
+  },true);
+
   // ================= BACK-FILL: find schools for existing teachers =================
   let bfRows=[];
   async function openBackfill(){
@@ -2097,6 +2138,7 @@
     btn.addEventListener("click",()=>gotoView(btn.dataset.view));
   });
   function gotoView(view,opts={}){
+    if(mapFs&&view!=="overview") setMapFs(false);
     document.querySelectorAll(".nav-item").forEach(b=>b.classList.toggle("active",b.dataset.view===view));
     document.querySelectorAll(".view").forEach(v=>v.classList.toggle("active",v.id===`view-${view}`));
     if(opts.open){ const el=$(opts.open); if(el){ el.scrollIntoView({behavior:"smooth",block:"start"}); const focusFirst=el.querySelector("input,textarea,select"); if(focusFirst) setTimeout(()=>focusFirst.focus(),250); } }
