@@ -27,6 +27,16 @@
 - Pushing: Jeff pushes with GitHub Desktop (Terminal has no saved login for the
   `journeyintosound2` account). Pull before pushing if GitHub Settings changed `CNAME`.
 
+## Publishing = GitHub Desktop (standing assumption, Jeff 2026-10-24)
+- Jeff commits and pushes the website with the **GitHub Desktop app**. When work is
+  ready, say so and suggest a one-line commit summary for him to type there — do
+  **NOT** hand him `git add` / `git commit` / `git push` Terminal commands.
+- Give Terminal commands ONLY for what GitHub Desktop can't do, e.g.
+  `firebase deploy …`, `firebase functions:secrets:set …`, `firebase functions:log …`,
+  `node tools/build-pwa.mjs` (if Claude couldn't run it), `npm run build`.
+- If GitHub Desktop reports a stale `.git/index.lock`, give just the one-line clear:
+  `rm -f "/Users/jeffmills/Documents/GitHub/Mills Maths Tools/.git/index.lock"`.
+
 # Mills Maths Tools — Project Brief
 
 > Hand this file to Claude at the start of any chat to get up to speed without
@@ -47,13 +57,13 @@
 > or diff them with `python3`/`ls`. Git in this repo is Jeff's Terminal only.
 > `git log` is read-only and safe, but there is rarely a reason to need it.
 >
-> **THE FIX, whenever it happens** — every push command handed to Jeff should
-> clear the lock first, so the failure can never happen twice:
+> **THE FIX, whenever it happens** — Jeff publishes with GitHub Desktop (see
+> "Publishing" above), so no push command is handed to him. If Desktop complains
+> about a lock, he clears it with:
 >
 > ```bash
 > cd "/Users/jeffmills/Documents/GitHub/Mills Maths Tools" && \
-> rm -f .git/index.lock .git/HEAD.lock .git/refs/heads/main.lock && \
-> git add -A && git commit -m "…" && git push
+> rm -f .git/index.lock .git/HEAD.lock .git/refs/heads/main.lock
 > ```
 >
 > Do NOT tell Jeff to hunt for a running git process or to re-clone. If Claude
