@@ -294,8 +294,6 @@
       <div class="ic">👤</div><h3>Add Student</h3><p>One student, or paste a whole list at once.</p></button></div>
     <div class="tilewrap"><button class="tile" type="button" id="tileAddClass">
       <div class="ic">🏫</div><h3>Add Class</h3><p>Create a class to sort your students into.</p></button></div>
-    <div class="tilewrap"><button class="tile" type="button" id="tileAdvTask">
-      <div class="ic">🗺️</div><h3>Set Adventure Task</h3><p>Send students to a place in the Adventure.</p></button></div>
     <div class="tilewrap"><button class="tile" type="button" id="tileDashTask">
       <div class="ic">📋</div><h3>Set Dashboard Task</h3><p>Assign online quizzes with a due date.</p></button></div>
     <div class="tilewrap"><button class="tile" type="button" id="tilePrintCards">
@@ -333,11 +331,11 @@
 <div id="printSheet" aria-hidden="true"></div>
 
 <script type="module">
-import { initPortal, loginTeacher, logout, normaliseCode, getDb, updateTeacherProfile, updateCachedProfile, createStudent, createClass, setClassActive, createAdventureTask, setAdventureTaskActive, updateAdventureTask, createDashboardTask, updateDashboardTask, setDashboardTaskActive } from "../shared/codeExchangeClient.js";
+import { initPortal, loginTeacher, logout, normaliseCode, getDb, updateTeacherProfile, updateCachedProfile, createStudent, createClass, setClassActive, setAdventureTaskActive, createDashboardTask, updateDashboardTask, setDashboardTaskActive } from "../shared/codeExchangeClient.js";
 import { COLLECTIONS } from "../shared/firebaseConfig.js";
 import { formatLocation } from "../shared/location.js";
 import { mountSchoolPicker, loadSchools } from "../shared/schoolPicker.js";
-import { ADVENTURE_NPCS, ADVENTURE_STAGES, ADVENTURE_BADGES, getStageTopics, npcDefaultTopic } from "../shared/adventureManifest.js";
+import { ADVENTURE_NPCS, getStageTopics } from "../shared/adventureManifest.js";
 import { collection, query, where, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 // Chart.js is loaded as a classic global script in <head>; referenced as `Chart`.
 import { getEnabledTools } from "../shared/mmtToolRegistry.js";
@@ -353,13 +351,7 @@ let advAssignments=[], dashAssignments=[]; // active teacher-set tasks (for comp
 let anWin=28, anCls="";       // analytics dashboard window (days; 0=all) + class filter
 const tCharts={};             // canvasId -> Chart instance (destroyed on modal close)
 let dtSelected=[], dtPoll=null, dtPopup=null; // dashboard-task selection + subset-builder state
-let editingId=null;           // adventure assignment being edited, or null
 
-// Number Island vs Retrieval Practice Playground split of the NPC list.
-const ISLAND_IDS = ["pip","fern","alby"];
-const ISLAND_PLACE = { pip:"Integer Dunes", fern:"Fraction Volcano", alby:"Champion's Grove" };
-// What each Number Island character does by default (display wording only).
-const ISLAND_DOES = { pip:"Addition & Subtraction facts", alby:"Multiplication facts", fern:"Division facts" };
 // Fraction Farm challenges (in-world). id + host must match the game's
 // farmRecords.js keys and the objective template in farmTaskObjective.js.
 const FARM_CHALLENGES = [
@@ -436,7 +428,6 @@ $("nudgeLater").addEventListener("click", ()=>{ try{ sessionStorage.setItem(NUDG
 // Tile wiring
 $("tileAddStudent").addEventListener("click", openAddStudent);
 $("tileAddClass").addEventListener("click", openAddClass);
-$("tileAdvTask").addEventListener("click", ()=>openAdvTask());
 $("tileDashTask").addEventListener("click", openDashTask);
 $("tilePrintCards").addEventListener("click", openPrintCards);
 $("tileStudents").addEventListener("click", openStudents);
@@ -753,160 +744,11 @@ async function removeClass(name){
   }catch(err){ const m=$("acMsg"); m.className="msg bad show"; m.textContent=(err&&err.message)||"Could not remove the class."; }
 }
 
-// ============================ SET ADVENTURE TASK ============================
-let advSel = { location:"island", targetId:"pip" };
-function openAdvTask(edit){
-  advSel = { location:"island", targetId:"pip" };
-  if(edit){
-    advSel.location = edit.location==="farm" ? "farm" : (ISLAND_IDS.includes(edit.npcId)?"island":"playground");
-    advSel.targetId = edit.location==="farm" ? edit.challengeId : edit.npcId;
-  }
-  editingId = edit ? edit.id : null;
-  const topics = getStageTopics("stage4");
-  openModal(head(editingId?"🗺️ Edit Adventure Task":"🗺️ Set Adventure Task")+`
-    <div class="modal-body">
-      <p class="hint">Pick a place in the Adventure, then exactly what students should do there. The in-world objective updates to match, and completion shows under Manage Tasks.</p>
-      <div class="loctabs">
-        <div class="loctab" data-loc="island"><div class="lt">🏝️ Number Island</div><div class="ld">Pip, Fern &amp; Alby</div></div>
-        <div class="loctab" data-loc="playground"><div class="lt">🎡 Retrieval Practice Playground</div><div class="ld">Your 9 staff characters</div></div>
-        <div class="loctab" data-loc="farm"><div class="lt">🚜 Fraction Farm</div><div class="ld">Pick one of the challenges</div></div>
-      </div>
-      <div id="advTargets"></div>
-      <div class="grid2" style="margin-top:14px">
-        <div class="field"><label>Class</label><select id="atClass">${classOptions()}</select></div>
-        <div class="field" id="advTopicField"><label>Topic</label><select id="atTopic">${topics.map(t=>`<option value="${t.id}">${esc(t.name)}</option>`).join("")}</select></div>
-      </div>
-      <div class="grid2" id="advQDRow">
-        <div class="field"><label>Questions</label><input id="atQs" type="number" min="1" max="50" value="10"/></div>
-        <div class="field"><label>Difficulty</label>
-          <div style="display:flex;gap:6px;align-items:center">
-            <select id="atMin"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
-            <span class="muted">to</span>
-            <select id="atMax"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option></select>
-          </div></div>
-      </div>
-      <div class="grid2">
-        <div class="field"><label>Due (optional)</label><input id="atDue" type="date"/></div>
-        <div class="field"><label>Reward (optional)</label><select id="atBadge"><option value="">No reward badge</option>${ADVENTURE_BADGES.map(b=>`<option value="${b.id}">${b.icon} ${esc(b.name)}</option>`).join("")}</select></div>
-      </div>
-      <div id="advPreview"></div>
-      <div class="msg" id="atMsg"></div>
-    </div>
-    ${foot(`<button class="btn primary" id="atBtn" type="button">${editingId?"Update task":"Set task"}</button>`)}`, true);
-
-  modalEl.querySelectorAll(".loctab").forEach(t=> t.addEventListener("click", ()=> advLoc(t.dataset.loc)));
-  $("atBtn").addEventListener("click", doAdvTask);
-  $("atTopic").addEventListener("change", renderAdvPreview);
-  if(edit){
-    $("atClass").value = edit.className||"";
-    $("atTopic").value = (edit.selectedTopics||[])[0] || npcDefaultTopic(edit.npcId) || topics[0].id;
-    $("atQs").value = edit.requiredQuestions||10;
-    $("atMin").value = String(edit.difficultyRange?.min||1);
-    $("atMax").value = String(edit.difficultyRange?.max||5);
-    $("atDue").value = edit.dueAt ? new Date(edit.dueAt).toISOString().slice(0,10) : "";
-    $("atBadge").value = edit.rewardBadge||"";
-  }
-  renderAdvTargets(!edit);
-}
-function advLoc(loc){
-  advSel.location=loc; advSel.targetId=null;
-  modalEl.querySelectorAll(".loctab").forEach(t=> t.classList.toggle("on", t.dataset.loc===loc));
-  renderAdvTargets(true);
-}
-function renderAdvTargets(syncTopic){
-  const box=$("advTargets");
-  modalEl.querySelectorAll(".loctab").forEach(t=> t.classList.toggle("on", t.dataset.loc===advSel.location));
-  const isFarm = advSel.location==="farm";
-  const tf=$("advTopicField"), qd=$("advQDRow");
-  if(tf) tf.style.display = isFarm?"none":""; if(qd) qd.style.display = isFarm?"none":"";
-  if(isFarm){
-    if(!advSel.targetId || !FARM_CHALLENGES.some(c=>c.id===advSel.targetId)) advSel.targetId=FARM_CHALLENGES[0].id;
-    box.innerHTML = FARM_CHALLENGES.map(c=>targetRow(c.id,c.em,c.name,`${c.skill} · hosted by ${c.host}`,false)).join("");
-    box.querySelectorAll(".targetrow").forEach(r=> r.addEventListener("click", ()=>pickTarget(r.dataset.id, false)));
-    renderAdvPreview(); return;
-  }
-  const list = advSel.location==="island"
-    ? ADVENTURE_NPCS.filter(n=>ISLAND_IDS.includes(n.id))
-    : ADVENTURE_NPCS.filter(n=>!ISLAND_IDS.includes(n.id));
-  if(!advSel.targetId || !list.some(n=>n.id===advSel.targetId)) advSel.targetId=list[0].id;
-  box.innerHTML = list.map(n=>{
-    const place = advSel.location==="island" ? (ISLAND_PLACE[n.id]||"") : "Retrieval Practice Playground";
-    const defT = getStageTopics("stage4").find(t=>t.id===n.defaultTopic)?.name || n.defaultTopic;
-    const does = (advSel.location==="island" && ISLAND_DOES[n.id]) ? ISLAND_DOES[n.id] : `usually ${defT}`;
-    return targetRow(n.id, advSel.location==="island"?"⭐":"🧑‍🏫", n.name, `${place} · ${does}`, false);
-  }).join("");
-  box.querySelectorAll(".targetrow").forEach(r=> r.addEventListener("click", ()=>pickTarget(r.dataset.id, syncTopic)));
-  if(syncTopic){ const def=npcDefaultTopic(advSel.targetId); if(def) $("atTopic").value=def; }
-  renderAdvPreview();
-}
-function targetRow(id, em, title, desc, disabled){
-  return `<div class="targetrow ${advSel.targetId===id?"on":""}" data-id="${esc(id)}" ${disabled?'style="opacity:.55;pointer-events:none"':""}>
-    <input type="radio" name="advtarget" ${advSel.targetId===id?"checked":""} ${disabled?"disabled":""}/>
-    <span class="em">${em}</span><span><div class="tt">${esc(title)}</div><div class="td">${esc(desc)}</div></span></div>`;
-}
-function pickTarget(id, syncTopic){
-  advSel.targetId=id;
-  modalEl.querySelectorAll(".targetrow").forEach(r=>{ const on=r.dataset.id===id; r.classList.toggle("on",on); const rb=r.querySelector("input"); if(rb) rb.checked=on; });
-  if(syncTopic){ const def=npcDefaultTopic(id); if(def) $("atTopic").value=def; }
-  renderAdvPreview();
-}
+// ============================ ADVENTURE TASKS (retired) ============================
+// Teachers no longer set Adventure tasks: the Adventure's storyline and progression
+// now guide students. Tasks set before this change still show in Manage Tasks
+// (View + Remove) until the teacher removes them; the Cloud Functions stay deployed.
 function npcName(id){ return ADVENTURE_NPCS.find(n=>n.id===id)?.name || id; }
-function advObjective(){
-  if(advSel.location==="farm"){
-    const c=FARM_CHALLENGES.find(x=>x.id===advSel.targetId);
-    return c ? `Find ${c.host} to complete the ${c.name} in Fraction Farm` : "";
-  }
-  const topicName = getStageTopics("stage4").find(t=>t.id===$("atTopic").value)?.name || $("atTopic").value;
-  if(advSel.location==="island"){
-    const place = ISLAND_PLACE[advSel.targetId]||"Number Island";
-    return `Find ${npcName(advSel.targetId)} in ${place} to practise ${topicName}`;
-  }
-  return `Find ${npcName(advSel.targetId)} in the Retrieval Practice Playground to practise ${topicName}`;
-}
-function renderAdvPreview(){
-  const obj = advObjective();
-  const off = advSel.location!=="farm" && (()=>{ const n=ADVENTURE_NPCS.find(n=>n.id===advSel.targetId); return n && $("atTopic").value!==n.defaultTopic; })();
-  const offMsg = off ? `<div class="td" style="color:#fbbf24;margin-top:8px">${esc(npcName(advSel.targetId))} usually teaches something else — students see a short generic intro for this off-theme task.</div>` : "";
-  $("advPreview").innerHTML = obj
-    ? `<div class="preview"><div class="lbl">In-world objective students will see</div><div class="obj">“${esc(obj)}”</div>${offMsg}</div>`
-    : `<div class="preview"><div class="lbl">In-world objective</div><div class="muted">Pick a target above to preview it.</div></div>`;
-}
-async function doAdvTask(){
-  const className=$("atClass").value; const m=$("atMsg");
-  if(!className){ m.className="msg bad show"; m.textContent="Choose a class."; return; }
-  const dueVal=$("atDue").value; const dueAt = dueVal ? new Date(dueVal+"T23:59:59").getTime() : null;
-  const btn=$("atBtn");
-  // ---- Fraction Farm challenge task ----
-  if(advSel.location==="farm"){
-    const c=FARM_CHALLENGES.find(x=>x.id===advSel.targetId);
-    if(!c){ m.className="msg bad show"; m.textContent="Pick a farm challenge."; return; }
-    const payload={ location:"farm", challengeId:c.id, className, dueAt, rewardBadge:$("atBadge").value||null,
-      title:`Fraction Farm: ${c.name}`, description:`Complete the ${c.name} in Fraction Farm.` };
-    btn.disabled=true; btn.textContent= editingId?"Updating…":"Setting…";
-    try{
-      if(editingId){ await updateAdventureTask({ assignmentId:editingId, ...payload }); m.className="msg ok show"; m.innerHTML=`Updated <strong>${esc(c.name)}</strong> for <strong>${esc(className)}</strong>.`; editingId=null; }
-      else { await createAdventureTask(payload); taskBadge+=1; m.className="msg ok show"; m.innerHTML=`Set <strong>${esc(c.name)}</strong> for <strong>${esc(className)}</strong> in Fraction Farm.`; }
-      refreshStats();
-    }catch(err){ m.className="msg bad show"; m.textContent=(err&&err.message)||"Could not set the task."; }
-    finally{ btn.disabled=false; btn.textContent= editingId?"Update task":"Set task"; }
-    return;
-  }
-  // ---- Number Island / Retrieval Practice Playground task ----
-  const npcId=advSel.targetId; const topicId=$("atTopic").value;
-  const min=Number($("atMin").value)||1, max=Math.max(min, Number($("atMax").value)||5);
-  const requiredQuestions=Math.min(50, Math.max(1, Number($("atQs").value)||10));
-  const topicName = getStageTopics("stage4").find(t=>t.id===topicId)?.name || topicId;
-  const payload={ npcId, className, stages:["stage4"], selectedTopics:[topicId], selectedSkills:[],
-    difficultyRange:{min,max}, requiredQuestions, adaptiveOn:true, dueAt, rewardBadge:$("atBadge").value||null,
-    title:`${npcName(npcId)}: ${topicName}`, description:`A ${topicName} task set by your teacher.` };
-  btn.disabled=true; btn.textContent= editingId?"Updating…":"Setting…";
-  try{
-    if(editingId){ await updateAdventureTask({ assignmentId:editingId, ...payload }); m.className="msg ok show"; m.innerHTML=`Updated <strong>${esc(topicName)}</strong> for <strong>${esc(className)}</strong>, delivered by <strong>${esc(npcName(npcId))}</strong>.`; editingId=null; }
-    else { await createAdventureTask(payload); taskBadge+=1; m.className="msg ok show"; m.innerHTML=`Set <strong>${esc(topicName)}</strong> for <strong>${esc(className)}</strong>, delivered by <strong>${esc(npcName(npcId))}</strong>.`; }
-    refreshStats();
-  }catch(err){ m.className="msg bad show"; m.textContent=(err&&err.message)||"Could not set the task."; }
-  finally{ btn.disabled=false; btn.textContent= editingId?"Update task":"Set task"; }
-}
 
 // ============================ SET DASHBOARD TASK ============================
 // Two categories on this page:
@@ -1415,14 +1257,15 @@ async function openTasks(){
     <div class="modal-body">
       <div class="filters"><select id="mtClass"><option value="">All classes</option>${classes.map(c=>`<option>${esc(c)}</option>`).join("")}</select>
         <span class="spacer" style="flex:1"></span>
-        <button class="btn sm" type="button" id="mtNewAdv">+ Adventure task</button>
         <button class="btn sm" type="button" id="mtNewDash">+ Dashboard task</button></div>
-      <div class="sectionlabel" style="margin-left:0">Adventure tasks</div>
-      <div id="mtBody"><p class="muted">Loading…</p></div>
+      <div id="mtAdvWrap" hidden>
+        <div class="sectionlabel" style="margin-left:0">Adventure tasks set earlier</div>
+        <p class="muted" style="margin:-4px 0 10px">The Adventure's storyline now guides students, so new Adventure tasks aren't set from here. These older ones still show for students until you remove them.</p>
+        <div id="mtBody"><p class="muted">Loading…</p></div>
+      </div>
       <div class="sectionlabel" style="margin-left:0">Dashboard tasks (online quizzes)</div>
       <div id="mtDashBody"><p class="muted">Loading…</p></div>
     </div>${foot("")}`, true);
-  $("mtNewAdv").addEventListener("click", ()=>openAdvTask());
   $("mtNewDash").addEventListener("click", ()=>openDashTask());
   $("mtClass").addEventListener("change", ()=>{ loadTasks($("mtClass").value); loadDashTasks($("mtClass").value); });
   currentRefresh=()=>{ const c=$("mtClass")?$("mtClass").value:""; loadTasks(c); loadDashTasks(c); };
@@ -1436,7 +1279,13 @@ async function loadTasks(className){
     if(className) constraints.push(where("className","==",className));
     const snap=await getDocs(query(collection(db,"adventureAssignments"),...constraints));
     const rows=snap.docs.map(d=>({id:d.id,...d.data()})).filter(t=>t.active!==false).sort((a,b)=>(b.assignedAt||0)-(a.assignedAt||0));
-    if(!rows.length){ box.innerHTML=`<p class="muted">No Adventure tasks set${className?` for ${esc(className)}`:""} yet.</p>`; return; }
+    const wrap=$("mtAdvWrap");
+    if(!rows.length){
+      // Nothing old to tidy up: hide the section, unless another class filter still has some.
+      if(className && advAssignments.length){ wrap.hidden=false; box.innerHTML=`<p class="muted">None for ${esc(className)}.</p>`; } else wrap.hidden=true;
+      return;
+    }
+    wrap.hidden=false;
     const topicName=(id)=>getStageTopics("stage4").find(t=>t.id===id)?.name||id;
     const farmName=(id)=>FARM_CHALLENGES.find(c=>c.id===id)?.name||id;
     const farmHost=(id)=>FARM_CHALLENGES.find(c=>c.id===id)?.host||"Farm";
@@ -1451,12 +1300,10 @@ async function loadTasks(className){
         <td><span class="pct ${done>=classSize&&classSize?'hi':done?'mid':'lo'}">${done}/${classSize||"—"}</span></td>
         <td><div class="task-actions">
           <button class="btn sm" data-view="${esc(t.id)}" type="button">View</button>
-          <button class="btn sm" data-edit="${esc(t.id)}" type="button">Edit</button>
           <button class="task-x" data-remove="${esc(t.id)}" type="button" title="Remove" aria-label="Remove">✕</button>
         </div></td></tr>`;}).join("")+`</tbody></table>`;
     box.querySelectorAll("[data-remove]").forEach(b=> b.addEventListener("click", ()=> removeTask(b.dataset.remove)));
     box.querySelectorAll("[data-view]").forEach(b=> b.addEventListener("click", ()=> openTaskDetail(rows.find(t=>t.id===b.dataset.view))));
-    box.querySelectorAll("[data-edit]").forEach(b=> b.addEventListener("click", ()=> openAdvTask(rows.find(t=>t.id===b.dataset.edit))));
   }catch(err){ box.innerHTML=`<p class="muted">Could not load tasks${err&&err.message?": "+esc(err.message):""}.</p>`; }
 }
 function taskCompleters(assignmentId){
@@ -1495,7 +1342,7 @@ function openTaskDetail(t){
 async function removeTask(assignmentId){
   if(!assignmentId) return;
   if(!confirm("Remove this Adventure task? Students in this class will no longer see it.")) return;
-  try{ await setAdventureTaskActive(assignmentId, false); loadTasks($("mtClass")?.value||""); }
+  try{ await setAdventureTaskActive(assignmentId, false); advAssignments=advAssignments.filter(t=>t.id!==assignmentId); taskBadge=Math.max(0,taskBadge-1); refreshStats(); loadTasks($("mtClass")?.value||""); }
   catch(err){ alert((err&&err.message)||"Could not remove the task."); }
 }
 </script>
