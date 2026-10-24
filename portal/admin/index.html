@@ -281,6 +281,7 @@
   .map-foot .lg{display:inline-flex;align-items:center;gap:6px}
   .map-foot .dot{width:11px;height:11px;border-radius:50%;display:inline-block;border:2px solid #fff;box-shadow:0 0 0 1px rgba(15,23,42,.25)}
   .map-foot #mapMissing{margin-left:auto}
+  .map-foot .dot.num{width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-size:.62rem;font-weight:800;font-style:normal}
   .map-tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
   /* pins: one per school (size = students), clusters = several schools close together (number = schools) */
   .mpin-wrap,.mcl-wrap{background:none;border:0}
@@ -333,7 +334,7 @@
   }
   #mapCard.fs .map-fs-only{display:inline}
   #mapCard.fs .map-fs-btn{background:var(--brand,#2563eb);color:#fff;border-color:transparent}
-  @media (max-width:640px){ #mapCard.fs{padding:8px 8px 6px} #mapCard.fs .map-foot .lg{font-size:.72rem} #mapCard.fs .sch-head h3{display:none} }
+  @media (max-width:640px){ #mapCard.fs{padding:8px 8px 6px} #mapCard.fs .map-foot{gap:4px 12px;margin-top:6px} #mapCard.fs .map-foot .lg{font-size:.72rem} #mapCard.fs .map-foot .lg.map-fs-only,#mapCard.fs #mapMissing{display:none} #mapCard.fs .sch-head h3{display:none} }
   .map-pop{font-family:inherit;min-width:190px}
   .map-pop b{display:block;font-size:.92rem;color:#0f172a}
   .map-pop .m{color:#64748b;font-size:.78rem;margin:2px 0 6px}
@@ -461,7 +462,7 @@
       <div class="stats" id="statCards"></div>
       <div class="card" id="mapCard">
         <div class="sch-head">
-          <div><h3>Where Mills Maths Tools is used</h3><p class="hint">One pin per school, sized by its number of students. Nearby schools join into a numbered bubble; zoom in (or click it) to split them. Overseas teachers show as one pin per country for now.</p></div>
+          <div><h3>Where Mills Maths Tools is used</h3><p class="hint">One red pin per school, sized by its number of students. Nearby schools join into a numbered bubble; zoom in (or click it) to split them. Overseas teachers show as one pin per country for now.</p></div>
           <div class="map-tools">
             <div class="seg" id="mapViewSeg" style="margin:0"><button type="button" data-mv="nsw" class="on">NSW</button><button type="button" data-mv="aus">Australia</button><button type="button" data-mv="world">World</button></div>
             <button type="button" class="btn-soft btn-tiny map-fs-only" id="msToggle" aria-pressed="false" aria-controls="mapSide">☰ Schools list</button>
@@ -480,9 +481,11 @@
           <div id="mmtMap" class="mmt-map" role="region" aria-label="Map of schools using Mills Maths Tools"></div>
         </div>
         <div class="map-foot">
-          <span class="lg"><i class="dot" style="background:#16a34a"></i>Active in the last 28 days</span>
-          <span class="lg"><i class="dot" style="background:#2563eb"></i>Used before</span>
-          <span class="lg"><i class="dot" style="background:#94a3b8"></i>No tasks yet</span>
+          <span class="lg"><i class="dot" style="background:#e11d2a;width:13px;height:13px"></i>A school (bigger = more students)</span>
+          <span class="lg"><i class="dot num" style="background:#16a34a">3</i>Nearby schools, coloured by activity:</span>
+          <span class="lg"><i class="dot" style="background:#16a34a"></i>active in the last 28 days</span>
+          <span class="lg"><i class="dot" style="background:#2563eb"></i>used before</span>
+          <span class="lg"><i class="dot" style="background:#475569"></i>no tasks yet</span>
           <span class="lg map-fs-only">Scroll or pinch to zoom · <b>Esc</b> or Back to exit</span>
           <span id="mapHiddenNote" class="map-hidden-note"></span>
           <span id="mapMissing"></span>
@@ -1764,7 +1767,8 @@
   // area ∝ students; overseas schools that only know their country share one
   // pin per country. Opens on NSW; the buttons jump to Australia or the world.
   const MAP_VIEWS={ nsw:[[-37.6,140.9],[-28.1,153.7]], aus:[[-43.8,112.8],[-10.5,154]] };
-  const TIER_COL=["#94a3b8","#2563eb","#16a34a"];          // no tasks yet · used before · active in the last 28 days
+  const TIER_COL=["#475569","#2563eb","#16a34a"];          // bubble colours: no tasks yet · used before · active in the last 28 days
+  const PIN_RED="#e11d2a";                                 // every single-school pin: bright red so it never gets lost
   const tierOf=e=>e.tasks28>0?2:e.tasks>0?1:0;
   let lmap=null, lmapLayer=null, mapView="nsw";
   const mapHidden=new Set();                               // school keys the admin has unticked in the list
@@ -1819,14 +1823,14 @@
     list.forEach(e=>{
       if(e.coord.src==="country"){ const k=e.coord.country; if(!byCountry.has(k)) byCountry.set(k,{ coord:e.coord, schools:[] }); byCountry.get(k).schools.push(e); return; }
       const size=pinSize(e.activeStudents);
-      const m=L.marker([e.coord.lat,e.coord.lng],{ icon:pinIcon(mapColour(e),size), riseOnHover:true, alt:e.name, keyboard:true, mmt:{ n:1, tier:tierOf(e), key:e.key } })
+      const m=L.marker([e.coord.lat,e.coord.lng],{ icon:pinIcon(PIN_RED,size), riseOnHover:true, alt:e.name, keyboard:true, mmt:{ n:1, tier:tierOf(e), key:e.key } })
         .bindTooltip(esc(e.name),{ direction:"top", offset:[0,-size/2] }).bindPopup(schoolPopup(e));
       markers.push(m); markerByKey.set(e.key,m);
     });
     byCountry.forEach((g,country)=>{
       const teachersN=g.schools.reduce((a,e)=>a+e.teachers.length,0), tier=Math.max(...g.schools.map(tierOf));
       const size=Math.max(26,Math.min(44,22+teachersN*3));
-      const m=L.marker([g.coord.lat,g.coord.lng],{ icon:pinIcon(TIER_COL[tier],size,{ country:true, label:g.schools.length>1?String(g.schools.length):"" }), riseOnHover:true, alt:country, mmt:{ n:g.schools.length, tier, country } })
+      const m=L.marker([g.coord.lat,g.coord.lng],{ icon:pinIcon(PIN_RED,size,{ country:true, label:g.schools.length>1?String(g.schools.length):"" }), riseOnHover:true, alt:country, mmt:{ n:g.schools.length, tier, country } })
         .bindTooltip(`${esc(country)} — ${g.schools.length} school${g.schools.length===1?"":"s"}`,{ direction:"top" })
         .bindPopup(`<div class="map-pop"><b>${esc(country)}</b><div class="m">${teachersN} teacher${teachersN===1?"":"s"} · pin at the country's centre</div><ul>${g.schools.map(e=>`<li><a data-open-school="${esc(e.key)}">${esc(e.name)}</a>${e.location?` — ${esc(e.location)}`:""}</li>`).join("")}</ul></div>`);
       markers.push(m); g.schools.forEach(e=>markerByKey.set(e.key,m));
