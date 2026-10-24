@@ -336,7 +336,7 @@
 import { initPortal, loginTeacher, logout, normaliseCode, getDb, updateTeacherProfile, updateCachedProfile, createStudent, createClass, setClassActive, createAdventureTask, setAdventureTaskActive, updateAdventureTask, createDashboardTask, updateDashboardTask, setDashboardTaskActive } from "../shared/codeExchangeClient.js";
 import { COLLECTIONS } from "../shared/firebaseConfig.js";
 import { formatLocation } from "../shared/location.js";
-import { mountSchoolPicker } from "../shared/schoolPicker.js";
+import { mountSchoolPicker, loadSchools } from "../shared/schoolPicker.js";
 import { ADVENTURE_NPCS, ADVENTURE_STAGES, ADVENTURE_BADGES, getStageTopics, npcDefaultTopic } from "../shared/adventureManifest.js";
 import { collection, query, where, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 // Chart.js is loaded as a classic global script in <head>; referenced as `Chart`.
@@ -345,6 +345,7 @@ import { normaliseAchievement, summarise, rollupByStudent, toCSV, summaryText, p
 
 const $ = (id)=>document.getElementById(id);
 let teacher=null, students=[], all=[], attemptsByCode=new Map();
+let geoListOk=false; loadSchools().then(d=>{ geoListOk=d.list.length>0; if(teacher) paintProfile(); }); // only nag for a map pin once the school list is installed
 let classes=[];               // flat class-name list the pickers use
 let classesData=[];           // [{name, classId|null}] — saved classes ∪ roster-derived
 let taskBadge=0;              // adventure + dashboard task count for the tile badge
@@ -544,7 +545,7 @@ function paintProfile(){
   $("profileMail").textContent = teacher.email ? teacher.email : "";
   let later=false; try{ later=sessionStorage.getItem(NUDGE_KEY)==="1"; }catch{}
   // One nudge at a time: the email first, then the school's location.
-  const need = !teacher.email ? "email" : (!teacher.suburb || !teacher.country || (teacher.country==="Australia" && teacher.lat==null)) ? "location" : "";
+  const need = !teacher.email ? "email" : (!teacher.suburb || !teacher.country || (geoListOk && teacher.country==="Australia" && teacher.lat==null)) ? "location" : "";
   $("emailNudge").classList.toggle("hidden", !need || later);
   $("emailNudge").dataset.need = need;
   if(need==="location"){

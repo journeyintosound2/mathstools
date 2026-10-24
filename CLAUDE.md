@@ -4075,3 +4075,9 @@ portal/PLACEMENT.md , portal/README.md   migration + structure notes
 - Consider **App Check**; consider consolidating the 3 Firebase projects later.
 - Old pre-reorg URLs (e.g. `/factor-circles/`) now 404 — add redirects if any were
   widely shared.
+
+## School picker, map + back-fill (2026-10-24)
+- `portal/shared/schoolPicker.js` — `mountSchoolPicker(el,{prefix,value,required,label})` → `get()` / `problem()` / `set()` / `ready`. Used by: request page (`rqSp`), teacher profile (`pfSp`), admin create (`tSp`), edit (`teSp`), approve (`rqApSp`), school details (`schSp`). Modes: official list · "isn't listed" (typed name + ABS suburb) · another country (free text, pin at country centre). Falls back to typed suburb + state if the geo files are missing — never blocks a teacher.
+- Fields on teachers/requests: `school, schoolId, sector, schoolType, suburb, state, postcode, country, lat, lng, locSource` (school|suburb|country|manual). Server twin: `cleanSchoolMeta()` in functions/index.js.
+- Data: `portal/shared/geo/schools-au.json` + `suburbs-au.json`, built by `python3 tools/geo/build-geo-data.py` from downloads in `tools/geo-source/` (git-ignored). Default = NSW DoE public schools (Government only, CC BY). `--acara` = all sectors, ONLY once ACARA gives written consent. Suburbs = ABS ASGS 2021 (CC BY 4.0). Refresh yearly.
+- Admin Overview map: Leaflet 1.9.4 (cdnjs) + OSM tiles, `renderMap()`, `MAP_VIEWS`; country pins dashed; "Find their schools" = back-fill modal (`openBackfill`). No rules change.

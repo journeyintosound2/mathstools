@@ -62,7 +62,7 @@ def xlsx_rows(path, sheet_hint=None):
     name, target = sheets[0]
     if sheet_hint:
         for n, t in sheets:
-            if sheet_hint.lower() in n.lower():
+            if sheet_hint.lower() in n.lower() and "dictionary" not in n.lower():
                 name, target = n, t
                 break
     target = target.lstrip("/")
@@ -141,10 +141,10 @@ def acara_schools():
     profile = {}
     prof_files = sorted(glob.glob(os.path.join(SRC, "school-profile-*.xlsx")))
     if prof_files:
-        for d in table(xlsx_rows(prof_files[-1]), ["acara sml id", "school name"]):
+        for d in table(xlsx_rows(prof_files[-1], "profile"), ["acara sml id", "school name"]):
             profile[pick(d, "acara sml id")] = d
     out, seen = [], set()
-    for d in table(xlsx_rows(loc[-1]), ["acara sml id", "latitude"]):
+    for d in table(xlsx_rows(loc[-1], "location"), ["acara sml id", "latitude"]):
         sid = pick(d, "acara sml id")
         if not sid or sid in seen:
             continue

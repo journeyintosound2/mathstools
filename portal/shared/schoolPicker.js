@@ -23,7 +23,7 @@
  * tools/geo/build-geo-data.py. If a file is missing the picker still works —
  * search simply offers "My school isn't listed".
  */
-import { COUNTRIES, countryCentre, formatLocation } from "./location.js";
+import { AU_STATES, COUNTRIES, countryCentre, formatLocation } from "./location.js";
 
 const BASE = new URL("./geo/", import.meta.url).href;
 const OTHER = "__other";
@@ -176,6 +176,7 @@ function combobox(input, list, { search, render, onPick, empty }) {
     if (norm(q).length < 2) { close(); return; }
     items = await search(q);
     if (input.value !== q) return;
+    if (!items.length && !empty()) { close(); return; }
     active = items.length ? 0 : -1;
     list.hidden = false; input.setAttribute("aria-expanded", "true"); paint();
   };
@@ -193,7 +194,8 @@ function combobox(input, list, { search, render, onPick, empty }) {
     const li = e.target.closest("[data-i]"); if (!li) return;
     e.preventDefault(); const it = items[+li.dataset.i]; close(); onPick(it);
   });
-  input.addEventListener("blur", () => setTimeout(close, 120));
+  let blurT = 0;
+  input.addEventListener("blur", () => { clearTimeout(blurT); blurT = setTimeout(() => { if (document.activeElement !== input) close(); }, 120); });
   return { close };
 }
 
@@ -209,6 +211,7 @@ export function mountSchoolPicker(el, opts = {}) {
   let chosen = null;               // official school object (AU listed)
   let suburb = null;               // { name, state, lat, lng } (AU manual)
   let osCountry = "";
+  let noSchools = false, noSub = false; // data files missing/unreachable → typed fallback, never a dead end
 
   el.classList.add("sp");
   el.innerHTML = `
@@ -229,8 +232,9 @@ export function mountSchoolPicker(el, opts = {}) {
       <div class="sp-f"><label class="sp-lbl" for="${p}MSub">Suburb / town${req}</label>
         <div id="${p}SubCard" hidden></div>
         <div class="sp-box" id="${p}SubBox"><input class="sp-in" id="${p}MSub" type="text" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="${p}SubList" placeholder="Start typing the suburb or town…"/>
-          <ul class="sp-list" id="${p}SubList" role="listbox" hidden></ul></div></div>
-      <div class="sp-help"><button type="button" class="sp-link" id="${p}ToSearch">← Search the school list instead</button></div>
+          <ul class="sp-list" id="${p}SubList" role="listbox" hidden></ul></div>
+        <select class="sp-in" id="${p}MState" aria-label="State or territory" style="margin-top:6px" hidden><option value="">State / territory…</option>${AU_STATES.map(([c, n]) => `<option value="${c}">${esc(n)}</option>`).join("")}</select></div>
+      <div class="sp-help" id="${p}ToSearchWrap"><button type="button" class="sp-link" id="${p}ToSearch">← Search the school list instead</button></div>
     </div>
   </div>
   <div class="sp-os" id="${p}Os" hidden>
@@ -257,6 +261,7 @@ export function mountSchoolPicker(el, opts = {}) {
       $("Change").onclick = () => { chosen = null; paint(); changed(); setTimeout(() => { $("Q").value = ""; $("Q").focus(); }, 0); };
     }
     $("SubCard").hidden = !suburb; $("SubBox").hidden = !!suburb;
+    $("MState").hidden = !noSub; $("ToSearchWrap").hidden = noSchools;
     if (suburb) {
       $("SubCard").innerHTML = `<div class="sp-card" style="padding:8px 11px"><span class="ic">📍</span><span class="tx"><b>${esc(suburb.name)}, ${esc(suburb.state)}</b></span><button type="button" class="sp-btn" id="${p}SubChange">Change</button></div>`;
       $("SubChange").onclick = () => { suburb = null; paint(); changed(); setTimeout(() => { $("MSub").value = ""; $("MSub").focus(); }, 0); };
@@ -267,7 +272,7 @@ export function mountSchoolPicker(el, opts = {}) {
   $("ToManual").addEventListener("click", () => { manual = true; if (!$("MName").value) $("MName").value = $("Q").value.trim(); paint(); changed(); setTimeout(() => $("MName").focus(), 0); });
   $("ToSearch").addEventListener("click", () => { manual = false; paint(); changed(); setTimeout(() => $("Q").focus(), 0); });
   $("OsCountry").addEventListener("change", () => { $("OsOther").hidden = $("OsCountry").value !== OTHER; if (!$("OsOther").hidden) $("OsOther").focus(); changed(); });
-  ["MName", "OsSchool", "OsTown", "OsRegion", "OsOther"].forEach((id) => $(id).addEventListener("input", () => { $(id).classList.remove("bad"); changed(); }));
+  ["MName", "MSub", "MState", "OsSchool", "OsTown", "OsRegion", "OsOther"].forEach((id) => $(id).addEventListener("input", () => { $(id).classList.remove("bad"); changed(); }));
 
   combobox($("Q"), $("List"), {
     search: async (q) => searchSchools(await loadSchools(), q, { prefer }),
@@ -279,7 +284,7 @@ export function mountSchoolPicker(el, opts = {}) {
     search: async (q) => searchSuburbs(await loadSuburbs(), q, { prefer }),
     render: (s) => `<b>${highlight(s.name, $("MSub").value)}</b><small>${esc(s.state)}</small>`,
     onPick: (s) => { suburb = s; $("MSub").classList.remove("bad"); paint(); changed(); },
-    empty: () => `No suburb or town matches that.`,
+    empty: () => (noSub ? "" : `No suburb or town matches that.`),
   });
 
   const api = {
@@ -291,6 +296,7 @@ export function mountSchoolPicker(el, opts = {}) {
           lat: c ? c[0] : null, lng: c ? c[1] : null, locSource: c ? "country" : "" };
       }
       if (!manual && chosen) return { school: chosen.name, schoolId: chosen.id, sector: chosen.sector || "", schoolType: chosen.type || "", suburb: chosen.suburb, state: chosen.state, postcode: chosen.postcode || "", country: "Australia", lat: chosen.lat, lng: chosen.lng, locSource: "school" };
+      if (manual && noSub) return { school: $("MName").value.trim().replace(/\s+/g, " "), schoolId: "", sector: "", schoolType: "", suburb: $("MSub").value.trim().replace(/\s+/g, " "), state: $("MState").value, postcode: "", country: "Australia", lat: null, lng: null, locSource: "" };
       if (manual) return { school: $("MName").value.trim().replace(/\s+/g, " "), schoolId: "", sector: "", schoolType: "", suburb: suburb ? suburb.name : "", state: suburb ? suburb.state : "", postcode: "", country: "Australia",
         lat: suburb ? suburb.lat : null, lng: suburb ? suburb.lng : null, locSource: suburb && suburb.lat != null ? "suburb" : "" };
       return { school: "", schoolId: "", sector: "", schoolType: "", suburb: "", state: "", postcode: "", country: "Australia", lat: null, lng: null, locSource: "" };
@@ -307,7 +313,8 @@ export function mountSchoolPicker(el, opts = {}) {
       if (!manual && !chosen) return bad("Q", "Please choose your school from the list — or choose “My school isn't listed”.");
       if (manual) {
         if (!$("MName").value.trim()) return bad("MName", "Please enter your school's name.");
-        if (!suburb) return bad("MSub", "Please choose your suburb or town from the list.");
+        if (noSub) { if (!$("MSub").value.trim()) return bad("MSub", "Please enter your suburb or town."); if (!$("MState").value) return bad("MState", "Please choose the state or territory."); }
+        else if (!suburb) return bad("MSub", "Please choose your suburb or town from the list.");
       }
       return null;
     },
@@ -326,13 +333,18 @@ export function mountSchoolPicker(el, opts = {}) {
         manual = true; $("MName").value = v.school;
         if (v.suburb && v.state) {
           suburb = { name: v.suburb, state: v.state, lat: v.lat ?? null, lng: v.lng ?? null };
+          $("MSub").value = v.suburb; $("MState").value = v.state;
           if (suburb.lat == null) loadSuburbs().then((d) => { const m = matchSuburb(d, v.suburb, v.state); if (m && suburb && suburb.name === v.suburb) { suburb.lat = m.lat; suburb.lng = m.lng; changed(); } });
         }
       }
       paint();
     },
     focus() { const t = mode === "os" ? $("OsCountry") : manual ? $("MName") : chosen ? $("Change") : $("Q"); if (t) t.focus(); },
-    ready: Promise.all([loadSchools(), loadSuburbs()]).then(([s]) => {
+    ready: Promise.all([loadSchools(), loadSuburbs()]).then(([s, sub]) => {
+      noSchools = !s.list.length; noSub = !sub.list.length;
+      if (noSub && suburb) { $("MSub").value = suburb.name; $("MState").value = suburb.state; suburb = null; }
+      if (noSchools && mode === "au" && !chosen && !manual) { manual = true; if (!$("MName").value) $("MName").value = $("Q").value.trim(); }
+      paint(); changed();
       $("Src").textContent = s.list.length ? `School list: ${s.source}. Suburbs: ABS (CC BY 4.0).` : "";
     }),
   };
