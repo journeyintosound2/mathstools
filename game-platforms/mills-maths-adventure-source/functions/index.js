@@ -751,6 +751,8 @@ function personalise(text, t) {
   return String(text).replace(/\{(firstName|name|code|school)\}/gi, (m, k) => map[k.toLowerCase()]);
 }
 function footerText(kind) {
+  if (kind === "admin") return "Sent by Mills Maths Tools to the site admin. Reply to answer the person who made the request.";
+  if (kind === "request") return "You're receiving this because a teacher account was requested for this address on Mills Maths Tools (millsmathstools.au). Reply to this email to reach Jeff Mills.";
   const base = "You're receiving this because you have a teacher account on Mills Maths Tools (millsmathstools.au). Reply to this email to reach Jeff Mills.";
   return kind === "update"
     ? base + " To stop update emails, sign in to the Teacher Platform, open Profile and untick “Email me about updates”."
@@ -781,6 +783,19 @@ const TEMPLATES = {
     ].join("\n\n"),
   },
 };
+
+/** One email, personalised for teacher-like `t`, ready for Resend's batch API. */
+function buildEmail({ subject, message, kind, t, to, test, replyTo }) {
+  const body = personalise(message, t);
+  return {
+    from: MAIL_FROM,
+    to: [to],
+    reply_to: replyTo || MAIL_REPLY_TO,
+    subject: (test ? "[TEST] " : "") + personalise(subject, t),
+    html: wrapHtml(textToHtml(body), kind),
+    text: body.replace(/\*\*(.+?)\*\*/g, "$1") + "\n\n—\n" + footerText(kind),
+  };
+}
 
 function isAdminAuth(auth) { return !!(auth && ADMIN_UIDS.includes(auth.uid)); }
 
@@ -854,17 +869,7 @@ exports.sendAdminEmail = onCall({ secrets: [RESEND_API_KEY] }, async (request) =
     eligible.push({ ...t, email });
   });
 
-  const build = (t, to) => {
-    const body = personalise(message, t);
-    return {
-      from: MAIL_FROM,
-      to: [to],
-      reply_to: MAIL_REPLY_TO,
-      subject: (d.test ? "[TEST] " : "") + personalise(subject, t),
-      html: wrapHtml(textToHtml(body), kind),
-      text: body.replace(/\*\*(.+?)\*\*/g, "$1") + "\n\n—\n" + footerText(kind),
-    };
-  };
+  const build = (t, to) => buildEmail({ subject, message, kind, t, to, test: d.test });
 
   if (d.test) {
     const me = String((request.auth.token && request.auth.token.email) || "").trim();
@@ -900,4 +905,230 @@ exports.sendAdminEmail = onCall({ secrets: [RESEND_API_KEY] }, async (request) =
   } catch (e) { /* logging is best effort */ }
 
   return { sent, failed, skipped, test: false };
+});
+
+/* =========================================================================
+ * TEACHER ACCESS REQUESTS (2026-10-24)
+ *   requestTeacherAccess  — PUBLIC. The "Request access" form on the teacher
+ *                           sign-in page. Stores a pending request, emails the
+ *                           admin.
+ *   reviewAccessRequest   — ADMIN. Approve (creates the teacher code + sends
+ *                           the welcome email) or decline.
+ * ======================================================================= */
+const crypto = require("crypto");
+
+// Where "new request" alerts go. Replies to the alert go to the requester.
+const ADMIN_NOTIFY_EMAIL = MAIL_REPLY_TO;
+const ADMIN_REQUESTS_URL = `${SITE_URL}/portal/admin/#requests`;
+const REQUESTS_PER_IP_PER_HOUR = 40;   // generous: a whole PD session shares one school IP
+const ADMIN_ALERTS_PER_DAY = 20;       // protects the Resend free tier (100/day) and your inbox
+
+TEMPLATES.declined = {
+  kind: "request",
+  subject: "Your Mills Maths Tools access request",
+  message: [
+    "Hi {firstName},",
+    "Thank you for your interest in Mills Maths Tools. Unfortunately I'm unable to approve your request for a teacher account at this time.",
+    "If you think this might be a mistake, or you'd like to talk about it, just reply to this email.",
+    "Jeff Mills\nMills Maths Tools",
+  ].join("\n\n"),
+};
+
+/** Same scheme as the admin console: surname (letters only, ≤12) + 4 digits. */
+function teacherCodeStem(name) {
+  const p = String(name || "").trim().split(/\s+/).filter(Boolean);
+  const sur = p.length > 1 ? p.slice(1).join(" ") : (p[0] || "");
+  return sur.toUpperCase().replace(/[^A-Z]/g, "").slice(0, 12) || "TEACHER";
+}
+async function generateUniqueTeacherCode(name) {
+  const stem = teacherCodeStem(name);
+  for (let i = 0; i < 80; i++) {
+    const code = stem + String(Math.floor(Math.random() * 10000)).padStart(4, "0");
+    const snap = await db.collection("teachers").doc(code).get();
+    if (!snap.exists) return code;
+  }
+  throw new HttpsError("internal", "Could not generate a unique teacher code. Please try again.");
+}
+
+function resendKey() {
+  try { const k = String(RESEND_API_KEY.value() || "").trim(); return /^re_/.test(k) ? k : ""; } catch (e) { return ""; }
+}
+
+async function logEmail(entry) {
+  try {
+    await db.collection("emailLog").add({
+      ...entry,
+      sentAt: admin.firestore.FieldValue.serverTimestamp(),
+      sentAtMs: Date.now(),
+    });
+  } catch (e) { /* best effort */ }
+}
+
+/** Sliding-window counter in rateLimits/{id}. Returns false once `max` is reached. */
+async function takeToken(id, max, windowMs) {
+  const ref = db.collection("rateLimits").doc(id);
+  const now = Date.now();
+  return db.runTransaction(async (tx) => {
+    const s = await tx.get(ref);
+    const hits = ((s.exists && s.data().hits) || []).filter((t) => now - t < windowMs);
+    if (hits.length >= max) return false;
+    hits.push(now);
+    tx.set(ref, { hits, expireAt: new Date(now + 2 * windowMs) });
+    return true;
+  });
+}
+
+/**
+ * requestTeacherAccess({ teacherName, email, school, position?, message?,
+ *                        emailUpdates?, website, elapsedMs }) → { ok:true }
+ *
+ * PUBLIC (no sign-in). Spam guards: a hidden "website" field and a minimum
+ * time on the form (bots that trip either get a fake success and nothing is
+ * stored), and a per-connection hourly cap (IP is hashed, never stored). A
+ * second request from an address that already has one pending updates that
+ * one instead of piling up. The answer never says whether the email already
+ * belongs to a teacher — the admin sees that flag instead.
+ */
+exports.requestTeacherAccess = onCall({ secrets: [RESEND_API_KEY] }, async (request) => {
+  const d = request.data || {};
+  if (String(d.website || "").trim() || !(Number(d.elapsedMs) >= 2500)) return { ok: true };
+
+  const teacherName = cleanText(d.teacherName, 80);
+  if (!teacherName) throw new HttpsError("invalid-argument", "Enter your name.");
+  const email = cleanEmail(d.email, true);
+  const school = cleanText(d.school, 120);
+  if (!school) throw new HttpsError("invalid-argument", "Enter your school.");
+  const position = cleanText(d.position, 80);
+  const message = String(d.message || "").replace(/\r\n/g, "\n").trim().slice(0, 600);
+  const emailUpdates = d.emailUpdates !== false;
+
+  const raw = request.rawRequest || {};
+  const ip = String(raw.ip || (raw.headers && raw.headers["x-forwarded-for"]) || "unknown").split(",")[0].trim();
+  const ipKey = crypto.createHash("sha256").update("mmt-access:" + ip).digest("hex").slice(0, 32);
+  if (!(await takeToken(`accessRequest_${ipKey}`, REQUESTS_PER_IP_PER_HOUR, 3600000))) {
+    throw new HttpsError("resource-exhausted", "Too many requests from this connection. Please try again later, or email Jeff directly.");
+  }
+
+  const now = Date.now();
+  const fields = { teacherName, email, school, position, message, emailUpdates };
+  const sameEmail = await db.collection("accessRequests").where("email", "==", email).get();
+  const pending = sameEmail.docs.find((x) => (x.data() || {}).status === "pending");
+  if (pending) {
+    await pending.ref.update({ ...fields, resubmittedAtMs: now, updatedAt: admin.firestore.FieldValue.serverTimestamp() });
+    return { ok: true };
+  }
+
+  const matches = await db.collection("teachers").where("email", "==", email).get();
+  const ref = db.collection("accessRequests").doc();
+  const doc = {
+    requestId: ref.id, ...fields,
+    status: "pending",
+    matchesTeacher: matches.docs.map((x) => x.id),
+    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    createdAtMs: now,
+  };
+  await ref.set(doc);
+
+  // Tell the admin (best effort — the request is saved either way).
+  const key = resendKey();
+  if (key && await takeToken("accessRequestAlerts", ADMIN_ALERTS_PER_DAY, 86400000)) {
+    const lines = [
+      "A teacher has asked for access to Mills Maths Tools.",
+      `**Name:** ${teacherName}\n**School:** ${school}\n**Email:** ${email}` + (position ? `\n**Role:** ${position}` : ""),
+    ];
+    if (message) lines.push(`**Their message:**\n${message}`);
+    if (doc.matchesTeacher.length) lines.push(`Note: this email address already belongs to teacher code ${doc.matchesTeacher.join(", ")}.`);
+    lines.push(`Approve or decline it in the admin console: ${ADMIN_REQUESTS_URL}`);
+    try {
+      await resendBatch(key, [buildEmail({
+        subject: `Access request: ${teacherName}, ${school}`,
+        message: lines.join("\n\n"), kind: "admin",
+        t: {}, to: ADMIN_NOTIFY_EMAIL, replyTo: email,
+      })]);
+      await ref.update({ notifiedAdmin: true });
+    } catch (e) { /* the admin console still shows it */ }
+  }
+  return { ok: true };
+});
+
+/**
+ * reviewAccessRequest({ requestId, decision:"approve"|"decline",
+ *                       overrides?:{teacherName,email,school,position},
+ *                       sendWelcome?:true, notify?:false })
+ *   → { status, teacherCode?, emailed, emailError? }
+ *
+ * ADMIN ONLY. Approve creates teachers/{code} (same code scheme as the admin
+ * console) inside a transaction that also flips the request, so a double
+ * click can never make two codes; then sends the standard welcome email.
+ * Decline marks it declined and, only if asked, sends a polite note.
+ */
+exports.reviewAccessRequest = onCall({ secrets: [RESEND_API_KEY] }, async (request) => {
+  if (!isAdminAuth(request.auth)) throw new HttpsError("permission-denied", "Admin only.");
+  const d = request.data || {};
+  const requestId = String(d.requestId || "").trim();
+  if (!requestId) throw new HttpsError("invalid-argument", "Missing requestId.");
+  const decision = String(d.decision || "");
+  if (!["approve", "decline"].includes(decision)) throw new HttpsError("invalid-argument", "Choose approve or decline.");
+  const ref = db.collection("accessRequests").doc(requestId);
+  const snap = await ref.get();
+  if (!snap.exists) throw new HttpsError("not-found", "That request no longer exists.");
+  const r = snap.data() || {};
+  if (r.status !== "pending") throw new HttpsError("failed-precondition", `That request has already been ${r.status}.`);
+  const reviewedBy = (request.auth.token && request.auth.token.email) || request.auth.uid;
+  const key = resendKey();
+
+  if (decision === "decline") {
+    await ref.update({ status: "declined", reviewedAt: admin.firestore.FieldValue.serverTimestamp(), reviewedAtMs: Date.now(), reviewedBy });
+    let emailed = false, emailError = null;
+    if (d.notify === true) {
+      if (!key) emailError = "Email sending isn't set up.";
+      else {
+        try {
+          await resendBatch(key, [buildEmail({ ...TEMPLATES.declined, t: { teacherName: r.teacherName }, to: r.email })]);
+          emailed = true;
+          await logEmail({ subject: TEMPLATES.declined.subject, message: "", template: "declined", kind: "request", sentBy: reviewedBy,
+            counts: { sent: 1, failed: 0, skipped: 0 }, recipients: [{ name: r.teacherName, email: r.email, status: "sent" }] });
+        } catch (e) { emailError = String(e.message || e); }
+      }
+    }
+    return { status: "declined", emailed, emailError };
+  }
+
+  const o = d.overrides || {};
+  const pick = (k, max) => cleanText(o[k] !== undefined ? o[k] : r[k], max);
+  const teacherName = pick("teacherName", 80);
+  if (!teacherName) throw new HttpsError("invalid-argument", "Enter the teacher's name.");
+  const email = cleanEmail(o.email !== undefined ? o.email : r.email, true);
+  const school = pick("school", 120);
+  const position = pick("position", 80);
+
+  const teacherCode = await generateUniqueTeacherCode(teacherName);
+  const tRef = db.collection("teachers").doc(teacherCode);
+  await db.runTransaction(async (tx) => {
+    const cur = await tx.get(ref);
+    if (!cur.exists || (cur.data() || {}).status !== "pending") throw new HttpsError("failed-precondition", "That request has already been reviewed.");
+    tx.create(tRef, {
+      teacherCode, teacherName, email, school, position,
+      emailUpdates: r.emailUpdates !== false, active: true,
+      createdBy: "access-request", accessRequestId: requestId,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+    tx.update(ref, { status: "approved", teacherCode, reviewedAt: admin.firestore.FieldValue.serverTimestamp(), reviewedAtMs: Date.now(), reviewedBy });
+  });
+
+  let emailed = false, emailError = null;
+  if (d.sendWelcome !== false) {
+    if (!key) emailError = "Email sending isn't set up.";
+    else {
+      try {
+        const t = { teacherCode, teacherName, school };
+        await resendBatch(key, [buildEmail({ ...TEMPLATES.welcome, t, to: email })]);
+        emailed = true;
+        await logEmail({ subject: TEMPLATES.welcome.subject, message: "", template: "welcome", kind: "account", sentBy: reviewedBy,
+          counts: { sent: 1, failed: 0, skipped: 0 }, recipients: [{ teacherCode, name: teacherName, email, status: "sent" }] });
+      } catch (e) { emailError = String(e.message || e); }
+    }
+  }
+  return { status: "approved", teacherCode, emailed, emailError };
 });

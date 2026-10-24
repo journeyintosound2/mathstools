@@ -3,7 +3,7 @@ rules_version = '2';
 // Mills Maths Tools — PRODUCTION claim-based rules (Phase 4A go-live + classes +
 // dashboard tasks + ADMIN CONSOLE 2026-07 + MMT SCREEN saved boards 2026-09-13
 // + MMT SCREEN class lists 2026-09-15 + ADVENTURE cloud progress 2026-10-13
-// + EMAIL LOG 2026-10-24).
+// + EMAIL LOG + ACCESS REQUESTS 2026-10-24).
 //
 // Every STUDENT/TEACHER client signs in via the secure code-exchange Cloud
 // Functions (exchangeStudentCode / exchangeTeacherCode), which mint a Firebase
@@ -194,6 +194,17 @@ service cloud.firestore {
     match /emailLog/{id} {
       allow read: if isAdmin();
       allow write: if false;
+    }
+
+    // Teacher access requests (2026-10-24): the public "Request teacher access"
+    // form on the teacher sign-in page. Created ONLY by the requestTeacherAccess
+    // Cloud Function (which validates, rate-limits and emails the admin) and
+    // approved/declined ONLY by reviewAccessRequest. The admin reads them, and
+    // may delete one (e.g. spam). Nobody else can read or write them.
+    // (Rate-limit counters live in rateLimits/, which stays default-deny.)
+    match /accessRequests/{id} {
+      allow read, delete: if isAdmin();
+      allow create, update: if false;
     }
 
     // Admin settings (capacity caps etc.): admin-only, read + write. Nobody else

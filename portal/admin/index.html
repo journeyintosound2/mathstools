@@ -242,6 +242,25 @@
   .hist-row .h-body{white-space:pre-wrap;font-size:.84rem;color:var(--ink-soft);background:#f8fafc;border-radius:10px;padding:10px 12px;margin:10px 0 8px;max-height:220px;overflow:auto}
   .hist-row .h-rcpt{font-size:.8rem;color:var(--muted);line-height:1.6}
 
+  /* access requests (2026-10-24) */
+  .nav-item .pill.alert{background:#f59e0b;color:#fff}
+  .nav-item.active .pill.alert{background:#fff;color:#b45309}
+  .ov-req{display:flex;align-items:center;gap:12px;flex-wrap:wrap;border:1px solid #fde68a;background:#fffbeb;color:#78350f;border-radius:var(--radius);padding:13px 16px;margin-bottom:18px;font-weight:600}
+  .ov-req .ic{font-size:1.3rem}
+  .ov-req button{margin-left:auto}
+  .rq-item{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:start;border:1px solid var(--line);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:10px;background:#fff}
+  .rq-item.pending{border-left:4px solid #f59e0b}
+  .rq-item.approved{border-left:4px solid var(--good)}
+  .rq-item.declined{border-left:4px solid #cbd5e1;background:#fbfcfe}
+  .rq-name{font-weight:800;font-size:1rem;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .rq-meta{color:var(--ink-soft);font-size:.85rem;margin-top:3px;line-height:1.5}
+  .rq-meta.muted{color:var(--muted);font-size:.8rem}
+  .rq-msg{white-space:pre-wrap;background:#f8fafc;border-radius:10px;padding:9px 12px;margin-top:9px;font-size:.85rem;color:var(--ink-soft);border:1px solid #eef2f7}
+  .rq-flag{display:inline-flex;gap:6px;align-items:center;margin-top:8px;font-size:.8rem;font-weight:700;border-radius:8px;padding:5px 9px;background:var(--warn-soft);color:#92400e}
+  .rq-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+  .badge.pending{color:#b45309;background:#fef3c7}
+  @media(max-width:700px){ .rq-item{grid-template-columns:1fr} .rq-actions{justify-content:flex-start} }
+
   @media(max-width:920px){
     .app{grid-template-columns:1fr}
     .sidebar{position:static;height:auto;flex-direction:row;flex-wrap:wrap;gap:6px}
@@ -298,6 +317,7 @@
     </div>
     <button class="nav-item active" data-view="overview"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Overview</button>
     <button class="nav-item" data-view="teachers"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 2 8l10 5 10-5-10-5Z"/><path d="M6 10.5V16c0 1.5 3 3 6 3s6-1.5 6-3v-5.5"/></svg>Teachers<span class="pill" id="navTeachers">0</span></button>
+    <button class="nav-item" data-view="requests"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-5.5 6-5.5 1.4 0 2.6.4 3.6 1"/><path d="M18 14v6M15 17h6"/></svg>Requests<span class="pill" id="navRequests">0</span></button>
     <button class="nav-item" data-view="students"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/><path d="M16.5 8.2A3 3 0 0 1 19 13"/><path d="M17.5 14.5c2 .6 3.5 2.2 3.5 4.5"/></svg>Students<span class="pill" id="navStudents">0</span></button>
     <button class="nav-item" data-view="classes"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16v12H4z"/><path d="M4 21h16"/><path d="M8 9h8M8 13h5"/></svg>Classes<span class="pill" id="navClasses">0</span></button>
     <button class="nav-item" data-view="email"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3.5 6.5 8.5 6.5 8.5-6.5"/></svg>Email</button>
@@ -318,6 +338,7 @@
         <div><h2>Overview</h2><p>Live snapshot of everything on Mills Maths Tools. Use the caps to keep an eye on overall size (and Firebase cost, which you pay for).</p></div>
         <button class="btn-soft" id="ovRefresh">↻ Refresh</button>
       </div>
+      <div id="ovRequests"></div>
       <div class="stats" id="statCards"></div>
       <div class="card">
         <h3>Quick actions</h3>
@@ -325,6 +346,7 @@
         <div class="quick-actions">
           <button class="qa" data-goto="teachers" data-open="newTeacher"><span class="qa-ico">➕</span><span>New teacher code<small>Create a teacher &amp; code</small></span></button>
           <button class="qa" data-goto="students" data-open="bulk"><span class="qa-ico">📋</span><span>Bulk add a class<small>Paste a whole class list</small></span></button>
+          <button class="qa" data-goto="requests"><span class="qa-ico">📨</span><span>Access requests<small>Approve new teachers</small></span></button>
           <button class="qa" data-goto="email"><span class="qa-ico">✉️</span><span>Email teachers<small>Send an update to everyone</small></span></button>
           <button class="qa" data-goto="classes"><span class="qa-ico">🏫</span><span>Manage classes<small>Create / rename / disable</small></span></button>
           <button class="qa" data-goto="settings"><span class="qa-ico">⚙️</span><span>Caps &amp; settings<small>Set size limits</small></span></button>
@@ -596,6 +618,23 @@
     </section>
 
     <!-- SETTINGS -->
+    <!-- REQUESTS -->
+    <section class="view" id="view-requests">
+      <div class="page-head">
+        <div><h2>Access requests</h2><p>Teachers who asked for an account from the sign-in page. Approving creates their teacher code and emails it to them, so you don't have to set them up by hand.</p></div>
+        <button class="btn-soft" id="rqRefresh">↻ Refresh</button>
+      </div>
+      <div class="card">
+        <div class="seg" id="rqFilterSeg">
+          <button type="button" data-rqf="pending" class="on">Pending</button>
+          <button type="button" data-rqf="approved">Approved</button>
+          <button type="button" data-rqf="declined">Declined</button>
+          <button type="button" data-rqf="all">All</button>
+        </div>
+        <div id="rqList"></div>
+      </div>
+    </section>
+
     <!-- EMAIL -->
     <section class="view" id="view-email">
       <div class="page-head">
@@ -721,6 +760,47 @@
   </div>
 </div>
 
+<!-- approve access request modal -->
+<div id="rqApproveBackdrop" class="backdrop" role="dialog" aria-modal="true" aria-labelledby="rqApTitle">
+  <div class="modal wide">
+    <h3 id="rqApTitle">Approve request</h3>
+    <form id="rqApForm" novalidate>
+      <input type="hidden" id="rqApId"/>
+      <p class="hint" style="margin-top:-6px">Check their details — fix anything you need to — then approve. This creates their teacher code.</p>
+      <div id="rqApWarn"></div>
+      <div class="grid-2">
+        <div class="field"><label for="rqApName">Teacher name</label><input id="rqApName" autocomplete="off"/></div>
+        <div class="field"><label for="rqApEmail">Email address</label><input id="rqApEmail" type="email" autocomplete="off"/></div>
+      </div>
+      <div class="grid-2">
+        <div class="field"><label for="rqApSchool">School</label><input id="rqApSchool" autocomplete="off"/></div>
+        <div class="field"><label for="rqApPosition">Role / position</label><input id="rqApPosition" autocomplete="off"/></div>
+      </div>
+      <label class="check-row" for="rqApWelcome"><input type="checkbox" id="rqApWelcome" checked/><span>Email them their teacher code and a welcome note<small id="rqApWelcomeNote">Sent from millsmathstools.au straight away.</small></span></label>
+      <div class="row-actions">
+        <button type="submit" class="btn-good" id="rqApBtn"><span class="spinner" style="border-color:rgba(22,163,74,.3);border-top-color:var(--good)"></span><span class="btn-label">✓ Approve &amp; create code</span></button>
+        <button type="button" class="btn-neutral" id="rqApCancel">Cancel</button>
+      </div>
+      <div id="rqApMsg" class="msg"></div>
+    </form>
+  </div>
+</div>
+
+<!-- decline access request modal -->
+<div id="rqDeclineBackdrop" class="backdrop" role="dialog" aria-modal="true" aria-labelledby="rqDcTitle">
+  <div class="modal">
+    <h3 id="rqDcTitle">Decline request</h3>
+    <input type="hidden" id="rqDcId"/>
+    <p class="hint" id="rqDcHint" style="margin-top:-6px"></p>
+    <label class="check-row" for="rqDcNotify"><input type="checkbox" id="rqDcNotify"/><span>Send them a short, polite email saying it wasn't approved<small>Leave unticked for spam or test requests.</small></span></label>
+    <div class="row-actions">
+      <button type="button" class="btn-danger" id="rqDcBtn"><span class="spinner" style="border-color:rgba(220,38,38,.3);border-top-color:var(--bad)"></span><span class="btn-label">Decline request</span></button>
+      <button type="button" class="btn-neutral" id="rqDcCancel">Cancel</button>
+    </div>
+    <div id="rqDcMsg" class="msg"></div>
+  </div>
+</div>
+
 <!-- rename class modal -->
 <div id="renameBackdrop" class="backdrop" role="dialog" aria-modal="true">
   <div class="modal">
@@ -766,7 +846,9 @@
   const db = getFirestore(app);
   // Admin-only email sender (Cloud Function sendAdminEmail — checks the admin UID
   // server-side and reads every address from teachers/{code} itself).
-  const sendAdminEmail = httpsCallable(getFunctions(app, "us-central1"), "sendAdminEmail");
+  const fns = getFunctions(app, "us-central1");
+  const sendAdminEmail = httpsCallable(fns, "sendAdminEmail");
+  const reviewAccessRequest = httpsCallable(fns, "reviewAccessRequest");
 
   // ---- state ----
   let teachers = [];   // {id, teacherCode, teacherName, school, active}
@@ -785,6 +867,8 @@
   let emailLog = [];             // emailLog docs, newest first (null = rules not published)
   let emMode = "all";            // compose: "all" active teachers | "pick"
   const emPicks = new Set();     // compose: hand-picked teacher codes
+  let accessRequests = [];       // accessRequests docs, newest first (null = rules not published)
+  let rqFilter = "pending";
 
   // ---- helpers ----
   const $ = id => document.getElementById(id);
@@ -803,7 +887,7 @@
   function tsMs(v){ if(!v) return 0; if(typeof v.toMillis==="function"){ try{ return v.toMillis(); }catch{} } if(typeof v.seconds==="number") return v.seconds*1000; const n=typeof v==="number"?v:Date.parse(v); return Number.isFinite(n)?n:0; }
   function fmtDate(ms){ return ms?new Date(ms).toLocaleDateString("en-AU",{day:"numeric",month:"short",year:"numeric"}):"—"; }
   function fmtAgo(ms){ if(!ms) return "Never"; const d=Math.floor((Date.now()-ms)/86400000); if(d<=0) return "Today"; if(d===1) return "Yesterday"; if(d<14) return `${d} days ago`; if(d<60) return `${Math.round(d/7)} weeks ago`; return fmtDate(ms); }
-  function fnErr(e){ const m=String((e&&e.message)||e||""); const c=String((e&&e.code)||""); if(/not-found|NOT_FOUND/i.test(c+m) && !/teacher/i.test(m)) return "The email function isn't deployed yet (sendAdminEmail). Deploy the Cloud Functions, then Refresh."; if(/failed-precondition/i.test(c)) return m; if(/permission-denied/i.test(c)) return "The email function didn't recognise this admin account. Check ADMIN_UIDS in the functions code."; if(/internal/i.test(c)&&m&&!/^internal$/i.test(m)) return m; if(/internal|unavailable/i.test(c)) return "Couldn't reach the email function — it may not be deployed yet, or the connection dropped."; return m||"Something went wrong sending that."; }
+  function fnErr(e){ const m=String((e&&e.message)||e||""); const c=String((e&&e.code)||""); if(/not-found|NOT_FOUND/i.test(c+m) && !/teacher/i.test(m)) return "That Cloud Function isn't deployed yet. Deploy the Cloud Functions, then Refresh."; if(/failed-precondition/i.test(c)) return m; if(/permission-denied/i.test(c)) return "The Cloud Function didn't recognise this admin account. Check ADMIN_UIDS in the functions code."; if(/internal/i.test(c)&&m&&!/^internal$/i.test(m)) return m; if(/internal|unavailable/i.test(c)) return "Couldn't reach the Cloud Function — it may not be deployed yet, or the connection dropped."; return m||"Something went wrong sending that."; }
 
   function splitName(full){ const p=String(full||"").trim().replace(/\s+/g," ").split(" ").filter(Boolean); if(!p.length) return {firstName:"",surname:""}; if(p.length===1) return {firstName:p[0],surname:""}; return {firstName:p[0],surname:p.slice(1).join(" ")}; }
   const buildName = (f,s)=>[f,s].map(x=>String(x||"").trim()).filter(Boolean).join(" ");
@@ -861,12 +945,14 @@
 
   // ================= LOADERS =================
   async function loadAll(){
-    const [tSnap,sSnap,cSnap,aSnap] = await Promise.all([
+    const [tSnap,sSnap,cSnap,aSnap,rSnap] = await Promise.all([
       getDocs(collection(db,"teachers")),
       getDocs(collection(db,"students")),
       getDocs(collection(db,"classes")).catch(()=>({docs:[]})),
       getDocs(collection(db,"achievements")).catch(()=>null),
+      getDocs(collection(db,"accessRequests")).catch(()=>null),
     ]);
+    accessRequests = rSnap ? rSnap.docs.map(d=>({ id:d.id, ...d.data() })).sort((a,b)=>(b.createdAtMs||tsMs(b.createdAt))-(a.createdAtMs||tsMs(a.createdAt))) : null;
     teachers = tSnap.docs.map(d=>({ id:d.id, teacherCode:d.id, ...d.data() }));
     students = sSnap.docs.map(d=>{ const x=d.data(); return { id:d.id, ...x, studentCode:x.studentCode||d.id, name:x.name||buildName(x.firstName,x.surname), teacherCode:x.teacherCode||"", teacherName:x.teacherName||x.teacher||"" }; });
     // Classes = union of SAVED class docs AND classes that exist only as a
@@ -909,6 +995,7 @@
     fillGrowthFilters();
     if($("view-growth").classList.contains("active")) renderGrowth();
     if($("view-email").classList.contains("active")) renderEmailView();
+    renderRequests();
     $("navTeachers").textContent=teachers.length;
     $("navStudents").textContent=students.length;
     $("navClasses").textContent=classes.length;
@@ -1166,7 +1253,7 @@
   const closeTeacherEdit=()=>$("tEditBackdrop").classList.remove("show");
   $("teCancelBtn").addEventListener("click",closeTeacherEdit);
   $("tEditBackdrop").addEventListener("click",e=>{ if(e.target===$("tEditBackdrop")) closeTeacherEdit(); });
-  document.addEventListener("keydown",e=>{ if(e.key!=="Escape") return; ["tEditBackdrop","editBackdrop","renameBackdrop"].forEach(id=>$(id).classList.remove("show")); });
+  document.addEventListener("keydown",e=>{ if(e.key!=="Escape") return; ["tEditBackdrop","editBackdrop","renameBackdrop","rqApproveBackdrop","rqDeclineBackdrop"].forEach(id=>$(id).classList.remove("show")); });
   async function saveTeacherEdit(){
     const code=normCode($("teCode").value); const t=teacherByCode(code); if(!t) throw new Error("That teacher no longer exists — Refresh.");
     const name=$("teName").value.trim().replace(/\s+/g," "); const email=cleanEmail($("teEmail").value);
@@ -1194,6 +1281,111 @@
     try{ const r=(await sendAdminEmail({ recipients:[code], template:"welcome" })).data||{}; if(r.sent){ msg($("teMsg"),`Sent to ${email}.`,"ok"); loadEmailLog(); } else msg($("teMsg"),"Not sent: "+((r.skipped&&r.skipped[0]&&r.skipped[0].reason)||"unknown reason")+".","warn"); }
     catch(err){ msg($("teMsg"),fnErr(err),"bad"); }
     finally{ setLoading($("teWelcomeBtn"),false); }
+  });
+
+  // ================= ACCESS REQUESTS =================
+  const pendingRequests = () => (accessRequests||[]).filter(r=>r.status==="pending");
+  const teachersWithEmail = email => teachers.filter(t=>cleanEmail(t.email)===cleanEmail(email));
+  function renderRequests(){
+    const n=pendingRequests().length;
+    const pill=$("navRequests"); pill.textContent=n; pill.classList.toggle("alert",n>0);
+    $("ovRequests").innerHTML = n ? `<div class="ov-req"><span class="ic">📨</span><span>${n} teacher access request${n===1?" is":"s are"} waiting for you.</span><button class="btn-primary btn-tiny" data-goto-requests>Review ${n===1?"it":"them"}</button></div>` : "";
+    [...$("rqFilterSeg").children].forEach(b=>{ b.classList.toggle("on",b.dataset.rqf===rqFilter); if(b.dataset.rqf==="pending") b.textContent=`Pending${n?` (${n})`:""}`; });
+    const box=$("rqList");
+    if(accessRequests===null){ box.innerHTML='<div class="an-empty">Access requests aren\'t readable yet — publish the updated Firestore rules (the <b>accessRequests</b> block), then Refresh.</div>'; return; }
+    const list=accessRequests.filter(r=>rqFilter==="all"||r.status===rqFilter);
+    if(!list.length){ box.innerHTML=`<div class="an-empty">${rqFilter==="pending"?"No requests waiting. New ones appear here (and in your inbox) when a teacher uses <b>Request teacher access</b> on the sign-in page.":"Nothing here yet."}</div>`; return; }
+    box.innerHTML=list.map(r=>{
+      const when=r.createdAtMs||tsMs(r.createdAt);
+      const dup=teachersWithEmail(r.email).filter(t=>t.teacherCode!==r.teacherCode);
+      const flags=[];
+      if(r.status==="pending" && dup.length) flags.push(`⚠️ This email already belongs to ${dup.map(t=>`${esc(t.teacherName||"a teacher")} (${esc(t.teacherCode)})`).join(", ")}. They may have lost their code — you could resend it from Teachers → Edit instead.`);
+      const st=r.status||"pending";
+      const badge=st==="pending"?'<span class="badge pending">Pending</span>':st==="approved"?'<span class="badge active">Approved</span>':'<span class="badge inactive">Declined</span>';
+      const rev=r.reviewedAtMs||tsMs(r.reviewedAt);
+      const outcome = st==="approved" ? `Approved ${esc(fmtAgo(rev).toLowerCase())} · teacher code <span class="code copyable" data-copy="${esc(r.teacherCode||"")}" title="Click to copy">${esc(r.teacherCode||"")}</span>` : st==="declined" ? `Declined ${esc(fmtAgo(rev).toLowerCase())}` : "";
+      const actions = st==="pending"
+        ? `<button class="btn-good btn-tiny" data-rqa="approve" data-id="${esc(r.id)}">✓ Approve</button><button class="btn-danger btn-tiny" data-rqa="decline" data-id="${esc(r.id)}">Decline</button><button class="btn-ghost btn-tiny" data-rqa="delete" data-id="${esc(r.id)}" title="Remove without a decision (e.g. spam)">Delete</button>`
+        : `${st==="approved"&&teacherByCode(r.teacherCode)?`<button class="btn-soft btn-tiny" data-rqa="open" data-id="${esc(r.id)}">Open teacher</button>`:""}<button class="btn-ghost btn-tiny" data-rqa="delete" data-id="${esc(r.id)}">Delete</button>`;
+      return `<div class="rq-item ${esc(st)}">
+        <div>
+          <div class="rq-name">${esc(r.teacherName||"(no name)")} ${badge}</div>
+          <div class="rq-meta">${[r.position,r.school].filter(Boolean).map(esc).join(" · ")||"—"}</div>
+          <div class="rq-meta"><a href="mailto:${esc(r.email)}">${esc(r.email)}</a>${r.emailUpdates===false?" · doesn't want update emails":""}</div>
+          <div class="rq-meta muted">Requested ${esc(fmtAgo(when).toLowerCase())}${when?` (${esc(new Date(when).toLocaleString("en-AU",{dateStyle:"medium",timeStyle:"short"}))})`:""}${r.resubmittedAtMs?` · resent ${esc(fmtAgo(r.resubmittedAtMs).toLowerCase())}`:""}${outcome?` · ${outcome}`:""}</div>
+          ${r.message?`<div class="rq-msg">${esc(r.message)}</div>`:""}
+          ${flags.map(f=>`<div class="rq-flag">${f}</div>`).join("")}
+        </div>
+        <div class="rq-actions">${actions}</div>
+      </div>`;
+    }).join("");
+  }
+  $("rqFilterSeg").addEventListener("click",e=>{ const b=e.target.closest("button[data-rqf]"); if(!b) return; rqFilter=b.dataset.rqf; renderRequests(); });
+  $("rqRefresh").addEventListener("click",()=>doRefresh($("rqRefresh")));
+  document.addEventListener("click",e=>{ if(e.target.closest("[data-goto-requests]")){ rqFilter="pending"; gotoView("requests"); } });
+  $("rqList").addEventListener("click",async e=>{
+    const c=e.target.closest("[data-copy]"); if(c){ const okc=await copyText(c.dataset.copy); toast(okc?`Copied ${c.dataset.copy}`:"Copy failed",okc?"ok":"bad"); return; }
+    const b=e.target.closest("button[data-rqa]"); if(!b) return;
+    const r=(accessRequests||[]).find(x=>x.id===b.dataset.id); if(!r) return;
+    const a=b.dataset.rqa;
+    if(a==="approve") openApprove(r);
+    else if(a==="decline") openDecline(r);
+    else if(a==="open"){ const t=teacherByCode(r.teacherCode); if(t){ gotoView("teachers"); openTeacherEdit(t); } }
+    else if(a==="delete"){
+      if(!confirm(`Delete the request from ${r.teacherName||r.email}?${r.status==="pending"?" No email is sent — it simply disappears.":""}`)) return;
+      try{ await deleteDoc(doc(db,"accessRequests",r.id)); toast("Request deleted","ok"); await loadAll(); }catch(err){ toast(writeErr(err),"bad"); }
+    }
+  });
+  function openApprove(r){
+    $("rqApId").value=r.id;
+    $("rqApTitle").textContent=`Approve ${r.teacherName||"request"}`;
+    $("rqApName").value=r.teacherName||""; $("rqApEmail").value=r.email||""; $("rqApSchool").value=r.school||""; $("rqApPosition").value=r.position||"";
+    const dup=teachersWithEmail(r.email);
+    $("rqApWarn").innerHTML=dup.length?`<div class="callout setup-warn" style="margin-bottom:14px"><strong>Heads up:</strong> ${dup.map(t=>`${esc(t.teacherName||"A teacher")} (${esc(t.teacherCode)})`).join(", ")} already use${dup.length===1?"s":""} this email. Approving creates a <b>second</b> teacher code.</div>`:"";
+    const ready=emailCfg.configured;
+    $("rqApWelcome").disabled=!ready; $("rqApWelcome").checked=ready;
+    $("rqApWelcomeNote").textContent=ready?"Sent from millsmathstools.au straight away.":"Email sending isn't set up yet, so you'll need to send them the code yourself.";
+    $("rqApMsg").className="msg";
+    $("rqApproveBackdrop").classList.add("show"); setTimeout(()=>$("rqApName").focus(),30);
+  }
+  const closeApprove=()=>$("rqApproveBackdrop").classList.remove("show");
+  $("rqApCancel").addEventListener("click",closeApprove);
+  $("rqApproveBackdrop").addEventListener("click",e=>{ if(e.target===$("rqApproveBackdrop")) closeApprove(); });
+  $("rqApForm").addEventListener("submit",async e=>{
+    e.preventDefault();
+    const overrides={ teacherName:$("rqApName").value.trim().replace(/\s+/g," "), email:cleanEmail($("rqApEmail").value), school:$("rqApSchool").value.trim(), position:$("rqApPosition").value.trim() };
+    if(!overrides.teacherName) return msg($("rqApMsg"),"Enter the teacher's name.","bad");
+    if(!isEmail(overrides.email)) return msg($("rqApMsg"),"That email address doesn't look right.","bad");
+    setLoading($("rqApBtn"),true);
+    try{
+      const res=(await reviewAccessRequest({ requestId:$("rqApId").value, decision:"approve", overrides, sendWelcome:$("rqApWelcome").checked && !$("rqApWelcome").disabled })).data||{};
+      closeApprove();
+      if(res.emailed) toast(`Approved — ${res.teacherCode} emailed to ${overrides.email}`,"ok");
+      else if($("rqApWelcome").checked && res.emailError) toast(`Approved — code ${res.teacherCode}. The welcome email didn't send (${res.emailError}); resend it from Teachers → Edit.`,"warn");
+      else toast(`Approved — teacher code ${res.teacherCode}`,"ok");
+      await loadAll(); loadEmailLog();
+    }catch(err){ msg($("rqApMsg"),fnErr(err),"bad"); }
+    finally{ setLoading($("rqApBtn"),false); }
+  });
+  function openDecline(r){
+    $("rqDcId").value=r.id;
+    $("rqDcHint").textContent=`${r.teacherName||"This person"} (${r.email}) won't get a teacher code.`;
+    $("rqDcNotify").checked=false; $("rqDcNotify").disabled=!emailCfg.configured;
+    $("rqDcMsg").className="msg";
+    $("rqDeclineBackdrop").classList.add("show");
+  }
+  const closeDecline=()=>$("rqDeclineBackdrop").classList.remove("show");
+  $("rqDcCancel").addEventListener("click",closeDecline);
+  $("rqDeclineBackdrop").addEventListener("click",e=>{ if(e.target===$("rqDeclineBackdrop")) closeDecline(); });
+  $("rqDcBtn").addEventListener("click",async()=>{
+    setLoading($("rqDcBtn"),true);
+    try{
+      const res=(await reviewAccessRequest({ requestId:$("rqDcId").value, decision:"decline", notify:$("rqDcNotify").checked })).data||{};
+      closeDecline();
+      toast(res.emailed?"Declined — they've been emailed":($("rqDcNotify").checked&&res.emailError?`Declined, but the email didn't send (${res.emailError})`:"Request declined"), res.emailError&&$("rqDcNotify").checked?"warn":"ok");
+      await loadAll(); if(res.emailed) loadEmailLog();
+    }catch(err){ msg($("rqDcMsg"),fnErr(err),"bad"); }
+    finally{ setLoading($("rqDcBtn"),false); }
   });
 
   // ================= EMAIL =================
@@ -1274,7 +1466,7 @@
     box.innerHTML=emailLog.slice(0,50).map(l=>{ const c=l.counts||{}; const when=l.sentAtMs||tsMs(l.sentAt); const r=Array.isArray(l.recipients)?l.recipients:[];
       const grp=st=>r.filter(x=>x.status===st);
       const line=(lab,arr,fmt)=>arr.length?`<div><b>${lab} (${arr.length}):</b> ${arr.map(fmt).map(esc).join(", ")}</div>`:"";
-      return `<details class="hist-row"><summary><span class="h-sub">${esc(l.subject||"(no subject)")}</span>${l.template==="welcome"?'<span class="badge legacy">Welcome</span>':""}<span class="badge active">${esc(c.sent||0)} sent</span>${c.failed?`<span class="badge inactive">${esc(c.failed)} failed</span>`:""}${c.skipped?`<span class="badge" style="background:#eef2f7;color:var(--muted)">${esc(c.skipped)} skipped</span>`:""}<span class="h-when">${esc(when?new Date(when).toLocaleString("en-AU",{dateStyle:"medium",timeStyle:"short"}):"")}</span></summary>
+      return `<details class="hist-row"><summary><span class="h-sub">${esc(l.subject||"(no subject)")}</span>${l.template==="welcome"?'<span class="badge legacy">Welcome</span>':l.template==="declined"?'<span class="badge inactive">Declined note</span>':""}<span class="badge active">${esc(c.sent||0)} sent</span>${c.failed?`<span class="badge inactive">${esc(c.failed)} failed</span>`:""}${c.skipped?`<span class="badge" style="background:#eef2f7;color:var(--muted)">${esc(c.skipped)} skipped</span>`:""}<span class="h-when">${esc(when?new Date(when).toLocaleString("en-AU",{dateStyle:"medium",timeStyle:"short"}):"")}</span></summary>
         ${l.template?"":`<div class="h-body">${esc(l.message||"")}</div>`}
         <div class="h-rcpt">${line("Sent",grp("sent"),x=>`${x.name||x.teacherCode} <${x.email}>`)}${line("Failed",grp("failed"),x=>`${x.name||x.teacherCode} (${x.reason||"error"})`)}${line("Skipped",grp("skipped"),x=>`${x.name||x.teacherCode} (${x.reason})`)}</div></details>`; }).join("");
   }
@@ -1346,6 +1538,7 @@
     if(view==="analytics") renderAnalytics();
     if(view==="growth") renderGrowth();
     if(view==="email") renderEmailView();
+    if(view==="requests") renderRequests();
     window.scrollTo({top:0,behavior:"smooth"});
   }
   document.querySelectorAll(".qa").forEach(b=>b.addEventListener("click",()=>gotoView(b.dataset.goto,{open:b.dataset.open})));
@@ -1939,7 +2132,7 @@
       $("app").style.display="grid";
       const who=user.email||user.uid;
       $("whoAmI").textContent=who; $("settingsWho").textContent=who;
-      try{ await loadAll(); }
+      try{ await loadAll(); if(location.hash==="#requests") gotoView("requests"); }
       catch(err){
         // Signed in but not authorised by rules (not the admin uid)
         toast(writeErr(err),"bad");

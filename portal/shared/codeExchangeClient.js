@@ -219,6 +219,18 @@ export async function updateTeacherProfile(payload) {
   return data;
 }
 
+/**
+ * Public "request teacher access" form (2026-10-24). No sign-in. Calls the
+ * requestTeacherAccess Cloud Function, which validates, rate-limits, stores a
+ * pending request for the admin and emails them. Returns { ok:true } or throws.
+ */
+export async function requestTeacherAccess(payload) {
+  initPortal();
+  const call = httpsCallable(_functions, "requestTeacherAccess");
+  const res = await call(payload || {});
+  return res.data || { ok: true };
+}
+
 /** Merge fresh fields into the cached profile (UI cache only). */
 export function updateCachedProfile(fields) {
   if (!_session) return;

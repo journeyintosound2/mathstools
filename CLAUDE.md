@@ -109,6 +109,22 @@
 > * **DEPLOY ORDER:** a function declaring a secret prompts for it at deploy. Before
 >   Resend is set up, deploy only `functions:updateMyTeacherProfile,functions:exchangeTeacherCode`.
 > * Rules: one new block, `emailLog` (admin read, no client writes).
+> * **ACCESS REQUESTS (same day).** Sign-in page redesigned (`.loginpage` / `.login.v2`,
+>   same IDs) with a "Request teacher access" card → `portal/teacher/request/` (public
+>   form: name*, school email*, school*, role, message, update opt-in). It calls
+>   `requestTeacherAccess` (PUBLIC callable): honeypot `website` + `elapsedMs ≥ 2500`
+>   (bots get a fake ok, nothing stored), 40/hour per hashed IP (a whole PD session
+>   shares a school IP — don't tighten it), a resend from the same email updates the
+>   pending one, `matchesTeacher` flags an email already on a teacher (never revealed to
+>   the requester). Alert email to `ADMIN_NOTIFY_EMAIL` (reply-to = requester), capped
+>   20/day — Resend free tier is 100/day and approvals' welcome emails count too.
+>   Admin **Requests** view (pill = pending, overview callout, `#requests` deep link
+>   from the alert): Approve opens an editable modal → `reviewAccessRequest` creates
+>   `teachers/{code}` (same SURNAME+4 digits scheme) in a transaction with the request
+>   flip (no double codes) and sends the welcome template; Decline optionally sends
+>   `TEMPLATES.declined` (off by default); Delete for spam. Rules: `accessRequests`
+>   (admin read + delete only); `rateLimits/` stays default-deny. Verified: 31 more
+>   function checks, 40 more Playwright checks.
 > * Verified: 32 function checks (mocked Admin SDK + Resend), 56 Playwright checks
 >   on both pages with stubbed Firebase. Harnesses in session scratch / `~/fntest`.
 >
