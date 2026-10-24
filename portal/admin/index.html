@@ -282,6 +282,19 @@
   .map-foot .dot{width:11px;height:11px;border-radius:50%;display:inline-block;border:2px solid #fff;box-shadow:0 0 0 1px rgba(15,23,42,.25)}
   .map-foot #mapMissing{margin-left:auto}
   .map-tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  /* pins: one per school (size = students), clusters = several schools close together (number = schools) */
+  .mpin-wrap,.mcl-wrap{background:none;border:0}
+  .mpin{display:flex;align-items:center;justify-content:center;box-sizing:border-box;border-radius:50%;background:var(--c);border:3px solid #fff;box-shadow:0 1px 5px rgba(15,23,42,.5);transition:transform .12s;color:#fff;font-weight:800;font-size:.72rem}
+  .mpin-wrap:hover .mpin,.mpin-wrap:focus .mpin{transform:scale(1.15)}
+  .mpin.country{border-style:dashed}
+  .mcl{display:flex;align-items:center;justify-content:center;box-sizing:border-box;border-radius:50%;background:var(--c);color:#fff;font-weight:800;font-size:.95rem;border:3px solid #fff;box-shadow:0 0 0 6px rgba(37,99,235,.18),0 2px 8px rgba(15,23,42,.4);transition:transform .12s}
+  .mcl.t2{box-shadow:0 0 0 6px rgba(22,163,74,.22),0 2px 8px rgba(15,23,42,.4)} .mcl.t0{box-shadow:0 0 0 6px rgba(100,116,139,.2),0 2px 8px rgba(15,23,42,.4)}
+  .mcl-wrap:hover .mcl{transform:scale(1.08)}
+  .map-body{position:relative;display:flex;gap:12px;min-height:0}
+  .map-body .mmt-map{flex:1;min-width:0}
+  .map-side{display:none}
+  .map-hidden-note{color:#b45309;font-weight:600}
+  .map-hidden-note button{margin-left:4px}
   .map-fs-btn{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
   .map-fs-btn .ic{font-size:1rem;line-height:1}
   .map-fs-only{display:none}
@@ -291,7 +304,33 @@
   #mapCard.fs .sch-head{margin-bottom:10px;align-items:center}
   #mapCard.fs .sch-head h3{font-size:1.05rem}
   #mapCard.fs .sch-head .hint{display:none}
-  #mapCard.fs .mmt-map{flex:1;height:auto;min-height:0}
+  #mapCard.fs .map-body{flex:1}
+  #mapCard.fs .mmt-map{height:auto;min-height:0}
+  #mapCard.fs.side-open .map-side{display:flex}
+  .map-side{flex-direction:column;width:320px;flex:0 0 320px;border:1px solid var(--line);border-radius:12px;background:#fff;min-height:0;overflow:hidden}
+  .ms-head{padding:10px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:8px;background:#f8fafc}
+  .ms-head input,.ms-head select{width:100%;box-sizing:border-box;padding:8px 10px;border:1.5px solid #cbd5e1;border-radius:9px;font:inherit;font-size:.86rem;background:#fff}
+  .ms-row{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:.78rem;color:var(--muted)}
+  .ms-link{all:unset;cursor:pointer;color:var(--brand,#2563eb);font-weight:700}
+  .ms-link:focus-visible{outline:2px solid var(--brand,#2563eb);outline-offset:2px;border-radius:3px}
+  .ms-list{list-style:none;margin:0;padding:0;overflow-y:auto;flex:1;min-height:0}
+  .ms-item{display:flex;align-items:flex-start;gap:9px;padding:8px 10px;border-bottom:1px solid #f1f5f9}
+  .ms-item:hover{background:#f8fafc}
+  .ms-item input{margin:3px 0 0;width:16px;height:16px;flex:0 0 auto;accent-color:var(--brand,#2563eb);cursor:pointer}
+  .ms-item .dot{width:12px;height:12px;border-radius:50%;flex:0 0 auto;margin-top:3px;border:2px solid #fff;box-shadow:0 0 0 1px rgba(15,23,42,.25)}
+  .ms-name{all:unset;cursor:pointer;flex:1;min-width:0;display:block}
+  .ms-name:focus-visible{outline:2px solid var(--brand,#2563eb);outline-offset:2px;border-radius:4px}
+  .ms-name b{display:block;font-size:.85rem;color:var(--ink);line-height:1.3}
+  .ms-name:hover b{color:var(--brand,#2563eb);text-decoration:underline}
+  .ms-name small{display:block;font-size:.74rem;color:var(--muted);line-height:1.35;margin-top:1px}
+  .ms-item.off .ms-name,.ms-item.off .dot{opacity:.45}
+  .ms-item.nomap .ms-name{cursor:default} .ms-item.nomap .ms-name:hover b{color:var(--ink);text-decoration:none}
+  .ms-sub{padding:8px 10px 4px;font-size:.7rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:#fff}
+  .ms-empty{padding:16px 12px;font-size:.84rem;color:var(--muted)}
+  #msToggle[aria-pressed="true"]{background:#e0e7ff}
+  @media (max-width:760px){
+    #mapCard.fs .map-side{position:absolute;left:0;right:0;bottom:0;height:58%;width:auto;z-index:1001;box-shadow:0 -8px 24px rgba(15,23,42,.25);border-radius:14px 14px 0 0}
+  }
   #mapCard.fs .map-fs-only{display:inline}
   #mapCard.fs .map-fs-btn{background:var(--brand,#2563eb);color:#fff;border-color:transparent}
   @media (max-width:640px){ #mapCard.fs{padding:8px 8px 6px} #mapCard.fs .map-foot .lg{font-size:.72rem} #mapCard.fs .sch-head h3{display:none} }
@@ -354,6 +393,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.css"/>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
 <!-- mmt-pwa -->
 <link rel="manifest" href="../../manifest.webmanifest">
@@ -421,18 +461,30 @@
       <div class="stats" id="statCards"></div>
       <div class="card" id="mapCard">
         <div class="sch-head">
-          <div><h3>Where Mills Maths Tools is used</h3><p class="hint">One pin per school, sized by its number of students. Overseas teachers show as one pin per country for now.</p></div>
+          <div><h3>Where Mills Maths Tools is used</h3><p class="hint">One pin per school, sized by its number of students. Nearby schools join into a numbered bubble; zoom in (or click it) to split them. Overseas teachers show as one pin per country for now.</p></div>
           <div class="map-tools">
             <div class="seg" id="mapViewSeg" style="margin:0"><button type="button" data-mv="nsw" class="on">NSW</button><button type="button" data-mv="aus">Australia</button><button type="button" data-mv="world">World</button></div>
+            <button type="button" class="btn-soft btn-tiny map-fs-only" id="msToggle" aria-pressed="false" aria-controls="mapSide">☰ Schools list</button>
             <button type="button" class="btn-soft btn-tiny map-fs-btn" id="mapFsBtn" aria-pressed="false" title="Show the map full screen"><span class="ic" aria-hidden="true">⛶</span><span class="lbl">Full screen</span></button>
           </div>
         </div>
-        <div id="mmtMap" class="mmt-map" role="region" aria-label="Map of schools using Mills Maths Tools"></div>
+        <div class="map-body">
+          <aside class="map-side" id="mapSide" aria-label="Schools on the map">
+            <div class="ms-head">
+              <input id="msSearch" type="search" placeholder="Search schools, suburbs or states…" aria-label="Search schools" autocomplete="off"/>
+              <select id="msSort" aria-label="Sort schools"><option value="students">Most students first</option><option value="active">Most active (last 28 days)</option><option value="name">A–Z</option></select>
+              <div class="ms-row"><span id="msCount"></span><span><button type="button" class="ms-link" id="msAll">Show all</button> · <button type="button" class="ms-link" id="msNone">Hide all</button></span></div>
+            </div>
+            <ul class="ms-list" id="msList"></ul>
+          </aside>
+          <div id="mmtMap" class="mmt-map" role="region" aria-label="Map of schools using Mills Maths Tools"></div>
+        </div>
         <div class="map-foot">
           <span class="lg"><i class="dot" style="background:#16a34a"></i>Active in the last 28 days</span>
           <span class="lg"><i class="dot" style="background:#2563eb"></i>Used before</span>
           <span class="lg"><i class="dot" style="background:#94a3b8"></i>No tasks yet</span>
           <span class="lg map-fs-only">Scroll or pinch to zoom · <b>Esc</b> or Back to exit</span>
+          <span id="mapHiddenNote" class="map-hidden-note"></span>
           <span id="mapMissing"></span>
         </div>
       </div>
@@ -1712,44 +1764,81 @@
   // area ∝ students; overseas schools that only know their country share one
   // pin per country. Opens on NSW; the buttons jump to Australia or the world.
   const MAP_VIEWS={ nsw:[[-37.6,140.9],[-28.1,153.7]], aus:[[-43.8,112.8],[-10.5,154]] };
+  const TIER_COL=["#94a3b8","#2563eb","#16a34a"];          // no tasks yet · used before · active in the last 28 days
+  const tierOf=e=>e.tasks28>0?2:e.tasks>0?1:0;
   let lmap=null, lmapLayer=null, mapView="nsw";
-  function mapColour(e){ return e.tasks28>0?"#16a34a":e.tasks>0?"#2563eb":"#94a3b8"; }
+  const mapHidden=new Set();                               // school keys the admin has unticked in the list
+  let markerByKey=new Map();
+  function mapColour(e){ return TIER_COL[tierOf(e)]; }
+  const pinSize=n=>Math.round(Math.max(22,Math.min(48,18+Math.sqrt(n)*2.8)));
+  function pinIcon(colour,size,{country=false,label=""}={}){
+    return L.divIcon({ className:"mpin-wrap", iconSize:[size,size], html:`<span class="mpin${country?" country":""}" style="--c:${colour};width:${size}px;height:${size}px">${label}</span>` });
+  }
+  // The grouping add-on is loaded only once Leaflet itself is there (so a blocked Leaflet can't cause errors).
+  const CLUSTER_JS="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.js";
+  let clusterP=null;
+  function loadCluster(){
+    if(typeof L==="undefined") return Promise.resolve(false);
+    if(L.markerClusterGroup) return Promise.resolve(true);
+    if(!clusterP) clusterP=new Promise(res=>{ const sc=document.createElement("script"); sc.src=CLUSTER_JS; sc.onload=()=>res(!!L.markerClusterGroup); sc.onerror=()=>res(false); document.head.appendChild(sc); });
+    return clusterP;
+  }
+  loadCluster();
+  function makeLayer(){
+    if(!L.markerClusterGroup) return L.layerGroup(); // add-on didn't load: plain pins, everything still works
+    return L.markerClusterGroup({
+      maxClusterRadius:z=>z>=11?28:z>=8?45:60, showCoverageOnHover:false, spiderfyOnMaxZoom:true, zoomToBoundsOnClick:true, spiderLegPolylineOptions:{ weight:1.5, color:"#334155", opacity:.6 },
+      iconCreateFunction:c=>{
+        const ms=c.getAllChildMarkers(); const n=ms.reduce((a,m)=>a+((m.options.mmt&&m.options.mmt.n)||1),0);
+        const tier=Math.max(...ms.map(m=>(m.options.mmt&&m.options.mmt.tier)||0)); const size=Math.round(Math.min(64,34+Math.sqrt(n)*6));
+        return L.divIcon({ className:"mcl-wrap", iconSize:[size,size], html:`<span class="mcl t${tier}" style="--c:${TIER_COL[tier]};background:${TIER_COL[tier]};width:${size}px;height:${size}px" title="${n} schools here — click or zoom in to see them"><b>${n}</b></span>` });
+      },
+    });
+  }
+  function schoolPopup(e){
+    return `<div class="map-pop"><b>${esc(e.name)}</b><div class="m">${esc(formatLocation(e.loc||e.teachers[0]||{},{country:true}))}${e.sector?` · ${esc(e.sector)}`:""}${e.coord&&e.coord.src==="suburb"?" · pinned at the suburb centre":""}</div>
+      <div class="n">${e.teachers.length} teacher${e.teachers.length===1?"":"s"} · ${e.activeStudents} students<br>${achAvailable?`${e.tasks.toLocaleString()} tasks · ${e.tasks28} in the last 28 days`:""}</div>
+      <button class="btn-soft" data-open-school="${esc(e.key||"__none")}">Open breakdown</button></div>`;
+  }
   function renderMap(){
     const box=$("mmtMap"); if(!box) return;
     if(typeof L==="undefined"){ box.innerHTML='<div class="an-empty" style="margin:16px">The map library couldn\'t load (check the connection), so the map is hidden. Everything else works.</div>'; return; }
     if(!lmap){
       lmap=L.map(box,{ zoomSnap:0.25, worldCopyJump:true, scrollWheelZoom:false });
       L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{ maxZoom:18, attribution:'&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors' }).addTo(lmap);
-      lmapLayer=L.layerGroup().addTo(lmap);
+      lmapLayer=makeLayer().addTo(lmap);
+      if(!L.markerClusterGroup) loadCluster().then(ok=>{ if(ok){ lmap.removeLayer(lmapLayer); lmapLayer=makeLayer().addTo(lmap); renderMap(); } });
       lmap.fitBounds(MAP_VIEWS.nsw);
       box.addEventListener("click",ev=>{ const b=ev.target.closest("[data-open-school]"); if(b){ ev.preventDefault(); lmap.closePopup(); openSchool(b.dataset.openSchool==="__none"?"":b.dataset.openSchool); } });
-      lmap.on("focus",()=>lmap.scrollWheelZoom.enable()); lmap.on("blur",()=>lmap.scrollWheelZoom.disable());
+      lmap.on("focus",()=>lmap.scrollWheelZoom.enable()); lmap.on("blur",()=>{ if(!mapFs) lmap.scrollWheelZoom.disable(); });
     }
     setTimeout(()=>lmap.invalidateSize(),0);
-    lmapLayer.clearLayers();
-    const list=[...schools.values()].filter(e=>e.key&&e.coord).sort((a,b)=>b.activeStudents-a.activeStudents); // big first, so small pins stay clickable on top
-    const byCountry=new Map();
+    lmapLayer.clearLayers(); markerByKey=new Map();
+    const list=[...schools.values()].filter(e=>e.key&&e.coord&&!mapHidden.has(e.key));
+    const byCountry=new Map(), markers=[];
     list.forEach(e=>{
       if(e.coord.src==="country"){ const k=e.coord.country; if(!byCountry.has(k)) byCountry.set(k,{ coord:e.coord, schools:[] }); byCountry.get(k).schools.push(e); return; }
-      const r=Math.max(6,Math.min(26,5+Math.sqrt(e.activeStudents)*1.6));
-      L.circleMarker([e.coord.lat,e.coord.lng],{ radius:r, color:"#fff", weight:2, fillColor:mapColour(e), fillOpacity:.85 })
-        .bindTooltip(esc(e.name),{ direction:"top", offset:[0,-r] })
-        .bindPopup(`<div class="map-pop"><b>${esc(e.name)}</b><div class="m">${esc(formatLocation(e.loc||e.teachers[0]||{},{country:true}))}${e.sector?` · ${esc(e.sector)}`:""}${e.coord.src==="suburb"?" · pinned at the suburb centre":""}</div>
-          <div class="n">${e.teachers.length} teacher${e.teachers.length===1?"":"s"} · ${e.activeStudents} students<br>${achAvailable?`${e.tasks.toLocaleString()} tasks · ${e.tasks28} in the last 28 days`:""}</div>
-          <button class="btn-soft" data-open-school="${esc(e.key||"__none")}">Open breakdown</button></div>`)
-        .addTo(lmapLayer);
+      const size=pinSize(e.activeStudents);
+      const m=L.marker([e.coord.lat,e.coord.lng],{ icon:pinIcon(mapColour(e),size), riseOnHover:true, alt:e.name, keyboard:true, mmt:{ n:1, tier:tierOf(e), key:e.key } })
+        .bindTooltip(esc(e.name),{ direction:"top", offset:[0,-size/2] }).bindPopup(schoolPopup(e));
+      markers.push(m); markerByKey.set(e.key,m);
     });
     byCountry.forEach((g,country)=>{
-      const teachersN=g.schools.reduce((a,e)=>a+e.teachers.length,0);
-      const active=g.schools.some(e=>e.tasks28>0), used=g.schools.some(e=>e.tasks>0);
-      L.circleMarker([g.coord.lat,g.coord.lng],{ radius:Math.max(8,Math.min(24,6+teachersN*2)), color:"#fff", weight:2, fillColor:active?"#16a34a":used?"#2563eb":"#94a3b8", fillOpacity:.85, dashArray:"4 3" })
+      const teachersN=g.schools.reduce((a,e)=>a+e.teachers.length,0), tier=Math.max(...g.schools.map(tierOf));
+      const size=Math.max(26,Math.min(44,22+teachersN*3));
+      const m=L.marker([g.coord.lat,g.coord.lng],{ icon:pinIcon(TIER_COL[tier],size,{ country:true, label:g.schools.length>1?String(g.schools.length):"" }), riseOnHover:true, alt:country, mmt:{ n:g.schools.length, tier, country } })
         .bindTooltip(`${esc(country)} — ${g.schools.length} school${g.schools.length===1?"":"s"}`,{ direction:"top" })
-        .bindPopup(`<div class="map-pop"><b>${esc(country)}</b><div class="m">${teachersN} teacher${teachersN===1?"":"s"} · pin at the country's centre</div><ul>${g.schools.map(e=>`<li><a data-open-school="${esc(e.key)}">${esc(e.name)}</a>${e.location?` — ${esc(e.location)}`:""}</li>`).join("")}</ul></div>`)
-        .addTo(lmapLayer);
+        .bindPopup(`<div class="map-pop"><b>${esc(country)}</b><div class="m">${teachersN} teacher${teachersN===1?"":"s"} · pin at the country's centre</div><ul>${g.schools.map(e=>`<li><a data-open-school="${esc(e.key)}">${esc(e.name)}</a>${e.location?` — ${esc(e.location)}`:""}</li>`).join("")}</ul></div>`);
+      markers.push(m); g.schools.forEach(e=>markerByKey.set(e.key,m));
     });
+    if(lmapLayer.addLayers) lmapLayer.addLayers(markers); else markers.forEach(m=>m.addTo(lmapLayer));
     const missing=teachers.filter(t=>schoolKey(t.school)&&!(typeof t.lat==="number")&&!(t.country&&t.country!=="Australia"&&countryCentre(t.country)));
     $("mapMissing").innerHTML = missing.length ? `${missing.length} teacher${missing.length===1?" isn't":"s aren't"} on the map yet · <button type="button" class="btn-soft btn-tiny" id="bfOpen">Find their schools</button>` : (teachers.length?"Every teacher with a school is on the map ✓":"");
     if($("bfOpen")) $("bfOpen").onclick=openBackfill;
+    const hid=[...mapHidden].filter(k=>schools.has(k)).length;
+    $("mapHiddenNote").innerHTML = hid ? `${hid} school${hid===1?"":"s"} hidden <button type="button" class="btn-soft btn-tiny" id="mapShowAll">Show all</button>` : "";
+    if($("mapShowAll")) $("mapShowAll").onclick=()=>{ mapHidden.clear(); renderMap(); };
+    if(mapFs) renderMapList();
   }
   $("mapViewSeg").addEventListener("click",e=>{
     const b=e.target.closest("[data-mv]"); if(!b||!lmap) return; mapView=b.dataset.mv;
@@ -1757,6 +1846,66 @@
     if(mapView==="world"){ const pts=[...schools.values()].filter(x=>x.key&&x.coord).map(x=>[x.coord.lat,x.coord.lng]); if(pts.length>1) lmap.fitBounds(L.latLngBounds(pts).pad(0.4),{ maxZoom:4 }); else lmap.setView([-10,135],2); }
     else lmap.fitBounds(MAP_VIEWS[mapView]);
   });
+
+  // ---- side list (full screen): search, sort, tick to show/hide, click a name to fly to it
+  function mapListItems(){
+    const term=($("msSearch").value||"").trim().toLowerCase(); const by=$("msSort").value;
+    const all=[...schools.values()].filter(e=>e.key);
+    const hit=e=>!term||[e.name,e.location,e.sector,(e.loc&&e.loc.state)||"",(e.loc&&e.loc.country)||""].join(" ").toLowerCase().includes(term);
+    const sort=(a,b)=>by==="name"?a.name.localeCompare(b.name):by==="active"?(b.tasks28-a.tasks28)||(b.activeStudents-a.activeStudents)||a.name.localeCompare(b.name):(b.activeStudents-a.activeStudents)||a.name.localeCompare(b.name);
+    return { term, onMap:all.filter(e=>e.coord&&hit(e)).sort(sort), offMap:all.filter(e=>!e.coord&&hit(e)).sort((a,b)=>a.name.localeCompare(b.name)), total:all.filter(e=>e.coord).length };
+  }
+  function renderMapList(){
+    const { term, onMap, offMap, total }=mapListItems();
+    const shown=[...schools.values()].filter(e=>e.key&&e.coord&&!mapHidden.has(e.key)).length;
+    $("msCount").textContent=`${shown} of ${total} school${total===1?"":"s"} shown`;
+    $("msAll").textContent=term?"Show matches":"Show all"; $("msNone").textContent=term?"Hide matches":"Hide all";
+    const row=e=>{ const off=mapHidden.has(e.key), loc=formatLocation(e.loc||e.teachers[0]||{},{country:true});
+      return `<li class="ms-item${off?" off":""}"><input type="checkbox" data-ms-key="${esc(e.key)}" ${off?"":"checked"} aria-label="Show ${esc(e.name)} on the map"/><i class="dot" style="background:${mapColour(e)}"></i><button type="button" class="ms-name" data-ms-go="${esc(e.key)}" title="Show on the map"><b>${esc(e.name)}</b><small>${[loc,e.sector].filter(Boolean).map(esc).join(" · ")}</small><small>${e.teachers.length} teacher${e.teachers.length===1?"":"s"} · ${e.activeStudents} student${e.activeStudents===1?"":"s"}${achAvailable&&e.tasks28?` · ${e.tasks28} tasks this month`:""}</small></button></li>`; };
+    const off=e=>`<li class="ms-item nomap"><i class="dot" style="background:#e2e8f0"></i><span class="ms-name"><b>${esc(e.name)}</b><small>${e.teachers.length} teacher${e.teachers.length===1?"":"s"} · no location yet</small></span></li>`;
+    $("msList").innerHTML = (onMap.map(row).join("") || `<li class="ms-empty">${term?`No school on the map matches “${esc(term)}”.`:"No schools on the map yet."}</li>`)
+      + (offMap.length?`<li class="ms-sub">Not on the map yet</li>${offMap.map(off).join("")}`:"");
+  }
+  function focusSchool(key){
+    const m=markerByKey.get(key); if(!m||!lmap) return;
+    const isCountry=!!m.options.mmt.country;
+    if(innerWidth<=760) setSideOpen(false);           // phone: get the list out of the way
+    lmap.setView(m.getLatLng(),isCountry?4:Math.max(lmap.getZoom(),12),{ animate:false });
+    const open=()=>{ m.openPopup(); };
+    if(lmapLayer.zoomToShowLayer) lmapLayer.zoomToShowLayer(m,open); else open();
+  }
+  function setSideOpen(on){ $("mapCard").classList.toggle("side-open",on); $("msToggle").setAttribute("aria-pressed",String(on)); if(lmap) requestAnimationFrame(()=>lmap.invalidateSize({ pan:false })); }
+  $("msToggle").addEventListener("click",()=>{ const on=!$("mapCard").classList.contains("side-open"); setSideOpen(on); if(on){ renderMapList(); setTimeout(()=>$("msSearch").focus(),0); } });
+  $("msSearch").addEventListener("input",renderMapList);
+  $("msSort").addEventListener("input",renderMapList);
+  $("msList").addEventListener("change",e=>{ const cb=e.target.closest("[data-ms-key]"); if(!cb) return; if(cb.checked) mapHidden.delete(cb.dataset.msKey); else { mapHidden.add(cb.dataset.msKey); lmap&&lmap.closePopup(); } renderMap(); });
+  $("msList").addEventListener("click",e=>{ const b=e.target.closest("[data-ms-go]"); if(!b) return; const k=b.dataset.msGo; if(mapHidden.has(k)){ mapHidden.delete(k); renderMap(); } focusSchool(k); });
+  $("msAll").addEventListener("click",()=>{ mapListItems().onMap.forEach(e=>mapHidden.delete(e.key)); renderMap(); });
+  $("msNone").addEventListener("click",()=>{ mapListItems().onMap.forEach(e=>mapHidden.add(e.key)); lmap&&lmap.closePopup(); renderMap(); });
+
+  // ---- trackpad pinch: zoom the MAP, never the browser page — over the map always, and anywhere while full screen.
+  // Chrome/Edge/Firefox report a pinch as wheel + ctrlKey; Safari uses gesture events.
+  let pinchZ=null, pinchPt=null, pinchRaf=0, pinchT=0, gestZ=null;
+  const overMap=t=>!!(t&&t.closest&&t.closest("#mmtMap"));
+  const clampZ=z=>Math.max(lmap.getMinZoom(),Math.min(lmap.getMaxZoom(),z));
+  const snapZ=z=>Math.round(z*4)/4; // match zoomSnap so the spot under the fingers stays put
+  $("mapCard").addEventListener("wheel",e=>{
+    if(!e.ctrlKey||!(mapFs||overMap(e.target))) return;
+    e.preventDefault(); e.stopPropagation();                 // stop the page zoom (and Leaflet's own wheel handler)
+    if(!lmap||!overMap(e.target)) return;
+    if(pinchZ==null) pinchZ=lmap.getZoom();
+    pinchZ=clampZ(pinchZ-e.deltaY*0.012); pinchPt=lmap.mouseEventToContainerPoint(e);
+    clearTimeout(pinchT); pinchT=setTimeout(()=>{ pinchZ=null; },250);
+    if(!pinchRaf) pinchRaf=requestAnimationFrame(()=>{ pinchRaf=0; if(pinchZ!=null&&snapZ(pinchZ)!==lmap.getZoom()) lmap.setZoomAround(pinchPt,snapZ(pinchZ),{ animate:false }); });
+  },{ passive:false, capture:true });
+  ["gesturestart","gesturechange","gestureend"].forEach(type=>$("mapCard").addEventListener(type,e=>{
+    if(!(mapFs||overMap(e.target))) return;
+    e.preventDefault(); e.stopPropagation();
+    if(!lmap||!overMap(e.target)) return;
+    if(type==="gesturestart") gestZ=lmap.getZoom();
+    else if(type==="gesturechange"&&gestZ!=null&&e.scale>0){ const r=$("mmtMap").getBoundingClientRect(); const z=snapZ(clampZ(gestZ+Math.log2(e.scale))); if(z!==lmap.getZoom()) lmap.setZoomAround(L.point(e.clientX-r.left,e.clientY-r.top),z,{ animate:false }); }
+    else gestZ=null;
+  },{ passive:false, capture:true }));
 
   // ---- full screen: CSS overlay (works everywhere), exit by button, Esc or the Back button/gesture
   var mapFs=false; // var: gotoView reads it
@@ -1766,7 +1915,7 @@
     $("mapCard").classList.toggle("fs",on); document.body.classList.toggle("map-fs",on);
     const b=$("mapFsBtn"); b.setAttribute("aria-pressed",String(on)); b.title=on?"Exit full screen (Esc)":"Show the map full screen";
     b.querySelector(".ic").textContent=on?"✕":"⛶"; b.querySelector(".lbl").textContent=on?"Exit full screen":"Full screen";
-    if(on){ try{ history.pushState({ mmtMapFs:true },""); }catch{} }
+    if(on){ try{ history.pushState({ mmtMapFs:true },""); }catch{} renderMapList(); setSideOpen(innerWidth>760); }
     else if(!fromHistory){ try{ if(history.state&&history.state.mmtMapFs) history.back(); }catch{} }
     if(lmap){ if(on) lmap.scrollWheelZoom.enable(); else if(document.activeElement!==$("mmtMap")) lmap.scrollWheelZoom.disable();
       requestAnimationFrame(()=>{ lmap.invalidateSize({ pan:false }); if(keep) lmap.fitBounds(keep,{ animate:false }); }); }
