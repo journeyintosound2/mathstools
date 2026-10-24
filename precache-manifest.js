@@ -1,6 +1,6 @@
 /* Written by tools/build-pwa.mjs — do not edit by hand. */
 self.MMT_PRECACHE = {
- "version": "55a2981526",
+ "version": "70e17410c1",
  "files": [
   "./",
   "assessment/exam-builder/app.js",
@@ -646,11 +646,11 @@ self.MMT_PRECACHE = {
   "game-platforms/mills-maths-adventure/assets/KaTeX_Size4-Regular-Dl5lxZxV.woff2",
   "game-platforms/mills-maths-adventure/assets/KaTeX_Typewriter-Regular-CO6r4hn1.woff2",
   "game-platforms/mills-maths-adventure/assets/MathAnswerInput-XpCQxquu.css",
-  "game-platforms/mills-maths-adventure/assets/MathAnswerInput-huoLX8sH.js",
+  "game-platforms/mills-maths-adventure/assets/MathAnswerInput-_sz04nTZ.js",
   "game-platforms/mills-maths-adventure/assets/baloo-2-latin-500-normal-sFC1aiE7.woff2",
   "game-platforms/mills-maths-adventure/assets/baloo-2-latin-700-normal-DpwkDI0o.woff2",
   "game-platforms/mills-maths-adventure/assets/baloo-2-latin-800-normal-CJQCPmFU.woff2",
-  "game-platforms/mills-maths-adventure/assets/index-DMCQzgYn.css",
+  "game-platforms/mills-maths-adventure/assets/index-CUA1iEPO.css",
   "game-platforms/mills-maths-adventure/assets/lilita-one-latin-400-normal-87r-Z-Re.woff2",
   "game-platforms/mills-maths-adventure/index.html",
   "game-platforms/mills-maths-adventure/portraits/alby.webp",
