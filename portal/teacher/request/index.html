@@ -79,7 +79,7 @@
     </section>
 
     <section class="card rq-card" id="rqCard" aria-live="polite">
-      <form id="rqForm" novalidate>
+      <form id="rqForm" novalidate onsubmit="event.preventDefault()">
         <h2>Request teacher access</h2>
         <p class="sub">Fields marked <span class="req">*</span> are required.</p>
         <div class="rq-row">
@@ -91,7 +91,7 @@
         <div class="field"><label for="rqMessage">Anything else Jeff should know? <span class="opt">(optional)</span></label><textarea id="rqMessage" maxlength="600" placeholder="e.g. Which year groups you teach, or how you heard about Mills Maths Tools"></textarea></div>
         <div class="rq-hp" aria-hidden="true"><label for="rqWebsite">Website</label><input id="rqWebsite" name="website" tabindex="-1" autocomplete="off"/></div>
         <label class="rq-check" for="rqUpdates"><input type="checkbox" id="rqUpdates" checked/><span>Email me occasional updates about new tools. <span class="opt">You can change this any time in your profile.</span></span></label>
-        <button class="btn primary" id="rqSubmit" type="submit">Send request</button>
+        <button class="btn primary" id="rqSubmit" type="submit" disabled>Loading…</button>
         <div class="msg" id="rqMsg"></div>
         <p class="rq-privacy">Your details are used only to set up and support your Mills Maths Tools account.</p>
         <a class="rq-back" href="../">← Already have a code? Sign in</a>
@@ -104,6 +104,9 @@
 import { requestTeacherAccess } from "../../shared/codeExchangeClient.js";
 const $ = (id)=>document.getElementById(id);
 const t0 = Date.now();
+// The form is inert until this module has loaded (the button starts disabled),
+// so an early click can never fall through to a plain page reload.
+$("rqSubmit").disabled = false; $("rqSubmit").textContent = "Send request";
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const esc = (s)=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const msg = (t,type="bad")=>{ const m=$("rqMsg"); m.className=`msg show ${type}`; m.textContent=t; };
@@ -141,7 +144,8 @@ $("rqForm").addEventListener("submit", async (e)=>{
     const code=String((err&&err.code)||""), m=String((err&&err.message)||"");
     let t = m && !/^internal$/i.test(m) ? m : "";
     if(!t || /internal|unavailable|not-found/i.test(code)) t = "Your request couldn't be sent just now. Please try again in a moment, or email jeff.mills2@det.nsw.edu.au.";
-    msg(t); btn.disabled=false; btn.textContent="Send request";
+    console.error("requestTeacherAccess failed:", err);
+    msg(t + (code ? `  (code: ${code.replace(/^functions\//,"")})` : "")); btn.disabled=false; btn.textContent="Send request";
   }
 });
 </script>
