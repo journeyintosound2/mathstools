@@ -926,13 +926,24 @@ const ADMIN_ALERTS_PER_DAY = 20;       // protects the Resend free tier (100/day
 TEMPLATES.declined = {
   kind: "request",
   subject: "Your Mills Maths Tools access request",
-  message: [
+  message: declineMessage(""),
+};
+/**
+ * The decline email, with the admin's reason (if any) as its own paragraph
+ * between the opening and the "reply to this email" line. The admin console
+ * mirrors this wording for its preview — keep the two in step.
+ */
+function declineMessage(reason) {
+  const parts = [
     "Hi {firstName},",
     "Thank you for your interest in Mills Maths Tools. Unfortunately I'm unable to approve your request for a teacher account at this time.",
-    "If you think this might be a mistake, or you'd like to talk about it, just reply to this email.",
-    "Jeff Mills\nMills Maths Tools",
-  ].join("\n\n"),
-};
+  ];
+  const r = String(reason || "").replace(/\r\n/g, "\n").trim();
+  if (r) parts.push(r);
+  parts.push("If you think this might be a mistake, or you'd like to talk about it, just reply to this email.");
+  parts.push("Jeff Mills\nMills Maths Tools");
+  return parts.join("\n\n");
+}
 
 /** Same scheme as the admin console: surname (letters only, ≤12) + 4 digits. */
 function teacherCodeStem(name) {
@@ -1078,15 +1089,22 @@ exports.reviewAccessRequest = onCall({ secrets: [RESEND_API_KEY] }, async (reque
   const key = resendKey();
 
   if (decision === "decline") {
-    await ref.update({ status: "declined", reviewedAt: admin.firestore.FieldValue.serverTimestamp(), reviewedAtMs: Date.now(), reviewedBy });
+    // The reason is kept on the request either way (it shows in the admin's
+    // Declined list); it is only emailed when notify is true.
+    const reason = String(d.reason || "").replace(/\r\n/g, "\n").trim().slice(0, 1000);
+    const reasonLabel = cleanText(d.reasonLabel, 60);
+    await ref.update({ status: "declined", declineReason: reason, declineReasonLabel: reasonLabel, declineNotified: false,
+      reviewedAt: admin.firestore.FieldValue.serverTimestamp(), reviewedAtMs: Date.now(), reviewedBy });
     let emailed = false, emailError = null;
     if (d.notify === true) {
       if (!key) emailError = "Email sending isn't set up.";
       else {
         try {
-          await resendBatch(key, [buildEmail({ ...TEMPLATES.declined, t: { teacherName: r.teacherName }, to: r.email })]);
+          const message = declineMessage(reason);
+          await resendBatch(key, [buildEmail({ ...TEMPLATES.declined, message, t: { teacherName: r.teacherName, school: r.school }, to: r.email })]);
           emailed = true;
-          await logEmail({ subject: TEMPLATES.declined.subject, message: "", template: "declined", kind: "request", sentBy: reviewedBy,
+          await ref.update({ declineNotified: true });
+          await logEmail({ subject: TEMPLATES.declined.subject, message, template: "declined", kind: "request", sentBy: reviewedBy,
             counts: { sent: 1, failed: 0, skipped: 0 }, recipients: [{ name: r.teacherName, email: r.email, status: "sent" }] });
         } catch (e) { emailError = String(e.message || e); }
       }

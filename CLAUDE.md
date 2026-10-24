@@ -109,6 +109,14 @@
 > * **DEPLOY ORDER:** a function declaring a secret prompts for it at deploy. Before
 >   Resend is set up, deploy only `functions:updateMyTeacherProfile,functions:exchangeTeacherCode`.
 > * Rules: one new block, `emailLog` (admin read, no client writes).
+> * **DECLINE REASONS (same day).** The Decline pop-up has preset reasons
+>   (`DECLINE_REASONS` in the admin page: school not recognised · use a school email ·
+>   already has an account (preselected when the email matches a teacher) · looks like
+>   a student · details incomplete · other), an editable text box ({firstName}/{school}
+>   work) and a live preview. `reviewAccessRequest` takes `reason` + `reasonLabel`;
+>   `declineMessage(reason)` in functions puts it as its own paragraph — the admin
+>   preview mirrors that wording. Stored on the request (`declineReason`,
+>   `declineReasonLabel`, `declineNotified`) and shown in the Declined list.
 > * **SCHOOLS + IMPACT (same day, admin console only, no rules/functions change).**
 >   Everything is computed in the browser from what `loadAll()` already reads.
 >   `schoolKey()` groups free-text schools (lower case, punctuation stripped, HS→high,
