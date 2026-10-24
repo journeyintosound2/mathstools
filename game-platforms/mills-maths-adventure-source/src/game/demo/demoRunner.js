@@ -91,7 +91,9 @@ export function plainCaption(text) {
 /** How long a young reader needs for a line (ms). */
 export function readingMs(text) {
   const words = plainCaption(text).split(/\s+/).filter(Boolean).length;
-  return Math.max(2300, Math.min(7600, 1500 + words * 340));
+  // ~10% brisker than the first cut (Jeff: the pace felt "frozen"); every
+  // line still gets 2 s+, and a filling bar under it shows time moving.
+  return Math.max(2100, Math.min(7000, 1300 + words * 310));
 }
 
 // ---------------------------------------------------------------------------
@@ -238,6 +240,16 @@ function setNativeValue(el, value) {
 function helpers(run) {
   const { store } = run.def;
   const setHand = (patch) => useDemo.setState((s) => ({ hand: { ...(s.hand || {}), ...patch, at: Date.now() } }));
+  // The card button the hand last pressed / pointed at. When the card moves
+  // on and that button is gone, the hand tucks itself away instead of
+  // pointing at empty space while the host talks.
+  const tidyHand = () => {
+    const el = run.handEl;
+    if (el && (!el.isConnected || !visible(el))) {
+      run.handEl = null;
+      useDemo.setState((s) => ({ spot: null, hand: s.hand ? { ...s.hand, hidden: true } : null }));
+    }
+  };
   const spotFor = (p) =>
     p.rect
       ? { x: p.rect.x - 7, y: p.rect.y - 7, w: p.rect.w + 14, h: p.rect.h + 14, circle: false }
@@ -260,14 +272,17 @@ function helpers(run) {
       // Fire-and-forget lines (said while the hand works) never throw.
       if (!wait) {
         if (!run.aborted) {
-          useDemo.setState({ caption: { text, think: false, at: Date.now() } });
+          tidyHand();
+          useDemo.setState({ caption: { text, think: false, ms: null, at: Date.now() } });
           speak(run, text);
         }
         return;
       }
       check(run);
-      useDemo.setState({ caption: { text, think: false, at: Date.now() } });
-      await Promise.all([sleep(run, ms ?? readingMs(text)), speak(run, text)]);
+      tidyHand();
+      const hold = ms ?? readingMs(text);
+      useDemo.setState({ caption: { text, think: false, ms: hold / speedOf(), at: Date.now() } });
+      await Promise.all([sleep(run, hold), speak(run, text)]);
     },
 
     /**
@@ -276,6 +291,7 @@ function helpers(run) {
      */
     async think(text, ms = 3200) {
       check(run);
+      tidyHand();
       useDemo.setState({ caption: { text, think: true, ms: ms / speedOf(), at: Date.now() } });
       await Promise.all([sleep(run, Math.max(ms, readingMs(text) * 0.8)), speak(run, text)]);
     },
@@ -285,6 +301,7 @@ function helpers(run) {
       check(run);
       const p = resolve(target);
       if (!p) return false;
+      run.handEl = p.el || null;
       useDemo.setState({ spot: spotFor(p) });
       setHand({ x: p.x, y: p.y, press: false, drag: false, hidden: false });
       await sleep(run, ms);
@@ -318,6 +335,7 @@ function helpers(run) {
       const q = resolve(target) || p; // it may have moved while we glided
       setHand({ x: q.x, y: q.y, press: true });
       await sleep(run, 170);
+      run.handEl = q.el || null;
       if (q.el && q.el.isConnected) q.el.click();
       else if (action) action();
       setHand({ press: false });
@@ -460,19 +478,34 @@ function helpers(run) {
       countFrames();
       let waited = 0;
       let seen = frameCount;
-      while (!pred()) {
-        await raw(50);
-        check(run);
-        const drew = frameCount !== seen;
-        seen = frameCount;
-        if (!useDemo.getState().paused && drew) waited += 50;
-        if (waited > timeout) {
-          if (dry) {
-            dry();
-            if (pred()) return;
-          }
-          throw new Error(`[demo ${run.def.key}] timed out waiting`);
+      // Latch: a state that comes and goes between two checks (a celebrate
+      // card that auto-advances during one long frame on a slow device)
+      // still counts.
+      let hit = false;
+      const unsub = store.subscribe(() => {
+        try {
+          if (!hit && pred()) hit = true;
+        } catch {
+          /* a predicate mid-transition */
         }
+      });
+      try {
+        while (!hit && !pred()) {
+          await raw(50);
+          check(run);
+          const drew = frameCount !== seen;
+          seen = frameCount;
+          if (!useDemo.getState().paused && drew) waited += 50;
+          if (waited > timeout) {
+            if (dry) {
+              dry();
+              if (pred()) return;
+            }
+            throw new Error(`[demo ${run.def.key}] timed out waiting`);
+          }
+        }
+      } finally {
+        unsub();
       }
     },
 
@@ -544,6 +577,8 @@ export function startDemo(def, mode = "intro", carry = null) {
   useDemo.setState({
     active: true, key: def.key, mode, example: 0, examples: def.examples.length,
     step: null, caption: null, paused: false, hand: null, spot: null, ended: false, hold: false,
+    // The big centred title card first (DemoOverlay), unless headless.
+    opening: !DRY.on, interlude: null, again: Boolean(carry), runId: run.id,
   });
   if (typeof document !== "undefined") document.body.classList.add("demo-on");
   // If the challenge is closed under us (leaving the world …), stop quietly.
@@ -566,9 +601,26 @@ async function play(run) {
     // A spare copy of the last example so an auto-advance can never run off
     // the end of the list while the "Your turn!" card is up.
     setupRounds(def, [...rounds, rounds[rounds.length - 1]]);
+    // The overlay's "DEMO MODE" title card plays first, then shrinks into the
+    // console; it clears `opening`. (A fallback in case nothing is drawing it.)
+    if (!DRY.on) {
+      let waited = 0;
+      while (useDemo.getState().opening && waited < 9000) {
+        await raw(60);
+        check(run);
+        waited += 60;
+      }
+      useDemo.setState({ opening: false });
+    }
     for (let i = 0; i < def.examples.length; i++) {
       const last = i === def.examples.length - 1;
       useDemo.setState({ example: i, step: null, caption: null, hold: last });
+      // A deliberate beat between examples: "Example 2 of 2 — now YOU think".
+      if (i > 0 && !DRY.on) {
+        useDemo.setState({ interlude: { n: i }, hand: null, spot: null });
+        await sleep(run, 2600);
+        useDemo.setState({ interlude: null });
+      }
       await d.until(() => store.getState().roundIndex === i && playable(def, store.getState()), {
         timeout: 9000,
         dry: () => {
@@ -646,7 +698,7 @@ export function finishDemo(run = current, { quiet = false } = {}) {
     }
   }
   if (!current) {
-    useDemo.setState({ active: false, key: null, mode: null, ended: false, hand: null, spot: null, caption: null, step: null, hold: false, paused: false });
+    useDemo.setState({ active: false, key: null, mode: null, ended: false, hand: null, spot: null, caption: null, step: null, hold: false, paused: false, opening: false, interlude: null });
     if (typeof document !== "undefined") document.body.classList.remove("demo-on");
   }
 }

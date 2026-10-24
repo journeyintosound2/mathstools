@@ -24,6 +24,24 @@ import { kh } from "../keyHints.js";
  *   • a BLOCKER — the student's own taps + keys are held back so the demo
  *     can't be knocked off course (Esc / Skip ends it, Space pauses);
  *   • the "YOUR TURN!" card — Watch again / Let's go! (or Back to my game).
+ *
+ * Making it UNMISSABLE (Jeff, 2026-10-24: "way too small … feels like the
+ * screen has frozen"):
+ *   • the OPENING — a big centred title card ("● DEMO MODE", the host, the
+ *     challenge, "2 examples · think along · then your turn") that, after a
+ *     few seconds, SHRINKS AND GLIDES into the console's corner (a FLIP from
+ *     the card's box to the console's box); the runner waits for it
+ *     (`useDemo.opening`);
+ *   • the BANNER — "● DEMO MODE · Watch Fern show you how" fixed at the top
+ *     centre for the whole demo (computers + tablets; on a phone the
+ *     console strip says it), plus a softly pulsing red FRAME round the
+ *     whole screen, so it's always obvious the game is playing itself;
+ *   • the INTERLUDE — "Example 2 of 2 · 🤔 Now YOU think first!" centred
+ *     between the examples;
+ *   • a TIME BAR under every caption that fills while the line is up (or
+ *     shimmers while the hand works), so nothing ever looks frozen;
+ *   • everything sized off the screen width (a big classroom display gets a
+ *     big console, a big hand).
  */
 
 function rich(text) {
@@ -122,7 +140,7 @@ function Spot({ spot }) {
   );
 }
 
-function Console({ def, side }) {
+const Console = React.forwardRef(function Console({ def, side, pre }, ref) {
   const example = useDemo((s) => s.example);
   const examples = useDemo((s) => s.examples);
   const step = useDemo((s) => s.step);
@@ -137,10 +155,10 @@ function Console({ def, side }) {
   }, []);
   const canSpeak = typeof window !== "undefined" && "speechSynthesis" in window;
   return (
-    <div className={`demo-console side-${side}`} role="region" aria-label="How to play demo">
+    <div ref={ref} className={`demo-console side-${side}${pre ? " pre" : " arrived"}`} role="region" aria-label="How to play demo" aria-hidden={pre ? "true" : undefined}>
       <div className="demo-bar">
         <span className="demo-badge" title={def.name}>
-          <span className="demo-rec" /> DEMO
+          <span className="demo-rec" /> DEMO<span className="demo-badge-mode">&nbsp;MODE</span>
         </span>
         <span className="demo-ex" aria-label={`Example ${example + 1} of ${examples}`}>
           {Array.from({ length: examples }, (_, i) => (
@@ -208,8 +226,125 @@ function Console({ def, side }) {
             )}
           </div>
           {caption && caption.think && <div key={`b${caption.at}`} className="demo-thinkbar" style={{ animationDuration: `${caption.ms || 3000}ms` }} />}
+          {caption && !caption.think && (caption.ms ? (
+            <div className="demo-timebar"><i key={`t${caption.at}`} style={{ animationDuration: `${caption.ms}ms` }} /></div>
+          ) : (
+            <div className="demo-timebar live"><i /></div>
+          ))}
           {paused && <div className="demo-paused">Paused — {kh("press ▶ (or Space)")} to carry on</div>}
         </div>
+      </div>
+    </div>
+  );
+});
+
+/** "● DEMO MODE · Watch Fern show you how" — top centre, the whole demo. */
+function Banner({ def }) {
+  const example = useDemo((s) => s.example);
+  const examples = useDemo((s) => s.examples);
+  const paused = useDemo((s) => s.paused);
+  return (
+    <div className="demo-banner" role="status">
+      <span className="demo-banner-rec" aria-hidden="true"><i /></span>
+      <span className="demo-banner-title">Demo mode</span>
+      <span className="demo-banner-sub">
+        {paused ? "Paused" : <>Watch <b>{def.host}</b> show you how to play</>}
+      </span>
+      <span className="demo-banner-ex">Example {example + 1} of {examples}</span>
+    </div>
+  );
+}
+
+const speedNow = () => {
+  const v = Number(typeof window !== "undefined" && window.__demoSpeed);
+  return v > 0 ? v : 1;
+};
+
+/**
+ * The OPENING: a big centred title card that, after a beat, shrinks and
+ * glides into the console's corner (FLIP between the two boxes) — so the
+ * watcher's eye is carried to where the explaining will happen.
+ */
+function Opening({ def, mode, again, consoleRef }) {
+  const cardRef = useRef(null);
+  const [leaving, setLeaving] = useState(false);
+  const hold = (again ? 1700 : mode === "replay" ? 2600 : 4200) / speedNow();
+  const doneRef = useRef(false);
+  useEffect(() => {
+    let tEnd = null;
+    function morph() {
+      if (doneRef.current) return;
+      doneRef.current = true;
+      const el = cardRef.current;
+      const target = consoleRef.current;
+      setLeaving(true);
+      if (el && target) {
+        const a = el.getBoundingClientRect();
+        const b = target.getBoundingClientRect();
+        if (a.width > 4 && b.width > 4) {
+          const dx = b.left + b.width / 2 - (a.left + a.width / 2);
+          const dy = b.top + b.height / 2 - (a.top + a.height / 2);
+          // Its pop-in animation holds a transform — drop it before the FLIP.
+          el.style.animation = "none";
+          el.style.transform = "none";
+          void el.offsetWidth;
+          el.style.transition = "transform 0.75s cubic-bezier(0.65, 0, 0.25, 1), opacity 0.32s ease 0.48s";
+          el.style.transform = `translate(${dx}px, ${dy}px) scale(${b.width / a.width}, ${b.height / a.height})`;
+          el.style.opacity = "0";
+        }
+      }
+      tEnd = setTimeout(() => useDemo.setState({ opening: false }), 760);
+    }
+    const t = setTimeout(morph, hold);
+    window.addEventListener("mma-demo-opening-go", morph);
+    return () => {
+      clearTimeout(t);
+      if (tEnd) clearTimeout(tEnd);
+      window.removeEventListener("mma-demo-opening-go", morph);
+    };
+  }, [hold, consoleRef]);
+  const n = useDemo.getState().examples || 2;
+  return (
+    <div className={`demo-opening${leaving ? " leaving" : ""}`}>
+      <div ref={cardRef} className="demo-open-card" role="dialog" aria-label="Demo mode">
+        <div className="demo-open-ribbon"><span className="demo-rec" /> Demo mode</div>
+        <div className="demo-open-face"><HostFace host={def.host} size={128} /></div>
+        <div className="demo-open-lead">
+          {again ? <>Here it is again — watch <b>{def.host}</b>!</> : <><b>{def.host}</b> will show you how to play</>}
+        </div>
+        <h2 className="demo-open-title">{def.icon} {def.name}</h2>
+        {!again && (
+          <div className="demo-open-steps">
+            <span><b>👀</b> Watch {n} examples</span>
+            <span><b>🤔</b> Think along</span>
+            <span><b>🎮</b> Then it's your turn!</span>
+          </div>
+        )}
+        <div className="demo-open-bar"><i style={{ animationDuration: `${hold}ms` }} /></div>
+        <div className="demo-open-buttons">
+          <button className="primary-button demo-open-go" onClick={(e) => { e.currentTarget.blur(); window.dispatchEvent(new Event("mma-demo-opening-go")); }}>
+            {kh("▶ Start now (Enter)")}
+          </button>
+          <button className="demo-open-skip" onClick={(e) => { e.currentTarget.blur(); skipDemo(); }}>
+            {kh("Skip the demo (Esc)")}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** Between the examples: "Example 2 of 2 · 🤔 Now YOU think first!" */
+function Interlude({ def, n, examples }) {
+  return (
+    <div className="demo-interlude" aria-live="polite">
+      <div className="demo-inter-card">
+        <div className="demo-inter-kicker">Example {n + 1} of {examples}</div>
+        <div className="demo-inter-title">🤔 Now YOU think first!</div>
+        <div className="demo-inter-sub">
+          <b>{def.host}</b> will ask a question — work it out in your head before the hand shows you.
+        </div>
+        <div className="demo-open-bar"><i style={{ animationDuration: `${2600 / speedNow()}ms` }} /></div>
       </div>
     </div>
   );
@@ -250,8 +385,21 @@ export default function DemoOverlay() {
   const hand = useDemo((s) => s.hand);
   const spot = useDemo((s) => s.spot);
   const touch = useUI((s) => s.touchMode);
+  const opening = useDemo((s) => s.opening);
+  const interlude = useDemo((s) => s.interlude);
+  const again = useDemo((s) => s.again);
+  const runId = useDemo((s) => s.runId);
+  const examples = useDemo((s) => s.examples);
+  const paused = useDemo((s) => s.paused);
   const side = useConsoleSide(active);
   const def = demoFor(key);
+  const consoleRef = useRef(null);
+
+  // Paused → every running bar stops too.
+  useEffect(() => {
+    document.body.classList.toggle("demo-paused-on", Boolean(active && paused));
+    return () => document.body.classList.remove("demo-paused-on");
+  }, [active, paused]);
 
   useEffect(() => {
     installDemoAutoplay(DEMOS);
@@ -295,6 +443,9 @@ export default function DemoOverlay() {
       if (e.key === "Escape") {
         e.preventDefault();
         skipDemo();
+      } else if (st.opening && e.key === "Enter") {
+        e.preventDefault();
+        window.dispatchEvent(new Event("mma-demo-opening-go"));
       } else if (e.key === " " || e.key === "Spacebar") {
         e.preventDefault();
         togglePause();
@@ -329,9 +480,13 @@ export default function DemoOverlay() {
         }}
         onWheel={(e) => e.stopPropagation()}
       />
-      {!ended && <Spot spot={spot} />}
-      {!ended && <Hand hand={hand} />}
-      {!ended && <Console def={def} side={side} />}
+      {!ended && <div className={`demo-frame${opening ? " opening" : ""}`} aria-hidden="true" />}
+      {!ended && !opening && <Banner def={def} />}
+      {!ended && !opening && !interlude && <Spot spot={spot} />}
+      {!ended && !opening && !interlude && <Hand hand={hand} />}
+      {!ended && <Console ref={consoleRef} def={def} side={side} pre={opening} />}
+      {!ended && interlude && <Interlude def={def} n={interlude.n} examples={examples} />}
+      {!ended && opening && <Opening key={runId} def={def} mode={mode} again={again} consoleRef={consoleRef} />}
       {ended && <EndCard def={def} mode={mode} />}
     </div>
   );

@@ -31,7 +31,9 @@ export const useDemo = create((set) => ({
   example: 0, // which worked example (0 or 1)
   examples: 2,
   step: null, // { n, title } — "Step 1 · Fill the crate"
-  caption: null, // { text, think, at } — what the host is saying now
+  caption: null, // { text, think, ms, at } — what the host is saying now (ms = how long it stays up, if known)
+  opening: false, // the big centred "DEMO MODE" title card is up (it then shrinks into the console)
+  interlude: null, // { n } — the centred "Example 2 of 2 — now YOU think first" card between examples
   paused: false,
   hand: null, // { x, y, press, drag, at } — the pointing hand (screen px)
   spot: null, // { x, y, w, h, circle } — the soft highlight ring

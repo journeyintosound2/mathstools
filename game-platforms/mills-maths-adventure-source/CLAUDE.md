@@ -417,6 +417,46 @@ Staged for deploy.
   (a button / anchor a demo couldn't find — it falls back to the store
   action), `[demo] finished early` / `challenge closed under the demo`
   (with a stack). A demo that errors goes straight to "Your turn!".
+- **Round 2 — UNMISSABLE (same day, after Jeff deployed it):** "The demo
+  is way too small … the demo character in the corner can be centred on the
+  screen to say that it is a demo mode, then it can morph to where it is
+  now … 'Demo Mode' clearly displayed at the top centre … due to the pace,
+  it is slow and feels like the screen has frozen." Now (all in
+  DemoOverlay.jsx + demo.css):
+  - **The OPENING:** every demo starts on a big centred title card (dimmed
+    screen): a red "● DEMO MODE" ribbon, the host's portrait (waves),
+    "Fern will show you how to play", the challenge name, chips "👀 Watch 2
+    examples · 🤔 Think along · 🎮 Then it's your turn!", a filling bar,
+    ▶ Start now (Enter) / Skip the demo (Esc). After ~2.6 s (4.2 s at
+    normal speed; shorter for ▶ Demo mid-game and Watch again) it SHRINKS
+    AND GLIDES into the console's corner — a FLIP from the card's box to
+    the console's measured box (`Opening`; verified to land on the console
+    to the pixel). The runner waits for it: `useDemo.opening` (set by
+    `startDemo`, cleared by the overlay; a 9 s fallback in `play()`).
+  - **The BANNER + FRAME:** "● DEMO MODE · Watch Fern show you how to play ·
+    Example 1 of 2" fixed at the top centre for the whole demo (says
+    "Paused" when paused), and a softly pulsing red frame round the screen.
+    On phones / small windows the banner is hidden (it would sit on the
+    console strip or the top-docked farm cards) and the strip's badge reads
+    "DEMO MODE" instead; on computers the console sits BELOW the banner.
+  - **Sized off the screen:** the console, banner, opening, interlude and
+    Your turn! card are all in em off `--dz: clamp(15px, 7px + 0.95vw,
+    27px)` — a 2000 px classroom display gets a ~27 px base (the old box was
+    a fixed 430 px); the hand scales 1.25× → 1.8× with the width.
+  - **Never looks frozen:** a TIME BAR under every caption fills over the
+    line's reading time (`caption.ms`), or shimmers while the hand works
+    (fire-and-forget lines); the step chip pops in; captions fade from 0.2
+    (never invisible); `readingMs` ~10% brisker (2.1–7 s, 1.3 s + 0.31 s a
+    word); the hand tucks away when the card button it pressed is gone
+    (`tidyHand`), instead of pointing at empty space.
+  - **The INTERLUDE:** between the examples a centred purple card —
+    "Example 2 of 2 · 🤔 Now YOU think first! Fern will ask a question —
+    work it out in your head before the hand shows you" (2.6 s,
+    `useDemo.interlude`).
+  - Pause now also freezes every bar (`body.demo-paused-on`).
+  - `until()` also LATCHES store states via a subscription, so a state that
+    comes and goes between two checks (a celebrate card auto-advancing
+    during one long frame on a slow device) still counts.
 - **TODO:** Jeff watches a few on a real computer + iPad (pacing — speed is
   one constant, `readingMs`; `window.__demoSpeed` speeds every demo up for
   testing); Farsi/Arabic for the demo captions (they're built from the
