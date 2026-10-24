@@ -658,6 +658,37 @@ function cleanEmail(v, required) {
 }
 function cleanText(v, max) { return String(v || "").replace(/\s+/g, " ").trim().slice(0, max); }
 
+// School location (2026-10-24). Keep in step with portal/shared/location.js.
+const AU_STATE_CODES = ["NSW", "VIC", "QLD", "SA", "WA", "TAS", "ACT", "NT"];
+const AU_STATE_NAMES = {
+  "NEW SOUTH WALES": "NSW", "VICTORIA": "VIC", "QUEENSLAND": "QLD", "SOUTH AUSTRALIA": "SA",
+  "WESTERN AUSTRALIA": "WA", "TASMANIA": "TAS", "AUSTRALIAN CAPITAL TERRITORY": "ACT", "NORTHERN TERRITORY": "NT",
+};
+/** { suburb, state, country } tidied; with `required`, suburb + country (+ state in Australia) must be there. */
+function cleanLocation(d, required) {
+  d = d || {};
+  const suburb = cleanText(d.suburb, 80);
+  let country = cleanText(d.country, 60);
+  let state = cleanText(d.state, 60);
+  if (/^(au|aus|australia)$/i.test(country)) country = "Australia";
+  if (country === "Australia") {
+    const up = state.toUpperCase().replace(/\./g, "");
+    if (AU_STATE_CODES.includes(up)) state = up;
+    else if (AU_STATE_NAMES[up]) state = AU_STATE_NAMES[up];
+  }
+  if (required) {
+    if (!suburb) throw new HttpsError("invalid-argument", "Enter your school's suburb or town.");
+    if (!country) throw new HttpsError("invalid-argument", "Choose your country.");
+    if (country === "Australia" && !AU_STATE_CODES.includes(state)) throw new HttpsError("invalid-argument", "Choose your state or territory.");
+  }
+  return { suburb, state, country };
+}
+function formatLocation(o) {
+  const parts = [o.suburb, o.state].filter(Boolean);
+  if (o.country && o.country !== "Australia") parts.push(o.country);
+  return parts.join(", ");
+}
+
 /** The profile the Teacher Platform is allowed to see about its own teacher. */
 function safeTeacherProfile(doc) {
   return {
@@ -666,6 +697,9 @@ function safeTeacherProfile(doc) {
     school: doc.school || "",
     email: doc.email || "",
     position: doc.position || "",
+    suburb: doc.suburb || "",
+    state: doc.state || "",
+    country: doc.country || "",
     emailUpdates: doc.emailUpdates !== false,
     active: doc.active !== false,
   };
@@ -693,6 +727,7 @@ exports.updateMyTeacherProfile = onCall(async (request) => {
   const school = cleanText(d.school, 120);
   const position = cleanText(d.position, 80);
   const emailUpdates = d.emailUpdates !== false;
+  const loc = cleanLocation(d, true);
 
   const ref = db.collection("teachers").doc(code);
   const snap = await ref.get();
@@ -701,7 +736,7 @@ exports.updateMyTeacherProfile = onCall(async (request) => {
   if (before.active === false) throw new HttpsError("permission-denied", "This teacher code is not active.");
 
   const fields = {
-    teacherName, email, school, position, emailUpdates,
+    teacherName, email, school, position, emailUpdates, ...loc,
     profileUpdatedAt: admin.firestore.FieldValue.serverTimestamp(),
     profileUpdatedBy: "teacher",
     updatedAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -1012,6 +1047,7 @@ exports.requestTeacherAccess = onCall({ secrets: [RESEND_API_KEY] }, async (requ
   const position = cleanText(d.position, 80);
   const message = String(d.message || "").replace(/\r\n/g, "\n").trim().slice(0, 600);
   const emailUpdates = d.emailUpdates !== false;
+  const loc = cleanLocation(d, true);
 
   const raw = request.rawRequest || {};
   const ip = String(raw.ip || (raw.headers && raw.headers["x-forwarded-for"]) || "unknown").split(",")[0].trim();
@@ -1021,7 +1057,7 @@ exports.requestTeacherAccess = onCall({ secrets: [RESEND_API_KEY] }, async (requ
   }
 
   const now = Date.now();
-  const fields = { teacherName, email, school, position, message, emailUpdates };
+  const fields = { teacherName, email, school, position, message, emailUpdates, ...loc };
   const sameEmail = await db.collection("accessRequests").where("email", "==", email).get();
   const pending = sameEmail.docs.find((x) => (x.data() || {}).status === "pending");
   if (pending) {
@@ -1045,14 +1081,14 @@ exports.requestTeacherAccess = onCall({ secrets: [RESEND_API_KEY] }, async (requ
   if (key && await takeToken("accessRequestAlerts", ADMIN_ALERTS_PER_DAY, 86400000)) {
     const lines = [
       "A teacher has asked for access to Mills Maths Tools.",
-      `**Name:** ${teacherName}\n**School:** ${school}\n**Email:** ${email}` + (position ? `\n**Role:** ${position}` : ""),
+      `**Name:** ${teacherName}\n**School:** ${school}\n**Location:** ${formatLocation(loc) || "—"}${loc.country === "Australia" ? ", Australia" : ""}\n**Email:** ${email}` + (position ? `\n**Role:** ${position}` : ""),
     ];
     if (message) lines.push(`**Their message:**\n${message}`);
     if (doc.matchesTeacher.length) lines.push(`Note: this email address already belongs to teacher code ${doc.matchesTeacher.join(", ")}.`);
     lines.push(`Approve or decline it in the admin console: ${ADMIN_REQUESTS_URL}`);
     try {
       await resendBatch(key, [buildEmail({
-        subject: `Access request: ${teacherName}, ${school}`,
+        subject: `Access request: ${teacherName}, ${school}${loc.suburb ? ` (${loc.suburb})` : ""}`,
         message: lines.join("\n\n"), kind: "admin",
         t: {}, to: ADMIN_NOTIFY_EMAIL, replyTo: email,
       })]);
@@ -1119,6 +1155,11 @@ exports.reviewAccessRequest = onCall({ secrets: [RESEND_API_KEY] }, async (reque
   const email = cleanEmail(o.email !== undefined ? o.email : r.email, true);
   const school = pick("school", 120);
   const position = pick("position", 80);
+  const loc = cleanLocation({
+    suburb: o.suburb !== undefined ? o.suburb : r.suburb,
+    state: o.state !== undefined ? o.state : r.state,
+    country: o.country !== undefined ? o.country : r.country,
+  }, false);
 
   const teacherCode = await generateUniqueTeacherCode(teacherName);
   const tRef = db.collection("teachers").doc(teacherCode);
@@ -1126,7 +1167,7 @@ exports.reviewAccessRequest = onCall({ secrets: [RESEND_API_KEY] }, async (reque
     const cur = await tx.get(ref);
     if (!cur.exists || (cur.data() || {}).status !== "pending") throw new HttpsError("failed-precondition", "That request has already been reviewed.");
     tx.create(tRef, {
-      teacherCode, teacherName, email, school, position,
+      teacherCode, teacherName, email, school, position, ...loc,
       emailUpdates: r.emailUpdates !== false, active: true,
       createdBy: "access-request", accessRequestId: requestId,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),

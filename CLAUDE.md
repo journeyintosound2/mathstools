@@ -109,6 +109,23 @@
 > * **DEPLOY ORDER:** a function declaring a secret prompts for it at deploy. Before
 >   Resend is set up, deploy only `functions:updateMyTeacherProfile,functions:exchangeTeacherCode`.
 > * Rules: one new block, `emailLog` (admin read, no client writes).
+> * **SCHOOL LOCATION (same day): `suburb`, `state`, `country` on teachers + requests.**
+>   ONE shared module draws the fields everywhere: `portal/shared/location.js`
+>   (`locationFieldsHtml(prefix, values, {required})`, `wireLocation`, `readLocation`,
+>   `locationProblem`, `formatLocation` → "Coffs Harbour, NSW" (country added unless
+>   Australia), `regionOf`). State is a dropdown of the 8 AU states/territories when the
+>   country is Australia (suburb names repeat across states), free text elsewhere;
+>   "Other…" country reveals a text box. Server twin: `cleanLocation(d, required)` in
+>   functions (accepts "aus"/"new south wales" etc.). REQUIRED on the request form and
+>   in the teacher's own profile (suburb + country, + state in Australia); optional for
+>   the admin. The teacher dashboard nudge asks for the email first, then "📍 Add your
+>   school's location". Admin: location on create / edit / approve, under the school in
+>   the teacher list, "Missing location" filter, CSV columns, request cards.
+>   **Schools now group by name + suburb** (two "St Mary's" in different suburbs are two
+>   schools); a teacher with no suburb joins the named school when only one suburb is
+>   known for it. "School details" in the school pop-up sets name AND location for
+>   every teacher at once (the fast way to back-fill), schools table has a location
+>   filter, the Schools tile and impact summary list regions. No rules change needed.
 > * **DECLINE REASONS (same day).** The Decline pop-up has preset reasons
 >   (`DECLINE_REASONS` in the admin page: school not recognised · use a school email ·
 >   already has an account (preselected when the email matches a teacher) · looks like

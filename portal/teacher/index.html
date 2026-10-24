@@ -176,6 +176,7 @@
   .pf-code{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 14px;background:#f8fafc;border:1px solid var(--line);border-radius:11px;font-size:.85rem;color:var(--muted)}
   .pf-support{margin-top:16px;padding:13px 15px;border-radius:11px;background:#ecfdf5;border:1px solid #bbf7d0;font-size:.86rem;color:#14532d;line-height:1.55}
   .field .opt{font-weight:500;color:var(--muted)}
+  .mmt-loc input{letter-spacing:0}
   .field input:invalid:not(:placeholder-shown){border-color:#fca5a5}
   @media(max-width:640px){ .grid2{grid-template-columns:1fr} .profile{flex-wrap:wrap} .profile .pf-edit{margin-left:0}
     .topbar{flex-wrap:wrap;gap:8px 10px;padding:12px 14px} .topbar .sub,.topbar .who{display:none} .topbar .btn{padding:7px 10px;font-size:.85rem} }
@@ -274,8 +275,8 @@
     <button class="btn pf-edit" type="button" id="profileEditBtn">Edit profile</button>
   </section>
   <div class="nudge hidden" id="emailNudge" role="status">
-    <div class="nd-ic">📬</div>
-    <div class="nd-tx"><strong>Add your email address</strong>It's how you'll hear about new tools and any changes to your account. It only takes a moment.</div>
+    <div class="nd-ic" id="nudgeIc">📬</div>
+    <div class="nd-tx"><strong id="nudgeTitle">Add your email address</strong><span id="nudgeText">It's how you'll hear about new tools and any changes to your account. It only takes a moment.</span></div>
     <div class="nd-act"><button class="btn primary" type="button" id="nudgeAdd">Add email</button><button class="btn" type="button" id="nudgeLater">Later</button></div>
   </div>
 
@@ -334,6 +335,7 @@
 <script type="module">
 import { initPortal, loginTeacher, logout, normaliseCode, getDb, updateTeacherProfile, updateCachedProfile, createStudent, createClass, setClassActive, createAdventureTask, setAdventureTaskActive, updateAdventureTask, createDashboardTask, updateDashboardTask, setDashboardTaskActive } from "../shared/codeExchangeClient.js";
 import { COLLECTIONS } from "../shared/firebaseConfig.js";
+import { locationFieldsHtml, wireLocation, readLocation, locationProblem, formatLocation } from "../shared/location.js";
 import { ADVENTURE_NPCS, ADVENTURE_STAGES, ADVENTURE_BADGES, getStageTopics, npcDefaultTopic } from "../shared/adventureManifest.js";
 import { collection, query, where, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 // Chart.js is loaded as a classic global script in <head>; referenced as `Chart`.
@@ -416,7 +418,7 @@ $("signoutBtn").addEventListener("click", async ()=>{ await logout(); location.r
 $("refreshBtn").addEventListener("click", ()=> refreshData($("refreshBtn")));
 $("profileBtn").addEventListener("click", openProfile);
 $("profileEditBtn").addEventListener("click", openProfile);
-$("nudgeAdd").addEventListener("click", ()=>openProfile("email"));
+$("nudgeAdd").addEventListener("click", ()=>openProfile($("emailNudge").dataset.need||"email"));
 $("nudgeLater").addEventListener("click", ()=>{ try{ sessionStorage.setItem(NUDGE_KEY,"1"); }catch{} $("emailNudge").classList.add("hidden"); });
 
 // Login readiness: this module only runs once the page's scripts AND the Firebase
@@ -469,7 +471,7 @@ async function loadData(){
   try{
     const tSnap = await getDoc(doc(db, COLLECTIONS.teachers, teacher.teacherCode));
     if(tSnap.exists()){ const x=tSnap.data()||{};
-      const fresh={ teacherName:x.teacherName||teacher.teacherName||"", school:x.school||"", email:x.email||"", position:x.position||"", emailUpdates:x.emailUpdates!==false };
+      const fresh={ teacherName:x.teacherName||teacher.teacherName||"", school:x.school||"", email:x.email||"", position:x.position||"", suburb:x.suburb||"", state:x.state||"", country:x.country||"", emailUpdates:x.emailUpdates!==false };
       Object.assign(teacher, fresh); updateCachedProfile(fresh); }
   }catch(err){ console.warn("Could not read own teacher profile:", err); }
   const sSnap = await getDocs(query(collection(db, COLLECTIONS.students), where("teacherCode","==", teacher.teacherCode)));
@@ -537,10 +539,22 @@ function paintProfile(){
   $("whoChip").textContent = [teacher.teacherName||teacher.teacherCode, teacher.school].filter(Boolean).join(" · ");
   $("avatar").textContent = initialsOf(teacher.teacherName); $("avatar").style.background = hashColour(teacher.teacherCode);
   $("profileName").textContent = teacher.teacherName || teacher.teacherCode;
-  $("profileMeta").textContent = [teacher.position, teacher.school, `Teacher code: ${teacher.teacherCode}`].filter(Boolean).join(" · ");
+  $("profileMeta").textContent = [teacher.position, teacher.school, formatLocation(teacher), `Teacher code: ${teacher.teacherCode}`].filter(Boolean).join(" · ");
   $("profileMail").textContent = teacher.email ? teacher.email : "";
   let later=false; try{ later=sessionStorage.getItem(NUDGE_KEY)==="1"; }catch{}
-  $("emailNudge").classList.toggle("hidden", !!teacher.email || later);
+  // One nudge at a time: the email first, then the school's location.
+  const need = !teacher.email ? "email" : (!teacher.suburb || !teacher.country) ? "location" : "";
+  $("emailNudge").classList.toggle("hidden", !need || later);
+  $("emailNudge").dataset.need = need;
+  if(need==="location"){
+    $("nudgeIc").textContent="📍"; $("nudgeTitle").textContent="Add your school's location";
+    $("nudgeText").textContent="Your suburb and state help show where Mills Maths Tools is being used. It only takes a moment.";
+    $("nudgeAdd").textContent="Add location";
+  }else{
+    $("nudgeIc").textContent="📬"; $("nudgeTitle").textContent="Add your email address";
+    $("nudgeText").textContent="It's how you'll hear about new tools and any changes to your account. It only takes a moment.";
+    $("nudgeAdd").textContent="Add email";
+  }
 }
 
 // ============================ PROFILE ============================
@@ -557,6 +571,7 @@ function openProfile(focus){
         <div class="field"><label for="pfSchool">School</label><input id="pfSchool" autocomplete="organization" maxlength="120" value="${esc(t.school||"")}" placeholder="e.g. Coffs Harbour High School" style="letter-spacing:0"/></div>
         <div class="field"><label for="pfPosition">Role / position <span class="opt">(optional)</span></label><input id="pfPosition" autocomplete="organization-title" maxlength="80" value="${esc(t.position||"")}" placeholder="e.g. Head Teacher Mathematics" style="letter-spacing:0"/></div>
       </div>
+      ${locationFieldsHtml("pfLoc", t, { required:true })}
       <label class="pf-check" for="pfUpdates"><input type="checkbox" id="pfUpdates" ${t.emailUpdates===false?"":"checked"}/>
         <span><span class="t">Email me about updates and new tools</span><br><span class="d">Occasional news about Mills Maths Tools. Emails about your own account are always sent.</span></span></label>
       <div class="pf-code">Your teacher code <span class="codechip">${esc(t.teacherCode||"")}</span> <button class="btn sm" type="button" id="pfCopy">Copy</button>
@@ -565,10 +580,11 @@ function openProfile(focus){
       <div class="msg" id="pfMsg"></div>
     </div>
     ${foot(`<button class="btn primary" id="pfSave" type="button">Save profile</button>`)}`);
+  wireLocation("pfLoc");
   $("pfSave").addEventListener("click", doSaveProfile);
   modalEl.querySelectorAll(".modal-body input:not([type=checkbox])").forEach(i=> i.addEventListener("keydown", e=>{ if(e.key==="Enter") doSaveProfile(); }));
   $("pfCopy").addEventListener("click", async ()=>{ try{ await navigator.clipboard.writeText(t.teacherCode); $("pfCopy").textContent="Copied!"; }catch{ $("pfCopy").textContent="Copy failed"; } setTimeout(()=>{ const b=$("pfCopy"); if(b) b.textContent="Copy"; },1300); });
-  setTimeout(()=>{ const el = focus==="email" || (!t.email && t.teacherName) ? $("pfEmail") : $("pfName"); if(el) el.focus(); }, 40);
+  setTimeout(()=>{ const el = focus==="location" ? $("pfLocSuburb") : focus==="email" || (!t.email && t.teacherName) ? $("pfEmail") : $("pfName"); if(el) el.focus(); }, 40);
 }
 async function doSaveProfile(){
   const m=$("pfMsg"), btn=$("pfSave");
@@ -578,11 +594,13 @@ async function doSaveProfile(){
     school:$("pfSchool").value.trim(),
     position:$("pfPosition").value.trim(),
     emailUpdates:$("pfUpdates").checked,
+    ...readLocation("pfLoc"),
   };
   const bad=(t,id)=>{ m.className="msg bad show"; m.textContent=t; if(id) $(id).focus(); };
   if(!payload.teacherName) return bad("Enter your name.","pfName");
   if(!payload.email) return bad("Enter your email address.","pfEmail");
   if(!EMAIL_RE.test(payload.email)) return bad("That email address doesn't look right — check it and try again.","pfEmail");
+  const lp = locationProblem(payload, "pfLoc"); if(lp) return bad(lp.text, lp.focus);
   btn.disabled=true; btn.textContent="Saving…"; m.className="msg";
   try{
     const res=await updateTeacherProfile(payload);

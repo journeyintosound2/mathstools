@@ -26,6 +26,8 @@
   .rq-card .field label{font-weight:700;color:#334155}
   .rq-card .req{color:var(--bad);margin-left:2px}
   .rq-card .opt{font-weight:500;color:var(--muted)}
+  .rq-card .field select{width:100%;padding:11px 12px;border:1.5px solid #cbd5e1;border-radius:11px;font:inherit;font-size:.96rem;background:#fff;outline:none}
+  .rq-card .field select:focus{border-color:var(--mmt-blue);box-shadow:0 0 0 4px rgba(29,78,216,.14)}
   .rq-card .field input,.rq-card .field textarea{width:100%;padding:11px 12px;border:1.5px solid #cbd5e1;border-radius:11px;font:inherit;font-size:.96rem;letter-spacing:0;outline:none;transition:border-color .12s,box-shadow .12s;background:#fff}
   .rq-card .field textarea{min-height:84px;resize:vertical;line-height:1.5}
   .rq-card .field input:focus,.rq-card .field textarea:focus{border-color:var(--mmt-blue);box-shadow:0 0 0 4px rgba(29,78,216,.14)}
@@ -87,6 +89,7 @@
           <div class="field"><label for="rqEmail">School email<span class="req">*</span></label><input id="rqEmail" type="email" autocomplete="email" maxlength="254" placeholder="name@school.nsw.edu.au" required/></div>
         </div>
         <div class="field"><label for="rqSchool">School<span class="req">*</span></label><input id="rqSchool" autocomplete="organization" maxlength="120" placeholder="e.g. Coffs Harbour High School" required/></div>
+        <div id="rqLoc"></div>
         <div class="field"><label for="rqPosition">Role / position <span class="opt">(optional)</span></label><input id="rqPosition" autocomplete="organization-title" maxlength="80" placeholder="e.g. Classroom teacher, Head Teacher Mathematics"/></div>
         <div class="field"><label for="rqMessage">Anything else Jeff should know? <span class="opt">(optional)</span></label><textarea id="rqMessage" maxlength="600" placeholder="e.g. Which year groups you teach, or how you heard about Mills Maths Tools"></textarea></div>
         <div class="rq-hp" aria-hidden="true"><label for="rqWebsite">Website</label><input id="rqWebsite" name="website" tabindex="-1" autocomplete="off"/></div>
@@ -102,8 +105,11 @@
 
 <script type="module">
 import { requestTeacherAccess } from "../../shared/codeExchangeClient.js";
+import { locationFieldsHtml, wireLocation, readLocation, locationProblem } from "../../shared/location.js";
 const $ = (id)=>document.getElementById(id);
 const t0 = Date.now();
+$("rqLoc").innerHTML = locationFieldsHtml("rqLoc", {}, { required:true, reqMark:'<span class="req">*</span>' });
+wireLocation("rqLoc", ()=>["rqLocSuburb","rqLocStateSel","rqLocCountryOther"].forEach(id=>$(id).classList.remove("bad")));
 // The form is inert until this module has loaded (the button starts disabled),
 // so an early click can never fall through to a plain page reload.
 $("rqSubmit").disabled = false; $("rqSubmit").textContent = "Send request";
@@ -121,6 +127,7 @@ $("rqForm").addEventListener("submit", async (e)=>{
     position: $("rqPosition").value.trim(),
     message: $("rqMessage").value.trim(),
     emailUpdates: $("rqUpdates").checked,
+    ...readLocation("rqLoc"),
     website: $("rqWebsite").value,
     elapsedMs: Date.now() - t0,
   };
@@ -129,6 +136,7 @@ $("rqForm").addEventListener("submit", async (e)=>{
   if(!payload.email) return fail("rqEmail","Please enter your email address.");
   if(!EMAIL_RE.test(payload.email)) return fail("rqEmail","That email address doesn't look right. Please check it.");
   if(!payload.school) return fail("rqSchool","Please enter your school.");
+  const lp = locationProblem(payload, "rqLoc"); if(lp) return fail(lp.focus, lp.text);
   const btn=$("rqSubmit"); btn.disabled=true; btn.textContent="Sending…"; $("rqMsg").className="msg";
   try{
     await requestTeacherAccess(payload);

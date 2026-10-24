@@ -381,6 +381,7 @@
         </div>
         <div class="table-tools">
           <input class="grow" id="schoolSearch" placeholder="Search schools"/>
+          <select id="schoolRegion"><option value="">All locations</option></select>
           <select id="schoolSort">
             <option value="active">Most active (last 28 days)</option>
             <option value="tasks">Most tasks completed</option>
@@ -432,6 +433,7 @@
           <div class="field"><label for="tSchool">School</label><input id="tSchool" placeholder="Coffs Harbour HS" autocomplete="off"/></div>
           <div class="field"><label for="tPosition">Role / position <span style="font-weight:500;color:var(--muted)">(optional)</span></label><input id="tPosition" placeholder="Head Teacher Mathematics" autocomplete="off"/></div>
         </div>
+        <div id="tLoc"></div>
         <label class="check-row" for="tWelcome"><input type="checkbox" id="tWelcome" checked/><span>Email them their teacher code and a welcome note<small id="tWelcomeNote">Sent from millsmathstools.au as soon as the code is created.</small></span></label>
         <div class="row-actions">
           <button class="btn-primary" id="createTeacherBtn"><span class="spinner"></span><span class="btn-label">Generate teacher code</span></button>
@@ -450,7 +452,7 @@
         <div class="table-tools">
           <input class="grow" id="teacherSearch" placeholder="Search name, email, code or school"/>
           <select id="teacherSchoolFilter" style="min-width:200px"><option value="">All schools</option></select>
-          <select id="teacherActiveFilter"><option value="all">All</option><option value="active">Active only</option><option value="inactive">Inactive only</option><option value="noemail">Missing email</option></select>
+          <select id="teacherActiveFilter"><option value="all">All</option><option value="active">Active only</option><option value="inactive">Inactive only</option><option value="noemail">Missing email</option><option value="noloc">Missing location</option></select>
         </div>
         <div class="bulkbar" id="teacherBulk" style="display:none">
           <span class="count" id="teacherSelCount">0 selected</span>
@@ -812,6 +814,7 @@
         <div class="field"><label for="teSchool">School</label><input id="teSchool" autocomplete="off"/></div>
         <div class="field"><label for="tePosition">Role / position</label><input id="tePosition" autocomplete="off"/></div>
       </div>
+      <div id="teLoc"></div>
       <label class="check-row" for="teUpdates"><input type="checkbox" id="teUpdates"/><span>Receives update emails<small>The teacher can change this themselves in their Profile.</small></span></label>
       <div class="row-actions" style="margin-top:6px">
         <button type="submit" class="btn-primary" id="teSaveBtn"><span class="spinner"></span><span class="btn-label">Save changes</span></button>
@@ -847,6 +850,7 @@
         <div class="field"><label for="rqApSchool">School</label><input id="rqApSchool" autocomplete="off"/></div>
         <div class="field"><label for="rqApPosition">Role / position</label><input id="rqApPosition" autocomplete="off"/></div>
       </div>
+      <div id="rqApLoc"></div>
       <label class="check-row" for="rqApWelcome"><input type="checkbox" id="rqApWelcome" checked/><span>Email them their teacher code and a welcome note<small id="rqApWelcomeNote">Sent from millsmathstools.au straight away.</small></span></label>
       <div class="row-actions">
         <button type="submit" class="btn-good" id="rqApBtn"><span class="spinner" style="border-color:rgba(22,163,74,.3);border-top-color:var(--good)"></span><span class="btn-label">✓ Approve &amp; create code</span></button>
@@ -910,6 +914,7 @@
   import { initializeAuth, inMemoryPersistence, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
   import { getFirestore, collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, writeBatch, serverTimestamp, query, where } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
   import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-functions.js";
+  import { locationFieldsHtml, wireLocation, readLocation, formatLocation, regionOf } from "../shared/location.js";
 
   // Public web config — safe to ship (matches portal/shared/firebaseConfig.js).
   const firebaseConfig = {
@@ -1133,7 +1138,7 @@
     const sch=[...schools.values()].filter(e=>e.key);
     const act28=new Set(achRecords.filter(r=>r.time>=Date.now()-28*DAY_MS).map(r=>r.studentCode).filter(Boolean)).size;
     $("statCards").innerHTML=`
-      <div class="stat"><div class="k">Schools</div><div class="v">${sch.length}</div><div class="d">${sch.filter(e=>e.tasks28>0).length} active in the last 28 days</div></div>
+      <div class="stat"><div class="k">Schools</div><div class="v">${sch.length}</div><div class="d">${sch.filter(e=>e.tasks28>0).length} active in the last 28 days${(()=>{ const r=[...new Set(sch.map(e=>e.region).filter(Boolean))].map(x=>x.replace(/, Australia$/,"")); return r.length?` · ${esc(r.slice(0,3).join(", "))}${r.length>3?` +${r.length-3}`:""}`:""; })()}</div></div>
       <div class="stat"><div class="k">Teachers</div><div class="v">${teachers.length}</div><div class="d">${tActive} active · ${teachers.length-tActive} inactive</div>${capBar(teachers.length,caps.teachers)}</div>
       <div class="stat"><div class="k">Classes</div><div class="v">${classes.length}</div><div class="d">${cActive} active</div>${capBar(classes.length,caps.classes)}</div>
       <div class="stat"><div class="k">Students</div><div class="v">${students.length}</div><div class="d">${sActive} active · ${students.length-sActive} inactive</div>${capBar(students.length,caps.students)}</div>
@@ -1155,8 +1160,9 @@
       if(af==="active"&&!active) return false;
       if(af==="inactive"&&active) return false;
       if(af==="noemail"&&hasEmail(t)) return false;
-      if(sf && schoolKey(t.school)!==(sf==="__none"?"":sf)) return false;
-      if(term){ const h=[t.teacherName,t.teacherCode,t.school,t.email,t.position].join(" ").toLowerCase(); if(!h.includes(term)) return false; }
+      if(af==="noloc"&&t.suburb) return false;
+      if(sf && (teacherSchool.get(t.teacherCode)||"")!==(sf==="__none"?"":sf)) return false;
+      if(term){ const h=[t.teacherName,t.teacherCode,t.school,t.email,t.position,t.suburb,t.state,t.country].join(" ").toLowerCase(); if(!h.includes(term)) return false; }
       return true;
     });
   }
@@ -1173,7 +1179,7 @@
         <td class="check-cell"><input type="checkbox" class="rowcheck" data-tsel="${esc(t.teacherCode)}" ${tSelected.has(t.teacherCode)?"checked":""}/></td>
         <td${updated}><strong>${esc(t.teacherName||"Unnamed")}</strong>${pos}${mail}</td>
         <td><span class="code copyable" data-ta="copy" data-code="${esc(t.teacherCode)}" title="Click to copy">${esc(t.teacherCode)}</span></td>
-        <td>${esc(t.school||"—")}</td>
+        <td>${esc(t.school||"—")}${formatLocation(t)?`<span class="t-sub">${esc(formatLocation(t))}</span>`:""}</td>
         <td>${st.classes.length?esc(st.classes.join(", ")):"—"}</td>
         <td><button type="button" class="linkish" data-ta="students" data-code="${esc(t.teacherCode)}" title="${st.active} active of ${st.total} — show ${esc(t.teacherName||"this teacher")}'s students">${st.active} <span style="color:var(--muted);font-weight:600">/ ${st.total}</span></button></td>
         <td title="${t.loginCount?esc(t.loginCount+" sign-ins in total"):""}">${esc(fmtAgo(tsMs(t.lastLoginAt)))}</td>
@@ -1206,7 +1212,8 @@
     const dup=teachers.find(t=>cleanEmail(t.email)===email);
     if(dup && !confirm(`${dup.teacherName||dup.teacherCode} (${dup.teacherCode}) already uses ${email}. Create another code with the same email anyway?`)) throw new Error("Cancelled — no code was created.");
     const code=await uniqueTeacherCode(name);
-    await setDoc(doc(db,"teachers",code),{ teacherCode:code, teacherName:name, email, school, position, emailUpdates:true, active:true, createdAt:serverTimestamp(), updatedAt:serverTimestamp() });
+    const loc=readLocation("tLoc");
+    await setDoc(doc(db,"teachers",code),{ teacherCode:code, teacherName:name, email, school, position, ...loc, emailUpdates:true, active:true, createdAt:serverTimestamp(), updatedAt:serverTimestamp() });
     return { code, name, email };
   }
 
@@ -1336,6 +1343,7 @@
     $("teCode").value=t.teacherCode;
     $("tEditTitle").textContent=`Edit ${t.teacherName||t.teacherCode}`;
     $("teName").value=t.teacherName||""; $("teEmail").value=t.email||""; $("teSchool").value=t.school||""; $("tePosition").value=t.position||"";
+    $("teLoc").innerHTML=locationFieldsHtml("teLoc",t); wireLocation("teLoc");
     $("teUpdates").checked=t.emailUpdates!==false;
     const by=t.profileUpdatedBy==="teacher"?"the teacher":(t.profileUpdatedBy==="admin"?"you":"");
     $("teMeta").innerHTML=`Code <b>${esc(t.teacherCode)}</b>${tsMs(t.createdAt)?` · created ${esc(fmtDate(tsMs(t.createdAt)))}`:""} · last sign-in <b>${esc(fmtAgo(tsMs(t.lastLoginAt)))}</b>${t.loginCount?` (${esc(t.loginCount)} total)`:""}${by?`<br>Profile last updated by ${by} ${esc(fmtAgo(tsMs(t.profileUpdatedAt)).toLowerCase())}`:""}`;
@@ -1354,7 +1362,7 @@
     const school=$("teSchool").value.trim(); const position=$("tePosition").value.trim();
     if(!name) throw new Error("Enter a teacher name.");
     if(email && !isEmail(email)) throw new Error("That email address doesn't look right.");
-    await updateDoc(doc(db,"teachers",code),{ teacherName:name, email, school, position, emailUpdates:$("teUpdates").checked, profileUpdatedBy:"admin", profileUpdatedAt:serverTimestamp(), updatedAt:serverTimestamp() });
+    await updateDoc(doc(db,"teachers",code),{ teacherName:name, email, school, position, ...readLocation("teLoc"), emailUpdates:$("teUpdates").checked, profileUpdatedBy:"admin", profileUpdatedAt:serverTimestamp(), updatedAt:serverTimestamp() });
     let moved=0;
     if((t.teacherName||"")!==name || (t.school||"")!==school) moved=await propagateTeacherToStudents(code,name,school);
     return { code, name, email, moved };
@@ -1393,14 +1401,23 @@
   let teacherSchool=new Map();    // teacherCode -> key
   function buildSchools(){
     const m=new Map(); const now=Date.now();
-    const blank=k=>({ key:k, name:"", teachers:[], variants:new Map(), students:0, activeStudents:0, classes:0, tasks:0, tasks28:0, tasksPrev28:0,
+    const blank=k=>({ key:k, name:"", teachers:[], variants:new Map(), locs:new Map(), loc:null, location:"", region:"", students:0, activeStudents:0, classes:0, tasks:0, tasks28:0, tasksPrev28:0,
       stu28:new Set(), scoreSum:0, scoreN:0, lastActivity:0, firstJoined:0, tools:new Map(), weeks:new Array(12).fill(0), perTeacher:new Map() });
     teacherSchool=new Map();
-    teachers.forEach(t=>{ const k=schoolKey(t.school); teacherSchool.set(t.teacherCode,k); let e=m.get(k); if(!e){ e=blank(k); m.set(k,e); }
+    // Same-named schools in different suburbs are different schools ("St Mary's"),
+    // so the key is name|suburb. A teacher with no suburb joins the named school
+    // when only one suburb is known for that name — legacy teachers stay grouped.
+    const subKey=t=>String(t.suburb||"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
+    const subsByName=new Map();
+    teachers.forEach(t=>{ const nk=schoolKey(t.school), sk=subKey(t); if(nk&&sk){ if(!subsByName.has(nk)) subsByName.set(nk,new Set()); subsByName.get(nk).add(sk); } });
+    const keyOf=t=>{ const nk=schoolKey(t.school); if(!nk) return ""; let sk=subKey(t); if(!sk){ const set=subsByName.get(nk); if(set&&set.size===1) sk=[...set][0]; } return nk+"|"+sk; };
+    teachers.forEach(t=>{ const k=keyOf(t); teacherSchool.set(t.teacherCode,k); let e=m.get(k); if(!e){ e=blank(k); m.set(k,e); }
       e.teachers.push(t); const v=String(t.school||"").trim(); if(v) e.variants.set(v,(e.variants.get(v)||0)+1);
+      const lf=formatLocation(t); if(t.suburb&&lf){ const cur=e.locs.get(lf); e.locs.set(lf,{ n:(cur?cur.n:0)+1, loc:{ suburb:t.suburb, state:t.state||"", country:t.country||"" } }); }
       const j=tsMs(t.createdAt); if(j && (!e.firstJoined || j<e.firstJoined)) e.firstJoined=j;
       e.perTeacher.set(t.teacherCode,{ students:0, classes:0, tasks:0, tasks28:0, last:0 }); });
-    m.forEach(e=>{ e.name = e.key ? [...e.variants.entries()].sort((a,b)=>b[1]-a[1]||b[0].length-a[0].length)[0][0] : "No school recorded"; });
+    m.forEach(e=>{ e.name = e.key ? [...e.variants.entries()].sort((a,b)=>b[1]-a[1]||b[0].length-a[0].length)[0][0] : "No school recorded";
+      const best=[...e.locs.values()].sort((a,b)=>b.n-a.n)[0]; e.loc=best?best.loc:null; e.location=e.loc?formatLocation(e.loc):""; e.region=e.loc?regionOf(e.loc):""; });
     const stuTeacher=new Map(students.map(x=>[x.studentCode||x.id, x.teacherCode]));
     students.forEach(x=>{ const e=m.get(teacherSchool.get(x.teacherCode)); if(!e) return; e.students++; if(x.active!==false) e.activeStudents++; const pt=e.perTeacher.get(x.teacherCode); if(pt) pt.students++; });
     classes.forEach(c=>{ if(c.active===false) return; const e=m.get(teacherSchool.get(c.teacherCode)); if(!e) return; e.classes++; const pt=e.perTeacher.get(c.teacherCode); if(pt) pt.classes++; });
@@ -1420,19 +1437,21 @@
   const avgScore=e=>e.scoreN?Math.round(e.scoreSum/e.scoreN):null;
   const schoolLabel=e=>e.name+(e.variants.size>1?` (${e.variants.size} spellings)`:"");
   function sortedSchools(){
-    const term=($("schoolSearch").value||"").trim().toLowerCase(); const by=$("schoolSort").value;
+    const term=($("schoolSearch").value||"").trim().toLowerCase(); const by=$("schoolSort").value; const rg=$("schoolRegion").value;
     const cmp={ active:(a,b)=>b.stu28.size-a.stu28.size||b.tasks28-a.tasks28||b.tasks-a.tasks, tasks:(a,b)=>b.tasks-a.tasks, students:(a,b)=>b.students-a.students,
       teachers:(a,b)=>b.teachers.length-a.teachers.length, newest:(a,b)=>(b.firstJoined||0)-(a.firstJoined||0), name:(a,b)=>a.name.localeCompare(b.name) }[by]||(()=>0);
-    return [...schools.values()].filter(e=>!term||[e.name,...e.variants.keys()].join(" ").toLowerCase().includes(term))
+    return [...schools.values()].filter(e=>!term||[e.name,e.location,...e.variants.keys()].join(" ").toLowerCase().includes(term))
+      .filter(e=>!rg||(rg==="__none"?(e.key&&!e.region):e.region===rg))
       .sort((a,b)=>(a.key?0:1)-(b.key?0:1)||cmp(a,b)||a.name.localeCompare(b.name));
   }
   function renderSchoolTable(){
+    fillRegionFilter();
     const list=sortedSchools(); const na=v=>achAvailable?v:"—";
     $("schoolEmpty").classList.toggle("show",list.length===0);
     $("schoolBody").innerHTML=list.map(e=>{
       const act=e.teachers.filter(t=>t.active!==false).length; const sc=avgScore(e);
       return `<tr data-school="${esc(e.key||"__none")}" tabindex="0" title="Open ${esc(e.name)}">
-        <td><span class="sch-name">${esc(e.name)}</span><span class="sch-sub">${e.variants.size>1?`Also entered as ${esc([...e.variants.keys()].filter(v=>v!==e.name).slice(0,3).join(", "))} · `:""}${e.firstJoined?`joined ${esc(fmtDate(e.firstJoined))}`:""}</span></td>
+        <td><span class="sch-name">${esc(e.name)}</span>${e.location?`<span class="sch-sub" style="color:var(--ink-soft)">📍 ${esc(e.location)}</span>`:""}<span class="sch-sub">${e.variants.size>1?`Also entered as ${esc([...e.variants.keys()].filter(v=>v!==e.name).slice(0,3).join(", "))} · `:""}${e.firstJoined?`joined ${esc(fmtDate(e.firstJoined))}`:""}</span></td>
         <td class="num">${act}${act!==e.teachers.length?` <span style="color:var(--muted)">/ ${e.teachers.length}</span>`:""}</td>
         <td class="num">${e.classes}</td>
         <td class="num">${e.activeStudents.toLocaleString()}</td>
@@ -1446,7 +1465,7 @@
   function fillSchoolFilter(){
     const sel=$("teacherSchoolFilter"); const keep=sel.value;
     const list=[...schools.values()].sort((a,b)=>(a.key?0:1)-(b.key?0:1)||a.name.localeCompare(b.name));
-    sel.innerHTML='<option value="">All schools</option>'+list.map(e=>`<option value="${esc(e.key||"__none")}">${esc(e.name)} (${e.teachers.length})</option>`).join("");
+    sel.innerHTML='<option value="">All schools</option>'+list.map(e=>`<option value="${esc(e.key||"__none")}">${esc(e.name)}${e.location?` — ${esc(e.location)}`:""} (${e.teachers.length})</option>`).join("");
     if([...sel.options].some(o=>o.value===keep)) sel.value=keep;
   }
   function monthStarts(n){ const out=[]; const d=new Date(); d.setDate(1); d.setHours(0,0,0,0); for(let i=n-1;i>=0;i--){ out.push(new Date(d.getFullYear(),d.getMonth()-i,1)); } return out; }
@@ -1481,11 +1500,20 @@
       lines.push(`• ${totalTasks.toLocaleString()} tasks completed in total; ${t28.toLocaleString()} in the last 28 days by ${act28.toLocaleString()} students`);
       if(scored.length) lines.push(`• Average score across all tasks: ${Math.round(scored.reduce((a,r)=>a+r.percent,0)/scored.length)}%`);
     }
-    if(sch.length){ lines.push("","Schools:"); sch.forEach(e=>lines.push(`• ${e.name} — ${e.teachers.filter(t=>t.active!==false).length} teacher${e.teachers.length===1?"":"s"}, ${e.activeStudents.toLocaleString()} students${achAvailable?`, ${e.tasks.toLocaleString()} tasks completed`:""}`)); }
+    const rc=regionCounts(); const regs=[...rc.entries()].filter(([r])=>r!=="__none").sort((a,b)=>b[1]-a[1]);
+    if(regs.length) lines.push(`• Schools in ${regs.map(([r,n])=>`${r.replace(/, Australia$/,"")} (${n})`).join(", ")}`);
+    if(sch.length){ lines.push("","Schools:"); sch.forEach(e=>lines.push(`• ${e.name}${e.location?` (${e.location})`:""} — ${e.teachers.filter(t=>t.active!==false).length} teacher${e.teachers.length===1?"":"s"}, ${e.activeStudents.toLocaleString()} students${achAvailable?`, ${e.tasks.toLocaleString()} tasks completed`:""}`)); }
     return lines.join("\n");
   }
   $("copyImpactBtn").addEventListener("click",async()=>{ const okc=await copyText(impactSummary()); toast(okc?"Impact summary copied — paste it anywhere":"Copy failed",okc?"ok":"bad"); });
-  ["schoolSearch","schoolSort"].forEach(id=>$(id).addEventListener("input",renderSchoolTable));
+  ["schoolSearch","schoolSort","schoolRegion"].forEach(id=>$(id).addEventListener("input",renderSchoolTable));
+  function regionCounts(){ const c=new Map(); schools.forEach(e=>{ if(!e.key) return; const r=e.region||"__none"; c.set(r,(c.get(r)||0)+1); }); return c; }
+  function fillRegionFilter(){
+    const sel=$("schoolRegion"); const keep=sel.value; const c=regionCounts();
+    const regs=[...c.keys()].filter(r=>r!=="__none").sort((a,b)=>(a.endsWith("Australia")?0:1)-(b.endsWith("Australia")?0:1)||a.localeCompare(b));
+    sel.innerHTML='<option value="">All locations</option>'+regs.map(r=>`<option value="${esc(r)}">${esc(r.replace(/, Australia$/,""))} (${c.get(r)})</option>`).join("")+(c.get("__none")?`<option value="__none">Location not set (${c.get("__none")})</option>`:"");
+    if([...sel.options].some(o=>o.value===keep)) sel.value=keep;
+  }
   const openSchoolFromRow=tr=>{ if(tr) openSchool(tr.dataset.school==="__none"?"":tr.dataset.school); };
   $("schoolBody").addEventListener("click",e=>openSchoolFromRow(e.target.closest("tr[data-school]")));
   $("schoolBody").addEventListener("keydown",e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); openSchoolFromRow(e.target.closest("tr[data-school]")); } });
@@ -1495,7 +1523,7 @@
     const e=schools.get(key); if(!e) return; openSchoolKey=key;
     const act=e.teachers.filter(t=>t.active!==false).length; const sc=avgScore(e);
     $("schTitle").textContent=e.name;
-    $("schSub").textContent=[e.firstJoined?`On Mills Maths Tools since ${fmtDate(e.firstJoined)}`:"", e.lastActivity?`last activity ${fmtAgo(e.lastActivity).toLowerCase()}`:"no activity yet"].filter(Boolean).join(" · ");
+    $("schSub").textContent=[e.location?`📍 ${formatLocation(e.loc,{country:true})}`:"", e.firstJoined?`On Mills Maths Tools since ${fmtDate(e.firstJoined)}`:"", e.lastActivity?`last activity ${fmtAgo(e.lastActivity).toLowerCase()}`:"no activity yet"].filter(Boolean).join(" · ");
     const tile=(k,v,d)=>`<div class="sch-tile"><div class="k">${k}</div><div class="v">${v}</div>${d?`<div class="d">${d}</div>`:""}</div>`;
     const na=v=>achAvailable?v:"—";
     const rows=e.teachers.slice().sort((a,b)=>(e.perTeacher.get(b.teacherCode).tasks)-(e.perTeacher.get(a.teacherCode).tasks)||String(a.teacherName||"").localeCompare(String(b.teacherName||""))).map(t=>{ const p=e.perTeacher.get(t.teacherCode);
@@ -1523,10 +1551,11 @@
         <button class="btn-soft" id="schEmail" ${e.teachers.some(hasEmail)?"":"disabled"}>✉️ Email this school's teachers</button>
         <button class="btn-neutral" id="schCopy">📋 Copy school summary</button>
       </div>
-      ${e.key?`<div class="sch-box"><h4>Tidy the school name</h4>
-        <p class="hint" style="margin:0 0 8px">${e.variants.size>1?`Teachers typed this school ${e.variants.size} different ways (${[...e.variants.keys()].map(esc).join(" · ")}). `:""}Set one name for all ${e.teachers.length} teacher${e.teachers.length===1?"":"s"} here (their students follow). To merge with another school, pick its name.</p>
-        <div class="sch-tidy"><input id="schNewName" list="schNames" value="${esc(e.name)}"/><datalist id="schNames">${others.map(n=>`<option value="${esc(n)}">`).join("")}</datalist>
-        <button class="btn-primary btn-tiny" id="schRename"><span class="spinner"></span><span class="btn-label">Save name</span></button></div><div class="msg" id="schMsg"></div></div>`:""}`;
+      ${e.key?`<div class="sch-box"><h4>School details</h4>
+        <p class="hint" style="margin:0 0 10px">${e.variants.size>1?`Teachers typed this school ${e.variants.size} different ways (${[...e.variants.keys()].map(esc).join(" · ")}). `:""}${e.teachers.some(t=>!t.suburb)?`${e.teachers.filter(t=>!t.suburb).length} of its teachers have no location yet. `:""}Saving sets this name and location for all ${e.teachers.length} teacher${e.teachers.length===1?"":"s"} here (their students follow). To merge with another school, pick its name.</p>
+        <div class="field" style="margin-bottom:10px"><label for="schNewName">School name</label><input id="schNewName" list="schNames" value="${esc(e.name)}"/><datalist id="schNames">${others.map(n=>`<option value="${esc(n)}">`).join("")}</datalist></div>
+        <div id="schLoc"></div>
+        <div class="row-actions"><button class="btn-primary btn-tiny" id="schRename"><span class="spinner"></span><span class="btn-label">Save for all ${e.teachers.length} teacher${e.teachers.length===1?"":"s"}</span></button></div><div class="msg" id="schMsg"></div></div>`:""}`;
     const ws=e.weeks; const wl=ws.map((_,i)=>{ const d=new Date(Date.now()-(11-i)*7*DAY_MS); return d.toLocaleDateString("en-AU",{day:"numeric",month:"short"}); });
     $("schoolBackdrop").classList.add("show");
     lineChart("schWeeks",wl,ws,"#2563eb");
@@ -1535,14 +1564,19 @@
     $("schShowTeachers").addEventListener("click",()=>{ closeSchool(); gotoView("teachers"); $("teacherSchoolFilter").value=e.key||"__none"; $("teacherActiveFilter").value="all"; renderTeachers(); });
     $("schEmail").addEventListener("click",()=>{ closeSchool(); openCompose(e.teachers.filter(t=>t.active!==false).map(t=>t.teacherCode)); });
     $("schCopy").addEventListener("click",async()=>{ const txt=[`${e.name} — Mills Maths Tools`,`• ${act} teacher${act===1?"":"s"}, ${e.activeStudents} students in ${e.classes} classes`,...(achAvailable?[`• ${e.tasks.toLocaleString()} tasks completed (${e.tasks28} in the last 28 days, by ${e.stu28.size} students)`]:[]),...(sc!=null?[`• Average score: ${sc}%`]:[]),...(e.firstJoined?[`• Using Mills Maths Tools since ${fmtDate(e.firstJoined)}`]:[])].join("\n"); const okc=await copyText(txt); toast(okc?"School summary copied":"Copy failed",okc?"ok":"bad"); });
+    if($("schLoc")){ $("schLoc").innerHTML=locationFieldsHtml("schLoc",e.loc||{}); wireLocation("schLoc"); }
     if($("schRename")) $("schRename").addEventListener("click",async()=>{
       const nm=$("schNewName").value.trim().replace(/\s+/g," "); if(!nm) return msg($("schMsg"),"Enter a school name.","bad");
-      if(e.variants.size===1 && nm===e.name) return msg($("schMsg"),"That's already its name.","warn");
-      if(!confirm(`Set the school to “${nm}” for ${e.teachers.length} teacher${e.teachers.length===1?"":"s"} and their students?`)) return;
+      const loc=readLocation("schLoc");
+      const same=e.variants.size===1 && nm===e.name && e.teachers.every(t=>(t.suburb||"")===loc.suburb&&(t.state||"")===loc.state&&(t.country||"")===loc.country);
+      if(same) return msg($("schMsg"),"Nothing to change — every teacher already has these details.","warn");
+      const where=formatLocation(loc,{country:true});
+      if(!confirm(`Set the school to “${nm}”${where?` in ${where}`:""} for ${e.teachers.length} teacher${e.teachers.length===1?"":"s"} and their students?`)) return;
       setLoading($("schRename"),true);
-      try{ let moved=0; for(const t of e.teachers){ await updateDoc(doc(db,"teachers",t.teacherCode),{ school:nm, updatedAt:serverTimestamp() }); moved+=await propagateTeacherToStudents(t.teacherCode,t.teacherName||"",nm); }
-        toast(`School set to ${nm} (${e.teachers.length} teacher${e.teachers.length===1?"":"s"}, ${moved} student record${moved===1?"":"s"})`,"ok");
-        await loadAll(); const k=schoolKey(nm); if(schools.has(k)) openSchool(k); else closeSchool(); }
+      try{ let moved=0; const first=e.teachers[0].teacherCode;
+        for(const t of e.teachers){ await updateDoc(doc(db,"teachers",t.teacherCode),{ school:nm, ...loc, updatedAt:serverTimestamp() }); moved+=await propagateTeacherToStudents(t.teacherCode,t.teacherName||"",nm); }
+        toast(`Saved for ${e.teachers.length} teacher${e.teachers.length===1?"":"s"}${moved?` and ${moved} student record${moved===1?"":"s"}`:""}`,"ok");
+        await loadAll(); const k=teacherSchool.get(first); if(k!==undefined && schools.has(k)) openSchool(k); else closeSchool(); }
       catch(err){ msg($("schMsg"),writeErr(err),"bad"); }
       finally{ if($("schRename")) setLoading($("schRename"),false); }
     });
@@ -1578,7 +1612,7 @@
       return `<div class="rq-item ${esc(st)}">
         <div>
           <div class="rq-name">${esc(r.teacherName||"(no name)")} ${badge}</div>
-          <div class="rq-meta">${[r.position,r.school].filter(Boolean).map(esc).join(" · ")||"—"}</div>
+          <div class="rq-meta">${[r.position,r.school,formatLocation(r,{country:true})].filter(Boolean).map(esc).join(" · ")||"—"}</div>
           <div class="rq-meta"><a href="mailto:${esc(r.email)}">${esc(r.email)}</a>${r.emailUpdates===false?" · doesn't want update emails":""}</div>
           <div class="rq-meta muted">Requested ${esc(fmtAgo(when).toLowerCase())}${when?` (${esc(new Date(when).toLocaleString("en-AU",{dateStyle:"medium",timeStyle:"short"}))})`:""}${r.resubmittedAtMs?` · resent ${esc(fmtAgo(r.resubmittedAtMs).toLowerCase())}`:""}${outcome?` · ${outcome}`:""}</div>
           ${r.message?`<div class="rq-msg">${esc(r.message)}</div>`:""}
@@ -1609,6 +1643,7 @@
     $("rqApId").value=r.id;
     $("rqApTitle").textContent=`Approve ${r.teacherName||"request"}`;
     $("rqApName").value=r.teacherName||""; $("rqApEmail").value=r.email||""; $("rqApSchool").value=r.school||""; $("rqApPosition").value=r.position||"";
+    $("rqApLoc").innerHTML=locationFieldsHtml("rqApLoc",r); wireLocation("rqApLoc");
     const dup=teachersWithEmail(r.email);
     $("rqApWarn").innerHTML=dup.length?`<div class="callout setup-warn" style="margin-bottom:14px"><strong>Heads up:</strong> ${dup.map(t=>`${esc(t.teacherName||"A teacher")} (${esc(t.teacherCode)})`).join(", ")} already use${dup.length===1?"s":""} this email. Approving creates a <b>second</b> teacher code.</div>`:"";
     const ready=emailCfg.configured;
@@ -1622,7 +1657,7 @@
   $("rqApproveBackdrop").addEventListener("click",e=>{ if(e.target===$("rqApproveBackdrop")) closeApprove(); });
   $("rqApForm").addEventListener("submit",async e=>{
     e.preventDefault();
-    const overrides={ teacherName:$("rqApName").value.trim().replace(/\s+/g," "), email:cleanEmail($("rqApEmail").value), school:$("rqApSchool").value.trim(), position:$("rqApPosition").value.trim() };
+    const overrides={ teacherName:$("rqApName").value.trim().replace(/\s+/g," "), email:cleanEmail($("rqApEmail").value), school:$("rqApSchool").value.trim(), position:$("rqApPosition").value.trim() , ...readLocation("rqApLoc") };
     if(!overrides.teacherName) return msg($("rqApMsg"),"Enter the teacher's name.","bad");
     if(!isEmail(overrides.email)) return msg($("rqApMsg"),"That email address doesn't look right.","bad");
     setLoading($("rqApBtn"),true);
@@ -1878,18 +1913,20 @@
         catch(err){ note+=` The welcome email didn't send (${fnErr(err)}). Give them the code yourself, or try again from Edit.`; type="warn"; }
       }
       msg($("teacherMsg"),note,type); toast(`Teacher code ${t.code} created`,"ok");
-      ["tName","tEmail","tSchool","tPosition"].forEach(id=>$(id).value=""); await loadAll();
+      ["tName","tEmail","tSchool","tPosition"].forEach(id=>$(id).value=""); paintCreateLocation(); await loadAll();
     }
     catch(e){ msg($("teacherMsg"),writeErr(e),"bad"); }
     finally{ setLoading($("createTeacherBtn"),false); }
   });
-  $("clearTeacherBtn").addEventListener("click",()=>{ ["tName","tEmail","tSchool","tPosition"].forEach(id=>$(id).value=""); });
+  $("clearTeacherBtn").addEventListener("click",()=>{ ["tName","tEmail","tSchool","tPosition"].forEach(id=>$(id).value=""); paintCreateLocation(); });
+  function paintCreateLocation(){ $("tLoc").innerHTML=locationFieldsHtml("tLoc",{},{placeholders:true}); wireLocation("tLoc"); }
+  paintCreateLocation();
   $("csvTeachersBtn").addEventListener("click",()=>{
     if(!teachers.length) return toast("No teachers to export","warn");
     const q=v=>{ const x=String(v??""); return /[",\n]/.test(x)?`"${x.replace(/"/g,'""')}"`:x; };
-    const rows=[["Name","Email","School","Role","Teacher code","Status","Classes","Active students","Last sign-in","Update emails"]];
+    const rows=[["Name","Email","School","Suburb","State","Country","Role","Teacher code","Status","Classes","Active students","Last sign-in","Update emails"]];
     teachers.slice().sort((a,b)=>String(a.teacherName||"").localeCompare(String(b.teacherName||""))).forEach(t=>{ const st=teacherStats(t.teacherCode); const ll=tsMs(t.lastLoginAt);
-      rows.push([t.teacherName||"",t.email||"",t.school||"",t.position||"",t.teacherCode,t.active===false?"Inactive":"Active",st.classes.join(" "),st.active,ll?new Date(ll).toISOString().slice(0,10):"",t.emailUpdates===false?"Off":"On"]); });
+      rows.push([t.teacherName||"",t.email||"",t.school||"",t.suburb||"",t.state||"",t.country||"",t.position||"",t.teacherCode,t.active===false?"Inactive":"Active",st.classes.join(" "),st.active,ll?new Date(ll).toISOString().slice(0,10):"",t.emailUpdates===false?"Off":"On"]); });
     const blob=new Blob([rows.map(r=>r.map(q).join(",")).join("\n")],{type:"text/csv"});
     const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=`mmt-teachers-${new Date().toISOString().slice(0,10)}.csv`; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),2000);
   });
@@ -1899,7 +1936,7 @@
   document.addEventListener("click",e=>{ const a=e.target.closest("[data-goto-noemail]"); if(!a) return; e.preventDefault(); gotoView("teachers"); $("teacherActiveFilter").value="noemail"; renderTeachers(); });
   $("copyTeachersBtn").addEventListener("click",async()=>{
     if(!teachers.length) return toast("No teachers to copy","warn");
-    const text="MMT Teacher Codes\n\n"+teachers.slice().sort((a,b)=>String(a.teacherName||"").localeCompare(String(b.teacherName||""))).map(t=>{ const st=teacherStats(t.teacherCode); return `${t.teacherName||"Teacher"} — ${t.teacherCode} — ${t.email||"no email"} — ${t.school||"No school"} — ${st.classes.join(", ")||"No classes"} — ${st.active} active students`; }).join("\n");
+    const text="MMT Teacher Codes\n\n"+teachers.slice().sort((a,b)=>String(a.teacherName||"").localeCompare(String(b.teacherName||""))).map(t=>{ const st=teacherStats(t.teacherCode); return `${t.teacherName||"Teacher"} — ${t.teacherCode} — ${t.email||"no email"} — ${t.school||"No school"}${formatLocation(t)?` (${formatLocation(t)})`:""} — ${st.classes.join(", ")||"No classes"} — ${st.active} active students`; }).join("\n");
     const okCopy=await copyText(text); toast(okCopy?"Teacher list copied":"Copy failed", okCopy?"ok":"bad");
   });
   ["teacherSearch","teacherActiveFilter","teacherSchoolFilter"].forEach(id=>$(id).addEventListener("input",renderTeachers));

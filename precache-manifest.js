@@ -1,6 +1,6 @@
 /* Written by tools/build-pwa.mjs — do not edit by hand. */
 self.MMT_PRECACHE = {
- "version": "f2a4b3e5c5",
+ "version": "61c84aa3ae",
  "files": [
   "./",
   "assessment/exam-builder/app.js",
@@ -879,6 +879,7 @@ self.MMT_PRECACHE = {
   "portal/shared/codeExchangeClient.js",
   "portal/shared/earlySubmit.js",
   "portal/shared/firebaseConfig.js",
+  "portal/shared/location.js",
   "portal/shared/mmtToolRegistry.js",
   "portal/shared/portalStyles.css",
   "portal/shared/quizAuthUI.js",
