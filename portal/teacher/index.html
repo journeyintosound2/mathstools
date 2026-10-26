@@ -85,32 +85,140 @@
   .task-x{width:30px;height:30px;border-radius:50%;border:1px solid #fecaca;background:#fef2f2;color:#dc2626;font-size:1rem;font-weight:800;line-height:1;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0}
   .task-x:hover{background:#dc2626;color:#fff;border-color:#dc2626}
   .btn.sm{padding:6px 10px;font-size:.82rem;border-radius:8px}
-  /* ---- Quiz checklist (Set Dashboard Task) ------------------------------- */
-  .checklist{border:1px solid var(--line);border-radius:12px;max-height:360px;overflow:auto}
-  /* Top-level category header (Quizzes linked to tools / Broad topic overview):
-     a clickable disclosure toggle that stays pinned while its quizzes scroll.
-     Both categories start collapsed so the teacher sees the two task types at
-     a glance without scrolling past the whole quiz list. */
-  .cathd{width:100%;text-align:left;appearance:none;padding:12px 14px;background:#eef2ff;color:#1e3a8a;font-weight:800;font-size:.82rem;letter-spacing:.01em;border:0;border-top:2px solid #c7d2fe;display:flex;align-items:center;gap:8px;cursor:pointer;position:sticky;top:0;z-index:3}
-  .cathd:hover{background:#e0e7ff}
-  .catblock:first-child .cathd{border-top:0}
-  .cathd .sub{font-weight:600;color:#6366f1;font-size:.74rem;text-transform:none;letter-spacing:0}
-  .cathd .arrow{display:inline-block;color:#6366f1;font-size:.7rem;transition:transform .15s ease}
-  .catblock:not(.collapsed) .cathd .arrow{transform:rotate(90deg)}
-  .cathd .catcount{margin-left:auto;background:#c7d2fe;color:#1e3a8a;border-radius:999px;padding:1px 9px;font-size:.72rem;font-weight:800}
-  .catblock.collapsed .catbody{display:none}
-  /* Sub-group header within a category (topic area, or Stage). */
-  .grouphd{padding:8px 14px 8px 18px;background:#f8fafc;font-weight:700;font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);border-top:1px solid var(--line)}
-  .check{display:flex;gap:11px;align-items:center;padding:11px 14px;border-top:1px solid var(--line);cursor:pointer}
-  .check:hover{background:#f8fafc}
-  .check input{width:17px;height:17px;flex:0 0 auto;margin:0}
-  .check .t{font-weight:600}
-  .quizrow{display:flex;align-items:center;gap:10px;padding:9px 14px;border-top:1px solid var(--line)}
-  .quizrow:hover{background:#f8fafc}
-  .qcheck{display:flex;align-items:center;gap:11px;flex:1;cursor:pointer;margin:0}
-  .qcheck input{width:17px;height:17px;flex:0 0 auto;margin:0}
-  .qcheck .t{font-weight:600}
-  .subsetbtn{white-space:nowrap;flex:0 0 auto}
+  /* ---- Set an Online Task: the quiz picker (redesigned 2026-10-27) -------
+     Stage tabs → strand → collapsible topic cards → quizzes. A whole-topic quiz
+     (one with a question-type builder) sits at the TOP of its own topic as an
+     overview card. The "Your task" cart on the right stays in view (sticky).
+     --ot-head is set from the real modal-head height when the modal opens. */
+  .modal.xl{max-width:1120px;max-height:90vh}
+  .ot-top{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:14px;align-items:start}
+  .ot-due{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+  .ot-due input{flex:1 1 150px;min-width:150px}
+  .ot-top select,.ot-top input[type=date]{height:42px;padding-top:0;padding-bottom:0;font-size:.95rem;letter-spacing:0}
+  .ot-chip{appearance:none;border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:999px;padding:5px 11px;font-size:.76rem;font-weight:700;cursor:pointer;white-space:nowrap}
+  .ot-chip:hover{border-color:#c7d2fe;background:#f8faff}
+  .ot-chip.on{background:var(--chip);border-color:#a5b4fc;color:var(--mmt-blue-dark)}
+  .ot-wrap{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:20px;align-items:start;margin-top:4px}
+  .ot-pick{min-width:0}
+  .ot-lbl{font-size:.82rem;color:var(--muted);font-weight:600;margin:0 0 6px}
+  /* Pinned bar: stage tabs + search stay at the top while topics scroll. */
+  .ot-bar{position:sticky;top:var(--ot-head,68px);z-index:3;background:#fff;padding:8px 0 10px;box-shadow:0 8px 8px -8px rgba(15,23,42,.08)}
+  .ot-stabs{display:flex;gap:6px;background:#f1f5f9;padding:4px;border-radius:13px}
+  .ot-stab{position:relative;flex:1 1 0;min-width:0;appearance:none;border:0;background:transparent;border-radius:10px;padding:8px 10px;cursor:pointer;text-align:center;color:var(--muted);font:inherit;transition:background .12s ease,color .12s ease}
+  .ot-stab:hover{background:rgba(255,255,255,.65);color:var(--ink)}
+  .ot-stab b{display:block;font-size:.95rem;color:inherit;line-height:1.2}
+  .ot-stab small{display:block;font-size:.72rem;font-weight:600;opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ot-stab.on{background:#fff;color:var(--mmt-blue-dark);box-shadow:0 1px 3px rgba(15,23,42,.12)}
+  .ot-stab.empty b,.ot-stab.empty small{opacity:.6}
+  .ot-stab .ot-dot{position:absolute;top:-5px;right:-3px;min-width:20px;height:20px;border-radius:999px;background:var(--mmt-blue);color:#fff;font-size:.7rem;font-weight:800;display:none;align-items:center;justify-content:center;padding:0 6px;border:2px solid #fff}
+  .ot-stab .ot-dot.show{display:flex}
+  .ot-tools{display:flex;gap:8px;align-items:center;margin-top:9px}
+  .ot-search{position:relative;flex:1}
+  .ot-search input{width:100%;padding:9px 34px 9px 34px;border:1px solid var(--line);border-radius:10px;font-size:.9rem;letter-spacing:0;background:#fff}
+  .ot-search input:focus{outline:none;border-color:#a5b4fc;box-shadow:0 0 0 3px rgba(99,102,241,.15)}
+  .ot-search .ot-mag{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;font-size:.85rem}
+  .ot-search .ot-sx{position:absolute;right:6px;top:50%;transform:translateY(-50%);appearance:none;border:0;background:#f1f5f9;color:var(--muted);width:24px;height:24px;border-radius:50%;cursor:pointer;font-size:.8rem;display:none}
+  .ot-search.has .ot-sx{display:block}
+  .ot-link{appearance:none;border:0;background:none;color:var(--mmt-blue);font-weight:700;font-size:.8rem;cursor:pointer;padding:6px 4px;white-space:nowrap}
+  .ot-link:hover{text-decoration:underline}
+  .ot-status{font-size:.8rem;color:var(--muted);margin:10px 2px 0}
+  /* Strand heading + topic cards */
+  .ot-strand{display:flex;align-items:center;gap:8px;font-size:.7rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:16px 2px 8px}
+  .ot-strand:first-child{margin-top:10px}
+  .ot-strand i{width:9px;height:9px;border-radius:3px;background:var(--mmt-blue);flex:0 0 auto}
+  .ot-strand.teal i{background:#0d9488} .ot-strand.purple i{background:#7c3aed}
+  .ot-topic{border:1px solid var(--line);border-radius:12px;background:#fff;margin-bottom:8px;overflow:hidden;transition:border-color .12s ease,box-shadow .12s ease}
+  .ot-topic.open{border-color:#c7d2fe;box-shadow:0 2px 10px rgba(29,78,216,.07)}
+  .ot-thd{width:100%;appearance:none;border:0;background:#fff;display:flex;align-items:center;gap:12px;padding:11px 14px;cursor:pointer;text-align:left;font:inherit;color:var(--ink)}
+  .ot-thd:hover{background:#f8faff}
+  .ot-topic.open .ot-thd{background:#f8faff;border-bottom:1px solid #e0e7ff}
+  .ot-ticon{width:36px;height:36px;border-radius:10px;background:var(--chip);color:var(--mmt-blue-dark);display:grid;place-items:center;font-weight:800;font-size:.95rem;flex:0 0 auto;line-height:1}
+  .ot-ticon.teal{background:#f0fdfa;color:#0f766e} .ot-ticon.purple{background:#f5f3ff;color:#6d28d9}
+  .ot-tname{flex:1;min-width:0}
+  .ot-tname strong{display:block;font-size:.95rem;line-height:1.25}
+  .ot-tname small{display:block;color:var(--muted);font-size:.76rem;margin-top:1px}
+  .ot-tsel{background:var(--mmt-blue);color:#fff;border-radius:999px;padding:2px 10px;font-size:.72rem;font-weight:800;white-space:nowrap;display:none}
+  .ot-tsel.show{display:inline-block}
+  .ot-chev{color:#94a3b8;font-size:1.1rem;transition:transform .15s ease;flex:0 0 auto;width:16px;text-align:center}
+  .ot-topic.open .ot-chev{transform:rotate(90deg);color:var(--mmt-blue)}
+  .ot-tbody{display:none;padding:4px 0}
+  .ot-topic.open .ot-tbody{display:block}
+  /* Whole-topic (overview) card */
+  .ot-ov{margin:8px 12px 6px;border:1px solid #c7d2fe;border-radius:11px;background:linear-gradient(135deg,#eef2ff,#f8faff 70%);padding:12px 14px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+  .ot-ov.on{border-color:var(--mmt-blue);box-shadow:inset 0 0 0 1px var(--mmt-blue)}
+  .ot-ovtx{flex:1 1 240px;min-width:0}
+  .ot-ovtag{display:inline-block;font-size:.66rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#4338ca;background:#fff;border:1px solid #c7d2fe;border-radius:999px;padding:2px 8px;margin-bottom:5px}
+  .ot-ovtx strong{display:block;font-size:.95rem}
+  .ot-ovtx span.d{display:block;font-size:.8rem;color:#475569;margin-top:2px}
+  .ot-ovcust{display:block;font-size:.76rem;color:#4338ca;font-weight:700;margin-top:4px}
+  .ot-ovcust:empty{display:none}
+  .ot-ovact{display:flex;gap:6px;flex-wrap:wrap}
+  .ot-ovbtn{appearance:none;border:1px solid #a5b4fc;background:#fff;color:var(--mmt-blue-dark);border-radius:9px;padding:7px 12px;font-weight:700;font-size:.82rem;cursor:pointer;white-space:nowrap}
+  .ot-ovbtn:hover{background:#eef2ff}
+  .ot-ovbtn[aria-pressed="true"]{background:var(--mmt-blue);border-color:var(--mmt-blue);color:#fff}
+  .ot-ovbtn.alt{border-color:var(--line);color:var(--ink)}
+  /* Focused quiz row — a custom checkbox; the whole row is the target. */
+  .ot-sub{font-size:.68rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#94a3b8;padding:8px 16px 2px}
+  .ot-q{position:relative;display:flex;align-items:center;gap:12px;padding:9px 12px 9px 16px;cursor:pointer;margin:0 6px;border-radius:9px}
+  .ot-q:hover{background:#f8fafc}
+  .ot-q.on{background:#eff6ff}
+  .ot-q input{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+  .ot-box{width:20px;height:20px;border-radius:6px;border:2px solid #cbd5e1;background:#fff;flex:0 0 auto;display:grid;place-items:center;transition:all .1s ease}
+  .ot-box::after{content:"";width:6px;height:10px;border:solid #fff;border-width:0 2.5px 2.5px 0;transform:rotate(45deg) translate(-1px,-1px);opacity:0}
+  .ot-q input:checked + .ot-box{background:var(--mmt-blue);border-color:var(--mmt-blue)}
+  .ot-q input:checked + .ot-box::after{opacity:1}
+  .ot-q input:focus-visible + .ot-box{box-shadow:0 0 0 3px rgba(99,102,241,.35)}
+  .ot-qtx{flex:1;min-width:0}
+  .ot-qt{display:block;font-weight:650;font-size:.92rem;line-height:1.3}
+  .ot-qn{display:block;font-size:.77rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ot-qt mark{background:#fef08a;color:inherit;border-radius:3px;padding:0 1px}
+  .ot-also{font-size:.68rem;font-weight:700;color:#0f766e;background:#f0fdfa;border:1px solid #99f6e4;border-radius:999px;padding:2px 8px;white-space:nowrap;flex:0 0 auto}
+  .ot-open{flex:0 0 auto;width:30px;height:30px;border-radius:8px;display:grid;place-items:center;color:#94a3b8;text-decoration:none;font-size:.9rem;opacity:0;transition:opacity .1s ease}
+  .ot-q:hover .ot-open,.ot-open:focus-visible{opacity:1}
+  .ot-open:hover{background:#e2e8f0;color:var(--ink)}
+  .ot-empty{border:1.5px dashed var(--line);border-radius:12px;padding:26px 18px;text-align:center;color:var(--muted);margin-top:12px}
+  .ot-empty .big{font-size:1.6rem;margin-bottom:6px}
+  .ot-empty strong{display:block;color:var(--ink);margin-bottom:3px}
+  .ot-foot{font-size:.76rem;color:#94a3b8;margin:10px 2px 0}
+  .ot-paste{margin-top:12px}
+  .ot-paste summary{cursor:pointer;font-size:.8rem;color:var(--muted)}
+  .ot-paste .row{display:flex;gap:8px;margin-top:8px}
+  .ot-paste input{flex:1;padding:8px 10px;border:1px solid var(--line);border-radius:9px;font-size:.85rem;letter-spacing:0}
+  /* "Your task" cart */
+  .ot-cart{position:sticky;top:calc(var(--ot-head,68px) + 8px);border:1px solid var(--line);border-radius:14px;background:#fff;box-shadow:var(--shadow);display:flex;flex-direction:column;max-height:calc(90vh - var(--ot-head,68px) - 96px);overflow:hidden}
+  .ot-chd{display:flex;align-items:center;gap:8px;padding:13px 15px 4px}
+  .ot-chd strong{font-size:1rem}
+  .ot-ccount{background:var(--chip);color:var(--mmt-blue-dark);border-radius:999px;padding:1px 9px;font-size:.75rem;font-weight:800}
+  .ot-chd .ot-link{margin-left:auto;padding:2px 0;color:var(--muted);font-weight:600}
+  .ot-cfor{padding:0 15px 10px;font-size:.8rem;color:var(--muted);border-bottom:1px solid var(--line)}
+  .ot-cfor b{color:var(--ink)}
+  .ot-cfor .warn{color:#b45309;font-weight:700}
+  .ot-clist{overflow:auto;padding:6px 8px;flex:1;min-height:60px}
+  .ot-ci{display:flex;gap:9px;align-items:flex-start;padding:8px 7px;border-radius:9px}
+  .ot-ci.new{animation:otIn .18s ease}
+  .ot-ci:hover{background:#f8fafc}
+  .ot-ci .ic{font-size:1rem;line-height:1.3;flex:0 0 auto}
+  .ot-ci .tx{flex:1;min-width:0}
+  .ot-ci strong{display:block;font-size:.85rem;line-height:1.3}
+  .ot-ci small{display:block;font-size:.74rem;color:var(--muted);line-height:1.35}
+  .ot-ci small.cust{color:#4338ca;font-weight:600}
+  .ot-cx{appearance:none;border:0;background:transparent;color:#94a3b8;width:26px;height:26px;border-radius:7px;cursor:pointer;flex:0 0 auto;font-size:.85rem}
+  .ot-cx:hover{background:#fee2e2;color:#dc2626}
+  .ot-cempty{text-align:center;color:var(--muted);font-size:.82rem;padding:22px 12px}
+  .ot-cempty .big{font-size:1.5rem;display:block;margin-bottom:6px;opacity:.75}
+  .ot-cnote{font-size:.74rem;color:var(--muted);padding:10px 15px 12px;border-top:1px solid var(--line);margin:0}
+  .ot-cart .msg{margin:8px 10px 0}
+  @keyframes otIn{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:none}}
+  @media (max-width:880px){
+    .ot-wrap{grid-template-columns:1fr}
+    .ot-cart{position:static;max-height:none}
+    .ot-top{grid-template-columns:1fr}
+  }
+  @media (max-width:560px){
+    .ot-stab small{display:none}
+    .ot-also{display:none}
+    .ot-open{opacity:1}
+  }
 
   /* ---- Printable student login cards ------------------------------------
      8 cards per A4 page (2 across x 4 down). The sheet lives in #printSheet at
@@ -295,7 +403,7 @@
     <div class="tilewrap"><button class="tile" type="button" id="tileAddClass">
       <div class="ic">🏫</div><h3>Add Class</h3><p>Create a class to sort your students into.</p></button></div>
     <div class="tilewrap"><button class="tile" type="button" id="tileDashTask">
-      <div class="ic">📋</div><h3>Set Dashboard Task</h3><p>Assign online quizzes with a due date.</p></button></div>
+      <div class="ic">📋</div><h3>Set an Online Task</h3><p>Assign online quizzes to a class, with a due date.</p></button></div>
     <div class="tilewrap"><button class="tile" type="button" id="tilePrintCards">
       <div class="ic">🖨️</div><h3>Print Student Cards</h3><p>A4 sheets of login cards to cut up and hand out.</p></button></div>
   </div>
@@ -428,7 +536,7 @@ $("nudgeLater").addEventListener("click", ()=>{ try{ sessionStorage.setItem(NUDG
 // Tile wiring
 $("tileAddStudent").addEventListener("click", openAddStudent);
 $("tileAddClass").addEventListener("click", openAddClass);
-$("tileDashTask").addEventListener("click", openDashTask);
+$("tileDashTask").addEventListener("click", ()=>openDashTask());
 $("tilePrintCards").addEventListener("click", openPrintCards);
 $("tileStudents").addEventListener("click", openStudents);
 $("tileResults").addEventListener("click", openResults);
@@ -750,133 +858,407 @@ async function removeClass(name){
 // (View + Remove) until the teacher removes them; the Cloud Functions stay deployed.
 function npcName(id){ return ADVENTURE_NPCS.find(n=>n.id===id)?.name || id; }
 
-// ============================ SET DASHBOARD TASK ============================
-// Two categories on this page:
-//   1. "Quizzes linked to tools" — the focused, single-concept quizzes (no
-//      sub-topic builder). Grouped by TOPIC AREA (derived from each tool's
-//      registry `topics`, so a new quiz lands in the right area automatically).
-//   2. "Broad topic overview" — the whole-topic quizzes that have a
-//      "Choose sub-topics" builder (BUILDER_IDS). Grouped by STAGE.
-// Map a registry topic id → the topic-area heading it shows under. Anything not
-// listed falls back to "Other" so nothing is ever dropped.
+// ============================ SET AN ONLINE TASK ============================
+// (Called "Set Dashboard Task" until 2026-10-27, when Adventure tasks were
+// retired and online quizzes became the only kind of task a teacher sets.)
+//
+// THE PICKER IS STAGE → STRAND → TOPIC → QUIZ, and it lists no quizzes itself.
+// It is built from the site's own syllabus map:
+//   resources/resourcesManifest.js  stages, strands, topics and their outcomes
+//   resources/toolLinks.js          which outcome(s) each quiz URL is filed under
+// plus the registry (getEnabledTools) for what is switched on. So a new quiz lands
+// in the right stage and topic as soon as it is in the registry and toolLinks.js.
+// * A quiz filed under outcomes in two stages (Reading a Protractor: MA3-GM-03 and
+//   MA4-ANG-C-01) shows in BOTH, with an "Also in" chip. Every tick is painted from
+//   `dtSelected`, so ticking it in one stage ticks it in the other.
+// * If the two files cannot load (offline, blocked), a quiz falls back to the
+//   registry's `stage` + TOPIC_AREA_NAME, so the picker always works.
+// * Whole-topic quizzes that have a question-type builder (BUILDER_QUIZZES) are
+//   NOT a separate list any more: each sits at the top of its own topic as an
+//   overview card with "Add whole quiz" and "Choose question types".
+// * Topics with no online quiz yet are hidden (the footnote under the list says so).
+//
+// Fallback topic names when the syllabus map is unavailable.
 const TOPIC_AREA_NAME = {
   integers:"Integers",
   fdp:"Fractions, Decimals & Percentages",
-  number:"Number & Factors", "whole-numbers":"Number & Factors",
+  number:"Number", "whole-numbers":"Number",
   algebra:"Algebra",
   "measurement-space":"Measurement & Space", pythagoras:"Measurement & Space", area:"Measurement & Space",
   "ratios-rates":"Ratios & Rates",
 };
-// Display order for the topic-area sub-groups (any area not listed is appended).
-const TOPIC_AREA_ORDER = ["Integers","Fractions, Decimals & Percentages","Number & Factors","Ratios & Rates","Algebra","Measurement & Space"];
+const TOPIC_AREA_ORDER = ["Integers","Fractions, Decimals & Percentages","Number","Ratios & Rates","Algebra","Measurement & Space"];
 function topicAreaFor(t){ const id=(t.topics&&t.topics[0])||""; return TOPIC_AREA_NAME[id] || "Other"; }
-// Split enabled quizzes into the two category buckets, each a {group -> tools[]}.
-function quizBuckets(){
-  const tools={}, broad={};
-  getEnabledTools().filter(t=>t.category==="Quiz").forEach(t=>{
-    if(BUILDER_IDS.has(t.toolId)){ const g=t.stage||"Other"; (broad[g]=broad[g]||[]).push(t); }
-    else { const g=topicAreaFor(t); (tools[g]=tools[g]||[]).push(t); }
-  });
-  return { tools, broad };
-}
-function dtQuizRow(t){
-  return `<div class="quizrow">
-    <label class="qcheck"><input type="checkbox" class="dtWhole" value="${esc(t.toolId)}" data-title="${esc(t.title)}" data-url="${esc(t.launchUrl||"")}"/><span class="t">${esc(t.title)}</span></label>
-    ${BUILDER_IDS.has(t.toolId)?`<button class="btn sm subsetbtn" type="button" data-cust="${esc(t.toolId)}">Choose sub-topics ↗</button>`:``}
-  </div>`;
-}
-// Total quizzes across a bucket's groups (shown as a pill on the category header).
-function dtCount(groups){ return Object.values(groups).reduce((n,arr)=>n+arr.length,0); }
-// Render a bucket's groups, honouring `order` first then any leftover groups.
-function dtGroups(groups, order){
-  const keys = (order||[]).filter(k=>groups[k]);
-  Object.keys(groups).forEach(k=>{ if(!keys.includes(k)) keys.push(k); });
-  if(!keys.length) return `<div class="quizrow"><span class="muted" style="font-size:.85rem">None yet.</span></div>`;
-  return keys.map(g=>`<div class="grouphd">${esc(g)}</div>${groups[g].map(dtQuizRow).join("")}`).join("");
-}
-function openDashTask(){
-  const { tools, broad } = quizBuckets();
-  openModal(head("📋 Set Dashboard Task")+`
-    <div class="modal-body">
-      <p class="hint">Pick the quizzes to assign to <strong>one class</strong>. Quizzes are split into <strong>tool-linked quizzes</strong> (one concept each, grouped by topic area) and <strong>broad topic overviews</strong> — whole-topic quizzes you can narrow to specific question types with <em>Choose sub-topics</em>. Students get a pop-up with these tasks and the due date next time they open their dashboard.</p>
-      <div class="grid2">
-        <div class="field"><label>Class</label><select id="dtClass">${classOptions()}</select></div>
-        <div class="field"><label>Due date (optional)</label><input id="dtDue" type="date"/></div>
-      </div>
-      <div class="field"><label>Quizzes</label>
-        <div class="checklist">
-          <div class="catblock collapsed">
-            <button class="cathd" type="button" aria-expanded="false">
-              <span class="arrow">▸</span>🔧 Quizzes linked to tools <span class="sub">one concept each</span>
-              <span class="catcount">${dtCount(tools)}</span></button>
-            <div class="catbody">${dtGroups(tools, TOPIC_AREA_ORDER)}</div>
-          </div>
-          <div class="catblock collapsed">
-            <button class="cathd" type="button" aria-expanded="false">
-              <span class="arrow">▸</span>📚 Broad topic overview <span class="sub">whole-topic — narrow with “Choose sub-topics”</span>
-              <span class="catcount">${dtCount(broad)}</span></button>
-            <div class="catbody">${dtGroups(broad)}</div>
-          </div>
-        </div>
-        <details style="margin-top:6px"><summary class="muted" style="cursor:pointer;font-size:.8rem">Pop-up blocked? Paste a generated quiz link instead</summary>
-          <div style="display:flex;gap:8px;margin-top:8px"><input id="dtPasteLink" placeholder="Paste a generated quiz link" style="flex:1;padding:8px 10px;border:1px solid var(--line);border-radius:9px"/><button class="btn sm" id="dtPasteAdd" type="button">Add</button></div>
-        </details>
-      </div>
-      <div class="field"><label>Assigning to this class (<span id="dtCount">0</span>)</label>
-        <div id="dtSelList"></div>
-      </div>
-      <div class="msg" id="dtBuildMsg"></div>
-      <div class="msg" id="dtMsg"></div>
-    </div>
-    ${foot(`<button class="btn primary" id="dtBtn" type="button">Set task</button>`)}`, true);
-  dtSelected=[];
-  $("dtBtn").addEventListener("click", doDashTask);
-  $("dtPasteAdd").addEventListener("click", addPastedLink);
-  // Collapsible categories (default collapsed) — click a header to expand/close it.
-  modalEl.querySelectorAll(".cathd").forEach(h=> h.addEventListener("click", ()=>{
-    const block=h.closest(".catblock"); if(!block) return;
-    block.classList.toggle("collapsed");
-    h.setAttribute("aria-expanded", String(!block.classList.contains("collapsed")));
-  }));
-  modalEl.querySelectorAll(".dtWhole").forEach(cb=> cb.addEventListener("change", ()=>toggleWhole(cb)));
-  modalEl.querySelectorAll("[data-cust]").forEach(b=> b.addEventListener("click", ()=>openSubsetBuilder(b.dataset.cust)));
-  renderDtSelected();
-}
-// Quizzes that have a built-in "Create student quiz link" subset builder.
+const FALLBACK_STRAND = { "measurement-space":"measurement-space", pythagoras:"measurement-space", area:"measurement-space" };
+const STRAND_COLOUR = { "number-algebra":"", "measurement-space":"teal", "statistics-probability":"purple" };
+const STAGE_YEARS = { "Stage 1":"Years 1–2", "Stage 2":"Years 3–4", "Stage 3":"Years 5–6", "Stage 4":"Years 7–8", "Stage 5":"Years 9–10", "Stage 6":"Years 11–12" };
+// These tabs always show, even with no quizzes yet, so a teacher can see where
+// Stage 5 will be. Any other stage gets a tab once it has a quiz.
+const STAGE_TABS_ALWAYS = ["Stage 3","Stage 4","Stage 5"];
+
+// Quizzes with a built-in "Create student quiz link" builder (assignmentLinkOut).
 const BUILDER_QUIZZES = [
   {toolId:"integers-quiz",            title:"Computation with Integers",         launchUrl:"/online-quizzes/stage-4/number/computation-with-integers.html"},
-  {toolId:"angle-relationships-quiz", title:"Angle Relationships",               launchUrl:"/online-quizzes/stage-4/measurement-space/angle-relationships.html"},
   {toolId:"fdp-quiz",                 title:"Fractions, Decimals & Percentages", launchUrl:"/online-quizzes/stage-4/number/fractions-decimals-percentages.html"},
   {toolId:"algebraic-techniques",     title:"Algebraic Techniques",              launchUrl:"/online-quizzes/stage-4/algebra/algebraic-techniques.html"},
+  {toolId:"equations-quiz",           title:"Equations",                         launchUrl:"/online-quizzes/stage-4/algebra/equations.html"},
+  {toolId:"angle-relationships-quiz", title:"Angle Relationships",               launchUrl:"/online-quizzes/stage-4/measurement-space/angle-relationships.html"},
 ];
 const BUILDER_IDS = new Set(BUILDER_QUIZZES.map(q=>q.toolId));
+
+// ---- Syllabus map (loaded once, on first open) ----
+let syllabusP=null;
+function loadScriptOnce(src){ return new Promise((res,rej)=>{ const s=document.createElement("script"); s.src=src; s.onload=res; s.onerror=rej; document.head.appendChild(s); }); }
+function loadSyllabus(){
+  if(window.MMT_RESOURCES && window.MMT_TOOL_LINKS) return Promise.resolve(true);
+  if(!syllabusP){
+    const load=Promise.all([
+      window.MMT_RESOURCES ? null : loadScriptOnce(new URL("../../resources/resourcesManifest.js", location.href).href),
+      window.MMT_TOOL_LINKS ? null : loadScriptOnce(new URL("../../resources/toolLinks.js", location.href).href),
+    ]).then(()=>true, ()=>{ syllabusP=null; return false; });
+    syllabusP=Promise.race([load, new Promise(r=>setTimeout(()=>r(false), 5000))]);
+  }
+  return syllabusP;
+}
+function normUrl(u){
+  try{ const x=new URL(u, location.origin); return decodeURIComponent(x.pathname).replace(/\/index\.html$/i,"/").toLowerCase(); }
+  catch(e){ return String(u||"").split(/[?#]/)[0].toLowerCase(); }
+}
+// Every entry is a student quiz, so the suffix says nothing in this list.
+function shortTitle(t){
+  const s=String(t||"").replace(/\s*[—–-]\s*(Stage\s*\d\s+)?Student(\s+Quiz)?\s*$/i,"").replace(/\s+(Stage\s*\d\s+)?Student\s+Quiz\s*$/i,"").trim();
+  return s || String(t||"");
+}
+function cleanNote(n){
+  return String(n||"")
+    .replace(/Saves to the (student|teacher) dashboard\.?/gi,"")
+    .replace(/Sub-topic quiz links can be built from this page\.?/gi,"")
+    .replace(/\s{2,}/g," ").trim();
+}
+function stageNum(s){ const m=/(\d+)/.exec(s||""); return m?Number(m[1]):99; }
+
+function buildCatalogue(){
+  const R=window.MMT_RESOURCES, L=window.MMT_TOOL_LINKS;
+  const strandName={}, strandOrder=[];
+  ((R&&R.strands)||[]).forEach(s=>{ strandName[s.id]=s.name; strandOrder.push(s.id); });
+  if(!strandOrder.length){ strandOrder.push("number-algebra","measurement-space","statistics-probability"); Object.assign(strandName,{"number-algebra":"Number and Algebra","measurement-space":"Measurement and Space","statistics-probability":"Statistics and Probability"}); }
+  const outcome={}, topics={};
+  if(R) Object.keys(R).filter(k=>/^stage\d+$/.test(k)).forEach(k=>{
+    const stage="Stage "+k.slice(5);
+    (R[k]||[]).forEach((tp,i)=>{
+      const key=stage+"|"+tp.slug;
+      topics[key]={ key, stage, name:tp.name, icon:tp.icon||"", strand:tp.strand||"number-algebra", order:i, quizzes:[] };
+      (tp.outcomes||[]).forEach(o=>{ if(o&&o.code) outcome[o.code]=key; });
+    });
+  });
+  const urlInfo={};
+  if(L) Object.entries(L).forEach(([code,arr])=> (arr||[]).forEach(r=>{
+    if(!r||!r.url) return;
+    const e=urlInfo[normUrl(r.url)] || (urlInfo[normUrl(r.url)]={codes:[],note:""});
+    if(!e.codes.includes(code)) e.codes.push(code);
+    if(!e.note && /quiz/i.test(r.kind||"")) e.note=r.note||"";
+  }));
+  const quizzes=[];
+  getEnabledTools().filter(t=>t.category==="Quiz").forEach(t=>{
+    const info=urlInfo[normUrl(t.launchUrl)];
+    let keys=[];
+    (info?info.codes:[]).forEach(c=>{ const k=outcome[c]; if(k && !keys.includes(k)) keys.push(k); });
+    // Home stage (the registry's) first, so its topic is the one named in the cart.
+    keys.sort((a,b)=> (topics[a].stage===t.stage?0:1)-(topics[b].stage===t.stage?0:1));
+    if(!keys.length){
+      const stage=t.stage||"Other"; const name=topicAreaFor(t); const key=stage+"|~"+name;
+      if(!topics[key]){ const oi=TOPIC_AREA_ORDER.indexOf(name); topics[key]={ key, stage, name, icon:"", strand:FALLBACK_STRAND[(t.topics||[])[0]]||"number-algebra", order:900+(oi<0?50:oi), quizzes:[] }; }
+      keys=[key];
+    }
+    const q={ toolId:t.toolId, title:t.title, short:shortTitle(t.title), launchUrl:t.launchUrl||"", note:cleanNote(info&&info.note), overview:BUILDER_IDS.has(t.toolId), keys };
+    q.stages=[...new Set(keys.map(k=>topics[k].stage))];
+    quizzes.push(q);
+    keys.forEach(k=> topics[k].quizzes.push(q));
+  });
+  Object.values(topics).forEach(tp=> tp.quizzes.sort((a,b)=> (b.overview-a.overview) || a.short.localeCompare(b.short)));
+  const stages=[...new Set([...STAGE_TABS_ALWAYS, ...Object.values(topics).filter(t=>t.quizzes.length).map(t=>t.stage)])].sort((a,b)=>stageNum(a)-stageNum(b));
+  const byId={}; quizzes.forEach(q=> byId[q.toolId]=q);
+  return { quizzes, byId, topics, stages, strandName, strandOrder, fromSyllabus:Boolean(R&&L) };
+}
+
+// ---- Picker state ----
+let OT=null;   // { cat, stage, q, open:Set<topicKey> }
+let otShown=new Set();   // cart rows already drawn (only NEW rows animate in)
+const OT_STAGE_KEY="mmt-ot-stage", OT_CLASS_KEY="mmt-ot-class";
+function lsGet(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
+function lsSet(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
+
+function stageTopics(stage){
+  const c=OT.cat;
+  return Object.values(c.topics).filter(t=>t.stage===stage && t.quizzes.length)
+    .sort((a,b)=> (c.strandOrder.indexOf(a.strand)-c.strandOrder.indexOf(b.strand)) || (a.order-b.order));
+}
+function quizCount(stage){ return new Set(stageTopics(stage).flatMap(t=>t.quizzes.map(q=>q.toolId))).size; }
+function defaultStage(){
+  const saved=lsGet(OT_STAGE_KEY);
+  if(saved && OT.cat.stages.includes(saved)) return saved;
+  return OT.cat.stages.slice().sort((a,b)=>quizCount(b)-quizCount(a))[0] || "Stage 4";
+}
+
+function openDashTask(prefClass){
+  const savedClass=lsGet(OT_CLASS_KEY);
+  const cls = (prefClass && classes.includes(prefClass)) ? prefClass : (savedClass && classes.includes(savedClass)) ? savedClass : (classes.length===1 ? classes[0] : "");
+  openModal(head("📋 Set an Online Task")+`
+    <div class="modal-body">
+      <div class="ot-top">
+        <div class="field" style="margin:0"><label for="dtClass">Class</label><select id="dtClass">${classes.length?`<option value="">Choose a class…</option>`:""}${classOptions(cls)}</select></div>
+        <div class="field" style="margin:0"><label for="dtDue">Due date <span class="muted" style="font-weight:500">(optional)</span></label>
+          <div class="ot-due"><input id="dtDue" type="date"/>
+            <button class="ot-chip" type="button" data-due="fri">This Friday</button>
+            <button class="ot-chip" type="button" data-due="7">In a week</button>
+            <button class="ot-chip" type="button" data-due="14">In 2 weeks</button></div></div>
+      </div>
+      <div class="ot-wrap">
+        <div class="ot-pick" id="otPick"><div class="ot-empty"><div class="big">⏳</div>Loading quizzes…</div></div>
+        <aside class="ot-cart" aria-label="Your task">
+          <div class="ot-chd"><strong>Your task</strong><span class="ot-ccount" id="dtCount">0</span><button class="ot-link" type="button" id="otClear" hidden>Clear all</button></div>
+          <div class="ot-cfor" id="otFor"></div>
+          <div class="msg" id="dtBuildMsg"></div>
+          <div class="msg" id="dtMsg"></div>
+          <div class="ot-clist" id="dtSelList"></div>
+          <p class="ot-cnote">Each quiz becomes its own task. Students see them in a pop-up the next time they open their dashboard.</p>
+        </aside>
+      </div>
+    </div>
+    ${foot(`<button class="btn primary" id="dtBtn" type="button">Set task</button>`)}`, true);
+  modalEl.classList.add("xl");
+  const hd=modalEl.querySelector(".modal-head"); if(hd) modalEl.style.setProperty("--ot-head", hd.offsetHeight+"px");
+  dtSelected=[];
+  $("dtBtn").addEventListener("click", doDashTask);
+  $("dtClass").addEventListener("change", ()=>{ $("dtMsg").className="msg"; renderDtSelected(); });
+  $("dtDue").addEventListener("input", ()=>{ paintDueChips(); renderDtSelected(); });
+  modalEl.querySelectorAll("[data-due]").forEach(b=> b.addEventListener("click", ()=>{ setDue(b.dataset.due); }));
+  $("otClear").addEventListener("click", ()=>{ dtSelected=[]; otPaint(); });
+  renderDtSelected();
+  loadSyllabus().then(()=>{
+    if(!modalEl.querySelector("#otPick")) return;   // closed while loading
+    OT={ cat:buildCatalogue(), stage:null, q:"", open:new Set() };
+    OT.stage=defaultStage();
+    otRenderShell();
+  });
+}
+// Quick due dates. Dates are built in LOCAL time (toISOString would shift a day).
+function ymd(d){ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`; }
+function dueFor(kind){
+  const d=new Date(); d.setHours(12,0,0,0);
+  if(kind==="fri"){ const add=(5-d.getDay()+7)%7; d.setDate(d.getDate()+add); }
+  else d.setDate(d.getDate()+Number(kind));
+  return ymd(d);
+}
+function setDue(kind){ const i=$("dtDue"); i.value = (i.value===dueFor(kind)) ? "" : dueFor(kind); paintDueChips(); renderDtSelected(); }
+function paintDueChips(){ const v=$("dtDue").value; modalEl.querySelectorAll("[data-due]").forEach(b=> b.classList.toggle("on", Boolean(v) && v===dueFor(b.dataset.due))); }
+
+function otRenderShell(){
+  const box=$("otPick"); if(!box) return;
+  box.innerHTML=`
+    <div class="ot-bar">
+      <div class="ot-lbl">Choose quizzes</div>
+      <div class="ot-stabs" role="tablist" aria-label="Stage">${OT.cat.stages.map(s=>{ const n=quizCount(s);
+        return `<button class="ot-stab${n?"":" empty"}" type="button" role="tab" data-stage="${esc(s)}"><b>${esc(s)}</b><small>${esc(STAGE_YEARS[s]||"")}${STAGE_YEARS[s]?" · ":""}${n} quiz${n===1?"":"zes"}</small><span class="ot-dot" data-sdot="${esc(s)}"></span></button>`; }).join("")}</div>
+      <div class="ot-tools">
+        <div class="ot-search" id="otSearchWrap"><span class="ot-mag">🔍</span><input id="otSearch" type="search" placeholder="Search every stage…" title="Search every stage, e.g. fractions, equations, protractor" autocomplete="off" aria-label="Search quizzes"/><button class="ot-sx" type="button" id="otSearchX" aria-label="Clear search">✕</button></div>
+        <button class="ot-link" type="button" id="otExpand">Expand all</button>
+      </div>
+    </div>
+    <div id="otList"></div>
+    <details class="ot-paste"><summary>Pop-up blocked? Paste a link you generated in a quiz instead</summary>
+      <div class="row"><input id="dtPasteLink" placeholder="Paste a generated quiz link"/><button class="btn sm" id="dtPasteAdd" type="button">Add</button></div>
+    </details>`;
+  box.querySelectorAll("[data-stage]").forEach(b=> b.addEventListener("click", ()=>{
+    OT.stage=b.dataset.stage; lsSet(OT_STAGE_KEY, OT.stage);
+    if(OT.q){ OT.q=""; $("otSearch").value=""; $("otSearchWrap").classList.remove("has"); }
+    otRenderList();
+  }));
+  const si=$("otSearch");
+  si.addEventListener("input", ()=>{ OT.q=si.value.trim(); $("otSearchWrap").classList.toggle("has", Boolean(si.value)); otRenderList(); });
+  si.addEventListener("keydown", e=>{ if(e.key==="Escape" && si.value){ e.stopPropagation(); e.preventDefault(); $("otSearchX").click(); } });
+  $("otSearchX").addEventListener("click", ()=>{ si.value=""; OT.q=""; $("otSearchWrap").classList.remove("has"); otRenderList(); si.focus(); });
+  $("otExpand").addEventListener("click", ()=>{
+    const cards=[...modalEl.querySelectorAll(".ot-topic")]; const openAll=cards.some(c=>!c.classList.contains("open"));
+    cards.forEach(c=>{ c.classList.toggle("open", openAll); c.querySelector(".ot-thd").setAttribute("aria-expanded", String(openAll)); if(!OT.q){ openAll?OT.open.add(c.dataset.topic):OT.open.delete(c.dataset.topic); } });
+    otPaintExpand();
+  });
+  $("dtPasteAdd").addEventListener("click", addPastedLink);
+  // One delegated listener for everything inside the list (it is re-rendered).
+  $("otList").addEventListener("click", otListClick);
+  $("otList").addEventListener("change", e=>{ const cb=e.target.closest("input[data-whole]"); if(cb) toggleWholeQuiz(cb.dataset.whole, cb.checked); });
+  otRenderList();
+}
+
+// Word-start search over title, note, topic and stage: "frac per" finds Fraction to Percentage.
+function otTokens(q){ return q.toLowerCase().split(/\s+/).filter(Boolean); }
+function otMatches(q, toks){
+  const hay=(q.short+" "+q.note+" "+q.keys.map(k=>OT.cat.topics[k].name+" "+OT.cat.topics[k].stage).join(" ")).toLowerCase();
+  const words=hay.split(/[^a-z0-9×÷+−]+/).filter(Boolean);
+  return toks.every(t=> words.some(w=>w.startsWith(t)));
+}
+function otHighlight(text, toks){
+  let h=esc(text); if(!toks.length) return h;
+  toks.forEach(t=>{ const re=new RegExp("(^|[^a-z0-9])("+t.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+")","gi"); h=h.replace(re,"$1<mark>$2</mark>"); });
+  return h;
+}
+
+function otRenderList(){
+  const list=$("otList"); if(!list) return;
+  const c=OT.cat; const toks=otTokens(OT.q);
+  modalEl.querySelectorAll("[data-stage]").forEach(b=>{ const on=!OT.q && b.dataset.stage===OT.stage; b.classList.toggle("on", on); b.setAttribute("aria-selected", String(on)); });
+  let html="";
+  if(OT.q){
+    // Search: every stage, each quiz once, under the topic it belongs to first.
+    const hits=c.quizzes.filter(q=>otMatches(q,toks));
+    const groups=new Map();
+    hits.forEach(q=>{ const k=q.keys[0]; if(!groups.has(k)) groups.set(k,[]); groups.get(k).push(q); });
+    const keys=[...groups.keys()].sort((a,b)=> (stageNum(c.topics[a].stage)-stageNum(c.topics[b].stage)) || (c.strandOrder.indexOf(c.topics[a].strand)-c.strandOrder.indexOf(c.topics[b].strand)) || (c.topics[a].order-c.topics[b].order));
+    html=`<div class="ot-status">${hits.length?`${hits.length} quiz${hits.length===1?"":"zes"} match “${esc(OT.q)}” across all stages`:""}</div>`;
+    if(!hits.length) html+=`<div class="ot-empty"><div class="big">🔎</div><strong>No quizzes match “${esc(OT.q)}”</strong>Try a topic name such as “integers” or “angles”, or clear the search to browse by stage.</div>`;
+    let lastStage="";
+    keys.forEach(k=>{ const tp=c.topics[k];
+      if(tp.stage!==lastStage){ html+=`<div class="ot-strand"><i></i>${esc(tp.stage)}</div>`; lastStage=tp.stage; }
+      html+=otTopicHTML(tp, groups.get(k), true, toks, true);
+    });
+  }else{
+    const tps=stageTopics(OT.stage);
+    if(!tps.length){
+      html=`<div class="ot-empty"><div class="big">🌱</div><strong>No ${esc(OT.stage)} online quizzes yet</strong>They will appear here, sorted into topics, as they are added to the site.</div>`;
+    }else{
+      const autoOpen = tps.length<=2;
+      let lastStrand="";
+      tps.forEach(tp=>{
+        if(tp.strand!==lastStrand){ html+=`<div class="ot-strand ${STRAND_COLOUR[tp.strand]||""}"><i></i>${esc(c.strandName[tp.strand]||tp.strand)}</div>`; lastStrand=tp.strand; }
+        html+=otTopicHTML(tp, tp.quizzes, autoOpen || OT.open.has(tp.key), [], false);
+      });
+      html+=`<p class="ot-foot">Showing the ${tps.length} ${esc(OT.stage)} topic${tps.length===1?"":"s"} that have an online quiz${c.fromSyllabus?"":" (topic names are approximate — the syllabus list did not load)"}.</p>`;
+    }
+  }
+  list.innerHTML=html;
+  otPaint();
+}
+function otTopicHTML(tp, qs, open, toks, inSearch){
+  const n=new Set(tp.quizzes.map(q=>q.toolId)).size;
+  const hasOv=tp.quizzes.some(q=>q.overview);
+  const col=STRAND_COLOUR[tp.strand]||"";
+  const icon=tp.icon || (tp.name||"?").trim().charAt(0);
+  const ov=qs.filter(q=>q.overview), focused=qs.filter(q=>!q.overview);
+  return `<section class="ot-topic${open?" open":""}" data-topic="${esc(tp.key)}">
+    <button class="ot-thd" type="button" aria-expanded="${open}">
+      <span class="ot-ticon ${col}" aria-hidden="true">${esc(icon)}</span>
+      <span class="ot-tname"><strong>${esc(tp.name)}${inSearch?` <span class="muted" style="font-weight:600;font-size:.8rem">· ${esc(tp.stage)}</span>`:""}</strong>
+        <small>${n} quiz${n===1?"":"zes"}${hasOv?" · includes a whole-topic quiz":""}</small></span>
+      <span class="ot-tsel" data-tsel="${esc(tp.key)}"></span>
+      <span class="ot-chev" aria-hidden="true">›</span>
+    </button>
+    <div class="ot-tbody">
+      ${ov.map(q=>otOverviewHTML(q)).join("")}
+      ${ov.length&&focused.length?`<div class="ot-sub">Focused quizzes · one idea each</div>`:""}
+      ${focused.map(q=>otQuizHTML(q, tp, toks)).join("")}
+    </div>
+  </section>`;
+}
+function otOverviewHTML(q){
+  return `<div class="ot-ov" data-ov="${esc(q.toolId)}">
+    <div class="ot-ovtx"><span class="ot-ovtag">📚 Whole-topic quiz</span>
+      <strong>${esc(q.short)}</strong>
+      <span class="d">${esc(q.note || "Covers the whole topic.")} Set all of it, or choose just the question types you want.</span>
+      <span class="ot-ovcust" data-ovcust="${esc(q.toolId)}"></span></div>
+    <div class="ot-ovact">
+      <button class="ot-ovbtn" type="button" data-whole="${esc(q.toolId)}" aria-pressed="false">＋ Add whole quiz</button>
+      <button class="ot-ovbtn alt" type="button" data-cust="${esc(q.toolId)}">Choose question types ↗</button>
+    </div>
+  </div>`;
+}
+function otQuizHTML(q, tp, toks){
+  const others=q.stages.filter(s=>s!==tp.stage);
+  return `<label class="ot-q" data-qrow="${esc(q.toolId)}">
+    <input type="checkbox" data-whole="${esc(q.toolId)}"/><span class="ot-box" aria-hidden="true"></span>
+    <span class="ot-qtx"><span class="ot-qt">${otHighlight(q.short, toks)}</span>${q.note?`<span class="ot-qn" title="${esc(q.note)}">${esc(q.note)}</span>`:""}</span>
+    ${others.length?`<span class="ot-also" title="This quiz is also listed under ${esc(others.join(" and "))}">Also ${esc(others.join(", "))}</span>`:""}
+    <a class="ot-open" href="${esc(q.launchUrl)}" target="_blank" rel="noopener" title="Open the quiz in a new tab to preview it" aria-label="Preview ${esc(q.short)}">↗</a>
+  </label>`;
+}
+function otListClick(e){
+  const hd=e.target.closest(".ot-thd");
+  if(hd){ const sec=hd.closest(".ot-topic"); const open=!sec.classList.contains("open"); sec.classList.toggle("open", open); hd.setAttribute("aria-expanded", String(open));
+    if(!OT.q){ open?OT.open.add(sec.dataset.topic):OT.open.delete(sec.dataset.topic); } otPaintExpand(); return; }
+  const wb=e.target.closest("button[data-whole]");
+  if(wb){ toggleWholeQuiz(wb.dataset.whole, wb.getAttribute("aria-pressed")!=="true"); return; }
+  const cb=e.target.closest("[data-cust]");
+  if(cb){ openSubsetBuilder(cb.dataset.cust); return; }
+}
+function otPaintExpand(){ const b=$("otExpand"); if(!b) return; const cards=[...modalEl.querySelectorAll(".ot-topic")]; b.hidden=!cards.length; b.textContent=cards.length && cards.every(c=>c.classList.contains("open")) ? "Collapse all" : "Expand all"; }
+function toggleWholeQuiz(toolId, on){
+  const q=OT&&OT.cat.byId[toolId]; if(!q) return;
+  const i=dtSelected.findIndex(s=>s.toolId===toolId&&s.mode==="whole");
+  if(on && i<0) dtSelected.push({ toolId, title:q.title, launchUrl:q.launchUrl, mode:"whole" });
+  if(!on && i>=0) dtSelected.splice(i,1);
+  otPaint();
+}
+// Paint every tick, badge and count from dtSelected (the single source of truth).
+function otPaint(){
+  if(OT){
+    const whole=new Set(dtSelected.filter(s=>s.mode==="whole").map(s=>s.toolId));
+    modalEl.querySelectorAll("#otList [data-whole]").forEach(el=>{
+      const on=whole.has(el.dataset.whole);
+      if(el.tagName==="INPUT"){ el.checked=on; el.closest(".ot-q")?.classList.toggle("on", on); }
+      else { el.setAttribute("aria-pressed", String(on)); el.textContent = on ? "✓ Whole quiz added" : "＋ Add whole quiz"; }
+    });
+    modalEl.querySelectorAll("[data-ov]").forEach(el=>{
+      const id=el.dataset.ov; const nc=dtSelected.filter(s=>s.toolId===id&&s.mode==="custom").length;
+      el.classList.toggle("on", whole.has(id)||nc>0);
+      const c=el.querySelector("[data-ovcust]"); if(c) c.textContent = nc ? `✓ ${nc} version${nc===1?"":"s"} with chosen question types added` : "";
+    });
+    modalEl.querySelectorAll("[data-tsel]").forEach(el=>{
+      const tp=OT.cat.topics[el.dataset.tsel]; if(!tp) return;
+      const ids=new Set(tp.quizzes.map(q=>q.toolId)); const n=dtSelected.filter(s=>ids.has(s.toolId)).length;
+      el.textContent=`${n} chosen`; el.classList.toggle("show", n>0);
+    });
+    modalEl.querySelectorAll("[data-sdot]").forEach(el=>{
+      const st=el.dataset.sdot; const n=dtSelected.filter(s=>{ const q=OT.cat.byId[s.toolId]; return q && q.stages.includes(st); }).length;
+      el.textContent=n; el.classList.toggle("show", n>0);
+    });
+    otPaintExpand();
+  }
+  renderDtSelected();
+}
+
 // Normalise a full builder URL to a site-absolute path so the stored task works
 // on any origin (the teacher may build on localhost but students open it live).
 function siteRelUrl(u){ try{ const x=new URL(u, location.href); return x.pathname + x.search; }catch(e){ return u; } }
-function toggleWhole(cb){
-  const toolId=cb.value;
-  if(cb.checked){ if(!dtSelected.some(s=>s.toolId===toolId&&s.mode==="whole")) dtSelected.push({toolId, title:cb.dataset.title, launchUrl:cb.dataset.url, mode:"whole"}); }
-  else { const i=dtSelected.findIndex(s=>s.toolId===toolId&&s.mode==="whole"); if(i>=0) dtSelected.splice(i,1); }
-  renderDtSelected();
+function customDetail(url){
+  try{
+    const p=new URL(url, location.origin).searchParams; const bits=[];
+    const lv=p.get("level"); if(lv) bits.push(lv.charAt(0).toUpperCase()+lv.slice(1));
+    const ty=(p.get("types")||"").split(",").filter(Boolean).length; if(ty) bits.push(`${ty} question type${ty===1?"":"s"}`);
+    const n=p.get("count"); if(n) bits.push(`${n} questions`);
+    return bits.join(" · ") || "Chosen question types";
+  }catch(e){ return "Chosen question types"; }
 }
 function openSubsetBuilder(toolId){
   const q=BUILDER_QUIZZES.find(x=>x.toolId===toolId); const m=$("dtBuildMsg");
   if(!q) return;
   dtPopup = window.open(q.launchUrl, "mmtSubsetBuilder", "width=920,height=820");
   if(!dtPopup){ m.className="msg bad show"; m.textContent="Pop-up blocked — allow pop-ups for this site, or use the paste option under the list."; return; }
-  m.className="msg info show"; m.innerHTML=`Set up <strong>${esc(q.title)}</strong> in the pop-up and click <strong>Generate unique link</strong> — I'll pull it in automatically.`;
+  m.className="msg info show"; m.innerHTML=`Choose the question types for <strong>${esc(q.title)}</strong> in the pop-up, then click <strong>Generate unique link</strong>. It will appear here by itself.`;
   if(dtPoll) clearInterval(dtPoll);
+  // Links already pulled in from this pop-up are never pulled in again, so a
+  // version the teacher removed (or has just set) does not reappear by itself.
+  const pulled=new Set();
   dtPoll = setInterval(()=>{
     try{
-      if(!dtPopup || dtPopup.closed){ clearInterval(dtPoll); dtPoll=null; return; }
+      if(!dtPopup || dtPopup.closed){ clearInterval(dtPoll); dtPoll=null; if(m.classList.contains("info")) m.className="msg"; return; }
       const el = dtPopup.document.getElementById("assignmentLinkOut");
       const val = el && el.value ? el.value.trim() : "";
       if(val && /[?&](assignment=1|types=)/.test(val)){
         const rel = siteRelUrl(val);
-        if(!dtSelected.some(s=>s.launchUrl===rel)){
+        if(!pulled.has(rel) && !dtSelected.some(s=>s.launchUrl===rel)){
+          pulled.add(rel);
           dtSelected.push({ toolId:q.toolId, title:`${q.title} (sub-topics)`, launchUrl:rel, mode:"custom" });
-          renderDtSelected();
-          m.className="msg ok show"; m.innerHTML=`Added a custom <strong>${esc(q.title)}</strong> — you can close the pop-up.`;
+          otPaint();
+          m.className="msg ok show"; m.innerHTML=`Added <strong>${esc(q.title)}</strong> with your chosen question types. You can close the pop-up, or generate another version.`;
         }
       }
     }catch(err){ /* not ready / blocked — keep polling; paste fallback covers it */ }
@@ -886,33 +1268,52 @@ function addPastedLink(){
   const v=$("dtPasteLink").value.trim(); const m=$("dtBuildMsg");
   if(!v) return;
   const q=BUILDER_QUIZZES.find(x=>v.includes(x.launchUrl));
-  if(!q){ m.className="msg bad show"; m.textContent="That doesn't look like one of the subset-quiz links."; return; }
+  if(!q){ m.className="msg bad show"; m.textContent="That doesn't look like a link from one of the whole-topic quizzes."; return; }
   const rel=siteRelUrl(v);
-  if(!dtSelected.some(s=>s.launchUrl===rel)){ dtSelected.push({ toolId:q.toolId, title:`${q.title} (sub-topics)`, launchUrl:rel, mode:"custom" }); renderDtSelected(); }
-  $("dtPasteLink").value=""; m.className="msg ok show"; m.textContent="Added to the list.";
+  if(!dtSelected.some(s=>s.launchUrl===rel)){ dtSelected.push({ toolId:q.toolId, title:`${q.title} (sub-topics)`, launchUrl:rel, mode:"custom" }); otPaint(); }
+  $("dtPasteLink").value=""; m.className="msg ok show"; m.textContent="Added to your task.";
 }
 function renderDtSelected(){
-  const box=$("dtSelList"); const cnt=$("dtCount"); if(!box) return;
-  if(cnt) cnt.textContent=dtSelected.length;
-  if(!dtSelected.length){ box.innerHTML=`<p class="muted" style="font-size:.85rem">Nothing selected yet — tick a quiz above, or choose sub-topics.</p>`; return; }
-  box.innerHTML=dtSelected.map((s,i)=>`<div class="settask"><div><strong>${s.mode==="custom"?"🔗":"📝"} ${esc(s.title)}</strong>${s.mode==="custom"?`<div class="meta" style="word-break:break-all">${esc(s.launchUrl)}</div>`:`<span class="meta"> · whole quiz</span>`}</div><button class="btn sm" type="button" data-rmsel="${i}">Remove</button></div>`).join("");
-  box.querySelectorAll("[data-rmsel]").forEach(b=> b.addEventListener("click", ()=>{ const i=Number(b.dataset.rmsel); const removed=dtSelected.splice(i,1)[0]; if(removed && removed.mode==="whole"){ const cb=[...modalEl.querySelectorAll(".dtWhole")].find(c=>c.value===removed.toolId); if(cb) cb.checked=false; } renderDtSelected(); }));
+  const box=$("dtSelList"); if(!box) return;
+  const n=dtSelected.length;
+  $("dtCount").textContent=n;
+  $("otClear").hidden = n<2;
+  const cls=$("dtClass").value, due=$("dtDue").value;
+  const dueTxt = due ? new Date(due+"T12:00:00").toLocaleDateString(undefined,{weekday:"short", day:"numeric", month:"short"}) : "";
+  $("otFor").innerHTML = (cls ? `For <b>${esc(cls)}</b>` : `<span class="warn">Choose a class above</span>`) + (dueTxt ? ` · due <b>${esc(dueTxt)}</b>` : ` · no due date`);
+  const btn=$("dtBtn");
+  if(btn && !btn.dataset.busy){ btn.textContent = n>1 ? `Set ${n} tasks` : "Set task"; btn.disabled = !n; }
+  if(!n){ otShown=new Set(); box.innerHTML=`<div class="ot-cempty"><span class="big">🗂️</span>Nothing chosen yet.<br/>Pick a stage, open a topic and tick the quizzes you want.</div>`; return; }
+  const shown=otShown; otShown=new Set(dtSelected.map(s=>s.mode+"|"+s.launchUrl));
+  box.innerHTML=dtSelected.map((s,i)=>{
+    const isNew=!shown.has(s.mode+"|"+s.launchUrl);
+    const q=OT&&OT.cat.byId[s.toolId]; const tp=q&&OT.cat.topics[q.keys[0]];
+    const where = tp ? `${tp.stage} · ${tp.name}` : "";
+    const name = q ? q.short : shortTitle(s.title.replace(/\s*\(sub-topics\)$/,""));
+    const detail = s.mode==="custom" ? `<small class="cust" title="${esc(s.launchUrl)}">${esc(customDetail(s.launchUrl))}</small>` : (q&&q.overview ? `<small>Whole quiz</small>` : "");
+    return `<div class="ot-ci${isNew?" new":""}"><span class="ic" aria-hidden="true">${s.mode==="custom"?"🎯":(q&&q.overview?"📚":"📝")}</span>
+      <div class="tx"><strong>${esc(name)}</strong>${detail}${where?`<small>${esc(where)}</small>`:""}</div>
+      <button class="ot-cx" type="button" data-rmsel="${i}" title="Remove" aria-label="Remove ${esc(name)}">✕</button></div>`;
+  }).join("");
+  box.querySelectorAll("[data-rmsel]").forEach(b=> b.addEventListener("click", ()=>{ dtSelected.splice(Number(b.dataset.rmsel),1); otPaint(); }));
 }
 async function doDashTask(){
   const className=$("dtClass").value, dueVal=$("dtDue").value; const m=$("dtMsg"); const btn=$("dtBtn");
-  if(!className){ m.className="msg bad show"; m.textContent="Choose a class."; return; }
+  if(!className){ m.className="msg bad show"; m.textContent="Choose a class first."; $("dtClass").focus(); return; }
   const quizzes=dtSelected.map(s=>({toolId:s.toolId, title:s.title, launchUrl:s.launchUrl}));
-  if(!quizzes.length){ m.className="msg bad show"; m.textContent="Pick at least one quiz, or choose sub-topics."; return; }
+  if(!quizzes.length){ m.className="msg bad show"; m.textContent="Pick at least one quiz."; return; }
   const dueAt = dueVal ? new Date(dueVal+"T23:59:59").getTime() : null;
-  btn.disabled=true; btn.textContent="Setting…";
+  btn.disabled=true; btn.dataset.busy="1"; btn.textContent="Setting…";
   try{
     const res=await createDashboardTask({ className, quizzes, dueAt });
     const n=(res.created||[]).length; taskBadge += n; refreshStats();
-    m.className="msg ok show"; m.innerHTML=`Set <strong>${n}</strong> task${n===1?"":"s"} for <strong>${esc(className)}</strong>${dueVal?`, due <strong>${new Date(dueVal).toLocaleDateString()}</strong>`:""}. Students see a pop-up on their dashboard.`;
-    modalEl.querySelectorAll(".dtWhole:checked").forEach(i=>i.checked=false);
-    dtSelected=[]; renderDtSelected();
+    lsSet(OT_CLASS_KEY, className);
+    m.className="msg ok show"; m.innerHTML=`✓ Set <strong>${n}</strong> task${n===1?"":"s"} for <strong>${esc(className)}</strong>${dueVal?`, due <strong>${new Date(dueVal+"T12:00:00").toLocaleDateString()}</strong>`:""}. Students will see ${n===1?"it":"them"} on their dashboard.`;
+    $("dtBuildMsg").className="msg";
+    if(dtPoll){ clearInterval(dtPoll); dtPoll=null; }
+    dtSelected=[];
   }catch(err){ m.className="msg bad show"; m.textContent=(err&&err.message)||"Could not set the task."; }
-  finally{ btn.disabled=false; btn.textContent="Set task"; }
+  finally{ delete btn.dataset.busy; otPaint(); }
 }
 // Students in a task's class who have any achievement for the assigned quiz.
 function dashCompleters(t){
@@ -928,7 +1329,7 @@ async function loadDashTasks(className){
     if(className) constraints.push(where("className","==",className));
     const snap=await getDocs(query(collection(db,"dashboardAssignments"),...constraints));
     const rows=snap.docs.map(d=>({id:d.id,...d.data()})).filter(t=>t.active!==false).sort((a,b)=>(b.assignedAt||0)-(a.assignedAt||0));
-    if(!rows.length){ box.innerHTML=`<p class="muted">No dashboard tasks set${className?` for ${esc(className)}`:""} yet.</p>`; return; }
+    if(!rows.length){ box.innerHTML=`<p class="muted">No online tasks set${className?` for ${esc(className)}`:""} yet.</p>`; return; }
     box.innerHTML=`<table><thead><tr><th>Class</th><th>Quiz</th><th>Due</th><th>Done</th><th></th></tr></thead><tbody>`+
       rows.map(t=>{ const classSize=students.filter(s=>(s.className||"")===(t.className||"")).length; const done=dashCompleters(t).size;
         return `<tr><td>${esc(t.className||"—")}</td><td>${esc(t.title||t.toolId)}</td>
@@ -936,10 +1337,10 @@ async function loadDashTasks(className){
         <td><span class="pct ${done>=classSize&&classSize?'hi':done?'mid':'lo'}">${done}/${classSize||"—"}</span></td>
         <td><div class="task-actions"><button class="task-x" data-drm="${esc(t.id)}" type="button" title="Remove" aria-label="Remove">✕</button></div></td></tr>`;}).join("")+`</tbody></table>`;
     box.querySelectorAll("[data-drm]").forEach(b=> b.addEventListener("click", ()=> removeDashTask(b.dataset.drm, className)));
-  }catch(err){ box.innerHTML=`<p class="muted">Could not load dashboard tasks${err&&err.message?": "+esc(err.message):""}.</p>`; }
+  }catch(err){ box.innerHTML=`<p class="muted">Could not load online tasks${err&&err.message?": "+esc(err.message):""}.</p>`; }
 }
 async function removeDashTask(id, className){
-  if(!confirm("Remove this dashboard task? Students will no longer see it.")) return;
+  if(!confirm("Remove this online task? Students will no longer see it.")) return;
   try{ await setDashboardTaskActive(id, false); taskBadge=Math.max(0,taskBadge-1); refreshStats(); loadDashTasks(className||""); }
   catch(err){ alert((err&&err.message)||"Could not remove the task."); }
 }
@@ -1257,16 +1658,16 @@ async function openTasks(){
     <div class="modal-body">
       <div class="filters"><select id="mtClass"><option value="">All classes</option>${classes.map(c=>`<option>${esc(c)}</option>`).join("")}</select>
         <span class="spacer" style="flex:1"></span>
-        <button class="btn sm" type="button" id="mtNewDash">+ Dashboard task</button></div>
+        <button class="btn sm" type="button" id="mtNewDash">+ Online task</button></div>
       <div id="mtAdvWrap" hidden>
         <div class="sectionlabel" style="margin-left:0">Adventure tasks set earlier</div>
         <p class="muted" style="margin:-4px 0 10px">The Adventure's storyline now guides students, so new Adventure tasks aren't set from here. These older ones still show for students until you remove them.</p>
         <div id="mtBody"><p class="muted">Loading…</p></div>
       </div>
-      <div class="sectionlabel" style="margin-left:0">Dashboard tasks (online quizzes)</div>
+      <div class="sectionlabel" style="margin-left:0">Online tasks</div>
       <div id="mtDashBody"><p class="muted">Loading…</p></div>
     </div>${foot("")}`, true);
-  $("mtNewDash").addEventListener("click", ()=>openDashTask());
+  $("mtNewDash").addEventListener("click", ()=>openDashTask($("mtClass").value));
   $("mtClass").addEventListener("change", ()=>{ loadTasks($("mtClass").value); loadDashTasks($("mtClass").value); });
   currentRefresh=()=>{ const c=$("mtClass")?$("mtClass").value:""; loadTasks(c); loadDashTasks(c); };
   loadTasks(""); loadDashTasks("");

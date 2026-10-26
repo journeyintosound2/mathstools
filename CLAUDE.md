@@ -91,6 +91,41 @@
 > §2 "TWO folders", §3 deploy paths and §5's `mathstools-main 2` heading below
 > describe the OLD layout — this block supersedes them.
 >
+> **NEW (2026-10-27, session — being pushed): "SET AN ONLINE TASK" — QUIZ PICKER REDESIGN.**
+> `portal/teacher/index.html` only (no functions, rules or registry change). The tile, modal
+> and Manage Tasks wording say **Set an Online Task / Online tasks** now that Adventure tasks
+> are retired; ids (`tileDashTask`, `dtClass`, `dtBtn`…) and the `dashboardAssignments`
+> collection keep their old names.
+> * **STAGE TABS → STRAND → COLLAPSIBLE TOPIC CARDS → QUIZZES**, with a "Your task" cart
+>   (sticky, right; stacks below 880px). The modal is `.modal.xl` (1120px).
+> * **THE PICKER LISTS NO QUIZZES.** On first open it loads `resources/resourcesManifest.js`
+>   (stages, strands, topics, outcomes) and `resources/toolLinks.js` (outcome ← quiz URL) and
+>   files every enabled registry quiz under the topic(s) its URL is listed under
+>   (`buildCatalogue()`). A new quiz finds its stage and topic once it is in the registry AND
+>   toolLinks.js. Cross-listed quizzes (Reading a Protractor, Fraction of an Amount, Factor
+>   Circles, Perimeter & Area of Rectangles) show in both stages with an "Also Stage n" chip;
+>   every tick is painted from `dtSelected` (`otPaint()`), so they stay in step. If the two
+>   files fail to load, quizzes fall back to registry `stage` + `TOPIC_AREA_NAME`.
+> * Tabs Stage 3/4/5 always show (`STAGE_TABS_ALWAYS`; Stage 5 shows an empty state); any
+>   other stage gets a tab when it has a quiz. Last stage + last class remembered
+>   (`mmt-ot-stage`, `mmt-ot-class`); one class = preselected; "+ Online task" in Manage
+>   Tasks passes its class filter. Topics with no online quiz are hidden.
+> * **WHOLE-TOPIC QUIZZES LIVE INSIDE THEIR TOPIC** as an overview card ("Add whole quiz" /
+>   "Choose question types ↗"), not a separate "Broad topic" list. `BUILDER_QUIZZES` now has
+>   FIVE: integers, fdp, algebraic-techniques, **equations-quiz** (it always had the builder,
+>   it just wasn't listed) and angle-relationships. Custom versions show in the cart as
+>   "Mild · 4 question types · 20 questions" (`customDetail()` reads level/types/count).
+> * Search box searches every stage (word-start match over title, note, topic, stage).
+>   Rows show the toolLinks `note` (minus "Saves to the student dashboard."), a preview ↗
+>   link, and the title without "— Student Quiz" (`shortTitle()`); the STORED task title is
+>   still the full registry title. Quick due dates: This Friday / In a week / In 2 weeks.
+> * Fixed: the builder pop-up poll re-added a custom quiz after it was set or removed — it
+>   now ignores links it already pulled in and stops when the task is set.
+> * Verified: 92 Playwright checks with stubbed Firebase (every quiz placed in its home
+>   stage, no duplicates per stage, cross-listed ticks, overview toggle, cart remove, search,
+>   due chips, paste + pop-up builder, payload to `createDashboardTask`, class remembered),
+>   fallback with the syllabus files blocked, no overflow at 1440/1366/1024/390.
+>
 > **NEW (2026-10-24, session — being pushed): TEACHER EMAILS, PROFILES AND ADMIN EMAIL.**
 > Notes: project doc `claude/teacher-profiles-and-email.md` (setup steps for Resend).
 > * **Teacher docs now carry `email`, `position`, `emailUpdates`** (absent = true),
