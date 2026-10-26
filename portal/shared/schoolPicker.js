@@ -55,7 +55,11 @@ export function loadSchools() {
       o._name = tokens(o.name); o._all = o._name.concat(tokens(o.suburb), [norm(o.state), o.postcode]); o._n = norm(o.name); o._key = nameKey(o.name);
       return o;
     });
-    return { list, source: (j && j.source) || "", byId: new Map(list.map((o) => [o.id, o])) };
+    const byId = new Map(list.map((o) => [o.id, o]));
+    // Old IDs (e.g. "NSW-8109" from the earlier NSW-only list) still resolve, to the current school.
+    const legacy = (j && j.legacy) || {};
+    for (const [old, cur] of Object.entries(legacy)) { const o = byId.get(String(cur)); if (o && !byId.has(old)) byId.set(old, o); }
+    return { list, source: (j && j.source) || "", attribution: (j && j.attribution) || "", legacy, byId };
   });
   return schoolsP;
 }
@@ -328,7 +332,7 @@ export function mountSchoolPicker(el, opts = {}) {
         $("OsSchool").value = v.school || ""; $("OsTown").value = v.suburb || ""; $("OsRegion").value = v.state || "";
       } else if (v.schoolId) {
         chosen = { id: v.schoolId, name: v.school || "", suburb: v.suburb || "", state: v.state || "", postcode: v.postcode || "", sector: v.sector || "", type: v.schoolType || "", lat: v.lat, lng: v.lng };
-        loadSchools().then((d) => { const o = d.byId.get(String(v.schoolId)); if (o && chosen && chosen.id === o.id) { chosen = o; paint(); } });
+        loadSchools().then((d) => { const o = d.byId.get(String(v.schoolId)); if (o && chosen && chosen.id === String(v.schoolId)) { chosen = o; paint(); changed(); } }); // also upgrades an old ID
       } else if (v.school) {
         manual = true; $("MName").value = v.school;
         if (v.suburb && v.state) {
@@ -345,7 +349,7 @@ export function mountSchoolPicker(el, opts = {}) {
       if (noSub && suburb) { $("MSub").value = suburb.name; $("MState").value = suburb.state; suburb = null; }
       if (noSchools && mode === "au" && !chosen && !manual) { manual = true; if (!$("MName").value) $("MName").value = $("Q").value.trim(); }
       paint(); changed();
-      $("Src").textContent = s.list.length ? `School list: ${s.source}. Suburbs: ABS (CC BY 4.0).` : "";
+      $("Src").textContent = s.list.length ? `School list: ${s.attribution || s.source}. Suburbs: Australian Bureau of Statistics (CC BY 4.0).` : "";
     }),
   };
   api.set(opts.value || {});

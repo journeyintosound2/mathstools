@@ -202,7 +202,8 @@ export function planImport(csvRows, teachers, { schools = null, suburbs = null, 
     }
     if (["lat", "lng", "locSource"].some((f) => f in changes)) {
       const pin = (o) => (typeof o.lat === "number" && typeof o.lng === "number" ? `${o.lat.toFixed(3)}, ${o.lng.toFixed(3)}${o.locSource ? ` (${PIN_WORD[o.locSource] || o.locSource})` : ""}` : "");
-      diffs.push({ field: "pin", label: "Map pin", from: pin(t), to: pin({ lat: changes.lat !== undefined ? changes.lat : t.lat, lng: changes.lng !== undefined ? changes.lng : t.lng, locSource: changes.locSource !== undefined ? changes.locSource : t.locSource }) });
+      const to = pin({ lat: changes.lat !== undefined ? changes.lat : t.lat, lng: changes.lng !== undefined ? changes.lng : t.lng, locSource: changes.locSource !== undefined ? changes.locSource : t.locSource });
+      if (to !== pin(t)) diffs.push({ field: "pin", label: "Map pin", from: pin(t), to }); // a nudge of a few metres alone isn't worth a line
     }
     out.rows.push({ teacher: t, changes, diffs, notes, problems });
   }

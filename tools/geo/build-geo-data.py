@@ -11,14 +11,19 @@ small JSON files the school picker and the admin map load:
 
 Standard library only (reads .xlsx itself), so it runs on any Mac with python3.
 
-    python3 tools/geo/build-geo-data.py            # NSW public schools + ABS suburbs
-    python3 tools/geo/build-geo-data.py --acara    # national ACARA list (all sectors)
+    python3 tools/geo/build-geo-data.py            # ACARA Australian schools list (all sectors) + ABS suburbs
+    python3 tools/geo/build-geo-data.py --nsw      # fallback: NSW government schools only
 
 Sources and licences
-  * ACARA School Location / School Profile (all Australian schools, all sectors).
-    Downloaded under the My School terms of use — only build with --acara once
-    ACARA has given written permission to republish (copyright@acara.edu.au).
-  * NSW DoE "Master dataset: NSW government school locations" — CC BY 4.0.
+  * ACARA "Australian schools list" (asl.acara.edu.au) — every registered school and
+    campus in Australia, all sectors, updated about 5 times a year. CC BY 4.0;
+    ACARA asked (Oct 2026) that we attribute it as the source. To refresh: on
+    asl.acara.edu.au click Search with every box empty, then "Download search
+    results as: JSON", save it as tools/geo-source/asl-schools-YYYY-MM-DD.json and
+    re-run this script. (Do NOT use the My School "School Location/Profile" xlsx —
+    its terms don't allow republishing.)
+  * NSW DoE "Master dataset: NSW government school locations" — CC BY 4.0. Only
+    used with --nsw, and to translate old "NSW-<code>" school IDs to ACARA IDs.
   * ABS ASGS Edition 3 (2021) Suburbs and Localities, centre points — CC BY 4.0.
 Refresh once a year (new and renamed schools) by re-running the download command
 in the project brief, then this script.
@@ -164,6 +169,38 @@ def acara_schools():
     return out, "ACARA School Location " + re.search(r"(\d{4})", os.path.basename(loc[-1])).group(1)
 
 
+ASL_SECTOR = {("Gov", "N"): "Government", ("Gov", "Y"): "Government", ("NG", "Y"): "Independent", ("NG", "N"): "Catholic"}
+ASL_TYPE = {"Prim": "Primary", "Sec": "Secondary", "Pri/Sec": "Combined", "Special": "Special"}
+
+
+def asl_schools():
+    files = sorted(glob.glob(os.path.join(SRC, "asl-schools-*.json")))
+    if not files:
+        return None
+    data = json.load(open(files[-1], encoding="utf-8-sig"))
+    out, legacy = [], {}
+    for x in data:
+        if x.get("OperationalStatus") != "O":
+            continue                      # open schools only (not closed / proposed)
+        a = (x.get("AddressList") or [{}])[0]
+        g = a.get("GridLocation") or {}
+        lat, lng = num(g.get("Latitude")), num(g.get("Longitude"))
+        sid, name = str(x.get("ACARAId") or "").strip(), (x.get("SchoolName") or "").strip()
+        if not sid or not name or lat is None or lng is None:
+            continue
+        state = state_code(a.get("StateProvince") or "")
+        out.append([sid, name, (a.get("City") or "").strip(), state, str(a.get("PostalCode") or "").strip(),
+                    ASL_SECTOR.get((x.get("SchoolSector"), x.get("IndependentSchool")), ""),
+                    ASL_TYPE.get(x.get("SchoolType"), x.get("SchoolType") or ""), lat, lng])
+        # NSW government schools carry their DoE school code: lets old "NSW-8109" IDs become ACARA IDs
+        if state == "NSW" and x.get("SchoolSector") == "Gov":
+            code = str(x.get("StateProvinceId") or "").split("_")[0].lstrip("0")
+            if code.isdigit():
+                legacy["NSW-" + code] = sid
+    day = re.search(r"(\d{4}-\d{2}-\d{2})", os.path.basename(files[-1]))
+    return out, "ACARA Australian schools list" + (f" (downloaded {day.group(1)})" if day else ""), legacy
+
+
 def nsw_schools():
     path = os.path.join(SRC, "nsw-public-schools.csv")
     if not os.path.exists(path):
@@ -230,16 +267,27 @@ def write(name, payload):
 
 def main():
     today = datetime.date.today().isoformat()
-    use_acara = "--acara" in sys.argv
-    schools, source = acara_schools() if use_acara else nsw_schools()
+    legacy = {}
+    if "--acara" in sys.argv:
+        raise SystemExit("--acara (My School xlsx) is retired: its terms don't allow republishing. Use the ASL JSON (default).")
+    asl = None if "--nsw" in sys.argv else asl_schools()
+    if asl:
+        schools, source, legacy = asl
+    else:
+        schools, source = nsw_schools()
     schools.sort(key=lambda r: (r[1].lower(), r[3]))
     sectors = {}
     for r in schools:
         sectors[r[5] or "(blank)"] = sectors.get(r[5] or "(blank)", 0) + 1
     print(f"Schools from {source}: {len(schools)}  by sector: {sectors}")
-    write("schools-au.json", {"v": 1, "source": source, "built": today,
-                              "fields": ["id", "name", "suburb", "state", "postcode", "sector", "type", "lat", "lng"],
-                              "rows": schools})
+    payload = {"v": 1, "source": source, "built": today,
+               "attribution": "Australian Curriculum, Assessment and Reporting Authority (ACARA), Australian schools list, CC BY 4.0" if legacy else "NSW Department of Education, CC BY 4.0",
+               "fields": ["id", "name", "suburb", "state", "postcode", "sector", "type", "lat", "lng"],
+               "rows": schools}
+    if legacy:
+        payload["legacy"] = legacy       # old school IDs → current ones (read by loadSchools)
+        print(f"  {len(legacy)} old NSW-list IDs mapped to ACARA IDs")
+    write("schools-au.json", payload)
     suburbs = abs_suburbs()
     print(f"Suburbs from ABS ASGS 2021: {len(suburbs)}")
     write("suburbs-au.json", {"v": 1, "source": "ABS ASGS Edition 3 (2021) Suburbs and Localities", "built": today,
