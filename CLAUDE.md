@@ -267,7 +267,43 @@
 >   * Verified: 33,627 checks (every rule/table/slip/far term re-derived across all levels ×
 >     count × equation form, nothing spilling a page or card at 8 configurations, key mirrors
 >     the paper, no answers on student pages, PDF pages = preview). Harness: session scratch.
-> * Possible next: student quiz.
+> * **STUDENT QUIZZES (2026-10-27): TWO PAGES, ONE ENGINE.**
+>   `online-quizzes/stage-4/algebra/counting-strategies-first-quadrant.html` and
+>   `…/counting-strategies-all-quadrants.html` are thin shells (PWA block, Cloudflare line,
+>   `#mmtAuthSlot`, `#mmtSubmitSlot`) that set `window.CSQ = {quad, toolId, tool, title, mastery}`
+>   and load the tool's `contexts.js`, then the SHARED `counting-strategies-quiz/quiz.js` + `quiz.css`,
+>   then `/portal/shared/quizAuthUI.js`; `earlySubmit.js` is `import()`ed. Registry entries
+>   `counting-strategies-{first-quadrant,all-quadrants}-quiz` (achievementToolName
+>   `…-student-quiz`, topics algebra, Stage 4), toolLinks "Student quiz" rows under MA4-LIN-C-01,
+>   homepage mini cards (Online Quizzes pill 27 → 29; it had drifted from 25), and two live links in the
+>   tool's Tools menu (the greyed "Coming soon" row is gone).
+>   * `quiz.js` = `quiz-core` + the tool's `clEngine` pasted VERBATIM at `/*ENGINE*/` (change the
+>     tool's engine → re-copy it here too).
+>   * **The ladder is APPLICATION, not bigger numbers** (teacher design): Sweet = skip-counting
+>     language (sequence; table that plots LIVE as typed; y = [ ] ± [ ]x frame from "start at /
+>     count by"; read the counting back off an equation). Mild = algebra language (live table from
+>     an equation; what the two numbers mean; equation from words / table / graph; MC "which
+>     equation matches" with swapped / wrong-way / one-step-late distractors). Medium = make the
+>     graph: table from the rule, then CLICK the grid to plot each point (snaps to lattice, one
+>     point per x, click again removes, ghost on hover, Clear my points); plot from a given table.
+>     Spicy = stories (from `contexts.js`), going further (x = 25, x = −10 in 4Q, solve for x),
+>     graph the line incl. a half gradient, what a number in a story equation means.
+>   * All Quadrants: tables x = −3..3 / plot −2..2 with the origin centred; stories stay first quadrant.
+>     First Quadrant: no negative x or y anywhere (checked over 1,000 papers per page).
+>   * Graphs: square cells, `yScale` prefers a friendly scale with EVERY point on a gridline, never
+>     finer than 1 for whole numbers, ≤ 14 squares; anything to READ or PLOT is on a crossing.
+>   * Marking: only the FIRST check of each part scores; a question is right when every part is
+>     right first time; invalid input (empty, no sign chosen) uses nothing up; Next settles an
+>     unfinished question as wrong. A part that is right locks. Corrections, the green rings and
+>     the line appear only after marking. Payload: tool, topic, level, levelKey, score, total,
+>     percent, masteryTopic `counting-strategies-linear`, types[] (count/table/equation/meaning/
+>     plot/apply as right/total, level:x, quadrants:first|all), certificateText + MMTSubmit
+>     fields — NO typed answers. The certificate's `.certSub` line belongs to quizAuthUI (it
+>     repaints it); our own "title · level · %" line is `#certLine`.
+>   * Verified: 1,000 generated papers per page (rules, gridlines, first-quadrant signs, distinct
+>     MC options), every level played to 10/10 through the UI (incl. clicking the plot points),
+>     wrong-first-then-fixed scores 0, empty checks free, skip = wrong (8/10 run), no answer
+>     leaks before marking, payload keys whitelisted, no horizontal scroll at 1366/1024/1920/390.
 >
 > **NEW (2026-10-19, session — being pushed): NUMBER SUM CHAIN UPGRADE.**
 > `interactive-tools/stage-5/measurement-space/square-sum-chain/` (MA5-NET-P-01), now

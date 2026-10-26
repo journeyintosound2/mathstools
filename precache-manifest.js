@@ -1,6 +1,6 @@
 /* Written by tools/build-pwa.mjs — do not edit by hand. */
 self.MMT_PRECACHE = {
- "version": "36e133daa6",
+ "version": "23c9b375ab",
  "files": [
   "./",
   "assessment/exam-builder/app.js",
@@ -849,6 +849,10 @@ self.MMT_PRECACHE = {
   "online-quizzes/stage-3/number/whole-number-zoom.html",
   "online-quizzes/stage-4/algebra/algebraic-techniques.html",
   "online-quizzes/stage-4/algebra/collecting-like-terms.html",
+  "online-quizzes/stage-4/algebra/counting-strategies-all-quadrants.html",
+  "online-quizzes/stage-4/algebra/counting-strategies-first-quadrant.html",
+  "online-quizzes/stage-4/algebra/counting-strategies-quiz/quiz.css",
+  "online-quizzes/stage-4/algebra/counting-strategies-quiz/quiz.js",
   "online-quizzes/stage-4/algebra/double-numberline/student-quiz-add-subtract.html",
   "online-quizzes/stage-4/algebra/double-numberline/student-quiz-mult-div.html",
   "online-quizzes/stage-4/algebra/double-numberline/student-quiz.html",

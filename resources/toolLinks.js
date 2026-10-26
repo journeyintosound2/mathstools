@@ -1223,6 +1223,20 @@ window.MMT_TOOL_LINKS = {
       tags: ["worksheet generator", "printable", "sequence", "table of values", "plot points", "linear relationship", "equation", "gradient", "y-intercept", "answer key", "graphing straight lines", "four quadrants", "y = mx + c"]
     },
     {
+      title: "Counting Strategies \u2014 First Quadrant Student Quiz",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-4/algebra/counting-strategies-first-quadrant.html",
+      note: "Sweet to Spicy, stepping up in how the idea is used: skip-counting language, then algebra language, then completing a table and clicking the grid to plot the points, then worded problems, going further and graphing lines from their equations. First quadrant only. Saves to the student dashboard.",
+      tags: ["quiz", "linear relationship", "skip counting", "table of values", "plot points", "graphing straight lines", "equation", "worded problems", "first quadrant"]
+    },
+    {
+      title: "Counting Strategies \u2014 All Quadrants Student Quiz",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-4/algebra/counting-strategies-all-quadrants.html",
+      note: "The same Sweet to Spicy ladder across all four quadrants: tables and graphs run into negative x and y, counting back as well as on. Saves to the student dashboard.",
+      tags: ["quiz", "linear relationship", "table of values", "plot points", "graphing straight lines", "four quadrants", "negative numbers", "equation", "worded problems"]
+    },
+    {
       title: "Capture the Grid",
       kind: "Game",
       url: "/games/cartesian-capture.html",
