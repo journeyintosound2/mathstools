@@ -302,6 +302,7 @@
     table.tv.noJumps .jh, table.tv.noJumps .jc{ display:none; }
 
     .addRow{ display:flex; justify-content:center; margin-top:8px; }
+    .addRow.top{ margin:0 0 8px; }
     .smallBtn{
       appearance:none; border:1px dashed #cbd5e1; background:#fff; color:var(--muted);
       font-weight:850; font-size:.8rem; padding:6px 12px; border-radius:10px; cursor:pointer;
@@ -463,6 +464,11 @@
             </div>
 
             <div class="settingsRule" role="separator"></div>
+            <div class="settingsHead">The plane</div>
+            <label class="sw"><input type="checkbox" id="quadToggle"><span class="track"></span><span>Four quadrants</span></label>
+            <p class="settingsNote">Go into the negatives: <b>+ Add a row</b> appears above the table for <i>x</i> = &minus;1, &minus;2&hellip;, and auto-scale fits the line from <i>x</i> = &minus;5 to 10 with both axes always on screen.</p>
+
+            <div class="settingsRule" role="separator"></div>
             <div class="settingsHead">Reveals</div>
             <label class="sw"><input type="checkbox" id="jumpsToggle"><span class="track"></span><span>Show the jumps in the table</span></label>
             <label class="sw"><input type="checkbox" id="stepsToggle"><span class="track"></span><span>Show the steps on the graph</span></label>
@@ -530,6 +536,7 @@
           <aside class="panel" id="panel">
             <div class="panelSec">
               <div class="secHead"><span>Table of values</span><button class="linkBtn" id="clearTableBtn" type="button">Clear</button></div>
+              <div class="addRow top" id="addAboveWrap" hidden><button class="smallBtn" id="addAboveBtn" type="button" title="A row above: the next x below the first one (&uarr; on the top row)">+ Add a row</button></div>
               <div class="tvWrap">
                 <table class="tv noJumps" id="tv">
                   <thead><tr><th class="xh"><span class="cap" id="xCap"></span><i>x</i></th><th class="yh"><span class="cap" id="yCap"></span><span class="dot" aria-hidden="true"></span><i>y</i></th><th class="jh"></th></tr></thead>
@@ -878,7 +885,7 @@ if(typeof module !== "undefined") module.exports = CL;
     phase:"intro",
     set:{
       level:saved.level || "mild", dir:saved.dir || "either", rows:saved.rows || 8, mode:saved.mode === "story" ? "story" : "count",
-      jumps:!!saved.jumps, steps:!!saved.steps, labels:!!saved.labels, thru:!!saved.thru,
+      jumps:!!saved.jumps, steps:!!saved.steps, labels:!!saved.labels, thru:!!saved.thru, quad:!!saved.quad,
       minor:saved.minor !== false
     },
     rule:null,
@@ -1112,6 +1119,7 @@ if(typeof module !== "undefined") module.exports = CL;
     } else if(e.key === "ArrowUp"){
       e.preventDefault();
       if(i > 0) focusCell(S.rows[i - 1].id, k);
+      else if(S.set.quad) addAbove();
     } else if(e.key === "ArrowRight" && k === "x" && e.target.selectionStart === e.target.value.length){
       e.preventDefault(); focusCell(r.id, "y");
     } else if(e.key === "ArrowLeft" && k === "y" && e.target.selectionStart === 0){
@@ -1133,6 +1141,20 @@ if(typeof module !== "undefined") module.exports = CL;
     var p = $("#panel"); if(p.scrollHeight > p.clientHeight){ var tr = document.querySelector("#tvBody tr:last-child"); tr && tr.scrollIntoView({block:"nearest"}); }
     changed();
   }
+
+  // FOUR QUADRANTS: a row above the first one, one step further back (x = −1, −2 …)
+  function addAbove(){
+    var first = S.rows[0];
+    var fx = first ? CL.num(first.x) : 1;
+    var nx = S.rows.length > 1 ? CL.num(S.rows[1].x) : NaN;
+    var dx = isFinite(fx) && isFinite(nx) && nx - fx > 0 ? nx - fx : 1;
+    var r = {id:S.nextId++, x:isFinite(fx) ? CL.fmt(fx - dx).replace("\u2212", "-") : "", y:""};
+    S.rows.unshift(r);
+    renderTable(r.id, "y");
+    $("#panel").scrollTop = 0;
+    changed();
+  }
+  function paintQuad(){ $("#addAboveWrap").hidden = !S.set.quad; }
 
   // the jumps: what was added from one row to the next
   function paintJumps(){
@@ -1437,10 +1459,17 @@ if(typeof module !== "undefined") module.exports = CL;
   // never moves the graph — less to watch while the class is connecting the table to the dots.
   // Only a point outside that frame (the 11th term onward, or a slip like 180 for 18) rescales,
   // and from then on every new entry does.
+  // FOUR QUADRANTS (2026-10-27): the frame is the line from x = −5 to x = 10, and 0 is always in
+  // range on both axes, so all four quadrants are on screen before anything is typed.
   var FRAME_TERMS = 10;
   function dataFor(){
-    var xs = [], ys = [];
-    for(var i = 0; i < FRAME_TERMS; i++){ xs.push(i); ys.push(CL.termOf(S.rule, i)); }
+    var xs = [], ys = [], i;
+    if(S.set.quad){
+      for(i = -5; i <= 10; i++){ xs.push(i); ys.push(CL.termOf(S.rule, i)); }
+      ys.push(0);
+    } else {
+      for(i = 0; i < FRAME_TERMS; i++){ xs.push(i); ys.push(CL.termOf(S.rule, i)); }
+    }
     validPts().forEach(function(p){ xs.push(p.x); ys.push(p.y); });
     return {xs:xs, ys:ys};
   }
@@ -1644,6 +1673,7 @@ if(typeof module !== "undefined") module.exports = CL;
     document.querySelectorAll("[data-rows]").forEach(function(b){ b.classList.toggle("on", +b.getAttribute("data-rows") === S.set.rows); });
     $("#jumpsToggle").checked = S.set.jumps; $("#stepsToggle").checked = S.set.steps;
     $("#labelsToggle").checked = S.set.labels; $("#thruToggle").checked = S.set.thru; $("#minorToggle").checked = S.set.minor;
+    $("#quadToggle").checked = S.set.quad; paintQuad();
   }
   document.querySelectorAll("[data-level]").forEach(function(b){ b.addEventListener("click", function(){
     S.set.level = b.getAttribute("data-level"); saveSet(); paintSettings(); closeMenus(); startOver(true);
@@ -1661,6 +1691,11 @@ if(typeof module !== "undefined") module.exports = CL;
     $(p[0]).addEventListener("change", function(){ S.set[p[1]] = this.checked; saveSet(); paintJumps(); refreshMsgs(); draw(); });
   });
   $("#fillBtn").addEventListener("click", fillFromRule);
+  $("#quadToggle").addEventListener("change", function(){
+    S.set.quad = this.checked; saveSet(); paintQuad();
+    if(S.phase === "graph" && S.auto) refit(true); else draw();
+  });
+  $("#addAboveBtn").addEventListener("click", addAbove);
 
   // start over: a new instruction, an empty table, back to the words
   function startOver(newNumbers){

@@ -76,6 +76,10 @@
     .lvChip:has(input:checked) .lvTick::after{ opacity:1; }
     .lvChip:has(input:checked) .lvName{ color:var(--lv); }
     .lvQuick{ display:flex; gap:6px 16px; flex-wrap:wrap; margin-top:8px; }
+    .lvQuick.presets{ margin:-2px 0 10px; align-items:baseline; }
+    .presetLbl{ font-size:13px; font-weight:850; color:var(--muted); }
+    .seqBoxes.caps{ margin-top:-1.2mm; }
+    .seqCap{ text-align:center; font-family:var(--mathFont); font-size:11.5px; color:#4b5563; }
     .linkBtn{ appearance:none; border:0; background:none; color:var(--blue); font-weight:900; cursor:pointer; padding:0; font-size:13px; font-family:inherit; }
     .linkBtn:hover{ text-decoration:underline; }
     @media (max-width:900px){ .lvGrid{ grid-template-columns:repeat(2,minmax(0,1fr)); } }
@@ -271,20 +275,22 @@
         </div>
 
         <div class="band">
-          <p class="bandHead">Sections &mdash; the scaffold fades from A to F</p>
+          <p class="bandHead">Sections &mdash; A to F follow the lesson, G is fluency</p>
+          <div class="lvQuick presets"><span class="presetLbl">Quick set:</span><button class="linkBtn" type="button" data-preset="lesson">The lesson (A&ndash;F)</button><button class="linkBtn" type="button" data-preset="lines">Just graphing lines (G)</button><button class="linkBtn" type="button" data-preset="both">The lesson, then G</button></div>
           <div class="partGrid" id="partGrid"></div>
-          <p class="note">The sections follow the lesson: <b>count</b> it out, put it in a <b>table</b> and <b>plot</b> it, write it as an <b>equation</b>, then go <b>backwards</b> from an equation or a graph, find the <b>mistake</b> in someone else&rsquo;s work, and use the equation to go <b>further</b> than counting can.</p>
+          <p class="note">A&ndash;F follow the lesson: <b>count</b> it out, put it in a <b>table</b> and <b>plot</b> it, write it as an <b>equation</b>, then go <b>backwards</b> from an equation or a graph, find the <b>mistake</b> in someone else&rsquo;s work, and use the equation to go <b>further</b> than counting can. <b>G</b> is graphing fluency: an equation, a table of values and a grid &mdash; no counting words. Its equations follow <b>Write equations as</b>, and with <b>Four quadrants</b> on it graphs from <i>x</i> = &minus;3 to 3.</p>
         </div>
 
         <div class="band">
           <p class="bandHead">Options</p>
           <div class="bandRow">
             <label class="sw"><input type="checkbox" id="nameToggle" checked /><span class="track"></span><span>Name and date</span></label>
+            <label class="sw"><input type="checkbox" id="quadToggle" /><span class="track"></span><span>Four quadrants</span></label>
             <label class="sw"><input type="checkbox" id="numAxesToggle" checked /><span class="track"></span><span>Number the axes for them</span></label>
             <label class="sw"><input type="checkbox" id="thinkToggle" checked /><span class="track"></span><span>A question to argue about at the end</span></label>
             <label class="sw"><input type="checkbox" id="keyToggle" checked /><span class="track"></span><span>Answer key pages</span></label>
           </div>
-          <p class="note">With <b>Number the axes</b> off, the graphs print as blank grids and choosing the scale is part of the question (the key shows one scale that works). Graphs use the same idea as the tool&rsquo;s auto-scale: each axis is scaled to fit its own numbers.</p>
+          <p class="note"><b>Four quadrants</b> takes the counting questions into negative <i>x</i> (counting back from the start): tables and graphs run from <i>x</i> = &minus;2 or &minus;3, and every graph shows both axes. Worded problems stay at <i>x</i> &ge; 0 &mdash; there is no &minus;2 hours. With <b>Number the axes</b> off, the graphs print as blank grids and choosing the scale is part of the question (the key shows one scale that works). Graphs use the same idea as the tool&rsquo;s auto-scale: each axis is scaled to fit its own numbers.</p>
         </div>
 
         <div class="btnRow">
@@ -611,12 +617,15 @@ const SECTIONS = [
   { id:'E', key:'oops',  title:'Spot the mistake',    sub:'', counts:[0,2,4,6], def:2, wide:false,
     blurb:'Someone else&rsquo;s table or equation: a slip, a slip carried on, starting one count late, or the two numbers swapped in the equation.' },
   { id:'F', key:'far',   title:'Go further',          sub:'Use the equation where counting would take too long.', counts:[0,2,4,6], def:2, wide:false,
-    blurb:'The equation, then y when x is 20 and 50, and which x gives a number far down the count.' }
+    blurb:'The equation, then y when x is 20 and 50, and which x gives a number far down the count.' },
+  { id:'G', key:'line',  title:'Graph the line',      sub:'Complete the table, plot the points and rule the line.', counts:[0,2,4,6,8], def:0, wide:false,
+    blurb:'Fluency: an equation, a table of values and a scaled grid &mdash; nothing else. Equations follow <b>Write equations as</b>; turn on <b>Four quadrants</b> for x = &minus;3 to 3.' }
 ];
 
 /* ---------- settings ---------- */
 const DEF = { levels:['sweet','mild','medium','spicy'], dir:'either', form:'start', qtype:'mix', name:true, numAxes:true, think:true, key:true,
-  n:{ seq:4, graph:2, eq:4, back:2, oops:2, far:2 } };
+  quad:false,
+  n:{ seq:4, graph:2, eq:4, back:2, oops:2, far:2, line:0 } };
 let O = JSON.parse(JSON.stringify(DEF));
 let SAVED = null;
 try{ SAVED = JSON.parse(localStorage.getItem(STORE)||'null'); }catch(e){}
@@ -650,9 +659,9 @@ function paintParts(){
   });
 }
 const BIND = [ ['dirSel','dir','v'], ['formSel','form','v'], ['qtypeSel','qtype','v'],
-  ['nameToggle','name','c'], ['numAxesToggle','numAxes','c'], ['thinkToggle','think','c'], ['keyToggle','key','c'] ];
+  ['nameToggle','name','c'], ['quadToggle','quad','c'], ['numAxesToggle','numAxes','c'], ['thinkToggle','think','c'], ['keyToggle','key','c'] ];
 /* a change to the numbers re-rolls; a change to the look keeps the SAME questions */
-const REROLL = { dir:1, qtype:1 };
+const REROLL = { dir:1, qtype:1, quad:1 };
 function syncControls(){
   BIND.forEach(([id,k,t])=>{ const el=$(id); if(t==='c') el.checked=!!O[k]; else el.value=String(O[k]); });
   paintParts();
@@ -680,6 +689,15 @@ document.querySelectorAll('#lvGrid input').forEach(cb=>{
     if(!list.length){ cb.checked = true; paintLevels(true); return; }   /* the last one stays on */
     setLevels(list);
   });
+});
+/* quick sets for the sections */
+const PRESETS = {
+  lesson: { seq:4, graph:2, eq:4, back:2, oops:2, far:2, line:0 },
+  lines:  { seq:0, graph:0, eq:0, back:0, oops:0, far:0, line:6 },
+  both:   { seq:2, graph:1, eq:2, back:2, oops:2, far:2, line:4 }
+};
+document.querySelectorAll('[data-preset]').forEach(b=>{
+  b.addEventListener('click', ()=>{ O.n = Object.assign({}, PRESETS[b.dataset.preset]); save(); paintParts(); newPaper(); render(); });
 });
 document.querySelectorAll('.lvQuick [data-lv]').forEach(b=>{
   b.addEventListener('click', ()=>setLevels(b.dataset.lv === 'all' ? LADDER.slice() : b.dataset.lv.split(',')));
@@ -785,6 +803,47 @@ function swappedHTML(r){
   return eqHTML({start:m, step:Math.abs(b), dir:b < 0 ? 'down' : 'up'}, 'start');
 }
 
+/* Which x values a question uses. FOUR QUADRANTS takes counting questions back past the start
+   (x = −2, −3: counting back); a worded problem stays at x ≥ 0 — there is no −2 hours. */
+const span = (a, b) => { const r = []; for(let x=a;x<=b;x++) r.push(x); return r; };
+function quadFor(q){ return O.quad && !q.st; }
+function xsFor(sec, q){
+  const qd = sec === 'line' ? O.quad : quadFor(q);
+  switch(sec){
+    case 'seq':     return qd ? span(-2,3) : span(0,5);
+    case 'graph':   return qd ? span(-3,3) : span(0,5);
+    case 'eqTable': return qd ? span(-2,2) : span(0,4);
+    case 'backEq':  return qd ? span(-2,2) : span(0,4);
+    case 'backPts': return qd ? span(-2,2) : span(0,4);
+    case 'backFit': return qd ? span(-2,2) : span(0,5);
+    case 'oops':    return qd ? span(-2,3) : span(0,5);
+    case 'line':    return qd ? span(-3,3) : span(0,5);
+  }
+  return span(0,5);
+}
+const xLabel = xs => `${X} = ${F(xs[0])} to ${F(xs[xs.length-1])}`;
+
+/* G: a line to graph. m and b by level; with one quadrant, every y in the table stays ≥ 0 */
+function lineRule(level){
+  const T = { sweet:{m:[1,2,3], b:[1,6], neg:false}, mild:{m:[1,2,3,4], b:[-5,6], neg:false},
+              medium:{m:[1,2,3,4], b:[-6,6], neg:true}, spicy:{m:[1,2,3,4,5,0.5,1.5], b:[-8,8], neg:true} }[level];
+  const ri = (a,b)=>a + rnd(b - a + 1);
+  for(let t=0;t<60;t++){
+    const m = pick(T.m);
+    const dir = O.dir === 'up' ? 'up' : O.dir === 'down' ? 'down' : (T.neg && Math.random() < .5 ? 'down' : 'up');
+    let b = ri(T.b[0], T.b[1]);
+    if(!O.quad){
+      /* first quadrant only: the table x = 0 to 5 never goes below zero */
+      b = dir === 'down' ? m * 5 + ri(0, 6) : Math.max(0, b);
+    } else if(level === 'sweet' && b < 1) b = ri(1, 6);
+    const r = { start:R(b), step:m, dir };
+    const k = 'L|'+r.start+'|'+r.step+'|'+r.dir;
+    if(USED.has(k)) continue;
+    USED.add(k); return r;
+  }
+  return { start:2, step:3, dir:'up' };
+}
+
 /* =====================================================================
    THE PAPER — a list of sections, each a list of questions. Built once by
    Generate; every look-only option re-renders the SAME questions.
@@ -816,8 +875,9 @@ function newPaper(){
         q.kind = i % 2 ? 'graph' : 'eq'; q.form = formFor(i);
         q.wantStory = wants(true);
         fill(q, level, 10);
-        for(let t=0; q.kind === 'graph' && t<60 && !readable(q.r, [0,1,2,3,4,5]); t++){ USED.delete(q.r.start+'|'+q.r.step+'|'+q.r.dir); fill(q, level, 10); }
-        if(q.kind === 'graph' && !readable(q.r, [0,1,2,3,4,5])){
+        const okRead = () => readable(q.r, xsFor('backFit', q), quadFor(q)) && readable(q.r, xsFor('backPts', q), quadFor(q));
+        for(let t=0; q.kind === 'graph' && t<60 && !okRead(); t++){ USED.delete(q.r.start+'|'+q.r.step+'|'+q.r.dir); fill(q, level, 10); }
+        if(q.kind === 'graph' && !okRead()){
           /* rare: build one that is readable by construction — every term a multiple of the count */
           const st = pick([2,5,10]), dn = O.dir === 'down' || (O.dir === 'either' && Math.random() < .5);
           q.r = { start: st * (dn ? 5 + rnd(5) : 2 + rnd(5)), step: st, dir: dn ? 'down' : 'up' };
@@ -828,7 +888,8 @@ function newPaper(){
         q.wantStory = wants(true); fill(q, level, 10); q.who = names[nameI++ % names.length];
         q.kind = deck[i % 4];
         if(q.kind === 'swap' && (q.r.start === 0 || Math.abs(q.r.start) === q.r.step)) q.kind = 'slip';
-        q.at = 2 + rnd(3);                               /* which x goes wrong */
+        /* which x goes wrong: never the start (x = 0 — the instruction gives it away) and never the first two */
+        q.at = quadFor(q) ? 1 + rnd(2) : 2 + rnd(3);
         q.off = q.r.step >= 20 ? 10 : (q.r.step < 1 ? 0.1 : 1);
         /* below Medium no number on the page goes under zero, so a slip only ever overshoots */
         if(level !== 'sweet' && level !== 'mild' && Math.random() < .5) q.off = -q.off;
@@ -839,6 +900,7 @@ function newPaper(){
         q.k = 12 + rnd(19);                              /* the far term they must find the position of */
         q.form = formFor(i);
       }
+      else if(S.key === 'line'){ q.form = formFor(i); q.r = lineRule(level); }
       qs.push(q);
     }
     return { S, qs };
@@ -854,70 +916,82 @@ const STEPS = [0.1,0.2,0.25,0.5,1,2,2.5,5,10,20,25,50,100,200,250,500,1000,2000,
 const MAXSQ = 12;
 const onLines = (vals, f) => vals.every(v=>Math.abs((v - f.a)/f.s - Math.round((v - f.a)/f.s)) < 1e-6);
 /* a graph students must READ has every dot on a grid crossing */
-function readable(r, xs){ const v = xs.map(x=>term(r,x)); return onLines(v, yScale(v)); }
-function yScale(vals){
-  let [lo, hi] = CL.rangeFor(Math.min(...vals), Math.max(...vals));
+function readable(r, xs, zero, maxSq){ const v = xs.map(x=>term(r,x)); return onLines(v, yScale(v, zero, maxSq)); }
+/* zero: keep 0 on the y-axis (four quadrants: both axes always on the paper) */
+function yScale(vals, zero, maxSq){
+  const MAXSQ = maxSq || 12;
+  const rv = zero ? vals.concat([0]) : vals;
+  /* whole-number values never get a scale finer than 1 a square — 0.5s up the axis only clutter */
+  const whole = vals.every(v=>Number.isInteger(R(v)));
+  let [lo, hi] = CL.rangeFor(Math.min(...rv), Math.max(...rv));
   const fits = s => { const a = Math.floor(lo/s + 1e-9)*s, b = Math.ceil(hi/s - 1e-9)*s; return { s, a:R(a), b:R(b), n:Math.round((b-a)/s) }; };
-  const ok = STEPS.map(fits).filter(f=>f.n <= MAXSQ && f.n >= 3);
+  const ok = STEPS.filter(st=>!whole || st >= 1).map(fits).filter(f=>f.n <= MAXSQ && f.n >= 3);
   const friendly = f => { const m = Math.round(f.s / Math.pow(10, Math.floor(Math.log10(f.s) + 1e-9)) * 100) / 100; return m === 1 || m === 2 || m === 5; };
   let f = ok.find(g=>onLines(vals, g)) || ok.find(friendly) || ok[0] || fits(5000);
-  /* a little head-room when the top point would sit on the frame */
-  if(f.n < MAXSQ && Math.max(...vals) >= f.b - 1e-9){ f = { s:f.s, a:f.a, b:R(f.b + f.s), n:f.n + 1 }; }
-  if(f.n < MAXSQ && Math.min(...vals) <= f.a + 1e-9 && f.a !== 0){ f = { s:f.s, a:R(f.a - f.s), b:f.b, n:f.n + 1 }; }
+  /* a little head-room when the top or bottom point would sit on the frame */
+  if(f.n < MAXSQ && Math.max(...rv) >= f.b - 1e-9){ f = { s:f.s, a:f.a, b:R(f.b + f.s), n:f.n + 1 }; }
+  if(f.n < MAXSQ && Math.min(...rv) <= f.a + 1e-9 && f.a !== 0){ f = { s:f.s, a:R(f.a - f.s), b:f.b, n:f.n + 1 }; }
   return f;
 }
-/* opts: { r, cell(mm), xMax, numbered, pts:[x...] (dots to print), key:{line:true} } */
+/* opts: { r, cell(mm), xMin (default 0), xMax, xs (the x values the y-axis must fit), zero, numbered,
+           pts:[x...] (dots to print), key:{line, green}, ctx (a worded problem names its axes) } */
 function gridSVG(o){
-  const c = o.cell, xMax = o.xMax;
-  const vals = []; for(let x=0;x<=Math.min(5, xMax);x++) vals.push(term(o.r, x));
-  const ys = yScale(vals);
-  const ny = ys.n, W = xMax * c, H = ny * c;
+  const c = o.cell, xMin = o.xMin || 0, xMax = o.xMax;
+  const fitX = o.xs || span(0, Math.min(5, xMax));
+  const vals = fitX.map(x=>term(o.r, x));
+  const ys = yScale(vals, o.zero, o.maxSq);
+  const ny = ys.n, W = (xMax - xMin) * c, H = ny * c;
   const zeroIn = ys.a <= 0 && ys.b >= 0;
   /* a y-axis that does not start at zero gets a short gap below the grid with a break in it,
      so the bottom grid line is never mistaken for zero */
   const gap = zeroIn ? 0 : 4;
-  const uc = o.ctx || null;                                  /* a worded problem names its axes */
+  const uc = o.ctx || null;
   const L = 11, B = 7 + gap + (uc ? 4 : 0), T = 4, Rm = 5;  /* margins, mm */
   const vw = L + W + Rm, vh = T + H + B;
-  const px = x => L + x * c, py = y => T + H - (y - ys.a) / ys.s * c;
+  const px = x => L + (x - xMin) * c, py = y => T + H - (y - ys.a) / ys.s * c;
   const axisY = zeroIn ? py(0) : T + H + gap;
+  const four = xMin < 0;                                     /* the y-axis sits inside the grid */
+  const axisX = four ? px(0) : L;
+  const halo = `stroke="#fff" stroke-width=".9" paint-order="stroke" stroke-linejoin="round"`;
   let s = `<svg class="grid" viewBox="0 0 ${vw} ${vh}" width="${vw}mm" height="${vh}mm" xmlns="http://www.w3.org/2000/svg">`;
-  for(let i=0;i<=xMax;i++) s += `<line x1="${px(i)}" y1="${T}" x2="${px(i)}" y2="${T+H}" stroke="#c7cdd6" stroke-width=".22"/>`;
+  for(let i=xMin;i<=xMax;i++) s += `<line x1="${px(i)}" y1="${T}" x2="${px(i)}" y2="${T+H}" stroke="#c7cdd6" stroke-width=".22"/>`;
   for(let j=0;j<=ny;j++){ const y = T + j * c; s += `<line x1="${L}" y1="${y}" x2="${L+W}" y2="${y}" stroke="#c7cdd6" stroke-width=".22"/>`; }
   /* axes */
-  s += `<line x1="${L}" y1="${T-2}" x2="${L}" y2="${T+H+gap}" stroke="#111827" stroke-width=".55"/>`;
+  s += `<line x1="${axisX}" y1="${T-2}" x2="${axisX}" y2="${T+H+gap}" stroke="#111827" stroke-width=".55"/>`;
   s += `<line x1="${L}" y1="${axisY}" x2="${L+W+2.5}" y2="${axisY}" stroke="#111827" stroke-width=".55"/>`;
-  s += `<path d="M${L-1.1} ${T-0.4} L${L} ${T-2.6} L${L+1.1} ${T-0.4}" fill="none" stroke="#111827" stroke-width=".5"/>`;
+  s += `<path d="M${axisX-1.1} ${T-0.4} L${axisX} ${T-2.6} L${axisX+1.1} ${T-0.4}" fill="none" stroke="#111827" stroke-width=".5"/>`;
   s += `<path d="M${L+W+0.4} ${axisY-1.1} L${L+W+2.6} ${axisY} L${L+W+0.4} ${axisY+1.1}" fill="none" stroke="#111827" stroke-width=".5"/>`;
   s += `<text x="${L+W+3.3}" y="${axisY+1.2}" font-size="4" font-style="italic" font-family="serif">x</text>`;
-  s += `<text x="${L+1.6}" y="${T-0.6}" font-size="4" font-style="italic" font-family="serif">y</text>`;
+  s += `<text x="${axisX+1.6}" y="${T-0.6}" font-size="4" font-style="italic" font-family="serif">y</text>`;
   if(uc){
-    s += `<text x="${L+4.4}" y="${T-0.8}" font-size="2.7" font-weight="700" fill="#4b5563">${esc(uc.y)}</text>`;
+    s += `<text x="${axisX+4.4}" y="${T-0.8}" font-size="2.7" font-weight="700" fill="#4b5563">${esc(uc.y)}</text>`;
     s += `<text x="${L+W/2}" y="${axisY+8.2}" font-size="2.7" font-weight="700" fill="#4b5563" text-anchor="middle">${esc(uc.x)}</text>`;
   }
-  /* the y-axis does not start at zero: say so with a break */
   if(!zeroIn){
     const yb = T + H + gap / 2;
-    s += `<rect x="${L-1.6}" y="${yb-1.4}" width="3.2" height="2.8" fill="#fff"/><path d="M${L-1.6} ${yb-0.5} l3.2 -1.1 M${L-1.6} ${yb+1} l3.2 -1.1" stroke="#111827" stroke-width=".45"/>`;
+    s += `<rect x="${axisX-1.6}" y="${yb-1.4}" width="3.2" height="2.8" fill="#fff"/><path d="M${axisX-1.6} ${yb-0.5} l3.2 -1.1 M${axisX-1.6} ${yb+1} l3.2 -1.1" stroke="#111827" stroke-width=".45"/>`;
   }
   if(o.numbered){
-    for(let i=0;i<=xMax;i++){
-      if(i === 0 && zeroIn) continue;
-      s += `<text x="${px(i)}" y="${axisY+4}" font-size="3" text-anchor="middle" fill="#374151">${i}</text>`;
+    for(let i=xMin;i<=xMax;i++){
+      if(i === 0 && zeroIn) continue;                      /* the y-axis labels carry the 0 */
+      s += `<text x="${px(i) + (four && i < 0 ? -0.3 : 0)}" y="${axisY+4}" font-size="3" text-anchor="middle" fill="#374151" ${halo}>${F(i)}</text>`;
     }
     for(let j=0;j<=ny;j++){
       const v = R(ys.a + j * ys.s);
-      s += `<text x="${L-1.4}" y="${py(v)+1.05}" font-size="3" text-anchor="end" fill="#374151">${F(v)}</text>`;
+      /* in four quadrants the origin's 0 sits just ABOVE the x-axis, so the x labels read
+         −2  −1    1  2 and never "−1 0" (which looks like −10) */
+      const yy = four && v === 0 ? py(v) - 0.9 : py(v) + 1.05;
+      s += `<text x="${axisX-1.3}" y="${yy}" font-size="3" text-anchor="end" fill="#374151" ${four ? halo : ''}>${F(v)}</text>`;
     }
   }
   if(o.key && o.key.line){
     /* the line through the dots, clipped to the grid */
-    const y0 = term(o.r, 0), y1 = term(o.r, xMax);
+    const ya = term(o.r, xMin), yb2 = term(o.r, xMax);
     const clipY = y => Math.max(ys.a, Math.min(ys.b, y));
     const m = signedStep(o.r);
-    let xa = 0, xb = xMax;
-    if(y0 > ys.b || y0 < ys.a) xa = (clipY(y0) - o.r.start) / m;
-    if(y1 > ys.b || y1 < ys.a) xb = (clipY(y1) - o.r.start) / m;
+    let xa = xMin, xb = xMax;
+    if(ya > ys.b || ya < ys.a) xa = (clipY(ya) - o.r.start) / m;
+    if(yb2 > ys.b || yb2 < ys.a) xb = (clipY(yb2) - o.r.start) / m;
     s += `<line x1="${px(xa)}" y1="${py(term(o.r, xa))}" x2="${px(xb)}" y2="${py(term(o.r, xb))}" stroke="#16a34a" stroke-width=".55" stroke-dasharray="1.6 1.2"/>`;
   }
   (o.pts || []).forEach(x=>{
@@ -932,13 +1006,19 @@ function gridSVG(o){
    CARDS
    ===================================================================== */
 function numBadge(q, n){ return `<span class="qNum ${q.level}">${n}</span>`; }
-function vertTable(r, key, rows){
+function vertTable(r, key, xs){
   let h = `<table class="tv vert"><tr><th>${X}</th><th>${Y}</th></tr>`;
-  for(let x=0;x<rows;x++) h += `<tr><td>${x}</td><td class="k">${key ? F(term(r, x)) : ''}</td></tr>`;
+  xs.forEach(x=>{ h += `<tr><td>${F(x)}</td><td class="k">${key ? F(term(r, x)) : ''}</td></tr>`; });
   return h + `</table>`;
 }
+/* a row of answer boxes; in four quadrants each says which x it is for */
+function boxesHTML(r, xs, key, caps){
+  let h = `<div class="seqBoxes" style="--n:${xs.length}">` + xs.map(x=>`<span class="seqBox">${key ? F(term(r,x)) : ''}</span>`).join('') + `</div>`;
+  if(caps) h += `<div class="seqBoxes caps" style="--n:${xs.length}">` + xs.map(x=>`<span class="seqCap">${X} = ${F(x)}</span>`).join('') + `</div>`;
+  return h;
+}
 function horizTable(r, cols, yOf, cls){
-  let h = `<table class="tv horiz"><tr><th>${X}</th>${cols.map(x=>`<td>${x}</td>`).join('')}</tr>`;
+  let h = `<table class="tv horiz"><tr><th>${X}</th>${cols.map(x=>`<td>${F(x)}</td>`).join('')}</tr>`;
   h += `<tr><th>${Y}</th>${cols.map(x=>`<td class="${cls ? cls(x) : ''}">${yOf(x)}</td>`).join('')}</tr></table>`;
   return h;
 }
@@ -951,19 +1031,22 @@ function card(sec, q, n, key){
   let h = '';
   if(sec === 'seq'){
     h += topHTML(q, n);
+    const xs = xsFor('seq', q);
     if(q.st){ const c = ctxOf(q); h += `<div class="letXY">Let ${X} = ${esc(c.x)} and ${Y} = ${esc(c.y)}. Write ${Y} for ${X} = 0 to 5.</div>`; }
-    h += `<div class="seqBoxes" style="--n:6">` + [0,1,2,3,4,5].map(x=>`<span class="seqBox">${key ? F(term(r,x)) : ''}</span>`).join('') + `</div>`;
+    else if(quadFor(q)) h += `<div class="letXY">Count back as well as on: write ${Y} for ${xLabel(xs)}.</div>`;
+    h += boxesHTML(r, xs, key, quadFor(q));
   }
   else if(sec === 'graph'){
     const c = ctxOf(q);
-    const g = gridSVG({ r, ctx:c, cell:6.6, xMax:6, numbered:O.numAxes || key, pts:key ? [0,1,2,3,4,5] : [], key:key ? {line:true, green:true} : null });
+    const qd = quadFor(q), xs = xsFor('graph', q);
+    const g = gridSVG({ r, ctx:c, cell:6.6, xMin:qd ? -4 : 0, xMax:qd ? 4 : 6, xs, zero:qd, numbered:O.numAxes || key, pts:key ? xs : [], key:key ? {line:true, green:true} : null });
     h += topHTML(q, n) + letLine(q);
     const notice = `<div class="ask"><span class="lt">c</span>What do you notice about the points? Where can you see the ${valOf(q, r.start)} and the ${valOf(q, r.step)} on your graph?</div>` +
       (key ? keyNote(key, `The points make a <b>straight line</b>. The <b>${valOf(q, r.start)}</b> is where it starts, on the ${Y}-axis (${X} = 0); every step of 1 to the right${c ? ` (one more ${esc(unitOne(c))})` : ''} goes ${r.dir} <b>${valOf(q, r.step)}</b>.${!O.numAxes ? ` One scale that works: ${F(g.scale.s)} a square up the ${Y}-axis.` : ''}`)
            : `<div class="lines"></div>`);
     h += `<div class="graphRow"><div class="side">
             <div class="ask"><span class="lt">a</span>Complete the table.</div>
-            ${vertTable(r, key, 6)}
+            ${vertTable(r, key, xs)}
             <div class="ask"><span class="lt">b</span>Plot the points.</div>
           </div>
           <div class="gwrap">${g.svg}</div>
@@ -977,7 +1060,7 @@ function card(sec, q, n, key){
       h += `<div class="ansLine math">${key ? `<span class="keyMath">${eq}</span>` : `${Y} = <span class="blank xl"></span>`}</div>`;
     } else {
       h += `<div class="qTop">${numBadge(q,n)}<span class="ask" style="font-weight:1000;color:#111827">This table came from counting.</span></div>`;
-      h += horizTable(r, [0,1,2,3,4], x=>F(term(r,x)));
+      h += horizTable(r, xsFor('eqTable', q), x=>F(term(r,x)));
       h += `<div class="ansLine">Start at ${blank(key?F(r.start):null,'sm')}, count ${blank(key?r.dir:null,'sm')} by ${blank(key?F(r.step):null,'sm')}s</div>`;
       h += `<div class="ansLine math">${key ? `<span class="keyMath">${eq}</span>` : `${Y} = <span class="blank xl"></span>`}</div>`;
     }
@@ -992,24 +1075,26 @@ function card(sec, q, n, key){
       h += key ? keyNote(key, ex ? `For example: ${ex} Any story works if it starts at <b>${F(r.start)}</b> and goes ${r.dir} <b>${F(r.step)}</b> each step.` : `Any story that starts at <b>${F(r.start)}</b> and goes ${r.dir} <b>${F(r.step)}</b> each step.`)
                : `<div class="lines" style="height:20mm"></div>`;
       h += `<div class="ask"><span class="lt">b</span>Write the first five values of ${Y}.</div>`;
-      h += `<div class="seqBoxes" style="--n:5">` + [0,1,2,3,4].map(x=>`<span class="seqBox">${key ? F(term(r,x)) : ''}</span>`).join('') + `</div>`;
+      h += boxesHTML(r, xsFor('backEq', q), key, false);
     } else if(q.kind === 'eq'){
       h += `<div class="qTop">${numBadge(q,n)}<span class="eq" style="font-size:18px">${eqHTML(r, q.form)}</span></div>`;
       h += `<div class="ask"><span class="lt">a</span>Write the counting instruction.</div>`;
       h += `<div class="ansLine">Start at ${blank(key?F(r.start):null,'sm')}, count ${blank(key?r.dir:null,'sm')} by ${blank(key?F(r.step):null,'sm')}s</div>`;
-      h += `<div class="ask"><span class="lt">b</span>Write the first five numbers.</div>`;
-      h += `<div class="seqBoxes" style="--n:5">` + [0,1,2,3,4].map(x=>`<span class="seqBox">${key ? F(term(r,x)) : ''}</span>`).join('') + `</div>`;
+      const bx = xsFor('backEq', q);
+      h += `<div class="ask"><span class="lt">b</span>${quadFor(q) ? `Write ${Y} for ${xLabel(bx)}.` : 'Write the first five numbers.'}</div>`;
+      h += boxesHTML(r, bx, key, quadFor(q));
     } else if(q.st){
       /* worded: the axes are named; read the graph back into the equation and the story */
       const c = ctxOf(q);
-      const g = gridSVG({ r, ctx:c, cell:5.4, xMax:5, numbered:true, pts:[0,1,2,3,4], key:key ? {line:true, green:false} : null });
+      const g = gridSVG({ r, ctx:c, cell:5.4, xMax:5, xs:xsFor('backFit', q), numbered:true, pts:xsFor('backPts', q), key:key ? {line:true, green:false} : null });
       h += `<div class="qTop">${numBadge(q,n)}<span class="ask" style="font-weight:1000;color:#111827">These points show the ${esc(c.y.replace(/ \(.*\)$/, ''))} after ${X} ${esc(c.x)}.</span></div>`;
       h += `<div class="gCenter">${g.svg}</div>`;
       h += `<div class="ansLine math"><span class="lt" style="font-family:var(--uiFont);font-weight:1000;font-size:12px">a&nbsp;</span>${key ? `<span class="keyMath">${eqHTML(r, q.form)}</span>` : `${Y} = <span class="blank xl"></span>`}</div>`;
       h += `<div class="ask"><span class="lt">b</span>Write a story that fits the graph.</div>`;
       h += key ? keyNote(key, `For example: ${CTX.storyHTML({id:c.id, name:q.st.name, rule:r})}`) : `<div class="lines" style="height:13.4mm"></div>`;
     } else {
-      const g = gridSVG({ r, cell:5.4, xMax:5, numbered:true, pts:[0,1,2,3,4], key:key ? {line:true, green:false} : null });
+      const qd = quadFor(q);
+      const g = gridSVG({ r, cell:5.4, xMin:qd ? -3 : 0, xMax:qd ? 3 : 5, xs:xsFor('backFit', q), zero:qd, numbered:true, pts:xsFor('backPts', q), key:key ? {line:true, green:false} : null });
       h += `<div class="qTop">${numBadge(q,n)}<span class="ask" style="font-weight:1000;color:#111827">These points came from counting.</span></div>`;
       h += `<div class="gCenter">${g.svg}</div>`;
       h += `<div class="ansLine">Start at ${blank(key?F(r.start):null,'sm')}, count ${blank(key?r.dir:null,'sm')} by ${blank(key?F(r.step):null,'sm')}s</div>`;
@@ -1029,13 +1114,23 @@ function card(sec, q, n, key){
     h += key ? keyNote(key, `b: ${F(r.start)} ${r.dir==='up'?'+':'−'} ${F(r.step)} × ${q.x1} = ${F(t1)} &nbsp;·&nbsp; d: ${F(tk)} is ${F(Math.abs(R(tk - r.start)))} ${r.dir==='up'?'above':'below'} the start, and ${F(Math.abs(R(tk - r.start)))} ÷ ${F(r.step)} = ${q.k}`)
              : `<div class="lines" style="height:6.6mm"></div>`;
   }
+  else if(sec === 'line'){
+    /* G: fluency — the equation, a table of values, a grid */
+    const xs = xsFor('line', q), qd = O.quad;
+    /* up to 14 squares tall, so a steep line can still go up in 2s rather than 5s */
+    const g = gridSVG({ r, cell:5.4, xMin:qd ? -4 : 0, xMax:qd ? 4 : 6, xs, zero:qd, maxSq:14, numbered:O.numAxes || key, pts:key ? xs : [], key:key ? {line:true, green:true} : null });
+    h += `<div class="qTop">${numBadge(q,n)}<span class="eq" style="font-size:18px">${eqHTML(r, q.form)}</span></div>`;
+    h += horizTable(r, xs, x=>key ? F(term(r,x)) : '', ()=>'k');
+    h += `<div class="gCenter">${g.svg}</div>`;
+    if(key && !O.numAxes) h += keyNote(key, `One scale that works: ${F(g.scale.s)} a square up the ${Y}-axis.`);
+  }
   d.innerHTML = h;
   return d;
 }
 
 /* E: someone else's work. Every value they write is worked out here, so the key can say exactly what went wrong. */
 function oopsValues(q){
-  const r = q.r, cols = [0,1,2,3,4,5];
+  const r = q.r, cols = xsFor('oops', q);
   return cols.map(x=>{
     const t = term(r, x);
     if(q.kind === 'slip') return x === q.at ? R(t + q.off) : t;
@@ -1059,16 +1154,17 @@ function oopsCard(q, n, key){
     } else h += `<div class="lines" style="height:20mm"></div>`;
     return h;
   }
-  const vals = oopsValues(q), cols = [0,1,2,3,4,5];
-  const wrong = x => Math.abs(vals[x] - term(r,x)) > 1e-9;
+  const vals = oopsValues(q), cols = xsFor('oops', q);
+  const at = x => vals[cols.indexOf(x)];
+  const wrong = x => Math.abs(at(x) - term(r,x)) > 1e-9;
   h += `<div class="ask">${who}&rsquo;s table:</div>`;
-  h += horizTable(r, cols, x=>F(vals[x]), key ? (x=>wrong(x) ? 'wrongKey' : '') : null);
+  h += horizTable(r, cols, x=>F(at(x)), key ? (x=>wrong(x) ? 'wrongKey' : '') : null);
   h += `<div class="ask">Is ${who} right? Circle anything wrong, fix it, and say what you think ${who} did.</div>`;
   if(key){
     let why = '';
     if(q.kind === 'slip') why = `When ${X} = ${q.at} it should be <b>${F(term(r,q.at))}</b> (${F(term(r,q.at-1))} ${r.dir==='up'?'+':'−'} ${F(r.step)}). One slip; the numbers after it are right.`;
     if(q.kind === 'carry') why = `One slip at ${X} = ${q.at} (should be <b>${F(term(r,q.at))}</b>), then ${who} kept counting correctly from the wrong number &mdash; so from there on every number is ${F(Math.abs(q.off))} too ${q.off > 0 ? 'big' : 'small'}.`;
-    if(q.kind === 'late') why = `${who} started one step late: ${X} = 0 should be the start, <b>${F(r.start)}</b>. Every ${Y} is ${F(r.step)} too ${r.dir==='up'?'big':'small'} &mdash; the right table is ${[0,1,2,3,4,5].map(x=>F(term(r,x))).join(', ')}.`;
+    if(q.kind === 'late') why = `${who} started one step late: ${X} = 0 should be the start, <b>${F(r.start)}</b>. Every ${Y} is ${F(r.step)} too ${r.dir==='up'?'big':'small'} &mdash; the right table is ${cols.map(x=>F(term(r,x))).join(', ')}.`;
     h += keyNote(key, why);
   } else h += `<div class="lines" style="height:13.4mm"></div>`;
   return h;
@@ -1087,7 +1183,10 @@ function newPage(out, key, first){
   if(first && !key){
     const p=document.createElement('p'); p.className='intro';
     const anyStory = PAPER.some(sec=>sec.qs.some(q=>q.st));
-    p.innerHTML=`Each question starts with a counting instruction${anyStory ? ' or a story' : ''}. The first number is the start &mdash; it goes with ${X} = 0. Then every step adds (or takes away) the same amount.`;
+    const onlyLines = PAPER.every(sec=>sec.S.key === 'line');
+    p.innerHTML = onlyLines
+      ? `For each equation, complete the table of values, plot the points on the grid and rule a straight line through them.`
+      : `Each question starts with a counting instruction${anyStory ? ' or a story' : ''}. The first number is the start &mdash; it goes with ${X} = 0. Then every step adds (or takes away) the same amount.${O.quad ? ` A negative ${X} means counting back from the start.` : ''}`;
     sh.appendChild(p);
   }
   const ft=document.createElement('div'); ft.className='pageFooter';

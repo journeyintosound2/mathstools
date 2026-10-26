@@ -211,6 +211,11 @@
 >   (Sweet/Mild never go below zero inside the table), `fit`. Verified: 54,700 engine checks,
 >   63 UI checks (1366/1024/1280/1920/390, morph both ways, auto-scale stretch vs equal scale,
 >   drag turns it off, odd jumps, through-count, no page scroll). Harnesses in session scratch.
+> * **FOUR QUADRANTS (2026-10-27).** Settings › The plane › Four quadrants (`S.set.quad`, saved).
+>   A small "+ Add a row" appears ABOVE the table and inserts x = first − 1 (−1, −2 …; ↑ on the
+>   top row does the same). Auto-scale's frame becomes the line from x = −5 to 10 AND 0 is always
+>   pushed into the y data, so both axes are on screen before anything is typed; a point
+>   outside the frame still grows it. Turning it off goes back to the first-ten-terms frame.
 > * **WORDED PROBLEMS (2026-10-21).** A toggle at the top of the opening screen: Count up / down
 >   | Worded problem (W). The stories live in ONE shared file, `contexts.js` beside the tool
 >   (`window.MMT_CL_CTX`), loaded by the tool AND the worksheet creator — add a story there and
@@ -238,6 +243,17 @@
 >     chosen level appears once a section has as many questions as levels). The last chip
 >     cannot be unticked. Quick links: All four / Sweet + Mild / Mild + Medium / Medium +
 >     Spicy. Old saves (`level:'mixed'` or one level) migrate on load.
+>   * **FOUR QUADRANTS + SECTION G (2026-10-27).** Options › Four quadrants (`O.quad`, re-rolls).
+>     Counting questions run into negative x (`xsFor(sec, q)` is the one place that says which x
+>     each section uses: A/E −2..3, B −3..3 on a −4..4 grid, C table and D −2..2); worded
+>     problems stay at x ≥ 0 (no −2 hours). 4Q graphs keep 0 on the y-axis (`yScale(vals, zero)`),
+>     draw the y-axis inside the grid with haloed labels, and put the origin's 0 just ABOVE the
+>     x-axis so "−1 0" can never read as −10. A slip in E never lands on x = 0 (the start).
+>     **G Graph the line** (`key:'line'`, default Off): equation (order from "Write equations
+>     as"), a table (x = −3..3 in 4Q, else 0..5) and a grid up to 14 squares tall
+>     (`maxSq:14`). `lineRule(level)`: Sweet m 1–3, b 1–6; Mild m 1–4; Medium/Spicy either sign;
+>     Spicy adds m = 0.5, 1.5; first quadrant keeps every y ≥ 0. Whole-number values never get a
+>     scale finer than 1 a square. Quick sets: The lesson (A–F) / Just graphing lines (G) / both.
 >   * **Questions are: counting / worded / a mix (default mix — every other eligible question).**
 >     A worded question prints the story plus "Let x = hours and y = money left ($)"; graphs
 >     name their axes; D asks for a story an equation could tell (key: an example from a
