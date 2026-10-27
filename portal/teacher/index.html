@@ -318,9 +318,38 @@
   #printSheet{display:none}
   .pc-page{width:190mm;display:grid;grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(4,64mm);gap:4mm;break-after:page;page-break-after:always}
   .pc-page:last-child{break-after:auto;page-break-after:auto}
-  .pc-card{border:1px solid #cbd5e1;border-radius:4mm;padding:5mm;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3mm;text-align:center;overflow:hidden;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  .pc-card .pc-name{font-size:15pt;font-weight:800;line-height:1.15;color:#0f172a;word-break:break-word}
-  .pc-card .pc-code{font-family:ui-monospace,Menlo,monospace;font-size:26pt;font-weight:800;letter-spacing:.14em;color:#0f172a;background:#f1f5f9;border:1px solid #cbd5e1;border-radius:3mm;padding:2.5mm 5mm;line-height:1}
+  /* Card design (2026-10-28): the MMT mark's own colours — a navy band with the
+     logo, an amber rule under it (the underline in the logo), the student's name,
+     and the code as one tile per character, split 3 + 3 so it is easy to copy.
+     A small QR (optional) opens the student sign-in page; it never holds the code.
+     Everything is in mm/pt so the preview and the print match. */
+  .pc-card{--pc-navy:#1e3a6e;--pc-amber:#f5b82e;position:relative;border:.3mm solid #cbd5e1;border-radius:3.5mm;display:flex;flex-direction:column;overflow:hidden;background:#fff;color:#0f172a;-webkit-print-color-adjust:exact;print-color-adjust:exact;break-inside:avoid;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .pc-band{display:flex;align-items:center;gap:2.2mm;background:var(--pc-navy);color:#fff;padding:0 4mm;height:10mm;flex:0 0 auto;border-bottom:.9mm solid var(--pc-amber)}
+  .pc-logo{width:6.4mm;height:6.4mm;border-radius:1.3mm;display:block;flex:0 0 auto;box-shadow:0 0 0 .25mm rgba(255,255,255,.35)}
+  .pc-brand{font-size:8.5pt;font-weight:800;letter-spacing:.02em;white-space:nowrap}
+  .pc-brand small{display:block;font-size:5.8pt;font-weight:600;letter-spacing:.06em;text-transform:uppercase;opacity:.75;margin-top:.3mm}
+  .pc-cls{margin-left:auto;background:#fff;color:var(--pc-navy);font-size:8pt;font-weight:800;border-radius:99mm;padding:.8mm 2.6mm;white-space:nowrap;max-width:30mm;overflow:hidden;text-overflow:ellipsis}
+  .pc-body{flex:1;display:flex;gap:4mm;padding:3.6mm 4.5mm 2.4mm;min-height:0}
+  .pc-main{flex:1;min-width:0;display:flex;flex-direction:column}
+  .pc-name{font-size:16pt;font-weight:800;line-height:1.12;color:#0f172a;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow-wrap:anywhere}
+  .pc-name.md{font-size:13pt} .pc-name.sm{font-size:11pt}
+  .pc-school{font-size:7pt;color:#64748b;margin-top:.8mm;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pc-lbl{font-size:6pt;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#64748b;margin:auto 0 1.3mm}
+  .pc-tiles{display:flex;align-items:center;gap:1.1mm}
+  .pc-tile{width:8.4mm;height:11mm;border:.35mm solid #94a3b8;border-bottom:.9mm solid var(--pc-navy);border-radius:1.4mm;background:#f8fafc;display:flex;align-items:center;justify-content:center;font-family:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;font-size:19pt;font-weight:800;color:#0f172a;line-height:1}
+  .pc-tiles .pc-gap{width:1.6mm;flex:0 0 auto}
+  .pc-tiles.long .pc-tile{width:6.4mm;font-size:15pt}
+  .pc-qr{flex:0 0 17mm;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:.8mm}
+  .pc-qr svg{width:17mm;height:17mm;display:block}
+  .pc-qr span{font-size:5.6pt;font-weight:700;color:#64748b;text-align:center;line-height:1.15}
+  .pc-foot{flex:0 0 auto;display:flex;justify-content:space-between;gap:3mm;padding:1.6mm 4.5mm 2.4mm;border-top:.25mm dashed #e2e8f0;font-size:6.4pt;color:#475569}
+  .pc-foot b{color:var(--pc-navy)}
+  .pc-foot .pc-keep{color:#94a3b8;white-space:nowrap}
+  .pc-opts{display:flex;gap:8px 18px;flex-wrap:wrap;align-items:center;margin:2px 0 4px}
+  .pc-opt{display:flex;align-items:center;gap:8px;font-size:.86rem;font-weight:600;cursor:pointer}
+  .pc-opt input{width:17px;height:17px;accent-color:var(--mmt-blue);margin:0}
+  .pc-top{display:flex;gap:14px 22px;align-items:flex-end;flex-wrap:wrap}
+  .pc-top .field{margin:0;min-width:240px}
   .pc-prev{background:#f8fafc;border:1px solid var(--line);border-radius:10px;padding:14px;max-height:430px;overflow:auto}
   @media screen{ .pc-prev .pc-sheet{zoom:.62} .pc-prev .pc-page{background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.14);padding:10mm;width:210mm;grid-template-rows:repeat(4,64mm);margin:0 auto 8mm} }
   @media print{
@@ -1749,58 +1778,138 @@ async function removeDashTask(id, className){
 // Built into #printSheet at body level and printed with the page's own print
 // stylesheet — no pop-up window, so a blocker can never get in the way.
 const PC_PER_PAGE = 8;
+// Where the QR on each card points: the LIVE student sign-in page (never the code
+// itself — a QR holding the code would let anyone who photographs the card in).
+const PC_SIGNIN_URL = "https://millsmathstools.au/portal/student/";
+const PC_SIGNIN_TEXT = "millsmathstools.au/portal/student";
+const PC_OPTS_KEY = "mmt-pc-opts";
+let pcQrSvg = null, pcQrP = null;
+// The QR encoder is the one MMT Screen already vendors (no CDN, no QR API).
+function pcLoadQr(){
+  if(!pcQrP) pcQrP = import(new URL("../../mmt-screen/widgets/vendor/qrcodegen.js", location.href).href).then(m=>{
+    const { QrCode } = m.default; const qr=QrCode.encodeText(PC_SIGNIN_URL, QrCode.Ecc.MEDIUM);
+    const b=1, n=qr.size+b*2; let d="";
+    for(let y=0;y<qr.size;y++) for(let x=0;x<qr.size;x++) if(qr.getModule(x,y)) d+=`M${x+b} ${y+b}h1v1h-1z`;
+    pcQrSvg = `<svg viewBox="0 0 ${n} ${n}" shape-rendering="crispEdges" aria-hidden="true"><rect width="${n}" height="${n}" fill="#fff"/><path d="${d}" fill="#0f172a"/></svg>`;
+    return true;
+  }).catch(()=>false);
+  return pcQrP;
+}
 
 // The roster, class-filtered, in the order the cards should print.
 function pcStudents(cls){
   return students
-    .map(s=>({ code:s.studentCode||s.id||"", name:s.name||s.studentName||"", className:s.className||"" }))
+    .map(s=>({ code:s.studentCode||s.id||"", name:s.name||s.studentName||"", className:s.className||"", school:s.school||teacher.school||"" }))
     .filter(s=> s.code && (!cls || s.className===cls))
     .sort((a,b)=> (a.className||"").localeCompare(b.className||"") || (a.name||"").localeCompare(b.name||""));
 }
+// One tile per character, split into threes (8LR 7YE) so it is easy to copy.
+function pcTiles(code){
+  const ch=[...String(code)];
+  const tiles=ch.map((c,i)=> (i>0 && i%3===0 ? `<span class="pc-gap"></span>` : "") + `<span class="pc-tile">${esc(c)}</span>`).join("");
+  return `<div class="pc-tiles${ch.length>7?" long":""}" aria-label="Login code ${esc(code)}">${tiles}</div>`;
+}
+function pcCard(s, o){
+  const name=s.name||"Student"; const sz = name.length>26 ? " sm" : name.length>18 ? " md" : "";
+  return `<div class="pc-card">
+    <div class="pc-band"><img class="pc-logo" src="../../icons/icon-192.png" alt="" onerror="this.remove()"/>
+      <div class="pc-brand">Mills Maths Tools<small>Student login</small></div>
+      ${s.className?`<span class="pc-cls">${esc(s.className)}</span>`:""}</div>
+    <div class="pc-body">
+      <div class="pc-main">
+        <div class="pc-name${sz}">${esc(name)}</div>
+        ${o.school && s.school?`<div class="pc-school">${esc(s.school)}</div>`:""}
+        <div class="pc-lbl">Your login code</div>
+        ${pcTiles(s.code)}
+      </div>
+      ${o.qr && pcQrSvg?`<div class="pc-qr">${pcQrSvg}<span>Scan to<br/>sign in</span></div>`:""}
+    </div>
+    <div class="pc-foot"><span>Sign in at <b>${PC_SIGNIN_TEXT}</b></span><span class="pc-keep">Keep it private</span></div>
+  </div>`;
+}
 // One <div class="pc-page"> per 8 students.
-function pcSheetHtml(list){
+function pcSheetHtml(list, o){
   let out = "";
-  for(let i=0; i<list.length; i+=PC_PER_PAGE){
-    out += `<div class="pc-page">` + list.slice(i, i+PC_PER_PAGE).map(s=>`
-      <div class="pc-card">
-        <div class="pc-name">${esc(s.name||"Student")}</div>
-        <div class="pc-code">${esc(s.code)}</div>
-      </div>`).join("") + `</div>`;
-  }
+  for(let i=0; i<list.length; i+=PC_PER_PAGE) out += `<div class="pc-page">${list.slice(i, i+PC_PER_PAGE).map(s=>pcCard(s,o)).join("")}</div>`;
   return `<div class="pc-sheet">${out}</div>`;
+}
+function pcOpts(){ try{ return Object.assign({ qr:true, school:true }, JSON.parse(localStorage.getItem(PC_OPTS_KEY)||"{}")); }catch(e){ return { qr:true, school:true }; } }
+
+// ---- CSV export: School, Class, Student name, Access code ----
+// Quoted fields, CRLF, UTF-8 with a BOM so Excel shows accents correctly. A name,
+// class or school starting with = + - @ is prefixed with ' so a spreadsheet can't
+// run it as a formula. An all-digit code starting with 0 is written ="0123" so Excel
+// keeps the zero.
+function pcCsvCell(v, isCode){
+  let s=String(v??"");
+  if(isCode){ if(/^0\d*$/.test(s)) return `"=""${s}"""`; }
+  else if(/^[=+\-@\t\r]/.test(s)) s="'"+s;
+  return `"${s.replace(/"/g,'""')}"`;
+}
+function pcCsv(list){
+  const rows=[["School","Class","Student name","Access code"].map(h=>pcCsvCell(h))].concat(
+    list.map(s=>[pcCsvCell(s.school), pcCsvCell(s.className), pcCsvCell(s.name), pcCsvCell(s.code, true)]));
+  return "﻿"+rows.map(r=>r.join(",")).join("\r\n")+"\r\n";
+}
+function pcCsvName(cls){
+  const d=new Date(); const ymd=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+  return `MMT student codes - ${(cls||"All students").replace(/[\\/:*?"<>|]+/g,"-")} - ${ymd}.csv`;
+}
+function pcDownload(text, name){
+  const url=URL.createObjectURL(new Blob([text], { type:"text/csv;charset=utf-8" }));
+  const a=document.createElement("a"); a.href=url; a.download=name; a.style.display="none";
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{ a.remove(); URL.revokeObjectURL(url); }, 1500);
 }
 
 function openPrintCards(){
+  const o=pcOpts();
   openModal(head("🖨️ Print Student Cards")+`
     <div class="modal-body">
-      <p class="hint">Prints your students' names and login codes as cards, <strong>8 to an A4 page</strong>, ready to cut up and hand out. Pick a class or print the whole roster, then use your browser's print dialog (choose <em>A4</em> and turn <em>background graphics</em> on if the boxes look faint).</p>
-      <div class="field" style="max-width:320px">
-        <label for="pcCls">Class</label>
-        <select id="pcCls"><option value="">All students</option>${classes.map(c=>`<option>${esc(c)}</option>`).join("")}</select>
+      <p class="hint">Prints your students' names and login codes as cards, <strong>8 to an A4 page</strong>, ready to cut up and hand out — or export the same list as a spreadsheet. In the print dialog choose <em>A4</em>, and turn <em>background graphics</em> on if the coloured band is missing.</p>
+      <div class="pc-top">
+        <div class="field"><label for="pcCls">Class</label>
+          <select id="pcCls"><option value="">All students</option>${classes.map(c=>`<option>${esc(c)}</option>`).join("")}</select></div>
+        <div class="pc-opts">
+          <label class="pc-opt" id="pcQrWrap"><input type="checkbox" id="pcQr" ${o.qr?"checked":""}/> QR code to the sign-in page</label>
+          <label class="pc-opt"><input type="checkbox" id="pcSchool" ${o.school?"checked":""}/> School name</label>
+        </div>
       </div>
       <div class="muted" id="pcCount" style="margin:14px 0 10px;font-size:.86rem"></div>
       <div class="pc-prev" id="pcPrev"></div>
-    </div>${foot(`<button class="btn primary" type="button" id="pcPrint">🖨️ Print</button>`)}`, true);
+      <div class="msg" id="pcMsg"></div>
+    </div>${foot(`<button class="btn" type="button" id="pcCsv">⬇️ Export to CSV</button><button class="btn primary" type="button" id="pcPrint">🖨️ Print</button>`)}`, true);
 
+  const opts=()=>({ qr:$("pcQr").checked, school:$("pcSchool").checked });
   const draw=()=>{
+    if(!$("pcPrev")) return;
     const list = pcStudents($("pcCls").value);
     const pages = Math.ceil(list.length / PC_PER_PAGE);
     if(!list.length){
       $("pcCount").textContent = "";
       $("pcPrev").innerHTML = `<div class="empty"><div class="big">No students to print</div>Add students to this class first.</div>`;
-      $("pcPrint").disabled = true;
+      $("pcPrint").disabled = true; $("pcCsv").disabled = true;
       $("printSheet").innerHTML = "";
       return;
     }
     $("pcCount").innerHTML = `<strong>${list.length}</strong> card${list.length===1?"":"s"} on <strong>${pages}</strong> A4 page${pages===1?"":"s"}.`;
-    const html = pcSheetHtml(list);
+    const html = pcSheetHtml(list, opts());
     $("pcPrev").innerHTML = html;
     $("printSheet").innerHTML = html;   // what actually goes to the printer
-    $("pcPrint").disabled = false;
+    $("pcPrint").disabled = false; $("pcCsv").disabled = false;
   };
+  const saveOpts=()=>{ try{ localStorage.setItem(PC_OPTS_KEY, JSON.stringify(opts())); }catch(e){} draw(); };
   $("pcCls").addEventListener("change", draw);
+  $("pcQr").addEventListener("change", saveOpts);
+  $("pcSchool").addEventListener("change", saveOpts);
   $("pcPrint").addEventListener("click", ()=>{ if($("printSheet").innerHTML.trim()) window.print(); });
+  $("pcCsv").addEventListener("click", ()=>{
+    const cls=$("pcCls").value; const list=pcStudents(cls); if(!list.length) return;
+    pcDownload(pcCsv(list), pcCsvName(cls));
+    const m=$("pcMsg"); m.className="msg ok show"; m.innerHTML=`Downloaded <strong>${list.length}</strong> student${list.length===1?"":"s"} as a spreadsheet (CSV). It holds login codes, so keep it somewhere private.`;
+  });
   draw();
+  pcLoadQr().then(okQr=>{ if(!okQr){ $("pcQrWrap") && ($("pcQrWrap").hidden=true); } draw(); });
 }
 
 // ============================ STUDENTS & CLASSES ============================

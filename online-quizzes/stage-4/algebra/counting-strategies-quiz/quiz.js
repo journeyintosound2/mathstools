@@ -332,12 +332,321 @@ const X = ALPHA ? "\u{1D465}" : "<i>x</i>";
 const Y = ALPHA ? "\u{1D466}" : "<i>y</i>";
 
 /* =====================================================================
+   LANGUAGE — English, Arabic, Farsi (the same convention as the other MMT
+   quizzes): the chosen language on top, English beneath. Equations,
+   tables, graphs and every numeral stay left-to-right and Western. Every
+   word lives in the LANG block (h/lang.js), pasted in when quiz.js is
+   assembled.
+   ===================================================================== */
+/* ---------- every word the quiz shows, in English, Arabic and Farsi ----------
+   {name} placeholders: a plain value is maths (an equation, a number, an input)
+   and is set LEFT-TO-RIGHT inside <bdi dir="ltr">; a value that is itself an
+   {en, ar, fa} object is a word and is put in as that language's word.
+   An Arabic entry may be a function of the vars when a verb must agree with a
+   feminine noun (vars.g === "f"). */
+const UI = {
+  /* page */
+  chooseBegin:{ en:"Choose a level to begin.", ar:"اختر مستوى للبدء.", fa:"برای شروع یک سطح انتخاب کن." },
+  counter:{ en:"Question {n} / {t}", ar:"السؤال {n} من {t}", fa:"سؤال {n} از {t}" },
+  prev:{ en:"← Previous", ar:"→ السابق", fa:"→ قبلی" },
+  next:{ en:"Next →", ar:"التالي ←", fa:"بعدی ←" },
+  finish:{ en:"Finish →", ar:"إنهاء ←", fa:"پایان ←" },
+  clearPts:{ en:"Clear my points", ar:"امسح نقاطي", fa:"پاک کردن نقطه‌هایم" },
+  graphFirst:{ en:"First quadrant", ar:"الربع الأول", fa:"ربع اول" },
+  graphAll:{ en:"All four quadrants", ar:"الأرباع الأربعة", fa:"هر چهار ربع" },
+  changeLevel:{ en:"Change level", ar:"غيّر المستوى", fa:"تغییر سطح" },
+  chooseLevel:{ en:"Choose your level", ar:"اختر مستواك", fa:"سطح خود را انتخاب کن" },
+  levelSubFirst:{ en:"Ten questions. The levels build up: counting words, then algebra words, then making the graph yourself, then using it. Everything stays in the first quadrant.",
+    ar:"عشرة أسئلة. تتدرّج المستويات: لغة العدّ، ثم لغة الجبر، ثم رسم التمثيل البياني بنفسك، ثم التطبيق. يبقى كل شيء في الربع الأول.",
+    fa:"ده سؤال. سطح‌ها قدم‌به‌قدم پیش می‌روند: زبان شمارش، بعد زبان جبر، بعد رسم نمودار به دست خودت، بعد کاربرد. همه‌چیز در ربع اول می‌ماند." },
+  levelSubAll:{ en:"Ten questions. The levels build up: counting words, then algebra words, then making the graph yourself, then using it. Negative values of x mean counting back from the start, and the graphs use all four quadrants.",
+    ar:"عشرة أسئلة. تتدرّج المستويات: لغة العدّ، ثم لغة الجبر، ثم رسم التمثيل البياني بنفسك، ثم التطبيق. القيم السالبة لـ x تعني العدّ إلى الوراء من البداية، والتمثيلات البيانية تستخدم الأرباع الأربعة.",
+    fa:"ده سؤال. سطح‌ها قدم‌به‌قدم پیش می‌روند: زبان شمارش، بعد زبان جبر، بعد رسم نمودار به دست خودت، بعد کاربرد. مقدارهای منفی x یعنی از نقطهٔ شروع به عقب بشمار، و نمودارها از هر چهار ربع استفاده می‌کنند." },
+  finished:{ en:"Finished", ar:"انتهيت", fa:"تمام شد" },
+  tryAgain:{ en:"Try again", ar:"حاول مرة أخرى", fa:"دوباره امتحان کن" },
+  copyResult:{ en:"Copy my result", ar:"انسخ نتيجتي", fa:"کپی نتیجه‌ام" },
+  copied:{ en:"Copied", ar:"تم النسخ", fa:"کپی شد" },
+  copyFail:{ en:"Could not copy", ar:"تعذّر النسخ", fa:"کپی نشد" },
+
+  /* levels */
+  dSweet:{ en:"Skip counting: write the numbers, fill a table while the graph plots it for you, and write the equation.",
+    ar:"العدّ القفزي: اكتب الأعداد، واملأ جدولاً بينما يعيّن التمثيل البياني النقاط لك، ثم اكتب المعادلة.",
+    fa:"شمارش چندتایی: عددها را بنویس، جدول را پر کن تا نمودار نقطه‌ها را برایت رسم کند، و معادله را بنویس." },
+  dMild:{ en:"The same ideas in algebra words: from an equation to a table and back, and equations from tables and graphs.",
+    ar:"الأفكار نفسها بلغة الجبر: من المعادلة إلى الجدول والعكس، ومعادلات من الجداول والتمثيلات البيانية.",
+    fa:"همان ایده‌ها با زبان جبر: از معادله به جدول و برعکس، و نوشتن معادله از روی جدول و نمودار." },
+  dMedium:{ en:"Make the graph yourself: complete the table from the equation, then click the grid to plot every point.",
+    ar:"ارسم التمثيل البياني بنفسك: أكمل الجدول من المعادلة، ثم انقر على الشبكة لتعيين كل نقطة.",
+    fa:"نمودار را خودت رسم کن: جدول را از روی معادله کامل کن، بعد روی شبکه کلیک کن تا هر نقطه را بگذاری." },
+  dSpicy:{ en:"Use it: worded problems, going further than counting can, and graphing lines from their equations.",
+    ar:"طبّق ما تعلّمته: مسائل كلامية، والذهاب أبعد مما يصل إليه العدّ، ورسم المستقيمات من معادلاتها.",
+    fa:"به کار ببر: مسئله‌های کلامی، رفتن فراتر از جایی که شمردن می‌رسد، و رسم خط از روی معادله‌اش." },
+
+  /* what the certificate tallies */
+  cat_count:{ en:"Counting", ar:"العدّ", fa:"شمارش" },
+  cat_table:{ en:"Tables", ar:"الجداول", fa:"جدول‌ها" },
+  cat_equation:{ en:"Equations", ar:"المعادلات", fa:"معادله‌ها" },
+  cat_meaning:{ en:"What the numbers mean", ar:"معنى الأعداد", fa:"معنای عددها" },
+  cat_plot:{ en:"Plotting", ar:"تعيين النقاط", fa:"رسم نقطه‌ها" },
+  cat_apply:{ en:"Using it", ar:"التطبيق", fa:"کاربرد" },
+
+  /* the prompt bar */
+  pAnswer:{ en:"Answer, then press Check (or Enter).", ar:"أجب، ثم اضغط «تحقّق» (أو Enter).", fa:"جواب بده، بعد «بررسی» (یا Enter) را بزن." },
+  pPlot:{ en:"Click the grid to plot each point, then press Check.", ar:"انقر على الشبكة لتعيين كل نقطة، ثم اضغط «تحقّق».", fa:"روی شبکه کلیک کن تا هر نقطه را بگذاری، بعد «بررسی» را بزن." },
+  pWellDone:{ en:"Correct — well done.", ar:"صحيح — أحسنت.", fa:"درست است — آفرین." },
+  pMarked:{ en:"Marked. Look at the corrections, then go on.", ar:"تم التصحيح. انظر إلى التصويبات، ثم تابع.", fa:"تصحیح شد. اصلاحیه‌ها را ببین و بعد ادامه بده." },
+  pNotQuite:{ en:"Not quite — the corrections are shown.", ar:"ليس تماماً — التصويبات معروضة.", fa:"نه کاملاً — اصلاحیه‌ها نشان داده شده‌اند." },
+  pCarryOn:{ en:"Carry on with the next part.", ar:"تابع إلى الجزء التالي.", fa:"سراغ بخش بعدی برو." },
+  pFixAgain:{ en:"You can fix it and check again, but the mark is from your first try.", ar:"يمكنك التصحيح والتحقّق مرة أخرى، لكن العلامة تُحسب من محاولتك الأولى.", fa:"می‌توانی درستش کنی و دوباره بررسی کنی، ولی نمره از تلاش اولت حساب می‌شود." },
+  pStill:{ en:"Still not right — look at the corrections.", ar:"ما زال غير صحيح — انظر إلى التصويبات.", fa:"هنوز درست نیست — به اصلاحیه‌ها نگاه کن." },
+  pRightNext:{ en:"Right. Now the next part.", ar:"صحيح. والآن الجزء التالي.", fa:"درست است. حالا بخش بعدی." },
+  pAllFirst:{ en:"Correct — every part right first time.", ar:"صحيح — كل الأجزاء صحيحة من المحاولة الأولى.", fa:"درست است — همهٔ بخش‌ها از بار اول درست بود." },
+  pRightNow:{ en:"That is right now. The mark for this question is from your first tries.", ar:"هذا صحيح الآن. علامة هذا السؤال تُحسب من محاولاتك الأولى.", fa:"حالا درست است. نمرهٔ این سؤال از تلاش‌های اولت حساب می‌شود." },
+
+  /* a part */
+  check:{ en:"Check", ar:"تحقّق", fa:"بررسی" },
+  checkAgain:{ en:"Check again", ar:"تحقّق مرة أخرى", fa:"دوباره بررسی کن" },
+  mRight:{ en:"✓ Right first time", ar:"✓ صحيح من المحاولة الأولى", fa:"✓ از بار اول درست" },
+  mFixed:{ en:"✓ Fixed (counts from your first try)", ar:"✓ صُحّح (تُحسب المحاولة الأولى)", fa:"✓ اصلاح شد (تلاش اول حساب می‌شود)" },
+  mNot:{ en:"✗ Not yet", ar:"✗ ليس بعد", fa:"✗ هنوز نه" },
+  tSeqCaps:{ en:"Write the numbers", ar:"اكتب الأعداد", fa:"عددها را بنویس" },
+  tSeq5:{ en:"Write the first five numbers", ar:"اكتب الأعداد الخمسة الأولى", fa:"پنج عدد اول را بنویس" },
+  tTableLive:{ en:"Complete the table — the graph plots your numbers as you go", ar:"أكمل الجدول — يعيّن التمثيل البياني أعدادك أثناء الكتابة", fa:"جدول را کامل کن — نمودار عددهایت را همزمان رسم می‌کند" },
+  tTable:{ en:"Complete the table", ar:"أكمل الجدول", fa:"جدول را کامل کن" },
+  tEq:{ en:"Write the equation", ar:"اكتب المعادلة", fa:"معادله را بنویس" },
+  tFrameLine:{ en:"Write the equation — when you check, its line joins your dots", ar:"اكتب المعادلة — عند التحقّق يصل مستقيمها بين نقاطك", fa:"معادله را بنویس — با بررسی، خطش نقطه‌هایت را به هم وصل می‌کند" },
+  tCount:{ en:"Write it as counting", ar:"اكتبها بلغة العدّ", fa:"آن را به شکل شمارش بنویس" },
+  tDesc:{ en:"What do the numbers mean?", ar:"ماذا تعني الأعداد؟", fa:"عددها چه معنایی دارند؟" },
+  tPlot:{ en:"Plot the points on the grid", ar:"عيّن النقاط على الشبكة", fa:"نقطه‌ها را روی شبکه بگذار" },
+  tNum:{ en:"Work it out", ar:"احسبها", fa:"حسابش کن" },
+  tMc:{ en:"Choose one", ar:"اختر إجابة واحدة", fa:"یکی را انتخاب کن" },
+  hintPlot:{ en:"{n} of {t} points plotted. Click the grid to place a point; click it again to take it off. One point for each value of {x}.",
+    ar:"عُيّنت {n} من {t} نقاط. انقر على الشبكة لوضع نقطة، وانقر عليها مرة أخرى لإزالتها. نقطة واحدة لكل قيمة من قيم {x}.",
+    fa:"{n} از {t} نقطه گذاشته شده. روی شبکه کلیک کن تا نقطه بگذاری و دوباره کلیک کن تا برداری. برای هر مقدار {x} یک نقطه." },
+
+  /* the graph */
+  nClick:{ en:"Click where each point goes. Click a point again to remove it.", ar:"انقر حيث تقع كل نقطة. انقر على النقطة مرة أخرى لإزالتها.", fa:"جای هر نقطه کلیک کن. برای برداشتن نقطه دوباره رویش کلیک کن." },
+  nLive:{ en:"Your numbers appear as points as you type them.", ar:"تظهر أعدادك نقاطاً أثناء كتابتها.", fa:"عددهایت همان‌طور که تایپشان می‌کنی به شکل نقطه ظاهر می‌شوند." },
+  nLine:{ en:"The line {eq} goes through every point.", ar:"المستقيم {eq} يمرّ بكل النقاط.", fa:"خط {eq} از همهٔ نقطه‌ها می‌گذرد." },
+  nYours:{ en:"The red line is your equation — it misses the points.", ar:"المستقيم الأحمر هو معادلتك — إنه لا يمرّ بالنقاط.", fa:"خط قرمز معادلهٔ توست — از نقطه‌ها نمی‌گذرد." },
+  nRead:{ en:"Read the points carefully — check the scale on each axis.", ar:"اقرأ النقاط بعناية — تحقّق من التدريج على كل محور.", fa:"نقطه‌ها را با دقت بخوان — مقیاس هر محور را بررسی کن." },
+
+  /* the two directions, as words */
+  wUp:{ en:"up", ar:"تصاعدياً", fa:"به جلو" },
+  wDown:{ en:"down", ar:"تنازلياً", fa:"به عقب" },
+  wInc:{ en:"increases", ar:"يزداد", fa:"زیاد می‌شود" },
+  wDec:{ en:"decreases", ar:"ينقص", fa:"کم می‌شود" },
+  wUpDir:{ en:"up", ar:"تصاعدي", fa:"رو به بالا" },
+  wDownDir:{ en:"down", ar:"تنازلي", fa:"رو به پایین" },
+
+  /* counting and describing */
+  instr:{ en:"Start at {a}, count {dir} by {b}s.", ar:"ابدأ من {a}، وعُدّ {dir} بمقدار {b} في كل مرة.", fa:"از {a} شروع کن و {dir} بشمار، هر بار {b} تا." },
+  countRow:{ en:"Start at {A}, count {S} by {B}s", ar:"ابدأ من {A}، وعُدّ {S} بمقدار {B} في كل مرة", fa:"از {A} شروع کن و {S} بشمار، هر بار {B} تا" },
+  countRowEn:{ en:"Start at ___, count up / down by ___s" },
+  desc:{ en:"When {x0}, {yb}. Each time {x} increases by 1, {y} {dir} by {m}.",
+    ar:"عندما {x0}، {yb}. كلما زاد {x} بمقدار 1، {dir} {y} بمقدار {m}.",
+    fa:"وقتی {x0}، {yb}. هر بار که {x} یکی زیاد می‌شود، {y} به اندازهٔ {m} {dir}." },
+  descRow1:{ en:"When {x0}, {ya}.", ar:"عندما {x0}، {ya}.", fa:"وقتی {x0}، {ya}." },
+  descRow2:{ en:"Each time {x} increases by 1, {y} {S} by {B}.", ar:"كلما زاد {x} بمقدار 1، {S} {y} بمقدار {B}.", fa:"هر بار که {x} یکی زیاد می‌شود، {y} به اندازهٔ {B} {S}." },
+  descRowEn:{ en:"When x = 0, y = ___. Each time x increases by 1, y increases / decreases by ___." },
+
+  /* the questions */
+  sSeqQuad:{ en:"Count back as well as on: write {y} for {xa} to {xb}.", ar:"عُدّ إلى الوراء وإلى الأمام: اكتب قيمة {y} من {xa} إلى {xb}.", fa:"هم به عقب و هم به جلو بشمار: {y} را از {xa} تا {xb} بنویس." },
+  sSeq5:{ en:"Write the first five numbers.", ar:"اكتب الأعداد الخمسة الأولى.", fa:"پنج عدد اول را بنویس." },
+  sLiveQuad:{ en:"{x0} is the start. Count on for positive {x}, and back for negative {x}.", ar:"{x0} هو البداية. عُدّ إلى الأمام لقيم {x} الموجبة، وإلى الوراء لقيم {x} السالبة.", fa:"{x0} نقطهٔ شروع است. برای {x}های مثبت به جلو بشمار و برای {x}های منفی به عقب." },
+  sLive:{ en:"{x0} is the start, {x1} is one count on, and so on.", ar:"{x0} هو البداية، و{x1} هو عدّة واحدة إلى الأمام، وهكذا.", fa:"{x0} شروع است، {x1} یک شمارش جلوتر است و همین‌طور ادامه دارد." },
+  sFrame:{ en:"Write it as an equation: the start is the number on its own, the count goes with {x}.", ar:"اكتبها معادلة: البداية هي العدد الذي يقف وحده، ومقدار العدّ يرافق {x}.", fa:"آن را به شکل معادله بنویس: عدد شروع تنها می‌آید و عدد شمارش کنار {x} می‌آید." },
+  sCountEq:{ en:"What counting does this equation describe?", ar:"ما العدّ الذي تصفه هذه المعادلة؟", fa:"این معادله چه شمارشی را توصیف می‌کند؟" },
+  sSubst:{ en:"Substitute each value of {x} into the equation.", ar:"عوّض كل قيمة من قيم {x} في المعادلة.", fa:"هر مقدار {x} را در معادله جایگذاری کن." },
+  sDesc:{ en:"What do the two numbers tell you?", ar:"ماذا يخبرك العددان؟", fa:"این دو عدد چه چیزی به تو می‌گویند؟" },
+  sWriteEq:{ en:"Write the equation.", ar:"اكتب المعادلة.", fa:"معادله را بنویس." },
+  qTable:{ en:"This table shows a linear relationship.", ar:"يُظهر هذا الجدول علاقة خطية.", fa:"این جدول یک رابطهٔ خطی را نشان می‌دهد." },
+  sTable:{ en:"Write its equation.", ar:"اكتب معادلتها.", fa:"معادله‌اش را بنویس." },
+  qGraphSt:{ en:"These points show the {yn} after {x} {xl}.", ar:"تُظهر هذه النقاط {yn} عند كل قيمة لـ{x} ({xl}).", fa:"این نقطه‌ها {yn} را برای هر مقدار {x} ({xl}) نشان می‌دهند." },
+  qGraph:{ en:"These points lie on a straight line.", ar:"تقع هذه النقاط على خط مستقيم.", fa:"این نقطه‌ها روی یک خط راست قرار دارند." },
+  sGraph:{ en:"Read the points, then write the equation of the line.", ar:"اقرأ النقاط، ثم اكتب معادلة المستقيم.", fa:"نقطه‌ها را بخوان، بعد معادلهٔ خط را بنویس." },
+  let:{ en:"Let {x} = {xl} and {y} = {yl}.", ar:"لنفرض أن {x} = {xl} و{y} = {yl}.", fa:"فرض کن {x} = {xl} و {y} = {yl}." },
+  sEqForY:{ en:"Write an equation for {y}.", ar:"اكتب معادلة لـ{y}.", fa:"یک معادله برای {y} بنویس." },
+  sTablePlot:{ en:"Complete the table, then plot the points.", ar:"أكمل الجدول، ثم عيّن النقاط.", fa:"جدول را کامل کن، بعد نقطه‌ها را بگذار." },
+  sMeaning:{ en:"The equation is {eq}. What does the {v} tell you?", ar:"المعادلة هي {eq}. ماذا يخبرك العدد {v}؟", fa:"معادله {eq} است. عدد {v} چه چیزی به تو می‌گوید؟" },
+  qMc:{ en:"Which equation matches this table?", ar:"أيّ معادلة تطابق هذا الجدول؟", fa:"کدام معادله با این جدول جور است؟" },
+  sMc:{ en:"Test a pair of values from the table in each one.", ar:"اختبر زوجاً من القيم من الجدول في كل معادلة.", fa:"یک جفت مقدار از جدول را در هر کدام امتحان کن." },
+  qPlot:{ en:"Plot the points from this table.", ar:"عيّن النقاط من هذا الجدول.", fa:"نقطه‌های این جدول را رسم کن." },
+  sPlot:{ en:"Click the grid where each point goes. Click a point again to take it off.", ar:"انقر على الشبكة حيث تقع كل نقطة. انقر على النقطة مرة أخرى لإزالتها.", fa:"جای هر نقطه روی شبکه کلیک کن. برای برداشتن نقطه دوباره رویش کلیک کن." },
+  farA:{ en:"What is {y} when {xk} ({xl})?", ar:"ما قيمة {y} عندما {xk} ({xl})؟", fa:"وقتی {xk} ({xl})، {y} چند است؟" },
+  farB:{ en:"When is {yk}?", ar:"متى يكون {yk}؟", fa:"کِی {yk} می‌شود؟" },
+  ruleFind:{ en:"Find {y} when {xk}.", ar:"أوجد {y} عندما {xk}.", fa:"وقتی {xk}، مقدار {y} را پیدا کن." },
+  ruleWhich:{ en:"Which value of {x} gives {yk}?", ar:"أيّ قيمة لـ{x} تعطي {yk}؟", fa:"به ازای کدام مقدار {x}، {yk} می‌شود؟" },
+  sRule:{ en:"Use the equation — too far to count.", ar:"استخدم المعادلة — المسافة أبعد من أن تُعدّ.", fa:"از معادله استفاده کن — برای شمردن خیلی دور است." },
+  qLine:{ en:"Graph the line {eq}", ar:"ارسم المستقيم {eq}", fa:"خط {eq} را رسم کن" },
+  sLine:{ en:"Complete the table, then plot the points. The line is drawn through them once they are marked.", ar:"أكمل الجدول، ثم عيّن النقاط. يُرسم المستقيم عبرها بعد تصحيحها.", fa:"جدول را کامل کن، بعد نقطه‌ها را بگذار. بعد از تصحیح، خط از میان آن‌ها رسم می‌شود." },
+
+  /* what a number in a story means — Arabic verbs agree with a feminine noun */
+  oEvery:{ en:"Every {xo}, the {yn} goes {dw} by {v}.",
+    ar:v => "كل {xo}، " + (v.up ? (v.g === "f" ? "تزداد" : "يزداد") : (v.g === "f" ? "تنقص" : "ينقص")) + " {yn} بمقدار {v}.",
+    fa:v => "هر {xo}، {yn} به اندازهٔ {v} " + (v.up ? "زیاد می‌شود" : "کم می‌شود") + "." },
+  oStartIs:{ en:"At the start, the {yn} is {v}.", ar:v => "في البداية، {yn} " + (v.g === "f" ? "تساوي" : "يساوي") + " {v}.", fa:"در شروع، {yn} برابر {v} است." },
+  oStart0:{ en:"At the start ({x0}), the {yn} is {v}.", ar:v => "في البداية ({x0})، {yn} " + (v.g === "f" ? "تساوي" : "يساوي") + " {v}.", fa:"در شروع ({x0})، {yn} برابر {v} است." },
+  oAfter:{ en:"After {k} {xl}, the {yn} is {v}.", ar:v => "عندما {xk}، {yn} " + (v.g === "f" ? "تساوي" : "يساوي") + " {v}.", fa:"بعد از {k} {xo}، {yn} برابر {v} است." },
+  oAlways:{ en:"The {yn} is always {v}.", ar:v => "{yn} " + (v.g === "f" ? "تساوي" : "يساوي") + " {v} دائماً.", fa:"{yn} همیشه برابر {v} است." },
+
+  /* nothing used up */
+  iFillAll:{ en:"Fill in every box first.", ar:"املأ كل المربعات أولاً.", fa:"اول همهٔ خانه‌ها را پر کن." },
+  iNeedNum:{ en:"Each box needs a number.", ar:"كل مربع يحتاج إلى عدد.", fa:"هر خانه باید یک عدد داشته باشد." },
+  iBoth:{ en:"Put a number in both boxes.", ar:"ضع عدداً في المربعين كليهما.", fa:"در هر دو خانه عدد بنویس." },
+  iSign:{ en:"Choose + or − between the two numbers.", ar:"اختر + أو − بين العددين.", fa:"بین دو عدد + یا − را انتخاب کن." },
+  iTypeEq:{ en:"Type the equation, like {e}.", ar:"اكتب المعادلة، مثل {e}.", fa:"معادله را بنویس، مثل {e}." },
+  iForm:{ en:"Write it in the form {f}, like {e}.", ar:"اكتبها على الصورة {f}، مثل {e}.", fa:"آن را به شکل {f} بنویس، مثل {e}." },
+  iUpDown:{ en:"Choose up or down.", ar:"اختر «تصاعدياً» أو «تنازلياً».", fa:"«به جلو» یا «به عقب» را انتخاب کن." },
+  iIncDec:{ en:"Choose increases or decreases.", ar:"اختر «يزداد» أو «ينقص».", fa:"«زیاد می‌شود» یا «کم می‌شود» را انتخاب کن." },
+  iPlot:{ en:"Click the grid to plot your points first.", ar:"انقر على الشبكة لتعيين نقاطك أولاً.", fa:"اول روی شبکه کلیک کن و نقطه‌هایت را بگذار." },
+  iAll:{ en:"Answer every part first.", ar:"أجب عن كل الأجزاء أولاً.", fa:"اول به همهٔ بخش‌ها جواب بده." },
+  iEachNum:{ en:"Each answer needs a number.", ar:"كل إجابة تحتاج إلى عدد.", fa:"هر جواب باید یک عدد باشد." },
+  iChoose:{ en:"Choose an answer first.", ar:"اختر إجابة أولاً.", fa:"اول یک جواب انتخاب کن." },
+
+  /* corrections */
+  fShown:{ en:"The right numbers are shown under the boxes.", ar:"الأعداد الصحيحة معروضة تحت المربعات.", fa:"عددهای درست زیر خانه‌ها نشان داده شده‌اند." },
+  fCheckX:{ en:"Check {xv}.", ar:"تحقّق من {xv}.", fa:"{xv} را بررسی کن." },
+  fNotLine:{ en:"That is not a straight line — it should be a number plus a number times {x}.", ar:"هذا ليس خطاً مستقيماً — يجب أن يكون عدداً زائد عدد مضروب في {x}.", fa:"این یک خط راست نیست — باید یک عدد به‌علاوهٔ یک عدد ضرب در {x} باشد." },
+  fOneRight:{ en:"One right answer: {eq}", ar:"إجابة صحيحة واحدة: {eq}", fa:"یک جواب درست: {eq}" },
+  fEq:{ en:"{eq}", ar:"{eq}", fa:"{eq}" },
+  fPt1:{ en:"One point is missing or in the wrong place — the green rings show where they go.", ar:"نقطة واحدة ناقصة أو في غير مكانها — الحلقات الخضراء تُظهر أماكن النقاط.", fa:"یک نقطه جا افتاده یا سر جایش نیست — حلقه‌های سبز جای درست را نشان می‌دهند." },
+  fPtN:{ en:"{n} points are missing or in the wrong place — the green rings show where they go.", ar:"{n} نقاط ناقصة أو في غير مكانها — الحلقات الخضراء تُظهر أماكن النقاط.", fa:"{n} نقطه جا افتاده یا سر جایش نیست — حلقه‌های سبز جای درست را نشان می‌دهند." },
+  fOnlyTable:{ en:"Only plot the points from the table.", ar:"عيّن نقاط الجدول فقط.", fa:"فقط نقطه‌های جدول را بگذار." },
+  fNum:{ en:"The right answers are shown. Write the equation first: {eq}, then substitute.", ar:"الإجابات الصحيحة معروضة. اكتب المعادلة أولاً: {eq}، ثم عوّض.", fa:"جواب‌های درست نشان داده شده‌اند. اول معادله را بنویس: {eq}، بعد جایگذاری کن." },
+  fMc:{ en:"The right answer is marked in green.", ar:"الإجابة الصحيحة مُعلّمة باللون الأخضر.", fa:"جواب درست با رنگ سبز مشخص شده است." },
+  wSwapC:{ en:"The two numbers are swapped. The start ({b}) is the number on its own; the count ({m}) goes with {x}.", ar:"العددان متبادلان. البداية ({b}) هي العدد الذي يقف وحده، ومقدار العدّ ({m}) يرافق {x}.", fa:"دو عدد جابه‌جا شده‌اند. عدد شروع ({b}) تنها می‌آید و عدد شمارش ({m}) کنار {x} می‌آید." },
+  wSwapA:{ en:"The two numbers are swapped. The number on its own is {y} when {x0} ({b}); the number with {x} is how much {y} changes each step ({m}).", ar:"العددان متبادلان. العدد الذي يقف وحده هو قيمة {y} عندما {x0} ({b})، والعدد المرافق لـ{x} هو مقدار تغيّر {y} في كل خطوة ({m}).", fa:"دو عدد جابه‌جا شده‌اند. عدد تنها، مقدار {y} وقتی {x0} است ({b})؛ عدد کنار {x} نشان می‌دهد {y} در هر گام چقدر تغییر می‌کند ({m})." },
+  wDir:{ en:"Check the direction: it goes {dw}, so the number with {x} is {m}.", ar:"تحقّق من الاتجاه: إنه {dw}، لذا العدد المرافق لـ{x} هو {m}.", fa:"جهت را بررسی کن: {dw} می‌رود، پس عدد کنار {x} برابر {m} است." },
+  wStartC:{ en:"The start is right. Check how much it counts by each time.", ar:"البداية صحيحة. تحقّق من مقدار العدّ في كل مرة.", fa:"عدد شروع درست است. بررسی کن هر بار چندتا چندتا می‌شمارد." },
+  wStartA:{ en:"The number on its own is right. Check how much {y} changes each time {x} goes up by 1.", ar:"العدد الذي يقف وحده صحيح. تحقّق من مقدار تغيّر {y} كلما زاد {x} بمقدار 1.", fa:"عدد تنها درست است. بررسی کن هر بار که {x} یکی زیاد می‌شود، {y} چقدر تغییر می‌کند." },
+  wCountC:{ en:"The count is right. Check the start — the number when {x0}.", ar:"مقدار العدّ صحيح. تحقّق من البداية — العدد عندما {x0}.", fa:"عدد شمارش درست است. عدد شروع را بررسی کن — عددی که وقتی {x0} داریم." },
+  wCountA:{ en:"The number with {x} is right. Check {y} when {x0}.", ar:"العدد المرافق لـ{x} صحيح. تحقّق من قيمة {y} عندما {x0}.", fa:"عدد کنار {x} درست است. مقدار {y} را وقتی {x0} بررسی کن." },
+  wDefC:{ en:"Use the start for the number on its own and the count for the number with {x}.", ar:"استخدم البداية للعدد الذي يقف وحده، ومقدار العدّ للعدد المرافق لـ{x}.", fa:"عدد شروع را برای عدد تنها و عدد شمارش را برای عدد کنار {x} به کار ببر." },
+  wDefA:{ en:"Find {y} when {x0}, and how much {y} changes each time {x} goes up by 1.", ar:"أوجد قيمة {y} عندما {x0}، ومقدار تغيّر {y} كلما زاد {x} بمقدار 1.", fa:"مقدار {y} را وقتی {x0} پیدا کن، و اینکه هر بار که {x} یکی زیاد می‌شود {y} چقدر تغییر می‌کند." }
+};
+
+/* The 33 stories of contexts.js, in Arabic and Farsi. {n} a name, {a} the start, {b} the change.
+   x / y: the labels "Let x = … and y = …" (y with its unit, kept as in the numbers: $, cm, L …);
+   yn: y without the unit; xo: one x ("every hour"). Arabic g:"f" = the y noun is feminine.
+   Arabic sentences avoid verbs that would have to agree with the person's name. */
+const STORY = {
+  savings:{ ar:{ t:"في حساب {n} المصرفي {a}، ويُضاف إليه {b} من التوفير كل أسبوع.", x:"عدد الأسابيع", xo:"أسبوع", y:"المدّخرات ($)", yn:"المدّخرات", g:"f" },
+            fa:{ t:"{n} در بانک {a} دارد و هر هفته {b} پس‌انداز می‌کند.", x:"تعداد هفته‌ها", xo:"هفته", y:"پس‌انداز ($)", yn:"پس‌انداز" } },
+  phone:{ ar:{ t:"الاشتراك في باقة هاتف يكلّف {a}، ثم {b} كل شهر.", x:"عدد الأشهر", xo:"شهر", y:"التكلفة الإجمالية ($)", yn:"التكلفة الإجمالية", g:"f" },
+          fa:{ t:"عضویت در یک طرح تلفن همراه {a} هزینه دارد و بعد هر ماه {b}.", x:"تعداد ماه‌ها", xo:"ماه", y:"هزینهٔ کل ($)", yn:"هزینهٔ کل" } },
+  taxi:{ ar:{ t:"تتقاضى سيارة الأجرة {a} عند بدء الرحلة، ثم {b} عن كل كيلومتر.", x:"عدد الكيلومترات", xo:"كيلومتر", y:"الأجرة ($)", yn:"الأجرة", g:"f" },
+         fa:{ t:"تاکسی برای شروع سفر {a} می‌گیرد و بعد برای هر کیلومتر {b}.", x:"تعداد کیلومترها", xo:"کیلومتر", y:"کرایه ($)", yn:"کرایه" } },
+  gym:{ ar:{ t:"يتقاضى نادٍ رياضي رسوم انتساب قدرها {a}، ثم {b} عن كل زيارة.", x:"عدد الزيارات", xo:"زيارة", y:"التكلفة الإجمالية ($)", yn:"التكلفة الإجمالية", g:"f" },
+        fa:{ t:"یک باشگاه ورزشی {a} هزینهٔ عضویت می‌گیرد و بعد برای هر بار مراجعه {b}.", x:"تعداد مراجعه‌ها", xo:"بار مراجعه", y:"هزینهٔ کل ($)", yn:"هزینهٔ کل" } },
+  carhire:{ ar:{ t:"تتقاضى شركة تأجير سيارات {a} مقدّماً، ثم {b} عن كل يوم.", x:"عدد الأيام", xo:"يوم", y:"التكلفة ($)", yn:"التكلفة", g:"f" },
+            fa:{ t:"یک شرکت کرایهٔ خودرو {a} پیش‌پرداخت می‌گیرد و بعد برای هر روز {b}.", x:"تعداد روزها", xo:"روز", y:"هزینه ($)", yn:"هزینه" } },
+  fundraiser:{ ar:{ t:"جُمع حتى الآن {a} لسباق {n} الخيري، ويُضاف {b} من الرعاة عن كل لفة.", x:"عدد اللفات", xo:"لفة", y:"المبلغ المجموع ($)", yn:"المبلغ المجموع" },
+               fa:{ t:"{n} تا حالا {a} جمع کرده و برای هر دور دویدن {b} از حامیانش می‌گیرد.", x:"تعداد دورها", xo:"دور", y:"پول جمع‌شده ($)", yn:"پول جمع‌شده" } },
+  giftcard:{ ar:{ t:"على بطاقة هدايا {n} مبلغ {a}، ويُضاف إليها {b} كل أسبوع.", x:"عدد الأسابيع", xo:"أسبوع", y:"المبلغ على البطاقة ($)", yn:"المبلغ على البطاقة" },
+             fa:{ t:"روی کارت هدیهٔ {n} مبلغ {a} هست و هر هفته {b} به آن اضافه می‌کند.", x:"تعداد هفته‌ها", xo:"هفته", y:"موجودی کارت ($)", yn:"موجودی کارت" } },
+  seedling:{ ar:{ t:"طول شتلة {a}، وتنمو {b} كل أسبوع.", x:"عدد الأسابيع", xo:"أسبوع", y:"الطول (cm)", yn:"الطول" },
+             fa:{ t:"یک نهال {a} قد دارد و هر هفته {b} رشد می‌کند.", x:"تعداد هفته‌ها", xo:"هفته", y:"ارتفاع (cm)", yn:"ارتفاع" } },
+  bucket:{ ar:{ t:"في دلو {a} من الماء، ويضيف الصنبور {b} كل دقيقة.", x:"عدد الدقائق", xo:"دقيقة", y:"الماء (L)", yn:"كمية الماء", g:"f" },
+           fa:{ t:"در یک سطل از قبل {a} آب هست و شیر آب هر دقیقه {b} اضافه می‌کند.", x:"تعداد دقیقه‌ها", xo:"دقیقه", y:"آب (L)", yn:"مقدار آب" } },
+  train:{ ar:{ t:"يبعد قطار {a} عن المحطة، ويقطع {b} إضافية كل ساعة.", x:"عدد الساعات", xo:"ساعة", y:"المسافة (km)", yn:"المسافة", g:"f" },
+          fa:{ t:"قطاری {a} از ایستگاه فاصله دارد و هر ساعت {b} دورتر می‌رود.", x:"تعداد ساعت‌ها", xo:"ساعت", y:"فاصله (km)", yn:"فاصله" } },
+  snow:{ ar:{ t:"على الأرض ثلج بعمق {a}، ويتساقط {b} إضافية كل ساعة.", x:"عدد الساعات", xo:"ساعة", y:"عمق الثلج (cm)", yn:"عمق الثلج" },
+         fa:{ t:"روی زمین {a} برف نشسته و هر ساعت {b} برف دیگر می‌بارد.", x:"تعداد ساعت‌ها", xo:"ساعت", y:"عمق برف (cm)", yn:"عمق برف" } },
+  stamps:{ ar:{ t:"في مجموعة {n} {a} من الطوابع، ويُضاف إليها {b} من الطوابع كل شهر.", x:"عدد الأشهر", xo:"شهر", y:"عدد الطوابع", yn:"عدد الطوابع" },
+           fa:{ t:"{n} {a} تمبر دارد و هر ماه {b} تمبر دیگر جمع می‌کند.", x:"تعداد ماه‌ها", xo:"ماه", y:"تعداد تمبرها", yn:"تعداد تمبرها" } },
+  pages:{ ar:{ t:"عدد الصفحات المقروءة من كتاب {n} حتى الآن {a}، ويزيد {b} كل ليلة.", x:"عدد الليالي", xo:"ليلة", y:"الصفحات المقروءة", yn:"عدد الصفحات المقروءة" },
+          fa:{ t:"{n} تا حالا {a} صفحه خوانده و هر شب {b} صفحهٔ دیگر می‌خواند.", x:"تعداد شب‌ها", xo:"شب", y:"صفحه‌های خوانده‌شده", yn:"تعداد صفحه‌های خوانده‌شده" } },
+  queue:{ ar:{ t:"في طابور {a} من الأشخاص، وينضمّ إليه كل دقيقة {b} من الأشخاص.", x:"عدد الدقائق", xo:"دقيقة", y:"عدد الأشخاص", yn:"عدد الأشخاص" },
+          fa:{ t:"{a} نفر در صف هستند و هر دقیقه {b} نفر دیگر به صف اضافه می‌شوند.", x:"تعداد دقیقه‌ها", xo:"دقیقه", y:"تعداد نفرها", yn:"تعداد نفرها" } },
+  tower:{ ar:{ t:"في برج {a} من المكعبات، ويُضاف إليه {b} من المكعبات في كل دور يلعبه {n}.", x:"عدد الأدوار", xo:"دور", y:"عدد المكعبات", yn:"عدد المكعبات" },
+          fa:{ t:"یک برج {a} مکعب دارد و {n} در هر نوبت {b} مکعب دیگر اضافه می‌کند.", x:"تعداد نوبت‌ها", xo:"نوبت", y:"تعداد مکعب‌ها", yn:"تعداد مکعب‌ها" } },
+  followers:{ ar:{ t:"لقناة {n} {a} من المتابعين، وتكسب {b} من المتابعين الجدد كل يوم.", x:"عدد الأيام", xo:"يوم", y:"عدد المتابعين", yn:"عدد المتابعين" },
+              fa:{ t:"کانال {n} {a} دنبال‌کننده دارد و هر روز {b} دنبال‌کنندهٔ تازه پیدا می‌کند.", x:"تعداد روزها", xo:"روز", y:"تعداد دنبال‌کننده‌ها", yn:"تعداد دنبال‌کننده‌ها" } },
+  plane:{ ar:{ t:"تحلّق طائرة على ارتفاع {a}، وترتفع {b} كل دقيقة.", x:"عدد الدقائق", xo:"دقيقة", y:"الارتفاع (m)", yn:"الارتفاع" },
+          fa:{ t:"هواپیمایی در ارتفاع {a} پرواز می‌کند و هر دقیقه {b} بالاتر می‌رود.", x:"تعداد دقیقه‌ها", xo:"دقیقه", y:"ارتفاع (m)", yn:"ارتفاع" } },
+  sunrise:{ ar:{ t:"عند شروق الشمس تكون درجة الحرارة {a}، وترتفع {b} كل ساعة.", x:"عدد الساعات", xo:"ساعة", y:"درجة الحرارة (°C)", yn:"درجة الحرارة", g:"f" },
+            fa:{ t:"هنگام طلوع آفتاب دما {a} است و هر ساعت {b} بالا می‌رود.", x:"تعداد ساعت‌ها", xo:"ساعت", y:"دما (°C)", yn:"دما" } },
+  lollies:{ ar:{ t:"كان مع {n} في البداية {a}، ويُنفَق منها {b} كل ساعة على الحلوى.", x:"عدد الساعات", xo:"ساعة", y:"المال المتبقي ($)", yn:"المال المتبقي" },
+            fa:{ t:"{n} اول {a} داشت ولی هر ساعت {b} برای آب‌نبات خرج کرد.", x:"تعداد ساعت‌ها", xo:"ساعت", y:"پول باقی‌مانده ($)", yn:"پول باقی‌مانده" } },
+  loan:{ ar:{ t:"على {n} دَين قدره {a}، ويُسدَّد منه {b} كل أسبوع.", x:"عدد الأسابيع", xo:"أسبوع", y:"المتبقي من الدين ($)", yn:"المتبقي من الدين" },
+         fa:{ t:"{n} {a} بدهکار است و هر هفته {b} از آن را پس می‌دهد.", x:"تعداد هفته‌ها", xo:"هفته", y:"بدهی باقی‌مانده ($)", yn:"بدهی باقی‌مانده" } },
+  buscard:{ ar:{ t:"على بطاقة الحافلة الخاصة بـ{n} مبلغ {a}، وكل رحلة تكلّف {b}.", x:"عدد الرحلات", xo:"رحلة", y:"المال المتبقي ($)", yn:"المال المتبقي" },
+            fa:{ t:"روی کارت اتوبوس {n} {a} هست و هر سفر {b} هزینه دارد.", x:"تعداد سفرها", xo:"سفر", y:"پول باقی‌مانده ($)", yn:"پول باقی‌مانده" } },
+  candle:{ ar:{ t:"طول شمعة {a}، وتقصر {b} كل ساعة وهي تحترق.", x:"عدد الساعات", xo:"ساعة", y:"الطول (cm)", yn:"الطول" },
+           fa:{ t:"یک شمع {a} بلندی دارد و هر ساعت {b} از آن می‌سوزد.", x:"تعداد ساعت‌ها", xo:"ساعت", y:"ارتفاع (cm)", yn:"ارتفاع" } },
+  tank:{ ar:{ t:"في خزان ماء {a}، ويتسرّب منه {b} كل يوم.", x:"عدد الأيام", xo:"يوم", y:"الماء (L)", yn:"كمية الماء", g:"f" },
+         fa:{ t:"در یک مخزن {a} آب هست و هر روز {b} از آن نشت می‌کند.", x:"تعداد روزها", xo:"روز", y:"آب (L)", yn:"مقدار آب" } },
+  petrol:{ ar:{ t:"في خزان سيارة {a} من البنزين، وتستهلك {b} كل ساعة.", x:"عدد الساعات", xo:"ساعة", y:"البنزين (L)", yn:"كمية البنزين", g:"f" },
+           fa:{ t:"در باک یک خودرو {a} بنزین هست و هر ساعت {b} مصرف می‌کند.", x:"تعداد ساعت‌ها", xo:"ساعت", y:"بنزین (L)", yn:"مقدار بنزین" } },
+  hike:{ ar:{ t:"يبعد متنزّه {a} عن الكوخ، ويقترب منه {b} كل ساعة.", x:"عدد الساعات", xo:"ساعة", y:"المسافة إلى الكوخ (km)", yn:"المسافة إلى الكوخ", g:"f" },
+         fa:{ t:"یک کوهنورد {a} با کلبه فاصله دارد و هر ساعت {b} به آن نزدیک‌تر می‌شود.", x:"تعداد ساعت‌ها", xo:"ساعت", y:"فاصله تا کلبه (km)", yn:"فاصله تا کلبه" } },
+  paint:{ ar:{ t:"في علبة {a} من الطلاء، ويُستعمل {b} لكل لوح من السياج.", x:"عدد ألواح السياج", xo:"لوح سياج", y:"الطلاء المتبقي (L)", yn:"الطلاء المتبقي" },
+          fa:{ t:"در یک قوطی {a} رنگ هست و برای هر تختهٔ نرده {b} مصرف می‌شود.", x:"تعداد تخته‌های نرده", xo:"تختهٔ نرده", y:"رنگ باقی‌مانده (L)", yn:"رنگ باقی‌مانده" } },
+  battery:{ ar:{ t:"شحن بطارية هاتف {a}، وينخفض {b} كل ساعة.", x:"عدد الساعات", xo:"ساعة", y:"الشحن (%)", yn:"الشحن" },
+            fa:{ t:"شارژ باتری یک گوشی {a} است و هر ساعت {b} کم می‌شود.", x:"تعداد ساعت‌ها", xo:"ساعت", y:"شارژ باتری (%)", yn:"شارژ باتری" } },
+  pizza:{ ar:{ t:"تبدأ حفلة بـ{a} من شرائح البيتزا، ويُؤكل منها {b} كل دقيقة.", x:"عدد الدقائق", xo:"دقيقة", y:"الشرائح المتبقية", yn:"عدد الشرائح المتبقية" },
+          fa:{ t:"یک مهمانی با {a} برش پیتزا شروع می‌شود و هر دقیقه {b} برش خورده می‌شود.", x:"تعداد دقیقه‌ها", xo:"دقیقه", y:"برش‌های باقی‌مانده", yn:"تعداد برش‌های باقی‌مانده" } },
+  tickets:{ ar:{ t:"بقي لحفلة موسيقية {a} من التذاكر، ويُباع منها {b} كل دقيقة.", x:"عدد الدقائق", xo:"دقيقة", y:"التذاكر المتبقية", yn:"عدد التذاكر المتبقية" },
+            fa:{ t:"یک کنسرت {a} بلیت باقی‌مانده دارد و هر دقیقه {b} بلیت فروخته می‌شود.", x:"تعداد دقیقه‌ها", xo:"دقیقه", y:"بلیت‌های باقی‌مانده", yn:"تعداد بلیت‌های باقی‌مانده" } },
+  biscuits:{ ar:{ t:"في مرطبان {a} من البسكويت، ويُؤكل منها {b} كل يوم.", x:"عدد الأيام", xo:"يوم", y:"البسكويت المتبقي", yn:"عدد قطع البسكويت المتبقية" },
+             fa:{ t:"در یک شیشه {a} بیسکویت هست و هر روز {b} تا خورده می‌شود.", x:"تعداد روزها", xo:"روز", y:"بیسکویت‌های باقی‌مانده", yn:"تعداد بیسکویت‌های باقی‌مانده" } },
+  bookleft:{ ar:{ t:"بقي من كتاب {n} {a} من الصفحات، ويُقرأ منها {b} كل ليلة.", x:"عدد الليالي", xo:"ليلة", y:"الصفحات المتبقية", yn:"عدد الصفحات المتبقية" },
+             fa:{ t:"از کتاب {n} {a} صفحه مانده و او هر شب {b} صفحه می‌خواند.", x:"تعداد شب‌ها", xo:"شب", y:"صفحه‌های باقی‌مانده", yn:"تعداد صفحه‌های باقی‌مانده" } },
+  balloon:{ ar:{ t:"منطاد هواء ساخن على ارتفاع {a} فوق الأرض، وينخفض {b} كل دقيقة.", x:"عدد الدقائق", xo:"دقيقة", y:"الارتفاع (m)", yn:"الارتفاع" },
+            fa:{ t:"یک بالن هوای گرم {a} بالاتر از زمین است و هر دقیقه {b} پایین می‌آید.", x:"تعداد دقیقه‌ها", xo:"دقیقه", y:"ارتفاع (m)", yn:"ارتفاع" } },
+  midnight:{ ar:{ t:"عند منتصف الليل تكون درجة الحرارة {a}، وتنخفض {b} كل ساعة.", x:"عدد الساعات", xo:"ساعة", y:"درجة الحرارة (°C)", yn:"درجة الحرارة", g:"f" },
+             fa:{ t:"نیمه‌شب دما {a} است و هر ساعت {b} پایین می‌آید.", x:"تعداد ساعت‌ها", xo:"ساعت", y:"دما (°C)", yn:"دما" } }
+};
+
+/* The names in the stories, written the way an Arabic or Farsi reader would say them. */
+const NAME_T = {
+  Jimmy:{ ar:"جيمي", fa:"جیمی" }, Mia:{ ar:"ميا", fa:"میا" }, Ari:{ ar:"آري", fa:"آری" }, Zoe:{ ar:"زوي", fa:"زویی" },
+  Leo:{ ar:"ليو", fa:"لئو" }, Priya:{ ar:"بريا", fa:"پریا" }, Sam:{ ar:"سام", fa:"سام" }, Ruby:{ ar:"روبي", fa:"روبی" },
+  Kai:{ ar:"كاي", fa:"کای" }, Noah:{ ar:"نوح", fa:"نوح" }, Isla:{ ar:"آيلا", fa:"آیلا" }, Jack:{ ar:"جاك", fa:"جک" },
+  Mei:{ ar:"مي", fa:"می" }, Ava:{ ar:"آفا", fa:"آوا" }, Tane:{ ar:"تاني", fa:"تانه" }, Lucas:{ ar:"لوكاس", fa:"لوکاس" },
+  Amira:{ ar:"أميرة", fa:"امیره" }, Ollie:{ ar:"أولي", fa:"اولی" }
+};
+
+const LANGS = ["en", "ar", "fa"];
+let LANG = "en";
+try{ const v = localStorage.getItem("mmt-csq-lang"); if(LANGS.includes(v)) LANG = v; }catch(e){}
+/* one language's text for a key (or an {en, ar, fa} word) with its {vars} filled:
+   a plain value is maths and sits left-to-right; an object is a word */
+function tx(o, lang, v){
+  const d = typeof o === "string" ? UI[o] : o;
+  if(!d) return String(o);
+  let s = d[lang] != null ? d[lang] : d.en;
+  if(typeof s === "function") s = s(v || {});
+  if(!v) return s;
+  return String(s).replace(/\{(\w+)\}/g, (m, k) => {
+    const x = v[k];
+    if(x == null) return "";
+    if(typeof x === "object") return tx(x, lang, null);
+    return lang === "en" ? String(x) : `<bdi dir="ltr">${x}</bdi>`;
+  });
+}
+const norm = (a, v) => Array.isArray(a) ? a : [[a, v]];
+const runL = (ps, lang) => ps.map(p => tx(p[0], lang, p[1])).join(" ");
+const bi = (en, tr) => LANG === "en" ? en : `<span class="tl" dir="rtl" lang="${LANG}">${tr}</span><span class="el">${en}</span>`;
+/* L: the chosen language over English.  one: the chosen language only.  plain: for an attribute or the graph. */
+const L = (a, v) => { const ps = norm(a, v); return bi(runL(ps, "en"), LANG === "en" ? "" : runL(ps, LANG)); };
+const one = (a, v) => { const ps = norm(a, v), t = runL(ps, LANG); return LANG === "en" ? t : `<span dir="rtl" lang="${LANG}">${t}</span>`; };
+const plain = (a, v) => runL(norm(a, v), LANG).replace(/<[^>]+>/g, "");
+/* a question's text is kept as a function (or parts) and drawn in the current language */
+const H = x => typeof x === "function" ? x() : Array.isArray(x) ? L(x) : (x || "");
+
+/* =====================================================================
    WHICH x VALUES. All Quadrants goes back past the start (counting back);
    a worded problem always stays at x ≥ 0 — there is no "−2 hours".
+   SWEET STAYS IN THE FIRST QUADRANT ON BOTH PAGES (teacher request
+   2026-10-28): every Sweet question starts at x = 0 and no y goes below 0.
+   FIRSTQ is set for each paper in buildPaper.
    ===================================================================== */
-const XR = QUAD
-  ? { seq:span(-2,2), table:span(-3,3), plot:span(-2,2) }
-  : { seq:span(0,4),  table:span(0,5),  plot:span(0,4) };
+let FIRSTQ = !QUAD;
+const XR4 = { seq:span(-2,2), table:span(-3,3), plot:span(-2,2) };
+const XR1 = { seq:span(0,4),  table:span(0,5),  plot:span(0,4) };
+const xr = () => FIRSTQ ? XR1 : XR4;
 const STORY_XS = { table:span(0,5), plot:span(0,4) };
 
 /* =====================================================================
@@ -379,7 +688,7 @@ const readable = (r, xs, zero) => { const v = xs.map(x => term(r, x)); return on
 function makeRule(level, o){
   o = o || {};
   const N = NUM[level], xs = o.xs || span(0, 5);
-  const firstQ = !QUAD || o.first;
+  const firstQ = FIRSTQ || o.first;
   const maxX = Math.max(...xs);
   for(let t = 0; t < 400; t++){
     const m = o.half && Math.random() < .6 ? pick([0.5, 1.5]) : pick(N.m);
@@ -427,7 +736,6 @@ function makeStory(level, o){
 }
 
 /* ---------- writing it down ---------- */
-const instr = r => `Start at <span class="num start">${F(r.start)}</span>, count ${r.dir} by <span class="num step">${F(r.step)}</span>s`;
 function eqHTML(r, form){
   const m = slope(r), b = r.start;
   const mx = (Math.abs(m) === 1 ? "" : F(Math.abs(m))) + X;
@@ -436,83 +744,110 @@ function eqHTML(r, form){
   return `${Y} = ${F(b)} ${m < 0 ? "−" : "+"} ${mx}`;
 }
 const anyForm = () => Math.random() < .5 ? "start" : "grad";
-const descHTML = r => `When ${X} = 0, ${Y} = <b>${F(r.start)}</b>. Each time ${X} increases by 1, ${Y} ${r.dir === "up" ? "increases" : "decreases"} by <b>${F(r.step)}</b>.`;
+const eqSpan = (r, form) => `<span class="eq">${eqHTML(r, form || "start")}</span>`;
+const eqBig = (r, form) => `<span class="eqBig">${eqHTML(r, form)}</span>`;
+/* "Start at 5, count up by 3s." */
+const instrP = r => ["instr", { a:`<span class="num start">${F(r.start)}</span>`, b:`<span class="num step">${F(r.step)}</span>`, dir:r.dir === "up" ? UI.wUp : UI.wDown }];
+/* "When x = 0, y = 5. Each time x increases by 1, y increases by 3." */
+const descP = r => ["desc", { x0:`${X} = 0`, yb:`${Y} = <b>${F(r.start)}</b>`, x:X, y:Y, dir:r.dir === "up" ? UI.wInc : UI.wDec, m:`<b>${F(r.step)}</b>` }];
 const ctxOf = st => st ? CTX.BY[st.id] : null;
-const storyHTML = st => CTX.storyHTML({ id:st.id, name:st.name, rule:st.r }, (k, t) => `<span class="num ${k}">${t}</span>`);
-const letLine = st => { const c = ctxOf(st); return `Let ${X} = ${esc(c.x)} and ${Y} = ${esc(c.y)}.`; };
 const yName = c => c.y.replace(/ \(.*\)$/, "");
 const xOne = c => c.x.replace(/s$/, "");
+/* a story's label as a word in every language: f = x | y | yn (y without its unit) | xo (one x) */
+const word = (c, f) => {
+  const o = { en: f === "x" ? c.x : f === "y" ? c.y : f === "yn" ? yName(c) : xOne(c) };
+  LANGS.slice(1).forEach(l => { const t = (STORY[c.id] || {})[l]; if(t && t[f]) o[l] = t[f]; });
+  return o;
+};
+const gen = c => ((STORY[c.id] || {}).ar || {}).g || "m";
+function storyHTML(st){
+  const c = ctxOf(st), r = st.r;
+  const mk = (k, t) => `<span class="num ${k}">${t}</span>`;
+  const en = CTX.storyHTML({ id:st.id, name:st.name, rule:r }, mk);
+  const t = LANG !== "en" && ((STORY[c.id] || {})[LANG] || {}).t;
+  if(!t) return en;
+  const nm = (NAME_T[st.name] || {})[LANG] || st.name;
+  const tr = esc(t).replace("{n}", esc(nm))
+    .replace("{a}", `<bdi dir="ltr">${mk("start", CTX.fmtVal(c, r.start))}</bdi>`)
+    .replace("{b}", `<bdi dir="ltr">${mk("step", CTX.fmtVal(c, r.step))}</bdi>`);
+  return bi(en, tr);
+}
+const letP = st => { const c = ctxOf(st); return ["let", { x:X, y:Y, xl:word(c, "x"), yl:word(c, "y") }]; };
 
 /* =====================================================================
    QUESTIONS. An item is { level, r, st, q, sub, steps[], graph }.
-   A step is one thing to do and check; the next appears once it is checked.
+   q and sub are functions, so a question redraws in whichever language is
+   chosen. A step is one thing to do and check; the next appears once it
+   is checked.
    ===================================================================== */
 const step = (t, extra) => Object.assign({ t, first:null, last:null, marks:null }, extra);
 const CAT = { seq:"count", table:"table", frame:"equation", eq:"equation", count:"meaning", desc:"meaning", plot:"plot", num:"apply", mc:"meaning" };
-const CAT_NAME = { count:"Counting", table:"Tables", equation:"Equations", meaning:"What the numbers mean", plot:"Plotting", apply:"Using it" };
+const CATS = ["count", "table", "equation", "meaning", "plot", "apply"];
 
 function graphFor(r, xs, o){
   o = o || {};
-  const zero = QUAD && !o.first;
+  const zero = !FIRSTQ && !o.first;
   const xMin = zero ? Math.min(...xs) - 1 : 0, xMax = Math.max(...xs) + 1;
   return Object.assign({ r, fit:xs, xMin, xMax, zero, given:[], liveStep:-1, plotStep:-1, line:false, ctx:null }, o);
 }
 
 /* ---- Sweet: counting language ---- */
 function qSeq(level, dir){
-  const xs = XR.seq, r = makeRule(level, { dir, xs });
-  return { r, q:instr(r) + ".",
-    sub: QUAD ? `Count back as well as on: write ${Y} for ${X} = −2 to 2.` : "Write the first five numbers.",
-    steps:[ step("seq", { xs, caps:QUAD }) ], graph:null };
+  const xs = xr().seq, r = makeRule(level, { dir, xs }), caps = !FIRSTQ;
+  return { r, q:() => L([instrP(r)]),
+    sub: caps ? () => L("sSeqQuad", { y:Y, xa:`${X} = ${F(xs[0])}`, xb:F(xs[xs.length - 1]) }) : () => L("sSeq5"),
+    steps:[ step("seq", { xs, caps }) ], graph:null };
 }
+/* a table that plots as it is typed. With `then`, a second part: write the
+   equation — and once it is marked the line is drawn through the dots, the
+   way typing y = 1 + 4x in the teaching tool joins them up. */
 function qTableLive(level, dir, then){
-  const xs = XR.table, r = makeRule(level, { dir, xs });
+  const xs = xr().table, r = makeRule(level, { dir, xs }), quad = !FIRSTQ;
   const steps = [ step("table", { xs, live:true }) ];
   if(then) steps.push(step("frame"));
-  return { r, q:instr(r) + ".",
-    sub: QUAD ? `${X} = 0 is the start. Count on for positive ${X}, and back for negative ${X}.` : `${X} = 0 is the start, ${X} = 1 is one count on, and so on.`,
-    steps, graph:graphFor(r, xs, { liveStep:0 }) };
+  return { r, q:() => L([instrP(r)]),
+    sub: quad ? () => L("sLiveQuad", { x0:`${X} = 0`, x:X }) : () => L("sLive", { x0:`${X} = 0`, x1:`${X} = 1` }),
+    steps, graph:graphFor(r, xs, { liveStep:0, line:!!then }) };
 }
 function qFrame(level, dir){
-  const r = makeRule(level, { dir, xs:XR.seq });
-  return { r, q:instr(r) + ".", sub:"Write it as an equation: the start is the number on its own, the count goes with " + X + ".", steps:[ step("frame") ], graph:null };
+  const r = makeRule(level, { dir, xs:xr().seq });
+  return { r, q:() => L([instrP(r)]), sub:() => L("sFrame", { x:X }), steps:[ step("frame") ], graph:null };
 }
 function qCountFromEq(level){
-  const r = makeRule(level, { dir:"any", xs:XR.seq }), form = anyForm();
-  return { r, q:`<span class="eqBig">${eqHTML(r, form)}</span>`, sub:"What counting does this equation describe?", steps:[ step("count") ], graph:null };
+  const r = makeRule(level, { dir:"any", xs:xr().seq }), form = anyForm();
+  return { r, q:eqBig(r, form), sub:() => L("sCountEq"), steps:[ step("count") ], graph:null };
 }
 
 /* ---- Mild: algebra language ---- */
 function qTableFromRule(level, dir, live){
-  const xs = live ? XR.table : XR.plot, r = makeRule(level, { dir, xs, read:!live });
-  return { r, q:`<span class="eqBig">${eqHTML(r, anyForm())}</span>`, sub:`Substitute each value of ${X} into the equation.`,
+  const xs = live ? xr().table : xr().plot, r = makeRule(level, { dir, xs, read:!live }), form = anyForm();
+  return { r, q:eqBig(r, form), sub:() => L("sSubst", { x:X }),
     steps:[ step("table", { xs, live:!!live }) ].concat(live ? [] : [ step("plot", { xs }) ]),
     graph: graphFor(r, xs, live ? { liveStep:0 } : { plotStep:1 }) };
 }
 function qDescFromEq(level){
-  const r = makeRule(level, { dir:"any", xs:XR.seq });
-  return { r, q:`<span class="eqBig">${eqHTML(r, anyForm())}</span>`, sub:"What do the two numbers tell you?", steps:[ step("desc") ], graph:null };
+  const r = makeRule(level, { dir:"any", xs:xr().seq }), form = anyForm();
+  return { r, q:eqBig(r, form), sub:() => L("sDesc"), steps:[ step("desc") ], graph:null };
 }
 function qEqFromDesc(level, dir){
-  const r = makeRule(level, { dir, xs:XR.seq });
-  return { r, q:descHTML(r), sub:"Write the equation.", steps:[ step("eq") ], graph:null };
+  const r = makeRule(level, { dir, xs:xr().seq });
+  return { r, q:() => L([descP(r)]), sub:() => L("sWriteEq"), steps:[ step("eq") ], graph:null };
 }
 function qEqFromTable(level, dir){
-  const xs = XR.plot, r = makeRule(level, { dir, xs });
-  return { r, q:"This table shows a linear relationship.", sub:"Write its equation.", given:"table", gxs:xs, steps:[ step("eq") ], graph:null };
+  const xs = xr().plot, r = makeRule(level, { dir, xs });
+  return { r, q:() => L("qTable"), sub:() => L("sTable"), given:"table", gxs:xs, steps:[ step("eq") ], graph:null };
 }
 function qEqFromGraph(level, dir, st){
   if(st){
-    const r = st.r;
-    return { r, st, q:`These points show the ${esc(yName(ctxOf(st)))} after ${X} ${esc(ctxOf(st).x)}.`, sub:letLine(st) + " Write the equation.",
-      steps:[ step("eq") ], graph:graphFor(r, STORY_XS.plot, { first:true, given:STORY_XS.plot, ctx:ctxOf(st) }) };
+    const r = st.r, c = ctxOf(st);
+    return { r, st, q:() => L("qGraphSt", { yn:word(c, "yn"), x:X, xl:word(c, "x") }), sub:() => L([letP(st), ["sWriteEq"]]),
+      steps:[ step("eq") ], graph:graphFor(r, STORY_XS.plot, { first:true, given:STORY_XS.plot, ctx:c }) };
   }
-  const xs = XR.plot, r = makeRule(level, { dir, xs, read:true });
-  return { r, q:"These points lie on a straight line.", sub:`Read the points, then write the equation of the line.`,
-    steps:[ step("eq") ], graph:graphFor(r, xs, { given:xs }) };
+  const xs = xr().plot, r = makeRule(level, { dir, xs, read:true });
+  return { r, q:() => L("qGraph"), sub:() => L("sGraph"), steps:[ step("eq") ], graph:graphFor(r, xs, { given:xs }) };
 }
 function qMcTable(level){
-  const xs = XR.plot;
+  const xs = xr().plot;
   const r = makeRule(level, { dir:"any", xs, check:r => r.start !== 0 && Math.abs(r.start) !== r.step });
   const b = r.start, m = slope(r);
   const cands = [
@@ -522,15 +857,15 @@ function qMcTable(level){
     { r:{ start:R(b + m), step:r.step, dir:r.dir }, ok:false }                             // starting one step late
   ];
   const seen = new Set(), opts = [];
-  cands.forEach(c => { const k = [0,1,2].map(x => term(c.r, x)).join(","); if(!seen.has(k)){ seen.add(k); opts.push({ html:`<span class="eq">${eqHTML(c.r, anyForm())}</span>`, ok:c.ok }); } });
-  return { r, q:"Which equation matches this table?", sub:"Test a pair of values from the table in each one.", given:"table", gxs:xs,
+  cands.forEach(c => { const k = [0,1,2].map(x => term(c.r, x)).join(","); if(!seen.has(k)){ seen.add(k); opts.push({ html:eqSpan(c.r, anyForm()), ok:c.ok }); } });
+  return { r, q:() => L("qMc"), sub:() => L("sMc"), given:"table", gxs:xs,
     steps:[ step("mc", { opts:shuffle(opts) }) ], graph:null };
 }
 
 /* ---- Medium: make the graph yourself ---- */
 function qPlotFromTable(level, dir){
-  const xs = XR.plot, r = makeRule(level, { dir, xs, read:true });
-  return { r, q:`Plot the points from this table.`, sub:`Click the grid where each point goes. Click a point again to take it off.`, given:"table", gxs:xs,
+  const xs = xr().plot, r = makeRule(level, { dir, xs, read:true });
+  return { r, q:() => L("qPlot"), sub:() => L("sPlot"), given:"table", gxs:xs,
     steps:[ step("plot", { xs }) ], graph:graphFor(r, xs, { plotStep:0 }) };
 }
 
@@ -538,32 +873,33 @@ function qPlotFromTable(level, dir){
 function qStoryEq(level, dir){
   const st = makeStory(level, { dir, intOnly:level !== "spicy" });
   if(!st) return qEqFromDesc(level, dir === "either" ? "any" : dir);
-  return { r:st.r, st, q:storyHTML(st), sub:letLine(st) + " Write an equation for " + Y + ".", steps:[ step("eq") ], graph:null };
+  return { r:st.r, st, q:() => storyHTML(st), sub:() => L([letP(st), ["sEqForY", { y:Y }]]), steps:[ step("eq") ], graph:null };
 }
 function qStoryFar(level){
   const st = makeStory(level, { dir:"either", intOnly:true });
   if(!st) return qRuleFar(level);
   const c = ctxOf(st), r = st.r;
   const x1 = rnd(6, 9), k = pick(span(2, 8).filter(v => v !== x1));
-  return { r, st, q:storyHTML(st), sub:letLine(st),
+  return { r, st, q:() => storyHTML(st), sub:() => L([letP(st)]),
     steps:[ step("num", { fields:[
-      { lab:`What is ${Y} when ${X} = ${x1} (${esc(c.x)})?`, ans:term(r, x1), pre:`${Y} =` },
-      { lab:`When is ${Y} = ${F(term(r, k))}?`, ans:k, pre:`${X} =` }
+      { lab:["farA", { y:Y, xk:`${X} = ${x1}`, xl:word(c, "x") }], ans:term(r, x1), pre:`${Y} =` },
+      { lab:["farB", { yk:`${Y} = ${F(term(r, k))}` }], ans:k, pre:`${X} =` }
     ] }) ], graph:null };
 }
 function qRuleFar(level){
-  const r = makeRule(level, { dir:QUAD ? "any" : "up", xs:QUAD ? span(-10, 25) : span(0, 25) });
+  const quad = !FIRSTQ;
+  const r = makeRule(level, { dir:quad ? "any" : "up", xs:quad ? span(-10, 25) : span(0, 25) });
   const k = rnd(12, 24), form = anyForm();
-  const fields = [ { lab:`Find ${Y} when ${X} = 25.`, ans:term(r, 25), pre:`${Y} =` } ];
-  if(QUAD) fields.push({ lab:`Find ${Y} when ${X} = −10.`, ans:term(r, -10), pre:`${Y} =` });
-  fields.push({ lab:`Which value of ${X} gives ${Y} = ${F(term(r, k))}?`, ans:k, pre:`${X} =` });
-  return { r, q:`<span class="eqBig">${eqHTML(r, form)}</span>`, sub:"Use the equation — too far to count.", steps:[ step("num", { fields }) ], graph:null };
+  const fields = [ { lab:["ruleFind", { y:Y, xk:`${X} = 25` }], ans:term(r, 25), pre:`${Y} =` } ];
+  if(quad) fields.push({ lab:["ruleFind", { y:Y, xk:`${X} = −10` }], ans:term(r, -10), pre:`${Y} =` });
+  fields.push({ lab:["ruleWhich", { x:X, yk:`${Y} = ${F(term(r, k))}` }], ans:k, pre:`${X} =` });
+  return { r, q:eqBig(r, form), sub:() => L("sRule"), steps:[ step("num", { fields }) ], graph:null };
 }
 function qGraphLine(level, o){
   o = o || {};
-  const xs = XR.plot;
-  const r = makeRule(level, { dir:o.dir || "any", xs, read:true, half:!!o.half, zeroOK:true, bmax:QUAD ? 8 : 12 });
-  return { r, q:`Graph the line <span class="eqBig">${eqHTML(r, anyForm())}</span>`, sub:"Complete the table, then plot the points. The line is drawn through them once they are marked.",
+  const xs = xr().plot, form = anyForm();
+  const r = makeRule(level, { dir:o.dir || "any", xs, read:true, half:!!o.half, zeroOK:true, bmax:FIRSTQ ? 12 : 8 });
+  return { r, q:() => L("qLine", { eq:eqBig(r, form) }), sub:() => L("sLine"),
     steps:[ step("table", { xs, live:false }), step("plot", { xs }) ], graph:graphFor(r, xs, { plotStep:1, line:true }) };
 }
 function qStoryPlot(level){
@@ -571,28 +907,30 @@ function qStoryPlot(level){
   const st = makeStory(level, { dir:"either", read:true, xs, intOnly:true });
   if(!st) return qGraphLine(level);
   const c = ctxOf(st);
-  return { r:st.r, st, q:storyHTML(st), sub:letLine(st) + " Complete the table, then plot the points.",
+  return { r:st.r, st, q:() => storyHTML(st), sub:() => L([letP(st), ["sTablePlot"]]),
     steps:[ step("table", { xs, live:false }), step("plot", { xs }) ], graph:graphFor(st.r, xs, { first:true, plotStep:1, line:true, ctx:c }) };
 }
 function qStoryMeaning(level){
   const st = makeStory(level, { dir:"either", intOnly:true });
   if(!st) return qDescFromEq(level);
-  const c = ctxOf(st), r = st.r, yn = yName(c), xo = xOne(c);
+  const c = ctxOf(st), r = st.r;
   const A = CTX.fmtVal(c, r.start), B = CTX.fmtVal(c, r.step);
   const askStep = Math.random() < .5;
   const val = askStep ? F(r.step) : F(r.start);
+  const w = { yn:word(c, "yn"), xo:word(c, "xo"), xl:word(c, "x"), g:gen(c), up:r.dir === "up", dw:r.dir === "up" ? UI.wUpDir : UI.wDownDir };
+  const after = (k, v) => ["oAfter", Object.assign({}, w, { k:F(k), xk:`${X} = ${F(k)}`, v })];
   const opts = askStep ? [
-    { html:`Every ${esc(xo)}, the ${esc(yn)} goes ${r.dir} by ${esc(B)}.`, ok:true },
-    { html:`At the start, the ${esc(yn)} is ${esc(B)}.`, ok:false },
-    { html:`After ${F(r.step)} ${esc(c.x)}, the ${esc(yn)} is ${esc(A)}.`, ok:false },
-    { html:`The ${esc(yn)} is always ${esc(B)}.`, ok:false }
+    { p:["oEvery", Object.assign({}, w, { v:B })], ok:true },
+    { p:["oStartIs", Object.assign({}, w, { v:B })], ok:false },
+    { p:after(r.step, A), ok:false },
+    { p:["oAlways", Object.assign({}, w, { v:B })], ok:false }
   ] : [
-    { html:`At the start (${X} = 0), the ${esc(yn)} is ${esc(A)}.`, ok:true },
-    { html:`Every ${esc(xo)}, the ${esc(yn)} goes ${r.dir} by ${esc(A)}.`, ok:false },
-    { html:`After ${F(r.start)} ${esc(c.x)}, the ${esc(yn)} is ${esc(B)}.`, ok:false },
-    { html:`The ${esc(yn)} is always ${esc(A)}.`, ok:false }
+    { p:["oStart0", Object.assign({}, w, { x0:`${X} = 0`, v:A })], ok:true },
+    { p:["oEvery", Object.assign({}, w, { v:A })], ok:false },
+    { p:after(r.start, B), ok:false },
+    { p:["oAlways", Object.assign({}, w, { v:A })], ok:false }
   ];
-  return { r, st, q:storyHTML(st), sub:`${letLine(st)} The equation is <span class="eq">${eqHTML(r, "start")}</span>. What does the <b>${val}</b> tell you?`,
+  return { r, st, q:() => storyHTML(st), sub:() => L([letP(st), ["sMeaning", { eq:eqSpan(r), v:`<b>${val}</b>` }]]),
     steps:[ step("mc", { opts:shuffle(opts) }) ], graph:null };
 }
 
@@ -600,19 +938,20 @@ function qStoryMeaning(level){
    THE FOUR PAPERS — ten questions each, in the order they build.
    ===================================================================== */
 const LEVELS = {
-  sweet:  { name:"Sweet",  ico:"\u{1F36C}", d:"Skip counting: write the numbers, fill a table while the graph plots it for you, and write the equation." },
-  mild:   { name:"Mild",   ico:"\u{1F343}", d:"The same ideas in algebra words: from an equation to a table and back, and equations from tables and graphs." },
-  medium: { name:"Medium", ico:"\u{1F336}️", d:"Make the graph yourself: complete the table from the equation, then click the grid to plot every point." },
-  spicy:  { name:"Spicy",  ico:"\u{1F525}", d:"Use it: worded problems, going further than counting can, and graphing lines from their equations." }
+  sweet:  { name:"Sweet",  ico:"\u{1F36C}", d:"dSweet" },
+  mild:   { name:"Mild",   ico:"\u{1F343}", d:"dMild" },
+  medium: { name:"Medium", ico:"\u{1F336}️", d:"dMedium" },
+  spicy:  { name:"Spicy",  ico:"\u{1F525}", d:"dSpicy" }
 };
 const ORDER = ["sweet","mild","medium","spicy"];
 function buildPaper(level){
   USED = new Set();
+  FIRSTQ = !QUAD || level === "sweet";          // Sweet: x from 0, first quadrant, on both pages
   const up = Math.random() < .5 ? "up" : "down", dn = up === "up" ? "down" : "up";
   let items;
   if(level === "sweet") items = [
     qSeq("sweet", up), qSeq("sweet", dn),
-    qTableLive("sweet", up), qTableLive("sweet", dn),
+    qTableLive("sweet", up, true), qTableLive("sweet", dn, true),
     qFrame("sweet", "up"), qFrame("sweet", "down"),
     qTableLive("sweet", dn, true), qTableLive("sweet", up, true),
     qCountFromEq("sweet"), qFrame("mild", "any")
@@ -659,88 +998,91 @@ const near = (a, b) => Math.abs(a - b) < 1e-9 * Math.max(1, Math.abs(b));
 const numOf = s => CL.num(String(s).trim());
 const words = it => it.level === "sweet" ? "count" : "alg";
 
-/* Why an equation is wrong, in the level's language. */
+/* Why an equation is wrong, in the level's language: one [key, vars] part. */
 function whyEq(it, gotB, gotM){
   const r = it.r, b = r.start, m = slope(r), w = words(it);
+  const v = { b:F(b), m:F(m), x:X, y:Y, x0:`${X} = 0` };
   if(gotB != null && gotM != null){
-    if(near(gotB, m) && near(gotM, b)) return w === "count"
-      ? `The two numbers are swapped. The start (${F(b)}) is the number on its own; the count (${F(Math.abs(m))}) goes with ${X}.`
-      : `The two numbers are swapped. The number on its own is ${Y} when ${X} = 0 (${F(b)}); the number with ${X} is how much ${Y} changes each step (${F(m)}).`;
-    if(near(gotB, b) && near(gotM, -m)) return `Check the direction: it goes ${r.dir}, so the number with ${X} is ${F(m)}.`;
-    if(near(gotB, b)) return w === "count" ? `The start is right. Check how much it counts by each time.` : `The number on its own is right. Check how much ${Y} changes each time ${X} goes up by 1.`;
-    if(near(gotM, m)) return w === "count" ? `The count is right. Check the start — the number when ${X} = 0.` : `The number with ${X} is right. Check ${Y} when ${X} = 0.`;
+    if(near(gotB, m) && near(gotM, b)) return w === "count" ? ["wSwapC", Object.assign(v, { m:F(Math.abs(m)) })] : ["wSwapA", v];
+    if(near(gotB, b) && near(gotM, -m)) return ["wDir", Object.assign(v, { dw:r.dir === "up" ? UI.wUpDir : UI.wDownDir })];
+    if(near(gotB, b)) return w === "count" ? ["wStartC", v] : ["wStartA", v];
+    if(near(gotM, m)) return w === "count" ? ["wCountC", v] : ["wCountA", v];
   }
-  return w === "count" ? `Use the start for the number on its own and the count for the number with ${X}.` : `Find ${Y} when ${X} = 0, and how much ${Y} changes each time ${X} goes up by 1.`;
+  return w === "count" ? ["wDefC", v] : ["wDefA", v];
 }
 
-/* each returns { invalid } (nothing used up), or { ok, marks, fix } */
+/* each returns { invalid } (nothing used up), or { ok, marks, fix } — invalid and
+   fix are lists of [key, vars] parts, drawn in the chosen language */
+const EG = () => `${Y} = 5 + 3${X}`;
 function markStep(it, s){
   const r = it.r;
   if(s.t === "seq" || s.t === "table"){
     const vals = s.xs.map((x, i) => (s.vals || [])[i]);
-    if(vals.some(v => v == null || String(v).trim() === "")) return { invalid:"Fill in every box first." };
+    if(vals.some(v => v == null || String(v).trim() === "")) return { invalid:[["iFillAll"]] };
     const got = vals.map(numOf);
-    if(got.some(v => !isFinite(v))) return { invalid:"Each box needs a number." };
+    if(got.some(v => !isFinite(v))) return { invalid:[["iNeedNum"]] };
     const marks = got.map((g, i) => near(g, term(r, s.xs[i])));
     const ok = marks.every(Boolean);
     const wrong = s.xs.filter((x, i) => !marks[i]);
-    return { ok, marks, fix: ok ? "" : `The right numbers are shown under the boxes. ${wrong.length === 1 ? `Check ${X} = ${F(wrong[0])}.` : ""}` };
+    return { ok, marks, fix: ok ? null : [["fShown"]].concat(wrong.length === 1 ? [["fCheckX", { xv:`${X} = ${F(wrong[0])}` }]] : []) };
   }
   if(s.t === "frame"){
     const v = s.vals || {};
     const a = numOf(v.a || ""), b = numOf(v.b || "");
-    if(!isFinite(a) || !isFinite(b)) return { invalid:"Put a number in both boxes." };
-    if(!v.sign) return { invalid:"Choose + or − between the two numbers." };
+    if(!isFinite(a) || !isFinite(b)) return { invalid:[["iBoth"]] };
+    if(!v.sign) return { invalid:[["iSign"]] };
     const gm = v.sign === "-" ? -b : b;
     const ok = near(a, r.start) && near(gm, slope(r));
-    return { ok, marks:{ a:near(a, r.start), m:near(gm, slope(r)) }, fix: ok ? "" : whyEq(it, a, gm) + ` <span class="eq">${eqHTML(r, "start")}</span>` };
+    return { ok, marks:{ a:near(a, r.start), m:near(gm, slope(r)) }, fix: ok ? null : [whyEq(it, a, gm), ["fEq", { eq:eqSpan(r) }]] };
   }
   if(s.t === "eq"){
     const res = CL.equation(s.val || "");
-    if(res.kind === "empty") return { invalid:`Type the equation, like ${Y} = 5 + 3${X}.` };
-    if(res.kind === "err" || res.kind === "vert") return { invalid:`Write it in the form ${Y} = … , like ${Y} = 5 + 3${X}.` };
+    if(res.kind === "empty") return { invalid:[["iTypeEq", { e:EG() }]] };
+    if(res.kind === "err" || res.kind === "vert") return { invalid:[["iForm", { f:`${Y} = …`, e:EG() }]] };
     const f = res.f;
     const ok = [-3, -1, 0, 1, 2, 5, 10].every(x => near(f(x), term(r, x)));
     const lin = res.linear;
-    return { ok, marks:{ eq:ok }, fix: ok ? "" : (lin ? whyEq(it, lin.b, lin.m) : `That is not a straight line — it should be a number plus a number times ${X}.`) + ` One right answer: <span class="eq">${eqHTML(r, "start")}</span>` };
+    return { ok, marks:{ eq:ok }, fix: ok ? null : [lin ? whyEq(it, lin.b, lin.m) : ["fNotLine", { x:X }], ["fOneRight", { eq:eqSpan(r) }]] };
   }
   if(s.t === "count" || s.t === "desc"){
     const v = s.vals || {};
     const a = numOf(v.a || ""), b = numOf(v.b || "");
-    if(!isFinite(a) || !isFinite(b)) return { invalid:"Put a number in both boxes." };
-    if(!v.dir) return { invalid: s.t === "count" ? "Choose up or down." : "Choose increases or decreases." };
+    if(!isFinite(a) || !isFinite(b)) return { invalid:[["iBoth"]] };
+    if(!v.dir) return { invalid:[[s.t === "count" ? "iUpDown" : "iIncDec"]] };
     /* a negative number in the box with the matching word still means the same thing */
     let gb = b, gd = v.dir;
     if(gb < 0){ gb = -gb; gd = gd === "up" ? "down" : "up"; }
     const marks = { a:near(a, r.start), dir:gd === r.dir, b:near(gb, r.step) };
     const ok = marks.a && marks.dir && marks.b;
-    const right = s.t === "count" ? `${instr(r)}.` : descHTML(r);
-    return { ok, marks, fix: ok ? "" : right };
+    return { ok, marks, fix: ok ? null : [s.t === "count" ? instrP(r) : descP(r)] };
   }
   if(s.t === "plot"){
     const pts = s.pts || {};
     const xsSet = s.xs;
-    if(!Object.keys(pts).length) return { invalid:"Click the grid to plot your points first." };
+    if(!Object.keys(pts).length) return { invalid:[["iPlot"]] };
     const marks = {};
     Object.keys(pts).forEach(k => { const x = Number(k); marks[k] = xsSet.includes(x) && near(pts[k], term(r, x)); });
     const missing = xsSet.filter(x => !(String(x) in pts) || !marks[String(x)]);
     const extra = Object.keys(pts).filter(k => !xsSet.includes(Number(k)));
     const ok = missing.length === 0 && extra.length === 0;
-    return { ok, marks, fix: ok ? "" : `${missing.length ? `${missing.length === 1 ? "One point is" : missing.length + " points are"} missing or in the wrong place — the green rings show where they go.` : ""}${extra.length ? " Only plot the points from the table." : ""}` };
+    const fix = [];
+    if(missing.length) fix.push(missing.length === 1 ? ["fPt1"] : ["fPtN", { n:missing.length }]);
+    if(extra.length) fix.push(["fOnlyTable"]);
+    return { ok, marks, fix: ok ? null : fix };
   }
   if(s.t === "num"){
     const vals = s.fields.map((f, i) => (s.vals || [])[i]);
-    if(vals.some(v => v == null || String(v).trim() === "")) return { invalid:"Answer every part first." };
+    if(vals.some(v => v == null || String(v).trim() === "")) return { invalid:[["iAll"]] };
     const got = vals.map(numOf);
-    if(got.some(v => !isFinite(v))) return { invalid:"Each answer needs a number." };
+    if(got.some(v => !isFinite(v))) return { invalid:[["iEachNum"]] };
     const marks = got.map((g, i) => near(g, s.fields[i].ans));
     const ok = marks.every(Boolean);
-    return { ok, marks, fix: ok ? "" : `The right answers are shown. Write the equation first: <span class="eq">${eqHTML(r, "start")}</span>, then substitute.` };
+    return { ok, marks, fix: ok ? null : [["fNum", { eq:eqSpan(r) }]] };
   }
   if(s.t === "mc"){
-    if(s.sel == null || s.sel < 0) return { invalid:"Choose an answer first." };
+    if(s.sel == null || s.sel < 0) return { invalid:[["iChoose"]] };
     const ok = !!s.opts[s.sel].ok;
-    return { ok, marks:{ sel:s.sel }, fix: ok ? "" : "The right answer is marked in green." };
+    return { ok, marks:{ sel:s.sel }, fix: ok ? null : [["fMc"]] };
   }
   return { invalid:"?" };
 }
@@ -752,31 +1094,35 @@ const S = { levelKey:null, items:[], i:0 };
 const cur = () => S.items[S.i];
 const lv = () => LEVELS[S.levelKey];
 const curStepIndex = it => { const k = it.steps.findIndex(s => s.first === null); return k < 0 ? it.steps.length - 1 : k; };
-function setPrompt(text, kind){
+/* the prompt bar: msg is a list of [key, vars] parts (or plain HTML); it is
+   remembered so a change of language can redraw it */
+let PROMPT = null;
+function setPrompt(msg, kind){
+  PROMPT = { msg, kind, i:S.i };
   const p = $("promptBar"); p.className = "promptBar" + (kind ? " " + kind : "");
   $("promptIco").textContent = kind === "good" ? "✅" : kind === "bad" ? "\u{1F50E}" : kind === "warn" ? "✋" : "\u{1F4AD}";
-  $("promptText").innerHTML = text;
+  $("promptText").innerHTML = typeof msg === "string" ? msg : L(msg);
 }
 
 /* =====================================================================
    DRAWING THE QUESTION
    ===================================================================== */
 const STEP_TITLE = {
-  seq: it => it.steps[0].caps ? "Write the numbers" : "Write the first five numbers",
-  table: (it, s) => s.live ? "Complete the table — the graph plots your numbers as you go" : "Complete the table",
-  frame: () => "Write the equation",
-  eq: () => "Write the equation",
-  count: () => "Write it as counting",
-  desc: () => "What do the numbers mean?",
-  plot: () => "Plot the points on the grid",
-  num: () => "Work it out",
-  mc: () => "Choose one"
+  seq: it => it.steps[0].caps ? "tSeqCaps" : "tSeq5",
+  table: (it, s) => s.live ? "tTableLive" : "tTable",
+  frame: it => it.graph && it.graph.line ? "tFrameLine" : "tEq",
+  eq: () => "tEq",
+  count: () => "tCount",
+  desc: () => "tDesc",
+  plot: () => "tPlot",
+  num: () => "tNum",
+  mc: () => "tMc"
 };
 function tableHTML(it, s, k, given){
   const r = it.r, c = ctxOf(it.st);
   const xs = given ? it.gxs : s.xs;
-  let h = `<div class="tvWrap"><table class="tv"><tr><th>${c ? `<span class="cap">${esc(c.x)}</span>` : ""}${X}</th>${xs.map(x => `<td class="giv">${F(x)}</td>`).join("")}</tr>`;
-  h += `<tr><th>${c ? `<span class="cap">${esc(yName(c))}</span>` : ""}${Y}</th>`;
+  let h = `<div class="tvWrap"><table class="tv"><tr><th>${c ? `<span class="cap">${one(word(c, "x"))}</span>` : ""}${X}</th>${xs.map(x => `<td class="giv">${F(x)}</td>`).join("")}</tr>`;
+  h += `<tr><th>${c ? `<span class="cap">${one(word(c, "yn"))}</span>` : ""}${Y}</th>`;
   xs.forEach((x, i) => {
     if(given){ h += `<td class="giv">${F(term(r, x))}</td>`; return; }
     const v = (s.vals || [])[i] || "";
@@ -786,6 +1132,7 @@ function tableHTML(it, s, k, given){
   });
   return h + `</tr></table></div>`;
 }
+const hintPlot = (n, t) => L("hintPlot", { n, t, x:X });
 function stepBody(it, s, k){
   const r = it.r;
   if(s.t === "seq"){
@@ -799,62 +1146,66 @@ function stepBody(it, s, k){
   if(s.t === "table") return tableHTML(it, s, k, false);
   if(s.t === "frame"){
     const v = s.vals || {}, mk = s.marks || {};
-    return `<div class="fill"><span class="m">${Y} =</span>
+    return `<div class="fill" dir="ltr"><span class="m">${Y} =</span>
       <input class="cell sm${s.marks ? (mk.a ? " right" : " wrong") : ""}" data-k="${k}" data-f="a" type="text" autocomplete="off" value="${esc(v.a || "")}" aria-label="the number on its own">
       <span class="seg math${s.marks ? (mk.m ? " right" : " wrong") : ""}" role="group" aria-label="plus or minus"><button type="button" data-k="${k}" data-sign="+" class="${v.sign === "+" ? "on" : ""}">+</button><button type="button" data-k="${k}" data-sign="-" class="${v.sign === "-" ? "on" : ""}">−</button></span>
       <input class="cell sm${s.marks ? (mk.m ? " right" : " wrong") : ""}" data-k="${k}" data-f="b" type="text" autocomplete="off" value="${esc(v.b || "")}" aria-label="the number with x">
       <span class="m">${X}</span></div>`;
   }
   if(s.t === "eq"){
-    return `<div class="fill"><input class="eqIn${s.marks ? (s.marks.eq ? " right" : " wrong") : ""}" data-k="${k}" data-f="eq" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="${ALPHA ? "\u{1D466}" : "y"} = …" value="${esc(s.val || "")}" aria-label="Your equation"></div>`;
+    return `<div class="fill" dir="ltr"><input class="eqIn${s.marks ? (s.marks.eq ? " right" : " wrong") : ""}" data-k="${k}" data-f="eq" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="${ALPHA ? "\u{1D466}" : "y"} = …" value="${esc(s.val || "")}" aria-label="Your equation"></div>`;
   }
   if(s.t === "count" || s.t === "desc"){
+    /* the sentence with its boxes in the chosen language; in Arabic or Farsi
+       the English sentence sits underneath, with blanks */
     const v = s.vals || {}, mk = s.marks || {};
     const cls = f => s.marks ? (mk[f] ? " right" : " wrong") : "";
-    const w = s.t === "count" ? ["up", "down"] : ["increases", "decreases"];
-    const seg = `<span class="seg${cls("dir")}" role="group"><button type="button" data-k="${k}" data-dir="up" class="${v.dir === "up" ? "on" : ""}">${w[0]}</button><button type="button" data-k="${k}" data-dir="down" class="${v.dir === "down" ? "on" : ""}">${w[1]}</button></span>`;
+    const w = s.t === "count" ? [UI.wUp, UI.wDown] : [UI.wInc, UI.wDec];
+    const seg = `<span class="seg${cls("dir")}" role="group"><button type="button" data-k="${k}" data-dir="up" class="${v.dir === "up" ? "on" : ""}">${one(w[0])}</button><button type="button" data-k="${k}" data-dir="down" class="${v.dir === "down" ? "on" : ""}">${one(w[1])}</button></span>`;
     const ia = `<input class="cell sm${cls("a")}" data-k="${k}" data-f="a" type="text" autocomplete="off" value="${esc(v.a || "")}">`;
     const ib = `<input class="cell sm${cls("b")}" data-k="${k}" data-f="b" type="text" autocomplete="off" value="${esc(v.b || "")}">`;
-    return s.t === "count"
-      ? `<div class="fill">Start at ${ia}, count ${seg} by ${ib}s</div>`
-      : `<div class="fill">When <span class="m">${X} = 0</span>, <span class="m">${Y} =</span> ${ia}.</div><div class="fill">Each time <span class="m">${X}</span> increases by 1, <span class="m">${Y}</span> ${seg} by ${ib}.</div>`;
+    const rtl = LANG === "en" ? "" : ` dir="rtl" lang="${LANG}"`;
+    const rows = s.t === "count"
+      ? `<div class="fill"${rtl}>${tx("countRow", LANG, { A:ia, S:seg, B:ib })}</div>`
+      : `<div class="fill"${rtl}>${tx("descRow1", LANG, { x0:`<span class="m">${X} = 0</span>`, ya:`<span class="m">${Y} =</span> ${ia}` })}</div>`
+        + `<div class="fill"${rtl}>${tx("descRow2", LANG, { x:`<span class="m">${X}</span>`, y:`<span class="m">${Y}</span>`, S:seg, B:ib })}</div>`;
+    return rows + (LANG === "en" ? "" : `<div class="fillEn">${UI[s.t === "count" ? "countRowEn" : "descRowEn"].en}</div>`);
   }
   if(s.t === "plot"){
-    const n = Object.keys(s.pts || {}).length;
-    return `<div class="hintLine">${n} of ${s.xs.length} points plotted. Click the grid to place a point; click it again to take it off. One point for each value of ${X}.</div>`;
+    return `<div class="hintLine">${hintPlot(Object.keys(s.pts || {}).length, s.xs.length)}</div>`;
   }
   if(s.t === "num"){
     return s.fields.map((f, i) => {
       const v = (s.vals || [])[i] || "", m = s.marks ? (s.marks[i] ? " right" : " wrong") : "";
       const corr = s.first !== null && s.marks && !s.marks[i] ? `<span class="corr">${F(f.ans)}</span>` : "";
-      return `<div class="fill"><span>${String.fromCharCode(97 + i)})&nbsp; ${f.lab}</span></div><div class="fill"><span class="m">${f.pre}</span><input class="cell${m}" data-k="${k}" data-i="${i}" type="text" autocomplete="off" value="${esc(v)}">${corr}</div>`;
+      return `<div class="numLab"><span class="nl">${String.fromCharCode(97 + i)})</span><div>${L([f.lab])}</div></div><div class="fill" dir="ltr"><span class="m">${f.pre}</span><input class="cell${m}" data-k="${k}" data-i="${i}" type="text" autocomplete="off" value="${esc(v)}">${corr}</div>`;
     }).join("");
   }
   if(s.t === "mc"){
     return `<div class="mcList">` + s.opts.map((o, i) => {
       let cl = s.sel === i ? " on" : "";
       if(s.first !== null){ if(o.ok) cl += " right"; else if(s.sel === i) cl += " wrong"; }
-      return `<button class="mcOpt${cl}" type="button" data-k="${k}" data-opt="${i}"><span class="key">${"ABCD"[i]}</span><span>${o.html}</span></button>`;
+      return `<button class="mcOpt${cl}" type="button" data-k="${k}" data-opt="${i}"><span class="key">${"ABCD"[i]}</span><span>${o.html || L([o.p])}</span></button>`;
     }).join("") + `</div>`;
   }
   return "";
 }
 function paint(){
   const it = cur(); if(!it) return;
-  $("qCounter").textContent = `Question ${S.i + 1} / ${S.items.length}`;
+  $("qCounter").innerHTML = one("counter", { n:S.i + 1, t:S.items.length });
   $("progressFill").style.width = (S.items.filter(x => x.settled).length / S.items.length * 100) + "%";
   const ck = curStepIndex(it);
-  let h = `<div class="qText">${it.q}</div>`;
-  if(it.sub) h += `<div class="qSub">${it.sub}</div>`;
+  let h = `<div class="qText">${H(it.q)}</div>`;
+  if(it.sub) h += `<div class="qSub">${H(it.sub)}</div>`;
   if(it.given === "table") h += tableHTML(it, null, -1, true);
   it.steps.forEach((s, k) => {
     if(k > ck) return;                                   // the next step appears once this one is checked
     const st = s.first === null ? (k === ck ? " current" : "") : (s.last ? " ok" : " no");
-    const mark = s.first === null ? "" : s.first ? "✓ Right first time" : (s.last ? "✓ Fixed (counts from your first try)" : "✗ Not yet");
-    h += `<div class="part${st}" data-step="${k}"><div class="stepHead"><span class="stepNum">${it.steps.length > 1 ? k + 1 : "✓"}</span><span>${STEP_TITLE[s.t](it, s)}</span><span class="stepMark">${mark}</span></div>`;
+    const mark = s.first === null ? "" : L(s.first ? "mRight" : (s.last ? "mFixed" : "mNot"));
+    h += `<div class="part${st}" data-step="${k}"><div class="stepHead"><span class="stepNum">${it.steps.length > 1 ? k + 1 : "✓"}</span><span class="stepTitle">${L(STEP_TITLE[s.t](it, s))}</span><span class="stepMark">${mark}</span></div>`;
     h += stepBody(it, s, k);
-    if(s.first !== null && s.fixText && !s.last) h += `<div class="fix">${s.fixText}</div>`;
-    h += (s.last ? "" : `<div class="checkRow"><button class="checkBtn" type="button" data-check="${k}">${s.first === null ? "Check" : "Check again"}</button></div>`) + `</div>`;
+    if(s.first !== null && s.fixText && !s.last) h += `<div class="fix">${L(s.fixText)}</div>`;
+    h += (s.last ? "" : `<div class="checkRow"><button class="checkBtn" type="button" data-check="${k}">${L(s.first === null ? "check" : "checkAgain")}</button></div>`) + `</div>`;
   });
   $("qCard").innerHTML = h;
   /* a part that is right is finished with: nothing in it changes again */
@@ -864,12 +1215,12 @@ function paint(){
   bindCard();
   if(it.graph) drawGraph();
   $("prevBtn").disabled = S.i === 0;
-  $("nextBtn").textContent = S.i === S.items.length - 1 ? "Finish →" : "Next →";
+  $("nextBtn").innerHTML = L(S.i === S.items.length - 1 ? "finish" : "next");
   if(!it.settled){
     const s = it.steps[ck];
-    setPrompt(s.t === "plot" ? "Click the grid to plot each point, then press Check." : "Answer, then press Check (or Enter).");
+    setPrompt([[s.t === "plot" ? "pPlot" : "pAnswer"]]);
   } else {
-    setPrompt(it.correct ? "Correct — well done." : "Marked. Look at the corrections, then go on.", it.correct ? "good" : "bad");
+    setPrompt([[it.correct ? "pWellDone" : "pMarked"]], it.correct ? "good" : "bad");
   }
 }
 function bindCard(){
@@ -942,15 +1293,13 @@ function check(k){
   if(!res.ok){
     const firstGo = s.first === false && !s.rechecked;
     s.rechecked = true;
-    setPrompt(firstGo
-      ? "Not quite — the corrections are shown. " + (k < it.steps.length - 1 ? "Carry on with the next part." : "You can fix it and check again, but the mark is from your first try.")
-      : "Still not right — look at the corrections.", "bad");
+    setPrompt(firstGo ? [["pNotQuite"], [k < it.steps.length - 1 ? "pCarryOn" : "pFixAgain"]] : [["pStill"]], "bad");
     if(k < it.steps.length - 1) focusStep(ck);
   } else if(!it.settled){
-    setPrompt("Right. Now the next part.", "good");
+    setPrompt([["pRightNext"]], "good");
     focusStep(ck);
   } else {
-    setPrompt(it.correct ? "Correct — every part right first time." : "That is right now. The mark for this question is from your first tries.", it.correct ? "good" : "warn");
+    setPrompt([[it.correct ? "pAllFirst" : "pRightNow"]], it.correct ? "good" : "warn");
     $("nextBtn").focus({ preventScroll:true });
   }
 }
@@ -998,8 +1347,8 @@ function drawGraph(){
   s += `<path d="M${axisX - 5} ${oy - 4} L${axisX} ${oy - 13} L${axisX + 5} ${oy - 4}" fill="none" stroke="#334155" stroke-width="2"/>`;
   s += `<path d="M${ox + gw + 4} ${axisY - 5} L${ox + gw + 13} ${axisY} L${ox + gw + 4} ${axisY + 5}" fill="none" stroke="#334155" stroke-width="2"/>`;
   s += `<text class="axT" x="${ox + gw + 16}" y="${axisY + 6}">${ALPHA ? "\u{1D465}" : "x"}</text>`;
-  s += `<text class="axT" x="${axisX + 8}" y="${oy - 6}">${ALPHA ? "\u{1D466}" : "y"}${g.ctx ? `<tspan class="axU"> ${esc(g.ctx.y)}</tspan>` : ""}</text>`;
-  if(g.ctx) s += `<text class="axU" x="${ox + gw / 2}" y="${axisY + 40}" text-anchor="middle">${esc(g.ctx.x)}</text>`;
+  s += `<text class="axT" x="${axisX + 8}" y="${oy - 6}">${ALPHA ? "\u{1D466}" : "y"}${g.ctx ? `<tspan class="axU"> ${esc(plain(word(g.ctx, "y")))}</tspan>` : ""}</text>`;
+  if(g.ctx) s += `<text class="axU" x="${ox + gw / 2}" y="${axisY + 40}" text-anchor="middle">${esc(plain(word(g.ctx, "x")))}</text>`;
   if(!zeroIn) s += `<path d="M${axisX - 7} ${oy + gh - cell * .35} l14 -6 M${axisX - 7} ${oy + gh - cell * .35 + 7} l14 -6" stroke="#334155" stroke-width="2"/>`;
   for(let i = g.xMin; i <= g.xMax; i++){
     if(i === 0 && zeroIn) continue;
@@ -1010,14 +1359,26 @@ function drawGraph(){
     const yy = four && v === 0 ? py(v) - 4 : py(v) + 4.5;
     s += `<text class="tick" x="${axisX - 7}" y="${yy}" text-anchor="end">${F(v)}</text>`;
   }
-  /* the line, once settled (never before) */
-  if(g.line && it.settled){
-    const lo = g.xMin, hi = g.xMax, m = slope(r);
+  /* the line, once settled (never before) — and when the student's own
+     equation was wrong, its line too, in red, so they see it miss the dots */
+  const seg = (m, c, colour) => {
+    const f = x => c + m * x, lo = g.xMin, hi = g.xMax;
     const clip = y => Math.max(ys.a, Math.min(ys.b, y));
     let xa = lo, xb = hi;
-    if(term(r, lo) < ys.a || term(r, lo) > ys.b) xa = (clip(term(r, lo)) - r.start) / m;
-    if(term(r, hi) < ys.a || term(r, hi) > ys.b) xb = (clip(term(r, hi)) - r.start) / m;
-    s += `<line x1="${px(xa)}" y1="${py(term(r, xa))}" x2="${px(xb)}" y2="${py(term(r, xb))}" stroke="#16a34a" stroke-width="3" stroke-dasharray="9 7" stroke-linecap="round"/>`;
+    if(m === 0){ if(c < ys.a || c > ys.b) return ""; }
+    else {
+      if(f(lo) < ys.a || f(lo) > ys.b) xa = (clip(f(lo)) - c) / m;
+      if(f(hi) < ys.a || f(hi) > ys.b) xb = (clip(f(hi)) - c) / m;
+      xa = Math.max(lo, Math.min(hi, xa)); xb = Math.max(lo, Math.min(hi, xb));
+      if(Math.abs(xb - xa) < 1e-9) return "";
+    }
+    return `<line x1="${px(xa)}" y1="${py(f(xa))}" x2="${px(xb)}" y2="${py(f(xb))}" stroke="${colour}" stroke-width="3" stroke-dasharray="9 7" stroke-linecap="round"/>`;
+  };
+  let yours = null;
+  if(g.line && it.settled){
+    s += seg(slope(r), r.start, "#16a34a");
+    yours = theirLine(it);
+    if(yours) s += seg(yours.m, yours.c, "#dc2626");
   }
   const dot = (x, y, fill, ring) => ring
     ? `<circle cx="${px(x)}" cy="${py(y)}" r="9" fill="none" stroke="#16a34a" stroke-width="3"/>`
@@ -1040,9 +1401,23 @@ function drawGraph(){
   svg.innerHTML = s;
   const plotting = g.plotStep >= 0 && curStepIndex(it) === g.plotStep && !it.steps[g.plotStep].last && it.steps.slice(0, g.plotStep).every(x => x.first !== null);
   svg.classList.toggle("plotting", !!plotting);
-  $("graphNote").textContent = plotting ? "Click where each point goes. Click a point again to remove it." :
-    (g.liveStep >= 0 ? "Your numbers appear as points as you type them." : (g.given.length ? "Read the points carefully — check the scale on each axis." : ""));
+  $("graphNote").innerHTML = plotting ? L("nClick") :
+    (g.line && it.settled ? L([["nLine", { eq:eqSpan(r) }]].concat(yours ? [["nYours"]] : [])) :
+    (g.liveStep >= 0 ? L("nLive") : (g.given.length ? L("nRead") : "")));
+  $("graphHead").innerHTML = one(g.zero ? "graphAll" : "graphFirst");
   $("clearPts").hidden = !plotting;
+}
+/* the line of the student's own equation, when it was marked wrong */
+function theirLine(it){
+  const s = it.steps.find(x => (x.t === "frame" || x.t === "eq") && x.first !== null);
+  if(!s || s.last) return null;
+  if(s.t === "frame"){
+    const v = s.vals || {}, a = numOf(v.a || ""), b = numOf(v.b || "");
+    if(!isFinite(a) || !isFinite(b) || !v.sign) return null;
+    return { c:a, m:v.sign === "-" ? -b : b };
+  }
+  const res = CL.equation(s.val || "");
+  return res.linear ? { c:res.linear.b, m:res.linear.m } : null;
 }
 function plotState(){
   const it = cur(); if(!it || !it.graph || it.graph.plotStep < 0) return null;
@@ -1071,7 +1446,7 @@ $("graph").addEventListener("pointerdown", e => {
   s.marks = null;
   drawGraph();
   const hint = $("qCard").querySelector(`.part[data-step="${cur().graph.plotStep}"] .hintLine`);
-  if(hint) hint.textContent = `${Object.keys(s.pts).length} of ${s.xs.length} points plotted. Click the grid to place a point; click it again to take it off. One point for each value of x.`;
+  if(hint) hint.innerHTML = hintPlot(Object.keys(s.pts).length, s.xs.length);
 });
 $("graph").addEventListener("pointermove", e => {
   const gh = document.getElementById("ghost"); if(!gh) return;
@@ -1081,7 +1456,7 @@ $("graph").addEventListener("pointermove", e => {
 });
 $("graph").addEventListener("pointerleave", () => { const gh = document.getElementById("ghost"); if(gh) gh.style.display = "none"; });
 $("clearPts").addEventListener("click", () => { const s = plotState(); if(s){ s.pts = {}; s.marks = null; drawGraph(); paintPlotHint(); } });
-function paintPlotHint(){ const it = cur(); const h = $("qCard").querySelector(`.part[data-step="${it.graph.plotStep}"] .hintLine`); if(h) h.textContent = `0 of ${it.steps[it.graph.plotStep].xs.length} points plotted.`; }
+function paintPlotHint(){ const it = cur(); const h = $("qCard").querySelector(`.part[data-step="${it.graph.plotStep}"] .hintLine`); if(h) h.innerHTML = hintPlot(0, it.steps[it.graph.plotStep].xs.length); }
 let rt = 0;
 addEventListener("resize", () => { cancelAnimationFrame(rt); rt = requestAnimationFrame(() => { if(cur() && cur().graph) drawGraph(); }); });
 
@@ -1101,24 +1476,30 @@ function scores(){
   }));
   return { score, total, counted:counted.length, cats };
 }
+function renderCert(){
+  const s = scores(), L0 = lv();
+  const pct = s.total ? Math.round(s.score / s.total * 100) : 0;
+  $("certScore").textContent = `${s.score} / ${s.total}`;
+  $("certLine").innerHTML = `${CFG.title} &middot; ${L0.name} &middot; ${pct}%`;   // the .certSub line below is the sign-in script's
+  $("certBreak").innerHTML = CATS.filter(c => s.cats[c]).map(c => `${one("cat_" + c)}${LANG === "en" ? "" : ` <span class="elI">(${UI["cat_" + c].en})</span>`}: <bdi dir="ltr">${s.cats[c][0]} / ${s.cats[c][1]}</bdi>`).join("<br>");
+  return { s, pct };
+}
 function finish(){
   if(!isPartial()) S.items.forEach(it => { if(!it.settled){ it.settled = true; it.correct = false; it.steps.forEach(s => { if(s.first === null) s.first = false; }); } });
-  const s = scores(), L = lv();
-  const pct = s.total ? Math.round(s.score / s.total * 100) : 0;
+  const { s, pct } = renderCert(), L0 = lv();
   $("progressFill").style.width = "100%";
-  $("certScore").textContent = `${s.score} / ${s.total}`;
-  $("certLine").innerHTML = `${CFG.title} &middot; ${L.name} &middot; ${pct}%`;   // the .certSub line below is the sign-in script's
-  $("certBreak").innerHTML = Object.keys(CAT_NAME).filter(c => s.cats[c]).map(c => `${CAT_NAME[c]}: ${s.cats[c][0]} / ${s.cats[c][1]}`).join("<br>");
   $("certModal").classList.add("open");
   /* No typed answer is ever in the payload — only marks and counts. */
+  const types = CATS.filter(c => s.cats[c]).map(c => c + ":" + s.cats[c][0] + "/" + s.cats[c][1])
+    .concat(["level:" + S.levelKey, "quadrants:" + (QUAD ? "all" : "first")]);
+  if(LANG !== "en") types.push("lang:" + LANG);
   if(window.MMTSave) window.MMTSave({
     tool:CFG.tool, topic:"algebra",
-    level:L.name, levelKey:S.levelKey,
+    level:L0.name, levelKey:S.levelKey,
     score:s.score, total:s.total, percent:pct,
     masteryTopic:CFG.mastery,
-    types: Object.keys(s.cats).map(c => c + ":" + s.cats[c][0] + "/" + s.cats[c][1])
-      .concat(["level:" + S.levelKey, "quadrants:" + (QUAD ? "all" : "first")]),
-    certificateText:"Counting Strategies — " + CFG.title + " — " + L.name + ": " + s.score + "/" + s.total,
+    types,
+    certificateText:"Counting Strategies — " + CFG.title + " — " + L0.name + ": " + s.score + "/" + s.total,
     ...(window.MMTSubmit && window.MMTSubmit.fields ? window.MMTSubmit.fields() : {})
   });
 }
@@ -1156,9 +1537,9 @@ function confetti(scale){
    ===================================================================== */
 function buildLevelList(){
   $("lvlList").innerHTML = ORDER.map(k => {
-    const L = LEVELS[k];
-    return `<button class="lvlRow ${k}" type="button" data-k="${k}"><span class="lvlIco">${L.ico}</span>`
-      + `<strong>${L.name}</strong><span class="d">${L.d}</span><span class="go">&rsaquo;</span></button>`;
+    const L0 = LEVELS[k];
+    return `<button class="lvlRow ${k}" type="button" data-k="${k}"><span class="lvlIco">${L0.ico}</span>`
+      + `<strong>${L0.name}</strong><span class="d">${L(L0.d)}</span><span class="go">&rsaquo;</span></button>`;
   }).join("");
   $("lvlList").querySelectorAll(".lvlRow").forEach(b => b.addEventListener("click", () => startLevel(b.dataset.k)));
 }
@@ -1180,9 +1561,9 @@ $("copyBtn").addEventListener("click", async () => {
   const s = scores();
   const line = "\u{1F3C6} Mills Maths Tools — Counting Strategies " + CFG.title + "\n" + `${lv().name}: ${s.score}/${s.total}\n`
     + (window.MMTAuth && window.MMTAuth.shareLine ? window.MMTAuth.shareLine() : "");
-  try{ await navigator.clipboard.writeText(line); $("copyBtn").textContent = "Copied"; }
-  catch(e){ $("copyBtn").textContent = "Could not copy"; }
-  setTimeout(() => { $("copyBtn").textContent = "Copy my result"; }, 1800);
+  try{ await navigator.clipboard.writeText(line); $("copyBtn").innerHTML = L("copied"); }
+  catch(e){ $("copyBtn").innerHTML = L("copyFail"); }
+  setTimeout(() => { $("copyBtn").innerHTML = L("copyResult"); }, 1800);
 });
 $("toolsBtn").addEventListener("click", e => {
   e.stopPropagation();
@@ -1191,6 +1572,37 @@ $("toolsBtn").addEventListener("click", e => {
 });
 document.addEventListener("click", () => { $("toolsMenu").classList.remove("open"); $("toolsBtn").setAttribute("aria-expanded", "false"); });
 document.addEventListener("keydown", e => { if(e.key === "Escape") $("toolsMenu").classList.remove("open"); });
+
+/* ---------- the language switch (top bar and level chooser) ---------- */
+function applyLang(){
+  try{ localStorage.setItem("mmt-csq-lang", LANG); }catch(e){}
+  document.querySelectorAll(".langTog button").forEach(b => { b.classList.toggle("on", b.dataset.lang === LANG); b.setAttribute("aria-pressed", String(b.dataset.lang === LANG)); });
+  $("prevBtn").innerHTML = L("prev");
+  $("clearPts").innerHTML = L("clearPts");
+  $("menuBtn").innerHTML = one("changeLevel");
+  $("lvlTitle").innerHTML = L("chooseLevel");
+  $("lvlSub").innerHTML = L(QUAD ? "levelSubAll" : "levelSubFirst");
+  $("certTitle").innerHTML = L("finished");
+  $("againBtn").innerHTML = L("tryAgain");
+  $("changeLvlBtn").innerHTML = L("changeLevel");
+  $("copyBtn").innerHTML = L("copyResult");
+  buildLevelList();
+  const keep = PROMPT;
+  if(cur()){
+    paint();
+    if(keep && keep.i === S.i) setPrompt(keep.msg, keep.kind);
+    if($("certModal").classList.contains("open")) renderCert();
+  } else {
+    $("nextBtn").innerHTML = L("next");
+    $("graphHead").innerHTML = one(QUAD ? "graphAll" : "graphFirst");
+    setPrompt([["chooseBegin"]]);
+  }
+}
+document.addEventListener("click", e => {
+  const b = e.target.closest(".langTog button"); if(!b) return;
+  e.stopPropagation();
+  LANG = b.dataset.lang; applyLang();
+});
 
 /* The shared early-submit button. It is an ES module, so it is imported —
    a plain <script> tag would stop at its `export` line. Offline, the quiz
@@ -1203,9 +1615,9 @@ import("/portal/shared/earlySubmit.js").then(m => {
   });
 }).catch(() => {});
 
-buildLevelList();
+applyLang();
 openLevels();
 
 /* a small surface for the automated checks; nothing in the page reads it */
-window.__CSQ__ = { S, LEVELS, ORDER, buildPaper, startLevel, scores, finish, next, check, paint, markStep, term, slope, eqHTML, yScale, readable, QUAD, get G(){ return G; }, CL, CTX };
+window.__CSQ__ = { S, LEVELS, ORDER, buildPaper, startLevel, scores, finish, next, check, paint, markStep, term, slope, eqHTML, yScale, readable, QUAD, get G(){ return G; }, get FIRSTQ(){ return FIRSTQ; }, CL, CTX, UI, STORY, NAME_T, tx, setLang:k => { LANG = k; applyLang(); }, lang:() => LANG };
 })();

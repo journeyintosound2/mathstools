@@ -91,6 +91,26 @@
 > §2 "TWO folders", §3 deploy paths and §5's `mathstools-main 2` heading below
 > describe the OLD layout — this block supersedes them.
 >
+> **NEW (2026-10-28, being pushed): STUDENT LOGIN CARDS REDESIGNED + CSV EXPORT.**
+> `portal/teacher/index.html` → Print Student Cards (`openPrintCards`, `pcCard`). Still 8 per
+> A4 (2 × 4, 64 mm rows), all sizes in mm/pt so preview = print.
+> * Card: navy band (`--pc-navy:#1e3a6e`) with `icons/icon-192.png`, "Mills Maths Tools ·
+>   Student login" and the class chip; an amber rule under it (the logo's underline); the
+>   name (16pt, wraps to two lines and steps down for long names — never cut off); the
+>   school (toggle); the code as ONE TILE PER CHARACTER split 3 + 3; a 17 mm QR (toggle) and
+>   "Sign in at millsmathstools.au/portal/student · Keep it private". Options saved in
+>   `mmt-pc-opts`. The band prints even with "background graphics" off
+>   (`print-color-adjust:exact`, checked in a Chromium PDF).
+> * **THE QR NEVER HOLDS THE CODE** — it is the fixed live sign-in URL (`PC_SIGNIN_URL`),
+>   so a photo of a card's QR gets nobody in. Encoder = MMT Screen's vendored
+>   `mmt-screen/widgets/vendor/qrcodegen.js` (dynamic import; if it fails the QR toggle
+>   hides). Decoded from the printed PDF with OpenCV.
+> * **Export to CSV** (footer, beside Print): School, Class, Student name, Access code, for
+>   the chosen class or everyone; file `MMT student codes - <class> - <date>.csv`; UTF-8
+>   BOM + CRLF, every field quoted, names/classes/schools starting with = + - @ prefixed
+>   with ' (formula injection), an all-digit code starting with 0 written ="0123" so
+>   Excel keeps the zero. School = the student's own `school`, else the teacher's.
+>
 > **NEW (2026-10-27, later — being pushed): WHOLE-TOPIC QUIZ BUILDER INSIDE THE PORTAL.**
 > `portal/teacher/index.html` only — the five quiz pages are UNCHANGED. "Choose question
 > types ›" no longer opens the quiz's own builder in a pop-up window; it swaps the quiz
@@ -369,6 +389,22 @@
 >     plot/apply as right/total, level:x, quadrants:first|all), certificateText + MMTSubmit
 >     fields — NO typed answers. The certificate's `.certSub` line belongs to quizAuthUI (it
 >     repaints it); our own "title · level · %" line is `#certLine`.
+>   * **ARABIC + FARSI (2026-10-28).** EN / ع / فا switch in the top bar and the level chooser
+>     (`localStorage mmt-csq-lang`). Same convention as the fractions quizzes: chosen language on top
+>     (`.tl`, dir=rtl), English beneath (`.el`); equations, tables, graphs, inputs and numerals stay LTR
+>     and Western. ALL words are one block near the top of quiz.js: `const UI` (every UI string),
+>     `const STORY` (the 33 stories' ar/fa text, x/y labels, yn, xo, Arabic noun gender `g:"f"`) and
+>     `const NAME_T` (the 18 names transliterated). Edit wording there. `tx(key, lang, vars)`: a primitive var is maths
+>     (wrapped `<bdi dir="ltr">`), an `{en,ar,fa}` object is a word. Question text is stored as
+>     functions / [key, vars] parts and drawn at paint time, so switching language mid-question keeps
+>     the work. A new story in contexts.js needs its ar/fa entry in lang.js (harness checks). Arabic
+>     story sentences are written in the passive so no verb has to agree with the person's name.
+>     Non-English attempts add `lang:ar` / `lang:fa` to types[].
+>   * **SWEET CHANGES (teacher request 2026-10-28).** Sweet is first quadrant on BOTH pages (`FIRSTQ`
+>     set per paper in buildPaper: x from 0, no negative y, graphs not centred). Its four live-table
+>     questions are two parts: table (plots live) → write the equation (frame); once marked the green
+>     line is drawn through the dots like the tool, and a WRONG equation's own line is drawn in red
+>     (`theirLine`). Mild's "When x = 0, y = 16 … write the equation" left alone (asked Jeff).
 >   * Verified: 1,000 generated papers per page (rules, gridlines, first-quadrant signs, distinct
 >     MC options), every level played to 10/10 through the UI (incl. clicking the plot points),
 >     wrong-first-then-fixed scores 0, empty checks free, skip = wrong (8/10 run), no answer
