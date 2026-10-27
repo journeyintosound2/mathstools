@@ -208,6 +208,95 @@
   .ot-cempty .big{font-size:1.5rem;display:block;margin-bottom:6px;opacity:.75}
   .ot-cnote{font-size:.74rem;color:var(--muted);padding:10px 15px 12px;border-top:1px solid var(--line);margin:0}
   .ot-cart .msg{margin:8px 10px 0}
+  /* ---- Whole-topic quiz builder (2026-10-27) -----------------------------
+     "Choose question types" opens THIS view in place of the quiz list (the cart
+     stays on the right). The quiz page is loaded in a hidden same-origin iframe
+     (.ot-engine) and its own builder generates the link, so links are exactly
+     what the quiz has always made — no pop-up window, no "Generate" step. */
+  .ot-pick.building > :not(#obView){display:none}
+  .ot-engine{position:fixed;left:-12000px;top:0;width:1000px;height:800px;border:0;opacity:0;pointer-events:none}
+  .modal.ob-mode .modal-foot{display:none}
+  .ob{animation:obIn .16s ease}
+  @keyframes obIn{from{opacity:0;transform:translateX(8px)}to{opacity:1;transform:none}}
+  .ob-top{position:sticky;top:var(--ot-head,68px);z-index:3;background:#fff;display:flex;align-items:center;gap:10px;padding:8px 0 10px;box-shadow:0 8px 8px -8px rgba(15,23,42,.08)}
+  .ob-back{appearance:none;border:1px solid var(--line);background:#fff;border-radius:9px;padding:7px 12px;font-weight:700;font-size:.84rem;cursor:pointer;color:var(--ink);white-space:nowrap;flex:0 0 auto}
+  .ob-back:hover{background:#f8fafc;border-color:#cbd5e1}
+  .ob-crumb{font-size:.8rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ob-head{display:flex;gap:14px;align-items:flex-start;margin:12px 0 16px}
+  .ob-head .ot-ticon{width:46px;height:46px;border-radius:13px;font-size:1.15rem}
+  .ob-head h3{margin:0;font-size:1.22rem;line-height:1.2}
+  .ob-head p{margin:3px 0 0;font-size:.85rem;color:var(--muted);max-width:560px}
+  .ob-head .ob-ht{flex:1;min-width:0}
+  .ob-prev{flex:0 0 auto;font-size:.8rem;font-weight:700;text-decoration:none;color:var(--mmt-blue);border:1px solid #c7d2fe;border-radius:9px;padding:6px 10px;white-space:nowrap}
+  .ob-prev:hover{background:#eef2ff}
+  .ob-row{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:14px;margin-bottom:14px}
+  .ob-card{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:#fff}
+  .ob-lbl{font-size:.7rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:0 0 8px;display:flex;align-items:center;gap:8px}
+  .ob-seg{display:flex;gap:4px;background:#f1f5f9;padding:4px;border-radius:11px}
+  .ob-seg button{flex:1;appearance:none;border:0;background:transparent;border-radius:8px;padding:8px 10px;cursor:pointer;font:inherit;color:var(--muted);text-align:center}
+  .ob-seg button b{display:block;font-size:.92rem;color:inherit}
+  .ob-seg button small{display:block;font-size:.72rem;font-weight:600;opacity:.85}
+  .ob-seg button:hover{color:var(--ink)}
+  .ob-seg button[aria-pressed="true"]{background:#fff;color:var(--mmt-blue-dark);box-shadow:0 1px 3px rgba(15,23,42,.12)}
+  .ob-countrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .ob-step{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
+  .ob-step button{appearance:none;border:0;background:#f8fafc;width:36px;height:40px;font-size:1.1rem;font-weight:800;cursor:pointer;color:var(--ink)}
+  .ob-step button:hover:not(:disabled){background:#eef2ff;color:var(--mmt-blue-dark)}
+  .ob-step button:disabled{opacity:.35;cursor:default}
+  .ob-step input{width:56px;height:40px;border:0;border-left:1px solid var(--line);border-right:1px solid var(--line);text-align:center;font-size:1rem;font-weight:800;letter-spacing:0;padding:0;-moz-appearance:textfield}
+  .ob-step input::-webkit-outer-spin-button,.ob-step input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+  .ob-step input:focus{outline:none;background:#f8faff}
+  .ob-presets{display:flex;gap:5px;flex-wrap:wrap}
+  .ob-range{font-size:.72rem;color:#94a3b8;width:100%}
+  .ob-sec{border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:14px;background:#fff}
+  .ob-sechd{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+  .ob-sechd .ob-lbl{margin:0}
+  .ob-pill{background:var(--chip);color:var(--mmt-blue-dark);border-radius:999px;padding:2px 9px;font-size:.72rem;font-weight:800}
+  .ob-pill.zero{background:#fef3c7;color:#92400e}
+  .ob-sechd .sp{flex:1}
+  .ob-types{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+  .ob-type{position:relative;display:flex;align-items:center;gap:10px;padding:9px 11px;border:1px solid var(--line);border-radius:10px;cursor:pointer;background:#fff;transition:background .1s ease,border-color .1s ease;min-height:44px}
+  .ob-type:hover{border-color:#c7d2fe;background:#f8faff}
+  .ob-type.on{background:#eff6ff;border-color:#93c5fd}
+  .ob-type input{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+  .ob-type .ot-box{width:18px;height:18px;border-radius:5px}
+  .ob-type input:checked + .ot-box{background:var(--mmt-blue);border-color:var(--mmt-blue)}
+  .ob-type input:checked + .ot-box::after{opacity:1}
+  .ob-type input:focus-visible + .ot-box{box-shadow:0 0 0 3px rgba(99,102,241,.35)}
+  .ob-type span.t{font-size:.86rem;font-weight:600;line-height:1.3}
+  .ob-warn{display:none;margin-top:8px;font-size:.8rem;font-weight:700;color:#b45309}
+  .ob-warn.show{display:block}
+  .ob-opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 14px}
+  .ob-opt{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:7px 2px;cursor:pointer;font-size:.86rem;font-weight:600}
+  .ob-opt input{position:absolute;opacity:0;width:1px;height:1px}
+  .ob-sw{width:36px;height:20px;border-radius:999px;background:#cbd5e1;position:relative;flex:0 0 auto;transition:background .12s ease}
+  .ob-sw::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.2);transition:transform .12s ease}
+  .ob-opt input:checked + .ob-sw{background:var(--mmt-blue)}
+  .ob-opt input:checked + .ob-sw::after{transform:translateX(16px)}
+  .ob-opt input:focus-visible + .ob-sw{box-shadow:0 0 0 3px rgba(99,102,241,.35)}
+  .ob-name{display:flex;gap:8px;align-items:center}
+  .ob-name input{flex:1;padding:9px 11px;border:1px solid var(--line);border-radius:9px;font-size:.9rem;letter-spacing:0}
+  .ob-name input:focus{outline:none;border-color:#a5b4fc;box-shadow:0 0 0 3px rgba(99,102,241,.15)}
+  .ob-hint{font-size:.74rem;color:var(--muted);margin-top:6px}
+  .ob-bar{position:sticky;bottom:0;z-index:3;background:#fff;border-top:1px solid var(--line);margin-top:4px;padding:12px 0 6px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;box-shadow:0 -8px 8px -8px rgba(15,23,42,.08)}
+  .ob-sum{flex:1;min-width:200px;font-size:.84rem;color:var(--muted)}
+  .ob-sum b{color:var(--ink)}
+  .ob-bar .msg{flex-basis:100%;margin:0}
+  .ob-load{text-align:center;padding:48px 16px;color:var(--muted)}
+  .ob-spin{display:inline-block;width:26px;height:26px;border:3px solid #e0e7ff;border-top-color:var(--mmt-blue);border-radius:50%;animation:btnspin .8s linear infinite;margin-bottom:10px}
+  .ob-skel{height:44px;border-radius:10px;background:linear-gradient(90deg,#f1f5f9,#f8fafc,#f1f5f9);background-size:200% 100%;animation:obSk 1.2s ease infinite}
+  @keyframes obSk{to{background-position:-200% 0}}
+  .ot-ci .ot-ce{appearance:none;border:0;background:transparent;color:#94a3b8;width:26px;height:26px;border-radius:7px;cursor:pointer;flex:0 0 auto;font-size:.85rem}
+  .ot-ci .ot-ce:hover{background:#eef2ff;color:var(--mmt-blue)}
+  .ot-ci.editing{background:#eef2ff;box-shadow:inset 3px 0 0 var(--mmt-blue)}
+  @media (max-width:640px){
+    .ob-row{grid-template-columns:1fr}
+    .ob-types,.ob-opts{grid-template-columns:1fr}
+    .ob-prev{display:none}
+    .ob-sum{flex-basis:100%}
+    .ob-bar .btn{flex:1}
+    .ob-head .ot-ticon{display:none}
+  }
   @keyframes otIn{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:none}}
   @media (max-width:880px){
     .ot-wrap{grid-template-columns:1fr}
@@ -505,7 +594,7 @@ async function refreshData(btn){
   if(btn){ btn.textContent="✓ Updated"; btn.disabled=false; setTimeout(()=>{ btn.textContent=orig||"↻ Refresh"; }, 1400); }
 }
 function openModal(html, wide){ modalEl.className="modal"+(wide?" wide":""); modalEl.innerHTML=html; back.classList.add("show"); }
-function closeModal(){ back.classList.remove("show"); currentRefresh=null; const ps=$("printSheet"); if(ps) ps.innerHTML=""; if(dtPoll){ clearInterval(dtPoll); dtPoll=null; } for(const k in tCharts){ try{ tCharts[k].destroy(); }catch{} delete tCharts[k]; } }
+function closeModal(){ back.classList.remove("show"); currentRefresh=null; const ps=$("printSheet"); if(ps) ps.innerHTML=""; if(dtPoll){ clearInterval(dtPoll); dtPoll=null; } OB=null; otDropEngines(); for(const k in tCharts){ try{ tCharts[k].destroy(); }catch{} delete tCharts[k]; } }
 function head(title){ return `<div class="modal-head"><h2>${title}</h2><button class="x" type="button" data-close>✕</button></div>`; }
 function foot(right){ return `<div class="modal-foot"><button class="btn" type="button" data-close>Close</button>${right||""}</div>`; }
 back.addEventListener("click", e=>{ if(e.target===back) closeModal(); });
@@ -1030,6 +1119,7 @@ function openDashTask(prefClass){
   const hd=modalEl.querySelector(".modal-head"); if(hd) modalEl.style.setProperty("--ot-head", hd.offsetHeight+"px");
   dtSelected=[];
   $("dtBtn").addEventListener("click", doDashTask);
+  if(!modalEl.dataset.obEsc){ modalEl.dataset.obEsc="1"; modalEl.addEventListener("keydown", e=>{ if(e.key==="Escape" && OB){ e.preventDefault(); e.stopPropagation(); obClose(); } }); }
   $("dtClass").addEventListener("change", ()=>{ $("dtMsg").className="msg"; renderDtSelected(); });
   $("dtDue").addEventListener("input", ()=>{ paintDueChips(); renderDtSelected(); });
   modalEl.querySelectorAll("[data-due]").forEach(b=> b.addEventListener("click", ()=>{ setDue(b.dataset.due); }));
@@ -1086,6 +1176,7 @@ function otRenderShell(){
   $("dtPasteAdd").addEventListener("click", addPastedLink);
   // One delegated listener for everything inside the list (it is re-rendered).
   $("otList").addEventListener("click", otListClick);
+  $("otList").addEventListener("pointerover", e=>{ const b=e.target.closest("[data-cust]"); if(b) otEngine(b.dataset.cust).catch(()=>{}); });
   $("otList").addEventListener("change", e=>{ const cb=e.target.closest("input[data-whole]"); if(cb) toggleWholeQuiz(cb.dataset.whole, cb.checked); });
   otRenderList();
 }
@@ -1167,7 +1258,7 @@ function otOverviewHTML(q){
       <span class="ot-ovcust" data-ovcust="${esc(q.toolId)}"></span></div>
     <div class="ot-ovact">
       <button class="ot-ovbtn" type="button" data-whole="${esc(q.toolId)}" aria-pressed="false">＋ Add whole quiz</button>
-      <button class="ot-ovbtn alt" type="button" data-cust="${esc(q.toolId)}">Choose question types ↗</button>
+      <button class="ot-ovbtn alt" type="button" data-cust="${esc(q.toolId)}">Choose question types ›</button>
     </div>
   </div>`;
 }
@@ -1183,11 +1274,14 @@ function otQuizHTML(q, tp, toks){
 function otListClick(e){
   const hd=e.target.closest(".ot-thd");
   if(hd){ const sec=hd.closest(".ot-topic"); const open=!sec.classList.contains("open"); sec.classList.toggle("open", open); hd.setAttribute("aria-expanded", String(open));
-    if(!OT.q){ open?OT.open.add(sec.dataset.topic):OT.open.delete(sec.dataset.topic); } otPaintExpand(); return; }
+    if(!OT.q){ open?OT.open.add(sec.dataset.topic):OT.open.delete(sec.dataset.topic); } otPaintExpand();
+    // Warm up the builder for any whole-topic quiz in this topic, so "Choose question types" opens instantly.
+    if(open) sec.querySelectorAll("[data-cust]").forEach(b=> otEngine(b.dataset.cust).catch(()=>{}));
+    return; }
   const wb=e.target.closest("button[data-whole]");
   if(wb){ toggleWholeQuiz(wb.dataset.whole, wb.getAttribute("aria-pressed")!=="true"); return; }
   const cb=e.target.closest("[data-cust]");
-  if(cb){ openSubsetBuilder(cb.dataset.cust); return; }
+  if(cb){ otOpenBuilder(cb.dataset.cust); return; }
 }
 function otPaintExpand(){ const b=$("otExpand"); if(!b) return; const cards=[...modalEl.querySelectorAll(".ot-topic")]; b.hidden=!cards.length; b.textContent=cards.length && cards.every(c=>c.classList.contains("open")) ? "Collapse all" : "Expand all"; }
 function toggleWholeQuiz(toolId, on){
@@ -1237,6 +1331,12 @@ function customDetail(url){
     return bits.join(" · ") || "Chosen question types";
   }catch(e){ return "Chosen question types"; }
 }
+// A custom version that arrived as a link (paste box, or the quiz's own builder in a
+// new window): settings are read back from the link so it can be edited like any other.
+function obItemFromUrl(q, rel){
+  const cfg=obCfgFromUrl(rel) || { level:"", types:[], count:0, options:{} };
+  return { toolId:q.toolId, title:`${q.title}: chosen question types`, launchUrl:rel, mode:"custom", cfg, sig:obSig(q.toolId, cfg) };
+}
 function openSubsetBuilder(toolId){
   const q=BUILDER_QUIZZES.find(x=>x.toolId===toolId); const m=$("dtBuildMsg");
   if(!q) return;
@@ -1256,7 +1356,7 @@ function openSubsetBuilder(toolId){
         const rel = siteRelUrl(val);
         if(!pulled.has(rel) && !dtSelected.some(s=>s.launchUrl===rel)){
           pulled.add(rel);
-          dtSelected.push({ toolId:q.toolId, title:`${q.title} (sub-topics)`, launchUrl:rel, mode:"custom" });
+          dtSelected.push(obItemFromUrl(q, rel));
           otPaint();
           m.className="msg ok show"; m.innerHTML=`Added <strong>${esc(q.title)}</strong> with your chosen question types. You can close the pop-up, or generate another version.`;
         }
@@ -1270,7 +1370,7 @@ function addPastedLink(){
   const q=BUILDER_QUIZZES.find(x=>v.includes(x.launchUrl));
   if(!q){ m.className="msg bad show"; m.textContent="That doesn't look like a link from one of the whole-topic quizzes."; return; }
   const rel=siteRelUrl(v);
-  if(!dtSelected.some(s=>s.launchUrl===rel)){ dtSelected.push({ toolId:q.toolId, title:`${q.title} (sub-topics)`, launchUrl:rel, mode:"custom" }); otPaint(); }
+  if(!dtSelected.some(s=>s.launchUrl===rel)){ dtSelected.push(obItemFromUrl(q, rel)); otPaint(); }
   $("dtPasteLink").value=""; m.className="msg ok show"; m.textContent="Added to your task.";
 }
 function renderDtSelected(){
@@ -1289,14 +1389,313 @@ function renderDtSelected(){
     const isNew=!shown.has(s.mode+"|"+s.launchUrl);
     const q=OT&&OT.cat.byId[s.toolId]; const tp=q&&OT.cat.topics[q.keys[0]];
     const where = tp ? `${tp.stage} · ${tp.name}` : "";
-    const name = q ? q.short : shortTitle(s.title.replace(/\s*\(sub-topics\)$/,""));
-    const detail = s.mode==="custom" ? `<small class="cust" title="${esc(s.launchUrl)}">${esc(customDetail(s.launchUrl))}</small>` : (q&&q.overview ? `<small>Whole quiz</small>` : "");
-    return `<div class="ot-ci${isNew?" new":""}"><span class="ic" aria-hidden="true">${s.mode==="custom"?"🎯":(q&&q.overview?"📚":"📝")}</span>
+    const custom = s.mode==="custom";
+    const name = custom ? s.title : (q ? q.short : shortTitle(s.title));
+    const detail = custom
+      ? `<small class="cust" title="${esc(s.detail&&s.detail.labels? s.detail.labels.join("\n") : s.launchUrl)}">${esc(s.detail ? `${s.detail.level} · ${s.detail.n===s.detail.total?`all ${s.detail.n}`:`${s.detail.n} of ${s.detail.total}`} types · ${s.cfg.count} questions` : customDetail(s.launchUrl))}</small>`
+      : (q&&q.overview ? `<small>Whole quiz</small>` : "");
+    const editing = OB && OB.editItem===s;
+    return `<div class="ot-ci${isNew?" new":""}${editing?" editing":""}"><span class="ic" aria-hidden="true">${custom?"🎯":(q&&q.overview?"📚":"📝")}</span>
       <div class="tx"><strong>${esc(name)}</strong>${detail}${where?`<small>${esc(where)}</small>`:""}</div>
+      ${custom && BUILDER_IDS.has(s.toolId)?`<button class="ot-ce" type="button" data-edsel="${i}" title="Change the question types" aria-label="Edit ${esc(name)}">✎</button>`:""}
       <button class="ot-cx" type="button" data-rmsel="${i}" title="Remove" aria-label="Remove ${esc(name)}">✕</button></div>`;
   }).join("");
-  box.querySelectorAll("[data-rmsel]").forEach(b=> b.addEventListener("click", ()=>{ dtSelected.splice(Number(b.dataset.rmsel),1); otPaint(); }));
+  box.querySelectorAll("[data-rmsel]").forEach(b=> b.addEventListener("click", ()=>{
+    const gone=dtSelected.splice(Number(b.dataset.rmsel),1)[0];
+    if(OB && gone && OB.editItem===gone){ OB.editItem=null; const a=$("obAdd"); if(a) a.textContent="Add to task"; const pl=modalEl.querySelector(".ob-head h3 .ob-pill"); if(pl) pl.remove(); }
+    otPaint(); }));
+  box.querySelectorAll("[data-edsel]").forEach(b=> b.addEventListener("click", ()=>{ const it=dtSelected[Number(b.dataset.edsel)]; if(it) otOpenBuilder(it.toolId, it); }));
 }
+// ======================= WHOLE-TOPIC QUIZ BUILDER (2026-10-27) =======================
+// "Choose question types" no longer opens the quiz's own builder in a pop-up window.
+// The quiz page is loaded in a HIDDEN same-origin iframe (the "engine") and driven
+// through the element ids all five builders share:
+//   .levelToggleBtn[data-level]   #builderTypes input[type=checkbox]   #builderCount
+//   #generateAssignmentBtn        #assignmentLinkOut
+//   any other checkbox with an id inside #teacherBuilderOverlay = an option (Angle
+//   Relationships' diagram options), labelled from its own <label>.
+// The teacher works in a compact builder drawn here; on "Add to task" the settings are
+// copied into the engine and ITS generate button makes the link — so every link is
+// exactly the one the quiz has always made (its own params, aid, options). A new
+// builder quiz only needs those ids and an entry in BUILDER_QUIZZES.
+// If the engine cannot load, the view offers the quiz's own builder in a new window
+// (openSubsetBuilder, the old pop-up flow) and the paste box.
+const otEngines = {};   // toolId -> { frame, ready:Promise<Document> }
+let OB = null;          // the open builder: { toolId, q, desc, level, sel:Set, count, opts:{}, name, nameTouched, editItem, scrollTop }
+const obSleep = ms => new Promise(r=>setTimeout(r, ms));
+function otEngine(toolId){
+  if(otEngines[toolId]) return otEngines[toolId].ready;
+  const q=BUILDER_QUIZZES.find(x=>x.toolId===toolId);
+  if(!q) return Promise.reject(new Error("This quiz has no question-type builder."));
+  const fr=document.createElement("iframe");
+  fr.className="ot-engine"; fr.setAttribute("aria-hidden","true"); fr.tabIndex=-1; fr.title="Quiz builder (hidden)";
+  fr.src=q.launchUrl;    // no ?assignment= params = the quiz's teacher builder mode
+  document.body.appendChild(fr);
+  const ready=new Promise((res,rej)=>{
+    const t0=Date.now();
+    (function tick(){
+      let d=null; try{ d=fr.contentDocument; }catch(e){}
+      if(d && d.readyState==="complete" && d.querySelector("#teacherBuilderOverlay .levelToggleBtn[data-level]") && d.getElementById("generateAssignmentBtn") && d.getElementById("assignmentLinkOut")) return res(d);
+      if(Date.now()-t0>15000) return rej(new Error("The quiz took too long to load."));
+      setTimeout(tick, 120);
+    })();
+  });
+  otEngines[toolId]={ frame:fr, ready };
+  ready.catch(()=>{ fr.remove(); delete otEngines[toolId]; });
+  return ready;
+}
+function otDropEngines(){ Object.values(otEngines).forEach(e=>e.frame.remove()); for(const k in otEngines) delete otEngines[k]; }
+function obLabelText(i){ const l=i.closest("label")||i.parentElement; return ((l&&l.textContent)||"").replace(/\s+/g," ").trim() || i.value; }
+function obEngineLevels(d){ return [...d.querySelectorAll("#teacherBuilderOverlay .levelToggleBtn[data-level]")].map(b=>({ id:b.dataset.level, label:b.textContent.replace(/\s+/g," ").trim() })); }
+function obEngineActive(d){ const a=d.querySelector("#teacherBuilderOverlay .levelToggleBtn.active[data-level]"); const s=d.getElementById("builderLevel"); return (a&&a.dataset.level) || (s&&s.value) || null; }
+async function obEngineSetLevel(d, id){
+  const b=d.querySelector(`#teacherBuilderOverlay .levelToggleBtn[data-level="${CSS.escape(id)}"]`);
+  if(!b) throw new Error("That level is not in this quiz.");
+  b.click();
+  for(let i=0;i<40 && !d.querySelector("#builderTypes input[type=checkbox]");i++) await obSleep(50);
+  await obSleep(10);
+}
+async function obDescribe(toolId){
+  const d=await otEngine(toolId);
+  const levels=obEngineLevels(d); if(!levels.length) throw new Error("No levels found in the quiz builder.");
+  const start=obEngineActive(d) || levels[levels.length-1].id;
+  const out=[];
+  for(const L of levels){
+    await obEngineSetLevel(d, L.id);
+    const types=[...d.querySelectorAll("#builderTypes input[type=checkbox]")].map(i=>({ value:i.value, label:obLabelText(i) }));
+    const c=d.getElementById("builderCount");
+    const count={ min:Number(c&&c.min)||1, max:Number(c&&c.max)||60, value:Number(c&&c.value)||15 };
+    const options=[...d.querySelectorAll("#teacherBuilderOverlay input[type=checkbox]")].filter(i=>i.id && !i.closest("#builderTypes")).map(i=>{
+      const lab=i.closest("label"); const hidden=Boolean(lab && (lab.hidden || d.defaultView.getComputedStyle(lab).display==="none"));
+      return { id:i.id, label:obLabelText(i), checked:i.checked, visible:!hidden };
+    });
+    out.push({ ...L, types, count, options });
+  }
+  await obEngineSetLevel(d, start);
+  const t=d.querySelector("#teacherBuilderOverlay .optionPanelTitle");
+  return { levels:out, start, optionsTitle:(t&&t.textContent.trim()) || "Options" };
+}
+async function obGenerate(toolId, cfg){
+  const d=await otEngine(toolId);
+  await obEngineSetLevel(d, cfg.level);
+  const want=new Set(cfg.types);
+  d.querySelectorAll("#builderTypes input[type=checkbox]").forEach(i=>{ const on=want.has(i.value); if(i.checked!==on){ i.checked=on; i.dispatchEvent(new Event("change",{bubbles:true})); } });
+  const c=d.getElementById("builderCount");
+  if(c){ c.value=String(cfg.count); c.dispatchEvent(new Event("input",{bubbles:true})); c.dispatchEvent(new Event("change",{bubbles:true})); }
+  Object.entries(cfg.options||{}).forEach(([id,on])=>{ const i=d.getElementById(id); if(i && i.checked!==on){ i.checked=on; i.dispatchEvent(new Event("change",{bubbles:true})); } });
+  const out=d.getElementById("assignmentLinkOut"); out.value="";
+  const keep=document.activeElement;
+  d.getElementById("generateAssignmentBtn").click();
+  for(let k=0;k<30 && !out.value;k++) await obSleep(40);
+  // Some quizzes focus/select their link box after generating, which would pull
+  // keyboard focus into the hidden frame. Take it back.
+  try{ window.focus(); if(keep && keep.focus) keep.focus(); }catch(e){}
+  const v=(out.value||"").trim();
+  if(!v || !/[?&](assignment=1|types=)/.test(v)) throw new Error("The quiz didn't make a link. Check at least one question type is ticked.");
+  const p=new URL(v, location.href).searchParams;
+  const got=(p.get("types")||"").split(",").filter(Boolean);
+  if((p.get("level") && p.get("level")!==cfg.level) || got.length!==want.size || got.some(t=>!want.has(t))) throw new Error("The quiz made a link that doesn't match your choices. Please try again.");
+  return siteRelUrl(v);
+}
+// Settings read back from a link (a pasted link, or an older custom version).
+function obCfgFromUrl(url){
+  try{
+    const p=new URL(url, location.origin).searchParams; const options={};
+    p.forEach((v,k)=>{ if(v==="1"||v==="0") options["builder"+k.charAt(0).toUpperCase()+k.slice(1)]=(v==="1"); });
+    return { level:p.get("level")||"", types:(p.get("types")||"").split(",").filter(Boolean), count:Number(p.get("count"))||0, options };
+  }catch(e){ return null; }
+}
+function obSig(toolId, cfg){ return [toolId, cfg.level, [...cfg.types].sort().join(","), cfg.count, Object.keys(cfg.options||{}).sort().map(k=>k+"="+(cfg.options[k]?1:0)).join("&")].join("|"); }
+
+// ---- The builder view ----
+function obLevel(){ return OB && OB.desc && (OB.desc.levels.find(l=>l.id===OB.level) || OB.desc.levels[0]); }
+function obVisibleOpts(L){ return (L.options||[]).filter(o=>o.visible); }
+function obCfg(){
+  const L=obLevel(); const opts={};
+  (L.options||[]).forEach(o=>{ opts[o.id]=Boolean(OB.opts[o.id]); });   // hidden ones keep the quiz's own default
+  return { level:L.id, types:L.types.filter(t=>OB.sel.has(t.value)).map(t=>t.value), count:OB.count, options:opts };
+}
+function obAutoName(){
+  const L=obLevel(); const base=OB.q.title; const chosen=L.types.filter(t=>OB.sel.has(t.value));
+  if(!chosen.length) return base;
+  if(chosen.length===L.types.length) return `${base} — ${L.label}`;
+  if(chosen.length===1) return `${base}: ${chosen[0].label}`;
+  return `${base}: ${chosen.length} question types (${L.label})`;
+}
+function otOpenBuilder(toolId, editItem){
+  const q=BUILDER_QUIZZES.find(x=>x.toolId===toolId); const cq=OT&&OT.cat.byId[toolId];
+  if(!q || !$("otPick")) return;
+  if(OB) obClose(true);
+  const tp=cq&&OT.cat.topics[cq.keys[0]];
+  OB={ toolId, q, cq, tp, desc:null, level:null, sel:new Set(), count:15, opts:{}, name:"", nameTouched:false, editItem:editItem||null, scrollTop:modalEl.scrollTop };
+  const pick=$("otPick"); pick.classList.add("building"); modalEl.classList.add("ob-mode");
+  const v=document.createElement("div"); v.id="obView"; v.className="ob"; pick.appendChild(v);
+  v.addEventListener("click", obClick); v.addEventListener("change", obChange); v.addEventListener("input", obInput);
+  obRenderLoading();
+  modalEl.scrollTop=0;
+  renderDtSelected();
+  obDescribe(toolId).then(desc=>{
+    if(!OB || OB.toolId!==toolId || !$("obView")) return;
+    OB.desc=desc;
+    const cfg = editItem ? (editItem.cfg || obCfgFromUrl(editItem.launchUrl)) : null;
+    obSetLevel(cfg && desc.levels.some(l=>l.id===cfg.level) ? cfg.level : desc.start, cfg);
+    if(editItem){ OB.name=editItem.title; OB.nameTouched = editItem.title!==obAutoName(); }
+    obRender();
+  }).catch(err=>{ if(OB && OB.toolId===toolId) obRenderError(err); });
+}
+// Switch level: every type ticked (as the quizzes do), the level's default count
+// and option settings — unless `cfg` (an existing version) says otherwise.
+function obSetLevel(id, cfg){
+  OB.level=id; const L=obLevel();
+  const have=new Set(L.types.map(t=>t.value));
+  const want = cfg && cfg.types ? cfg.types.filter(t=>have.has(t)) : [];
+  OB.sel = new Set(want.length ? want : L.types.map(t=>t.value));
+  const n = cfg && cfg.count ? cfg.count : L.count.value;
+  OB.count = Math.max(L.count.min, Math.min(L.count.max, Math.round(n)||L.count.value));
+  OB.opts={}; (L.options||[]).forEach(o=>{ OB.opts[o.id] = (cfg && cfg.options && o.id in cfg.options) ? Boolean(cfg.options[o.id]) : o.checked; });
+}
+function obHeadHTML(){
+  const icon = OB.tp ? (OB.tp.icon || OB.tp.name.charAt(0)) : "📚";
+  const col = OB.tp ? (STRAND_COLOUR[OB.tp.strand]||"") : "";
+  return `<div class="ob-top"><button class="ob-back" type="button" data-ob="back">← Back to quizzes</button>
+      <span class="ob-crumb">${OB.tp?`${esc(OB.tp.stage)} · ${esc(OB.tp.name)} · `:""}Whole-topic quiz</span></div>
+    <div class="ob-head"><span class="ot-ticon ${col}" aria-hidden="true">${esc(icon)}</span>
+      <div class="ob-ht"><h3>${esc(OB.q.title)}${OB.editItem?` <span class="ob-pill">Editing</span>`:""}</h3>
+        <p>Choose what this version covers. Students only get the question types you tick, at the level and length you set.</p></div>
+      <a class="ob-prev" href="${esc(OB.q.launchUrl)}" target="_blank" rel="noopener" title="Open the full quiz in a new tab">Preview quiz ↗</a></div>`;
+}
+function obRenderLoading(){
+  $("obView").innerHTML = obHeadHTML() + `<div class="ob-row"><div class="ob-skel"></div><div class="ob-skel"></div></div>
+    <div class="ob-sec"><div class="ob-load"><div class="ob-spin"></div><div>Loading the question types for <strong>${esc(OB.q.title)}</strong>…</div></div></div>`;
+}
+function obRenderError(err){
+  $("obView").innerHTML = obHeadHTML() + `<div class="ot-empty"><div class="big">⚠️</div><strong>Couldn't load the question types</strong>
+    ${esc((err&&err.message)||"Something went wrong.")} You can try again, or use the quiz's own link builder in a new window.
+    <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px">
+      <button class="btn primary sm" type="button" data-ob="retry">Try again</button>
+      <button class="btn sm" type="button" data-ob="popup">Open the quiz's builder ↗</button></div></div>`;
+}
+function obRender(){
+  const L=obLevel(); const d=OB.desc; const opts=obVisibleOpts(L);
+  const presets=[10,15,20,25,30].filter(n=>n>=L.count.min && n<=L.count.max);
+  $("obView").innerHTML = obHeadHTML() + `
+    <div class="ob-row">
+      <div class="ob-card"><div class="ob-lbl">Level</div>
+        <div class="ob-seg" role="group" aria-label="Level">${d.levels.map(l=>`<button type="button" data-oblevel="${esc(l.id)}" aria-pressed="${l.id===OB.level}"><b>${esc(l.label)}</b><small>${l.types.length} question type${l.types.length===1?"":"s"}</small></button>`).join("")}</div>
+        <div class="ob-hint">Each level has its own question types. Switching level ticks all of them again.</div></div>
+      <div class="ob-card"><div class="ob-lbl"><label for="obCount" style="all:inherit;margin:0">Questions</label></div>
+        <div class="ob-countrow">
+          <div class="ob-step"><button type="button" data-ob="minus" aria-label="Fewer questions">−</button><input id="obCount" type="number" inputmode="numeric" min="${L.count.min}" max="${L.count.max}" value="${OB.count}"/><button type="button" data-ob="plus" aria-label="More questions">+</button></div>
+          <div class="ob-presets">${presets.map(n=>`<button class="ot-chip" type="button" data-obcount="${n}">${n}</button>`).join("")}</div>
+          <span class="ob-range">Between ${L.count.min} and ${L.count.max}</span></div></div>
+    </div>
+    <div class="ob-sec">
+      <div class="ob-sechd"><span class="ob-lbl">Question types</span><span class="ob-pill" id="obPill"></span><span class="sp"></span>
+        <button class="ot-link" type="button" data-ob="all">Select all</button><button class="ot-link" type="button" data-ob="none">Clear</button></div>
+      <div class="ob-types">${L.types.map(t=>`<label class="ob-type" data-obtype="${esc(t.value)}"><input type="checkbox" value="${esc(t.value)}"/><span class="ot-box" aria-hidden="true"></span><span class="t">${esc(t.label)}</span></label>`).join("")}</div>
+      <div class="ob-warn" id="obWarn">Tick at least one question type.</div>
+    </div>
+    ${opts.length?`<div class="ob-sec"><div class="ob-sechd"><span class="ob-lbl">${esc(d.optionsTitle)}</span></div>
+      <div class="ob-opts">${opts.map(o=>`<label class="ob-opt"><span>${esc(o.label)}</span><input type="checkbox" data-obopt="${esc(o.id)}"/><span class="ob-sw" aria-hidden="true"></span></label>`).join("")}</div></div>`:""}
+    <div class="ob-sec"><div class="ob-sechd"><span class="ob-lbl"><label for="obName" style="all:inherit;margin:0">Task name students see</label></span><span class="sp"></span>
+        <button class="ot-link" type="button" data-ob="autoname" id="obAutoBtn">Use the automatic name</button></div>
+      <div class="ob-name"><input id="obName" maxlength="120" autocomplete="off"/></div>
+      <div class="ob-hint">Shown on each student's dashboard and in your task list.</div></div>
+    <div class="ob-bar"><div class="ob-sum" id="obSum" aria-live="polite"></div>
+      <button class="btn" type="button" data-ob="back">Cancel</button>
+      <button class="btn primary" type="button" data-ob="add" id="obAdd">${OB.editItem?"Save changes":"Add to task"}</button>
+      <div class="msg" id="obMsg"></div></div>`;
+  obPaint();
+  const first=$("obView").querySelector('[data-oblevel][aria-pressed="true"]'); if(first) first.focus({preventScroll:true});
+}
+function obPaint(){
+  const v=$("obView"); if(!v || !OB || !OB.desc) return;
+  const L=obLevel(); const n=L.types.filter(t=>OB.sel.has(t.value)).length;
+  v.querySelectorAll("[data-obtype]").forEach(l=>{ const on=OB.sel.has(l.dataset.obtype); l.classList.toggle("on", on); l.querySelector("input").checked=on; });
+  v.querySelectorAll("[data-obopt]").forEach(i=>{ i.checked=Boolean(OB.opts[i.dataset.obopt]); });
+  const pill=$("obPill"); pill.textContent=`${n} of ${L.types.length}`; pill.classList.toggle("zero", !n);
+  $("obWarn").classList.toggle("show", !n);
+  v.querySelector('[data-ob="all"]').hidden = n===L.types.length;
+  v.querySelector('[data-ob="none"]').hidden = !n;
+  const c=$("obCount"); if(c && document.activeElement!==c) c.value=OB.count;
+  v.querySelector('[data-ob="minus"]').disabled = OB.count<=L.count.min;
+  v.querySelector('[data-ob="plus"]').disabled = OB.count>=L.count.max;
+  v.querySelectorAll("[data-obcount]").forEach(b=> b.classList.toggle("on", Number(b.dataset.obcount)===OB.count));
+  const auto=obAutoName(); if(!OB.nameTouched) OB.name=auto;
+  const ni=$("obName"); if(ni && document.activeElement!==ni) ni.value=OB.name; if(ni) ni.placeholder=auto;
+  $("obAutoBtn").hidden = !OB.nameTouched || OB.name===auto;
+  $("obSum").innerHTML = n ? `<b>${esc(L.label)}</b> · ${n===L.types.length?`<b>all ${n}</b>`:`<b>${n}</b> of ${L.types.length}`} question types · <b>${OB.count}</b> questions` : `<span style="color:#b45309;font-weight:700">Tick at least one question type</span>`;
+  $("obAdd").disabled = !n;
+}
+function obClick(e){
+  const lv=e.target.closest("[data-oblevel]");
+  if(lv){ if(lv.dataset.oblevel!==OB.level){ obSetLevel(lv.dataset.oblevel, null); obRender(); } return; }
+  const pc=e.target.closest("[data-obcount]"); if(pc){ OB.count=Number(pc.dataset.obcount); obPaint(); return; }
+  const a=e.target.closest("[data-ob]"); if(!a) return;
+  const L=obLevel();
+  switch(a.dataset.ob){
+    case "back": obClose(); break;
+    case "retry": otOpenBuilder(OB.toolId, OB.editItem); break;
+    case "popup": { const id=OB.toolId; obClose(); openSubsetBuilder(id); break; }
+    case "all": L.types.forEach(t=>OB.sel.add(t.value)); obPaint(); break;
+    case "none": OB.sel.clear(); obPaint(); break;
+    case "minus": OB.count=Math.max(L.count.min, OB.count-1); obPaint(); break;
+    case "plus": OB.count=Math.min(L.count.max, OB.count+1); obPaint(); break;
+    case "autoname": OB.nameTouched=false; obPaint(); break;
+    case "add": obAdd(); break;
+  }
+}
+function obChange(e){
+  const t=e.target;
+  if(t.closest("[data-obtype]")){ t.checked ? OB.sel.add(t.value) : OB.sel.delete(t.value); obPaint(); return; }
+  if(t.dataset.obopt){ OB.opts[t.dataset.obopt]=t.checked; return; }
+  if(t.id==="obCount"){ const L=obLevel(); const n=Math.round(Number(t.value)); OB.count = Number.isFinite(n)&&n>0 ? Math.max(L.count.min, Math.min(L.count.max, n)) : L.count.value; t.value=OB.count; obPaint(); }
+}
+function obInput(e){
+  const t=e.target;
+  if(t.id==="obName"){ OB.name=t.value; OB.nameTouched = t.value.trim()!=="" && t.value!==obAutoName(); if(!t.value.trim()) OB.nameTouched=false; $("obAutoBtn").hidden=!OB.nameTouched; return; }
+  if(t.id==="obCount"){ const L=obLevel(); const n=Math.round(Number(t.value)); if(Number.isFinite(n) && n>=L.count.min && n<=L.count.max){ OB.count=n; obPaint(); } }
+}
+async function obAdd(){
+  const btn=$("obAdd"); const m=$("obMsg");
+  const c=$("obCount"); if(c) obChange({ target:c });
+  const cfg=obCfg();
+  if(!cfg.types.length){ $("obWarn").classList.add("show"); return; }
+  const sig=obSig(OB.toolId, cfg);
+  const dupe=dtSelected.find(s=>s!==OB.editItem && s.sig===sig);
+  if(dupe){ m.className="msg bad show"; m.textContent="That exact version is already in your task."; return; }
+  const name=(OB.name||"").trim() || obAutoName();
+  btn.disabled=true; btn.textContent= OB.editItem ? "Saving…" : "Adding…"; m.className="msg";
+  try{
+    const url=await obGenerate(OB.toolId, cfg);
+    const L=obLevel();
+    const item={ toolId:OB.toolId, title:name, launchUrl:url, mode:"custom", cfg, sig,
+      detail:{ level:L.label, n:cfg.types.length, total:L.types.length, labels:L.types.filter(t=>cfg.types.includes(t.value)).map(t=>t.label) } };
+    const i = OB.editItem ? dtSelected.indexOf(OB.editItem) : -1;
+    const edited = i>=0;
+    if(edited) dtSelected[i]=item; else dtSelected.push(item);
+    const bm=$("dtBuildMsg");
+    obClose();
+    otPaint();
+    if(bm){ bm.className="msg ok show"; bm.innerHTML = `${edited?"Updated":"Added"} <strong>${esc(name)}</strong>.`; }
+  }catch(err){
+    m.className="msg bad show"; m.textContent=(err&&err.message)||"Could not make the quiz link.";
+    btn.disabled=false; btn.textContent= OB&&OB.editItem ? "Save changes" : "Add to task";
+  }
+}
+function obClose(silent){
+  if(!OB) return;
+  const id=OB.toolId, top=OB.scrollTop;
+  OB=null;
+  const v=$("obView"); if(v) v.remove();
+  const pick=$("otPick"); if(pick) pick.classList.remove("building");
+  modalEl.classList.remove("ob-mode");
+  if(silent) return;
+  modalEl.scrollTop=top;
+  renderDtSelected();
+  const b=modalEl.querySelector(`#otList [data-cust="${CSS.escape(id)}"]`); if(b) b.focus({preventScroll:true});
+}
+
 async function doDashTask(){
   const className=$("dtClass").value, dueVal=$("dtDue").value; const m=$("dtMsg"); const btn=$("dtBtn");
   if(!className){ m.className="msg bad show"; m.textContent="Choose a class first."; $("dtClass").focus(); return; }

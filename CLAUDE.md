@@ -91,6 +91,40 @@
 > §2 "TWO folders", §3 deploy paths and §5's `mathstools-main 2` heading below
 > describe the OLD layout — this block supersedes them.
 >
+> **NEW (2026-10-27, later — being pushed): WHOLE-TOPIC QUIZ BUILDER INSIDE THE PORTAL.**
+> `portal/teacher/index.html` only — the five quiz pages are UNCHANGED. "Choose question
+> types ›" no longer opens the quiz's own builder in a pop-up window; it swaps the quiz
+> list for a compact builder (`#obView`, `otOpenBuilder()`), with the cart still visible.
+> * **THE QUIZ IS THE ENGINE.** The quiz page loads in a hidden same-origin iframe
+>   (`.ot-engine`, `otEngine()`; preloaded when its topic opens or on hover) and is driven
+>   through the ids all five builders share: `.levelToggleBtn[data-level]`,
+>   `#builderTypes input[type=checkbox]`, `#builderCount`, `#generateAssignmentBtn`,
+>   `#assignmentLinkOut`; any other id'd checkbox in `#teacherBuilderOverlay` is an
+>   option (Angle Relationships' diagram options, titled from `.optionPanelTitle`).
+>   `obDescribe()` reads every level's types/count range/options; `obGenerate()` copies
+>   the teacher's choices in, clicks the quiz's own Generate, and REFUSES a link whose
+>   level/types don't match. So links are exactly what each quiz always made. A future
+>   builder quiz needs only those ids + a `BUILDER_QUIZZES` row. **Keep those ids** if a
+>   builder quiz is ever rebuilt.
+> * Builder: level segmented control (type count per level), question stepper + presets
+>   clamped to the quiz's own min/max (Integers starts at 10), 2-column type grid with
+>   Select all / Clear, option switches, an editable **task name students see** (auto:
+>   "Equations — Expected" / "Equations: Solve x² = c" / "Equations: 4 question types
+>   (Expected)" — the old "(sub-topics)" suffix is gone), sticky summary bar with
+>   Cancel / Add to task. Esc = back. The modal's own footer hides while it is open.
+> * Cart: custom versions show "Expected · 2 of 11 types · 20 questions" (type names on
+>   hover) and a ✎ **Edit** that reopens the builder preloaded (saved as `cfg` on the
+>   item; pasted links are read back from their URL by `obCfgFromUrl`). An identical
+>   version (`obSig`) is refused. Engines are removed when the modal closes.
+> * Fallback: if the quiz can't load (15 s), the view offers Try again or the old pop-up
+>   builder (`openSubsetBuilder`), and the paste box still works.
+> * Verified: 66 Playwright checks across all five quizzes driving the REAL quiz pages
+>   (every level, counts, Greek off reaching the angle link, rename, edit replaces, dupes,
+>   paste → edit, focus not left in the hidden frame, engines removed), the failure path,
+>   phone/1024 layouts; the picker's 91 checks still pass. Test gotcha: stub only the
+>   portal's own modules — a stubbed `firebaseConfig.js` leaks into the quiz frame and
+>   silently stops its builder wiring.
+>
 > **NEW (2026-10-27, session — being pushed): "SET AN ONLINE TASK" — QUIZ PICKER REDESIGN.**
 > `portal/teacher/index.html` only (no functions, rules or registry change). The tile, modal
 > and Manage Tasks wording say **Set an Online Task / Online tasks** now that Adventure tasks
