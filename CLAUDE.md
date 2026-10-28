@@ -96,6 +96,40 @@
 > §2 "TWO folders", §3 deploy paths and §5's `mathstools-main 2` heading below
 > describe the OLD layout — this block supersedes them.
 >
+> **NEW (2026-10-28, later — NEEDS A FUNCTIONS DEPLOY): STUDENTS & CLASSES — EDIT, MOVE, REMOVE.**
+> * **Two new Cloud Functions** in `game-platforms/mills-maths-adventure-source/functions/index.js`
+>   (the functions now live in THIS repo): `updateStudentForTeacher({studentCode, firstName,
+>   surname, className})` and `manageStudentsForTeacher({studentCodes, action, className?})`,
+>   action archive | restore | move, ≤300 at once. Both take the teacher from the claim and
+>   only touch students whose `teacherCode` matches; others are reported as `skipped`.
+>   Moving into a new class creates its `classes` doc (`ensureClass`). **No rules change.**
+>   Client wrappers: `updateStudent`, `manageStudents` in `codeExchangeClient.js`. Until
+>   deployed, the portal says "needs a server update" (a missing callable = `functions/internal`).
+>   Deploy: `firebase deploy --only functions:updateStudentForTeacher,functions:manageStudentsForTeacher --project mills-maths-tools`
+>   from `game-platforms/mills-maths-adventure-source/`.
+> * **REMOVE = ARCHIVE, NEVER DELETE.** `active:false` + `archivedAt` — `exchangeStudentCode`
+>   already refuses inactive codes. Archived students are left out of `students` (loadData
+>   splits them into `archived`), so they drop out of every list, count, picker, print card,
+>   class size and the roster, but their achievements stay (create-only) and Restore gives
+>   the same code back. The code (= doc id) never changes on edit, so results stay attached.
+>   Hard delete stays an admin-console job.
+> * **UI** (`openStudents`, `stDraw`, `openStudent`): class chips with counts + an
+>   "🗄️ Archived" chip; name-or-code search; sortable columns (arrows on hover/sorted);
+>   tick boxes with a dark sticky bulk bar — Move to class (or ＋ New class…), Print cards
+>   (opens Print Student Cards with "Selected students (n)"), Remove from class (inline
+>   confirm), Clear; an Undo after removing; class summary strip (students, needs support,
+>   class average, Print cards, Set an online task); click a code to copy; ✎ opens the
+>   student page with the name focused. Student page: details form (first name, surname,
+>   class / new class; Save enabled only when changed), results, and a "Remove from class"
+>   card; an archived student's page shows Restore instead. Results now show each
+>   student's CURRENT name (`applyCurrentNames`). Students with results but no roster doc
+>   show "not on roster" and can't be edited.
+> * Verified: 25 function checks with a mocked Admin SDK (ownership, skipped codes, archive
+>   blocks sign-in, restore, move + class creation, validation, 300 at once) and 48
+>   Playwright checks on the portal (chips/counts, sort, search, move to new class, remove +
+>   undo, archived view + restore, edit + new class, not-deployed message, remove from the
+>   student page, print selected, phone width).
+>
 > **NEW (2026-10-28, being pushed): STUDENT LOGIN CARDS REDESIGNED + CSV EXPORT.**
 > `portal/teacher/index.html` → Print Student Cards (`openPrintCards`, `pcCard`). Still 8 per
 > A4 (2 × 4, 64 mm rows), all sizes in mm/pt so preview = print.

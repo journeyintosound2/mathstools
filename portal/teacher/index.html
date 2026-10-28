@@ -309,6 +309,89 @@
     .ot-open{opacity:1}
   }
 
+  /* ---- Students & Classes (redesigned 2026-10-28) -------------------------
+     Class chips + search, a sortable table with tick boxes, a bulk bar (move,
+     print cards, remove), an Archived view, and an editable student page.
+     "Remove" ARCHIVES — the code stops working, results are kept, restorable. */
+  .st-top{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+  .st-chips{display:flex;gap:6px;flex-wrap:wrap;flex:1 1 420px}
+  .st-chip{appearance:none;border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 12px;font-size:.84rem;font-weight:700;cursor:pointer;color:var(--ink);display:inline-flex;align-items:center;gap:6px}
+  .st-chip small{font-size:.72rem;font-weight:800;color:var(--muted);background:#f1f5f9;border-radius:999px;padding:1px 7px}
+  .st-chip:hover{border-color:#c7d2fe;background:#f8faff}
+  .st-chip.on{background:var(--mmt-blue);border-color:var(--mmt-blue);color:#fff}
+  .st-chip.on small{background:rgba(255,255,255,.22);color:#fff}
+  .st-chip.arch{border-style:dashed}
+  .st-chip.arch.on{background:#475569;border-color:#475569}
+  .st-search{position:relative;flex:0 1 240px}
+  .st-search input{width:100%;padding:8px 10px 8px 32px;border:1px solid var(--line);border-radius:10px;font-size:.88rem;letter-spacing:0}
+  .st-search input:focus{outline:none;border-color:#a5b4fc;box-shadow:0 0 0 3px rgba(99,102,241,.15)}
+  .st-search span{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:.8rem;color:var(--muted);pointer-events:none}
+  .st-sum{display:flex;align-items:center;gap:8px 16px;flex-wrap:wrap;background:#f8fafc;border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin-bottom:12px;font-size:.85rem;color:var(--muted)}
+  .st-sum b{color:var(--ink)}
+  .st-sum .sp{flex:1}
+  .st-tbl{width:100%;border-collapse:collapse}
+  .st-tbl th{position:sticky;top:var(--st-head,68px);background:#fff;z-index:1;white-space:nowrap}
+  .st-tbl th button{appearance:none;border:0;background:none;font:inherit;color:inherit;text-transform:inherit;letter-spacing:inherit;cursor:pointer;padding:0;display:inline-flex;align-items:center;gap:4px}
+  .st-tbl th button:hover{color:var(--ink)}
+  .st-tbl th .ar{font-size:.7rem;opacity:0;transition:opacity .1s ease}
+  .st-tbl th button:hover .ar,.st-tbl th button:focus-visible .ar{opacity:.4}
+  .st-tbl th.sorted .ar{opacity:1;color:var(--mmt-blue)}
+  .st-tbl td,.st-tbl th{padding:9px 10px}
+  .st-tbl tbody tr{cursor:pointer;transition:background .08s ease}
+  .st-tbl tbody tr:hover{background:#f8fafc}
+  .st-tbl tbody tr.sel{background:#eff6ff}
+  .st-tbl .ck{width:34px;padding-right:0}
+  .st-tbl .ck input{width:17px;height:17px;accent-color:var(--mmt-blue);margin:0;cursor:pointer;vertical-align:middle}
+  .st-tbl .nm{font-weight:650}
+  .st-tbl .act{width:1%;white-space:nowrap;text-align:right}
+  .st-ib{appearance:none;border:1px solid transparent;background:transparent;width:32px;height:32px;border-radius:8px;cursor:pointer;color:#64748b;font-size:.95rem;display:inline-grid;place-items:center}
+  .st-ib:hover{background:#eef2ff;border-color:#c7d2fe;color:var(--mmt-blue)}
+  .st-ib.danger:hover{background:#fef2f2;border-color:#fecaca;color:#dc2626}
+  .codechip.copy{cursor:copy}
+  .codechip.copied{background:#dcfce7;border-color:#86efac;color:#166534}
+  .st-bulk{position:sticky;bottom:0;z-index:2;margin:12px -22px -20px;padding:12px 22px;background:#0f172a;color:#e2e8f0;display:flex;align-items:center;gap:10px;flex-wrap:wrap;border-radius:0 0 var(--radius) var(--radius);box-shadow:0 -6px 16px rgba(15,23,42,.18)}
+  .st-bulk[hidden]{display:none}
+  .st-bulk b{color:#fff}
+  .st-bulk .sp{flex:1}
+  .st-bulk select,.st-bulk input{padding:7px 9px;border-radius:8px;border:1px solid #334155;background:#1e293b;color:#fff;font-size:.85rem;letter-spacing:0}
+  .st-bulk .btn{background:#1e293b;border-color:#334155;color:#fff}
+  .st-bulk .btn:hover{background:#334155}
+  .st-bulk .btn.warn{background:#b91c1c;border-color:#b91c1c}
+  .st-bulk .btn.warn:hover{background:#991b1b}
+  .st-bulk .btn.ok{background:#15803d;border-color:#15803d}
+  .st-bulk .lnk{appearance:none;border:0;background:none;color:#93c5fd;font-weight:700;cursor:pointer;font-size:.85rem}
+  .st-toast{display:flex;align-items:center;gap:10px}
+  .st-toast .btn.sm{margin-left:auto}
+  /* Student page */
+  .sp-head{display:flex;gap:14px;align-items:center;margin-bottom:16px}
+  .sp-av{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:800;font-size:1.1rem;flex:0 0 auto}
+  .sp-meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:.86rem;color:var(--muted);margin-top:3px}
+  .sp-pill{background:var(--chip);color:var(--mmt-blue-dark);border-radius:999px;padding:2px 9px;font-weight:700;font-size:.78rem}
+  .sp-pill.arch{background:#f1f5f9;color:#475569}
+  .sp-card{border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:14px;background:#fff}
+  .sp-card h4{margin:0 0 10px;font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+  .sp-form{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;align-items:end}
+  .sp-form .field{margin:0}
+  .sp-form .field input,.sp-form .field select{padding:9px 11px;font-size:.92rem;letter-spacing:0}
+  .sp-acts{display:flex;gap:8px;align-items:center;margin-top:12px}
+  .sp-acts .muted{font-size:.8rem}
+  .sp-danger{border-color:#fecaca;background:#fffbfb}
+  .sp-danger h4{color:#b91c1c}
+  .sp-danger p{margin:0 0 10px;font-size:.86rem;color:#475569}
+  .sp-danger .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .btn.warn{background:#dc2626;border-color:#dc2626;color:#fff}
+  .btn.warn:hover{background:#b91c1c}
+  .btn.okb{background:#15803d;border-color:#15803d;color:#fff}
+  @media (max-width:760px){
+    .sp-form{grid-template-columns:1fr}
+    .st-tbl .hide-sm{display:none}
+    .st-search{flex:1 1 100%}
+    #stBody{overflow-x:auto;-webkit-overflow-scrolling:touch}
+    .st-tbl th{position:static}
+    .st-tbl td,.st-tbl th{padding:8px 7px}
+    .st-bulk{margin:12px -20px -20px;padding:12px 20px}
+  }
+
   /* ---- Printable student login cards ------------------------------------
      8 cards per A4 page (2 across x 4 down). The sheet lives in #printSheet at
      body level so the print stylesheet can hide everything else and print it
@@ -557,7 +640,7 @@
 <div id="printSheet" aria-hidden="true"></div>
 
 <script type="module">
-import { initPortal, loginTeacher, logout, normaliseCode, getDb, updateTeacherProfile, updateCachedProfile, createStudent, createClass, setClassActive, setAdventureTaskActive, createDashboardTask, updateDashboardTask, setDashboardTaskActive } from "../shared/codeExchangeClient.js";
+import { initPortal, loginTeacher, logout, normaliseCode, getDb, updateTeacherProfile, updateCachedProfile, createStudent, createClass, setClassActive, setAdventureTaskActive, createDashboardTask, updateDashboardTask, setDashboardTaskActive, updateStudent, manageStudents } from "../shared/codeExchangeClient.js";
 import { COLLECTIONS } from "../shared/firebaseConfig.js";
 import { formatLocation } from "../shared/location.js";
 import { mountSchoolPicker, loadSchools } from "../shared/schoolPicker.js";
@@ -571,6 +654,7 @@ const $ = (id)=>document.getElementById(id);
 let teacher=null, students=[], all=[], attemptsByCode=new Map();
 let geoListOk=false; loadSchools().then(d=>{ geoListOk=d.list.length>0; if(teacher) paintProfile(); }); // only nag for a map pin once the school list is installed
 let classes=[];               // flat class-name list the pickers use
+let archived=[];              // removed (archived) students — restorable from Students & Classes
 let classesData=[];           // [{name, classId|null}] — saved classes ∪ roster-derived
 let taskBadge=0;              // adventure + dashboard task count for the tile badge
 let advAssignments=[], dashAssignments=[]; // active teacher-set tasks (for completion analytics)
@@ -683,6 +767,14 @@ async function doLogin(){
   showDashboard();
 }
 
+// A Firestore Timestamp (or millis / ISO) → millis, or 0.
+function tsMs(v){ if(!v) return 0; if(typeof v.toMillis==="function") return v.toMillis(); if(typeof v.seconds==="number") return v.seconds*1000; const n=typeof v==="number"?v:Date.parse(v); return Number.isFinite(n)?n:0; }
+// Results carry the name the student had when they did the task; show the name
+// on file now, so an edited name is the same everywhere.
+function applyCurrentNames(){
+  const byCode=new Map(students.concat(archived).map(s=>[s.studentCode, s.name||s.studentName||""]));
+  for(const r of all){ const n=byCode.get(r.studentCode); if(n) r.studentName=n; }
+}
 async function loadData(){
   const db = getDb();
   // The teacher's own record — read fresh so the profile shows what the admin
@@ -694,9 +786,14 @@ async function loadData(){
       Object.assign(teacher, fresh); updateCachedProfile(fresh); }
   }catch(err){ console.warn("Could not read own teacher profile:", err); }
   const sSnap = await getDocs(query(collection(db, COLLECTIONS.students), where("teacherCode","==", teacher.teacherCode)));
-  students = sSnap.docs.map(d=>({ id:d.id, studentCode:d.data().studentCode||d.id, ...d.data() }));
+  // Removed students are ARCHIVED (active:false), never deleted: they leave every
+  // list, count and picker, but are kept in `archived` so they can be restored.
+  const allStudents = sSnap.docs.map(d=>({ id:d.id, ...d.data(), studentCode:d.data().studentCode||d.id }));
+  students = allStudents.filter(s=>s.active!==false);
+  archived = allStudents.filter(s=>s.active===false).map(s=>({ ...s, archivedMs: tsMs(s.archivedAt) }));
   const aSnap = await getDocs(query(collection(db, COLLECTIONS.achievements), where("teacherCode","==", teacher.teacherCode)));
   all = aSnap.docs.map(d=> normaliseAchievement({ id:d.id, ...d.data() })).sort((a,b)=> b.time - a.time);
+  applyCurrentNames();
   // Adventure records store a generic "Mills Maths Adventure" topic; show the
   // actual challenge/mission name instead (kept in the record's level field).
   for(const r of all){
@@ -1797,10 +1894,12 @@ function pcLoadQr(){
 }
 
 // The roster, class-filtered, in the order the cards should print.
+let pcCodes=null;   // set when cards are printed for ticked students only
 function pcStudents(cls){
+  const only = cls==="__sel" && pcCodes ? new Set(pcCodes) : null;
   return students
     .map(s=>({ code:s.studentCode||s.id||"", name:s.name||s.studentName||"", className:s.className||"", school:s.school||teacher.school||"" }))
-    .filter(s=> s.code && (!cls || s.className===cls))
+    .filter(s=> s.code && (only ? only.has(s.code) : (!cls || s.className===cls)))
     .sort((a,b)=> (a.className||"").localeCompare(b.className||"") || (a.name||"").localeCompare(b.name||""));
 }
 // One tile per character, split into threes (8LR 7YE) so it is easy to copy.
@@ -1862,14 +1961,16 @@ function pcDownload(text, name){
   setTimeout(()=>{ a.remove(); URL.revokeObjectURL(url); }, 1500);
 }
 
-function openPrintCards(){
+function openPrintCards(arg){
+  const pre = (arg && typeof arg==="object" && !(arg instanceof Event)) ? arg : {};
+  pcCodes = Array.isArray(pre.codes) && pre.codes.length ? pre.codes.slice() : null;
   const o=pcOpts();
   openModal(head("🖨️ Print Student Cards")+`
     <div class="modal-body">
       <p class="hint">Prints your students' names and login codes as cards, <strong>8 to an A4 page</strong>, ready to cut up and hand out — or export the same list as a spreadsheet. In the print dialog choose <em>A4</em>, and turn <em>background graphics</em> on if the coloured band is missing.</p>
       <div class="pc-top">
         <div class="field"><label for="pcCls">Class</label>
-          <select id="pcCls"><option value="">All students</option>${classes.map(c=>`<option>${esc(c)}</option>`).join("")}</select></div>
+          <select id="pcCls">${pcCodes?`<option value="__sel" selected>Selected students (${pcCodes.length})</option>`:""}<option value="">All students</option>${classes.map(c=>`<option${!pcCodes&&pre.cls===c?" selected":""}>${esc(c)}</option>`).join("")}</select></div>
         <div class="pc-opts">
           <label class="pc-opt" id="pcQrWrap"><input type="checkbox" id="pcQr" ${o.qr?"checked":""}/> QR code to the sign-in page</label>
           <label class="pc-opt"><input type="checkbox" id="pcSchool" ${o.school?"checked":""}/> School name</label>
@@ -1905,7 +2006,7 @@ function openPrintCards(){
   $("pcPrint").addEventListener("click", ()=>{ if($("printSheet").innerHTML.trim()) window.print(); });
   $("pcCsv").addEventListener("click", ()=>{
     const cls=$("pcCls").value; const list=pcStudents(cls); if(!list.length) return;
-    pcDownload(pcCsv(list), pcCsvName(cls));
+    pcDownload(pcCsv(list), pcCsvName(cls==="__sel" ? "Selected students" : cls));
     const m=$("pcMsg"); m.className="msg ok show"; m.innerHTML=`Downloaded <strong>${list.length}</strong> student${list.length===1?"":"s"} as a spreadsheet (CSV). It holds login codes, so keep it somewhere private.`;
   });
   draw();
@@ -1913,50 +2014,258 @@ function openPrintCards(){
 }
 
 // ============================ STUDENTS & CLASSES ============================
+// (Redesigned 2026-10-28.) Class chips, search, a sortable table with tick boxes,
+// a bulk bar (move to class · print cards · remove), an Archived view, and an
+// editable student page. Every change goes through a Cloud Function that checks
+// the student is the signed-in teacher's: updateStudentForTeacher (name, class)
+// and manageStudentsForTeacher (archive · restore · move). "Remove" ARCHIVES:
+// the code stops signing in and the student leaves every list, but results are
+// kept and Restore gives them their code back. Local arrays are updated in place
+// after each change, so nothing waits on a full reload.
+const ST_ARCH = "__archived";
+let ST = { cls:"", q:"", sort:{ key:"name", dir:1 }, sel:new Set(), confirm:false, moveNew:false };
+function stFirstSurname(s){
+  if(s.firstName || s.surname) return { first:s.firstName||"", last:s.surname||"" };
+  const n=String(s.name||s.studentName||"").trim(); const i=n.indexOf(" ");
+  return i<0 ? { first:n, last:"" } : { first:n.slice(0,i), last:n.slice(i+1) };
+}
+function stErr(err){
+  const code=String((err&&err.code)||""), msg=String((err&&err.message)||"");
+  if(/internal/.test(code) && /^internal$/i.test(msg)) return "This needs a server update that hasn't been deployed yet. Please try again later.";
+  return msg || "Something went wrong. Please try again.";
+}
+function plural(n, one, many){ return `${n} ${n===1?one:(many||one+"s")}`; }
+
 function buildRoster({cls="", search=""}){
-  const rows = all;
-  const map = new Map();
-  students.forEach(s=>{ const code=s.studentCode||s.id; map.set(code, { studentCode:code, studentName:s.name||s.studentName||"", className:s.className||"", items:[] }); });
-  rows.forEach(r=>{ const k=r.studentCode||"?"; if(!map.has(k)) map.set(k,{ studentCode:k, studentName:r.studentName||"", className:r.className||"", items:[] }); map.get(k).items.push(r); });
+  const gone=new Set(archived.map(s=>s.studentCode));
+  const map=new Map();
+  students.forEach(s=>{ const code=s.studentCode||s.id; map.set(code, { studentCode:code, studentName:s.name||s.studentName||"", className:s.className||"", items:[], onRoster:true }); });
+  all.forEach(r=>{ const k=r.studentCode||"?"; if(gone.has(k)) return;
+    if(!map.has(k)) map.set(k,{ studentCode:k, studentName:r.studentName||"", className:r.className||"", items:[], onRoster:false });
+    map.get(k).items.push(r); });
+  const q=String(search||"").trim().toLowerCase(), qc=normaliseCode(search);
   return [...map.values()]
-    .filter(s=> (!cls || s.className===cls) && (!search || (s.studentCode||"").includes(search) || (s.studentName||"").toUpperCase().includes(search)))
+    .filter(s=> (!cls || s.className===cls) && (!q || (s.studentName||"").toLowerCase().includes(q) || (qc && (s.studentCode||"").includes(qc))))
     .map(s=>{ const items=s.items.sort((a,b)=>b.time-a.time); const sum=summarise(items);
-      return { studentCode:s.studentCode, studentName:s.studentName, className:s.className, attempts:sum.attempts, bestPercent:sum.bestPercent, averagePercent:sum.averagePercent, lastActive: items[0]?items[0].dateLabel:"—", needsSupport: sum.attempts>0 && sum.averagePercent<50 }; })
+      return { studentCode:s.studentCode, studentName:s.studentName, className:s.className, onRoster:s.onRoster, attempts:sum.attempts, bestPercent:sum.bestPercent, averagePercent:sum.averagePercent, lastActive: items[0]?items[0].dateLabel:"—", lastTime: items[0]?items[0].time:0, needsSupport: sum.attempts>0 && sum.averagePercent<50 }; })
     .sort((a,b)=> (a.className||"").localeCompare(b.className||"") || (a.studentName||"").localeCompare(b.studentName||""));
 }
-function openStudents(){
+const ST_SORTS = {
+  name:(a,b)=>(a.studentName||"").localeCompare(b.studentName||""),
+  code:(a,b)=>(a.studentCode||"").localeCompare(b.studentCode||""),
+  cls:(a,b)=>(a.className||"").localeCompare(b.className||"") || (a.studentName||"").localeCompare(b.studentName||""),
+  attempts:(a,b)=>a.attempts-b.attempts, best:(a,b)=>a.bestPercent-b.bestPercent, avg:(a,b)=>a.averagePercent-b.averagePercent,
+  last:(a,b)=>a.lastTime-b.lastTime,
+};
+function stRows(){
+  if(ST.cls===ST_ARCH){
+    const q=ST.q.trim().toLowerCase(), qc=normaliseCode(ST.q);
+    return archived.filter(s=> !q || (s.name||"").toLowerCase().includes(q) || (qc && s.studentCode.includes(qc)))
+      .map(s=>({ studentCode:s.studentCode, studentName:s.name||s.studentName||"", className:s.className||"", archivedMs:s.archivedMs||0, attempts:all.filter(r=>r.studentCode===s.studentCode).length }))
+      .sort((a,b)=>(b.archivedMs-a.archivedMs) || a.studentName.localeCompare(b.studentName));
+  }
+  const rows=buildRoster({ cls:ST.cls, search:ST.q });
+  const f=ST_SORTS[ST.sort.key]||ST_SORTS.name;
+  return rows.sort((a,b)=> ST.sort.dir*f(a,b) || (a.studentName||"").localeCompare(b.studentName||""));
+}
+
+function openStudents(prefCls){
+  if(typeof prefCls==="string") ST.cls=prefCls;
   openModal(head("👥 Students &amp; Classes")+`
     <div class="modal-body">
-      <div class="filters">
-        <select id="stCls"><option value="">All classes</option>${classes.map(c=>`<option>${esc(c)}</option>`).join("")}</select>
-        <input id="stSearch" placeholder="Search student or code"/>
-        <span class="spacer" style="flex:1"></span>
+      <div class="st-top">
+        <div class="st-chips" id="stChips" role="tablist" aria-label="Class"></div>
+        <div class="st-search"><span>🔍</span><input id="stSearch" type="search" placeholder="Search name or code" autocomplete="off" aria-label="Search students"/></div>
         <button class="btn sm" type="button" id="stAdd">+ Add student</button>
       </div>
+      <div id="stSum"></div>
+      <div class="msg" id="stMsg" role="status"></div>
       <div id="stBody"></div>
+      <div class="st-bulk" id="stBulk" hidden></div>
     </div>${foot("")}`, true);
-  const draw=()=>{
-    const roster=buildRoster({cls:$("stCls").value, search:normaliseCode($("stSearch").value)});
-    $("stBody").innerHTML = roster.length ? studentTable(roster) : `<div class="empty"><div class="big">No students match</div>Try a different class or clear the search.</div>`;
-    $("stBody").querySelectorAll("[data-student]").forEach(el=> el.addEventListener("click", ()=>openStudent(el.dataset.student)));
-  };
-  $("stCls").addEventListener("change", draw); $("stSearch").addEventListener("input", draw);
-  $("stAdd").addEventListener("click", openAddStudent);
-  draw();
+  modalEl.classList.add("xl");
+  const hd=modalEl.querySelector(".modal-head"); if(hd) modalEl.style.setProperty("--st-head", hd.offsetHeight+"px");
+  ST.sel=new Set(); ST.confirm=false; ST.moveNew=false;
+  $("stSearch").value=ST.q;
+  $("stSearch").addEventListener("input", e=>{ ST.q=e.target.value; stDraw(); });
+  $("stAdd").addEventListener("click", ()=>openAddStudent());
+  $("stChips").addEventListener("click", e=>{ const c=e.target.closest("[data-cls]"); if(!c) return; if(ST.cls!==c.dataset.cls){ ST.cls=c.dataset.cls; ST.sel.clear(); ST.confirm=false; } stDraw(); });
+  $("stSum").addEventListener("click", e=>{ const a=e.target.closest("[data-sum]"); if(!a) return;
+    if(a.dataset.sum==="print") openPrintCards(ST.cls ? { cls:ST.cls } : {});
+    if(a.dataset.sum==="task") openDashTask(ST.cls);
+    if(a.dataset.sum==="add") openAddStudent(); });
+  $("stBody").addEventListener("click", stBodyClick);
+  $("stBody").addEventListener("change", stBodyChange);
+  $("stBody").addEventListener("keydown", e=>{ const tr=e.target.closest("tr[data-code]"); if(tr && e.target===tr && (e.key==="Enter"||e.key===" ")){ e.preventDefault(); openStudent(tr.dataset.code); } });
+  $("stBulk").addEventListener("click", stBulkClick);
+  $("stBulk").addEventListener("change", e=>{ if(e.target.id==="stMoveTo"){ ST.moveNew = e.target.value==="__new"; stPaintBulk(); if(ST.moveNew) $("stNewCls").focus(); } });
+  currentRefresh=stDraw;
+  stDraw();
 }
-function studentTable(roll){
-  const head=`<table><thead><tr><th>Student</th><th>Code</th><th>Class</th><th>Attempts</th><th>Best</th><th>Average</th><th>Last active</th></tr></thead><tbody>`;
-  const body=roll.map(r=>`<tr data-student="${esc(r.studentCode)}" style="cursor:pointer">
-    <td>${esc(r.studentName||"—")} ${r.needsSupport?'<span class="badge support">support</span>':''}</td>
-    <td><span class="codechip">${esc(r.studentCode||"—")}</span></td><td>${esc(r.className||"—")}</td>
-    <td>${r.attempts}</td><td class="pct ${pctClass(r.bestPercent)}">${r.bestPercent}%</td>
-    <td class="pct ${pctClass(r.averagePercent)}">${r.averagePercent}%</td><td>${esc(r.lastActive)}</td></tr>`).join("");
-  return head+body+"</tbody></table>";
+function stDraw(){
+  if(!$("stBody")) return;
+  if(ST.cls && ST.cls!==ST_ARCH && !classes.includes(ST.cls)) ST.cls="";
+  if(ST.cls===ST_ARCH && !archived.length) ST.cls="";
+  // chips
+  const count=c=>students.filter(s=>(s.className||"")===c).length;
+  $("stChips").innerHTML = [`<button class="st-chip${!ST.cls?" on":""}" type="button" data-cls="" role="tab" aria-selected="${!ST.cls}">All students <small>${students.length}</small></button>`]
+    .concat(classes.map(c=>`<button class="st-chip${ST.cls===c?" on":""}" type="button" data-cls="${esc(c)}" role="tab" aria-selected="${ST.cls===c}">${esc(c)} <small>${count(c)}</small></button>`))
+    .concat(archived.length?[`<button class="st-chip arch${ST.cls===ST_ARCH?" on":""}" type="button" data-cls="${ST_ARCH}" role="tab" aria-selected="${ST.cls===ST_ARCH}" title="Students you have removed">🗄️ Archived <small>${archived.length}</small></button>`]:[]).join("");
+  const rows=stRows();
+  // drop ticks for rows no longer listed
+  const listed=new Set(rows.map(r=>r.studentCode)); [...ST.sel].forEach(c=>{ if(!listed.has(c)) ST.sel.delete(c); });
+  // summary strip
+  if(ST.cls===ST_ARCH){
+    $("stSum").innerHTML=`<div class="st-sum">🗄️ <span><b>${plural(archived.length,"removed student")}</b>. Their codes don't sign in and they're left out of your lists and counts. Their results are kept — <b>Restore</b> gives a student their code back.</span></div>`;
+  }else if(ST.cls){
+    const ro=buildRoster({cls:ST.cls}); const sup=ro.filter(r=>r.needsSupport).length;
+    const recs=all.filter(r=>r.className===ST.cls && listed.has(r.studentCode)); const avg=summarise(recs).averagePercent;
+    $("stSum").innerHTML=`<div class="st-sum"><span><b>${esc(ST.cls)}</b> · ${plural(count(ST.cls),"student")}${sup?` · <b>${sup}</b> need${sup===1?"s":""} support`:""}${recs.length?` · class average <b>${avg}%</b>`:""}</span><span class="sp"></span>
+      <button class="btn sm" type="button" data-sum="print">🖨️ Print cards</button><button class="btn sm" type="button" data-sum="task">📋 Set an online task</button></div>`;
+  }else{
+    $("stSum").innerHTML = students.length ? "" : `<div class="st-sum"><span>No students yet.</span><span class="sp"></span><button class="btn sm primary" type="button" data-sum="add">+ Add students</button></div>`;
+  }
+  // table
+  if(!rows.length){
+    $("stBody").innerHTML = ST.q ? `<div class="empty"><div class="big">No students match “${esc(ST.q)}”</div>Try a different class or clear the search.</div>`
+      : ST.cls===ST_ARCH ? `<div class="empty"><div class="big">No removed students</div></div>`
+      : `<div class="empty"><div class="big">No students in ${esc(ST.cls||"your classes")} yet</div>Use <strong>+ Add student</strong> to add some.</div>`;
+  }else if(ST.cls===ST_ARCH){
+    $("stBody").innerHTML=`<table class="st-tbl"><thead><tr><th class="ck"><input type="checkbox" data-ckall aria-label="Select all"/></th><th>Student</th><th>Code</th><th>Was in</th><th class="hide-sm">Results</th><th class="hide-sm">Removed</th><th></th></tr></thead><tbody>`+
+      rows.map(r=>`<tr data-code="${esc(r.studentCode)}" tabindex="0" class="${ST.sel.has(r.studentCode)?"sel":""}">
+        <td class="ck"><input type="checkbox" data-ck="${esc(r.studentCode)}" ${ST.sel.has(r.studentCode)?"checked":""} aria-label="Select ${esc(r.studentName)}"/></td>
+        <td class="nm">${esc(r.studentName||"—")}</td><td><span class="codechip">${esc(r.studentCode)}</span></td><td>${esc(r.className||"—")}</td>
+        <td class="hide-sm">${r.attempts}</td><td class="hide-sm">${r.archivedMs?new Date(r.archivedMs).toLocaleDateString(undefined,{day:"numeric",month:"short",year:"numeric"}):"—"}</td>
+        <td class="act"><button class="btn sm" type="button" data-restore="${esc(r.studentCode)}">Restore</button></td></tr>`).join("")+`</tbody></table>`;
+  }else{
+    const th=(k,l,cls="")=>`<th class="${cls}${ST.sort.key===k?" sorted":""}"><button type="button" data-sort="${k}">${l}<span class="ar">${ST.sort.key===k?(ST.sort.dir>0?"▲":"▼"):"▲"}</span></button></th>`;
+    $("stBody").innerHTML=`<table class="st-tbl"><thead><tr><th class="ck"><input type="checkbox" data-ckall aria-label="Select all"/></th>${th("name","Student")}${th("code","Code")}${th("cls","Class")}${th("attempts","Attempts","hide-sm")}${th("best","Best","hide-sm")}${th("avg","Average")}${th("last","Last active","hide-sm")}<th></th></tr></thead><tbody>`+
+      rows.map(r=>`<tr data-code="${esc(r.studentCode)}" tabindex="0" class="${ST.sel.has(r.studentCode)?"sel":""}">
+        <td class="ck">${r.onRoster?`<input type="checkbox" data-ck="${esc(r.studentCode)}" ${ST.sel.has(r.studentCode)?"checked":""} aria-label="Select ${esc(r.studentName)}"/>`:""}</td>
+        <td class="nm">${esc(r.studentName||"—")} ${r.needsSupport?'<span class="badge support">support</span>':''}${r.onRoster?"":' <span class="badge kind" title="Has results, but no longer on your roster">not on roster</span>'}</td>
+        <td><span class="codechip copy" data-copy="${esc(r.studentCode)}" title="Click to copy">${esc(r.studentCode||"—")}</span></td><td>${esc(r.className||"—")}</td>
+        <td class="hide-sm">${r.attempts}</td><td class="pct hide-sm ${r.attempts?pctClass(r.bestPercent):""}">${r.attempts?r.bestPercent+"%":"—"}</td>
+        <td class="pct ${r.attempts?pctClass(r.averagePercent):""}">${r.attempts?r.averagePercent+"%":"—"}</td><td class="hide-sm">${esc(r.lastActive)}</td>
+        <td class="act">${r.onRoster?`<button class="st-ib" type="button" data-edit="${esc(r.studentCode)}" title="Edit details" aria-label="Edit ${esc(r.studentName)}">✎</button>`:""}</td></tr>`).join("")+`</tbody></table>`;
+  }
+  stPaintBulk();
 }
-function openStudent(code){
+function stPaintChecks(){
+  const box=$("stBody"); if(!box) return;
+  box.querySelectorAll("[data-ck]").forEach(i=>{ const on=ST.sel.has(i.dataset.ck); i.checked=on; i.closest("tr").classList.toggle("sel", on); });
+  const all_=[...box.querySelectorAll("[data-ck]")]; const ca=box.querySelector("[data-ckall]");
+  if(ca){ const n=all_.filter(i=>i.checked).length; ca.checked = n>0 && n===all_.length; ca.indeterminate = n>0 && n<all_.length; }
+  stPaintBulk();
+}
+function stPaintBulk(){
+  const bar=$("stBulk"); if(!bar) return;
+  const n=ST.sel.size;
+  if(!n){ bar.hidden=true; ST.confirm=false; ST.moveNew=false; return; }
+  bar.hidden=false;
+  if(ST.cls===ST_ARCH){
+    bar.innerHTML=`<span><b>${n}</b> selected</span><span class="sp"></span><button class="btn sm ok" type="button" data-bulk="restore">↩ Restore ${plural(n,"student")}</button><button class="lnk" type="button" data-bulk="clear">Clear</button>`;
+    return;
+  }
+  if(ST.confirm){
+    bar.innerHTML=`<span>Remove <b>${plural(n,"student")}</b> from your classes? Their login code${n===1?"":"s"} will stop working. Results are kept, and you can restore them from <b>Archived</b>.</span><span class="sp"></span>
+      <button class="btn sm" type="button" data-bulk="cancel">Cancel</button><button class="btn sm warn" type="button" data-bulk="archive">Yes, remove ${n}</button>`;
+    bar.querySelector('[data-bulk="archive"]').focus();
+    return;
+  }
+  const opts=classes.filter(c=>c!==ST.cls).map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join("");
+  bar.innerHTML=`<span><b>${n}</b> selected</span>
+    <select id="stMoveTo" aria-label="Move to class"><option value="">Move to class…</option>${opts}<option value="__new"${ST.moveNew?" selected":""}>＋ New class…</option></select>
+    <input id="stNewCls" placeholder="New class name" maxlength="40" style="text-transform:uppercase;width:150px" ${ST.moveNew?"":"hidden"}/>
+    <button class="btn sm" type="button" data-bulk="move">Move</button>
+    <button class="btn sm" type="button" data-bulk="print">🖨️ Print cards</button>
+    <span class="sp"></span>
+    <button class="btn sm warn" type="button" data-bulk="ask">Remove from class</button>
+    <button class="lnk" type="button" data-bulk="clear">Clear</button>`;
+  if(ST.moveNew){ const sel=$("stMoveTo"); if(sel) sel.value="__new"; }
+}
+function stBodyClick(e){
+  const sort=e.target.closest("[data-sort]");
+  if(sort){ const k=sort.dataset.sort; ST.sort = ST.sort.key===k ? { key:k, dir:-ST.sort.dir } : { key:k, dir: ["attempts","best","avg","last"].includes(k)?-1:1 }; stDraw(); return; }
+  const cp=e.target.closest("[data-copy]");
+  if(cp){ e.stopPropagation(); const v=cp.dataset.copy; (navigator.clipboard?navigator.clipboard.writeText(v):Promise.reject()).then(()=>{ cp.classList.add("copied"); cp.title="Copied"; setTimeout(()=>{ cp.classList.remove("copied"); cp.title="Click to copy"; },1100); }).catch(()=>{}); return; }
+  const ed=e.target.closest("[data-edit]"); if(ed){ openStudent(ed.dataset.edit, { edit:true }); return; }
+  const rs=e.target.closest("[data-restore]"); if(rs){ stRestore([rs.dataset.restore], rs); return; }
+  if(e.target.closest("input,button,a,select,label")) return;
+  const tr=e.target.closest("tr[data-code]"); if(tr) openStudent(tr.dataset.code);
+}
+function stBodyChange(e){
+  const t=e.target;
+  if(t.matches("[data-ckall]")){ $("stBody").querySelectorAll("[data-ck]").forEach(i=> t.checked ? ST.sel.add(i.dataset.ck) : ST.sel.delete(i.dataset.ck)); ST.confirm=false; stPaintChecks(); return; }
+  if(t.matches("[data-ck]")){ t.checked ? ST.sel.add(t.dataset.ck) : ST.sel.delete(t.dataset.ck); ST.confirm=false; stPaintChecks(); }
+}
+async function stBulkClick(e){
+  const b=e.target.closest("[data-bulk]"); if(!b) return;
+  const codes=[...ST.sel];
+  switch(b.dataset.bulk){
+    case "clear": ST.sel.clear(); stPaintChecks(); break;
+    case "ask": ST.confirm=true; stPaintBulk(); break;
+    case "cancel": ST.confirm=false; stPaintBulk(); break;
+    case "archive": await stArchive(codes, b); break;
+    case "restore": await stRestore(codes, b); break;
+    case "print": openPrintCards({ codes }); break;
+    case "move": {
+      const v=$("stMoveTo").value; const cls = v==="__new" ? String($("stNewCls").value||"").trim().toUpperCase() : v;
+      if(!cls){ stMsg("bad", v==="__new" ? "Type a name for the new class." : "Choose a class to move them to."); return; }
+      await stMove(codes, cls, b); break;
+    }
+  }
+}
+function stMsg(kind, html, undo){
+  const m=$("stMsg"); if(!m) return;
+  m.className=`msg ${kind} show`;
+  m.innerHTML = undo ? `<div class="st-toast"><span>${html}</span><button class="btn sm" type="button" id="stUndo">Undo</button></div>` : html;
+  if(undo) $("stUndo").addEventListener("click", ()=>{ m.className="msg"; stRestore(undo); });
+}
+function stBusy(btn, label){ if(btn){ btn.disabled=true; btn.dataset.label=btn.textContent; btn.textContent=label; } }
+function stDone(btn){ if(btn && btn.isConnected){ btn.disabled=false; if(btn.dataset.label) btn.textContent=btn.dataset.label; } }
+function stAfterChange(){ rebuildClasses(); refreshStats(); }
+async function stArchive(codes, btn){
+  stBusy(btn, "Removing…");
+  try{
+    const res=await manageStudents(codes, "archive");
+    const done=new Set(res.updated||[]); const now=Date.now();
+    students=students.filter(s=>{ if(done.has(s.studentCode)){ archived.push({ ...s, active:false, archivedMs:now }); return false; } return true; });
+    ST.sel.clear(); ST.confirm=false; stAfterChange(); stDraw();
+    const names=archived.filter(s=>done.has(s.studentCode)).map(s=>s.name);
+    stMsg("ok", `Removed ${done.size===1?`<strong>${esc(names[0]||"1 student")}</strong>`:`<strong>${done.size} students</strong>`} from your classes.${(res.skipped||[]).length?` ${res.skipped.length} couldn't be changed.`:""}`, [...done]);
+    return true;
+  }catch(err){ stMsg("bad", esc(stErr(err))); stDone(btn); return false; }
+}
+async function stRestore(codes, btn){
+  stBusy(btn, "Restoring…");
+  try{
+    const res=await manageStudents(codes, "restore");
+    const done=new Set(res.updated||[]);
+    archived=archived.filter(s=>{ if(done.has(s.studentCode)){ const r={ ...s, active:true }; delete r.archivedMs; students.push(r); return false; } return true; });
+    ST.sel.clear(); stAfterChange(); stDraw();
+    stMsg("ok", `Restored <strong>${plural(done.size,"student")}</strong> — ${done.size===1?"their code works":"their codes work"} again.`);
+    return true;
+  }catch(err){ stMsg("bad", esc(stErr(err))); stDone(btn); return false; }
+}
+async function stMove(codes, cls, btn){
+  stBusy(btn, "Moving…");
+  try{
+    const res=await manageStudents(codes, "move", cls);
+    const done=new Set(res.updated||[]); const to=res.className||cls;
+    students.forEach(s=>{ if(done.has(s.studentCode)) s.className=to; });
+    if(!classesData.some(c=>c.name===to)) classesData.push({ name:to, classId:`${teacher.teacherCode}__${to}` });
+    ST.sel.clear(); ST.moveNew=false; stAfterChange(); stDraw();
+    stMsg("ok", `Moved <strong>${plural(done.size,"student")}</strong> to <strong>${esc(to)}</strong>.`);
+  }catch(err){ stMsg("bad", esc(stErr(err))); stDone(btn); }
+}
+
+// ---- One student's page: details (editable), results, remove / restore ----
+function openStudent(code, opts){
+  opts=opts||{};
   const recs = all.filter(r=>r.studentCode===code);
-  const stu = students.find(s=>s.studentCode===code) || {};
-  const name = recs[0]?.studentName || stu.name || code;
+  const stu = students.find(s=>s.studentCode===code) || archived.find(s=>s.studentCode===code) || null;
+  const isArch = Boolean(stu && stu.active===false);
+  const name = (stu && (stu.name||stu.studentName)) || recs[0]?.studentName || code;
   const s = summarise(recs);
   const attempts = attemptsByCode.get(code) || [];
   let rich = "";
@@ -1973,20 +2282,88 @@ function openStudent(code){
         ${skills.length?`<div class="muted" style="font-size:.8rem;margin-top:4px">Question correctness: ${skills.map(q=>q.correct?"✓":"✗").join(" ")}</div>`:""}
       </div>`;
     }).join("");
-  } else {
-    rich = `<p class="muted" style="margin-top:12px">No rich Adventure details available for this student (compact results shown above).</p>`;
   }
-  openModal(head(esc(name))+`
+  const fs = stu ? stFirstSurname(stu) : { first:"", last:"" };
+  const cur = (stu && stu.className) || recs[0]?.className || "";
+  const clsOpts = [...new Set(classes.concat(cur?[cur]:[]))].sort().map(c=>`<option value="${esc(c)}"${c===cur?" selected":""}>${esc(c)}</option>`).join("");
+  const initials = String(name).split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0]).join("").toUpperCase() || "?";
+  const archDate = isArch && stu.archivedMs ? new Date(stu.archivedMs).toLocaleDateString(undefined,{day:"numeric",month:"short",year:"numeric"}) : "";
+  openModal(head(`<span id="spTitle">${esc(name)}</span>`)+`
     <div class="modal-body">
-      <div class="muted" style="margin:-4px 0 12px"><span class="codechip">${esc(code)}</span> · ${esc(stu.className||recs[0]?.className||"—")}</div>
-      <div class="cards"><div class="card stat"><div class="label">Attempts</div><div class="value">${s.attempts}</div></div>
+      <div class="sp-head"><div class="sp-av" style="background:${hashColour(code)}">${esc(initials)}</div>
+        <div><div class="sp-meta"><span class="codechip copy" data-copy="${esc(code)}" title="Click to copy">${esc(code)}</span>
+          <span class="sp-pill" id="spCls">${esc(cur||"No class")}</span>
+          ${isArch?`<span class="sp-pill arch">Removed${archDate?` ${esc(archDate)}`:""}</span>`:""}
+          <span>${recs.length?`Last active ${esc(recs[0].dateLabel)}`:"No results yet"}</span></div></div></div>
+      ${isArch?`<div class="sp-card sp-danger" style="border-color:#cbd5e1;background:#f8fafc"><h4 style="color:#475569">Removed student</h4>
+        <p>${esc(fs.first||name)}'s code doesn't sign in and they're left out of your lists. Their results are below.</p>
+        <div class="row"><button class="btn okb" type="button" id="spRestore">↩ Restore ${esc(fs.first||"student")}</button></div><div class="msg" id="spArchMsg"></div></div>`:""}
+      ${stu && !isArch?`<div class="sp-card"><h4>Student details</h4>
+        <div class="sp-form">
+          <div class="field"><label for="spFirst">First name</label><input id="spFirst" maxlength="60" value="${esc(fs.first)}" autocomplete="off"/></div>
+          <div class="field"><label for="spLast">Surname</label><input id="spLast" maxlength="60" value="${esc(fs.last)}" autocomplete="off"/></div>
+          <div class="field"><label for="spClass">Class</label><select id="spClass">${clsOpts}<option value="__new">＋ New class…</option></select>
+            <input id="spNewCls" maxlength="40" placeholder="New class name" style="text-transform:uppercase;margin-top:6px" hidden/></div>
+        </div>
+        <div class="sp-acts"><button class="btn primary" type="button" id="spSave" disabled>Save changes</button><span class="muted">The login code stays the same, so their results stay with them.</span></div>
+        <div class="msg" id="spMsg"></div></div>`:""}
+      ${!stu?`<div class="msg info show" style="margin-bottom:14px">This student has results but is no longer on your roster, so their details can't be changed here.</div>`:""}
+      ${recs.length?`<div class="cards"><div class="card stat"><div class="label">Attempts</div><div class="value">${s.attempts}</div></div>
         <div class="card stat"><div class="label">Average</div><div class="value">${s.averagePercent}%</div></div>
         <div class="card stat"><div class="label">Best</div><div class="value">${s.bestPercent}%</div></div>
         <div class="card stat"><div class="label">XP</div><div class="value">${s.totalXp}</div></div></div>
-      ${resultsTable(recs)}
+      ${resultsTable(recs)}`:`<div class="empty" style="border:1.5px dashed var(--line);border-radius:12px"><div class="big">No results yet</div>Results appear here once ${esc(fs.first||"they")} completes a quiz or task.</div>`}
       ${rich}
+      ${stu && !isArch?`<div class="sp-card sp-danger" style="margin-top:18px"><h4>Remove from class</h4>
+        <p>For a student who has left. Their login code stops working and they leave your class lists, counts and cards. Their results are kept, and you can restore them any time from <strong>Archived</strong>.</p>
+        <div class="row" id="spRmRow"><button class="btn" type="button" id="spRemove" style="border-color:#fecaca;color:#b91c1c">Remove ${esc(fs.first||"student")}</button></div><div class="msg" id="spRmMsg"></div></div>`:""}
     </div>${foot(`<button class="btn" type="button" id="backStudents">← Back to list</button>`)}`, true);
-  $("backStudents").addEventListener("click", openStudents);
+  $("backStudents").addEventListener("click", ()=>openStudents());
+  modalEl.querySelector(".sp-head [data-copy]").addEventListener("click", e=>{ const cp=e.currentTarget; navigator.clipboard && navigator.clipboard.writeText(code).then(()=>{ cp.classList.add("copied"); setTimeout(()=>cp.classList.remove("copied"),1100); }).catch(()=>{}); });
+  if(isArch){
+    $("spRestore").addEventListener("click", async e=>{ const ok=await stRestore([code], e.currentTarget).catch(()=>false); if(ok!==false && students.some(x=>x.studentCode===code)) openStudent(code); else { const m=$("spArchMsg"); if(m){ m.className="msg bad show"; m.textContent=$("stMsg")?.textContent||"Could not restore."; } } });
+  }
+  if(stu && !isArch){
+    const orig={ first:fs.first, last:fs.last, cls:cur };
+    const read=()=>{ const v=$("spClass").value; return { first:$("spFirst").value.trim(), last:$("spLast").value.trim(), cls: v==="__new" ? $("spNewCls").value.trim().toUpperCase() : v }; };
+    const dirty=()=>{ const r=read(); $("spSave").disabled = !r.first || !r.cls || (r.first===orig.first && r.last===orig.last && r.cls===orig.cls); };
+    ["spFirst","spLast","spNewCls"].forEach(id=>{ $(id).addEventListener("input", dirty); $(id).addEventListener("keydown", e=>{ if(e.key==="Enter" && !$("spSave").disabled) $("spSave").click(); }); });
+    $("spClass").addEventListener("change", ()=>{ const nw=$("spClass").value==="__new"; $("spNewCls").hidden=!nw; if(nw) $("spNewCls").focus(); dirty(); });
+    $("spSave").addEventListener("click", async ()=>{
+      const r=read(); const m=$("spMsg"); const b=$("spSave");
+      if(!r.first){ m.className="msg bad show"; m.textContent="Enter a first name."; return; }
+      b.disabled=true; b.textContent="Saving…";
+      try{
+        const res=await updateStudent({ studentCode:code, firstName:r.first, surname:r.last, className:r.cls });
+        Object.assign(stu, { firstName:res.firstName, surname:res.surname, name:res.name, className:res.className });
+        if(!classesData.some(c=>c.name===res.className)) classesData.push({ name:res.className, classId:`${teacher.teacherCode}__${res.className}` });
+        applyCurrentNames(); stAfterChange();
+        orig.first=res.firstName; orig.last=res.surname; orig.cls=res.className;
+        $("spTitle").textContent=res.name; $("spCls").textContent=res.className;
+        if($("spClass").value==="__new"){ const o=document.createElement("option"); o.value=o.textContent=res.className; $("spClass").insertBefore(o, $("spClass").lastElementChild); $("spClass").value=res.className; $("spNewCls").hidden=true; $("spNewCls").value=""; }
+        m.className="msg ok show"; m.textContent="Saved ✓";
+      }catch(err){ m.className="msg bad show"; m.textContent=stErr(err); }
+      finally{ b.textContent="Save changes"; dirty(); }
+    });
+    $("spRemove").addEventListener("click", ()=>{
+      $("spRmRow").innerHTML=`<span style="font-size:.86rem;font-weight:700;color:#b91c1c">Remove ${esc(fs.first||"this student")}? Their code will stop working.</span>
+        <button class="btn" type="button" id="spRmNo">Cancel</button><button class="btn warn" type="button" id="spRmYes">Yes, remove</button>`;
+      $("spRmYes").focus();
+      $("spRmNo").addEventListener("click", ()=>openStudent(code));
+      $("spRmYes").addEventListener("click", async e=>{
+        const b=e.currentTarget; b.disabled=true; b.textContent="Removing…";
+        try{
+          const res=await manageStudents([code], "archive");
+          if(!(res.updated||[]).includes(code)) throw new Error("This student couldn't be changed.");
+          students=students.filter(x=>x.studentCode!==code); archived.push({ ...stu, active:false, archivedMs:Date.now() });
+          stAfterChange();
+          openStudents();
+          stMsg("ok", `Removed <strong>${esc(stu.name||name)}</strong> from your classes.`, [code]);
+        }catch(err){ const m=$("spRmMsg"); m.className="msg bad show"; m.textContent=stErr(err); b.disabled=false; b.textContent="Yes, remove"; }
+      });
+    });
+    if(opts.edit){ const f=$("spFirst"); f.focus(); f.select(); }
+  }
 }
 
 // ============================ RESULTS & ANALYTICS ============================

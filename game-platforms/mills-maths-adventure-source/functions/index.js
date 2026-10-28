@@ -629,6 +629,124 @@ exports.setDashboardTaskActive = onCall(async (request) => {
 });
 
 /* =========================================================================
+ * TEACHERS MANAGE THEIR OWN STUDENTS (2026-10-28)
+ *
+ * Both functions take the teacher from the VERIFIED claim and only touch a
+ * student whose stored teacherCode is that teacher's — never client input.
+ * Nothing is ever deleted: "remove" ARCHIVES (active:false), which makes
+ * exchangeStudentCode refuse the code and drops the student from the teacher's
+ * lists, while every past result (achievements are create-only) is kept.
+ * "restore" undoes it. The student code (= doc id) never changes, so results
+ * stay attached. No rules change: these are Admin SDK writes.
+ * ======================================================================= */
+const STUDENT_NAME_MAX = 60;
+const CLASS_NAME_MAX = 40;
+const MANAGE_STUDENTS_MAX = 300;
+
+function requireTeacher(request) {
+  const auth = request.auth;
+  if (!auth || auth.token.role !== "teacher" || !auth.token.teacherCode) {
+    throw new HttpsError("permission-denied", "Sign in with your teacher code first.");
+  }
+  return normaliseCode(auth.token.teacherCode);
+}
+function cleanPersonName(v) {
+  return String(v || "").replace(/\s+/g, " ").trim().slice(0, STUDENT_NAME_MAX);
+}
+function cleanClassName(v) {
+  const s = String(v || "").replace(/\s+/g, " ").trim().toUpperCase();
+  if (!s) throw new HttpsError("invalid-argument", "Choose a class.");
+  if (s.length > CLASS_NAME_MAX) throw new HttpsError("invalid-argument", "That class name is too long.");
+  return s;
+}
+// Make sure a class a student is moved into exists as a saved class (as
+// createClass would), so it stays in the teacher's lists.
+async function ensureClass(teacherCode, name) {
+  const classId = `${teacherCode}__${name}`;
+  const ref = db.collection("classes").doc(classId);
+  const snap = await ref.get();
+  if (snap.exists && (snap.data() || {}).active !== false) return classId;
+  await ref.set({
+    classId, name, teacherCode, active: true, createdBy: "teacher-portal",
+    createdAt: snap.exists ? (snap.data() || {}).createdAt || admin.firestore.FieldValue.serverTimestamp()
+                           : admin.firestore.FieldValue.serverTimestamp(),
+    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+  }, { merge: true });
+  return classId;
+}
+
+/**
+ * updateStudentForTeacher({ studentCode, firstName, surname, className })
+ *   → { studentCode, firstName, surname, name, className, active }
+ * Teacher-only. Edits the name and/or class of one of the CALLER'S students.
+ */
+exports.updateStudentForTeacher = onCall(async (request) => {
+  const teacherCode = requireTeacher(request);
+  const d = request.data || {};
+  const studentCode = normaliseCode(d.studentCode);
+  if (!studentCode) throw new HttpsError("invalid-argument", "Missing student.");
+  const ref = db.collection("students").doc(studentCode);
+  const snap = await ref.get();
+  if (!snap.exists) throw new HttpsError("not-found", "Student not found.");
+  const cur = snap.data() || {};
+  if (normaliseCode(cur.teacherCode) !== teacherCode) {
+    throw new HttpsError("permission-denied", "You can only change your own students.");
+  }
+  const firstName = cleanPersonName(d.firstName);
+  const surname = cleanPersonName(d.surname);
+  const name = [firstName, surname].filter(Boolean).join(" ");
+  if (!firstName) throw new HttpsError("invalid-argument", "Enter the student's first name.");
+  const className = cleanClassName(d.className);
+  await ref.update({
+    firstName, surname, name, className,
+    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    updatedBy: "teacher",
+  });
+  if (className !== String(cur.className || "").toUpperCase()) {
+    try { await ensureClass(teacherCode, className); } catch (e) { /* best effort */ }
+  }
+  return { studentCode, firstName, surname, name, className, active: cur.active !== false };
+});
+
+/**
+ * manageStudentsForTeacher({ studentCodes:[...], action, className? })
+ *   action "archive" | "restore" | "move" (move needs className)
+ *   → { action, updated:[codes], skipped:[codes], className? }
+ * Teacher-only, up to MANAGE_STUDENTS_MAX at once. Codes that are missing or
+ * belong to another teacher are SKIPPED (reported), never touched.
+ */
+exports.manageStudentsForTeacher = onCall(async (request) => {
+  const teacherCode = requireTeacher(request);
+  const d = request.data || {};
+  const action = String(d.action || "");
+  if (!["archive", "restore", "move"].includes(action)) throw new HttpsError("invalid-argument", "Unknown action.");
+  const codes = [...new Set((Array.isArray(d.studentCodes) ? d.studentCodes : []).map(normaliseCode).filter(Boolean))];
+  if (!codes.length) throw new HttpsError("invalid-argument", "Choose at least one student.");
+  if (codes.length > MANAGE_STUDENTS_MAX) throw new HttpsError("invalid-argument", `Up to ${MANAGE_STUDENTS_MAX} students at a time.`);
+  const className = action === "move" ? cleanClassName(d.className) : null;
+
+  const refs = codes.map((c) => db.collection("students").doc(c));
+  const snaps = await db.getAll(...refs);
+  const updated = [], skipped = [];
+  const now = admin.firestore.FieldValue.serverTimestamp();
+  let batch = db.batch(), n = 0;
+  const flushes = [];
+  snaps.forEach((s, i) => {
+    if (!s.exists || normaliseCode((s.data() || {}).teacherCode) !== teacherCode) { skipped.push(codes[i]); return; }
+    let patch;
+    if (action === "archive") patch = { active: false, archivedAt: now, archivedBy: "teacher", updatedAt: now };
+    else if (action === "restore") patch = { active: true, archivedAt: admin.firestore.FieldValue.delete(), archivedBy: admin.firestore.FieldValue.delete(), restoredAt: now, updatedAt: now };
+    else patch = { className, updatedAt: now, updatedBy: "teacher" };
+    batch.update(refs[i], patch); updated.push(codes[i]); n++;
+    if (n === 450) { flushes.push(batch.commit()); batch = db.batch(); n = 0; }
+  });
+  if (n) flushes.push(batch.commit());
+  await Promise.all(flushes);
+  if (action === "move" && updated.length) { try { await ensureClass(teacherCode, className); } catch (e) { /* best effort */ } }
+  return { action, updated, skipped, ...(className ? { className } : {}) };
+});
+
+/* =========================================================================
  * TEACHER PROFILES + ADMIN EMAIL (2026-10-24)
  * ======================================================================= */
 const { defineSecret } = require("firebase-functions/params");

@@ -107,6 +107,31 @@ export async function createStudent(payload) {
 }
 
 /**
+ * Edit one of the teacher's own students (name and/or class). Calls the secure
+ * updateStudentForTeacher Cloud Function, which checks the student belongs to the
+ * signed-in teacher. `payload` = { studentCode, firstName, surname, className }.
+ */
+export async function updateStudent(payload) {
+  initPortal();
+  const call = httpsCallable(_functions, "updateStudentForTeacher");
+  const res = await call(payload || {});
+  return res.data;
+}
+
+/**
+ * Archive ("remove"), restore or move several of the teacher's own students.
+ * Calls manageStudentsForTeacher. Archiving stops the code signing in and hides
+ * the student from the teacher's lists; their results are kept. Returns
+ * { action, updated:[codes], skipped:[codes] } or throws.
+ */
+export async function manageStudents(studentCodes, action, className) {
+  initPortal();
+  const call = httpsCallable(_functions, "manageStudentsForTeacher");
+  const res = await call({ studentCodes, action, ...(className ? { className } : {}) });
+  return res.data;
+}
+
+/**
  * Set an Adventure task (teacher-only). Calls the secure createAdventureTask
  * Cloud Function, which authorises via the signed-in teacher's claim and writes
  * the assignment server-side (stamped with the teacher's own teacherCode).
