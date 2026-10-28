@@ -1,6 +1,11 @@
 ## Offline app (PWA)
 - Before every push: run `node tools/build-pwa.mjs` and commit `precache-manifest.js`.
 - New pages: run `node tools/build-pwa.mjs --inject` once so they get the PWA tags.
+- **Pages that load their own separate .js/.css (2026-10-28):** reference them as `file.js?v=<first 8 of md5>`
+  and change the `?v=` whenever the file changes. `sw.js` fetches any same-site `?v=` script or style
+  network-first (`versionedFirst`; saved copy only offline). Without it the SW's stale-while-revalidate
+  hands a NEW page YESTERDAY'S script on the first visit after a deploy (seen: Counting Strategies
+  quiz language buttons dead until a reload). Single-file pages need nothing.
 
 ## Cloudflare Web Analytics (every page)
 - EVERY new HTML page on the site gets this one line immediately before `</head>`,
@@ -405,6 +410,11 @@
 >     questions are two parts: table (plots live) → write the equation (frame); once marked the green
 >     line is drawn through the dots like the tool, and a WRONG equation's own line is drawn in red
 >     (`theirLine`). Mild's "When x = 0, y = 16 … write the equation" left alone (asked Jeff).
+>     On the ALL QUADRANTS page those Sweet graphs still SHOW all four quadrants (`graphFor` o.four:
+>     x from −4, y scale from the whole line plus room below 0) while the work stays at x = 0..5, so
+>     the drawn line is seen running on into the other quadrants (teacher request 2026-10-28).
+>   * The pages load `quiz.js?v=…`, `quiz.css?v=…`, `contexts.js?v=…` — bump the `?v=` (first 8 of
+>     the file's md5) whenever one of them changes (see the PWA note at the top).
 >   * Verified: 1,000 generated papers per page (rules, gridlines, first-quadrant signs, distinct
 >     MC options), every level played to 10/10 through the UI (incl. clicking the plot points),
 >     wrong-first-then-fixed scores 0, empty checks free, skip = wrong (8/10 run), no answer

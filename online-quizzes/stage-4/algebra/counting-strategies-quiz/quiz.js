@@ -784,11 +784,21 @@ const step = (t, extra) => Object.assign({ t, first:null, last:null, marks:null 
 const CAT = { seq:"count", table:"table", frame:"equation", eq:"equation", count:"meaning", desc:"meaning", plot:"plot", num:"apply", mc:"meaning" };
 const CATS = ["count", "table", "equation", "meaning", "plot", "apply"];
 
+/* o.four: the work stays in the first quadrant but the plane shows all four
+   (Sweet on the All Quadrants page, teacher request 2026-10-28), so once the
+   line is drawn it can be seen running on into the other quadrants. The y
+   scale is set from the whole line across the plane, plus some room below 0. */
 function graphFor(r, xs, o){
   o = o || {};
-  const zero = !FIRSTQ && !o.first;
-  const xMin = zero ? Math.min(...xs) - 1 : 0, xMax = Math.max(...xs) + 1;
-  return Object.assign({ r, fit:xs, xMin, xMax, zero, given:[], liveStep:-1, plotStep:-1, line:false, ctx:null }, o);
+  const four = !!o.four;
+  const zero = four || (!FIRSTQ && !o.first);
+  const xMin = four ? -4 : zero ? Math.min(...xs) - 1 : 0, xMax = Math.max(...xs) + 1;
+  let scaleVals = null;
+  if(four){
+    const v = span(xMin, xMax).map(x => term(r, x));
+    scaleVals = v.concat([-Math.max(2, Math.round(Math.max(...v.map(Math.abs)) * .25))]);
+  }
+  return Object.assign({ r, fit:xs, xMin, xMax, zero, scaleVals, given:[], liveStep:-1, plotStep:-1, line:false, ctx:null }, o);
 }
 
 /* ---- Sweet: counting language ---- */
@@ -807,7 +817,7 @@ function qTableLive(level, dir, then){
   if(then) steps.push(step("frame"));
   return { r, q:() => L([instrP(r)]),
     sub: quad ? () => L("sLiveQuad", { x0:`${X} = 0`, x:X }) : () => L("sLive", { x0:`${X} = 0`, x1:`${X} = 1` }),
-    steps, graph:graphFor(r, xs, { liveStep:0, line:!!then }) };
+    steps, graph:graphFor(r, xs, { liveStep:0, line:!!then, four:QUAD && FIRSTQ }) };
 }
 function qFrame(level, dir){
   const r = makeRule(level, { dir, xs:xr().seq });
@@ -1327,7 +1337,7 @@ function drawGraph(){
   const W = Math.max(260, Math.round(box.width)), H = Math.max(260, Math.round(box.height));
   svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
   const r = g.r, vals = g.fit.map(x => term(r, x));
-  const ys = yScale(vals, g.zero);
+  const ys = yScale(g.scaleVals || vals, g.zero);
   const nx = g.xMax - g.xMin, ny = ys.n;
   const PL = 54, PR = 34, PT = g.ctx ? 34 : 24, PB = g.ctx ? 50 : 36;
   const cell = Math.max(14, Math.min((W - PL - PR) / nx, (H - PT - PB) / ny));
