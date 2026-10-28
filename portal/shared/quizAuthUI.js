@@ -138,6 +138,21 @@
     setTimeout(function(){ try{ codeInput.focus(); }catch(e){} }, 60);
   }
 
+  /* ---- opened from the Student Platform: sign straight in ----
+     The portal adds a one-use ticket to the link (see portalHandoff.js); the
+     helper types the code into this overlay and presses Start, so sign-in still
+     goes through doLogin exactly as if the student had typed it. Any other way
+     of opening the quiz still shows the overlay as before. */
+  function hasHandoff(){ try{ return /(^#|&)mmt-handoff=/.test(location.hash||"") || !!sessionStorage.getItem("mmt-handoff-tab"); }catch(e){ return false; } }
+  if(hasHandoff()){
+    if(msg){ msg.style.color="#6b7280"; msg.textContent="Signing you in from your dashboard…"; }
+    var hs=document.createElement("script");
+    hs.src="/portal/shared/portalHandoff.js?v=16b9c759";
+    hs.onload=function(){ if(!window.MMTHandoff || !window.MMTHandoff.autofill("#mmtCodeInput","#mmtLoginBtn")){ if(msg) msg.textContent=""; } };
+    hs.onerror=function(){ if(msg) msg.textContent=""; };
+    document.head.appendChild(hs);
+  }
+
   window.MMTSave=async function(payload){
     payload=payload||{};
     if(mode!=="registered"){

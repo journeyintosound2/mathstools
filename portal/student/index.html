@@ -122,6 +122,7 @@
   @keyframes fall{to{transform:translateY(110vh) rotate(540deg);opacity:.85}}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="../shared/portalHandoff.js?v=16b9c759"></script>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
 <!-- mmt-pwa -->
 <link rel="manifest" href="../../manifest.webmanifest">
@@ -267,7 +268,7 @@ function pctClass(p){ return p>=70?"hi":p>=50?"mid":"lo"; }
 $("codeInput").addEventListener("input", e=>{ e.target.value = normaliseCode(e.target.value); });
 $("codeInput").addEventListener("keydown", e=>{ if(e.key==="Enter") $("loginBtn").click(); });
 $("loginBtn").addEventListener("click", doLogin);
-$("signoutBtn").addEventListener("click", async ()=>{ await logout(); location.reload(); });
+$("signoutBtn").addEventListener("click", async ()=>{ try{ window.MMTHandoff && window.MMTHandoff.clearAll(); }catch{} await logout(); location.reload(); });
 
 // Login readiness: this module only runs once the page's scripts AND the Firebase
 // SDK modules it imports have finished downloading — which is exactly when the
@@ -639,6 +640,23 @@ function openTasksPopup(){
   $("tpLater").addEventListener("click", close);
   back.addEventListener("click", e=>{ if(e.target===back) close(); });
 }
+
+// Links from the dashboard to a quiz carry a one-use sign-in ticket (see
+// /portal/shared/portalHandoff.js), so the student lands in the quiz already
+// signed in instead of typing their code again. Added at click time, so every
+// click gets a fresh ticket. The Adventure has its own ?code= sign-in.
+function addHandoff(e){
+  if(e.type==="auxclick" && e.button!==1) return;
+  const a=e.target && e.target.closest ? e.target.closest("a[href]") : null;
+  if(!a || !current || !current.studentCode || !window.MMTHandoff) return;
+  const base=a.dataset.hrefBase || a.getAttribute("href");
+  let u; try{ u=new URL(base, location.href); }catch{ return; }
+  if(u.origin!==location.origin || /^\/(portal|game-platforms)\//.test(u.pathname)) return;
+  a.dataset.hrefBase=base;
+  a.href=window.MMTHandoff.link(base, current.studentCode);
+}
+document.addEventListener("click", addHandoff, true);
+document.addEventListener("auxclick", addHandoff, true);
 
 function esc(s){ return String(s??"").replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
 </script>

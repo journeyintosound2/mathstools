@@ -1,6 +1,6 @@
 /* Written by tools/build-pwa.mjs — do not edit by hand. */
 self.MMT_PRECACHE = {
- "version": "a8294a881b",
+ "version": "5b93237bdf",
  "files": [
   "./",
   "assessment/exam-builder/app.js",
@@ -888,6 +888,7 @@ self.MMT_PRECACHE = {
   "portal/shared/geo/suburbs-au.json",
   "portal/shared/location.js",
   "portal/shared/mmtToolRegistry.js",
+  "portal/shared/portalHandoff.js",
   "portal/shared/portalStyles.css",
   "portal/shared/quizAuthUI.js",
   "portal/shared/quizClient.js",

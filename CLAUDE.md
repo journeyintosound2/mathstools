@@ -96,6 +96,30 @@
 > §2 "TWO folders", §3 deploy paths and §5's `mathstools-main 2` heading below
 > describe the OLD layout — this block supersedes them.
 >
+> **NEW (2026-10-29, later): QUIZZES OPENED FROM THE STUDENT PORTAL SIGN IN BY THEMSELVES.**
+> `portal/shared/portalHandoff.js` (`window.MMTHandoff`). A click on any same-site link in the
+> student portal (not /portal/ or /game-platforms/ — the Adventure has `?code=`) gets a ONE-USE
+> TICKET: `localStorage["mmt-handoff:<nonce>"] = {code, exp: +3 min}` and `#mmt-handoff=<nonce>`
+> on the link (`MMTHandoff.link`, added at click time in `addHandoff`). The quiz page takes the
+> ticket (deletes it, strips the hash), remembers the code in THAT TAB's sessionStorage (so a
+> reload stays signed in), then types the code into the page's OWN code box and presses its OWN
+> sign-in button — every quiz still signs in through its normal server exchange. Opened any other
+> way (bookmark, history, typed URL, a reused or expired ticket) the quiz asks for the code as
+> before — deliberate, for shared school computers. Sign out of the portal clears all tickets.
+> * quizAuthUI pages (20): `quizAuthUI.js` loads the helper itself when it sees a ticket and drives
+>   `#mmtCodeInput` / `#mmtLoginBtn` ("Signing you in from your dashboard…").
+> * Bespoke-login quizzes (15): one tag in `<head>`:
+>   `<script src="/portal/shared/portalHandoff.js?v=…" data-input="#studentCodeInput" data-button="#studentLoginBtn"></script>`
+>   (ids differ per page). A NEW quiz with its own login needs this tag.
+> * **`?v=` CHAINS:** a change to portalHandoff.js → bump its `?v=` in the 15 quiz heads, the
+>   student portal AND inside quizAuthUI.js; then quizAuthUI.js changed → bump its `?v=` in the
+>   20 quiz pages. (All 20 quizAuthUI tags now carry `?v=`.)
+> * Algebraic Techniques, Integers, Angle Relationships and FDP only show a student login on a
+>   custom (assignment) link — opened as a whole quiz they go to the teacher builder, as before.
+> * Verified with Playwright on stubbed Firebase: portal → Start → signed in on all 16 kinds of
+>   quiz page tested (one quizAuthUI page + all 15 bespoke), reload stays signed in, direct open /
+>   reused / expired ticket all still show the login, sign-out clears tickets.
+>
 > **NEW (2026-10-29): STUDENT PORTAL — TASKS STAY OPEN UNTIL THE DUE DATE + BEST SCORE BY LEVEL.**
 > `portal/student/index.html` only (no functions, rules or registry change). `taskState(t)` decides
 > everything: a task counts a result when its `toolId` matches AND it was made on/after the task's
