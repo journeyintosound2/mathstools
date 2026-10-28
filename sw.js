@@ -53,6 +53,7 @@ self.addEventListener('fetch', (event) => {
   if (!url.pathname.startsWith(SCOPE_PATH)) return;
 
   if (req.mode === 'navigate') event.respondWith(networkFirst(req, event));
+  else if (url.searchParams.has('v')) event.respondWith(versionedFirst(req, event));
   else event.respondWith(staleWhileRevalidate(req, event));
 });
 
@@ -88,6 +89,23 @@ async function staleWhileRevalidate(req, event) {
   }).catch(() => null);
   if (cached) { event.waitUntil(fresh); return cached; }
   return (await fresh) || new Response('', { status: 504, statusText: 'Offline' });
+}
+
+// A versioned script or style (quiz.js?v=…): the page asking for it is new and needs THIS
+// version now, not on the next visit — otherwise new HTML runs against yesterday's code.
+// Network first; the saved copy only when offline.
+async function versionedFirst(req, event) {
+  try {
+    const res = await fetch(req);
+    if (res.ok) {
+      const copy = res.clone();
+      event.waitUntil(caches.open(CACHE).then((c) => c.put(req, copy)));
+      return res;
+    }
+    return (await lookup(req)) || res;
+  } catch {
+    return (await lookup(req)) || new Response('', { status: 504, statusText: 'Offline' });
+  }
 }
 
 async function cacheFirst(req) {
