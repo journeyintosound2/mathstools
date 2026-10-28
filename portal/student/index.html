@@ -24,6 +24,32 @@
   .due{font-size:.76rem;font-weight:700;padding:3px 9px;border-radius:999px;background:#fef9c3;color:#854d0e;white-space:nowrap}
   .due.soon{background:#fee2e2;color:#991b1b}
   .due.done{background:#dcfce7;color:#166534}
+  .due.over{background:#fee2e2;color:#991b1b}
+  .due.open{background:#e0e7ff;color:#3730a3}
+  /* A task row can carry a "best score by level" dropdown under it. */
+  .tasklist li.task{display:block}
+  .tasklist .trow{display:flex;align-items:center;gap:12px}
+  .tasklist .body{min-width:0}
+  .tasklist .tact{display:flex;align-items:center;gap:10px;flex:0 0 auto}
+  .tasklist .best{font-weight:800;color:var(--ink)}
+  .tasklist .btn.again{background:#fff;color:var(--mmt-blue,#3b5bdb);border:1.5px solid var(--mmt-blue,#3b5bdb)}
+  details.lvls{margin:8px 0 0 50px;border:1px solid var(--line);border-radius:12px;background:#f8fafc}
+  details.lvls>summary{cursor:pointer;list-style:none;padding:8px 12px;font-size:.84rem;font-weight:700;color:#334155;display:flex;align-items:center;gap:8px}
+  details.lvls>summary::-webkit-details-marker{display:none}
+  details.lvls>summary::before{content:"▸";color:var(--muted)}
+  details.lvls[open]>summary::before{content:"▾"}
+  details.lvls>summary .n{color:var(--muted);font-weight:600}
+  .lvtable{width:100%;border-collapse:collapse;font-size:.84rem;background:#fff;border-top:1px solid var(--line);border-radius:0 0 12px 12px}
+  .lvtable th{font-size:.7rem;text-transform:uppercase;letter-spacing:.03em;color:var(--muted);text-align:left;padding:7px 12px;font-weight:800}
+  .lvtable td{padding:8px 12px;border-top:1px solid #eef2f7;vertical-align:middle}
+  .lvtable td.lp{font-weight:900;white-space:nowrap}
+  .lvtable td.lp.hi{color:var(--ok)} .lvtable td.lp.mid{color:#b45309} .lvtable td.lp.lo{color:var(--bad)}
+  .lvtable .lvname{font-weight:800}
+  .lvtable .tag{display:inline-block;margin-left:6px;font-size:.68rem;font-weight:800;padding:1px 7px;border-radius:999px;background:#e0e7ff;color:#3730a3;vertical-align:1px}
+  .lvtable .muted{color:var(--muted)}
+  .lvnote{font-size:.76rem;color:var(--muted);padding:8px 12px 10px;margin:0;background:#fff;border-radius:0 0 12px 12px}
+  @media(max-width:600px){ details.lvls{margin-left:0} .lvtable .hide-sm{display:none}
+    .tasklist .trow{flex-wrap:wrap;row-gap:8px} .tasklist .body{flex:1 1 calc(100% - 50px)} .tasklist .tact{flex:1 0 100%;padding-left:50px;justify-content:space-between} }
   /* Login readiness: button starts disabled with a spinner until the page's
      scripts + Firebase SDK have loaded, then flips to an enabled "Sign in". */
   #loginBtn:disabled{opacity:.7;cursor:progress}
@@ -410,7 +436,9 @@ function renderNextUp(ts){
   const el=$("nextUp");
   const pending=tasks.filter(t=>!taskDone(t));
   let ico="🎯", ttl="", sub="", href="", label="Start";
+  const improvable=tasks.map(t=>({t,st:taskState(t)})).filter(x=>x.st.canImprove && x.st.best!=null && x.st.best.percent<100).sort((a,b)=>a.st.best.percent-b.st.best.percent);
   if(pending.length){ const t=pending[0]; ttl=`Finish your mission: ${t.title||t.toolId}`; sub="Your teacher set this for you"; href=launchFor(t); }
+  else if(improvable.length){ const {t,st}=improvable[0]; ico="🚀"; ttl=`Beat your best: ${t.title||t.toolId}`; sub=`Your best is ${st.best.percent}%`+(t.dueAt?` — you can keep trying until ${dueLabel(t.dueAt)}`:" — have another go!"); href=launchFor(t); label="Try again"; }
   else {
     const weak=ts.filter(t=>t.attempts>0).sort((a,b)=>a.best-b.best)[0];
     const attempted=new Set(all.map(r=>r.toolId));
@@ -473,31 +501,129 @@ async function loadTasks(){
     tasks = snap.docs.map(d=>({ id:d.id, ...d.data() })).sort((a,b)=>(a.dueAt||Infinity)-(b.dueAt||Infinity));
   }catch(err){ console.warn("dashboard tasks unavailable:", err); }
 }
-function taskDone(t){ return all.some(r=>(r.toolId||"")===t.toolId); }
+// A task is ATTEMPTED once the student has a result for that quiz since the
+// task was set. It stays OPEN (they can keep improving) until the due date
+// passes; only then is it finished. Results are matched by toolId and kept to
+// attempts made on/after the task was set (a minute's grace for clock skew),
+// so an old attempt from before the task existed doesn't tick it off.
+const LEVEL_ORDER=["sweet","mild","medium","spicy","extra spicy","extraspicy","extra hot","extrahot","basic","foundation","core","expected","advanced","extension","challenge"];
+function cleanText(s){ return String(s??"").replace(/<[^>]*>/g," ").replace(/[^\p{L}\p{N}\s'’()+-]/gu,"").replace(/\s+/g," ").trim(); }
+function levelKeyOf(s){ return cleanText(s).toLowerCase().replace(/[-_]+/g," ").replace(/\s+/g," ").trim(); }
+function titleCase(s){ return s.replace(/\b\p{L}/gu,c=>c.toUpperCase()); }
+/** The level an attempt was played at: the quiz's own level name, else its
+ *  levelKey, else a "level:x" tag in types[]. "" when the quiz has no levels. */
+function levelOf(r){
+  const raw=r.raw||{};
+  const tag=(Array.isArray(raw.types)?raw.types:[]).map(String).find(x=>/^level:/i.test(x));
+  const label=cleanText(raw.level);
+  const key=levelKeyOf(label)||levelKeyOf(raw.levelKey)||levelKeyOf(tag?tag.slice(6):"");
+  return { key, label: label || (key?titleCase(key):"") };
+}
+function levelRank(key){ const i=LEVEL_ORDER.indexOf(key); return i<0?999:i; }
+function taskAttempts(t){
+  const since=Number(t.assignedAt)||0;
+  return all.filter(r=>(r.toolId||"")===t.toolId && (!since || !r.time || r.time>=since-60000));
+}
+function taskLevelParam(t){ try{ const u=new URL(t.launchUrl||"", location.origin); return levelKeyOf(u.searchParams.get("level")||""); }catch{ return ""; } }
+function isBetter(a,b){ return !b || a.percent>b.percent || (a.percent===b.percent && a.score>b.score); }
+/** One row per level the student has played (plus the teacher's set level),
+ *  easiest first: best counted attempt, attempts, last played. */
+function bestByLevel(attempts, setKey){
+  const m=new Map();
+  // `all` is newest first; walk oldest first so unknown levels keep the order they were met.
+  for(const r of attempts.slice().reverse()){
+    const lv=levelOf(r); const k=lv.key;
+    const e=m.get(k)||{key:k,label:lv.label||"Quiz",best:null,attempts:0,partials:0,last:0,first:m.size};
+    e.attempts++; e.last=Math.max(e.last,r.time||0);
+    if(r.countsToMastery!==false){ if(isBetter(r,e.best)) e.best=r; } else e.partials++;
+    m.set(k,e);
+  }
+  if(setKey && !m.has(setKey)) m.set(setKey,{key:setKey,label:titleCase(setKey),best:null,attempts:0,partials:0,last:0,first:m.size});
+  return [...m.values()].sort((a,b)=>(levelRank(a.key)-levelRank(b.key))||(a.first-b.first));
+}
+function taskState(t){
+  const attempts=taskAttempts(t);
+  const attempted=attempts.length>0;
+  const overdue=!!t.dueAt && Date.now()>t.dueAt;
+  const setKey=taskLevelParam(t);
+  const levels=bestByLevel(attempts,setKey);
+  // Headline best: the teacher's set level if they chose one, else the best anywhere.
+  const pool=setKey?levels.filter(l=>l.key===setKey):levels;
+  let best=null, bestLevel=null;
+  for(const l of pool){ if(l.best && isBetter(l.best,best)){ best=l.best; bestLevel=l; } }
+  return { attempts, attempted, overdue, setKey, levels, best, bestLevel,
+           closed: attempted && overdue,        // finished: due date has passed
+           canImprove: attempted && !overdue }; // attempted, still open
+}
+function taskDone(t){ return taskState(t).attempted; }
 function launchFor(t){ if(t.launchUrl) return t.launchUrl; const tool=getEnabledTools().find(x=>x.toolId===t.toolId); return tool?tool.launchUrl:"#"; }
-function dueChip(t,done){
-  if(done) return `<span class="due done">Done</span>`;
-  if(!t.dueAt) return "";
+function dueLabel(ms){ return new Date(ms).toLocaleDateString(undefined,{weekday:"short",day:"numeric",month:"short"}); }
+function dueChip(t,st){
+  if(st.closed) return `<span class="due done">Done</span>`;
+  if(!t.dueAt) return st.attempted?`<span class="due open" title="No due date — keep improving any time">Open</span>`:"";
+  if(st.overdue) return `<span class="due over" title="Due ${esc(dueLabel(t.dueAt))}">Overdue</span>`;
   const soon=(t.dueAt-Date.now())/86400000 <= 7;
-  return `<span class="due ${soon?"soon":""}">${new Date(t.dueAt).toLocaleDateString(undefined,{weekday:"short",day:"numeric",month:"short"})}</span>`;
+  return `<span class="due ${soon?"soon":""}" title="${st.attempted?"You can keep improving your score until the due date":"Due date"}">Due ${esc(dueLabel(t.dueAt))}</span>`;
 }
-function taskRow(t){
-  const done=taskDone(t); const url=launchFor(t);
-  return `<li>
-    <span class="em">${done?"✅":"📝"}</span>
-    <span class="body"><div class="ttl">${esc(t.title||t.toolId)}</div><div class="sub">${done?"Completed — nice work!":"Online quiz"}</div></span>
-    ${dueChip(t,done)}
-    ${done?"":`<a class="btn primary" style="padding:7px 12px" href="${esc(url)}" target="_blank" rel="noopener">Start</a>`}
-  </li>`;
+function levelsDropdown(t,st){
+  if(!st.attempted && !st.setKey) return "";
+  const played=st.levels.filter(l=>l.attempts>0).length;
+  const rows=st.levels.map(l=>{
+    const tag=l.key&&l.key===st.setKey?`<span class="tag">Set by your teacher</span>`:"";
+    const name=`<span class="lvname">${esc(l.label)}</span>${tag}`;
+    if(!l.attempts) return `<tr><td>${name}</td><td class="muted" colspan="4">Not tried yet</td></tr>`;
+    const b=l.best;
+    const pct=b?`<td class="lp ${pctClass(b.percent)}">${b.percent}%${b.percent>=100?" 🏆":""}</td>`:`<td class="lp muted" title="Only part-finished attempts so far">—</td>`;
+    const sc=b?`${b.score}/${b.total}`:`<span class="muted">part-finished</span>`;
+    return `<tr><td>${name}</td>${pct}<td>${sc}</td><td class="hide-sm">${l.attempts}</td><td class="hide-sm">${l.last?esc(new Date(l.last).toLocaleDateString(undefined,{day:"numeric",month:"short"})):"—"}</td></tr>`;
+  }).join("");
+  const note = st.canImprove ? `<p class="lvnote">Only your best score counts — have another go any time${t.dueAt?` before ${esc(dueLabel(t.dueAt))}`:""}.</p>`
+             : st.closed ? `<p class="lvnote">This task has closed. These are your final best scores.</p>` : "";
+  const open=openLevelPanels.has(t.id)?" open":"";
+  return `<details class="lvls" data-task="${esc(t.id)}"${open}>
+    <summary>Your best score by level <span class="n">· ${played} level${played===1?"":"s"} tried</span></summary>
+    <table class="lvtable"><thead><tr><th>Level</th><th>Best</th><th>Score</th><th class="hide-sm">Attempts</th><th class="hide-sm">Last tried</th></tr></thead><tbody>${rows}</tbody></table>${note}
+  </details>`;
 }
+function taskRow(t, opts={}){
+  const st=taskState(t); const url=launchFor(t);
+  const n=st.attempts.length;
+  const bestTxt=st.best?`<span class="best">${st.best.percent}%</span>${st.bestLevel&&st.bestLevel.key?` (${esc(st.bestLevel.label)})`:""}`:"";
+  let icon="📝", sub="Online quiz", btn=`<a class="btn primary" style="padding:7px 12px" href="${esc(url)}" target="_blank" rel="noopener">Start</a>`;
+  if(st.closed){ icon="✅"; sub=st.best?`Finished — best ${bestTxt}`:"Finished"; btn=""; }
+  else if(st.canImprove){ icon="⭐";
+    const setLabel=st.setKey?(st.levels.find(l=>l.key===st.setKey)||{}).label:"";
+    sub = st.best ? `Best so far ${bestTxt} · ${n} attempt${n===1?"":"s"} — try again to beat it!`
+        : setLabel ? `${n} attempt${n===1?"":"s"} — now try the ${esc(setLabel)} level your teacher set`
+        : `${n} attempt${n===1?"":"s"} — try again to get a score on the board!`;
+    btn=`<a class="btn again" style="padding:7px 12px" href="${esc(url)}" target="_blank" rel="noopener">Try again</a>`; }
+  else if(st.overdue){ icon="⏰"; sub="Online quiz · past the due date — you can still do it"; }
+  return `<li class="task"><div class="trow">
+    <span class="em">${icon}</span>
+    <span class="body"><div class="ttl">${esc(t.title||t.toolId)}</div><div class="sub">${sub}</div></span>
+    <span class="tact">${dueChip(t,st)}${btn}</span>
+  </div>${opts.noLevels?"":levelsDropdown(t,st)}</li>`;
+}
+const openLevelPanels=new Set();
 function renderTasks(){
   const body=$("tasksBody"), empty=$("missionsEmpty"), sub=$("missionsSub");
   if(!tasks.length){ body.innerHTML=""; sub.textContent=""; empty.style.display="block"; empty.innerHTML=`No missions set right now — jump into the Adventure to earn XP!<br><a class="btn primary" style="margin-top:10px;display:inline-block" href="${esc(advUrl())}" target="_blank" rel="noopener">Play Adventure →</a>`; return; }
   empty.style.display="none";
   const done=tasks.filter(taskDone).length;
   sub.textContent=`${done}/${tasks.length} done`;
-  body.innerHTML = tasks.map(taskRow).join("");
+  body.innerHTML = tasks.map(t=>taskRow(t)).join("");
+  body.querySelectorAll("details.lvls").forEach(d=> d.addEventListener("toggle", ()=>{ d.open?openLevelPanels.add(d.dataset.task):openLevelPanels.delete(d.dataset.task); }));
 }
+// Coming back from a quiz tab: fetch the new result so the best score updates
+// without a manual reload.
+let lastLoad=Date.now(), refreshing=false;
+document.addEventListener("visibilitychange", async ()=>{
+  if(document.visibilityState!=="visible" || !current || refreshing || Date.now()-lastLoad<15000) return;
+  refreshing=true;
+  try{ await loadResults(); lastLoad=Date.now(); renderDashboard(); renderTable(); renderTasks(); }
+  catch(err){ console.warn("refresh failed:", err); }
+  finally{ refreshing=false; }
+});
 function openTasksPopup(){
   const pending = tasks.filter(t=>!taskDone(t));
   if(!pending.length) return;
@@ -505,7 +631,7 @@ function openTasksPopup(){
   modal.innerHTML = `
     <div class="modal-head"><h2>📋 You have tasks to do!</h2><button class="x" type="button" id="tpClose">✕</button></div>
     <div class="modal-body"><p class="hint">Your teacher has set these. Finish them before the due date.</p>
-      <ul class="tasklist">${pending.map(taskRow).join("")}</ul></div>
+      <ul class="tasklist">${pending.map(t=>taskRow(t,{noLevels:true})).join("")}</ul></div>
     <div class="modal-foot"><button class="btn" type="button" id="tpLater">Later</button></div>`;
   back.classList.add("show");
   const close=()=>back.classList.remove("show");

@@ -96,6 +96,23 @@
 > §2 "TWO folders", §3 deploy paths and §5's `mathstools-main 2` heading below
 > describe the OLD layout — this block supersedes them.
 >
+> **NEW (2026-10-29): STUDENT PORTAL — TASKS STAY OPEN UNTIL THE DUE DATE + BEST SCORE BY LEVEL.**
+> `portal/student/index.html` only (no functions, rules or registry change). `taskState(t)` decides
+> everything: a task counts a result when its `toolId` matches AND it was made on/after the task's
+> `assignedAt` (1 min grace), so an attempt from before the task was set no longer ticks it off.
+> Attempted + before `dueAt` (or no due date) = OPEN: ⭐, "Best so far 90% (Spicy) · n attempts",
+> a "Try again" button. Attempted + past due = closed ✅ "Done", no button. Never attempted + past
+> due = "Overdue" but still startable (as before). Each task row has a `<details class="lvls">`
+> dropdown: one row per level played (best counted attempt, score, attempts, last tried), easiest
+> first via `LEVEL_ORDER`. Level = the record's `level` name, else `levelKey`, else a `level:x` tag
+> in `types[]` (`levelOf`). Part-finished attempts below the coverage floor count as attempts but
+> never as a best. A custom-subset task whose `launchUrl` has `?level=` shows that level tagged
+> "Set by your teacher" (even before it is tried) and its headline best is that level's. Next-up
+> card offers "Beat your best" when nothing is untouched. Coming back to the tab (>15 s since the
+> last load) re-reads results so a new best shows without a reload; open dropdowns stay open.
+> The login pop-up still lists only tasks not yet attempted. Below 600px the chip + button drop
+> under the text. Verified with Playwright on stubbed Firebase at 1366 and 390.
+>
 > **NEW (2026-10-28, later — NEEDS A FUNCTIONS DEPLOY): STUDENTS & CLASSES — EDIT, MOVE, REMOVE.**
 > * **Two new Cloud Functions** in `game-platforms/mills-maths-adventure-source/functions/index.js`
 >   (the functions now live in THIS repo): `updateStudentForTeacher({studentCode, firstName,
