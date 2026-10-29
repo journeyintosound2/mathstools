@@ -647,7 +647,7 @@ import { mountSchoolPicker, loadSchools } from "../shared/schoolPicker.js";
 import { ADVENTURE_NPCS, getStageTopics } from "../shared/adventureManifest.js";
 import { collection, query, where, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 // Chart.js is loaded as a classic global script in <head>; referenced as `Chart`.
-import { getEnabledTools } from "../shared/mmtToolRegistry.js";
+import { getEnabledTools, getAllTools } from "../shared/mmtToolRegistry.js";
 import { normaliseAchievement, summarise, rollupByStudent, toCSV, summaryText, partialLabel } from "../shared/resultUtils.js";
 
 const $ = (id)=>document.getElementById(id);
@@ -1841,9 +1841,11 @@ async function doDashTask(){
   finally{ delete btn.dataset.busy; otPaint(); }
 }
 // Students in a task's class who have any achievement for the assigned quiz.
+// Counts attempts made since the task was set (a minute's grace), like the
+// student portal and the analytics task report.
 function dashCompleters(t){
-  const cls=t.className||""; const set=new Set();
-  for(const a of all){ if((a.toolId||"")!==t.toolId) continue; if(cls && (a.className||"")!==cls) continue; set.add(a.studentCode||a.studentName||"?"); }
+  const cls=t.className||""; const set=new Set(); const since=Number(t.assignedAt)||0;
+  for(const a of all){ if((a.toolId||"")!==t.toolId) continue; if(cls && (a.className||"")!==cls) continue; if(since && a.time && a.time<since-60000) continue; set.add(a.studentCode||a.studentName||"?"); }
   return set;
 }
 async function loadDashTasks(className){
@@ -2367,7 +2369,23 @@ function openStudent(code, opts){
 }
 
 // ============================ RESULTS & ANALYTICS ============================
-function openResults(){
+// Results & Analytics (2026-10-29): the revamped page lives in ./analytics.js
+// (Overview · Tasks · Quizzes · Skills · All attempts + per-quiz reports). If that
+// module can't load, the classic page below still opens.
+async function openResults(){
+  try{
+    const m = await import("./analytics.js?v=4607a414");
+    m.openAnalytics({
+      get all(){ return all; }, get students(){ return students; }, get classes(){ return classes; },
+      get dashAssignments(){ return dashAssignments; }, get teacher(){ return teacher; },
+      openModal, head, foot, modalEl, tCharts, openStudent,
+      setRefresh:(fn)=>{ currentRefresh=fn; },
+      getEnabledTools, getAllTools, toCSV, summaryText, partialLabel,
+      syllabusReady: loadSyllabus().catch(()=>false),
+    });
+  }catch(err){ console.warn("New analytics unavailable — opening the classic view:", err); openResultsClassic(); }
+}
+function openResultsClassic(){
   openModal(head("📊 Results &amp; Analytics")+`
     <div class="modal-body">
       <div class="tabs" id="raTabs" style="margin-bottom:14px">

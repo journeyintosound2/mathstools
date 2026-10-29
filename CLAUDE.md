@@ -96,6 +96,46 @@
 > §2 "TWO folders", §3 deploy paths and §5's `mathstools-main 2` heading below
 > describe the OLD layout — this block supersedes them.
 >
+> **NEW (2026-10-29, night): RESULTS & ANALYTICS REBUILT — QUIZ REPORTS + "WHERE MARKS WERE LOST".**
+> The 📊 tile now loads `portal/teacher/analytics.js` (`openAnalytics(ctx)`; ctx = live `all`,
+> `students`, `classes`, `dashAssignments`, `teacher` + openModal/head/foot/openStudent/…). If
+> the module fails to load, `openResultsClassic()` (the old page, kept) opens instead.
+> The maths is PURE in `portal/shared/quizInsights.js` (Node-tested; no DOM/Firebase).
+> * **SKILLS = per-question-type marks.** Quizzes save them in FOUR shapes and `skillsOf(r)` reads
+>   all of them: types[] `"key:right/total"` strings; types[] objects `{typeId,label,ok|correct,total}`;
+>   a `breakdown` map `{type:{correct,total,label}}` (equations); one tag per question
+>   `"mild-obtuse-missing-wrong"` (area of a triangle). Everything else in types[] (`level:`, `lang:`,
+>   `estimate:`, `kind:`, `op:`, `quadrants:`, `used…Reveal`, `usedten:n/t`) is a FACET (`facetsOf`).
+>   Nice names for string keys live in `SKILL_LABELS`. **A new quiz gets "where marks were lost"
+>   for free if it saves `key:right/total` strings (or the object shape).** Quizzes that save only an
+>   overall score (collecting like terms, factor circles, integer addition, fraction of an amount,
+>   negatives, number groups, area model, fraction-to-percentage, adding/subtracting fractions…)
+>   show a note instead.
+> * A class's skill % = the AVERAGE OF EACH STUDENT'S OWN success rate on that skill (all their
+>   attempts), so one student's five retakes don't swamp it. "Under 50%" lists feed the reteach groups.
+> * Tabs: **Overview** (KPIs with ▲/▼ vs the previous window; "Worth a look" auto-insights — tasks due
+>   ≤ 7 days with students not started, closed tasks with non-starters, each task's sticking-point skill,
+>   weakest skill overall, biggest improvement, students quiet 2+ weeks; activity bars + active-students
+>   line; Needs attention (avg < 50, drop of 15+ over last 3 vs 3 before, quiet, not started a task due
+>   ≤ 7 days or closed; top 15 + Show all); class comparison, click a class to focus) · **Tasks**
+>   (open/closed/all cards) · **Quizzes** (every quiz done in the window) · **Skills** (weakest
+>   question types across quizzes, topics, topic × class) · **All attempts** (+ Level and Breakdown
+>   columns, CSV). Class + window filters are shared; tasks ignore the window.
+> * **Quiz report** (`renderReport`): a task report = attempts on that quiz by that class since
+>   `assignedAt` (`taskRecords`, same rule as the student portal and now `dashCompleters` in Manage
+>   Tasks); otherwise class + window. Started/roster, average best + median, attempts, improved by
+>   retrying (best ≥ first + 10), not-started names (copy), where marks were lost, Reteach (≤ 3 weakest
+>   skills < 70% with the students under 50% — copy group — plus Teaching tool / Worksheet maker links
+>   for the quiz's outcome(s) from `resources/toolLinks.js`, own family first), spread of bests, levels,
+>   facets, and a sortable student × skill grid (click a name → `openStudent`, which gets a "← Back to
+>   results" button). Export CSV / Copy summary.
+> * `?v=` chain: analytics.js imports `quizInsights.js?v=…`; the teacher page imports
+>   `./analytics.js?v=…`. Change quizInsights → bump it in analytics.js → bump analytics.js in index.html.
+> * Verified: 20 unit checks on quizInsights (all four formats, levels, partials, medians, task window)
+>   and Playwright on the real teacher page with stubbed Firebase and a generated 38-student, 2-class
+>   dataset across 8 quizzes / 4 tasks: every tab and report renders, numbers match, student round trip,
+>   sorting, no errors, no sideways scroll at 1440 or 390.
+>
 > **NEW (2026-10-29, evening): TEACHER AND STUDENT SIGN-INS NO LONGER SHARE ONE SESSION.**
 > Bug: Manage Tasks said "Could not load online tasks: Missing or insufficient permissions".
 > Cause: every page used Firebase's DEFAULT app, and Firebase keeps ONE signed-in user per app
