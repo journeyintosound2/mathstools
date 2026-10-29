@@ -25,7 +25,7 @@
 
 import {
   initPortal, loginTeacher, logout, getDb, getSession, normaliseCode, onAuth,
-} from '../portal/shared/codeExchangeClient.js';
+} from '../portal/shared/codeExchangeClient.js?v=2261aaea';
 
 /* Same SDK version as portal/shared/firebaseConfig.js — keep them in step. */
 import {
@@ -41,7 +41,7 @@ const COLLECTION = 'screens';
    Firebase half of this module. */
 export { stripForCloud, payloadSize, MAX_BYTES, packWidgets, unpackWidgets };
 
-export function initCloud(){ initPortal(); }
+export function initCloud(){ initPortal("teacher"); }
 
 export function currentTeacher(){
   const s = getSession();

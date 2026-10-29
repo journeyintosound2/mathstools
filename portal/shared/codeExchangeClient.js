@@ -17,15 +17,39 @@ import { getAuth, signInWithCustomToken, signOut, onAuthStateChanged } from "htt
 import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-functions.js";
 
-const SESSION_KEY = "mmt-portal-session";
+/*
+ * ONE SIGN-IN PER SIDE (2026-10-29). Firebase keeps one signed-in user per app
+ * NAME per browser, shared by every tab. Teacher pages, student pages and the
+ * quizzes used to share the default app, so signing in as a student anywhere
+ * (student portal, a quiz) silently turned an open Teacher Platform tab into
+ * that student: what was on screen stayed, but its next read was refused
+ * ("Missing or insufficient permissions"). Each side now has its own named app
+ * and its own cached profile, so they can't knock each other out. The quizzes
+ * keep the default app. (The admin console already used in-memory auth.)
+ */
+const SESSION_BASE = "mmt-portal-session";
+const APP_NAMES = { teacher: "mmt-teacher", student: "mmt-student" };
+function sideFromPath() {
+  const p = (typeof location !== "undefined" && location.pathname) || "";
+  if (p.startsWith("/portal/teacher") || p.startsWith("/mmt-screen")) return "teacher";
+  if (p.startsWith("/portal/student")) return "student";
+  return "";
+}
+let SESSION_KEY = SESSION_BASE;
 
 let _app = null, _auth = null, _db = null, _functions = null;
 let _session = null; // { role, profile }
 
-/** Initialise Firebase handles. No sign-in here. Idempotent. */
-export function initPortal() {
+/**
+ * Initialise Firebase handles. No sign-in here. Idempotent — the first call
+ * fixes the side: "teacher" | "student" (or inferred from the page's path;
+ * anything else gets the shared default app, as before).
+ */
+export function initPortal(side) {
   if (_app) return { app: _app, auth: _auth, db: _db, functions: _functions };
-  _app = initializeApp(FIREBASE_CONFIG);
+  side = APP_NAMES[side] ? side : sideFromPath();
+  if (APP_NAMES[side]) { _app = initializeApp(FIREBASE_CONFIG, APP_NAMES[side]); SESSION_KEY = SESSION_BASE + "-" + side; }
+  else _app = initializeApp(FIREBASE_CONFIG);
   _auth = getAuth(_app);
   _db = getFirestore(_app);
   _functions = getFunctions(_app, FUNCTIONS_REGION);

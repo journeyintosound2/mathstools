@@ -96,6 +96,21 @@
 > §2 "TWO folders", §3 deploy paths and §5's `mathstools-main 2` heading below
 > describe the OLD layout — this block supersedes them.
 >
+> **NEW (2026-10-29, evening): TEACHER AND STUDENT SIGN-INS NO LONGER SHARE ONE SESSION.**
+> Bug: Manage Tasks said "Could not load online tasks: Missing or insufficient permissions".
+> Cause: every page used Firebase's DEFAULT app, and Firebase keeps ONE signed-in user per app
+> name per browser, shared by all tabs. Signing in as a student anywhere (student portal, any quiz)
+> silently turned an open Teacher Platform tab into that student; what was on screen stayed, the
+> next read was refused. Fix in `portal/shared/codeExchangeClient.js`: `initPortal(side)` uses a
+> NAMED app per side — `"mmt-teacher"` (teacher portal + MMT Screen cloud save) and
+> `"mmt-student"` (student portal) — with its own cached profile key
+> (`mmt-portal-session-teacher` / `-student`). Side = the argument, else inferred from the path
+> (`/portal/teacher`, `/mmt-screen` → teacher; `/portal/student` → student; anything else keeps
+> the default app). Quizzes keep the default app. The admin console already used in-memory auth.
+> Imports are now `codeExchangeClient.js?v=<md5>` in the two portals and cloudSync.js — the
+> student portal imports it TWICE and both URLs must match exactly or it loads two copies.
+> One-off cost: a teacher signed in to MMT Screen's Save has to sign in there once more.
+>
 > **NEW (2026-10-29, later): QUIZZES OPENED FROM THE STUDENT PORTAL SIGN IN BY THEMSELVES.**
 > `portal/shared/portalHandoff.js` (`window.MMTHandoff`). A click on any same-site link in the
 > student portal (not /portal/ or /game-platforms/ — the Adventure has `?code=`) gets a ONE-USE
