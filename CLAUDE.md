@@ -2063,6 +2063,30 @@
 >   the links, so `launcher.js` now uses `a.dataset.label || textContent`. Leave
 >   `data-label` off a new link and its title will have the blurb glued on.
 >
+> **NEW (2026-10-31): RESOURCES BY STAGE — ORGANISED BY IDEA (content statements).**
+> Supersedes the per-outcome type cards below. Inside each outcome the page now lists
+> NESA's content statements in syllabus order; each is a collapsible row ("idea") with
+> type chips + a count, and opens to the resources filed under it (one row per resource:
+> type badge · title · kind/year · ↗). Statements with nothing show greyed "Nothing yet".
+> * **`resources/contentStatements.js`** (`window.MMT_CONTENT.statements`, keyed by outcome
+>   code → `[{id, text, part?, group?}]`). 241 statements (S3 71 · S4 60 · S5 110), verbatim
+>   from NESA's *Record of learning and achievement using syllabus content* docs (Feb 2024).
+>   Stage 3: `part` A/B (shown as a tag) and NESA sub-heading as `group`; a Stage 3 focus
+>   area's statements are filed under the outcome they serve (Position→GM-01, Length→GM-02 …).
+> * **Every resource carries `ideas: [ids]`** — on its row in `toolLinks.js` or
+>   `resourcesManifest.js`. No `ideas` (or an unknown id) → listed under "Across the whole
+>   outcome" (only the Financial Expectation Spinner under MA5-FIN-C-01, on purpose).
+>   **When you add a tool/quiz/worksheet row to toolLinks.js, give it `ideas`.**
+> * Cross-listed the ×10 tool, quiz and worksheet under MA3-MR-01 ("Multiply and divide
+>   decimals by powers of 10").
+> * Deep link `#MA4-INT-C-01/four-operations` opens that idea and flashes it; each open idea
+>   has "Copy link to this idea". Search matches statement wording too (an outcome-level hit
+>   shows all its statements; otherwise only matching ideas, opened). Open topics/ideas
+>   survive a Show-pill or search re-render. `hashchange` is handled.
+> * The page loads the three data files as `?v=<md5 8>` — bump them when a data file changes.
+> * The teacher task picker reads toolLinks.js/resourcesManifest.js; the extra `ideas`
+>   field is ignored there.
+>
 > **NEW (2026-09-17, session — being pushed): RESOURCES BY STAGE — TYPE CARDS.**
 > `resources/index.html` no longer lists an outcome's resources as one flat
 > column. Each outcome now shows one CARD PER TYPE, in this order: PDFs &

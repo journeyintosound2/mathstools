@@ -115,6 +115,7 @@ window.MMT_RESOURCES = {
               title: "Addition Practice — Spot the Mistake",
               type: "pdf",
               file: "addition-practice-spot-the-mistake.pdf",
+              ideas: ["mental-written", "choose-strategies"],
               note: "2-page worksheet — find and explain errors in column addition, complete a partitioning strategy and name it, then a Year 7 challenge page (angles, algebra, perimeter).",
               year: "Year 6",
               tags: ["worksheet", "error analysis", "column addition", "partitioning", "strategy", "transition to Year 7", "extension"]
@@ -123,6 +124,7 @@ window.MMT_RESOURCES = {
               title: "Addition Challenge and Extension",
               type: "pdf",
               file: "addition-challenge-extension.pdf",
+              ideas: ["choose-strategies"],
               note: "2-page challenge set — missing values, magic squares, an Open Middle digit task, balancing equivalent expressions, and an always/sometimes/never reasoning prompt on odd numbers.",
               year: "Year 6",
               tags: ["challenge", "extension", "magic squares", "open middle", "reasoning", "always sometimes never", "equivalence", "problem solving"]
@@ -148,6 +150,7 @@ window.MMT_RESOURCES = {
               title: "Division Strategies \u2014 Sharing, Known Products and Halving",
               type: "pptx",
               file: "division-strategies-stage-3.pptx",
+              ideas: ["divide-1-digit", "whole-numbers"],
               note: "49-slide lesson deck, built to click through one step at a time \u2014 an estimation warm-up, \"find four different ways\", then sharing into bubbles and a ratio table run on the same question so the two can be compared. Speaker notes throughout.",
               year: "Year 5\u20136",
               tags: ["lesson deck", "presentation", "division", "division strategies", "sharing and regrouping", "partial quotients", "known products", "ratio table", "estimation", "speaker notes"]
@@ -156,6 +159,7 @@ window.MMT_RESOURCES = {
               title: "Division Strategies \u2014 Choose Your Strategy",
               type: "pdf",
               file: "division-strategies-choose-your-strategy.pdf",
+              ideas: ["divide-1-digit", "whole-numbers"],
               note: "3 pages \u2014 paired practice on the same question two ways (bubbles vs ratio table), then choose-your-own-strategy questions, then an extension plotting the table rows as a straight line through the origin. Answer key on page 3.",
               year: "Year 5\u20136",
               tags: ["worksheet", "division", "division strategies", "choose a strategy", "sharing and regrouping", "ratio table", "known products", "linear relationships", "graphing", "answer key"]
@@ -164,6 +168,7 @@ window.MMT_RESOURCES = {
               title: "Dot Circle Factors",
               type: "pdf",
               file: "dot-circle-factors.pdf",
+              ideas: ["products-factors"],
               note: "2-page worksheet — build dot arrangements in a circle, record the factor groups (\"2 groups of 3\"), then list the factors. Worked example on page 1, blank grid on page 2.",
               year: "Year 5",
               tags: ["worksheet", "factors", "multiples", "factor pairs", "arrays", "visual", "dot arrangements"]
@@ -172,6 +177,7 @@ window.MMT_RESOURCES = {
               title: "Who Am I? — Non-Familiar Factors",
               type: "pdf",
               file: "who-am-i-non-familiar-factors.pdf",
+              ideas: ["products-factors"],
               note: "2-page deduction puzzle — narrow down a number from clues about factor count, multiples, square numbers and factor sums. Page 2 is a harder version.",
               year: "Year 6",
               tags: ["puzzle", "factors", "multiples", "square numbers", "divisibility", "reasoning", "extension", "who am I"]
@@ -187,6 +193,7 @@ window.MMT_RESOURCES = {
               title: "Order of Operations Review \u2014 Say What You See",
               type: "pptx",
               path: "/resources/stage-4/computation-with-integers/order-of-operations-review.pptx",
+              ideas: ["brackets-order"],
               note: "32-slide deck — no acronym: each expression is described as a picture first (\"5 and 3 groups of 5\"), then written in mathematical language; take-away and fractions of an amount, a your-turn set, and the \"boy with the telescope\" left-to-right rule for × and ÷, a link to the Say What You See interactive, and an exit ticket. The file lives with Stage 4 Integers; listed here too because Stage 3 is where the order of operations is first met.",
               year: "Year 6",
               tags: ["lesson deck", "presentation", "order of operations", "BODMAS", "describe what you see", "visual", "groups of", "number sentences", "left to right", "boy with the telescope", "exit ticket"]
@@ -383,6 +390,7 @@ window.MMT_RESOURCES = {
               title: "Order of Operations Review \u2014 Say What You See",
               type: "pptx",
               file: "order-of-operations-review.pptx",
+              ideas: ["four-operations"],
               note: "32-slide deck — no acronym: each expression is described as a picture first (\"5 and 3 groups of 5\"), then written in mathematical language; take-away and fractions of an amount, a your-turn set, and the \"boy with the telescope\" left-to-right rule for × and ÷, a link to the Say What You See interactive, and an exit ticket.",
               year: "Year 7",
               tags: ["lesson deck", "presentation", "order of operations", "BODMAS", "BIDMAS", "PEMDAS", "describe what you see", "visual", "groups of", "integers", "left to right", "boy with the telescope", "exit ticket"]
@@ -407,6 +415,7 @@ window.MMT_RESOURCES = {
               title: "Unit Fraction Calculations",
               type: "pdf",
               file: "unit-fraction-calculations.pdf",
+              ideas: ["equivalence", "multiply-divide"],
               note: "2-page worksheet — completing number lines in unit fractions, comparing unit fractions with a bar model, and finding a fraction of an amount.",
               year: "Year 7",
               tags: ["worksheet", "unit fractions", "number line", "bar model", "fraction of an amount", "comparing fractions"]
@@ -415,6 +424,7 @@ window.MMT_RESOURCES = {
               title: "Fraction of an Amount",
               type: "pdf",
               file: "fraction-of-an-amount.pdf",
+              ideas: ["multiply-divide"],
               note: "1-page worksheet — completing double number lines to find unit and non-unit fractions of an amount, then applying it without a number line.",
               year: "Year 7",
               tags: ["worksheet", "fraction of an amount", "double number line", "unit fractions", "non-unit fractions"]
@@ -423,6 +433,7 @@ window.MMT_RESOURCES = {
               title: "Comparing Fractions",
               type: "pdf",
               file: "comparing-fractions.pdf",
+              ideas: ["equivalence"],
               note: "1-page faded worked example — Demonstration / Faded / Your turn. Uses a double number line to find equivalent fractions, then practice without the diagram.",
               year: "Year 7",
               tags: ["worksheet", "equivalent fractions", "comparing fractions", "double number line", "faded worked examples", "scaffolded", "worked example"]
@@ -431,6 +442,7 @@ window.MMT_RESOURCES = {
               title: "Adding Fractions with Common Denominators",
               type: "pdf",
               file: "adding-fractions-with-common-denominators.pdf",
+              ideas: ["add-subtract"],
               note: "2-page worksheet — shading fraction bars to add and subtract with like denominators, improper and mixed fractions, and missing-value gap fills.",
               year: "Year 7",
               tags: ["worksheet", "adding fractions", "subtracting fractions", "common denominators", "fraction bar", "improper fractions", "mixed numerals"]
@@ -439,6 +451,7 @@ window.MMT_RESOURCES = {
               title: "Percentage and Decimal of an Amount",
               type: "pdf",
               file: "percentage-and-decimal-of-an-amount.pdf",
+              ideas: ["percentages", "fdp-conversions"],
               note: "2-page worksheet — using a number line to find a percentage or decimal of an amount, then comparing equivalent forms.",
               year: "Year 7",
               tags: ["worksheet", "number line", "percentage of an amount", "decimal of an amount"]
@@ -463,6 +476,7 @@ window.MMT_RESOURCES = {
               title: "Rates with Year 8s — Speed, Distance and Time",
               type: "pptx",
               file: "rates-speed-stage-4.pptx",
+              ideas: ["simplify-rates", "rate-problems"],
               note: "17-slide lesson deck — comparing rates, unpacking what 300 km/h means, then paired 'what else can you work out?' / 'now answer this' questions on speed, distance and time.",
               year: "Year 8",
               tags: ["lesson deck", "presentation", "rates", "speed", "distance", "time", "average speed", "unit rates", "discussion prompts", "worked examples"]
@@ -471,6 +485,7 @@ window.MMT_RESOURCES = {
               title: "Rates — Speed, Distance and Time",
               type: "pdf",
               file: "year-8-rates-speed-distance-time.pdf",
+              ideas: ["rate-problems"],
               note: "2-page worksheet — 9 questions on average speed, distance and time, including part-hour travel, metres per second, and finding speed from distance and time.",
               year: "Year 8",
               tags: ["worksheet", "rates", "speed", "distance", "time", "average speed", "km/h", "unit conversion", "problem solving"]
@@ -540,6 +555,7 @@ window.MMT_RESOURCES = {
               title: "Visual Patterns Activity",
               type: "docx",
               file: "visual-patterns-activity.docx",
+              ideas: ["plot-linear"],
               note: "Six growing patterns (squares, matchsticks, cubes, circles) \u2014 describe in your own words how each figure changes, then predict a far figure (7, 11, 6, 12, 28). Question 6 is a challenge. Editable Word file.",
               year: "Year 7",
               tags: ["worksheet", "visual patterns", "growing patterns", "number patterns", "predict", "describe", "matchsticks", "linear relationships", "notice and wonder", "editable"]
@@ -731,6 +747,7 @@ window.MMT_RESOURCES = {
               title: "Simplifying Algebraic Fractions",
               type: "pdf",
               file: "simplifying-algebraic-fractions.pdf",
+              ideas: ["fractions-numerical"],
               note: "2-page faded worked example — Demonstration / Faded / Your turn columns, then practice. Q1 numerical denominators (15a/6), Q2 extends to cancelling common variable factors (12ab/18b).",
               year: "Year 9",
               tags: ["worksheet", "algebraic fractions", "simplifying", "cancelling", "faded worked examples", "scaffolded", "worked example"]
@@ -756,6 +773,7 @@ window.MMT_RESOURCES = {
               title: "Complete the Square \u2014 demo notes",
               type: "pdf",
               file: "complete-the-square-demo-notes.pdf",
+              ideas: ["special-products"],
               note: "4-page photo record of a manipulative whiteboard demonstration. Steps 1\u20134 build x\u00b2 + 26x = 27 as an area model, halve the 26x strip, add the missing 169 corner to complete the square, then square-root to get (x + 13)\u00b2 = 196 \u2192 x = 1 or 27 \u2014 with a note on why the negative solution was historically overlooked. Steps 5\u20138 repeat the same build with ax\u00b2 + bx + c = 0 to derive the quadratic formula.",
               year: "Year 10",
               tags: ["lesson notes", "completing the square", "quadratics", "area model", "algebra tiles", "quadratic formula", "proof", "demonstration", "worked example"]
@@ -1153,6 +1171,7 @@ window.MMT_RESOURCES = {
               title: "Number Sum Chain",
               type: "link",
               url: "/interactive-tools/stage-5/measurement-space/square-sum-chain/",
+              ideas: ["graphs-networks"],
               note: "Arrange 1–15 so every pair of neighbours adds to a square number. Free workspace with joins, pen and shared rooms.",
               tags: ["interactive","networks","paths","problem solving"]
             }

@@ -34,6 +34,7 @@ window.MMT_TOOL_LINKS = {
       title: "Math Memory — Shapes",
       kind: "Game",
       url: "/games/Maths%20Memory/",
+      ideas: ["classify-shapes"],
       note: "Memory game matching shapes with their names or properties.",
       tags: ["game", "memory", "2D shapes", "classifying", "matching"]
     }
@@ -44,6 +45,7 @@ window.MMT_TOOL_LINKS = {
       title: "Area Model Splitter",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-4/measurement-space/perimeter-area-rectangle/",
+      ideas: ["rectangles"],
       note: "Split and rearrange a rectangle to build area and perimeter reasoning.",
       tags: ["area", "perimeter", "rectangles", "area model", "partitioning"]
     },
@@ -51,6 +53,7 @@ window.MMT_TOOL_LINKS = {
       title: "Rectangles — Area / Perimeter",
       kind: "Student quiz",
       url: "/online-quizzes/stage-4/measurement-space/perimeter-area-rectangle.html",
+      ideas: ["rectangles"],
       note: "Saves to the student dashboard.",
       tags: ["quiz", "area", "perimeter", "rectangles"]
     },
@@ -58,6 +61,7 @@ window.MMT_TOOL_LINKS = {
       title: "Shikaku",
       kind: "Game",
       url: "/games/shikaku.html",
+      ideas: ["rectangles"],
       note: "Divide the grid into rectangles whose areas match the clue numbers.",
       tags: ["game", "puzzle", "area", "rectangles", "factors", "logic"]
     }
@@ -68,6 +72,7 @@ window.MMT_TOOL_LINKS = {
       title: "Area of a Triangle — Half the Rectangle",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-4/measurement-space/area-of-a-triangle/",
+      ideas: ["triangle"],
       note: "Shows a triangle as half its enclosing rectangle, draggable.",
       tags: ["area", "triangles", "rectangles", "derivation", "visual"]
     }
@@ -78,6 +83,7 @@ window.MMT_TOOL_LINKS = {
       title: "Unit Conversion \u2014 Double Number Line",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-4/measurement-space/unit-conversion-number-line/",
+      ideas: ["decimal-metric", "capacity-units"],
       note: "Capacity conversions on a double number line \u2014 kL, L and mL \u2014 built from the 1 : 1000 anchor.",
       tags: ["unit conversion", "metric", "double number line", "proportional reasoning", "scaling", "measurement", "capacity", "volume", "kL", "L", "mL"]
     },
@@ -85,6 +91,7 @@ window.MMT_TOOL_LINKS = {
       title: "Converting Units of Measurement",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-4/measurement-space/unit-conversion.html",
+      ideas: ["decimal-metric", "capacity-units"],
       note: "Capacity conversions on and off the number line, four levels, Stage 3 setting for kL, L and mL. Trilingual, with an answer key.",
       tags: ["unit conversion", "metric", "double number line", "proportional reasoning", "scaling", "measurement", "capacity", "volume", "kL", "L", "mL", "worksheet generator", "printable", "trilingual"]
     },
@@ -95,6 +102,7 @@ window.MMT_TOOL_LINKS = {
       title: "Addition by Compensation",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-3/number/addition-compensation/",
+      ideas: ["mental-written"],
       note: "Two piles of tiles in tens: drag tiles from one pile to the other so 36 + 49 becomes 35 + 50. No tile is ever made or lost, so the total can't change.",
       tags: ["compensation", "addition", "mental strategies", "bridging to ten", "make a ten", "friendly numbers", "tens and ones", "rearranging"]
     },
@@ -102,6 +110,7 @@ window.MMT_TOOL_LINKS = {
       title: "Addition by Compensation — Student Quiz",
       kind: "Student quiz",
       url: "/online-quizzes/stage-3/number/addition-compensation.html",
+      ideas: ["mental-written"],
       note: "Sweet to Extra Spicy. The first three levels hand over the tile board (hundreds bundle into flats); the last two take it away. Saves to the student dashboard.",
       tags: ["quiz", "compensation", "addition", "mental strategies", "make a ten", "three digit"]
     },
@@ -109,6 +118,7 @@ window.MMT_TOOL_LINKS = {
       title: "Constant Difference",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-3/number/constant-difference/",
+      ideas: ["mental-written"],
       note: "Slide the gap between two numbers along an open number line: 83 − 28 becomes 85 − 30, and the difference never changes.",
       tags: ["constant difference", "subtraction", "mental strategies", "open number line", "compensation", "bridging to ten", "difference", "same difference"]
     },
@@ -116,6 +126,7 @@ window.MMT_TOOL_LINKS = {
       title: "Constant Difference — Student Quiz",
       kind: "Student quiz",
       url: "/online-quizzes/stage-3/number/constant-difference.html",
+      ideas: ["mental-written"],
       note: "Sweet to Extra Spicy. The first three levels hand over the number line to slide; the last two take it away. Saves to the student dashboard.",
       tags: ["quiz", "constant difference", "subtraction", "mental strategies", "open number line", "three digit"]
     },
@@ -123,6 +134,7 @@ window.MMT_TOOL_LINKS = {
       title: "Partition Splitter",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-3/number/partition-splitter/",
+      ideas: ["mental-written"],
       note: "Split a number into parts on a place-value display to model addition strategies.",
       tags: ["partitioning", "place value", "addition", "mental strategies"]
     },
@@ -130,6 +142,7 @@ window.MMT_TOOL_LINKS = {
       title: "Rows & Columns Challenge",
       kind: "Game",
       url: "/games/row-column-challenge.html",
+      ideas: ["mental-written"],
       note: "Two-player strategy game: take a number from the active row or column and add it to your total. After Dr Paul Swan.",
       tags: ["game", "strategy", "addition", "mental computation", "two player"]
     },
@@ -137,6 +150,7 @@ window.MMT_TOOL_LINKS = {
       title: "Partition Splitter — Class Flash Cards",
       kind: "Flash cards",
       url: "/interactive-tools/stage-3/number/partition-splitter/partition-flash.html",
+      ideas: ["mental-written"],
       note: "Projected partitioning flash round for the whole class.",
       tags: ["flash cards", "partitioning", "whole class"]
     },
@@ -144,6 +158,7 @@ window.MMT_TOOL_LINKS = {
       title: "Partition Splitter — Student Practice",
       kind: "Flash cards",
       url: "/interactive-tools/stage-3/number/partition-splitter/student-flash.html",
+      ideas: ["mental-written"],
       note: "Self-paced student partitioning practice.",
       tags: ["flash cards", "partitioning", "independent practice"]
     }
@@ -154,6 +169,7 @@ window.MMT_TOOL_LINKS = {
       title: "Probability Spinner Simulator",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-5/statistics-probability/financial-expectation-spinner/",
+      ideas: ["observed-expected", "random-generators", "trials"],
       note: "Build a spinner, run trials, compare observed with expected frequency.",
       tags: ["probability", "spinner", "simulation", "expected value", "experiment"]
     },
@@ -161,6 +177,7 @@ window.MMT_TOOL_LINKS = {
       title: "Greedy Pig",
       kind: "Game",
       url: "/games/greedy-pig.html",
+      ideas: ["list-outcomes"],
       note: "Teacher-led risk and reward dice game — bank before the poison number. Class leaderboard.",
       tags: ["game", "probability", "risk", "expected value", "whole class", "teacher led"]
     },
@@ -168,6 +185,7 @@ window.MMT_TOOL_LINKS = {
       title: "Taxed by the King",
       kind: "Game",
       url: "/games/taxed-by-the-king.html",
+      ideas: ["list-outcomes"],
       note: "Teacher-led card probability game — bank before the King takes his tax. Class leaderboard.",
       tags: ["game", "probability", "risk", "cards", "whole class", "teacher led"]
     }
@@ -178,6 +196,7 @@ window.MMT_TOOL_LINKS = {
       title: "Capture the Grid",
       kind: "Game",
       url: "/games/cartesian-capture.html",
+      ideas: ["cartesian", "four-quadrants"],
       note: "Claim coordinate points to capture territory on the Cartesian plane.",
       tags: ["game", "coordinates", "Cartesian plane", "strategy", "two player"]
     },
@@ -185,6 +204,7 @@ window.MMT_TOOL_LINKS = {
       title: "Coordinate Battleships",
       kind: "Game",
       url: "/games/battleships.html",
+      ideas: ["cartesian", "four-quadrants"],
       note: "Place ships on a coordinate grid and attack by typing ordered pairs.",
       tags: ["game", "coordinates", "ordered pairs", "Cartesian plane", "two player"]
     },
@@ -192,6 +212,7 @@ window.MMT_TOOL_LINKS = {
       title: "Coordinate Connect 4",
       kind: "Game",
       url: "/games/cartesian-connect-4.html",
+      ideas: ["cartesian", "four-quadrants"],
       note: "Connect four by naming coordinate pairs.",
       tags: ["game", "coordinates", "Cartesian plane", "two player"]
     }
@@ -202,6 +223,7 @@ window.MMT_TOOL_LINKS = {
       title: "Unit Conversion \u2014 Double Number Line",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-4/measurement-space/unit-conversion-number-line/",
+      ideas: ["convert-length", "decimal-metric"],
       note: "Metric length conversions on a double number line: the 1 : ratio anchor stays on screen and every value is the same scaling of it. km, m, cm and mm.",
       tags: ["unit conversion", "metric", "double number line", "proportional reasoning", "scaling", "measurement", "length", "km", "m", "cm", "mm"]
     },
@@ -209,6 +231,7 @@ window.MMT_TOOL_LINKS = {
       title: "Converting Units of Measurement",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-4/measurement-space/unit-conversion.html",
+      ideas: ["convert-length", "decimal-metric"],
       note: "Fill a whole number line, then one jump, then bare conversions, comparing and word problems. Stage 3 setting uses neighbouring units only. Trilingual, with an answer key.",
       tags: ["unit conversion", "metric", "double number line", "proportional reasoning", "scaling", "measurement", "length", "km", "m", "cm", "mm", "worksheet generator", "printable", "trilingual"]
     },
@@ -219,6 +242,7 @@ window.MMT_TOOL_LINKS = {
       title: "Protractor Angle Explorer",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-4/measurement-space/reading-a-protractor/",
+      ideas: ["protractor", "measure-angles"],
       note: "Drag a protractor onto an angle and read the scale, inner and outer.",
       tags: ["protractor", "measuring angles", "angle types"]
     },
@@ -226,6 +250,7 @@ window.MMT_TOOL_LINKS = {
       title: "Reading a Protractor",
       kind: "Student quiz",
       url: "/online-quizzes/stage-4/measurement-space/reading-a-protractor.html",
+      ideas: ["protractor", "measure-angles"],
       note: "Saves to the student dashboard.",
       tags: ["quiz", "protractor", "measuring angles"]
     },
@@ -233,6 +258,7 @@ window.MMT_TOOL_LINKS = {
       title: "Angle Types Flip Fluency",
       kind: "Flip cards",
       url: "/flip-cards/Geometry/angles.html",
+      ideas: ["protractor"],
       note: "Flip-card fluency on acute, obtuse, reflex and right angles.",
       tags: ["flip cards", "angle types", "fluency", "classifying"]
     }
@@ -243,6 +269,7 @@ window.MMT_TOOL_LINKS = {
       title: "Halve and Halve Again",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-3/number/halve-and-halve-again/",
+      ideas: ["divide-1-digit"],
       note: "A bar model cut in half, and in half again. The amount swells and pops into two equal halves that fall into place; halving twice is \u00f7 4 and three times is \u00f7 8, and the last press lifts one part out to become the answer. A halving ladder records each step and the check doubles back up it.",
       tags: ["division", "halving", "halve", "doubling", "bar model", "tape diagram", "part whole", "equal parts", "halves quarters eighths", "mental strategies", "partitioning", "fraction of an amount", "inverse", "multiplication", "visual", "whole-class teaching"]
     },
@@ -250,6 +277,7 @@ window.MMT_TOOL_LINKS = {
       title: "Division by Grouping \u2014 Bubbles",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-3/number/division-grouping-bubbles/",
+      ideas: ["divide-1-digit"],
       note: "Share a number into 2\u20136 equal bubbles a chunk at a time. The chunk flies to the first group then copies to every other one, a running tally counts up as each lands, and the chunks add to the quotient.",
       tags: ["division", "sharing", "equal groups", "partial quotients", "chunking", "repeated subtraction", "remainder", "partitioning", "visual", "whole-class teaching", "inverse", "multiplication"]
     },
@@ -257,6 +285,7 @@ window.MMT_TOOL_LINKS = {
       title: "Division by Grouping \u2014 Worksheet Creator",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-3/number/division-grouping.html",
+      ideas: ["divide-1-digit"],
       note: "Printable A4 with the bubbles drawn on the page: finish a started round, share it out, the partial-quotient table alone, remainders, and word problems. Trilingual, with an answer key that shows the rounds.",
       tags: ["worksheet generator", "printable", "division", "sharing", "equal groups", "partial quotients", "chunking", "remainder", "short division", "answer key", "trilingual", "eald"]
     },
@@ -264,6 +293,7 @@ window.MMT_TOOL_LINKS = {
       title: "Division by Grouping \u2014 Student Quiz",
       kind: "Student quiz",
       url: "/online-quizzes/stage-3/number/division-grouping.html",
+      ideas: ["divide-1-digit"],
       note: "Sweet to Spicy, where the level is how much of the teaching tool the student keeps \u2014 Sweet hands over the whole thing, Spicy takes the bubbles away. Saves to the student dashboard.",
       tags: ["quiz", "division", "sharing", "equal groups", "partial quotients", "chunking", "remainder", "inverse", "word problems", "sweet mild medium spicy", "student code login", "teacher dashboard", "achievements"]
     },
@@ -271,6 +301,7 @@ window.MMT_TOOL_LINKS = {
       title: "Factor Circles — Teacher Explore",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-4/number/factor-circles/",
+      ideas: ["products-factors"],
       note: "Arrange dots in a circle to reveal factor pairs and groupings.",
       tags: ["factors", "multiples", "factor pairs", "arrays", "visual"]
     },
@@ -278,6 +309,7 @@ window.MMT_TOOL_LINKS = {
       title: "Times Table Chart — Area, Product, Division, Fractions",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-3/number/timestable-chart/",
+      ideas: ["products-factors"],
       note: "One chart, four lenses: array area, product, division and fraction of an amount.",
       tags: ["times tables", "arrays", "multiplication", "division", "factors", "visual"]
     },
@@ -285,6 +317,7 @@ window.MMT_TOOL_LINKS = {
       title: "Products & Factors — Escape the Factor Circle Room",
       kind: "Student quiz",
       url: "/online-quizzes/stage-4/number/factor-circles.html",
+      ideas: ["products-factors"],
       note: "Escape-room styled quiz on products and factors. Saves to the student dashboard.",
       tags: ["quiz", "factors", "products", "escape room", "gamified"]
     },
@@ -292,6 +325,7 @@ window.MMT_TOOL_LINKS = {
       title: "Factoring for Multiplication",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-3/number/multiplicative-strategies/",
+      ideas: ["multiply-2-digit"],
       note: "Generates worksheets on factorising to make multiplication easier.",
       tags: ["worksheet generator", "printable", "factors", "multiplicative strategies"]
     },
@@ -299,6 +333,7 @@ window.MMT_TOOL_LINKS = {
       title: "Factors Worksheet Creator",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-4/number/factor-circles.html",
+      ideas: ["products-factors"],
       note: "Generates printable factor worksheets.",
       tags: ["worksheet generator", "printable", "factors"]
     },
@@ -306,6 +341,7 @@ window.MMT_TOOL_LINKS = {
       title: "Closest to 100",
       kind: "Game",
       url: "/games/closest-to-100.html",
+      ideas: ["products-factors"],
       note: "Roll two dice, state the product, then draw the matching array on a hundred grid. Closest to 100 wins.",
       tags: ["game", "dice", "arrays", "multiplication", "area", "two player"]
     },
@@ -313,6 +349,7 @@ window.MMT_TOOL_LINKS = {
       title: "Dots and Boxes (Multiples mode)",
       kind: "Game",
       url: "/games/dots-and-boxes.html",
+      ideas: ["products-factors"],
       note: "Roll a product, then claim an edge touching a matching multiple. Classic mode also available.",
       tags: ["game", "multiples", "products", "times tables", "strategy", "two player"]
     },
@@ -320,6 +357,7 @@ window.MMT_TOOL_LINKS = {
       title: "Math Memory — Multiplication",
       kind: "Game",
       url: "/games/Maths%20Memory/",
+      ideas: ["products-factors"],
       note: "Memory game matching multiplication facts.",
       tags: ["game", "memory", "multiplication", "fluency", "matching"]
     }
@@ -328,6 +366,7 @@ window.MMT_TOOL_LINKS = {
       title: "Division with a Ratio Table",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-3/number/ratio-table-division/",
+      ideas: ["whole-numbers"],
       note: "A ratio table built from known products. Every row is entered as a pair \u2014 the groups, then the total \u2014 and when a row lands on the number being divided, its left column is the answer.",
       tags: ["division", "ratio table", "known products", "proportional reasoning", "multiplicative thinking", "partial quotients", "doubling", "halving", "missing factor", "inverse", "multiplication", "two-digit divisor", "visual", "whole-class teaching"]
     }
@@ -336,8 +375,33 @@ window.MMT_TOOL_LINKS = {
       title: "Division with a Ratio Table \u2014 Worksheet Creator",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-3/number/ratio-table-division.html",
+      ideas: ["whole-numbers"],
       note: "Printable A4 ratio tables: finish one already begun, build one from a single given row, plot the rows on a grid, and word problems that ask how many groups fit. Trilingual, with an answer key that shows a route through the table.",
       tags: ["worksheet generator", "printable", "division", "ratio table", "known products", "proportional reasoning", "multiplicative thinking", "doubling", "halving", "missing factor", "two-digit divisor", "answer key", "trilingual"]
+    },
+    {
+      title: "Place Value: Multiply & Divide by 10",
+      kind: "Teacher tool",
+      url: "/interactive-tools/stage-3/number/multiply-divide-by-ten/",
+      ideas: ["powers-of-10"],
+      note: "The digits travel between place-value columns while the decimal point stays pinned — multiplying and dividing decimals by 10, 100 and 1000.",
+      tags: ["place value", "multiply by 10", "divide by 10", "powers of 10", "decimals"]
+    },
+    {
+      title: "Multiplying and Dividing by 10 — Student Quiz",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-3/number/multiply-divide-by-ten.html",
+      ideas: ["powers-of-10"],
+      note: "Sweet to Spicy. The level decides how much of the place value board the student keeps. Saves to the student dashboard.",
+      tags: ["quiz", "place value", "powers of 10", "decimals"]
+    },
+    {
+      title: "Multiply & Divide by Powers of 10",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-3/number/multiply-divide-by-ten.html",
+      ideas: ["powers-of-10"],
+      note: "Generates a printable worksheet with answers.",
+      tags: ["worksheet generator", "printable", "powers of 10", "decimals"]
     }
   ],
 
@@ -346,6 +410,7 @@ window.MMT_TOOL_LINKS = {
       title: "Order of Operations \u2014 Say What You See",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-4/number/order-of-operations-in-words/",
+      ideas: ["brackets-order"],
       note: "Order of operations without an acronym: 3 \u00d7 5 is \u201c3 groups of 5\u201d and 10 \u00f7 2 is \u201chalf of 10\u201d, each one amount found before the amounts are joined or taken away. Picture, words and symbols in step, with the lesson\u2019s examples built in.",
       tags: ["order of operations", "number sentences", "brackets", "groups of", "half of", "BODMAS", "misconceptions", "language of mathematics", "visual", "whole-class teaching"]
     },
@@ -353,6 +418,7 @@ window.MMT_TOOL_LINKS = {
       title: "Division by Grouping \u2014 Bubbles",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-3/number/division-grouping-bubbles/",
+      ideas: ["equivalent-sentences"],
       note: "Finishes every question with both number sentences \u2014 84 \u00f7 6 = 14 and 6 \u00d7 14 = 84 \u2014 so division and multiplication are read as the same fact.",
       tags: ["number sentences", "division", "multiplication", "inverse", "equal groups", "partial quotients", "remainder", "visual", "whole-class teaching"]
     },
@@ -360,6 +426,7 @@ window.MMT_TOOL_LINKS = {
       title: "Order of Operations \u2014 Worksheet Creator",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-4/number/order-of-operations-in-words.html",
+      ideas: ["brackets-order"],
       note: "Printable A4 sheets with the tool\u2019s own tile pictures: see it, say it in words, write the number sentence, draw the tiles, work it out, and decide who read it right. Spacious large-print layout for younger students, colour or black and white, answer key.",
       tags: ["worksheet generator", "printable", "order of operations", "groups of", "half of", "number sentences", "language of mathematics", "visual", "answer key"]
     }
@@ -368,6 +435,7 @@ window.MMT_TOOL_LINKS = {
       title: "Division by Grouping \u2014 Worksheet Creator",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-3/number/division-grouping.html",
+      ideas: ["equivalent-sentences"],
       note: "Every question ends with the inverse check \u2014 6 \u00d7 ___ = 84 \u2014 so a division sentence and its multiplication are written side by side.",
       tags: ["worksheet generator", "printable", "number sentences", "division", "multiplication", "inverse", "equal groups", "partial quotients", "answer key"]
     }
@@ -376,6 +444,7 @@ window.MMT_TOOL_LINKS = {
       title: "Division by Grouping \u2014 Student Quiz",
       kind: "Student quiz",
       url: "/online-quizzes/stage-3/number/division-grouping.html",
+      ideas: ["equivalent-sentences"],
       note: "A whole section of questions is the missing factor \u2014 6 \u00d7 ? = 84 \u2014 so a division sentence and its multiplication are answered as the same fact.",
       tags: ["quiz", "number sentences", "division", "multiplication", "inverse", "missing factor", "equal groups", "remainder", "student code login", "teacher dashboard"]
     }
@@ -384,6 +453,7 @@ window.MMT_TOOL_LINKS = {
       title: "Division with a Ratio Table",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-3/number/ratio-table-division/",
+      ideas: ["equivalent-sentences"],
       note: "Finishes every question with both number sentences \u2014 18 \u00d7 15 = 270 and 270 \u00f7 15 = 18 \u2014 because the table is asking how many groups, which is the missing factor.",
       tags: ["number sentences", "division", "multiplication", "inverse", "missing factor", "ratio table", "known products", "patterns", "visual", "whole-class teaching"]
     }
@@ -392,6 +462,7 @@ window.MMT_TOOL_LINKS = {
       title: "Division with a Ratio Table \u2014 Worksheet Creator",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-3/number/ratio-table-division.html",
+      ideas: ["equivalent-sentences"],
       note: "Every question can end with the check sentence \u005f\u005f\u005f \u00d7 15 = 270, so the division on the page and its multiplication are written side by side.",
       tags: ["worksheet generator", "printable", "number sentences", "division", "multiplication", "inverse", "missing factor", "ratio table", "answer key", "trilingual"]
     }
@@ -400,6 +471,7 @@ window.MMT_TOOL_LINKS = {
       title: "Halve and Halve Again",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-3/number/halve-and-halve-again/",
+      ideas: ["equivalent-sentences"],
       note: "Finishes every question with the inverse written out \u2014 4 \u00d7 24 = 96 \u2014 and checks it by doubling back up the same ladder the halving came down.",
       tags: ["number sentences", "division", "multiplication", "inverse", "halving", "doubling", "equal parts", "bar model", "visual", "whole-class teaching"]
     }
@@ -411,6 +483,7 @@ window.MMT_TOOL_LINKS = {
       title: "Unit Conversion \u2014 Double Number Line",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-4/measurement-space/unit-conversion-number-line/",
+      ideas: ["convert-mass", "decimal-metric"],
       note: "Metric mass conversions on a double number line \u2014 kg and g \u2014 built from the 1 : 1000 anchor rather than a rule about zeros.",
       tags: ["unit conversion", "metric", "double number line", "proportional reasoning", "scaling", "measurement", "mass", "kg", "g", "tonnes"]
     },
@@ -418,6 +491,7 @@ window.MMT_TOOL_LINKS = {
       title: "Converting Units of Measurement",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-4/measurement-space/unit-conversion.html",
+      ideas: ["convert-mass", "decimal-metric"],
       note: "Mass conversions on and off the number line, four levels, Stage 3 setting for kg and g. Trilingual, with an answer key.",
       tags: ["unit conversion", "metric", "double number line", "proportional reasoning", "scaling", "measurement", "mass", "kg", "g", "tonnes", "worksheet generator", "printable", "trilingual"]
     },
@@ -428,6 +502,7 @@ window.MMT_TOOL_LINKS = {
       title: "Math Memory — Clocks",
       kind: "Game",
       url: "/games/Maths%20Memory/",
+      ideas: ["12-24-hour"],
       note: "Memory game matching analogue clocks to digital times.",
       tags: ["game", "memory", "time", "analogue", "digital", "matching"]
     }
@@ -438,6 +513,7 @@ window.MMT_TOOL_LINKS = {
       title: "Place Value: Multiply & Divide by 10",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-3/number/multiply-divide-by-ten/",
+      ideas: ["partition-billion"],
       note: "The digits travel between place-value columns while the decimal point stays pinned. ×100 and ×1000 play as separate hops of ten.",
       tags: ["place value", "powers of 10", "decimals", "multiply", "divide"]
     },
@@ -445,6 +521,7 @@ window.MMT_TOOL_LINKS = {
       title: "Whole Number Zoom Rounding",
       kind: "Student quiz",
       url: "/online-quizzes/stage-3/number/whole-number-zoom.html",
+      ideas: ["millions"],
       note: "Zoomable number line for rounding whole numbers. Saves to the student dashboard.",
       tags: ["rounding", "number line", "place value", "quiz"]
     },
@@ -452,6 +529,7 @@ window.MMT_TOOL_LINKS = {
       title: "Multiply & Divide by Powers of 10",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-3/number/multiply-divide-by-ten.html",
+      ideas: ["partition-billion"],
       note: "Generates a printable worksheet with answers.",
       tags: ["worksheet generator", "printable", "powers of 10"]
     },
@@ -459,6 +537,7 @@ window.MMT_TOOL_LINKS = {
       title: "Divide by 10",
       kind: "Flip cards",
       url: "/flip-cards/divide-by-tens.html",
+      ideas: ["partition-billion"],
       note: "Quick flip-card fluency on dividing by 10.",
       tags: ["flip cards", "fluency", "division", "place value"]
     },
@@ -466,6 +545,7 @@ window.MMT_TOOL_LINKS = {
       title: "Multiplying and Dividing by 10 — Student Quiz",
       kind: "Student quiz",
       url: "/online-quizzes/stage-3/number/multiply-divide-by-ten.html",
+      ideas: ["partition-billion"],
       note: "Sweet to Spicy. The level decides how much of the place value board the student keeps. Saves to the student dashboard.",
       tags: ["quiz", "place value", "powers of 10", "decimals"]
     },
@@ -473,6 +553,7 @@ window.MMT_TOOL_LINKS = {
       title: "Multiply & Divide by 10 — Class Flash Cards",
       kind: "Flash cards",
       url: "/interactive-tools/stage-3/number/multiply-divide-by-ten/flash-cards.html",
+      ideas: ["partition-billion"],
       note: "Whole-class projected flash card round.",
       tags: ["flash cards", "fluency", "place value", "whole class"]
     },
@@ -480,6 +561,7 @@ window.MMT_TOOL_LINKS = {
       title: "Multiply & Divide by 10 — Student Practice",
       kind: "Flash cards",
       url: "/interactive-tools/stage-3/number/multiply-divide-by-ten/student-flash.html",
+      ideas: ["partition-billion"],
       note: "Self-paced student version of the flash cards.",
       tags: ["flash cards", "fluency", "independent practice"]
     },
@@ -487,6 +569,7 @@ window.MMT_TOOL_LINKS = {
       title: "The Nasty Game",
       kind: "Game",
       url: "/games/nasty-game.html",
+      ideas: ["millions"],
       note: "Roll a digit and place it in your own place value squares, or in an opponent's. Largest, smallest or closest-to-the-average totals win; 3–6 places, decimals, vs computer, pass and play, or online as a class.",
       tags: ["game", "place value", "dice", "digits", "decimals", "multiplayer"]
     }
@@ -497,6 +580,7 @@ window.MMT_TOOL_LINKS = {
       title: "Math Memory — Fractions & Decimals",
       kind: "Game",
       url: "/games/Maths%20Memory/",
+      ideas: ["benchmark"],
       note: "Memory game matching each fraction to its decimal form. Pass-and-play or online.",
       tags: ["game", "memory", "equivalence", "fractions", "decimals", "matching"]
     }
@@ -507,6 +591,7 @@ window.MMT_TOOL_LINKS = {
       title: "Fraction Hex Path",
       kind: "Game",
       url: "/games/fractional-hex.html",
+      ideas: ["related-denominators"],
       note: "Simplify a fraction to claim a hex; build an unbroken path across the board.",
       tags: ["game", "simplifying fractions", "equivalence", "strategy", "two player"]
     }
@@ -517,6 +602,7 @@ window.MMT_TOOL_LINKS = {
       title: "Times Table Chart — Fractions of an Amount",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-4/number/fraction-of-amount/",
+      ideas: ["fraction-of-quantity"],
       note: "Uses the times-table grid to find a fraction of an amount.",
       tags: ["fraction of an amount", "times tables", "visual", "arrays"]
     },
@@ -524,6 +610,7 @@ window.MMT_TOOL_LINKS = {
       title: "Calculating Fractions of Amounts",
       kind: "Student quiz",
       url: "/online-quizzes/stage-4/number/fraction-of-amount.html",
+      ideas: ["fraction-of-quantity"],
       note: "Saves to the student dashboard.",
       tags: ["quiz", "fraction of an amount"]
     },
@@ -531,6 +618,7 @@ window.MMT_TOOL_LINKS = {
       title: "Calculating Fractions of Amounts",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-4/number/fraction-of-amount.html",
+      ideas: ["fraction-of-quantity"],
       note: "Generates printable questions with answers.",
       tags: ["worksheet generator", "printable", "fraction of an amount"]
     }
@@ -541,6 +629,7 @@ window.MMT_TOOL_LINKS = {
       title: "Collecting Like Terms",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-4/algebra/collecting-like-terms/",
+      ideas: ["laws-properties"],
       note: "Group and combine like terms with visual term tiles.",
       tags: ["algebra", "like terms", "simplifying", "coefficients", "visual"]
     },
@@ -548,6 +637,7 @@ window.MMT_TOOL_LINKS = {
       title: "Number Pattern (Coefficient Groups)",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-4/algebra/number-groups/",
+      ideas: ["laws-properties"],
       note: "Set how many terms and the total of the coefficients, then reveal and combine.",
       tags: ["algebra", "like terms", "coefficients", "generalising", "patterns"]
     },
@@ -555,6 +645,7 @@ window.MMT_TOOL_LINKS = {
       title: "Substitution in Algebra",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-4/algebra/substitution/",
+      ideas: ["expressions-substitution"],
       note: "Substitute values into expressions and watch each step evaluate.",
       tags: ["algebra", "substitution", "evaluating", "expressions"]
     },
@@ -562,6 +653,7 @@ window.MMT_TOOL_LINKS = {
       title: "Collecting Like Terms — ELPSA Lesson Plan",
       kind: "Lesson plan",
       url: "/interactive-tools/stage-4/algebra/collecting-like-terms/lesson-plan.html",
+      ideas: ["laws-properties"],
       note: "Full ELPSA sequence for the like-terms tool.",
       tags: ["lesson plan", "ELPSA", "algebra", "planning"]
     },
@@ -569,6 +661,7 @@ window.MMT_TOOL_LINKS = {
       title: "Number Pattern — ELPSA Lesson Plan",
       kind: "Lesson plan",
       url: "/interactive-tools/stage-4/algebra/number-groups/lesson-plan.html",
+      ideas: ["laws-properties"],
       note: "Full ELPSA sequence for the coefficient-groups tool.",
       tags: ["lesson plan", "ELPSA", "algebra", "planning"]
     },
@@ -576,6 +669,7 @@ window.MMT_TOOL_LINKS = {
       title: "Substitution in Algebra — ELPSA Lesson Plan",
       kind: "Lesson plan",
       url: "/interactive-tools/stage-4/algebra/substitution/lesson-plan.html",
+      ideas: ["expressions-substitution"],
       note: "Full ELPSA sequence for the substitution tool.",
       tags: ["lesson plan", "ELPSA", "algebra", "planning"]
     },
@@ -583,6 +677,7 @@ window.MMT_TOOL_LINKS = {
       title: "Algebraic Techniques",
       kind: "Student quiz",
       url: "/online-quizzes/stage-4/algebra/algebraic-techniques.html",
+      ideas: ["laws-properties", "distributive", "factorise"],
       note: "Covers simplifying, expanding and factorising. Sub-topic quiz links can be built from this page.",
       tags: ["quiz", "algebra", "simplifying", "expanding", "factorising", "subset builder"]
     },
@@ -590,6 +685,7 @@ window.MMT_TOOL_LINKS = {
       title: "Collecting Like Terms",
       kind: "Student quiz",
       url: "/online-quizzes/stage-4/algebra/collecting-like-terms.html",
+      ideas: ["laws-properties"],
       note: "Saves to the student dashboard.",
       tags: ["quiz", "algebra", "like terms", "simplifying"]
     },
@@ -597,6 +693,7 @@ window.MMT_TOOL_LINKS = {
       title: "Number Groups",
       kind: "Student quiz",
       url: "/online-quizzes/stage-4/algebra/number-groups.html",
+      ideas: ["laws-properties"],
       note: "Saves to the student dashboard.",
       tags: ["quiz", "algebra", "like terms", "coefficients"]
     },
@@ -604,6 +701,7 @@ window.MMT_TOOL_LINKS = {
       title: "Substitution in Algebra",
       kind: "Student quiz",
       url: "/online-quizzes/stage-4/algebra/substitution.html",
+      ideas: ["expressions-substitution"],
       note: "Saves to the student dashboard.",
       tags: ["quiz", "algebra", "substitution", "evaluating"]
     },
@@ -611,6 +709,7 @@ window.MMT_TOOL_LINKS = {
       title: "Algebraic Techniques",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-4/algebra/algebraic-techniques/",
+      ideas: ["laws-properties", "distributive", "factorise"],
       note: "Generates printable algebra worksheets with answers.",
       tags: ["worksheet generator", "printable", "algebra", "simplifying", "expanding"]
     },
@@ -618,6 +717,7 @@ window.MMT_TOOL_LINKS = {
       title: "Collecting Like Terms",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-4/algebra/collecting-like-terms.html",
+      ideas: ["laws-properties"],
       note: "Generates printable like-terms worksheets.",
       tags: ["worksheet generator", "printable", "like terms"]
     },
@@ -625,6 +725,7 @@ window.MMT_TOOL_LINKS = {
       title: "Collecting Like Terms (Number Groups)",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-4/algebra/number-groups.html",
+      ideas: ["laws-properties"],
       note: "Coefficient-group variant of the like-terms worksheet creator.",
       tags: ["worksheet generator", "printable", "like terms", "coefficients"]
     },
@@ -632,6 +733,7 @@ window.MMT_TOOL_LINKS = {
       title: "Substitution in Algebra",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-4/algebra/substitution.html",
+      ideas: ["expressions-substitution"],
       note: "Generates printable substitution worksheets.",
       tags: ["worksheet generator", "printable", "substitution"]
     },
@@ -639,6 +741,7 @@ window.MMT_TOOL_LINKS = {
       title: "Translate Words to Algebra",
       kind: "Flip cards",
       url: "/flip-cards/algebra-to-words.html",
+      ideas: ["expressions-substitution"],
       note: "Flip-card fluency converting worded phrases into algebraic expressions.",
       tags: ["flip cards", "fluency", "algebra", "worded problems", "translating"]
     }
@@ -649,6 +752,7 @@ window.MMT_TOOL_LINKS = {
       title: "Angle Relationships on Parallel Lines",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-4/measurement-space/angles-parallel-lines/",
+      ideas: ["transversals"],
       note: "Drag a transversal across parallel lines and watch co-interior, alternate and corresponding angles update.",
       tags: ["angles", "parallel lines", "transversal", "corresponding", "alternate", "co-interior"]
     },
@@ -656,6 +760,7 @@ window.MMT_TOOL_LINKS = {
       title: "Protractor Angle Explorer",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-4/measurement-space/reading-a-protractor/",
+      ideas: ["language-notation"],
       note: "Drag a protractor onto an angle and read the scale, inner and outer.",
       tags: ["protractor", "measuring angles", "angle types"]
     },
@@ -663,6 +768,7 @@ window.MMT_TOOL_LINKS = {
       title: "Angle Relationships",
       kind: "Student quiz",
       url: "/online-quizzes/stage-4/measurement-space/angle-relationships.html",
+      ideas: ["angles-at-a-point", "transversals", "reasoning"],
       note: "Sub-topic quiz links can be built from this page.",
       tags: ["quiz", "angles", "parallel lines", "transversal", "subset builder"]
     },
@@ -670,6 +776,7 @@ window.MMT_TOOL_LINKS = {
       title: "Reading a Protractor",
       kind: "Student quiz",
       url: "/online-quizzes/stage-4/measurement-space/reading-a-protractor.html",
+      ideas: ["language-notation"],
       note: "Saves to the student dashboard.",
       tags: ["quiz", "protractor", "measuring angles"]
     },
@@ -677,6 +784,7 @@ window.MMT_TOOL_LINKS = {
       title: "Angle Relationships",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-4/measurement-space/angle-relationships/",
+      ideas: ["angles-at-a-point", "transversals", "reasoning"],
       note: "Generates printable angle-relationship worksheets with diagrams.",
       tags: ["worksheet generator", "printable", "angles", "parallel lines"]
     },
@@ -684,6 +792,7 @@ window.MMT_TOOL_LINKS = {
       title: "Angle Relationships",
       kind: "Flip cards",
       url: "/flip-cards/Angles-parallel-lines/",
+      ideas: ["transversals"],
       note: "Flip-card fluency on angle relationships formed by parallel lines.",
       tags: ["flip cards", "fluency", "angles", "parallel lines", "transversal"]
     },
@@ -691,6 +800,7 @@ window.MMT_TOOL_LINKS = {
       title: "Angle Types Flip Fluency",
       kind: "Flip cards",
       url: "/flip-cards/Geometry/angles.html",
+      ideas: ["language-notation"],
       note: "Flip-card fluency on acute, obtuse, reflex and right angles.",
       tags: ["flip cards", "fluency", "angle types", "classifying"]
     }
@@ -701,6 +811,7 @@ window.MMT_TOOL_LINKS = {
       title: "Area Model Splitter",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-4/measurement-space/perimeter-area-rectangle/",
+      ideas: ["rectangles-triangles-parallelograms"],
       note: "Split and rearrange a rectangle to build area reasoning and composite area.",
       tags: ["area", "rectangles", "area model", "composite area", "partitioning"]
     },
@@ -708,6 +819,7 @@ window.MMT_TOOL_LINKS = {
       title: "Area of a Triangle — Half the Rectangle",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-4/measurement-space/area-of-a-triangle/",
+      ideas: ["rectangles-triangles-parallelograms"],
       note: "Shows a triangle as half its enclosing rectangle, draggable.",
       tags: ["area", "triangles", "rectangles", "derivation", "visual"]
     },
@@ -715,6 +827,7 @@ window.MMT_TOOL_LINKS = {
       title: "Area Model",
       kind: "Student quiz",
       url: "/online-quizzes/stage-4/measurement-space/area-model.html",
+      ideas: ["rectangles-triangles-parallelograms"],
       note: "Saves to the student dashboard.",
       tags: ["quiz", "area", "area model", "composite area"]
     },
@@ -722,6 +835,7 @@ window.MMT_TOOL_LINKS = {
       title: "Area of a Triangle",
       kind: "Student quiz",
       url: "/online-quizzes/stage-4/measurement-space/area-of-a-triangle.html",
+      ideas: ["rectangles-triangles-parallelograms"],
       note: "Saves to the student dashboard.",
       tags: ["quiz", "area", "triangles"]
     },
@@ -729,6 +843,7 @@ window.MMT_TOOL_LINKS = {
       title: "Triangles — Area Worksheet Maker",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-4/measurement-space/area-of-a-triangle.html",
+      ideas: ["rectangles-triangles-parallelograms"],
       note: "Generates printable triangle-area worksheets.",
       tags: ["worksheet generator", "printable", "area", "triangles"]
     },
@@ -736,6 +851,7 @@ window.MMT_TOOL_LINKS = {
       title: "Shikaku",
       kind: "Game",
       url: "/games/shikaku.html",
+      ideas: ["rectangles-triangles-parallelograms"],
       note: "Divide the grid into rectangles whose areas match the clue numbers.",
       tags: ["game", "puzzle", "area", "rectangles", "factors", "logic"]
     }
@@ -746,6 +862,7 @@ window.MMT_TOOL_LINKS = {
       title: "Equations — Double Number Line",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-4/algebra/double-numberline/",
+      ideas: ["two-steps"],
       note: "Solve one- and two-step equations on a double number line, keeping both sides balanced.",
       tags: ["equations", "double number line", "solving", "inverse operations", "balance"]
     },
@@ -753,6 +870,7 @@ window.MMT_TOOL_LINKS = {
       title: "Double Number Line Equations — ELPSA Lesson Plan",
       kind: "Lesson plan",
       url: "/interactive-tools/stage-4/algebra/double-numberline/lesson-plan.html",
+      ideas: ["two-steps"],
       note: "Full ELPSA sequence for the double number line tool.",
       tags: ["lesson plan", "ELPSA", "equations", "planning"]
     },
@@ -760,6 +878,7 @@ window.MMT_TOOL_LINKS = {
       title: "Addition & Subtraction Equations",
       kind: "Student quiz",
       url: "/online-quizzes/stage-4/algebra/double-numberline/student-quiz-add-subtract.html",
+      ideas: ["two-steps"],
       note: "One-step equations, additive. Saves to the student dashboard.",
       tags: ["quiz", "equations", "one step", "addition", "subtraction"]
     },
@@ -767,6 +886,7 @@ window.MMT_TOOL_LINKS = {
       title: "Equations",
       kind: "Student quiz",
       url: "/online-quizzes/stage-4/algebra/equations.html",
+      ideas: ["two-steps", "verify", "quadratic"],
       note: "Sub-topic quiz links can be built from this page.",
       tags: ["quiz", "equations", "solving", "subset builder"]
     },
@@ -774,6 +894,7 @@ window.MMT_TOOL_LINKS = {
       title: "Equations — Double Number Line",
       kind: "Student quiz",
       url: "/online-quizzes/stage-4/algebra/double-numberline/student-quiz.html",
+      ideas: ["two-steps"],
       note: "Saves to the student dashboard.",
       tags: ["quiz", "equations", "double number line"]
     },
@@ -781,6 +902,7 @@ window.MMT_TOOL_LINKS = {
       title: "Multiplication & Division Equations",
       kind: "Student quiz",
       url: "/online-quizzes/stage-4/algebra/double-numberline/student-quiz-mult-div.html",
+      ideas: ["two-steps"],
       note: "One-step equations, multiplicative. Saves to the student dashboard.",
       tags: ["quiz", "equations", "one step", "multiplication", "division"]
     },
@@ -788,6 +910,7 @@ window.MMT_TOOL_LINKS = {
       title: "Equations",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-4/algebra/equations/",
+      ideas: ["two-steps", "verify", "quadratic"],
       note: "Generates printable equation worksheets with answers.",
       tags: ["worksheet generator", "printable", "equations"]
     },
@@ -795,6 +918,7 @@ window.MMT_TOOL_LINKS = {
       title: "One Step Equations",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-4/algebra/double-numberline.html",
+      ideas: ["two-steps"],
       note: "Generates printable one-step equation worksheets.",
       tags: ["worksheet generator", "printable", "equations", "one step"]
     }
@@ -805,6 +929,7 @@ window.MMT_TOOL_LINKS = {
       title: "Decimal Zoom Rounding",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-4/number/rounding-decimals/",
+      ideas: ["round-decimals"],
       note: "Zoom into a number line to see which decimal place a value rounds to.",
       tags: ["rounding", "decimals", "number line", "zoom", "place value"]
     },
@@ -812,6 +937,7 @@ window.MMT_TOOL_LINKS = {
       title: "Fraction Grid to Number Line",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-4/number/fraction-grid-number-line/",
+      ideas: ["fdp-conversions", "equivalence"],
       note: "The hundred flat (or any area grid) is shaded, then its parts lift off and rearrange into the whole journey from 0 to 1 \u2014 so a part-whole count becomes ONE point on a number line. Estimate-first, benchmark ghosts, regroup-and-rename, decimal, percentage and a second fraction to compare.",
       tags: ["fractions", "decimals", "percentages", "number line", "area model", "hundred grid", "MAB", "part-whole", "equivalent fractions", "estimation", "density", "comparing fractions", "recurring"]
     },
@@ -819,6 +945,7 @@ window.MMT_TOOL_LINKS = {
       title: "Fraction Grid to Number Line",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-4/number/fraction-grid-number-line.html",
+      ideas: ["fdp-conversions", "equivalence"],
       note: "Every card carries the area grid AND a number line, so the fraction has to travel between them. Four question kinds \u2014 shade then place the point, place then shade, name it four ways, and compare two \u2014 plus a full-width misconception prompt on each page. The ladder raises the demand on the LINE: matching parts, then tenths, then a different unit, then only 0, \u00bd and 1.",
       tags: ["worksheet", "fractions", "decimals", "percentages", "number line", "area model", "hundred grid", "equivalent fractions", "simplest form", "comparing fractions", "reasoning", "misconceptions"]
     },
@@ -826,6 +953,7 @@ window.MMT_TOOL_LINKS = {
       title: "Fraction Bar + Number Line",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-4/number/fraction-bar-number-line/",
+      ideas: ["equivalence"],
       note: "One fraction shown three ways: part-whole bar, point on a double number line, and as division. Denominators 2-100.",
       tags: ["fractions", "decimals", "number line", "fraction bar", "division", "equivalence", "recurring"]
     },
@@ -833,6 +961,7 @@ window.MMT_TOOL_LINKS = {
       title: "Fraction to Percentage",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-4/number/fraction-to-percentage/",
+      ideas: ["fdp-conversions"],
       note: "Fraction above the line, percentage below. Step-by-step reveals find one part of 100, then count on. Estimate-first predict mode; handles recurring percentages and past 100%.",
       tags: ["fractions", "percentages", "conversion", "number line", "estimation", "recurring", "per cent", "unit fraction"]
     },
@@ -840,6 +969,7 @@ window.MMT_TOOL_LINKS = {
       title: "Adding and Subtracting Fractions",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-4/number/adding-fractions/",
+      ideas: ["add-subtract"],
       note: "Two fraction bars join on a number line, are renamed with a common denominator (equivalents shown under the bar), and the pieces are counted. Predict mode, a misconception step, and subtraction that can pass zero.",
       tags: ["fractions", "adding fractions", "subtracting fractions", "common denominator", "equivalent fractions", "number line", "bar model", "renaming", "negatives"]
     },
@@ -847,6 +977,7 @@ window.MMT_TOOL_LINKS = {
       title: "Multiplying Fractions \u2014 Area Model",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-4/number/multiplying-fractions-area-model/",
+      ideas: ["multiply-divide"],
       note: "One unit square, cut into columns by one fraction and rows by the other. Five reveals: the blank whole, shade the second fraction, take the first fraction of it (the overlap goes darker), name every piece the whole is now cut into, then the answer appears in the middle of the overlap. A Simplify button then slides the pieces into their simplest grouping (and Undo puts them back). An opt-in number line replays the same steps in one dimension, a \"read it the other way\" swap shows commutativity, and decimal / percentage labels plus a tenths tier show why 0.4 \u00d7 0.6 has two decimal places. Deliberately almost no on-screen text \u2014 the talking is the teacher's.",
       tags: ["fractions", "multiplying fractions", "area model", "unit square", "of", "product", "denominators multiply", "numerators multiply", "simplifying", "commutativity", "decimals", "percentages", "hundredths", "estimation", "misconceptions"]
     },
@@ -854,6 +985,7 @@ window.MMT_TOOL_LINKS = {
       title: "Multiplying Fractions \u2014 Area Model",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-4/number/multiplying-fractions.html",
+      ideas: ["multiply-divide"],
       note: "Five lettered sections, each handing the student a different amount of the model: shade a square already cut both ways; finish one where only the second fraction is cut and shaded; read a shaded model backwards and write the multiplication; cut up a blank square yourself; or plain fluency with no model at all. Three models per row, four spice levels, a simplest-form step, an answer key with the models shaded in, and a misconception to argue with at the foot of every page. Trilingual EN / AR / FA \u2014 instructions print bilingually, the maths stays Western.",
       tags: ["worksheet", "fractions", "multiplying fractions", "area model", "unit square", "shading", "of", "denominators multiply", "numerators multiply", "simplifying", "reasoning", "misconceptions", "answer key"]
     },
@@ -861,6 +993,7 @@ window.MMT_TOOL_LINKS = {
       title: "Times Table Chart — Fractions of an Amount",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-4/number/fraction-of-amount/",
+      ideas: ["multiply-divide"],
       note: "Uses the times-table grid to find a fraction of an amount.",
       tags: ["fraction of an amount", "times tables", "visual", "arrays"]
     },
@@ -868,6 +1001,7 @@ window.MMT_TOOL_LINKS = {
       title: "Calculating Fractions of Amounts",
       kind: "Student quiz",
       url: "/online-quizzes/stage-4/number/fraction-of-amount.html",
+      ideas: ["multiply-divide"],
       note: "Saves to the student dashboard.",
       tags: ["quiz", "fraction of an amount"]
     },
@@ -875,6 +1009,7 @@ window.MMT_TOOL_LINKS = {
       title: "Adding and Subtracting Fractions",
       kind: "Student quiz",
       url: "/online-quizzes/stage-4/number/adding-subtracting-fractions.html",
+      ideas: ["add-subtract"],
       note: "Five levels, 15 questions, trilingual EN/AR/FA, with an equation-editor answer box (fraction button). Sweet counts like parts; Mild renames one bar; Medium renames both (all three have back/forward reveal arrows); Spicy drops the model and lets take-aways pass zero; Extra hot uses non-related (coprime) denominators up to 10. Estimate first.",
       tags: ["student quiz", "fractions", "adding fractions", "subtracting fractions", "common denominator", "equivalent fractions", "number line", "estimation", "negatives", "multilingual", "Arabic", "Farsi", "EAL/D"]
     },
@@ -882,6 +1017,7 @@ window.MMT_TOOL_LINKS = {
       title: "Decimal Zoom Rounding",
       kind: "Student quiz",
       url: "/online-quizzes/stage-4/number/decimal-zoom.html",
+      ideas: ["round-decimals"],
       note: "Saves to the student dashboard.",
       tags: ["quiz", "rounding", "decimals", "number line"]
     },
@@ -889,6 +1025,7 @@ window.MMT_TOOL_LINKS = {
       title: "Fraction Thinking Explorer",
       kind: "Student quiz",
       url: "/online-quizzes/stage-4/number/fraction-thinking-explorer.html",
+      ideas: ["equivalence"],
       note: "Open-ended fraction shuffler for exploration rather than assessment.",
       tags: ["quiz", "fractions", "open ended", "exploration", "reasoning"]
     },
@@ -896,6 +1033,7 @@ window.MMT_TOOL_LINKS = {
       title: "Fractions Number Line Quiz",
       kind: "Student quiz",
       url: "/online-quizzes/stage-4/number/fraction-thinking-quest.html",
+      ideas: ["equivalence", "order-fdp"],
       note: "Guided 8-stage progression, trilingual EN/AR/FA, values randomised each attempt.",
       tags: ["quiz", "fractions", "number line", "reasoning", "multilingual", "Arabic", "Farsi", "EAL/D"]
     },
@@ -903,6 +1041,7 @@ window.MMT_TOOL_LINKS = {
       title: "Fractions, Decimals and Percentages",
       kind: "Student quiz",
       url: "/online-quizzes/stage-4/number/fractions-decimals-percentages.html",
+      ideas: ["fdp-conversions", "order-fdp"],
       note: "Converting and comparing across all three forms. Saves to the student dashboard.",
       tags: ["quiz", "fractions", "decimals", "percentages", "conversion"]
     },
@@ -910,6 +1049,7 @@ window.MMT_TOOL_LINKS = {
       title: "Fraction to Percentage",
       kind: "Student quiz",
       url: "/online-quizzes/stage-4/number/fraction-to-percentage.html",
+      ideas: ["fdp-conversions"],
       note: "Four levels, 15 questions. Estimate first, then the whole is partitioned, then one part is named and the student counts on. Spicy drops the model entirely.",
       tags: ["student quiz", "fractions", "percentages", "conversion", "number line", "estimation", "recurring"]
     },
@@ -917,6 +1057,7 @@ window.MMT_TOOL_LINKS = {
       title: "Adding and Subtracting Fractions",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-4/number/adding-subtracting-fractions.html",
+      ideas: ["add-subtract"],
       note: "Prints the tool's bar + number-line model with each question, or plain cards. Same/related/unrelated/Extra-hot (coprime) ladder or mixed spice, past 1 whole, negatives, answer key. Instructions print bilingually in Arabic or Farsi with English beneath.",
       tags: ["worksheet generator", "printable", "fractions", "adding fractions", "subtracting fractions", "common denominator", "number line", "bar model", "scaffolding", "differentiation", "multilingual", "Arabic", "Farsi", "EAL/D"]
     },
@@ -924,6 +1065,7 @@ window.MMT_TOOL_LINKS = {
       title: "Calculating Fractions of Amounts",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-4/number/fraction-of-amount.html",
+      ideas: ["multiply-divide"],
       note: "Generates printable questions with answers.",
       tags: ["worksheet generator", "printable", "fraction of an amount"]
     },
@@ -931,6 +1073,7 @@ window.MMT_TOOL_LINKS = {
       title: "Fractions, Decimals and Percentages",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-4/number/fractions-decimals-percentages.html",
+      ideas: ["fdp-conversions", "order-fdp"],
       note: "Generates printable FDP worksheets with answers.",
       tags: ["worksheet generator", "printable", "fractions", "decimals", "percentages"]
     },
@@ -938,6 +1081,7 @@ window.MMT_TOOL_LINKS = {
       title: "Fraction to Percentage",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-4/number/fraction-to-percentage.html",
+      ideas: ["fdp-conversions"],
       note: "Prints the interactive's number line with the fraction marked, or plain conversion questions. Friendly / Terminating / Recurring, past 100%, and an answer key.",
       tags: ["worksheet generator", "printable", "fractions", "percentages", "conversion", "number line", "recurring"]
     },
@@ -945,6 +1089,7 @@ window.MMT_TOOL_LINKS = {
       title: "Fraction Hex Path",
       kind: "Game",
       url: "/games/fractional-hex.html",
+      ideas: ["equivalence"],
       note: "Simplify a fraction to claim a hex; build an unbroken path across the board.",
       tags: ["game", "simplifying fractions", "equivalence", "strategy", "two player"]
     },
@@ -952,6 +1097,7 @@ window.MMT_TOOL_LINKS = {
       title: "Math Memory — Fractions & Decimals",
       kind: "Game",
       url: "/games/Maths%20Memory/",
+      ideas: ["fdp-conversions"],
       note: "Memory game matching each fraction to its decimal form.",
       tags: ["game", "memory", "equivalence", "fractions", "decimals", "matching"]
     }
@@ -962,6 +1108,7 @@ window.MMT_TOOL_LINKS = {
       title: "Math Memory — Shapes",
       kind: "Game",
       url: "/games/Maths%20Memory/",
+      ideas: ["classify-triangles", "classify-quadrilaterals"],
       note: "Memory game matching shapes with their names or properties.",
       tags: ["game", "memory", "2D shapes", "classifying", "triangles", "quadrilaterals"]
     }
@@ -972,6 +1119,7 @@ window.MMT_TOOL_LINKS = {
       title: "Factor Circles — Teacher Explore",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-4/number/factor-circles/",
+      ideas: ["prime-factors"],
       note: "Arrange dots in a circle to reveal factor pairs and groupings.",
       tags: ["factors", "multiples", "primes", "factor pairs", "arrays", "visual"]
     },
@@ -979,6 +1127,7 @@ window.MMT_TOOL_LINKS = {
       title: "Factor Circles — ELPSA Lesson Plan",
       kind: "Lesson plan",
       url: "/interactive-tools/stage-4/number/factor-circles/lesson-plan.html",
+      ideas: ["prime-factors"],
       note: "Full ELPSA sequence for the factor circles tool.",
       tags: ["lesson plan", "ELPSA", "factors", "planning"]
     },
@@ -986,6 +1135,7 @@ window.MMT_TOOL_LINKS = {
       title: "Products & Factors — Escape the Factor Circle Room",
       kind: "Student quiz",
       url: "/online-quizzes/stage-4/number/factor-circles.html",
+      ideas: ["prime-factors"],
       note: "Escape-room styled quiz on products and factors.",
       tags: ["quiz", "factors", "products", "escape room", "gamified"]
     },
@@ -993,6 +1143,7 @@ window.MMT_TOOL_LINKS = {
       title: "Factors Worksheet Creator",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-4/number/factor-circles.html",
+      ideas: ["prime-factors"],
       note: "Generates printable factor worksheets.",
       tags: ["worksheet generator", "printable", "factors", "primes"]
     },
@@ -1000,6 +1151,7 @@ window.MMT_TOOL_LINKS = {
       title: "Dots and Boxes (Multiples mode)",
       kind: "Game",
       url: "/games/dots-and-boxes.html",
+      ideas: ["prime-factors"],
       note: "Roll a product, then claim an edge touching a matching multiple. Classic mode also available.",
       tags: ["game", "multiples", "products", "times tables", "strategy", "two player"]
     },
@@ -1007,6 +1159,7 @@ window.MMT_TOOL_LINKS = {
       title: "Math Memory — Powers",
       kind: "Game",
       url: "/games/Maths%20Memory/",
+      ideas: ["index-laws"],
       note: "Memory game matching powers with their values.",
       tags: ["game", "memory", "indices", "powers", "squares", "fluency"]
     }
@@ -1017,6 +1170,7 @@ window.MMT_TOOL_LINKS = {
       title: "Order of Operations \u2014 Say What You See",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-4/number/order-of-operations-in-words/",
+      ideas: ["four-operations"],
       note: "No acronym: every expression is read as words and drawn as tiles. 5 + 3 \u00d7 5 is \u201c5 and 3 groups of 5\u201d, 10 \u2212 4 \u00f7 2 is \u201c10 take away half of 4\u201d \u2014 each \u00d7 and \u00f7 names ONE amount, found before the amounts are put together. Integers use green and red tiles with zero pairs, and \u2018the other reading\u2019 shows the picture a left-to-right or bracket-dropping student would get.",
       tags: ["order of operations", "integers", "directed numbers", "BODMAS", "BIDMAS", "PEMDAS", "misconceptions", "groups of", "zero pairs", "brackets", "language of mathematics", "visual", "whole-class teaching"]
     },
@@ -1024,6 +1178,7 @@ window.MMT_TOOL_LINKS = {
       title: "Integer Add/Subtract — Explore",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-4/number/integer-addition/",
+      ideas: ["add-subtract"],
       note: "Open number-line model for adding and subtracting directed numbers.",
       tags: ["integers", "directed numbers", "number line", "addition", "subtraction"]
     },
@@ -1031,6 +1186,7 @@ window.MMT_TOOL_LINKS = {
       title: "Integer Add/Subtract — Vectors (Combined Signs)",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-4/number/integer-combined-signs/",
+      ideas: ["add-subtract"],
       note: "Vector arrows on a number line to unpick combined signs such as 5 − (−3).",
       tags: ["integers", "vectors", "combined signs", "number line", "subtracting a negative"]
     },
@@ -1038,6 +1194,7 @@ window.MMT_TOOL_LINKS = {
       title: "Number Line — Missing Value",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-4/number/negatives-on-the-number-line/",
+      ideas: ["compare-order"],
       note: "Find the missing value on a number line spanning negatives.",
       tags: ["integers", "number line", "negatives", "missing value"]
     },
@@ -1045,6 +1202,7 @@ window.MMT_TOOL_LINKS = {
       title: "Integer Add/Subtract — Vectors — ELPSA Lesson Plan",
       kind: "Lesson plan",
       url: "/interactive-tools/stage-4/number/integer-combined-signs/lesson-plan.html",
+      ideas: ["add-subtract"],
       note: "Full ELPSA sequence for the vectors tool.",
       tags: ["lesson plan", "ELPSA", "integers", "planning"]
     },
@@ -1052,6 +1210,7 @@ window.MMT_TOOL_LINKS = {
       title: "Integer Add/Subtract",
       kind: "Student quiz",
       url: "/online-quizzes/stage-4/number/integer-addition.html",
+      ideas: ["add-subtract"],
       note: "Saves to the student dashboard.",
       tags: ["quiz", "integers", "addition", "subtraction", "number line"]
     },
@@ -1059,6 +1218,7 @@ window.MMT_TOOL_LINKS = {
       title: "Integer Add/Subtract — Combined Signs",
       kind: "Student quiz",
       url: "/online-quizzes/stage-4/number/integer-combined-signs.html",
+      ideas: ["add-subtract"],
       note: "Saves to the student dashboard.",
       tags: ["quiz", "integers", "combined signs", "vectors"]
     },
@@ -1066,6 +1226,7 @@ window.MMT_TOOL_LINKS = {
       title: "Integers — Practice Quiz",
       kind: "Student quiz",
       url: "/online-quizzes/stage-4/number/computation-with-integers.html",
+      ideas: ["add-subtract", "multiply-divide", "four-operations"],
       note: "Four operations with integers. Saves to the student dashboard.",
       tags: ["quiz", "integers", "four operations", "order of operations"]
     },
@@ -1073,6 +1234,7 @@ window.MMT_TOOL_LINKS = {
       title: "Number Line — Missing Value",
       kind: "Student quiz",
       url: "/online-quizzes/stage-4/number/negatives-on-the-number-line.html",
+      ideas: ["compare-order"],
       note: "Saves to the student dashboard.",
       tags: ["quiz", "integers", "number line", "missing value"]
     },
@@ -1080,6 +1242,7 @@ window.MMT_TOOL_LINKS = {
       title: "Order of Operations \u2014 Worksheet Creator",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-4/number/order-of-operations-in-words.html",
+      ideas: ["four-operations"],
       note: "Printable A4 sheets with the tool\u2019s own tile pictures: see it, say it in words, write the number sentence, draw the tiles, work it out, and decide who read it right. Spacious large-print layout for younger students, colour or black and white, answer key.",
       tags: ["worksheet generator", "printable", "order of operations", "groups of", "half of", "number sentences", "language of mathematics", "visual", "answer key"]
     },
@@ -1087,6 +1250,7 @@ window.MMT_TOOL_LINKS = {
       title: "Integers — Worksheet Generator",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-4/number/computation-with-integers/",
+      ideas: ["add-subtract", "multiply-divide", "four-operations"],
       note: "Generates printable integer worksheets with answers.",
       tags: ["worksheet generator", "printable", "integers"]
     },
@@ -1094,6 +1258,7 @@ window.MMT_TOOL_LINKS = {
       title: "Number Line Worksheet Maker",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-4/number/negatives-on-the-number-line.html",
+      ideas: ["compare-order"],
       note: "Generates missing-value number-line worksheets.",
       tags: ["worksheet generator", "printable", "number line", "negatives"]
     },
@@ -1101,6 +1266,7 @@ window.MMT_TOOL_LINKS = {
       title: "Number Line Worksheet Maker — Sweet to Extra Hot",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-4/number/integer-addition.html",
+      ideas: ["add-subtract"],
       note: "Difficulty-scaled number-line worksheets.",
       tags: ["worksheet generator", "printable", "number line", "differentiation"]
     },
@@ -1108,6 +1274,7 @@ window.MMT_TOOL_LINKS = {
       title: "Integer Multiplication",
       kind: "Flip cards",
       url: "/flip-cards/multiply-divide-integers.html",
+      ideas: ["multiply-divide"],
       note: "Flip-card fluency on multiplying and dividing integers.",
       tags: ["flip cards", "fluency", "integers", "multiplication", "division", "sign rules"]
     }
@@ -1118,6 +1285,7 @@ window.MMT_TOOL_LINKS = {
       title: "Circumference of a Circle",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-4/measurement-space/circumference-of-a-circle/",
+      ideas: ["circles"],
       note: "Diameters are wound around the circle one at a time. Three fit, and they do not close it \u2014 the gap left over is then laid on a number line drawn at the circle's own scale, and each press zooms in ten times further, pinning down one more digit and never landing on a mark. A Test a number mode wraps whatever the class calls out (5, 3.1, 3.14, 3.142) and magnifies the join so they can see it fall short or run past.",
       tags: ["circumference", "circle", "diameter", "pi", "constant ratio", "3.14", "number line", "zoom", "recurring decimal", "irrational", "measurement", "whole-class teaching"]
     },
@@ -1125,6 +1293,7 @@ window.MMT_TOOL_LINKS = {
       title: "Perimeter of Plane Shapes",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-4/measurement-space/perimeter-plane-shapes/",
+      ideas: ["perimeter"],
       note: "The trace refuses to walk past an unlabelled side. Click a ? and the side it comes from flies across the figure \u2014 an equal side, the pieces of a longer one, or the room left over. 18 shapes over four groups, with a working pad for keeping track of what has been counted.",
       tags: ["perimeter", "plane shapes", "missing side", "composite figures", "L-shape", "T-shape", "U-shape", "staircase", "cross", "regular polygons", "quadrilaterals", "triangles", "equal sides", "trace", "working pad"]
     },
@@ -1132,6 +1301,7 @@ window.MMT_TOOL_LINKS = {
       title: "Perimeter of Plane Shapes",
       kind: "Student quiz",
       url: "/online-quizzes/stage-4/measurement-space/perimeter-plane-shapes.html",
+      ideas: ["perimeter"],
       note: "Sweet to Spicy, where the level decides how much of the teaching tool the student keeps \u2014 Sweet hands over the whole thing, Spicy is read-only with half the questions asking for a missing side. Saves to the student dashboard.",
       tags: ["quiz", "perimeter", "plane shapes", "missing side", "composite figures", "differentiation", "sweet mild medium spicy", "student dashboard", "working pad"]
     },
@@ -1139,6 +1309,7 @@ window.MMT_TOOL_LINKS = {
       title: "Perimeter of Plane Shapes",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-4/measurement-space/perimeter-plane-shapes.html",
+      ideas: ["perimeter"],
       note: "Five sections in the order the sides come before the adding: find a missing side, perimeter with everything labelled, perimeter with sides missing, work backwards from the perimeter, then short contexts. Every figure to scale; the answer key gives the reason, not just the number. Trilingual.",
       tags: ["worksheet generator", "printable", "perimeter", "plane shapes", "missing side", "work backwards", "composite figures", "equal sides", "answer key", "trilingual"]
     },
@@ -1146,6 +1317,7 @@ window.MMT_TOOL_LINKS = {
       title: "Converting Units of Measurement",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-4/measurement-space/unit-conversion.html",
+      ideas: ["perimeter"],
       note: "Fill a whole number line, then one jump, then bare conversions, comparing and word problems. Stage 3 or Stage 4 unit pairs, four levels. Trilingual, with an answer key.",
       tags: ["unit conversion", "metric", "double number line", "proportional reasoning", "scaling", "measurement", "length", "mass", "capacity", "worksheet generator", "printable", "trilingual"]
     },
@@ -1153,6 +1325,7 @@ window.MMT_TOOL_LINKS = {
       title: "Unit Conversion \u2014 Double Number Line",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-4/measurement-space/unit-conversion-number-line/",
+      ideas: ["perimeter"],
       note: "Metric conversions read off a double number line: the 1 : ratio anchor stays on screen and every value is the same scaling of it. Length, mass and capacity, four difficulty tiers, smooth zoom to each new position.",
       tags: ["unit conversion", "metric", "double number line", "length", "mass", "capacity", "proportional reasoning", "scaling", "km", "m", "cm", "mm", "kg", "g", "L", "mL"]
     },
@@ -1160,6 +1333,7 @@ window.MMT_TOOL_LINKS = {
       title: "Area Model Splitter",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-4/measurement-space/perimeter-area-rectangle/",
+      ideas: ["perimeter"],
       note: "Split and rearrange a rectangle to build perimeter and area reasoning.",
       tags: ["perimeter", "area", "rectangles", "area model", "partitioning"]
     },
@@ -1167,6 +1341,7 @@ window.MMT_TOOL_LINKS = {
       title: "Area and Perimeter — ELPSA Lesson Plan",
       kind: "Lesson plan",
       url: "/interactive-tools/stage-4/measurement-space/perimeter-area-rectangle/lesson-plan.html",
+      ideas: ["perimeter"],
       note: "Full ELPSA sequence for the area model tool.",
       tags: ["lesson plan", "ELPSA", "perimeter", "area", "planning"]
     },
@@ -1174,6 +1349,7 @@ window.MMT_TOOL_LINKS = {
       title: "Rectangles — Area / Perimeter",
       kind: "Student quiz",
       url: "/online-quizzes/stage-4/measurement-space/perimeter-area-rectangle.html",
+      ideas: ["perimeter"],
       note: "Saves to the student dashboard.",
       tags: ["quiz", "perimeter", "area", "rectangles"]
     },
@@ -1181,6 +1357,7 @@ window.MMT_TOOL_LINKS = {
       title: "Rectangles — Area / Perimeter",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-4/measurement-space/perimeter-area-rectangle.html",
+      ideas: ["perimeter"],
       note: "Generates printable perimeter and area worksheets.",
       tags: ["worksheet generator", "printable", "perimeter", "area", "rectangles"]
     },
@@ -1188,6 +1365,7 @@ window.MMT_TOOL_LINKS = {
       title: "Length",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-4/measurement-space/length/",
+      ideas: ["perimeter", "circles"],
       note: "Basic and Expected papers: perimeter of quadrilaterals and composite figures, the parts of a circle, circumference, arc length and sector perimeter. Trilingual, with an answer key.",
       tags: ["worksheet generator", "printable", "perimeter", "circumference", "arc length", "sector", "circle", "quadrilaterals", "composite figures", "pi"]
     }
@@ -1198,6 +1376,7 @@ window.MMT_TOOL_LINKS = {
       title: "Visual Patterns",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-4/algebra/visual-patterns/",
+      ideas: ["plot-linear"],
       note: "57 growing patterns (42 linear, 15 non-linear challenges) revealed one figure at a time: notice and wonder, predict figure 4, go back to figure 0, then 10, 30, 100 and any figure n. Recolour the figures to show different ways of seeing the growth. No tables or rules on screen \u2014 the lead-in to writing a linear rule.",
       tags: ["visual patterns", "growing patterns", "notice and wonder", "predict", "linear relationship", "rule", "generalise", "constant rate of change", "matchsticks", "equivalent expressions"]
     },
@@ -1205,6 +1384,7 @@ window.MMT_TOOL_LINKS = {
       title: "Visual Patterns",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-4/algebra/visual-patterns.html",
+      ideas: ["plot-linear"],
       note: "Printable growing-pattern questions from the teaching tool: describe the change in words, draw figure 4 and figure 0 on dot paper, fill in a table, predict a far figure, work backwards and write the rule. Optional non-linear challenge and an answer key.",
       tags: ["worksheet generator", "printable", "visual patterns", "table of values", "rule", "linear relationship", "predict", "answer key"]
     },
@@ -1212,6 +1392,7 @@ window.MMT_TOOL_LINKS = {
       title: "Counting Strategies for Linear Relationships",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-4/algebra/counting-strategies-linear/",
+      ideas: ["plot-linear"],
       note: "Starts with one instruction — “Start at 5, count up by 3s” — for the class to write as a sequence. Then a Desmos-style table and plane: type the class’s sequence (mistakes and all) into the table, watch the points appear, and type y = 5 + 3x to see the counting is the linear relationship. Also a worded-problem mode (\u201cJimmy started with $25 but spent $2 every hour on lollies\u201d) with 33 stories. Auto-scale axes, a four-quadrant mode (add rows above x = 0 into the negatives), optional jumps in the table and steps on the graph, up to four equations to compare.",
       tags: ["counting on", "skip counting", "sequence", "table of values", "linear relationship", "y = mx + c", "gradient", "y-intercept", "plot points", "cartesian plane", "desmos", "notice and wonder", "rate of change", "misconceptions", "worded problems", "context", "story", "four quadrants", "negative numbers", "graphing straight lines"]
     },
@@ -1219,6 +1400,7 @@ window.MMT_TOOL_LINKS = {
       title: "Counting Strategies for Linear Relationships",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-4/algebra/counting-strategies-linear.html",
+      ideas: ["plot-linear"],
       note: "Printable questions from the teaching tool, each starting from \u201cStart at 5, count up by 3s\u201d: write the sequence, complete a table and plot it, write the equation, work backwards from an equation or graph, spot the mistake in someone else\u2019s table, and use the equation to go further. Counting instructions, worded problems or a mix, in the first quadrant or all four. Section G is graphing fluency: an equation, a table of values and a grid to plot. Sweet to Spicy, with an answer key.",
       tags: ["worksheet generator", "printable", "sequence", "table of values", "plot points", "linear relationship", "equation", "gradient", "y-intercept", "answer key", "graphing straight lines", "four quadrants", "y = mx + c"]
     },
@@ -1226,6 +1408,7 @@ window.MMT_TOOL_LINKS = {
       title: "Counting Strategies \u2014 First Quadrant Student Quiz",
       kind: "Student quiz",
       url: "/online-quizzes/stage-4/algebra/counting-strategies-first-quadrant.html",
+      ideas: ["plot-linear"],
       note: "Sweet to Spicy, stepping up in how the idea is used: skip-counting language, then algebra language, then completing a table and clicking the grid to plot the points, then worded problems, going further and graphing lines from their equations. First quadrant only. Saves to the student dashboard.",
       tags: ["quiz", "linear relationship", "skip counting", "table of values", "plot points", "graphing straight lines", "equation", "worded problems", "first quadrant"]
     },
@@ -1233,6 +1416,7 @@ window.MMT_TOOL_LINKS = {
       title: "Counting Strategies \u2014 All Quadrants Student Quiz",
       kind: "Student quiz",
       url: "/online-quizzes/stage-4/algebra/counting-strategies-all-quadrants.html",
+      ideas: ["plot-linear"],
       note: "The same Sweet to Spicy ladder across all four quadrants: tables and graphs run into negative x and y, counting back as well as on. Saves to the student dashboard.",
       tags: ["quiz", "linear relationship", "table of values", "plot points", "graphing straight lines", "four quadrants", "negative numbers", "equation", "worded problems"]
     },
@@ -1240,6 +1424,7 @@ window.MMT_TOOL_LINKS = {
       title: "Capture the Grid",
       kind: "Game",
       url: "/games/cartesian-capture.html",
+      ideas: ["plot-points"],
       note: "Claim coordinate points to capture territory on the Cartesian plane.",
       tags: ["game", "coordinates", "Cartesian plane", "strategy", "two player"]
     },
@@ -1247,6 +1432,7 @@ window.MMT_TOOL_LINKS = {
       title: "Coordinate Battleships",
       kind: "Game",
       url: "/games/battleships.html",
+      ideas: ["plot-points"],
       note: "Place ships on a coordinate grid and attack by typing ordered pairs.",
       tags: ["game", "coordinates", "ordered pairs", "Cartesian plane", "two player"]
     },
@@ -1254,6 +1440,7 @@ window.MMT_TOOL_LINKS = {
       title: "Coordinate Connect 4",
       kind: "Game",
       url: "/games/cartesian-connect-4.html",
+      ideas: ["plot-points"],
       note: "Connect four by naming coordinate pairs.",
       tags: ["game", "coordinates", "Cartesian plane", "two player"]
     }
@@ -1264,6 +1451,7 @@ window.MMT_TOOL_LINKS = {
       title: "Probability Spinner Simulator",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-5/statistics-probability/financial-expectation-spinner/",
+      ideas: ["chance-experiments"],
       note: "Build a spinner, run trials, compare observed with expected frequency.",
       tags: ["probability", "spinner", "simulation", "expected frequency", "experiment"]
     },
@@ -1271,6 +1459,7 @@ window.MMT_TOOL_LINKS = {
       title: "Greedy Pig",
       kind: "Game",
       url: "/games/greedy-pig.html",
+      ideas: ["chance-experiments"],
       note: "Teacher-led risk and reward dice game — bank before the poison number. Class leaderboard.",
       tags: ["game", "probability", "risk", "expected value", "whole class", "teacher led"]
     },
@@ -1278,6 +1467,7 @@ window.MMT_TOOL_LINKS = {
       title: "Taxed by the King",
       kind: "Game",
       url: "/games/taxed-by-the-king.html",
+      ideas: ["chance-experiments"],
       note: "Teacher-led card probability game — bank before the King takes his tax. Class leaderboard.",
       tags: ["game", "probability", "risk", "cards", "whole class", "teacher led"]
     }
@@ -1288,6 +1478,7 @@ window.MMT_TOOL_LINKS = {
       title: "Pythagoras Theorem — Worksheet Creator",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-4/measurement-space/pythagoras-theorem/",
+      ideas: ["define", "problems"],
       note: "Generates printable Pythagoras worksheets with diagrams.",
       tags: ["worksheet generator", "printable", "Pythagoras", "right-angled triangles"]
     }
@@ -1298,6 +1489,7 @@ window.MMT_TOOL_LINKS = {
       title: "Unit Conversion \u2014 Double Number Line",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-4/measurement-space/unit-conversion-number-line/",
+      ideas: ["ratio-problems"],
       note: "The double number line as a proportional tool: one anchor, and every other pair of values is the same multiplier applied to it. Length, mass and capacity.",
       tags: ["unit conversion", "metric", "double number line", "proportional reasoning", "scaling", "measurement", "ratio", "rates", "length", "mass", "capacity"]
     },
@@ -1305,6 +1497,7 @@ window.MMT_TOOL_LINKS = {
       title: "Converting Units of Measurement",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-4/measurement-space/unit-conversion.html",
+      ideas: ["ratio-problems"],
       note: "Proportional reasoning through metric conversion: fill a number line, one jump, fluency, comparing and word problems. Trilingual, with an answer key.",
       tags: ["unit conversion", "metric", "double number line", "proportional reasoning", "scaling", "measurement", "ratio", "rates", "length", "mass", "capacity", "worksheet generator", "printable", "trilingual"]
     },
@@ -1312,6 +1505,7 @@ window.MMT_TOOL_LINKS = {
       title: "Ratio Splitter",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-4/ratios-rates/divide-a-ratio/",
+      ideas: ["ratio-problems"],
       note: "Divide a quantity in a given ratio, with the parts shown live.",
       tags: ["ratio", "dividing a ratio", "parts", "visual"]
     },
@@ -1319,6 +1513,7 @@ window.MMT_TOOL_LINKS = {
       title: "Stacked Bar Model — Ratio",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-4/ratios-rates/stacked-bar-ratio/",
+      ideas: ["ratio-problems"],
       note: "Two bars, one box per part: share a total, find the rest from one known share, or work from the difference. Demo, Practice and a 15-question Quiz, with the written working beside the model.",
       tags: ["ratio", "bar model", "stacked bar", "dividing a ratio", "sharing in a ratio", "difference", "proportion", "visual", "quiz"]
     },
@@ -1326,6 +1521,7 @@ window.MMT_TOOL_LINKS = {
       title: "Stacked Bar Model \u2014 Ratio \u2014 Worksheet Creator",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-4/ratios-rates/stacked-bar-ratio.html",
+      ideas: ["ratio-problems"],
       note: "The tool's three question types printed with the bars drawn and the given amount bracketed onto the part it measures, then a section where the student draws the bars themselves, then word problems with no picture at all. Optional one-part line, check line and an answer key that shows the reasoning.",
       tags: ["worksheet generator", "printable", "ratio", "bar model", "tape diagram", "sharing in a ratio", "unitary method", "one part", "difference between shares", "draw your own", "answer key"]
     },
@@ -1333,6 +1529,7 @@ window.MMT_TOOL_LINKS = {
       title: "Stacked Bar Model \u2014 Ratio \u2014 Student Quiz",
       kind: "Student quiz",
       url: "/online-quizzes/stage-4/ratios-rates/stacked-bar-ratio.html",
+      ideas: ["ratio-problems"],
       note: "Ten questions that save to the teacher dashboard. Sweet to Medium keep the bar model and ask for what one part is worth before the answer; Spicy takes the model away.",
       tags: ["student quiz", "ratio", "bar model", "sharing in a ratio", "one part", "difference between shares", "saves to dashboard"]
     }
@@ -1341,6 +1538,7 @@ window.MMT_TOOL_LINKS = {
       title: "Division with a Ratio Table",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-3/number/ratio-table-division/",
+      ideas: ["ratio-problems", "simplify-rates"],
       note: "The Stage 3 ratio table with an optional Cartesian plane: every row plots as a point, the points fall on a straight line through the origin, and the answer is where that line meets the target.",
       tags: ["ratio table", "proportional reasoning", "rates", "linear relationship", "straight line", "graphing", "Cartesian plane", "origin", "gradient", "stage 3 to stage 4", "division"]
     }
@@ -1349,6 +1547,7 @@ window.MMT_TOOL_LINKS = {
       title: "Division with a Ratio Table \u2014 Worksheet Creator",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-3/number/ratio-table-division.html",
+      ideas: ["ratio-problems", "simplify-rates"],
       note: "A \u201cplot it\u201d section prints the ratio table beside an empty first-quadrant grid with the target drawn on it, so the table and the straight line through the origin are met as the same six numbers.",
       tags: ["worksheet generator", "printable", "ratio table", "proportional reasoning", "rates", "linear relationship", "graphing", "Cartesian plane", "origin", "stage 3 to stage 4", "answer key", "trilingual"]
     }
@@ -1359,6 +1558,7 @@ window.MMT_TOOL_LINKS = {
       title: "Complete the Square",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-5/algebra/complete-the-square/",
+      ideas: ["binomial-monic"],
       note: "Where (x + p)\u00b2 comes from, as an area: the corner piece that completes the square is b\u00b2/4, seen rather than remembered.",
       tags: ["complete the square", "quadratic", "quadratic equations", "algebra tiles", "area model", "manipulatives", "solving quadratics", "expanding", "factorising", "perfect square", "identity", "stage 5"]
     },
@@ -1366,6 +1566,7 @@ window.MMT_TOOL_LINKS = {
       title: "Complete the Square — Worksheet Creator",
       kind: "Worksheet creator",
       url: "/worksheet-creators/stage-5/algebra/complete-the-square.html",
+      ideas: ["binomial-monic"],
       note: "Printable A4 practice: label the area model, fill the two blanks, then write expressions in completed square form. Exact answers — halves, quarters and surds, never a rounded decimal.",
       tags: ["complete the square", "completing the square", "quadratic", "quadratic equations", "worksheet", "printable", "area model", "algebra tiles", "completed square form", "solving quadratics", "turning point", "minimum", "surds", "exact answers", "answer key", "differentiated", "stage 5"]
     },
@@ -1376,6 +1577,7 @@ window.MMT_TOOL_LINKS = {
       title: "Complete the Square",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-5/algebra/complete-the-square/",
+      ideas: ["monic-quadratic"],
       note: "Solve a monic quadratic by literally building the square: halve the x-term, put the two halves on two sides, and click the gap to complete it. Handles positive and negative b, and makes the second solution its own step.",
       tags: ["complete the square", "quadratic", "quadratic equations", "algebra tiles", "area model", "manipulatives", "solving quadratics", "monic", "roots", "positive and negative b", "second solution", "stage 5"]
     },
@@ -1383,6 +1585,7 @@ window.MMT_TOOL_LINKS = {
       title: "Complete the Square — Worksheet Creator",
       kind: "Worksheet creator",
       url: "/worksheet-creators/stage-5/algebra/complete-the-square.html",
+      ideas: ["monic-quadratic"],
       note: "Printable A4 practice that walks the same scaffold as the teaching tool: label the model, fill the two blanks, completed square form, then solve equations with room to work. Answer key included.",
       tags: ["complete the square", "completing the square", "quadratic", "quadratic equations", "worksheet", "printable", "area model", "algebra tiles", "completed square form", "solving quadratics", "turning point", "minimum", "surds", "exact answers", "answer key", "differentiated", "stage 5"]
     },
@@ -1393,6 +1596,7 @@ window.MMT_TOOL_LINKS = {
       title: "Complete the Square",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-5/algebra/complete-the-square/",
+      ideas: ["quadratic-methods"],
       note: "The tile build for monic quadratics, plus a Prove the formula mode that runs the same eight moves on ax\u00b2 + bx + c = 0 and lands on the quadratic formula.",
       tags: ["complete the square", "quadratic", "quadratic equations", "algebra tiles", "area model", "manipulatives", "solving quadratics", "quadratic formula", "proof", "derivation", "discriminant", "non-monic", "stage 5"]
     },
@@ -1400,6 +1604,7 @@ window.MMT_TOOL_LINKS = {
       title: "Complete the Square — Worksheet Creator",
       kind: "Worksheet creator",
       url: "/worksheet-creators/stage-5/algebra/complete-the-square.html",
+      ideas: ["quadratic-methods"],
       note: "Printable A4 practice, monic or with a ≠ 1, ending in turning points and “show it is always positive”. Surds stay exact and every answer is generated, not looked up.",
       tags: ["complete the square", "completing the square", "quadratic", "quadratic equations", "worksheet", "printable", "area model", "algebra tiles", "completed square form", "solving quadratics", "turning point", "minimum", "surds", "exact answers", "answer key", "differentiated", "stage 5"]
     },
@@ -1420,6 +1625,7 @@ window.MMT_TOOL_LINKS = {
       title: "Probability Spinner Simulator",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-5/statistics-probability/financial-expectation-spinner/",
+      ideas: ["simulations"],
       note: "Build a spinner, run many trials, and compare observed relative frequency with theoretical probability.",
       tags: ["probability", "spinner", "simulation", "relative frequency", "expected value", "experiment"]
     }
