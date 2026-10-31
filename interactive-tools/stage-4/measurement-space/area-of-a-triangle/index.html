@@ -93,7 +93,8 @@
     .card{ background:var(--card); border:1px solid var(--border); border-radius:22px; box-shadow:var(--shadow); min-width:0; }
 
     /* ---------- board ---------- */
-    .boardCard{ display:flex; flex-direction:column; min-height:0; padding:12px 14px 8px; position:relative; }
+    .boardCard{ display:flex; flex-direction:column; min-height:0; padding:12px 14px 8px; position:relative; overflow:hidden; }
+    .boardTop{ position:relative; z-index:2; background:var(--card); }
     .boardTop{ display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
     .modeSwitch{ display:inline-flex; background:#f1f5f9; border:1px solid var(--border); border-radius:15px; padding:4px; gap:4px; flex-wrap:wrap; }
     .modeBtn{ appearance:none; border:none; background:transparent; padding:7px 14px 7px 8px; border-radius:11px; font-weight:900; font-size:.95rem;
@@ -410,16 +411,16 @@
      shape. Three ways to see it, one per mode, each a short story of steps
      (every animation also runs backwards with Back):
      - RECTANGLE (height inside, or on a side): the dotted height, scissors
-       cut the triangle along it, a pale copy of each piece flips over its
-       sloping side, and the halves slide back together into the rectangle. Greyed out for obtuse triangles (height
+       cut the triangle along it, a pale copy of each piece slides over then
+       turns, and the halves slide back together into the rectangle. Greyed out for obtuse triangles (height
        outside): dragging the top past the base switches to Two copies.
-     - TWO COPIES: a copy flipped over the LONGER slanted side
+     - TWO COPIES: a copy slid then turned onto the LONGER slanted side
        makes a parallelogram on the base; chop it at the edge of the base and
        slide the piece across — exactly the base × height rectangle (very long
        leans take more than one chop).
      - SLIDE THE TOP: the top slides along a line parallel to the base to a
-       right angle (same base, same height), then a pale copy flips over the
-       sloping side to complete the rectangle.
+       right angle (same base, same height), then a pale copy slides over and
+       turns to complete the rectangle.
      Green is the triangle we want the area of; faded green is the shape it
      is half of. "½ × base × height" only appears with Settings → Show the
      calculation (off by default), so the class can notice and wonder first. */
@@ -510,15 +511,15 @@
     if(S.mode === "rect"){
       if(w === "edge") return [ first,
         { t:"Mark the sloping side", m:W("a copy of the triangle will fit against it") },
-        { t:"Copy the triangle and flip it over the sloping side", m:`${W("the pale copy completes a")} ${hB(b)} × ${hH(h)} ${W("rectangle — the triangle is half of it")}`, c:finalCalc(), anim:"turn", fin:true } ];
+        { t:"Copy the triangle, slide it over and turn it", m:`${W("the pale copy completes a")} ${hB(b)} × ${hH(h)} ${W("rectangle — the triangle is half of it")}`, c:finalCalc(), anim:"turn", fin:true } ];
       return [ first,
         { t:"Draw the height and cut along it", m:W("two right-angled triangles"), anim:"cut" },
-        { t:"Copy each piece, flip it over and slide back together", m:`${W("the pale copies complete a")} ${hB(b)} × ${hH(h)} ${W("rectangle — the triangle is half of it")}`, c:finalCalc(), anim:"flipjoin", fin:true } ];
+        { t:"Copy each piece, slide it over and turn it", m:`${W("the pale copies complete a")} ${hB(b)} × ${hH(h)} ${W("rectangle — the triangle is half of it")}`, c:finalCalc(), anim:"flipjoin", fin:true } ];
     }
     if(S.mode === "para"){
       const n = cutsAt().length;
       return [ first,
-        { t:"Make a copy and flip it over the longest side", m:W("together they make a parallelogram"), anim:"copy" },
+        { t:"Make a copy, slide it over and turn it", m:W("together they make a parallelogram"), anim:"copy" },
         n ? { t:n === 1 ? "Chop at the edge of the base and slide the piece across" : "Chop at each base length and slide the pieces across",
               m:`${W("now it's a")} ${hB(b)} × ${hH(h)} ${W("rectangle — the triangle is half of it")}`, c:finalCalc(), anim:"chop", fin:true,
               tip:n > 1 ? "It leans a long way, so it takes more than one chop." : "" }
@@ -526,7 +527,7 @@
     }
     return [ first,
       { t:"Slide the top along the dashed line", m:W("same base, same height — now it has a right angle"), anim:"slide" },
-      { t:"Copy it and flip the copy over the sloping side", m:`${W("together they make a")} ${hB(b)} × ${hH(h)} ${W("rectangle — the triangle is half of it")}`, c:finalCalc(), anim:"turn", fin:true } ];
+      { t:"Copy it, slide the copy over and turn it", m:`${W("together they make a")} ${hB(b)} × ${hH(h)} ${W("rectangle — the triangle is half of it")}`, c:finalCalc(), anim:"turn", fin:true } ];
   }
   let STEPS = steps();
 
@@ -539,7 +540,28 @@
     if(S.mode === "slide"){ x0 = -over(); x1 = b + over(); }
     else if(S.mode === "para"){ const d = paraInfo().d; x0 = Math.min(0, d, a); x1 = Math.max(b, d + b, a); }
     else { x0 = Math.min(0, a); x1 = Math.max(b, a); }
-    return { x0, x1, y0:0, y1:h };
+    let y0 = 0, y1 = h;
+    /* room for the copies to slide and turn: the whole motion is sampled, and the board keeps
+       the same scale through every step of the mode (capped, so the triangle stays large) */
+    const mv = copyMotions();
+    if(mv.length){
+      let X0 = x0, X1 = x1, Y0 = 0, Y1 = h;
+      mv.forEach(m => { for(let u = 0; u <= 1.0001; u += .05) flipPoly(m.P, m.e[0], m.e[1], u).forEach(q => {
+        X0 = Math.min(X0, q[0]); X1 = Math.max(X1, q[0]); Y0 = Math.min(Y0, q[1]); Y1 = Math.max(Y1, q[1]); }); });
+      const w0 = x1 - x0, capX = w0 * .22, capY = h * (S.mode === "para" ? .45 : .3);
+      x0 = Math.max(X0, x0 - capX); x1 = Math.min(X1, x1 + capX);
+      y0 = Math.max(Y0, -capY); y1 = Math.min(Y1, h + capY);
+    }
+    return { x0, x1, y0, y1 };
+  }
+  /* every copy that moves in the current mode, as { P, e } (the copy and the edge it ends up against) */
+  function copyMotions(){
+    const { a, b, h } = S, w = where();
+    if(S.mode === "rect" && w === "in") return [{ P:[[0, 0], [a, 0], [a, h]], e:[[0, 0], [a, h]] }, { P:[[a, 0], [b, 0], [a, h]], e:[[b, 0], [a, h]] }];
+    if(S.mode === "rect" && w === "edge") return [{ P:T(), e:hyp() }];
+    if(S.mode === "para"){ const e = a * a >= (a - b) * (a - b) ? [[0, 0], [a, h]] : [[b, 0], [a, h]]; return [{ P:T(), e }]; }
+    if(S.mode === "slide"){ const ra = slideEnd(); const P = [[0, 0], [b, 0], [ra, h]]; return [{ P, e:ra === 0 ? [[0, h], [b, 0]] : [[0, 0], [b, h]] }]; }
+    return [];
   }
   function layout(){
     const wrap = $("boardWrap");
@@ -646,26 +668,24 @@
      flips over its sloping side, and the halves slide back together:
      the copies complete the rectangle, so the triangle is half of it */
 
-  /* A pale copy FLIPS OVER the edge it shares with the triangle, like a page turning:
-     it folds flat onto the edge, then opens out on the other side. (A plain mirror
-     flip only fits an isosceles triangle; swapping the copy end for end at the
-     moment it lies flat — when that can't be seen — makes it land exactly where
-     a half-turn would put it, which is what completes the rectangle.) */
+  /* A pale copy moves in TWO separate, clear motions so new learners can see it is
+     the same triangle: first a straight slide (no turning) out towards where it belongs,
+     then a half-turn into place. It ends exactly where a half-turn about the middle of
+     the edge it shares with the triangle puts it, which completes the rectangle. */
   function flipPoly(P, e0, e1, u){
+    /* slide by v (towards where it is going, half the way), then turn half a turn about
+       Q = M + v/2 — the one point that makes slide-then-turn land exactly in place. Sliding only
+       half the way keeps the turn tight, so the copy stays on the board. */
     const M = [(e0[0] + e1[0]) / 2, (e0[1] + e1[1]) / 2];
-    const len = Math.hypot(e1[0] - e0[0], e1[1] - e0[1]) || 1;
-    const ex = (e1[0] - e0[0]) / len, ey = (e1[1] - e0[1]) / len, nx = -ey, ny = ex;
-    const c = Math.cos(Math.PI * u), flipS = u < .5 ? 1 : -1;
-    return P.map(q => {
-      const dx = q[0] - M[0], dy = q[1] - M[1];
-      const sv = (dx * ex + dy * ey) * flipS, nv = (dx * nx + dy * ny) * c;
-      return [M[0] + sv * ex + nv * nx, M[1] + sv * ey + nv * ny];
-    });
+    const c0 = centroid(P), vx = M[0] - c0[0], vy = M[1] - c0[1];
+    const Q = [M[0] + vx / 2, M[1] + vy / 2];
+    const slide = ease(clamp(u / .42, 0, 1)), turn = ease(clamp((u - .55) / .45, 0, 1));
+    return P.map(q => rot([q[0] + vx * slide, q[1] + vy * slide], Q, 180 * turn));
   }
   function flipCopies(pieces, u, g){
     pieces.forEach(p => {
       const Q = flipPoly(p.P, p.e[0], p.e[1], u).map(q => [q[0] + (p.sx || 0), q[1]]);
-      poly(Q, { fill:C.half, stroke:C.halfS, "stroke-width":2.2, opacity:Math.min(1, u * 8) }, g);
+      poly(Q, { fill:C.half, stroke:C.halfS, "stroke-width":2.2 }, g);
     });
   }
   /* the sloping side of a right-angled triangle on the base */
@@ -678,7 +698,7 @@
       const cutC = k === 1 ? ease(clamp(t / .85, 0, 1)) : 1;
       /* step 2: cut through, the halves part by a thin white strip.
          step 3: each copy flips over, then the halves slide back together */
-      const flip = k >= 2 ? ease(clamp(t / .72, 0, 1)) : 0;
+      const flip = k >= 2 ? clamp(t / .76, 0, 1) : 0;
       const sep = k === 1 ? ease(clamp((t - .85) / .15, 0, 1)) : 1 - ease(clamp((t - .78) / .22, 0, 1));
       const g = 3.5 / L.s * sep;
       const halves = [
@@ -692,7 +712,7 @@
       return;
     }
     /* right-angled: the sloping side is marked, one pale copy flips over it */
-    const flip = k >= 2 ? ease(t) : 0;
+    const flip = k >= 2 ? t : 0;
     drawTri(sc.gMain);
     if(flip > 0) flipCopies([{ P:T(), e:hyp() }], flip, sc.gTop);
     drawTri(sc.gTop, { fill:"none" });
@@ -706,7 +726,7 @@
     if(k === 0){ drawTri(sc.gMain); return; }
     if(k === 1){
       const a = S.a, edge = a * a >= (a - b) * (a - b) ? [[0, 0], [a, h]] : [[b, 0], [a, h]];
-      const copy = flipPoly(tri, edge[0], edge[1], ease(t));
+      const copy = flipPoly(tri, edge[0], edge[1], t);
       drawTri(sc.gMain);
       poly(copy, { fill:C.half, stroke:C.halfS, "stroke-width":2.5 }, sc.gTop);
       drawTri(sc.gTop, { fill:"none" });
@@ -751,7 +771,7 @@
       poly([[0, 0], [b, 0], [S.slideFrom, h]], { fill:"none", stroke:"#64748b", "stroke-width":2, "stroke-dasharray":"6 5" }, sc.gBack);
     drawTri(sc.gMain);
     if(k >= 2){
-      const turn = k === 2 ? ease(t) : 1;
+      const turn = k === 2 ? t : 1;
       if(turn > 0) flipCopies([{ P:T(), e:hyp() }], turn, sc.gTop);
       drawTri(sc.gTop, { fill:"none" });
     }
@@ -860,7 +880,7 @@
 
   /* ------------------------------------------------------------ stepping */
   let raf = 0;
-  const DUR = { cut:1500, turn:1400, flipjoin:2000, copy:1400, slide:1500, chop:2300 };
+  const DUR = { cut:1500, turn:2200, flipjoin:2900, copy:2200, slide:1500, chop:2300 };
   /* runs S.anim.t from t0 to t1 (1 → 0 plays a step backwards) */
   function animate(dur, t0, t1, onTick, onEnd){
     cancelAnimationFrame(raf);
@@ -874,6 +894,7 @@
     raf = requestAnimationFrame(f);
   }
   function stopAnim(){ if(S.anim){ cancelAnimationFrame(raf); const end = S.anim.end; S.anim = null; end && end(); } }
+  function slideEnd(){ return S.mode === "slide" && S.step >= 1 ? S.a : slideTarget(); }
   function slideTarget(){ const a = S.a; if(a === 0) return S.b; if(a === S.b) return 0; return Math.abs(a) <= Math.abs(a - S.b) ? 0 : S.b; }
   function next(){
     if(S.anim || S.step >= STEPS.length - 1) return;
