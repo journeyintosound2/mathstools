@@ -3,1147 +3,346 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Area Model Splitter</title>
+  <title>Area Model — Multiplication &amp; Perimeter | Mills Maths Tools</title>
+  <meta name="description" content="The area model for multiplication: split a rectangle by place value or any way you like, multiply part by part, then add the edges for the perimeter." />
 
   <style>
     :root{
-      --bg:#f6f7fb;
+      --bg:#f8fafc;
       --card:#ffffff;
-      --ink:#111827;
-      --muted:#6b7280;
-      --border:#e5e7eb;
-      --shadow:0 14px 40px rgba(0,0,0,.10);
+      --ink:#0f172a;
+      --muted:#64748b;
+      --border:#e2e8f0;
+      --shadow:0 18px 45px rgba(15,23,42,.13);
       --blue:#2563eb;
-      --green:#16a34a;
-      --yellow:#f2cb05;
-      --purple:#8b5cf6;
-      --teal:#169eaa;
+      --blue-dark:#1d4ed8;
+      --green:#22c55e;
+      --green-dark:#15803d;
+      --purple:#7c3aed;
+      --purple-dark:#5b21b6;
+      --orange:#f97316;
+      --orange-dark:#c2410c;
+      --line:#334155;
+      --line-soft:#94a3b8;
       --red:#dc2626;
-      --mathFont:"Cambria Math","STIX Two Math","STIXGeneral","Times New Roman",serif;
+      --uiFont:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+      --mathFont:"STIX Two Math","Cambria Math","Latin Modern Math","Times New Roman",Georgia,serif;
     }
 
     *{ box-sizing:border-box; }
     html,body{ height:100%; }
-
     body{
       margin:0;
-      font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
-      background:var(--bg);
+      font-family:var(--uiFont);
       color:var(--ink);
-    }
-
-    .page{
-      min-height:100vh;
-      padding:10px;
-    }
-
-    .shell{
-      max-width:1700px;
-      margin:0 auto;
-      background:linear-gradient(180deg, rgba(255,255,255,.98), rgba(255,255,255,.94));
-      border:1px solid rgba(229,231,235,.95);
-      border-radius:28px;
-      box-shadow:var(--shadow);
-      min-height:calc(100vh - 20px);
-      padding:14px 18px 18px;
-      display:flex;
-      flex-direction:column;
-      position:relative;
-      overflow:hidden;
-    }
-
-    .topbar{
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap:16px;
-      flex-wrap:wrap;
-      margin-bottom:8px;
-      position:relative;
-      z-index:50;
-    }
-
-    .back-btn{
-      display:inline-flex;
-      align-items:center;
-      gap:14px;
-      text-decoration:none;
-      color:#0f172a;
-      background:#f8fafc;
-      border:1px solid #d1d5db;
-      border-radius:999px;
-      padding:12px 20px 12px 16px;
-      font-weight:800;
-      font-size:18px;
-      box-shadow:0 4px 12px rgba(15,23,42,.06);
-    }
-
-    .back-logo{
-      width:38px;
-      height:38px;
-      border-radius:10px;
-      object-fit:contain;
-      flex:0 0 auto;
-      background:#fff;
-    }
-
-    .top-actions{
-      display:flex;
-      gap:12px;
-      flex-wrap:wrap;
-      align-items:flex-start;
-      position:relative;
-      z-index:60;
-    }
-
-    .chip,
-    .chip-select{
-      border:none;
-      border-radius:18px;
-      padding:12px 20px;
-      font-weight:800;
-      font-size:17px;
-      background:#f3f4f6;
-      color:#111827;
-      min-height:52px;
-      cursor:pointer;
-    }
-
-    .chip.blue{
-      background:#2563eb;
-      color:#fff;
-    }
-
-    .chip.red{
-      background:#fee2e2;
-      color:#991b1b;
-    }
-
-    .chip.active{
-      outline:2px solid #2563eb;
-      background:#eff6ff;
-    }
-
-    .chip[disabled],
-    .chip-select[disabled]{
-      opacity:.5;
-      cursor:not-allowed;
-      pointer-events:none;
-    }
-
-    .chip-select{
-      appearance:none;
-      -webkit-appearance:none;
-      -moz-appearance:none;
-      padding-right:46px;
-      background-image:
-        linear-gradient(45deg, transparent 50%, #111827 50%),
-        linear-gradient(135deg, #111827 50%, transparent 50%);
-      background-position:
-        calc(100% - 22px) calc(50% - 4px),
-        calc(100% - 16px) calc(50% - 4px);
-      background-size:6px 6px, 6px 6px;
-      background-repeat:no-repeat;
-    }
-
-    .tool-wrap{
-      flex:1;
-      display:grid;
-      grid-template-columns:320px minmax(0, 1fr) 72px;
-      grid-template-rows:auto auto 1fr;
-      gap:12px 22px;
-      padding:4px;
-      min-height:0;
-      align-items:stretch;
-    }
-
-    .side-panel{
-      grid-column:1;
-      grid-row:1 / span 3;
-      display:flex;
-      flex-direction:column;
-      align-items:flex-end;
-      justify-content:flex-start;
-      gap:18px;
-      padding-top:42px;
-      padding-right:4px;
-      position:relative;
-      z-index:2;
-    }
-
-    .dimension-panel{
-      width:290px;
-      background:#dbeafe;
-      border:2px solid #bfdbfe;
-      border-radius:30px;
-      box-shadow:0 10px 26px rgba(15,23,42,.08);
-      padding:22px 20px 24px;
-      display:flex;
-      flex-direction:column;
-      gap:14px;
-      transition:opacity .18s ease, filter .18s ease;
-    }
-
-    .dimension-panel.inactive{
-      opacity:.55;
-      filter:grayscale(.12);
-      pointer-events:none;
-    }
-
-    .dimension-badge{
-      align-self:flex-start;
-      padding:8px 14px;
-      border-radius:999px;
-      background:rgba(255,255,255,.55);
-      color:#1d4ed8;
-      font-size:13px;
-      font-weight:900;
-      letter-spacing:.02em;
-      text-transform:uppercase;
-    }
-
-    .dimension-input-row{
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:18px;
-      flex-wrap:nowrap;
-      margin-top:6px;
-    }
-
-    .equation-bar{
-      grid-column:2;
-      grid-row:1;
-      width:100%;
-      display:block;
-      min-height:0;
-      position:relative;
-    }
-
-    .equation-row{ display:none; }
-
-    .input-box{
-      width:90px;
-      height:90px;
-      border:4px solid #111827;
-      border-radius:24px;
-      background:#fff;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      box-shadow:0 8px 18px rgba(15,23,42,.06);
-      position:relative;
-    }
-
-    .input-box input{
-      width:100%;
-      height:100%;
-      border:none;
-      outline:none;
-      background:transparent;
-      text-align:center;
-      font-family:var(--mathFont);
-      font-size:36px;
-      font-weight:700;
-      color:var(--blue);
-      padding:0 6px;
-    }
-
-    .times{
-      font-family:var(--mathFont);
-      font-size:60px;
-      line-height:1;
-      font-weight:700;
-      color:#111827;
-      user-select:none;
-    }
-
-    .status{
-      grid-column:2 / span 2;
-      grid-row:2;
-      min-height:18px;
-      font-size:14px;
-      font-weight:700;
-      color:var(--red);
-      text-align:center;
-      margin-top:-2px;
-      min-width:0;
-    }
-
-    .metrics-panel{
-      width:290px;
-      display:flex;
-      flex-direction:column;
-      align-items:stretch;
-      gap:18px;
-    }
-
-    .metric-top{
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap:12px;
-      margin-bottom:14px;
-    }
-
-    .metric-clear{
-      border:none;
-      border-radius:999px;
-      padding:7px 12px;
-      font-size:13px;
-      font-weight:900;
-      line-height:1;
-      cursor:pointer;
-      box-shadow:0 4px 10px rgba(15,23,42,.08);
-      transition:transform .12s ease, opacity .18s ease;
-    }
-
-    .metric-clear:hover{
-      transform:translateY(-1px);
-    }
-
-    .metric-clear:disabled{
-      opacity:.45;
-      cursor:not-allowed;
-      transform:none;
-    }
-
-    .area-clear{
-      background:#ffffff;
-      color:#65a30d;
-      border:2px solid #bef264;
-    }
-
-    .perimeter-clear{
-      background:#ffffff;
-      color:#7c3aed;
-      border:2px solid #d8b4fe;
-    }
-
-    .metric-box{
-      min-height:154px;
-      padding:18px;
-      border:none;
-      border-radius:30px;
-      box-shadow:0 8px 18px rgba(15,23,42,.06);
-      display:flex;
-      flex-direction:column;
-      align-items:stretch;
-      justify-content:flex-start;
-      cursor:pointer;
-      user-select:none;
-      transition:transform .12s ease, box-shadow .18s ease;
-      position:relative;
-      overflow:hidden;
-      text-align:left;
-    }
-
-    .metric-box:hover{ transform:translateY(-1px); }
-
-    .metric-box.area-style{
-      background:#d9f99d;
-      border:2px solid #bef264;
-    }
-
-    .metric-box.perimeter-style{
-      background:#e9d5ff;
-      border:2px solid #d8b4fe;
-    }
-
-    .metric-heading{
-      font-size:24px;
-      line-height:1.1;
-      font-weight:900;
-      color:#111827;
-      margin-bottom:14px;
-    }
-
-    .metric-inner{
-      flex:1;
-      min-height:72px;
-      background:#fff;
-      border:4px solid #111827;
-      border-radius:20px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:10px 14px;
-      font-family:var(--mathFont);
-      font-size:54px;
-      font-weight:700;
-      color:#111827;
-      box-shadow:inset 0 1px 0 rgba(255,255,255,.8);
-      transition:transform .18s ease, box-shadow .18s ease;
-    }
-
-    .metric-box.revealed-area .metric-inner{
-      color:#1d4ed8;
-      box-shadow:0 0 0 4px rgba(37,99,235,.10), inset 0 1px 0 rgba(255,255,255,.8);
-    }
-
-    .metric-box.revealed-perimeter .metric-inner{
-      color:#6d28d9;
-      box-shadow:0 0 0 4px rgba(139,92,246,.10), inset 0 1px 0 rgba(255,255,255,.8);
-    }
-
-    .metric-box.metric-flash{ transform:scale(1.02); }
-
-    .metric-box.metric-count-pop .metric-inner{
-      animation: metricCountPop .54s cubic-bezier(.16,1,.3,1);
-    }
-
-    @keyframes metricCountPop{
-      0%{ transform:scale(1); box-shadow:0 0 0 0 rgba(37,99,235,0), inset 0 1px 0 rgba(255,255,255,.8); }
-      32%{ transform:scale(1.18); box-shadow:0 0 0 8px rgba(37,99,235,.16), 0 10px 20px rgba(37,99,235,.18), inset 0 1px 0 rgba(255,255,255,.8); }
-      62%{ transform:scale(.96); }
-      100%{ transform:scale(1); }
-    }
-
-    .metric-value{
-      display:inline-block;
-      min-width:1ch;
-    }
-.metric-placeholder{
-  display:inline-block;
-  font-size:26px;
-  font-weight:600;
-  color:#9ca3af;
-  font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
-}
-    .array-stage{
-      grid-column:2;
-      grid-row:3;
-      width:100%;
-      min-width:0;
-      min-height:0;
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      padding:0 6px 8px;
-      position:relative;
-    }
-
-    .array-wrap{
-      display:grid;
-      grid-template-columns:auto;
-      grid-template-rows:auto;
-      align-items:center;
-      justify-items:center;
-      max-width:100%;
-      max-height:100%;
-      min-width:0;
-      position:relative;
-    }
-
-    .top-label,.left-label,.right-label,.bottom-label{
-      display:none !important;
-    }
-
-    .grid-shell{
-      position:relative;
-      display:inline-block;
-      max-width:100%;
-      max-height:100%;
-      min-width:0;
-      user-select:none;
-      touch-action:none;
-    }
-
-    .grid{
-      position:relative;
-      display:block;
-      border:2px solid rgba(255,255,255,.65);
-      box-shadow:0 12px 28px rgba(15,23,42,.10);
-      overflow:visible;
-      background:#fff;
-    }
-
-    .grid::after{
-      content:"";
-      position:absolute;
-      inset:0;
-      background:rgba(255,255,255,.68);
-      opacity:0;
-      pointer-events:none;
-      transition:opacity .16s ease;
-      z-index:20;
-    }
-
-    .grid.perimeter-fade::after,
-    .grid.perimeter-hold::after{
-      opacity:.18;
-    }
-
-    .cell{
-      position:absolute;
-      border:1px solid rgba(255,255,255,.6);
-      transition:filter .18s ease, box-shadow .18s ease, transform .18s ease, opacity .18s ease;
-      transform-origin:center;
-      z-index:1;
-    }
-
-    .cell.area-cell-pulse{
-      animation: areaCellPulse var(--pulse-duration, .28s) ease;
-      z-index:2;
-    }
-
-    .cell.area-row-pulse{
-      animation: areaRowPulse var(--pulse-duration, .34s) ease;
-      z-index:2;
-    }
-
-    .cell.dimmed{
-      opacity:.06;
-      filter:grayscale(.12) saturate(.65);
-    }
-
-    .quadrant-overlay{
-      position:absolute;
-      pointer-events:none;
-      z-index:3;
-      opacity:0;
-      box-shadow:0 0 0 0 rgba(255,255,255,0);
-      transition:opacity .18s ease;
-    }
-
-    .quadrant-overlay.pulse{
-      animation: quadrantOverlayPulse var(--pulse-duration, 1.2s) ease;
-    }
-
-    .quadrant-overlay.selected{
-      opacity:1;
-      outline:5px solid rgba(255,255,255,.92);
-      outline-offset:-5px;
-      box-shadow:
-        inset 0 0 0 3px rgba(17,24,39,.85),
-        0 0 0 4px rgba(255,255,255,.38);
-    }
-
-    .quadrant-overlay.dimmed{
-      background:rgba(255,255,255,.94) !important;
-      opacity:1;
-    }
-.pointer-faded-guides .guide.secondary{
-  opacity:0.05 !important;
-}
-    .quadrant-overlay.shake{
-      animation: invalidShake .32s ease;
-    }
-
-    @keyframes invalidShake{
-      0%,100%{ transform:translateX(0); }
-      20%{ transform:translateX(-5px); }
-      40%{ transform:translateX(5px); }
-      60%{ transform:translateX(-4px); }
-      80%{ transform:translateX(4px); }
-    }
-
-    @keyframes quadrantOverlayPulse{
-      0%{ opacity:0; transform:scale(1); box-shadow:0 0 0 0 rgba(255,255,255,0); }
-      18%{ opacity:.18; }
-      50%{ opacity:.28; transform:scale(1.01); box-shadow:0 0 0 8px rgba(255,255,255,.18); }
-      100%{ opacity:0; transform:scale(1); box-shadow:0 0 0 0 rgba(255,255,255,0); }
-    }
-
-    @keyframes areaCellPulse{
-      0%{ transform:scale(1); box-shadow:inset 0 0 0 0 rgba(255,255,255,0); filter:brightness(1); }
-      45%{ transform:scale(1.12); box-shadow:inset 0 0 0 2px rgba(255,255,255,.55), 0 0 14px rgba(255,255,255,.55); filter:brightness(1.28); }
-      100%{ transform:scale(1); box-shadow:inset 0 0 0 0 rgba(255,255,255,0); filter:brightness(1); }
-    }
-
-    @keyframes areaRowPulse{
-      0%{ filter:brightness(1); }
-      45%{ filter:brightness(1.34); box-shadow:inset 0 0 0 2px rgba(255,255,255,.5), 0 0 10px rgba(255,255,255,.35); }
-      100%{ filter:brightness(1); }
-    }
-
-    .region-labels,
-    .guide-lines,
-    .boundary-labels,
-    .selection-labels{
-      position:absolute;
-      inset:0;
-      pointer-events:none;
-    }
-
-    .bubble{
-      position:absolute;
-      transform:translate(-50%,-50%) scale(1);
-      background:white;
-      border:1px solid #e5e7eb;
-      border-radius:999px;
-      box-shadow:0 4px 10px rgba(0,0,0,.12);
-      padding:3px 8px;
-      min-width:22px;
-      text-align:center;
-      font-family:var(--mathFont);
-      font-weight:700;
-      color:#111827;
-      z-index:4;
-      white-space:nowrap;
-      font-size:12px;
-      line-height:1.1;
-      transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease, opacity .18s ease;
-      opacity:1;
-    }
-
-    .bubble.hidden{
-      opacity:0;
-      transform:translate(-50%,-50%) scale(.5);
-    }
-
-    .bubble.area-pop{
-      animation: areaBubblePop .82s cubic-bezier(.2,.9,.2,1);
-    }
-
-    @keyframes areaBubblePop{
-      0%{ transform:translate(-50%,-50%) scale(.55); box-shadow:0 4px 10px rgba(0,0,0,.12); border-color:#e5e7eb; }
-      35%{ transform:translate(-50%,-50%) scale(1.42); box-shadow:0 0 0 10px rgba(37,99,235,.16), 0 12px 28px rgba(37,99,235,.28); border-color:#60a5fa; }
-      58%{ transform:translate(-50%,-50%) scale(.9); box-shadow:0 0 0 6px rgba(37,99,235,.10), 0 8px 18px rgba(37,99,235,.18); }
-      78%{ transform:translate(-50%,-50%) scale(1.16); box-shadow:0 0 0 7px rgba(37,99,235,.12), 0 10px 22px rgba(37,99,235,.20); }
-      100%{ transform:translate(-50%,-50%) scale(1); box-shadow:0 4px 10px rgba(0,0,0,.12); border-color:#e5e7eb; }
-    }
-
-    .guide{
-      position:absolute;
-      background:#1e293b;
-      opacity:0.85;
-      border-radius:999px;
-      box-shadow:0 2px 8px rgba(15,23,42,.18);
-      z-index:5;
-      pointer-events:none;
-    }
-
-    .guide.vertical{ width:5px; transform:translateX(-50%); }
-    .guide.horizontal{ height:5px; transform:translateY(-50%); }
-    .guide.secondary{ background:#1e293b; opacity:0.7; }
-    .guide.secondary.perimeter-light{ opacity:0.35; }
-
-    .split-line{
-      position:absolute;
-      background:#1e293b;
-      border-radius:999px;
-      z-index:8;
-      box-shadow:0 2px 8px rgba(15,23,42,.18);
-      display:none;
-    }
-
-    .split-line.vertical{
-      width:4px;
-      transform:translateX(-50%);
-      cursor:ew-resize;
-    }
-
-    .split-line.horizontal{
-      height:4px;
-      transform:translateY(-50%);
-      cursor:ns-resize;
-    }
-
-    .split-line.active{ display:block; }
-    .split-line.disabled{ pointer-events:none; opacity:.35; }
-
-    .split-handle{
-      position:absolute;
-      width:16px;
-      height:16px;
-      background:#fff;
-      border:3px solid #0f172a;
-      box-shadow:0 6px 14px rgba(15,23,42,.16);
-      left:50%;
-      top:50%;
-      transform:translate(-50%,-50%) rotate(45deg);
-      border-radius:3px;
-    }
-
-    .perimeter-trace{
-      position:absolute;
-      inset:0;
-      pointer-events:none;
-      z-index:9;
-      overflow:visible;
-    }
-
-    .trace-svg{
-      width:100%;
-      height:100%;
-      display:block;
-      overflow:visible;
-    }
-
-    .trace-path{
-      fill:none;
-      stroke:#8b5cf6;
-      stroke-width:6;
-      stroke-linecap:round;
-      stroke-linejoin:round;
-      opacity:0;
-    }
-
-    .trace-path.play{
-      opacity:1;
-      animation: drawPerimeter var(--perimeter-duration, 8000ms) linear forwards;
-    }
-
-    .trace-path.hold{
-      opacity:1;
-      stroke-dashoffset:0 !important;
-    }
-
-    @keyframes drawPerimeter{
-      from { stroke-dashoffset:var(--trace-length, 0); opacity:1; }
-      to   { stroke-dashoffset:0; opacity:1; }
-    }
-
-    .toggle{
-      position:relative;
-      width:54px;
-      height:30px;
-      background:#d1d5db;
-      border-radius:999px;
-      cursor:pointer;
-      border:none;
-      flex:0 0 auto;
-      transition:background .2s ease;
-    }
-
-    .toggle::after{
-      content:"";
-      position:absolute;
-      top:3px;
-      left:3px;
-      width:24px;
-      height:24px;
-      border-radius:50%;
-      background:#fff;
-      box-shadow:0 2px 6px rgba(0,0,0,.16);
-      transition:transform .2s ease;
-    }
-
-    .toggle.on{ background:#2563eb; }
-    .toggle.on::after{ transform:translateX(24px); }
-
-    .tools-menu,
-    .settings-menu{
-      position:relative;
-    }
-
-    .tools-dropdown,
-    .settings-dropdown{
-      position:absolute;
-      top:calc(100% + 8px);
-      right:0;
-      background:rgba(255,255,255,.98);
-      border:1px solid #e5e7eb;
-      border-radius:18px;
-      box-shadow:0 14px 28px rgba(15,23,42,.12);
-      padding:8px;
-      display:none;
-      z-index:70;
-    }
-
-    .tools-dropdown{ min-width:220px; }
-    .settings-dropdown{ min-width:280px; padding:12px; }
-
-    .tools-menu.open .tools-dropdown,
-    .settings-menu.open .settings-dropdown,
-    .settings-menu:hover .settings-dropdown{
-      display:block;
-    }
-
-    .tools-link{
-      display:block;
-      text-decoration:none;
-      color:#111827;
-      font-weight:700;
-      padding:12px 14px;
-      border-radius:12px;
-    }
-
-    .tools-link:hover{ background:#f3f4f6; }
-
-    /* ---- Student Quiz flyout submenu (opens to the LEFT) ---- */
-    .tools-submenu{ position:relative; }
-
-    .tools-link-parent{
-      width:100%;
-      border:none;
-      background:transparent;
-      font:inherit;
-      font-weight:700;
-      color:#111827;
-      text-align:left;
-      cursor:pointer;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-    }
-
-    .tools-caret{
-      font-size:13px;
-      line-height:1;
-      color:#6b7280;
-      transition:transform .15s ease;
-    }
-
-    .tools-flyout{
-      position:absolute;
-      top:-8px;
-      right:calc(100% + 10px);
-      min-width:270px;
-      background:rgba(255,255,255,.98);
-      border:1px solid #e5e7eb;
-      border-radius:18px;
-      box-shadow:0 14px 28px rgba(15,23,42,.12);
-      padding:8px;
-      display:none;
-      z-index:80;
-    }
-
-    /* invisible bridge so the cursor can travel to the flyout */
-    .tools-flyout::after{
-      content:"";
-      position:absolute;
-      top:0;
-      left:100%;
-      width:12px;
-      height:100%;
-    }
-
-    .tools-submenu:hover > .tools-flyout,
-    .tools-submenu:focus-within > .tools-flyout,
-    .tools-submenu.open > .tools-flyout{ display:block; }
-
-    .tools-submenu:hover > .tools-link-parent,
-    .tools-submenu.open > .tools-link-parent{ background:#f3f4f6; }
-
-    .tools-submenu:hover > .tools-link-parent .tools-caret,
-    .tools-submenu.open > .tools-link-parent .tools-caret{ transform:translateX(-3px); }
-
-    .settings-card{
-      display:flex;
-      flex-direction:column;
-      gap:8px;
-      background:rgba(248,250,252,.96);
-      border:1px solid rgba(229,231,235,.92);
-      border-radius:16px;
-      padding:12px 14px;
-    }
-
-    .toggle-row{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      margin:0;
-      font-weight:800;
-      font-size:15px;
-      color:#111827;
-    }
-
-    .settings-divider{
-      height:1px;
-      background:rgba(229,231,235,.95);
-      margin:2px 0;
-    }
-
-    .partition-label{
-      display:block;
-      font-weight:800;
-      font-size:15px;
-      color:#111827;
-      margin-bottom:4px;
-    }
-
-    .settings-select{
-      min-height:46px;
-      font-size:15px;
-      padding:10px 14px;
-      padding-right:40px;
-      border-radius:16px;
-      background-position:
-        calc(100% - 18px) calc(50% - 4px),
-        calc(100% - 12px) calc(50% - 4px);
-    }
-
-    .panel-note{
-      color:#6b7280;
-      font-size:14px;
-      line-height:1.45;
-      margin:2px 0 0;
-    }
-
-    .tool-rail{
-      grid-column:3;
-      grid-row:3;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:flex-start;
-      gap:14px;
-      padding-top:18px;
-    }
-
-    .rail-btn{
-      width:56px;
-      height:56px;
-      border:none;
-      border-radius:18px;
-      background:#f8fafc;
-      box-shadow:0 6px 14px rgba(15,23,42,.08);
-      font-size:29px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      cursor:pointer;
-      transition:transform .12s ease, box-shadow .18s ease, background .18s ease, outline .18s ease;
-    }
-
-    .rail-btn:hover{ transform:translateY(-1px); }
-    .rail-btn.active{
-      background:#eff6ff;
-      outline:2px solid #2563eb;
-      box-shadow:0 8px 16px rgba(37,99,235,.16);
-    }
-
-    .edge-label,
-    .selection-dim-label{
-      position:absolute;
-      transform:translate(-50%,-50%);
-      font-family:var(--mathFont);
-      font-weight:700;
-      line-height:1;
-      white-space:nowrap;
-      z-index:12;
-      user-select:none;
-    }
-
-    .edge-label{
-      font-size:clamp(18px, 2vw, 34px);
-      color:#2563eb;
-    }
-
-    .edge-label.hidden{ display:none; }
-
-    .edge-label.pop{
-      animation: perimeterLabelPulse .8s ease;
-    }
-
-    @keyframes perimeterLabelPulse{
-      0%{ transform:translate(-50%,-50%) scale(1); }
-      35%{ transform:translate(-50%,-50%) scale(1.24); text-shadow:0 0 18px rgba(139,92,246,.35); }
-      100%{ transform:translate(-50%,-50%) scale(1); }
-    }
-
-    .selection-dim-label{
-      font-size:clamp(18px, 2vw, 34px);
-      color:#111827;
-      text-shadow:0 2px 8px rgba(255,255,255,.95);
-    }
-
-    .overall-dimension-layer,
-    .partition-dimension-layer{
-      position:absolute;
-      inset:0;
-      pointer-events:none;
-    }
-
-    .dimension-arrow{
-      position:absolute;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      color:#9ca3af;
-      font-family:var(--mathFont);
-      font-weight:700;
-      z-index:13;
-    }
-
-    .dimension-arrow.horizontal{
-      height:36px;
-    }
-
-    .dimension-arrow.vertical{
-      width:36px;
-    }
-
-    .dimension-arrow .dim-line{
-      position:absolute;
-      background:#9ca3af;
-      border-radius:999px;
-      opacity:.95;
-    }
-
-    .dimension-arrow.horizontal .dim-line{
-      left:18px;
-      right:18px;
-      top:50%;
-      height:5px;
-      transform:translateY(-50%);
-    }
-
-    .dimension-arrow.vertical .dim-line{
-      top:18px;
-      bottom:18px;
-      left:50%;
-      width:5px;
-      transform:translateX(-50%);
-    }
-
-    .dimension-arrow .arrow-start,
-.dimension-arrow .arrow-end{
-  position:absolute;
-  width:18px;
-  height:18px;
-  border-top:5px solid #9ca3af;
-  border-right:5px solid #9ca3af;
-  border-radius:2px;
-}
-
-    .dimension-arrow.horizontal .arrow-start{
-      left:2px;
-      top:50%;
-      transform:translateY(-50%) rotate(-135deg);
-    }
-
-    .dimension-arrow.horizontal .arrow-end{
-      right:2px;
-      top:50%;
-      transform:translateY(-50%) rotate(45deg);
-    }
-
-    .dimension-arrow.vertical .arrow-start{
-      top:2px;
-      left:50%;
-      transform:translateX(-50%) rotate(-45deg);
-    }
-
-    .dimension-arrow.vertical .arrow-end{
-      bottom:2px;
-      left:50%;
-      transform:translateX(-50%) rotate(135deg);
-    }
-
-    .dimension-arrow .dim-text{
-      position:relative;
-      background:rgba(255,255,255,.92);
-      padding:0 10px;
-      font-size:clamp(22px, 2.2vw, 42px);
-      line-height:1;
-    }
-
-   .partition-dim-label{
-  position:absolute;
-  transform:translate(-50%,-50%);
-  color:#111827;
-  font-family:var(--mathFont);
-  font-weight:700;
-  font-size:clamp(18px, 2vw, 34px);
-  line-height:1;
-  white-space:nowrap;
-  z-index:13;
-  text-shadow:0 1px 4px rgba(255,255,255,.9);
-}
-
-    @media (max-width: 1180px){
-      .tool-wrap{
-        grid-template-columns:1fr;
-        grid-template-rows:auto auto auto auto 1fr;
-      }
-
-      .side-panel{
-        grid-column:1;
-        grid-row:1;
-        align-items:center;
-        padding-top:0;
-        padding-right:0;
-        flex-direction:row;
-        flex-wrap:wrap;
-        justify-content:center;
-      }
-
-      .equation-bar{ grid-column:1; grid-row:2; }
-      .status{ grid-column:1; grid-row:3; }
-      .tool-rail{
-        grid-column:1;
-        grid-row:4;
-        flex-direction:row;
-        justify-content:center;
-        padding-top:0;
-      }
-      .array-stage{ grid-column:1; grid-row:5; }
-    }
-
-    @media (max-width: 900px){
-      .shell{
-        padding:14px 14px 18px;
-        min-height:calc(100vh - 20px);
-      }
-
-      .back-btn{
-        font-size:16px;
-        padding:10px 16px 10px 13px;
-      }
-
-      .back-logo{
-        width:32px;
-        height:32px;
-      }
-
-      .chip,
-      .chip-select{
-        font-size:15px;
-        padding:10px 14px;
-        min-height:46px;
-      }
-
-      .chip-select{
-        padding-right:40px;
-        background-position:
-          calc(100% - 18px) calc(50% - 4px),
-          calc(100% - 12px) calc(50% - 4px);
-      }
-
-      .dimension-panel,
-      .metrics-panel{
-        width:260px;
-      }
-
-      .input-box{
-        width:78px;
-        height:78px;
-      }
-
-      .input-box input{ font-size:30px; }
-      .times{ font-size:46px; }
-      .metric-box{ min-height:138px; }
-      .split-line.vertical{ width:4px; }
-      .split-line.horizontal{ height:4px; }
-      .split-handle{ width:14px; height:14px; border-width:2px; }
-
-      .tools-dropdown,
-      .settings-dropdown{
-        right:auto;
-        left:0;
-      }
-
-      /* No room for a side flyout on narrow screens — nest it inline instead. */
-      .tools-flyout{
-        position:static;
-        min-width:0;
-        border:none;
-        box-shadow:none;
-        border-radius:12px;
-        background:#f8fafc;
-        padding:4px;
-        margin:2px 0 2px 12px;
-      }
-      .tools-flyout::after{ display:none; }
-      .tools-caret{ transform:rotate(-90deg); }
-      .tools-submenu:hover > .tools-link-parent .tools-caret,
-      .tools-submenu.open > .tools-link-parent .tools-caret{ transform:rotate(-90deg) translateX(-3px); }
-    }
+      background:
+        radial-gradient(circle at top left,rgba(37,99,235,.14),transparent 32rem),
+        radial-gradient(circle at top right,rgba(124,58,237,.12),transparent 34rem),
+        var(--bg);
+      overflow-x:hidden;
+    }
+    button,input,select{ font:inherit; }
+    [hidden]{ display:none !important; }
+
+    .app{ height:100dvh; display:flex; flex-direction:column; min-width:0; }
+
+    /* ---------- topbar (shared MMT shell) ---------- */
+    .mmtTopbar{
+      position:relative; z-index:40; flex:0 0 auto;
+      background:linear-gradient(135deg,#0f172a,#123b7a 55%,#2563eb);
+      color:white; padding:14px 24px;
+      display:grid; grid-template-columns:minmax(200px,1fr) auto minmax(300px,1fr);
+      align-items:center; gap:18px;
+      box-shadow:0 10px 28px rgba(15,23,42,.22);
+    }
+    .mmtBrand{
+      display:flex; align-items:center; gap:12px; justify-self:start;
+      text-decoration:none; color:white; border-radius:14px; padding:8px 12px;
+      margin-left:-12px; font-weight:900;
+      transition:background .18s ease,transform .18s ease,box-shadow .18s ease;
+    }
+    .mmtBrand:hover{ background:rgba(255,255,255,.12); transform:translateY(-1px);
+      box-shadow:0 0 10px rgba(124,58,237,.6),0 0 18px rgba(37,99,235,.4); }
+    .mmtBrandLogo{
+      width:44px; height:44px; border-radius:9px; background:white; color:#1d4ed8;
+      display:grid; place-items:center; font-weight:1000; letter-spacing:-.08em;
+      box-shadow:inset 0 -2px 0 rgba(15,23,42,.08); flex:0 0 auto;
+    }
+    .mmtBrandText strong{ display:block; font-size:1.18rem; line-height:1; letter-spacing:-.03em; color:white; }
+    .mmtBrandText span{ display:block; font-size:.78rem; opacity:.82; font-weight:650; color:white; }
+    .mmtTopTitle{
+      font-weight:850; font-size:clamp(1.05rem,1.8vw,1.45rem); letter-spacing:-.04em;
+      text-align:center; color:white; white-space:nowrap;
+    }
+    .topActions{ justify-self:end; display:flex; align-items:center; justify-content:flex-end; gap:10px; flex-wrap:wrap; }
+
+    .btn{
+      appearance:none; border:1px solid rgba(255,255,255,.28); background:rgba(255,255,255,.14);
+      color:white; padding:11px 15px; border-radius:14px; font-weight:900; font-size:15px;
+      cursor:pointer; transition:.18s ease; user-select:none;
+    }
+    .btn:hover:not(:disabled){ background:rgba(255,255,255,.22); transform:translateY(-1px); }
+    .btn:focus-visible{ outline:none; box-shadow:0 0 0 4px rgba(255,255,255,.23); }
+    .btn-primary{ background:white; color:#1d4ed8; border-color:white; }
+    .btn-primary:hover:not(:disabled){ background:#eef2ff; color:#1d4ed8; }
+
+    .menuWrap{ position:relative; display:inline-flex; }
+    .dropMenu{ position:absolute; top:calc(100% + 8px); right:0; min-width:270px; background:#fff; color:var(--ink);
+      border:1px solid rgba(226,232,240,.95); border-radius:14px; box-shadow:0 18px 45px rgba(15,23,42,.22);
+      padding:7px; display:none; z-index:120; text-align:left; }
+    .dropMenu.open{ display:grid; gap:4px; }
+    .toolLink{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 12px; border-radius:10px;
+      color:var(--ink); text-decoration:none; font-weight:900; font-size:.9rem; }
+    .toolLink::after{ content:'\203A'; color:var(--blue); font-weight:1000; font-size:1.1rem; line-height:1; }
+    .toolLink:hover,.toolLink:focus-visible{ background:#eef2ff; color:#1d4ed8; outline:none; }
+    .toolLink small{ display:block; font-weight:650; font-size:.74rem; color:var(--muted); }
+    .menuRule{ height:1px; background:var(--border); margin:3px 6px; }
+
+    .settingsMenu.open{ gap:11px; padding:15px 18px; min-width:350px; max-height:min(78vh,680px); overflow:auto; }
+    .settingsHead{ font-size:.68rem; letter-spacing:.14em; text-transform:uppercase; font-weight:950; color:var(--muted); }
+    .settingsNote{ margin:0; font-size:.76rem; font-weight:650; color:var(--muted); line-height:1.4; }
+    .settingsRule{ height:1px; background:var(--border); margin:1px 0; }
+    .selRow{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .selRow > span{ font-weight:900; font-size:.92rem; color:var(--ink); white-space:nowrap; }
+    .selRow select{
+      appearance:none; border:1.5px solid var(--border);
+      padding:8px 30px 8px 11px; border-radius:11px; font-weight:850; font-size:.88rem;
+      color:var(--line); min-width:190px; cursor:pointer;
+      background:#fff url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' fill='none' stroke='%232563eb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/></svg>") no-repeat right 10px center;
+      background-size:11px;
+    }
+    .selRow select:focus-visible{ outline:none; border-color:var(--blue); box-shadow:0 0 0 4px rgba(37,99,235,.16); }
+    .ownRow{ display:flex; align-items:center; gap:8px; font-family:var(--mathFont); font-size:1.35rem; font-weight:700; color:var(--line); }
+    .ownRow input{
+      width:3.3em; text-align:center; font-family:var(--mathFont); font-size:1.35rem; font-weight:700;
+      border:1.5px solid var(--border); border-radius:11px; padding:5px 4px; color:var(--ink); -moz-appearance:textfield;
+    }
+    .ownRow input::-webkit-outer-spin-button,.ownRow input::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0; }
+    .ownRow input:focus{ outline:none; border-color:var(--blue); box-shadow:0 0 0 4px rgba(37,99,235,.16); }
+    .ownGo{ margin-left:auto; appearance:none; border:none; border-radius:11px; padding:9px 14px; cursor:pointer;
+      background:var(--blue); color:#fff; font-family:var(--uiFont); font-weight:900; font-size:.88rem; }
+    .ownGo:hover{ background:var(--blue-dark); }
+    .ownMsg{ margin:0; font-size:.76rem; font-weight:800; color:var(--red); line-height:1.4; }
+
+    .sw{ display:inline-flex; align-items:center; gap:11px; cursor:pointer; user-select:none; font-weight:850; color:var(--line); font-size:.93rem; }
+    .sw input{ position:absolute; opacity:0; width:0; height:0; }
+    .sw .track{ position:relative; width:50px; height:29px; border-radius:999px; background:#cbd5e1; transition:.18s ease; flex:0 0 auto; box-shadow:inset 0 1px 3px rgba(15,23,42,.18); }
+    .sw .track::after{ content:""; position:absolute; top:3px; left:3px; width:23px; height:23px; border-radius:50%; background:#fff; box-shadow:0 2px 6px rgba(15,23,42,.3); transition:.18s ease; }
+    .sw input:checked + .track{ background:var(--green); }
+    .sw input:checked + .track::after{ transform:translateX(21px); }
+    .sw input:focus-visible + .track{ box-shadow:0 0 0 4px rgba(37,99,235,.28); }
+
+    /* ---------- layout ---------- */
+    .layout{
+      flex:1 1 auto; min-height:0; width:min(1640px,100%); margin:0 auto; padding:14px 18px 16px;
+      display:grid; grid-template-columns:minmax(0,1fr) 384px; gap:14px; min-width:0;
+    }
+    .card{ background:var(--card); border:1px solid var(--border); border-radius:22px; box-shadow:var(--shadow); min-width:0; }
+
+    /* ---------- board ---------- */
+    .boardCard{ display:flex; flex-direction:column; min-height:0; padding:12px 14px 8px; position:relative; }
+    .boardTop{ display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+    .modeSwitch{ display:inline-flex; background:#f1f5f9; border:1px solid var(--border); border-radius:15px; padding:4px; gap:4px; }
+    .modeBtn{ appearance:none; border:none; background:transparent; padding:8px 15px 8px 9px; border-radius:11px;
+      font-weight:900; font-size:.95rem; color:var(--muted); cursor:pointer; display:flex; align-items:center; gap:9px; transition:.16s ease; }
+    .modeBtn:hover{ color:var(--ink); }
+    .modeBtn .sym{ font-family:var(--mathFont); font-size:1.3rem; line-height:1; width:30px; height:30px; border-radius:9px;
+      display:grid; place-items:center; background:#e2e8f0; color:var(--line); transition:.16s ease; }
+    .modeBtn small{ display:block; font-size:.7rem; font-weight:750; color:var(--line-soft); margin-top:1px; }
+    .modeBtn .txt{ text-align:left; line-height:1.1; }
+    .modeBtn[aria-selected="true"]{ background:#fff; color:var(--ink); box-shadow:0 3px 10px rgba(15,23,42,.12); }
+    .modeBtn[data-mode="area"][aria-selected="true"] .sym{ background:var(--blue); color:#fff; }
+    .modeBtn[data-mode="perim"][aria-selected="true"] .sym{ background:var(--purple); color:#fff; }
+    .modeBtn:focus-visible{ outline:none; box-shadow:0 0 0 3px rgba(37,99,235,.3); }
+
+    .topRight{ display:flex; align-items:center; gap:10px; }
+    .outcomeTag{
+      font-size:.66rem; letter-spacing:.1em; font-weight:950; text-transform:uppercase;
+      color:var(--purple-dark); background:rgba(124,58,237,.11); border:1px solid rgba(124,58,237,.24);
+      padding:5px 9px; border-radius:999px; white-space:nowrap;
+    }
+    .cutBtn{ appearance:none; border:1.5px solid var(--border); background:#fff; color:var(--line);
+      padding:9px 14px; border-radius:13px; font-weight:900; font-size:.9rem; cursor:pointer; transition:.16s ease;
+      display:inline-flex; align-items:center; gap:7px; white-space:nowrap; }
+    .cutBtn:hover:not(:disabled){ border-color:#fda4af; background:#fff1f2; color:#be123c; transform:translateY(-1px); }
+    .cutBtn[aria-pressed="true"]{ border-color:#fb7185; background:#ffe4e6; color:#9f1239; box-shadow:0 0 0 3px rgba(251,113,133,.2); }
+    .cutBtn:disabled{ opacity:.4; cursor:not-allowed; }
+
+    .stmt{ display:flex; align-items:baseline; justify-content:center; flex-wrap:wrap; gap:0 .26em; margin:6px 0 0;
+      font-family:var(--mathFont); font-weight:700; font-size:clamp(1.7rem,3.1vw,2.7rem); line-height:1.15; color:var(--line); }
+    .stmt .word{ font-family:var(--uiFont); font-weight:850; font-size:.62em; color:var(--muted); letter-spacing:-.01em; }
+    .stmt .q{ color:var(--line-soft); }
+    .stmt .ans{ color:var(--green-dark); animation:popIn .4s cubic-bezier(.34,1.5,.5,1); }
+    .numIn{ font:inherit; border:none; background:transparent; text-align:center; padding:0 .04em; margin:0;
+      border-radius:8px; border-bottom:2px dashed transparent; cursor:text; -moz-appearance:textfield; }
+    .numIn::-webkit-outer-spin-button,.numIn::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0; }
+    .numIn:hover{ background:#f8fafc; border-bottom-color:#cbd5e1; }
+    .numIn:focus{ outline:none; background:#eef2ff; border-bottom-color:var(--blue); }
+    .numIn.is-bad{ color:var(--red) !important; animation:shake .34s; }
+    .cX{ color:var(--blue-dark); } .cY{ color:var(--orange-dark); }
+
+    .boardWrap{ position:relative; flex:1 1 auto; min-height:0; margin-top:2px; }
+    #board{ position:absolute; inset:0; width:100%; height:100%; display:block; touch-action:none; user-select:none; -webkit-user-select:none; overflow:visible; }
+    .scaleTag{ position:absolute; right:4px; bottom:2px; font-size:.7rem; font-weight:900; letter-spacing:.06em; text-transform:uppercase;
+      color:var(--muted); background:#f1f5f9; border:1px solid var(--border); border-radius:999px; padding:4px 9px; pointer-events:none; }
+    .hint{ flex:0 0 auto; min-height:1.45em; text-align:center; font-size:.86rem; font-weight:750; color:var(--muted); padding:2px 8px 0; }
+    .hint b{ color:var(--line); }
+    .hint.warn{ color:var(--red); }
+    .hint button{ appearance:none; border:none; background:none; color:var(--blue-dark); font-weight:900; cursor:pointer; text-decoration:underline; padding:0 2px; font-size:inherit; }
+
+    /* svg parts */
+    #board text{ font-family:var(--mathFont); font-weight:700; pointer-events:none; }
+    #board path,#board polygon,#board line{ pointer-events:none; }
+    #board line.cutHit{ pointer-events:stroke; }
+    #board .piece{ cursor:pointer; transition:fill .2s ease; }
+    #board.m-perim .piece{ cursor:default; }
+    #board.removing .piece{ cursor:pointer; }
+    #board .piece.hl{ stroke:#0f172a; stroke-width:3.5; }
+    #board.removing .piece:hover{ stroke:#be123c; stroke-width:3; }
+    #board .ghostPiece{ cursor:pointer; }
+    #board .ruler{ cursor:copy; }
+    #board .ruler:hover rect.band{ fill:#e0e7ff; }
+    #board .cutHit{ cursor:ew-resize; }
+    #board .cutHit.y{ cursor:ns-resize; }
+    #board .handle{ transition:r .12s ease; }
+    #board .cutG:hover .handle, #board .cutG.drag .handle{ stroke:var(--blue); }
+    #board .chip{ cursor:default; }
+    #board.own .chip{ cursor:pointer; }
+    #board.own .chip:hover rect{ stroke:var(--purple); stroke-width:2.5; }
+    #board .pl.pop{ animation:plPop .5s .46s both cubic-bezier(.34,1.5,.5,1); transform-box:fill-box; transform-origin:center; }
+    #board .chip.pop{ animation:plPop .42s both cubic-bezier(.34,1.5,.5,1); transform-box:fill-box; transform-origin:center; }
+    #board .shakeIt{ animation:shake .34s; transform-box:fill-box; }
+    @keyframes plPop{ 0%{ opacity:0; transform:scale(.4);} 70%{ opacity:1; transform:scale(1.15);} 100%{ opacity:1; transform:scale(1);} }
+
+    /* ---------- side panel ---------- */
+    .side{ display:flex; flex-direction:column; gap:12px; min-height:0; min-width:0; }
+    .panel{ padding:12px 14px; }
+    .pHead{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:8px; }
+    .pTitle{ font-size:.68rem; letter-spacing:.14em; text-transform:uppercase; font-weight:950; color:var(--muted); }
+
+    .splitRow{ display:grid; grid-template-columns:58px minmax(0,1fr) auto; align-items:center; gap:8px; margin-bottom:7px; }
+    .splitRow .lbl{ font-weight:900; font-size:.84rem; color:var(--line); }
+    .partsIn{ width:100%; font-family:var(--mathFont); font-size:1.28rem; font-weight:700; border:1.5px solid var(--border);
+      border-radius:11px; padding:4px 10px; background:#fff; min-width:0; }
+    .partsIn.x{ color:var(--blue-dark); } .partsIn.y{ color:var(--orange-dark); }
+    .partsIn:hover{ border-color:var(--line-soft); }
+    .partsIn:focus{ outline:none; border-color:var(--blue); box-shadow:0 0 0 4px rgba(37,99,235,.14); }
+    .partsIn.is-bad{ border-color:var(--red); animation:shake .34s; }
+    .eqTot{ font-family:var(--mathFont); font-size:1.28rem; font-weight:700; color:var(--line); white-space:nowrap; }
+    .quickRow{ display:flex; gap:6px; flex-wrap:wrap; margin-top:2px; }
+    .miniBtn{ appearance:none; border:1.5px solid var(--border); background:#fff; color:var(--line); border-radius:11px;
+      padding:7px 11px; font-weight:900; font-size:.82rem; cursor:pointer; transition:.14s ease; white-space:nowrap; }
+    .miniBtn:hover:not(:disabled){ border-color:var(--blue); background:#eef2ff; color:var(--blue-dark); }
+    .miniBtn:disabled{ opacity:.4; cursor:not-allowed; }
+    .splitMsg{ margin:6px 0 0; font-size:.76rem; font-weight:800; color:var(--red); }
+
+    .workPanel{ flex:1 1 auto; min-height:0; display:flex; flex-direction:column; }
+    .workScroll{ flex:1 1 auto; min-height:0; overflow:auto; margin:0 -6px; padding:0 6px; }
+    .wBig{ font-family:var(--mathFont); font-weight:700; font-size:1.7rem; color:var(--line); line-height:1.2; }
+    .wLine{ font-family:var(--mathFont); font-weight:700; font-size:1.3rem; color:var(--line); line-height:1.3; margin-top:2px; }
+    .wSub{ font-size:.8rem; font-weight:800; color:var(--muted); margin:10px 0 6px; }
+    .wNote{ font-size:.82rem; font-weight:700; color:var(--muted); line-height:1.4; margin:8px 0 0; }
+    .ppList{ list-style:none; margin:0; padding:0; display:grid; gap:5px; }
+    .ppRow{ width:100%; appearance:none; border:1.5px solid var(--border); background:#fff; border-radius:12px; padding:6px 10px;
+      display:flex; align-items:center; gap:9px; cursor:pointer; text-align:left; transition:.14s ease;
+      font-family:var(--mathFont); font-weight:700; font-size:1.22rem; color:var(--line); }
+    .ppRow:hover{ border-color:var(--line-soft); transform:translateX(2px); }
+    .ppRow .swatch{ width:16px; height:16px; border-radius:5px; flex:0 0 auto; border:1.5px solid rgba(15,23,42,.18); }
+    .ppRow .v{ margin-left:auto; min-width:2.4em; text-align:right; }
+    .ppRow .v.q{ color:var(--line-soft); }
+    .ppRow .cnt{ font-family:var(--uiFont); font-size:.72rem; font-weight:950; color:var(--muted); background:#f1f5f9; border-radius:999px; padding:2px 7px; }
+    .ppRow.gone{ opacity:.55; text-decoration:line-through; cursor:default; }
+    .ppRow.gone:hover{ transform:none; }
+    .ppRow.justNow .v{ animation:popIn .4s cubic-bezier(.34,1.5,.5,1); }
+    .sumBox{ margin-top:10px; border-radius:14px; background:#f8fafc; border:1.5px dashed var(--border); padding:8px 11px;
+      font-family:var(--mathFont); font-weight:700; font-size:1.25rem; color:var(--line); line-height:1.35; }
+    .sumBox .lab{ display:block; font-family:var(--uiFont); font-size:.72rem; font-weight:900; color:var(--muted); letter-spacing:.04em; }
+    .sumBox.done{ border-style:solid; border-color:rgba(21,128,61,.35); background:rgba(34,197,94,.08); }
+    .sumBox .ans{ color:var(--green-dark); }
+    .edgeList{ font-family:var(--mathFont); font-weight:700; font-size:1.22rem; color:var(--line); line-height:1.45; }
+    .edgeList .e{ border-radius:6px; padding:0 2px; transition:background .12s ease; cursor:default; }
+    .edgeList .e.on{ background:rgba(124,58,237,.16); color:var(--purple-dark); }
+    .edgeList .e:hover{ background:#ede9fe; }
+    .stratTabs{ display:grid; grid-template-columns:1fr 1fr; gap:5px; margin:10px 0 6px; }
+    .stratBtn{ appearance:none; border:1.5px solid var(--border); background:#fff; color:var(--line); border-radius:11px; padding:7px 8px;
+      font-weight:900; font-size:.84rem; cursor:pointer; transition:.14s ease; }
+    .stratBtn:hover:not(:disabled){ border-color:#c4b5fd; color:var(--purple-dark); }
+    .stratBtn[aria-selected="true"]{ background:rgba(124,58,237,.11); border-color:rgba(124,58,237,.45); color:var(--purple-dark); }
+    .stratBtn:disabled{ opacity:.4; cursor:not-allowed; }
+    .stratNote{ font-size:.8rem; font-weight:700; color:var(--muted); line-height:1.4; margin:2px 0 8px; }
+    .sLine{ font-family:var(--mathFont); font-weight:700; font-size:1.2rem; color:var(--line); line-height:1.35; padding:5px 10px;
+      border-radius:11px; background:#f8fafc; border:1px solid var(--border); margin-bottom:5px; animation:fadeUp .3s ease; }
+    .sLine .lab{ font-family:var(--uiFont); font-size:.72rem; font-weight:900; color:var(--purple-dark); letter-spacing:.04em; display:block; }
+    .sLine.done{ background:rgba(34,197,94,.08); border-color:rgba(21,128,61,.3); }
+    .sLine .ans{ color:var(--green-dark); }
+    .runChain{ font-family:var(--mathFont); font-weight:700; font-size:1.2rem; color:var(--line); line-height:1.6; }
+    .runChain .st{ color:var(--purple-dark); }
+    .runChain .ar{ color:var(--line-soft); font-size:.8em; padding:0 .15em; }
+
+    .ways{ border-top:1px solid var(--border); margin-top:10px; padding-top:9px; }
+    .ways ol{ list-style:none; margin:6px 0 0; padding:0; display:grid; grid-template-columns:minmax(0,1fr); gap:4px; }
+    .ways li{ min-width:0; display:flex; align-items:center; gap:8px; font-size:.86rem; font-weight:800; color:var(--line); animation:fadeUp .3s ease; }
+    .ways .wm{ width:22px; height:22px; border-radius:7px; display:grid; place-items:center; flex:0 0 auto; color:#fff;
+      font-family:var(--mathFont); font-size:1rem; }
+    .ways .wm.a{ background:var(--blue); } .ways .wm.p{ background:var(--purple); }
+    .ways .wl{ font-family:var(--mathFont); font-size:1.02rem; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .ways b{ margin-left:auto; font-family:var(--mathFont); font-size:1.08rem; color:var(--green-dark); white-space:nowrap; }
+    .ways .empty{ font-size:.78rem; font-weight:700; color:var(--line-soft); margin:4px 0 0; }
+
+    .stepRow{ display:flex; gap:7px; padding-top:10px; margin-top:8px; border-top:1px solid var(--border); }
+    .stepBtn{ appearance:none; border:1.5px solid var(--border); background:#fff; color:var(--line); padding:11px 12px; border-radius:14px;
+      font-weight:950; font-size:.95rem; cursor:pointer; transition:.16s ease; white-space:nowrap; }
+    .stepBtn:hover:not(:disabled){ border-color:var(--blue); background:#eef2ff; color:var(--blue-dark); transform:translateY(-1px); }
+    .stepBtn:disabled{ opacity:.38; cursor:not-allowed; transform:none; }
+    .stepBtn.icon{ width:46px; padding:11px 0; font-size:1.05rem; }
+    .nextBtn{ flex:1 1 auto; min-width:0; appearance:none; border:none; background:linear-gradient(135deg,var(--blue),var(--purple)); color:#fff;
+      padding:12px 14px; border-radius:15px; font-weight:950; font-size:1.02rem; cursor:pointer;
+      box-shadow:0 10px 24px rgba(37,99,235,.30); transition:.18s ease; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .nextBtn:hover:not(:disabled){ transform:translateY(-1px); box-shadow:0 14px 30px rgba(37,99,235,.38); }
+    .nextBtn:disabled{ background:linear-gradient(135deg,var(--green-dark),#0f766e); box-shadow:none; cursor:default; opacity:.92; }
+    .keyHint{ font-size:.72rem; font-weight:800; color:var(--line-soft); text-align:center; margin-top:7px; }
+    .keyHint kbd{ font-family:var(--uiFont); font-size:.7rem; font-weight:900; color:var(--muted);
+      border:1px solid var(--border); border-bottom-width:2px; border-radius:6px; padding:0 5px; background:#f8fafc; }
+
+    @keyframes shake{ 0%,100%{ transform:translateX(0);} 25%{ transform:translateX(-6px);} 75%{ transform:translateX(6px);} }
+    @keyframes popIn{ 0%{ transform:scale(.5); opacity:0;} 60%{ transform:scale(1.14);} 100%{ transform:scale(1); opacity:1;} }
+    @keyframes fadeUp{ from{ opacity:0; transform:translateY(5px);} to{ opacity:1; transform:none;} }
+    @media (prefers-reduced-motion:reduce){
+      .stmt .ans,.ppRow.justNow .v,.sLine,.ways li,#board .pl.pop,#board .chip.pop{ animation:none !important; }
+    }
+
+    /* ---------- responsive ---------- */
+    @media (max-width:1280px){
+      .layout{ grid-template-columns:minmax(0,1fr) 356px; }
+      .modeBtn small{ display:none; }
+    }
+    @media (max-width:1180px){
+      .mmtTopbar{ grid-template-columns:auto minmax(0,1fr) auto; padding:12px 16px; gap:12px; }
+      .mmtBrandText{ display:none; }
+      .btn{ padding:10px 13px; font-size:14px; }
+      .layout{ padding:12px 12px 14px; gap:12px; }
+      .outcomeTag{ display:none; }
+      .stepBtn{ padding:11px 9px; }
+      .nextBtn{ padding:12px 10px; font-size:.96rem; }
+    }
+    @media (max-width:980px){
+      .app{ height:auto; min-height:100dvh; }
+      .layout{ grid-template-columns:1fr; }
+      .boardCard{ min-height:0; }
+      .boardWrap{ flex:none; height:clamp(320px,62vh,560px); }
+      .workPanel{ flex:none; }
+      .workScroll{ overflow:visible; }
+    }
+    @media (max-width:760px){
+      .mmtTopbar{ grid-template-columns:1fr; justify-items:center; padding:12px 14px; }
+      .mmtBrand{ margin-left:0; } .topActions{ justify-self:center; justify-content:center; }
+      .dropMenu{ right:auto; left:50%; transform:translateX(-50%); }
+      .settingsMenu.open{ min-width:min(350px,92vw); }
+      .mmtTopTitle{ white-space:normal; }
+      .modeBtn{ padding:7px 11px 7px 7px; font-size:.88rem; }
+      .boardTop{ justify-content:center; }
+    }
+    @media print{ .mmtTopbar,.side .stepRow,.hint{ display:none; } }
   </style>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
 <!-- mmt-pwa -->
@@ -1157,1954 +356,1377 @@
 <!-- /mmt-pwa -->
 </head>
 <body>
-  <div class="page" id="pageRoot">
-    <div class="shell">
-      <div class="topbar">
-        <a class="back-btn" href="https://millsmathstools.au">
-          <img
-            class="back-logo"
-            src="../../../../assets/mmt.png"
-            alt="Mills Maths Tools logo"
-            onerror="this.style.display='none';"
-          />
-          <span>Back to Mills Maths Tools</span>
-        </a>
-
-        <div class="top-actions">
-          <div class="tools-menu" id="toolsMenu">
-            <button class="chip" id="toolsBtn" type="button" aria-expanded="false" aria-haspopup="true">Tools ▲</button>
-            <div class="tools-dropdown" id="toolsDropdown">
-              <div class="tools-submenu" id="quizSubmenu">
-                <button class="tools-link tools-link-parent" id="quizSubBtn" type="button" aria-expanded="false" aria-haspopup="true">
-                  <span>Student Quiz</span>
-                  <span class="tools-caret" aria-hidden="true">◂</span>
-                </button>
-                <div class="tools-flyout" id="quizFlyout" role="menu">
-                  <a class="tools-link" role="menuitem" href="../../../../online-quizzes/stage-4/measurement-space/perimeter-area-rectangle.html">Perimeter and Area of Rectangles</a>
-                  <a class="tools-link" role="menuitem" href="../../../../online-quizzes/stage-4/measurement-space/area-model.html">Area Model</a>
-                </div>
-              </div>
-              <a class="tools-link" href="../../../../worksheet-creators/stage-4/measurement-space/perimeter-area-rectangle.html">Worksheet Creator</a>
-              <a class="tools-link" href="../perimeter-plane-shapes/index.html">Perimeter of Plane Shapes</a>
-              <a class="tools-link" href="lesson-plan.html">Lesson Plan</a>
+  <div class="app">
+    <header class="mmtTopbar">
+      <a class="mmtBrand" href="https://www.millsmathstools.au" target="_self" aria-label="Back to Mills Maths Tools">
+        <span class="mmtBrandLogo" aria-hidden="true">MMT</span>
+        <span class="mmtBrandText"><strong>MMT</strong><span>Mills Maths Tools</span></span>
+      </a>
+      <div class="mmtTopTitle">Area Model &mdash; Multiplication &amp; Perimeter</div>
+      <div class="topActions">
+        <div class="menuWrap">
+          <button class="btn" id="settingsBtn" type="button" aria-haspopup="true" aria-expanded="false">Settings &#9662;</button>
+          <nav class="dropMenu settingsMenu" id="settingsMenu" aria-label="Settings">
+            <div class="settingsHead">New questions</div>
+            <label class="selRow"><span>Numbers</span>
+              <select id="levelSel" aria-label="Size of the numbers">
+                <option value="t1">Teen &times; one-digit (14 &times; 6)</option>
+                <option value="21">Two-digit &times; one-digit (47 &times; 6)</option>
+                <option value="tt">Teen &times; teen (13 &times; 17)</option>
+                <option value="22" selected>Two-digit &times; two-digit (36 &times; 24)</option>
+                <option value="31">Three-digit &times; one-digit (234 &times; 7)</option>
+                <option value="32">Three-digit &times; two-digit (124 &times; 32)</option>
+              </select>
+            </label>
+            <label class="selRow"><span>Start with</span>
+              <select id="startSel" aria-label="How a new question starts">
+                <option value="none" selected>The whole rectangle</option>
+                <option value="pv">Split by place value</option>
+              </select>
+            </label>
+            <p class="settingsNote">Starting whole lets the class decide how to split it. Change the numbers any time by clicking them on the board.</p>
+            <div class="settingsHead">Type your own</div>
+            <div class="ownRow">
+              <input id="ownW" type="number" inputmode="numeric" min="1" max="999" placeholder="23" aria-label="Across">
+              <span>&times;</span>
+              <input id="ownH" type="number" inputmode="numeric" min="1" max="999" placeholder="14" aria-label="Down">
+              <button class="ownGo" id="ownGo" type="button">Use</button>
             </div>
-          </div>
-
-         <div class="settings-menu" id="settingsMenu">
-  <button class="chip" id="settingsBtn" type="button" aria-expanded="false" aria-haspopup="true">Settings ▼</button>
-  <div class="settings-dropdown" id="settingsDropdown">
-    <div class="settings-card">
-
-      <div class="toggle-row">
-        <span>Repeat horizontal</span>
-        <button class="toggle" id="repeatHorizontalBtn" type="button" aria-pressed="false" aria-label="Repeat horizontal"></button>
-      </div>
-
-      <div class="toggle-row">
-        <span>Repeat vertical</span>
-        <button class="toggle" id="repeatVerticalBtn" type="button" aria-pressed="false" aria-label="Repeat vertical"></button>
-      </div>
-
-      <div class="settings-divider"></div>
-
-      <div>
-        <label class="partition-label" for="splitMode">Partition Splitter</label>
-        <select id="splitMode" class="chip-select settings-select" aria-label="Partition Splitter" style="width:100%;">
-          <option value="none">None</option>
-          <option value="vertical">Vertical only</option>
-          <option value="horizontal">Horizontal only</option>
-          <option value="both">Both vertical and horizontal</option>
-        </select>
-      </div>
-
-      <div>
-        <label class="partition-label" for="randomDifficulty">Random Q Difficulty</label>
-        <select id="randomDifficulty" class="chip-select settings-select" aria-label="Random Q Difficulty" style="width:100%;">
-          <option value="sweet">Sweet</option>
-          <option value="mild">Mild</option>
-          <option value="medium" selected>Medium</option>
-          <option value="spicy">Spicy</option>
-          <option value="extraHot">Extra Hot</option>
-        </select>
-      </div>
-
-    </div>
-  </div>
-</div>
-          <button class="chip red" id="resetBtn" type="button">Reset</button>
-          <button class="chip blue" id="newQBtn" type="button">Random Q</button>
+            <p class="ownMsg" id="ownMsg" hidden></p>
+            <div class="settingsRule" role="separator"></div>
+            <div class="settingsHead">On screen</div>
+            <label class="sw"><input type="checkbox" id="gridToggle" checked><span class="track"></span><span>Show the unit squares</span></label>
+            <label class="sw"><input type="checkbox" id="innerToggle" checked><span class="track"></span><span>Write the multiplication in each piece</span></label>
+            <label class="sw"><input type="checkbox" id="scaleToggle"><span class="track"></span><span>Always draw to scale</span></label>
+            <p class="settingsNote">Long, thin rectangles are stretched so the pieces stay readable (marked &ldquo;not to scale&rdquo;). Unit squares only show when the drawing is to scale and both sides are 100 or less.</p>
+            <label class="selRow"><span>Units</span>
+              <select id="unitSel" aria-label="Units">
+                <option value="" selected>None</option>
+                <option value="mm">mm</option>
+                <option value="cm">cm</option>
+                <option value="m">m</option>
+              </select>
+            </label>
+          </nav>
         </div>
-      </div>
-
-      <main class="tool-wrap">
-        <aside class="side-panel">
-          <div class="dimension-panel" id="dimensionPanel">
-            <div class="dimension-badge">Dimensions</div>
-
-            <div class="dimension-input-row">
-              <div class="input-box">
-                <input id="rowsInput" type="number" min="1" max="100" step="1" inputmode="numeric" value="10" />
-              </div>
-
-              <div class="times">×</div>
-
-              <div class="input-box">
-                <input id="colsInput" type="number" min="1" max="100" step="1" inputmode="numeric" value="10" />
-              </div>
-            </div>
-          </div>
-
-          <div class="metrics-panel">
-            <button class="metric-box area-style" id="areaBox" type="button"></button>
-            <button class="metric-box perimeter-style" id="perimeterBox" type="button"></button>
-          </div>
-        </aside>
-
-        <div class="equation-bar">
-          <div class="equation-row" aria-hidden="true"></div>
+        <div class="menuWrap">
+          <button class="btn" id="toolsBtn" type="button" aria-haspopup="true" aria-expanded="false">Tools &#9662;</button>
+          <nav class="dropMenu" id="toolsMenu" aria-label="Related tools">
+            <a class="toolLink" href="/online-quizzes/stage-4/measurement-space/area-model.html">Student Quiz &mdash; Area Model<small>Area only, saves to the student dashboard</small></a>
+            <a class="toolLink" href="/online-quizzes/stage-4/measurement-space/perimeter-area-rectangle.html">Student Quiz &mdash; Area &amp; Perimeter<small>Both measures, saves to the student dashboard</small></a>
+            <a class="toolLink" href="/worksheet-creators/stage-4/measurement-space/perimeter-area-rectangle.html">Worksheet Creator<small>Printable area and perimeter practice</small></a>
+            <a class="toolLink" href="lesson-plan.html">Lesson Plan<small>An ELPSA sequence built around this tool</small></a>
+            <div class="menuRule" role="separator"></div>
+            <a class="toolLink" href="/interactive-tools/stage-4/number/multiplying-fractions-area-model/index.html">Multiplying Fractions &mdash; Area Model<small>The same picture, with fractions</small></a>
+            <a class="toolLink" href="/interactive-tools/stage-4/measurement-space/perimeter-plane-shapes/index.html">Perimeter of Plane Shapes<small>Perimeter beyond rectangles</small></a>
+          </nav>
         </div>
+        <button class="btn btn-primary" id="newBtn" type="button">New question</button>
+      </div>
+    </header>
 
-        <div class="status" id="statusMsg"></div>
-
-        <section class="array-stage" id="arrayStage">
-          <div class="array-wrap">
-            <div class="top-label" id="topLabel"></div>
-            <div class="left-label" id="leftLabel"></div>
-            <div class="right-label" id="rightLabel"></div>
-            <div class="bottom-label" id="bottomLabel"></div>
-
-            <div class="grid-shell" id="gridShell">
-              <div class="grid" id="grid"></div>
-              <div class="guide-lines" id="guideLines"></div>
-              <div class="overall-dimension-layer" id="overallDimensionLayer"></div>
-              <div class="partition-dimension-layer" id="partitionDimensionLayer"></div>
-              <div class="boundary-labels" id="boundaryLabels"></div>
-              <div class="selection-labels" id="selectionLabels"></div>
-              <div class="region-labels" id="regionLabels"></div>
-              <div class="perimeter-trace" id="perimeterTrace"></div>
-
-              <div class="split-line vertical" id="vSplitLine">
-                <div class="split-handle"></div>
-              </div>
-
-              <div class="split-line horizontal" id="hSplitLine">
-                <div class="split-handle"></div>
-              </div>
-            </div>
+    <main class="layout">
+      <section class="card boardCard" id="boardCard">
+        <div class="boardTop">
+          <div class="modeSwitch" role="tablist" aria-label="What are we finding?">
+            <button class="modeBtn" data-mode="area" role="tab" aria-selected="true" type="button">
+              <span class="sym" aria-hidden="true">&times;</span><span class="txt">Multiply<small>area = part &times; part</small></span>
+            </button>
+            <button class="modeBtn" data-mode="perim" role="tab" aria-selected="false" type="button">
+              <span class="sym" aria-hidden="true">+</span><span class="txt">Perimeter<small>add the edges</small></span>
+            </button>
           </div>
+          <div class="topRight">
+            <span class="outcomeTag" id="outcomeTag">MA3-MR-01</span>
+            <button class="cutBtn" id="cutBtn" type="button" aria-pressed="false" title="Cut pieces out of the rectangle to make a new shape">&#9986; Remove pieces</button>
+          </div>
+        </div>
+        <div class="stmt" id="stmt" aria-live="polite"></div>
+        <div class="boardWrap" id="boardWrap">
+          <svg id="board" role="application" aria-label="Area model of the rectangle"></svg>
+          <span class="scaleTag" id="scaleTag" hidden>Not to scale</span>
+        </div>
+        <div class="hint" id="hint"></div>
+      </section>
+
+      <aside class="side">
+        <section class="card panel" aria-label="Split the sides">
+          <div class="pHead"><span class="pTitle">Split the sides</span></div>
+          <div class="splitRow">
+            <span class="lbl">Across</span>
+            <input class="partsIn x" id="partsX" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" aria-label="Parts across, for example 20 + 3">
+            <span class="eqTot" id="totX">= 23</span>
+          </div>
+          <div class="splitRow">
+            <span class="lbl">Down</span>
+            <input class="partsIn y" id="partsY" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" aria-label="Parts down, for example 10 + 4">
+            <span class="eqTot" id="totY">= 14</span>
+          </div>
+          <div class="quickRow">
+            <button class="miniBtn" id="pvBtn" type="button" title="Split both sides into hundreds, tens and ones">Place value</button>
+            <button class="miniBtn" id="tensBtn" type="button" title="Split both sides into tens and what's left">Into tens</button>
+            <button class="miniBtn" id="unsplitBtn" type="button" title="Back to one whole rectangle">Unsplit</button>
+          </div>
+          <p class="splitMsg" id="splitMsg" hidden></p>
         </section>
 
-        <aside class="tool-rail">
-          <button class="rail-btn active" id="arrowToolBtn" type="button" title="Arrow tool" aria-label="Arrow tool">↖</button>
-          <button class="rail-btn" id="eraserToolBtn" type="button" title="Eraser tool" aria-label="Eraser tool">⌫</button>
-          <button class="rail-btn" id="pointerToolBtn" type="button" title="Pointer tool" aria-label="Pointer tool">☞</button>
-        </aside>
-      </main>
-    </div>
+        <section class="card panel workPanel" aria-label="Working">
+          <div class="pHead"><span class="pTitle" id="workTitle">Working</span></div>
+          <div class="workScroll" id="workScroll">
+            <div id="work" aria-live="polite"></div>
+            <div class="ways" id="ways"></div>
+          </div>
+          <div class="stepRow">
+            <button class="stepBtn icon" id="backBtn" type="button" title="Back a step (&larr;)" aria-label="Back a step">&#9664;</button>
+            <button class="stepBtn icon" id="againBtn" type="button" title="Hide the answers and start again" aria-label="Start again">&#8634;</button>
+            <button class="stepBtn" id="allBtn" type="button">Show all</button>
+            <button class="nextBtn" id="nextBtn" type="button">Next piece &#9656;</button>
+          </div>
+          <div class="keyHint"><kbd>Space</kbd> next &middot; <kbd>&larr;</kbd> back &middot; <kbd>A</kbd>/<kbd>P</kbd> switch &middot; <kbd>N</kbd> new</div>
+        </section>
+      </aside>
+    </main>
   </div>
 
-  <script>
-    const rowsInput = document.getElementById('rowsInput');
-    const colsInput = document.getElementById('colsInput');
-    const splitMode = document.getElementById('splitMode');
-    const statusMsg = document.getElementById('statusMsg');
-    const resetBtn = document.getElementById('resetBtn');
-    const newQBtn = document.getElementById('newQBtn');
-    const repeatHorizontalBtn = document.getElementById('repeatHorizontalBtn');
-    const repeatVerticalBtn = document.getElementById('repeatVerticalBtn');
-  const randomDifficulty = document.getElementById('randomDifficulty');
+<script>
+(function(){
+  "use strict";
+  const $ = id => document.getElementById(id);
+  const SVGNS = "http://www.w3.org/2000/svg";
+  const reduceMotion = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  const rnd = (lo, hi) => lo + Math.floor(Math.random() * (hi - lo + 1));
+  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+  const MAX = 999, MAX_PARTS = 12;
 
-    const toolsMenu = document.getElementById('toolsMenu');
-    const toolsBtn = document.getElementById('toolsBtn');
-    const quizSubmenu = document.getElementById('quizSubmenu');
-    const quizSubBtn = document.getElementById('quizSubBtn');
-    const settingsMenu = document.getElementById('settingsMenu');
-    const settingsBtn = document.getElementById('settingsBtn');
-    const dimensionPanel = document.getElementById('dimensionPanel');
+  /* THE IDEA THIS TOOL IS BUILT AROUND
+     One rectangle, two questions about it.
+     - MULTIPLY: splitting a side splits the rectangle into pieces, and the
+       pieces still cover exactly the same area. So 23 × 14 is the sum of
+       20 × 10, 3 × 10, 20 × 4 and 3 × 4 — and ANY split gives the same total.
+       That is the distributive law, seen rather than told.
+     - PERIMETER: the same cuts split each edge into parts. The perimeter is
+       the sum of those parts, so a split chosen for the edges (by place value,
+       or to make friendly pairs such as 7 + 3) is an addition strategy.
+     The cuts are shared by both modes; nothing the class built is thrown away
+     when the question changes from "how much inside?" to "how far around?". */
 
-    const arrowToolBtn = document.getElementById('arrowToolBtn');
-    const eraserToolBtn = document.getElementById('eraserToolBtn');
-    const pointerToolBtn = document.getElementById('pointerToolBtn');
+  /* Piece colours. Pieces of the SAME size share a colour, so "into tens"
+     shows twelve identical blue 10 × 10 squares rather than a rainbow. */
+  const PALETTE = [
+    { fill:"#dbeafe", mid:"#93c5fd", ink:"#1e40af" },
+    { fill:"#fef3c7", mid:"#fcd34d", ink:"#92400e" },
+    { fill:"#dcfce7", mid:"#86efac", ink:"#166534" },
+    { fill:"#ffe4e6", mid:"#fda4af", ink:"#9f1239" },
+    { fill:"#ede9fe", mid:"#c4b5fd", ink:"#5b21b6" },
+    { fill:"#ccfbf1", mid:"#5eead4", ink:"#115e59" },
+    { fill:"#ffedd5", mid:"#fdba74", ink:"#9a3412" },
+    { fill:"#e0e7ff", mid:"#a5b4fc", ink:"#3730a3" }
+  ];
+  const STRATS = {
+    walk:{ name:"Walk round", note:"Start at the top-left corner and keep a running total all the way round." },
+    pv:  { name:"Tens & ones", note:"Add all the tens, then all the ones, then put the two together." },
+    half:{ name:"Double half", note:"Opposite sides match, so add half way round and double it." },
+    own: { name:"Your order", note:"Tap the edges on the board in the order you’d add them — look for pairs that make a ten." }
+  };
 
-    const arrayStage = document.getElementById('arrayStage');
-    const gridShell = document.getElementById('gridShell');
-    const topLabel = document.getElementById('topLabel');
-    const leftLabel = document.getElementById('leftLabel');
-    const rightLabel = document.getElementById('rightLabel');
-    const bottomLabel = document.getElementById('bottomLabel');
-    const grid = document.getElementById('grid');
-    const guideLines = document.getElementById('guideLines');
-    const overallDimensionLayer = document.getElementById('overallDimensionLayer');
-    const partitionDimensionLayer = document.getElementById('partitionDimensionLayer');
-    const boundaryLabels = document.getElementById('boundaryLabels');
-    const selectionLabels = document.getElementById('selectionLabels');
-    const regionLabels = document.getElementById('regionLabels');
-    const perimeterTrace = document.getElementById('perimeterTrace');
-    const vSplitLine = document.getElementById('vSplitLine');
-    const hSplitLine = document.getElementById('hSplitLine');
-    const areaBox = document.getElementById('areaBox');
-    const perimeterBox = document.getElementById('perimeterBox');
+  const S = {
+    W:23, H:14, cx:[], cy:[],
+    mode:"area",
+    revealed:new Set(),   /* group keys "wxh" whose products are showing */
+    revOrder:[],
+    sumShown:false,
+    removed:new Set(),    /* piece keys "i,j" cut out of the shape */
+    removing:false,
+    strat:"walk", pstep:0, own:[],
+    walking:false,
+    ways:[],
+    msg:"", msgWarn:false,
+    anim:0,
+    pop:null,
+    drag:null,
+    set:{ level:"22", start:"none", grid:true, inner:true, scale:false, units:"" },
+    L:null, G:null, B:null
+  };
 
-    const TOOL_ARROW = 'arrow';
-    const TOOL_ERASER = 'eraser';
-    const TOOL_POINTER = 'pointer';
+  /* ------------------------------------------------------------ settings */
+  const STORE = "mmt.areaModel.v1";
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORE) || "null");
+    if(saved && typeof saved === "object") Object.assign(S.set, saved);
+  } catch(e){ /* storage blocked: defaults */ }
+  function saveSettings(){ try { localStorage.setItem(STORE, JSON.stringify(S.set)); } catch(e){} }
 
-    const state = {
-      rows: 10,
-      cols: 10,
-      cellSize: 24,
-      splitMode: 'none',
-      vSplit: null,
-      hSplit: null,
-      dragging: null,
-      repeatHorizontal: false,
-      repeatVertical: false,
-      revealValues: false,
-      showAreaTotal: false,
-      showPerimeterTotal: false,
-      areaAnimToken: 0,
-      perimeterAnimToken: 0,
-      areaAnimating: false,
-      perimeterAnimating: false,
-      perimeterHold: false,
-      areaRunningTotal: null,
-      perimeterRunningTotal: null,
-      revealedAreaQuadrants: new Set(),
-      revealedPerimeterLabels: new Set(),
-      removedQuadrants: new Set(),
-      selectedQuadrant: null,
-      toolMode: TOOL_ARROW,
-randomDifficulty: 'medium',
-      boundaryInfo: {
-        orderedSegments: [],
-        pathD: '',
-        totalLengthPx: 0
+  /* ------------------------------------------------------------ numbers */
+  function partsOf(total, cuts){
+    const p = []; let prev = 0;
+    cuts.forEach(c => { p.push(c - prev); prev = c; });
+    p.push(total - prev);
+    return p;
+  }
+  function cutsOf(parts){
+    const c = []; let run = 0;
+    for(let i = 0; i < parts.length - 1; i++){ run += parts[i]; c.push(run); }
+    return c;
+  }
+  function placeValueParts(n){
+    const out = []; let mult = 1, m = n;
+    while(m > 0){ const d = m % 10; if(d) out.unshift(d * mult); m = Math.floor(m / 10); mult *= 10; }
+    return out.length ? out : [n];
+  }
+  function tensParts(n){
+    const t = Math.floor(n / 10), r = n % 10, out = [];
+    for(let i = 0; i < t; i++) out.push(10);
+    if(r) out.push(r);
+    return out.length ? out : [n];
+  }
+  function fmt(n){ return n >= 10000 ? n.toLocaleString("en-AU") : String(n); }
+  function joinPlus(arr){ return arr.join(" + "); }
+  function unitTxt(sq){ const u = S.set.units; return u ? " " + u + (sq ? "²" : "") : ""; }
+
+  /* ------------------------------------------------------------ geometry */
+  function geo(){
+    const px = partsOf(S.W, S.cx), py = partsOf(S.H, S.cy);
+    const X = [0, ...S.cx, S.W], Y = [0, ...S.cy, S.H];
+    const pieces = [], groups = [], gmap = new Map();
+    for(let j = 0; j < py.length; j++){
+      for(let i = 0; i < px.length; i++){
+        const key = i + "," + j;
+        const p = { i, j, key, w:px[i], h:py[j], x0:X[i], y0:Y[j], removed:S.removed.has(key) };
+        const gk = p.w + "x" + p.h;
+        if(!gmap.has(gk)){ gmap.set(gk, groups.length); groups.push({ key:gk, w:p.w, h:p.h, prod:p.w * p.h, keys:[], live:[] }); }
+        p.g = gmap.get(gk); p.gk = gk;
+        groups[p.g].keys.push(key);
+        if(!p.removed) groups[p.g].live.push(key);
+        pieces.push(p);
       }
+    }
+    groups.forEach((g, idx) => { g.col = PALETTE[idx % PALETTE.length]; });
+    const liveGroups = groups.filter(g => g.live.length);
+    const area = liveGroups.reduce((s, g) => s + g.prod * g.live.length, 0);
+    return { px, py, X, Y, pieces, groups, liveGroups, area, nx:px.length, ny:py.length };
+  }
+
+  /* The outline as ONE clockwise loop of edge pieces, starting at the
+     top-left. Every grid line between a piece that is there and one that is
+     not (or the outside) is an edge, walked with the shape on its right. */
+  function boundary(G){
+    const P = (i, j) => i >= 0 && j >= 0 && i < G.nx && j < G.ny && !S.removed.has(i + "," + j);
+    const segs = [];
+    for(let k = 0; k <= G.ny; k++) for(let i = 0; i < G.nx; i++){
+      const up = P(i, k - 1), dn = P(i, k);
+      if(up === dn) continue;
+      const y = G.Y[k], a = G.X[i], b = G.X[i + 1];
+      segs.push(dn ? { x1:a, y1:y, x2:b, y2:y, dir:"E" } : { x1:b, y1:y, x2:a, y2:y, dir:"W" });
+    }
+    for(let k = 0; k <= G.nx; k++) for(let j = 0; j < G.ny; j++){
+      const lf = P(k - 1, j), rt = P(k, j);
+      if(lf === rt) continue;
+      const x = G.X[k], a = G.Y[j], b = G.Y[j + 1];
+      segs.push(lf ? { x1:x, y1:a, x2:x, y2:b, dir:"S" } : { x1:x, y1:b, x2:x, y2:a, dir:"N" });
+    }
+    segs.forEach(s => { s.len = Math.abs(s.x2 - s.x1) + Math.abs(s.y2 - s.y1); });
+    if(!segs.length) return { segs:[], total:0 };
+    const byStart = new Map();
+    segs.forEach(s => byStart.set(s.x1 + "," + s.y1, s));
+    let start = segs.filter(s => s.dir === "E").sort((a, b) => a.y1 - b.y1 || a.x1 - b.x1)[0];
+    const loop = []; let cur = start, guard = 0;
+    while(cur && guard++ < segs.length + 2){
+      loop.push(cur);
+      cur = byStart.get(cur.x2 + "," + cur.y2);
+      if(cur === start) break;
+    }
+    loop.forEach((s, idx) => { s.idx = idx; });
+    return { segs:loop, total:loop.reduce((t, s) => t + s.len, 0) };
+  }
+
+  /* A removal is allowed only if what is left is ONE piece of shape with no
+     hole in it — otherwise "perimeter" stops meaning one walk round. */
+  function removalProblem(removedSet, G){
+    const live = (i, j) => i >= 0 && j >= 0 && i < G.nx && j < G.ny && !removedSet.has(i + "," + j);
+    const all = []; for(let j = 0; j < G.ny; j++) for(let i = 0; i < G.nx; i++) if(live(i, j)) all.push([i, j]);
+    if(all.length === 0) return "Leave at least one piece.";
+    const seen = new Set([all[0].join(",")]), stack = [all[0]];
+    while(stack.length){
+      const [i, j] = stack.pop();
+      [[1,0],[-1,0],[0,1],[0,-1]].forEach(([di, dj]) => {
+        const a = i + di, b = j + dj, k = a + "," + b;
+        if(live(a, b) && !seen.has(k)){ seen.add(k); stack.push([a, b]); }
+      });
+    }
+    if(seen.size !== all.length) return "That would cut the shape in two.";
+    /* every removed piece must reach the outside through removed pieces */
+    const out = new Set(), st = [];
+    removedSet.forEach(k => {
+      const [i, j] = k.split(",").map(Number);
+      if(i === 0 || j === 0 || i === G.nx - 1 || j === G.ny - 1){ out.add(k); st.push([i, j]); }
+    });
+    while(st.length){
+      const [i, j] = st.pop();
+      [[1,0],[-1,0],[0,1],[0,-1]].forEach(([di, dj]) => {
+        const k = (i + di) + "," + (j + dj);
+        if(removedSet.has(k) && !out.has(k)){ out.add(k); st.push([i + di, j + dj]); }
+      });
+    }
+    if(out.size !== removedSet.size) return "That would leave a hole in the middle.";
+    return "";
+  }
+
+  /* ------------------------------------------------------------ layout */
+  const M_FULL = { L:112, T:96, R:62, B:54 }, M_COMPACT = { L:74, T:68, R:50, B:46 };
+  function layout(){
+    const wrap = $("boardWrap");
+    const w = Math.max(220, wrap.clientWidth), h = Math.max(200, wrap.clientHeight);
+    const compact = w < 560;
+    const M = compact ? M_COMPACT : M_FULL;
+    const aw = Math.max(60, w - M.L - M.R), ah = Math.max(60, h - M.T - M.B);
+    let s = Math.min(aw / S.W, ah / S.H), sx = s, sy = s, open = false;
+    const shortPx = Math.min(S.W, S.H) * s;
+    if(!S.set.scale && shortPx < Math.min(170, Math.min(aw, ah) * 0.42)){
+      open = true;
+      const asp = clamp(S.W / S.H, 1 / 2.4, 2.4);
+      let rw = aw, rh = rw / asp;
+      if(rh > ah){ rh = ah; rw = rh * asp; }
+      sx = rw / S.W; sy = rh / S.H;
+    }
+    /* Over 100 a side there are no unit squares to keep honest, so a sliver
+       too thin to read (the 9 in 900 + 90 + 9) switches to an open model. */
+    if(!open && !S.set.scale && Math.max(S.W, S.H) > 100){
+      const thinnest = Math.min(...partsOf(S.W, S.cx).map(v => v * sx), ...partsOf(S.H, S.cy).map(v => v * sy));
+      if(thinnest < 18) open = true;
+    }
+    const rw = S.W * sx, rh = S.H * sy;
+    const left = M.L + (aw - rw) / 2, top = M.T + (ah - rh) / 2;
+    const mx = axisMap(S.W, S.cx, left, rw, open), my = axisMap(S.H, S.cy, top, rh, open);
+    return { w, h, sx, sy, open, rw, rh, compact, left, top, X:mx.f, Y:my.f, ix:mx.inv, iy:my.inv };
+  }
+  /* value -> pixel along one side. To scale it is a straight line. In an open
+     (not to scale) model every part also gets a minimum width so its label
+     fits; the map is still monotonic, so dragging a split still works. */
+  function axisMap(tot, cuts, start, len, open){
+    if(!open) return { f:v => start + v * len / tot, inv:p => (p - start) * tot / len };
+    const vals = [0, ...cuts, tot], parts = partsOf(tot, cuts), n = parts.length;
+    const minPx = Math.min(48, len / n * 0.75), extra = len - n * minPx;
+    const pos = [start]; parts.forEach(pt => pos.push(pos[pos.length - 1] + minPx + extra * pt / tot));
+    const seg = (arr, x) => { let k = 0; while(k < arr.length - 2 && x > arr[k + 1]) k++; return k; };
+    return {
+      f:v => { const k = seg(vals, v); return pos[k] + (v - vals[k]) * (pos[k + 1] - pos[k]) / (vals[k + 1] - vals[k]); },
+      inv:p => { const k = seg(pos, p); return vals[k] + (p - pos[k]) * (vals[k + 1] - vals[k]) / (pos[k + 1] - pos[k]); }
     };
+  }
 
-    function clampWholeNumber(value){
-      if (value === '' || value == null) return null;
-      const n = Number(value);
-      if (!Number.isFinite(n)) return null;
-      return Math.min(100, Math.max(1, Math.round(n)));
-    }
+  /* ------------------------------------------------------------ svg helpers */
+  function el(tag, attrs, parent){
+    const e = document.createElementNS(SVGNS, tag);
+    if(attrs) for(const k in attrs){ if(attrs[k] != null) e.setAttribute(k, attrs[k]); }
+    if(parent) parent.appendChild(e);
+    return e;
+  }
+  function txt(parent, x, y, s, fs, fill, extra){
+    const t = el("text", Object.assign({ x, y, "font-size":fs, fill, "text-anchor":"middle", "dominant-baseline":"central" }, extra || {}), parent);
+    t.textContent = s;
+    return t;
+  }
+  function textW(s, fs){ return s.length * fs * 0.56; }
+  function pill(parent, x, y, s, fs, o){
+    o = o || {};
+    const g = el("g", { class:o.cls || null }, parent);
+    const w = Math.max(fs * 1.5, textW(s, fs) + fs * 0.9), h = fs * 1.55;
+    el("rect", { x:x - w / 2, y:y - h / 2, width:w, height:h, rx:h / 2, fill:o.bg || "#fff", stroke:o.stroke || "#e2e8f0", "stroke-width":o.sw || 1.5 }, g);
+    txt(g, x, y + fs * 0.04, s, fs, o.color || "#0f172a");
+    return g;
+  }
 
-    function sanitiseInput(inputEl){
-      const cleaned = clampWholeNumber(inputEl.value);
-      if (cleaned === null) return null;
-      inputEl.value = cleaned;
-      return cleaned;
-    }
+  /* ------------------------------------------------------------ render */
+  const svg = $("board");
+  function render(){
+    /* while a split is being dragged the drawing keeps the scale it had when
+       the drag began, so the line stays under the finger */
+    const L = S.L = (S.drag && S.dragL) ? S.dragL : layout();
+    const G = S.G = geo();
+    const B = S.B = boundary(G);
+    const X = L.X, Y = L.Y;
+    const area = S.mode === "area";
+    const showGrid = S.set.grid && !L.open && S.W <= 100 && S.H <= 100 && Math.min(L.sx, L.sy) >= 3.2;
 
-    function defaultSplit(total){
-      if (total <= 1) return null;
-      return Math.max(1, Math.floor(total / 2));
-    }
+    /* stacked (narrow) layout: the board is only as tall as the drawing needs */
+    const wrapEl = $("boardWrap");
+    if(window.matchMedia && window.matchMedia("(max-width:980px)").matches && !S.drag){
+      const M = L.compact ? M_COMPACT : M_FULL;
+      const want = Math.round(clamp(L.rh + M.T + M.B + 8, 250, Math.max(250, window.innerHeight * 0.7)));
+      if(Math.abs(wrapEl.clientHeight - want) > 3 && !S.fitting){ wrapEl.style.height = want + "px"; S.fitting = true; try { return render(); } finally { S.fitting = false; } }
+    } else if(wrapEl.style.height) wrapEl.style.height = "";
+    svg.setAttribute("viewBox", "0 0 " + L.w + " " + L.h);
+    svg.setAttribute("class", "m-" + S.mode + (S.removing ? " removing" : "") + (!area && S.strat === "own" && !S.removing ? " own" : ""));
+    svg.innerHTML = "";
+    $("scaleTag").hidden = !L.open;
 
-    function splitEnabled(mode, kind){
-      return mode === kind || mode === 'both';
-    }
+    const defs = el("defs", null, svg);
+    const hatch = el("pattern", { id:"hatch", width:8, height:8, patternUnits:"userSpaceOnUse", patternTransform:"rotate(45)" }, defs);
+    el("rect", { width:8, height:8, fill:"#fff" }, hatch);
+    el("line", { x1:0, y1:0, x2:0, y2:8, stroke:"#fecdd3", "stroke-width":3 }, hatch);
 
-    function getCellSize(rows, cols){
-      const stageRect = arrayStage.getBoundingClientRect();
-      const availableWidth = stageRect.width * 0.78;
-      const availableHeight = stageRect.height * 0.82;
-      const sizeFromWidth = Math.floor(availableWidth / Math.max(1, cols));
-      const sizeFromHeight = Math.floor(availableHeight / Math.max(1, rows));
-      return Math.max(4, Math.min(60, sizeFromWidth, sizeFromHeight));
-    }
+    const gPieces = el("g", null, svg), gGrid = el("g", null, svg), gCuts = el("g", null, svg),
+          gEdge = el("g", null, svg), gLabels = el("g", null, svg), gRulers = el("g", null, svg),
+          gChips = el("g", null, svg);
+    el("g", { id:"fx" }, svg);
+    el("g", { id:"ghost" }, svg);
 
-    function getBubbleFontSize(w, h, cellSize){
-      const shortestSide = Math.min(w * cellSize, h * cellSize);
-      return Math.min(32, Math.max(9, shortestSide * 0.18));
-    }
-
-    function getBubblePadding(shortestSide){
-      if (shortestSide < 18) return {padY:1, padX:4, minW:14};
-      if (shortestSide < 28) return {padY:2, padX:6, minW:18};
-      if (shortestSide < 42) return {padY:3, padX:7, minW:20};
-      return {padY:4, padX:9, minW:24};
-    }
-
-    function ensureSplitsInRange(){
-      if (splitEnabled(state.splitMode, 'vertical') && state.cols > 1){
-        if (state.vSplit == null) state.vSplit = defaultSplit(state.cols);
-        state.vSplit = Math.max(1, Math.min(state.cols - 1, state.vSplit));
-      } else {
-        state.vSplit = null;
+    /* pieces */
+    G.pieces.forEach(p => {
+      const x = X(p.x0), y = Y(p.y0), pw = X(p.x0 + p.w) - x, ph = Y(p.y0 + p.h) - y;
+      const grp = G.groups[p.g], col = grp.col;
+      if(p.removed){
+        el("rect", { x:x + 1.5, y:y + 1.5, width:Math.max(0, pw - 3), height:Math.max(0, ph - 3), fill:S.removing ? "url(#hatch)" : "none",
+          stroke:S.removing ? "#fb7185" : "#cbd5e1", "stroke-width":1.5, "stroke-dasharray":"6 5", rx:3,
+          class:"ghostPiece", "data-piece":p.key }, gPieces);
+        if(S.removing && pw > 26 && ph > 22) txt(gPieces, x + pw / 2, y + ph / 2, "↩", Math.min(26, ph * 0.4), "#be123c");
+        return;
       }
+      let fill;
+      if(area) fill = S.revealed.has(p.gk) ? col.mid : col.fill;
+      else fill = "#f8fafc";
+      el("rect", { x, y, width:pw, height:ph, fill, class:"piece", "data-piece":p.key, "data-g":p.gk }, gPieces);
+    });
 
-      if (splitEnabled(state.splitMode, 'horizontal') && state.rows > 1){
-        if (state.hSplit == null) state.hSplit = defaultSplit(state.rows);
-        state.hSplit = Math.max(1, Math.min(state.rows - 1, state.hSplit));
-      } else {
-        state.hSplit = null;
+    /* unit squares, drawn piece by piece so cut-away pieces stay empty */
+    if(showGrid){
+      let d = "";
+      G.pieces.forEach(p => {
+        if(p.removed) return;
+        for(let u = p.x0 + 1; u < p.x0 + p.w; u++) d += "M" + X(u) + " " + Y(p.y0) + "V" + Y(p.y0 + p.h);
+        for(let v = p.y0 + 1; v < p.y0 + p.h; v++) d += "M" + X(p.x0) + " " + Y(v) + "H" + X(p.x0 + p.w);
+      });
+      if(d) el("path", { d, stroke:area ? "rgba(15,23,42,.16)" : "rgba(15,23,42,.08)", "stroke-width":1, fill:"none", "shape-rendering":"crispEdges" }, gGrid);
+    }
+
+    /* cut lines inside the shape */
+    const P = (i, j) => i >= 0 && j >= 0 && i < G.nx && j < G.ny && !S.removed.has(i + "," + j);
+    let dCut = "";
+    for(let k = 1; k < G.nx; k++) for(let j = 0; j < G.ny; j++) if(P(k - 1, j) && P(k, j)) dCut += "M" + X(G.X[k]) + " " + Y(G.Y[j]) + "V" + Y(G.Y[j + 1]);
+    for(let k = 1; k < G.ny; k++) for(let i = 0; i < G.nx; i++) if(P(i, k - 1) && P(i, k)) dCut += "M" + X(G.X[i]) + " " + Y(G.Y[k]) + "H" + X(G.X[i + 1]);
+    if(dCut) el("path", area
+      ? { d:dCut, stroke:"#1e293b", "stroke-width":3, fill:"none", "stroke-linecap":"square" }
+      : { d:dCut, stroke:"#cbd5e1", "stroke-width":2, fill:"none", "stroke-dasharray":"7 6" }, gCuts);
+
+    /* outline */
+    const act = activeSegs();
+    if(B.segs.length){
+      let d = "M" + X(B.segs[0].x1) + " " + Y(B.segs[0].y1);
+      B.segs.forEach(s => { d += "L" + X(s.x2) + " " + Y(s.y2); });
+      d += "Z";
+      if(area) el("path", { d, fill:"none", stroke:"#1e293b", "stroke-width":3, "stroke-linejoin":"round" }, gEdge);
+      else {
+        el("path", { d, fill:"none", stroke:"#ddd6fe", "stroke-width":6, "stroke-linejoin":"round" }, gEdge);
+        B.segs.forEach(s => {
+          if(!act.has(s.idx)) return;
+          el("line", { x1:X(s.x1), y1:Y(s.y1), x2:X(s.x2), y2:Y(s.y2), stroke:"#7c3aed", "stroke-width":7, "stroke-linecap":"round" }, gEdge);
+        });
       }
     }
 
-    function getSegments(total, primary, repeating){
-      if (primary == null || primary <= 0 || primary >= total){
-        return [{ size: total, kind: 'only' }];
-      }
-
-      if (!repeating){
-        return [
-          { size: primary, kind: 'full' },
-          { size: total - primary, kind: 'rem' }
-        ];
-      }
-
-      const segs = [];
-      let remaining = total;
-      while (remaining > 0){
-        if (remaining >= primary){
-          segs.push({ size: primary, kind: 'full' });
-          remaining -= primary;
+    /* inside labels (multiply mode) */
+    if(area){
+      G.pieces.forEach(p => {
+        if(p.removed) return;
+        const pw = X(p.x0 + p.w) - X(p.x0), ph = Y(p.y0 + p.h) - Y(p.y0), cx = X(p.x0) + pw / 2, cy = Y(p.y0) + ph / 2;
+        const col = G.groups[p.g].col, rev = S.revealed.has(p.gk);
+        const mult = p.w + " × " + p.h, prod = fmt(p.w * p.h);
+        if(rev){
+          let fs = Math.min(52, ph * 0.42, (pw - 10) / (prod.length * 0.56));
+          let fs2 = Math.min(fs * 0.48, ph * 0.2, (pw - 10) / (mult.length * 0.56));
+          const showMult = S.set.inner && fs2 >= 10 && ph > fs + fs2 * 1.6 + 6;
+          if(fs >= 10){
+            const tProd = txt(gLabels, cx, cy + (showMult ? fs2 * 0.62 : 0), prod, fs, col.ink, { class:"pl" + (S.pop === p.gk ? " pop" : "") });
+            tProd.setAttribute("data-g", p.gk);
+          }
+          if(showMult) txt(gLabels, cx, cy - fs * 0.52, mult, fs2, col.ink, { opacity:.85 });
         } else {
-          segs.push({ size: remaining, kind: 'rem' });
-          remaining = 0;
-        }
-      }
-      return segs;
-    }
-
-    function getColumnSegments(){
-      const verticalOn = splitEnabled(state.splitMode, 'vertical') && state.vSplit != null;
-      return verticalOn
-        ? getSegments(state.cols, state.vSplit, state.repeatVertical)
-        : [{ size: state.cols, kind: 'only' }];
-    }
-
-    function getRowSegments(){
-      const horizontalOn = splitEnabled(state.splitMode, 'horizontal') && state.hSplit != null;
-      return horizontalOn
-        ? getSegments(state.rows, state.hSplit, state.repeatHorizontal)
-        : [{ size: state.rows, kind: 'only' }];
-    }
-
-    function getCellColor(rowKind, colKind){
-      const verticalOn = splitEnabled(state.splitMode, 'vertical') && state.vSplit != null;
-      const horizontalOn = splitEnabled(state.splitMode, 'horizontal') && state.hSplit != null;
-
-      if (!verticalOn && !horizontalOn) return '#169eaa';
-
-      if (verticalOn && !horizontalOn){
-        return colKind === 'full' ? '#2563eb' : '#f2cb05';
-      }
-
-      if (!verticalOn && horizontalOn){
-        return rowKind === 'full' ? '#2563eb' : '#16a34a';
-      }
-
-      if (rowKind === 'full' && colKind === 'full') return '#2563eb';
-      if (rowKind === 'full' && colKind !== 'full') return '#f2cb05';
-      if (rowKind !== 'full' && colKind === 'full') return '#fdba74';
-      return '#16a34a';
-    }
-
-    function getQuadrants(){
-      const colSegs = getColumnSegments();
-      const rowSegs = getRowSegments();
-      const quadrants = [];
-      let yStart = 0;
-
-      rowSegs.forEach((rowSeg, rIndex) => {
-        let xStart = 0;
-        colSegs.forEach((colSeg, cIndex) => {
-          const key = `r${rIndex}-c${cIndex}`;
-          quadrants.push({
-            key,
-            rowIndex: rIndex,
-            colIndex: cIndex,
-            x: xStart,
-            y: yStart,
-            w: colSeg.size,
-            h: rowSeg.size,
-            rowKind: rowSeg.kind,
-            colKind: colSeg.kind,
-            area: rowSeg.size * colSeg.size
-          });
-          xStart += colSeg.size;
-        });
-        yStart += rowSeg.size;
-      });
-
-      return quadrants;
-    }
-
-    function getRemainingQuadrants(){
-      return getQuadrants().filter(q => !state.removedQuadrants.has(q.key));
-    }
-
-    function getQuadrantByKey(key){
-      return getQuadrants().find(q => q.key === key) || null;
-    }
-
-    function getRemainingAreaTotal(){
-      return getRemainingQuadrants().reduce((sum, q) => sum + q.area, 0);
-    }
-
-    function getQuadrantOrder(){
-      const quadrants = getRemainingQuadrants();
-      const map = new Map(quadrants.map(q => [q.key, q]));
-      const preferred = ['r0-c0','r0-c1','r1-c0','r1-c1'];
-      const ordered = preferred.map(key => map.get(key)).filter(Boolean);
-      const leftovers = quadrants.filter(q => !preferred.includes(q.key));
-      return [...ordered, ...leftovers];
-    }
-
-    function getQuadrantGroupsForAreaAnimation(){
-      const quadrants = getRemainingQuadrants();
-      const groups = [];
-      const groupMap = new Map();
-
-      quadrants.forEach(q => {
-        const key = `${q.w}x${q.h}`;
-        if (!groupMap.has(key)){
-          groupMap.set(key, []);
-          groups.push({
-            key,
-            w: q.w,
-            h: q.h,
-            quadrants: groupMap.get(key)
-          });
-        }
-        groupMap.get(key).push(q);
-      });
-
-      return groups;
-    }
-
-    function makeOccupancyMatrix(){
-      const matrix = Array.from({length: state.rows}, () => Array(state.cols).fill(false));
-      for (const q of getRemainingQuadrants()){
-        for (let r = q.y; r < q.y + q.h; r++){
-          for (let c = q.x; c < q.x + q.w; c++){
-            matrix[r][c] = true;
-          }
-        }
-      }
-      return matrix;
-    }
-
-    function buildBoundaryFromMatrix(matrix){
-      const edges = [];
-
-      function addEdge(sx, sy, ex, ey){
-        edges.push({
-          sx, sy, ex, ey,
-          start: `${sx},${sy}`,
-          end: `${ex},${ey}`,
-          used: false
-        });
-      }
-
-      for (let r = 0; r < state.rows; r++){
-        for (let c = 0; c < state.cols; c++){
-          if (!matrix[r][c]) continue;
-
-          if (r === 0 || !matrix[r - 1][c]) addEdge(c, r, c + 1, r);
-          if (c === state.cols - 1 || !matrix[r][c + 1]) addEdge(c + 1, r, c + 1, r + 1);
-          if (r === state.rows - 1 || !matrix[r + 1][c]) addEdge(c + 1, r + 1, c, r + 1);
-          if (c === 0 || !matrix[r][c - 1]) addEdge(c, r + 1, c, r);
-        }
-      }
-
-      const outgoing = new Map();
-      edges.forEach((edge, idx) => {
-        if (!outgoing.has(edge.start)) outgoing.set(edge.start, []);
-        outgoing.get(edge.start).push(idx);
-      });
-
-      const loops = [];
-
-      for (let i = 0; i < edges.length; i++){
-        if (edges[i].used) continue;
-
-        const loop = [];
-        let current = edges[i];
-
-        while (current && !current.used){
-          current.used = true;
-          loop.push(current);
-
-          const nextList = outgoing.get(current.end) || [];
-          const nextIndex = nextList.find(idx => !edges[idx].used);
-          if (nextIndex == null) break;
-          current = edges[nextIndex];
-        }
-
-        if (loop.length) loops.push(loop);
-      }
-
-      const verticalBreaks = new Set();
-      const horizontalBreaks = new Set();
-
-      let xCursor = 0;
-      getColumnSegments().forEach((seg, i, arr) => {
-        xCursor += seg.size;
-        if (i < arr.length - 1) verticalBreaks.add(xCursor);
-      });
-
-      let yCursor = 0;
-      getRowSegments().forEach((seg, i, arr) => {
-        yCursor += seg.size;
-        if (i < arr.length - 1) horizontalBreaks.add(yCursor);
-      });
-
-      function orientationOf(edge){
-        return edge.sy === edge.ey ? 'h' : 'v';
-      }
-
-      function sideOf(edge){
-        const orientation = orientationOf(edge);
-        return orientation === 'h'
-          ? (edge.ex > edge.sx ? 'top' : 'bottom')
-          : (edge.ey > edge.sy ? 'right' : 'left');
-      }
-
-      function startsAtBreakpoint(edge){
-        const orientation = orientationOf(edge);
-        if (orientation === 'h'){
-          return verticalBreaks.has(edge.sx);
-        }
-        return horizontalBreaks.has(edge.sy);
-      }
-
-      const orderedSegments = [];
-
-      loops.forEach(loop => {
-        let currentSeg = null;
-
-        loop.forEach((edge) => {
-          const orientation = orientationOf(edge);
-          const side = sideOf(edge);
-
-          if (!currentSeg){
-            currentSeg = {
-              id: '',
-              orientation,
-              side,
-              x1: edge.sx,
-              y1: edge.sy,
-              x2: edge.ex,
-              y2: edge.ey,
-              lengthCells: Math.abs(edge.ex - edge.sx) + Math.abs(edge.ey - edge.sy)
-            };
-            return;
-          }
-
-          const sameOrientation = currentSeg.orientation === orientation;
-          const sameSide = currentSeg.side === side;
-          const connected = currentSeg.x2 === edge.sx && currentSeg.y2 === edge.sy;
-          const breakpointHit = startsAtBreakpoint(edge);
-
-          if (sameOrientation && sameSide && connected && !breakpointHit){
-            currentSeg.x2 = edge.ex;
-            currentSeg.y2 = edge.ey;
-            currentSeg.lengthCells += Math.abs(edge.ex - edge.sx) + Math.abs(edge.ey - edge.sy);
-          } else {
-            currentSeg.id = `edge-${orderedSegments.length}`;
-            orderedSegments.push(currentSeg);
-
-            currentSeg = {
-              id: '',
-              orientation,
-              side,
-              x1: edge.sx,
-              y1: edge.sy,
-              x2: edge.ex,
-              y2: edge.ey,
-              lengthCells: Math.abs(edge.ex - edge.sx) + Math.abs(edge.ey - edge.sy)
-            };
-          }
-        });
-
-        if (currentSeg){
-          currentSeg.id = `edge-${orderedSegments.length}`;
-          orderedSegments.push(currentSeg);
+          const s = S.set.inner ? mult : "?";
+          const fs = Math.min(S.set.inner ? 30 : 38, ph * (S.set.inner ? 0.3 : 0.42), (pw - 10) / (s.length * 0.56));
+          if(fs >= 9.5) txt(gLabels, cx, cy, s, fs, col.ink, { opacity:S.set.inner ? .78 : .45 });
         }
       });
+    }
 
-      let d = '';
-      loops.forEach(loop => {
-        if (!loop.length) return;
-        d += `M ${loop[0].sx * state.cellSize} ${loop[0].sy * state.cellSize} `;
-        loop.forEach(edge => {
-          d += `L ${edge.ex * state.cellSize} ${edge.ey * state.cellSize} `;
-        });
-        d += 'Z ';
+    /* part sizes along the top and left (multiply mode), overall arrows (both) */
+    const rT = L.top, rL = L.left, rR = L.left + L.rw, rB = L.top + L.rh;
+    if(area){
+      G.px.forEach((v, i) => {
+        const w = X(G.X[i + 1]) - X(G.X[i]); const fs = clamp(Math.min(22, w * 0.55), 12, 22);
+        txt(gLabels, X(G.X[i]) + w / 2, rT - 44, String(v), fs, "#1d4ed8");
       });
-
-      const totalLengthPx = orderedSegments.reduce(
-        (sum, seg) => sum + seg.lengthCells * state.cellSize,
-        0
-      );
-
-      state.boundaryInfo = {
-        orderedSegments,
-        pathD: d.trim(),
-        totalLengthPx
+      G.py.forEach((v, j) => {
+        const hgt = Y(G.Y[j + 1]) - Y(G.Y[j]); const fs = clamp(Math.min(22, hgt * 0.7), 12, 22);
+        txt(gLabels, rL - 46, Y(G.Y[j]) + hgt / 2, String(v), fs, "#c2410c");
+      });
+    }
+    const aY = rT - 76, aX = rL - 88;
+    const arrow = (x1, y1, x2, y2, col) => {
+      el("line", { x1, y1, x2, y2, stroke:col, "stroke-width":2 }, gLabels);
+      const hz = y1 === y2, s = 7;
+      const head = (x, y, dir) => {
+        const pts = hz ? [[x, y], [x - dir * s * 1.4, y - s * .75], [x - dir * s * 1.4, y + s * .75]]
+                       : [[x, y], [x - s * .75, y - dir * s * 1.4], [x + s * .75, y - dir * s * 1.4]];
+        el("polygon", { points:pts.map(p => p.join(",")).join(" "), fill:col }, gLabels);
       };
+      head(x1, y1, -1); head(x2, y2, 1);
+    };
+    if(!L.compact){
+    arrow(rL, aY, rR, aY, "#1d4ed8");
+    pill(gLabels, (rL + rR) / 2, aY, fmt(S.W) + unitTxt(false), 19, { color:"#1d4ed8", stroke:"#bfdbfe" });
+    arrow(aX, rT, aX, rB, "#c2410c");
+    /* the down measurement reads up the side, like a dimension on a plan */
+    const vp = pill(gLabels, aX, (rT + rB) / 2, fmt(S.H) + unitTxt(false), 19, { color:"#c2410c", stroke:"#fed7aa" });
+    if(fmt(S.H).length + unitTxt(false).length > 2) vp.setAttribute("transform", "rotate(-90 " + aX + " " + (rT + rB) / 2 + ")");
     }
 
-    function getRemainingPerimeterTotal(){
-      return state.boundaryInfo.orderedSegments.reduce((sum, seg) => sum + seg.lengthCells, 0);
-    }
-
-    function getActiveQuadrants(){
-      if (state.toolMode === TOOL_POINTER && state.selectedQuadrant){
-        const q = getQuadrantByKey(state.selectedQuadrant);
-        if (q && !state.removedQuadrants.has(q.key)) return [q];
-        return [];
+    /* rulers + handles: where the class splits a side */
+    if(!S.removing){
+      const tick = (sc) => sc >= 6 ? 1 : sc >= 2.4 ? 5 : sc >= 0.6 ? 10 : 50;
+      if(S.W > 1){
+        const r = el("g", { class:"ruler", "data-ruler":"x" }, gRulers);
+        el("rect", { class:"band", x:rL, y:rT - 26, width:L.rw, height:20, rx:6, fill:"#f1f5f9", stroke:"#e2e8f0" }, r);
+        const st = tick(L.sx); let d = "";
+        for(let u = st; u < S.W; u += st){ const big = u % 10 === 0, mid = u % 5 === 0; d += "M" + X(u) + " " + (rT - 6) + "v-" + (big ? 11 : mid ? 7 : 4); }
+        if(d) el("path", { d, stroke:"#94a3b8", "stroke-width":1, fill:"none" }, r);
       }
-      return getRemainingQuadrants();
-    }
-
-    function getActiveAreaTotal(){
-      return getActiveQuadrants().reduce((sum, q) => sum + q.area, 0);
-    }
-
-    function getActivePerimeterTotal(){
-      return state.boundaryInfo.orderedSegments.reduce((sum, seg) => sum + seg.lengthCells, 0);
-    }
-
-    function getActiveQuadrantOrder(){
-      const active = getActiveQuadrants();
-
-      if (state.toolMode === TOOL_POINTER && state.selectedQuadrant){
-        return active;
+      if(S.H > 1){
+        const r = el("g", { class:"ruler", "data-ruler":"y" }, gRulers);
+        el("rect", { class:"band", x:rL - 26, y:rT, width:20, height:L.rh, rx:6, fill:"#f1f5f9", stroke:"#e2e8f0" }, r);
+        const st = tick(L.sy); let d = "";
+        for(let u = st; u < S.H; u += st){ const big = u % 10 === 0, mid = u % 5 === 0; d += "M" + (rL - 6) + " " + Y(u) + "h-" + (big ? 11 : mid ? 7 : 4); }
+        if(d) el("path", { d, stroke:"#94a3b8", "stroke-width":1, fill:"none" }, r);
       }
-
-      const map = new Map(active.map(q => [q.key, q]));
-      const preferred = ['r0-c0','r0-c1','r1-c0','r1-c1'];
-      const ordered = preferred.map(key => map.get(key)).filter(Boolean);
-      const leftovers = active.filter(q => !preferred.includes(q.key));
-      return [...ordered, ...leftovers];
-    }
-
-    function getActiveQuadrantGroupsForAreaAnimation(){
-      const quadrants = getActiveQuadrants();
-      const groups = [];
-      const groupMap = new Map();
-
-      quadrants.forEach(q => {
-        const key = `${q.w}x${q.h}`;
-        if (!groupMap.has(key)){
-          groupMap.set(key, []);
-          groups.push({
-            key,
-            w: q.w,
-            h: q.h,
-            quadrants: groupMap.get(key)
-          });
-        }
-        groupMap.get(key).push(q);
-      });
-
-      return groups;
-    }
-
-    function clearRemovedAndSelection(){
-      state.removedQuadrants = new Set();
-      state.selectedQuadrant = null;
-    }
-
-    function getInteractiveQuadrantAtClient(clientX, clientY, includeRemoved = false){
-      const rect = grid.getBoundingClientRect();
-      const x = clientX - rect.left;
-      const y = clientY - rect.top;
-
-      if (x < 0 || y < 0 || x > rect.width || y > rect.height) return null;
-
-      const cellX = x / state.cellSize;
-      const cellY = y / state.cellSize;
-
-      const quadrants = includeRemoved ? getQuadrants() : getRemainingQuadrants();
-
-      return quadrants.find(q =>
-        cellX >= q.x &&
-        cellX < q.x + q.w &&
-        cellY >= q.y &&
-        cellY < q.y + q.h
-      ) || null;
-    }
-
-    function buildOverallDimensionArrows(){
-      overallDimensionLayer.innerHTML = '';
-
-    
-if (
-  state.toolMode === TOOL_POINTER &&
-  state.selectedQuadrant &&
-  !state.perimeterAnimating &&
-  !state.perimeterHold
-){
-  const q = getQuadrantByKey(state.selectedQuadrant);
-  if (!q || state.removedQuadrants.has(q.key)) return;
-
-  const topLabel = document.createElement('span');
-  topLabel.className = 'partition-dim-label';
-  topLabel.textContent = q.w;
-  topLabel.style.left = `${(q.x + q.w / 2) * state.cellSize}px`;
-  topLabel.style.top = `${q.y * state.cellSize - 10}px`;
-  overallDimensionLayer.appendChild(topLabel);
-
-  const leftLabel = document.createElement('span');
-  leftLabel.className = 'partition-dim-label';
-  leftLabel.textContent = q.h;
-  leftLabel.style.left = `${q.x * state.cellSize - 10}px`;
-  leftLabel.style.top = `${(q.y + q.h / 2) * state.cellSize}px`;
-  overallDimensionLayer.appendChild(leftLabel);
-
-  return;
-}
-      const widthArrow = document.createElement('div');
-      widthArrow.className = 'dimension-arrow horizontal';
-      widthArrow.style.left = '0px';
-      widthArrow.style.top = '-78px';
-      widthArrow.style.width = `${state.cols * state.cellSize}px`;
-      widthArrow.innerHTML = `
-        <span class="dim-line"></span>
-        <span class="arrow-start"></span>
-        <span class="arrow-end"></span>
-        <span class="dim-text">${state.cols}</span>
-      `;
-      overallDimensionLayer.appendChild(widthArrow);
-
-      const heightArrow = document.createElement('div');
-      heightArrow.className = 'dimension-arrow vertical';
-      heightArrow.style.left = '-92px';
-      heightArrow.style.top = '0px';
-      heightArrow.style.height = `${state.rows * state.cellSize}px`;
-      heightArrow.innerHTML = `
-        <span class="dim-line"></span>
-        <span class="arrow-start"></span>
-        <span class="arrow-end"></span>
-        <span class="dim-text">${state.rows}</span>
-      `;
-      overallDimensionLayer.appendChild(heightArrow);
-    }
-
-    function buildPartitionDimensionLabels(){
-      partitionDimensionLayer.innerHTML = '';
-
-      if (state.toolMode === TOOL_POINTER && state.selectedQuadrant) return;
-      if (state.showPerimeterTotal || state.perimeterAnimating || state.perimeterHold) return;
-      if (state.removedQuadrants.size > 0) return;
-
-      const topSegments = getColumnSegments();
-      const leftSegments = getRowSegments();
-
-      const hasVerticalPartition = topSegments.length > 1;
-      const hasHorizontalPartition = leftSegments.length > 1;
-
-      if (!hasVerticalPartition && !hasHorizontalPartition) return;
-
-      if (hasVerticalPartition){
-        let xCursor = 0;
-        topSegments.forEach(seg => {
-          const label = document.createElement('span');
-          label.className = 'partition-dim-label';
-          label.textContent = seg.size;
-          label.style.left = `${(xCursor + seg.size / 2) * state.cellSize}px`;
-          label.style.top = '-28px';
-          partitionDimensionLayer.appendChild(label);
-          xCursor += seg.size;
-        });
-      }
-
-      if (hasHorizontalPartition){
-        let yCursor = 0;
-        leftSegments.forEach(seg => {
-          const label = document.createElement('span');
-          label.className = 'partition-dim-label';
-          label.textContent = seg.size;
-          label.style.left = '-28px';
-          label.style.top = `${(yCursor + seg.size / 2) * state.cellSize}px`;
-          partitionDimensionLayer.appendChild(label);
-          yCursor += seg.size;
-        });
-      }
-    }
-
-    function buildGrid(){
-      const rows = state.rows;
-      const cols = state.cols;
-      const cellSize = state.cellSize;
-      const colSegs = getColumnSegments();
-      const rowSegs = getRowSegments();
-
-      grid.innerHTML = '';
-      guideLines.innerHTML = '';
-      overallDimensionLayer.innerHTML = '';
-      partitionDimensionLayer.innerHTML = '';
-      boundaryLabels.innerHTML = '';
-      selectionLabels.innerHTML = '';
-      regionLabels.innerHTML = '';
-      perimeterTrace.innerHTML = '';
-
-      grid.style.width = `${cols * cellSize}px`;
-      grid.style.height = `${rows * cellSize}px`;
-      gridShell.style.width = `${cols * cellSize}px`;
-      gridShell.style.height = `${rows * cellSize}px`;
-
-      const quadrants = getQuadrants();
-      const remainingSet = new Set(getRemainingQuadrants().map(q => q.key));
-
-      quadrants.forEach(q => {
-        if (!remainingSet.has(q.key)) return;
-
-        const overlay = document.createElement('div');
-        overlay.className = 'quadrant-overlay';
-        overlay.dataset.quadrantOverlay = q.key;
-        overlay.style.left = `${q.x * cellSize}px`;
-        overlay.style.top = `${q.y * cellSize}px`;
-        overlay.style.width = `${q.w * cellSize}px`;
-        overlay.style.height = `${q.h * cellSize}px`;
-        overlay.style.background = 'rgba(255,255,255,0.18)';
-
-        if (state.toolMode === TOOL_POINTER && state.selectedQuadrant){
-          if (state.selectedQuadrant === q.key){
-            overlay.classList.add('selected');
-          } else {
-            overlay.classList.add('dimmed');
-          }
-        }
-
-        grid.appendChild(overlay);
-      });
-
-      let yStart = 0;
-      for (let rIndex = 0; rIndex < rowSegs.length; rIndex++){
-        const rowSeg = rowSegs[rIndex];
-        let xStart = 0;
-
-        for (let cIndex = 0; cIndex < colSegs.length; cIndex++){
-          const colSeg = colSegs[cIndex];
-          const quadrantKey = `r${rIndex}-c${cIndex}`;
-
-          if (!remainingSet.has(quadrantKey)){
-            xStart += colSeg.size;
-            continue;
-          }
-
-          const bg = getCellColor(rowSeg.kind, colSeg.kind);
-
-          for(let r = 0; r < rowSeg.size; r++){
-            for(let c = 0; c < colSeg.size; c++){
-              const cell = document.createElement('div');
-              cell.className = 'cell';
-              cell.dataset.quadrant = quadrantKey;
-              cell.dataset.rowInQuadrant = String(r);
-              cell.style.left = `${(xStart + c) * cellSize}px`;
-              cell.style.top = `${(yStart + r) * cellSize}px`;
-              cell.style.width = `${cellSize}px`;
-              cell.style.height = `${cellSize}px`;
-              cell.style.background = bg;
-
-              if (state.toolMode === TOOL_POINTER && state.selectedQuadrant && state.selectedQuadrant !== quadrantKey){
-                cell.classList.add('dimmed');
-              }
-
-              grid.appendChild(cell);
-            }
-          }
-
-          const pointerFocusActive = state.toolMode === TOOL_POINTER && !!state.selectedQuadrant;
-
-          const shouldShowBubbleNormally =
-            state.revealValues &&
-            !state.perimeterAnimating &&
-            !state.perimeterHold &&
-            !pointerFocusActive;
-
-          const shouldShowBubbleForAreaResult =
-            state.showAreaTotal &&
-            state.revealedAreaQuadrants.has(quadrantKey);
-
-          const shouldShowBubble = shouldShowBubbleNormally || shouldShowBubbleForAreaResult;
-
-          const bubble = document.createElement('div');
-          bubble.className = 'bubble';
-          bubble.dataset.quadrant = quadrantKey;
-          bubble.textContent = rowSeg.size * colSeg.size;
-          bubble.style.left = `${(xStart + colSeg.size / 2) * cellSize}px`;
-          bubble.style.top = `${(yStart + rowSeg.size / 2) * cellSize}px`;
-
-          const shortestSide = Math.min(colSeg.size * cellSize, rowSeg.size * cellSize);
-          const pad = getBubblePadding(shortestSide);
-          bubble.style.fontSize = `${getBubbleFontSize(colSeg.size, rowSeg.size, cellSize)}px`;
-          bubble.style.padding = `${pad.padY}px ${pad.padX}px`;
-          bubble.style.minWidth = `${pad.minW}px`;
-
-          if (!shouldShowBubble) bubble.classList.add('hidden');
-          regionLabels.appendChild(bubble);
-
-          xStart += colSeg.size;
-        }
-        yStart += rowSeg.size;
-      }
-
-      buildGuides(colSegs, rowSegs);
-      buildOverallDimensionArrows();
-
-      const activeQuadrants = getActiveQuadrants();
-      const matrix = Array.from({length: state.rows}, () => Array(state.cols).fill(false));
-
-      for (const q of activeQuadrants){
-        for (let r = q.y; r < q.y + q.h; r++){
-          for (let c = q.x; c < q.x + q.w; c++){
-            matrix[r][c] = true;
-          }
-        }
-      }
-
-      buildBoundaryFromMatrix(matrix);
-      buildBoundaryLabels();
-      buildPartitionDimensionLabels();
-      buildSelectionLabels();
-      buildPerimeterTrace();
-      updateMetricBoxes();
-    }
-
-    function buildGuides(colSegs, rowSegs){
-      const cellSize = state.cellSize;
-      const lighten = state.perimeterAnimating || state.perimeterHold || (state.toolMode === TOOL_POINTER && !!state.selectedQuadrant);
-
-      let xCursor = 0;
-      colSegs.forEach((seg, i) => {
-        xCursor += seg.size;
-        if (i < colSegs.length - 1){
-          const line = document.createElement('div');
-          line.className = 'guide vertical secondary';
-          if (lighten) line.classList.add('perimeter-light');
-          line.style.left = `${xCursor * cellSize}px`;
-          line.style.top = '0px';
-          line.style.height = `${state.rows * cellSize}px`;
-          guideLines.appendChild(line);
-        }
-      });
-
-      let yCursor = 0;
-      rowSegs.forEach((seg, i) => {
-        yCursor += seg.size;
-        if (i < rowSegs.length - 1){
-          const line = document.createElement('div');
-          line.className = 'guide horizontal secondary';
-          if (lighten) line.classList.add('perimeter-light');
-          line.style.left = '0px';
-          line.style.top = `${yCursor * cellSize}px`;
-          line.style.width = `${state.cols * cellSize}px`;
-          guideLines.appendChild(line);
-        }
-      });
-    }
-
-    function buildBoundaryLabels(){
-      boundaryLabels.innerHTML = '';
-
-      const offset = 24;
-      const pointerFocusActive = state.toolMode === TOOL_POINTER && !!state.selectedQuadrant;
-
-     const showAllBoundaryLabels =
-  state.revealValues ||
-  state.perimeterAnimating ||
-  state.perimeterHold ||
-  state.removedQuadrants.size > 0;
-
-      state.boundaryInfo.orderedSegments.forEach(seg => {
-        const label = document.createElement('span');
-        label.className = 'edge-label';
-        label.dataset.edgeId = seg.id;
-        label.textContent = seg.lengthCells;
-
-        const midX = ((seg.x1 + seg.x2) / 2) * state.cellSize;
-        const midY = ((seg.y1 + seg.y2) / 2) * state.cellSize;
-
-        if (seg.orientation === 'h'){
-          label.style.left = `${midX}px`;
-          label.style.top = `${midY + (seg.side === 'top' ? -offset : offset)}px`;
+      const drawCut = (axis, idx, v) => {
+        const g = el("g", { class:"cutG" + (S.drag && S.drag.axis === axis && S.drag.idx === idx ? " drag" : "") }, gRulers);
+        const off = S.drag && S.drag.axis === axis && S.drag.idx === idx && S.drag.off;
+        if(axis === "x"){
+          const x = X(v);
+          el("line", { class:"cutHit", "data-cut":"x:" + idx, x1:x, y1:rT - 28, x2:x, y2:rB, stroke:"transparent", "stroke-width":20 }, g);
+          el("circle", { class:"handle", cx:x, cy:rT - 16, r:9, fill:off ? "#fee2e2" : "#fff", stroke:off ? "#dc2626" : "#1e293b", "stroke-width":2.5, "pointer-events":"none" }, g);
+          el("path", { d:"M" + (x - 2.5) + " " + (rT - 20) + "v8M" + (x + 2.5) + " " + (rT - 20) + "v8", stroke:off ? "#dc2626" : "#1e293b", "stroke-width":1.6, "pointer-events":"none" }, g);
         } else {
-          label.style.left = `${midX + (seg.side === 'left' ? -offset : offset)}px`;
-          label.style.top = `${midY}px`;
+          const y = Y(v);
+          el("line", { class:"cutHit y", "data-cut":"y:" + idx, x1:rL - 28, y1:y, x2:rR, y2:y, stroke:"transparent", "stroke-width":20 }, g);
+          el("circle", { class:"handle", cx:rL - 16, cy:y, r:9, fill:off ? "#fee2e2" : "#fff", stroke:off ? "#dc2626" : "#1e293b", "stroke-width":2.5, "pointer-events":"none" }, g);
+          el("path", { d:"M" + (rL - 20) + " " + (y - 2.5) + "h8M" + (rL - 20) + " " + (y + 2.5) + "h8", stroke:off ? "#dc2626" : "#1e293b", "stroke-width":1.6, "pointer-events":"none" }, g);
         }
-
-        const isOuter =
-          seg.y1 === 0 ||
-          seg.y1 === state.rows ||
-          seg.x1 === 0 ||
-          seg.x1 === state.cols;
-
-        const isInnerTop = !isOuter && seg.orientation === 'h' && seg.side === 'top';
-        const isInnerLeft = !isOuter && seg.orientation === 'v' && seg.side === 'left';
-
-        const shouldShowThisLabel = isOuter || isInnerTop || isInnerLeft;
-
-        if (pointerFocusActive || !showAllBoundaryLabels || !shouldShowThisLabel){
-          label.classList.add('hidden');
-        }
-
-        boundaryLabels.appendChild(label);
-      });
-    }
-
-    function buildSelectionLabels(){
-      selectionLabels.innerHTML = '';
-    }
-
-    function buildPerimeterTrace(){
-      perimeterTrace.innerHTML = '';
-
-      const w = state.cols * state.cellSize;
-      const h = state.rows * state.cellSize;
-      const svgNS = 'http://www.w3.org/2000/svg';
-
-      const svg = document.createElementNS(svgNS, 'svg');
-      svg.setAttribute('class', 'trace-svg');
-      svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
-      svg.setAttribute('preserveAspectRatio', 'none');
-
-      state.boundaryInfo.orderedSegments.forEach(seg => {
-        const path = document.createElementNS(svgNS, 'path');
-        path.setAttribute('class', 'trace-path');
-        path.dataset.edgeId = seg.id;
-
-        const x1 = seg.x1 * state.cellSize;
-        const y1 = seg.y1 * state.cellSize;
-        const x2 = seg.x2 * state.cellSize;
-        const y2 = seg.y2 * state.cellSize;
-
-        path.setAttribute('d', `M ${x1} ${y1} L ${x2} ${y2}`);
-
-        const length = Math.hypot(x2 - x1, y2 - y1);
-        path.style.strokeDasharray = length;
-        path.style.strokeDashoffset = length;
-        path.style.opacity = '0';
-
-        if (state.perimeterHold && state.revealedPerimeterLabels.has(seg.id)){
-          path.classList.add('hold');
-          path.style.opacity = '1';
-          path.style.strokeDashoffset = '0';
-        }
-
-        svg.appendChild(path);
-      });
-
-      perimeterTrace.appendChild(svg);
-    }
-
-    function updateSplitLines(){
-      const cellSize = state.cellSize;
-      const w = state.cols * cellSize;
-      const h = state.rows * cellSize;
-
-      const verticalOn = splitEnabled(state.splitMode, 'vertical') && state.vSplit != null;
-      const horizontalOn = splitEnabled(state.splitMode, 'horizontal') && state.hSplit != null;
-      const splitsInteractive = state.toolMode === TOOL_ARROW;
-
-      vSplitLine.classList.toggle('active', verticalOn);
-      hSplitLine.classList.toggle('active', horizontalOn);
-      vSplitLine.classList.toggle('disabled', !splitsInteractive);
-      hSplitLine.classList.toggle('disabled', !splitsInteractive);
-
-      if (verticalOn){
-        const x = state.vSplit * cellSize;
-        vSplitLine.style.left = `${x}px`;
-        vSplitLine.style.top = '0px';
-        vSplitLine.style.height = `${h}px`;
-      }
-
-      if (horizontalOn){
-        const y = state.hSplit * cellSize;
-        hSplitLine.style.left = '0px';
-        hSplitLine.style.top = `${y}px`;
-        hSplitLine.style.width = `${w}px`;
-      }
-    }
-
-    function getMetricDisplayValue(kind){
-      if (kind === 'area'){
-        if (state.areaAnimating) return state.areaRunningTotal == null ? '' : state.areaRunningTotal;
-        if (state.showAreaTotal) return getActiveAreaTotal();
-        return '';
-      }
-
-      if (state.perimeterAnimating) return state.perimeterRunningTotal == null ? '' : state.perimeterRunningTotal;
-      if (state.showPerimeterTotal) return getActivePerimeterTotal();
-      return '';
-    }
-
-   function updateMetricBoxes(){
-  const areaVal = getMetricDisplayValue('area');
-  const perimeterVal = getMetricDisplayValue('perimeter');
-
-  const areaCanClear = state.showAreaTotal || state.areaAnimating;
-  const perimeterCanClear = state.showPerimeterTotal || state.perimeterAnimating || state.perimeterHold;
-
-  const areaDisplay = areaVal === '' || areaVal == null
-    ? '<span class="metric-placeholder">click to reveal</span>'
-    : `<span class="metric-value">${areaVal}</span>`;
-
-  const perimeterDisplay = perimeterVal === '' || perimeterVal == null
-    ? '<span class="metric-placeholder">click to reveal</span>'
-    : `<span class="metric-value">${perimeterVal}</span>`;
-
-  areaBox.innerHTML = `
-    <div class="metric-top">
-      <div class="metric-heading">Area</div>
-      <button class="metric-clear area-clear" type="button" ${areaCanClear ? '' : 'disabled'} data-clear-metric="area">Clear</button>
-    </div>
-    <div class="metric-inner">${areaDisplay}</div>
-  `;
-
-  perimeterBox.innerHTML = `
-    <div class="metric-top">
-      <div class="metric-heading">Perimeter</div>
-      <button class="metric-clear perimeter-clear" type="button" ${perimeterCanClear ? '' : 'disabled'} data-clear-metric="perimeter">Clear</button>
-    </div>
-    <div class="metric-inner">${perimeterDisplay}</div>
-  `;
-
-  areaBox.classList.toggle('revealed-area', state.showAreaTotal || state.areaAnimating);
-  perimeterBox.classList.toggle('revealed-perimeter', state.showPerimeterTotal || state.perimeterAnimating || state.perimeterHold);
-}
-
-    function animateMetricCount(boxEl){
-      boxEl.classList.remove('metric-count-pop');
-      void boxEl.offsetWidth;
-      boxEl.classList.add('metric-count-pop');
-      setTimeout(() => boxEl.classList.remove('metric-count-pop'), 560);
-    }
-
-    function updateToolRailUI(){
-      arrowToolBtn.classList.toggle('active', state.toolMode === TOOL_ARROW);
-      eraserToolBtn.classList.toggle('active', state.toolMode === TOOL_ERASER);
-      pointerToolBtn.classList.toggle('active', state.toolMode === TOOL_POINTER);
-    }
-
-    function updateLockedUI(){
-      const isArrow = state.toolMode === TOOL_ARROW;
-      toolsBtn.disabled = !isArrow;
-      settingsBtn.disabled = !isArrow;
-   splitMode.disabled = !isArrow;
-randomDifficulty.disabled = !isArrow;
-repeatHorizontalBtn.disabled = !isArrow;
-repeatVerticalBtn.disabled = !isArrow;
-
-      rowsInput.disabled = !isArrow;
-      colsInput.disabled = !isArrow;
-      dimensionPanel.classList.toggle('inactive', !isArrow);
-
-      if (!isArrow){
-        toolsMenu.classList.remove('open');
-        settingsMenu.classList.remove('open');
-        toolsBtn.setAttribute('aria-expanded', 'false');
-        settingsBtn.setAttribute('aria-expanded', 'false');
-        closeQuizSubmenu();
-      }
-    }
-
-    function syncToggleStyles(){
-      repeatHorizontalBtn.classList.toggle('on', state.repeatHorizontal);
-      repeatVerticalBtn.classList.toggle('on', state.repeatVertical);
-     
-
-      repeatHorizontalBtn.setAttribute('aria-pressed', String(state.repeatHorizontal));
-      repeatVerticalBtn.setAttribute('aria-pressed', String(state.repeatVertical));
-   
-    }
-
-    function delay(ms){
-      return new Promise(resolve => setTimeout(resolve, ms));
-    }
-
-    function flashMetric(boxEl){
-      boxEl.classList.remove('metric-flash');
-      void boxEl.offsetWidth;
-      boxEl.classList.add('metric-flash');
-      setTimeout(() => boxEl.classList.remove('metric-flash'), 280);
-    }
-
-    function showQuadrantBubble(key){
-      const bubble = regionLabels.querySelector(`.bubble[data-quadrant="${key}"]`);
-      if (!bubble) return;
-      bubble.classList.remove('hidden');
-      bubble.classList.remove('area-pop');
-      void bubble.offsetWidth;
-      bubble.classList.add('area-pop');
-      setTimeout(() => bubble.classList.remove('area-pop'), 860);
-    }
-
-    function revealBoundaryLabel(id){
-      state.revealedPerimeterLabels.add(id);
-      const el = boundaryLabels.querySelector(`.edge-label[data-edge-id="${id}"]`);
-      if (!el) return;
-      el.classList.remove('hidden');
-      el.classList.remove('pop');
-      void el.offsetWidth;
-      el.classList.add('pop');
-      setTimeout(() => el.classList.remove('pop'), 820);
-    }
-
-    function getAdaptivePerimeterDuration(){
-      return 8000;
-    }
-
-    function getQuadrantAnimationMode(quadrant){
-      const quadrants = getActiveQuadrants();
-      const isSingleRegion = quadrants.length === 1;
-
-      if (isSingleRegion){
-        if (quadrant.w > 10 || quadrant.h > 10) return 'row';
-        if (quadrant.area > 90) return 'row';
-        return 'cell';
-      }
-
-      if (quadrant.w > 15 || quadrant.h > 15 || quadrant.area > 260) return 'overlay';
-      if (quadrant.area > 90) return 'row';
-      return 'cell';
-    }
-
-    async function animatePerimeterSegment(seg, duration, token){
-      const path = perimeterTrace.querySelector(`.trace-path[data-edge-id="${seg.id}"]`);
-      if (!path){
-        await delay(duration);
-        return;
-      }
-
-      const x1 = seg.x1 * state.cellSize;
-      const y1 = seg.y1 * state.cellSize;
-      const x2 = seg.x2 * state.cellSize;
-      const y2 = seg.y2 * state.cellSize;
-      const length = Math.hypot(x2 - x1, y2 - y1);
-
-      path.classList.remove('hold', 'play');
-      void path.getBoundingClientRect();
-
-      path.style.opacity = '1';
-      path.style.strokeWidth = getActiveAreaTotal() > 2500 ? '5' : '6';
-      path.style.strokeDasharray = `${length}`;
-      path.style.strokeDashoffset = `${length}`;
-      path.style.setProperty('--trace-length', `${length}`);
-      path.style.setProperty('--perimeter-duration', `${duration}ms`);
-      path.classList.add('play');
-
-      await delay(duration);
-
-      if (token !== state.perimeterAnimToken) return;
-
-      path.classList.remove('play');
-      path.classList.add('hold');
-      path.style.strokeDashoffset = '0';
-    }
-
-    async function animateQuadrantByCells(cells, duration, token){
-      const cellCount = cells.length;
-      if (cellCount === 0){
-        await delay(duration);
-        return;
-      }
-
-      const step = duration / cellCount;
-      const pulseDuration = Math.max(120, Math.min(220, step * 1.7));
-
-      for (let i = 0; i < cellCount; i++){
-        if (token !== state.areaAnimToken) return;
-        const cell = cells[i];
-        cell.style.setProperty('--pulse-duration', `${pulseDuration}ms`);
-        cell.classList.remove('area-cell-pulse');
-        void cell.offsetWidth;
-        cell.classList.add('area-cell-pulse');
-        setTimeout(() => cell.classList.remove('area-cell-pulse'), pulseDuration + 30);
-        await delay(step);
-      }
-    }
-
-    async function animateQuadrantByRows(quadrantKey, duration, token){
-      const rows = {};
-      const cells = Array.from(grid.querySelectorAll(`.cell[data-quadrant="${quadrantKey}"]`));
-      cells.forEach(cell => {
-        const rowKey = cell.dataset.rowInQuadrant;
-        if (!rows[rowKey]) rows[rowKey] = [];
-        rows[rowKey].push(cell);
-      });
-
-      const rowKeys = Object.keys(rows).sort((a,b) => Number(a) - Number(b));
-      if (rowKeys.length === 0){
-        await delay(duration);
-        return;
-      }
-
-      const step = duration / rowKeys.length;
-      const pulseDuration = Math.max(140, Math.min(260, step * 1.5));
-
-      for (const rowKey of rowKeys){
-        if (token !== state.areaAnimToken) return;
-        const rowCells = rows[rowKey];
-        rowCells.forEach(cell => {
-          cell.style.setProperty('--pulse-duration', `${pulseDuration}ms`);
-          cell.classList.remove('area-row-pulse');
-          void cell.offsetWidth;
-          cell.classList.add('area-row-pulse');
-          setTimeout(() => cell.classList.remove('area-row-pulse'), pulseDuration + 40);
-        });
-        await delay(step);
-      }
-    }
-
-    async function animateQuadrantByOverlay(quadrantKey, duration, token){
-      const overlay = grid.querySelector(`[data-quadrant-overlay="${quadrantKey}"]`);
-      if (!overlay){
-        await delay(duration);
-        return;
-      }
-      overlay.style.setProperty('--pulse-duration', `${Math.max(650, duration * 0.85)}ms`);
-      overlay.classList.remove('pulse');
-      void overlay.offsetWidth;
-      overlay.classList.add('pulse');
-      await delay(duration);
-      if (token !== state.areaAnimToken) return;
-      overlay.classList.remove('pulse');
-    }
-
-    async function animateAreaByBubblesOnly(token){
-      const quadrants = getActiveQuadrantOrder();
-      const count = quadrants.length;
-      const totalDuration = count > 8 ? 8000 : count * 1000;
-      const bubbleInterval = totalDuration / Math.max(1, count);
-
-      for (const q of quadrants){
-        if (token !== state.areaAnimToken) return;
-
-        state.revealedAreaQuadrants.add(q.key);
-        showQuadrantBubble(q.key);
-
-        state.areaRunningTotal = (state.areaRunningTotal ?? 0) + q.area;
-        updateMetricBoxes();
-        animateMetricCount(areaBox);
-
-        await delay(bubbleInterval);
-      }
-    }
-
-    async function revealExtraQuadrantsByBubble(quadrants, token, interval = 400){
-      for (const q of quadrants){
-        if (token !== state.areaAnimToken) return;
-
-        state.revealedAreaQuadrants.add(q.key);
-        showQuadrantBubble(q.key);
-
-        state.areaRunningTotal = (state.areaRunningTotal ?? 0) + q.area;
-        updateMetricBoxes();
-        animateMetricCount(areaBox);
-
-        await delay(interval);
-      }
-    }
-
-    async function playAreaAnimation(){
-      const token = ++state.areaAnimToken;
-
-      if (state.perimeterAnimating){
-        state.perimeterAnimToken++;
-        state.perimeterAnimating = false;
-        state.perimeterHold = true;
-        state.showPerimeterTotal = true;
-        state.perimeterRunningTotal = getActivePerimeterTotal();
-        state.revealedPerimeterLabels = new Set(
-          state.boundaryInfo.orderedSegments.map(seg => seg.id)
-        );
-      }
-
-      state.areaAnimating = true;
-      state.showAreaTotal = true;
-      state.revealedPerimeterLabels = new Set(
-        state.boundaryInfo.orderedSegments.map(seg => seg.id)
-      );
-      state.areaRunningTotal = null;
-      state.revealedAreaQuadrants = new Set();
-
-      updateDisplay();
-      flashMetric(areaBox);
-
-      const totalArea = getActiveAreaTotal();
-
-      if (totalArea >= 400){
-        await animateAreaByBubblesOnly(token);
-
-        if (token !== state.areaAnimToken) return;
-        state.areaAnimating = false;
-        state.areaRunningTotal = totalArea;
-        updateDisplay();
-        return;
-      }
-
-      const repeatedMode = state.repeatHorizontal || state.repeatVertical;
-
-      if (repeatedMode){
-        const groups = getActiveQuadrantGroupsForAreaAnimation();
-        const activeDuration = 1450;
-
-        for (const group of groups){
-          if (token !== state.areaAnimToken) return;
-
-          const [first, ...rest] = group.quadrants;
-          const mode = getQuadrantAnimationMode(first);
-
-          if (mode === 'overlay'){
-            await animateQuadrantByOverlay(first.key, activeDuration, token);
-          } else if (mode === 'row'){
-            await animateQuadrantByRows(first.key, activeDuration, token);
-          } else {
-            const cells = Array.from(grid.querySelectorAll(`.cell[data-quadrant="${first.key}"]`)).sort((a, b) => {
-              const topDiff = parseFloat(a.style.top) - parseFloat(b.style.top);
-              if (topDiff !== 0) return topDiff;
-              return parseFloat(a.style.left) - parseFloat(b.style.left);
-            });
-            await animateQuadrantByCells(cells, activeDuration, token);
-          }
-
-          if (token !== state.areaAnimToken) return;
-
-          state.revealedAreaQuadrants.add(first.key);
-          showQuadrantBubble(first.key);
-          state.areaRunningTotal = (state.areaRunningTotal ?? 0) + first.area;
-          updateMetricBoxes();
-          animateMetricCount(areaBox);
-
-          if (rest.length){
-            await delay(250);
-            await revealExtraQuadrantsByBubble(rest, token, 400);
-          } else {
-            await delay(350);
-          }
-        }
-
-        if (token !== state.areaAnimToken) return;
-        state.areaAnimating = false;
-        state.areaRunningTotal = totalArea;
-        updateDisplay();
-        return;
-      }
-
-      const quadrants = getActiveQuadrantOrder();
-      const quadrantDuration = 2000;
-
-      for (const q of quadrants){
-        if (token !== state.areaAnimToken) return;
-
-        const mode = getQuadrantAnimationMode(q);
-        const activeDuration = 1450;
-
-        if (mode === 'overlay'){
-          await animateQuadrantByOverlay(q.key, activeDuration, token);
-        } else if (mode === 'row'){
-          await animateQuadrantByRows(q.key, activeDuration, token);
-        } else {
-          const cells = Array.from(grid.querySelectorAll(`.cell[data-quadrant="${q.key}"]`)).sort((a, b) => {
-            const topDiff = parseFloat(a.style.top) - parseFloat(b.style.top);
-            if (topDiff !== 0) return topDiff;
-            return parseFloat(a.style.left) - parseFloat(b.style.left);
-          });
-          await animateQuadrantByCells(cells, activeDuration, token);
-        }
-
-        if (token !== state.areaAnimToken) return;
-
-        state.revealedAreaQuadrants.add(q.key);
-        showQuadrantBubble(q.key);
-
-        state.areaRunningTotal = (state.areaRunningTotal ?? 0) + q.area;
-        updateMetricBoxes();
-        animateMetricCount(areaBox);
-
-        await delay(Math.max(0, quadrantDuration - activeDuration));
-      }
-
-      if (token !== state.areaAnimToken) return;
-      state.areaAnimating = false;
-      state.areaRunningTotal = totalArea;
-      updateDisplay();
-    }
-
-    async function playPerimeterAnimation(){
-      const token = ++state.perimeterAnimToken;
-
-      if (state.areaAnimating){
-        state.areaAnimToken++;
-        state.areaAnimating = false;
-        state.showAreaTotal = true;
-        state.areaRunningTotal = getActiveAreaTotal();
-        state.revealedAreaQuadrants = new Set(
-          getActiveQuadrants().map(q => q.key)
-        );
-      }
-
-      state.perimeterHold = false;
-      state.perimeterAnimating = true;
-      state.showPerimeterTotal = true;
-      state.perimeterRunningTotal = 0;
-
-      state.revealedPerimeterLabels = new Set(
-        state.boundaryInfo.orderedSegments.map(seg => seg.id)
-      );
-
-      updateDisplay();
-      flashMetric(perimeterBox);
-
-      const seq = state.boundaryInfo.orderedSegments;
-      const totalLenPx = Math.max(1, state.boundaryInfo.totalLengthPx);
-      const totalDuration = getAdaptivePerimeterDuration();
-
-      for (const seg of seq){
-        if (token !== state.perimeterAnimToken) return;
-
-        const segDuration = Math.max(
-          220,
-          (seg.lengthCells * state.cellSize / totalLenPx) * totalDuration
-        );
-
-        await animatePerimeterSegment(seg, segDuration, token);
-        if (token !== state.perimeterAnimToken) return;
-
-        revealBoundaryLabel(seg.id);
-        state.perimeterRunningTotal += seg.lengthCells;
-        updateMetricBoxes();
-        animateMetricCount(perimeterBox);
-      }
-
-      if (token !== state.perimeterAnimToken) return;
-
-      state.perimeterAnimating = false;
-      state.perimeterHold = true;
-      state.perimeterRunningTotal = getActivePerimeterTotal();
-      updateDisplay();
-    }
-
-    function resetResultsOnly(){
-      state.showAreaTotal = false;
-      state.showPerimeterTotal = false;
-      state.areaAnimToken++;
-      state.perimeterAnimToken++;
-      state.areaAnimating = false;
-      state.perimeterAnimating = false;
-      state.perimeterHold = false;
-      state.areaRunningTotal = null;
-      state.perimeterRunningTotal = null;
-      state.revealedAreaQuadrants = new Set();
-      state.revealedPerimeterLabels = new Set();
-      const path = perimeterTrace.querySelector('.trace-path');
-      if (path) path.classList.remove('play', 'hold');
-      grid.classList.remove('perimeter-fade');
-      grid.classList.remove('perimeter-hold');
-    }
-
-    function clearAreaResult(){
-      state.areaAnimToken++;
-      state.areaAnimating = false;
-      state.showAreaTotal = false;
-      state.areaRunningTotal = null;
-      state.revealedAreaQuadrants = new Set();
-
-      updateDisplay();
-    }
-
-    function clearPerimeterResult(){
-      state.perimeterAnimToken++;
-      state.perimeterAnimating = false;
-      state.perimeterHold = false;
-      state.showPerimeterTotal = false;
-      state.perimeterRunningTotal = null;
-      state.revealedPerimeterLabels = new Set();
-
-      const path = perimeterTrace.querySelector('.trace-path');
-      if (path) path.classList.remove('play', 'hold');
-
-      grid.classList.remove('perimeter-fade');
-      grid.classList.remove('perimeter-hold');
-
-      updateDisplay();
-    }
-
-    function resetStructureAndResults(){
-      clearRemovedAndSelection();
-      resetResultsOnly();
-    }
-
-    function setToolMode(mode){
-      state.toolMode = mode;
-      if (mode !== TOOL_POINTER){
-        state.selectedQuadrant = null;
-      }
-      updateDisplay();
-    }
-
-    function shakeQuadrant(key){
-      const overlay = grid.querySelector(`[data-quadrant-overlay="${key}"]`);
-      if (!overlay) return;
-      overlay.classList.remove('shake');
-      void overlay.offsetWidth;
-      overlay.classList.add('shake');
-      setTimeout(() => overlay.classList.remove('shake'), 340);
-    }
-
-    function handleGridInteraction(clientX, clientY){
-      if (state.toolMode === TOOL_POINTER){
-        const clickedQuadrant = getInteractiveQuadrantAtClient(clientX, clientY, false);
-        if (!clickedQuadrant){
-          state.selectedQuadrant = null;
-          updateDisplay();
-          return;
-        }
-        state.selectedQuadrant = state.selectedQuadrant === clickedQuadrant.key ? null : clickedQuadrant.key;
-        updateDisplay();
-        return;
-      }
-
-      if (state.toolMode === TOOL_ERASER){
-        const clickedQuadrant = getInteractiveQuadrantAtClient(clientX, clientY, true);
-        if (!clickedQuadrant) return;
-
-        const currentlyRemoved = state.removedQuadrants.has(clickedQuadrant.key);
-
-        if (currentlyRemoved){
-          state.removedQuadrants.delete(clickedQuadrant.key);
-        } else {
-          if (getRemainingQuadrants().length <= 1){
-            shakeQuadrant(clickedQuadrant.key);
-            return;
-          }
-          state.removedQuadrants.add(clickedQuadrant.key);
-        }
-
-        if (state.selectedQuadrant === clickedQuadrant.key && state.removedQuadrants.has(clickedQuadrant.key)){
-          state.selectedQuadrant = null;
-        }
-
-        updateDisplay();
-      }
-    }
-
-    function updateDisplay(){
-      const rows = clampWholeNumber(rowsInput.value);
-      const cols = clampWholeNumber(colsInput.value);
-
-      if (rows === null || cols === null){
-        statusMsg.textContent = 'Please enter whole numbers from 1 to 100.';
-        return;
-      }
-
-      if (Number(rowsInput.value) !== rows) rowsInput.value = rows;
-      if (Number(colsInput.value) !== cols) colsInput.value = cols;
-
-      state.rows = rows;
-      state.cols = cols;
-      state.splitMode = splitMode.value;
-      state.cellSize = getCellSize(rows, cols);
-
-      ensureSplitsInRange();
-
-      if (state.splitMode === 'vertical' && cols <= 1){
-        statusMsg.textContent = 'Vertical split needs at least 2 columns.';
-      } else if (state.splitMode === 'horizontal' && rows <= 1){
-        statusMsg.textContent = 'Horizontal split needs at least 2 rows.';
-      } else if (state.splitMode === 'both' && (rows <= 1 || cols <= 1)){
-        statusMsg.textContent = 'Both splits need at least 2 rows and 2 columns.';
-      } else {
-        statusMsg.textContent = '';
-      }
-
-      buildGrid();
-gridShell.classList.toggle('pointer-faded-guides', state.toolMode === TOOL_POINTER && !!state.selectedQuadrant);
-      grid.classList.toggle('perimeter-fade', state.perimeterAnimating);
-      grid.classList.toggle('perimeter-hold', state.perimeterHold);
-      updateSplitLines();
-      syncToggleStyles();
-      updateMetricBoxes();
-      updateToolRailUI();
-      updateLockedUI();
-    }
-
-    function clientToGridPos(clientX, clientY){
-      const rect = grid.getBoundingClientRect();
-      return {
-        x: clientX - rect.left,
-        y: clientY - rect.top
       };
+      S.cx.forEach((v, i) => drawCut("x", i, v));
+      S.cy.forEach((v, i) => drawCut("y", i, v));
+      if(S.drag && S.drag.off){
+        const v = S.drag.axis === "x" ? S.cx[S.drag.idx] : S.cy[S.drag.idx];
+        if(S.drag.axis === "x") pill(gRulers, X(v), rT - 46, "let go to remove", 12, { color:"#dc2626", stroke:"#fecaca" });
+        else pill(gRulers, rL - 16, Y(v) - 24, "let go to remove", 12, { color:"#dc2626", stroke:"#fecaca" });
+      }
     }
 
-    function pointerMove(clientX, clientY){
-      if (!state.dragging) return;
-      if (state.toolMode !== TOOL_ARROW) return;
-
-      const pos = clientToGridPos(clientX, clientY);
-
-      if (state.dragging === 'vertical'){
-        const split = Math.round(pos.x / state.cellSize);
-        state.vSplit = Math.max(1, Math.min(state.cols - 1, split));
-      }
-
-      if (state.dragging === 'horizontal'){
-        const split = Math.round(pos.y / state.cellSize);
-        state.hSplit = Math.max(1, Math.min(state.rows - 1, split));
-      }
-
-      clearRemovedAndSelection();
-      buildGrid();
-      grid.classList.toggle('perimeter-fade', state.perimeterAnimating);
-      grid.classList.toggle('perimeter-hold', state.perimeterHold);
-      updateSplitLines();
-    }
-
-    function stopDrag(){
-      state.dragging = null;
-      document.body.style.cursor = '';
-    }
-randomDifficulty.addEventListener('change', () => {
-  state.randomDifficulty = randomDifficulty.value;
-});
-    vSplitLine.addEventListener('pointerdown', (e) => {
-      if (state.toolMode !== TOOL_ARROW) return;
-      if (!splitEnabled(state.splitMode, 'vertical') || state.vSplit == null) return;
-      state.dragging = 'vertical';
-      document.body.style.cursor = 'ew-resize';
-      e.preventDefault();
-    });
-
-    hSplitLine.addEventListener('pointerdown', (e) => {
-      if (state.toolMode !== TOOL_ARROW) return;
-      if (!splitEnabled(state.splitMode, 'horizontal') || state.hSplit == null) return;
-      state.dragging = 'horizontal';
-      document.body.style.cursor = 'ns-resize';
-      e.preventDefault();
-    });
-
-    grid.addEventListener('click', (e) => {
-      if (state.toolMode === TOOL_ARROW) return;
-      handleGridInteraction(e.clientX, e.clientY);
-    });
-
-    window.addEventListener('pointermove', (e) => {
-      pointerMove(e.clientX, e.clientY);
-    });
-
-    window.addEventListener('pointerup', stopDrag);
-    window.addEventListener('pointercancel', stopDrag);
-
-    rowsInput.addEventListener('input', () => {
-      resetStructureAndResults();
-      updateDisplay();
-    });
-
-    colsInput.addEventListener('input', () => {
-      resetStructureAndResults();
-      updateDisplay();
-    });
-
-    rowsInput.addEventListener('blur', () => {
-      const val = sanitiseInput(rowsInput);
-      if (val === null) rowsInput.value = 10;
-      updateDisplay();
-    });
-
-    colsInput.addEventListener('blur', () => {
-      const val = sanitiseInput(colsInput);
-      if (val === null) colsInput.value = 10;
-      updateDisplay();
-    });
-
-    splitMode.addEventListener('change', () => {
-      const nextMode = splitMode.value;
-
-      if (nextMode === 'vertical' || nextMode === 'both'){
-        if (state.cols > 1 && state.vSplit == null) state.vSplit = defaultSplit(state.cols);
-      } else {
-        state.vSplit = null;
-      }
-
-      if (nextMode === 'horizontal' || nextMode === 'both'){
-        if (state.rows > 1 && state.hSplit == null) state.hSplit = defaultSplit(state.rows);
-      } else {
-        state.hSplit = null;
-      }
-
-      resetStructureAndResults();
-      updateDisplay();
-    });
-
-resetBtn.addEventListener('click', () => {
-  rowsInput.value = 10;
-  colsInput.value = 10;
-  splitMode.value = 'none';
-  randomDifficulty.value = 'medium';
-  state.randomDifficulty = 'medium';
-  state.vSplit = null;
-  state.hSplit = null;
-  state.repeatHorizontal = false;
-  state.repeatVertical = false;
-  state.revealValues = false;
-  state.toolMode = TOOL_ARROW;
-  resetStructureAndResults();
-  updateDisplay();
-});
-
- newQBtn.addEventListener('click', () => {
-  const diff = state.randomDifficulty;
-
-  let r, c;
-
-  if (diff === "sweet"){
-    r = Math.floor(Math.random() * 6) + 5;      // 5–10
-    c = Math.floor(Math.random() * 6) + 5;      // 5–10
-  }
-
-  if (diff === "mild"){
-    r = Math.floor(Math.random() * 11) + 10;    // 10–20
-    c = Math.floor(Math.random() * 11) + 10;    // 10–20
-  }
-
-  if (diff === "medium"){
-    r = Math.floor(Math.random() * 41) + 10;    // 10–50
-    c = Math.floor(Math.random() * 41) + 10;    // 10–50
-  }
-
-  if (diff === "spicy"){
-    r = Math.floor(Math.random() * 41) + 10;    // 10–50
-    c = Math.floor(Math.random() * 41) + 10;    // 10–50
-  }
-
-  if (diff === "extraHot"){
-    r = Math.floor(Math.random() * 91) + 10;    // 10–100
-    c = Math.floor(Math.random() * 91) + 10;    // 10–100
-  }
-
-  // make x dimension / columns the longer one
-  const longer = Math.max(r, c);
-  const shorter = Math.min(r, c);
-
-  rowsInput.value = shorter;
-  colsInput.value = longer;
-
-  state.revealValues = false;
-  state.toolMode = TOOL_ARROW;
-  resetStructureAndResults();
-  updateDisplay();
-});
-
-    repeatHorizontalBtn.addEventListener('click', () => {
-      state.repeatHorizontal = !state.repeatHorizontal;
-      resetStructureAndResults();
-      updateDisplay();
-    });
-
-    repeatVerticalBtn.addEventListener('click', () => {
-      state.repeatVertical = !state.repeatVertical;
-      resetStructureAndResults();
-      updateDisplay();
-    });
-
-    
-
-    areaBox.addEventListener('click', (e) => {
-      const clearBtn = e.target.closest('[data-clear-metric="area"]');
-      if (clearBtn){
-        e.stopPropagation();
-        clearAreaResult();
-        return;
-      }
-      playAreaAnimation();
-    });
-
-    perimeterBox.addEventListener('click', (e) => {
-      const clearBtn = e.target.closest('[data-clear-metric="perimeter"]');
-      if (clearBtn){
-        e.stopPropagation();
-        clearPerimeterResult();
-        return;
-      }
-      playPerimeterAnimation();
-    });
-
-    arrowToolBtn.addEventListener('click', () => setToolMode(TOOL_ARROW));
-
-    eraserToolBtn.addEventListener('click', () => {
-      if (state.toolMode === TOOL_ERASER){
-        clearRemovedAndSelection();
-        resetResultsOnly();
-        updateDisplay();
-        return;
-      }
-      setToolMode(TOOL_ERASER);
-    });
-
-    pointerToolBtn.addEventListener('click', () => setToolMode(TOOL_POINTER));
-
-    toolsBtn.addEventListener('click', () => {
-      if (toolsBtn.disabled) return;
-      const open = toolsMenu.classList.toggle('open');
-      toolsBtn.setAttribute('aria-expanded', String(open));
-      if (!open) closeQuizSubmenu();
-      if (open) {
-        settingsMenu.classList.remove('open');
-        settingsBtn.setAttribute('aria-expanded', 'false');
-      }
-    });
-
-    /* ---- Student Quiz flyout: hover handled by CSS, click/tap handled here ---- */
-    function closeQuizSubmenu(){
-      if (!quizSubmenu) return;
-      quizSubmenu.classList.remove('open');
-      if (quizSubBtn) quizSubBtn.setAttribute('aria-expanded', 'false');
-    }
-
-    if (quizSubBtn){
-      quizSubBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const open = quizSubmenu.classList.toggle('open');
-        quizSubBtn.setAttribute('aria-expanded', String(open));
+    /* edge pieces (perimeter mode) */
+    if(!area){
+      const own = new Map(S.own.map((k, n) => [k, n + 1]));
+      const placed = []; /* crowded labels slide along their edge, in walking order */
+      const fs = S.L.compact ? 14 : 17;
+      B.segs.forEach(s => {
+        const mx = X((s.x1 + s.x2) / 2), my = Y((s.y1 + s.y2) / 2);
+        let ox = 0, oy = 0;
+        const outerTop = s.dir === "E" && s.y1 === 0, outerLeft = s.dir === "N" && s.x1 === 0;
+        if(s.dir === "E") oy = outerTop ? -44 : -22;
+        if(s.dir === "W") oy = s.y1 === S.H ? 28 : 22;
+        if(s.dir === "S") ox = s.x1 === S.W ? 34 : 24;
+        if(s.dir === "N") ox = outerLeft ? -46 : -24;
+        let x = mx + ox, y = my + oy;
+        const label = String(s.len);
+        const w = Math.max(fs * 1.5, textW(label, fs) + fs * 0.9), h = fs * 1.55;
+        const hits = () => placed.find(r => Math.abs(r.x - x) < (r.w + w) / 2 + 2 && Math.abs(r.y - y) < (r.h + h) / 2 + 1);
+        let r = hits(), guard = 0;
+        while(r && guard++ < 6){
+          if(s.dir === "E") x = r.x + (r.w + w) / 2 + 3;
+          else if(s.dir === "W") x = r.x - (r.w + w) / 2 - 3;
+          else if(s.dir === "S") y = r.y + (r.h + h) / 2 + 2;
+          else y = r.y - (r.h + h) / 2 - 2;
+          r = hits();
+        }
+        placed.push({ x, y, w, h });
+        const on = act.has(s.idx);
+        const g = pill(gChips, x, y, label, fs, on
+          ? { bg:"#7c3aed", stroke:"#7c3aed", color:"#fff", cls:"chip" }
+          : { bg:"#fff", stroke:"#c4b5fd", color:"#5b21b6", cls:"chip" });
+        g.setAttribute("data-seg", s.idx);
+        if(S.pop === "seg" + s.idx) g.classList.add("pop");
+        if(own.has(s.idx)){
+          const n = own.get(s.idx), bx = x + w / 2 - 2, by = y - h / 2 + 1;
+          el("circle", { cx:bx, cy:by, r:8, fill:"#f59e0b", stroke:"#fff", "stroke-width":1.5 }, g);
+          txt(g, bx, by + 0.5, String(n), 10.5, "#fff", { "font-family":"system-ui,sans-serif", "font-weight":900 });
+        }
       });
     }
+    S.pop = null;
+    renderSide();
+  }
 
-    if (quizSubmenu){
-      quizSubmenu.addEventListener('mouseleave', closeQuizSubmenu);
+  /* which edge pieces are lit, for the perimeter strategies */
+  function activeSegs(){
+    const set = new Set();
+    if(S.mode !== "perim" || !S.B) return set;
+    const segs = S.B.segs;
+    if(S.strat === "walk"){ for(let k = 0; k < S.pstep && k < segs.length; k++) set.add(k); }
+    else if(S.strat === "own"){ S.own.forEach(k => set.add(k)); }
+    else if(S.strat === "pv"){
+      const rows = pvRows();
+      if(S.pstep >= rows.length + (rows.length > 1 ? 1 : 0)) segs.forEach(s => set.add(s.idx));
+      else if(S.pstep >= 1){ rows[S.pstep - 1].items.forEach(it => set.add(it.seg)); }
+    } else if(S.strat === "half"){
+      if(S.pstep >= 2) segs.forEach(s => set.add(s.idx));
+      else if(S.pstep === 1) halfSegs().forEach(k => set.add(k));
     }
+    return set;
+  }
 
-    settingsBtn.addEventListener('click', () => {
-      if (settingsBtn.disabled) return;
-      const open = settingsMenu.classList.toggle('open');
-      settingsBtn.setAttribute('aria-expanded', String(open));
-      if (open) {
-        toolsMenu.classList.remove('open');
-        toolsBtn.setAttribute('aria-expanded', 'false');
-      }
+  function pvRows(){
+    const segs = S.B ? S.B.segs : [];
+    const rows = [{ name:"Hundreds", items:[] }, { name:"Tens", items:[] }, { name:"Ones", items:[] }];
+    segs.forEach(s => {
+      const h = Math.floor(s.len / 100) * 100, t = Math.floor((s.len % 100) / 10) * 10, o = s.len % 10;
+      if(h) rows[0].items.push({ v:h, seg:s.idx });
+      if(t) rows[1].items.push({ v:t, seg:s.idx });
+      if(o) rows[2].items.push({ v:o, seg:s.idx });
     });
+    return rows.filter(r => r.items.length).map(r => Object.assign(r, { total:r.items.reduce((a, b) => a + b.v, 0) }));
+  }
+  function halfSegs(){
+    /* top edge and right edge of the whole rectangle */
+    return S.B.segs.filter(s => (s.dir === "E" && s.y1 === 0) || (s.dir === "S" && s.x1 === S.W)).map(s => s.idx);
+  }
+  function stratMax(){
+    const n = S.B ? S.B.segs.length : 0;
+    if(S.strat === "walk") return n;
+    if(S.strat === "own") return n;
+    if(S.strat === "pv"){ const r = pvRows().length; return r + (r > 1 ? 1 : 0); }
+    if(S.strat === "half") return 2;
+    return 0;
+  }
 
-    document.addEventListener('click', (e) => {
-      if (!toolsMenu.contains(e.target)){
-        toolsMenu.classList.remove('open');
-        toolsBtn.setAttribute('aria-expanded', 'false');
-        closeQuizSubmenu();
-      }
-      if (!settingsMenu.contains(e.target)){
-        settingsMenu.classList.remove('open');
-        settingsBtn.setAttribute('aria-expanded', 'false');
-      }
+  /* ------------------------------------------------------------ progress */
+  function areaSumNeeded(){
+    const G = S.G;
+    return G.liveGroups.length > 1 || G.liveGroups.some(g => g.live.length > 1);
+  }
+  function areaDone(){
+    const G = S.G; if(!G) return false;
+    const all = G.liveGroups.every(g => S.revealed.has(g.key));
+    return all && (!areaSumNeeded() || S.sumShown);
+  }
+  function perimDone(){
+    if(S.strat === "own") return S.B && S.own.length === S.B.segs.length && S.own.length > 0;
+    return S.pstep >= stratMax() && stratMax() > 0;
+  }
+  function isDone(){ return S.mode === "area" ? areaDone() : perimDone(); }
+
+  function splitLabel(){
+    const px = partsOf(S.W, S.cx), py = partsOf(S.H, S.cy);
+    const a = px.length > 1 ? "(" + joinPlus(px) + ")" : String(S.W);
+    const b = py.length > 1 ? "(" + joinPlus(py) + ")" : String(S.H);
+    return a + " × " + b;
+  }
+  function logWay(){
+    const shape = S.removed.size ? " — shape" : "";
+    let entry;
+    if(S.mode === "area") entry = { m:"a", label:splitLabel() + shape, v:S.G.area, sq:true };
+    else {
+      const px = partsOf(S.W, S.cx), py = partsOf(S.H, S.cy);
+      const sides = (px.length > 1 ? joinPlus(px) : S.W) + " by " + (py.length > 1 ? joinPlus(py) : S.H);
+      entry = { m:"p", label:STRATS[S.strat].name + " · " + sides + shape, v:S.B.total, sq:false };
+    }
+    const key = entry.m + "|" + entry.label + "|" + [...S.removed].sort().join(";");
+    if(S.ways.some(w => w.key === key)) return;
+    entry.key = key; entry.fresh = true;
+    S.ways.push(entry);
+  }
+
+  function revealGroup(gk, animate){
+    if(S.revealed.has(gk)) return;
+    S.revealed.add(gk); S.revOrder.push(gk);
+    S.pop = animate ? gk : null;
+    S.justNow = gk;
+    if(areaDone()) logWay();
+    render();
+    if(animate) sweep(gk);
+  }
+
+  /* the colour fills the piece a row at a time — "10 rows of 20" */
+  function sweep(gk){
+    if(reduceMotion) return;
+    const tok = ++S.anim;
+    const G = S.G, L = S.L, fx = $("fx");
+    const grp = G.groups.find(g => g.key === gk); if(!grp) return;
+    const covers = [];
+    G.pieces.forEach(p => {
+      if(p.gk !== gk || p.removed) return;
+      const x = L.X(p.x0), y = L.Y(p.y0), pw = L.X(p.x0 + p.w) - x, ph = L.Y(p.y0 + p.h) - y;
+      covers.push({ r:el("rect", { x, y, width:pw, height:ph, fill:grp.col.fill, "pointer-events":"none" }, fx), y, ph, rows:p.h });
     });
+    const dur = 520, t0 = performance.now();
+    const stepRows = covers.length && covers[0].rows <= 24;
+    const frame = now => {
+      if(tok !== S.anim) return;
+      let k = clamp((now - t0) / dur, 0, 1);
+      covers.forEach(c => {
+        let f = k;
+        if(stepRows) f = Math.floor(k * c.rows + 1e-9) / c.rows;
+        c.r.setAttribute("y", c.y + c.ph * f);
+        c.r.setAttribute("height", Math.max(0, c.ph * (1 - f)));
+      });
+      if(k < 1) requestAnimationFrame(frame); else covers.forEach(c => c.r.remove());
+    };
+    requestAnimationFrame(frame);
+  }
 
-document.addEventListener('keydown', (e) => {
-  if (e.code === 'Space') {
-    if (document.activeElement === rowsInput || document.activeElement === colsInput) {
+  function walkRound(){
+    if(S.walking){ /* second press: finish now */
+      S.anim++; S.walking = false; S.pstep = S.B.segs.length; logWay(); render(); return;
+    }
+    const tok = ++S.anim; S.walking = true;
+    const segs = S.B.segs; const avg = S.B.total / Math.max(1, segs.length);
+    const go = () => {
+      if(tok !== S.anim) return;
+      if(S.pstep >= segs.length){ S.walking = false; logWay(); render(); return; }
+      const s = segs[S.pstep];
+      const L = S.L, X = L.X, Y = L.Y;
+      const fx = $("fx");
+      const line = el("line", { x1:X(s.x1), y1:Y(s.y1), x2:X(s.x1), y2:Y(s.y1), stroke:"#7c3aed", "stroke-width":7, "stroke-linecap":"round" }, fx);
+      const dot = el("circle", { cx:X(s.x1), cy:Y(s.y1), r:9, fill:"#f59e0b", stroke:"#fff", "stroke-width":2.5 }, fx);
+      const dur = reduceMotion ? 1 : clamp(650 * s.len / avg, 360, 1250);
+      const t0 = performance.now();
+      const frame = now => {
+        if(tok !== S.anim) return;
+        const k = clamp((now - t0) / dur, 0, 1), e = k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+        const x = X(s.x1 + (s.x2 - s.x1) * e), y = Y(s.y1 + (s.y2 - s.y1) * e);
+        line.setAttribute("x2", x); line.setAttribute("y2", y);
+        dot.setAttribute("cx", x); dot.setAttribute("cy", y);
+        if(k < 1) requestAnimationFrame(frame);
+        else {
+          S.pstep++; S.pop = "seg" + s.idx; S.followWork = true; render();
+          setTimeout(go, reduceMotion ? 120 : 140);
+        }
+      };
+      requestAnimationFrame(frame);
+    };
+    render();
+    go();
+  }
+
+  function next(){
+    clearMsg();
+    S.followWork = true;
+    if(S.removing) setRemoving(false);
+    if(S.mode === "area"){
+      const G = S.G;
+      const g = G.liveGroups.find(g => !S.revealed.has(g.key));
+      if(g){ revealGroup(g.key, true); return; }
+      if(areaSumNeeded() && !S.sumShown){ S.sumShown = true; logWay(); render(); }
       return;
     }
-    e.preventDefault();
-    newQBtn.click();
+    if(S.strat === "walk"){ if(S.pstep < S.B.segs.length || S.walking) walkRound(); return; }
+    if(S.strat === "own"){
+      const nxt = S.B.segs.find(s => !S.own.includes(s.idx));
+      if(nxt) tapSeg(nxt.idx);
+      return;
+    }
+    if(S.pstep < stratMax()){ S.pstep++; if(perimDone()) logWay(); render(); }
   }
-});
+  function back(){
+    clearMsg();
+    S.anim++; S.walking = false;
+    if(S.mode === "area"){
+      if(S.sumShown){ S.sumShown = false; render(); return; }
+      const gk = S.revOrder.pop(); if(gk){ S.revealed.delete(gk); render(); }
+      return;
+    }
+    if(S.strat === "own"){ S.own.pop(); render(); return; }
+    if(S.pstep > 0){ S.pstep--; render(); }
+  }
+  function showAll(){
+    clearMsg();
+    S.followWork = true;
+    S.anim++; S.walking = false;
+    if(S.removing) setRemoving(false);
+    if(S.mode === "area"){
+      S.G.liveGroups.forEach(g => { if(!S.revealed.has(g.key)){ S.revealed.add(g.key); S.revOrder.push(g.key); } });
+      S.sumShown = true;
+    } else if(S.strat === "own"){
+      S.B.segs.forEach(s => { if(!S.own.includes(s.idx)) S.own.push(s.idx); });
+    } else S.pstep = stratMax();
+    logWay(); render();
+  }
+  function startAgain(){
+    clearMsg();
+    S.anim++; S.walking = false;
+    if(S.mode === "area"){ S.revealed.clear(); S.revOrder = []; S.sumShown = false; }
+    else { S.pstep = 0; S.own = []; }
+    render();
+  }
+  function tapSeg(k){
+    if(!S.B || !S.B.segs[k] || S.own.includes(k)) return;
+    S.own.push(k); S.pop = "seg" + k; S.followWork = true;
+    if(perimDone()) logWay();
+    render();
+  }
 
-    window.addEventListener('resize', updateDisplay);
+  /* anything that changes the pieces wipes the answers (the old ones are for
+     a different set of pieces) but keeps the "ways we've found" list */
+  function piecesChanged(keepRemoved){
+    S.anim++; S.walking = false;
+    if(!keepRemoved) S.removed.clear();
+    S.revealed.clear(); S.revOrder = []; S.sumShown = false;
+    S.pstep = 0; S.own = [];
+  }
 
-    updateDisplay();
-  </script>
+  /* ------------------------------------------------------------ side panel */
+  function renderSide(){
+    const G = S.G, B = S.B;
+    const area = S.mode === "area";
+    const px = G.px, py = G.py;
+    document.querySelectorAll(".modeBtn").forEach(b => b.setAttribute("aria-selected", String(b.dataset.mode === S.mode)));
+    $("outcomeTag").textContent = area ? "MA3-MR-01" : "MA4-LEN-C-01";
+
+    /* statement */
+    const done = isDone();
+    const stmt = $("stmt");
+    const shape = S.removed.size > 0;
+    const ansHtml = done ? '<span class="ans">' + fmt(area ? G.area : B.total) + unitTxt(area) + "</span>" : '<span class="q">?</span>';
+    const keep = document.activeElement && document.activeElement.classList && document.activeElement.classList.contains("numIn");
+    if(!keep){
+      let h;
+      if(shape) h = '<span class="word">' + (area ? "Area of the shape" : "Perimeter of the shape") + "</span><span>=</span>" + ansHtml;
+      else if(area) h = numIn("W") + "<span>×</span>" + numIn("H") + "<span>=</span>" + ansHtml;
+      else h = '<span class="word">Perimeter of</span>' + numIn("W") + '<span class="word">by</span>' + numIn("H") + "<span>=</span>" + ansHtml;
+      stmt.innerHTML = h;
+      wireNumIns();
+    }
+
+    /* split panel */
+    if(document.activeElement !== $("partsX")) $("partsX").value = joinPlus(px);
+    if(document.activeElement !== $("partsY")) $("partsY").value = joinPlus(py);
+    $("totX").textContent = "= " + S.W; $("totY").textContent = "= " + S.H;
+    $("pvBtn").disabled = S.W < 10 && S.H < 10;
+    $("tensBtn").disabled = S.W < 20 && S.H < 20;
+    $("unsplitBtn").disabled = !S.cx.length && !S.cy.length;
+    const cut = $("cutBtn");
+    cut.disabled = G.pieces.length < 2;
+    cut.setAttribute("aria-pressed", String(S.removing));
+    cut.innerHTML = S.removing ? "✓ Done removing" : "✂ Remove pieces";
+
+    /* working */
+    $("workTitle").textContent = area ? "Multiply part by part" : "Add the edges";
+    $("work").innerHTML = area ? areaWork() : perimWork();
+    wireWork();
+    renderWays();
+
+    /* buttons */
+    const nb = $("nextBtn");
+    nb.disabled = done && !S.walking;
+    if(area){
+      const left = G.liveGroups.filter(g => !S.revealed.has(g.key)).length;
+      nb.innerHTML = done ? "✓ Done" : left ? (G.liveGroups.length > 1 || areaSumNeeded() ? "Next piece ▸" : "Show the product ▸") : "Add them up ▸";
+    } else {
+      if(S.walking) nb.innerHTML = "Finish ▸▸";
+      else if(done) nb.innerHTML = "✓ Done";
+      else if(S.strat === "walk") nb.innerHTML = S.pstep ? "Keep walking ▸" : "Walk round ▸";
+      else if(S.strat === "own") nb.innerHTML = "Next edge ▸";
+      else nb.innerHTML = "Next step ▸";
+    }
+    const any = area ? (S.revealed.size || S.sumShown) : (S.pstep || S.own.length || S.walking);
+    $("backBtn").disabled = !any;
+    $("againBtn").disabled = !any;
+    $("allBtn").disabled = done && !S.walking;
+
+    renderHint();
+    if(S.followWork){
+      S.followWork = false;
+      const items = document.querySelectorAll("#work .sLine, #work .sumBox, #work .runChain, #work .ppRow.justNowDone");
+      const last = items[items.length - 1];
+      if(last && last.scrollIntoView) last.scrollIntoView({ block:"nearest" });
+    }
+  }
+
+  function numIn(which){
+    const v = which === "W" ? S.W : S.H;
+    const d = String(v).length;
+    return '<input class="numIn ' + (which === "W" ? "cX" : "cY") + '" data-dim="' + which + '" type="number" inputmode="numeric" min="1" max="999" value="' + v +
+      '" style="width:' + (d * 0.56 + 0.32) + 'em" aria-label="' + (which === "W" ? "Across" : "Down") + ', click to change">';
+  }
+  function wireNumIns(){
+    document.querySelectorAll(".numIn").forEach(inp => {
+      inp.addEventListener("input", () => { inp.style.width = (Math.max(1, inp.value.length) * 0.56 + 0.32) + "em"; });
+      const commit = () => {
+        const n = Math.round(Number(inp.value));
+        if(!Number.isFinite(n) || n < 1 || n > MAX){
+          inp.classList.remove("is-bad"); void inp.offsetWidth; inp.classList.add("is-bad");
+          setMsg("Use a whole number from 1 to 999.", true);
+          inp.value = inp.dataset.dim === "W" ? S.W : S.H;
+          return;
+        }
+        const W = inp.dataset.dim === "W" ? n : S.W, H = inp.dataset.dim === "H" ? n : S.H;
+        if(W !== S.W || H !== S.H) setQuestion(W, H);
+        else render();
+      };
+      inp.addEventListener("keydown", e => { if(e.key === "Enter"){ e.preventDefault(); inp.blur(); } if(e.key === "Escape"){ inp.value = inp.dataset.dim === "W" ? S.W : S.H; inp.blur(); } });
+      inp.addEventListener("blur", commit);
+      inp.addEventListener("focus", () => inp.select());
+    });
+  }
+
+  function areaWork(){
+    const G = S.G, px = G.px, py = G.py;
+    const split = px.length > 1 || py.length > 1;
+    let h = "";
+    if(S.removed.size) h += '<div class="wBig">Area of the shape</div>';
+    h += '<div class="wBig"><span class="cX">' + S.W + '</span> × <span class="cY">' + S.H + "</span></div>";
+    if(split){
+      const a = px.length > 1 ? "(" + px.map(v => '<span class="cX">' + v + "</span>").join(" + ") + ")" : '<span class="cX">' + S.W + "</span>";
+      const b = py.length > 1 ? "(" + py.map(v => '<span class="cY">' + v + "</span>").join(" + ") + ")" : '<span class="cY">' + S.H + "</span>";
+      h += '<div class="wLine">= ' + a + " × " + b + "</div>";
+      h += '<div class="wSub">' + (G.groups.length === G.pieces.length ? "One multiplication for each piece" : "Pieces the same size are grouped") + "</div>";
+    } else {
+      h += '<div class="wSub">One piece — one big multiplication</div>';
+    }
+    h += '<ul class="ppList">';
+    G.groups.forEach(g => {
+      const rev = S.revealed.has(g.key), gone = !g.live.length, n = g.live.length;
+      h += '<li><button class="ppRow' + (gone ? " gone" : "") + (S.justNow === g.key ? " justNow" : "") + '" type="button" data-g="' + g.key + '"' + (gone ? ' tabindex="-1" aria-disabled="true"' : "") + ">" +
+        '<span class="swatch" style="background:' + (rev && !gone ? g.col.mid : g.col.fill) + '"></span>' +
+        '<span><span class="cX">' + g.w + '</span> × <span class="cY">' + g.h + "</span></span>" +
+        (n > 1 ? '<span class="cnt">×' + n + " pieces</span>" : "") +
+        (gone ? '<span class="v q">cut away</span>' : '<span class="v' + (rev ? "" : " q") + '">= ' + (rev ? fmt(g.prod) : "?") + "</span>") +
+        "</button></li>";
+    });
+    h += "</ul>";
+    S.justNow = null;
+    if(!split) h += '<p class="wNote">Too big to do in one go? Split a side: click the ruler along the top or left edge, or press <b>Place value</b>.</p>';
+    if(areaSumNeeded()){
+      const terms = G.liveGroups.map(g => g.live.length > 1 ? g.live.length + " × " + fmt(g.prod) : fmt(g.prod));
+      const allRev = G.liveGroups.every(g => S.revealed.has(g.key));
+      if(S.sumShown){
+        h += '<div class="sumBox done"><span class="lab">Add the parts</span>' + terms.join(" + ") + ' = <span class="ans">' + fmt(G.area) + unitTxt(true) + "</span>";
+        if(S.removed.size){
+          const gone = G.pieces.filter(p => p.removed).map(p => fmt(p.w * p.h));
+          h += '<br><span class="lab" style="margin-top:6px">Check: whole rectangle take away the gaps</span>' + fmt(S.W * S.H) + " − " + gone.join(" − ") + " = " + fmt(G.area);
+        }
+        h += "</div>";
+      } else {
+        h += '<div class="sumBox"><span class="lab">Add the parts</span>' + (allRev ? terms.join(" + ") + " = ?" : '<span style="color:#94a3b8">Find every piece first</span>') + "</div>";
+      }
+    }
+    return h;
+  }
+
+  function perimWork(){
+    const B = S.B; const segs = B.segs;
+    let h = "";
+    const act = activeSegs();
+    h += '<div class="wSub" style="margin-top:0">All the way round, from the top-left corner</div>';
+    h += '<div class="edgeList">' + segs.map(s => '<span class="e' + (act.has(s.idx) ? " on" : "") + '" data-seg="' + s.idx + '">' + s.len + "</span>").join(" + ") + "</div>";
+    const halfOK = S.removed.size === 0;
+    h += '<div class="stratTabs" role="tablist" aria-label="Addition strategy">' + Object.keys(STRATS).map(k =>
+      '<button class="stratBtn" type="button" role="tab" data-strat="' + k + '" aria-selected="' + (S.strat === k) + '"' +
+      (k === "half" && !halfOK ? ' disabled title="Only for a whole rectangle"' : "") + ">" + STRATS[k].name + "</button>").join("") + "</div>";
+    h += '<p class="stratNote">' + STRATS[S.strat].note + "</p>";
+
+    if(S.strat === "walk"){
+      if(S.pstep === 0) h += '<div class="runChain" style="color:#94a3b8">Press <b>Walk round</b> to start.</div>';
+      else {
+        let run = 0; const bits = [];
+        for(let k = 0; k < S.pstep; k++){ run += segs[k].len; bits.push('<span class="st">' + fmt(run) + "</span>"); }
+        h += '<div class="runChain">' + bits.join('<span class="ar">→</span>') + "</div>";
+        if(S.pstep >= segs.length) h += '<div class="sLine done" style="margin-top:8px"><span class="lab">Perimeter</span><span class="ans">' + fmt(B.total) + unitTxt(false) + "</span></div>";
+      }
+    } else if(S.strat === "pv"){
+      const rows = pvRows();
+      rows.forEach((r, n) => {
+        if(S.pstep > n) h += '<div class="sLine"><span class="lab">' + r.name + "</span>" + joinPlus(r.items.map(it => fmt(it.v))) + " = " + fmt(r.total) + "</div>";
+      });
+      if(rows.length > 1 && S.pstep > rows.length) h += '<div class="sLine done"><span class="lab">Put them together</span>' + joinPlus(rows.map(r => fmt(r.total))) + ' = <span class="ans">' + fmt(B.total) + unitTxt(false) + "</span></div>";
+      if(rows.length === 1 && S.pstep >= 1) h += '<div class="sLine done"><span class="lab">Perimeter</span><span class="ans">' + fmt(B.total) + unitTxt(false) + "</span></div>";
+      if(S.pstep === 0) h += '<div class="runChain" style="color:#94a3b8">Press <b>Next step</b> to collect the ' + rows[0].name.toLowerCase() + ".</div>";
+    } else if(S.strat === "half"){
+      if(!halfOK) h += '<p class="wNote">With pieces cut away the opposite sides no longer match. Try another strategy.</p>';
+      else {
+        const hs = halfSegs().map(k => segs[k]);
+        const half = hs.reduce((a, s) => a + s.len, 0);
+        if(S.pstep >= 1) h += '<div class="sLine"><span class="lab">Half way round</span>' + joinPlus(hs.map(s => s.len)) + " = " + fmt(half) + "</div>";
+        if(S.pstep >= 2) h += '<div class="sLine done"><span class="lab">Double it</span>' + fmt(half) + " + " + fmt(half) + ' = <span class="ans">' + fmt(half * 2) + unitTxt(false) + "</span></div>";
+        if(S.pstep === 0) h += '<div class="runChain" style="color:#94a3b8">Press <b>Next step</b> to add the top and the right side.</div>';
+      }
+    } else if(S.strat === "own"){
+      if(!S.own.length) h += '<div class="runChain" style="color:#94a3b8">Tap an edge on the board to start.</div>';
+      else {
+        let run = segs[S.own[0]].len;
+        h += '<div class="sLine"><span class="lab">Start with</span>' + fmt(run) + "</div>";
+        for(let k = 1; k < S.own.length; k++){
+          const v = segs[S.own[k]].len, nw = run + v;
+          const ten = nw % 10 === 0 && run % 10 !== 0;
+          h += '<div class="sLine"' + (ten ? ' style="border-color:rgba(21,128,61,.35)"' : "") + ">" + fmt(run) + " + " + fmt(v) + " = " + fmt(nw) + (ten ? ' <span style="font-family:var(--uiFont);font-size:.72rem;font-weight:900;color:#15803d">a ten!</span>' : "") + "</div>";
+          run = nw;
+        }
+        if(perimDone()) h += '<div class="sLine done"><span class="lab">Perimeter</span><span class="ans">' + fmt(B.total) + unitTxt(false) + "</span></div>";
+      }
+    }
+    if(S.removed.size) h += '<p class="wNote">A rectangle with ' + (S.removed.size === 1 ? "a piece" : "pieces") + ' cut away. Compare with the whole rectangle: 2 × (' + S.W + " + " + S.H + ") = " + fmt(2 * (S.W + S.H)) + ".</p>";
+    return h;
+  }
+
+  function renderWays(){
+    const box = $("ways");
+    if(!S.ways.length){ box.innerHTML = '<div class="pTitle">Ways we’ve found</div><p class="empty">Each finished method lands here, so you can compare splits.</p>'; return; }
+    box.innerHTML = '<div class="pTitle">Ways we’ve found</div><ol>' + S.ways.map(w =>
+      "<li" + (w.fresh ? "" : ' style="animation:none"') + '><span class="wm ' + w.m + '">' + (w.m === "a" ? "×" : "+") + '</span><span class="wl" title="' + w.label + '">' + w.label + "</span><b>" + fmt(w.v) + unitTxt(w.sq) + "</b></li>").join("") + "</ol>";
+    S.ways.forEach(w => { w.fresh = false; });
+  }
+
+  function wireWork(){
+    document.querySelectorAll("#work .ppRow").forEach(b => {
+      const gk = b.dataset.g;
+      b.addEventListener("click", () => {
+        if(b.classList.contains("gone")) return;
+        if(S.removing) setRemoving(false);
+        if(!S.revealed.has(gk)) revealGroup(gk, true);
+        else flashGroup(gk);
+      });
+      b.addEventListener("mouseenter", () => hlGroup(gk, true));
+      b.addEventListener("mouseleave", () => hlGroup(gk, false));
+      b.addEventListener("focus", () => hlGroup(gk, true));
+      b.addEventListener("blur", () => hlGroup(gk, false));
+    });
+    document.querySelectorAll("#work .stratBtn").forEach(b => b.addEventListener("click", () => {
+      if(b.disabled) return;
+      S.strat = b.dataset.strat; S.pstep = 0; S.own = []; S.anim++; S.walking = false;
+      if(S.removing) setRemoving(false);
+      render();
+    }));
+    document.querySelectorAll("#work .edgeList .e").forEach(sp => {
+      const k = Number(sp.dataset.seg);
+      sp.addEventListener("mouseenter", () => hlSeg(k, true));
+      sp.addEventListener("mouseleave", () => hlSeg(k, false));
+    });
+  }
+  function hlGroup(gk, on){ svg.querySelectorAll('.piece[data-g="' + gk + '"]').forEach(r => r.classList.toggle("hl", on)); }
+  function flashGroup(gk){
+    svg.querySelectorAll('.pl[data-g="' + gk + '"]').forEach(t => { t.classList.remove("pop"); void t.getBBox(); t.style.animationDelay = "0s"; t.classList.add("pop"); });
+  }
+  function hlSeg(k, on){
+    const r = svg.querySelector('.chip[data-seg="' + k + '"] rect');
+    if(!r) return;
+    if(on){ r.dataset.st = r.getAttribute("stroke"); r.setAttribute("stroke", "#f59e0b"); r.setAttribute("stroke-width", 3.5); }
+    else if(r.dataset.st){ r.setAttribute("stroke", r.dataset.st); r.setAttribute("stroke-width", 1.5); }
+  }
+
+  /* ------------------------------------------------------------ hint line */
+  function setMsg(m, warn){ S.msg = m; S.msgWarn = !!warn; renderHint(); }
+  function clearMsg(){ S.msg = ""; S.msgWarn = false; }
+  function renderHint(){
+    const h = $("hint");
+    h.classList.toggle("warn", !!(S.msg && S.msgWarn));
+    if(S.msg){ h.textContent = S.msg; return; }
+    if(S.removing){
+      h.innerHTML = "Tap a piece to cut it away — tap it again to put it back." + (S.removed.size ? ' <button type="button" id="putBack">Put them all back</button>' : "");
+      const pb = $("putBack"); if(pb) pb.addEventListener("click", () => { piecesChanged(false); render(); });
+      return;
+    }
+    const split = S.cx.length || S.cy.length;
+    if(!split) h.innerHTML = "Click the <b>ruler</b> along the top or left edge to split a side.";
+    else if(S.mode === "area") h.innerHTML = "Drag a split to move it, or off the end to remove it · click a piece to find its product.";
+    else h.innerHTML = "Move a split to change the parts each edge is made of — the perimeter doesn’t change.";
+  }
+
+  /* ------------------------------------------------------------ pointer */
+  function svgPt(e){
+    const r = svg.getBoundingClientRect();
+    return { x:(e.clientX - r.left) * (S.L.w / r.width), y:(e.clientY - r.top) * (S.L.h / r.height) };
+  }
+  function valAt(axis, pt){ const L = S.L; return axis === "x" ? L.ix(pt.x) : L.iy(pt.y); }
+  function snap(axis, v){
+    const tot = axis === "x" ? S.W : S.H, map = axis === "x" ? S.L.X : S.L.Y;
+    let r = Math.round(v);
+    const r10 = Math.round(v / 10) * 10;
+    if(r10 > 0 && r10 < tot && Math.abs(map(v) - map(r10)) < 9) r = r10;
+    return r;
+  }
+  function cutsFor(axis){ return axis === "x" ? S.cx : S.cy; }
+
+  svg.addEventListener("pointerdown", e => {
+    if(e.button > 0) return;
+    const t = e.target;
+    const cutEl = t.closest("[data-cut]"), rul = t.closest("[data-ruler]"), pc = t.closest("[data-piece]"), chip = t.closest("[data-seg]");
+    if(cutEl && !S.removing){
+      const [axis, idx] = cutEl.dataset.cut.split(":");
+      startDrag(e, axis, Number(idx));
+      return;
+    }
+    if(rul && !S.removing){
+      const axis = rul.dataset.ruler, pt = svgPt(e);
+      const tot = axis === "x" ? S.W : S.H, cuts = cutsFor(axis);
+      const v = snap(axis, valAt(axis, pt));
+      if(v < 1 || v > tot - 1) return;
+      if(cuts.includes(v)){ startDrag(e, axis, cuts.indexOf(v)); return; }
+      if(cuts.length + 1 >= MAX_PARTS){ setMsg("That’s plenty of pieces — at most " + MAX_PARTS + " along one side.", true); return; }
+      cuts.push(v); cuts.sort((a, b) => a - b);
+      clearMsg();
+      piecesChanged(false);
+      startDrag(e, axis, cuts.indexOf(v));
+      return;
+    }
+    if(chip && S.mode === "perim" && !S.removing && S.strat === "own"){
+      clearMsg(); tapSeg(Number(chip.dataset.seg)); return;
+    }
+    if(pc){
+      const key = pc.dataset.piece;
+      if(S.removing){ toggleRemove(key, pc); return; }
+      if(S.mode === "area"){
+        const p = S.G.pieces.find(q => q.key === key);
+        if(p && !p.removed){ clearMsg(); if(!S.revealed.has(p.gk)) revealGroup(p.gk, true); else flashGroup(p.gk); }
+      }
+    }
+  });
+  function startDrag(e, axis, idx){
+    e.preventDefault();
+    try { svg.setPointerCapture(e.pointerId); } catch(err){}
+    S.drag = { axis, idx, off:false, moved:false, start:cutsFor(axis)[idx] };
+    S.dragL = S.L;
+    $("ghost").innerHTML = "";
+    render();
+  }
+  svg.addEventListener("pointermove", e => {
+    if(!S.drag){ ghostAt(e); return; }
+    const { axis, idx } = S.drag, cuts = cutsFor(axis), tot = axis === "x" ? S.W : S.H;
+    const pt = svgPt(e), raw = valAt(axis, pt), L = S.L;
+    const span = axis === "x" ? L.rw : L.rh, posPx = axis === "x" ? pt.x - L.left : pt.y - L.top;
+    const off = posPx < -30 || posPx > span + 30;
+    const lo = (idx > 0 ? cuts[idx - 1] : 0) + 1, hi = (idx < cuts.length - 1 ? cuts[idx + 1] : tot) - 1;
+    let changed = off !== S.drag.off;
+    S.drag.off = off;
+    if(!off && lo <= hi){
+      const v = clamp(snap(axis, raw), lo, hi);
+      if(v !== cuts[idx]){ cuts[idx] = v; changed = true; S.drag.moved = true; piecesChanged(false); }
+    }
+    if(changed){ clearMsg(); render(); }
+  });
+  const endDrag = e => {
+    if(!S.drag) return;
+    const { axis, idx, off } = S.drag;
+    S.drag = null; S.dragL = null;
+    if(off){ cutsFor(axis).splice(idx, 1); piecesChanged(false); }
+    render();
+  };
+  svg.addEventListener("pointerup", endDrag);
+  svg.addEventListener("pointercancel", endDrag);
+  svg.addEventListener("pointerleave", () => { if(!S.drag) $("ghost").innerHTML = ""; });
+  svg.addEventListener("dblclick", e => {
+    const c = e.target.closest("[data-cut]");
+    if(!c || S.removing) return;
+    const [axis, idx] = c.dataset.cut.split(":");
+    cutsFor(axis).splice(Number(idx), 1); piecesChanged(false); render();
+  });
+
+  /* a dashed preview of where a click on the ruler would split */
+  function ghostAt(e){
+    const gh = $("ghost"); if(!gh) return;
+    gh.innerHTML = "";
+    if(S.removing) return;
+    const rul = e.target.closest && e.target.closest("[data-ruler]");
+    if(!rul) return;
+    const axis = rul.dataset.ruler, L = S.L, pt = svgPt(e), tot = axis === "x" ? S.W : S.H;
+    const v = snap(axis, valAt(axis, pt));
+    if(v < 1 || v > tot - 1 || cutsFor(axis).includes(v)) return;
+    const cuts = [...cutsFor(axis), v].sort((a, b) => a - b), parts = partsOf(tot, cuts), at = cuts.indexOf(v);
+    const label = parts[at] + " | " + parts[at + 1];
+    if(axis === "x"){
+      const x = L.X(v);
+      el("line", { x1:x, y1:L.top - 26, x2:x, y2:L.top + L.rh, stroke:"#2563eb", "stroke-width":2, "stroke-dasharray":"6 5", "pointer-events":"none" }, gh);
+      const p = pill(gh, x, L.top - 44, label, 14, { color:"#1d4ed8", stroke:"#93c5fd" }); p.setAttribute("pointer-events", "none");
+    } else {
+      const y = L.Y(v);
+      el("line", { x1:L.left - 26, y1:y, x2:L.left + L.rw, y2:y, stroke:"#2563eb", "stroke-width":2, "stroke-dasharray":"6 5", "pointer-events":"none" }, gh);
+      const p = pill(gh, L.left - 46, y, label, 14, { color:"#c2410c", stroke:"#fdba74" }); p.setAttribute("pointer-events", "none");
+    }
+  }
+
+  function toggleRemove(key, node){
+    const next = new Set(S.removed);
+    if(next.has(key)) next.delete(key); else next.add(key);
+    const prob = removalProblem(next, S.G);
+    if(prob){
+      setMsg(prob, true);
+      if(node){ node.classList.remove("shakeIt"); void node.getBBox(); node.classList.add("shakeIt"); }
+      return;
+    }
+    clearMsg();
+    S.removed = next;
+    piecesChanged(true);
+    render();
+  }
+  function setRemoving(on){
+    S.removing = on && S.G && S.G.pieces.length > 1;
+    if(S.removing){ S.anim++; S.walking = false; }
+    clearMsg();
+    render();
+  }
+
+  /* ------------------------------------------------------------ splitting from the panel */
+  function applyParts(axis, str){
+    const inp = axis === "x" ? $("partsX") : $("partsY");
+    const tot = axis === "x" ? S.W : S.H;
+    const msg = $("splitMsg");
+    const bits = String(str).replace(/\s+/g, "").split("+").filter(b => b !== "");
+    const nums = bits.map(Number);
+    const bad = t => { msg.textContent = t; msg.hidden = false; inp.classList.remove("is-bad"); void inp.offsetWidth; inp.classList.add("is-bad"); };
+    if(!bits.length || nums.some(n => !Number.isInteger(n) || n < 1)){ bad("Type whole numbers joined by +, like 20 + 3."); return false; }
+    const sum = nums.reduce((a, b) => a + b, 0);
+    if(sum !== tot){ bad("Those parts add to " + sum + ", not " + tot + "."); return false; }
+    if(nums.length > MAX_PARTS){ bad("At most " + MAX_PARTS + " parts along one side."); return false; }
+    msg.hidden = true; inp.classList.remove("is-bad");
+    const c = cutsOf(nums);
+    const cur = cutsFor(axis);
+    if(c.join() !== cur.join()){
+      if(axis === "x") S.cx = c; else S.cy = c;
+      piecesChanged(false);
+    }
+    return true;
+  }
+  ["x","y"].forEach(axis => {
+    const inp = axis === "x" ? $("partsX") : $("partsY");
+    inp.addEventListener("keydown", e => {
+      if(e.key === "Enter"){ e.preventDefault(); if(applyParts(axis, inp.value)){ inp.blur(); render(); } }
+      if(e.key === "Escape"){ $("splitMsg").hidden = true; inp.classList.remove("is-bad"); inp.blur(); render(); }
+    });
+    inp.addEventListener("blur", () => { if(applyParts(axis, inp.value)) render(); });
+  });
+  function quickSplit(kind){
+    $("splitMsg").hidden = true;
+    const f = kind === "pv" ? placeValueParts : kind === "tens" ? tensParts : (n => [n]);
+    let skipped = [];
+    ["x","y"].forEach(axis => {
+      const tot = axis === "x" ? S.W : S.H;
+      let parts = f(tot);
+      if(parts.length > MAX_PARTS){ skipped.push(axis === "x" ? "across" : "down"); parts = placeValueParts(tot); }
+      if(axis === "x") S.cx = cutsOf(parts); else S.cy = cutsOf(parts);
+    });
+    piecesChanged(false);
+    if(S.removing) S.removing = false;
+    if(skipped.length) setMsg("Too many tens " + skipped.join(" and ") + " — split by place value there instead.", true); else clearMsg();
+    render();
+  }
+  $("pvBtn").addEventListener("click", () => quickSplit("pv"));
+  $("tensBtn").addEventListener("click", () => quickSplit("tens"));
+  $("unsplitBtn").addEventListener("click", () => quickSplit("none"));
+
+  /* ------------------------------------------------------------ questions */
+  function setQuestion(W, H){
+    S.W = W; S.H = H;
+    S.cx = S.set.start === "pv" ? cutsOf(placeValueParts(W)) : [];
+    S.cy = S.set.start === "pv" ? cutsOf(placeValueParts(H)) : [];
+    S.ways = []; S.removing = false; S.drag = null;
+    $("splitMsg").hidden = true;
+    piecesChanged(false);
+    clearMsg();
+    render();
+  }
+  function digitsOK(n){ const o = n % 10, t = Math.floor(n / 10) % 10; return o >= 2 && (n < 100 || t >= 1); }
+  function pickNum(lo, hi){
+    for(let i = 0; i < 400; i++){ const n = rnd(lo, hi); if(digitsOK(n)) return n; }
+    return rnd(lo, hi);
+  }
+  let lastQ = "";
+  function randomQuestion(){
+    const lv = S.set.level;
+    let W, H;
+    for(let t = 0; t < 60; t++){
+      if(lv === "t1"){ W = pickNum(12, 19); H = rnd(3, 9); }
+      else if(lv === "21"){ W = pickNum(21, 98); H = rnd(3, 9); }
+      else if(lv === "tt"){ W = pickNum(12, 19); H = pickNum(12, 19); if(H > W){ const s = W; W = H; H = s; } }
+      else if(lv === "31"){ W = pickNum(112, 489); H = rnd(3, 9); }
+      else if(lv === "32"){ W = pickNum(112, 389); H = pickNum(12, 39); }
+      else { W = pickNum(21, 79); H = pickNum(12, 39); if(H > W){ const s = W; W = H; H = s; } }
+      if(W !== H && W + "x" + H !== lastQ) break;
+    }
+    lastQ = W + "x" + H;
+    setQuestion(W, H);
+  }
+
+  /* ------------------------------------------------------------ wiring */
+  function setMode(m){
+    if(m === S.mode) return;
+    S.mode = m; S.anim++; S.walking = false;
+    if(S.removing) S.removing = false;
+    clearMsg();
+    render();
+  }
+  document.querySelectorAll(".modeBtn").forEach(b => b.addEventListener("click", () => setMode(b.dataset.mode)));
+  $("cutBtn").addEventListener("click", () => setRemoving(!S.removing));
+  $("nextBtn").addEventListener("click", next);
+  $("backBtn").addEventListener("click", back);
+  $("againBtn").addEventListener("click", startAgain);
+  $("allBtn").addEventListener("click", showAll);
+  $("newBtn").addEventListener("click", randomQuestion);
+
+  /* settings */
+  const levelSel = $("levelSel"), startSel = $("startSel"), unitSel = $("unitSel");
+  levelSel.value = S.set.level; startSel.value = S.set.start; unitSel.value = S.set.units;
+  $("gridToggle").checked = !!S.set.grid; $("innerToggle").checked = !!S.set.inner; $("scaleToggle").checked = !!S.set.scale;
+  levelSel.addEventListener("change", () => { S.set.level = levelSel.value; saveSettings(); randomQuestion(); });
+  startSel.addEventListener("change", () => { S.set.start = startSel.value; saveSettings(); });
+  unitSel.addEventListener("change", () => { S.set.units = unitSel.value; saveSettings(); render(); });
+  $("gridToggle").addEventListener("change", e => { S.set.grid = e.target.checked; saveSettings(); render(); });
+  $("innerToggle").addEventListener("change", e => { S.set.inner = e.target.checked; saveSettings(); render(); });
+  $("scaleToggle").addEventListener("change", e => { S.set.scale = e.target.checked; saveSettings(); render(); });
+  function useOwn(){
+    const W = Math.round(Number($("ownW").value)), H = Math.round(Number($("ownH").value));
+    const m = $("ownMsg");
+    if(!Number.isFinite(W) || !Number.isFinite(H) || W < 1 || H < 1 || W > MAX || H > MAX || !$("ownW").value || !$("ownH").value){
+      m.textContent = "Use two whole numbers from 1 to 999."; m.hidden = false; return;
+    }
+    m.hidden = true; closeMenus(); setQuestion(W, H);
+  }
+  $("ownGo").addEventListener("click", useOwn);
+  ["ownW","ownH"].forEach(id => $(id).addEventListener("keydown", e => { if(e.key === "Enter") useOwn(); }));
+
+  /* menus */
+  function closeMenus(){
+    [["settingsBtn","settingsMenu"],["toolsBtn","toolsMenu"]].forEach(([b, m]) => { $(m).classList.remove("open"); $(b).setAttribute("aria-expanded","false"); });
+  }
+  [["settingsBtn","settingsMenu"],["toolsBtn","toolsMenu"]].forEach(([b, m]) => {
+    $(b).addEventListener("click", e => {
+      e.stopPropagation();
+      const wasOpen = $(m).classList.contains("open");
+      closeMenus();
+      if(!wasOpen){ $(m).classList.add("open"); $(b).setAttribute("aria-expanded","true"); }
+    });
+    $(m).addEventListener("click", e => e.stopPropagation());
+  });
+  document.addEventListener("click", closeMenus);
+
+  document.addEventListener("keydown", e => {
+    const tag = (e.target && e.target.tagName) || "";
+    if(e.key === "Escape"){ closeMenus(); if(S.removing) setRemoving(false); return; }
+    if(tag === "INPUT" || tag === "SELECT" || tag === "TEXTAREA" || e.metaKey || e.ctrlKey || e.altKey) return;
+    if(e.key === " " || e.key === "ArrowRight"){ if(tag === "BUTTON" && e.key === " ") return; e.preventDefault(); next(); }
+    else if(e.key === "ArrowLeft"){ e.preventDefault(); back(); }
+    else if(e.key === "n" || e.key === "N"){ randomQuestion(); }
+    else if(e.key === "a" || e.key === "A"){ setMode("area"); }
+    else if(e.key === "p" || e.key === "P"){ setMode("perim"); }
+  });
+
+  let rz = 0;
+  const onResize = () => { cancelAnimationFrame(rz); rz = requestAnimationFrame(() => { if(!S.drag) render(); }); };
+  if(window.ResizeObserver) new ResizeObserver(onResize).observe($("boardWrap"));
+  else window.addEventListener("resize", onResize);
+
+  setQuestion(23, 14);
+
+  /* test surface */
+  window.__AM__ = { S, geo, boundary, render, next, back, showAll, startAgain, setMode, setQuestion, randomQuestion, quickSplit, applyParts,
+    toggleRemove:key => toggleRemove(key, null), removalProblem, pvRows, stratMax, isDone, placeValueParts, tensParts, setRemoving,
+    setStrat:s => { S.strat = s; S.pstep = 0; S.own = []; S.anim++; S.walking = false; render(); }, tapSeg };
+})();
+</script>
 </body>
 </html>

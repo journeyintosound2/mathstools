@@ -96,6 +96,34 @@
 > §2 "TWO folders", §3 deploy paths and §5's `mathstools-main 2` heading below
 > describe the OLD layout — this block supersedes them.
 >
+> **NEW (2026-10-31): AREA MODEL — MULTIPLICATION & PERIMETER (rebuild of the old "Area Model Splitter").**
+> Same URL, `interactive-tools/stage-4/measurement-space/perimeter-area-rectangle/index.html`, rewritten in the
+> current shell (mmtTopbar, board card + side panel). One self-contained file, SVG board, test surface `window.__AM__`.
+> * **Purpose (Jeff):** partitioning with the area model for MULTIPLICATION first; the same splits break each edge into
+>   parts, so perimeter becomes an ADDITION strategy (place value or non-standard partitions). Two modes share the cuts:
+>   **Multiply** (pieces, partial products, "Add the parts") and **Perimeter** (edge chips; strategies Walk round /
+>   Tens & ones / Double half / Your order — tap edges in any order, "a ten!" flagged).
+> * Splits: click a ruler (top/left) to add, drag a handle to move (snaps to whole units, magnet to multiples of 10),
+>   drag off the end or double-click to remove; or type `20 + 3` in the side panel; Place value / Into tens / Unsplit
+>   buttons. Up to 12 parts a side, sides 1–999. Pieces of the same size share a colour and group in the working
+>   (`12 × 100 = 1200` for 40 × 30 into tens). "Ways we've found" logs every finished method per question.
+> * Remove pieces (old eraser) keeps the shape ONE piece with no holes (`removalProblem`), so the perimeter is one
+>   clockwise loop (`boundary()`, starts top-left). Double half is disabled once pieces are removed.
+> * Drawing: to scale with unit squares (≤ 100 a side). Thin rectangles, or slivers under 18px when a side > 100, switch
+>   to an OPEN model ("Not to scale" tag) whose per-axis map gives every part a minimum width. The layout is FROZEN
+>   during a drag (`S.dragL`) so the line stays under the pointer. Board sized to the real page (ResizeObserver);
+>   stacked layout ≤ 980px sizes the board to the drawing.
+> * Settings (saved `mmt.areaModel.v1`): six number levels (teen × 1-digit … 3-digit × 2-digit), start whole or split
+>   by place value, unit squares, multiplication inside pieces, always to scale, units. Keys: Space/→ next, ← back,
+>   A/P mode, N new, Esc.
+> * Wiring: homepage card retitled "Area Model — Multiplication & Perimeter" with `area model` etc. in `data-search`;
+>   toolLinks rows retitled under MA3-2DS-02, MA4-ARE-C-01, MA4-LEN-C-01 and NEW row under **MA3-MR-01**
+>   (ideas partition-multiply, multiply-2-digit); lesson plan wording updated to the new controls.
+> * Verified (Playwright, session scratch): 400 random rectangles × random splits × random removals against an
+>   independent unit-edge count (area, perimeter, closed loop, half × 2, place-value rows), every strategy's working,
+>   real-mouse ruler click/drag/snap/drag-off, piece and chip taps, keys, inline number edit, all six levels, and fit
+>   with no scroll at 1024×768, 1280×720/800, 1366×768, 1440×900, 1920×1080 (no sideways scroll at 390 or 820).
+>
 > **NEW (2026-10-29, night): RESULTS & ANALYTICS REBUILT — QUIZ REPORTS + "WHERE MARKS WERE LOST".**
 > The 📊 tile now loads `portal/teacher/analytics.js` (`openAnalytics(ctx)`; ctx = live `all`,
 > `students`, `classes`, `dashAssignments`, `teacher` + openModal/head/foot/openStudent/…). If

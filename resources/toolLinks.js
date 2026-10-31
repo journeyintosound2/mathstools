@@ -42,12 +42,12 @@ window.MMT_TOOL_LINKS = {
 
   "MA3-2DS-02": [
     {
-      title: "Area Model Splitter",
+      title: "Area Model \u2014 Multiplication & Perimeter",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-4/measurement-space/perimeter-area-rectangle/",
       ideas: ["rectangles"],
-      note: "Split and rearrange a rectangle to build area and perimeter reasoning.",
-      tags: ["area", "perimeter", "rectangles", "area model", "partitioning"]
+      note: "Split a rectangle by place value or any way you like and multiply part by part; the same splits break each edge into parts to add for the perimeter.",
+      tags: ["area", "perimeter", "rectangles", "area model", "partitioning", "partial products", "multiplication", "place value", "whole-class teaching"]
     },
     {
       title: "Rectangles — Area / Perimeter",
@@ -265,6 +265,14 @@ window.MMT_TOOL_LINKS = {
   ],
 
   "MA3-MR-01": [
+    {
+      title: "Area Model \u2014 Multiplication & Perimeter",
+      kind: "Teacher tool",
+      url: "/interactive-tools/stage-4/measurement-space/perimeter-area-rectangle/",
+      ideas: ["partition-multiply", "multiply-2-digit"],
+      note: "The area model for multiplication: split one or both numbers by place value (20 + 3) or any way you like (10 + 10 + 3, 15 + 8), reveal each partial product, then add the parts. Every split gives the same answer \u2014 the distributive law, seen. Up to 999 \u00d7 999.",
+      tags: ["multiplication", "area model", "partitioning", "partial products", "place value", "non-standard partitioning", "distributive law", "2-digit by 2-digit", "3-digit by 2-digit", "box method", "grid method", "whole-class teaching"]
+    },
     {
       title: "Halve and Halve Again",
       kind: "Teacher tool",
@@ -808,12 +816,12 @@ window.MMT_TOOL_LINKS = {
 
   "MA4-ARE-C-01": [
     {
-      title: "Area Model Splitter",
+      title: "Area Model \u2014 Multiplication & Perimeter",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-4/measurement-space/perimeter-area-rectangle/",
       ideas: ["rectangles-triangles-parallelograms"],
-      note: "Split and rearrange a rectangle to build area reasoning and composite area.",
-      tags: ["area", "rectangles", "area model", "composite area", "partitioning"]
+      note: "Split a rectangle into pieces and add their areas; cut pieces away to make composite shapes and check against the whole rectangle take away the gaps.",
+      tags: ["area", "rectangles", "area model", "composite area", "partitioning", "partial products", "L-shapes", "whole-class teaching"]
     },
     {
       title: "Area of a Triangle — Half the Rectangle",
@@ -1330,12 +1338,12 @@ window.MMT_TOOL_LINKS = {
       tags: ["unit conversion", "metric", "double number line", "length", "mass", "capacity", "proportional reasoning", "scaling", "km", "m", "cm", "mm", "kg", "g", "L", "mL"]
     },
     {
-      title: "Area Model Splitter",
+      title: "Area Model \u2014 Multiplication & Perimeter",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-4/measurement-space/perimeter-area-rectangle/",
       ideas: ["perimeter"],
-      note: "Split and rearrange a rectangle to build perimeter and area reasoning.",
-      tags: ["perimeter", "area", "rectangles", "area model", "partitioning"]
+      note: "The splits break each edge into parts: walk round with a running total, add the tens then the ones, double the half, or tap the edges in your own order to make tens. Cut corners away to see when the perimeter stays the same.",
+      tags: ["perimeter", "area", "rectangles", "area model", "partitioning", "addition strategies", "place value", "make a ten", "composite shapes", "whole-class teaching"]
     },
     {
       title: "Area and Perimeter — ELPSA Lesson Plan",
