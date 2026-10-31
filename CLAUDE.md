@@ -101,17 +101,19 @@
 > tool's shell. Apex (a, h) on base [0,b]: drag the top or the square at the end of the base. Three modes,
 > each a step story; EVERY animation also runs backwards on Back (`animate(dur, t0, t1)`).
 > **Rectangle** = acute/right ONLY (greyed out when the height is outside; dragging past the base switches
-> to Two copies via `guardRect()`): triangle → dotted height + scissors cut (one step) → a PALE copy of
-> each piece slides into place (straight line, half-turning as it goes) to complete the rectangle
-> (right-angled: sloping side marked, one pale copy slides in). Jeff wants exactly these 3 steps — don't
-> add any. **Two copies**: copy turned about the middle of the LONGER slanted side (`paraInfo()`), then
+> to Two copies via `guardRect()`): triangle → dotted height + scissors cut, halves part by a white strip
+> (one step) → a PALE copy of each piece FLIPS over its sloping side, then the halves slide back together
+> (right-angled: sloping side marked, one pale copy flips over it). Jeff wants exactly these 3 steps.
+> EVERY copy in the tool moves by `flipPoly()` — a page-turn flip over the shared edge (folds flat onto
+> it, swaps end for end while flat, opens out) so it lands where a half-turn would; never slide-and-turn.
+> **Two copies**: copy flipped over the LONGER slanted side (`paraInfo()`), then
 > chop at the edge of the base and slide (`strips()`; more chops for long leans); the pale pieces are
 > drawn first so the triangle's edges stay dark, and the dotted height glides with the pieces to the
 > rectangle's nearer edge (never just disappears). Triangle green is dark (`C.tri`) so it pops. Once the
 > steps start (step > 0) the triangle is LOCKED: no handles, no dragging (the panel steppers/presets restart
 > at step 1). After a scissors cut the pieces part by a thin white strip. No dark outline on the finished
 > rectangle in any mode. **Slide the top**: NO
-> stripes/layers — triangle → top slides along the dashed line to a right angle → pale copy turns over
+> stripes/layers — triangle → top slides along the dashed line to a right angle → pale copy flips over
 > the sloping side to complete the rectangle; dragging after the slide restarts the story. Colours:
 > green = the triangle, faded green
 > = what it is half of. **Settings → Show the calculation is OFF by default and hides every ½ × b × h**
