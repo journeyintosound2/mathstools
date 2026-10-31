@@ -101,11 +101,13 @@
 > tool's shell. Apex (a, h) on base [0,b]: drag the top or the square at the end of the base. Three modes,
 > each a step story; EVERY animation also runs backwards on Back (`animate(dur, t0, t1)`).
 > **Rectangle** = acute/right ONLY (greyed out when the height is outside; dragging past the base switches
-> to Two copies via `guardRect()`): triangle → dark dotted height → scissors cut along it, then a PALE
-> copy of each piece turns half a turn over its sloping side to complete the rectangle (right-angled: the
-> sloping side is marked and one pale copy turns over it). Jeff wants exactly these 3 steps — don't add
-> any. **Two copies**: copy turned about the middle of the LONGER slanted side (`paraInfo()`), then chop
-> at the edge of the base and slide (`strips()`; more chops for long leans). **Slide the top**: NO
+> to Two copies via `guardRect()`): triangle → dotted height + scissors cut (one step) → a PALE copy of
+> each piece slides into place (straight line, half-turning as it goes) to complete the rectangle
+> (right-angled: sloping side marked, one pale copy slides in). Jeff wants exactly these 3 steps — don't
+> add any. **Two copies**: copy turned about the middle of the LONGER slanted side (`paraInfo()`), then
+> chop at the edge of the base and slide (`strips()`; more chops for long leans); the pale pieces are
+> drawn first so the triangle's edges stay dark, and the dotted height glides with the pieces to the
+> rectangle's nearer edge (never just disappears). Triangle green is dark (`C.tri`) so it pops. **Slide the top**: NO
 > stripes/layers — triangle → top slides along the dashed line to a right angle → pale copy turns over
 > the sloping side to complete the rectangle; dragging after the slide restarts the story. Colours:
 > green = the triangle, faded green

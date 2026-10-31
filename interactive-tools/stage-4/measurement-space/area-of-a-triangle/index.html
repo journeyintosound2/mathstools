@@ -372,9 +372,9 @@
             <span class="note">or drag the top</span>
           </div>
           <div class="presetRow" role="group" aria-label="Kind of triangle">
-            <button class="preset" type="button" data-kind="in" title="The height falls inside the triangle"><svg viewBox="0 0 46 26"><path d="M3 23h40L17 3z" fill="rgba(34,197,94,.35)" stroke="#15803d" stroke-width="2" stroke-linejoin="round"/><path d="M17 3v20" stroke="#ea580c" stroke-width="1.6" stroke-dasharray="3 2"/></svg>Acute</button>
-            <button class="preset" type="button" data-kind="edge" title="The height is one of the sides"><svg viewBox="0 0 46 26"><path d="M5 23h36L5 3z" fill="rgba(34,197,94,.35)" stroke="#15803d" stroke-width="2" stroke-linejoin="round"/><path d="M5 18h5v5" fill="none" stroke="#15803d" stroke-width="1.5"/></svg>Right</button>
-            <button class="preset" type="button" data-kind="out" title="The height falls outside the triangle"><svg viewBox="0 0 46 26"><path d="M3 23h24l16-20z" fill="rgba(34,197,94,.35)" stroke="#15803d" stroke-width="2" stroke-linejoin="round"/><path d="M43 3v20M27 23h16" stroke="#ea580c" stroke-width="1.6" stroke-dasharray="3 2"/></svg>Obtuse</button>
+            <button class="preset" type="button" data-kind="in" title="The height falls inside the triangle"><svg viewBox="0 0 46 26"><path d="M3 23h40L17 3z" fill="rgba(22,163,74,.6)" stroke="#15803d" stroke-width="2" stroke-linejoin="round"/><path d="M17 3v20" stroke="#ea580c" stroke-width="1.6" stroke-dasharray="3 2"/></svg>Acute</button>
+            <button class="preset" type="button" data-kind="edge" title="The height is one of the sides"><svg viewBox="0 0 46 26"><path d="M5 23h36L5 3z" fill="rgba(22,163,74,.6)" stroke="#14532d" stroke-width="2" stroke-linejoin="round"/><path d="M5 18h5v5" fill="none" stroke="#15803d" stroke-width="1.5"/></svg>Right</button>
+            <button class="preset" type="button" data-kind="out" title="The height falls outside the triangle"><svg viewBox="0 0 46 26"><path d="M3 23h24l16-20z" fill="rgba(22,163,74,.6)" stroke="#14532d" stroke-width="2" stroke-linejoin="round"/><path d="M43 3v20M27 23h16" stroke="#ea580c" stroke-width="1.6" stroke-dasharray="3 2"/></svg>Obtuse</button>
           </div>
         </section>
 
@@ -509,18 +509,18 @@
     const rectC = `${hB(b)} × ${hH(h)} = ${fmt(b * h)}${W(U2())}`;
     if(S.mode === "rect"){
       if(w === "edge") return [ first,
-        { t:"Mark the sloping side", m:W("a copy of the triangle will turn over it") },
-        { t:"Copy the triangle and turn it over", m:`${W("the pale copy completes a")} ${hB(b)} × ${hH(h)} ${W("rectangle — the triangle is half of it")}`, c:finalCalc(), anim:"turn", fin:true } ];
+        { t:"Mark the sloping side", m:W("a copy of the triangle will fit against it") },
+        { t:"Copy the triangle and slide it into place", m:`${W("the pale copy completes a")} ${hB(b)} × ${hH(h)} ${W("rectangle — the triangle is half of it")}`, c:finalCalc(), anim:"turn", fin:true } ];
       return [ first,
-        { t:"Draw the height down the middle", m:W("it splits the triangle into two right-angled triangles") },
-        { t:"Cut along it, copy each piece and turn it over", m:`${W("the pale copies complete a")} ${hB(b)} × ${hH(h)} ${W("rectangle — the triangle is half of it")}`, c:finalCalc(), anim:"cut", fin:true } ];
+        { t:"Draw the height and cut along it", m:W("two right-angled triangles"), anim:"cut" },
+        { t:"Copy each piece and slide it into place", m:`${W("the pale copies complete a")} ${hB(b)} × ${hH(h)} ${W("rectangle — the triangle is half of it")}`, c:finalCalc(), anim:"turn", fin:true } ];
     }
     if(S.mode === "para"){
       const n = cutsAt().length;
       return [ first,
         { t:"Make a copy and turn it onto the longest side", m:W("together they make a parallelogram"), anim:"copy" },
         n ? { t:n === 1 ? "Chop at the edge of the base and slide the piece across" : "Chop at each base length and slide the pieces across",
-              m:`${W("now it's a")} ${hB(b)} × ${hH(h)} ${W("rectangle — the triangle is half of it")}`, c:finalCalc(), anim:"cut", fin:true,
+              m:`${W("now it's a")} ${hB(b)} × ${hH(h)} ${W("rectangle — the triangle is half of it")}`, c:finalCalc(), anim:"chop", fin:true,
               tip:n > 1 ? "It leans a long way, so it takes more than one chop." : "" }
           : { t:"It's already a rectangle", m:`${W("a")} ${hB(b)} × ${hH(h)} ${W("rectangle — the triangle is half of it")}`, c:finalCalc(), fin:true } ];
     }
@@ -574,7 +574,7 @@
     return gg;
   }
   const C = {
-    tri:"rgba(34,197,94,.46)", triS:"#15803d",
+    tri:"rgba(22,163,74,.66)", triS:"#14532d",
     half:"rgba(34,197,94,.15)", halfS:"#4ade80",
     rect:"#475569", alt:"#ea580c", cut:"#0f172a"
   };
@@ -646,8 +646,11 @@
      turns half a turn about the middle of its sloping side and the copies
      complete the rectangle: the triangle is half of it */
   function turnCopies(pieces, turn, g){
+    /* each pale copy slides in a straight line to its place, turning half a turn as it goes */
     pieces.forEach(p => {
-      const Q = p.P.map(q => rot(q, p.c, 180 * turn));
+      const c0 = centroid(p.P), dest = p.P.map(q => rot(q, p.c, 180)), c1 = centroid(dest);
+      const cx = c0[0] + (c1[0] - c0[0]) * turn, cy = c0[1] + (c1[1] - c0[1]) * turn;
+      const Q = p.P.map(q => { const r = rot(q, c0, 180 * turn); return [r[0] - c0[0] + cx, r[1] - c0[1] + cy]; });
       poly(Q, { fill:C.half, stroke:C.halfS, "stroke-width":2.2, opacity:Math.min(1, turn * 6) }, g);
     });
   }
@@ -661,15 +664,14 @@
       pieces.push({ P:[[a, 0], [b, 0], [a, h]], c:[(a + b) / 2, h / 2] });
     } else pieces.push({ P:T(), c:[b / 2, h / 2] });
     const line = w === "in" ? [[a, h], [a, 0]] : [[a, h], a === 0 ? [b, 0] : [0, 0]];
-    const tt = k === 2 ? t : (k > 2 ? 1 : 0);
-    const cutC = w === "in" ? (k >= 2 ? ease(clamp(tt / .42, 0, 1)) : 0) : 0;
-    const turn = k >= 2 ? (w === "in" ? ease(clamp((tt - .5) / .5, 0, 1)) : ease(tt)) : 0;
+    const cutC = w === "in" ? (k === 1 ? ease(t) : 1) : 0;
+    const turn = k >= 2 ? ease(t) : 0;
     if(turn > 0) turnCopies(pieces, turn, sc.gTop);
     drawTri(sc.gTop, { fill:"none" });
     if(turn === 1) dashedRect(0, b, sc.gTop, { stroke:"#0f172a", "stroke-dasharray":"none", "stroke-width":2.5 });
     if(w === "in"){
-      if(k >= 2 && cutC >= 1) seg(line[0], line[1], { stroke:C.triS, "stroke-width":3 }, sc.gTop);
-      if(k === 1 || (k >= 2 && cutC < 1)) cutLine(line[0], line[1], cutC, sc.gTop, !!S.anim, tt);
+      if(cutC >= 1) seg(line[0], line[1], { stroke:C.triS, "stroke-width":3 }, sc.gTop);
+      else cutLine(line[0], line[1], cutC, sc.gTop, !!S.anim, t);
       sc.hideAlt = true;
     } else if(turn < 1) seg(line[0], line[1], { stroke:C.cut, "stroke-width":3.4, "stroke-dasharray":"2 7", "stroke-linecap":"round" }, sc.gTop);
   }
@@ -693,20 +695,22 @@
     const cutC = cuts.length ? ease(clamp(tt / .4, 0, 1)) : 1;
     const prog = cuts.length ? ease(clamp((tt - .48) / .52, 0, 1)) : 1;
     if(prog > 0 && cuts.length) poly(PG, { fill:"none", stroke:"#94a3b8", "stroke-width":2, "stroke-dasharray":"6 6", opacity:Math.min(1, prog * 1.5) }, sc.gBack);
-    ST.forEach(s => {
-      const dx = s.dx * prog;
-      [[fin, C.half, C.halfS], [tri, C.tri, C.triS]].forEach(([P, f, st]) => {
-        const c = clipX(P, s.lo, s.hi); if(!c) return;
-        poly(c.map(p => [p[0] + dx, p[1]]), { fill:f, stroke:st, "stroke-width":2 }, sc.gMain);
-      });
-    });
+    /* the pale copy first, then the triangle on top, so every edge of the triangle stays dark */
+    [[fin, C.half, C.halfS, 2], [tri, C.tri, C.triS, 3]].forEach(([P, f, st, sw]) => ST.forEach(s => {
+      const c = clipX(P, s.lo, s.hi); if(!c) return;
+      poly(c.map(p => [p[0] + s.dx * prog, p[1]]), { fill:f, stroke:st, "stroke-width":sw }, sc.gMain);
+    }));
     if(prog === 0) cuts.forEach(x => { const r = yRangeAt(PG, x); if(r) cutLine([x, r[1]], [x, r[0]], cutC, sc.gTop, !!S.anim, tt); });
     sc.noApex = true;
     if(prog === 1){
-      poly([[0, 0], [b, 0], [b, h], [0, h]], { fill:"none", stroke:"#0f172a", "stroke-width":3 }, sc.gTop);
-      sc.hideAlt = true;
+      poly([[0, 0], [b, 0], [b, h], [0, h]], { fill:"none", stroke:"#0f172a", "stroke-width":3 }, sc.gMain);
       if(S.set.calc){ sc.finalAt = [b / 2, h / 2]; sc.finalText = `${fmt(b * h)} ÷ 2 = ${fmt(area())}`; }
-    } else if(prog > 0) sc.hideAlt = true;
+    }
+    /* the height glides across with the pieces to the rectangle's nearer edge */
+    if(prog > 0 && cuts.length){
+      const a = S.a, to = a <= b / 2 ? 0 : b;
+      sc.alt = { x:a + (to - a) * prog, p:prog, side:to === 0 ? -1 : 1 };
+    }
   }
 
   /* ----- 3. slide the top: thin layers keep their lengths ----- */
@@ -735,8 +739,10 @@
     /* base */
     const yB = L.Y(0) + (L.compact ? 28 : 32);
     pill(L.X(b / 2), yB, fmt(b) + U(), f, { color:"#1d4ed8", stroke:"#93c5fd", sw:2 }, sc.gLab);
-    if(S.mode === "para" && sc.hideAlt){
-      pill(L.X(0) - (L.compact ? 26 : 34), L.Y(h / 2), fmt(h) + U(), f, { color:"#c2410c", stroke:"#fdba74", sw:2 }, sc.gLab);
+    if(S.mode === "para" && sc.alt){
+      const { x, p, side } = sc.alt, lab = fmt(h) + U(), lw = Math.max(f * 1.7, tw(lab, f) + f * 1.05);
+      seg([x, 0], [x, h], { stroke:C.alt, "stroke-width":2.5, "stroke-dasharray":"7 5" }, sc.gTop);
+      pill(L.X(x) + side * (lw / 2 + 12) * p, L.Y(h / 2), lab, f, { color:"#c2410c", stroke:"#fdba74", sw:2 }, sc.gLab);
       return;
     }
     /* the height, from the top straight down to the base line (stretched if it has to be) */
@@ -830,7 +836,7 @@
 
   /* ------------------------------------------------------------ stepping */
   let raf = 0;
-  const DUR = { cut:2400, turn:1300, copy:1250, slide:1500 };
+  const DUR = { cut:1500, turn:1400, copy:1250, slide:1500, chop:2300 };
   /* runs S.anim.t from t0 to t1 (1 → 0 plays a step backwards) */
   function animate(dur, t0, t1, onTick, onEnd){
     cancelAnimationFrame(raf);
