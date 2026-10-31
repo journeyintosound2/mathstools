@@ -106,6 +106,8 @@
     .modeBtn[aria-selected="true"]{ background:#fff; color:var(--ink); box-shadow:0 3px 10px rgba(15,23,42,.12); }
     .modeBtn[aria-selected="true"] .sym{ background:var(--blue); color:#fff; }
     .modeBtn:focus-visible{ outline:none; box-shadow:0 0 0 3px rgba(37,99,235,.3); }
+    .modeBtn:disabled{ opacity:.38; cursor:not-allowed; }
+    .modeBtn:disabled:hover{ color:var(--muted); }
     .topRight{ display:flex; align-items:center; gap:10px; }
     .typeTag{ font-size:.74rem; letter-spacing:.06em; font-weight:950; text-transform:uppercase; padding:6px 11px; border-radius:999px; white-space:nowrap;
       border:1px solid transparent; }
@@ -196,6 +198,7 @@
     .sLine.done{ background:rgba(34,197,94,.08); border-color:rgba(21,128,61,.3); }
     .sLine.done .n{ background:var(--green-dark); }
     .sLine .ansV{ color:var(--green-dark); }
+    .sLine .m.calc{ font-size:1.16rem; border-top:1px dashed var(--border); margin-top:6px; padding-top:5px; }
     .sLine .tip{ font-size:.76rem; font-weight:750; color:var(--muted); margin-top:4px; line-height:1.35; }
     .stepRow{ display:flex; gap:7px; padding-top:10px; margin-top:8px; border-top:1px solid var(--border); }
     .stepBtn{ appearance:none; border:1.5px solid var(--border); background:#fff; color:var(--line); padding:11px 12px; border-radius:14px;
@@ -286,8 +289,8 @@
             <div class="settingsRule" role="separator"></div>
             <div class="settingsHead">On screen</div>
             <label class="sw"><input type="checkbox" id="gridToggle" checked><span class="track"></span><span>Show the unit squares</span></label>
-            <label class="sw"><input type="checkbox" id="areaToggle"><span class="track"></span><span>Show the area straight away</span></label>
-            <p class="settingsNote">Off, the area waits behind a <b>?</b> until the last step, so the class can predict it first.</p>
+            <label class="sw"><input type="checkbox" id="calcToggle"><span class="track"></span><span>Show the calculation</span></label>
+            <p class="settingsNote">Off, there is no &frac12; &times; base &times; height anywhere on screen &mdash; the class notices and wonders why it&rsquo;s half first. On, the formula sits above the board and the area waits behind a <b>?</b> until the last step.</p>
             <label class="selRow"><span>Units</span>
               <select id="unitSel" aria-label="Units">
                 <option value="" selected>None</option>
@@ -344,7 +347,7 @@
             </div>
           </div>
         </div>
-        <div class="stmt" id="stmt" aria-live="polite"></div>
+        <div class="stmt" id="stmt" aria-live="polite" hidden></div>
         <div class="boardWrap" id="boardWrap">
           <svg id="board" role="application" aria-label="A triangle on its base, with the shapes that show its area is half base times height"></svg>
         </div>
@@ -369,9 +372,9 @@
             <span class="note">or drag the top</span>
           </div>
           <div class="presetRow" role="group" aria-label="Kind of triangle">
-            <button class="preset" type="button" data-kind="in" title="The height falls inside the triangle"><svg viewBox="0 0 46 26"><path d="M3 23h40L17 3z" fill="rgba(37,99,235,.25)" stroke="#1d4ed8" stroke-width="2" stroke-linejoin="round"/><path d="M17 3v20" stroke="#ea580c" stroke-width="1.6" stroke-dasharray="3 2"/></svg>Acute</button>
-            <button class="preset" type="button" data-kind="edge" title="The height is one of the sides"><svg viewBox="0 0 46 26"><path d="M5 23h36L5 3z" fill="rgba(37,99,235,.25)" stroke="#1d4ed8" stroke-width="2" stroke-linejoin="round"/><path d="M5 18h5v5" fill="none" stroke="#1d4ed8" stroke-width="1.5"/></svg>Right</button>
-            <button class="preset" type="button" data-kind="out" title="The height falls outside the triangle"><svg viewBox="0 0 46 26"><path d="M3 23h24l16-20z" fill="rgba(37,99,235,.25)" stroke="#1d4ed8" stroke-width="2" stroke-linejoin="round"/><path d="M43 3v20M27 23h16" stroke="#ea580c" stroke-width="1.6" stroke-dasharray="3 2"/></svg>Obtuse</button>
+            <button class="preset" type="button" data-kind="in" title="The height falls inside the triangle"><svg viewBox="0 0 46 26"><path d="M3 23h40L17 3z" fill="rgba(34,197,94,.35)" stroke="#15803d" stroke-width="2" stroke-linejoin="round"/><path d="M17 3v20" stroke="#ea580c" stroke-width="1.6" stroke-dasharray="3 2"/></svg>Acute</button>
+            <button class="preset" type="button" data-kind="edge" title="The height is one of the sides"><svg viewBox="0 0 46 26"><path d="M5 23h36L5 3z" fill="rgba(34,197,94,.35)" stroke="#15803d" stroke-width="2" stroke-linejoin="round"/><path d="M5 18h5v5" fill="none" stroke="#15803d" stroke-width="1.5"/></svg>Right</button>
+            <button class="preset" type="button" data-kind="out" title="The height falls outside the triangle"><svg viewBox="0 0 46 26"><path d="M3 23h24l16-20z" fill="rgba(34,197,94,.35)" stroke="#15803d" stroke-width="2" stroke-linejoin="round"/><path d="M43 3v20M27 23h16" stroke="#ea580c" stroke-width="1.6" stroke-dasharray="3 2"/></svg>Obtuse</button>
           </div>
         </section>
 
@@ -404,20 +407,22 @@
 
   /* THE IDEA THIS TOOL IS BUILT AROUND
      A triangle is half of a base × height rectangle — always, whatever its
-     shape. Three ways to see it, one per mode:
-     - RECTANGLE: the box around the triangle. When the height falls inside,
-       the height splits the box into two rectangles and the triangle is half
-       of each, so half of the whole. When the height falls OUTSIDE (obtuse),
-       the box is wider than the base: the triangle is a big right-angled
-       triangle take away a small one, and the overhang cancels out.
-     - TWO COPIES: a copy turned around makes a parallelogram; cutting it
-       into strips one base wide and sliding them back makes the base × height
-       rectangle exactly (this works however far it leans).
+     shape. Three ways to see it, one per mode, each a short story of steps
+     (every animation also runs backwards with Back):
+     - RECTANGLE (height inside, or on a side): the box around it, the
+       height divides it down the middle, scissors cut along it and the two
+       cut-outs turn over onto the triangle. Greyed out for obtuse triangles
+       (height outside): dragging the top past the base switches to Two copies.
+     - TWO COPIES: a copy turned about the middle of the LONGER slanted side
+       makes a parallelogram on the base; chop it at the edge of the base and
+       slide the piece across — exactly the base × height rectangle (very long
+       leans take more than one chop).
      - SLIDE THE TOP: the triangle as thin layers. Sliding the top along a
        line parallel to the base keeps every layer's length, so the area
-       never changes — the obtuse triangle has the same area as the
-       right-angled one on the same base and height.
-     There is no "obtuse" switch: drag the top past the end of the base. */
+       never changes — same base, same height, same area.
+     Green is the triangle we want the area of; faded green is the shape it
+     is half of. "½ × base × height" only appears with Settings → Show the
+     calculation (off by default), so the class can notice and wonder first. */
 
   const S = {
     b:8, h:6, a:3,                  /* base AB on the x-axis from 0 to b; apex P = (a, h) */
@@ -426,7 +431,7 @@
     slideFrom:null,                 /* where the top started before "slide" */
     revealed:false,
     drag:null, frozen:null,
-    set:{ grid:true, showArea:false, units:"", panel:true, kind:"any" },
+    set:{ grid:true, calc:false, units:"", panel:true, kind:"any" },
     fs:false
   };
   const STORE = "mmt.triArea.v1";
@@ -472,57 +477,61 @@
       else if(p[0] === x) ys.push(p[1]); }
     return ys.length ? [Math.min(...ys), Math.max(...ys)] : null;
   }
-  /* the parallelogram (triangle + copy turned about the middle of the side BP)
-     cut into strips one base wide; each strip slides back by whole bases and
+  /* the copy turns half a turn about the middle of the LONGER slanted side (AP or BP),
+     so triangle + copy make a parallelogram standing on the base, its top shifted by d */
+  function paraInfo(){
+    const { a, b, h } = S;
+    if(a * a >= (a - b) * (a - b)) return { mid:[a / 2, h / 2], d:a - b };
+    return { mid:[(a + b) / 2, h / 2], d:a };
+  }
+  /* chop it into strips one base wide; each slides back by whole bases and
      together they fill [0,b] × [0,h] exactly, however far it leans */
   function strips(){
-    const { a, b } = S, out = [];
-    if(a >= 0) for(let k = 0; k * b < a + b - 1e-9; k++) out.push({ lo:k * b, hi:(k + 1) * b, dx:-k * b });
-    else for(let k = 0; (1 - k) * b > a + 1e-9; k++) out.push({ lo:-k * b, hi:(1 - k) * b, dx:k * b });
+    const { b } = S, d = paraInfo().d, out = [];
+    if(d >= 0) for(let k = 0; k * b < d + b - 1e-9; k++) out.push({ lo:k * b, hi:(k + 1) * b, dx:-k * b });
+    else for(let k = 0; (1 - k) * b > d + 1e-9; k++) out.push({ lo:-k * b, hi:(1 - k) * b, dx:k * b });
     return out;
   }
+  const cutsAt = () => { const ST = strips(); return paraInfo().d >= 0 ? ST.slice(1).map(s => s.lo) : ST.slice(0, -1).map(s => s.lo); };
 
   /* ------------------------------------------------------------ the steps */
   const U = () => S.set.units ? " " + S.set.units : "";
   const U2 = () => S.set.units ? " " + S.set.units + "²" : "";
   const half = `<span class="frac"><span>1</span><span>2</span></span>`;
   const hB = v => `<span class="cB">${fmt(v)}</span>`, hH = v => `<span class="cH">${fmt(v)}</span>`;
-  const finalLine = () => `${half} × ${hB(S.b)} × ${hH(S.h)} = <span class="ansV">${fmt(area())}</span><span class="w">${U2()}</span>`;
+  const W = s => `<span class="w">${s}</span>`;
+  /* each step: t title, m what to notice, c the calculation (only with "Show the calculation") */
+  const finalCalc = () => `${half} × ${hB(S.b)} × ${hH(S.h)} = <span class="ansV">${fmt(area())}</span>${W(U2())}`;
   function steps(){
-    const { a, b, h } = S, A = area(), w = where();
-    const first = { t:"The triangle", m:`base ${hB(b)}<span class="w">${U()}</span> &nbsp; height ${hH(h)}<span class="w">${U()}</span>`,
+    const { a, b, h } = S, w = where();
+    const first = { t:"The triangle", m:`base ${hB(b)}${W(U())} &nbsp; height ${hH(h)}${W(U())}`,
       tip:w === "out" ? "The height is outside the triangle, so the base line is stretched to meet it." : w === "edge" ? "The height is one of the sides." : "" };
+    const rectC = `${hB(b)} × ${hH(h)} = ${fmt(b * h)}${W(U2())}`;
     if(S.mode === "rect"){
-      if(w === "in") return [ first,
-        { t:"Draw a rectangle around it", m:`${hB(b)} × ${hH(h)} = ${fmt(b * h)}<span class="w">${U2()}</span>` },
-        { t:"The height splits it into two rectangles", m:`${hB(a)} × ${hH(h)} <span class="w">and</span> ${hB(b - a)} × ${hH(h)}` },
-        { t:"A side of the triangle cuts each one in half", m:`<span class="w">half inside, half outside</span>` },
-        { t:"Turn the outside halves in", m:`<span class="w">they fit the triangle exactly</span>`, anim:"turn" },
-        { t:"So the triangle is half the rectangle", m:finalLine(), fin:true, anim:"back" } ];
       if(w === "edge") return [ first,
-        { t:"Draw a rectangle around it", m:`${hB(b)} × ${hH(h)} = ${fmt(b * h)}<span class="w">${U2()}</span>` },
-        { t:"The sloping side cuts it in half", m:`<span class="w">two identical triangles</span>` },
-        { t:"Turn the outside half in", m:`<span class="w">it fits the triangle exactly</span>`, anim:"turn" },
-        { t:"So the triangle is half the rectangle", m:finalLine(), fin:true, anim:"back" } ];
-      const e = a > b ? a - b : -a, big = (b + e) * h / 2, small = e * h / 2;
+        { t:"Draw a rectangle around it", m:W("same base, same height"), c:rectC },
+        { t:"The sloping side divides it", m:W("two matching triangles") },
+        { t:"Cut along it and turn the piece over", m:W("it covers the triangle exactly — the triangle is half the rectangle"), c:finalCalc(), anim:"cut", fin:true } ];
       return [ first,
-        { t:"Draw a rectangle around it", m:`(${hB(b)} + ${fmt(e)}) × ${hH(h)} = ${fmt((b + e) * h)}<span class="w">${U2()}</span>`, tip:"It is wider than the base, by the overhang." },
-        { t:"The big right-angled triangle is half of it", m:`${half} × ${fmt(b + e)} × ${hH(h)} = ${fmt(big)}` },
-        { t:`The small one is half of the ${fmt(e)} × ${fmt(h)} rectangle`, m:`${half} × ${fmt(e)} × ${hH(h)} = ${fmt(small)}` },
-        { t:"Take the small one away", m:`${fmt(big)} − ${fmt(small)} = ${fmt(A)}`, anim:"take" },
-        { t:`The extra ${fmt(e)} cancels out`, m:finalLine(), tip:"Still half of base × height.", fin:true } ];
+        { t:"Draw a rectangle around it", m:W("same base, same height"), c:rectC },
+        { t:"The height divides it down the middle", m:W("a rectangle on each side of the height") },
+        { t:"Cut down the middle and turn the pieces over", m:W("the two cut-outs cover the triangle exactly — the triangle is half the rectangle"), c:finalCalc(), anim:"cut", fin:true } ];
     }
-    if(S.mode === "para") return [ first,
-      { t:"Make a copy and turn it around", m:`<span class="w">two triangles make a parallelogram</span>`, anim:"copy" },
-      { t:"Cut it up and slide the pieces", m:`${hB(b)} × ${hH(h)} = ${fmt(b * h)}<span class="w">${U2()} — a rectangle</span>`, anim:"cut",
-        tip:strips().length > 2 ? "It leans a long way, so it takes more than one cut." : "" },
-      { t:"So one triangle is half", m:finalLine(), fin:true } ];
+    if(S.mode === "para"){
+      const n = cutsAt().length;
+      return [ first,
+        { t:"Make a copy and turn it onto the longest side", m:W("together they make a parallelogram"), anim:"copy" },
+        n ? { t:n === 1 ? "Chop at the edge of the base and slide the piece across" : "Chop at each base length and slide the pieces across",
+              m:`${W("now it's a")} ${hB(b)} × ${hH(h)} ${W("rectangle — the triangle is half of it")}`, c:finalCalc(), anim:"cut", fin:true,
+              tip:n > 1 ? "It leans a long way, so it takes more than one chop." : "" }
+          : { t:"It's already a rectangle", m:`${W("a")} ${hB(b)} × ${hH(h)} ${W("rectangle — the triangle is half of it")}`, c:finalCalc(), fin:true } ];
+    }
     const n = layersN();
     return [
-      { t:"Cut the triangle into thin layers", m:`<span class="w">${n} layers, all the same thickness</span>` },
-      { t:"Slide the top along the dashed line", m:`<span class="w">every layer keeps its length, so the area can't change</span>`, anim:"slide" },
-      { t:"Now it has a right angle", m:`<span class="w">half of a</span> ${hB(b)} × ${hH(h)} <span class="w">rectangle</span>` },
-      { t:"Same base, same height, same area", m:finalLine(), tip:"Drag the top along the line — the area never changes.", fin:true } ];
+      { t:"Cut the triangle into thin layers", m:W(`${n} layers, all the same thickness`) },
+      { t:"Slide the top along the dashed line", m:W("every layer keeps its length, so the area can't change"), anim:"slide" },
+      { t:"Now it has a right angle", m:`${W("half of a")} ${hB(b)} × ${hH(h)} ${W("rectangle")}`, c:rectC },
+      { t:"Same base, same height, same area", m:W("drag the top along the line — the area never changes"), c:finalCalc(), fin:true } ];
   }
   const layersN = () => S.h >= 4 ? S.h : S.h * (S.h === 1 ? 4 : 2);
   let STEPS = steps();
@@ -534,7 +543,7 @@
     const { a, b, h } = S;
     let x0, x1;
     if(S.mode === "slide"){ x0 = -over(); x1 = b + over(); }
-    else if(S.mode === "para"){ x0 = Math.min(0, a); x1 = Math.max(b, a + b); }
+    else if(S.mode === "para"){ const d = paraInfo().d; x0 = Math.min(0, d, a); x1 = Math.max(b, d + b, a); }
     else { x0 = Math.min(0, a); x1 = Math.max(b, a); }
     return { x0, x1, y0:0, y1:h };
   }
@@ -571,12 +580,28 @@
     return gg;
   }
   const C = {
-    tri:"rgba(37,99,235,.32)", triS:"#1d4ed8",
-    half:"rgba(250,204,21,.5)", halfS:"#ca8a04",
-    big:"rgba(124,58,237,.16)", bigS:"#7c3aed",
-    small:"rgba(249,115,22,.45)", smallS:"#c2410c",
-    rect:"#475569", alt:"#ea580c"
+    tri:"rgba(34,197,94,.46)", triS:"#15803d",
+    half:"rgba(34,197,94,.15)", halfS:"#4ade80",
+    rect:"#475569", alt:"#ea580c", cut:"#0f172a"
   };
+  /* a small pair of scissors, the tip at (x, y), pointing along angle (radians) */
+  function scissors(x, y, ang, snip, g){
+    const o = .25 + .75 * Math.abs(Math.sin(snip * Math.PI * 9));
+    const gg = el("g", { transform:`translate(${x} ${y}) rotate(${ang * 180 / Math.PI})`, class:"noHit" }, g);
+    el("path", { d:`M-16 0L4 ${-o * 6}M-16 0L4 ${o * 6}`, stroke:"#0f172a", "stroke-width":3.4, "stroke-linecap":"round", fill:"none" }, gg);
+    el("path", { d:`M-16 0L-22 -6M-16 0L-22 6`, stroke:"#0f172a", "stroke-width":2.6, "stroke-linecap":"round" }, gg);
+    el("circle", { cx:-27, cy:-8, r:6, fill:"#fff", stroke:"#dc2626", "stroke-width":3 }, gg);
+    el("circle", { cx:-27, cy:8, r:6, fill:"#fff", stroke:"#dc2626", "stroke-width":3 }, gg);
+    el("circle", { cx:-16, cy:0, r:2.2, fill:"#0f172a" }, gg);
+  }
+  /* a cut line: dotted where it is still to be cut, solid behind the scissors */
+  function cutLine(p, q, c, g, showScissors, snip){
+    seg(p, q, { stroke:C.cut, "stroke-width":3, "stroke-dasharray":"2 7", "stroke-linecap":"round" }, g);
+    if(c <= 0) return;
+    const m = [p[0] + (q[0] - p[0]) * c, p[1] + (q[1] - p[1]) * c];
+    seg(p, m, { stroke:C.cut, "stroke-width":3.2 }, g);
+    if(showScissors && c < 1) scissors(L.X(m[0]), L.Y(m[1]), Math.atan2(L.Y(q[1]) - L.Y(p[1]), L.X(q[0]) - L.X(p[0])), snip, g);
+  }
 
   /* stacked (tablet / phone): the board is as tall as the drawing needs, not a fixed share of the screen */
   function fitStacked(){
@@ -605,7 +630,7 @@
     else if(S.mode === "para") scenePara(sc);
     else sceneSlide(sc);
     drawDims(sc);
-    if(STEPS[k].fin && (!S.anim)) drawFinal(sc);
+    if(STEPS[k].fin && !S.anim && S.set.calc) drawFinal(sc);
     drawHandles(gHand, sc);
     renderPanel();
   }
@@ -622,111 +647,58 @@
   const dashedRect = (x0, x1, g, o) => poly([[x0, 0], [x1, 0], [x1, S.h], [x0, S.h]], Object.assign({ fill:"none", stroke:C.rect, "stroke-width":2.2, "stroke-dasharray":"8 6" }, o || {}), g);
   const fs = () => L.compact ? 15 : 18;
 
-  /* ----- 1. the rectangle around it ----- */
+  /* ----- 1. the rectangle around it (height inside, or on a side) ----- */
   function sceneRect(sc){
     const { a, b, h } = S, { k, t } = sc, w = where();
-    if(w !== "out"){
-      const turnAt = w === "in" ? 4 : 3, splitAt = w === "in" ? 2 : 99, halfAt = w === "in" ? 3 : 2;
-      const pieces = [];
-      if(a > 0) pieces.push({ P:[[0, 0], [a, h], [0, h]], c:[a / 2, h / 2], inside:[[0, 0], [a, 0], [a, h]] });
-      if(a < b) pieces.push({ P:[[b, 0], [b, h], [a, h]], c:[(a + b) / 2, h / 2], inside:[[a, 0], [b, 0], [a, h]] });
-      drawTri(sc.gMain);
-      if(k >= 1){
-        /* after the turn, the last step puts them back outside: blue half + yellow half = the rectangle */
-        const ang = k === turnAt ? 180 * ease(t) : (k === turnAt + 1 && S.anim) ? 180 * (1 - ease(t)) : 0;
-        pieces.forEach(p => poly(p.P.map(q => rot(q, p.c, ang)), { fill:C.half, stroke:C.halfS, "stroke-width":2 }, sc.gTop));
-        dashedRect(0, b, sc.gBack);
-        drawTri(sc.gTop, { fill:"none" });
-      }
-      if(k >= splitAt){
-        /* the two rectangles the height makes, named above them */
-        [[0, a], [a, b]].forEach(([x0, x1]) => {
-          if(x1 - x0 <= 0) return;
-          const px = L.X((x0 + x1) / 2), wPx = (x1 - x0) * L.s;
-          if(wPx >= 54) pill(px, L.Y(h) - 24, `${fmt(x1 - x0)} × ${fmt(h)}`, fs() - 2, { color:"#334155", stroke:"#cbd5e1" }, sc.gLab);
-        });
-        seg([a, 0], [a, h], { stroke:C.alt, "stroke-width":3 }, sc.gTop);
-        sc.hideAlt = true;
-      }
-      if(k >= halfAt && k < turnAt){
-        /* "½" in both halves of each rectangle */
-        pieces.forEach(p => [p.P, p.inside].forEach(Q => {
-          const c = centroid(Q), f = Math.min(fs() + 2, polyArea(Q) * L.s * L.s > 2600 ? 26 : 16);
-          if(polyArea(Q) * L.s * L.s > 900) txt(L.X(c[0]), L.Y(c[1]), "½", f, "#0f172a", sc.gLab, { opacity:.8 });
-        }));
-      }
-      return;
-    }
-    /* the height falls outside: a big right-angled triangle take away a small one */
-    const right = a > b, lo = Math.min(0, a), hi = Math.max(b, a), e = right ? a - b : -a;
-    const bigT = right ? [[0, 0], [a, 0], [a, h]] : [[a, 0], [b, 0], [a, h]];
-    const bigOther = right ? [[0, 0], [a, h], [0, h]] : [[b, 0], [b, h], [a, h]];
-    const smallT = right ? [[b, 0], [a, 0], [a, h]] : [[a, 0], [0, 0], [a, h]];
-    const sx0 = right ? b : a, sx1 = right ? a : 0;
-    if(k >= 1) dashedRect(lo, hi, sc.gBack);
-    if(k >= 2) poly(bigOther, { fill:C.half, stroke:C.halfS, "stroke-width":2 }, sc.gBack);
-    if(k >= 2) poly(bigT, { fill:C.big, stroke:"none" }, sc.gBack);
     drawTri(sc.gMain);
-    if(k >= 3){
-      const fade = k === 4 ? 1 - ease(t) : k > 4 ? 0 : 1;
-      dashedRect(sx0, sx1, sc.gTop, { stroke:C.smallS, "stroke-width":2, "stroke-dasharray":"5 5", opacity:fade > 0 ? 1 : .35 });
-      const shift = k === 4 ? ease(t) : k > 4 ? 1 : 0, dir = right ? 1 : -1;
-      const moved = smallT.map(p => [p[0] + dir * shift * Math.max(1.2, e * .55), p[1] - shift * .25 * h]);
-      if(fade > 0) poly(moved, { fill:C.small, stroke:C.smallS, "stroke-width":2.5, opacity:fade }, sc.gTop);
-      if(k >= 4) poly(smallT, { fill:"none", stroke:C.smallS, "stroke-width":2, "stroke-dasharray":"4 4" }, sc.gTop);
-      const sc0 = centroid(smallT);
-      if(k >= 4 && !S.anim) pill(L.X(sc0[0]), L.Y(sc0[1]), "− " + fmt(e * h / 2), fs() - 2, { color:C.smallS, stroke:"#fdba74" }, sc.gLab);
-    }
-    if(k >= 2 && k < 5) poly(bigT, { fill:"none", stroke:C.bigS, "stroke-width":3, "stroke-dasharray":"9 5" }, sc.gTop);
-    if(k >= 1){
-      const lab = k >= 2 ? `${fmt(hi - lo)} × ${fmt(h)}` : `${fmt(hi - lo)} × ${fmt(h)}`;
-      pill(L.X((lo + hi) / 2), L.Y(h) - 24, lab, fs() - 2, { color:"#334155", stroke:"#cbd5e1" }, sc.gLab);
-    }
-    if(k >= 3 && (sx1 - sx0) * L.s * Math.sign(sx1 - sx0) >= 40){
-      pill(L.X((sx0 + sx1) / 2), L.Y(0) + (L.compact ? 58 : 66), `${fmt(e)} × ${fmt(h)}`, fs() - 3, { color:C.smallS, stroke:"#fdba74" }, sc.gLab);
-    }
+    if(w === "out" || k === 0) return;
+    /* the cut-outs: each turns half a turn about the middle of the side it shares with the triangle */
+    const pieces = [];
+    if(a > 0) pieces.push({ P:[[0, 0], [a, h], [0, h]], c:[a / 2, h / 2] });
+    if(a < b) pieces.push({ P:[[b, 0], [b, h], [a, h]], c:[(a + b) / 2, h / 2] });
+    const line = w === "in" ? [[a, h], [a, 0]] : [[a, h], a === 0 ? [b, 0] : [0, 0]];
+    const tt = k === 3 ? t : (k > 3 ? 1 : 0);
+    const cutC = k >= 3 ? ease(clamp(tt / .42, 0, 1)) : 0;
+    const turn = k >= 3 ? ease(clamp((tt - .5) / .5, 0, 1)) : 0;
+    dashedRect(0, b, sc.gBack);
+    pieces.forEach(p => poly(p.P.map(q => rot(q, p.c, 180 * turn)), { fill:C.half, stroke:C.halfS, "stroke-width":2 }, turn > 0 ? sc.gTop : sc.gBack));
+    drawTri(turn > 0 ? sc.gTop : sc.gMain, { fill:"none" });
+    if(k >= 2 && turn < 1) cutLine(line[0], line[1], cutC, sc.gTop, !!S.anim, tt);
+    if(w === "in" && k >= 2) sc.hideAlt = true;
   }
 
-  /* ----- 2. two copies make a parallelogram ----- */
+  /* ----- 2. two copies make a parallelogram, chopped into the rectangle ----- */
   function scenePara(sc){
-    const { a, b, h } = S, { k, t } = sc;
-    const M = [(a + b) / 2, h / 2];
-    const tri = T();
+    const { b, h } = S, { k, t } = sc, info = paraInfo(), d = info.d;
+    const tri = T(), PG = [[0, 0], [b, 0], [d + b, h], [d, h]];
     if(k === 0){ drawTri(sc.gMain); return; }
-    const ang = k === 1 ? 180 * ease(t) : 180;
-    const copy = tri.map(p => rot(p, M, ang));
     if(k === 1){
+      const copy = tri.map(p => rot(p, info.mid, 180 * ease(t)));
       drawTri(sc.gMain);
       poly(copy, { fill:C.half, stroke:C.halfS, "stroke-width":2.5 }, sc.gTop);
-      if(!S.anim) poly([[0, 0], [b, 0], [a + b, h], [a, h]], { fill:"none", stroke:"#0f172a", "stroke-width":2.5 }, sc.gTop);
+      drawTri(sc.gTop, { fill:"none" });
+      if(!S.anim) poly(PG, { fill:"none", stroke:"#0f172a", "stroke-width":2.5 }, sc.gTop);
       return;
     }
-    /* cut into strips and slide them back */
-    const fin = tri.map(p => rot(p, M, 180));
-    const ST = strips();
+    const fin = tri.map(p => rot(p, info.mid, 180));
+    const ST = strips(), cuts = cutsAt();
     const tt = k === 2 ? t : 1;
-    const lineA = k === 2 ? clamp(tt / .22, 0, 1) : 0;
-    const prog = k === 2 ? ease(clamp((tt - .25) / .75, 0, 1)) : 1;
+    const cutC = cuts.length ? ease(clamp(tt / .4, 0, 1)) : 1;
+    const prog = cuts.length ? ease(clamp((tt - .48) / .52, 0, 1)) : 1;
+    if(prog > 0 && cuts.length) poly(PG, { fill:"none", stroke:"#94a3b8", "stroke-width":2, "stroke-dasharray":"6 6", opacity:Math.min(1, prog * 1.5) }, sc.gBack);
     ST.forEach(s => {
       const dx = s.dx * prog;
-      [[tri, C.tri, C.triS], [fin, C.half, C.halfS]].forEach(([P, f, st]) => {
+      [[fin, C.half, C.halfS], [tri, C.tri, C.triS]].forEach(([P, f, st]) => {
         const c = clipX(P, s.lo, s.hi); if(!c) return;
         poly(c.map(p => [p[0] + dx, p[1]]), { fill:f, stroke:st, "stroke-width":2 }, sc.gMain);
       });
     });
-    const PG = [[0, 0], [b, 0], [a + b, h], [a, h]];
-    if(prog > 0) poly(PG, { fill:"none", stroke:"#94a3b8", "stroke-width":2, "stroke-dasharray":"6 6", opacity:Math.min(1, prog * 1.5) }, sc.gBack);
+    if(prog === 0) cuts.forEach(x => { const r = yRangeAt(PG, x); if(r) cutLine([x, r[1]], [x, r[0]], cutC, sc.gTop, !!S.anim, tt); });
     sc.noApex = true;
-    if(lineA > 0 && prog < 1){
-      const cuts = a >= 0 ? ST.slice(1).map(s => s.lo) : ST.slice(0, -1).map(s => s.lo);
-      cuts.forEach(x => { const r = yRangeAt(PG, x); if(r) seg([x, r[0]], [x, r[1]], { stroke:"#dc2626", "stroke-width":3, "stroke-dasharray":"7 5", opacity:lineA }, sc.gTop); });
-    }
     if(prog === 1){
       poly([[0, 0], [b, 0], [b, h], [0, h]], { fill:"none", stroke:"#0f172a", "stroke-width":3 }, sc.gTop);
-      if(k === 2 && !S.anim) pill(L.X(b / 2), L.Y(h / 2), `${fmt(b)} × ${fmt(h)} = ${fmt(b * h)}`, fs(), { color:"#0f172a", stroke:"#94a3b8" }, sc.gLab);
       sc.hideAlt = true;
-      sc.finalAt = [b / 2, h / 2];
-      sc.finalText = `${fmt(b * h)} ÷ 2 = ${fmt(area())}`;
+      if(S.set.calc){ sc.finalAt = [b / 2, h / 2]; sc.finalText = `${fmt(b * h)} ÷ 2 = ${fmt(area())}`; }
     } else if(prog > 0) sc.hideAlt = true;
   }
 
@@ -752,7 +724,7 @@
       const xl = y => a * y / h, xr = y => b + (a - b) * y / h;
       const P = [[xl(y0), y0], [xr(y0), y0], [xr(y1), y1], [xl(y1), y1]];
       if(i === n - 1) P.splice(2, 1);
-      poly(P, { fill:i % 2 ? "rgba(37,99,235,.20)" : "rgba(37,99,235,.40)", stroke:"rgba(255,255,255,.9)", "stroke-width":1.2 }, sc.gMain);
+      poly(P, { fill:i % 2 ? "rgba(34,197,94,.24)" : "rgba(34,197,94,.48)", stroke:"rgba(255,255,255,.9)", "stroke-width":1.2 }, sc.gMain);
     }
     drawTri(sc.gMain, { fill:"none" });
   }
@@ -813,8 +785,9 @@
   let lastStory = "", lastStmt = "";
   function renderPanel(){
     const k = S.step, last = STEPS.length - 1;
+    const calc = !!S.set.calc;
     const html = STEPS.slice(0, k + 1).map((s, i) =>
-      `<div class="sLine${i === k ? (s.fin ? " done" : " cur") : ""}"><div class="lab"><span class="n">${i + 1}</span><span>${s.t}</span></div><div class="m">${s.m}</div>${s.tip && i === k ? `<div class="tip">${s.tip}</div>` : ""}</div>`).join("");
+      `<div class="sLine${i === k ? (s.fin ? " done" : " cur") : ""}"><div class="lab"><span class="n">${i + 1}</span><span>${s.t}</span></div><div class="m">${s.m}</div>${calc && s.c ? `<div class="m calc">${s.c}</div>` : ""}${s.tip && i === k ? `<div class="tip">${s.tip}</div>` : ""}</div>`).join("");
     if(html !== lastStory){ $("story").innerHTML = html; lastStory = html; const sc = $("storyScroll"); sc.scrollTop = sc.scrollHeight; }
     $("stepCount").textContent = `Step ${k + 1} of ${STEPS.length}`;
     const done = k >= last;
@@ -822,7 +795,8 @@
     [$("backBtn"), $("miniBack")].forEach(b => b.disabled = k === 0);
     $("allBtn").disabled = done; $("againBtn").disabled = k === 0;
     /* the statement */
-    const show = S.set.showArea || S.revealed || STEPS[k].fin;
+    const show = S.revealed || STEPS[k].fin;
+    $("stmt").hidden = !calc;
     const stmt = `<span class="word">Area</span><span>=</span>${half}<span>×</span>${hB(S.b)}<span>×</span>${hH(S.h)}<span>=</span>`
       + (show ? `<span class="ans">${fmt(area())}</span>${U2() ? `<span class="u">${U2()}</span>` : ""}` : `<button class="ansBtn" id="ansBtn" type="button" title="Show the area">?</button>`);
     if(stmt !== lastStmt){ $("stmt").innerHTML = stmt; lastStmt = stmt; const ab = $("ansBtn"); if(ab) ab.addEventListener("click", () => { S.revealed = true; renderPanel(); }); }
@@ -841,61 +815,81 @@
     const hint = $("hint"), w = where();
     if(!S.set.panel || S.fs){
       const s = STEPS[k];
-      hint.innerHTML = `<b>${k + 1}. ${s.t}</b> &nbsp;<span class="eq">${s.m}</span>`;
+      hint.innerHTML = `<b>${k + 1}. ${s.t}</b> &nbsp;<span class="eq">${s.m}${calc && s.c && s.fin ? " &nbsp; " + s.c : ""}</span>`;
     } else {
       const where_ = w === "in" ? "the height is inside it" : w === "edge" ? "the height is one of its sides" : "the height is outside it";
       const drag = S.mode === "slide" ? "drag the top along the dashed line" : "drag the top corner or the end of the base";
       hint.innerHTML = `<b>${kd === "right" ? "Right-angled" : kd === "obtuse" ? "Obtuse" : "Acute"}</b> · ${where_} · ${drag}`;
     }
     $("miniSteps").hidden = !(!S.set.panel || S.fs);
-    document.querySelectorAll(".modeBtn").forEach(b => b.setAttribute("aria-selected", String(b.dataset.mode === S.mode)));
+    document.querySelectorAll(".modeBtn").forEach(b => {
+      b.setAttribute("aria-selected", String(b.dataset.mode === S.mode));
+      if(b.dataset.mode === "rect"){ b.disabled = w === "out"; b.title = w === "out" ? "For triangles with the height inside — obtuse ones use Two copies or Slide the top" : "The rectangle around the triangle (1)"; }
+    });
   }
 
   /* ------------------------------------------------------------ stepping */
   let raf = 0;
-  function animate(dur, onTick, onEnd){
+  const DUR = { cut:2300, copy:1250, slide:1500 };
+  /* runs S.anim.t from t0 to t1 (1 → 0 plays a step backwards) */
+  function animate(dur, t0, t1, onTick, onEnd){
     cancelAnimationFrame(raf);
-    if(reduceMotion){ S.anim = null; onTick && onTick(1); onEnd && onEnd(); render(); return; }
-    S.anim = { t:0, end:onEnd }; const t0 = performance.now();
+    if(reduceMotion){ S.anim = null; onTick && onTick(t1); onEnd && onEnd(); render(); return; }
+    S.anim = { t:t0, end:onEnd }; const start = performance.now();
     const f = now => {
-      const t = clamp((now - t0) / dur, 0, 1);
+      const p = clamp((now - start) / dur, 0, 1), t = t0 + (t1 - t0) * p;
       S.anim.t = t; onTick && onTick(t); render();
-      if(t < 1) raf = requestAnimationFrame(f); else { S.anim = null; onEnd && onEnd(); render(); }
+      if(p < 1) raf = requestAnimationFrame(f); else { S.anim = null; onEnd && onEnd(); render(); }
     };
     raf = requestAnimationFrame(f);
   }
   function stopAnim(){ if(S.anim){ cancelAnimationFrame(raf); const end = S.anim.end; S.anim = null; end && end(); } }
   function slideTarget(){ const a = S.a; if(a === 0) return S.b; if(a === S.b) return 0; return Math.abs(a) <= Math.abs(a - S.b) ? 0 : S.b; }
-  function enterStep(k, animateIt){
-    stopAnim();
-    const prev = S.step;
-    /* leaving or entering the slide changes where the top is */
-    if(S.mode === "slide"){
-      if(k === 0 && prev >= 1 && S.slideFrom != null){ S.a = S.slideFrom; S.slideFrom = null; }
-      if(k >= 1 && prev === 0){
-        S.slideFrom = S.a; const to = slideTarget(), from = S.a;
-        S.step = k;
-        if(animateIt){ animate(1500, t => { S.a = from + (to - from) * ease(t); }, () => { S.a = to; save(); }); return; }
-        S.a = to; save(); render(); return;
-      }
+  function next(){
+    if(S.anim || S.step >= STEPS.length - 1) return;
+    const k = S.step + 1, s = STEPS[k];
+    if(S.mode === "slide" && k === 1){
+      const from = S.a, to = slideTarget(); S.slideFrom = from; S.step = 1;
+      animate(DUR.slide, 0, 1, t => { S.a = from + (to - from) * ease(t); }, () => { S.a = to; save(); });
+      return;
     }
     S.step = k;
-    const s = STEPS[k];
-    if(animateIt && s && s.anim){ animate(s.anim === "cut" ? 1900 : s.anim === "take" ? 1100 : s.anim === "back" ? 900 : 1250); return; }
-    render();
+    if(s.anim) animate(DUR[s.anim] || 1200, 0, 1); else render();
   }
-  function next(){ if(S.anim || S.step >= STEPS.length - 1) return; enterStep(S.step + 1, true); }
-  function back(){ if(S.step === 0) return; enterStep(S.step - 1, false); }
-  function showAll(){ enterStep(STEPS.length - 1, false); }
-  function startAgain(){ if(S.step === 0 && !S.anim) return; enterStep(0, false); }
+  function back(){
+    if(S.anim || S.step === 0) return;
+    const k = S.step, s = STEPS[k];
+    if(S.mode === "slide" && k === 1){
+      if(S.slideFrom == null){ S.step = 0; render(); return; }
+      const from = S.slideFrom, at = S.a;
+      animate(DUR.slide, 1, 0, t => { S.a = from + (at - from) * ease(t); }, () => { S.a = from; S.slideFrom = null; S.step = 0; save(); });
+      return;
+    }
+    if(s.anim) animate(DUR[s.anim] || 1200, 1, 0, null, () => { S.step = k - 1; });
+    else { S.step = k - 1; render(); }
+  }
+  /* jumps (Show all, start again) skip the animations */
+  function jump(k){
+    stopAnim();
+    if(S.mode === "slide"){
+      if(S.step === 0 && k >= 1){ S.slideFrom = S.a; S.a = slideTarget(); }
+      else if(S.step >= 1 && k === 0 && S.slideFrom != null){ S.a = S.slideFrom; S.slideFrom = null; }
+    }
+    S.step = k; save(); render();
+  }
+  function showAll(){ jump(STEPS.length - 1); }
+  function startAgain(){ if(S.step === 0 && !S.anim) return; jump(0); }
+  /* the rectangle story needs the height inside: an obtuse triangle moves to Two copies */
+  function guardRect(){ if(S.mode === "rect" && where() === "out"){ S.mode = "para"; S.step = 0; } }
   function setMode(m){
     if(m === S.mode) return;
+    if(m === "rect" && where() === "out") return;
     stopAnim();
     if(S.mode === "slide" && S.slideFrom != null){ S.a = S.slideFrom; }
     S.slideFrom = null; S.mode = m; S.step = 0; clampA(); save(); render();
   }
-  function changed(){ S.revealed = false; if(S.mode === "slide" && S.step >= 1) S.slideFrom = null; clampA(); save(); render(); }
-  function setTri(b, h, a){ stopAnim(); S.b = clamp(b, B_MIN, B_MAX); S.h = clamp(h, H_MIN, H_MAX); S.a = a; S.slideFrom = null; S.step = 0; S.revealed = false; clampA(); save(); render(); }
+  function changed(){ S.revealed = false; if(S.mode === "slide" && S.step >= 1) S.slideFrom = null; clampA(); guardRect(); save(); render(); }
+  function setTri(b, h, a){ stopAnim(); S.b = clamp(b, B_MIN, B_MAX); S.h = clamp(h, H_MIN, H_MAX); S.a = a; S.slideFrom = null; S.step = 0; S.revealed = false; clampA(); guardRect(); save(); render(); }
   function preset(kd, b, h){
     b = b || S.b; h = h || S.h;
     if(kd === "edge") return setTri(b, h, Math.random() < .5 || S.a === b ? 0 : b);
@@ -937,7 +931,7 @@
       const nb = clamp(Math.round(x), Math.max(B_MIN, 1), B_MAX);
       if(nb !== S.b && L.X(nb) < L.w - 10){ S.b = nb; ch = true; }
     }
-    if(ch){ S.revealed = false; if(S.mode === "slide" && S.step >= 1) S.slideFrom = null; render(); }
+    if(ch){ S.revealed = false; if(S.mode === "slide" && S.step >= 1) S.slideFrom = null; guardRect(); render(); }
   });
   const endDrag = () => { if(!S.drag) return; S.drag = null; S.frozen = null; clampA(); save(); render(); };
   svg.addEventListener("pointerup", endDrag);
@@ -989,11 +983,11 @@
   $("fsBtn").addEventListener("click", toggleFs);
 
   $("kindSel").value = S.set.kind; $("unitSel").value = S.set.units;
-  $("gridToggle").checked = !!S.set.grid; $("areaToggle").checked = !!S.set.showArea;
+  $("gridToggle").checked = !!S.set.grid; $("calcToggle").checked = !!S.set.calc;
   $("kindSel").addEventListener("change", () => { S.set.kind = $("kindSel").value; save(); randomTri(); });
   $("unitSel").addEventListener("change", () => { S.set.units = $("unitSel").value; save(); render(); });
   $("gridToggle").addEventListener("change", e => { S.set.grid = e.target.checked; save(); render(); });
-  $("areaToggle").addEventListener("change", e => { S.set.showArea = e.target.checked; save(); render(); });
+  $("calcToggle").addEventListener("change", e => { S.set.calc = e.target.checked; save(); render(); });
 
   function closeMenus(){ [["settingsBtn","settingsMenu"],["toolsBtn","toolsMenu"]].forEach(([b, m]) => { $(m).classList.remove("open"); $(b).setAttribute("aria-expanded","false"); }); }
   [["settingsBtn","settingsMenu"],["toolsBtn","toolsMenu"]].forEach(([b, m]) => {
@@ -1016,10 +1010,11 @@
   if(window.ResizeObserver) new ResizeObserver(onResize).observe($("boardWrap")); else window.addEventListener("resize", onResize);
 
   clampA();
+  guardRect();
   render();
 
   /* test surface */
-  window.__TRI__ = { S, steps, strips, clipX, polyArea, render, next, back, showAll, startAgain, setMode, setTri, preset, randomTri, where, kind, area, toggleFs,
+  window.__TRI__ = { S, steps, strips, paraInfo, cutsAt, clipX, polyArea, render, next, back, showAll, startAgain, setMode, setTri, preset, randomTri, where, kind, area, toggleFs,
     setPanel:on => { S.set.panel = on; applyPanel(); render(); }, get L(){ return L; } };
 })();
 </script>
