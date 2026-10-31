@@ -50,6 +50,14 @@ window.MMT_TOOL_LINKS = {
       tags: ["area", "perimeter", "rectangles", "area model", "partitioning", "partial products", "multiplication", "place value", "whole-class teaching"]
     },
     {
+      title: "Area Model \u2014 Worksheet Creator",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-4/measurement-space/perimeter-area-rectangle.html",
+      ideas: ["rectangles"],
+      note: "Printable A4 from the area model tool: multiply with the model, two splits one answer, missing numbers, add the edges, make a ten, cut-out shapes and fluency. Area, perimeter or both; six number sizes as a ladder; splits drawn, faded or left blank; unit squares where they fit; answer key with reasons.",
+      tags: ["worksheet generator", "printable", "area model", "multiplication", "partitioning", "partial products", "perimeter", "addition strategies", "make a ten", "composite shapes", "answer key"]
+    },
+    {
       title: "Rectangles — Area / Perimeter",
       kind: "Student quiz",
       url: "/online-quizzes/stage-4/measurement-space/perimeter-area-rectangle.html",
@@ -68,6 +76,14 @@ window.MMT_TOOL_LINKS = {
   ],
 
   "MA3-2DS-03": [
+    {
+      title: "Area Model \u2014 Worksheet Creator",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-4/measurement-space/perimeter-area-rectangle.html",
+      ideas: ["composite"],
+      note: "Printable A4 from the area model tool: multiply with the model, two splits one answer, missing numbers, add the edges, make a ten, cut-out shapes and fluency. Area, perimeter or both; six number sizes as a ladder; splits drawn, faded or left blank; unit squares where they fit; answer key with reasons.",
+      tags: ["worksheet generator", "printable", "area model", "multiplication", "partitioning", "partial products", "perimeter", "addition strategies", "make a ten", "composite shapes", "answer key"]
+    },
     {
       title: "Area of a Triangle — Half the Rectangle",
       kind: "Teacher tool",
@@ -272,6 +288,14 @@ window.MMT_TOOL_LINKS = {
       ideas: ["partition-multiply", "multiply-2-digit"],
       note: "The area model for multiplication: split one or both numbers by place value (20 + 3) or any way you like (10 + 10 + 3, 15 + 8), reveal each partial product, then add the parts. Every split gives the same answer \u2014 the distributive law, seen. Up to 999 \u00d7 999.",
       tags: ["multiplication", "area model", "partitioning", "partial products", "place value", "non-standard partitioning", "distributive law", "2-digit by 2-digit", "3-digit by 2-digit", "box method", "grid method", "whole-class teaching"]
+    },
+    {
+      title: "Area Model \u2014 Worksheet Creator",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-4/measurement-space/perimeter-area-rectangle.html",
+      ideas: ["partition-multiply", "multiply-2-digit"],
+      note: "Printable A4 from the area model tool: multiply with the model, two splits one answer, missing numbers, add the edges, make a ten, cut-out shapes and fluency. Area, perimeter or both; six number sizes as a ladder; splits drawn, faded or left blank; unit squares where they fit; answer key with reasons.",
+      tags: ["worksheet generator", "printable", "area model", "multiplication", "partitioning", "partial products", "perimeter", "addition strategies", "make a ten", "composite shapes", "answer key"]
     },
     {
       title: "Halve and Halve Again",
@@ -824,6 +848,14 @@ window.MMT_TOOL_LINKS = {
       tags: ["area", "rectangles", "area model", "composite area", "partitioning", "partial products", "L-shapes", "whole-class teaching"]
     },
     {
+      title: "Area Model \u2014 Worksheet Creator",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-4/measurement-space/perimeter-area-rectangle.html",
+      ideas: ["rectangles-triangles-parallelograms"],
+      note: "Printable A4 from the area model tool: multiply with the model, two splits one answer, missing numbers, add the edges, make a ten, cut-out shapes and fluency. Area, perimeter or both; six number sizes as a ladder; splits drawn, faded or left blank; unit squares where they fit; answer key with reasons.",
+      tags: ["worksheet generator", "printable", "area model", "multiplication", "partitioning", "partial products", "perimeter", "addition strategies", "make a ten", "composite shapes", "answer key"]
+    },
+    {
       title: "Area of a Triangle — Half the Rectangle",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-4/measurement-space/area-of-a-triangle/",
@@ -1362,12 +1394,12 @@ window.MMT_TOOL_LINKS = {
       tags: ["quiz", "perimeter", "area", "rectangles"]
     },
     {
-      title: "Rectangles — Area / Perimeter",
+      title: "Area Model \u2014 Worksheet Creator",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-4/measurement-space/perimeter-area-rectangle.html",
       ideas: ["perimeter"],
-      note: "Generates printable perimeter and area worksheets.",
-      tags: ["worksheet generator", "printable", "perimeter", "area", "rectangles"]
+      note: "Printable A4 from the area model tool: multiply with the model, two splits one answer, missing numbers, add the edges, make a ten, cut-out shapes and fluency. Area, perimeter or both; six number sizes as a ladder; splits drawn, faded or left blank; unit squares where they fit; answer key with reasons.",
+      tags: ["worksheet generator", "printable", "area model", "multiplication", "partitioning", "partial products", "perimeter", "addition strategies", "make a ten", "composite shapes", "answer key"]
     },
     {
       title: "Length",

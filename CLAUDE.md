@@ -96,6 +96,27 @@
 > §2 "TWO folders", §3 deploy paths and §5's `mathstools-main 2` heading below
 > describe the OLD layout — this block supersedes them.
 >
+> **NEW (2026-10-31, later): AREA MODEL — WORKSHEET CREATOR REBUILT.**
+> `worksheet-creators/stage-4/measurement-space/perimeter-area-rectangle.html` (same URL), on the Order of
+> Operations generator's shell: bands, type cards with examples, 196 × 281 mm pages, measured packing, answer key,
+> B&W, "Your turn" fill (threshold 44 mm), `fitPass`. Test surface `window.__WS__`.
+> * Controls: focus Area / Perimeter / Both (hides the other focus's sections; F, G ask for the chosen one);
+>   six level TICK-CHIPS (ladder, easiest first, last can't be unticked, quick sets); splits Drawn PV / Drawn mix /
+>   **Fade out** (default; head says "From question N, draw the splits yourself") / Blank; unit squares where they
+>   fit (to scale when both sides ≤ 60 and a square ≥ 2.2 mm) else open models with a minimum part width; perimeter
+>   working (tens & ones / double half / alternate / box); units; spacing 2/2/3 a row; colour/B&W; "20 × 10" in
+>   each piece; worked example; name/date; key. Matchstick Troubles PDF linked in a note.
+> * Sections A Multiply with the model · B Two splits, one answer · C Missing numbers (find sides from products;
+>   harder variant one part missing each side) · D Add the edges · E Make a ten (one side split at 10 − ones digit)
+>   · F Cut-out shapes (corner = same perimeter, notch = longer; key gives whole − gap) · G Fluency (off).
+> * Every model in a section shares ONE mm box, so card heights (and the packing) are stable. Settings that change
+>   WHAT is asked re-roll (`sigOf`: focus, levels, splits, perimeter working); looks-only settings don't.
+> * Wiring: homepage mini card retitled + `area model` search words; toolLinks "Area Model — Worksheet Creator"
+>   rows under MA3-MR-01, MA3-2DS-02, MA3-2DS-03 (composite), MA4-ARE-C-01, MA4-LEN-C-01.
+> * Verified: 70 random option sets (1,084 questions) — answers re-derived (unit-square count for F), C solvable,
+>   key mirrors worksheet, nothing past a page or wider than its card; full counts at every level × split mode;
+>   PDF pages = preview.
+>
 > **NEW (2026-10-31): AREA MODEL — MULTIPLICATION & PERIMETER (rebuild of the old "Area Model Splitter").**
 > Same URL, `interactive-tools/stage-4/measurement-space/perimeter-area-rectangle/index.html`, rewritten in the
 > current shell (mmtTopbar, board card + side panel). One self-contained file, SVG board, test surface `window.__AM__`.
