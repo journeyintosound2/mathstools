@@ -113,6 +113,10 @@
 >   to an OPEN model ("Not to scale" tag) whose per-axis map gives every part a minimum width. The layout is FROZEN
 >   during a drag (`S.dragL`) so the line stays under the pointer. Board sized to the real page (ResizeObserver);
 >   stacked layout ≤ 980px sizes the board to the drawing.
+> * Board corner icons (Jeff 2026-10-31): ↺ **clear all splits** (= Unsplit, also puts removed pieces back),
+>   **panel toggle** (folds the side panel away, remembered in settings as `panel`), **full screen** (F key: real
+>   Fullscreen API where it exists + `.app.fs` board-only layout that hides the topbar and panel; Esc/F leave it).
+>   With the panel away or in full screen a small ◀ / Next ▸ pair sits bottom-right of the board (`#miniSteps`).
 > * Settings (saved `mmt.areaModel.v1`): six number levels (teen × 1-digit … 3-digit × 2-digit), start whole or split
 >   by place value, unit squares, multiplication inside pieces, always to scale, units. Keys: Space/→ next, ← back,
 >   A/P mode, N new, Esc.
