@@ -650,30 +650,34 @@
     pieces.forEach(p => {
       const c0 = centroid(p.P), dest = p.P.map(q => rot(q, p.c, 180)), c1 = centroid(dest);
       const cx = c0[0] + (c1[0] - c0[0]) * turn, cy = c0[1] + (c1[1] - c0[1]) * turn;
-      const Q = p.P.map(q => { const r = rot(q, c0, 180 * turn); return [r[0] - c0[0] + cx, r[1] - c0[1] + cy]; });
+      const Q = p.P.map(q => { const r = rot(q, c0, 180 * turn); return [r[0] - c0[0] + cx + (p.sx || 0), r[1] - c0[1] + cy]; });
       poly(Q, { fill:C.half, stroke:C.halfS, "stroke-width":2.2, opacity:Math.min(1, turn * 6) }, g);
     });
   }
   function sceneRect(sc){
     const { a, b, h } = S, { k, t } = sc, w = where();
-    drawTri(sc.gMain);
-    if(w === "out" || k === 0) return;
-    const pieces = [];
-    if(w === "in"){
-      pieces.push({ P:[[0, 0], [a, 0], [a, h]], c:[a / 2, h / 2] });
-      pieces.push({ P:[[a, 0], [b, 0], [a, h]], c:[(a + b) / 2, h / 2] });
-    } else pieces.push({ P:T(), c:[b / 2, h / 2] });
+    if(w === "out" || k === 0){ drawTri(sc.gMain); return; }
     const line = w === "in" ? [[a, h], [a, 0]] : [[a, h], a === 0 ? [b, 0] : [0, 0]];
-    const cutC = w === "in" ? (k === 1 ? ease(t) : 1) : 0;
+    const cutC = w === "in" ? (k === 1 ? ease(clamp(t / .85, 0, 1)) : 1) : 0;
     const turn = k >= 2 ? ease(t) : 0;
-    if(turn > 0) turnCopies(pieces, turn, sc.gTop);
-    drawTri(sc.gTop, { fill:"none" });
-    if(turn === 1) dashedRect(0, b, sc.gTop, { stroke:"#0f172a", "stroke-dasharray":"none", "stroke-width":2.5 });
     if(w === "in"){
-      if(cutC >= 1) seg(line[0], line[1], { stroke:C.triS, "stroke-width":3 }, sc.gTop);
-      else cutLine(line[0], line[1], cutC, sc.gTop, !!S.anim, t);
+      /* cut through: the two halves part by a thin white strip */
+      const sep = k === 1 ? ease(clamp((t - .85) / .15, 0, 1)) : 1, g = 3.5 / L.s * sep;
+      const halves = [
+        { P:[[0, 0], [a, 0], [a, h]], c:[a / 2, h / 2], sx:-g },
+        { P:[[a, 0], [b, 0], [a, h]], c:[(a + b) / 2, h / 2], sx:g } ];
+      halves.forEach(p => poly(p.P.map(q => [q[0] + p.sx, q[1]]), { fill:C.tri, stroke:"none" }, sc.gMain));
+      if(turn > 0) turnCopies(halves, turn, sc.gTop);
+      halves.forEach(p => poly(p.P.map(q => [q[0] + p.sx, q[1]]), { fill:"none", stroke:C.triS, "stroke-width":3 }, sc.gTop));
+      if(cutC < 1) cutLine(line[0], line[1], cutC, sc.gTop, !!S.anim, t);
       sc.hideAlt = true;
-    } else if(turn < 1) seg(line[0], line[1], { stroke:C.cut, "stroke-width":3.4, "stroke-dasharray":"2 7", "stroke-linecap":"round" }, sc.gTop);
+      return;
+    }
+    /* right-angled: the sloping side is marked, one pale copy slides in */
+    drawTri(sc.gMain);
+    if(turn > 0) turnCopies([{ P:T(), c:[b / 2, h / 2] }], turn, sc.gTop);
+    drawTri(sc.gTop, { fill:"none" });
+    if(turn < 1) seg(line[0], line[1], { stroke:C.cut, "stroke-width":3.4, "stroke-dasharray":"2 7", "stroke-linecap":"round" }, sc.gTop);
   }
 
   /* ----- 2. two copies make a parallelogram, chopped into the rectangle ----- */
@@ -696,14 +700,15 @@
     const prog = cuts.length ? ease(clamp((tt - .48) / .52, 0, 1)) : 1;
     if(prog > 0 && cuts.length) poly(PG, { fill:"none", stroke:"#94a3b8", "stroke-width":2, "stroke-dasharray":"6 6", opacity:Math.min(1, prog * 1.5) }, sc.gBack);
     /* the pale copy first, then the triangle on top, so every edge of the triangle stays dark */
+    const sep = cuts.length ? clamp((tt - .4) / .08, 0, 1) * (1 - prog) : 0, g = 5 / L.s * sep;
     [[fin, C.half, C.halfS, 2], [tri, C.tri, C.triS, 3]].forEach(([P, f, st, sw]) => ST.forEach(s => {
       const c = clipX(P, s.lo, s.hi); if(!c) return;
-      poly(c.map(p => [p[0] + s.dx * prog, p[1]]), { fill:f, stroke:st, "stroke-width":sw }, sc.gMain);
+      const shift = s.dx * prog - Math.sign(s.dx) * g;
+      poly(c.map(p => [p[0] + shift, p[1]]), { fill:f, stroke:st, "stroke-width":sw }, sc.gMain);
     }));
-    if(prog === 0) cuts.forEach(x => { const r = yRangeAt(PG, x); if(r) cutLine([x, r[1]], [x, r[0]], cutC, sc.gTop, !!S.anim, tt); });
+    if(prog === 0 && sep === 0) cuts.forEach(x => { const r = yRangeAt(PG, x); if(r) cutLine([x, r[1]], [x, r[0]], cutC, sc.gTop, !!S.anim, tt); });
     sc.noApex = true;
     if(prog === 1){
-      poly([[0, 0], [b, 0], [b, h], [0, h]], { fill:"none", stroke:"#0f172a", "stroke-width":3 }, sc.gMain);
       if(S.set.calc){ sc.finalAt = [b / 2, h / 2]; sc.finalText = `${fmt(b * h)} ÷ 2 = ${fmt(area())}`; }
     }
     /* the height glides across with the pieces to the rectangle's nearer edge */
@@ -729,7 +734,6 @@
       const turn = k === 2 ? ease(t) : 1;
       if(turn > 0) turnCopies([{ P:T(), c:[b / 2, h / 2] }], turn, sc.gTop);
       drawTri(sc.gTop, { fill:"none" });
-      if(turn === 1) dashedRect(0, b, sc.gTop, { stroke:"#0f172a", "stroke-dasharray":"none", "stroke-width":2.5 });
     }
   }
 
@@ -775,7 +779,7 @@
     pill(x, y, s, fs() + 3, { color:"#15803d", stroke:"rgba(21,128,61,.45)", bg:"#f0fdf4", sw:2 }, sc.gLab);
   }
   function drawHandles(g, sc){
-    if(S.anim || sc.noApex) return;
+    if(S.anim || sc.noApex || S.step > 0) return;
     const P = [L.X(S.a), L.Y(S.h)], B = [L.X(S.b), L.Y(0)];
     const ap = el("g", { class:"handle apex", "data-h":"apex" }, g);
     el("circle", { cx:P[0], cy:P[1], r:22, fill:"transparent" }, ap);
@@ -824,7 +828,7 @@
       hint.innerHTML = `<b>${k + 1}. ${s.t}</b> &nbsp;<span class="eq">${s.m}${calc && s.c && s.fin ? " &nbsp; " + s.c : ""}</span>`;
     } else {
       const where_ = w === "in" ? "the height is inside it" : w === "edge" ? "the height is one of its sides" : "the height is outside it";
-      const drag = S.mode === "slide" ? "drag the top along the dashed line" : "drag the top corner or the end of the base";
+      const drag = S.step > 0 ? "go back to the start to change it" : S.mode === "slide" ? "drag the top along the dashed line" : "drag the top corner or the end of the base";
       hint.innerHTML = `<b>${kd === "right" ? "Right-angled" : kd === "obtuse" ? "Obtuse" : "Acute"}</b> · ${where_} · ${drag}`;
     }
     $("miniSteps").hidden = !(!S.set.panel || S.fs);
@@ -894,7 +898,7 @@
     if(S.mode === "slide" && S.slideFrom != null){ S.a = S.slideFrom; }
     S.slideFrom = null; S.mode = m; S.step = 0; clampA(); save(); render();
   }
-  function changed(){ S.revealed = false; if(S.mode === "slide" && S.step >= 1){ S.slideFrom = null; S.step = 0; } clampA(); guardRect(); save(); render(); }
+  function changed(){ stopAnim(); S.revealed = false; S.slideFrom = null; S.step = 0; clampA(); guardRect(); save(); render(); }
   function setTri(b, h, a){ stopAnim(); S.b = clamp(b, B_MIN, B_MAX); S.h = clamp(h, H_MIN, H_MAX); S.a = a; S.slideFrom = null; S.step = 0; S.revealed = false; clampA(); guardRect(); save(); render(); }
   function preset(kd, b, h){
     b = b || S.b; h = h || S.h;
@@ -913,7 +917,7 @@
   /* ------------------------------------------------------------ dragging */
   function svgPt(e){ const r = svg.getBoundingClientRect(); return { x:(e.clientX - r.left) * (L.w / r.width), y:(e.clientY - r.top) * (L.h / r.height) }; }
   svg.addEventListener("pointerdown", e => {
-    if(S.anim || e.button > 0) return;
+    if(S.anim || S.step > 0 || e.button > 0) return;
     const hd = e.target.closest && e.target.closest("[data-h]"); if(!hd) return;
     e.preventDefault();
     try { svg.setPointerCapture(e.pointerId); } catch(err){}

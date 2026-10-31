@@ -107,7 +107,10 @@
 > add any. **Two copies**: copy turned about the middle of the LONGER slanted side (`paraInfo()`), then
 > chop at the edge of the base and slide (`strips()`; more chops for long leans); the pale pieces are
 > drawn first so the triangle's edges stay dark, and the dotted height glides with the pieces to the
-> rectangle's nearer edge (never just disappears). Triangle green is dark (`C.tri`) so it pops. **Slide the top**: NO
+> rectangle's nearer edge (never just disappears). Triangle green is dark (`C.tri`) so it pops. Once the
+> steps start (step > 0) the triangle is LOCKED: no handles, no dragging (the panel steppers/presets restart
+> at step 1). After a scissors cut the pieces part by a thin white strip. No dark outline on the finished
+> rectangle in any mode. **Slide the top**: NO
 > stripes/layers — triangle → top slides along the dashed line to a right angle → pale copy turns over
 > the sloping side to complete the rectangle; dragging after the slide restarts the story. Colours:
 > green = the triangle, faded green
