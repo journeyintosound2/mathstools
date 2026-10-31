@@ -1,6 +1,6 @@
 /* Written by tools/build-pwa.mjs — do not edit by hand. */
 self.MMT_PRECACHE = {
- "version": "c28ffe7821",
+ "version": "88bfe46f73",
  "files": [
   "./",
   "assessment/exam-builder/app.js",
@@ -860,6 +860,8 @@ self.MMT_PRECACHE = {
   "online-quizzes/stage-4/algebra/number-groups.html",
   "online-quizzes/stage-4/algebra/substitution.html",
   "online-quizzes/stage-4/measurement-space/angle-relationships.html",
+  "online-quizzes/stage-4/measurement-space/area-model-quiz/quiz.css",
+  "online-quizzes/stage-4/measurement-space/area-model-quiz/quiz.js",
   "online-quizzes/stage-4/measurement-space/area-model.html",
   "online-quizzes/stage-4/measurement-space/area-of-a-triangle.html",
   "online-quizzes/stage-4/measurement-space/perimeter-area-rectangle.html",

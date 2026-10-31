@@ -96,6 +96,20 @@
 > §2 "TWO folders", §3 deploy paths and §5's `mathstools-main 2` heading below
 > describe the OLD layout — this block supersedes them.
 >
+> **NEW (2026-10-31, latest): AREA MODEL — BOTH STUDENT QUIZZES REBUILT on one engine.**
+> `online-quizzes/stage-4/measurement-space/area-model.html` (Multiplication, `AMQ.focus="area"`) and
+> `.../perimeter-area-rectangle.html` (Area & Perimeter, `focus="both"`) are thin shells; the engine is
+> `area-model-quiz/quiz.js` + `quiz.css` (bump their `?v=` in BOTH pages). Counting-Strategies pattern:
+> question card left, a LIVE area model right (students split it themselves on the explore questions:
+> click a ruler to cut, drag to move, drag off the end to remove; the board locks after the first check).
+> Sweet/Mild/Medium/Spicy, 10 questions. Only the FIRST check of each part scores, empty check is free,
+> Next on an unfinished question = wrong. Board height is set by `fitBoard()` in JS (no page scroll at
+> 1024x768 up); long cards fold finished parts and scroll inside the card. types[]: `pieces / area /
+> backwards / composite / perimeter / reasoning` as `key:right/total` + `level:x`; labels in
+> quizInsights.js SKILL_LABELS. toolIds, achievementToolNames and masteryTopics are UNCHANGED so old
+> records still group (old Area & Perimeter scored out of 30; new scores out of 10).
+> Test surface `window.__AMQ__`.
+>
 > **NEW (2026-10-31, later): AREA MODEL — WORKSHEET CREATOR REBUILT.**
 > `worksheet-creators/stage-4/measurement-space/perimeter-area-rectangle.html` (same URL), on the Order of
 > Operations generator's shell: bands, type cards with examples, 196 × 281 mm pages, measured packing, answer key,

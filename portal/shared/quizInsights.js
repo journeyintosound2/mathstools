@@ -28,6 +28,8 @@ export const SKILL_LABELS = {
   count: "Counting", table: "Tables", equation: "Equations", meaning: "What the numbers mean", plot: "Plotting", apply: "Using it",
   // perimeter / area / ratio / additive
   perimeter: "Perimeter", "missing-side": "Finding a missing side", area: "Area",
+  // area model quizzes
+  pieces: "Products of the pieces", backwards: "Missing numbers (working backwards)", composite: "Cut-out shapes", reasoning: "Reasoning about splits",
   type1: "Share a total", type2: "One share is known", type3: "The difference is known", onepart: "Finding one part",
   add: "Addition by compensation", subtract: "Subtraction (constant difference)",
 };

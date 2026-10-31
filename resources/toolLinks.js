@@ -58,12 +58,12 @@ window.MMT_TOOL_LINKS = {
       tags: ["worksheet generator", "printable", "area model", "multiplication", "partitioning", "partial products", "perimeter", "addition strategies", "make a ten", "composite shapes", "answer key"]
     },
     {
-      title: "Rectangles — Area / Perimeter",
+      title: "Area Model \u2014 Area & Perimeter (Student Quiz)",
       kind: "Student quiz",
       url: "/online-quizzes/stage-4/measurement-space/perimeter-area-rectangle.html",
       ideas: ["rectangles"],
-      note: "Saves to the student dashboard.",
-      tags: ["quiz", "area", "perimeter", "rectangles"]
+      note: "Ten questions with a live area model: find each piece and add the edges, split it yourself, double the half, make a ten, cut-out shapes and missing numbers. Sweet to Spicy. Saves to the student dashboard.",
+      tags: ["quiz", "area", "perimeter", "rectangles", "area model", "partitioning", "addition strategies", "composite shapes", "sweet mild medium spicy", "student code login", "teacher dashboard"]
     },
     {
       title: "Shikaku",
@@ -296,6 +296,14 @@ window.MMT_TOOL_LINKS = {
       ideas: ["partition-multiply", "multiply-2-digit"],
       note: "Printable A4 from the area model tool: multiply with the model, two splits one answer, missing numbers, add the edges, make a ten, cut-out shapes and fluency. Area, perimeter or both; six number sizes as a ladder; splits drawn, faded or left blank; unit squares where they fit; answer key with reasons.",
       tags: ["worksheet generator", "printable", "area model", "multiplication", "partitioning", "partial products", "perimeter", "addition strategies", "make a ten", "composite shapes", "answer key"]
+    },
+    {
+      title: "Area Model \u2014 Multiplication (Student Quiz)",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-4/measurement-space/area-model.html",
+      ideas: ["partition-multiply", "multiply-2-digit"],
+      note: "Ten questions with a live area model students split themselves: products of the pieces, missing numbers, spot the mistake, cut-out shapes. Teen \u00d7 one-digit up to three-digit \u00d7 two-digit. Saves to the student dashboard.",
+      tags: ["quiz", "multiplication", "area model", "partitioning", "partial products", "place value", "missing numbers", "spot the mistake", "sweet mild medium spicy", "student code login", "teacher dashboard"]
     },
     {
       title: "Halve and Halve Again",
@@ -864,12 +872,12 @@ window.MMT_TOOL_LINKS = {
       tags: ["area", "triangles", "rectangles", "derivation", "visual"]
     },
     {
-      title: "Area Model",
+      title: "Area Model \u2014 Multiplication (Student Quiz)",
       kind: "Student quiz",
       url: "/online-quizzes/stage-4/measurement-space/area-model.html",
       ideas: ["rectangles-triangles-parallelograms"],
-      note: "Saves to the student dashboard.",
-      tags: ["quiz", "area", "area model", "composite area"]
+      note: "Ten questions with a live area model students split themselves: products of the pieces, missing numbers, spot the mistake, cut-out shapes. Teen \u00d7 one-digit up to three-digit \u00d7 two-digit. Saves to the student dashboard.",
+      tags: ["quiz", "multiplication", "area model", "partitioning", "partial products", "place value", "missing numbers", "spot the mistake", "sweet mild medium spicy", "student code login", "teacher dashboard"]
     },
     {
       title: "Area of a Triangle",
@@ -1386,12 +1394,12 @@ window.MMT_TOOL_LINKS = {
       tags: ["lesson plan", "ELPSA", "perimeter", "area", "planning"]
     },
     {
-      title: "Rectangles — Area / Perimeter",
+      title: "Area Model \u2014 Area & Perimeter (Student Quiz)",
       kind: "Student quiz",
       url: "/online-quizzes/stage-4/measurement-space/perimeter-area-rectangle.html",
       ideas: ["perimeter"],
-      note: "Saves to the student dashboard.",
-      tags: ["quiz", "perimeter", "area", "rectangles"]
+      note: "Ten questions with a live area model: find each piece and add the edges, split it yourself, double the half, make a ten, cut-out shapes and missing numbers. Sweet to Spicy. Saves to the student dashboard.",
+      tags: ["quiz", "area", "perimeter", "rectangles", "area model", "partitioning", "addition strategies", "composite shapes", "sweet mild medium spicy", "student code login", "teacher dashboard"]
     },
     {
       title: "Area Model \u2014 Worksheet Creator",
