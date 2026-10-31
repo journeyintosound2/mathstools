@@ -101,11 +101,14 @@
 > tool's shell. Apex (a, h) on base [0,b]: drag the top or the square at the end of the base. Three modes,
 > each a step story; EVERY animation also runs backwards on Back (`animate(dur, t0, t1)`).
 > **Rectangle** = acute/right ONLY (greyed out when the height is outside; dragging past the base switches
-> to Two copies via `guardRect()`): triangle → rectangle → dark dotted divider (the height, or the
-> sloping side if right-angled) → scissors cut + cut-outs turn over onto the triangle. Jeff wants it this
-> short — don't add steps. **Two copies**: copy turned about the middle of the LONGER slanted side
-> (`paraInfo()`), then chop at the edge of the base and slide (`strips()`; more chops for long leans).
-> **Slide the top**: layers, top slides along the dashed line. Colours: green = the triangle, faded green
+> to Two copies via `guardRect()`): triangle → dark dotted height → scissors cut along it, then a PALE
+> copy of each piece turns half a turn over its sloping side to complete the rectangle (right-angled: the
+> sloping side is marked and one pale copy turns over it). Jeff wants exactly these 3 steps — don't add
+> any. **Two copies**: copy turned about the middle of the LONGER slanted side (`paraInfo()`), then chop
+> at the edge of the base and slide (`strips()`; more chops for long leans). **Slide the top**: NO
+> stripes/layers — triangle → top slides along the dashed line to a right angle → pale copy turns over
+> the sloping side to complete the rectangle; dragging after the slide restarts the story. Colours:
+> green = the triangle, faded green
 > = what it is half of. **Settings → Show the calculation is OFF by default and hides every ½ × b × h**
 > (the line above the board, the step calculations, the area on the board) so the class can notice and
 > wonder. Settings in localStorage `mmt.triArea.v1`. Test surface `window.__TRI__`.

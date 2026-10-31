@@ -409,17 +409,17 @@
      A triangle is half of a base × height rectangle — always, whatever its
      shape. Three ways to see it, one per mode, each a short story of steps
      (every animation also runs backwards with Back):
-     - RECTANGLE (height inside, or on a side): the box around it, the
-       height divides it down the middle, scissors cut along it and the two
-       cut-outs turn over onto the triangle. Greyed out for obtuse triangles
-       (height outside): dragging the top past the base switches to Two copies.
+     - RECTANGLE (height inside, or on a side): the dotted height, scissors
+       cut the triangle along it, and a pale copy of each piece turns over to
+       complete the rectangle. Greyed out for obtuse triangles (height
+       outside): dragging the top past the base switches to Two copies.
      - TWO COPIES: a copy turned about the middle of the LONGER slanted side
        makes a parallelogram on the base; chop it at the edge of the base and
        slide the piece across — exactly the base × height rectangle (very long
        leans take more than one chop).
-     - SLIDE THE TOP: the triangle as thin layers. Sliding the top along a
-       line parallel to the base keeps every layer's length, so the area
-       never changes — same base, same height, same area.
+     - SLIDE THE TOP: the top slides along a line parallel to the base to a
+       right angle (same base, same height), then a pale copy turns over the
+       sloping side to complete the rectangle.
      Green is the triangle we want the area of; faded green is the shape it
      is half of. "½ × base × height" only appears with Settings → Show the
      calculation (off by default), so the class can notice and wonder first. */
@@ -509,13 +509,11 @@
     const rectC = `${hB(b)} × ${hH(h)} = ${fmt(b * h)}${W(U2())}`;
     if(S.mode === "rect"){
       if(w === "edge") return [ first,
-        { t:"Draw a rectangle around it", m:W("same base, same height"), c:rectC },
-        { t:"The sloping side divides it", m:W("two matching triangles") },
-        { t:"Cut along it and turn the piece over", m:W("it covers the triangle exactly — the triangle is half the rectangle"), c:finalCalc(), anim:"cut", fin:true } ];
+        { t:"Mark the sloping side", m:W("a copy of the triangle will turn over it") },
+        { t:"Copy the triangle and turn it over", m:`${W("the pale copy completes a")} ${hB(b)} × ${hH(h)} ${W("rectangle — the triangle is half of it")}`, c:finalCalc(), anim:"turn", fin:true } ];
       return [ first,
-        { t:"Draw a rectangle around it", m:W("same base, same height"), c:rectC },
-        { t:"The height divides it down the middle", m:W("a rectangle on each side of the height") },
-        { t:"Cut down the middle and turn the pieces over", m:W("the two cut-outs cover the triangle exactly — the triangle is half the rectangle"), c:finalCalc(), anim:"cut", fin:true } ];
+        { t:"Draw the height down the middle", m:W("it splits the triangle into two right-angled triangles") },
+        { t:"Cut along it, copy each piece and turn it over", m:`${W("the pale copies complete a")} ${hB(b)} × ${hH(h)} ${W("rectangle — the triangle is half of it")}`, c:finalCalc(), anim:"cut", fin:true } ];
     }
     if(S.mode === "para"){
       const n = cutsAt().length;
@@ -526,14 +524,10 @@
               tip:n > 1 ? "It leans a long way, so it takes more than one chop." : "" }
           : { t:"It's already a rectangle", m:`${W("a")} ${hB(b)} × ${hH(h)} ${W("rectangle — the triangle is half of it")}`, c:finalCalc(), fin:true } ];
     }
-    const n = layersN();
-    return [
-      { t:"Cut the triangle into thin layers", m:W(`${n} layers, all the same thickness`) },
-      { t:"Slide the top along the dashed line", m:W("every layer keeps its length, so the area can't change"), anim:"slide" },
-      { t:"Now it has a right angle", m:`${W("half of a")} ${hB(b)} × ${hH(h)} ${W("rectangle")}`, c:rectC },
-      { t:"Same base, same height, same area", m:W("drag the top along the line — the area never changes"), c:finalCalc(), fin:true } ];
+    return [ first,
+      { t:"Slide the top along the dashed line", m:W("same base, same height — now it has a right angle"), anim:"slide" },
+      { t:"Copy it and turn the copy over the sloping side", m:`${W("together they make a")} ${hB(b)} × ${hH(h)} ${W("rectangle — the triangle is half of it")}`, c:finalCalc(), anim:"turn", fin:true } ];
   }
-  const layersN = () => S.h >= 4 ? S.h : S.h * (S.h === 1 ? 4 : 2);
   let STEPS = steps();
 
   /* ------------------------------------------------------------ drawing */
@@ -647,24 +641,37 @@
   const dashedRect = (x0, x1, g, o) => poly([[x0, 0], [x1, 0], [x1, S.h], [x0, S.h]], Object.assign({ fill:"none", stroke:C.rect, "stroke-width":2.2, "stroke-dasharray":"8 6" }, o || {}), g);
   const fs = () => L.compact ? 15 : 18;
 
-  /* ----- 1. the rectangle around it (height inside, or on a side) ----- */
+  /* ----- 1. the rectangle around it (height inside, or on a side) -----
+     the dotted height, scissors cut along it, then a pale copy of each piece
+     turns half a turn about the middle of its sloping side and the copies
+     complete the rectangle: the triangle is half of it */
+  function turnCopies(pieces, turn, g){
+    pieces.forEach(p => {
+      const Q = p.P.map(q => rot(q, p.c, 180 * turn));
+      poly(Q, { fill:C.half, stroke:C.halfS, "stroke-width":2.2, opacity:Math.min(1, turn * 6) }, g);
+    });
+  }
   function sceneRect(sc){
     const { a, b, h } = S, { k, t } = sc, w = where();
     drawTri(sc.gMain);
     if(w === "out" || k === 0) return;
-    /* the cut-outs: each turns half a turn about the middle of the side it shares with the triangle */
     const pieces = [];
-    if(a > 0) pieces.push({ P:[[0, 0], [a, h], [0, h]], c:[a / 2, h / 2] });
-    if(a < b) pieces.push({ P:[[b, 0], [b, h], [a, h]], c:[(a + b) / 2, h / 2] });
+    if(w === "in"){
+      pieces.push({ P:[[0, 0], [a, 0], [a, h]], c:[a / 2, h / 2] });
+      pieces.push({ P:[[a, 0], [b, 0], [a, h]], c:[(a + b) / 2, h / 2] });
+    } else pieces.push({ P:T(), c:[b / 2, h / 2] });
     const line = w === "in" ? [[a, h], [a, 0]] : [[a, h], a === 0 ? [b, 0] : [0, 0]];
-    const tt = k === 3 ? t : (k > 3 ? 1 : 0);
-    const cutC = k >= 3 ? ease(clamp(tt / .42, 0, 1)) : 0;
-    const turn = k >= 3 ? ease(clamp((tt - .5) / .5, 0, 1)) : 0;
-    dashedRect(0, b, sc.gBack);
-    pieces.forEach(p => poly(p.P.map(q => rot(q, p.c, 180 * turn)), { fill:C.half, stroke:C.halfS, "stroke-width":2 }, turn > 0 ? sc.gTop : sc.gBack));
-    drawTri(turn > 0 ? sc.gTop : sc.gMain, { fill:"none" });
-    if(k >= 2 && turn < 1) cutLine(line[0], line[1], cutC, sc.gTop, !!S.anim, tt);
-    if(w === "in" && k >= 2) sc.hideAlt = true;
+    const tt = k === 2 ? t : (k > 2 ? 1 : 0);
+    const cutC = w === "in" ? (k >= 2 ? ease(clamp(tt / .42, 0, 1)) : 0) : 0;
+    const turn = k >= 2 ? (w === "in" ? ease(clamp((tt - .5) / .5, 0, 1)) : ease(tt)) : 0;
+    if(turn > 0) turnCopies(pieces, turn, sc.gTop);
+    drawTri(sc.gTop, { fill:"none" });
+    if(turn === 1) dashedRect(0, b, sc.gTop, { stroke:"#0f172a", "stroke-dasharray":"none", "stroke-width":2.5 });
+    if(w === "in"){
+      if(k >= 2 && cutC >= 1) seg(line[0], line[1], { stroke:C.triS, "stroke-width":3 }, sc.gTop);
+      if(k === 1 || (k >= 2 && cutC < 1)) cutLine(line[0], line[1], cutC, sc.gTop, !!S.anim, tt);
+      sc.hideAlt = true;
+    } else if(turn < 1) seg(line[0], line[1], { stroke:C.cut, "stroke-width":3.4, "stroke-dasharray":"2 7", "stroke-linecap":"round" }, sc.gTop);
   }
 
   /* ----- 2. two copies make a parallelogram, chopped into the rectangle ----- */
@@ -704,7 +711,7 @@
 
   /* ----- 3. slide the top: thin layers keep their lengths ----- */
   function sceneSlide(sc){
-    const { b, h } = S, { k } = sc, a = S.a, F = L.F;
+    const { b, h } = S, { k, t } = sc, a = S.a, F = L.F;
     /* the line the top slides along, parallel to the base */
     seg([F.x0, h], [F.x1, h], { stroke:"#94a3b8", "stroke-width":2, "stroke-dasharray":"3 6" }, sc.gBack);
     [[F.x0, -1], [F.x1, 1]].forEach(([x, d]) => {
@@ -713,20 +720,13 @@
     });
     if(k >= 1 && S.slideFrom != null && S.slideFrom !== a)
       poly([[0, 0], [b, 0], [S.slideFrom, h]], { fill:"none", stroke:"#64748b", "stroke-width":2, "stroke-dasharray":"6 5" }, sc.gBack);
+    drawTri(sc.gMain);
     if(k >= 2){
-      dashedRect(0, b, sc.gBack);
-      if(a === 0) poly([[b, 0], [b, h], [0, h]], { fill:C.half, stroke:C.halfS, "stroke-width":2 }, sc.gBack);
-      if(a === b) poly([[0, 0], [b, h], [0, h]], { fill:C.half, stroke:C.halfS, "stroke-width":2 }, sc.gBack);
+      const turn = k === 2 ? ease(t) : 1;
+      if(turn > 0) turnCopies([{ P:T(), c:[b / 2, h / 2] }], turn, sc.gTop);
+      drawTri(sc.gTop, { fill:"none" });
+      if(turn === 1) dashedRect(0, b, sc.gTop, { stroke:"#0f172a", "stroke-dasharray":"none", "stroke-width":2.5 });
     }
-    const n = layersN();
-    for(let i = 0; i < n; i++){
-      const y0 = h * i / n, y1 = h * (i + 1) / n;
-      const xl = y => a * y / h, xr = y => b + (a - b) * y / h;
-      const P = [[xl(y0), y0], [xr(y0), y0], [xr(y1), y1], [xl(y1), y1]];
-      if(i === n - 1) P.splice(2, 1);
-      poly(P, { fill:i % 2 ? "rgba(34,197,94,.24)" : "rgba(34,197,94,.48)", stroke:"rgba(255,255,255,.9)", "stroke-width":1.2 }, sc.gMain);
-    }
-    drawTri(sc.gMain, { fill:"none" });
   }
 
   /* ----- base, height, right angle ----- */
@@ -830,7 +830,7 @@
 
   /* ------------------------------------------------------------ stepping */
   let raf = 0;
-  const DUR = { cut:2300, copy:1250, slide:1500 };
+  const DUR = { cut:2400, turn:1300, copy:1250, slide:1500 };
   /* runs S.anim.t from t0 to t1 (1 → 0 plays a step backwards) */
   function animate(dur, t0, t1, onTick, onEnd){
     cancelAnimationFrame(raf);
@@ -888,7 +888,7 @@
     if(S.mode === "slide" && S.slideFrom != null){ S.a = S.slideFrom; }
     S.slideFrom = null; S.mode = m; S.step = 0; clampA(); save(); render();
   }
-  function changed(){ S.revealed = false; if(S.mode === "slide" && S.step >= 1) S.slideFrom = null; clampA(); guardRect(); save(); render(); }
+  function changed(){ S.revealed = false; if(S.mode === "slide" && S.step >= 1){ S.slideFrom = null; S.step = 0; } clampA(); guardRect(); save(); render(); }
   function setTri(b, h, a){ stopAnim(); S.b = clamp(b, B_MIN, B_MAX); S.h = clamp(h, H_MIN, H_MAX); S.a = a; S.slideFrom = null; S.step = 0; S.revealed = false; clampA(); guardRect(); save(); render(); }
   function preset(kd, b, h){
     b = b || S.b; h = h || S.h;
@@ -931,7 +931,7 @@
       const nb = clamp(Math.round(x), Math.max(B_MIN, 1), B_MAX);
       if(nb !== S.b && L.X(nb) < L.w - 10){ S.b = nb; ch = true; }
     }
-    if(ch){ S.revealed = false; if(S.mode === "slide" && S.step >= 1) S.slideFrom = null; guardRect(); render(); }
+    if(ch){ S.revealed = false; if(S.mode === "slide" && S.step >= 1){ S.slideFrom = null; S.step = 0; } guardRect(); render(); }
   });
   const endDrag = () => { if(!S.drag) return; S.drag = null; S.frozen = null; clampA(); save(); render(); };
   svg.addEventListener("pointerup", endDrag);
