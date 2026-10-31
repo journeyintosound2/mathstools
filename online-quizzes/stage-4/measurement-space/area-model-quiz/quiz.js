@@ -4,18 +4,21 @@
    area-model.html               window.AMQ.focus = "area"  (multiplication)
    perimeter-area-rectangle.html window.AMQ.focus = "both"  (area + perimeter)
 
-   The right-hand panel is the teaching tool's area model, live: on the
-   questions that say so, students split the sides themselves (click the
-   ruler, drag a split, drag it off the end to remove it) and the pieces
-   they make become the multiplications they answer.
+   Each question is ONE question with ONE answer space, and nothing else
+   in the card. The right-hand panel is the teaching tool's area model,
+   there to HELP: students may split it (click a ruler, drag a split,
+   drag it off the end) and jot each piece's product inside it, but the
+   board is never required and never marked. A wrong answer on a whole
+   rectangle splits the model by place value to show the working.
 
-   The ladder is WHAT STUDENTS DO, not just bigger numbers:
-     Sweet  the splits are drawn — find each piece, then add them
-     Mild   split it yourself, any way you like
-     Medium bigger numbers, work backwards from the products, spot a mistake
-     Spicy  the biggest numbers with a free model, cut-out shapes, reasoning
-   The Area & Perimeter page mixes perimeter questions into every level:
-   tens and ones, double the half, make a ten, cut-out shapes.
+   The ladder:
+     Sweet  smaller numbers, the model already split by place value
+     Mild   the model starts whole; a classic mistake to spot
+     Medium bigger numbers, missing numbers from the products
+     Spicy  the biggest numbers, cut-out shapes, reasoning
+   The Area & Perimeter page mixes perimeter into every level (the model
+   has an Area / Perimeter switch): tens and ones, double the half, make
+   a ten, cut-out shapes.
 
    Marking (as Counting Strategies): only the FIRST check of each part
    scores; a question is right when every part is right first time; an
@@ -142,125 +145,104 @@ function pvRows(segs){
   return rows.filter(r => r.v.length).map(r => Object.assign(r, { total:sum(r.v) }));
 }
 
-/* ---------------------------------------------------------- building questions */
+/* ---------------------------------------------------------- building questions
+   ONE question, ONE answer space. The area model beside it is there to
+   help — students may split it and jot each piece's product inside it —
+   but nothing on the board is required, and nothing on it is marked. */
 function base(level, W, H, o){
   return Object.assign({ level, W, H, px:[W], py:[H], removed:new Set(), explore:false, locked:false,
-    missX:new Set(), missY:new Set(), given:new Map(), hideOverall:false, settled:false, correct:false, note:"" }, o || {});
+    missX:new Set(), missY:new Set(), given:new Map(), hideOverall:false, settled:false, correct:false,
+    scratch:{}, viewPick:null, q:"", ask:"", working:"" }, o || {});
 }
 function step(t, o){ return Object.assign({ t, first:null, last:false, vals:t === "num" ? [] : {}, marks:null, fixText:null, sel:null, view:"area" }, o || {}); }
-const totalStep = (W, H, o) => step("num", Object.assign({ cat:"area", title:"Put the pieces together",
-  fields:[{ lab:`${eqWH(W, H)} =`, ans:W * H }], why:() => "" }, o || {}));
+/* the place-value working, for the feedback line */
+function pvWorking(W, H){
+  const a = pv(W), b = pv(H), terms = [], vals = [];
+  b.forEach(y => a.forEach(x => { terms.push(`${fmt(x)} ${X} ${fmt(y)}`); vals.push(x * y); }));
+  if(vals.length < 2) return eqS(`${fmt(W)} ${X} ${fmt(H)} = ${fmt(W * H)}`);
+  if(vals.length > 4) return eqS(`${plus(vals)} = ${fmt(W * H)}`);
+  return eqS(`${terms.join(" + ")}`) + " " + eqS(`= ${plus(vals)} = ${fmt(W * H)}`);
+}
+const field = (lab, ans, o) => Object.assign({ lab, ans }, o || {});
 
-/* A — find each piece (splits drawn), then add */
-function qPieces(level, size){
-  const [W, H] = dims(size);
-  const it = base(level, W, H, { px:pv(W), py:pv(H) });
-  it.q = `Find the area of each piece, then add them to work out ${eqWH(W, H)}.`;
-  it.sub = "The splits are drawn for you. Each piece is its width times its height.";
-  it.steps = [ step("prods", { cat:"pieces", title:"The area of each piece" }), totalStep(W, H, { why:() => `${plus(livePieces(it).map(p => p.w * p.h))} = ${fmt(W * H)}` }) ];
-  return it;
-}
-/* B — split it yourself */
-function qOwn(level, size){
+/* multiply — the model starts split by place value on Sweet, whole after that */
+function qMul(level, size, drawn){
   const [W, H] = dims(size);
   const it = base(level, W, H, { explore:true });
-  it.q = `Split the rectangle into parts that are easy to multiply. Then work out ${eqWH(W, H)}.`;
-  it.sub = "Use the area model: click the ruler along the top or the left to split a side. Any split works.";
-  it.steps = [ step("prods", { cat:"pieces", own:true, title:"Your pieces" }), totalStep(W, H, { why:() => `${plus(livePieces(it).map(p => p.w * p.h))} = ${fmt(W * H)}` }) ];
+  if(drawn){ it.px = pv(W); it.py = pv(H); }
+  if(BOTH) it.q = "Find the area of the rectangle.";
+  it.steps = [ step("num", { cat:"area",
+    fields:[ BOTH ? field("Area =", W * H) : field(eqS(`<span class="cx">${fmt(W)}</span> ${X} <span class="cy">${fmt(H)}</span> =`), W * H, { big:true }) ],
+    why:() => pvWorking(W, H) }) ];
   return it;
 }
-/* just the answer, with the model free to explore */
-function qTotal(level, size){
-  const [W, H] = dims(size);
-  const it = base(level, W, H, { explore:true });
-  it.q = `Work out ${eqWH(W, H)}.`;
-  it.sub = "Split the area model any way that helps, and work out each piece.";
-  it.steps = [ totalStep(W, H, { title:"The answer", why:() => { const a = pv(W), b = pv(H); const P = []; b.forEach(y => a.forEach(x => P.push(x * y))); return `For example, by place value: ${plus(P)} = ${fmt(W * H)}`; } }) ];
-  return it;
-}
-/* C — missing numbers: the products are known, the sides are not */
+/* missing numbers: the products are known, a side is not */
 function qMissing(level, size, hard){
   const [W, H] = dims(size, (W, H) => pv(W).length > 1 && (!hard || pv(H).length > 1));
-  const it = base(level, W, H, { px:pv(W), py:pv(H), hideOverall:true });
+  const it = base(level, W, H, { px:pv(W), py:hard ? pv(H) : [H], hideOverall:true });
   const P = livePieces(it);
-  const fields = [];
   if(hard){
     const mi = it.px.length - 1, mj = it.py.length - 1;
     it.missX.add(mi); it.missY.add(mj);
     P.forEach(p => { if(!(p.i === mi && p.j === mj)) it.given.set(p.gk, p.w * p.h); });
-    fields.push({ lab:"The missing width (top)", ans:it.px[mi], side:{ axis:"x", idx:mi } });
-    fields.push({ lab:"The missing height (left)", ans:it.py[mj], side:{ axis:"y", idx:mj } });
     const empty = P.find(p => p.i === mi && p.j === mj);
-    fields.push({ lab:"The empty piece", ans:empty.w * empty.h, piece:empty.gk });
-    it.q = "Some side lengths are missing. Use the products to find them, and the empty piece.";
+    const colP = P.find(p => p.i === mi && p.j === 0), rowP = P.find(p => p.i === 0 && p.j === mj);
+    it.q = "What number goes in the empty piece?";
+    it.steps = [ step("num", { cat:"backwards", fields:[ field("Empty piece =", empty.w * empty.h, { piece:empty.gk }) ],
+      why:() => `The missing width is ${eqS(`${fmt(colP.w * colP.h)} ÷ ${fmt(colP.h)} = ${fmt(colP.w)}`)} and the missing height is ${eqS(`${fmt(rowP.w * rowP.h)} ÷ ${fmt(rowP.w)} = ${fmt(rowP.h)}`)}, so the empty piece is ${eqS(`${fmt(empty.w)} ${X} ${fmt(empty.h)} = ${fmt(empty.w * empty.h)}`)}.` }) ];
   } else {
-    it.py.forEach((v, j) => { it.missY.add(j); fields.push({ lab:it.py.length > 1 ? (j === 0 ? "The top height" : "The bottom height") : "The missing height", ans:v, side:{ axis:"y", idx:j } }); });
+    it.missY.add(0);
     P.forEach(p => it.given.set(p.gk, p.w * p.h));
-    it.q = "The products are written in the pieces. Find the missing heights down the left.";
+    const p0 = P[0];
+    it.q = "What is the missing height?";
+    it.steps = [ step("num", { cat:"backwards", fields:[ field("Height =", H, { side:{ axis:"y", idx:0 } }) ],
+      why:() => `${eqS(`${fmt(p0.w * p0.h)} ÷ ${fmt(p0.w)} = ${fmt(H)}`)} — every piece in the row has the same height.` }) ];
   }
-  it.sub = "Each product is width times height, so divide a product by the side you know.";
-  it.steps = [
-    step("num", { cat:"backwards", title:"The missing numbers", fields,
-      why:() => fields.map(f => `${f.lab.toLowerCase()} is ${fmt(f.ans)}`).join(", ") }),
-    step("num", { cat:"area", title:"Now the whole multiplication", inline:true,
-      fields:[{ ans:W, lab:"width" }, { ans:H, lab:"height" }, { ans:W * H, lab:"product" }],
-      why:() => `${eqWH(W, H)} = ${plus(livePieces(it).map(p => p.w * p.h))} = ${fmt(W * H)}` })
-  ];
   return it;
 }
-/* D — spot the mistake */
+/* spot the mistake */
 const NAMES = ["Mia","Sam","Noah","Zara","Kai","Lily","Jai","Ava","Leo","Ruby","Omar","Tia"];
 function qMistake(level, size){
   const [W, H] = dims(size, (W, H) => pv(W).length > 1 && pv(H).length > 1);
   const it = base(level, W, H, { px:pv(W), py:pv(H) });
   const P = livePieces(it), name = pick(NAMES);
-  let used, missingTxt;
-  if(P.length === 4 && Math.random() < .65){
-    used = P.filter(p => p.i === p.j);                     // the classic: tens × tens, ones × ones
-  } else {
-    const drop = pick(P); used = P.filter(p => p !== drop);
-  }
+  let used;
+  if(P.length === 4 && Math.random() < .65) used = P.filter(p => p.i === p.j);   // the classic: tens × tens, ones × ones
+  else { const drop = pick(P); used = P.filter(p => p !== drop); }
   const missing = P.filter(p => !used.includes(p));
-  const pw = p => `${fmt(p.w)} ${X} ${fmt(p.h)}`;
-  missingTxt = missing.length === 1 ? `the piece ${eqS(pw(missing[0]))}` : `the pieces ${missing.map(p => eqS(pw(p))).join(" and ")}`;
+  const pw = p => eqS(`${fmt(p.w)} ${X} ${fmt(p.h)}`);
   const usedTot = sum(used.map(p => p.w * p.h));
   it.q = `${name} worked out ${eqWH(W, H)} like this:`;
-  it.working = `${used.map(pw).join(" + ")} = ${plus(used.map(p => p.w * p.h))} = ${fmt(usedTot)}`;
-  it.sub = `Compare ${name}’s working with the pieces of the area model.`;
-  const wrongPiece = pick(used);
-  const opts = shuffle([
-    { h:`${name} left out ${missingTxt}.`, ok:true },
-    { h:`${name} left out the piece ${eqS(pw(wrongPiece))}.`, ok:false },
-    { h:`Nothing — ${fmt(usedTot)} is right.`, ok:false },
-    { h:`${name} should add ${fmt(W)} + ${fmt(H)} on as well.`, ok:false }
-  ]);
-  it.steps = [
-    step("mc", { cat:"reasoning", title:`What went wrong?`, opts,
-      why:() => `The area model has ${P.length} pieces, and every piece is part of ${eqWH(W, H)}. ${name} only used ${used.length} of them.` }),
-    totalStep(W, H, { title:"What is the right answer?", why:() => `${plus(P.map(p => p.w * p.h))} = ${fmt(W * H)}` })
-  ];
+  it.working = `${used.map(p => `${fmt(p.w)} ${X} ${fmt(p.h)}`).join(" + ")} = ${fmt(usedTot)}`;
+  it.ask = `What did ${name} leave out?`;
+  const sh = shuffle(used);
+  const opts = [{ h:missing.map(pw).join(" and "), ok:true }];
+  if(missing.length > 1) opts.push({ h:pw(missing[0]), ok:false });
+  else opts.push({ h:pw(sh[1]), ok:false });
+  opts.push({ h:pw(sh[0]), ok:false });
+  opts.push({ h:`Nothing — ${fmt(usedTot)} is right`, ok:false });
+  it.steps = [ step("mc", { cat:"reasoning", opts:shuffle(opts),
+    why:() => `The model has ${P.length} pieces and ${name} used ${used.length}. All of them: ${eqS(`${plus(P.map(p => p.w * p.h))} = ${fmt(W * H)}`)}.` }) ];
   return it;
 }
-/* E — which of these is NOT equal (the model is free to test each one) */
+/* which of these is NOT equal (the model is free to test each one) */
 function qNotEqual(level, size){
   const [W, H] = dims(size, (W, H) => pv(W).length === 2 && pv(H).length === 2);
   const it = base(level, W, H, { explore:true });
   const [a1, a2] = pv(W), [b1, b2] = pv(H), [c1, c2] = alt2(W);
-  const t = (s) => eqS(s);
   const opts = shuffle([
-    { h:t(`${a1} ${X} ${b1} + ${a2} ${X} ${b1} + ${a1} ${X} ${b2} + ${a2} ${X} ${b2}`), ok:false },
-    { h:t(`${c1} ${X} ${H} + ${c2} ${X} ${H}`), ok:false },
-    { h:t(`${W} ${X} ${b1} + ${W} ${X} ${b2}`), ok:false },
-    { h:t(`${a1} ${X} ${b1} + ${a2} ${X} ${b2}`), ok:true }
+    { h:eqS(`${a1} ${X} ${b1} + ${a2} ${X} ${b1} + ${a1} ${X} ${b2} + ${a2} ${X} ${b2}`), ok:false },
+    { h:eqS(`${c1} ${X} ${H} + ${c2} ${X} ${H}`), ok:false },
+    { h:eqS(`${W} ${X} ${b1} + ${W} ${X} ${b2}`), ok:false },
+    { h:eqS(`${a1} ${X} ${b1} + ${a2} ${X} ${b2}`), ok:true }
   ]);
-  it.q = `Three of these work out ${eqWH(W, H)}. Which one does NOT?`;
-  it.sub = "Try each split on the area model if it helps.";
-  it.steps = [ step("mc", { cat:"reasoning", title:"Which one is NOT equal?", opts,
-    why:() => `${eqS(`${a1} ${X} ${b1} + ${a2} ${X} ${b2}`)} only uses two of the four pieces — it leaves out ${eqS(`${a2} ${X} ${b1}`)} and ${eqS(`${a1} ${X} ${b2}`)}.` }) ];
+  it.q = `Which one is NOT equal to ${eqWH(W, H)}?`;
+  it.steps = [ step("mc", { cat:"reasoning", opts,
+    why:() => `${eqS(`${a1} ${X} ${b1} + ${a2} ${X} ${b2}`)} leaves out two pieces: ${eqS(`${a2} ${X} ${b1}`)} and ${eqS(`${a1} ${X} ${b2}`)}.` }) ];
   return it;
 }
-/* F — cut-out shapes */
-function qCut(level, size, notch){
+/* cut-out shapes: ask = "area" | "perim" | "compare" */
+function qCut(level, size, notch, ask){
   for(let a = 0; a < 80; a++){
     const [W, H] = dims(size, (W, H) => W >= 10 && (!notch || pv(W).length >= 3));
     const px = pv(W).length > 1 ? pv(W) : alt2(W), py = pv(H).length > 1 ? pv(H) : alt2(H);
@@ -273,104 +255,78 @@ function qCut(level, size, notch){
     if(!removalOK(it)) continue;
     const gone = pieces(it).list.filter(p => p.removed)[0];
     const A = areaOf(it), B = boundary(it), whole = 2 * (W + H);
-    it.q = `A piece has been cut out of a ${fmt(W)} by ${fmt(H)} rectangle.`;
-    const areaWhy = () => `${fmt(W * H)} − ${fmt(gone.w * gone.h)} = ${fmt(A)} (the whole rectangle take away the cut-out piece), or add the pieces that are left: ${plus(livePieces(it).map(p => p.w * p.h))}.`;
-    if(!BOTH){
-      it.sub = "Find the area of the whole rectangle, then the area of the shape that is left.";
-      it.steps = [
-        totalStep(W, H, { title:"The whole rectangle", why:() => `${plus(pieces(it).list.map(p => p.w * p.h))} = ${fmt(W * H)}` }),
-        step("num", { cat:"composite", title:"The shape that is left", fields:[{ lab:"Area of the shape =", ans:A }], why:areaWhy })
-      ];
-    } else {
-      it.sub = "Find its area and its perimeter, then compare with the whole rectangle.";
+    if(ask === "perim"){
+      it.q = "Find the perimeter of the shape.";
+      it.steps = [ step("num", { cat:"perimeter", view:"perim", fields:[ field("Perimeter =", B.total) ],
+        why:() => eqS(`${plus(B.segs.map(s => s.len))} = ${fmt(B.total)}`) }) ];
+    } else if(ask === "compare"){
       const same = B.total === whole, longer = B.total > whole;
-      it.steps = [
-        step("num", { cat:"composite", title:"Area of the shape", fields:[{ lab:"Area =", ans:A }], why:areaWhy }),
-        step("num", { cat:"perimeter", view:"perim", title:"Perimeter of the shape", fields:[{ lab:"Perimeter =", ans:B.total }],
-          why:() => `${plus(B.segs.map(s => s.len))} = ${fmt(B.total)}` }),
-        step("mc", { cat:"reasoning", view:"perim", title:`The whole rectangle’s perimeter is ${fmt(whole)}. The shape’s perimeter is…`,
-          opts:[{ h:"the same", ok:same }, { h:"longer", ok:longer }, { h:"shorter", ok:!same && !longer }],
-          why:() => same ? "The same: cutting out a corner moves two edges inwards without changing their lengths." : `Longer by ${fmt(B.total - whole)}: the notch adds its two inside edges.` })
-      ];
+      it.q = "A piece has been cut out. Compared with the whole rectangle, the perimeter of the shape is…";
+      it.steps = [ step("mc", { cat:"reasoning", view:"perim",
+        opts:[{ h:"the same", ok:same }, { h:"longer", ok:longer }, { h:"shorter", ok:!same && !longer }],
+        why:() => same ? "The same — cutting out a corner moves two edges inwards without changing their lengths."
+                       : `Longer, by ${fmt(B.total - whole)} — the notch adds its two inside edges.` }) ];
+    } else {
+      it.q = "Find the area of the shape.";
+      it.steps = [ step("num", { cat:"composite", fields:[ field("Area =", A) ],
+        why:() => `The whole rectangle take away the cut-out piece: ${eqS(`${fmt(W * H)} − ${fmt(gone.w * gone.h)} = ${fmt(A)}`)}` }) ];
     }
     return it;
   }
   throw new Error("no cut shape");
 }
-/* G — perimeter: tens and ones */
-function qPerimPV(level, size){
-  const [W, H] = dims(size);
-  const it = base(level, W, H, { px:pv(W), py:pv(H) });
-  const B = boundary(it), rows = pvRows(B.segs);
-  it.q = `Find the perimeter of this ${fmt(W)} by ${fmt(H)} rectangle.`;
-  it.sub = "The splits break every edge into tens and ones. Add all the tens, then all the ones.";
-  const fields = rows.map(r => ({ lab:`All the ${r.name.toLowerCase()} =`, ans:r.total }));
-  fields.push({ lab:"Perimeter =", ans:B.total });
-  it.steps = [ step("num", { cat:"perimeter", view:"perim", title:"Add the edges", fields,
-    why:() => rows.map(r => `${r.name.toLowerCase()} ${plus(r.v)} = ${fmt(r.total)}`).join("; ") + `; together ${plus(rows.map(r => r.total))} = ${fmt(B.total)}` }) ];
+/* perimeter: split = "pv" (tens and ones) | "none" | "ten" (make a ten) */
+function qPerim(level, size, split){
+  const test = split === "ten" ? (W, H) => { const a = W % 10; return a >= 2 && a <= 8 && H > 10 - a; } : null;
+  const [W, H] = dims(size, test);
+  const it = base(level, W, H, { explore:true });
+  let why;
+  if(split === "pv"){
+    it.px = pv(W); it.py = pv(H);
+    const rows = pvRows(boundary(it).segs);
+    why = () => rows.map(r => `${r.name.toLowerCase()} ${eqS(`${plus(r.v)} = ${fmt(r.total)}`)}`).join(", ") + `; together ${eqS(`${plus(rows.map(r => r.total))} = ${fmt(2 * (W + H))}`)}`;
+  } else if(split === "ten"){
+    const p = 10 - W % 10; it.py = [p, H - p];
+    why = () => `Make a ten: ${eqS(`${fmt(W)} + ${p} = ${fmt(W + p)}`)}, twice is ${eqS(fmt(2 * (W + p)))}. The rest: ${eqS(`${fmt(H - p)} + ${fmt(H - p)} = ${fmt(2 * (H - p))}`)}. Together ${eqS(`${fmt(2 * (W + p))} + ${fmt(2 * (H - p))} = ${fmt(2 * (W + H))}`)}.`;
+  } else {
+    why = () => `Half way round is ${eqS(`${fmt(W)} + ${fmt(H)} = ${fmt(W + H)}`)}, and double that is ${eqS(fmt(2 * (W + H)))}.`;
+  }
+  it.q = "Find the perimeter of the rectangle.";
+  it.steps = [ step("num", { cat:"perimeter", view:"perim", fields:[ field("Perimeter =", 2 * (W + H)) ], why }) ];
   return it;
 }
-/* H — perimeter: double the half */
-function qPerimHalf(level, size){
-  const [W, H] = dims(size);
-  const it = base(level, W, H, { px:pv(W), py:pv(H) });
-  it.q = `Find the perimeter of this ${fmt(W)} by ${fmt(H)} rectangle.`;
-  it.sub = "Opposite sides match, so add half way round (the top and the right side), then double it.";
-  it.steps = [ step("num", { cat:"perimeter", view:"perim", title:"Half way round, then double", fields:[
-      { lab:"Half way round =", ans:W + H }, { lab:"Perimeter =", ans:2 * (W + H) } ],
-    why:() => `${plus(it.px.concat(it.py))} = ${fmt(W + H)}, and ${fmt(W + H)} + ${fmt(W + H)} = ${fmt(2 * (W + H))}` }) ];
-  return it;
-}
-/* I — perimeter: make a ten (a non-standard split) */
-function qMakeTen(level, size){
-  const [W, H] = dims(size, (W, H) => { const a = W % 10; return a >= 2 && a <= 8 && H > 10 - a; });
-  const p = 10 - W % 10;
-  const it = base(level, W, H, { px:[W], py:[p, H - p] });
-  it.q = `Find the perimeter of this ${fmt(W)} by ${fmt(H)} rectangle.`;
-  it.sub = `The side of ${fmt(H)} is split into ${p} + ${fmt(H - p)}, so the ${p} makes a ten with the top.`;
-  it.steps = [ step("num", { cat:"perimeter", view:"perim", title:"Make a ten, then add", fields:[
-      { lab:`${eqS(`${fmt(W)} + ${p}`)} =`, ans:W + p }, { lab:"Perimeter =", ans:2 * (W + H) } ],
-    why:() => `${fmt(W)} + ${p} = ${fmt(W + p)} twice is ${fmt(2 * (W + p))}, then ${fmt(H - p)} + ${fmt(H - p)} = ${fmt(2 * (H - p))}: ${fmt(2 * (W + p))} + ${fmt(2 * (H - p))} = ${fmt(2 * (W + H))}` }) ];
-  return it;
-}
-/* J — area and perimeter of the same rectangle, free model */
+/* area and perimeter of the same rectangle */
 function qAreaPerim(level, size){
   const [W, H] = dims(size);
   const it = base(level, W, H, { explore:true });
-  it.q = `Find the area and the perimeter of a ${fmt(W)} by ${fmt(H)} rectangle.`;
-  it.sub = "Split the area model any way that helps.";
-  it.steps = [
-    totalStep(W, H, { title:"The area", fields:[{ lab:`Area = ${eqWH(W, H)} =`, ans:W * H }],
-      why:() => { const a = pv(W), b = pv(H), P = []; b.forEach(y => a.forEach(x => P.push(x * y))); return `For example: ${plus(P)} = ${fmt(W * H)}`; } }),
-    step("num", { cat:"perimeter", view:"perim", title:"The perimeter", fields:[{ lab:"Perimeter =", ans:2 * (W + H) }],
-      why:() => `${fmt(W)} + ${fmt(H)} + ${fmt(W)} + ${fmt(H)} = ${fmt(2 * (W + H))}` })
-  ];
+  it.q = "Find the area and the perimeter.";
+  it.steps = [ step("num", { cats:["area", "perimeter"], fields:[ field("Area =", W * H), field("Perimeter =", 2 * (W + H)) ],
+    why:() => `Area: ${pvWorking(W, H)}. Perimeter: ${eqS(`${fmt(W)} + ${fmt(H)} + ${fmt(W)} + ${fmt(H)} = ${fmt(2 * (W + H))}`)}.` }) ];
   return it;
 }
 
 /* ---------------------------------------------------------- the four papers */
 const LEVELS = {
-  sweet:  { name:"Sweet",  ico:"\u{1F36C}", d:BOTH ? "The splits are drawn for you: find each piece and add them, and add the edges for the perimeter. Smaller rectangles with unit squares." : "The splits are drawn for you. Find the area of each piece, then add them up." },
-  mild:   { name:"Mild",   ico:"\u{1F343}", d:BOTH ? "Split the rectangle yourself, any way you like. Perimeter by doubling the half and by making a ten." : "Split the rectangle yourself, any way you like, then multiply each piece and add. Spot a classic mistake." },
-  medium: { name:"Medium", ico:"\u{1F336}️", d:BOTH ? "Cut-out shapes (is the perimeter the same?), missing numbers, three-digit sides." : "Three-digit numbers, missing numbers from the products, and spotting mistakes." },
-  spicy:  { name:"Spicy",  ico:"\u{1F525}", d:BOTH ? "Three-digit by two-digit, notched shapes, making a ten and reasoning." : "Three-digit by two-digit with a free model, cut-out shapes and reasoning about splits." }
+  sweet:  { name:"Sweet",  ico:"\u{1F36C}", d:BOTH ? "Area and perimeter of smaller rectangles. The model is split for you." : "Two-digit by one-digit, up to two-digit by two-digit. The model is split for you." },
+  mild:   { name:"Mild",   ico:"\u{1F343}", d:BOTH ? "Bigger rectangles. Split the model any way that helps." : "Split the model yourself if it helps. Spot a classic mistake." },
+  medium: { name:"Medium", ico:"\u{1F336}️", d:BOTH ? "Cut-out shapes, missing numbers and three-digit sides." : "Three-digit numbers and missing numbers." },
+  spicy:  { name:"Spicy",  ico:"\u{1F525}", d:BOTH ? "Three-digit by two-digit, notched shapes and reasoning." : "Three-digit by two-digit, cut-out shapes and reasoning." }
 };
 const ORDER = ["sweet","mild","medium","spicy"];
 function buildPaper(level){
   USED = new Set();
-  let items;
+  const L0 = level;
+  const M = (s, d) => qMul(L0, s, d), PR = (s, k) => qPerim(L0, s, k);
   if(!BOTH){
-    if(level === "sweet") items = [qPieces(level,"t1"), qPieces(level,"t1"), qPieces(level,"t1"), qPieces(level,"21"), qPieces(level,"21"), qPieces(level,"21"), qPieces(level,"tt"), qPieces(level,"tt"), qPieces(level,"tt"), qPieces(level,"22")];
-    else if(level === "mild") items = [qOwn(level,"21"), qOwn(level,"21"), qOwn(level,"tt"), qOwn(level,"tt"), qOwn(level,"22"), qOwn(level,"22"), qMistake(level,"22"), qOwn(level,"22"), qPieces(level,"31"), qOwn(level,"22")];
-    else if(level === "medium") items = [qOwn(level,"31"), qOwn(level,"31"), qMissing(level,"22"), qMissing(level,"22"), qTotal(level,"22"), qMistake(level,"22"), qOwn(level,"32"), qMissing(level,"tt", true), qOwn(level,"32"), qTotal(level,"31")];
-    else items = [qTotal(level,"32"), qTotal(level,"32"), qCut(level,"22"), qNotEqual(level,"22"), qMissing(level,"32", true), qCut(level,"32"), qMistake(level,"32"), qTotal(level,"32"), qNotEqual(level,"22"), qCut(level,"31", true)];
-  } else {
-    if(level === "sweet") items = [qPieces(level,"t1"), qPerimPV(level,"t1"), qPieces(level,"t1"), qPerimPV(level,"tt"), qPieces(level,"tt"), qPerimHalf(level,"tt"), qAreaPerim(level,"t1"), qPerimPV(level,"tt"), qPieces(level,"tt"), qAreaPerim(level,"tt")];
-    else if(level === "mild") items = [qOwn(level,"21"), qMakeTen(level,"21"), qOwn(level,"tt"), qPerimHalf(level,"22"), qOwn(level,"22"), qMakeTen(level,"22"), qPerimPV(level,"22"), qOwn(level,"22"), qAreaPerim(level,"22"), qMakeTen(level,"22")];
-    else if(level === "medium") items = [qCut(level,"22"), qMissing(level,"22"), qPerimPV(level,"31"), qCut(level,"tt"), qOwn(level,"31"), qMistake(level,"22"), qCut(level,"31", true), qPerimHalf(level,"31"), qMakeTen(level,"22"), qAreaPerim(level,"22")];
-    else items = [qAreaPerim(level,"32"), qCut(level,"32", true), qMakeTen(level,"31"), qMissing(level,"22", true), qNotEqual(level,"22"), qCut(level,"32"), qPerimPV(level,"32"), qMistake(level,"32"), qCut(level,"31", true), qAreaPerim(level,"32")];
+    if(level === "sweet") return [M("t1",1), M("t1",1), M("t1",1), M("21",1), M("21",1), M("21",1), M("tt",1), M("tt",1), M("tt",1), M("22",1)];
+    if(level === "mild") return [M("21"), M("21"), M("tt"), M("tt"), M("22"), M("22"), qMistake(L0,"22"), M("22"), M("31",1), M("22")];
+    if(level === "medium") return [M("31"), M("31"), qMissing(L0,"22"), qMissing(L0,"22"), M("22"), qMistake(L0,"22"), M("32"), qMissing(L0,"tt",true), M("32"), M("31")];
+    return [M("32"), M("32"), qCut(L0,"22",false,"area"), qNotEqual(L0,"22"), qMissing(L0,"32",true), qCut(L0,"32",false,"area"), qMistake(L0,"32"), M("32"), qNotEqual(L0,"22"), qCut(L0,"31",true,"area")];
   }
-  return items;
+  if(level === "sweet") return [M("t1",1), PR("t1","pv"), M("t1",1), PR("tt","pv"), M("tt",1), PR("tt","none"), qAreaPerim(L0,"t1"), PR("tt","pv"), M("tt",1), qAreaPerim(L0,"tt")];
+  if(level === "mild") return [M("21"), PR("21","ten"), M("tt"), PR("22","none"), M("22"), PR("22","ten"), PR("22","pv"), M("22"), qAreaPerim(L0,"22"), PR("22","ten")];
+  if(level === "medium") return [qCut(L0,"22",false,"area"), qMissing(L0,"22"), PR("31","pv"), qCut(L0,"tt",false,"perim"), M("31"), qMistake(L0,"22"), qCut(L0,"22",false,"compare"), PR("31","none"), PR("22","ten"), qAreaPerim(L0,"22")];
+  return [qAreaPerim(L0,"32"), qCut(L0,"32",true,"perim"), PR("31","ten"), qMissing(L0,"22",true), qNotEqual(L0,"22"), qCut(L0,"32",false,"area"), PR("32","pv"), qMistake(L0,"32"), qCut(L0,"31",true,"compare"), qAreaPerim(L0,"32")];
 }
 
 /* =====================================================================
@@ -388,7 +344,7 @@ function markStep(it, s){
     return { ok, marks, fix:ok ? null : "Each piece is width " + X + " height: " + wrong.map(p => eqS(`${fmt(p.w)} ${X} ${fmt(p.h)} = ${fmt(p.w * p.h)}`)).join(", ") + "." };
   }
   if(s.t === "num"){
-    if(s.fields.some((f, i) => empty(s.vals[i]))) return { invalid:"Fill in every box first." };
+    if(s.fields.some((f, i) => empty(s.vals[i]))) return { invalid:s.fields.length > 1 ? "Fill in both answers first." : "Type your answer first." };
     const marks = s.fields.map((f, i) => num(s.vals[i]) === f.ans);
     const ok = marks.every(Boolean);
     return { ok, marks, fix:ok ? null : s.why() };
@@ -407,11 +363,6 @@ const S = { levelKey:null, items:[], i:0, hl:null };
 const cur = () => S.items[S.i];
 const lv = () => LEVELS[S.levelKey];
 const curStepIndex = it => { const k = it.steps.findIndex(s => s.first === null); return k < 0 ? it.steps.length - 1 : k; };
-function setPrompt(msg, kind){
-  const p = $("promptBar"); p.className = "promptBar" + (kind ? " " + kind : "");
-  $("promptIco").textContent = kind === "good" ? "✅" : kind === "bad" ? "\u{1F50E}" : kind === "warn" ? "✋" : "\u{1F4AD}";
-  $("promptText").innerHTML = msg;
-}
 const PAL = ["#dbeafe","#fef3c7","#dcfce7","#ffe4e6","#ede9fe","#ccfbf1","#ffedd5","#e0e7ff"];
 const PALMID = ["#93c5fd","#fcd34d","#86efac","#fda4af","#c4b5fd","#5eead4","#fdba74","#a5b4fc"];
 const INK = ["#1e40af","#92400e","#166534","#9f1239","#5b21b6","#115e59","#9a3412","#3730a3"];
@@ -419,151 +370,116 @@ function colourIndex(it){
   const m = new Map(); pieces(it).list.forEach(p => { const k = p.w + "x" + p.h; if(!m.has(k)) m.set(k, m.size); p.c = m.get(k); });
   return m;
 }
-function pieceColour(it, p){ const m = colourIndex(it); return m.get(p.w + "x" + p.h) % PAL.length; }
 
-function stepBody(it, s, k){
-  const locked = s.last;
-  if(s.t === "prods"){
-    const P = livePieces(it);
-    if(s.own && P.length < 2 && s.first === null)
-      return `<div class="waitNote">→ Split the rectangle on the area model: click the ruler along the top or the left edge (it snaps to whole numbers and to tens). Make parts that are easy to multiply. The pieces you make appear here.</div>`;
-    return `<div class="prodGrid">` + P.map(p => {
-      const ci = pieceColour(it, p), m = s.marks && s.marks[p.gk] !== undefined ? (s.marks[p.gk] ? " right" : " wrong") : "";
-      const v = s.vals[p.gk] == null ? "" : s.vals[p.gk];
-      return `<label class="prodRow" data-gk="${p.gk}"><span class="sw" style="background:${PALMID[ci]}"></span><span class="m"><span class="cx">${fmt(p.w)}</span> ${X} <span class="cy">${fmt(p.h)}</span> =</span>`
-        + `<input class="cell${m}" data-k="${k}" data-gk="${p.gk}" inputmode="numeric" autocomplete="off" value="${esc(v)}"${locked ? " readonly" : ""} aria-label="${p.w} times ${p.h}"></label>`;
-    }).join("") + `</div>`;
-  }
+/* the one line under the answer: a quiet pointer to the model before
+   marking, the feedback after it */
+const stacked = () => window.innerWidth <= 980;
+function hintHTML(it){
+  const verb = editable(it) && !it.settled ? "Split" : "Use";
+  return `<span class="hIco" aria-hidden="true">${stacked() ? "↓" : "→"}</span><span>${verb} the ${BOTH ? "model" : "area model"} if it helps</span>`;
+}
+function setPrompt(msg, kind){
+  const f = $("fb"); if(!f) return;
+  f.className = "fb" + (kind ? " " + kind : "");
+  f.innerHTML = msg;
+}
+function feedback(it){
+  const s = it.steps[0];
+  if(s.first === null) return setPrompt(hintHTML(it), "hint");
+  if(s.skipped) return setPrompt(`<b>Skipped.</b> ${s.why()}`, "bad");
+  if(s.first) return setPrompt(`<b>✓ Right first time!</b>`, "good");
+  if(s.last) return setPrompt(`<b>✓ Fixed — well done.</b>`, "fixed");
+  setPrompt(`<b>Not quite.</b> ${s.fixText || s.why()}`, "bad");
+}
+
+function answerHTML(it, s){
+  const locked = s.last || s.skipped;
   if(s.t === "num"){
-    const box = (f, i) => {
+    return `<div class="answers">` + s.fields.map((f, i) => {
       const m = s.marks ? (s.marks[i] ? " right" : " wrong") : "";
       const v = s.vals[i] == null ? "" : s.vals[i];
-      return `<input class="cell${s.inline ? " sm" : ""}${m}" data-k="${k}" data-i="${i}" inputmode="numeric" autocomplete="off" value="${esc(v)}"${locked ? " readonly" : ""} aria-label="${esc((f.lab || "").replace(/<[^>]+>/g, ""))}">`;
-    };
-    if(s.inline) return `<div class="fieldInline">${box(s.fields[0], 0)}<span>${X}</span>${box(s.fields[1], 1)}<span>=</span>${box(s.fields[2], 2)}</div>`;
-    return `<div class="fieldRows">` + s.fields.map((f, i) => `<label class="fieldRow"><span class="lab">${f.lab}</span>${box(f, i)}</label>`).join("") + `</div>`;
-  }
-  if(s.t === "mc"){
-    return `<div class="mcList">` + s.opts.map((o, i) => {
-      const st = s.marks && s.marks[i] !== null && s.marks[i] !== undefined ? (s.marks[i] ? " right" : " wrong") : "";
-      const show = s.last && o.ok ? " right" : "";
-      return `<button class="mcOpt${s.sel === i ? " on" : ""}${st || show}" type="button" data-k="${k}" data-opt="${i}"${locked ? " disabled" : ""}><span class="key">${"ABCD"[i]}</span><span>${o.h}</span></button>`;
+      return `<label class="ansRow${f.big ? " big" : ""}"><span class="lab">${f.lab}</span>`
+        + `<input class="cell ans${m}" data-k="0" data-i="${i}" inputmode="numeric" autocomplete="off" value="${esc(v)}"${locked ? " readonly" : ""} aria-label="${esc(String(f.lab).replace(/<[^>]+>/g, ""))}"></label>`;
     }).join("") + `</div>`;
   }
-  return "";
-}
-/* a part that is right folds to one line, so the card stays short */
-function doneLine(it, s){
-  if(s.t === "prods") return livePieces(it).map(p => eqS(`${fmt(p.w)} ${X} ${fmt(p.h)} = ${esc(String(s.vals[p.gk]).trim())}`)).join(" &nbsp;&middot;&nbsp; ");
-  if(s.t === "num"){
-    const v = i => esc(String(s.vals[i] == null ? "" : s.vals[i]).trim());
-    if(s.inline) return eqS(`${v(0)} ${X} ${v(1)} = ${v(2)}`);
-    return s.fields.map((f, i) => `${f.lab} <b class="eq">${v(i)}</b>`).join(" &nbsp;&middot;&nbsp; ");
-  }
-  if(s.t === "mc") return s.opts[s.sel] ? s.opts[s.sel].h : "";
-  return "";
+  return `<div class="mcList">` + s.opts.map((o, i) => {
+    const st = s.marks && s.marks[i] !== null && s.marks[i] !== undefined ? (s.marks[i] ? " right" : " wrong") : "";
+    const show = (s.last || s.skipped) && o.ok ? " right" : "";
+    return `<button class="mcOpt${s.sel === i ? " on" : ""}${st || show}" type="button" data-k="0" data-opt="${i}"${locked ? " disabled" : ""}><span class="key">${"ABCD"[i]}</span><span>${o.h}</span></button>`;
+  }).join("") + `</div>`;
 }
 function paint(){
   const it = cur(); if(!it) return;
   $("qCounter").textContent = `Question ${S.i + 1} / ${S.items.length}`;
   $("progressFill").style.width = (S.items.filter(x => x.settled).length / S.items.length * 100) + "%";
-  const ck = curStepIndex(it);
-  let h = `<div class="qText">${it.q}</div>`;
-  if(it.working) h += `<div class="working">${it.working}</div>`;
-  if(it.sub) h += `<div class="qSub">${it.sub}</div>`;
-  it.steps.forEach((s, k) => {
-    if(k > ck) return;                                  // the next part appears once this one is checked
-    const st = s.first === null ? (k === ck ? " current" : "") : (s.last ? " ok" : " no");
-    const mark = s.first === null ? "" : (s.first ? "✓ Right first time" : s.last ? "Fixed — well done" : "Not quite");
-    const fold = s.last && (k < ck || it.settled);
-    h += `<div class="part${st}${fold ? " folded" : ""}" data-step="${k}"><div class="stepHead"><span class="stepNum">${it.steps.length > 1 ? k + 1 : "✓"}</span><span class="stepTitle">${s.title}</span><span class="stepMark">${mark}</span></div>`;
-    h += fold ? `<div class="doneLine">${doneLine(it, s)}</div>` : stepBody(it, s, k);
-    if(s.first !== null && s.fixText && !s.last) h += `<div class="fix">${s.fixText}</div>`;
-    h += (s.last ? "" : `<div class="checkRow"><button class="checkBtn" type="button" data-check="${k}">${s.first === null ? "Check" : "Check again"}</button></div>`) + `</div>`;
-  });
+  const s = it.steps[0];
+  let h = `<div class="qBody">`;
+  if(it.q) h += `<div class="qText">${it.q}</div>`;
+  if(it.working) h += `<div class="working">${eqS(it.working)}</div>`;
+  if(it.ask) h += `<div class="qText">${it.ask}</div>`;
+  h += answerHTML(it, s);
+  h += `<div class="checkRow">` + (s.last || s.skipped ? "" : `<button class="checkBtn" type="button" data-check="0">${s.first === null ? "Check" : "Check again"}</button>`) + `</div>`;
+  h += `<div class="fb" id="fb" aria-live="polite"></div></div>`;
   $("qCard").innerHTML = h;
+  feedback(it);
   bindCard();
-  drawBoard();                 /* sets the note under the board, which can wrap to two lines… */
-  if(fitBoard()) drawBoard();  /* …so the board is sized after it, and redrawn if that moved it */
-  keepInView();
+  drawBoard();
+  if(fitBoard()) drawBoard();
   $("prevBtn").disabled = S.i === 0;
   $("nextBtn").innerHTML = S.i === S.items.length - 1 ? "Finish →" : "Next →";
-  if(!it.settled){
-    const s = it.steps[ck];
-    if(s.t === "prods" && s.own && livePieces(it).length < 2) setPrompt("Split the rectangle on the area model, then fill in each piece.");
-    else setPrompt("Answer, then press Check (or Enter).");
-  } else setPrompt(it.correct ? "Well done — that one is finished." : "This one is marked. Look at the model, then move on.", it.correct ? "good" : "bad");
+  $("nextBtn").classList.toggle("ready", !!it.settled);
 }
 function bindCard(){
-  const card = $("qCard"), it = cur();
+  const card = $("qCard"), it = cur(), s = it.steps[0];
   card.querySelectorAll("input[data-k]").forEach(inp => {
-    const s = it.steps[+inp.dataset.k];
     inp.addEventListener("input", () => {
-      if(inp.dataset.gk) s.vals[inp.dataset.gk] = inp.value; else s.vals[+inp.dataset.i] = inp.value;
+      s.vals[+inp.dataset.i] = inp.value;
       inp.classList.remove("right", "wrong");
-      drawBoard();                                       // the board shows what is typed, as it is typed
+      const f = s.fields[+inp.dataset.i];
+      if(f.piece || f.side) drawBoard();               // a missing number shows on the model as it is typed
     });
-    inp.addEventListener("focus", () => { S.hl = inp.dataset.gk || null; drawBoard(); });
-    inp.addEventListener("blur", () => { S.hl = null; drawBoard(); });
     inp.addEventListener("keydown", e => {
       if(e.key !== "Enter") return;
       e.preventDefault();
-      const peers = [...card.querySelectorAll(`input[data-k="${inp.dataset.k}"]`)].filter(x => !x.readOnly);
+      const peers = [...card.querySelectorAll("input[data-k]")].filter(x => !x.readOnly);
       const at = peers.indexOf(inp);
       const nextEmpty = peers.slice(at + 1).find(x => empty(x.value)) || peers.slice(0, at).find(x => empty(x.value));
-      if(nextEmpty){ nextEmpty.focus(); nextEmpty.select(); return; }
-      check(+inp.dataset.k);
+      if(nextEmpty){ nextEmpty.focus(); return; }
+      check(0);
     });
   });
   card.querySelectorAll("[data-opt]").forEach(b => b.addEventListener("click", () => {
-    const s = it.steps[+b.dataset.k]; s.sel = +b.dataset.opt;
+    s.sel = +b.dataset.opt;
     b.parentNode.querySelectorAll(".mcOpt").forEach(x => x.classList.toggle("on", x === b));
   }));
-  card.querySelectorAll("[data-check]").forEach(b => b.addEventListener("click", () => check(+b.dataset.check)));
-  card.querySelectorAll(".prodRow").forEach(r => {
-    r.addEventListener("mouseenter", () => { S.hl = r.dataset.gk; drawBoard(); });
-    r.addEventListener("mouseleave", () => { if(!r.contains(document.activeElement)){ S.hl = null; drawBoard(); } });
-  });
+  card.querySelectorAll("[data-check]").forEach(b => b.addEventListener("click", () => check(0)));
 }
-function focusStep(k){
-  const els = [...$("qCard").querySelectorAll(`.part[data-step="${k}"] input:not([readonly]), .part[data-step="${k}"] .mcOpt:not(:disabled)`)];
-  const el = els.find(e => e.tagName !== "INPUT" || empty(e.value)) || els[0];
+function focusStep(){
+  const els = [...$("qCard").querySelectorAll("input[data-k]:not([readonly])")];
+  const el = els.find(e => empty(e.value)) || els[0];
   if(el && !("ontouchstart" in window)) el.focus({ preventScroll:true });
 }
 
 /* =====================================================================
-   CHECKING
+   CHECKING — only the FIRST check scores; "Check again" lets them fix it
    ===================================================================== */
-function check(k){
-  const it = cur(), s = it.steps[k];
-  if(k > curStepIndex(it) && s.first === null) return;
+function check(){
+  const it = cur(), s = it.steps[0];
+  if(s.last || s.skipped) return;
   const res = markStep(it, s);
   if(res.invalid){ setPrompt(res.invalid, "warn"); return; }
   s.marks = res.marks; s.last = res.ok; s.fixText = res.fix;
   if(s.first === null){
-    s.first = res.ok;                                    // ONLY the first check scores
-    if(s.t === "prods" && s.own) it.locked = true;       // the pieces that were marked are the pieces that stay
-    if(k === it.steps.length - 1){
-      it.settled = true;
-      it.correct = it.steps.every(x => x.first === true);
-      if(it.correct) confetti(1);
-      if(window.MMTSubmit && window.MMTSubmit.refresh) window.MMTSubmit.refresh();
-    } else if(res.ok) confetti(.4);
+    s.first = res.ok;
+    it.settled = true; it.correct = res.ok;
+    /* a wrong answer on a whole rectangle: the model splits itself by place value, so it shows the working */
+    if(!res.ok && it.explore && it.px.length < 2 && it.py.length < 2 && s.view !== "perim"){ it.px = pv(it.W); it.py = pv(it.H); }
+    if(res.ok) confetti(1);
+    if(window.MMTSubmit && window.MMTSubmit.refresh) window.MMTSubmit.refresh();
   }
   paint();
-  const ck = curStepIndex(it);
-  if(!res.ok){
-    const firstGo = s.first === false && !s.rechecked;
-    s.rechecked = true;
-    setPrompt(firstGo ? (k < it.steps.length - 1 ? "Not quite — see why, fix it if you like, and carry on." : "Not quite — see why, and fix it if you like.") : "Still not right — read the red box again.", "bad");
-    if(k < it.steps.length - 1) focusStep(ck);
-  } else if(!it.settled){
-    setPrompt("Right! On to the next part.", "good");
-    focusStep(ck);
-  } else {
-    setPrompt(it.correct ? "Right first time, every part!" : "Right now — well fixed.", it.correct ? "good" : "warn");
-    $("nextBtn").focus({ preventScroll:true });
-  }
+  if(res.ok) $("nextBtn").focus({ preventScroll:true });
+  else focusStep();
 }
 function next(){
   const it = cur();
@@ -572,7 +488,7 @@ function next(){
     it.settled = true; it.correct = false;
     if(window.MMTSubmit && window.MMTSubmit.refresh) window.MMTSubmit.refresh();
   }
-  if(S.i < S.items.length - 1){ S.i++; paint(); focusStep(curStepIndex(cur())); window.scrollTo({ top:0, behavior:reduceMotion ? "auto" : "smooth" }); }
+  if(S.i < S.items.length - 1){ S.i++; paint(); focusStep(); window.scrollTo({ top:0, behavior:reduceMotion ? "auto" : "smooth" }); }
   else finish();
 }
 
@@ -583,7 +499,7 @@ function next(){
    ===================================================================== */
 const svg = $("board");
 const editable = it => it.explore && !it.locked;
-function viewOf(it){ const s = it.steps[it.settled ? it.steps.length - 1 : curStepIndex(it)]; return s.view || "area"; }
+function viewOf(it){ if(it.viewPick && !it.missX.size && !it.missY.size) return it.viewPick; return it.steps[0].view || "area"; }
 const M_FULL = { L:104, T:92, R:58, B:48 }, M_COMPACT = { L:70, T:64, R:46, B:42 };
 function axisMap(tot, parts, start, len, open, minPx){
   if(!open) return { f:v => start + v * len / tot, inv:p => (p - start) * tot / len };
@@ -647,13 +563,12 @@ function drawBoard(){
   el("line", { x1:0, y1:0, x2:0, y2:8, stroke:"#fecdd3", "stroke-width":3 }, hatch);
   const gP = el("g", null, svg), gG = el("g", null, svg), gC = el("g", null, svg), gE = el("g", null, svg), gL = el("g", null, svg), gR = el("g", null, svg), gChip = el("g", null, svg);
   el("g", { id:"ghost" }, svg);
-  const ps = it.steps.find(s => s.t === "prods");
   /* pieces */
   P.list.forEach(p => {
     const x = X0(p.x0), y = Y0(p.y0), pw = X0(p.x0 + p.w) - x, ph = Y0(p.y0 + p.h) - y;
     if(p.removed){ el("rect", { x:x + 1.5, y:y + 1.5, width:Math.max(0, pw - 3), height:Math.max(0, ph - 3), fill:"url(#hatch)", stroke:"#fb7185", "stroke-width":1.5, "stroke-dasharray":"6 5" }, gP); return; }
     const ci = cmap.get(p.w + "x" + p.h) % PAL.length;
-    const has = it.given.has(p.gk) || (ps && !empty(ps.vals[p.gk])) || it.settled;
+    const has = it.given.has(p.gk) || it.settled;
     el("rect", { x, y, width:pw, height:ph, fill:area ? (has ? PALMID[ci] : PAL[ci]) : "#f8fafc", class:"piece" + (S.hl === p.gk ? " hl" : ""), "data-gk":p.gk }, gP);
   });
   if(showGrid){
@@ -675,18 +590,17 @@ function drawBoard(){
     let d = `M${X0(B.segs[0].x1)} ${Y0(B.segs[0].y1)}`; B.segs.forEach(s => { d += `L${X0(s.x2)} ${Y0(s.y2)}`; });
     el("path", { d:d + "Z", fill:"none", stroke:area ? "#1e293b" : (it.settled ? "#7c3aed" : "#a78bfa"), "stroke-width":area ? 3 : 6, "stroke-linejoin":"round" }, gE);
   }
-  /* inside the pieces: what is typed, given, or (once settled) the answer; else the multiplication */
+  /* inside the pieces: given products, a typed missing number, the answers once marked;
+     otherwise the multiplication, with a box to jot its product in when there is room */
+  const scr = [];
+  const jot = area && !it.settled && !it.given.size && P.list.filter(p => !p.removed).length >= 2;
   if(area) P.list.forEach(p => {
     if(p.removed) return;
     const x = X0(p.x0), y = Y0(p.y0), pw = X0(p.x0 + p.w) - x, ph = Y0(p.y0 + p.h) - y, cx = x + pw / 2, cy = y + ph / 2;
     const ci = cmap.get(p.w + "x" + p.h) % PAL.length;
     let val = null, col = INK[ci];
     if(it.given.has(p.gk)){ val = fmt(it.given.get(p.gk)); col = "#0f172a"; }
-    else if(ps && !empty(ps.vals[p.gk])){
-      val = ps.vals[p.gk].trim();
-      const m = ps.marks && ps.marks[p.gk];
-      col = m === true ? "#15803d" : m === false ? "#b91c1c" : "#1d4ed8";
-    } else {
+    else {
       const ef = it.steps.flatMap(s => s.fields || []).find(f => f.piece === p.gk);
       if(ef){ const s = it.steps.find(s => (s.fields || []).includes(ef)); const v = s.vals[s.fields.indexOf(ef)]; if(!empty(v)){ val = String(v).trim(); col = s.marks ? (s.marks[s.fields.indexOf(ef)] ? "#15803d" : "#b91c1c") : "#1d4ed8"; } }
       if(val == null && it.settled){ val = fmt(p.w * p.h); col = "#15803d"; }
@@ -699,11 +613,22 @@ function drawBoard(){
       const showM = fs2 >= 10 && ph > fs + fs2 * 1.7 + 6 && mult !== "?";
       if(fs >= 10) txt(gL, cx, cy + (showM ? fs2 * .62 : 0), val, fs, col);
       if(showM) txt(gL, cx, cy - fs * .55, mult, fs2, INK[ci], { opacity:.75 });
-    } else {
-      const fs = Math.min(26, ph * .3, (pw - 8) / (mult.length * .56));
-      if(fs >= 9.5) txt(gL, cx, cy, mult, fs, INK[ci], { opacity:.8 });
+      return;
     }
+    if(mult === "?"){ const fs = Math.min(34, ph * .4, pw * .5); if(fs >= 10) txt(gL, cx, cy, "?", fs, "#64748b"); return; }
+    const bh = clamp(ph * .34, 26, 36), bw = Math.min(112, pw - 14);
+    let fs = Math.min(24, ph * .26, (pw - 10) / (mult.length * .56));
+    if(jot && bw >= 46 && ph >= bh + 10){
+      const lab = fs >= 9.5 && ph >= bh + fs + 16;
+      const blockH = bh + (lab ? fs + 6 : 0), top = cy - blockH / 2;
+      if(lab) txt(gL, cx, top + fs / 2, mult, fs, INK[ci], { opacity:.85 });
+      scr.push({ p, x:cx - bw / 2, y:top + (lab ? fs + 6 : 0), w:bw, h:bh, ph:lab ? "" : mult });
+      return;
+    }
+    fs = Math.min(26, ph * .3, (pw - 8) / (mult.length * .56));
+    if(fs >= 9.5) txt(gL, cx, cy, mult, fs, INK[ci], { opacity:.8 });
   });
+  placeJots(it, scr);
   /* part sizes along the top and left; missing ones as boxes */
   const rT = L.top, rL = L.left, rR = L.left + L.rw, rB = L.top + L.rh;
   const sideField = (axis, idx) => { for(const s of it.steps) for(let i = 0; i < (s.fields || []).length; i++){ const f = s.fields[i]; if(f.side && f.side.axis === axis && f.side.idx === idx) return { s, i, f }; } return null; };
@@ -783,20 +708,48 @@ function drawBoard(){
     cutsOf(it.px).forEach((v, i) => handle("x", i, v));
     cutsOf(it.py).forEach((v, i) => handle("y", i, v));
   }
-  /* the panel's head and note */
-  $("viewTag").className = "viewTag " + (area ? "area" : "perim");
-  $("viewTag").textContent = area ? "Area model" : "Perimeter — every edge";
+  /* the panel's head: a label, or on the Area & Perimeter page an Area / Perimeter switch
+     (not when a side is missing — the perimeter view would show it) */
+  const vt = $("viewTag");
+  if(BOTH && !it.missX.size && !it.missY.size){
+    vt.className = "viewSeg";
+    vt.innerHTML = `<button type="button" data-v="area" class="${area ? "on" : ""}" aria-pressed="${area}">Area</button><button type="button" data-v="perim" class="${area ? "" : "on"}" aria-pressed="${!area}">Perimeter</button>`;
+  } else { vt.className = "viewTag area"; vt.textContent = "Area model"; }
   $("clearBtn").hidden = !ed;
   $("clearBtn").disabled = it.px.length < 2 && it.py.length < 2;
-  let note;
-  if(ed) note = it.px.length < 2 && it.py.length < 2 ? "Click the ruler along the top or the left edge to split a side." : "Drag a split to move it, or off the end to remove it.";
-  else if(it.explore && it.locked) note = "These are the pieces you split it into.";
-  else if(!area) note = "The perimeter is the distance all the way round — the lines inside don’t count.";
-  else if(it.missX.size || it.missY.size) note = "The dashed boxes are the missing side lengths.";
-  else if(it.removed.size) note = "The hatched piece has been cut out.";
-  else note = "The splits are drawn for you.";
-  $("boardNote").textContent = note;
 }
+/* the jotting boxes: plain inputs over the pieces, never marked, kept per question */
+function placeJots(it, list){
+  const lay = $("jots"); if(!lay) return;
+  const ae = document.activeElement, keep = ae && ae.dataset && ae.dataset.sk ? ae.dataset.sk : null;
+  lay.innerHTML = "";
+  if(!list.length) return;
+  const r = svg.getBoundingClientRect(), wr = $("boardWrap").getBoundingClientRect();
+  const kx = r.width / L.w, ky = r.height / L.h, ox = r.left - wr.left, oy = r.top - wr.top;
+  list.forEach(b => {
+    const inp = document.createElement("input");
+    inp.className = "jot"; inp.dataset.sk = b.p.gk; inp.inputMode = "numeric"; inp.autocomplete = "off"; inp.spellcheck = false;
+    inp.value = it.scratch[b.p.gk] || ""; if(b.ph) inp.placeholder = b.ph;
+    inp.setAttribute("aria-label", `${b.p.w} times ${b.p.h} (your working, not marked)`);
+    Object.assign(inp.style, { left:(ox + b.x * kx) + "px", top:(oy + b.y * ky) + "px", width:(b.w * kx) + "px", height:(b.h * ky) + "px", fontSize:Math.round(Math.min(20, b.h * ky * .58)) + "px" });
+    inp.addEventListener("input", () => { it.scratch[b.p.gk] = inp.value; });
+    inp.addEventListener("focus", () => hlPiece(b.p.gk));
+    inp.addEventListener("blur", () => hlPiece(null));
+    inp.addEventListener("keydown", e => {
+      if(e.key !== "Enter") return; e.preventDefault();
+      const all = [...lay.querySelectorAll(".jot")], at = all.indexOf(inp);
+      const nx = all.slice(at + 1).find(x => empty(x.value));
+      if(nx) nx.focus(); else focusStep();
+    });
+    lay.appendChild(inp);
+  });
+  if(keep){ const k = lay.querySelector(`.jot[data-sk="${CSS.escape(keep)}"]`); if(k){ k.focus({ preventScroll:true }); const n = k.value.length; try{ k.setSelectionRange(n, n); }catch(e){} } }
+}
+function hlPiece(gk){ S.hl = gk; svg.querySelectorAll("rect.piece").forEach(r => r.classList.toggle("hl", r.dataset.gk === gk)); }
+$("viewTag").addEventListener("click", e => {
+  const b = e.target.closest("[data-v]"); const it = cur(); if(!b || !it) return;
+  it.viewPick = b.dataset.v; drawBoard();
+});
 
 /* ---------- splitting on the board (the teaching tool's interaction) ---------- */
 function svgPt(e){ const r = svg.getBoundingClientRect(); return { x:(e.clientX - r.left) * (L.w / r.width), y:(e.clientY - r.top) * (L.h / r.height) }; }
@@ -811,12 +764,7 @@ function setCuts(axis, cuts){
   if(axis === "x") it.px = partsOf(it.W, cuts); else it.py = partsOf(it.H, cuts);
 }
 function cutsNow(axis){ const it = cur(); return cutsOf(axis === "x" ? it.px : it.py); }
-function afterSplit(){
-  /* the list of pieces in the question follows the board */
-  const it = cur(), ps = it.steps.find(s => s.t === "prods");
-  if(ps && ps.own && ps.first === null){ const keep = new Set(livePieces(it).map(p => p.gk)); Object.keys(ps.vals).forEach(k => { if(!keep.has(k)) delete ps.vals[k]; }); paint(); }
-  else drawBoard();
-}
+function afterSplit(){ drawBoard(); }
 svg.addEventListener("pointerdown", e => {
   const it = cur(); if(!it || e.button > 0) return;
   const t = e.target;
@@ -835,8 +783,8 @@ svg.addEventListener("pointerdown", e => {
     return;
   }
   if(pc){
-    const inp = $("qCard").querySelector(`input[data-gk="${pc.dataset.gk}"]`);
-    if(inp && !inp.readOnly){ inp.focus(); inp.select(); }
+    const j = document.querySelector(`#jots .jot[data-sk="${CSS.escape(pc.dataset.gk)}"]`);
+    if(j){ e.preventDefault(); j.focus(); }
   }
 });
 function startDrag(e, axis, idx){
@@ -898,11 +846,6 @@ function fitBoard(){
   $("qCard").style.maxHeight = Math.max(card.offsetHeight, window.innerHeight - outside - 2) + "px";
   return moved;
 }
-function keepInView(){
-  const q = $("qCard"); if(q.scrollHeight <= q.clientHeight + 1) return;
-  const el = q.querySelector(".part.current") || q.querySelector(".part.no:not(.folded)") || q.querySelector(".fix");
-  if(el){ const top = el.offsetTop - q.offsetTop; if(top + el.offsetHeight > q.scrollTop + q.clientHeight || top < q.scrollTop) q.scrollTop = Math.max(0, top + el.offsetHeight - q.clientHeight + 12); }
-}
 let rz = 0;
 const onResize = () => { cancelAnimationFrame(rz); rz = requestAnimationFrame(() => { fitBoard(); if(!DRAG && cur()) drawBoard(); }); };
 window.addEventListener("resize", onResize);
@@ -919,7 +862,7 @@ function scores(){
   const score = counted.filter(x => x.correct).length;
   const total = isPartial() && window.MMTSubmit.total ? window.MMTSubmit.total() : S.items.length;
   const cats = {};
-  counted.forEach(it => it.steps.forEach(s => { const c = s.cat; cats[c] = cats[c] || [0, 0]; cats[c][1]++; if(s.first === true) cats[c][0]++; }));
+  counted.forEach(it => it.steps.forEach(s => (s.cats || [s.cat]).forEach(c => { cats[c] = cats[c] || [0, 0]; cats[c][1]++; if(s.first === true) cats[c][0]++; })));
   return { score, total, counted:counted.length, cats };
 }
 function renderCert(){
@@ -984,7 +927,7 @@ function startLevel(k){
   $("levelModal").classList.remove("open"); $("certModal").classList.remove("open");
   const chip = $("levelChip"); chip.hidden = false; chip.className = "lvlChip " + k; chip.textContent = LEVELS[k].name;
   if(window.MMTSubmit && window.MMTSubmit.reset) window.MMTSubmit.reset();
-  paint(); focusStep(0);
+  paint(); focusStep();
 }
 $("nextBtn").addEventListener("click", next);
 $("prevBtn").addEventListener("click", () => { if(S.i > 0){ S.i--; paint(); } });
@@ -1015,7 +958,6 @@ import("/portal/shared/earlySubmit.js").then(m => {
 }).catch(() => {});
 
 buildLevelList();
-setPrompt("Choose a level to begin.");
 fitBoard();
 openLevels();
 
