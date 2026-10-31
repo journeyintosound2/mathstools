@@ -96,6 +96,22 @@
 > §2 "TWO folders", §3 deploy paths and §5's `mathstools-main 2` heading below
 > describe the OLD layout — this block supersedes them.
 >
+> **NEW (2026-10-31, evening): AREA OF A TRIANGLE TOOL REBUILT.**
+> `interactive-tools/stage-4/measurement-space/area-of-a-triangle/index.html` (same URL), on the Area Model
+> tool's shell (topbar, Settings/Tools, corner icons: start again / hide panel / full screen, mini Next
+> when the panel is hidden). One base on the x-axis, apex (a, h): drag the top (2D, snaps to whole units)
+> or the square handle at the end of the base. NO obtuse switch — the top just goes past an end of the
+> base (up to `over()` units). Three modes = three reasons it is half, each a step story in the side panel
+> (Next / Back / Show all; animations: turn, take, copy, cut, slide, back):
+> **Rectangle** (height inside: the height splits the box into two rectangles, outside halves turn in;
+> height outside: big right-angled triangle take away the small one, the overhang cancels),
+> **Two copies** (copy turned about the middle of BP makes a parallelogram; cut into strips one base
+> wide and slid back by whole bases = exactly the b × h rectangle, any lean — `strips()` + `clipX()`),
+> **Slide the top** (triangle as layers, top slides along the dashed line to the nearer right angle,
+> ghost of the start; drag is horizontal only in this mode). The area waits behind a "?" until the last
+> step (Settings toggle to show it straight away). Settings in localStorage `mmt.triArea.v1`.
+> Test surface `window.__TRI__`.
+>
 > **NEW (2026-10-31, latest): AREA MODEL — BOTH STUDENT QUIZZES REBUILT on one engine.**
 > `online-quizzes/stage-4/measurement-space/area-model.html` (Multiplication, `AMQ.focus="area"`) and
 > `.../perimeter-area-rectangle.html` (Area & Perimeter, `focus="both"`) are thin shells; the engine is

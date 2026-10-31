@@ -89,8 +89,8 @@ window.MMT_TOOL_LINKS = {
       kind: "Teacher tool",
       url: "/interactive-tools/stage-4/measurement-space/area-of-a-triangle/",
       ideas: ["triangle"],
-      note: "Shows a triangle as half its enclosing rectangle, draggable.",
-      tags: ["area", "triangles", "rectangles", "derivation", "visual"]
+      note: "Step-by-step reasons a triangle is half base × height: the rectangle around it (with the obtuse case as a big triangle take away a small one), two copies making a parallelogram that cuts and slides into the rectangle, and sliding the top along a line parallel to the base. Drag the top or the end of the base; acute, right-angled and obtuse.",
+      tags: ["area", "triangles", "rectangles", "parallelograms", "half base times height", "derivation", "obtuse", "same base same height", "visual"]
     }
   ],
 
@@ -868,8 +868,8 @@ window.MMT_TOOL_LINKS = {
       kind: "Teacher tool",
       url: "/interactive-tools/stage-4/measurement-space/area-of-a-triangle/",
       ideas: ["rectangles-triangles-parallelograms"],
-      note: "Shows a triangle as half its enclosing rectangle, draggable.",
-      tags: ["area", "triangles", "rectangles", "derivation", "visual"]
+      note: "Step-by-step reasons a triangle is half base × height: the rectangle around it (with the obtuse case as a big triangle take away a small one), two copies making a parallelogram that cuts and slides into the rectangle, and sliding the top along a line parallel to the base. Drag the top or the end of the base; acute, right-angled and obtuse.",
+      tags: ["area", "triangles", "rectangles", "parallelograms", "half base times height", "derivation", "obtuse", "same base same height", "visual"]
     },
     {
       title: "Area Model \u2014 Multiplication (Student Quiz)",
