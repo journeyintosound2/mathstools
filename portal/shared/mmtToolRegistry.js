@@ -113,6 +113,14 @@ export const MMT_TOOLS = Object.freeze([
     notes: "REBUILT 2026-11-01 on the Area Model quiz pattern (engine online-quizzes/stage-4/measurement-space/area-of-a-triangle-quiz/quiz.js). 10 questions, each ONE question + ONE answer. Sweet/Mild: the panel is the teaching tool's model built from the question's triangle — Rectangle story when the height is inside or a side, Two copies when obtuse; students step it with Show me (never required/marked); a wrong first answer jumps it to the last step. Medium/Spicy: plain diagram, a sloping side often labelled as a distractor, halves (22.5), Spicy missing base/height. Only the FIRST check scores. types[]: tri-rect/tri-area/tri-area-obtuse/tri-missing/tri-mistake as right/total + level:x (the old quiz sent per-question tags like mild-obtuse-area-wrong and had 15 questions). No typed answers saved. toolId/achievementToolName/masteryTopic unchanged.",
   },
   {
+    toolId: "area-of-a-parallelogram-quiz", title: "Area of a Parallelogram & Rhombus — Student Quiz", category: "Quiz",
+    enabled: true, resultCollection: "achievements", richCollection: null,
+    achievementToolName: "area-of-a-parallelogram-student-quiz", topics: ["measurement-space"], stage: "Stage 4",
+    launchUrl: "/online-quizzes/stage-4/measurement-space/area-of-a-parallelogram.html",
+    supportsAdventureAttempts: false, supportsSkillBreakdown: false,
+    notes: "NEW 2026-11-01 (engine online-quizzes/stage-4/measurement-space/area-of-a-parallelogram-quiz/quiz.js, triangle-quiz pattern). 10 questions, ONE question + ONE answer each; the panel is the teaching tool's model built from the question's shape (array count / cut along the height and slide / diagonals cut and slide), stepped with Show me, never required/marked and never showing the answer. Sweet: rect/square/para/rhombus, whole numbers within 12 × 12, grid. Mild: + rhombus by diagonals. Medium: 5 of 10 area-given find base/height (no grid). Spicy: no grid, halves on area questions, 2 missing-diagonal questions. Only the FIRST check scores. types[]: pa-rect/pa-para/pa-diag/pa-missing/pa-diag-missing as right/total + level:x. masteryTopic 'area-of-a-parallelogram'. No typed answers saved.",
+  },
+  {
     toolId: "integers-quiz", title: "Computation with Integers — Student Quiz", category: "Quiz",
     enabled: true, resultCollection: "achievements", richCollection: null,
     achievementToolName: "integers-student-quiz", topics: ["integers"], stage: "Stage 4",

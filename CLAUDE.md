@@ -96,6 +96,16 @@
 > §2 "TWO folders", §3 deploy paths and §5's `mathstools-main 2` heading below
 > describe the OLD layout — this block supersedes them.
 >
+> **NEW (2026-11-01): AREA OF A PARALLELOGRAM & RHOMBUS STUDENT QUIZ** — shell
+> `online-quizzes/stage-4/measurement-space/area-of-a-parallelogram.html`, engine `area-of-a-parallelogram-quiz/quiz.js`
+> + `quiz.css` (css copied from the triangle quiz; bump BOTH ?v= in the shell). Triangle-quiz pattern: one question +
+> one answer; the panel is the teaching tool's model built from the question's shape on EVERY level (Jeff), stepped
+> with Show me, never marked and NEVER showing the answer (no area bubble, no running totals up the side). Levels
+> (Jeff's spec): Sweet rect/square/para/rhombus, whole numbers ≤ 12, grid · Mild + rhombus by diagonals (fields
+> dp/dq) · Medium 5 of 10 find base/height (grid off on those) · Spicy no grid, halves on area questions only,
+> 2 find-a-diagonal. types[] pa-rect / pa-para / pa-diag / pa-missing / pa-diag-missing. Registry toolId
+> area-of-a-parallelogram-quiz, achievementToolName area-of-a-parallelogram-student-quiz. `window.__PQ__`.
+>
 > **NEW (2026-11-01): AREA OF A PARALLELOGRAM & RHOMBUS — new teaching tool** at
 > `interactive-tools/stage-4/measurement-space/area-of-a-parallelogram/index.html`, built on the triangle tool's
 > shell and conventions (green shape, scissors cut → thin white gap → slide, every animation reversible on Back,
@@ -108,7 +118,7 @@
 > both diagonals, the two bottom pieces slide up into the top corners → p × q/2, half the dashed p × q
 > rectangle). Every story ends with an extra reveal step (`withReveal()`): the area pops up as a bubble in
 > the middle of the shape ("28 square units" / "40 cm²"). Rectangle mode starts pale green and each square
-> darkens as it is counted. localStorage `mmt.paraArea.v1`. Test surface `window.__PA__`. No quiz or worksheet yet.
+> darkens as it is counted. localStorage `mmt.paraArea.v1`. Test surface `window.__PA__`. Quiz below; no worksheet yet.
 >
 > **NEW (2026-11-01): AREA OF A TRIANGLE WORKSHEET GENERATOR REBUILT** (same URL,
 > `worksheet-creators/stage-4/measurement-space/area-of-a-triangle.html`) on the Area Model generator's frame

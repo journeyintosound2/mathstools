@@ -28,6 +28,8 @@ export const SKILL_LABELS = {
   count: "Counting", table: "Tables", equation: "Equations", meaning: "What the numbers mean", plot: "Plotting", apply: "Using it",
   // perimeter / area / ratio / additive
   perimeter: "Perimeter", "missing-side": "Finding a missing side", area: "Area",
+  // area of a parallelogram & rhombus quiz (2026-11-01)
+  "pa-rect": "Rectangles and squares", "pa-para": "Parallelograms and rhombuses", "pa-diag": "Rhombuses from their diagonals", "pa-missing": "Find a missing base or height", "pa-diag-missing": "Find a missing diagonal",
   // area of a triangle quiz (2026-11-01)
   "tri-rect": "The rectangle it is half of", "tri-area": "Find the area", "tri-area-obtuse": "Find the area (obtuse)", "tri-missing": "Find a missing length", "tri-mistake": "Spot the mistake",
   // area model quizzes

@@ -50,6 +50,14 @@ window.MMT_TOOL_LINKS = {
       tags: ["area", "parallelograms", "rhombus", "rectangles", "squares", "base times height", "rearrangement", "diagonals", "derivation", "visual"]
     },
     {
+      title: "Area of a Parallelogram & Rhombus (Student Quiz)",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-4/measurement-space/area-of-a-parallelogram.html",
+      ideas: ["rectangles"],
+      note: "Ten questions, one answer each, with the teaching tool's model to cut and slide (never shows the answer). Sweet: rectangles, squares, parallelograms, rhombuses; Mild adds diagonals; Medium half find-the-base-or-height; Spicy no grid, halves and a missing diagonal. Saves to the student dashboard.",
+      tags: ["quiz", "area", "parallelograms", "rhombus", "rectangles", "base times height", "diagonals", "missing length", "sweet mild medium spicy", "student code login", "teacher dashboard"]
+    },
+    {
       title: "Area Model \u2014 Multiplication & Perimeter",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-4/measurement-space/perimeter-area-rectangle/",
@@ -91,6 +99,14 @@ window.MMT_TOOL_LINKS = {
       ideas: ["parallelogram"],
       note: "Cut a parallelogram along its height and slide the piece into a base × height rectangle (strips when it leans further than its base). A rhombus cut along its diagonals slides into half the p × q rectangle. Rectangles and squares counted as rows of unit squares. The formula stays hidden unless the teacher turns it on.",
       tags: ["area", "parallelograms", "rhombus", "rectangles", "squares", "base times height", "rearrangement", "diagonals", "derivation", "visual"]
+    },
+    {
+      title: "Area of a Parallelogram & Rhombus (Student Quiz)",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-4/measurement-space/area-of-a-parallelogram.html",
+      ideas: ["parallelogram"],
+      note: "Ten questions, one answer each, with the teaching tool's model to cut and slide (never shows the answer). Sweet: rectangles, squares, parallelograms, rhombuses; Mild adds diagonals; Medium half find-the-base-or-height; Spicy no grid, halves and a missing diagonal. Saves to the student dashboard.",
+      tags: ["quiz", "area", "parallelograms", "rhombus", "rectangles", "base times height", "diagonals", "missing length", "sweet mild medium spicy", "student code login", "teacher dashboard"]
     },
     {
       title: "Area Model \u2014 Worksheet Creator",
@@ -870,6 +886,14 @@ window.MMT_TOOL_LINKS = {
       ideas: ["rectangles-triangles-parallelograms"],
       note: "Cut a parallelogram along its height and slide the piece into a base × height rectangle (strips when it leans further than its base). A rhombus cut along its diagonals slides into half the p × q rectangle. Rectangles and squares counted as rows of unit squares. The formula stays hidden unless the teacher turns it on.",
       tags: ["area", "parallelograms", "rhombus", "rectangles", "squares", "base times height", "rearrangement", "diagonals", "derivation", "visual"]
+    },
+    {
+      title: "Area of a Parallelogram & Rhombus (Student Quiz)",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-4/measurement-space/area-of-a-parallelogram.html",
+      ideas: ["rectangles-triangles-parallelograms"],
+      note: "Ten questions, one answer each, with the teaching tool's model to cut and slide (never shows the answer). Sweet: rectangles, squares, parallelograms, rhombuses; Mild adds diagonals; Medium half find-the-base-or-height; Spicy no grid, halves and a missing diagonal. Saves to the student dashboard.",
+      tags: ["quiz", "area", "parallelograms", "rhombus", "rectangles", "base times height", "diagonals", "missing length", "sweet mild medium spicy", "student code login", "teacher dashboard"]
     },
     {
       title: "Area Model \u2014 Multiplication & Perimeter",
