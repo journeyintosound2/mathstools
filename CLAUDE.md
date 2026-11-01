@@ -96,6 +96,18 @@
 > §2 "TWO folders", §3 deploy paths and §5's `mathstools-main 2` heading below
 > describe the OLD layout — this block supersedes them.
 >
+> **NEW (2026-11-01): AREA OF A PARALLELOGRAM & RHOMBUS — new teaching tool** at
+> `interactive-tools/stage-4/measurement-space/area-of-a-parallelogram/index.html`, built on the triangle tool's
+> shell and conventions (green shape, scissors cut → thin white gap → slide, every animation reversible on Back,
+> shape locked after step 1, formula only with Settings → Show the calculation, Space = start again, Enter = new
+> shape, →/← step, 1–3 modes, F full screen). Modes: **Rectangle** (array: count one row square by square, then
+> the rows with running totals b, 2b, 3b…; squares included) · **Parallelogram** (base b, height h, lean d; one
+> cut along the height + slide one base along when |d| < b, strips one base wide when it leans further — `plan()`;
+> a rhombus preset uses 3-4-5 / 6-8-10 / 5-12-13 so the sides are whole numbers and get equal-side marks; the
+> sloping side is labelled as a distractor when it is a whole number) · **Diagonals** (rhombus p × q: cut along
+> both diagonals, the two bottom pieces slide up into the top corners → p × q/2, half the dashed p × q
+> rectangle). localStorage `mmt.paraArea.v1`. Test surface `window.__PA__`. No quiz or worksheet yet.
+>
 > **NEW (2026-11-01): AREA OF A TRIANGLE WORKSHEET GENERATOR REBUILT** (same URL,
 > `worksheet-creators/stage-4/measurement-space/area-of-a-triangle.html`) on the Area Model generator's frame
 > (bands, lettered types with counts, rows measured then packed into A4, Your turn box, answer key; CSS copied

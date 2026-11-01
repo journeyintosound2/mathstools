@@ -42,6 +42,14 @@ window.MMT_TOOL_LINKS = {
 
   "MA3-2DS-02": [
     {
+      title: "Area of a Parallelogram & Rhombus",
+      kind: "Teacher tool",
+      url: "/interactive-tools/stage-4/measurement-space/area-of-a-parallelogram/",
+      ideas: ["rectangles"],
+      note: "Cut a parallelogram along its height and slide the piece into a base × height rectangle (strips when it leans further than its base). A rhombus cut along its diagonals slides into half the p × q rectangle. Rectangles and squares counted as rows of unit squares. The formula stays hidden unless the teacher turns it on.",
+      tags: ["area", "parallelograms", "rhombus", "rectangles", "squares", "base times height", "rearrangement", "diagonals", "derivation", "visual"]
+    },
+    {
       title: "Area Model \u2014 Multiplication & Perimeter",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-4/measurement-space/perimeter-area-rectangle/",
@@ -76,6 +84,14 @@ window.MMT_TOOL_LINKS = {
   ],
 
   "MA3-2DS-03": [
+    {
+      title: "Area of a Parallelogram & Rhombus",
+      kind: "Teacher tool",
+      url: "/interactive-tools/stage-4/measurement-space/area-of-a-parallelogram/",
+      ideas: ["parallelogram"],
+      note: "Cut a parallelogram along its height and slide the piece into a base × height rectangle (strips when it leans further than its base). A rhombus cut along its diagonals slides into half the p × q rectangle. Rectangles and squares counted as rows of unit squares. The formula stays hidden unless the teacher turns it on.",
+      tags: ["area", "parallelograms", "rhombus", "rectangles", "squares", "base times height", "rearrangement", "diagonals", "derivation", "visual"]
+    },
     {
       title: "Area Model \u2014 Worksheet Creator",
       kind: "Worksheet maker",
@@ -847,6 +863,14 @@ window.MMT_TOOL_LINKS = {
   ],
 
   "MA4-ARE-C-01": [
+    {
+      title: "Area of a Parallelogram & Rhombus",
+      kind: "Teacher tool",
+      url: "/interactive-tools/stage-4/measurement-space/area-of-a-parallelogram/",
+      ideas: ["rectangles-triangles-parallelograms"],
+      note: "Cut a parallelogram along its height and slide the piece into a base × height rectangle (strips when it leans further than its base). A rhombus cut along its diagonals slides into half the p × q rectangle. Rectangles and squares counted as rows of unit squares. The formula stays hidden unless the teacher turns it on.",
+      tags: ["area", "parallelograms", "rhombus", "rectangles", "squares", "base times height", "rearrangement", "diagonals", "derivation", "visual"]
+    },
     {
       title: "Area Model \u2014 Multiplication & Perimeter",
       kind: "Teacher tool",

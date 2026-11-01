@@ -1,0 +1,975 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Area of a Parallelogram &amp; Rhombus | Mills Maths Tools</title>
+  <meta name="description" content="Why a parallelogram is base times height: cut along the height and slide the piece into a rectangle. A rhombus from its diagonals is half the rectangle round it. Rectangles and squares as arrays of unit squares." />
+
+  <style>
+    :root{
+      --bg:#f8fafc; --card:#ffffff; --ink:#0f172a; --muted:#64748b; --border:#e2e8f0;
+      --shadow:0 18px 45px rgba(15,23,42,.13);
+      --blue:#2563eb; --blue-dark:#1d4ed8;
+      --green:#22c55e; --green-dark:#15803d;
+      --purple:#7c3aed; --purple-dark:#5b21b6;
+      --orange:#f97316; --orange-dark:#c2410c;
+      --amber:#facc15; --amber-dark:#a16207;
+      --line:#334155; --line-soft:#94a3b8; --red:#dc2626;
+      --uiFont:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+      --mathFont:"STIX Two Math","Cambria Math","Latin Modern Math","Times New Roman",Georgia,serif;
+    }
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0; font-family:var(--uiFont); color:var(--ink);
+      background:
+        radial-gradient(circle at top left,rgba(37,99,235,.14),transparent 32rem),
+        radial-gradient(circle at top right,rgba(124,58,237,.12),transparent 34rem),
+        var(--bg);
+      overflow-x:hidden;
+    }
+    button,input,select{ font:inherit; }
+    [hidden]{ display:none !important; }
+    .app{ height:100dvh; display:flex; flex-direction:column; min-width:0; }
+
+    /* ---------- topbar (shared MMT shell) ---------- */
+    .mmtTopbar{
+      position:relative; z-index:40; flex:0 0 auto;
+      background:linear-gradient(135deg,#0f172a,#123b7a 55%,#2563eb);
+      color:white; padding:14px 24px;
+      display:grid; grid-template-columns:minmax(200px,1fr) auto minmax(300px,1fr);
+      align-items:center; gap:18px; box-shadow:0 10px 28px rgba(15,23,42,.22);
+    }
+    .mmtBrand{ display:flex; align-items:center; gap:12px; justify-self:start; text-decoration:none; color:white; border-radius:14px;
+      padding:8px 12px; margin-left:-12px; font-weight:900; transition:background .18s ease,transform .18s ease,box-shadow .18s ease; }
+    .mmtBrand:hover{ background:rgba(255,255,255,.12); transform:translateY(-1px); box-shadow:0 0 10px rgba(124,58,237,.6),0 0 18px rgba(37,99,235,.4); }
+    .mmtBrandLogo{ width:44px; height:44px; border-radius:9px; background:white; color:#1d4ed8; display:grid; place-items:center;
+      font-weight:1000; letter-spacing:-.08em; box-shadow:inset 0 -2px 0 rgba(15,23,42,.08); flex:0 0 auto; }
+    .mmtBrandText strong{ display:block; font-size:1.18rem; line-height:1; letter-spacing:-.03em; color:white; }
+    .mmtBrandText span{ display:block; font-size:.78rem; opacity:.82; font-weight:650; color:white; }
+    .mmtTopTitle{ font-weight:850; font-size:clamp(1.05rem,1.8vw,1.45rem); letter-spacing:-.04em; text-align:center; color:white; white-space:nowrap; }
+    .topActions{ justify-self:end; display:flex; align-items:center; justify-content:flex-end; gap:10px; flex-wrap:wrap; }
+    .btn{ appearance:none; border:1px solid rgba(255,255,255,.28); background:rgba(255,255,255,.14); color:white; padding:11px 15px;
+      border-radius:14px; font-weight:900; font-size:15px; cursor:pointer; transition:.18s ease; user-select:none; }
+    .btn:hover:not(:disabled){ background:rgba(255,255,255,.22); transform:translateY(-1px); }
+    .btn:focus-visible{ outline:none; box-shadow:0 0 0 4px rgba(255,255,255,.23); }
+    .btn-primary{ background:white; color:#1d4ed8; border-color:white; }
+    .btn-primary:hover:not(:disabled){ background:#eef2ff; color:#1d4ed8; }
+
+    .menuWrap{ position:relative; display:inline-flex; }
+    .dropMenu{ position:absolute; top:calc(100% + 8px); right:0; min-width:270px; background:#fff; color:var(--ink);
+      border:1px solid rgba(226,232,240,.95); border-radius:14px; box-shadow:0 18px 45px rgba(15,23,42,.22);
+      padding:7px; display:none; z-index:120; text-align:left; }
+    .dropMenu.open{ display:grid; gap:4px; }
+    .toolLink{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 12px; border-radius:10px;
+      color:var(--ink); text-decoration:none; font-weight:900; font-size:.9rem; }
+    .toolLink::after{ content:'\203A'; color:var(--blue); font-weight:1000; font-size:1.1rem; line-height:1; }
+    .toolLink:hover,.toolLink:focus-visible{ background:#eef2ff; color:#1d4ed8; outline:none; }
+    .toolLink small{ display:block; font-weight:650; font-size:.74rem; color:var(--muted); }
+    .menuRule{ height:1px; background:var(--border); margin:3px 6px; }
+    .settingsMenu.open{ gap:11px; padding:15px 18px; min-width:340px; max-height:min(78vh,680px); overflow:auto; }
+    .settingsHead{ font-size:.68rem; letter-spacing:.14em; text-transform:uppercase; font-weight:950; color:var(--muted); }
+    .settingsNote{ margin:0; font-size:.76rem; font-weight:650; color:var(--muted); line-height:1.4; }
+    .settingsRule{ height:1px; background:var(--border); margin:1px 0; }
+    .selRow{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .selRow > span{ font-weight:900; font-size:.92rem; color:var(--ink); white-space:nowrap; }
+    .selRow select{ appearance:none; border:1.5px solid var(--border); padding:8px 30px 8px 11px; border-radius:11px; font-weight:850; font-size:.88rem;
+      color:var(--line); min-width:170px; cursor:pointer;
+      background:#fff url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' fill='none' stroke='%232563eb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/></svg>") no-repeat right 10px center;
+      background-size:11px; }
+    .selRow select:focus-visible{ outline:none; border-color:var(--blue); box-shadow:0 0 0 4px rgba(37,99,235,.16); }
+    .sw{ display:inline-flex; align-items:center; gap:11px; cursor:pointer; user-select:none; font-weight:850; color:var(--line); font-size:.93rem; }
+    .sw input{ position:absolute; opacity:0; width:0; height:0; }
+    .sw .track{ position:relative; width:50px; height:29px; border-radius:999px; background:#cbd5e1; transition:.18s ease; flex:0 0 auto; box-shadow:inset 0 1px 3px rgba(15,23,42,.18); }
+    .sw .track::after{ content:""; position:absolute; top:3px; left:3px; width:23px; height:23px; border-radius:50%; background:#fff; box-shadow:0 2px 6px rgba(15,23,42,.3); transition:.18s ease; }
+    .sw input:checked + .track{ background:var(--green); }
+    .sw input:checked + .track::after{ transform:translateX(21px); }
+    .sw input:focus-visible + .track{ box-shadow:0 0 0 4px rgba(37,99,235,.28); }
+
+    /* ---------- layout ---------- */
+    .layout{ flex:1 1 auto; min-height:0; width:min(1640px,100%); margin:0 auto; padding:14px 18px 16px;
+      display:grid; grid-template-columns:minmax(0,1fr) 372px; gap:14px; min-width:0; }
+    .card{ background:var(--card); border:1px solid var(--border); border-radius:22px; box-shadow:var(--shadow); min-width:0; }
+
+    /* ---------- board ---------- */
+    .boardCard{ display:flex; flex-direction:column; min-height:0; padding:12px 14px 8px; position:relative; overflow:hidden; }
+    .boardTop{ position:relative; z-index:2; background:var(--card); }
+    .boardTop{ display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+    .modeSwitch{ display:inline-flex; background:#f1f5f9; border:1px solid var(--border); border-radius:15px; padding:4px; gap:4px; flex-wrap:wrap; }
+    .modeBtn{ appearance:none; border:none; background:transparent; padding:7px 14px 7px 8px; border-radius:11px; font-weight:900; font-size:.95rem;
+      color:var(--muted); cursor:pointer; display:flex; align-items:center; gap:9px; transition:.16s ease; }
+    .modeBtn:hover{ color:var(--ink); }
+    .modeBtn .sym{ width:32px; height:32px; border-radius:9px; display:grid; place-items:center; background:#e2e8f0; color:var(--line); transition:.16s ease; flex:0 0 auto; }
+    .modeBtn .sym svg{ width:22px; height:22px; display:block; }
+    .modeBtn small{ display:block; font-size:.7rem; font-weight:750; color:var(--line-soft); margin-top:1px; }
+    .modeBtn .txt{ text-align:left; line-height:1.1; }
+    .modeBtn[aria-selected="true"]{ background:#fff; color:var(--ink); box-shadow:0 3px 10px rgba(15,23,42,.12); }
+    .modeBtn[aria-selected="true"] .sym{ background:var(--blue); color:#fff; }
+    .modeBtn:focus-visible{ outline:none; box-shadow:0 0 0 3px rgba(37,99,235,.3); }
+    .modeBtn:disabled{ opacity:.38; cursor:not-allowed; }
+    .modeBtn:disabled:hover{ color:var(--muted); }
+    .topRight{ display:flex; align-items:center; gap:10px; }
+    .typeTag{ font-size:.74rem; letter-spacing:.06em; font-weight:950; text-transform:uppercase; padding:6px 11px; border-radius:999px; white-space:nowrap;
+      border:1px solid transparent; }
+    .typeTag.acute{ color:var(--green-dark); background:rgba(34,197,94,.12); border-color:rgba(21,128,61,.25); }
+    .typeTag.right{ color:var(--blue-dark); background:rgba(37,99,235,.1); border-color:rgba(37,99,235,.25); }
+    .typeTag.obtuse{ color:var(--orange-dark); background:rgba(249,115,22,.12); border-color:rgba(194,65,12,.25); }
+    .iconGroup{ display:inline-flex; gap:6px; }
+    .iconBtn{ appearance:none; width:42px; height:42px; border-radius:13px; border:1.5px solid var(--border); background:#fff; color:var(--line);
+      display:grid; place-items:center; cursor:pointer; transition:.16s ease; padding:0; }
+    .iconBtn svg{ width:21px; height:21px; display:block; }
+    .iconBtn:hover:not(:disabled){ border-color:var(--blue); background:#eef2ff; color:var(--blue-dark); transform:translateY(-1px); }
+    .iconBtn:focus-visible{ outline:none; box-shadow:0 0 0 3px rgba(37,99,235,.3); }
+    .iconBtn[aria-pressed="true"]{ background:#eef2ff; border-color:#c7d2fe; color:var(--blue-dark); }
+    .iconBtn.spin svg{ animation:spin .5s ease; }
+    @keyframes spin{ from{ transform:rotate(0);} to{ transform:rotate(-360deg);} }
+
+    .app.noPanel .layout, .app.fs .layout{ grid-template-columns:minmax(0,1fr); }
+    .app.noPanel .side, .app.fs .side{ display:none; }
+    .app.fs .mmtTopbar{ display:none; }
+    .app.fs .layout{ width:100%; padding:10px; }
+    .app.fs #panelBtn{ display:none; }
+    .miniSteps{ position:absolute; right:14px; bottom:10px; display:flex; gap:7px; z-index:5; }
+    .miniSteps .nextBtn{ flex:none; padding:10px 16px; font-size:.95rem; }
+    .miniSteps .stepBtn.icon{ width:42px; padding:10px 0; }
+    .app.noPanel .hint, .app.fs .hint{ padding-right:220px; padding-left:220px; }
+
+    .stmt{ display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:0 .28em; margin:8px 0 0;
+      font-family:var(--mathFont); font-weight:700; font-size:clamp(1.6rem,2.9vw,2.5rem); line-height:1.2; color:var(--line); }
+    .stmt .word{ font-family:var(--uiFont); font-weight:850; font-size:.6em; color:var(--muted); letter-spacing:-.01em; }
+    .stmt .u{ font-size:.62em; color:var(--muted); }
+    .frac{ display:inline-flex; flex-direction:column; align-items:center; font-size:.64em; line-height:1; vertical-align:middle; margin:0 .06em; }
+    .frac > span:first-child{ border-bottom:.08em solid currentColor; padding:0 .12em .06em; }
+    .frac > span:last-child{ padding:.06em .12em 0; }
+    .cB{ color:var(--blue-dark); } .cH{ color:var(--orange-dark); }
+    .ansBtn{ appearance:none; font:inherit; color:var(--line-soft); background:#f1f5f9; border:1.5px dashed #cbd5e1; border-radius:12px;
+      padding:0 .32em; cursor:pointer; line-height:1.1; min-width:1.4em; }
+    .ansBtn:hover{ color:var(--blue-dark); border-color:var(--blue); background:#eef2ff; }
+    .ans{ color:var(--green-dark); animation:popIn .4s cubic-bezier(.34,1.5,.5,1); }
+
+    .boardWrap{ position:relative; flex:1 1 auto; min-height:0; margin-top:2px; }
+    #board{ position:absolute; inset:0; width:100%; height:100%; display:block; touch-action:none; user-select:none; -webkit-user-select:none; overflow:visible; }
+    #board text{ font-family:var(--mathFont); font-weight:700; pointer-events:none; }
+    #board .noHit{ pointer-events:none; }
+    #board .handle{ cursor:grab; }
+    #board .handle.base{ cursor:ew-resize; }
+    #board.slide .handle.apex{ cursor:ew-resize; }
+    #board.dragging .handle{ cursor:grabbing; }
+    .hint{ flex:0 0 auto; min-height:1.45em; text-align:center; font-size:.88rem; font-weight:750; color:var(--muted); padding:3px 8px 0; line-height:1.4; }
+    .hint b{ color:var(--line); }
+    .hint .eq{ font-family:var(--mathFont); font-weight:700; font-size:1.12em; color:var(--line); }
+    .hint .w{ font-family:var(--uiFont); font-weight:750; font-size:.86em; color:var(--muted); }
+    .hint .ansV{ color:var(--green-dark); }
+
+    /* ---------- side panel ---------- */
+    .side{ display:flex; flex-direction:column; gap:12px; min-height:0; min-width:0; }
+    .panel{ padding:12px 14px; }
+    .pHead{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:9px; }
+    .pTitle{ font-size:.68rem; letter-spacing:.14em; text-transform:uppercase; font-weight:950; color:var(--muted); }
+    .pCount{ font-size:.74rem; font-weight:900; color:var(--line-soft); }
+    .dimRow{ display:grid; grid-template-columns:62px auto 1fr; align-items:center; gap:10px; margin-bottom:8px; }
+    .dimRow .lbl{ font-weight:900; font-size:.88rem; color:var(--line); }
+    .stepper{ display:inline-flex; align-items:center; border:1.5px solid var(--border); border-radius:13px; overflow:hidden; background:#fff; }
+    .stepper button{ appearance:none; border:none; background:#f8fafc; width:38px; height:40px; font-size:1.25rem; font-weight:900; color:var(--line); cursor:pointer; }
+    .stepper button:hover:not(:disabled){ background:#eef2ff; color:var(--blue-dark); }
+    .stepper button:disabled{ opacity:.35; cursor:not-allowed; }
+    .stepper input{ width:52px; height:40px; border:none; border-left:1.5px solid var(--border); border-right:1.5px solid var(--border); text-align:center;
+      font-family:var(--mathFont); font-size:1.4rem; font-weight:700; -moz-appearance:textfield; }
+    .stepper input::-webkit-outer-spin-button,.stepper input::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0; }
+    .stepper input:focus{ outline:none; background:#eef2ff; }
+    .stepper.b input{ color:var(--blue-dark); } .stepper.h input{ color:var(--orange-dark); }
+    .dimRow .note{ font-size:.76rem; font-weight:750; color:var(--line-soft); }
+    .presetRow{ display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin-top:4px; }
+    .preset{ appearance:none; border:1.5px solid var(--border); background:#fff; border-radius:13px; padding:8px 4px 7px; cursor:pointer; transition:.14s ease;
+      display:flex; flex-direction:column; align-items:center; gap:3px; font-weight:900; font-size:.8rem; color:var(--line); }
+    .preset svg{ width:46px; height:26px; display:block; }
+    .preset:hover{ border-color:var(--blue); background:#eef2ff; color:var(--blue-dark); transform:translateY(-1px); }
+    .preset.on{ border-color:rgba(37,99,235,.5); background:rgba(37,99,235,.08); color:var(--blue-dark); }
+
+    .storyPanel{ flex:1 1 auto; min-height:0; display:flex; flex-direction:column; }
+    .storyScroll{ flex:1 1 auto; min-height:0; overflow:auto; margin:0 -6px; padding:0 6px; }
+    .sLine{ border-radius:13px; padding:8px 11px 9px; border:1px solid var(--border); background:#f8fafc; margin-bottom:6px; animation:fadeUp .3s ease; }
+    .sLine .lab{ display:flex; gap:7px; align-items:baseline; font-size:.8rem; font-weight:900; color:var(--line); line-height:1.3; }
+    .sLine .n{ font-size:.7rem; font-weight:950; color:#fff; background:var(--line-soft); border-radius:7px; min-width:20px; height:20px; display:inline-grid; place-items:center; flex:0 0 auto; }
+    .sLine .m{ font-family:var(--mathFont); font-weight:700; font-size:1.22rem; color:var(--line); margin-top:3px; line-height:1.35; }
+    .sLine .m .w{ font-family:var(--uiFont); font-size:.78rem; font-weight:750; color:var(--muted); }
+    .sLine.cur{ background:#fff; border-color:rgba(37,99,235,.45); box-shadow:0 0 0 3px rgba(37,99,235,.08); }
+    .sLine.cur .n{ background:var(--blue); }
+    .sLine.done{ background:rgba(34,197,94,.08); border-color:rgba(21,128,61,.3); }
+    .sLine.done .n{ background:var(--green-dark); }
+    .sLine .ansV{ color:var(--green-dark); }
+    .sLine .m.calc{ font-size:1.16rem; border-top:1px dashed var(--border); margin-top:6px; padding-top:5px; }
+    .sLine .tip{ font-size:.76rem; font-weight:750; color:var(--muted); margin-top:4px; line-height:1.35; }
+    .stepRow{ display:flex; gap:7px; padding-top:10px; margin-top:8px; border-top:1px solid var(--border); }
+    .stepBtn{ appearance:none; border:1.5px solid var(--border); background:#fff; color:var(--line); padding:11px 12px; border-radius:14px;
+      font-weight:950; font-size:.95rem; cursor:pointer; transition:.16s ease; white-space:nowrap; }
+    .stepBtn:hover:not(:disabled){ border-color:var(--blue); background:#eef2ff; color:var(--blue-dark); transform:translateY(-1px); }
+    .stepBtn:disabled{ opacity:.38; cursor:not-allowed; transform:none; }
+    .stepBtn.icon{ width:46px; padding:11px 0; font-size:1.05rem; }
+    .nextBtn{ flex:1 1 auto; min-width:0; appearance:none; border:none; background:linear-gradient(135deg,var(--blue),var(--purple)); color:#fff;
+      padding:12px 14px; border-radius:15px; font-weight:950; font-size:1.02rem; cursor:pointer; box-shadow:0 10px 24px rgba(37,99,235,.30);
+      transition:.18s ease; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .nextBtn:hover:not(:disabled){ transform:translateY(-1px); box-shadow:0 14px 30px rgba(37,99,235,.38); }
+    .nextBtn.busy{ pointer-events:none; opacity:.75; }
+    .nextBtn:disabled{ background:linear-gradient(135deg,var(--green-dark),#0f766e); box-shadow:none; cursor:default; opacity:.92; }
+    .keyHint{ font-size:.72rem; font-weight:800; color:var(--line-soft); text-align:center; margin-top:7px; }
+    .keyHint kbd{ font-family:var(--uiFont); font-size:.7rem; font-weight:900; color:var(--muted); border:1px solid var(--border); border-bottom-width:2px;
+      border-radius:6px; padding:0 5px; background:#f8fafc; }
+
+    @keyframes popIn{ 0%{ transform:scale(.5); opacity:0;} 60%{ transform:scale(1.14);} 100%{ transform:scale(1); opacity:1;} }
+    @keyframes fadeUp{ from{ opacity:0; transform:translateY(5px);} to{ opacity:1; transform:none;} }
+    @media (prefers-reduced-motion:reduce){ .ans,.sLine{ animation:none !important; } }
+
+    /* ---------- responsive ---------- */
+    @media (max-width:1280px){ .layout{ grid-template-columns:minmax(0,1fr) 344px; } .modeBtn small{ display:none; } }
+    @media (max-width:1180px){
+      .mmtTopbar{ grid-template-columns:auto minmax(0,1fr) auto; padding:12px 16px; gap:12px; }
+      .mmtBrandText{ display:none; }
+      .btn{ padding:10px 13px; font-size:14px; }
+      .layout{ padding:12px 12px 14px; gap:12px; }
+    }
+    @media (max-width:980px){
+      .app:not(.fs){ height:auto; min-height:100dvh; }
+      .layout{ grid-template-columns:1fr; }
+      .boardWrap{ flex:none; height:clamp(320px,60vh,560px); }
+      .app.fs .boardWrap{ flex:1 1 auto; height:auto; }
+      .app.noPanel .hint, .app.fs .hint{ padding:3px 8px 56px; }
+      .storyPanel{ flex:none; }
+      .storyScroll{ overflow:visible; }
+    }
+    @media (max-width:760px){
+      .mmtTopbar{ grid-template-columns:1fr; justify-items:center; padding:12px 14px; }
+      .mmtBrand{ margin-left:0; } .topActions{ justify-self:center; justify-content:center; }
+      .dropMenu{ right:auto; left:50%; transform:translateX(-50%); }
+      .settingsMenu.open{ min-width:min(340px,92vw); }
+      .mmtTopTitle{ white-space:normal; }
+      .boardTop{ justify-content:center; }
+      .boardTop{ flex-direction:column; align-items:stretch; }
+      .modeSwitch{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); width:100%; }
+      .modeBtn{ flex-direction:column; padding:6px 4px; font-size:.8rem; gap:4px; text-align:center; }
+      .modeBtn .txt{ text-align:center; }
+      .modeBtn .sym{ width:28px; height:28px; }
+      .topRight{ justify-content:center; }
+      .typeTag{ display:none; }
+    }
+    @media print{ .mmtTopbar,.side .stepRow,.hint,.iconGroup{ display:none; } }
+  </style>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
+<!-- mmt-pwa -->
+<link rel="manifest" href="../../../../manifest.webmanifest">
+<meta name="theme-color" content="#1f3a5f">
+<link rel="apple-touch-icon" href="../../../../icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="MMT">
+<script src="../../../../pwa.js" defer></script>
+<!-- /mmt-pwa -->
+</head>
+<body>
+  <div class="app" id="app">
+    <header class="mmtTopbar">
+      <a class="mmtBrand" href="https://www.millsmathstools.au" target="_self" aria-label="Back to Mills Maths Tools">
+        <span class="mmtBrandLogo" aria-hidden="true">MMT</span>
+        <span class="mmtBrandText"><strong>MMT</strong><span>Mills Maths Tools</span></span>
+      </a>
+      <div class="mmtTopTitle">Area of a Parallelogram &amp; Rhombus</div>
+      <div class="topActions">
+        <div class="menuWrap">
+          <button class="btn" id="settingsBtn" type="button" aria-haspopup="true" aria-expanded="false">Settings &#9662;</button>
+          <nav class="dropMenu settingsMenu" id="settingsMenu" aria-label="Settings">
+            <div class="settingsHead">On screen</div>
+            <label class="sw"><input type="checkbox" id="calcToggle"><span class="track"></span><span>Show the calculation</span></label>
+            <p class="settingsNote">Off, there is no formula anywhere on screen &mdash; the class notices and wonders first. On, the formula sits above the board and the area waits behind a <b>?</b> until the last step.</p>
+            <label class="sw"><input type="checkbox" id="gridToggle" checked><span class="track"></span><span>Show the unit squares</span></label>
+            <label class="sw"><input type="checkbox" id="slantToggle" checked><span class="track"></span><span>Label the sloping side (when it is a whole number)</span></label>
+            <p class="settingsNote">The sloping side is a length students often multiply by instead of the height. Labelling it makes them choose.</p>
+            <label class="selRow"><span>Units</span>
+              <select id="unitSel" aria-label="Units">
+                <option value="" selected>None</option>
+                <option value="mm">mm</option>
+                <option value="cm">cm</option>
+                <option value="m">m</option>
+              </select>
+            </label>
+          </nav>
+        </div>
+        <div class="menuWrap">
+          <button class="btn" id="toolsBtn" type="button" aria-haspopup="true" aria-expanded="false">Tools &#9662;</button>
+          <nav class="dropMenu" id="toolsMenu" aria-label="Related tools">
+            <a class="toolLink" href="/interactive-tools/stage-4/measurement-space/area-of-a-triangle/">Area of a Triangle<small>Half the rectangle &mdash; the same cuts and slides</small></a>
+            <a class="toolLink" href="/interactive-tools/stage-4/measurement-space/perimeter-area-rectangle/index.html">Area Model &mdash; Multiplication &amp; Perimeter<small>Rectangles split into parts that are easy to multiply</small></a>
+          </nav>
+        </div>
+        <button class="btn btn-primary" id="newBtn" type="button" title="New shape (Enter)">New shape</button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="card boardCard" id="boardCard">
+        <div class="boardTop">
+          <div class="modeSwitch" role="tablist" aria-label="Which shape?">
+            <button class="modeBtn" data-mode="rect" role="tab" aria-selected="false" type="button" title="Rectangles and squares (1)">
+              <span class="sym" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="6" width="18" height="12" rx="1"/><path d="M9 6v12M15 6v12M3 12h18" stroke-width="1.3"/></svg></span>
+              <span class="txt">Rectangle<small>count the array</small></span>
+            </button>
+            <button class="modeBtn" data-mode="para" role="tab" aria-selected="true" type="button" title="Parallelograms: base × height (2)">
+              <span class="sym" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M2 18h14l6-12H8z"/><path d="M8 6v12" stroke-dasharray="2 2"/></svg></span>
+              <span class="txt">Parallelogram<small>cut and slide</small></span>
+            </button>
+            <button class="modeBtn" data-mode="diag" role="tab" aria-selected="false" type="button" title="A rhombus from its diagonals (3)">
+              <span class="sym" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 3l9 9-9 9-9-9z"/><path d="M3 12h18M12 3v18" stroke-width="1.3" stroke-dasharray="2 2"/></svg></span>
+              <span class="txt">Diagonals<small>a rhombus</small></span>
+            </button>
+          </div>
+          <div class="topRight">
+            <span class="typeTag right" id="typeTag">Parallelogram</span>
+            <div class="iconGroup">
+              <button class="iconBtn" id="againIcon" type="button" title="Back to the start of the steps (Space)" aria-label="Back to the start of the steps">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1"/><path d="M3.5 4v5h5"/></svg>
+              </button>
+              <button class="iconBtn" id="panelBtn" type="button" aria-pressed="true" title="Hide the side panel" aria-label="Show or hide the side panel">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M15 4v16"/><path d="M17 8h2M17 11h2M17 14h2"/></svg>
+              </button>
+              <button class="iconBtn" id="fsBtn" type="button" title="Full screen (F)" aria-label="Full screen">
+                <svg class="fsIn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+                <svg class="fsOut" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" hidden><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="stmt" id="stmt" aria-live="polite" hidden></div>
+        <div class="boardWrap" id="boardWrap">
+          <svg id="board" role="application" aria-label="The shape, with the cuts and slides that turn it into a rectangle"></svg>
+        </div>
+        <div class="hint" id="hint" aria-live="polite"></div>
+        <div class="miniSteps" id="miniSteps" hidden>
+          <button class="stepBtn icon" id="miniBack" type="button" title="Back a step (&larr;)" aria-label="Back a step">&#9664;</button>
+          <button class="nextBtn" id="miniNext" type="button">Next &#9656;</button>
+        </div>
+      </section>
+
+      <aside class="side">
+        <section class="card panel" aria-label="The shape">
+          <div class="pHead"><span class="pTitle" id="shapeTitle">The parallelogram</span></div>
+          <div id="dims"></div>
+          <div class="presetRow" id="presets" role="group" aria-label="Kind of shape"></div>
+        </section>
+
+        <section class="card panel storyPanel" aria-label="Why the formula works">
+          <div class="pHead"><span class="pTitle" id="storyTitle">Why base × height?</span><span class="pCount" id="stepCount"></span></div>
+          <div class="storyScroll" id="storyScroll"><div id="story" aria-live="polite"></div></div>
+          <div class="stepRow">
+            <button class="stepBtn icon" id="backBtn" type="button" title="Back a step (&larr;)" aria-label="Back a step">&#9664;</button>
+            <button class="stepBtn icon" id="againBtn" type="button" title="Back to the start (Space)" aria-label="Back to the start">&#8634;</button>
+            <button class="stepBtn" id="allBtn" type="button">Show all</button>
+            <button class="nextBtn" id="nextBtn" type="button" title="Next step (&rarr;)">Next &#9656;</button>
+          </div>
+          <div class="keyHint"><kbd>&rarr;</kbd>/<kbd>&larr;</kbd> step &middot; <kbd>Space</kbd> start again &middot; <kbd>Enter</kbd> new shape &middot; <kbd>1</kbd>&ndash;<kbd>3</kbd> shapes &middot; <kbd>F</kbd> full screen</div>
+        </section>
+      </aside>
+    </main>
+  </div>
+
+<script>
+(function(){
+  "use strict";
+  const $ = id => document.getElementById(id);
+  const SVGNS = "http://www.w3.org/2000/svg";
+  const reduceMotion = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+  const rnd = (lo, hi) => lo + Math.floor(Math.random() * (hi - lo + 1));
+  const pick = a => a[Math.floor(Math.random() * a.length)];
+  const ease = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+  const fmt = n => String(Math.round(n * 100) / 100);
+
+  /* THE IDEA THIS TOOL IS BUILT AROUND
+     Every area here comes back to a rectangle: rows of unit squares.
+     - RECTANGLE: count one row, then the rows — h rows of b squares is
+       b × h. (Squares are the case b = h.)
+     - PARALLELOGRAM: cut along the height, slide the piece to the other
+       end, and it IS a b × h rectangle — nothing added, nothing lost. The
+       sloping side never comes into it. A parallelogram leaning further
+       than its base is cut into strips one base wide (as the triangle
+       tool's Two copies). A rhombus is a parallelogram with equal sides,
+       so the same cut works.
+     - DIAGONALS: a rhombus drawn by its diagonals p and q. Cut along the
+       diagonals; the two bottom pieces slide straight up into the top
+       corners and make a p × ½q rectangle — half of the p × q rectangle
+       round it, so ½ × p × q.
+     Same conventions as the triangle tool: green is the shape whose area
+     we want; scissors cut, the pieces part by a thin white strip, then
+     slide; every animation runs backwards on Back; the shape is locked once
+     the steps start; the formula only shows with "Show the calculation". */
+
+  const LIM = { b:[1, 14], h:[1, 10], d:[-14, 14], p:[2, 16], q:[2, 12] };
+  const RHOMBI = [[3, 4, 5], [4, 3, 5], [6, 8, 10], [8, 6, 10], [5, 12, 13], [9, 12, 15]].filter(t => t[1] <= LIM.h[1]);
+  const S = {
+    mode:"para", step:0, anim:null,
+    b:8, h:5, d:3, p:10, q:6,
+    rw:7, rh:4,                       /* the Rectangle mode's own size */
+    drag:null, frozen:null, revealed:false,
+    set:{ grid:true, calc:false, units:"", panel:true, slant:true },
+    fs:false
+  };
+  const STORE = "mmt.paraArea.v1";
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORE) || "null");
+    if(saved && typeof saved === "object"){
+      Object.assign(S.set, saved.set || {});
+      ["b","h","d","p","q","rw","rh"].forEach(k => { if(Number.isFinite(saved[k])) S[k] = saved[k]; });
+      if(["rect","para","diag"].includes(saved.mode)) S.mode = saved.mode;
+    }
+  } catch(e){}
+  function save(){ try { localStorage.setItem(STORE, JSON.stringify({ set:S.set, mode:S.mode, b:S.b, h:S.h, d:S.d, p:S.p, q:S.q, rw:S.rw, rh:S.rh })); } catch(e){} }
+
+  /* ------------------------------------------------------------ geometry */
+  const paraPts = () => { const { b, h, d } = S; return [[0, 0], [b, 0], [b + d, h], [d, h]]; };
+  const isRhombus = () => S.b * S.b === S.d * S.d + S.h * S.h;
+  const slantLen = () => Math.hypot(S.d, S.h);
+  /* how the parallelogram becomes a rectangle:
+     lean less than the base — one cut along the height, the corner piece slides one base along;
+     lean a base or more — strips one base wide, each slides back by whole bases */
+  function plan(){
+    const { b, h, d } = S;
+    if(d === 0) return { kind:"none" };
+    if(Math.abs(d) < b){
+      if(d > 0) return { kind:"one", cut:[[d, h], [d, 0]], piece:[[0, 0], [d, 0], [d, h]], rest:[[d, 0], [b, 0], [b + d, h], [d, h]], dx:b, side:-1 };
+      return { kind:"one", cut:[[b + d, h], [b + d, 0]], piece:[[b + d, 0], [b, 0], [b + d, h]], rest:[[0, 0], [b + d, 0], [b + d, h], [d, h]], dx:-b, side:1 };
+    }
+    const out = [];
+    if(d > 0) for(let k = 0; k * b < d + b - 1e-9; k++) out.push({ lo:k * b, hi:(k + 1) * b, dx:-k * b });
+    else for(let k = 0; (1 - k) * b > d + 1e-9; k++) out.push({ lo:-k * b, hi:(1 - k) * b, dx:k * b });
+    const cuts = d > 0 ? out.slice(1).map(s => s.lo) : out.slice(0, -1).map(s => s.lo);
+    return { kind:"strips", strips:out, cuts };
+  }
+  function clipX(poly, lo, hi){
+    const cut = (pts, keep, xi) => { const out = [];
+      for(let i = 0; i < pts.length; i++){ const p = pts[i], q = pts[(i + 1) % pts.length], pin = keep(p), qin = keep(q);
+        if(pin) out.push(p);
+        if(pin !== qin){ const t = (xi - p[0]) / (q[0] - p[0]); out.push([xi, p[1] + t * (q[1] - p[1])]); } }
+      return out; };
+    let r = cut(poly, p => p[0] >= lo - 1e-9, lo); if(r.length < 3) return null;
+    r = cut(r, p => p[0] <= hi + 1e-9, hi);
+    return r.length >= 3 ? r : null;
+  }
+  const yRangeAt = (poly, x) => { const ys = [];
+    for(let i = 0; i < poly.length; i++){ const p = poly[i], q = poly[(i + 1) % poly.length];
+      if((p[0] - x) * (q[0] - x) <= 0 && p[0] !== q[0]){ const t = (x - p[0]) / (q[0] - p[0]); ys.push(p[1] + t * (q[1] - p[1])); } }
+    return ys.length ? [Math.min(...ys), Math.max(...ys)] : null; };
+  const area = () => S.mode === "rect" ? S.rw * S.rh : S.mode === "para" ? S.b * S.h : S.p * S.q / 2;
+
+  /* ------------------------------------------------------------ the steps */
+  const U = () => S.set.units ? " " + S.set.units : "";
+  const U2 = () => S.set.units ? " " + S.set.units + "²" : "";
+  const half = `<span class="frac"><span>1</span><span>2</span></span>`;
+  const hB = v => `<span class="cB">${fmt(v)}</span>`, hH = v => `<span class="cH">${fmt(v)}</span>`;
+  const W = s => `<span class="w">${s}</span>`;
+  function steps(){
+    if(S.mode === "rect"){
+      const { rw:b, rh:h } = S, sq = b === h;
+      return [
+        { t:sq ? "The square" : "The rectangle", m:`${hB(b)}${W(" across, ")}${hH(h)}${W(" up")}`, tip:"How many squares cover it? Guess first." },
+        { t:"Count one row", m:`${W("one row has")} ${hB(b)} ${W("squares")}`, anim:"row" },
+        { t:"Count the rows", m:`${hH(h)} ${W(h === 1 ? "row" : "rows")}${W(" — count on in")} ${hB(b)}${W("s")}`, anim:"rows" },
+        { t:`${fmt(h)} ${h === 1 ? "row" : "rows"} of ${fmt(b)}`, m:W(sq ? "a square is a rectangle with equal sides" : "rows × squares in a row"), c:`${hB(b)} × ${hH(h)} = <span class="ansV">${fmt(b * h)}</span>${W(U2())}`, fin:true } ];
+    }
+    if(S.mode === "para"){
+      const P = plan(), rh = isRhombus();
+      const first = { t:rh ? "The rhombus" : "The parallelogram", m:`${W("base")} ${hB(S.b)}${W(U())} &nbsp; ${W("height")} ${hH(S.h)}${W(U())}`,
+        tip:rh ? "A rhombus is a parallelogram with four equal sides." : (S.set.slant && Number.isInteger(slantLen()) ? "The sloping side is not the height." : "") };
+      const fin = `${hB(S.b)} × ${hH(S.h)} = <span class="ansV">${fmt(S.b * S.h)}</span>${W(U2())}`;
+      if(P.kind === "none") return [ first, { t:"It is already a rectangle", m:W("base × height"), c:fin, fin:true } ];
+      if(P.kind === "one") return [ first,
+        { t:"Cut along the height", m:W("from the top corner straight down to the base"), anim:"cut" },
+        { t:"Slide the piece to the other end", m:`${W("now it is a")} ${hB(S.b)} × ${hH(S.h)} ${W("rectangle — the same area")}`, c:fin, anim:"slide", fin:true } ];
+      return [ first,
+        { t:"Cut it into strips one base wide", m:W("it leans further than its base, so one cut isn't enough"), anim:"cut" },
+        { t:"Slide the strips back along", m:`${W("now it is a")} ${hB(S.b)} × ${hH(S.h)} ${W("rectangle — the same area")}`, c:fin, anim:"slide", fin:true } ];
+    }
+    const { p, q } = S, sq = p === q;
+    return [
+      { t:sq ? "A square on its corner" : "The rhombus and its diagonals", m:`${W("diagonals")} ${hB(p)}${W(U())} ${W("and")} ${hH(q)}${W(U())}`, tip:"The diagonals cross at right angles and cut each other in half." },
+      { t:"Cut along the diagonals", m:W("the top half, and the bottom half in two"), anim:"cut" },
+      { t:"Slide the two pieces up", m:`${W("they fill the top corners: a")} ${hB(p)} × ${hH(fmt(q / 2))} ${W("rectangle — half of the")} ${hB(p)} × ${hH(q)} ${W("one round it")}`,
+        c:`${half} × ${hB(p)} × ${hH(q)} = <span class="ansV">${fmt(p * q / 2)}</span>${W(U2())}`, anim:"slide", fin:true } ];
+  }
+  let STEPS = steps();
+
+  /* ------------------------------------------------------------ drawing */
+  const svg = $("board");
+  let L = null;
+  function frame(){
+    if(S.mode === "rect") return { x0:0, x1:S.rw, y0:0, y1:S.rh };
+    if(S.mode === "diag") return { x0:0, x1:S.p, y0:0, y1:S.q };
+    const { b, h, d } = S;
+    return { x0:Math.min(0, d), x1:Math.max(b, b + d), y0:0, y1:h };
+  }
+  function layout(){
+    const wrap = $("boardWrap");
+    const w = Math.max(260, wrap.clientWidth), hh = Math.max(220, wrap.clientHeight);
+    const compact = w < 560;
+    const M = compact ? { L:48, R:44, T:34, B:58 } : { L:86, R:80, T:46, B:72 };
+    const F = frame(), fw = Math.max(1, F.x1 - F.x0), fh = Math.max(1, F.y1 - F.y0);
+    const s = Math.min((w - M.L - M.R) / fw, (hh - M.T - M.B) / fh, 86);
+    const ox = M.L + ((w - M.L - M.R) - fw * s) / 2, oy = M.T + ((hh - M.T - M.B) - fh * s) / 2;
+    return { w, h:hh, s, ox, oy, F, compact,
+      X:x => ox + (x - F.x0) * s, Y:y => oy + (F.y1 - y) * s,
+      ix:px => F.x0 + (px - ox) / s, iy:py => F.y1 - (py - oy) / s };
+  }
+  function el(tag, attrs, parent){
+    const e = document.createElementNS(SVGNS, tag);
+    for(const k in attrs || {}) if(attrs[k] != null) e.setAttribute(k, attrs[k]);
+    (parent || svg).appendChild(e); return e;
+  }
+  const pts = P => P.map(p => L.X(p[0]).toFixed(1) + "," + L.Y(p[1]).toFixed(1)).join(" ");
+  const poly = (P, attrs, g) => el("polygon", Object.assign({ points:pts(P), "stroke-linejoin":"round", class:"noHit" }, attrs), g);
+  const seg = (p, q, attrs, g) => el("line", Object.assign({ x1:L.X(p[0]), y1:L.Y(p[1]), x2:L.X(q[0]), y2:L.Y(q[1]), class:"noHit" }, attrs), g);
+  function txt(x, y, s, fs, fill, g, extra){
+    const t = el("text", Object.assign({ x, y, "font-size":fs, fill, "text-anchor":"middle", "dominant-baseline":"central" }, extra || {}), g);
+    t.textContent = s; return t;
+  }
+  const tw = (s, fs) => String(s).length * fs * .55;
+  function pill(x, y, s, fs, o, g){
+    o = o || {}; const gg = el("g", { class:"noHit" }, g);
+    const w = Math.max(fs * 1.7, tw(s, fs) + fs * 1.05), hgt = fs * 1.6;
+    el("rect", { x:x - w / 2, y:y - hgt / 2, width:w, height:hgt, rx:hgt / 2, fill:o.bg || "#fff", stroke:o.stroke || "#e2e8f0", "stroke-width":o.sw || 1.6 }, gg);
+    txt(x, y + fs * .04, s, fs, o.color || "#0f172a", gg);
+    return gg;
+  }
+  const C = { solid:"#65c288", fill:"rgba(22,163,74,.66)", edge:"#14532d", pale:"rgba(34,197,94,.15)", paleS:"#4ade80", alt:"#ea580c", cut:"#0f172a", cell:"rgba(22,163,74,.55)" };
+  const fs = () => L.compact ? 15 : 18;
+  const baseOpt = { color:"#1d4ed8", stroke:"#93c5fd", sw:2 }, hOpt = { color:"#c2410c", stroke:"#fdba74", sw:2 };
+  function scissors(x, y, ang, snip, g){
+    const o = .25 + .75 * Math.abs(Math.sin(snip * Math.PI * 9));
+    const gg = el("g", { transform:`translate(${x} ${y}) rotate(${ang * 180 / Math.PI})`, class:"noHit" }, g);
+    el("path", { d:`M-16 0L4 ${-o * 6}M-16 0L4 ${o * 6}`, stroke:"#0f172a", "stroke-width":3.4, "stroke-linecap":"round", fill:"none" }, gg);
+    el("path", { d:"M-16 0L-22 -6M-16 0L-22 6", stroke:"#0f172a", "stroke-width":2.6, "stroke-linecap":"round" }, gg);
+    el("circle", { cx:-27, cy:-8, r:6, fill:"#fff", stroke:"#dc2626", "stroke-width":3 }, gg);
+    el("circle", { cx:-27, cy:8, r:6, fill:"#fff", stroke:"#dc2626", "stroke-width":3 }, gg);
+  }
+  /* a cut: dotted still to cut, solid behind the scissors (which only show while moving) */
+  function cutLine(p, q, c, g, snip){
+    seg(p, q, { stroke:C.cut, "stroke-width":3, "stroke-dasharray":"2 7", "stroke-linecap":"round" }, g);
+    if(c <= 0) return;
+    const m = [p[0] + (q[0] - p[0]) * c, p[1] + (q[1] - p[1]) * c];
+    seg(p, m, { stroke:C.cut, "stroke-width":3.2 }, g);
+    if(S.anim && c < 1) scissors(L.X(m[0]), L.Y(m[1]), Math.atan2(L.Y(q[1]) - L.Y(p[1]), L.X(q[0]) - L.X(p[0])), snip, g);
+  }
+  /* stepping helpers: how far through step k the board is */
+  const at = k => S.step > k ? 1 : S.step < k ? 0 : (S.anim ? S.anim.t : 1);
+
+  /* stacked (tablet / phone): the board is as tall as the drawing needs */
+  function fitStacked(){
+    const wrap = $("boardWrap");
+    if(window.innerWidth > 980 || S.fs){ if(wrap.style.height) wrap.style.height = ""; return; }
+    const w = Math.max(260, wrap.clientWidth), compact = w < 560;
+    const M = compact ? { L:48, R:44, T:34, B:58 } : { L:86, R:80, T:46, B:72 };
+    const F = frame(), fw = Math.max(1, F.x1 - F.x0), fh = Math.max(1, F.y1 - F.y0);
+    const s = Math.min((w - M.L - M.R) / fw, 86);
+    const want = Math.round(clamp(fh * s + M.T + M.B, 230, window.innerHeight * .68));
+    if(Math.abs(wrap.offsetHeight - want) > 2) wrap.style.height = want + "px";
+  }
+  function render(){
+    STEPS = steps();
+    if(S.step > STEPS.length - 1) S.step = STEPS.length - 1;
+    if(!S.frozen && !S.anim) fitStacked();
+    L = layout();
+    svg.setAttribute("viewBox", `0 0 ${L.w} ${L.h}`);
+    svg.setAttribute("class", S.drag ? "dragging" : "");
+    svg.innerHTML = "";
+    const gGrid = el("g", { class:"noHit" }), gBack = el("g", { class:"noHit" }), gMain = el("g", { class:"noHit" }), gTop = el("g", { class:"noHit" }), gLab = el("g", { class:"noHit" }), gHand = el("g");
+    const sc = { gGrid, gBack, gMain, gTop, gLab, handles:[] };
+    if(S.set.grid && L.s >= 12) drawGrid(gGrid);
+    if(S.mode === "rect") sceneRect(sc); else if(S.mode === "para") scenePara(sc); else sceneDiag(sc);
+    if(!S.anim && S.step === 0) sc.handles.forEach(h => drawHandle(h, gHand));
+    renderPanel();
+  }
+  function drawGrid(g){
+    const F = L.F, x0 = Math.floor(F.x0), x1 = Math.ceil(F.x1), y1 = Math.ceil(F.y1);
+    let d = "";
+    for(let x = x0; x <= x1; x++) d += `M${L.X(x)} ${L.Y(0)}V${L.Y(y1)}`;
+    for(let y = 0; y <= y1; y++) d += `M${L.X(x0)} ${L.Y(y)}H${L.X(x1)}`;
+    el("path", { d, stroke:"rgba(15,23,42,.09)", "stroke-width":1, fill:"none", "shape-rendering":"crispEdges", class:"noHit" }, g);
+  }
+  function drawHandle(hd, g){
+    const x = L.X(hd.at[0]), y = L.Y(hd.at[1]);
+    const gg = el("g", { class:"handle " + (hd.cls || ""), "data-h":hd.id }, g);
+    el("circle", { cx:x, cy:y, r:22, fill:"transparent" }, gg);
+    if(hd.square) el("rect", { x:x - 8, y:y - 8, width:16, height:16, rx:4, fill:"#fff", stroke:C.edge, "stroke-width":3 }, gg);
+    else { el("circle", { cx:x, cy:y, r:11, fill:"#fff", stroke:C.edge, "stroke-width":3.5 }, gg); el("circle", { cx:x, cy:y, r:4, fill:C.edge }, gg); }
+  }
+
+  /* ----- 1. rectangles: the array, a row at a time ----- */
+  function sceneRect(sc){
+    const { rw:b, rh:h } = S;
+    const rowT = at(1), rowsT = at(2);
+    const lit1 = rowT * b;                                 /* squares lit in the first row */
+    const rowsLit = 1 + rowsT * (h - 1);                   /* rows lit (fractional while animating) */
+    const cell = L.s, fsN = Math.min(22, cell * .42);
+    /* the squares */
+    for(let j = 0; j < h; j++) for(let i = 0; i < b; i++){
+      let on;
+      if(j === 0) on = clamp(lit1 - i, 0, 1);
+      else on = rowT >= 1 ? clamp(rowsLit - j, 0, 1) : 0;
+      const P = [[i, j], [i + 1, j], [i + 1, j + 1], [i, j + 1]];
+      poly(P, { fill:on > 0 ? `rgba(22,163,74,${(.18 + .42 * on).toFixed(3)})` : "#fff", stroke:"rgba(20,83,45,.35)", "stroke-width":1.2 }, sc.gMain);
+      if(j === 0 && on >= 1 && cell >= 24 && S.step <= 1) txt(L.X(i + .5), L.Y(.5), String(i + 1), fsN, "#14532d", sc.gLab);
+    }
+    poly([[0, 0], [b, 0], [b, h], [0, h]], { fill:"none", stroke:C.edge, "stroke-width":3 }, sc.gTop);
+    /* running totals at the end of each lit row: count on in b's */
+    if(rowT >= 1 && S.step >= 2){
+      const n = Math.floor(rowsLit + 1e-9);
+      for(let j = 0; j < n; j++) pill(L.X(b) + (L.compact ? 26 : 34), L.Y(j + .5), fmt(b * (j + 1)), Math.min(fs(), Math.max(12, cell * .5)), { color:"#14532d", stroke:"rgba(21,128,61,.45)", bg:"#f0fdf4" }, sc.gLab);
+    } else if(S.step === 1 && lit1 >= b - 1e-9){
+      pill(L.X(b) + (L.compact ? 26 : 34), L.Y(.5), fmt(b), Math.min(fs(), Math.max(12, cell * .5)), { color:"#14532d", stroke:"rgba(21,128,61,.45)", bg:"#f0fdf4" }, sc.gLab);
+    }
+    /* sides */
+    pill(L.X(b / 2), L.Y(0) + (L.compact ? 26 : 30), fmt(b) + U(), fs(), baseOpt, sc.gLab);
+    pill(L.X(0) - (L.compact ? 30 : 40), L.Y(h / 2), fmt(h) + U(), fs(), hOpt, sc.gLab);
+    if(S.step === STEPS.length - 1 && !S.anim && S.set.calc) pill(L.X(b / 2), L.Y(h / 2), `${fmt(b)} × ${fmt(h)} = ${fmt(b * h)}`, fs() + 3, { color:"#14532d", bg:"#f0fdf4", stroke:"rgba(21,128,61,.45)", sw:2 }, sc.gLab);
+    sc.handles.push({ id:"rect", at:[b, h] });
+  }
+
+  /* ----- 2. parallelograms: cut along the height, slide ----- */
+  function scenePara(sc){
+    const { b, h, d } = S, P = plan(), PG = paraPts();
+    const cT = at(1), sT = at(2);
+    const cutC = ease(clamp(cT / .82, 0, 1));
+    const sep = (S.step === 1 ? ease(clamp((cT - .84) / .16, 0, 1)) : S.step >= 2 ? 1 - ease(clamp((sT - .8) / .2, 0, 1)) : 0);
+    const prog = ease(clamp(sT / .8, 0, 1));
+    const g = 5 / L.s * sep;
+    if(P.kind === "none" || S.step === 0 && !S.anim){
+      poly(PG, { fill:C.fill, stroke:C.edge, "stroke-width":3 }, sc.gMain);
+    } else if(P.kind === "one"){
+      const dir = P.dx > 0 ? -1 : 1;                       /* the piece parts away from the rest */
+      poly(P.rest, { fill:C.fill, stroke:C.edge, "stroke-width":3 }, sc.gMain);
+      /* the moving piece is solid, so where it passes over the rest it doesn't look darker */
+      poly(P.piece.map(q => [q[0] + P.dx * prog + dir * g, q[1]]), { fill:prog > 0 && prog < 1 ? C.solid : C.fill, stroke:C.edge, "stroke-width":3 }, prog > 0 && prog < 1 ? sc.gTop : sc.gMain);
+      if(prog > 0) poly(P.piece, { fill:"none", stroke:"#94a3b8", "stroke-width":2, "stroke-dasharray":"6 6" }, sc.gBack);
+      if(cutC < 1) cutLine(P.cut[0], P.cut[1], cutC, sc.gTop, cT);
+    } else {
+      P.strips.forEach(st => {
+        const c = clipX(PG, st.lo, st.hi); if(!c) return;
+        const shift = st.dx * prog - Math.sign(st.dx) * g;
+        poly(c.map(q => [q[0] + shift, q[1]]), { fill:C.fill, stroke:C.edge, "stroke-width":3 }, sc.gMain);
+      });
+      if(prog > 0) poly(PG, { fill:"none", stroke:"#94a3b8", "stroke-width":2, "stroke-dasharray":"6 6" }, sc.gBack);
+      if(cutC < 1) P.cuts.forEach(x => { const r = yRangeAt(PG, x); if(r) cutLine([x, r[1]], [x, r[0]], cutC, sc.gTop, cT); });
+    }
+    /* labels: the base, the height (dashed, on the side the shape leans away from), the sloping side */
+    /* the base label travels with the rectangle being made */
+    const endMid = P.kind === "one" ? d + b / 2 : b / 2;
+    pill(L.X(b / 2 + (endMid - b / 2) * prog), L.Y(0) + (L.compact ? 26 : 30), fmt(b) + U(), fs(), baseOpt, sc.gLab);
+    const done = S.step === STEPS.length - 1 && !S.anim && P.kind !== "none";
+    /* the height: from the top corner straight down (it is also the cut, when there is one cut);
+       once strips have slid, it is the rectangle's end */
+    const hxS = P.kind === "strips" && done ? (d > 0 ? 0 : b) : (d >= 0 ? d : b + d);
+    const cutting = P.kind === "one" && S.step === 1 && cutC < 1;
+    if(!cutting) seg([hxS, h], [hxS, 0], { stroke:C.alt, "stroke-width":2.5, "stroke-dasharray":"7 5" }, sc.gTop);
+    const rA = Math.min(12, h * L.s * .3), toward = d >= 0 ? 1 : -1;
+    const fx = L.X(hxS), fy = L.Y(0);
+    el("path", { d:`M${fx + toward * rA} ${fy}V${fy - rA}H${fx}`, fill:"none", stroke:C.alt, "stroke-width":2, class:"noHit" }, sc.gTop);
+    const lab = fmt(h) + U(), lw = Math.max(fs() * 1.7, tw(lab, fs()) + fs() * 1.05);
+    pill(L.X(hxS) - toward * (lw / 2 + 8), L.Y(h / 2), lab, fs(), hOpt, sc.gLab);
+    /* the sloping side: a distractor, only as a whole number */
+    const sl = slantLen();
+    if(S.set.slant && d !== 0 && Number.isInteger(sl) && S.step === 0){
+      const sideP = d > 0 ? [[b, 0], [b + d, h]] : [[0, 0], [d, h]];
+      const mx = (sideP[0][0] + sideP[1][0]) / 2, my = h / 2, out = d > 0 ? 1 : -1;
+      const lab2 = fmt(sl) + U(), w2 = tw(lab2, fs() - 1) + fs();
+      pill(L.X(mx) + out * (w2 / 2 + 14), L.Y(my), lab2, fs() - 1, { color:"#334155", stroke:"#cbd5e1" }, sc.gLab);
+    }
+    /* a rhombus: equal-side marks */
+    if(isRhombus() && S.step === 0) [[PG[0], PG[1]], [PG[1], PG[2]], [PG[2], PG[3]], [PG[3], PG[0]]].forEach(([a1, a2]) => {
+      const mx = L.X((a1[0] + a2[0]) / 2), my = L.Y((a1[1] + a2[1]) / 2), dx = L.X(a2[0]) - L.X(a1[0]), dy = L.Y(a2[1]) - L.Y(a1[1]), dl = Math.hypot(dx, dy) || 1;
+      el("line", { x1:mx - dy / dl * 8, y1:my + dx / dl * 8, x2:mx + dy / dl * 8, y2:my - dx / dl * 8, stroke:C.edge, "stroke-width":2.5, class:"noHit" }, sc.gTop);
+    });
+    if(done && S.set.calc){
+      const cx = P.kind === "one" ? (d > 0 ? d + b / 2 : d + b / 2) : b / 2;
+      pill(L.X(cx), L.Y(h / 2), `${fmt(b)} × ${fmt(h)} = ${fmt(b * h)}`, fs() + 3, { color:"#14532d", bg:"#f0fdf4", stroke:"rgba(21,128,61,.45)", sw:2 }, sc.gLab);
+    }
+    sc.handles.push({ id:"top", at:[d, h] }, { id:"base", at:[b, 0], square:true, cls:"base" });
+  }
+
+  /* ----- 3. a rhombus from its diagonals ----- */
+  function sceneDiag(sc){
+    const { p, q } = S, cx = p / 2, cy = q / 2;
+    const R = [[0, cy], [cx, 0], [p, cy], [cx, q]];
+    const top = [[0, cy], [p, cy], [cx, q]], BL = [[0, cy], [cx, cy], [cx, 0]], BR = [[cx, cy], [p, cy], [cx, 0]];
+    const cT = at(1), sT = at(2);
+    /* the rectangle round it, faint, and the half it becomes */
+    poly([[0, 0], [p, 0], [p, q], [0, q]], { fill:"none", stroke:"#94a3b8", "stroke-width":2, "stroke-dasharray":"7 6" }, sc.gBack);
+    if(S.step === 0 && !S.anim){
+      poly(R, { fill:C.fill, stroke:C.edge, "stroke-width":3 }, sc.gMain);
+      seg([0, cy], [p, cy], { stroke:"#1d4ed8", "stroke-width":2.5, "stroke-dasharray":"7 5" }, sc.gTop);
+      seg([cx, 0], [cx, q], { stroke:C.alt, "stroke-width":2.5, "stroke-dasharray":"7 5" }, sc.gTop);
+      const r = Math.min(12, L.s * .6);
+      el("path", { d:`M${L.X(cx) + r} ${L.Y(cy)}V${L.Y(cy) - r}H${L.X(cx)}`, fill:"none", stroke:C.edge, "stroke-width":2, class:"noHit" }, sc.gTop);
+    } else {
+      const c1 = ease(clamp(cT / .48, 0, 1)), c2 = ease(clamp((cT - .5) / .34, 0, 1));
+      const sep = S.step === 1 ? ease(clamp((cT - .86) / .14, 0, 1)) : 1 - ease(clamp((sT - .88) / .12, 0, 1));
+      const g = 5 / L.s * sep;
+      const mBR = ease(clamp(sT / .44, 0, 1)), mBL = ease(clamp((sT - .46) / .44, 0, 1));
+      poly(top.map(v => [v[0], v[1] + g]), { fill:C.fill, stroke:C.edge, "stroke-width":3 }, sc.gMain);
+      /* each piece keeps a thin gap from the others: below and beside them before it moves, beside them in its corner after */
+      const oBR = [g * (1 - 2 * mBR), -g * (1 - 2 * mBR)], oBL = [-g * (1 - 2 * mBL), -g * (1 - 2 * mBL)];
+      poly(BR.map(v => [v[0] - cx * mBR + oBR[0], v[1] + cy * mBR + oBR[1]]), { fill:mBR > 0 && mBR < 1 ? C.solid : C.fill, stroke:C.edge, "stroke-width":3 }, mBR > 0 && mBR < 1 ? sc.gTop : sc.gMain);
+      poly(BL.map(v => [v[0] + cx * mBL + oBL[0], v[1] + cy * mBL + oBL[1]]), { fill:mBL > 0 && mBL < 1 ? C.solid : C.fill, stroke:C.edge, "stroke-width":3 }, mBL > 0 && mBL < 1 ? sc.gTop : sc.gMain);
+      if(mBR > 0 || mBL > 0) poly([[0, cy], [cx, 0], [p, cy]], { fill:"none", stroke:"#94a3b8", "stroke-width":2, "stroke-dasharray":"6 6" }, sc.gBack);
+      if(S.step === 1 && c1 < 1) cutLine([0, cy], [p, cy], c1, sc.gTop, cT);
+      if(S.step === 1 && c1 >= 1 && c2 < 1) cutLine([cx, cy], [cx, 0], c2, sc.gTop, cT);
+    }
+    /* labels: p on the horizontal diagonal's end, q beside the vertical one */
+    const pl = fmt(p) + U(), ql = fmt(q) + U();
+    pill(L.X(cx), L.Y(0) + (L.compact ? 26 : 30), pl, fs(), baseOpt, sc.gLab);
+    el("path", { d:`M${L.X(0)} ${L.Y(0) + 12}V${L.Y(0) + 20}M${L.X(0)} ${L.Y(0) + 16}H${L.X(p)}M${L.X(p)} ${L.Y(0) + 12}V${L.Y(0) + 20}`, stroke:"#93c5fd", "stroke-width":1.6, fill:"none", class:"noHit" }, sc.gBack);
+    pill(L.X(p) + (L.compact ? 28 : 38), L.Y(cy), ql, fs(), hOpt, sc.gLab);
+    el("path", { d:`M${L.X(p) + 12} ${L.Y(0)}H${L.X(p) + 20}M${L.X(p) + 16} ${L.Y(0)}V${L.Y(q)}M${L.X(p) + 12} ${L.Y(q)}H${L.X(p) + 20}`, stroke:"#fdba74", "stroke-width":1.6, fill:"none", class:"noHit" }, sc.gBack);
+    /* the finished rectangle is half as tall: label it */
+    if(S.step === STEPS.length - 1 && !S.anim){
+      el("path", { d:`M${L.X(0) - 12} ${L.Y(q)}H${L.X(0) - 20}M${L.X(0) - 16} ${L.Y(q)}V${L.Y(cy)}M${L.X(0) - 12} ${L.Y(cy)}H${L.X(0) - 20}`, stroke:"#fdba74", "stroke-width":1.6, fill:"none", class:"noHit" }, sc.gBack);
+      pill(L.X(0) - (L.compact ? 30 : 40), L.Y(q * .75), fmt(q / 2) + U(), fs(), hOpt, sc.gLab);
+    }
+    if(S.step === STEPS.length - 1 && !S.anim && S.set.calc)
+      pill(L.X(cx), L.Y(q * .75), `${fmt(p)} × ${fmt(q)} ÷ 2 = ${fmt(p * q / 2)}`, fs() + 2, { color:"#14532d", bg:"#f0fdf4", stroke:"rgba(21,128,61,.45)", sw:2 }, sc.gLab);
+    sc.handles.push({ id:"dp", at:[p, cy], square:true, cls:"base" }, { id:"dq", at:[cx, q] });
+  }
+
+  /* ------------------------------------------------------------ panel */
+  let lastStory = "", lastStmt = "";
+  function dimRow(key, label, note){
+    return `<div class="dimRow"><span class="lbl">${label}</span><span class="stepper ${key === "h" || key === "rh" || key === "q" ? "h" : "b"}"><button type="button" data-d="${key}" data-s="-1" aria-label="Less ${label}">&minus;</button><input data-in="${key}" type="number" inputmode="numeric" aria-label="${label}"><button type="button" data-d="${key}" data-s="1" aria-label="More ${label}">+</button></span><span class="note">${note}</span></div>`;
+  }
+  const PRESETS = {
+    rect:[ { k:"rect", t:"Rectangle", svg:'<rect x="4" y="6" width="38" height="16" fill="rgba(22,163,74,.6)" stroke="#14532d" stroke-width="2"/>' },
+           { k:"square", t:"Square", svg:'<rect x="13" y="3" width="20" height="20" fill="rgba(22,163,74,.6)" stroke="#14532d" stroke-width="2"/>' } ],
+    para:[ { k:"para", t:"Parallelogram", svg:'<path d="M3 23h28l12-20H15z" fill="rgba(22,163,74,.6)" stroke="#14532d" stroke-width="2" stroke-linejoin="round"/>' },
+           { k:"rhombus", t:"Rhombus", svg:'<path d="M8 23h20l10-20H18z" fill="rgba(22,163,74,.6)" stroke="#14532d" stroke-width="2" stroke-linejoin="round"/>' },
+           { k:"long", t:"Leans a lot", svg:'<path d="M2 23h12l30-20H32z" fill="rgba(22,163,74,.6)" stroke="#14532d" stroke-width="2" stroke-linejoin="round"/>' } ],
+    diag:[ { k:"rhombusD", t:"Rhombus", svg:'<path d="M23 2l18 11-18 11L5 13z" fill="rgba(22,163,74,.6)" stroke="#14532d" stroke-width="2" stroke-linejoin="round"/>' },
+           { k:"squareD", t:"Square", svg:'<path d="M23 2l11 11-11 11-11-11z" fill="rgba(22,163,74,.6)" stroke="#14532d" stroke-width="2" stroke-linejoin="round"/>' } ]
+  };
+  let builtFor = null;
+  function buildPanel(){
+    if(builtFor === S.mode) return;
+    builtFor = S.mode;
+    $("shapeTitle").textContent = S.mode === "rect" ? "The rectangle" : S.mode === "para" ? "The parallelogram" : "The rhombus";
+    $("storyTitle").textContent = S.mode === "rect" ? "How many squares?" : S.mode === "para" ? "Why base × height?" : "Why half of p × q?";
+    $("dims").innerHTML = S.mode === "rect" ? dimRow("rw", "Across", "or drag the corner") + dimRow("rh", "Up", "")
+      : S.mode === "para" ? dimRow("b", "Base", "or drag the end") + dimRow("h", "Height", "or drag the top") + dimRow("d", "Lean", "+ right, &minus; left")
+      : dimRow("p", "Diagonal", "across") + dimRow("q", "Diagonal", "up");
+    $("presets").innerHTML = PRESETS[S.mode].map(p => `<button class="preset" type="button" data-kind="${p.k}"><svg viewBox="0 0 46 26">${p.svg}</svg>${p.t}</button>`).join("");
+    $("presets").style.gridTemplateColumns = `repeat(${PRESETS[S.mode].length},1fr)`;
+    $("dims").querySelectorAll(".stepper button").forEach(bt => bt.addEventListener("click", () => { const k = bt.dataset.d; setDim(k, S[k] + +bt.dataset.s); }));
+    $("dims").querySelectorAll("input[data-in]").forEach(inp => {
+      const use = () => { const v = Math.round(Number(inp.value)); if(Number.isFinite(v) && inp.value !== "") setDim(inp.dataset.in, v); else inp.value = S[inp.dataset.in]; };
+      inp.addEventListener("change", use);
+      inp.addEventListener("keydown", e => { if(e.key === "Enter"){ e.stopPropagation(); use(); inp.blur(); } });
+    });
+    $("presets").querySelectorAll(".preset").forEach(b => b.addEventListener("click", () => preset(b.dataset.kind)));
+  }
+  const LIMK = k => k === "rw" ? LIM.b : k === "rh" ? LIM.h : LIM[k];
+  function renderPanel(){
+    buildPanel();
+    const k = S.step, last = STEPS.length - 1, calc = !!S.set.calc;
+    const html = STEPS.slice(0, k + 1).map((s, i) =>
+      `<div class="sLine${i === k ? (s.fin ? " done" : " cur") : ""}"><div class="lab"><span class="n">${i + 1}</span><span>${s.t}</span></div><div class="m">${s.m}</div>${calc && s.c ? `<div class="m calc">${s.c}</div>` : ""}${s.tip && i === k ? `<div class="tip">${s.tip}</div>` : ""}</div>`).join("");
+    if(html !== lastStory){ $("story").innerHTML = html; lastStory = html; const sc = $("storyScroll"); sc.scrollTop = sc.scrollHeight; }
+    $("stepCount").textContent = `Step ${k + 1} of ${STEPS.length}`;
+    const done = k >= last;
+    [$("nextBtn"), $("miniNext")].forEach(b => { b.disabled = done; b.classList.toggle("busy", !!S.anim); b.innerHTML = done ? "Done ✓" : "Next &#9656;"; });
+    [$("backBtn"), $("miniBack")].forEach(b => b.disabled = k === 0);
+    $("allBtn").disabled = done; $("againBtn").disabled = k === 0;
+    /* the statement — only with "Show the calculation" */
+    const show = S.revealed || STEPS[k].fin;
+    let lhs;
+    if(S.mode === "rect") lhs = `<span class="word">Area</span><span>=</span>${hB(S.rw)}<span>×</span>${hH(S.rh)}<span>=</span>`;
+    else if(S.mode === "para") lhs = `<span class="word">Area</span><span>=</span><span class="word">base × height</span><span>=</span>${hB(S.b)}<span>×</span>${hH(S.h)}<span>=</span>`;
+    else lhs = `<span class="word">Area</span><span>=</span>${half}<span>×</span>${hB(S.p)}<span>×</span>${hH(S.q)}<span>=</span>`;
+    const stmt = lhs + (show ? `<span class="ans">${fmt(area())}</span>${U2() ? `<span class="u">${U2()}</span>` : ""}` : `<button class="ansBtn" id="ansBtn" type="button" title="Show the area">?</button>`);
+    $("stmt").hidden = !calc;
+    if(stmt !== lastStmt){ $("stmt").innerHTML = stmt; lastStmt = stmt; const ab = $("ansBtn"); if(ab) ab.addEventListener("click", () => { S.revealed = true; renderPanel(); }); }
+    /* the tag */
+    const tag = $("typeTag");
+    let kind;
+    if(S.mode === "rect") kind = S.rw === S.rh ? "Square" : "Rectangle";
+    else if(S.mode === "para") kind = S.d === 0 ? (S.b === S.h ? "Square" : "Rectangle") : isRhombus() ? "Rhombus" : "Parallelogram";
+    else kind = S.p === S.q ? "Square" : "Rhombus";
+    tag.textContent = kind; tag.className = "typeTag " + (kind === "Rhombus" ? "obtuse" : kind === "Parallelogram" ? "right" : "acute");
+    document.querySelectorAll(".preset").forEach(p => {
+      const kd = p.dataset.kind;
+      const on = S.mode === "rect" ? (kd === "square") === (S.rw === S.rh)
+        : S.mode === "para" ? (kd === "rhombus" ? isRhombus() && S.d !== 0 : kd === "long" ? Math.abs(S.d) >= S.b : kd === "para" && !isRhombus() && S.d !== 0 && Math.abs(S.d) < S.b)
+        : (kd === "squareD") === (S.p === S.q);
+      p.classList.toggle("on", on);
+    });
+    $("dims").querySelectorAll("input[data-in]").forEach(inp => { if(document.activeElement !== inp) inp.value = S[inp.dataset.in]; });
+    $("dims").querySelectorAll(".stepper button").forEach(bt => { const kk = bt.dataset.d, [lo, hi] = LIMK(kk); bt.disabled = +bt.dataset.s < 0 ? S[kk] <= lo : S[kk] >= hi; });
+    /* the hint under the board; with the panel away it carries the step */
+    const hint = $("hint");
+    if(!S.set.panel || S.fs){
+      const s = STEPS[k];
+      hint.innerHTML = `<b>${k + 1}. ${s.t}</b> &nbsp;<span class="eq">${s.m}${calc && s.c && s.fin ? " &nbsp; " + s.c : ""}</span>`;
+    } else {
+      const drag = S.step > 0 ? "go back to the start to change it" : S.mode === "rect" ? "drag the corner to change it" : S.mode === "para" ? "drag the top corner to lean it, or the end of the base" : "drag the ends of the diagonals";
+      hint.innerHTML = `<b>${kind}</b> · ${drag}`;
+    }
+    $("miniSteps").hidden = !(!S.set.panel || S.fs);
+    document.querySelectorAll(".modeBtn").forEach(b => b.setAttribute("aria-selected", String(b.dataset.mode === S.mode)));
+  }
+
+  /* ------------------------------------------------------------ stepping (every animation also runs backwards) */
+  let raf = 0;
+  function dur(s){
+    if(s.anim === "row") return clamp(240 * S.rw, 1100, 2600);
+    if(s.anim === "rows") return clamp(380 * S.rh, 1100, 3000);
+    if(s.anim === "cut") return S.mode === "diag" ? 2600 : 1800;
+    return S.mode === "diag" ? 2600 : 1700;
+  }
+  function animate(d, t0, t1, onEnd){
+    cancelAnimationFrame(raf);
+    if(reduceMotion){ S.anim = null; onEnd && onEnd(); render(); return; }
+    S.anim = { t:t0, end:onEnd }; const start = performance.now();
+    const f = now => {
+      const p = clamp((now - start) / d, 0, 1);
+      S.anim.t = t0 + (t1 - t0) * p; render();
+      if(p < 1) raf = requestAnimationFrame(f); else { S.anim = null; onEnd && onEnd(); render(); }
+    };
+    raf = requestAnimationFrame(f);
+  }
+  function stopAnim(){ if(S.anim){ cancelAnimationFrame(raf); const e = S.anim.end; S.anim = null; e && e(); } }
+  function next(){ if(S.anim || S.step >= STEPS.length - 1) return; S.step++; const s = STEPS[S.step]; if(s.anim) animate(dur(s), 0, 1); else render(); }
+  function back(){
+    if(S.anim || S.step === 0) return;
+    const s = STEPS[S.step], k = S.step;
+    if(s.anim) animate(dur(s), 1, 0, () => { S.step = k - 1; }); else { S.step--; render(); }
+  }
+  function jump(k){ stopAnim(); S.step = k; render(); }
+  function showAll(){ jump(STEPS.length - 1); }
+  function startAgain(){ if(S.step === 0 && !S.anim) return; jump(0); }
+  function setMode(m){ if(m === S.mode) return; stopAnim(); S.mode = m; S.step = 0; S.revealed = false; save(); render(); }
+  function setDim(k, v){
+    const [lo, hi] = LIMK(k); stopAnim();
+    S[k] = clamp(v, lo, hi);
+    if(k === "b" || k === "d") S.d = clamp(S.d, -Math.max(1, 14), 14);
+    S.step = 0; S.revealed = false; save(); render();
+  }
+  function preset(kd){
+    stopAnim(); S.step = 0; S.revealed = false;
+    if(kd === "rect"){ do { S.rw = rnd(3, 10); S.rh = rnd(2, 7); } while(S.rw === S.rh); }
+    else if(kd === "square"){ S.rw = S.rh = rnd(3, 7); }
+    else if(kd === "para"){ S.b = rnd(5, 11); S.h = rnd(3, 7); S.d = (Math.random() < .7 ? 1 : -1) * rnd(1, Math.max(1, Math.min(S.b - 1, 5))); if(isRhombus()) S.d = S.d > 0 ? S.d - 1 || 2 : S.d + 1 || -2; }
+    else if(kd === "rhombus"){ const [d, h, b] = pick(RHOMBI.filter(r => r[2] <= LIM.b[1])); S.b = b; S.h = h; S.d = (Math.random() < .7 ? 1 : -1) * d; }
+    else if(kd === "long"){ S.b = rnd(3, 5); S.h = rnd(3, 6); S.d = (Math.random() < .7 ? 1 : -1) * rnd(S.b + 1, Math.min(14, S.b * 2 + 2)); }
+    else if(kd === "rhombusD"){ do { S.p = 2 * rnd(2, 7); S.q = 2 * rnd(2, 5); } while(S.p === S.q); }
+    else if(kd === "squareD"){ S.p = S.q = 2 * rnd(2, 5); }
+    save(); render();
+  }
+  function newShape(){
+    if(S.mode === "rect") preset(Math.random() < .3 ? "square" : "rect");
+    else if(S.mode === "para"){ const r = Math.random(); preset(r < .55 ? "para" : r < .85 ? "rhombus" : "long"); }
+    else preset(Math.random() < .3 ? "squareD" : "rhombusD");
+  }
+
+  /* ------------------------------------------------------------ dragging (only at step 1) */
+  function svgPt(e){ const r = svg.getBoundingClientRect(), M0 = S.frozen || L; return { x:(e.clientX - r.left) * (M0.w / r.width), y:(e.clientY - r.top) * (M0.h / r.height) }; }
+  svg.addEventListener("pointerdown", e => {
+    if(S.anim || S.step > 0 || e.button > 0) return;
+    const hd = e.target.closest && e.target.closest("[data-h]"); if(!hd) return;
+    e.preventDefault();
+    try { svg.setPointerCapture(e.pointerId); } catch(err){}
+    S.drag = hd.dataset.h; S.frozen = L;
+  });
+  svg.addEventListener("pointermove", e => {
+    if(!S.drag) return;
+    /* positions are read against the layout the drag started on, so the board can re-fit as the shape grows */
+    const M0 = S.frozen, pt = svgPt(e), x = Math.round(M0.ix(pt.x)), y = Math.round(M0.iy(pt.y)), topY = 99;
+    const before = JSON.stringify([S.b, S.h, S.d, S.p, S.q, S.rw, S.rh]);
+    if(S.drag === "rect"){ S.rw = clamp(x, LIM.b[0], LIM.b[1]); S.rh = clamp(Math.min(y, topY), LIM.h[0], LIM.h[1]); }
+    else if(S.drag === "top"){ S.d = clamp(x, LIM.d[0], LIM.d[1]); S.h = clamp(Math.min(y, topY), LIM.h[0], LIM.h[1]); }
+    else if(S.drag === "base"){ S.b = clamp(x, LIM.b[0], LIM.b[1]); }
+    else if(S.drag === "dp"){ S.p = clamp(x, LIM.p[0], LIM.p[1]); }
+    else if(S.drag === "dq"){ S.q = clamp(Math.min(y, topY), LIM.q[0], LIM.q[1]); }
+    if(JSON.stringify([S.b, S.h, S.d, S.p, S.q, S.rw, S.rh]) !== before){ S.revealed = false; render(); }
+  });
+  const endDrag = () => { if(!S.drag) return; S.drag = null; S.frozen = null; save(); render(); };
+  svg.addEventListener("pointerup", endDrag);
+  svg.addEventListener("pointercancel", endDrag);
+
+  /* ------------------------------------------------------------ wiring */
+  document.querySelectorAll(".modeBtn").forEach(b => b.addEventListener("click", () => setMode(b.dataset.mode)));
+  $("nextBtn").addEventListener("click", next); $("miniNext").addEventListener("click", next);
+  $("backBtn").addEventListener("click", back); $("miniBack").addEventListener("click", back);
+  $("againBtn").addEventListener("click", startAgain);
+  $("allBtn").addEventListener("click", showAll);
+  const spinAgain = () => { const b = $("againIcon"); b.classList.remove("spin"); void b.offsetWidth; b.classList.add("spin"); };
+  $("againIcon").addEventListener("click", () => { spinAgain(); startAgain(); });
+  $("newBtn").addEventListener("click", newShape);
+
+  function applyPanel(){
+    $("app").classList.toggle("noPanel", !S.set.panel);
+    const b = $("panelBtn"); b.setAttribute("aria-pressed", String(!!S.set.panel));
+    b.title = S.set.panel ? "Hide the side panel" : "Show the side panel";
+  }
+  $("panelBtn").addEventListener("click", () => { S.set.panel = !S.set.panel; save(); applyPanel(); render(); });
+  applyPanel();
+  const fsEl = document.documentElement;
+  const fsActive = () => !!(document.fullscreenElement || document.webkitFullscreenElement);
+  function setFs(on){
+    S.fs = on; $("app").classList.toggle("fs", on);
+    $("fsBtn").querySelector(".fsIn").toggleAttribute("hidden", on);
+    $("fsBtn").querySelector(".fsOut").toggleAttribute("hidden", !on);
+    $("fsBtn").title = on ? "Leave full screen (F)" : "Full screen (F)";
+    closeMenus(); render();
+  }
+  function toggleFs(){
+    if(!S.fs){ setFs(true); const req = fsEl.requestFullscreen || fsEl.webkitRequestFullscreen;
+      if(req){ try { const pr = req.call(fsEl); if(pr && pr.catch) pr.catch(() => {}); } catch(e){} } }
+    else { if(fsActive()){ const ex = document.exitFullscreen || document.webkitExitFullscreen; try { const pr = ex.call(document); if(pr && pr.catch) pr.catch(() => {}); } catch(e){} } setFs(false); }
+  }
+  const onFsChange = () => { if(!fsActive() && S.fs) setFs(false); };
+  document.addEventListener("fullscreenchange", onFsChange);
+  document.addEventListener("webkitfullscreenchange", onFsChange);
+  $("fsBtn").addEventListener("click", toggleFs);
+
+  $("unitSel").value = S.set.units;
+  $("gridToggle").checked = !!S.set.grid; $("calcToggle").checked = !!S.set.calc; $("slantToggle").checked = !!S.set.slant;
+  $("unitSel").addEventListener("change", () => { S.set.units = $("unitSel").value; save(); render(); });
+  $("gridToggle").addEventListener("change", e => { S.set.grid = e.target.checked; save(); render(); });
+  $("calcToggle").addEventListener("change", e => { S.set.calc = e.target.checked; save(); render(); });
+  $("slantToggle").addEventListener("change", e => { S.set.slant = e.target.checked; save(); render(); });
+
+  function closeMenus(){ [["settingsBtn","settingsMenu"],["toolsBtn","toolsMenu"]].forEach(([b, m]) => { $(m).classList.remove("open"); $(b).setAttribute("aria-expanded","false"); }); }
+  [["settingsBtn","settingsMenu"],["toolsBtn","toolsMenu"]].forEach(([b, m]) => {
+    $(b).addEventListener("click", e => { e.stopPropagation(); const was = $(m).classList.contains("open"); closeMenus(); if(!was){ $(m).classList.add("open"); $(b).setAttribute("aria-expanded","true"); } });
+    $(m).addEventListener("click", e => e.stopPropagation());
+  });
+  document.addEventListener("click", closeMenus);
+  document.addEventListener("keydown", e => {
+    const tag = (e.target && e.target.tagName) || "";
+    if(e.key === "Escape"){ closeMenus(); if(S.fs && !fsActive()) setFs(false); return; }
+    if(tag === "INPUT" || tag === "SELECT" || tag === "TEXTAREA" || e.metaKey || e.ctrlKey || e.altKey) return;
+    /* buttons keep focus out of it: Space starts the steps again, Enter makes a new shape */
+    if(tag === "BUTTON" && (e.key === " " || e.key === "Enter")){ e.preventDefault(); e.target.blur(); }
+    if(e.key === " "){ e.preventDefault(); spinAgain(); startAgain(); }
+    else if(e.key === "Enter"){ e.preventDefault(); newShape(); }
+    else if(e.key === "ArrowRight"){ e.preventDefault(); next(); }
+    else if(e.key === "ArrowLeft"){ e.preventDefault(); back(); }
+    else if(e.key === "1") setMode("rect"); else if(e.key === "2") setMode("para"); else if(e.key === "3") setMode("diag");
+    else if(e.key === "n" || e.key === "N") newShape();
+    else if(e.key === "f" || e.key === "F") toggleFs();
+  });
+  let rz = 0;
+  const onResize = () => { cancelAnimationFrame(rz); rz = requestAnimationFrame(() => { if(!S.drag) render(); }); };
+  if(window.ResizeObserver) new ResizeObserver(onResize).observe($("boardWrap")); else window.addEventListener("resize", onResize);
+
+  render();
+
+  /* test surface */
+  window.__PA__ = { S, steps, plan, render, next, back, showAll, startAgain, setMode, setDim, preset, newShape, area, isRhombus,
+    set:(o) => { stopAnim(); Object.assign(S, o); S.step = 0; render(); }, setPanel:on => { S.set.panel = on; applyPanel(); render(); }, get L(){ return L; } };
+})();
+</script>
+</body>
+</html>
