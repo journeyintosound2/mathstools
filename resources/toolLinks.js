@@ -888,12 +888,12 @@ window.MMT_TOOL_LINKS = {
       tags: ["quiz", "area", "triangles", "half base times height", "obtuse", "perpendicular height", "missing length", "spot the mistake", "sweet mild medium spicy", "student code login", "teacher dashboard"]
     },
     {
-      title: "Triangles — Area Worksheet Maker",
+      title: "Area of a Triangle — Worksheet Generator",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-4/measurement-space/area-of-a-triangle.html",
       ideas: ["rectangles-triangles-parallelograms"],
-      note: "Generates printable triangle-area worksheets.",
-      tags: ["worksheet generator", "printable", "area", "triangles"]
+      note: "Differentiated A4 sheets from the triangle teaching tool: half the rectangle, find the area (frame fading to lines), same base same height, work backwards, spot the mistake, draw your own and fluency. Number levels as a ladder; choose right-angled, acute and obtuse; a sloping side as a distractor; turned triangles; unit squares; answer key with reasons.",
+      tags: ["worksheet generator", "printable", "area", "triangles", "half base times height", "obtuse", "perpendicular height", "missing length", "spot the mistake", "differentiated", "answer key"]
     },
     {
       title: "Shikaku",
