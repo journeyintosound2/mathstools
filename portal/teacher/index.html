@@ -2079,13 +2079,13 @@ function openSendCodes(arg){
   const pre = (arg && typeof arg==="object" && !(arg instanceof Event)) ? arg : {};
   openModal(head("✉️ Send Codes")+`
     <div class="modal-body">
-      <div class="sc-safe"><strong>Student emails are never saved.</strong> You add them here, the page builds one email per student that opens in <em>your own</em> mail app (Outlook), and everything is wiped when you close this window. Nothing is sent to Mills Maths Tools or anyone else. Use each student's <strong>school email</strong> only.</div>
+      <div class="sc-safe"><strong>Student emails are never saved.</strong> You add them here, the page builds one email per student that opens in <em>your own</em> mail app (Outlook), and everything is wiped when you close this window. Nothing is sent to Mills Maths Tools or anyone else. Use the email address your school gives each student.</div>
       <div class="sc-grid">
         <div>
           <div class="field"><label for="scCls">Class</label>
             <select id="scCls"><option value="">All students</option>${classes.map(c=>`<option${pre.cls===c?" selected":""}>${esc(c)}</option>`).join("")}</select></div>
           <div class="field" style="margin-top:12px"><label for="scPaste">Paste emails <span class="muted">(optional)</span></label>
-            <textarea id="scPaste" autocomplete="off" spellcheck="false" placeholder="Copy two columns from your spreadsheet — name, then email — and paste here.&#10;e.g. Jane Smith    jane.smith12@education.nsw.gov.au"></textarea></div>
+            <textarea id="scPaste" autocomplete="off" spellcheck="false" placeholder="Copy two columns from your spreadsheet — name, then email — and paste here.&#10;e.g. Jane Smith    jane.smith@yourschool.edu.au"></textarea></div>
           <div class="sc-bar"><button class="btn sm" type="button" id="scApply">Match to students</button><span class="muted" id="scMatch" style="font-size:.82rem"></span></div>
         </div>
         <div>
@@ -2112,7 +2112,6 @@ function openSendCodes(arg){
     i.classList.remove("bad"); if(!v) return;
     let note="";
     if(!scEmailOk(v)) note="That doesn't look like an email address.";
-    else if(!/@education\.nsw\.gov\.au$/i.test(v)) note="Not a school (education.nsw.gov.au) address.";
     else if(emailInputs().some(o=>o!==i && o.value.trim().toLowerCase()===v.toLowerCase())) note="Same address is on another student.";
     if(note){ i.classList.add("bad"); i.insertAdjacentHTML("afterend",`<span class="sc-warn">${esc(note)}</span>`); }
   };
@@ -2120,7 +2119,7 @@ function openSendCodes(arg){
     const cls=$("scCls").value;
     const keep = {}; emailInputs().forEach(i=>{ keep[i.dataset.code]=i.value; });
     scList = pcStudents(cls).map(s=>{ const f=stFirstSurname(students.find(x=>(x.studentCode||x.id)===s.code)||{name:s.name}); return { code:s.code, name:s.name, first:f.first, className:s.className }; });
-    $("scRows").innerHTML = scList.length ? scList.map(st=>`<tr><td>${esc(st.name)}${st.className?` <span class="muted" style="font-size:.78rem">· ${esc(st.className)}</span>`:""}</td><td class="sc-code">${esc(st.code)}</td><td><input type="email" id="scr_${esc(st.code)}" data-code="${esc(st.code)}" autocomplete="off" placeholder="school email" value="${esc(keep[st.code]||"")}"/></td><td class="sc-st" id="scs_${esc(st.code)}">${scSent.has(st.code)?'<span class="done">✓ opened</span>':`<button class="btn sm" type="button" data-send="${esc(st.code)}">✉️ Open</button>`}</td></tr>`).join("")
+    $("scRows").innerHTML = scList.length ? scList.map(st=>`<tr><td>${esc(st.name)}${st.className?` <span class="muted" style="font-size:.78rem">· ${esc(st.className)}</span>`:""}</td><td class="sc-code">${esc(st.code)}</td><td><input type="email" id="scr_${esc(st.code)}" data-code="${esc(st.code)}" autocomplete="off" placeholder="student email" value="${esc(keep[st.code]||"")}"/></td><td class="sc-st" id="scs_${esc(st.code)}">${scSent.has(st.code)?'<span class="done">✓ opened</span>':`<button class="btn sm" type="button" data-send="${esc(st.code)}">✉️ Open</button>`}</td></tr>`).join("")
       : `<tr><td colspan="4"><div class="empty"><div class="big">No students here</div>Add students to this class first.</div></td></tr>`;
     emailInputs().forEach(checkRow); refreshCount();
   };
