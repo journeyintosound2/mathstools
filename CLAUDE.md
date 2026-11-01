@@ -99,10 +99,10 @@
 > **NEW (2026-11-01): AREA OF A TRIANGLE WORKSHEET GENERATOR REBUILT** (same URL,
 > `worksheet-creators/stage-4/measurement-space/area-of-a-triangle.html`) on the Area Model generator's frame
 > (bands, lettered types with counts, rows measured then packed into A4, Your turn box, answer key; CSS copied
-> from it). Types: A Half the rectangle (parallelogram when obtuse) · B Find the area (working: frame / fade /
-> lines / answer) · C Same base, same height (3 triangles between parallel lines) · D Work backwards ·
+> from it). Types: A Half the rectangle (parallelogram when obtuse) · B Find the area (answer line, or working
+> lines + answer line) · C Same base, same height (3 triangles between parallel lines) · D Work backwards ·
 > E Spot the mistake (forgot to halve / used the sloping side / halved twice) · F Draw your own · G Fluency
-> (off). Settings: levels Sweet–Spicy as a ladder; right/acute/obtuse toggles; sloping-side distractor
+> (off). B has NO ½ × __ × __ frame (Jeff): just "Area of triangle = ____", optional working lines above it. Settings: levels Sweet–Spicy as a ladder; right/acute/obtuse toggles; sloping-side distractor
 > (TRIPLES); turned triangles; unit squares only when not turned; units; formula in the example toggle.
 > `triSVG()` draws in mm and places labels clear of lines (height label inside = on the line on a white
 > patch; the sloping side's label picks outside/inside by room). Test surface `window.__WS__`.

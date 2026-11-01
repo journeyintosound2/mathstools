@@ -240,6 +240,7 @@
     .saidM{ font-family:var(--mathFont); font-weight:700; font-size:calc(17px * var(--fs)); color:#111827; margin-top:1mm; padding:1.2mm 2.4mm; border:1.2px dashed #cbd5e1; border-radius:2.4mm; display:inline-block; }
     .ticks .tb{ font-style:normal; }
     .qCard.full .pic{ justify-content:flex-start; }
+    .ansLine .lab.big{ text-transform:none; letter-spacing:0; font-size:calc(13.5px * var(--fs)); font-weight:950; color:#111827; }
   </style>
 <!-- mmt-pwa -->
 <link rel="manifest" href="../../../manifest.webmanifest">
@@ -326,12 +327,10 @@
           <p class="bandHead">Scaffolding and the paper</p>
           <div class="bandGrid">
             <div>
-              <label for="workSel">Working in B &ldquo;Find the area&rdquo;</label>
+              <label for="workSel">Answer space in B &ldquo;Find the area&rdquo;</label>
               <select id="workSel">
-                <option value="frame">A frame &mdash; &frac12; &times; __ &times; __ = __</option>
-                <option value="fade" selected>Fade out &mdash; the frame, then lines</option>
-                <option value="lines">Lines &mdash; show your working</option>
-                <option value="answer">Answer only</option>
+                <option value="answer" selected>Area of triangle = ____</option>
+                <option value="lines">Working lines, then Area of triangle = ____</option>
               </select>
             </div>
             <div>
@@ -356,7 +355,7 @@
             <label class="sw"><input type="checkbox" id="nameToggle" checked /><span class="track"></span><span>Name and date</span></label>
             <label class="sw"><input type="checkbox" id="keyToggle" /><span class="track"></span><span>Answer key pages</span></label>
           </div>
-          <p class="note"><b>Fade out</b> gives the first half of section B the frame and the rest plain working lines. Turn the <b>formula</b> off when the class is still discovering why a triangle is half a rectangle &mdash; the example then shows the rectangle and &ldquo;half of it&rdquo; only. The answer key fills in every answer with a one-line reason, so it can be handed to a student.</p>
+          <p class="note">Section B gives each triangle one answer line, <b>Area of triangle = ____</b>; choose <b>working lines</b> for room to show the calculation above it. Turn the <b>formula</b> off when the class is still discovering why a triangle is half a rectangle &mdash; the example then shows the rectangle and &ldquo;half of it&rdquo; only. The answer key fills in every answer with a one-line reason, so it can be handed to a student.</p>
         </div>
 
         <div class="btnRow">
@@ -389,7 +388,7 @@
      The idea every section serves: a triangle is half of a base × height
      rectangle (or of a parallelogram, when it leans past its base).
        A  Half the rectangle — the rectangle / parallelogram drawn round it
-       B  Find the area      — with a frame, fading to lines, or answer only
+       B  Find the area      — one answer line, Area of triangle = ____
        C  Same base, same height — three triangles between parallel lines
        D  Work backwards     — the area is given, a base or height is missing
        E  Spot the mistake   — forgot to halve / used the sloping side /
@@ -487,7 +486,7 @@
       desc:"Each triangle with the rectangle drawn round it (a parallelogram when it is obtuse). Students find the rectangle, then the triangle as half of it.",
       ex:() => exTri({ b:6, h:4, a:2, show:"rect" }) + '<span class="arrow">→</span><span class="m">6 × 4 = 24, half is 12</span>' },
     { k:"B", col:"#2563eb", bg:"#eff6ff", n:6, title:"Find the area",
-      desc:"Triangles with a base and a height to use — and, if you choose, a sloping side to ignore and the base turned away from the bottom.",
+      desc:"Triangles with a base and a height to use — and, if you choose, a sloping side to ignore and the base turned away from the bottom. One answer line: Area of triangle = ____.",
       ex:() => exTri({ b:6, h:4, a:-3 }) + '<span class="arrow">→</span><span class="m">½ × 6 × 4 = 12</span>' },
     { k:"C", col:"#7c3aed", bg:"#faf5ff", n:1, title:"Same base, same height",
       desc:"Three different triangles between two parallel lines, all on the same base. Which has the largest area? (They are all the same.)",
@@ -510,7 +509,6 @@
       case "A": return "Half the rectangle. Find the area of the rectangle (or parallelogram) drawn round each triangle, then the area of the triangle.";
       case "B": {
         const base = "Find the area of each triangle.";
-        if(opts.work === "fade" && g && g.fadeAt != null) return base + " From question " + g.fadeAt + ", show your own working.";
         if(opts.slant !== "never" || opts.turn !== "never") return base + " Use the height — it meets the base at a right angle.";
         return base;
       }
@@ -535,7 +533,6 @@
     if(T.k === "A"){ q.t = triFor(level, kind, used, { turn:Math.random() < turnP(opts) * .6 }); q.t.show = where(q.t) === "out" ? "para" : "rect"; return q; }
     if(T.k === "B"){
       q.t = triFor(level, kind, used, { slant:Math.random() < slantP(opts), turn:Math.random() < turnP(opts) });
-      q.frame = opts.work === "frame" || (opts.work === "fade" && i < Math.ceil(n / 2));
       return q;
     }
     if(T.k === "C"){
@@ -739,10 +736,8 @@
     if(q.type === "B"){
       const A = areaOf(q.t), why = whyHeight(q.t);
       let body;
-      if(key) body = keyLine("Area", `½ ${X} ${fmt(q.t.b)} ${X} ${fmt(q.t.h)} = ${fmt(A)}${uT(opts, true)}`) + (why ? keyWhy(why) : "");
-      else if(q.frame) body = `<div class="ansLine"><span>½ ${X}</span><span class="ln xs"></span><span>${X}</span><span class="ln xs"></span><span>=</span><span class="ln"></span>${uu(opts, true)}</div>`;
-      else if(opts.work === "answer") body = `<div class="ansLine"><span class="lab">Area</span><span class="ln"></span>${uu(opts, true)}</div>`;
-      else body = lines(2) + `<div class="ansLine"><span class="lab">Area</span><span class="ln"></span>${uu(opts, true)}</div>`;
+      if(key) body = keyLine("Area of triangle =", `½ ${X} ${fmt(q.t.b)} ${X} ${fmt(q.t.h)} = ${fmt(A)}${uT(opts, true)}`) + (why ? keyWhy(why) : "");
+      else body = (opts.work === "lines" ? lines(2) : "") + `<div class="ansLine"><span class="lab big">Area of triangle =</span><span class="ln"></span>${uu(opts, true)}</div>`;
       return `<div class="qCard">${top(q, n, "")}${diag(q.t, opts, w, 1, key)}${body}</div>`;
     }
     if(q.type === "C"){
@@ -840,7 +835,6 @@
     if(!total) return { error:"Tick at least one problem type and give it a number of questions." };
     groups.forEach(g => {
       g.qs.forEach(q => { q.n = ++num; });
-      if(g.T.k === "B" && opts.work === "fade"){ const f = g.qs.find(q => !q.frame); g.fadeAt = f ? f.n : null; }
     });
     return { groups };
   }
@@ -997,7 +991,7 @@
     LV.forEach(l => { $("lv" + l.k).checked = l.k === "mild"; });
     ["kRight", "kAcute", "kObtuse"].forEach(id => { $(id).checked = true; });
     $("slantSel").value = "some"; $("turnSel").value = "never"; $("gridSel").value = "on"; $("unitSel").value = "cm";
-    $("workSel").value = "fade"; $("densitySel").value = "normal"; $("colourSel").value = "colour";
+    $("workSel").value = "answer"; $("densitySel").value = "normal"; $("colourSel").value = "colour";
     ["exToggle", "formulaToggle", "nameToggle"].forEach(id => { $(id).checked = true; });
     $("keyToggle").checked = false;
     TYPES.forEach(T => { $("k" + T.k).checked = !T.off; $("n" + T.k).value = T.n; $("opt" + T.k).classList.toggle("on", !T.off); });
