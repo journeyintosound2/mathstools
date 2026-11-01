@@ -494,6 +494,13 @@
       { t:"Slide the two pieces up", m:`${W("they fill the top corners: a")} ${hB(p)} × ${hH(fmt(q / 2))} ${W("rectangle — half of the")} ${hB(p)} × ${hH(q)} ${W("one round it")}`,
         c:`${half} × ${hB(p)} × ${hH(q)} = <span class="ansV">${fmt(p * q / 2)}</span>${W(U2())}`, anim:"slide", fin:true } ];
   }
+  /* every story ends with the same reveal: the area in a bubble in the middle of the shape */
+  const areaWords = () => S.set.units ? fmt(area()) + U2() : fmt(area()) + " square units";
+  function withReveal(list){
+    list.forEach(s => { s.fin = false; });
+    list.push({ t:"The area", m:`<span class="ansV">${fmt(area())}</span>${W(S.set.units ? U2() : " square units")}`, anim:"pop", fin:true });
+    return list;
+  }
   let STEPS = steps();
 
   /* ------------------------------------------------------------ drawing */
@@ -556,6 +563,16 @@
     seg(p, m, { stroke:C.cut, "stroke-width":3.2 }, g);
     if(S.anim && c < 1) scissors(L.X(m[0]), L.Y(m[1]), Math.atan2(L.Y(q[1]) - L.Y(p[1]), L.X(q[0]) - L.X(p[0])), snip, g);
   }
+  /* the answer bubble: pops in on the last step (shrinks back on Back) */
+  function answerBubble(cx, cy, g){
+    const k = STEPS.length - 1, t = at(k); if(t <= 0) return;
+    const sc = t < 1 ? Math.max(.01, 1.12 * Math.sin(Math.min(1, t * 1.15) * Math.PI / 2) - .12 * Math.max(0, t * 1.15 - 1)) : 1;
+    const txt_ = areaWords(), f = fs() + 6;
+    const gg = el("g", { transform:`translate(${L.X(cx)} ${L.Y(cy)}) scale(${sc.toFixed(3)})`, class:"noHit" }, g);
+    const w = tw(txt_, f) + f * 1.3, hh = f * 1.9;
+    el("rect", { x:-w / 2, y:-hh / 2, width:w, height:hh, rx:hh / 2, fill:"#fff", stroke:"#15803d", "stroke-width":2.5, filter:"url(#bubShadow)" }, gg);
+    txt(0, f * .04, txt_, f, "#15803d", gg, { "font-weight":800 });
+  }
   /* stepping helpers: how far through step k the board is */
   const at = k => S.step > k ? 1 : S.step < k ? 0 : (S.anim ? S.anim.t : 1);
 
@@ -571,13 +588,16 @@
     if(Math.abs(wrap.offsetHeight - want) > 2) wrap.style.height = want + "px";
   }
   function render(){
-    STEPS = steps();
+    STEPS = withReveal(steps());
     if(S.step > STEPS.length - 1) S.step = STEPS.length - 1;
     if(!S.frozen && !S.anim) fitStacked();
     L = layout();
     svg.setAttribute("viewBox", `0 0 ${L.w} ${L.h}`);
     svg.setAttribute("class", S.drag ? "dragging" : "");
     svg.innerHTML = "";
+    const defs = el("defs");
+    const flt = el("filter", { id:"bubShadow", x:"-20%", y:"-40%", width:"140%", height:"180%" }, defs);
+    el("feDropShadow", { dx:0, dy:3, stdDeviation:4, "flood-color":"#0f172a", "flood-opacity":.18 }, flt);
     const gGrid = el("g", { class:"noHit" }), gBack = el("g", { class:"noHit" }), gMain = el("g", { class:"noHit" }), gTop = el("g", { class:"noHit" }), gLab = el("g", { class:"noHit" }), gHand = el("g");
     const sc = { gGrid, gBack, gMain, gTop, gLab, handles:[] };
     if(S.set.grid && L.s >= 12) drawGrid(gGrid);
@@ -613,7 +633,8 @@
       if(j === 0) on = clamp(lit1 - i, 0, 1);
       else on = rowT >= 1 ? clamp(rowsLit - j, 0, 1) : 0;
       const P = [[i, j], [i + 1, j], [i + 1, j + 1], [i, j + 1]];
-      poly(P, { fill:on > 0 ? `rgba(22,163,74,${(.18 + .42 * on).toFixed(3)})` : "#fff", stroke:"rgba(20,83,45,.35)", "stroke-width":1.2 }, sc.gMain);
+      /* pale green to start; each square darkens as it is counted */
+      poly(P, { fill:`rgba(22,163,74,${(.16 + .5 * on).toFixed(3)})`, stroke:"rgba(20,83,45,.35)", "stroke-width":1.2 }, sc.gMain);
       if(j === 0 && on >= 1 && cell >= 24 && S.step <= 1) txt(L.X(i + .5), L.Y(.5), String(i + 1), fsN, "#14532d", sc.gLab);
     }
     poly([[0, 0], [b, 0], [b, h], [0, h]], { fill:"none", stroke:C.edge, "stroke-width":3 }, sc.gTop);
@@ -627,7 +648,7 @@
     /* sides */
     pill(L.X(b / 2), L.Y(0) + (L.compact ? 26 : 30), fmt(b) + U(), fs(), baseOpt, sc.gLab);
     pill(L.X(0) - (L.compact ? 30 : 40), L.Y(h / 2), fmt(h) + U(), fs(), hOpt, sc.gLab);
-    if(S.step === STEPS.length - 1 && !S.anim && S.set.calc) pill(L.X(b / 2), L.Y(h / 2), `${fmt(b)} × ${fmt(h)} = ${fmt(b * h)}`, fs() + 3, { color:"#14532d", bg:"#f0fdf4", stroke:"rgba(21,128,61,.45)", sw:2 }, sc.gLab);
+    answerBubble(b / 2, h / 2, sc.gLab);
     sc.handles.push({ id:"rect", at:[b, h] });
   }
 
@@ -661,7 +682,7 @@
     /* the base label travels with the rectangle being made */
     const endMid = P.kind === "one" ? d + b / 2 : b / 2;
     pill(L.X(b / 2 + (endMid - b / 2) * prog), L.Y(0) + (L.compact ? 26 : 30), fmt(b) + U(), fs(), baseOpt, sc.gLab);
-    const done = S.step === STEPS.length - 1 && !S.anim && P.kind !== "none";
+    const done = P.kind !== "none" && S.step >= 2 && prog >= 1;
     /* the height: from the top corner straight down (it is also the cut, when there is one cut);
        once strips have slid, it is the rectangle's end */
     const hxS = P.kind === "strips" && done ? (d > 0 ? 0 : b) : (d >= 0 ? d : b + d);
@@ -685,10 +706,7 @@
       const mx = L.X((a1[0] + a2[0]) / 2), my = L.Y((a1[1] + a2[1]) / 2), dx = L.X(a2[0]) - L.X(a1[0]), dy = L.Y(a2[1]) - L.Y(a1[1]), dl = Math.hypot(dx, dy) || 1;
       el("line", { x1:mx - dy / dl * 8, y1:my + dx / dl * 8, x2:mx + dy / dl * 8, y2:my - dx / dl * 8, stroke:C.edge, "stroke-width":2.5, class:"noHit" }, sc.gTop);
     });
-    if(done && S.set.calc){
-      const cx = P.kind === "one" ? (d > 0 ? d + b / 2 : d + b / 2) : b / 2;
-      pill(L.X(cx), L.Y(h / 2), `${fmt(b)} × ${fmt(h)} = ${fmt(b * h)}`, fs() + 3, { color:"#14532d", bg:"#f0fdf4", stroke:"rgba(21,128,61,.45)", sw:2 }, sc.gLab);
-    }
+    answerBubble(P.kind === "one" ? d + b / 2 : P.kind === "strips" ? b / 2 : b / 2 + d / 2, h / 2, sc.gLab);
     sc.handles.push({ id:"top", at:[d, h] }, { id:"base", at:[b, 0], square:true, cls:"base" });
   }
 
@@ -727,12 +745,11 @@
     pill(L.X(p) + (L.compact ? 28 : 38), L.Y(cy), ql, fs(), hOpt, sc.gLab);
     el("path", { d:`M${L.X(p) + 12} ${L.Y(0)}H${L.X(p) + 20}M${L.X(p) + 16} ${L.Y(0)}V${L.Y(q)}M${L.X(p) + 12} ${L.Y(q)}H${L.X(p) + 20}`, stroke:"#fdba74", "stroke-width":1.6, fill:"none", class:"noHit" }, sc.gBack);
     /* the finished rectangle is half as tall: label it */
-    if(S.step === STEPS.length - 1 && !S.anim){
+    if(S.step >= 2 && sT >= 1){
       el("path", { d:`M${L.X(0) - 12} ${L.Y(q)}H${L.X(0) - 20}M${L.X(0) - 16} ${L.Y(q)}V${L.Y(cy)}M${L.X(0) - 12} ${L.Y(cy)}H${L.X(0) - 20}`, stroke:"#fdba74", "stroke-width":1.6, fill:"none", class:"noHit" }, sc.gBack);
       pill(L.X(0) - (L.compact ? 30 : 40), L.Y(q * .75), fmt(q / 2) + U(), fs(), hOpt, sc.gLab);
     }
-    if(S.step === STEPS.length - 1 && !S.anim && S.set.calc)
-      pill(L.X(cx), L.Y(q * .75), `${fmt(p)} × ${fmt(q)} ÷ 2 = ${fmt(p * q / 2)}`, fs() + 2, { color:"#14532d", bg:"#f0fdf4", stroke:"rgba(21,128,61,.45)", sw:2 }, sc.gLab);
+    answerBubble(cx, q * .75, sc.gLab);
     sc.handles.push({ id:"dp", at:[p, cy], square:true, cls:"base" }, { id:"dq", at:[cx, q] });
   }
 
@@ -824,6 +841,7 @@
   function dur(s){
     if(s.anim === "row") return clamp(240 * S.rw, 1100, 2600);
     if(s.anim === "rows") return clamp(380 * S.rh, 1100, 3000);
+    if(s.anim === "pop") return 650;
     if(s.anim === "cut") return S.mode === "diag" ? 2600 : 1800;
     return S.mode === "diag" ? 2600 : 1700;
   }

@@ -106,7 +106,9 @@
 > a rhombus preset uses 3-4-5 / 6-8-10 / 5-12-13 so the sides are whole numbers and get equal-side marks; the
 > sloping side is labelled as a distractor when it is a whole number) · **Diagonals** (rhombus p × q: cut along
 > both diagonals, the two bottom pieces slide up into the top corners → p × q/2, half the dashed p × q
-> rectangle). localStorage `mmt.paraArea.v1`. Test surface `window.__PA__`. No quiz or worksheet yet.
+> rectangle). Every story ends with an extra reveal step (`withReveal()`): the area pops up as a bubble in
+> the middle of the shape ("28 square units" / "40 cm²"). Rectangle mode starts pale green and each square
+> darkens as it is counted. localStorage `mmt.paraArea.v1`. Test surface `window.__PA__`. No quiz or worksheet yet.
 >
 > **NEW (2026-11-01): AREA OF A TRIANGLE WORKSHEET GENERATOR REBUILT** (same URL,
 > `worksheet-creators/stage-4/measurement-space/area-of-a-triangle.html`) on the Area Model generator's frame
