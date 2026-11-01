@@ -96,6 +96,18 @@
 > §2 "TWO folders", §3 deploy paths and §5's `mathstools-main 2` heading below
 > describe the OLD layout — this block supersedes them.
 >
+> **NEW (2026-11-01): AREA OF A PARALLELOGRAM & RHOMBUS WORKSHEET GENERATOR** — new
+> `worksheet-creators/stage-4/measurement-space/area-of-a-parallelogram.html`, built on the triangle generator's
+> frame (same CSS, measureAndPack, pagesHTML, answer key). Levels Sweet 2–10 · Mild 3–12 · Medium 4–12 bigger
+> areas · Spicy 5–16 with halves (area questions only; squares never halved; a diagonal is halved only when the
+> other is even, so no quarter areas; a labelled sloping side keeps a whole height). Shape switches rect / para /
+> rhombus (side + height, TRIPLES) / rhombus by diagonals feed C, E, F, H. Types: A Rows of squares (always grid)
+> · B Cut and slide (dotted cut, dashed ghost of where the piece goes, arrow; Rectangle __×__ then Parallelogram)
+> · C Find the area · D Rhombus from its diagonals (dashed p × q rectangle, then half) · E Work backwards (whole
+> answers, no grid) · F Spot the mistake (sloping side / halved a parallelogram / forgot to halve the diagonals)
+> · G Draw your own · H Fluency (off; 2 columns). Sloping-side distractor uses TRIPLES; the "Your turn" prompt
+> changes page to page. `shapeSVG()` in mm; side margin grows to fit the widest side label. `window.__WS__`.
+>
 > **NEW (2026-11-01): AREA OF A PARALLELOGRAM & RHOMBUS STUDENT QUIZ** — shell
 > `online-quizzes/stage-4/measurement-space/area-of-a-parallelogram.html`, engine `area-of-a-parallelogram-quiz/quiz.js`
 > + `quiz.css` (css copied from the triangle quiz; bump BOTH ?v= in the shell). Triangle-quiz pattern: one question +
@@ -118,7 +130,7 @@
 > both diagonals, the two bottom pieces slide up into the top corners → p × q/2, half the dashed p × q
 > rectangle). Every story ends with an extra reveal step (`withReveal()`): the area pops up as a bubble in
 > the middle of the shape ("28 square units" / "40 cm²"). Rectangle mode starts pale green and each square
-> darkens as it is counted. localStorage `mmt.paraArea.v1`. Test surface `window.__PA__`. Quiz below; no worksheet yet.
+> darkens as it is counted. localStorage `mmt.paraArea.v1`. Test surface `window.__PA__`. Quiz and worksheet generator below.
 >
 > **NEW (2026-11-01): AREA OF A TRIANGLE WORKSHEET GENERATOR REBUILT** (same URL,
 > `worksheet-creators/stage-4/measurement-space/area-of-a-triangle.html`) on the Area Model generator's frame

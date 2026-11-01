@@ -58,6 +58,14 @@ window.MMT_TOOL_LINKS = {
       tags: ["quiz", "area", "parallelograms", "rhombus", "rectangles", "base times height", "diagonals", "missing length", "sweet mild medium spicy", "student code login", "teacher dashboard"]
     },
     {
+      title: "Area of a Parallelogram & Rhombus (Worksheet maker)",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-4/measurement-space/area-of-a-parallelogram.html",
+      ideas: ["rectangles"],
+      note: "Printable A4 sheets that always come back to the rectangle: rows of unit squares, a parallelogram cut and slid into a base × height rectangle, a rhombus as half the rectangle round its diagonals, then find the area, work backwards, spot the mistake and draw your own. Sweet to Spicy (halves), sloping-side distractors, shape switches, answer key.",
+      tags: ["worksheet", "printable", "area", "parallelograms", "rhombus", "rectangles", "squares", "base times height", "diagonals", "missing length", "spot the mistake", "answer key", "differentiated"]
+    },
+    {
       title: "Area Model \u2014 Multiplication & Perimeter",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-4/measurement-space/perimeter-area-rectangle/",
@@ -107,6 +115,14 @@ window.MMT_TOOL_LINKS = {
       ideas: ["parallelogram"],
       note: "Ten questions, one answer each, with the teaching tool's model to cut and slide (never shows the answer). Sweet: rectangles, squares, parallelograms, rhombuses; Mild adds diagonals; Medium half find-the-base-or-height; Spicy no grid, halves and a missing diagonal. Saves to the student dashboard.",
       tags: ["quiz", "area", "parallelograms", "rhombus", "rectangles", "base times height", "diagonals", "missing length", "sweet mild medium spicy", "student code login", "teacher dashboard"]
+    },
+    {
+      title: "Area of a Parallelogram & Rhombus (Worksheet maker)",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-4/measurement-space/area-of-a-parallelogram.html",
+      ideas: ["parallelogram"],
+      note: "Printable A4 sheets that always come back to the rectangle: rows of unit squares, a parallelogram cut and slid into a base × height rectangle, a rhombus as half the rectangle round its diagonals, then find the area, work backwards, spot the mistake and draw your own. Sweet to Spicy (halves), sloping-side distractors, shape switches, answer key.",
+      tags: ["worksheet", "printable", "area", "parallelograms", "rhombus", "rectangles", "squares", "base times height", "diagonals", "missing length", "spot the mistake", "answer key", "differentiated"]
     },
     {
       title: "Area Model \u2014 Worksheet Creator",
@@ -894,6 +910,14 @@ window.MMT_TOOL_LINKS = {
       ideas: ["rectangles-triangles-parallelograms"],
       note: "Ten questions, one answer each, with the teaching tool's model to cut and slide (never shows the answer). Sweet: rectangles, squares, parallelograms, rhombuses; Mild adds diagonals; Medium half find-the-base-or-height; Spicy no grid, halves and a missing diagonal. Saves to the student dashboard.",
       tags: ["quiz", "area", "parallelograms", "rhombus", "rectangles", "base times height", "diagonals", "missing length", "sweet mild medium spicy", "student code login", "teacher dashboard"]
+    },
+    {
+      title: "Area of a Parallelogram & Rhombus (Worksheet maker)",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-4/measurement-space/area-of-a-parallelogram.html",
+      ideas: ["rectangles-triangles-parallelograms"],
+      note: "Printable A4 sheets that always come back to the rectangle: rows of unit squares, a parallelogram cut and slid into a base × height rectangle, a rhombus as half the rectangle round its diagonals, then find the area, work backwards, spot the mistake and draw your own. Sweet to Spicy (halves), sloping-side distractors, shape switches, answer key.",
+      tags: ["worksheet", "printable", "area", "parallelograms", "rhombus", "rectangles", "squares", "base times height", "diagonals", "missing length", "spot the mistake", "answer key", "differentiated"]
     },
     {
       title: "Area Model \u2014 Multiplication & Perimeter",

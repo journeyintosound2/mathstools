@@ -1,6 +1,6 @@
 /* Written by tools/build-pwa.mjs — do not edit by hand. */
 self.MMT_PRECACHE = {
- "version": "0f2361b067",
+ "version": "3258949863",
  "files": [
   "./",
   "assessment/exam-builder/app.js",
@@ -950,6 +950,7 @@ self.MMT_PRECACHE = {
   "worksheet-creators/stage-4/algebra/visual-patterns.html",
   "worksheet-creators/stage-4/measurement-space/angle-relationships/border_page0.png",
   "worksheet-creators/stage-4/measurement-space/angle-relationships/index.html",
+  "worksheet-creators/stage-4/measurement-space/area-of-a-parallelogram.html",
   "worksheet-creators/stage-4/measurement-space/area-of-a-triangle.html",
   "worksheet-creators/stage-4/measurement-space/length/index.html",
   "worksheet-creators/stage-4/measurement-space/perimeter-area-rectangle.html",

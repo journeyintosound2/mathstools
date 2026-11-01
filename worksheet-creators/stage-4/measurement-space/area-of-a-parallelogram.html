@@ -1,0 +1,1005 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Area of a Parallelogram &amp; Rhombus — Worksheet Generator | Mills Maths Tools</title>
+  <meta name="description" content="Differentiated A4 worksheets on the area of rectangles, squares, parallelograms and rhombuses: rows of squares, cut and slide, diagonals, work backwards, spot the mistake and draw your own — with an answer key.">
+
+  <style>
+    :root{
+      --bg:#f6f7fb;
+      --card:#ffffff;
+      --ink:#111827;
+      --muted:#6b7280;
+      --border:#e5e7eb;
+      --shadow:0 14px 40px rgba(0,0,0,.10);
+      --radius:18px;
+      --blue:#2563eb;
+      --green:#16a34a;
+      --red:#dc2626;
+      --sweet1:#4ade80;  --sweet2:#16a34a;
+      --mild1:#facc15;   --mild2:#d97706;
+      --medium1:#fb923c; --medium2:#ea580c;
+      --spicy1:#f87171;  --spicy2:#b91c1c;
+      --footer-h:44px;
+      --mathFont:"STIX Two Math","Cambria Math","Latin Modern Math","Times New Roman",Georgia,serif;
+      --uiFont:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+    }
+    *{ box-sizing:border-box; }
+    body{ margin:0; background:var(--bg); color:var(--ink); font-family:var(--uiFont); padding-bottom:var(--footer-h); }
+    .wrap{ max-width:1280px; margin:14px auto 32px; padding:0 14px; }
+    .card{ background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); padding:16px; }
+    .title{ margin:0 0 4px; font-size:28px; font-weight:1000; letter-spacing:.2px; }
+    .subtitle{ margin:0 0 14px; color:var(--muted); font-weight:850; font-size:15px; line-height:1.4; }
+    .subtitle a{ color:var(--blue); text-decoration:none; font-weight:1000; }
+
+    .controls{ display:grid; gap:10px; }
+    .band{ border:1px solid var(--border); border-radius:18px; padding:12px 14px; background:linear-gradient(180deg,#ffffff,#f9fafb); }
+    .bandHead{ font-size:11px; letter-spacing:.14em; text-transform:uppercase; font-weight:1000; color:var(--muted); margin:0 0 9px; }
+    .bandGrid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:14px; align-items:end; }
+    .bandRow{ display:flex; gap:16px 22px; flex-wrap:wrap; align-items:center; }
+    label{ display:block; margin:0 0 7px; font-size:15px; font-weight:950; }
+    select, input[type="number"]{ border:2px solid #e5e7eb; border-radius:14px; padding:12px 13px; font-size:15px; font-weight:900; width:100%; background:#fff; color:var(--ink); font-family:inherit; }
+    select:focus, input:focus{ outline:none; border-color:var(--blue); }
+    .sw{ display:inline-flex; align-items:center; gap:10px; cursor:pointer; user-select:none; font-weight:900; font-size:14.5px; margin:0; }
+    .sw input{ position:absolute; opacity:0; width:0; height:0; }
+    .sw .track{ position:relative; width:46px; height:27px; border-radius:999px; background:#cbd5e1; transition:.16s ease; flex:0 0 auto; }
+    .sw .track::after{ content:""; position:absolute; top:3px; left:3px; width:21px; height:21px; border-radius:50%; background:#fff; box-shadow:0 2px 5px rgba(0,0,0,.28); transition:.16s ease; }
+    .sw input:checked + .track{ background:var(--green); }
+    .sw input:checked + .track::after{ transform:translateX(19px); }
+    .sw input:focus-visible + .track{ box-shadow:0 0 0 4px rgba(37,99,235,.25); }
+    .sw input:disabled + .track{ opacity:.45; }
+
+    /* what we're practising: area, perimeter or both */
+    .seg{ display:inline-flex; background:#f1f5f9; border:1px solid var(--border); border-radius:15px; padding:4px; gap:4px; flex-wrap:wrap; }
+    .seg button{ appearance:none; border:none; background:transparent; border-radius:11px; padding:10px 16px; font:inherit; font-weight:950; font-size:15px; color:var(--muted); cursor:pointer; display:flex; align-items:center; gap:9px; }
+    .seg button .sym{ font-family:var(--mathFont); font-size:20px; width:28px; height:28px; border-radius:8px; display:grid; place-items:center; background:#e2e8f0; color:#334155; }
+    .seg button[aria-pressed="true"]{ background:#fff; color:var(--ink); box-shadow:0 3px 10px rgba(15,23,42,.12); }
+    .seg button[aria-pressed="true"] .sym{ background:var(--blue); color:#fff; }
+    .seg button[data-focus="perim"][aria-pressed="true"] .sym{ background:#7c3aed; }
+    .seg button[data-focus="both"][aria-pressed="true"] .sym{ background:linear-gradient(135deg,var(--blue),#7c3aed); }
+
+    /* levels: tick one or several; each section climbs through the ticked ones */
+    .lvChips{ display:grid; grid-template-columns:repeat(auto-fit,minmax(178px,1fr)); gap:8px; }
+    .lvChip{ position:relative; display:flex; align-items:center; gap:10px; margin:0; border:1.5px solid var(--border); border-radius:14px; padding:9px 11px; cursor:pointer; background:#fff; transition:.14s ease; }
+    .lvChip input{ position:absolute; opacity:0; width:0; height:0; }
+    .lvChip .dot{ width:22px; height:22px; border-radius:7px; border:2px solid #cbd5e1; display:grid; place-items:center; flex:0 0 auto; color:#fff; font-size:13px; font-weight:1000; }
+    .lvChip .txt{ font-size:14px; font-weight:950; line-height:1.2; }
+    .lvChip small{ display:block; font-family:var(--mathFont); font-size:15px; font-weight:600; color:var(--muted); }
+    .lvChip input:checked ~ .dot{ background:var(--lc); border-color:var(--lc); }
+    .lvChip input:checked ~ .dot::after{ content:"\2713"; }
+    .lvChip:has(input:checked){ border-color:var(--lc); box-shadow:inset 4px 0 0 var(--lc); }
+    .lvChip input:focus-visible ~ .dot{ box-shadow:0 0 0 4px rgba(37,99,235,.25); }
+    .quick{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:9px; font-size:13px; font-weight:900; color:var(--muted); }
+    .quick button{ appearance:none; border:1.5px solid var(--border); background:#fff; border-radius:999px; padding:6px 12px; font:inherit; font-weight:950; font-size:13px; color:#334155; cursor:pointer; }
+    .quick button:hover{ border-color:var(--blue); color:var(--blue); }
+
+    /* the problem types: a checkbox, what it asks, and what it looks like */
+    .typeGrid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:10px; }
+    .typeOpt{ border:1.5px solid var(--border); border-radius:16px; padding:11px 13px 12px; background:#fff; display:flex; flex-direction:column; gap:7px; transition:.15s ease; }
+    .typeOpt.on{ border-color:var(--tc); box-shadow:inset 4px 0 0 var(--tc); }
+    .typeOpt.na{ opacity:.45; }
+    .typeTop{ display:flex; align-items:center; gap:10px; }
+    .typeTop .sw{ font-size:15px; }
+    .typeLetter{ width:26px; height:26px; border-radius:8px; background:var(--tc); color:#fff; font-weight:1000; display:grid; place-items:center; font-size:14px; flex:0 0 auto; }
+    .typeTag{ margin-left:auto; font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; font-weight:1000; border-radius:999px; padding:3px 8px; flex:0 0 auto; }
+    .typeTag.area{ background:#eff6ff; color:#1d4ed8; }
+    .typeTag.perim{ background:#f5f3ff; color:#6d28d9; }
+    .typeTag.both{ background:#f1f5f9; color:#334155; }
+    .typeDesc{ font-size:13px; font-weight:800; color:var(--muted); line-height:1.4; margin:0; }
+    .typeEx{ display:flex; align-items:center; gap:9px; flex-wrap:wrap; background:#f8fafc; border:1px dashed #cbd5e1; border-radius:11px; padding:7px 10px; font-size:13.5px; font-weight:850; }
+    .typeEx .exLab{ font-size:10px; letter-spacing:.12em; text-transform:uppercase; font-weight:1000; color:var(--muted); }
+    .typeEx .m{ font-family:var(--mathFont); font-size:17px; font-weight:600; white-space:nowrap; }
+    .typeEx .arrow{ color:#94a3b8; font-weight:1000; }
+    .typeEx svg{ height:46px; width:auto; display:block; }
+    .cntRow{ display:flex; align-items:center; gap:10px; }
+    .cntRow label{ margin:0; font-size:13px; color:var(--muted); white-space:nowrap; }
+    .cntRow input{ width:78px; padding:8px 10px; }
+    .totalRow{ display:flex; align-items:center; gap:10px; margin-top:10px; font-weight:950; font-size:14px; flex-wrap:wrap; }
+    .pill{ background:#eef2ff; color:#1d4ed8; border-radius:999px; padding:5px 12px; font-weight:1000; font-size:13px; }
+    .note{ margin:9px 0 0; font-size:12.6px; font-weight:800; color:var(--muted); line-height:1.5; }
+    .note b{ color:var(--ink); }
+    .note a{ color:var(--blue); font-weight:1000; text-decoration:none; }
+    .note.warn{ color:#991b1b; font-size:14px; }
+    .btnRow{ display:flex; gap:10px; flex-wrap:wrap; margin-top:2px; }
+    button.primary, button.ghost, button.danger{ border-radius:14px; padding:13px 18px; font-size:15px; font-weight:1000; cursor:pointer; border:2px solid transparent; font-family:inherit; }
+    button.primary{ background:var(--blue); color:#fff; }
+    button.primary:hover{ background:#1d4ed8; }
+    button.ghost{ background:#fff; color:var(--ink); border-color:var(--border); }
+    button.ghost:hover{ border-color:#c7ccd4; }
+    button.danger{ background:#fff; color:var(--red); border-color:#fecaca; }
+    button.danger:hover{ background:#fef2f2; }
+    .outWrap{ margin-top:8px; }
+
+    /* =====================================================================
+       THE PAPER — 196 × 281 mm on screen AND in print (the printable area of
+       A4 at the print margins), so what the preview shows is what prints.
+       ===================================================================== */
+    .page{
+      margin:14px auto 0; background:#fff; border:1px solid var(--border);
+      border-radius:14px; box-shadow:0 10px 26px rgba(15,23,42,.08); overflow:hidden;
+      width:196mm; height:281mm; display:flex; flex-direction:column;
+      --fs:1; --lineH:10mm;
+    }
+    .page.d-roomy{ --fs:1.16; --lineH:11.5mm; }
+    .page.d-normal{ --fs:1; --lineH:9.5mm; }
+    .page.d-tight{ --fs:.88; --lineH:8mm; }
+    .pageHeader{ padding:4mm 5mm 2.6mm; border-bottom:2.2px solid #111827; display:flex; align-items:flex-end; justify-content:space-between; gap:10px; }
+    .hdrTitle{ font-weight:1000; font-size:16px; line-height:1.1; }
+    .hdrSub{ color:var(--muted); font-weight:850; font-size:11px; margin-top:2px; white-space:nowrap; }
+    .nameDate{ display:flex; gap:8px; align-items:flex-end; }
+    .lineField{ display:flex; flex-direction:column; gap:3px; width:34mm; }
+    .lineLabel{ font-size:10px; font-weight:950; color:var(--muted); }
+    .lineBox{ height:6mm; border-bottom:1.6px solid #111827; }
+    .sheet{ padding:3.2mm 5mm 2mm; flex:1 1 auto; display:flex; flex-direction:column; min-height:0; }
+
+    /* worked example, page 1 */
+    .exStrip{ display:flex; gap:4mm; align-items:center; border:1.5px solid #c7d2fe; background:#f5f7ff; border-radius:3.4mm; padding:2mm 3mm; margin-bottom:3mm; }
+    .exStrip .exHead{ font-size:calc(10.5px * var(--fs)); font-weight:1000; letter-spacing:.1em; text-transform:uppercase; color:#3730a3; }
+    .exStrip .exBody{ display:flex; flex-direction:column; gap:1.2mm; min-width:0; }
+    .exStrip .exLine{ font-family:var(--mathFont); font-weight:700; font-size:calc(15.5px * var(--fs)); line-height:1.25; }
+    .exStrip .exLine .k{ font-family:var(--uiFont); font-size:calc(10.5px * var(--fs)); font-weight:1000; color:var(--muted); letter-spacing:.04em; margin-right:1.5mm; }
+    .exStrip svg{ flex:0 0 auto; display:block; }
+    .bw .exStrip{ background:#fff; border-color:#9ca3af; }
+    .bw .exStrip .exHead{ color:#111827; }
+
+    .section{ margin-bottom:3mm; }
+    .secHead{ display:flex; align-items:center; gap:2.4mm; padding:1.6mm 2.4mm; margin-bottom:2.2mm; border-radius:3mm; background:var(--sc-bg); border:1.4px solid var(--sc); }
+    .secLetter{ font-weight:1000; font-size:calc(14px * var(--fs)); background:var(--sc); color:#fff; border-radius:2mm; padding:.6mm 2.2mm; flex:0 0 auto; }
+    .secText{ font-weight:950; font-size:calc(13.4px * var(--fs)); color:#111827; line-height:1.3; }
+    .secCont{ margin-left:auto; font-size:11px; font-weight:900; color:var(--muted); flex:0 0 auto; }
+
+    .qGrid{ display:grid; gap:3mm; grid-template-columns:repeat(var(--cols,2),minmax(0,1fr)); margin-bottom:3mm; }
+    .qCard{ border:1.4px solid #d7dce3; border-radius:3.4mm; padding:2.4mm 3mm 3mm; display:flex; flex-direction:column; gap:1.8mm; break-inside:avoid; background:#fff; min-width:0; }
+    .qCard.full{ grid-column:1 / -1; }
+    .qTop{ display:flex; align-items:center; gap:2.2mm; width:100%; min-width:0; overflow:hidden; }
+    .qNum{ width:calc(22px * var(--fs)); height:calc(22px * var(--fs)); border-radius:999px; color:#fff; display:flex; align-items:center; justify-content:center; font-size:calc(11.5px * var(--fs)); font-weight:1000; flex:0 0 auto; }
+    .qNum.sweet{ background:linear-gradient(180deg,var(--sweet1),var(--sweet2)); }
+    .qNum.mild{ background:linear-gradient(180deg,var(--mild1),var(--mild2)); }
+    .qNum.medium{ background:linear-gradient(180deg,var(--medium1),var(--medium2)); }
+    .qNum.spicy{ background:linear-gradient(180deg,var(--spicy1),var(--spicy2)); }
+    .expr{ font-family:var(--mathFont); font-weight:600; font-size:calc(21px * var(--fs)); line-height:1.15; white-space:nowrap; }
+    .expr .x{ color:#1d4ed8; } .expr .y{ color:#c2410c; }
+    .bw .expr .x, .bw .expr .y{ color:inherit; }
+    .qTop .ln{ flex:1 1 auto; min-width:12mm; max-width:34mm; height:calc(var(--lineH) * .8); border-bottom:1.6px solid #111827; }
+    .qTop .unit{ font-family:var(--mathFont); font-weight:600; font-size:calc(17px * var(--fs)); }
+    .qTop .word{ font-weight:950; font-size:calc(13.5px * var(--fs)); white-space:nowrap; }
+    .pic{ display:flex; justify-content:center; }
+    .pic svg{ display:block; overflow:visible; }
+    .picPair{ display:grid; grid-template-columns:1fr 1fr; gap:3mm; }
+    .picBox{ border:1.2px dashed #cbd5e1; border-radius:3mm; padding:1.4mm; display:flex; flex-direction:column; gap:1.4mm; }
+    .picCap{ font-size:calc(10.5px * var(--fs)); font-weight:1000; color:var(--muted); text-align:center; letter-spacing:.06em; text-transform:uppercase; }
+
+    .ansLine{ display:flex; align-items:flex-end; gap:2mm; font-family:var(--mathFont); font-weight:700; font-size:calc(17px * var(--fs)); }
+    .ansLine .ln{ flex:1 1 auto; height:var(--lineH); border-bottom:1.6px solid #111827; }
+    .ansLine .ln.sm{ flex:0 0 20%; }
+    .ansLine .ln.xs{ flex:0 0 13%; }
+    .ansLine .lab{ font-family:var(--uiFont); font-size:calc(10.5px * var(--fs)); font-weight:1000; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; align-self:center; white-space:nowrap; }
+    .ansLine .u{ font-size:.85em; }
+    .ticks{ display:flex; flex-wrap:wrap; align-items:center; gap:1.5mm 3mm; font-weight:900; font-size:calc(12px * var(--fs)); color:#374151; padding-top:1mm; }
+    .ticks .tb{ display:inline-block; width:3.6mm; height:3.6mm; border:1.5px solid #111827; border-radius:.8mm; vertical-align:-.5mm; margin-right:1mm; }
+    .say{ display:flex; flex-direction:column; }
+    .wl{ height:var(--lineH); border-bottom:1.5px solid #9aa3af; }
+    .workHead{ font-size:calc(10px * var(--fs)); font-weight:1000; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; }
+    .work{ border:1.4px dashed #9aa3af; border-radius:3mm; padding:1mm 2.4mm 0; }
+    .qCard.flu{ padding:2.2mm 3mm; }
+    .qCard.flu .qTop{ align-items:flex-end; }
+    .qCard.flu .qNum{ align-self:center; }
+    .qCard.flu .qTop .ln{ max-width:none; }
+    .qCard.flu .fluAns{ font-family:var(--mathFont); font-weight:700; font-size:calc(19px * var(--fs)); color:#15803d; white-space:nowrap; }
+
+    /* whatever a page leaves is a question the student makes for themselves */
+    .yourTurn{ border:1.8px dashed #c4b5fd; border-radius:3.4mm; padding:2.4mm 3mm 3mm; background:#fdfcff; display:flex; flex-direction:column; gap:2mm; margin-bottom:3mm; }
+    .ytHead{ display:flex; align-items:center; gap:2mm; font-weight:1000; font-size:calc(13.5px * var(--fs)); color:#6d28d9; }
+    .ytHead .star{ font-size:1.2em; }
+    .ytText{ font-weight:850; font-size:calc(12.5px * var(--fs)); color:#374151; line-height:1.35; }
+    .drawBox{ border:1.8px dashed #9aa3af; border-radius:3mm; height:var(--drawH,42mm); background-image:linear-gradient(#e5e7eb 1px, transparent 1px),linear-gradient(90deg,#e5e7eb 1px, transparent 1px); background-size:5mm 5mm; background-position:-1px -1px; }
+    .bw .yourTurn{ background:#fff; border-color:#9ca3af; }
+    .bw .ytHead{ color:#111827; }
+
+    /* answer key */
+    .isKey .qCard{ border-color:#bbf7d0; background:#f7fdf9; }
+    .keyAns{ font-family:var(--mathFont); font-weight:700; font-size:calc(16.5px * var(--fs)); color:#15803d; line-height:1.35; }
+    .keyAns .lab{ font-family:var(--uiFont); font-size:calc(10px * var(--fs)); font-weight:1000; color:#166534; letter-spacing:.05em; text-transform:uppercase; margin-right:1.4mm; }
+    .keyWhy{ font-size:calc(11.2px * var(--fs)); font-weight:850; color:#374151; line-height:1.4; }
+
+    /* black and white, for the photocopier */
+    .bw .secHead{ background:#fff !important; border-color:#111827 !important; }
+    .bw .secLetter{ background:#111827 !important; }
+    .bw .qNum{ background:#111827 !important; }
+    .bw .isKey .qCard, .isKey.bw .qCard{ background:#fff; border-color:#9ca3af; }
+
+    .pageFooter{ padding:1.4mm 5mm 2mm; border-top:1px solid rgba(229,231,235,.95); display:flex; align-items:center; justify-content:space-between; font-weight:900; color:var(--muted); font-size:10px; }
+    .pageFooter a{ color:#2563eb; text-decoration:none; font-weight:1000; }
+    .measure{ position:absolute; left:-10000px; top:0; visibility:hidden; }
+    .mmtFooter{ position:fixed; left:0; right:0; bottom:0; height:var(--footer-h); display:flex; align-items:center; justify-content:center; padding:0 12px; background:rgba(255,255,255,.92); border-top:1px solid rgba(229,231,235,.95); backdrop-filter:blur(8px); z-index:500; font-weight:900; color:#111827; text-align:center; font-size:13px; }
+    .mmtFooter a{ color:#2563eb; text-decoration:none; font-weight:950; }
+
+    @media print{
+      @page{ size:A4; margin:8mm 7mm; }
+      html, body{ width:196mm; height:auto; }
+      body{ background:#fff; padding-bottom:0; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+      .wrap{ max-width:none; margin:0; padding:0; }
+      .card{ box-shadow:none; border-radius:0; padding:0; }
+      .controls, .title, .subtitle, .mmtFooter{ display:none !important; }
+      .outWrap{ margin:0; }
+      .page{ height:280.5mm; }
+      .page{ margin:0; border:none; border-radius:0; box-shadow:none; page-break-after:always; }
+      .page:last-child{ page-break-after:auto; }
+    }
+    /* ---------- the triangle generator's own pieces ---------- */
+    .kSub{ display:block; font-size:12px; font-weight:800; color:var(--muted); }
+    .typeEx svg{ height:58px; }
+    .lvChip small{ font-family:var(--uiFont); font-size:12.5px; font-weight:800; }
+    .qText{ font-weight:850; font-size:calc(13px * var(--fs)); line-height:1.4; color:#1f2937; }
+    .qText b{ font-weight:1000; }
+    .split{ display:grid; grid-template-columns:auto minmax(0,1fr); gap:4mm; align-items:center; }
+    .split .side{ display:flex; flex-direction:column; gap:1.8mm; min-width:0; }
+    .said{ font-weight:850; font-size:calc(12.5px * var(--fs)); color:#374151; line-height:1.4; }
+    .saidM{ font-family:var(--mathFont); font-weight:700; font-size:calc(17px * var(--fs)); color:#111827; margin-top:1mm; padding:1.2mm 2.4mm; border:1.2px dashed #cbd5e1; border-radius:2.4mm; display:inline-block; }
+    .ticks .tb{ font-style:normal; }
+    .qCard.full .pic{ justify-content:flex-start; }
+    .ansLine .lab.big{ text-transform:none; letter-spacing:0; font-size:calc(13.5px * var(--fs)); font-weight:950; color:#111827; }
+  </style>
+<!-- mmt-pwa -->
+<link rel="manifest" href="../../../manifest.webmanifest">
+<meta name="theme-color" content="#1f3a5f">
+<link rel="apple-touch-icon" href="../../../icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="MMT">
+<script src="../../../pwa.js" defer></script>
+<!-- /mmt-pwa -->
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1 class="title">Area of a Parallelogram &amp; Rhombus &mdash; Worksheet Generator</h1>
+      <p class="subtitle">Printable A4 worksheets from the <a href="/interactive-tools/stage-4/measurement-space/area-of-a-parallelogram/">Area of a Parallelogram &amp; Rhombus</a> teaching tool (and its <a href="/online-quizzes/stage-4/measurement-space/area-of-a-parallelogram.html">Student Quiz</a>). Every area comes back to a rectangle: <b>rows of squares</b>, a parallelogram <b>cut and slid</b> into a base &times; height rectangle, and a rhombus that is <b>half the rectangle round its diagonals</b>.</p>
+
+      <div class="controls">
+        <div class="band">
+          <p class="bandHead">The numbers &mdash; tick one level, or several for a ladder</p>
+          <div class="lvChips" id="lvChips"></div>
+          <div class="quick">Quick sets:
+            <button type="button" data-quick="sweet,mild">Getting started</button>
+            <button type="button" data-quick="mild,medium">Core Stage 4</button>
+            <button type="button" data-quick="medium,spicy">Extension</button>
+            <button type="button" data-quick="sweet,mild,medium,spicy">All four &mdash; a full ladder</button>
+          </div>
+          <p class="note">One level ticked: every question is that size. Several ticked: each section climbs through them, easiest first. <b>Spicy</b> uses lengths in halves (6.5) when finding an area; working backwards always comes out to whole numbers.</p>
+        </div>
+
+        <div class="band">
+          <p class="bandHead">The shapes</p>
+          <div class="bandRow">
+            <label class="sw"><input type="checkbox" id="sRect" checked /><span class="track"></span><span>Rectangles &amp; squares <small class="kSub">length &times; width</small></span></label>
+            <label class="sw"><input type="checkbox" id="sPara" checked /><span class="track"></span><span>Parallelograms <small class="kSub">base &times; height</small></span></label>
+            <label class="sw"><input type="checkbox" id="sRhom" checked /><span class="track"></span><span>Rhombuses <small class="kSub">by a side and the height</small></span></label>
+            <label class="sw"><input type="checkbox" id="sDiag" checked /><span class="track"></span><span>Rhombuses by their diagonals <small class="kSub">&frac12; &times; p &times; q</small></span></label>
+          </div>
+          <div class="bandGrid" style="margin-top:12px">
+            <div>
+              <label for="slantSel">A sloping side labelled too</label>
+              <select id="slantSel">
+                <option value="never">Never &mdash; only base and height</option>
+                <option value="some" selected>Sometimes &mdash; a distractor</option>
+                <option value="often">Often &mdash; choose the height every time</option>
+              </select>
+            </div>
+            <div>
+              <label for="gridSel">Unit squares</label>
+              <select id="gridSel">
+                <option value="on" selected>On, where they fit</option>
+                <option value="off">Off</option>
+              </select>
+            </div>
+            <div>
+              <label for="workSel">Answer space in C &ldquo;Find the area&rdquo;</label>
+              <select id="workSel">
+                <option value="answer" selected>Area = ____</option>
+                <option value="lines">Working lines, then Area = ____</option>
+              </select>
+            </div>
+            <div>
+              <label for="unitSel">Units</label>
+              <select id="unitSel">
+                <option value="cm" selected>cm</option>
+                <option value="mm">mm</option>
+                <option value="m">m</option>
+                <option value="">None</option>
+              </select>
+            </div>
+          </div>
+          <p class="note">The shape switches decide what sections <b>C</b>, <b>E</b>, <b>F</b> and <b>G</b> mix together (at least one stays on); A is always rectangles, B parallelograms and D rhombuses by their diagonals. A <b>sloping side</b> is labelled with a whole-number length (3-4-5, 6-8-10, 5-12-13 &hellip;) so students must pick the length at right angles to the base. Unit squares print only when the lengths are whole numbers and the squares are big enough to count; section A always has them.</p>
+        </div>
+
+        <div class="band">
+          <p class="bandHead">Problem types &mdash; tick the ones you want, and how many</p>
+          <div class="typeGrid" id="typeGrid"></div>
+          <div class="totalRow"><span>On the paper:</span><span class="pill" id="totalPill">0 questions</span></div>
+          <p class="note">The order is the lesson: <b>rows of squares</b>, <b>cut and slide</b> a parallelogram into a rectangle, <b>find areas</b>, a rhombus as <b>half the rectangle round its diagonals</b>, <b>work backwards</b>, <b>spot the mistake</b>, then <b>draw your own</b>. <b>H Fluency</b> is off until you tick it: bare questions with no diagram, good as a warm-up page on its own.</p>
+        </div>
+
+        <div class="band">
+          <p class="bandHead">Scaffolding and the paper</p>
+          <div class="bandGrid">
+            <div>
+              <label for="densitySel">Spacing</label>
+              <select id="densitySel">
+                <option value="roomy">Spacious &mdash; large diagrams and print</option>
+                <option value="normal" selected>Standard &mdash; two to a row</option>
+                <option value="tight">Compact &mdash; three to a row</option>
+              </select>
+            </div>
+            <div>
+              <label for="colourSel">Colour</label>
+              <select id="colourSel">
+                <option value="colour" selected>Colour &mdash; green shapes</option>
+                <option value="bw">Black and white &mdash; for photocopying</option>
+              </select>
+            </div>
+          </div>
+          <div class="bandRow" style="margin-top:12px">
+            <label class="sw"><input type="checkbox" id="exToggle" checked /><span class="track"></span><span>Worked example on page 1</span></label>
+            <label class="sw"><input type="checkbox" id="formulaToggle" checked /><span class="track"></span><span>Show the formulas in the example</span></label>
+            <label class="sw"><input type="checkbox" id="nameToggle" checked /><span class="track"></span><span>Name and date</span></label>
+            <label class="sw"><input type="checkbox" id="keyToggle" /><span class="track"></span><span>Answer key pages</span></label>
+          </div>
+          <p class="note">Turn the <b>formulas</b> off when the class is still discovering them &mdash; the example then shows the cut and slide and the rectangle it makes, without &ldquo;base &times; height&rdquo;. The answer key fills in every answer with a one-line reason, so it can be handed to a student.</p>
+        </div>
+
+        <div class="btnRow">
+          <button id="genBtn" class="primary">Generate worksheet</button>
+          <button id="printBtn" class="ghost">Print (Ctrl+P)</button>
+          <button id="resetBtn" class="danger">Reset</button>
+        </div>
+      </div>
+
+      <div id="out" class="outWrap"></div>
+    </div>
+  </div>
+
+  <div class="measure" id="measure" aria-hidden="true"></div>
+
+  <div class="mmtFooter">
+    This tool and more can be found at&nbsp;
+    <a href="https://www.millsmathstools.au">www.millsmathstools.au</a>
+  </div>
+
+<script>
+(() => {
+  "use strict";
+  /* =====================================================================
+     AREA OF A PARALLELOGRAM & RHOMBUS — WORKSHEET GENERATOR (2026-11-01)
+     Same frame as the triangle and Area Model generators: bands of
+     settings, lettered problem types with counts, rows MEASURED then packed
+     into A4 pages, a "Your turn" box in whatever a page leaves, answer key.
+
+     Every area here comes back to a rectangle:
+       A  Rows of squares     — rectangles/squares on squares: rows × in a row
+       B  Cut and slide       — the cut along the height and where the piece
+                                goes are drawn: the rectangle, then the area
+       C  Find the area       — the shapes ticked, mixed
+       D  Diagonals           — a rhombus inside the dashed p × q rectangle:
+                                the rectangle, then half of it
+       E  Work backwards      — area given; a base, height or diagonal missing
+       F  Spot the mistake    — used the sloping side / halved a parallelogram
+                                / forgot to halve the diagonals
+       G  Draw your own       — a given area on squares, two different ways
+       H  Fluency             — no diagram (off until ticked)
+     ===================================================================== */
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;");
+  const SITE = "https://www.millsmathstools.au";
+  const R = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+  const pick = a => a[Math.floor(Math.random() * a.length)];
+  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+  const shuffle = a => { const b = a.slice(); for(let i = b.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; };
+  const fmt = n => String(Math.round(n * 100) / 100);
+  const isInt = v => Math.abs(v - Math.round(v)) < 1e-9;
+  const PX_MM = 96 / 25.4;
+  const X = "×";
+
+  /* ---------------------------------------------------------- levels */
+  const LV = [
+    { k:"sweet",  name:"Sweet",  ex:"sides to 10",             cls:"sweet",  col:"#16a34a", bLo:2, bHi:10, hLo:2, hHi:8,  halves:false },
+    { k:"mild",   name:"Mild",   ex:"sides to 12",             cls:"mild",   col:"#d97706", bLo:3, bHi:12, hLo:2, hHi:10, halves:false },
+    { k:"medium", name:"Medium", ex:"to 12, bigger areas",     cls:"medium", col:"#ea580c", bLo:4, bHi:12, hLo:4, hHi:12, halves:false },
+    { k:"spicy",  name:"Spicy",  ex:"to 16, halves (6.5)",     cls:"spicy",  col:"#b91c1c", bLo:5, bHi:16, hLo:3, hHi:12, halves:true }
+  ];
+  const LVK = Object.fromEntries(LV.map(l => [l.k, l]));
+  function levelAt(levels, i, n){ return levels[Math.min(levels.length - 1, Math.floor(i * levels.length / Math.max(1, n)))]; }
+
+  /* ---------------------------------------------------------- making shapes */
+  /* (lean, height, side): a sloping side with a whole-number length */
+  const TRIPLES = [[3,4,5],[4,3,5],[6,8,10],[8,6,10],[5,12,13],[12,5,13],[9,12,15],[12,9,15]];
+  const slantLen = s => Math.hypot(s.d, s.h);
+  const isRhombus = s => s.kind === "para" && s.d !== 0 && Math.abs(s.b - slantLen(s)) < 1e-9;
+  const areaOf = s => s.kind === "diag" ? s.p * s.q / 2 : s.b * s.h;
+  const nameOf = s => s.kind === "rect" ? (s.square ? "square" : "rectangle") : s.kind === "diag" ? (s.square ? "square" : "rhombus") : isRhombus(s) ? "rhombus" : "parallelogram";
+  function addHalf(s){
+    /* Spicy, area questions: one length becomes a half */
+    /* a diagonal goes to a half only when the other one is even, so the area is never in quarters */
+    if(s.kind === "diag"){ if(s.square) return s; if(s.q % 2 === 0) s.p -= .5; else if(s.p % 2 === 0) s.q += .5; }
+    else if(s.kind === "rect"){ if(s.square) return s; if(Math.random() < .5) s.b -= .5; else s.h += .5; }
+    else if(!isRhombus(s)){ if(s.slant || Math.random() < .5) s.b -= .5; else s.h += .5; }   /* a labelled slope keeps its whole-number height */
+    return s;
+  }
+  function makeShape(level, kind, used, o){
+    o = o || {};
+    const L = LVK[level];
+    for(let t = 0; t < 600; t++){
+      let s;
+      if(kind === "rect" || kind === "square"){
+        const b = R(L.bLo, L.bHi), h = kind === "square" ? b : R(L.hLo, Math.min(L.hHi, b));
+        if(kind === "rect" && h === b) continue;
+        if(o.countable && b * h > 120) continue;
+        s = { kind:"rect", b, h, d:0, square:kind === "square" };
+      } else if(kind === "rhombus"){
+        const c = TRIPLES.filter(x => x[2] <= L.bHi && x[1] <= L.hHi && x[2] >= L.bLo);
+        if(!c.length) return makeShape(level, "para", used, o);
+        const [d, h, side] = pick(c);
+        s = { kind:"para", b:side, h, d:(Math.random() < .7 ? 1 : -1) * d };
+      } else if(kind === "diag"){
+        const p = R(Math.max(4, L.bLo), L.bHi), q = o.square ? p : R(Math.max(3, L.hLo), L.hHi);
+        if(!o.square && p === q) continue;
+        if((p * q) % 2 && !(o.halves)) continue;
+        s = { kind:"diag", p, q, square:!!o.square };
+      } else {
+        let d, h;
+        if(o.slant){ const c = TRIPLES.filter(x => x[1] <= L.hHi && x[1] >= L.hLo && x[0] < L.bHi); if(!c.length) return makeShape(level, "para", used, Object.assign({}, o, { slant:false })); [d, h] = pick(c); }
+        else { h = R(L.hLo, L.hHi); d = R(1, Math.max(1, Math.min(6, Math.round(L.bHi / 2)))); }
+        const b = R(Math.max(L.bLo, d + 1), L.bHi);
+        if(b <= d) continue;
+        s = { kind:"para", b, h, d:(Math.random() < .7 ? 1 : -1) * d };
+        if(isRhombus(s)) continue;
+        if(o.slant) s.slant = true;
+        if(!o.slant && Number.isInteger(slantLen(s))) continue;      /* only a distractor when asked for */
+      }
+      if(o.halves && L.halves) addHalf(s);
+      const key = JSON.stringify([s.kind, s.b, s.h, s.d, s.p, s.q]);
+      if(used.has(key) && t < 500) continue;
+      used.add(key);
+      return s;
+    }
+    return kind === "diag" ? { kind:"diag", p:10, q:6 } : { kind:"para", b:8, h:5, d:3 };
+  }
+  /* the shapes ticked, as kinds to draw from */
+  function shapeKinds(opts, withDiag){
+    const k = [];
+    if(opts.shapes.rect) k.push("rect", "square");
+    if(opts.shapes.para) k.push("para", "para");
+    if(opts.shapes.rhom) k.push("rhombus");
+    if(withDiag !== false && opts.shapes.diag) k.push("diag");
+    return k.length ? k : ["para"];
+  }
+  function bag(list, n){ const out = []; let b = []; for(let i = 0; i < n; i++){ if(!b.length) b = shuffle(list); out.push(b.pop()); } return out; }
+  const slantP = opts => opts.slant === "often" ? .85 : opts.slant === "some" ? .4 : 0;
+
+  /* ---------------------------------------------------------- the problem types */
+  const TYPES = [
+    { k:"A", col:"#15803d", bg:"#f0fdf4", n:2, title:"Rows of squares",
+      desc:"Rectangles and squares on unit squares. How many in a row, how many rows — so how many squares?",
+      ex:() => exShape({ kind:"rect", b:5, h:3, d:0 }, true) + '<span class="arrow">→</span><span class="m">3 rows of 5 = 15</span>' },
+    { k:"B", col:"#2563eb", bg:"#eff6ff", n:2, title:"Cut and slide",
+      desc:"A parallelogram with the cut along its height and where the piece slides to drawn in. Students name the rectangle it makes, then the area.",
+      ex:() => exShape({ kind:"para", b:5, h:3, d:2, show:"cut" }) + '<span class="arrow">→</span><span class="m">5 × 3 rectangle = 15</span>' },
+    { k:"C", col:"#7c3aed", bg:"#faf5ff", n:4, title:"Find the area",
+      desc:"The shapes you ticked above, mixed — with a sloping side to ignore if you choose. One answer line: Area = ____.",
+      ex:() => exShape({ kind:"para", b:6, h:4, d:3, slant:true }) + '<span class="arrow">→</span><span class="m">6 × 4 = 24</span>' },
+    { k:"D", col:"#0891b2", bg:"#ecfeff", n:2, title:"Rhombus from its diagonals",
+      desc:"A rhombus inside the dashed rectangle its diagonals make. Students find the rectangle, then the rhombus as half of it.",
+      ex:() => exShape({ kind:"diag", p:6, q:4, show:"rect" }) + '<span class="arrow">→</span><span class="m">6 × 4 = 24, half is 12</span>' },
+    { k:"E", col:"#0d9488", bg:"#f0fdfa", n:2, title:"Work backwards",
+      desc:"The area is given and a base, height (or diagonal) is missing. Divide by the length you know.",
+      ex:() => '<span class="m">Area 40, base 8 → height = 40 ÷ 8 = 5</span>' },
+    { k:"F", col:"#db2777", bg:"#fdf2f8", n:1, title:"Spot the mistake",
+      desc:"A worked answer with a classic error: used the sloping side, halved a parallelogram, or forgot to halve the diagonals. Students explain it and fix it.",
+      ex:() => '<span class="m">½ × 8 × 5 = 20</span><span class="arrow">→</span><span class="m">don’t halve: 40</span>' },
+    { k:"G", col:"#ea580c", bg:"#fff7ed", n:1, title:"Draw your own",
+      desc:"Draw a shape with a given area on squares, then a different one with the same area. Low floor, high ceiling.",
+      ex:() => '<span class="m">area 24 → 6 by 4, 8 by 3, 12 by 2 …</span>' },
+    { k:"H", col:"#475569", bg:"#f8fafc", n:12, off:true, title:"Fluency — no diagram",
+      desc:"Lengths in words, no pictures and no working space; on Medium and Spicy some ask for a missing length. Tick it on its own for a warm-up.",
+      ex:() => '<span class="m">parallelogram, base 8, height 5 → area =</span><span style="display:inline-block;width:2.2em;border-bottom:1.6px solid currentColor"></span>' }
+  ];
+  function headFor(T, opts){
+    switch(T.k){
+      case "A": return "Rows of squares. How many squares in a row, and how many rows? Find the area.";
+      case "B": return "Cut and slide. The piece cut off along the height slides to the other end. Name the rectangle it makes, then find the area.";
+      case "C": return "Find the area of each shape." + (opts.slant !== "never" ? " Use the height — it meets the base at a right angle." : "");
+      case "D": return "Rhombus from its diagonals. Find the area of the dashed rectangle, then the rhombus inside it.";
+      case "E": return "Work backwards. The area is given. Find the missing length.";
+      case "F": return "Spot the mistake. Explain what went wrong, then find the correct area.";
+      case "G": return "Draw your own. Draw each shape on the squares (each square is 1 square unit).";
+      case "H": return "Fluency. Find the area, or the missing length.";
+    }
+  }
+
+  /* ---------------------------------------------------------- making questions */
+  function makeQ(T, level, i, n, kind, opts, used){
+    const q = { type:T.k, level, cls:LVK[level].cls };
+    const half = LVK[level].halves;
+    if(T.k === "A"){ q.s = makeShape(level, i % 3 === 2 ? "square" : "rect", used, { countable:true }); q.s.forceGrid = true; return q; }
+    if(T.k === "B"){
+      q.s = makeShape(level, opts.shapes.rhom && i % 3 === 2 ? "rhombus" : "para", used, { slant:Math.random() < slantP(opts) * .5 });
+      q.s.show = "cut"; return q;
+    }
+    if(T.k === "C"){
+      const sq = kind === "diag" && Math.random() < .2;
+      q.s = makeShape(level, kind, used, { slant:kind === "para" && Math.random() < slantP(opts), halves:half && Math.random() < .6, square:sq });
+      return q;
+    }
+    if(T.k === "D"){ q.s = makeShape(level, "diag", used, { square:i % 3 === 2, halves:half && Math.random() < .5 }); q.s.show = "rect"; return q; }
+    if(T.k === "E"){
+      q.s = makeShape(level, kind, used, { slant:kind === "para" && Math.random() < slantP(opts) * .7 });
+      q.s.missing = q.s.kind === "diag" ? (i % 2 ? "p" : "q") : (i % 2 ? "b" : "h");
+      q.s.noGrid = true;
+      return q;
+    }
+    if(T.k === "F"){
+      const kinds = ["slant", "half"].concat(opts.shapes.diag ? ["diag"] : []);
+      q.mk = kinds[(i + R(0, kinds.length - 1)) % kinds.length];
+      if(q.mk === "diag") q.s = makeShape(level, "diag", used, {});
+      else if(q.mk === "slant") q.s = makeShape(level, "para", used, { slant:true });
+      else q.s = makeShape(level, pick(opts.shapes.rhom ? ["para", "rhombus"] : ["para"]), used, {});
+      if(q.mk === "slant" && !Number.isInteger(slantLen(q.s))) q.mk = "half";
+      if(!used.names || !used.names.length) used.names = shuffle(["Mia","Sam","Noah","Zara","Kai","Lily","Jai","Ava","Leo","Ruby","Omar","Tia"]);
+      q.name = used.names.pop();
+      return q;
+    }
+    if(T.k === "G"){
+      const pools = { sweet:[12, 16, 18, 20], mild:[18, 20, 24, 30], medium:[24, 30, 36, 40], spicy:[36, 40, 48] };
+      q.area = pick(pools[level]);
+      for(let t = 0; t < 10 && used.has("G" + q.area); t++) q.area = pick(pools[level]);
+      used.add("G" + q.area);
+      q.what = opts.shapes.para || opts.shapes.rhom ? (i % 2 ? "two" : "pr") : "rr";
+      return q;
+    }
+    q.s = makeShape(level, kind, used, { halves:half && i % 3 === 1 });
+    if((level === "medium" || level === "spicy") && i % 3 === 2){
+      q.s = makeShape(level, kind, used, {});
+      q.s.missing = q.s.kind === "diag" ? "q" : "h";
+    }
+    return q;
+  }
+
+  /* ---------------------------------------------------------- drawing (sizes in mm) */
+  const tw = (s, fs) => String(s).length * fs * .58;
+  function shapeSVG(s, o){
+    const bw = o.bw, col = { fill:bw ? "#e5e7eb" : "rgba(22,163,74,.34)", edge:bw ? "#111827" : "#14532d", pale:bw ? "none" : "rgba(34,197,94,.10)", ghost:bw ? "#6b7280" : "#64748b",
+      alt:bw ? "#111827" : "#ea580c", lab:bw ? "#111827" : "#1f2937", hl:bw ? "#111827" : "#c2410c", key:"#15803d", grid:"#d1d5db" };
+    const U = o.unit ? " " + o.unit : "";
+    let P, x0, x1, y1;
+    if(s.kind === "diag"){ P = [[0, s.q / 2], [s.p / 2, 0], [s.p, s.q / 2], [s.p / 2, s.q]]; x0 = 0; x1 = s.p; y1 = s.q; }
+    else { P = [[0, 0], [s.b, 0], [s.b + s.d, s.h], [s.d, s.h]]; x0 = Math.min(0, s.d); x1 = Math.max(s.b, s.b + s.d); y1 = s.h; }
+    /* side room: enough for the widest label that can sit beside the shape */
+    const sideLab = s.kind === "diag" ? 0 : Math.max(tw(fmt(s.h) + U, o.fs), s.slant ? tw(fmt(slantLen(s)) + U, o.fs) : 0);
+    const mx = s.kind === "diag" ? o.fs * 1.4 : Math.max(o.fs * 3, sideLab + 3.4), myB = o.fs * 2.1, myT = o.fs * .9;
+    const sc = Math.min((o.w - 2 * mx) / Math.max(.5, x1 - x0), (o.h - myB - myT) / Math.max(.5, y1), o.maxS || 12);
+    const ox = (o.w - (x1 - x0) * sc) / 2 - x0 * sc, oy = myT + (o.h - myB - myT - y1 * sc) / 2 + y1 * sc;
+    const S = p => [ox + p[0] * sc, oy - p[1] * sc];
+    const pts = A => A.map(p => S(p).map(v => v.toFixed(2)).join(",")).join(" ");
+    const ln = (p, q, st) => { const A = S(p), B = S(q); return `<line x1="${A[0].toFixed(2)}" y1="${A[1].toFixed(2)}" x2="${B[0].toFixed(2)}" y2="${B[1].toFixed(2)}" ${st}/>`; };
+    const textAt = (xy, text, fill, weight, size) => `<text x="${xy[0].toFixed(2)}" y="${xy[1].toFixed(2)}" font-size="${size || o.fs}" fill="${fill}" font-weight="${weight || 600}" text-anchor="middle" dominant-baseline="central">${esc(text)}</text>`;
+    const patch = (xy, text, fill, stroke, weight) => { const w = tw(text, o.fs) + 1.4, h = o.fs * 1.3;
+      return `<rect x="${(xy[0] - w / 2).toFixed(2)}" y="${(xy[1] - h / 2).toFixed(2)}" width="${w.toFixed(2)}" height="${h.toFixed(2)}" rx="${(h / 2).toFixed(2)}" fill="#fff" stroke="${stroke}" stroke-width="0.25"/>` + textAt(xy, text, fill, weight); };
+    /* a label outside a side, square off it */
+    const ticks = !s.missing && (s.square || isRhombus(s));
+    const cen = [P.reduce((a, p) => a + p[0], 0) / P.length, P.reduce((a, p) => a + p[1], 0) / P.length];
+    const outside = (p, q, text, fill, weight) => {
+      const A = S(p), B = S(q), M = [(A[0] + B[0]) / 2, (A[1] + B[1]) / 2], C = S(cen);
+      const dx = B[0] - A[0], dy = B[1] - A[1], dl = Math.hypot(dx, dy) || 1;
+      let nx = -dy / dl, ny = dx / dl;
+      if(nx * (M[0] - C[0]) + ny * (M[1] - C[1]) < 0){ nx = -nx; ny = -ny; }
+      const off = Math.abs(nx) * tw(text, o.fs) / 2 + Math.abs(ny) * o.fs * .55 + (ticks ? 2.2 : 1.1);   /* clear of equal-side marks */
+      return textAt([M[0] + nx * off, M[1] + ny * off], text, fill, weight);
+    };
+    const miss = w => s.missing === w;
+    const show = (w, v) => miss(w) ? (o.key ? fmt(v) + U : "?") : fmt(v) + U;
+    const mFill = (w, normal) => miss(w) ? (o.key ? col.key : "#6b7280") : normal;
+    let g = "";
+    /* unit squares: whole-number lengths, not on "work backwards", big enough to count */
+    const whole = s.kind === "diag" ? isInt(s.p) && isInt(s.q) : isInt(s.b) && isInt(s.h);
+    if((o.grid || s.forceGrid) && !s.noGrid && whole && sc >= 2.6){
+      for(let x = Math.floor(x0); x <= Math.ceil(x1); x++) g += ln([x, 0], [x, y1], `stroke="${col.grid}" stroke-width="0.2"`);
+      for(let y = 0; y <= y1; y++) g += ln([Math.floor(x0), y], [Math.ceil(x1), y], `stroke="${col.grid}" stroke-width="0.2"`);
+    }
+    if(s.kind === "diag"){
+      const { p, q } = s, R4 = [[0, 0], [p, 0], [p, q], [0, q]];
+      if(s.show === "rect") g += `<polygon points="${pts(R4)}" fill="${col.pale}" stroke="${col.ghost}" stroke-width="0.4" stroke-dasharray="1.4 1"/>`;
+      g += `<polygon points="${pts(P)}" fill="${col.fill}" stroke="${col.edge}" stroke-width="0.55" stroke-linejoin="round"/>`;
+      g += ln([0, q / 2], [p, q / 2], `stroke="${bw ? "#111827" : "#1d4ed8"}" stroke-width="0.4" stroke-dasharray="1.2 0.9"`);
+      g += ln([p / 2, 0], [p / 2, q], `stroke="${col.alt}" stroke-width="0.4" stroke-dasharray="1.2 0.9"`);
+      const C0 = S([p / 2, q / 2]), r = Math.min(1.8, sc * .4);
+      g += `<polyline points="${(C0[0] + r).toFixed(2)},${C0[1].toFixed(2)} ${(C0[0] + r).toFixed(2)},${(C0[1] - r).toFixed(2)} ${C0[0].toFixed(2)},${(C0[1] - r).toFixed(2)}" fill="none" stroke="${col.edge}" stroke-width="0.3"/>`;
+      g += patch(S([p * .76, q / 2]), show("p", p), mFill("p", bw ? col.lab : "#1d4ed8"), bw ? "#111827" : "#93c5fd", miss("p") ? 800 : 600);
+      g += patch(S([p / 2, q * .78]), show("q", q), mFill("q", col.hl), bw ? "#111827" : "#fdba74", miss("q") ? 800 : 600);
+    } else {
+      const { b, h, d } = s;
+      if(s.show === "cut" && d !== 0){
+        /* where the piece goes, and an arrow to it */
+        const piece = d > 0 ? [[0, 0], [d, 0], [d, h]] : [[b + d, 0], [b, 0], [b + d, h]];
+        const dx = d > 0 ? b : -b, dest = piece.map(v => [v[0] + dx, v[1]]);
+        g += `<polygon points="${pts(dest)}" fill="${col.pale}" stroke="${col.ghost}" stroke-width="0.4" stroke-dasharray="1.4 1" stroke-linejoin="round"/>`;
+      }
+      g += `<polygon points="${pts(P)}" fill="${col.fill}" stroke="${col.edge}" stroke-width="0.55" stroke-linejoin="round"/>`;
+      if(s.show === "cut" && d !== 0){
+        const piece = d > 0 ? [[0, 0], [d, 0], [d, h]] : [[b + d, 0], [b, 0], [b + d, h]];
+        const c0 = [(piece[0][0] + piece[1][0] + piece[2][0]) / 3, h / 3], c1 = [c0[0] + (d > 0 ? b : -b), c0[1]];
+        const A = S(c0), B = S(c1), dir = Math.sign(B[0] - A[0]);
+        g += `<path d="M${A[0].toFixed(2)} ${A[1].toFixed(2)}Q${((A[0] + B[0]) / 2).toFixed(2)} ${(A[1] + o.fs * 2.2).toFixed(2)} ${B[0].toFixed(2)} ${B[1].toFixed(2)}" fill="none" stroke="${col.ghost}" stroke-width="0.4"/>`;
+        g += `<path d="M${(B[0] - dir * 1.6).toFixed(2)} ${(B[1] - .4).toFixed(2)}L${B[0].toFixed(2)} ${B[1].toFixed(2)}L${(B[0] - dir * .9).toFixed(2)} ${(B[1] + 1.4).toFixed(2)}" fill="none" stroke="${col.ghost}" stroke-width="0.4" stroke-linecap="round"/>`;
+      }
+      /* the height: along the cut (inside), or a side for a rectangle */
+      if(s.kind === "rect"){
+        g += outside([0, 0], [0, h], show("h", h), mFill("h", col.hl), miss("h") ? 800 : 600);
+        if(s.square && !s.missing) [[[0, 0], [b, 0]], [[b, 0], [b, h]], [[b, h], [0, h]], [[0, h], [0, 0]]].forEach(([a1, a2]) => {
+          const M = S([(a1[0] + a2[0]) / 2, (a1[1] + a2[1]) / 2]), hz = a1[1] === a2[1];
+          g += hz ? `<line x1="${M[0].toFixed(2)}" y1="${(M[1] - 1.2).toFixed(2)}" x2="${M[0].toFixed(2)}" y2="${(M[1] + 1.2).toFixed(2)}" stroke="${col.edge}" stroke-width="0.4"/>`
+                  : `<line x1="${(M[0] - 1.2).toFixed(2)}" y1="${M[1].toFixed(2)}" x2="${(M[0] + 1.2).toFixed(2)}" y2="${M[1].toFixed(2)}" stroke="${col.edge}" stroke-width="0.4"/>`;
+        });
+      } else {
+        const hx = d > 0 ? d : b + d;
+        g += ln([hx, h], [hx, 0], s.show === "cut" ? `stroke="${bw ? "#111827" : "#0f172a"}" stroke-width="0.5" stroke-dasharray="0.4 1" stroke-linecap="round"` : `stroke="${col.alt}" stroke-width="0.4" stroke-dasharray="1.2 0.9"`);
+        const F = S([hx, 0]), r = Math.min(1.8, sc * .4, h * sc * .25), tow = d > 0 ? 1 : -1;
+        g += `<polyline points="${(F[0] + tow * r).toFixed(2)},${F[1].toFixed(2)} ${(F[0] + tow * r).toFixed(2)},${(F[1] - r).toFixed(2)} ${F[0].toFixed(2)},${(F[1] - r).toFixed(2)}" fill="none" stroke="${col.alt}" stroke-width="0.3"/>`;
+        g += patch(S([hx, h / 2]), show("h", h), mFill("h", col.hl), bw ? "#111827" : "#fdba74", miss("h") ? 800 : 600);
+        if(s.slant && !isRhombus(s)){ const away = (d > 0) !== (s.show === "cut"), side = away ? [[b, 0], [b + d, h]] : [[0, 0], [d, h]];   /* with a cut, the side away from the slid piece */ g += outside(side[0], side[1], fmt(slantLen(s)) + U, col.lab); }
+        if(isRhombus(s) && !s.missing) [[P[0], P[1]], [P[1], P[2]], [P[2], P[3]], [P[3], P[0]]].forEach(([a1, a2]) => {
+          const A = S(a1), B = S(a2), M = [(A[0] + B[0]) / 2, (A[1] + B[1]) / 2], dx = B[0] - A[0], dy = B[1] - A[1], dl = Math.hypot(dx, dy) || 1;
+          g += `<line x1="${(M[0] - dy / dl * 1.2).toFixed(2)}" y1="${(M[1] + dx / dl * 1.2).toFixed(2)}" x2="${(M[0] + dy / dl * 1.2).toFixed(2)}" y2="${(M[1] - dx / dl * 1.2).toFixed(2)}" stroke="${col.edge}" stroke-width="0.4"/>`;
+        });
+      }
+      g += outside([0, 0], [b, 0], show("b", b), mFill("b", col.lab), miss("b") ? 800 : 600);
+    }
+    return `<svg viewBox="0 0 ${o.w.toFixed(2)} ${o.h.toFixed(2)}" width="${o.w.toFixed(2)}mm" height="${o.h.toFixed(2)}mm" font-family="STIX Two Math, Cambria Math, Times New Roman, serif">${g}</svg>`;
+  }
+  function exShape(s, grid){ return shapeSVG(s, { w:34, h:19, fs:2.3, grid:!!grid, unit:"", maxS:5 }).replace(/width="[^"]*mm" height="[^"]*mm"/, ""); }
+
+  /* ---------------------------------------------------------- sizes */
+  const COLS = { roomy:2, normal:2, tight:3 };
+  const DIAGH = { roomy:58, normal:44, tight:34 };
+  const FS = { roomy:4.2, normal:3.6, tight:3.1 };
+  const FLU_COLS = { roomy:2, normal:2, tight:2 };
+  const colsFor = (g, opts) => g.T.k === "H" ? FLU_COLS[opts.density] : g.T.k === "F" ? 1 : opts.cols;
+  const cardInner = cols => (186 - 3 * (cols - 1)) / cols - 6.6;
+
+  /* ---------------------------------------------------------- cards */
+  const uu = (opts, sq) => opts.units ? `<span class="u"> ${opts.units}${sq ? "²" : ""}</span>` : (sq ? '<span class="u"> square units</span>' : "");
+  const uT = (opts, sq) => opts.units ? " " + opts.units + (sq ? "²" : "") : (sq ? " square units" : "");
+  const top = (q, n, inner) => `<div class="qTop"><span class="qNum ${q.cls}">${n}</span>${inner || ""}</div>`;
+  const lines = k => '<div class="say">' + '<div class="wl"></div>'.repeat(k) + "</div>";
+  const keyLine = (lab, txt) => `<div class="keyAns">${lab ? `<span class="lab">${lab}</span>` : ""}${txt}</div>`;
+  const keyWhy = txt => `<div class="keyWhy">${txt}</div>`;
+  const ansLine = (lab, opts, sq, big) => `<div class="ansLine"><span class="lab${big ? " big" : ""}">${lab}</span><span class="ln"></span>${uu(opts, sq)}</div>`;
+  const mulLine = (lab, opts) => `<div class="ansLine"><span class="lab">${lab}</span><span class="ln xs"></span><span>${X}</span><span class="ln xs"></span><span>=</span><span class="ln"></span>${uu(opts, true)}</div>`;
+  function diag(s, opts, w, key){ return `<div class="pic">${shapeSVG(s, { w, h:DIAGH[opts.density], fs:FS[opts.density], grid:opts.grid, bw:opts.bw, unit:opts.units, key })}</div>`; }
+  function workKey(s, opts){
+    const A = areaOf(s);
+    if(s.kind === "diag") return `½ ${X} ${fmt(s.p)} ${X} ${fmt(s.q)} = ${fmt(A)}${uT(opts, true)}`;
+    return `${fmt(s.b)} ${X} ${fmt(s.h)} = ${fmt(A)}${uT(opts, true)}`;
+  }
+  function whyArea(s){
+    if(s.kind === "rect") return "";
+    if(s.kind === "diag") return `Half of the ${fmt(s.p)} by ${fmt(s.q)} rectangle round it.`;
+    const bits = [];
+    if(s.slant && !isRhombus(s)) bits.push(`The ${fmt(slantLen(s))} side slopes — the height is the ${fmt(s.h)}, at right angles to the base.`);
+    bits.push(`Cut along the height and slide: a ${fmt(s.b)} by ${fmt(s.h)} rectangle.`);
+    return bits.join(" ");
+  }
+  function cardHTML(q, n, opts, key){
+    const cols = q.type === "H" ? FLU_COLS[opts.density] : q.type === "F" ? 1 : opts.cols;
+    const w = cardInner(cols), s = q.s;
+    if(q.type === "A"){
+      const A = areaOf(s);
+      return `<div class="qCard">${top(q, n, `<span class="word">${s.square ? "Square" : "Rectangle"}</span>`)}${diag(s, opts, w, key)}`
+        + (key ? keyLine("", `${fmt(s.h)} rows of ${fmt(s.b)} = ${fmt(A)}${uT(opts, true)}`)
+               : `<div class="ansLine"><span class="ln xs"></span><span class="lab">rows of</span><span class="ln xs"></span><span>=</span><span class="ln"></span>${uu(opts, true)}</div>`) + "</div>";
+    }
+    if(q.type === "B"){
+      const A = areaOf(s);
+      return `<div class="qCard">${top(q, n, `<span class="word">${isRhombus(s) ? "Rhombus" : "Parallelogram"}</span>`)}${diag(s, opts, w, key)}`
+        + (key ? keyLine("Rectangle", `${fmt(s.b)} ${X} ${fmt(s.h)} = ${fmt(A)}${uT(opts, true)}`) + keyLine("Area", `${fmt(A)}${uT(opts, true)}`) + (s.slant && !isRhombus(s) ? keyWhy(`The ${fmt(slantLen(s))} side isn't used — the cut is the height.`) : "")
+               : mulLine("Rectangle", opts) + ansLine(isRhombus(s) ? "Rhombus" : "Parallelogram", opts, true)) + "</div>";
+    }
+    if(q.type === "C"){
+      const why = whyArea(s);
+      const body = key ? keyLine("Area =", workKey(s, opts)) + (why ? keyWhy(why) : "")
+        : (opts.work === "lines" ? lines(2) : "") + ansLine("Area =", opts, true, true);
+      return `<div class="qCard">${top(q, n, `<span class="word">${nameOf(s)[0].toUpperCase() + nameOf(s).slice(1)}</span>`)}${diag(s, opts, w, key)}${body}</div>`;
+    }
+    if(q.type === "D"){
+      const A = areaOf(s);
+      return `<div class="qCard">${top(q, n, `<span class="word">${s.square ? "Square" : "Rhombus"}</span>`)}${diag(s, opts, w, key)}`
+        + (key ? keyLine("Rectangle", `${fmt(s.p)} ${X} ${fmt(s.q)} = ${fmt(s.p * s.q)}${uT(opts, true)}`) + keyLine(s.square ? "Square" : "Rhombus", `${fmt(s.p * s.q)} ÷ 2 = ${fmt(A)}${uT(opts, true)}`)
+               : mulLine("Rectangle", opts) + ansLine(s.square ? "Square" : "Rhombus", opts, true)) + "</div>";
+    }
+    if(q.type === "E"){
+      const A = areaOf(s), m = s.missing;
+      let ans, other, word;
+      if(s.kind === "diag"){ ans = s[m]; other = m === "p" ? s.q : s.p; word = "diagonal"; }
+      else { ans = m === "b" ? s.b : s.h; other = m === "b" ? s.h : s.b; word = s.kind === "rect" ? (m === "b" ? "length" : "width") : (m === "b" ? "base" : "height"); }
+      const head = `<span class="expr">Area = ${fmt(A)}${opts.units ? " " + esc(opts.units) + "²" : ""}</span>`;
+      const why = s.kind === "diag" ? `The rectangle round it is ${fmt(A)} ${X} 2 = ${fmt(2 * A)}. Then ${fmt(2 * A)} ÷ ${fmt(other)} = ${fmt(ans)}.` : `${fmt(A)} ÷ ${fmt(other)} = ${fmt(ans)}.`;
+      return `<div class="qCard">${top(q, n, head)}${diag(s, opts, w, key)}`
+        + (key ? keyLine(word, fmt(ans) + uT(opts)) + keyWhy(why) : lines(1) + ansLine(word + " =", opts, false, true)) + "</div>";
+    }
+    if(q.type === "F"){
+      const A = areaOf(s);
+      let work, what;
+      if(q.mk === "slant"){ work = `${fmt(s.b)} ${X} ${fmt(slantLen(s))} = ${fmt(s.b * slantLen(s))}`; what = `Used the sloping side (${fmt(slantLen(s))}). The height must be at right angles to the base: it is ${fmt(s.h)}.`; }
+      else if(q.mk === "diag"){ work = `${fmt(s.p)} ${X} ${fmt(s.q)} = ${fmt(s.p * s.q)}`; what = "That is the whole rectangle round the rhombus. The rhombus is half of it."; }
+      else { work = `½ ${X} ${fmt(s.b)} ${X} ${fmt(s.h)} = ${fmt(A / 2)}`; what = `Halved it, like a triangle. Cut and slide makes a whole ${fmt(s.b)} by ${fmt(s.h)} rectangle — no halving.`; }
+      const right = `<div class="said"><b>${esc(q.name)}</b> worked out the area of the ${nameOf(s)}:<div class="saidM">${work}${uT(opts, true)}</div></div>`
+        + (key ? keyLine("", what) + keyLine("Correct area", workKey(s, opts))
+               : `<div class="workHead">What went wrong?</div>${lines(2)}${ansLine("Correct area", opts, true)}`);
+      return `<div class="qCard full">${top(q, n, '<span class="word">Spot the mistake</span>')}<div class="split">${diag(s, opts, w * .42, key)}<div class="side">${right}</div></div></div>`;
+    }
+    if(q.type === "G"){
+      const A = q.area, pairs = [];
+      for(let b = 1; b <= A; b++) if(A % b === 0 && b <= 14 && A / b <= 12) pairs.push(`${b} by ${A / b}`);
+      const txt = q.what === "pr" ? `Draw a <b>parallelogram</b> with an area of <b>${A} square units</b>. Then draw a <b>rectangle</b> with the same area.`
+        : q.what === "two" ? `Draw two <b>different parallelograms</b> that both have an area of <b>${A} square units</b>. Mark the base and the height on each.`
+        : `Draw two <b>different rectangles</b> that both have an area of <b>${A} square units</b>.`;
+      const body = key ? keyLine("", `Any base and height that multiply to ${A}`) + keyWhy(`For example ${pairs.slice(0, 4).join(", ")}. A parallelogram's top can slide along — the height stays the same.`)
+        : `<div class="drawBox" style="--drawH:${(DIAGH[opts.density] * 1.15).toFixed(1)}mm"></div>`;
+      return `<div class="qCard">${top(q, n, "")}<div class="qText">${txt}</div>${body}</div>`;
+    }
+    /* H fluency */
+    const A = areaOf(s), nm = nameOf(s);
+    let ask, ans;
+    if(s.missing){
+      if(s.kind === "diag"){ ask = `${nm}: area ${fmt(A)}, a diagonal ${fmt(s.p)}. Other diagonal =`; ans = s.q; }
+      else if(s.kind === "rect"){ ask = `${nm}: area ${fmt(A)}, length ${fmt(s.b)}. Width =`; ans = s.h; }
+      else { ask = `${nm}: area ${fmt(A)}, base ${fmt(s.b)}. Height =`; ans = s.h; }
+    } else if(s.kind === "diag"){ ask = `${nm}: diagonals ${fmt(s.p)} and ${fmt(s.q)}. Area =`; ans = A; }
+    else if(s.kind === "rect"){ ask = s.square ? `square: side ${fmt(s.b)}. Area =` : `rectangle: ${fmt(s.b)} by ${fmt(s.h)}. Area =`; ans = A; }
+    else { ask = `${nm}: base ${fmt(s.b)}, height ${fmt(s.h)}. Area =`; ans = A; }
+    return `<div class="qCard flu">${top(q, n, `<span class="word">${ask}</span>` + (key ? `<span class="fluAns">${fmt(ans)}</span>` : '<span class="ln"></span>'))}</div>`;
+  }
+
+  /* ---------------------------------------------------------- page furniture */
+  function exampleHTML(opts){
+    const s = { kind:"para", b:8, h:5, d:3, show:"cut" };
+    const svg = shapeSVG(s, { w:52, h:30, fs:3, grid:false, bw:opts.bw, unit:opts.units, maxS:5 });
+    const u2 = uT(opts, true);
+    let l = `<div class="exLine"><span class="k">CUT AND SLIDE</span>it makes an 8 ${X} 5 rectangle</div><div class="exLine"><span class="k">AREA</span>8 ${X} 5 = 40${u2}</div>`;
+    if(opts.formula){
+      l += `<div class="exLine"><span class="k">SO</span>Parallelogram = base ${X} height</div>`;
+      if(opts.shapes.diag) l += `<div class="exLine"><span class="k">AND</span>Rhombus = ½ ${X} diagonal ${X} diagonal</div>`;
+    }
+    return `<div class="exStrip">${svg}<div class="exBody"><div class="exHead">Worked example — base 8, height 5</div>${l}</div></div>`;
+  }
+  function secHeadHTML(g, cont, opts){
+    return `<div class="secHead" style="--sc:${g.T.col};--sc-bg:${g.T.bg}"><span class="secLetter">${g.T.k}</span>`
+      + `<span class="secText">${esc(headFor(g.T, opts, g))}</span>${cont ? '<span class="secCont">continued</span>' : ""}</div>`;
+  }
+  const levelLabel = opts => opts.levels.map(k => LVK[k].name).join(" → ");
+  function pageHTML(inner, opts, key, no, total){
+    return `<section class="page d-${opts.density}${opts.bw ? " bw" : ""}${key ? " isKey" : ""}">`
+      + '<div class="pageHeader"><div>'
+      + `<div class="hdrTitle">Area of a Parallelogram &amp; Rhombus${key ? " — ANSWERS" : ""}</div>`
+      + `<div class="hdrSub">${key ? "Answer key · " : ""}${esc(levelLabel(opts))} · MA4-ARE-C-01</div></div>`
+      + (!key && opts.name ? '<div class="nameDate"><div class="lineField"><span class="lineLabel">Name</span><span class="lineBox"></span></div>'
+        + '<div class="lineField"><span class="lineLabel">Date</span><span class="lineBox"></span></div></div>' : "")
+      + `</div><div class="sheet">${inner}</div>`
+      + `<div class="pageFooter"><span>Page ${no} of ${total}</span><span><a href="${SITE}">www.millsmathstools.au</a></span></div></section>`;
+  }
+
+  /* ---------------------------------------------------------- build */
+  const SHAPE_IDS = [["sRect", "rect"], ["sPara", "para"], ["sRhom", "rhom"], ["sDiag", "diag"]];
+  function readOpts(){
+    const density = $("densitySel").value;
+    const levels = LV.map(l => l.k).filter(k => $("lv" + k).checked);
+    const shapes = {}; SHAPE_IDS.forEach(([id, k]) => { shapes[k] = $(id).checked; });
+    return {
+      levels:levels.length ? levels : ["mild"], shapes, density, cols:COLS[density], bw:$("colourSel").value === "bw",
+      slant:$("slantSel").value, grid:$("gridSel").value === "on", units:$("unitSel").value, work:$("workSel").value,
+      example:$("exToggle").checked, formula:$("formulaToggle").checked, name:$("nameToggle").checked, key:$("keyToggle").checked
+    };
+  }
+  function buildQuestions(opts){
+    const used = new Set(), groups = [];
+    let num = 0, total = 0;
+    TYPES.forEach(T => {
+      if(!$("k" + T.k).checked) return;
+      const n = Math.max(0, Math.min(30, parseInt($("n" + T.k).value, 10) || 0));
+      if(!n) return;
+      const ks = bag(shapeKinds(opts), n), qs = [];
+      for(let i = 0; i < n; i++){ const q = makeQ(T, levelAt(opts.levels, i, n), i, n, ks[i], opts, used); if(q) qs.push(q); }
+      total += qs.length;
+      groups.push({ T, qs });
+    });
+    if(!total) return { error:"Tick at least one problem type and give it a number of questions." };
+    groups.forEach(g => g.qs.forEach(q => { q.n = ++num; }));
+    return { groups };
+  }
+  /* MEASURED, THEN PACKED: every row of cards is drawn into a real page off screen and its height read back */
+  function measureAndPack(groups, opts, key){
+    const m = $("measure");
+    m.innerHTML = pageHTML("", opts, key, 1, 1);
+    const sheet = m.querySelector(".sheet");
+    const cs = getComputedStyle(sheet);
+    const room = sheet.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - 2;
+    let stripH = 0;
+    if(opts.example && !key){ sheet.innerHTML = exampleHTML(opts); stripH = sheet.firstElementChild.getBoundingClientRect().height + 3 * PX_MM; sheet.innerHTML = ""; }
+    const units = [];
+    groups.forEach(g => {
+      const sec = document.createElement("div"); sec.className = "section";
+      sec.innerHTML = secHeadHTML(g, true, opts);
+      sheet.appendChild(sec);
+      const headH = sec.getBoundingClientRect().height + 3 * PX_MM;
+      const gc = colsFor(g, opts), rows = [];
+      for(let i = 0; i < g.qs.length; i += gc) rows.push(g.qs.slice(i, i + gc));
+      rows.forEach(r => {
+        const grid = document.createElement("div");
+        grid.className = "qGrid"; grid.style.setProperty("--cols", gc);
+        grid.innerHTML = r.map(q => cardHTML(q, q.n, opts, key)).join("");
+        sec.appendChild(grid);
+        const h = grid.getBoundingClientRect().height + 3 * PX_MM;
+        grid.remove();
+        units.push({ g, row:r, h, headH });
+      });
+      sec.remove();
+    });
+    m.innerHTML = "";
+    const pages = [];
+    let cur = [], used = stripH, lastG = null;
+    units.forEach(u => {
+      const cost = (lastG === u.g ? 0 : u.headH) + u.h;
+      if(cur.length && used + cost > room){ pages.push(cur); cur = []; used = 0; lastG = null; }
+      used += (lastG === u.g ? 0 : u.headH) + u.h; cur.push(u); lastG = u.g;
+    });
+    if(cur.length) pages.push(cur);
+    pages.left = pages.map((pu, i) => {
+      let u2 = i === 0 && opts.example && !key ? stripH : 0, l2 = null;
+      pu.forEach(u => { u2 += (l2 === u.g ? 0 : u.headH) + u.h; l2 = u.g; });
+      return room - u2;
+    });
+    return pages;
+  }
+  /* a different "Your turn" on each page that has room */
+  const YT = [
+    { t:"Draw a rectangle, a parallelogram and a rhombus that all have an area of 24 square units. Mark the base and the height on each. Which was hardest?" },
+    { t:"Draw two different parallelograms with the same base and the same height. Do they have the same area? Explain how you know." },
+    { t:"Draw a parallelogram, then show where to cut it and where the piece slides to make a rectangle. Label the rectangle's length and width." },
+    { t:"Draw a rhombus with diagonals of 6 and 4 units. Draw the rectangle around it. What fraction of the rectangle is the rhombus?", diag:true },
+    { t:"How many different parallelograms with an area of 36 square units can you draw? Use whole-number bases and heights." }
+  ];
+  function yourTurnHTML(px, n, opts){
+    const drawPx = Math.max(18 * PX_MM, Math.min(110 * PX_MM, px - 24 * PX_MM));
+    const list = YT.filter(y => !y.diag || opts.shapes.diag), y = list[n % list.length];
+    return `<div class="yourTurn"><div class="ytHead"><span class="star">★</span>Your turn</div><div class="ytText">${y.t}</div>`
+      + `<div class="drawBox" style="--drawH:${drawPx.toFixed(0)}px"></div></div>`;
+  }
+  function pagesHTML(pages, opts, key){
+    const seen = new Set(); let ytN = 0;
+    return pages.map((pu, i) => {
+      let inner = (i === 0 && opts.example && !key) ? exampleHTML(opts) : "";
+      let lastG = null, open = false;
+      pu.forEach(u => {
+        if(u.g !== lastG){
+          if(open) inner += "</div>";
+          inner += '<div class="section">' + secHeadHTML(u.g, seen.has(u.g), opts);
+          seen.add(u.g); open = true; lastG = u.g;
+        }
+        inner += `<div class="qGrid" style="--cols:${colsFor(u.g, opts)}">` + u.row.map(q => cardHTML(q, q.n, opts, key)).join("") + "</div>";
+      });
+      if(open) inner += "</div>";
+      if(!key && pages.left[i] > 44 * PX_MM) inner += yourTurnHTML(pages.left[i] - 4 * PX_MM, ytN++, opts);
+      return inner;
+    }).map((inner, i, all) => pageHTML(inner, opts, key, i + 1, all.length)).join("");
+  }
+
+  let LAST = null;
+  /* settings that change WHAT is asked re-roll; settings that change how it looks don't */
+  const sigOf = o => [o.levels.join(), JSON.stringify(o.shapes), o.slant, o.work].join("|");
+  function generate(reroll){
+    const opts = readOpts();
+    if(reroll || !LAST || LAST.sig !== sigOf(opts)){
+      const b = buildQuestions(opts);
+      if(b.error){ $("out").innerHTML = `<p class="note warn">${esc(b.error)}</p>`; LAST = null; return; }
+      b.sig = sigOf(opts);
+      LAST = b;
+    }
+    const pages = measureAndPack(LAST.groups, opts, false);
+    let html = pagesHTML(pages, opts, false);
+    if(opts.key) html += pagesHTML(measureAndPack(LAST.groups, opts, true), opts, true);
+    $("out").innerHTML = html;
+    fitPass();
+  }
+  function fitPass(){
+    document.querySelectorAll("#out .qCard").forEach(c => {
+      const t = c.querySelector(".qTop"); if(!t) return;
+      let guard = 0;
+      while(t.scrollWidth > t.clientWidth + 1 && guard++ < 14){
+        t.querySelectorAll(".expr, .word, .fluAns").forEach(e => { e.style.fontSize = (parseFloat(getComputedStyle(e).fontSize) * .93) + "px"; });
+      }
+    });
+    document.querySelectorAll("#out .page").forEach(p => {
+      const yt = p.querySelector(".yourTurn"); if(!yt) return;
+      const sb = p.querySelector(".sheet").getBoundingClientRect().bottom;
+      const over = yt.getBoundingClientRect().bottom - sb;
+      if(over > -2){
+        const db = yt.querySelector(".drawBox");
+        const h = db.getBoundingClientRect().height - over - 6;
+        if(h < 50) yt.remove(); else db.style.setProperty("--drawH", h + "px");
+      }
+    });
+  }
+
+  /* ---------------------------------------------------------- controls */
+  function buildLevels(){
+    $("lvChips").innerHTML = LV.map(l =>
+      `<label class="lvChip" style="--lc:${l.col}"><input type="checkbox" id="lv${l.k}" value="${l.k}"${l.k === "mild" ? " checked" : ""} /><span class="dot"></span><span class="txt">${esc(l.name)}<small>${esc(l.ex)}</small></span></label>`).join("");
+    LV.forEach(l => $("lv" + l.k).addEventListener("change", e => {
+      if(!LV.some(x => $("lv" + x.k).checked)) e.target.checked = true;
+      generate(true);
+    }));
+    document.querySelectorAll(".quick button").forEach(b => b.addEventListener("click", () => {
+      const set = new Set(b.dataset.quick.split(","));
+      LV.forEach(l => { $("lv" + l.k).checked = set.has(l.k); });
+      generate(true);
+    }));
+  }
+  function buildTypeGrid(){
+    $("typeGrid").innerHTML = TYPES.map(T =>
+      `<div class="typeOpt${T.off ? "" : " on"}" id="opt${T.k}" style="--tc:${T.col}">`
+      + `<div class="typeTop"><span class="typeLetter">${T.k}</span>`
+      + `<label class="sw"><input type="checkbox" id="k${T.k}"${T.off ? "" : " checked"} /><span class="track"></span><span>${esc(T.title)}</span></label></div>`
+      + `<p class="typeDesc">${esc(T.desc)}</p>`
+      + `<div class="typeEx"><span class="exLab">e.g.</span>${T.ex()}</div>`
+      + `<div class="cntRow"><label for="n${T.k}">How many</label><input id="n${T.k}" type="number" min="0" max="30" value="${T.n}" /></div>`
+      + "</div>").join("");
+    TYPES.forEach(T => {
+      const box_ = $("k" + T.k), cnt = $("n" + T.k), opt = $("opt" + T.k);
+      box_.addEventListener("change", () => {
+        if(box_.checked && !(parseInt(cnt.value, 10) > 0)) cnt.value = T.n;
+        opt.classList.toggle("on", box_.checked); totals(); generate(true);
+      });
+      cnt.addEventListener("change", () => {
+        const v = parseInt(cnt.value, 10) || 0;
+        box_.checked = v > 0; opt.classList.toggle("on", v > 0); totals(); generate(true);
+      });
+    });
+  }
+  function totals(){
+    let t = 0;
+    TYPES.forEach(T => { if($("k" + T.k).checked) t += Math.max(0, parseInt($("n" + T.k).value, 10) || 0); });
+    $("totalPill").textContent = t + (t === 1 ? " question" : " questions");
+  }
+  function shapeGuard(e){
+    if(!SHAPE_IDS.some(([id]) => $(id).checked)) e.target.checked = true;
+    generate(true);
+  }
+  function reset(){
+    LV.forEach(l => { $("lv" + l.k).checked = l.k === "mild"; });
+    SHAPE_IDS.forEach(([id]) => { $(id).checked = true; });
+    $("slantSel").value = "some"; $("gridSel").value = "on"; $("unitSel").value = "cm";
+    $("workSel").value = "answer"; $("densitySel").value = "normal"; $("colourSel").value = "colour";
+    ["exToggle", "formulaToggle", "nameToggle"].forEach(id => { $(id).checked = true; });
+    $("keyToggle").checked = false;
+    TYPES.forEach(T => { $("k" + T.k).checked = !T.off; $("n" + T.k).value = T.n; $("opt" + T.k).classList.toggle("on", !T.off); });
+    totals();
+    generate(true);
+  }
+
+  buildLevels(); buildTypeGrid(); totals();
+  SHAPE_IDS.forEach(([id]) => $(id).addEventListener("change", shapeGuard));
+  ["slantSel", "workSel"].forEach(id => $(id).addEventListener("change", () => generate(true)));
+  ["gridSel", "unitSel", "densitySel", "colourSel", "exToggle", "formulaToggle", "nameToggle", "keyToggle"].forEach(id => $(id).addEventListener("change", () => generate(false)));
+  $("genBtn").addEventListener("click", () => generate(true));
+  $("printBtn").addEventListener("click", () => window.print());
+  $("resetBtn").addEventListener("click", reset);
+  const go = () => generate(true);
+  if(document.fonts && document.fonts.ready) document.fonts.ready.then(go); else go();
+
+  window.__WS__ = { generate, readOpts, get last(){ return LAST; }, TYPES, makeQ, makeShape, LV, shapeSVG, areaOf, isRhombus, slantLen };
+})();
+</script>
+</body>
+</html>
