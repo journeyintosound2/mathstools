@@ -433,6 +433,24 @@
   .pc-opt input{width:17px;height:17px;accent-color:var(--mmt-blue);margin:0}
   .pc-top{display:flex;gap:14px 22px;align-items:flex-end;flex-wrap:wrap}
   .pc-top .field{margin:0;min-width:240px}
+  /* Send Codes — emails live only in this pop-up's inputs and are wiped on close */
+  .sc-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px 20px;margin-bottom:14px}
+  @media(max-width:760px){.sc-grid{grid-template-columns:1fr}}
+  .sc-grid .field{margin:0}
+  .sc-grid textarea{min-height:120px;font-size:.88rem;letter-spacing:0;line-height:1.5}
+  .sc-subj{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font-size:.95rem;font-family:inherit;margin-bottom:10px}
+  .sc-safe{background:#ecfdf5;border:1px solid #a7f3d0;color:#065f46;border-radius:10px;padding:10px 12px;font-size:.84rem;margin-bottom:14px}
+  .sc-tablewrap{border:1px solid var(--line);border-radius:10px;max-height:340px;overflow:auto}
+  .sc-table{width:100%;border-collapse:collapse;font-size:.9rem}
+  .sc-table th{position:sticky;top:0;background:#f1f5f9;text-align:left;padding:8px 10px;font-size:.78rem;text-transform:uppercase;letter-spacing:.04em;color:#475569}
+  .sc-table td{padding:6px 10px;border-top:1px solid var(--line);vertical-align:middle}
+  .sc-table input[type=email]{width:100%;min-width:200px;padding:7px 9px;border:1px solid var(--line);border-radius:8px;font-size:.88rem}
+  .sc-table input.bad{border-color:#f59e0b;background:#fffbeb}
+  .sc-code{font-family:ui-monospace,Menlo,Consolas,monospace;font-weight:700;letter-spacing:.06em}
+  .sc-st{font-size:.78rem;color:var(--muted);white-space:nowrap}
+  .sc-st.done{color:#15803d;font-weight:700}
+  .sc-warn{color:#b45309;font-size:.76rem;display:block;margin-top:2px}
+  .sc-bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:12px 0 4px}
   .pc-prev{background:#f8fafc;border:1px solid var(--line);border-radius:10px;padding:14px;max-height:430px;overflow:auto}
   @media screen{ .pc-prev .pc-sheet{zoom:.62} .pc-prev .pc-page{background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.14);padding:10mm;width:210mm;grid-template-rows:repeat(4,64mm);margin:0 auto 8mm} }
   @media print{
@@ -607,6 +625,8 @@
       <div class="ic">📋</div><h3>Set an Online Task</h3><p>Assign online quizzes to a class, with a due date.</p></button></div>
     <div class="tilewrap"><button class="tile" type="button" id="tilePrintCards">
       <div class="ic">🖨️</div><h3>Print Student Cards</h3><p>A4 sheets of login cards to cut up and hand out.</p></button></div>
+    <div class="tilewrap"><button class="tile" type="button" id="tileSendCodes">
+      <div class="ic">✉️</div><h3>Send Codes</h3><p>Email each student their code from your own Outlook. Emails are never stored.</p></button></div>
   </div>
 
   <div class="sectionlabel">See how they're going</div>
@@ -707,7 +727,7 @@ async function refreshData(btn){
   if(btn){ btn.textContent="✓ Updated"; btn.disabled=false; setTimeout(()=>{ btn.textContent=orig||"↻ Refresh"; }, 1400); }
 }
 function openModal(html, wide){ modalEl.className="modal"+(wide?" wide":""); modalEl.innerHTML=html; back.classList.add("show"); }
-function closeModal(){ back.classList.remove("show"); currentRefresh=null; const ps=$("printSheet"); if(ps) ps.innerHTML=""; if(dtPoll){ clearInterval(dtPoll); dtPoll=null; } OB=null; otDropEngines(); for(const k in tCharts){ try{ tCharts[k].destroy(); }catch{} delete tCharts[k]; } }
+function closeModal(){ scWipe(); back.classList.remove("show"); currentRefresh=null; const ps=$("printSheet"); if(ps) ps.innerHTML=""; if(dtPoll){ clearInterval(dtPoll); dtPoll=null; } OB=null; otDropEngines(); for(const k in tCharts){ try{ tCharts[k].destroy(); }catch{} delete tCharts[k]; } }
 function head(title){ return `<div class="modal-head"><h2>${title}</h2><button class="x" type="button" data-close>✕</button></div>`; }
 function foot(right){ return `<div class="modal-foot"><button class="btn" type="button" data-close>Close</button>${right||""}</div>`; }
 back.addEventListener("click", e=>{ if(e.target===back) closeModal(); });
@@ -740,6 +760,7 @@ $("tileAddStudent").addEventListener("click", openAddStudent);
 $("tileAddClass").addEventListener("click", openAddClass);
 $("tileDashTask").addEventListener("click", ()=>openDashTask());
 $("tilePrintCards").addEventListener("click", openPrintCards);
+$("tileSendCodes").addEventListener("click", ()=>openSendCodes());
 $("tileStudents").addEventListener("click", openStudents);
 $("tileResults").addEventListener("click", openResults);
 $("tileTasks").addEventListener("click", openTasks);
@@ -2013,6 +2034,128 @@ function openPrintCards(arg){
   });
   draw();
   pcLoadQr().then(okQr=>{ if(!okQr){ $("pcQrWrap") && ($("pcQrWrap").hidden=true); } draw(); });
+}
+
+// ============================ SEND CODES (2026-11-02) ============================
+// Emails each student their code from the TEACHER'S OWN mail app. Nothing here
+// touches a server: the addresses are typed or pasted into this pop-up, held only
+// in its input boxes, turned into mailto: links in the browser, and wiped when the
+// pop-up closes. They are never saved (no localStorage, no Firebase, no function)
+// so the platform never holds a student email address. The message goes out from
+// the teacher's own Outlook, one individual email per student.
+const SC_DEFAULT_SUBJECT = "Your Mills Maths Tools login";
+const SC_DEFAULT_BODY =
+`Hi {firstName},
+
+Here is your personal login for Mills Maths Tools. You will use it for quizzes and tasks I set in class.
+
+Your code: {code}
+
+How to sign in:
+1. Go to {url}
+2. Type in your code exactly as shown above.
+3. Your tasks and results will be waiting for you.
+
+Keep your code private. It is like a password, so please don't share it with anyone. If you lose it, just ask me.
+
+{teacher}`;
+let scList = [];      // [{ code, name, first, className }]
+let scSent = new Set();
+function scWipe(){
+  try{ document.querySelectorAll("#scTable input[type=email]").forEach(i=>{ i.value=""; }); const p=document.getElementById("scPaste"); if(p) p.value=""; }catch(e){}
+  scList=[]; scSent=new Set();
+}
+const scEmailOk = v => /^[^\s@<>,;]+@[^\s@<>,;]+\.[^\s@<>,;]+$/.test(v);
+const scNorm = v => String(v||"").toLowerCase().replace(/[^a-z0-9 ]/g," ").replace(/\s+/g," ").trim();
+function scFill(tpl, st){
+  return tpl.replace(/\{firstName\}/g, st.first||st.name||"").replace(/\{name\}/g, st.name||"").replace(/\{code\}/g, st.code)
+    .replace(/\{url\}/g, PC_SIGNIN_URL).replace(/\{teacher\}/g, (teacher&&teacher.teacherName)||"");
+}
+function scMailto(st, email){
+  const subj = scFill($("scSubject").value, st), body = scFill($("scBody").value, st).replace(/\r?\n/g,"\r\n");
+  return "mailto:"+encodeURIComponent(email).replace(/%40/g,"@")+"?subject="+encodeURIComponent(subj)+"&body="+encodeURIComponent(body);
+}
+function openSendCodes(arg){
+  const pre = (arg && typeof arg==="object" && !(arg instanceof Event)) ? arg : {};
+  openModal(head("✉️ Send Codes")+`
+    <div class="modal-body">
+      <div class="sc-safe"><strong>Student emails are never saved.</strong> You add them here, the page builds one email per student that opens in <em>your own</em> mail app (Outlook), and everything is wiped when you close this window. Nothing is sent to Mills Maths Tools or anyone else. Use each student's <strong>school email</strong> only.</div>
+      <div class="sc-grid">
+        <div>
+          <div class="field"><label for="scCls">Class</label>
+            <select id="scCls"><option value="">All students</option>${classes.map(c=>`<option${pre.cls===c?" selected":""}>${esc(c)}</option>`).join("")}</select></div>
+          <div class="field" style="margin-top:12px"><label for="scPaste">Paste emails <span class="muted">(optional)</span></label>
+            <textarea id="scPaste" autocomplete="off" spellcheck="false" placeholder="Copy two columns from your spreadsheet — name, then email — and paste here.&#10;e.g. Jane Smith    jane.smith12@education.nsw.gov.au"></textarea></div>
+          <div class="sc-bar"><button class="btn sm" type="button" id="scApply">Match to students</button><span class="muted" id="scMatch" style="font-size:.82rem"></span></div>
+        </div>
+        <div>
+          <div class="field"><label for="scSubject">Subject</label><input class="sc-subj" id="scSubject" type="text" value="${esc(SC_DEFAULT_SUBJECT)}" autocomplete="off"/></div>
+          <div class="field"><label for="scBody">Message <span class="muted">(use {firstName} {name} {code} {url} {teacher})</span></label>
+            <textarea id="scBody" spellcheck="true" style="min-height:178px">${esc(SC_DEFAULT_BODY)}</textarea></div>
+        </div>
+      </div>
+      <div class="sc-tablewrap"><table class="sc-table" id="scTable"><thead><tr><th>Student</th><th>Code</th><th>Email</th><th></th></tr></thead><tbody id="scRows"></tbody></table></div>
+      <div class="sc-bar"><button class="btn primary" type="button" id="scNext">Open next email</button><span class="muted" id="scCount" style="font-size:.84rem"></span></div>
+      <div class="msg" id="scMsg"></div>
+    </div>${foot("")}`, true);
+
+  const emailInputs = ()=> [...document.querySelectorAll("#scRows input[type=email]")];
+  const refreshCount = ()=>{
+    const have = emailInputs().filter(i=>scEmailOk(i.value.trim())).length;
+    const left = scList.filter(st=>!scSent.has(st.code) && scEmailOk(($("scr_"+st.code)||{value:""}).value.trim())).length;
+    $("scCount").textContent = scList.length ? `${have} of ${scList.length} have an email · ${scSent.size} opened · ${left} still to open` : "";
+    $("scNext").disabled = !left;
+    $("scNext").textContent = left ? `Open next email (${left} left)` : "Open next email";
+  };
+  const checkRow = i=>{
+    const v=i.value.trim(); const w=i.parentElement.querySelector(".sc-warn"); if(w) w.remove();
+    i.classList.remove("bad"); if(!v) return;
+    let note="";
+    if(!scEmailOk(v)) note="That doesn't look like an email address.";
+    else if(!/@education\.nsw\.gov\.au$/i.test(v)) note="Not a school (education.nsw.gov.au) address.";
+    else if(emailInputs().some(o=>o!==i && o.value.trim().toLowerCase()===v.toLowerCase())) note="Same address is on another student.";
+    if(note){ i.classList.add("bad"); i.insertAdjacentHTML("afterend",`<span class="sc-warn">${esc(note)}</span>`); }
+  };
+  const draw = ()=>{
+    const cls=$("scCls").value;
+    const keep = {}; emailInputs().forEach(i=>{ keep[i.dataset.code]=i.value; });
+    scList = pcStudents(cls).map(s=>{ const f=stFirstSurname(students.find(x=>(x.studentCode||x.id)===s.code)||{name:s.name}); return { code:s.code, name:s.name, first:f.first, className:s.className }; });
+    $("scRows").innerHTML = scList.length ? scList.map(st=>`<tr><td>${esc(st.name)}${st.className?` <span class="muted" style="font-size:.78rem">· ${esc(st.className)}</span>`:""}</td><td class="sc-code">${esc(st.code)}</td><td><input type="email" id="scr_${esc(st.code)}" data-code="${esc(st.code)}" autocomplete="off" placeholder="school email" value="${esc(keep[st.code]||"")}"/></td><td class="sc-st" id="scs_${esc(st.code)}">${scSent.has(st.code)?'<span class="done">✓ opened</span>':`<button class="btn sm" type="button" data-send="${esc(st.code)}">✉️ Open</button>`}</td></tr>`).join("")
+      : `<tr><td colspan="4"><div class="empty"><div class="big">No students here</div>Add students to this class first.</div></td></tr>`;
+    emailInputs().forEach(checkRow); refreshCount();
+  };
+  const sendOne = code=>{
+    const st=scList.find(x=>x.code===code); const inp=$("scr_"+code); if(!st||!inp) return;
+    const v=inp.value.trim(); const m=$("scMsg");
+    if(!scEmailOk(v)){ m.className="msg bad show"; m.textContent=`Add a valid email for ${st.name} first.`; inp.focus(); return; }
+    m.className="msg"; m.textContent="";
+    const a=document.createElement("a"); a.href=scMailto(st,v); a.style.display="none"; document.body.appendChild(a); a.click(); setTimeout(()=>a.remove(),500);
+    scSent.add(code); const cell=$("scs_"+code); if(cell) cell.innerHTML='<span class="done">✓ opened</span>'; refreshCount();
+  };
+  $("scCls").addEventListener("change", draw);
+  $("scRows").addEventListener("input", e=>{ if(e.target.matches("input[type=email]")){ checkRow(e.target); refreshCount(); } });
+  $("scRows").addEventListener("click", e=>{ const b=e.target.closest("[data-send]"); if(b) sendOne(b.dataset.send); });
+  $("scNext").addEventListener("click", ()=>{
+    const nxt = scList.find(st=>!scSent.has(st.code) && scEmailOk($("scr_"+st.code).value.trim()));
+    if(nxt) sendOne(nxt.code);
+  });
+  $("scApply").addEventListener("click", ()=>{
+    // Each pasted line is matched to a student by NAME (never by position), so a
+    // code can't end up in the wrong student's inbox. Unmatched or ambiguous lines are listed.
+    const byName = new Map();
+    scList.forEach(st=>{ const k=scNorm(st.name); const kk=scNorm(((st.name.split(" ").slice(1).join(" "))+" "+st.first)); [k,kk].forEach(x=>{ if(!byName.has(x)) byName.set(x,[]); byName.get(x).push(st); }); });
+    let ok=0; const bad=[];
+    $("scPaste").value.split(/\r?\n/).map(l=>l.trim()).filter(Boolean).forEach(line=>{
+      const em=(line.match(/[^\s@<>,;\t]+@[^\s@<>,;\t]+\.[^\s@<>,;\t]+/)||[])[0];
+      const nm=scNorm(line.replace(em||"","").replace(/[,;\t]+/g," "));
+      if(!em||!nm){ bad.push(line); return; }
+      const hits=(byName.get(nm)||[]).filter((x,i,a)=>a.indexOf(x)===i);
+      if(hits.length===1){ $("scr_"+hits[0].code).value=em; ok++; } else bad.push(line.replace(em,"").trim()||line);
+    });
+    emailInputs().forEach(checkRow); refreshCount();
+    $("scMatch").textContent = `${ok} matched${bad.length?`, ${bad.length} not matched: ${bad.slice(0,4).join("; ")}${bad.length>4?"…":""}`:""}.`;
+  });
+  draw();
 }
 
 // ============================ STUDENTS & CLASSES ============================
