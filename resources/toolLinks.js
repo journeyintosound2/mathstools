@@ -880,12 +880,12 @@ window.MMT_TOOL_LINKS = {
       tags: ["quiz", "multiplication", "area model", "partitioning", "partial products", "place value", "missing numbers", "spot the mistake", "sweet mild medium spicy", "student code login", "teacher dashboard"]
     },
     {
-      title: "Area of a Triangle",
+      title: "Area of a Triangle (Student Quiz)",
       kind: "Student quiz",
       url: "/online-quizzes/stage-4/measurement-space/area-of-a-triangle.html",
       ideas: ["rectangles-triangles-parallelograms"],
-      note: "Saves to the student dashboard.",
-      tags: ["quiz", "area", "triangles"]
+      note: "Ten questions, one answer each. On Sweet and Mild the triangle is the teaching tool's model students can step through (rectangle, or two copies when obtuse); Medium and Spicy add a sloping-side distractor, halves and missing base or height. Saves to the student dashboard.",
+      tags: ["quiz", "area", "triangles", "half base times height", "obtuse", "perpendicular height", "missing length", "spot the mistake", "sweet mild medium spicy", "student code login", "teacher dashboard"]
     },
     {
       title: "Triangles — Area Worksheet Maker",

@@ -110,7 +110,7 @@ export const MMT_TOOLS = Object.freeze([
     achievementToolName: "area-of-a-triangle-student-quiz", topics: ["measurement-space"], stage: "Stage 4",
     launchUrl: "/online-quizzes/stage-4/measurement-space/area-of-a-triangle.html",
     supportsAdventureAttempts: false, supportsSkillBreakdown: false,
-    notes: "Sweet/Mild/Medium/Spicy area-of-triangle quiz (⅓ obtuse from Mild up; Medium half-of-odd areas; Spicy find-a-missing-length). Optional student-code login + secure MMTQuiz achievements save; no typed answers; masteryTopic 'area-of-a-triangle'. Pairs with the interactive + worksheet creator.",
+    notes: "REBUILT 2026-11-01 on the Area Model quiz pattern (engine online-quizzes/stage-4/measurement-space/area-of-a-triangle-quiz/quiz.js). 10 questions, each ONE question + ONE answer. Sweet/Mild: the panel is the teaching tool's model built from the question's triangle — Rectangle story when the height is inside or a side, Two copies when obtuse; students step it with Show me (never required/marked); a wrong first answer jumps it to the last step. Medium/Spicy: plain diagram, a sloping side often labelled as a distractor, halves (22.5), Spicy missing base/height. Only the FIRST check scores. types[]: tri-rect/tri-area/tri-area-obtuse/tri-missing/tri-mistake as right/total + level:x (the old quiz sent per-question tags like mild-obtuse-area-wrong and had 15 questions). No typed answers saved. toolId/achievementToolName/masteryTopic unchanged.",
   },
   {
     toolId: "integers-quiz", title: "Computation with Integers — Student Quiz", category: "Quiz",

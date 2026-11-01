@@ -96,6 +96,19 @@
 > §2 "TWO folders", §3 deploy paths and §5's `mathstools-main 2` heading below
 > describe the OLD layout — this block supersedes them.
 >
+> **NEW (2026-11-01): AREA OF A TRIANGLE STUDENT QUIZ REBUILT** on the Area Model quiz pattern.
+> `online-quizzes/stage-4/measurement-space/area-of-a-triangle.html` is a thin shell; the engine is
+> `area-of-a-triangle-quiz/quiz.js` + `quiz.css` (the css began as a copy of area-model-quiz/quiz.css —
+> bump BOTH ?v= in the shell). One question + one answer per card (Jeff's rule). Sweet/Mild: the panel is
+> the teaching tool's model built from the question's triangle — RECTANGLE story when the height is inside
+> or a side, TWO COPIES when obtuse (Jeff's choice, no Slide mode), stepped with the panel's own ◀ / Show me ▸
+> (never required/marked); a wrong first answer jumps it to the last step. Medium/Spicy: plain diagram, no
+> squares, a sloping side with a whole-number length labelled as a distractor (TRIPLES), halves, Spicy
+> missing base/height. 10 questions (old: 15). types[]: tri-rect / tri-area / tri-area-obtuse / tri-missing /
+> tri-mistake as key:r/t + level:x (labels in quizInsights SKILL_LABELS). toolId / achievementToolName /
+> masteryTopic unchanged. Test surface `window.__TQ__`.
+> Teaching tool keys (Jeff, 2026-11-01): Space = start the steps again, Enter = new triangle, →/← = step.
+>
 > **NEW (2026-10-31, revised 2026-11-01 from Jeff's feedback): AREA OF A TRIANGLE TOOL REBUILT.**
 > `interactive-tools/stage-4/measurement-space/area-of-a-triangle/index.html` (same URL), on the Area Model
 > tool's shell. Apex (a, h) on base [0,b]: drag the top or the square at the end of the base. Three modes,

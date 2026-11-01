@@ -311,7 +311,7 @@
             <a class="toolLink" href="/interactive-tools/stage-4/measurement-space/perimeter-area-rectangle/index.html">Area Model &mdash; Multiplication &amp; Perimeter<small>The rectangle the triangle is half of</small></a>
           </nav>
         </div>
-        <button class="btn btn-primary" id="newBtn" type="button">New triangle</button>
+        <button class="btn btn-primary" id="newBtn" type="button" title="New triangle (Enter)">New triangle</button>
       </div>
     </header>
 
@@ -335,7 +335,7 @@
           <div class="topRight">
             <span class="typeTag acute" id="typeTag">Acute</span>
             <div class="iconGroup">
-              <button class="iconBtn" id="againIcon" type="button" title="Back to the start of the steps" aria-label="Back to the start of the steps">
+              <button class="iconBtn" id="againIcon" type="button" title="Back to the start of the steps (Space)" aria-label="Back to the start of the steps">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1"/><path d="M3.5 4v5h5"/></svg>
               </button>
               <button class="iconBtn" id="panelBtn" type="button" aria-pressed="true" title="Hide the side panel" aria-label="Show or hide the side panel">
@@ -386,9 +386,9 @@
             <button class="stepBtn icon" id="backBtn" type="button" title="Back a step (&larr;)" aria-label="Back a step">&#9664;</button>
             <button class="stepBtn icon" id="againBtn" type="button" title="Back to the start" aria-label="Back to the start">&#8634;</button>
             <button class="stepBtn" id="allBtn" type="button">Show all</button>
-            <button class="nextBtn" id="nextBtn" type="button">Next &#9656;</button>
+            <button class="nextBtn" id="nextBtn" type="button" title="Next step (&rarr;)">Next &#9656;</button>
           </div>
-          <div class="keyHint"><kbd>Space</kbd> next &middot; <kbd>&larr;</kbd> back &middot; <kbd>1</kbd>&ndash;<kbd>3</kbd> ways &middot; <kbd>F</kbd> full screen</div>
+          <div class="keyHint"><kbd>&rarr;</kbd>/<kbd>&larr;</kbd> step &middot; <kbd>Space</kbd> start again &middot; <kbd>Enter</kbd> new triangle &middot; <kbd>F</kbd> full screen</div>
         </section>
       </aside>
     </main>
@@ -1050,7 +1050,11 @@
     const tag = (e.target && e.target.tagName) || "";
     if(e.key === "Escape"){ closeMenus(); if(S.fs && !fsActive()) setFs(false); return; }
     if(tag === "INPUT" || tag === "SELECT" || tag === "TEXTAREA" || e.metaKey || e.ctrlKey || e.altKey) return;
-    if(e.key === " " || e.key === "ArrowRight"){ if(tag === "BUTTON" && e.key === " ") return; e.preventDefault(); next(); }
+    /* buttons keep their own Space/Enter; everywhere else Space starts the steps again and Enter makes a new triangle */
+    if(tag === "BUTTON" && (e.key === " " || e.key === "Enter")){ e.preventDefault(); e.target.blur(); }
+    if(e.key === " "){ e.preventDefault(); startAgain(); const b = $("againIcon"); b.classList.remove("spin"); void b.offsetWidth; b.classList.add("spin"); }
+    else if(e.key === "Enter"){ e.preventDefault(); randomTri(); }
+    else if(e.key === "ArrowRight"){ e.preventDefault(); next(); }
     else if(e.key === "ArrowLeft"){ e.preventDefault(); back(); }
     else if(e.key === "1") setMode("rect"); else if(e.key === "2") setMode("para"); else if(e.key === "3") setMode("slide");
     else if(e.key === "n" || e.key === "N") randomTri();

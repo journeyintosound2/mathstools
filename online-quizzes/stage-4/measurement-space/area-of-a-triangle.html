@@ -1,108 +1,11 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>"Area of a Triangle" – Student Quiz</title>
-<style>
-  :root{
-    --bg:#f6f7fb; --card:#ffffff; --ink:#111827; --muted:#6b7280; --border:#e5e7eb;
-    --shadow:0 14px 40px rgba(0,0,0,.10); --radius:18px;
-    --accent:#2563eb; --ok:#16a34a; --bad:#dc2626; --okSoft:#dcfce7; --badSoft:#fee2e2;
-    --sweetA:#16a34a; --mildA:#2563eb; --mediumA:#f59e0b; --spicyA:#f97316;
-    --mathFont:"Cambria Math","STIX Two Math","STIXGeneral","Times New Roman",serif;
-  }
-  *{ box-sizing:border-box; }
-  html,body{ height:100%; }
-  body{ margin:0; font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
-    background:var(--bg); color:var(--ink); }
-  .page{ min-height:100vh; padding:12px; display:flex; flex-direction:column; }
-
-  .topbar{ display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; max-width:1000px; margin:0 auto; width:100%; }
-  .brand{ display:flex; align-items:center; gap:10px; font-weight:1000; font-size:16px; }
-  .brand img{ width:28px; height:28px; object-fit:contain; }
-  .backBtn{ border:1px solid var(--border); background:#fff; border-radius:12px; padding:8px 12px; font-weight:900; cursor:pointer; font-size:14px; }
-
-  .shell{ max-width:1000px; margin:12px auto 0; width:100%; flex:1 1 auto; }
-
-  .quizCard{ background:var(--card); border:1px solid var(--border); border-radius:24px; box-shadow:var(--shadow); padding:18px; }
-  .quizHead{ display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:10px; }
-  .levelBanner{ font-weight:1000; font-size:20px; padding:8px 16px; border-radius:999px; color:#fff; background:linear-gradient(180deg,#2563eb,#1e3a8a); }
-  .qCounter{ font-weight:950; color:var(--muted); font-size:15px; }
-  .progressWrap{ height:10px; background:#eef2f7; border-radius:999px; overflow:hidden; margin:6px 0 14px; }
-  .progressFill{ height:100%; width:0%; background:linear-gradient(90deg,#2563eb,#16a34a); transition:width .25s ease; }
-
-  .prompt{ font-weight:950; font-size:18px; margin:0 0 8px; text-align:center; }
-  .diagramWrap{ display:flex; justify-content:center; align-items:center; margin:6px 0 14px; }
-  .diagramSvg{ width:100%; max-width:360px; height:auto; display:block; }
-
-  .answerArea{ display:flex; flex-direction:column; align-items:center; gap:12px; }
-  .answerRow{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:center; }
-  .answerRow .lbl{ font-weight:950; font-size:18px; font-family:var(--mathFont); }
-  .ansInput{ width:150px; height:54px; border:2px solid #111827; border-radius:14px; font-size:24px; font-weight:1000;
-    text-align:center; outline:none; background:#fff; }
-  .ansInput:focus{ border-color:var(--accent); }
-  .ansInput.ok{ border-color:var(--ok); background:var(--okSoft); color:#065f46; }
-  .ansInput.bad{ border-color:var(--bad); background:var(--badSoft); color:#7f1d1d; }
-  .unit{ font-weight:950; font-size:18px; font-family:var(--mathFont); }
-
-  .btnRow{ display:flex; gap:10px; justify-content:center; margin-top:6px; flex-wrap:wrap; }
-  .btn{ border:none; border-radius:14px; padding:12px 20px; font-weight:1000; font-size:16px; cursor:pointer; background:#f3f4f6; color:#111827; }
-  .btn.primary{ background:var(--accent); color:#fff; }
-  .btn.ghost{ background:#eef2ff; color:#1d4ed8; }
-  .btn.danger{ background:#fee2e2; color:#991b1b; }
-  .btn:disabled{ opacity:.5; cursor:not-allowed; }
-
-  .feedback{ min-height:26px; text-align:center; font-weight:950; font-size:16px; margin-top:6px; }
-  .feedback.ok{ color:var(--ok); }
-  .feedback.bad{ color:var(--bad); }
-  .hintLine{ text-align:center; color:var(--muted); font-weight:800; font-size:13px; margin-top:4px; }
-
-  /* modals */
-  .modalBack{ position:fixed; inset:0; background:rgba(15,23,42,.55); display:none; align-items:center; justify-content:center; padding:16px; z-index:100; }
-  .modalBack.show{ display:flex; }
-  .modal{ background:#fff; border-radius:22px; box-shadow:var(--shadow); max-width:520px; width:100%; overflow:hidden; }
-  .modalHead{ font-weight:1000; font-size:20px; padding:16px 18px; border-bottom:1px solid var(--border); }
-  .modalBody{ padding:16px 18px; }
-  .loginIntro{ color:var(--muted); font-weight:700; font-size:15px; margin:0 0 12px; line-height:1.4; }
-  .loginPanel label{ display:block; font-weight:950; margin-bottom:6px; }
-  .loginPanel input{ width:100%; height:52px; border:2px solid var(--border); border-radius:14px; padding:0 14px; font-size:20px; font-weight:900; outline:none; text-transform:uppercase; }
-  .loginPanel input:focus{ border-color:var(--accent); }
-  .loginActions{ display:flex; gap:10px; margin-top:14px; flex-wrap:wrap; }
-  .loginMessage{ margin-top:10px; font-weight:900; font-size:14px; min-height:18px; }
-  .loginMessage.bad{ color:var(--bad); } .loginMessage.ok{ color:var(--ok); }
-
-  .levelList{ display:flex; flex-direction:column; gap:14px; }
-  .levelCard{ display:flex; align-items:center; justify-content:space-between; gap:14px; border-radius:18px; padding:17px 18px; color:#111827; border:2px solid rgba(17,24,39,.10); }
-  .levelCard .name{ font-weight:1000; font-size:22px; }
-  .levelCard .desc{ margin-top:4px; color:#334155; font-weight:800; font-size:13px; line-height:1.35; max-width:360px; }
-  .levelCard .startBtn{ border:none; background:#2563eb; color:#fff; border-radius:12px; padding:11px 17px; font-weight:1000; cursor:pointer; min-width:92px; }
-  .sweetBg{ background:#dcfce7; border-color:rgba(22,163,74,.25); }
-  .mildBg{ background:#dbeafe; border-color:rgba(37,99,235,.22); }
-  .mediumBg{ background:#fef9c3; border-color:rgba(245,158,11,.25); }
-  .spicyBg{ background:#ffedd5; border-color:rgba(249,115,22,.25); }
-
-  .certWrap{ text-align:center; }
-  .certIcon{ font-size:52px; }
-  .certText{ font-weight:1000; font-size:22px; margin:8px 0; }
-  .certScore{ font-weight:950; font-size:18px; color:var(--accent); margin:6px 0; }
-  .certSub{ color:var(--muted); font-weight:800; font-size:14px; }
-  .modalActions{ display:flex; gap:8px; padding:14px 18px; border-top:1px solid var(--border); flex-wrap:wrap; align-items:center; }
-  .saveStatus{ margin-left:auto; font-weight:900; font-size:13px; color:var(--muted); }
-
-  .mmtFooter{ text-align:center; padding:12px; font-weight:900; color:var(--muted); font-size:13px; }
-  .mmtFooter a{ color:var(--accent); text-decoration:none; font-weight:950; }
-
-  /* diagram elements */
-  .tri-edge{ fill:rgba(37,99,235,.10); stroke:#111827; stroke-width:2.4; stroke-linejoin:round; }
-  .grid-line{ stroke:#dbe1ea; stroke-width:1; }
-  .alt-line{ stroke:#dc2626; stroke-width:1.8; stroke-dasharray:5 4; }
-  .ext-line{ stroke:#6b7280; stroke-width:1.3; stroke-dasharray:4 4; }
-  .ra-mark{ stroke:#dc2626; stroke-width:1.6; fill:none; }
-  .dot{ fill:#111827; }
-  .dlabel{ font-family:var(--mathFont); font-size:16px; font-weight:800; fill:#111827; paint-order:stroke; stroke:#fff; stroke-width:3px; }
-  .qmark{ font-family:var(--mathFont); font-size:20px; font-weight:1000; fill:#dc2626; paint-order:stroke; stroke:#fff; stroke-width:3.5px; }
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Area of a Triangle &mdash; Student Quiz | Mills Maths Tools</title>
+  <meta name="description" content="Ten questions on the area of a triangle, Sweet to Spicy. The triangle on the right is a model students can step through to see it is half a rectangle.">
+  <link rel="stylesheet" href="area-of-a-triangle-quiz/quiz.css?v=a4997652">
 <!-- mmt-pwa -->
 <link rel="manifest" href="../../../manifest.webmanifest">
 <meta name="theme-color" content="#1f3a5f">
@@ -113,384 +16,94 @@
 <script src="../../../pwa.js" defer></script>
 <!-- /mmt-pwa -->
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
-<script src="/portal/shared/portalHandoff.js?v=16b9c759" data-input="#codeInput" data-button="#loginBtn"></script>
 </head>
 <body>
-<div class="page">
-  <div class="topbar">
-    <a class="brand" href="https://millsmathstools.au" style="text-decoration:none;color:inherit;">
-      <img src="../../../assets/mmt.png" alt="MMT" onerror="this.style.display='none';" />
-      <span>Area of a Triangle — Student Quiz</span>
-    </a>
-    <button class="backBtn" id="menuBtn">Level menu</button>
-  </div>
-
-  <div class="shell">
-    <div class="quizCard" id="quizCard" style="display:none;">
-      <div class="quizHead">
-        <div class="levelBanner" id="levelBanner">Level: —</div>
-        <div class="qCounter" id="qCounter">Question 1 / 15</div>
-      </div>
-      <div class="progressWrap"><div class="progressFill" id="progressFill"></div></div>
-
-      <p class="prompt" id="prompt">—</p>
-      <div class="diagramWrap" id="diagramWrap"></div>
-
-      <div class="answerArea">
-        <div class="answerRow">
-          <span class="lbl" id="ansLabel">Area =</span>
-          <input id="ansInput" class="ansInput" inputmode="decimal" autocomplete="off" placeholder="?" />
-          <span class="unit" id="ansUnit">cm²</span>
+  <div class="app">
+    <header class="mmtTopbar">
+      <a class="mmtBrand" href="https://www.millsmathstools.au" target="_self" aria-label="Back to Mills Maths Tools">
+        <span class="mmtBrandLogo" aria-hidden="true">MMT</span>
+        <span class="mmtBrandText"><strong>MMT</strong><span>Mills Maths Tools</span></span>
+      </a>
+      <div class="mmtTopTitle">Area of a Triangle &mdash; Student Quiz</div>
+      <div class="topActions">
+        <span id="mmtAuthSlot"></span>
+        <span class="lvlChip" id="levelChip" hidden>Sweet</span>
+        <div class="menuWrap">
+          <button class="btn" id="toolsBtn" type="button" aria-haspopup="true" aria-expanded="false">Tools &#9662;</button>
+          <nav class="dropMenu" id="toolsMenu" aria-label="Related tools">
+            <a class="toolLink" href="/interactive-tools/stage-4/measurement-space/area-of-a-triangle/">Teaching Tool<small>Area of a Triangle &mdash; Half the Rectangle</small></a>
+            <a class="toolLink" href="/worksheet-creators/stage-4/measurement-space/area-of-a-triangle.html">Worksheet Creator<small>Printable triangle area practice</small></a>
+          </nav>
         </div>
+        <button class="btn btn-primary" id="menuBtn" type="button">Change level</button>
+      </div>
+    </header>
 
-        <div class="btnRow">
-          <button class="btn primary" id="checkBtn" type="button">Check</button>
-          <button class="btn" id="retryBtn" type="button" style="display:none;">Retry</button>
-          <button class="btn ghost" id="nextBtn" type="button" disabled>Next →</button>
-        </div>
-        <div class="feedback" id="feedback"></div>
-        <div class="hintLine" id="hintLine">Type your answer. Write a half as <b>.5</b> — for example <b>12.5</b>. Press <b>Enter</b> to check, then <b>Enter</b> again for the next question.</div>
+    <div class="progressWrap"><div class="progressFill" id="progressFill"></div></div>
+
+    <main class="layout">
+      <div class="headRow">
+        <span class="qCounter" id="qCounter">Question 1 / 10</span>
+      </div>
+
+      <div class="work" id="work">
+        <section class="qCard" id="qCard" aria-live="polite"></section>
+        <section class="boardCard" id="boardCard">
+          <div class="boardHead">
+            <div class="viewTag area" id="viewTag">Model</div><span class="sp"></span>
+            <div class="stepBox" id="stepBox" hidden>
+              <span class="stepCap" id="stepCap" aria-live="polite"></span>
+              <button class="mBtn" id="mBack" type="button" title="Back a step" aria-label="Model: back a step">&#9664;</button>
+              <button class="mBtn go" id="mNext" type="button">Show me &#9656;</button>
+            </div>
+          </div>
+          <div class="boardWrap" id="boardWrap">
+            <svg id="board" role="img" aria-label="The triangle in the question"></svg>
+          </div>
+        </section>
+      </div>
+
+      <div class="navRow">
+        <button class="navBtn" id="prevBtn" type="button">&larr; Previous</button>
+        <button class="navBtn next" id="nextBtn" type="button">Next &rarr;</button>
+        <span class="spacer"></span>
+        <span id="mmtSubmitSlot"></span>
+      </div>
+    </main>
+
+    <div class="brandFoot">
+      This tool and more can be found at <a href="https://www.millsmathstools.au" target="_blank" rel="noopener">www.millsmathstools.au</a>
+    </div>
+  </div>
+
+  <!-- level chooser -->
+  <div class="modalBack" id="levelModal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="lvlTitle">
+      <h2 id="lvlTitle">Choose your level</h2>
+      <p class="sub" id="lvlSub">Ten questions. On Sweet and Mild the triangle on the right is a model &mdash; press <b>Show me</b> to see why it is half a rectangle. Medium and Spicy are just you and the diagram.</p>
+      <div class="lvlList" id="lvlList"></div>
+    </div>
+  </div>
+
+  <!-- certificate -->
+  <div class="modalBack" id="certModal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="certTitle">
+      <h2 id="certTitle">Finished</h2>
+      <div class="certBig" id="certScore">0 / 10</div>
+      <div class="certLine" id="certLine"></div>
+      <div class="certSub"></div>
+      <div class="certBreak" id="certBreak"></div>
+      <div class="modalActions">
+        <button class="primary" id="againBtn" type="button">Try again</button>
+        <button id="changeLvlBtn" type="button">Change level</button>
+        <button id="copyBtn" type="button">Copy my result</button>
       </div>
     </div>
   </div>
 
-  <div class="mmtFooter">This tool and more can be found at <a href="https://www.millsmathstools.au">www.millsmathstools.au</a></div>
-</div>
+  <script src="area-of-a-triangle-quiz/quiz.js?v=1fcf8a2a"></script>
 
-<!-- Student login -->
-<div class="modalBack show" id="loginModal">
-  <div class="modal">
-    <div class="modalHead">Student login</div>
-    <div class="modalBody">
-      <p class="loginIntro">Enter your MMT student code to save your result to your teacher's dashboard. No code? Choose <b>Skip</b> to do the quiz without saving.</p>
-      <div class="loginPanel">
-        <label for="codeInput">Student code</label>
-        <input id="codeInput" autocomplete="off" placeholder="enter code here" />
-        <div class="loginActions">
-          <button class="btn primary" id="loginBtn" type="button">Start</button>
-          <button class="btn" id="skipBtn" type="button">Skip student code</button>
-        </div>
-        <div class="loginMessage" id="loginMessage"></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Level menu -->
-<div class="modalBack" id="levelModal">
-  <div class="modal">
-    <div class="modalHead">Choose your level</div>
-    <div class="modalBody">
-      <div class="levelList">
-        <div class="levelCard sweetBg"><div><div class="name">Sweet</div><div class="desc">Whole-number areas. Grid shown. Right &amp; acute triangles.</div></div><button class="startBtn" data-level="sweet">Start</button></div>
-        <div class="levelCard mildBg"><div><div class="name">Mild</div><div class="desc">Whole-number areas. Grid shown. Includes obtuse triangles.</div></div><button class="startBtn" data-level="mild">Start</button></div>
-        <div class="levelCard mediumBg"><div><div class="name">Medium</div><div class="desc">Areas are half of an odd number (e.g. 17½). No grid.</div></div><button class="startBtn" data-level="medium">Start</button></div>
-        <div class="levelCard spicyBg"><div><div class="name">Spicy</div><div class="desc">The area is given — find the missing base or height.</div></div><button class="startBtn" data-level="spicy">Start</button></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Certificate -->
-<div class="modalBack" id="certModal">
-  <div class="modal">
-    <div class="modalHead">Quiz complete</div>
-    <div class="modalBody">
-      <div class="certWrap">
-        <div class="certIcon" id="certIcon">🏆</div>
-        <div class="certText" id="certText">Great work!</div>
-        <div class="certScore" id="certScore"></div>
-        <div class="certSub" id="certSub"></div>
-      </div>
-    </div>
-    <div class="modalActions">
-      <button class="btn primary" id="againBtn" type="button">Try same level</button>
-      <button class="btn ghost" id="toMenuBtn" type="button">Back to level menu</button>
-      <span class="saveStatus" id="saveStatus"></span>
-    </div>
-  </div>
-</div>
-
-<script>
-(function(){
-"use strict";
-
-/* ---- resilient secure-client loader ---------------------------------------
-   The client is imported DYNAMICALLY so the quiz always runs — even opened
-   locally or offline (demo mode, no save). On the deployed site the import
-   resolves from the root and login + achievement saving work normally. ------ */
-let MMT = null, _skipped = false, _clientTried = false;
-async function loadClient(){
-  if(_clientTried) return MMT; _clientTried = true;
-  try{ const mod = await import("/portal/shared/quizClient.js"); MMT = mod.MMTQuiz; MMT.init(); }
-  catch(e){ MMT = null; console.warn("MMT quiz client unavailable — demo mode only:", e && e.message); }
-  return MMT;
-}
-const Client = {
-  normaliseCode(c){ return MMT ? MMT.normaliseCode(c) : String(c||"").trim().toUpperCase().replace(/[^A-Z0-9-]/g,""); },
-  async signIn(code){ if(!MMT) await loadClient(); if(!MMT) return {ok:false, error:"Login isn’t available here — press Skip to do the quiz."}; return MMT.signIn(code); },
-  skipDemo(){ _skipped = true; if(MMT) MMT.skipDemo(); },
-  getMode(){ return MMT ? MMT.getMode() : (_skipped ? "skip" : "pending"); },
-  async saveAchievement(p){ if(MMT && MMT.getMode()==="registered") return MMT.saveAchievement(p); return {skipped:true}; }
-};
-
-/* ============================ config ============================ */
-const QUIZ_LEN = 15;
-const TOOL_ID = "area-of-a-triangle-student-quiz";
-const TOPIC = "measurement-space";
-const MASTERY_TOPIC = "area-of-a-triangle";
-
-const LEVELS = {
-  sweet:  { name:"Sweet",  grid:true,  parity:"even", mode:"area",    obtuse:"never" },
-  mild:   { name:"Mild",   grid:true,  parity:"even", mode:"area",    obtuse:"third" },
-  medium: { name:"Medium", grid:false, parity:"odd",  mode:"area",    obtuse:"third" },
-  spicy:  { name:"Spicy",  grid:false, parity:"even", mode:"missing", obtuse:"third" }
-};
-const BANNER_BG = {
-  sweet:"linear-gradient(180deg,#16a34a,#0f766e)", mild:"linear-gradient(180deg,#2563eb,#1e3a8a)",
-  medium:"linear-gradient(180deg,#f59e0b,#b45309)", spicy:"linear-gradient(180deg,#f97316,#c2410c)"
-};
-
-const randInt=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
-const SVGNS="http://www.w3.org/2000/svg";
-
-/* ============================ generation (mirrors the worksheet) ============================ */
-function pickDims(parity){
-  for(let i=0;i<400;i++){
-    let b,h;
-    if(parity==="odd"){ b=[3,5,7,9,11][randInt(0,4)]; h=[3,5,7,9,11][randInt(0,4)]; }
-    else { b=randInt(3,12); h=randInt(3,12); if((b*h)%2!==0) continue; }
-    if(b*h>=144) continue; if(b*h<12) continue;
-    return {b,h};
-  }
-  return {b:6,h:8};
-}
-function pickApexInfo(b,obtuseMode){
-  let makeObtuse = obtuseMode==="always"?true : obtuseMode==="third"?Math.random()<(1/3) : false;
-  if(makeObtuse){ const o=randInt(2,Math.max(2,Math.round(b*0.5))); return {apex:(Math.random()<0.5?b+o:-o),obtuse:true}; }
-  const r=Math.random(); let apex;
-  if(r<0.30)apex=0; else if(r<0.45)apex=b; else apex=randInt(1,b-1);
-  return {apex,obtuse:false};
-}
-function generateQuestion(levelKey){
-  const cfg=LEVELS[levelKey];
-  const {b,h}=pickDims(cfg.parity);
-  const {apex,obtuse}=pickApexInfo(b,cfg.obtuse);
-  const area=b*h/2;
-  const q={levelKey,b,h,apex,obtuse,area,mode:cfg.mode};
-  if(cfg.mode==="missing"){ q.missing=Math.random()<0.5?"base":"height"; q.answer=(q.missing==="base"?b:h); }
-  else { q.answer=area; }
-  return q;
-}
-function fmtArea(a){ if(Number.isInteger(a)) return String(a); const w=Math.floor(a); return (w>0?w:"")+"½"; }
-
-/* ============================ diagram ============================ */
-function el(n,a){ const e=document.createElementNS(SVGNS,n); for(const k in a) e.setAttribute(k,a[k]); return e; }
-function buildDiagram(q){
-  const b=q.b,h=q.h,apex=q.apex,cfg=LEVELS[q.levelKey];
-  const DW=280,DH=200,padL=30,padR=30,padT=22,padB=30;
-  const innerW=DW-padL-padR, innerH=DH-padT-padB;
-  const xMin=Math.min(0,apex),xMax=Math.max(b,apex),bboxW=xMax-xMin;
-  let cell=Math.min(innerW/bboxW, innerH/h); cell=Math.min(cell,34);
-  const drawW=bboxW*cell,drawH=h*cell;
-  const originX=padL+(innerW-drawW)/2 - xMin*cell;
-  const baseY=padT+(innerH+drawH)/2;
-  const X=x=>originX+x*cell, Y=y=>baseY-y*cell;
-  const svg=el("svg",{viewBox:`0 0 ${DW} ${DH}`,class:"diagramSvg",role:"img","aria-label":"triangle"});
-  svg.appendChild(el("rect",{x:0,y:0,width:DW,height:DH,fill:"#fff"}));
-  if(cfg.grid){
-    const g=el("g",{});
-    for(let x=Math.ceil(xMin);x<=Math.floor(xMax);x++) g.appendChild(el("line",{x1:X(x),y1:Y(0),x2:X(x),y2:Y(h),class:"grid-line"}));
-    for(let y=0;y<=h;y++) g.appendChild(el("line",{x1:X(xMin),y1:Y(y),x2:X(xMax),y2:Y(y),class:"grid-line"}));
-    svg.appendChild(g);
-  }
-  if(apex>b) svg.appendChild(el("line",{x1:X(b),y1:Y(0),x2:X(apex),y2:Y(0),class:"ext-line"}));
-  if(apex<0) svg.appendChild(el("line",{x1:X(0),y1:Y(0),x2:X(apex),y2:Y(0),class:"ext-line"}));
-  svg.appendChild(el("polygon",{points:`${X(0)},${Y(0)} ${X(b)},${Y(0)} ${X(apex)},${Y(h)}`,class:"tri-edge"}));
-  svg.appendChild(el("line",{x1:X(apex),y1:Y(h),x2:X(apex),y2:Y(0),class:"alt-line"}));
-  const ras=Math.min(7,cell*0.5), dir=(apex<b/2)?1:-1;
-  svg.appendChild(el("polyline",{points:`${X(apex)+dir*ras},${Y(0)} ${X(apex)+dir*ras},${Y(0)-ras} ${X(apex)},${Y(0)-ras}`,class:"ra-mark"}));
-  [[0,0],[b,0],[apex,h]].forEach(([x,y])=>svg.appendChild(el("circle",{cx:X(x),cy:Y(y),r:2.8,class:"dot"})));
-  const baseText=(q.mode==="missing"&&q.missing==="base")?"?":(b+" cm");
-  const heightText=(q.mode==="missing"&&q.missing==="height")?"?":(h+" cm");
-  const baseCls=(q.mode==="missing"&&q.missing==="base")?"qmark":"dlabel";
-  const heightCls=(q.mode==="missing"&&q.missing==="height")?"qmark":"dlabel";
-  const bl=el("text",{x:X(b/2),y:baseY+20,"text-anchor":"middle",class:baseCls}); bl.textContent=baseText; svg.appendChild(bl);
-  const hlx=X(apex)+(apex<b/2?15:-15);
-  const hl=el("text",{x:hlx,y:Y(h/2),"text-anchor":"middle","dominant-baseline":"middle",class:heightCls}); hl.textContent=heightText; svg.appendChild(hl);
-  return svg;
-}
-
-/* ============================ answer parsing ============================ */
-function parseAnswer(raw){
-  if(raw==null) return null;
-  let s=String(raw).trim().toLowerCase();
-  if(!s) return null;
-  s=s.replace(/½/g," 1/2").replace(/¼/g," 1/4").replace(/¾/g," 3/4").replace(/\s+/g," ").trim();
-  let m;
-  if((m=s.match(/^(-?\d+)\s+(\d+)\/(\d+)$/))){ const w=+m[1],n=+m[2],d=+m[3]; if(!d) return null; return w+(w<0?-1:1)*(n/d); }
-  if((m=s.match(/^(-?\d+)\/(\d+)$/))){ const n=+m[1],d=+m[2]; if(!d) return null; return n/d; }
-  if((m=s.match(/^-?\d*\.?\d+$/))) return parseFloat(s);
-  return null;
-}
-
-/* ============================ state ============================ */
-let student=null, levelKey=null, questions=[], idx=0, score=0, locked=false, typeTags=[];
-
-/* ---- Finish & submit (shared) ------------------------------------------
-   Lets a student who has run out of time submit the questions they have
-   finished. See /portal/shared/earlySubmit.js. A question counts once it has
-   been checked — scoring is on the first attempt, so retries don't add to it. */
-let attemptedCount=0;
-let MMTSubmit=null;
-import("/portal/shared/earlySubmit.js").then(m=>{
-  MMTSubmit=m.MMTSubmit;
-  MMTSubmit.register({
-    progress:()=>({ attempted:attemptedCount, correct:score, quizLength:QUIZ_LEN }),
-    finish:()=>finish()
-  });
-}).catch(e=>console.warn("Early submit unavailable:", e&&e.message));
-
-const $=id=>document.getElementById(id);
-const quizCard=$("quizCard"), levelBanner=$("levelBanner"), qCounter=$("qCounter"), progressFill=$("progressFill");
-const promptEl=$("prompt"), diagramWrap=$("diagramWrap"), ansLabel=$("ansLabel"), ansInput=$("ansInput"), ansUnit=$("ansUnit");
-const checkBtn=$("checkBtn"), nextBtn=$("nextBtn"), retryBtn=$("retryBtn"), feedback=$("feedback");
-
-function showModal(m){ m.classList.add("show"); } function hideModal(m){ m.classList.remove("show"); }
-
-/* -------- login -------- */
-$("loginBtn").addEventListener("click", doLogin);
-$("codeInput").addEventListener("keydown",e=>{ if(e.key==="Enter") doLogin(); });
-$("skipBtn").addEventListener("click",()=>{ Client.skipDemo(); student=null; hideModal($("loginModal")); showModal($("levelModal")); });
-async function doLogin(){
-  const msg=$("loginMessage"); msg.className="loginMessage"; msg.textContent="Checking…";
-  const code=Client.normaliseCode($("codeInput").value);
-  $("codeInput").value=code;
-  if(!code){ msg.className="loginMessage bad"; msg.textContent="Please type your student code, or press Skip."; return; }
-  try{
-    const r=await Client.signIn(code);
-    if(r.ok){ student=r.profile; msg.className="loginMessage ok"; msg.textContent="Signed in as "+(student.name||code); setTimeout(()=>{ hideModal($("loginModal")); showModal($("levelModal")); },500); }
-    else { msg.className="loginMessage bad"; msg.textContent=r.error||"Could not sign in."; }
-  }catch(e){ msg.className="loginMessage bad"; msg.textContent="Could not sign in. You can Skip to continue."; }
-}
-
-/* -------- level start -------- */
-document.querySelectorAll(".startBtn").forEach(btn=>btn.addEventListener("click",()=>startLevel(btn.dataset.level)));
-$("menuBtn").addEventListener("click",()=>{ hideModal($("certModal")); showModal($("levelModal")); });
-$("againBtn").addEventListener("click",()=>{ hideModal($("certModal")); startLevel(levelKey); });
-$("toMenuBtn").addEventListener("click",()=>{ hideModal($("certModal")); showModal($("levelModal")); });
-
-function startLevel(key){
-  levelKey=key; hideModal($("levelModal"));
-  questions=Array.from({length:QUIZ_LEN},()=>generateQuestion(key));
-  idx=0; score=0; attemptedCount=0; typeTags=[];
-  if(MMTSubmit) MMTSubmit.reset();
-  const cfg=LEVELS[key];
-  levelBanner.textContent="Level: "+cfg.name;
-  levelBanner.style.background=BANNER_BG[key];
-  quizCard.style.display="";
-  renderQuestion();
-}
-
-/* -------- question render -------- */
-function renderQuestion(){
-  const q=questions[idx]; locked=false;
-  qCounter.textContent=`Question ${idx+1} / ${QUIZ_LEN}`;
-  progressFill.style.width=`${(idx/QUIZ_LEN)*100}%`;
-  promptEl.textContent = q.mode==="missing"
-    ? `Area = ${fmtArea(q.area)} cm². Find the missing length.`
-    : "Find the area of the triangle.";
-  diagramWrap.innerHTML=""; diagramWrap.appendChild(buildDiagram(q));
-  if(q.mode==="missing"){ ansLabel.textContent=(q.missing==="base"?"base =":"height ="); ansUnit.textContent="cm"; }
-  else { ansLabel.textContent="Area ="; ansUnit.textContent="cm²"; }
-  ansInput.value=""; ansInput.className="ansInput"; ansInput.disabled=false;
-  feedback.textContent=""; feedback.className="feedback";
-  checkBtn.disabled=false; nextBtn.disabled=true; retryBtn.style.display="none";
-  ansInput.focus();
-}
-
-/* -------- marking --------
-   First Enter (or Check) marks the answer with correct/incorrect feedback — the
-   answer is never revealed. If wrong, a Retry button lets them try the same
-   question again. A second Enter moves on. Score counts first-attempt correct. */
-checkBtn.addEventListener("click",check);
-retryBtn.addEventListener("click",retry);
-nextBtn.addEventListener("click",next);
-document.addEventListener("keydown",e=>{
-  if(e.key!=="Enter") return;
-  if($("loginModal").classList.contains("show")||$("levelModal").classList.contains("show")||$("certModal").classList.contains("show")) return;
-  if(quizCard.style.display==="none") return;
-  e.preventDefault();
-  if(!locked) check();
-  else if(!nextBtn.disabled) next();
-});
-
-function check(){
-  if(locked) return;
-  const q=questions[idx];
-  const val=parseAnswer(ansInput.value);
-  if(val===null){ feedback.className="feedback bad"; feedback.textContent="Type your answer (you can use .5)."; return; }
-  const correct=Math.abs(val-q.answer)<1e-9;
-  if(!q._checkedOnce){                       // score + tag on the FIRST attempt only
-    q._checkedOnce=true;
-    attemptedCount++;
-    typeTags.push(`${q.levelKey}${q.obtuse?"-obtuse":""}${q.mode==="missing"?"-missing":"-area"}${correct?"":"-wrong"}`);
-    if(correct) score++;
-    if(MMTSubmit) MMTSubmit.refresh();
-  }
-  locked=true; ansInput.disabled=true; checkBtn.disabled=true; nextBtn.disabled=false;
-  if(correct){
-    ansInput.className="ansInput ok"; feedback.className="feedback ok"; feedback.textContent="Correct! ✓";
-    retryBtn.style.display="none"; nextBtn.focus();
-  } else {
-    ansInput.className="ansInput bad"; feedback.className="feedback bad"; feedback.textContent="Not quite — try again.";
-    retryBtn.style.display=""; nextBtn.focus();
-  }
-}
-function retry(){
-  ansInput.disabled=false; ansInput.className="ansInput";
-  feedback.textContent=""; feedback.className="feedback";
-  retryBtn.style.display="none"; nextBtn.disabled=true; checkBtn.disabled=false;
-  locked=false;                              // allow another check (no extra score awarded)
-  ansInput.focus(); ansInput.select();
-}
-function next(){
-  if(idx>=QUIZ_LEN-1){ finish(); return; }
-  idx++; renderQuestion();
-}
-
-/* -------- finish + save -------- */
-async function finish(){
-  progressFill.style.width="100%";
-  const total = MMTSubmit ? MMTSubmit.total() : QUIZ_LEN;
-  const pct = total ? Math.round((score/total)*100) : 0;
-  const cfg=LEVELS[levelKey];
-  $("certIcon").textContent = pct>=80?"🏆":pct>=50?"🎉":"💪";
-  $("certText").textContent = pct>=80?"Excellent!":pct>=50?"Nice work!":"Keep practising!";
-  $("certScore").textContent = `Score: ${score} / ${total}  (${pct}%) — ${cfg.name}`;
-  const cert = `Area of a Triangle Quiz — ${cfg.name}\nScore: ${score}/${total} (${pct}%)`;
-  const save=$("saveStatus");
-  const mode=Client.getMode();
-  if(mode==="registered"){ save.textContent="Saving…"; }
-  else { save.textContent="Not saved (no code)"; }
-  showModal($("certModal"));
-  if(mode==="registered"){
-    try{
-      const r=await Client.saveAchievement({
-        tool:TOOL_ID, topic:TOPIC, level:cfg.name, levelKey,
-        score, total, percent:pct,
-        masteryTopic:MASTERY_TOPIC, types:typeTags, certificateText:cert,
-        ...(MMTSubmit ? MMTSubmit.fields() : {})
-      });
-      save.textContent = r&&r.saved ? "Saved to your dashboard ✓" : "Not saved";
-    }catch(e){ save.textContent="Save failed (result still counts locally)"; }
-  }
-  $("certSub").textContent = mode==="registered" ? "Your teacher can see this result." : "Enter a student code next time to save your result.";
-}
-
-/* init */
-loadClient();
-})();
-</script>
+  <!-- ===== MMT student-code login + secure save + sign-in banner ===== -->
+  <script src="/portal/shared/quizAuthUI.js?v=6412cdb4"></script>
 </body>
 </html>

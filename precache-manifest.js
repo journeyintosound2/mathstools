@@ -1,6 +1,6 @@
 /* Written by tools/build-pwa.mjs — do not edit by hand. */
 self.MMT_PRECACHE = {
- "version": "f1e5f62e49",
+ "version": "a842922b2e",
  "files": [
   "./",
   "assessment/exam-builder/app.js",
@@ -863,6 +863,8 @@ self.MMT_PRECACHE = {
   "online-quizzes/stage-4/measurement-space/area-model-quiz/quiz.css",
   "online-quizzes/stage-4/measurement-space/area-model-quiz/quiz.js",
   "online-quizzes/stage-4/measurement-space/area-model.html",
+  "online-quizzes/stage-4/measurement-space/area-of-a-triangle-quiz/quiz.css",
+  "online-quizzes/stage-4/measurement-space/area-of-a-triangle-quiz/quiz.js",
   "online-quizzes/stage-4/measurement-space/area-of-a-triangle.html",
   "online-quizzes/stage-4/measurement-space/perimeter-area-rectangle.html",
   "online-quizzes/stage-4/measurement-space/perimeter-plane-shapes.html",
