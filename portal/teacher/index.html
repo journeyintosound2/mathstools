@@ -1122,10 +1122,11 @@ const TOPIC_AREA_NAME = {
   algebra:"Algebra",
   "measurement-space":"Measurement & Space", pythagoras:"Measurement & Space", area:"Measurement & Space",
   "ratios-rates":"Ratios & Rates",
+  "statistics-probability":"Statistics & Probability",
 };
-const TOPIC_AREA_ORDER = ["Integers","Fractions, Decimals & Percentages","Number","Ratios & Rates","Algebra","Measurement & Space"];
+const TOPIC_AREA_ORDER = ["Integers","Fractions, Decimals & Percentages","Number","Ratios & Rates","Algebra","Measurement & Space","Statistics & Probability"];
 function topicAreaFor(t){ const id=(t.topics&&t.topics[0])||""; return TOPIC_AREA_NAME[id] || "Other"; }
-const FALLBACK_STRAND = { "measurement-space":"measurement-space", pythagoras:"measurement-space", area:"measurement-space" };
+const FALLBACK_STRAND = { "measurement-space":"measurement-space", pythagoras:"measurement-space", area:"measurement-space", "statistics-probability":"statistics-probability" };
 const STRAND_COLOUR = { "number-algebra":"", "measurement-space":"teal", "statistics-probability":"purple" };
 const STAGE_YEARS = { "Stage 1":"Years 1–2", "Stage 2":"Years 3–4", "Stage 3":"Years 5–6", "Stage 4":"Years 7–8", "Stage 5":"Years 9–10", "Stage 6":"Years 11–12" };
 // These tabs always show, even with no quizzes yet, so a teacher can see where
@@ -1139,6 +1140,19 @@ const BUILDER_QUIZZES = [
   {toolId:"algebraic-techniques",     title:"Algebraic Techniques",              launchUrl:"/online-quizzes/stage-4/algebra/algebraic-techniques.html"},
   {toolId:"equations-quiz",           title:"Equations",                         launchUrl:"/online-quizzes/stage-4/algebra/equations.html"},
   {toolId:"angle-relationships-quiz", title:"Angle Relationships",               launchUrl:"/online-quizzes/stage-4/measurement-space/angle-relationships.html"},
+  // Whole-topic quizzes on the shared engine (online-quizzes/stage-4/topic-quiz/, 2026-11-02).
+  // Their plain URL is the STUDENT quiz, so the builder is a separate URL (?builder=1).
+  {toolId:"ratios-rates-quiz", title:"Ratios and Rates", launchUrl:"/online-quizzes/stage-4/ratios-rates/ratios-and-rates.html", builderUrl:"/online-quizzes/stage-4/ratios-rates/ratios-and-rates.html?builder=1"},
+  {toolId:"indices-quiz", title:"Indices", launchUrl:"/online-quizzes/stage-4/number/indices.html", builderUrl:"/online-quizzes/stage-4/number/indices.html?builder=1"},
+  {toolId:"linear-relationships-quiz", title:"Linear Relationships", launchUrl:"/online-quizzes/stage-4/algebra/linear-relationships.html", builderUrl:"/online-quizzes/stage-4/algebra/linear-relationships.html?builder=1"},
+  {toolId:"length-quiz", title:"Length", launchUrl:"/online-quizzes/stage-4/measurement-space/length.html", builderUrl:"/online-quizzes/stage-4/measurement-space/length.html?builder=1"},
+  {toolId:"pythagoras-quiz", title:"Right-Angled Triangles (Pythagoras)", launchUrl:"/online-quizzes/stage-4/measurement-space/pythagoras.html", builderUrl:"/online-quizzes/stage-4/measurement-space/pythagoras.html?builder=1"},
+  {toolId:"area-quiz", title:"Area", launchUrl:"/online-quizzes/stage-4/measurement-space/area.html", builderUrl:"/online-quizzes/stage-4/measurement-space/area.html?builder=1"},
+  {toolId:"volume-quiz", title:"Volume", launchUrl:"/online-quizzes/stage-4/measurement-space/volume.html", builderUrl:"/online-quizzes/stage-4/measurement-space/volume.html?builder=1"},
+  {toolId:"geometrical-figures-quiz", title:"Properties of Geometrical Figures", launchUrl:"/online-quizzes/stage-4/measurement-space/properties-of-geometrical-figures.html", builderUrl:"/online-quizzes/stage-4/measurement-space/properties-of-geometrical-figures.html?builder=1"},
+  {toolId:"data-visualisation-quiz", title:"Data Classification and Visualisation", launchUrl:"/online-quizzes/stage-4/statistics-probability/data-classification-visualisation.html", builderUrl:"/online-quizzes/stage-4/statistics-probability/data-classification-visualisation.html?builder=1"},
+  {toolId:"data-analysis-quiz", title:"Data Analysis", launchUrl:"/online-quizzes/stage-4/statistics-probability/data-analysis.html", builderUrl:"/online-quizzes/stage-4/statistics-probability/data-analysis.html?builder=1"},
+  {toolId:"probability-quiz", title:"Probability", launchUrl:"/online-quizzes/stage-4/statistics-probability/probability.html", builderUrl:"/online-quizzes/stage-4/statistics-probability/probability.html?builder=1"},
 ];
 const BUILDER_IDS = new Set(BUILDER_QUIZZES.map(q=>q.toolId));
 
@@ -1487,7 +1501,7 @@ function obItemFromUrl(q, rel){
 function openSubsetBuilder(toolId){
   const q=BUILDER_QUIZZES.find(x=>x.toolId===toolId); const m=$("dtBuildMsg");
   if(!q) return;
-  dtPopup = window.open(q.launchUrl, "mmtSubsetBuilder", "width=920,height=820");
+  dtPopup = window.open(q.builderUrl||q.launchUrl, "mmtSubsetBuilder", "width=920,height=820");
   if(!dtPopup){ m.className="msg bad show"; m.textContent="Pop-up blocked — allow pop-ups for this site, or use the paste option under the list."; return; }
   m.className="msg info show"; m.innerHTML=`Choose the question types for <strong>${esc(q.title)}</strong> in the pop-up, then click <strong>Generate unique link</strong>. It will appear here by itself.`;
   if(dtPoll) clearInterval(dtPoll);
@@ -1576,7 +1590,7 @@ function otEngine(toolId){
   if(!q) return Promise.reject(new Error("This quiz has no question-type builder."));
   const fr=document.createElement("iframe");
   fr.className="ot-engine"; fr.setAttribute("aria-hidden","true"); fr.tabIndex=-1; fr.title="Quiz builder (hidden)";
-  fr.src=q.launchUrl;    // no ?assignment= params = the quiz's teacher builder mode
+  fr.src=q.builderUrl||q.launchUrl;    // the quiz's teacher builder mode (no ?assignment= params)
   document.body.appendChild(fr);
   const ready=new Promise((res,rej)=>{
     const t0=Date.now();

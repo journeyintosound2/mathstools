@@ -896,6 +896,14 @@ window.MMT_TOOL_LINKS = {
 
   "MA4-ARE-C-01": [
     {
+      title: "Area",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-4/measurement-space/area.html",
+      ideas: ["rectangles-triangles-parallelograms", "circles-sectors", "trapeziums-rhombuses-kites", "units"],
+      note: "Whole-topic quiz: rectangles to kites, circles and sectors, composite shapes and converting units of area. Basic and Expected levels; question types can be chosen.",
+      tags: ["quiz", "whole topic", "subset builder", "area", "circle", "sector", "trapezium", "kite", "units of area"]
+    },
+    {
       title: "Area of a Parallelogram & Rhombus",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-4/measurement-space/area-of-a-parallelogram/",
@@ -977,6 +985,26 @@ window.MMT_TOOL_LINKS = {
     }
   ],
 
+  "MA4-DAT-C-01": [
+    {
+      title: "Data Classification and Visualisation",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-4/statistics-probability/data-classification-visualisation.html",
+      ideas: ["classify", "display", "interpret"],
+      note: "Whole-topic quiz: classifying data, census and samples, and reading column, dot, stem-and-leaf, sector and divided bar graphs and histograms. Basic and Expected levels; question types can be chosen.",
+      tags: ["quiz", "whole topic", "subset builder", "data", "statistics", "graphs", "census", "sample", "classify"]
+    }
+  ],
+  "MA4-DAT-C-02": [
+    {
+      title: "Data Analysis",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-4/statistics-probability/data-analysis.html",
+      ideas: ["measures-of-centre", "effect-of-points", "analyse"],
+      note: "Whole-topic quiz: mean, median, mode and range from lists, tables and plots, outliers, the effect of changes and comparing data. Basic and Expected levels; question types can be chosen.",
+      tags: ["quiz", "whole topic", "subset builder", "mean", "median", "mode", "range", "outliers", "statistics"]
+    }
+  ],
   "MA4-EQU-C-01": [
     {
       title: "Equations — Double Number Line",
@@ -1225,6 +1253,14 @@ window.MMT_TOOL_LINKS = {
 
   "MA4-GEO-C-01": [
     {
+      title: "Properties of Geometrical Figures",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-4/measurement-space/properties-of-geometrical-figures.html",
+      ideas: ["classify-triangles", "classify-quadrilaterals", "apply-properties"],
+      note: "Whole-topic quiz: classifying triangles and quadrilaterals, angle sums, exterior angles and angles in special quadrilaterals. Basic and Expected levels; question types can be chosen.",
+      tags: ["quiz", "whole topic", "subset builder", "triangles", "quadrilaterals", "angle sum", "exterior angle", "properties"]
+    },
+    {
       title: "Math Memory — Shapes",
       kind: "Game",
       url: "/games/Maths%20Memory/",
@@ -1235,6 +1271,14 @@ window.MMT_TOOL_LINKS = {
   ],
 
   "MA4-IND-C-01": [
+    {
+      title: "Indices",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-4/number/indices.html",
+      ideas: ["prime-factors", "roots", "index-laws"],
+      note: "Whole-topic quiz: index notation, prime factors, HCF and LCM, square and cube roots and the index laws. Basic and Expected levels; question types can be chosen.",
+      tags: ["quiz", "whole topic", "subset builder", "indices", "index laws", "prime factors", "square roots", "cube roots", "zero index"]
+    },
     {
       title: "Factor Circles — Teacher Explore",
       kind: "Teacher tool",
@@ -1402,6 +1446,14 @@ window.MMT_TOOL_LINKS = {
 
   "MA4-LEN-C-01": [
     {
+      title: "Length",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-4/measurement-space/length.html",
+      ideas: ["perimeter", "circles"],
+      note: "Whole-topic quiz: perimeter of quadrilaterals and composite shapes, parts of a circle, circumference, arc length and perimeters of sectors. Basic and Expected levels; question types can be chosen.",
+      tags: ["quiz", "whole topic", "subset builder", "perimeter", "circumference", "circle", "arc length", "sector", "units"]
+    },
+    {
       title: "Circumference of a Circle",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-4/measurement-space/circumference-of-a-circle/",
@@ -1493,6 +1545,14 @@ window.MMT_TOOL_LINKS = {
 
   "MA4-LIN-C-01": [
     {
+      title: "Linear Relationships",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-4/algebra/linear-relationships.html",
+      ideas: ["plot-points", "plot-linear", "graphical-solutions"],
+      note: "Whole-topic quiz: click-to-plot points, tables of values, rules from tables, graphs and patterns, intersections and graphical solutions. Basic and Expected levels; question types can be chosen.",
+      tags: ["quiz", "whole topic", "subset builder", "cartesian plane", "plotting points", "linear", "table of values", "graphs", "intersection"]
+    },
+    {
       title: "Visual Patterns",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-4/algebra/visual-patterns/",
@@ -1568,6 +1628,14 @@ window.MMT_TOOL_LINKS = {
 
   "MA4-PRO-C-01": [
     {
+      title: "Probability",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-4/statistics-probability/probability.html",
+      ideas: ["chance-experiments", "complementary"],
+      note: "Whole-topic quiz: sample spaces, chance, dice, spinners, bags and cards, complementary events, relative frequency and expected outcomes. Basic and Expected levels; question types can be chosen.",
+      tags: ["quiz", "whole topic", "subset builder", "probability", "chance", "complementary events", "relative frequency", "spinner"]
+    },
+    {
       title: "Probability Spinner Simulator",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-5/statistics-probability/financial-expectation-spinner/",
@@ -1595,6 +1663,14 @@ window.MMT_TOOL_LINKS = {
 
   "MA4-PYT-C-01": [
     {
+      title: "Right-Angled Triangles (Pythagoras)",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-4/measurement-space/pythagoras.html",
+      ideas: ["define", "problems"],
+      note: "Whole-topic quiz: the hypotenuse, writing Pythagoras' theorem, triads, shorter sides and real-life problems. Basic and Expected levels; question types can be chosen.",
+      tags: ["quiz", "whole topic", "subset builder", "pythagoras", "hypotenuse", "right-angled triangle", "triads"]
+    },
+    {
       title: "Pythagoras Theorem — Worksheet Creator",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-4/measurement-space/pythagoras-theorem/",
@@ -1605,6 +1681,14 @@ window.MMT_TOOL_LINKS = {
   ],
 
   "MA4-RAT-C-01": [
+    {
+      title: "Ratios and Rates",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-4/ratios-rates/ratios-and-rates.html",
+      ideas: ["simplify-ratios", "ratio-problems", "simplify-rates", "rate-problems", "distance-time"],
+      note: "Whole-topic quiz: simplifying and sharing in ratios, rates, best buys, speed and distance–time graphs. Basic and Expected levels; question types can be chosen.",
+      tags: ["quiz", "whole topic", "subset builder", "ratio", "rates", "scale", "speed", "distance-time", "best buy"]
+    },
     {
       title: "Unit Conversion \u2014 Double Number Line",
       kind: "Teacher tool",
@@ -1673,6 +1757,16 @@ window.MMT_TOOL_LINKS = {
     }
   ],
 
+  "MA4-VOL-C-01": [
+    {
+      title: "Volume",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-4/measurement-space/volume.html",
+      ideas: ["views", "prisms", "cylinder", "units"],
+      note: "Whole-topic quiz: views of solids, V = Ah, prisms and cylinders, capacity and converting units. Basic and Expected levels; question types can be chosen.",
+      tags: ["quiz", "whole topic", "subset builder", "volume", "capacity", "prism", "cylinder", "views", "units"]
+    }
+  ],
   "MA5-ALG-P-01": [
     {
       title: "Complete the Square",

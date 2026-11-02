@@ -96,6 +96,63 @@
 > §2 "TWO folders", §3 deploy paths and §5's `mathstools-main 2` heading below
 > describe the OLD layout — this block supersedes them.
 >
+> **NEW (2026-11-02): WHOLE-TOPIC QUIZZES FOR THE OTHER 11 STAGE 4 OUTCOMES.** Every Stage 4
+> outcome now has a whole-topic quiz with **Basic** (D/E foundations) and **Expected** (C, the whole
+> outcome) levels and a question-type builder the Teacher Platform drives. The 5 older ones
+> (INT, FRC, ALG, EQU, ANG) are untouched; the 11 new ones share ONE engine:
+> * `online-quizzes/stage-4/topic-quiz/` — `core.js` (DOM-free: random helpers, formatting and every
+>   answer checker; the Node harness loads the same file), `engine.js` (shell, paper, marking,
+>   builder, certificate, save), `engine.css`, and `banks/<topic>.js` (one ES module per outcome,
+>   calls `MMTQ.run(bank)`). Shells (thin, all identical bar title/bank/engines):
+>   `ratios-rates/ratios-and-rates.html`, `number/indices.html`, `algebra/linear-relationships.html`,
+>   `measurement-space/{length,pythagoras,area,volume,properties-of-geometrical-figures}.html`,
+>   `statistics-probability/{data-classification-visualisation,data-analysis,probability}.html`.
+>   Shells load `core.js`, `engine.js`, the bank and the diagram engines they need with `?v=` —
+>   **change any of those files → bump its `?v=` in every shell that loads it** (a script that
+>   regenerated them lived in the session scratch; the hashes are just the first 8 of the md5).
+> * **THREE WAYS IN, BY URL.** Plain = STUDENT quiz (level → question types → go; sign-in is the
+>   shared `quizAuthUI.js`, loaded by the engine). `?builder=1` = teacher link builder with the ids
+>   the portal drives (`.levelToggleBtn[data-level]`, `#builderTypes input`, `#builderCount`,
+>   `#generateAssignmentBtn`, `#assignmentLinkOut`) — KEEP THEM. `?assignment=1&level&types&count`
+>   = teacher-set version (no chooser, no Change level). This differs from the 5 older quizzes,
+>   whose plain URL IS the builder, so `BUILDER_QUIZZES` rows for the new ones carry
+>   `builderUrl` and `otEngine()` / `openSubsetBuilder()` use `q.builderUrl||q.launchUrl`.
+>   ⚠ Consequence for the OLD five: a "whole quiz" task stores the plain launchUrl, which for
+>   them opens the teacher builder for the student. Not changed here — worth fixing the same way.
+> * **DIAGRAMS ARE THE REVISION GENERATOR'S ENGINES** (`/assessment/exam-builder/engines/…`,
+>   loaded as plain scripts), configs built by the banks. `drawDiagram()` trims each SVG to its
+>   ink (getBBox) and draws at natural size × `scale` so labels are a constant size. Linear uses
+>   the engine's own `MMTQ.grid()` (a Cartesian plane students can CLICK to plot on). Geometry
+>   imports `question-banks/_shared/figure-helpers.js` so every figure is built from its angles.
+>   Change an engine's config shape → check the topic quizzes too.
+> * **MARKING (same rules as the newer quizzes):** one question, one answer; only the FIRST check
+>   scores; a wrong answer shows the answer + a one-line "why"; Skip = wrong. A **nudge** never
+>   uses the attempt: unreadable input, or right value in the wrong form (unsimplified ratio or
+>   fraction, not in index form, not in terms of π, decimal when a percentage was asked, a 1 dp
+>   question answered as a whole number). Checkers: num (dp tolerance + 3.14 / 22/7 alts), frac,
+>   ratio, pi, mono (prime factors / index laws — **x is never a pronumeral in Indices, so an x
+>   between factors is a times sign**), coord, plot, linear (`y = mx + b`, any dep/ind letters),
+>   mc, tf. Units and $ are ignored in typed answers.
+> * **SAVE:** `MMTSave({tool:"<topic>-student-quiz", level:"Basic|Expected", levelKey, score, total,
+>   percent, xp…, masteryTopic, types:[{typeId,label,correct,total}…, "level:basic"], …})` — the
+>   object shape gives "where marks were lost" its labels with no SKILL_LABELS edit. No typed answers.
+>   Early submit is wired (`#mmtSubmitSlot`).
+> * **Wiring:** 11 registry entries (the disabled `pythagoras-quiz` placeholder became the real
+>   one), 11 `BUILDER_QUIZZES` rows, toolLinks "Student quiz" rows with `ideas` covering every
+>   content statement (new keys MA4-VOL-C-01, MA4-DAT-C-01, MA4-DAT-C-02), 11 homepage cards
+>   (Online Quizzes pill 31 → 42), `TOPIC_AREA_NAME` gained Statistics & Probability. Every
+>   Stage 4 topic in "Set an Online Task" now opens with a whole-topic overview card.
+> * **Verified:** harness (every type × 300–1000 generations: own answer accepted by its own
+>   checker, no NaN/undefined, MC options distinct, independent re-derivations for powers, roots,
+>   prime factors, HCF/LCM, triads, card counts, unknown sides, and every labelled angle in the
+>   geometry figures RE-MEASURED from the drawing); Playwright: both levels of all 11 quizzes
+>   played end to end at 1366×768 and 390×844 (954 checks each: right/wrong marking incl.
+>   click-to-plot, feedback, no broken diagrams, no sideways scroll, payload), the assignment
+>   link, builder mode, early submit, and the Teacher Platform's OWN `obDescribe`/`obGenerate`
+>   code (extracted from the page) driving all 11 builders, plus `buildCatalogue()` placing each.
+> * Not done: Arabic/Farsi (the older five are trilingual); a full portal run with stubbed
+>   Firebase. Project doc: `claude/whole-topic-quizzes.md`.
+>
 > **NEW (2026-11-01): AREA OF A PARALLELOGRAM & RHOMBUS WORKSHEET GENERATOR** — new
 > `worksheet-creators/stage-4/measurement-space/area-of-a-parallelogram.html`, built on the triangle generator's
 > frame (same CSS, measureAndPack, pagesHTML, answer key). Levels Sweet 2–10 · Mild 3–12 · Medium 4–12 bigger
@@ -4454,6 +4511,10 @@ portal/PLACEMENT.md , portal/README.md   migration + structure notes
   **function first**, then push the website.
 
 ## 8. Open / future items
+- **Whole-topic quizzes (2026-11-02):** all 16 Stage 4 outcomes now have one. Follow-ups:
+  Arabic/Farsi for the 11 new ones; make the OLD five's plain URL a student quiz (their builder
+  to `?builder=1` + `builderUrl` in `BUILDER_QUIZZES`) so a "whole quiz" task stops opening the
+  teacher builder for students; Stage 5 whole-topic quizzes on the same engine (a bank per outcome).
 - **Student-quiz sign-in sweep:** 11 of 26 quizzes carry the v2 login block
   (adding-subtracting-fractions joined 2026-08-20).
   The other **15** still have bespoke inline sign-in and their own completion

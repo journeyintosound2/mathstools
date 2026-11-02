@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Ratios and Rates &mdash; Whole-topic Quiz | Mills Maths Tools</title>
+  <meta name="description" content="Whole-topic quiz on ratios and rates (MA4-RAT-C-01): Basic and Expected levels.">
+  <link rel="stylesheet" href="../topic-quiz/engine.css?v=de77b8ba">
+<!-- mmt-pwa -->
+<link rel="manifest" href="../../../manifest.webmanifest">
+<meta name="theme-color" content="#1f3a5f">
+<link rel="apple-touch-icon" href="../../../icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="MMT">
+<script src="../../../pwa.js" defer></script>
+<!-- /mmt-pwa -->
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
+</head>
+<body>
+  <!-- Whole-topic quiz. The page is a thin shell: the questions live in
+       ../topic-quiz/banks/ratios-rates.js and the engine in ../topic-quiz/engine.js.
+       Plain URL = student quiz · ?builder=1 = teacher link builder ·
+       ?assignment=1&level=…&types=…&count=… = a teacher-set version. -->
+  <div class="app">
+    <header class="mmtTopbar">
+      <a class="mmtBrand" href="https://www.millsmathstools.au" target="_self" aria-label="Back to Mills Maths Tools">
+        <span class="mmtBrandLogo" aria-hidden="true">MMT</span>
+        <span class="mmtBrandText"><strong>MMT</strong><span>Mills Maths Tools</span></span>
+      </a>
+      <div class="mmtTopTitle" id="topTitle">Ratios and Rates &mdash; Whole-topic Quiz</div>
+      <div class="topActions">
+        <span id="mmtAuthSlot"></span>
+        <span class="lvlChip" id="lvlChip" hidden></span>
+        <div class="menuWrap" id="toolsWrap">
+          <button class="btn" id="toolsBtn" type="button" aria-haspopup="true" aria-expanded="false">Tools &#9662;</button>
+          <nav class="dropMenu" id="toolsMenu" aria-label="Related tools"></nav>
+        </div>
+        <button class="btn btn-primary" id="menuBtn" type="button">Change level</button>
+      </div>
+    </header>
+    <div class="progressWrap"><div class="progressFill" id="progressFill"></div></div>
+
+    <main class="layout" id="quizMain" hidden>
+      <div class="headRow">
+        <span class="qCounter" id="qCounter"></span>
+        <span class="scoreNow" id="scoreNow"></span>
+        <span class="outcomeTag" id="outcomeTag"></span>
+      </div>
+      <div class="assignNote" id="assignNote" hidden>Your teacher chose the level and the question types for this quiz.</div>
+      <section class="qCard" id="qCard" aria-live="polite">
+        <span class="qType" id="qType"></span>
+        <div class="qBody" id="qBody">
+          <div class="qLeft">
+            <div class="qPrompt" id="qPrompt"></div>
+            <div class="answerArea" id="answerArea"></div>
+            <div class="nudge" id="nudge" hidden></div>
+            <div class="feedback" id="feedback" hidden></div>
+          </div>
+          <div class="qDiagram" id="qDiagram" hidden></div>
+        </div>
+        <div class="navRow">
+          <button class="nb ghost" id="prevBtn" type="button">&larr; Previous</button>
+          <span class="spacer"></span>
+          <span id="mmtSubmitSlot"></span>
+          <button class="nb ghost" id="skipBtn" type="button">Skip</button>
+          <button class="nb go" id="checkBtn" type="button">Check</button>
+          <button class="nb go" id="nextBtn" type="button" hidden>Next &rarr;</button>
+        </div>
+      </section>
+    </main>
+    <div class="brandFoot">This tool and more can be found at <a href="https://www.millsmathstools.au" target="_blank" rel="noopener">www.millsmathstools.au</a></div>
+  </div>
+
+  <!-- level chooser -->
+  <div class="modalBack" id="levelModal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="lvlTitle">
+      <h2 id="lvlTitle">Choose your level</h2>
+      <p class="sub">Basic is the foundations of the topic. Expected is the whole of what Stage 4 asks for. You get one try at each question.</p>
+      <div class="lvlList" id="lvlList"></div>
+    </div>
+  </div>
+
+  <!-- question types -->
+  <div class="modalBack" id="typesModal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="typesTitle">
+      <h2 id="typesTitle">Question types</h2>
+      <div class="rowBetween"><p class="sub" style="margin:0">Every type is ticked. Untick any you don&rsquo;t want.</p><button class="mini" id="typesAll" type="button">Deselect all</button></div>
+      <div class="typesGrid" id="typesGrid"></div>
+      <div class="warn" id="typesWarn" hidden>Tick at least one question type.</div>
+      <div class="rowBetween">
+        <label class="countRow">Questions <input id="countInp" type="number" min="5" max="60" value="15"></label>
+        <div class="modalActions" style="margin:0"><button id="typesBack" type="button">&larr; Back</button><button class="primary" id="beginBtn" type="button">Begin &rarr;</button></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- certificate -->
+  <div class="modalBack" id="certModal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="certScore">
+      <div class="certTop"><div class="certTrophy" id="certTrophy">🏆</div><div><div class="certBig" id="certScore">0 / 0</div><div class="certLine" id="certLine"></div></div></div>
+      <div class="certSub"></div>
+      <div class="certXP" id="certXP"></div>
+      <div class="certBreak" id="certBreak"></div>
+      <div class="certNext" id="certNext" hidden></div>
+      <div class="modalActions">
+        <button class="primary" id="againBtn" type="button">Try again</button>
+        <button id="changeLvlBtn" type="button">Change level</button>
+        <button id="copyBtn" type="button">Copy my result</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- teacher link builder (?builder=1). The Teacher Platform drives these ids — keep them. -->
+  <div class="bOverlay" id="teacherBuilderOverlay">
+    <div class="bModal" role="dialog" aria-labelledby="builderTitle">
+      <h2 id="builderTitle">Create a student quiz link</h2>
+      <p class="bIntro">Choose a level, the question types and how many questions. Students who open the link sign in with their student code and the result saves to your dashboard.</p>
+      <div class="bGrid">
+        <div class="bCard">
+          <label class="h" for="builderLevel">Level</label>
+          <select id="builderLevel" class="builderLevelNative" aria-label="Level"><option value="basic">Basic</option><option value="expected" selected>Expected</option></select>
+          <div class="levelToggle" role="group" aria-label="Choose level"><button id="builderBasicBtn" class="levelToggleBtn" type="button" data-level="basic">Basic</button><button id="builderExpectedBtn" class="levelToggleBtn active" type="button" data-level="expected">Expected</button></div>
+        </div>
+        <div class="bCard"><label class="h" for="builderCount">Questions</label><input id="builderCount" class="builderCountInput" type="number" min="5" max="60" value="15"></div>
+      </div>
+      <div class="rowBetween" style="margin-top:14px"><b>Question types</b><span><span class="builderSummary" id="builderSummary"></span> <button class="mini" id="builderToggleAllBtn" type="button">Deselect all</button></span></div>
+      <div class="builderTypes" id="builderTypes"></div>
+      <div class="warn" id="builderWarn" hidden>Tick at least one question type.</div>
+      <div class="bCard" style="margin-top:10px"><label class="h" for="assignmentLinkOut">Assignment link</label><input id="assignmentLinkOut" class="linkOutput" readonly placeholder="Press Generate unique link"><div class="bNote">Students who open this link only see the level and question types you chose.</div></div>
+      <div class="bActions"><button class="primary" id="generateAssignmentBtn" type="button">Generate unique link</button><button id="copyAssignmentBtn" type="button">Copy link</button><button id="builderPreview" type="button">Preview ↗</button><button id="resetBuilderBtn" type="button">Reset</button></div>
+    </div>
+  </div>
+
+  <script src="../topic-quiz/core.js?v=290fbdc3"></script>
+  <script src="/assessment/exam-builder/engines/rates/rates-engine.js?v=62143be2"></script>
+  <script src="../topic-quiz/engine.js?v=d8400e1b"></script>
+  <script type="module" src="../topic-quiz/banks/ratios-rates.js?v=33b004f9"></script>
+</body>
+</html>
