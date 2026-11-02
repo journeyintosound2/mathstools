@@ -150,6 +150,14 @@
 >   click-to-plot, feedback, no broken diagrams, no sideways scroll, payload), the assignment
 >   link, builder mode, early submit, and the Teacher Platform's OWN `obDescribe`/`obGenerate`
 >   code (extracted from the page) driving all 11 builders, plus `buildCatalogue()` placing each.
+> * **The Teacher/Student Platform now load the registry and syllabus files VERSIONED**
+>   (2026-11-02, after the new quizzes didn't show on the first load after deploy): the page HTML
+>   is network-first but unversioned scripts are stale-while-revalidate in `sw.js`, so a teacher
+>   saw yesterday's `mmtToolRegistry.js` / `toolLinks.js`. Now `mmtToolRegistry.js?v=` (teacher,
+>   student, and inside `resultUtils.js`), `resultUtils.js?v=` (teacher), and
+>   `resourcesManifest.js?v=` / `toolLinks.js?v=` in `loadSyllabus()`. **Change the registry,
+>   toolLinks.js or resourcesManifest.js → bump those `?v=` (and resultUtils' after its import
+>   changes), plus the two in `resources/index.html`.**
 > * Not done: Arabic/Farsi (the older five are trilingual); a full portal run with stubbed
 >   Firebase. Project doc: `claude/whole-topic-quizzes.md`.
 >
