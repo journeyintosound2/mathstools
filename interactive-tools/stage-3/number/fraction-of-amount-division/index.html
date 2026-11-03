@@ -165,19 +165,51 @@
 
     /* ---------- sentence card ---------- */
     .eqCard{
+      position:relative;
       background:var(--card); border:1px solid var(--border); border-radius:20px;
-      box-shadow:var(--shadow); padding:16px 18px 12px;
+      box-shadow:var(--shadow); padding:14px 18px 12px;
       display:flex; flex-direction:column; align-items:center; gap:0;
     }
+    /* ---------- focus view: the sentence card alone, centred, over a dark veil ---------- */
+    .fsBtn{
+      position:absolute; top:10px; right:10px; z-index:2;
+      appearance:none; width:40px; height:40px; border-radius:12px; border:1.5px solid var(--border);
+      background:#fff; color:var(--line); cursor:pointer; display:grid; place-items:center; transition:.16s ease;
+    }
+    .fsBtn:hover{ border-color:var(--blue); color:var(--blue-dark); background:#eef2ff; }
+    .fsBtn:focus-visible{ outline:none; box-shadow:0 0 0 4px rgba(37,99,235,.25); }
+    .fsBtn svg{ width:20px; height:20px; }
+    .fsBtn .icClose{ display:none; }
+    .eqCard.big .fsBtn .icOpen{ display:none; }
+    .eqCard.big .fsBtn .icClose{ display:block; }
+    .eqCard.big .fsBtn{ top:16px; right:16px; width:48px; height:48px; }
+    .focusVeil{ position:fixed; inset:0; z-index:150; background:rgba(15,23,42,.82); opacity:0;
+      transition:opacity calc(420ms*var(--spd)) ease; }
+    .focusVeil.on{ opacity:1; }
+    .eqCard.fx{
+      position:fixed; z-index:160; left:50%; top:50%; transform:translate(-50%,-50%);
+      width:min(1180px,94vw); margin:0; box-shadow:0 30px 80px rgba(2,6,23,.55);
+    }
+    .eqCard.big{ padding:40px 44px 28px; border-radius:28px; }
+    .eqCard.big .sentence{ font-size:clamp(2.6rem,7vw,6.2rem); }
+    .eqCard.big .eqBar{ justify-content:center; gap:22px; margin-top:26px; padding-top:22px; }
+    .eqCard.big .seg2{ border-radius:20px; padding:5px; gap:5px; }
+    .eqCard.big .seg2 button{ font-size:clamp(1.1rem,2.2vw,1.65rem); padding:10px 22px; min-height:64px; border-radius:16px; }
+    .eqCard.big .nTogLab{ display:inline; font-size:.82rem; }
+    .eqCard.big #editBtn{ display:none; }
+    .eqCard.big .genBtn{ padding:14px 18px; font-size:1rem; }
+    .eqCard.big .genLabel{ display:inline; }
+    .eqCard.moving{ overflow:hidden; }
     .sentence{
-      font-family:var(--mathFont); font-size:clamp(2rem,4.1vw,2.9rem); font-weight:700;
+      font-family:var(--mathFont); font-size:clamp(2rem,3.9vw,2.75rem); font-weight:700;
       line-height:1; display:flex; align-items:center; gap:.24em; white-space:nowrap;
-      height:2.2em; transition:padding-bottom .3s ease;
+      height:2.6em;
+      transition:padding-bottom .3s ease, font-size calc(560ms*var(--spd)) cubic-bezier(.3,.9,.3,1);
     }
     /* Both notations take the SAME height, so switching never makes the board
        below jump: the ops line rides up to make room for the value under its
        bracket. */
-    .sentence.hasUnder{ padding-bottom:.9em; }
+    .sentence.hasUnder{ padding-bottom:.86em; }
     .tok{ display:inline-block; transform-origin:0 0; border-radius:.16em; padding:0 .06em;
       transition:background .3s ease, box-shadow .3s ease; }
     .op{ color:var(--line); font-weight:600; }
@@ -206,11 +238,12 @@
     }
     .nTog{ display:flex; align-items:center; gap:10px; }
     .nTogLab{ font-size:.68rem; letter-spacing:.13em; text-transform:uppercase; font-weight:950; color:var(--muted); white-space:nowrap; }
-    .seg2{ display:inline-flex; background:#f1f5f9; border:1.5px solid var(--border); border-radius:14px; padding:3px; gap:3px; }
+    .seg2{ display:inline-flex; flex-wrap:wrap; background:#f1f5f9; border:1.5px solid var(--border); border-radius:14px; padding:3px; gap:3px; }
     .seg2 button{
       appearance:none; border:none; background:transparent; color:var(--line);
       font-family:var(--mathFont); font-weight:700; font-size:1.08rem; padding:6px 13px; border-radius:11px;
-      cursor:pointer; white-space:nowrap; transition:.16s ease; min-height:40px; display:inline-flex; align-items:center; gap:.22em;
+      cursor:pointer; white-space:nowrap; min-height:40px; display:inline-flex; align-items:center; gap:.22em;
+      transition:background .16s ease, box-shadow .16s ease, font-size calc(560ms*var(--spd)) cubic-bezier(.3,.9,.3,1), padding calc(560ms*var(--spd)) ease, min-height calc(560ms*var(--spd)) ease;
     }
     .seg2 button:hover{ background:#e2e8f0; }
     .seg2 button[aria-pressed="true"]{ background:#fff; box-shadow:0 3px 10px rgba(15,23,42,.13); color:var(--ink); }
@@ -387,6 +420,7 @@
     .recRow.pop{ animation:popIn calc(420ms*var(--spd)) cubic-bezier(.34,1.5,.5,1); }
     .recRow.key{ border-color:rgba(124,58,237,.30); background:linear-gradient(140deg,#faf5ff,#fff 70%); }
     .recRow .op{ font-weight:600; }
+    .recBreak{ flex-basis:100%; height:0; }
     .recCap{ display:block; flex-basis:100%; text-align:center; font-family:var(--uiFont); font-size:.68rem; letter-spacing:.06em; text-transform:uppercase; font-weight:900; color:var(--purple-dark); margin-bottom:1px; }
     .recEmpty{ margin-top:9px; font-size:.84rem; font-weight:750; color:var(--line-soft); line-height:1.45; }
     .recSum{ margin-top:10px; padding-top:9px; border-top:2px solid var(--border); text-align:center; }
@@ -438,6 +472,8 @@
       :root{ --gap:5px; }
       .cell{ border-width:2px; border-radius:7px; }
       .eqBar{ justify-content:center; }
+      .eqCard.big .nTogLab{ display:none; }
+      .eqCard.big{ padding:66px 18px 22px; }
     }
     @media (max-height:820px){
       .eqCard{ padding:12px 16px 10px; }
@@ -528,7 +564,7 @@
                 <option value="0">Straight there</option>
               </select>
             </label>
-            <p class="settingsNote">Keys: &rarr; next, &larr; back, T switch the notation, O the ones, A new amount, N new question.</p>
+            <p class="settingsNote">Keys: &rarr; next, &larr; back, Space new question, A new amount, T switch the notation (1, 2, 3 pick one), F focus view, O the ones.</p>
           </nav>
         </div>
         <div class="menuWrap">
@@ -549,6 +585,10 @@
       <section class="stage">
 
         <div class="eqCard" id="eqCard">
+          <button class="fsBtn" id="fsBtn" type="button" title="Focus on the notation (F)" aria-label="Focus on the notation">
+            <svg class="icOpen" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+            <svg class="icClose" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg>
+          </button>
           <div class="sentence" id="sentence" aria-live="polite"></div>
           <div class="eqBar">
             <div class="nTog" role="group" aria-label="Write the question as">
@@ -556,6 +596,7 @@
               <div class="seg2">
                 <button id="nFrac" type="button" aria-pressed="true" title="Fraction notation (T)"></button>
                 <button id="nOps" type="button" aria-pressed="false" title="Divide, then multiply (T)"></button>
+                <button id="nQuot" type="button" aria-pressed="false" title="The division written as a fraction (T)"></button>
               </div>
             </div>
             <div class="eqRight">
@@ -626,6 +667,7 @@
     </main>
   </div>
 
+  <div class="focusVeil" id="focusVeil" hidden></div>
   <div id="flyLayer" aria-hidden="true"></div>
 <script>
 (function(){
@@ -659,13 +701,14 @@
     10:["tenth","tenths"], 11:["eleventh","elevenths"], 12:["twelfth","twelfths"]
   };
   const STORE = "mmt.fracOfAmount.v1";
+  const NOTATIONS = ["frac","ops","quot"];
 
   const S = {
     a:2, b:5, n:20,
     /* EVERYTHING on screen is derived from this one number, so Back is
        step-- and a repaint, and no two displays can disagree. */
     step:0,
-    notation:"frac",          /* frac | ops */
+    notation:"frac",          /* frac: ⅖ of 20 · ops: 2 × (20 ÷ 5) · quot: 20/5 × 2 */
     form:"times",             /* times: 2 × (20 ÷ 5)   div: 20 ÷ 5 × 2 */
     fracSet:"s3", numMode:"mixed", size:"small",
     ones:false, names:true, record:true, check:false, other:false,
@@ -681,7 +724,7 @@
       if(typeof o.speed === "number") S.speed = o.speed;
       if(!FRAC_SETS[S.fracSet]) S.fracSet = "s3";
       if(!SIZES[S.size]) S.size = "small";
-      if(S.notation !== "ops") S.notation = "frac";
+      if(!NOTATIONS.includes(S.notation)) S.notation = "frac";
       if(S.form !== "div") S.form = "times";
     }catch(e){}
   }
@@ -747,6 +790,12 @@
     if(S.form === "div") return `${sp("k-n",n)} <span class="op">${D}</span> ${sp("k-b",b)} <span class="op">${T}</span> ${sp("k-a",a)}`;
     return `${sp("k-a",a)} <span class="op">${T}</span> <span class="paren">(</span>${sp("k-n",n)} <span class="op">${D}</span> ${sp("k-b",b)}<span class="paren">)</span>`;
   }
+  /* The third form writes the division AS a fraction, 20/5 × 2. The fraction
+     line groups the division by itself, so no brackets are needed. */
+  function quotInline(a,b,n){
+    const q = mf(sp("k-n",n), sp("k-b",b));
+    return a === 1 ? q : `${q} <span class="op">${T}</span> ${sp("k-a",a)}`;
+  }
   const fracInline = (a,b,n) => `${mf(sp("k-a",a), sp("k-b",b))} <span class="wOf">of</span> ${sp("k-n",n)}`;
 
   /* ------------------------------------------------------------ sentence */
@@ -771,12 +820,17 @@
       return `<span class="fr">${tok("a",S.a,H("a"))}<span class="rule"></span>${tok("b",S.b,H("b"))}</span>`
            + `<span class="wOf">of</span>${tok("n",S.n,H("n"))}${eqTok}${ansTok}`;
     }
-    /* ops: the bracket (or the first division) is the part worked out first,
+    /* ops / quot: the bracket (or the first division) is the part worked out first,
        so from "one" onwards it carries what it is worth underneath. */
     const showUnder = atLeast("one");
     const grpHot = name === "one" ? " hot" : "";
     const under = showUnder ? `<span class="under${S._underPop ? " pop" : ""}">${v()}</span>` : "";
-    const div = `${tok("n",S.n)}<span class="op">${D}</span>${tok("b",S.b,H("b") && name === "cut" ? "hot" : "")}`;
+    const bCut = name === "cut" ? "hot" : "";
+    if(S.notation === "quot"){
+      const q = `<span class="grp${grpHot}"><span class="fr">${tok("n",S.n)}<span class="rule"></span>${tok("b",S.b,bCut)}</span>${under}</span>`;
+      return S.a === 1 ? `${q}${eqTok}${ansTok}` : `${q}<span class="op">${T}</span>${tok("a",S.a,H("a"))}${eqTok}${ansTok}`;
+    }
+    const div = `${tok("n",S.n)}<span class="op">${D}</span>${tok("b",S.b,bCut)}`;
     if(S.a === 1){
       return `<span class="grp${grpHot}">${div}${under}</span>${eqTok}${ansTok}`;
     }
@@ -789,7 +843,7 @@
   function paintSentence(){
     const el = $("sentence");
     el.innerHTML = sentenceHTML();
-    el.classList.toggle("hasUnder", S.notation === "ops" && atLeast("one"));
+    el.classList.toggle("hasUnder", S.notation !== "frac" && atLeast("one"));
     S._underPop = false;
   }
 
@@ -848,8 +902,11 @@
   function paintToggle(){
     $("nFrac").innerHTML = fracInline(S.a,S.b,S.n);
     $("nOps").innerHTML = opsInline(S.a,S.b,S.n);
+    $("nQuot").innerHTML = quotInline(S.a,S.b,S.n);
     $("nFrac").setAttribute("aria-pressed", String(S.notation === "frac"));
     $("nOps").setAttribute("aria-pressed", String(S.notation === "ops"));
+    $("nQuot").setAttribute("aria-pressed", String(S.notation === "quot"));
+    $("nQuot").setAttribute("aria-label", S.a === 1 ? `${S.n} over ${S.b}` : `${S.n} over ${S.b}, times ${S.a}`);
     $("nFrac").setAttribute("aria-label", `${S.a} over ${S.b} of ${S.n}`);
     $("nOps").setAttribute("aria-label", S.a === 1 ? `${S.n} divided by ${S.b}` : `${S.a} times ${S.n} divided by ${S.b}`);
   }
@@ -1009,7 +1066,7 @@
     }
     if(a > 1 && atLeast("take")){
       rows.push({ at:idxOf("take"), key:true, cap:`${a} parts`,
-        html:`${fracInline(a,b,n)} ${ON("=")} ${opsInline(a,b,n)}` });
+        html:`${fracInline(a,b,n)} ${ON("=")} ${opsInline(a,b,n)}<span class="recBreak"></span>${ON("=")} ${quotInline(a,b,n)}` });
     }
     if(a > 1 && atLeast("answer")){
       const mul = S.form === "div" ? `${sp("k-v",v())} ${ON(T)} ${sp("k-a",a)}` : `${sp("k-a",a)} ${ON(T)} ${sp("k-v",v())}`;
@@ -1275,6 +1332,89 @@
   }));
   $("nFrac").addEventListener("click", () => setNotation("frac"));
   $("nOps").addEventListener("click", () => setNotation("ops"));
+  $("nQuot").addEventListener("click", () => setNotation("quot"));
+
+  /* ----------------------------------------------------------- focus view */
+  /* The sentence card morphs out of the page into the middle of the screen,
+     over a dark veil, so the only thing to look at is the question and the
+     switch between its three forms. A placeholder holds the card's place in
+     the page, so nothing underneath moves; closing morphs it back into that
+     placeholder. */
+  const F = { on:false, busy:false, anim:null };
+
+  function focusRect(){
+    const card = $("eqCard");
+    const c = card.cloneNode(true);
+    c.removeAttribute("id");
+    c.querySelectorAll("[id]").forEach(e => e.removeAttribute("id"));
+    c.classList.add("fx","big");
+    c.style.visibility = "hidden";
+    document.body.appendChild(c);
+    const r = c.getBoundingClientRect();
+    c.remove();
+    return r;
+  }
+  const geo = r => ({ left:r.left+"px", top:r.top+"px", width:r.width+"px", height:r.height+"px", transform:"none" });
+
+  function openFocus(){
+    if(F.on || F.busy) return;
+    closeMenus(); closeEdit();
+    const card = $("eqCard");
+    const from = card.getBoundingClientRect();
+    const ph = document.createElement("div");
+    ph.id = "eqPh";
+    ph.style.height = from.height + "px";
+    card.parentNode.insertBefore(ph, card);
+    const to = focusRect();
+    const veil = $("focusVeil");
+    veil.hidden = false;
+    void veil.offsetWidth;
+    veil.classList.add("on");
+    card.classList.add("fx","big");
+    F.on = true;
+    paintFocusBtn();
+    if(S.speed === 0) return;
+    F.busy = true;
+    card.classList.add("moving");
+    F.anim = card.animate([geo(from), geo(to)], { duration:620*S.speed, easing:"cubic-bezier(.3,.9,.3,1)" });
+    F.anim.onfinish = F.anim.oncancel = () => { card.classList.remove("moving"); F.busy = false; F.anim = null; };
+  }
+
+  function closeFocus(){
+    if(!F.on) return;
+    if(F.anim) F.anim.cancel();
+    const card = $("eqCard"), ph = $("eqPh"), veil = $("focusVeil");
+    const from = card.getBoundingClientRect();
+    const finish = () => {
+      card.classList.remove("fx","moving");
+      /* the closing animation holds its last frame until here; drop it now or
+         its left/top stay on the card as relative offsets */
+      const done = F.anim; F.anim = null;
+      if(done) done.cancel();
+      if(ph) ph.remove();
+      veil.hidden = true;
+      F.busy = false;
+      fitCells(); layoutBrackets();
+    };
+    F.on = false;
+    card.classList.remove("big");
+    veil.classList.remove("on");
+    paintFocusBtn();
+    if(S.speed === 0 || !ph){ finish(); return; }
+    const to = ph.getBoundingClientRect();
+    F.busy = true;
+    card.classList.add("moving");
+    F.anim = card.animate([geo(from), geo(to)], { duration:560*S.speed, easing:"cubic-bezier(.3,.9,.3,1)", fill:"forwards" });
+    F.anim.onfinish = () => { finish(); };
+  }
+
+  function paintFocusBtn(){
+    const b = $("fsBtn");
+    b.title = F.on ? "Back to the board (F or Esc)" : "Focus on the notation (F)";
+    b.setAttribute("aria-label", F.on ? "Back to the board" : "Focus on the notation");
+  }
+  $("fsBtn").addEventListener("click", e => { e.stopPropagation(); F.on ? closeFocus() : openFocus(); });
+  $("focusVeil").addEventListener("click", closeFocus);
   function toggleOnes(){
     if(S.n > ONES_MAX) return;
     S.ones = !S.ones; $("onesToggle").checked = S.ones; save();
@@ -1283,17 +1423,26 @@
   $("onesBtn").addEventListener("click", toggleOnes);
 
   document.addEventListener("keydown", e => {
-    if(e.key === "Escape"){ closeMenus(); return; }
+    if(e.key === "Escape"){ closeMenus(); if(F.on) closeFocus(); return; }
     const tag = (e.target && e.target.tagName) || "";
     if(tag === "INPUT" || tag === "SELECT") return;
     if(e.ctrlKey || e.metaKey || e.altKey) return;
-    if(e.key === "ArrowRight" || e.key === " "){ e.preventDefault(); next(); }
-    else if(e.key === "Enter" && tag !== "BUTTON"){ e.preventDefault(); next(); }
-    else if(e.key === "ArrowLeft"){ e.preventDefault(); back(); }
-    else if(e.key === "n" || e.key === "N"){ e.preventDefault(); newQuestion(false); }
-    else if(e.key === "a" || e.key === "A"){ e.preventDefault(); newQuestion(true); }
-    else if(e.key === "t" || e.key === "T"){ e.preventDefault(); setNotation(S.notation === "frac" ? "ops" : "frac"); }
-    else if(e.key === "o" || e.key === "O"){ e.preventDefault(); toggleOnes(); }
+    const k = e.key;
+    /* Space is New question (teacher request 2026-11-03), so a class can be
+       given question after question without anyone reaching for the mouse. */
+    if(k === " "){ e.preventDefault(); newQuestion(false); }
+    else if(k === "t" || k === "T"){ e.preventDefault(); setNotation(NOTATIONS[(NOTATIONS.indexOf(S.notation)+1) % NOTATIONS.length]); }
+    else if(k === "1" || k === "2" || k === "3"){ e.preventDefault(); setNotation(NOTATIONS[+k - 1]); }
+    else if(k === "f" || k === "F"){ e.preventDefault(); F.on ? closeFocus() : openFocus(); }
+    else if(k === "a" || k === "A"){ e.preventDefault(); newQuestion(true); }
+    else if(k === "n" || k === "N"){ e.preventDefault(); newQuestion(false); }
+    /* the focus view is about the notation; stepping the bar it is covering
+       would change things nobody can see */
+    else if(F.on){ return; }
+    else if(k === "ArrowRight"){ e.preventDefault(); next(); }
+    else if(k === "Enter" && tag !== "BUTTON"){ e.preventDefault(); next(); }
+    else if(k === "ArrowLeft"){ e.preventDefault(); back(); }
+    else if(k === "o" || k === "O"){ e.preventDefault(); toggleOnes(); }
   });
 
   $("setSel").addEventListener("change", e => { S.fracSet = e.target.value; $("setNote").textContent = SET_NOTES[S.fracSet]; save(); newQuestion(false); });
@@ -1330,7 +1479,7 @@
 
   /* test surface */
   window.__FOA__ = {
-    S, STEPS, next, back, restart, newQuestion, setNotation, generate,
+    S, STEPS, next, back, restart, newQuestion, setNotation, generate, openFocus, closeFocus, F,
     set(a,b,n){ S.token++; S.a=a; S.b=b; S.n=n; S.step=0; S.holdAns=false; setBusy(false); paintAll(); },
     one:v, ans
   };
