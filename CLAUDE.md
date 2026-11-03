@@ -116,15 +116,19 @@
 >   sixths, eighths; or any 2–12. Random fractions are in simplest form; ONE PART is kept 2–10 (a
 >   tables fact) or 6–25, amount ≤ 300. "New amount" (A) keeps the fraction. "Your own" accepts
 >   a ≤ b ≤ 12 and refuses amounts that don't share into whole parts, suggesting the nearest two.
-> * **THIRD FORM + FOCUS VIEW + SPACE (Jeff, 2026-11-03):** the switch has three forms — ⅖ of 20 ·
->   2 × (20 ÷ 5) · 20⁄5 × 2 (the division written as a fraction; the fraction line groups it, so no
->   brackets). Keys 1/2/3 pick one, T cycles. **Focus view** (corner icon or F): the sentence card
+> * **FOUR FORMS + FOCUS VIEW + SPACE (Jeff, 2026-11-03):** the switch has four forms (`NOTATIONS`) —
+>   frac ⅖ of 20 · ops 2 × (20 ÷ 5) · ops2 (20 ÷ 5) × 2 · quot 20⁄5 × 2 (the division written as a
+>   fraction; the fraction line groups it, so no brackets). For a unit fraction ops and ops2 would both
+>   be 20 ÷ 5, so `avail()` drops ops2 and `eff()` shows a saved ops2 as ops. Keys 1–4 pick one, T
+>   cycles; in the focus view ←/→ (and ↑/↓) cycle the forms. The old Settings choice "20 ÷ 5 × 2" was
+>   removed (it nearly duplicated ops2). The panel has New amount · New question · Your own; the
+>   "Write it as" label hides below 1560px outside the focus view so the row stays one line. **Focus view** (corner icon or F): the sentence card
 >   morphs to the middle of the screen over a dark veil (`.focusVeil`, rgba(15,23,42,.82)); a
 >   placeholder `#eqPh` holds its place so nothing underneath moves, and closing morphs it back.
 >   Classes: `fx` = fixed/centred geometry, `big` = the large type (removed first on close so the
 >   fonts shrink while the box flies home). The closing WAAPI animation uses fill:forwards and MUST be
->   cancelled in `finish()` — left on, its left/top act as relative offsets on the card. Arrows and
->   O are ignored while focused (the bar is hidden); Space, A, T, 1–3 still work. **Space = New
+>   cancelled in `finish()` — left on, its left/top act as relative offsets on the card. Next/Back and
+>   O are off while focused (the bar is hidden); Space, A, T, 1–4 still work. **Space = New
 >   question** (was Next); Next is → or Enter.
 > * **Ones** (O / board button): faint unit lines inside each part, amounts ≤ 120 only. Record panel
 >   on by default; "Check: the parts make the whole" and "The other order: multiply first" off.

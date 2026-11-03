@@ -445,6 +445,9 @@
     body.noanim *{ animation:none !important; transition:none !important; }
 
     /* ---------- responsive ---------- */
+    /* four forms and three buttons only fit one row beside the side panel
+       once the label goes; the focus view keeps it */
+    @media (max-width:1560px){ .eqCard:not(.big) .nTogLab{ display:none; } }
     @media (max-width:1180px){
       .mmtTopbar{ grid-template-columns:auto minmax(0,1fr) auto; padding:12px 16px; gap:12px; }
       .mmtBrandText{ display:none; }
@@ -537,14 +540,6 @@
             </label>
             <p class="settingsNote" id="setNote">Halves, quarters, fifths and tenths are the fractions the Stage 3 syllabus names for fractions of a quantity. Every amount shares into whole parts.</p>
 
-            <div class="settingsRule" role="separator"></div>
-            <div class="settingsHead">Divide, then multiply is written</div>
-            <label class="selRow"><span>As</span>
-              <select id="formSel" aria-label="How the division form is written">
-                <option value="times" selected>2 &times; (20 &divide; 5)</option>
-                <option value="div">20 &divide; 5 &times; 2</option>
-              </select>
-            </label>
 
             <div class="settingsRule" role="separator"></div>
             <div class="settingsHead">On screen</div>
@@ -564,7 +559,7 @@
                 <option value="0">Straight there</option>
               </select>
             </label>
-            <p class="settingsNote">Keys: &rarr; next, &larr; back, Space new question, A new amount, T switch the notation (1, 2, 3 pick one), F focus view, O the ones.</p>
+            <p class="settingsNote">Keys: &rarr; next, &larr; back, Space new question, A new amount, T switch the form (1&ndash;4 pick one), F focus view (where &larr; &rarr; switch the form), O the ones.</p>
           </nav>
         </div>
         <div class="menuWrap">
@@ -596,12 +591,16 @@
               <div class="seg2">
                 <button id="nFrac" type="button" aria-pressed="true" title="Fraction notation (T)"></button>
                 <button id="nOps" type="button" aria-pressed="false" title="Divide, then multiply (T)"></button>
+                <button id="nOps2" type="button" aria-pressed="false" title="Divide, then multiply (T)"></button>
                 <button id="nQuot" type="button" aria-pressed="false" title="The division written as a fraction (T)"></button>
               </div>
             </div>
             <div class="eqRight">
               <button class="genBtn" id="amtBtn" type="button" title="Keep the fraction, change the amount (A)">
                 <span class="dice" aria-hidden="true">&#9860;</span><span class="genLabel">New amount</span>
+              </button>
+              <button class="genBtn" id="newQBtn" type="button" title="A new fraction and amount (Space)">
+                <span class="dice" aria-hidden="true">&#10227;</span><span class="genLabel">New question</span>
               </button>
               <button class="genBtn" id="editBtn" type="button" aria-expanded="false" title="Type your own question">
                 <span class="dice" aria-hidden="true">&#9998;</span><span class="genLabel">Your own</span>
@@ -701,14 +700,15 @@
     10:["tenth","tenths"], 11:["eleventh","elevenths"], 12:["twelfth","twelfths"]
   };
   const STORE = "mmt.fracOfAmount.v1";
-  const NOTATIONS = ["frac","ops","quot"];
+  /* frac: ⅖ of 20 · ops: 2 × (20 ÷ 5) · ops2: (20 ÷ 5) × 2 · quot: 20/5 × 2 */
+  const NOTATIONS = ["frac","ops","ops2","quot"];
 
   const S = {
     a:2, b:5, n:20,
     /* EVERYTHING on screen is derived from this one number, so Back is
        step-- and a repaint, and no two displays can disagree. */
     step:0,
-    notation:"frac",          /* frac: ⅖ of 20 · ops: 2 × (20 ÷ 5) · quot: 20/5 × 2 */
+    notation:"frac",          /* see NOTATIONS */
     form:"times",             /* times: 2 × (20 ÷ 5)   div: 20 ÷ 5 × 2 */
     fracSet:"s3", numMode:"mixed", size:"small",
     ones:false, names:true, record:true, check:false, other:false,
@@ -725,7 +725,7 @@
       if(!FRAC_SETS[S.fracSet]) S.fracSet = "s3";
       if(!SIZES[S.size]) S.size = "small";
       if(!NOTATIONS.includes(S.notation)) S.notation = "frac";
-      if(S.form !== "div") S.form = "times";
+      S.form = "times";
     }catch(e){}
   }
   function save(){
@@ -790,6 +790,15 @@
     if(S.form === "div") return `${sp("k-n",n)} <span class="op">${D}</span> ${sp("k-b",b)} <span class="op">${T}</span> ${sp("k-a",a)}`;
     return `${sp("k-a",a)} <span class="op">${T}</span> <span class="paren">(</span>${sp("k-n",n)} <span class="op">${D}</span> ${sp("k-b",b)}<span class="paren">)</span>`;
   }
+  /* For a unit fraction the two bracket forms would both be 20 ÷ 5, so the
+     (20 ÷ 5) × a form steps aside; a saved choice of it shows as 20 ÷ 5 and
+     comes back when the next fraction has more than one part. */
+  const avail = () => S.a === 1 ? ["frac","ops","quot"] : NOTATIONS;
+  const eff = () => (S.a === 1 && S.notation === "ops2") ? "ops" : S.notation;
+  function ops2Inline(a,b,n){
+    if(a === 1) return opsInline(a,b,n);
+    return `<span class="paren">(</span>${sp("k-n",n)} <span class="op">${D}</span> ${sp("k-b",b)}<span class="paren">)</span> <span class="op">${T}</span> ${sp("k-a",a)}`;
+  }
   /* The third form writes the division AS a fraction, 20/5 × 2. The fraction
      line groups the division by itself, so no brackets are needed. */
   function quotInline(a,b,n){
@@ -809,14 +818,15 @@
     const hot = {
       a: name === "take",
       b: name === "cut" || name === "one",
-      n: name === "one" && S.notation === "frac"
+      n: name === "one" && eff() === "frac"
     };
     const known = name === "answer" && !S.holdAns;
     const ansTok = tok("ans", known ? ans() : "?", known ? "is-known" : "");
     const eqTok = `<span class="tok op" data-k="eq">=</span>`;
     const H = k => hot[k] ? "hot" : "";
 
-    if(S.notation === "frac"){
+    const nt = eff();
+    if(nt === "frac"){
       return `<span class="fr">${tok("a",S.a,H("a"))}<span class="rule"></span>${tok("b",S.b,H("b"))}</span>`
            + `<span class="wOf">of</span>${tok("n",S.n,H("n"))}${eqTok}${ansTok}`;
     }
@@ -826,13 +836,16 @@
     const grpHot = name === "one" ? " hot" : "";
     const under = showUnder ? `<span class="under${S._underPop ? " pop" : ""}">${v()}</span>` : "";
     const bCut = name === "cut" ? "hot" : "";
-    if(S.notation === "quot"){
+    if(nt === "quot"){
       const q = `<span class="grp${grpHot}"><span class="fr">${tok("n",S.n)}<span class="rule"></span>${tok("b",S.b,bCut)}</span>${under}</span>`;
       return S.a === 1 ? `${q}${eqTok}${ansTok}` : `${q}<span class="op">${T}</span>${tok("a",S.a,H("a"))}${eqTok}${ansTok}`;
     }
     const div = `${tok("n",S.n)}<span class="op">${D}</span>${tok("b",S.b,bCut)}`;
     if(S.a === 1){
       return `<span class="grp${grpHot}">${div}${under}</span>${eqTok}${ansTok}`;
+    }
+    if(nt === "ops2"){
+      return `<span class="grp${grpHot}"><span class="paren">(</span>${div}<span class="paren">)</span>${under}</span><span class="op">${T}</span>${tok("a",S.a,H("a"))}${eqTok}${ansTok}`;
     }
     if(S.form === "div"){
       return `<span class="grp${grpHot}">${div}${under}</span><span class="op">${T}</span>${tok("a",S.a,H("a"))}${eqTok}${ansTok}`;
@@ -843,7 +856,7 @@
   function paintSentence(){
     const el = $("sentence");
     el.innerHTML = sentenceHTML();
-    el.classList.toggle("hasUnder", S.notation !== "frac" && atLeast("one"));
+    el.classList.toggle("hasUnder", eff() !== "frac" && atLeast("one"));
     S._underPop = false;
   }
 
@@ -889,8 +902,12 @@
     });
   }
 
+  function cycleNotation(dir){
+    const L = avail(), i = Math.max(0, L.indexOf(eff()));
+    setNotation(L[(i + dir + L.length) % L.length]);
+  }
   function setNotation(nt){
-    if(nt === S.notation) return;
+    if(!nt || nt === S.notation) return;
     const old = tokRects();
     S.notation = nt;
     paintSentence();
@@ -903,9 +920,13 @@
     $("nFrac").innerHTML = fracInline(S.a,S.b,S.n);
     $("nOps").innerHTML = opsInline(S.a,S.b,S.n);
     $("nQuot").innerHTML = quotInline(S.a,S.b,S.n);
-    $("nFrac").setAttribute("aria-pressed", String(S.notation === "frac"));
-    $("nOps").setAttribute("aria-pressed", String(S.notation === "ops"));
-    $("nQuot").setAttribute("aria-pressed", String(S.notation === "quot"));
+    $("nOps2").innerHTML = ops2Inline(S.a,S.b,S.n);
+    $("nOps2").hidden = S.a === 1;
+    $("nOps2").setAttribute("aria-pressed", String(eff() === "ops2"));
+    $("nOps2").setAttribute("aria-label", `${S.n} divided by ${S.b}, then times ${S.a}`);
+    $("nFrac").setAttribute("aria-pressed", String(eff() === "frac"));
+    $("nOps").setAttribute("aria-pressed", String(eff() === "ops"));
+    $("nQuot").setAttribute("aria-pressed", String(eff() === "quot"));
     $("nQuot").setAttribute("aria-label", S.a === 1 ? `${S.n} over ${S.b}` : `${S.n} over ${S.b}, times ${S.a}`);
     $("nFrac").setAttribute("aria-label", `${S.a} over ${S.b} of ${S.n}`);
     $("nOps").setAttribute("aria-label", S.a === 1 ? `${S.n} divided by ${S.b}` : `${S.a} times ${S.n} divided by ${S.b}`);
@@ -1066,7 +1087,7 @@
     }
     if(a > 1 && atLeast("take")){
       rows.push({ at:idxOf("take"), key:true, cap:`${a} parts`,
-        html:`${fracInline(a,b,n)} ${ON("=")} ${opsInline(a,b,n)}<span class="recBreak"></span>${ON("=")} ${quotInline(a,b,n)}` });
+        html:`${fracInline(a,b,n)} ${ON("=")} ${opsInline(a,b,n)}<span class="recBreak"></span>${ON("=")} ${ops2Inline(a,b,n)}<span class="recBreak"></span>${ON("=")} ${quotInline(a,b,n)}` });
     }
     if(a > 1 && atLeast("answer")){
       const mul = S.form === "div" ? `${sp("k-v",v())} ${ON(T)} ${sp("k-a",a)}` : `${sp("k-a",a)} ${ON(T)} ${sp("k-v",v())}`;
@@ -1333,6 +1354,8 @@
   $("nFrac").addEventListener("click", () => setNotation("frac"));
   $("nOps").addEventListener("click", () => setNotation("ops"));
   $("nQuot").addEventListener("click", () => setNotation("quot"));
+  $("nOps2").addEventListener("click", () => setNotation("ops2"));
+  $("newQBtn").addEventListener("click", () => newQuestion(false));
 
   /* ----------------------------------------------------------- focus view */
   /* The sentence card morphs out of the page into the middle of the screen,
@@ -1431,14 +1454,20 @@
     /* Space is New question (teacher request 2026-11-03), so a class can be
        given question after question without anyone reaching for the mouse. */
     if(k === " "){ e.preventDefault(); newQuestion(false); }
-    else if(k === "t" || k === "T"){ e.preventDefault(); setNotation(NOTATIONS[(NOTATIONS.indexOf(S.notation)+1) % NOTATIONS.length]); }
-    else if(k === "1" || k === "2" || k === "3"){ e.preventDefault(); setNotation(NOTATIONS[+k - 1]); }
+    else if(k === "t" || k === "T"){ e.preventDefault(); cycleNotation(1); }
+    else if(k >= "1" && k <= "4" && k.length === 1){ e.preventDefault(); setNotation(avail()[+k - 1]); }
     else if(k === "f" || k === "F"){ e.preventDefault(); F.on ? closeFocus() : openFocus(); }
     else if(k === "a" || k === "A"){ e.preventDefault(); newQuestion(true); }
     else if(k === "n" || k === "N"){ e.preventDefault(); newQuestion(false); }
     /* the focus view is about the notation; stepping the bar it is covering
        would change things nobody can see */
-    else if(F.on){ return; }
+    /* in the focus view the arrows step through the forms instead
+       (teacher request 2026-11-03) */
+    else if(F.on){
+      if(k === "ArrowRight" || k === "ArrowDown"){ e.preventDefault(); cycleNotation(1); }
+      else if(k === "ArrowLeft" || k === "ArrowUp"){ e.preventDefault(); cycleNotation(-1); }
+      return;
+    }
     else if(k === "ArrowRight"){ e.preventDefault(); next(); }
     else if(k === "Enter" && tag !== "BUTTON"){ e.preventDefault(); next(); }
     else if(k === "ArrowLeft"){ e.preventDefault(); back(); }
@@ -1448,7 +1477,6 @@
   $("setSel").addEventListener("change", e => { S.fracSet = e.target.value; $("setNote").textContent = SET_NOTES[S.fracSet]; save(); newQuestion(false); });
   $("numSel").addEventListener("change", e => { S.numMode = e.target.value; save(); newQuestion(false); });
   $("sizeSel").addEventListener("change", e => { S.size = e.target.value; save(); newQuestion(false); });
-  $("formSel").addEventListener("change", e => { S.form = e.target.value; save(); paintAll(); });
   $("speedSel").addEventListener("change", e => { S.speed = parseFloat(e.target.value); save(); paintAll(); });
   function bindToggle(id, key){
     $(id).addEventListener("change", e => { S[key] = e.target.checked; save(); paintAll(); });
@@ -1468,7 +1496,7 @@
   /* --------------------------------------------------------------- boot */
   load();
   $("setSel").value = S.fracSet; $("setNote").textContent = SET_NOTES[S.fracSet];
-  $("numSel").value = S.numMode; $("sizeSel").value = S.size; $("formSel").value = S.form;
+  $("numSel").value = S.numMode; $("sizeSel").value = S.size;
   $("speedSel").value = String(S.speed);
   $("onesToggle").checked = S.ones; $("namesToggle").checked = S.names; $("recordToggle").checked = S.record;
   $("checkToggle").checked = S.check; $("otherToggle").checked = S.other;
