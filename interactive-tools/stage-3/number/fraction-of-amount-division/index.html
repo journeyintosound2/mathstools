@@ -447,7 +447,12 @@
     /* ---------- responsive ---------- */
     /* four forms and three buttons only fit one row beside the side panel
        once the label goes; the focus view keeps it */
-    @media (max-width:1560px){ .eqCard:not(.big) .nTogLab{ display:none; } }
+    /* five forms and three buttons share one row on the board: compact forms,
+       no label, and "Your own" drops to its icon on narrower screens. The focus
+       view keeps the label and the big buttons. */
+    .eqCard:not(.big) .nTogLab{ display:none; }
+    .eqCard:not(.big) .seg2 button{ font-size:1rem; padding:6px 10px; }
+    @media (max-width:1400px){ .eqCard:not(.big) #editBtn .genLabel{ display:none; } .eqCard:not(.big) #editBtn{ padding:9px 11px; } }
     @media (max-width:1180px){
       .mmtTopbar{ grid-template-columns:auto minmax(0,1fr) auto; padding:12px 16px; gap:12px; }
       .mmtBrandText{ display:none; }
@@ -559,7 +564,7 @@
                 <option value="0">Straight there</option>
               </select>
             </label>
-            <p class="settingsNote">Keys: &rarr; next, &larr; back, Space new question, A new amount, T switch the form (1&ndash;4 pick one), F focus view (where &larr; &rarr; switch the form), O the ones.</p>
+            <p class="settingsNote">Keys: &rarr; next, &larr; back, Space new question, A new amount, T switch the form (1&ndash;5 pick one), F focus view (where &larr; &rarr; switch the form), O the ones.</p>
           </nav>
         </div>
         <div class="menuWrap">
@@ -590,6 +595,7 @@
               <span class="nTogLab">Write it as</span>
               <div class="seg2">
                 <button id="nFrac" type="button" aria-pressed="true" title="Fraction notation (T)"></button>
+                <button id="nUnit" type="button" aria-pressed="false" title="That many groups of one part (T)"></button>
                 <button id="nOps" type="button" aria-pressed="false" title="Divide, then multiply (T)"></button>
                 <button id="nOps2" type="button" aria-pressed="false" title="Divide, then multiply (T)"></button>
                 <button id="nQuot" type="button" aria-pressed="false" title="The division written as a fraction (T)"></button>
@@ -700,8 +706,8 @@
     10:["tenth","tenths"], 11:["eleventh","elevenths"], 12:["twelfth","twelfths"]
   };
   const STORE = "mmt.fracOfAmount.v1";
-  /* frac: ⅖ of 20 · ops: 2 × (20 ÷ 5) · ops2: (20 ÷ 5) × 2 · quot: 20/5 × 2 */
-  const NOTATIONS = ["frac","ops","ops2","quot"];
+  /* frac: ⅖ of 20 · unit: 2 × ⅕ of 20 · ops: 2 × (20 ÷ 5) · ops2: (20 ÷ 5) × 2 · quot: 20/5 × 2 */
+  const NOTATIONS = ["frac","unit","ops","ops2","quot"];
 
   const S = {
     a:2, b:5, n:20,
@@ -794,7 +800,10 @@
      (20 ÷ 5) × a form steps aside; a saved choice of it shows as 20 ÷ 5 and
      comes back when the next fraction has more than one part. */
   const avail = () => S.a === 1 ? ["frac","ops","quot"] : NOTATIONS;
-  const eff = () => (S.a === 1 && S.notation === "ops2") ? "ops" : S.notation;
+  /* a unit fraction has no "2 groups of" to show, so 1 × ⅕ of 20 is just ⅕ of 20 */
+  const eff = () => S.a !== 1 ? S.notation : S.notation === "ops2" ? "ops" : S.notation === "unit" ? "frac" : S.notation;
+  /* 7 × ⅒ of 100: seven groups of one tenth of 100 (teacher request 2026-11-03) */
+  const unitInline = (a,b,n) => `${sp("k-a",a)} <span class="op">${T}</span> ${mf(sp("k-a",1), sp("k-b",b))} <span class="wOf">of</span> ${sp("k-n",n)}`;
   function ops2Inline(a,b,n){
     if(a === 1) return opsInline(a,b,n);
     return `<span class="paren">(</span>${sp("k-n",n)} <span class="op">${D}</span> ${sp("k-b",b)}<span class="paren">)</span> <span class="op">${T}</span> ${sp("k-a",a)}`;
@@ -836,6 +845,9 @@
     const grpHot = name === "one" ? " hot" : "";
     const under = showUnder ? `<span class="under${S._underPop ? " pop" : ""}">${v()}</span>` : "";
     const bCut = name === "cut" ? "hot" : "";
+    if(nt === "unit"){
+      return `${tok("a",S.a,H("a"))}<span class="op">${T}</span><span class="grp${grpHot}"><span class="fr">${tok("one","1","k-a")}<span class="rule"></span>${tok("b",S.b,bCut)}</span><span class="wOf">of</span>${tok("n",S.n)}${under}</span>${eqTok}${ansTok}`;
+    }
     if(nt === "quot"){
       const q = `<span class="grp${grpHot}"><span class="fr">${tok("n",S.n)}<span class="rule"></span>${tok("b",S.b,bCut)}</span>${under}</span>`;
       return S.a === 1 ? `${q}${eqTok}${ansTok}` : `${q}<span class="op">${T}</span>${tok("a",S.a,H("a"))}${eqTok}${ansTok}`;
@@ -921,6 +933,10 @@
     $("nOps").innerHTML = opsInline(S.a,S.b,S.n);
     $("nQuot").innerHTML = quotInline(S.a,S.b,S.n);
     $("nOps2").innerHTML = ops2Inline(S.a,S.b,S.n);
+    $("nUnit").innerHTML = unitInline(S.a,S.b,S.n);
+    $("nUnit").hidden = S.a === 1;
+    $("nUnit").setAttribute("aria-pressed", String(eff() === "unit"));
+    $("nUnit").setAttribute("aria-label", `${S.a} times one ${nm(S.b)} of ${S.n}`);
     $("nOps2").hidden = S.a === 1;
     $("nOps2").setAttribute("aria-pressed", String(eff() === "ops2"));
     $("nOps2").setAttribute("aria-label", `${S.n} divided by ${S.b}, then times ${S.a}`);
@@ -1087,7 +1103,7 @@
     }
     if(a > 1 && atLeast("take")){
       rows.push({ at:idxOf("take"), key:true, cap:`${a} parts`,
-        html:`${fracInline(a,b,n)} ${ON("=")} ${opsInline(a,b,n)}<span class="recBreak"></span>${ON("=")} ${ops2Inline(a,b,n)}<span class="recBreak"></span>${ON("=")} ${quotInline(a,b,n)}` });
+        html:`${fracInline(a,b,n)} ${ON("=")} ${unitInline(a,b,n)}<span class="recBreak"></span>${ON("=")} ${opsInline(a,b,n)}<span class="recBreak"></span>${ON("=")} ${ops2Inline(a,b,n)}<span class="recBreak"></span>${ON("=")} ${quotInline(a,b,n)}` });
     }
     if(a > 1 && atLeast("answer")){
       const mul = S.form === "div" ? `${sp("k-v",v())} ${ON(T)} ${sp("k-a",a)}` : `${sp("k-a",a)} ${ON(T)} ${sp("k-v",v())}`;
@@ -1355,6 +1371,7 @@
   $("nOps").addEventListener("click", () => setNotation("ops"));
   $("nQuot").addEventListener("click", () => setNotation("quot"));
   $("nOps2").addEventListener("click", () => setNotation("ops2"));
+  $("nUnit").addEventListener("click", () => setNotation("unit"));
   $("newQBtn").addEventListener("click", () => newQuestion(false));
 
   /* ----------------------------------------------------------- focus view */
@@ -1455,7 +1472,7 @@
        given question after question without anyone reaching for the mouse. */
     if(k === " "){ e.preventDefault(); newQuestion(false); }
     else if(k === "t" || k === "T"){ e.preventDefault(); cycleNotation(1); }
-    else if(k >= "1" && k <= "4" && k.length === 1){ e.preventDefault(); setNotation(avail()[+k - 1]); }
+    else if(k >= "1" && k <= "5" && k.length === 1){ e.preventDefault(); setNotation(avail()[+k - 1]); }
     else if(k === "f" || k === "F"){ e.preventDefault(); F.on ? closeFocus() : openFocus(); }
     else if(k === "a" || k === "A"){ e.preventDefault(); newQuestion(true); }
     else if(k === "n" || k === "N"){ e.preventDefault(); newQuestion(false); }
