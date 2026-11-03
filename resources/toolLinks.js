@@ -503,6 +503,14 @@ window.MMT_TOOL_LINKS = {
       tags: ["fraction of an amount", "fraction of a quantity", "unit fractions", "fraction as division", "divide then multiply", "bar model", "tape diagram", "equal parts", "number sentences", "brackets", "order of operations", "halves quarters fifths tenths", "visual", "whole-class teaching"]
     },
     {
+      title: "Fraction of an Amount \u2014 Worksheet Creator",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-3/number/fraction-of-amount-division.html",
+      ideas: ["brackets-order", "equivalent-sentences"],
+      note: "Printable A4 sheets that take the bar away one step at a time: fill a bar already cut, divide then multiply on a shaded bar, cut and shade your own, write it four ways (fraction of, a \u00d7 (n \u00f7 b), (n \u00f7 b) \u00d7 a, n/b \u00d7 a), true or false, spot the mistake, word problems, and build the whole from a part. Answer key fills every bar.",
+      tags: ["worksheet generator", "printable", "fraction of an amount", "fraction of a quantity", "fraction as division", "divide then multiply", "bar model", "number sentences", "brackets", "build the whole", "true or false", "spot the mistake", "word problems", "answer key"]
+    },
+    {
       title: "Order of Operations \u2014 Say What You See",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-4/number/order-of-operations-in-words/",
@@ -692,6 +700,14 @@ window.MMT_TOOL_LINKS = {
       tags: ["fraction of an amount", "fraction of a quantity", "unit fractions", "fraction as division", "divide then multiply", "bar model", "tape diagram", "equal parts", "number sentences", "brackets", "order of operations", "halves quarters fifths tenths", "visual", "whole-class teaching"]
     },
     {
+      title: "Fraction of an Amount \u2014 Worksheet Creator",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-3/number/fraction-of-amount-division.html",
+      ideas: ["fraction-division"],
+      note: "Printable A4 sheets that take the bar away one step at a time: fill a bar already cut, divide then multiply on a shaded bar, cut and shade your own, write it four ways (fraction of, a \u00d7 (n \u00f7 b), (n \u00f7 b) \u00d7 a, n/b \u00d7 a), true or false, spot the mistake, word problems, and build the whole from a part. Answer key fills every bar.",
+      tags: ["worksheet generator", "printable", "fraction of an amount", "fraction of a quantity", "fraction as division", "divide then multiply", "bar model", "number sentences", "brackets", "build the whole", "true or false", "spot the mistake", "word problems", "answer key"]
+    },
+    {
       title: "Fraction Hex Path",
       kind: "Game",
       url: "/games/fractional-hex.html",
@@ -709,6 +725,14 @@ window.MMT_TOOL_LINKS = {
       ideas: ["fraction-of-quantity"],
       note: "A bar holding the amount is cut into equal parts, so one fifth of 20 is SEEN to be 20 \u00f7 5. Two fifths is two of those parts: 2 \u00d7 (20 \u00f7 5). A notation switch flies each number between fraction form and divide-then-multiply form, colour-matched to the picture, with an optional ones view.",
       tags: ["fraction of an amount", "fraction of a quantity", "unit fractions", "fraction as division", "divide then multiply", "bar model", "tape diagram", "equal parts", "number sentences", "brackets", "order of operations", "halves quarters fifths tenths", "visual", "whole-class teaching"]
+    },
+    {
+      title: "Fraction of an Amount \u2014 Worksheet Creator",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-3/number/fraction-of-amount-division.html",
+      ideas: ["fraction-of-quantity", "build-whole"],
+      note: "Printable A4 sheets that take the bar away one step at a time: fill a bar already cut, divide then multiply on a shaded bar, cut and shade your own, write it four ways (fraction of, a \u00d7 (n \u00f7 b), (n \u00f7 b) \u00d7 a, n/b \u00d7 a), true or false, spot the mistake, word problems, and build the whole from a part. Answer key fills every bar.",
+      tags: ["worksheet generator", "printable", "fraction of an amount", "fraction of a quantity", "fraction as division", "divide then multiply", "bar model", "number sentences", "brackets", "build the whole", "true or false", "spot the mistake", "word problems", "answer key"]
     },
     {
       title: "Times Table Chart — Fractions of an Amount",
@@ -1104,6 +1128,14 @@ window.MMT_TOOL_LINKS = {
       ideas: ["multiply-divide"],
       note: "Bridges Stage 3 to Stage 4: a fraction of a whole number read as divide by the denominator, multiply by the numerator, with the bar model and both notations side by side. Any denominator 2\u201312.",
       tags: ["fraction of an amount", "fraction of a quantity", "unit fractions", "fraction as division", "divide then multiply", "bar model", "tape diagram", "equal parts", "number sentences", "brackets", "order of operations", "halves quarters fifths tenths", "visual", "whole-class teaching"]
+    },
+    {
+      title: "Fraction of an Amount \u2014 Worksheet Creator",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-3/number/fraction-of-amount-division.html",
+      ideas: ["multiply-divide"],
+      note: "Printable A4 sheets that take the bar away one step at a time: fill a bar already cut, divide then multiply on a shaded bar, cut and shade your own, write it four ways (fraction of, a \u00d7 (n \u00f7 b), (n \u00f7 b) \u00d7 a, n/b \u00d7 a), true or false, spot the mistake, word problems, and build the whole from a part. Answer key fills every bar.",
+      tags: ["worksheet generator", "printable", "fraction of an amount", "fraction of a quantity", "fraction as division", "divide then multiply", "bar model", "number sentences", "brackets", "build the whole", "true or false", "spot the mistake", "word problems", "answer key"]
     },
     {
       title: "Decimal Zoom Rounding",

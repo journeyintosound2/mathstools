@@ -96,6 +96,35 @@
 > §2 "TWO folders", §3 deploy paths and §5's `mathstools-main 2` heading below
 > describe the OLD layout — this block supersedes them.
 >
+> **NEW (2026-11-03, later): FRACTION OF AN AMOUNT — WORKSHEET CREATOR.**
+> `worksheet-creators/stage-3/number/fraction-of-amount-division.html`, on the Area of a Parallelogram
+> generator's frame (same base CSS copied, bands, level chips, lettered types with counts, measured rows
+> packed into 196 × 281 mm pages, "Your turn" fill, answer key, `fitPass`). Test surface `window.__WS__`.
+> Listed as "Worksheet maker" beside the tool under MA3-RQF-02 (fraction-of-quantity + build-whole),
+> MA3-RQF-01, MA3-MR-02, MA4-FRC-C-01; first row of the tool's Tools menu; homepage Worksheet Creator
+> card (pill 36 -> 37). `toolLinks.js?v=` bumped in resources/index.html and portal/teacher.
+> * **Levels set the size of ONE PART** (Sweet 2–5, Mild to 10, Medium 6–12, Spicy 11–25, amount ≤ 300);
+>   the **Fractions** select (Stage 3 halves/quarters/fifths/tenths default, + thirds/sixths/eighths, any to
+>   twelfths) sets the denominators. Random fractions are simplest form; A is unit fractions, B–F never.
+> * **Sections (the bar fades):** A One part is a division (bar cut, fill each part, ⅕ of 20 = 20 ÷ __ = __)
+>   · B Divide, then multiply (cut + shaded: one part, then a parts) · C Draw the bar (uncut bar, whole
+>   bracketed) · D Write it four ways (from the fraction to a × (n ÷ b), (n ÷ b) × a, n/b × a; and from a
+>   form back to the fraction; "fill the gaps" or "write each form on a line") · E True or false (2 true
+>   from a × (n ÷ b), (n ÷ b) × a, n/b × a, n ÷ b × a, (a × n) ÷ b; 2 false: swapped top/bottom, one part
+>   only, never divided — all whole-valued, never two "swapped" on one card) · F Spot the mistake (swap /
+>   stop at one part / never divided / added the top number) · G Use it (12 contexts, bike ≤ 120, movie ≤
+>   180) · H Build the whole (bracket under the shaded parts, "?" on the whole) · I Fluency (off; four
+>   forms rotating, 3 a row). D/E/G never go 3 across.
+> * **Gaps are ruled lines, never boxes** (teacher rule from the multiplying-fractions creator); a fraction
+>   to write in is just the fraction line with room above and below. Colour = role (amount blue, parts
+>   purple, taken orange) as on the tool; E and F statements are plain ink so colour can't give it away.
+> * Bars are SVG in mm (`barSVG`): whole bracket above, optional bracket under the taken parts, ⅕ names,
+>   ones lines only where they are ≥ 1.5 mm apart.
+> * Verified (Playwright): 1,920 generated questions per run re-checked (sets, ranges, divisibility,
+>   simplest form, unit/non-unit per section, every E statement re-evaluated from its own text), six
+>   configurations with nothing past a page or wider than its card, key mirrors the paper, every answer in
+>   its key card, no answers or values on student pages, PDF pages = preview.
+>
 > **NEW (2026-11-03): FRACTION OF AN AMOUNT — DIVIDE, THEN MULTIPLY.** Teaching tool
 > `interactive-tools/stage-3/number/fraction-of-amount-division/` (self-contained, no Firebase, test
 > surface `window.__FOA__`). Listed under **MA3-RQF-02** fraction-of-quantity (home, tag on the board),
@@ -136,7 +165,7 @@
 > * Verified: 318 Playwright checks (generation rules at every setting, every step in both notations
 >   and both forms, answer hidden until the end, fit with no scroll at 1366×768 / 1280×800 / 1024×768 /
 >   1920×1080, labels and numbers inside the bar, input refusals, ones counts, animated Back mid-flight,
->   390 px phone). Possible next: worksheet creator, student quiz, improper fractions (two bars).
+>   390 px phone). Possible next: student quiz, improper fractions (two bars).
 >
 > **NEW (2026-11-02): WHOLE-TOPIC QUIZZES FOR THE OTHER 11 STAGE 4 OUTCOMES.** Every Stage 4
 > outcome now has a whole-topic quiz with **Basic** (D/E foundations) and **Expected** (C, the whole

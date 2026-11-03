@@ -1,6 +1,6 @@
 /* Written by tools/build-pwa.mjs — do not edit by hand. */
 self.MMT_PRECACHE = {
- "version": "6c3be0e69c",
+ "version": "b8c7465ae0",
  "files": [
   "./",
   "assessment/exam-builder/app.js",
@@ -960,6 +960,7 @@ self.MMT_PRECACHE = {
   "worksheet-creators/puzzles/shikaku.html",
   "worksheet-creators/puzzles/sudoku.html",
   "worksheet-creators/stage-3/number/division-grouping.html",
+  "worksheet-creators/stage-3/number/fraction-of-amount-division.html",
   "worksheet-creators/stage-3/number/multiplicative-strategies/border_page0.png",
   "worksheet-creators/stage-3/number/multiplicative-strategies/index.html",
   "worksheet-creators/stage-3/number/multiply-divide-by-ten.html",
