@@ -1,6 +1,6 @@
 /* Written by tools/build-pwa.mjs — do not edit by hand. */
 self.MMT_PRECACHE = {
- "version": "192a46e7e8",
+ "version": "3c07bb4d35",
  "files": [
   "./",
   "assessment/exam-builder/app.js",
@@ -705,6 +705,7 @@ self.MMT_PRECACHE = {
   "interactive-tools/stage-3/number/addition-compensation/index.html",
   "interactive-tools/stage-3/number/constant-difference/index.html",
   "interactive-tools/stage-3/number/division-grouping-bubbles/index.html",
+  "interactive-tools/stage-3/number/fraction-of-amount-division/index.html",
   "interactive-tools/stage-3/number/halve-and-halve-again/index.html",
   "interactive-tools/stage-3/number/multiply-divide-by-ten/flash-cards.html",
   "interactive-tools/stage-3/number/multiply-divide-by-ten/index.html",

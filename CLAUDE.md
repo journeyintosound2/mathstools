@@ -96,6 +96,34 @@
 > §2 "TWO folders", §3 deploy paths and §5's `mathstools-main 2` heading below
 > describe the OLD layout — this block supersedes them.
 >
+> **NEW (2026-11-03): FRACTION OF AN AMOUNT — DIVIDE, THEN MULTIPLY.** Teaching tool
+> `interactive-tools/stage-3/number/fraction-of-amount-division/` (self-contained, no Firebase, test
+> surface `window.__FOA__`). Listed under **MA3-RQF-02** fraction-of-quantity (home, tag on the board),
+> **MA3-RQF-01** fraction-division, **MA3-MR-02** brackets-order + equivalent-sentences, and
+> **MA4-FRC-C-01** multiply-divide; homepage Interactive card (pill 39 -> 40).
+> * **Steps:** whole bar holding the amount → cut into b parts ("?" in each, the amount lifts into a
+>   bracket above) → each part shows n ÷ b → (a > 1) the a parts turn orange → answer: bracket under
+>   them reads a × v = ans and a copy flies to the sentence's `?`. A unit fraction skips the take beat.
+>   The answer is never in the sentence before the last step (one part IS visible in the bar — that is
+>   the method).
+> * **Colour = role in BOTH notations:** amount blue, denominator/÷ purple, numerator/× orange, one
+>   part teal, answer green. **"Write it as"** switch (or T) FLIPs each number token (`data-k` a/b/n/
+>   eq/ans) from ⅖ of 20 to 2 × (20 ÷ 5); a unit fraction's ops form is just 20 ÷ 5 (the 1 fades out).
+>   In ops form the bracket carries its value underneath from the "one part" step (order of operations
+>   made visible). Both notations share one sentence height (`.sentence{height:2.2em}`) so the board
+>   never jumps. Settings: written as 2 × (20 ÷ 5) or 20 ÷ 5 × 2.
+> * **Numbers:** Stage 3 default = halves, quarters, fifths, tenths (the syllabus list); + thirds,
+>   sixths, eighths; or any 2–12. Random fractions are in simplest form; ONE PART is kept 2–10 (a
+>   tables fact) or 6–25, amount ≤ 300. "New amount" (A) keeps the fraction. "Your own" accepts
+>   a ≤ b ≤ 12 and refuses amounts that don't share into whole parts, suggesting the nearest two.
+> * **Ones** (O / board button): faint unit lines inside each part, amounts ≤ 120 only. Record panel
+>   on by default; "Check: the parts make the whole" and "The other order: multiply first" off.
+>   Settings saved in `mmt.fracOfAmount.v1`.
+> * Verified: 318 Playwright checks (generation rules at every setting, every step in both notations
+>   and both forms, answer hidden until the end, fit with no scroll at 1366×768 / 1280×800 / 1024×768 /
+>   1920×1080, labels and numbers inside the bar, input refusals, ones counts, animated Back mid-flight,
+>   390 px phone). Possible next: worksheet creator, student quiz, improper fractions (two bars).
+>
 > **NEW (2026-11-02): WHOLE-TOPIC QUIZZES FOR THE OTHER 11 STAGE 4 OUTCOMES.** Every Stage 4
 > outcome now has a whole-topic quiz with **Basic** (D/E foundations) and **Expected** (C, the whole
 > outcome) levels and a question-type builder the Teacher Platform drives. The 5 older ones

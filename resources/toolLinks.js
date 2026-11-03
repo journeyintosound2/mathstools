@@ -495,6 +495,14 @@ window.MMT_TOOL_LINKS = {
 
   "MA3-MR-02": [
     {
+      title: "Fraction of an Amount \u2014 Divide, Then Multiply",
+      kind: "Teacher tool",
+      url: "/interactive-tools/stage-3/number/fraction-of-amount-division/",
+      ideas: ["brackets-order", "equivalent-sentences"],
+      note: "Writes a fraction of an amount as a number sentence with brackets: 2/5 of 20 = 2 \u00d7 (20 \u00f7 5), the bracket worked first and its value shown under it. An optional panel compares the other order, 2 \u00d7 20 \u00f7 5.",
+      tags: ["fraction of an amount", "fraction of a quantity", "unit fractions", "fraction as division", "divide then multiply", "bar model", "tape diagram", "equal parts", "number sentences", "brackets", "order of operations", "halves quarters fifths tenths", "visual", "whole-class teaching"]
+    },
+    {
       title: "Order of Operations \u2014 Say What You See",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-4/number/order-of-operations-in-words/",
@@ -676,6 +684,14 @@ window.MMT_TOOL_LINKS = {
 
   "MA3-RQF-01": [
     {
+      title: "Fraction of an Amount \u2014 Divide, Then Multiply",
+      kind: "Teacher tool",
+      url: "/interactive-tools/stage-3/number/fraction-of-amount-division/",
+      ideas: ["fraction-division"],
+      note: "Shows a unit fraction of an amount as a division: the bar is cut into 5 equal parts and each part is 20 \u00f7 5, so 1/5 of 20 = 20 \u00f7 5.",
+      tags: ["fraction of an amount", "fraction of a quantity", "unit fractions", "fraction as division", "divide then multiply", "bar model", "tape diagram", "equal parts", "number sentences", "brackets", "order of operations", "halves quarters fifths tenths", "visual", "whole-class teaching"]
+    },
+    {
       title: "Fraction Hex Path",
       kind: "Game",
       url: "/games/fractional-hex.html",
@@ -686,6 +702,14 @@ window.MMT_TOOL_LINKS = {
   ],
 
   "MA3-RQF-02": [
+    {
+      title: "Fraction of an Amount \u2014 Divide, Then Multiply",
+      kind: "Teacher tool",
+      url: "/interactive-tools/stage-3/number/fraction-of-amount-division/",
+      ideas: ["fraction-of-quantity"],
+      note: "A bar holding the amount is cut into equal parts, so one fifth of 20 is SEEN to be 20 \u00f7 5. Two fifths is two of those parts: 2 \u00d7 (20 \u00f7 5). A notation switch flies each number between fraction form and divide-then-multiply form, colour-matched to the picture, with an optional ones view.",
+      tags: ["fraction of an amount", "fraction of a quantity", "unit fractions", "fraction as division", "divide then multiply", "bar model", "tape diagram", "equal parts", "number sentences", "brackets", "order of operations", "halves quarters fifths tenths", "visual", "whole-class teaching"]
+    },
     {
       title: "Times Table Chart — Fractions of an Amount",
       kind: "Teacher tool",
@@ -1073,6 +1097,14 @@ window.MMT_TOOL_LINKS = {
   ],
 
   "MA4-FRC-C-01": [
+    {
+      title: "Fraction of an Amount \u2014 Divide, Then Multiply",
+      kind: "Teacher tool",
+      url: "/interactive-tools/stage-3/number/fraction-of-amount-division/",
+      ideas: ["multiply-divide"],
+      note: "Bridges Stage 3 to Stage 4: a fraction of a whole number read as divide by the denominator, multiply by the numerator, with the bar model and both notations side by side. Any denominator 2\u201312.",
+      tags: ["fraction of an amount", "fraction of a quantity", "unit fractions", "fraction as division", "divide then multiply", "bar model", "tape diagram", "equal parts", "number sentences", "brackets", "order of operations", "halves quarters fifths tenths", "visual", "whole-class teaching"]
+    },
     {
       title: "Decimal Zoom Rounding",
       kind: "Teacher tool",

@@ -1,0 +1,1340 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Fraction of an Amount — Divide, Then Multiply | Mills Maths Tools</title>
+  <style>
+    :root{
+      --bg:#f8fafc;
+      --card:#ffffff;
+      --ink:#0f172a;
+      --muted:#64748b;
+      --border:#e2e8f0;
+      --shadow:0 18px 45px rgba(15,23,42,.13);
+      --blue:#2563eb;
+      --blue-dark:#1d4ed8;
+      --green:#22c55e;
+      --green-dark:#15803d;
+      --purple:#7c3aed;
+      --purple-dark:#5b21b6;
+      --orange:#f97316;
+      --orange-dark:#c2410c;
+      --line:#334155;
+      --line-soft:#94a3b8;
+      --red:#dc2626;
+      --uiFont:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+      --mathFont:"STIX Two Math","Cambria Math","Latin Modern Math","Times New Roman",Georgia,serif;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ min-height:100%; }
+    body{
+      margin:0;
+      font-family:var(--uiFont);
+      color:var(--ink);
+      background:
+        radial-gradient(circle at top left,rgba(37,99,235,.14),transparent 32rem),
+        radial-gradient(circle at top right,rgba(124,58,237,.12),transparent 34rem),
+        var(--bg);
+      overflow-x:hidden;
+    }
+    button,input,select{ font:inherit; }
+    [hidden]{ display:none !important; }
+
+    .app{ min-height:100dvh; display:flex; flex-direction:column; min-width:0; }
+
+    /* ---------- topbar (shared MMT shell) ---------- */
+    .mmtTopbar{
+      position:relative; z-index:40;
+      background:linear-gradient(135deg,#0f172a,#123b7a 55%,#2563eb);
+      color:white; padding:14px 24px;
+      display:grid; grid-template-columns:minmax(220px,1fr) auto minmax(320px,1fr);
+      align-items:center; gap:18px;
+      box-shadow:0 10px 28px rgba(15,23,42,.22);
+    }
+    .mmtBrand{
+      display:flex; align-items:center; gap:12px; justify-self:start;
+      text-decoration:none; color:white; border-radius:14px; padding:8px 12px;
+      margin-left:-12px; font-weight:900;
+      transition:background .18s ease,transform .18s ease,box-shadow .18s ease;
+    }
+    .mmtBrand:hover{ background:rgba(255,255,255,.12); transform:translateY(-1px);
+      box-shadow:0 0 10px rgba(124,58,237,.6),0 0 18px rgba(37,99,235,.4); }
+    .mmtBrandLogo{
+      width:44px; height:44px; border-radius:9px; background:white; color:#1d4ed8;
+      display:grid; place-items:center; font-weight:1000; letter-spacing:-.08em;
+      box-shadow:inset 0 -2px 0 rgba(15,23,42,.08); flex:0 0 auto;
+    }
+    .mmtBrandText strong{ display:block; font-size:1.18rem; line-height:1; letter-spacing:-.03em; color:white; }
+    .mmtBrandText span{ display:block; font-size:.78rem; opacity:.82; font-weight:650; color:white; }
+    .mmtTopTitle{
+      font-weight:850; font-size:clamp(1.05rem,1.9vw,1.5rem); letter-spacing:-.04em;
+      text-align:center; color:white; white-space:nowrap;
+    }
+    .topActions{ justify-self:end; display:flex; align-items:center; justify-content:flex-end; gap:10px; flex-wrap:wrap; }
+
+    .btn{
+      appearance:none; border:1px solid rgba(255,255,255,.28); background:rgba(255,255,255,.14);
+      color:white; padding:11px 15px; border-radius:14px; font-weight:900; font-size:15px;
+      cursor:pointer; transition:.18s ease; user-select:none;
+    }
+    .btn:hover:not(:disabled){ background:rgba(255,255,255,.22); transform:translateY(-1px); }
+    .btn:active{ transform:translateY(0); }
+    .btn:focus-visible{ outline:none; box-shadow:0 0 0 4px rgba(255,255,255,.23); }
+    .btn-primary{ background:white; color:#1d4ed8; border-color:white; }
+    .btn-primary:hover:not(:disabled){ background:#eef2ff; color:#1d4ed8; }
+    .btn:disabled{ opacity:.45; cursor:not-allowed; transform:none; }
+
+    .menuWrap{ position:relative; display:inline-flex; }
+    .dropMenu{ position:absolute; top:calc(100% + 8px); right:0; min-width:250px; background:#fff; color:var(--ink);
+      border:1px solid rgba(226,232,240,.95); border-radius:14px; box-shadow:0 18px 45px rgba(15,23,42,.22);
+      padding:7px; display:none; z-index:120; text-align:left; }
+    .dropMenu.open{ display:grid; gap:4px; }
+    .toolLink{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 12px; border-radius:10px;
+      color:var(--ink); text-decoration:none; font-weight:900; font-size:.9rem; }
+    .toolLink::after{ content:'\203A'; color:var(--blue); font-weight:1000; font-size:1.1rem; line-height:1; }
+    .toolLink:hover,.toolLink:focus-visible{ background:#eef2ff; color:#1d4ed8; outline:none; }
+    .toolLink small{ display:block; font-weight:650; font-size:.74rem; color:var(--muted); }
+    .toolLink.is-disabled{ color:var(--line-soft); cursor:not-allowed; }
+    .toolLink.is-disabled::after{ content:'\2022'; color:var(--line-soft); font-size:.9rem; }
+    .toolLink.is-disabled:hover{ background:transparent; color:var(--line-soft); }
+    .toolLink.is-disabled small{ color:var(--line-soft); }
+
+    .settingsMenu.open{ gap:11px; padding:15px 18px; min-width:326px; max-height:min(74vh,640px); overflow:auto; }
+    .settingsHead{ font-size:.68rem; letter-spacing:.14em; text-transform:uppercase; font-weight:950; color:var(--muted); }
+    .settingsNote{ margin:0; font-size:.76rem; font-weight:650; color:var(--muted); line-height:1.4; }
+    .settingsRule{ height:1px; background:var(--border); margin:1px 0; }
+
+    .selRow{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .selRow > span{ font-weight:900; font-size:.92rem; color:var(--ink); white-space:nowrap; }
+    .selRow select,.selRow input{
+      appearance:none; border:1.5px solid var(--border); background:#fff;
+      padding:8px 11px; border-radius:11px; font-weight:850; font-size:.88rem;
+      color:var(--line); min-width:118px;
+    }
+    .selRow select{
+      background:#fff url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' fill='none' stroke='%232563eb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/></svg>") no-repeat right 10px center;
+      background-size:11px; padding-right:30px; cursor:pointer; min-width:172px;
+    }
+    .selRow select:hover{ border-color:var(--line-soft); }
+    .selRow select:focus-visible,.selRow input:focus-visible{ outline:none; border-color:var(--blue); box-shadow:0 0 0 4px rgba(37,99,235,.16); }
+
+    .sw{ display:inline-flex; align-items:center; gap:11px; cursor:pointer; user-select:none; font-weight:850; color:var(--line); font-size:.93rem; }
+    .sw input{ position:absolute; opacity:0; width:0; height:0; }
+    .sw .track{ position:relative; width:50px; height:29px; border-radius:999px; background:#cbd5e1; transition:.18s ease; flex:0 0 auto; box-shadow:inset 0 1px 3px rgba(15,23,42,.18); }
+    .sw .track::after{ content:""; position:absolute; top:3px; left:3px; width:23px; height:23px; border-radius:50%; background:#fff; box-shadow:0 2px 6px rgba(15,23,42,.3); transition:.18s ease; }
+    .sw input:checked + .track{ background:var(--green); }
+    .sw input:checked + .track::after{ transform:translateX(21px); }
+    .sw input:focus-visible + .track{ box-shadow:0 0 0 4px rgba(37,99,235,.28); }
+
+    /* ---------- layout ---------- */
+    .layout{
+      flex:1; width:min(1420px,100%); margin:0 auto; padding:20px 22px 30px;
+      display:grid; grid-template-columns:minmax(0,1fr) clamp(262px,23vw,330px); gap:clamp(12px,1.6vw,20px);
+      align-items:start; min-width:0;
+    }
+    .stage{ display:flex; flex-direction:column; gap:14px; min-width:0; }
+    .side{ display:flex; flex-direction:column; gap:14px; position:sticky; top:16px; }
+    .card{
+      background:var(--card); border:1px solid var(--border); border-radius:20px;
+      box-shadow:var(--shadow); padding:14px 17px;
+    }
+
+
+    /* ================= Fraction of an Amount: Divide, Then Multiply ================= */
+    /* Colour = role, everywhere on the page, in both notations:
+         blue   = the whole amount        (20)
+         purple = the denominator / ÷ 5   (the cut)
+         orange = the numerator / × 2     (how many parts are taken)
+         green  = the answer
+       A class should be able to follow the 5 from under the fraction line to the
+       ÷ 5 by its colour alone. */
+    :root{ --spd:1; --gap:8px; }
+    .k-n{ color:var(--blue-dark); }
+    .k-b{ color:var(--purple-dark); }
+    .k-a{ color:var(--orange-dark); }
+    .k-v{ color:#0e7490; }
+    .k-ans{ color:var(--green-dark); }
+
+    /* inline fraction, used in prompts, the record and the toggle */
+    .mf{ display:inline-flex; flex-direction:column; align-items:center; vertical-align:middle;
+      font-size:.74em; line-height:1.02; margin:0 .08em; font-family:var(--mathFont); font-weight:700; }
+    .mf > span:first-child{ border-bottom:.09em solid var(--ink); padding:0 .12em .02em; }
+    .mf > span:last-child{ padding:.03em .12em 0; }
+
+    /* ---------- sentence card ---------- */
+    .eqCard{
+      background:var(--card); border:1px solid var(--border); border-radius:20px;
+      box-shadow:var(--shadow); padding:16px 18px 12px;
+      display:flex; flex-direction:column; align-items:center; gap:0;
+    }
+    .sentence{
+      font-family:var(--mathFont); font-size:clamp(2rem,4.1vw,2.9rem); font-weight:700;
+      line-height:1; display:flex; align-items:center; gap:.24em; white-space:nowrap;
+      height:2.2em; transition:padding-bottom .3s ease;
+    }
+    /* Both notations take the SAME height, so switching never makes the board
+       below jump: the ops line rides up to make room for the value under its
+       bracket. */
+    .sentence.hasUnder{ padding-bottom:.9em; }
+    .tok{ display:inline-block; transform-origin:0 0; border-radius:.16em; padding:0 .06em;
+      transition:background .3s ease, box-shadow .3s ease; }
+    .op{ color:var(--line); font-weight:600; }
+    .paren{ color:var(--line); font-weight:500; }
+    .wOf{ color:var(--line); font-weight:600; font-size:.8em; font-style:italic; letter-spacing:.01em; }
+    .fr{ display:inline-flex; flex-direction:column; align-items:center; font-size:.78em; line-height:1.04; }
+    .fr .rule{ align-self:stretch; height:.08em; min-height:3px; background:var(--ink); border-radius:2px; margin:.05em 0; }
+    .tok.k-ans{ color:var(--line-soft); min-width:.75em; text-align:center; }
+    .tok.k-ans.is-known{ color:var(--green-dark); }
+    .tok.k-ans.pop{ animation:popIn calc(480ms*var(--spd)) cubic-bezier(.34,1.5,.5,1); }
+    .tok.hot{ background:color-mix(in srgb,currentColor 13%,transparent); box-shadow:0 0 0 .07em color-mix(in srgb,currentColor 30%,transparent); }
+    .grp{ position:relative; display:inline-flex; align-items:center; gap:.2em; border-radius:.22em; padding:0 .06em;
+      transition:background .3s ease, box-shadow .3s ease; }
+    .grp.hot{ background:rgba(124,58,237,.10); box-shadow:0 0 0 .07em rgba(124,58,237,.28); }
+    .under{
+      position:absolute; left:.1em; right:.1em; top:100%; margin-top:.08em;
+      display:flex; flex-direction:column; align-items:center; pointer-events:none;
+      font-size:.46em; color:#0e7490; line-height:1;
+    }
+    .under::before{ content:""; align-self:stretch; height:.42em; border:.12em solid #0e7490; border-top:none; border-radius:0 0 .5em .5em; margin-bottom:.12em; }
+    .under.pop{ animation:popIn calc(480ms*var(--spd)) cubic-bezier(.34,1.5,.5,1); }
+
+    .eqBar{
+      align-self:stretch; display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
+      margin-top:12px; padding-top:11px; border-top:1px dashed var(--border);
+    }
+    .nTog{ display:flex; align-items:center; gap:10px; }
+    .nTogLab{ font-size:.68rem; letter-spacing:.13em; text-transform:uppercase; font-weight:950; color:var(--muted); white-space:nowrap; }
+    .seg2{ display:inline-flex; background:#f1f5f9; border:1.5px solid var(--border); border-radius:14px; padding:3px; gap:3px; }
+    .seg2 button{
+      appearance:none; border:none; background:transparent; color:var(--line);
+      font-family:var(--mathFont); font-weight:700; font-size:1.08rem; padding:6px 13px; border-radius:11px;
+      cursor:pointer; white-space:nowrap; transition:.16s ease; min-height:40px; display:inline-flex; align-items:center; gap:.22em;
+    }
+    .seg2 button:hover{ background:#e2e8f0; }
+    .seg2 button[aria-pressed="true"]{ background:#fff; box-shadow:0 3px 10px rgba(15,23,42,.13); color:var(--ink); }
+    .seg2 button:focus-visible{ outline:none; box-shadow:0 0 0 3px rgba(37,99,235,.3); }
+    .seg2 .mf{ font-size:.7em; }
+    .eqRight{ display:flex; align-items:center; gap:9px; flex-wrap:wrap; justify-content:flex-end; }
+    .genBtn{
+      appearance:none; border:1.5px solid var(--border); background:#fff; color:var(--line);
+      padding:9px 14px; border-radius:13px; font-weight:900; font-size:.88rem; cursor:pointer;
+      display:inline-flex; align-items:center; gap:8px; transition:.18s ease; white-space:nowrap;
+    }
+    .genBtn:hover:not(:disabled){ border-color:var(--blue); color:var(--blue-dark); background:#eef2ff; transform:translateY(-1px); }
+    .genBtn[aria-expanded="true"]{ border-color:var(--blue); color:var(--blue-dark); background:#eef2ff; }
+    .dice{ font-size:1.15rem; line-height:1; }
+
+    /* ---------- type your own ---------- */
+    .editCard{ display:flex; align-items:center; justify-content:center; gap:16px; flex-wrap:wrap; padding:12px 18px; }
+    .editQ{ display:flex; align-items:center; gap:.3em; font-family:var(--mathFont); font-weight:700; font-size:1.9rem; }
+    .editFr{ display:inline-flex; flex-direction:column; align-items:center; gap:2px; font-size:.8em; }
+    .editFr .rule{ align-self:stretch; height:3px; background:var(--ink); border-radius:2px; }
+    .editQ input{
+      font:inherit; width:2.4em; text-align:center; border:1.5px solid var(--border); border-radius:10px;
+      padding:2px 4px; background:#fff; -moz-appearance:textfield;
+    }
+    .editQ input.wide{ width:3em; }
+    .editQ input::-webkit-outer-spin-button,.editQ input::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0; }
+    .editQ input:focus{ outline:none; border-color:var(--blue); box-shadow:0 0 0 4px rgba(37,99,235,.16); }
+    .editQ input.is-bad{ border-color:var(--red); color:var(--red); animation:shake .34s; }
+    #inA{ color:var(--orange-dark); } #inB{ color:var(--purple-dark); } #inN{ color:var(--blue-dark); }
+    .editMsg{ flex-basis:100%; text-align:center; font-weight:850; font-size:.9rem; color:#991b1b; }
+    .editMsg:empty{ display:none; }
+    .goBtn{
+      appearance:none; border:none; background:linear-gradient(135deg,var(--blue),var(--purple)); color:#fff;
+      padding:11px 20px; border-radius:13px; font-weight:950; cursor:pointer; box-shadow:0 8px 20px rgba(37,99,235,.26);
+    }
+    @keyframes shake{ 0%,100%{transform:translateX(0);} 20%{transform:translateX(-7px);} 40%{transform:translateX(7px);} 60%{transform:translateX(-4px);} 80%{transform:translateX(4px);} }
+
+    /* ---------- prompt ---------- */
+    .promptBar{
+      display:flex; align-items:center; gap:12px; padding:10px 16px; border-radius:16px;
+      background:linear-gradient(135deg,rgba(37,99,235,.10),rgba(124,58,237,.08));
+      border:1px solid rgba(37,99,235,.20); font-weight:850; color:var(--line); font-size:1.02rem; line-height:1.35;
+      min-height:54px;
+    }
+    .promptBar .pIco{ font-size:1.3rem; line-height:1; flex:0 0 auto; }
+    .promptBar.is-done{ background:linear-gradient(135deg,rgba(34,197,94,.14),rgba(37,99,235,.08)); border-color:rgba(21,128,61,.28); }
+    .promptBar b{ font-family:var(--mathFont); font-size:1.12em; }
+
+    /* ---------- the bar ---------- */
+    .barCard{ background:var(--card); border:1px solid var(--border); border-radius:22px; box-shadow:var(--shadow); padding:14px 22px 10px; }
+    .barHead{ position:relative; display:flex; align-items:center; justify-content:center; min-height:36px; margin-bottom:4px; }
+    .outcomeTag{
+      position:absolute; left:0; top:50%; transform:translateY(-50%);
+      font-size:.66rem; letter-spacing:.1em; font-weight:950; text-transform:uppercase;
+      color:var(--purple-dark); background:rgba(124,58,237,.11); border:1px solid rgba(124,58,237,.24);
+      padding:5px 9px; border-radius:999px; white-space:nowrap;
+    }
+    .partsChip{
+      font-weight:950; font-size:.88rem; color:var(--purple-dark); background:rgba(124,58,237,.10);
+      border:1px solid rgba(124,58,237,.22); padding:6px 14px; border-radius:999px; white-space:nowrap;
+    }
+    .partsChip.is-whole{ color:var(--blue-dark); background:rgba(37,99,235,.10); border-color:rgba(37,99,235,.22); }
+    .partsChip.is-taken{ color:var(--orange-dark); background:rgba(249,115,22,.10); border-color:rgba(194,65,12,.25); }
+    .onesBtn{
+      position:absolute; right:0; top:50%; transform:translateY(-50%);
+      appearance:none; border:1.5px solid var(--border); background:#fff; color:var(--line);
+      padding:7px 12px; border-radius:12px; font-weight:900; font-size:.82rem; cursor:pointer;
+      display:inline-flex; align-items:center; gap:7px; transition:.16s ease; white-space:nowrap;
+    }
+    .onesBtn:hover:not(:disabled){ border-color:var(--blue); color:var(--blue-dark); }
+    .onesBtn[aria-pressed="true"]{ background:#eef2ff; border-color:var(--blue); color:var(--blue-dark); }
+    .onesBtn:disabled{ opacity:.45; cursor:not-allowed; }
+    .onesIco{ width:22px; height:12px; border:2px solid currentColor; border-radius:3px;
+      background:repeating-linear-gradient(to right,transparent 0 3px,currentColor 3px 4.5px); opacity:.85; }
+
+    .braceTop{ position:relative; height:52px; transition:opacity .3s ease; }
+    .braceTop.off{ opacity:0; }
+    .btLine{ position:absolute; left:0; right:0; bottom:4px; height:14px; border:3px solid var(--blue); border-bottom:none; border-radius:12px 12px 0 0; }
+    .btLab{
+      position:absolute; left:50%; top:0; transform:translateX(-50%);
+      font-family:var(--mathFont); font-weight:700; font-size:1.75rem; line-height:1; color:var(--blue-dark);
+      background:#fff; padding:0 .35em; white-space:nowrap;
+    }
+    .btLab.wait{ visibility:hidden; }
+
+    .bar{ position:relative; display:flex; gap:var(--gap); height:var(--barH,clamp(92px,16vh,160px)); transition:gap calc(520ms*var(--spd)) cubic-bezier(.3,.9,.35,1); }
+    .bar.closed{ gap:0; }
+    .cell{
+      position:relative; flex:1 1 0; min-width:0; background:#fff;
+      border:3px solid var(--line); border-radius:9px; overflow:hidden;
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px;
+      box-shadow:0 3px 10px rgba(15,23,42,.07);
+      transition:background .35s ease, border-color .35s ease, opacity .35s ease;
+    }
+    .ol{ position:absolute; top:0; bottom:0; width:0; border-left:1.5px solid rgba(100,116,139,.30); pointer-events:none; }
+    .cnum{ position:relative; z-index:1; font-family:var(--mathFont); font-weight:700; line-height:1; color:var(--blue-dark);
+      transition:transform calc(300ms*var(--spd)) cubic-bezier(.34,1.3,.5,1), color .3s ease; }
+    .cnum.q{ color:var(--line-soft); }
+    .cnum.v{ color:#0e7490; }
+    .cnum.swell{ transform:scale(1.22); color:var(--blue); }
+    .cname{ position:relative; z-index:1; color:var(--purple-dark); font-size:18px; }
+    .cname .mf{ font-size:1em; }
+    .cname .mf > span:first-child{ border-bottom-color:var(--purple-dark); }
+    .bar.withOnes .cnum,.bar.withOnes .cname{ background:rgba(255,255,255,.9); border-radius:.22em; padding:.04em .2em; }
+    .cell.taken{ background:#ffedd5; border-color:var(--orange-dark); }
+    .cell.taken .ol{ border-left-color:rgba(194,65,12,.28); }
+    .cell.taken .cnum{ color:var(--orange-dark); }
+    .bar.withOnes .cell.taken .cnum,.bar.withOnes .cell.taken .cname{ background:rgba(255,247,237,.92); }
+    .cell.rest{ opacity:.42; }
+    .cell.done{ background:#dcfce7; border-color:var(--green-dark); }
+    .cell.done .cnum{ color:var(--green-dark); }
+    .bar.withOnes .cell.done .cnum,.bar.withOnes .cell.done .cname{ background:rgba(240,253,244,.92); }
+
+    .anim-pop{ animation:popIn calc(420ms*var(--spd)) calc(var(--i,0)*80ms*var(--spd)) backwards cubic-bezier(.34,1.5,.5,1); }
+    .anim-take{ animation:takeIn calc(380ms*var(--spd)) calc(var(--i,0)*150ms*var(--spd)) backwards ease-out; }
+    .anim-rest{ animation:restIn calc(380ms*var(--spd)) calc(var(--i,0)*150ms*var(--spd)) backwards ease-out; }
+    .anim-drawIn{ animation:drawIn calc(380ms*var(--spd)) backwards ease-out; }
+    @keyframes popIn{ 0%{ transform:scale(.4); opacity:0;} 60%{ transform:scale(1.16);} 100%{ transform:scale(1); opacity:1;} }
+    @keyframes takeIn{ 0%{ background:#fff; border-color:var(--line); transform:translateY(0);} 55%{ transform:translateY(-6px);} 100%{ transform:none; } }
+    @keyframes restIn{ 0%{ opacity:1; } }
+    @keyframes drawIn{ 0%{ opacity:0; transform:scaleY(.2); } }
+
+    .braceBot{ position:relative; height:62px; }
+    .bb{ position:absolute; top:7px; height:14px; border:3px solid var(--orange-dark); border-top:none; border-radius:0 0 12px 12px; transform-origin:left center; }
+    .bb.grow{ animation:growX calc(520ms*var(--spd)) cubic-bezier(.3,.9,.35,1) backwards; }
+    @keyframes growX{ 0%{ transform:scaleX(0); } }
+    .bbLab{
+      position:absolute; top:26px; transform:translateX(-50%);
+      font-family:var(--mathFont); font-weight:700; font-size:1.5rem; line-height:1.05; color:var(--orange-dark); white-space:nowrap;
+    }
+    .bbLab .k-ans{ color:var(--green-dark); }
+    .bbLab.pop{ animation:popIn calc(420ms*var(--spd)) calc(200ms*var(--spd)) backwards cubic-bezier(.34,1.5,.5,1); }
+    .braceBot.is-ans .bb{ border-color:var(--green-dark); }
+    .braceBot.is-ans .bbLab{ color:var(--line); }
+
+    /* ---------- controls ---------- */
+    .ctrlCard{
+      background:var(--card); border:1px solid var(--border); border-radius:20px; box-shadow:var(--shadow);
+      padding:11px 16px; display:flex; flex-wrap:wrap; align-items:center; gap:11px;
+    }
+    .stepBtn{
+      appearance:none; border:1.5px solid var(--border); background:#fff; color:var(--line);
+      padding:12px 20px; border-radius:15px; font-weight:950; font-size:1rem; cursor:pointer; transition:.16s ease;
+    }
+    .stepBtn:hover:not(:disabled){ border-color:var(--blue); background:#eef2ff; color:var(--blue-dark); transform:translateY(-1px); }
+    .stepBtn:disabled{ opacity:.38; cursor:not-allowed; transform:none; }
+    .nextBtn{
+      appearance:none; border:none; background:linear-gradient(135deg,var(--blue),var(--purple)); color:#fff;
+      padding:13px 30px; border-radius:16px; font-weight:950; font-size:1.08rem; cursor:pointer;
+      box-shadow:0 10px 24px rgba(37,99,235,.30); transition:.18s ease; white-space:nowrap;
+    }
+    .nextBtn:hover:not(:disabled){ transform:translateY(-1px); box-shadow:0 14px 30px rgba(37,99,235,.38); }
+    .nextBtn:disabled{ opacity:.42; cursor:not-allowed; transform:none; box-shadow:none; }
+    .ghostBtn{
+      appearance:none; border:1.5px solid var(--border); background:#fff; color:var(--muted);
+      padding:9px 13px; border-radius:12px; font-weight:900; font-size:.85rem; cursor:pointer; transition:.15s ease;
+    }
+    .ghostBtn:hover:not(:disabled){ border-color:var(--line-soft); color:var(--line); }
+    .ghostBtn:disabled{ opacity:.4; cursor:not-allowed; }
+    .spacer{ flex:1 1 auto; }
+    .stepDots{ display:flex; align-items:center; gap:6px; }
+    .stepDot{ width:11px; height:11px; border-radius:50%; background:#e2e8f0; border:1.5px solid #cbd5e1; }
+    .stepDot.on{ background:var(--blue); border-color:var(--blue-dark); }
+    .stepDot.fin{ background:var(--green); border-color:var(--green-dark); }
+
+    /* ---------- side: the written record ---------- */
+    .recTitle{ font-size:.68rem; letter-spacing:.14em; text-transform:uppercase; font-weight:950; color:var(--muted); }
+    .recRows{ margin-top:10px; display:grid; gap:7px; }
+    .recRow{
+      display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:.28em;
+      font-family:var(--mathFont); font-size:1.24rem; font-weight:700; color:var(--line);
+      padding:7px 8px; border-radius:11px; background:#f8fafc; border:1px solid var(--border); line-height:1.25;
+    }
+    .recRow.pop{ animation:popIn calc(420ms*var(--spd)) cubic-bezier(.34,1.5,.5,1); }
+    .recRow.key{ border-color:rgba(124,58,237,.30); background:linear-gradient(140deg,#faf5ff,#fff 70%); }
+    .recRow .op{ font-weight:600; }
+    .recCap{ display:block; flex-basis:100%; text-align:center; font-family:var(--uiFont); font-size:.68rem; letter-spacing:.06em; text-transform:uppercase; font-weight:900; color:var(--purple-dark); margin-bottom:1px; }
+    .recEmpty{ margin-top:9px; font-size:.84rem; font-weight:750; color:var(--line-soft); line-height:1.45; }
+    .recSum{ margin-top:10px; padding-top:9px; border-top:2px solid var(--border); text-align:center; }
+    .recSum .eq{ display:inline-flex; align-items:center; gap:.25em; font-family:var(--mathFont); font-size:1.6rem; font-weight:700; color:var(--green-dark); }
+    .recSum.pop{ animation:popIn calc(420ms*var(--spd)) cubic-bezier(.34,1.5,.5,1); }
+    .extraBlock{ margin-top:10px; padding:9px 12px 8px; border-radius:14px; }
+    .extraBlock.check{ border:1px solid rgba(21,128,61,.28); background:linear-gradient(140deg,#f0fdf4,#fff 66%); }
+    .extraBlock.other{ border:1px solid rgba(37,99,235,.26); background:linear-gradient(140deg,#eff6ff,#fff 66%); }
+    .exHead{ font-size:.64rem; letter-spacing:.14em; text-transform:uppercase; font-weight:950; margin-bottom:5px; }
+    .check .exHead{ color:var(--green-dark); } .other .exHead{ color:var(--blue-dark); }
+    .exLine{ font-family:var(--mathFont); font-size:1.18rem; font-weight:700; color:var(--ink); text-align:center; line-height:1.5; }
+    .exNote{ margin:5px 0 0; font-size:.74rem; font-weight:800; color:var(--muted); text-align:center; line-height:1.4; }
+
+    /* ---------- fly layer ---------- */
+    #flyLayer{ position:fixed; inset:0; pointer-events:none; z-index:200; }
+    .flyTok{
+      position:absolute; left:0; top:0; will-change:transform,opacity;
+      font-family:var(--mathFont); font-weight:700; line-height:1; white-space:nowrap;
+    }
+    .flyTok.chip{ padding:8px 16px; border-radius:14px; color:#fff; background:var(--green-dark); box-shadow:0 12px 30px rgba(21,128,61,.34); font-size:2rem; }
+
+    body.noanim *{ animation:none !important; transition:none !important; }
+
+    /* ---------- responsive ---------- */
+    @media (max-width:1180px){
+      .mmtTopbar{ grid-template-columns:auto minmax(0,1fr) auto; padding:12px 16px; gap:12px; }
+      .mmtBrandText{ display:none; }
+      .btn{ padding:10px 13px; font-size:14px; }
+      .layout{ padding:16px 14px 24px; }
+      .genBtn .genLabel{ display:none; }
+      .genBtn{ padding:9px 11px; }
+      .nTogLab{ display:none; }
+    }
+    @media (max-width:960px){
+      .layout{ grid-template-columns:minmax(0,1fr); }
+      .side{ position:static; }
+    }
+    @media (max-width:900px){
+      .mmtTopbar{ grid-template-columns:1fr; justify-items:center; padding:12px 14px; }
+      .mmtBrand{ margin-left:0; } .topActions{ justify-self:center; justify-content:center; }
+      .dropMenu{ right:auto; left:50%; transform:translateX(-50%); }
+      .layout{ padding:14px 12px 24px; }
+      .mmtTopTitle{ white-space:normal; }
+    }
+    @media (max-width:700px){
+      .outcomeTag{ display:none; }
+      .barHead{ justify-content:flex-start; }
+      .barCard{ padding:12px 12px 8px; }
+      :root{ --gap:5px; }
+      .cell{ border-width:2px; border-radius:7px; }
+      .eqBar{ justify-content:center; }
+    }
+    @media (max-height:820px){
+      .eqCard{ padding:12px 16px 10px; }
+      .eqBar{ margin-top:6px; padding-top:6px; }
+      .barHead{ min-height:32px; }
+      .promptBar{ min-height:44px; padding:8px 14px; font-size:.96rem; }
+      .stage{ gap:11px; }
+      .layout{ padding:12px 20px 18px; }
+      .ctrlCard{ padding:9px 14px; }
+      .braceTop{ height:42px; }
+      .btLab{ font-size:1.55rem; }
+      .braceBot{ height:56px; }
+      .bbLab{ top:24px; font-size:1.35rem; }
+      .stepBtn{ padding:10px 18px; } .nextBtn{ padding:11px 26px; }
+    }
+    @media print{ .mmtTopbar,.ctrlCard,.promptBar,.eqBar{ display:none; } }
+  </style>
+<!-- mmt-pwa -->
+<link rel="manifest" href="../../../../manifest.webmanifest">
+<meta name="theme-color" content="#1f3a5f">
+<link rel="apple-touch-icon" href="../../../../icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="MMT">
+<script src="../../../../pwa.js" defer></script>
+<!-- /mmt-pwa -->
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
+</head>
+<body>
+  <div class="app">
+    <header class="mmtTopbar">
+      <a class="mmtBrand" href="https://www.millsmathstools.au" target="_self" aria-label="Back to Mills Maths Tools">
+        <span class="mmtBrandLogo" aria-hidden="true">MMT</span>
+        <span class="mmtBrandText"><strong>MMT</strong><span>Mills Maths Tools</span></span>
+      </a>
+      <div class="mmtTopTitle">Fraction of an Amount &mdash; Divide, Then Multiply</div>
+      <div class="topActions">
+        <div class="menuWrap">
+          <button class="btn" id="settingsBtn" type="button" aria-haspopup="true" aria-expanded="false">Settings &#9662;</button>
+          <nav class="dropMenu settingsMenu" id="settingsMenu" aria-label="Settings">
+            <div class="settingsHead">The question</div>
+            <label class="selRow"><span>Fractions</span>
+              <select id="setSel" aria-label="Which fractions">
+                <option value="s3" selected>Halves, quarters, fifths, tenths</option>
+                <option value="s3plus">+ thirds, sixths, eighths</option>
+                <option value="all">Any, 2nds to 12ths</option>
+              </select>
+            </label>
+            <label class="selRow"><span>Top number</span>
+              <select id="numSel" aria-label="Unit or non-unit fractions">
+                <option value="mixed" selected>Mixed</option>
+                <option value="unit">Unit fractions only (1 on top)</option>
+                <option value="nonunit">More than one part</option>
+              </select>
+            </label>
+            <label class="selRow"><span>Amounts</span>
+              <select id="sizeSel" aria-label="Amount size">
+                <option value="small" selected>One part up to 10</option>
+                <option value="large">Larger &mdash; one part up to 25</option>
+              </select>
+            </label>
+            <p class="settingsNote" id="setNote">Halves, quarters, fifths and tenths are the fractions the Stage 3 syllabus names for fractions of a quantity. Every amount shares into whole parts.</p>
+
+            <div class="settingsRule" role="separator"></div>
+            <div class="settingsHead">Divide, then multiply is written</div>
+            <label class="selRow"><span>As</span>
+              <select id="formSel" aria-label="How the division form is written">
+                <option value="times" selected>2 &times; (20 &divide; 5)</option>
+                <option value="div">20 &divide; 5 &times; 2</option>
+              </select>
+            </label>
+
+            <div class="settingsRule" role="separator"></div>
+            <div class="settingsHead">On screen</div>
+            <label class="sw"><input type="checkbox" id="onesToggle"><span class="track"></span><span>Show the ones</span></label>
+            <label class="sw"><input type="checkbox" id="namesToggle" checked><span class="track"></span><span>Name each part (<span class="mf"><span>1</span><span>5</span></span>)</span></label>
+            <label class="sw"><input type="checkbox" id="recordToggle" checked><span class="track"></span><span>Written record</span></label>
+            <label class="sw"><input type="checkbox" id="checkToggle"><span class="track"></span><span>Check: the parts make the whole</span></label>
+            <label class="sw"><input type="checkbox" id="otherToggle"><span class="track"></span><span>The other order: multiply first</span></label>
+
+            <div class="settingsRule" role="separator"></div>
+            <div class="settingsHead">Animation</div>
+            <label class="selRow"><span>Speed</span>
+              <select id="speedSel" aria-label="Animation speed">
+                <option value="1.5">Calm</option>
+                <option value="1" selected>Normal</option>
+                <option value="0.6">Quick</option>
+                <option value="0">Straight there</option>
+              </select>
+            </label>
+            <p class="settingsNote">Keys: &rarr; next, &larr; back, T switch the notation, O the ones, A new amount, N new question.</p>
+          </nav>
+        </div>
+        <div class="menuWrap">
+          <button class="btn" id="toolsBtn" type="button" aria-haspopup="true" aria-expanded="false">Tools &#9662;</button>
+          <nav class="dropMenu" id="toolsMenu" aria-label="Related tools">
+            <a class="toolLink" href="/interactive-tools/stage-4/number/fraction-of-amount/">Times Table Chart &mdash; Fractions of an Amount<small>Find the same fraction on the times-table grid</small></a>
+            <a class="toolLink" href="/online-quizzes/stage-4/number/fraction-of-amount.html">Calculating Fractions of Amounts<small>Student quiz</small></a>
+            <a class="toolLink" href="/interactive-tools/stage-3/number/division-grouping-bubbles/">Division by Grouping<small>Sharing an amount into equal groups</small></a>
+            <a class="toolLink" href="/interactive-tools/stage-3/number/halve-and-halve-again/">Halve and Halve Again<small>A half of a number is the number &divide; 2</small></a>
+            <span class="toolLink is-disabled" aria-disabled="true">Worksheet Creator<small>Not built yet</small></span>
+          </nav>
+        </div>
+        <button class="btn btn-primary" id="newBtn" type="button">New question</button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="stage">
+
+        <div class="eqCard" id="eqCard">
+          <div class="sentence" id="sentence" aria-live="polite"></div>
+          <div class="eqBar">
+            <div class="nTog" role="group" aria-label="Write the question as">
+              <span class="nTogLab">Write it as</span>
+              <div class="seg2">
+                <button id="nFrac" type="button" aria-pressed="true" title="Fraction notation (T)"></button>
+                <button id="nOps" type="button" aria-pressed="false" title="Divide, then multiply (T)"></button>
+              </div>
+            </div>
+            <div class="eqRight">
+              <button class="genBtn" id="amtBtn" type="button" title="Keep the fraction, change the amount (A)">
+                <span class="dice" aria-hidden="true">&#9860;</span><span class="genLabel">New amount</span>
+              </button>
+              <button class="genBtn" id="editBtn" type="button" aria-expanded="false" title="Type your own question">
+                <span class="dice" aria-hidden="true">&#9998;</span><span class="genLabel">Your own</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card editCard" id="editCard" hidden>
+          <div class="editQ">
+            <span class="editFr"><input id="inA" type="number" inputmode="numeric" aria-label="Top number"><span class="rule"></span><input id="inB" type="number" inputmode="numeric" aria-label="Bottom number"></span>
+            <span class="wOf">of</span>
+            <input id="inN" class="wide" type="number" inputmode="numeric" aria-label="The amount">
+          </div>
+          <button class="goBtn" id="goBtn" type="button">Use this</button>
+          <button class="ghostBtn" id="cancelBtn" type="button">Cancel</button>
+          <div class="editMsg" id="editMsg" role="alert"></div>
+        </div>
+
+        <div class="promptBar" id="promptBar">
+          <span class="pIco" id="promptIco" aria-hidden="true">&#128173;</span>
+          <span id="promptText"></span>
+        </div>
+
+        <div class="barCard">
+          <div class="barHead">
+            <span class="outcomeTag">MA3-RQF-02</span>
+            <span class="partsChip is-whole" id="partsChip">1 whole</span>
+            <button class="onesBtn" id="onesBtn" type="button" aria-pressed="false" title="Show the amount as ones (O)"><span class="onesIco" aria-hidden="true"></span><span>Ones</span></button>
+          </div>
+          <div class="braceTop off" id="braceTop"><div class="btLine"></div><div class="btLab" id="btLab"></div></div>
+          <div class="bar" id="bar"></div>
+          <div class="braceBot" id="braceBot"><div class="bb" id="bb" hidden></div><div class="bbLab" id="bbLab"></div></div>
+        </div>
+
+        <div class="ctrlCard">
+          <button class="stepBtn" id="backBtn" type="button">&#9664; Back</button>
+          <button class="nextBtn" id="nextBtn" type="button">Next &#9654;</button>
+          <div class="stepDots" id="stepDots" aria-hidden="true"></div>
+          <span class="spacer"></span>
+          <button class="ghostBtn" id="resetBtn" type="button" disabled>Start again</button>
+        </div>
+      </section>
+
+      <aside class="side">
+        <div class="card" id="recordCard">
+          <div class="recTitle">What we wrote</div>
+          <div class="recRows" id="recRows"></div>
+          <div class="recEmpty" id="recEmpty">The number sentences are written here as the bar is cut and shared.</div>
+          <div class="recSum" id="recSum" hidden></div>
+          <div class="extraBlock check" id="checkBlock" hidden>
+            <div class="exHead">Check it</div>
+            <div class="exLine" id="checkLine"></div>
+            <p class="exNote" id="checkNote"></p>
+          </div>
+          <div class="extraBlock other" id="otherBlock" hidden>
+            <div class="exHead">The other order</div>
+            <div class="exLine" id="otherLine"></div>
+            <p class="exNote" id="otherNote"></p>
+          </div>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <div id="flyLayer" aria-hidden="true"></div>
+<script>
+(function(){
+  "use strict";
+
+  const $ = id => document.getElementById(id);
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+  /* Stage 3 names halves, quarters, fifths and tenths for fractions of a
+     quantity (MA3-RQF-02), so that is the default set. */
+  const FRAC_SETS = {
+    s3:     [2,4,5,10],
+    s3plus: [2,3,4,5,6,8,10],
+    all:    [2,3,4,5,6,7,8,9,10,11,12]
+  };
+  const SET_NOTES = {
+    s3:     "Halves, quarters, fifths and tenths are the fractions the Stage 3 syllabus names for fractions of a quantity. Every amount shares into whole parts.",
+    s3plus: "Adds thirds, sixths and eighths. Every amount still shares into whole parts.",
+    all:    "Any denominator from 2 to 12 — the Stage 4 range."
+  };
+  /* The size of ONE part, not of the amount: the division a student does is
+     amount ÷ parts, so one part is kept inside the tables they know. */
+  const SIZES = { small:[2,10], large:[6,25] };
+  const MAX_AMOUNT = 300;
+  /* The ones are drawn as lines, and past about 120 they stop being lines a
+     class can count and become a grey wash. */
+  const ONES_MAX = 120;
+  const NAMES = {
+    2:["half","halves"], 3:["third","thirds"], 4:["quarter","quarters"], 5:["fifth","fifths"],
+    6:["sixth","sixths"], 7:["seventh","sevenths"], 8:["eighth","eighths"], 9:["ninth","ninths"],
+    10:["tenth","tenths"], 11:["eleventh","elevenths"], 12:["twelfth","twelfths"]
+  };
+  const STORE = "mmt.fracOfAmount.v1";
+
+  const S = {
+    a:2, b:5, n:20,
+    /* EVERYTHING on screen is derived from this one number, so Back is
+       step-- and a repaint, and no two displays can disagree. */
+    step:0,
+    notation:"frac",          /* frac | ops */
+    form:"times",             /* times: 2 × (20 ÷ 5)   div: 20 ÷ 5 × 2 */
+    fracSet:"s3", numMode:"mixed", size:"small",
+    ones:false, names:true, record:true, check:false, other:false,
+    speed:1, busy:false, token:0, holdAns:false
+  };
+
+  /* ---------------------------------------------------------------- store */
+  function load(){
+    try{
+      const o = JSON.parse(localStorage.getItem(STORE) || "{}");
+      ["notation","form","fracSet","numMode","size"].forEach(k => { if(typeof o[k] === "string") S[k] = o[k]; });
+      ["ones","names","record","check","other"].forEach(k => { if(typeof o[k] === "boolean") S[k] = o[k]; });
+      if(typeof o.speed === "number") S.speed = o.speed;
+      if(!FRAC_SETS[S.fracSet]) S.fracSet = "s3";
+      if(!SIZES[S.size]) S.size = "small";
+      if(S.notation !== "ops") S.notation = "frac";
+      if(S.form !== "div") S.form = "times";
+    }catch(e){}
+  }
+  function save(){
+    try{
+      const o = {};
+      ["notation","form","fracSet","numMode","size","ones","names","record","check","other","speed"].forEach(k => o[k] = S[k]);
+      localStorage.setItem(STORE, JSON.stringify(o));
+    }catch(e){}
+  }
+
+  /* ------------------------------------------------------------ the maths */
+  const v   = () => S.n / S.b;           /* one part */
+  const ans = () => S.a * v();
+  const gcd = (x,y) => y ? gcd(y, x % y) : x;
+  function randInt(lo,hi){ return lo + Math.floor(Math.random()*(hi-lo+1)); }
+  function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+  function pickA(b){
+    const nonUnit = [];
+    for(let a = 2; a < b; a++) if(gcd(a,b) === 1) nonUnit.push(a);
+    if(S.numMode === "unit" || !nonUnit.length) return 1;
+    if(S.numMode === "nonunit") return pick(nonUnit);
+    return Math.random() < 0.35 ? 1 : pick(nonUnit);
+  }
+
+  function generate(keepFraction){
+    const set = FRAC_SETS[S.fracSet];
+    let q = null;
+    for(let t = 0; t < 80; t++){
+      let a = S.a, b = S.b;
+      if(!keepFraction || !set.includes(b)){ b = pick(set); a = pickA(b); }
+      const [lo,hi] = SIZES[S.size];
+      const one = randInt(lo,hi);
+      const n = b * one;
+      if(n > MAX_AMOUNT) continue;
+      const cand = {a,b,n};
+      if(t < 60 && a === S.a && b === S.b && n === S.n) continue;
+      q = cand; break;
+    }
+    if(q){ S.a = q.a; S.b = q.b; S.n = q.n; }
+  }
+
+  /* The fraction has a separate "take" beat only when there is more than one
+     part to take. A unit fraction IS the division, so its story ends on the
+     share itself. */
+  function STEPS(){ return S.a === 1 ? ["whole","cut","one","answer"] : ["whole","cut","one","take","answer"]; }
+  const stepName = () => STEPS()[S.step];
+  const idxOf = name => STEPS().indexOf(name);
+  const takeIdx = () => S.a === 1 ? idxOf("answer") : idxOf("take");
+  const atLeast = name => S.step >= idxOf(name);
+
+  /* ---------------------------------------------------------- html bits */
+  const mf = (top, bot, cls) => `<span class="mf${cls ? " "+cls : ""}"><span>${top}</span><span>${bot}</span></span>`;
+  const sp = (k, t) => `<span class="${k}">${t}</span>`;
+  const T = "×", D = "÷";
+  const nm = (k, plural) => NAMES[k] ? NAMES[k][plural ? 1 : 0] : (k + "ths");
+
+  /* The divide-then-multiply form as a plain inline string for the record and
+     the toggle. A unit fraction is just the division. */
+  function opsInline(a,b,n){
+    if(a === 1) return `${sp("k-n",n)} <span class="op">${D}</span> ${sp("k-b",b)}`;
+    if(S.form === "div") return `${sp("k-n",n)} <span class="op">${D}</span> ${sp("k-b",b)} <span class="op">${T}</span> ${sp("k-a",a)}`;
+    return `${sp("k-a",a)} <span class="op">${T}</span> <span class="paren">(</span>${sp("k-n",n)} <span class="op">${D}</span> ${sp("k-b",b)}<span class="paren">)</span>`;
+  }
+  const fracInline = (a,b,n) => `${mf(sp("k-a",a), sp("k-b",b))} <span class="wOf">of</span> ${sp("k-n",n)}`;
+
+  /* ------------------------------------------------------------ sentence */
+  /* Every number is a token with a stable key (a, b, n, ans, eq), so switching
+     notation can FLY each number from where it was to where it now belongs —
+     the 5 travels from under the fraction line to the ÷ 5. */
+  function tok(k, text, cls){ return `<span class="tok k-${k}${cls ? " "+cls : ""}" data-k="${k}">${text}</span>`; }
+
+  function sentenceHTML(){
+    const name = stepName();
+    const hot = {
+      a: name === "take",
+      b: name === "cut" || name === "one",
+      n: name === "one" && S.notation === "frac"
+    };
+    const known = name === "answer" && !S.holdAns;
+    const ansTok = tok("ans", known ? ans() : "?", known ? "is-known" : "");
+    const eqTok = `<span class="tok op" data-k="eq">=</span>`;
+    const H = k => hot[k] ? "hot" : "";
+
+    if(S.notation === "frac"){
+      return `<span class="fr">${tok("a",S.a,H("a"))}<span class="rule"></span>${tok("b",S.b,H("b"))}</span>`
+           + `<span class="wOf">of</span>${tok("n",S.n,H("n"))}${eqTok}${ansTok}`;
+    }
+    /* ops: the bracket (or the first division) is the part worked out first,
+       so from "one" onwards it carries what it is worth underneath. */
+    const showUnder = atLeast("one");
+    const grpHot = name === "one" ? " hot" : "";
+    const under = showUnder ? `<span class="under${S._underPop ? " pop" : ""}">${v()}</span>` : "";
+    const div = `${tok("n",S.n)}<span class="op">${D}</span>${tok("b",S.b,H("b") && name === "cut" ? "hot" : "")}`;
+    if(S.a === 1){
+      return `<span class="grp${grpHot}">${div}${under}</span>${eqTok}${ansTok}`;
+    }
+    if(S.form === "div"){
+      return `<span class="grp${grpHot}">${div}${under}</span><span class="op">${T}</span>${tok("a",S.a,H("a"))}${eqTok}${ansTok}`;
+    }
+    return `${tok("a",S.a,H("a"))}<span class="op">${T}</span><span class="grp${grpHot}"><span class="paren">(</span>${div}<span class="paren">)</span>${under}</span>${eqTok}${ansTok}`;
+  }
+
+  function paintSentence(){
+    const el = $("sentence");
+    el.innerHTML = sentenceHTML();
+    el.classList.toggle("hasUnder", S.notation === "ops" && atLeast("one"));
+    S._underPop = false;
+  }
+
+  function tokRects(){
+    const m = {};
+    $("sentence").querySelectorAll("[data-k]").forEach(el => { m[el.dataset.k] = { r:el.getBoundingClientRect(), el }; });
+    return m;
+  }
+
+  function flipSentence(old){
+    if(S.speed === 0) return;
+    const dur = 700 * S.speed;
+    const now = tokRects();
+    Object.keys(now).forEach(k => {
+      const el = now[k].el, r = now[k].r;
+      if(old[k]){
+        const o = old[k].r;
+        const s = r.height ? o.height / r.height : 1;
+        el.animate([
+          { transform:`translate(${o.left - r.left}px,${o.top - r.top}px) scale(${s})` },
+          { transform:"none" }
+        ], { duration:dur, easing:"cubic-bezier(.3,.9,.3,1)" });
+      } else {
+        el.animate([{opacity:0},{opacity:0,offset:.5},{opacity:1}], { duration:dur });
+      }
+    });
+    /* everything that is not a number — "of", the fraction line, ×, ÷, the
+       brackets — fades in behind the numbers as they land */
+    $("sentence").querySelectorAll(".wOf,.rule,.op:not([data-k]),.paren,.under").forEach(el => {
+      el.animate([{opacity:0},{opacity:0,offset:.55},{opacity:1}], { duration:dur });
+    });
+    /* a number that has nowhere to go (the 1 of a unit fraction, which the
+       division does not write) fades out where it stood */
+    Object.keys(old).forEach(k => {
+      if(now[k]) return;
+      const src = old[k].el, r = old[k].r, cs = getComputedStyle(src);
+      const g = document.createElement("span");
+      g.className = "flyTok";
+      g.textContent = src.textContent;
+      Object.assign(g.style, { fontSize:cs.fontSize, color:cs.color, transform:`translate(${r.left}px,${r.top}px)` });
+      $("flyLayer").appendChild(g);
+      g.animate([{opacity:1},{opacity:0}], { duration:dur*0.5, fill:"forwards" }).onfinish = () => g.remove();
+    });
+  }
+
+  function setNotation(nt){
+    if(nt === S.notation) return;
+    const old = tokRects();
+    S.notation = nt;
+    paintSentence();
+    paintToggle();
+    flipSentence(old);
+    save();
+  }
+
+  function paintToggle(){
+    $("nFrac").innerHTML = fracInline(S.a,S.b,S.n);
+    $("nOps").innerHTML = opsInline(S.a,S.b,S.n);
+    $("nFrac").setAttribute("aria-pressed", String(S.notation === "frac"));
+    $("nOps").setAttribute("aria-pressed", String(S.notation === "ops"));
+    $("nFrac").setAttribute("aria-label", `${S.a} over ${S.b} of ${S.n}`);
+    $("nOps").setAttribute("aria-label", S.a === 1 ? `${S.n} divided by ${S.b}` : `${S.a} times ${S.n} divided by ${S.b}`);
+  }
+
+  /* ---------------------------------------------------------------- bar */
+  function onesOn(){ return S.ones && S.n <= ONES_MAX; }
+
+  function paintBar(anim){
+    const bar = $("bar");
+    const idx = S.step, name = stepName();
+    const cells = idx >= 1 ? S.b : 1;
+    const per = cells === 1 ? S.n : v();
+    const taking = idx >= takeIdx();
+    const isAns = name === "answer";
+    bar.classList.toggle("withOnes", onesOn());
+    let html = "";
+    for(let i = 0; i < cells; i++){
+      let cls = "cell";
+      let extra = "";
+      if(taking){
+        if(i < S.a){
+          cls += isAns ? " taken done" : " taken";
+          if(anim === "take" || (anim === "answer" && S.a === 1)){ cls += " anim-take"; extra = `--i:${i}`; }
+        } else {
+          cls += " rest";
+          if(anim === "take" || (anim === "answer" && S.a === 1)){ cls += " anim-rest"; extra = `--i:${S.a}`; }
+        }
+      }
+      let lines = "";
+      if(onesOn()){
+        for(let j = 1; j < per; j++) lines += `<span class="ol" style="left:${(j/per*100).toFixed(4)}%"></span>`;
+      }
+      let num, ncls = "cnum";
+      if(idx === 0){ num = S.n; }
+      else if(idx === 1){ num = "?"; ncls += " q"; }
+      else { num = v(); ncls += " v"; }
+      if((anim === "cut" && idx === 1) || (anim === "one" && idx === 2)) ncls += " anim-pop";
+      const pop = ((anim === "cut" || anim === "one") && idx >= 1) ? `--i:${i}` : "";
+      const label = (idx >= 1 && S.names) ? `<span class="cname${anim === "cut" ? " anim-pop" : ""}" style="--i:${i}">${mf(1,S.b)}</span>` : "";
+      html += `<div class="${cls}" style="${extra}">${lines}<span class="${ncls}" style="${pop}">${num}</span>${label}</div>`;
+    }
+    bar.innerHTML = html;
+
+    /* the whole stays named above the bar from the moment it is cut */
+    $("braceTop").classList.toggle("off", idx < 1);
+    $("btLab").textContent = S.n;
+
+    /* the parts taken are bracketed underneath */
+    const bb = $("bb"), lab = $("bbLab"), bot = $("braceBot");
+    bb.hidden = !taking;
+    bb.classList.remove("grow");
+    lab.classList.remove("pop");
+    bot.classList.toggle("is-ans", isAns);
+    if(taking){
+      if(isAns){
+        if(S.a === 1) lab.innerHTML = `1 part <span class="op">=</span> <span class="k-ans" id="bbAns">${ans()}</span>`;
+        else if(S.form === "div") lab.innerHTML = `${sp("k-v",v())} <span class="op">${T}</span> ${sp("k-a",S.a)} <span class="op">=</span> <span class="k-ans" id="bbAns">${ans()}</span>`;
+        else lab.innerHTML = `${sp("k-a",S.a)} <span class="op">${T}</span> ${sp("k-v",v())} <span class="op">=</span> <span class="k-ans" id="bbAns">${ans()}</span>`;
+      } else {
+        lab.innerHTML = `${S.a} parts`;
+      }
+      if(anim === "take" || (anim === "answer" && S.a === 1)) bb.classList.add("grow");
+      if(anim === "take" || anim === "answer") lab.classList.add("pop");
+    } else {
+      lab.innerHTML = "";
+    }
+    fitCells();
+    layoutBrackets();
+  }
+
+  function fitCells(){
+    const bar = $("bar");
+    const h = bar.clientHeight;
+    const cells = bar.querySelectorAll(".cell");
+    const many = cells.length > 1;
+    cells.forEach(c => {
+      const w = c.clientWidth;
+      const num = c.querySelector(".cnum");
+      const digits = Math.max(1, String(num.textContent).length);
+      const byH = h * (many ? (S.names ? 0.36 : 0.46) : 0.56);
+      const byW = (w - 12) / (digits * 0.6);
+      const fs = Math.max(13, Math.min(byH, byW));
+      num.style.fontSize = fs + "px";
+      const lab = c.querySelector(".cname");
+      if(lab) lab.style.fontSize = Math.max(11, Math.min(fs * 0.62, h * 0.17, (w - 8) / 1.6)) + "px";
+    });
+  }
+
+  function layoutBrackets(){
+    const bb = $("bb"), lab = $("bbLab");
+    if(bb.hidden) return;
+    const cells = $("bar").querySelectorAll(".cell");
+    if(!cells.length) return;
+    const k = Math.min(S.a, cells.length) - 1;
+    const left = cells[0].offsetLeft;
+    const right = cells[k].offsetLeft + cells[k].offsetWidth;
+    bb.style.left = left + "px";
+    bb.style.width = (right - left) + "px";
+    const W = $("bar").clientWidth;
+    const lw = lab.offsetWidth;
+    let c = (left + right) / 2;
+    c = Math.max(lw / 2, Math.min(W - lw / 2, c));
+    lab.style.left = c + "px";
+  }
+
+  /* -------------------------------------------------------------- chip */
+  function paintChip(){
+    const chip = $("partsChip");
+    const idx = S.step;
+    chip.classList.remove("is-whole","is-taken");
+    if(idx === 0){ chip.textContent = "1 whole"; chip.classList.add("is-whole"); }
+    else if(idx >= takeIdx()){
+      chip.textContent = `${S.a} ${nm(S.b, S.a !== 1)}`;
+      chip.classList.add("is-taken");
+    } else {
+      chip.textContent = S.names ? `${S.b} equal parts — ${nm(S.b,true)}` : `${S.b} equal parts`;
+    }
+    const ob = $("onesBtn");
+    ob.setAttribute("aria-pressed", String(S.ones));
+    ob.disabled = S.n > ONES_MAX;
+    ob.title = S.n > ONES_MAX ? `Ones are drawn for amounts up to ${ONES_MAX}` : "Show the amount as ones (O)";
+  }
+
+  /* ------------------------------------------------------------ prompt */
+  function paintPrompt(){
+    const a = S.a, b = S.b, n = S.n, name = stepName();
+    const N = sp("k-n",`<b>${n}</b>`), B = sp("k-b",`<b>${b}</b>`), A = sp("k-a",`<b>${a}</b>`);
+    const V = sp("k-v",`<b>${v()}</b>`), ANS = sp("k-ans",`<b>${ans()}</b>`);
+    const F1 = `<b>${mf(1,sp("k-b",b))}</b>`, FA = `<b>${mf(sp("k-a",a),sp("k-b",b))}</b>`;
+    let ico = "💭", t = "";
+    if(name === "whole")      t = `This bar is the whole: ${N}. Next: cut it into ${B} equal parts.`;
+    else if(name === "cut")   t = `${B} equal parts — ${nm(b,true)}. How much is in each part?`;
+    else if(name === "one")   t = `Each part is ${N} ${D} ${B} = ${V}. So ${F1} of ${N} is ${V}.`;
+    else if(name === "take")  t = `${FA} means ${A} of those ${nm(b,true)}.`;
+    else {
+      ico = "✅";
+      t = a === 1 ? `${F1} of ${N} is one part: ${N} ${D} ${B} = ${ANS}.`
+                  : `${A} parts of ${V} make ${ANS}. ${FA} of ${N} = ${ANS}.`;
+    }
+    $("promptIco").textContent = ico;
+    $("promptText").innerHTML = t;
+    $("promptBar").classList.toggle("is-done", name === "answer");
+  }
+
+  /* ------------------------------------------------------------ record */
+  /* The record writes the link down as it happens: the unit fraction IS the
+     division (row 1), the fraction is that division done a times (row 2), and
+     row 3 works it out in that order. */
+  function paintRecord(anim){
+    $("recordCard").hidden = !S.record;
+    if(!S.record) return;
+    const a = S.a, b = S.b, n = S.n, rows = [];
+    const ON = (k) => `<span class="op">${k}</span>`;
+    if(atLeast("one")){
+      rows.push({ at:idxOf("one"), key:true, cap:"One part",
+        html:`${fracInline(1,b,n)} ${ON("=")} ${sp("k-n",n)} ${ON(D)} ${sp("k-b",b)} ${ON("=")} ${sp("k-v",v())}` });
+    }
+    if(a > 1 && atLeast("take")){
+      rows.push({ at:idxOf("take"), key:true, cap:`${a} parts`,
+        html:`${fracInline(a,b,n)} ${ON("=")} ${opsInline(a,b,n)}` });
+    }
+    if(a > 1 && atLeast("answer")){
+      const mul = S.form === "div" ? `${sp("k-v",v())} ${ON(T)} ${sp("k-a",a)}` : `${sp("k-a",a)} ${ON(T)} ${sp("k-v",v())}`;
+      rows.push({ at:idxOf("answer"), html:`${ON("=")} ${mul} ${ON("=")} ${sp("k-ans",ans())}` });
+    }
+    $("recRows").innerHTML = rows.map(r =>
+      `<div class="recRow${r.key ? " key" : ""}${anim && r.at === S.step ? " pop" : ""}">${r.cap ? `<span class="recCap">${r.cap}</span>` : ""}${r.html}</div>`
+    ).join("");
+    $("recEmpty").hidden = rows.length > 0;
+
+    const done = stepName() === "answer";
+    const sum = $("recSum");
+    sum.hidden = !done;
+    sum.classList.toggle("pop", !!anim && done);
+    if(done) sum.innerHTML = `<span class="eq">${mf(a,b)} <span class="wOf">of</span> ${n} = ${ans()}</span>`;
+
+    const cb = $("checkBlock");
+    cb.hidden = !(done && S.check);
+    if(!cb.hidden){
+      $("checkLine").innerHTML = `${sp("k-b",b)} ${ON(T)} ${sp("k-v",v())} ${ON("=")} ${sp("k-n",n)}`;
+      $("checkNote").textContent = `All ${b} ${nm(b,true)} put back together make the whole again.`;
+    }
+    const ob = $("otherBlock");
+    ob.hidden = !(done && S.other && a > 1);
+    if(!ob.hidden){
+      $("otherLine").innerHTML = `${sp("k-a",a)} ${ON(T)} ${sp("k-n",n)} ${ON(D)} ${sp("k-b",b)}<br>${ON("=")} ${a*n} ${ON(D)} ${sp("k-b",b)} ${ON("=")} ${sp("k-ans",ans())}`;
+      $("otherNote").textContent = `Take ${a} lots of ${n}, then share into ${b}. Same answer — dividing first just keeps the numbers small.`;
+    }
+  }
+
+  /* ------------------------------------------------------- dots/buttons */
+  function paintDots(){
+    const n = STEPS().length;
+    let h = "";
+    for(let i = 0; i < n; i++){
+      const cls = i < S.step ? "on" : (i === S.step ? (i === n-1 ? "fin" : "on") : "");
+      h += `<span class="stepDot ${cls}"></span>`;
+    }
+    $("stepDots").innerHTML = h;
+  }
+  function paintButtons(){
+    const last = S.step >= STEPS().length - 1;
+    $("nextBtn").disabled = last || S.busy;
+    $("backBtn").disabled = S.step === 0;
+    $("resetBtn").disabled = S.step === 0;
+  }
+
+  function paintAll(anim){
+    document.body.classList.toggle("noanim", S.speed === 0);
+    document.documentElement.style.setProperty("--spd", String(S.speed || 1));
+    paintSentence();
+    paintToggle();
+    paintChip();
+    paintBar(anim);
+    paintPrompt();
+    paintRecord(anim);
+    paintDots();
+    paintButtons();
+  }
+
+  /* ---------------------------------------------------------- fly helper */
+  function fly(text, fromRect, toRect, opts){
+    opts = opts || {};
+    return new Promise(res => {
+      const t = document.createElement("span");
+      t.className = "flyTok" + (opts.chip ? " chip" : "");
+      t.textContent = text;
+      if(opts.fontSize) t.style.fontSize = opts.fontSize;
+      if(opts.color) t.style.color = opts.color;
+      $("flyLayer").appendChild(t);
+      const w = t.offsetWidth, h = t.offsetHeight;
+      const x0 = fromRect.left + fromRect.width/2 - w/2, y0 = fromRect.top + fromRect.height/2 - h/2;
+      const x1 = toRect.left + toRect.width/2 - w/2,   y1 = toRect.top + toRect.height/2 - h/2;
+      const s1 = opts.endScale || 1;
+      const anim = t.animate([
+        { transform:`translate(${x0}px,${y0}px) scale(1)` },
+        { transform:`translate(${x0 + (x1-x0)*0.5}px,${Math.min(y0,y1) - 40}px) scale(${(1+s1)/2*1.08})`, offset:.5 },
+        { transform:`translate(${x1}px,${y1}px) scale(${s1})` }
+      ], { duration:opts.dur || 650, easing:"cubic-bezier(.45,.05,.3,1)", fill:"forwards" });
+      anim.onfinish = () => { t.remove(); res(); };
+      anim.oncancel = () => { t.remove(); res(); };
+    });
+  }
+
+  /* ---------------------------------------------------------- the story */
+  const alive = tk => tk === S.token;
+  const ms = x => x * S.speed;
+
+  async function animCut(tk){
+    /* the whole swells, then breaks into the parts; the amount itself lifts
+       out to name the whole above the bar */
+    const num = $("bar").querySelector(".cnum");
+    const from = num.getBoundingClientRect();
+    const fs = getComputedStyle(num).fontSize;
+    num.classList.add("swell");
+    await sleep(ms(320));
+    if(!alive(tk)) return;
+    paintAll("cut");
+    const bar = $("bar");
+    bar.classList.add("closed");
+    $("btLab").classList.add("wait");
+    void bar.offsetWidth;
+    requestAnimationFrame(() => { bar.classList.remove("closed"); });
+    const to = $("btLab").getBoundingClientRect();
+    const lf = getComputedStyle($("btLab")).fontSize;
+    const f = fly(String(S.n), from, to, { fontSize:fs, color:"var(--blue-dark)", dur:ms(700),
+      endScale: parseFloat(lf) / parseFloat(fs) });
+    /* the bar's gap animates, so the bracket and text sizes settle after it */
+    setTimeout(() => { if(alive(tk)){ fitCells(); layoutBrackets(); } }, ms(560));
+    await f;
+    if(!alive(tk)) return;
+    $("btLab").classList.remove("wait");
+    fitCells();
+  }
+
+  async function animAnswer(tk){
+    S.holdAns = true;
+    paintAll("answer");
+    await sleep(ms(S.a === 1 ? 700 : 520));
+    if(!alive(tk)) return;
+    const src = $("bbAns");
+    const dst = $("sentence").querySelector('[data-k="ans"]');
+    if(src && dst){
+      await fly(String(ans()), src.getBoundingClientRect(), dst.getBoundingClientRect(), { chip:true, dur:ms(750) });
+    }
+    if(!alive(tk)) return;
+    S.holdAns = false;
+    paintSentence();
+    const a = $("sentence").querySelector('[data-k="ans"]');
+    if(a) a.classList.add("pop");
+  }
+
+  async function next(){
+    if(S.busy) return;
+    const st = STEPS();
+    if(S.step >= st.length - 1) return;
+    closeEdit();
+    S.step++;
+    const to = st[S.step];
+    const tk = ++S.token;
+    if(S.speed === 0){ S.holdAns = false; paintAll(); return; }
+    setBusy(true);
+    if(to === "cut"){ await animCut(tk); }
+    else if(to === "answer"){ await animAnswer(tk); }
+    else {
+      if(to === "one") S._underPop = true;
+      paintAll(to);
+      await sleep(ms(to === "one" ? 80*S.b + 420 : 150*S.a + 520));
+    }
+    if(alive(tk)) setBusy(false);
+  }
+
+  function back(){
+    if(S.step === 0) return;
+    S.token++;
+    $("flyLayer").innerHTML = "";
+    S.step--;
+    S.holdAns = false;
+    setBusy(false);
+    paintAll();
+  }
+
+  function restart(){
+    S.token++;
+    $("flyLayer").innerHTML = "";
+    S.step = 0; S.holdAns = false;
+    setBusy(false);
+    paintAll();
+  }
+
+  function newQuestion(keepFraction){
+    S.token++;
+    $("flyLayer").innerHTML = "";
+    generate(keepFraction);
+    S.step = 0; S.holdAns = false;
+    setBusy(false);
+    closeEdit();
+    paintAll();
+  }
+
+  function setBusy(on){ S.busy = on; paintButtons(); }
+
+  /* ------------------------------------------------------ type your own */
+  function openEdit(){
+    $("editCard").hidden = false;
+    $("editBtn").setAttribute("aria-expanded","true");
+    $("inA").value = S.a; $("inB").value = S.b; $("inN").value = S.n;
+    $("editMsg").textContent = "";
+    ["inA","inB","inN"].forEach(id => $(id).classList.remove("is-bad"));
+    $("inA").focus(); $("inA").select();
+  }
+  function closeEdit(){
+    $("editCard").hidden = true;
+    $("editBtn").setAttribute("aria-expanded","false");
+  }
+  function bad(id, msg){
+    const el = $(id);
+    el.classList.remove("is-bad"); void el.offsetWidth; el.classList.add("is-bad");
+    $("editMsg").textContent = msg;
+    el.focus();
+  }
+  function takeCustom(){
+    ["inA","inB","inN"].forEach(id => $(id).classList.remove("is-bad"));
+    const raw = id => $(id).value.trim();
+    const isInt = s => /^\d+$/.test(s);
+    const sa = raw("inA"), sb = raw("inB"), sn = raw("inN");
+    if(!isInt(sb) || +sb < 2 || +sb > 12) return bad("inB","The bottom number has to be a whole number from 2 to 12.");
+    const b = +sb;
+    if(!isInt(sa) || +sa < 1) return bad("inA","The top number has to be a whole number, 1 or more.");
+    const a = +sa;
+    if(a > b) return bad("inA",`This tool takes parts of ONE bar, so the top number can be at most ${b}.`);
+    if(!isInt(sn) || +sn < 1) return bad("inN","The amount has to be a whole number.");
+    const n = +sn;
+    if(n > MAX_AMOUNT) return bad("inN",`Keep the amount to ${MAX_AMOUNT} or less so the parts stay readable.`);
+    if(n % b !== 0){
+      const lo = Math.floor(n / b) * b, hi = lo + b;
+      const tryList = [lo, hi].filter(x => x > 0 && x <= MAX_AMOUNT).join(" or ");
+      return bad("inN",`${n} won’t cut into ${b} equal whole-number parts. Try ${tryList}.`);
+    }
+    S.token++;
+    $("flyLayer").innerHTML = "";
+    S.a = a; S.b = b; S.n = n;
+    S.step = 0; S.holdAns = false;
+    setBusy(false);
+    closeEdit();
+    paintAll();
+    $("nextBtn").focus();
+  }
+
+  /* -------------------------------------------------------------- menus */
+  function closeMenus(){
+    ["settingsMenu","toolsMenu"].forEach(id => {
+      $(id).classList.remove("open");
+      $(id === "settingsMenu" ? "settingsBtn" : "toolsBtn").setAttribute("aria-expanded","false");
+    });
+  }
+  function toggleMenu(btnId, menuId){
+    $(btnId).addEventListener("click", e => {
+      e.stopPropagation();
+      const m = $(menuId), wasOpen = m.classList.contains("open");
+      closeMenus();
+      if(!wasOpen){ m.classList.add("open"); $(btnId).setAttribute("aria-expanded","true"); }
+    });
+  }
+  toggleMenu("settingsBtn","settingsMenu");
+  toggleMenu("toolsBtn","toolsMenu");
+  document.addEventListener("click", closeMenus);
+  $("settingsMenu").addEventListener("click", e => e.stopPropagation());
+  $("toolsMenu").addEventListener("click", e => e.stopPropagation());
+
+  /* -------------------------------------------------------------- wires */
+  $("nextBtn").addEventListener("click", next);
+  $("backBtn").addEventListener("click", back);
+  $("resetBtn").addEventListener("click", restart);
+  $("newBtn").addEventListener("click", () => newQuestion(false));
+  $("amtBtn").addEventListener("click", () => newQuestion(true));
+  $("editBtn").addEventListener("click", () => { $("editCard").hidden ? openEdit() : closeEdit(); });
+  $("goBtn").addEventListener("click", takeCustom);
+  $("cancelBtn").addEventListener("click", closeEdit);
+  ["inA","inB","inN"].forEach(id => $(id).addEventListener("keydown", e => {
+    if(e.key === "Enter"){ e.preventDefault(); takeCustom(); }
+    else if(e.key === "Escape"){ e.preventDefault(); closeEdit(); }
+  }));
+  $("nFrac").addEventListener("click", () => setNotation("frac"));
+  $("nOps").addEventListener("click", () => setNotation("ops"));
+  function toggleOnes(){
+    if(S.n > ONES_MAX) return;
+    S.ones = !S.ones; $("onesToggle").checked = S.ones; save();
+    paintChip(); paintBar();
+  }
+  $("onesBtn").addEventListener("click", toggleOnes);
+
+  document.addEventListener("keydown", e => {
+    if(e.key === "Escape"){ closeMenus(); return; }
+    const tag = (e.target && e.target.tagName) || "";
+    if(tag === "INPUT" || tag === "SELECT") return;
+    if(e.ctrlKey || e.metaKey || e.altKey) return;
+    if(e.key === "ArrowRight" || e.key === " "){ e.preventDefault(); next(); }
+    else if(e.key === "Enter" && tag !== "BUTTON"){ e.preventDefault(); next(); }
+    else if(e.key === "ArrowLeft"){ e.preventDefault(); back(); }
+    else if(e.key === "n" || e.key === "N"){ e.preventDefault(); newQuestion(false); }
+    else if(e.key === "a" || e.key === "A"){ e.preventDefault(); newQuestion(true); }
+    else if(e.key === "t" || e.key === "T"){ e.preventDefault(); setNotation(S.notation === "frac" ? "ops" : "frac"); }
+    else if(e.key === "o" || e.key === "O"){ e.preventDefault(); toggleOnes(); }
+  });
+
+  $("setSel").addEventListener("change", e => { S.fracSet = e.target.value; $("setNote").textContent = SET_NOTES[S.fracSet]; save(); newQuestion(false); });
+  $("numSel").addEventListener("change", e => { S.numMode = e.target.value; save(); newQuestion(false); });
+  $("sizeSel").addEventListener("change", e => { S.size = e.target.value; save(); newQuestion(false); });
+  $("formSel").addEventListener("change", e => { S.form = e.target.value; save(); paintAll(); });
+  $("speedSel").addEventListener("change", e => { S.speed = parseFloat(e.target.value); save(); paintAll(); });
+  function bindToggle(id, key){
+    $(id).addEventListener("change", e => { S[key] = e.target.checked; save(); paintAll(); });
+  }
+  bindToggle("onesToggle","ones");
+  bindToggle("namesToggle","names");
+  bindToggle("recordToggle","record");
+  bindToggle("checkToggle","check");
+  bindToggle("otherToggle","other");
+
+  let rz = 0;
+  window.addEventListener("resize", () => {
+    cancelAnimationFrame(rz);
+    rz = requestAnimationFrame(() => { fitCells(); layoutBrackets(); });
+  });
+
+  /* --------------------------------------------------------------- boot */
+  load();
+  $("setSel").value = S.fracSet; $("setNote").textContent = SET_NOTES[S.fracSet];
+  $("numSel").value = S.numMode; $("sizeSel").value = S.size; $("formSel").value = S.form;
+  $("speedSel").value = String(S.speed);
+  $("onesToggle").checked = S.ones; $("namesToggle").checked = S.names; $("recordToggle").checked = S.record;
+  $("checkToggle").checked = S.check; $("otherToggle").checked = S.other;
+  /* the first question a teacher sees is the one in the brief: 2/5 of 20 */
+  S.a = 2; S.b = 5; S.n = 20;
+  paintAll();
+  if(document.fonts && document.fonts.ready) document.fonts.ready.then(() => { fitCells(); layoutBrackets(); });
+
+  /* test surface */
+  window.__FOA__ = {
+    S, STEPS, next, back, restart, newQuestion, setNotation, generate,
+    set(a,b,n){ S.token++; S.a=a; S.b=b; S.n=n; S.step=0; S.holdAns=false; setBusy(false); paintAll(); },
+    one:v, ans
+  };
+})();
+</script>
+</body>
+</html>
