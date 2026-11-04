@@ -29,6 +29,8 @@ export const SKILL_LABELS = {
   // perimeter / area / ratio / additive
   perimeter: "Perimeter", "missing-side": "Finding a missing side", area: "Area",
   // area of a parallelogram & rhombus quiz (2026-11-01)
+  // fraction of an amount
+  "fa-unit": "One part (unit fractions)", "fa-nonunit": "More than one part", "fa-same": "Which is the same? (equivalent forms)", "fa-whole": "Back to the whole", "fa-word": "Fraction of an amount word problems",
   "pa-rect": "Rectangles and squares", "pa-para": "Parallelograms and rhombuses", "pa-diag": "Rhombuses from their diagonals", "pa-missing": "Find a missing base or height", "pa-diag-missing": "Find a missing diagonal",
   // area of a triangle quiz (2026-11-01)
   "tri-rect": "The rectangle it is half of", "tri-area": "Find the area", "tri-area-obtuse": "Find the area (obtuse)", "tri-missing": "Find a missing length", "tri-mistake": "Spot the mistake",

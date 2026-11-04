@@ -511,6 +511,14 @@ window.MMT_TOOL_LINKS = {
       tags: ["worksheet generator", "printable", "fraction of an amount", "fraction of a quantity", "fraction as division", "divide then multiply", "bar model", "number sentences", "brackets", "build the whole", "true or false", "spot the mistake", "word problems", "answer key"]
     },
     {
+      title: "Fraction of an Amount \u2014 Student Quiz",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-3/number/fraction-of-amount-division.html",
+      ideas: ["equivalent-sentences", "brackets-order"],
+      note: "Ten questions with the teaching tool's bar beside each one: cut it, shade it, type into one part and every part fills \u2014 it never shows a value. Sweet and Mild are unit fractions (as a division and as n/b); Medium is more than one part in all five forms; Spicy has any fraction to twelfths, back to the whole and word problems. Saves to the student dashboard.",
+      tags: ["quiz", "fraction of an amount", "fraction of a quantity", "unit fractions", "fraction as division", "divide then multiply", "bar model", "equivalent forms", "build the whole", "word problems", "sweet mild medium spicy", "student code login", "teacher dashboard"]
+    },
+    {
       title: "Order of Operations \u2014 Say What You See",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-4/number/order-of-operations-in-words/",
@@ -708,6 +716,14 @@ window.MMT_TOOL_LINKS = {
       tags: ["worksheet generator", "printable", "fraction of an amount", "fraction of a quantity", "fraction as division", "divide then multiply", "bar model", "number sentences", "brackets", "build the whole", "true or false", "spot the mistake", "word problems", "answer key"]
     },
     {
+      title: "Fraction of an Amount \u2014 Student Quiz",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-3/number/fraction-of-amount-division.html",
+      ideas: ["fraction-division"],
+      note: "Ten questions with the teaching tool's bar beside each one: cut it, shade it, type into one part and every part fills \u2014 it never shows a value. Sweet and Mild are unit fractions (as a division and as n/b); Medium is more than one part in all five forms; Spicy has any fraction to twelfths, back to the whole and word problems. Saves to the student dashboard.",
+      tags: ["quiz", "fraction of an amount", "fraction of a quantity", "unit fractions", "fraction as division", "divide then multiply", "bar model", "equivalent forms", "build the whole", "word problems", "sweet mild medium spicy", "student code login", "teacher dashboard"]
+    },
+    {
       title: "Fraction Hex Path",
       kind: "Game",
       url: "/games/fractional-hex.html",
@@ -733,6 +749,14 @@ window.MMT_TOOL_LINKS = {
       ideas: ["fraction-of-quantity", "build-whole"],
       note: "Printable A4 sheets that take the bar away one step at a time: fill a bar already cut, divide then multiply on a shaded bar, cut and shade your own, write it five ways (fraction of, a \u00d7 1/b of n, a \u00d7 (n \u00f7 b), (n \u00f7 b) \u00d7 a, n/b \u00d7 a), true or false, spot the mistake, word problems, and build the whole from a part. Answer key fills every bar.",
       tags: ["worksheet generator", "printable", "fraction of an amount", "fraction of a quantity", "fraction as division", "divide then multiply", "bar model", "number sentences", "brackets", "build the whole", "true or false", "spot the mistake", "word problems", "answer key"]
+    },
+    {
+      title: "Fraction of an Amount \u2014 Student Quiz",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-3/number/fraction-of-amount-division.html",
+      ideas: ["fraction-of-quantity", "build-whole"],
+      note: "Ten questions with the teaching tool's bar beside each one: cut it, shade it, type into one part and every part fills \u2014 it never shows a value. Sweet and Mild are unit fractions (as a division and as n/b); Medium is more than one part in all five forms; Spicy has any fraction to twelfths, back to the whole and word problems. Saves to the student dashboard.",
+      tags: ["quiz", "fraction of an amount", "fraction of a quantity", "unit fractions", "fraction as division", "divide then multiply", "bar model", "equivalent forms", "build the whole", "word problems", "sweet mild medium spicy", "student code login", "teacher dashboard"]
     },
     {
       title: "Times Table Chart — Fractions of an Amount",
@@ -1136,6 +1160,14 @@ window.MMT_TOOL_LINKS = {
       ideas: ["multiply-divide"],
       note: "Printable A4 sheets that take the bar away one step at a time: fill a bar already cut, divide then multiply on a shaded bar, cut and shade your own, write it five ways (fraction of, a \u00d7 1/b of n, a \u00d7 (n \u00f7 b), (n \u00f7 b) \u00d7 a, n/b \u00d7 a), true or false, spot the mistake, word problems, and build the whole from a part. Answer key fills every bar.",
       tags: ["worksheet generator", "printable", "fraction of an amount", "fraction of a quantity", "fraction as division", "divide then multiply", "bar model", "number sentences", "brackets", "build the whole", "true or false", "spot the mistake", "word problems", "answer key"]
+    },
+    {
+      title: "Fraction of an Amount \u2014 Student Quiz",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-3/number/fraction-of-amount-division.html",
+      ideas: ["multiply-divide"],
+      note: "Ten questions with the teaching tool's bar beside each one: cut it, shade it, type into one part and every part fills \u2014 it never shows a value. Sweet and Mild are unit fractions (as a division and as n/b); Medium is more than one part in all five forms; Spicy has any fraction to twelfths, back to the whole and word problems. Saves to the student dashboard.",
+      tags: ["quiz", "fraction of an amount", "fraction of a quantity", "unit fractions", "fraction as division", "divide then multiply", "bar model", "equivalent forms", "build the whole", "word problems", "sweet mild medium spicy", "student code login", "teacher dashboard"]
     },
     {
       title: "Decimal Zoom Rounding",

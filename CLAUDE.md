@@ -96,6 +96,31 @@
 > §2 "TWO folders", §3 deploy paths and §5's `mathstools-main 2` heading below
 > describe the OLD layout — this block supersedes them.
 >
+> **NEW (2026-11-04): FRACTION OF AN AMOUNT — STUDENT QUIZ.** `online-quizzes/stage-3/number/fraction-of-amount-division.html`
+> (thin shell) + `fraction-of-amount-division-quiz/quiz.js` + `quiz.css` (css copied from the parallelogram quiz —
+> bump BOTH `?v=` in the shell). Area-quiz pattern: ONE question + ONE answer; calc questions show the expression
+> big with the box after "=". Registry `fraction-of-amount-division-quiz` / `fraction-of-amount-division-student-quiz`,
+> topics number, Stage 3, masteryTopic `fraction-of-amount-division`. Test surface `window.__FQ__`. Project doc
+> `claude/fraction-of-amount-quiz.md`.
+> * **The panel is the tool's bar** (whole → cut into b parts named 1/b → shade a, bracket "a parts"), stepped with
+>   Show me, never marked, **never showing a value**. Once cut, every part has a typing box (`#jots`): type in one
+>   and every part fills (equal parts); not saved. Ones button for amounts ≤ 60 (on at Sweet). "Which is the
+>   same?" shows ONLY the whole (cutting it would give the option away; options plain ink). Back-to-the-whole shows
+>   the bar cut + shaded, the given bracketed under, "?" on top. Wrong first answer → model to its last step.
+>   `ResizeObserver` also watches `.boardHead`: a longer step caption can wrap it and the board must re-fit.
+> * **Levels:** Sweet unit, halves/quarters/fifths/tenths, one part 2–6, 1/b of n + n ÷ b, ones on · Mild unit +
+>   thirds/sixths/eighths, one part to 12, 1/b of n, n ÷ b, n/b, which-is-same, one back-to-whole · Medium non-unit,
+>   all five forms, which-is-same both ways, a word problem · Spicy any to twelfths, one part 6–25 (≤ 300), mixed
+>   forms, 2 back-to-whole, 2 word problems. MC distractors carry values so none equals the answer.
+> * types[]: fa-unit / fa-nonunit / fa-same / fa-whole / fa-word as right/total + level:x (SKILL_LABELS added).
+>   Bumped: mmtToolRegistry (teacher, student, resultUtils) → resultUtils (teacher); quizInsights → analytics.js →
+>   teacher; toolLinks (resources, teacher). Student quiz rows under MA3-RQF-02, MA3-RQF-01, MA3-MR-02,
+>   MA4-FRC-C-01; homepage quiz card (pill 42 → 43); the tool's Tools menu and the worksheet intro link to it.
+> * Verified: 480 papers (sets, ranges, unit/non-unit, every expression and MC option re-evaluated), every level
+>   to 10/10 with no answer on screen early and no value in the model, scoring rules, jots, ones, payload keys,
+>   fit at 1366×768 / 1280×800 / 1024×768 / 1920×1080, 390 wide. Test with reducedMotion or the model animations
+>   make a run take ten minutes.
+>
 > **NEW (2026-11-03, later): FRACTION OF AN AMOUNT — WORKSHEET CREATOR.**
 > `worksheet-creators/stage-3/number/fraction-of-amount-division.html`, on the Area of a Parallelogram
 > generator's frame (same base CSS copied, bands, level chips, lettered types with counts, measured rows
@@ -167,7 +192,7 @@
 > * Verified: 318 Playwright checks (generation rules at every setting, every step in both notations
 >   and both forms, answer hidden until the end, fit with no scroll at 1366×768 / 1280×800 / 1024×768 /
 >   1920×1080, labels and numbers inside the bar, input refusals, ones counts, animated Back mid-flight,
->   390 px phone). Possible next: student quiz, improper fractions (two bars).
+>   390 px phone). Possible next: improper fractions (two bars).
 >
 > **NEW (2026-11-02): WHOLE-TOPIC QUIZZES FOR THE OTHER 11 STAGE 4 OUTCOMES.** Every Stage 4
 > outcome now has a whole-topic quiz with **Basic** (D/E foundations) and **Expected** (C, the whole

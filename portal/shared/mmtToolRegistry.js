@@ -266,6 +266,14 @@ export const MMT_TOOLS = Object.freeze([
     notes: "Sweet/Mild/Medium/Spicy. The LEVEL is how much of the teaching tool the student keeps: Sweet gives the place value board AND plays the move, Mild keeps the board but will not move it, Medium and Spicy take the board away. Numbers climb alongside (whole -> 1dp -> 2dp -> 3dp and crossing the point). 12 questions. Four kinds — multiply, divide, what is missing, use it — with subtotals by kind in types[]. The answer is never on screen before it is marked; at Sweet the board may be moved, which is the METHOD, but the number sentence keeps its ?. Only the FIRST attempt scores, though a settled question stays workable. masteryTopic 'multiply-divide-by-ten'. Pairs with the teaching tool and the worksheet creator, all under MA3-RN-01.",
   },
   {
+    toolId: "fraction-of-amount-division-quiz", title: "Fraction of an Amount — Student Quiz", category: "Quiz",
+    enabled: true, resultCollection: "achievements", richCollection: null,
+    achievementToolName: "fraction-of-amount-division-student-quiz", topics: ["number"], stage: "Stage 3",
+    launchUrl: "/online-quizzes/stage-3/number/fraction-of-amount-division.html",
+    supportsAdventureAttempts: false, supportsSkillBreakdown: false,
+    notes: "NEW 2026-11-04 (engine online-quizzes/stage-3/number/fraction-of-amount-division-quiz/quiz.js, Area-quiz pattern). 10 questions, ONE question + ONE answer each; the panel is the teaching tool's bar (whole → cut into b parts → shade a), stepped with Show me, never marked and NEVER showing a value; once cut, typing in one part fills every part (not saved). Sweet: unit fractions (halves, quarters, fifths, tenths), one part 2–6, ones drawn. Mild: unit fractions + thirds/sixths/eighths, one part to 12, 1/b of n, n ÷ b and n/b, one which-is-the-same, one back-to-the-whole. Medium: non-unit, all five forms (a/b of n, a × 1/b of n, a × (n ÷ b), (n ÷ b) × a, n/b × a), which-is-the-same both directions (whole only on the model), a word problem. Spicy: any fraction to twelfths, one part to 25 (amount ≤ 300), mixed forms, 2 back-to-the-whole, 2 word problems. Only the FIRST check scores. types[]: fa-unit/fa-nonunit/fa-same/fa-whole/fa-word as right/total + level:x. masteryTopic 'fraction-of-amount-division'. No typed answers saved.",
+  },
+  {
     toolId: "division-grouping-quiz", title: "Division by Grouping — Student Quiz", category: "Quiz",
     enabled: true, resultCollection: "achievements", richCollection: null,
     achievementToolName: "division-grouping-student-quiz", topics: ["number"], stage: "Stage 3",

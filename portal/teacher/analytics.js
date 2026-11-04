@@ -10,7 +10,7 @@
  * marks were lost (per question type), reteach groups + matching teaching
  * tools, levels, and a student × question-type grid.
  */
-import { skillsOf, levelOf, quizKey, quizReport, taskRecords, taskLevel, skillsAcross, windowStats, DAY } from "../shared/quizInsights.js?v=a23f25f8";
+import { skillsOf, levelOf, quizKey, quizReport, taskRecords, taskLevel, skillsAcross, windowStats, DAY } from "../shared/quizInsights.js?v=edad0d79";
 
 let C = null;
 const A = { tab: "overview", cls: "", win: 28, view: null, taskFilter: "open", sort: { key: "best", dir: 1 }, attempts: { tool: "", q: "" } };

@@ -1,6 +1,6 @@
 /* Written by tools/build-pwa.mjs — do not edit by hand. */
 self.MMT_PRECACHE = {
- "version": "9bd74454df",
+ "version": "598a69ab48",
  "files": [
   "./",
   "assessment/exam-builder/app.js",
@@ -847,6 +847,9 @@ self.MMT_PRECACHE = {
   "online-quizzes/stage-3/number/addition-compensation.html",
   "online-quizzes/stage-3/number/constant-difference.html",
   "online-quizzes/stage-3/number/division-grouping.html",
+  "online-quizzes/stage-3/number/fraction-of-amount-division-quiz/quiz.css",
+  "online-quizzes/stage-3/number/fraction-of-amount-division-quiz/quiz.js",
+  "online-quizzes/stage-3/number/fraction-of-amount-division.html",
   "online-quizzes/stage-3/number/multiply-divide-by-ten.html",
   "online-quizzes/stage-3/number/whole-number-zoom.html",
   "online-quizzes/stage-4/algebra/algebraic-techniques.html",
