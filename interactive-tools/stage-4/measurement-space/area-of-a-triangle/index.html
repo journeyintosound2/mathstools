@@ -699,15 +699,25 @@
       const cutC = k === 1 ? ease(clamp(t / .85, 0, 1)) : 1;
       /* step 2: cut through, the halves part by a thin white strip.
          step 3: each copy flips over, then the halves slide back together */
-      const flip = k >= 2 ? clamp(t / .76, 0, 1) : 0;
-      const sep = k === 1 ? ease(clamp((t - .85) / .15, 0, 1)) : 1 - ease(clamp((t - .78) / .22, 0, 1));
+      const flip = k >= 2 ? clamp(t / .62, 0, 1) : 0;
+      const sep = k === 1 ? ease(clamp((t - .85) / .15, 0, 1)) : 1 - ease(clamp((t - .64) / .16, 0, 1));
       const g = 3.5 / L.s * sep;
       const halves = [
         { P:[[0, 0], [a, 0], [a, h]], e:[[0, 0], [a, h]], sx:-g },
         { P:[[a, 0], [b, 0], [a, h]], e:[[b, 0], [a, h]], sx:g } ];
       halves.forEach(p => poly(p.P.map(q => [q[0] + p.sx, q[1]]), { fill:C.tri, stroke:"none" }, sc.gMain));
       if(flip > 0) flipCopies(halves, flip, sc.gTop);
-      halves.forEach(p => poly(p.P.map(q => [q[0] + p.sx, q[1]]), { fill:"none", stroke:C.triS, "stroke-width":3 }, sc.gTop));
+      /* outlines: the outer edges always; the cut edge fades as the halves join back up */
+      const seam = k >= 2 ? sep : 1;
+      halves.forEach((p, i) => {
+        const Q = p.P.map(q => [q[0] + p.sx, q[1]]);
+        el("polyline", { points:pts(i ? Q : [Q[2], Q[0], Q[1]]), fill:"none", stroke:C.triS, "stroke-width":3, "stroke-linejoin":"round", "stroke-linecap":"round" }, sc.gTop);
+        if(seam > 0) seg(Q[i ? 2 : 1], Q[i ? 0 : 2], { stroke:C.triS, "stroke-width":3, opacity:seam }, sc.gTop);
+      });
+      /* then the height slides out to the rectangle's nearer edge */
+      const hp = k >= 2 ? ease(clamp((t - .84) / .16, 0, 1)) : 0;
+      /* the dotted height takes over from the fading seam, then slides */
+      if(k >= 2 && sep < 1){ const to = a <= b / 2 ? 0 : b; sc.alt = { x:a + (to - a) * hp, p:hp, side:to === 0 ? -1 : 1 }; }
       if(cutC < 1) cutLine(line[0], line[1], cutC, sc.gTop, !!S.anim, t);
       sc.hideAlt = true;
       return;
@@ -784,9 +794,12 @@
     /* base */
     const yB = L.Y(0) + (L.compact ? 28 : 32);
     pill(L.X(b / 2), yB, fmt(b) + U(), f, { color:"#1d4ed8", stroke:"#93c5fd", sw:2 }, sc.gLab);
-    if(S.mode === "para" && sc.alt){
+    if(sc.alt){
+      /* the height on its way to (or at) the rectangle's edge, right angle and all */
       const { x, p, side } = sc.alt, lab = fmt(h) + U(), lw = Math.max(f * 1.7, tw(lab, f) + f * 1.05);
       seg([x, 0], [x, h], { stroke:C.alt, "stroke-width":2.5, "stroke-dasharray":"7 5" }, sc.gTop);
+      const r = Math.min(13, h * L.s * .3), dir = p < .5 ? (S.a >= S.b ? -1 : 1) : (side === 1 ? -1 : 1), fx = L.X(x), fy = L.Y(0);
+      el("path", { d:`M${fx + dir * r} ${fy}V${fy - r}H${fx}`, fill:"none", stroke:C.alt, "stroke-width":2, class:"noHit" }, sc.gTop);
       pill(L.X(x) + side * (lw / 2 + 12) * p, L.Y(h / 2), lab, f, { color:"#c2410c", stroke:"#fdba74", sw:2 }, sc.gLab);
       return;
     }
@@ -881,7 +894,7 @@
 
   /* ------------------------------------------------------------ stepping */
   let raf = 0;
-  const DUR = { cut:1500, turn:2200, flipjoin:2900, copy:2200, slide:1500, chop:2300 };
+  const DUR = { cut:1500, turn:2200, flipjoin:3600, copy:2200, slide:1500, chop:2300 };
   /* runs S.anim.t from t0 to t1 (1 → 0 plays a step backwards) */
   function animate(dur, t0, t1, onTick, onEnd){
     cancelAnimationFrame(raf);

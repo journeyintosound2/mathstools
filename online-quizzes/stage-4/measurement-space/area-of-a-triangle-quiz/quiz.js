@@ -362,7 +362,7 @@ function modelSteps(it){
   if(w === "edge") return [ { t:"The triangle" }, { t:"Mark the sloping side" }, { t:"Copy it, slide and turn it", anim:"turn" } ];
   return [ { t:"The triangle" }, { t:"Copy it, slide and turn it", anim:"copy" }, { t:"Chop at the edge of the base and slide", anim:"chop" } ];
 }
-const DUR = { cut:1500, join:2900, turn:2200, copy:2200, chop:2300 };
+const DUR = { cut:1500, join:3600, turn:2200, copy:2200, chop:2300 };
 function frame(it){
   const { a, b, h } = it, w = where(it);
   let x0 = Math.min(0, a), x1 = Math.max(b, a), y0 = 0, y1 = h;
@@ -445,13 +445,23 @@ function sceneRect(it, sc){
   if(w === "in"){
     const line = [[a, h], [a, 0]];
     const cutC = k === 1 ? ease(clamp(t / .85, 0, 1)) : 1;
-    const flip = k >= 2 ? clamp(t / .76, 0, 1) : 0;
-    const sep = k === 1 ? ease(clamp((t - .85) / .15, 0, 1)) : 1 - ease(clamp((t - .78) / .22, 0, 1));
+    const flip = k >= 2 ? clamp(t / .62, 0, 1) : 0;
+    const sep = k === 1 ? ease(clamp((t - .85) / .15, 0, 1)) : 1 - ease(clamp((t - .64) / .16, 0, 1));
     const g = 3.5 / L.s * sep;
     const halves = [ { P:[[0, 0], [a, 0], [a, h]], e:[[0, 0], [a, h]], sx:-g }, { P:[[a, 0], [b, 0], [a, h]], e:[[b, 0], [a, h]], sx:g } ];
     halves.forEach(p => poly(p.P.map(q => [q[0] + p.sx, q[1]]), { fill:C.tri, stroke:"none" }, sc.gMain));
     if(flip > 0) copies(halves, flip, sc.gTop);
-    halves.forEach(p => poly(p.P.map(q => [q[0] + p.sx, q[1]]), { fill:"none", stroke:C.triS, "stroke-width":3 }, sc.gTop));
+    /* outlines: the outer edges always; the cut edge fades as the halves join back up */
+    const seam = k >= 2 ? sep : 1;
+    halves.forEach((p, i) => {
+      const Q = p.P.map(q => [q[0] + p.sx, q[1]]);
+      el("polyline", { points:pts(i ? Q : [Q[2], Q[0], Q[1]]), fill:"none", stroke:C.triS, "stroke-width":3, "stroke-linejoin":"round", "stroke-linecap":"round" }, sc.gTop);
+      if(seam > 0) seg(Q[i ? 2 : 1], Q[i ? 0 : 2], { stroke:C.triS, "stroke-width":3, opacity:seam }, sc.gTop);
+    });
+    /* then the height slides out to the rectangle's nearer edge */
+    const hp = k >= 2 ? ease(clamp((t - .84) / .16, 0, 1)) : 0;
+    /* the dotted height takes over from the fading seam, then slides */
+    if(k >= 2 && sep < 1){ const to = a <= b / 2 ? 0 : b; sc.alt = { x:a + (to - a) * hp, p:hp, side:to === 0 ? -1 : 1 }; }
     if(cutC < 1) cutLine(line[0], line[1], cutC, sc.gTop, t);
     sc.hideAlt = true;
     return;
@@ -494,6 +504,8 @@ function drawDims(it, sc){
   if(sc.alt){
     const { x, p, side } = sc.alt, lw = Math.max(f * 1.7, tw(hLab, f) + f * 1.05);
     seg([x, 0], [x, h], { stroke:C.alt, "stroke-width":2.5, "stroke-dasharray":"7 5" }, sc.gTop);
+    const r = Math.min(12, h * L.s * .3), dir = p < .5 ? (a >= b ? -1 : 1) : (side === 1 ? -1 : 1), fx = L.X(x), fy = L.Y(0);
+    el("path", { d:`M${fx + dir * r} ${fy}V${fy - r}H${fx}`, fill:"none", stroke:C.alt, "stroke-width":2 }, sc.gTop);
     pill(L.X(x) + side * (lw / 2 + 12) * p, L.Y(h / 2), hLab, f, hOpt, sc.gLab);
     return;
   }
