@@ -194,6 +194,17 @@
 >   1920×1080, labels and numbers inside the bar, input refusals, ones counts, animated Back mid-flight,
 >   390 px phone). Possible next: improper fractions (two bars).
 >
+> **NEW (2026-11-06): THE FIVE OLDER WHOLE-TOPIC QUIZZES WEAR THE NEW LOOK.** Integers, FDP, Algebraic
+> Techniques, Equations and Angle Relationships load `online-quizzes/stage-4/topic-quiz/legacy-skin.css` +
+> `legacy-skin.js` (`data-title` = the top-bar title) at the end of `<head>`. The script only MOVES their own
+> elements (ids unchanged): adds the dark MMT top bar, moves the language picker, account chips and level chip
+> into it, turns `.progressRow .bar` into the thin strip under the bar, puts `.topRow` (Reset / Start again)
+> beside "Question n/m", and moves `#mmtSubmitSlot` next to Skip. The CSS hides the big blue `.banner` and
+> restyles the card, question box, inputs and buttons with engine.css's colours (every rule starts `body …`
+> to outrank the quiz's own; the nav row needs `!important` against an inline `justify-content:center`).
+> Change either file → bump its `?v=` in all five pages. Also fixed: Algebraic Techniques' "Write an
+> expression for" prompts showed a stray closing quote (`splitPromptHTML` regex missed `”.`).
+>
 > **NEW (2026-11-05): ASSIGNED TASKS ARE LOCKED + EARLY SUBMIT ACTUALLY SAVED + QUIZ AUDIT.**
 > * **A task counts only attempts made from ITS OWN LINK.** `recordFitsTask(r, task)` in
 >   `portal/shared/quizInsights.js` is the ONE rule, used by the student portal (`taskAttempts`), Manage
