@@ -326,6 +326,10 @@
 > **Rectangle** = acute/right ONLY (greyed out when the height is outside; dragging past the base switches
 > to Two copies via `guardRect()`): triangle → dotted height + scissors cut, halves part by a white strip
 > (one step) → a PALE copy of each piece slides then turns into place, then the halves slide back together
+> (the seam fades), then the dotted height slides out to the rectangle's nearer edge (Jeff, 2026-11-05;
+> the quiz model does the same; flipjoin/join 3600ms: flip t/.62, join .64–.80, height .84–1).
+> Settings → Triangle colour (2026-11-05): `PAL` green/teal/blue/purple/pink/grey copied into `C` by
+> `useColour()`; the light half/halfS of the same colour is used for every copy/rectangle; S.set.colour saved.
 > (right-angled: sloping side marked, one pale copy). Jeff wants exactly these 3 steps.
 > EVERY copy in the tool moves in TWO separate motions (`flipPoly()`, name kept): a clean straight slide
 > (half way towards its place, no turning), then a half-turn about Q = M + v/2 so it lands exactly where a

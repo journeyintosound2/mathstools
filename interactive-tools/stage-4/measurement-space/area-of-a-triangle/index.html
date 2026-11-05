@@ -70,6 +70,15 @@
     .menuRule{ height:1px; background:var(--border); margin:3px 6px; }
     .settingsMenu.open{ gap:11px; padding:15px 18px; min-width:340px; max-height:min(78vh,680px); overflow:auto; }
     .settingsHead{ font-size:.68rem; letter-spacing:.14em; text-transform:uppercase; font-weight:950; color:var(--muted); }
+    .colourRow{ display:grid; gap:8px; }
+    .colourRow > span{ font-weight:900; font-size:.92rem; color:var(--ink); }
+    .swatches{ display:flex; gap:9px; flex-wrap:wrap; }
+    .swatch{ width:30px; height:30px; border-radius:50%; border:2px solid #fff; background:var(--c); cursor:pointer; padding:0;
+      box-shadow:0 0 0 1.5px var(--border); transition:.15s ease; position:relative; }
+    .swatch::after{ content:""; position:absolute; inset:7px; border-radius:50%; background:var(--l); }
+    .swatch:hover{ transform:scale(1.08); }
+    .swatch[aria-pressed="true"]{ box-shadow:0 0 0 2.5px var(--ink); }
+    .swatch:focus-visible{ outline:none; box-shadow:0 0 0 4px rgba(37,99,235,.35); }
     .settingsNote{ margin:0; font-size:.76rem; font-weight:650; color:var(--muted); line-height:1.4; }
     .settingsRule{ height:1px; background:var(--border); margin:1px 0; }
     .selRow{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
@@ -292,6 +301,9 @@
             <label class="sw"><input type="checkbox" id="gridToggle" checked><span class="track"></span><span>Show the unit squares</span></label>
             <label class="sw"><input type="checkbox" id="calcToggle"><span class="track"></span><span>Show the calculation</span></label>
             <p class="settingsNote">Off, there is no &frac12; &times; base &times; height anywhere on screen &mdash; the class notices and wonders why it&rsquo;s half first. On, the formula sits above the board and the area waits behind a <b>?</b> until the last step.</p>
+            <div class="colourRow"><span>Triangle colour</span>
+              <div class="swatches" id="colourSwatches" role="group" aria-label="Triangle colour"></div>
+            </div>
             <label class="selRow"><span>Units</span>
               <select id="unitSel" aria-label="Units">
                 <option value="" selected>None</option>
@@ -433,7 +445,7 @@
     slideFrom:null,                 /* where the top started before "slide" */
     revealed:false,
     drag:null, frozen:null,
-    set:{ grid:true, calc:false, units:"", panel:true, kind:"any" },
+    set:{ grid:true, calc:false, units:"", panel:true, kind:"any", colour:"green" },
     fs:false
   };
   const STORE = "mmt.triArea.v1";
@@ -596,11 +608,20 @@
     txt(x, y + fs * .04, s, fs, o.color || "#0f172a", gg);
     return gg;
   }
-  const C = {
-    tri:"rgba(22,163,74,.66)", triS:"#14532d",
-    half:"rgba(34,197,94,.15)", halfS:"#4ade80",
-    rect:"#475569", alt:"#ea580c", cut:"#0f172a"
+  const C = { rect:"#475569", alt:"#ea580c", cut:"#0f172a" };
+  /* Settings → Triangle colour. Each colour: the triangle (tri / triS), and a light version of the
+     same colour for everything around it — the copies, the rectangle, the parallelogram (half / halfS) —
+     plus the answer bubble (ans / ansBg). None is orange or red: those are the height and the scissors. */
+  const PAL = {
+    green:  { name:"Green",  tri:"rgba(22,163,74,.66)",  triS:"#14532d", half:"rgba(34,197,94,.15)",  halfS:"#4ade80", ans:"#15803d", ansBg:"#f0fdf4" },
+    teal:   { name:"Teal",   tri:"rgba(13,148,136,.66)", triS:"#134e4a", half:"rgba(20,184,166,.15)", halfS:"#2dd4bf", ans:"#0f766e", ansBg:"#f0fdfa" },
+    blue:   { name:"Blue",   tri:"rgba(37,99,235,.6)",   triS:"#1e3a8a", half:"rgba(59,130,246,.14)", halfS:"#60a5fa", ans:"#1d4ed8", ansBg:"#eff6ff" },
+    purple: { name:"Purple", tri:"rgba(147,51,234,.58)", triS:"#3b0764", half:"rgba(168,85,247,.14)", halfS:"#c084fc", ans:"#7e22ce", ansBg:"#faf5ff" },
+    pink:   { name:"Pink",   tri:"rgba(219,39,119,.58)", triS:"#831843", half:"rgba(236,72,153,.13)", halfS:"#f472b6", ans:"#be185d", ansBg:"#fdf2f8" },
+    grey:   { name:"Grey",   tri:"rgba(71,85,105,.62)",  triS:"#0f172a", half:"rgba(100,116,139,.14)", halfS:"#94a3b8", ans:"#334155", ansBg:"#f8fafc" }
   };
+  const useColour = () => { if(!PAL[S.set.colour]) S.set.colour = "green"; Object.assign(C, PAL[S.set.colour]); };
+  useColour();
   /* a small pair of scissors, the tip at (x, y), pointing along angle (radians) */
   function scissors(x, y, ang, snip, g){
     const o = .25 + .75 * Math.abs(Math.sin(snip * Math.PI * 9));
@@ -830,7 +851,7 @@
       if(where() === "in" && Math.abs(gap) < need) x = L.X(S.a) + (gap >= 0 ? 1 : -1) * need;
       if(Math.abs(y - L.Y(S.h / 2)) < 30 && Math.abs(x - L.X(S.a)) < need) y += 40;
     }
-    pill(x, y, s, fs() + 3, { color:"#15803d", stroke:"rgba(21,128,61,.45)", bg:"#f0fdf4", sw:2 }, sc.gLab);
+    pill(x, y, s, fs() + 3, { color:C.ans, stroke:C.halfS, bg:C.ansBg, sw:2 }, sc.gLab);
   }
   function drawHandles(g, sc){
     if(S.anim || sc.noApex || S.step > 0) return;
@@ -1053,6 +1074,16 @@
   $("unitSel").addEventListener("change", () => { S.set.units = $("unitSel").value; save(); render(); });
   $("gridToggle").addEventListener("change", e => { S.set.grid = e.target.checked; save(); render(); });
   $("calcToggle").addEventListener("change", e => { S.set.calc = e.target.checked; save(); render(); });
+  /* triangle colour swatches: the outer ring is the triangle, the dot in the middle its light version */
+  function paintSwatches(){
+    $("colourSwatches").innerHTML = Object.entries(PAL).map(([k, p]) =>
+      `<button class="swatch" type="button" data-c="${k}" style="--c:${p.triS};--l:${p.halfS}" aria-pressed="${k === S.set.colour}" title="${p.name}" aria-label="${p.name}"></button>`).join("");
+  }
+  paintSwatches();
+  $("colourSwatches").addEventListener("click", e => {
+    const b = e.target.closest(".swatch"); if(!b) return;
+    S.set.colour = b.dataset.c; useColour(); paintSwatches(); save(); render();
+  });
 
   function closeMenus(){ [["settingsBtn","settingsMenu"],["toolsBtn","toolsMenu"]].forEach(([b, m]) => { $(m).classList.remove("open"); $(b).setAttribute("aria-expanded","false"); }); }
   [["settingsBtn","settingsMenu"],["toolsBtn","toolsMenu"]].forEach(([b, m]) => {
