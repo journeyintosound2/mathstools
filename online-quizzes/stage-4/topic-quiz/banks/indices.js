@@ -32,7 +32,7 @@ add("basic", "b-evaluate", "Evaluate a power", () => {
   let b, e; do { b = ri(2, 10); e = ri(2, 5); } while (Math.pow(b, e) > 10000 || (b === 10 && e > 4));
   return { prompt: `Evaluate ${M(pw(b, e))}.`, mode: "num", value: Math.pow(b, e), why: `${Array(e).fill(b).join(" × ")} = ${fmt(Math.pow(b, e))}` };
 }, q => { const m = /(\d+)<sup>(\d+)/.exec(q.prompt); return Math.pow(+m[1], +m[2]) === q.value ? null : "power value"; });
-add("basic", "b-roots", "Square roots and cube roots", () => {
+add("basic", "b-roots", "Squares, square roots and cube roots", () => {
   const k = pick(["sq", "sq", "cube", "cube", "sqr"]);
   if (k === "sq") { const r = ri(2, 15); return { prompt: `Evaluate ${M(`√${r * r}`)}.`, mode: "num", value: r, why: `${r} × ${r} = ${r * r}, so √${r * r} = ${r}.` }; }
   if (k === "cube") { const r = ri(2, 10); return { prompt: `Evaluate ${M(`∛${fmt(r * r * r)}`)}.`, mode: "num", value: r, why: `${r} × ${r} × ${r} = ${r * r * r}, so ∛${r * r * r} = ${r}.` }; }
@@ -52,7 +52,7 @@ add("basic", "b-divide", "Index law: dividing powers", () => {
 });
 add("basic", "b-zero", "The zero index", () => {
   const k = pick([0, 1, 2]);
-  if (k === 0) { const b = pick([ri(2, 99), pick(L)]); return { prompt: `Evaluate ${M(pw(b, 0))}.`, mode: "num", value: 1, why: `Any non-zero number to the power of 0 is 1.` }; }
+  if (k === 0) { const b = pick([ri(2, 99), pick(L)]); return { prompt: `Evaluate ${M(pw(b, 0))}${typeof b === "string" ? ` (where ${M(b + " ≠ 0")})` : ""}.`, mode: "num", value: 1, why: `Any non-zero number to the power of 0 is 1.` }; }
   if (k === 1) { const b = ri(2, 20), c = ri(2, 12); return { prompt: `Evaluate ${M(`${pw(b, 0)} + ${c}`)}.`, mode: "num", value: 1 + c, why: `${pw(b, 0)} = 1, so 1 + ${c} = ${1 + c}.` }; }
   const b = ri(2, 9), c = ri(2, 12); return { prompt: `Evaluate ${M(`${c} × ${pw(b, 0)}`)}.`, mode: "num", value: c, why: `${pw(b, 0)} = 1, so ${c} × 1 = ${c}.` };
 });

@@ -194,6 +194,43 @@
 >   1920×1080, labels and numbers inside the bar, input refusals, ones counts, animated Back mid-flight,
 >   390 px phone). Possible next: improper fractions (two bars).
 >
+> **NEW (2026-11-05): ASSIGNED TASKS ARE LOCKED + EARLY SUBMIT ACTUALLY SAVED + QUIZ AUDIT.**
+> * **A task counts only attempts made from ITS OWN LINK.** `recordFitsTask(r, task)` in
+>   `portal/shared/quizInsights.js` is the ONE rule, used by the student portal (`taskAttempts`), Manage
+>   Tasks (`dashCompleters`) and analytics (`taskRecords`): same toolId, made after `assignedAt`, and if the
+>   record has an `assignmentId` FIELD it must equal the link's `aid` (Integers' builder calls it `id`);
+>   older records without the field count only at the task's level. Every whole-topic quiz now ALWAYS saves
+>   `assignmentId` ('' when opened as a plain quiz), so playing the open quiz at another level never ticks a task.
+> * **Whole-topic quizzes are always set through the builder** (overview card has one "＋ Set this quiz ›"
+>   button; `toggleWholeQuiz` redirects BUILDER_IDS to `otOpenBuilder`). So every task has a level + a locked link.
+>   Old plain-URL whole-quiz tasks still work (no level → anything counts).
+> * **In-page lock.** Shared engine: `lockToTask()` hides Change level, the level menu, Tools and the footer,
+>   makes the brand non-clickable, and the certificate gets "Back to my dashboard". The five older quizzes load
+>   `portal/shared/taskLock.js?v=…` in `<head>` with `data-restart` (those buttons RELOAD the task link =
+>   "↻ Start this task again") and `data-hide` (hidden AND click-blocked). Does nothing on a plain URL.
+>   Angle Relationships and Equations were the ones that opened the level menu from a task.
+> * **BUG FIXED: early submit fields were being thrown away.** `quizClient.saveAchievement` (every quizAuthUI
+>   quiz) and the own-save code in Integers, FDP and Angle Relationships built records from a fixed field list
+>   that lacked `completion/quizLength/attempted/coverage/countsToMastery`, so a part-finished 3/3 saved as a
+>   finished 100% and counted as a best. They now pass those (and `assignmentId`) through. quizAuthUI now imports
+>   `quizClient.js?v=…` → a quizClient change bumps quizAuthUI's ?v on all 23 pages that load it. Other bespoke
+>   quizzes outside these 16 may still have their own field lists — check before trusting their partials.
+> * Student dashboard: a task whose latest attempt was submitted early says "You submitted early (n of m
+>   answered)…" with a "Finish it" button. Early-submit certificate on the shared engine: 📝, no confetti, no %.
+> * Early submit button now has a `#mmtSubmitSlot` beside Reset in FDP, Algebraic, Equations, Angle (it was
+>   pinned over the top-left corner).
+> * **Card layout (shared engine):** column 1060px, prompt column max 780px when no diagram, Check button and
+>   symbol keys on the SAME row as the answer box (engine moves `#checkBtn` into `.inRow`, back to the nav row
+>   before clearing). Line labels on the graph grid sit off the line at right angles, away from crossings.
+> * **Audit fixes in shared Revision Generator engines (also improve printed papers):** area — vertical
+>   dimension labels anchored clear of the arrow, triangle/parallelogram height labelled beside the dashed height
+>   (no arrow crossing the side), kite/rhombus diagonal labels on their diagonals, sector radius label off the
+>   radius and narrow-angle label under the vertex; pythagoras — isosceles slant labels outside the sides, ladder
+>   `footRatio` draws in proportion; volume — prism height label clear of the edge; geometry — long angle labels
+>   (e.g. (2x + 3)°) sit further in. Bank fixes: shapes drawn landscape get longer side horizontal / height ≤ base,
+>   isosceles base ≠ legs, no sliver triangles in algebraic angles, realistic gates and coins, plus ~12 wording
+>   fixes (1x, −0, "1 part = 7, so 1 part = 7", grammar). Harness 300×/type all pass; play-all 954 checks pass.
+>
 > **NEW (2026-11-02): WHOLE-TOPIC QUIZZES FOR THE OTHER 11 STAGE 4 OUTCOMES.** Every Stage 4
 > outcome now has a whole-topic quiz with **Basic** (D/E foundations) and **Expected** (C, the whole
 > outcome) levels and a question-type builder the Teacher Platform drives. The 5 older ones

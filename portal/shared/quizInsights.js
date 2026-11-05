@@ -16,7 +16,7 @@
  * A new quiz that saves "key:right/total" strings needs nothing here; add its
  * keys to SKILL_LABELS for nicer names.
  */
-import { summarise } from "./resultUtils.js";
+import { summarise } from "./resultUtils.js?v=8db063f7";
 
 /* ---------- labels ---------- */
 export const SKILL_LABELS = {
@@ -124,8 +124,34 @@ export function facetsOf(r) {
 /* ---------- tasks ---------- */
 /** Attempts that count for a set task: same quiz, same class, made since it was set. */
 export function taskRecords(task, records) {
+  return records.filter((r) => (!task.className || (r.className || "") === task.className) && recordFitsTask(r, task));
+}
+/** The assignment id in a task's link (whole-topic and builder quizzes add &aid=…). */
+export function taskAid(task) {
+  // Most builders call it aid; Computation with Integers' builder calls it id.
+  try { const q = new URL(task.launchUrl || "", "https://x.invalid").searchParams; return cleanText(q.get("aid") || (q.get("assignment") === "1" ? q.get("id") : "") || ""); } catch { return ""; }
+}
+const levelWords = (s) => levelKeyOf(s).replace(/[^a-z0-9 ]/g, "").replace(/\blevel\b/g, "").trim();
+/**
+ * Does this attempt count towards this task? (2026-11-05) Same quiz, made on or after
+ * the task was set, and made FROM THE TASK'S OWN LINK:
+ *  - an attempt that records an assignmentId (every whole-topic quiz now saves one,
+ *    empty when opened as a plain quiz) counts only if it matches the link's aid;
+ *  - an older attempt without that field counts only at the task's level.
+ * So a student who leaves the task and plays the open quiz at another level does
+ * not tick the task off. The student portal, Manage Tasks and the analytics all use this.
+ */
+export function recordFitsTask(r, task) {
+  if ((r.toolId || "") !== task.toolId) return false;
   const since = Number(task.assignedAt) || 0;
-  return records.filter((r) => (r.toolId || "") === task.toolId && (!task.className || (r.className || "") === task.className) && (!since || !r.time || r.time >= since - 60000));
+  if (since && r.time && r.time < since - 60000) return false;
+  const raw = r.raw || r;
+  const aid = taskAid(task);
+  if (aid && Object.prototype.hasOwnProperty.call(raw, "assignmentId")) return cleanText(raw.assignmentId || "") === aid;
+  const want = levelWords(taskLevel(task));
+  if (!want) return true;
+  const got = levelWords(levelOf(r).key);
+  return !got || got === want || got.includes(want) || want.includes(got);
 }
 export function taskLevel(task) {
   try { return levelKeyOf(new URL(task.launchUrl || "", "https://x.invalid").searchParams.get("level") || ""); } catch { return ""; }

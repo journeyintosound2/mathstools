@@ -100,6 +100,13 @@ export async function saveAchievement(payload = {}) {
     createdAt: serverTimestamp(),
     createdAtClient: new Date().toISOString(),
   };
+  // Shape of the attempt (early submit) and the task link it came from. These were
+  // dropped before 2026-11-05, so a part-finished 3/3 looked like a finished 100%.
+  // Only these known, answer-free fields are passed through.
+  if (payload.completion === "partial" || payload.completion === "complete") record.completion = payload.completion;
+  for (const k of ["quizLength", "attempted", "coverage"]) if (Number.isFinite(Number(payload[k])) && payload[k] !== "" && payload[k] != null) record[k] = Number(payload[k]);
+  if (typeof payload.countsToMastery === "boolean") record.countsToMastery = payload.countsToMastery;
+  if (payload.assignmentId != null) record.assignmentId = String(payload.assignmentId).slice(0, 80);
   await addDoc(collection(_db, COLLECTIONS.achievements), record);
   return { saved: true };
 }

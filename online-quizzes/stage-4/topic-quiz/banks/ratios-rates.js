@@ -70,10 +70,10 @@ add("basic", "b-equivalent", "Equivalent ratios", () => {
 });
 add("basic", "b-fraction", "A ratio as a fraction of the whole", () => {
   const [a, b] = coprime(1, 8);
-  const ctx = pick([["red", "blue", "marbles in a bag"], ["fiction", "non-fiction", "books on a shelf"], ["sunny", "rainy", "days last month"], ["girls", "boys", "students in a team"]]);
+  const ctx = pick([["red", "blue", "marbles in a bag"], ["fiction", "non-fiction", "books on a shelf"], ["sunny", "rainy", "days last month"], ["girls", "boys", "in a team"]]);
   const first = Math.random() < 0.5;
   const n = first ? a : b;
-  return { prompt: `The ratio of ${ctx[0]} to ${ctx[1]} ${ctx[2]} is <span class="m">${R(a, b)}</span>. What fraction of them are ${first ? ctx[0] : ctx[1]}?`, mode: "frac", n, d: a + b, form: "fraction", answerHTML: frac(n, a + b), why: `There are ${a} + ${b} = ${a + b} parts altogether, and ${n} of them are ${first ? ctx[0] : ctx[1]}.` };
+  return { prompt: `The ratio of ${ctx[0]} to ${ctx[1]} ${ctx[2]} is <span class="m">${R(a, b)}</span>. What fraction of them are ${first ? ctx[0] : ctx[1]}?`, mode: "frac", n, d: a + b, form: "fraction", answerHTML: frac(n, a + b), why: `There are ${a} + ${b} = ${a + b} parts altogether, and ${n} of those ${n === 1 ? "part is" : "parts are"} ${first ? ctx[0] : ctx[1]}.` };
 });
 add("basic", "b-share", "Share an amount in a ratio", () => {
   const [p, q] = two();
@@ -143,7 +143,7 @@ add("expected", "e-known-part", "Find a quantity from one part of a ratio", () =
   const pl = n => n === 1 ? "part" : "parts";
   const giveFirst = Math.random() < 0.5;
   const [gp, gw, ap, aw] = giveFirst ? [a, ctx.a, b, ctx.b] : [b, ctx.b, a, ctx.a];
-  return { prompt: `The ratio of ${ctx.a} to ${ctx.b} ${ctx.where} is <span class="m">${R(a, b)}</span>. ${ctx.have(gp * k, gw)} ${ctx.ask(aw)}`, mode: "num", value: ap * k, unit: ctx.u, why: `${gp} ${pl(gp)} = ${gp * k}, so 1 part = ${k}. ${aw[0].toUpperCase() + aw.slice(1)}: ${ap} × ${k} = ${ap * k}.` };
+  return { prompt: `The ratio of ${ctx.a} to ${ctx.b} ${ctx.where} is <span class="m">${R(a, b)}</span>. ${ctx.have(gp * k, gw)} ${ctx.ask(aw)}`, mode: "num", value: ap * k, unit: ctx.u, why: `${gp === 1 ? `1 part = ${k}.` : `${gp} ${pl(gp)} = ${gp * k}, so 1 part = ${k}.`} ${aw[0].toUpperCase() + aw.slice(1)}: ${ap} × ${k} = ${ap * k}.` };
 });
 add("expected", "e-difference", "Ratio problems from a difference", () => {
   const [p, q] = two();

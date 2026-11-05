@@ -669,6 +669,7 @@ import { collection, query, where, getDocs, doc, getDoc } from "https://www.gsta
 // Chart.js is loaded as a classic global script in <head>; referenced as `Chart`.
 import { getEnabledTools, getAllTools } from "../shared/mmtToolRegistry.js?v=8def572f";
 import { normaliseAchievement, summarise, rollupByStudent, toCSV, summaryText, partialLabel } from "../shared/resultUtils.js?v=8db063f7";
+import { recordFitsTask } from "../shared/quizInsights.js?v=7b0b597e";
 
 const $ = (id)=>document.getElementById(id);
 let teacher=null, students=[], all=[], attemptsByCode=new Map();
@@ -1415,11 +1416,10 @@ function otOverviewHTML(q){
   return `<div class="ot-ov" data-ov="${esc(q.toolId)}">
     <div class="ot-ovtx"><span class="ot-ovtag">📚 Whole-topic quiz</span>
       <strong>${esc(q.short)}</strong>
-      <span class="d">${esc(q.note || "Covers the whole topic.")} Set all of it, or choose just the question types you want.</span>
+      <span class="d">${esc(q.note || "Covers the whole topic.")} Choose the level students do, and all or just some of the question types. Students can't change the level or leave the task for the open quiz.</span>
       <span class="ot-ovcust" data-ovcust="${esc(q.toolId)}"></span></div>
     <div class="ot-ovact">
-      <button class="ot-ovbtn" type="button" data-whole="${esc(q.toolId)}" aria-pressed="false">＋ Add whole quiz</button>
-      <button class="ot-ovbtn alt" type="button" data-cust="${esc(q.toolId)}">Choose question types ›</button>
+      <button class="ot-ovbtn" type="button" data-cust="${esc(q.toolId)}">＋ Set this quiz ›</button>
     </div>
   </div>`;
 }
@@ -1447,6 +1447,8 @@ function otListClick(e){
 function otPaintExpand(){ const b=$("otExpand"); if(!b) return; const cards=[...modalEl.querySelectorAll(".ot-topic")]; b.hidden=!cards.length; b.textContent=cards.length && cards.every(c=>c.classList.contains("open")) ? "Collapse all" : "Expand all"; }
 function toggleWholeQuiz(toolId, on){
   const q=OT&&OT.cat.byId[toolId]; if(!q) return;
+  // A whole-topic quiz is always set through its builder, so the task has a level and a locked link.
+  if(on && BUILDER_IDS.has(toolId)){ otPaint(); otOpenBuilder(toolId); return; }
   const i=dtSelected.findIndex(s=>s.toolId===toolId&&s.mode==="whole");
   if(on && i<0) dtSelected.push({ toolId, title:q.title, launchUrl:q.launchUrl, mode:"whole" });
   if(!on && i>=0) dtSelected.splice(i,1);
@@ -1464,7 +1466,7 @@ function otPaint(){
     modalEl.querySelectorAll("[data-ov]").forEach(el=>{
       const id=el.dataset.ov; const nc=dtSelected.filter(s=>s.toolId===id&&s.mode==="custom").length;
       el.classList.toggle("on", whole.has(id)||nc>0);
-      const c=el.querySelector("[data-ovcust]"); if(c) c.textContent = nc ? `✓ ${nc} version${nc===1?"":"s"} with chosen question types added` : "";
+      const c=el.querySelector("[data-ovcust]"); if(c) c.textContent = nc ? `✓ ${nc} version${nc===1?"":"s"} added to this task` : "";
     });
     modalEl.querySelectorAll("[data-tsel]").forEach(el=>{
       const tp=OT.cat.topics[el.dataset.tsel]; if(!tp) return;
@@ -1722,7 +1724,7 @@ function obHeadHTML(){
       <span class="ob-crumb">${OB.tp?`${esc(OB.tp.stage)} · ${esc(OB.tp.name)} · `:""}Whole-topic quiz</span></div>
     <div class="ob-head"><span class="ot-ticon ${col}" aria-hidden="true">${esc(icon)}</span>
       <div class="ob-ht"><h3>${esc(OB.q.title)}${OB.editItem?` <span class="ob-pill">Editing</span>`:""}</h3>
-        <p>Choose what this version covers. Students only get the question types you tick, at the level and length you set.</p></div>
+        <p>Choose what this version covers. Students only get the question types you tick, at the level and length you set. They can't change the level or switch to the open quiz.</p></div>
       <a class="ob-prev" href="${esc(OB.q.launchUrl)}" target="_blank" rel="noopener" title="Open the full quiz in a new tab">Preview quiz ↗</a></div>`;
 }
 function obRenderLoading(){
@@ -1879,8 +1881,8 @@ async function doDashTask(){
 // Counts attempts made since the task was set (a minute's grace), like the
 // student portal and the analytics task report.
 function dashCompleters(t){
-  const cls=t.className||""; const set=new Set(); const since=Number(t.assignedAt)||0;
-  for(const a of all){ if((a.toolId||"")!==t.toolId) continue; if(cls && (a.className||"")!==cls) continue; if(since && a.time && a.time<since-60000) continue; set.add(a.studentCode||a.studentName||"?"); }
+  const cls=t.className||""; const set=new Set();
+  for(const a of all){ if(cls && (a.className||"")!==cls) continue; if(!recordFitsTask(a,t)) continue; set.add(a.studentCode||a.studentName||"?"); }
   return set;
 }
 async function loadDashTasks(className){
@@ -2530,7 +2532,7 @@ function openStudent(code, opts){
 // module can't load, the classic page below still opens.
 async function openResults(){
   try{
-    const m = await import("./analytics.js?v=cf8d438f");
+    const m = await import("./analytics.js?v=7a0d8e4f");
     m.openAnalytics({
       get all(){ return all; }, get students(){ return students; }, get classes(){ return classes; },
       get dashAssignments(){ return dashAssignments; }, get teacher(){ return teacher; },

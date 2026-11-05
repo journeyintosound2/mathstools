@@ -203,7 +203,10 @@ window.MMT_GEOMETRY_ENGINE = (() => {
     let labelR = baseR + (spec.labelGap || (sweep < 0.6 ? 24 : 20)) + ((spec.arcs || 1) - 1) * 5;
     // A narrow angle needs its label further out, where the arms are far
     // enough apart to hold the text between them.
+    // A long label such as (2x + 3)° needs more room again, in proportion to its width.
+    const halfW = Math.max(17, String(spec.label ?? "").length * (TEXT - 1) * 0.27 + 4);
     if (!spec.right && sweep < 1.2) labelR = Math.min(110, Math.max(labelR, 17 / Math.sin(sweep / 2)));
+    if (!spec.right && halfW > 17 && sweep < 2.2) labelR = Math.min(150, Math.max(labelR, halfW / Math.sin(sweep / 2)));
     const pos = add(at, mul(bis, labelR));
     if (spec.label === null || spec.label === "") {
       parent.appendChild(el("rect", {

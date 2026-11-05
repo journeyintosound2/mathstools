@@ -63,7 +63,7 @@ add("basic", "b-spinner", "Probability with a spinner", () => {
   let labels; do { labels = Array.from({ length: n }, () => pick(cols)); } while (new Set(labels).size < cols.length);
   labels = shuffle(labels);
   const c = pick(cols), f = labels.filter(l => l === c).length;
-  return { prompt: `The spinner has ${n} equal sectors. What is the probability that it lands on <b>${c}</b>?`, diagram: P({ diagramType: "spinner", labels }), ...fr(f, n), why: `${f} of the ${n} equal sectors are ${c}: P = ${C.fracText(f, n)}.` };
+  return { prompt: `The spinner has ${n} equal sectors. What is the probability that it lands on <b>${c}</b>?`, diagram: P({ diagramType: "spinner", labels }), ...fr(f, n), why: `${f} of the ${n} equal sectors ${f === 1 ? "is" : "are"} ${c}: P = ${C.fracText(f, n)}.` };
 });
 add("basic", "b-bag", "Probability with counters in a bag", () => {
   const cols = sample(["red", "blue", "green", "yellow"], ri(2, 3)), counts = {};
@@ -114,7 +114,9 @@ add("expected", "e-sum-to-one", "Probabilities add to 1", () => {
 add("expected", "e-relative-frequency", "Relative frequency", () => {
   const exp = pick([["A drawing pin is dropped", ["Point up", "Point down"]], ["A coin is tossed", ["Heads", "Tails"]], ["A paper cup is thrown", ["Upright", "Upside down", "On its side"]]]);
   const N = pick([20, 25, 40, 50, 100, 200]);
-  let f; do { const cuts = Array.from({ length: exp[1].length - 1 }, () => ri(1, N - 1)).sort((a, b) => a - b); f = cuts.map((c, i) => c - (i ? cuts[i - 1] : 0)).concat(N - cuts[cuts.length - 1]); } while (f.some(v => v < 2));
+  let f;
+  // A coin's results should look like a coin's: within 10% of half.
+  if (exp[1][0] === "Heads") { const h = Math.round(N / 2 + ri(-N / 10, N / 10)); f = [h, N - h]; } else do { const cuts = Array.from({ length: exp[1].length - 1 }, () => ri(1, N - 1)).sort((a, b) => a - b); f = cuts.map((c, i) => c - (i ? cuts[i - 1] : 0)).concat(N - cuts[cuts.length - 1]); } while (f.some(v => v < 2));
   const i = ri(0, exp[1].length - 1);
   const tbl = `<table class="dtab"><tr><th>Outcome</th>${exp[1].map(o => `<td>${o}</td>`).join("")}</tr><tr><th>Frequency</th>${f.map(v => `<td>${v}</td>`).join("")}</tr></table>`;
   return { prompt: `${exp[0]} ${N} times. The results are in the table.${tbl}What is the relative frequency of <b>${exp[1][i]}</b>, as a decimal?`, mode: "frac", n: f[i], d: N, form: "decimal", answerHTML: fmt(f[i] / N), why: `Relative frequency = ${f[i]} ÷ ${N} = ${fmt(f[i] / N)}.` };

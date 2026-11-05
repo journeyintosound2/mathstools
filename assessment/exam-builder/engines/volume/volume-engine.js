@@ -499,7 +499,8 @@
     addLine(svg, C[0], C[1], C[0], A[1], { dash: "8 8", width: 2 });
 
     addText(svg, `${base} ${unit}`, (A[0] + B[0]) / 2, A[1] + 35, { size: 22 });
-    addText(svg, `${height} ${unit}`, C[0] - 45, (C[1] + A[1]) / 2, { size: 22 });
+    // Height label: left of the sloping edge at half height, right-aligned, so it never straddles a line.
+    addText(svg, `${height} ${unit}`, Math.min(C[0], (A[0] + C[0]) / 2) - 10, (C[1] + A[1]) / 2, { size: 22, anchor: "end" });
     addText(svg, `${length} ${unit}`, 465, 172, { size: 22 });
     node.appendChild(svg);
   }

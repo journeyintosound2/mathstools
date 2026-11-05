@@ -94,7 +94,7 @@ add("expected", "e-stem-stats", "Statistics from a stem-and-leaf plot", () => {
     const k = pick(["median", "mode", "range"]);
     if (k === "mode") { const m = modes(data); if (m.length > 1 || data.filter(v => v === m[0]).length < 2) continue; return { prompt: `${ctx} are shown in the stem-and-leaf plot. What is the <b>mode</b>?`, diagram, mode: "num", value: m[0], why: `${m[0]} appears ${data.filter(v => v === m[0]).length} times — more than any other value.` }; }
     if (k === "range") return { prompt: `${ctx} are shown in the stem-and-leaf plot. What is the <b>range</b>?`, diagram, mode: "num", value: data[n - 1] - data[0], why: `${data[n - 1]} − ${data[0]} = ${data[n - 1] - data[0]}.` };
-    return { prompt: `${ctx} are shown in the stem-and-leaf plot. What is the <b>median</b>?`, diagram, mode: "num", value: median(data), why: `There are ${n} values. ${n % 2 ? `The middle one is number ${(n + 1) / 2}` : `The median is halfway between numbers ${n / 2} and ${n / 2 + 1}`}: ${fmt(median(data))}.` };
+    return { prompt: `${ctx} are shown in the stem-and-leaf plot. What is the <b>median</b>?`, diagram, mode: "num", value: median(data), why: `There are ${n} values. ${n % 2 ? `The middle one is value number ${(n + 1) / 2}` : `The median is halfway between value number ${n / 2} and value number ${n / 2 + 1}`} (counting in order from the top of the plot): ${fmt(median(data))}.` };
   }
 });
 add("expected", "e-missing", "Find a missing value from the mean", () => {
@@ -108,8 +108,8 @@ add("expected", "e-outlier", "Outliers and their effect", () => {
   const out = pick([ri(85, 120), ri(1, 4)]); const data = shuffle(base.concat(out));
   const k = pick(["which", "affect", "newmean"]);
   if (k === "which") { const opts = shuffle([out, ...shuffle(base).slice(0, 3)].map(String)); if (new Set(opts).size < 4) return T.find(t => t.id === "e-outlier").gen(); return { prompt: `Which value is an <b>outlier</b> in this data?${list(data)}`, mode: "mc", options: opts, correct: opts.indexOf(String(out)), why: `${out} is far away from all the other values.` }; }
-  if (k === "affect") { const opts = ["The mean", "The median", "Neither"]; return { prompt: `${list(data)}The outlier ${out} is removed. Which measure changes more?`, mode: "mc", options: opts, correct: 0, keepOrder: true, why: `Mean: ${fmt(mean(data), 1)} → ${fmt(mean(base), 1)}. Median: ${fmt(median(data))} → ${fmt(median(base))}. One extreme value pulls the mean much more than the median.` }; }
-  return { prompt: `${list(data)}Find the mean <b>without</b> the outlier, correct to 1 decimal place.`, mode: "num", value: mean(base), dp: 1, why: `Remove ${out}: ${sum(base)} ÷ ${base.length} ≈ ${round(mean(base), 1).toFixed(1)}.` };
+  if (k === "affect") { const opts = ["The mean", "The median", "Neither"]; return { prompt: `Here are some data:${list(data)}The outlier ${out} is removed. Which measure changes more?`, mode: "mc", options: opts, correct: 0, keepOrder: true, why: `Mean: ${fmt(mean(data), 1)} → ${fmt(mean(base), 1)}. Median: ${fmt(median(data))} → ${fmt(median(base))}. One extreme value pulls the mean much more than the median.` }; }
+  return { prompt: `Here are some data:${list(data)}Find the mean <b>without</b> the outlier, correct to 1 decimal place.`, mode: "num", value: mean(base), dp: 1, why: `Remove ${out}: ${sum(base)} ÷ ${base.length} ≈ ${round(mean(base), 1).toFixed(1)}.` };
 });
 add("expected", "e-effect", "The effect of changing the data", () => {
   const n = ri(4, 6), a = wholeMeanData(n, 5, 30), m = mean(a), k = pick(["add", "mult", "remove", "range"]);
@@ -131,7 +131,7 @@ add("expected", "e-compare", "Compare two sets of data", () => {
   const n = 5, A = wholeMeanData(n, 10, 30), B = wholeMeanData(n, 12, 34);
   if (mean(A) === mean(B)) return T.find(t => t.id === "e-compare").gen();
   const [a, b] = pick([["Class A", "Class B"], ["Team Red", "Team Blue"]]);
-  return { prompt: `Scores for two groups:<br><b>${a}:</b>${list(A)}<b>${b}:</b>${list(B)}How much higher is the mean of the group with the higher mean?`, mode: "num", value: Math.abs(mean(A) - mean(B)), why: `${a}: ${sum(A)} ÷ 5 = ${mean(A)}. ${b}: ${sum(B)} ÷ 5 = ${mean(B)}. Difference = ${Math.abs(mean(A) - mean(B))}.` };
+  return { prompt: `Scores for two groups:<br><b>${a}:</b>${list(A)}<b>${b}:</b>${list(B)}Find the difference between the two means.`, mode: "num", value: Math.abs(mean(A) - mean(B)), why: `${a}: ${sum(A)} ÷ 5 = ${mean(A)}. ${b}: ${sum(B)} ÷ 5 = ${mean(B)}. Difference = ${Math.abs(mean(A) - mean(B))}.` };
 });
 add("expected", "e-choose-measure", "Choose a measure of centre", () => {
   const items = [

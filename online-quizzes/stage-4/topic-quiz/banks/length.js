@@ -82,7 +82,7 @@ add("basic", "b-perim-shape", "Perimeter of quadrilaterals and triangles", () =>
   if (kind === "rhombus") { const s = ri(3, 25); ["AB", "BC", "CD", "DA"].forEach(e => tk(e[0], e[1], 1)); L("A", "B", s); P = 4 * s; why = `A rhombus has four equal sides: 4 × ${s} = ${P} ${u}.`; }
   if (kind === "kite") { const a = ri(4, 15), b = a + ri(3, 12); tk("A", "B", 1); tk("D", "A", 1); tk("B", "C", 2); tk("C", "D", 2); L("A", "B", a); L("B", "C", b); P = 2 * (a + b); why = `A kite has two pairs of equal adjacent sides: 2 × (${a} + ${b}) = ${P} ${u}.`; }
   if (kind === "trapezium") { const bot = ri(14, 30), top = ri(5, bot - 6), l = ri(5, 14), r = ri(5, 14); L("A", "B", bot); L("C", "D", top); L("D", "A", l); L("B", "C", r); cfg.parallel.push({ from: "A", to: "B" }, { from: "D", to: "C" }); P = bot + top + l + r; why = `Add all four sides: ${bot} + ${r} + ${top} + ${l} = ${P} ${u}.`; }
-  if (kind === "isosceles") { const s = ri(6, 20), b = ri(4, 2 * s - 2); tk("B", "C", 1); tk("C", "A", 1); L("A", "B", b); L("C", "A", s); P = 2 * s + b; why = `Two sides are ${s} ${u} (they are marked equal): ${s} + ${s} + ${b} = ${P} ${u}.`; }
+  if (kind === "isosceles") { const s = ri(6, 20); let b; do { b = ri(4, 2 * s - 2); } while (b === s); /* a base equal to the legs would be equilateral */ tk("B", "C", 1); tk("C", "A", 1); L("A", "B", b); L("C", "A", s); P = 2 * s + b; why = `Two sides are ${s} ${u} (they are marked equal): ${s} + ${s} + ${b} = ${P} ${u}.`; }
   return { prompt: `Find the perimeter of this ${name}.`, diagram: geo(cfg), mode: "num", value: P, unit: u, why };
 });
 add("basic", "b-composite", "Perimeter of a composite figure", () => {

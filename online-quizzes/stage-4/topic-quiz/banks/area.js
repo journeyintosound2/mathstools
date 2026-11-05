@@ -16,15 +16,17 @@ const half = v => v / 2;
 
 /* ================================ BASIC ================================ */
 add("basic", "b-rectangle", "Area of rectangles and squares", () => {
-  const u = pick(UNITS), l = ri(3, 25), w = Math.random() < 0.2 ? l : ri(2, 20);
+  const u = pick(UNITS), a = ri(3, 25), c = Math.random() < 0.2 ? a : ri(2, 20);
+  const l = Math.max(a, c), w = Math.min(a, c); // the drawing is landscape, so the longer side runs along it
   return { prompt: `Find the area of this ${l === w ? "square" : "rectangle"}.`, diagram: A({ diagramType: "rectangle", lengthLabel: `${l} ${u}`, widthLabel: `${w} ${u}` }), mode: "num", value: l * w, unit: sqU(u), why: `A = l × w = ${l} × ${w} = ${l * w} ${sqU(u)}.` };
 });
 add("basic", "b-triangle", "Area of triangles", () => {
-  const u = pick(UNITS), b = ri(3, 24), h = ri(3, 20);
+  // The picture is drawn wider than tall, so the numbers are too (height 30%–100% of the base).
+  const u = pick(UNITS), b = ri(4, 24), h = ri(Math.max(2, Math.ceil(b * 0.3)), b);
   return { prompt: `Find the area of this triangle.`, diagram: A({ diagramType: "triangle", baseLabel: `${b} ${u}`, heightLabel: `${h} ${u}`, oblique: Math.random() < 0.5 }), mode: "num", value: b * h / 2, unit: sqU(u), why: `A = ½ × b × h = ½ × ${b} × ${h} = ${fmt(b * h / 2)} ${sqU(u)}.` };
 });
 add("basic", "b-parallelogram", "Area of parallelograms", () => {
-  const u = pick(UNITS), b = ri(4, 24), h = ri(3, 16);
+  const u = pick(UNITS), b = ri(4, 24), h = ri(Math.max(2, Math.ceil(b * 0.3)), Math.min(b, 16));
   return { prompt: `Find the area of this parallelogram.`, diagram: A({ diagramType: "parallelogram", baseLabel: `${b} ${u}`, heightLabel: `${h} ${u}` }), mode: "num", value: b * h, unit: sqU(u), why: `A = b × h (the perpendicular height) = ${b} × ${h} = ${b * h} ${sqU(u)}.` };
 });
 add("basic", "b-circle-pi", "Area of a circle in terms of π", () => {
@@ -49,7 +51,7 @@ add("basic", "b-missing", "Find a missing length from the area", () => {
 
 /* =============================== EXPECTED ============================== */
 add("expected", "e-trapezium", "Area of trapeziums", () => {
-  const u = pick(UNITS), b = ri(8, 24), a = ri(3, b - 2), h = ri(3, 16);
+  const u = pick(UNITS), b = ri(8, 24), a = ri(3, b - 2), h = ri(Math.max(3, Math.ceil(b * 0.3)), Math.max(4, Math.round(b * 0.7))); // drawn about half as tall as wide
   return { prompt: `Find the area of this trapezium.`, diagram: A({ diagramType: "trapezium", topLabel: `${a} ${u}`, bottomLabel: `${b} ${u}`, heightLabel: `${h} ${u}` }), mode: "num", value: (a + b) * h / 2, unit: sqU(u), why: `A = ½ × (a + b) × h = ½ × (${a} + ${b}) × ${h} = ${fmt((a + b) * h / 2)} ${sqU(u)}.` };
 });
 add("expected", "e-rhombus-kite", "Area of rhombuses and kites", () => {

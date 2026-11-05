@@ -122,7 +122,22 @@ window.MMT_AREA_ENGINE = (() => {
     if (text) {
       const m = midpoint(a, b);
       label(svg, text, m.x + (vertical ? offset : 0), m.y + (vertical ? 0 : offset), "area-small-label");
+      // A vertical arrow's label is anchored at its edge, clear of the line, not centred on it.
+      if (vertical) {
+        const t = svg.lastChild;
+        t.setAttribute("x", m.x + (offset < 0 ? -8 : 8));
+        t.setAttribute("style", "text-anchor:" + (offset < 0 ? "end" : "start"));
+      }
     }
+  }
+
+  function heightBeside(svg, x, y1, y2, text) {
+    // The height is labelled beside its own dashed line, inside the shape, on a white halo,
+    // so nothing crosses a sloping side.
+    if (!text) return;
+    label(svg, text, x - 10, (y1 + y2) / 2, "area-small-label");
+    const t = svg.lastChild;
+    t.setAttribute("style", "text-anchor:end;paint-order:stroke;stroke:#fff;stroke-width:5px;stroke-linejoin:round");
   }
 
   function rightAngle(svg, x, y, orientation = "bottom-right", size = 24) {
@@ -241,7 +256,7 @@ window.MMT_AREA_ENGINE = (() => {
 
     sideLabel(svg, config.baseLabel || "", a, b, 0, 36);
     if (config.heightLabel) {
-      dimensionArrow(svg, { x: foot.x + 46, y: c.y }, { x: foot.x + 46, y: foot.y }, config.heightLabel, 16, true);
+      heightBeside(svg, foot.x, c.y, foot.y, config.heightLabel);
     }
 
     target.innerHTML = "";
@@ -272,7 +287,7 @@ window.MMT_AREA_ENGINE = (() => {
 
     sideLabel(svg, config.baseLabel || "", a, b, 0, 38);
     if (config.heightLabel) {
-      dimensionArrow(svg, { x: foot.x + 50, y: c.y }, { x: foot.x + 50, y: foot.y }, config.heightLabel, 16, true);
+      heightBeside(svg, foot.x, c.y, foot.y, config.heightLabel);
     }
 
     target.innerHTML = "";
@@ -450,8 +465,16 @@ window.MMT_AREA_ENGINE = (() => {
     }));
 
     svg.appendChild(el("path", { d: arcPath(cx, cy, 38, startAngle, endAngle), class: "area-feature-green" }));
-    label(svg, `${angle}°`, cx, cy - 58, "area-small-label");
-    label(svg, config.radiusLabel || "", cx + r / 2, cy + 32);
+    // A narrow wedge has no room for its angle inside, so the label goes just below the vertex.
+    if (angle < 75) label(svg, `${angle}°`, cx, cy + 26, "area-small-label");
+    else label(svg, `${angle}°`, cx, cy - 58, "area-small-label");
+    // Radius label: halfway along the first radius, stepped off it on the side away from the sector.
+    {
+      const phi = (startAngle - 90) * Math.PI / 180, ox = Math.sin(phi), oy = -Math.cos(phi);
+      const mx = (cx + a.x) / 2 + ox * 22, my = (cy + a.y) / 2 + oy * 22;
+      label(svg, config.radiusLabel || "", mx, my);
+      if (config.radiusLabel && Math.abs(ox) > 0.35) svg.lastChild.setAttribute("style", "text-anchor:" + (ox > 0 ? "start" : "end"));
+    }
 
     target.innerHTML = "";
     target.appendChild(svg);
@@ -652,8 +675,11 @@ window.MMT_AREA_ENGINE = (() => {
     svg.appendChild(el("line", { x1: top.x, y1: top.y, x2: bottom.x, y2: bottom.y, class: "area-diagonal" }));
     rightAngle(svg, 360, 215, "bottom-right", 24);
 
-    label(svg, config.diagonalXLabel || "", 322, 150, "area-small-label");
-    label(svg, config.diagonalYLabel || "", 430, 185, "area-small-label");
+    // Each diagonal's length sits on that diagonal: the horizontal one above its left half,
+    // the vertical one beside its lower half.
+    label(svg, config.diagonalXLabel || "", (165 + 360) / 2, 215 - 16, "area-small-label");
+    label(svg, config.diagonalYLabel || "", 372, (215 + 355) / 2, "area-small-label");
+    if (config.diagonalYLabel) svg.lastChild.setAttribute("style", "text-anchor:start");
 
     target.innerHTML = "";
     target.appendChild(svg);
@@ -675,8 +701,11 @@ window.MMT_AREA_ENGINE = (() => {
     drawTickMark(svg, right, bottom, 2);
     drawTickMark(svg, bottom, left, 2);
 
-    label(svg, config.diagonalXLabel || "", 322, 130, "area-small-label");
-    label(svg, config.diagonalYLabel || "", 430, 160, "area-small-label");
+    // Each diagonal's length sits on that diagonal: the horizontal one above its left half,
+    // the vertical one beside its lower half.
+    label(svg, config.diagonalXLabel || "", (180 + 360) / 2, 190 - 16, "area-small-label");
+    label(svg, config.diagonalYLabel || "", 372, (190 + 365) / 2, "area-small-label");
+    if (config.diagonalYLabel) svg.lastChild.setAttribute("style", "text-anchor:start");
 
     target.innerHTML = "";
     target.appendChild(svg);

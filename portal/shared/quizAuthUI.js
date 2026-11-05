@@ -42,7 +42,7 @@
   function esc(s){ return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
   async function load(){
     if(tried) return MMT; tried=true;
-    try{ var mod=await import("/portal/shared/quizClient.js"); MMT=mod.MMTQuiz; MMT.init(); }
+    try{ var mod=await import("/portal/shared/quizClient.js?v=b1371afa"); MMT=mod.MMTQuiz; MMT.init(); }
     catch(e){ MMT=null; console.warn("MMT quiz client unavailable — demo mode only:", e&&e.message); }
     return MMT;
   }

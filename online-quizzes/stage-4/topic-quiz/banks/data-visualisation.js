@@ -53,14 +53,14 @@ add("basic", "b-freq", "Frequency tables", () => {
   const ctx = pick(DISCRETE), data = shuffle(discreteData(ctx));
   const v = pick([...new Set(data)]), f = count(data, v);
   const askTotal = Math.random() < 0.25;
-  return { prompt: `The ${ctx.x.toLowerCase()} was recorded for some ${ctx.what}:<span class="dataList">${data.join(", ")}</span>${askTotal ? `How many ${ctx.what} were surveyed?` : `What is the <b>frequency</b> of ${v}?`}`, mode: "num", value: askTotal ? data.length : f, why: askTotal ? `Count every value: ${data.length}.` : `${v} appears ${f} time${f === 1 ? "" : "s"} in the list. A tally helps you not miss any.` };
+  return { prompt: `Data were recorded for some ${ctx.what} (${ctx.x.toLowerCase()}):<span class="dataList">${data.join(", ")}</span>${askTotal ? `How many ${ctx.what} are in the data?` : `What is the <b>frequency</b> of ${v}?`}`, mode: "num", value: askTotal ? data.length : f, why: askTotal ? `Count every value: ${data.length}.` : `${v} appears ${f} time${f === 1 ? "" : "s"} in the list. A tally helps you not miss any.` };
 });
 add("basic", "b-column", "Read a column graph", () => {
   const ctx = pick(CATS), cats = ctx.c.slice(0, ri(4, 5)), vals = cats.map(() => ri(2, 16));
   const k = pick(["one", "total", "diff", "most"]);
   const diagram = ST({ chartType: "column", title: ctx.t, xLabel: ctx.x, yLabel: ctx.y, categories: cats, values: vals, yStep: 2 });
   if (k === "one") { const i = ri(0, cats.length - 1); return { prompt: `How many chose <b>${cats[i]}</b>?`, diagram, mode: "num", value: vals[i], why: `Read across from the top of the ${cats[i]} column: ${vals[i]}.` }; }
-  if (k === "total") return { prompt: `How many were surveyed altogether?`, diagram, mode: "num", value: sum(vals), why: `Add the columns: ${vals.join(" + ")} = ${sum(vals)}.` };
+  if (k === "total") return { prompt: `How many ${ctx.y.replace(/^Number of /, "")} were surveyed altogether?`, diagram, mode: "num", value: sum(vals), why: `Add the columns: ${vals.join(" + ")} = ${sum(vals)}.` };
   if (k === "diff") { const [i, j] = sample([...cats.keys()], 2); if (vals[i] === vals[j]) vals[j]++; const a = Math.max(i, j) === i ? i : j; return { prompt: `How many more chose <b>${cats[vals[i] > vals[j] ? i : j]}</b> than <b>${cats[vals[i] > vals[j] ? j : i]}</b>?`, diagram, mode: "num", value: Math.abs(vals[i] - vals[j]), why: `${Math.max(vals[i], vals[j])} − ${Math.min(vals[i], vals[j])} = ${Math.abs(vals[i] - vals[j])}.` }; }
   const m = Math.max(...vals); if (vals.filter(v => v === m).length > 1) { vals[vals.indexOf(m)]++; }
   const mi = vals.indexOf(Math.max(...vals));
@@ -82,18 +82,18 @@ add("basic", "b-pictogram", "Read a pictogram", () => {
   const i = ri(0, 3), unit = ctx.y.replace("Number of ", "");
   const tot = Math.random() < 0.3;
   return { prompt: tot ? `How many ${unit} are shown altogether?` : `How many ${unit} chose <b>${cats[i]}</b>?`, diagram: ST({ chartType: "pictogram", categories: cats, values: vals, perSymbol: per, unit }), mode: "num", value: tot ? sum(vals) : vals[i],
-    why: tot ? `Each symbol is ${per} (half a symbol is ${per / 2}). Total = ${vals.join(" + ")} = ${sum(vals)}.` : `Each symbol is ${per}, and half a symbol is ${per / 2}: ${cats[i]} = ${vals[i]}.` };
+    why: tot ? `Each symbol is ${per} (half a symbol is ${per / 2}). Total = ${vals.join(" + ")} = ${sum(vals)}.` : (() => { const w = Math.floor(vals[i] / per), h = vals[i] % per ? 1 : 0; return `Each symbol is ${per}. ${cats[i]} has ${w} whole symbol${w === 1 ? "" : "s"}${h ? ` and a half (${per / 2})` : ""}: ${w} × ${per}${h ? ` + ${per / 2}` : ""} = ${vals[i]}.`; })() };
 });
 add("basic", "b-line", "Read a line graph", () => {
   const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"];
-  const ctx = pick([{ y: "Rainfall (mm)", s: 20, b: [40, 120] }, { y: "Temperature (°C)", s: 5, b: [10, 30] }, { y: "Water in tank (kL)", s: 5, b: [10, 40] }]);
+  const ctx = pick([{ y: "Rainfall (mm)", n: "the rainfall", s: 20, b: [40, 120] }, { y: "Temperature (°C)", n: "the temperature", s: 5, b: [10, 30] }, { y: "Water in tank (kL)", n: "the water in the tank", s: 5, b: [10, 40] }]);
   const vals = months.map(() => Math.round(ri(ctx.b[0], ctx.b[1]) / ctx.s) * ctx.s);
   const yMax = Math.ceil(Math.max(...vals) / ctx.s) * ctx.s + ctx.s;
   const diagram = ST({ chartType: "line", categories: months, values: vals, yLabel: ctx.y, yStep: ctx.s, yMax, yMin: 0 });
-  if (Math.random() < 0.6) { const i = ri(0, 6); return { prompt: `What was the reading in <b>${months[i]}</b>?`, diagram, mode: "num", value: vals[i], why: `Go up from ${months[i]} to the dot, then across: ${vals[i]}.` }; }
+  if (Math.random() < 0.6) { const i = ri(0, 6); return { prompt: `What was ${ctx.n} in <b>${months[i]}</b>?`, diagram, mode: "num", value: vals[i], why: `Go up from ${months[i]} to the dot, then across: ${vals[i]}.` }; }
   let i; do { i = ri(0, 5); } while (vals[i + 1] === vals[i]);
   const opts = ["It increased", "It decreased", "It stayed the same"];
-  return { prompt: `What happened to the reading from <b>${months[i]}</b> to <b>${months[i + 1]}</b>?`, diagram, mode: "mc", options: opts, correct: vals[i + 1] > vals[i] ? 0 : 1, keepOrder: true, why: `It went from ${vals[i]} to ${vals[i + 1]}: the line goes ${vals[i + 1] > vals[i] ? "up" : "down"}.` };
+  return { prompt: `What happened to ${ctx.n} from <b>${months[i]}</b> to <b>${months[i + 1]}</b>?`, diagram, mode: "mc", options: opts, correct: vals[i + 1] > vals[i] ? 0 : 1, keepOrder: true, why: `It went from ${vals[i]} to ${vals[i + 1]}: the line goes ${vals[i + 1] > vals[i] ? "up" : "down"}.` };
 });
 
 /* =============================== EXPECTED ============================== */

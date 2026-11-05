@@ -70,7 +70,7 @@ add("basic", "b-is-right", "Is the triangle right-angled?", () => {
   const yes = Math.random() < 0.5;
   const cc = yes ? c : c + pick([-1, 1, 2]);
   const s = shuffle([a, b, cc]);
-  return { prompt: `A triangle has sides of ${s[0]} cm, ${s[1]} cm and ${s[2]} cm. True or false: it is a right-angled triangle?`, mode: "tf", truth: yes,
+  return { prompt: `A triangle has sides of ${s[0]} cm, ${s[1]} cm and ${s[2]} cm. True or false: it is a right-angled triangle.`, mode: "tf", truth: yes,
     why: `${a}² + ${b}² = ${a * a + b * b}, and ${cc}² = ${cc * cc}. ${yes ? "They are equal, so it is right-angled." : "They are not equal, so it is not right-angled."}` };
 }, q => { const n = q.prompt.match(/(\d+) cm/g).map(s => parseInt(s)).sort((x, y) => x - y); return (n[0] ** 2 + n[1] ** 2 === n[2] ** 2) === q.truth ? null : "converse wrong"; });
 
@@ -125,10 +125,10 @@ add("expected", "e-problems", "Pythagoras in context", () => {
   const k = pick([0, 1, 2, 3]);
   if (k === 0) {
     const L = ri(4, 9) + pick([0, 0.5]), foot = round(L * pick([0.25, 0.3, 0.35]), 1), h = Math.sqrt(L * L - foot * foot);
-    return { prompt: `A ${fmt(L)} m ladder leans against a wall. Its foot is ${fmt(foot)} m from the wall. How high up the wall does it reach, correct to 1 decimal place?`, diagram: { engine: "pythagoras-engine", config: { diagramType: "ladder-wall", heightLabel: "h", baseLabel: `${fmt(foot)} m`, ladderLabel: `${fmt(L)} m` }, scale: 1.5, maxH: 320 }, mode: "num", value: h, dp: 1, unit: "m", why: `h² = ${fmt(L)}² − ${fmt(foot)}² = ${fmt(L * L - foot * foot, 3)}, so h ≈ ${round(h, 1).toFixed(1)} m.` };
+    return { prompt: `A ${fmt(L)} m ladder leans against a wall. Its foot is ${fmt(foot)} m from the wall. How high up the wall does it reach, correct to 1 decimal place?`, diagram: { engine: "pythagoras-engine", config: { diagramType: "ladder-wall", heightLabel: "h", baseLabel: `${fmt(foot)} m`, ladderLabel: `${fmt(L)} m`, footRatio: foot / h }, scale: 1.5, maxH: 320 }, mode: "num", value: h, dp: 1, unit: "m", why: `h² = ${fmt(L)}² − ${fmt(foot)}² = ${fmt(L * L - foot * foot, 3)}, so h ≈ ${round(h, 1).toFixed(1)} m.` };
   }
   if (k === 1) {
-    const w = ri(3, 15), h = ri(2, 12), d = Math.hypot(w, h);
+    const w = ri(3, 6), h = ri(1, w - 1), d = Math.hypot(w, h); // a real gate: a few metres wide, lower than it is wide
     return { prompt: `A rectangular gate is ${w} m wide and ${h} m high. A diagonal brace runs from one corner to the opposite corner. How long is the brace, correct to 1 decimal place?`, diagram: { engine: "pythagoras-engine", config: { diagramType: "rectangle-diagonal", widthLabel: `${w} m`, heightLabel: `${h} m`, diagonalLabel: "x" }, scale: 1.4, maxH: 320 }, mode: "num", value: d, dp: 1, unit: "m", why: `x² = ${w}² + ${h}² = ${w * w + h * h}, so x ≈ ${round(d, 1).toFixed(1)} m.` };
   }
   if (k === 2) {

@@ -253,7 +253,8 @@ import { COLLECTIONS } from "../shared/firebaseConfig.js";
 import { getDb } from "../shared/codeExchangeClient.js?v=2261aaea";
 import { collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 import { getEnabledTools } from "../shared/mmtToolRegistry.js?v=8def572f";
-import { normaliseAchievement, summarise, formatDate, partialLabel } from "../shared/resultUtils.js";
+import { normaliseAchievement, summarise, formatDate, partialLabel } from "../shared/resultUtils.js?v=8db063f7";
+import { recordFitsTask } from "../shared/quizInsights.js?v=7b0b597e";
 
 const $ = (id) => document.getElementById(id);
 let all = [], current = null, tasks = [];
@@ -521,10 +522,8 @@ function levelOf(r){
   return { key, label: label || (key?titleCase(key):"") };
 }
 function levelRank(key){ const i=LEVEL_ORDER.indexOf(key); return i<0?999:i; }
-function taskAttempts(t){
-  const since=Number(t.assignedAt)||0;
-  return all.filter(r=>(r.toolId||"")===t.toolId && (!since || !r.time || r.time>=since-60000));
-}
+// Only attempts made from the task's own link count (same rule as Manage Tasks and the analytics).
+function taskAttempts(t){ return all.filter(r=>recordFitsTask(r,t)); }
 function taskLevelParam(t){ try{ const u=new URL(t.launchUrl||"", location.origin); return levelKeyOf(u.searchParams.get("level")||""); }catch{ return ""; } }
 function isBetter(a,b){ return !b || a.percent>b.percent || (a.percent===b.percent && a.score>b.score); }
 /** One row per level the student has played (plus the teacher's set level),
@@ -594,10 +593,15 @@ function taskRow(t, opts={}){
   if(st.closed){ icon="✅"; sub=st.best?`Finished — best ${bestTxt}`:"Finished"; btn=""; }
   else if(st.canImprove){ icon="⭐";
     const setLabel=st.setKey?(st.levels.find(l=>l.key===st.setKey)||{}).label:"";
-    sub = st.best ? `Best so far ${bestTxt} · ${n} attempt${n===1?"":"s"} — try again to beat it!`
+    // The newest attempt was submitted early: say how far they got and invite them to finish.
+    const last=st.attempts[0]&&st.attempts[0].raw||{};
+    const early=last.completion==="partial";
+    const earlyTxt=early?`You submitted early (${Number(last.attempted)||0} of ${Number(last.quizLength)||"?"} answered)`:"";
+    sub = st.best ? `Best so far ${bestTxt} · ${n} attempt${n===1?"":"s"}${early?` · ${earlyTxt} last time`:""} — try again to beat it!`
+        : early ? `${earlyTxt} — part-finished attempts don't count as a score yet. Try again and finish it!`
         : setLabel ? `${n} attempt${n===1?"":"s"} — now try the ${esc(setLabel)} level your teacher set`
         : `${n} attempt${n===1?"":"s"} — try again to get a score on the board!`;
-    btn=`<a class="btn again" style="padding:7px 12px" href="${esc(url)}" target="_blank" rel="noopener">Try again</a>`; }
+    btn=`<a class="btn again" style="padding:7px 12px" href="${esc(url)}" target="_blank" rel="noopener">${!st.best&&early?"Finish it":"Try again"}</a>`; }
   else if(st.overdue){ icon="⏰"; sub="Online quiz · past the due date — you can still do it"; }
   return `<li class="task"><div class="trow">
     <span class="em">${icon}</span>

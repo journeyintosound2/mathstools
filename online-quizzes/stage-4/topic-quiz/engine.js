@@ -87,6 +87,9 @@
     for (let y = yMin; y <= yMax; y += step) if (y !== 0) el("text", { x: ox - 7, y: Y(y) + 4, class: "tk", "text-anchor": "end" }, C.fmt(y));
     if (xMin <= 0 && xMax >= 0 && yMin <= 0 && yMax >= 0) el("text", { x: X(0) - 7, y: Y(0) + 15, class: "tk", "text-anchor": "end" }, "0");
     // lines, clipped to the box
+    // Line labels go where they are farthest from other labels and from any crossing point.
+    const placed = [], cross = [];
+    (o.lines || []).forEach((L, i) => (o.lines || []).slice(i + 1).forEach(M2 => { if (L.m !== M2.m) { const x = (M2.b - L.b) / (L.m - M2.m); cross.push([X(x), Y(L.m * x + L.b)]); } }));
     (o.lines || []).forEach(L => {
       const pts = [];
       const add = (x, y) => { if (x >= xMin - 1e-9 && x <= xMax + 1e-9 && y >= yMin - 1e-9 && y <= yMax + 1e-9) pts.push([x, y]); };
@@ -97,8 +100,18 @@
         const a = pts[0], b = pts[pts.length - 1];
         el("line", { x1: X(a[0]), y1: Y(a[1]), x2: X(b[0]), y2: Y(b[1]), class: "ln", stroke: L.color || "#be123c" });
         if (L.label) {
-          const t = 0.82, lx = a[0] + (b[0] - a[0]) * t, ly = a[1] + (b[1] - a[1]) * t;
-          const tx = el("text", { x: X(lx) + 8, y: Y(ly) - 8, class: "lnl", fill: L.color || "#be123c" }, L.label);
+          let best = null, bestD = -1;
+          [0.85, 0.72, 0.15, 0.28, 0.5].forEach(t => {
+            const px = X(a[0] + (b[0] - a[0]) * t), py = Y(a[1] + (b[1] - a[1]) * t);
+            const d = Math.min(1e9, ...placed.concat(cross).map(q => Math.hypot(q[0] - px, q[1] - py)));
+            if (d > bestD + 0.5) { bestD = d; best = [px, py]; }
+          });
+          placed.push(best);
+          // Step off the line at right angles (on the upper side), anchored so the text runs away from it.
+          let dx = X(b[0]) - X(a[0]), dy = Y(b[1]) - Y(a[1]); const len = Math.hypot(dx, dy) || 1; dx /= len; dy /= len;
+          let nx = -dy, ny = dx; if (ny > 0) { nx = -nx; ny = -ny; }
+          const anchor = Math.abs(nx) < 0.35 ? "middle" : nx > 0 ? "start" : "end";
+          const tx = el("text", { x: best[0] + nx * 12, y: best[1] + ny * 12 + (ny > -0.5 ? 5 : 0), class: "lnl", fill: L.color || "#be123c", "text-anchor": anchor }, L.label);
           tx.setAttribute("paint-order", "stroke");
         }
       }
@@ -241,7 +254,10 @@
       dh._grid = g;
     } else drawDiagram(dh, q.diagram);
 
-    const area = $("answerArea"); area.innerHTML = "";
+    const area = $("answerArea");
+    // Check lives beside the answer box (or the plot read-out); park it back in the nav row first.
+    const chk = $("checkBtn"); $("nextBtn").before(chk);
+    area.innerHTML = "";
     area.className = "answerArea mode-" + q.mode;
     if (q.mode === "mc") {
       const wrap = document.createElement("div"); wrap.className = "choices" + (q.options.some(o => String(o).length > 38) ? " long" : "");
@@ -262,17 +278,19 @@
     } else if (q.mode === "plot") {
       const p = document.createElement("div"); p.className = "plotRead"; p.id = "plotRead";
       p.textContent = rec ? `Your point: (${C.fmt(rec.input[0])}, ${C.fmt(rec.input[1])})` : "Click the grid to place your point.";
-      area.appendChild(p);
+      const row = document.createElement("div"); row.className = "inRow"; row.appendChild(p); row.appendChild(chk);
+      area.appendChild(row);
     } else {
       const row = document.createElement("div"); row.className = "inRow";
       row.innerHTML = `<label class="inLab" for="ans">Answer</label>${q.pre ? `<span class="aff">${q.pre}</span>` : ""}<input id="ans" class="ans" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="${q.mode === "num" && !q.keys ? "decimal" : "text"}" placeholder="${C.esc(q.placeholder || "")}">${q.unit ? `<span class="aff">${q.unit}</span>` : ""}`;
       area.appendChild(row);
       const keys = q.keys || (q.mode === "pi" ? ["π"] : q.mode === "mono" ? ["^", "×"] : q.mode === "ratio" ? [":"] : q.mode === "coord" ? ["(", ",", ")", "−"] : q.mode === "linear" ? ["=", "+", "−", "x"] : null);
       if (keys) {
-        const kb = document.createElement("div"); kb.className = "keys";
-        keys.forEach(k => { const b = document.createElement("button"); b.type = "button"; b.className = "key"; b.textContent = k; b.addEventListener("mousedown", e => e.preventDefault()); b.addEventListener("click", () => { const inp = $("ans"); if (inp && !inp.disabled) insertAtCaret(inp, k === "−" ? "-" : k); }); kb.appendChild(b); });
-        area.appendChild(kb);
+        const kb = document.createElement("div"); kb.className = "keys"; kb.setAttribute("aria-label", "Symbol keys");
+        keys.forEach(k => { const b = document.createElement("button"); b.type = "button"; b.className = "key"; b.textContent = k; b.title = "Type " + k; b.addEventListener("mousedown", e => e.preventDefault()); b.addEventListener("click", () => { const inp = $("ans"); if (inp && !inp.disabled) insertAtCaret(inp, k === "−" ? "-" : k); }); kb.appendChild(b); });
+        row.appendChild(kb);
       }
+      row.appendChild(chk);
       const pv = document.createElement("div"); pv.className = "preview"; pv.id = "preview"; area.appendChild(pv);
       const inp = $("ans");
       inp.addEventListener("input", () => { clearNudge(); pv.innerHTML = previewHTML(q, inp.value); });
@@ -391,22 +409,27 @@
     S.qs.forEach((q, k) => { const e = by.get(q.type); if (!e) return; e.total++; if (S.recs[k] && S.recs[k].ok) e.ok++; });
     const rows = [...by.entries()].filter(([, e]) => e.total);
     $("certScore").textContent = `${score} / ${total}`;
-    $("certLine").textContent = `${BANK.title} · ${LEVEL_NAME[S.level]} · ${pct}%`;
-    $("certTrophy").textContent = pct >= 90 ? "🏆" : pct >= 70 ? "🥇" : pct >= 50 ? "👏" : "💪";
+    const earlyDone = !!(window.MMTSubmit && window.MMTSubmit.isPartial && window.MMTSubmit.isPartial());
+    // A part-finished paper is not a 100%: no trophy, no big confetti, and say it was submitted early.
+    $("certLine").textContent = earlyDone ? `${BANK.title} · ${LEVEL_NAME[S.level]} · submitted early` : `${BANK.title} · ${LEVEL_NAME[S.level]} · ${pct}%`;
+    $("certTrophy").textContent = earlyDone ? "📝" : pct >= 90 ? "🏆" : pct >= 70 ? "🥇" : pct >= 50 ? "👏" : "💪";
     $("certBreak").innerHTML = rows.map(([, e]) => `<div class="brow ${e.ok === e.total ? "all" : e.ok === 0 ? "none" : ""}"><span>${e.label}</span><b>${e.ok}/${e.total}</b></div>`).join("");
     // what to practise next: the weakest type, easiest first on ties
     let target = null, worst = 2;
     rows.forEach(([id, e], k) => { const r = e.ok / e.total + k / 1000; if (e.ok < e.total && r < worst) { worst = r; target = e; } });
-    const rec = $("certNext");
-    if (target) { rec.hidden = false; rec.innerHTML = `<b>Practise next:</b> ${target.label}`; }
+    const rec = $("certNext"); rec.classList.remove("partial");
+    const early = !!(window.MMTSubmit && window.MMTSubmit.isPartial && window.MMTSubmit.isPartial());
+    if (early) { rec.hidden = false; rec.classList.add("partial"); rec.innerHTML = `<b>Submitted early:</b> ${total} of ${S.count} questions answered. ${ASSIGN ? "You can try again from your dashboard to improve your score before the task closes." : "Try again to finish the whole quiz."}`; }
+    else if (target) { rec.hidden = false; rec.innerHTML = `<b>Practise next:</b> ${target.label}`; }
     else if (S.level === "basic" && pct >= 80 && !ASSIGN) { rec.hidden = false; rec.innerHTML = `<b>Ready for more?</b> Try the Expected level.`; }
     else rec.hidden = true;
     const X = xpFor(pct, S.level);
     const xpEarned = window.MMTSubmit && window.MMTSubmit.scaleXP ? window.MMTSubmit.scaleXP(X.xp) : X.xp;
     $("certXP").textContent = `XP earned: ${xpEarned}`;
     $("changeLvlBtn").hidden = ASSIGN;
+    const db = $("dashBtn"); if (db) db.hidden = !ASSIGN;
     openModal("certModal");
-    if (pct >= 80) confetti(1);
+    if (pct >= 80 && !earlyDone) confetti(1);
     /* No typed answer is ever in the payload — only marks per question type. */
     const types = rows.map(([id, e]) => ({ typeId: id, label: e.label, correct: e.ok, total: e.total }))
       .concat(["level:" + S.level]);
@@ -418,7 +441,10 @@
       xpEarned, baseXP: X.base, xpMultiplier: X.mult,
       masteryTopic: BANK.mastery, types,
       assignmentMode: ASSIGN,
-      platformVersion: "mmt-topic-quiz-v1",
+      // Always present (empty when opened as a whole quiz), so the portals can tell
+      // an attempt made from a task's own link from one made any other way.
+      assignmentId: ASSIGN ? (PARAMS.get("aid") || "") : "",
+      platformVersion: "mmt-topic-quiz-v2",
       certificateText: `${BANK.title} — ${LEVEL_NAME[S.level]}: ${score}/${total}`,
       ...(window.MMTSubmit && window.MMTSubmit.fields ? window.MMTSubmit.fields() : {})
     });
@@ -569,7 +595,7 @@
 
   function loadAuth() {
     const s = document.createElement("script");
-    s.src = "/portal/shared/quizAuthUI.js?v=6412cdb4";
+    s.src = "/portal/shared/quizAuthUI.js?v=5a88072e";
     document.body.appendChild(s);
     import("/portal/shared/earlySubmit.js").then(m => {
       const MS = m.MMTSubmit;
@@ -578,6 +604,20 @@
         finish: () => finish()
       });
     }).catch(e => console.warn("Early submit unavailable:", e && e.message));
+  }
+
+  /* A task link is the whole of what the student may do: no level menu, no other
+     quizzes, no way back to the open quiz from inside the page. (The portals also
+     only count attempts made from the task's own link.) */
+  function lockToTask() {
+    document.body.classList.add("assignMode");
+    $("assignNote").hidden = false;
+    $("menuBtn").hidden = true;
+    $("changeLvlBtn").hidden = true;
+    const tw = $("toolsWrap"); if (tw) tw.hidden = true;
+    const brand = document.querySelector(".mmtBrand");
+    if (brand) { brand.removeAttribute("href"); brand.setAttribute("aria-disabled", "true"); brand.style.pointerEvents = "none"; }
+    const foot = document.querySelector(".brandFoot"); if (foot) foot.hidden = true;
   }
 
   function run(bank) {
@@ -592,8 +632,7 @@
       let ids = (PARAMS.get("types") || "").split(",").map(s => s.trim()).filter(id => valid.has(id));
       if (!ids.length) ids = [...valid];
       let n = Math.round(Number(PARAMS.get("count")) || DEFAULT_COUNT); n = Math.max(MIN_COUNT, Math.min(MAX_COUNT, n));
-      $("assignNote").hidden = false;
-      $("menuBtn").hidden = true;
+      lockToTask();
       start(level, ids, n);
     } else {
       renderLevels(); openModal("levelModal");

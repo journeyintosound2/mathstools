@@ -198,10 +198,13 @@ add("expected", "e-algebraic", "Angles with algebraic expressions", () => {
     let exprs, angles, x;
     if (k === 0) { const c = shuffle([1, 2, 3, 4]).slice(0, 3); const s = c.reduce((u, v) => u + v); if (180 % s) continue; x = 180 / s; angles = c.map(v => v * x); exprs = c.map(v => (v === 1 ? "" : v) + p + "°"); }
     else { x = ri(4, 12) * 5; const a = ri(1, 3), b = ri(-20, 30); const t = a * x + b; const rest = 180 - t; if (rest < 40) continue; const o = ri(25, rest - 25); angles = [t, o, 180 - t - o]; if (angles[2] < 20) continue; exprs = [`(${a === 1 ? "" : a}${p} ${b < 0 ? "−" : "+"} ${Math.abs(b)})°`, deg(o), deg(angles[2])]; if (b === 0) continue; }
-    if (angles.some(v => v < 15 || v > 150)) continue;
+    // No sliver triangles: below about 35° two corner labels end up on top of each other.
+    if (angles.some(v => v < 35 || v > 140)) continue;
     const order = shuffle([0, 1, 2]); const A2 = order.map(i => angles[i]), E2 = order.map(i => exprs[i]);
+    const co = k === 0 ? angles.reduce((u, v) => u + v) / x : (exprs[0].match(/^\((\d*)/)[1] || 1) * 1;
+    const step = k === 0 ? `${co}${p} = 180, so ${p} = ${x}` : `${co === 1 ? "" : co}${p} + ${180 - co * x} = 180, so ${co === 1 ? "" : co}${p} = ${co * x}${co === 1 ? "" : `, so ${p} = ${x}`}`;
     const cfg = { points: tri(A2, letters), polygons: [{ pts: letters }], angles: letters.map((v, i) => interior(letters, v, E2[i])) };
-    return { prompt: `Form an equation and solve it to find the value of <i>${p}</i>.`, diagram: G(cfg), mode: "num", value: x, why: `The angles add to 180°: ${E2.join(" + ").replace(/°/g, "")} = 180, so ${p} = ${x}.` };
+    return { prompt: `Form an equation and solve it to find the value of <i>${p}</i>.`, diagram: G(cfg), mode: "num", value: x, why: `The angles add to 180°: ${E2.join(" + ").replace(/°/g, "")} = 180. Collect like terms: ${step}.` };
   }
 }, figureCheck);
 add("expected", "e-hierarchy", "Classifying quadrilaterals: true or false", () => {
@@ -265,7 +268,7 @@ add("expected", "e-unknown-side", "Unknown sides using properties", () => {
   if (d2 === 0) return T.find(t => t.id === "e-unknown-side").gen();
   const e1 = `${a}x + ${b}`, e2 = d2 > 0 ? `${c2}x + ${d2}` : `${c2}x − ${-d2}`;
   const what = { rhombus: "two sides of a rhombus", parallelogram: "two opposite sides of a parallelogram", kite: "two equal adjacent sides of a kite", "isosceles triangle": "the two equal sides of an isosceles triangle" }[kind];
-  return { prompt: `The lengths of ${what} are <span class="m">(${e1.replace("x", "<i>x</i>")}) ${u}</span> and <span class="m">(${e2.replace("x", "<i>x</i>")}) ${u}</span>. Find the value of <i>x</i>.`, mode: "num", value: x, why: `The sides are equal: ${e1} = ${e2}, so ${c2 - a}x = ${d2 > 0 ? `${b} − ${d2}` : `${b} + ${-d2}`} = ${b - d2} and x = ${x}. (Each side is ${side} ${u}.)` };
+  return { prompt: `The lengths of ${what} are <span class="m">(${e1.replace("x", "<i>x</i>")}) ${u}</span> and <span class="m">(${e2.replace("x", "<i>x</i>")}) ${u}</span>. Find the value of <i>x</i>.`, mode: "num", value: x, why: `The sides are equal: ${e1} = ${e2}, so ${c2 - a === 1 ? "" : c2 - a}x = ${d2 > 0 ? `${b} − ${d2}` : `${b} + ${-d2}`}${c2 - a === 1 ? "" : ` = ${b - d2}, so x = ${x}`}. (Each side is ${side} ${u}.)` };
 }, q => { const m = q.prompt.match(/\((\d+)<i>x<\/i> \+ (\d+)\).*?\((\d+)<i>x<\/i> ([+−]) (\d+)\)/); if (!m) return "parse"; const [a, b, c, s, d] = [+m[1], +m[2], +m[3], m[4], +m[5]]; const dd = s === "+" ? d : -d; return a * q.value + b === c * q.value + dd ? null : "sides not equal"; });
 
 MMTQ.run({

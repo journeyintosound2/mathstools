@@ -25,7 +25,7 @@ function table(xs, ys, blank = -1, xl = "x", yl = "y") {
 const G = 6;
 /* "3 × (−1) + 2" — the substitution written out, negatives bracketed */
 const br = v => v < 0 ? `(${n(v)})` : n(v);
-const subst = (m, x, b) => `${n(m)} × ${br(x)}${b === 0 ? "" : b < 0 ? ` ${MINUS} ${-b}` : ` + ${b}`}`;
+const subst = (m, x, b) => `${m === 1 ? br(x) : m === -1 ? (x === 0 ? "0" : `${MINUS}${br(x)}`) : `${n(m)} × ${br(x)}`}${b === 0 ? "" : b < 0 ? ` ${MINUS} ${-b}` : ` + ${b}`}`;
 const mOK = () => pick([-3, -2, -1, 1, 2, 3, 4]);
 const QUAD = ["first quadrant", "second quadrant", "third quadrant", "fourth quadrant"];
 const quadOf = (x, y) => x > 0 && y > 0 ? 0 : x < 0 && y > 0 ? 1 : x < 0 && y < 0 ? 2 : 3;
@@ -119,16 +119,18 @@ const CTX = [
   { s: (f, r) => `A phone plan costs $${f} per month plus $${r} for each gigabyte (GB) of data used.`, dep: "C", ind: "g", rule: "Write a rule for the monthly cost, <i>C</i> dollars, when <i>g</i> GB are used.", ask: v => `What is the cost in a month when ${v} GB are used?`, pre: "$", f: [15, 35], r: [2, 5] }
 ];
 add("expected", "e-real-life", "Linear relationships in context", () => {
-  const c = pick(CTX), f = ri(c.f[0], c.f[1]), r = ri(c.r[0], c.r[1]), m = c.neg ? -r : r;
+  // Keep the start value, the rate and the input different numbers, so a student can tell them apart.
+  let c, f, r; do { c = pick(CTX); f = ri(c.f[0], c.f[1]); r = ri(c.r[0], c.r[1]); } while (f === r);
+  const m = c.neg ? -r : r;
   if (Math.random() < 0.5) return { prompt: `${c.s(f, r)} ${c.rule}`, mode: "linear", m, b: f, dep: c.dep, ind: c.ind, keys: ["=", "+", "−", c.ind], answerHTML: R(m, f, c.dep, c.ind), why: `It starts at ${f} and changes by ${n(m)} for each one: ${rule(m, f, c.dep, c.ind)}.` };
-  const v = c.neg ? ri(2, Math.floor((f - 1) / r)) : ri(3, 12);
+  let v, tries = 0; do { v = c.neg ? ri(2, Math.floor((f - 1) / r)) : ri(3, 12); } while ((v === f || v === r) && ++tries < 20);
   return { prompt: `${c.s(f, r)} ${c.ask(v)}`, mode: "num", value: m * v + f, pre: c.pre || "", unit: c.unit || "", why: `${rule(m, f, c.dep, c.ind)}, so ${c.dep} = ${subst(m, v, f)} = ${n(m * v + f)}.` };
 });
 add("expected", "e-pattern", "Linear patterns", () => {
   const m = ri(2, 5), b = ri(0, 4);
   const figs = [1, 2, 3].map(k => ({ n: k, count: m * k + b }));
   const diagram = { engine: "linear-engine", config: { diagramType: "tile-pattern", figures: figs, showCounts: true }, scale: 1.25 };
-  if (Math.random() < 0.5) { const F = ri(8, 20); return { prompt: `The tile pattern continues in the same way. How many tiles are in Figure ${F}?`, diagram, mode: "num", value: m * F + b, unit: "tiles", why: `Each figure adds ${m} tiles, and Figure 0 would have ${b}. Tiles = ${m} × ${F} + ${b} = ${m * F + b}.` }; }
+  if (Math.random() < 0.5) { const F = ri(8, 20); return { prompt: `The tile pattern continues in the same way. How many tiles are in Figure ${F}?`, diagram, mode: "num", value: m * F + b, unit: "tiles", why: b ? `Each figure adds ${m} tiles, and Figure 0 would have ${b}. Tiles = ${m} × ${F} + ${b} = ${m * F + b}.` : `Each figure adds ${m} tiles, and Figure 0 would have none. Tiles = ${m} × ${F} = ${m * F}.` }; }
   return { prompt: `The tile pattern continues in the same way. Write a rule for the number of tiles, <i>T</i>, in Figure <i>n</i>.`, diagram, mode: "linear", m, b, dep: "T", ind: "n", keys: ["=", "+", "n"], answerHTML: R(m, b, "T", "n"), why: `${m} more tiles each time, and ${m} × 1 + ${b} = ${m + b} for Figure 1: ${rule(m, b, "T", "n")}.` };
 });
 

@@ -351,8 +351,10 @@ window.MMT_PYTHAGORAS_ENGINE = (() => {
     const svg = makeSvg();
     const wallX = 105;
     const baseY = 178;
-    const footX = 250;
-    const topY = 62;
+    // Optional footRatio (foot ÷ height) draws the ladder in proportion; without it, the original picture.
+    const ratio = Number(config.footRatio);
+    const topY = ratio > 0 ? 34 : 62;
+    const footX = ratio > 0 ? wallX + Math.max(44, Math.min(200, ratio * (baseY - topY))) : 250;
     const top = { x: wallX, y: topY };
     const wallBase = { x: wallX, y: baseY };
     const foot = { x: footX, y: baseY };
@@ -574,8 +576,11 @@ window.MMT_PYTHAGORAS_ENGINE = (() => {
       addLine(svg, apex.x, apex.y, mid.x, mid.y, "py-construction");
       addRightMarker(svg, mid, apex, right, 12);
     }
-    addText(svg, config.slantLabel || "", (apex.x + left.x) / 2 - 14, (apex.y + left.y) / 2, "py-label");
-    addText(svg, config.slantLabel || "", (apex.x + right.x) / 2 + 14, (apex.y + right.y) / 2, "py-label");
+    // Slant labels sit outside their sides, anchored away from the line so they never cross it.
+    addText(svg, config.slantLabel || "", (apex.x + left.x) / 2 - 10, (apex.y + left.y) / 2, "py-label");
+    if (svg.lastChild && svg.lastChild.tagName === "text") svg.lastChild.style.textAnchor = "end";
+    addText(svg, config.slantLabel || "", (apex.x + right.x) / 2 + 10, (apex.y + right.y) / 2, "py-label");
+    if (svg.lastChild && svg.lastChild.tagName === "text") svg.lastChild.style.textAnchor = "start";
     addText(svg, config.baseLabel || "", mid.x, right.y + 18, "py-label");
     addText(svg, config.heightLabel || "h", mid.x + 14, (apex.y + mid.y) / 2, "py-label italic");
 

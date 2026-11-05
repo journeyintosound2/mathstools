@@ -107,6 +107,7 @@
 <script src="../../../pwa.js" defer></script>
 <!-- /mmt-pwa -->
 <script src="/portal/shared/portalHandoff.js?v=16b9c759" data-input="#studentCodeInput" data-button="#studentCodeBtn"></script>
+<script src="/portal/shared/taskLock.js?v=936a76d6" data-restart="#resetBtn" data-hide="#teacherAssignBtn,#backBtn"></script>
 </head>
 <body>
   <div id="studentLoginOverlay" class="firebaseOverlay hidden" role="dialog" aria-modal="true" aria-labelledby="firebaseLoginTitle">
@@ -129,7 +130,7 @@
         <div class="chip"><span id="levelDot" class="dot"></span><span id="levelChipText" class="levelChipSmall">Level: —</span></div>
         <div class="languageSelectCard" id="languageCard"><label class="languageLabel" id="languageLabel" for="languageSelect">Language / فارسی / العربية</label><select class="languageSelect" id="languageSelect"><option value="en">English</option><option value="fa">فارسی (Farsi / Persian)</option><option value="ar">العربية (Arabic)</option></select></div><button id="teacherAssignBtn" class="teacherAssignBtn" type="button">Create assignment link</button><div id="studentChip" class="chip studentChip">👤 <span id="studentChipText">Guest mode</span></div>
       </div>
-      <button id="resetBtn" class="resetBtn" type="button">Reset</button>
+      <button id="resetBtn" class="resetBtn" type="button">Reset</button><span id="mmtSubmitSlot" class="mmtSubmitSlot" style="display:inline-flex;align-items:center"></span>
     </div>
     <div class="banner"><div class="logo" aria-hidden="true"><img src="../../../assets/mmt.png" alt=""></div><div id="bannerTitle" class="bannerTitle">Level: —</div></div><div id="assignmentNotice" class="assignmentNotice">Assigned practice mode: your teacher has selected the question types for this quiz.</div>
     <div class="progressRow"><div class="bar"><div id="barFill"></div></div><div id="qCounter" class="qCounter">Question 0/0</div></div>
@@ -765,6 +766,8 @@ function showQuestion(){const q=state.questions[state.index];state.answered=fals
         xpRuleVersion:xp.xpRuleVersion,
         masteryTopic:'Algebraic Techniques',
         ...(MMTSubmit ? MMTSubmit.fields() : {}),
+        // Which task link this came from ('' when not opened from one), for the portals' task counting.
+        assignmentId: (new URLSearchParams(location.search).get('aid') || ''),
         platformVersion:'mmt-platform-template-v1',
         assignmentMode:!!state.assignment,
         assignedTypes:state.assignment?.types||[],
@@ -853,6 +856,7 @@ function showQuestion(){const q=state.questions[state.index];state.answered=fals
     url.searchParams.set('level',builderLevel.value);
     url.searchParams.set('types',types.join(','));
     url.searchParams.set('count',String(count));
+    url.searchParams.set('aid','AT-'+Date.now().toString(36).toUpperCase()+'-'+Math.random().toString(36).slice(2,7).toUpperCase());
     assignmentLinkOut.value=url.toString();
     return assignmentLinkOut.value;
   }
