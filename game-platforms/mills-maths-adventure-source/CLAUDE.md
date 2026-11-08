@@ -380,6 +380,13 @@ checks (TT1–TT11 in `src/dev/templeChecks.js`), all passing; vite build clean.
   "tables", host Dash) — two questions from the station opened: the keypad
   + auto-submit, the clock + medal track, then "say it in your head", slips
   and Practise.
+- **(2026-11-09, Jeff)** The temple's cards are CENTRED on the screen over a
+  dark, softly blurred veil (less to look at while answering) — the override
+  block at the end of `styles/temple.css` beats the shared bottom dock and
+  the phone dock; during a demo the card drops to the bottom so the captions
+  sit above it (`.tt-panel.is-demo`). The Sun Temple's dark doorway was
+  level with the facade wall (z-fighting = flickering pixels) — it now
+  stands 6 cm proud (DesertLandmarks.jsx, SunTemple).
 - **Not yet:** division (Jeff: a separate world); the fact records are per
   device (bests sync, the square doesn't yet); teacher view of the square.
 

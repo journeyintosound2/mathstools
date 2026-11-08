@@ -175,9 +175,11 @@ function SunTemple({ M }) {
       <Box p={[0, top + colH + 2.25, zc - 0.2]} s={[26.5, 0.4, 2.8]} m={M.pale} tile={1.2} />
       {/* The facade carved into the cliff: a wall, the glyph frieze, the doorway, the sun emblem. */}
       <Box p={[0, top + 6.5, T.zBack - 0.4]} s={[30, 13, 1.2]} m={M.pale} tile={1.6} />
-      <mesh position={[-8.6, top + 5.4, T.zBack + 0.22]} material={M.glyph}><planeGeometry args={[8, 6]} /></mesh>
-      <mesh position={[8.6, top + 5.4, T.zBack + 0.22]} material={M.glyph}><planeGeometry args={[8, 6]} /></mesh>
-      <Box p={[0, top + 3.2, T.zBack + 0.05]} s={[4.4, 6.4, 0.3]} m={M.dark} cast={false} />
+      <mesh position={[-8.6, top + 5.4, T.zBack + 0.26]} material={M.glyph}><planeGeometry args={[8, 6]} /></mesh>
+      <mesh position={[8.6, top + 5.4, T.zBack + 0.26]} material={M.glyph}><planeGeometry args={[8, 6]} /></mesh>
+      {/* The dark doorway stands 6 cm proud of the wall: level with it, the
+          two faces fought for the same pixels and the door flickered. */}
+      <Box p={[0, top + 3.2, T.zBack + 0.11]} s={[4.4, 6.4, 0.3]} m={M.dark} cast={false} />
       <Box p={[0, top + 6.7, T.zBack + 0.3]} s={[6, 0.8, 0.7]} m={M.brick} />
       <Box p={[-2.6, top + 3.2, T.zBack + 0.3]} s={[0.8, 6.4, 0.7]} m={M.brick} />
       <Box p={[2.6, top + 3.2, T.zBack + 0.3]} s={[0.8, 6.4, 0.7]} m={M.brick} />

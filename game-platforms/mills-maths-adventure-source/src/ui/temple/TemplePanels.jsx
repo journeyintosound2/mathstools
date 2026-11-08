@@ -420,6 +420,7 @@ function Results() {
 // ---------------------------------------------------------------------------
 export function TempleTablesPanel() {
   const status = useTempleTables((s) => s.status);
+  const demoOn = useDemo((d) => d.active);
   const region = useSession((s) => s.currentRegionId);
 
   // Leaving the desert closes the card.
@@ -452,7 +453,7 @@ export function TempleTablesPanel() {
 
   if (status === "idle") return null;
   return (
-    <div className="farm-challenge-panel snow-dock tt-panel">
+    <div className={`farm-challenge-panel snow-dock tt-panel${demoOn ? " is-demo" : ""}`}>
       {status === "menu" && <StationCard />}
       {status === "countdown" && <Countdown />}
       {(status === "play" || status === "fix" || status === "celebrate") && <Round />}

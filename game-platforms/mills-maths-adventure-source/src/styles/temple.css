@@ -266,3 +266,56 @@
   .tt-res-facts { max-height: 30vh; }
   .tt-hub .tt-path { display: none; }
 }
+
+/* ==========================================================================
+   (2026-11-09, Jeff) CENTRED + the game DIMMED behind: the temple's cards sit
+   in the middle of the screen over a dark, softly blurred veil so the eye
+   goes straight to the question (less to look at = less cognitive load).
+   These rules beat the shared bottom-dock + the phone dock in mobile.css.
+   ========================================================================== */
+.farm-challenge-panel.snow-dock.tt-panel,
+.farm-challenge-panel.tt-panel {
+  position: fixed !important;
+  inset: 0 !important;
+  top: 0 !important; right: 0 !important; bottom: 0 !important; left: 0 !important;
+  width: auto !important;
+  transform: none !important;
+  z-index: 60;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+  background: radial-gradient(ellipse at center, rgba(20, 12, 4, 0.55) 0%, rgba(10, 6, 2, 0.78) 100%);
+  -webkit-backdrop-filter: blur(3px) saturate(0.6);
+  backdrop-filter: blur(3px) saturate(0.6);
+  pointer-events: auto !important;
+  animation: tt-veil 0.22s ease-out;
+}
+@keyframes tt-veil { from { opacity: 0; } to { opacity: 1; } }
+.farm-challenge-panel.tt-panel .farm-challenge-card.tt-card {
+  width: min(640px, 100%) !important;
+  max-width: 640px !important;
+  margin: 0 auto;
+  border-radius: 22px !important;
+  border: 3px solid var(--fam, #c99a1a) !important;
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.25) inset;
+  animation: tt-card-in 0.22s ease-out;
+}
+@keyframes tt-card-in { from { transform: translateY(14px) scale(0.98); opacity: 0; } to { transform: none; opacity: 1; } }
+/* Phones (portrait): still centred, the full width. */
+@media (max-width: 520px) {
+  .farm-challenge-panel.tt-panel { padding: 8px; }
+  .farm-challenge-panel.tt-panel .farm-challenge-card.tt-card { border-radius: 18px !important; padding-bottom: 12px; }
+}
+/* A sideways phone: centred, a little wider so the keypad sits beside the question. */
+@media (max-height: 500px) and (orientation: landscape) {
+  .farm-challenge-panel.tt-panel { padding: 6px max(10px, env(safe-area-inset-right)) 6px max(10px, env(safe-area-inset-left)); }
+  .farm-challenge-panel.tt-panel .farm-challenge-card.tt-card {
+    width: min(720px, 100%) !important;
+    max-width: 720px !important;
+    max-height: calc((100dvh - 12px) / 0.72) !important;
+  }
+}
+/* While a demo plays, the card drops to the bottom so the demo's captions
+   (which sit opposite the card) never cover it. */
+.farm-challenge-panel.tt-panel.is-demo { align-items: flex-end !important; }
