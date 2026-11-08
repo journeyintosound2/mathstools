@@ -6,7 +6,7 @@ import { useUI } from "../effects/uiStore.js";
 import { useFarmChallengeActive } from "../../game/farmChallengeActive.js";
 import { useJourney, currentCoach, STEP_SKIP_AFTER_MS } from "../../game/journeyStore.js";
 import { TRAINING_STEPS } from "../../data/training.js";
-import { JOURNEY_FRIENDS, JOURNEY_WORLDS } from "../../data/journey.js";
+import { JOURNEY_FRIENDS, JOURNEY_WORLDS, JOURNEY_PATH } from "../../data/journey.js";
 import { Bi } from "../../i18n/i18n.jsx";
 
 /**
@@ -211,8 +211,8 @@ function CourseLine() {
   return (
     <ol className="jcourse" aria-label="The worlds, in order">
       <li className="jcourse-stop is-start"><span aria-hidden="true">🏝️</span><small><Bi>Warm-ups</Bi></small></li>
-      {JOURNEY_WORLDS.map((w) => (
-        <li key={w.key} className="jcourse-stop"><span aria-hidden="true">{w.icon}</span><small><Bi>{w.tag}</Bi></small></li>
+      {JOURNEY_PATH.map((w) => (
+        <li key={w.key} className={`jcourse-stop${w.branch ? " is-branch" : ""}`}><span aria-hidden="true">{w.icon}</span><small><Bi>{w.tag}</Bi></small></li>
       ))}
     </ol>
   );

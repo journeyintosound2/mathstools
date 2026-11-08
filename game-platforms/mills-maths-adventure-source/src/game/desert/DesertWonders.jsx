@@ -277,7 +277,7 @@ function DigCamp({ M }) {
 // ---------------------------------------------------------------------------
 // CAMELS — resting by the caravan stop + the oasis; they chew + flick their tails.
 // ---------------------------------------------------------------------------
-function Camel({ x, z, yaw, k }) {
+export function Camel({ x, z, yaw, k }) {
   const head = useRef();
   const tail = useRef();
   const y = terrainHeight(x, z);

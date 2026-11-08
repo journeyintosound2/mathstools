@@ -27,11 +27,12 @@
  */
 import {
   JOURNEY_WORLDS, JOURNEY_FRIENDS, TROPHIES_TO_OPEN, REGION_WORLD, journeyState, journeySnapshot, journeyCounts,
-  portalLock, millsJourneyLines, friendDone, DESERT_PORTAL_ID,
+  portalLock, millsJourneyLines, friendDone, DESERT_PORTAL_ID, JOURNEY_PATH,
 } from "../data/journey.js";
 import { TRAINING_STEPS, WORLD_INTROS, WALL_TRAINING_TIPS } from "../data/training.js";
 import { TRANSLATIONS } from "../i18n/translations.js";
 import { REGIONS } from "../data/regions.js";
+import { DESERT_REGION_ID } from "../data/desert/desertLayout.js";
 import { FARM_BEST_KEYS, FARM_MAX_SCORES } from "../data/farm/farmRecords.js";
 import { SNOW_BEST_KEYS, SNOW_MAX_SCORES } from "../data/snow/snowRecords.js";
 import { MAGMA_BEST_KEYS, MAGMA_MAX_SCORES } from "../data/magma/magmaRecords.js";
@@ -82,13 +83,16 @@ export function runJourneyChecks() {
   // JY1 — the path.
   {
     const order = JOURNEY_WORLDS.map((w) => w.key).join(">");
-    // (The Sunstone Desert's golden gate isn't on the journey path yet — 2026-11-08.)
-    const portals = REGIONS["island-1"].portals.map((p) => p.id).filter((id) => id !== DESERT_PORTAL_ID);
+    const path = JOURNEY_PATH.map((w) => w.key).join(">");
+    // (2026-11-08) The Timestable Temple is a branch: after Snowball Sums, with Magma.
+    const portals = REGIONS["island-1"].portals.map((p) => p.id);
     const gatesOk = JOURNEY_WORLDS.every((w) => portals.includes(w.portalId) && REGIONS["island-1"].portals.find((p) => p.id === w.portalId).target === w.regionId);
-    const ok = order === "snow>magma>farm>jungle>playground" && gatesOk && TROPHIES_TO_OPEN === 7 &&
+    const temple = JOURNEY_WORLDS.find((w) => w.key === "temple");
+    const ok = order === "snow>magma>farm>jungle>playground>temple" && path === "snow>temple>magma>farm>jungle>playground" && gatesOk && TROPHIES_TO_OPEN === 7 &&
+      temple && temple.branch && temple.after === "snow" && temple.portalId === DESERT_PORTAL_ID &&
       JOURNEY_FRIENDS.map((f) => f.id).join() === "pip,fern,alby" && REGION_WORLD.cabin === "snow" && portals.length === JOURNEY_WORLDS.length;
-    push("Journey: five worlds in order (snow → magma → farm → jungle → Playground), one island gate each, 7 trophies, Pip/Fern/Alby",
-      ok, ok ? `${order} · ${portals.length} gates` : `order ${order} gates:${gatesOk} portals ${portals.join(",")}`);
+    push("Journey: five worlds in order (snow → magma → farm → jungle → Playground) + the Timestable Temple branch after Snowball Sums, one island gate each, 7 trophies, Pip/Fern/Alby",
+      ok, ok ? `${path} · ${portals.length} gates` : `order ${order} path ${path} gates:${gatesOk} portals ${portals.join(",")}`);
   }
 
   withCleanSlate(() => {
@@ -97,7 +101,7 @@ export function runJourneyChecks() {
       const js = stateOf([]);
       const locks = JOURNEY_WORLDS.map((w) => portalLock(js, w.portalId));
       const ok = js.worlds.every((w) => !w.open) && locks.every((l) => l && l.text && l.note) &&
-        /Pip.*Fern.*Alby/.test(locks[0].text) && /Win 7 Snowball Sums trophies/.test(locks[1].text) && /7 Emerald Jungle/.test(locks[4].text) &&
+        /Pip.*Fern.*Alby/.test(locks[0].text) && /Win 7 Snowball Sums trophies/.test(locks[1].text) && /7 Emerald Jungle/.test(locks[4].text) && /Win 7 Snowball Sums trophies.*Timestable Temple/.test(locks[5].text) &&
         js.goal.kind === "friends" && js.goal.friendId === "pip" && js.trainingActive === true;
       push("Journey: a new save starts with every gate locked (each saying what opens it) and the island warm-ups as the goal",
         ok, ok ? `goal: ${js.goal.text}` : `open ${openKeys(js)} goal ${js.goal.kind}/${js.goal.friendId} locks ${locks.map((l) => l && l.note).join(" | ")}`);
@@ -136,7 +140,12 @@ export function runJourneyChecks() {
         if (six.worlds[i + 1].open) bad.push(`${next.key} opened at 6`);
         if (near.worlds[i + 1].open) bad.push(`${next.key} opened on 49%s`);
         if (!seven.worlds[i + 1].open) bad.push(`${next.key} shut at 7`);
-        if (i + 2 < JOURNEY_WORLDS.length && seven.worlds[i + 2].open) bad.push(`${JOURNEY_WORLDS[i + 2].key} opened early`);
+        if (i + 2 < JOURNEY_WORLDS.length && !JOURNEY_WORLDS[i + 2].branch && seven.worlds[i + 2].open) bad.push(`${JOURNEY_WORLDS[i + 2].key} opened early`);
+        // The Temple opens with Magma (Snowball Sums at 7) and holds up nothing after it.
+        const tIx = JOURNEY_WORLDS.findIndex((w) => w.key === "temple");
+        if (i === 0 && six.worlds[tIx].open) bad.push("temple opened at 6");
+        if (i === 0 && !seven.worlds[tIx].open) bad.push("temple shut at 7");
+        if (i >= 1 && !seven.worlds[i + 1].open) bad.push(`${next.key} waited for the temple`);
         if (six.goal.kind !== "trophies" || six.goal.worldKey !== chain[i] || six.goal.have !== 6) bad.push(`goal@${chain[i]} ${six.goal.kind}/${six.goal.worldKey}/${six.goal.have}`);
       }
       for (const k of chain) setBests(k, 0, 0);
@@ -153,11 +162,11 @@ export function runJourneyChecks() {
       const jungleOnly = stateOf([]);
       setBests("jungle", 0, 0);
       const keyOnly = stateOf(["warmup-pearce"]);
-      const ok = openKeys(farmOnly) === "snow,magma,farm" && openKeys(jungleOnly) === "snow,magma,farm,jungle" &&
-        openKeys(keyOnly) === "snow,magma,farm,jungle,playground" &&
+      const ok = openKeys(farmOnly) === "snow,magma,farm,temple" && openKeys(jungleOnly) === "snow,magma,farm,jungle,temple" &&
+        openKeys(keyOnly) === "snow,magma,farm,jungle,playground,temple" &&
         farmOnly.worlds[2].kept && !farmOnly.worlds[2].earned && farmOnly.goal.kind === "trophies" && farmOnly.goal.worldKey === "farm";
       push("Journey: an old save keeps what it reached — any score in a world keeps it and every world before it open",
-        ok, ok ? "farm score → snow/magma/farm · jungle → +jungle · a Playground key → all five" : `farm:${openKeys(farmOnly)} jungle:${openKeys(jungleOnly)} key:${openKeys(keyOnly)} goal ${farmOnly.goal.kind}/${farmOnly.goal.worldKey}`);
+        ok, ok ? "farm score → snow/magma/farm (+ the Temple) · jungle → +jungle · a Playground key → all six" : `farm:${openKeys(farmOnly)} jungle:${openKeys(jungleOnly)} key:${openKeys(keyOnly)} goal ${farmOnly.goal.kind}/${farmOnly.goal.worldKey}`);
     }
 
     // JY6 — the goal walks the path; Mills keeps up.
@@ -170,16 +179,17 @@ export function runJourneyChecks() {
       js = stateOf(FRIENDS3, { "snow-sums": true }); seq.push(`${js.goal.kind}:${js.goal.worldKey}`); say(js);
       setBests("snow", 7, 75);
       js = stateOf(FRIENDS3, { "snow-sums": true }); seq.push(`${js.goal.kind}:${js.goal.worldKey}`); say(js);
+      js = stateOf(FRIENDS3, { "snow-sums": true, [DESERT_REGION_ID]: true }); seq.push(`${js.goal.kind}:${js.goal.worldKey}`); say(js);
       setBests("magma", 7, 75); setBests("farm", 7, 75); setBests("jungle", 7, 75);
-      const all = { "snow-sums": true, "magma-multiples": true, "farm-parts-whole": true, "emerald-jungle": true, schoolyard: true };
+      const all = { "snow-sums": true, "magma-multiples": true, "farm-parts-whole": true, "emerald-jungle": true, schoolyard: true, [DESERT_REGION_ID]: true };
       js = stateOf(FRIENDS3, all); seq.push(`${js.goal.kind}:${js.goal.worldKey}`); say(js);
       const staff = ["warmup-pearce", "warmup-mahoney"];
       js = stateOf([...FRIENDS3, ...staff], all); seq.push(`${js.goal.kind}:${js.goal.have}`);
       const done = stateOf([...FRIENDS3, ...staff, "warmup-kellahan"], all);
       for (const k of ["snow", "magma", "farm", "jungle"]) setBests(k, 0, 0);
-      const want = ["friends", "travel", "trophies:snow", "travel:magma", "keys:playground", "keys:2"];
-      const linesOk = /Pip/.test(lines[0]) && /Sam/.test(lines[0]) && /igloo gate/.test(lines[1]) && /Snowball Sums/.test(lines[2]) &&
-        /volcano arch/.test(lines[3]) && /hold a key/.test(lines[4]);
+      const want = ["friends", "travel", "trophies:snow", "travel:temple", "travel:magma", "keys:playground", "keys:2"];
+      const linesOk = /Pip/.test(lines[0]) && /Sam/.test(lines[0]) && /igloo gate/.test(lines[1]) && /Snowball Sums/.test(lines[2]) && /golden gate/.test(lines[2]) &&
+        /golden gate/.test(lines[3]) && /fifteen times-table/.test(lines[3]) && /volcano arch/.test(lines[4]) && /hold a key/.test(lines[5]);
       const ok = want.every((w, i) => seq[i] === w) && linesOk && (done.goal.kind === "free" || done.bossDone);
       push("Journey: the goal walks the path (warm-ups → travel → trophies → … → keys) and Mills says the right next step",
         ok, ok ? seq.join(" → ") : `seq ${seq.join(" → ")} · lines ${linesOk}`);

@@ -20,6 +20,7 @@ import { useLodgeYard } from "./lodgeYardStore.js";
 import { useAuroraLookout } from "./auroraLookoutStore.js";
 import { MAGMA_STORES, useActiveMagmaChallenge } from "./magma/magmaActive.js";
 import { JUNGLE_STORES, useActiveJungleChallenge } from "./jungle/jungleActive.js";
+import { useTempleTables } from "./temple/templeStore.js";
 import { trackChallengeStores } from "./roundOutcome.js";
 
 // Every in-world challenge store, in one list. Add a new challenge here and
@@ -33,6 +34,8 @@ const CHALLENGE_STORES = [
   ...MAGMA_STORES.map(([, store]) => store),
   // Emerald Jungle (the vine-ladder challenges).
   ...JUNGLE_STORES.map(([, store]) => store),
+  // The Timestable Temple (one store, fifteen stations + the warm-up).
+  useTempleTables,
 ];
 
 // One round-outcome rule for them all: XP banked as points land, and a right
@@ -124,5 +127,6 @@ export function useFarmChallengeActive() {
   const u = useAuroraLookout((s) => s.status !== "idle");
   const mg = useActiveMagmaChallenge();
   const jg = useActiveJungleChallenge();
-  return a || b || c || d || e || f || g || h || i || j || k || l || m || n || o || p || q || r || t || u || mg !== null || jg !== null;
+  const tt = useTempleTables((s) => s.status !== "idle");
+  return a || b || c || d || e || f || g || h || i || j || k || l || m || n || o || p || q || r || t || u || mg !== null || jg !== null || tt;
 }

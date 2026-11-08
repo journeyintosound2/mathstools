@@ -41,13 +41,12 @@
 
 export const DESERT_REGION_ID = "sunstone-desert";
 /** Rename the world here (everything reads this). */
-export const DESERT_NAME = "Sunstone Desert";
+export const DESERT_NAME = "Timestable Temple";
 
 /**
- * Who can go in (Jeff, 2026-11-08: "Don't consider any mathematics challenges
- * as yet"). Until the desert's challenges exist its island gate is shown SHUT
- * ("coming soon") to students and OPEN in admin mode. Flip to true to open
- * it for everyone (data/journey.js portalLock reads this).
+ * (2026-11-08, later) The world is now the TIMESTABLE TEMPLE and opens on the
+ * journey (data/journey.js — with Magma Multiples, after Snowball Sums).
+ * This flag is kept only as an override: true opens the gate for everyone.
  */
 export const DESERT_OPEN_TO_STUDENTS = false;
 
@@ -287,6 +286,44 @@ export const DESERT_SPOTS = [
   { id: "ship", label: "Dune Ship", icon: "⛵", center: [100, -72], radius: 7 },
   { id: "crystal", label: "Crystal Hollow", icon: "💎", center: [100, 92], radius: 7 },
 ];
+// ---------------------------------------------------------------------------
+// THE TIMESTABLE TEMPLE STATIONS (2026-11-08) — fifteen carved stones in
+// their family groups (data/temple/templeTables.js has the maths):
+//   the Anchors (10s, 5s, 11s + Anchor Mix) round Bazaar Square,
+//   the Doubling family (2s, 4s, 8s + Doubling Mix) on the oasis shore,
+//   the Threes family (3s, 6s, 9s, 12s + Threes Mix) on top of the Red Mesa,
+//   the 7s before the Sun Temple, the Grand Mix beside the Sunstone.
+// Each stone faces `look` (where students walk up from). Mixes are taller.
+// The TIMES-TABLE WALL (the 12 × 12 square, lit fact by fact) + Dash the
+// camel (the temple's guide) stand by the arrival.
+// ---------------------------------------------------------------------------
+const faceTo = (p, look) => Math.atan2(look[0] - p[0], look[1] - p[1]);
+const stone = (key, position, look, extra = {}) => ({ key, position, rotationY: faceTo(position, look), ...extra });
+export const TEMPLE_STONES = [
+  stone("x10", [-23.5, 49.5], [-12, 55]),
+  stone("x5", [-26, 55], [-12, 55]),
+  stone("x11", [-23.5, 60.5], [-12, 55]),
+  stone("mix1", [-18.5, 55], [-8, 55], { tall: true }),
+  stone("x2", [-93, 19], [-87, 4]),
+  stone("x4", [-87, 20.5], [-87, 4]),
+  stone("x8", [-81, 20.5], [-85, 4]),
+  stone("mix2", [-75, 19], [-80, 4], { tall: true }),
+  stone("x3", [-113, -80], [-104, -71]),
+  stone("x6", [-108.5, -84.5], [-104, -71]),
+  stone("x9", [-99.5, -84.5], [-104, -71]),
+  stone("x12", [-95, -80], [-104, -71]),
+  stone("mix3", [-104, -88.5], [-104, -71], { tall: true }),
+  stone("x7", [0, -102], [0, -90], { tall: true }),
+  stone("grand", [0, -35.5], [0, -28], { tall: true, grand: true }),
+];
+export const TEMPLE_STONE = Object.fromEntries(TEMPLE_STONES.map((s) => [s.key, s]));
+/** Clearance round each stone (no cacti / palms / boulders). */
+export const TEMPLE_STONE_CLEAR = 2.6;
+// The wall stands between the arrival trail and the town wall, facing the
+// path (south); Dash waits at its west end.
+export const TEMPLE_WALL = { position: [-17, 101.6], rotationY: 0, width: 6.6, height: 4.4, thick: 0.8 };
+export const TEMPLE_DASH = { position: [-22.9, 103.3], rotationY: faceTo([-22.9, 103.3], [-12, 110]) };
+
 /** Named landmarks (labels + the map). */
 export const DESERT_LANDMARKS = {
   pyramid: { label: "The Great Pyramid", icon: "🔺", center: PYRAMID.c },

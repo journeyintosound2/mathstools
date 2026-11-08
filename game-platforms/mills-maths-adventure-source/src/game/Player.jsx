@@ -36,6 +36,7 @@ import { activeMagmaChallengeKey, useActiveMagmaChallenge, magmaStore } from "./
 import { getMagmaChallenge } from "../data/magma/magmaChallenges.js";
 import { MAGMA_REGION_ID } from "../data/magma/magmaLayout.js";
 import { activeJungleChallengeKey, useActiveJungleChallenge, jungleStore } from "./jungle/jungleActive.js";
+import { isTempleBusy } from "./temple/templeStore.js";
 import { getJungleChallenge } from "../data/jungle/jungleChallenges.js";
 import { JUNGLE_REGION_ID } from "../data/jungle/jungleLayout.js";
 import {
@@ -393,7 +394,8 @@ export default function Player({ cinematic = false }) {
     // …and while the full-screen world map is open.
     // …and while a lava hop or a wipe-out (fell in deep water) plays out.
     const rescuing = Boolean(hop.current) || Boolean(wipe.current);
-    const frozen = Boolean(activeEncounterId) || fpv || Boolean(wv) || useUI.getState().mapOpen || rescuing;
+    // …and while a Timestable Temple card is up (the keypad owns the keys).
+    const frozen = Boolean(activeEncounterId) || fpv || Boolean(wv) || useUI.getState().mapOpen || rescuing || isTempleBusy();
 
     // Fence Challenge mode (F2): fixed side-on camera + left/right-only walking
     // along the fence. Active for the whole challenge (placing → done).

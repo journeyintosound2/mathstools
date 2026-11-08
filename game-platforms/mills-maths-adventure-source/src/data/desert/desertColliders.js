@@ -13,7 +13,7 @@
 import { boxCollider } from "../../systems/collisionEngine.js";
 import {
   DESERT_BOUNDARY, DESERT_WELCOME_SIGN, DESERT_WELCOME_HOST, DESERT_MAP_BOARD, CARAVAN_GATE, MARKET_STALLS, TOWN_WELL,
-  OBELISKS, SUNSTONE, SUN_TEMPLE, DUNE_SHIP, SAND_SPHINX, CRYSTALS, FOSSIL, CAMELS, DESERT_SIGNPOSTS, QS_SIGNS,
+  OBELISKS, SUNSTONE, SUN_TEMPLE, DUNE_SHIP, SAND_SPHINX, CRYSTALS, FOSSIL, CAMELS, DESERT_SIGNPOSTS, QS_SIGNS, TEMPLE_STONES, TEMPLE_WALL, TEMPLE_DASH,
   SUNDIAL_RISE, BOARDWALK, MINE_MOUTH,
 } from "./desertLayout.js";
 import { getDesertProps, DESERT_TRUNK_R, ARCH_LEGS } from "./desertProps.js";
@@ -84,6 +84,12 @@ function buildStatic() {
     { id: "desert-mine-mouth", kind: "landmark", x: MINE_MOUTH.position[0], z: MINE_MOUTH.position[1] - 0.6, radius: 1.2 },
     // Camels (big, friendly, solid).
     ...CAMELS.map(([x, z, yaw], i) => boxCollider(`desert-camel-${i}`, x, z, 0.55, 1.35, yaw, { kind: "prop" })),
+    // The Timestable Temple: fifteen station stones (plinth footprint), the
+    // Times-Table Wall and Dash the camel by the arrival.
+    ...TEMPLE_STONES.map((t) => boxCollider(`desert-stone-${t.key}`, t.position[0], t.position[1], t.tall ? 1.3 : 1.0, t.tall ? 0.62 : 0.45, t.rotationY,
+      t.grand ? { kind: "landmark", yMin: PYR_BASE + 20 } : { kind: "landmark" })),
+    boxCollider("desert-tables-wall", TEMPLE_WALL.position[0], TEMPLE_WALL.position[1], TEMPLE_WALL.width / 2 + 0.3, TEMPLE_WALL.thick / 2 + 0.1, TEMPLE_WALL.rotationY, { kind: "boundary" }),
+    boxCollider("desert-dash", TEMPLE_DASH.position[0], TEMPLE_DASH.position[1], 0.55, 1.35, TEMPLE_DASH.rotationY, { kind: "prop" }),
     // Signposts + warning signs.
     ...DESERT_SIGNPOSTS.map((s) => ({ id: `desert-signpost-${s.id}`, kind: "landmark", x: s.p[0], z: s.p[1], radius: 0.25 })),
     ...QS_SIGNS.map(([x, z], i) => ({ id: `desert-qs-sign-${i}`, kind: "landmark", x, z, radius: 0.22 })),

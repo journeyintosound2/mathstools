@@ -12,12 +12,13 @@
 > `src/game/demo/registry.js` — DM1–DM5 fail without it. It is part of
 > "done". See "Challenge demos" under Rules of thumb for the checklist.
 
-> **NEW (built 2026-11-08): THE SUNSTONE DESERT** — an eighth region, a big
-> sculpted desert (no challenges yet) behind a GOLDEN GATE in a little patch of
-> sand on Number Island. The gate shows "coming soon" to students and opens
-> in admin mode; flip `DESERT_OPEN_TO_STUDENTS` in
-> `src/data/desert/desertLayout.js` when its challenges exist. See the
-> "DONE (2026-11-08) — SUNSTONE DESERT" section. **664 → 671 checks.**
+> **NEW (built 2026-11-08, later the same day): THE TIMESTABLE TEMPLE** —
+> the desert world (built that morning as the "Sunstone Desert") is now a
+> times-table FLUENCY world: fifteen stations (the 10s, 5s, 11s, Anchor Mix,
+> 2s, 4s, 8s, Doubling Mix, 3s, 6s, 9s, 12s, Threes Mix, 7s, Grand Mix) in
+> 90-second rounds, opening one at a time. Its golden gate opens WITH Magma
+> Multiples once Snowball Sums holds 7 trophies — a BRANCH that holds nothing
+> up. See "DONE (2026-11-08) — TIMESTABLE TEMPLE". **671 → 682 checks.**
 
 > This folder is the **game source** (and the Cloud Functions). As of
 > **2026-08-17** it lives INSIDE the website repo at
@@ -289,6 +290,98 @@
 > interactive plot-a-point input mode (tap the Cartesian grid) · Stage 5
 > depth (still only 2 sample skills) · more Stage 4 topics (Area extension)
 > · a DevPanel gallery to eyeball every new diagram/chart at once.
+
+## DONE (2026-11-08) — TIMESTABLE TEMPLE: times-table fluency in the desert
+Jeff: "make sure that it is unlocked after completing the snowball sums …
+its name will be 'Timestable Temple'. It will be a timestable fluency world
+… open at the same time as magma multiples", the eleven tables in the order
+10, 5, 11, 2, 4, 8, 3, 6, 9, 12, 7, "a timed game based on fast fluency …
+90 seconds … bronze/silver/gold based on the number of correct … but I want
+to consider the time it takes to type an answer". His answers to the design
+questions: tables open ONE AT A TIME; the Temple holds nothing up (Fraction
+Farm still needs only Magma's trophies); targets based on digits + an untimed
+practice; gold = just the number correct; MIXED milestones after each family
+(Anchors 10/5/11, Doubling 2/4/8, Threes 3/6/9/12, then the 7s and a Grand
+Mix); NO division (a separate world later); stations spread out in their
+family groups; "build the best version you can think of". **671 → 682
+checks (TT1–TT11 in `src/dev/templeChecks.js`), all passing; vite build clean.**
+- **The engine — `src/data/temple/templeTables.js` (pure).** STATIONS (15),
+  FAMILIES, every tuning number at the top: ROUND_SECONDS 90, WARMUP_SECONDS
+  60, TYPE_S_PER_DIGIT 0.4, THINK_S { gold 1.2, silver 2.2, bronze 3.5 },
+  MIX_EXTRA_S 0.2, FAST_MS 3000 + 400/digit, REVIEW_DAYS [0,1,3,7,14,30],
+  MEDAL_COINS. **Targets** = floor(90 ÷ (think + mix extra + 0.4 × the
+  station's mean answer digits)) → e.g. 2s 21/31/48, 10s 20/29/42, 12s
+  20/28/42, mixes ~20/28/41. **Decks:** a table = its 12 facts reshuffled
+  every cycle (never the same fact twice running, never three in a row up
+  or down the table — no skip-counting), BOTH orders asked (7 × 4 and 4 × 7);
+  a mix = weighted draws, 60 % the new family / 40 % earlier families, never
+  a fact in the last few, leaning to the student's weak facts; the Grand Mix
+  = all 78 facts, weighted to weak ones. `strategyFor(a, b)` — the quick way
+  for any fact, built on the earliest family factor (8 × 7 → "double the
+  4s"). **Fact records** (`mma-tables-facts`, per device): every answer
+  (right / wrong / ms) → FLUENT = fast on two different days (a slip resets
+  it); Leitner review boxes (a fast answer pushes the review out 1 → 3 → 7 →
+  14 → 30 days, one box a day at most; a slip brings it back today). Bests
+  `mma-tables-<key>-best` (cloud-synced — `SYNCED_KEY` in
+  cloud/progressMerge.js now includes `tables`); `stationOpen` (a 🥉 on the
+  one before), `nextStation`, `tablesTrophyRows` (the journey's counts).
+- **The store — `src/game/temple/templeStore.js`** (one challenge store for
+  all 15 + the warm-up; each QUESTION is a "round" so the demo runner, the
+  round-outcome XP rule and the DM checks work unchanged): menu → countdown
+  → play / celebrate / fix → results; modes timed / practice / warmup. The
+  answer goes in by itself once it has the right number of digits (Enter /
+  ✓ for a shorter one); typing on during the right-answer blink moves on (no
+  digit lost); a slip → "fix" (the answer + the quick way; type it to go on —
+  costs time, never points) and the fact comes back (+3 timed; +2, +4, +7 in
+  practice = incremental rehearsal). The clock is frozen during a demo and
+  nothing is recorded. Coins: 1 per 5 right + 10 / 20 / 40 the first time a
+  station reaches bronze / silver / gold; the first warm-up each day pays 1
+  coin a right answer (max 15). `useTempleUI` = the hub + square cards and a
+  `version` that repaints the 3D wall + stones. `isTempleBusy()` freezes the
+  walker (Player.jsx).
+- **The cards — `src/ui/temple/TemplePanels.jsx` + `src/styles/temple.css`**
+  (bottom-docked like every challenge card; phones full width; a sideways
+  phone puts the question beside the keypad): the STATION card (Dash, the
+  family, station n/15, 🥉/🥈/🥇 targets "right in 90 seconds", your best +
+  "n more for 🥈", the 12 facts of the table as chips coloured by fluency —
+  per-table bars for a mix — 🧘 Practise (no clock) / ⏱️ Go for gold, ▶ Demo,
+  🔢 My square; a LOCKED station says which to beat + 📍 Show me the way);
+  3·2·1; the ROUND (big question, a big 3 × 4 keypad — pointer-down so it's
+  quick on an iPad — clock bar, the live medal track, the slip box; practice
+  shows the facts going green + "Looks like you're ready — go for gold?");
+  RESULTS (right, medal, new best, n more for the next medal, coins, "🔓 The
+  5s is open! 📍 Show me the way", the facts ❌ missed / 🐢 slow / ⚡ fast);
+  DASH'S HUB (next station + the way, ⚡ Temple Warm-up with facts due, the
+  square summary, all 15 stations by family — tap one for a waypoint); the
+  SQUARE (12 × 12, fluent gold / getting there / missed / not tried, a blue
+  edge = due for review, tap a cell for its record).
+- **In the world:** fifteen carved stones (`TEMPLE_STONES` in desertLayout:
+  the Anchors round Bazaar Square, the Doubling family on the oasis shore,
+  the Threes family on the Red Mesa top, the 7s before the Sun Temple, the
+  Grand Mix beside the Sunstone) — `game/desert/DesertTempleStations.jsx`:
+  each stone's crown gem shows locked / open / 🥉🥈🥇 and the NEXT station's
+  gem floats under a spinning gold ring; locked stones hang a padlock. The
+  TIMES-TABLE WALL by the arrival (the 12 × 12 square, repainted live) and
+  DASH the camel (fez; "Dash" speaker 🐫) beside it. Interactables
+  `temple-stone-<key>` (→ the station card), `temple-wall` (→ the square),
+  `temple-dash` (→ the hub); status badges show 🔒 / medal / best. Family
+  labels float over each group; the map numbers the 15 stations 1–15 with
+  their medals. Props keep clear of every stone (`clearAt`).
+- **The journey (`data/journey.js`):** `temple` is in JOURNEY_WORLDS (at the
+  END, so every index stays put) with `after: "snow", branch: true`;
+  `JOURNEY_PATH` draws it straight after Snowball Sums; `worldsOpenedBy(key)`
+  = the next world + any branch. A branch's requirement is its `after`
+  world's 7 trophies; it never pushes the "keep what they've reached"
+  frontier; the travel goal visits an EARNED branch (path order) before
+  Magma. Mills, the journey strip ("+ 🏜️ Timestable Temple"), the
+  celebration and the course line all know it. The Island Achievements Wall
+  still has its six boards (the Temple keeps its own wall + medals).
+- **Demo:** one shared demo (`game/demo/scripts/templeDemos.js`, key
+  "tables", host Dash) — two questions from the station opened: the keypad
+  + auto-submit, the clock + medal track, then "say it in your head", slips
+  and Practise.
+- **Not yet:** division (Jeff: a separate world); the fact records are per
+  device (bests sync, the square doesn't yet); teacher view of the square.
 
 ## DONE (2026-11-08) — SUNSTONE DESERT: the EIGHTH region, a desert to explore (LAND ONLY)
 Jeff: "build another world, where there is a golden portal from the main that
@@ -3332,7 +3425,7 @@ awards the trophy). L1–5 adaptive. Teacher tasks still override (handled upstr
 in interaction.js). Guarded by `runSchoolyardTopicChecks()`. Island NPCs (Pip/
 Fern/Alby) unchanged.
 
-## System checks (671)
+## System checks (682)
 `src/dev/systemChecks.js` → `runSystemChecks()`. Run headlessly: temporarily set
 `package.json` `"type":"module"`, shim `localStorage/window/document`, import and
 run; also babel parse-check `src/`, `portal/`, `functions/`. Restore package.json

@@ -7,7 +7,7 @@ import { useSession, requestMoveTo, playerState } from "./sessionStore.js";
 import { queueTap } from "./touchGesture.js";
 import { clampToBounds } from "../data/regions.js";
 import {
-  DESERT_BOUNDS, DESERT_SPOTS, DESERT_LANDMARKS, DESERT_WELCOME_SIGN, DESERT_REGION_ID, PYRAMID,
+  DESERT_BOUNDS, DESERT_SPOTS, DESERT_LANDMARKS, DESERT_WELCOME_SIGN, DESERT_REGION_ID, PYRAMID, TEMPLE_STONE, TEMPLE_DASH,
 } from "../data/desert/desertLayout.js";
 import { terrainHeight, desertGroundHeight, SUNSTONE_TOP } from "../data/desert/desertTerrain.js";
 import { useFarmChallengeActive } from "./farmChallengeActive.js";
@@ -19,6 +19,8 @@ import DesertFlora from "./desert/DesertFlora.jsx";
 import DesertLandmarks from "./desert/DesertLandmarks.jsx";
 import DesertTown from "./desert/DesertTown.jsx";
 import DesertWonders from "./desert/DesertWonders.jsx";
+import DesertTempleStations from "./desert/DesertTempleStations.jsx";
+import { FAMILIES, STATIONS } from "../data/temple/templeTables.js";
 import {
   DesertLighting, SunDisc, BlowingSand, DustDevils, RollingTumbleweeds, Vultures, OasisButterflies,
 } from "./desert/DesertAtmosphere.jsx";
@@ -50,6 +52,15 @@ function NearLabel({ position, text, range = 40, distanceFactor = 20, dy = 16 })
     </Html>
   );
 }
+
+// Family labels: over the middle of each family's stones.
+const FAMILY_LABELS = FAMILIES.map((f) => {
+  const stones = STATIONS.filter((s) => s.family === f.id).map((s) => TEMPLE_STONE[s.key]);
+  const x = stones.reduce((a, t) => a + t.position[0], 0) / stones.length;
+  const z = stones.reduce((a, t) => a + t.position[1], 0) / stones.length;
+  const tables = f.id === "summit" ? "" : ` — ${f.tables.map((t) => `${t}s`).join(" · ")}`;
+  return { id: f.id, position: [x, desertGroundHeight(x, z, 200) + (f.id === "summit" || f.id === "sevens" ? 6.4 : 5.2), z], text: `${f.icon} ${f.name}${tables}` };
+});
 
 export default function DesertScenery() {
   const highGfx = useUI((s) => s.graphicsQuality) === "high";
@@ -86,6 +97,8 @@ export default function DesertScenery() {
       {ON("DesertLandmarks") && <DesertLandmarks />}
       {ON("DesertTown") && <DesertTown />}
       {ON("DesertWonders") && <DesertWonders highGfx={highGfx} />}
+      {/* The Timestable Temple: fifteen station stones, the wall, Dash. */}
+      {ON("Temple") && <DesertTempleStations />}
 
       {/* The painted map board by the arrival (opens the full-screen map). */}
       <MapBoard3D regionId={DESERT_REGION_ID} roof="#c4553c" />
@@ -104,6 +117,11 @@ export default function DesertScenery() {
       {!challengeOn && (
         <>
           <NearLabel position={[wx, terrainHeight(wx, wz) + 3.2, wz]} text={DESERT_WELCOME_SIGN.text} range={24} distanceFactor={10} />
+          {/* Each family's name over its stones; Dash's name tag. */}
+          {FAMILY_LABELS.map((f) => (
+            <NearLabel key={f.id} position={f.position} text={f.text} range={f.id === "summit" ? 14 : 22} distanceFactor={12} dy={10} />
+          ))}
+          <NearLabel position={[TEMPLE_DASH.position[0], desertGroundHeight(TEMPLE_DASH.position[0], TEMPLE_DASH.position[1]) + 3.7, TEMPLE_DASH.position[1]]} text="🐫 Dash" range={16} distanceFactor={9} />
           {DESERT_SPOTS.map((s) => (
             <NearLabel key={s.id} position={[s.center[0], desertGroundHeight(s.center[0], s.center[1]) + 3.6, s.center[1]]} text={`${s.icon} ${s.label}`} range={30} />
           ))}

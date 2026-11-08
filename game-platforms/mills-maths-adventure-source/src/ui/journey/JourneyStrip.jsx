@@ -1,7 +1,7 @@
 import React from "react";
 
 import { useJourney } from "../../game/journeyStore.js";
-import { JOURNEY_WORLDS, TROPHIES_TO_OPEN } from "../../data/journey.js";
+import { JOURNEY_WORLDS, TROPHIES_TO_OPEN, worldsOpenedBy } from "../../data/journey.js";
 import { MedalKey } from "./JourneyCoach.jsx";
 import { Bi } from "../../i18n/i18n.jsx";
 
@@ -14,9 +14,13 @@ export default function JourneyStrip({ worldKey }) {
   const js = useJourney((s) => s.js);
   const i = JOURNEY_WORLDS.findIndex((w) => w.key === worldKey);
   if (i < 0) return null;
-  const next = JOURNEY_WORLDS[i + 1] || null;
+  // The next world on the path (+ any branch it opens — the Temple after Snowball Sums).
+  const opens = worldsOpenedBy(worldKey);
+  const next = opens.find((w) => !w.branch) || opens[0] || null;
+  const branches = opens.filter((w) => w !== next);
   const ws = js ? js.worlds[i] : null;
-  const nextOpen = js && next ? js.worlds[i + 1].open : false;
+  const nextOpen = js && next ? Boolean((js.worlds.find((w) => w.key === next.key) || {}).open) : false;
+  const extra = branches.map((b) => ` + ${b.icon} ${b.short || b.name}`).join("");
   const have = ws ? Math.min(ws.medals, TROPHIES_TO_OPEN) : 0;
 
   return (
@@ -30,8 +34,8 @@ export default function JourneyStrip({ worldKey }) {
         <div className="jstrip-goal">
           <div className="jstrip-goal-text">
             {nextOpen
-              ? <>✓ {next.icon} <b>{next.short || next.name}</b> <Bi>is open!</Bi></>
-              : <><Bi>Win</Bi> {TROPHIES_TO_OPEN} <Bi>trophies (bronze or better) to open</Bi> {next.icon} <b>{next.short || next.name}</b></>}
+              ? <>✓ {next.icon} <b>{next.short || next.name}{extra}</b> <Bi>is open!</Bi></>
+              : <><Bi>Win</Bi> {TROPHIES_TO_OPEN} <Bi>trophies (bronze or better) to open</Bi> {next.icon} <b>{next.short || next.name}{extra}</b></>}
           </div>
           <div className="jstrip-slots" aria-label={`${have} of ${TROPHIES_TO_OPEN} trophies`}>
             {Array.from({ length: TROPHIES_TO_OPEN }, (_, k) => (

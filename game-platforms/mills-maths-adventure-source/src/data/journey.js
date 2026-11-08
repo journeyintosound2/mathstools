@@ -26,10 +26,11 @@ import { snowTrophyRows } from "./snow/snowRecords.js";
 import { magmaTrophyRows } from "./magma/magmaRecords.js";
 import { farmTrophyRows } from "./farm/farmRecords.js";
 import { jungleTrophyRows } from "./jungle/jungleRecords.js";
+import { tablesTrophyRows } from "./temple/templeTables.js";
 import { SCHOOLYARD_CHARACTERS } from "./schoolyard/schoolyardLayout.js";
 import { getChain } from "./npcQuestChains.js";
 import { isAdminMode } from "./adminMode.js";
-import { DESERT_OPEN_TO_STUDENTS, DESERT_NAME } from "./desert/desertLayout.js";
+import { DESERT_OPEN_TO_STUDENTS, DESERT_REGION_ID } from "./desert/desertLayout.js";
 
 /** Trophies (bronze or better) a world needs before the NEXT world opens. */
 export const TROPHIES_TO_OPEN = 7;
@@ -72,12 +73,41 @@ export const JOURNEY_WORLDS = [
     short: "the Playground", tag: "School", icon: "🏫", gate: "the school gate", where: "the top of Schoolhouse Hill",
     topic: "Stage 4 retrieval practice", trophies: false, color: "#d9822b",
   },
+  // THE TIMESTABLE TEMPLE (Jeff, 2026-11-08): a BRANCH off the path — it opens
+  // with Magma Multiples once Snowball Sums holds 7 trophies, and it holds up
+  // nothing (Fraction Farm still needs only Magma's trophies). Its fifteen
+  // stations are times-table fluency (data/temple/templeTables.js). It sits at
+  // the END of this list so every index above is unchanged; JOURNEY_PATH puts
+  // it straight after Snowball Sums wherever the path is drawn.
+  {
+    key: "temple", regionId: DESERT_REGION_ID, portalId: "island-to-desert", name: "Timestable Temple", icon: "🏜️", tag: "Temple",
+    gate: "the golden gate", where: "the Sunstone Sands, beside the little pyramid", topic: "Times-table fluency",
+    trophies: true, color: "#c99a1a", after: "snow", branch: true,
+  },
 ];
+
+/** The worlds in the order the path is DRAWN (a branch straight after the world that opens it). */
+export const JOURNEY_PATH = (() => {
+  const main = JOURNEY_WORLDS.filter((w) => !w.branch);
+  const out = [];
+  for (const w of main) {
+    out.push(w);
+    for (const b of JOURNEY_WORLDS.filter((x) => x.branch && x.after === w.key)) out.push(b);
+  }
+  return out;
+})();
+/** The worlds a world's trophies open (the next on the path + any branches). */
+export function worldsOpenedBy(key) {
+  const main = JOURNEY_WORLDS.filter((w) => !w.branch);
+  const i = main.findIndex((w) => w.key === key);
+  const next = i >= 0 ? main[i + 1] : null;
+  return [...(next ? [next] : []), ...JOURNEY_WORLDS.filter((w) => w.branch && w.after === key)];
+}
 
 /** Region ids that belong to a journey world (the Lodge sits inside the snow). */
 export const REGION_WORLD = {
   "snow-sums": "snow", cabin: "snow", "magma-multiples": "magma", "farm-parts-whole": "farm",
-  "emerald-jungle": "jungle", schoolyard: "playground",
+  "emerald-jungle": "jungle", schoolyard: "playground", [DESERT_REGION_ID]: "temple",
 };
 
 export function journeyWorld(keyOrRegion) {
@@ -91,7 +121,7 @@ export function worldForPortal(portalId) {
 // Reading the saves
 // ---------------------------------------------------------------------------
 
-const ROWS = { snow: snowTrophyRows, magma: magmaTrophyRows, farm: farmTrophyRows, jungle: jungleTrophyRows };
+const ROWS = { snow: snowTrophyRows, magma: magmaTrophyRows, farm: farmTrophyRows, jungle: jungleTrophyRows, temple: () => tablesTrophyRows() };
 
 /** Trophy tallies for the four trophy worlds (reads the local bests). */
 export function journeyCounts() {
@@ -182,16 +212,18 @@ export function journeyState(snap = {}) {
   const c = (k) => counts[k] || { medals: 0, played: 0, total: 10 };
   // KEEP WHAT THEY'VE REACHED: the furthest world on the path with any score.
   const reached = JOURNEY_WORLDS.map((w) => (w.trophies ? c(w.key).played > 0 : keys > 0 || bossDone));
+  // (A branch world — the Timestable Temple — never pushes the frontier on.)
   let frontier = -1;
-  reached.forEach((r, i) => { if (r) frontier = i; });
+  reached.forEach((r, i) => { if (r && !JOURNEY_WORLDS[i].branch) frontier = i; });
 
   const worlds = JOURNEY_WORLDS.map((w, i) => {
-    const prev = i > 0 ? JOURNEY_WORLDS[i - 1] : null;
+    const prev = w.after ? JOURNEY_WORLDS.find((x) => x.key === w.after) : i > 0 ? JOURNEY_WORLDS[i - 1] : null;
     const requirement = prev
       ? { kind: "trophies", from: prev.key, fromName: prev.name, fromIcon: prev.icon, have: Math.min(TROPHIES_TO_OPEN, c(prev.key).medals), need: TROPHIES_TO_OPEN }
       : { kind: "friends", have: friendsDone, need: JOURNEY_FRIENDS.length };
     const earned = requirement.have >= requirement.need;
-    const kept = i <= frontier;
+    // A branch stays open once it's been played, or once the path has gone past the world that opens it.
+    const kept = w.branch ? reached[i] || frontier > JOURNEY_WORLDS.indexOf(prev) : i <= frontier;
     const cc = c(w.key);
     return {
       ...w, index: i, requirement, earned, kept, open: earned || kept,
@@ -199,7 +231,7 @@ export function journeyState(snap = {}) {
       total: w.trophies ? cc.total : STAFF.length,
       played: w.trophies ? cc.played : keys,
       // This world's own job is done once it has opened the next one.
-      complete: w.trophies ? cc.medals >= TROPHIES_TO_OPEN : bossDone,
+      complete: w.branch ? cc.medals >= cc.total : w.trophies ? cc.medals >= TROPHIES_TO_OPEN : bossDone,
       visited: Boolean(visited[w.regionId]) || reached[i],
     };
   });
@@ -211,7 +243,11 @@ export function journeyState(snap = {}) {
 
   // ---- The ONE next goal ---------------------------------------------------
   let goal;
-  const lastOpen = [...worlds].reverse().find((w) => w.open) || null;
+  const lastOpen = [...worlds].reverse().find((w) => w.open && !w.branch) || null;
+  // A newly opened world not yet visited, in path order (a branch counts).
+  const pathOrder = JOURNEY_PATH.map((pw) => worlds.find((w) => w.key === pw.key));
+  // (the furthest world on the path, or a branch the student has EARNED).
+  const toVisit = pathOrder.find((w) => w.open && !w.visited && (w === lastOpen || (w.branch && w.earned))) || null;
   if (!worlds[0].open) {
     const next = friends.find((f) => !f.done);
     goal = {
@@ -222,15 +258,15 @@ export function journeyState(snap = {}) {
       text: next ? `Find ${next.name} — ${next.where}.` : "Pass all three warm-ups.",
       reward: `Pass all three to open ${JOURNEY_WORLDS[0].icon} ${JOURNEY_WORLDS[0].name}`,
     };
-  } else if (lastOpen && !lastOpen.visited) {
+  } else if (toVisit) {
     goal = {
-      kind: "travel", icon: lastOpen.icon, worldKey: lastOpen.key, targetRegion: "island-1", targetId: lastOpen.portalId,
-      title: `${lastOpen.name} is open!`,
-      text: `Go through ${lastOpen.gate} — ${lastOpen.where}.`,
+      kind: "travel", icon: toVisit.icon, worldKey: toVisit.key, targetRegion: "island-1", targetId: toVisit.portalId,
+      title: `${toVisit.name} is open!`,
+      text: `Go through ${toVisit.gate} — ${toVisit.where}.`,
       have: 0, need: 0,
     };
   } else if (lastOpen && lastOpen.trophies && !lastOpen.complete) {
-    const next = worlds[lastOpen.index + 1];
+    const next = worlds.find((w) => w.key === (worldsOpenedBy(lastOpen.key)[0] || {}).key) || null;
     goal = {
       kind: "trophies", icon: lastOpen.icon, worldKey: lastOpen.key, targetRegion: lastOpen.regionId,
       have: Math.min(lastOpen.medals, TROPHIES_TO_OPEN), need: TROPHIES_TO_OPEN,
@@ -269,21 +305,13 @@ export function journeyState(snap = {}) {
   };
 }
 
-/** The golden gate to the Sunstone Desert (not on the journey path yet). */
+/** The golden gate to the Timestable Temple. */
 export const DESERT_PORTAL_ID = "island-to-desert";
 /** Is a Number Island gate locked right now? → null when open, else the lock. */
 export function portalLock(js, portalId) {
-  // The Sunstone Desert (2026-11-08) is built but has no challenges yet: its
-  // golden gate stays shut ("coming soon") for students and opens in admin
-  // mode. Flip DESERT_OPEN_TO_STUDENTS (data/desert/desertLayout.js) to open it.
-  if (portalId === DESERT_PORTAL_ID) {
-    if (DESERT_OPEN_TO_STUDENTS || (js ? js.admin : isAdminMode())) return null;
-    return {
-      worldKey: "desert", have: 0, need: 1, soon: true,
-      text: `The ${DESERT_NAME} is coming soon — its challenges are still being built!`,
-      note: "Coming soon",
-    };
-  }
+  // The Timestable Temple's golden gate opens on the journey (after Snowball
+  // Sums, with Magma Multiples). DESERT_OPEN_TO_STUDENTS forces it open.
+  if (portalId === DESERT_PORTAL_ID && DESERT_OPEN_TO_STUDENTS) return null;
   const w = worldForPortal(portalId);
   if (!w || !js) return null;
   const ws = js.worlds.find((x) => x.key === w.key);
@@ -333,7 +361,7 @@ export function millsJourneyLines(js, name = "") {
     const lines = js.friendsDone === 0
       ? [
           `${hi} I'm Mills, and this is Number Island.`,
-          "Five maths worlds are waiting for you — and each gate opens in turn, from the easiest world to the hardest.",
+          "Six maths worlds are waiting for you — and each gate opens in turn, from the easiest world to the hardest.",
           "First, my three friends each have a quick warm-up: Pip is under Frosty Peak, Fern is in the ash fields below Ember Peak, and Alby is out at the lighthouse.",
           `Pass all three and the igloo gate to ${snow.icon} ${snow.name} will open!`,
         ]
@@ -346,6 +374,14 @@ export function millsJourneyLines(js, name = "") {
     return lines;
   }
   const g = js.goal;
+  if (g.kind === "travel" && g.worldKey === "temple") {
+    const w = journeyWorld("temple");
+    return [
+      `${w.icon} The ${w.name} is open — well done!`,
+      `Head for ${w.gate}: it's at ${w.where}. The map (M) will point the way.`,
+      "Inside are fifteen times-table stations. Win a 🥉 on each one to open the next — and it doesn't hold up any other world.",
+    ];
+  }
   if (g.kind === "travel") {
     const w = journeyWorld(g.worldKey);
     return [
@@ -359,7 +395,7 @@ export function millsJourneyLines(js, name = "") {
     const next = journeyWorld(g.nextKey);
     return [
       `You're working through ${w.icon} ${w.name} — ${g.have} of ${g.need} trophies so far.`,
-      next ? `Win ${g.need - g.have} more (🥉 bronze or better) and ${next.gate} to ${next.icon} ${next.short || next.name} opens.` : "Keep collecting!",
+      next ? `Win ${g.need - g.have} more (🥉 bronze or better) and ${next.gate} to ${next.icon} ${next.short || next.name} opens${worldsOpenedBy(w.key).filter((b) => b.branch).map((b) => ` — and ${b.gate} to ${b.icon} ${b.name}`).join("")}.` : "Keep collecting!",
       "A bronze is 50% of a challenge's best score, silver 75% and gold 100%. You can replay any challenge to improve.",
       "The Achievements Wall beside the arch shows every world's trophies.",
     ];

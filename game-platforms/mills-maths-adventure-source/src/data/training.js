@@ -198,6 +198,17 @@ export const WORLD_INTROS = {
       go: "Let's go!",
     },
   ],
+  "sunstone-desert": [
+    {
+      id: "hello", card: true, icon: "🏜️", title: "Welcome to the Timestable Temple!",
+      lines: [
+        "Fifteen times-table stations are carved into stones across the desert — eleven tables and four mixes.",
+        "Each one is a 90-second race: the more you get right, the better your medal. Win a bronze to open the next station.",
+        "Dash the camel, by the Times-Table Wall, shows you the way. Start with the 10s in Bazaar Square!",
+      ],
+      go: "Let's go!",
+    },
+  ],
   schoolyard: [
     {
       id: "hello", card: true, icon: "🏫", title: "Welcome to the Playground!",

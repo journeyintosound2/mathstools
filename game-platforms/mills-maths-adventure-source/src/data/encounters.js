@@ -444,17 +444,19 @@ export const ENCOUNTERS = {
   },
   // SUNSTONE DESERT (2026-11-08) — land only for now: Mills shows you round.
   "desert-welcome": {
-    id: "desert-welcome", type: "dialogue", title: "Sunstone Desert",
+    id: "desert-welcome", type: "dialogue", title: "Timestable Temple",
     config: { speaker: "Mills", lines: [
-      "Welcome to the Sunstone Desert! ☀️ It's HOT out here — and there's a LOT to explore.",
-      "Straight ahead through the Caravan Gate is the Bazaar. Keep going north and you'll reach the GREAT PYRAMID — climb its grand stair to the golden Sunstone on top!",
-      "Beyond the pyramid, the Obelisk Avenue leads to the Sun Temple, carved into the cliffs. Look up — there's a pyramid floating in the sky!",
-      "West is the Oasis, sunk down in the sand. East are the dunes — walk up the gentle side, then slide down the steep side!",
+      "Welcome to the Timestable Temple! ☀️ This whole desert is a times-table temple — fifteen stations carved into stones.",
+      "Start with the 10s in BAZAAR SQUARE, straight through the Caravan Gate. Win a 🥉 bronze and the next station opens — the 5s, then the 11s.",
+      "The stations come in families: the Anchors in the Bazaar, the Doubling family at the Oasis, the Threes family on top of the Red Mesa, the 7s at the Sun Temple — and the Grand Mix on top of the Great Pyramid!",
+      "Dash the camel, by the Times-Table Wall, shows you the way to your next station — and every day there's a quick warm-up to keep your facts sharp.",
       "⚠️ Watch out for QUICKSAND — swirly dark sand. Step into the edge and you'll sink to your knees; go any further and it swallows you, and you're back at the start!",
-      "Climb the Red Mesa's great stair, find the ladders, and cross the rope bridge. There's a Dune Ship, a Sand Sphinx, Crystal Hollow and a Fossil Dig to find too.",
       "🗺️ The MAP BOARD here shows the whole desert — click a place to set a waypoint. Press M to open the map any time.",
-      "New challenges are coming to the desert soon. For now — go and explore!",
     ] },
+  },
+  "temple-station": {
+    id: "temple-station", type: "dialogue", title: "Timestable Temple",
+    config: { speaker: "Dash", lines: ["Every stone here is a times-table station. Win a 🥉 to open the next one!"] },
   },
   "desert-treasure": {
     id: "desert-treasure", type: "dialogue", title: "Treasure Chest",

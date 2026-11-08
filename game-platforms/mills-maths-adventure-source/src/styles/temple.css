@@ -1,0 +1,268 @@
+/* ==========================================================================
+   TIMESTABLE TEMPLE (2026-11-08) — the station card, the round (question +
+   keypad), results, Dash's hub and the times-table square. Docked at the
+   bottom like every challenge card; phones get a full-width card, a
+   sideways phone puts the question beside the keypad.
+   ========================================================================== */
+.tt-panel { z-index: 31; width: min(620px, 96vw); }
+.tt-panel .farm-challenge-card.tt-card {
+  position: relative;
+  max-width: none;
+  width: 100%;
+  padding: 14px 16px 14px;
+  background: linear-gradient(180deg, #fffaf0 0%, #fff4dc 100%);
+  border: 3px solid var(--fam, #c99a1a);
+  box-shadow: 0 10px 30px rgba(60, 30, 0, 0.28);
+  text-align: left;
+  font-family: "MMA Rounded", var(--font);
+  max-height: calc(100dvh - 24px);
+  overflow-y: auto;
+}
+.tt-close {
+  position: absolute; top: 8px; right: 8px; z-index: 2;
+  width: 34px; height: 34px; border-radius: 50%; border: 0; cursor: pointer;
+  background: rgba(90, 46, 14, 0.1); color: #5a2e0e; font: 800 1rem/1 var(--font);
+}
+.tt-close:hover { background: rgba(90, 46, 14, 0.2); }
+.tt-head { display: flex; align-items: center; gap: 12px; padding-right: 40px; }
+.tt-head .demo-chip { margin-left: auto; }
+.tt-head-text { display: flex; flex-direction: column; min-width: 0; }
+.tt-kicker { font: 800 0.78rem/1.2 "MMA Rounded", var(--font); color: #8a5a2b; text-transform: uppercase; letter-spacing: 0.04em; }
+.tt-title { font: 800 1.45rem/1.15 "MMA Rounded", var(--font); color: #3b1f0a; }
+
+/* The station badge: a carved round stone. */
+.tt-badge {
+  position: relative; flex: 0 0 auto;
+  width: 58px; height: 58px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: radial-gradient(circle at 35% 30%, #fff3d6, #e8c88a 60%, #c99a5a);
+  border: 3px solid var(--fam, #c99a1a);
+  box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.12);
+}
+.tt-badge.small { width: 40px; height: 40px; border-width: 2px; }
+.tt-badge-face { font: 900 1.25rem/1 "MMA Rounded", var(--font); color: #5a2e0e; }
+.tt-badge.small .tt-badge-face { font-size: 0.9rem; }
+.tt-badge.locked { filter: grayscale(0.85) brightness(0.92); opacity: 0.7; }
+.tt-badge-medal { position: absolute; right: -6px; bottom: -6px; font-size: 1.15rem; }
+.tt-badge.small .tt-badge-medal { font-size: 0.85rem; right: -5px; bottom: -5px; }
+.tt-badge-lock { position: absolute; right: -4px; top: -6px; font-size: 0.9rem; }
+.tt-badge.m-gold { box-shadow: 0 0 0 3px #ffd166, inset 0 -3px 0 rgba(0, 0, 0, 0.12); }
+
+/* Targets: 🥉 21  🥈 30  🥇 45 right in 90 seconds */
+.tt-targets { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; flex-wrap: wrap; }
+.tt-target { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px 4px 6px; border-radius: 999px; background: #f3e6c8; color: #6b4a22; }
+.tt-target i { font-style: normal; font-size: 1.15rem; opacity: 0.5; }
+.tt-target b { font-size: 1.15rem; }
+.tt-target.got { background: #fff; box-shadow: 0 0 0 2px #e8b23a; color: #3b1f0a; }
+.tt-target.got i { opacity: 1; }
+.tt-targets-note { font-size: 0.85rem; font-weight: 700; color: #8a6a4a; }
+.tt-best { font-size: 0.98rem; color: #4a2d12; margin: 4px 0 8px; }
+.tt-gap { color: #8a6a4a; }
+
+/* Facts strip (×1 … ×12) + a mix's per-table bars. */
+.tt-strip { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 4px; margin: 6px 0 10px; }
+.tt-strip.compact { margin: 4px 0 6px; gap: 3px; }
+.tt-chip {
+  display: grid; place-items: center; height: 28px; border-radius: 7px;
+  font: 800 0.82rem/1 "MMA Rounded", var(--font); color: #6b4a22; background: #efe2c4;
+}
+.tt-strip.compact .tt-chip { height: 22px; font-size: 0.72rem; }
+.tt-chip.s-fluent, .tt-chip.s-green { background: #ffd166; color: #5a3a00; box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.12); }
+.tt-chip.s-green { background: #7fd49a; color: #0e4a22; }
+.tt-chip.s-learning { background: #f6e3b0; }
+.tt-chip.s-missed { background: #f7c4b6; color: #7a2010; }
+.tt-mixbars { display: flex; flex-wrap: wrap; gap: 6px 10px; margin: 6px 0 10px; }
+.tt-mixbar { display: inline-flex; align-items: center; gap: 4px; font-size: 0.78rem; color: #6b4a22; }
+.tt-mixbar i { display: block; width: 40px; height: 8px; border-radius: 4px; background: #efe2c4; overflow: hidden; }
+.tt-mixbar em { display: block; height: 100%; background: #e8b23a; }
+.tt-mixbars.compact .tt-mixbar i { width: 28px; }
+
+/* Buttons */
+.tt-buttons { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
+.tt-btn {
+  flex: 1 1 0; min-width: 120px; min-height: 52px; padding: 8px 14px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  border: 0; border-radius: 14px; cursor: pointer;
+  font: 800 1.08rem/1.1 "MMA Rounded", var(--font);
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.18);
+  transition: transform 0.08s ease;
+}
+.tt-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 rgba(0, 0, 0, 0.18); }
+.tt-btn:disabled { opacity: 0.45; cursor: default; }
+.tt-btn > span:first-child { font-size: 1.35rem; }
+.tt-btn small { display: block; font-size: 0.74rem; font-weight: 700; opacity: 0.85; }
+.tt-btn.small { min-height: 38px; min-width: 0; flex: 0 0 auto; font-size: 0.95rem; padding: 6px 12px; }
+.tt-go { background: linear-gradient(180deg, #ffcf4a, #f0a81c); color: #3b1f0a; }
+.tt-practise { background: #e6f2ff; color: #17406b; }
+.tt-done { background: #efe2c4; color: #5a2e0e; flex: 0 0 auto; min-width: 90px; }
+.tt-link {
+  background: none; border: 0; cursor: pointer; padding: 6px 2px; margin-top: 4px;
+  font: 800 0.92rem/1.2 "MMA Rounded", var(--font); color: #8a4a12; text-decoration: underline; text-underline-offset: 3px;
+}
+.tt-locked p { margin: 12px 0; font-size: 1.02rem; color: #4a2d12; }
+
+/* 3 · 2 · 1 */
+.tt-count { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 18px 16px 20px !important; }
+.tt-count-n { font: 900 4.6rem/1 "MMA Rounded", var(--font); color: #c47a00; animation: tt-pop 0.6s ease-out; }
+.tt-count-tip { font-size: 0.92rem; font-weight: 700; color: #8a6a4a; margin-top: 6px; }
+@keyframes tt-pop { from { transform: scale(1.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+/* The round */
+.tt-round { padding-top: 10px !important; }
+.tt-round-head { display: flex; align-items: center; gap: 10px; padding-right: 40px; min-height: 34px; }
+.tt-round-tag { font: 800 0.95rem/1.1 "MMA Rounded", var(--font); color: #6b4a22; }
+.tt-score { margin-left: auto; font: 900 1.25rem/1 "MMA Rounded", var(--font); color: #157a3a; background: #e3f7e9; padding: 4px 10px; border-radius: 999px; }
+.tt-clock { display: flex; align-items: center; gap: 8px; margin: 6px 0 2px; }
+.tt-clock-n { font: 900 1.05rem/1 "MMA Rounded", var(--font); color: #3b1f0a; min-width: 62px; }
+.tt-clock i { flex: 1; height: 10px; border-radius: 5px; background: #efe2c4; overflow: hidden; }
+.tt-clock em { display: block; height: 100%; background: linear-gradient(90deg, #f0a81c, #ffcf4a); }
+.tt-clock.low .tt-clock-n { color: #c2321a; animation: tt-blink 0.5s steps(2) infinite; }
+.tt-clock.low em { background: #e8573a; }
+@keyframes tt-blink { 50% { opacity: 0.45; } }
+.tt-track { position: relative; height: 12px; margin: 10px 4px 14px; border-radius: 6px; background: #efe2c4; }
+.tt-track-fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 6px; transition: width 0.18s ease; }
+.tt-track-mark { position: absolute; top: -9px; transform: translateX(-50%); }
+.tt-track-mark i { font-style: normal; font-size: 1.05rem; filter: grayscale(1); opacity: 0.55; }
+.tt-track-mark.hit i { filter: none; opacity: 1; animation: tt-pop 0.4s ease-out; }
+
+.tt-play { display: flex; flex-direction: column; gap: 10px; }
+.tt-q-wrap { min-width: 0; }
+.tt-q {
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  padding: 10px 8px; border-radius: 16px; background: #fff;
+  box-shadow: inset 0 0 0 3px #f0dfb8;
+  font: 900 2.6rem/1 "MMA Rounded", var(--font); color: #2a1606;
+  animation: tt-in 0.14s ease-out;
+}
+@keyframes tt-in { from { transform: translateY(6px); opacity: 0.2; } to { transform: none; opacity: 1; } }
+.tt-q.good { box-shadow: inset 0 0 0 4px #2fbf6a; background: #eafbef; }
+.tt-q.bad { box-shadow: inset 0 0 0 4px #e8573a; background: #fff0ec; }
+.tt-answer {
+  position: relative; min-width: 2.2em; padding: 2px 10px; border-radius: 12px;
+  background: #fff7e4; color: #1d4f91; text-align: center; box-shadow: inset 0 -3px 0 #f0dfb8;
+}
+.tt-q.good .tt-answer { color: #157a3a; }
+.tt-caret { display: inline-block; width: 3px; height: 0.8em; margin-left: 3px; background: #1d4f91; vertical-align: -0.05em; animation: tt-blink 1s steps(2) infinite; }
+.tt-q.good .tt-caret { display: none; }
+.tt-answer.wobble { animation: tt-wobble 0.32s ease; }
+@keyframes tt-wobble { 25% { transform: translateX(-7px); } 75% { transform: translateX(7px); } }
+.tt-fix { margin-top: 8px; padding: 8px 12px; border-radius: 12px; background: #fff0ec; color: #5a1a0a; }
+.tt-fix-ans { font: 900 1.35rem/1.2 "MMA Rounded", var(--font); }
+.tt-fix-ans b { color: #157a3a; font-size: 1.6rem; }
+.tt-fix-how { font-weight: 700; font-size: 1rem; margin-top: 2px; }
+.tt-fix-do { font-weight: 800; font-size: 0.9rem; color: #b5381c; margin-top: 4px; }
+.tt-practice { margin-top: 8px; }
+.tt-practice-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 0.9rem; color: #6b4a22; font-weight: 700; }
+.tt-ready { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 8px 10px; border-radius: 12px; background: #fff3c4; font-weight: 800; color: #5a3a00; }
+
+.tt-pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.tt-key {
+  height: 54px; border: 0; border-radius: 14px; cursor: pointer;
+  background: #fff; color: #2a1606; font: 900 1.6rem/1 "MMA Rounded", var(--font);
+  box-shadow: 0 4px 0 #e2cfa6; touch-action: manipulation; user-select: none; -webkit-user-select: none;
+}
+.tt-key:active { transform: translateY(3px); box-shadow: 0 1px 0 #e2cfa6; background: #fff3d2; }
+.tt-key.back { background: #f6e3d6; color: #8a3a1a; font-size: 1.3rem; }
+.tt-key.enter { background: #dff3e4; color: #157a3a; }
+
+/* Results */
+.tt-res-top { display: flex; align-items: center; gap: 14px; padding-right: 40px; }
+.tt-res-medal { font-size: 3.4rem; line-height: 1; animation: tt-pop 0.5s ease-out; }
+.tt-res-medal.dim { font-size: 2.6rem; }
+.tt-res-n { display: block; font: 900 1.9rem/1.1 "MMA Rounded", var(--font); color: #3b1f0a; }
+.tt-res-n small { font-size: 1rem; color: #8a6a4a; }
+.tt-res-sub { display: block; font-weight: 700; color: #6b4a22; }
+.tt-opened { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 10px 0 0; padding: 8px 12px; border-radius: 12px; background: #e3f7e9; font-weight: 800; color: #0e4a22; }
+.tt-opened .primary-button { padding: 8px 14px; margin-left: auto; }
+.tt-res-facts { display: flex; flex-direction: column; gap: 6px; margin: 10px 0 2px; max-height: 32vh; overflow-y: auto; }
+.tt-res-row { display: flex; align-items: center; flex-wrap: wrap; gap: 5px; }
+.tt-res-lbl { font-weight: 800; font-size: 0.88rem; color: #5a2e0e; min-width: 78px; }
+.tt-fchip { padding: 3px 8px; border-radius: 8px; font: 800 0.88rem/1.2 "MMA Rounded", var(--font); background: #efe2c4; color: #4a2d12; }
+.tt-res-row.missed .tt-fchip { background: #f7c4b6; color: #7a2010; }
+.tt-res-row.slow .tt-fchip { background: #fbe3a6; color: #6b4a00; }
+.tt-res-row.fast .tt-fchip { background: #c9efd5; color: #0e4a22; }
+
+/* Hub */
+.tt-hub-next { display: flex; align-items: center; gap: 12px; margin: 12px 0 8px; padding: 10px 12px; border-radius: 14px; background: #fff; box-shadow: inset 0 0 0 2px var(--fam); }
+.tt-hub-next > div { display: flex; flex-direction: column; min-width: 0; }
+.tt-hub-next b { font-size: 1.15rem; color: #3b1f0a; }
+.tt-hub-next small { color: #8a6a4a; font-weight: 700; }
+.tt-hub-next .primary-button { margin-left: auto; padding: 9px 14px; white-space: nowrap; }
+.tt-hub-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.tt-hub-box { flex: 1 1 200px; display: flex; flex-direction: column; gap: 4px; padding: 10px 12px; border-radius: 14px; background: #fff7e4; }
+.tt-hub-box b { color: #3b1f0a; }
+.tt-hub-box small { color: #6b4a22; font-weight: 700; min-height: 2.2em; }
+.tt-hub-box .tt-btn { align-self: flex-start; }
+.tt-path { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+.tt-path-fam { display: flex; align-items: center; gap: 8px; padding: 4px 8px; border-left: 4px solid var(--fam); background: rgba(255, 255, 255, 0.6); border-radius: 8px; }
+.tt-path-name { flex: 0 0 150px; font-weight: 800; font-size: 0.86rem; color: #4a2d12; }
+.tt-path-stones { display: flex; gap: 6px; flex-wrap: wrap; }
+.tt-path-btn { border: 0; background: none; padding: 2px; cursor: pointer; border-radius: 50%; }
+.tt-path-btn.is-next { box-shadow: 0 0 0 3px #3a86ff; animation: tt-glow 1.4s ease-in-out infinite; }
+@keyframes tt-glow { 50% { box-shadow: 0 0 0 6px rgba(58, 134, 255, 0.35); } }
+.tt-hub-how { margin: 8px 0 0; font-size: 0.85rem; font-weight: 700; color: #8a6a4a; }
+
+/* The square */
+.tt-sq-count { margin-left: auto; display: flex; align-items: baseline; gap: 2px; font: 900 1.5rem/1 "MMA Rounded", var(--font); color: #3b1f0a; }
+.tt-sq-count small { font-size: 0.75rem; margin-left: 4px; color: #8a6a4a; }
+.tt-grid { display: grid; grid-template-columns: repeat(13, minmax(0, 1fr)); gap: 2px; margin: 10px 0 6px; }
+.tt-cell {
+  aspect-ratio: 1.35; display: grid; place-items: center; border: 0; padding: 0; border-radius: 4px; min-height: 0 !important; min-width: 0 !important;
+  font: 800 clamp(0.58rem, 1.6vw, 0.82rem)/1 "MMA Rounded", var(--font); color: #6b4a22; background: #efe2c4; cursor: pointer;
+}
+.tt-cell.hd { background: #5a2e0e; color: #fff3d6; cursor: default; }
+.tt-cell.corner { background: #c99a1a; }
+.tt-cell.s-fluent { background: #ffd166; color: #4a2d00; }
+.tt-cell.s-learning { background: #fff8e6; color: #6b4a22; box-shadow: inset 0 0 0 2px #f0c060; }
+.tt-cell.s-unseen { background: #e6ddcb; }
+.tt-cell.s-missed { background: #f7c4b6; color: #7a2010; }
+.tt-cell.due, .tt-cell.s-learning.due { box-shadow: inset 0 0 0 2px #3a86ff; }
+.tt-cell.on { outline: 3px solid #1d2a44; outline-offset: -1px; }
+.tt-sq-info { min-height: 2.6em; font-size: 0.9rem; color: #4a2d12; }
+.tt-legend { display: flex; flex-wrap: wrap; gap: 4px 12px; font-weight: 700; font-size: 0.8rem; }
+.tt-dot { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; background: #efe2c4; }
+.tt-dot.s-fluent { background: #ffd166; }
+.tt-dot.s-learning { background: #fff8e6; box-shadow: inset 0 0 0 2px #f0c060; }
+.tt-dot.s-unseen { background: #e6ddcb; }
+.tt-dot.s-missed { background: #f7c4b6; }
+.tt-dot.due { background: #fff; box-shadow: inset 0 0 0 2px #3a86ff; }
+
+/* ---- Wide screens: the question beside the keypad. ---------------------- */
+@media (min-width: 700px) {
+  .tt-play { flex-direction: row; align-items: stretch; }
+  .tt-q-wrap { flex: 1 1 auto; display: flex; flex-direction: column; justify-content: center; }
+  .tt-pad { flex: 0 0 230px; }
+  .tt-q { font-size: 3rem; padding: 18px 8px; }
+}
+
+/* ---- Phones (portrait): full width, bigger keys. ---------------------- */
+@media (max-width: 520px) {
+  .tt-panel { width: 100vw; bottom: 0 !important; }
+  .tt-panel .farm-challenge-card.tt-card { border-radius: 18px 18px 0 0; border-bottom: 0; padding: 10px 10px calc(10px + env(safe-area-inset-bottom)); }
+  .tt-title { font-size: 1.2rem; }
+  .tt-q { font-size: 2.2rem; }
+  .tt-key { height: 50px; }
+  .tt-path-name { flex-basis: 108px; font-size: 0.78rem; }
+  .tt-res-facts { max-height: 24vh; }
+  .tt-hub-next { flex-wrap: wrap; }
+  .tt-hub-next .primary-button { margin-left: 0; width: 100%; }
+  .tt-cell { aspect-ratio: 1; font-size: 0.6rem; }
+  .tt-grid { gap: 1px; }
+}
+
+/* ---- Short screens (a sideways phone): side by side, tighter. --------- */
+@media (max-height: 480px) {
+  .tt-panel { width: min(760px, 98vw); top: 6px !important; bottom: 6px !important; display: flex; align-items: flex-end; }
+  .tt-panel .farm-challenge-card.tt-card { padding: 8px 12px; max-height: calc(100vh - 12px); overflow-y: auto; }
+  .tt-play { flex-direction: row; align-items: stretch; }
+  .tt-q-wrap { flex: 1 1 auto; display: flex; flex-direction: column; justify-content: center; }
+  .tt-pad { flex: 0 0 210px; gap: 5px; }
+  .tt-key { height: 40px; font-size: 1.3rem; }
+  .tt-q { font-size: 2rem; padding: 8px; }
+  .tt-track { margin: 8px 4px 8px; }
+  .tt-strip .tt-chip { height: 20px; }
+  .tt-grid { gap: 1px; max-width: 470px; margin: 6px auto; }
+  .tt-cell { aspect-ratio: auto; height: 17px; font-size: 0.6rem; }
+  .tt-res-facts { max-height: 30vh; }
+  .tt-hub .tt-path { display: none; }
+}

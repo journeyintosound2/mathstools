@@ -39,6 +39,9 @@ import MapViewer from "./ui/map/MapViewer.jsx";
 import { hasRegionMap } from "./data/maps/regionMaps.js";
 import { isAnyChallengeActive, useFarmChallengeActive } from "./game/farmChallengeActive.js";
 import JunglePanels from "./ui/jungle/JunglePanels.jsx";
+import TemplePanels from "./ui/temple/TemplePanels.jsx";
+import { useTempleTables, useTempleUI } from "./game/temple/templeStore.js";
+import { skipDemo } from "./game/demo/demoRunner.js";
 import ResultsCentre from "./ui/ResultsCentre.jsx";
 import HowToPlay from "./ui/HowToPlay.jsx";
 import TeacherPilotCard from "./ui/TeacherPilotCard.jsx";
@@ -70,7 +73,7 @@ import { inWallPromptZone } from "./data/island/wallView.js";
 // DEV-only handles for the headless phone/iPad harness (stripped from builds):
 // jump to any character / challenge host and open it without walking there.
 if (import.meta.env.DEV && typeof window !== "undefined") {
-  window.__mma = { useSession, useUI, playerState, requestTeleport, getInteractable, INTERACTABLES, triggerInteraction, useProgress, useJourney, useWipeout };
+  window.__mma = { useSession, useUI, playerState, requestTeleport, getInteractable, INTERACTABLES, triggerInteraction, useProgress, useJourney, useWipeout, useTempleTables, useTempleUI, skipDemo };
 }
 
 /**
@@ -263,6 +266,7 @@ export default function App() {
       <AuroraLookoutPanel />
       <MagmaPanels />
       <JunglePanels />
+      <TemplePanels />
       <BlockedGatePrompt />
       <AchievementsWallUI />
       <QuestLog />

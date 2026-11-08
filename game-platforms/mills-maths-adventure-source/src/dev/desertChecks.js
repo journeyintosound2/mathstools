@@ -9,7 +9,7 @@
 import {
   DESERT_REGION_ID, DESERT_NAME, DESERT_BOUNDS, DESERT_BOUNDARY, DESERT_SPAWN, DESERT_RETURN_PORTAL, DESERT_WELCOME_HOST,
   DESERT_MAP_BOARD, DESERT_SPOTS, DESERT_SIGNPOSTS, DESERT_CHEST_SPOTS, QS_SIGNS, QUICKSAND, QS_EDGE, PYRAMID, SUNSTONE,
-  SUN_TEMPLE, SUNDIAL_RISE, OASIS_POOL, MESAS, STEPPING_STONES, BOARDWALK, DUNE_SEA, DESERT_OPEN_TO_STUDENTS, ZIGGURAT,
+  SUN_TEMPLE, SUNDIAL_RISE, OASIS_POOL, MESAS, STEPPING_STONES, BOARDWALK, DUNE_SEA, DESERT_OPEN_TO_STUDENTS, ZIGGURAT, TEMPLE_STONES, TEMPLE_WALL, TEMPLE_DASH,
   BAZAAR_BUILDINGS, SAND_SPHINX, DUNE_SHIP, FOSSIL, CAMELS,
 } from "../data/desert/desertLayout.js";
 import {
@@ -118,11 +118,13 @@ export function runDesertChecks() {
   const stu = journeyState({ completedMissions: [], journey: {}, counts: {}, visited: {}, admin: false });
   const adm = journeyState({ completedMissions: [], journey: {}, counts: {}, visited: {}, admin: true });
   const lockStu = portalLock(stu, DESERT_PORTAL_ID), lockAdm = portalLock(adm, DESERT_PORTAL_ID);
+  // (2026-11-08, later) The Timestable Temple opens on the journey: shut for
+  // a new student until Snowball Sums holds 7 trophies, open in admin mode.
   const lockOk = DESERT_PORTAL_ID === toDesert?.id && lockAdm === null &&
-    (DESERT_OPEN_TO_STUDENTS ? lockStu === null : Boolean(lockStu && lockStu.soon && /coming soon/i.test(lockStu.text)));
+    (DESERT_OPEN_TO_STUDENTS ? lockStu === null : Boolean(lockStu && lockStu.worldKey === "temple" && /Snowball Sums/.test(lockStu.text)));
   const ds1 = hooksOk && gateOk && spawnOk && boundsOk && lockOk && D_STEP_UP === STEP_UP;
   checks.push({
-    name: "Sunstone Desert: hooks + golden gates both ways + safe spawn + 'coming soon' lock (open for admin)",
+    name: "Sunstone Desert: hooks + golden gates both ways + safe spawn + the journey's lock (open for admin)",
     pass: ds1,
     detail: ds1 ? `spawn (${sp.x}, ${sp.z}) at ${terrainHeight(sp.x, sp.z).toFixed(1)} m; island gate ${toDesert.id}; students: ${lockStu ? lockStu.note : "open"}` : `hooks:${hooksOk} gate:${gateOk} spawn:${spawnOk} bounds:${boundsOk} lock:${lockOk}`,
   });
@@ -280,6 +282,14 @@ export function runDesertChecks() {
     ...CAMELS.map(([x, z], i) => [`camel-${i}`, [x + 2.4, z], 2.2]),
     ...DESERT_SIGNPOSTS.map((s) => [`signpost-${s.id}`, s.p, 1.8]),
     ...DESERT_CHEST_SPOTS.map((p, i) => [`chest-${i}`, p, 1.6]),
+    // The Timestable Temple: where you stand to use each stone, the wall + Dash.
+    ...TEMPLE_STONES.map((t) => {
+      const d = t.tall ? 1.9 : 1.6;
+      const p = [t.position[0] + Math.sin(t.rotationY) * d, t.position[1] + Math.cos(t.rotationY) * d];
+      return [`stone-${t.key}`, p, 1.3, desertGroundHeight(p[0], p[1], 200) - 0.3];
+    }),
+    ["tables-wall", [TEMPLE_WALL.position[0], TEMPLE_WALL.position[1] + 2], 1.4],
+    ["dash", [TEMPLE_DASH.position[0] + 2, TEMPLE_DASH.position[1] + 1.5], 1.6],
   ];
   const unreached = targets.filter(([, p, rad, minH]) => !reach(p, rad, minH ?? -Infinity)).map(([id]) => id);
   const ds4 = unreached.length === 0 && reachedCells > okCells * 0.8;
@@ -304,7 +314,8 @@ export function runDesertChecks() {
       const q = quicksandAt(x, z);
       if (q && q.sdf < 0) spotFails.push(`${s.id} quicksand`);
       const b = blockedAt(x, z, g, 0.1);
-      if (b) spotFails.push(`${s.id} ${b.id}`);
+      // (The Timestable Temple's station stones were what these spots were kept for.)
+      if (b && !/^desert-stone-/.test(b.id)) spotFails.push(`${s.id} ${b.id}`);
     }
     if (hi - lo > 0.06) spotFails.push(`${s.id} not flat (${(hi - lo).toFixed(2)})`);
     for (const kind of ["saguaro", "barrel", "pear", "palm", "boulder", "shrub", "bones", "pots"]) {

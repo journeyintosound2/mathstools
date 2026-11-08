@@ -12,6 +12,7 @@ import "./styles/polish.css";
 import "./styles/mobile.css";
 // Challenge demos (2026-10-24) — after mobile.css (it has its own small-screen rules).
 import "./styles/demo.css";
+import "./styles/temple.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>

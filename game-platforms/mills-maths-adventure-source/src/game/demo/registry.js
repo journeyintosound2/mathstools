@@ -7,8 +7,9 @@ import { SNOW_DEMOS } from "./scripts/snowDemos.js";
 import { MAGMA_DEMOS } from "./scripts/magmaDemos.js";
 import { FARM_DEMOS } from "./scripts/farmDemos.js";
 import { JUNGLE_DEMOS } from "./scripts/jungleDemos.js";
+import { TEMPLE_DEMOS } from "./scripts/templeDemos.js";
 
-export const DEMOS = [...SNOW_DEMOS, ...MAGMA_DEMOS, ...FARM_DEMOS, ...JUNGLE_DEMOS];
+export const DEMOS = [...SNOW_DEMOS, ...MAGMA_DEMOS, ...FARM_DEMOS, ...JUNGLE_DEMOS, ...TEMPLE_DEMOS];
 
 const BY_KEY = new Map(DEMOS.map((d) => [d.key, d]));
 

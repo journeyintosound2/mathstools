@@ -44,8 +44,9 @@ import { SNOW_MAP_BOARD } from "./snow/snowLayout.js";
 import { MAGMA_MAP_BOARD } from "./magma/magmaLayout.js";
 import { JUNGLE_MAP_BOARD } from "./jungle/jungleLayout.js";
 import {
-  DESERT_REGION_ID, DESERT_MAP_BOARD, DESERT_WELCOME_HOST, DESERT_CHEST_SPOTS,
+  DESERT_REGION_ID, DESERT_MAP_BOARD, DESERT_WELCOME_HOST, DESERT_CHEST_SPOTS, TEMPLE_STONES, TEMPLE_WALL, TEMPLE_DASH,
 } from "./desert/desertLayout.js";
+import { stationOf } from "./temple/templeTables.js";
 import { SCHOOL_MAP_BOARD } from "./schoolyard/schoolyardLayout.js";
 
 // WORLD MAP BOARDS (2026-10-10): every world's painted map board, by its
@@ -142,6 +143,37 @@ export const SCHOOL_CHEST_POS = SCHOOL_CHEST_SPOTS[Math.floor(Math.random() * SC
 // …and one half-buried somewhere in the Sunstone Desert (DESERT_CHEST_SPOTS —
 // behind the Red Mesa, the dunes, the town's edge…; the desert checks reach each one).
 export const DESERT_CHEST_POS = DESERT_CHEST_SPOTS[Math.floor(Math.random() * DESERT_CHEST_SPOTS.length)];
+
+// TIMESTABLE TEMPLE (2026-11-08): each carved stone opens its station's card
+// (interaction.js → useTempleTables.start(key)); the Times-Table Wall and
+// Dash the camel open the temple hub. The spot stands in front of the face.
+const TEMPLE_SPOTS = [
+  ...TEMPLE_STONES.map((t) => {
+    const st = stationOf(t.key);
+    const d = t.tall ? 1.9 : 1.6;
+    return {
+      id: `temple-stone-${t.key}`, name: st.name, encounterId: "temple-station", model: "none", color: "#c99a1a",
+      position: [t.position[0] + Math.sin(t.rotationY) * d, t.position[1] + Math.cos(t.rotationY) * d],
+      promptLabel: st.kind === "table" ? `Open ${st.name} — times-table station` : `Open ${st.name} — mixed station`,
+      badgeY: t.tall ? 4.4 : 3.4,
+      collision: { type: "circle", radius: 0.5, enabled: false },
+      interactionRadius: 2.8,
+      regionId: DESERT_REGION_ID,
+    };
+  }),
+  {
+    id: "temple-wall", name: "Times-Table Wall", encounterId: "temple-station", model: "none", color: "#c99a1a",
+    position: [TEMPLE_WALL.position[0] + Math.sin(TEMPLE_WALL.rotationY) * 2.0, TEMPLE_WALL.position[1] + Math.cos(TEMPLE_WALL.rotationY) * 2.0],
+    promptLabel: "View your times-table square", badgeY: 5.2,
+    collision: { type: "circle", radius: 0.5, enabled: false }, interactionRadius: 3.4, regionId: DESERT_REGION_ID,
+  },
+  {
+    id: "temple-dash", name: "Dash", encounterId: "temple-station", model: "none", color: "#c99a1a",
+    position: TEMPLE_DASH.position,
+    promptLabel: "Talk to Dash — your next station", badgeY: 3.6,
+    collision: { type: "circle", radius: 0.5, enabled: false }, interactionRadius: 3.4, regionId: DESERT_REGION_ID,
+  },
+];
 
 export const INTERACTABLES = [
   // The three original maths NPCs — same look, positions and topics as before.
@@ -702,6 +734,8 @@ export const INTERACTABLES = [
     interactionRadius: 4.6,
     regionId: JUNGLE_REGION_ID,
   },
+  // ---- Timestable Temple (2026-11-08) ----
+  ...TEMPLE_SPOTS,
   // ---- Sunstone Desert (2026-11-08) ----
   {
     id: DESERT_WELCOME_HOST.id,

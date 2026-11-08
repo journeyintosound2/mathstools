@@ -33,8 +33,9 @@ import { JUNGLE_CHALLENGES, JUNGLE_RECORDS_STAND } from "../jungle/jungleChallen
 import { jungleTrophyRows } from "../jungle/jungleRecords.js";
 import { SCHOOLYARD_SPAWN, SCHOOL_AREAS, SCHOOL_MAP_BOARD, SCHOOLYARD_CHARACTERS } from "../schoolyard/schoolyardLayout.js";
 import {
-  DESERT_REGION_ID, DESERT_NAME, DESERT_SPAWN, DESERT_MAP_BOARD, DESERT_SPOTS, DESERT_LANDMARKS, SUNSTONE, PYRAMID,
+  DESERT_REGION_ID, DESERT_NAME, DESERT_SPAWN, DESERT_MAP_BOARD, DESERT_SPOTS, DESERT_LANDMARKS, SUNSTONE, PYRAMID, TEMPLE_STONE, TEMPLE_DASH, TEMPLE_WALL,
 } from "../desert/desertLayout.js";
+import { tablesTrophyRows, stationOf, FAMILY } from "../temple/templeTables.js";
 
 /** The worlds that have a map (the Lodge is one room — no map needed). */
 export const MAP_REGION_IDS = ["island-1", "farm-parts-whole", "snow-sums", "magma-multiples", "emerald-jungle", "schoolyard", DESERT_REGION_ID];
@@ -94,7 +95,7 @@ const SPECS = {
     ].filter((a) => a.name !== "Treehouse"),
   },
   [DESERT_REGION_ID]: {
-    title: DESERT_NAME, icon: "☀️", subtitle: "Pyramids, dunes, an oasis — and quicksand!",
+    title: DESERT_NAME, icon: "🏜️", subtitle: "Fifteen times-table stations — and quicksand!",
     accent: "#c4762a", deep: "#7a4210", paper: "#f6e8cc",
     bounds: { x0: -150, x1: 150, z0: -136, z1: 136 },
     spawn: [DESERT_SPAWN.x, DESERT_SPAWN.z],
@@ -245,11 +246,24 @@ export function regionMapPois(regionId, ctx = {}) {
     add({ id: "ember", kind: "place", icon: "🌋", name: "Ember Peak", sub: "The island volcano", at: EMBER_PEAK.c, target: [EMBER_PEAK.c[0] - 16, EMBER_PEAK.c[1] + 26] });
     add({ id: "lighthouse", kind: "place", icon: "🗼", name: "The Lighthouse", sub: "Over the rope bridge", at: LIGHTHOUSE.position, target: [LIGHTHOUSE.position[0] - 5, LIGHTHOUSE.position[1] + 5] });
   } else if (regionId === DESERT_REGION_ID) {
-    // Land only for now: the ten spots to explore (the challenges come later).
-    DESERT_SPOTS.forEach((s, i) => {
-      out.push({ id: `spot-${s.id}`, kind: "place", n: i + 1, icon: s.icon, name: s.label, sub: "A place to explore", at: s.center, target: s.center });
+    // The Timestable Temple's fifteen stations, numbered in the order they open.
+    const rows = tablesTrophyRows();
+    rows.forEach((row, i) => {
+      const st = stationOf(row.key);
+      const stone = TEMPLE_STONE[row.key];
+      const at = [stone.position[0] + Math.sin(stone.rotationY) * 1.8, stone.position[1] + Math.cos(stone.rotationY) * 1.8];
+      out.push({
+        id: `ch-${row.key}`, kind: "challenge", n: i + 1, icon: row.icon, name: row.name,
+        sub: `${FAMILY[st.family].name}${row.open ? "" : " · 🔒 locked"}`, at, target: at,
+        medal: row.medal ? row.medal.id : null, best: row.best || 0, pct: row.pct || 0,
+      });
+    });
+    DESERT_SPOTS.forEach((s) => {
+      out.push({ id: `spot-${s.id}`, kind: "place", icon: s.icon, name: s.label, sub: "A place to explore", at: s.center, target: s.center });
     });
     add(person("desert-welcome-host", "guide", "👋", "Mills", "Your guide"));
+    add({ id: "dash", kind: "guide", icon: "🐫", name: "Dash", sub: "Your next station · the warm-up", at: TEMPLE_DASH.position, target: TEMPLE_DASH.position });
+    add({ id: "tables-wall", kind: "trophies", icon: "🔢", name: "Times-Table Wall", sub: "Your times-table square", at: TEMPLE_WALL.position, target: [TEMPLE_WALL.position[0], TEMPLE_WALL.position[1] + 2] });
     add({ id: "pyramid", kind: "place", icon: "🔺", name: "The Great Pyramid", sub: "Climb the grand stair to the Sunstone", at: PYRAMID.c, target: [0, PYRAMID.stair.zFoot + 3] });
     add({ id: "sunstone", kind: "place", icon: "✨", name: "The Sunstone", sub: "On top of the Great Pyramid", at: SUNSTONE.position, target: [SUNSTONE.position[0], SUNSTONE.position[1] + 5] });
   } else if (regionId === "schoolyard") {

@@ -32,7 +32,7 @@ export const PROGRESS_VERSION = 1;
  * reported to the teacher" high-water marks (so a new device doesn't re-send
  * every farm best as a fresh achievement).
  */
-export const SYNCED_KEY = /^mma-(farm|snow|magma|jungle)-[a-z0-9]+-best$|^mma-visited:[a-z0-9-]+$|^mma-farm-task-done:[A-Za-z0-9_-]+$|^mma-farm-synced:[a-z]+$/;
+export const SYNCED_KEY = /^mma-(farm|snow|magma|jungle|tables)-[a-z0-9]+-best$|^mma-visited:[a-z0-9-]+$|^mma-farm-task-done:[A-Za-z0-9_-]+$|^mma-farm-synced:[a-z]+$/;
 /** Numbers (kept as the max); the rest are one-way "1" markers. */
 export const isNumericKey = (k) => /-best$|^mma-farm-synced:/.test(k);
 const isBestKey = isNumericKey;

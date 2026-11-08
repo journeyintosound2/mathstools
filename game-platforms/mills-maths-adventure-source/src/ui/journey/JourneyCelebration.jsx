@@ -45,7 +45,7 @@ export default function JourneyCelebration() {
   if (!show) return null;
   const w = journeyWorld(key);
   if (!w) return null;
-  const prev = JOURNEY_WORLDS[JOURNEY_WORLDS.indexOf(w) - 1] || null;
+  const prev = w.after ? journeyWorld(w.after) : JOURNEY_WORLDS[JOURNEY_WORLDS.indexOf(w) - 1] || null;
   const onIsland = regionId === "island-1";
   const J = useJourney.getState();
 

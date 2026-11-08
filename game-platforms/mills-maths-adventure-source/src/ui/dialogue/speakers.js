@@ -42,6 +42,7 @@ const S = {
   "Glim": { icon: "💎", color: "#2f95d0", role: "The Ice Cave" },
   "Cocoa": { icon: "☕", color: "#8a5a2b", role: "Lodge Yard" },
   "Nova": { icon: "🌌", color: "#4b3fa0", role: "Aurora Lookout" },
+  "Dash": { icon: "🐫", color: "#c99a1a", role: "Timestable Temple" },
   "Treasure Chest": { icon: "🪙", color: "#c8962a", role: "" },
   "World Map": { icon: "🗺️", color: "#2a5f9e", role: "" },
 };

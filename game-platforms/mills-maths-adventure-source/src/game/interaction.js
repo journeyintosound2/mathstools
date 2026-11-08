@@ -34,6 +34,7 @@ import { useAuroraLookout } from "./auroraLookoutStore.js";
 import { farmRecordLines } from "../data/farm/farmRecords.js";
 import { exitMagmaExcept, magmaStore } from "./magma/magmaActive.js";
 import { exitJungleExcept, jungleStore } from "./jungle/jungleActive.js";
+import { useTempleTables, useTempleUI } from "./temple/templeStore.js";
 import { journeyTrack, useJourney } from "./journeyStore.js";
 import { millsJourneyLines } from "../data/journey.js";
 import { useChests } from "./chestStore.js";
@@ -61,6 +62,7 @@ function exitFarmChallengesExcept(keep) {
   if (keep !== "snowcave") useCaveCrystals.getState().exit();
   if (keep !== "snowyard") useLodgeYard.getState().exit();
   if (keep !== "snowlights") useAuroraLookout.getState().exit();
+  if (keep !== "tables") useTempleTables.getState().exit();
   // Magma Multiples keys are the challenge keys themselves ("columns" …).
   exitMagmaExcept(keep);
   // Emerald Jungle keys too ("swap", "market" …).
@@ -346,6 +348,21 @@ export function triggerInteraction(interactable) {
     exitFarmChallengesExcept(jungleHost[1]);
     const st = jungleStore(jungleHost[1]).getState();
     if (st.status === "idle") st.start();
+    return;
+  }
+  // ---- Timestable Temple: a stone opens its station's card; the wall and
+  // Dash open the temple hub (next station, warm-up, the square). ----
+  const templeStone = /^temple-stone-([a-z0-9]+)$/.exec(interactable.id || "");
+  if (templeStone) {
+    exitFarmChallengesExcept("tables");
+    useTempleUI.getState().close();
+    useTempleTables.getState().start(templeStone[1]);
+    return;
+  }
+  if (interactable.id === "temple-wall" || interactable.id === "temple-dash") {
+    exitFarmChallengesExcept(null);
+    if (interactable.id === "temple-wall") useTempleUI.getState().openSquare();
+    else useTempleUI.getState().openHub();
     return;
   }
   // Any world's map board → the full-screen map (waypoints).

@@ -11,7 +11,7 @@ import {
   DESERT_SPAWN, DESERT_RETURN_PORTAL, DESERT_WELCOME_SIGN, DESERT_WELCOME_HOST, DESERT_MAP_BOARD, CARAVAN_GATE,
   BAZAAR_BUILDINGS, TOWER_STAIR, ZIGGURAT, MARKET_STALLS, TOWN_WELL, PYRAMID, SUNSTONE, OBELISKS, SUN_TEMPLE,
   OASIS, OASIS_POOL, OASIS_STAIRS, HIERO_WALL, MESA_STAIR, MINE_RAILS, MINE_MOUTH, SUN_ARCH, SUNDIAL_RISE, DUNE_SHIP,
-  SAND_SPHINX, CRYSTALS, FOSSIL, DESERT_SPOTS, DESERT_SIGNPOSTS, QS_SIGNS, CAMELS, DESERT_CHEST_SPOTS, BOARDWALK,
+  SAND_SPHINX, CRYSTALS, FOSSIL, DESERT_SPOTS, TEMPLE_STONES, TEMPLE_STONE_CLEAR, TEMPLE_WALL, TEMPLE_DASH, DESERT_SIGNPOSTS, QS_SIGNS, CAMELS, DESERT_CHEST_SPOTS, BOARDWALK,
   DESERT_BOUNDARY, TOWN,
 } from "./desertLayout.js";
 import {
@@ -125,6 +125,9 @@ export function clearAt(x, z, o = {}) {
   }
   if (o.foot !== undefined && nearestFootprint(x, z).e < o.foot) return false;
   for (const s of DESERT_SPOTS) if (Math.hypot(x - s.center[0], z - s.center[1]) < s.radius + (o.spot ?? 3)) return false;
+  for (const t of TEMPLE_STONES) if (Math.hypot(x - t.position[0], z - t.position[1]) < TEMPLE_STONE_CLEAR + (t.tall ? 0.6 : 0)) return false;
+  if (Math.hypot(x - TEMPLE_WALL.position[0], z - TEMPLE_WALL.position[1]) < TEMPLE_WALL.width / 2 + 1.5) return false;
+  if (Math.hypot(x - TEMPLE_DASH.position[0], z - TEMPLE_DASH.position[1]) < 2.6) return false;
   if (railDist(x, z) < 1.8) return false;
   const st = structureTopAt(x, z);
   if (st !== null && st > terrainHeight(x, z) + 0.05) return false;

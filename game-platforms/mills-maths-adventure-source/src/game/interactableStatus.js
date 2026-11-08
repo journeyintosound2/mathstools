@@ -1,4 +1,6 @@
 import { getEncounter } from "../data/encounters.js";
+import { stationOpen, medalFor, readTablesBest } from "../data/temple/templeTables.js";
+import { isAdminMode } from "../data/adminMode.js";
 
 /**
  * Decide which floating status badge an interactable should show, based on the
@@ -29,6 +31,19 @@ export function getInteractableStatus(data, completed) {
       ? { icon: "✓", tone: "done", label: "Warm-up passed" }
       : { icon: "?", tone: "available", label: "Warm-up" };
   }
+
+  // The Timestable Temple (2026-11-08): each stone shows its lock / medal.
+  const stone = /^temple-stone-([a-z0-9]+)$/.exec(data.id || "");
+  if (stone) {
+    const key = stone[1];
+    if (!stationOpen(key, undefined, isAdminMode())) return { icon: "🔒", tone: "locked", label: "Locked" };
+    const best = readTablesBest(key);
+    const m = medalFor(key, best);
+    if (m) return { icon: { bronze: "🥉", silver: "🥈", gold: "🥇" }[m.id], tone: "done", label: `Best: ${best}` };
+    return { icon: "⏱", tone: "available", label: best ? `Best: ${best}` : "Times-table station" };
+  }
+  if (data.id === "temple-wall") return { icon: "🔢", tone: "reward", label: "Your square" };
+  if (data.id === "temple-dash") return { icon: "🐫", tone: "info", label: "Next station" };
 
   switch (type) {
     case "mathsChallenge":

@@ -10,6 +10,7 @@ import { getMagmaColliders, CRATER_HINT } from "../data/magma/magmaColliders.js"
 import { runMagmaChallengeChecks } from "./magmaChallengeChecks.js";
 import { runJungleChecks } from "./jungleChecks.js";
 import { runDesertChecks } from "./desertChecks.js";
+import { runTempleChecks } from "./templeChecks.js";
 import { runJungleChallengeChecks } from "./jungleChallengeChecks.js";
 import { runMapOutcomeChecks } from "./mapOutcomeChecks.js";
 import { runTouchControlChecks } from "./touchChecks.js";
@@ -698,6 +699,7 @@ export function runSystemChecks(progressSnapshot) {
   // Emerald Jungle — the seventh region, a jungle valley (JG1–JG8).
   for (const c of runJungleChecks()) checks.push(c);
   for (const c of runDesertChecks()) checks.push(c);
+  for (const c of runTempleChecks()) checks.push(c);
   // Emerald Jungle — the vine-ladder challenges (2026-10-10 pilot).
   for (const c of runJungleChallengeChecks()) checks.push(c);
   // World maps + waypoints, and the one round-outcome rule (2026-10-10).
