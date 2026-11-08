@@ -1,6 +1,6 @@
 /* Written by tools/build-pwa.mjs — do not edit by hand. */
 self.MMT_PRECACHE = {
- "version": "e7be1931c4",
+ "version": "e97ba4c520",
  "files": [
   "./",
   "assessment/exam-builder/app.js",
@@ -307,6 +307,7 @@ self.MMT_PRECACHE = {
   "game-platforms/mills-maths-adventure-source/src/cloud/cloudResultWriter.js",
   "game-platforms/mills-maths-adventure-source/src/cloud/cloudSession.js",
   "game-platforms/mills-maths-adventure-source/src/cloud/codeExchange.js",
+  "game-platforms/mills-maths-adventure-source/src/cloud/explorerProfile.js",
   "game-platforms/mills-maths-adventure-source/src/cloud/farmCompletion.js",
   "game-platforms/mills-maths-adventure-source/src/cloud/firebaseClient.js",
   "game-platforms/mills-maths-adventure-source/src/cloud/firebaseConfig.js",
@@ -657,12 +658,12 @@ self.MMT_PRECACHE = {
   "game-platforms/mills-maths-adventure/assets/KaTeX_Size2-Regular-Dy4dx90m.woff2",
   "game-platforms/mills-maths-adventure/assets/KaTeX_Size4-Regular-Dl5lxZxV.woff2",
   "game-platforms/mills-maths-adventure/assets/KaTeX_Typewriter-Regular-CO6r4hn1.woff2",
-  "game-platforms/mills-maths-adventure/assets/MathAnswerInput-DnPMP5U2.js",
   "game-platforms/mills-maths-adventure/assets/MathAnswerInput-XpCQxquu.css",
+  "game-platforms/mills-maths-adventure/assets/MathAnswerInput-b5SSOfMu.js",
   "game-platforms/mills-maths-adventure/assets/baloo-2-latin-500-normal-sFC1aiE7.woff2",
   "game-platforms/mills-maths-adventure/assets/baloo-2-latin-700-normal-DpwkDI0o.woff2",
   "game-platforms/mills-maths-adventure/assets/baloo-2-latin-800-normal-CJQCPmFU.woff2",
-  "game-platforms/mills-maths-adventure/assets/index-mdSdMd5m.css",
+  "game-platforms/mills-maths-adventure/assets/index-Bw4vzj3P.css",
   "game-platforms/mills-maths-adventure/assets/lilita-one-latin-400-normal-87r-Z-Re.woff2",
   "game-platforms/mills-maths-adventure/index.html",
   "game-platforms/mills-maths-adventure/portraits/alby.webp",

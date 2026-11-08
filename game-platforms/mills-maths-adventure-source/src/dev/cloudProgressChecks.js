@@ -31,7 +31,10 @@ import {
 import {
   beginLoad, finishLoad, prepareSave, confirmSaved, autosaveDue, progressOwner, useProgressSync,
   __resetProgressSync, __setSentAt, __progressSyncState, OWNER_KEY, STASH_PREFIX, MAJOR_GAP_MS, MINOR_GAP_MS, MAX_DOC_BYTES,
+  clearDeviceForNextStudent, stopProgressSync,
 } from "../cloud/progressSync.js";
+import { DEFAULT_PROGRESS } from "../progress/storage.js";
+import { mergeFacts, TABLES_FACTS_KEY } from "../cloud/progressMerge.js";
 import { PHASE3D_CLAIMS_RULES } from "../cloud/firestoreRulesDraft.js";
 import { COLLECTIONS } from "../cloud/firebaseConfig.js";
 import { DEFAULT_JOURNEY } from "../data/journey.js";
@@ -239,8 +242,11 @@ export function runCloudProgressChecks() {
       const pickedUp = plan === "merge" && loaded && p.xp === 640 && p.coins === 33 && p.completedMissions.length === 3 &&
         p.journey.trainingDone === true && p.journey.celebrated.includes("snow") && localStorage.getItem(snowKey) === "300" &&
         localStorage.getItem("mma-visited:snow-sums") === "1" && progressOwner() === "AB12" && p.level > 1;
-      // The cloud already has all of it → nothing to send.
-      const nothing = prepareSave() === null;
+      // (2026-11-09) The first save after sign-in carries the student's
+      // explorer (name + character) up; after that the cloud has it all.
+      const first = prepareSave();
+      if (first) confirmSaved(first.payload);
+      const nothing = prepareSave() === null && (!first || Boolean(first.payload.progress.explorer));
       // Play on: a new best + XP → a save goes up with BOTH.
       useProgress.getState().awardRewards({ xp: 25 });
       localStorage.setItem(FARM_BEST_KEYS.fence, "200");
@@ -342,5 +348,86 @@ export function runCloudProgressChecks() {
       ok ? `student reads/writes own · teacher reads own class · ${keysList.length} fields pinned (= the doc) · before the default deny` : JSON.stringify({ found: Boolean(block), keysList, docKeys }));
   }
 
+
+  // CP10 — (2026-11-09) a shared computer never shows one student's name or
+  // character on another's save; each student's explorer comes back to them.
+  {
+    let detail = "";
+    const ok = onCleanDevice(() => {
+      useProgress.getState().setProfile({ ...DEFAULT_PROGRESS.profile });
+      const A = { studentCode: "AVA1", firstName: "Ava", surname: "Lee", name: "Ava Lee", teacherCode: "T9", className: "7M" };
+      const B = { studentCode: "BEN2", firstName: "Ben", surname: "Ng", name: "Ben Ng", teacherCode: "T9", className: "7M" };
+      let r = beginLoad(A); finishLoad(r.gen, null, { created: true });
+      // Ava names her explorer "Dragon" and picks the cat (the card stamps it as hers).
+      useProgress.getState().setProfile({ ...useProgress.getState().profile, name: "Dragon", character: "cat", owner: "AVA1", explorerAt: 1000 });
+      useProgress.getState().awardRewards({ xp: 120 });
+      const aSave = prepareSave();
+      // Ben signs in on the same computer.
+      r = beginLoad(B);
+      const p1 = useProgress.getState().profile;
+      const benFresh = r.plan === "replace" && p1.name === "Ben" && p1.character === "explorer" && p1.owner === "BEN2" && useProgress.getState().xp === 0;
+      finishLoad(r.gen, null, { created: true });
+      const benSave = prepareSave();
+      const noLeak = !JSON.stringify(benSave ? benSave.payload : {}).includes("Dragon");
+      // Ben's own explorer is in his cloud save → it replaces the account name.
+      const benCloud = { ...payload({ xp: 40 }), progress: { ...payload({ xp: 40 }).progress, explorer: { name: "Benji", character: "goat", at: 500 } } };
+      r = beginLoad(B); finishLoad(r.gen, cleanPayload(benCloud));
+      const p2 = useProgress.getState().profile;
+      const benOwn = p2.name === "Benji" && p2.character === "goat";
+      // Ava comes back: her name, cat and XP return from this computer.
+      r = beginLoad(A);
+      const p3 = useProgress.getState().profile;
+      const avaBack = r.plan === "replace" && p3.name === "Dragon" && p3.character === "cat" && useProgress.getState().xp === 120;
+      detail = JSON.stringify({ benFresh, noLeak, benOwn, avaBack, aExplorer: aSave && aSave.payload.progress.explorer, p1: p1.name, p2: p2.name, p3: p3.name });
+      return benFresh && noLeak && benOwn && avaBack && aSave && aSave.payload.progress.explorer.name === "Dragon";
+    });
+    checks.push({ name: "CP10 cloud progress: the explorer's name + character belong to the student — a shared computer never shows one student's on another's save", pass: ok,
+      detail: ok ? "Ava 'Dragon' 🐱 → Ben gets 'Ben' (then his own 'Benji' 🐐 from the cloud) → Ava back as 'Dragon' 🐱 with her XP" : detail });
+  }
+
+  // CP11 — (2026-11-09) signing out leaves the computer clean for the next
+  // student; signing back in brings the save back, even with no cloud.
+  {
+    let detail = "";
+    const ok = onCleanDevice(() => {
+      useProgress.getState().setProfile({ ...DEFAULT_PROGRESS.profile });
+      const A = { studentCode: "AVA1", firstName: "Ava", name: "Ava Lee", teacherCode: "T9", className: "7M" };
+      let r = beginLoad(A); finishLoad(r.gen, null, { created: true });
+      useProgress.getState().setProfile({ ...useProgress.getState().profile, name: "Dragon", owner: "AVA1", explorerAt: 1000 });
+      useProgress.getState().awardRewards({ xp: 90 });
+      localStorage.setItem(snowKey, "250");
+      localStorage.setItem(TABLES_FACTS_KEY, JSON.stringify({ "7x8": { n: 2, r: 2, w: 0, fd: [1, 2], box: 2, due: 5, last: 2 } }));
+      __resetProgressSync();
+      clearDeviceForNextStudent("AVA1");
+      const P = useProgress.getState();
+      const clean = P.xp === 0 && !P.profile.name && !P.profile.studentCode && !P.profile.owner && progressOwner() === null &&
+        localStorage.getItem(snowKey) === null && localStorage.getItem(TABLES_FACTS_KEY) === null && Boolean(localStorage.getItem(STASH_PREFIX + "AVA1"));
+      // Ava signs back in with the cloud unreachable: her save comes back from the stash.
+      r = beginLoad(A);
+      const P2 = useProgress.getState();
+      const back = P2.xp === 90 && P2.profile.name === "Dragon" && localStorage.getItem(snowKey) === "250" &&
+        JSON.parse(localStorage.getItem(TABLES_FACTS_KEY) || "{}")["7x8"]?.n === 2 && !localStorage.getItem(STASH_PREFIX + "AVA1");
+      detail = JSON.stringify({ clean, back, xp: P2.xp, name: P2.profile.name });
+      return clean && back;
+    });
+    checks.push({ name: "CP11 cloud progress: signing out clears the computer for the next student (no name, no save, no owner) and the student's save comes back when they sign in again", pass: ok,
+      detail: ok ? "cleared → 0 XP, no name · signed back in (offline) → 90 XP, 'Dragon', the snow best + times-table facts" : detail });
+  }
+
+  // CP12 — (2026-11-09) the times-table square travels: per fact, the record
+  // with more answers wins.
+  {
+    const a = { "7x8": { n: 3, r: 2, w: 1, fd: [], box: 0, due: 4, last: 4 }, "2x3": { n: 1, r: 1, w: 0, fd: [3], box: 1, due: 4, last: 3 } };
+    const b = { "7x8": { n: 5, r: 5, w: 0, fd: [5, 6], box: 2, due: 9, last: 6 }, "9x9": { n: 1, r: 1, w: 0, fd: [6], box: 1, due: 7, last: 6 } };
+    const m = mergeFacts(a, b);
+    const st = fakeStorage({ [TABLES_FACTS_KEY]: JSON.stringify(a) });
+    const col = collectProgress({}, st);
+    const cleaned = cleanPayload({ progress: { tablesFacts: { ...b, "13x2": { n: 9 }, "evil": 1 } } });
+    const ok = m["7x8"].n === 5 && m["2x3"] && m["9x9"] && col.progress.tablesFacts && col.progress.tablesFacts["7x8"].n === 3 &&
+      cleaned.progress.tablesFacts && !cleaned.progress.tablesFacts["13x2"] && !cleaned.progress.tablesFacts.evil &&
+      changeKind(payload({}), { ...payload({}), progress: { ...payload({}).progress, tablesFacts: b } }) === "minor";
+    checks.push({ name: "CP12 cloud progress: the Timestable Temple's fact records (the times-table square) travel with the student, merged fact by fact", pass: ok,
+      detail: ok ? "7 × 8: the 5-answer record wins · only real facts kept · a fact change saves within the slow gap" : JSON.stringify({ m, col: col.progress.tablesFacts, cleaned: cleaned.progress.tablesFacts }) });
+  }
   return checks;
 }

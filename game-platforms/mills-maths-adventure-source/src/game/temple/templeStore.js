@@ -9,6 +9,7 @@ import { isDemoActive } from "../demo/demoStore.js";
 import { useProgress } from "../../progress/store.js";
 import { useUI } from "../../ui/effects/uiStore.js";
 import { isAdminMode } from "../../data/adminMode.js";
+import { onProgressApplied } from "../../cloud/progressSync.js";
 
 /**
  * TIMESTABLE TEMPLE — the one challenge store for all fifteen stations
@@ -45,6 +46,9 @@ export const useTempleUI = create((set) => ({
   close: () => set({ open: null }),
   bump: () => set((s) => ({ version: s.version + 1 })),
 }));
+
+// A student's save arriving (sign-in / switch / sign-out) repaints the wall + stones.
+onProgressApplied(() => useTempleUI.getState().bump());
 
 const idle = {
   status: "idle", mode: "timed", station: null, rounds: [], roundIndex: 0, score: 0, typed: "",

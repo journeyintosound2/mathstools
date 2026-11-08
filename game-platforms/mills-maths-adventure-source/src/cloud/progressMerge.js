@@ -24,6 +24,63 @@ import { FARM_BEST_KEYS, FARM_MAX_SCORES } from "../data/farm/farmRecords.js";
 import { FARM_TASK_META } from "../data/farm/farmTaskObjective.js";
 import { PASS_THRESHOLD } from "../missions/scoring.js";
 
+/**
+ * (2026-11-09) The EXPLORER travels too — the name + character the student
+ * chose — so a shared computer never shows one student's name on another's
+ * save. Stamped with `at` (when it was chosen); the newer one wins a merge.
+ * And the Timestable Temple's per-fact records (the times-table square) now
+ * travel with the student as well.
+ */
+export const TABLES_FACTS_KEY = "mma-tables-facts";
+const FACT_KEY = /^([1-9]|1[0-2])x([1-9]|1[0-2])$/;
+export const EXPLORER_NAME_MAX = 24;
+/** A profile's explorer for the save (null if it was never confirmed for a student). */
+export function explorerOf(profile) {
+  if (!profile || !profile.explorerAt) return null;
+  const name = String(profile.name || "").trim().slice(0, EXPLORER_NAME_MAX);
+  if (!name) return null;
+  return { name, character: String(profile.character || "explorer").slice(0, 24), at: num(profile.explorerAt) };
+}
+function cleanExplorer(e) {
+  if (!e || typeof e !== "object") return null;
+  const name = String(e.name || "").trim().slice(0, EXPLORER_NAME_MAX);
+  if (!name) return null;
+  return { name, character: /^[a-z0-9-]{1,24}$/.test(String(e.character || "")) ? e.character : "explorer", at: Math.max(0, num(e.at)) };
+}
+function newerExplorer(a, b) {
+  if (!a) return b || null;
+  if (!b) return a;
+  return num(b.at) > num(a.at) ? b : a;
+}
+/** Times-table fact records: only well-formed facts. */
+export function cleanFacts(f) {
+  if (!f || typeof f !== "object" || Array.isArray(f)) return null;
+  const out = {};
+  for (const [k, v] of Object.entries(f)) {
+    if (!FACT_KEY.test(k) || !v || typeof v !== "object") continue;
+    out[k] = {
+      n: Math.max(0, num(v.n)), r: Math.max(0, num(v.r)), w: Math.max(0, num(v.w)),
+      fd: arr(v.fd).filter((d) => Number.isFinite(Number(d))).map(Number).slice(-4),
+      box: Math.max(0, Math.min(5, num(v.box))), due: num(v.due), last: num(v.last),
+      ...(v.ms !== undefined ? { ms: Math.max(0, num(v.ms)) } : {}),
+      ...(v.boxDay !== undefined ? { boxDay: num(v.boxDay) } : {}),
+      ...(v.lastWrong ? { lastWrong: true } : {}),
+    };
+  }
+  return out;
+}
+/** Per fact: the record with more answers behind it (then the more recent). */
+export function mergeFacts(a, b) {
+  if (!a) return b || undefined;
+  if (!b) return a;
+  const out = { ...a };
+  for (const [k, v] of Object.entries(b)) {
+    const q = out[k];
+    if (!q || num(v.n) > num(q.n) || (num(v.n) === num(q.n) && num(v.last) > num(q.last))) out[k] = v;
+  }
+  return out;
+}
+
 export const PROGRESS_VERSION = 1;
 
 /**
@@ -73,6 +130,12 @@ export function collectProgress(state = {}, storage = null) {
   }
   // guideTo is a one-off hint for THIS device — it never travels.
   progress.journey = { ...DEFAULT_JOURNEY, ...(state.journey || {}), guideTo: null };
+  const explorer = explorerOf(state.profile);
+  if (explorer) progress.explorer = explorer;
+  try {
+    const facts = storage ? cleanFacts(JSON.parse(storage.getItem(TABLES_FACTS_KEY) || "null")) : null;
+    if (facts && Object.keys(facts).length) progress.tablesFacts = facts;
+  } catch { /* a nicety */ }
   const { bests, flags } = readSyncedKeys(storage);
   return { v: PROGRESS_VERSION, progress, bests, flags };
 }
@@ -94,6 +157,10 @@ export function cleanPayload(doc) {
   if (progress.coins !== undefined) progress.coins = Math.max(0, num(progress.coins));
   if (progress.skillProfiles !== undefined && (typeof progress.skillProfiles !== "object" || Array.isArray(progress.skillProfiles))) delete progress.skillProfiles;
   if (progress.journey !== undefined) progress.journey = { ...DEFAULT_JOURNEY, ...(typeof progress.journey === "object" ? progress.journey : {}), guideTo: null };
+  const explorer = cleanExplorer(src.explorer);
+  if (explorer) progress.explorer = explorer;
+  const facts = cleanFacts(src.tablesFacts);
+  if (facts && Object.keys(facts).length) progress.tablesFacts = facts;
   const bests = {};
   for (const [k, v] of Object.entries(doc.bests || {})) {
     if (SYNCED_KEY.test(k) && isNumericKey(k) && num(v) > 0) bests[k] = num(v);
@@ -190,6 +257,10 @@ export function mergeProgress(a, b) {
     seenUnlocks: union(pa.seenUnlocks, pb.seenUnlocks),
     journey: mergeJourney(pa.journey, pb.journey),
   };
+  const explorer = newerExplorer(pa.explorer || null, pb.explorer || null);
+  if (explorer) progress.explorer = explorer;
+  const facts = mergeFacts(pa.tablesFacts, pb.tablesFacts);
+  if (facts && Object.keys(facts).length) progress.tablesFacts = facts;
   const bests = { ...(a.bests || {}) };
   for (const [k, v] of Object.entries(b.bests || {})) bests[k] = Math.max(num(bests[k]), num(v));
   const flags = { ...(a.flags || {}), ...(b.flags || {}) };
@@ -286,7 +357,7 @@ export function changeKind(prev, next) {
   if (!next) return "none";
   const P = prev.progress || {};
   const N = next.progress || {};
-  const pick = (g, p) => [g.completedMissions, g.completedQuests, g.completedEncounters, g.earnedBadges, g.journey, g.seenUnlocks, g.onboardingSeen, g.sageMet, g.championClaimed, p.bests, p.flags];
+  const pick = (g, p) => [g.completedMissions, g.completedQuests, g.completedEncounters, g.earnedBadges, g.journey, g.seenUnlocks, g.onboardingSeen, g.sageMet, g.championClaimed, g.explorer || null, p.bests, p.flags];
   if (stableKey(pick(P, prev)) !== stableKey(pick(N, next))) return "major";
-  return stableKey([P.xp, P.coins, P.skillProfiles]) === stableKey([N.xp, N.coins, N.skillProfiles]) ? "none" : "minor";
+  return stableKey([P.xp, P.coins, P.skillProfiles, P.tablesFacts || null]) === stableKey([N.xp, N.coins, N.skillProfiles, N.tablesFacts || null]) ? "none" : "minor";
 }

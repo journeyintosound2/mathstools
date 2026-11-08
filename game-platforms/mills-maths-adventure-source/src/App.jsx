@@ -52,6 +52,7 @@ import { CoachCard } from "./ui/journey/JourneyCoach.jsx";
 import JourneyCelebration from "./ui/journey/JourneyCelebration.jsx";
 import { startJourney, useJourney } from "./game/journeyStore.js";
 import { startProgressAutosave } from "./cloud/progressSync.js";
+import { useCloud } from "./cloud/cloudSession.js";
 import TrainingPrompt from "./ui/journey/TrainingPrompt.jsx";
 import AdminPanel from "./ui/admin/AdminPanel.jsx";
 import { useProgress } from "./progress/store.js";
@@ -73,7 +74,7 @@ import { inWallPromptZone } from "./data/island/wallView.js";
 // DEV-only handles for the headless phone/iPad harness (stripped from builds):
 // jump to any character / challenge host and open it without walking there.
 if (import.meta.env.DEV && typeof window !== "undefined") {
-  window.__mma = { useSession, useUI, playerState, requestTeleport, getInteractable, INTERACTABLES, triggerInteraction, useProgress, useJourney, useWipeout, useTempleTables, useTempleUI, skipDemo };
+  window.__mma = { useSession, useUI, playerState, requestTeleport, getInteractable, INTERACTABLES, triggerInteraction, useProgress, useJourney, useWipeout, useTempleTables, useTempleUI, skipDemo, useCloud };
 }
 
 /**

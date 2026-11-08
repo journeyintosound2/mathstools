@@ -7,7 +7,7 @@ import { normaliseStudentCode } from "./studentSession.js";
 import { setRuntimeMissions, clearRuntimeMissions } from "../data/missions.js";
 import { setRuntimeAssignments, clearRuntimeAssignments } from "../data/npcQuestChains.js";
 import { useProgress } from "../progress/store.js";
-import { loadCloudProgress, stopProgressSync } from "./progressSync.js";
+import { loadCloudProgress, stopProgressSync, clearDeviceForNextStudent } from "./progressSync.js";
 
 // Bumps on every sign-in, so a slow sign-out never signs the NEXT student out.
 let _authGen = 0;
@@ -202,6 +202,27 @@ export const useCloud = create((set, get) => ({
       if (gen === _authGen) return signOutCloud(); // nobody new has signed in meanwhile
       return undefined;
     });
+  },
+
+  /**
+   * SIGN OUT (2026-11-09, Jeff): the student's last changes go to the cloud,
+   * they're signed out, their save is put aside on this device and the device
+   * is left clean for the next student — then the game starts again at the
+   * title screen (whatever they were in the middle of). A ?code= in the
+   * address is dropped so they aren't signed straight back in.
+   */
+  async signOutAndLeave({ reload = true } = {}) {
+    const code = (get().student && get().student.studentCode) || null;
+    try { await get().clearSession(); } catch { /* signing out goes on */ }
+    try { clearDeviceForNextStudent(code); } catch { /* the reload still clears memory */ }
+    if (!reload || typeof window === "undefined" || !window.location) return;
+    try {
+      const u = new URL(window.location.href);
+      u.searchParams.delete("code");
+      window.location.replace(u.toString());
+    } catch {
+      window.location.reload();
+    }
   },
 
   /**

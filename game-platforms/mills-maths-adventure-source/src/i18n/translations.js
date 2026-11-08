@@ -360,6 +360,8 @@ export const TRANSLATIONS = {
     "Wiped out!": "اوه نه! افتادی!",
     "You fell into the deep water!": "توی آب عمیق افتادی!",
     "You fell into the freezing lake!": "توی دریاچهٔ یخ‌زده افتادی!",
+    "Signing out saves your progress, then goes back to the start screen for the next student.": "خروج، پیشرفتت را ذخیره می‌کند و بعد برای دانش‌آموز بعدی به صفحهٔ شروع برمی‌گردد.",
+    "Saving…": "در حال ذخیره…",
     // — Timestable Temple (2026-11-08) —
     "Timestable Temple": "معبد جدول ضرب",
     "Welcome to the Timestable Temple!": "به معبد جدول ضرب خوش آمدی!",
@@ -877,6 +879,8 @@ export const TRANSLATIONS = {
     "Wiped out!": "أوه لا! لقد سقطت!",
     "You fell into the deep water!": "وقعتَ في الماء العميق!",
     "You fell into the freezing lake!": "وقعتَ في البحيرة المتجمدة!",
+    "Signing out saves your progress, then goes back to the start screen for the next student.": "تسجيل الخروج يحفظ تقدّمك، ثم يعود إلى شاشة البداية للطالب التالي.",
+    "Saving…": "جارٍ الحفظ…",
     // — Timestable Temple (2026-11-08) —
     "Timestable Temple": "معبد جدول الضرب",
     "Welcome to the Timestable Temple!": "أهلًا بك في معبد جدول الضرب!",

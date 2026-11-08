@@ -8,6 +8,7 @@ import PlayerCharacter from "../game/characters/PlayerCharacter.jsx";
 import { PLAYER_CHARACTERS } from "../game/characters/characterModels.js";
 import { Bi, LanguageSelector } from "../i18n/i18n.jsx";
 import { useCloud } from "../cloud/cloudSession.js";
+import { confirmExplorer } from "../cloud/explorerProfile.js";
 import { forgetProgressOwner } from "../cloud/progressSync.js";
 import { SYNCED_KEY } from "../cloud/progressMerge.js";
 import { useResults } from "../results/resultStore.js";
@@ -227,7 +228,14 @@ function CharacterCard({ profile, editing, onBack, onDone, urlSignedIn }) {
   const resetProgress = useProgress((s) => s.resetProgress);
   const [name, setName] = useState(profile.name || "");
   const [studentCode, setStudentCode] = useState(profile.studentCode || urlCode || "");
-  const [character, setCharacter] = useState(profile.character || "explorer");
+  const [character, setCharacterRaw] = useState(profile.character || "explorer");
+  // (2026-11-09) Did THIS student change the name / character here? If they
+  // typed another student's code without touching them, the fields were
+  // still showing the previous student's — so their own are used instead.
+  const [touchedName, setTouchedName] = useState(false);
+  const [touchedChar, setTouchedChar] = useState(false);
+  const setCharacter = (c) => { setTouchedChar(true); setCharacterRaw(c); };
+  const [prevCode] = useState(profile.studentCode || "");
   const [signingIn, setSigningIn] = useState(false);
   const [signInError, setSignInError] = useState("");
   const [confirmReset, setConfirmReset] = useState(false);
@@ -263,13 +271,7 @@ function CharacterCard({ profile, editing, onBack, onDone, urlSignedIn }) {
         }
       }
     }
-    useProgress.getState().setProfile({
-      ...useProgress.getState().profile,
-      name: name.trim() || "Explorer",
-      studentCode: code,
-      character,
-      created: true,
-    });
+    confirmExplorer({ name, character, code, prevCode, touchedName, touchedChar });
     onDone();
   }
 
@@ -323,7 +325,7 @@ function CharacterCard({ profile, editing, onBack, onDone, urlSignedIn }) {
         <div className="tl-fields">
           <label className="tl-label" htmlFor="tl-name"><Bi>Your name</Bi></label>
           <input id="tl-name" ref={nameRef} className="tl-input" type="text" placeholder="e.g. Sam" autoComplete="off"
-            value={name} maxLength={20} onChange={(e) => setName(e.target.value)}
+            value={name} maxLength={20} onChange={(e) => { setTouchedName(true); setName(e.target.value); }}
             onKeyDown={(e) => e.key === "Enter" && handleStart()} />
 
           <label className="tl-label" htmlFor="tl-code">
@@ -569,7 +571,7 @@ export default function TitleScreen() {
               </button>
             )}
             <button className="tl-item" style={{ "--i": 3 }} onClick={() => useUI.getState().setCloudLogin(true)}>
-              <span className="tl-item-label"><Bi>Sign in with student code</Bi></span>
+              <span className="tl-item-label">{signedIn ? <Bi>Sign out</Bi> : <Bi>Sign in with student code</Bi>}</span>
               <span className="tl-item-sub">
                 {signedIn ? <>✓ {signedLabel}</> : <Bi>Save your work for your teacher</Bi>}
               </span>

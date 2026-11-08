@@ -36,8 +36,9 @@ import { useResults, RESULTS_KEY } from "../results/resultStore.js";
 import { readProgressDoc, writeProgressDoc, readMyAchievements } from "./firebaseClient.js";
 import {
   collectProgress, mergeProgress, cleanPayload, backfillFromAchievements, syncPlan,
-  progressDoc, changeKind, hasProgress, docBytes, SYNCED_KEY, isNumericKey,
+  progressDoc, changeKind, hasProgress, docBytes, SYNCED_KEY, isNumericKey, TABLES_FACTS_KEY,
 } from "./progressMerge.js";
+import { DEFAULT_PROGRESS } from "../progress/storage.js";
 
 export const OWNER_KEY = "mma-progress-owner";
 export const STASH_PREFIX = "mma-local-save:";
@@ -80,8 +81,54 @@ const lsDel = (k) => { try { store()?.removeItem(k); } catch { /* ignore */ } };
 
 export function progressOwner() { return lsGet(OWNER_KEY) || null; }
 
-function localPayload() {
-  return collectProgress(useProgress.getState(), store());
+/**
+ * This device's save for `code`. The explorer (name + character) only goes
+ * with it when the profile has been confirmed as THAT student's — so another
+ * student's name can never be uploaded onto someone's account.
+ */
+function localPayload(code = _student && _student.studentCode) {
+  const p = collectProgress(useProgress.getState(), store());
+  const prof = useProgress.getState().profile || {};
+  if (p.progress.explorer && (!code || prof.owner !== code)) delete p.progress.explorer;
+  return p;
+}
+
+/** A student's first name from their account ("Jeff Mills" → "Jeff"). */
+export function accountFirstName(student) {
+  if (!student) return "";
+  const first = String(student.firstName || "").trim() || String(student.name || "").trim().split(/\s+/)[0] || "";
+  return first.slice(0, 24);
+}
+
+/**
+ * Make the profile this student's (2026-11-09): a shared computer must never
+ * show one student's name or character on another's save.
+ *   fresh  — another student was here (or nobody confirmed this profile):
+ *            start from their account's first name + the default character
+ *            (their own explorer, if the cloud has one, replaces it a moment
+ *            later — the newer explorer wins the merge)
+ */
+function claimProfile(student, { fresh = false } = {}) {
+  const code = student.studentCode;
+  const P = useProgress.getState();
+  const prof = P.profile || {};
+  if (prof.owner === code && prof.explorerAt && !fresh) {
+    if (prof.studentCode !== code) P.setProfile({ ...prof, studentCode: code });
+    return;
+  }
+  const first = accountFirstName(student);
+  const legacyMine = !fresh && !prof.owner && prof.studentCode === code;
+  P.setProfile({
+    ...prof,
+    // An older save that was already this student's keeps its character; the
+    // name comes from their account unless it already matches it.
+    name: first || prof.name || "Explorer",
+    character: legacyMine ? (prof.character || "explorer") : "explorer",
+    studentCode: code,
+    owner: code,
+    explorerAt: 1, // the oldest possible — any explorer they chose wins
+    created: true,
+  });
 }
 
 function syncedKeysOnDevice() {
@@ -98,22 +145,28 @@ function syncedKeysOnDevice() {
 }
 
 /** Put a payload in place: its keys in localStorage, its progress in the store. */
-function applyPayload(payload, { replace = false } = {}) {
+function applyPayload(payload, { replace = false, owner = null } = {}) {
   const p = payload || { progress: {}, bests: {}, flags: {} };
-  if (replace) syncedKeysOnDevice().forEach(lsDel);
+  if (replace) { syncedKeysOnDevice().forEach(lsDel); lsDel(TABLES_FACTS_KEY); }
+  const facts = (p.progress || {}).tablesFacts;
+  if (facts && typeof facts === "object") lsSet(TABLES_FACTS_KEY, JSON.stringify(facts));
   for (const [k, v] of Object.entries(p.bests || {})) {
     if (SYNCED_KEY.test(k) && isNumericKey(k)) lsSet(k, String(v));
   }
   for (const k of Object.keys(p.flags || {})) {
     if (SYNCED_KEY.test(k) && !isNumericKey(k)) lsSet(k, "1");
   }
-  useProgress.getState().applyCloudProgress(p.progress || {}, { replace });
+  useProgress.getState().applyCloudProgress(p.progress || {}, { replace, owner });
+  _afterApply.forEach((fn) => { try { fn(); } catch { /* a nicety */ } });
 }
+// Things to refresh after a save is put in place (the Temple's wall + stones).
+const _afterApply = new Set();
+export function onProgressApplied(fn) { _afterApply.add(fn); return () => _afterApply.delete(fn); }
 
 /** Put this device's save aside for `owner` (a shared device, another student signing in). */
 function stashLocal(owner) {
   if (!owner) return;
-  const p = localPayload();
+  const p = localPayload(owner);
   if (hasProgress(p) || Object.keys(p.flags || {}).length) lsSet(STASH_PREFIX + owner, JSON.stringify(p));
   try {
     const results = (useResults.getState().results || []).slice(0, STASHED_RESULTS_MAX);
@@ -188,8 +241,25 @@ export function beginLoad(student, { retry = false } = {}) {
   if (plan === "replace") {
     stashLocal(owner);
     const left = takeStash(code);
-    applyPayload(left.payload, { replace: true });
+    // Another student's name + character never carry over.
+    claimProfile(student, { fresh: true });
+    applyPayload(left.payload, { replace: true, owner: code });
     try { useResults.getState().replaceResults(left.results); } catch { /* a nicety */ }
+  } else {
+    // This student's own save (or a device nobody had claimed). A save they
+    // left here when they signed out comes back in too.
+    claimProfile(student);
+    const left = takeStash(code);
+    if (left.payload) {
+      applyPayload(mergeProgress(localPayload(code), left.payload), { owner: code });
+      if (left.results.length) {
+        try {
+          const now = useResults.getState().results || [];
+          const ids = new Set(now.map((r) => r && r.attemptId));
+          useResults.getState().replaceResults([...now, ...left.results.filter((r) => !ids.has(r && r.attemptId))]);
+        } catch { /* a nicety */ }
+      }
+    }
   }
   lsSet(OWNER_KEY, code);
   return { gen, plan };
@@ -203,7 +273,7 @@ export function beginLoad(student, { retry = false } = {}) {
 export function finishLoad(gen, cloud, { created = false } = {}) {
   if (gen !== _gen) return false;
   const merged = mergeProgress(localPayload(), cloud);
-  if (merged) applyPayload(merged, { replace: false });
+  if (merged) applyPayload(merged, { replace: false, owner: _student && _student.studentCode });
   _ready = true;
   _retryN = 0;
   _cloud = created ? null : cloud;
@@ -363,6 +433,23 @@ export async function stopProgressSync({ flush = true } = {}) {
 
 /** The device forgets whose save it holds (the title screen's reset). */
 export function forgetProgressOwner() {
+  lsDel(OWNER_KEY);
+}
+
+/**
+ * SIGN-OUT (2026-11-09): after the last save has gone to the cloud, put the
+ * student's save aside on this device (it comes back if they sign in here
+ * again — even if the cloud couldn't be reached) and leave the device CLEAN
+ * for the next student: no progress, no name, no results, no owner.
+ */
+export function clearDeviceForNextStudent(code) {
+  if (code) stashLocal(code);
+  applyPayload(null, { replace: true });
+  lsDel(TABLES_FACTS_KEY);
+  lsDel("mma-tables-warmup-day");
+  try { useResults.getState().replaceResults([]); } catch { /* a nicety */ }
+  const P = useProgress.getState();
+  P.setProfile({ ...DEFAULT_PROGRESS.profile });
   lsDel(OWNER_KEY);
 }
 

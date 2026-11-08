@@ -64,10 +64,16 @@ export default function CloudLogin() {
             <p className="cloud-signed">Signed in as <strong>{studentChipLabel(student)}</strong> · cloud save on.</p>
             <ProgressSyncLine />
             <div className="modal-actions">
-              <button className="cloud-signout" onClick={() => { clearSession(); setOpen(false); }}>
-                <Bi>Sign out</Bi>
+              <button className="cloud-signout" disabled={busy} onClick={async () => {
+                // Saves, signs out, clears this device for the next student
+                // and goes back to the title screen.
+                setBusy(true);
+                await useCloud.getState().signOutAndLeave();
+              }}>
+                {busy ? <Bi>Saving…</Bi> : <Bi>Sign out</Bi>}
               </button>
             </div>
+            <p className="cloud-signout-note"><Bi>Signing out saves your progress, then goes back to the start screen for the next student.</Bi></p>
           </>
         ) : (
           <>

@@ -1,3 +1,4 @@
+import { confirmExplorer } from "../cloud/explorerProfile.js";
 import React, { useRef, useState, useEffect, useMemo } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 
@@ -120,13 +121,7 @@ export default function CharacterCreator() {
       }
     }
 
-    setProfile({
-      ...profile,
-      name: name.trim() || "Explorer",
-      studentCode: code,
-      character,
-      created: true,
-    });
+    confirmExplorer({ name, character, code, prevCode: profile.studentCode || "", touchedName: name !== profile.name, touchedChar: character !== profile.character });
     startGame();
   }
 

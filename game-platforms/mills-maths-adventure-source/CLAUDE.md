@@ -291,6 +291,41 @@
 > depth (still only 2 sample skills) · more Stage 4 topics (Area extension)
 > · a DevPanel gallery to eyeball every new diagram/chart at once.
 
+## DONE (2026-11-09) — ONE STUDENT PER SAVE: the explorer travels, signing out clears the computer
+Jeff: "when I change my login it keeps the old person" (the HUD said Benji —
+his son's explorer — on Jeff's account) and "if a student signs out
+mid-game, then it should take them back to the start/load screen". **682 →
+685 checks (CP10–CP12 in `src/dev/cloudProgressChecks.js`), all passing.**
+- **The explorer belongs to the student.** The name + character are now part
+  of the cloud save (`progress.explorer = { name, character, at }`, newest
+  wins a merge — `explorerOf` / `cleanExplorer` in cloud/progressMerge.js;
+  `applyCloudProgress(…, { owner })` puts it on the profile). The profile
+  carries `owner` (whose it is) + `explorerAt`; an explorer only uploads when
+  `profile.owner` is the signed-in student, so one student's name can never
+  reach another's account.
+- **Signing in (`beginLoad` → `claimProfile` in cloud/progressSync.js):**
+  another student's save on the computer → their name + character are reset
+  to the new student's account first name + the default character (their own
+  explorer from the cloud / this computer replaces it a moment later). An
+  older save that was already theirs (no owner stamp yet) takes the
+  account's first name once and keeps its character. `profile.studentCode`
+  always becomes the signed-in code.
+- **The character card** (`confirmExplorer`, cloud/explorerProfile.js): if a
+  DIFFERENT student's code is typed and the name / character weren't touched,
+  the new student's own are kept (the fields were still showing the previous
+  student's); a confirmed explorer is stamped as theirs.
+- **Signing out** (☁ chip → Sign out, or the title's "Sign out" item) =
+  `useCloud.signOutAndLeave()`: the last save goes up, they're signed out,
+  their save is put aside on this computer (`mma-local-save:<code>`, used if
+  the cloud couldn't be reached), the computer is left CLEAN (no progress,
+  name, results, owner, times-table facts) and the page reloads at the title
+  (a `?code=` is dropped so they aren't signed straight back in). Signing in
+  again brings the stashed save back even offline (beginLoad now takes the
+  stash in the merge case too).
+- **The times-table square travels too** (`progress.tablesFacts`, merged fact
+  by fact — the record with more answers wins; `mergeFacts`). Its per-device
+  note in the Timestable Temple section is now out of date.
+
 ## DONE (2026-11-08) — TIMESTABLE TEMPLE: times-table fluency in the desert
 Jeff: "make sure that it is unlocked after completing the snowball sums …
 its name will be 'Timestable Temple'. It will be a timestable fluency world
@@ -387,8 +422,8 @@ checks (TT1–TT11 in `src/dev/templeChecks.js`), all passing; vite build clean.
   sit above it (`.tt-panel.is-demo`). The Sun Temple's dark doorway was
   level with the facade wall (z-fighting = flickering pixels) — it now
   stands 6 cm proud (DesertLandmarks.jsx, SunTemple).
-- **Not yet:** division (Jeff: a separate world); the fact records are per
-  device (bests sync, the square doesn't yet); teacher view of the square.
+- **Not yet:** division (Jeff: a separate world); teacher view of the square.
+  (The fact records travel with the student since 2026-11-09.)
 
 ## DONE (2026-11-08) — SUNSTONE DESERT: the EIGHTH region, a desert to explore (LAND ONLY)
 Jeff: "build another world, where there is a golden portal from the main that
@@ -3432,7 +3467,7 @@ awards the trophy). L1–5 adaptive. Teacher tasks still override (handled upstr
 in interaction.js). Guarded by `runSchoolyardTopicChecks()`. Island NPCs (Pip/
 Fern/Alby) unchanged.
 
-## System checks (682)
+## System checks (685)
 `src/dev/systemChecks.js` → `runSystemChecks()`. Run headlessly: temporarily set
 `package.json` `"type":"module"`, shim `localStorage/window/document`, import and
 run; also babel parse-check `src/`, `portal/`, `functions/`. Restore package.json

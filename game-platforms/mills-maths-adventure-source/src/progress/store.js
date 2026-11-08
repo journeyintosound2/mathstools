@@ -165,7 +165,7 @@ export const useProgress = create((set, get) => ({
    * another student's save was on this device, so everything else goes back
    * to the defaults too (their active mission included). The profile stays.
    */
-  applyCloudProgress(progress = {}, { replace = false } = {}) {
+  applyCloudProgress(progress = {}, { replace = false, owner = null } = {}) {
     const keep = [
       "xp", "coins", "completedEncounters", "completedQuests", "completedMissions", "earnedBadges",
       "skillProfiles", "onboardingSeen", "sageMet", "championClaimed", "seenUnlocks", "journey",
@@ -179,6 +179,14 @@ export const useProgress = create((set, get) => ({
       patch.journey = { ...DEFAULT_PROGRESS.journey, ...patch.journey, guideTo };
     }
     const xp = Number(patch.xp ?? base.xp ?? get().xp) || 0;
+    // (2026-11-09) The student's explorer (name + character) travels with them.
+    const ex = progress.explorer;
+    if (ex && owner && ex.name) {
+      const prof = (base.profile || get().profile) || {};
+      if (!(prof.owner === owner && Number(prof.explorerAt || 0) > Number(ex.at || 0))) {
+        patch.profile = { ...prof, name: ex.name, character: ex.character || prof.character || "explorer", explorerAt: Number(ex.at) || 1, owner, studentCode: owner, created: true };
+      }
+    }
     set({ ...base, ...patch, xp, level: deriveLevel(xp).level });
     saveProgress(get());
   },
