@@ -37,12 +37,15 @@ import AuroraLookoutChallenge from "./AuroraLookoutChallenge.jsx";
 import CabinScenery from "./CabinScenery.jsx";
 import { isOnSnow, terrainHeight as snowTerrainHeight } from "../data/snow/snowTerrain.js";
 import SnowStage from "./snow/SnowStage.jsx";
-import Portal, { HaybalePortal, IglooPortal, VolcanoPortal, JunglePortal } from "./Portal.jsx";
+import Portal, { HaybalePortal, IglooPortal, VolcanoPortal, JunglePortal, DesertPortal } from "./Portal.jsx";
 import { useJourney, lockForPortal, freshPortal } from "./journeyStore.js";
 import JungleScenery from "./JungleScenery.jsx";
 import WaypointBeacon from "./maps/WaypointBeacon.jsx";
 import { JUNGLE_REGION_ID, isOnJunglePath, terrainHeight as jungleTerrainHeight } from "../data/jungle/jungleLayout.js";
 import MagmaScenery from "./MagmaScenery.jsx";
+import DesertScenery from "./DesertScenery.jsx";
+import { DESERT_REGION_ID } from "../data/desert/desertLayout.js";
+import { isOnSand, terrainHeight as desertTerrainHeight } from "../data/desert/desertTerrain.js";
 import { MAGMA_REGION_ID, isOnAsh, magmaGroundHeight } from "../data/magma/magmaLayout.js";
 import { GroundTapCatcher, DestinationMarker } from "./TapToMove.jsx";
 import { SkyDome } from "./SkyBackdrop.jsx";
@@ -86,6 +89,10 @@ export default function World({ title = false }) {
   // horizon (the SkyDome's true horizon, like the island) and a soft
   // sky / lawn-green bounce.
   const isSchool = regionId === "schoolyard";
+  // The Sunstone Desert runs on a HOT EARLY AFTERNOON: a strong warm sun
+  // that follows the player (shadows across the big desert), a golden haze on
+  // the horizon and a warm sand-bounce from below.
+  const isDesert = regionId === DESERT_REGION_ID;
   const region = getRegion(regionId);
   const touchMode = useUI((s) => s.touchMode);
   const highGfx = useUI((s) => s.graphicsQuality) === "high";
@@ -99,7 +106,7 @@ export default function World({ title = false }) {
       {/* Gradient sky dome + hazy distant islands (W5-E). Sky is cheap → always
           on; islands (island region only) add a little geometry → High only.
           Horizon colour = fog colour so the fogged distance blends in. */}
-      <SkyDome horizon={geo.skyColor} top={isCabin ? "#120c07" : geo.skyTop || undefined} radius={isMagma ? 470 : isJungle || isFarm || isSnow || isIsland || isSchool ? 640 : undefined} trueHorizon={isIsland || isSchool} />
+      <SkyDome horizon={geo.skyColor} top={isCabin ? "#120c07" : geo.skyTop || undefined} radius={isMagma ? 470 : isJungle || isFarm || isSnow || isIsland || isSchool || isDesert ? 640 : undefined} trueHorizon={isIsland || isSchool} />
 
       {/* --- Soft-cartoon lighting (W5-A) ---
           A warm key light (soft shadows), a warm sky/ground hemisphere fill, and
@@ -112,14 +119,14 @@ export default function World({ title = false }) {
           brightness (otherwise High just looks washed-out vs Low). */}
       <hemisphereLight
         args={[
-          isFarm ? "#fff0d8" : isSnow ? "#dce6ff" : isCabin ? "#ffcf9e" : isMagma ? "#ffc29a" : isJungle ? "#e4f4ff" : isIsland || isSchool ? "#eaf6ff" : "#fff4e0",
-          isFarm ? "#6f8a4a" : isSnow ? "#8f97b8" : isCabin ? "#3a2716" : isMagma ? "#6a2a1c" : isJungle ? "#4d6e33" : isIsland ? "#7aa65a" : isSchool ? "#8f9a74" : "#a9cf97",
-          isSnow ? (highGfx ? 0.62 : 0.95) : isCabin ? (highGfx ? 0.4 : 0.6) : isMagma ? (highGfx ? 0.75 : 1.15) : isJungle || isFarm || isIsland || isSchool ? (highGfx ? 0.62 : 0.95) : highGfx ? 0.45 : 0.8,
+          isFarm ? "#fff0d8" : isSnow ? "#dce6ff" : isCabin ? "#ffcf9e" : isMagma ? "#ffc29a" : isJungle ? "#e4f4ff" : isDesert ? "#fff1d6" : isIsland || isSchool ? "#eaf6ff" : "#fff4e0",
+          isFarm ? "#6f8a4a" : isSnow ? "#8f97b8" : isCabin ? "#3a2716" : isMagma ? "#6a2a1c" : isJungle ? "#4d6e33" : isDesert ? "#b47a48" : isIsland ? "#7aa65a" : isSchool ? "#8f9a74" : "#a9cf97",
+          isSnow ? (highGfx ? 0.62 : 0.95) : isCabin ? (highGfx ? 0.4 : 0.6) : isMagma ? (highGfx ? 0.75 : 1.15) : isJungle || isFarm || isIsland || isSchool || isDesert ? (highGfx ? 0.62 : 0.95) : highGfx ? 0.45 : 0.8,
         ]}
       />
       <ambientLight intensity={isSnow ? (highGfx ? 0.12 : 0.26) : isCabin ? (highGfx ? 0.16 : 0.28) : highGfx ? 0.12 : 0.28} />
       {/* Number Island, Magma Multiples, Emerald Jungle, Fraction Farm, Snowball Sums + the Playground bring their OWN player-following key light. */}
-      {!isMagma && !isJungle && !isFarm && !isSnow && !isIsland && !isSchool && <directionalLight
+      {!isMagma && !isJungle && !isFarm && !isSnow && !isIsland && !isSchool && !isDesert && <directionalLight
         position={isFarm ? [-30, 14, 12] : isSnow ? [22, 28, -18] : isCabin ? [-8, 22, 10] : [20, 30, 16]}
         intensity={isFarm ? 1.35 : isSnow ? 0.95 : isCabin ? 0.55 : 1.5}
         color={isFarm ? "#ffd9a0" : isSnow ? "#bdcdff" : isCabin ? "#ffcf9e" : "#fff0cc"}
@@ -221,6 +228,16 @@ export default function World({ title = false }) {
         </>
       )}
 
+      {/* --- SUNSTONE DESERT (the eighth region, 2026-11-08): dunes, the
+          Great Pyramid, the oasis, mesas + QUICKSAND. Land only for now — ten
+          spots are reserved for future challenges. Footprints in the sand. --- */}
+      {isDesert && (
+        <>
+          <DesertScenery />
+          <Footprints test={isOnSand} heightAt={desertTerrainHeight} color="#b88a52" life={3.0} stride={0.5} size={0.16} />
+        </>
+      )}
+
       {/* Teleport Gates for the active region (W2-C) — walk in to travel. The
           Fraction Farm gate uses the haybale variant; the Snowball Sums gate
           is an igloo; "cabindoor" portals draw NO swirl — their visuals are
@@ -233,7 +250,9 @@ export default function World({ title = false }) {
         // A gate the journey hasn't opened yet is drawn SHUT (padlocked).
         const lock = isIsland ? lockForPortal(p.id) : null;
         const lk = { locked: Boolean(lock), lockNote: lock ? lock.note : "", fresh: isIsland && !lock && freshPortal(p.id) };
-        return p.variant === "cabindoor" ? null : p.variant === "jungle" ? (
+        return p.variant === "cabindoor" ? null : p.variant === "desert" ? (
+          <DesertPortal key={p.id} position={p.position} rotationY={p.rotationY} label={p.label} y={gy} labelRange={lr} {...lk} />
+        ) : p.variant === "jungle" ? (
           <JunglePortal key={p.id} position={p.position} rotationY={p.rotationY} label={p.label} y={gy} labelRange={lr} {...lk} />
         ) : p.variant === "volcano" ? (
           <VolcanoPortal key={p.id} position={p.position} rotationY={p.rotationY} label={p.label} y={isIsland ? gy : 0} labelRange={lr} {...lk} />

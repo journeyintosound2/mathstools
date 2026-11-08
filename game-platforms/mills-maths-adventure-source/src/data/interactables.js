@@ -43,6 +43,9 @@ import { FARM_MAP_BOARD } from "./farm/farmLayout.js";
 import { SNOW_MAP_BOARD } from "./snow/snowLayout.js";
 import { MAGMA_MAP_BOARD } from "./magma/magmaLayout.js";
 import { JUNGLE_MAP_BOARD } from "./jungle/jungleLayout.js";
+import {
+  DESERT_REGION_ID, DESERT_MAP_BOARD, DESERT_WELCOME_HOST, DESERT_CHEST_SPOTS,
+} from "./desert/desertLayout.js";
 import { SCHOOL_MAP_BOARD } from "./schoolyard/schoolyardLayout.js";
 
 // WORLD MAP BOARDS (2026-10-10): every world's painted map board, by its
@@ -51,6 +54,7 @@ import { SCHOOL_MAP_BOARD } from "./schoolyard/schoolyardLayout.js";
 const MAP_BOARDS = [
   ["island-1", ISLAND_MAP_BOARD], ["farm-parts-whole", FARM_MAP_BOARD], ["snow-sums", SNOW_MAP_BOARD],
   ["magma-multiples", MAGMA_MAP_BOARD], ["emerald-jungle", JUNGLE_MAP_BOARD], ["schoolyard", SCHOOL_MAP_BOARD],
+  [DESERT_REGION_ID, DESERT_MAP_BOARD],
 ].map(([regionId, b]) => ({
   id: `${regionId}-map`,
   name: "World Map",
@@ -135,6 +139,9 @@ export const SNOW_CHEST_POS = SNOW_CHEST_SPOTS[Math.floor(Math.random() * SNOW_C
 // …and one tucked away somewhere round the school (SCHOOL_CHEST_SPOTS — the
 // oval's edge, the bush, behind the TAS block, the car park…).
 export const SCHOOL_CHEST_POS = SCHOOL_CHEST_SPOTS[Math.floor(Math.random() * SCHOOL_CHEST_SPOTS.length)];
+// …and one half-buried somewhere in the Sunstone Desert (DESERT_CHEST_SPOTS —
+// behind the Red Mesa, the dunes, the town's edge…; the desert checks reach each one).
+export const DESERT_CHEST_POS = DESERT_CHEST_SPOTS[Math.floor(Math.random() * DESERT_CHEST_SPOTS.length)];
 
 export const INTERACTABLES = [
   // The three original maths NPCs — same look, positions and topics as before.
@@ -694,6 +701,32 @@ export const INTERACTABLES = [
     collision: { type: "circle", radius: 2.0, enabled: true },
     interactionRadius: 4.6,
     regionId: JUNGLE_REGION_ID,
+  },
+  // ---- Sunstone Desert (2026-11-08) ----
+  {
+    id: DESERT_WELCOME_HOST.id,
+    name: "Mills",
+    encounterId: "desert-welcome",
+    model: "npc",
+    characterId: "sage",
+    color: "#e8a34a",
+    position: DESERT_WELCOME_HOST.position,
+    promptLabel: "Talk to Mills",
+    collision: { type: "circle", radius: 0.7, enabled: true },
+    interactionRadius: 3.6,
+    regionId: DESERT_REGION_ID,
+  },
+  {
+    id: "desert-chest",
+    name: "Treasure Chest",
+    encounterId: "desert-treasure",
+    model: "chest",
+    color: "#e8b23a",
+    position: DESERT_CHEST_POS,
+    promptLabel: "Open the chest",
+    collision: { type: "circle", radius: 0.8, enabled: true },
+    interactionRadius: 3.4,
+    regionId: DESERT_REGION_ID,
   },
 ];
 

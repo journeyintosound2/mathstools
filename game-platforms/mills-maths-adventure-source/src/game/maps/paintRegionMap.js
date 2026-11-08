@@ -30,6 +30,14 @@ import {
   getJungleGrid, GRID as J_GRID, terrainHeight as jHeight, slopeAt as jSlope, JUNGLE_PATHS, JUNGLE_SPOTS, GREAT_TREE, ARRIVAL_GLADE,
 } from "../../data/jungle/jungleLayout.js";
 import { getJungleProps } from "../../data/jungle/jungleProps.js";
+// The Sunstone Desert
+import {
+  getDesertGrid, GRID as D_GRID, desertGroundHeight as dHeight, quicksandAt as dQuick, poolWaterAt as dPool, DESERT_TRAILS,
+  PYRAMID_TIERS, TOWN_BLOCKS, ZIGGURAT_TIERS, SUNDIAL, TEMPLE_PORTICO, ensureDesertStructures, getLateStructures as dLate,
+} from "../../data/desert/desertTerrain.js";
+import { OBELISKS as D_OBELISKS, CRYSTALS as D_CRYSTALS, DUNE_SHIP as D_SHIP, SUNSTONE as D_SUNSTONE } from "../../data/desert/desertLayout.js";
+import { getDesertProps } from "../../data/desert/desertProps.js";
+import { getDesertGroundColours } from "../desert/DesertTerrain.jsx";
 // The Playground
 import { terrainHeight as yHeight, GRID as Y_GRID, getSchoolGrid } from "../../data/schoolyard/schoolyardTerrain.js";
 import {
@@ -161,6 +169,21 @@ const GROUND = {
       if (k >= 0 && !Number.isNaN(water[k]) && water[k] > y - 0.4) c = mixc(c, SAND, 0.45);
       if (Math.hypot(x, z) > 176) c = mixc(c, hex("#3f7a34"), 0.6);
       return { h: y, c };
+    };
+  },
+  "sunstone-desert": () => {
+    ensureDesertStructures();
+    getDesertGrid();
+    const col = getDesertGroundColours();
+    const QS = hex("#7a5432"), QS_DEEP = hex("#5a3a20");
+    return (x, z) => {
+      const k = gridIndex(D_GRID, x, z);
+      const y = dHeight(x, z);
+      const q = dQuick(x, z);
+      if (q && q.sdf < 0) return { h: q.pit.level, c: mixc(QS, QS_DEEP, Math.min(1, -q.sdf / 3)), wet: true };
+      if (dPool(x, z) !== null) return { h: y, c: mixc(hex("#5fd0d0"), hex("#1f8a9e"), 0.4), wet: true };
+      if (k < 0) return { h: y, c: [214, 170, 118] };
+      return { h: y, c: [srgb(col[k * 3]), srgb(col[k * 3 + 1]), srgb(col[k * 3 + 2])] };
     };
   },
   schoolyard: () => {
@@ -298,6 +321,33 @@ const OVERLAYS = {
     { const [a, b] = P(ARRIVAL_GLADE.center[0], ARRIVAL_GLADE.center[1]); g.fillStyle = "rgba(200,230,150,0.9)"; g.beginPath(); g.arc(a, b, ARRIVAL_GLADE.radius * m, 0, 7); g.fill(); }
     canopy(g, P, m, allTrees(getJungleProps().trees, (t) => Math.hypot(t.x, t.z) > 176), { col: "#2c6b2d", hi: "rgba(160,215,110,0.35)", r: 2.2 });
     { const [a, b] = P(GREAT_TREE.center[0], GREAT_TREE.center[1]); g.fillStyle = "#245a26"; g.beginPath(); g.arc(a, b, 11 * m, 0, 7); g.fill(); g.fillStyle = "#6a4a2a"; g.beginPath(); g.arc(a, b, 3.2 * m, 0, 7); g.fill(); }
+  },
+  "sunstone-desert": (g, P, m) => {
+    trails(g, P, m, DESERT_TRAILS, { fill: "#f4e2b8", edge: "rgba(110,72,34,0.8)", widthOf: (p) => p.hw * 1.7 });
+    // Cacti + palms as little dabs.
+    const PR = getDesertProps();
+    canopy(g, P, m, PR.palm, { col: "#4f8a32", hi: "rgba(170,220,120,0.35)", r: 2.2 });
+    canopy(g, P, m, PR.saguaro, { col: "#5c8a3c", hi: "rgba(160,210,110,0.3)", r: 0.9 });
+    // The pyramid (tiers lighter as they rise), the town's roofs, the ziggurat,
+    // the temple, Sundial Rise, the obelisks, the crystals, the ship.
+    const sq = (c, half, fill) => { const [a, b] = P(c[0] - half, c[1] - half); g.fillStyle = fill; g.fillRect(a, b, half * 2 * m, half * 2 * m); };
+    PYRAMID_TIERS.forEach((t, i) => sq(t.c, t.half, ["#c9944e", "#d29f58", "#dbab64", "#e3b770", "#ebc37e", "#f2cf8c"][i]));
+    { const [a, b] = P(D_SUNSTONE.position[0], D_SUNSTONE.position[1]); g.fillStyle = "#ffcf3a"; g.beginPath(); g.moveTo(a, b - 9); g.lineTo(a + 8, b + 6); g.lineTo(a - 8, b + 6); g.closePath(); g.fill(); }
+    for (const b of TOWN_BLOCKS) {
+      const [a, c] = P(b.c[0] - b.hx, b.c[1] - b.hz);
+      g.fillStyle = "rgba(0,0,0,0.22)"; g.fillRect(a + 4, c + 5, b.hx * 2 * m, b.hz * 2 * m);
+      g.fillStyle = b.building.wall; g.fillRect(a, c, b.hx * 2 * m, b.hz * 2 * m);
+      g.strokeStyle = b.building.trim; g.lineWidth = 3; g.strokeRect(a, c, b.hx * 2 * m, b.hz * 2 * m);
+    }
+    ZIGGURAT_TIERS.forEach((t, i) => sq(t.c, t.half, ["#c07a48", "#e1c08a", "#c07a48"][i]));
+    { const T = TEMPLE_PORTICO; const [a, b] = P(T.c[0] - T.hx, T.c[1] - T.hz); g.fillStyle = "#e6cf9e"; g.fillRect(a, b, T.hx * 2 * m, T.hz * 2 * m); g.strokeStyle = "#8a5a2a"; g.lineWidth = 3; g.strokeRect(a, b, T.hx * 2 * m, T.hz * 2 * m); }
+    { const d = SUNDIAL.drum; const [a, b] = P(d.c[0], d.c[1]); g.fillStyle = "#e9d2a2"; g.beginPath(); g.arc(a, b, d.r * m, 0, 7); g.fill(); g.strokeStyle = "#b8862a"; g.lineWidth = 4; g.stroke(); }
+    for (const [x, z] of D_OBELISKS) { const [a, b] = P(x, z); g.fillStyle = "#8a5a2a"; g.fillRect(a - 4, b - 4, 8, 8); }
+    for (const [x, z, , r] of D_CRYSTALS) { const [a, b] = P(x, z); g.fillStyle = "#8fe0f0"; g.beginPath(); g.arc(a, b, Math.max(4, r * m), 0, 7); g.fill(); }
+    { const [a, b] = P(D_SHIP.position[0], D_SHIP.position[1]); g.save(); g.translate(a, b); g.rotate(-D_SHIP.rotationY); g.fillStyle = "#7a5232"; g.beginPath(); g.ellipse(0, 0, 3 * m, D_SHIP.length / 2 * m, 0, 0, 7); g.fill(); g.restore(); }
+    // The decks: the rope bridge, the boardwalk.
+    g.lineCap = "butt";
+    for (const d of dLate().decks) { pline(g, P, [d.from, d.to]); g.strokeStyle = "#5e3e22"; g.lineWidth = d.hw * 2 * m + 3; g.stroke(); pline(g, P, [d.from, d.to]); g.strokeStyle = "#b8864e"; g.lineWidth = d.hw * 2 * m; g.stroke(); }
   },
   schoolyard: (g, P, m) => {
     { const [cx, cz] = P(OVAL.c[0], OVAL.c[1]); g.fillStyle = "#6fb24f"; g.strokeStyle = "#ffffff"; g.lineWidth = 3; g.beginPath(); g.ellipse(cx, cz, OVAL.rx * m, OVAL.rz * m, 0, 0, Math.PI * 2); g.fill(); g.stroke(); }

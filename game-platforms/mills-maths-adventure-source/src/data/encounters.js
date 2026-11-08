@@ -442,6 +442,24 @@ export const ENCOUNTERS = {
       "Win SEVEN of them — bronze or better — and the school gate to the Retrieval Practice Playground opens on Number Island! 🏫",
     ] },
   },
+  // SUNSTONE DESERT (2026-11-08) — land only for now: Mills shows you round.
+  "desert-welcome": {
+    id: "desert-welcome", type: "dialogue", title: "Sunstone Desert",
+    config: { speaker: "Mills", lines: [
+      "Welcome to the Sunstone Desert! ☀️ It's HOT out here — and there's a LOT to explore.",
+      "Straight ahead through the Caravan Gate is the Bazaar. Keep going north and you'll reach the GREAT PYRAMID — climb its grand stair to the golden Sunstone on top!",
+      "Beyond the pyramid, the Obelisk Avenue leads to the Sun Temple, carved into the cliffs. Look up — there's a pyramid floating in the sky!",
+      "West is the Oasis, sunk down in the sand. East are the dunes — walk up the gentle side, then slide down the steep side!",
+      "⚠️ Watch out for QUICKSAND — swirly dark sand. Step into the edge and you'll sink to your knees; go any further and it swallows you, and you're back at the start!",
+      "Climb the Red Mesa's great stair, find the ladders, and cross the rope bridge. There's a Dune Ship, a Sand Sphinx, Crystal Hollow and a Fossil Dig to find too.",
+      "🗺️ The MAP BOARD here shows the whole desert — click a place to set a waypoint. Press M to open the map any time.",
+      "New challenges are coming to the desert soon. For now — go and explore!",
+    ] },
+  },
+  "desert-treasure": {
+    id: "desert-treasure", type: "dialogue", title: "Treasure Chest",
+    config: { speaker: "Treasure Chest", lines: ["Half-buried in the sand… a handful of sun-warmed coins! ☀️"] },
+  },
   "world-map": {
     id: "world-map", type: "dialogue", title: "World Map",
     config: { speaker: "World Map", lines: ["Every place in this world is on the map — click one to set a waypoint, then follow the arrow."] },

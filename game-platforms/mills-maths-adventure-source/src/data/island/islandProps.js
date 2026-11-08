@@ -21,7 +21,7 @@ import {
   PLAZA, PLAZA_FOUNTAIN, MISSION_BOARD_POS, PIP_SPOT, FERN_SPOT, ALBY_SPOT, MILLS_SPOT,
   PIP_THERMOMETER, GATES, SCHOOLHOUSE, SCHOOL_FENCE, LIGHTHOUSE, ROPE_BRIDGE, FARM_BARN, FARM_WINDMILL, ISLAND_FIELDS,
   ISLAND_HAY_BALES, COVE_PIER, BEACH_HUTS, ROWBOATS, ISLAND_SIGNPOSTS, ISLAND_CHEST_SPOTS, COTTAGES, LAGOON,
-  EMERALD_BLUFF, EMERALD_FALLS, EMBER_PEAK, FROSTY_PEAK, FERN_ASH, ISLET,
+  EMERALD_BLUFF, EMERALD_FALLS, EMBER_PEAK, FROSTY_PEAK, FERN_ASH, ISLET, DESERT_SANDS, MINI_PYRAMID, ISLAND_CACTI,
 } from "./islandLayout.js";
 import {
   terrainHeight, slopeAt, nearestPath, nearestPad, coastSD, lagoonEdgeDist, snowCover, isLavaAt, lavaStreamDist,
@@ -69,6 +69,9 @@ export const ISLAND_FOOTPRINTS = [
   circ("falls", EMERALD_FALLS.foot[0], EMERALD_FALLS.foot[1], 3, 10),
   ...ISLAND_SIGNPOSTS.map((s) => circ(`signpost-${s.id}`, s.at[0], s.at[1], 0.9, 2.8)),
   ...ISLAND_CHEST_SPOTS.map((p, i) => circ(`chest-${i}`, p[0], p[1], 1.8, 0)),
+  // Sunstone Sands (2026-11-08): the mini pyramid + its cacti.
+  rect("mini-pyramid", MINI_PYRAMID.position[0], MINI_PYRAMID.position[1], MINI_PYRAMID.half * 2 + 1.2, MINI_PYRAMID.half * 2 + 1.2, 0, MINI_PYRAMID.height),
+  ...ISLAND_CACTI.map(([x, z, s], i) => circ(`cactus-${i}`, x, z, 1.1, 3 * s)),
 ];
 /** Metres outside a footprint (− = inside). */
 export function footprintDist(f, x, z) {
@@ -128,6 +131,11 @@ const lagoonD = (x, z) => Math.hypot(x - LAGOON.c[0], z - LAGOON.c[1]);
 export function jungleness(x, z) {
   const d = Math.min(lagoonD(x, z), Math.hypot(x - EMERALD_BLUFF.c[0], z - EMERALD_BLUFF.c[1]) + 3);
   return smoothstep(34, 18, d);
+}
+/** Sunstone Sands — the little desert round the golden gate (0..1). */
+export function desertness(x, z) {
+  const q = Math.hypot((x - DESERT_SANDS.c[0]) / DESERT_SANDS.rx, (z - DESERT_SANDS.c[1]) / DESERT_SANDS.rz) + 0.25 * (fbm(x / 9, z / 9, 2, 66) - 0.5);
+  return smoothstep(1.05, 0.65, q);
 }
 /** Ember Peak's volcanic ground (0..1). */
 export function volcanicness(x, z) {
@@ -212,7 +220,7 @@ export function getIslandProps() {
       const jx = x + (R() - 0.5) * 3.6, jz = z + (R() - 0.5) * 3.6;
       const sd = coastSD(jx, jz);
       if (sd > -14) continue;
-      if (jungleness(jx, jz) > 0.25 || volcanicness(jx, jz) > 0.25) continue;
+      if (jungleness(jx, jz) > 0.25 || volcanicness(jx, jz) > 0.25 || desertness(jx, jz) > 0.1) continue;
       if (Math.hypot(jx - FROSTY_PEAK.c[0], jz - FROSTY_PEAK.c[1]) < 50) continue;
       // Keep the village + Main Street mostly open (a few shade trees only).
       const village = Math.abs(jx) < 22 && jz > -12 && jz < 72;
@@ -250,6 +258,8 @@ export function getIslandProps() {
     ["round", 6.5, 26.5, 0.7], ["oak", -17, -46, 1.0], ["oak", 17.5, -50, 1.05], ["oak", -9, -72, 0.95], ["oak", 12, -74, 1.0],
     ["gum", -94, 4, 0.95], ["oak", -78, -20, 1.0], ["oak", -26, 82, 0.9], ["palm", 24, 84, 0.95], ["palm", -20, 88, 0.9],
     ["oak", 40, -6, 0.95], ["oak", -40, -6, 0.95],
+    // Date palms round Sunstone Sands (the golden gate's little desert, 2026-11-08).
+    ["palm", 47.5, 21.5, 0.9], ["palm", 73, 40.5, 0.95], ["palm", 75.5, 27, 0.85], ["palm", 49, 41, 0.9], ["palm", 66, 44, 0.8], ["palm", 44.5, 37.5, 0.85],
   ];
   for (const [kind, x, z, s] of manual) if (treeOK(x, z, { path: 2.2, pad: 0.5, foot: 1.8 })) put(kind, x, z, s);
 
@@ -274,7 +284,7 @@ export function getIslandProps() {
         }
       }
       // Bushes: path verges + copse edges (not on sand/snow/ash).
-      if (!sand && snow < 0.3 && vol < 0.4) {
+      if (!sand && snow < 0.3 && vol < 0.4 && desertness(jx, jz) < 0.25) {
         const verge = pe > 1.4 && pe < 3.6 ? 0.07 : 0;
         const copseEdge = smoothstep(0.52, 0.64, fbm(jx / 38 + 2, jz / 38 - 5, 3, 63)) * 0.16;
         if (R() < Math.max(verge, copseEdge, jun * 0.12) && clearAt(jx, jz, { path: 1.2, pad: 1.2, foot: 1.3, lagoon: 1, field: 0.8, slope: 0.8, dry: 0.4 })) {

@@ -1033,7 +1033,7 @@ export default function Player({ cinematic = false }) {
       const kind = (hz && hz.kind) || region.hazardKind || "lava";
       // Touching it: standing in it, or (water) dropping below its surface.
       let hit = grounded.current && region.isLava(pos.x, pos.z, pos.y);
-      if (!hit && !grounded.current && vy.current < 0 && kind === "water" && region.waterLevelAt) {
+      if (!hit && !grounded.current && vy.current < 0 && (kind === "water" || kind === "quicksand") && region.waterLevelAt) {
         const lvl = region.waterLevelAt(pos.x, pos.z);
         hit = lvl !== null && pos.y < lvl - 0.3 && region.isLava(pos.x, pos.z, pos.y);
       }
@@ -1044,7 +1044,8 @@ export default function Player({ cinematic = false }) {
         iceVel.current.x = 0; iceVel.current.z = 0;
         vy.current = 0;
         grounded.current = false;
-        if (kind === "water") {
+        if (kind === "water" || kind === "quicksand") {
+          // Deep water + quicksand (the Sunstone Desert) wipe you out to the spawn.
           wipe.current = { t0: nowMs, y0: pos.y, x: pos.x, z: pos.z };
           safeTrail.current = [];
           hazardHits.current = [];

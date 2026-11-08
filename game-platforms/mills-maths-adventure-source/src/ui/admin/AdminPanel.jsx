@@ -16,6 +16,7 @@ const STOPS = [
   { id: "island-1", icon: "🏝️" },
   ...JOURNEY_WORLDS.map((w) => ({ id: w.regionId, icon: w.icon })),
   { id: "cabin", icon: "🪵", note: "inside Snowball Sums" },
+  { id: "sunstone-desert", icon: "☀️", note: "coming soon for students" },
 ];
 
 export default function AdminPanel() {

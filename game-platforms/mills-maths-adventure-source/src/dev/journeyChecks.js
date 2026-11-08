@@ -27,7 +27,7 @@
  */
 import {
   JOURNEY_WORLDS, JOURNEY_FRIENDS, TROPHIES_TO_OPEN, REGION_WORLD, journeyState, journeySnapshot, journeyCounts,
-  portalLock, millsJourneyLines, friendDone,
+  portalLock, millsJourneyLines, friendDone, DESERT_PORTAL_ID,
 } from "../data/journey.js";
 import { TRAINING_STEPS, WORLD_INTROS, WALL_TRAINING_TIPS } from "../data/training.js";
 import { TRANSLATIONS } from "../i18n/translations.js";
@@ -82,7 +82,8 @@ export function runJourneyChecks() {
   // JY1 — the path.
   {
     const order = JOURNEY_WORLDS.map((w) => w.key).join(">");
-    const portals = REGIONS["island-1"].portals.map((p) => p.id);
+    // (The Sunstone Desert's golden gate isn't on the journey path yet — 2026-11-08.)
+    const portals = REGIONS["island-1"].portals.map((p) => p.id).filter((id) => id !== DESERT_PORTAL_ID);
     const gatesOk = JOURNEY_WORLDS.every((w) => portals.includes(w.portalId) && REGIONS["island-1"].portals.find((p) => p.id === w.portalId).target === w.regionId);
     const ok = order === "snow>magma>farm>jungle>playground" && gatesOk && TROPHIES_TO_OPEN === 7 &&
       JOURNEY_FRIENDS.map((f) => f.id).join() === "pip,fern,alby" && REGION_WORLD.cabin === "snow" && portals.length === JOURNEY_WORLDS.length;
@@ -214,15 +215,17 @@ export function runJourneyChecks() {
       useJourney.setState({ js: stateOf([]) });
       const cols = lockedPortalColliders("island-1");
       const elsewhere = ["snow-sums", "farm-parts-whole", "magma-multiples", "emerald-jungle", "schoolyard", "cabin"].map((r) => lockedPortalColliders(r).length);
-      const portals = REGIONS["island-1"].portals;
+      const portals = REGIONS["island-1"].portals.filter((p) => p.id !== DESERT_PORTAL_ID);
       const pushedOut = portals.every((p) => {
         const r = resolveCircle(p.position[0] + 0.3, p.position[1] + 0.2, cols, PLAYER_RADIUS);
         return Math.hypot(r.x - p.position[0], r.z - p.position[1]) > p.radius;
       });
       useJourney.setState({ js: stateOf(FRIENDS3) });
       const afterFriends = lockedPortalColliders("island-1").map((c) => c.id);
-      const ok = cols.length === 5 && cols.every((c) => c.hint && c.radius > 2) && pushedOut && elsewhere.every((n) => n === 0) &&
-        afterFriends.length === 4 && !afterFriends.includes("jlock-island-to-snow");
+      // The desert's "coming soon" lock is solid too (an extra collider, both before + after).
+      const soon = (ids) => ids.filter((id) => id === `jlock-${DESERT_PORTAL_ID}`).length;
+      const ok = cols.length === 5 + soon(cols.map((c) => c.id)) && cols.every((c) => c.hint && c.radius > 2) && pushedOut && elsewhere.every((n) => n === 0) &&
+        afterFriends.length === 4 + soon(afterFriends) && !afterFriends.includes("jlock-island-to-snow");
       push("Journey: a locked island gate is solid (you stop outside its trigger) and says what opens it; open gates and other worlds aren't blocked",
         ok, ok ? `5 locked → 4 after the warm-ups · hint: "${cols[0].hint}"` : `cols ${cols.length} out:${pushedOut} elsewhere ${elsewhere.join("")} after ${afterFriends.join(",")}`);
     } finally {
@@ -314,7 +317,7 @@ export function runJourneyChecks() {
       const byId = Object.fromEntries(s.panels.map((p) => [p.id, p]));
       const js = stateOf(["warmup-pip"]);
       const pois = regionMapPois("island-1", { progress: prog, results: [], journey: js });
-      const gates = pois.filter((p) => p.kind === "gate");
+      const gates = pois.filter((p) => p.kind === "gate" && p.id !== `gate-${DESERT_PORTAL_ID}`);
       const pip = pois.find((p) => p.id === "p-pip");
       const ok = s.panels.map((p) => p.id).join() === "island,snow,magma,farm,jungle,playground" &&
         ["snow", "magma", "farm", "jungle", "playground"].every((k) => byId[k].locked && /^Locked/.test(byId[k].summary)) &&

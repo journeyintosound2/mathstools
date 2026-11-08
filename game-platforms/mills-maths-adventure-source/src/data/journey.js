@@ -29,6 +29,7 @@ import { jungleTrophyRows } from "./jungle/jungleRecords.js";
 import { SCHOOLYARD_CHARACTERS } from "./schoolyard/schoolyardLayout.js";
 import { getChain } from "./npcQuestChains.js";
 import { isAdminMode } from "./adminMode.js";
+import { DESERT_OPEN_TO_STUDENTS, DESERT_NAME } from "./desert/desertLayout.js";
 
 /** Trophies (bronze or better) a world needs before the NEXT world opens. */
 export const TROPHIES_TO_OPEN = 7;
@@ -268,8 +269,21 @@ export function journeyState(snap = {}) {
   };
 }
 
+/** The golden gate to the Sunstone Desert (not on the journey path yet). */
+export const DESERT_PORTAL_ID = "island-to-desert";
 /** Is a Number Island gate locked right now? → null when open, else the lock. */
 export function portalLock(js, portalId) {
+  // The Sunstone Desert (2026-11-08) is built but has no challenges yet: its
+  // golden gate stays shut ("coming soon") for students and opens in admin
+  // mode. Flip DESERT_OPEN_TO_STUDENTS (data/desert/desertLayout.js) to open it.
+  if (portalId === DESERT_PORTAL_ID) {
+    if (DESERT_OPEN_TO_STUDENTS || (js ? js.admin : isAdminMode())) return null;
+    return {
+      worldKey: "desert", have: 0, need: 1, soon: true,
+      text: `The ${DESERT_NAME} is coming soon — its challenges are still being built!`,
+      note: "Coming soon",
+    };
+  }
   const w = worldForPortal(portalId);
   if (!w || !js) return null;
   const ws = js.worlds.find((x) => x.key === w.key);

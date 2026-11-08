@@ -18,7 +18,7 @@ import {
   islandHazardInfo, islandIsSafe, islandWaterAt, ISLAND_PATHS, nearestPath, onPad, islandPadLevel, getIslandPads,
   getIslandDecks, isLavaAt, LAVA_STREAM, PLAZA_DECK_Y, SEA_HINT, LAVA_HINT_ISLAND, snowCover, coastSD,
 } from "../data/island/islandTerrain.js";
-import { getIslandProps, ISLAND_FOOTPRINTS, footprintDist } from "../data/island/islandProps.js";
+import { getIslandProps, ISLAND_FOOTPRINTS, footprintDist, desertness } from "../data/island/islandProps.js";
 import {
   WALL_BOARDS, WALL_GEOM, boardLocalX, wallToWorld, worldToWall, wallViewCamera, inWallPromptZone, wallBaseY,
 } from "../data/island/wallView.js";
@@ -81,7 +81,7 @@ export function runIslandWorldChecks() {
   const spawnOk = islandIsSafe(sp.x, sp.z) && !blockedAt(sp.x, sp.z, terrainHeight(sp.x, sp.z)) &&
     region.spawn.x === sp.x && region.spawn.z === sp.z && onPad("arrival", sp.x, sp.z, 1) &&
     ISLAND_ARCH.position[1] < sp.z; // the arch is ahead (north) of you
-  const PAD_OF = { playground: "school", snow: "igloo", magma: "terrace", farm: "farm", jungle: "jungle" };
+  const PAD_OF = { playground: "school", snow: "igloo", magma: "terrace", farm: "farm", jungle: "jungle", desert: "desert" };
   const gateFails = [];
   for (const g of gateList) {
     const p = portalFor(g.id);
@@ -101,9 +101,9 @@ export function runIslandWorldChecks() {
   }
   const returns = getAllRegions().flatMap((r) => (r.portals || []).filter((p) => p.target === REGION).map((p) => ({ r: r.id, p })));
   const returnFails = returns.filter(({ r, p }) => r !== "cabin" && !gateList.some((g) => p.arrive && p.arrive[0] === g.arrive[0] && p.arrive[1] === g.arrive[1] && p.arriveYaw === g.arriveYaw)).map(({ r }) => r);
-  const il1 = hooksOk && spawnOk && gateFails.length === 0 && returnFails.length === 0 && I_STEP_UP === STEP_UP && gateList.length === 5;
+  const il1 = hooksOk && spawnOk && gateFails.length === 0 && returnFails.length === 0 && I_STEP_UP === STEP_UP && gateList.length === 6;
   checks.push({
-    name: "Number Island: terrain/water/lava hooks + safe spawn + five gates with door-to-door arrivals",
+    name: "Number Island: terrain/water/lava hooks + safe spawn + six gates with door-to-door arrivals",
     pass: il1,
     detail: il1 ? `spawn (${sp.x}, ${sp.z}) at ${terrainHeight(sp.x, sp.z).toFixed(1)} m; ${returns.length} return gates land at their island gate` : `hooks:${hooksOk} spawn:${spawnOk} gates:${gateFails.join("; ")} returns:${returnFails.join(",")}`,
   });
@@ -477,7 +477,8 @@ export function runIslandWorldChecks() {
   const themed = snowCover(...GATES.snow.position) > 0.5 &&
     Math.hypot(GATES.magma.position[0] - EMBER_PEAK.c[0], GATES.magma.position[1] - EMBER_PEAK.c[1]) < EMBER_PEAK.R &&
     Math.hypot(LIGHTHOUSE.position[0] - ISLET.center[0], LIGHTHOUSE.position[1] - ISLET.center[1]) < ISLET.radius - LIGHTHOUSE.radius &&
-    Math.hypot(GATES.jungle.position[0] - LAGOON.c[0], GATES.jungle.position[1] - LAGOON.c[1]) < 26;
+    Math.hypot(GATES.jungle.position[0] - LAGOON.c[0], GATES.jungle.position[1] - LAGOON.c[1]) < 26 &&
+    desertness(...GATES.desert.position) > 0.6;
   const il10 = areaPairs.length === 0 && friendsOk && signFails.length === 0 && themed && ISLAND_AREAS.length >= 12;
   checks.push({
     name: "Number Island: named areas spread out, friends on safe ground, signposts point along paths, gates in their landscapes",

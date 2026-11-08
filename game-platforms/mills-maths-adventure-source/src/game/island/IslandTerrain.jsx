@@ -7,7 +7,7 @@ import {
   lavaStreamDist, ISLAND_PATHS, islandSolidTopAt, SEA_Y,
 } from "../../data/island/islandTerrain.js";
 import { ISLAND_FIELDS, EMBER_PEAK, ISLAND_SPAWN, SCHOOLHOUSE, SCHOOL_FENCE, FARM_BARN, GATES } from "../../data/island/islandLayout.js";
-import { volcanicness, jungleness, fieldQ } from "../../data/island/islandProps.js";
+import { volcanicness, jungleness, fieldQ, desertness } from "../../data/island/islandProps.js";
 import { makeIslandTerrainMaterial, getIslandTextures } from "./islandMaterials.js";
 
 /**
@@ -26,7 +26,7 @@ const COL = {
   sand: C("#f1dca2"), sandDry: C("#f6e7bd"), sandWet: C("#cdb37c"), seabed: C("#e6d39a"), seabedDeep: C("#9cc7b0"),
   snow: C("#f4f8fd"), snowShade: C("#d9e5f3"), ash: C("#5c5450"), ashDark: C("#3b3533"), scorch: C("#2a201d"),
   earth: C("#9b7a52"), earthDark: C("#6e5236"), soil: C("#6a4a2e"), stubble: C("#d9c26e"), moss: C("#3f7d2e"),
-  rock: C("#8a8274"),
+  rock: C("#8a8274"), desertSand: C("#ecc27c"), desertDeep: C("#d9a65e"),
 };
 const tmp = new THREE.Color();
 const t2 = new THREE.Color();
@@ -43,6 +43,13 @@ function colourAt(x, z, h) {
   // The little jungle: deeper, mossier greens.
   const jun = jungleness(x, z);
   if (jun > 0) tmp.lerp(COL.moss, jun * 0.55);
+  // Sunstone Sands: golden dune sand round the golden gate.
+  const des = desertness(x, z);
+  if (des > 0) {
+    t2.copy(COL.desertSand).lerp(COL.desertDeep, smoothstep(0.35, 0.8, n2) * 0.6);
+    tmp.lerp(t2, des);
+    sand = Math.max(sand, des);
+  }
 
   // Harbour Green's mown lawn (stripes) + the school's playing field.
   const pd = nearestPad(x, z);

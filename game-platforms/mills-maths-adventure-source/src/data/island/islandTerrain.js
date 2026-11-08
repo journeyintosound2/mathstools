@@ -22,7 +22,7 @@ import {
 } from "../terrainKit.js";
 import {
   COAST, ISLET, ISLAND_HILLS, EMBER_PEAK, LAGOON, LAGOON_BED, ISLAND_PADS, ISLAND_PATH_CTRL, PLAZA,
-  ISLAND_JETTY, COVE_PIER, ROPE_BRIDGE, SEA_Y, FROSTY_PEAK,
+  ISLAND_JETTY, COVE_PIER, ROPE_BRIDGE, SEA_Y, FROSTY_PEAK, DESERT_SANDS,
 } from "./islandLayout.js";
 
 /** Mirrors systems/collisionEngine.js STEP_UP (the checks assert they match). */
@@ -147,6 +147,16 @@ function seaFloor(sd, cliff) {
   return Math.max(-26, -0.04 - 0.085 * s - 0.024 * s * s);
 }
 /** Height before pads / paths / water are carved in. */
+/** Sunstone Sands (2026-11-08): little wind ripples of dunes round the golden gate. */
+function sandDunes(x, z) {
+  const S = DESERT_SANDS;
+  const q = Math.hypot((x - S.c[0]) / S.rx, (z - S.c[1]) / S.rz);
+  if (q > 1.1) return 0;
+  const u = (x * 0.94 - z * 0.34) / 7.5 + 0.6 * (fbm(x / 14, z / 14, 2, 89) - 0.5);
+  const p = u - Math.floor(u);
+  const prof = p < 0.75 ? p / 0.75 : 1 - (p - 0.75) / 0.25;
+  return 0.75 * smoothstep(1.1, 0.6, q) * prof * prof * (3 - 2 * prof) * fbm(x / 11 + 2, z / 11, 2, 88);
+}
 export function rawHeight(x, z) {
   const sd = coastSD(x, z);
   const cliff = cliffiness(x, z);
@@ -169,7 +179,7 @@ export function rawHeight(x, z) {
   // coast (headlands, the lava shore) — the SAME amount either side of the
   // waterline, so a hill that reaches the sea meets it as a slope, never a
   // seam in the ground.
-  const bumps = hill + vol + hill * 0.04 * (fbm(x / 9, z / 9, 2, 83) - 0.5);
+  const bumps = hill + vol + hill * 0.04 * (fbm(x / 9, z / 9, 2, 83) - 0.5) + sandDunes(x, z);
   const top = interior + bumps;
   if (sd <= 0) {
     // Beach: sand rises gently from the waterline to the grass.

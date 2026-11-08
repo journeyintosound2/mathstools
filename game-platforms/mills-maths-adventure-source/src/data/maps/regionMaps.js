@@ -32,9 +32,12 @@ import { JUNGLE_SPAWN, JUNGLE_SPOTS, JUNGLE_MAP_BOARD, JUNGLE_LANDMARKS, GREAT_T
 import { JUNGLE_CHALLENGES, JUNGLE_RECORDS_STAND } from "../jungle/jungleChallenges.js";
 import { jungleTrophyRows } from "../jungle/jungleRecords.js";
 import { SCHOOLYARD_SPAWN, SCHOOL_AREAS, SCHOOL_MAP_BOARD, SCHOOLYARD_CHARACTERS } from "../schoolyard/schoolyardLayout.js";
+import {
+  DESERT_REGION_ID, DESERT_NAME, DESERT_SPAWN, DESERT_MAP_BOARD, DESERT_SPOTS, DESERT_LANDMARKS, SUNSTONE, PYRAMID,
+} from "../desert/desertLayout.js";
 
 /** The worlds that have a map (the Lodge is one room — no map needed). */
-export const MAP_REGION_IDS = ["island-1", "farm-parts-whole", "snow-sums", "magma-multiples", "emerald-jungle", "schoolyard"];
+export const MAP_REGION_IDS = ["island-1", "farm-parts-whole", "snow-sums", "magma-multiples", "emerald-jungle", "schoolyard", DESERT_REGION_ID];
 
 const SPECS = {
   "island-1": {
@@ -89,6 +92,14 @@ const SPECS = {
       ...Object.values(JUNGLE_LANDMARKS).map((l) => ({ name: l.label, icon: "🧭", at: l.center })),
       { name: "Arrival Glade", icon: "🌿", at: [ARRIVAL_GLADE.center[0], ARRIVAL_GLADE.center[1] + 14] },
     ].filter((a) => a.name !== "Treehouse"),
+  },
+  [DESERT_REGION_ID]: {
+    title: DESERT_NAME, icon: "☀️", subtitle: "Pyramids, dunes, an oasis — and quicksand!",
+    accent: "#c4762a", deep: "#7a4210", paper: "#f6e8cc",
+    bounds: { x0: -150, x1: 150, z0: -136, z1: 136 },
+    spawn: [DESERT_SPAWN.x, DESERT_SPAWN.z],
+    board: DESERT_MAP_BOARD,
+    areas: Object.entries(DESERT_LANDMARKS).filter(([k]) => k !== "sunstone" && k !== "pyramid").map(([, l]) => ({ name: l.label, icon: l.icon, at: l.center })),
   },
   schoolyard: {
     title: "Retrieval Practice Playground", icon: "🏫", subtitle: "Find the nine staff — each holds a key",
@@ -233,6 +244,14 @@ export function regionMapPois(regionId, ctx = {}) {
     add({ id: "frosty", kind: "place", icon: "🏔️", name: "Frosty Peak", sub: "Climb to the summit", at: FROSTY_PEAK.summit, target: FROSTY_PEAK.summit });
     add({ id: "ember", kind: "place", icon: "🌋", name: "Ember Peak", sub: "The island volcano", at: EMBER_PEAK.c, target: [EMBER_PEAK.c[0] - 16, EMBER_PEAK.c[1] + 26] });
     add({ id: "lighthouse", kind: "place", icon: "🗼", name: "The Lighthouse", sub: "Over the rope bridge", at: LIGHTHOUSE.position, target: [LIGHTHOUSE.position[0] - 5, LIGHTHOUSE.position[1] + 5] });
+  } else if (regionId === DESERT_REGION_ID) {
+    // Land only for now: the ten spots to explore (the challenges come later).
+    DESERT_SPOTS.forEach((s, i) => {
+      out.push({ id: `spot-${s.id}`, kind: "place", n: i + 1, icon: s.icon, name: s.label, sub: "A place to explore", at: s.center, target: s.center });
+    });
+    add(person("desert-welcome-host", "guide", "👋", "Mills", "Your guide"));
+    add({ id: "pyramid", kind: "place", icon: "🔺", name: "The Great Pyramid", sub: "Climb the grand stair to the Sunstone", at: PYRAMID.c, target: [0, PYRAMID.stair.zFoot + 3] });
+    add({ id: "sunstone", kind: "place", icon: "✨", name: "The Sunstone", sub: "On top of the Great Pyramid", at: SUNSTONE.position, target: [SUNSTONE.position[0], SUNSTONE.position[1] + 5] });
   } else if (regionId === "schoolyard") {
     const sum = achievementsSummary(ctx.progress || {}, ctx.results || []);
     const pg = sum.panels.find((p) => p.id === "playground");

@@ -683,3 +683,121 @@ export function JunglePortal({ position, rotationY = 0, label, y = 0, labelRange
     </group>
   );
 }
+
+/**
+ * DESERT PORTAL (2026-11-08) — the Sunstone Desert's GOLDEN gate: two tapered
+ * sandstone pylons (an Egyptian temple gateway) carrying a lintel with a
+ * gold winged sun disc, the swirl glowing GOLD in the doorway, a sandy
+ * apron, two little gold-tipped obelisks and flickering torches. Used for
+ * BOTH ends (island → desert and the return gate), `variant: "desert"` in
+ * regions.js. Passable like the others. `y` lifts it onto sloping ground.
+ */
+const GOLD_SWIRL = {
+  disc: "#5a3a00",
+  emissive: "#d99a10",
+  inner: "#fff1b8",
+  core: "#fffbe6",
+  arcs: ["#ffd23f", "#ffb300", "#ffe680"],
+};
+const SANDSTONE = "#e2c08a";
+const SANDSTONE_DARK = "#c99c62";
+const GOLD_METAL = "#e8b23a";
+
+export function DesertPortal({ position, rotationY = 0, label, y = 0, labelRange = 0, locked = false, lockNote = "", fresh = false }) {
+  const [x, z] = position;
+  const flames = useRef([]);
+  const disc = useRef();
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    flames.current.forEach((f, i) => {
+      if (!f) return;
+      const k = 1 + 0.18 * Math.sin(t * 9 + i * 2) + 0.08 * Math.sin(t * 17 + i);
+      f.scale.set(1 / Math.sqrt(k), k, 1 / Math.sqrt(k));
+    });
+    if (disc.current) disc.current.material.emissiveIntensity = locked ? 0.1 : 0.55 + 0.25 * Math.sin(t * 2.4);
+  });
+  // A tapered pylon (wider at the base) built from a 4-sided frustum.
+  const pylon = useMemo(() => {
+    const g = new THREE.CylinderGeometry(0.9 / Math.SQRT2 * 1.0, 1.35 / Math.SQRT2 * 1.0, 6.2, 4, 1);
+    g.rotateY(Math.PI / 4);
+    g.scale(1.25, 1, 1);
+    return g;
+  }, []);
+  return (
+    <group position={[x, y, z]} rotation={[0, rotationY, 0]}>
+      {/* A sandy apron with a stone threshold. */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.03, 0]} receiveShadow>
+        <circleGeometry args={[3.6, 28]} />
+        <meshStandardMaterial color="#ecc27c" roughness={1} />
+      </mesh>
+      <mesh position={[0, 0.08, 0]} receiveShadow>
+        <boxGeometry args={[3.4, 0.16, 1.6]} />
+        <meshStandardMaterial color={SANDSTONE_DARK} roughness={0.95} />
+      </mesh>
+      {/* The two pylons + gold bands. */}
+      {[-1, 1].map((s) => (
+        <group key={s} position={[s * 2.35, 3.1, 0]}>
+          <mesh geometry={pylon} castShadow receiveShadow>
+            <meshStandardMaterial color={SANDSTONE} roughness={0.9} flatShading />
+          </mesh>
+          {[-1.9, 1.2].map((by) => (
+            <mesh key={by} position={[0, by, 0]}>
+              <boxGeometry args={[1.75 - (by + 3.1) * 0.06, 0.18, 1.3 - (by + 3.1) * 0.05]} />
+              <meshStandardMaterial color={GOLD_METAL} metalness={0.65} roughness={0.35} />
+            </mesh>
+          ))}
+        </group>
+      ))}
+      {/* The lintel + its flared cornice. */}
+      <mesh position={[0, 6.45, 0]} castShadow>
+        <boxGeometry args={[6.4, 0.7, 1.35]} />
+        <meshStandardMaterial color={SANDSTONE} roughness={0.9} />
+      </mesh>
+      <mesh position={[0, 6.98, 0]} castShadow>
+        <boxGeometry args={[6.9, 0.36, 1.6]} />
+        <meshStandardMaterial color={GOLD_METAL} metalness={0.7} roughness={0.3} />
+      </mesh>
+      {/* The winged sun disc on both faces. */}
+      {[1, -1].map((f) => (
+        <group key={f} position={[0, 6.45, f * 0.69]} rotation={[0, f > 0 ? 0 : Math.PI, 0]}>
+          <mesh ref={f > 0 ? disc : undefined}>
+            <circleGeometry args={[0.32, 24]} />
+            <meshStandardMaterial color="#ffd257" emissive="#ffae1a" emissiveIntensity={0.6} metalness={0.6} roughness={0.3} />
+          </mesh>
+          {[-1, 1].map((w) => (
+            <mesh key={w} position={[w * 1.15, 0.02, 0.01]} rotation={[0, 0, w * 0.08]}>
+              <planeGeometry args={[1.6, 0.34]} />
+              <meshStandardMaterial color={GOLD_METAL} metalness={0.6} roughness={0.35} side={THREE.DoubleSide} />
+            </mesh>
+          ))}
+        </group>
+      ))}
+      {/* The swirl — glowing GOLD (or the padlocked gate while shut). */}
+      <group position={[0, 3.05, 0]}>
+        {locked ? <SealedDoor R={1.55} /> : <PortalSwirl R={1.55} palette={GOLD_SWIRL} />}
+      </group>
+      {/* Little gold-tipped obelisks with torches either side. */}
+      {[-1, 1].map((s, i) => (
+        <group key={`o${s}`} position={[s * 3.9, 0, 0.9]}>
+          <mesh position={[0, 1.3, 0]} rotation={[0, Math.PI / 4, 0]} castShadow>
+            <cylinderGeometry args={[0.18, 0.3, 2.6, 4]} />
+            <meshStandardMaterial color={SANDSTONE} roughness={0.9} flatShading />
+          </mesh>
+          <mesh position={[0, 2.75, 0]} rotation={[0, Math.PI / 4, 0]}>
+            <coneGeometry args={[0.19, 0.32, 4]} />
+            <meshStandardMaterial color={GOLD_METAL} metalness={0.7} roughness={0.3} />
+          </mesh>
+          <mesh ref={(el) => (flames.current[i] = el)} position={[0, 3.2, 0]}>
+            <coneGeometry args={[0.16, 0.55, 8]} />
+            <meshBasicMaterial color="#ffb13b" transparent opacity={0.92} toneMapped={false} />
+          </mesh>
+        </group>
+      ))}
+      {label && (
+        <GateLabel at={[0, 8.0, 0]} x={x} z={z} range={fresh ? Math.max(labelRange, 95) : labelRange}>
+          <GateSign label={label} locked={locked} note={lockNote} fresh={fresh} />
+        </GateLabel>
+      )}
+    </group>
+  );
+}

@@ -27,6 +27,8 @@ import { getMagmaColliders } from "./magma/magmaColliders.js";
 import { MAGMA_REGION_ID } from "./magma/magmaLayout.js";
 import { getJungleColliders } from "./jungle/jungleColliders.js";
 import { JUNGLE_REGION_ID } from "./jungle/jungleLayout.js";
+import { DESERT_REGION_ID } from "./desert/desertLayout.js";
+import { getDesertColliders } from "./desert/desertColliders.js";
 import { getIslandStaticColliders } from "./island/islandColliders.js";
 import { PLAZA } from "./island/islandLayout.js";
 import { PLAZA_DECK_Y, PLAZA_BASE_Y, PLAZA_FLIGHTS } from "./island/islandTerrain.js";
@@ -123,6 +125,7 @@ export function getColliders(snapshot = {}, regionId = "island-1") {
   if (regionId === "cabin") return getCabinColliders(snapshot);
   if (regionId === MAGMA_REGION_ID) return getMagmaColliders();
   if (regionId === JUNGLE_REGION_ID) return getJungleColliders();
+  if (regionId === DESERT_REGION_ID) return getDesertColliders();
   return [
     ...islandStatic(),
     ...gateColliders(snapshot),

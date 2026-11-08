@@ -12,6 +12,13 @@
 > `src/game/demo/registry.js` — DM1–DM5 fail without it. It is part of
 > "done". See "Challenge demos" under Rules of thumb for the checklist.
 
+> **NEW (built 2026-11-08): THE SUNSTONE DESERT** — an eighth region, a big
+> sculpted desert (no challenges yet) behind a GOLDEN GATE in a little patch of
+> sand on Number Island. The gate shows "coming soon" to students and opens
+> in admin mode; flip `DESERT_OPEN_TO_STUDENTS` in
+> `src/data/desert/desertLayout.js` when its challenges exist. See the
+> "DONE (2026-11-08) — SUNSTONE DESERT" section. **664 → 671 checks.**
+
 > This folder is the **game source** (and the Cloud Functions). As of
 > **2026-08-17** it lives INSIDE the website repo at
 > `game-platforms/mills-maths-adventure-source/` (repo
@@ -282,6 +289,66 @@
 > interactive plot-a-point input mode (tap the Cartesian grid) · Stage 5
 > depth (still only 2 sample skills) · more Stage 4 topics (Area extension)
 > · a DevPanel gallery to eyeball every new diagram/chart at once.
+
+## DONE (2026-11-08) — SUNSTONE DESERT: the EIGHTH region, a desert to explore (LAND ONLY)
+Jeff: "build another world, where there is a golden portal from the main that
+goes to a desert terrain … about twice the size as the volcano world … sand
+dunes with a pyramid and cacti around as well as sinking sand (quicksand)
+where the player will 'die' much like when they enter water in the main world
+… it isn't flat like other terrains but include some scalability of areas.
+Don't consider any mathematics challenges as yet." Inspiration images:
+Banjo-Kazooie Gobi's Valley, SM64 Shifting Sand Land, Odyssey Tostarena
+(dunes + town), Skyward Sword Lanayru (mesas, rails), BotW Gerudo (plaster
+arches). **664 → 671 checks (DS1–DS10 in `src/dev/desertChecks.js`), all
+passing; vite build clean.** Build copied into `../mills-maths-adventure/` (old bundles removed); `node tools/build-pwa.mjs` + commit/push still to do.
+- **Region `sunstone-desert`** (`DESERT_REGION_ID`, name `DESERT_NAME` =
+  "Sunstone Desert" — rename there). Ground 300 × 272 m inside a rim of
+  layered cliffs + giant dunes; ~66,000 m² walkable = **1.95× Magma**;
+  heights −5 … 31 m. Same pattern as the jungle: 1 m height grid (render +
+  physics share the triangle split), pads, graded trails, structures (solid
+  vs thin decks), climbable ladders, all via region hooks in
+  `src/data/desert/desertTerrain.js`.
+- **Places (DESERT_SPOTS, all on the map board + M map):** Caravan Gate +
+  the Bazaar town (pastel plaster buildings, Gerudo-style arch, market
+  stalls, well, a tower stair + rooftop bridge, little ziggurat) · the
+  Great Pyramid (six stepped tiers, a 60-step front stair, the glowing
+  Sunstone on top, obelisk avenue) · Sun Temple + cliff behind · the floating
+  Sky Pyramid · the sunken Oasis (pool, palms, lilies, two stairs, carved
+  hieroglyph wall, spouts) · the Red Mesas (stair flights, ladders, rope
+  bridge, mine rails + cart) · the Sun Arch · the Sundial Rise (spiral ramp
+  to a gnomon) · the Dune Sea (big wind-shaped dunes, a stranded Dune Ship,
+  the half-buried Sand Sphinx head) · the Quicksand Flats (an island ringed
+  by a quicksand moat, boardwalk + stepping stones) · Crystal Hollow · the
+  Fossil Dig (giant skeleton, tents) · caravan camels, saguaro/barrel/pear
+  cacti, tumbleweeds, dust devils, vultures, butterflies at the oasis.
+- **Quicksand = deep water.** `hazardInfo` kind `"quicksand"` → Player.jsx
+  sinks + wipes you out to the spawn exactly like the island's deep water
+  (overlay ⏳ `wipe--sand`, sound `"sink"`). A 1.6 m wadeable soft edge
+  (`QS_EDGE`) slows you first; every lone pit has a warning sign. The oasis
+  pool is shallow (slows you, never wipes).
+- **Island side:** `GATES.desert` at [57.5, 31] in a little patch of sand
+  (`DESERT_SANDS`, mini pyramid, cacti, date palms, path "desert-path",
+  signpost "sands"). `DesertPortal` in `game/Portal.jsx` = sandstone pylons,
+  gold bands + cornice, winged sun disc, GOLD swirl. `portalLock()` in
+  `data/journey.js` shows it padlocked "coming soon" unless admin mode or
+  `DESERT_OPEN_TO_STUDENTS`. It is NOT on the journey path yet — when the
+  challenges come, give it a journey slot (standing rule).
+- **Files:** `src/data/desert/` (desertLayout, desertTerrain, desertProps,
+  desertColliders), `src/game/DesertScenery.jsx`, `src/game/desert/`
+  (materials incl. ripple/sparkle sand shader + spiral quicksand + oasis
+  water, geometry, kit, Terrain, Water, Flora, Landmarks, Town, Wonders,
+  Atmosphere), plus edits to regions, worldColliders, island
+  layout/terrain/props/landmarks, journey, Player, Portal, World,
+  encounters (welcome host Mills + a treasure chest), interactables,
+  interaction, regionMaps + paintRegionMap, AdminPanel (desert stop),
+  translations (fa + ar), WipeoutOverlay, sound, polish.css.
+- **Tested:** headless checks (flood-fill reachability of every spot,
+  trails/stairs/ladders walkable, quicksand + pool levels, colliders clear
+  of paths); real-browser screenshots of every landmark; walked the real
+  player into a pit (sinks → "You sank in the quicksand!" → spawn); phone
+  390×664 + 844×390 and iPad 1080×810 + 810×1080 layouts; Low graphics
+  ≈ 110–260 draw calls.
+- **Next:** the desert's challenges (+ demos, journey slot, open the gate).
 
 ## DONE (2026-10-24) — CHALLENGE DEMOS: every challenge teaches itself
 Jeff: "currently the students receive 'text-based' explanations of what to
@@ -3265,7 +3332,7 @@ awards the trophy). L1–5 adaptive. Teacher tasks still override (handled upstr
 in interaction.js). Guarded by `runSchoolyardTopicChecks()`. Island NPCs (Pip/
 Fern/Alby) unchanged.
 
-## System checks (659)
+## System checks (671)
 `src/dev/systemChecks.js` → `runSystemChecks()`. Run headlessly: temporarily set
 `package.json` `"type":"module"`, shim `localStorage/window/document`, import and
 run; also babel parse-check `src/`, `portal/`, `functions/`. Restore package.json

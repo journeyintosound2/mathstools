@@ -18,7 +18,7 @@ import { Bi } from "../../i18n/i18n.jsx";
  *
  * It blocks clicks while it plays. Reduced motion: a plain fade instead.
  */
-const ICONS = { water: "🌊", lake: "🥶" };
+const ICONS = { water: "🌊", lake: "🥶", quicksand: "⏳" };
 
 export default function WipeoutOverlay() {
   const active = useWipeout((s) => s.active);
@@ -32,11 +32,12 @@ export default function WipeoutOverlay() {
   }, [active]);
 
   if (!active) return null;
-  const icon = /lake/i.test(active.line || "") ? ICONS.lake : ICONS.water;
+  const sand = active.kind === "quicksand";
+  const icon = sand ? ICONS.quicksand : /lake/i.test(active.line || "") ? ICONS.lake : ICONS.water;
   const ms = (n) => `${n}ms`;
   return (
     <div
-      className="wipe"
+      className={`wipe${sand ? " wipe--sand" : ""}`}
       key={active.id}
       role="alert"
       aria-live="assertive"

@@ -31,6 +31,9 @@
  *   E   ALBY'S LIGHTHOUSE — a rocky islet off the east headland, reached by a
  *       rope bridge; Alby the Owl by the lighthouse.
  *   SE  SUNNY COVE — a sandy cove with a pier, beach huts and rowboats.
+ *   E   SUNSTONE SANDS — a little patch of golden dunes on the east knoll
+ *       with a small pyramid and cacti; the GOLDEN gate to the Sunstone
+ *       Desert (added 2026-11-08).
  *
  * Coordinates: x = east, z = SOUTH (three.js), so north is −z. 1 unit = 1 m.
  * Sea level is y = 0 (the whole ocean, the lagoon and the shallows).
@@ -109,7 +112,15 @@ export const GATES = {
   farm: gate("farm", [-81, 2], [-60, 3]),
   // Emerald Jungle — the mossy arch on the lagoon ledge.
   jungle: gate("jungle", [-33.5, 46.5], [-22, 62]),
+  // Sunstone Desert (2026-11-08) — the golden gate in the little dunes on the
+  // east knoll, facing back down the sand path to the knoll path.
+  desert: gate("desert", [57.5, 31], [36, 30.5]),
 };
+/** The little patch of desert round the golden gate (sand, dunes, cacti). */
+export const DESERT_SANDS = { c: [61, 31], rx: 17, rz: 13.5 };
+/** The mini pyramid behind the golden gate + its cacti: [x, z, height]. */
+export const MINI_PYRAMID = { position: [68.5, 25], half: 3.6, height: 4.4 };
+export const ISLAND_CACTI = [[64, 38, 1.0], [54, 39.5, 0.8], [71, 34, 0.9], [62.5, 21, 0.75], [51.5, 22.5, 0.7]];
 
 // ---------------------------------------------------------------------------
 // THE COAST — a polar radius R(θ) (θ = atan2(z, x)) with designed bays and
@@ -195,6 +206,7 @@ export const ISLAND_PADS = [
   { id: "terrace", c: [46.5, -41], rx: 9.5, rz: 8.5, p: 2, level: 9.5 },
   { id: "farm", c: [-75, 2.5], rx: 11, rz: 9.5, p: 2.4 },
   { id: "jungle", c: [-32, 48], rx: 7, rz: 6, p: 2 },
+  { id: "desert", c: [56.5, 31], rx: 7.5, rz: 6.5, p: 2 },
   { id: "headland", c: [87.5, 4.5], rx: 6, rz: 6.5, p: 2 },
   { id: "islet", c: [112.5, 5], rx: 6.5, rz: 7, p: 2 },
   { id: "summit", c: FROSTY_PEAK.summit, rx: 5, rz: 4.5, p: 2 },
@@ -230,6 +242,8 @@ export const ISLAND_PATH_CTRL = [
   { id: "cove-path", hw: 2.0, kind: "sand", ctrl: [[12, 80], [22, 78.5], [32, 75], [40, 69.5], [43, 66]] },
   // A shortcut: the arch → over the east knoll → the east road.
   { id: "knoll-path", hw: 1.7, kind: "sand", ctrl: [[4.5, 61], [17, 58], [27, 48], [32.5, 34], [32, 20], [31.5, 12]] },
+  // The knoll path → east over the little dunes to the golden gate (2026-11-08).
+  { id: "desert-path", hw: 1.8, kind: "sand", ctrl: [[32.3, 30.5], [40, 30], [46.5, 30.5], [51.5, 31]] },
 ];
 
 // ---------------------------------------------------------------------------
@@ -249,6 +263,7 @@ export const ISLAND_AREAS = [
   { id: "lagoon", name: "Emerald Lagoon", icon: "🌴", c: LAGOON.c },
   { id: "lighthouse", name: "Alby's Lighthouse", icon: "🦉", c: ISLET.center },
   { id: "cove", name: "Sunny Cove", icon: "🏖️", c: [52, 68] },
+  { id: "sands", name: "Sunstone Sands", icon: "🏜️", c: [62, 28] },
 ];
 
 // ---------------------------------------------------------------------------
@@ -293,6 +308,7 @@ export const ISLAND_SIGNPOSTS = [
   { id: "green", at: [-4.6, 60.5], arrows: [["Mission Plaza", [0, 44]], ["Emerald Lagoon", [-22, 75]], ["Sunny Cove", [22, 78]]] },
   { id: "west", at: [-27, 13.5], arrows: [["Haybale Meadows", [-44, 6]], ["Pip & Frosty Peak", [-31, -2]], ["Mission Plaza", [-20, 10]]] },
   { id: "east", at: [27, 13.5], arrows: [["Alby's Lighthouse", [44, 7]], ["Fern & Ember Peak", [31, -2]], ["Mission Plaza", [20, 10]]] },
+  { id: "sands", at: [29.4, 27.2], arrows: [["Sunstone Sands", [40, 30]], ["Mission Plaza", [32, 20]], ["Harbour Green", [27, 48]]] },
   { id: "school", at: [4.6, -18], arrows: [["Schoolhouse Hill", [0, -30]], ["Mission Plaza", [0, -8]]] },
 ];
 

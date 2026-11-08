@@ -55,6 +55,7 @@ function tone(c, freq, startOffset, duration, type = "sine", peak = 0.06) {
  *   whoosh        a falling swoosh (a toboggan chute / the chairlift)
  *   splash        a cold "plip-plop" (stepping into the snow world's icy lake)
  *   wipeout       a sad "wah-wah-wahhh" (fell in deep water — back to the start)
+ *   sink          a thick, sandy "glug-glug" (sinking into the desert's quicksand)
  */
 export function play(name) {
   const c = getCtx();
@@ -151,6 +152,22 @@ export function play(name) {
       lfo.start(t);
       osc.stop(t + 1);
       lfo.stop(t + 1);
+      break;
+    }
+    case "sink": { // a thick sandy glug-glug as the quicksand swallows you
+      [0, 0.16, 0.34].forEach((t, i) => {
+        const o = c.createOscillator(), gn = c.createGain();
+        o.type = "sine";
+        const t0 = c.currentTime + t;
+        o.frequency.setValueAtTime(260 - i * 40, t0);
+        o.frequency.exponentialRampToValueAtTime(90 - i * 12, t0 + 0.14);
+        gn.gain.setValueAtTime(0.0001, t0);
+        gn.gain.linearRampToValueAtTime(0.07, t0 + 0.02);
+        gn.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.16);
+        o.connect(gn); gn.connect(c.destination);
+        o.start(t0); o.stop(t0 + 0.18);
+      });
+      tone(c, 110, 0.45, 0.35, "triangle", 0.04);
       break;
     }
     case "climb": // a cheerful little two-step when you pull up over a ledge

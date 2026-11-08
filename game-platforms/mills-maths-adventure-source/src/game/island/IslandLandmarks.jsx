@@ -13,8 +13,11 @@ import { playerState } from "../sessionStore.js";
 import { getMagmaTextures } from "../magma/magmaMaterials.js";
 import {
   ISLAND_ARCH, ISLAND_MAP_BOARD, ISLAND_WELCOME, ISLAND_SPAWN, ISLAND_SIGNPOSTS, LAMP_POSTS, PIP_THERMOMETER, GATES,
-  FERN_ASH, FERN_SPOT, ISLAND_AREAS, FROSTY_PEAK, EMERALD_BLUFF, PLAZA, LIGHTHOUSE, SCHOOLHOUSE,
+  FERN_ASH, FERN_SPOT, ISLAND_AREAS, FROSTY_PEAK, EMERALD_BLUFF, PLAZA, LIGHTHOUSE, SCHOOLHOUSE, MINI_PYRAMID, ISLAND_CACTI,
 } from "../../data/island/islandLayout.js";
+import { buildSaguaro, buildBarrel } from "../desert/desertGeometry.js";
+import { makeFoliageMaterial } from "../jungle/jungleMaterials.js";
+import { getDesertTextures } from "../desert/desertMaterials.js";
 import { GRID, getIslandGrid, terrainHeight, islandPadLevel, PLAZA_DECK_Y } from "../../data/island/islandTerrain.js";
 
 /**
@@ -452,6 +455,49 @@ function JungleRuins() {
     </group>
   );
 }
+/**
+ * SUNSTONE SANDS (2026-11-08) — the little patch of desert round the golden
+ * gate: a small stepped sandstone pyramid with a gold cap, toppled blocks
+ * half in the sand, a sun-bleached skull. (The cacti are drawn below.)
+ */
+function SunstoneSands() {
+  const P = MINI_PYRAMID;
+  const [px, pz] = P.position;
+  const y = gY(px, pz) - 0.3;
+  const brick = flatMat("#ffffff", { map: getDesertTextures().bricks, roughness: 0.92 });
+  const gold = flatMat("#e8b23a", { metalness: 0.7, roughness: 0.3 });
+  const steps = 4;
+  return (
+    <group>
+      <group position={[px, y, pz]} rotation={[0, 0.3, 0]}>
+        {Array.from({ length: steps }).map((_, k) => {
+          const half = P.half * (1 - k / steps) + 0.2;
+          const h = P.height / (steps + 1);
+          return <Box key={k} p={[0, h * k + h / 2, 0]} s={[half * 2, h, half * 2]} m={brick} tile={1.2} />;
+        })}
+        <mesh position={[0, P.height - P.height / (steps + 1) / 2 + 0.35, 0]} rotation={[0, Math.PI / 4, 0]} material={gold} castShadow>
+          <coneGeometry args={[0.75, 1.1, 4]} />
+        </mesh>
+      </group>
+      {[[px - 7.5, pz + 9, 0.4, 0.3], [px - 1.5, pz + 13.5, 1.2, -0.2], [px - 13.5, pz - 2, 2.1, 0.15]].map(([x, z, r, tilt], i) => (
+        <group key={i} position={[x, gY(x, z) - 0.25, z]} rotation={[tilt, r, tilt * 0.6]}>
+          <Box p={[0, 0.35, 0]} s={[1.3, 0.7, 0.9]} m={brick} tile={1.2} />
+        </group>
+      ))}
+    </group>
+  );
+}
+function SandsCacti() {
+  const mat = useMemo(() => makeFoliageMaterial({ sway: 0, key: "isl-cactus", roughness: 0.75 }), []);
+  const geos = useMemo(() => [buildSaguaro(7, 2), buildSaguaro(29, 1), buildBarrel(3)], []);
+  return (
+    <group>
+      {ISLAND_CACTI.map(([x, z, s], i) => (
+        <mesh key={i} geometry={geos[i % 2 === 0 ? (i === 4 ? 2 : 0) : 1]} material={mat} position={[x, gY(x, z) - 0.1, z]} rotation={[0, i * 1.9, 0]} scale={i === 4 ? 1.1 : s * 0.62} castShadow />
+      ))}
+    </group>
+  );
+}
 function SummitLookout() {
   const [sx, sz] = FROSTY_PEAK.summit;
   const y = islandPadLevel("summit");
@@ -497,7 +543,9 @@ export default function IslandLandmarks() {
         <EmberTerrace />
         <JungleRuins />
         <SummitLookout />
+        <SunstoneSands />
       </StaticBatch>
+      <SandsCacti />
       <SteamVents />
     </group>
   );

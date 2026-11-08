@@ -150,6 +150,21 @@ export function triggerInteraction(interactable) {
     return;
   }
 
+  // The Sunstone Desert's treasure chest — its own once-per-session bonus.
+  if (interactable.id === "desert-chest") {
+    const prog = useProgress.getState();
+    const openDlg = useSession.getState().openDialogue;
+    if (!useChests.getState().isOpen("desert-chest")) {
+      useChests.getState().open("desert-chest");
+      prog.awardRewards({ coins: FARM_CHEST_COINS });
+      useUI.getState().pushToast({ type: "reward", icon: "🪙", title: "Treasure!", message: `You found ${FARM_CHEST_COINS} coins.` });
+      openDlg({ speaker: "Treasure Chest", lines: [`Half-buried in the sand… ${FARM_CHEST_COINS} sun-warmed coins! ☀️`] });
+    } else {
+      openDlg({ speaker: "Treasure Chest", lines: ["Empty now — you already grabbed the coins. Another chest will turn up next visit!"] });
+    }
+    return;
+  }
+
   // The Playground's treasure chest — its own once-per-session bonus.
   if (interactable.id === "school-chest") {
     const prog = useProgress.getState();

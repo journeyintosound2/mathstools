@@ -42,6 +42,13 @@ import {
   jungleGroundHeight, jungleSlideAt, jungleClimbAt, jungleBounceAt, jungleSpeedAt, jungleIsSafe,
 } from "./jungle/jungleLayout.js";
 import {
+  DESERT_REGION_ID, DESERT_NAME, DESERT_BOUNDS, DESERT_SPAWN, DESERT_RETURN_PORTAL, DESERT_RETURN_PORTAL_YAW,
+} from "./desert/desertLayout.js";
+import {
+  desertGroundHeight, desertSlideAt, desertClimbAt, desertSpeedAt, desertHazardAt, desertHazardInfo, desertSinkLevelAt,
+  desertIsSafe, QUICKSAND_HINT,
+} from "./desert/desertTerrain.js";
+import {
   CABIN_BOUNDS, CABIN_SPAWN, CABIN_DOOR, LODGE_DOOR_SNOW,
   CABIN_ARRIVE_FROM_SNOW, SNOW_ARRIVE_FROM_CABIN,
 } from "./cabin/cabinLayout.js";
@@ -98,6 +105,7 @@ export const REGIONS = {
       { id: "island-to-snow", position: ISLAND_GATES.snow.position, radius: 2.0, rotationY: ISLAND_GATES.snow.yaw, target: "snow-sums", label: "Snowball Sums", variant: "igloo" },
       { id: "island-to-magma", position: ISLAND_GATES.magma.position, radius: 2.0, rotationY: ISLAND_GATES.magma.yaw, target: MAGMA_REGION_ID, label: MAGMA_NAME, variant: "volcano" },
       { id: "island-to-jungle", position: ISLAND_GATES.jungle.position, radius: 2.0, rotationY: ISLAND_GATES.jungle.yaw, target: JUNGLE_REGION_ID, label: JUNGLE_NAME, variant: "jungle" },
+      { id: "island-to-desert", position: ISLAND_GATES.desert.position, radius: 2.0, rotationY: ISLAND_GATES.desert.yaw, target: DESERT_REGION_ID, label: DESERT_NAME, variant: "desert" },
     ],
   },
 
@@ -344,6 +352,58 @@ export const REGIONS = {
     },
     portals: [
       { id: "jungle-to-island", position: JUNGLE_RETURN_PORTAL, radius: 2.0, rotationY: JUNGLE_RETURN_PORTAL_YAW, target: "island-1", label: "Number Island", variant: "jungle", arrive: ISLAND_GATES.jungle.arrive, arriveYaw: ISLAND_GATES.jungle.arriveYaw },
+    ],
+  },
+
+  // --- SUNSTONE DESERT — the EIGHTH region (2026-11-08): a big golden desert
+  // about twice Magma Multiples' land, through the GOLDEN gate on the island.
+  // Dune sea, the Great Pyramid, the Sun Temple, the oasis, mesas + canyons,
+  // the bazaar town, Sundial Rise, Crystal Hollow, the Fossil Dig and the
+  // QUICKSAND flats. Land only (no maths yet). Everything lives in
+  // data/desert/ + game/DesertScenery.jsx. Hooks read by Player.jsx:
+  //   groundHeight(x,z,y) → LAYERED ground (the pyramid, stairs, roofs, decks)
+  //   slideAt             → dune slip faces, cliffs + the rim slide you down
+  //   climbAt             → ladders up the mesa faces
+  //   speedAt             → wading quicksand's soft edge / the oasis pool
+  //   isLava + hazardInfo → QUICKSAND: reach a pit's middle and it swallows
+  //                         you (wiped out → back to the spawn, like deep water)
+  [DESERT_REGION_ID]: {
+    id: DESERT_REGION_ID,
+    name: DESERT_NAME,
+    spawn: { x: DESERT_SPAWN.x, z: DESERT_SPAWN.z },
+    bounds: DESERT_BOUNDS,
+    groundHeight: desertGroundHeight,
+    slideAt: desertSlideAt,
+    climbAt: desertClimbAt,
+    speedAt: desertSpeedAt,
+    isLava: desertHazardAt,
+    hazardInfo: desertHazardInfo,
+    hazardKind: "quicksand",
+    hazardHint: QUICKSAND_HINT,
+    wipeLine: "You sank in the quicksand!",
+    hazardSound: "sink",
+    waterLevelAt: desertSinkLevelAt,
+    isSafe: desertIsSafe,
+    cameraTerrainClamp: true,
+    maxFrameDelta: 1 / 15,
+    arriveYaw: 0, // arrive looking north, through the Caravan Gate up the bazaar street
+    badgeRange: 60,
+    drawRange: 170,
+    geometry: {
+      // Ground is drawn by DesertScenery; skyColor = the warm golden haze on
+      // the horizon (fog matches — distant mesas melt into the heat haze).
+      skyColor: "#f1dcae",
+      skyTop: "#3f86d6",
+      fogNear: 90,
+      fogFar: 420,
+      grassColor: "#e2c38a",
+      beachColor: "#e2c38a",
+      oceanColor: "#e2c38a",
+      walkableRadius: 160,
+      oceanRadius: 170,
+    },
+    portals: [
+      { id: "desert-to-island", position: DESERT_RETURN_PORTAL, radius: 2.0, rotationY: DESERT_RETURN_PORTAL_YAW, target: "island-1", label: "Number Island", variant: "desert", arrive: ISLAND_GATES.desert.arrive, arriveYaw: ISLAND_GATES.desert.arriveYaw },
     ],
   },
 
