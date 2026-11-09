@@ -183,10 +183,14 @@ export const ENCOUNTERS = {
     id: "schoolyard-welcome", type: "dialogue", title: "Mills",
     config: { speaker: "Mills", lines: [
       "Welcome to Coffs Harbour High — the Retrieval Practice Playground! 🏫",
-      "Test your Stage 4 skills across a range of topics.",
-      "Eight teachers are hiding round the school, and each one holds a KEY. Find them — some are up on the top-floor balconies, so take the stair towers and walk the corridors.",
-      "Collect all eight keys to unlock the padlocked School Hall, where the Head Teacher is waiting.",
-      "Check the campus map by the plaza — click a teacher on it to set a waypoint (press M to open it any time) — and follow the signposts. Climb the Glass Stairs to the top balcony, walk the Food Tech walkway to the Maths Block, and step inside its classrooms. There's a treasure chest hidden somewhere too!",
+      "This is the place to practise ALL of Stage 4 maths. Pulling what you've learned back out of your memory is what makes it stick — so come back often!",
+      "Sixteen teachers are waiting round the school — one for every Stage 4 topic. Talk to a teacher to start their 20-question challenge.",
+      "Score 10 for 🥉 bronze, 15 for 🥈 silver or 19 for 🥇 gold. Any medal earns that teacher's KEY — and you can come back any time to go for gold.",
+      "The teachers are grouped by strand. Number & Algebra is close by: the plaza, the Front Office, the quad, the canteen and the COLA.",
+      "Measurement & Space is over at the Maths Block — the Food Tech walkway, the Glass Stairs, the Maths balcony, the Maths classrooms and the Science lookout.",
+      "Statistics & Probability is out past the Library — up on the top balcony, in the A Block courtyard and down Mural Lane.",
+      "Collect all sixteen keys to unlock the School Hall, where Mrs. Kellahan's Head Teacher's Exam is waiting: 60 questions from every topic.",
+      "Check the campus map by the plaza — click a teacher on it to set a waypoint (press M to open it any time) — and follow the signposts. There's a treasure chest hidden somewhere too!",
     ] },
   },
 
