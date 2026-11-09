@@ -19,6 +19,7 @@
   box-shadow: 0 30px 80px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.06);
   width: min(1080px, 100%);
   max-height: calc(100dvh - 48px);
+  min-height: min(560px, calc(100dvh - 48px)); /* steady size: the card doesn't jump between questions */
   display:flex; flex-direction:column;
   overflow:hidden;
 }
@@ -70,20 +71,27 @@
   font-size: clamp(20px, 2.4vw, 26px); line-height:1.4;
   color:#15213b;
 }
-.pg-prompt .big{ font-size: 1.35em; font-weight:700; display:block; margin-top:8px; letter-spacing:.01em }
-.pg-prompt .m{ font-family: "Cambria Math","Times New Roman",serif; font-style: italic; font-weight: 500 }
-.pg-prompt .fr{ display:inline-flex; align-items:center; vertical-align:middle; font-family: "Cambria Math","Times New Roman",serif; font-style:italic; margin: 0 .15em }
-.pg-prompt .fr .frs{ margin-right:.1em }
-.pg-prompt .fr .frn{ border-bottom:2px solid currentColor; padding:0 .3em; text-align:center }
-.pg-prompt .fr .frd{ padding:0 .3em 0; text-align:center }
-.pg-prompt sup{ font-size:.72em; vertical-align:super; line-height:0 }
+.pg-prompt .big{ display:block; margin-top:8px; font-family:"Cambria Math","STIX Two Math","Times New Roman",serif; font-size:1.4em; font-weight:500; text-align:center }
+.pg-prompt .sub{ display:block; margin-top:6px; font-size:.82em; color:#4a5377 }
+.pg-prompt b, .pg-prompt strong{ font-weight:800 }
+.pg-card .m{ font-family: "Cambria Math","STIX Two Math","Times New Roman",serif; font-weight: 500; font-size:1.06em; white-space:nowrap }
+.pg-card .m i, .pg-card i.v{ font-style:italic }
+.pg-card .fr{ display:inline-flex; flex-direction:column; align-items:center; vertical-align:middle; font-family: "Cambria Math","STIX Two Math","Times New Roman",serif; line-height:1.05; margin: 0 .12em; font-size:.95em }
+.pg-card .fr{ position:relative }
+.pg-card .fr:has(.frs){ margin-left:.85em }
+.pg-card .fr .frs{ position:absolute; left:-.75em; top:50%; transform:translateY(-50%) }
+.pg-card .fr .frn{ border-bottom:2px solid currentColor; padding:0 .25em .04em; text-align:center; display:block }
+.pg-card .fr .frd{ padding:.04em .25em 0; text-align:center; display:block }
+.pg-card sup{ font-size:.72em; vertical-align:super; line-height:0 }
 
 .pg-diagram{
   background:#fff; border-radius:12px; border:1px solid #e0dccc;
   padding:14px; display:flex; align-items:center; justify-content:center;
   min-height:220px;
 }
-.pg-diagram svg{ width:100%; height:auto; max-height: 460px }
+.pg-diagram > svg, .pg-diagram .engHolder > svg{ max-width:100%; height:auto; max-height: 460px }
+.pg-diagram .engHolder{ display:flex; flex-direction:column; align-items:center; max-width:100% }
+.pg-diagram .diagMissing{ color:#6b7280; font-weight:800; padding:30px }
 
 /* Answer area. */
 .pg-answer{ display:flex; flex-direction:column; gap:10px; margin-top:4px }
@@ -169,3 +177,84 @@
 .pg-syms{ display:flex; flex-wrap:wrap; gap:6px; margin-top:4px }
 .pg-syms button{ padding:6px 10px; border-radius:8px; border:1px solid #c8c2ae; background:#fff; cursor:pointer; font: inherit; font-size:16px }
 .pg-syms button:hover{ background:#f0ead9 }
+
+/* ---- Square roots: the bar runs over the whole radicand (mathHtml.js) ---- */
+.pg-card .rad{
+  display:inline-flex; align-items:stretch; vertical-align:-0.18em;
+  white-space:nowrap; margin:0 .06em; font-style:inherit;
+}
+.pg-card .rad-tick{
+  flex:none; width:.62em; height:auto; overflow:visible; margin-right:-.02em;
+}
+.pg-card .rad-body{
+  border-top:.075em solid currentColor;
+  padding:.14em .14em 0 .1em; line-height:1.1;
+}
+.pg-card .rad-body sup{ vertical-align:.45em; line-height:0 }
+
+
+/* ---- Question-card details shared with the website's whole-topic quizzes ---- */
+.pg-head .pg-qtype{ opacity:.8 }
+.pg-main{ min-width:0 }
+.pg-card .say{ display:block; margin-top:10px; font-size:1.02em; font-weight:800; text-align:center; color:#1e3a8a; background:#f5f8ff; border:1px solid #dbe5ff; border-radius:12px; padding:10px 12px }
+.pg-card .dtab{ border-collapse:collapse; margin:8px auto; font-size:18px; font-variant-numeric:tabular-nums }
+.pg-card .dtab th, .pg-card .dtab td{ border:1.5px solid #cbd5e1; padding:7px 14px; text-align:center; background:#fff }
+.pg-card .dtab th{ background:#f1f5f9; font-weight:800 }
+.pg-card .dtab td.q{ background:#fef9c3; font-weight:900 }
+.pg-card .dtab.rows th{ text-align:left }
+.pg-prompt .dtab{ font-size:.8em }
+
+/* Answer row: affixes ($, cm²) sit beside the box. */
+.pg-inrow{ display:flex; align-items:center; gap:10px; flex-wrap:wrap }
+.pg-inrow .pg-input{ flex:0 1 420px; min-width:180px }
+.pg-aff{ font-weight:800; font-size:20px; color:#334155; font-family:"Cambria Math","STIX Two Math","Times New Roman",serif }
+.pg-input.good{ border-color:#2d8a56; background:#eefaf2 }
+.pg-input.bad{ border-color:#c24848; background:#fdf1f0 }
+.pg-input:disabled{ color:#15213b; -webkit-text-fill-color:#15213b; opacity:1 }
+.pg-syms button{ min-width:46px; height:44px; font-weight:800; font-family:"Cambria Math","STIX Two Math","Times New Roman",serif; color:#1e3a8a; border-color:#c7d2fe; background:#eef2ff }
+.pg-syms button:hover{ background:#e0e7ff }
+.pg-preview{ font-family:"Cambria Math","STIX Two Math","Times New Roman",serif; font-size:20px; color:#334155; min-height:1.2em }
+.pg-plotread{ font-size:18px; color:#334155; padding:10px 0 }
+
+/* MC: letter chip + text; right/wrong once marked. */
+.pg-mc button{ display:flex; align-items:center; gap:12px }
+.pg-mc.long{ grid-template-columns:1fr }
+.pg-mc .pg-mc-l{ flex:none; width:30px; height:30px; border-radius:50%; display:grid; place-items:center; background:#eef0f6; color:#1a2238; font-weight:800; font-size:15px }
+.pg-mc button.picked .pg-mc-l{ background:rgba(255,255,255,.25); color:#fff }
+.pg-mc button.good, .pg-tf button.good{ background:#e0f3e3; color:#0f4d27; border-color:#2d8a56 }
+.pg-mc button.bad, .pg-tf button.bad{ background:#fce1df; color:#5a1818; border-color:#c24848 }
+.pg-mc button.good .pg-mc-l{ background:#2d8a56; color:#fff }
+.pg-mc button.bad .pg-mc-l{ background:#c24848; color:#fff }
+.pg-tf button.picked{ background:#2a5bb6; color:#fff; border-color:#2a5bb6 }
+
+/* Feedback block. */
+.pg-feedback{ flex-direction:column; gap:6px; margin-top:14px }
+.pg-fb-head{ font-weight:800; font-size:18px }
+.pg-fb-score{ font-weight:700; opacity:.7; margin-left:6px; font-size:15px }
+.pg-fb-ans{ font-size:18px }
+.pg-fb-why{ font-size:16px; opacity:.92; line-height:1.45 }
+
+/* Cartesian plane (from the website's engine.css). */
+.pg-card .qgrid{ width:100%; max-width:470px; height:auto; touch-action:manipulation; user-select:none }
+.pg-card .qgrid .gl{ stroke:#dbe3ee; stroke-width:1 }
+.pg-card .qgrid .ax{ stroke:#0f172a; stroke-width:2 }
+.pg-card .qgrid .axh{ fill:#0f172a }
+.pg-card .qgrid .axl{ font:italic 700 16px "Cambria Math","Times New Roman",serif; fill:#0f172a }
+.pg-card .qgrid .tk{ font:600 12.5px system-ui,sans-serif; fill:#475569 }
+.pg-card .qgrid .ln{ stroke-width:3; stroke-linecap:round }
+.pg-card .qgrid .lnl{ font:700 15px "Cambria Math","Times New Roman",serif; stroke:#fff; stroke-width:4px }
+.pg-card .qgrid .pt{ stroke:#fff; stroke-width:2 }
+.pg-card .qgrid .ptl{ font:800 16px system-ui,sans-serif; fill:#0f172a; stroke:#fff; stroke-width:4px }
+.pg-card .qgrid.pick{ cursor:crosshair }
+.pg-card .qgrid .ghost{ fill:rgba(37,99,235,.25); pointer-events:none }
+.pg-card .qgrid .mine{ fill:#2563eb; stroke:#fff; stroke-width:2.5; pointer-events:none }
+.pg-card .qgrid .mine.good{ fill:#2d8a56 }
+.pg-card .qgrid .mine.bad{ fill:#c24848 }
+.pg-card .qgrid .truth{ fill:none; stroke:#2d8a56; stroke-width:3.5; pointer-events:none }
+.pg-card .qgrid.locked{ cursor:default }
+
+/* Recurring-decimal dot over a digit (FDP bank). */
+.pg-card .rdot{ position:relative; display:inline-block }
+.pg-card .rdot::after{ content:""; position:absolute; left:50%; top:-.08em; width:.17em; height:.17em; border-radius:50%; background:currentColor; transform:translateX(-50%) }
+.pg-intro, .pg-done{ flex:1 1 auto; justify-content:center }
+.pg-card .dataList{ font-family:"Cambria Math","STIX Two Math","Times New Roman",serif; font-size:1.02em; word-spacing:.12em; line-height:1.6; background:#f8fafc; border:1px dashed #cbd5e1; border-radius:12px; padding:8px 12px; display:block; margin:8px 0 }

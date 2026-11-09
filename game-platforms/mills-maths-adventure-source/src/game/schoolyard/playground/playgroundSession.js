@@ -8,8 +8,22 @@ import { PLAYGROUND_BY_NPC, PLAYGROUND_BY_ID, BOSS_EXAM, PLAYGROUND_CHALLENGES, 
 import { getBank, dealRound } from "../../../data/schoolyard/challenges/banks/_adapt.js";
 
 // Side-effect import: every ported bank registers itself here.
+import "../../../data/schoolyard/challenges/banks/integers.js";
+import "../../../data/schoolyard/challenges/banks/fdp.js";
+import "../../../data/schoolyard/challenges/banks/algebraic-techniques.js";
+import "../../../data/schoolyard/challenges/banks/equations.js";
 import "../../../data/schoolyard/challenges/banks/ratios-rates.js";
+import "../../../data/schoolyard/challenges/banks/indices.js";
+import "../../../data/schoolyard/challenges/banks/linear-relationships.js";
+import "../../../data/schoolyard/challenges/banks/length.js";
+import "../../../data/schoolyard/challenges/banks/angle-relationships.js";
 import "../../../data/schoolyard/challenges/banks/pythagoras.js";
+import "../../../data/schoolyard/challenges/banks/area.js";
+import "../../../data/schoolyard/challenges/banks/volume.js";
+import "../../../data/schoolyard/challenges/banks/geometrical-figures.js";
+import "../../../data/schoolyard/challenges/banks/data-visualisation.js";
+import "../../../data/schoolyard/challenges/banks/data-analysis.js";
+import "../../../data/schoolyard/challenges/banks/probability.js";
 
 /** Is this NPC a playground challenger (not the boss)? */
 export function isPlaygroundNpc(npcId) {
@@ -51,12 +65,14 @@ export function openBossExam(npc, { completedMissions = [] } = {}) {
   const pool = [];
   for (const slice of BOSS_EXAM.mix) {
     if (!slice.bankId || !getBank(slice.bankId)) continue;
-    pool.push(...dealRound(slice.bankId, slice.count));
+    const title = PLAYGROUND_BY_ID[slice.challengeId]?.title || slice.bankId;
+    pool.push(...dealRound(slice.bankId, slice.count).map((q) => ({ ...q, _label: title })));
   }
   if (!pool.length) return { locked: false, empty: true };
   for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
   usePlayground.getState().open({
     id: BOSS_EXAM.id,
+    npcId: npc.id || BOSS_EXAM.npcId,
     bankId: null,
     name: npc.name,
     color: BOSS_EXAM.color,

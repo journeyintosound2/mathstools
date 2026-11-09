@@ -19,46 +19,71 @@ export function getBank(id) { return REGISTRY.get(id) || null; }
 export function listBanks() { return Array.from(REGISTRY.values()); }
 
 /**
- * Pick n questions from a bank, interleaving types so the same one never
- * appears twice in a row, and (where room allows) balancing basic/expected
- * so a 20-round deals its whole span. Dupes within a type are allowed when
- * the generator can't make enough distinct questions for a fair deal.
+ * Deal an n-question round from a bank.
+ *
+ * - Half Basic, half Expected (when the bank has both), every type dealt out
+ *   evenly from a shuffled deck so a 20-round covers the whole outcome.
+ * - The round CLIMBS: Basic first, then Expected, each in the bank's own
+ *   (easiest-first) type order with a little jitter — the same as the
+ *   website's whole-topic quizzes.
+ * - The same type never appears twice in a row, and a repeated question
+ *   (same prompt + diagram) is re-rolled up to 40 times.
+ * - `opts.climb === false` keeps a plain shuffle (the boss exam shuffles its
+ *   own pool anyway).
  */
-export function dealRound(bankId, n, rand = Math.random) {
+export function dealRound(bankId, n, rand = Math.random, opts = {}) {
   const bank = getBank(bankId);
   if (!bank) throw new Error("dealRound: no bank " + bankId);
+  const order = new Map(bank.types.map((t, i) => [t.id, i]));
   const basic = bank.types.filter((t) => t.level === "basic");
   const expected = bank.types.filter((t) => t.level === "expected");
-  const halfN = Math.ceil(n / 2);
+  const shuffle = (a) => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
   const dealFrom = (pool, k) => {
     const out = [];
-    if (!pool.length) return out;
-    const shuf = pool.slice().sort(() => rand() - 0.5);
-    let i = 0;
-    while (out.length < k) { out.push(shuf[i % shuf.length]); i++; }
+    let deck = [];
+    while (out.length < k && pool.length) { if (!deck.length) deck = shuffle(pool); out.push(deck.pop()); }
     return out;
   };
-  const picks = [];
-  // Take ~half from each level when both exist, else all from the one that does.
+  let picks;
   if (basic.length && expected.length) {
-    picks.push(...dealFrom(basic, halfN));
-    picks.push(...dealFrom(expected, n - halfN));
-  } else {
-    picks.push(...dealFrom(basic.length ? basic : expected, n));
-  }
-  // Shuffle, then de-run: no two consecutive questions of the same type id.
-  for (let i = picks.length - 1; i > 0; i--) {
-    const j = Math.floor(rand() * (i + 1)); [picks[i], picks[j]] = [picks[j], picks[i]];
+    const nb = Math.ceil(n / 2);
+    picks = dealFrom(basic, nb).concat(dealFrom(expected, n - nb));
+  } else picks = dealFrom(basic.length ? basic : expected, n);
+
+  // Climb: level, then type order with jitter. Re-jitter until no type sits
+  // next to itself (a few tries is plenty), then fall back to swapping.
+  const lv = (t) => (t.level === "basic" ? 0 : 1);
+  const hasRun = (arr) => arr.some((t, i) => i > 0 && t.id === arr[i - 1].id);
+  if (opts.climb === false) picks = shuffle(picks);
+  else {
+    let best = picks;
+    for (let tries = 0; tries < 80; tries++) {
+      const order2 = picks.map((t) => ({ t, o: lv(t) * 1000 + order.get(t.id) + rand() * (2.2 + tries * 0.15) })).sort((a, b) => a.o - b.o).map((k) => k.t);
+      best = order2;
+      if (!hasRun(order2)) break;
+    }
+    picks = best;
   }
   for (let i = 1; i < picks.length; i++) {
     if (picks[i].id !== picks[i - 1].id) continue;
-    for (let j = i + 1; j < picks.length; j++) {
-      if (picks[j].id !== picks[i - 1].id) { [picks[i], picks[j]] = [picks[j], picks[i]]; break; }
+    for (let j = 0; j < picks.length; j++) {
+      if (j === i) continue;
+      const a2 = picks.slice(); [a2[i], a2[j]] = [a2[j], a2[i]];
+      const ok = (k) => k <= 0 || k >= a2.length || a2[k].id !== a2[k - 1].id;
+      if (ok(i) && ok(i + 1) && ok(j) && ok(j + 1)) { picks = a2; break; }
     }
   }
-  // Generate: each type's `gen()` returns a question. Carry the type across.
+
+  const seen = new Set();
   return picks.slice(0, n).map((t, i) => {
-    const q = t.gen();
-    return { ...q, _typeId: t.id, _level: t.level, _round: i + 1 };
+    let q = null;
+    for (let tries = 0; tries < 40; tries++) {
+      const c = t.gen();
+      const d = c.diagram;
+      const key = t.id + "|" + (c.key || c.prompt + JSON.stringify((d && (d.config || d.grid || d.html)) || "") + JSON.stringify(c.options || ""));
+      q = c;
+      if (!seen.has(key)) { seen.add(key); break; }
+    }
+    return { ...q, _typeId: t.id, _label: t.label, _level: t.level, _round: i + 1, _bank: bankId };
   });
 }

@@ -19,10 +19,12 @@ import { savePlaygroundBest, readPlaygroundBest } from "./playgroundProgress.js"
 export const MEDAL = { bronze: 10, silver: 15, gold: 19 };
 
 export function medalFor(score, total = 20) {
-  const r = (score * 20) / total; // scaled to a 20-round equivalent
-  if (score >= MEDAL.gold || r >= MEDAL.gold) return "gold";
-  if (score >= MEDAL.silver || r >= MEDAL.silver) return "silver";
-  if (score >= MEDAL.bronze || r >= MEDAL.bronze) return "bronze";
+  // Thresholds are out of 20; a longer round (the 60-question exam) is scaled:
+  // bronze 30/60, silver 45/60, gold 57/60.
+  const r = total ? (score * 20) / total : 0;
+  if (r >= MEDAL.gold - 1e-9) return "gold";
+  if (r >= MEDAL.silver - 1e-9) return "silver";
+  if (r >= MEDAL.bronze - 1e-9) return "bronze";
   return null;
 }
 
@@ -74,7 +76,7 @@ export const usePlayground = create((set, get) => ({
       next[index] = { ...next[index], nudge: r.nudge, input };
     } else {
       const ok = Boolean(r.ok);
-      next[index] = { used: true, ok, nudge: null, input };
+      next[index] = { used: true, ok, nudge: null, input, swapped: Boolean(r.swapped) };
     }
     set({ attempts: next, phase: r.nudge ? "question" : "settled" });
     return r.nudge ? { nudge: r.nudge } : { ok: Boolean(r.ok) };
