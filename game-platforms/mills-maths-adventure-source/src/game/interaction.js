@@ -10,6 +10,8 @@ import {
 } from "../data/mainQuest.js";
 import { routeForMission } from "../data/topicWorldRoutes.js";
 import { isSchoolyardNpc, rollSchoolyardTopic } from "../data/schoolyard/schoolyardTopics.js";
+import { isPlaygroundNpc, openPlaygroundForNpc, openBossExam } from "./schoolyard/playground/playgroundSession.js";
+import { PLAYGROUND_CHALLENGES } from "../data/schoolyard/challenges/challengeList.js";
 import { setSchoolyardMissionTopic } from "../data/missions.js";
 import { useFarmChallenge } from "./farmChallengeStore.js";
 import { useRoundUp } from "./roundUpStore.js";
@@ -440,6 +442,33 @@ export function triggerInteraction(interactable) {
     const missionDone = progress.completedMissions.includes(active.missionId);
     if (route.targetId === interactable.id && route.targetId !== "mission-board" && !missionDone) {
       openDialogue(assignedMissionDialogue(interactable.id, active));
+      return;
+    }
+  }
+
+  // Retrieval Practice Playground: talking to one of the 16 challenger NPCs
+  // opens the Playground challenge VEIL rather than the warm-up dialogue (it
+  // already greets by name, and offers a Begin button). The veil writes
+  // `warmup-<npcId>` on bronze+, so the key/hall logic above and the island
+  // trophy grid keep working. The boss (Mrs. Kellahan) opens the 60-Q exam
+  // once every key is earned; otherwise the padlocked-hall dialogue runs.
+  if (isPlaygroundNpc(interactable.id)) {
+    const r = openPlaygroundForNpc(interactable);
+    if (r === true) return;
+    if (r === "coming-soon") {
+      openDialogue({ speaker: interactable.name, lines: [
+        `I'm still writing my questions for you — check back soon! For now, please visit ${PLAYGROUND_CHALLENGES.find((c) => c.bankId)?.title || "a nearby teacher"}.`
+      ] });
+      return;
+    }
+  }
+  if (interactable.id === "kellahan") {
+    const r = openBossExam(interactable, { completedMissions: progress.completedMissions });
+    if (r && r.ok) return;
+    if (r && r.locked) {
+      openDialogue({ speaker: interactable.name, lines: [
+        `I'll see you when you've earned every key. ${r.keys} of ${r.need} so far — keep going!`,
+      ] });
       return;
     }
   }

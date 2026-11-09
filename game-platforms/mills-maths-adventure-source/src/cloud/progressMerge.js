@@ -89,6 +89,12 @@ export const PROGRESS_VERSION = 1;
  * reported to the teacher" high-water marks (so a new device doesn't re-send
  * every farm best as a fresh achievement).
  */
+// NOTE: Playground bests (`mma-playground-<id>-best`) are not in SYNCED_KEY
+// because they store a JSON object (`{score,total,medal,when}`), not a
+// number or flag. The *key earned* still syncs via `completedMissions` in
+// the main progress doc, so moving devices never loses an unlocked key —
+// only the medal tier is device-local. A richer JSON-aware sync is on the
+// Installment-2 list (see `claude/playground-16-challenges.md`).
 export const SYNCED_KEY = /^mma-(farm|snow|magma|jungle|tables)-[a-z0-9]+-best$|^mma-visited:[a-z0-9-]+$|^mma-farm-task-done:[A-Za-z0-9_-]+$|^mma-farm-synced:[a-z]+$/;
 /** Numbers (kept as the max); the rest are one-way "1" markers. */
 export const isNumericKey = (k) => /-best$|^mma-farm-synced:/.test(k);

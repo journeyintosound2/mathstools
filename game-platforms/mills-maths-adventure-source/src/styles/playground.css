@@ -1,0 +1,171 @@
+/* Retrieval Practice Playground — challenge card (2026-11-10). */
+
+/* World dim: the veil covers EVERYTHING but the HUD (which hides itself). */
+.pg-veil{
+  position:fixed; inset:0; z-index:220;
+  background:rgba(2,8,20,0.86);
+  backdrop-filter: blur(3px) saturate(85%);
+  -webkit-backdrop-filter: blur(3px) saturate(85%);
+  display:flex; align-items:center; justify-content:center;
+  padding:24px; box-sizing:border-box;
+  animation: pg-veil-in .18s ease-out both;
+}
+@keyframes pg-veil-in { from { opacity:0 } to { opacity:1 } }
+
+/* Card: as wide as it needs to be, clamped so the question has room to breathe. */
+.pg-card{
+  background:#f8f6ef; color:#1a2238; border-radius:20px;
+  border:1px solid rgba(0,0,0,.08);
+  box-shadow: 0 30px 80px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.06);
+  width: min(1080px, 100%);
+  max-height: calc(100dvh - 48px);
+  display:flex; flex-direction:column;
+  overflow:hidden;
+}
+
+/* Head: host portrait, topic + outcome, round counter, close ×. */
+.pg-head{
+  display:flex; align-items:center; gap:14px;
+  padding:14px 18px 12px;
+  background:linear-gradient(180deg, var(--pg-tint, #1a3c7a) 0%, var(--pg-tint-dark, #11264d) 100%);
+  color:#f3efe2;
+  border-bottom:1px solid rgba(0,0,0,.18);
+}
+.pg-head .pg-portrait{
+  width:46px; height:46px; border-radius:50%;
+  background:rgba(255,255,255,.14); display:flex; align-items:center; justify-content:center;
+  font-size:22px; font-weight:700;
+}
+.pg-head .pg-head-text{ flex:1; min-width:0 }
+.pg-head .pg-name{ font-weight:800; font-size:18px; letter-spacing:.02em }
+.pg-head .pg-topic{ font-size:13px; opacity:.86; margin-top:1px }
+.pg-head .pg-round{ font-weight:700; font-size:14px; padding:4px 10px; border-radius:999px; background:rgba(255,255,255,.14) }
+.pg-head .pg-x{
+  background:transparent; color:#f3efe2; border:1px solid rgba(255,255,255,.3);
+  border-radius:10px; padding:6px 10px; font-size:18px; cursor:pointer;
+}
+.pg-head .pg-x:hover{ background:rgba(255,255,255,.1) }
+
+/* The progress rail under the head — one pip per question. */
+.pg-rail{ display:flex; gap:2px; padding:6px 8px; background:#1a2238 }
+.pg-rail > span{
+  flex:1 1 0; height:6px; border-radius:3px; background:#2b3a66;
+}
+.pg-rail > span.ok{ background:#36c76c }
+.pg-rail > span.no{ background:#d75858 }
+.pg-rail > span.cur{ outline:2px solid rgba(255,255,255,.4); outline-offset:1px }
+
+/* Body: the prompt, the optional diagram, the answer area, the feedback. */
+.pg-body{
+  padding:28px 32px;
+  display:grid; gap:20px;
+  grid-template-columns: 1fr;
+  overflow:auto;
+  flex:1 1 auto;
+}
+.pg-body.with-diagram{ grid-template-columns: 1fr minmax(320px, 520px) }
+@media (max-width: 860px) { .pg-body.with-diagram{ grid-template-columns:1fr } }
+
+.pg-prompt{
+  font-size: clamp(20px, 2.4vw, 26px); line-height:1.4;
+  color:#15213b;
+}
+.pg-prompt .big{ font-size: 1.35em; font-weight:700; display:block; margin-top:8px; letter-spacing:.01em }
+.pg-prompt .m{ font-family: "Cambria Math","Times New Roman",serif; font-style: italic; font-weight: 500 }
+.pg-prompt .fr{ display:inline-flex; align-items:center; vertical-align:middle; font-family: "Cambria Math","Times New Roman",serif; font-style:italic; margin: 0 .15em }
+.pg-prompt .fr .frs{ margin-right:.1em }
+.pg-prompt .fr .frn{ border-bottom:2px solid currentColor; padding:0 .3em; text-align:center }
+.pg-prompt .fr .frd{ padding:0 .3em 0; text-align:center }
+.pg-prompt sup{ font-size:.72em; vertical-align:super; line-height:0 }
+
+.pg-diagram{
+  background:#fff; border-radius:12px; border:1px solid #e0dccc;
+  padding:14px; display:flex; align-items:center; justify-content:center;
+  min-height:220px;
+}
+.pg-diagram svg{ width:100%; height:auto; max-height: 460px }
+
+/* Answer area. */
+.pg-answer{ display:flex; flex-direction:column; gap:10px; margin-top:4px }
+.pg-answer label{ font-size:14px; font-weight:700; color:#4a5377 }
+
+.pg-input{
+  font: inherit;
+  font-size: 22px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 2px solid #c8c2ae;
+  background:#fff; color:#15213b;
+  width:100%; max-width: 420px; box-sizing:border-box;
+}
+.pg-input:focus{ outline: none; border-color:#2a5bb6; box-shadow: 0 0 0 4px rgba(42,91,182,.18) }
+
+/* MC options. */
+.pg-mc{ display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:10px }
+.pg-mc button{
+  background:#fff; color:#15213b; border:2px solid #c8c2ae; border-radius:12px;
+  padding:14px 16px; font: inherit; font-size:18px; text-align:left; cursor:pointer;
+}
+.pg-mc button:hover{ background:#f0ead9 }
+.pg-mc button.picked{ background:#2a5bb6; color:#fff; border-color:#2a5bb6 }
+.pg-mc button:disabled{ cursor:default; opacity:.9 }
+
+/* True/false. */
+.pg-tf{ display:flex; gap:12px }
+.pg-tf button{ flex:1; font: inherit; font-size:20px; padding:16px; border-radius:12px; border:2px solid #c8c2ae; background:#fff; cursor:pointer }
+.pg-tf button.picked.t{ background:#36c76c; color:#fff; border-color:#36c76c }
+.pg-tf button.picked.f{ background:#d75858; color:#fff; border-color:#d75858 }
+
+/* Plot: SVG grid you click. */
+.pg-plot-wrap{ background:#fff; border:2px solid #c8c2ae; border-radius:12px; padding:8px; display:inline-block }
+.pg-plot-wrap svg{ display:block; cursor:crosshair; touch-action:none }
+
+/* Feedback row (nudge / correct / incorrect + why). */
+.pg-feedback{ font-size:16px; padding:10px 14px; border-radius:10px; min-height:44px; display:flex; align-items:flex-start; gap:10px }
+.pg-feedback.nudge{ background:#fff4d6; color:#5a4310; border:1px solid #eac576 }
+.pg-feedback.ok{ background:#e0f3e3; color:#0f4d27; border:1px solid #90c8a2 }
+.pg-feedback.no{ background:#fce1df; color:#5a1818; border:1px solid #e09fa0 }
+
+/* Footer: left = Skip, right = Check / Next. */
+.pg-foot{
+  display:flex; align-items:center; gap:12px;
+  padding:14px 20px; background:#efeadb; border-top:1px solid #d9d2bc;
+}
+.pg-foot .pg-skip{ background:transparent; border:1px solid #9aa0b2; border-radius:10px; padding:8px 14px; color:#4a5377; cursor:pointer; font: inherit }
+.pg-foot .pg-skip:hover{ background:#e2dcc7 }
+.pg-foot .pg-spacer{ flex:1 }
+.pg-foot .pg-action{
+  background:#2a5bb6; color:#fff; border:none; border-radius:12px;
+  padding:12px 22px; font: inherit; font-weight:700; font-size:17px; cursor:pointer;
+}
+.pg-foot .pg-action:disabled{ background:#8da0c3; cursor:not-allowed }
+.pg-foot .pg-action.ok{ background:#2d8a56 }
+
+/* Intro card. */
+.pg-intro{ padding:36px; text-align:center; display:flex; flex-direction:column; align-items:center; gap:14px }
+.pg-intro h2{ margin:0; font-size:26px }
+.pg-intro .pg-outcome{ color:#4a5377 }
+.pg-intro .pg-medals{ font-size:18px; margin-top:8px }
+.pg-intro p{ max-width: 580px; margin:4px 0; line-height:1.45 }
+.pg-intro .pg-begin{ margin-top:10px; background:#2a5bb6; color:#fff; border:none; border-radius:12px; padding:14px 28px; font-size:18px; font-weight:800; cursor:pointer }
+
+/* Done card. */
+.pg-done{ padding:36px; text-align:center; display:flex; flex-direction:column; align-items:center; gap:12px }
+.pg-done .pg-medal-big{ font-size:72px; line-height:1 }
+.pg-done .pg-done-h{ font-size:28px; font-weight:800 }
+.pg-done .pg-score{ font-size:48px; font-weight:800; color:#2a5bb6 }
+.pg-done .pg-done-note{ color:#4a5377; max-width:520px; line-height:1.45 }
+.pg-done .pg-done-close{ margin-top:14px; background:#2a5bb6; color:#fff; border:none; border-radius:12px; padding:14px 28px; font-size:18px; font-weight:800; cursor:pointer }
+
+/* Leave confirm. */
+.pg-leave{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(26,34,56,.6); border-radius:20px }
+.pg-leave .pg-leave-card{ background:#fff; color:#15213b; padding:22px; border-radius:14px; width: min(400px, 90%); text-align:center }
+.pg-leave h3{ margin:0 0 8px; font-size:20px }
+.pg-leave .pg-leave-btns{ display:flex; gap:10px; justify-content:center; margin-top:14px }
+.pg-leave button{ padding:10px 16px; border-radius:10px; font: inherit; font-weight:700; cursor:pointer; border:2px solid #c8c2ae; background:#fff }
+.pg-leave button.pg-leave-go{ background:#d75858; color:#fff; border-color:#d75858 }
+
+/* Symbol pad for text answers with maths. */
+.pg-syms{ display:flex; flex-wrap:wrap; gap:6px; margin-top:4px }
+.pg-syms button{ padding:6px 10px; border-radius:8px; border:1px solid #c8c2ae; background:#fff; cursor:pointer; font: inherit; font-size:16px }
+.pg-syms button:hover{ background:#f0ead9 }

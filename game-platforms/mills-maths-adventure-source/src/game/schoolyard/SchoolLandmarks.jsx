@@ -183,9 +183,12 @@ function HallDoors() {
             <cylinderGeometry args={[0.035, 0.035, x1 - x0 - 0.4, 6]} />
             <meshStandardMaterial color="#9aa0a4" metalness={0.8} roughness={0.3} />
           </mesh>
-          {SCHOOLYARD_KEY_IDS.map((id, i) => (
-            <Padlock key={id} x={x0 + 0.7 + (i * (x1 - x0 - 1.4)) / 7} y={y + 1.12} z={z + 0.2} open={hasKey(id, cm)} />
-          ))}
+          {SCHOOLYARD_KEY_IDS.map((id, i) => {
+            const n = SCHOOLYARD_KEY_IDS.length;
+            const span = x1 - x0 - 1.4;
+            const px = n > 1 ? x0 + 0.7 + (i * span) / (n - 1) : (x0 + x1) / 2;
+            return <Padlock key={id} x={px} y={y + 1.12} z={z + 0.2} open={hasKey(id, cm)} />;
+          })}
         </group>
       )}
       {/* The key-count sign on a stand beside the doors. */}

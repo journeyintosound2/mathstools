@@ -63,6 +63,10 @@ import WipeoutOverlay from "./ui/effects/WipeoutOverlay.jsx";
 import { useWipeout } from "./game/hazardRescue.js";
 import BilingualLayer from "./i18n/BilingualLayer.jsx";
 import DemoOverlay from "./ui/demo/DemoOverlay.jsx";
+import PlaygroundVeil from "./game/schoolyard/playground/PlaygroundVeil.jsx";
+import "./styles/playground.css";
+import { usePlayground } from "./game/schoolyard/playground/playgroundStore.js";
+import { medalEarnedMission } from "./game/schoolyard/playground/playgroundSession.js";
 import DemoProjector from "./game/demo/DemoProjector.jsx";
 
 import { useSession, playerState, requestTeleport } from "./game/sessionStore.js";
@@ -297,6 +301,8 @@ export default function App() {
       <WipeoutOverlay />
       {/* Every challenge's live "watch how to play" demo (2026-10-24). */}
       <DemoOverlay />
+      {/* Retrieval Practice Playground — the dim-the-world challenge card. */}
+      <PlaygroundVeil />
       </>
       )}
     </div>

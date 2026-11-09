@@ -209,7 +209,7 @@ export const HALL = {
   porch: { x: [4, 22], z: [64, 70], roofY: LV.L1 + 5.4 },
 };
 
-/** The Head Teacher's padlocked hall doors — present while the 8 keys aren't all earned. */
+/** The Head Teacher's padlocked hall doors — present while the 16 keys aren't all earned. */
 export const SCHOOLYARD_BOSS_ID = "kellahan";
 export const SCHOOLYARD_GATE = { x: [9, 17], z: 64.6, y: LV.L1, height: 4.2 };
 
@@ -270,42 +270,78 @@ export const SCHOOL_CANOPIES = [
 ];
 
 // ---------------------------------------------------------------------------
-// THE NINE STAFF — the same nine (ids, names, skills, Coffs Coast lines) as
-// ever, each now at one of the places in Jeff's videos. `area` names the spot
-// (its label shows as you approach). Keys: the eight non-boss staff; the boss
-// waits on the hall stage behind the padlocked doors.
+// THE SIXTEEN STAFF (2026-11-10, Jeff) — one per Stage 4 outcome, grouped on
+// the map by STRAND so students can make a mental atlas:
+//   EAST   Number & Algebra (7)   Quad / Canteen / Office / Courts / Plaza
+//   WEST   Measurement & Space (6) Maths Block / Food Tech / Glass Stairs / Science
+//   NORTH-WEST Statistics & Probability (3) Top Balcony / A-Block Courtyard / Mural Lane
+// Each NPC's `strand` is one of `number-algebra` / `measurement-space` /
+// `statistics-probability`. The challenge they open comes from `challengeList.js`;
+// keys/padlocks/boss are derived from `SCHOOLYARD_KEY_IDS` (every non-boss id).
+// The nine original staff names are kept and reassigned; eight new teachers
+// were added. Mrs. Kellahan stays the boss in the hall.
 // ---------------------------------------------------------------------------
 export const SCHOOLYARD_CHARACTERS = [
-  { id: "pearce", name: "Mr. Pearce", position: [-19.9, 18.4], color: "#e07a5f", skill: "addSubTo20", area: "canteen",
-    flavor: "Ever ridden the toboggan at the Big Banana? What a blast!",
-    complete: ["Nice one — that's the spirit! Here's your key.", "One down — go find the others."] },
-  { id: "mahoney", name: "Ms. Mahoney", position: [-53.8, 50], color: "#3d9970", skill: "multFacts", area: "library",
-    flavor: "Nothing beats a morning swim down at Jetty Beach — you can see it from up here!",
-    complete: ["Great counting — take a key!", "Off you go — enjoy the sea breeze."] },
-  { id: "ewings", name: "Ms. Ewings", position: [-87.2, 81], color: "#5b8def", skill: "divFacts", area: "science",
-    flavor: "The breakwall walk to Muttonbird Island is my favourite — whales in season! Have a look through the telescope.",
-    complete: ["Lovely sharing those out — here's a key!", "Say hi to the shearwaters for me."] },
-  { id: "dawson", name: "Mr. Dawson", position: [-73, 102.3], color: "#9b5de5", skill: "multFacts", area: "skypier",
-    flavor: "The view from Sealy Lookout's Forest Sky Pier is unreal — this one's not bad either!",
-    complete: ["Top work — that's a key earned!", "Take a moment and enjoy the view."] },
-  { id: "heywood", name: "Mr. Heywood", position: [114, -6], color: "#2a9d8f", skill: "divFacts", area: "oval",
-    flavor: "Went diving out at the Solitary Islands on the weekend.",
-    complete: ["Sharp division — take your key!", "Dive back in any time."] },
-  { id: "morgan", name: "Mr. Morgan", position: [-66, 82], color: "#e76f51", skill: "addSubTo20", area: "agplot",
-    flavor: "The banana plantations up here go on for miles — we grow our own in the ag plot!",
-    complete: ["Great work — here's a key!", "Keep it up."] },
-  { id: "bacon", name: "Ms. Bacon", position: [-95, -83.5], color: "#457b9d", skill: "multFacts", area: "mural",
-    flavor: "I love watching the boats come in at the marina — that's why I painted the waves on the mural.",
-    complete: ["Terrific times tables — a key for you!", "Smooth sailing from here."] },
-  { id: "brookes", name: "Ms. Brookes", position: [-74, -2], color: "#8ac926", skill: "divFacts", area: "courtyard",
-    flavor: "The rainforest tracks at Bruxner Park are so peaceful — our courtyard garden is my little piece of it.",
-    complete: ["Beautiful division — take your key!", "Now… the Head Teacher is waiting in the hall."] },
-  // …and the BOSS: the Head Teacher, on the hall stage behind the padlocked doors.
-  { id: "kellahan", name: "Mrs. Kellahan", position: [13, 25.5], color: "#f4772e", skill: "addSubTo20", area: "hall",
+  // ===== Number & Algebra — East =====
+  { id: "pearce", name: "Mr. Pearce", strand: "number-algebra", position: [-19.9, 18.4], color: "#e07a5f", area: "canteen",
+    flavor: "Integers are the maths of money — profit, loss, change in temperature. Keep sign in mind.",
+    complete: ["Sharp work with the signs — here's a key!", "On to the next one."] },
+  { id: "brookes", name: "Ms. Brookes", strand: "number-algebra", position: [56, -18], color: "#8ac926", area: "quad-fig-e",
+    flavor: "A third, zero point three three three, thirty-three percent — all the same amount wearing different clothes.",
+    complete: ["Beautifully done — take a key!", "Fractions, decimals, percentages: they're all friends."] },
+  { id: "noor", name: "Mr. Noor", strand: "number-algebra", position: [62, 34], color: "#9b5de5", area: "quad-fig-c",
+    flavor: "Algebra is arithmetic with the letters still in — same rules, bigger ideas.",
+    complete: ["Nice working — here's your key.", "You've got the algebra bug now."] },
+  { id: "lin", name: "Ms. Lin", strand: "number-algebra", position: [50, 34], color: "#3d9970", area: "quad-fig-w",
+    flavor: "An equation is a balance — whatever you do to one side, do to the other.",
+    complete: ["Perfectly balanced — a key for you!", "Equations solved; on you go."] },
+  { id: "morgan", name: "Mr. Morgan", strand: "number-algebra", position: [66, 90], color: "#e76f51", area: "office",
+    flavor: "Everything in school runs on rates — words per minute, kilojoules per gram, kids per teacher.",
+    complete: ["Top ratio work — take a key!", "Rates make sense of the world."] },
+  { id: "sahni", name: "Mr. Sahni", strand: "number-algebra", position: [30, 90], color: "#5b8def", area: "plaza",
+    flavor: "Powers let you talk about very big and very small — the universe fits in a few of them.",
+    complete: ["Indices under control — have a key!", "Powers, roots, done."] },
+  { id: "okafor", name: "Ms. Okafor", strand: "number-algebra", position: [118, 20], color: "#2a9d8f", area: "cola",
+    flavor: "Spot the pattern, write the rule, see the line — that's the whole trick.",
+    complete: ["Lovely linear thinking — key earned!", "Lines and patterns: sorted."] },
+
+  // ===== Measurement & Space — West =====
+  { id: "green", name: "Mr. Green", strand: "measurement-space", position: [-87.2, 96], color: "#2a9d8f", area: "foodtech",
+    flavor: "Length is everywhere — a running track, a perimeter fence, the trim round a window.",
+    complete: ["Neatly measured — a key for you!", "Length and perimeter: on to the next."] },
+  { id: "heywood", name: "Mr. Heywood", strand: "measurement-space", position: [-59, 72], color: "#f4772e", area: "glass",
+    flavor: "Angles stack up to known totals — on a line, round a point, in a triangle. Always check the total.",
+    complete: ["Angle work on point — key!", "Solid angle reasoning."] },
+  { id: "dawson", name: "Mr. Dawson", strand: "measurement-space", position: [-73, 102.3], color: "#9b5de5", area: "skypier",
+    flavor: "The squares on the sides of a right-angled triangle have a famous relationship. Use it on every leg.",
+    complete: ["Pythagoras bows to you — have a key!", "Distances through right angles: easy now."] },
+  { id: "patel", name: "Ms. Patel", strand: "measurement-space", position: [-74, 92], color: "#457b9d", area: "maths-m1",
+    flavor: "Every shape's area is a rectangle wearing a disguise — cut it, rearrange it, measure it.",
+    complete: ["Area sorted — key for you!", "Rectangles, triangles, circles, composites: all the same trick."] },
+  { id: "vo", name: "Mr. Vo", strand: "measurement-space", position: [-67, 92], color: "#8ac926", area: "maths-m4",
+    flavor: "Volume is area a storey up — the base times how tall it stands.",
+    complete: ["Volume cracked — a key!", "Prisms, cylinders, capacity: smooth."] },
+  { id: "ewings", name: "Ms. Ewings", strand: "measurement-space", position: [-87.2, 81], color: "#5b8def", area: "science",
+    flavor: "Shapes aren't just drawings — every property (sides, angles, symmetry) is a clue.",
+    complete: ["Geometry mastered — have a key!", "On to the next proof."] },
+
+  // ===== Statistics & Probability — North-west =====
+  { id: "mahoney", name: "Ms. Mahoney", strand: "statistics-probability", position: [-53.8, 50], color: "#3d9970", area: "library",
+    flavor: "A good chart tells its story at a glance — titles, scales, labels all pulling their weight.",
+    complete: ["Beautifully read — key for you!", "Charts: on to the next."] },
+  { id: "ndlovu", name: "Ms. Ndlovu", strand: "statistics-probability", position: [-74, -2], color: "#8ac926", area: "courtyard",
+    flavor: "Numbers in a column tell you the shape — the middle, the spread, the outliers.",
+    complete: ["Summarised beautifully — have a key!", "Mean, median, mode, range: in hand."] },
+  { id: "bacon", name: "Ms. Bacon", strand: "statistics-probability", position: [-95, -83.5], color: "#457b9d", area: "mural",
+    flavor: "Chance is where maths meets fairness — a good estimate is never a guess.",
+    complete: ["Chance sorted — key!", "Probability under your belt."] },
+
+  // …and the BOSS: Mrs. Kellahan, on the hall stage behind the padlocked doors.
+  { id: "kellahan", name: "Mrs. Kellahan", strand: "boss", position: [13, 25.5], color: "#f4772e", area: "hall",
     boss: true, scale: 1.35,
-    flavor: "You've earned every key — ready for the Head Teacher's challenge?",
-    complete: ["🏆 You did it — you've completed the whole Schoolyard!",
-      "What a champion. Well done, from all the staff on the Coffs Coast!"] },
+    flavor: "All sixteen keys — well done. The Head Teacher's Exam takes four from every topic (sixty in all).",
+    complete: ["🏆 You did it — the Playground champion!",
+      "A whole year's worth of Stage 4 maths, sat and sorted. Hat off."] },
 ];
 
 /** Back-compat names. */
@@ -317,24 +353,34 @@ export const SCHOOLYARD_WELCOME_SIGN = { position: SCHOOLYARD_WELCOME.position, 
 // agplot, mural, courtyard, hall); their names now match the new places.
 // ---------------------------------------------------------------------------
 export const SCHOOL_AREAS = [
+  // Arrival + hall
   { id: "front", name: "Front Gate", icon: "🏫", c: [13, 96], y: LV.L0 + 4.2 },
+  { id: "plaza", name: "Arrival Plaza — Indices", icon: "🔢", c: [30, 88], y: LV.L0 + 4.4 },
   { id: "hall", name: "The School Hall", icon: "🎭", c: [13, 70], y: LV.L1 + 6.4 },
-  { id: "canteen", name: "The Canteen", icon: "🥪", c: [-24, 14], y: LV.L1 + 4.6 },
+  { id: "office", name: "Front Office — Ratios & Rates", icon: "⚖️", c: [66, 90], y: LV.L0 + 4.4 },
+  // East — Number & Algebra
+  { id: "canteen", name: "The Canteen — Integers", icon: "🥪", c: [-24, 14], y: LV.L1 + 4.6 },
   { id: "quad", name: "The Fig Quad", icon: "🌳", c: [70, 10], y: LV.L1 + 4.6 },
+  { id: "quad-fig-e", name: "Fig: Fractions, Decimals, %", icon: "⅓", c: [56, -18], y: LV.L1 + 4.6 },
+  { id: "quad-fig-c", name: "Fig: Algebra", icon: "𝒙", c: [62, 34], y: LV.L1 + 4.6 },
+  { id: "quad-fig-w", name: "Fig: Equations", icon: "⚖️", c: [50, 34], y: LV.L1 + 4.6 },
+  { id: "cola", name: "COLA — Linear Relationships", icon: "📈", c: [118, 20], y: LV.LM + 4.4 },
   { id: "yard", name: "The Big Yard", icon: "🌳", c: [-10, -60], y: LV.L1 + 4.6 },
-  { id: "mural", name: "The Mural Lane", icon: "🎨", c: [-84, -84], y: LV.L1 + 4.6 },
-  { id: "courtyard", name: "A Block Courtyard", icon: "🌿", c: [-74, -10], y: LV.L1 + 4.6 },
+  // West — Measurement & Space
+  { id: "foodtech", name: "Food Tech Walkway — Length", icon: "📏", c: [-87.2, 96], y: LV.L2 + 2.6 },
+  { id: "glass", name: "Glass Stairs — Angles", icon: "📐", c: [-59, 72], y: LV.L2 + 3.4 },
+  { id: "skypier", name: "Maths Balcony — Pythagoras", icon: "🔺", c: [-73, 102.3], y: LV.LM + 9 + 3.0 },
+  { id: "maths-m1", name: "Maths M1 — Area", icon: "⬛", c: [-74, 92], y: LV.LM + 4.6 },
+  { id: "maths-m4", name: "Maths M4 — Volume", icon: "🧊", c: [-67, 92], y: LV.LM + 9 + 3.0 },
+  { id: "science", name: "Science Lookout — Geometry", icon: "🔭", c: [-87.2, 81], y: LV.L3 + 3.0 },
   { id: "undercroft", name: "The Undercroft", icon: "🏛️", c: [-70.5, 30], y: LV.L1 + 3.6 },
-  { id: "agplot", name: "Banksia Court", icon: "🍌", c: [-72, 70], y: LV.L1 + 4.4 },
   { id: "tas", name: "The TAS Stairs", icon: "🔧", c: [-72, 51], y: LV.L1 + 4.0 },
-  { id: "glass", name: "The Glass Stairs", icon: "🪟", c: [-59, 72], y: LV.L2 + 3.4 },
-  { id: "library", name: "The Top Balcony (top floor)", icon: "📚", c: [-53.8, 50], y: LV.L3 + 3.0 },
-  { id: "science", name: "Science Lookout (top floor)", icon: "🔭", c: [-87.2, 81], y: LV.L3 + 3.0 },
-  { id: "foodtech", name: "The Food Tech Walkway", icon: "🍳", c: [-87.2, 96], y: LV.L2 + 2.6 },
-  { id: "maths", name: "The Maths Block", icon: "➗", c: [-70.5, 108], y: LV.LM + 4.6 },
-  { id: "skypier", name: "Maths Balcony (top floor)", icon: "📐", c: [-73, 102.3], y: LV.LM + 9 + 3.0 },
-  { id: "oval", name: "The Courts", icon: "🏀", c: [118, 0], y: LV.LM + 4.4 },
+  // North-west — Statistics & Probability
+  { id: "library", name: "Top Balcony — Data Charts", icon: "📊", c: [-53.8, 50], y: LV.L3 + 3.0 },
+  { id: "courtyard", name: "A Block Courtyard — Data Analysis", icon: "📈", c: [-74, -2], y: LV.L1 + 4.6 },
+  { id: "mural", name: "Mural Lane — Probability", icon: "🎲", c: [-95, -83.5], y: LV.L1 + 4.6 },
   { id: "library-front", name: "The Library", icon: "📖", c: [-22, -11], y: LV.L1 + 4.4 },
+  { id: "oval", name: "The Courts", icon: "🏀", c: [118, 0], y: LV.LM + 4.4 },
 ];
 
 // ---------------------------------------------------------------------------

@@ -267,6 +267,23 @@ export const useProgress = create((set, get) => ({
   },
 
   /**
+   * Mark a mission complete by id without going through the active-mission
+   * finaliser. Used by the Retrieval Practice Playground: earning any medal
+   * (bronze+) on a challenge should mark that NPC's `warmup-<npcId>` mission
+   * done so the existing key/hall/trophy logic unlocks. Idempotent — no XP
+   * or coins awarded here (the Playground owns the medal reward itself).
+   * Returns true if the id was newly added, false if already complete.
+   */
+  markMissionComplete(missionId) {
+    if (!missionId) return false;
+    const list = get().completedMissions || [];
+    if (list.includes(missionId)) return false;
+    set({ completedMissions: [...list, missionId] });
+    saveProgress(get());
+    return true;
+  },
+
+  /**
    * Activate a mission locally: it becomes the active mission and a fresh
    * progress record is created. Re-activating a mission already completed is
    * allowed (e.g. for practice) but will not pay its rewards again.
