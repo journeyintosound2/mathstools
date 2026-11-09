@@ -1,6 +1,6 @@
 /* Written by tools/build-pwa.mjs — do not edit by hand. */
 self.MMT_PRECACHE = {
- "version": "fb375d8120",
+ "version": "8363795bb9",
  "files": [
   "./",
   "assessment/exam-builder/app.js",
@@ -663,6 +663,7 @@ self.MMT_PRECACHE = {
   "game-platforms/mills-maths-adventure/assets/KaTeX_Size4-Regular-Dl5lxZxV.woff2",
   "game-platforms/mills-maths-adventure/assets/KaTeX_Typewriter-Regular-CO6r4hn1.woff2",
   "game-platforms/mills-maths-adventure/assets/MathAnswerInput-CVtO52Jl.js",
+  "game-platforms/mills-maths-adventure/assets/MathAnswerInput-DduvOzhB.js",
   "game-platforms/mills-maths-adventure/assets/MathAnswerInput-XpCQxquu.css",
   "game-platforms/mills-maths-adventure/assets/baloo-2-latin-500-normal-sFC1aiE7.woff2",
   "game-platforms/mills-maths-adventure/assets/baloo-2-latin-700-normal-DpwkDI0o.woff2",

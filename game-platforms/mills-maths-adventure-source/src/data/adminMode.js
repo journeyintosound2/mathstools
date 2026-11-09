@@ -12,7 +12,7 @@
  * not real security — anyone determined could flip the flag in the browser.)
  */
 export const ADMIN_KEY = "mma-admin-mode";
-export const ADMIN_PASSWORD_SHA256 = "0305d75141cbc73686558ca8d33c8001e157142b630daaa0aa5d67d7a1244349";
+export const ADMIN_PASSWORD_SHA256 = "15252abbf3f527c15a0abc559063ff7b19c7477e4fb9d4f0d2512523f27e40e1";
 
 export function isAdminMode() {
   try { return globalThis.localStorage?.getItem(ADMIN_KEY) === "1"; } catch { return false; }
