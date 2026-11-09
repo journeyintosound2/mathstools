@@ -8,8 +8,8 @@ import {
   inSchoolBuilding,
 } from "../../data/schoolyard/schoolyardTerrain.js";
 import {
-  LV, SEA_Y, SCHOOL_FENCE, SCHOOL_PLATFORMS, SCHOOL_SURFACES, OVAL, QUAD_FIGS, COURT_BEDS, COURT_POND, COLA, FRONT_CARPARK,
-  STAFF_CARPARK, BUS_BAY, BACKDROP, SCHOOL_PADS,
+  LV, SEA_Y, SCHOOL_FENCE, SCHOOL_PLATFORMS, SCHOOL_SURFACES, QUAD_FIGS, COURT_BEDS, COLA, FRONT_CARPARK,
+  BUS_BAY, BACKDROP, SCHOOL_PADS, PAINTED_SQUARES,
 } from "../../data/schoolyard/schoolyardLayout.js";
 import { Kit, drapePolygon } from "./schoolKit.js";
 import { M, makeSchoolTerrainMaterial, makeSchoolSeaMaterial, getSchoolTextures, schoolMat } from "./schoolMaterials.js";
@@ -41,16 +41,7 @@ export function schoolGroundColour(x, z, h) {
   tmp.lerp(COL.dry, smoothstep(0.62, 0.85, n1) * 0.35);
   const inside = x > SCHOOL_FENCE.xMin - 2 && x < SCHOOL_FENCE.xMax + 2 && z > SCHOOL_FENCE.zMin - 2 && z < SCHOOL_FENCE.zMax + 2;
   if (inside) {
-    // The oval: mown stripes, a touch worn at the cricket pitch end.
-    const q = Math.hypot((x - OVAL.c[0]) / OVAL.rx, (z - OVAL.c[1]) / OVAL.rz);
-    if (q < 1.06) {
-      const stripe = 0.5 + 0.5 * Math.cos(((x - OVAL.c[0]) / 4.5) * Math.PI);
-      t2.copy(COL.lawn).lerp(COL.lawnLight, stripe * 0.75);
-      tmp.lerp(t2, 1 - smoothstep(0.98, 1.06, q));
-      mown = 1 - smoothstep(0.98, 1.06, q);
-      // The boundary rope line (a pale worn ring).
-      tmp.lerp(COL.dry, (1 - smoothstep(0.004, 0.02, Math.abs(q - 1.0))) * 0.6);
-    }
+    const q = 9;
     // The front lawns: mown in wide stripes.
     const fq = Math.hypot((x - FRONT.c[0]) / FRONT.rx, (z - FRONT.c[1]) / FRONT.rz);
     if (fq < 1.05 && q >= 1.06) {
@@ -59,10 +50,10 @@ export function schoolGroundColour(x, z, h) {
       tmp.lerp(t2, 0.85);
       mown = Math.max(mown, 0.85);
     }
-    // The bush hill behind the school: leaf litter + dry grass under gums.
-    const hill = smoothstep(-96, -106, z);
-    // The west lawn's bush garden.
-    const west = smoothstep(-74, -84, x) * smoothstep(48, 38, z) * smoothstep(-90, -80, z);
+    // The north lawn behind the white block: leaf litter + dry grass under gums.
+    const hill = smoothstep(-114, -124, z);
+    // The west lawn's bush garden (behind A + C Blocks).
+    const west = smoothstep(-106, -114, x) * smoothstep(96, 84, z);
     const lit = Math.max(hill, west * 0.75) * (0.7 + 0.3 * n2);
     if (lit > 0) {
       t2.copy(COL.bush).lerp(COL.litter, smoothstep(0.35, 0.7, n1));
@@ -293,7 +284,7 @@ function buildTerraces() {
       kit.quad("court", [d[0], s.y + 0.03, d[1]], [c[0], s.y + 0.03, c[1]], [b[0], s.y + 0.03, b[1]], [a[0], s.y + 0.03, a[1]], { uv: [[0, 1], [1, 1], [1, 0], [0, 0]] });
       continue;
     }
-    drapePolygon(kit, SURF_KEY[s.kind] || "slab", s.pts, heightAt, { lift: 0.025, maxEdge: s.y > 0 ? 12 : 2.5 });
+    drapePolygon(kit, SURF_KEY[s.kind] || "slab", s.pts, heightAt, { lift: s.y > 0 ? 0.05 : 0.025, maxEdge: s.y > 0 ? 12 : 2.5 });
   }
   paintLines(kit);
   // Brick planters: the quad's three fig planters + the courtyard beds.
@@ -311,19 +302,33 @@ function buildTerraces() {
     drapePolygon(kit, "mulch", rectCorners({ ...r, hx: r.hx - 0.3, hz: r.hz - 0.3 }), () => top - 0.04, { lift: 0, maxEdge: 20 });
   };
   for (const f of QUAD_FIGS) planter({ c: f.c, yaw: f.planter.yaw, hx: f.planter.hx, hz: f.planter.hz }, LV.L1);
-  for (const bd of COURT_BEDS) planter(bd, LV.L2);
-  // The courtyard pond: a sandstone rim round a little pool + bubbler.
+  for (const bd of COURT_BEDS) planter(bd, bd.y ?? LV.L1);
+  // A Block courtyard's PAINTED SQUARES (video 8): a grid scored into the
+  // pavers, every few squares chalk-painted in pastel colours.
   {
-    const { c, r } = COURT_POND;
-    const y = LV.L2;
-    const seg = 28;
-    for (let i = 0; i < seg; i++) {
-      const a0 = (i / seg) * Math.PI * 2, a1 = ((i + 1) / seg) * Math.PI * 2;
-      kit.wall("boardConcrete", [c[0] + Math.cos(a0) * (r - 0.2), c[1] + Math.sin(a0) * (r - 0.2)], [c[0] + Math.cos(a1) * (r - 0.2), c[1] + Math.sin(a1) * (r - 0.2)], y - 0.1, y + 0.42, 0.42, { color: "#d9c79c", extend: 0.06 });
+    const { c, cols, rows, size } = PAINTED_SQUARES;
+    const pastel = ["#9cc7ee", "#b8e0a8", "#f5c6d6", "#f6e3a1", "#c9b8ee", "#a8e0dc"];
+    const y = LV.L1 + 0.032;
+    let k = 0;
+    for (let i = 0; i < cols; i++) for (let j = 0; j < rows; j++) {
+      const x0 = c[0] - (cols * size) / 2 + i * size, z0 = c[1] - (rows * size) / 2 + j * size;
+      if (((i * 7 + j * 3) % 5) > 1) continue;
+      const col = pastel[(k++) % pastel.length];
+      kit.quad("paintDecal", [x0 + 0.08, y, z0 + size - 0.08], [x0 + size - 0.08, y, z0 + size - 0.08], [x0 + size - 0.08, y, z0 + 0.08], [x0 + 0.08, y, z0 + 0.08], { color: col });
     }
-    kit.post("boardConcrete", c[0], c[1], y, y + 0.9, 0.32, 10, { color: "#d9c79c" });
-    kit.disc("water", [c[0], y + 0.3, c[1]], [0, 1, 0], r - 0.4, 28, { color: "#ffffff" });
-    kit.disc("soil", [c[0], y + 0.02, c[1]], [0, 1, 0], r - 0.4, 28, { color: "#3a4a3a" });
+    for (let i = 0; i <= cols; i++) {
+      const x = c[0] - (cols * size) / 2 + i * size;
+      kit.quad("paintDecal", [x - 0.03, y + 0.002, c[1] + (rows * size) / 2], [x + 0.03, y + 0.002, c[1] + (rows * size) / 2], [x + 0.03, y + 0.002, c[1] - (rows * size) / 2], [x - 0.03, y + 0.002, c[1] - (rows * size) / 2], { color: "#8d8a84" });
+    }
+    for (let j = 0; j <= rows; j++) {
+      const z = c[1] - (rows * size) / 2 + j * size;
+      kit.quad("paintDecal", [c[0] - (cols * size) / 2, y + 0.002, z + 0.03], [c[0] + (cols * size) / 2, y + 0.002, z + 0.03], [c[0] + (cols * size) / 2, y + 0.002, z - 0.03], [c[0] - (cols * size) / 2, y + 0.002, z - 0.03], { color: "#8d8a84" });
+    }
+  }
+  // Steel drainage grates across the quad + the yard (video 1).
+  for (const [x0, z0, x1, z1] of [[44, -2, 100, -2], [44, 46, 100, 46], [-60, -46, 30, -46]]) {
+    const y = LV.L1 + 0.03;
+    kit.quad("grating", [x0, y, z0 + 0.25], [x1, y, z1 + 0.25], [x1, y, z1 - 0.25], [x0, y, z0 - 0.25], {});
   }
   const built = kit.build();
   const grassBuilt = grass.build().map(({ geometry }) => {
@@ -350,22 +355,12 @@ function paintLines(kit) {
     kit.quad(key, [x0 - nx, y, z0 - nz], [x0 + nx, y, z0 + nz], [x1 + nx, y, z1 + nz], [x1 - nx, y, z1 - nz], { uv: "unit" });
   };
   const LY = 0.05;
-  // Front car park: four rows of bays (cars park nose-in along z).
+  // Front car park: three rows of bays (cars park nose-in along z).
   {
     const { c, hx } = FRONT_CARPARK;
-    for (const rz of [-20, -9, 9, 20]) {
+    for (const rz of [-11, 0, 11]) {
       for (let x = c[0] - hx + 2 - 1.45; x <= c[0] + hx - 0.5; x += 2.9) line("yellowLine", x, c[1] + rz - 2.5, x, c[1] + rz + 2.5, LY);
     }
-  }
-  // Staff car park.
-  {
-    const { c, hx } = STAFF_CARPARK;
-    for (let x = c[0] - hx + 2 - 1.45; x <= c[0] + hx - 0.5; x += 2.9) line("yellowLine", x, c[1] - 5.7, x, c[1] - 0.7, LV.L3 + LY);
-  }
-  // The forecourt: drop-off bays along both sides.
-  for (let x = -6.5; x <= 24.5; x += 2.8) {
-    line("whiteLine", x, 62.2, x, 67, LY);
-    line("whiteLine", x, 83, x, 87.8, LY);
   }
   // The bus zone: a yellow box with BUS ZONE hatching.
   {
@@ -374,17 +369,6 @@ function paintLines(kit) {
     line("yellowLine", x0, z0, x1, z0, LY, 0.18); line("yellowLine", x0, z1, x1, z1, LY, 0.18);
     line("yellowLine", x0, z0, x0, z1, LY, 0.18); line("yellowLine", x1, z0, x1, z1, LY, 0.18);
     for (let x = x0 + 1; x < x0 + 6; x += 1.2) line("yellowLine", x, z0, x + 2.2, z1, LY, 0.14);
-  }
-  // Handball squares on the COLA slab (2 × 2 courts, each four squares).
-  {
-    const y = LV.L1 + LY;
-    for (const [cx, cz] of [[COLA.c[0] - 9, COLA.c[1] - 8], [COLA.c[0] + 9, COLA.c[1] - 8], [COLA.c[0] - 9, COLA.c[1] + 8], [COLA.c[0] + 9, COLA.c[1] + 8]]) {
-      const s = 3.2;
-      const key = (cx + cz) % 2 ? "yellowLine" : "whiteLine";
-      line(key, cx - s, cz - s, cx + s, cz - s, y); line(key, cx - s, cz + s, cx + s, cz + s, y);
-      line(key, cx - s, cz - s, cx - s, cz + s, y); line(key, cx + s, cz - s, cx + s, cz + s, y);
-      line(key, cx, cz - s, cx, cz + s, y); line(key, cx - s, cz, cx + s, cz, y);
-    }
   }
 }
 
@@ -395,6 +379,8 @@ const KEY_MAT = () => {
     court: schoolMat("courtUnit", { map: "court", roughness: 0.8 }),
     yellowLine: schoolMat("yellowLine", { color: "#f2c21b", roughness: 0.6, polygonOffset: 3 }),
     whiteLine: schoolMat("whiteLine", { color: "#f4f4ef", roughness: 0.6, polygonOffset: 3 }),
+    paintDecal: schoolMat("paintDecal", { roughness: 0.7, polygonOffset: 3 }),
+    grating: schoolMat("gratingFlat", { map: "greySteel", color: "#7f858a", roughness: 0.45, metalness: 0.6, polygonOffset: 3 }),
   };
 };
 
@@ -545,9 +531,10 @@ function wheelTex() {
   });
 }
 const MARKINGS = [
-  { tex: hopscotchTex, c: [-12, 7], w: 17.6, d: 1.6, yaw: 0 },
-  { tex: fourSquareTex, c: [78, 14], w: 6, d: 6, yaw: 0 },
-  { tex: wheelTex, c: [78, 30], w: 6.4, d: 6.4, yaw: 0.3 },
+  { tex: hopscotchTex, c: [-16, -40], w: 17.6, d: 1.6, yaw: 0 },
+  { tex: fourSquareTex, c: [92, 54], w: 6, d: 6, yaw: 0 },
+  { tex: fourSquareTex, c: [80, 54], w: 6, d: 6, yaw: 0 },
+  { tex: wheelTex, c: [76, 18], w: 6.4, d: 6.4, yaw: 0.3 },
 ];
 export function PlaygroundMarkings() {
   const texs = useMemo(() => MARKINGS.map((m) => m.tex()), []);

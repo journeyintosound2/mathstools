@@ -1541,6 +1541,103 @@ build clean.** NOT yet deployed.
   tap targets on the 3D rungs); a cloud completion path (bests are
   local-only, like snow + magma); deploy.
 
+## DONE (2026-11-09) — THE RETRIEVAL PRACTICE PLAYGROUND REDESIGNED FROM JEFF'S VIDEOS
+Jeff's brief: eleven phone videos walking Coffs Harbour High (numbered 1–11
+on his annotated aerial) — "redesign the Playground so it mirrors the videos
+more closely … video 11 is the maths block, notice the classrooms on each
+level (2 each) … make the levels much higher ceilings and wider walkways so
+it is easy to navigate … larger than normal scale". Region id unchanged
+(`schoolyard`); the nine staff, keys, missions, topics, boss + hall doors are
+unchanged (only their spots moved). **SY1–SY10 rewritten for the new school
+(+ SY3 now also fails a stair flight whose top or foot is blocked by a
+collider), all passing; 698/699 system checks (the one failure, "Progress saves &
+reloads", failed identically BEFORE the change — unrelated); vite build
+clean.** NOT yet deployed.
+- **Frame:** the aerial turned a quarter — game +x = real north (Jetty Lane),
+  game +z = real east (Camperdown St, arrival). Plan ≈ the aerial at ~1.35×.
+- **Scale (Jeff: bigger than life):** `STOREY` 4.5 m, `CORRIDOR_W` 4.6 m,
+  `DECK_T` 0.3; stair towers `TOWER_W` 3 m, `TOWER_STEPS` 8 × 0.28 m per half
+  storey, `TOWER_TREAD` 0.55, `TOWER_LAND` 3 m. Levels `LV = { L0 0 (frontage),
+  LM 3 (lower terrace + courts), L1 4.5 (campus), L2 9, L3 13.5 }`; the Maths
+  Block steps down the hill (floors 3 / 7.5 / 12).
+- **The video spots → the layout (`schoolyardLayout.js`):** 1 the fig quad
+  (figs, picnic sets, grates, the stairs down to the courts) · 2 the canteen
+  (blue + yellow `paint`, CANTEEN sign, brick planter + bench, raised seating
+  deck with ramp + steps) under the hall's red + white STRIPED awning
+  (`verandahs` on the hall) · 3 the UNDERCROFT (B Block, `undercroft: true` —
+  open ground floor, brick piers + round columns, body collider banded from
+  the 1st floor) · 4 the TAS STAIRS (`towers[].tas` — brick blade wall + the
+  rainbow TAS poster on the half landing) · 5 the GLASS STAIRS (N Block,
+  `towers[].glazed`) · 6 the TOP BALCONY (desks + chairs + benches on N
+  Block's top corridor, Ms. Mahoney) · 7 the FOOD TECH WALKWAY (C Block's
+  1st-floor corridor runs on as `SCHOOL_DECKS` link-deck → a THIN ramp (new:
+  `ramp.thin`, brick-walled via `walls: true` → rail style "wall") → a thin
+  landing → 3 thin steps down onto the Maths balcony, under a
+  `SCHOOL_CANOPIES` roof) · 8 A BLOCK COURTYARD (1920s A Block + the library,
+  cream verandahs on brick piers, yellow edge lines, `PAINTED_SQUARES`,
+  timber `PLANTER_BOXES`, the pelican mural on B Block) · 9 the MURAL LANE
+  (W Block, white `render` walls + verandah on dark posts; A Block's end wall =
+  the BLUE WAVES mural, `murals[{kind:"waves"}]`) · 10 the balconies round
+  BANKSIA COURT (its tree, the kitchen garden, Mr. Morgan) · 11 the MATHS
+  BLOCK (`rooms: { count: 2 }` → TWO WALK-IN CLASSROOMS ON EVERY FLOOR,
+  M1–M6; steel picket balustrades `corridor.rail: "picket"`; Mr. Dawson on
+  the top balcony looking out to sea).
+- **Walk-in rooms (new, generic):** `roomSpans`, `roomWalls`,
+  `roomFloorRect`, `ROOM_WALL` 0.3, `ROOM_DOOR_W` 2.4 (schoolyardTerrain).
+  Structures: a "roomfloor" per floor (solid at the ground, THIN above).
+  Colliders: the walls with the doorways open + `classroomDesks(b)` (rows of
+  double desks, teacher's desk, aisles + the door side kept clear). Camera:
+  the walls are blockers (thickened 0.25 m each side for the camera), a
+  ceiling per floor, the roof above. Renderer `addRoomsBlock`: brick walls +
+  lintels, vinyl floors, ceilings + strip lights, windows both sides (with the
+  light seen from inside), door frames + open leaves, painted lining + dado,
+  maths whiteboards (`whiteboard`/`whiteboard2` textures), maths posters,
+  desks + blue chairs, room-number signs by every door.
+- **Other new generic pieces:** `verandahs` (face, depth, h, piers brick|post,
+  cream, stripes) → `verandahRect`, `verandahPiers` (colliders + render via
+  `schoolColumns`), camera ceilings; `undercroft`; `SCHOOL_DECKS`;
+  `SCHOOL_CANOPIES` (+ `canopyPosts`, standing on whatever walkway is under
+  them); thin `SCHOOL_LANDINGS`; `towerRoofY` (a tower that stops below the
+  top floor gets its roof one storey over its top landing); `b.sign`,
+  `b.murals`, `b.paint`, `roof.skylight`. Materials: `render`, `vinyl`,
+  `stripes`, `glazing`, `muralWaves`, `muralPelican`, `posterTAS`,
+  `whiteboard(2)`, `mathsPosters`, `checker`.
+- **Camera fit:** step 1 is now an EXACT segment-vs-box slab test against
+  every blocker near the sight line (`segBoxHit`) — thin classroom walls and
+  door jambs can't slip between samples; the camera stops 0.4 m short.
+- **Terrain:** the campus is one broad level (rawHeight 4.5 → 0 across
+  z 72–82; the lawn east of x 100 sits at LM, level with the courts). Deep
+  inside a terrace the terrain is carved 0.5 m under (no distant flicker);
+  round its rim only 0.06.
+- **Removed:** the oval, the Sky Pier + bush track, the ag plot / TAS
+  workshops / staff car park, the old Blocks A/B/C + art block, the courtyard
+  pond. `inPierView` is kept as a no-op for old callers. Staff area ids are
+  unchanged (`skypier` is now "Maths Balcony (top floor)", `oval` "The
+  Courts", `agplot` "Banksia Court", `library` "The Top Balcony (top floor)").
+- **Checks SY1–SY10:** SY2 now also asserts the scale (storey ≥ 4.5, corridor
+  ≥ 4.5, stairs ≥ 3) and the Maths Block's 2 rooms × 3 floors; SY4 reaches
+  every classroom on every floor, the walkway, the undercroft, Banksia Court,
+  the lower terrace, the courts, the mural lane; SY5 puts Dawson on the Maths
+  top floor; SY8 adds camera fits inside every classroom + the undercroft
+  (328 fits); SY10's sea view is now from Dawson's balcony.
+- **Driven with the REAL Player physics (headless):** the glass stairs ground
+  → 1st → top floor → Ms. Mahoney; the undercroft → the TAS stairs → the
+  1st-floor balcony; the 1st-floor balconies round Banksia Court → the Food
+  Tech walkway → its steps → the Maths balcony → a classroom; the Maths stair
+  tower to the top floor → Mr. Dawson → a top-floor classroom.
+- **Text:** Mills' last welcome line now points to the Glass Stairs, the Food
+  Tech walkway + the Maths classrooms (the Sky Pier line is gone); 12 new
+  area labels + that line have Farsi + Arabic.
+- **Rails:** rail colliders are now 0.4 m deep boxes behind the rail line,
+  0.12 m past each end (a run-speed frame step at the 1/15 s cap tunnelled
+  round an outside corner in the walk test). Never let a thin step / landing
+  overhang a deck edge — put the steps on the landing so they finish level
+  with the deck (else the deck's edge gets a balustrade across the steps).
+- **TODO:** a live look on a real GPU + a school iPad (frame rate inside the
+  classrooms, the camera on the 3 m stair towers, the glass tower's
+  transparency sort); `kellahan.glb` is still missing (stand-in figure);
+  `public/models/front.glb` + `tree.glb` are still unused.
+
 ## DONE (2026-10-09, night) — THE RETRIEVAL PRACTICE PLAYGROUND REBUILT
 Jeff's brief: bring the Playground up to the quality + size of Snowball Sums
 and the Emerald Jungle, inspired by an aerial + photos of Coffs Harbour High

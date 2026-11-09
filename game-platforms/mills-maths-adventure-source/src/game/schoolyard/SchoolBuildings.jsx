@@ -2,8 +2,11 @@ import React, { useMemo } from "react";
 import * as THREE from "three";
 
 import { toWorld } from "../../data/schoolyard/schoolyardGeom.js";
-import { terrainHeight, schoolSolidTopAt, bayRect } from "../../data/schoolyard/schoolyardTerrain.js";
-import { STOREY, CORRIDOR_W, SCHOOL_BUILDINGS, HALL, LV } from "../../data/schoolyard/schoolyardLayout.js";
+import {
+  terrainHeight, schoolSolidTopAt, bayRect, roomSpans, roomWalls, ROOM_WALL, ROOM_DOOR_W, verandahRect,
+} from "../../data/schoolyard/schoolyardTerrain.js";
+import { STOREY, CORRIDOR_W, DECK_T, SCHOOL_BUILDINGS, HALL, LV } from "../../data/schoolyard/schoolyardLayout.js";
+import { classroomDesks } from "../../data/schoolyard/schoolyardColliders.js";
 import { Kit } from "./schoolKit.js";
 import { kitMat, NO_SHADOW_KEYS, schoolSignTexture } from "./schoolMaterials.js";
 
@@ -173,7 +176,7 @@ function addWindowsAndDoors(kit, b) {
     if (f.id === b.servery || f.id === b.entry || f.id === b.rollerDoors) continue;
     const L = f.half * 2;
     const corridorFace = b.corridor && f.id === "+z";
-    for (let fl = 0; fl < floors; fl++) {
+    for (let fl = b.undercroft ? 1 : 0; fl < floors; fl++) {
       const fy = b.y0 + fl * STOREY;
       const doorFloor = corridorFace ? corridorFloors.includes(fl) : false;
       const mod = corridorFace ? 4.5 : f.half < 6 ? 3.0 : 3.2;
@@ -187,13 +190,13 @@ function addWindowsAndDoors(kit, b) {
         const wantDoor = (doorFloor && k % 2 === 0) || (!corridorFace && level && fl === 0 && k % 4 === 1 && f.half > 6) || (!corridorFace && level && b.north && f.id === "-z" && fl > 0 && k % 4 === 1);
         if (wantDoor && g <= fy + 0.4) {
           const key = (k + fl) % 3 === 0 ? "doorBlue" : "doorGreen";
-          faceRect(kit, key, b, f, u - 0.55, u + 0.55, fy + 0.02, fy + 2.15, 0.05, { uv: [[0, 0], [1, 0], [1, 1], [0, 1]] });
+          faceRect(kit, key, b, f, u - 0.6, u + 0.6, fy + 0.02, fy + 2.4, 0.05, { uv: [[0, 0], [1, 0], [1, 1], [0, 1]] });
           // A little window beside the door.
-          if (corridorFace) faceRect(kit, "window2", b, f, u + 0.9, u + 2.6, fy + 1.0, Math.min(fy + 2.3, fy + fh - 0.5), 0.04, { uv: "unit" });
+          if (corridorFace) faceRect(kit, "window2", b, f, u + 0.95, u + 2.7, fy + 1.0, Math.min(fy + 2.6, fy + fh - 0.5), 0.04, { uv: "unit" });
           continue;
         }
-        const sill = fy + (corridorFace ? 1.05 : 0.9);
-        const top = Math.min(fy + (corridorFace ? 2.35 : 2.4), fy + fh - 0.45);
+        const sill = fy + (corridorFace ? 1.05 : 0.95);
+        const top = Math.min(fy + (corridorFace ? 2.9 : 3.3), fy + fh - 0.55);
         if (g > sill - 0.1) continue; // buried by a terrace / the hillside
         const w = corridorFace ? 3.2 : f.half < 6 ? 1.2 : 1.9;
         faceRect(kit, (k + fl) % 2 ? "window" : "window2", b, f, u - w / 2, u + w / 2, sill, top, 0.04, { uv: "unit" });
@@ -206,16 +209,38 @@ function addWindowsAndDoors(kit, b) {
 
 function addBody(kit, b) {
   const e = eaveOf(b);
-  const foot = footOf(b);
+  // An undercroft block's walls start one storey up (columns underneath).
+  const foot = b.undercroft ? b.y0 + STOREY - DECK_T : footOf(b);
   const key = b.wall || "brick";
-  kit.boxY(key, b.c[0], b.c[1], b.hx, b.hz, foot, e, b.yaw, { faces: { top: false } });
+  kit.boxY(key, b.c[0], b.c[1], b.hx, b.hz, foot, e, b.yaw, { faces: { top: false, bottom: Boolean(b.undercroft) }, bottomKey: "concrete" });
+  if (b.undercroft) {
+    // The undercroft's ceiling: bare concrete with a strip light per bay.
+    for (let lx = -b.hx + 3; lx < b.hx - 2; lx += 6) {
+      const [x, z] = toWorld(b, lx, 0);
+      kit.boxY("glow", x, z, 0.12, b.hz * 0.7, foot - 0.08, foot - 0.02, b.yaw, { faces: { bottom: true, top: false }, color: "#fff6dc" });
+    }
+  }
+  // Painted walls (the canteen's royal blue with a sunny yellow band — video 2).
+  if (b.paint) {
+    for (const f of facesOf(b)) {
+      faceRect(kit, "paint", b, f, -f.half - 0.02, f.half + 0.02, b.y0 + 0.36, e - 0.2, 0.025, { color: b.paint.base });
+      faceRect(kit, "paint", b, f, -f.half - 0.02, f.half + 0.02, b.y0 + 2.7, b.y0 + 3.2, 0.03, { color: b.paint.band });
+      for (const u of [-f.half + 0.6, f.half - 0.6]) faceRect(kit, "paint", b, f, u - 0.6, u + 0.6, b.y0 + 0.36, e - 0.2, 0.032, { color: b.paint.band });
+    }
+  }
+  // The 1920s blocks: the ground floor under the verandah is painted cream (video 8).
+  for (const v of b.verandahs || []) {
+    if (!v.cream) continue;
+    const f = facesOf(b).find((q) => q.id === v.face);
+    faceRect(kit, "paint", b, f, -f.half, f.half, b.y0 + 0.36, b.y0 + v.h - 0.1, 0.025, { color: "#efe3c2" });
+  }
   // Concrete floor bands.
-  for (let fl = 1; fl < b.floors; fl++) {
+  for (let fl = b.undercroft ? 2 : 1; fl < b.floors; fl++) {
     const fy = b.y0 + fl * STOREY;
     kit.boxY("slab", b.c[0], b.c[1], b.hx + 0.05, b.hz + 0.05, fy - 0.2, fy + 0.06, b.yaw, { faces: { top: true } });
   }
   // A darker plinth course.
-  kit.boxY("brickDark", b.c[0], b.c[1], b.hx + 0.02, b.hz + 0.02, foot, b.y0 + 0.35, b.yaw, { faces: { top: false } });
+  if (!b.undercroft) kit.boxY("brickDark", b.c[0], b.c[1], b.hx + 0.02, b.hz + 0.02, foot, b.y0 + 0.35, b.yaw, { faces: { top: false } });
   // Downpipes at the corners.
   for (const [sx, sz] of [[-1, -1], [1, -1], [1, 1], [-1, 1]]) {
     const [x, z] = toWorld(b, sx * (b.hx + 0.08), sz * (b.hz + 0.08));
@@ -254,6 +279,13 @@ function addRoof(kit, b) {
   }
   if (rf.type === "hip") {
     hipRoof(kit, rf.mat, b, x0, x1, z0, z1, e, rf.pitch || 0.48);
+    if (rf.skylight) {
+      // A glazed roof lantern on the ridge (the library's skylight on the aerial).
+      const W = x1 - x0, D = z1 - z0;
+      const h = (rf.pitch || 0.48) * Math.min(W, D) / 2;
+      kit.boxY("paint", b.c[0], b.c[1], Math.min(W, D) * 0.16, Math.min(W, D) * 0.16, e + h - 0.6, e + h + 0.5, b.yaw, { color: CREAM });
+      kit.boxY("glass", b.c[0], b.c[1], Math.min(W, D) * 0.15, Math.min(W, D) * 0.15, e + h + 0.5, e + h + 1.0, b.yaw, { color: "#bcd6e0" });
+    }
     for (const bay of b.bays || []) {
       const bz0 = b.hz + CORRIDOR_W, bz1 = bz0 + bay.depth + 0.7;
       hipRoof(kit, rf.mat, b, bay.x0 - 0.5, bay.x1 + 0.5, bz0 - 0.6, bz1, e - 0.05, 0.36);
@@ -276,6 +308,184 @@ function addRoof(kit, b) {
       const [x, z] = P(lx, lz);
       kit.boxY("paint", x, z, 0.9, 0.6, e + 0.05, e + 1.1, b.yaw, { color: "#d9dcdf" });
       kit.boxY("dark", x + 0.01, z, 0.5, 0.5, e + 1.1, e + 1.14, b.yaw);
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// WALK-IN CLASSROOMS (the Maths Block — two rooms on every floor, video 11):
+// brick walls with a doorway per room off the balcony, concrete floors with
+// vinyl, ceilings with strip lights, a maths whiteboard on the front wall,
+// posters, double desks + chairs and the teacher's desk.
+// ---------------------------------------------------------------------------
+function addRoomsBlock(kit, b) {
+  const e = eaveOf(b);
+  const foot = footOf(b);
+  const key = b.wall || "brick";
+  const t = ROOM_WALL;
+  const spans = roomSpans(b);
+  const P = (lx, y, lz) => P3(b, lx, y, lz);
+  const { ex, ez } = axes(b);
+  // Walls (each a brick box, full height) + the lintels over every doorway.
+  for (const w of roomWalls(b)) kit.boxY(key, w.c[0], w.c[1], w.hx, w.hz, foot, e, w.yaw, { faces: { top: true } });
+  for (let f = 0; f < b.floors; f++) {
+    const fy = b.y0 + f * STOREY;
+    for (const rm of spans) {
+      const [x, z] = toWorld(b, rm.door, b.hz - t / 2);
+      kit.boxY(key, x, z, ROOM_DOOR_W / 2, t / 2, fy + 2.8, f === b.floors - 1 ? e : fy + STOREY, b.yaw);
+    }
+  }
+  // A plinth course + the floor bands outside.
+  kit.boxY("brickDark", b.c[0], b.c[1], b.hx + 0.02, b.hz + 0.02, foot, b.y0 + 0.35, b.yaw, { faces: { top: false, bottom: false, pz: true, nz: true, px: true, nx: true } });
+  for (let f = 1; f < b.floors; f++) {
+    const fy = b.y0 + f * STOREY;
+    for (const [lz, n] of [[-b.hz - 0.06, neg(ez)], [b.hz + 0.06, ez]]) kit.poly("slab", [P(-b.hx - 0.06, fy - DECK_T, lz), P(b.hx + 0.06, fy - DECK_T, lz), P(b.hx + 0.06, fy + 0.06, lz), P(-b.hx - 0.06, fy + 0.06, lz)], { out: n });
+  }
+  // Floors (vinyl tops, ceilings under) + the top floor's ceiling under the roof.
+  const ihx = b.hx - t, ihz = b.hz - t;
+  for (let f = 0; f < b.floors; f++) {
+    const fy = b.y0 + f * STOREY;
+    if (f === 0) kit.boxY("vinyl", b.c[0], b.c[1], ihx, ihz, fy - 0.6, fy + 0.02, b.yaw);
+    else kit.boxY("concrete", b.c[0], b.c[1], ihx, ihz, fy - DECK_T, fy, b.yaw, { topKey: "vinyl", faces: { bottom: true, px: false, nx: false, pz: false, nz: false }, bottomKey: "paint", color: "#f1ede4" });
+    const ceil = f === b.floors - 1 ? e - 0.05 : fy + STOREY - DECK_T;
+    if (f === b.floors - 1) kit.poly("paint", [P(-ihx, ceil, -ihz), P(ihx, ceil, -ihz), P(ihx, ceil, ihz), P(-ihx, ceil, ihz)], { out: [0, -1, 0], color: "#f1ede4" });
+    // Strip lights.
+    for (const rm of spans) {
+      for (const lz of [-ihz * 0.5, ihz * 0.4]) {
+        for (const fr of [0.3, 0.7]) {
+          const lx = rm.x0 + (rm.x1 - rm.x0) * fr;
+          const [x, z] = toWorld(b, lx, lz);
+          kit.boxY("glow", x, z, 0.9, 0.14, ceil - 0.08, ceil - 0.01, b.yaw, { faces: { bottom: true, top: false }, color: "#fffbea" });
+        }
+      }
+    }
+  }
+  // Windows: outside (both long faces) + the light coming in, seen from inside.
+  for (let f = 0; f < b.floors; f++) {
+    const fy = b.y0 + f * STOREY;
+    for (const rm of spans) {
+      const w = rm.x1 - rm.x0;
+      // Back wall: a big band of windows (they look over Banksia Court).
+      const n = Math.max(2, Math.floor((w - 2) / 3.4));
+      for (let k = 0; k < n; k++) {
+        const u0 = rm.x0 + 1 + (k * (w - 2)) / n + 0.2, u1 = rm.x0 + 1 + ((k + 1) * (w - 2)) / n - 0.2;
+        kit.poly((k + f) % 2 ? "window" : "window2", [P(u1, fy + 1.0, -b.hz - 0.04), P(u0, fy + 1.0, -b.hz - 0.04), P(u0, fy + 3.3, -b.hz - 0.04), P(u1, fy + 3.3, -b.hz - 0.04)], { out: neg(ez), uv: "unit" });
+        kit.poly("glow", [P(u0, fy + 1.0, -b.hz + t + 0.02), P(u1, fy + 1.0, -b.hz + t + 0.02), P(u1, fy + 3.3, -b.hz + t + 0.02), P(u0, fy + 3.3, -b.hz + t + 0.02)], { out: ez, color: "#cfe6f2" });
+      }
+      // Corridor wall: a window beside the door (both faces), the door frame.
+      const wx0 = rm.door + (rm.i % 2 ? -ROOM_DOOR_W / 2 - 4.2 : ROOM_DOOR_W / 2 + 0.8);
+      const wx1 = wx0 + 3.4;
+      kit.poly("window2", [P(wx0, fy + 1.1, b.hz + 0.04), P(wx1, fy + 1.1, b.hz + 0.04), P(wx1, fy + 2.7, b.hz + 0.04), P(wx0, fy + 2.7, b.hz + 0.04)], { out: ez, uv: "unit" });
+      kit.poly("glow", [P(wx1, fy + 1.1, b.hz - t - 0.02), P(wx0, fy + 1.1, b.hz - t - 0.02), P(wx0, fy + 2.7, b.hz - t - 0.02), P(wx1, fy + 2.7, b.hz - t - 0.02)], { out: neg(ez), color: "#d8ecf4" });
+      for (const s2 of [-1, 1]) {
+        const [x, z] = toWorld(b, rm.door + s2 * (ROOM_DOOR_W / 2 + 0.05), b.hz);
+        kit.boxY("paint", x, z, 0.08, t / 2 + 0.06, fy, fy + 2.85, b.yaw, { color: "#6a9a8c" });
+      }
+      // The open door leaf, swung back against the inside wall.
+      const [dx, dz] = toWorld(b, rm.door - ROOM_DOOR_W / 2 - 0.05, b.hz - t - 0.55);
+      kit.boxY("paint", dx, dz, 0.05, 0.55, fy + 0.02, fy + 2.75, b.yaw, { color: "#8fb0b8" });
+      // Inside: walls painted (a soft cream) with a grey dado.
+      const lining = (a, c, n) => {
+        kit.poly("paint", [P(a[0], fy + 0.02, a[1]), P(c[0], fy + 0.02, c[1]), P(c[0], fy + STOREY - DECK_T - 0.02, c[1]), P(a[0], fy + STOREY - DECK_T - 0.02, a[1])], { out: n, color: "#f0e8d6" });
+        kit.poly("paint", [P(a[0], fy + 0.03, a[1]), P(c[0], fy + 0.03, c[1]), P(c[0], fy + 1.0, c[1]), P(a[0], fy + 1.0, a[1])], { out: n, color: "#a9b4b2" });
+      };
+      const xi0 = rm.x0 + (rm.i === 0 ? t : t / 2) + 0.01, xi1 = rm.x1 - (rm.i === spans.length - 1 ? t : t / 2) - 0.01;
+      lining([xi0, -ihz + 0.01], [xi1, -ihz + 0.01], ez);
+      lining([xi0 + 0.0, -ihz], [xi0, ihz], ex);
+      lining([xi1, ihz], [xi1, -ihz], neg(ex));
+      // The front: a big whiteboard with maths on it.
+      const front = rm.i % 2 ? 1 : -1;
+      const fx = front < 0 ? xi0 + 0.03 : xi1 - 0.03;
+      const nIn = front < 0 ? ex : neg(ex);
+      const bw = Math.min(6.5, ihz * 1.2);
+      // zA = the board's LEFT edge as you face it (explicit UVs so a flipped
+      // winding can never mirror the writing).
+      const zA = front < 0 ? bw / 2 : -bw / 2, zB = -zA;
+      kit.poly((f + rm.i) % 2 ? "whiteboard" : "whiteboard2", [P(fx, fy + 1.0, zA), P(fx, fy + 1.0, zB), P(fx, fy + 2.7, zB), P(fx, fy + 2.7, zA)], { out: nIn, uv: [[0, 0], [1, 0], [1, 1], [0, 1]] });
+      kit.boxY("metal", ...toWorld(b, fx - front * 0.06, 0), 0.06, bw / 2, fy + 0.95, fy + 1.02, b.yaw, { color: "#9aa0a4" });
+      // Posters along the back wall.
+      const px0 = rm.x0 + w * 0.25, px1 = rm.x0 + w * 0.75;
+      kit.poly("mathsPosters", [P(px0, fy + 2.75, -ihz + 0.03), P(px1, fy + 2.75, -ihz + 0.03), P(px1, fy + 3.55, -ihz + 0.03), P(px0, fy + 3.55, -ihz + 0.03)], { out: ez, uv: "unit" });
+    }
+  }
+  // Desks + chairs (the colliders use the same list).
+  for (const d of classroomDesks(b)) {
+    const top = d.y + 0.74;
+    if (d.teacher) {
+      kit.boxY("timber", d.x, d.z, d.hx + 0.1, d.hz + 0.1, top - 0.05, top, b.yaw);
+      kit.boxY("paint", d.x, d.z, d.hx, d.hz, d.y, top - 0.05, b.yaw, { color: "#5e6b74" });
+      continue;
+    }
+    kit.boxY("paint", d.x, d.z, d.hx, d.hz, top - 0.04, top, b.yaw, { color: "#d9cdb1" });
+    for (const [sx, sz] of [[-1, -1], [1, -1], [1, 1], [-1, 1]]) {
+      const [lx, lz] = [d.lx + sx * (d.hx - 0.06), d.lz + sz * (d.hz - 0.06)];
+      const [x, z] = toWorld(b, lx, lz);
+      kit.post("metal", x, z, d.y, top - 0.04, 0.025, 5, { color: "#5f6a72", cap: false });
+    }
+    // Two chairs behind each desk (away from the board).
+    for (const sz of [-0.6, 0.6]) {
+      const [cx, cz] = toWorld(b, d.lx - d.front * 0.75, d.lz + sz);
+      kit.boxY("paint", cx, cz, 0.22, 0.22, d.y + 0.44, d.y + 0.48, b.yaw, { color: "#2f6fb4" });
+      const [bx, bz] = toWorld(b, d.lx - d.front * 0.97, d.lz + sz);
+      kit.boxY("paint", bx, bz, 0.03, 0.22, d.y + 0.48, d.y + 0.9, b.yaw, { color: "#2f6fb4" });
+      kit.post("metal", cx, cz, d.y, d.y + 0.44, 0.03, 5, { color: "#5f6a72", cap: false });
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// VERANDAHS — the 1920s blocks' cream verandahs on brick piers (video 8), the
+// white block's verandah on dark steel posts (video 9), the hall's red + white
+// striped awning (the aerial, video 2). Piers come from schoolColumns.
+// ---------------------------------------------------------------------------
+function addVerandahs(kit, b) {
+  for (const v of b.verandahs || []) {
+    const vr = verandahRect(b, v);
+    const yIn = b.y0 + v.h + 0.45, yOut = b.y0 + v.h;
+    // Roof plane: from the wall (high) to the outer edge (low).
+    const ix = vr.along === "x" ? 0 : -vr.s, iz = vr.along === "x" ? -vr.s : 0;
+    const corners = vr.along === "x"
+      ? [[-vr.hx - 0.2, -vr.s * vr.hz], [vr.hx + 0.2, -vr.s * vr.hz], [vr.hx + 0.2, vr.s * (vr.hz + 0.3)], [-vr.hx - 0.2, vr.s * (vr.hz + 0.3)]]
+      : [[-vr.s * vr.hx, -vr.hz - 0.2], [vr.s * (vr.hx + 0.3), -vr.hz - 0.2], [vr.s * (vr.hx + 0.3), vr.hz + 0.2], [-vr.s * vr.hx, vr.hz + 0.2]];
+    const yOf = (lx, lz) => {
+      const d = vr.along === "x" ? (lz * vr.s + vr.hz) / (2 * vr.hz) : (lx * vr.s + vr.hx) / (2 * vr.hx);
+      return yIn + (yOut - yIn) * d;
+    };
+    void ix; void iz;
+    const pts = corners.map(([lx, lz]) => { const [x, z] = toWorld(vr, lx, lz); return [x, yOf(lx, lz), z]; });
+    const mat = v.stripes ? "stripes" : v.piers === "brick" ? "creamSteel" : "greySteel";
+    kit.poly(mat, pts, { out: [0, 1, 0] });
+    kit.poly("paint", pts.map((p) => [p[0], p[1] - 0.05, p[2]]), { out: [0, -1, 0], color: v.stripes ? "#f4f1ea" : "#efe6d0" });
+    // The fascia beam along the outer edge.
+    const [a0, a1] = vr.along === "x" ? [[-vr.hx - 0.2, vr.s * (vr.hz + 0.3)], [vr.hx + 0.2, vr.s * (vr.hz + 0.3)]] : [[vr.s * (vr.hx + 0.3), -vr.hz - 0.2], [vr.s * (vr.hx + 0.3), vr.hz + 0.2]];
+    const A = toWorld(vr, ...a0), B = toWorld(vr, ...a1);
+    kit.beam("paint", [A[0], yOut - 0.12, A[1]], [B[0], yOut - 0.12, B[1]], 0.18, 0.36, { color: v.stripes ? "#b8322a" : "#e9e2cf" });
+    if (v.stripes) {
+      // A scalloped valance of the stripes hanging off the front edge.
+      kit.poly("stripes", [[A[0], yOut - 0.9, A[1]], [B[0], yOut - 0.9, B[1]], [B[0], yOut - 0.25, B[1]], [A[0], yOut - 0.25, A[1]]], { double: true });
+    }
+    // The paving under it (+ a yellow edge line, video 8).
+    const slab = vr.along === "x" ? { ...vr, hz: vr.hz } : vr;
+    const [sx, sz] = slab.c;
+    kit.boxY("slab", sx, sz, slab.hx, slab.hz, b.y0 - 0.3, b.y0 + 0.04, b.yaw, { faces: { px: false, nx: false, pz: false, nz: false } });
+    const [l0, l1] = vr.along === "x" ? [[-vr.hx, vr.s * (vr.hz - 0.35)], [vr.hx, vr.s * (vr.hz - 0.35)]] : [[vr.s * (vr.hx - 0.35), -vr.hz], [vr.s * (vr.hx - 0.35), vr.hz]];
+    const L0 = toWorld(vr, ...l0), L1 = toWorld(vr, ...l1);
+    kit.beam("tactile", [L0[0], b.y0 + 0.05, L0[1]], [L1[0], b.y0 + 0.05, L1[1]], 0.1, 0.01, {});
+  }
+}
+
+/** Painted murals (the BLUE WAVES on A Block's end wall, the pelican). */
+function addMurals(kit, b) {
+  const faces = Object.fromEntries(facesOf(b).map((f) => [f.id, f]));
+  const e = eaveOf(b);
+  for (const m of b.murals || []) {
+    const f = faces[m.face];
+    if (m.kind === "waves") {
+      faceRect(kit, "paint", b, f, -f.half - 0.02, f.half + 0.02, b.y0 + 0.36, e - 0.2, 0.03, { color: "#f3f1ea" });
+      faceRect(kit, "muralWaves", b, f, -f.half + 0.4, f.half - 0.4, b.y0 + 0.5, e - 1.0, 0.05, { uv: [[0, 0], [1, 0], [1, 1], [0, 1]] });
+    } else if (m.kind === "pelican") {
+      const fy = b.y0 + (m.floor || 0) * STOREY;
+      faceRect(kit, "muralPelican", b, f, f.half - 6.5, f.half - 1.5, fy + 0.6, fy + 4.1, 0.06, { uv: [[0, 0], [1, 0], [1, 1], [0, 1]] });
     }
   }
 }
@@ -452,8 +662,17 @@ function addExtras(kit, b) {
 function buildBuildings() {
   const kit = new Kit();
   for (const b of SCHOOL_BUILDINGS) {
+    addVerandahs(kit, b);
     if (b.hall) { addHall(kit, b); continue; }
+    if (b.rooms) {
+      addRoomsBlock(kit, b);
+      addCorridorTrim(kit, b);
+      addRoof(kit, b);
+      addExtras(kit, b);
+      continue;
+    }
     addBody(kit, b);
+    addMurals(kit, b);
     addCorridorTrim(kit, b);
     addRoof(kit, b);
     addExtras(kit, b);
@@ -464,16 +683,34 @@ function buildBuildings() {
 // ---------------------------------------------------------------------------
 // BUILDING SIGNS (each its own little texture)
 // ---------------------------------------------------------------------------
-const SIGNS = [
-  { b: "blockA", face: "+x", u: 0, y: LV.L2 + 7.4, w: 5.2, h: 1.2, lines: ["A BLOCK", "Library · Administration"] },
-  { b: "blockB", face: "-x", u: 0, y: LV.L2 + 4.6, w: 5.2, h: 1.2, lines: ["B BLOCK", "Science"] },
-  { b: "blockC", face: "+x", u: 0, y: LV.L0 + 4.4, w: 4.6, h: 1.1, lines: ["C BLOCK", "English · HSIE"] },
-  { b: "canteen", face: "-x", u: 0, y: LV.L1 + 2.98, w: 5.0, h: 0.72, lines: ["CANTEEN"], bg: "#c8102e", out: 0.42 },
-  { b: "office", face: "-x", u: 0, y: LV.L0 + 3.55, w: 3.6, h: 0.6, lines: ["FRONT OFFICE"], out: 2.7 },
-  { b: "tas", face: "+z", u: 9.5, y: LV.L3 + 4.2, w: 5.4, h: 0.8, lines: ["TAS WORKSHOPS"], out: 0.14 },
-  { b: "art", face: "-x", u: 0, y: LV.L0 + 4.2, w: 4.4, h: 1.0, lines: ["CREATIVE ARTS", "Art · Music · Drama"] },
-  { b: "shed", face: "+z", u: 0, y: LV.L0 + 3.0, w: 3.6, h: 0.42, lines: ["SPORTS SHED"], bg: "#2e6b3a", out: 0.16 },
-];
+// Signs from the layout (b.sign) + the classroom numbers by every door.
+const SIGNS = (() => {
+  const out = [
+    { b: "office", face: "-x", u: 0, y: LV.L0 + 3.75, w: 3.6, h: 0.6, lines: ["FRONT OFFICE"], out: 2.7 },
+    { b: "shed", face: "-z", u: 0, y: LV.LM + 3.0, w: 3.6, h: 0.42, lines: ["SPORTS SHED"], bg: "#2e6b3a", out: 0.16 },
+  ];
+  for (const b of SCHOOL_BUILDINGS) {
+    const sg = b.sign;
+    if (sg) {
+      const fl = sg.floor ?? (b.undercroft && sg.face !== "+z" ? 1 : 0);
+      const big = sg.face !== "+z";
+      out.push({
+        b: b.id, face: sg.face, u: sg.at || 0, y: b.y0 + fl * STOREY + (big ? (b.wallH ? Math.min(b.wallH - 0.7, 3.4) : 3.6) : 3.5),
+        w: big ? 5.2 : 4.2, h: big ? 0.9 : 0.7, lines: [sg.text], bg: b.id === "canteen" ? "#c8102e" : "#1d3f78", out: sg.face === "+z" && b.corridor ? 0.09 : 0.12, key: `${b.id}-sign`,
+      });
+    }
+    if (b.rooms) {
+      let n = 1;
+      for (let f = 0; f < b.floors; f++) {
+        for (const rm of roomSpans(b)) {
+          out.push({ b: b.id, face: "+z", u: rm.door + (rm.i % 2 ? -1 : 1) * (ROOM_DOOR_W / 2 + 0.45), y: b.y0 + f * STOREY + 2.1, w: 0.62, h: 0.42, lines: [`M${n}`], bg: "#2f5f8f", out: 0.08, key: `${b.id}-m${n}` });
+          n++;
+        }
+      }
+    }
+  }
+  return out;
+})();
 function BuildingSign({ s }) {
   const b = SCHOOL_BUILDINGS.find((q) => q.id === s.b);
   const f = facesOf(b).find((q) => q.id === s.face);
@@ -506,7 +743,7 @@ export function SchoolBuildings() {
       {built.map(({ key, geometry }) => (
         <mesh key={key} geometry={geometry} material={kitMat(key)} castShadow={!NO_SHADOW_KEYS.has(key)} receiveShadow />
       ))}
-      {SIGNS.map((s) => <BuildingSign key={s.b} s={s} />)}
+      {SIGNS.map((s) => <BuildingSign key={s.key || s.b} s={s} />)}
       <HallSign />
     </group>
   );

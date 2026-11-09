@@ -7,8 +7,8 @@ import { useProgress } from "../../progress/store.js";
 import { toWorld, rectCorners } from "../../data/schoolyard/schoolyardGeom.js";
 import { schoolGroundHeight, terrainHeight } from "../../data/schoolyard/schoolyardTerrain.js";
 import {
-  SCHOOL_SIGN, SCHOOL_MAP_BOARD, SCHOOL_SIGNPOSTS, SCHOOL_PLATFORMS, SCHOOL_BUILDINGS, SCHOOL_AREAS, OVAL, COURTS, COLA,
-  HALL, SCHOOLYARD_GATE, SCHOOL_NAME, SCHOOL_PATH_CTRL, SCHOOL_FLIGHTS, SKY_PIER, LV, SCHOOLYARD_CHARACTERS,
+  SCHOOL_SIGN, SCHOOL_MAP_BOARD, SCHOOL_SIGNPOSTS, SCHOOL_PLATFORMS, SCHOOL_BUILDINGS, SCHOOL_AREAS,
+  HALL, SCHOOLYARD_GATE, SCHOOL_NAME, SCHOOL_FLIGHTS, LV, SCHOOLYARD_CHARACTERS,
 } from "../../data/schoolyard/schoolyardLayout.js";
 import { SCHOOLYARD_KEY_IDS, SCHOOLYARD_KEY_COUNT, hasKey, isBossUnlocked } from "../../data/schoolyard/schoolyardProgress.js";
 
@@ -189,7 +189,7 @@ function HallDoors() {
         </group>
       )}
       {/* The key-count sign on a stand beside the doors. */}
-      <group position={[x1 + 2.6, y, HALL.doorZ + 1.6]} rotation={[0, -0.25, 0]}>
+      <group position={[x1 + 4.6, y, HALL.doorZ + 1.6]} rotation={[0, -0.25, 0]}>
         {[-0.85, 0.85].map((dx) => (
           <mesh key={dx} position={[dx, 0.8, 0]} castShadow><boxGeometry args={[0.08, 1.6, 0.08]} /><meshStandardMaterial color="#3a3f44" metalness={0.4} roughness={0.5} /></mesh>
         ))}

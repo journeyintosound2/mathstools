@@ -186,7 +186,7 @@ export const ENCOUNTERS = {
       "Test your Stage 4 skills across a range of topics.",
       "Eight teachers are hiding round the school, and each one holds a KEY. Find them — some are up on the top-floor balconies, so take the stair towers and walk the corridors.",
       "Collect all eight keys to unlock the padlocked School Hall, where the Head Teacher is waiting.",
-      "Check the campus map by the plaza — click a teacher on it to set a waypoint (press M to open it any time) — follow the signposts, and climb the bush track to the Sky Pier for the best view of the harbour. There's a treasure chest hidden somewhere too!",
+      "Check the campus map by the plaza — click a teacher on it to set a waypoint (press M to open it any time) — and follow the signposts. Climb the Glass Stairs to the top balcony, walk the Food Tech walkway to the Maths Block, and step inside its classrooms. There's a treasure chest hidden somewhere too!",
     ] },
   },
 

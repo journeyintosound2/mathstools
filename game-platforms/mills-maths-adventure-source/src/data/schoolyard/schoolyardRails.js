@@ -54,8 +54,11 @@ export function getSchoolRails() {
   for (const s of getSchoolStructures().list) {
     const kind = s.kind;
     if (!(kind in STYLE)) continue;
-    if (s.id === "sky-pier") continue; // the pier gets its own rails (renderer + colliders)
     const drop = DROP[kind];
+    // The Maths Block's balconies get steel picket balustrades (video 11);
+    // the Food Tech walkway runs between brick walls (video 7).
+    const style = kind === "deck" && s.building?.corridor?.rail ? s.building.corridor.rail
+      : kind === "ramp" && s.ramp?.walls ? "wall" : STYLE[kind];
     for (const [ei, e] of edgesOf(s).entries()) {
       const dx = e.b[0] - e.a[0], dz = e.b[1] - e.a[1];
       const L = Math.hypot(dx, dz);
@@ -89,23 +92,12 @@ export function getSchoolRails() {
             run.b = b; run.yb = yb; run.len += L / n;
           } else {
             flush();
-            run = { id: `${s.id}-${ei}-${k}`, kind, style: STYLE[kind], a, b, ya, yb, n: e.n, len: L / n, struct: s.id };
+            run = { id: `${s.id}-${ei}-${k}`, kind, style, a, b, ya, yb, n: e.n, len: L / n, struct: s.id };
           }
         } else flush();
       }
       flush();
     }
-  }
-  // The Sky Pier: rails down both sides + across the seaward end.
-  const pier = getSchoolStructures().list.find((s) => s.id === "sky-pier");
-  if (pier) {
-    const [c0, c1, c2, c3] = rectCorners(pier.r);
-    const y = pier.y;
-    const ex = [Math.cos(pier.r.yaw), -Math.sin(pier.r.yaw)], ez = [Math.sin(pier.r.yaw), Math.cos(pier.r.yaw)];
-    rails.push({ id: "pier-l", kind: "deck", style: "pipe", a: c0, b: c1, ya: y, yb: y, n: [-ez[0], -ez[1]], len: pier.r.hx * 2 });
-    rails.push({ id: "pier-r", kind: "deck", style: "pipe", a: c2, b: c3, ya: y, yb: y, n: ez, len: pier.r.hx * 2 });
-    // The seaward end is whichever end is further from the hill (the pier runs from → to).
-    rails.push({ id: "pier-end", kind: "deck", style: "pipe", a: c1, b: c2, ya: y, yb: y, n: ex, len: pier.r.hz * 2 });
   }
   _rails = rails;
   return rails;

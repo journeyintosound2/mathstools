@@ -21,16 +21,15 @@ import SchoolLandmarks from "./schoolyard/SchoolLandmarks.jsx";
 import { TownStreets, Town, TownTrees, Harbour, SchoolFence, Traffic } from "./schoolyard/SchoolBackdrop.jsx";
 
 /**
- * RETRIEVAL PRACTICE PLAYGROUND — scenery root (rebuilt 2026-10-09). A big
- * hillside high school on the Coffs Coast, after Coffs Harbour High: red-
- * brick blocks under terracotta roofs stepping up the hill on three levels,
- * open concrete corridors + stair towers, the fig quad, the garden
- * courtyard, the big red-roofed school hall (the Head Teacher's padlocked
- * doors), the canteen, the oval, the courts under the COLA, the ag plot,
- * the bush track up to the Sky Pier — and the town falling away to Jetty
- * Beach, the jetty, the harbour and Muttonbird Island below. Positions come
- * from data/schoolyard/ (layout, terrain, props); the renderer lives in
- * game/schoolyard/.
+ * RETRIEVAL PRACTICE PLAYGROUND — scenery root (redesigned 2026-11-09 from
+ * Jeff's walk-through videos of Coffs Harbour High). Red-brick blocks under
+ * terracotta roofs round Banksia Court, open balconies + stair towers (the
+ * TAS stairs, the glass stairs), the undercroft, the Maths Block's walk-in
+ * classrooms, the 1920s A Block courtyard, the mural lane, the fig quad, the
+ * canteen under the hall's striped awning, the courts under the COLA — and
+ * the town falling away to Jetty Beach, the jetty, the harbour and Muttonbird
+ * Island beyond. Positions come from data/schoolyard/ (layout, terrain,
+ * props); the renderer lives in game/schoolyard/.
  */
 
 /** A world label that only shows when the player is within `range` (and near its level). */
@@ -102,7 +101,7 @@ export default function SchoolyardScenery() {
       {ON("Gulls") && <SchoolGulls />}
       {ON("Lorikeets") && highGfx && <Lorikeets />}
 
-      {/* Footprints along the bush track + the gravel paths. */}
+      {/* Footprints along the gravel paths round the lawns. */}
       <Footprints test={isOnSchoolTrack} heightAt={terrainHeight} color="#5a4630" life={2.4} stride={0.55} size={0.15} />
 
       {/* Area labels as you approach. */}

@@ -28,8 +28,8 @@ import {
 import { fbm, vnoise, smoothPolyline, cumLengths, buildSegIndex } from "../terrainKit.js";
 import {
   LV, STOREY, DECK_T, CORRIDOR_W, SEA_Y, SCHOOL_FENCE, SCHOOL_PLATFORMS, SCHOOL_BUILDINGS, SCHOOL_FLIGHTS,
-  SCHOOL_LANDINGS, SCHOOL_RAMPS, SCHOOL_RAMP_LANDINGS, SKY_PIER, SCHOOL_PADS, SCHOOL_PATH_CTRL, HALL, QUAD_FIGS,
-  COURT_BEDS, COLA, BACKDROP,
+  SCHOOL_LANDINGS, SCHOOL_RAMPS, SCHOOL_RAMP_LANDINGS, SCHOOL_DECKS, SCHOOL_CANOPIES, SCHOOL_PADS, SCHOOL_PATH_CTRL, HALL,
+  QUAD_FIGS, COURT_BEDS, COLA, BACKDROP,
 } from "./schoolyardLayout.js";
 
 /** Mirrors systems/collisionEngine.js STEP_UP (the checks assert they match). */
@@ -46,10 +46,13 @@ export function coastZ(x) {
   return BACKDROP.beachZ + 18 * Math.sin(x / 140 + 0.6) - 26 * smoothstep(150, 320, x) * smoothstep(520, 330, x);
 }
 export function rawHeight(x, z) {
-  // The campus hillside: 9 m up at the back (north) → 0 at the front.
-  let h = 9 * (1 - smoothstep(-84, 34, z));
-  // The bush hill behind the school, rising on into the hinterland.
-  h += 12.6 * smoothstep(-99, -133, z) + Math.max(0, -133 - z) * 0.2;
+  // The campus: one broad level (L1, 4.5 m) stepping down to the street
+  // frontage (L0) along the front of the school.
+  // East of the quad the lawn sits a flight lower, level with the courts.
+  const base = LV.L1 - (LV.L1 - LV.LM) * smoothstep(100, 108, x);
+  let h = base * (1 - smoothstep(72, 82, z));
+  // The rise behind the school (beyond Edinburgh St), on into the hinterland.
+  h += 6 * smoothstep(-128, -150, z) + Math.max(0, -150 - z) * 0.2;
   // Out the front: the town falls away down to Jetty Beach + the sea.
   if (z > 126) {
     const d = z - 126;
@@ -238,14 +241,15 @@ function flightStruct(f) {
 }
 function rampStruct(rp) {
   const r = stripRect(rp.a, rp.b, rp.w / 2);
+  const yAt = (lx) => rp.y0 + ((lx + r.hx) / (2 * r.hx)) * (rp.y1 - rp.y0);
   return {
-    id: rp.id, kind: "ramp", thin: false, r, ramp: rp, box: rectBox(r),
+    id: rp.id, kind: "ramp", thin: Boolean(rp.thin), r, ramp: rp, box: rectBox(r),
     top(x, z) {
       const [lx, lz] = toLocal(r, x, z);
       if (Math.abs(lx) > r.hx || Math.abs(lz) > r.hz) return null;
-      return rp.y0 + ((lx + r.hx) / (2 * r.hx)) * (rp.y1 - rp.y0);
+      return yAt(lx);
     },
-    under: null,
+    under: rp.thin ? (x, z) => yAt(toLocal(r, x, z)[0]) - DECK_T : null,
   };
 }
 
@@ -267,11 +271,39 @@ export function bayRect(b, bay, f) {
   const z0 = b.hz + CORRIDOR_W;
   return { c: toWorld(b, (bay.x0 + bay.x1) / 2, z0 + bay.depth / 2), yaw: b.yaw, hx: (bay.x1 - bay.x0) / 2, hz: bay.depth / 2, y: b.y0 + f * STOREY };
 }
+/** ROOMS — a walk-in block's wall thickness, its floor rect (inside the walls),
+ *  its rooms' local x spans, and each room's door (local x centre) on +z. */
+export const ROOM_WALL = 0.3;
+export const ROOM_DOOR_W = 2.4;
+export function roomFloorRect(b) {
+  return { c: b.c, yaw: b.yaw, hx: b.hx - ROOM_WALL, hz: b.hz - ROOM_WALL };
+}
+export function roomSpans(b) {
+  const n = b.rooms.count;
+  const out = [];
+  for (let i = 0; i < n; i++) {
+    const x0 = -b.hx + (2 * b.hx * i) / n, x1 = -b.hx + (2 * b.hx * (i + 1)) / n;
+    out.push({ i, x0, x1, door: x0 + (x1 - x0) * (i % 2 ? 0.72 : 0.28) });
+  }
+  return out;
+}
+/** A verandah's roof footprint (a rect along one face) + its pier line. */
+export function verandahRect(b, v) {
+  const d = v.depth;
+  if (v.face === "+z" || v.face === "-z") {
+    const s = v.face === "+z" ? 1 : -1;
+    return { c: toWorld(b, 0, s * (b.hz + d / 2)), yaw: b.yaw, hx: b.hx, hz: d / 2, along: "x", s };
+  }
+  const s = v.face === "+x" ? 1 : -1;
+  return { c: toWorld(b, s * (b.hx + d / 2), 0), yaw: b.yaw, hx: d / 2, hz: b.hz, along: "z", s };
+}
 /** World direction of a building's local +x. */
 export const localX = (b) => [Math.cos(b.yaw), -Math.sin(b.yaw)];
 export const localZ = (b) => [Math.sin(b.yaw), Math.cos(b.yaw)];
 
-const TOWER_W = 2.0, TOWER_STEPS = 5, TOWER_TREAD = 0.5, TOWER_LAND = 1.6;
+// Wide, easy stairs (Jeff: bigger than life so they're easy to steer up):
+// 3 m flights, 8 steps of 0.28 m per half storey, 3 m landings.
+const TOWER_W = 3.0, TOWER_STEPS = 8, TOWER_TREAD = 0.55, TOWER_LAND = 3.0;
 /**
  * A switchback stair tower's pieces, standing just outside a corridor. Per
  * storey: flight a climbs half a storey along the OUTER strip from the tower
@@ -297,7 +329,7 @@ export function towerPieces(b, t) {
     });
     out.push({
       kind: "landing", id: `${b.id}-tower-${t.x}-${i}L`, thin,
-      r: { c: toWorld(b, t.x + d * (L + TOWER_LAND / 2), z0 + TOWER_W), yaw: b.yaw, hx: TOWER_LAND / 2, hz: TOWER_W }, y: base + half,
+      r: { c: toWorld(b, t.x + d * (L + TOWER_LAND / 2), z0 + TOWER_W), yaw: b.yaw, hx: TOWER_LAND / 2 + 0.04, hz: TOWER_W }, y: base + half,
     });
     out.push({
       kind: "flight", id: `${b.id}-tower-${t.x}-${i}b`,
@@ -305,10 +337,15 @@ export function towerPieces(b, t) {
     });
     out.push({
       kind: "landing", id: `${b.id}-tower-${t.x}-${i}F`, thin: true, floorLanding: true,
-      r: { c: toWorld(b, t.x - d * (TOWER_LAND / 2), z0 + TOWER_W), yaw: b.yaw, hx: TOWER_LAND / 2, hz: TOWER_W }, y: base + STOREY,
+      r: { c: toWorld(b, t.x - d * (TOWER_LAND / 2), z0 + TOWER_W), yaw: b.yaw, hx: TOWER_LAND / 2 + 0.04, hz: TOWER_W }, y: base + STOREY,
     });
   }
   return out;
+}
+/** The underside of a stair tower's roof (one storey over its top landing, or the eave). */
+export function towerRoofY(b, t) {
+  const eave = b.y0 + (b.wallH || b.floors * STOREY);
+  return Math.min(eave, b.y0 + (Math.max(...t.floors) + 1) * STOREY - 0.1);
 }
 /** A stair tower's whole footprint (floor landing → far half landing) as a rect. */
 export function towerFootprint(b, t) {
@@ -342,7 +379,8 @@ export function getSchoolStructures() {
     });
   }
   for (const f of SCHOOL_FLIGHTS) list.push(flightStruct(f));
-  for (const l of SCHOOL_LANDINGS) list.push(rectStruct(l.id, "landing", l, l.y, false));
+  for (const l of SCHOOL_LANDINGS) list.push(rectStruct(l.id, "landing", l, l.y, Boolean(l.thin)));
+  for (const d of SCHOOL_DECKS) list.push(rectStruct(d.id, "deck", d, d.y, true));
   for (const rp of SCHOOL_RAMPS) list.push(rampStruct(rp));
   for (const l of SCHOOL_RAMP_LANDINGS) list.push(rectStruct(l.id, "landing", l, l.y, false));
   for (const b of SCHOOL_BUILDINGS) {
@@ -371,6 +409,14 @@ export function getSchoolStructures() {
       }
     }
     for (const s of b.stairs || []) list.push({ ...flightStruct(buildingStairFlight(b, s)), building: b });
+    // A walk-in block: a floor in every classroom (solid on the ground floor,
+    // thin above it so you can stand in a room under another room).
+    if (b.rooms) {
+      for (let f = 0; f < b.floors; f++) {
+        const r = roomFloorRect(b);
+        list.push({ ...rectStruct(`${b.id}-floor-${f}`, "roomfloor", r, b.y0 + f * STOREY, f > 0), building: b, floor: f });
+      }
+    }
   }
   // Raised brick planters (quad figs + courtyard beds) — 0.55 m kerbs.
   for (const [i, f] of QUAD_FIGS.entries()) {
@@ -378,15 +424,13 @@ export function getSchoolStructures() {
     list.push({ ...rectStruct(`fig-planter-${i}`, "planter", r, LV.L1 + 0.55, false), planter: true });
   }
   for (const [i, bd] of COURT_BEDS.entries()) {
-    list.push({ ...rectStruct(`court-bed-${i}`, "planter", bd, LV.L2 + 0.55, false), planter: true });
+    list.push({ ...rectStruct(`court-bed-${i}`, "planter", bd, (bd.y ?? LV.L1) + 0.55, false), planter: true });
   }
+  // The courtyard planter beds (each at its own level).
   // The hall stage.
   const st = HALL.stage;
   const stage = { c: [(st.x[0] + st.x[1]) / 2, (st.z[0] + st.z[1]) / 2], yaw: 0, hx: (st.x[1] - st.x[0]) / 2, hz: (st.z[1] - st.z[0]) / 2 };
   list.push(rectStruct("hall-stage", "stage", stage, LV.L1 + st.h, false));
-  // The Sky Pier (thin: the hill falls away beneath it).
-  const pier = stripRect(SKY_PIER.from, SKY_PIER.to, SKY_PIER.halfWidth);
-  list.push({ ...rectStruct("sky-pier", "deck", pier, SKY_PIER.y, true) });
   // Spatial index (8 m cells).
   const CELL = 8;
   const map = new Map();
@@ -446,7 +490,11 @@ const CARVE_PLATFORMS = SCHOOL_PLATFORMS.map((p) => ({ p, box: polyBox(p.pts) })
 function carveUnder(x, z, h) {
   for (const { p, box } of CARVE_PLATFORMS) {
     if (x < box[0] - CARVE_GROW || x > box[2] + CARVE_GROW || z < box[1] - CARVE_GROW || z > box[3] + CARVE_GROW) continue;
-    if (polySD(p.pts, x, z) <= CARVE_GROW) h = Math.min(h, p.y - 0.06);
+    const sd = polySD(p.pts, x, z);
+    // Well inside a terrace the ground drops right away (no flicker from far
+    // off); round its rim it only just tucks under the paving.
+    if (sd <= -1.5) h = Math.min(h, p.y - 0.5);
+    else if (sd <= CARVE_GROW) h = Math.min(h, p.y - 0.06);
   }
   // (Building bodies aren't carved: the ground inside a closed block is
   // never seen, and the walls run down past it — no gutter round the walls.)
@@ -555,6 +603,33 @@ export function isOnSchoolTrack(x, z) {
 // ---------------------------------------------------------------------------
 // CEILINGS + CAMERA BLOCKERS
 // ---------------------------------------------------------------------------
+/**
+ * A walk-in block's walls as thin rects (outer walls, the corridor wall
+ * either side of each door, the partitions between rooms). The colliders
+ * and the camera both use them, so a doorway is open to both.
+ */
+export function roomWalls(b) {
+  const t = ROOM_WALL;
+  const out = [];
+  const seg = (lx0, lx1, lz) => {
+    if (lx1 - lx0 < 0.05) return;
+    out.push({ c: toWorld(b, (lx0 + lx1) / 2, lz), yaw: b.yaw, hx: (lx1 - lx0) / 2, hz: t / 2 });
+  };
+  seg(-b.hx, b.hx, -b.hz + t / 2); // back wall
+  out.push({ c: toWorld(b, -b.hx + t / 2, 0), yaw: b.yaw, hx: t / 2, hz: b.hz });
+  out.push({ c: toWorld(b, b.hx - t / 2, 0), yaw: b.yaw, hx: t / 2, hz: b.hz });
+  // The corridor wall with a door per room.
+  let x = -b.hx;
+  for (const rm of roomSpans(b)) {
+    seg(x, rm.door - ROOM_DOOR_W / 2, b.hz - t / 2);
+    x = rm.door + ROOM_DOOR_W / 2;
+  }
+  seg(x, b.hx, b.hz - t / 2);
+  // Partitions.
+  for (const rm of roomSpans(b).slice(1)) out.push({ c: toWorld(b, rm.x0, 0), yaw: b.yaw, hx: t / 2, hz: b.hz - t });
+  return out;
+}
+
 let _cam = null;
 /** Ceiling rects (each { r, under(x,z) }) + blocker volumes ({ r, y0, y1 }). */
 export function getSchoolCameraGeometry() {
@@ -579,12 +654,31 @@ export function getSchoolCameraGeometry() {
       // The roofs over the stair towers + the bays.
       for (const t of b.towers || []) {
         const tr = towerFootprint(b, t);
-        ceilings.push({ id: `${b.id}-towerroof-${t.x}`, r: tr, box: rectBox(tr), under: () => eave - 0.12 });
+        const ty = towerRoofY(b, t);
+        ceilings.push({ id: `${b.id}-towerroof-${t.x}`, r: tr, box: rectBox(tr), under: () => ty - 0.12 });
       }
       for (const bay of b.bays || []) {
         const br = bayRect(b, bay, b.floors - 1);
         ceilings.push({ id: `${b.id}-bayroof`, r: br, box: rectBox(br), under: () => eave - 0.12 });
       }
+    }
+    for (const [vi, v] of (b.verandahs || []).entries()) {
+      const vr = verandahRect(b, v);
+      ceilings.push({ id: `${b.id}-verandah-${vi}`, r: vr, box: rectBox(vr), under: () => b.y0 + v.h - 0.15 });
+    }
+    if (b.rooms) {
+      // Inside a classroom: the ceiling of the floor you're on; outside: its
+      // walls (every height) + the roof block the camera.
+      for (let f = 0; f < b.floors; f++) {
+        const fr = roomFloorRect(b);
+        const yc = b.y0 + (f + 1) * STOREY - DECK_T - 0.05;
+        ceilings.push({ id: `${b.id}-ceil-${f}`, r: fr, box: rectBox(fr), under: () => yc });
+      }
+      // (thickened for the camera so its march can never step over one)
+      for (const w of roomWalls(b)) { const wr = { ...w, hz: w.hz + 0.25, hx: w.hx + (w.hx < 1 ? 0.25 : 0) }; blockers.push({ r: wr, box: rectBox(wr), y0: b.y0 - 1, y1: eave }); }
+      const ridge = Math.min(b.hx, b.hz) * (b.roof.pitch || 0.45) + 0.6;
+      blockers.push({ r: b, box: rectBox(b), y0: eave, y1: eave + ridge });
+      continue;
     }
     if (b.hall) {
       // Inside the hall: its ceiling; outside: its walls + roof block the camera.
@@ -610,10 +704,18 @@ export function getSchoolCameraGeometry() {
     }
     const inner = { c: b.c, yaw: b.yaw, hx: b.hx - 0.15, hz: b.hz - 0.15 };
     const ridge = b.roof.type === "flat" ? 1.0 : b.roof.type === "skillion" ? 1.6 : Math.min(b.hx, b.hz) * (b.roof.pitch || 0.45) + 0.6;
-    blockers.push({ r: inner, box: rectBox(inner), y0: b.y0 - 6, y1: eave + ridge });
+    if (b.undercroft) {
+      // Open underneath: the classrooms start one storey up.
+      const yu = b.y0 + STOREY - DECK_T;
+      blockers.push({ r: inner, box: rectBox(inner), y0: yu, y1: eave + ridge });
+      ceilings.push({ id: `${b.id}-undercroft`, r: b, box: rectBox(b), under: () => yu - 0.05 });
+    } else {
+      blockers.push({ r: inner, box: rectBox(inner), y0: b.y0 - 6, y1: eave + ridge });
+    }
   }
   const cola = { c: COLA.c, yaw: 0, hx: COLA.hx, hz: COLA.hz };
   ceilings.push({ id: "cola", r: cola, box: rectBox(cola), under: () => COLA.roofY - 0.35 });
+  for (const cn of SCHOOL_CANOPIES) ceilings.push({ id: cn.id, r: cn, box: rectBox(cn), under: () => cn.y - 0.1 });
   // Index both (8 m cells).
   const CELL = 8;
   const index = (items) => {
@@ -663,18 +765,46 @@ export function schoolBlockedAt(x, y, z) {
  * ground-floor verandah the camera tucks under the deck above). Mutates and
  * returns `cam` ({ x, y, z }).
  */
-const FIT_STEPS = 18;
+const FIT_STEPS = 30;
+/** First t in [0, 1] where p + t·d enters blocker b ({ r, y0, y1 }), or null. */
+function segBoxHit(px, py, pz, dx, dy, dz, b) {
+  const [lx, lz] = toLocal(b.r, px, pz);
+  const co = Math.cos(b.r.yaw || 0), si = Math.sin(b.r.yaw || 0);
+  const ldx = dx * co - dz * si, ldz = dx * si + dz * co;
+  let t0 = 0, t1 = 1;
+  for (const [p, d, lo, hi] of [[lx, ldx, -b.r.hx, b.r.hx], [lz, ldz, -b.r.hz, b.r.hz], [py, dy, b.y0, b.y1]]) {
+    if (Math.abs(d) < 1e-9) {
+      if (p < lo || p > hi) return null;
+      continue;
+    }
+    let a = (lo - p) / d, c = (hi - p) / d;
+    if (a > c) [a, c] = [c, a];
+    t0 = Math.max(t0, a); t1 = Math.min(t1, c);
+    if (t0 > t1) return null;
+  }
+  return t0;
+}
 export function schoolCameraFit(px, py, pz, cam) {
   const hx = px, hy = py + 1.45, hz = pz;
   let dx = cam.x - hx, dy = cam.y - hy, dz = cam.z - hz;
-  // 1) Blockers: march out from the head; stop just before the first hit.
+  // 1) Blockers: the exact first hit of the sight line on any blocker box
+  //    (a slab test in each box's own frame — thin classroom walls and
+  //    door jambs can't slip between samples); stop just short of it.
+  const len = Math.hypot(dx, dy, dz) || 1;
   let tHit = 1;
-  for (let k = 1; k <= FIT_STEPS; k++) {
+  const cands = new Set();
+  const cam3 = getSchoolCameraGeometry();
+  for (let k = 0; k <= FIT_STEPS; k++) {
     const t = k / FIT_STEPS;
-    if (schoolBlockedAt(hx + dx * t, hy + dy * t, hz + dz * t)) { tHit = Math.max(0.1, (k - 1.4) / FIT_STEPS); break; }
+    for (const b of cam3.blockAt(hx + dx * t, hz + dz * t)) cands.add(b);
+  }
+  for (const b of cands) {
+    const t = segBoxHit(hx, hy, hz, dx, dy, dz, b);
+    if (t !== null && t < tHit) tHit = t;
   }
   if (tHit < 1) {
-    dx *= tHit; dy *= tHit; dz *= tHit;
+    const back = Math.max(0.1, tHit - 0.4 / len);
+    dx *= back; dy *= back; dz *= back;
   }
   // 2) Ceilings: the sight line must pass under each one it crosses.
   let maxDy = dy;

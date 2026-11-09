@@ -440,6 +440,108 @@ function drawCourt(g, w, h, { base = "#2f6d5c", key = "#3a5f9e" } = {}) {
 }
 
 // ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// THE VIDEO WALK-THROUGH PIECES (2026-11-09): the BLUE WAVES mural on A
+// Block's end wall (video 9), the PELICAN mural (video 8), the rainbow TAS
+// poster on the stair landing (video 4), the maths whiteboards + posters in
+// the Maths Block's classrooms (video 11), the hall's red + white striped
+// awning (the aerial), the courtyard checkerboard (video 8).
+// ---------------------------------------------------------------------------
+function drawWaves(g, w, h) {
+  const R = prand(61);
+  g.fillStyle = "#f3f1ea"; g.fillRect(0, 0, w, h);
+  // Broad brushy waves, deep blue at the bottom to pale sky at the top.
+  const cols = ["#1d3f8f", "#2856a8", "#3b74c2", "#5b95d6", "#86b6e6", "#b9d6f2"];
+  for (let band = 0; band < 6; band++) {
+    const y0 = h * (1 - (band + 1) / 7);
+    for (let k = 0; k < 140; k++) {
+      const x = R() * w, y = y0 + Math.sin(x / w * Math.PI * 3 + band) * h * 0.05 + (R() - 0.5) * h * 0.08;
+      g.strokeStyle = cols[band]; g.globalAlpha = 0.35 + R() * 0.4; g.lineWidth = 6 + R() * 18; g.lineCap = "round";
+      g.beginPath(); g.moveTo(x, y); g.quadraticCurveTo(x + 30 + R() * 50, y - 20 - R() * 30, x + 70 + R() * 70, y + (R() - 0.5) * 20); g.stroke();
+    }
+  }
+  g.globalAlpha = 1;
+  // Curling white wave crests.
+  for (let k = 0; k < 9; k++) {
+    const x = (k + 0.3) * w / 9, y = h * (0.45 + 0.25 * R());
+    g.strokeStyle = "rgba(255,255,255,0.85)"; g.lineWidth = 7;
+    g.beginPath(); g.arc(x, y, 26 + R() * 22, Math.PI * 1.05, Math.PI * 1.95); g.stroke();
+  }
+}
+function drawPelican(g, w, h) {
+  g.fillStyle = "#7ec4e8"; g.fillRect(0, 0, w, h);
+  g.fillStyle = "#e9f4fb"; g.fillRect(0, h * 0.72, w, h * 0.28);
+  // The pelican: white body, black wing, the big pink-orange bill.
+  g.fillStyle = "#fbfbf7"; g.beginPath(); g.ellipse(w * 0.45, h * 0.62, w * 0.2, h * 0.17, -0.2, 0, Math.PI * 2); g.fill();
+  g.beginPath(); g.ellipse(w * 0.62, h * 0.33, w * 0.07, h * 0.08, 0, 0, Math.PI * 2); g.fill();
+  g.fillRect(w * 0.57, h * 0.34, w * 0.07, h * 0.26);
+  g.fillStyle = "#1e1e22"; g.beginPath(); g.ellipse(w * 0.38, h * 0.62, w * 0.14, h * 0.09, -0.3, 0, Math.PI * 2); g.fill();
+  g.fillStyle = "#f1a35f"; g.beginPath(); g.moveTo(w * 0.66, h * 0.31); g.lineTo(w * 0.95, h * 0.4); g.lineTo(w * 0.67, h * 0.38); g.closePath(); g.fill();
+  g.fillStyle = "#1e1e22"; g.beginPath(); g.arc(w * 0.63, h * 0.31, w * 0.011, 0, Math.PI * 2); g.fill();
+  g.strokeStyle = "#2d2d2d"; g.lineWidth = 6; g.strokeRect(3, 3, w - 6, h - 6);
+}
+function drawTasPoster(g, w, h) {
+  const R = prand(73);
+  g.fillStyle = "#1c1c22"; g.fillRect(0, 0, w, h);
+  // Hundreds of little rainbow "pencil" strokes, purple at the top to red at the bottom.
+  const rainbow = ["#6a3fb8", "#3f6fd8", "#2fb2d6", "#3fbf6a", "#b8d43a", "#f2d23a", "#f29a2e", "#e8462e"];
+  for (let k = 0; k < 2600; k++) {
+    const y = R() * h, x = R() * w;
+    const band = Math.min(rainbow.length - 1, Math.floor((y / h) * rainbow.length + (R() - 0.5) * 1.4));
+    g.strokeStyle = rainbow[Math.max(0, band)]; g.lineWidth = 3 + R() * 4;
+    const a = R() * Math.PI;
+    g.beginPath(); g.moveTo(x, y); g.lineTo(x + Math.cos(a) * 14, y + Math.sin(a) * 14); g.stroke();
+  }
+  g.fillStyle = "rgba(255,255,255,0.92)";
+  g.font = `900 ${Math.round(h * 0.13)}px 'MMA Display', 'Trebuchet MS', sans-serif`; g.textAlign = "center"; g.textBaseline = "middle";
+  g.fillText("TAS", w / 2, h * 0.17);
+  g.strokeStyle = "#111"; g.lineWidth = 10; g.strokeRect(5, 5, w - 10, h - 10);
+}
+function drawWhiteboard(g, w, h, { seed = 81 } = {}) {
+  const R = prand(seed);
+  g.fillStyle = "#f7f8f6"; g.fillRect(0, 0, w, h);
+  g.strokeStyle = "#9aa0a4"; g.lineWidth = 10; g.strokeRect(5, 5, w - 10, h - 10);
+  const pens = ["#1d3f8f", "#c0392b", "#1e7a3e", "#222"];
+  const lines = [
+    ["Learning intention:", "Find the area of a rectangle"], ["A = l × w", "6 × 4 = 24 cm²"], ["3x + 5 = 20", "3x = 15  →  x = 5"],
+    ["Ratio 2 : 3", "10 : 15"], ["⅔ of 18 = 12", "0.75 = 75% = ¾"], ["−7 + 12 = 5", "−3 × −4 = 12"],
+  ];
+  g.textAlign = "left"; g.textBaseline = "top";
+  let y = h * 0.08;
+  for (let i = 0; i < 4; i++) {
+    const [a, b] = lines[(seed + i) % lines.length];
+    g.fillStyle = pens[i % pens.length];
+    g.font = `700 ${Math.round(h * 0.085)}px 'Trebuchet MS', sans-serif`;
+    g.fillText(a, w * 0.05, y);
+    g.fillText(b, w * 0.52, y);
+    y += h * 0.22;
+  }
+  // A little coordinate grid in the corner.
+  g.strokeStyle = "#7da7d9"; g.lineWidth = 2;
+  for (let k = 0; k <= 6; k++) {
+    g.beginPath(); g.moveTo(w * 0.78 + k * w * 0.03, h * 0.62); g.lineTo(w * 0.78 + k * w * 0.03, h * 0.92); g.stroke();
+    g.beginPath(); g.moveTo(w * 0.78, h * 0.62 + k * h * 0.05); g.lineTo(w * 0.96, h * 0.62 + k * h * 0.05); g.stroke();
+  }
+  g.strokeStyle = "#c0392b"; g.lineWidth = 4; g.beginPath(); g.moveTo(w * 0.78, h * 0.92); g.lineTo(w * 0.96, h * 0.64); g.stroke();
+  void R;
+}
+function drawMathsPosters(g, w, h) {
+  const items = [["#f2c94c", "π ≈ 3.14"], ["#7ec4e8", "a² + b² = c²"], ["#8ac926", "×  ÷  +  −"], ["#f4a261", "½ = 0.5 = 50%"]];
+  g.fillStyle = "#e8e0cf"; g.fillRect(0, 0, w, h);
+  items.forEach(([col, txt], i) => {
+    const x = (i % 4) * (w / 4) + w * 0.02, y = h * 0.1;
+    g.fillStyle = col; g.fillRect(x, y, w / 4 - w * 0.04, h * 0.8);
+    g.fillStyle = "#1d2a3a"; g.font = `900 ${Math.round(h * 0.16)}px 'Trebuchet MS', sans-serif`; g.textAlign = "center"; g.textBaseline = "middle";
+    g.fillText(txt, x + (w / 4 - w * 0.04) / 2, y + h * 0.4);
+  });
+}
+function drawStripes(g, w, h) {
+  for (let k = 0; k < 8; k++) { g.fillStyle = k % 2 ? "#f4f1ea" : "#b8322a"; g.fillRect((k * w) / 8, 0, w / 8 + 1, h); }
+}
+function drawChecker(g, w, h) {
+  for (let i = 0; i < 6; i++) for (let j = 0; j < 6; j++) { g.fillStyle = (i + j) % 2 ? "#1e1e22" : "#f4f4ef"; g.fillRect((i * w) / 6, (j * h) / 6, w / 6 + 1, h / 6 + 1); }
+}
+
 export function schoolSignTexture(lines, { w = 512, h = 160, bg = "#1d3f78", fg = "#ffffff", border = "#e8c547", font = "900 64px 'MMA Display', 'Trebuchet MS', sans-serif", sub = "700 32px 'MMA Rounded', 'Trebuchet MS', sans-serif", align = "center" } = {}) {
   return canvasTex(w, h, (g) => {
     g.fillStyle = bg;
@@ -495,6 +597,16 @@ export function getSchoolTextures() {
     doorBlue: canvasTex(128, 256, (g, w, h) => drawDoor(g, w, h, { colour: "#2f5f8f", seed: 44 }), { repeat: false }),
     mural: canvasTex(2048, 410, (g, w, h) => drawMural(g, w, h), { repeat: false }),
     court: canvasTex(256, 512, (g, w, h) => drawCourt(g, w, h), { repeat: false }),
+    render: canvasTex(512, 512, (g, w, h) => drawConcrete(g, w, h, { base: [238, 236, 230], seed: 37 }), { metres: 3 }),
+    vinyl: canvasTex(256, 256, (g, w, h) => drawConcrete(g, w, h, { base: [196, 202, 196], joints: 4, seed: 39 }), { metres: 2 }),
+    muralWaves: canvasTex(1024, 1024, (g, w, h) => drawWaves(g, w, h), { repeat: false }),
+    muralPelican: canvasTex(512, 384, (g, w, h) => drawPelican(g, w, h), { repeat: false }),
+    posterTAS: canvasTex(384, 512, (g, w, h) => drawTasPoster(g, w, h), { repeat: false }),
+    whiteboard: canvasTex(1024, 384, (g, w, h) => drawWhiteboard(g, w, h), { repeat: false }),
+    whiteboard2: canvasTex(1024, 384, (g, w, h) => drawWhiteboard(g, w, h, { seed: 84 }), { repeat: false }),
+    mathsPosters: canvasTex(1024, 256, (g, w, h) => drawMathsPosters(g, w, h), { repeat: false }),
+    stripes: canvasTex(256, 64, (g, w, h) => drawStripes(g, w, h), { metres: 2.4 }),
+    checker: canvasTex(256, 256, (g, w, h) => drawChecker(g, w, h), { repeat: false }),
   };
   return _tex;
 }
@@ -524,6 +636,9 @@ export function M() {
     brick: schoolMat("brick", { map: "brick", roughness: 0.92 }),
     brick2: schoolMat("brick2", { map: "brick2", roughness: 0.92 }),
     brickDark: schoolMat("brickDark", { map: "brickDark", roughness: 0.92 }),
+    render: schoolMat("render", { map: "render", roughness: 0.9 }),
+    vinyl: schoolMat("vinyl", { map: "vinyl", roughness: 0.55 }),
+    stripes: schoolMat("stripes", { map: "stripes", roughness: 0.7, side: THREE.DoubleSide }),
     tiles: schoolMat("tiles", { map: "tiles", roughness: 0.8 }),
     redSteel: schoolMat("redSteel", { map: "redSteel", roughness: 0.45, metalness: 0.25 }),
     greySteel: schoolMat("greySteel", { map: "greySteel", roughness: 0.45, metalness: 0.3 }),
@@ -700,7 +815,7 @@ float coastZ(float x){ return uBeach + 18.0 * sin(x / 140.0 + 0.6) - 26.0 * ss(1
 // ---------------------------------------------------------------------------
 // KIT MATERIALS — every Kit buffer key resolves here.
 // ---------------------------------------------------------------------------
-const UNIT_TEX = new Set(["window", "window2", "clerestory", "doorGreen", "doorBlue", "mural", "court"]);
+const UNIT_TEX = new Set(["window", "window2", "clerestory", "doorGreen", "doorBlue", "mural", "court", "muralWaves", "muralPelican", "posterTAS", "whiteboard", "whiteboard2", "mathsPosters", "checker"]);
 export function kitMat(key) {
   const m = M();
   if (m[key]) return m[key];
@@ -710,10 +825,11 @@ export function kitMat(key) {
     case "whiteLine": return schoolMat("whiteLine", { color: "#f4f4ef", roughness: 0.6, polygonOffset: 3 });
     case "decal": return schoolMat("decal", { roughness: 0.7, polygonOffset: 2 });
     case "dark": return schoolMat("dark", { color: "#20262b", roughness: 0.9 });
+    case "glazing": return schoolMat("glazing", { color: "#9fc3d6", roughness: 0.05, metalness: 0.2, transparent: true, opacity: 0.32, depthWrite: false, side: THREE.DoubleSide });
     case "grating": return schoolMat("grating", { map: "greySteel", color: "#9aa0a4", roughness: 0.5, metalness: 0.6 });
     default: return m.paint;
   }
 }
 
 /** Kit output → meshes (cast + receive shadows unless told otherwise). */
-export const NO_SHADOW_KEYS = new Set(["yellowLine", "whiteLine", "decal", "window", "window2", "clerestory", "glow", "translucent", "glass", "tactile", "mural"]);
+export const NO_SHADOW_KEYS = new Set(["yellowLine", "whiteLine", "decal", "window", "window2", "clerestory", "glow", "translucent", "glass", "tactile", "mural", "muralWaves", "muralPelican", "posterTAS", "whiteboard", "whiteboard2", "mathsPosters", "checker", "glazing"]);

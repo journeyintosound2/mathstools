@@ -115,16 +115,16 @@ export const REGIONS = {
     ],
   },
 
-  // RETRIEVAL PRACTICE PLAYGROUND (rebuilt 2026-10-09) — a big hillside
-  // high school on the Coffs Coast (Snowball Sums-sized): red-brick blocks
-  // under terracotta roofs, open concrete corridors on three storeys linked
-  // by stair towers, the fig quad, the garden courtyard, the big red-roofed
-  // hall (the Head Teacher, behind padlocked doors), the oval, the courts +
-  // COLA, the ag plot, the bush track up to the Sky Pier — and the harbour
-  // out past the town. Everything lives in data/schoolyard/ +
-  // game/SchoolyardScenery.jsx. Hooks: LAYERED ground (you walk UNDER the
-  // corridor decks), the bush hill's steep faces slide, and `cameraFit`
-  // keeps the follow camera under the corridor ceilings + out of the blocks.
+  // RETRIEVAL PRACTICE PLAYGROUND (redesigned 2026-11-09 from Jeff's eleven
+  // walk-through videos of Coffs Harbour High): the fig quad, the canteen under
+  // the hall's striped awning, the undercroft, the TAS + glass stair towers,
+  // the balconies round Banksia Court, the Food Tech walkway, the Maths Block
+  // (two walk-in classrooms on every floor), the 1920s A Block courtyard, the
+  // mural lane — built bigger than life (4.5 m storeys, 4.6 m corridors) so
+  // it's easy to steer round. Everything lives in data/schoolyard/ +
+  // game/schoolyard/. The ground is LAYERED (you walk under the corridor
+  // decks + the classrooms above), and `cameraFit` keeps the follow camera
+  // under the corridor roofs, inside the classrooms and out of the walls.
   "schoolyard": {
     id: "schoolyard",
     name: SCHOOLYARD_REGION_NAME,

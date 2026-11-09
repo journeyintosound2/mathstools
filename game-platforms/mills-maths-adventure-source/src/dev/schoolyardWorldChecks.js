@@ -1,6 +1,6 @@
 /**
- * RETRIEVAL PRACTICE PLAYGROUND (rebuilt 2026-10-09) — headless WORLD checks
- * SY1–SY10. They read the SAME pure modules the game uses (schoolyardLayout
+ * RETRIEVAL PRACTICE PLAYGROUND (redesigned 2026-11-09 from Jeff's videos) —
+ * headless WORLD checks SY1–SY10. They read the SAME pure modules the game uses (schoolyardLayout
  * / Terrain / Rails / Colliders / Props / Progress + regions), so a passing
  * run means the multi-storey school you walk round, its stairs + corridors,
  * the guard rails, the Head Teacher's padlocked hall, the follow camera's
@@ -8,16 +8,16 @@
  */
 import {
   LV, STOREY, SCHOOL_FENCE, SCHOOLYARD_BOUNDS, SCHOOLYARD_SPAWN, SCHOOLYARD_RETURN_PORTAL, SCHOOLYARD_WELCOME, SCHOOL_BUILDINGS,
-  SCHOOL_FLIGHTS, SCHOOL_RAMPS, SCHOOLYARD_CHARACTERS, SCHOOL_AREAS, SCHOOL_SIGNPOSTS, SCHOOL_CHEST_SPOTS, HALL, SKY_PIER,
-  CORRIDOR_W, BACKDROP, SEA_Y, SCHOOL_PLATFORMS,
+  SCHOOL_FLIGHTS, SCHOOL_RAMPS, SCHOOLYARD_CHARACTERS, SCHOOL_AREAS, SCHOOL_SIGNPOSTS, SCHOOL_CHEST_SPOTS, HALL,
+  CORRIDOR_W, BACKDROP, SEA_Y, SCHOOL_PLATFORMS, SCHOOL_BUILDING,
 } from "../data/schoolyard/schoolyardLayout.js";
 import {
   S_STEP_UP, getSchoolStructures, schoolGroundHeight, schoolSlideAt, schoolIsSafe, schoolCameraFit, schoolBlockedAt,
-  schoolCeilingAt, terrainHeight, inSchoolBuilding, schoolSolidTopAt, corridorRect, coastZ, rawHeight,
+  schoolCeilingAt, terrainHeight, inSchoolBuilding, schoolSolidTopAt, corridorRect, coastZ, rawHeight, roomSpans, TOWER_W,
 } from "../data/schoolyard/schoolyardTerrain.js";
 import { getSchoolRails } from "../data/schoolyard/schoolyardRails.js";
 import { getSchoolyardColliders, schoolColumns } from "../data/schoolyard/schoolyardColliders.js";
-import { SCHOOL_TREES, SCHOOL_FURNITURE, schoolPropFootprints, inPierView } from "../data/schoolyard/schoolyardProps.js";
+import { SCHOOL_TREES, SCHOOL_FURNITURE, schoolPropFootprints } from "../data/schoolyard/schoolyardProps.js";
 import { SCHOOLYARD_KEY_IDS } from "../data/schoolyard/schoolyardProgress.js";
 import { inRect, polySD, toWorld } from "../data/schoolyard/schoolyardGeom.js";
 import { getRegion } from "../data/regions.js";
@@ -77,7 +77,7 @@ function flood(colliders) {
       if (nh - h > S_STEP_UP) continue;
       if (schoolSlideAt(x, z, nh) && nh > h + 0.02) continue;
       if (blocked(x, z, h) || blocked(x, z, nh)) continue;
-      if (h - nh > 1.25) falls++;
+      if (h - nh > 1.25) { falls++; if (globalThis.__FALLS) globalThis.__FALLS.push([x, z, h, nh]); }
       push(ni, nj, nh);
     }
   }
@@ -120,7 +120,10 @@ export function runSchoolyardWorldChecks() {
     checks.push({ name: "SY1 Playground: region hooks, a safe arrival + the gate home", pass, detail: pass ? `spawn y ${spawnY.toFixed(2)}, portal ${portal.id}` : JSON.stringify({ hooks, spawnOk, portalOk, stepOk }) });
   }
 
-  // SY2) Size + levels: Snowball-Sums-sized, three storeys on the hill.
+  // SY2) Size + scale: Snowball-Sums-sized, three storeys — and BIGGER than
+  // life so it's easy to steer (Jeff, 2026-11-09): 4.5 m storeys, corridors
+  // ≥ 4.5 m wide, 3 m stair towers; the Maths Block has TWO classrooms on
+  // each of its three floors.
   {
     const area = SCHOOLYARD_BOUNDS.width * SCHOOLYARD_BOUNDS.height;
     const snowArea = SNOW_BOUNDS.width * SNOW_BOUNDS.height;
@@ -128,8 +131,11 @@ export function runSchoolyardWorldChecks() {
     const storeys = Math.max(...SCHOOL_BUILDINGS.map((b) => b.floors));
     const decks = getSchoolStructures().list.filter((s) => s.kind === "deck").map((s) => s.y);
     const top = Math.max(...decks);
-    const pass = ratio > 0.9 && ratio < 1.05 && storeys >= 3 && top >= LV.L4 && SKY_PIER.y - LV.L0 > 18;
-    checks.push({ name: "SY2 Playground: Snowball Sums-sized, 3 storeys, levels L0–L4 + the Sky Pier", pass, detail: `${(ratio * 100).toFixed(0)}% of the snow world's area, ${storeys} storeys, top deck ${top} m, pier ${SKY_PIER.y} m` });
+    const maths = SCHOOL_BUILDING.maths;
+    const mathsOk = Boolean(maths && maths.rooms && maths.rooms.count === 2 && maths.floors === 3);
+    const big = STOREY >= 4.5 && CORRIDOR_W >= 4.5 && TOWER_W >= 3;
+    const pass = ratio > 0.9 && ratio < 1.05 && storeys >= 3 && top >= LV.L3 && big && mathsOk;
+    checks.push({ name: "SY2 Playground: Snowball Sums-sized, 3 storeys, big storeys + wide corridors, the Maths Block's 2 rooms a floor", pass, detail: `${(ratio * 100).toFixed(0)}% of the snow world's area, ${storeys} storeys, top deck ${top} m, storey ${STOREY} m, corridors ${CORRIDOR_W} m, stairs ${TOWER_W} m, maths ${mathsOk ? "2 × 3 rooms" : "MISSING"}` });
   }
 
   // SY3) Every flight + ramp is climbable and meets what it joins.
@@ -147,6 +153,12 @@ export function runSchoolyardWorldChecks() {
         const [bx, bz] = toWorld(s.r, -s.r.hx - 0.35, 0);
         const gb = schoolGroundHeight(bx, bz, f.y0);
         if (Math.abs(gb - f.y0) > S_STEP_UP) bad.push(`${s.id} foot ${f.y0} meets ${gb.toFixed(2)}`);
+        // …and nothing (a rail, a wall) stands across either end.
+        const blk = blocker(getSchoolyardColliders({ completedMissions: ALL_KEYS }));
+        const [tx2, tz2] = toWorld(s.r, s.r.hx + 0.6, 0), [bx2, bz2] = toWorld(s.r, -s.r.hx - 0.6, 0);
+        const hitT = blk(tx2, tz2, topY), hitB = blk(bx2, bz2, f.y0);
+        if (hitT) bad.push(`${s.id} top blocked by ${hitT.id}`);
+        if (hitB) bad.push(`${s.id} foot blocked by ${hitB.id}`);
       }
     }
     for (const rp of SCHOOL_RAMPS) {
@@ -174,14 +186,27 @@ export function runSchoolyardWorldChecks() {
         if (!L.reached(r.c[0], r.c[1], r.y, 3)) missing.push(`${b.id} deck ${f}`);
       }
     }
-    const [px, pz] = toWorld({ c: SKY_PIER.to, yaw: 0 }, 0, 0);
-    if (!L.reached(px - 1, pz - 2, SKY_PIER.y, 3)) missing.push("sky pier");
+    // Every classroom in the Maths Block, on every floor (through its door).
+    for (const b of SCHOOL_BUILDINGS) {
+      if (!b.rooms) continue;
+      for (let f = 0; f < b.floors; f++) {
+        for (const rm of roomSpans(b)) {
+          const [x, z] = toWorld(b, (rm.x0 + rm.x1) / 2, -b.hz * 0.15);
+          if (!L.reached(x, z, b.y0 + f * STOREY, 3)) missing.push(`${b.id} room ${rm.i} floor ${f}`);
+        }
+      }
+    }
+    // The Food Tech walkway, the undercroft, Banksia Court, the lower terrace, the courts.
+    for (const [n, x, z, y] of [["walkway", -87.2, 96, LV.L2 - 0.3], ["undercroft", -70.5, 37, LV.L1], ["banksia", -70, 70, LV.L1],
+      ["lower terrace", -80, 110, LV.LM], ["courts", 123, -10, LV.LM], ["mural lane", -97, -84, LV.L1]]) {
+      if (!L.reached(x, z, y, 3)) missing.push(n);
+    }
     for (const s of SCHOOL_SIGNPOSTS) if (!L.reached(s.p[0], s.p[1], schoolGroundHeight(s.p[0], s.p[1]), 3)) missing.push(`signpost ${s.id}`);
     for (const [x, z] of SCHOOL_CHEST_SPOTS) if (!L.reached(x, z, schoolGroundHeight(x, z), 3)) missing.push(`chest ${x},${z}`);
-    const hallLocked = L.reached(57, -30, LV.L1, 3), hallOpen = O.reached(57, -30, LV.L1, 3);
+    const hallLocked = L.reached(13, 45, LV.L1, 3), hallOpen = O.reached(13, 45, LV.L1, 3);
     if (hallLocked || !hallOpen) missing.push(`hall locked=${hallLocked} open=${hallOpen}`);
     const pass = missing.length === 0 && L.falls === 0;
-    checks.push({ name: "SY4 Playground: a flood fill on foot reaches all staff, decks, the pier — the hall only with 8 keys", pass, detail: pass ? `${L.states} states, no unguarded drops` : `missing: ${missing.join(", ")}; falls ${L.falls}` });
+    checks.push({ name: "SY4 Playground: a flood fill on foot reaches all staff, decks, every classroom, the walkway — the hall only with 8 keys", pass, detail: pass ? `${L.states} states, no unguarded drops` : `missing: ${missing.join(", ")}; falls ${L.falls}` });
   }
 
   // SY5) The staff stand on proper ground: their level, not in a building, not
@@ -201,8 +226,10 @@ export function runSchoolyardWorldChecks() {
       if (rails.some((r) => Math.abs(r.ya - y) < 1 && (() => { const dx = r.b[0] - r.a[0], dz = r.b[1] - r.a[1]; const L2 = dx * dx + dz * dz || 1; const t = Math.max(0, Math.min(1, ((x - r.a[0]) * dx + (z - r.a[1]) * dz) / L2)); return Math.hypot(x - r.a[0] - dx * t, z - r.a[1] - dz * t) < 0.75; })())) bad.push(`${c.id} hugs a rail`);
     }
     const mahoney = SCHOOLYARD_CHARACTERS.find((c) => c.id === "mahoney"), ewings = SCHOOLYARD_CHARACTERS.find((c) => c.id === "ewings");
-    if (Math.abs(schoolGroundHeight(...mahoney.position) - LV.L4) > 0.01) bad.push("Mahoney not on the top floor");
-    if (Math.abs(schoolGroundHeight(...ewings.position) - LV.L4) > 0.01) bad.push("Ewings not on the top floor");
+    if (Math.abs(schoolGroundHeight(...mahoney.position) - LV.L3) > 0.01) bad.push("Mahoney not on the top floor");
+    if (Math.abs(schoolGroundHeight(...ewings.position) - LV.L3) > 0.01) bad.push("Ewings not on the top floor");
+    const dawson = SCHOOLYARD_CHARACTERS.find((c) => c.id === "dawson");
+    if (Math.abs(schoolGroundHeight(...dawson.position) - (SCHOOL_BUILDING.maths.y0 + 2 * STOREY)) > 0.01) bad.push("Dawson not on the Maths top floor");
     const ix = getInteractablesForRegion(REGION);
     for (const c of SCHOOLYARD_CHARACTERS) {
       const it = ix.find((i) => i.id === c.id);
@@ -286,14 +313,26 @@ export function runSchoolyardWorldChecks() {
         }
       }
     }
+    for (const b of SCHOOL_BUILDINGS) {
+      if (b.rooms) {
+        for (let f = 0; f < b.floors; f++) for (const rm of roomSpans(b)) {
+          const [x, z] = toWorld(b, (rm.x0 + rm.x1) / 2, 0);
+          spots.push([x, b.y0 + f * STOREY, z, b]);
+        }
+      }
+      if (b.undercroft) for (const lx of [-0.5, 0.5]) {
+        const [x, z] = toWorld(b, lx * b.hx, 0);
+        spots.push([x, b.y0, z, b]);
+      }
+    }
     for (const [x, y, z, b] of spots) {
       for (let a = 0; a < 8; a++) {
         const yaw = (a / 8) * Math.PI * 2;
         const cam = { x: x + Math.sin(yaw) * 12, y: y + 4.5, z: z + Math.cos(yaw) * 12 };
         schoolCameraFit(x, y, z, cam);
         const hy = y + 1.45;
-        for (let k = 1; k <= 20; k++) {
-          const t = k / 20;
+        for (let k = 1; k <= 40; k++) {
+          const t = k / 40;
           const px = x + (cam.x - x) * t, py = hy + (cam.y - hy) * t, pz = z + (cam.z - z) * t;
           if (schoolBlockedAt(px, py, pz)) { bad.push(`${b.id}@${y} yaw ${a} blocked`); break; }
           const u = schoolCeilingAt(px, pz, hy + 0.15);
@@ -301,10 +340,11 @@ export function runSchoolyardWorldChecks() {
         }
       }
     }
-    const open2 = { x: 14, y: 4.5, z: 124 };
-    schoolCameraFit(14, 0, 112, open2);
-    if (Math.abs(open2.x - 14) + Math.abs(open2.y - 4.5) + Math.abs(open2.z - 124) > 1e-6) bad.push("open plaza camera moved");
-    checks.push({ name: "SY8 Playground: the follow camera tucks under the corridor roofs + stays out of the blocks", pass: bad.length === 0, detail: bad.length ? bad.slice(0, 5).join("; ") : `${spots.length * 8} camera fits clear` });
+    const sp = SCHOOLYARD_SPAWN;
+    const open2 = { x: sp.x, y: 4.5, z: sp.z + 12 };
+    schoolCameraFit(sp.x, 0, sp.z, open2);
+    if (Math.abs(open2.x - sp.x) + Math.abs(open2.y - 4.5) + Math.abs(open2.z - sp.z - 12) > 1e-6) bad.push("open plaza camera moved");
+    checks.push({ name: "SY8 Playground: the follow camera tucks under the corridors, inside the classrooms + the undercroft", pass: bad.length === 0, detail: bad.length ? bad.slice(0, 5).join("; ") : `${spots.length * 8} camera fits clear` });
   }
 
   // SY9) Scatter: trees + furniture off the paving, stairs, decks + buildings,
@@ -314,13 +354,13 @@ export function runSchoolyardWorldChecks() {
     const npcSpots = [...SCHOOLYARD_CHARACTERS.map((c) => c.position), SCHOOLYARD_WELCOME.position, [SCHOOLYARD_SPAWN.x, SCHOOLYARD_SPAWN.z], SCHOOLYARD_RETURN_PORTAL];
     for (const t of SCHOOL_TREES) {
       if (inSchoolBuilding(t.x, t.z, 0.5)) bad.push(`tree in building ${t.x.toFixed(0)},${t.z.toFixed(0)}`);
-      if (!t.planted && SCHOOL_PLATFORMS.some((p) => polySD(p.pts, t.x, t.z) < 0.5)) bad.push(`tree on a terrace ${t.x.toFixed(0)},${t.z.toFixed(0)}`);
+      if (!t.planted && SCHOOL_PLATFORMS.some((p) => p.surface !== "grass" && polySD(p.pts, t.x, t.z) < 0.5)) bad.push(`tree on paving ${t.x.toFixed(0)},${t.z.toFixed(0)}`);
       if (npcSpots.some(([x, z]) => Math.hypot(x - t.x, z - t.z) < 2.5)) bad.push(`tree on a staff spot ${t.x.toFixed(0)},${t.z.toFixed(0)}`);
-      if (!t.planted && t.z > 0 && inPierView(t.x, t.z)) bad.push(`tree in the pier view ${t.x.toFixed(0)},${t.z.toFixed(0)}`);
     }
     for (const f of SCHOOL_FURNITURE) {
       if (f.kind === "chairs" || f.kind === "lectern") continue; // inside the hall
-      if (inSchoolBuilding(f.x, f.z, 0)) bad.push(`${f.kind} in a building`);
+      const ib = inSchoolBuilding(f.x, f.z, 0);
+      if (ib && !ib.undercroft) bad.push(`${f.kind} in a building`);
       const on = getSchoolStructures().list.filter((s) => (s.kind === "flight" || s.kind === "ramp") && s.top(f.x, f.z) !== null);
       if (on.length) bad.push(`${f.kind} on ${on[0].id}`);
     }
@@ -329,7 +369,7 @@ export function runSchoolyardWorldChecks() {
       const reach = fp.circle ? fp.r : Math.hypot(fp.hx, fp.hz);
       if (SCHOOL_CHEST_SPOTS.some(([x, z]) => Math.hypot(x - fp.x, z - fp.z) < reach + 1.2)) bad.push(`${fp.id} on a chest spot`);
     }
-    checks.push({ name: "SY9 Playground: trees + furniture placed clear (paving, stairs, staff, the pier view)", pass: bad.length === 0, detail: bad.length ? bad.slice(0, 6).join("; ") : `${SCHOOL_TREES.length} trees, ${SCHOOL_FURNITURE.length} furniture` });
+    checks.push({ name: "SY9 Playground: trees + furniture placed clear (paving, stairs, staff, chests)", pass: bad.length === 0, detail: bad.length ? bad.slice(0, 6).join("; ") : `${SCHOOL_TREES.length} trees, ${SCHOOL_FURNITURE.length} furniture` });
   }
 
   // SY10) The backdrop: the town + the sea are outside the fence and below
@@ -341,21 +381,23 @@ export function runSchoolyardWorldChecks() {
     if (rawHeight(0, coastZ(0) + 20) > SEA_Y + 0.5) bad.push("no sea beyond the beach");
     const [jx, jz] = BACKDROP.jetty.from;
     if (jz < SCHOOL_FENCE.zMax + 50) bad.push("jetty too close");
-    // The pier's sight line (eye 1.6 m up at its end) to the harbour mouth.
-    const eye = [SKY_PIER.to[0], SKY_PIER.y + 1.6, SKY_PIER.to[1]];
+    // From Mr. Dawson's top-floor Maths balcony (eye 1.6 m up), the line to
+    // the jetty + Muttonbird Island clears every roof ("not bad either").
+    const dawson = SCHOOLYARD_CHARACTERS.find((c) => c.id === "dawson");
+    const eye = [dawson.position[0], schoolGroundHeight(...dawson.position) + 1.6, dawson.position[1] + 1.8];
     for (const target of [[BACKDROP.jetty.to[0], BACKDROP.jetty.y, BACKDROP.jetty.to[1]], [BACKDROP.muttonbird.c[0], SEA_Y + BACKDROP.muttonbird.h * 0.7, BACKDROP.muttonbird.c[1]]]) {
       for (let k = 1; k < 200; k++) {
         const t = k / 200;
         const x = eye[0] + (target[0] - eye[0]) * t, y = eye[1] + (target[1] - eye[1]) * t, z = eye[2] + (target[2] - eye[2]) * t;
         if (Math.abs(x) > 175 || Math.abs(z) > 165) break;
-        if (schoolBlockedAt(x, y, z)) { bad.push(`pier view blocked at ${x.toFixed(0)},${z.toFixed(0)}`); break; }
-        if (terrainHeight(x, z) > y) { bad.push(`pier view hits the ground at ${x.toFixed(0)},${z.toFixed(0)}`); break; }
+        if (schoolBlockedAt(x, y, z)) { bad.push(`balcony view blocked at ${x.toFixed(0)},${z.toFixed(0)}`); break; }
+        if (terrainHeight(x, z) > y) { bad.push(`balcony view hits the ground at ${x.toFixed(0)},${z.toFixed(0)}`); break; }
         const s = schoolSolidTopAt(x, z);
-        if (s !== null && s > y) { bad.push(`pier view hits ${x.toFixed(0)},${z.toFixed(0)}`); break; }
+        if (s !== null && s > y) { bad.push(`balcony view hits ${x.toFixed(0)},${z.toFixed(0)}`); break; }
       }
     }
     void jx;
-    checks.push({ name: "SY10 Playground: the town + harbour lie beyond the fence, and the Sky Pier sees the sea", pass: bad.length === 0, detail: bad.length ? bad.join("; ") : `beach ${(minCoast - SCHOOL_FENCE.zMax).toFixed(0)} m beyond the fence; pier → jetty + Muttonbird clear` });
+    checks.push({ name: "SY10 Playground: the town + harbour lie beyond the fence, and the Maths top balcony sees the sea", pass: bad.length === 0, detail: bad.length ? bad.join("; ") : `beach ${(minCoast - SCHOOL_FENCE.zMax).toFixed(0)} m beyond the fence; Maths balcony → jetty + Muttonbird clear` });
   }
 
   void SCHOOL_AREAS;

@@ -46,7 +46,7 @@ import {
 // The Playground
 import { terrainHeight as yHeight, GRID as Y_GRID, getSchoolGrid } from "../../data/schoolyard/schoolyardTerrain.js";
 import {
-  SCHOOL_PLATFORMS, SCHOOL_BUILDINGS, OVAL, COURTS, COLA, SCHOOL_PATH_CTRL, SKY_PIER, SCHOOL_FENCE,
+  SCHOOL_PLATFORMS, SCHOOL_BUILDINGS, COURTS, COLA, SCHOOL_PATH_CTRL, SCHOOL_FENCE, SCHOOL_SURFACES,
 } from "../../data/schoolyard/schoolyardLayout.js";
 import { rectCorners } from "../../data/schoolyard/schoolyardGeom.js";
 import { SCHOOL_TREES } from "../../data/schoolyard/schoolyardProps.js";
@@ -404,12 +404,18 @@ const OVERLAYS = {
     dot(QT_IDOL.p[0], QT_IDOL.p[1], QT_IDOL.r, "#ffcf3a", "#7a5208");
   },
   schoolyard: (g, P, m) => {
-    { const [cx, cz] = P(OVAL.c[0], OVAL.c[1]); g.fillStyle = "#6fb24f"; g.strokeStyle = "#ffffff"; g.lineWidth = 3; g.beginPath(); g.ellipse(cx, cz, OVAL.rx * m, OVAL.rz * m, 0, 0, Math.PI * 2); g.fill(); g.stroke(); }
     const fills = { asphalt: "#868a90", pavers: "#cfbea8", grass: "#9ccf7a" };
     for (const p of SCHOOL_PLATFORMS) {
       g.fillStyle = fills[p.surface] || "#aaa";
       pline(g, P, p.pts); g.closePath(); g.fill();
       g.strokeStyle = "#8a4a32"; g.lineWidth = 3; g.stroke();
+    }
+    // The paving laid on the terraces + lawns (asphalt yards, paved courtyards, walks).
+    const sfill = { asphalt: "#8d9196", pavers: "#d4c4ac", concrete: "#c9c6bd", court: "#2f6d5c", soil: "#7a5a3c" };
+    for (const sf of SCHOOL_SURFACES) {
+      if (sf.kind === "court") continue;
+      g.fillStyle = sfill[sf.kind] || "#bbb";
+      pline(g, P, sf.pts); g.closePath(); g.fill();
     }
     g.fillStyle = "#2f6d5c";
     for (const c of COURTS) { const [a, b] = P(c.c[0] - c.hx, c.c[1] - c.hz); g.fillRect(a, b, c.hx * 2 * m, c.hz * 2 * m); }
@@ -419,11 +425,10 @@ const OVERLAYS = {
     for (const b of SCHOOL_BUILDINGS) {
       const cs = rectCorners(b);
       g.fillStyle = "rgba(0,0,0,0.25)"; pline(g, (x, z) => { const [a, c] = P(x, z); return [a + 4, c + 5]; }, cs); g.closePath(); g.fill();
-      g.fillStyle = b.hall ? "#9a2a22" : b.roof?.mat === "tiles" ? "#c0603e" : "#9aa0a4";
+      g.fillStyle = b.hall ? "#9a2a22" : b.rooms ? "#c98a3e" : b.roof?.mat === "tiles" ? "#c0603e" : "#9aa0a4";
       pline(g, P, cs); g.closePath(); g.fill();
       g.strokeStyle = "#5a2a1c"; g.lineWidth = 2; g.stroke();
     }
-    g.lineCap = "butt"; pline(g, P, [SKY_PIER.from, SKY_PIER.to]); g.strokeStyle = "#5a5a64"; g.lineWidth = SKY_PIER.halfWidth * 2 * m; g.stroke();
     g.setLineDash([10, 6]); g.strokeStyle = "rgba(30,30,40,0.55)"; g.lineWidth = 3;
     { const [a, b] = P(SCHOOL_FENCE.xMin, SCHOOL_FENCE.zMin); const [c, d] = P(SCHOOL_FENCE.xMax, SCHOOL_FENCE.zMax); g.strokeRect(a, b, c - a, d - b); }
     g.setLineDash([]);

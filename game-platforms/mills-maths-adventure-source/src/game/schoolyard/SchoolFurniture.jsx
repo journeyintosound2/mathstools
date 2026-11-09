@@ -215,6 +215,27 @@ function furnish(kit, f) {
       tube("dark", [0, 1.58, 0.72], [0, 1.62, 0.8], 0.12, { seg: 12 });
       break;
     }
+    case "desk": {
+      // A balcony desk + two chairs (video 6: the top-floor corridor).
+      box("paint", 0, 0, 0.55, 0.35, 0.72, 0.76, { color: "#d9cdb1", faces: { bottom: true } });
+      for (const sx of [-0.5, 0.5]) for (const sz of [-0.3, 0.3]) post("metal", sx, sz, 0, 0.72, 0.025, { color: "#5f6a72", cap: false, seg: 5 });
+      for (const sx of [-0.3, 0.3]) {
+        box("paint", sx, 0.62, 0.2, 0.2, 0.44, 0.48, { color: "#2f6fb4" });
+        box("paint", sx, 0.84, 0.2, 0.03, 0.48, 0.88, { color: "#2f6fb4" });
+        post("metal", sx, 0.62, 0, 0.44, 0.03, { color: "#5f6a72", cap: false, seg: 5 });
+      }
+      break;
+    }
+    case "planterbox": {
+      // A Block courtyard's timber planter boxes (video 8): slatted pine, herbs.
+      box("timber", 0, 0, f.hx, f.hz, 0, 0.75, { color: "#c9a26a" });
+      box("soil", 0, 0, f.hx - 0.08, f.hz - 0.08, 0.6, 0.77, { faces: { px: false, nx: false, pz: false, nz: false } });
+      for (let k = -2; k <= 2; k++) for (const sz of [-0.4, 0.4]) {
+        const [x, z] = W(k * f.hx * 0.38, sz * f.hz);
+        kit.post("paint", x, z, y + 0.75, y + 1.05, 0.16, 6, { color: k % 2 ? "#4f9a3a" : "#7cbf4a" });
+      }
+      break;
+    }
     case "chairs": {
       for (let k = -2; k <= 2; k++) box("paint", 0, k * 0.6, 0.24, 0.24, 0, 1.4, { color: "#2f5fb0" });
       break;
