@@ -181,7 +181,7 @@ export function CoachCard() {
   return (
     <CardShell icon={s.icon} kicker="New world" title={s.title}>
       {s.lines.map((l) => <p key={l}><Bi>{l}</Bi></p>)}
-      <MedalKey />
+      {!s.noMedals && <MedalKey />}
       <div className="jcard-actions">
         <button className="jbtn jbtn-go" autoFocus onClick={() => J.advance(cur)}><Bi>{s.go}</Bi></button>
         {s.skip && <button className="jbtn jbtn-quiet" onClick={() => J.closeIntro(cur.regionId)}><Bi>{s.skip}</Bi></button>}

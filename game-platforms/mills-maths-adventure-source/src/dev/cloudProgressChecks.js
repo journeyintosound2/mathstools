@@ -254,8 +254,12 @@ export function runCloudProgressChecks() {
       const upOk = next && next.doc.progress.xp === 665 && next.doc.bests[FARM_BEST_KEYS.fence] === 200 && next.doc.bests[snowKey] === 300;
       if (next) confirmSaved(next.payload);
       // A reset device can't drag the cloud down: lose everything locally, nothing goes up.
-      useProgress.getState().applyCloudProgress({}, { replace: true });
+      // (2026-11-09) …ALL of it, bests first: a farm best left behind makes
+      // the reset save look like an "old save" (the journey re-seeds more
+      // gates as celebrated) — that's not the reset case.
       localStorage.removeItem(snowKey);
+      localStorage.removeItem(FARM_BEST_KEYS.fence);
+      useProgress.getState().applyCloudProgress({}, { replace: true });
       const afterReset = prepareSave();
       const neverDown = afterReset === null;
       detail = JSON.stringify({ pickedUp, nothing, upOk, neverDown, xp: p.xp });

@@ -1150,6 +1150,13 @@ export default function Player({ cinematic = false }) {
           // A gate the journey hasn't opened yet goes nowhere (its collider
           // keeps you out; this is the belt-and-braces).
           if (region.id === "island-1" && lockForPortal(portal.id)) break;
+          // A region's own locked door (the Quotient Temple's, 2026-11-09).
+          if (region.portalLocked && region.portalLocked(portal.id)) {
+            playerState.blockedHint = region.portalLockedHint || "This door is locked.";
+            playerState.blockedIcon = "🔒";
+            playerState.blockedExpiry = Date.now() + 3500;
+            break;
+          }
           // (The Retrieval Practice Playground used to be a LOCKED gate until
           // Pip, Fern and Alby were each passed at 80% — removed 2026-10-09 at
           // Jeff's request. Since the JOURNEY (2026-10-13) the island gates

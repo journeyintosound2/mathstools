@@ -38,6 +38,8 @@ import { useTempleTables, useTempleUI } from "./temple/templeStore.js";
 import { journeyTrack, useJourney } from "./journeyStore.js";
 import { millsJourneyLines } from "../data/journey.js";
 import { useChests } from "./chestStore.js";
+import { quotientDoorProgress, quotientDoorOpen } from "../data/temple/templeTables.js";
+import { isAdminMode as qtAdmin } from "../data/adminMode.js";
 
 // Only one in-world challenge (farm OR snow) runs at a time — starting one
 // exits the others.
@@ -163,6 +165,36 @@ export function triggerInteraction(interactable) {
       openDlg({ speaker: "Treasure Chest", lines: [`Half-buried in the sand… ${FARM_CHEST_COINS} sun-warmed coins! ☀️`] });
     } else {
       openDlg({ speaker: "Treasure Chest", lines: ["Empty now — you already grabbed the coins. Another chest will turn up next visit!"] });
+    }
+    return;
+  }
+
+  // The Quotient Temple's chest, high on the Guardians' Court terrace.
+  if (interactable.id === "qt-chest") {
+    const prog = useProgress.getState();
+    const openDlg = useSession.getState().openDialogue;
+    if (!useChests.getState().isOpen("qt-chest")) {
+      useChests.getState().open("qt-chest");
+      prog.awardRewards({ coins: FARM_CHEST_COINS });
+      useUI.getState().pushToast({ type: "reward", icon: "🪙", title: "Treasure!", message: `You found ${FARM_CHEST_COINS} coins.` });
+      openDlg({ speaker: "Treasure Chest", lines: [`High on the guardians' terrace… ${FARM_CHEST_COINS} golden temple coins! ➗`] });
+    } else {
+      openDlg({ speaker: "Treasure Chest", lines: ["Empty now — you already grabbed the coins. Another chest will turn up next visit!"] });
+    }
+    return;
+  }
+  // The Quotient Temple's door (in the desert): how close you are to opening it.
+  if (interactable.id === "quotient-door") {
+    const openDlg = useSession.getState().openDialogue;
+    const p = quotientDoorProgress();
+    if (quotientDoorOpen(undefined, qtAdmin())) {
+      openDlg({ speaker: "Quotient Temple", lines: ["The great door stands open! ➗ Step through to explore the Quotient Temple."] });
+    } else {
+      openDlg({ speaker: "Quotient Temple", lines: [
+        "A great door, sealed with a golden ÷. Fifteen sockets ring the doorway — one for each station.",
+        "Win at least a 🥉 bronze on ALL fifteen Timestable Temple stations and the door will open.",
+        `🥉 ${p.have} / ${p.need}`,
+      ] });
     }
     return;
   }

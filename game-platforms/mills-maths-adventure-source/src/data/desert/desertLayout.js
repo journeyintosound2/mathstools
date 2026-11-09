@@ -277,7 +277,7 @@ export const FOSSIL = { c: [-111, 97.5], yaw: -0.22, length: 24 };
 export const DESERT_SPOTS = [
   { id: "bazaar", label: "Bazaar Square", icon: "🏺", center: BAZAAR_SQUARE.c, radius: 7.5 },
   { id: "pyramid", label: "Pyramid Steps", icon: "🔺", center: [0, 5], radius: 7 },
-  { id: "temple", label: "Sun Temple", icon: "☀️", center: [0, -99.5], radius: 6.5 },
+  { id: "temple", label: "Quotient Temple", icon: "➗", center: [0, -99.5], radius: 6.5 },
   { id: "oasis", label: "Oasis Garden", icon: "🌴", center: [-69.5, 10.5], radius: 5.5 },
   { id: "mesa", label: "Mesa Top", icon: "🪨", center: [-108, -88], radius: 7 },
   { id: "fossil", label: "Fossil Dig", icon: "🦴", center: [-95, 82], radius: 7 },
@@ -292,7 +292,8 @@ export const DESERT_SPOTS = [
 //   the Anchors (10s, 5s, 11s + Anchor Mix) round Bazaar Square,
 //   the Doubling family (2s, 4s, 8s + Doubling Mix) on the oasis shore,
 //   the Threes family (3s, 6s, 9s, 12s + Threes Mix) on top of the Red Mesa,
-//   the 7s before the Sun Temple, the Grand Mix beside the Sunstone.
+//   the 7s on top of Sundial Rise (moved from the temple steps 2026-11-09),
+//   the Grand Mix beside the Sunstone.
 // Each stone faces `look` (where students walk up from). Mixes are taller.
 // The TIMES-TABLE WALL (the 12 × 12 square, lit fact by fact) + Dash the
 // camel (the temple's guide) stand by the arrival.
@@ -313,7 +314,7 @@ export const TEMPLE_STONES = [
   stone("x9", [-99.5, -84.5], [-104, -71]),
   stone("x12", [-95, -80], [-104, -71]),
   stone("mix3", [-104, -88.5], [-104, -71], { tall: true }),
-  stone("x7", [0, -102], [0, -90], { tall: true }),
+  stone("x7", [54, -12.5], [66, -13.5], { tall: true }),
   stone("grand", [0, -35.5], [0, -28], { tall: true, grand: true }),
 ];
 export const TEMPLE_STONE = Object.fromEntries(TEMPLE_STONES.map((s) => [s.key, s]));
@@ -387,9 +388,9 @@ export const DESERT_TRAIL_CTRL = [
 export const DESERT_SIGNPOSTS = [
   { id: "gate", p: [4.8, 88.4], arrows: [["The Bazaar", [0, 80]], ["The Fossil Dig", [-30, 106]], ["Crystal Hollow", [20, 92]]] },
   { id: "town-n", p: [5, 26], arrows: [["The Great Pyramid", [0, 12]], ["The Oasis", [-18, 40]], ["Sundial Rise", [20, 7]]] },
-  { id: "plaza-w", p: [-16.5, 7.5], arrows: [["Sun Temple", [-30, -6]], ["Mesa Lands", [-30, -6]]] },
+  { id: "plaza-w", p: [-16.5, 7.5], arrows: [["Quotient Temple", [-30, -6]], ["Mesa Lands", [-30, -6]]] },
   { id: "plaza-e", p: [16.5, 8.5], arrows: [["Quicksand Flats", [30, 8.5]], ["The Dune Sea", [30, -4]]] },
-  { id: "avenue", p: [-6, -68], arrows: [["Sun Temple", [0, -84]], ["The Great Pyramid", [-26, -70]]] },
+  { id: "avenue", p: [-6, -68], arrows: [["Quotient Temple", [0, -84]], ["The Great Pyramid", [-26, -70]]] },
   { id: "arch", p: [-38, -38], arrows: [["Mesa Lands", [-44, -50]], ["The Great Pyramid", [-35, -30]]] },
   { id: "mesa", p: [-97, -44], arrows: [["Red Mesa", [-100, -45.5]], ["The Oasis", [-101, -32]], ["Mine-Cart Canyon", [-80, -54]]] },
   { id: "oasis", p: [-50, 18], arrows: [["The Oasis", [-58, 20]], ["The Fossil Dig", [-58, 36]], ["The Bazaar", [-34, 32]]] },

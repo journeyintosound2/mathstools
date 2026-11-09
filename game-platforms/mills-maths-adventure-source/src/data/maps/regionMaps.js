@@ -36,9 +36,12 @@ import {
   DESERT_REGION_ID, DESERT_NAME, DESERT_SPAWN, DESERT_MAP_BOARD, DESERT_SPOTS, DESERT_LANDMARKS, SUNSTONE, PYRAMID, TEMPLE_STONE, TEMPLE_DASH, TEMPLE_WALL,
 } from "../desert/desertLayout.js";
 import { tablesTrophyRows, stationOf, FAMILY } from "../temple/templeTables.js";
+import {
+  QT_REGION_ID, QT_NAME, QT_SPAWN, QT_MAP_BOARD, QT_SPOTS, QT_LANDMARKS, QT_SANCTUM_SPOT,
+} from "../qtemple/qtempleWorld.js";
 
 /** The worlds that have a map (the Lodge is one room — no map needed). */
-export const MAP_REGION_IDS = ["island-1", "farm-parts-whole", "snow-sums", "magma-multiples", "emerald-jungle", "schoolyard", DESERT_REGION_ID];
+export const MAP_REGION_IDS = ["island-1", "farm-parts-whole", "snow-sums", "magma-multiples", "emerald-jungle", "schoolyard", DESERT_REGION_ID, QT_REGION_ID];
 
 const SPECS = {
   "island-1": {
@@ -101,6 +104,14 @@ const SPECS = {
     spawn: [DESERT_SPAWN.x, DESERT_SPAWN.z],
     board: DESERT_MAP_BOARD,
     areas: Object.entries(DESERT_LANDMARKS).filter(([k]) => k !== "sunstone" && k !== "pyramid").map(([, l]) => ({ name: l.label, icon: l.icon, at: l.center })),
+  },
+  [QT_REGION_ID]: {
+    title: QT_NAME, icon: "➗", subtitle: "The halls under the desert — explore every wing",
+    accent: "#b8862a", deep: "#5a3a12", paper: "#efe2c4",
+    bounds: { x0: -120, x1: 110, z0: -88, z1: 92 },
+    spawn: [QT_SPAWN.x, QT_SPAWN.z],
+    board: QT_MAP_BOARD,
+    areas: QT_LANDMARKS.map((l) => ({ name: l.label, icon: "", at: l.p })),
   },
   schoolyard: {
     title: "Retrieval Practice Playground", icon: "🏫", subtitle: "Find the nine staff — each holds a key",
@@ -266,6 +277,12 @@ export function regionMapPois(regionId, ctx = {}) {
     add({ id: "tables-wall", kind: "trophies", icon: "🔢", name: "Times-Table Wall", sub: "Your times-table square", at: TEMPLE_WALL.position, target: [TEMPLE_WALL.position[0], TEMPLE_WALL.position[1] + 2] });
     add({ id: "pyramid", kind: "place", icon: "🔺", name: "The Great Pyramid", sub: "Climb the grand stair to the Sunstone", at: PYRAMID.c, target: [0, PYRAMID.stair.zFoot + 3] });
     add({ id: "sunstone", kind: "place", icon: "✨", name: "The Sunstone", sub: "On top of the Great Pyramid", at: SUNSTONE.position, target: [SUNSTONE.position[0], SUNSTONE.position[1] + 5] });
+  } else if (regionId === QT_REGION_ID) {
+    QT_SPOTS.forEach((s) => {
+      out.push({ id: `spot-${s.id}`, kind: "place", icon: s.icon, name: s.label, sub: "A place to explore", at: s.center, target: s.center });
+    });
+    add(person("qt-welcome-host", "guide", "👋", "Mills", "Your guide"));
+    add({ id: "sanctum-door", kind: "place", icon: "🔒", name: "The Sealed Sanctum", sub: "Its challenges are coming soon", at: QT_SANCTUM_SPOT, target: QT_SANCTUM_SPOT });
   } else if (regionId === "schoolyard") {
     const sum = achievementsSummary(ctx.progress || {}, ctx.results || []);
     const pg = sum.panels.find((p) => p.id === "playground");

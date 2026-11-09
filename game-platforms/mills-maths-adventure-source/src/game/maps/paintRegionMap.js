@@ -38,6 +38,11 @@ import {
 import { OBELISKS as D_OBELISKS, CRYSTALS as D_CRYSTALS, DUNE_SHIP as D_SHIP, SUNSTONE as D_SUNSTONE } from "../../data/desert/desertLayout.js";
 import { getDesertProps } from "../../data/desert/desertProps.js";
 import { getDesertGroundColours } from "../desert/DesertTerrain.jsx";
+import {
+  CELLS as QT_CELLS, BLOCKS as QT_BLOCKS, baseFloor as qtBase, structureTopAt as qtStruct, sandAt as qtSand, cellsAt as qtCellsAt,
+  PILLARS as QT_PILLARS, COLOSSI as QT_COLOSSI, GUARDIANS as QT_GUARDIANS, RAILS as QT_RAILS, DECKS as QT_DECKS, STATUES as QT_STATUES,
+  SHELVES as QT_SHELVES, TABLES as QT_TABLES, COIN_PILES as QT_COINS, IDOL as QT_IDOL, isCarved as qtCarved,
+} from "../../data/qtemple/qtempleWorld.js";
 // The Playground
 import { terrainHeight as yHeight, GRID as Y_GRID, getSchoolGrid } from "../../data/schoolyard/schoolyardTerrain.js";
 import {
@@ -184,6 +189,30 @@ const GROUND = {
       if (dPool(x, z) !== null) return { h: y, c: mixc(hex("#5fd0d0"), hex("#1f8a9e"), 0.4), wet: true };
       if (k < 0) return { h: y, c: [214, 170, 118] };
       return { h: y, c: [srgb(col[k * 3]), srgb(col[k * 3 + 1]), srgb(col[k * 3 + 2])] };
+    };
+  },
+  "quotient-temple": () => {
+    const FLOOR = {
+      sandstone: hex("#d9bf8e"), stairs: hex("#e6d4ae"), marble: hex("#ece4d2"), diamond: hex("#c9953e"), wood: hex("#9a6a42"),
+      brick: hex("#c28a52"), slab: hex("#7d5d42"), gold: hex("#e2b84c"), sand: hex("#dcc08a"),
+    };
+    const BLOCK = { marble: hex("#f2ead8"), brick: hex("#b87a46"), brickRamp: hex("#a8562f"), darkStone: hex("#5e4430"), sandstone: hex("#e2c89a"), wood: hex("#b07a4a") };
+    const ROCK = hex("#3a2a1e");
+    return (x, z) => {
+      if (!qtCarved(x, z)) return { h: 4, c: ROCK };
+      const s = qtSand(x, z);
+      if (s && s.sdf < 0) return { h: s.pool.level, c: mixc(hex("#9a6a3a"), hex("#5a3a20"), Math.min(1, -s.sdf / 4)), wet: true };
+      const f = qtBase(x, z);
+      const top = qtStruct(x, z);
+      if (top !== null && top > f + 0.01) {
+        const b = QT_BLOCKS.find((k) => x >= k.x0 && x <= k.x1 && z >= k.z0 && z <= k.z1 && (typeof k.top === "function" ? k.top(x, z) : k.top) >= top - 1e-6);
+        return { h: top, c: (b && BLOCK[b.look]) || hex("#d9bf8e") };
+      }
+      const c = qtCellsAt(x, z).sort((a, b) => (typeof b.floor === "function" ? b.floor(x, z) : b.floor) - (typeof a.floor === "function" ? a.floor(x, z) : a.floor))[0];
+      let col = FLOOR[c.mat] || hex("#d9bf8e");
+      // The Great Hall's checker.
+      if (c.mat === "marble" && (Math.floor((x + 100) / 2) + Math.floor((z + 100) / 2)) % 2) col = hex("#c9c1ae");
+      return { h: f, c: col };
     };
   },
   schoolyard: () => {
@@ -348,6 +377,31 @@ const OVERLAYS = {
     // The decks: the rope bridge, the boardwalk.
     g.lineCap = "butt";
     for (const d of dLate().decks) { pline(g, P, [d.from, d.to]); g.strokeStyle = "#5e3e22"; g.lineWidth = d.hw * 2 * m + 3; g.stroke(); pline(g, P, [d.from, d.to]); g.strokeStyle = "#b8864e"; g.lineWidth = d.hw * 2 * m; g.stroke(); }
+  },
+  "quotient-temple": (g, P, m) => {
+    const dot = (x, z, r, fill, stroke) => { const [a, b] = P(x, z); g.beginPath(); g.arc(a, b, Math.max(3, r * m), 0, 7); g.fillStyle = fill; g.fill(); if (stroke) { g.strokeStyle = stroke; g.lineWidth = 2; g.stroke(); } };
+    // Room outlines (a dark edge where the rock begins).
+    g.strokeStyle = "rgba(30,18,8,0.55)"; g.lineWidth = 3;
+    for (const c of QT_CELLS) { const [a, b] = P(c.x0, c.z0); g.strokeRect(a, b, (c.x1 - c.x0) * m, (c.z1 - c.z0) * m); }
+    // The Grand Descent's red carpet.
+    { const [a, b] = P(-2.1, 33.5); g.fillStyle = "#8e1f22"; g.fillRect(a, b, 4.2 * m, 40 * m); }
+    // The Quotient Seal.
+    dot(0, 4, 9, "rgba(217,165,33,0.35)", "#b8862a"); dot(0, 4, 3, "#2a1d0c");
+    // The grate bridge.
+    for (const d of QT_DECKS) { const [a, b] = P(d.x0, d.z0); g.fillStyle = "rgba(60,56,52,0.85)"; g.fillRect(a, b, (d.x1 - d.x0) * m, (d.z1 - d.z0) * m); g.strokeStyle = "#9a9088"; g.lineWidth = 1; for (let x = d.x0; x < d.x1; x += 1.5) { const [u] = P(x, 0); g.beginPath(); g.moveTo(u, b); g.lineTo(u, b + (d.z1 - d.z0) * m); g.stroke(); } }
+    // Rails.
+    g.strokeStyle = "rgba(60,36,14,0.8)"; g.lineWidth = 2;
+    for (const r of QT_RAILS) { pline(g, P, [r.a, r.b]); g.stroke(); }
+    // Columns, colossi, statues, guardians, the cobra, furniture, treasure.
+    for (const [x, z, r, style] of QT_PILLARS) dot(x, z, r, style === "cobra" ? "#2a1d14" : style === "heads" ? "#c9a46a" : "#f6efe0", style === "cobra" ? "#d9a521" : "#8a6a3a");
+    for (const c of QT_COLOSSI) { const [a, b] = P(c.p[0] - c.hx, c.p[1] - c.hz); g.fillStyle = "#cfc3a6"; g.fillRect(a, b, c.hx * 2 * m, c.hz * 2 * m); g.strokeStyle = "#6a5038"; g.strokeRect(a, b, c.hx * 2 * m, c.hz * 2 * m); }
+    for (const s of QT_STATUES) dot(s.p[0], s.p[1], 0.8, "#8c8476");
+    for (const s of QT_GUARDIANS) { const [a, b] = P(s.p[0] - 1.8 * s.s, s.p[1] - 1.6 * s.s); g.fillStyle = "#5e4430"; g.fillRect(a, b, 3.6 * s.s * m, 3.2 * s.s * m); }
+    dot(93.2, 16, 2.6, "#e0aa2e", "#3c6a3a");
+    for (const s of QT_SHELVES) { const w = s.yaw === 0 ? s.w : s.d, d = s.yaw === 0 ? s.d : s.w; const [a, b] = P(s.x - w / 2, s.z - d / 2); g.fillStyle = "#5a3a1e"; g.fillRect(a, b, w * m, d * m); }
+    for (const [x, z, yaw] of QT_TABLES) { const w = yaw === 0 ? 4.4 : 2, d = yaw === 0 ? 2 : 4.4; const [a, b] = P(x - w / 2, z - d / 2); g.fillStyle = "#7a5232"; g.fillRect(a, b, w * m, d * m); }
+    for (const [x, z, r] of QT_COINS) dot(x, z, r, "#ffd34a", "#a87a10");
+    dot(QT_IDOL.p[0], QT_IDOL.p[1], QT_IDOL.r, "#ffcf3a", "#7a5208");
   },
   schoolyard: (g, P, m) => {
     { const [cx, cz] = P(OVAL.c[0], OVAL.c[1]); g.fillStyle = "#6fb24f"; g.strokeStyle = "#ffffff"; g.lineWidth = 3; g.beginPath(); g.ellipse(cx, cz, OVAL.rx * m, OVAL.rz * m, 0, 0, Math.PI * 2); g.fill(); g.stroke(); }

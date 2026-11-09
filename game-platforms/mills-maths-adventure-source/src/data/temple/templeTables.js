@@ -56,7 +56,7 @@ export const FAMILIES = [
     blurb: "Double it. Double it again. And again." },
   { id: "threes", name: "The Threes Family", icon: "🪨", color: "#c4553c", where: "the top of the Red Mesa", tables: [3, 6, 9, 12],
     blurb: "Know your 3s and the 6s, 9s and 12s follow." },
-  { id: "sevens", name: "The 7s", icon: "☀️", color: "#d68a00", where: "the Sun Temple", tables: [7],
+  { id: "sevens", name: "The 7s", icon: "☀️", color: "#d68a00", where: "the top of Sundial Rise", tables: [7],
     blurb: "The last table — and you already know most of it." },
   { id: "summit", name: "The Grand Mix", icon: "✨", color: "#c99a1a", where: "the Sunstone, on top of the Great Pyramid", tables: TABLE_ORDER,
     blurb: "Every table, all at once." },
@@ -467,4 +467,18 @@ export function roundCoins(station, score, bestBefore) {
   let bonus = 0;
   for (const id of ["bronze", "silver", "gold"]) if (RANK[id] > before && RANK[id] <= after) bonus += MEDAL_COINS[id];
   return Math.floor(score / 5) + bonus;
+}
+
+/**
+ * (2026-11-09) THE QUOTIENT TEMPLE'S DOOR — the desert temple opens once a
+ * student holds at least a 🥉 on ALL fifteen stations (admin: always).
+ */
+export function quotientDoorProgress(bests = allBests()) {
+  const have = STATIONS.filter((s) => medalFor(s, bests[s.key] || 0)).length;
+  return { have, need: STATIONS.length };
+}
+export function quotientDoorOpen(bests = allBests(), admin = false) {
+  if (admin) return true;
+  const p = quotientDoorProgress(bests);
+  return p.have >= p.need;
 }

@@ -49,6 +49,12 @@ import {
   desertIsSafe, QUICKSAND_HINT,
 } from "./desert/desertTerrain.js";
 import {
+  QT_REGION_ID, QT_NAME, QT_BOUNDS, QT_SPAWN, QT_ARRIVE_YAW, QT_RETURN_PORTAL, DESERT_FROM_QT,
+  qtGroundHeight, qtSlideAt, qtSpeedAt, qtHazardAt, qtHazardInfo, qtSinkLevelAt, qtIsSafe, qtCameraFit, QT_SAND_HINT,
+} from "./qtemple/qtempleWorld.js";
+import { quotientDoorOpen } from "./temple/templeTables.js";
+import { isAdminMode } from "./adminMode.js";
+import {
   CABIN_BOUNDS, CABIN_SPAWN, CABIN_DOOR, LODGE_DOOR_SNOW,
   CABIN_ARRIVE_FROM_SNOW, SNOW_ARRIVE_FROM_CABIN,
 } from "./cabin/cabinLayout.js";
@@ -404,6 +410,54 @@ export const REGIONS = {
     },
     portals: [
       { id: "desert-to-island", position: DESERT_RETURN_PORTAL, radius: 2.0, rotationY: DESERT_RETURN_PORTAL_YAW, target: "island-1", label: "Number Island", variant: "desert", arrive: ISLAND_GATES.desert.arrive, arriveYaw: ISLAND_GATES.desert.arriveYaw },
+      // (2026-11-09) The Quotient Temple's door (drawn by DesertTempleStations):
+      // shut until every station holds a 🥉 — then down into the temple.
+      { id: "desert-to-qtemple", position: [0, -117.3], radius: 1.5, rotationY: 0, target: QT_REGION_ID, label: QT_NAME, variant: "templedoor", arrive: [QT_SPAWN.x, QT_SPAWN.z], arriveYaw: QT_ARRIVE_YAW },
+    ],
+    portalLocked: (id) => id === "desert-to-qtemple" && !quotientDoorOpen(undefined, isAdminMode()),
+    portalLockedHint: "The Quotient Temple is sealed. Win at least a bronze on all fifteen stations to open its door.",
+  },
+
+  // --- THE QUOTIENT TEMPLE (2026-11-09) — the NINTH region: the halls carved
+  // under the desert temple (down the Grand Descent into the Great Hall, the
+  // Hall of Heads, the Scribes' Library, the Sunken Pit, the Cobra Throne,
+  // the Treasury + the Guardians' Court). Land only for now. ---
+  [QT_REGION_ID]: {
+    id: QT_REGION_ID,
+    name: QT_NAME,
+    spawn: { x: QT_SPAWN.x, z: QT_SPAWN.z },
+    bounds: QT_BOUNDS,
+    groundHeight: qtGroundHeight,
+    slideAt: qtSlideAt,
+    speedAt: qtSpeedAt,
+    isLava: qtHazardAt,
+    hazardInfo: qtHazardInfo,
+    hazardKind: "quicksand",
+    hazardHint: QT_SAND_HINT,
+    wipeLine: "You sank in the sand!",
+    hazardSound: "sink",
+    waterLevelAt: qtSinkLevelAt,
+    isSafe: qtIsSafe,
+    cameraFit: qtCameraFit,
+    maxFrameDelta: 1 / 15,
+    arriveYaw: QT_ARRIVE_YAW,
+    badgeRange: 40,
+    drawRange: 140,
+    geometry: {
+      // Underground: the dark beyond the torchlight (fog closes the far end
+      // of the long halls into warm darkness).
+      skyColor: "#140d07",
+      skyTop: "#0b0704",
+      fogNear: 45,
+      fogFar: 150,
+      grassColor: "#3a2a1a",
+      beachColor: "#3a2a1a",
+      oceanColor: "#140d07",
+      walkableRadius: 130,
+      oceanRadius: 140,
+    },
+    portals: [
+      { id: "qtemple-to-desert", position: QT_RETURN_PORTAL, radius: 1.6, rotationY: Math.PI, target: DESERT_REGION_ID, label: "Sunstone Desert", variant: "templedoor", arrive: DESERT_FROM_QT.arrive, arriveYaw: DESERT_FROM_QT.arriveYaw },
     ],
   },
 

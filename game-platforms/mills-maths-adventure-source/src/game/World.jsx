@@ -1,5 +1,6 @@
 import React from "react";
 import { Environment, Lightformer } from "@react-three/drei";
+import { useThree } from "@react-three/fiber";
 
 import Player from "./Player.jsx";
 import Interactable from "./Interactable.jsx";
@@ -44,6 +45,8 @@ import WaypointBeacon from "./maps/WaypointBeacon.jsx";
 import { JUNGLE_REGION_ID, isOnJunglePath, terrainHeight as jungleTerrainHeight } from "../data/jungle/jungleLayout.js";
 import MagmaScenery from "./MagmaScenery.jsx";
 import DesertScenery from "./DesertScenery.jsx";
+import QTempleScenery from "./QTempleScenery.jsx";
+import { QT_REGION_ID } from "../data/qtemple/qtempleWorld.js";
 import { DESERT_REGION_ID } from "../data/desert/desertLayout.js";
 import { isOnSand, terrainHeight as desertTerrainHeight } from "../data/desert/desertTerrain.js";
 import { MAGMA_REGION_ID, isOnAsh, magmaGroundHeight } from "../data/magma/magmaLayout.js";
@@ -61,6 +64,13 @@ import TitleCamera from "./TitleCamera.jsx";
  * cinematic loop round Number Island (or a slow orbit in the other worlds,
  * when "Edit character" is opened mid-adventure).
  */
+/** DEV only: the scene + camera for the screenshot / check harness. */
+function DevHandle() {
+  const { scene, camera, gl } = useThree();
+  if (import.meta.env.DEV && typeof window !== "undefined") window.__qt3 = { scene, camera, gl };
+  return null;
+}
+
 export default function World({ title = false }) {
   // Geometry/colours + which scenery to render come from the ACTIVE region.
   const regionId = useSession((s) => s.currentRegionId);
@@ -93,6 +103,9 @@ export default function World({ title = false }) {
   // that follows the player (shadows across the big desert), a golden haze on
   // the horizon and a warm sand-bounce from below.
   const isDesert = regionId === DESERT_REGION_ID;
+  // The Quotient Temple (2026-11-09): underground — torchlight, braziers and
+  // shafts of daylight; it brings its own lights (QTempleScenery).
+  const isQT = regionId === QT_REGION_ID;
   const region = getRegion(regionId);
   const touchMode = useUI((s) => s.touchMode);
   const highGfx = useUI((s) => s.graphicsQuality) === "high";
@@ -106,7 +119,7 @@ export default function World({ title = false }) {
       {/* Gradient sky dome + hazy distant islands (W5-E). Sky is cheap → always
           on; islands (island region only) add a little geometry → High only.
           Horizon colour = fog colour so the fogged distance blends in. */}
-      <SkyDome horizon={geo.skyColor} top={isCabin ? "#120c07" : geo.skyTop || undefined} radius={isMagma ? 470 : isJungle || isFarm || isSnow || isIsland || isSchool || isDesert ? 640 : undefined} trueHorizon={isIsland || isSchool} />
+      {!isQT && <SkyDome horizon={geo.skyColor} top={isCabin ? "#120c07" : geo.skyTop || undefined} radius={isMagma ? 470 : isJungle || isFarm || isSnow || isIsland || isSchool || isDesert ? 640 : undefined} trueHorizon={isIsland || isSchool} />}
 
       {/* --- Soft-cartoon lighting (W5-A) ---
           A warm key light (soft shadows), a warm sky/ground hemisphere fill, and
@@ -119,14 +132,14 @@ export default function World({ title = false }) {
           brightness (otherwise High just looks washed-out vs Low). */}
       <hemisphereLight
         args={[
-          isFarm ? "#fff0d8" : isSnow ? "#dce6ff" : isCabin ? "#ffcf9e" : isMagma ? "#ffc29a" : isJungle ? "#e4f4ff" : isDesert ? "#fff1d6" : isIsland || isSchool ? "#eaf6ff" : "#fff4e0",
-          isFarm ? "#6f8a4a" : isSnow ? "#8f97b8" : isCabin ? "#3a2716" : isMagma ? "#6a2a1c" : isJungle ? "#4d6e33" : isDesert ? "#b47a48" : isIsland ? "#7aa65a" : isSchool ? "#8f9a74" : "#a9cf97",
-          isSnow ? (highGfx ? 0.62 : 0.95) : isCabin ? (highGfx ? 0.4 : 0.6) : isMagma ? (highGfx ? 0.75 : 1.15) : isJungle || isFarm || isIsland || isSchool || isDesert ? (highGfx ? 0.62 : 0.95) : highGfx ? 0.45 : 0.8,
+          isFarm ? "#fff0d8" : isSnow ? "#dce6ff" : isCabin ? "#ffcf9e" : isMagma ? "#ffc29a" : isJungle ? "#e4f4ff" : isDesert ? "#fff1d6" : isQT ? "#ffd9a8" : isIsland || isSchool ? "#eaf6ff" : "#fff4e0",
+          isFarm ? "#6f8a4a" : isSnow ? "#8f97b8" : isCabin ? "#3a2716" : isMagma ? "#6a2a1c" : isJungle ? "#4d6e33" : isDesert ? "#b47a48" : isQT ? "#3a2412" : isIsland ? "#7aa65a" : isSchool ? "#8f9a74" : "#a9cf97",
+          isSnow ? (highGfx ? 0.62 : 0.95) : isCabin ? (highGfx ? 0.4 : 0.6) : isMagma ? (highGfx ? 0.75 : 1.15) : isQT ? (highGfx ? 0.5 : 0.75) : isJungle || isFarm || isIsland || isSchool || isDesert ? (highGfx ? 0.62 : 0.95) : highGfx ? 0.45 : 0.8,
         ]}
       />
       <ambientLight intensity={isSnow ? (highGfx ? 0.12 : 0.26) : isCabin ? (highGfx ? 0.16 : 0.28) : highGfx ? 0.12 : 0.28} />
       {/* Number Island, Magma Multiples, Emerald Jungle, Fraction Farm, Snowball Sums + the Playground bring their OWN player-following key light. */}
-      {!isMagma && !isJungle && !isFarm && !isSnow && !isIsland && !isSchool && !isDesert && <directionalLight
+      {!isMagma && !isJungle && !isFarm && !isSnow && !isIsland && !isSchool && !isDesert && !isQT && <directionalLight
         position={isFarm ? [-30, 14, 12] : isSnow ? [22, 28, -18] : isCabin ? [-8, 22, 10] : [20, 30, 16]}
         intensity={isFarm ? 1.35 : isSnow ? 0.95 : isCabin ? 0.55 : 1.5}
         color={isFarm ? "#ffd9a0" : isSnow ? "#bdcdff" : isCabin ? "#ffcf9e" : "#fff0cc"}
@@ -140,7 +153,7 @@ export default function World({ title = false }) {
         shadow-camera-bottom={-40}
       />}
       {/* Cool rim/back light — no shadow, cheap; gives the edge glow. */}
-      <directionalLight position={[-18, 12, -22]} intensity={0.8} color="#bcd8ff" />
+      {!isQT && <directionalLight position={[-18, 12, -22]} intensity={0.8} color="#bcd8ff" />}
 
       {highGfx && (
         <Environment resolution={64} frames={1}>
@@ -238,6 +251,10 @@ export default function World({ title = false }) {
         </>
       )}
 
+      {/* --- THE QUOTIENT TEMPLE (2026-11-09): the halls under the desert. --- */}
+      {isQT && <QTempleScenery />}
+      {import.meta.env.DEV && <DevHandle />}
+
       {/* Teleport Gates for the active region (W2-C) — walk in to travel. The
           Fraction Farm gate uses the haybale variant; the Snowball Sums gate
           is an igloo; "cabindoor" portals draw NO swirl — their visuals are
@@ -250,7 +267,7 @@ export default function World({ title = false }) {
         // A gate the journey hasn't opened yet is drawn SHUT (padlocked).
         const lock = isIsland ? lockForPortal(p.id) : null;
         const lk = { locked: Boolean(lock), lockNote: lock ? lock.note : "", fresh: isIsland && !lock && freshPortal(p.id) };
-        return p.variant === "cabindoor" ? null : p.variant === "desert" ? (
+        return p.variant === "cabindoor" || p.variant === "templedoor" ? null : p.variant === "desert" ? (
           <DesertPortal key={p.id} position={p.position} rotationY={p.rotationY} label={p.label} y={gy} labelRange={lr} {...lk} />
         ) : p.variant === "jungle" ? (
           <JunglePortal key={p.id} position={p.position} rotationY={p.rotationY} label={p.label} y={gy} labelRange={lr} {...lk} />
@@ -285,7 +302,7 @@ export default function World({ title = false }) {
       {/* The waypoint set on the world map: a column of light to walk to. */}
       {!title && <WaypointBeacon />}
 
-      {touchMode && !title && <GroundTapCatcher />}
+      {touchMode && !title && !isQT && <GroundTapCatcher />}
       {touchMode && !title && <DestinationMarker />}
 
       {/* The student's character (shared across regions; also drives the

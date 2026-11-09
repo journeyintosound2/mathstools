@@ -448,7 +448,8 @@ export const ENCOUNTERS = {
     config: { speaker: "Mills", lines: [
       "Welcome to the Timestable Temple! ☀️ This whole desert is a times-table temple — fifteen stations carved into stones.",
       "Start with the 10s in BAZAAR SQUARE, straight through the Caravan Gate. Win a 🥉 bronze and the next station opens — the 5s, then the 11s.",
-      "The stations come in families: the Anchors in the Bazaar, the Doubling family at the Oasis, the Threes family on top of the Red Mesa, the 7s at the Sun Temple — and the Grand Mix on top of the Great Pyramid!",
+      "The stations come in families: the Anchors in the Bazaar, the Doubling family at the Oasis, the Threes family on top of the Red Mesa, the 7s on top of Sundial Rise — and the Grand Mix on top of the Great Pyramid!",
+      "🔒 At the end of the Obelisk Avenue stands the sealed QUOTIENT TEMPLE. Win at least a 🥉 bronze on ALL fifteen stations and its great door will open!",
       "Dash the camel, by the Times-Table Wall, shows you the way to your next station — and every day there's a quick warm-up to keep your facts sharp.",
       "⚠️ Watch out for QUICKSAND — swirly dark sand. Step into the edge and you'll sink to your knees; go any further and it swallows you, and you're back at the start!",
       "🗺️ The MAP BOARD here shows the whole desert — click a place to set a waypoint. Press M to open the map any time.",
@@ -457,6 +458,33 @@ export const ENCOUNTERS = {
   "temple-station": {
     id: "temple-station", type: "dialogue", title: "Timestable Temple",
     config: { speaker: "Dash", lines: ["Every stone here is a times-table station. Win a 🥉 to open the next one!"] },
+  },
+  // ---- The Quotient Temple (2026-11-09) ----
+  "qt-welcome": {
+    id: "qt-welcome", type: "dialogue", title: "Quotient Temple",
+    config: { speaker: "Mills", lines: [
+      "You opened the Quotient Temple! ➗ Every bronze in the desert helped turn the key.",
+      "Follow the red carpet down the Grand Descent — three long flights, deep under the sand — into the Great Hall.",
+      "From the Great Hall, explore the wings: the Hall of Heads, the Scribes' Library, the Sunken Pit, the Cobra Throne, the Treasury and the Guardians' Court.",
+      "The great ÷ door at the far end of the hall is still sealed. Its challenges are coming soon!",
+      "⚠️ Watch out for SINKING SAND in the Sunken Pit and the Guardians' Court — cross the pit on the grate bridge above it.",
+      "🗺️ The MAP BOARD here shows every room. The big doors behind you lead back out to the desert.",
+    ] },
+  },
+  "qt-sanctum": {
+    id: "qt-sanctum", type: "dialogue", title: "The Sealed Sanctum",
+    config: { speaker: "The Sealed Sanctum", lines: [
+      "A great bronze door, sealed with a golden ÷.",
+      "It won't budge… not yet. The Quotient Temple's challenges are coming soon!",
+    ] },
+  },
+  "qt-treasure": {
+    id: "qt-treasure", type: "dialogue", title: "Treasure Chest",
+    config: { speaker: "Treasure Chest", lines: ["A temple chest, high on the terrace…"] },
+  },
+  "quotient-door": {
+    id: "quotient-door", type: "dialogue", title: "Quotient Temple",
+    config: { speaker: "Quotient Temple", lines: ["A great sealed door, carved with a golden ÷."] },
   },
   "desert-treasure": {
     id: "desert-treasure", type: "dialogue", title: "Treasure Chest",

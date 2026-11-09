@@ -271,13 +271,14 @@ export function runTempleChecks() {
     }
     if (desertGroundHeight(...TEMPLE_STONE.grand.position, 200) < 20) bad.push("grand not on the summit");
     if (desertGroundHeight(...TEMPLE_STONE.x3.position, 200) < 12) bad.push("threes not on the mesa");
+    if (desertGroundHeight(...TEMPLE_STONE.x7.position, 200) < 8) bad.push("sevens not on Sundial Rise");
     for (const f of FAMILIES) {
       const st = STATIONS.filter((s) => s.family === f.id).map((s) => TEMPLE_STONE[s.key].position);
       const cx = st.reduce((a, p) => a + p[0], 0) / st.length, cz = st.reduce((a, p) => a + p[1], 0) / st.length;
       if (st.some((p) => Math.hypot(p[0] - cx, p[1] - cz) > 12)) bad.push(`${f.id} spread out`);
     }
     if (!desertIsSafe(TEMPLE_WALL.position[0], TEMPLE_WALL.position[1] + 2) || !desertIsSafe(TEMPLE_DASH.position[0] + 2, TEMPLE_DASH.position[1] + 1.5)) bad.push("wall / Dash");
-    push("Temple: the fifteen stones stand in their family groups (Bazaar, Oasis, Red Mesa top, Sun Temple, pyramid summit) on flat, safe, clear ground", bad.length === 0,
+    push("Temple: the fifteen stones stand in their family groups (Bazaar, Oasis, Red Mesa top, Sundial Rise top, pyramid summit) on flat, safe, clear ground", bad.length === 0,
       bad.length ? bad.slice(0, 6).join("; ") : `${TEMPLE_STONES.length} stones + the wall + Dash`);
   }
 

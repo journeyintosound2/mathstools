@@ -12,6 +12,13 @@
 > `src/game/demo/registry.js` — DM1–DM5 fail without it. It is part of
 > "done". See "Challenge demos" under Rules of thumb for the checklist.
 
+> **NEW (built 2026-11-09): THE QUOTIENT TEMPLE** — the NINTH region, the
+> inside of the desert's old Sun Temple. Its bronze door (15 sockets lit by
+> medal) stays sealed until EVERY Timestable Temple station holds at least a
+> 🥉; then a Grand Descent leads 18 m down into a Great Hall + six wings.
+> Exploration only — no maths yet. The 7s moved to the top of Sundial Rise.
+> See "DONE (2026-11-09) — THE QUOTIENT TEMPLE". **685 → 699 checks.**
+
 > **NEW (built 2026-11-08, later the same day): THE TIMESTABLE TEMPLE** —
 > the desert world (built that morning as the "Sunstone Desert") is now a
 > times-table FLUENCY world: fifteen stations (the 10s, 5s, 11s, Anchor Mix,
@@ -290,6 +297,70 @@
 > interactive plot-a-point input mode (tap the Cartesian grid) · Stage 5
 > depth (still only 2 sample skills) · more Stage 4 topics (Area extension)
 > · a DevPanel gallery to eyeball every new diagram/chart at once.
+
+## DONE (2026-11-09) — THE QUOTIENT TEMPLE: the ninth region, under the desert (EXPLORE ONLY)
+
+Jeff asked for the Sun Temple to become the **Quotient Temple** with a locked
+door that opens only with at least a bronze on every Timestable Temple
+station, leading into a brand-new temple-interior world (half the desert's
+size, a long staircase down, inspired by Temple of Time / Mario RPG / SM64's
+pyramid / Gobi's Valley / a cobra throne room). No challenges yet.
+
+**The desert side.** `data/temple/templeTables.js` `quotientDoorProgress()` /
+`quotientDoorOpen(bests, admin)`. The portal `desert-to-qtemple` at
+[0, −117.3] (regions.js) + `portalLocked(id)` (checked in Player.jsx; a locked
+portal shows `portalLockedHint` in the 🔒 prompt). `DesertTempleStations.jsx`
+`QuotientDoor`: bronze leaves with a ÷ seal, 15 sockets in an arch (one per
+station, lit bronze/silver/gold), the name plate; the leaves swing out and
+torchlight shows when open. Interactable `quotient-door` ("Read the temple
+door") reports `🥉 have / 15`. The 7s stone moved to the TOP OF SUNDIAL RISE
+`[54, −12.5]`; FAMILY sevens `where` + Mills' desert lines + the desert intro
+updated; the spot + signposts say "Quotient Temple".
+
+**The world** (`QT_REGION_ID = "quotient-temple"`, rect 236 × 180 m, ~52% of
+the desert's plan, 18,152 m² of floor). Everything is CARVED FROM ROCK in
+`data/qtemple/qtempleWorld.js`: `CELLS` (rooms/passages: floor + ceiling, each
+may be a function), `BLOCKS` (galleries, daises, ledges, terraces, stairs,
+ramps), `DECKS` (the grate bridge — layered ground), `SAND_POOLS` (sinking
+sand — the wipe-out pattern). Rooms: Temple Doors (vestibule, y 0) → the
+Grand Descent (3 flights, 0 → −8 → −16 → −18, red carpet, owl statues) → the
+Great Hall (60 × 63.5 m, 30 m high: marble checker, the Quotient Seal, 14
+fluted columns, star-blue vault with gold ribs, rose windows + light shafts,
+raised galleries, two seated + two standing colossi, the SEALED SANCTUM door
+on a dais — the hook for future challenges) → the Hall of Heads (golden faces,
+sunken floor) → the Scribes' Library → the Sunken Pit (−32 floor, ledges,
+ramps, a stair, the hanging grate bridge, sinking sand + a sandfall) → the
+Cobra Throne (cobra pillars, glowing glyph walls, the coiled cobra on a
+4-tier dais) → the Treasury → the Guardians' Court (two terraces, 8 guardian
+heads, a light well, the chest, sinking sand).
+
+**Visuals** (`game/QTempleScenery.jsx` + `game/qtemple/`): `qtGeometry.js`
+turns the plan into boxes — walls are AUTO-GENERATED along every room edge
+that meets rock, with lintels/risers where a neighbouring room's ceiling is
+lower / floor higher — so what you see is what you walk on (QT6 checks it).
+`QtStructure` (floors, walls, ceilings, blocks, grate; tap-to-move on floors),
+`QtHall`, `QtRooms` (arches, balustrades, sconces, every room's dressing),
+`QtFigures` (heads, guardians, colossi, cobra, owls, treasure, furniture),
+`QtAtmosphere` (a POOL of 6/3 point lights that hops to the fires nearest
+you, flames, dust, sand pools + sandfalls, the light well), `qtMaterials.js`
+(canvas textures, no downloads). ~160 draws / 155k tris in the hall.
+
+**SCALABILITY (adding rooms later):** add a `CELLS` entry (+ a doorway cell
+touching an existing room) — the walls, lintels, floor, ceiling, map colour
+and the QT2 walk check all follow automatically. Unused rock is left on every
+side (north beyond the Sanctum door is the obvious next wing).
+
+**Integration:** interactables (Mills `qt-welcome-host`, `qt-sanctum`,
+`qt-chest` — 15 coins once a session, the map board), encounters, the intro
+card (`noMedals: true`), map spec + paint (`MAP_REGION_IDS`), `REGION_WORLD`
+→ "temple", Admin panel stop, colliders, Farsi + Arabic for every new string.
+Checks **QT1–QT10** (`dev/qtempleChecks.js`): hooks; a 0.5 m walk of the
+whole plan from the doors (every room, gallery, pit floor, bridge, terrace,
+throne — and climbing back out from each); sand only in the pools; the door
+shut at 0/15 and 14/15, open at 15/15 or admin; interactables reachable;
+floors/walls match the physics; the camera stays inside; the size; the 7s'
+move; translations. CP6's reset step now clears the farm best too (a stray
+best re-seeded the journey as an "old save"). **699 checks pass.**
 
 ## DONE (2026-11-09) — ONE STUDENT PER SAVE: the explorer travels, signing out clears the computer
 Jeff: "when I change my login it keeps the old person" (the HUD said Benji —
@@ -3467,7 +3538,7 @@ awards the trophy). L1–5 adaptive. Teacher tasks still override (handled upstr
 in interaction.js). Guarded by `runSchoolyardTopicChecks()`. Island NPCs (Pip/
 Fern/Alby) unchanged.
 
-## System checks (685)
+## System checks (699)
 `src/dev/systemChecks.js` → `runSystemChecks()`. Run headlessly: temporarily set
 `package.json` `"type":"module"`, shim `localStorage/window/document`, import and
 run; also babel parse-check `src/`, `portal/`, `functions/`. Restore package.json

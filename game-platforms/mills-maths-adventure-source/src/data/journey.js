@@ -107,7 +107,7 @@ export function worldsOpenedBy(key) {
 /** Region ids that belong to a journey world (the Lodge sits inside the snow). */
 export const REGION_WORLD = {
   "snow-sums": "snow", cabin: "snow", "magma-multiples": "magma", "farm-parts-whole": "farm",
-  "emerald-jungle": "jungle", schoolyard: "playground", [DESERT_REGION_ID]: "temple",
+  "emerald-jungle": "jungle", schoolyard: "playground", [DESERT_REGION_ID]: "temple", "quotient-temple": "temple",
 };
 
 export function journeyWorld(keyOrRegion) {

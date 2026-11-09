@@ -205,8 +205,21 @@ export const WORLD_INTROS = {
         "Fifteen times-table stations are carved into stones across the desert — eleven tables and four mixes.",
         "Each one is a 90-second race: the more you get right, the better your medal. Win a bronze to open the next station.",
         "Dash the camel, by the Times-Table Wall, shows you the way. Start with the 10s in Bazaar Square!",
+        "Win a bronze on all fifteen and the sealed Quotient Temple will open its door!",
       ],
       go: "Let's go!",
+    },
+  ],
+  "quotient-temple": [
+    {
+      // Exploration only (no challenges yet) — so no medal key on the card.
+      id: "hello", card: true, icon: "➗", title: "Welcome to the Quotient Temple!", noMedals: true,
+      lines: [
+        "You've opened the sealed temple! Take the Grand Descent down, deep under the desert.",
+        "Explore the Great Hall and its six wings — the Hall of Heads, the Library, the Sunken Pit, the Cobra Throne, the Treasury and the Guardians' Court.",
+        "Keep out of the sinking sand! The great ÷ door's challenges are coming soon.",
+      ],
+      go: "Let's explore!",
     },
   ],
   schoolyard: [

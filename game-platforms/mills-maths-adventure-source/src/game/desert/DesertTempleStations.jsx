@@ -2,11 +2,11 @@ import React, { useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
-import { TEMPLE_STONES, TEMPLE_WALL, TEMPLE_DASH } from "../../data/desert/desertLayout.js";
-import { desertGroundHeight } from "../../data/desert/desertTerrain.js";
+import { TEMPLE_STONES, TEMPLE_WALL, TEMPLE_DASH, SUN_TEMPLE } from "../../data/desert/desertLayout.js";
+import { desertGroundHeight, desertPadLevel } from "../../data/desert/desertTerrain.js";
 import {
   stationOf, stationIndex, FAMILY, medalFor, allBests, stationOpen, nextStation, readFactStats, factState, factKey,
-  squareSummary, dayNumber,
+  squareSummary, dayNumber, STATIONS, quotientDoorOpen,
 } from "../../data/temple/templeTables.js";
 import { useTempleUI } from "../temple/templeStore.js";
 import { isAdminMode } from "../../data/adminMode.js";
@@ -268,6 +268,68 @@ function Dash() {
   );
 }
 
+/**
+ * THE QUOTIENT TEMPLE's DOOR (2026-11-09) — set in the old Sun Temple's
+ * doorway: two bronze leaves sealed with a golden ÷, fifteen sockets in an
+ * arch round the doorway (one per station, lit in its medal's colour), and
+ * the name over the lintel. With a 🥉 on every station the leaves swing out
+ * and torchlight spills from the stair inside.
+ */
+let _qPlate = null;
+function quotientPlate() {
+  if (_qPlate || typeof document === "undefined") return _qPlate;
+  _qPlate = canvas(1024, 160, (g, w, h) => {
+    g.fillStyle = "#3a2410"; g.fillRect(0, 0, w, h);
+    g.strokeStyle = "#e8b23a"; g.lineWidth = 10; g.strokeRect(8, 8, w - 16, h - 16);
+    g.fillStyle = "#ffd66b"; g.font = `900 84px ${FONT}`; g.textAlign = "center"; g.textBaseline = "middle";
+    g.fillText("÷  QUOTIENT TEMPLE  ÷", w / 2, h / 2 + 4);
+  });
+  return _qPlate;
+}
+function QuotientDoor({ state, M }) {
+  const T = SUN_TEMPLE;
+  const top = desertPadLevel("temple") + T.h;
+  const z = T.zBack;
+  const open = quotientDoorOpen(undefined, isAdminMode());
+  const plate = useMemo(() => desertMat("#ffffff", { map: quotientPlate()?.tex || null, emissive: "#ffcf6a", ei: 0.15 }), []);
+  const bronze = useMemo(() => desertMat("#8a5a2a", { metal: 0.6, rough: 0.4 }), []);
+  const glow = useMemo(() => new THREE.MeshBasicMaterial({ color: "#ffb45a", toneMapped: false }), []);
+  const sockets = STATIONS.map((s, i) => {
+    const a = Math.PI * (0.94 - (0.88 * i) / (STATIONS.length - 1));
+    const st = state[s.key];
+    const col = st && ["gold", "silver", "bronze"].includes(st.gem) ? GEM[st.gem] : "#4a3820";
+    return { k: s.key, x: Math.cos(a) * 4.2, y: top + 3.2 + Math.sin(a) * 4.2, col, lit: col !== "#4a3820" };
+  });
+  return (
+    <group>
+      {/* Torchlight from the stair inside (only seen with the door open). */}
+      {open && <mesh position={[0, top + 3.2, z + 0.27]} material={glow}><planeGeometry args={[4.2, 6.2]} /></mesh>}
+      {[-1, 1].map((k) => (
+        <group key={k} position={[2.2 * k, top + 3.15, z + 0.36]} rotation={[0, open ? 1.35 * k : 0, 0]}>
+          <Box p={[-1.1 * k, 0, 0]} s={[2.18, 6.2, 0.16]} m={bronze} />
+          {[1.9, 0, -1.9].map((y) => [-0.6, 0.6].map((x) => <Cyl key={`${y}${x}`} p={[-1.1 * k + x, y, 0.1]} rt={0.09} rb={0.09} h={0.1} m={M.gold} rot={[Math.PI / 2, 0, 0]} />))}
+          {/* Half of the ÷ seal on each leaf */}
+          <mesh position={[-0.02 * k, 0.4, 0.09]} rotation={[0, 0, k > 0 ? Math.PI / 2 : -Math.PI / 2]} material={M.gold}><circleGeometry args={[1.0, 24, 0, Math.PI]} /></mesh>
+          <Box p={[-0.36 * k, 0.4, 0.12]} s={[0.6, 0.14, 0.04]} m="#3a2410" />
+          {k < 0 && <Cyl p={[-0.0, 0.85, 0.12]} rt={0.11} rb={0.11} h={0.04} m="#3a2410" rot={[Math.PI / 2, 0, 0]} />}
+          {k < 0 && <Cyl p={[-0.0, -0.05, 0.12]} rt={0.11} rb={0.11} h={0.04} m="#3a2410" rot={[Math.PI / 2, 0, 0]} />}
+        </group>
+      ))}
+      {/* The fifteen sockets round the doorway. */}
+      {sockets.map((s) => (
+        <group key={s.k} position={[s.x, s.y, z + 0.78]}>
+          <Cyl p={[0, 0, -0.08]} rt={0.3} rb={0.3} h={0.16} m={M.goldStone} rot={[Math.PI / 2, 0, 0]} />
+          <mesh position={[0, 0, 0.05]}>
+            <sphereGeometry args={[0.2, 14, 10]} />
+            <meshStandardMaterial color={s.col} metalness={0.5} roughness={0.3} emissive={s.lit ? s.col : "#000000"} emissiveIntensity={s.lit ? 0.55 : 0} />
+          </mesh>
+        </group>
+      ))}
+      <mesh position={[0, top + 6.7, z + 0.66]} material={plate}><planeGeometry args={[5.4, 0.78]} /></mesh>
+    </group>
+  );
+}
+
 export default function DesertTempleStations() {
   const state = useTempleState();
   const M = useMemo(() => {
@@ -287,6 +349,7 @@ export default function DesertTempleStations() {
       {TEMPLE_STONES.map((s) => <Stone key={s.key} stone={s} state={state[s.key]} M={M} />)}
       <FactWall M={M} />
       <Dash />
+      <QuotientDoor state={state} M={M} />
     </group>
   );
 }

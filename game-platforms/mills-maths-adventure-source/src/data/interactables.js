@@ -47,6 +47,9 @@ import {
   DESERT_REGION_ID, DESERT_MAP_BOARD, DESERT_WELCOME_HOST, DESERT_CHEST_SPOTS, TEMPLE_STONES, TEMPLE_WALL, TEMPLE_DASH,
 } from "./desert/desertLayout.js";
 import { stationOf } from "./temple/templeTables.js";
+import {
+  QT_REGION_ID, QT_MAP_BOARD, QT_WELCOME_HOST, CHEST_SPOT as QT_CHEST_SPOT, QT_SANCTUM_SPOT, QUOTIENT_DOOR_SPOT,
+} from "./qtemple/qtempleWorld.js";
 import { SCHOOL_MAP_BOARD } from "./schoolyard/schoolyardLayout.js";
 
 // WORLD MAP BOARDS (2026-10-10): every world's painted map board, by its
@@ -55,7 +58,7 @@ import { SCHOOL_MAP_BOARD } from "./schoolyard/schoolyardLayout.js";
 const MAP_BOARDS = [
   ["island-1", ISLAND_MAP_BOARD], ["farm-parts-whole", FARM_MAP_BOARD], ["snow-sums", SNOW_MAP_BOARD],
   ["magma-multiples", MAGMA_MAP_BOARD], ["emerald-jungle", JUNGLE_MAP_BOARD], ["schoolyard", SCHOOL_MAP_BOARD],
-  [DESERT_REGION_ID, DESERT_MAP_BOARD],
+  [DESERT_REGION_ID, DESERT_MAP_BOARD], [QT_REGION_ID, QT_MAP_BOARD],
 ].map(([regionId, b]) => ({
   id: `${regionId}-map`,
   name: "World Map",
@@ -736,6 +739,28 @@ export const INTERACTABLES = [
   },
   // ---- Timestable Temple (2026-11-08) ----
   ...TEMPLE_SPOTS,
+  // ---- The Quotient Temple (2026-11-09) ----
+  {
+    // The door itself (in the desert): read how close you are to opening it.
+    id: "quotient-door", name: "Quotient Temple", encounterId: "quotient-door", model: "none", color: "#e0aa2e",
+    position: QUOTIENT_DOOR_SPOT, promptLabel: "Read the temple door", badgeY: 7.6,
+    collision: { type: "circle", radius: 0.5, enabled: false }, interactionRadius: 3.2, regionId: DESERT_REGION_ID,
+  },
+  {
+    id: "qt-welcome-host", name: "Mills", encounterId: "qt-welcome", model: "npc", characterId: "sage", color: "#e8a34a",
+    position: QT_WELCOME_HOST.position, promptLabel: "Talk to Mills",
+    collision: { type: "circle", radius: 0.7, enabled: true }, interactionRadius: 3.6, regionId: QT_REGION_ID,
+  },
+  {
+    id: "qt-sanctum", name: "The Sealed Sanctum", encounterId: "qt-sanctum", model: "none", color: "#e0aa2e",
+    position: QT_SANCTUM_SPOT, promptLabel: "Read the sealed door", badgeY: 6,
+    collision: { type: "circle", radius: 0.5, enabled: false }, interactionRadius: 3.4, regionId: QT_REGION_ID,
+  },
+  {
+    id: "qt-chest", name: "Treasure Chest", encounterId: "qt-treasure", model: "chest", color: "#e8b23a",
+    position: QT_CHEST_SPOT, promptLabel: "Open the chest",
+    collision: { type: "circle", radius: 0.8, enabled: true }, interactionRadius: 3.4, regionId: QT_REGION_ID,
+  },
   // ---- Sunstone Desert (2026-11-08) ----
   {
     id: DESERT_WELCOME_HOST.id,

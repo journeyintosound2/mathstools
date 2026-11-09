@@ -1,6 +1,6 @@
 /* Written by tools/build-pwa.mjs — do not edit by hand. */
 self.MMT_PRECACHE = {
- "version": "e97ba4c520",
+ "version": "85a9ea2242",
  "files": [
   "./",
   "assessment/exam-builder/app.js",
@@ -390,6 +390,7 @@ self.MMT_PRECACHE = {
   "game-platforms/mills-maths-adventure-source/src/data/maps/regionMaps.js",
   "game-platforms/mills-maths-adventure-source/src/data/missions.js",
   "game-platforms/mills-maths-adventure-source/src/data/npcQuestChains.js",
+  "game-platforms/mills-maths-adventure-source/src/data/qtemple/qtempleWorld.js",
   "game-platforms/mills-maths-adventure-source/src/data/questTargets.js",
   "game-platforms/mills-maths-adventure-source/src/data/quests.js",
   "game-platforms/mills-maths-adventure-source/src/data/regions.js",
@@ -442,6 +443,7 @@ self.MMT_PRECACHE = {
   "game-platforms/mills-maths-adventure-source/src/dev/magmaChallengeChecks.js",
   "game-platforms/mills-maths-adventure-source/src/dev/mapOutcomeChecks.js",
   "game-platforms/mills-maths-adventure-source/src/dev/polishChecks.js",
+  "game-platforms/mills-maths-adventure-source/src/dev/qtempleChecks.js",
   "game-platforms/mills-maths-adventure-source/src/dev/schoolyardWorldChecks.js",
   "game-platforms/mills-maths-adventure-source/src/dev/snowWorldChecks.js",
   "game-platforms/mills-maths-adventure-source/src/dev/systemChecks.js",
@@ -517,6 +519,8 @@ self.MMT_PRECACHE = {
   "game-platforms/mills-maths-adventure-source/src/game/milkSplitterStore.js",
   "game-platforms/mills-maths-adventure-source/src/game/orderPartsStore.js",
   "game-platforms/mills-maths-adventure-source/src/game/plankGapStore.js",
+  "game-platforms/mills-maths-adventure-source/src/game/qtemple/qtGeometry.js",
+  "game-platforms/mills-maths-adventure-source/src/game/qtemple/qtMaterials.js",
   "game-platforms/mills-maths-adventure-source/src/game/rinkGlideStore.js",
   "game-platforms/mills-maths-adventure-source/src/game/roundOutcome.js",
   "game-platforms/mills-maths-adventure-source/src/game/roundUpStore.js",
@@ -660,6 +664,7 @@ self.MMT_PRECACHE = {
   "game-platforms/mills-maths-adventure/assets/KaTeX_Typewriter-Regular-CO6r4hn1.woff2",
   "game-platforms/mills-maths-adventure/assets/MathAnswerInput-XpCQxquu.css",
   "game-platforms/mills-maths-adventure/assets/MathAnswerInput-b5SSOfMu.js",
+  "game-platforms/mills-maths-adventure/assets/MathAnswerInput-nkYttC_G.js",
   "game-platforms/mills-maths-adventure/assets/baloo-2-latin-500-normal-sFC1aiE7.woff2",
   "game-platforms/mills-maths-adventure/assets/baloo-2-latin-700-normal-DpwkDI0o.woff2",
   "game-platforms/mills-maths-adventure/assets/baloo-2-latin-800-normal-CJQCPmFU.woff2",
