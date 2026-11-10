@@ -96,6 +96,14 @@
 > §2 "TWO folders", §3 deploy paths and §5's `mathstools-main 2` heading below
 > describe the OLD layout — this block supersedes them.
 >
+> **NEW (2026-11-10): THE NASTY GAME — FULL SCREEN LAYOUT.** In `html.mmt-focus` (above 700px) the page
+> fills the window under the slim banner and the game card is centred vertically with an equal gap above and
+> below (`--fsGap`, clamp(14px, 3.2vh, 36px)). `fillFocus()` (after every render) tries 1–5 board columns,
+> binary-searches the biggest `--cell` (≤ 136px) for which the REAL card height fits, then takes the FEWEST
+> columns within 15% of the biggest, so boards fill the height instead of a short strip. Every board keeps a
+> hidden placeholder pass button and foot (`.ph`) in full screen, so squares never change size or move
+> between rolling and choosing. Normal mode and phones are unchanged (`fitBoards()` as before).
+>
 > **NEW (2026-11-10): THE NASTY GAME — WORKSHEET CREATOR (paper version).**
 > `worksheet-creators/games/nasty-game.html` (new `games/` folder). **Reached ONLY from the game's new
 > "Tools ▾" menu** (`#toolsBtn` / `#toolsMenu` in `games/nasty-game.html`) — deliberately NO homepage card,

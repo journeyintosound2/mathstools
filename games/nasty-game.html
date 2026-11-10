@@ -305,6 +305,19 @@
     .toolLink small{display:block;font-weight:650;font-size:.74rem;color:var(--muted);}
     html.mmt-focus .mmtTopbar .menuWrap>button{padding:6px 11px!important;font-size:13px!important;min-height:32px!important;border-radius:10px!important;}
     @media(max-width:1080px){ .dropMenu{right:auto;left:50%;transform:translateX(-50%);} }
+    /* FULL SCREEN LAYOUT (2026-11-10): the page fills the window below the slim banner and
+       the card sits in the MIDDLE of that space with an equal gap above and below
+       (--fsGap), instead of hugging the banner with the bottom third empty. fitBoards()
+       sizes the squares from the same space, so on a wide screen the boards go side by
+       side and grow rather than leaving white space. Not on phones (they keep the dock). */
+    @media(min-width:701px){
+      html.mmt-focus{--fsGap:clamp(14px,3.2vh,36px);}
+      html.mmt-focus body{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;}
+      html.mmt-focus main.layout{flex:1 0 auto;display:flex;flex-direction:column;justify-content:center;width:min(1760px,calc(100vw - 48px));margin:var(--fsGap) auto;}
+      html.mmt-focus main.layout>.card{flex:0 0 auto;}
+      html.mmt-focus .turn-card{min-height:88px;}
+      .pb-foot.ph,.pass-btn.ph{visibility:hidden;pointer-events:none;}
+    }
     @media(max-width:700px){ .menuWrap{position:static;} .dropMenu{left:10px;right:10px;top:calc(100% + 4px);transform:none;min-width:0;} }
 /* ==== MMT PHONE LAYOUT (added 2026-09-21) — do not edit above this line ==== */
 @media(max-width:700px){
@@ -1317,9 +1330,20 @@ function fitBoards() {
   const n = st.n, P = st.s.places, dec = st.s.decimals > 0;
   const W = host.clientWidth || 800;
   const top = host.getBoundingClientRect().top + window.scrollY;
-  const availH = Math.max(280, window.innerHeight - (top - window.scrollY) - 22);
+  let availH = Math.max(280, window.innerHeight - (top - window.scrollY) - 22);
+  /* Full screen: the card is centred, so where the boards start depends on how big they
+     are. Size them from the room under the banner instead: window − banner − the gap above
+     and below − everything in the card that is not the board area (status strip, padding). */
+  const focus = document.documentElement.classList.contains('mmt-focus') && !isPhone();
+  if (focus) {
+    const bar = document.querySelector('.mmtTopbar').getBoundingClientRect().bottom;
+    const gap = parseFloat(getComputedStyle(document.querySelector('main.layout')).marginTop) || 24;
+    const card = $('gamePage'), area = card.querySelector('.game-area');
+    const chrome = card.offsetHeight - area.offsetHeight;
+    availH = Math.max(280, window.innerHeight - bar - 2 * gap - chrome - 4);
+  }
   const labRows = prefs.labels === 'off' ? 0 : 0.55;
-  let best = null;
+  let best = null; const fits = [];
   for (let c = 1; c <= Math.min(n, 10); c++) {
     const colW = (W - 12 * (c - 1)) / c;
     const cellW = (colW - 16) / (P + 0.1 * (P - 1) + (dec ? 0.22 : 0) + 0.44);
@@ -1327,10 +1351,14 @@ function fitBoards() {
     // 44px is kept for the "Pass it here" strip, always, so boards do not
     // change size between rolling and choosing
     const cellH = ((availH - 12 * (rows - 1)) / rows - 22 - 44) / (1.12 + 0.44 + labRows + 0.6);
-    const cell = Math.min(cellW, cellH, 86);
+    const cell = Math.min(cellW, cellH, focus ? 136 : 86);
     if (cellW < 26) continue;
     if (!best || cell > best.cell + 0.5) best = { c, cell, cellW };
+    fits.push({ c, cell, cellW });
   }
+  /* Full screen: when fewer columns give squares nearly as big (within 7%), use them —
+     taller boards fill the screen instead of a short strip with space above and below. */
+  if (focus && best) { const near = fits.find(f => f.cell >= best.cell * 0.93); if (near) best = near; }
   if (!best) best = { c: 1, cell: 30, cellW: 30 };
   // Thirty boards cannot all fit a projector at a readable size. Below 30px,
   // stop shrinking and let the page scroll instead.
@@ -1342,8 +1370,44 @@ function fitBoards() {
   }
   host.style.setProperty('--cols', best.c);
   host.style.setProperty('--cell', Math.floor(best.cell) + 'px');
+  host.dataset.maxCell = focus ? Math.floor(Math.min(best.cellW || best.cell, 136)) : '';
   host.classList.toggle('compact', best.cell < 34);
   return best.cell;
+}
+
+/* Full screen, second pass: fitBoards() works from estimates, so measure the real card and
+   grow (or shrink) the squares until it just fits between the banner and the bottom with the
+   same gap above and below. Never wider than the column allows (data-max-cell). */
+function focusLayout() { return document.documentElement.classList.contains('mmt-focus') && !isPhone(); }
+function fillFocus() {
+  const host = $('boards'), card = $('gamePage');
+  if (!C || !document.documentElement.classList.contains('mmt-focus') || isPhone() || card.classList.contains('hidden')) return;
+  const st = C.st, n = st.n, P = st.s.places, dec = st.s.decimals > 0;
+  const bar = document.querySelector('.mmtTopbar').getBoundingClientRect().bottom;
+  const gap = parseFloat(getComputedStyle(document.querySelector('main.layout')).marginTop) || 24;
+  const room = window.innerHeight - bar - 2 * gap - 2;
+  const W = host.clientWidth;
+  const fits = c => { host.style.setProperty('--cell', c + 'px'); return card.offsetHeight <= room; };
+  /* Try each number of columns and find the biggest squares that still fit. Then take the
+     FEWEST columns whose squares are within 15% of the biggest: taller boards fill the
+     screen, where one more column gives a short strip with empty space above and below. */
+  const tried = [];
+  for (let c = 1; c <= Math.min(n, 5); c++) {
+    const colW = (W - 12 * (c - 1)) / c;
+    const maxW = Math.floor(Math.min(136, (colW - 16) / (P + 0.1 * (P - 1) + (dec ? 0.22 : 0) + 0.44)));
+    if (maxW < 30) break;
+    host.style.setProperty('--cols', c);
+    let lo = 30, hi = maxW;
+    if (!fits(lo)) continue;
+    while (lo < hi) { const mid = Math.ceil((lo + hi) / 2); if (fits(mid)) lo = mid; else hi = mid - 1; }
+    tried.push({ c, cell: lo });
+  }
+  const top = tried.reduce((m, t) => Math.max(m, t.cell), 0);
+  const best = tried.find(t => t.cell >= top * 0.85);
+  if (!best) { fitBoards(); return; }   // nothing fits a screen this short: keep the normal sizing (it scrolls)
+  host.style.setProperty('--cols', best.c);
+  host.style.setProperty('--cell', best.cell + 'px');
+  host.classList.toggle('compact', best.cell < 34);
 }
 
 /* The dock covers the bottom of the page on a phone; pad the page by its real
@@ -1403,11 +1467,16 @@ function boardEl(st, b, opt) {
     const val = full ? `<span class="pb-value">${NG.fmtScaled(NG.boardValue(board), st.s.decimals)}</span>` : '<span></span>';
     const nasty = st.nasty[b] ? `<span class="pb-nasty">😈 ${st.nasty[b]}</span>` : '<span></span>';
     if (full || st.nasty[b]) html += `<div class="pb-foot">${val}${nasty}</div>`;
+    else if (focusLayout() && !opt.shape) html += '<div class="pb-foot ph" aria-hidden="true">&nbsp;</div>';
   }
   if (opt.passable && opt.passable.has(b)) {
     const full = `Pass the ${st.die} to ${esc(p.name)}`;
     const label = opt.shape === 'row' ? `Pass the ${st.die}` : opt.cell >= 50 ? full : `Pass the ${st.die} here`;
     html += `<button type="button" class="pass-btn" data-pass="${b}" title="${full}" aria-label="${full}">😈 ${label}</button>`;
+  } else if (focusLayout() && !opt.shape && !opt.mini) {
+    /* Full screen keeps room for the pass button on every board, so the boards never
+       change size (or the card move) between rolling and choosing. */
+    html += '<div class="pass-btn ph" aria-hidden="true">&nbsp;</div>';
   }
   d.innerHTML = html;
   return d;
@@ -1538,6 +1607,7 @@ function render() {
     }));
   });
   host.replaceChildren(frag);
+  if (!phone) fillFocus();
   // On a shared phone the hero changes hands: bring the new one into view.
   if (phone && C.mySeat == null && lastHero !== null && lastHero !== first) {
     const top = host.getBoundingClientRect().top + window.scrollY - 8;
