@@ -1,6 +1,6 @@
 /* Written by tools/build-pwa.mjs — do not edit by hand. */
 self.MMT_PRECACHE = {
- "version": "68b863f235",
+ "version": "87e015fafe",
  "files": [
   "./",
   "assessment/exam-builder/app.js",
@@ -1027,6 +1027,7 @@ self.MMT_PRECACHE = {
   "vibe-code/starter-pack/worksheet-creators/stage-3/number/example-times-tables/index.html",
   "vibe-code/starter-pack/worksheet-creators/stage-4/number/example-fraction-to-percentage/index.html",
   "vibe-code/your-turn.html",
+  "worksheet-creators/games/nasty-game.html",
   "worksheet-creators/puzzles/shikaku.html",
   "worksheet-creators/puzzles/sudoku.html",
   "worksheet-creators/stage-3/number/division-grouping.html",

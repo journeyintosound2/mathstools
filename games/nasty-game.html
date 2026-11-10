@@ -295,6 +295,17 @@
       .setup-cols,.lobby-cols{grid-template-columns:1fr;}
       .level-grid{grid-template-columns:repeat(2,1fr);}
     }
+    /* Tools menu (2026-11-10): one row, the printable Worksheet Creator. */
+    .menuWrap{position:relative;display:inline-flex;}
+    .dropMenu{position:absolute;top:calc(100% + 8px);right:0;min-width:270px;background:#fff;color:var(--ink);border:1px solid rgba(226,232,240,.95);border-radius:14px;box-shadow:0 18px 45px rgba(15,23,42,.22);padding:7px;display:none;z-index:120;text-align:left;}
+    .dropMenu.open{display:grid;gap:4px;}
+    .toolLink{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-radius:10px;color:var(--ink);text-decoration:none;font-weight:900;font-size:.9rem;}
+    .toolLink::after{content:'\203A';color:var(--blue);font-weight:1000;font-size:1.1rem;line-height:1;}
+    .toolLink:hover,.toolLink:focus-visible{background:#eef2ff;color:#1d4ed8;outline:none;}
+    .toolLink small{display:block;font-weight:650;font-size:.74rem;color:var(--muted);}
+    html.mmt-focus .mmtTopbar .menuWrap>button{padding:6px 11px!important;font-size:13px!important;min-height:32px!important;border-radius:10px!important;}
+    @media(max-width:1080px){ .dropMenu{right:auto;left:50%;transform:translateX(-50%);} }
+    @media(max-width:700px){ .menuWrap{position:static;} .dropMenu{left:10px;right:10px;top:calc(100% + 4px);transform:none;min-width:0;} }
 /* ==== MMT PHONE LAYOUT (added 2026-09-21) — do not edit above this line ==== */
 @media(max-width:700px){
   .mmtTopbar{position:relative;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:6px 8px;padding:7px 10px;min-height:0;}
@@ -395,6 +406,12 @@
     <div class="actions">
       <button class="btn" id="rulesBtn" type="button">How to play</button>
       <button class="btn" id="settingsBtn" type="button" aria-label="Settings" title="Settings">⚙︎ Settings</button>
+      <div class="menuWrap">
+        <button class="btn" id="toolsBtn" type="button" aria-haspopup="true" aria-expanded="false">Tools &#9662;</button>
+        <nav class="dropMenu" id="toolsMenu" aria-label="Tools">
+          <a class="toolLink" href="../worksheet-creators/games/nasty-game.html"><span>Worksheet Creator<small>Print a score sheet to play with dice and paper</small></span></a>
+        </nav>
+      </div>
       <button class="btn hidden" id="backToMenuBtn" type="button">Back to menu</button>
     </div>
   </header>
@@ -1171,6 +1188,16 @@ document.querySelectorAll('#labelSet input').forEach(r => { r.checked = r.value 
 });
 $('rulesBtn').addEventListener('click', () => openModal('rulesModal'));
 $('settingsBtn').addEventListener('click', () => openModal('settingsModal'));
+/* Tools menu: opens on click (never hover — the board is often a touch screen); a click
+   elsewhere or Escape closes it. */
+(() => {
+  const btn = $('toolsBtn'), menu = $('toolsMenu');
+  const close = () => { menu.classList.remove('open'); btn.setAttribute('aria-expanded', 'false'); };
+  btn.addEventListener('click', e => { e.stopPropagation(); const open = !menu.classList.contains('open'); menu.classList.toggle('open', open); btn.setAttribute('aria-expanded', String(open)); });
+  menu.addEventListener('click', e => e.stopPropagation());
+  document.addEventListener('click', close);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && menu.classList.contains('open')) { e.stopImmediatePropagation(); close(); btn.focus(); } }, true);
+})();
 
 /* ------------------------------------------------------------ game settings form
    ONE form, moved between the local setup panel and the online lobby, so there

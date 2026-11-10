@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- The Nasty Game — Worksheet Creator v1 (2026-11-10): a printable score sheet so a class can play
+     the Nasty Game with dice (or a printed spinner / digit cards), pencil and paper.
+     Reached ONLY from the game's Tools menu — deliberately no homepage card and no toolLinks row.
+     Rules match games/nasty-game.html (keep or pass; a passed digit must be taken; play carries on
+     from the passer). Nothing here is random, so the sheet re-draws on every change. -->
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#123b7a" />
+  <meta name="robots" content="noindex" />
+  <title>The Nasty Game — Worksheet Creator | Mills Maths Tools</title>
+  <style>
+    :root{
+      --bg:#f8fafc; --card:#ffffff; --ink:#0f172a; --muted:#64748b; --border:#e2e8f0;
+      --shadow:0 18px 45px rgba(15,23,42,.13);
+      --blue:#2563eb; --blue2:#1d4ed8; --purple:#7c3aed; --green:#6cbc4a; --green2:#49a529;
+      --red:#ef4444; --amber:#f59e0b; --btn:#eef2f7; --btnHover:#e5ebf3;
+      --uiFont:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    }
+    *{box-sizing:border-box;}
+    html,body{min-height:100%;}
+    body{margin:0;font-family:var(--uiFont);color:var(--ink);
+      background:radial-gradient(circle at top left,rgba(37,99,235,.14),transparent 32rem),
+                 radial-gradient(circle at top right,rgba(124,58,237,.12),transparent 34rem),var(--bg);}
+    .hidden{display:none!important;}
+
+    .mmtTopbar{position:sticky;top:0;z-index:40;background:linear-gradient(135deg,#0f172a,#123b7a 55%,#2563eb);color:white;padding:14px 24px;display:grid;grid-template-columns:minmax(240px,1fr) auto minmax(240px,1fr);align-items:center;gap:18px;box-shadow:0 10px 28px rgba(15,23,42,.22);}
+    .mmtBrand{display:flex;align-items:center;gap:12px;justify-self:start;text-decoration:none;color:white;border-radius:14px;padding:8px 12px;margin-left:-12px;font-weight:900;transition:background .18s ease,transform .18s ease,box-shadow .18s ease;user-select:none;}
+    .mmtBrand:hover{background:rgba(255,255,255,.12);transform:translateY(-1px);box-shadow:0 0 10px rgba(124,58,237,.6),0 0 18px rgba(37,99,235,.4);}
+    .mmtBrandLogo{width:44px;height:44px;object-fit:contain;background:white;border-radius:6px;padding:3px;flex:0 0 auto;}
+    .mmtBrandText strong{display:block;font-size:1.18rem;line-height:1;letter-spacing:-.03em;color:white;}
+    .mmtBrandText span{display:block;font-size:.78rem;opacity:.82;font-weight:650;color:white;}
+    .mmtTopTitle{font-weight:850;font-size:clamp(1.25rem,2vw,1.7rem);letter-spacing:-.04em;text-align:center;color:white;white-space:nowrap;}
+    .actions{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-wrap:wrap;}
+
+    button,select,input{font:inherit;}
+    button,.btn{border:1px solid transparent;cursor:pointer;border-radius:14px;padding:11px 15px;font-weight:900;font-size:15px;transition:background .18s ease,transform .18s ease,box-shadow .18s ease,opacity .18s ease;user-select:none;font-family:var(--uiFont);text-decoration:none;display:inline-flex;align-items:center;gap:6px;}
+    button:hover,.btn:hover{transform:translateY(-1px);}
+    button:disabled{opacity:.45;cursor:not-allowed;transform:none;}
+    button:focus-visible,input:focus-visible,select:focus-visible,.btn:focus-visible{outline:none;box-shadow:0 0 0 4px rgba(37,99,235,.14);}
+    .mmtTopbar .btn{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,.14);color:white;}
+    .mmtTopbar .btn:hover{background:rgba(255,255,255,.22);}
+    .btn-primary{background:var(--blue);color:white;border-color:var(--blue);box-shadow:0 10px 24px rgba(37,99,235,.20);}
+    .btn-primary:hover{background:var(--blue2);}
+    .btn-green{background:var(--green);color:white;border-color:var(--green);box-shadow:0 10px 24px rgba(108,188,74,.22);}
+    .btn-green:hover{background:var(--green2);}
+    .btn-soft{background:var(--btn);color:var(--ink);border-color:rgba(15,23,42,.08);}
+    .btn-soft:hover{background:var(--btnHover);}
+    input[type="number"],select{width:100%;border:1px solid var(--border);background:white;border-radius:14px;padding:11px 13px;color:var(--ink);outline:none;font-weight:800;font-size:16px;}
+    input:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 4px rgba(37,99,235,.12);}
+    select:disabled,input:disabled{background:#f1f5f9;color:#94a3b8;}
+    label{color:#334155;font-weight:850;font-size:.92rem;}
+
+    .layout{width:min(1340px,calc(100vw - 48px));margin:24px auto 14px;}
+    .card{background:rgba(255,255,255,.94);border:1px solid rgba(226,232,240,.9);border-radius:26px;box-shadow:var(--shadow);overflow:hidden;}
+    .ws-intro{display:flex;align-items:center;gap:16px;padding:4px 4px 0;}
+    .ws-intro-icon{flex:0 0 auto;width:56px;height:56px;border-radius:18px;background:linear-gradient(135deg,#7c3aed,#2563eb);display:grid;place-items:center;font-size:1.8rem;box-shadow:0 12px 26px rgba(124,58,237,.25);}
+    .ws-intro h1{margin:0 0 2px;font-size:1.45rem;letter-spacing:-.03em;}
+    .ws-intro p{margin:0;color:#475569;font-weight:700;line-height:1.4;}
+
+    /* ---------- controls (same shell as the other worksheet creators) ---------- */
+    .ws-card{padding:18px;display:grid;gap:16px;}
+    .ws-controls{display:grid;gap:12px;}
+    .ws-band{border-radius:20px;padding:14px 16px;background:#f8fafc;border:1px solid var(--border);}
+    .ws-band-title{font-weight:950;color:#1e3a8a;font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px;}
+    .ws-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;align-items:end;}
+    .ws-fields label{display:grid;gap:6px;}
+    .ws-fields .wide{grid-column:span 2;}
+    .ws-seg-wrap{display:grid;gap:6px;}
+    .ws-lbl{color:#334155;font-weight:850;font-size:.92rem;}
+    .ws-lbl small{color:var(--muted);font-weight:750;}
+    .ws-seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:8px;}
+    .ws-seg button{display:grid;justify-items:center;gap:2px;padding:8px 6px;background:white;border:2px solid var(--border);color:#334155;font-size:.95rem;}
+    .ws-seg button small{color:var(--muted);font-weight:800;font-size:.72rem;}
+    .ws-seg button.on{border-color:var(--purple);background:#f5f3ff;color:#4c1d95;box-shadow:0 0 0 4px rgba(124,58,237,.10);}
+    .ws-toggles{display:flex;flex-wrap:wrap;gap:10px 20px;}
+    .ws-toggles label{display:flex;align-items:center;gap:8px;font-weight:850;}
+    .ws-toggles label.off{opacity:.45;}
+    .ws-toggles input{width:20px;height:20px;accent-color:var(--blue);}
+    .ws-help{margin:8px 0 0;color:var(--muted);font-weight:700;font-size:.84rem;line-height:1.4;}
+    .ws-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+    .ws-summary{color:var(--muted);font-weight:800;font-size:.9rem;}
+    .ws-warn{color:#b45309;font-weight:850;}
+    .ws-out{--wsZoom:1;display:grid;justify-items:center;gap:18px;padding:18px 0;background:#e2e8f0;border-radius:20px;min-height:200px;overflow:hidden;}
+
+    /* ---------- the A4 pages ---------- */
+    .ws-page{zoom:var(--wsZoom);width:210mm;height:297mm;padding:12mm;box-sizing:border-box;background:#fff;box-shadow:0 10px 30px rgba(15,23,42,.18);display:flex;flex-direction:column;gap:3mm;overflow:hidden;color:#0f172a;font-family:var(--uiFont);}
+    .ws-body{flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;gap:3.2mm;}
+    .ws-head{display:flex;justify-content:space-between;align-items:flex-end;gap:6mm;border-bottom:.6mm solid #1e3a8a;padding-bottom:2mm;}
+    .ws-brand{font-size:8pt;font-weight:900;color:#2563eb;letter-spacing:.06em;text-transform:uppercase;}
+    .ws-head h1{margin:0;font-size:20pt;letter-spacing:-.03em;line-height:1.1;}
+    .ws-head h1 small{font-size:11pt;color:#475569;font-weight:800;letter-spacing:0;}
+    .ws-name{display:flex;gap:5mm;font-size:10pt;font-weight:800;color:#334155;}
+    .ws-name span{border-bottom:.3mm solid #64748b;min-width:34mm;padding-bottom:4mm;}
+    .ws-name span:last-child{min-width:26mm;}
+    .ws-slim{display:flex;justify-content:space-between;font-size:8.5pt;font-weight:900;color:#475569;border-bottom:.4mm solid #cbd5e1;padding-bottom:1.5mm;}
+    .ws-foot{font-size:7.5pt;color:#64748b;text-align:center;font-weight:700;}
+    .ws-chips{display:flex;flex-wrap:wrap;gap:1.5mm;}
+    .ws-chips span{font-size:8pt;font-weight:850;color:#1e3a8a;background:#eff6ff;border:.3mm solid #bfdbfe;border-radius:3mm;padding:.5mm 2.2mm;}
+    .ws-box{border:.35mm solid #cbd5e1;border-radius:3mm;padding:2.5mm 3.5mm;break-inside:avoid;}
+    .ws-box h2{margin:0 0 1.5mm;font-size:10.5pt;letter-spacing:-.01em;color:#1e3a8a;}
+    .ng-rules{font-size:8.7pt;line-height:1.38;color:#1e293b;}
+    .ng-rules ol{margin:0;padding-left:5mm;}
+    .ng-rules li+li{margin-top:.7mm;}
+    .ng-rules .tip{margin-top:1.2mm;color:#475569;}
+    .ng-players{display:grid;grid-template-columns:repeat(var(--pc,2),1fr);gap:2.5mm 6mm;font-size:9.5pt;font-weight:800;color:#334155;}
+    .ng-players>div{display:flex;align-items:flex-end;gap:2mm;}
+    .ng-players .line{flex:1;border-bottom:.3mm solid #64748b;height:6mm;}
+
+    .pb{display:inline-grid;place-items:center;width:6.5mm;height:6.5mm;border-radius:50%;background:#1e3a8a;color:#fff;font-weight:900;font-size:9pt;flex:0 0 auto;}
+    .ng-round{border:.35mm solid #cbd5e1;border-radius:3mm;padding:2mm 3mm 2.6mm;break-inside:avoid;display:grid;gap:1.6mm;}
+    .ng-rhead{display:flex;align-items:center;gap:2.5mm;font-size:9.5pt;}
+    .ng-rtag{font-weight:900;color:#fff;background:#0f172a;border-radius:2mm;padding:.4mm 2.4mm;}
+    .ng-rnote{font-weight:800;color:#64748b;font-size:8.5pt;}
+    .ng-grid{display:grid;grid-template-columns:var(--cols);column-gap:2.5mm;row-gap:1.5mm;align-items:center;}
+    .ng-lab{font-size:7pt;font-weight:900;color:#64748b;text-align:center;line-height:1.1;align-self:end;}
+    .ng-lab.left{text-align:left;}
+    .ng-places{display:flex;align-items:flex-end;gap:var(--gap);}
+    .ng-places span{width:var(--cell);text-align:center;font-size:var(--labFs);font-weight:850;color:#334155;line-height:1.08;letter-spacing:-.01em;overflow-wrap:normal;}
+    .ng-places .ptg{width:var(--pt);}
+    .ng-board{display:flex;align-items:stretch;gap:var(--gap);}
+    .ng-board .sq{width:var(--cell);height:var(--cell);border:.45mm solid #334155;border-radius:1mm;background:#fff;}
+    .ng-board .pt{width:var(--pt);position:relative;}
+    .ng-board .pt::after{content:"";position:absolute;left:50%;bottom:.6mm;width:1.8mm;height:1.8mm;margin-left:-.9mm;border-radius:50%;background:#0f172a;}
+    .ng-eq{display:flex;align-items:flex-end;gap:1.5mm;font-size:13pt;font-weight:800;color:#334155;height:var(--cell);padding-bottom:.6mm;}
+    .ng-eq .wl{flex:1;}
+    .wl{display:block;border-bottom:.3mm solid #64748b;height:7mm;}
+    .ng-cell{display:flex;align-items:flex-end;gap:1.5mm;height:var(--cell);padding-bottom:.6mm;}
+    .ng-cell .wl{flex:1;}
+    .tick{width:7mm;height:7mm;border:.4mm solid #334155;border-radius:1mm;flex:0 0 auto;}
+    .ng-cell.center{justify-content:center;align-items:center;padding-bottom:0;}
+    .ng-exp{grid-column:2/-1;display:flex;align-items:flex-end;gap:1.4mm;font-size:9pt;font-weight:800;color:#475569;margin-top:-.4mm;}
+    .ng-exp .wl{height:6mm;flex:1;max-width:22mm;}
+    .ng-exp em{font-style:normal;color:#64748b;font-size:7.5pt;font-weight:850;margin-right:1mm;}
+    .ng-ptab{border-left:.35mm solid #cbd5e1;border-right:.35mm solid #cbd5e1;padding:1mm 3mm 1.2mm;margin-top:-3.2mm;}
+    .ng-phead{border-top:.35mm solid #cbd5e1;border-radius:3mm 3mm 0 0;padding-top:2mm;margin-top:0;}
+    .ng-prow{border-bottom:.35mm solid #e2e8f0;}
+    .ng-prow.end{border-bottom:.35mm solid #cbd5e1;border-radius:0 0 3mm 3mm;}
+    .ng-rowlab{font-size:8.5pt;font-weight:900;color:#1e3a8a;}
+
+    table.ng-res{border-collapse:collapse;width:100%;font-size:9pt;}
+    table.ng-res th{background:#f1f5f9;color:#334155;font-weight:900;text-align:left;padding:1.4mm 2mm;border:.3mm solid #cbd5e1;font-size:8.2pt;}
+    table.ng-res td{border:.3mm solid #cbd5e1;height:9mm;padding:0 2mm;}
+    table.ng-res td:first-child{width:14mm;}
+    .ng-steps{font-size:9pt;font-weight:800;color:#334155;display:grid;gap:2.2mm;margin-bottom:2.5mm;}
+    .ng-steps>div{display:flex;align-items:flex-end;gap:1.6mm;flex-wrap:wrap;}
+    .ng-steps .wl{width:22mm;height:6mm;}
+    .ng-steps .wl.w2{width:30mm;}
+    .ng-win{display:flex;align-items:flex-end;gap:2mm;font-size:11pt;font-weight:900;color:#0f172a;margin-top:2.5mm;}
+    .ng-win .wl{flex:1;max-width:80mm;}
+    .ng-win small{font-size:8pt;color:#64748b;font-weight:800;margin-left:3mm;}
+    .ng-talk ol{margin:0;padding-left:5mm;font-size:9pt;font-weight:750;color:#1e293b;line-height:1.35;}
+    .ng-talk li+li{margin-top:2mm;}
+    .ng-talk .rule{display:block;border-bottom:.3mm solid #94a3b8;height:7mm;}
+    .ng-legend{font-size:8pt;color:#475569;font-weight:750;display:flex;align-items:center;gap:1.5mm;}
+    .ng-legend .eg{display:inline-grid;place-items:center;width:6mm;height:6mm;border:.4mm solid #334155;border-radius:1mm;font-weight:900;color:#0f172a;position:relative;font-size:10pt;}
+    .ng-legend .eg::after{content:"";position:absolute;inset:.6mm;border:.35mm solid #0f172a;border-radius:50%;}
+
+    /* spinners + digit cards */
+    .ng-cutnote{font-size:9pt;font-weight:750;color:#334155;line-height:1.4;}
+    .ng-spins{flex:1;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(3,1fr);gap:4mm;min-height:0;}
+    .ng-spins>div{border:.35mm dashed #94a3b8;border-radius:3mm;display:grid;place-items:center;min-height:0;}
+    .ng-spins svg{width:76mm;height:76mm;display:block;}
+    .ng-cards{flex:1;display:grid;grid-template-columns:repeat(5,1fr);grid-auto-rows:1fr;gap:0;min-height:0;border-top:.3mm dashed #94a3b8;border-left:.3mm dashed #94a3b8;}
+    .ng-cards>div{border-right:.3mm dashed #94a3b8;border-bottom:.3mm dashed #94a3b8;display:grid;place-items:center;font-size:44pt;font-weight:900;color:#0f172a;position:relative;}
+    .ng-cards>div u{text-decoration-thickness:.8mm;text-underline-offset:2mm;}
+    .ng-cards>div small{position:absolute;top:2mm;left:2.5mm;font-size:7pt;color:#94a3b8;font-weight:800;}
+
+    /* teacher notes */
+    .ng-tn{font-size:9.2pt;line-height:1.42;color:#1e293b;}
+    .ng-tn h2{margin:3mm 0 1mm;font-size:11pt;color:#1e3a8a;}
+    .ng-tn h2:first-child{margin-top:0;}
+    .ng-tn ul{margin:0;padding-left:5mm;}
+    .ng-tn li+li{margin-top:.8mm;}
+
+    @media(max-width:900px){ .ws-fields .wide{grid-column:auto;} }
+    @media(max-width:700px){
+      .mmtTopbar{position:relative;grid-template-columns:1fr auto;padding:10px 14px;gap:10px;}
+      .mmtBrandText{display:none;}
+      .mmtTopTitle{font-size:1.1rem;text-align:left;justify-self:start;}
+      .actions{grid-column:1/-1;justify-content:flex-start;}
+      .actions .btn{padding:8px 12px;font-size:14px;min-height:38px;}
+      .layout{width:calc(100vw - 20px);margin:10px auto;}
+      .ws-card{padding:10px;}
+      .ws-fields{grid-template-columns:1fr;}
+      .ws-seg{grid-auto-flow:row;grid-template-columns:repeat(2,1fr);}
+    }
+    @media print{
+      @page{size:A4;margin:0;}
+      html,body{background:#fff!important;}
+      body>*:not(main){display:none!important;}
+      main.layout{width:auto!important;margin:0!important;}
+      #sheetPage{display:block!important;padding:0!important;border:0!important;box-shadow:none!important;background:none!important;border-radius:0!important;}
+      .ws-controls,.ws-intro{display:none!important;}
+      .ws-out{display:block!important;padding:0!important;background:none!important;border-radius:0!important;}
+      .ws-page{zoom:1!important;box-shadow:none!important;break-after:page;page-break-after:always;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+      .ws-page:last-child{break-after:auto;page-break-after:auto;}
+    }
+    #probe{position:absolute;left:-10000px;top:0;visibility:hidden;}
+    #probe .ws-page{zoom:1;}
+  </style>
+<!-- mmt-pwa -->
+<link rel="manifest" href="../../manifest.webmanifest">
+<meta name="theme-color" content="#1f3a5f">
+<link rel="apple-touch-icon" href="../../icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="MMT">
+<script src="../../pwa.js" defer></script>
+<!-- /mmt-pwa -->
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
+</head>
+<body>
+  <header class="mmtTopbar">
+    <a class="mmtBrand" href="https://www.millsmathstools.au" target="_self" aria-label="Back to Mills Maths Tools">
+      <img class="mmtBrandLogo" src="../../assets/mmt.png" alt="Mills Maths Tools logo" />
+      <span class="mmtBrandText"><strong>MMT</strong><span>Mills Maths Tools</span></span>
+    </a>
+    <div class="mmtTopTitle">The Nasty Game — Worksheet</div>
+    <div class="actions">
+      <a class="btn" href="../../games/nasty-game.html">🎲 Back to the game</a>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="card ws-card" id="sheetPage">
+      <div class="ws-intro">
+        <div class="ws-intro-icon" aria-hidden="true">😈</div>
+        <div>
+          <h1>The Nasty Game — play it on paper</h1>
+          <p>Print a score sheet and play with a die and a pencil. Same rules as the game on screen: keep the digit, or pass it to somebody else and make them find room for it.</p>
+        </div>
+      </div>
+
+      <div class="ws-controls">
+        <div class="ws-band">
+          <div class="ws-band-title">The game</div>
+          <div class="ws-fields">
+            <div class="ws-seg-wrap">
+              <span class="ws-lbl">Number of players</span>
+              <div class="ws-seg" id="segPlayers" role="group" aria-label="Number of players">
+                <button type="button" data-v="2">2</button>
+                <button type="button" data-v="3">3</button>
+                <button type="button" data-v="4">4</button>
+              </div>
+            </div>
+            <label>Number of rounds
+              <select id="selRounds"></select>
+            </label>
+            <label class="wide">Winner chosen by
+              <select id="selGoal">
+                <option value="largest">Largest total — add up every round</option>
+                <option value="smallest">Smallest total — add up every round</option>
+                <option value="winsLarge">Number of wins — biggest number wins each round</option>
+                <option value="winsSmall">Number of wins — smallest number wins each round</option>
+                <option value="target">Closest to a target — closest number wins each round</option>
+                <option value="average">Closest to the average — of everyone’s totals (3 or 4 players)</option>
+              </select>
+            </label>
+            <label id="targetWrap">Target number
+              <input id="inTarget" type="number" min="0" step="any" inputmode="decimal" />
+            </label>
+          </div>
+        </div>
+
+        <div class="ws-band">
+          <div class="ws-band-title">The board</div>
+          <div class="ws-fields">
+            <label>Place value squares
+              <select id="selPlaces">
+                <option value="3">3 squares</option>
+                <option value="4">4 squares</option>
+                <option value="5">5 squares</option>
+                <option value="6">6 squares</option>
+              </select>
+            </label>
+            <label>Squares after the decimal point
+              <select id="selDecimals">
+                <option value="0">None — whole numbers</option>
+                <option value="1">1 — tenths</option>
+                <option value="2">2 — tenths and hundredths</option>
+              </select>
+            </label>
+            <label>Place names above the squares
+              <select id="selNames">
+                <option value="words">Words — Thousands, Hundreds…</option>
+                <option value="short">Short — Th H T O</option>
+                <option value="numbers">Numbers — 1000, 100, 10, 1</option>
+                <option value="both">Words and numbers</option>
+                <option value="none">None — students work it out</option>
+              </select>
+            </label>
+            <label>What students roll
+              <select id="selDie">
+                <option value="16">A normal die (1 to 6)</option>
+                <option value="09">A ten-sided die (0 to 9)</option>
+                <option value="spin">A 0–9 spinner (printed with the sheet)</option>
+                <option value="cards">0–9 digit cards (printed with the sheet)</option>
+              </select>
+            </label>
+          </div>
+          <p class="ws-help" id="dieHelp"></p>
+        </div>
+
+        <div class="ws-band">
+          <div class="ws-band-title">The sheet</div>
+          <div class="ws-fields">
+            <div class="ws-seg-wrap wide">
+              <span class="ws-lbl">Who writes on it</span>
+              <div class="ws-seg" id="segLayout" role="group" aria-label="Sheet layout">
+                <button type="button" data-v="group">One sheet per group<small>everyone’s boards on one sheet</small></button>
+                <button type="button" data-v="player">One sheet per player<small>each student keeps their own</small></button>
+              </div>
+            </div>
+          </div>
+          <div class="ws-toggles" style="margin-top:12px">
+            <label><input type="checkbox" id="tRules" /> How to play</label>
+            <label><input type="checkbox" id="tCircle" /> Circle digits you were passed</label>
+            <label><input type="checkbox" id="tExpanded" /> Write each number in expanded form</label>
+            <label id="tBestWrap"><input type="checkbox" id="tBest" /> “Best you could have made” column</label>
+            <label><input type="checkbox" id="tTalk" /> Talk about it questions</label>
+            <label><input type="checkbox" id="tName" /> Names, class and date</label>
+            <label><input type="checkbox" id="tTeacher" /> Teacher notes page</label>
+          </div>
+        </div>
+
+        <div class="ws-actions">
+          <button class="btn-green" id="printBtn" type="button">🖨 Print</button>
+          <button class="btn-soft" id="resetBtn" type="button">Reset options</button>
+          <span class="ws-summary" id="summary" aria-live="polite"></span>
+        </div>
+      </div>
+      <div class="ws-out" id="out"></div>
+    </section>
+  </main>
+  <div id="probe" aria-hidden="true"></div>
+
+<script>
+(function(){
+'use strict';
+var $ = function(id){ return document.getElementById(id); };
+var KEY = 'mmtNastySheet.v1';
+var DEFAULTS = { players:4, rounds:4, goal:'largest', target:'', places:4, decimals:0, names:'words', die:'16',
+  layout:'group', rules:true, circle:true, expanded:false, best:false, talk:true, name:true, teacher:false };
+var O = Object.assign({}, DEFAULTS);
+try{ Object.assign(O, JSON.parse(localStorage.getItem(KEY) || '{}')); }catch(e){}
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(O)); }catch(e){} }
+
+/* Same place table as the game. */
+var PLACE = {
+  '5':['Hundred thousands','100 000','HTh'], '4':['Ten thousands','10 000','TTh'],
+  '3':['Thousands','1000','Th'], '2':['Hundreds','100','H'], '1':['Tens','10','T'], '0':['Ones','1','O'],
+  '-1':['Tenths','0.1','t'], '-2':['Hundredths','0.01','h']
+};
+var GOALS = {
+  largest:  { kind:'total',  chip:'Largest total wins',
+    rule:'When every board is full, write your number in <b>Total so far</b> (add it to your last total). After the last round the <b>largest total</b> wins.' },
+  smallest: { kind:'total',  chip:'Smallest total wins',
+    rule:'When every board is full, write your number in <b>Total so far</b> (add it to your last total). After the last round the <b>smallest total</b> wins.' },
+  winsLarge:{ kind:'wins',   chip:'Most wins — biggest number wins a round',
+    rule:'When every board is full, the <b>biggest number</b> wins the round — tick the winner’s box. After the last round, whoever won the <b>most rounds</b> wins.' },
+  winsSmall:{ kind:'wins',   chip:'Most wins — smallest number wins a round',
+    rule:'When every board is full, the <b>smallest number</b> wins the round — tick the winner’s box. After the last round, whoever won the <b>most rounds</b> wins.' },
+  target:   { kind:'target', chip:'Closest to {T} wins a round',
+    rule:'When every board is full, work out <b>how far</b> your number is from <b>{T}</b>. The closest wins the round — tick the winner’s box. After the last round, whoever won the <b>most rounds</b> wins.' },
+  average:  { kind:'total',  chip:'Closest to the average wins',
+    rule:'When every board is full, write your number in <b>Total so far</b>. After the last round, find the <b>average</b> of everyone’s totals (add them, then share between the players). The total <b>closest to the average</b> wins.' }
+};
+var DIE = {
+  '16':   { chip:'Roll a 1–6 die',  say:'a normal die (1 to 6)', help:'Every classroom has these. There are no 0s, 7s, 8s or 9s, so the biggest board is all 6s.' },
+  '09':   { chip:'Roll a 0–9 die',  say:'a ten-sided die (0 to 9)', help:'Ten-sided dice give every digit, including 0 — the nastiest digit to be passed when the biggest number wins.' },
+  spin:   { chip:'Spin a 0–9 spinner', say:'the 0–9 spinner', help:'A page of six spinners prints at the end — one per group. Students hold a pencil point through a paper clip at the centre and flick the clip.' },
+  cards:  { chip:'Draw a 0–9 card', say:'a digit card', help:'A page of three sets of 0–9 cards prints at the end — cut out one set per group. Draw a card, use it, put it back and shuffle.' }
+};
+
+function exps(){ var w=O.places-O.decimals, out=[]; for (var i=0;i<O.places;i++) out.push(w-1-i); return out; }
+function faceMax(){ return (O.die==='16') ? 6 : 9; }
+function fmt(n){
+  var d=O.decimals, s=(+n).toFixed(d);
+  var parts=s.split('.'), i=parts[0];
+  if (i.replace('-','').length>4) i=i.replace(/\B(?=(\d{3})+(?!\d))/g,' ');
+  return parts.length>1 ? i+'.'+parts[1] : i;
+}
+/* A target nobody can hit exactly every time, roughly in the middle of what the board can make. */
+function autoTarget(){ var w=O.places-O.decimals; return (O.die==='16' ? 3.5 : 5)*Math.pow(10,w-1); }
+function targetVal(){
+  var t=parseFloat(O.target);
+  var max=Math.pow(10,O.places-O.decimals);
+  if (!isFinite(t) || t<=0 || t>=max) return autoTarget();
+  return t;
+}
+/* A target is printed as written: 3500, not 3500.00. */
+function T(){ var t=targetVal(), d=0; while (d<2 && Math.abs(Math.round(t*Math.pow(10,d))-t*Math.pow(10,d))>1e-9) d++;
+  var s=t.toFixed(d), parts=s.split('.'); if (parts[0].length>4) parts[0]=parts[0].replace(/\B(?=(\d{3})+(?!\d))/g,'\u202f'); return parts.join('.'); }
+function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+
+/* ---------------------------------------------------------------- geometry (mm) */
+function geo(){
+  var g=GOALS[O.goal], kind=g.kind;
+  var badge=O.layout==='player' ? 9 : 7;
+  /* The writing columns stretch to fill the row; the minimums decide how much room the squares get. */
+  var eqMin=30, rightMin = kind==='wins' ? 13 : kind==='target' ? 36 : 28, bestMin = O.best ? 28 : 0;
+  var ncol = O.best ? 5 : 4, gaps=(ncol-1)*2.5;
+  var room=186-6.7 /* round card padding + border */ - gaps - badge - eqMin - rightMin - bestMin;
+  var n=O.places, gap=1.3, pt=O.decimals?3.4:0;
+  var cell=(room-pt-(n-1)*gap-(O.decimals?gap:0))/n;
+  cell=Math.max(9.5, Math.min(12.5, Math.floor(cell*10)/10));
+  var board=n*cell+(n-1)*gap+(O.decimals?pt+gap:0);
+  var cols=[badge+'mm', board.toFixed(2)+'mm', 'minmax('+eqMin+'mm,1fr)', kind==='wins' ? rightMin+'mm' : 'minmax('+rightMin+'mm,1fr)'];
+  if (O.best) cols.push('minmax('+bestMin+'mm,1fr)');
+  var labFs = labelFont(cell+gap*.5);
+  return { cell:cell, gap:gap, pt:pt, board:board, labFs:labFs, cols:cols.join(' '), kind:kind };
+}
+/* The place names must never run into each other: size them from the widest single word,
+   measured in the page's own font, so "Thousands" fits a 10 mm square as well as a 13 mm one. */
+var MEAS=null;
+function textMM(t, pt){
+  if (!MEAS) MEAS=document.createElement('canvas').getContext('2d');
+  MEAS.font='850 '+pt+'pt '+getComputedStyle(document.body).fontFamily;
+  return MEAS.measureText(t).width*25.4/96;
+}
+function labelFont(room){
+  var cap = O.names==='short' ? 9 : O.names==='numbers' ? 8 : 7.2;
+  if (O.names==='none') return cap;
+  var words=[];
+  exps().forEach(function(e){ var p=PLACE[String(e)];
+    if (O.names==='words'||O.names==='both') words=words.concat(p[0].split(' '));
+    if (O.names==='numbers'||O.names==='both') words.push(p[1]);
+    if (O.names==='short') words.push(p[2]); });
+  var widest=Math.max.apply(null, words.map(function(w){ return textMM(w,10); }));
+  return Math.max(5, Math.min(cap, 10*room/(widest*1.04)));
+}
+function varsStyle(G){ return '--cols:'+G.cols+';--cell:'+G.cell+'mm;--gap:'+G.gap+'mm;--pt:'+G.pt+'mm;--labFs:'+G.labFs.toFixed(2)+'pt;'; }
+
+function placeLabels(){
+  if (O.names==='none') return '';
+  var ex=exps(), h='<div class="ng-places">';
+  ex.forEach(function(e,i){
+    if (e===-1 && i>0) h+='<span class="ptg"></span>';
+    var p=PLACE[String(e)], t;
+    if (O.names==='words') t=p[0];
+    else if (O.names==='short') t=p[2];
+    else if (O.names==='numbers') t=p[1];
+    else t=p[0]+'<br><b>'+p[1]+'</b>';
+    h+='<span>'+t+'</span>';
+  });
+  return h+'</div>';
+}
+function board(){
+  var ex=exps(), h='<div class="ng-board">';
+  ex.forEach(function(e,i){ if (e===-1 && i>0) h+='<div class="pt"></div>'; h+='<div class="sq"></div>'; });
+  return h+'</div>';
+}
+function expRow(){
+  var ex=exps(), h='<div class="ng-exp"><em>Expanded</em>=';
+  ex.forEach(function(e,i){ if (i) h+=' + '; h+='<span class="wl"></span>'; });
+  return h+'</div>';
+}
+function rightHead(){
+  var k=GOALS[O.goal].kind;
+  var h = k==='wins' ? '<div class="ng-lab">Won?</div>'
+        : k==='target' ? '<div class="ng-lab left">How far from '+T()+'? &nbsp;·&nbsp; Won?</div>'
+        : '<div class="ng-lab left">Total so far</div>';
+  if (O.best) h+='<div class="ng-lab left">'+bestTitle()+'</div>';
+  return h;
+}
+function bestTitle(){
+  if (O.goal==='smallest'||O.goal==='winsSmall') return 'Smallest you could have made';
+  if (O.goal==='target') return 'Closest to '+T()+' you could have made';
+  return 'Biggest you could have made';
+}
+function rightCells(){
+  var k=GOALS[O.goal].kind, h;
+  if (k==='wins') h='<div class="ng-cell center"><span class="tick"></span></div>';
+  else if (k==='target') h='<div class="ng-cell"><span class="wl"></span><span class="tick"></span></div>';
+  else h='<div class="ng-cell"><span class="wl"></span></div>';
+  if (O.best) h+='<div class="ng-cell"><span class="wl"></span></div>';
+  return h;
+}
+function eqCell(){ return '<div class="ng-eq">=<span class="wl"></span></div>'; }
+
+/* ---------------------------------------------------------------- blocks */
+function chips(){
+  var g=GOALS[O.goal], w=O.places-O.decimals;
+  var a=[ O.players+' players', O.rounds+(O.rounds===1?' round':' rounds'),
+    O.places+' squares'+(O.decimals?' ('+O.decimals+' after the point)':''),
+    g.chip.replace('{T}',T()), DIE[O.die].chip ];
+  return '<div class="ws-chips">'+a.map(function(t){return '<span>'+t+'</span>';}).join('')+'</div>';
+}
+function headFirst(){
+  var sub = O.layout==='player' ? 'Score sheet' : 'Group score sheet';
+  var h='<div class="ws-head"><div><div class="ws-brand">Mills Maths Tools</div><h1>The Nasty Game <small>· '+sub+'</small></h1></div>';
+  if (O.name) h+= O.layout==='player' ? '<div class="ws-name"><span>Name</span><span>Date</span></div>'
+                                       : '<div class="ws-name"><span>Class</span><span>Date</span></div>';
+  return h+'</div>'+chips();
+}
+function headSlim(label){ return '<div class="ws-slim"><span>The Nasty Game · '+label+'</span><span class="pgno"></span></div>'; }
+function playersBox(){
+  if (O.layout==='player'){
+    var h='<div class="ws-box"><h2>Playing with</h2><div class="ng-players" style="--pc:'+(O.players-1)+'">';
+    for (var i=0;i<O.players-1;i++) h+='<div><span class="line"></span></div>';
+    return h+'</div></div>';
+  }
+  var b='<div class="ws-box"><h2>Players</h2><div class="ng-players" style="--pc:'+O.players+'">';
+  for (var p=1;p<=O.players;p++) b+='<div><span class="pb">'+p+'</span><span class="line"></span></div>';
+  return b+'</div></div>';
+}
+function rulesBox(){
+  if (!O.rules) return '';
+  var g=GOALS[O.goal], d=DIE[O.die];
+  var who = O.layout==='group' ? 'Player 1 starts round 1, Player 2 starts round 2, and so on.' : 'Take turns round the group. Each new round, the next player starts.';
+  var h='<div class="ws-box ng-rules"><h2>How to play</h2><ol>';
+  h+='<li>Everyone has a board of '+O.places+' empty place value squares'+(O.decimals?' with a decimal point':'')+'. Take turns to roll '+d.say+'. '+who+'</li>';
+  h+='<li>On your turn, choose: <b>keep it</b> — write the digit in any empty square on your own board — or <b>pass it</b> to another player.</li>';
+  h+='<li>If you are passed a digit you <b>must take it</b>. You choose which of your empty squares it goes in. Then play carries on from the player who passed it.</li>';
+  h+='<li>Once a digit is written it can’t be moved. If your board is full you can only pass. The round ends when every board is full.</li>';
+  h+='<li>'+g.rule.replace('{T}',T())+' A tie means you share it.</li>';
+  if (O.expanded) h+='<li>Write your number in <b>expanded form</b> under your board.</li>';
+  if (O.best) h+='<li>Then rearrange your digits: what is the <b>'+bestTitle().toLowerCase().replace(' you could have made','')+'</b> number you could have made?</li>';
+  h+='</ol>';
+  if (O.die==='spin') h+='<div class="tip"><b>Spinner:</b> hold a pencil point through a paper clip at the centre and flick the clip. If it lands on a line, spin again.</div>';
+  if (O.die==='cards') h+='<div class="tip"><b>Cards:</b> turn them face down and shuffle. Take one, use the digit, then put it back and shuffle again.</div>';
+  if (O.circle) h+='<div class="tip ng-legend"><b>Circle</b> any digit somebody passed you, like this <span class="eg">2</span> — it shows how nasty everyone was.</div>';
+  return h+'</div>';
+}
+function roundBlock(r){
+  var G=geo(), starter=((r-1)%O.players)+1;
+  var h='<div class="ng-round" style="'+varsStyle(G)+'"><div class="ng-rhead"><span class="ng-rtag">Round '+r+'</span><span class="ng-rnote">Player '+starter+' rolls first</span></div>';
+  h+='<div class="ng-grid"><div></div>'+(O.names==='none'?'<div></div>':placeLabels())+'<div class="ng-lab left">The number</div>'+rightHead();
+  for (var p=1;p<=O.players;p++){
+    h+='<span class="pb">'+p+'</span>'+board()+eqCell()+rightCells();
+    if (O.expanded) h+='<div></div>'+expRow();
+  }
+  return h+'</div></div>';
+}
+/* One sheet per player: one row per round. Each row is its own block, so the rounds can run
+   onto a second page; paginate() repeats the column head at the top of that page. */
+function playerHead(){
+  var G=geo();
+  return '<div class="ng-ptab ng-phead" style="'+varsStyle(G)+'"><div class="ng-grid"><div class="ng-lab left">Round</div>'+(O.names==='none'?'<div></div>':placeLabels())+'<div class="ng-lab left">My number</div>'+rightHead()+'</div></div>';
+}
+function playerRow(r){
+  var G=geo(), h='<div class="ng-ptab ng-prow" style="'+varsStyle(G)+'"><div class="ng-grid">';
+  h+='<span class="ng-rowlab">R'+r+'</span>'+board()+eqCell()+rightCells();
+  if (O.expanded) h+='<div></div>'+expRow();
+  return h+'</div></div>';
+}
+function resultsBox(){
+  var g=GOALS[O.goal], k=g.kind, h='<div class="ws-box"><h2>Who won?</h2>';
+  if (O.layout==='player'){
+    h+='<div class="ng-steps">';
+    if (O.goal==='average'){
+      h+='<div>Everyone’s final totals:'; for (var i=0;i<O.players;i++) h+='<span class="wl"></span>'; h+='</div>';
+      h+='<div>Add them: <span class="wl w2"></span> ÷ '+O.players+' = <span class="wl w2"></span> ← the average</div>';
+      h+='<div>My total is <span class="wl"></span> away from the average.</div>';
+    } else if (k==='total'){
+      h+='<div>My final total: <span class="wl w2"></span></div>';
+    } else {
+      h+='<div>Rounds I won: <span class="wl"></span> out of '+O.rounds+'</div>';
+    }
+    h+='<div>I came: <span class="wl"></span> (1st, 2nd…)</div></div>';
+    h+='<div class="ng-win">🏆 Winner:<span class="wl"></span></div>';
+    return h+'</div>';
+  }
+  if (O.goal==='average'){
+    h+='<div class="ng-steps"><div>Add everyone’s final totals:';
+    for (var a=0;a<O.players;a++) h+=(a?' + ':' ')+'<span class="wl"></span>';
+    h+=' = <span class="wl w2"></span></div>';
+    h+='<div>Share it between '+O.players+' players: <span class="wl w2"></span> ÷ '+O.players+' = <span class="wl w2"></span> ← the average</div></div>';
+  }
+  var cols = k==='total' ? (O.goal==='average' ? ['Final total','How far from the average?','Place'] : ['Final total','Place'])
+           : ['Rounds won','Place'];
+  h+='<table class="ng-res"><tr><th>Player</th>'+cols.map(function(c){return '<th>'+c+'</th>';}).join('')+'</tr>';
+  for (var p=1;p<=O.players;p++){
+    h+='<tr><td><span class="pb">'+p+'</span></td>'+cols.map(function(){return '<td></td>';}).join('')+'</tr>';
+  }
+  h+='</table><div class="ng-win">🏆 Winner:<span class="wl"></span>'+(O.circle?'<small>Most circled digits (the most passed to):</small><span class="wl" style="max-width:26mm"></span>':'')+'</div>';
+  return h+'</div>';
+}
+function talkQs(){
+  var g=O.goal, big=faceMax(), q=[];
+  var top=PLACE[String(O.places-O.decimals-1)][0].toLowerCase();
+  if (g==='largest'||g==='winsLarge'){
+    q.push('You roll a '+(big===6?'6':'9')+' on your first turn. Which square would you put it in? Why?');
+    q.push('Which digit is the nastiest one to pass to somebody? Which square would it hurt most in?');
+    q.push('What is the biggest number you could ever make on this board? The smallest?');
+  } else if (g==='smallest'||g==='winsSmall'){
+    q.push('Why is a '+(big===6?'1':'0')+' a good roll in this game? Where should it go?');
+    q.push('You are passed a '+big+'. Which square does the least damage? Explain.');
+    q.push('What is the smallest number you could ever make on this board?');
+  } else if (g==='target'){
+    q.push('Which digits would you want in the '+top+' to get close to '+T()+'?');
+    q.push('Your best round: how far from '+T()+' was it? Could you have got closer with the same digits?');
+    q.push('Is it better to be a little over '+T()+' or a little under? Does it matter?');
+  } else {
+    q.push('Was it better to make big numbers, small numbers, or numbers in the middle? Why?');
+    q.push('Could the winner have the biggest total? The smallest? Explain.');
+    q.push('How did knowing the other totals change where you put your digits?');
+  }
+  if (O.decimals) q.push('Which square is worth the most? Which is worth the least? How many times bigger is it?');
+  else q.push('When is it worth passing a digit instead of keeping it?');
+  return q;
+}
+function talkBox(lines){
+  if (!O.talk) return '';
+  var h='<div class="ws-box ng-talk"><h2>Talk about it</h2><ol>';
+  talkQs().forEach(function(t){ h+='<li>'+t; for (var i=0;i<lines;i++) h+='<span class="rule"></span>'; h+='</li>'; });
+  return h+'</ol></div>';
+}
+
+/* ---------------------------------------------------------------- extra pages */
+function spinnerSVG(){
+  var R=46, cx=50, cy=50, s='<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">';
+  s+='<circle cx="50" cy="50" r="'+R+'" fill="#fff" stroke="#0f172a" stroke-width=".9"/>';
+  for (var i=0;i<10;i++){
+    var a=(-90+i*36)*Math.PI/180;
+    s+='<line x1="50" y1="50" x2="'+(cx+R*Math.cos(a)).toFixed(2)+'" y2="'+(cy+R*Math.sin(a)).toFixed(2)+'" stroke="#0f172a" stroke-width=".6"/>';
+    var m=(-90+i*36+18)*Math.PI/180, tx=cx+R*.7*Math.cos(m), ty=cy+R*.7*Math.sin(m);
+    s+='<text x="'+tx.toFixed(2)+'" y="'+ty.toFixed(2)+'" text-anchor="middle" dominant-baseline="central" font-family="system-ui,Segoe UI,Arial,sans-serif" font-weight="900" font-size="13" fill="#0f172a"'+((i===6||i===9)?' text-decoration="underline"':'')+'>'+i+'</text>';
+  }
+  s+='<circle cx="50" cy="50" r="2.2" fill="#0f172a"/></svg>';
+  return s;
+}
+function spinnerPage(){
+  var b='<div class="ng-cutnote"><b>Spinners — cut out one for each group.</b> Hold a pencil point through a paper clip on the centre dot and flick the clip. If it stops on a line, spin again. The 6 and 9 are underlined so they can’t be mixed up.</div><div class="ng-spins">';
+  for (var i=0;i<6;i++) b+='<div>'+spinnerSVG()+'</div>';
+  return b+'</div>';
+}
+function cardsPage(){
+  var b='<div class="ng-cutnote"><b>Digit cards — three sets of 0 to 9. Cut out one set for each group.</b> Turn them face down and shuffle. Take a card, use the digit, then <b>put it back</b> and shuffle again, so every digit is always just as likely.</div><div class="ng-cards">';
+  for (var set=0;set<3;set++) for (var d=0;d<10;d++) b+='<div><small>Set '+(set+1)+'</small>'+((d===6||d===9)?'<u>'+d+'</u>':d)+'</div>';
+  return b+'</div>';
+}
+function teacherPage(){
+  var g=GOALS[O.goal], d=DIE[O.die];
+  var maths = { largest:'adding large numbers'+(O.decimals?' and decimals':'')+' and keeping a running total', smallest:'adding numbers'+(O.decimals?' and decimals':'')+' and keeping a running total', winsLarge:'comparing and ordering numbers each round', winsSmall:'comparing and ordering numbers each round', target:'finding the difference between two numbers', average:'adding totals and finding the mean (average)' }[O.goal];
+  var h='<div class="ng-tn">';
+  h+='<h2>What you need</h2><ul><li>'+(O.layout==='group'?'One sheet for each group of '+O.players:'One sheet for each student, groups of '+O.players)+', a pencil each'+(O.die==='16'||O.die==='09'?', and '+d.say+' for each group.':'.')+'</li>';
+  if (O.die==='spin') h+='<li>The spinner page (one spinner per group), a paper clip and a pencil for each group.</li>';
+  if (O.die==='cards') h+='<li>The digit card page — cut out one set of 0–9 for each group.</li>';
+  h+='<li>A round is '+O.places*O.players+' rolls, so '+O.rounds+(O.rounds===1?' round is ':' rounds are ')+(O.places*O.players*O.rounds)+' rolls altogether.</li></ul>';
+  h+='<h2>The maths</h2><ul><li><b>Place value:</b> the same digit is worth more or less depending on its square. Every decision is a place value decision.</li>';
+  h+='<li><b>The goal on this sheet</b> practises '+maths+'.</li>';
+  h+='<li><b>Chance:</b> with '+d.say+' each digit is equally likely. Is it worth waiting for a better digit, or should you take a sure thing now?</li></ul>';
+  h+='<h2>Questions to ask while they play</h2><ul>';
+  h+='<li>“You just rolled a '+(faceMax()===6?'4':'5')+'. Where will it do you the least harm? The most good?”</li>';
+  h+='<li>“Why did you pass that one to '+(O.players>2?'that player and not the other one':'your partner')+'?”</li>';
+  h+='<li>“What is the best number you could still make with the squares you have left?”</li>';
+  h+='<li>“Read your number to me. What is the '+(O.decimals?'tenths':'tens')+' digit worth?”</li></ul>';
+  h+='<h2>Ways to change it</h2><ul>';
+  h+='<li><b>First game:</b> no passing — everyone keeps every digit. Students learn the board before the nasty part.</li>';
+  h+='<li><b>Whole class warm-up:</b> you roll, everyone writes in their own board, nobody passes. Closest to a target or biggest number wins.</li>';
+  h+='<li><b>Change the goal</b> on this page and print again: largest, smallest, closest to a target, or closest to the average.</li>';
+  h+='<li><b>Add a decimal point</b> (Squares after the decimal point) once whole numbers are easy.</li>';
+  h+='<li><b>Digit cards without putting them back:</b> students can count which digits are left — a good chance conversation.</li>';
+  h+='<li><b>On screen:</b> the same game is at millsmathstools.au/games/nasty-game.html — against the computer, on one screen, or online as a class.</li></ul>';
+  h+='<h2>Syllabus</h2><ul><li>MA3-RN-01 (place value and the role of zero); also comparing, ordering and adding whole numbers and decimals.</li></ul>';
+  return h+'</div>';
+}
+
+/* ---------------------------------------------------------------- pagination
+   Every block is measured in an unzoomed probe page: a block that does not fit is
+   taken back off and starts the next page, so nothing can run under the footer. */
+function paginate(firstHead, slimLabel, blocks, footLabel){
+  var probe=$('probe'), pages=[];
+  function newPage(first){
+    probe.innerHTML='<section class="ws-page">'+(first?firstHead:headSlim(slimLabel))+'<div class="ws-body"></div><div class="ws-foot">x</div></section>';
+    return probe.querySelector('.ws-body');
+  }
+  var body=newPage(true), count=0, first=true;
+  function over(){ return body.scrollHeight>body.clientHeight+1; }
+  blocks=blocks.filter(Boolean).map(function(b){ return typeof b==='string' ? {html:b} : b; });
+  for (var i=0;i<blocks.length;i++){
+    var b=blocks[i], added=1;
+    body.insertAdjacentHTML('beforeend', b.html);
+    /* a column head must not be left alone at the foot of a page: test it WITH the row after it */
+    if (b.keepNext && blocks[i+1]){ body.insertAdjacentHTML('beforeend', blocks[i+1].html); added=2; }
+    var o=over();
+    for (var k=0;k<added;k++) body.removeChild(body.lastElementChild);
+    if (o && count>0){
+      pages.push({first:first, body:body.innerHTML});
+      first=false; body=newPage(false); count=0;
+      if (b.head) body.insertAdjacentHTML('beforeend', b.head);
+    }
+    body.insertAdjacentHTML('beforeend', b.html);
+    count++;
+  }
+  pages.push({first:first, body:body.innerHTML});
+  probe.innerHTML='';
+  return pages.map(function(p){ return { head:p.first?firstHead:headSlim(slimLabel), body:p.body, foot:footLabel }; });
+}
+
+var LAST={};
+function render(){
+  sanitize();
+  var first=headFirst(), blocks=[playersBox(), rulesBox()];
+  if (O.layout==='group'){ for (var r=1;r<=O.rounds;r++) blocks.push(roundBlock(r)); }
+  else { blocks.push({html:playerHead(), keepNext:true}); for (var q=1;q<=O.rounds;q++) blocks.push({html:playerRow(q), head:playerHead()}); }
+  blocks.push(resultsBox());
+  /* On the group sheet these are for talking, not writing: no lines, so they rarely need a page of their own. */
+  blocks.push(talkBox(O.layout==='player'?2:0));
+  var sheet=paginate(first, O.layout==='group'?'Group score sheet':'Score sheet', blocks, 'Score sheet');
+  var pages=sheet.slice(), extra=[];
+  if (O.die==='spin'){ pages.push({head:'<div class="ws-head"><div><div class="ws-brand">Mills Maths Tools</div><h1>The Nasty Game <small>· Spinners</small></h1></div></div>', body:spinnerPage(), foot:'Spinners', fill:true}); extra.push('spinners'); }
+  if (O.die==='cards'){ pages.push({head:'<div class="ws-head"><div><div class="ws-brand">Mills Maths Tools</div><h1>The Nasty Game <small>· Digit cards</small></h1></div></div>', body:cardsPage(), foot:'Digit cards', fill:true}); extra.push('cards'); }
+  if (O.teacher){ pages.push({head:'<div class="ws-head"><div><div class="ws-brand">Mills Maths Tools · For the teacher</div><h1>The Nasty Game <small>· Teacher notes</small></h1></div></div>'+chips(), body:teacherPage(), foot:'Teacher notes'}); extra.push('teacher'); }
+  var total=pages.length, html='';
+  pages.forEach(function(p,i){
+    var head=p.head.replace('<span class="pgno"></span>','<span class="pgno">Page '+(i+1)+' of '+total+'</span>');
+    html+='<section class="ws-page" data-kind="'+esc(p.foot)+'">'+head+'<div class="ws-body"'+(p.fill?' style="overflow:visible"':'')+'>'+p.body+'</div><div class="ws-foot">The Nasty Game · '+p.foot+' · millsmathstools.au · Page '+(i+1)+' of '+total+'</div></section>';
+  });
+  $('out').innerHTML=html;
+  document.querySelectorAll('#out .ng-prow').forEach(function(r){ var n=r.nextElementSibling; if (!n||!n.classList.contains('ng-prow')) r.classList.add('end'); });
+  LAST={sheetPages:sheet.length, total:total};
+  summary(sheet.length, total, extra);
+  fitPreview();
+}
+function summary(n, total, extra){
+  var who = O.layout==='group' ? 'one copy per group' : 'one copy per student';
+  var s = (n===1 ? 'The score sheet is 1 page' : 'The score sheet is pages 1–'+n)+' — print '+who+'.';
+  var p=n;
+  if (extra.indexOf('spinners')>=0){ p++; s+=' Page '+p+' is the spinners (one per group).'; }
+  if (extra.indexOf('cards')>=0){ p++; s+=' Page '+p+' is the digit cards (one set per group).'; }
+  if (extra.indexOf('teacher')>=0){ p++; s+=' Page '+p+' is for you.'; }
+  if (WARN) s='<span class="ws-warn">'+WARN+'</span> '+s;
+  $('summary').innerHTML=s;
+}
+function fitPreview(){ var w=$('out').clientWidth, px=210*96/25.4; $('out').style.setProperty('--wsZoom', Math.min(1,(w-8)/px).toFixed(3)); }
+
+/* ---------------------------------------------------------------- controls */
+var WARN='';
+function sanitize(){
+  WARN='';
+  O.players=Math.max(2,Math.min(4,+O.players||4));
+  O.rounds=Math.max(1,Math.min(10,+O.rounds||4));
+  O.places=Math.max(3,Math.min(6,+O.places||4));
+  O.decimals=Math.max(0,Math.min(2,+O.decimals||0));
+  if (O.decimals>O.places-1) O.decimals=O.places-1;
+  if (!GOALS[O.goal]) O.goal='largest';
+  if (!DIE[O.die]) O.die='16';
+  if (O.goal==='average' && O.players<3){ O.goal='largest'; WARN='Closest to the average needs 3 or 4 players — with two, both totals are always the same distance from it — so the goal is back to Largest total.'; }
+  if (O.goal==='target' && O.target!==''){
+    var t=parseFloat(O.target), max=Math.pow(10,O.places-O.decimals);
+    if (!isFinite(t)||t<=0||t>=max){ WARN='That target can’t be made on this board, so the sheet uses '+autoTarget()+'.'; }
+  }
+}
+function sync(){
+  var rs=$('selRounds'); if (!rs.options.length){ for (var i=1;i<=10;i++){ var o=document.createElement('option'); o.value=i; o.textContent=i+(i===1?' round':' rounds'); rs.appendChild(o);} }
+  rs.value=O.rounds;
+  [['segPlayers','players'],['segLayout','layout']].forEach(function(x){
+    document.querySelectorAll('#'+x[0]+' button').forEach(function(b){ var on=String(O[x[1]])===b.dataset.v; b.classList.toggle('on',on); b.setAttribute('aria-pressed',on); });
+  });
+  $('selGoal').value=O.goal;
+  $('selGoal').querySelector('option[value="average"]').disabled = O.players<3;
+  $('targetWrap').classList.toggle('hidden', O.goal!=='target');
+  $('inTarget').placeholder=String(autoTarget())+' (suggested)';
+  $('inTarget').value=O.target;
+  $('selPlaces').value=O.places;
+  $('selDecimals').value=O.decimals;
+  Array.prototype.forEach.call($('selDecimals').options,function(o){ o.disabled = +o.value>O.places-1; });
+  $('selNames').value=O.names;
+  $('selDie').value=O.die;
+  $('dieHelp').textContent=DIE[O.die].help;
+  [['tRules','rules'],['tCircle','circle'],['tExpanded','expanded'],['tBest','best'],['tTalk','talk'],['tName','name'],['tTeacher','teacher']].forEach(function(x){ $(x[0]).checked=!!O[x[1]]; });
+  var avg=O.goal==='average';
+  $('tBest').disabled=avg; $('tBestWrap').classList.toggle('off',avg);
+  $('tBestWrap').title = avg ? 'There is no single “best” number when the goal is the average.' : '';
+  if (avg) O.best=false;
+}
+function change(){ sanitize(); save(); sync(); render(); }
+
+document.querySelectorAll('#segPlayers button').forEach(function(b){ b.addEventListener('click',function(){ O.players=+b.dataset.v; change(); }); });
+document.querySelectorAll('#segLayout button').forEach(function(b){ b.addEventListener('click',function(){ O.layout=b.dataset.v; change(); }); });
+$('selRounds').addEventListener('change',function(e){ O.rounds=+e.target.value; change(); });
+$('selGoal').addEventListener('change',function(e){ O.goal=e.target.value; change(); });
+$('inTarget').addEventListener('change',function(e){ O.target=e.target.value.trim(); change(); });
+$('selPlaces').addEventListener('change',function(e){ O.places=+e.target.value; if (O.target!==''&&O.goal!=='target') O.target=''; change(); });
+$('selDecimals').addEventListener('change',function(e){ O.decimals=+e.target.value; change(); });
+$('selNames').addEventListener('change',function(e){ O.names=e.target.value; change(); });
+$('selDie').addEventListener('change',function(e){ O.die=e.target.value; change(); });
+[['tRules','rules'],['tCircle','circle'],['tExpanded','expanded'],['tBest','best'],['tTalk','talk'],['tName','name'],['tTeacher','teacher']].forEach(function(x){
+  $(x[0]).addEventListener('change',function(e){ O[x[1]]=e.target.checked; change(); });
+});
+$('printBtn').addEventListener('click',function(){ window.print(); });
+$('resetBtn').addEventListener('click',function(){ O=Object.assign({},DEFAULTS); change(); });
+var rz=0; window.addEventListener('resize',function(){ clearTimeout(rz); rz=setTimeout(fitPreview,120); });
+
+sanitize(); sync(); render();
+window.__WS__={ get O(){ return O; }, set:function(p){ Object.assign(O,p); change(); }, render:render, get last(){ return LAST; }, defaults:DEFAULTS };
+})();
+</script>
+</body>
+</html>

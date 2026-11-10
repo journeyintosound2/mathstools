@@ -96,6 +96,27 @@
 > §2 "TWO folders", §3 deploy paths and §5's `mathstools-main 2` heading below
 > describe the OLD layout — this block supersedes them.
 >
+> **NEW (2026-11-10): THE NASTY GAME — WORKSHEET CREATOR (paper version).**
+> `worksheet-creators/games/nasty-game.html` (new `games/` folder). **Reached ONLY from the game's new
+> "Tools ▾" menu** (`#toolsBtn` / `#toolsMenu` in `games/nasty-game.html`) — deliberately NO homepage card,
+> NO toolLinks row and `noindex` (Jeff: an option of the game, not a searchable resource). Single file, no `?v=`.
+> * Prints a score sheet to play with a die and pencil. Options: players 2–4, rounds 1–10, **winner** dropdown
+>   (largest total · smallest total · number of wins, biggest / smallest number wins a round · closest to a
+>   target (each round) · closest to the average, 3+ players only), squares 3–6, 0–2 after the point, place names
+>   (words / Th H T O / numbers / both / none), what students roll (1–6 die · 0–9 die · printed 0–9 spinner page ·
+>   printed 0–9 digit cards page), one sheet per group or per player, toggles: how to play, circle passed digits,
+>   expanded form, "best you could have made", talk about it, names/date, teacher notes page.
+> * Rules text matches the game (keep or pass; a passed digit must be taken; play carries on from the passer).
+>   Group sheet: one card per round, "Player r rolls first" rotates. Player sheet: one row per round, each its own
+>   block so it can run onto page 2 (`paginate()` repeats the column head there; `keepNext` stops a lone head).
+> * Pages are packed by measuring in an unzoomed `#probe` page. Place-name font is sized from the widest word
+>   measured on a canvas (`labelFont`) so labels never touch. Nothing is random: every change re-renders.
+>   Settings in `mmtNastySheet.v1`. Test surface `window.__WS__` (`set(opts)`, `defaults`).
+> * Verified (Playwright): 432 option combinations — no page body overflowing, no row/label wider than its
+>   column, round/row/badge counts, average refused at 2 players, no orphaned head; PDF page count = preview;
+>   game banner height unchanged at 390–1920 with the Tools button; menu opens/closes (Esc, click away), sits on
+>   screen at 390, link navigates.
+>
 > **NEW (2026-11-04): FRACTION OF AN AMOUNT — STUDENT QUIZ.** `online-quizzes/stage-3/number/fraction-of-amount-division.html`
 > (thin shell) + `fraction-of-amount-division-quiz/quiz.js` + `quiz.css` (css copied from the parallelogram quiz —
 > bump BOTH `?v=` in the shell). Area-quiz pattern: ONE question + ONE answer; calc questions show the expression
