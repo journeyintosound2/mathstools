@@ -102,7 +102,8 @@
 > NO toolLinks row and `noindex` (Jeff: an option of the game, not a searchable resource). Single file, no `?v=`.
 > * Prints a score sheet to play with a die and pencil. Options: players 2–4, rounds 1–10, **winner** dropdown
 >   (largest total · smallest total · number of wins, biggest / smallest number wins a round · closest to a
->   target (each round) · closest to the average, 3+ players only), squares 3–6, 0–2 after the point, place names
+>   target (each round) · closest TOTAL to a target (after every round; own stored value `sumTarget`, suggested
+>   rounds × a mid board, capped at the real biggest total the die allows) · closest to the average, 3+ players only), squares 3–6, 0–2 after the point, place names
 >   (words / Th H T O / numbers / both / none), what students roll (1–6 die · 0–9 die · printed 0–9 spinner page ·
 >   printed 0–9 digit cards page), one sheet per group or per player, toggles: how to play, circle passed digits,
 >   expanded form, "best you could have made", talk about it, names/date, teacher notes page.

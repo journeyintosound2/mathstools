@@ -256,10 +256,11 @@
                 <option value="winsLarge">Number of wins — biggest number wins each round</option>
                 <option value="winsSmall">Number of wins — smallest number wins each round</option>
                 <option value="target">Closest to a target — closest number wins each round</option>
+                <option value="targetSum">Closest total to a target — add up every round, closest total wins</option>
                 <option value="average">Closest to the average — of everyone’s totals (3 or 4 players)</option>
               </select>
             </label>
-            <label id="targetWrap">Target number
+            <label id="targetWrap"><span id="targetLbl">Target number</span>
               <input id="inTarget" type="number" min="0" step="any" inputmode="decimal" />
             </label>
           </div>
@@ -342,7 +343,7 @@
 'use strict';
 var $ = function(id){ return document.getElementById(id); };
 var KEY = 'mmtNastySheet.v1';
-var DEFAULTS = { players:4, rounds:4, goal:'largest', target:'', places:4, decimals:0, names:'words', die:'16',
+var DEFAULTS = { players:4, rounds:4, goal:'largest', target:'', sumTarget:'', places:4, decimals:0, names:'words', die:'16',
   layout:'group', rules:true, circle:true, expanded:false, best:false, talk:true, name:true, teacher:false };
 var O = Object.assign({}, DEFAULTS);
 try{ Object.assign(O, JSON.parse(localStorage.getItem(KEY) || '{}')); }catch(e){}
@@ -365,6 +366,8 @@ var GOALS = {
     rule:'When every board is full, the <b>smallest number</b> wins the round — tick the winner’s box. After the last round, whoever won the <b>most rounds</b> wins.' },
   target:   { kind:'target', chip:'Closest to {T} wins a round',
     rule:'When every board is full, work out <b>how far</b> your number is from <b>{T}</b>. The closest wins the round — tick the winner’s box. After the last round, whoever won the <b>most rounds</b> wins.' },
+  targetSum:{ kind:'total',  chip:'Total closest to {T} wins',
+    rule:'When every board is full, write your number in <b>Total so far</b> (add it to your last total). After the last round, the total <b>closest to {T}</b> wins — over or under.' },
   average:  { kind:'total',  chip:'Closest to the average wins',
     rule:'When every board is full, write your number in <b>Total so far</b>. After the last round, find the <b>average</b> of everyone’s totals (add them, then share between the players). The total <b>closest to the average</b> wins.' }
 };
@@ -384,11 +387,18 @@ function fmt(n){
   return parts.length>1 ? i+'.'+parts[1] : i;
 }
 /* A target nobody can hit exactly every time, roughly in the middle of what the board can make. */
-function autoTarget(){ var w=O.places-O.decimals; return (O.die==='16' ? 3.5 : 5)*Math.pow(10,w-1); }
+function roundTarget(){ var w=O.places-O.decimals; return (O.die==='16' ? 3.5 : 5)*Math.pow(10,w-1); }
+/* Two different targets: one number each round ("target"), or the total after every round ("targetSum").
+   They are stored separately so switching goal never leaves a 3500 aimed at a total. */
+function tField(){ return O.goal==='targetSum' ? 'sumTarget' : 'target'; }
+function niceNum(x){ if (x<100) return x; var p=Math.pow(10,Math.floor(Math.log10(x))-1); return Math.round(x/p)*p; }
+function autoTarget(){ return O.goal==='targetSum' ? niceNum(roundTarget()*O.rounds) : roundTarget(); }
+/* The biggest board possible: every square holds the die's top face (6666 on a 1–6 die). */
+function boardMax(){ return faceMax()*(Math.pow(10,O.places-O.decimals)-Math.pow(10,-O.decimals))/9; }
+function maxTarget(){ return O.goal==='targetSum' ? boardMax()*O.rounds : boardMax(); }
 function targetVal(){
-  var t=parseFloat(O.target);
-  var max=Math.pow(10,O.places-O.decimals);
-  if (!isFinite(t) || t<=0 || t>=max) return autoTarget();
+  var t=parseFloat(O[tField()]);
+  if (!isFinite(t) || t<=0 || t>maxTarget()+1e-9) return autoTarget();
   return t;
 }
 /* A target is printed as written: 3500, not 3500.00. */
@@ -462,7 +472,7 @@ function rightHead(){
   var k=GOALS[O.goal].kind;
   var h = k==='wins' ? '<div class="ng-lab">Won?</div>'
         : k==='target' ? '<div class="ng-lab left">How far from '+T()+'? &nbsp;·&nbsp; Won?</div>'
-        : '<div class="ng-lab left">Total so far</div>';
+        : '<div class="ng-lab left">Total so far'+(O.goal==='targetSum'?' — aim for '+T():'')+'</div>';
   if (O.best) h+='<div class="ng-lab left">'+bestTitle()+'</div>';
   return h;
 }
@@ -555,6 +565,9 @@ function resultsBox(){
       h+='<div>Everyone’s final totals:'; for (var i=0;i<O.players;i++) h+='<span class="wl"></span>'; h+='</div>';
       h+='<div>Add them: <span class="wl w2"></span> ÷ '+O.players+' = <span class="wl w2"></span> ← the average</div>';
       h+='<div>My total is <span class="wl"></span> away from the average.</div>';
+    } else if (O.goal==='targetSum'){
+      h+='<div>My final total: <span class="wl w2"></span></div>';
+      h+='<div>It is <span class="wl"></span> away from '+T()+'.</div>';
     } else if (k==='total'){
       h+='<div>My final total: <span class="wl w2"></span></div>';
     } else {
@@ -570,7 +583,8 @@ function resultsBox(){
     h+=' = <span class="wl w2"></span></div>';
     h+='<div>Share it between '+O.players+' players: <span class="wl w2"></span> ÷ '+O.players+' = <span class="wl w2"></span> ← the average</div></div>';
   }
-  var cols = k==='total' ? (O.goal==='average' ? ['Final total','How far from the average?','Place'] : ['Final total','Place'])
+  var cols = k==='total' ? (O.goal==='average' ? ['Final total','How far from the average?','Place']
+                           : O.goal==='targetSum' ? ['Final total','How far from '+T()+'?','Place'] : ['Final total','Place'])
            : ['Rounds won','Place'];
   h+='<table class="ng-res"><tr><th>Player</th>'+cols.map(function(c){return '<th>'+c+'</th>';}).join('')+'</tr>';
   for (var p=1;p<=O.players;p++){
@@ -590,6 +604,10 @@ function talkQs(){
     q.push('Why is a '+(big===6?'1':'0')+' a good roll in this game? Where should it go?');
     q.push('You are passed a '+big+'. Which square does the least damage? Explain.');
     q.push('What is the smallest number you could ever make on this board?');
+  } else if (g==='targetSum'){
+    q.push('After round '+Math.max(1,O.rounds-1)+' your total is 1000 under '+T()+'. What sort of number do you want in the last round? Where do your digits go?');
+    q.push('Is it better to make big numbers early, or to save them for the last round? Why?');
+    q.push('Which digit would you pass to the player closest to '+T()+'? Which square would you hope they put it in?');
   } else if (g==='target'){
     q.push('Which digits would you want in the '+top+' to get close to '+T()+'?');
     q.push('Your best round: how far from '+T()+' was it? Could you have got closer with the same digits?');
@@ -635,7 +653,7 @@ function cardsPage(){
 }
 function teacherPage(){
   var g=GOALS[O.goal], d=DIE[O.die];
-  var maths = { largest:'adding large numbers'+(O.decimals?' and decimals':'')+' and keeping a running total', smallest:'adding numbers'+(O.decimals?' and decimals':'')+' and keeping a running total', winsLarge:'comparing and ordering numbers each round', winsSmall:'comparing and ordering numbers each round', target:'finding the difference between two numbers', average:'adding totals and finding the mean (average)' }[O.goal];
+  var maths = { largest:'adding large numbers'+(O.decimals?' and decimals':'')+' and keeping a running total', smallest:'adding numbers'+(O.decimals?' and decimals':'')+' and keeping a running total', winsLarge:'comparing and ordering numbers each round', winsSmall:'comparing and ordering numbers each round', target:'finding the difference between two numbers', targetSum:'keeping a running total and working out how far it is from a target', average:'adding totals and finding the mean (average)' }[O.goal];
   var h='<div class="ng-tn">';
   h+='<h2>What you need</h2><ul><li>'+(O.layout==='group'?'One sheet for each group of '+O.players:'One sheet for each student, groups of '+O.players)+', a pencil each'+(O.die==='16'||O.die==='09'?', and '+d.say+' for each group.':'.')+'</li>';
   if (O.die==='spin') h+='<li>The spinner page (one spinner per group), a paper clip and a pencil for each group.</li>';
@@ -652,7 +670,7 @@ function teacherPage(){
   h+='<h2>Ways to change it</h2><ul>';
   h+='<li><b>First game:</b> no passing — everyone keeps every digit. Students learn the board before the nasty part.</li>';
   h+='<li><b>Whole class warm-up:</b> you roll, everyone writes in their own board, nobody passes. Closest to a target or biggest number wins.</li>';
-  h+='<li><b>Change the goal</b> on this page and print again: largest, smallest, closest to a target, or closest to the average.</li>';
+  h+='<li><b>Change the goal</b> on this page and print again: largest, smallest, number of wins, closest to a target, closest total to a target, or closest to the average.</li>';
   h+='<li><b>Add a decimal point</b> (Squares after the decimal point) once whole numbers are easy.</li>';
   h+='<li><b>Digit cards without putting them back:</b> students can count which digits are left — a good chance conversation.</li>';
   h+='<li><b>On screen:</b> the same game is at millsmathstools.au/games/nasty-game.html — against the computer, on one screen, or online as a class.</li></ul>';
@@ -741,9 +759,9 @@ function sanitize(){
   if (!GOALS[O.goal]) O.goal='largest';
   if (!DIE[O.die]) O.die='16';
   if (O.goal==='average' && O.players<3){ O.goal='largest'; WARN='Closest to the average needs 3 or 4 players — with two, both totals are always the same distance from it — so the goal is back to Largest total.'; }
-  if (O.goal==='target' && O.target!==''){
-    var t=parseFloat(O.target), max=Math.pow(10,O.places-O.decimals);
-    if (!isFinite(t)||t<=0||t>=max){ WARN='That target can’t be made on this board, so the sheet uses '+autoTarget()+'.'; }
+  if ((O.goal==='target'||O.goal==='targetSum') && O[tField()]!==''){
+    var t=parseFloat(O[tField()]);
+    if (!isFinite(t)||t<=0||t>maxTarget()+1e-9){ WARN='That target can’t be reached on this board'+(O.goal==='targetSum'?' in '+O.rounds+(O.rounds===1?' round':' rounds'):'')+', so the sheet uses '+T()+'.'; }
   }
 }
 function sync(){
@@ -754,9 +772,10 @@ function sync(){
   });
   $('selGoal').value=O.goal;
   $('selGoal').querySelector('option[value="average"]').disabled = O.players<3;
-  $('targetWrap').classList.toggle('hidden', O.goal!=='target');
+  $('targetWrap').classList.toggle('hidden', O.goal!=='target' && O.goal!=='targetSum');
+  $('targetLbl').textContent = O.goal==='targetSum' ? 'Target for the total' : 'Target number';
   $('inTarget').placeholder=String(autoTarget())+' (suggested)';
-  $('inTarget').value=O.target;
+  $('inTarget').value=O[tField()];
   $('selPlaces').value=O.places;
   $('selDecimals').value=O.decimals;
   Array.prototype.forEach.call($('selDecimals').options,function(o){ o.disabled = +o.value>O.places-1; });
@@ -764,9 +783,9 @@ function sync(){
   $('selDie').value=O.die;
   $('dieHelp').textContent=DIE[O.die].help;
   [['tRules','rules'],['tCircle','circle'],['tExpanded','expanded'],['tBest','best'],['tTalk','talk'],['tName','name'],['tTeacher','teacher']].forEach(function(x){ $(x[0]).checked=!!O[x[1]]; });
-  var avg=O.goal==='average';
+  var avg=O.goal==='average'||O.goal==='targetSum';
   $('tBest').disabled=avg; $('tBestWrap').classList.toggle('off',avg);
-  $('tBestWrap').title = avg ? 'There is no single “best” number when the goal is the average.' : '';
+  $('tBestWrap').title = avg ? 'There is no single “best” number when the winner depends on the total.' : '';
   if (avg) O.best=false;
 }
 function change(){ sanitize(); save(); sync(); render(); }
@@ -775,8 +794,8 @@ document.querySelectorAll('#segPlayers button').forEach(function(b){ b.addEventL
 document.querySelectorAll('#segLayout button').forEach(function(b){ b.addEventListener('click',function(){ O.layout=b.dataset.v; change(); }); });
 $('selRounds').addEventListener('change',function(e){ O.rounds=+e.target.value; change(); });
 $('selGoal').addEventListener('change',function(e){ O.goal=e.target.value; change(); });
-$('inTarget').addEventListener('change',function(e){ O.target=e.target.value.trim(); change(); });
-$('selPlaces').addEventListener('change',function(e){ O.places=+e.target.value; if (O.target!==''&&O.goal!=='target') O.target=''; change(); });
+$('inTarget').addEventListener('change',function(e){ O[tField()]=e.target.value.trim(); change(); });
+$('selPlaces').addEventListener('change',function(e){ O.places=+e.target.value; change(); });
 $('selDecimals').addEventListener('change',function(e){ O.decimals=+e.target.value; change(); });
 $('selNames').addEventListener('change',function(e){ O.names=e.target.value; change(); });
 $('selDie').addEventListener('change',function(e){ O.die=e.target.value; change(); });
