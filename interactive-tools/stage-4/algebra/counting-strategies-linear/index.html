@@ -198,7 +198,12 @@
       background-image:linear-gradient(45deg,transparent 50%,#5b21b6 50%),linear-gradient(135deg,#5b21b6 50%,transparent 50%);
       background-position:calc(100% - 15px) 52%, calc(100% - 10px) 52%; background-size:5px 5px; background-repeat:no-repeat; }
     .storySel:focus-visible{ outline:none; box-shadow:0 0 0 4px rgba(124,58,237,.22); }
-    body:not([data-mode="story"]) .storyOnly, body[data-mode="story"] .countOnly{ display:none !important; }
+    body:not([data-mode="story"]) .storyOnly, body:not([data-mode="count"]) .countOnly, body:not([data-mode="eq"]) .eqOnly,
+    body[data-mode="story"] .notStory, body[data-mode="eq"] .notEq{ display:none !important; }
+    /* equation form: set like an equation editor — upright numbers, italic x and y */
+    .rule .eqn{ font-family:var(--mathFont); font-weight:600; letter-spacing:0; white-space:nowrap; }
+    .rule .eqn i{ font-style:italic; }
+    .introEdit input.eqIn{ width:10em; font-family:var(--mathFont); font-weight:600; }
     .introTools{ display:flex; gap:9px; flex-wrap:wrap; justify-content:center; }
     .introEdit{
       display:flex; align-items:center; gap:12px; flex-wrap:wrap; justify-content:center;
@@ -435,10 +440,10 @@
                 <span>Numbers</span><span class="val" id="levelVal">Mild</span>
               </button>
               <div class="subMenu" role="menu" aria-label="Numbers">
-                <button class="subOpt" type="button" data-level="sweet"><span>Sweet<small>Start 0&ndash;12, count by 2s to 5s</small></span><span class="tick" aria-hidden="true">&#10003;</span></button>
-                <button class="subOpt" type="button" data-level="mild"><span>Mild<small>Start up to 30, count by 2s to 10s</small></span><span class="tick" aria-hidden="true">&#10003;</span></button>
-                <button class="subOpt" type="button" data-level="medium"><span>Medium<small>Bigger numbers; counting down may pass zero</small></span><span class="tick" aria-hidden="true">&#10003;</span></button>
-                <button class="subOpt" type="button" data-level="spicy"><span>Spicy<small>Negative starts and decimal steps (0.5s, 2.5s&hellip;)</small></span><span class="tick" aria-hidden="true">&#10003;</span></button>
+                <button class="subOpt" type="button" data-level="sweet"><span>Sweet<small>Small whole numbers, count by 2s to 5s</small></span><span class="tick" aria-hidden="true">&#10003;</span></button>
+                <button class="subOpt" type="button" data-level="mild"><span>Mild<small>Starts up to about 50, count by 2s to 10s</small></span><span class="tick" aria-hidden="true">&#10003;</span></button>
+                <button class="subOpt" type="button" data-level="medium"><span>Medium<small>Bigger numbers; temperatures can start below zero</small></span><span class="tick" aria-hidden="true">&#10003;</span></button>
+                <button class="subOpt" type="button" data-level="spicy"><span>Spicy<small>Big numbers and awkward steps (15s, 35s, 175s&hellip;)</small></span><span class="tick" aria-hidden="true">&#10003;</span></button>
               </div>
             </div>
             <div class="subWrap" id="dirWrap">
@@ -449,6 +454,15 @@
                 <button class="subOpt" type="button" data-dir="up"><span>Up</span><span class="tick" aria-hidden="true">&#10003;</span></button>
                 <button class="subOpt" type="button" data-dir="down"><span>Down<small>A negative gradient</small></span><span class="tick" aria-hidden="true">&#10003;</span></button>
                 <button class="subOpt" type="button" data-dir="either"><span>Up or down</span><span class="tick" aria-hidden="true">&#10003;</span></button>
+              </div>
+            </div>
+            <div class="subWrap" id="eqFormWrap">
+              <button class="subRow" type="button" aria-haspopup="true" aria-expanded="false">
+                <span>Equation form</span><span class="val" id="eqFormVal">y = b + mx</span>
+              </button>
+              <div class="subMenu" role="menu" aria-label="Equation form">
+                <button class="subOpt" type="button" data-eqform="mxb"><span>y = mx + b<small>Gradient first: y = 3x + 5</small></span><span class="tick" aria-hidden="true">&#10003;</span></button>
+                <button class="subOpt" type="button" data-eqform="bmx"><span>y = b + mx<small>Start first, the way it is counted: y = 5 + 3x</small></span><span class="tick" aria-hidden="true">&#10003;</span></button>
               </div>
             </div>
             <div class="subWrap" id="rowsWrap">
@@ -499,38 +513,40 @@
         <div class="introView" id="introView">
           <div class="modeSeg" role="group" aria-label="How the problem is given" id="modeSeg">
             <button type="button" data-mode="count" title="Start at &hellip;, count up or down by &hellip; (W)">Count up / down</button>
-            <button type="button" data-mode="story" title="A worded problem with a context (W)">Worded problem</button>
+            <button type="button" data-mode="story" title="The same numbers as a worded problem (W)">Worded problem</button>
+            <button type="button" data-mode="eq" title="The same numbers as an equation (W)">Equation</button>
           </div>
           <div class="introSlot" id="introSlot">
             <h2 class="rule big" id="rule" aria-live="polite"></h2>
           </div>
           <div class="introEdit" id="introEdit" hidden>
             <span class="countOnly">Start at</span><span class="storyOnly">Start</span>
-            <input id="edStart" type="text" inputmode="decimal" autocomplete="off" aria-label="Start at">
+            <input class="notEq" id="edStart" type="text" inputmode="decimal" autocomplete="off" aria-label="Start at">
             <span class="countOnly">count</span>
             <span class="seg countOnly" role="group" aria-label="Count up or down">
               <button type="button" data-ed="up" class="on">up</button><button type="button" data-ed="down">down</button>
             </span>
             <span class="countOnly">by</span><span class="storyOnly" id="edStepLbl">changes by</span>
-            <input id="edStep" type="text" inputmode="decimal" autocomplete="off" aria-label="Count by">
+            <input class="notEq" id="edStep" type="text" inputmode="decimal" autocomplete="off" aria-label="Count by">
+            <input class="eqOnly eqIn" id="edEq" type="text" autocomplete="off" spellcheck="false" aria-label="Equation" placeholder="y = 5 + 3x">
             <span class="countOnly">s</span><span class="storyOnly">each step</span>
             <button class="navBtn" id="edDone" type="button">Done</button>
             <div class="editErr" id="edErr"></div>
           </div>
           <div class="introTools" id="introTools">
-            <button class="genBtn" id="diceBtn" type="button" title="Different numbers (R)"><span aria-hidden="true">&#9860;</span><span class="countOnly">New numbers</span><span class="storyOnly">New story</span></button>
+            <button class="genBtn" id="diceBtn" type="button" title="Different numbers (R)"><span aria-hidden="true">&#9860;</span><span class="notStory">New numbers</span><span class="storyOnly">New story</span></button>
             <select class="storySel storyOnly" id="storySel" aria-label="Choose a story"></select>
-            <button class="genBtn" id="editBtn" type="button" title="Type your own (E)"><span aria-hidden="true">&#9998;</span><span class="countOnly">Type your own</span><span class="storyOnly">Change the numbers</span></button>
+            <button class="genBtn" id="editBtn" type="button" title="Type your own (E)"><span aria-hidden="true">&#9998;</span><span class="notStory">Type your own</span><span class="storyOnly">Change the numbers</span></button>
           </div>
           <button class="navBtn next" id="nextBtn" type="button">Next &#9654;</button>
-          <p class="hint">Space or &rarr; next &middot; R <span class="countOnly">new numbers</span><span class="storyOnly">new story</span> &middot; E <span class="countOnly">type your own</span><span class="storyOnly">change the numbers</span> &middot; W <span class="countOnly">worded problem</span><span class="storyOnly">count up / down</span></p>
+          <p class="hint">Space or &rarr; next &middot; R <span class="notStory">new numbers</span><span class="storyOnly">new story</span> &middot; E <span class="notStory">type your own</span><span class="storyOnly">change the numbers</span> &middot; W <span class="countOnly">worded problem</span><span class="storyOnly">equation</span><span class="eqOnly">count up / down</span></p>
         </div>
 
         <!-- ===== the graphing view ===== -->
         <div class="headStrip" id="headStrip" hidden>
-          <div class="left"><button class="navBtn" id="backBtn" type="button" title="Back to the instruction (&larr;)">&#9664; <span class="lbl countOnly">The instruction</span><span class="lbl storyOnly">The problem</span></button></div>
+          <div class="left"><button class="navBtn" id="backBtn" type="button" title="Back to the instruction (&larr;)">&#9664; <span class="lbl countOnly">The instruction</span><span class="lbl storyOnly">The problem</span><span class="lbl eqOnly">The equation</span></button></div>
           <div class="headSlot" id="headSlot"></div>
-          <div class="right"><button class="genBtn" id="newRuleBtn" type="button" title="A new instruction &mdash; clears the table"><span aria-hidden="true">&#9860;</span><span class="lbl countOnly">New instruction</span><span class="lbl storyOnly">New story</span></button></div>
+          <div class="right"><button class="genBtn" id="newRuleBtn" type="button" title="A new instruction &mdash; clears the table"><span aria-hidden="true">&#9860;</span><span class="lbl countOnly">New instruction</span><span class="lbl storyOnly">New story</span><span class="lbl eqOnly">New equation</span></button></div>
         </div>
 
         <div class="graphView" id="graphView" hidden>
@@ -885,7 +901,7 @@ if(typeof module !== "undefined") module.exports = CL;
   var S = {
     phase:"intro",
     set:{
-      level:saved.level || "mild", dir:saved.dir || "either", rows:saved.rows || 8, mode:saved.mode === "story" ? "story" : "count",
+      level:saved.level || "mild", dir:saved.dir || "either", rows:saved.rows || 8, mode:(saved.mode === "story" || saved.mode === "eq") ? saved.mode : "count", eqForm:saved.eqForm === "mxb" ? "mxb" : "bmx",
       jumps:!!saved.jumps, steps:!!saved.steps, labels:!!saved.labels, thru:!!saved.thru, quad:!!saved.quad,
       minor:saved.minor !== false
     },
@@ -914,7 +930,31 @@ if(typeof module !== "undefined") module.exports = CL;
   // In "worded problem" mode the same rule is told as a story; S.story = {id, name}.
   // The two numbers keep their colours: the start blue (= the points), the change orange (= the jumps).
   function isStory(){ return S.set.mode === "story" && S.story; }
+  function isEq(){ return S.set.mode === "eq"; }
+  // The equation form of the same rule: y = 5 + 3x or y = 3x + 5 (Settings › Equation form).
+  // Start (b) blue, step (m) orange, as in the other two views. A coefficient of 1 is not written.
+  function eqHTML(r){
+    var mk = function(k, t){ return "<span class=\"num " + k + "\">" + t + "</span>"; };
+    var X = ALPHA ? XI : "<i>x</i>", Y = ALPHA ? YI : "<i>y</i>";
+    var m = CL.round(r.step), b = CL.round(r.start), down = r.dir === "down";
+    var mx = (m === 1 ? "" : mk("step", CL.fmt(m))) + X;
+    var out;
+    if(S.set.eqForm === "mxb"){
+      out = (down ? "−" : "") + mx + (b === 0 ? "" : (b < 0 ? " − " : " + ") + mk("start", CL.fmt(Math.abs(b))));
+    } else {
+      out = b === 0 ? (down ? "−" : "") + mx : mk("start", CL.fmt(b)) + (down ? " − " : " + ") + mx;
+    }
+    return "<span class=\"eqn\">" + Y + " = " + out + "</span>";
+  }
+  // the same equation as plain text, for the "Type your own" box
+  function eqPlain(r){
+    var m = CL.fmt(r.step).replace("−", "-"), b = CL.round(r.start), down = r.dir === "down";
+    var mx = (CL.round(r.step) === 1 ? "" : m) + "x";
+    if(S.set.eqForm === "mxb") return "y = " + (down ? "-" : "") + mx + (b === 0 ? "" : (b < 0 ? " - " : " + ") + CL.fmt(Math.abs(b)));
+    return "y = " + (b === 0 ? (down ? "-" : "") + mx : CL.fmt(b).replace("−", "-") + (down ? " - " : " + ") + mx);
+  }
   function ruleHTML(r){
+    if(isEq()) return eqHTML(r);
     if(isStory()){
       return CTX.storyHTML({id:S.story.id, name:S.story.name, rule:r}, function(k, t){
         return "<span class=\"num " + k + "\">" + t.replace(/&/g, "&amp;") + "</span>";
@@ -939,15 +979,60 @@ if(typeof module !== "undefined") module.exports = CL;
   }
   // STORY_ROWS: a story that cannot go below zero stays at or above zero for the whole first-ten frame
   var STORY_ROWS = 10;
-  function newRule(onlyId){
-    if(S.set.mode === "story"){
-      var st = CTX.make(S.set.level, S.set.dir, STORY_ROWS, S.story && !onlyId ? S.story.id : null, onlyId);
-      if(st){ S.story = {id:st.id, name:st.name}; S.rule = st.rule; }
-      $("#storySel").value = S.story ? S.story.id : "";
-    } else {
-      S.rule = CL.makeRule(S.set.level, S.set.dir, S.set.rows, S.rule);
+  // ONE example, three views. Every example is made as a worded problem first, so its numbers make
+  // sense in the story; "Count up / down" and "Equation" then show the same start and step.
+  // Whole numbers only (m and b integers): at a level where a story's numbers are all decimals
+  // (money, measurements, temperatures, batteries at Spicy) it borrows the next easier tier.
+  var EASIER = {spicy:"medium", medium:"mild", mild:"sweet"};
+  function isInt(n){ return Number.isInteger(CL.round(n)); }
+  function wholeCtx(ctx, level){
+    var T = CTX.TIERS[ctx.kind] || CTX.TIERS.count;
+    var l = (ctx.lv && ctx.lv[level]) || level;
+    while(EASIER[l] && !T[l].d.some(isInt)) l = EASIER[l];
+    var lv = {}; lv[level] = l;
+    return Object.assign({}, ctx, {lv:lv});
+  }
+  function makeExample(level, dirMode, avoid, onlyId){
+    var pool = CTX.CONTEXTS.filter(function(c){
+      if(onlyId) return c.id === onlyId;
+      if(dirMode !== "either" && c.dir !== dirMode) return false;
+      if(c.neg && (level === "sweet" || level === "mild") && c.dir === "down") return false;
+      return !avoid || c.id !== avoid.id;
+    });
+    if(!pool.length) pool = CTX.CONTEXTS.slice();
+    for(var t = 0; t < 120; t++){
+      var ctx = pool[Math.floor(Math.random() * pool.length)];
+      var r = CTX.numbersFor(wholeCtx(ctx, level), level, STORY_ROWS);
+      if(!r || !isInt(r.start) || !isInt(r.step)) continue;
+      if(ctx.neg && (level === "sweet" || level === "mild")){
+        var ok = true; for(var x = 0; x < STORY_ROWS; x++) if(CL.termOf(r, x) < 0) ok = false;
+        if(!ok) continue;
+      }
+      return {id:ctx.id, name:CTX.NAMES[Math.floor(Math.random() * CTX.NAMES.length)], rule:r};
     }
+    return CTX.make(level, dirMode, STORY_ROWS, avoid ? avoid.id : null, onlyId);
+  }
+  function newRule(onlyId){
+    var st = makeExample(S.set.level, S.set.dir, S.story && !onlyId ? S.story : null, onlyId);
+    if(st){ S.story = {id:st.id, name:st.name}; S.rule = st.rule; }
+    $("#storySel").value = S.story ? S.story.id : "";
     paintRule();
+  }
+  // Numbers typed in the count or equation view still need a story that fits them:
+  // the same direction, under any cap (a battery above 100%), below zero only if the story can be.
+  function storyFits(c, r){
+    if(c.dir !== r.dir) return false;
+    if(c.cap != null && r.start > c.cap) return false;
+    var low = Math.min(CL.termOf(r, 0), CL.termOf(r, S.set.rows - 1));
+    return low >= 0 || !!c.neg;
+  }
+  function fitStory(r){
+    if(S.story && storyFits(CTX.BY[S.story.id], r)) return;
+    var ok = CTX.CONTEXTS.filter(function(c){ return storyFits(c, r); });
+    if(!ok.length) return;
+    var c = ok[Math.floor(Math.random() * ok.length)];
+    S.story = {id:c.id, name:S.story ? S.story.name : CTX.NAMES[0]};
+    $("#storySel").value = c.id;
   }
   function buildStorySel(){
     var sel = $("#storySel"), h = "";
@@ -964,8 +1049,11 @@ if(typeof module !== "undefined") module.exports = CL;
     document.body.setAttribute("data-mode", m);
     document.querySelectorAll("#modeSeg [data-mode]").forEach(function(b){ var on = b.getAttribute("data-mode") === m; b.classList.toggle("on", on); b.setAttribute("aria-pressed", String(on)); });
     $("#introEdit").hidden = true; $("#introTools").hidden = false;
-    newRule(); clearWork();
+    // same example, another view: the numbers and anything typed in the table stay
+    paintRule();
   }
+  var MODES = ["count", "story", "eq"];
+  function nextMode(){ setMode(MODES[(MODES.indexOf(S.set.mode) + 1) % MODES.length]); }
 
   // Type your own
   var edDir = "up";
@@ -977,10 +1065,34 @@ if(typeof module !== "undefined") module.exports = CL;
     if(isStory()) $("#edStepLbl").textContent = (S.rule.dir === "up" ? "goes up by" : "goes down by");
     $("#edErr").textContent = "";
     $("#introEdit").hidden = false; $("#introTools").hidden = true;
+    if(isEq()){
+      $("#edEq").value = eqPlain(S.rule); $("#edEq").classList.remove("bad");
+      $("#edEq").focus(); $("#edEq").select();
+      return;
+    }
     $("#edStart").focus(); $("#edStart").select();
+  }
+  // y = 5 + 3x, 3x + 5, 25 − 2x … → {start, step, dir}; or an error message
+  function readEq(raw){
+    var q = CL.equation(raw);
+    if(q.kind === "empty") return {err:"Type an equation, like y = 5 + 3x."};
+    if(q.kind !== "fn" || !q.linear) return {err:q.msg && q.kind === "err" ? q.msg : "Type a straight line, like y = 5 + 3x."};
+    var m = q.linear.m, b = q.linear.b;
+    if(m === 0) return {err:"The x needs a number in front that isn’t 0, or nothing changes."};
+    if(Math.abs(b) > 1e6 || Math.abs(m) > 1e6) return {err:"Keep the numbers under a million."};
+    return {rule:{start:CL.round(b), step:CL.round(Math.abs(m)), dir:m > 0 ? "up" : "down"}};
   }
   function paintSeg(){ document.querySelectorAll("[data-ed]").forEach(function(b){ b.classList.toggle("on", b.getAttribute("data-ed") === edDir); }); }
   function applyEdit(){
+    if(isEq()){
+      var got = readEq($("#edEq").value);
+      $("#edEq").classList.toggle("bad", !!got.err);
+      if(got.err){ $("#edErr").textContent = got.err; return false; }
+      S.rule = got.rule; fitStory(S.rule);
+      paintRule(); clearWork();
+      $("#introEdit").hidden = true; $("#introTools").hidden = false;
+      return true;
+    }
     var a = CL.num($("#edStart").value), b = CL.num($("#edStep").value);
     $("#edStart").classList.toggle("bad", !isFinite(a));
     $("#edStep").classList.toggle("bad", !(b > 0));
@@ -989,6 +1101,7 @@ if(typeof module !== "undefined") module.exports = CL;
     if(!(b > 0)){ $("#edErr").textContent = isStory() ? "The change needs to be a number bigger than 0." : "Count by a number bigger than 0."; return false; }
     if(Math.abs(a) > 1e6 || b > 1e6){ $("#edErr").textContent = "Keep the numbers under a million."; return false; }
     S.rule = {start:CL.round(a), step:CL.round(b), dir:edDir};
+    if(!isStory()) fitStory(S.rule);
     paintRule(); clearWork();
     $("#introEdit").hidden = true; $("#introTools").hidden = false;
     return true;
@@ -1669,6 +1782,8 @@ if(typeof module !== "undefined") module.exports = CL;
     $("#levelVal").textContent = LEVEL_NAMES[S.set.level];
     $("#dirVal").textContent = DIR_NAMES[S.set.dir];
     $("#rowsVal").textContent = S.set.rows + " rows";
+    $("#eqFormVal").textContent = S.set.eqForm === "mxb" ? "y = mx + b" : "y = b + mx";
+    document.querySelectorAll("[data-eqform]").forEach(function(b){ b.classList.toggle("on", b.getAttribute("data-eqform") === S.set.eqForm); });
     document.querySelectorAll("[data-level]").forEach(function(b){ b.classList.toggle("on", b.getAttribute("data-level") === S.set.level); });
     document.querySelectorAll("[data-dir]").forEach(function(b){ b.classList.toggle("on", b.getAttribute("data-dir") === S.set.dir); });
     document.querySelectorAll("[data-rows]").forEach(function(b){ b.classList.toggle("on", +b.getAttribute("data-rows") === S.set.rows); });
@@ -1681,6 +1796,10 @@ if(typeof module !== "undefined") module.exports = CL;
   }); });
   document.querySelectorAll("[data-dir]").forEach(function(b){ b.addEventListener("click", function(){
     S.set.dir = b.getAttribute("data-dir"); saveSet(); paintSettings(); closeMenus(); startOver(true);
+  }); });
+  document.querySelectorAll("[data-eqform]").forEach(function(b){ b.addEventListener("click", function(){
+    S.set.eqForm = b.getAttribute("data-eqform"); saveSet(); paintSettings(); closeMenus();
+    if(S.rule) paintRule();   // same numbers, written the other way round
   }); });
   document.querySelectorAll("[data-rows]").forEach(function(b){ b.addEventListener("click", function(){
     S.set.rows = +b.getAttribute("data-rows"); saveSet(); paintSettings(); closeMenus();
@@ -1724,7 +1843,12 @@ if(typeof module !== "undefined") module.exports = CL;
     if(isFinite(a) && b > 0 && Math.abs(a) <= 1e6 && b <= 1e6) $("#rule").innerHTML = ruleHTML({start:CL.round(a), step:CL.round(b), dir:d});
   }
   ["#edStart","#edStep"].forEach(function(s){ $(s).addEventListener("input", function(){ $("#edErr").textContent = ""; this.classList.remove("bad"); previewEdit(); }); });
-  ["#edStart","#edStep"].forEach(function(s){ $(s).addEventListener("keydown", function(e){
+  $("#edEq").addEventListener("input", function(){
+    $("#edErr").textContent = ""; this.classList.remove("bad");
+    var got = readEq(this.value);
+    if(got.rule) $("#rule").innerHTML = ruleHTML(got.rule);
+  });
+  ["#edStart","#edStep","#edEq"].forEach(function(s){ $(s).addEventListener("keydown", function(e){
     if(e.key === "Enter"){ e.preventDefault(); applyEdit(); }
     if(e.key === "Escape"){ e.preventDefault(); e.stopPropagation(); $("#introEdit").hidden = true; $("#introTools").hidden = false; paintRule(); }
   }); });
@@ -1758,7 +1882,7 @@ if(typeof module !== "undefined") module.exports = CL;
       if(e.key === " " || e.key === "ArrowRight" || e.key === "Enter"){ if(t && t.tagName === "BUTTON" && e.key !== "ArrowRight") return; e.preventDefault(); toGraph(); }
       else if(k === "r"){ newRule(); clearWork(); }
       else if(k === "e"){ e.preventDefault(); openEdit(); }
-      else if(k === "w"){ setMode(S.set.mode === "story" ? "count" : "story"); }
+      else if(k === "w"){ nextMode(); }
     } else {
       if(e.key === "ArrowLeft"){ e.preventDefault(); toIntro(); }
       else if(k === "a"){ setAuto(!S.auto); }
@@ -1781,7 +1905,7 @@ if(typeof module !== "undefined") module.exports = CL;
   setPhase("intro");
 
   // a small window for the checks to look through
-  window.__CL__ = {S:S, CL:CL, setMode:setMode, CTX:CTX, draw:draw, refit:refit, toGraph:toGraph, toIntro:toIntro, sx:sx, sy:sy, dims:function(){ return {W:W, H:H}; }, ALPHA:ALPHA};
+  window.__CL__ = {S:S, CL:CL, setMode:setMode, eqHTML:eqHTML, readEq:readEq, makeExample:makeExample, CTX:CTX, draw:draw, refit:refit, toGraph:toGraph, toIntro:toIntro, sx:sx, sy:sy, dims:function(){ return {W:W, H:H}; }, ALPHA:ALPHA};
 })();
 </script>
 </body>

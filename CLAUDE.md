@@ -854,6 +854,16 @@
 >   the big and small versions wrap at the same words and the FLIP is a pure scale. Table
 >   headers and axis titles name x and y ("hours", "money left ($)"). Choose a story / New
 >   story / Change the numbers (direction fixed by the story).
+> * **THREE VIEWS OF ONE EXAMPLE (2026-11-11).** The opening toggle is Count up / down | Worded problem |
+>   **Equation** (W cycles them). Every example is made as a STORY FIRST (`makeExample()` in the tool, using
+>   `CTX.numbersFor` — contexts.js is untouched), and the other two views show the same start and step, so
+>   "Start at 5, count up by 3s", the story and y = 5 + 3x are visibly the same thing. Switching view keeps the
+>   numbers AND the table. **Whole numbers only** (m and b integers): a story whose tier is all decimals borrows
+>   the next easier tier (`wholeCtx`), so Spicy no longer has 0.5 steps; negative b comes from the temperature
+>   stories (Medium+), e.g. y = −4 − 3x. Settings › **Equation form**: y = b + mx (default) or y = mx + b
+>   (`S.set.eqForm`). Equation view's "Type your own" is one box parsed by `CL.equation` (any order, m ≠ 0);
+>   numbers typed in the count or equation view get a story that fits them (`fitStory`: same direction, under
+>   its cap, below zero only for a `neg` story). The `clEngine` block was NOT changed.
 > * **WORKSHEET CREATOR** `worksheet-creators/stage-4/algebra/counting-strategies-linear.html`
 >   (Tools menu, toolLinks "Worksheet maker" row, homepage mini card). The tool's `clEngine`
 >   is copied VERBATIM — change the tool's engine → re-copy it. Sections A–F, each with its own
