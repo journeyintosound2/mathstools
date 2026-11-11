@@ -96,6 +96,21 @@
 > §2 "TWO folders", §3 deploy paths and §5's `mathstools-main 2` heading below
 > describe the OLD layout — this block supersedes them.
 >
+> **NEW (2026-11-11): AREA OF A TRIANGLE TOOL — TWO AREA STEPS AT THE END OF EVERY MODE.**
+> `interactive-tools/stage-4/measurement-space/area-of-a-triangle/index.html`. All three modes end on the same
+> base × height rectangle, so `steps()` = `storySteps()` + `areaSteps()`: **Count the squares, row by row**
+> (`anim:"rows"`: bottom row lights up square by square, other rows cascade, the total pops in a bubble in the
+> middle and flies into a label beside the rectangle, "Rectangle = 54" / "Square = 49" when b = h) then **Halve it**
+> (`anim:"halve"`, `fin`: rows fade, the total swells, breaks into two halves, one drops away, label becomes
+> "Triangle = 27"). `drawArea(sc, phase, t)` is a pure function of t, so Back reverses it. Past the story the
+> mode's scene is drawn at its last step with t = 1 (`inArea` in `render()`). Show the calculation puts the working
+> in the label ("Rectangle = 6 × 9 = 54", "Triangle = 54 ÷ 2 = 27"); the old ½×b×h pill on the board (`drawFinal`)
+> is gone and the statement's answer waits for the halving to finish. `layout()` keeps room right of the
+> rectangle for the label (and the height's label) at EVERY step so the scale never jumps (`boxRoom`): it slides
+> the drawing left, shrinks ≤ 20%, else `L.boxSide = "above"` (phones, 1024 with calc + units). Row highlights
+> are in `gArea` (under the outlines and the height), bubble/label in `gBox`. Never "Parallelogram": no mode
+> ends on one (Two copies is chopped into the rectangle first). Rows timing scales with b and h (`rowsTL()`).
+>
 > **NEW (2026-11-10): THE NASTY GAME — FULL SCREEN LAYOUT.** In `html.mmt-focus` (above 700px) the page
 > fills the window under the slim banner and the game card is centred vertically with an equal gap above and
 > below (`--fsGap`, clamp(14px, 3.2vh, 36px)). `fillFocus()` (after every render) tries 1–5 board columns,
