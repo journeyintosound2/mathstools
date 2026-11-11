@@ -2490,6 +2490,22 @@
 >   the links, so `launcher.js` now uses `a.dataset.label || textContent`. Leave
 >   `data-label` off a new link and its title will have the blurb glued on.
 >
+> **NEW (2026-11-11): RESOURCES BY STAGE — WHOLE-TOPIC QUIZ BANDS + ONE ROW PER INTERACTIVE.**
+> `resources/index.html` + a new data file `resources/toolFamilies.js` (loaded as `?v=<md5 8>`; read
+> ONLY by this page, not the teacher picker).
+> * **Whole-topic quizzes sit OUTSIDE the content statements**: a light-yellow band at the foot of
+>   their outcome, "Whole Topic Quiz – <topic>". Names come from `MMT_WHOLE_TOPIC_QUIZZES` (url → topic,
+>   all 16 Stage 4); a toolLinks row tagged `"whole topic"` gets the same treatment with its title.
+>   They still count in the topic/Show-pill totals and show under Show › Quizzes.
+> * **An interactive is ONE row** with a small dropdown button on its right (tinted icons of what is
+>   inside + chevron) listing its worksheet creator, quiz(zes), and its own lesson plan / flash cards.
+>   `MMT_TOOL_FAMILIES` = tool url → member urls (each must be a row in toolLinks.js — title/kind come
+>   from there). Members filed under the SAME content statement as the tool are folded into it
+>   (`foldFamilies`); filed somewhere the tool is not, they still show as their own row. Show ›
+>   Worksheets/Quizzes lists them on their own (the tool is filtered out). The menu is one shared
+>   `position:fixed` `<ul class="fam-menu">` so no card clips it; Esc/outside click/scroll close it.
+>   **A new tool with a worksheet or quiz needs a line in toolFamilies.js** (and bump its `?v=`).
+
 > **NEW (2026-10-31): RESOURCES BY STAGE — ORGANISED BY IDEA (content statements).**
 > Supersedes the per-outcome type cards below. Inside each outcome the page now lists
 > NESA's content statements in syllabus order; each is a collapsible row ("idea") with

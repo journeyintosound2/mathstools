@@ -315,6 +315,33 @@
     .res-arrow{color:var(--muted-light);font-weight:950;flex:0 0 auto;font-size:.9rem}
     .res-item a:hover .res-arrow{color:var(--brand)}
 
+    /* an interactive with siblings: the row opens the tool, the small button on
+       its right drops down its worksheet creator / quiz / lesson plan */
+    .res-item.fam{display:flex;align-items:center;gap:.15rem}
+    .res-item.fam > a{flex:1;min-width:0}
+    .fam-btn{flex:0 0 auto;display:inline-flex;align-items:center;gap:.12rem;border:1px solid var(--line);background:#fff;border-radius:9px;padding:.22rem .3rem .22rem .26rem;cursor:pointer;color:var(--muted);transition:border-color .13s ease,background .13s ease}
+    .fam-btn:hover,.fam-btn[aria-expanded="true"]{border-color:rgba(29,78,216,.4);background:#eff6ff;color:var(--brand)}
+    .fam-btn:focus-visible{outline:2px solid var(--brand-2);outline-offset:1px}
+    .fam-btn.hit{box-shadow:0 0 0 3px rgba(250,204,21,.6)}
+    .fam-btn .chevron{width:.9rem;height:.9rem;color:inherit}
+    .fam-btn[aria-expanded="true"] .chevron{transform:rotate(180deg)}
+    .fam-ico{width:1.2rem;height:1.2rem;border-radius:5px;display:grid;place-items:center}
+    .fam-ico svg{width:.85rem;height:.85rem;display:block}
+    .fam-menu{position:fixed;z-index:60;width:min(360px,calc(100vw - 16px));background:#fff;border:1px solid var(--line-strong);border-radius:12px;box-shadow:0 18px 40px rgba(15,23,42,.18);padding:.3rem;margin:0;list-style:none}
+    .fam-menu[hidden]{display:none}
+    .fam-menu .fam-head{padding:.35rem .5rem .25rem;font-size:.66rem;font-weight:950;text-transform:uppercase;letter-spacing:.07em;color:var(--muted-light)}
+
+    /* whole-topic quiz: outside the content statements, at the foot of the outcome */
+    .whole-quiz{margin-top:.6rem;display:flex;align-items:center;gap:.65rem;text-decoration:none;color:inherit;background:#fef9c3;border:1px solid #fde68a;border-radius:12px;padding:.6rem .75rem;transition:background .13s ease,border-color .13s ease}
+    .whole-quiz:hover{background:#fef3a0;border-color:#facc15}
+    .whole-quiz:focus-visible{outline:2px solid var(--brand-2);outline-offset:1px}
+    .whole-quiz .res-ico-box{width:2rem;flex:0 0 2rem;height:2rem;border-radius:9px;background:#fff;color:#a16207;border:1px solid #fde68a}
+    .whole-quiz .wq-text{flex:1;min-width:0;display:flex;flex-direction:column;gap:.1rem}
+    .whole-quiz strong{font-size:.92rem;font-weight:900;letter-spacing:-.015em;color:#1e293b}
+    .whole-quiz .wq-text span{font-size:.74rem;font-weight:750;color:#92400e}
+    .whole-quiz .res-year{color:#a16207}
+    .whole-quiz:hover .res-arrow{color:#a16207}
+
     .empty-note{margin:.7rem 0 0;padding:.6rem .75rem;border:1px dashed var(--line-strong);border-radius:12px;background:#fff;color:var(--muted-light);font-size:.8rem;font-weight:800}
 
     .no-results{padding:2.5rem 1rem;text-align:center;color:var(--muted)}
@@ -339,6 +366,10 @@
       .idea-meta .type-mix{display:none}
       .idea-head{align-items:flex-start}
       .idea-text{font-size:.86rem}
+      .res-item.fam .res-year{display:none}
+      .fam-btn .fam-ico{display:none}
+      .fam-btn{padding:.4rem .45rem}
+      .fam-btn .chevron{width:1.05rem;height:1.05rem}
     }
     @media(prefers-reduced-motion:reduce){*{transition:none!important}}
   </style>
@@ -461,6 +492,7 @@
 
 <script src="resourcesManifest.js?v=8b6b6951"></script>
 <script src="toolLinks.js?v=6c24af30"></script>
+<script src="toolFamilies.js?v=69b70646"></script>
 <script src="contentStatements.js?v=623c27a3"></script>
 <script>
 (function(){
@@ -469,6 +501,14 @@
   var DATA    = window.MMT_RESOURCES;
   var LINKS   = window.MMT_TOOL_LINKS || {};
   var CONTENT = (window.MMT_CONTENT && window.MMT_CONTENT.statements) || {};
+  /* toolFamilies.js: an interactive's worksheet/quiz siblings, and the names of
+     the whole-topic quizzes (which sit outside the content statements). */
+  var FAMILIES = window.MMT_TOOL_FAMILIES || {};
+  var WHOLE_Q  = window.MMT_WHOLE_TOPIC_QUIZZES || {};
+  var LINK_BY_URL = {};
+  Object.keys(LINKS).forEach(function(code){
+    (LINKS[code] || []).forEach(function(r){ if(r.url && !LINK_BY_URL[r.url]) LINK_BY_URL[r.url] = r; });
+  });
   var out     = document.getElementById('stageOutput');
   var tabs    = Array.prototype.slice.call(document.querySelectorAll('.stage-tabs button'));
   var search  = document.getElementById('searchInput');
@@ -569,6 +609,25 @@
 
   /* --- data ------------------------------------------------------------- */
 
+  /* A whole-topic quiz covers every content statement, so it is not filed
+     under any of them: it gets a yellow band at the foot of its outcome. */
+  function wholeTopicName(r){
+    if(r._g !== 'quiz') return '';
+    var u = String(r.url || '').split(/[?#]/)[0];
+    if(WHOLE_Q[u]) return WHOLE_Q[u];
+    return (r.tags || []).some(function(t){ return String(t).toLowerCase() === 'whole topic'; }) ? r.title : '';
+  }
+  /* The worksheet creators, quizzes etc. that belong with an interactive. */
+  function familyOf(r){
+    if(!r || r._g !== 'tool') return [];
+    return (FAMILIES[String(r.url || '').split(/[?#]/)[0]] || []).map(function(u){
+      var m = LINK_BY_URL[u]; if(!m) return null;
+      var c = { title:m.title, type:'link', url:m.url, note:m.note, kind:m.kind, tags:m.tags };
+      c._g = groupOf(c);
+      return c;
+    }).filter(Boolean);
+  }
+
   /* An outcome's resources: uploaded files (manifest) first, then the site's
      own tools/quizzes/games (toolLinks.js). Each keeps its `ideas`. */
   function allRes(o){
@@ -581,6 +640,7 @@
     var links = (LINKS[o.code] || []).map(function(r){
       var c = { title:r.title, type:'link', url:r.url, note:r.note, kind:r.kind, tags:r.tags, ideas:r.ideas };
       c._g = groupOf(c);
+      c._wtq = wholeTopicName(c);
       return c;
     });
     return (o._all = files.concat(links));
@@ -596,7 +656,9 @@
     });
     var byId = {}; list.forEach(function(i){ byId[i.id] = i; });
     var whole = { id:'whole', text:'Across the whole outcome', whole:true, res:[] };
+    o._wtq = [];
     allRes(o).forEach(function(r){
+      if(r._wtq){ o._wtq.push(r); return; }
       var placed = false;
       (r.ideas || []).forEach(function(id){
         if(byId[id] && byId[id].res.indexOf(r) === -1){ byId[id].res.push(r); placed = true; }
@@ -645,21 +707,57 @@
     var href = type === 'link' ? (r.url || '#') : r.path ? r.path : (basePath + '/' + encodeURIComponent(r.file || ''));
     var tip = [r.note, r.year, (r.tags || []).join(', ')].filter(Boolean).join(' · ');
     var isFile = r._g === 'files';
-    /* what it is, in a word: a file says its year; a link says its kind */
-    var label = isFile ? (r.year || '')
-              : (r._g === 'game' && kindVariant(r) === 'cards') ? r.kind
-              : GROUP_BY_ID[r._g].one;
+    var label = labelOf(r);
     var badge = isFile
       ? '<span class="file-tag t-' + esc(type) + '">' + esc(TYPE_LABEL[type] || 'FILE') + '</span>'
       : '<span class="res-ico-box k-' + r._g + '" aria-hidden="true">' + GROUP_ICON[r._g] + '</span>';
+    var fam = familyOf(r);
 
-    return '<li class="res-item">' +
+    return '<li class="res-item' + (fam.length ? ' fam' : '') + '">' +
       '<a href="' + esc(href) + '" target="_blank" rel="noopener"' + (tip ? ' title="' + esc(tip) + '"' : '') + '>' +
         badge +
         '<span class="res-name">' + highlight(r.title, state.q) + '</span>' +
         (label ? '<span class="res-year">' + esc(label) + '</span>' : '') +
         '<span class="res-arrow" aria-hidden="true">↗</span>' +
-      '</a></li>';
+      '</a>' + (fam.length ? famButtonHTML(r, fam) : '') + '</li>';
+  }
+
+  /* what it is, in a word: a file says its year; a link says its kind */
+  function labelOf(r){
+    if(r._g === 'files') return r.year || '';
+    if(r._g === 'game' && kindVariant(r) === 'cards') return r.kind;
+    if(r._g === 'lesson') return 'Lesson plan';
+    return GROUP_BY_ID[r._g].one;
+  }
+
+  /* the small dropdown on the right of an interactive: one tinted icon per kind
+     of thing inside it, then a chevron */
+  function famButtonHTML(r, fam){
+    var seen = {}, icons = '', names = [];
+    fam.forEach(function(m){
+      if(seen[m._g]) return; seen[m._g] = 1;
+      icons += '<span class="fam-ico k-' + m._g + '">' + GROUP_ICON[m._g] + '</span>';
+      names.push(GROUP_BY_ID[m._g].one.toLowerCase());
+    });
+    var q = state.q.toLowerCase();
+    var hit = q && !/^ma[345]-/.test(q) && fam.some(function(m){ return resHay(m).indexOf(q) !== -1; });
+    var what = names.join(', ').replace(/, ([^,]*)$/, ' and $1');
+    return '<button type="button" class="fam-btn' + (hit ? ' hit' : '') + '" data-fam="' + esc(r.url) + '"' +
+      ' aria-haspopup="menu" aria-expanded="false" title="More with this tool: ' + esc(what) + '"' +
+      ' aria-label="More with ' + esc(r.title) + ': ' + esc(what) + '">' +
+      icons + CHEVRON + '</button>';
+  }
+
+  /* An interactive swallows its own worksheet creator / quiz / lesson plan when
+     they are filed under the same content statement: they live in its dropdown. */
+  function foldFamilies(res){
+    var here = {}, folded = {};
+    res.forEach(function(r){ if(r.url) here[r.url] = r; });
+    res.forEach(function(r){
+      if(r._g !== 'tool') return;
+      (FAMILIES[r.url] || []).forEach(function(u){ if(here[u] && here[u] !== r) folded[u] = 1; });
+    });
+    return res.filter(function(r){ return !(r.url && folded[r.url] && !(r._g === 'tool' && FAMILIES[r.url])); });
   }
 
   /* one tinted chip per type, e.g. "2 interactives · 1 quiz" */
@@ -695,7 +793,7 @@
           '</span>' +
         '</summary>' +
         '<div class="idea-body">' +
-          '<ul class="idea-res">' + res.map(function(r){ return resourceHTML(r, basePath); }).join('') + '</ul>' +
+          '<ul class="idea-res">' + foldFamilies(res).map(function(r){ return resourceHTML(r, basePath); }).join('') + '</ul>' +
           (idea.whole ? '' :
             '<div class="idea-foot"><button type="button" class="copy-link" data-copy="' + esc(key) + '">' +
               LINK_ICON + '<span>Copy link to this idea</span></button></div>') +
@@ -725,7 +823,11 @@
       rows.push(ideaHTML(o, idea, res, open, basePath));
       if(!idea.whole) ideasShown++;
     });
-    if(!rows.length) return null;
+    var wholeQ = (o._wtq || []).filter(function(r){
+      if(state.type && r._g !== state.type) return false;
+      return !q || outcomeHit || ('whole topic quiz ' + r._wtq + ' ' + resHay(r)).toLowerCase().indexOf(q) !== -1;
+    });
+    if(!rows.length && !wholeQ.length) return null;
 
     /* No `path` => Stage 3 (K–6 has no Core/Path distinction) => no badge. */
     var badges = '';
@@ -745,9 +847,23 @@
           (o.focusArea ? '<span class="focus-area">' + esc(o.focusArea) + '</span>' : '') +
         '</div>' +
         '<p class="outcome-statement">' + highlight(o.statement, state.q) + '</p>' +
-        '<p class="ideas-label">' + esc(label) + '</p>' +
-        '<ol class="ideas">' + rows.join('') + '</ol>' +
+        (rows.length ? '<p class="ideas-label">' + esc(label) + '</p>' +
+          '<ol class="ideas">' + rows.join('') + '</ol>' : '') +
+        wholeQ.map(wholeQuizHTML).join('') +
       '</div>' };
+  }
+
+  function wholeQuizHTML(r){
+    var tip = [r.note].filter(Boolean).join('');
+    return '<a class="whole-quiz" href="' + esc(r.url) + '" target="_blank" rel="noopener"' + (tip ? ' title="' + esc(tip) + '"' : '') + '>' +
+      '<span class="res-ico-box k-quiz" aria-hidden="true">' + GROUP_ICON.quiz + '</span>' +
+      '<span class="wq-text">' +
+        '<strong>' + highlight('Whole Topic Quiz – ' + r._wtq, state.q) + '</strong>' +
+        '<span>Covers every content statement in this outcome</span>' +
+      '</span>' +
+      '<span class="res-year">Quiz</span>' +
+      '<span class="res-arrow" aria-hidden="true">↗</span>' +
+    '</a>';
   }
 
   function topicHTML(topic, views, open){
@@ -786,6 +902,7 @@
   }
 
   function render(fresh){
+    if(typeof closeFam === 'function') closeFam();
     var keep = fresh ? { topics:{}, ideas:{} } : openNow();
     var stage  = state.stage;
     var topics = DATA[stage] || [];
@@ -929,6 +1046,61 @@
       history.replaceState(null, '', '#' + btn.dataset.copy); done('Link is in the address bar');
     }
   });
+
+  /* the family dropdown: one shared menu, fixed-positioned so no card clips it */
+  var famMenu = document.createElement('ul');
+  famMenu.className = 'fam-menu'; famMenu.hidden = true; famMenu.setAttribute('role', 'menu');
+  document.body.appendChild(famMenu);
+  var famFor = null;
+  function closeFam(focusBack){
+    if(!famMenu || famMenu.hidden) return;
+    famMenu.hidden = true;
+    if(famFor){ famFor.setAttribute('aria-expanded', 'false'); if(focusBack) famFor.focus(); }
+    famFor = null;
+  }
+  function openFam(btn){
+    var tool = LINK_BY_URL[btn.dataset.fam];
+    var fam = familyOf({ _g:'tool', url:btn.dataset.fam });
+    famMenu.innerHTML = '<li class="fam-head" role="presentation">With ' + esc(tool ? tool.title : 'this tool') + '</li>' +
+      fam.map(function(m){
+        var lab = labelOf(m);
+        return '<li class="res-item" role="none"><a role="menuitem" href="' + esc(m.url) + '" target="_blank" rel="noopener"' +
+          (m.note ? ' title="' + esc(m.note) + '"' : '') + '>' +
+          '<span class="res-ico-box k-' + m._g + '" aria-hidden="true">' + GROUP_ICON[m._g] + '</span>' +
+          '<span class="res-name">' + highlight(m.title, state.q) + '</span>' +
+          (lab ? '<span class="res-year">' + esc(lab) + '</span>' : '') +
+          '<span class="res-arrow" aria-hidden="true">↗</span></a></li>';
+      }).join('');
+    famMenu.hidden = false;
+    famFor = btn; btn.setAttribute('aria-expanded', 'true');
+    var b = btn.getBoundingClientRect(), m = famMenu.getBoundingClientRect();
+    var left = Math.max(8, Math.min(b.right - m.width, window.innerWidth - m.width - 8));
+    var top = b.bottom + 6;
+    if(top + m.height > window.innerHeight - 8 && b.top - m.height - 6 > 8) top = b.top - m.height - 6;
+    famMenu.style.left = left + 'px'; famMenu.style.top = top + 'px';
+    var first = famMenu.querySelector('a'); if(first) first.focus({ preventScroll:true });
+  }
+  out.addEventListener('click', function(e){
+    var btn = e.target.closest('.fam-btn');
+    if(!btn) return;
+    e.preventDefault(); e.stopPropagation();
+    if(famFor === btn){ closeFam(); return; }
+    closeFam(); openFam(btn);
+  });
+  document.addEventListener('click', function(e){ if(!famMenu.contains(e.target)) closeFam(); });
+  famMenu.addEventListener('click', function(e){ if(e.target.closest('a')) closeFam(); });
+  document.addEventListener('keydown', function(e){
+    if(famMenu.hidden) return;
+    if(e.key === 'Escape'){ e.preventDefault(); closeFam(true); return; }
+    if(e.key === 'ArrowDown' || e.key === 'ArrowUp'){
+      var items = Array.prototype.slice.call(famMenu.querySelectorAll('a'));
+      var i = items.indexOf(document.activeElement);
+      i = e.key === 'ArrowDown' ? (i + 1) % items.length : (i - 1 + items.length) % items.length;
+      items[i].focus(); e.preventDefault();
+    }
+  });
+  window.addEventListener('scroll', function(){ closeFam(); }, true);
+  window.addEventListener('resize', function(){ closeFam(); });
 
   document.getElementById('expandAll').addEventListener('click', function(){
     out.querySelectorAll('details.topic, .idea.has-res > details').forEach(function(d){ d.open = true; });

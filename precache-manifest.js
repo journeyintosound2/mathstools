@@ -1,6 +1,6 @@
 /* Written by tools/build-pwa.mjs — do not edit by hand. */
 self.MMT_PRECACHE = {
- "version": "9b176afb0e",
+ "version": "bc53e592b6",
  "files": [
   "./",
   "assessment/exam-builder/app.js",
@@ -1007,6 +1007,7 @@ self.MMT_PRECACHE = {
   "resources/contentStatements.js",
   "resources/index.html",
   "resources/resourcesManifest.js",
+  "resources/toolFamilies.js",
   "resources/toolLinks.js",
   "vibe-code/index.html",
   "vibe-code/maths-tool-starter.html",
