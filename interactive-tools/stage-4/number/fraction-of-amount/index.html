@@ -510,6 +510,24 @@
       cursor:pointer
     }
 
+
+    /* ---- Full screen (whole chart on one screen) ---- */
+    .btn.fsbtn{cursor:pointer}
+    .fs-exit{
+      display:none;position:fixed;top:10px;right:12px;z-index:200;
+      border:none;border-radius:14px;background:rgba(236,239,243,.95);color:#374151;
+      min-height:38px;padding:0 14px;font-size:14px;font-weight:700;cursor:pointer;
+      box-shadow:0 4px 14px rgba(0,0,0,.15)
+    }
+    html.mmt-fs .fs-exit{display:inline-flex;align-items:center;gap:6px}
+    html.mmt-fs .topbar{display:none}
+    html.mmt-fs .app{padding:6px 10px 6px}
+    html.mmt-fs .content{padding-top:0;max-width:none}
+    html.mmt-fs .back-row{height:40px;margin-bottom:0}
+    html.mmt-fs .stage{min-height:0}
+    html.mmt-fs .prompt{margin:0 0 6px;font-size:clamp(18px,2.6vh,30px)}
+    html.mmt-fs body{overflow:hidden}
+
     @media (max-width:900px){
       :root{
         --grid-size:min(92vw,720px);
@@ -559,6 +577,7 @@
 <!-- /mmt-pwa -->
 </head>
 <body>
+  <button class="fs-exit" id="fsExit" type="button"><span aria-hidden="true">✕</span><span>Exit full screen</span></button>
   <div class="app">
     <div class="topbar" aria-label="Toolbar">
       <div class="left-controls">
@@ -594,6 +613,7 @@
           </div>
         </div>
 
+        <button class="btn fsbtn" id="fsBtn" type="button" aria-label="Show the chart full screen"><span aria-hidden="true">⛶</span><span>Full screen</span></button>
         <button class="btn reset" id="resetBtn" type="button">Reset</button>
       </div>
     </div>
@@ -1206,6 +1226,63 @@
   chart.addEventListener('pointerleave',handleChartLeave);
   showEquationToggle.addEventListener('change',handleShowEquationChange);
   showGroupsToggle.addEventListener('change',handleShowGroupsChange);
+
+  /* ---- Full screen: scale the chart to fill the window ---- */
+  const fsBtn = document.getElementById('fsBtn');
+  const fsExit = document.getElementById('fsExit');
+  const rootEl = document.documentElement;
+
+  function fitFullScreen(){
+    if(!rootEl.classList.contains('mmt-fs')) return;
+    const top = chartShell.getBoundingClientRect().top;
+    const size = Math.floor(Math.max(260, Math.min(window.innerWidth - 24, window.innerHeight - top - 10)));
+    rootEl.style.setProperty('--grid-size', size + 'px');
+    rootEl.style.setProperty('--body-size', Math.round(size/13*0.42) + 'px');
+    rootEl.style.setProperty('--header-size', Math.round(size/13*0.42) + 'px');
+  }
+
+  function setFullScreen(on){
+    rootEl.classList.toggle('mmt-fs', on);
+    if(!on){
+      ['--grid-size','--body-size','--header-size'].forEach(v => rootEl.style.removeProperty(v));
+    }
+    requestAnimationFrame(() => { fitFullScreen(); refreshDuringResize(); });
+  }
+
+  function enterFullScreen(){
+    setFullScreen(true);
+    const req = rootEl.requestFullscreen || rootEl.webkitRequestFullscreen;
+    if(req){ try{ const r = req.call(rootEl); if(r && r.catch) r.catch(()=>{}); }catch(_){} }
+  }
+
+  function exitFullScreen(){
+    setFullScreen(false);
+    const ex = document.exitFullscreen || document.webkitExitFullscreen;
+    if((document.fullscreenElement || document.webkitFullscreenElement) && ex){
+      try{ const r = ex.call(document); if(r && r.catch) r.catch(()=>{}); }catch(_){}
+    }
+  }
+
+  function onFsChange(){
+    // Esc (or the browser) left real full screen: leave the layout mode too
+    if(!(document.fullscreenElement || document.webkitFullscreenElement) && rootEl.classList.contains('mmt-fs')){
+      setFullScreen(false);
+    }
+  }
+
+  fsBtn.addEventListener('click', () => rootEl.classList.contains('mmt-fs') ? exitFullScreen() : enterFullScreen());
+  fsExit.addEventListener('click', exitFullScreen);
+  document.addEventListener('fullscreenchange', onFsChange);
+  document.addEventListener('webkitfullscreenchange', onFsChange);
+  window.addEventListener('resize', () => { fitFullScreen(); });
+  window.addEventListener('keydown', (e) => {
+    if(e.key === 'f' || e.key === 'F'){
+      if(e.ctrlKey || e.metaKey || e.altKey) return;
+      if(currentSelection) return;
+      e.preventDefault();
+      rootEl.classList.contains('mmt-fs') ? exitFullScreen() : enterFullScreen();
+    }
+  });
 
   buildChart();
 })();
