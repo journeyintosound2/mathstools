@@ -1,0 +1,1019 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Area of a Trapezium — Worksheet Generator | Mills Maths Tools</title>
+  <meta name="description" content="Differentiated A4 worksheets on the area of a trapezium: the average base and half a parallelogram drawn in, find the area, work backwards, spot the mistake and draw your own — with an answer key.">
+
+  <style>
+    :root{
+      --bg:#f6f7fb;
+      --card:#ffffff;
+      --ink:#111827;
+      --muted:#6b7280;
+      --border:#e5e7eb;
+      --shadow:0 14px 40px rgba(0,0,0,.10);
+      --radius:18px;
+      --blue:#2563eb;
+      --green:#16a34a;
+      --red:#dc2626;
+      --sweet1:#4ade80;  --sweet2:#16a34a;
+      --mild1:#facc15;   --mild2:#d97706;
+      --medium1:#fb923c; --medium2:#ea580c;
+      --spicy1:#f87171;  --spicy2:#b91c1c;
+      --footer-h:44px;
+      --mathFont:"STIX Two Math","Cambria Math","Latin Modern Math","Times New Roman",Georgia,serif;
+      --uiFont:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+    }
+    *{ box-sizing:border-box; }
+    body{ margin:0; background:var(--bg); color:var(--ink); font-family:var(--uiFont); padding-bottom:var(--footer-h); }
+    .wrap{ max-width:1280px; margin:14px auto 32px; padding:0 14px; }
+    .card{ background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); padding:16px; }
+    .title{ margin:0 0 4px; font-size:28px; font-weight:1000; letter-spacing:.2px; }
+    .subtitle{ margin:0 0 14px; color:var(--muted); font-weight:850; font-size:15px; line-height:1.4; }
+    .subtitle a{ color:var(--blue); text-decoration:none; font-weight:1000; }
+
+    .controls{ display:grid; gap:10px; }
+    .band{ border:1px solid var(--border); border-radius:18px; padding:12px 14px; background:linear-gradient(180deg,#ffffff,#f9fafb); }
+    .bandHead{ font-size:11px; letter-spacing:.14em; text-transform:uppercase; font-weight:1000; color:var(--muted); margin:0 0 9px; }
+    .bandGrid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:14px; align-items:end; }
+    .bandRow{ display:flex; gap:16px 22px; flex-wrap:wrap; align-items:center; }
+    label{ display:block; margin:0 0 7px; font-size:15px; font-weight:950; }
+    select, input[type="number"]{ border:2px solid #e5e7eb; border-radius:14px; padding:12px 13px; font-size:15px; font-weight:900; width:100%; background:#fff; color:var(--ink); font-family:inherit; }
+    select:focus, input:focus{ outline:none; border-color:var(--blue); }
+    .sw{ display:inline-flex; align-items:center; gap:10px; cursor:pointer; user-select:none; font-weight:900; font-size:14.5px; margin:0; }
+    .sw input{ position:absolute; opacity:0; width:0; height:0; }
+    .sw .track{ position:relative; width:46px; height:27px; border-radius:999px; background:#cbd5e1; transition:.16s ease; flex:0 0 auto; }
+    .sw .track::after{ content:""; position:absolute; top:3px; left:3px; width:21px; height:21px; border-radius:50%; background:#fff; box-shadow:0 2px 5px rgba(0,0,0,.28); transition:.16s ease; }
+    .sw input:checked + .track{ background:var(--green); }
+    .sw input:checked + .track::after{ transform:translateX(19px); }
+    .sw input:focus-visible + .track{ box-shadow:0 0 0 4px rgba(37,99,235,.25); }
+    .sw input:disabled + .track{ opacity:.45; }
+
+    /* what we're practising: area, perimeter or both */
+    .seg{ display:inline-flex; background:#f1f5f9; border:1px solid var(--border); border-radius:15px; padding:4px; gap:4px; flex-wrap:wrap; }
+    .seg button{ appearance:none; border:none; background:transparent; border-radius:11px; padding:10px 16px; font:inherit; font-weight:950; font-size:15px; color:var(--muted); cursor:pointer; display:flex; align-items:center; gap:9px; }
+    .seg button .sym{ font-family:var(--mathFont); font-size:20px; width:28px; height:28px; border-radius:8px; display:grid; place-items:center; background:#e2e8f0; color:#334155; }
+    .seg button[aria-pressed="true"]{ background:#fff; color:var(--ink); box-shadow:0 3px 10px rgba(15,23,42,.12); }
+    .seg button[aria-pressed="true"] .sym{ background:var(--blue); color:#fff; }
+    .seg button[data-focus="perim"][aria-pressed="true"] .sym{ background:#7c3aed; }
+    .seg button[data-focus="both"][aria-pressed="true"] .sym{ background:linear-gradient(135deg,var(--blue),#7c3aed); }
+
+    /* levels: tick one or several; each section climbs through the ticked ones */
+    .lvChips{ display:grid; grid-template-columns:repeat(auto-fit,minmax(178px,1fr)); gap:8px; }
+    .lvChip{ position:relative; display:flex; align-items:center; gap:10px; margin:0; border:1.5px solid var(--border); border-radius:14px; padding:9px 11px; cursor:pointer; background:#fff; transition:.14s ease; }
+    .lvChip input{ position:absolute; opacity:0; width:0; height:0; }
+    .lvChip .dot{ width:22px; height:22px; border-radius:7px; border:2px solid #cbd5e1; display:grid; place-items:center; flex:0 0 auto; color:#fff; font-size:13px; font-weight:1000; }
+    .lvChip .txt{ font-size:14px; font-weight:950; line-height:1.2; }
+    .lvChip small{ display:block; font-family:var(--mathFont); font-size:15px; font-weight:600; color:var(--muted); }
+    .lvChip input:checked ~ .dot{ background:var(--lc); border-color:var(--lc); }
+    .lvChip input:checked ~ .dot::after{ content:"\2713"; }
+    .lvChip:has(input:checked){ border-color:var(--lc); box-shadow:inset 4px 0 0 var(--lc); }
+    .lvChip input:focus-visible ~ .dot{ box-shadow:0 0 0 4px rgba(37,99,235,.25); }
+    .quick{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:9px; font-size:13px; font-weight:900; color:var(--muted); }
+    .quick button{ appearance:none; border:1.5px solid var(--border); background:#fff; border-radius:999px; padding:6px 12px; font:inherit; font-weight:950; font-size:13px; color:#334155; cursor:pointer; }
+    .quick button:hover{ border-color:var(--blue); color:var(--blue); }
+
+    /* the problem types: a checkbox, what it asks, and what it looks like */
+    .typeGrid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:10px; }
+    .typeOpt{ border:1.5px solid var(--border); border-radius:16px; padding:11px 13px 12px; background:#fff; display:flex; flex-direction:column; gap:7px; transition:.15s ease; }
+    .typeOpt.on{ border-color:var(--tc); box-shadow:inset 4px 0 0 var(--tc); }
+    .typeOpt.na{ opacity:.45; }
+    .typeTop{ display:flex; align-items:center; gap:10px; }
+    .typeTop .sw{ font-size:15px; }
+    .typeLetter{ width:26px; height:26px; border-radius:8px; background:var(--tc); color:#fff; font-weight:1000; display:grid; place-items:center; font-size:14px; flex:0 0 auto; }
+    .typeTag{ margin-left:auto; font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; font-weight:1000; border-radius:999px; padding:3px 8px; flex:0 0 auto; }
+    .typeTag.area{ background:#eff6ff; color:#1d4ed8; }
+    .typeTag.perim{ background:#f5f3ff; color:#6d28d9; }
+    .typeTag.both{ background:#f1f5f9; color:#334155; }
+    .typeDesc{ font-size:13px; font-weight:800; color:var(--muted); line-height:1.4; margin:0; }
+    .typeEx{ display:flex; align-items:center; gap:9px; flex-wrap:wrap; background:#f8fafc; border:1px dashed #cbd5e1; border-radius:11px; padding:7px 10px; font-size:13.5px; font-weight:850; }
+    .typeEx .exLab{ font-size:10px; letter-spacing:.12em; text-transform:uppercase; font-weight:1000; color:var(--muted); }
+    .typeEx .m{ font-family:var(--mathFont); font-size:17px; font-weight:600; white-space:nowrap; }
+    .typeEx .arrow{ color:#94a3b8; font-weight:1000; }
+    .typeEx svg{ height:46px; width:auto; display:block; }
+    .cntRow{ display:flex; align-items:center; gap:10px; }
+    .cntRow label{ margin:0; font-size:13px; color:var(--muted); white-space:nowrap; }
+    .cntRow input{ width:78px; padding:8px 10px; }
+    .totalRow{ display:flex; align-items:center; gap:10px; margin-top:10px; font-weight:950; font-size:14px; flex-wrap:wrap; }
+    .pill{ background:#eef2ff; color:#1d4ed8; border-radius:999px; padding:5px 12px; font-weight:1000; font-size:13px; }
+    .note{ margin:9px 0 0; font-size:12.6px; font-weight:800; color:var(--muted); line-height:1.5; }
+    .note b{ color:var(--ink); }
+    .note a{ color:var(--blue); font-weight:1000; text-decoration:none; }
+    .note.warn{ color:#991b1b; font-size:14px; }
+    .btnRow{ display:flex; gap:10px; flex-wrap:wrap; margin-top:2px; }
+    button.primary, button.ghost, button.danger{ border-radius:14px; padding:13px 18px; font-size:15px; font-weight:1000; cursor:pointer; border:2px solid transparent; font-family:inherit; }
+    button.primary{ background:var(--blue); color:#fff; }
+    button.primary:hover{ background:#1d4ed8; }
+    button.ghost{ background:#fff; color:var(--ink); border-color:var(--border); }
+    button.ghost:hover{ border-color:#c7ccd4; }
+    button.danger{ background:#fff; color:var(--red); border-color:#fecaca; }
+    button.danger:hover{ background:#fef2f2; }
+    .outWrap{ margin-top:8px; }
+
+    /* =====================================================================
+       THE PAPER — 196 × 281 mm on screen AND in print (the printable area of
+       A4 at the print margins), so what the preview shows is what prints.
+       ===================================================================== */
+    .page{
+      margin:14px auto 0; background:#fff; border:1px solid var(--border);
+      border-radius:14px; box-shadow:0 10px 26px rgba(15,23,42,.08); overflow:hidden;
+      width:196mm; height:281mm; display:flex; flex-direction:column;
+      --fs:1; --lineH:10mm;
+    }
+    .page.d-roomy{ --fs:1.16; --lineH:11.5mm; }
+    .page.d-normal{ --fs:1; --lineH:9.5mm; }
+    .page.d-tight{ --fs:.88; --lineH:8mm; }
+    .pageHeader{ padding:4mm 5mm 2.6mm; border-bottom:2.2px solid #111827; display:flex; align-items:flex-end; justify-content:space-between; gap:10px; }
+    .hdrTitle{ font-weight:1000; font-size:16px; line-height:1.1; }
+    .hdrSub{ color:var(--muted); font-weight:850; font-size:11px; margin-top:2px; white-space:nowrap; }
+    .nameDate{ display:flex; gap:8px; align-items:flex-end; }
+    .lineField{ display:flex; flex-direction:column; gap:3px; width:34mm; }
+    .lineLabel{ font-size:10px; font-weight:950; color:var(--muted); }
+    .lineBox{ height:6mm; border-bottom:1.6px solid #111827; }
+    .sheet{ padding:3.2mm 5mm 2mm; flex:1 1 auto; display:flex; flex-direction:column; min-height:0; }
+
+    /* worked example, page 1 */
+    .exStrip{ display:flex; gap:4mm; align-items:center; border:1.5px solid #c7d2fe; background:#f5f7ff; border-radius:3.4mm; padding:2mm 3mm; margin-bottom:3mm; }
+    .exStrip .exHead{ font-size:calc(10.5px * var(--fs)); font-weight:1000; letter-spacing:.1em; text-transform:uppercase; color:#3730a3; }
+    .exStrip .exBody{ display:flex; flex-direction:column; gap:1.2mm; min-width:0; }
+    .exStrip .exLine{ font-family:var(--mathFont); font-weight:700; font-size:calc(15.5px * var(--fs)); line-height:1.25; }
+    .exStrip .exLine .k{ font-family:var(--uiFont); font-size:calc(10.5px * var(--fs)); font-weight:1000; color:var(--muted); letter-spacing:.04em; margin-right:1.5mm; }
+    .exStrip svg{ flex:0 0 auto; display:block; }
+    .bw .exStrip{ background:#fff; border-color:#9ca3af; }
+    .bw .exStrip .exHead{ color:#111827; }
+
+    .section{ margin-bottom:3mm; }
+    .secHead{ display:flex; align-items:center; gap:2.4mm; padding:1.6mm 2.4mm; margin-bottom:2.2mm; border-radius:3mm; background:var(--sc-bg); border:1.4px solid var(--sc); }
+    .secLetter{ font-weight:1000; font-size:calc(14px * var(--fs)); background:var(--sc); color:#fff; border-radius:2mm; padding:.6mm 2.2mm; flex:0 0 auto; }
+    .secText{ font-weight:950; font-size:calc(13.4px * var(--fs)); color:#111827; line-height:1.3; }
+    .secCont{ margin-left:auto; font-size:11px; font-weight:900; color:var(--muted); flex:0 0 auto; }
+
+    .qGrid{ display:grid; gap:3mm; grid-template-columns:repeat(var(--cols,2),minmax(0,1fr)); margin-bottom:3mm; }
+    .qCard{ border:1.4px solid #d7dce3; border-radius:3.4mm; padding:2.4mm 3mm 3mm; display:flex; flex-direction:column; gap:1.8mm; break-inside:avoid; background:#fff; min-width:0; }
+    .qCard.full{ grid-column:1 / -1; }
+    .qTop{ display:flex; align-items:center; gap:2.2mm; width:100%; min-width:0; overflow:hidden; }
+    .qNum{ width:calc(22px * var(--fs)); height:calc(22px * var(--fs)); border-radius:999px; color:#fff; display:flex; align-items:center; justify-content:center; font-size:calc(11.5px * var(--fs)); font-weight:1000; flex:0 0 auto; }
+    .qNum.sweet{ background:linear-gradient(180deg,var(--sweet1),var(--sweet2)); }
+    .qNum.mild{ background:linear-gradient(180deg,var(--mild1),var(--mild2)); }
+    .qNum.medium{ background:linear-gradient(180deg,var(--medium1),var(--medium2)); }
+    .qNum.spicy{ background:linear-gradient(180deg,var(--spicy1),var(--spicy2)); }
+    .expr{ font-family:var(--mathFont); font-weight:600; font-size:calc(21px * var(--fs)); line-height:1.15; white-space:nowrap; }
+    .expr .x{ color:#1d4ed8; } .expr .y{ color:#c2410c; }
+    .bw .expr .x, .bw .expr .y{ color:inherit; }
+    .qTop .ln{ flex:1 1 auto; min-width:12mm; max-width:34mm; height:calc(var(--lineH) * .8); border-bottom:1.6px solid #111827; }
+    .qTop .unit{ font-family:var(--mathFont); font-weight:600; font-size:calc(17px * var(--fs)); }
+    .qTop .word{ font-weight:950; font-size:calc(13.5px * var(--fs)); white-space:nowrap; }
+    .pic{ display:flex; justify-content:center; }
+    .pic svg{ display:block; overflow:visible; }
+    .picPair{ display:grid; grid-template-columns:1fr 1fr; gap:3mm; }
+    .picBox{ border:1.2px dashed #cbd5e1; border-radius:3mm; padding:1.4mm; display:flex; flex-direction:column; gap:1.4mm; }
+    .picCap{ font-size:calc(10.5px * var(--fs)); font-weight:1000; color:var(--muted); text-align:center; letter-spacing:.06em; text-transform:uppercase; }
+
+    .ansLine{ display:flex; align-items:flex-end; gap:2mm; font-family:var(--mathFont); font-weight:700; font-size:calc(17px * var(--fs)); }
+    .ansLine .ln{ flex:1 1 auto; height:var(--lineH); border-bottom:1.6px solid #111827; }
+    .ansLine .ln.sm{ flex:0 0 20%; }
+    .ansLine .ln.xs{ flex:0 0 13%; }
+    .ansLine .lab{ font-family:var(--uiFont); font-size:calc(10.5px * var(--fs)); font-weight:1000; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; align-self:center; white-space:nowrap; }
+    .ansLine .u{ font-size:.85em; }
+    .ticks{ display:flex; flex-wrap:wrap; align-items:center; gap:1.5mm 3mm; font-weight:900; font-size:calc(12px * var(--fs)); color:#374151; padding-top:1mm; }
+    .ticks .tb{ display:inline-block; width:3.6mm; height:3.6mm; border:1.5px solid #111827; border-radius:.8mm; vertical-align:-.5mm; margin-right:1mm; }
+    .say{ display:flex; flex-direction:column; }
+    .wl{ height:var(--lineH); border-bottom:1.5px solid #9aa3af; }
+    .workHead{ font-size:calc(10px * var(--fs)); font-weight:1000; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; }
+    .work{ border:1.4px dashed #9aa3af; border-radius:3mm; padding:1mm 2.4mm 0; }
+    .qCard.flu{ padding:2.2mm 3mm; }
+    .qCard.flu .qTop{ align-items:flex-end; }
+    .qCard.flu .qNum{ align-self:center; }
+    .qCard.flu .qTop .ln{ max-width:none; }
+    .qCard.flu .fluAns{ font-family:var(--mathFont); font-weight:700; font-size:calc(19px * var(--fs)); color:#15803d; white-space:nowrap; }
+
+    /* whatever a page leaves is a question the student makes for themselves */
+    .yourTurn{ border:1.8px dashed #c4b5fd; border-radius:3.4mm; padding:2.4mm 3mm 3mm; background:#fdfcff; display:flex; flex-direction:column; gap:2mm; margin-bottom:3mm; }
+    .ytHead{ display:flex; align-items:center; gap:2mm; font-weight:1000; font-size:calc(13.5px * var(--fs)); color:#6d28d9; }
+    .ytHead .star{ font-size:1.2em; }
+    .ytText{ font-weight:850; font-size:calc(12.5px * var(--fs)); color:#374151; line-height:1.35; }
+    .drawBox{ border:1.8px dashed #9aa3af; border-radius:3mm; height:var(--drawH,42mm); background-image:linear-gradient(#e5e7eb 1px, transparent 1px),linear-gradient(90deg,#e5e7eb 1px, transparent 1px); background-size:5mm 5mm; background-position:-1px -1px; }
+    .bw .yourTurn{ background:#fff; border-color:#9ca3af; }
+    .bw .ytHead{ color:#111827; }
+
+    /* answer key */
+    .isKey .qCard{ border-color:#bbf7d0; background:#f7fdf9; }
+    .keyAns{ font-family:var(--mathFont); font-weight:700; font-size:calc(16.5px * var(--fs)); color:#15803d; line-height:1.35; }
+    .keyAns .lab{ font-family:var(--uiFont); font-size:calc(10px * var(--fs)); font-weight:1000; color:#166534; letter-spacing:.05em; text-transform:uppercase; margin-right:1.4mm; }
+    .keyWhy{ font-size:calc(11.2px * var(--fs)); font-weight:850; color:#374151; line-height:1.4; }
+
+    /* black and white, for the photocopier */
+    .bw .secHead{ background:#fff !important; border-color:#111827 !important; }
+    .bw .secLetter{ background:#111827 !important; }
+    .bw .qNum{ background:#111827 !important; }
+    .bw .isKey .qCard, .isKey.bw .qCard{ background:#fff; border-color:#9ca3af; }
+
+    .pageFooter{ padding:1.4mm 5mm 2mm; border-top:1px solid rgba(229,231,235,.95); display:flex; align-items:center; justify-content:space-between; font-weight:900; color:var(--muted); font-size:10px; }
+    .pageFooter a{ color:#2563eb; text-decoration:none; font-weight:1000; }
+    .measure{ position:absolute; left:-10000px; top:0; visibility:hidden; }
+    .mmtFooter{ position:fixed; left:0; right:0; bottom:0; height:var(--footer-h); display:flex; align-items:center; justify-content:center; padding:0 12px; background:rgba(255,255,255,.92); border-top:1px solid rgba(229,231,235,.95); backdrop-filter:blur(8px); z-index:500; font-weight:900; color:#111827; text-align:center; font-size:13px; }
+    .mmtFooter a{ color:#2563eb; text-decoration:none; font-weight:950; }
+
+    @media print{
+      @page{ size:A4; margin:8mm 7mm; }
+      html, body{ width:196mm; height:auto; }
+      body{ background:#fff; padding-bottom:0; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+      .wrap{ max-width:none; margin:0; padding:0; }
+      .card{ box-shadow:none; border-radius:0; padding:0; }
+      .controls, .title, .subtitle, .mmtFooter{ display:none !important; }
+      .outWrap{ margin:0; }
+      .page{ height:280.5mm; }
+      .page{ margin:0; border:none; border-radius:0; box-shadow:none; page-break-after:always; }
+      .page:last-child{ page-break-after:auto; }
+    }
+    /* ---------- the triangle generator's own pieces ---------- */
+    .kSub{ display:block; font-size:12px; font-weight:800; color:var(--muted); }
+    .typeEx svg{ height:58px; }
+    .lvChip small{ font-family:var(--uiFont); font-size:12.5px; font-weight:800; }
+    .qText{ font-weight:850; font-size:calc(13px * var(--fs)); line-height:1.4; color:#1f2937; }
+    .qText b{ font-weight:1000; }
+    .split{ display:grid; grid-template-columns:auto minmax(0,1fr); gap:4mm; align-items:center; }
+    .split .side{ display:flex; flex-direction:column; gap:1.8mm; min-width:0; }
+    .said{ font-weight:850; font-size:calc(12.5px * var(--fs)); color:#374151; line-height:1.4; }
+    .saidM{ font-family:var(--mathFont); font-weight:700; font-size:calc(17px * var(--fs)); color:#111827; margin-top:1mm; padding:1.2mm 2.4mm; border:1.2px dashed #cbd5e1; border-radius:2.4mm; display:inline-block; }
+    .ticks .tb{ font-style:normal; }
+    .qCard.full .pic{ justify-content:flex-start; }
+    .ansLine .lab.big{ text-transform:none; letter-spacing:0; font-size:calc(13.5px * var(--fs)); font-weight:950; color:#111827; }
+    /* ---------- the trapezium generator's own pieces ---------- */
+    .ansLine .ln.xs{ flex:0 0 11%; }
+    .exStrip svg + svg{ margin-left:-1mm; }
+  </style>
+<!-- mmt-pwa -->
+<link rel="manifest" href="../../../manifest.webmanifest">
+<meta name="theme-color" content="#1f3a5f">
+<link rel="apple-touch-icon" href="../../../icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="MMT">
+<script src="../../../pwa.js" defer></script>
+<!-- /mmt-pwa -->
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1 class="title">Area of a Trapezium &mdash; Worksheet Generator</h1>
+      <p class="subtitle">Printable A4 worksheets from the <a href="/interactive-tools/stage-4/measurement-space/area-of-a-trapezium/">Area of a Trapezium</a> teaching tool (and its <a href="/online-quizzes/stage-4/measurement-space/area-of-a-trapezium.html">Student Quiz</a>). Two ways to see the area, drawn on the paper: swing the corners round into a rectangle as long as the <b>average of the parallel sides</b>, or join <b>two copies into a parallelogram</b> and halve it. Then find areas, work backwards, spot the mistake and draw your own.</p>
+
+      <div class="controls">
+        <div class="band">
+          <p class="bandHead">The numbers &mdash; tick one level, or several for a ladder</p>
+          <div class="lvChips" id="lvChips"></div>
+          <div class="quick">Quick sets:
+            <button type="button" data-quick="sweet,mild">Getting started</button>
+            <button type="button" data-quick="mild,medium">Core Stage 4</button>
+            <button type="button" data-quick="medium,spicy">Extension</button>
+            <button type="button" data-quick="sweet,mild,medium,spicy">All four &mdash; a full ladder</button>
+          </div>
+          <p class="note">One level ticked: every question is that size. Several ticked: each section climbs through them, easiest first. <b>Sweet</b> keeps the average of the parallel sides a whole number; from <b>Medium</b> some areas end in a half (22.5). Working backwards always comes out to whole numbers.</p>
+        </div>
+
+        <div class="band">
+          <p class="bandHead">The trapeziums</p>
+          <div class="bandRow">
+            <label class="sw"><input type="checkbox" id="kIso" checked /><span class="track"></span><span>Isosceles <small class="kSub">both sides lean in the same</small></span></label>
+            <label class="sw"><input type="checkbox" id="kRight" checked /><span class="track"></span><span>Right-angled <small class="kSub">one side is the height</small></span></label>
+            <label class="sw"><input type="checkbox" id="kLean" checked /><span class="track"></span><span>Leaning <small class="kSub">a top corner hangs over</small></span></label>
+            <label class="sw"><input type="checkbox" id="kPlain" checked /><span class="track"></span><span>Neither <small class="kSub">two different slopes</small></span></label>
+          </div>
+          <div class="bandGrid" style="margin-top:12px">
+            <div>
+              <label for="slantSel">A sloping side labelled too</label>
+              <select id="slantSel">
+                <option value="never">Never &mdash; only the sides you need</option>
+                <option value="some" selected>Sometimes &mdash; a distractor</option>
+                <option value="often">Often &mdash; choose the height every time</option>
+              </select>
+            </div>
+            <div>
+              <label for="turnSel">Turned on its side</label>
+              <select id="turnSel">
+                <option value="never" selected>Never &mdash; parallel sides across</option>
+                <option value="some">Some &mdash; parallel sides up the page</option>
+                <option value="most">Most</option>
+              </select>
+            </div>
+            <div>
+              <label for="gridSel">Unit squares</label>
+              <select id="gridSel">
+                <option value="on" selected>On, where they fit</option>
+                <option value="off">Off</option>
+              </select>
+            </div>
+            <div>
+              <label for="workSel">Answer space in C &ldquo;Find the area&rdquo;</label>
+              <select id="workSel">
+                <option value="answer" selected>Area = ____</option>
+                <option value="lines">Working lines, then Area = ____</option>
+              </select>
+            </div>
+            <div>
+              <label for="unitSel">Units</label>
+              <select id="unitSel">
+                <option value="cm" selected>cm</option>
+                <option value="mm">mm</option>
+                <option value="m">m</option>
+                <option value="">None</option>
+              </select>
+            </div>
+          </div>
+          <p class="note">The kinds you tick are mixed through every section (at least one stays on). A <b>sloping side</b> is labelled with a whole-number length (3-4-5, 6-8-10, 5-12-13 &hellip;) so students must choose the height &mdash; the length at right angles to the parallel sides. <b>Turned</b> trapeziums have their parallel sides running up the page, so the height runs across (sections C, D and E only). Unit squares print only on upright trapeziums with whole-number lengths, when the squares are big enough to count.</p>
+        </div>
+
+        <div class="band">
+          <p class="bandHead">Problem types &mdash; tick the ones you want, and how many</p>
+          <div class="typeGrid" id="typeGrid"></div>
+          <div class="totalRow"><span>On the paper:</span><span class="pill" id="totalPill">0 questions</span></div>
+          <p class="note">The order is the lesson: the two ways to see it (<b>average base</b>, then <b>half a parallelogram</b>), <b>find areas</b>, <b>work backwards</b>, <b>spot the mistake</b>, then <b>draw your own</b>. <b>G Fluency</b> is off until you tick it: bare questions with no diagram, good as a warm-up page on its own.</p>
+        </div>
+
+        <div class="band">
+          <p class="bandHead">Scaffolding and the paper</p>
+          <div class="bandGrid">
+            <div>
+              <label for="exMethodSel">Worked example shows</label>
+              <select id="exMethodSel">
+                <option value="avg">Average base &mdash; swing the corners</option>
+                <option value="para">Half a parallelogram &mdash; two copies</option>
+                <option value="both" selected>Both ways</option>
+              </select>
+            </div>
+            <div>
+              <label for="densitySel">Spacing</label>
+              <select id="densitySel">
+                <option value="roomy">Spacious &mdash; large diagrams and print</option>
+                <option value="normal" selected>Standard &mdash; two to a row</option>
+                <option value="tight">Compact &mdash; three to a row</option>
+              </select>
+            </div>
+            <div>
+              <label for="colourSel">Colour</label>
+              <select id="colourSel">
+                <option value="colour" selected>Colour &mdash; green shapes</option>
+                <option value="bw">Black and white &mdash; for photocopying</option>
+              </select>
+            </div>
+          </div>
+          <div class="bandRow" style="margin-top:12px">
+            <label class="sw"><input type="checkbox" id="exToggle" checked /><span class="track"></span><span>Worked example on page 1</span></label>
+            <label class="sw"><input type="checkbox" id="formulaToggle" checked /><span class="track"></span><span>Show the formula in the example</span></label>
+            <label class="sw"><input type="checkbox" id="nameToggle" checked /><span class="track"></span><span>Name and date</span></label>
+            <label class="sw"><input type="checkbox" id="keyToggle" /><span class="track"></span><span>Answer key pages</span></label>
+          </div>
+          <p class="note">Turn the <b>formula</b> off when the class is still discovering it &mdash; the example then shows the swing or the two copies and the rectangle they make, without &frac12; &times; (a + b) &times; h. The answer key fills in every answer with a one-line reason, so it can be handed to a student.</p>
+        </div>
+
+        <div class="btnRow">
+          <button id="genBtn" class="primary">Generate worksheet</button>
+          <button id="printBtn" class="ghost">Print (Ctrl+P)</button>
+          <button id="resetBtn" class="danger">Reset</button>
+        </div>
+      </div>
+
+      <div id="out" class="outWrap"></div>
+    </div>
+  </div>
+
+  <div class="measure" id="measure" aria-hidden="true"></div>
+
+  <div class="mmtFooter">
+    This tool and more can be found at&nbsp;
+    <a href="https://www.millsmathstools.au">www.millsmathstools.au</a>
+  </div>
+
+<script>
+(() => {
+  "use strict";
+  /* =====================================================================
+     AREA OF A TRAPEZIUM — WORKSHEET GENERATOR (2026-11-16)
+     The parallelogram / triangle generators' frame: bands of settings,
+     lettered problem types with counts, rows MEASURED then packed into A4
+     pages, a "Your turn" box in whatever a page leaves, answer key.
+
+       A  Average base        — the cuts at the middles of the sloping sides,
+                                the swing and the rectangle are drawn: halfway
+                                between a and b, then the area
+       B  Half a parallelogram — the turned copy is drawn: its base a + b, the
+                                parallelogram, then half of it
+       C  Find the area       — the kinds ticked, mixed; distractors, turned
+       D  Work backwards      — area given; the height or a parallel side missing
+       E  Spot the mistake    — forgot to halve / used the sloping side /
+                                multiplied the parallel sides / one side only
+       F  Draw your own       — a given area on squares, two different ways
+       G  Fluency             — no diagram (off until ticked)
+     The shapes and the diagram (mkTrap, trapSVG) are copied from the
+     student quiz's quiz.js — change one, re-copy to the other.
+     ===================================================================== */
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;");
+  const SITE = "https://www.millsmathstools.au";
+  const R = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+  const pick = a => a[Math.floor(Math.random() * a.length)];
+  const shuffle = a => { const b = a.slice(); for(let i = b.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; };
+  const fmt = n => String(Math.round(n * 100) / 100);
+  const PX_MM = 96 / 25.4;
+  const X = "×";
+
+/*SHARED-START*/
+/* ---------------------------------------------------------- TRAPEZIUM: shapes + the clean diagram
+   (written once, copied into the quiz and the worksheet creator — change one, re-copy to the other)
+   A trapezium sits on its longer parallel side: base b from (0,0) to (b,0), top a from (p,h) to (p+a,h). */
+const TRIPLES = [[3,4,5],[4,3,5],[6,8,10],[8,6,10],[5,12,13],[12,5,13],[9,12,15],[12,9,15],[8,15,17],[15,8,17]];
+const trapPts = s => [[0, 0], [s.b, 0], [s.p + s.a, s.h], [s.p, s.h]];
+const trapArea = s => (s.a + s.b) * s.h / 2;
+function trapClip(poly, lo, hi){
+  const cut = (pts, keep, xi) => { const out = [];
+    for(let i = 0; i < pts.length; i++){ const q = pts[i], r = pts[(i + 1) % pts.length], qin = keep(q), rin = keep(r);
+      if(qin) out.push(q);
+      if(qin !== rin){ const t = (xi - q[0]) / (r[0] - q[0]); out.push([xi, q[1] + t * (r[1] - q[1])]); } }
+    return out; };
+  let r = cut(poly, q => q[0] >= lo - 1e-9, lo); if(r.length < 3) return null;
+  r = cut(r, q => q[0] <= hi + 1e-9, hi);
+  return r.length >= 3 ? r : null;
+}
+const trapCen = P => [P.reduce((s, q) => s + q[0], 0) / P.length, P.reduce((s, q) => s + q[1], 0) / P.length];
+function trapKind(s){
+  const { a, b, p } = s;
+  if(p === 0 || p + a === b) return "right";
+  if(2 * p === b - a) return "iso";
+  if(p < 0 || p + a > b) return "lean";
+  return "plain";
+}
+/* where the height is drawn: a vertical side when there is one, otherwise from a top corner */
+function trapHeightAt(s){
+  const { a, b, p } = s;
+  if(p === 0) return { x:0, edge:true, out:-1 };
+  if(p + a === b) return { x:b, edge:true, out:1 };
+  if(p > 0 && (p + a >= b || p >= b - p - a)) return { x:p, edge:false, into:1 };
+  return { x:p + a, edge:false, into:-1 };
+}
+/* one trapezium of a kind ("iso" | "right" | "lean" | "plain") inside the range L.
+   o.slant: one sloping side gets a whole-number length (to be labelled as a distractor)
+   o.avgWhole: a + b even · o.areaWhole: (a + b) × h even · o.areaHalf: the area ends in .5 */
+function mkTrap(L, kind, o, used){
+  o = o || {};
+  for(let t = 0; t < 900; t++){
+    let b, a, h, p, slant = null;
+    if(o.slant){
+      const c = TRIPLES.filter(x => x[1] >= L.hLo && x[1] <= L.hHi && x[0] + 2 <= L.bHi);
+      if(!c.length) return mkTrap(L, kind, Object.assign({}, o, { slant:false }), used);
+      const [dx, hh, len] = pick(c); h = hh;
+      b = R(Math.max(L.bLo, dx + 2), L.bHi);
+      if(kind === "lean"){
+        a = R(Math.max(dx + 1, Math.ceil(b * .3)), b - 1);
+        if(Math.random() < .55){ p = b - a + dx; slant = { side:"R", len }; } else { p = -dx; slant = { side:"L", len }; }
+      } else if(kind === "right"){
+        a = b - dx; if(Math.random() < .5){ p = 0; slant = { side:"R", len }; } else { p = dx; slant = { side:"L", len }; }
+      } else if(kind === "iso"){
+        a = b - 2 * dx; p = dx; slant = { side:Math.random() < .5 ? "L" : "R", len };
+      } else {
+        const q = R(1, Math.max(1, b - dx - 2)); a = b - dx - q;
+        if(q === dx) continue;
+        if(Math.random() < .5){ p = dx; slant = { side:"L", len }; } else { p = q; slant = { side:"R", len }; }
+      }
+    } else {
+      b = R(L.bLo, L.bHi); h = R(L.hLo, L.hHi);
+      if(kind === "iso"){ a = R(1, b - 2); if((b - a) % 2) a += a + 1 <= b - 2 ? 1 : -1; p = (b - a) / 2; }
+      else if(kind === "right"){ a = R(Math.max(1, Math.ceil(b * .35)), b - 1); p = Math.random() < .5 ? 0 : b - a; }
+      else if(kind === "lean"){ a = R(Math.max(2, Math.ceil(b * .3)), b - 2); const e = R(1, Math.max(1, Math.min(3, a - 1))); p = Math.random() < .6 ? b - a + e : -e; }
+      else { a = R(Math.max(1, Math.ceil(b * .3)), b - 3); const fr = []; for(let q = 1; q < b - a; q++) if(2 * q !== b - a) fr.push(q); if(!fr.length) continue; p = pick(fr); }
+    }
+    if(!(a >= 1 && a < b) || p > b - 1 || p < 1 - a) continue;
+    /* in proportion: a top at least a quarter of the base, a height neither a sliver nor a tower */
+    if(a < b / 4 || h < b * .28 || h > b * 1.15) continue;
+    if(trapKind({ a, b, p }) !== kind) continue;
+    if(o.avgWhole && (a + b) % 2) continue;
+    if(o.areaWhole && ((a + b) * h) % 2) continue;
+    if(o.areaHalf && ((a + b) * h) % 2 === 0) continue;
+    if(o.maxArea && (a + b) * h / 2 > o.maxArea) continue;
+    /* no answer that is also a length on the diagram (an area, an average, two copies) — it reads like a giveaway */
+    const shown = [a, b, h].concat(slant ? [slant.len] : []);
+    if([(a + b) * h / 2, (a + b) / 2, (a + b) * h].some(v => shown.includes(v))) continue;
+    const key = [b, a, h, p].join();
+    if(used && used.has(key) && t < 700) continue;
+    if(used) used.add(key);
+    return { b, a, h, p, slant };
+  }
+  mkTrap.fallbacks = (mkTrap.fallbacks || 0) + 1;
+  return { b:8, a:4, h:4, p:2, slant:null };
+}
+/* THE CLEAN DIAGRAM, as an SVG string, in whatever units o.w / o.h are (mm on paper, px in the quiz).
+   s: { a, b, h, p, slant:{side,len}, missing:"a"|"b"|"h", turn (parallel sides up the page),
+        show:"avg" (the cuts at the middles, the rectangle and the swing) | "para" (the turned copy) }
+   o: { w, h, fs, unit, grid, gridMin, bw, key, maxS } */
+function trapSVG(s, o){
+  const bw = !!o.bw, fs = o.fs, twT = t => String(t).length * fs * .58;
+  const col = { fill:bw ? "#e5e7eb" : "rgba(22,163,74,.34)", edge:bw ? "#111827" : "#14532d", pale:bw ? "none" : "rgba(34,197,94,.10)",
+    ghost:bw ? "#6b7280" : "#64748b", alt:bw ? "#111827" : "#ea580c", a:bw ? "#111827" : "#5b21b6", b:bw ? "#111827" : "#1d4ed8",
+    lab:bw ? "#111827" : "#334155", h:bw ? "#111827" : "#c2410c", key:"#15803d", grid:"#d1d5db", arrow:bw ? "#111827" : "#2563eb", cut:"#0f172a" };
+  const sw = fs * .15, thin = fs * .1, dash = `${(fs * .34).toFixed(2)} ${(fs * .25).toFixed(2)}`;
+  const U = o.unit ? " " + o.unit : "";
+  const { a, b, h, p } = s, B = a + b, T = trapPts(s);
+  const x1r = p / 2, x2r = (b + p + a) / 2;
+  let x0 = Math.min(0, p), x1 = Math.max(b, p + a);
+  if(s.show === "para") x1 = Math.max(B, B + p);
+  if(s.show === "avg"){ x0 = Math.min(x0, x1r); x1 = Math.max(x1, x2r); }
+  const turn = !!s.turn, M = q => turn ? [q[1], q[0]] : q;
+  const fx0 = turn ? 0 : x0, fx1 = turn ? h : x1, fy0 = turn ? x0 : 0, fy1 = turn ? x1 : h;
+  const miss = w => s.missing === w;
+  const val = (w, v) => miss(w) ? (o.key ? fmt(v) + U : "?") : fmt(v) + U;
+  const labs = [val("a", a), val("b", b), val("h", h)].concat(s.slant ? [fmt(s.slant.len) + U] : []);
+  const lw = Math.max.apply(null, labs.map(twT));
+  const mx = Math.max(fs * 2.4, (turn ? lw : lw * .5) + fs * 1.3), my = Math.max(fs * 2.4, (turn ? fs * 1.2 : fs * 1.1) + fs);
+  const sc = Math.min((o.w - 2 * mx) / Math.max(.5, fx1 - fx0), (o.h - 2 * my) / Math.max(.5, fy1 - fy0), o.maxS || 12);
+  const ox = (o.w - (fx1 - fx0) * sc) / 2 - fx0 * sc, oy = (o.h - (fy1 - fy0) * sc) / 2 + fy1 * sc;
+  const S = q => { const m = M(q); return [ox + m[0] * sc, oy - m[1] * sc]; };
+  const n2 = v => v.toFixed(2);
+  const pts = A => A.map(q => S(q).map(n2).join(",")).join(" ");
+  const ln = (q, r, st) => { const A = S(q), C = S(r); return `<line x1="${n2(A[0])}" y1="${n2(A[1])}" x2="${n2(C[0])}" y2="${n2(C[1])}" ${st}/>`; };
+  const textAt = (xy, text, fill, weight, size) => `<text x="${n2(xy[0])}" y="${n2(xy[1])}" font-size="${n2(size || fs)}" fill="${fill}" font-weight="${weight || 600}" text-anchor="middle" dominant-baseline="central">${esc(text)}</text>`;
+  const patch = (xy, text, fill, stroke, weight) => { const w = twT(text) + fs * .5, hh = fs * 1.35;
+    return `<rect x="${n2(xy[0] - w / 2)}" y="${n2(xy[1] - hh / 2)}" width="${n2(w)}" height="${n2(hh)}" rx="${n2(hh / 2)}" fill="#fff" stroke="${stroke}" stroke-width="${n2(thin * .8)}"/>` + textAt(xy, text, fill, weight); };
+  /* a label outside a side, square off it, away from the shape it belongs to */
+  const outside = (q, r, text, fill, weight, cen) => {
+    const A = S(q), C = S(r), Md = [(A[0] + C[0]) / 2, (A[1] + C[1]) / 2], K = S(cen || trapCen(T));
+    const dx = C[0] - A[0], dy = C[1] - A[1], dl = Math.hypot(dx, dy) || 1;
+    let nx = -dy / dl, ny = dx / dl;
+    if(nx * (Md[0] - K[0]) + ny * (Md[1] - K[1]) < 0){ nx = -nx; ny = -ny; }
+    const off = Math.abs(nx) * twT(text) / 2 + Math.abs(ny) * fs * .6 + fs * .45;
+    return textAt([Md[0] + nx * off, Md[1] + ny * off], text, fill, weight);
+  };
+  let g = "";
+  /* unit squares: whole numbers, upright, big enough to count */
+  const whole = [a, b, h, p].every(v => Math.abs(v - Math.round(v)) < 1e-9);
+  if(o.grid && !turn && whole && !s.missing && sc >= (o.gridMin || 2.6)){
+    for(let x = Math.floor(x0); x <= Math.ceil(x1); x++) g += ln([x, 0], [x, h], `stroke="${col.grid}" stroke-width="${n2(thin * .5)}"`);
+    for(let y = 0; y <= h; y++) g += ln([Math.floor(x0), y], [Math.ceil(x1), y], `stroke="${col.grid}" stroke-width="${n2(thin * .5)}"`);
+  }
+  /* half a parallelogram: the copy, turned, beside it — its short side next to the long base */
+  if(s.show === "para"){
+    const M2 = [(b + p + a) / 2, h / 2], CP = T.map(q => [2 * M2[0] - q[0], 2 * M2[1] - q[1]]), cc = trapCen(CP);
+    g += `<polygon points="${pts(CP)}" fill="${col.pale}" stroke="${col.ghost}" stroke-width="${n2(thin)}" stroke-dasharray="${dash}" stroke-linejoin="round"/>`;
+    g += outside([b, 0], [B, 0], fmt(a) + U, col.ghost, 600, cc);
+    g += outside([p + a, h], [B + p, h], fmt(b) + U, col.ghost, 600, cc);
+  }
+  /* average base: the rectangle the corners swing into */
+  if(s.show === "avg") g += `<polygon points="${pts([[x1r, 0], [x2r, 0], [x2r, h], [x1r, h]])}" fill="${col.pale}" stroke="${col.ghost}" stroke-width="${n2(thin)}" stroke-dasharray="${dash}"/>`;
+  g += `<polygon points="${pts(T)}" fill="${col.fill}" stroke="${col.edge}" stroke-width="${n2(sw)}" stroke-linejoin="round"/>`;
+  if(s.show === "avg"){
+    [[p !== 0, [x1r, h / 2], [x1r, p > 0 ? 0 : h], -1, x1r], [p + a !== b, [x2r, h / 2], [x2r, p + a < b ? 0 : h], 1, x2r]].forEach(([on, Mid, end, side, cx]) => {
+      if(!on) return;
+      g += ln(Mid, end, `stroke="${col.cut}" stroke-width="${n2(thin * 1.1)}" stroke-dasharray="${n2(fs * .12)} ${n2(fs * .3)}" stroke-linecap="round"`);
+      const piece = side < 0 ? trapClip(T, -1e6, cx) : trapClip(T, cx, 1e6);
+      if(piece){
+        /* the curved arrow: from the corner piece, round the outside, to the gap it fills */
+        const c0 = trapCen(piece), c1 = [2 * Mid[0] - c0[0], 2 * Mid[1] - c0[1]], rr = Math.hypot(c0[0] - Mid[0], c0[1] - Mid[1]);
+        const ctl = [Mid[0] + side * rr * 1.3, Mid[1]], A = S(c0), C = S(c1), K = S(ctl);
+        const tx = C[0] - K[0], ty = C[1] - K[1], tl = Math.hypot(tx, ty) || 1, ux = tx / tl, uy = ty / tl, ah = fs * .55;
+        g += `<path d="M${n2(A[0])} ${n2(A[1])}Q${n2(K[0])} ${n2(K[1])} ${n2(C[0])} ${n2(C[1])}" fill="none" stroke="${col.arrow}" stroke-width="${n2(thin)}" stroke-linecap="round"/>`;
+        g += `<path d="M${n2(C[0] - ux * ah - uy * ah * .6)} ${n2(C[1] - uy * ah + ux * ah * .6)}L${n2(C[0])} ${n2(C[1])}L${n2(C[0] - ux * ah + uy * ah * .6)} ${n2(C[1] - uy * ah - ux * ah * .6)}" fill="none" stroke="${col.arrow}" stroke-width="${n2(thin)}" stroke-linecap="round" stroke-linejoin="round"/>`;
+      }
+      const P0 = S(Mid);
+      g += `<circle cx="${n2(P0[0])}" cy="${n2(P0[1])}" r="${n2(fs * .28)}" fill="#fff" stroke="${col.arrow}" stroke-width="${n2(thin)}"/>`;
+    });
+  }
+  /* the height: a vertical side (right angle marked), or dashed from a top corner with its label on it */
+  const H = trapHeightAt(s), r = Math.min(fs * .5, h * sc * .25) / sc;
+  const tow = H.edge ? -H.out : (H.x === p ? 1 : -1);
+  if(!H.edge) g += ln([H.x, 0], [H.x, h], `stroke="${col.alt}" stroke-width="${n2(thin)}" stroke-dasharray="${dash}"`);
+  g += `<polyline points="${pts([[H.x + tow * r, 0], [H.x + tow * r, r], [H.x, r]])}" fill="none" stroke="${H.edge ? col.edge : col.alt}" stroke-width="${n2(thin * .8)}"/>`;
+  const hFill = miss("h") ? (o.key ? col.key : "#6b7280") : col.h, hW = miss("h") ? 800 : 600;
+  if(H.edge) g += outside([H.x, 0], [H.x, h], val("h", h), hFill, hW);
+  else g += patch(S([H.x, h / 2]), val("h", h), hFill, bw ? "#111827" : "#fdba74", hW);
+  /* the parallel sides, and a sloping side as a distractor */
+  const mf = (w, c) => miss(w) ? (o.key ? col.key : "#6b7280") : c;
+  g += outside([0, 0], [b, 0], val("b", b), mf("b", col.b), miss("b") ? 800 : 600);
+  g += outside([p, h], [p + a, h], val("a", a), mf("a", col.a), miss("a") ? 800 : 600);
+  if(s.slant){ const leg = s.slant.side === "L" ? [[0, 0], [p, h]] : [[b, 0], [p + a, h]]; g += outside(leg[0], leg[1], fmt(s.slant.len) + U, col.lab, 500); }
+  return `<svg viewBox="0 0 ${n2(o.w)} ${n2(o.h)}" width="${n2(o.w)}${o.px ? "" : "mm"}" height="${n2(o.h)}${o.px ? "" : "mm"}" font-family="STIX Two Math, Cambria Math, Times New Roman, serif">${g}</svg>`;
+}
+/*SHARED-END*/
+
+
+  /* ---------------------------------------------------------- levels */
+  const LV = [
+    { k:"sweet",  name:"Sweet",  ex:"sides to 10, whole averages", cls:"sweet",  col:"#16a34a", bLo:4, bHi:10, hLo:3, hHi:6,  halves:0 },
+    { k:"mild",   name:"Mild",   ex:"sides to 12",                 cls:"mild",   col:"#d97706", bLo:5, bHi:12, hLo:3, hHi:8,  halves:0 },
+    { k:"medium", name:"Medium", ex:"to 14, some halves (22.5)",   cls:"medium", col:"#ea580c", bLo:6, bHi:14, hLo:3, hHi:10, halves:.3 },
+    { k:"spicy",  name:"Spicy",  ex:"to 20, more halves",          cls:"spicy",  col:"#b91c1c", bLo:8, bHi:20, hLo:4, hHi:14, halves:.5 }
+  ];
+  const LVK = Object.fromEntries(LV.map(l => [l.k, l]));
+  function levelAt(levels, i, n){ return levels[Math.min(levels.length - 1, Math.floor(i * levels.length / Math.max(1, n)))]; }
+
+  /* ---------------------------------------------------------- making trapeziums */
+  const KIND_IDS = [["kIso", "iso"], ["kRight", "right"], ["kLean", "lean"], ["kPlain", "plain"]];
+  const KIND_NAME = { iso:"Isosceles", right:"Right-angled", lean:"Leaning", plain:"Trapezium" };
+  function bag(list, n){ const out = []; let b = []; for(let i = 0; i < n; i++){ if(!b.length) b = shuffle(list); out.push(b.pop()); } return out; }
+  const slantP = opts => opts.slant === "often" ? .85 : opts.slant === "some" ? .4 : 0;
+  const turnP = opts => opts.turn === "most" ? .75 : opts.turn === "some" ? .35 : 0;
+  /* one trapezium for a question: the level's numbers, whole averages on Sweet, halves sometimes from Medium */
+  function shape(level, kind, used, o){
+    o = o || {};
+    const L = LVK[level], want = {};
+    if(level === "sweet") want.avgWhole = true; else want.areaWhole = true;
+    /* an isosceles trapezium on whole numbers always has an even a + b, so its area is never a half */
+    if(o.half && L.halves && kind !== "iso" && Math.random() < L.halves){ delete want.areaWhole; want.areaHalf = true; }
+    if(o.whole){ delete want.areaHalf; want.areaWhole = true; }
+    if(o.avgWhole) want.avgWhole = true;
+    if(o.slant) want.slant = true;
+    const s = mkTrap(L, kind, want, used);
+    if(o.turn) s.turn = true;
+    return s;
+  }
+
+  /* ---------------------------------------------------------- the problem types */
+  const EX = { a:5, b:7, h:4, p:1 };
+  const TYPES = [
+    { k:"A", col:"#15803d", bg:"#f0fdf4", n:2, title:"Average base",
+      desc:"Cut at the middle of each sloping side and swing the corners round: the drawn rectangle is halfway between the parallel sides. Students find its length, then the area.",
+      ex:() => exShape(Object.assign({ show:"avg" }, EX)) + '<span class="arrow">→</span><span class="m">(5 + 7) ÷ 2 = 6, 6 × 4 = 24</span>' },
+    { k:"B", col:"#2563eb", bg:"#eff6ff", n:2, title:"Half a parallelogram",
+      desc:"A turned copy is drawn beside it: together they make a parallelogram with base a + b. Students find the parallelogram, then the trapezium as half of it.",
+      ex:() => exShape(Object.assign({ show:"para" }, EX)) + '<span class="arrow">→</span><span class="m">12 × 4 = 48, half is 24</span>' },
+    { k:"C", col:"#7c3aed", bg:"#faf5ff", n:4, title:"Find the area",
+      desc:"The kinds you ticked, mixed — with a sloping side to ignore and some turned on their side if you choose. One answer line: Area = ____.",
+      ex:() => exShape({ a:4, b:10, h:4, p:3, slant:{ side:"L", len:5 } }) + '<span class="arrow">→</span><span class="m">½ × (4 + 10) × 4 = 28</span>' },
+    { k:"D", col:"#0d9488", bg:"#f0fdfa", n:2, title:"Work backwards",
+      desc:"The area is given and the height (or, from Medium, a parallel side) is missing. Double the area, then divide — or take away.",
+      ex:() => '<span class="m">Area 24, sides 5 and 7 → 48 ÷ 12 = height 4</span>' },
+    { k:"E", col:"#db2777", bg:"#fdf2f8", n:1, title:"Spot the mistake",
+      desc:"A worked answer with a classic error: forgot to halve, used the sloping side, multiplied the parallel sides, or used only one of them. Students explain it and fix it.",
+      ex:() => '<span class="m">(5 + 7) × 4 = 48</span><span class="arrow">→</span><span class="m">halve it: 24</span>' },
+    { k:"F", col:"#ea580c", bg:"#fff7ed", n:1, title:"Draw your own",
+      desc:"Draw a trapezium with a given area on squares, then a different one with the same area. Low floor, high ceiling.",
+      ex:() => '<span class="m">area 24 → sides 5 and 7, height 4; sides 2 and 6, height 6 …</span>' },
+    { k:"G", col:"#475569", bg:"#f8fafc", n:12, off:true, title:"Fluency — no diagram",
+      desc:"Lengths in words, no pictures and no working space; on Medium and Spicy some ask for the height. Tick it on its own for a warm-up.",
+      ex:() => '<span class="m">parallel sides 5 and 7, height 4 → area =</span><span style="display:inline-block;width:2.2em;border-bottom:1.6px solid currentColor"></span>' }
+  ];
+  function headFor(T, opts){
+    switch(T.k){
+      case "A": return "Average base. The corners swing round into the dashed rectangle. How long is it? Then find the area.";
+      case "B": return "Half a parallelogram. Two copies make a parallelogram. Find its base and area, then the trapezium is half of it.";
+      case "C": return "Find the area of each trapezium." + (opts.slant !== "never" ? " Use the height — it meets the parallel sides at right angles." : "");
+      case "D": return "Work backwards. The area is given. Find the missing length.";
+      case "E": return "Spot the mistake. Explain what went wrong, then find the correct area.";
+      case "F": return "Draw your own. Draw each trapezium on the squares (each square is 1 square unit).";
+      case "G": return "Fluency. Find the area of each trapezium, or the missing height.";
+    }
+  }
+
+  /* ---------------------------------------------------------- making questions */
+  function makeQ(T, level, i, n, kind, opts, used){
+    const q = { type:T.k, level, cls:LVK[level].cls };
+    const turn = () => Math.random() < turnP(opts);
+    if(T.k === "A"){ q.s = shape(level, kind, used, { avgWhole:level === "sweet" || level === "mild", whole:true }); q.s.show = "avg"; return q; }
+    if(T.k === "B"){ q.s = shape(level, kind, used, { whole:true }); q.s.show = "para"; return q; }
+    if(T.k === "C"){ q.s = shape(level, kind, used, { slant:Math.random() < slantP(opts), half:true, turn:turn() }); return q; }
+    if(T.k === "D"){
+      q.s = shape(level, kind, used, { slant:Math.random() < slantP(opts) * .7, turn:turn() });
+      q.s.missing = level === "sweet" || level === "mild" || i % 2 === 0 ? "h" : (i % 4 === 1 ? "a" : "b");
+      return q;
+    }
+    if(T.k === "E"){
+      const kinds = ["half", "mult", "one"].concat(slantP(opts) ? ["slant", "slant"] : []);
+      q.mk = kinds[(i + R(0, kinds.length - 1)) % kinds.length];
+      q.s = shape(level, kind === "iso" && q.mk === "one" ? "plain" : kind, used, { slant:q.mk === "slant", turn:turn() && q.mk !== "slant" });
+      if(!used.names || !used.names.length) used.names = shuffle(["Mia","Sam","Noah","Zara","Kai","Lily","Jai","Ava","Leo","Ruby","Omar","Tia"]);
+      q.name = used.names.pop();
+      return q;
+    }
+    if(T.k === "F"){
+      const pools = { sweet:[12, 15, 16, 18, 20], mild:[18, 20, 21, 24, 28], medium:[24, 27, 30, 32, 36], spicy:[30, 36, 40, 42, 48] };
+      q.area = pick(pools[level]);
+      for(let t = 0; t < 12 && used.has("F" + q.area); t++) q.area = pick(pools[level]);
+      used.add("F" + q.area);
+      q.what = i % 3;
+      return q;
+    }
+    q.s = shape(level, kind, used, { half:true });
+    if((level === "medium" || level === "spicy") && i % 3 === 2){ q.s = shape(level, kind, used, {}); q.s.missing = "h"; }
+    return q;
+  }
+
+  /* ---------------------------------------------------------- sizes */
+  const COLS = { roomy:2, normal:2, tight:3 };
+  const DIAGH = { roomy:58, normal:46, tight:36 };
+  const FS = { roomy:4.2, normal:3.6, tight:3.1 };
+  const FLU_COLS = { roomy:2, normal:2, tight:2 };
+  const colsFor = (g, opts) => g.T.k === "G" ? FLU_COLS[opts.density] : g.T.k === "E" ? 1 : opts.cols;
+  const cardInner = cols => (186 - 3 * (cols - 1)) / cols - 6.6;
+  function exShape(s){ return trapSVG(s, { w:34, h:19, fs:2.3, grid:false, unit:"", maxS:5 }).replace(/width="[^"]*mm" height="[^"]*mm"/, ""); }
+  function diag(s, opts, w, key){ return `<div class="pic">${trapSVG(s, { w, h:DIAGH[opts.density], fs:FS[opts.density], grid:opts.grid, bw:opts.bw, unit:opts.units, key })}</div>`; }
+
+  /* ---------------------------------------------------------- cards */
+  const uu = (opts, sq) => opts.units ? `<span class="u"> ${opts.units}${sq ? "²" : ""}</span>` : (sq ? '<span class="u"> square units</span>' : "");
+  const uT = (opts, sq) => opts.units ? " " + opts.units + (sq ? "²" : "") : (sq ? " square units" : "");
+  const top = (q, n, inner) => `<div class="qTop"><span class="qNum ${q.cls}">${n}</span>${inner || ""}</div>`;
+  const lines = k => '<div class="say">' + '<div class="wl"></div>'.repeat(k) + "</div>";
+  const keyLine = (lab, txt) => `<div class="keyAns">${lab ? `<span class="lab">${lab}</span>` : ""}${txt}</div>`;
+  const keyWhy = txt => `<div class="keyWhy">${txt}</div>`;
+  const ansLine = (lab, opts, sq, big) => `<div class="ansLine"><span class="lab${big ? " big" : ""}">${lab}</span><span class="ln"></span>${uu(opts, sq)}</div>`;
+  const blank = "<span class=\"ln xs\"></span>";
+  /* a line of the working with gaps: parts are text, or null for a gap */
+  const gapLine = (lab, parts, opts, sq) => `<div class="ansLine"><span class="lab">${lab}</span>${parts.map(p => p == null ? blank : `<span>${p}</span>`).join("")}<span class="ln"></span>${uu(opts, sq)}</div>`;
+  const nameOf = s => s.turn || trapKind(s) === "plain" ? "Trapezium" : KIND_NAME[trapKind(s)] + " trapezium";
+  const formulaKey = (s, opts) => `½ ${X} (${fmt(s.a)} + ${fmt(s.b)}) ${X} ${fmt(s.h)} = ${fmt(trapArea(s))}${uT(opts, true)}`;
+  function cardHTML(q, n, opts, key){
+    const cols = colsFor({ T:{ k:q.type } }, opts), w = cardInner(cols), s = q.s;
+    if(q.type === "A"){
+      const m = (s.a + s.b) / 2;
+      return `<div class="qCard">${top(q, n, `<span class="word">${nameOf(s)}</span>`)}${diag(s, opts, w, key)}`
+        + (key ? keyLine("Length", `(${fmt(s.a)} + ${fmt(s.b)}) ÷ 2 = ${fmt(m)}${uT(opts)}`) + keyLine("Area", `${fmt(m)} ${X} ${fmt(s.h)} = ${fmt(trapArea(s))}${uT(opts, true)}`)
+               : gapLine("Length", ["(", null, "+", null, ") ÷ 2 ="], opts, false) + gapLine("Area", [null, X, null, "="], opts, true)) + "</div>";
+    }
+    if(q.type === "B"){
+      const B = s.a + s.b;
+      return `<div class="qCard">${top(q, n, `<span class="word">${nameOf(s)}</span>`)}${diag(s, opts, w, key)}`
+        + (key ? keyLine("Base", `${fmt(s.b)} + ${fmt(s.a)} = ${fmt(B)}${uT(opts)}`) + keyLine("Parallelogram", `${fmt(B)} ${X} ${fmt(s.h)} = ${fmt(B * s.h)}${uT(opts, true)}`) + keyLine("Trapezium", `${fmt(B * s.h)} ÷ 2 = ${fmt(trapArea(s))}${uT(opts, true)}`)
+               : gapLine("Base", [null, "+", null, "="], opts, false) + gapLine("Parallelogram", [null, X, null, "="], opts, true) + gapLine("Trapezium", [null, "÷ 2 ="], opts, true)) + "</div>";
+    }
+    if(q.type === "C"){
+      const why = s.slant ? `The ${fmt(s.slant.len)} side slopes — the height is ${fmt(s.h)}, at right angles to the parallel sides.` : `Halfway between ${fmt(s.a)} and ${fmt(s.b)} is ${fmt((s.a + s.b) / 2)}; ${fmt((s.a + s.b) / 2)} ${X} ${fmt(s.h)}.`;
+      const body = key ? keyLine("Area =", formulaKey(s, opts)) + keyWhy(why)
+        : (opts.work === "lines" ? lines(2) : "") + ansLine("Area =", opts, true, true);
+      return `<div class="qCard">${top(q, n, `<span class="word">${nameOf(s)}</span>`)}${diag(s, opts, w, key)}${body}</div>`;
+    }
+    if(q.type === "D"){
+      const A = trapArea(s), m = s.missing, two = 2 * A;
+      const word = m === "h" ? "height" : "missing side";
+      const head = `<span class="expr">Area = ${fmt(A)}${opts.units ? " " + esc(opts.units) + "²" : ""}</span>`;
+      const why = m === "h" ? `Two copies: ${fmt(A)} ${X} 2 = ${fmt(two)}. Base ${fmt(s.a)} + ${fmt(s.b)} = ${fmt(s.a + s.b)}. ${fmt(two)} ÷ ${fmt(s.a + s.b)} = ${fmt(s.h)}.`
+        : `${fmt(A)} ${X} 2 = ${fmt(two)}, ÷ ${fmt(s.h)} = ${fmt(s.a + s.b)} for both sides. ${fmt(s.a + s.b)} − ${fmt(m === "a" ? s.b : s.a)} = ${fmt(s[m])}.`;
+      return `<div class="qCard">${top(q, n, head)}${diag(s, opts, w, key)}`
+        + (key ? keyLine(word, fmt(s[m]) + uT(opts)) + keyWhy(why) : lines(1) + ansLine(word + " =", opts, false, true)) + "</div>";
+    }
+    if(q.type === "E"){
+      const { a, b, h } = s;
+      let work, what;
+      if(q.mk === "slant"){ work = `½ ${X} (${fmt(a)} + ${fmt(b)}) ${X} ${fmt(s.slant.len)} = ${fmt((a + b) * s.slant.len / 2)}`; what = `Used the sloping side (${fmt(s.slant.len)}). The height is at right angles to the parallel sides: it is ${fmt(h)}.`; }
+      else if(q.mk === "mult"){ work = `½ ${X} ${fmt(a)} ${X} ${fmt(b)} ${X} ${fmt(h)} = ${fmt(a * b * h / 2)}`; what = "Multiplied the parallel sides. They are added: their sum is the base of the parallelogram two copies make."; }
+      else if(q.mk === "one"){ work = `${fmt(b)} ${X} ${fmt(h)} = ${fmt(b * h)}`; what = `Used only the longer side, as if it were a rectangle. The top is shorter: use halfway between ${fmt(a)} and ${fmt(b)}.`; }
+      else { work = `(${fmt(a)} + ${fmt(b)}) ${X} ${fmt(h)} = ${fmt((a + b) * h)}`; what = "Forgot to halve. That is the parallelogram two copies make — the trapezium is half of it."; }
+      const right = `<div class="said"><b>${esc(q.name)}</b> worked out the area of this trapezium:<div class="saidM">${work}${uT(opts, true)}</div></div>`
+        + (key ? keyLine("", what) + keyLine("Correct area", formulaKey(s, opts))
+               : `<div class="workHead">What went wrong?</div>${lines(2)}${ansLine("Correct area", opts, true)}`);
+      return `<div class="qCard full">${top(q, n, '<span class="word">Spot the mistake</span>')}<div class="split">${diag(s, opts, w * .42, key)}<div class="side">${right}</div></div></div>`;
+    }
+    if(q.type === "F"){
+      const A = q.area, two = 2 * A, ex = [];
+      for(let h = 2; h <= 12 && ex.length < 4; h++) if(two % h === 0){ const sum = two / h; for(let a = Math.ceil(sum / 4); a < sum / 2; a++){ const b = sum - a; if(b <= 14 && a >= 1){ ex.push(`sides ${a} and ${b}, height ${h}`); break; } } }
+      const txt = q.what === 0 ? `Draw a trapezium with an area of <b>${A} square units</b>. Then draw a <b>different</b> trapezium with the same area.`
+        : q.what === 1 ? `Draw a <b>right-angled</b> trapezium and a <b>leaning</b> one, both with an area of <b>${A} square units</b>. Mark the height on each.`
+        : `Draw two trapeziums with an area of <b>${A} square units</b> and the <b>same height</b>, but different parallel sides. What stays the same?`;
+      const body = key ? keyLine("", `Any parallel sides a, b and height h with (a + b) ${X} h = ${two}`) + keyWhy(`For example ${ex.join("; ")}. With the same height, a + b stays the same.`)
+        : `<div class="drawBox" style="--drawH:${(DIAGH[opts.density] * 1.15).toFixed(1)}mm"></div>`;
+      return `<div class="qCard">${top(q, n, "")}<div class="qText">${txt}</div>${body}</div>`;
+    }
+    /* G fluency */
+    const A = trapArea(s);
+    let ask, ans;
+    if(s.missing){ ask = `area ${fmt(A)}, parallel sides ${fmt(s.a)} and ${fmt(s.b)}. Height =`; ans = s.h; }
+    else { ask = `parallel sides ${fmt(s.a)} and ${fmt(s.b)}, height ${fmt(s.h)}. Area =`; ans = A; }
+    return `<div class="qCard flu">${top(q, n, `<span class="word">${ask}</span>` + (key ? `<span class="fluAns">${fmt(ans)}</span>` : '<span class="ln"></span>'))}</div>`;
+  }
+
+  /* ---------------------------------------------------------- page furniture */
+  function exampleHTML(opts){
+    const m = opts.exMethod, u = uT(opts), u2 = uT(opts, true), size = m === "both" ? { w:44, h:27 } : { w:54, h:31 };
+    const fig = sh => trapSVG(Object.assign({ show:sh }, EX), { w:size.w, h:size.h, fs:2.8, grid:false, bw:opts.bw, unit:opts.units, maxS:5 });
+    let figs = "", l = "";
+    if(m !== "para"){ figs += fig("avg"); l += `<div class="exLine"><span class="k">SWING</span>halfway between 5 and 7 is (5 + 7) ÷ 2 = 6${u}</div><div class="exLine"><span class="k">AREA</span>6 ${X} 4 = 24${u2}</div>`; }
+    if(m !== "avg"){ figs += fig("para"); l += `<div class="exLine"><span class="k">TWO COPIES</span>base 7 + 5 = 12, so 12 ${X} 4 = 48${u2}</div><div class="exLine"><span class="k">HALF</span>48 ÷ 2 = 24${u2}</div>`; }
+    if(opts.formula) l += `<div class="exLine"><span class="k">SO</span>Area = ½ ${X} (a + b) ${X} h${m === "avg" ? "" : ""}</div>`;
+    return `<div class="exStrip">${figs}<div class="exBody"><div class="exHead">Worked example — parallel sides 5 and 7, height 4</div>${l}</div></div>`;
+  }
+  function secHeadHTML(g, cont, opts){
+    return `<div class="secHead" style="--sc:${g.T.col};--sc-bg:${g.T.bg}"><span class="secLetter">${g.T.k}</span>`
+      + `<span class="secText">${esc(headFor(g.T, opts))}</span>${cont ? '<span class="secCont">continued</span>' : ""}</div>`;
+  }
+  const levelLabel = opts => opts.levels.map(k => LVK[k].name).join(" → ");
+  function pageHTML(inner, opts, key, no, total){
+    return `<section class="page d-${opts.density}${opts.bw ? " bw" : ""}${key ? " isKey" : ""}">`
+      + '<div class="pageHeader"><div>'
+      + `<div class="hdrTitle">Area of a Trapezium${key ? " — ANSWERS" : ""}</div>`
+      + `<div class="hdrSub">${key ? "Answer key · " : ""}${esc(levelLabel(opts))} · MA4-ARE-C-01</div></div>`
+      + (!key && opts.name ? '<div class="nameDate"><div class="lineField"><span class="lineLabel">Name</span><span class="lineBox"></span></div>'
+        + '<div class="lineField"><span class="lineLabel">Date</span><span class="lineBox"></span></div></div>' : "")
+      + `</div><div class="sheet">${inner}</div>`
+      + `<div class="pageFooter"><span>Page ${no} of ${total}</span><span><a href="${SITE}">www.millsmathstools.au</a></span></div></section>`;
+  }
+
+  /* ---------------------------------------------------------- build */
+  function readOpts(){
+    const density = $("densitySel").value;
+    const levels = LV.map(l => l.k).filter(k => $("lv" + k).checked);
+    const kinds = KIND_IDS.filter(([id]) => $(id).checked).map(([, k]) => k);
+    return {
+      levels:levels.length ? levels : ["mild"], kinds:kinds.length ? kinds : ["iso"], density, cols:COLS[density], bw:$("colourSel").value === "bw",
+      slant:$("slantSel").value, turn:$("turnSel").value, grid:$("gridSel").value === "on", units:$("unitSel").value, work:$("workSel").value,
+      exMethod:$("exMethodSel").value, example:$("exToggle").checked, formula:$("formulaToggle").checked, name:$("nameToggle").checked, key:$("keyToggle").checked
+    };
+  }
+  function buildQuestions(opts){
+    const used = new Set(), groups = [];
+    let num = 0, total = 0;
+    TYPES.forEach(T => {
+      if(!$("k" + T.k).checked) return;
+      const n = Math.max(0, Math.min(30, parseInt($("n" + T.k).value, 10) || 0));
+      if(!n) return;
+      const ks = bag(opts.kinds, n), qs = [];
+      for(let i = 0; i < n; i++){ const q = makeQ(T, levelAt(opts.levels, i, n), i, n, ks[i], opts, used); if(q) qs.push(q); }
+      total += qs.length;
+      groups.push({ T, qs });
+    });
+    if(!total) return { error:"Tick at least one problem type and give it a number of questions." };
+    groups.forEach(g => g.qs.forEach(q => { q.n = ++num; }));
+    return { groups };
+  }
+  /* MEASURED, THEN PACKED: every row of cards is drawn into a real page off screen and its height read back */
+  function measureAndPack(groups, opts, key){
+    const m = $("measure");
+    m.innerHTML = pageHTML("", opts, key, 1, 1);
+    const sheet = m.querySelector(".sheet");
+    const cs = getComputedStyle(sheet);
+    const room = sheet.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - 2;
+    let stripH = 0;
+    if(opts.example && !key){ sheet.innerHTML = exampleHTML(opts); stripH = sheet.firstElementChild.getBoundingClientRect().height + 3 * PX_MM; sheet.innerHTML = ""; }
+    const units = [];
+    groups.forEach(g => {
+      const sec = document.createElement("div"); sec.className = "section";
+      sec.innerHTML = secHeadHTML(g, true, opts);
+      sheet.appendChild(sec);
+      const headH = sec.getBoundingClientRect().height + 3 * PX_MM;
+      const gc = colsFor(g, opts), rows = [];
+      for(let i = 0; i < g.qs.length; i += gc) rows.push(g.qs.slice(i, i + gc));
+      rows.forEach(r => {
+        const grid = document.createElement("div");
+        grid.className = "qGrid"; grid.style.setProperty("--cols", gc);
+        grid.innerHTML = r.map(q => cardHTML(q, q.n, opts, key)).join("");
+        sec.appendChild(grid);
+        const h = grid.getBoundingClientRect().height + 3 * PX_MM;
+        grid.remove();
+        units.push({ g, row:r, h, headH });
+      });
+      sec.remove();
+    });
+    m.innerHTML = "";
+    const pages = [];
+    let cur = [], used = stripH, lastG = null;
+    units.forEach(u => {
+      const cost = (lastG === u.g ? 0 : u.headH) + u.h;
+      if(cur.length && used + cost > room){ pages.push(cur); cur = []; used = 0; lastG = null; }
+      used += (lastG === u.g ? 0 : u.headH) + u.h; cur.push(u); lastG = u.g;
+    });
+    if(cur.length) pages.push(cur);
+    pages.left = pages.map((pu, i) => {
+      let u2 = i === 0 && opts.example && !key ? stripH : 0, l2 = null;
+      pu.forEach(u => { u2 += (l2 === u.g ? 0 : u.headH) + u.h; l2 = u.g; });
+      return room - u2;
+    });
+    return pages;
+  }
+  /* a different "Your turn" on each page that has room */
+  const YT = [
+    "Draw a trapezium with parallel sides of 4 and 8 units and a height of 3. Show where to cut it and how the corners swing round to make a rectangle. How long is the rectangle?",
+    "Draw two copies of a trapezium side by side to make a parallelogram. Label its base and height. What fraction of it is one trapezium?",
+    "How many different trapeziums with an area of 24 square units can you draw? Use whole-number sides and heights. Which one is closest to a rectangle?",
+    "A trapezium has parallel sides of 6 and 6. What shape is it? Does ½ × (a + b) × h still give its area? Explain.",
+    "The top of a trapezium shrinks to 0. What shape is left? What does ½ × (a + b) × h turn into?"
+  ];
+  function yourTurnHTML(px, n){
+    const drawPx = Math.max(18 * PX_MM, Math.min(110 * PX_MM, px - 24 * PX_MM));
+    return `<div class="yourTurn"><div class="ytHead"><span class="star">★</span>Your turn</div><div class="ytText">${YT[n % YT.length]}</div>`
+      + `<div class="drawBox" style="--drawH:${drawPx.toFixed(0)}px"></div></div>`;
+  }
+  function pagesHTML(pages, opts, key){
+    const seen = new Set(); let ytN = 0;
+    return pages.map((pu, i) => {
+      let inner = (i === 0 && opts.example && !key) ? exampleHTML(opts) : "";
+      let lastG = null, open = false;
+      pu.forEach(u => {
+        if(u.g !== lastG){
+          if(open) inner += "</div>";
+          inner += '<div class="section">' + secHeadHTML(u.g, seen.has(u.g), opts);
+          seen.add(u.g); open = true; lastG = u.g;
+        }
+        inner += `<div class="qGrid" style="--cols:${colsFor(u.g, opts)}">` + u.row.map(q => cardHTML(q, q.n, opts, key)).join("") + "</div>";
+      });
+      if(open) inner += "</div>";
+      if(!key && pages.left[i] > 44 * PX_MM) inner += yourTurnHTML(pages.left[i] - 4 * PX_MM, ytN++);
+      return inner;
+    }).map((inner, i, all) => pageHTML(inner, opts, key, i + 1, all.length)).join("");
+  }
+
+  let LAST = null;
+  /* settings that change WHAT is asked re-roll; settings that change how it looks don't */
+  const sigOf = o => [o.levels.join(), o.kinds.join(), o.slant, o.turn, o.work].join("|");
+  function generate(reroll){
+    const opts = readOpts();
+    if(reroll || !LAST || LAST.sig !== sigOf(opts)){
+      const b = buildQuestions(opts);
+      if(b.error){ $("out").innerHTML = `<p class="note warn">${esc(b.error)}</p>`; LAST = null; return; }
+      b.sig = sigOf(opts);
+      LAST = b;
+    }
+    const pages = measureAndPack(LAST.groups, opts, false);
+    let html = pagesHTML(pages, opts, false);
+    if(opts.key) html += pagesHTML(measureAndPack(LAST.groups, opts, true), opts, true);
+    $("out").innerHTML = html;
+    fitPass();
+  }
+  function fitPass(){
+    document.querySelectorAll("#out .qCard").forEach(c => {
+      const t = c.querySelector(".qTop"); if(!t) return;
+      let guard = 0;
+      while(t.scrollWidth > t.clientWidth + 1 && guard++ < 14){
+        t.querySelectorAll(".expr, .word, .fluAns").forEach(e => { e.style.fontSize = (parseFloat(getComputedStyle(e).fontSize) * .93) + "px"; });
+      }
+    });
+    document.querySelectorAll("#out .page").forEach(p => {
+      const yt = p.querySelector(".yourTurn"); if(!yt) return;
+      const sb = p.querySelector(".sheet").getBoundingClientRect().bottom;
+      const over = yt.getBoundingClientRect().bottom - sb;
+      if(over > -2){
+        const db = yt.querySelector(".drawBox");
+        const h = db.getBoundingClientRect().height - over - 6;
+        if(h < 50) yt.remove(); else db.style.setProperty("--drawH", h + "px");
+      }
+    });
+  }
+
+  /* ---------------------------------------------------------- controls */
+  function buildLevels(){
+    $("lvChips").innerHTML = LV.map(l =>
+      `<label class="lvChip" style="--lc:${l.col}"><input type="checkbox" id="lv${l.k}" value="${l.k}"${l.k === "mild" ? " checked" : ""} /><span class="dot"></span><span class="txt">${esc(l.name)}<small>${esc(l.ex)}</small></span></label>`).join("");
+    LV.forEach(l => $("lv" + l.k).addEventListener("change", e => {
+      if(!LV.some(x => $("lv" + x.k).checked)) e.target.checked = true;
+      generate(true);
+    }));
+    document.querySelectorAll(".quick button").forEach(b => b.addEventListener("click", () => {
+      const set = new Set(b.dataset.quick.split(","));
+      LV.forEach(l => { $("lv" + l.k).checked = set.has(l.k); });
+      generate(true);
+    }));
+  }
+  function buildTypeGrid(){
+    $("typeGrid").innerHTML = TYPES.map(T =>
+      `<div class="typeOpt${T.off ? "" : " on"}" id="opt${T.k}" style="--tc:${T.col}">`
+      + `<div class="typeTop"><span class="typeLetter">${T.k}</span>`
+      + `<label class="sw"><input type="checkbox" id="k${T.k}"${T.off ? "" : " checked"} /><span class="track"></span><span>${esc(T.title)}</span></label></div>`
+      + `<p class="typeDesc">${esc(T.desc)}</p>`
+      + `<div class="typeEx"><span class="exLab">e.g.</span>${T.ex()}</div>`
+      + `<div class="cntRow"><label for="n${T.k}">How many</label><input id="n${T.k}" type="number" min="0" max="30" value="${T.n}" /></div>`
+      + "</div>").join("");
+    TYPES.forEach(T => {
+      const box_ = $("k" + T.k), cnt = $("n" + T.k), opt = $("opt" + T.k);
+      box_.addEventListener("change", () => {
+        if(box_.checked && !(parseInt(cnt.value, 10) > 0)) cnt.value = T.n;
+        opt.classList.toggle("on", box_.checked); totals(); generate(true);
+      });
+      cnt.addEventListener("change", () => {
+        const v = parseInt(cnt.value, 10) || 0;
+        box_.checked = v > 0; opt.classList.toggle("on", v > 0); totals(); generate(true);
+      });
+    });
+  }
+  function totals(){
+    let t = 0;
+    TYPES.forEach(T => { if($("k" + T.k).checked) t += Math.max(0, parseInt($("n" + T.k).value, 10) || 0); });
+    $("totalPill").textContent = t + (t === 1 ? " question" : " questions");
+  }
+  function kindGuard(e){
+    if(!KIND_IDS.some(([id]) => $(id).checked)) e.target.checked = true;
+    generate(true);
+  }
+  function reset(){
+    LV.forEach(l => { $("lv" + l.k).checked = l.k === "mild"; });
+    KIND_IDS.forEach(([id]) => { $(id).checked = true; });
+    $("slantSel").value = "some"; $("turnSel").value = "never"; $("gridSel").value = "on"; $("unitSel").value = "cm";
+    $("workSel").value = "answer"; $("exMethodSel").value = "both"; $("densitySel").value = "normal"; $("colourSel").value = "colour";
+    ["exToggle", "formulaToggle", "nameToggle"].forEach(id => { $(id).checked = true; });
+    $("keyToggle").checked = false;
+    TYPES.forEach(T => { $("k" + T.k).checked = !T.off; $("n" + T.k).value = T.n; $("opt" + T.k).classList.toggle("on", !T.off); });
+    totals();
+    generate(true);
+  }
+
+  buildLevels(); buildTypeGrid(); totals();
+  KIND_IDS.forEach(([id]) => $(id).addEventListener("change", kindGuard));
+  ["slantSel", "turnSel", "workSel"].forEach(id => $(id).addEventListener("change", () => generate(true)));
+  ["gridSel", "unitSel", "densitySel", "colourSel", "exMethodSel", "exToggle", "formulaToggle", "nameToggle", "keyToggle"].forEach(id => $(id).addEventListener("change", () => generate(false)));
+  $("genBtn").addEventListener("click", () => generate(true));
+  $("printBtn").addEventListener("click", () => window.print());
+  $("resetBtn").addEventListener("click", reset);
+  const go = () => generate(true);
+  if(document.fonts && document.fonts.ready) document.fonts.ready.then(go); else go();
+
+  window.__WS__ = { generate, readOpts, get last(){ return LAST; }, TYPES, makeQ, shape, LV, trapSVG, trapArea, trapKind, mkTrap };
+})();
+</script>
+</body>
+</html>

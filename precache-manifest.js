@@ -1,6 +1,6 @@
 /* Written by tools/build-pwa.mjs — do not edit by hand. */
 self.MMT_PRECACHE = {
- "version": "f7b671f5d7",
+ "version": "d4f36b0e80",
  "files": [
   "./",
   "assessment/exam-builder/app.js",
@@ -937,6 +937,9 @@ self.MMT_PRECACHE = {
   "online-quizzes/stage-4/measurement-space/area-of-a-parallelogram-quiz/quiz.css",
   "online-quizzes/stage-4/measurement-space/area-of-a-parallelogram-quiz/quiz.js",
   "online-quizzes/stage-4/measurement-space/area-of-a-parallelogram.html",
+  "online-quizzes/stage-4/measurement-space/area-of-a-trapezium-quiz/quiz.css",
+  "online-quizzes/stage-4/measurement-space/area-of-a-trapezium-quiz/quiz.js",
+  "online-quizzes/stage-4/measurement-space/area-of-a-trapezium.html",
   "online-quizzes/stage-4/measurement-space/area-of-a-triangle-quiz/quiz.css",
   "online-quizzes/stage-4/measurement-space/area-of-a-triangle-quiz/quiz.js",
   "online-quizzes/stage-4/measurement-space/area-of-a-triangle.html",
@@ -1051,6 +1054,7 @@ self.MMT_PRECACHE = {
   "worksheet-creators/stage-4/measurement-space/angle-relationships/border_page0.png",
   "worksheet-creators/stage-4/measurement-space/angle-relationships/index.html",
   "worksheet-creators/stage-4/measurement-space/area-of-a-parallelogram.html",
+  "worksheet-creators/stage-4/measurement-space/area-of-a-trapezium.html",
   "worksheet-creators/stage-4/measurement-space/area-of-a-triangle.html",
   "worksheet-creators/stage-4/measurement-space/length/index.html",
   "worksheet-creators/stage-4/measurement-space/perimeter-area-rectangle.html",

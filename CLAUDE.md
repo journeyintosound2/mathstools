@@ -107,11 +107,45 @@
 > tools draw exactly what they drew before (314 frames compared with the old files, within half a pixel); ON: no
 > number, NaN or units on any board label over every step of every mode; trapezium layout audit 16,000 frames clean.
 >
+> **NEW (2026-11-16, later): AREA OF A TRAPEZIUM — STUDENT QUIZ + WORKSHEET GENERATOR.**
+> Quiz shell `online-quizzes/stage-4/measurement-space/area-of-a-trapezium.html`, engine
+> `area-of-a-trapezium-quiz/quiz.js` + `quiz.css` (css = the triangle quiz's + methSeg; bump BOTH `?v=` in the
+> shell). Worksheet `worksheet-creators/stage-4/measurement-space/area-of-a-trapezium.html` (single file, the
+> parallelogram generator's frame). Registry `area-of-a-trapezium-quiz` / `area-of-a-trapezium-student-quiz`,
+> masteryTopic `area-of-a-trapezium`; toolLinks Student quiz + Worksheet maker rows under MA4-ARE-C-01
+> (`trapeziums-rhombuses-kites`); toolFamilies row; homepage mini cards (Worksheet pill 37 → 38, Quiz 43 → 44).
+> * **ONE SHAPE MAKER + ONE DIAGRAM, IN BOTH FILES:** `mkTrap(L, kind, o, used)` and `trapSVG(s, o)` (mm, or px with
+>   `o.px`) are pasted into quiz.js and the worksheet — change one, re-copy. Kinds iso / right / lean / plain
+>   (`trapKind`). Rules: a ≥ b/4, h between .28b and 1.15b (no slivers), and **no echo** — the answer (area,
+>   average, (a+b)h) is never equal to a length on the drawing. **An isosceles trapezium on whole numbers always
+>   has an even a + b, so it can NEVER have a half area** — ask for `areaHalf` only on other kinds. Sloping side
+>   distractor from TRIPLES (`slant:{side,len}`); `turn` draws the parallel sides up the page.
+>   `trapSVG` `show:"avg"` draws the cuts at the middles, curved swing arrows and the dashed rectangle;
+>   `show:"para"` the dashed turned copy with its labels. Grid only on upright, whole, nothing-missing shapes.
+> * **Quiz levels (10 questions):** Sweet (b ≤ 10, h ≤ 6, average a whole number) and Mild (to 12, whole areas) keep
+>   the teaching tool's model in the panel — Average base OR Two copies, a switch in the board head
+>   (`#methSeg`), stepped with Show me, never marked, never showing the answer (an "average" question shows "?"
+>   in the pill until settled). Medium (to 14, halves, sloping sides, turned) and Spicy (to 20, missing height or
+>   parallel side, a "multiplied the parallel sides" mistake) are plain diagrams. types[] trap-avg / trap-para /
+>   trap-area / trap-missing / trap-mistake as right/total + level:x (labels in quizInsights SKILL_LABELS).
+>   Test surface `window.__ZQ__`.
+> * **Worksheet:** A Average base (drawn swing; fill "(_ + _) ÷ 2 =" then "Area = _ × _") · B Half a parallelogram
+>   (drawn copy; base, parallelogram, half) · C Find the area · D Work backwards (height, or from Medium a
+>   parallel side; whole answers) · E Spot the mistake (forgot to halve / used the sloping side / multiplied the
+>   parallel sides / used only one side) · F Draw your own (given area, two ways) · G Fluency (off). Options:
+>   level tick-chips (ladder), the four kinds (one stays on), sloping side never/sometimes/often, turned
+>   never/some/most (C–E only), unit squares, answer space in C, units, worked example avg/para/both with the
+>   formula toggle, spacing, colour/B&W, name/date, key with one-line reasons. `window.__WS__`.
+> * Verified: quiz 1,000 papers (ranges, kinds, no echo, 0 fallbacks) + 573 play checks (every level, both
+>   stories, no answer early, first-check scoring, payload, fit 1366/390); worksheet 1,680 questions re-derived
+>   and 54 papers at 18 configurations (nothing past a page or card, key mirrors the paper with every answer
+>   re-derived, no answers on student pages), PDF pages = preview.
+>
 > **NEW (2026-11-16): AREA OF A TRAPEZIUM — new teaching tool** at
 > `interactive-tools/stage-4/measurement-space/area-of-a-trapezium/index.html`, on the triangle tool's shell
 > (same CSS, colours, slide-then-turn `flipPoly`, rows count + label box, Back plays every animation in reverse).
 > Under **MA4-ARE-C-01** idea `trapeziums-rhombuses-kites`, homepage Interactive card (pill 40 → 41), linked
-> from the triangle and parallelogram tools' Tools menus; its own Tools menu has Worksheet / Quiz greyed.
+> from the triangle and parallelogram tools' Tools menus; its own Tools menu links the worksheet and quiz below.
 > * Model: base b on the x-axis 0..b, top a from (p, h) to (p + a, h), a ≤ b − 1. `pRange()` keeps a top corner
 >   over the base (p ≥ 1 − a, p ≤ b − 1) and the lean ≤ `over()`: that is what makes Average base valid for EVERY
 >   allowed shape (verified 3,240 shapes). Handles: top-left (slide top + height), top-right (top length), base end.

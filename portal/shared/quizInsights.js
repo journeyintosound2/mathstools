@@ -33,7 +33,7 @@ export const SKILL_LABELS = {
   "fa-unit": "One part (unit fractions)", "fa-nonunit": "More than one part", "fa-same": "Which is the same? (equivalent forms)", "fa-whole": "Back to the whole", "fa-word": "Fraction of an amount word problems",
   "pa-rect": "Rectangles and squares", "pa-para": "Parallelograms and rhombuses", "pa-diag": "Rhombuses from their diagonals", "pa-missing": "Find a missing base or height", "pa-diag-missing": "Find a missing diagonal",
   // area of a triangle quiz (2026-11-01)
-  "tri-rect": "The rectangle it is half of", "tri-area": "Find the area", "tri-area-obtuse": "Find the area (obtuse)", "tri-missing": "Find a missing length", "tri-mistake": "Spot the mistake",
+  "tri-rect": "The rectangle it is half of", "tri-area": "Find the area", "tri-area-obtuse": "Find the area (obtuse)", "tri-missing": "Find a missing length", "tri-mistake": "Spot the mistake", "trap-avg": "Average of the parallel sides", "trap-para": "Half a parallelogram", "trap-area": "Find the area", "trap-missing": "Find a missing length", "trap-mistake": "Spot the mistake",
   // area model quizzes
   pieces: "Products of the pieces", backwards: "Missing numbers (working backwards)", composite: "Cut-out shapes", reasoning: "Reasoning about splits",
   type1: "Share a total", type2: "One share is known", type3: "The difference is known", onepart: "Finding one part",

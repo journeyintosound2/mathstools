@@ -1032,6 +1032,22 @@ window.MMT_TOOL_LINKS = {
       tags: ["area", "trapeziums", "average of the parallel sides", "half a parallelogram", "half the sum of the parallel sides times the height", "derivation", "rearrangement", "midline", "visual"]
     },
     {
+      title: "Area of a Trapezium (Student Quiz)",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-4/measurement-space/area-of-a-trapezium.html",
+      ideas: ["trapeziums-rhombuses-kites"],
+      note: "Ten questions, one answer each. On Sweet and Mild the trapezium is the teaching tool's model students can step through (average base or two copies); Medium and Spicy add sloping-side distractors, turned trapeziums, halves and a missing height or parallel side. Saves to the student dashboard.",
+      tags: ["quiz", "area", "trapeziums", "average of the parallel sides", "half a parallelogram", "perpendicular height", "missing length", "spot the mistake", "sweet mild medium spicy", "student code login", "teacher dashboard"]
+    },
+    {
+      title: "Area of a Trapezium — Worksheet Generator",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-4/measurement-space/area-of-a-trapezium.html",
+      ideas: ["trapeziums-rhombuses-kites"],
+      note: "Differentiated A4 sheets from the trapezium teaching tool: average base and half a parallelogram drawn in, find the area, work backwards, spot the mistake, draw your own and fluency. Number levels as a ladder; choose isosceles, right-angled, leaning or neither; a sloping side as a distractor; turned trapeziums; unit squares; answer key with reasons.",
+      tags: ["worksheet generator", "printable", "area", "trapeziums", "average of the parallel sides", "half a parallelogram", "perpendicular height", "missing length", "spot the mistake", "differentiated", "answer key"]
+    },
+    {
       title: "Area Model \u2014 Multiplication (Student Quiz)",
       kind: "Student quiz",
       url: "/online-quizzes/stage-4/measurement-space/area-model.html",
