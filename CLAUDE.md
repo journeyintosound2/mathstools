@@ -96,6 +96,32 @@
 > §2 "TWO folders", §3 deploy paths and §5's `mathstools-main 2` heading below
 > describe the OLD layout — this block supersedes them.
 >
+> **NEW (2026-11-16): AREA OF A TRAPEZIUM — new teaching tool** at
+> `interactive-tools/stage-4/measurement-space/area-of-a-trapezium/index.html`, on the triangle tool's shell
+> (same CSS, colours, slide-then-turn `flipPoly`, rows count + label box, Back plays every animation in reverse).
+> Under **MA4-ARE-C-01** idea `trapeziums-rhombuses-kites`, homepage Interactive card (pill 40 → 41), linked
+> from the triangle and parallelogram tools' Tools menus; its own Tools menu has Worksheet / Quiz greyed.
+> * Model: base b on the x-axis 0..b, top a from (p, h) to (p + a, h), a ≤ b − 1. `pRange()` keeps a top corner
+>   over the base (p ≥ 1 − a, p ≤ b − 1) and the lean ≤ `over()`: that is what makes Average base valid for EVERY
+>   allowed shape (verified 3,240 shapes). Handles: top-left (slide top + height), top-right (top length), base end.
+> * **Average base** (keys 1): cut — middles of the sloping sides get a pin and equal-halves ticks, scissors cut
+>   straight down (or up for an overhang) through them; swing — each corner piece turns half a turn about its
+>   middle point, always round the OUTSIDE (`sign`), the piece's tick lands on the other half's tick; average — a
+>   drops and b rises to halfway up, they meet and the number halfway between pops out and drops to the base
+>   (blue dashed midline = the rectangle's length); rows; **same** — the corners swing back, "Rectangle" becomes
+>   "Trapezium" with the same number. A rectangle starting half a square across (p odd) fades the background
+>   grid while it is counted and the last cell is a half.
+> * **Half a parallelogram** (key 2): copy slides then turns onto the RIGHT sloping side (Jeff's sketch); the
+>   two bottom labels b and the copy's a slide together, "+", pop into a + b; chop at the edge of the base
+>   (`strips()`, as the triangle's Two copies); rows; **halve** — number splits, the piece slides back and the
+>   copy fades to a ghost: ends on the trapezium with "Trapezium = …".
+> * The height starts at a vertical side or a top corner (label inside), and glides to the rectangle's LEFT side
+>   (`hEnd`) so the right stays free for the label; `anchorX()` places the label beside the shape's width halfway
+>   up, not its widest point. Statement with Show the calculation: (a + b)/2 × h or ½ × (a + b) × h.
+> * localStorage `mmt.trapArea.v1`; test surface `window.__TRAP__`. Verified (Playwright): geometry of 3,240
+>   shapes in both modes, 16,000 frames at 5 viewports with no label off the board or on another label, 38
+>   behaviour checks (real animations, Back, drags, steppers, presets, settings, save/restore, no scroll).
+>
 > **NEW (2026-11-11): AREA OF A TRIANGLE TOOL — TWO AREA STEPS AT THE END OF EVERY MODE.**
 > `interactive-tools/stage-4/measurement-space/area-of-a-triangle/index.html`. All three modes end on the same
 > base × height rectangle, so `steps()` = `storySteps()` + `areaSteps()`: **Count the squares, row by row**

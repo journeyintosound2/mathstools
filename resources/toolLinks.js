@@ -1024,6 +1024,14 @@ window.MMT_TOOL_LINKS = {
       tags: ["area", "triangles", "rectangles", "parallelograms", "half base times height", "derivation", "obtuse", "same base same height", "visual"]
     },
     {
+      title: "Area of a Trapezium",
+      kind: "Teacher tool",
+      url: "/interactive-tools/stage-4/measurement-space/area-of-a-trapezium/",
+      ideas: ["trapeziums-rhombuses-kites"],
+      note: "Two animated reasons for the trapezium's area. Average base: cut at the middle of each sloping side and swing the corners round into a rectangle as long as the average of the parallel sides. Half a parallelogram: a turned copy makes a parallelogram with base a + b, chopped into the rectangle and halved. Both count the rows and come back to the trapezium. Isosceles, right-angled and leaning trapeziums; the formula stays hidden unless the teacher turns it on.",
+      tags: ["area", "trapeziums", "average of the parallel sides", "half a parallelogram", "half the sum of the parallel sides times the height", "derivation", "rearrangement", "midline", "visual"]
+    },
+    {
       title: "Area Model \u2014 Multiplication (Student Quiz)",
       kind: "Student quiz",
       url: "/online-quizzes/stage-4/measurement-space/area-model.html",
