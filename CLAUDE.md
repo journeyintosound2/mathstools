@@ -96,6 +96,17 @@
 > §2 "TWO folders", §3 deploy paths and §5's `mathstools-main 2` heading below
 > describe the OLD layout — this block supersedes them.
 >
+> **NEW (2026-11-16, later): FORMULA MODE in the trapezium, triangle and parallelogram tools.** Settings →
+> Formula mode (`S.set.formula`, saved; off by default). Every length label becomes a letter (trapezium a, b, h;
+> triangle and parallelogram b, h; Rectangle mode l and b; rhombus diagonals x and y, half of one ½y — the NSW
+> formula-sheet letters), units drop out (`U()`/`U2()` return ""), the panel steps and the label beside the shape
+> build the expression ("Rectangle = (a + b) × h" → "Trapezium = ½ × (a + b) × h"), and the statement line shows
+> "Area = ?" until the last step, then the formula. Letters are maths italics (`.app.fm`). The pictures (cuts,
+> slides, rows lighting up) are unchanged; the parallelogram tool's running totals and counting digits hide.
+> Done with `sym(letter, number)` and a `fmt` that passes strings through. Verified: with Formula mode OFF all three
+> tools draw exactly what they drew before (314 frames compared with the old files, within half a pixel); ON: no
+> number, NaN or units on any board label over every step of every mode; trapezium layout audit 16,000 frames clean.
+>
 > **NEW (2026-11-16): AREA OF A TRAPEZIUM — new teaching tool** at
 > `interactive-tools/stage-4/measurement-space/area-of-a-trapezium/index.html`, on the triangle tool's shell
 > (same CSS, colours, slide-then-turn `flipPoly`, rows count + label box, Back plays every animation in reverse).

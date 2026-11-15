@@ -264,6 +264,9 @@
     }
     @media print{ .mmtTopbar,.side .stepRow,.hint,.iconGroup{ display:none; } }
     .cA{ color:var(--purple-dark); }
+    .ans.fm{ display:inline-flex; align-items:center; gap:0 .28em; margin-left:.12em; }
+    /* formula mode: the letters are set in maths italics, as in a textbook */
+    .app.fm #board text, .app.fm .cA, .app.fm .cB, .app.fm .cH, .app.fm .sLine .ansV, .app.fm .hint .eq{ font-style:italic; }
     .stepper.a input{ color:var(--purple-dark); }
     .typeTag.plain{ color:var(--line); background:#f1f5f9; border-color:var(--border); }
     .toolLink.soon{ opacity:.45; cursor:default; }
@@ -305,6 +308,8 @@
             </label>
             <div class="settingsRule" role="separator"></div>
             <div class="settingsHead">On screen</div>
+            <label class="sw"><input type="checkbox" id="formulaToggle"><span class="track"></span><span>Formula mode</span></label>
+            <p class="settingsNote">Letters instead of numbers: the sides are labelled <i>a</i> and <i>b</i> (the parallel sides) and <i>h</i>, and the steps build the formula instead of an answer.</p>
             <label class="sw"><input type="checkbox" id="gridToggle" checked><span class="track"></span><span>Show the unit squares</span></label>
             <label class="sw"><input type="checkbox" id="calcToggle"><span class="track"></span><span>Show the calculation</span></label>
             <p class="settingsNote">Off, no formula appears anywhere on screen &mdash; the class works out where the average (or the half) comes from first. On, the formula sits above the board and the area waits behind a <b>?</b> until the last step.</p>
@@ -429,7 +434,10 @@
   const easeBack = t => { const c = 1.9; return 1 + (c + 1) * Math.pow(t - 1, 3) + c * Math.pow(t - 1, 2); };
   const span01 = (v, r) => clamp((v - r[0]) / (r[1] - r[0]), 0, 1);
   const lerp = (p, q, u) => p + (q - p) * u;
-  const fmt = n => { const r = Math.round(n * 100) / 100; return String(r); };
+  const fmt = n => { if(typeof n === "string") return n; const r = Math.round(n * 100) / 100; return String(r); };
+  /* Formula mode: letters instead of numbers (sym returns the letter, or the number) */
+  const FM = () => !!S.set.formula;
+  const sym = (letter, v) => FM() ? letter : v;
   const B_MIN = 3, B_MAX = 16, H_MIN = 1, H_MAX = 12;
 
   /* THE IDEA THIS TOOL IS BUILT AROUND
@@ -457,7 +465,7 @@
     anim:null,
     revealed:false,
     drag:null, frozen:null,
-    set:{ grid:true, calc:false, units:"", panel:true, kind:"any", colour:"green" },
+    set:{ grid:true, calc:false, units:"", panel:true, kind:"any", colour:"green", formula:false },
     fs:false
   };
   const STORE = "mmt.trapArea.v1";
@@ -590,28 +598,32 @@
   const hRight = () => { const s = hStart(); return (s.edge && s.side === 1) || hEnd().side === 1; };
 
   /* ------------------------------------------------------------ the steps */
-  const U = () => S.set.units ? " " + S.set.units : "";
-  const U2 = () => S.set.units ? " " + S.set.units + "²" : "";
+  const U = () => S.set.units && !FM() ? " " + S.set.units : "";
+  const U2 = () => S.set.units && !FM() ? " " + S.set.units + "²" : "";
+  /* the letters for each length on show */
+  const sA = () => sym("a", S.a), sB = () => sym("b", S.b), sH = () => sym("h", S.h);
+  const sW = () => S.mode === "avg" ? sym("½(a + b)", avgW()) : sym("a + b", sumB());   /* the rectangle's length */
+  const sWx = () => S.mode === "avg" ? sW() : sym("(a + b)", sumB());                  /* …written to be multiplied */
   const fracH = (n, d) => `<span class="frac"><span>${n}</span><span>${d}</span></span>`;
   const half = fracH("1", "2");
   const hB = v => `<span class="cB">${fmt(v)}</span>`, hH = v => `<span class="cH">${fmt(v)}</span>`, hA = v => `<span class="cA">${fmt(v)}</span>`;
   const W = s => `<span class="w">${s}</span>`;
-  const shapeName = () => rectW() === S.h ? "Square" : "Rectangle";
-  const ans = () => `<span class="ansV">${fmt(area())}</span>${W(U2())}`;
+  const shapeName = () => !FM() && rectW() === S.h ? "Square" : "Rectangle";
+  const ans = () => FM() ? "" : ` = <span class="ansV">${fmt(area())}</span>${W(U2())}`;
   function finalCalc(){
-    const { a, b, h } = S;
-    return S.mode === "avg" ? `${fracH(hA(a) + " + " + hB(b), "2")} × ${hH(h)} = ${ans()}` : `${half} × (${hA(a)} + ${hB(b)}) × ${hH(h)} = ${ans()}`;
+    const a = sA(), b = sB(), h = sH();
+    return S.mode === "avg" ? `${fracH(hA(a) + " + " + hB(b), "2")} × ${hH(h)}${ans()}` : `${half} × (${hA(a)} + ${hB(b)}) × ${hH(h)}${ans()}`;
   }
   function areaSteps(){
-    const { h } = S, w = rectW();
-    const rows = { t:"Count the squares, row by row", m:`${hB(w)} ${W(w === 1 ? "square in each row," : "squares in each row,")} ${hH(h)} ${W(h === 1 ? "row" : "rows")}`,
-      c:`${hB(w)} × ${hH(h)} = ${fmt(w * h)}${W(U2())}`, anim:"rows" };
+    const { h } = S, w = rectW(), sw = sW(), sh = sH();
+    const rows = { t:"Count the squares, row by row", m:`${hB(sw)} ${W(w === 1 && !FM() ? "square in each row," : "squares in each row,")} ${hH(sh)} ${W(h === 1 && !FM() ? "row" : "rows")}`,
+      c:`${hB(sWx())} × ${hH(sh)}${FM() ? "" : " = " + fmt(w * h) + W(U2())}`, anim:"rows" };
     if(S.mode === "avg") return [rows,
       { t:"Swing the corners back", m:W(`same pieces, so the trapezium has the same area as the ${shapeName().toLowerCase()}`), c:finalCalc(), anim:"same", fin:true }];
     return [rows, { t:"Halve it", m:W(`the trapezium is half of the ${shapeName().toLowerCase()}`), c:finalCalc(), anim:"halve", fin:true }];
   }
   function storySteps(){
-    const { a, b, h } = S, kd = kindOf();
+    const a = sA(), b = sB(), h = sH(), kd = kindOf();
     const first = { t:"The trapezium", m:`${W("parallel sides")} ${hA(a)} ${W("and")} ${hB(b)}${W(U())} &nbsp; ${W("height")} ${hH(h)}${W(U())}`,
       tip:kd === "lean" ? "A top corner hangs past the end of the base." : kd === "right" ? "One side is straight up — it is the height." : "" };
     if(S.mode === "avg"){
@@ -622,15 +634,15 @@
           m:W(n === 2 ? "two corner triangles come off" : "a corner triangle comes off"), anim:"cut" },
         { t:n === 2 ? "Swing each corner round the middle point" : "Swing the corner round the middle point",
           m:W(n === 2 ? "they fill the gaps — now it's a rectangle" : "it fills the gap — now it's a rectangle"), anim:"swing" },
-        { t:"How long is the rectangle?", m:`${W("halfway between")} ${hA(a)} ${W("and")} ${hB(b)} ${W("is")} ${hB(avgW())}`,
-          c:`(${hA(a)} + ${hB(b)}) ÷ 2 = ${hB(avgW())}${W(U())}`, anim:"avg", tip:"The top got longer and the base got shorter, by the same amount." }];
+        { t:"How long is the rectangle?", m:`${W("halfway between")} ${hA(a)} ${W("and")} ${hB(b)} ${W("is")} ${hB(sW())}`,
+          c:`(${hA(a)} + ${hB(b)}) ÷ 2 = ${hB(sW())}${W(U())}`, anim:"avg", tip:"The top got longer and the base got shorter, by the same amount." }];
     }
-    const n = cutsAt().length, B = sumB();
+    const n = cutsAt().length, B = sW(), Bx = sWx();
     return [first,
       { t:"Make a copy, slide it over and turn it", m:W("together they make a parallelogram"), anim:"copy" },
-      { t:"Its base is both parallel sides", m:`${hB(b)} + ${hA(a)} = ${hB(B)}${W(U())}`, anim:"merge", tip:"The copy is upside down, so its short side sits next to the long base." },
-      n ? { t:"Chop at the edge of the base and slide the piece across", m:`${W("now it's a")} ${hB(B)} × ${hH(h)} ${W(shapeName().toLowerCase())}`, anim:"chop" }
-        : { t:"It's already a rectangle", m:`${W("a")} ${hB(B)} × ${hH(h)} ${W(shapeName().toLowerCase())}` }];
+      { t:"Its base is both parallel sides", m:FM() ? `${hB(b)} + ${hA(a)}` : `${hB(b)} + ${hA(a)} = ${hB(B)}${W(U())}`, anim:"merge", tip:"The copy is upside down, so its short side sits next to the long base." },
+      n ? { t:"Chop at the edge of the base and slide the piece across", m:`${W("now it's a")} ${hB(Bx)} × ${hH(h)} ${W(shapeName().toLowerCase())}`, anim:"chop" }
+        : { t:"It's already a rectangle", m:`${W("a")} ${hB(Bx)} × ${hH(h)} ${W(shapeName().toLowerCase())}` }];
   }
   function steps(){ return storySteps().concat(areaSteps()); }
   let STEPS = steps();
@@ -835,6 +847,7 @@
   }
 
   function render(){
+    $("app").classList.toggle("fm", !!S.set.formula);
     STEPS = steps();
     if(S.step > STEPS.length - 1) S.step = STEPS.length - 1;
     if(!S.frozen && !S.anim) fitStacked();
@@ -917,7 +930,7 @@
 
   /* ----- the height: from a top corner (or a vertical side), then to the rectangle's side ----- */
   function drawHeight(P, G){
-    const { h } = S, f = fs(), s = P.hs, e = P.he, u = P.hg, x = lerp(s.x, e.x, u), lab = fmt(h) + U(), lw = pillW(lab, f);
+    const { h } = S, f = fs(), s = P.hs, e = P.he, u = P.hg, x = lerp(s.x, e.x, u), lab = fmt(sH()) + U(), lw = pillW(lab, f);
     const edgeNow = s.edge && u === 0;
     if(!edgeNow) seg([x, 0], [x, h], { stroke:C.alt, "stroke-width":2.5, "stroke-dasharray":"7 5" }, G.top);
     const lo = u > .5 ? rectX0() : 0, hi = u > .5 ? rectX0() + rectW() : S.b;
@@ -930,7 +943,7 @@
   /* ----- the parallel sides' labels, and how they morph ----- */
   function labelsAvg(P, G){
     const { a, b, h, p } = S, f = fs(), o = offB(), g = P.g, av = P.av;
-    const la = fmt(a) + U(), lb = fmt(b) + U(), lw = fmt(avgW()) + U();
+    const la = fmt(sA()) + U(), lb = fmt(sB()) + U(), lw = fmt(sW()) + U();
     const A0 = [L.X(p + a / 2), L.Y(h) - o], B0 = [L.X(b / 2), L.Y(0) + o];
     const mx = L.X((g.x1 + g.x2) / 2), my = L.Y(h / 2), wa = pillW(la, f), wb = pillW(lb, f);
     const Am = [mx - wa / 2 - 16, my], Bm = [mx + wb / 2 + 16, my];
@@ -956,7 +969,7 @@
   }
   function labelsPara(P, G){
     const { a, b, h, p } = S, f = fs(), o = offB(), k = P.k, B = sumB();
-    const la = fmt(a) + U(), lb = fmt(b) + U(), lB = fmt(B) + U();
+    const la = fmt(sA()) + U(), lb = fmt(sB()) + U(), lB = fmt(sW()) + U();
     const aT = [L.X(p + a / 2), L.Y(h) - o], bB = [L.X(b / 2), L.Y(0) + o];               /* the trapezium's */
     const aC = [L.X(b + a / 2), L.Y(0) + o], bC = [L.X(p + a + b / 2), L.Y(h) - o];       /* the copy's (upside down) */
     /* on a small board two labels on the same line can meet: push them apart evenly */
@@ -995,14 +1008,17 @@
   function areaLabels(){
     const { h } = S, calc = !!S.set.calc, w = rectW(), R = fmt(w * h);
     const word = x => ({ s:x, ui:true, fill:"#334155" }), m = (x, fill) => ({ s:x, fill:fill || "#0f172a" });
-    const times = nm => calc ? [word(nm), m(" = "), m(fmt(w), BLUE), m(" × "), m(fmt(h), ORANGE), m(" =")] : [word(nm), m(" =")];
+    const times = nm => calc && !FM() ? [word(nm), m(" = "), m(fmt(w), BLUE), m(" × "), m(fmt(h), ORANGE), m(" =")] : [word(nm), m(" =")];
+    if(FM()) return {
+      rect:{ pre:times("Rectangle"), num:`${sWx()} × h` },
+      fin: { pre:times("Trapezium"), num:S.mode === "avg" ? "½(a + b) × h" : "½ × (a + b) × h" } };
     return {
       rect:{ pre:times(shapeName()), num:R },
       fin: { pre:S.mode === "avg" ? times("Trapezium") : (calc ? [word("Trapezium"), m(" = " + R + " ÷ 2 =")] : [word("Trapezium"), m(" =")]), num:fmt(area()) } };
   }
   function richText(x, y, segs, f, g, extra){
     const t = el("text", Object.assign({ x, y, "font-size":f, "text-anchor":"start", "dominant-baseline":"central", style:"white-space:pre" }, extra || {}), g);
-    segs.forEach(sg => { const sp = el("tspan", { fill:sg.fill || "#0f172a" }, t); if(sg.ui) sp.setAttribute("style", "font-family:var(--uiFont);font-weight:800"); sp.textContent = sg.s; });
+    segs.forEach(sg => { const sp = el("tspan", { fill:sg.fill || "#0f172a" }, t); if(sg.ui) sp.setAttribute("style", "font-family:var(--uiFont);font-weight:800;font-style:normal"); sp.textContent = sg.s; });
     return t;
   }
   const mCache = new Map();
@@ -1022,7 +1038,7 @@
     const uw = u ? textW([{ s:u }], f * .8) + f * .3 : 0, pw = textW(lab.pre, f), nw = textW([{ s:lab.num }], f);
     return { pad, gap, pw, nw, uw, w:pad * 2 + pw + gap + nw + uw, h:f * 2.05 };
   }
-  const hLabW = f => pillW(fmt(S.h) + U(), f);
+  const hLabW = f => pillW(fmt(sH()) + U(), f);
   function boxRoom(compact){
     const f = boxFont(compact), lab = areaLabels();
     return 20 + (hRight() ? hLabW(compact ? 15 : 18) + 14 : 0) + Math.max(boxMetrics(lab.rect, f).w, boxMetrics(lab.fin, f).w);
@@ -1135,11 +1151,15 @@
     $("allBtn").disabled = done; $("againBtn").disabled = k === 0;
     /* the statement: (a + b)/2 × h, or ½ × (a + b) × h — whichever way is on the board */
     const show = S.revealed || (STEPS[k].fin && !S.anim), { a, b, h } = S;
-    $("stmt").hidden = !calc;
-    const lhs = S.mode === "avg" ? fracH(`${hA(a)} + ${hB(b)}`, "2") + `<span>×</span>${hH(h)}`
-      : `${half}<span>×</span><span>(${hA(a)} + ${hB(b)})</span><span>×</span>${hH(h)}`;
-    const stmt = `<span class="word">Area</span><span>=</span>${lhs}<span>=</span>`
-      + (show ? `<span class="ans">${fmt(area())}</span>${U2() ? `<span class="u">${U2()}</span>` : ""}` : `<button class="ansBtn" id="ansBtn" type="button" title="Show the area">?</button>`);
+    $("stmt").hidden = !calc && !FM();
+    const qa = sA(), qb = sB(), qh = sH();
+    const lhs = S.mode === "avg" ? fracH(`${hA(qa)} + ${hB(qb)}`, "2") + `<span>×</span>${hH(qh)}`
+      : `${half}<span>×</span><span>(${hA(qa)} + ${hB(qb)})</span><span>×</span>${hH(qh)}`;
+    const qBtn = `<button class="ansBtn" id="ansBtn" type="button" title="${FM() ? "Show the formula" : "Show the area"}">?</button>`;
+    /* formula mode: the formula itself is the answer, behind a ? until the end */
+    const stmt = FM() ? `<span class="word">Area</span><span>=</span>` + (show ? `<span class="ans fm">${lhs}</span>` : qBtn)
+      : `<span class="word">Area</span><span>=</span>${lhs}<span>=</span>`
+      + (show ? `<span class="ans">${fmt(area())}</span>${U2() ? `<span class="u">${U2()}</span>` : ""}` : qBtn);
     if(stmt !== lastStmt){ $("stmt").innerHTML = stmt; lastStmt = stmt; const ab = $("ansBtn"); if(ab) ab.addEventListener("click", () => { S.revealed = true; renderPanel(); }); }
     const kd = kindOf(), tag = $("typeTag");
     tag.className = "typeTag " + KIND_TAG[kd]; tag.textContent = KIND_NAME[kd];
@@ -1158,7 +1178,7 @@
       hint.innerHTML = `<b>${k + 1}. ${s.t}</b> &nbsp;<span class="eq">${s.m}${calc && s.c && s.fin ? " &nbsp; " + s.c : ""}</span>`;
     } else {
       const drag = S.step > 0 ? "go back to the start to change it" : "drag the top corners or the end of the base";
-      hint.innerHTML = `<b>${KIND_NAME[kd]}</b> · parallel sides <span class="eq">${fmt(a)}</span> and <span class="eq">${fmt(b)}</span> · ${drag}`;
+      hint.innerHTML = `<b>${KIND_NAME[kd]}</b> · parallel sides <span class="eq">${fmt(sA())}</span> and <span class="eq">${fmt(sB())}</span> · ${drag}`;
     }
     $("miniSteps").hidden = !(!S.set.panel || S.fs);
     document.querySelectorAll(".modeBtn").forEach(bt => bt.setAttribute("aria-selected", String(bt.dataset.mode === S.mode)));
@@ -1305,7 +1325,8 @@
   $("fsBtn").addEventListener("click", toggleFs);
 
   $("kindSel").value = S.set.kind; $("unitSel").value = S.set.units;
-  $("gridToggle").checked = !!S.set.grid; $("calcToggle").checked = !!S.set.calc;
+  $("gridToggle").checked = !!S.set.grid; $("calcToggle").checked = !!S.set.calc; $("formulaToggle").checked = !!S.set.formula;
+  $("formulaToggle").addEventListener("change", e => { S.set.formula = e.target.checked; S.revealed = false; mCache.clear(); save(); render(); });
   $("kindSel").addEventListener("change", () => { S.set.kind = $("kindSel").value; save(); randomTrap(); });
   $("unitSel").addEventListener("change", () => { S.set.units = $("unitSel").value; save(); render(); });
   $("gridToggle").addEventListener("change", e => { S.set.grid = e.target.checked; save(); render(); });

@@ -152,6 +152,9 @@
     .frac > span:first-child{ border-bottom:.08em solid currentColor; padding:0 .12em .06em; }
     .frac > span:last-child{ padding:.06em .12em 0; }
     .cB{ color:var(--blue-dark); } .cH{ color:var(--orange-dark); }
+    .ans.fm{ display:inline-flex; align-items:center; gap:0 .28em; margin-left:.12em; }
+    /* formula mode: the letters are set in maths italics, as in a textbook */
+    .app.fm #board text, .app.fm .cA, .app.fm .cB, .app.fm .cH, .app.fm .sLine .ansV, .app.fm .hint .eq{ font-style:italic; }
     .ansBtn{ appearance:none; font:inherit; color:var(--line-soft); background:#f1f5f9; border:1.5px dashed #cbd5e1; border-radius:12px;
       padding:0 .32em; cursor:pointer; line-height:1.1; min-width:1.4em; }
     .ansBtn:hover{ color:var(--blue-dark); border-color:var(--blue); background:#eef2ff; }
@@ -298,6 +301,8 @@
             </label>
             <div class="settingsRule" role="separator"></div>
             <div class="settingsHead">On screen</div>
+            <label class="sw"><input type="checkbox" id="formulaToggle"><span class="track"></span><span>Formula mode</span></label>
+            <p class="settingsNote">Letters instead of numbers: the sides are labelled <i>b</i> (base) and <i>h</i> (height), and the steps build the formula instead of an answer.</p>
             <label class="sw"><input type="checkbox" id="gridToggle" checked><span class="track"></span><span>Show the unit squares</span></label>
             <label class="sw"><input type="checkbox" id="calcToggle"><span class="track"></span><span>Show the calculation</span></label>
             <p class="settingsNote">Off, there is no &frac12; &times; base &times; height anywhere on screen &mdash; the class notices and wonders why it&rsquo;s half first. On, the formula sits above the board and the area waits behind a <b>?</b> until the last step.</p>
@@ -417,7 +422,10 @@
   const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
   const rnd = (lo, hi) => lo + Math.floor(Math.random() * (hi - lo + 1));
   const ease = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
-  const fmt = n => { const r = Math.round(n * 100) / 100; return Number.isInteger(r) ? String(r) : String(r); };
+  const fmt = n => { if(typeof n === "string") return n; const r = Math.round(n * 100) / 100; return String(r); };
+  /* Formula mode: letters instead of numbers (sym returns the letter, or the number) */
+  const FM = () => !!S.set.formula;
+  const sym = (letter, v) => FM() ? letter : v;
   const B_MIN = 2, B_MAX = 16, H_MIN = 1, H_MAX = 12;
 
   /* THE IDEA THIS TOOL IS BUILT AROUND
@@ -451,7 +459,7 @@
     slideFrom:null,                 /* where the top started before "slide" */
     revealed:false,
     drag:null, frozen:null,
-    set:{ grid:true, calc:false, units:"", panel:true, kind:"any", colour:"green" },
+    set:{ grid:true, calc:false, units:"", panel:true, kind:"any", colour:"green", formula:false },
     fs:false
   };
   const STORE = "mmt.triArea.v1";
@@ -515,28 +523,28 @@
   const cutsAt = () => { const ST = strips(); return paraInfo().d >= 0 ? ST.slice(1).map(s => s.lo) : ST.slice(0, -1).map(s => s.lo); };
 
   /* ------------------------------------------------------------ the steps */
-  const U = () => S.set.units ? " " + S.set.units : "";
-  const U2 = () => S.set.units ? " " + S.set.units + "²" : "";
+  const U = () => S.set.units && !FM() ? " " + S.set.units : "";
+  const U2 = () => S.set.units && !FM() ? " " + S.set.units + "²" : "";
+  const sB = () => sym("b", S.b), sH = () => sym("h", S.h);
   const half = `<span class="frac"><span>1</span><span>2</span></span>`;
   const hB = v => `<span class="cB">${fmt(v)}</span>`, hH = v => `<span class="cH">${fmt(v)}</span>`;
   const W = s => `<span class="w">${s}</span>`;
   /* each step: t title, m what to notice, c the calculation (only with "Show the calculation") */
-  const finalCalc = () => `${half} × ${hB(S.b)} × ${hH(S.h)} = <span class="ansV">${fmt(area())}</span>${W(U2())}`;
+  const finalCalc = () => `${half} × ${hB(sB())} × ${hH(sH())}` + (FM() ? "" : ` = <span class="ansV">${fmt(area())}</span>${W(U2())}`);
   /* the two steps every mode ends with: count the rectangle, then halve it */
-  const shapeName = () => S.b === S.h ? "Square" : "Rectangle";
+  const shapeName = () => !FM() && S.b === S.h ? "Square" : "Rectangle";
   function areaSteps(){
-    const { b, h } = S;
+    const { b, h } = S, one = n => n === 1 && !FM();
     return [
-      { t:"Count the squares, row by row", m:`${hB(b)} ${W(b === 1 ? "square in each row," : "squares in each row,")} ${hH(h)} ${W(h === 1 ? "row" : "rows")}`,
-        c:`${hB(b)} × ${hH(h)} = ${fmt(b * h)}${W(U2())}`, anim:"rows" },
+      { t:"Count the squares, row by row", m:`${hB(sB())} ${W(one(b) ? "square in each row," : "squares in each row,")} ${hH(sH())} ${W(one(h) ? "row" : "rows")}`,
+        c:`${hB(sB())} × ${hH(sH())}${FM() ? "" : " = " + fmt(b * h) + W(U2())}`, anim:"rows" },
       { t:"Halve it", m:W(`the triangle is half of the ${shapeName().toLowerCase()}`), c:finalCalc(), anim:"halve", fin:true } ];
   }
   function steps(){ return storySteps().concat(areaSteps()); }
   function storySteps(){
-    const { a, b, h } = S, w = where();
+    const a = S.a, b = sB(), h = sH(), w = where();
     const first = { t:"The triangle", m:`base ${hB(b)}${W(U())} &nbsp; height ${hH(h)}${W(U())}`,
       tip:w === "out" ? "The height is outside the triangle, so the base line is stretched to meet it." : w === "edge" ? "The height is one of the sides." : "" };
-    const rectC = `${hB(b)} × ${hH(h)} = ${fmt(b * h)}${W(U2())}`;
     if(S.mode === "rect"){
       if(w === "edge") return [ first,
         { t:"Mark the sloping side", m:W("a copy of the triangle will fit against it") },
@@ -683,6 +691,7 @@
     if(Math.abs(wrap.offsetHeight - want) > 2) wrap.style.height = want + "px";
   }
   function render(){
+    $("app").classList.toggle("fm", !!S.set.formula);
     STEPS = steps();
     if(S.step > STEPS.length - 1) S.step = STEPS.length - 1;
     if(!S.frozen && !S.anim) fitStacked();
@@ -843,10 +852,10 @@
     const { a, b, h } = S, f = fs();
     /* base */
     const yB = L.Y(0) + (L.compact ? 28 : 32);
-    pill(L.X(b / 2), yB, fmt(b) + U(), f, { color:"#1d4ed8", stroke:"#93c5fd", sw:2 }, sc.gLab);
+    pill(L.X(b / 2), yB, fmt(sB()) + U(), f, { color:"#1d4ed8", stroke:"#93c5fd", sw:2 }, sc.gLab);
     if(sc.alt){
       /* the height on its way to (or at) the rectangle's edge, right angle and all */
-      const { x, p, side } = sc.alt, lab = fmt(h) + U(), lw = Math.max(f * 1.7, tw(lab, f) + f * 1.05);
+      const { x, p, side } = sc.alt, lab = fmt(sH()) + U(), lw = Math.max(f * 1.7, tw(lab, f) + f * 1.05);
       seg([x, 0], [x, h], { stroke:C.alt, "stroke-width":2.5, "stroke-dasharray":"7 5" }, sc.gTop);
       const r = Math.min(13, h * L.s * .3), dir = p < .5 ? (S.a >= S.b ? -1 : 1) : (side === 1 ? -1 : 1), fx = L.X(x), fy = L.Y(0);
       el("path", { d:`M${fx + dir * r} ${fy}V${fy - r}H${fx}`, fill:"none", stroke:C.alt, "stroke-width":2, class:"noHit" }, sc.gTop);
@@ -864,7 +873,7 @@
     el("path", { d:`M${fx + dir * r} ${fy}V${fy - r}H${fx}`, fill:"none", stroke:w === "edge" ? C.triS : C.alt, "stroke-width":2, class:"noHit" }, sc.gTop);
     /* the height's label: beside the line, on the outside of the triangle where possible */
     const side = a <= 0 ? -1 : a >= b ? 1 : (a < b / 2 ? -1 : 1);
-    const lab = fmt(h) + U(), lw = Math.max(f * 1.7, tw(lab, f) + f * 1.05);
+    const lab = fmt(sH()) + U(), lw = Math.max(f * 1.7, tw(lab, f) + f * 1.05);
     let x = L.X(a) + side * (lw / 2 + 10);
     if(w === "in" && S.mode !== "slide") x = L.X(a);           /* inside: sit on the line itself */
     pill(x, L.Y(h / 2), lab, f, { color:"#c2410c", stroke:"#fdba74", sw:2 }, sc.gLab);
@@ -893,13 +902,14 @@
   function areaLabels(){
     const { b, h } = S, calc = !!S.set.calc, R = fmt(b * h);
     const word = x => ({ s:x, ui:true, fill:"#334155" }), m = (x, fill) => ({ s:x, fill:fill || "#0f172a" });
+    if(FM()) return { rect:{ pre:[word("Rectangle"), m(" =")], num:"b × h" }, tri:{ pre:[word("Triangle"), m(" =")], num:"½ × b × h" } };
     return {
       rect:{ pre:calc ? [word(shapeName()), m(" = "), m(fmt(b), BLUE), m(" × "), m(fmt(h), ORANGE), m(" =")] : [word(shapeName()), m(" =")], num:R },
       tri: { pre:calc ? [word("Triangle"), m(" = " + R + " ÷ 2 =")] : [word("Triangle"), m(" =")], num:fmt(area()) } };
   }
   function richText(x, y, segs, f, g, extra){
     const t = el("text", Object.assign({ x, y, "font-size":f, "text-anchor":"start", "dominant-baseline":"central", style:"white-space:pre" }, extra || {}), g);
-    segs.forEach(sg => { const sp = el("tspan", { fill:sg.fill || "#0f172a" }, t); if(sg.ui) sp.setAttribute("style", "font-family:var(--uiFont);font-weight:800"); sp.textContent = sg.s; });
+    segs.forEach(sg => { const sp = el("tspan", { fill:sg.fill || "#0f172a" }, t); if(sg.ui) sp.setAttribute("style", "font-family:var(--uiFont);font-weight:800;font-style:normal"); sp.textContent = sg.s; });
     return t;
   }
   const mCache = new Map();
@@ -919,7 +929,7 @@
     const uw = u ? textW([{ s:u }], f * .8) + f * .3 : 0, pw = textW(lab.pre, f), nw = textW([{ s:lab.num }], f);
     return { pad, gap, pw, nw, uw, w:pad * 2 + pw + gap + nw + uw, h:f * 2.05 };
   }
-  const hLabW = f => Math.max(f * 1.7, tw(fmt(S.h) + U(), f) + f * 1.05);
+  const hLabW = f => Math.max(f * 1.7, tw(fmt(sH()) + U(), f) + f * 1.05);
   /* how far right of the rectangle the label reaches (room is always kept for the height's label too) */
   function boxRoom(compact){
     const f = boxFont(compact), lab = areaLabels();
@@ -1028,9 +1038,12 @@
     $("allBtn").disabled = done; $("againBtn").disabled = k === 0;
     /* the statement */
     const show = S.revealed || (STEPS[k].fin && !S.anim);
-    $("stmt").hidden = !calc;
-    const stmt = `<span class="word">Area</span><span>=</span>${half}<span>×</span>${hB(S.b)}<span>×</span>${hH(S.h)}<span>=</span>`
-      + (show ? `<span class="ans">${fmt(area())}</span>${U2() ? `<span class="u">${U2()}</span>` : ""}` : `<button class="ansBtn" id="ansBtn" type="button" title="Show the area">?</button>`);
+    $("stmt").hidden = !calc && !FM();
+    const lhs = `${half}<span>×</span>${hB(sB())}<span>×</span>${hH(sH())}`, qBtn = `<button class="ansBtn" id="ansBtn" type="button" title="${FM() ? "Show the formula" : "Show the area"}">?</button>`;
+    /* formula mode: the formula itself is the answer, behind a ? until the end */
+    const stmt = FM() ? `<span class="word">Area</span><span>=</span>` + (show ? `<span class="ans fm">${lhs}</span>` : qBtn)
+      : `<span class="word">Area</span><span>=</span>${lhs}<span>=</span>`
+      + (show ? `<span class="ans">${fmt(area())}</span>${U2() ? `<span class="u">${U2()}</span>` : ""}` : qBtn);
     if(stmt !== lastStmt){ $("stmt").innerHTML = stmt; lastStmt = stmt; const ab = $("ansBtn"); if(ab) ab.addEventListener("click", () => { S.revealed = true; renderPanel(); }); }
     /* kind of triangle */
     const kd = kind(), tag = $("typeTag");
@@ -1217,7 +1230,8 @@
   $("fsBtn").addEventListener("click", toggleFs);
 
   $("kindSel").value = S.set.kind; $("unitSel").value = S.set.units;
-  $("gridToggle").checked = !!S.set.grid; $("calcToggle").checked = !!S.set.calc;
+  $("gridToggle").checked = !!S.set.grid; $("calcToggle").checked = !!S.set.calc; $("formulaToggle").checked = !!S.set.formula;
+  $("formulaToggle").addEventListener("change", e => { S.set.formula = e.target.checked; S.revealed = false; mCache.clear(); save(); render(); });
   $("kindSel").addEventListener("change", () => { S.set.kind = $("kindSel").value; save(); randomTri(); });
   $("unitSel").addEventListener("change", () => { S.set.units = $("unitSel").value; save(); render(); });
   $("gridToggle").addEventListener("change", e => { S.set.grid = e.target.checked; save(); render(); });

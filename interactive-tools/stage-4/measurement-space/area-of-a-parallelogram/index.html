@@ -143,6 +143,9 @@
     .frac > span:first-child{ border-bottom:.08em solid currentColor; padding:0 .12em .06em; }
     .frac > span:last-child{ padding:.06em .12em 0; }
     .cB{ color:var(--blue-dark); } .cH{ color:var(--orange-dark); }
+    .ans.fm{ display:inline-flex; align-items:center; gap:0 .28em; margin-left:.12em; }
+    /* formula mode: the letters are set in maths italics, as in a textbook */
+    .app.fm #board text, .app.fm .cA, .app.fm .cB, .app.fm .cH, .app.fm .sLine .ansV, .app.fm .hint .eq{ font-style:italic; }
     .ansBtn{ appearance:none; font:inherit; color:var(--line-soft); background:#f1f5f9; border:1.5px dashed #cbd5e1; border-radius:12px;
       padding:0 .32em; cursor:pointer; line-height:1.1; min-width:1.4em; }
     .ansBtn:hover{ color:var(--blue-dark); border-color:var(--blue); background:#eef2ff; }
@@ -279,6 +282,8 @@
           <button class="btn" id="settingsBtn" type="button" aria-haspopup="true" aria-expanded="false">Settings &#9662;</button>
           <nav class="dropMenu settingsMenu" id="settingsMenu" aria-label="Settings">
             <div class="settingsHead">On screen</div>
+            <label class="sw"><input type="checkbox" id="formulaToggle"><span class="track"></span><span>Formula mode</span></label>
+            <p class="settingsNote">Letters instead of numbers: the sides are labelled <i>b</i> and <i>h</i> for a parallelogram, <i>l</i> and <i>b</i> for a rectangle, <i>x</i> and <i>y</i> for the diagonals of a rhombus, and the steps build the formula instead of an answer.</p>
             <label class="sw"><input type="checkbox" id="calcToggle"><span class="track"></span><span>Show the calculation</span></label>
             <p class="settingsNote">Off, there is no formula anywhere on screen &mdash; the class notices and wonders first. On, the formula sits above the board and the area waits behind a <b>?</b> until the last step.</p>
             <label class="sw"><input type="checkbox" id="gridToggle" checked><span class="track"></span><span>Show the unit squares</span></label>
@@ -385,7 +390,12 @@
   const rnd = (lo, hi) => lo + Math.floor(Math.random() * (hi - lo + 1));
   const pick = a => a[Math.floor(Math.random() * a.length)];
   const ease = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
-  const fmt = n => String(Math.round(n * 100) / 100);
+  const fmt = n => typeof n === "string" ? n : String(Math.round(n * 100) / 100);
+  /* Formula mode: letters instead of numbers (sym returns the letter, or the number) */
+  const FM = () => !!S.set.formula;
+  const sym = (letter, v) => FM() ? letter : v;
+  /* the formula each shape ends on */
+  const formulaText = () => S.mode === "rect" ? "l × b" : S.mode === "para" ? "b × h" : "½ × x × y";
 
   /* THE IDEA THIS TOOL IS BUILT AROUND
      Every area here comes back to a rectangle: rows of unit squares.
@@ -413,7 +423,7 @@
     b:8, h:5, d:3, p:10, q:6,
     rw:7, rh:4,                       /* the Rectangle mode's own size */
     drag:null, frozen:null, revealed:false,
-    set:{ grid:true, calc:false, units:"", panel:true, slant:true },
+    set:{ grid:true, calc:false, units:"", panel:true, slant:true, formula:false },
     fs:false
   };
   const STORE = "mmt.paraArea.v1";
@@ -464,45 +474,47 @@
   const area = () => S.mode === "rect" ? S.rw * S.rh : S.mode === "para" ? S.b * S.h : S.p * S.q / 2;
 
   /* ------------------------------------------------------------ the steps */
-  const U = () => S.set.units ? " " + S.set.units : "";
-  const U2 = () => S.set.units ? " " + S.set.units + "²" : "";
+  const U = () => S.set.units && !FM() ? " " + S.set.units : "";
+  const U2 = () => S.set.units && !FM() ? " " + S.set.units + "²" : "";
   const half = `<span class="frac"><span>1</span><span>2</span></span>`;
   const hB = v => `<span class="cB">${fmt(v)}</span>`, hH = v => `<span class="cH">${fmt(v)}</span>`;
   const W = s => `<span class="w">${s}</span>`;
   function steps(){
     if(S.mode === "rect"){
-      const { rw:b, rh:h } = S, sq = b === h;
+      const { rw, rh } = S, sq = rw === rh && !FM(), b = sym("l", rw), h = sym("b", rh), one = rh === 1 && !FM();
       return [
-        { t:sq ? "The square" : "The rectangle", m:`${hB(b)}${W(" across, ")}${hH(h)}${W(" up")}`, tip:"How many squares cover it? Guess first." },
+        { t:sq ? "The square" : "The rectangle", m:`${hB(b)}${W(" across, ")}${hH(h)}${W(" up")}`, tip:FM() ? "" : "How many squares cover it? Guess first." },
         { t:"Count one row", m:`${W("one row has")} ${hB(b)} ${W("squares")}`, anim:"row" },
-        { t:"Count the rows", m:`${hH(h)} ${W(h === 1 ? "row" : "rows")}${W(" — count on in")} ${hB(b)}${W("s")}`, anim:"rows" },
-        { t:`${fmt(h)} ${h === 1 ? "row" : "rows"} of ${fmt(b)}`, m:W(sq ? "a square is a rectangle with equal sides" : "rows × squares in a row"), c:`${hB(b)} × ${hH(h)} = <span class="ansV">${fmt(b * h)}</span>${W(U2())}`, fin:true } ];
+        { t:"Count the rows", m:FM() ? `${hH(h)} ${W("rows of")} ${hB(b)}` : `${hH(h)} ${W(one ? "row" : "rows")}${W(" — count on in")} ${hB(b)}${W("s")}`, anim:"rows" },
+        { t:`${fmt(h)} ${one ? "row" : "rows"} of ${fmt(b)}`, m:W(sq ? "a square is a rectangle with equal sides" : "rows × squares in a row"), c:`${hB(b)} × ${hH(h)}` + (FM() ? "" : ` = <span class="ansV">${fmt(rw * rh)}</span>${W(U2())}`), fin:true } ];
     }
     if(S.mode === "para"){
       const P = plan(), rh = isRhombus();
-      const first = { t:rh ? "The rhombus" : "The parallelogram", m:`${W("base")} ${hB(S.b)}${W(U())} &nbsp; ${W("height")} ${hH(S.h)}${W(U())}`,
-        tip:rh ? "A rhombus is a parallelogram with four equal sides." : (S.set.slant && Number.isInteger(slantLen()) ? "The sloping side is not the height." : "") };
-      const fin = `${hB(S.b)} × ${hH(S.h)} = <span class="ansV">${fmt(S.b * S.h)}</span>${W(U2())}`;
+      const b = sym("b", S.b), h = sym("h", S.h);
+      const first = { t:rh ? "The rhombus" : "The parallelogram", m:`${W("base")} ${hB(b)}${W(U())} &nbsp; ${W("height")} ${hH(h)}${W(U())}`,
+        tip:rh ? "A rhombus is a parallelogram with four equal sides." : (S.set.slant && !FM() && Number.isInteger(slantLen()) ? "The sloping side is not the height." : "") };
+      const fin = `${hB(b)} × ${hH(h)}` + (FM() ? "" : ` = <span class="ansV">${fmt(S.b * S.h)}</span>${W(U2())}`);
       if(P.kind === "none") return [ first, { t:"It is already a rectangle", m:W("base × height"), c:fin, fin:true } ];
       if(P.kind === "one") return [ first,
         { t:"Cut along the height", m:W("from the top corner straight down to the base"), anim:"cut" },
-        { t:"Slide the piece to the other end", m:`${W("now it is a")} ${hB(S.b)} × ${hH(S.h)} ${W("rectangle — the same area")}`, c:fin, anim:"slide", fin:true } ];
+        { t:"Slide the piece to the other end", m:`${W("now it is a")} ${hB(b)} × ${hH(h)} ${W("rectangle — the same area")}`, c:fin, anim:"slide", fin:true } ];
       return [ first,
         { t:"Cut it into strips one base wide", m:W("it leans further than its base, so one cut isn't enough"), anim:"cut" },
-        { t:"Slide the strips back along", m:`${W("now it is a")} ${hB(S.b)} × ${hH(S.h)} ${W("rectangle — the same area")}`, c:fin, anim:"slide", fin:true } ];
+        { t:"Slide the strips back along", m:`${W("now it is a")} ${hB(b)} × ${hH(h)} ${W("rectangle — the same area")}`, c:fin, anim:"slide", fin:true } ];
     }
-    const { p, q } = S, sq = p === q;
+    const sq = S.p === S.q && !FM(), p = sym("x", S.p), q = sym("y", S.q), q2 = sym("½y", S.q / 2);
     return [
       { t:sq ? "A square on its corner" : "The rhombus and its diagonals", m:`${W("diagonals")} ${hB(p)}${W(U())} ${W("and")} ${hH(q)}${W(U())}`, tip:"The diagonals cross at right angles and cut each other in half." },
       { t:"Cut along the diagonals", m:W("the top half, and the bottom half in two"), anim:"cut" },
-      { t:"Slide the two pieces up", m:`${W("they fill the top corners: a")} ${hB(p)} × ${hH(fmt(q / 2))} ${W("rectangle — half of the")} ${hB(p)} × ${hH(q)} ${W("one round it")}`,
-        c:`${half} × ${hB(p)} × ${hH(q)} = <span class="ansV">${fmt(p * q / 2)}</span>${W(U2())}`, anim:"slide", fin:true } ];
+      { t:"Slide the two pieces up", m:`${W("they fill the top corners: a")} ${hB(p)} × ${hH(q2)} ${W("rectangle — half of the")} ${hB(p)} × ${hH(q)} ${W("one round it")}`,
+        c:`${half} × ${hB(p)} × ${hH(q)}` + (FM() ? "" : ` = <span class="ansV">${fmt(S.p * S.q / 2)}</span>${W(U2())}`), anim:"slide", fin:true } ];
   }
   /* every story ends with the same reveal: the area in a bubble in the middle of the shape */
-  const areaWords = () => S.set.units ? fmt(area()) + U2() : fmt(area()) + " square units";
+  const areaWords = () => FM() ? "Area = " + formulaText() : S.set.units ? fmt(area()) + U2() : fmt(area()) + " square units";
   function withReveal(list){
     list.forEach(s => { s.fin = false; });
-    list.push({ t:"The area", m:`<span class="ansV">${fmt(area())}</span>${W(S.set.units ? U2() : " square units")}`, anim:"pop", fin:true });
+    list.push(FM() ? { t:"The formula", m:`${W("Area =")} <span class="ansV">${formulaText()}</span>`, anim:"pop", fin:true }
+      : { t:"The area", m:`<span class="ansV">${fmt(area())}</span>${W(S.set.units ? U2() : " square units")}`, anim:"pop", fin:true });
     return list;
   }
   let STEPS = steps();
@@ -575,7 +587,8 @@
     const gg = el("g", { transform:`translate(${L.X(cx)} ${L.Y(cy)}) scale(${sc.toFixed(3)})`, class:"noHit" }, g);
     const w = tw(txt_, f) + f * 1.3, hh = f * 1.9;
     el("rect", { x:-w / 2, y:-hh / 2, width:w, height:hh, rx:hh / 2, fill:"#fff", stroke:"#15803d", "stroke-width":2.5, filter:"url(#bubShadow)" }, gg);
-    txt(0, f * .04, txt_, f, "#15803d", gg, { "font-weight":800 });
+    const tb = txt(0, f * .04, FM() ? "" : txt_, f, "#15803d", gg, { "font-weight":800 });
+    if(FM()){ const a = el("tspan", { style:"font-style:normal" }, tb); a.textContent = "Area = "; const b = el("tspan", {}, tb); b.textContent = formulaText(); }
   }
   /* stepping helpers: how far through step k the board is */
   const at = k => S.step > k ? 1 : S.step < k ? 0 : (S.anim ? S.anim.t : 1);
@@ -592,6 +605,7 @@
     if(Math.abs(wrap.offsetHeight - want) > 2) wrap.style.height = want + "px";
   }
   function render(){
+    $("app").classList.toggle("fm", !!S.set.formula);
     STEPS = withReveal(steps());
     if(S.step > STEPS.length - 1) S.step = STEPS.length - 1;
     if(!S.frozen && !S.anim) fitStacked();
@@ -639,19 +653,20 @@
       const P = [[i, j], [i + 1, j], [i + 1, j + 1], [i, j + 1]];
       /* pale green to start; each square darkens as it is counted */
       poly(P, { fill:`rgba(22,163,74,${(.16 + .5 * on).toFixed(3)})`, stroke:"rgba(20,83,45,.35)", "stroke-width":1.2 }, sc.gMain);
-      if(j === 0 && on >= 1 && cell >= 24 && S.step <= 1) txt(L.X(i + .5), L.Y(.5), String(i + 1), fsN, "#14532d", sc.gLab);
+      if(j === 0 && on >= 1 && cell >= 24 && S.step <= 1 && !FM()) txt(L.X(i + .5), L.Y(.5), String(i + 1), fsN, "#14532d", sc.gLab);
     }
     poly([[0, 0], [b, 0], [b, h], [0, h]], { fill:"none", stroke:C.edge, "stroke-width":3 }, sc.gTop);
     /* running totals at the end of each lit row: count on in b's */
-    if(rowT >= 1 && S.step >= 2){
+    if(FM()){ /* no running totals: the rows are counted in letters in the panel */ }
+    else if(rowT >= 1 && S.step >= 2){
       const n = Math.floor(rowsLit + 1e-9);
       for(let j = 0; j < n; j++) pill(L.X(b) + (L.compact ? 26 : 34), L.Y(j + .5), fmt(b * (j + 1)), Math.min(fs(), Math.max(12, cell * .5)), { color:"#14532d", stroke:"rgba(21,128,61,.45)", bg:"#f0fdf4" }, sc.gLab);
     } else if(S.step === 1 && lit1 >= b - 1e-9){
       pill(L.X(b) + (L.compact ? 26 : 34), L.Y(.5), fmt(b), Math.min(fs(), Math.max(12, cell * .5)), { color:"#14532d", stroke:"rgba(21,128,61,.45)", bg:"#f0fdf4" }, sc.gLab);
     }
     /* sides */
-    pill(L.X(b / 2), L.Y(0) + (L.compact ? 26 : 30), fmt(b) + U(), fs(), baseOpt, sc.gLab);
-    pill(L.X(0) - (L.compact ? 30 : 40), L.Y(h / 2), fmt(h) + U(), fs(), hOpt, sc.gLab);
+    pill(L.X(b / 2), L.Y(0) + (L.compact ? 26 : 30), fmt(sym("l", b)) + U(), fs(), baseOpt, sc.gLab);
+    pill(L.X(0) - (L.compact ? 30 : 40), L.Y(h / 2), fmt(sym("b", h)) + U(), fs(), hOpt, sc.gLab);
     answerBubble(b / 2, h / 2, sc.gLab);
     sc.handles.push({ id:"rect", at:[b, h] });
   }
@@ -685,7 +700,7 @@
     /* labels: the base, the height (dashed, on the side the shape leans away from), the sloping side */
     /* the base label travels with the rectangle being made */
     const endMid = P.kind === "one" ? d + b / 2 : b / 2;
-    pill(L.X(b / 2 + (endMid - b / 2) * prog), L.Y(0) + (L.compact ? 26 : 30), fmt(b) + U(), fs(), baseOpt, sc.gLab);
+    pill(L.X(b / 2 + (endMid - b / 2) * prog), L.Y(0) + (L.compact ? 26 : 30), fmt(sym("b", b)) + U(), fs(), baseOpt, sc.gLab);
     const done = P.kind !== "none" && S.step >= 2 && prog >= 1;
     /* the height: from the top corner straight down (it is also the cut, when there is one cut);
        once strips have slid, it is the rectangle's end */
@@ -695,11 +710,11 @@
     const rA = Math.min(12, h * L.s * .3), toward = d >= 0 ? 1 : -1;
     const fx = L.X(hxS), fy = L.Y(0);
     el("path", { d:`M${fx + toward * rA} ${fy}V${fy - rA}H${fx}`, fill:"none", stroke:C.alt, "stroke-width":2, class:"noHit" }, sc.gTop);
-    const lab = fmt(h) + U(), lw = Math.max(fs() * 1.7, tw(lab, fs()) + fs() * 1.05);
+    const lab = fmt(sym("h", h)) + U(), lw = Math.max(fs() * 1.7, tw(lab, fs()) + fs() * 1.05);
     pill(L.X(hxS) - toward * (lw / 2 + 8), L.Y(h / 2), lab, fs(), hOpt, sc.gLab);
     /* the sloping side: a distractor, only as a whole number */
     const sl = slantLen();
-    if(S.set.slant && d !== 0 && Number.isInteger(sl) && S.step === 0){
+    if(S.set.slant && !FM() && d !== 0 && Number.isInteger(sl) && S.step === 0){
       const sideP = d > 0 ? [[b, 0], [b + d, h]] : [[0, 0], [d, h]];
       const mx = (sideP[0][0] + sideP[1][0]) / 2, my = h / 2, out = d > 0 ? 1 : -1;
       const lab2 = fmt(sl) + U(), w2 = tw(lab2, fs() - 1) + fs();
@@ -743,7 +758,7 @@
       if(S.step === 1 && c1 >= 1 && c2 < 1) cutLine([cx, cy], [cx, 0], c2, sc.gTop, cT);
     }
     /* labels: p on the horizontal diagonal's end, q beside the vertical one */
-    const pl = fmt(p) + U(), ql = fmt(q) + U();
+    const pl = fmt(sym("x", p)) + U(), ql = fmt(sym("y", q)) + U();
     pill(L.X(cx), L.Y(0) + (L.compact ? 26 : 30), pl, fs(), baseOpt, sc.gLab);
     el("path", { d:`M${L.X(0)} ${L.Y(0) + 12}V${L.Y(0) + 20}M${L.X(0)} ${L.Y(0) + 16}H${L.X(p)}M${L.X(p)} ${L.Y(0) + 12}V${L.Y(0) + 20}`, stroke:"#93c5fd", "stroke-width":1.6, fill:"none", class:"noHit" }, sc.gBack);
     pill(L.X(p) + (L.compact ? 28 : 38), L.Y(cy), ql, fs(), hOpt, sc.gLab);
@@ -751,7 +766,7 @@
     /* the finished rectangle is half as tall: label it */
     if(S.step >= 2 && sT >= 1){
       el("path", { d:`M${L.X(0) - 12} ${L.Y(q)}H${L.X(0) - 20}M${L.X(0) - 16} ${L.Y(q)}V${L.Y(cy)}M${L.X(0) - 12} ${L.Y(cy)}H${L.X(0) - 20}`, stroke:"#fdba74", "stroke-width":1.6, fill:"none", class:"noHit" }, sc.gBack);
-      pill(L.X(0) - (L.compact ? 30 : 40), L.Y(q * .75), fmt(q / 2) + U(), fs(), hOpt, sc.gLab);
+      pill(L.X(0) - (L.compact ? 30 : 40), L.Y(q * .75), fmt(sym("½y", q / 2)) + U(), fs(), hOpt, sc.gLab);
     }
     answerBubble(cx, q * .75, sc.gLab);
     sc.handles.push({ id:"dp", at:[p, cy], square:true, cls:"base" }, { id:"dq", at:[cx, q] });
@@ -773,10 +788,10 @@
   };
   let builtFor = null;
   function buildPanel(){
-    if(builtFor === S.mode) return;
-    builtFor = S.mode;
+    if(builtFor === S.mode + FM()) return;
+    builtFor = S.mode + FM();
     $("shapeTitle").textContent = S.mode === "rect" ? "The rectangle" : S.mode === "para" ? "The parallelogram" : "The rhombus";
-    $("storyTitle").textContent = S.mode === "rect" ? "How many squares?" : S.mode === "para" ? "Why base × height?" : "Why half of p × q?";
+    $("storyTitle").textContent = S.mode === "rect" ? "How many squares?" : S.mode === "para" ? "Why base × height?" : FM() ? "Why half of x × y?" : "Why half of p × q?";
     $("dims").innerHTML = S.mode === "rect" ? dimRow("rw", "Across", "or drag the corner") + dimRow("rh", "Up", "")
       : S.mode === "para" ? dimRow("b", "Base", "or drag the end") + dimRow("h", "Height", "or drag the top") + dimRow("d", "Lean", "+ right, &minus; left")
       : dimRow("p", "Diagonal", "across") + dimRow("q", "Diagonal", "up");
@@ -805,11 +820,19 @@
     /* the statement — only with "Show the calculation" */
     const show = S.revealed || STEPS[k].fin;
     let lhs;
-    if(S.mode === "rect") lhs = `<span class="word">Area</span><span>=</span>${hB(S.rw)}<span>×</span>${hH(S.rh)}<span>=</span>`;
-    else if(S.mode === "para") lhs = `<span class="word">Area</span><span>=</span><span class="word">base × height</span><span>=</span>${hB(S.b)}<span>×</span>${hH(S.h)}<span>=</span>`;
-    else lhs = `<span class="word">Area</span><span>=</span>${half}<span>×</span>${hB(S.p)}<span>×</span>${hH(S.q)}<span>=</span>`;
-    const stmt = lhs + (show ? `<span class="ans">${fmt(area())}</span>${U2() ? `<span class="u">${U2()}</span>` : ""}` : `<button class="ansBtn" id="ansBtn" type="button" title="Show the area">?</button>`);
-    $("stmt").hidden = !calc;
+    const qBtn = `<button class="ansBtn" id="ansBtn" type="button" title="${FM() ? "Show the formula" : "Show the area"}">?</button>`;
+    let stmt;
+    if(FM()){
+      /* formula mode: the formula itself is the answer, behind a ? until the end */
+      const f = S.mode === "rect" ? `${hB("l")}<span>×</span>${hH("b")}` : S.mode === "para" ? `${hB("b")}<span>×</span>${hH("h")}` : `${half}<span>×</span>${hB("x")}<span>×</span>${hH("y")}`;
+      stmt = `<span class="word">Area</span><span>=</span>` + (show ? `<span class="ans fm">${f}</span>` : qBtn);
+    } else {
+      if(S.mode === "rect") lhs = `<span class="word">Area</span><span>=</span>${hB(S.rw)}<span>×</span>${hH(S.rh)}<span>=</span>`;
+      else if(S.mode === "para") lhs = `<span class="word">Area</span><span>=</span><span class="word">base × height</span><span>=</span>${hB(S.b)}<span>×</span>${hH(S.h)}<span>=</span>`;
+      else lhs = `<span class="word">Area</span><span>=</span>${half}<span>×</span>${hB(S.p)}<span>×</span>${hH(S.q)}<span>=</span>`;
+      stmt = lhs + (show ? `<span class="ans">${fmt(area())}</span>${U2() ? `<span class="u">${U2()}</span>` : ""}` : qBtn);
+    }
+    $("stmt").hidden = !calc && !FM();
     if(stmt !== lastStmt){ $("stmt").innerHTML = stmt; lastStmt = stmt; const ab = $("ansBtn"); if(ab) ab.addEventListener("click", () => { S.revealed = true; renderPanel(); }); }
     /* the tag */
     const tag = $("typeTag");
@@ -956,7 +979,8 @@
   $("fsBtn").addEventListener("click", toggleFs);
 
   $("unitSel").value = S.set.units;
-  $("gridToggle").checked = !!S.set.grid; $("calcToggle").checked = !!S.set.calc; $("slantToggle").checked = !!S.set.slant;
+  $("gridToggle").checked = !!S.set.grid; $("calcToggle").checked = !!S.set.calc; $("slantToggle").checked = !!S.set.slant; $("formulaToggle").checked = !!S.set.formula;
+  $("formulaToggle").addEventListener("change", e => { S.set.formula = e.target.checked; S.revealed = false; save(); render(); });
   $("unitSel").addEventListener("change", () => { S.set.units = $("unitSel").value; save(); render(); });
   $("gridToggle").addEventListener("change", e => { S.set.grid = e.target.checked; save(); render(); });
   $("calcToggle").addEventListener("change", e => { S.set.calc = e.target.checked; save(); render(); });
