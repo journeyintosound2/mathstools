@@ -96,6 +96,33 @@
 > §2 "TWO folders", §3 deploy paths and §5's `mathstools-main 2` heading below
 > describe the OLD layout — this block supersedes them.
 >
+> **NEW (2026-11-17): TAXED BY THE KING — MMT COLOURS + OFFLINE CLASS GAME + RECORDING SHEET.**
+> `games/taxed-by-the-king.html`, same URL. Project doc `claude/taxed-by-the-king-offline.md`.
+> * **Colours:** the red header, red primary buttons and warm background became the standard MMT navy→blue header,
+>   blue `.btn-primary`, MMT page background; card backs, rank/rule buttons and the spinner went blue. The playing
+>   cards keep red/black and the King's tax stamp stays red (that is the game, not the chrome).
+> * **Firebase is now a DYNAMIC import** (`loadFirebase()`, called when Teacher/Student online is chosen and again
+>   in `createRoom`/`joinRoom`). The import bindings are module `let`s filled by it. As static imports a blocked
+>   gstatic.com stopped the whole page; offline mode must work with no network. Failure shows `OFFLINE_HINT`.
+> * **Offline class game** (third mode card + home button): no devices, nothing saved. The teacher's screen runs the
+>   deck with the SAME `applyCardEffect` as online (players `{}`); state is `og` (also put in `localGame` so mini cards
+>   and the rules modal see its custom rules). Students stand, sit down to bank, record on paper. Options: students work
+>   out the round total (shows "?" until Reveal, default ON), new card rules between rounds (teacher picks rank + rule
+>   for the student who banked most), probability panel, Joker negatives. Buttons Start Round / Turn Card (Space) /
+>   Reveal total (R) / Everyone has banked. Side panel = **Round log**: every running total per round, the answer key
+>   for checking sheets. Test hook `window.__TBK__`.
+> * **Tools ▾** (topbar, offline only): Print recording sheet · How offline mode works. **Recording sheet** = A4
+>   LANDSCAPE in mm (`buildSheetHTML`, `sheetPages`): header + name/class/date, card-values strip (Joker line follows
+>   the game setting), one row per round with a box per card (card on top, running total below), Banked this round,
+>   Total bank (= above + banked), worked example row, footer: new card rules · "when did you bank and why?" · final
+>   bank. Options saved in `mmtTaxedSheet.v1`: rounds 6/8 (one page) or 12/16 (two pages, same row height), boxes
+>   8/10/12, card space, example, strip, rules box, reflection. Printing clones into `#printRoot`; `@media print`
+>   shows only it with `@page{size:A4 landscape}`.
+> * Fixed: the existing `#gameScreen .controls-row button{padding…!important}` squashed the full-screen icon.
+> * Verified (Playwright): page loads and a whole offline game runs to the 4th King with gstatic BLOCKED (0 Firebase
+>   requests); every sheet option combination fits its page; PDF = one A4 landscape page; online teacher + student
+>   still work through a stubbed Firebase; 1366/1024/390 with no sideways scroll.
+>
 > **NEW (2026-11-17): CLOSEST TO 100 — LAYOUT REBUILT + ROLL CARD.** `games/closest-to-100.html`, same URL,
 > one self-contained file. Game rules, Firestore room shape (`closestTo100Games`) and the online commit functions are
 > UNCHANGED (copied verbatim); the page around them is new. Project doc `claude/closest-to-100.md`.
