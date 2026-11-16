@@ -850,11 +850,11 @@ window.MMT_TOOL_LINKS = {
       tags: ["quiz", "algebra", "like terms", "simplifying"]
     },
     {
-      title: "Number Groups",
+      title: "Number Groups — Collecting Like Terms",
       kind: "Student quiz",
       url: "/online-quizzes/stage-4/algebra/number-groups.html",
       ideas: ["laws-properties"],
-      note: "Saves to the student dashboard.",
+      note: "Sweet and Mild draw the question's terms as bars that stack into one pile; Medium and Spicy add unlike terms, two-letter groups and whole expressions. Saves to the student dashboard.",
       tags: ["quiz", "algebra", "like terms", "coefficients"]
     },
     {
@@ -882,11 +882,11 @@ window.MMT_TOOL_LINKS = {
       tags: ["worksheet generator", "printable", "like terms"]
     },
     {
-      title: "Collecting Like Terms (Number Groups)",
+      title: "Number Groups — Collecting Like Terms",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-4/algebra/number-groups.html",
       ideas: ["laws-properties"],
-      note: "Coefficient-group variant of the like-terms worksheet creator.",
+      note: "Count the groups with the bars printed, then draw them, then collect, take away, missing and unlike terms, spot the mistake and make your own. Answer key.",
       tags: ["worksheet generator", "printable", "like terms", "coefficients"]
     },
     {

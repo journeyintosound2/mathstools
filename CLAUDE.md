@@ -96,6 +96,41 @@
 > §2 "TWO folders", §3 deploy paths and §5's `mathstools-main 2` heading below
 > describe the OLD layout — this block supersedes them.
 >
+> **NEW (2026-11-16, night): NUMBER GROUPS — STUDENT QUIZ + WORKSHEET CREATOR REBUILT on the new model.**
+> Same URLs. Quiz: thin shell `online-quizzes/stage-4/algebra/number-groups.html` + engine
+> `number-groups-quiz/quiz.js` + `quiz.css` (css = the trapezium quiz's + its own block; bump BOTH `?v=` in the
+> shell). Worksheet: `worksheet-creators/stage-4/algebra/number-groups.html` (single file, the trapezium generator's
+> frame). Registry entry, toolId, achievementToolName `number-groups-student-quiz` and masteryTopic `number-groups`
+> UNCHANGED (old quiz was 15 questions, now 10). Project doc `claude/number-groups.md`.
+> * **Quiz:** one question + one answer per card; the answer box sits IN the line of maths
+>   (`3 × 7 + 2 × 7 = [ ] × 7`, `x + 3x + 6x = [ ]x`), kept on one line by `fitEq()`. Sweet/Mild: the panel is the
+>   teaching tool's bars built from the question (`mt`, `sceneOf`, `mix` ported from the tool): step 1 columns, Show me →
+>   the pile (+ take away). **The pile's count is "?" until the question is settled**; missing-term questions show
+>   the total and the empty (dashed) slots / the red "? taken away" rows. A wrong first answer jumps the model to its
+>   end. Medium/Spicy: no model (`.app.noModel`, card full width). Ladder: Sweet count/value/collect/same (numbers then
+>   letters) · Mild lone x, take away, missing, "3x + 2x = 5x²" · Medium unlike, two-letter ab, big numbers, which are
+>   like terms, give the letter a value · Spicy two kinds each twice, cancel / negative results, "5x − x = 5", write
+>   12x as three different like terms (`build`). Whole expressions are typed (`parseExpr`: any order, letters in any
+>   order, `*`/`×` ok); equal-but-not-collected, a 0 term, or "1x" is a NUDGE (free), not a mark. Letters drawn as
+>   maths italics (`mathItalic`, as the tool); no v (reads as w/u). types[] in the OBJECT shape
+>   `{typeId:"ng-…", label, correct, total}` + `level:x`, so "where marks were lost" needs no SKILL_LABELS edit.
+>   Test surface `window.__NGQ__`.
+> * **Worksheet:** sections A Count the groups (bars printed under each term, numbers) · B Same picture, letters ·
+>   C Draw the groups (empty box) · D Collect · E Take away · F Missing terms · G Unlike terms · H Count first, then
+>   work it out (big numbers; give the letter a value) · I Spot the mistake (5x², 5xy, 5x − x = 5, 5 × 14, x + 3x = 3x)
+>   · J Make your own · K Fluency (off). Options: level tick-chips (ladder), number notation × / brackets / words,
+>   "count the groups first" line in D–G (on), units inside numeric bars, two-letter groups from Medium, spacing,
+>   colour/B&W, worked example (two piles: 3 × 7 + 2 × 7 + 5 × 7 = 10 × 7 and the same with x), name/date, key with a
+>   one-line reason. Bars are SVG in mm (`barsSVG`, `pileSVG`); captions are SVG tspans sized to the column (NOT
+>   foreignObject — CSS units inside a scaled foreignObject print at the wrong size). A, B, C, G, H stay two to a row.
+>   `window.__WS__`.
+> * Verified (Playwright): quiz — 1,200 papers (integer answers, one right MC option, distinct options, expressions
+>   parse, no NaN/undefined), every level played to 10/10 with the pile showing "?" until settled, 15 marking rules,
+>   first-attempt scoring / free invalid / skip = wrong, payload (no typed answers), no scroll or overflow at
+>   1366×768, 1280×800, 1024×768, 1920×1080, 390×844 (63 checks). Worksheet — 25 random settings with every key answer
+>   re-derived from the PRINTED text (collect / missing / count / value), bars drawn = counts, nothing past a page or
+>   wider than its card, key mirrors the paper, no answers on student pages, PDF pages = preview (27 checks).
+>
 > **NEW (2026-11-16, evening): NUMBER GROUPS REBUILT — COLLECTING LIKE TERMS AS COUNTING EQUAL GROUPS.**
 > `interactive-tools/stage-4/algebra/number-groups/index.html` (same URL; was "Number Pattern", an expression +
 > answer box on the old back-pill shell). Now on the trapezium tool's shell (topbar, board card, step story panel,

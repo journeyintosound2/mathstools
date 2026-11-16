@@ -1,6 +1,6 @@
 /* Written by tools/build-pwa.mjs — do not edit by hand. */
 self.MMT_PRECACHE = {
- "version": "9c23757906",
+ "version": "434dbe36d4",
  "files": [
   "./",
   "assessment/exam-builder/app.js",
@@ -929,6 +929,8 @@ self.MMT_PRECACHE = {
   "online-quizzes/stage-4/algebra/double-numberline/student-quiz.html",
   "online-quizzes/stage-4/algebra/equations.html",
   "online-quizzes/stage-4/algebra/linear-relationships.html",
+  "online-quizzes/stage-4/algebra/number-groups-quiz/quiz.css",
+  "online-quizzes/stage-4/algebra/number-groups-quiz/quiz.js",
   "online-quizzes/stage-4/algebra/number-groups.html",
   "online-quizzes/stage-4/algebra/substitution.html",
   "online-quizzes/stage-4/measurement-space/angle-relationships.html",
