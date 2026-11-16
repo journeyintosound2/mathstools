@@ -354,6 +354,10 @@
               <span class="sym" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M1.5 19h12.5l-2.5-11H5z"/><path d="M14 19h4.5l4-11h-11"/></svg></span>
               <span class="txt">Half a parallelogram<small>two copies</small></span>
             </button>
+            <button class="modeBtn" data-mode="mid" role="tab" aria-selected="false" type="button" title="Halve the height: cut it across halfway up and turn the top half round (3)">
+              <span class="sym" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M2 20h11l-2.5-12H5.5z"/><path d="M3.6 14h8.3" stroke-dasharray="2 2.4"/><path d="M14.5 6.5a5 5 0 0 1 5 6.5"/><path d="M17.6 12.4l1.9.8.9-1.9"/></svg></span>
+              <span class="txt">Halve the height<small>turn the top half</small></span>
+            </button>
           </div>
           <div class="topRight">
             <span class="typeTag acute" id="typeTag">Trapezium</span>
@@ -416,7 +420,7 @@
             <button class="stepBtn" id="allBtn" type="button">Show all</button>
             <button class="nextBtn" id="nextBtn" type="button" title="Next step (&rarr;)">Next &#9656;</button>
           </div>
-          <div class="keyHint"><kbd>&rarr;</kbd>/<kbd>&larr;</kbd> step &middot; <kbd>Space</kbd> start again &middot; <kbd>Enter</kbd> new trapezium &middot; <kbd>1</kbd>/<kbd>2</kbd> way &middot; <kbd>F</kbd> full screen</div>
+          <div class="keyHint"><kbd>&rarr;</kbd>/<kbd>&larr;</kbd> step &middot; <kbd>Space</kbd> start again &middot; <kbd>Enter</kbd> new trapezium &middot; <kbd>1</kbd>–<kbd>3</kbd> way &middot; <kbd>F</kbd> full screen</div>
         </section>
       </aside>
     </main>
@@ -454,7 +458,14 @@
        side (the triangle tool's slide-then-turn). The two make a parallelogram whose base is
        b + a; it is chopped at the edge of the base into the (a + b) × h rectangle. At the end
        the rectangle halves, the piece slides back and the copy fades: the trapezium is half.
-     Both modes then count the rectangle row by row, and the label beside it changes from
+     - HALVE THE HEIGHT: cut straight across halfway up (the cut joins the middles of the two
+       sloping sides), and turn the top half half a turn, clockwise, about the middle of the
+       right-hand sloping side. Its upside-down top a lands beside the base b, so the two halves
+       make a parallelogram a + b long and ½h high (lean p/2); chopped into the (a + b) × ½h
+       rectangle. Turning clockwise keeps the moving half outside the bottom half all the way
+       round, because the whole trapezium is on one side of that sloping side. At the end it
+       turns back — same pieces, same area.
+     All three modes then count the rectangle row by row, and the label beside it changes from
      "Rectangle = …" to "Trapezium = …". The two cut verticals pass through the middles of
      the sloping sides, which works for every trapezium as long as each sloping side stays on
      its own side of the other's cut: pRange() keeps a top corner above the base, which is
@@ -487,7 +498,7 @@
       Object.assign(S.set, saved.set || {});
       const tz = saved.trap;
       if(tz && [tz.b, tz.a, tz.h, tz.p].every(Number.isFinite)){ S.b = tz.b; S.a = tz.a; S.h = tz.h; S.p = tz.p; }
-      if(["avg","para"].includes(saved.mode)) S.mode = saved.mode;
+      if(["avg","para","mid"].includes(saved.mode)) S.mode = saved.mode;
     }
   } catch(e){}
   clampShape();
@@ -499,6 +510,7 @@
   const avgW = () => (S.a + S.b) / 2;
   const sumB = () => S.a + S.b;
   const rectW = () => S.mode === "avg" ? avgW() : sumB();
+  const rectH = () => S.mode === "mid" ? S.h / 2 : S.h;   /* halve the height: the rectangle is ½h high */
   function kindOf(){
     const { a, b, p } = S;
     if(p === 0 || p + a === b) return "right";
@@ -547,9 +559,17 @@
     const CP = TRAP().map(q => [2 * M2[0] - q[0], 2 * M2[1] - q[1]]);
     return { B, M2, CP, PG:[[0, 0], [B, 0], [B + p, h], [p, h]], e:[[b, 0], [p + a, h]] };
   }
+  /* HALVE THE HEIGHT: the two halves of the cut, and where the top half lands (turned half a
+     turn about the middle of the right-hand sloping side) — a parallelogram a + b by ½h */
+  function midGeo(){
+    const { a, b, h, p } = S, T = TRAP(), hh = h / 2, x1 = p / 2, x2 = (b + p + a) / 2, M1 = [x1, hh], M2 = [x2, hh], B = a + b;
+    const BOT = [[0, 0], [b, 0], [x2, hh], [x1, hh]], TOP = [[x1, hh], [x2, hh], [p + a, h], [p, h]];
+    return { T, hh, x1, x2, M1, M2, B, BOT, TOP, d:x1, PG:[[0, 0], [B, 0], [B + x1, hh], [x1, hh]] };
+  }
+  const turnPoly = (P, M, u, dy) => P.map(q => rot([q[0], q[1] + (dy || 0)], M, -180 * u));
   /* chop the parallelogram into strips one base wide; each slides back by whole bases */
   function strips(){
-    const B = sumB(), d = S.p, out = [];
+    const B = sumB(), d = S.mode === "mid" ? S.p / 2 : S.p, out = [];
     if(d >= 0) for(let k = 0; k * B < d + B - 1e-9; k++) out.push({ lo:k * B, hi:(k + 1) * B, dx:-k * B });
     else for(let k = 0; (1 - k) * B > d + 1e-9; k++) out.push({ lo:-k * B, hi:(1 - k) * B, dx:k * B });
     return out;
@@ -572,15 +592,20 @@
   }
   /* how far right the shapes reach in the band where the area label sits (halfway up) */
   function anchorX(){
-    const h = S.h, lo = Math.max(0, h / 2 - .45), hi = Math.min(h, h / 2 + .45), w = rectW(), x0 = rectX0();
-    const shapes = [TRAP(), [[x0, 0], [x0 + w, 0], [x0 + w, h], [x0, h]]];
+    const h = S.h, lo = Math.max(0, h / 2 - .45), hi = Math.min(h, h / 2 + .45), w = rectW(), x0 = rectX0(), rh = rectH();
+    const shapes = [TRAP(), [[x0, 0], [x0 + w, 0], [x0 + w, rh], [x0, rh]]];
     if(S.mode === "para") shapes.push(paraGeo().PG);
+    if(S.mode === "mid") shapes.push(midGeo().PG);
     let m = x0 + w;
     shapes.forEach(P => { const c = clipY(P, lo, hi); if(c) c.forEach(q => { m = Math.max(m, q[0]); }); });
     return m;
   }
-  function minX(){ return S.mode === "avg" ? Math.min(0, S.p, S.p / 2) : Math.min(0, S.p); }
-  function maxX(){ return S.mode === "avg" ? Math.max(S.b, S.p + S.a, (S.b + S.p + S.a) / 2) : Math.max(sumB(), sumB() + S.p); }
+  function minX(){ return S.mode === "para" ? Math.min(0, S.p) : Math.min(0, S.p, S.p / 2); }
+  function maxX(){
+    if(S.mode === "avg") return Math.max(S.b, S.p + S.a, (S.b + S.p + S.a) / 2);
+    if(S.mode === "mid") return Math.max(S.b, S.p + S.a, sumB(), sumB() + S.p / 2);
+    return Math.max(sumB(), sumB() + S.p);
+  }
   /* the height: a vertical side when there is one, otherwise from a top corner, drawn inside */
   function hStart(){
     const { a, b, p } = S;
@@ -604,23 +629,27 @@
   /* the letters for each length on show */
   const sA = () => sym("a", S.a), sB = () => sym("b", S.b), sH = () => sym("h", S.h);
   const sW = () => S.mode === "avg" ? sym("½(a + b)", avgW()) : sym("a + b", sumB());   /* the rectangle's length */
+  const sRH = () => S.mode === "mid" ? sym("½h", S.h / 2) : sym("h", S.h);              /* …and its height */
   const sWx = () => S.mode === "avg" ? sW() : sym("(a + b)", sumB());                  /* …written to be multiplied */
   const fracH = (n, d) => `<span class="frac"><span>${n}</span><span>${d}</span></span>`;
   const half = fracH("1", "2");
   const hB = v => `<span class="cB">${fmt(v)}</span>`, hH = v => `<span class="cH">${fmt(v)}</span>`, hA = v => `<span class="cA">${fmt(v)}</span>`;
   const W = s => `<span class="w">${s}</span>`;
-  const shapeName = () => !FM() && rectW() === S.h ? "Square" : "Rectangle";
+  const shapeName = () => !FM() && rectW() === rectH() ? "Square" : "Rectangle";
   const ans = () => FM() ? "" : ` = <span class="ansV">${fmt(area())}</span>${W(U2())}`;
   function finalCalc(){
     const a = sA(), b = sB(), h = sH();
+    if(S.mode === "mid") return `(${hA(a)} + ${hB(b)}) × ${fracH(hH(h), "2")}${ans()}`;
     return S.mode === "avg" ? `${fracH(hA(a) + " + " + hB(b), "2")} × ${hH(h)}${ans()}` : `${half} × (${hA(a)} + ${hB(b)}) × ${hH(h)}${ans()}`;
   }
   function areaSteps(){
-    const { h } = S, w = rectW(), sw = sW(), sh = sH();
-    const rows = { t:"Count the squares, row by row", m:`${hB(sw)} ${W(w === 1 && !FM() ? "square in each row," : "squares in each row,")} ${hH(sh)} ${W(h === 1 && !FM() ? "row" : "rows")}`,
+    const h = rectH(), w = rectW(), sw = sW(), sh = sRH();
+    const rows = { t:"Count the squares, row by row", m:`${hB(sw)} ${W(w === 1 && !FM() ? "square in each row," : "squares in each row,")} ${hH(sh)} ${W(h === 1 && !FM() ? "row" : "rows")}${!FM() && !Number.isInteger(h) ? W(" (the last is half a row)") : ""}`,
       c:`${hB(sWx())} × ${hH(sh)}${FM() ? "" : " = " + fmt(w * h) + W(U2())}`, anim:"rows" };
     if(S.mode === "avg") return [rows,
       { t:"Swing the corners back", m:W(`same pieces, so the trapezium has the same area as the ${shapeName().toLowerCase()}`), c:finalCalc(), anim:"same", fin:true }];
+    if(S.mode === "mid") return [rows,
+      { t:"Turn the top half back", m:W(`same pieces, so the trapezium has the same area as the ${shapeName().toLowerCase()}`), c:finalCalc(), anim:"back", fin:true }];
     return [rows, { t:"Halve it", m:W(`the trapezium is half of the ${shapeName().toLowerCase()}`), c:finalCalc(), anim:"halve", fin:true }];
   }
   function storySteps(){
@@ -639,6 +668,15 @@
           c:`(${hA(a)} + ${hB(b)}) ÷ 2 = ${hB(sW())}${W(U())}`, anim:"avg", tip:"The top got longer and the base got shorter, by the same amount." }];
     }
     const n = cutsAt().length, B = sW(), Bx = sWx();
+    if(S.mode === "mid"){
+      const hh = sym("½h", S.h / 2);
+      return [first,
+        { t:"Cut it across, halfway up", m:`${W("two pieces, each")} ${hH(hh)}${W(U())} ${W("high")}`, anim:"cutmid", tip:"The cut joins the middles of the two sloping sides." },
+        { t:"Turn the top half round the middle of the side", m:W("it fits beside the bottom half — now it's a parallelogram"), anim:"turn" },
+        { t:"Its base is both parallel sides", m:FM() ? `${hB(b)} + ${hA(a)}` : `${hB(b)} + ${hA(a)} = ${hB(B)}${W(U())}`, anim:"merge", tip:"The top half is upside down now, so its short side sits next to the long base." },
+        n ? { t:"Chop at the edge of the base and slide the piece across", m:`${W("now it's a")} ${hB(Bx)} × ${hH(hh)} ${W(shapeName().toLowerCase())}`, anim:"chop" }
+          : { t:"It's already a rectangle", m:`${W("a")} ${hB(Bx)} × ${hH(hh)} ${W(shapeName().toLowerCase())}` }];
+    }
     return [first,
       { t:"Make a copy, slide it over and turn it", m:W("together they make a parallelogram"), anim:"copy" },
       { t:"Its base is both parallel sides", m:FM() ? `${hB(b)} + ${hA(a)}` : `${hB(b)} + ${hA(a)} = ${hB(B)}${W(U())}`, anim:"merge", tip:"The copy is upside down, so its short side sits next to the long base." },
@@ -655,6 +693,7 @@
   function motionSamples(){
     const out = [];
     if(S.mode === "avg"){ const g = avgGeo(); for(let u = 0; u <= 1.0001; u += .05) g.pieces.forEach(pc => out.push(swingPoly(pc, u))); }
+    else if(S.mode === "mid"){ const g = midGeo(); for(let u = 0; u <= 1.0001; u += .05) out.push(turnPoly(g.TOP, g.M2, u)); }
     else { const g = paraGeo(), T = TRAP(); for(let u = 0; u <= 1.0001; u += .05) out.push(flipPoly(T, g.e[0], g.e[1], u)); }
     return out;
   }
@@ -664,7 +703,8 @@
     /* room for the moving pieces, capped, so the scale stays the same through every step of the mode */
     let X0 = x0, X1 = x1, Y0 = 0, Y1 = h;
     motionSamples().forEach(P => P.forEach(q => { X0 = Math.min(X0, q[0]); X1 = Math.max(X1, q[0]); Y0 = Math.min(Y0, q[1]); Y1 = Math.max(Y1, q[1]); }));
-    const capX = (x1 - x0) * .2, capY = h * .32;
+    /* halve the height: the top half turns about the middle of a side, a wide sweep — keep all of it on the board */
+    const capX = S.mode === "mid" ? 1e9 : (x1 - x0) * .2, capY = S.mode === "mid" ? 1e9 : h * .32;
     x0 = Math.max(X0, x0 - capX); x1 = Math.min(X1, x1 + capX);
     y0 = Math.max(Y0, -capY); y1 = Math.min(Y1, h + capY);
     return { x0, x1, y0, y1 };
@@ -802,7 +842,7 @@
 
   /* ------------------------------------------------------------ the pose: everything on the board, from the step and its t */
   function rowsTL(){
-    const n = Math.ceil(rectW() - 1e-9), h = S.h;
+    const n = Math.ceil(rectW() - 1e-9), h = Math.ceil(rectH() - 1e-9);
     const cellGap = Math.min(110, 660 / n), rowA = cellGap * (n - 1) + 260;
     const rowGap = h > 1 ? Math.min(150, 1400 / (h - 1)) : 0;
     const rowsEnd = rowA + (h > 1 ? rowGap * (h - 2) + 340 : 0);
@@ -812,14 +852,16 @@
   /* the last step: avg swings the corners back (same area), para halves and un-chops */
   const SAME = { fade:[0, 650], back:[550, 2000], pulse:[2050, 2450], word:[2150, 2600], move:[2200, 2850], total:2950 };
   const HALVE = { fade:[0, 650], grow:[0, 450], split:[450, 1000], drop:[1050, 1500], unchop:[1550, 2550], word:[1650, 2100], move:[1700, 2450], total:2650 };
-  const FIN = () => S.mode === "avg" ? SAME : HALVE;
+  /* halve the height: un-chop, then the top half turns back */
+  const BACK = { fade:[0, 650], unchop:[450, 1400], back:[1400, 2900], pulse:[2950, 3350], word:[3000, 3450], move:[3050, 3700], total:3800 };
+  const FIN = () => S.mode === "avg" ? SAME : S.mode === "mid" ? BACK : HALVE;
 
   function pose(){
     const k = S.step, t = S.anim ? S.anim.t : 1;
     const ka = STEPS.findIndex(s => s.anim === "rows"), inArea = ka >= 0 && k >= ka, phase = inArea ? k - ka : -1;
     const ms = inArea ? (phase === 0 ? t : 1) * rowsTL().total : 0, hv = phase === 1 ? t * FIN().total : 0;
     const at = i => k === i ? t : k > i ? 1 : 0;
-    const P = { k, t, inArea, phase, ms, hv, gridOp:1, rx0:rectX0(), rw:rectW() };
+    const P = { k, t, inArea, phase, ms, hv, gridOp:1, rx0:rectX0(), rw:rectW(), rh:rectH() };
     if(S.mode === "avg"){
       const g = avgGeo(), two = g.pieces.length === 2, cut = at(1), sw = at(2);
       const back = phase === 1 ? ease(span01(hv, SAME.back)) : 0;
@@ -834,6 +876,21 @@
       P.marks = k === 0 ? 0 : !inArea ? (k === 1 ? span01(cut, [0, .12]) : 1) : phase === 0 ? 1 - span01(ms, [0, 300]) : span01(hv, [SAME.back[0], SAME.back[0] + 300]);
       /* a rectangle that starts half way across a square: the background squares step aside while it is counted */
       if(inArea && !Number.isInteger(g.x1)) P.gridOp = phase === 0 ? 1 - span01(ms, [0, 300]) : span01(hv, [SAME.back[1] - 200, SAME.back[1] + 300]);
+    } else if(S.mode === "mid"){
+      const g = midGeo(), cuts = cutsAt(), ch = cuts.length ? at(4) : 0, c1 = at(1), tn = at(2);
+      const un = phase === 1 ? ease(span01(hv, BACK.unchop)) : 0, tb = phase === 1 ? ease(span01(hv, BACK.back)) : 0;
+      P.g = g; P.cuts = cuts; P.un = un; P.merge = at(3);
+      P.cut = ease(span01(c1, [.08, .7]));
+      P.sep = k === 1 ? ease(span01(c1, [.84, 1])) : k === 2 ? 1 - ease(span01(tn, [0, .1])) : 0;
+      P.split = k === 1 ? span01(c1, [.72, .95]) : k > 1 ? 1 : 0;
+      P.arrow = k === 1 ? span01(c1, [.88, 1]) : k === 2 ? 1 - span01(tn, [0, .12]) : 0;
+      P.turn = ease(span01(tn, [.1, .92])) * (1 - tb);
+      P.ghost = (k === 2 ? span01(tn, [.1, .3]) : k > 2 ? 1 : 0) * (1 - tb);
+      P.chopCut = ease(span01(ch, [0, .4]));
+      P.chop = ease(span01(ch, [.48, 1])) * (1 - un);
+      P.csep = cuts.length && k === 4 ? span01(ch, [.4, .48]) * (1 - ease(span01(ch, [.48, 1]))) : 0;
+      P.hg = cuts.length ? P.chop : 0;
+      P.marks = k === 0 ? 0 : !inArea ? (k === 1 ? span01(c1, [0, .12]) : 1) : phase === 0 ? 1 - span01(ms, [0, 300]) : span01(hv, [BACK.back[0], BACK.back[0] + 300]);
     } else {
       const g = paraGeo(), cuts = cutsAt(), ch = cuts.length ? at(3) : 0;
       const un = phase === 1 ? ease(span01(hv, HALVE.unchop)) : 0;
@@ -861,9 +918,9 @@
     G.hand = el("g");
     const P = pose();
     drawGrid(G.grid, P.gridOp);
-    if(S.mode === "avg") sceneAvg(P, G); else scenePara(P, G);
-    drawHeight(P, G);
-    if(S.mode === "avg") labelsAvg(P, G); else labelsPara(P, G);
+    if(S.mode === "avg") sceneAvg(P, G); else if(S.mode === "mid") sceneMid(P, G); else scenePara(P, G);
+    if(S.mode === "mid") drawHeightMid(P, G); else drawHeight(P, G);
+    if(S.mode === "avg") labelsAvg(P, G); else if(S.mode === "mid") labelsMid(P, G); else labelsPara(P, G);
     if(P.inArea) drawArea(P, G);
     drawHandles(G.hand);
     renderPanel();
@@ -927,6 +984,94 @@
       poly(c.map(q => [q[0] + shift, q[1]]), { fill:f, stroke:st, "stroke-width":sw, opacity:op < 1 ? op : null }, G.main);
     })); }
     if(k === 3 && prog === 0 && P.sep === 0) cuts.forEach(x => { const r = yRangeAt(g.PG, x); if(r) cutLine([x, r[1]], [x, r[0]], P.chopCut, G.top, !!S.anim, P.t); });
+  }
+
+  /* ----- 3. halve the height: cut across halfway up, turn the top half round ----- */
+  function sceneMid(P, G){
+    const g = P.g, T = g.T, k = P.k, gap = 4 / L.s * P.sep;
+    if(P.ghost > 0) poly(T, { fill:"none", stroke:"#64748b", "stroke-width":2, "stroke-dasharray":"6 5", opacity:P.ghost }, G.back);
+    const top = turnPoly(g.TOP, g.M2, P.turn, gap);
+    if(k === 0 || (k === 1 && P.sep === 0)){
+      poly(T, SHAPE(), G.main);
+      if(k === 1) cutLine(g.M1, g.M2, P.cut, G.top, !!S.anim, P.t);
+    } else {
+      const prog = P.chop, cuts = P.cuts, cgap = 5 / L.s * P.csep;
+      if(prog > 0 && cuts.length) poly(g.PG, { fill:"none", stroke:"#94a3b8", "stroke-width":2, "stroke-dasharray":"6 6", opacity:Math.min(1, prog * 1.5) }, G.back);
+      if(prog === 0 && cgap === 0){ poly(g.BOT, SHAPE(), G.main); poly(top, SHAPE(), G.main); }
+      else { const ST = strips(); [g.BOT, top].forEach(Q => ST.forEach(s => {
+        const c = clipX(Q, s.lo, s.hi); if(!c) return;
+        const shift = s.dx * prog - Math.sign(s.dx) * cgap;
+        poly(c.map(q => [q[0] + shift, q[1]]), SHAPE(), G.main);
+      })); }
+      if(k === 4 && prog === 0 && P.csep === 0) cuts.forEach(x => { const r = yRangeAt(g.PG, x); if(r) cutLine([x, r[1]], [x, r[0]], P.chopCut, G.top, !!S.anim, P.t); });
+    }
+    /* the middles of both sloping sides, with equal marks on their halves; the top half's marks
+       turn with it, so its half of the right-hand side lands on the bottom half's */
+    if(P.marks > 0 && P.chop === 0){
+      const { a, b, h, p } = S;
+      [[g.M1, [0, 0], [p, h], 1], [g.M2, [b, 0], [p + a, h], 2]].forEach(([M, lo, hi, n]) => {
+        ticks(M, lo, n, G.top, P.marks);
+        const q = turnPoly([M, hi], g.M2, P.turn, gap); ticks(q[0], q[1], n, G.top, P.marks);
+      });
+      pin(g.M1, G.top, P.marks); pin(g.M2, G.top, P.marks);
+    }
+    swingArrow({ P:g.TOP, M:g.M2, sign:-1 }, G.top, P.arrow);
+  }
+  /* the height: h, then two halves of it once the cut is made. The top half's ½h turns with it and
+     fades as it lands; the bottom half's slides to the rectangle's side when it is chopped. */
+  function drawHeightMid(P, G){
+    const { h } = S, f = fs(), s = P.hs, e = P.he, u = P.hg, hh = h / 2, g = P.g, gap = 4 / L.s * P.sep;
+    const labH = fmt(sH()) + U(), labHalf = fmt(sym("½h", hh)) + U();
+    const x = lerp(s.x, e.x, u), split = P.split, edge = s.edge && u === 0;
+    /* the whole height, until the cut */
+    if(split < 1){
+      if(!edge) seg([s.x, 0], [s.x, h], { stroke:C.alt, "stroke-width":2.5, "stroke-dasharray":"7 5" }, G.top);
+      pill(L.X(s.x) + s.side * (pillW(labH, f) / 2 + 10), L.Y(h / 2), labH, f, Object.assign({ op:1 - split }, PILL_H), G.lab);
+    }
+    const lw = pillW(labHalf, f);
+    /* the bottom half's */
+    if(split > 0 || P.k > 1){
+      if(!edge) seg([x, 0], [x, hh], { stroke:C.alt, "stroke-width":2.5, "stroke-dasharray":"7 5" }, G.top);
+      const r = Math.min(13, hh * L.s * .3), lo = u > .5 ? 0 : 0, hi = u > .5 ? sumB() : S.b, dir = x < (lo + hi) / 2 ? 1 : -1, fx = L.X(x), fy = L.Y(0);
+      el("path", { d:`M${fx + dir * r} ${fy}V${fy - r}H${fx}`, fill:"none", stroke:edge ? C.triS : C.alt, "stroke-width":2, class:"noHit" }, G.top);
+      const px0 = L.X(s.x) + s.side * (lw / 2 + 10), px1 = L.X(e.x) + e.side * (lw / 2 + 12);
+      pill(lerp(px0, px1, u), L.Y(hh / 2), labHalf, f, Object.assign({ op:split }, PILL_H), G.lab);
+      /* the top half's: turns with it, fades as it lands */
+      const op = split * (1 - span01(P.turn, [.8, 1])) * (P.k <= 2 || P.phase === 1 ? 1 : 0);
+      if(op > 0){
+        const q = turnPoly([[s.x, hh], [s.x, h]], g.M2, P.turn, gap);
+        if(!edge) seg(q[0], q[1], { stroke:C.alt, "stroke-width":2.5, "stroke-dasharray":"7 5", opacity:op }, G.top);
+        const tight = hh * L.s < f * 1.6 + 6, sd = tight ? -s.side : s.side;
+        const lp = turnPoly([[s.x + sd * (lw / 2 + 10) / L.s, hh * 1.5]], g.M2, P.turn, gap)[0];
+        pill(L.X(lp[0]), L.Y(lp[1]), labHalf, f, Object.assign({ op }, PILL_H), G.lab);
+      }
+    }
+  }
+  function labelsMid(P, G){
+    const { a, b, h, p } = S, f = fs(), o = offB(), k = P.k, B = sumB(), g = P.g, gap = 4 / L.s * P.sep;
+    const la = fmt(sA()) + U(), lb = fmt(sB()) + U(), lB = fmt(sW()) + U(), wa = pillW(la, f), wb = pillW(lb, f);
+    /* a sits on the top half and is carried round with it: above the top, then below, beside b */
+    const aq = turnPoly([[p + a / 2, h + o / L.s]], g.M2, P.turn, gap)[0];
+    const aP = [L.X(aq[0]), L.Y(aq[1])], bP = [L.X(b / 2), L.Y(0) + o];
+    if(P.turn > .5){ const need = (wa + wb) / 2 + 8, gp = aP[0] - bP[0]; if(Math.abs(aP[1] - bP[1]) < f * 1.6 && gp < need){ const d = (need - gp) / 2; aP[0] += d; bP[0] -= d; } }
+    const m = P.merge, cx = L.X(B / 2), y = L.Y(0) + o;
+    const mv = ease(span01(m, [.05, .4])), plus = span01(m, [.3, .42]), join = ease(span01(m, [.5, .66])), out = span01(m, [.58, .7]), pop = span01(m, [.58, .82]);
+    const sumOut = P.phase === 1 ? span01(P.hv, [BACK.unchop[0], BACK.unchop[0] + 400]) : 0;
+    const back = P.phase === 1 ? span01(P.hv, [BACK.unchop[0] + 200, BACK.unchop[0] + 600]) : 0;
+    if(k <= 2 || (k === 3 && out < 1)){
+      const pb = k === 3 ? [lerp(lerp(bP[0], cx - wb / 2 - 16, mv), cx, join), y] : bP;
+      const pa = k === 3 ? [lerp(lerp(aP[0], cx + wa / 2 + 16, mv), cx, join), y] : aP;
+      pill(pa[0], pa[1], la, f, Object.assign({ op:1 - out }, PILL_A), G.lab);
+      pill(pb[0], pb[1], lb, f, Object.assign({ op:1 - out }, PILL_B), G.lab);
+      if(k === 3 && plus > 0) txt(cx, y, "+", f * 1.25, "#334155", G.lab, { opacity:plus * (1 - out) });
+    } else if(back > 0){
+      pill(aP[0], aP[1], la, f, Object.assign({ op:back }, PILL_A), G.lab);
+      pill(bP[0], bP[1], lb, f, Object.assign({ op:back }, PILL_B), G.lab);
+    }
+    if(k >= 3 && pop > 0 && sumOut < 1){
+      const fz = f * (pop < 1 ? Math.max(.05, easeBack(pop)) : 1);
+      pill(cx, y, lB, fz, Object.assign({ op:1 - sumOut }, PILL_W), G.lab);
+    }
   }
 
   /* ----- the height: from a top corner (or a vertical side), then to the rectangle's side ----- */
@@ -1007,15 +1152,15 @@
      Everything is drawn from the step's t, so Back plays it in reverse. */
   const BLUE = "#1d4ed8", ORANGE = "#c2410c";
   function areaLabels(){
-    const { h } = S, calc = !!S.set.calc, w = rectW(), R = fmt(w * h);
+    const h = rectH(), calc = !!S.set.calc, w = rectW(), R = fmt(w * h);
     const word = x => ({ s:x, ui:true, fill:"#334155" }), m = (x, fill) => ({ s:x, fill:fill || "#0f172a" });
     const times = nm => calc && !FM() ? [word(nm), m(" = "), m(fmt(w), BLUE), m(" × "), m(fmt(h), ORANGE), m(" =")] : [word(nm), m(" =")];
     if(FM()) return {
-      rect:{ pre:times("Rectangle"), num:`${sWx()} × h` },
-      fin: { pre:times("Trapezium"), num:S.mode === "avg" ? "½(a + b) × h" : "½ × (a + b) × h" } };
+      rect:{ pre:times("Rectangle"), num:`${sWx()} × ${S.mode === "mid" ? "½h" : "h"}` },
+      fin: { pre:times("Trapezium"), num:S.mode === "avg" ? "½(a + b) × h" : S.mode === "mid" ? "(a + b) × ½h" : "½ × (a + b) × h" } };
     return {
       rect:{ pre:times(shapeName()), num:R },
-      fin: { pre:S.mode === "avg" ? times("Trapezium") : (calc ? [word("Trapezium"), m(" = " + R + " ÷ 2 =")] : [word("Trapezium"), m(" =")]), num:fmt(area()) } };
+      fin: { pre:S.mode !== "para" ? times("Trapezium") : (calc ? [word("Trapezium"), m(" = " + R + " ÷ 2 =")] : [word("Trapezium"), m(" =")]), num:fmt(area()) } };
   }
   function richText(x, y, segs, f, g, extra){
     const t = el("text", Object.assign({ x, y, "font-size":f, "text-anchor":"start", "dominant-baseline":"central", style:"white-space:pre" }, extra || {}), g);
@@ -1039,7 +1184,7 @@
     const uw = u ? textW([{ s:u }], f * .8) + f * .3 : 0, pw = textW(lab.pre, f), nw = textW([{ s:lab.num }], f);
     return { pad, gap, pw, nw, uw, w:pad * 2 + pw + gap + nw + uw, h:f * 2.05 };
   }
-  const hLabW = f => pillW(fmt(sH()) + U(), f);
+  const hLabW = f => Math.max(pillW(fmt(sH()) + U(), f), S.mode === "mid" ? pillW(fmt(sym("½h", S.h / 2)) + U(), f) : 0);
   function boxRoom(compact){
     const f = boxFont(compact), lab = areaLabels();
     return 20 + (hRight() ? hLabW(compact ? 15 : 18) + 14 : 0) + Math.max(boxMetrics(lab.rect, f).w, boxMetrics(lab.fin, f).w);
@@ -1050,20 +1195,20 @@
     return { x:clamp(L.X((minX() + maxX()) / 2) - m.w / 2, 6, L.w - 6 - m.w), y };
   }
   function drawArea(P, G){
-    const { h } = S, TL = rowsTL(), FT = FIN(), phase = P.phase, ms = P.ms, hv = P.hv, w = P.rw, x0 = P.rx0;
+    const h = P.rh, TL = rowsTL(), FT = FIN(), phase = P.phase, ms = P.ms, hv = P.hv, w = P.rw, x0 = P.rx0, nR = Math.ceil(h - 1e-9), rH = j => Math.min(1, h - j);
     /* --- the rows: the bottom one square by square, then the others one at a time --- */
     const fade = phase === 1 ? 1 - span01(hv, FT.fade) : 1;
     if(fade > 0){
       const lines = L.s >= 9, sw = L.s >= 30 ? 1.4 : 1;
       const cell = (i, j, u) => {
         if(u <= 0) return;
-        el("rect", { x:L.X(x0 + i), y:L.Y(j + 1), width:Math.min(1, w - i) * L.s, height:L.s, fill:C.ans, "fill-opacity":((u * .2) + Math.sin(Math.PI * u) * .24) * fade,
+        el("rect", { x:L.X(x0 + i), y:L.Y(j + rH(j)), width:Math.min(1, w - i) * L.s, height:rH(j) * L.s, fill:C.ans, "fill-opacity":((u * .2) + Math.sin(Math.PI * u) * .24) * fade,
           stroke:lines ? C.ans : "none", "stroke-opacity":.55 * u * fade, "stroke-width":sw, class:"noHit" }, G.area);
       };
-      const rowLine = (j, u) => { if(u > 0) el("rect", { x:L.X(x0), y:L.Y(j + 1), width:w * L.s, height:L.s, fill:"none", stroke:C.ans, "stroke-width":2.2, "stroke-opacity":.85 * u * fade, class:"noHit" }, G.area); };
+      const rowLine = (j, u) => { if(u > 0) el("rect", { x:L.X(x0), y:L.Y(j + rH(j)), width:w * L.s, height:rH(j) * L.s, fill:"none", stroke:C.ans, "stroke-width":2.2, "stroke-opacity":.85 * u * fade, class:"noHit" }, G.area); };
       for(let i = 0; i < TL.n; i++) cell(i, 0, span01(ms, [i * TL.cellGap, i * TL.cellGap + 240]));
       rowLine(0, span01(ms, [(TL.n - 1) * TL.cellGap, (TL.n - 1) * TL.cellGap + 240]));
-      for(let j = 1; j < h; j++){
+      for(let j = 1; j < nR; j++){
         const s0 = TL.rowA + (j - 1) * TL.rowGap, u = span01(ms, [s0, s0 + 340]);
         for(let i = 0; i < TL.n; i++) cell(i, j, u);
         rowLine(j, u);
@@ -1104,9 +1249,9 @@
     const mv = ease(span01(hv, FT.move));
     units(sx + mR.nw / 2 + f * .3, sy, 1 - span01(hv, [FT.move[0] - 200, FT.move[0]]));
     units(slot(pT, mT) + mT.nw / 2 + f * .3, pT.y, span01(hv, [FT.move[1] - 150, FT.move[1] + 60]));
-    if(S.mode === "avg"){
+    if(S.mode !== "para"){
       /* same pieces, same number: it pulses, then moves into the trapezium's label */
-      const fz = f * (1 + .3 * Math.sin(Math.PI * span01(hv, SAME.pulse)));
+      const fz = f * (1 + .3 * Math.sin(Math.PI * span01(hv, FT.pulse)));
       num(lerp(sx, slot(pT, mT), mv), lerp(sy, pT.y, mv), lab.fin.num, fz, 1);
       return;
     }
@@ -1155,6 +1300,7 @@
     $("stmt").hidden = !calc && !FM();
     const qa = sA(), qb = sB(), qh = sH();
     const lhs = S.mode === "avg" ? fracH(`${hA(qa)} + ${hB(qb)}`, "2") + `<span>×</span>${hH(qh)}`
+      : S.mode === "mid" ? `<span>(${hA(qa)} + ${hB(qb)})</span><span>×</span>${fracH(hH(qh), "2")}`
       : `${half}<span>×</span><span>(${hA(qa)} + ${hB(qb)})</span><span>×</span>${hH(qh)}`;
     const qBtn = `<button class="ansBtn" id="ansBtn" type="button" title="${FM() ? "Show the formula" : "Show the area"}">?</button>`;
     /* formula mode: the formula itself is the answer, behind a ? until the end */
@@ -1187,7 +1333,7 @@
 
   /* ------------------------------------------------------------ stepping */
   let raf = 0;
-  const DUR = { cut:1900, swing:2800, avg:2600, copy:2200, merge:2100, chop:2300, rows:() => rowsTL().total, same:SAME.total, halve:HALVE.total };
+  const DUR = { cut:1900, swing:2800, avg:2600, copy:2200, merge:2100, chop:2300, cutmid:2300, turn:3000, rows:() => rowsTL().total, same:SAME.total, halve:HALVE.total, back:BACK.total };
   const durOf = a => typeof DUR[a] === "function" ? DUR[a]() : (DUR[a] || 1200);
   function animate(dur, t0, t1, onEnd){
     cancelAnimationFrame(raf);
@@ -1217,7 +1363,7 @@
   function showAll(){ jump(STEPS.length - 1); }
   function startAgain(){ if(S.step === 0 && !S.anim) return; jump(0); }
   function setMode(m){
-    if(m === S.mode || !["avg", "para"].includes(m)) return;
+    if(m === S.mode || !["avg", "para", "mid"].includes(m)) return;
     stopAnim(); S.mode = m; S.step = 0; S.revealed = false; save(); render();
   }
   function changed(){ stopAnim(); S.revealed = false; S.step = 0; clampShape(); save(); render(); }
@@ -1357,7 +1503,7 @@
     else if(e.key === "Enter"){ e.preventDefault(); randomTrap(); }
     else if(e.key === "ArrowRight"){ e.preventDefault(); next(); }
     else if(e.key === "ArrowLeft"){ e.preventDefault(); back(); }
-    else if(e.key === "1") setMode("avg"); else if(e.key === "2") setMode("para");
+    else if(e.key === "1") setMode("avg"); else if(e.key === "2") setMode("para"); else if(e.key === "3") setMode("mid");
     else if(e.key === "n" || e.key === "N") randomTrap();
     else if(e.key === "f" || e.key === "F") toggleFs();
   });
@@ -1368,7 +1514,7 @@
   render();
 
   /* test surface */
-  window.__TRAP__ = { S, steps, rowsTL, SAME, HALVE, areaLabels, avgGeo, paraGeo, strips, cutsAt, clipX, polyArea, swingPoly, flipPoly, pRange, kindOf, area, render, next, back, showAll, startAgain, setMode, setTrap, makeTrap, toggleFs, pose,
+  window.__TRAP__ = { S, steps, rowsTL, SAME, HALVE, BACK, areaLabels, avgGeo, paraGeo, midGeo, turnPoly, rectH, strips, cutsAt, clipX, polyArea, swingPoly, flipPoly, pRange, kindOf, area, render, next, back, showAll, startAgain, setMode, setTrap, makeTrap, toggleFs, pose,
     setPanel:on => { S.set.panel = on; applyPanel(); render(); }, get L(){ return L; } };
 })();
 </script>

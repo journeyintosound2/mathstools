@@ -107,6 +107,29 @@
 > tools draw exactly what they drew before (314 frames compared with the old files, within half a pixel); ON: no
 > number, NaN or units on any board label over every step of every mode; trapezium layout audit 16,000 frames clean.
 >
+> **NEW (2026-11-16, last): AREA OF A TRAPEZIUM — THIRD WAY, "HALVE THE HEIGHT" (tool, quiz, worksheet).**
+> * **Tool** (mode `mid`, key 3, third mode button): cut straight across halfway up (the cut joins the middles of
+>   both sloping sides; pins + equal-halves ticks on both sides), the h label splits into two ½h. The top half
+>   turns half a turn CLOCKWISE about the middle of the right-hand side (`turnPoly`, pure rotation with the curved
+>   arrow, not slide-then-turn: the pivot is the point being taught) — clockwise because the whole trapezium is on
+>   one side of that side, so the moving half never crosses the bottom half (checked for all 11,340 allowed shapes).
+>   Its ½h and its a turn with it; a lands beside b → merge into a + b; the parallelogram (lean p/2, `midGeo().PG`)
+>   is chopped by `strips()` (lean = p/2 in this mode) into the (a + b) × ½h rectangle; rows (half a row when h is
+>   odd: `rectH()`, `rH(j)` in `drawArea`); last step "Turn the top half back" (`BACK` timeline: un-chop, turn back).
+>   Statement (a + b) × h/2. **The frame keeps the WHOLE turn on the board in this mode (no caps)** — the sweep is
+>   wide, so this mode draws a little smaller. avg/para render byte-identical to before (compared at every step).
+> * **Quiz:** third button "Halve the height" in the model panel (`midGeo`, `sceneMid`, `drawHeightMid`,
+>   `labelsMid`, `midPose`; frame uncapped for it). New question `qMid` (cat `trap-mid`, "Halve the height" in
+>   CAT_NAMES and quizInsights SKILL_LABELS): "…it makes a parallelogram — what is its area?" (= the trapezium's),
+>   one on Sweet (iso, even height) and one on Mild (plain, even height). `mkTrap` gained `o.hEven`.
+> * **Worksheet:** new section printed as **C Halve the height** (internal key `M`; printed letters from `LT`, so
+>   Find the area … Fluency are now D … H): `trapSVG` `show:"mid"` draws the dotted cut halfway up, the pivot,
+>   the curved arrow and the dashed landing piece with its a; fill Base __ + __, Height __ ÷ 2, Area __ × __.
+>   Even heights on Sweet/Mild. Spot the mistake gained "halved twice". Worked example: avg / para / mid /
+>   avg + para / **all three (default)** — three ways print as three columns, a picture over one line each.
+> * Verified: tool geometry 11,340 shapes + layout at 4 viewports incl. animation frames; quiz 1,190 play checks +
+>   1,000 papers; worksheet 1,920 questions re-derived, 54 papers, PDF pages = preview.
+>
 > **NEW (2026-11-16, latest): AREA OF A CIRCLE — new teaching tool** at
 > `interactive-tools/stage-4/measurement-space/area-of-a-circle/index.html`, on the trapezium tool's shell. Under
 > **MA4-ARE-C-01** idea `circles-sectors` (toolLinks row; homepage Interactive card, pill 41 → 42); linked from the
@@ -173,7 +196,7 @@
 >   and 54 papers at 18 configurations (nothing past a page or card, key mirrors the paper with every answer
 >   re-derived, no answers on student pages), PDF pages = preview.
 >
-> **NEW (2026-11-16): AREA OF A TRAPEZIUM — new teaching tool** at
+> **NEW (2026-11-16): AREA OF A TRAPEZIUM — new teaching tool** (a third mode, Halve the height, was added later the same day — see above) at
 > `interactive-tools/stage-4/measurement-space/area-of-a-trapezium/index.html`, on the triangle tool's shell
 > (same CSS, colours, slide-then-turn `flipPoly`, rows count + label box, Back plays every animation in reverse).
 > Under **MA4-ARE-C-01** idea `trapeziums-rhombuses-kites`, homepage Interactive card (pill 40 → 41), linked
