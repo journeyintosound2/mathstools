@@ -168,6 +168,9 @@
 >   5 × 7). Switching to it moves the notation from Algebra to Times sign. After the answer, "Compare with the long way"
 >   (on) adds a dashed aside card to the working: every original term multiplied separately, the sum, and "5
 >   multiplications the long way · 2 after collecting" — collecting is the multiplicative strategy.
+> * **Number Groups got the same "Terms are" select (2026-11-17)** at the top of Settings › New questions
+>   (`#kindSel`: Numbers / Letters), synced both ways with the panel's switch and the L key via `setKind` /
+>   `paintPanel`.
 > * Lesson plan updated (title, controls, Number Groups first). The old quiz/worksheet at `collecting-like-terms.html`
 >   are unchanged apart from their listed titles ("– Bubbles") — they are the old ones, worth rebuilding on this model.
 > * Verified (Playwright): real-mouse join / zero pair / unlike refused / split / rearrange / undo, a touch drag at 390,

@@ -297,6 +297,13 @@
           <button class="btn" id="settingsBtn" type="button" aria-haspopup="true" aria-expanded="false">Settings &#9662;</button>
           <nav class="dropMenu settingsMenu" id="settingsMenu" aria-label="Settings">
             <div class="settingsHead">New questions</div>
+            <label class="selRow"><span>Terms are</span>
+              <select id="kindSel" aria-label="Whether the groups are numbers or letters">
+                <option value="num">Numbers: 3 &times; 7 + 2 &times; 7</option>
+                <option value="let">Letters: 3x + 2x</option>
+              </select>
+            </label>
+            <p class="settingsNote"><b>Letters</b> keeps the same counts: 3 &times; 7 + 2 &times; 7 becomes 3<i>x</i> + 2<i>x</i>. Same as the side panel&rsquo;s Numbers / Letters switch (or L).</p>
             <label class="selRow"><span>Size of a group</span>
               <select id="sizeSel" aria-label="Size of a group when it is a number">
                 <option value="small">2 to 9</option>
@@ -1120,6 +1127,7 @@
   function paintPanel(){
     const st = S.set;
     document.querySelectorAll(".kindSeg button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.kind === st.kind)));
+    if($("kindSel")) $("kindSel").value = st.kind;
     $("typeTag").textContent = st.kind === "num" ? "Numbers" : "Letters"; $("typeTag").classList.toggle("let", st.kind === "let");
     const q = S.q;
     $("totalIn").value = q && q.own ? q.n : st.total; $("termsIn").value = q && q.own ? q.terms.filter(t => !t.u).length : st.terms;
@@ -1148,6 +1156,8 @@
   $("rTotal").addEventListener("click", () => { S.set.rTotal = !S.set.rTotal; save(); newQuestion(); });
   $("rTerms").addEventListener("click", () => { S.set.rTerms = !S.set.rTerms; save(); newQuestion(); });
   document.querySelectorAll(".kindSeg button").forEach(b => b.addEventListener("click", () => setKind(b.dataset.kind)));
+  $("kindSel").value = S.set.kind;
+  $("kindSel").addEventListener("change", () => setKind($("kindSel").value));
   document.querySelectorAll(".modeBtn").forEach(b => b.addEventListener("click", () => setNot(b.dataset.not)));
   $("newQBtn").addEventListener("click", newQuestion);
   $("newBtn").addEventListener("click", newQuestion);
