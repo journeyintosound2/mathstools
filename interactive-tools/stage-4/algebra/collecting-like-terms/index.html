@@ -242,6 +242,10 @@
     .sZero{ position:absolute; transform:translate(-50%,-50%); font-family:var(--mathFont); color:#7c3aed; animation:zeroUp .8s ease forwards; }
     .stmt .t{ transform-origin:50% 55%; }
     .stmt .orig .lbl{ display:inline-block; }
+    .sLine.aside{ background:#faf5ff; border-color:rgba(124,58,237,.28); border-style:dashed; }
+    .sLine.aside .n{ background:#a78bfa; }
+    .sLine.aside .m{ font-size:1.02rem; color:var(--line-soft); }
+    .sLine.aside .tip{ color:#6d28d9; }
     /* ---------- side panel ---------- */
     .side{ display:flex; flex-direction:column; gap:12px; min-height:0; min-width:0; }
     .panel{ padding:12px 14px; }
@@ -369,6 +373,13 @@
           <button class="btn" id="settingsBtn" type="button" aria-haspopup="true" aria-expanded="false">Settings &#9662;</button>
           <nav class="dropMenu settingsMenu" id="settingsMenu" aria-label="Settings">
             <div class="settingsHead">New questions</div>
+            <label class="selRow"><span>Terms are</span>
+              <select id="kindSel" aria-label="What the terms are made of">
+                <option value="let">Letters: 3x + 2y</option>
+                <option value="num">Numbers only: 5 × 7 + 3 × 7</option>
+              </select>
+            </label>
+            <p class="settingsNote"><b>Numbers only</b> puts groups of numbers in the bubbles: 5 &times; 7 + 3 &times; 7 + 2 &times; 5 is collected exactly like 5<i>x</i> + 3<i>x</i> + 2<i>y</i> &mdash; count the groups of 7 first, then multiply once.</p>
             <label class="sw"><input type="checkbox" id="negToggle" checked><span class="track"></span><span>Include taking away (&minus;2<i>x</i>)</span></label>
             <p class="settingsNote">A &minus;<i>x</i> and an <i>x</i> make a zero pair: drop one on the other and both pop.</p>
             <label class="sw"><input type="checkbox" id="onesToggle"><span class="track"></span><span>Include plain numbers (letters)</span></label>
@@ -388,6 +399,8 @@
             <p class="settingsNote">Off by default, so the class has to read each bubble to find its partners.</p>
             <label class="sw"><input type="checkbox" id="splitToggle" checked><span class="track"></span><span>Drag a piece out to split a term</span></label>
             <p class="settingsNote">Drop one <i>x</i> on empty space and 5<i>x</i> becomes 4<i>x</i> + <i>x</i> &mdash; the same amount, written another way.</p>
+            <label class="sw"><input type="checkbox" id="longToggle" checked><span class="track"></span><span>Compare with the long way (numbers only)</span></label>
+            <p class="settingsNote">After the answer, the working shows every term multiplied separately &mdash; and how many multiplications collecting saved.</p>
             <label class="sw"><input type="checkbox" id="whyToggle" checked><span class="track"></span><span>Name each move in the working</span></label>
           </nav>
         </div>
@@ -501,7 +514,7 @@
 
   /* ================= state ================= */
   const DEF = { kind:"let", terms:4, kinds:2, rTerms:false, rKinds:false, neg:true, ones:false, alike:false, size:"mid",
-    colour:false, split:true, why:true, not:"brackets", panel:true };
+    colour:false, split:true, why:true, long:true, not:"brackets", panel:true };
   /* bubs: the board, in reading order. A bubble is one term: { id, key, d, s, toks:[token ids] }.
      key = what kind of term it is (x, ab, 1, n8); d = how it is written (ab or ba); s = +1 / -1. */
   const S = { set:Object.assign({}, DEF), q:null, bubs:[], lines:[], hist:[], evalDone:false, busy:false, fs:false, noAnim:false, msg:"" };
@@ -713,7 +726,7 @@
 
   /* ================= the working ================= */
   const WHY = { start:"Start", join:"Join like terms", move:"Move one across", pair:"Zero pairs", split:"Split a term",
-    order:"Rearrange", eval:"Work out each group", add:"Add", done:"Simplified" };
+    order:"Rearrange", eval:"Work out each group", add:"Add", done:"Simplified", long:"The long way" };
   function pushLine(why, extra){
     const terms = termsOf(S.bubs);
     const last = S.lines[S.lines.length - 1];
@@ -730,9 +743,11 @@
     box.innerHTML = S.lines.map((L, i) => {
       const cur = i === n - 1, done = cur && isDone() && i > 0;
       const lab = S.set.why ? `<span class="whyTxt">${WHY[L.why] || ""}</span>` : "";
+      if(L.aside) return `<div class="sLine aside"><div class="lab"><span class="n">&#8635;</span><span class="whyTxt">${WHY.long}</span></div><div class="m">${L.html}</div>${L.note ? `<div class="tip">${L.note}</div>` : ""}</div>`;
       return `<div class="sLine${cur ? (done ? " done cur" : " cur") : ""}"><div class="lab"><span class="n">${i === 0 ? "&#9679;" : i}</span>${lab}</div><div class="m">${i ? `<span class="eqs">= </span>` : ""}${lineMath(L, S.set.not)}</div></div>`;
     }).join("");
-    $("moveCount").textContent = n > 1 ? `${n - 1} move${n === 2 ? "" : "s"}` : "";
+    const mv = S.lines.filter((L, i) => i > 0 && !L.aside).length;
+    $("moveCount").textContent = mv ? `${mv} move${mv === 1 ? "" : "s"}` : "";
     const sc = $("storyScroll"); sc.scrollTop = sc.scrollHeight;
   }
 
@@ -972,7 +987,7 @@
     const moved = S.lines.length > 1;
     const o = $("stmt");
     const html = (moved ? `<span class="orig"><span class="lbl">Simplify</span> &nbsp;<span class="m">${exprHTML(orig, not === "words" ? "brackets" : not, { colour:S.set.colour, pre:"o" })}</span></span>` : "")
-      + `<span class="cur">${exprHTML(terms, not, { colour:S.set.colour, pre:"" })}${S.evalDone && S.lines.length ? `<span class="t op">=</span><span class="t ev">${S.lines[S.lines.length - 1].html}</span>` : ""}</span>`;
+      + `<span class="cur">${exprHTML(terms, not, { colour:S.set.colour, pre:"" })}${S.evalDone && S.lines.length ? `<span class="t op">=</span><span class="t ev">${S.lines.filter(x => x.why === "eval" || x.why === "add").pop().html}</span>` : ""}</span>`;
     /* nothing to say differently (a resize, a busy repaint): leave the line alone so a morph in flight keeps going */
     if(o._html === html && !(S.fx && S.fx.fresh)){ fitStmt(); }
     else {
@@ -1016,7 +1031,7 @@
 
   /* ================= moves ================= */
   function remember(){ S.hist.push(snap()); if(S.hist.length > 80) S.hist.shift(); }
-  const nameOf = b => plainTerm(b.toks.length, b.key, b.d);
+  const nameOf = b => typeOf(b.key) === "num" && S.set.not !== "brackets" ? `${b.toks.length} ${TIMES} ${valOf(b.key)}` : plainTerm(b.toks.length, b.key, b.d);
   const termName = b => (b.s < 0 ? MINUS : "") + nameOf(b);
   function unlikeMsg(a, b){
     const ta = typeOf(a.key), tb = typeOf(b.key);
@@ -1189,7 +1204,17 @@
       S.lines.push({ why:"eval", terms:[], html:valsHTML });
       if(vals.length > 1){ const sum = vals.reduce((a, v) => a + v, 0); S.lines.push({ why:"add", terms:[], html:(sum < 0 ? MINUS : "") + Math.abs(sum) }); }
       S.evalDone = true;
-      say(`<b>Worked out:</b> each group counted, then added.`);
+      const nCollected = S.bubs.length, nLong = S.q.terms.length;
+      if(S.set.long && nLong > nCollected){
+        /* the same question worked out term by term, so the class can count the multiplications saved */
+        const ov = S.q.terms.map(t => t.s * t.n * valOf(t.key));
+        const tot = ov.reduce((a, v) => a + v, 0);
+        const ovHTML = ov.map((v, i) => i === 0 ? (v < 0 ? MINUS + Math.abs(v) : String(v)) : `<span class="t op${v < 0 ? " neg" : ""}">${v < 0 ? MINUS : "+"}</span>${Math.abs(v)}`).join("");
+        S.lines.push({ why:"long", terms:[], aside:true,
+          html:`${exprHTML(S.q.terms, "times")}<br><span class="eqs">= </span>${ovHTML}<br><span class="eqs">= </span>${tot < 0 ? MINUS : ""}${Math.abs(tot)}`,
+          note:`${nLong} multiplications the long way &middot; ${nCollected} after collecting` });
+        say(`<b>Count the groups first:</b> ${nCollected} multiplication${nCollected === 1 ? "" : "s"} instead of ${nLong} &mdash; and the same answer.`);
+      } else say(`<b>Worked out:</b> each group multiplied, then added.`);
       render();
     }
   }
@@ -1323,7 +1348,11 @@
   }
   document.querySelectorAll(".modeBtn").forEach(b => b.addEventListener("click", () => setNot(b.dataset.not)));
   function setKind(k){
-    S.set.kind = k; save();
+    S.set.kind = k;
+    /* groups of numbers read best with a times sign: 5 × 7, not 5(7) */
+    if(k === "num" && S.set.not === "brackets"){ S.set.not = "times"; document.querySelectorAll(".modeBtn").forEach(b => b.setAttribute("aria-selected", String(b.dataset.not === "times"))); }
+    save();
+    if($("kindSel")) $("kindSel").value = k;
     document.querySelectorAll(".kindSeg button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.kind === k)));
     newQuestion();
   }
@@ -1345,7 +1374,9 @@
   }));
   [["termsIn","terms","rTerms"],["kindsIn","kinds","rKinds"]].forEach(([i, k, r]) => $(i).addEventListener("change", () => { S.set[k] = $(i).value; clampSet(); S.set[r] = false; save(); paintSteppers(); newQuestion(); }));
   [["rTerms","rTerms"],["rKinds","rKinds"]].forEach(([i, k]) => $(i).addEventListener("click", () => { S.set[k] = !S.set[k]; save(); paintSteppers(); newQuestion(); }));
-  const TOG = { negToggle:"neg", onesToggle:"ones", alikeToggle:"alike", colourToggle:"colour", splitToggle:"split", whyToggle:"why" };
+  $("kindSel").value = S.set.kind;
+  $("kindSel").addEventListener("change", () => setKind($("kindSel").value));
+  const TOG = { longToggle:"long", negToggle:"neg", onesToggle:"ones", alikeToggle:"alike", colourToggle:"colour", splitToggle:"split", whyToggle:"why" };
   Object.entries(TOG).forEach(([id, k]) => {
     $(id).checked = !!S.set[k];
     $(id).addEventListener("change", () => { S.set[k] = $(id).checked; save();

@@ -129,6 +129,11 @@
 >   terms and the sign between them crashing into the new term, which pops in (or a "0" puffs if nothing is left);
 >   `bump` pulses terms whose count changed; `split` makes the new term emerge from its source. A repaint with the
 >   SAME html (a resize) does not touch the line, or it would kill a morph in flight.
+> * **Numbers only (Settings › Terms are, synced with the panel's Letters / Numbers switch).** Bubbles hold groups of
+>   numbers — 5 × 7 + 3 × 7 + 2 × 5 + 2 × 7 + 3 × 5 is collected exactly like 5x + 3x + 2y (typed own accepts 5x7 as
+>   5 × 7). Switching to it moves the notation from Algebra to Times sign. After the answer, "Compare with the long way"
+>   (on) adds a dashed aside card to the working: every original term multiplied separately, the sum, and "5
+>   multiplications the long way · 2 after collecting" — collecting is the multiplicative strategy.
 > * Lesson plan updated (title, controls, Number Groups first). The old quiz/worksheet at `collecting-like-terms.html`
 >   are unchanged apart from their listed titles ("– Bubbles") — they are the old ones, worth rebuilding on this model.
 > * Verified (Playwright): real-mouse join / zero pair / unlike refused / split / rearrange / undo, a touch drag at 390,
