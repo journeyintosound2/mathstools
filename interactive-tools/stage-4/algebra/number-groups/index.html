@@ -17,7 +17,10 @@
       --red:#dc2626; --red-dark:#991b1b;
       --line:#334155; --line-soft:#94a3b8;
       --uiFont:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-      --mathFont:"STIX Two Math","Cambria Math","Latin Modern Math","Times New Roman",Georgia,serif;
+      --mathFont:"Cambria Math","STIX Two Math","Latin Modern Math","Asana Math",Cambria,"Palatino Linotype","Book Antiqua",Palatino,"Times New Roman",Georgia,serif;
+      --mathWeight:500;
+      /* fallback for letters when the maths alphabet is missing: a serif with a REAL italic face (curly x) */
+      --itFont:"Cambria","Times New Roman","STIX Two Text",Georgia,serif;
     }
     *{ box-sizing:border-box; }
     html,body{ height:100%; }
@@ -135,20 +138,25 @@
     /* the stage holds the number sentence and the picture under it */
     .stage{ position:relative; flex:1 1 auto; min-height:0; margin-top:4px; }
     .stmt{ position:absolute; left:0; right:0; top:0; z-index:2; display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
-      font-family:var(--mathFont); font-weight:700; color:var(--line); line-height:1.25; pointer-events:none;
+      font-family:var(--mathFont); font-weight:var(--mathWeight); color:var(--line); line-height:1.25; pointer-events:none;
       transition:transform .75s cubic-bezier(.45,.05,.25,1); will-change:transform; }
     .stmt .row{ white-space:nowrap; display:flex; align-items:baseline; justify-content:center; flex-wrap:nowrap; min-height:1.25em; padding:0 .2em; }
     .stmt.wrap .row{ white-space:normal; flex-wrap:wrap; }
-    .stmt .r2{ color:var(--line); }
+    .stmt .r2{ display:none; }
+    .tk.fut{ visibility:hidden; }
+    .flyLayer{ position:fixed; inset:0; pointer-events:none; z-index:60; }
+    .flyNum{ position:fixed; left:0; top:0; font-family:var(--mathFont); font-weight:var(--mathWeight); color:var(--blue-dark); white-space:nowrap; line-height:1; will-change:transform,opacity; }
+    .flyNum.m{ color:var(--red); }
     .tk{ display:inline-block; white-space:pre; transition:color .5s ease, background-color .5s ease; }
     .op{ padding:0 .22em; }
     .word{ font-family:var(--uiFont); font-weight:800; font-size:.62em; color:var(--muted); padding:0 .36em; letter-spacing:-.01em; }
-    .mv{ font-style:italic; }
+    .mv{ font-family:var(--itFont); font-style:italic; }
+    .mi{ font-family:var(--mathFont); font-style:normal; }
     .cC{ color:var(--blue-dark); }
     .cG{ color:var(--green-dark); }
     .cU{ color:var(--purple-dark); }
     .cM{ color:var(--red); }
-    .cT{ color:var(--blue-dark); font-weight:800; }
+    .cT{ color:var(--blue-dark); }
     .stmt.plain .cC, .stmt.plain .cG, .stmt.plain .cU, .stmt.plain .cM{ color:var(--ink); }
     .ans{ background:#fef9c3; border-radius:.18em; padding:0 .16em; box-shadow:inset 0 -.1em 0 #fde047; color:var(--ink); }
     .tk.new{ animation:tkIn .5s ease both; }
@@ -156,11 +164,11 @@
     @keyframes tkIn{ from{ opacity:0; transform:translateY(.25em) scale(.9);} to{ opacity:1; transform:none;} }
     .boardWrap{ position:absolute; left:0; right:0; bottom:0; top:0; }
     #board{ position:absolute; inset:0; width:100%; height:100%; display:block; user-select:none; -webkit-user-select:none; overflow:visible; }
-    #board text{ pointer-events:none; font-family:var(--mathFont); font-weight:700; }
+    #board text{ pointer-events:none; font-family:var(--mathFont); font-weight:var(--mathWeight); }
     .plainM .cC, .plainM .cG, .plainM .cU, .plainM .cM{ color:inherit; }
     .hint{ flex:0 0 auto; min-height:1.45em; text-align:center; font-size:.92rem; font-weight:750; color:var(--muted); padding:3px 8px 0; line-height:1.4; }
     .hint b{ color:var(--line); }
-    .hint .eq{ font-family:var(--mathFont); font-weight:700; font-size:1.12em; color:var(--line); }
+    .hint .eq{ font-family:var(--mathFont); font-weight:var(--mathWeight); font-size:1.12em; color:var(--line); }
 
     /* ---------- side panel ---------- */
     .side{ display:flex; flex-direction:column; gap:12px; min-height:0; min-width:0; }
@@ -207,10 +215,10 @@
     .sLine{ border-radius:13px; padding:8px 11px 9px; border:1px solid var(--border); background:#f8fafc; margin-bottom:6px; animation:fadeUp .3s ease; }
     .sLine .lab{ display:flex; gap:7px; align-items:baseline; font-size:.8rem; font-weight:900; color:var(--line); line-height:1.3; }
     .sLine .n{ font-size:.7rem; font-weight:950; color:#fff; background:var(--line-soft); border-radius:7px; min-width:20px; height:20px; display:inline-grid; place-items:center; flex:0 0 auto; }
-    .sLine .m{ font-family:var(--mathFont); font-weight:700; font-size:1.16rem; color:var(--line); margin-top:3px; line-height:1.4; }
+    .sLine .m{ font-family:var(--mathFont); font-weight:var(--mathWeight); font-size:1.16rem; color:var(--line); margin-top:3px; line-height:1.4; }
     .sLine .m .word{ font-size:.66em; }
     .sLine .tip{ font-size:.76rem; font-weight:750; color:var(--muted); margin-top:4px; line-height:1.4; }
-    .sLine .tip .eq{ font-family:var(--mathFont); font-weight:700; font-size:1.18em; color:var(--line); }
+    .sLine .tip .eq{ font-family:var(--mathFont); font-weight:var(--mathWeight); font-size:1.18em; color:var(--line); }
     .sLine.cur{ background:#fff; border-color:rgba(37,99,235,.45); box-shadow:0 0 0 3px rgba(37,99,235,.08); }
     .sLine.cur .n{ background:var(--blue); }
     .sLine.done{ background:rgba(34,197,94,.07); border-color:rgba(21,128,61,.28); }
@@ -365,6 +373,7 @@
             <svg id="board" role="img" aria-label="Each term drawn as bars, one bar for each group"></svg>
           </div>
           <div class="stmt plain" id="stmt" aria-live="polite"><div class="row r1" id="row1"></div><div class="row r2" id="row2"></div></div>
+          <div class="flyLayer" id="flyLayer" aria-hidden="true"></div>
         </div>
         <div class="hint" id="hint" aria-live="polite"></div>
         <div class="miniSteps" id="miniSteps" hidden>
@@ -521,16 +530,39 @@
   /* every token is a span; keyed ones (data-k) glide when the notation changes */
   const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;");
   const tk = (k, txt, cls) => `<span class="tk${cls ? " " + cls : ""}"${k ? ` data-k="${k}"` : ""}>${txt}</span>`;
-  function grpTxt(f){ return typeof f === "number" ? String(f) : `<span class="mv">${esc(f)}</span>`; }
+  /* MATHS ITALICS, as Word's equation editor does it: real glyphs from the Mathematical Alphanumeric
+     Symbols block (x -> U+1D465) when a font has them, else a serif with a true italic face. A synthesised
+     slant of an upright maths font is what made the x look like a leaning plain x. */
+  function mathItalic(str){
+    let out = "";
+    for(const ch of String(str)){
+      const c = ch.codePointAt(0);
+      if(ch === "h") out += "\u210E";
+      else if(c >= 97 && c <= 122) out += String.fromCodePoint(0x1D44E + c - 97);
+      else out += ch;
+    }
+    return out;
+  }
+  function detectMathAlpha(){
+    try {
+      const x = document.createElement("canvas").getContext("2d");
+      x.font = '500 100px "Cambria Math","STIX Two Math","Latin Modern Math",serif';
+      const real = x.measureText("\u{1D465}\u{1D44E}\u{1D44F}\u{1D450}").width, gone = x.measureText("\uE000\uE001\uE002\uE003").width;
+      return real > 0 && gone > 0 && Math.abs(real - gone) > 1;
+    } catch(e){ return false; }
+  }
+  const MATH_ALPHA = detectMathAlpha();
+  const letterHTML = f => MATH_ALPHA ? `<span class="mi">${mathItalic(f)}</span>` : `<span class="mv">${esc(f)}</span>`;
+  function grpTxt(f){ return typeof f === "number" ? String(f) : letterHTML(f); }
   function isLetter(f){ return typeof f !== "number"; }
   /* one term: c groups of f, in the chosen notation */
-  function termHTML(c, f, key, cCls, fCls, not){
-    not = not || S.set.not;
-    const C = tk(key + "c", String(c), cCls), F = tk(key + "f", grpTxt(f), fCls);
-    if(not === "words") return C + tk(key + "w", c === 1 ? "group of" : "groups of", "word") + F;
-    if(not === "times") return C + tk(key + "x", "×", "op") + F;
+  function termHTML(c, f, key, cCls, fCls, not, x){
+    not = not || S.set.not; x = x || "";
+    const C = tk(key + "c", String(c), cCls + x), F = tk(key + "f", grpTxt(f), fCls + x);
+    if(not === "words") return C + tk(key + "w", c === 1 ? "group of" : "groups of", "word" + x) + F;
+    if(not === "times") return C + tk(key + "x", "×", "op" + x) + F;
     if(isLetter(f)) return (c === 1 ? "" : C) + F;
-    return C + tk(key + "pa", "(") + F + tk(key + "pb", ")");
+    return C + tk(key + "pa", "(", x.trim()) + F + tk(key + "pb", ")", x.trim());
   }
   /* the grouped count, e.g. (3 + 2 + 5) × 7 */
   function groupedHTML(q, key, not){
@@ -547,29 +579,30 @@
     if(isLetter(q.A)) return open + inner + close + F;
     return open + inner + close + tk(key + "pa", "(") + F + tk(key + "pb", ")");
   }
-  function unlikeHTML(q, key){ return tk(key + "us", "+", "op") + termHTML(q.uc, q.B, key + "u", "cC", "cU"); }
+  function unlikeHTML(q, key, x){ x = x || ""; return tk(key + "us", "+", "op" + x) + termHTML(q.uc, q.B, key + "u", "cC", "cU", null, x); }
   const plain = s => s.replace(/<[^>]+>/g, "").replace(/&amp;/g, "&").replace(/&lt;/g, "<");
 
-  function row1HTML(q){
+  /* ONE line: the question, then (from "write") = 10x, then (numbers) = 70. Parts not reached yet are
+     still laid out but hidden (.fut), so the line never shifts sideways when they appear. */
+  function exprHTML(q){
     return q.terms.map((t, i) => {
       const sign = i === 0 ? "" : tk("s" + i, t.sign < 0 ? "−" : "+", "op" + (t.sign < 0 ? " cM" : ""));
       return sign + termHTML(t.c, t.u ? q.B : q.A, "t" + i, "cC", t.u ? "cU" : "cG");
     }).join("");
   }
-  /* the working line, up to step index s (by step id) */
-  function row2HTML(q, upto){
-    const has = id => upto.includes(id);
-    if(!has("write")) return "";
-    let h = tk("eq1", "=", "op") + groupedHTML(q, "g");
-    if(q.unlike) h += unlikeHTML(q, "g");
-    h += tk("eq2", "=", "op") + termHTML(q.n, q.A, "r", "cT", "cG");
-    if(q.unlike) h += unlikeHTML(q, "r");
-    if(has("value")){
-      if(q.unlike) h += tk("eq3", "=", "op") + tk("v1", String(q.likeVal)) + tk("v2", "+", "op") + tk("v3", String(q.uVal));
-      h += tk("eq4", "=", "op") + tk("ans", String(q.value), "ans");
+  function row1HTML(q, upto){
+    const fut = id => upto && !upto.includes(id) ? " fut" : "";
+    let h = exprHTML(q);
+    const fw = fut("write"), fv = fut("value");
+    h += tk("eq1", "=", "op" + fw) + termHTML(q.n, q.A, "r", "cT", "cG", null, fw);
+    if(q.unlike) h += unlikeHTML(q, "r", fw);
+    if(q.kind === "num"){
+      if(q.unlike) h += tk("eq3", "=", "op" + fv) + tk("v1", String(q.likeVal), fv.trim()) + tk("v2", "+", "op" + fv) + tk("v3", String(q.uVal), fv.trim());
+      h += tk("eq4", "=", "op" + fv) + tk("ans", String(q.value), "ans" + fv);
     }
     return h;
   }
+  function row2HTML(){ return ""; }
 
   /* ================= steps ================= */
   function stepIds(q){
@@ -626,7 +659,7 @@
     }
     /* stacked: braces | pile | label  [ unlike pile | label ]  [ waiting take-away bars ] */
     const lblF = Math.max(11, minPx / sc, Math.min(24, W / 42));
-    const lbl = Math.max(tw("3 + 2 + 5 + 4 + 6", lblF), tw("= 20 groups of 99", lblF, null, 800)) + 34;
+    const lbl = tw("26 groups of 99", lblF * 1.12, null, 800) + 34;
     const uLbl = q.unlike ? Math.max(tw("2 groups of 5", lblF * .82, UI, 800), tw("a different size", lblF * .72, UI, 700)) + 24 : 0;
     const takeLbl = q.take ? tw(`take away ${q.neg}`, f * .8, UI, 800) + 10 : 0;
     const fixed = 66 + lbl + (q.unlike ? 30 + uLbl : 0) + (q.take ? 40 : 0) + 2 * marg;
@@ -666,7 +699,7 @@
     const grpLab = u => {
       const f = u ? q.B : q.A;
       if(tryIt) return String(u ? q.tryB : q.tryA);
-      return String(f);
+      return typeof f === "number" ? String(f) : MATH_ALPHA ? mathItalic(f) : String(f);
     };
     const unitsOf = u => {
       if(!S.set.units) return 0;
@@ -741,12 +774,9 @@
       const midY = (yTop + pileBot) / 2;
       const rx = L.pileX + L.Lk + 8;
       els.push({ key:taken ? "rb2" : "rb", type:"brace", x:rx, y1:yTop, y2:pileBot, dir:1, o:1, col:"#1d4ed8", d:0.55 });
-      const count = taken ? `${q.pos} − ${q.neg}` : posList.join(" + ");
       const nNow = taken ? q.n : q.pos;
-      els.push({ key:taken ? "rl1b" : "rl1", type:"text", x:rx + 26, y:midY - L.lblF * 0.25, o:1, size:L.lblF, anchor:"start",
-        html:`<tspan fill="#1d4ed8">${count.replace(/−/g, `</tspan><tspan fill="#dc2626">−</tspan><tspan fill="#1d4ed8">`)}</tspan>`, d:0.6 });
-      els.push({ key:taken ? "rl2b" : "rl2", type:"text", x:rx + 26, y:midY + L.lblF * 1.05, o:1, size:L.lblF, anchor:"start",
-        html:`<tspan fill="#334155">= </tspan><tspan fill="#1d4ed8" font-weight="800">${nNow}</tspan><tspan fill="#64748b" font-family='${UI}' font-weight="800" font-size="${(L.lblF * .7).toFixed(1)}"> ${nNow === 1 ? "group" : "groups"} of </tspan>${svgGrp(q.A, "#15803d")}`, d:0.6 });
+      els.push({ key:taken ? "rl2b" : "rl2", type:"text", x:rx + 26, y:midY + L.lblF * 0.36, o:1, size:L.lblF * 1.12, anchor:"start",
+        html:`<tspan fill="#1d4ed8">${nNow}</tspan><tspan fill="#64748b" style='font-family:${UI}' font-weight="800" font-size="${(L.lblF * .76).toFixed(1)}"> ${nNow === 1 ? "group" : "groups"} of </tspan>${svgGrp(q.A, "#15803d")}`, d:0.6 });
       if(q.unlike){
         const uy = (barY(q.uc - 1) + L.base) / 2;
         els.push({ key:"ul1", type:"text", x:L.uX + L.Lk * L.ratio + 12, y:uy - 2, o:1, size:L.lblF * .82, anchor:"start", fam:UI,
@@ -781,7 +811,10 @@
     const w = tw(html.replace(/<[^>]+>/g, ""), size) * 1.05;
     return Math.max(w / 2 + 4, Math.min(L.W - w / 2 - 4, x));
   }
-  function svgGrp(f, col){ return typeof f === "number" ? `<tspan fill="${col}">${f}</tspan>` : `<tspan fill="${col}" font-style="italic">${esc(f)}</tspan>`; }
+  function svgGrp(f, col){
+    if(typeof f === "number") return `<tspan fill="${col}">${f}</tspan>`;
+    return MATH_ALPHA ? `<tspan fill="${col}">${mathItalic(f)}</tspan>` : `<tspan fill="${col}" font-style="italic" style='font-family:var(--itFont)'>${esc(f)}</tspan>`;
+  }
   function svgTerm(c, f, fCol, cCol, not){
     not = not || S.set.not; cCol = cCol || "#1d4ed8";
     const C = `<tspan fill="${cCol}">${c}</tspan>`, F = svgGrp(f, fCol);
@@ -811,13 +844,13 @@
           s += `<path d="${p}" stroke="${e.stroke}" stroke-opacity=".38" stroke-width="1.1"/>`;
         }
         if(e.h >= 11 && e.lab){
-          const fs = Math.min(e.h * 0.74, 22, e.w * 0.42);
-          const it = /^[a-z]+$/.test(e.lab) ? ' font-style="italic"' : "";
+          const fs = Math.min(e.h * 0.78, 24, e.w * 0.42);
+          const it = /^[a-z]+$/.test(e.lab) ? ` font-style="italic" style='font-family:var(--itFont)'` : "";
           s += `<text x="${(e.x + e.w / 2).toFixed(1)}" y="${(e.y + e.h / 2 + fs * 0.34).toFixed(1)}" text-anchor="middle" font-size="${fs.toFixed(1)}" fill="${e.lc}"${it} stroke="${e.dash ? "none" : "#ffffff"}" stroke-width="${e.units > 1 ? 3.2 : 0}" stroke-opacity=".85" paint-order="stroke">${esc(e.lab)}</text>`;
         }
         bars += s + "</g>";
       } else if(e.type === "text"){
-        over += `<text x="${e.x.toFixed(1)}" y="${e.y.toFixed(1)}" opacity="${e.o.toFixed(3)}" text-anchor="${e.anchor || "middle"}" font-size="${e.size.toFixed(1)}"${e.fam ? ` style='font-family:${e.fam}'` : ""}>${e.html}</text>`;
+        over += `<text data-key="${e.key}" x="${e.x.toFixed(1)}" y="${e.y.toFixed(1)}" opacity="${e.o.toFixed(3)}" text-anchor="${e.anchor || "middle"}" font-size="${e.size.toFixed(1)}"${e.fam ? ` style='font-family:${e.fam}'` : ""}>${e.html}</text>`;
       } else if(e.type === "brace"){
         over += `<path d="${brace(e.x, e.y1, e.y2, e.dir)}" fill="none" stroke="${e.col}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="${e.o.toFixed(3)}"/>`;
       }
@@ -847,20 +880,17 @@
 
   /* ================= the number sentence ================= */
   function fitStmt(){
-    const st = $("stmt"), r1 = $("row1"), r2 = $("row2"), stage = $("stage");
+    const st = $("stmt"), r1 = $("row1"), stage = $("stage");
     const W = stage.clientWidth - 16;
     st.classList.remove("wrap");
-    /* size it for the LONGEST the working ever gets, so nothing changes size mid-steps */
-    const keep2 = r2.innerHTML;
-    r2.innerHTML = row2HTML(S.q, IDS);
+    /* sized for the WHOLE line (hidden parts included), so nothing changes size mid-steps */
     let F = Math.min(46, Math.max(18, stage.clientHeight / 9));
     st.style.fontSize = F + "px";
-    const need = Math.max(r1.scrollWidth, r2.scrollWidth);
+    const need = r1.scrollWidth;
     if(need > W) F = Math.max(16, F * W / need * 0.97);
     st.style.fontSize = F + "px";
-    if(Math.max(r1.scrollWidth, r2.scrollWidth) > W + 2) st.classList.add("wrap");
-    S.stmtH = st.offsetHeight + 8;
-    r2.innerHTML = keep2;
+    if(r1.scrollWidth > W + 2) st.classList.add("wrap");
+    S.stmtH = st.offsetHeight + 10;
     S.fitF = F;
   }
   function placeStmt(){
@@ -868,33 +898,79 @@
     const centre = IDS.indexOf(sid()) < IDS.indexOf("draw");
     if(!centre){ st.style.transform = "none"; return; }
     const H = stage.clientHeight, W = stage.clientWidth;
+    /* centre the part that is showing (the hidden answer still takes up room on the line) */
+    let lo = Infinity, hi = -Infinity;
+    r1.querySelectorAll(".tk:not(.fut)").forEach(el => { lo = Math.min(lo, el.offsetLeft); hi = Math.max(hi, el.offsetLeft + el.offsetWidth); });
+    if(!isFinite(lo)){ lo = 0; hi = r1.scrollWidth; }
+    const cx = st.clientWidth / 2, vx = (lo + hi) / 2;
     const cy = r1.offsetTop + r1.offsetHeight / 2;
-    const s = Math.max(1, Math.min(2.1, (W * 0.9) / Math.max(1, r1.scrollWidth), (H * 0.4) / Math.max(1, r1.offsetHeight)));
+    const s = Math.max(1, Math.min(2.1, (W * 0.9) / Math.max(1, hi - lo), (H * 0.4) / Math.max(1, r1.offsetHeight)));
     st.style.transformOrigin = `50% ${cy}px`;
-    st.style.transform = `translateY(${(H * 0.45 - cy).toFixed(1)}px) scale(${s.toFixed(3)})`;
+    st.style.transform = `translate(${(-s * (vx - cx)).toFixed(1)}px, ${(H * 0.45 - cy).toFixed(1)}px) scale(${s.toFixed(3)})`;
   }
   /* repaint the sentence; keyed tokens glide from where they were (notation switch) */
   function paintStmt(glide){
-    const st = $("stmt"), r1 = $("row1"), r2 = $("row2");
+    const st = $("stmt"), r1 = $("row1");
     const before = new Map();
-    if(glide && !reduce) st.querySelectorAll("[data-k]").forEach(el => before.set(el.closest(".row").id + el.dataset.k, el.getBoundingClientRect()));
-    const old2 = new Set([...r2.querySelectorAll("[data-k]")].map(el => el.dataset.k));
-    r1.innerHTML = row1HTML(S.q);
-    r2.innerHTML = row2HTML(S.q, IDS.slice(0, S.step + 1));
+    if(glide && !reduce) r1.querySelectorAll("[data-k]:not(.fut)").forEach(el => before.set(el.dataset.k, el.getBoundingClientRect()));
+    const shown = new Set([...r1.querySelectorAll("[data-k]:not(.fut)")].map(el => el.dataset.k));
+    r1.innerHTML = row1HTML(S.q, IDS.slice(0, S.step + 1));
     st.classList.toggle("plain", S.step < IDS.indexOf("spot"));
     if(glide){ fitStmt(); }
     if(glide && !reduce){
-      st.querySelectorAll("[data-k]").forEach(el => {
-        const b = before.get(el.closest(".row").id + el.dataset.k);
+      r1.querySelectorAll("[data-k]:not(.fut)").forEach(el => {
+        const b = before.get(el.dataset.k);
         if(!b){ el.classList.add("new", "late"); return; }
         const a = el.getBoundingClientRect();
         const dx = b.left - a.left, dy = b.top - a.top;
         if(Math.abs(dx) + Math.abs(dy) > 0.5) el.animate([{ transform:`translate(${dx}px,${dy}px)` }, { transform:"none" }], { duration:520, easing:"cubic-bezier(.45,.05,.25,1)" });
       });
-    } else if(!glide){
-      /* new working appears as the steps go on */
-      r2.querySelectorAll("[data-k]").forEach(el => { if(!old2.has(el.dataset.k) && !reduce && !S.noAnim) el.classList.add("new"); });
+    } else if(!glide && !reduce && !S.noAnim){
+      /* the answer appears as the steps go on */
+      r1.querySelectorAll("[data-k]:not(.fut)").forEach(el => { if(!shown.has(el.dataset.k)) el.classList.add("new"); });
     }
+  }
+
+  /* the counts on the braces fly up and merge into the new coefficient (1, 3 and 6 become the 10 of 10x) */
+  function clearFly(){ (S.flyT || []).forEach(clearTimeout); S.flyT = []; const l = $("flyLayer"); if(l) l.innerHTML = ""; }
+  function flyCounts(){
+    const q = S.q, r1 = $("row1"), svg = $("board"), layer = $("flyLayer");
+    const target = r1.querySelector('[data-k="rc"]') || r1.querySelector('[data-k="rf"]');
+    if(!target || !layer) return;
+    const rest = [...r1.querySelectorAll('[data-k^="r"]:not([data-k="rc"]), [data-k="eq1"]')];
+    target.classList.remove("new"); target.style.visibility = "hidden";
+    rest.forEach(el => { if(el.dataset.k !== "eq1"){ el.classList.add("new"); el.style.animationDelay = "1.3s"; } });
+    const tr = target.getBoundingClientRect(), tx = tr.left + tr.width / 2, ty = tr.top + tr.height / 2;
+    const tfs = parseFloat(getComputedStyle(target).fontSize);
+    const src = [];
+    q.terms.forEach((t, i) => {
+      if(t.u || t.sign < 0) return;
+      const el = svg.querySelector(`text[data-key="bt${i}"]`); if(!el) return;
+      const r = el.getBoundingClientRect(); src.push({ txt:String(t.c), x:r.left + r.width / 2, y:r.top + r.height / 2, fs:r.height * 0.82, m:false });
+    });
+    if(q.take){
+      const ctm = svg.getScreenCTM(); if(ctm){
+        const p = svg.createSVGPoint(); p.x = L.pileX + L.Lk / 2; p.y = barY(q.pos - 1) + L.bh / 2;
+        const sp = p.matrixTransform(ctm); src.push({ txt:"−" + q.neg, x:sp.x, y:sp.y, fs:tfs * 0.7, m:true });
+      }
+    }
+    const reveal = () => { target.style.visibility = ""; target.classList.remove("new"); void target.offsetWidth; target.classList.add("new"); };
+    if(!src.length){ reveal(); return; }
+    const dur = 1150, gap = 200;
+    src.forEach((s, k) => {
+      const sp = document.createElement("span");
+      sp.className = "flyNum" + (s.m ? " m" : ""); sp.textContent = s.txt; sp.style.fontSize = tfs + "px";
+      layer.appendChild(sp);
+      const k0 = s.fs / tfs, w = sp.offsetWidth / 2, h = sp.offsetHeight / 2;
+      sp.animate([
+        { transform:`translate(${s.x - w}px,${s.y - h}px) scale(${k0})`, opacity:0 },
+        { offset:.08, transform:`translate(${s.x - w}px,${s.y - h}px) scale(${k0 * 1.15})`, opacity:1 },
+        { offset:.8, transform:`translate(${tx - w}px,${ty - h}px) scale(.9)`, opacity:1 },
+        { transform:`translate(${tx - w}px,${ty - h}px) scale(.5)`, opacity:0 }
+      ], { duration:dur, delay:k * gap, easing:"cubic-bezier(.45,.05,.25,1)", fill:"both" });
+    });
+    S.flyT.push(setTimeout(reveal, dur * 0.8 + (src.length - 1) * gap));
+    S.flyT.push(setTimeout(() => { layer.innerHTML = ""; }, dur + src.length * gap + 50));
   }
 
   /* ================= words: story + hint ================= */
@@ -905,7 +981,7 @@
     const cs = lik.filter(t => t.sign > 0).map(t => `<span class="cC">${t.c}</span>`);
     const B = q.unlike ? grpTxt(q.B) : "";
     switch(id){
-      case "read": return { lab:"Read it", m:`<span class="plainM">${row1HTML(q).replace(/data-k="[^"]*"/g, "")}</span>`, tip:"What is the same in every term? What is different?" };
+      case "read": return { lab:"Read it", m:`<span class="plainM">${exprHTML(q).replace(/data-k="[^"]*"/g, "")}</span>`, tip:"What is the same in every term? What is different?" };
       case "spot": return { lab:"Spot the group", m:`<span class="word">every term is some groups of</span> <span class="cG">${A}</span>`,
         tip:`The <b style="color:var(--green-dark)">${plain(A)}</b> is the size of one group. The blue numbers count how many groups.` +
           (q.unlike ? ` Except one term: it is groups of <b style="color:var(--purple-dark)">${plain(B)}</b>.` : "") +
@@ -917,7 +993,7 @@
           (q.take ? `The red ${gw(q.neg)} still ${q.neg === 1 ? "has" : "have"} to come off.` : "We are adding up how many groups there are, not the size of a group.") };
       case "take": return { lab:`Take ${q.neg} ${gw(q.neg)} away`, m:`${q.pos} <span class="cM">−</span> ${q.neg} = <span class="cT">${q.n}</span> <span class="word">${gw(q.n)} of</span> <span class="cG">${A}</span>`,
         tip:`Taking away ${q.neg} ${gw(q.neg)} of ${plain(A)} takes ${q.neg} ${q.neg === 1 ? "bar" : "bars"} off the pile.` };
-      case "write": return { lab:"Write it shorter", m:groupedHTML(q, "q") + (q.unlike ? unlikeHTML(q, "q") : "") + ` = ` + termHTML(q.n, q.A, "w", "cT", "cG") + (q.unlike ? unlikeHTML(q, "w") : ""),
+      case "write": return { lab:"Write it shorter", m:exprHTML(q).replace(/data-k="[^"]*"/g, "") + ` = ` + termHTML(q.n, q.A, "w", "cT", "cG") + (q.unlike ? unlikeHTML(q, "w") : ""),
         tip:`Count the groups first, then there is only one multiplication.` };
       case "value": {
         const long = q.terms.map((t, i) => (i ? (t.sign < 0 ? " − " : " + ") : "") + t.c * (t.u ? q.B : q.A)).join("");
@@ -938,7 +1014,7 @@
         const short = `${q.n} × ${q.tryA}` + (q.unlike ? ` + ${q.uc} × ${q.tryB}` : "");
         return { lab:`Try ${plain(A)} = ${q.tryA}` + (q.unlike ? `, ${plain(B)} = ${q.tryB}` : ""),
           m:`<span class="word">long way</span> ${xs} = ${vs} = <span class="ans">${tot}</span>`,
-          tip:`Short way: <span class="eq">${short} = ${tot}</span>. Any value for <span class="eq">${A}</span> gives the same answer both ways &mdash; that is why <span class="eq">${row1HTML(q).replace(/data-k="[^"]*"/g, "")}</span> and <span class="eq">${termHTML(q.n, q.A, "z", "", "", "brackets")}${q.unlike ? " + " + termHTML(q.uc, q.B, "z", "", "", "brackets") : ""}</span> are equivalent.` };
+          tip:`Short way: <span class="eq">${short} = ${tot}</span>. Any value for <span class="eq">${A}</span> gives the same answer both ways &mdash; that is why <span class="eq">${exprHTML(q).replace(/data-k="[^"]*"/g, "")}</span> and <span class="eq">${termHTML(q.n, q.A, "z", "", "", "brackets")}${q.unlike ? " + " + termHTML(q.uc, q.B, "z", "", "", "brackets") : ""}</span> are equivalent.` };
       }
     }
     return { lab:id, m:"", tip:"" };
@@ -994,14 +1070,16 @@
     to = Math.max(0, Math.min(IDS.length - 1, to));
     if(to === S.step) return;
     const from = sid();
-    stopAnim();
+    stopAnim(); clearFly();
     S.step = to;
     paintStmt(false); placeStmt(); paintStory(); save();
+    const flying = sid() === "write" && IDS.indexOf(from) === to - 1 && !reduce && !S.noAnim;
     const big = (from === "draw" && sid() === "collect") || (from === "collect" && sid() === "draw");
     if(!reduce && !S.noAnim && Math.abs(IDS.indexOf(from) - to) === 1){
       S.anim = { from, to:sid(), t0:performance.now(), dur:big ? 1500 : sid() === "draw" || from === "draw" ? 1250 : 900 };
     }
     frame();
+    if(flying) flyCounts();
   }
   const next = () => go(S.step + 1), back = () => go(S.step - 1);
   function startAgain(){ stopAnim(); go(0); }
@@ -1010,6 +1088,7 @@
 
   /* a whole repaint: new question, notation, window size */
   function refresh(glide){
+    clearFly();
     IDS = stepIds(S.q);
     if(S.step > IDS.length - 1) S.step = IDS.length - 1;
     paintStmt(!!glide);
@@ -1017,7 +1096,7 @@
     placeStmt(); paintStory(); paintPanel(); frame();
   }
   function setQ(q, keepStep){
-    stopAnim(); S.q = q;
+    stopAnim(); clearFly(); S.q = q;
     if(!keepStep) S.step = 0;
     const st = $("stmt"); st.style.transition = "none"; refresh(false);
     void st.offsetWidth; st.style.transition = "";
@@ -1203,11 +1282,13 @@
   const onResize = () => { cancelAnimationFrame(rz); rz = requestAnimationFrame(() => { fitStmt(); placeStmt(); frame(); }); };
   if(window.ResizeObserver) new ResizeObserver(onResize).observe($("stage")); else window.addEventListener("resize", onResize);
 
+  if(MATH_ALPHA) document.querySelectorAll(".modeBtn i, .kindSeg i, .settingsMenu i, .ownMsg i").forEach(el => { el.outerHTML = `<span class="mi">${mathItalic(el.textContent)}</span>`; });
+  else document.querySelectorAll(".modeBtn i, .kindSeg i, .settingsMenu i, .ownMsg i").forEach(el => el.classList.add("mv"));
   applyPanel();
   newQuestion();
 
   /* test surface */
-  window.__NG__ = { S, get IDS(){ return IDS; }, get L(){ return L; }, makeQ, finish, countsFor, parseOwn, scene, layout, row1HTML, row2HTML, storyFor,
+  window.__NG__ = { MATH_ALPHA, mathItalic, S, get IDS(){ return IDS; }, get L(){ return L; }, makeQ, finish, countsFor, parseOwn, scene, layout, row1HTML, row2HTML, storyFor,
     next, back, go, startAgain, showAll, newQuestion, newGroup, setNot, setKind, setQ, plain, useOwn, frame, refresh, toggleFs };
 })();
 </script>

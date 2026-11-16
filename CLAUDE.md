@@ -108,7 +108,7 @@
 >   swapped for x is 3x + 2x + 5x = 10x — Numbers/Letters (L) keeps the counts and only relabels the bars.
 > * Steps (`stepIds`): read (expression alone, big, centred) · spot (factor green, counts blue) · draw (the sentence
 >   rises to the top, columns of bars appear under captions that repeat each term) · collect · [take] · write
->   ((3 + 2 + 5) × 7 = 10 × 7) · value (= 70, story compares the long way) — letters end on "simple" (10x, why we stop)
+>   (= 10 × 7 on the question line) · value (= 70, story compares the long way) — letters end on "simple" (10x, why we stop)
 >   and optional "try" (Settings: give x a value; bar labels become the number, both ways agree). **The value is never
 >   on screen before the last step** (checked).
 > * **Notation switch kept and upgraded:** groups of / × / brackets (keys 1–3), as a segmented control above the board.
@@ -121,6 +121,15 @@
 >   different length — proportional for numbers — in its own pile, "a different size"). Side panel: Groups (total) and
 >   Terms steppers with Random toggles, New question (Enter), **Same counts, new group** (G), **Type your own**
 >   (`parseOwn`: 3 × 7, 3(7), 3 groups of 7, 4a + a − 2a; at most one unlike and one subtracted term).
+> * **Feedback round (Jeff, same day):** (1) letters are WORD-STYLE MATHS ITALICS — `mathItalic()` maps x to U+1D465
+>   etc. when `detectMathAlpha()` finds the glyphs (as Complete the Square does); else `.mv` uses a serif with a real
+>   italic face. `--mathFont` now leads with Cambria Math, weight `--mathWeight` 500. A synthesised slant of STIX Two
+>   Math (no italic face) is what made x look like a leaning plain x. (2) NO "(1 + 3 + 6)x" line: the answer joins
+>   the QUESTION LINE (x + 3x + 6x = 10x, numbers = 10 × 7 = 70). The whole line is laid out from the start with the
+>   unreached part `.fut` (visibility hidden) so it never shifts; `placeStmt` centres only the visible part.
+>   Going into "write", copies of the brace counts fly up and merge into the 10 (`flyCounts`, overlay
+>   `#flyLayer`; the take-away count flies too, in red); the x follows. `clearFly()` on every step/repaint.
+>   (3) Beside the pile only "10 groups of x" — the "1 + 3 + 6" line was cognitive overload.
 > * Board: SVG redrawn per frame from keyed scenes (`scene(id)`), tweened by `mix()` — Back plays the same motion in
 >   reverse. Below 560px the board is drawn at a wider virtual width and scaled (and wider again if unlike + take
 >   would not fit). First term goes on TOP of the pile so the braces read in sentence order.
