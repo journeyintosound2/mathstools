@@ -111,7 +111,10 @@
 >   move to the end. Ladder: Sweet two kinds all added + numbers only (5 × 7 + 3 × 7 + 2 × 5), one box per kind;
 >   Mild taking away, plain numbers, a kind that cancels, the minus sign travels; Medium no model, whole answer typed,
 >   ab = ba, missing numbers, three kinds; Spicy x and x² apart, below zero, numbers only with three kinds, make your
->   own (four terms, one taken away). Long box lines wrap the question above the boxes (`.ansEq.two`). Marking as
+>   own (four terms, one taken away). **Answer boxes say what they hold (Jeff's feedback):** "[ ] groups of x + [ ] groups
+>   of y" (ones: "[ ] ones"), and an "All together = 5x + ?y" line rebuilds the answer live from what is typed
+>   (`it.grp`, `grpPreview`). The worksheet does the same: "___ groups of n + ___ groups of j", then "All together =
+>   ___"; the key writes "7 groups of n + 5 groups of j = 7n + 5j". Long box lines wrap the question above the boxes (`.ansEq.two`). Marking as
 >   Number Groups (equal-but-not-collected, 0 terms and 1x are free nudges); x² typed as x^2 or x². No letter e.
 >   types[] object shape `clt-<cat>` (collect, unlike, numbers, value, take, zero, below, like, missing, mistake,
 >   build) + `level:x`.

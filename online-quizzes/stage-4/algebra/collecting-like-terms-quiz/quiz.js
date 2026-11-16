@@ -97,6 +97,7 @@ function collect(terms){
   terms.forEach(t => { if(!(t.k in tot)){ order.push(t.k); tot[t.k] = 0; disp[t.k] = t.d || t.k; } tot[t.k] += t.s * t.c; });
   return { order, tot, disp, list:order.filter(k => tot[k] !== 0).map(k => ({ k, d:disp[k], c:Math.abs(tot[k]), s:tot[k] < 0 ? -1 : 1 })) };
 }
+const grpW = (k, d, n) => typeOf(k) === "one" ? (n === 1 ? "one" : "ones") : `${n === 1 ? "group" : "groups"} of ${typeOf(k) === "num" ? valOf(k) : Lt(d || k)}`;
 const unitName = (k, d) => typeOf(k) === "one" ? "ones" : typeOf(k) === "num" ? `groups of ${valOf(k)}` : Lt(d || k) + "s";
 
 /* ---------------------------------------------------------- numbers */
@@ -155,17 +156,13 @@ function qBoxes(level, terms, o){
   const it = base(level, Object.assign({ mt:terms }, o));
   const take = terms.some(t => t.s < 0), many = C.order.length > 1, nums = typeOf(C.order[0]) === "num";
   it.q = nums ? "Collect the groups of the same number." : take ? "Collect the like terms. Some are taken away." : "Collect the like terms.";
-  const tpl = [exprH(terms) + " ="];
-  C.order.forEach((k, i) => {
-    if(i) tpl.push("+");
-    tpl.push({ in:i });
-    const ty = typeOf(k);
-    if(ty === "num") tpl.push(`${X} ${valOf(k)}`); else if(ty === "let") tpl.push(Lt(C.disp[k]));
-  });
-  it.tpl = tpl;
+  /* one box per kind, said in words: [ ] groups of x + [ ] groups of y — and the line under it puts
+     whatever is typed back together, so the answer is visibly all the kinds collected */
+  it.tpl = [exprH(terms) + " ="];
+  it.grp = C.order.map(k => ({ k, d:C.disp[k] }));
   const ans = C.order.map(k => C.tot[k]);
   it.steps = [ step("nums", { cat:take ? "take" : many ? (nums ? "numbers" : "unlike") : "collect", ans,
-    why:() => C.order.map(k => `${eqS(why1(terms, k))} ${typeOf(k) === "one" ? "ones" : typeOf(k) === "num" ? `groups of ${valOf(k)}` : `lots of ${Lt(C.disp[k])}`}`).join("; ") + "." }) ];
+    why:() => C.order.map(k => `${eqS(why1(terms, k))} ${grpW(k, C.disp[k], Math.abs(C.tot[k]))}`).join("; ") + `, so it is ${eqS(exprH(C.list))}.` }) ];
   return it;
 }
 /* numbers only, worked out: collect the groups first, then multiply once for each kind */
@@ -190,7 +187,7 @@ function qExpr(level, terms, o){
   const cancels = C.order.some(k => C.tot[k] === 0);
   const neg = C.order.some(k => C.tot[k] < 0);
   it.steps = [ step("expr", { cat:cancels ? "zero" : neg ? "below" : C.order.length > 1 ? "unlike" : "collect", ans:C.tot,
-    why:() => C.order.map(k => `${eqS(why1(terms, k))} ${typeOf(k) === "one" ? "ones" : `lots of ${Lt(C.disp[k])}`}`).join("; ") + `. So it is ${eqS(answer)}.` }) ];
+    why:() => C.order.map(k => `${eqS(why1(terms, k))} ${grpW(k, C.disp[k], Math.abs(C.tot[k]))}`).join("; ") + `. So it is ${eqS(answer)}.` }) ];
   it.answerTxt = answer;
   return it;
 }
@@ -473,6 +470,13 @@ function feedback(it){
 }
 function answerHTML(it, s){
   const locked = s.last || s.skipped;
+  if(it.grp){
+    const box = i => { const m = s.marks ? (s.marks[i] ? " right" : " wrong") : "", v = s.vals[i] == null ? "" : s.vals[i];
+      return `<input class="cell ans gbox${m}" data-i="${i}" inputmode="numeric" autocomplete="off" value="${esc(v)}"${locked ? " readonly" : ""} aria-label="How many ${typeOf(it.grp[i].k) === "one" ? "ones" : "groups of " + (typeOf(it.grp[i].k) === "num" ? valOf(it.grp[i].k) : it.grp[i].d)}">`; };
+    return `<div class="ansEq">${it.tpl.map(p => `<span class="eqt">${p}</span>`).join("")}</div>`
+      + `<div class="grpRow">` + it.grp.map((g, i) => `${i ? '<span class="gPlus">+</span>' : ""}<span class="gItem">${box(i)}<span class="gw">${typeOf(g.k) === "one" ? "ones" : "groups of"}</span>${typeOf(g.k) === "one" ? "" : `<span class="gU">${typeOf(g.k) === "num" ? valOf(g.k) : Lt(g.d)}</span>`}</span>`).join("") + `</div>`
+      + `<div class="grpSum"><span class="gLab">All together</span><span class="eq" id="grpPrev">${grpPreview(it, s)}</span></div>`;
+  }
   if(s.t !== "mc"){
     const wide = s.t === "expr" || s.t === "build";
     return `<div class="ansEq">` + it.tpl.map(p => {
@@ -487,6 +491,20 @@ function answerHTML(it, s){
     const show = locked && o.ok ? " right" : "";
     return `<button class="mcOpt${s.sel === i ? " on" : ""}${st || show}" type="button" data-opt="${i}"${locked ? " disabled" : ""}><span class="key">${"ABCD"[i]}</span><span>${o.h}</span></button>`;
   }).join("") + `</div>`;
+}
+/* the collected answer, built from what has been typed so far ("?" for an empty box) */
+function grpPreview(it, s){
+  const parts = it.grp.map((g, i) => {
+    const raw = s.vals[i] == null ? "" : String(s.vals[i]).trim(), v = num(raw);
+    return { g, v:raw === "" || isNaN(v) ? null : v };
+  });
+  return "= " + parts.map((p, i) => {
+    const ty = typeOf(p.g.k), unit = ty === "num" ? ` ${X} ${valOf(p.g.k)}` : ty === "one" ? "" : Lt(p.g.d);
+    if(p.v === null) return (i ? " + " : "") + `<span class="gq">?</span>` + unit;
+    const a = Math.abs(p.v), sg = i ? (p.v < 0 ? ` ${MINUS} ` : " + ") : (p.v < 0 ? MINUS : "");
+    if(ty === "let") return sg + (a === 1 ? "" : a) + unit;
+    return sg + a + unit;
+  }).join("");
 }
 function paint(){
   const it = cur(); if(!it) return;
@@ -528,7 +546,7 @@ function bindCard(){
   const card = $("qCard"), it = cur(), s = it.steps[0];
   const ins = [...card.querySelectorAll("input[data-i]")];
   ins.forEach((inp, n) => {
-    inp.addEventListener("input", () => { s.vals[+inp.dataset.i] = inp.value; inp.classList.remove("right", "wrong"); });
+    inp.addEventListener("input", () => { s.vals[+inp.dataset.i] = inp.value; inp.classList.remove("right", "wrong"); const pv = $("grpPrev"); if(pv && it.grp) pv.innerHTML = grpPreview(it, s); });
     inp.addEventListener("keydown", e => {
       if(e.key !== "Enter") return;
       e.preventDefault();

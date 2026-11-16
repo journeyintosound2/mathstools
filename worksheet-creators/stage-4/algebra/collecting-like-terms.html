@@ -272,8 +272,11 @@
     .drawBox.plain{ background-image:none; }
     .exStrip .exArrow{ font-size:calc(22px * var(--fs)); color:#6d28d9; font-weight:900; }
     .exStrip .exLine.small{ font-size:calc(12.5px * var(--fs)); font-weight:600; }
-    .ansLine .eqs.kU{ min-width:1.4em; text-align:right; }
-    .ansLine.cnt .ln.xs{ flex:0 0 16%; margin-right:3mm; }
+    .ansLine.cnt{ flex-wrap:wrap; row-gap:2.6mm; column-gap:2mm; }
+    .ansLine .cntItem{ display:inline-flex; align-items:flex-end; gap:1.6mm; white-space:nowrap; }
+    .ansLine .ln.gx{ flex:0 0 auto; width:15mm; }
+    .ansLine .gw{ font-family:var(--uiFont); font-size:calc(12.5px * var(--fs)); font-weight:750; color:#334155; white-space:nowrap; }
+    .ansLine .eqs.plus{ margin:0 1mm; }
   </style>
 
 <!-- mmt-pwa -->
@@ -461,13 +464,13 @@
   const collectedH = terms => exprH(collect(terms).list);
   const kindName = (k, d) => typeOf(k) === "one" ? "ones" : typeOf(k) === "num" ? `groups of ${valOf(k)}` : Lt(d || k) + "s";
   const kindUnit = (k, d) => typeOf(k) === "one" ? "ones" : typeOf(k) === "num" ? (NOT === "brackets" ? `(${valOf(k)})` : `${X} ${valOf(k)}`) : Lt(d || k);
+  const grpWord = (k, d, n) => typeOf(k) === "one" ? (n === 1 ? "one" : "ones") : `${n === 1 ? "group" : "groups"} of ${typeOf(k) === "num" ? valOf(k) : Lt(d || k)}`;
   function whyH(terms){
     const C = collect(terms);
     return C.order.map(k => { const ts = terms.filter(t => t.k === k);
       const s = ts.map((t, i) => (i ? (t.s < 0 ? ` ${MINUS} ` : " + ") : (t.s < 0 ? MINUS : "")) + t.c).join("");
       const v = C.tot[k];
-      const lab = typeOf(k) === "one" ? "ones" : typeOf(k) === "num" ? `groups of ${valOf(k)}` : Lt(C.disp[k]);
-      return `${lab}: ${s} = ${v < 0 ? MINUS + Math.abs(v) : v}`; }).join("; ");
+      return `${s} = ${v < 0 ? MINUS + Math.abs(v) : v} ${grpWord(k, C.disp[k], Math.abs(v))}`; }).join("; ");
   }
 
   /* ---------------------------------------------------------- numbers */
@@ -576,15 +579,15 @@
   ];
   const LT = Object.fromEntries(TYPES.map((T, i) => [T.k, "ABCDEFGHIJKL"[i]]));
   function headFor(T, opts){
-    const cf = opts.scaf === "count" ? " Count each kind first." : "";
+    const cf = opts.scaf === "count" ? " Count the groups of each kind first." : "";
     switch(T.k){
-      case "A": return "Ring the bubbles that can join. Count each kind, then collect.";
+      case "A": return "Ring the bubbles that can join. Count the groups of each kind, then put them all together.";
       case "B": return "Cross out each zero pair (a piece and its opposite). Then collect what is left.";
       case "C": return "Draw a bubble of pieces for each term. Join the like ones, then collect.";
       case "D": return "Collect the like terms." + cf;
       case "E": return "Some terms are taken away. Collect the like terms." + cf;
       case "F": return "A number on its own is a pile of ones. Collect the like terms." + cf;
-      case "G": return "Collect the groups of the same number. Then work it out.";
+      case "G": return "Count the groups of each number. Then work it out all together.";
       case "H": return "Watch for look-alikes: which terms really hold the same thing?" + cf;
       case "I": return "Find the missing number.";
       case "J": return "Spot the mistake. Explain what went wrong, then write the correct answer.";
@@ -727,16 +730,27 @@
   const keyWhy = txt => `<div class="keyWhy">${txt}</div>`;
   const ln = cls => `<span class="ln${cls ? " " + cls : ""}"></span>`;
   /* the "count each kind first" line: x ___  y ___  ones ___, then = ____ */
+  /* "___ groups of x + ___ groups of y + ___ ones", then "All together = ___": what goes in each blank is said in words,
+     and the answer is visibly all the kinds put back together */
+  const groupsOf = (k, d) => typeOf(k) === "one" ? `<span class="gw">ones</span>` : `<span class="gw">groups of</span><span class="eqs">${typeOf(k) === "num" ? valOf(k) : Lt(d || k)}</span>`;
+  const allTogether = () => `<div class="ansLine"><span class="lab">All together</span><span class="eqs">=</span>${ln()}</div>`;
   function countLine(terms, opts){
     if(opts.scaf !== "count") return `<div class="ansLine"><span class="eqs">=</span>${ln()}</div>`;
     const C = collect(terms);
-    return `<div class="ansLine cnt">` + C.order.map(k => `<span class="eqs kU">${kindUnit(k, C.disp[k])}</span>${ln("xs")}`).join("") + `</div><div class="ansLine"><span class="eqs">=</span>${ln()}</div>`;
+    return `<div class="ansLine cnt">` + C.order.map((k, i) => `${i ? '<span class="eqs plus">+</span>' : ""}<span class="cntItem">${ln("gx")}${groupsOf(k, C.disp[k])}</span>`).join("") + `</div>` + allTogether();
+  }
+  /* the key says the same in words: 7 groups of n + 5 groups of j */
+  function countsFilled(terms){
+    const C = collect(terms);
+    return C.order.map((k, i) => { const v = C.tot[k], a = Math.abs(v);
+      const sg = i ? (v < 0 ? ` ${MINUS} ` : " + ") : (v < 0 ? MINUS : "");
+      return `${sg}${a} ${grpWord(k, C.disp[k], a)}`; }).join("");
   }
   function cardHTML(q, n, opts, key){
     const cols = colsFor({ T:{ k:q.type } }, opts), w = cardInner(cols);
     if(q.type === "A" || q.type === "B"){
       const t = q.terms;
-      const body = key ? keyLine("", collectedH(t)) + keyWhy(whyH(t) + ".") : countLine(t, opts);
+      const body = key ? keyLine("", countsFilled(t)) + keyLine("", "= " + collectedH(t)) + keyWhy(whyH(t) + ".") : countLine(t, opts);
       return `<div class="qCard">${top(q, n, `<span class="expr">${exprH(t)}</span>`)}<div class="pic">${bubblesSVG(t, opts, w)}</div>${body}</div>`;
     }
     if(q.type === "C"){
@@ -753,13 +767,13 @@
       const t = q.terms, C = collect(t);
       const short = C.order.filter(k => C.tot[k] !== 0).map(k => C.tot[k] * valOf(k));
       const sum = short.reduce((a, v) => a + v, 0);
-      const body = key ? keyLine("", `${collectedH(t)} = ${short.join(" + ").replace(/\+ -/g, MINUS + " ")} = ${sum}`) + keyWhy(`${whyH(t)}. ${C.list.length} multiplication${C.list.length === 1 ? "" : "s"} instead of ${t.length}.`)
-        : `<div class="ansLine cnt"><span class="eqs">=</span>` + C.order.map((k, i) => `${i ? '<span class="eqs">+</span>' : ""}${ln("xs")}<span class="eqs">${kindUnit(k)}</span>`).join("") + `</div><div class="ansLine"><span class="eqs">=</span>${ln()}</div>`;
+      const body = key ? keyLine("", countsFilled(t)) + keyLine("", `= ${collectedH(t)} = ${short.join(" + ").replace(/\+ -/g, MINUS + " ")} = ${sum}`) + keyWhy(`${whyH(t)}. ${C.list.length} multiplication${C.list.length === 1 ? "" : "s"} instead of ${t.length}.`)
+        : `<div class="ansLine cnt">` + C.order.map((k, i) => `${i ? '<span class="eqs plus">+</span>' : ""}<span class="cntItem">${ln("gx")}${groupsOf(k)}</span>`).join("") + `</div>` + allTogether();
       return `<div class="qCard">${top(q, n, `<span class="expr">${exprH(t)}</span>`)}${body}</div>`;
     }
     if(q.type === "D" || q.type === "E" || q.type === "F" || q.type === "H"){
       const t = q.terms;
-      const body = key ? keyLine("", collectedH(t)) + keyWhy(whyH(t) + "." + (t.some(x => x.d.length === 2 && x.d !== x.k) ? ` ${Lt(t.find(x => x.d !== x.k).d)} is the same as ${Lt(t.find(x => x.d !== x.k).k)}.` : "")) : countLine(t, opts);
+      const body = key ? (opts.scaf === "count" ? keyLine("", countsFilled(t)) : "") + keyLine("", "= " + collectedH(t)) + keyWhy(whyH(t) + "." + (t.some(x => x.d.length === 2 && x.d !== x.k) ? ` ${Lt(t.find(x => x.d !== x.k).d)} is the same as ${Lt(t.find(x => x.d !== x.k).k)}.` : "")) : countLine(t, opts);
       return `<div class="qCard">${top(q, n, `<span class="expr">${exprH(t)}</span>`)}${body}</div>`;
     }
     if(q.type === "I"){
