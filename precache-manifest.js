@@ -1,6 +1,6 @@
 /* Written by tools/build-pwa.mjs — do not edit by hand. */
 self.MMT_PRECACHE = {
- "version": "d4f36b0e80",
+ "version": "4b99501506",
  "files": [
   "./",
   "assessment/exam-builder/app.js",
@@ -802,6 +802,7 @@ self.MMT_PRECACHE = {
   "interactive-tools/stage-4/algebra/visual-patterns/index.html",
   "interactive-tools/stage-4/algebra/visual-patterns/patterns.js",
   "interactive-tools/stage-4/measurement-space/angles-parallel-lines/index.html",
+  "interactive-tools/stage-4/measurement-space/area-of-a-circle/index.html",
   "interactive-tools/stage-4/measurement-space/area-of-a-parallelogram/index.html",
   "interactive-tools/stage-4/measurement-space/area-of-a-trapezium/index.html",
   "interactive-tools/stage-4/measurement-space/area-of-a-triangle/index.html",

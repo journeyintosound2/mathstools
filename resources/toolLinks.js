@@ -1032,6 +1032,14 @@ window.MMT_TOOL_LINKS = {
       tags: ["area", "trapeziums", "average of the parallel sides", "half a parallelogram", "half the sum of the parallel sides times the height", "derivation", "rearrangement", "midline", "visual"]
     },
     {
+      title: "Area of a Circle",
+      kind: "Teacher tool",
+      url: "/interactive-tools/stage-4/measurement-space/area-of-a-circle/",
+      ideas: ["circles-sectors"],
+      note: "The circle is cut into slices (4 to 128, changeable at any step), each half of the rim unrolls into a straight line \u03c0r long, and the two halves fit together into a bumpy rectangle \u03c0r by r. Thinner slices flatten the bumps while the area never changes, so the area is \u03c0r \u00d7 r = \u03c0r\u00b2. Letters or a number for the radius; finish as a rectangle or a parallelogram.",
+      tags: ["area", "circle", "area of a circle", "pi r squared", "sectors", "slices", "rearrangement", "half the circumference", "radius", "limit", "derivation", "visual", "whole-class teaching"]
+    },
+    {
       title: "Area of a Trapezium (Student Quiz)",
       kind: "Student quiz",
       url: "/online-quizzes/stage-4/measurement-space/area-of-a-trapezium.html",

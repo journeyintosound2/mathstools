@@ -107,6 +107,38 @@
 > tools draw exactly what they drew before (314 frames compared with the old files, within half a pixel); ON: no
 > number, NaN or units on any board label over every step of every mode; trapezium layout audit 16,000 frames clean.
 >
+> **NEW (2026-11-16, latest): AREA OF A CIRCLE — new teaching tool** at
+> `interactive-tools/stage-4/measurement-space/area-of-a-circle/index.html`, on the trapezium tool's shell. Under
+> **MA4-ARE-C-01** idea `circles-sectors` (toolLinks row; homepage Interactive card, pill 41 → 42); linked from the
+> Tools menus of the circumference, triangle, parallelogram and trapezium tools. Its own menu has Worksheet / Quiz
+> greyed. Self-contained, no Firebase. localStorage `mmt.circleArea.v1`; test surface `window.__CIRC__`.
+> * **THE MODEL: each half of the circle is a CHAIN HINGED AT ITS RIM CORNERS.** Chord i of a half points at
+>   f·(π/2 − (i + ½)θ), θ = 2π/n (`chain(g, sgn, f)`): f = 1 is exactly the half circle, f = 0 lays the chords end to
+>   end so the slices hang like comb teeth. Every slice is the same rigid piece at every moment, so the area never
+>   changes. The chain is anchored at its MIDDLE (`mid`), which travels from the circle to the shape while it
+>   flattens. Interlocked: the bottom comb shifts c/2 (c = chord) and each bottom slice fills the V between two top
+>   slices exactly (a triangle r, r, c). Long side n·sin(π/n)·r → πr, height cos(π/n)·r → r.
+> * **While a half is part-way open its end slices swing further than its middle,** so `arrange()` measures how far
+>   each half reaches and pushes them apart if they would touch (they overlapped by 0.1r before this).
+> * Steps: circle (radius r) · cut into n slices (spokes sweep, then white gaps) · go round the rim (2πr, then the
+>   halves turn two tones and each rim half is πr) · unroll each half (the circle stays as a dashed ghost) · fit the
+>   halves together · [rectangle only] move half a slice: the end slice is cut and its half is picked up (grows,
+>   shadow), slid across and set down, so the left end is a vertical radius · measure it (the radius flies from the
+>   ghost circle to the end; dashed πr × r target outline) · thinner slices (doubles to ≥ 64: 8→16→32→64, each new
+>   count fades in over the old; `enterMore`/`leaveMore` set and restore `S.n`, Back undoes it) · the area (πr × r =
+>   πr² inside the shape, the ghost circle refills with "πr²").
+> * **The slice count (4–128, `LIST`) can change at ANY step** (board-top − / + / slider / chips, keys ↑↓ + −) and
+>   the picture redraws in place: the drawing scale is fixed for every n and every step (`frameFor` samples every n
+>   through the motion). Orientation: circle beside the shape, or above it on portrait/phone — whichever draws it
+>   bigger. Settings: finish as rectangle or parallelogram; Formula mode (default ON: r, πr, πr²) or numbers
+>   (radius 1–20 in the side panel, area ≈ to 2 dp); dashed target outline; "How close to a rectangle?" panel card
+>   (long and short side measured straight, as the slices thin); show the calculation; colour (two tones); units.
+> * Verified (Playwright): geometry for all 15 slice counts (circle reproduced exactly, every bottom apex on a top
+>   corner, area π by raster at circle / mid-unroll / fitted / evened with no overlap, the evened left end a vertical
+>   radius), answer never on screen before the last step, the doubling and its undo, slider at every step, keys,
+>   both endings, numbers mode, persistence, render 2 ms at 128 slices, nothing off the board at rest (6 viewports ×
+>   2 label modes × 3 slice counts × every step) or mid-animation (3 viewports), full screen, reduced motion.
+>
 > **NEW (2026-11-16, later): AREA OF A TRAPEZIUM — STUDENT QUIZ + WORKSHEET GENERATOR.**
 > Quiz shell `online-quizzes/stage-4/measurement-space/area-of-a-trapezium.html`, engine
 > `area-of-a-trapezium-quiz/quiz.js` + `quiz.css` (css = the triangle quiz's + methSeg; bump BOTH `?v=` in the
