@@ -846,8 +846,8 @@ window.MMT_TOOL_LINKS = {
       kind: "Student quiz",
       url: "/online-quizzes/stage-4/algebra/collecting-like-terms.html",
       ideas: ["laws-properties"],
-      note: "Saves to the student dashboard.",
-      tags: ["quiz", "algebra", "like terms", "simplifying"]
+      note: "On Sweet and Mild each question is drawn as bubbles students can drag together (zero pairs, unlike terms refused); Medium and Spicy type the whole answer, with look-alikes, x and x², groups of numbers and make-your-own. Saves to the student dashboard.",
+      tags: ["quiz", "algebra", "like terms", "simplifying", "zero pairs", "unlike terms"]
     },
     {
       title: "Collecting Like Terms – Number Groups",
@@ -878,8 +878,8 @@ window.MMT_TOOL_LINKS = {
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-4/algebra/collecting-like-terms.html",
       ideas: ["laws-properties"],
-      note: "Generates printable like-terms worksheets.",
-      tags: ["worksheet generator", "printable", "like terms"]
+      note: "Bubbles printed (join them, cross out zero pairs), then drawn by students, then collect, take away, plain numbers, groups of numbers, look-alikes, missing terms, spot the mistake and make your own. Answer key.",
+      tags: ["worksheet generator", "printable", "like terms", "zero pairs", "unlike terms"]
     },
     {
       title: "Collecting Like Terms – Number Groups",

@@ -1,6 +1,6 @@
 /* Written by tools/build-pwa.mjs — do not edit by hand. */
 self.MMT_PRECACHE = {
- "version": "768c7f2584",
+ "version": "fb654599e8",
  "files": [
   "./",
   "assessment/exam-builder/app.js",
@@ -919,6 +919,8 @@ self.MMT_PRECACHE = {
   "online-quizzes/stage-3/number/multiply-divide-by-ten.html",
   "online-quizzes/stage-3/number/whole-number-zoom.html",
   "online-quizzes/stage-4/algebra/algebraic-techniques.html",
+  "online-quizzes/stage-4/algebra/collecting-like-terms-quiz/quiz.css",
+  "online-quizzes/stage-4/algebra/collecting-like-terms-quiz/quiz.js",
   "online-quizzes/stage-4/algebra/collecting-like-terms.html",
   "online-quizzes/stage-4/algebra/counting-strategies-all-quadrants.html",
   "online-quizzes/stage-4/algebra/counting-strategies-first-quadrant.html",

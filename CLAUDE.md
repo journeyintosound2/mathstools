@@ -96,6 +96,37 @@
 > §2 "TWO folders", §3 deploy paths and §5's `mathstools-main 2` heading below
 > describe the OLD layout — this block supersedes them.
 >
+> **NEW (2026-11-16, latest): COLLECTING LIKE TERMS – BUBBLES — STUDENT QUIZ + WORKSHEET CREATOR REBUILT.**
+> Same URLs. Quiz: thin shell `online-quizzes/stage-4/algebra/collecting-like-terms.html` + engine
+> `collecting-like-terms-quiz/quiz.js` + `quiz.css` (css = the Number Groups quiz's + a bubbles block; bump BOTH `?v=`).
+> The old trilingual escape-room quiz was replaced, so **the quiz is English only now** (AR/FA would be a new layer).
+> Registry entry, toolId `collecting-like-terms-quiz`, achievementToolName `collecting-like-terms-student-quiz`,
+> masteryTopic `collecting-like-terms` UNCHANGED (registry title/notes not edited: that needs the `?v=` chain).
+> Test surface `window.__CLQ__`. Worksheet: `worksheet-creators/stage-4/algebra/collecting-like-terms.html` (single
+> file, the Number Groups generator's frame copied verbatim). Test surface `window.__WS__`.
+> * **Quiz model = the Bubbles tool in the panel (Sweet + Mild only).** `BB` in quiz.js builds the question's terms
+>   as bubbles of pieces; students DRAG them (join, zero pairs, unlike refused with a message, rearrange) or press
+>   Show me ▸ / ↶. Never marked, never required, and it never prints the answer: a bubble that has changed is
+>   captioned "?x" until the question is settled — the student counts the pieces. A wrong first answer plays every
+>   move to the end. Ladder: Sweet two kinds all added + numbers only (5 × 7 + 3 × 7 + 2 × 5), one box per kind;
+>   Mild taking away, plain numbers, a kind that cancels, the minus sign travels; Medium no model, whole answer typed,
+>   ab = ba, missing numbers, three kinds; Spicy x and x² apart, below zero, numbers only with three kinds, make your
+>   own (four terms, one taken away). Long box lines wrap the question above the boxes (`.ansEq.two`). Marking as
+>   Number Groups (equal-but-not-collected, 0 terms and 1x are free nudges); x² typed as x^2 or x². No letter e.
+>   types[] object shape `clt-<cat>` (collect, unlike, numbers, value, take, zero, below, like, missing, mistake,
+>   build) + `level:x`.
+> * **Worksheet:** A Join the bubbles (printed; ring, count each kind) · B Zero pairs (printed with red dashed
+>   taken-away bubbles; cross out) · C Draw the bubbles · D Collect · E Taking away (Spicy can go below zero) ·
+>   F Plain numbers · G Groups of numbers (then work it out; key says how many multiplications were saved; × or
+>   brackets) · H Look-alikes (ab/ba; x/x² from Medium) · I Missing terms · J Spot the mistake · K Make your own ·
+>   L Fluency (off). Answer space "count each kind first" (one short line per kind) or answer only. Bubbles are SVG in
+>   mm (`bubblesSVG`), pieces as big as fit one row. Key reasons read "x: 3 + 4 = 7".
+> * Verified: quiz 600 papers generated (every box answer positive and re-derived, every typed answer accepted by its
+>   own marker, MC exactly one right), all four levels played to 10/10 at 5 viewports, masked captions, Show me, undo,
+>   wrong-answer finish, real-mouse unlike refusal and like join, payload with no typed answer; worksheet 5,760
+>   questions checked per section rules, 15 layouts with nothing past a page or card, key mirrors the paper with the
+>   collected answer in every key card, PDF pages = preview.
+>
 > **NEW (2026-11-16, late night): COLLECTING LIKE TERMS – BUBBLES REBUILT + THE TWO LIKE-TERMS TOOLS RENAMED.**
 > Names (Jeff): `interactive-tools/stage-4/algebra/number-groups/` = **Collecting Like Terms – Number Groups** (count
 > the groups); `interactive-tools/stage-4/algebra/collecting-like-terms/` = **Collecting Like Terms – Bubbles** (do the
