@@ -1,984 +1,309 @@
-
-
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Equations – Double Number Line</title>
+  <title>One-Step Equations – Double Number Line | Mills Maths Tools</title>
+  <meta name="description" content="Solve one-step equations on a double number line: expressions in x on the top line, their values underneath, and the same undo move on both lines." />
 
   <style>
     :root{
-      --bg:#f6f7fb;
-      --card:#ffffff;
-      --ink:#111827;
-      --muted:#6b7280;
-      --border:#e5e7eb;
-      --shadow:0 14px 40px rgba(0,0,0,.10);
-
-      --blue:#2563eb;
-      --green:#6cbc4a;
-      --danger:#ef4444;
-
-      --btn:#eef2f7;
-      --btnHover:#e5ebf3;
-      --btnDisabled:#e5e7eb;
-      --btnDisabledText:#9ca3af;
-
-      --line:#111827;
-      --tick:#111827;
-      --tickSoft:#b9c0cb;
-      --ghost:#97a0ad;
-      --ghostGreen:#87956f;
-      --cue:#a4b0c0;
-
-      --mathFont:"Cambria Math","STIX Two Math","STIXGeneral","Times New Roman",serif;
+      --bg:#f8fafc; --card:#ffffff; --ink:#0f172a; --muted:#64748b; --border:#e2e8f0;
+      --shadow:0 18px 45px rgba(15,23,42,.13);
+      --blue:#2563eb; --blue-dark:#1d4ed8;
+      --green:#22c55e; --green-dark:#15803d; --green-ink:#14532d;
+      --purple:#7c3aed; --purple-dark:#5b21b6;
+      --orange:#f97316; --orange-dark:#c2410c;
+      --red:#dc2626; --red-dark:#991b1b;
+      --line:#334155; --line-soft:#94a3b8;
       --uiFont:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+      --mathFont:"Cambria Math","STIX Two Math","Latin Modern Math","Asana Math",Cambria,"Palatino Linotype","Book Antiqua",Palatino,"Times New Roman",Georgia,serif;
+      --mathWeight:500;
+      /* fallback for letters when the maths alphabet is missing: a serif with a REAL italic face (curly x) */
+      --itFont:"Cambria","Times New Roman","STIX Two Text",Georgia,serif;
     }
-
     *{ box-sizing:border-box; }
     html,body{ height:100%; }
-
     body{
-      margin:0;
-      font-family:var(--uiFont);
-      background:var(--bg);
-      color:var(--ink);
-      overflow:hidden;
-    }
-
-    .app{
-      min-height:100vh;
-      min-height:100dvh;
-      display:flex;
-      flex-direction:column;
-      padding:18px 22px 16px;
-      gap:12px;
-    }
-
-    .topbar{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:16px;
-      flex-wrap:wrap;
-      position:relative;
-    }
-
-    .back-btn{
-      display:inline-flex;
-      align-items:center;
-      gap:12px;
-      text-decoration:none;
-      color:var(--ink);
-      background:rgba(255,255,255,.78);
-      border:1px solid var(--border);
-      border-radius:999px;
-      padding:10px 16px;
-      box-shadow:0 1px 0 rgba(17,24,39,.03);
-      font-weight:800;
-      font-size:17px;
-      backdrop-filter:blur(4px);
-      transition:.16s ease;
-      user-select:none;
-      -webkit-user-select:none;
-    }
-    .back-btn:hover{
-      transform:translateY(-1px);
-      background:rgba(255,255,255,.92);
-      box-shadow:0 6px 18px rgba(37,99,235,.08);
-    }
-
-    .back-logo{
-      width:28px;
-      height:28px;
-      border-radius:6px;
-      object-fit:contain;
-      display:block;
-      flex:0 0 auto;
-    }
-
-    .actions{
-      display:flex;
-      align-items:center;
-      gap:14px;
-      flex-wrap:wrap;
-      position:relative;
-    }
-
-    .btn{
-      border:0;
-      background:var(--btn);
-      color:var(--ink);
-      padding:14px 20px;
-      border-radius:16px;
-      font-weight:800;
-      font-size:17px;
-      cursor:pointer;
-      transition:.18s ease;
-      box-shadow:0 1px 0 rgba(17,24,39,.03);
-      user-select:none;
-      -webkit-user-select:none;
-    }
-    .btn:hover{ background:var(--btnHover); transform:translateY(-1px); }
-    .btn:active{ transform:translateY(0); }
-    .btn:focus-visible{
-      outline:none;
-      box-shadow:0 0 0 4px rgba(37,99,235,.14);
-    }
-
-    .btn-danger{
-      background:#f3f4f6;
-      color:#6b7280;
-    }
-    .btn-danger:hover{
-      background:#e5e7eb;
-      color:#374151;
-    }
-
-    .btn-primary{
-      background:var(--blue);
-      color:#fff;
-    }
-    .btn-primary:hover{ background:#1d4ed8; }
-
-    .tools-wrap{ position:relative; }
-
-    .tools-menu{
-      position:absolute;
-      top:calc(100% + 10px);
-      right:0;
-      min-width:220px;
-      background:rgba(255,255,255,.98);
-      border:1px solid var(--border);
-      border-radius:18px;
-      box-shadow:var(--shadow);
-      padding:10px;
-      opacity:0;
-      transform:translateY(-8px) scale(.98);
-      pointer-events:none;
-      transition:.18s ease;
-      z-index:30;
-    }
-    .tools-menu.open{
-      opacity:1;
-      transform:translateY(0) scale(1);
-      pointer-events:auto;
-    }
-
-    .tools-link{
-      display:block;
-      text-decoration:none;
-      color:var(--ink);
-      font-weight:800;
-      padding:12px 14px;
-      border-radius:12px;
-      transition:.14s ease;
-    }
-    .tools-link:hover{
-      background:#f3f6fb;
-      color:var(--blue);
-    }
-
-    .layout{
-      flex:1;
-      min-height:0;
-      position:relative;
-    }
-
-    .teacher-panel{
-      position:absolute;
-      top:0;
-      right:0;
-      width:min(500px, calc(100vw - 44px));
-      background:rgba(255,255,255,.98);
-      border:1px solid var(--border);
-      border-radius:22px;
-      box-shadow:var(--shadow);
-      padding:18px;
-      z-index:20;
-      transform:translateY(-10px) scale(.98);
-      opacity:0;
-      pointer-events:none;
-      transition:.22s ease;
-      max-height:min(82vh, 780px);
-      overflow:auto;
-    }
-    .teacher-panel.open{
-      transform:translateY(0) scale(1);
-      opacity:1;
-      pointer-events:auto;
-    }
-
-    .panel-title{
-      font-size:19px;
-      font-weight:900;
-      margin:0 0 14px;
-    }
-
-    .panel-grid{
-      display:grid;
-      grid-template-columns:1fr;
-      gap:14px;
-    }
-
-    .field{
-      display:flex;
-      flex-direction:column;
-      gap:8px;
-    }
-    .field label{
-      font-weight:800;
-      color:var(--ink);
-      font-size:15px;
-    }
-    .field select{
-      width:100%;
-      border:1px solid var(--border);
-      background:#fff;
-      border-radius:14px;
-      padding:13px 14px;
-      font:inherit;
-      font-size:15px;
-      color:var(--ink);
-      outline:none;
-      transition:border-color .16s ease, box-shadow .16s ease;
-    }
-    .field select:focus{
-      border-color:var(--blue);
-      box-shadow:0 0 0 4px rgba(37,99,235,.12);
-    }
-
-    .toggle{
-      display:flex;
-      align-items:flex-start;
-      gap:12px;
-      padding:12px 14px;
-      background:#f8fafc;
-      border:1px solid var(--border);
-      border-radius:16px;
-    }
-    .toggle input{
-      margin-top:3px;
-      transform:scale(1.16);
-      accent-color:var(--blue);
-    }
-    .toggle-text{
-      display:flex;
-      flex-direction:column;
-      gap:2px;
-    }
-    .toggle-text strong{ font-size:15px; }
-    .toggle-text span{
-      font-size:13px;
-      color:var(--muted);
-      line-height:1.4;
-    }
-
-    .panel-note{
-      margin:2px 0 0;
-      font-size:13px;
-      color:var(--muted);
-      line-height:1.45;
-    }
-
-    .main{
-      position:absolute;
-      inset:0;
-      display:grid;
-      grid-template-rows:auto 1fr auto auto;
-      min-height:0;
-    }
-
-    .hero{
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:center;
-      gap:16px;
-      min-height:78px;
-    }
-
-    .equation-box{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      min-width:380px;
-      min-height:92px;
-      padding:16px 34px;
-      background:#fff;
-      border:4px solid #111;
-      border-radius:24px;
-      box-shadow:0 4px 0 rgba(0,0,0,.02);
-margin-bottom:10px;
-    }
-
-    .eq-line{
-      font-family:var(--mathFont);
-      font-size:38px;
-      font-weight:700;
-      line-height:1.1;
-      white-space:nowrap;
-      letter-spacing:.01em;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:14px;
-      min-height:44px;
-    }
-
-    .stage-chip-row{
-      display:flex;
-      justify-content:center;
-      min-height:34px;
-      margin-top:2px;
-    }
-    .stage-chip{
-      user-select:none;
-      -webkit-user-select:none;
-      transition: transform .18s ease, opacity .18s ease;
-    }
-
-    .stage-chip.bump{
-      transform:scale(1.06);
-    }
-
-    .stage-chip{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      min-width:170px;
-      min-height:34px;
-      padding:7px 16px;
-      background:#e3edff;
-      color:#1d4ed8;
-      border:1px solid rgba(37,99,235,.18);
-      border-radius:999px;
-      font-size:14px;
-      font-weight:900;
-      letter-spacing:.01em;
-      text-align:center;
-      user-select:none;
-      -webkit-user-select:none;
-      transition:transform .18s ease, opacity .18s ease;
-    }
-    .stage-chip.bump{
-      transform:scale(1.06);
-    }
-
-    .expr{ color:var(--blue); }
-    .value{ color:#a6cf8d; }
-    .equals{ color:#8c8c8c; padding:0 8px; }
-
-   .canvas-wrap{
-  position:relative;
-  min-height:0;
-  display:flex;
-  align-items:stretch;
-  justify-content:center;
-  margin-top:12px; /* was -12px */
-}
-
-    .flip-stage{
-      position:relative;
-      width:100%;
-      height:100%;
-      perspective:1600px;
-      perspective-origin:50% 50%;
-    }
-
-    .flip-card{
-      position:absolute;
-      inset:0;
-      transform-style:preserve-3d;
-      transform-origin:50% 50%;
-      will-change:transform;
-    }
-
-    .flip-face{
-      position:absolute;
-      inset:0;
-      width:100%;
-      height:100%;
-      backface-visibility:hidden;
-      -webkit-backface-visibility:hidden;
-      overflow:visible;
-    }
-
-    .flip-face.back{
-      transform:rotateY(180deg);
-    }
-
-    .flip-face svg{
-      width:100%;
-      height:100%;
-      display:block;
-      overflow:visible;
-    }
-
-    .flip-shadow{
-      position:absolute;
-      left:50%;
-      bottom:92px;
-      width:52%;
-      height:42px;
-      transform:translateX(-50%);
-      border-radius:999px;
-      background:radial-gradient(ellipse at center, rgba(15,23,42,.18) 0%, rgba(15,23,42,.08) 45%, rgba(15,23,42,0) 72%);
-      pointer-events:none;
-      filter:blur(6px);
-      opacity:.55;
-      transition:transform .08s linear, opacity .08s linear, width .08s linear;
-    }
-
-    .flip-gloss{
-      position:absolute;
-      inset:0;
-      pointer-events:none;
-      border-radius:10px;
-      background:linear-gradient(90deg,
-        rgba(255,255,255,0) 0%,
-        rgba(255,255,255,.08) 35%,
-        rgba(255,255,255,.18) 50%,
-        rgba(255,255,255,.08) 65%,
-        rgba(255,255,255,0) 100%);
-      mix-blend-mode:screen;
-      opacity:.0;
-    }
-
-    .flip-edge{
-      position:absolute;
-      left:50%;
-      top:0;
-      width:4px;
-      height:100%;
-      transform:translateX(-50%);
-      background:linear-gradient(180deg, rgba(17,24,39,.10), rgba(17,24,39,.32), rgba(17,24,39,.10));
-      border-radius:999px;
-      opacity:0;
-      pointer-events:none;
-    }
-
-    .flip-card.is-animating .flip-gloss{
-      opacity:.55;
-    }
-
-    svg{
-      width:100%;
-      height:100%;
-      display:block;
-      overflow:visible;
-    }
-
-    .footer{
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      min-height:56px;
-      margin-top:-6px;
-    }
-
-    .control-row{
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:16px;
-      flex-wrap:wrap;
-      width:100%;
-    }
-
-    .nav-btn{
-      width:78px;
-      height:56px;
-      border:0;
-      border-radius:16px;
-      background:rgba(255,255,255,.62);
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      cursor:pointer;
-      transition:.16s ease;
-      box-shadow:0 1px 0 rgba(17,24,39,.03);
-      user-select:none;
-      -webkit-user-select:none;
-    }
-    .nav-btn:hover:not(:disabled){ background:rgba(255,255,255,.88); transform:translateY(-1px); }
-    .nav-btn:disabled{
-      background:var(--btnDisabled);
-      color:var(--btnDisabledText);
-      cursor:not-allowed;
-      box-shadow:none;
-      opacity:.8;
-    }
-
-    .nav-pill{
-      width:46px;
-      height:34px;
-      border-radius:999px;
-      background:var(--blue);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      box-shadow: inset 0 -2px 0 rgba(0,0,0,.08);
-    }
-    .nav-btn:disabled .nav-pill{
-      background:#cfd4dc;
-      box-shadow:none;
-    }
-
-    .footer-newq{
-      border:0;
-      padding:15px 24px;
-      border-radius:16px;
-      background:var(--blue);
-      color:#fff;
-      font-weight:800;
-      font-size:19px;
-      cursor:pointer;
-      transition:.16s ease;
-      display:none;
-      user-select:none;
-      -webkit-user-select:none;
-    }
-    .footer-newq:hover{ background:#1d4ed8; transform:translateY(-1px); }
-    .footer-newq.show{ display:inline-flex; align-items:center; justify-content:center; }
-
-    .brand-footer{
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      min-height:32px;
-      font-size:15px;
-      font-weight:700;
-      color:var(--muted);
-      text-align:center;
-      margin-top:2px;
-    }
-    .brand-footer a{
-      color:var(--blue);
-      text-decoration:none;
-      font-weight:900;
-    }
-
-    .main-line{
-      stroke:var(--line);
-      stroke-width:10;
-      stroke-linecap:round;
-    }
-
-    .tick-major{
-      stroke:var(--tick);
-      stroke-width:12;
-      stroke-linecap:round;
-    }
-    .tick-minor{
-      stroke:var(--tickSoft);
-      stroke-width:7.5;
-      stroke-linecap:round;
-    }
-
-    .point-top,
-    .point-bottom{
-      font-family:var(--mathFont);
-      font-weight:700;
-      dominant-baseline:middle;
-      text-anchor:middle;
-      pointer-events:none;
-      user-select:none;
-    }
-
-    .point-top{ fill:var(--blue); }
-    .point-bottom{ fill:var(--green); }
-
-    .small-black{ fill:#111 !important; }
-    .ghost-black{ fill:var(--ghost) !important; opacity:.94; }
-    .ghost-green{ fill:var(--ghostGreen) !important; opacity:.94; }
-
-    .cue-line,
-    .cue-arc,
-    .cue-loop{
-      stroke:var(--cue);
-      stroke-width:5;
-      stroke-linecap:round;
-      fill:none;
-      opacity:.74;
-      stroke-dasharray:14 10;
-      animation:dashMove 1.1s linear infinite;
-    }
-
-    .cue-head{
-      fill:var(--cue);
-      opacity:.9;
-      transition:opacity .18s ease;
-    }
-
-    .cue-loop{
-      transform-origin:center;
-    }
-
-    .cue-arc{
-      animation:dashMove 1.1s linear infinite, arcAppear .18s ease forwards;
-      opacity:0;
-      transform-origin:center;
-    }
-
-    .stage1-halo{
-      fill:url(#stage1Glow);
-      opacity:.48;
-      pointer-events:none;
-    }
-
-    .stage1-label{
-      font-family:var(--uiFont);
-      font-weight:800;
-      font-size:24px;
-      fill:#9aa4b2;
-      text-anchor:middle;
-      letter-spacing:.01em;
-      pointer-events:none;
-      user-select:none;
-    }
-
-    .stage1-pulse{
-      animation:stage1Pulse 1.9s ease-in-out infinite;
-      transform-origin:center;
-    }
-
-    .ghost-animate{
-      animation:ghostIn .32s ease forwards;
-      transform-origin:center;
-    }
-    .answer-pop{
-      animation:answerSettle .42s cubic-bezier(.2,.9,.25,1.18);
-      transform-origin:center;
-    }
-
-    @keyframes dashMove{
-      from{ stroke-dashoffset:0; }
-      to{ stroke-dashoffset:-24; }
-    }
-    @keyframes arcAppear{
-      from{ opacity:0; transform:translateY(6px); }
-      to{ opacity:.74; transform:translateY(0); }
-    }
-    @keyframes ghostIn{
-      0%{ opacity:0; transform:translateY(7px); }
-      100%{ opacity:1; transform:translateY(0); }
-    }
-    @keyframes answerSettle{
-      0%{ opacity:0; transform:scale(.82); }
-      60%{ opacity:1; transform:scale(1.08); }
-      100%{ opacity:1; transform:scale(1); }
-    }
-    @keyframes stage1Pulse{
-      0%,100%{ opacity:1; transform:scale(1); }
-      50%{ opacity:.8; transform:scale(1.03); }
-    }
-
-    @media (max-width: 980px){
-      .equation-box{ min-width:300px; min-height:84px; }
-      .eq-line{ font-size:31px; }
-    }
-
-    @media (max-width: 700px){
-      .app{ padding:14px; }
-      .btn{ padding:12px 16px; font-size:15px; border-radius:14px; }
-      .equation-box{ min-width:250px; min-height:78px; padding:14px 20px; }
-      .eq-line{ font-size:25px; }
-      .stage-chip{ min-width:140px; font-size:13px; }
-      .nav-btn{ width:66px; height:48px; }
-      .nav-pill{ width:38px; height:28px; }
-      .footer-newq{ padding:12px 18px; font-size:16px; }
-      .brand-footer{ font-size:13px; }
-    }
-
-
-    /* MMT polished style refresh - matched to recent Substitution activity */
-    :root{
-      --navy:#0f172a;
-      --purple:#7c3aed;
-      --text:#0f172a;
-      --bg:#f8fafc;
-      --card:#ffffff;
-      --shadow:0 18px 45px rgba(15,23,42,.13);
-      --footer-h:44px;
-    }
-
-    body{
-      color:var(--text);
+      margin:0; font-family:var(--uiFont); color:var(--ink);
       background:
         radial-gradient(circle at top left,rgba(37,99,235,.14),transparent 32rem),
         radial-gradient(circle at top right,rgba(124,58,237,.12),transparent 34rem),
         var(--bg);
-      overflow:hidden;
+      overflow-x:hidden;
     }
+    button,input,select{ font:inherit; }
+    [hidden]{ display:none !important; }
+    .app{ height:100dvh; display:flex; flex-direction:column; min-width:0; }
 
-    .app{
-      min-height:100vh;
-      min-height:100dvh;
-      padding:0;
-      gap:0;
-    }
-
+    /* ---------- topbar (shared MMT shell) ---------- */
     .mmtTopbar{
-      position:relative;
-      z-index:40;
+      position:relative; z-index:40; flex:0 0 auto;
       background:linear-gradient(135deg,#0f172a,#123b7a 55%,#2563eb);
-      color:white;
-      padding:14px 24px;
-      display:grid;
-      grid-template-columns:minmax(240px,1fr) auto minmax(360px,1fr);
-      align-items:center;
-      gap:18px;
-      box-shadow:0 10px 28px rgba(15,23,42,.22);
+      color:white; padding:14px 24px;
+      display:grid; grid-template-columns:minmax(200px,1fr) auto minmax(300px,1fr);
+      align-items:center; gap:18px; box-shadow:0 10px 28px rgba(15,23,42,.22);
+    }
+    .mmtBrand{ display:flex; align-items:center; gap:12px; justify-self:start; text-decoration:none; color:white; border-radius:14px;
+      padding:8px 12px; margin-left:-12px; font-weight:900; transition:background .18s ease,transform .18s ease,box-shadow .18s ease; }
+    .mmtBrand:hover{ background:rgba(255,255,255,.12); transform:translateY(-1px); box-shadow:0 0 10px rgba(124,58,237,.6),0 0 18px rgba(37,99,235,.4); }
+    .mmtBrandLogo{ width:44px; height:44px; border-radius:9px; background:white; color:#1d4ed8; display:grid; place-items:center;
+      font-weight:1000; letter-spacing:-.08em; box-shadow:inset 0 -2px 0 rgba(15,23,42,.08); flex:0 0 auto; }
+    .mmtBrandText strong{ display:block; font-size:1.18rem; line-height:1; letter-spacing:-.03em; color:white; }
+    .mmtBrandText span{ display:block; font-size:.78rem; opacity:.82; font-weight:650; color:white; }
+    .mmtTopTitle{ font-weight:850; font-size:clamp(1.05rem,1.8vw,1.45rem); letter-spacing:-.04em; text-align:center; color:white; white-space:nowrap; }
+    .topActions{ justify-self:end; display:flex; align-items:center; justify-content:flex-end; gap:10px; flex-wrap:wrap; }
+    .btn{ appearance:none; border:1px solid rgba(255,255,255,.28); background:rgba(255,255,255,.14); color:white; padding:11px 15px;
+      border-radius:14px; font-weight:900; font-size:15px; cursor:pointer; transition:.18s ease; user-select:none; }
+    .btn:hover:not(:disabled){ background:rgba(255,255,255,.22); transform:translateY(-1px); }
+    .btn:focus-visible{ outline:none; box-shadow:0 0 0 4px rgba(255,255,255,.23); }
+    .btn-primary{ background:white; color:#1d4ed8; border-color:white; }
+    .btn-primary:hover:not(:disabled){ background:#eef2ff; color:#1d4ed8; }
+
+    .menuWrap{ position:relative; display:inline-flex; }
+    .dropMenu{ position:absolute; top:calc(100% + 8px); right:0; min-width:270px; background:#fff; color:var(--ink);
+      border:1px solid rgba(226,232,240,.95); border-radius:14px; box-shadow:0 18px 45px rgba(15,23,42,.22);
+      padding:7px; display:none; z-index:120; text-align:left; }
+    .dropMenu.open{ display:grid; gap:4px; }
+    .toolLink{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 12px; border-radius:10px;
+      color:var(--ink); text-decoration:none; font-weight:900; font-size:.9rem; }
+    .toolLink::after{ content:'\203A'; color:var(--blue); font-weight:1000; font-size:1.1rem; line-height:1; }
+    .toolLink:hover,.toolLink:focus-visible{ background:#eef2ff; color:#1d4ed8; outline:none; }
+    .toolLink small{ display:block; font-weight:650; font-size:.74rem; color:var(--muted); }
+    .menuRule{ height:1px; background:var(--border); margin:3px 6px; }
+    .settingsMenu.open{ gap:11px; padding:15px 18px; min-width:350px; max-height:min(78vh,700px); overflow:auto; }
+    .settingsHead{ font-size:.68rem; letter-spacing:.14em; text-transform:uppercase; font-weight:950; color:var(--muted); }
+    .settingsNote{ margin:-4px 0 0; font-size:.76rem; font-weight:650; color:var(--muted); line-height:1.4; }
+    .settingsRule{ height:1px; background:var(--border); margin:1px 0; }
+    .selRow{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .selRow > span{ font-weight:900; font-size:.92rem; color:var(--ink); white-space:nowrap; }
+    .selRow select{ appearance:none; border:1.5px solid var(--border); padding:8px 30px 8px 11px; border-radius:11px; font-weight:850; font-size:.88rem;
+      color:var(--line); min-width:170px; cursor:pointer;
+      background:#fff url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' fill='none' stroke='%232563eb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/></svg>") no-repeat right 10px center;
+      background-size:11px; }
+    .selRow select:focus-visible{ outline:none; border-color:var(--blue); box-shadow:0 0 0 4px rgba(37,99,235,.16); }
+    .sw{ display:inline-flex; align-items:center; gap:11px; cursor:pointer; user-select:none; font-weight:850; color:var(--line); font-size:.93rem; }
+    .sw input{ position:absolute; opacity:0; width:0; height:0; }
+    .sw .track{ position:relative; width:50px; height:29px; border-radius:999px; background:#cbd5e1; transition:.18s ease; flex:0 0 auto; box-shadow:inset 0 1px 3px rgba(15,23,42,.18); }
+    .sw .track::after{ content:""; position:absolute; top:3px; left:3px; width:23px; height:23px; border-radius:50%; background:#fff; box-shadow:0 2px 6px rgba(15,23,42,.3); transition:.18s ease; }
+    .sw input:checked + .track{ background:var(--green); }
+    .sw input:checked + .track::after{ transform:translateX(21px); }
+    .sw input:focus-visible + .track{ box-shadow:0 0 0 4px rgba(37,99,235,.28); }
+    .sw.dim{ opacity:.45; }
+
+    /* ---------- layout ---------- */
+    .layout{ flex:1 1 auto; min-height:0; width:min(1640px,100%); margin:0 auto; padding:14px 18px 16px;
+      display:grid; grid-template-columns:minmax(0,1fr) 372px; gap:14px; min-width:0; }
+    .card{ background:var(--card); border:1px solid var(--border); border-radius:22px; box-shadow:var(--shadow); min-width:0; }
+
+    /* ---------- board ---------- */
+    .boardCard{ display:flex; flex-direction:column; min-height:0; padding:12px 14px 8px; position:relative; overflow:hidden; }
+    .boardTop{ position:relative; z-index:3; background:var(--card); display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+    .modeSwitch{ display:inline-flex; background:#f1f5f9; border:1px solid var(--border); border-radius:15px; padding:4px; gap:4px; flex-wrap:wrap; }
+    .modeBtn{ appearance:none; border:none; background:transparent; padding:7px 14px 7px 8px; border-radius:11px; font-weight:900; font-size:.95rem;
+      color:var(--muted); cursor:pointer; display:flex; align-items:center; gap:9px; transition:.16s ease; }
+    .modeBtn:hover{ color:var(--ink); }
+    .modeBtn .sym{ min-width:34px; height:32px; padding:0 6px; border-radius:9px; display:grid; place-items:center; background:#e2e8f0; color:var(--line);
+      transition:.16s ease; flex:0 0 auto; font-family:var(--mathFont); font-weight:700; font-size:1.05rem; white-space:nowrap; }
+    .modeBtn .sym i{ font-style:italic; }
+    .modeBtn small{ display:block; font-size:.7rem; font-weight:750; color:var(--line-soft); margin-top:1px; }
+    .modeBtn .txt{ text-align:left; line-height:1.1; }
+    .modeBtn[aria-selected="true"]{ background:#fff; color:var(--ink); box-shadow:0 3px 10px rgba(15,23,42,.12); }
+    .modeBtn[aria-selected="true"] .sym{ background:var(--blue); color:#fff; }
+    .modeBtn:focus-visible{ outline:none; box-shadow:0 0 0 3px rgba(37,99,235,.3); }
+    .topRight{ display:flex; align-items:center; gap:10px; }
+    .typeTag{ font-size:.74rem; letter-spacing:.06em; font-weight:950; text-transform:uppercase; padding:6px 11px; border-radius:999px; white-space:nowrap;
+      border:1px solid rgba(21,128,61,.25); color:var(--green-dark); background:rgba(34,197,94,.12); }
+    .typeTag.let{ color:var(--purple-dark); background:rgba(124,58,237,.1); border-color:rgba(124,58,237,.25); }
+    .iconGroup{ display:inline-flex; gap:6px; }
+    .iconBtn{ appearance:none; width:42px; height:42px; border-radius:13px; border:1.5px solid var(--border); background:#fff; color:var(--line);
+      display:grid; place-items:center; cursor:pointer; transition:.16s ease; padding:0; }
+    .iconBtn svg{ width:21px; height:21px; display:block; }
+    .iconBtn:hover:not(:disabled){ border-color:var(--blue); background:#eef2ff; color:var(--blue-dark); transform:translateY(-1px); }
+    .iconBtn:focus-visible{ outline:none; box-shadow:0 0 0 3px rgba(37,99,235,.3); }
+    .iconBtn[aria-pressed="true"]{ background:#eef2ff; border-color:#c7d2fe; color:var(--blue-dark); }
+    .iconBtn.spin svg{ animation:spin .5s ease; }
+    @keyframes spin{ from{ transform:rotate(0);} to{ transform:rotate(-360deg);} }
+
+    .app.noPanel .layout, .app.fs .layout{ grid-template-columns:minmax(0,1fr); }
+    .app.noPanel .side, .app.fs .side{ display:none; }
+    .app.fs .mmtTopbar{ display:none; }
+    .app.fs .layout{ width:100%; padding:10px; }
+    .app.fs #panelBtn{ display:none; }
+    .miniSteps{ position:absolute; right:14px; bottom:10px; display:flex; gap:7px; z-index:5; }
+    .miniSteps .nextBtn{ flex:none; padding:10px 16px; font-size:.95rem; }
+    .miniSteps .stepBtn.icon{ width:42px; padding:10px 0; }
+    .app.noPanel .hint, .app.fs .hint{ padding-right:220px; padding-left:220px; }
+
+    /* the stage holds the number sentence and the picture under it */
+    .stage{ position:relative; flex:1 1 auto; min-height:0; margin-top:4px; }
+    .stmt{ position:absolute; left:0; right:0; top:0; z-index:2; display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
+      font-family:var(--mathFont); font-weight:var(--mathWeight); color:var(--line); line-height:1.25; pointer-events:none;
+      transition:transform .75s cubic-bezier(.45,.05,.25,1); will-change:transform; }
+    .stmt .row{ white-space:nowrap; display:flex; align-items:baseline; justify-content:center; flex-wrap:nowrap; min-height:1.25em; padding:0 .2em; }
+    .stmt.wrap .row{ white-space:normal; flex-wrap:wrap; }
+    .stmt .r2{ display:none; }
+    .tk.fut{ visibility:hidden; }
+    .flyLayer{ position:fixed; inset:0; pointer-events:none; z-index:60; }
+    .flyNum{ position:fixed; left:0; top:0; font-family:var(--mathFont); font-weight:var(--mathWeight); color:var(--blue-dark); white-space:nowrap; line-height:1; will-change:transform,opacity; }
+    .flyNum.m{ color:var(--red); }
+    .tk{ display:inline-block; white-space:pre; transition:color .5s ease, background-color .5s ease; }
+    .op{ padding:0 .22em; }
+    .word{ font-family:var(--uiFont); font-weight:800; font-size:.62em; color:var(--muted); padding:0 .36em; letter-spacing:-.01em; }
+    .mv{ font-family:var(--itFont); font-style:italic; }
+    .mi{ font-family:var(--mathFont); font-style:normal; }
+    .cC{ color:var(--blue-dark); }
+    .cG{ color:var(--green-dark); }
+    .cU{ color:var(--purple-dark); }
+    .cM{ color:var(--red); }
+    .cT{ color:var(--blue-dark); }
+    .stmt.plain .cC, .stmt.plain .cG, .stmt.plain .cU, .stmt.plain .cM{ color:var(--ink); }
+    .ans{ background:#fef9c3; border-radius:.18em; padding:0 .16em; box-shadow:inset 0 -.1em 0 #fde047; color:var(--ink); }
+    .tk.new{ animation:tkIn .5s ease both; }
+    .tk.new.late{ animation-delay:.34s; }
+    @keyframes tkIn{ from{ opacity:0; transform:translateY(.25em) scale(.9);} to{ opacity:1; transform:none;} }
+    .boardWrap{ position:absolute; left:0; right:0; bottom:0; top:0; }
+    #board{ position:absolute; inset:0; width:100%; height:100%; display:block; user-select:none; -webkit-user-select:none; overflow:visible; }
+    #board text{ pointer-events:none; font-family:var(--mathFont); font-weight:var(--mathWeight); }
+    .plainM .cC, .plainM .cG, .plainM .cU, .plainM .cM{ color:inherit; }
+    .hint{ flex:0 0 auto; min-height:1.45em; text-align:center; font-size:.92rem; font-weight:750; color:var(--muted); padding:3px 8px 0; line-height:1.4; }
+    .hint b{ color:var(--line); }
+    .hint .eq{ font-family:var(--mathFont); font-weight:var(--mathWeight); font-size:1.12em; color:var(--line); }
+
+    /* ---------- side panel ---------- */
+    .side{ display:flex; flex-direction:column; gap:12px; min-height:0; min-width:0; }
+    .panel{ padding:12px 14px; }
+    .pHead{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:9px; }
+    .pTitle{ font-size:.68rem; letter-spacing:.14em; text-transform:uppercase; font-weight:950; color:var(--muted); }
+    .pCount{ font-size:.74rem; font-weight:900; color:var(--line-soft); }
+    .kindSeg{ display:grid; grid-template-columns:1fr 1fr; background:#f1f5f9; border:1px solid var(--border); border-radius:13px; padding:3px; gap:3px; margin-bottom:10px; }
+    .kindSeg button{ appearance:none; border:none; background:transparent; border-radius:10px; padding:7px 6px; font-weight:900; font-size:.88rem; color:var(--muted); cursor:pointer; }
+    .kindSeg button .s{ font-family:var(--mathFont); font-weight:700; margin-right:5px; }
+    .kindSeg button[aria-pressed="true"]{ background:#fff; color:var(--ink); box-shadow:0 2px 8px rgba(15,23,42,.12); }
+    .kindSeg button:focus-visible{ outline:none; box-shadow:0 0 0 3px rgba(37,99,235,.3); }
+    .dimRow{ display:grid; grid-template-columns:62px auto 1fr; align-items:center; gap:10px; margin-bottom:8px; }
+    .dimRow .lbl{ font-weight:900; font-size:.88rem; color:var(--line); }
+    .stepper{ display:inline-flex; align-items:center; border:1.5px solid var(--border); border-radius:13px; overflow:hidden; background:#fff; }
+    .stepper button{ appearance:none; border:none; background:#f8fafc; width:38px; height:40px; font-size:1.25rem; font-weight:900; color:var(--line); cursor:pointer; }
+    .stepper button:hover:not(:disabled){ background:#eef2ff; color:var(--blue-dark); }
+    .stepper button:disabled{ opacity:.35; cursor:not-allowed; }
+    .stepper input{ width:52px; height:40px; border:none; border-left:1.5px solid var(--border); border-right:1.5px solid var(--border); text-align:center;
+      font-family:var(--mathFont); font-size:1.4rem; font-weight:700; color:var(--blue-dark); -moz-appearance:textfield; }
+    .stepper input::-webkit-outer-spin-button,.stepper input::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0; }
+    .stepper input:focus{ outline:none; background:#eef2ff; }
+    .stepper.off input{ color:var(--line-soft); }
+    .dice{ appearance:none; justify-self:start; display:inline-flex; align-items:center; gap:6px; border:1.5px solid var(--border); background:#fff; border-radius:11px;
+      padding:6px 9px; font-weight:850; font-size:.76rem; color:var(--muted); cursor:pointer; transition:.15s ease; }
+    .dice svg{ width:16px; height:16px; }
+    .dice:hover{ border-color:var(--blue); color:var(--blue-dark); }
+    .dice[aria-pressed="true"]{ background:#eef2ff; border-color:#c7d2fe; color:var(--blue-dark); }
+    .qBtns{ display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:4px; }
+    .qBtn{ appearance:none; border:1.5px solid var(--border); background:#fff; border-radius:12px; padding:9px 6px; font-weight:900; font-size:.84rem; color:var(--line);
+      cursor:pointer; transition:.14s ease; }
+    .qBtn:hover{ border-color:var(--blue); background:#eef2ff; color:var(--blue-dark); transform:translateY(-1px); }
+    .qBtn small{ display:block; font-weight:700; font-size:.7rem; color:var(--line-soft); }
+    .qBtn.wide{ grid-column:1 / -1; }
+    .ownRow{ display:flex; gap:6px; margin-top:8px; }
+    .ownRow input{ flex:1 1 auto; min-width:0; border:1.5px solid var(--border); border-radius:11px; padding:9px 10px; font-family:var(--mathFont); font-size:1.08rem; font-weight:700; color:var(--line); }
+    .ownRow input:focus{ outline:none; border-color:var(--blue); box-shadow:0 0 0 4px rgba(37,99,235,.14); }
+    .ownRow button{ appearance:none; border:none; border-radius:11px; padding:0 14px; font-weight:900; background:var(--blue); color:#fff; cursor:pointer; }
+    .ownMsg{ font-size:.76rem; font-weight:750; color:var(--muted); margin-top:5px; line-height:1.35; min-height:1em; }
+    .ownMsg.err{ color:var(--red); }
+
+    .storyPanel{ flex:1 1 auto; min-height:0; display:flex; flex-direction:column; }
+    .storyScroll{ flex:1 1 auto; min-height:0; overflow:auto; margin:0 -6px; padding:0 6px; }
+    .sLine{ border-radius:13px; padding:8px 11px 9px; border:1px solid var(--border); background:#f8fafc; margin-bottom:6px; animation:fadeUp .3s ease; }
+    .sLine .lab{ display:flex; gap:7px; align-items:baseline; font-size:.8rem; font-weight:900; color:var(--line); line-height:1.3; }
+    .sLine .n{ font-size:.7rem; font-weight:950; color:#fff; background:var(--line-soft); border-radius:7px; min-width:20px; height:20px; display:inline-grid; place-items:center; flex:0 0 auto; }
+    .sLine .m{ font-family:var(--mathFont); font-weight:var(--mathWeight); font-size:1.16rem; color:var(--line); margin-top:3px; line-height:1.4; }
+    .sLine .m .word{ font-size:.66em; }
+    .sLine .tip{ font-size:.76rem; font-weight:750; color:var(--muted); margin-top:4px; line-height:1.4; }
+    .sLine .tip .eq{ font-family:var(--mathFont); font-weight:var(--mathWeight); font-size:1.18em; color:var(--line); }
+    .sLine.cur{ background:#fff; border-color:rgba(37,99,235,.45); box-shadow:0 0 0 3px rgba(37,99,235,.08); }
+    .sLine.cur .n{ background:var(--blue); }
+    .sLine.done{ background:rgba(34,197,94,.07); border-color:rgba(21,128,61,.28); }
+    .sLine.done .n{ background:var(--green-dark); }
+    .stepRow{ display:flex; gap:7px; padding-top:10px; margin-top:8px; border-top:1px solid var(--border); }
+    .stepBtn{ appearance:none; border:1.5px solid var(--border); background:#fff; color:var(--line); padding:11px 12px; border-radius:14px;
+      font-weight:950; font-size:.95rem; cursor:pointer; transition:.16s ease; white-space:nowrap; }
+    .stepBtn:hover:not(:disabled){ border-color:var(--blue); background:#eef2ff; color:var(--blue-dark); transform:translateY(-1px); }
+    .stepBtn:disabled{ opacity:.38; cursor:not-allowed; transform:none; }
+    .stepBtn.icon{ width:46px; padding:11px 0; font-size:1.05rem; }
+    .nextBtn{ flex:1 1 auto; min-width:0; appearance:none; border:none; background:linear-gradient(135deg,var(--blue),var(--purple)); color:#fff;
+      padding:12px 14px; border-radius:15px; font-weight:950; font-size:1.02rem; cursor:pointer; box-shadow:0 10px 24px rgba(37,99,235,.30);
+      transition:.18s ease; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .nextBtn:hover:not(:disabled){ transform:translateY(-1px); box-shadow:0 14px 30px rgba(37,99,235,.38); }
+    .nextBtn:disabled{ background:linear-gradient(135deg,var(--green-dark),#0f766e); box-shadow:none; cursor:default; opacity:.92; }
+    .keyHint{ font-size:.72rem; font-weight:800; color:var(--line-soft); text-align:center; margin-top:7px; line-height:1.6; }
+    .keyHint kbd{ font-family:var(--uiFont); font-size:.7rem; font-weight:900; color:var(--muted); border:1px solid var(--border); border-bottom-width:2px;
+      border-radius:6px; padding:0 5px; background:#f8fafc; }
+
+    @keyframes fadeUp{ from{ opacity:0; transform:translateY(5px);} to{ opacity:1; transform:none;} }
+    @media (prefers-reduced-motion:reduce){ .sLine,.tk.new{ animation:none !important; } .stmt{ transition:none; } }
+
+    /* ---------- responsive ---------- */
+    @media (max-width:1280px){ .layout{ grid-template-columns:minmax(0,1fr) 344px; } .modeBtn small{ display:none; } }
+    @media (max-width:1180px){
+      .mmtTopbar{ grid-template-columns:auto minmax(0,1fr) auto; padding:12px 16px; gap:12px; }
+      .mmtBrandText{ display:none; }
+      .btn{ padding:10px 13px; font-size:14px; }
+      .layout{ padding:12px 12px 14px; gap:12px; }
+    }
+    @media (max-width:980px){
+      .app:not(.fs){ height:auto; min-height:100dvh; }
+      .layout{ grid-template-columns:1fr; }
+      .stage{ flex:none; height:clamp(360px,62vh,600px); }
+      .app.fs .stage{ flex:1 1 auto; height:auto; }
+      .app.noPanel .hint, .app.fs .hint{ padding:3px 8px 56px; }
+      .storyPanel{ flex:none; }
+      .storyScroll{ overflow:visible; }
+    }
+    @media (max-width:760px){
+      .mmtTopbar{ grid-template-columns:1fr; justify-items:center; padding:12px 14px; }
+      .mmtBrand{ margin-left:0; } .topActions{ justify-self:center; justify-content:center; }
+      .dropMenu{ right:auto; left:50%; transform:translateX(-50%); }
+      .settingsMenu.open{ min-width:min(350px,92vw); }
+      .mmtTopTitle{ white-space:normal; }
+      .boardTop{ flex-direction:column; align-items:stretch; }
+      .modeSwitch{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); width:100%; }
+      .modeBtn{ flex-direction:column; padding:6px 4px; font-size:.8rem; gap:4px; text-align:center; }
+      .modeBtn .txt{ text-align:center; }
+      .topRight{ justify-content:center; }
+      .typeTag{ display:none; }
     }
 
-    .mmtBrand{
-      display:flex;
-      align-items:center;
-      gap:12px;
-      justify-self:start;
-      text-decoration:none;
-      color:white;
-      background:transparent;
-      border:none;
-      border-radius:14px;
-      padding:8px 12px;
-      margin-left:-12px;
-      box-shadow:none;
-      backdrop-filter:none;
-      font-weight:900;
-      transition:background .18s ease,transform .18s ease,box-shadow .18s ease;
-    }
-    .mmtBrand:hover{
-      background:rgba(255,255,255,.12);
-      transform:translateY(-1px);
-      box-shadow:0 0 10px rgba(124,58,237,.6),0 0 18px rgba(37,99,235,.4);
-    }
-    .mmtBrandLogo{
-      width:44px;
-      height:44px;
-      object-fit:contain;
-      background:white;
-      border-radius:6px;
-      padding:3px;
-      flex:0 0 auto;
-    }
-    .mmtBrandText{display:block;}
-    .mmtBrandText strong{
-      display:block;
-      font-size:1.18rem;
-      line-height:1;
-      letter-spacing:-.03em;
-      color:white;
-    }
-    .mmtBrandText span{
-      display:block;
-      font-size:.78rem;
-      opacity:.82;
-      font-weight:650;
-      color:white;
-    }
-    .mmtTopTitle{
-      font-weight:850;
-      font-size:clamp(1.25rem,2vw,1.7rem);
-      letter-spacing:-.04em;
-      text-align:center;
-      color:white;
-      white-space:nowrap;
-    }
-
-    .actions{
-      justify-content:flex-end;
-      gap:10px;
-    }
-    .actions .btn{
-      background:rgba(255,255,255,.14);
-      color:white;
-      border:1px solid rgba(255,255,255,.18);
-      border-radius:14px;
-      padding:11px 15px;
-      font-weight:900;
-      font-size:15px;
-      box-shadow:none;
-    }
-    .actions .btn:hover{
-      background:rgba(255,255,255,.22);
-      transform:translateY(-1px);
-    }
-    .actions .btn-primary{
-      background:white;
-      color:#1d4ed8;
-      border-color:white;
-    }
-    .actions .btn-primary:hover{
-      background:#eef2ff;
-      color:#1d4ed8;
-    }
-    .actions .btn-danger{
-      background:rgba(255,255,255,.10);
-      color:#fee2e2;
-      border-color:rgba(255,255,255,.18);
-    }
-    .actions .btn-danger:hover{
-      background:rgba(255,255,255,.18);
-      color:white;
-    }
-
-    .tools-menu{
-      min-width:260px;
-      border-radius:18px;
-      box-shadow:0 18px 45px rgba(15,23,42,.18);
-      border:1px solid rgba(226,232,240,.95);
-      padding:10px;
-      z-index:60;
-    }
-    .tools-link{
-      width:100%;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      text-align:left;
-      text-decoration:none;
-      border:0;
-      background:transparent;
-      color:var(--text);
-      font-family:var(--uiFont);
-      font-size:15px;
-      font-weight:900;
-      padding:12px 14px;
-      border-radius:12px;
-      cursor:pointer;
-    }
-    .tools-link:hover,.tools-subwrap:focus-within>.tools-subtoggle{
-      background:#eef2ff;
-      color:var(--blue);
-    }
-    .tools-subwrap{position:relative;}
-    .tools-submenu{
-      display:none;
-      position:absolute;
-      top:0;
-      right:calc(100% + 8px);
-      width:260px;
-      background:white;
-      border:1px solid rgba(226,232,240,.95);
-      border-radius:18px;
-      padding:10px;
-      box-shadow:0 18px 45px rgba(15,23,42,.18);
-    }
-    .tools-subwrap:hover .tools-submenu,
-    .tools-subwrap:focus-within .tools-submenu,
-    .tools-subwrap.open .tools-submenu{
-      display:block;
-    }
-
-    .layout{
-      width:min(1240px, calc(100vw - 48px));
-      flex:1;
-      min-height:0;
-      margin:24px auto 14px;
-      background:rgba(255,255,255,.94);
-      border:1px solid rgba(226,232,240,.9);
-      border-radius:26px;
-      box-shadow:var(--shadow);
-      overflow:hidden;
-    }
-
-    .teacher-panel{
-      top:18px;
-      right:18px;
-      border-radius:24px;
-      box-shadow:0 18px 60px rgba(15,23,42,.18);
-      z-index:45;
-    }
-
-    .main{
-      grid-template-rows:auto 1fr auto auto;
-    }
-    .hero{
-      min-height:132px;
-      padding-top:18px;
-      gap:10px;
-    }
-    .equation-box{
-      border:0;
-      min-height:92px;
-      min-width:min(520px, calc(100vw - 120px));
-      border-radius:26px;
-      background:#fff;
-      box-shadow:0 18px 36px rgba(15,23,42,.08);
-      border:2px solid #dbeafe;
-    }
-    .eq-line{
-      font-size:clamp(36px,4.4vw,68px);
-      font-weight:900;
-    }
-    .stage-chip{
-      min-width:176px;
-      min-height:34px;
-      background:#e3edff;
-      border:1px solid rgba(37,99,235,.18);
-      color:#1d4ed8;
-      font-weight:900;
-    }
-    .canvas-wrap{
-      margin:18px 28px 0; /* adds breathing room between the stage chip and visual card */
-      border:1px solid var(--border);
-      border-radius:22px;
-      background:linear-gradient(180deg,#ffffff,#f9fafb);
-      overflow:hidden;
-    }
-    .footer{
-      min-height:70px;
-      margin-top:0;
-    }
-    .nav-btn{
-      width:58px;
-      height:58px;
-      border-radius:18px;
-      background:#eff3f9;
-    }
-    .nav-pill{
-      width:38px;
-      height:38px;
-    }
-    .footer-newq{
-      border-radius:14px;
-      padding:12px 18px;
-      font-weight:1000;
-    }
-    .brand-footer{
-      min-height:36px;
-      font-size:13px;
-      font-weight:900;
-      color:#111827;
-      background:rgba(255,255,255,.92);
-      border-top:1px solid rgba(229,231,235,.95);
-    }
-
-    @media(max-width:980px){
-      .mmtTopbar{
-        grid-template-columns:1fr;
-        justify-items:center;
-      }
-      .mmtBrand{justify-self:center;margin-left:0;}
-      .actions{justify-content:center;}
-      .layout{width:calc(100vw - 28px);margin-top:14px;}
-      .tools-submenu{right:auto;left:0;top:calc(100% + 8px);}
-    }
-
-    @media(max-width:700px){
-      .mmtTopbar{padding:12px 14px;}
-      .mmtBrandText span{display:none;}
-      .actions .btn{font-size:14px;padding:10px 12px;}
-      .layout{margin-top:12px;}
-      .canvas-wrap{margin:14px 14px 0;}
-      .hero{min-height:116px;}
-      .equation-box{min-width:min(320px, calc(100vw - 70px));}
-    }
-
+    /* ================= Double Number Line: its own parts ================= */
+    .kindSeg.three{ grid-template-columns:repeat(3,1fr); }
+    .segLabel{ font-size:.74rem; font-weight:900; color:var(--muted); margin:2px 0 5px; }
+    .stage{ display:flex; flex-direction:column; }
+    .stmt.eqn{ position:relative; inset:auto; flex:0 0 auto; transform:none; transition:none; padding:2px 0 0; }
+    .stmt.eqn .row{ align-items:center; }
+    .stmt.eqn .r2{ display:flex; font-size:.74em; min-height:1.5em; }
+    .stage .boardWrap{ position:relative; flex:1 1 auto; min-height:0; }
+    .frac{ display:inline-flex; flex-direction:column; align-items:center; vertical-align:middle; line-height:1.02; font-size:.78em; margin:0 .08em; }
+    .frac > .fn{ padding:0 .14em .05em; border-bottom:.075em solid currentColor; }
+    .frac > .fd{ padding:.05em .14em 0; }
+    .cE{ color:var(--blue-dark); }
+    .cV{ color:var(--green-dark); }
+    .cQ{ color:var(--line-soft); }
+    .cBad{ color:var(--red); }
+    .cBuild{ color:var(--orange-dark); }
+    .cUndo{ color:var(--purple-dark); }
+    .okMark{ font-family:var(--uiFont); font-weight:950; color:var(--green-dark); margin-left:.35em; font-size:.9em; }
+    .eqSign{ color:var(--line-soft); }
+    .sLine .m + .m{ margin-top:1px; }
+    .legend{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; font-size:.72rem; font-weight:850; color:var(--muted); margin-top:2px; }
+    .legend span{ display:inline-flex; align-items:center; gap:5px; }
+    .legend i{ width:18px; height:4px; border-radius:3px; display:inline-block; }
+    #board .halo{ animation:haloPulse 2.2s ease-in-out infinite; transform-box:fill-box; transform-origin:center; }
+    @keyframes haloPulse{ 0%,100%{ opacity:.55; } 50%{ opacity:.9; } }
+    @media (prefers-reduced-motion:reduce){ #board .halo{ animation:none; } }
+    .sLine .lab .eq{ font-family:var(--mathFont); font-weight:var(--mathWeight); font-size:1.14em; color:var(--line); }
+    .hint .cBuild{ color:var(--orange-dark); } .hint .cUndo{ color:var(--purple-dark); }
+    #board{ transform-origin:50% 50%; }
+    @media (max-width:760px){ .stage{ height:clamp(300px, calc(62vw + 130px), 520px); } .modeSwitch{ grid-template-columns:repeat(4,minmax(0,1fr)); } }
   </style>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
 <!-- mmt-pwa -->
 <link rel="manifest" href="../../../../manifest.webmanifest">
 <meta name="theme-color" content="#1f3a5f">
@@ -990,2325 +315,956 @@ margin-bottom:10px;
 <!-- /mmt-pwa -->
 </head>
 <body>
-  <div class="app">
-    <div class="topbar mmtTopbar">
-      <a class="back-btn mmtBrand" href="https://www.millsmathstools.au" target="_self" aria-label="Back to Mills Maths Tools">
-        <img class="back-logo mmtBrandLogo" src="../../../../assets/mmt.png" alt="Mills Maths Tools logo" />
+  <div class="app" id="app">
+    <header class="mmtTopbar">
+      <a class="mmtBrand" href="https://www.millsmathstools.au" target="_self" aria-label="Back to Mills Maths Tools">
+        <span class="mmtBrandLogo" aria-hidden="true">MMT</span>
         <span class="mmtBrandText"><strong>MMT</strong><span>Mills Maths Tools</span></span>
       </a>
-
-      <div class="mmtTopTitle">Equations – Double Number Line</div>
-
-      <div class="actions">
-        <div class="tools-wrap">
-          <button class="btn" id="toolsBtn" type="button" aria-expanded="false" aria-controls="toolsMenu" title="Open related tools">Tools ▼</button>
-          <div class="tools-menu" id="toolsMenu">
-            <div class="tools-subwrap">
-              <button class="tools-link tools-subtoggle" type="button" aria-label="Student quiz options">Student Quiz ▸</button>
-              <div class="tools-submenu">
-                <a class="tools-link" href="../../../../online-quizzes/stage-4/algebra/double-numberline/student-quiz-add-subtract.html">Student Quiz Add/Subtract</a>
-                <a class="tools-link" href="../../../../online-quizzes/stage-4/algebra/double-numberline/student-quiz-mult-div.html">Student Quiz Multiply/Divide</a>
-                <a class="tools-link" href="../../../../online-quizzes/stage-4/algebra/double-numberline/student-quiz.html">Student Quiz Mixed</a>
-              </div>
-            </div>
-            <a class="tools-link" href="../../../../worksheet-creators/stage-4/algebra/double-numberline.html">Worksheet Creator</a>
-            <a class="tools-link" href="lesson-plan.html">Lesson Plan</a>
-          </div>
+      <div class="mmtTopTitle">One-Step Equations &ndash; Double Number Line</div>
+      <div class="topActions">
+        <div class="menuWrap">
+          <button class="btn" id="settingsBtn" type="button" aria-haspopup="true" aria-expanded="false">Settings &#9662;</button>
+          <nav class="dropMenu settingsMenu" id="settingsMenu" aria-label="Settings">
+            <div class="settingsHead">New questions</div>
+            <label class="selRow"><span>Division written as</span>
+              <select id="divSel" aria-label="How division is written">
+                <option value="frac">A fraction: x/4</option>
+                <option value="obelus">x &divide; 4</option>
+              </select>
+            </label>
+            <label class="sw"><input type="checkbox" id="varyToggle"><span class="track"></span><span>Sometimes write it another way</span></label>
+            <p class="settingsNote">Now and then the number comes first (5 + <i>x</i> = 12) or the sides are swapped (12 = <i>x</i> + 5). The picture is the same.</p>
+            <div class="settingsRule" role="separator"></div>
+            <div class="settingsHead">Steps</div>
+            <label class="sw"><input type="checkbox" id="predictToggle"><span class="track"></span><span>Think first, before the answer</span></label>
+            <p class="settingsNote">Adds a step where <i>x</i> is still ? so the class can predict.</p>
+            <label class="sw"><input type="checkbox" id="checkToggle" checked><span class="track"></span><span>Check by substituting</span></label>
+            <p class="settingsNote">A last step puts the answer back in: 7 + 5 = 12 &#10003;</p>
+            <label class="selRow"><span>Written working</span>
+              <select id="workSel" aria-label="How the working is written">
+                <option value="both">Both sides: x + 5 &minus; 5 = 12 &minus; 5</option>
+                <option value="short">Short: x = 12 &minus; 5</option>
+              </select>
+            </label>
+            <div class="settingsRule" role="separator"></div>
+            <div class="settingsHead">On the number line</div>
+            <label class="sw"><input type="checkbox" id="movesToggle" checked><span class="track"></span><span>Show the moves (&minus;5, &times;3)</span></label>
+            <p class="settingsNote">Orange is what was done to <i>x</i>. Purple is the move that undoes it.</p>
+            <label class="sw"><input type="checkbox" id="bothToggle" checked><span class="track"></span><span>Show the undo move on both lines</span></label>
+            <p class="settingsNote">The same move takes the top line back to <i>x</i> and the bottom line to the answer.</p>
+            <label class="sw"><input type="checkbox" id="ticksToggle" checked><span class="track"></span><span>Label every mark (<i>x</i> + 1, 2<i>x</i>, &hellip;)</span></label>
+          </nav>
         </div>
-
-        <button class="btn" id="teacherBtn" type="button" aria-expanded="false" aria-controls="teacherPanel" title="Change question type and display options">Teacher settings</button>
-        <button class="btn btn-danger" id="resetBtn" type="button" title="Reset settings and generate a fresh question">Reset</button>
-        <button class="btn btn-primary" id="newBtn" type="button" title="Generate a new question">New Question</button>
+        <div class="menuWrap">
+          <button class="btn" id="toolsBtn" type="button" aria-haspopup="true" aria-expanded="false">Tools &#9662;</button>
+          <nav class="dropMenu" id="toolsMenu" aria-label="Related tools">
+            <a class="toolLink" href="/online-quizzes/stage-4/algebra/double-numberline/student-quiz-add-subtract.html">Student Quiz &ndash; Add / Subtract<small>Saves to the student dashboard</small></a>
+            <a class="toolLink" href="/online-quizzes/stage-4/algebra/double-numberline/student-quiz-mult-div.html">Student Quiz &ndash; Multiply / Divide<small>Saves to the student dashboard</small></a>
+            <a class="toolLink" href="/online-quizzes/stage-4/algebra/double-numberline/student-quiz.html">Student Quiz &ndash; Mixed<small>Saves to the student dashboard</small></a>
+            <div class="menuRule" role="separator"></div>
+            <a class="toolLink" href="/worksheet-creators/stage-4/algebra/double-numberline.html">Worksheet Creator<small>Printable one-step equations</small></a>
+            <a class="toolLink" href="lesson-plan.html">Lesson Plan<small>ELPSA sequence for this tool</small></a>
+          </nav>
+        </div>
+        <button class="btn btn-primary" id="newBtn" type="button" title="New question (Enter)">New question</button>
       </div>
-    </div>
+    </header>
 
-    <div class="layout">
-      <div class="teacher-panel" id="teacherPanel" aria-hidden="true">
-        <h2 class="panel-title">Teacher settings</h2>
-
-        <div class="panel-grid">
-          <div class="field">
-            <label for="equationType">Equation type</label>
-            <select id="equationType">
-              <option value="addsub_pos">Add/Subtract (positive)</option>
-              <option value="addsub_neg">Add/Subtract (including negatives)</option>
-              <option value="mult_pos">Multiply (positive)</option>
-              <option value="mult_neg_only">Multiply (negative)</option>
-              <option value="mult_mixed">Multiply (mixed)</option>
-              <option value="div_pos">Divide (positive)</option>
-              <option value="div_neg_only">Divide (negative)</option>
-              <option value="div_mixed">Divide (mixed)</option>
-              <option value="mixed_all">Mixed one-step</option>
-            </select>
-          </div>
-
-          <label class="toggle">
-            <input id="showStrategyPrompts" type="checkbox" checked />
-            <div class="toggle-text">
-              <strong>Show strategy prompts</strong>
-              <span>Displays cues such as equal groups, add, subtract, multiply, and divide prompts.</span>
-            </div>
-          </label>
-
-          <label class="toggle">
-            <input id="pauseBeforeAnswer" type="checkbox" />
-            <div class="toggle-text">
-              <strong>Pause before final answer</strong>
-              <span>Adds one extra reveal so students can predict the value of x before the answer appears.</span>
-            </div>
-          </label>
-        </div>
-
-        <p class="panel-note">
-          Right arrow reveals the next step. Left arrow steps back. Enter generates a new question. Escape closes open panels.
-        </p>
-      </div>
-
-      <div class="main">
-        <div class="hero">
-          <div class="equation-box">
-            <div class="eq-line" id="questionEquation"></div>
-          </div>
-          <div class="stage-chip-row">
-            <div class="stage-chip" id="stageLabel">Start</div>
-          </div>
-        </div>
-
-        <div class="canvas-wrap">
-          <div class="flip-stage" id="flipStage">
-            <svg id="board" viewBox="0 0 1800 620" preserveAspectRatio="xMidYMid meet" aria-label="Double number line"></svg>
-          </div>
-        </div>
-
-        <div class="footer">
-          <div class="control-row">
-            <button class="nav-btn" id="backStepBtn" type="button" aria-label="Back one step" title="Previous reveal" disabled>
-              <div class="nav-pill">
-                <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M16 5L6 12l10 7z" fill="#fff"></path>
-                </svg>
-              </div>
+    <main class="layout">
+      <section class="card boardCard" id="boardCard">
+        <div class="boardTop">
+          <div class="modeSwitch" role="tablist" aria-label="Kind of equation">
+            <button class="modeBtn" data-op="as" role="tab" aria-selected="true" type="button" title="Add and subtract (1)">
+              <span class="sym" aria-hidden="true">+ &minus;</span>
+              <span class="txt">Add / subtract<small><i>x</i> + 5 = 12</small></span>
             </button>
-
-            <button class="nav-btn" id="nextStepBtn" type="button" aria-label="Next step" title="Next reveal">
-              <div class="nav-pill">
-                <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M8 5l10 7-10 7z" fill="#fff"></path>
-                </svg>
-              </div>
+            <button class="modeBtn" data-op="mul" role="tab" aria-selected="false" type="button" title="Multiply (2)">
+              <span class="sym" aria-hidden="true">&times;</span>
+              <span class="txt">Multiply<small>3<i>x</i> = 12</small></span>
             </button>
-
-            <button class="footer-newq" id="footerNewQ" type="button">New Question</button>
+            <button class="modeBtn" data-op="div" role="tab" aria-selected="false" type="button" title="Divide (3)">
+              <span class="sym" aria-hidden="true">&divide;</span>
+              <span class="txt">Divide<small><i>x</i> &divide; 4 = 6</small></span>
+            </button>
+            <button class="modeBtn" data-op="mix" role="tab" aria-selected="false" type="button" title="Any of them (4)">
+              <span class="sym" aria-hidden="true">?</span>
+              <span class="txt">Mixed<small>any one-step</small></span>
+            </button>
+          </div>
+          <div class="topRight">
+            <span class="typeTag" id="typeTag">Whole numbers</span>
+            <div class="iconGroup">
+              <button class="iconBtn" id="againIcon" type="button" title="Back to the start of the steps (Space)" aria-label="Back to the start of the steps">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1"/><path d="M3.5 4v5h5"/></svg>
+              </button>
+              <button class="iconBtn" id="panelBtn" type="button" aria-pressed="true" title="Hide the side panel" aria-label="Show or hide the side panel">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M15 4v16"/><path d="M17 8h2M17 11h2M17 14h2"/></svg>
+              </button>
+              <button class="iconBtn" id="fsBtn" type="button" title="Full screen (F)" aria-label="Full screen">
+                <svg class="fsIn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+                <svg class="fsOut" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" hidden><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg>
+              </button>
+            </div>
           </div>
         </div>
-
-        <div class="brand-footer">
-          This tool and more can be found at&nbsp;<a href="https://www.millsmathstools.au" target="_self">www.millsmathstools.au</a>
+        <div class="stage" id="stage">
+          <div class="stmt eqn" id="stmt" aria-live="polite"><div class="row r1" id="row1"></div><div class="row r2" id="row2"></div></div>
+          <div class="boardWrap" id="boardWrap">
+            <svg id="board" role="img" aria-label="Double number line: expressions in x on top, numbers underneath"></svg>
+          </div>
         </div>
-      </div>
-    </div>
+        <div class="hint" id="hint" aria-live="polite"></div>
+        <div class="miniSteps" id="miniSteps" hidden>
+          <button class="stepBtn icon" id="miniBack" type="button" title="Back a step (&larr;)" aria-label="Back a step">&#9664;</button>
+          <button class="nextBtn" id="miniNext" type="button">Next &#9656;</button>
+        </div>
+      </section>
+
+      <aside class="side">
+        <section class="card panel" aria-label="The equation">
+          <div class="pHead"><span class="pTitle">The equation</span></div>
+          <div class="segLabel">Negative numbers</div>
+          <div class="kindSeg three" id="negSeg" role="group" aria-label="Negative numbers">
+            <button type="button" data-neg="off" aria-pressed="true" title="Whole numbers only">None</button>
+            <button type="button" data-neg="some" aria-pressed="false" title="Some questions use negative numbers">Some</button>
+            <button type="button" data-neg="all" aria-pressed="false" title="Every question uses a negative number">Always</button>
+          </div>
+          <div class="qBtns">
+            <button class="qBtn" type="button" id="newQBtn">New question<small>Enter</small></button>
+            <button class="qBtn" type="button" id="ownBtn" aria-expanded="false">Type your own<small>e.g. x + 3 = 11</small></button>
+          </div>
+          <div id="ownBox" hidden>
+            <div class="ownRow"><input id="ownIn" type="text" autocomplete="off" spellcheck="false" placeholder="x + 3 = 11   3x = 15   x/4 = 6" aria-label="Type your own equation"><button type="button" id="ownGo">Use</button></div>
+            <div class="ownMsg" id="ownMsg">One step only: <i>x</i> + 3 = 11, <i>x</i> &minus; 4 = 2, 3<i>x</i> = 15, <i>x</i>/4 = 6. Any letter works.</div>
+          </div>
+        </section>
+
+        <section class="card panel storyPanel" aria-label="Solving it">
+          <div class="pHead"><span class="pTitle">Solve it</span><span class="pCount" id="stepCount"></span></div>
+          <div class="storyScroll" id="storyScroll"><div id="story" aria-live="polite"></div></div>
+          <div class="stepRow">
+            <button class="stepBtn icon" id="backBtn" type="button" title="Back a step (&larr;)" aria-label="Back a step">&#9664;</button>
+            <button class="stepBtn icon" id="againBtn" type="button" title="Back to the start (Space)" aria-label="Back to the start">&#8634;</button>
+            <button class="stepBtn" id="allBtn" type="button">Show all</button>
+            <button class="nextBtn" id="nextBtn" type="button" title="Next step (&rarr;)">Next &#9656;</button>
+          </div>
+          <div class="keyHint"><kbd>&rarr;</kbd>/<kbd>&larr;</kbd> step &middot; <kbd>Space</kbd> start again &middot; <kbd>Enter</kbd> new question &middot; <kbd>1</kbd>&ndash;<kbd>4</kbd> kind &middot; <kbd>N</kbd> negatives &middot; <kbd>F</kbd> full screen</div>
+        </section>
+      </aside>
+    </main>
   </div>
 
-  <script>
-    (() => {
-      const svg = document.getElementById('board');
-      const flipStage = document.getElementById('flipStage');
-      const questionEquation = document.getElementById('questionEquation');
-      const stageLabel = document.getElementById('stageLabel');
+<script>
+(function(){
+  "use strict";
+  const $ = id => document.getElementById(id);
+  const STORE = "mmt.doubleNumberLine.v1";
+  const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-      const teacherBtn = document.getElementById('teacherBtn');
-      const teacherPanel = document.getElementById('teacherPanel');
-      const equationTypeSelect = document.getElementById('equationType');
-      const showStrategyPrompts = document.getElementById('showStrategyPrompts');
-      const pauseBeforeAnswer = document.getElementById('pauseBeforeAnswer');
+  /* ================= state ================= */
+  const DEF = { op:"as", neg:"off", div:"frac", vary:false, predict:false, check:true, work:"both",
+    moves:true, both:true, ticks:true, panel:true };
+  const S = { set:Object.assign({}, DEF), q:null, step:0, anim:null, fs:false, noAnim:false, own:false, lastSig:"" };
+  try { const sv = JSON.parse(localStorage.getItem(STORE) || "null"); if(sv && sv.set) Object.assign(S.set, sv.set); } catch(e){}
+  function save(){ try { localStorage.setItem(STORE, JSON.stringify({ set:S.set })); } catch(e){} }
 
-      const newBtn = document.getElementById('newBtn');
-      const resetBtn = document.getElementById('resetBtn');
-      const nextStepBtn = document.getElementById('nextStepBtn');
-      const backStepBtn = document.getElementById('backStepBtn');
-      const footerNewQ = document.getElementById('footerNewQ');
-      const toolsBtn = document.getElementById('toolsBtn');
-      const toolsMenu = document.getElementById('toolsMenu');
+  /* ================= small helpers ================= */
+  const ri = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+  const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;");
+  const fmt = n => n < 0 ? "−" + Math.abs(n) : String(n);
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
-      const quizSubToggle = document.querySelector('.tools-subtoggle');
-      if(quizSubToggle){
-        quizSubToggle.addEventListener('click', (e) => {
-          e.stopPropagation();
-          const wrap = quizSubToggle.closest('.tools-subwrap');
-          wrap.classList.toggle('open');
-        });
+  /* MATHS ITALICS, as Word's equation editor does it (copied from Number Groups): real glyphs from the
+     Mathematical Alphanumeric Symbols block when a font has them, else a serif with a true italic face. */
+  function mathItalic(str){
+    let out = "";
+    for(const ch of String(str)){
+      const c = ch.codePointAt(0);
+      if(ch === "h") out += "ℎ";
+      else if(c >= 97 && c <= 122) out += String.fromCodePoint(0x1D44E + c - 97);
+      else out += ch;
+    }
+    return out;
+  }
+  function detectMathAlpha(){
+    try {
+      const x = document.createElement("canvas").getContext("2d");
+      x.font = '500 100px "Cambria Math","STIX Two Math","Latin Modern Math",serif';
+      const real = x.measureText("\u{1D465}\u{1D44E}\u{1D44F}\u{1D450}").width, gone = x.measureText("").width;
+      return real > 0 && gone > 0 && Math.abs(real - gone) > 1;
+    } catch(e){ return false; }
+  }
+  const MATH_ALPHA = detectMathAlpha();
+  const letterHTML = v => MATH_ALPHA ? `<span class="mi">${mathItalic(v)}</span>` : `<span class="mv">${esc(v)}</span>`;
+  const UI = 'system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif';
+  const MF = '"Cambria Math","STIX Two Math","Latin Modern Math",Cambria,"Times New Roman",serif';
+  const cv = document.createElement("canvas").getContext("2d");
+  function tw(txt, px, fam, wt){ cv.font = `${wt || 500} ${px}px ${fam || MF}`; return cv.measureText(txt).width; }
+
+  /* ================= questions =================
+     q = { op:"add"|"sub"|"mul"|"div", v (the letter), k (add/sub), a (mul), d (div),
+           c (the number the expression equals), x (the answer), kFirst (5 + x), rev (12 = x + 5), turn } */
+  function genAS(neg){
+    for(let t = 0; t < 3000; t++){
+      const k = ri(3, 14), add = Math.random() < 0.5;
+      const x = neg === "off" ? ri(1, 20) : ri(-16, 16);
+      const c = add ? x + k : x - k;
+      if(neg === "off"){ if(c < 1 || c > 24) continue; }
+      else {
+        if(c < -20 || c > 20) continue;
+        if(neg === "all" && !(x < 0 || c < 0)) continue;
       }
-
-      const SVG_NS = 'http://www.w3.org/2000/svg';
-      const VIEW_W = 1800;
-      const LINE_Y = 380;
-      const TOP_Y_MAIN = 235;
-      const TOP_Y_SMALL = 308;
-      const BOTTOM_Y_MAIN = 490;
-      const BOTTOM_Y_SMALL = 424;
-
-      const ADD_SUB_ARC_Y = LINE_Y - 36;
-      const ADD_SUB_TEXT_Y = 248;
-
-      const GROUP_LOOP_Y = LINE_Y;
-      const MULT_TEXT_Y = 170;
-      const DIV_TEXT_Y = 158;
-
-      const START_CENTER_X = VIEW_W / 2;
-
-      const SLIDE_MS = 1100;
-      const STAGE3_PAUSE_MS = 600;
-      const SEQ_BASE_MS = 1800;
-      const REVEAL_BASE_MS = 1800;
-      const FLIP_MS = 1200;
-
-      let drawRoot = svg;
-
-      const DEFAULT_SETTINGS = {
-        equationType: 'addsub_pos',
-        showStrategyPrompts: true,
-        pauseBeforeAnswer: false
-      };
-
-      const state = {
-        settings: { ...DEFAULT_SETTINGS },
-        question: null,
-        stage: 1,
-        prevStage: 1,
-        renderToken: 0,
-        timers: [],
-        navDirection: 'forward'
-      };
-
-      function setDrawRoot(root){ drawRoot = root || svg; }
-      function appendNode(node){ drawRoot.appendChild(node); return node; }
-
-      function createBoardSVG(){
-        const board = createSVG('svg', {
-          viewBox:'0 0 1800 620',
-          preserveAspectRatio:'xMidYMid meet',
-          'aria-label':'Double number line'
-        });
-        board.style.width = '100%';
-        board.style.height = '100%';
-        board.style.display = 'block';
-        board.style.overflow = 'visible';
-        return board;
-      }
-
-      function clearSVGBoard(board){
-        while(board.firstChild) board.removeChild(board.firstChild);
-      }
-
-      function addDefsTo(board){
-        const defs = createSVG('defs');
-        const radial = createSVG('radialGradient', {
-          id:'stage1Glow',
-          cx:'50%',
-          cy:'50%',
-          r:'50%'
-        });
-
-        radial.appendChild(createSVG('stop', { offset:'0%', 'stop-color':'#dbeafe', 'stop-opacity':'1' }));
-        radial.appendChild(createSVG('stop', { offset:'70%', 'stop-color':'#dbeafe', 'stop-opacity':'.35' }));
-        radial.appendChild(createSVG('stop', { offset:'100%', 'stop-color':'#dbeafe', 'stop-opacity':'0' }));
-
-        defs.appendChild(radial);
-        board.appendChild(defs);
-      }
-
-      function withDrawRoot(tempRoot, fn){
-        const prev = drawRoot;
-        setDrawRoot(tempRoot);
-        try{
-          fn();
-        } finally {
-          setDrawRoot(prev);
-        }
-      }
-
-      function setToolsOpen(open){
-        if(open) setTeacherOpen(false, true);
-        toolsMenu.classList.toggle('open', open);
-        toolsBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
-        toolsBtn.textContent = open ? 'Tools ▲' : 'Tools ▼';
-      }
-
-      function setTeacherOpen(open, suppressToolClose = false){
-        if(open && !suppressToolClose) setToolsOpen(false);
-        teacherPanel.classList.toggle('open', open);
-        teacherBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
-        teacherPanel.setAttribute('aria-hidden', open ? 'false' : 'true');
-      }
-
-      function closeOverlays(){
-        setToolsOpen(false);
-        setTeacherOpen(false, true);
-      }
-
-      function schedule(fn, delay){
-        const id = setTimeout(() => {
-          state.timers = state.timers.filter(t => t !== id);
-          fn();
-        }, delay);
-        state.timers.push(id);
-        return id;
-      }
-
-      function clearAllTimers(){
-        state.timers.forEach(id => clearTimeout(id));
-        state.timers = [];
-      }
-
-      function nextRenderToken(){
-        clearAllTimers();
-        state.renderToken += 1;
-        return state.renderToken;
-      }
-
-      function isActiveRender(token){
-        return token === state.renderToken;
-      }
-
-      function randInt(min, max){
-        return Math.floor(Math.random() * (max - min + 1)) + min;
-      }
-
-      function choice(arr){
-        return arr[Math.floor(Math.random() * arr.length)];
-      }
-
-      function weightedChoice(items){
-        const total = items.reduce((s, item) => s + item.weight, 0);
-        let r = Math.random() * total;
-        for(const item of items){
-          if(r < item.weight) return item.value;
-          r -= item.weight;
-        }
-        return items[items.length - 1].value;
-      }
-
-      function createSVG(tag, attrs = {}){
-        const el = document.createElementNS(SVG_NS, tag);
-        Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v));
-        return el;
-      }
-
-      function clearBoard(){
-        while(svg.firstChild) svg.removeChild(svg.firstChild);
-        setDrawRoot(svg);
-      }
-
-      function stripHTML(html){
-        const div = document.createElement('div');
-        div.innerHTML = html;
-        return div.textContent || div.innerText || '';
-      }
-
-      function fractionHTML(num, den){
-        return `<span style="display:inline-flex;flex-direction:column;align-items:center;line-height:1;transform:translateY(2px);">
-          <span>${num}</span>
-          <span style="width:1.55em;border-top:2px solid currentColor;margin:3px 0 2px;"></span>
-          <span>${den}</span>
-        </span>`;
-      }
-
-      function buildExpressionOnlyHTML(q){
-        return `<span class="expr">${q.equationLeftHTML}</span>`;
-      }
-
-      function buildFullEquationHTML(q){
-        return `<span class="expr">${q.equationLeftHTML}</span><span class="equals">=</span><span class="value">${q.equationRightText}</span>`;
-      }
-
-      function shouldShowFullEquation(stage){
-        return stage >= 3;
-      }
-
-      function renderEquationBox(){
-        if(!state.question) return;
-        const showFull = shouldShowFullEquation(state.stage);
-        questionEquation.innerHTML = showFull
-          ? buildFullEquationHTML(state.question)
-          : buildExpressionOnlyHTML(state.question);
-
-        questionEquation.style.opacity = '1';
-        questionEquation.style.filter = 'none';
-      }
-
-      function getStageDescriptors(q){
-        if(!q){
-          return ['Start'];
-        }
-
-        if(q.mode === 'addsub'){
-          return state.settings.pauseBeforeAnswer
-            ? ['Start', 'Build it', 'Show value', 'Think first', 'Solve it']
-            : ['Start', 'Build it', 'Show value', 'Solve it'];
-        }
-
-        if(q.negative){
-          return state.settings.pauseBeforeAnswer
-            ? ['Start', 'Build it', 'Show value', 'Flip it', 'Think first', 'Solve it']
-            : ['Start', 'Build it', 'Show value', 'Flip it', 'Solve it'];
-        }
-
-        return state.settings.pauseBeforeAnswer
-          ? ['Start', 'Build it', 'Show value', 'Think first', 'Solve it']
-          : ['Start', 'Build it', 'Show value', 'Solve it'];
-      }
-
-      function updateStageUI(){
-        const labels = getStageDescriptors(state.question);
-        stageLabel.textContent = labels[state.stage - 1] || 'Stage';
-
-        stageLabel.classList.remove('bump');
-        void stageLabel.offsetWidth;
-        stageLabel.classList.add('bump');
-      }
-
-      function mapRange(v, min, max, minX, maxX){
-        if(min === max) return (minX + maxX) / 2;
-        return minX + ((v - min) / (max - min)) * (maxX - minX);
-      }
-
-      function rangeInclusive(start, end){
-        const out = [];
-        const step = start <= end ? 1 : -1;
-        for(let v = start; step > 0 ? v <= end : v >= end; v += step){
-          out.push(v);
-        }
-        return out;
-      }
-
-      function adaptiveDelay(count, totalMs, maxEach = 220, minEach = 70){
-        if(count <= 0) return totalMs;
-        return Math.max(minEach, Math.min(maxEach, totalMs / count));
-      }
-
-      function addGhostAnimation(node, delay = 0){
-        if(!node) return;
-        node.style.opacity = '0';
-        schedule(() => {
-          node.style.opacity = '1';
-          node.classList.add('ghost-animate');
-        }, delay);
-      }
-
-      function popAnswer(node, delay = 0){
-        if(!node) return;
-        node.style.opacity = '0';
-        schedule(() => {
-          node.style.opacity = '1';
-          node.classList.add('answer-pop');
-        }, delay);
-      }
-
-      function numberWord(n){
-        const words = {
-          1:'one', 2:'two', 3:'three', 4:'four', 5:'five', 6:'six', 7:'seven',
-          8:'eight', 9:'nine', 10:'ten', 11:'eleven', 12:'twelve', 13:'thirteen', 14:'fourteen'
-        };
-        return words[n] || String(n);
-      }
-
-      function addSubPromptText(q){
-        return q.isAdd ? `Subtract ${numberWord(q.k)}` : `Add ${numberWord(q.k)}`;
-      }
-
-      function multPromptText(q){
-        return `Divide by ${q.a} to find x`;
-      }
-
-      function divPromptText(q){
-        return `Multiply by ${q.d} to find x`;
-      }
-
-      function buildQuestion(){
-        switch(state.settings.equationType){
-          case 'addsub_pos': return buildAddSub(false);
-          case 'addsub_neg': return buildAddSub(true);
-          case 'mult_pos': return buildMult('pos');
-          case 'mult_neg_only': return buildMult('neg');
-          case 'mult_mixed': return buildMult('mixed');
-          case 'div_pos': return buildDiv('pos');
-          case 'div_neg_only': return buildDiv('neg');
-          case 'div_mixed': return buildDiv('mixed');
-          case 'mixed_all':
-            return weightedChoice([
-              { weight: 4, value: () => buildAddSub(true) },
-              { weight: 3, value: () => buildMult('mixed') },
-              { weight: 3, value: () => buildDiv('mixed') }
-            ])();
-          default:
-            return buildAddSub(false);
-        }
-      }
-
-      function buildAddSub(includeNegatives){
-        for(let tries = 0; tries < 1500; tries++){
-          const x = includeNegatives ? randInt(-16,16) : randInt(1,20);
-          const isAdd = Math.random() < 0.5;
-          const k = randInt(2,14);
-          const result = isAdd ? x + k : x - k;
-
-          if(includeNegatives){
-            if(result < -20 || result > 20) continue;
-          } else {
-            if(result < 1 || result > 24) continue;
-          }
-          if(Math.abs(result - x) < 3) continue;
-
-          const exprValue = result;
-          const xValue = x;
-          const minVal = Math.min(exprValue, xValue);
-          const maxVal = Math.max(exprValue, xValue);
-
-          const leftX = minVal >= 0 ? 420 : 250;
-          const rightX = 1380;
-
-          const exprX = mapRange(exprValue, minVal, maxVal, leftX, rightX);
-          const xX = mapRange(xValue, minVal, maxVal, leftX, rightX);
-
-          const tickValues = rangeInclusive(exprValue, xValue);
-          const tickXs = tickValues.map(v => mapRange(v, minVal, maxVal, leftX, rightX));
-
-          return {
-            mode:'addsub',
-            negative: includeNegatives && (x < 0 || result < 0),
-            isAdd,
-            x,
-            result,
-            k,
-            equationLeftHTML: isAdd ? `x+${k}` : `x-${k}`,
-            equationRightText:String(result),
-            exprValue,
-            xValue,
-            exprX,
-            xX,
-            tickValues,
-            tickXs
-          };
-        }
-
-        return {
-          mode:'addsub',
-          negative:false,
-          isAdd:true,
-          x:6,
-          result:10,
-          k:4,
-          equationLeftHTML:'x+4',
-          equationRightText:'10',
-          exprValue:10,
-          xValue:6,
-          exprX:420,
-          xX:1380,
-          tickValues:rangeInclusive(10,6),
-          tickXs:rangeInclusive(10,6).map(v => mapRange(v,6,10,420,1380))
-        };
-      }
-
-      function buildMult(mode){
-        const coeffs = [2,3,4,5,6,7,8];
-
-        for(let tries = 0; tries < 1500; tries++){
-          const a = choice(coeffs);
-          let x;
-          if(mode === 'pos') x = randInt(2,10);
-          else if(mode === 'neg') x = -randInt(2,10);
-          else x = weightedChoice([
-            { weight: 7, value: randInt(2,10) },
-            { weight: 3, value: -randInt(2,10) }
-          ]);
-
-          const result = a * x;
-          if(Math.abs(result) > 72) continue;
-
-          const absX = Math.abs(x);
-          const left = 250;
-          const right = 1380;
-          const step = (right - left) / a;
-
-          const prePoints = [];
-          for(let i = 0; i <= a; i++){
-            prePoints.push({
-              px:left + i * step,
-              value:absX * i,
-              multiplier:i
-            });
-          }
-
-          const negative = result < 0;
-          let points, zeroIndex, xIndex, resultIndex;
-
-          if(negative){
-            points = [];
-            for(let i = 0; i <= a; i++){
-              points.push({
-                px:left + i * step,
-                value:result + absX * i,
-                multiplier:a - i
-              });
-            }
-            resultIndex = 0;
-            xIndex = a - 1;
-            zeroIndex = a;
-          } else {
-            points = prePoints.map(p => ({...p}));
-            zeroIndex = 0;
-            xIndex = 1;
-            resultIndex = a;
-          }
-
-          return {
-            mode:'mult',
-            negative,
-            a,
-            x,
-            result,
-            equationLeftHTML:`${a}x`,
-            equationRightText:String(result),
-            prePoints,
-            preZeroIndex:0,
-            preXIndex:1,
-            preResultIndex:a,
-            points,
-            zeroIndex,
-            xIndex,
-            resultIndex
-          };
-        }
-
-        return buildMult('pos');
-      }
-
-      function buildDiv(mode){
-        const divisors = [2,3,4,5,6,7,8];
-
-        for(let tries = 0; tries < 1500; tries++){
-          const d = choice(divisors);
-          let quotient;
-          if(mode === 'pos') quotient = randInt(2,10);
-          else if(mode === 'neg') quotient = -randInt(2,10);
-          else quotient = weightedChoice([
-            { weight: 7, value: randInt(2,10) },
-            { weight: 3, value: -randInt(2,10) }
-          ]);
-
-          const x = d * quotient;
-          if(Math.abs(x) > 72) continue;
-
-          const absQ = Math.abs(quotient);
-          const left = 250;
-          const right = 1380;
-          const step = (right - left) / d;
-
-          const prePoints = [];
-          for(let i = 0; i <= d; i++){
-            prePoints.push({
-              px:left + i * step,
-              value:absQ * i,
-              numerator:i
-            });
-          }
-
-          const negative = quotient < 0;
-          let points, zeroIndex, fracIndex, xIndex;
-
-          if(negative){
-            points = [];
-            for(let i = 0; i <= d; i++){
-              points.push({
-                px:left + i * step,
-                value:x + absQ * i,
-                numerator:d - i
-              });
-            }
-            xIndex = 0;
-            fracIndex = d - 1;
-            zeroIndex = d;
-          } else {
-            points = prePoints.map(p => ({...p}));
-            zeroIndex = 0;
-            fracIndex = 1;
-            xIndex = d;
-          }
-
-          return {
-            mode:'div',
-            negative,
-            d,
-            quotient,
-            x,
-            equationLeftHTML:fractionHTML('x', String(d)),
-            equationRightText:String(quotient),
-            prePoints,
-            preZeroIndex:0,
-            preFracIndex:1,
-            preXIndex:d,
-            points,
-            zeroIndex,
-            fracIndex,
-            xIndex
-          };
-        }
-
-        return buildDiv('pos');
-      }
-
-      function getMaxStage(){
-        const q = state.question;
-        const pauseExtra = state.settings.pauseBeforeAnswer ? 1 : 0;
-
-        if(!q){
-          const type = state.settings.equationType;
-          if(type.startsWith('addsub')) return 4 + pauseExtra;
-          if(type === 'mult_pos' || type === 'div_pos') return 4 + pauseExtra;
-          return 5 + pauseExtra;
-        }
-
-        if(q.mode === 'addsub') return 4 + pauseExtra;
-        return q.negative ? 5 + pauseExtra : 4 + pauseExtra;
-      }
-
-      function isAnswerStage(){
-        return state.stage === getMaxStage();
-      }
-
-      function addDefs(){
-        const defs = createSVG('defs');
-        const radial = createSVG('radialGradient', {
-          id:'stage1Glow',
-          cx:'50%',
-          cy:'50%',
-          r:'50%'
-        });
-
-        radial.appendChild(createSVG('stop', { offset:'0%', 'stop-color':'#dbeafe', 'stop-opacity':'1' }));
-        radial.appendChild(createSVG('stop', { offset:'70%', 'stop-color':'#dbeafe', 'stop-opacity':'.35' }));
-        radial.appendChild(createSVG('stop', { offset:'100%', 'stop-color':'#dbeafe', 'stop-opacity':'0' }));
-
-        defs.appendChild(radial);
-        svg.appendChild(defs);
-      }
-
-      function drawBaseLine(){
-        appendNode(createSVG('line', {
-          x1:20, y1:LINE_Y, x2:VIEW_W - 20, y2:LINE_Y, class:'main-line'
-        }));
-      }
-
-      function drawTick(x, major = false){
-        return appendNode(createSVG('line', {
-          x1:x,
-          y1:LINE_Y - (major ? 36 : 24),
-          x2:x,
-          y2:LINE_Y + (major ? 36 : 24),
-          class: major ? 'tick-major' : 'tick-minor'
-        }));
-      }
-
-      function drawTopText(x, y, text, size, color='blue'){
-        const classes = ['point-top'];
-        if(color === 'black') classes.push('small-black');
-        if(color === 'ghost') classes.push('ghost-black');
-
-        const el = createSVG('text', {
-          x, y,
-          class:classes.join(' '),
-          'font-size': size
-        });
-        el.textContent = text;
-        return appendNode(el);
-      }
-
-      function drawBottomText(x, y, text, size, color='green'){
-        const classes = ['point-bottom'];
-        if(color === 'black') classes.push('small-black');
-        if(color === 'ghost') classes.push('ghost-black');
-        if(color === 'ghostGreen') classes.push('ghost-green');
-
-        const el = createSVG('text', {
-          x, y,
-          class:classes.join(' '),
-          'font-size': size
-        });
-        el.textContent = text;
-        return appendNode(el);
-      }
-
-      function drawFractionTop(x, y, num, den, size, color='blue'){
-        const group = createSVG('g', {});
-        const txtClass = ['point-top'];
-        if(color === 'black') txtClass.push('small-black');
-        if(color === 'ghost') txtClass.push('ghost-black');
-
-        const strokeColor = color === 'black' ? '#111' : color === 'ghost' ? '#97a0ad' : '#2563eb';
-
-        const top = createSVG('text', { x, y, class:txtClass.join(' '), 'font-size': size });
-        top.textContent = num;
-
-        const width = Math.max(42, Math.max(String(num).length, String(den).length) * (size * 0.36));
-        const bar = createSVG('line', {
-          x1: x - width / 2,
-          y1: y + 15,
-          x2: x + width / 2,
-          y2: y + 15,
-          stroke: strokeColor,
-          'stroke-width': 3.5,
-          'stroke-linecap':'round',
-          opacity: color === 'ghost' ? '.9' : '1'
-        });
-
-        const bottom = createSVG('text', {
-          x, y: y + 44,
-          class:txtClass.join(' '),
-          'font-size': size * 0.92
-        });
-        bottom.textContent = den;
-
-        group.appendChild(top);
-        group.appendChild(bar);
-        group.appendChild(bottom);
-        return appendNode(group);
-      }
-
-      function drawCueText(label, opts = {}){
-        const {
-          fromX,
-          toX,
-          textY,
-          mainFontSize = 30,
-          centerX = null
-        } = opts;
-
-        const text = createSVG('text', {
-          x: centerX ?? ((fromX + toX) / 2),
-          y: textY,
-          class:'point-top ghost-black',
-          'font-size':mainFontSize
-        });
-        text.textContent = label;
-        return appendNode(text);
-      }
-
-      function drawDirectionCue(fromX, toX, label, opts = {}){
-        const {
-          cueY = LINE_Y - 98,
-          textY = cueY - 18,
-          mainFontSize = 30
-        } = opts;
-
-        appendNode(createSVG('line', {
-          x1:fromX,
-          y1:cueY,
-          x2:toX,
-          y2:cueY,
-          class:'cue-line'
-        }));
-
-        const headSize = 16;
-        appendNode(createSVG('polygon', {
-          class:'cue-head',
-          points: toX > fromX
-            ? `${toX},${cueY} ${toX-headSize},${cueY-headSize/2} ${toX-headSize},${cueY+headSize/2}`
-            : `${toX},${cueY} ${toX+headSize},${cueY-headSize/2} ${toX+headSize},${cueY+headSize/2}`
-        }));
-
-        drawCueText(label, { fromX, toX, textY, mainFontSize });
-      }
-
-      function createArrowHeadAtTangent(xTip, yTip, angleDeg, size = 16){
-        const angle = angleDeg * Math.PI / 180;
-        const backX = xTip - Math.cos(angle) * size;
-        const backY = yTip - Math.sin(angle) * size;
-        const wing = size * 0.55;
-        const perpX = -Math.sin(angle) * wing;
-        const perpY =  Math.cos(angle) * wing;
-
-        return createSVG('polygon', {
-          class:'cue-head',
-          points: `${xTip},${yTip} ${backX + perpX},${backY + perpY} ${backX - perpX},${backY - perpY}`
-        });
-      }
-
-      function drawJumpArcsBetweenTicks(xs, opts = {}){
-        const {
-          cueY = ADD_SUB_ARC_Y,
-          arcHeight = 48,
-          durationMs = 1800,
-          token = null,
-          animated = true
-        } = opts;
-
-        if(!xs || xs.length < 2) return;
-
-        const segCount = xs.length - 1;
-        const perDelay = Math.max(70, Math.min(220, durationMs / segCount));
-
-        for(let i = 0; i < segCount; i++){
-          const x1 = xs[i];
-          const x2 = xs[i + 1];
-          const mid = (x1 + x2) / 2;
-
-          const path = createSVG('path', {
-            d: `M ${x1} ${cueY} Q ${mid} ${cueY - arcHeight} ${x2} ${cueY}`,
-            class:'cue-arc'
-          });
-
-          if(animated){
-            path.style.animationDelay = `${Math.round(i * perDelay)}ms, ${Math.round(i * perDelay)}ms`;
-          } else {
-            path.style.animation = 'dashMove 1.1s linear infinite';
-            path.style.opacity = '.74';
-          }
-
-          appendNode(path);
-        }
-
-        const last = xs[xs.length - 1];
-        const prev = xs[xs.length - 2];
-        const mid = (prev + last) / 2;
-        const tangentDx = (last - mid);
-        const tangentDy = arcHeight;
-        const angle = Math.atan2(tangentDy, tangentDx) * (180 / Math.PI);
-
-        const head = createArrowHeadAtTangent(last, cueY, angle, 16);
-        head.style.opacity = animated ? '0' : '.9';
-        appendNode(head);
-
-        if(animated){
-          schedule(() => {
-            if(token !== null && !isActiveRender(token)) return;
-            head.style.opacity = '.9';
-          }, Math.round((segCount - 1) * perDelay + 140));
-        }
-      }
-
-      function drawPartitionLoops(points, opts = {}){
-  const {
-    cueY = GROUP_LOOP_Y,
-    durationMs = 1800,
-    height = 72,
-    inset = 8,
-    animated = true,
-    onSegment = null
-  } = opts;
-
-  if(!points || points.length < 2) return;
-
-  const segCount = points.length - 1;
-  const perDelay = Math.max(90, Math.min(240, durationMs / segCount));
-
-  for(let i = 0; i < segCount; i++){
-    const p1 = points[i];
-    const p2 = points[i + 1];
-
-    const width = Math.max(40, Math.abs(p2.px - p1.px) - inset * 2);
-    const rx = width / 2;
-    const ry = height / 2;
-    const midX = (p1.px + p2.px) / 2;
-    const gap = 4;
-
-    const topArc = createSVG('path', {
-      d: `M ${midX - rx} ${cueY - gap} A ${rx} ${ry} 0 0 1 ${midX + rx} ${cueY - gap}`,
-      class:'cue-loop'
-    });
-
-    const bottomArc = createSVG('path', {
-      d: `M ${midX + rx} ${cueY + gap} A ${rx} ${ry} 0 0 1 ${midX - rx} ${cueY + gap}`,
-      class:'cue-loop'
-    });
-
-    appendNode(topArc);
-    appendNode(bottomArc);
-
-    const startDelay = Math.round(i * perDelay);
-
-    if(animated){
-      topArc.style.opacity = '0';
-      bottomArc.style.opacity = '0';
-
-      schedule(() => {
-        topArc.style.opacity = '.74';
-        bottomArc.style.opacity = '.74';
-
-        // 🔹 trigger tick at same moment
-        if(onSegment){
-          onSegment(i, p2);
-        }
-
-      }, startDelay);
-
+      return { op:add ? "add" : "sub", k, x, c };
+    }
+    return { op:"add", k:4, x:6, c:10 };
+  }
+  function sgnFor(neg){ return neg === "all" ? -1 : neg === "some" && Math.random() < 0.3 ? -1 : 1; }
+  function genMul(neg){
+    for(let t = 0; t < 3000; t++){
+      const a = ri(2, 8), x = sgnFor(neg) * ri(2, 10);
+      if(Math.abs(a * x) > 72) continue;
+      return { op:"mul", a, x, c:a * x };
+    }
+    return { op:"mul", a:3, x:4, c:12 };
+  }
+  function genDiv(neg){
+    for(let t = 0; t < 3000; t++){
+      const d = ri(2, 8), c = sgnFor(neg) * ri(2, 10);
+      if(Math.abs(d * c) > 72) continue;
+      return { op:"div", d, c, x:d * c };
+    }
+    return { op:"div", d:4, c:6, x:24 };
+  }
+  function finish(q){
+    q.v = q.v || "x";
+    q.kFirst = !!q.kFirst && q.op === "add";
+    q.rev = !!q.rev;
+    q.turn = (q.op === "mul" || q.op === "div") && q.c < 0;
+    return q;
+  }
+  const sigOf = q => [q.op, q.k, q.a, q.d, q.c].join(",");
+  function makeQ(){
+    const set = S.set; let q;
+    for(let t = 0; t < 40; t++){
+      let op = set.op;
+      if(op === "mix"){ const r = Math.random() * 10; op = r < 4 ? "as" : r < 7 ? "mul" : "div"; }
+      q = op === "as" ? genAS(set.neg) : op === "mul" ? genMul(set.neg) : genDiv(set.neg);
+      if(set.vary){ if(q.op === "add" && Math.random() < 0.35) q.kFirst = true; if(Math.random() < 0.25) q.rev = true; }
+      if(sigOf(q) !== S.lastSig) break;
+    }
+    S.lastSig = sigOf(q);
+    return finish(q);
+  }
+
+  /* type your own: one step only, a single letter, whole numbers */
+  function parseOwn(src){
+    let s = String(src || "").toLowerCase().replace(/\s+/g, "").replace(/[−–—]/g, "-").replace(/[×·*]/g, "*").replace(/÷/g, "/");
+    if(!s) return { err:"Type an equation, e.g. x + 3 = 11." };
+    const parts = s.split("=");
+    if(parts.length !== 2 || !parts[0] || !parts[1]) return { err:"It needs one = sign, e.g. x + 3 = 11." };
+    const hasL = p => /[a-z]/.test(p);
+    let lhs = parts[0], rhs = parts[1], rev = false;
+    if(hasL(lhs) && hasL(rhs)) return { err:"Put the letter on one side only." };
+    if(!hasL(lhs) && !hasL(rhs)) return { err:"It needs a letter for the unknown, e.g. x." };
+    if(hasL(rhs)){ [lhs, rhs] = [rhs, lhs]; rev = true; }
+    if(!/^-?\d+$/.test(rhs)) return { err:"The other side should be a whole number, e.g. 11 or −3." };
+    const c = parseInt(rhs, 10);
+    let m, q = null;
+    if((m = /^([a-z])\+(\d+)$/.exec(lhs))) q = { op:"add", v:m[1], k:+m[2] };
+    else if((m = /^(\d+)\+([a-z])$/.exec(lhs))) q = { op:"add", v:m[2], k:+m[1], kFirst:true };
+    else if((m = /^([a-z])-(\d+)$/.exec(lhs))) q = { op:"sub", v:m[1], k:+m[2] };
+    else if((m = /^(\d+)\*?([a-z])$/.exec(lhs)) || (m = /^([a-z])\*(\d+)$/.exec(lhs))){ const n = +(/\d/.test(m[1]) ? m[1] : m[2]); const v = /\d/.test(m[1]) ? m[2] : m[1]; q = { op:"mul", v, a:n }; }
+    else if((m = /^\(?([a-z])\)?\/(\d+)$/.exec(lhs))) q = { op:"div", v:m[1], d:+m[2] };
+    if(!q) return { err:"This tool shows one-step equations: x + 3 = 11, x − 4 = 2, 3x = 15 or x/4 = 6." };
+    q.c = c; q.rev = rev;
+    if(q.op === "add" || q.op === "sub"){
+      if(q.k < 1 || q.k > 40) return { err:"Keep the number added or taken away between 1 and 40." };
+      q.x = q.op === "add" ? c - q.k : c + q.k;
+      if(Math.abs(c) > 200 || Math.abs(q.x) > 200) return { err:"Keep the numbers between −200 and 200." };
+    } else if(q.op === "mul"){
+      if(q.a < 2 || q.a > 12) return { err:"Use a number from 2 to 12 in front of the letter." };
+      if(c === 0) return { err:"Pick a number other than 0 for the other side." };
+      if(c % q.a !== 0) return { err:`${c} ÷ ${q.a} is not a whole number. Try ${q.a * Math.max(1, Math.round(c / q.a)) || q.a}.` };
+      if(Math.abs(c) > 200) return { err:"Keep the number between −200 and 200." };
+      q.x = c / q.a;
     } else {
-      topArc.style.opacity = '.74';
-      bottomArc.style.opacity = '.74';
+      if(q.d < 2 || q.d > 12) return { err:"Divide by a number from 2 to 12." };
+      if(c === 0) return { err:"Pick a number other than 0 for the other side." };
+      if(Math.abs(c) > 50) return { err:"Keep the number between −50 and 50." };
+      q.x = c * q.d;
+    }
+    return { q:finish(q) };
+  }
 
-      if(onSegment){
-        onSegment(i, p2);
+  /* ================= pieces: one description of a bit of maths, drawn as HTML or SVG =================
+     {v:1} the letter · {n:"5"} a number · {o:"+"} an operator · {fr:[top, bottom]} a fraction · {t:"?"} text */
+  const V = { v:1 }, N = n => ({ n:fmt(n) }), O = o => ({ o });
+  const MINUS = "−", TIMES = "×", DIVIDE = "÷";
+  const fracOn = () => S.set.div === "frac";
+  function exprP(q){
+    if(q.op === "add") return q.kFirst ? [N(q.k), O("+"), V] : [V, O("+"), N(q.k)];
+    if(q.op === "sub") return [V, O(MINUS), N(q.k)];
+    if(q.op === "mul") return [N(q.a), V];
+    return fracOn() ? [{ fr:[[V], [N(q.d)]] }] : [V, O(DIVIDE), N(q.d)];
+  }
+  const offP = j => j === 0 ? [V] : [V, O(j > 0 ? "+" : MINUS), N(Math.abs(j))];
+  const mulP = i => i === 0 ? [N(0)] : i === 1 ? [V] : [N(i), V];
+  function divP(i, d){
+    if(i === 0) return [N(0)];
+    if(i === d) return [V];
+    const top = i === 1 ? [V] : [N(i), V];
+    return fracOn() ? [{ fr:[top, [N(d)]] }] : [...top, O(DIVIDE), N(d)];
+  }
+  const buildOp = q => q.op === "add" ? "+ " + q.k : q.op === "sub" ? MINUS + " " + q.k : q.op === "mul" ? TIMES + " " + q.a : DIVIDE + " " + q.d;
+  const undoOp = q => q.op === "add" ? MINUS + " " + q.k : q.op === "sub" ? "+ " + q.k : q.op === "mul" ? DIVIDE + " " + q.a : TIMES + " " + q.d;
+
+  function H(p){
+    return p.map(it => it.v ? letterHTML(S.q.v)
+      : it.n != null ? `<span>${it.n}</span>`
+      : it.o ? `<span class="op">${it.o}</span>`
+      : it.fr ? `<span class="frac"><span class="fn">${H(it.fr[0])}</span><span class="fd">${H(it.fr[1])}</span></span>`
+      : it.ans ? `<span class="ans">${H(it.ans)}</span>`
+      : `<span>${it.t}</span>`).join("");
+  }
+  const plainP = p => p.map(it => it.v ? "x" : it.n != null ? it.n : it.o ? ` ${it.o} ` : it.fr ? plainP(it.fr[0]) + "/" + plainP(it.fr[1]) : it.t || "").join("");
+  const isFrac = p => p.length === 1 && !!p[0].fr;
+  function svgLetter(){ return MATH_ALPHA ? `<tspan>${mathItalic(S.q.v)}</tspan>` : `<tspan font-style="italic" style="font-family:var(--itFont)">${esc(S.q.v)}</tspan>`; }
+  function svgIn(p){ return p.map(it => it.v ? svgLetter() : it.n != null ? `<tspan>${it.n}</tspan>` : it.o ? `<tspan> ${it.o} </tspan>` : `<tspan>${esc(it.t || "")}</tspan>`).join(""); }
+  function measureP(p, size){
+    if(isFrac(p)) return Math.max(measureP(p[0].fr[0], size * 0.74), measureP(p[0].fr[1], size * 0.74)) + size * 0.24;
+    return tw(plainP(p), size) * 1.04;
+  }
+
+  /* ================= steps ================= */
+  let IDS = [];
+  function stepIds(q){
+    const s = ["start", "build", "value"];
+    if(q.turn) s.push("turn");
+    if(S.set.predict) s.push("think");
+    s.push("solve");
+    if(S.set.check) s.push("check");
+    return s;
+  }
+  const sid = () => IDS[S.step];
+  const isAS = q => q.op === "add" || q.op === "sub";
+
+  /* ================= layout (real pixels: the board is drawn at the size it is shown) ================= */
+  const L = {};
+  function layout(){
+    const wrap = $("boardWrap"), q = S.q;
+    const W = Math.max(240, wrap.clientWidth), H = Math.max(170, wrap.clientHeight);
+    L.W = W; L.H = H;
+    const fracs = q.op === "div" && fracOn();
+    let fsM = Math.min(58, H / (fracs ? 8.6 : isAS(q) ? 7.1 : 8.1), W / 15);
+    fsM = Math.max(15, fsM);
+    L.fsM = fsM; L.fsS = fsM * 0.6;
+    L.tk = fsM * 0.44; L.tkm = L.tk * 0.6; L.arcH = fsM * 0.62;
+    const halfInline = fsM * 0.55, halfFrac = fsM * 0.78 * 1.12;
+    L.halfT = fracs ? halfFrac : halfInline; L.halfB = halfInline;
+    L.dT = L.tk + L.arcH * 0.95 + L.halfT; L.dB = L.tk + L.arcH * 0.95 + L.halfB;
+    /* above the labels: the big move arrow and its pill */
+    /* add/subtract has only a pill up there; × and ÷ have a big arching arrow as well */
+    const asq = isAS(q), pillH = L.fsS * 0.95 * 1.55;
+    const extT = asq ? L.dT + L.halfT + pillH + fsM * 0.25 : L.dT + L.halfT + fsM * 1.25 + fsM * 0.12;
+    const extB = asq ? L.dB + L.halfB + pillH + fsM * 0.25 : L.dB + L.halfB + fsM * 1.25 + fsM * 0.12;
+    L.y0 = Math.round((H - extT - extB) / 2 + extT);
+    L.yLt = L.y0 - L.dT; L.yLb = L.y0 + L.dB;
+    L.yAt = L.yLt - L.halfT - fsM * 0.2; L.yAb = L.yLb + L.halfB + fsM * 0.2;
+    L.arrH = fsM * 1.05;
+    L.yPt = asq ? L.yLt - L.halfT - pillH * 0.5 - fsM * 0.08 : L.yAt - L.arrH * 0.5;
+    L.yPb = asq ? L.yLb + L.halfB + pillH * 0.5 + fsM * 0.08 : L.yAb + L.arrH * 0.5;
+    L.fsF = fsM * 0.78;                          /* a fraction's numerator / denominator */
+
+    /* the majors (always labelled) and the in-between marks */
+    const big = (p, sz) => measureP(p, sz || fsM);
+    let endW = 0;
+    if(isAS(q)){
+      endW = Math.max(big(exprP(q)), big([N(q.c)]), big([N(q.x)]) * 1.3, big([V]));
+    } else {
+      const n = q.op === "mul" ? q.a : q.d;
+      endW = Math.max(big(q.op === "mul" ? mulP(n) : [V]), big([N(q.op === "mul" ? q.c : q.x)]) * 1.3, big([N(0)]), big([V]));
+    }
+    L.pad = Math.max(W * 0.045, endW / 2 + 14);
+    L.left = L.pad; L.right = W - L.pad;
+
+    if(isAS(q)){
+      const lo = Math.min(q.x, q.c), hi = Math.max(q.x, q.c);
+      L.lo = lo; L.hi = hi; L.units = (hi - lo) <= 24;
+      L.unit = (L.right - L.left) / Math.max(1, hi - lo);
+      L.P = v => L.left + (v - lo) * L.unit;
+      /* in-between labels: the widest top and bottom ones decide the size, or a stride */
+      let wTop = 0, wBot = 0;
+      for(let v = lo + 1; v < hi; v++){ wTop = Math.max(wTop, measureP(offP(v - q.x), 1)); wBot = Math.max(wBot, measureP([N(v)], 1)); }
+      const wmax = Math.max(wTop, wBot, 0.001);
+      L.stride = 0; L.fsI = 0;
+      if(L.units){
+        for(const s of [1, 2, 5, 10]){
+          const f = Math.min(L.fsS, 0.86 * s * L.unit / wmax);
+          if(f >= 12.5){ L.stride = s; L.fsI = f; break; }
+        }
+      }
+      L.majW = { x:Math.max(big([V]), big([N(q.x)]) * 1.25), e:Math.max(big(exprP(q)), big([N(q.c)])) };
+    } else {
+      const n = q.op === "mul" ? q.a : q.d;
+      L.n = n; L.step = (L.right - L.left) / n;
+      L.Pi = i => L.left + i * L.step;
+      L.mirror = px => L.left + L.right - px;
+      let wmax = 0.001;
+      for(let i = 2; i < n; i++){
+        wmax = Math.max(wmax, measureP(q.op === "mul" ? mulP(i) : divP(i, n), 1));
+        const unitV = q.op === "mul" ? q.x : q.c;
+        wmax = Math.max(wmax, measureP([N(i * unitV)], 1));
+      }
+      const f = Math.min(L.fsS, 0.84 * L.step / wmax);
+      L.fsI = f >= 12 ? f : 0; L.stride = L.fsI ? 1 : 0;
+      /* the known mark's label (3x, x/4 or x ÷ 4) must fit beside its neighbours */
+      const kP = q.op === "mul" ? mulP(n) : divP(1, n);
+      L.kSize = Math.min(isFrac(kP) ? L.fsF : fsM, 0.9 * L.step / Math.max(0.001, measureP(kP, 1)));
+      /* the bottom line's big numbers (the known value and the answer, in its box) fit their gap too */
+      L.bSize = Math.min(fsM, 0.92 * L.step / Math.max(0.001, measureP([N(q.c)], 1), measureP([N(q.x)], 1) + 0.5));
+    }
+    return L;
+  }
+
+  /* ================= scenes: the board at a step is a list of keyed elements ================= */
+  const COL = { ink:"#0f172a", line:"#334155", soft:"#94a3b8", top:"#1d4ed8", topI:"#3b6fe0", bot:"#15803d", botI:"#2f9e5b",
+    build:"#ea580c", buildBg:"#fff7ed", undo:"#7c3aed", undoBg:"#f5f3ff", bad:"#dc2626", q:"#64748b" };
+  function scene(id){
+    const q = S.q, at = IDS.indexOf(id), has = s => { const k = IDS.indexOf(s); return k > -1 && k <= at; };
+    const els = [];
+    els.push({ key:"axis", type:"axis", x1:6, x2:L.W - 6, y:L.y0, o:1, z:1 });
+    if(isAS(q)) sceneAS(q, has, els); else sceneMD(q, has, els);
+    return els;
+  }
+  const tick = (key, x, major, o, d, extra) => Object.assign({ key, type:"tick", x, y:L.y0, h:major ? L.tk : L.tkm, w:major ? Math.max(3.5, L.fsM * 0.09) : Math.max(2.2, L.fsM * 0.055),
+    col:major ? COL.ink : COL.soft, o, d:d || 0, z:4 }, extra || {});
+  const lab = (key, x, top, p, size, col, o, d, extra) => Object.assign({ key, type:"lab", x, y:top ? L.yLt : L.yLb, p, size, col, o, d:d || 0, z:5 }, extra || {});
+  const pill = (key, x, top, text, col, bg, o, d) => ({ key, type:"pill", x, y:top ? L.yPt : L.yPb, text, col, bg, o, d:d || 0, z:6 });
+  /* a little jump between two marks, just above (side -1) or below (side 1) the line */
+  const hop = (key, x1, x2, side, col, o, d, head) => ({ key, type:"hop", x1, x2, y:L.y0 + side * L.tkm * 1.05, h:L.arcH * 0.95, side, col, o, d:d || 0, head:true, big:!!head, w:Math.max(2, L.fsM * 0.06), z:3 });
+  /* the big move, arching over the labels */
+  const arrow = (key, x1, x2, side, col, o, d) => ({ key, type:"hop", x1, x2, y:side < 0 ? L.yAt : L.yAb, h:L.arrH, side, col, o, d:d || 0, head:true, w:Math.max(2.4, L.fsM * 0.07), z:3 });
+  const loop = (key, x1, x2, o, d) => ({ key, type:"loop", x1, x2, y:L.y0, ry:L.arcH * 0.95, o, d:d || 0, z:2 });
+
+  /* the check: a green tick badge on the top-right corner of the answer's box */
+  function badge(px, q, size){
+    size = size || L.fsM;
+    const w = measureP([N(q.x)], size) + size * 0.5, h = size * 1.18, r = L.fsM * 0.3;
+    return { key:"ck", type:"badge", x:Math.min(L.W - r - 3, px + w / 2), y:L.yLb - h / 2, r, o:1, d:0.15, z:7 };
+  }
+  function sceneAS(q, has, els){
+    const built = has("build"), valued = has("value"), solved = has("solve"), checked = has("check");
+    const sgn = q.op === "add" ? 1 : -1, k = q.k;
+    const Px = built ? L.P(q.x) : L.W / 2, Pe = L.P(q.c);
+    const fsM = L.fsM;
+    els.push({ key:"halo", type:"halo", x:Px, y:L.y0, r:fsM * 1.9, o:built ? 0 : 1, z:0 });
+    els.push(tick("tx", Px, true, 1));
+    els.push(lab("lx", Px, true, [V], fsM, COL.top, 1));
+    if(!built) return;
+    const showI = v => {
+      if(!L.units || !L.stride || !L.fsI) return false;
+      if((v - q.x) % L.stride !== 0) return false;
+      const px = L.P(v), wI = measureP(offP(v - q.x), L.fsI);
+      return Math.abs(px - Pe) > L.majW.e / 2 + wI / 2 + 6 && Math.abs(px - Px) > L.majW.x / 2 + wI / 2 + 6;
+    };
+    const showB = v => {
+      if(!L.units || !L.stride || !L.fsI) return false;
+      if((v - q.x) % L.stride !== 0) return false;
+      const px = L.P(v), wI = measureP([N(v)], L.fsI);
+      return Math.abs(px - Pe) > L.majW.e / 2 + wI / 2 + 6 && Math.abs(px - Px) > L.majW.x / 2 + wI / 2 + 6;
+    };
+    /* building: the marks appear one at a time, walking from x towards x + k */
+    const bd = j => 0.12 + 0.3 * (j / Math.max(1, k));
+    els.push(tick("te", Pe, true, 1, 0.42));
+    els.push(lab("le", Pe, true, exprP(q), fsM, COL.top, 1, 0.42));
+    if(L.units){
+      for(let j = 1; j < k; j++){
+        const v = q.x + sgn * j;
+        els.push(tick("tu" + v, L.P(v), false, 1, bd(j)));
+        if(S.set.ticks && showI(v)) els.push(lab("lu" + v, L.P(v), true, offP(sgn * j), L.fsI, COL.topI, 0.9, bd(j)));
       }
     }
-  }
-}
-      function drawPartitionLoopsStatic(points, opts = {}){
-        const {
-          cueY = GROUP_LOOP_Y,
-          height = 72,
-          inset = 8
-        } = opts;
-
-        if(!points || points.length < 2) return;
-
-        for(let i = 0; i < points.length - 1; i++){
-          const p1 = points[i];
-          const p2 = points[i + 1];
-          const width = Math.max(40, Math.abs(p2.px - p1.px) - inset * 2);
-          const rx = width / 2;
-          const ry = height / 2;
-          const midX = (p1.px + p2.px) / 2;
-          const gap = 4;
-
-          const topArc = createSVG('path', {
-            d: `M ${midX - rx} ${cueY - gap} A ${rx} ${ry} 0 0 1 ${midX + rx} ${cueY - gap}`,
-            class:'cue-loop'
-          });
-          const bottomArc = createSVG('path', {
-            d: `M ${midX + rx} ${cueY + gap} A ${rx} ${ry} 0 0 1 ${midX - rx} ${cueY + gap}`,
-            class:'cue-loop'
-          });
-
-          topArc.style.opacity = '.74';
-          bottomArc.style.opacity = '.74';
-
-          appendNode(topArc);
-          appendNode(bottomArc);
+    const bo = solved ? 0 : valued ? 0.22 : 1;
+    if(S.set.moves){
+      if(L.units) for(let j = 0; j < k; j++) els.push(hop("hb" + j, L.P(q.x + sgn * j), L.P(q.x + sgn * (j + 1)), -1, COL.build, bo, bd(j), j === k - 1));
+      else els.push(hop("hb0", Px, Pe, -1, COL.build, bo, 0.15, true));
+      els.push(pill("pb", (Px + Pe) / 2, true, buildOp(q), COL.build, COL.buildBg, bo, 0.38));
+    }
+    if(!valued) return;
+    els.push(lab("be", Pe, false, [N(q.c)], fsM, COL.bot, 1, 0.08));
+    els.push(lab("bq", Px, false, [{ t:"?" }], fsM * 1.1, COL.q, solved ? 0 : 1, 0.08));
+    if(!solved) return;
+    /* undoing: from x + k back to x, the same jumps on BOTH lines */
+    const sd = j => 0.08 + 0.3 * (j / Math.max(1, k));
+    if(S.set.moves){
+      if(L.units){
+        for(let j = 0; j < k; j++){
+          const a = L.P(q.c - sgn * j), b = L.P(q.c - sgn * (j + 1));
+          els.push(hop("hs" + j, a, b, -1, COL.undo, 1, sd(j), j === k - 1));
+          if(S.set.both) els.push(hop("hz" + j, a, b, 1, COL.undo, 1, sd(j), j === k - 1));
         }
+      } else {
+        els.push(hop("hs0", Pe, Px, -1, COL.undo, 1, 0.1, true));
+        if(S.set.both) els.push(hop("hz0", Pe, Px, 1, COL.undo, 1, 0.1, true));
       }
-
-      function orderedPointSpan(points, startIdx, endIdx){
-        const start = Math.min(startIdx, endIdx);
-        const end = Math.max(startIdx, endIdx);
-        const span = points.slice(start, end + 1);
-        return startIdx <= endIdx ? span : span.reverse();
+      els.push(pill("ps", (Px + Pe) / 2, true, undoOp(q), COL.undo, COL.undoBg, 1, 0.1));
+      if(S.set.both) els.push(pill("pz", (Px + Pe) / 2, false, undoOp(q), COL.undo, COL.undoBg, 1, 0.1));
+    }
+    if(L.units && S.set.ticks){
+      for(let j = 1; j < k; j++){
+        const v = q.c - sgn * j;
+        if(showB(v)) els.push(lab("bu" + v, L.P(v), false, [N(v)], L.fsI, v === 0 ? COL.ink : COL.botI, 0.9, sd(j)));
       }
-
-function drawStage1Intro(){
-  drawBaseLine();
-
-  const q = state.question;
-  const xPos = START_CENTER_X;
-  const showFakeZero = q && (q.mode === 'mult' || q.mode === 'div');
-
-  const halo = createSVG('ellipse', {
-    cx: xPos,
-    cy: LINE_Y,
-    rx: 120,
-    ry: 84,
-    class:'stage1-halo'
-  });
-  appendNode(halo);
-
-  const intro = createSVG('text', {
-    x: xPos,
-    y: 178,
-    class:'stage1-label'
-  });
-  intro.textContent = 'Start with x';
-  appendNode(intro);
-
-  const tick = createSVG('line', {
-    x1:xPos, y1:LINE_Y - 36,
-    x2:xPos, y2:LINE_Y + 36,
-    class:'tick-major'
-  });
-  appendNode(tick);
-
-  drawTopText(xPos, TOP_Y_MAIN, 'x', 72, 'blue');
-
-  // top-only zero for multiply/divide start screen
-  if(showFakeZero){
-    const fakeZeroX = xPos - 240;
-    drawTick(fakeZeroX, true);
-    drawTopText(fakeZeroX, TOP_Y_MAIN, '0', 62, 'black');
-  }
-}
-
-      function animateSlidingXPair(targetX, callback, token, opts = {}){
-        const {
-          showQuestionMark = false,
-          fromX = START_CENTER_X,
-          toX = targetX
-        } = opts;
-
-        drawBaseLine();
-
-        const layer = createSVG('g', {});
-        layer.style.transform = `translateX(${fromX - toX}px)`;
-        layer.style.transition = `transform ${SLIDE_MS}ms cubic-bezier(.22,.8,.2,1)`;
-
-        const tick = createSVG('line', {
-          x1:toX, y1:LINE_Y - 36,
-          x2:toX, y2:LINE_Y + 36,
-          class:'tick-major'
-        });
-
-        const top = createSVG('text', {
-          x:toX, y:TOP_Y_MAIN, class:'point-top', 'font-size':72
-        });
-        top.textContent = 'x';
-
-        layer.appendChild(tick);
-        layer.appendChild(top);
-
-        if(showQuestionMark){
-          const bottom = createSVG('text', {
-            x:toX, y:BOTTOM_Y_MAIN, class:'point-bottom', 'font-size':84
-          });
-          bottom.textContent = '?';
-          layer.appendChild(bottom);
-        }
-
-        appendNode(layer);
-
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            layer.style.transform = 'translateX(0px)';
-          });
-        });
-
-        if(callback){
-          schedule(() => {
-            if(!isActiveRender(token)) return;
-            callback();
-          }, SLIDE_MS);
-        }
-      }
-
- function renderStage1BackwardSlide(token){
-  const q = state.question;
-  const fakeZeroX = START_CENTER_X - 240;
-
-  let fromX = START_CENTER_X;
-  let fromZeroX = fakeZeroX;
-
-  if(q.mode === 'addsub'){
-    fromX = q.xX;
-  } else if(q.mode === 'mult'){
-    fromX = q.prePoints[q.preXIndex].px;
-    fromZeroX = q.prePoints[q.preZeroIndex].px;
-  } else if(q.mode === 'div'){
-    fromX = q.prePoints[q.preXIndex].px;
-    fromZeroX = q.prePoints[q.preZeroIndex].px;
+    }
+    els.push(lab("ba", Px, false, [N(q.x)], fsM, COL.bot, 1, 0.42, { bg:true }));
+    if(checked) els.push(badge(Px, q));
   }
 
-  drawBaseLine();
-
-  const halo = createSVG('ellipse', {
-    cx: START_CENTER_X,
-    cy: LINE_Y,
-    rx: 120,
-    ry: 84,
-    class:'stage1-halo'
-  });
-  appendNode(halo);
-
-  const intro = createSVG('text', {
-    x: START_CENTER_X,
-    y: 178,
-    class:'stage1-label'
-  });
-  intro.textContent = 'Start with x';
-  appendNode(intro);
-
-  // multiply/divide: animate x and 0 back together
-  if(q && (q.mode === 'mult' || q.mode === 'div')){
-    const xGroup = createSVG('g', {});
-    xGroup.style.transform = `translateX(${fromX - START_CENTER_X}px)`;
-    xGroup.style.transition = `transform 2000ms cubic-bezier(.22,.8,.2,1)`;
-
-    const xTick = createSVG('line', {
-      x1:START_CENTER_X,
-      y1:LINE_Y - 36,
-      x2:START_CENTER_X,
-      y2:LINE_Y + 36,
-      class:'tick-major'
-    });
-    const xText = createSVG('text', {
-      x:START_CENTER_X,
-      y:TOP_Y_MAIN,
-      class:'point-top',
-      'font-size':72
-    });
-    xText.textContent = 'x';
-
-    xGroup.appendChild(xTick);
-    xGroup.appendChild(xText);
-    appendNode(xGroup);
-
-    const zeroGroup = createSVG('g', {});
-    zeroGroup.style.transform = `translateX(${fromZeroX - fakeZeroX}px)`;
-    zeroGroup.style.transition = `transform 2000ms cubic-bezier(.22,.8,.2,1)`;
-
-    const zeroTick = createSVG('line', {
-      x1:fakeZeroX,
-      y1:LINE_Y - 36,
-      x2:fakeZeroX,
-      y2:LINE_Y + 36,
-      class:'tick-major'
-    });
-    const zeroTop = createSVG('text', {
-      x:fakeZeroX,
-      y:TOP_Y_MAIN,
-      class:'point-top small-black',
-      'font-size':62
-    });
-    zeroTop.textContent = '0';
-
-    zeroGroup.appendChild(zeroTick);
-    zeroGroup.appendChild(zeroTop);
-    appendNode(zeroGroup);
-
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        xGroup.style.transform = 'translateX(0px)';
-        zeroGroup.style.transform = 'translateX(0px)';
-      });
-    });
-
-    return;
-  }
-
-  // add/subtract: existing x-only backward slide
-  animateSlidingXPair(START_CENTER_X, null, token, {
-    fromX,
-    toX: START_CENTER_X,
-    showQuestionMark:false
-  });
-}
-      function resetBoardVisualState(){
-        clearAllTimers();
-        cleanupFlipCard();
-        clearBoard();
-        svg.style.visibility = 'visible';
+  function sceneMD(q, has, els){
+    const built = has("build"), valued = has("value"), turned = has("turn"), solved = has("solve"), checked = has("check");
+    const n = L.n, mul = q.op === "mul", xI = mul ? 1 : n, kI = mul ? n : 1, fsM = L.fsM;
+    const pos = i => turned ? L.mirror(L.Pi(i)) : L.Pi(i);
+    const gap = Math.max(fsM * 3, L.W * 0.14);
+    const P0 = built ? pos(0) : L.W / 2 - gap, PX = built ? pos(xI) : L.W / 2;
+    const topP = i => mul ? mulP(i) : divP(i, n);
+    const unitV = mul ? q.x : q.c;                 /* what one group / part is worth */
+    const majSize = i => i === kI ? L.kSize : fsM;
+    els.push({ key:"halo", type:"halo", x:PX, y:L.y0, r:fsM * 1.9, o:built ? 0 : 1, z:0 });
+    els.push(tick("p0", P0, true, 1));
+    els.push(lab("l0", P0, true, [N(0)], fsM, COL.ink, 1));
+    els.push(tick("p" + xI, PX, true, 1));
+    els.push(lab("l" + xI, PX, true, [V], fsM, COL.top, 1));
+    if(!built) return;
+    /* build: lay the groups end to end (×) or cut x into equal parts (÷), one at a time */
+    const order = mul ? i => i - 1 : i => i;      /* ×: 2, 3 … n follow x;  ÷: 1, 2 … n−1 */
+    const bd = i => 0.14 + 0.28 * (order(i) / Math.max(1, n));
+    const clearOfKnown = i => Math.abs(L.Pi(i) - L.Pi(kI)) > measureP(topP(kI), L.kSize) / 2 + measureP(topP(i), L.fsI * (fracOn() && !mul ? 1.15 : 1)) / 2 + 6;
+    for(let i = 1; i <= n; i++){
+      if(i === xI) continue;
+      const major = i === kI;
+      els.push(tick("p" + i, pos(i), major, 1, bd(i)));
+      if(major) els.push(lab("l" + i, pos(i), true, topP(i), majSize(i), COL.top, 1, bd(i)));
+      else if(S.set.ticks && L.fsI && clearOfKnown(i)) els.push(lab("l" + i, pos(i), true, topP(i), L.fsI * (fracOn() && !mul ? 1.15 : 1), COL.topI, 0.9, bd(i)));
+    }
+    for(let i = 0; i < n; i++){
+      const a = pos(i), b = pos(i + 1);
+      els.push(loop("g" + i, Math.min(a, b), Math.max(a, b), 1, mul ? bd(i + 1) : 0.12 + 0.28 * (i / n)));
+    }
+    const bo = solved ? 0 : valued ? 0.22 : 1;
+    if(S.set.moves){
+      els.push(arrow("ab", PX, pos(kI), -1, COL.build, bo, 0.3));
+      els.push(pill("pb", (PX + pos(kI)) / 2, true, buildOp(q), COL.build, COL.buildBg, bo, 0.36));
+    }
+    if(!valued) return;
+    /* the value: red while it is on the wrong side of 0 (the picture assumed x was positive) */
+    const wrongSide = q.turn && !turned;
+    els.push(lab("b0", P0, false, [N(0)], fsM, COL.ink, 1, 0.05));
+    els.push(lab("bk", pos(kI), false, [N(q.c)], L.bSize, wrongSide ? COL.bad : COL.bot, 1, 0.08));
+    els.push(lab("bq", PX, false, [{ t:"?" }], L.bSize * 1.1, COL.q, solved ? 0 : 1, 0.08));
+    if(!solved) return;
+    if(S.set.moves){
+      els.push(arrow("as", pos(kI), PX, -1, COL.undo, 1, 0.08));
+      els.push(pill("ps", (PX + pos(kI)) / 2, true, undoOp(q), COL.undo, COL.undoBg, 1, 0.12));
+      if(S.set.both){
+        els.push(arrow("az", pos(kI), PX, 1, COL.undo, 1, 0.08));
+        els.push(pill("pz", (PX + pos(kI)) / 2, false, undoOp(q), COL.undo, COL.undoBg, 1, 0.12));
       }
-
-      function startNewQuestion(){
-        closeOverlays();
-        nextRenderToken();
-        resetBoardVisualState();
-        state.question = buildQuestion();
-        state.prevStage = 1;
-        state.stage = 1;
-        state.navDirection = 'forward';
-        renderEquationBox();
-        updateStageUI();
-        renderBoard(false);
-        updateControls();
-      }
-
-      function resetTool(){
-        closeOverlays();
-        nextRenderToken();
-        resetBoardVisualState();
-
-        state.settings = { ...DEFAULT_SETTINGS };
-        equationTypeSelect.value = state.settings.equationType;
-        showStrategyPrompts.checked = state.settings.showStrategyPrompts;
-        pauseBeforeAnswer.checked = state.settings.pauseBeforeAnswer;
-
-        state.question = buildQuestion();
-        state.prevStage = 1;
-        state.stage = 1;
-        state.navDirection = 'forward';
-        renderEquationBox();
-        updateStageUI();
-        renderBoard(false);
-        updateControls();
-      }
-
-      function nextStage(animated = true){
-        const maxStage = getMaxStage();
-        if(state.stage < maxStage){
-          state.prevStage = state.stage;
-          state.navDirection = 'forward';
-          state.stage += 1;
-          renderEquationBox();
-          updateStageUI();
-          renderBoard(animated);
-          updateControls();
-        }
-      }
-
-      function prevStage(){
-        if(state.stage > 1){
-          state.prevStage = state.stage;
-          state.navDirection = 'backward';
-          state.stage -= 1;
-          renderEquationBox();
-          updateStageUI();
-          renderBoard(true);
-          updateControls();
-        }
-      }
-
-      function updateControls(){
-        const maxStage = getMaxStage();
-        backStepBtn.disabled = state.stage === 1;
-        nextStepBtn.disabled = state.stage === maxStage;
-        footerNewQ.classList.toggle('show', state.stage === maxStage);
-      }
-
-      function renderAddSubBuild(animated, token, showGiven, showCue){
-        drawBaseLine();
-
-        const q = state.question;
-        const exprText = stripHTML(q.equationLeftHTML);
-
-        if(!animated || (state.navDirection === 'backward' && state.stage === 2)){
-          q.tickValues.forEach((v, i) => {
-            const isMajor = v === q.xValue || v === q.exprValue;
-            drawTick(q.tickXs[i], isMajor);
-          });
-          drawTopText(q.xX, TOP_Y_MAIN, 'x', 72, 'blue');
-          drawTopText(q.exprX, TOP_Y_MAIN, exprText, 66, 'blue');
-          if(showGiven){
-            drawBottomText(q.xX, BOTTOM_Y_MAIN, '?', 84, 'green');
-            drawBottomText(q.exprX, BOTTOM_Y_MAIN, String(q.result), 70, 'green');
-          }
-          if(showCue && state.settings.showStrategyPrompts){
-            drawDirectionCue(q.xX, q.exprX, q.isAdd ? 'move right' : 'move left');
-          }
-          return;
-        }
-
-        animateSlidingXPair(q.xX, () => {
-          if(!isActiveRender(token)) return;
-
-          const xIdx = q.tickValues.indexOf(q.xValue);
-          const exprIdx = q.tickValues.indexOf(q.exprValue);
-          const path = [];
-
-          if(exprIdx > xIdx){
-            for(let i = xIdx + 1; i <= exprIdx; i++) path.push(i);
-          } else {
-            for(let i = xIdx - 1; i >= exprIdx; i--) path.push(i);
-          }
-
-          const perDelay = adaptiveDelay(path.length, SEQ_BASE_MS);
-
-          path.forEach((idx, orderIdx) => {
-            schedule(() => {
-              if(!isActiveRender(token)) return;
-              const x = q.tickXs[idx];
-              const isExpr = idx === exprIdx;
-              drawTick(x, isExpr);
-              if(isExpr){
-                const top = drawTopText(x, TOP_Y_MAIN, exprText, 66, 'blue');
-                addGhostAnimation(top);
-              }
-            }, Math.round(orderIdx * perDelay));
-          });
-
-          if(showCue && state.settings.showStrategyPrompts){
-            schedule(() => {
-              if(!isActiveRender(token)) return;
-              drawDirectionCue(q.xX, q.exprX, q.isAdd ? 'move right' : 'move left');
-            }, Math.min(600, path.length * perDelay));
-          }
-        }, token, { showQuestionMark:false });
-      }
-
-      function renderAddSubGiven(animated, token){
-        drawBaseLine();
-
-        const q = state.question;
-        const exprText = stripHTML(q.equationLeftHTML);
-
-        q.tickValues.forEach((v, i) => {
-          const isMajor = v === q.xValue || v === q.exprValue;
-          drawTick(q.tickXs[i], isMajor);
-        });
-
-        drawTopText(q.xX, TOP_Y_MAIN, 'x', 72, 'blue');
-        drawBottomText(q.xX, BOTTOM_Y_MAIN, '?', 84, 'green');
-        drawTopText(q.exprX, TOP_Y_MAIN, exprText, 66, 'blue');
-
-        if(animated && state.navDirection === 'forward'){
-          const given = drawBottomText(q.exprX, BOTTOM_Y_MAIN, String(q.result), 70, 'green');
-          popAnswer(given, 120);
-        } else {
-          drawBottomText(q.exprX, BOTTOM_Y_MAIN, String(q.result), 70, 'green');
-        }
-      }
-
-      function renderAddSubSolve(animated, token, revealAnswer){
-        drawBaseLine();
-
-        const q = state.question;
-
-        q.tickValues.forEach((v, i) => {
-          const x = q.tickXs[i];
-          const isMajor = v === q.xValue || v === q.exprValue;
-          drawTick(x, isMajor);
-
-          if(v === q.xValue){
-            drawTopText(x, TOP_Y_MAIN, 'x', 72, 'blue');
-          }
-          if(v === q.exprValue){
-            drawTopText(x, TOP_Y_MAIN, stripHTML(q.equationLeftHTML), 66, 'blue');
-            drawBottomText(x, BOTTOM_Y_MAIN, String(q.result), 70, 'green');
-          }
-        });
-
-        const exprIdx = q.tickValues.indexOf(q.exprValue);
-        const xIdx = q.tickValues.indexOf(q.xValue);
-        const path = [];
-
-        if(xIdx > exprIdx){
-          for(let i = exprIdx + 1; i < xIdx; i++) path.push(i);
-        } else {
-          for(let i = exprIdx - 1; i > xIdx; i--) path.push(i);
-        }
-
-        const perDelay = adaptiveDelay(path.length, REVEAL_BASE_MS);
-        const revealStart = animated ? STAGE3_PAUSE_MS : 0;
-
-        const questionMark = drawBottomText(q.xX, BOTTOM_Y_MAIN, '?', 84, 'green');
-
-        let cueXs = q.tickXs.slice(Math.min(exprIdx, xIdx), Math.max(exprIdx, xIdx) + 1);
-        if(exprIdx > xIdx) cueXs = cueXs.reverse();
-
-        if(!animated || state.navDirection === 'backward'){
-          path.forEach(i => drawBottomText(q.tickXs[i], BOTTOM_Y_SMALL, String(q.tickValues[i]), 32, 'ghost'));
-          if(state.settings.showStrategyPrompts){
-            drawCueText(addSubPromptText(q), {
-              fromX: q.exprX, toX: q.xX, textY: ADD_SUB_TEXT_Y, mainFontSize: 27
-            });
-            drawJumpArcsBetweenTicks(cueXs, {
-              cueY: ADD_SUB_ARC_Y, arcHeight: 48, durationMs: 1800, token, animated:false
-            });
-          }
-          if(revealAnswer){
-            questionMark.style.opacity = '0';
-            drawBottomText(q.xX, BOTTOM_Y_MAIN, String(q.x), 84, 'green');
-          }
-          return;
-        }
-
-        path.forEach((i, orderIdx) => {
-          schedule(() => {
-            if(!isActiveRender(token)) return;
-            const node = drawBottomText(q.tickXs[i], BOTTOM_Y_SMALL, String(q.tickValues[i]), 32, 'ghost');
-            addGhostAnimation(node);
-          }, revealStart + Math.round(orderIdx * perDelay));
-        });
-
-        if(state.settings.showStrategyPrompts){
-          schedule(() => {
-            if(!isActiveRender(token)) return;
-            drawCueText(addSubPromptText(q), {
-              fromX: q.exprX, toX: q.xX, textY: ADD_SUB_TEXT_Y, mainFontSize: 27
-            });
-            drawJumpArcsBetweenTicks(cueXs, {
-              cueY: ADD_SUB_ARC_Y, arcHeight: 48, durationMs: 1800, token, animated:true
-            });
-          }, revealStart);
-        }
-
-        if(revealAnswer){
-          const answerDelay = revealStart + Math.max(REVEAL_BASE_MS, path.length * perDelay);
-          schedule(() => {
-            if(!isActiveRender(token)) return;
-            questionMark.style.opacity = '0';
-            const ans = drawBottomText(q.xX, BOTTOM_Y_MAIN, String(q.x), 84, 'green');
-            ans.style.opacity = '0';
-            ans.classList.add('answer-pop');
-            ans.style.opacity = '1';
-          }, answerDelay);
-        }
-      }
-
-  function renderMultPreBuild(animated, token){
-  drawBaseLine();
-
-  const q = state.question;
-  const points = q.prePoints;
-  const xPoint = points[q.preXIndex];
-  const resultPoint = points[q.preResultIndex];
-  const zeroPoint = points[q.preZeroIndex];
-
-  const buildSlideMs = 2000;
-  const loopMs = 2000;
-  const zeroStartX = START_CENTER_X - 240;
-
-  if(!animated || state.navDirection === 'backward'){
-    drawTick(zeroPoint.px, true);
-    drawTick(xPoint.px, true);
-    drawTick(resultPoint.px, true);
-
-    drawTopText(zeroPoint.px, TOP_Y_MAIN, '0', 62, 'black');
-    drawTopText(xPoint.px, TOP_Y_MAIN, 'x', 72, 'blue');
-    drawTopText(resultPoint.px, TOP_Y_MAIN, `${q.a}x`, 72, 'blue');
-
-    if(state.settings.showStrategyPrompts){
-      drawCueText('equal groups', {
-        fromX: zeroPoint.px,
-        toX: resultPoint.px,
-        textY: MULT_TEXT_Y,
-        mainFontSize: 27
+    }
+    /* the bottom line fills in, walking from the known value towards x */
+    if(S.set.ticks && L.fsI){
+      const mids = []; for(let i = 2; i < n; i++) mids.push(i);
+      if(mul) mids.reverse();
+      const clearB = i => [[xI, measureP([N(q.x)], L.bSize) + L.bSize * 0.5], [kI, measureP([N(q.c)], L.bSize)]]
+        .every(([m, w]) => Math.abs(L.Pi(i) - L.Pi(m)) > w / 2 + measureP([N(i * unitV)], L.fsI) / 2 + 6);
+      mids.forEach((i, j) => {
+        const v = i * unitV;
+        if(!clearB(i)) return;
+        els.push(lab("bb" + i, pos(i), false, [N(v)], L.fsI, COL.botI, 0.9, 0.12 + 0.26 * (j / Math.max(1, mids.length))));
       });
     }
-
-    const orderedPoints = orderedPointSpan(points, q.preZeroIndex, q.preResultIndex);
-    drawPartitionLoops(orderedPoints, {
-      cueY: GROUP_LOOP_Y,
-      durationMs: loopMs,
-      height:72,
-      inset:8,
-      animated:false,
-      onSegment: (i, p) => {
-        if(
-          p.px === zeroPoint.px ||
-          p.px === xPoint.px ||
-          p.px === resultPoint.px
-        ) return;
-
-        drawTick(p.px, false);
-      }
-    });
-    return;
+    els.push(lab("ba", PX, false, [N(q.x)], L.bSize, COL.bot, 1, 0.42, { bg:true }));
+    if(checked) els.push(badge(PX, q, L.bSize));
   }
 
-  const xGroup = createSVG('g', {});
-  xGroup.style.transform = `translateX(${START_CENTER_X - xPoint.px}px)`;
-  xGroup.style.transition = `transform ${buildSlideMs}ms cubic-bezier(.22,.8,.2,1)`;
-
-  const xTick = createSVG('line', {
-    x1:xPoint.px,
-    y1:LINE_Y - 36,
-    x2:xPoint.px,
-    y2:LINE_Y + 36,
-    class:'tick-major'
-  });
-  const xText = createSVG('text', {
-    x:xPoint.px,
-    y:TOP_Y_MAIN,
-    class:'point-top',
-    'font-size':72
-  });
-  xText.textContent = 'x';
-
-  xGroup.appendChild(xTick);
-  xGroup.appendChild(xText);
-  appendNode(xGroup);
-
-  const zeroGroup = createSVG('g', {});
-  zeroGroup.style.transform = `translateX(${zeroStartX - zeroPoint.px}px)`;
-  zeroGroup.style.transition = `transform ${buildSlideMs}ms cubic-bezier(.22,.8,.2,1)`;
-
-  const zeroTick = createSVG('line', {
-    x1:zeroPoint.px,
-    y1:LINE_Y - 36,
-    x2:zeroPoint.px,
-    y2:LINE_Y + 36,
-    class:'tick-major'
-  });
-
-  const zeroTop = createSVG('text', {
-    x:zeroPoint.px,
-    y:TOP_Y_MAIN,
-    class:'point-top small-black',
-    'font-size':62
-  });
-  zeroTop.textContent = '0';
-
-  zeroGroup.appendChild(zeroTick);
-  zeroGroup.appendChild(zeroTop);
-  appendNode(zeroGroup);
-
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      xGroup.style.transform = 'translateX(0px)';
-      zeroGroup.style.transform = 'translateX(0px)';
-    });
-  });
-
-  schedule(() => {
-    if(!isActiveRender(token)) return;
-
-    drawTick(resultPoint.px, true);
-    drawTopText(resultPoint.px, TOP_Y_MAIN, `${q.a}x`, 72, 'blue');
-
-    if(state.settings.showStrategyPrompts){
-      drawCueText('equal groups', {
-        fromX: zeroPoint.px,
-        toX: resultPoint.px,
-        textY: MULT_TEXT_Y,
-        mainFontSize: 27
-      });
+  /* ================= drawing ================= */
+  const ease = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const f1 = v => v.toFixed(1);
+  function labSVG(e){
+    const op = e.o.toFixed(3);
+    let bg = "";
+    if(e.bg){
+      const w = measureP(e.p, e.size) + e.size * 0.5, h = e.size * 1.18;
+      bg = `<rect x="${f1(e.x - w / 2)}" y="${f1(e.y - h / 2)}" width="${f1(w)}" height="${f1(h)}" rx="${f1(e.size * 0.22)}" fill="#fef9c3" stroke="#fde047" stroke-width="1.5"/>`;
     }
-
-    const orderedPoints = orderedPointSpan(points, q.preZeroIndex, q.preResultIndex);
-    drawPartitionLoops(orderedPoints, {
-      cueY: GROUP_LOOP_Y,
-      durationMs: loopMs,
-      height:72,
-      inset:8,
-      animated:true,
-      onSegment: (i, p) => {
-        if(
-          p.px === zeroPoint.px ||
-          p.px === xPoint.px ||
-          p.px === resultPoint.px
-        ) return;
-
-        drawTick(p.px, false);
-      }
-    });
-  }, buildSlideMs);
-}
-      function renderMultGiven(animated){
-        drawBaseLine();
-
-        const q = state.question;
-        const points = q.prePoints;
-        const xPoint = points[q.preXIndex];
-        const resultPoint = points[q.preResultIndex];
-        const zeroPoint = points[q.preZeroIndex];
-
-        points.forEach((p, idx) => drawTick(p.px, idx === q.preZeroIndex || idx === q.preXIndex || idx === q.preResultIndex));
-        drawTopText(zeroPoint.px, TOP_Y_MAIN, '0', 62, 'black');
-        drawBottomText(zeroPoint.px, BOTTOM_Y_MAIN, '0', 68, 'black');
-        drawTopText(xPoint.px, TOP_Y_MAIN, 'x', 72, 'blue');
-        drawBottomText(xPoint.px, BOTTOM_Y_MAIN, '?', 84, 'green');
-        drawTopText(resultPoint.px, TOP_Y_MAIN, `${q.a}x`, 72, 'blue');
-        drawBottomText(resultPoint.px, BOTTOM_Y_MAIN, String(q.result), 82, 'green');
-
-        if(state.settings.showStrategyPrompts){
-          drawCueText('equal groups', {
-            fromX: zeroPoint.px, toX: resultPoint.px, textY: MULT_TEXT_Y, mainFontSize: 27
-          });
-        }
-        const orderedPoints = orderedPointSpan(points, q.preZeroIndex, q.preResultIndex);
-        drawPartitionLoops(orderedPoints, { cueY: GROUP_LOOP_Y, durationMs: 1800, height:72, inset:8, animated:false });
-      }
-
-      function renderMultNegativeKnown(){
-        drawBaseLine();
-
-        const q = state.question;
-        const points = q.points;
-        const xPoint = points[q.xIndex];
-        const resultPoint = points[q.resultIndex];
-        const zeroPoint = points[q.zeroIndex];
-
-        points.forEach((p, idx) => drawTick(p.px, idx === q.zeroIndex || idx === q.xIndex || idx === q.resultIndex));
-        drawTopText(zeroPoint.px, TOP_Y_MAIN, '0', 62, 'black');
-        drawBottomText(zeroPoint.px, BOTTOM_Y_MAIN, '0', 68, 'black');
-        drawTopText(xPoint.px, TOP_Y_MAIN, 'x', 72, 'blue');
-        drawBottomText(xPoint.px, BOTTOM_Y_MAIN, '?', 84, 'green');
-        drawTopText(resultPoint.px, TOP_Y_MAIN, `${q.a}x`, 72, 'blue');
-        drawBottomText(resultPoint.px, BOTTOM_Y_MAIN, String(q.result), 82, 'green');
-
-        if(state.settings.showStrategyPrompts){
-          drawCueText('equal groups', {
-            fromX: resultPoint.px, toX: zeroPoint.px, textY: MULT_TEXT_Y, mainFontSize: 27
-          });
-        }
-        const orderedPoints = orderedPointSpan(points, q.resultIndex, q.zeroIndex);
-        drawPartitionLoopsStatic(orderedPoints, { cueY: GROUP_LOOP_Y, height:72, inset:8 });
-      }
-
-      function renderMultSolve(animated, token, revealAnswer){
-        drawBaseLine();
-
-        const q = state.question;
-        const points = q.points;
-        const xPoint = points[q.xIndex];
-        const resultPoint = points[q.resultIndex];
-        const zeroPoint = points[q.zeroIndex];
-
-        points.forEach((p, idx) => drawTick(p.px, idx === q.zeroIndex || idx === q.xIndex || idx === q.resultIndex));
-
-        drawTopText(zeroPoint.px, TOP_Y_MAIN, '0', 62, 'black');
-        drawBottomText(zeroPoint.px, BOTTOM_Y_MAIN, '0', 68, 'black');
-        drawTopText(xPoint.px, TOP_Y_MAIN, 'x', 72, 'blue');
-        drawTopText(resultPoint.px, TOP_Y_MAIN, `${q.a}x`, 72, 'blue');
-        drawBottomText(resultPoint.px, BOTTOM_Y_MAIN, String(q.result), 82, 'green');
-
-        const orderedPoints = orderedPointSpan(points, q.zeroIndex, q.resultIndex);
-        drawPartitionLoopsStatic(orderedPoints, { cueY: GROUP_LOOP_Y, height:72, inset:8 });
-
-        let mids = points.filter((_, idx) => idx !== q.zeroIndex && idx !== q.xIndex && idx !== q.resultIndex);
-        const revealTowardsQuestion = q.negative ? mids : mids.slice().reverse();
-        const perDelay = adaptiveDelay(revealTowardsQuestion.length, REVEAL_BASE_MS);
-        const revealStart = animated ? STAGE3_PAUSE_MS : 0;
-        const questionMark = drawBottomText(xPoint.px, BOTTOM_Y_MAIN, '?', 84, 'green');
-
-        if(animated && state.navDirection === 'forward'){
-          revealTowardsQuestion.forEach((p, orderIdx) => {
-            const top = drawTopText(p.px, TOP_Y_SMALL, `${p.multiplier}x`, 32, 'ghost');
-            const bottom = drawBottomText(p.px, BOTTOM_Y_SMALL, String(p.value), 30, 'ghost');
-            schedule(() => {
-              if(!isActiveRender(token)) return;
-              addGhostAnimation(top);
-              addGhostAnimation(bottom);
-            }, revealStart + 280 + Math.round(orderIdx * perDelay));
-          });
-
-          if(state.settings.showStrategyPrompts){
-            schedule(() => {
-              if(!isActiveRender(token)) return;
-              drawCueText(multPromptText(q), {
-                fromX: resultPoint.px, toX: xPoint.px, textY: MULT_TEXT_Y, mainFontSize: 27
-              });
-            }, revealStart + 100);
-          }
-
-          if(revealAnswer){
-            const answerDelay = revealStart + Math.max(REVEAL_BASE_MS, revealTowardsQuestion.length * perDelay);
-            schedule(() => {
-              if(!isActiveRender(token)) return;
-              questionMark.style.opacity = '0';
-              const ans = drawBottomText(xPoint.px, BOTTOM_Y_MAIN, String(q.x), 84, 'green');
-              ans.style.opacity = '0';
-              ans.classList.add('answer-pop');
-              ans.style.opacity = '1';
-            }, answerDelay);
-          }
-        } else {
-          revealTowardsQuestion.forEach((p) => {
-            drawTopText(p.px, TOP_Y_SMALL, `${p.multiplier}x`, 32, 'ghost');
-            drawBottomText(p.px, BOTTOM_Y_SMALL, String(p.value), 30, 'ghost');
-          });
-          if(state.settings.showStrategyPrompts){
-            drawCueText(multPromptText(q), {
-              fromX: resultPoint.px, toX: xPoint.px, textY: MULT_TEXT_Y, mainFontSize: 27
-            });
-          }
-          if(revealAnswer){
-            questionMark.style.opacity = '0';
-            drawBottomText(xPoint.px, BOTTOM_Y_MAIN, String(q.x), 84, 'green');
-          }
-        }
-      }
-
-      function renderDivPreBuild(animated, token){
-  drawBaseLine();
-
-  const q = state.question;
-  const points = q.prePoints;
-  const xPoint = points[q.preXIndex];
-  const fracPoint = points[q.preFracIndex];
-  const zeroPoint = points[q.preZeroIndex];
-
-  const buildSlideMs = 2000;
-  const loopMs = 2000;
-  const zeroStartX = START_CENTER_X - 240;
-
-  if(!animated || state.navDirection === 'backward'){
-    drawTick(zeroPoint.px, true);
-    drawTick(fracPoint.px, true);
-    drawTick(xPoint.px, true);
-
-    drawTopText(zeroPoint.px, TOP_Y_MAIN, '0', 62, 'black');
-    drawFractionTop(fracPoint.px, TOP_Y_MAIN - 12, 'x', String(q.d), 52, 'blue');
-    drawTopText(xPoint.px, TOP_Y_MAIN, 'x', 72, 'blue');
-
-    if(state.settings.showStrategyPrompts){
-      drawCueText('equal groups', {
-        fromX: zeroPoint.px,
-        toX: xPoint.px,
-        textY: DIV_TEXT_Y,
-        mainFontSize: 27
-      });
+    if(isFrac(e.p)){
+      const s = e.size, fr = e.p[0].fr;
+      const w = Math.max(measureP(fr[0], s), measureP(fr[1], s)) + s * 0.24;
+      return `<g opacity="${op}" fill="${e.col}">${bg}` +
+        `<text x="${f1(e.x)}" y="${f1(e.y - s * 0.55)}" text-anchor="middle" dominant-baseline="central" font-size="${f1(s)}">${svgIn(fr[0])}</text>` +
+        `<line x1="${f1(e.x - w / 2)}" x2="${f1(e.x + w / 2)}" y1="${f1(e.y)}" y2="${f1(e.y)}" stroke="${e.col}" stroke-width="${f1(Math.max(1.6, s * 0.07))}" stroke-linecap="round"/>` +
+        `<text x="${f1(e.x)}" y="${f1(e.y + s * 0.6)}" text-anchor="middle" dominant-baseline="central" font-size="${f1(s)}">${svgIn(fr[1])}</text></g>`;
     }
-
-    const orderedPoints = orderedPointSpan(points, q.preZeroIndex, q.preXIndex);
-    drawPartitionLoops(orderedPoints, {
-      cueY: GROUP_LOOP_Y,
-      durationMs: loopMs,
-      height:72,
-      inset:8,
-      animated:false,
-      onSegment: (i, p) => {
-        if(
-          p.px === zeroPoint.px ||
-          p.px === fracPoint.px ||
-          p.px === xPoint.px
-        ) return;
-
-        drawTick(p.px, false);
+    const fam = e.fam ? ` style='font-family:${e.fam};font-weight:900'` : "";
+    return `<g opacity="${op}">${bg}<text data-key="${e.key}" x="${f1(e.x)}" y="${f1(e.y)}" text-anchor="middle" dominant-baseline="central" font-size="${f1(e.size)}" fill="${e.col}"${fam}>${svgIn(e.p)}</text></g>`;
+  }
+  function hopPath(e){
+    const mx = (e.x1 + e.x2) / 2, cy = e.y + e.side * e.h;
+    return `M${f1(e.x1)} ${f1(e.y)}Q${f1(mx)} ${f1(cy)} ${f1(e.x2)} ${f1(e.y)}`;
+  }
+  function headSVG(e){
+    const mx = (e.x1 + e.x2) / 2, cy = e.y + e.side * e.h;
+    const ang = Math.atan2(e.y - cy, e.x2 - mx), s = e.w * (e.big === false ? 2.6 : 3.4);
+    const bx = e.x2 - Math.cos(ang) * s, by = e.y - Math.sin(ang) * s, wx = -Math.sin(ang) * s * 0.55, wy = Math.cos(ang) * s * 0.55;
+    return `<polygon points="${f1(e.x2)},${f1(e.y)} ${f1(bx + wx)},${f1(by + wy)} ${f1(bx - wx)},${f1(by - wy)}" fill="${e.col}"/>`;
+  }
+  function drawEls(list){
+    const out = [];
+    list.slice().sort((a, b) => (a.z || 0) - (b.z || 0)).forEach(e => {
+      if(e.o <= 0.004) return;
+      const op = e.o.toFixed(3);
+      if(e.type === "axis") out.push(`<line x1="${f1(e.x1)}" x2="${f1(e.x2)}" y1="${f1(e.y)}" y2="${f1(e.y)}" stroke="${COL.line}" stroke-width="${f1(Math.max(3, L.fsM * 0.085))}" stroke-linecap="round" opacity="${op}"/>`);
+      else if(e.type === "halo") out.push(`<circle class="halo" cx="${f1(e.x)}" cy="${f1(e.y)}" r="${f1(e.r)}" fill="url(#haloG)" opacity="${op}"/>`);
+      else if(e.type === "tick") out.push(`<line x1="${f1(e.x)}" x2="${f1(e.x)}" y1="${f1(e.y - e.h)}" y2="${f1(e.y + e.h)}" stroke="${e.col}" stroke-width="${f1(e.w)}" stroke-linecap="round" opacity="${op}"/>`);
+      else if(e.type === "lab") out.push(labSVG(e));
+      else if(e.type === "badge"){
+        const r = e.r, x = e.x, y = e.y;
+        out.push(`<g opacity="${op}"><circle cx="${f1(x)}" cy="${f1(y)}" r="${f1(r)}" fill="${COL.bot}" stroke="#fff" stroke-width="2"/>` +
+          `<path d="M${f1(x - r * 0.45)} ${f1(y + r * 0.02)}L${f1(x - r * 0.1)} ${f1(y + r * 0.36)}L${f1(x + r * 0.48)} ${f1(y - r * 0.34)}" fill="none" stroke="#fff" stroke-width="${f1(Math.max(2, r * 0.28))}" stroke-linecap="round" stroke-linejoin="round"/></g>`);
+      }
+      else if(e.type === "loop"){
+        const inset = Math.min(6, (e.x2 - e.x1) * 0.08), a = e.x1 + inset, b = e.x2 - inset, rx = Math.max(4, (b - a) / 2);
+        out.push(`<path d="M${f1(a)} ${f1(e.y - 3)}A${f1(rx)} ${f1(e.ry)} 0 0 1 ${f1(b)} ${f1(e.y - 3)}M${f1(b)} ${f1(e.y + 3)}A${f1(rx)} ${f1(e.ry)} 0 0 1 ${f1(a)} ${f1(e.y + 3)}" fill="rgba(148,163,184,.08)" stroke="${COL.soft}" stroke-width="${f1(Math.max(1.6, L.fsM * 0.045))}" stroke-dasharray="7 6" opacity="${op}"/>`);
+      } else if(e.type === "hop"){
+        out.push(`<g opacity="${op}"><path d="${hopPath(e)}" fill="none" stroke="${e.col}" stroke-width="${f1(e.w)}" stroke-linecap="round"/>${e.head ? headSVG(e) : ""}</g>`);
+      } else if(e.type === "pill"){
+        const fs = L.fsS * 0.95, w = tw(e.text, fs, UI, 900) + fs * 1.1, h = fs * 1.55;
+        out.push(`<g opacity="${op}"><rect x="${f1(e.x - w / 2)}" y="${f1(e.y - h / 2)}" width="${f1(w)}" height="${f1(h)}" rx="${f1(h / 2)}" fill="${e.bg}" stroke="${e.col}" stroke-width="1.8"/>` +
+          `<text x="${f1(e.x)}" y="${f1(e.y)}" text-anchor="middle" dominant-baseline="central" font-size="${f1(fs)}" fill="${e.col}" style='font-family:${UI};font-weight:900'>${esc(e.text)}</text></g>`);
       }
     });
-    return;
+    $("board").setAttribute("viewBox", `0 0 ${L.W} ${L.H}`);
+    $("board").innerHTML = `<defs><radialGradient id="haloG"><stop offset="0" stop-color="#bfdbfe" stop-opacity=".95"/><stop offset=".65" stop-color="#dbeafe" stop-opacity=".45"/><stop offset="1" stop-color="#dbeafe" stop-opacity="0"/></radialGradient></defs>` + out.join("");
+  }
+  /* tween between two scenes; T in 0..1 (the Number Groups mixer: new keys fade in after their delay d) */
+  function mix(A, B, T){
+    const out = [], mapA = new Map(A.map(e => [e.key, e]));
+    const span = 0.58;
+    B.forEach(b => {
+      const a = mapA.get(b.key); mapA.delete(b.key);
+      const d = Math.min(0.42, b.d || 0), t = ease(clamp((T - d) / span, 0, 1));
+      if(!a){ out.push(Object.assign({}, b, { o:b.o * t })); return; }
+      const e = Object.assign({}, t < 0.5 ? a : b);
+      ["x", "y", "x1", "x2", "h", "r", "size"].forEach(p => { if(typeof a[p] === "number" && typeof b[p] === "number") e[p] = lerp(a[p], b[p], t); });
+      e.o = lerp(a.o, b.o, t);
+      out.push(e);
+    });
+    mapA.forEach(a => { const t = ease(clamp(T / span, 0, 1)); out.push(Object.assign({}, a, { o:a.o * (1 - t) })); });
+    return out;
   }
 
-  const xGroup = createSVG('g', {});
-  xGroup.style.transform = `translateX(${START_CENTER_X - xPoint.px}px)`;
-  xGroup.style.transition = `transform ${buildSlideMs}ms cubic-bezier(.22,.8,.2,1)`;
-
-  const xTick = createSVG('line', {
-    x1:xPoint.px,
-    y1:LINE_Y - 36,
-    x2:xPoint.px,
-    y2:LINE_Y + 36,
-    class:'tick-major'
-  });
-  const xText = createSVG('text', {
-    x:xPoint.px,
-    y:TOP_Y_MAIN,
-    class:'point-top',
-    'font-size':72
-  });
-  xText.textContent = 'x';
-
-  xGroup.appendChild(xTick);
-  xGroup.appendChild(xText);
-  appendNode(xGroup);
-
-  const zeroGroup = createSVG('g', {});
-  zeroGroup.style.transform = `translateX(${zeroStartX - zeroPoint.px}px)`;
-  zeroGroup.style.transition = `transform ${buildSlideMs}ms cubic-bezier(.22,.8,.2,1)`;
-
-  const zeroTick = createSVG('line', {
-    x1:zeroPoint.px,
-    y1:LINE_Y - 36,
-    x2:zeroPoint.px,
-    y2:LINE_Y + 36,
-    class:'tick-major'
-  });
-
-  const zeroTop = createSVG('text', {
-    x:zeroPoint.px,
-    y:TOP_Y_MAIN,
-    class:'point-top small-black',
-    'font-size':62
-  });
-  zeroTop.textContent = '0';
-
-  zeroGroup.appendChild(zeroTick);
-  zeroGroup.appendChild(zeroTop);
-  appendNode(zeroGroup);
-
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      xGroup.style.transform = 'translateX(0px)';
-      zeroGroup.style.transform = 'translateX(0px)';
-    });
-  });
-
-  schedule(() => {
-    if(!isActiveRender(token)) return;
-
-    drawTick(fracPoint.px, true);
-    drawFractionTop(fracPoint.px, TOP_Y_MAIN - 12, 'x', String(q.d), 52, 'blue');
-
-    if(state.settings.showStrategyPrompts){
-      drawCueText('equal groups', {
-        fromX: zeroPoint.px,
-        toX: xPoint.px,
-        textY: DIV_TEXT_Y,
-        mainFontSize: 27
-      });
-    }
-
-    const orderedPoints = orderedPointSpan(points, q.preZeroIndex, q.preXIndex);
-    drawPartitionLoops(orderedPoints, {
-      cueY: GROUP_LOOP_Y,
-      durationMs: loopMs,
-      height:72,
-      inset:8,
-      animated:true,
-      onSegment: (i, p) => {
-        if(
-          p.px === zeroPoint.px ||
-          p.px === fracPoint.px ||
-          p.px === xPoint.px
-        ) return;
-
-        drawTick(p.px, false);
-      }
-    });
-  }, buildSlideMs);
-}
-function renderDivGiven(animated){
-  drawBaseLine();
-
-  const q = state.question;
-  const points = q.prePoints;
-  const xPoint = points[q.preXIndex];
-  const fracPoint = points[q.preFracIndex];
-  const zeroPoint = points[q.preZeroIndex];
-
-  points.forEach((p, idx) => {
-    drawTick(p.px, idx === q.preZeroIndex || idx === q.preFracIndex || idx === q.preXIndex);
-  });
-
-  drawTopText(zeroPoint.px, TOP_Y_MAIN, '0', 62, 'black');
-  drawBottomText(zeroPoint.px, BOTTOM_Y_MAIN, '0', 68, 'black');
-
-  drawFractionTop(fracPoint.px, TOP_Y_MAIN - 12, 'x', String(q.d), 52, 'blue');
-  drawBottomText(fracPoint.px, BOTTOM_Y_MAIN, String(q.quotient), 82, 'green');
-
-  drawTopText(xPoint.px, TOP_Y_MAIN, 'x', 72, 'blue');
-  drawBottomText(xPoint.px, BOTTOM_Y_MAIN, '?', 84, 'green');
-
-  if(state.settings.showStrategyPrompts){
-    drawCueText('equal groups', {
-      fromX: zeroPoint.px,
-      toX: xPoint.px,
-      textY: DIV_TEXT_Y,
-      mainFontSize: 27
-    });
+  /* ================= the equation above the board ================= */
+  function eqParts(q){
+    const left = exprP(q), right = [N(q.c)];
+    return q.rev ? { first:right, second:left } : { first:left, second:right };
+  }
+  function subP(q){
+    const xv = q.x, br = xv < 0 ? [{ t:"(" }, N(xv), { t:")" }] : [N(xv)];
+    let e;
+    if(q.op === "add") e = q.kFirst ? [N(q.k), O("+"), ...br] : [N(xv), O("+"), N(q.k)];
+    else if(q.op === "sub") e = [N(xv), O(MINUS), N(q.k)];
+    else if(q.op === "mul") e = [N(q.a), O(TIMES), ...br];
+    else e = fracOn() ? [{ fr:[[N(xv)], [N(q.d)]] }] : [N(xv), O(DIVIDE), N(q.d)];
+    return q.rev ? [N(q.c), O("="), ...e] : [...e, O("="), N(q.c)];
+  }
+  function row1HTML(q){
+    const shown = S.step >= IDS.indexOf("value");
+    const { first, second } = eqParts(q);
+    const fut = shown ? "" : " fut";
+    if(q.rev) return `<span class="tk cV${fut}" data-k="c">${H(first)}</span><span class="tk op eqSign${fut}" data-k="eq">=</span><span class="tk cE" data-k="ex">${H(second)}</span>`;
+    return `<span class="tk cE" data-k="ex">${H(first)}</span><span class="tk op eqSign${fut}" data-k="eq">=</span><span class="tk cV${fut}" data-k="c">${H(second)}</span>`;
+  }
+  function row2HTML(q){
+    const id = sid();
+    if(id === "think") return `<span class="tk" data-k="r2t">${H([V, O("="), { t:"?" }])}</span>`;
+    if(id === "solve") return `<span class="tk" data-k="r2s">${H([V, O("=")])}<span class="ans">${fmt(q.x)}</span></span>`;
+    if(id === "check") return `<span class="tk" data-k="r2c">${H(subP(q))}<span class="okMark">&#10003;</span></span>`;
+    return "";
+  }
+  function fitStmt(){
+    const st = $("stmt"), r1 = $("row1"), stage = $("stage");
+    const W = stage.clientWidth - 16;
+    let F = clamp(stage.clientHeight * 0.1, 20, 54);
+    st.style.fontSize = F + "px";
+    const need = r1.scrollWidth;
+    if(need > W) F = Math.max(16, F * W / need * 0.97);
+    st.style.fontSize = F + "px";
+  }
+  function paintStmt(){
+    const r1 = $("row1"), r2 = $("row2");
+    const shown = new Set([...r1.querySelectorAll("[data-k]:not(.fut)"), ...r2.querySelectorAll("[data-k]")].map(el => el.dataset.k));
+    r1.innerHTML = row1HTML(S.q); r2.innerHTML = row2HTML(S.q);
+    if(!reduce && !S.noAnim) [...r1.querySelectorAll("[data-k]:not(.fut)"), ...r2.querySelectorAll("[data-k]")].forEach(el => { if(!shown.has(el.dataset.k)) el.classList.add("new"); });
   }
 
-  const orderedPoints = orderedPointSpan(points, q.preZeroIndex, q.preXIndex);
-  drawPartitionLoops(orderedPoints, {
-    cueY: GROUP_LOOP_Y,
-    durationMs: 2000,
-    height:72,
-    inset:8,
-    animated:false,
-    onSegment: (i, p) => {
-      if(
-        p.px === zeroPoint.px ||
-        p.px === fracPoint.px ||
-        p.px === xPoint.px
-      ) return;
-
-      drawTick(p.px, false);
+  /* ================= words: the written working (panel) and one question under the board ================= */
+  const eqHTML = p => `<span class="eq">${H(p)}</span>`;
+  function workLines(q){
+    const both = S.set.work === "both", ex = exprP(q), c = q.c;
+    const cP = [N(c)];
+    let L1;
+    if(both){
+      let lhs, rhs;
+      if(q.op === "add"){ lhs = [...ex, O(MINUS), N(q.k)]; rhs = [...cP, O(MINUS), N(q.k)]; }
+      else if(q.op === "sub"){ lhs = [...ex, O("+"), N(q.k)]; rhs = [...cP, O("+"), N(q.k)]; }
+      else if(q.op === "mul"){ lhs = fracOn() ? [{ fr:[ex, [N(q.a)]] }] : [...ex, O(DIVIDE), N(q.a)]; rhs = fracOn() ? [{ fr:[cP, [N(q.a)]] }] : [...cP, O(DIVIDE), N(q.a)]; }
+      else { lhs = [...ex, O(TIMES), N(q.d)]; rhs = [...cP, O(TIMES), N(q.d)]; }
+      L1 = q.rev ? [...rhs, O("="), ...lhs] : [...lhs, O("="), ...rhs];
+    } else {
+      let rhs;
+      if(q.op === "add") rhs = [...cP, O(MINUS), N(q.k)];
+      else if(q.op === "sub") rhs = [...cP, O("+"), N(q.k)];
+      else if(q.op === "mul") rhs = fracOn() ? [{ fr:[cP, [N(q.a)]] }] : [...cP, O(DIVIDE), N(q.a)];
+      else rhs = [...cP, O(TIMES), N(q.d)];
+      L1 = [V, O("="), ...rhs];
     }
+    return { L1, L2:[V, O("="), { ans:[N(q.x)] }] };
+  }
+  function storyFor(id){
+    const q = S.q, v = letterHTML(q.v), ex = eqHTML(exprP(q)), c = fmt(q.c), x = fmt(q.x);
+    const eqn = (() => { const { first, second } = eqParts(q); return [...first, O("="), ...second]; })();
+    switch(id){
+      case "start": return { lab:`Start with ${v}`, m:eqHTML([V]),
+        tip:isAS(q) ? `${v} is a number we don&rsquo;t know yet. It is somewhere on the line.` : `${v} is a number we don&rsquo;t know yet. 0 is marked so we can measure from it.` };
+      case "build": {
+        if(q.op === "add") return { lab:`Build ${ex}`, m:ex, tip:`${ex} is ${q.k} more than ${v}, so it sits ${q.k} to the right of ${v}.` };
+        if(q.op === "sub") return { lab:`Build ${ex}`, m:ex, tip:`${ex} is ${q.k} less than ${v}, so it sits ${q.k} to the left of ${v}.` };
+        if(q.op === "mul") return { lab:`Build ${ex}`, m:ex + (q.a <= 4 ? ` = ${eqHTML(Array.from({ length:q.a }, (_, i) => i ? [O("+"), V] : [V]).flat())}` : ` <span class="word">${q.a} groups of</span> ${v}`),
+          tip:`${q.a} equal groups of ${v}, laid end to end from 0.` };
+        return { lab:`Build ${ex}`, m:ex + ` <span class="word">one of ${q.d} equal parts of</span> ${v}`,
+          tip:`Cut the line from 0 to ${v} into ${q.d} equal parts. The first mark is ${ex}.` };
+      }
+      case "value": {
+        let tip = isAS(q) ? `${ex} and ${c} are the same point: one on top, one underneath.`
+          : q.op === "mul" ? `${q.a} groups of ${v} make ${c}.` : `One part is ${c}.`;
+        if(q.turn) tip += ` But ${c} is less than 0&hellip;`;
+        return { lab:"Show what it equals", m:eqHTML(eqn), tip };
+      }
+      case "turn": return { lab:"Turn the line around", m:eqHTML([N(q.c), O("<"), N(0)]),
+        tip:`${c} is less than 0, so ${ex} sits to the left of 0, and so does ${v}. Every point swaps to its mirror image across 0.` };
+      case "think": return { lab:"Think first", m:eqHTML([V, O("="), { t:"?" }]), tip:`What move gets from ${ex} back to ${v}? What does it do to ${c}?` };
+      case "solve": {
+        const { L1, L2 } = workLines(q);
+        let tip;
+        if(isAS(q)) tip = `${undoOp(q)} takes ${ex} back to ${v}. Do the same on the bottom line: ${c} ${undoOp(q).replace(" ", " ")} = ${x}.`;
+        else if(q.op === "mul") tip = `${DIVIDE} ${q.a} takes ${q.a} groups back to one group. ${c} shared into ${q.a} equal groups is ${x} each.`;
+        else tip = `${TIMES} ${q.d} puts ${q.d} equal parts back together. ${q.d} parts of ${c} is ${x}.`;
+        return { lab:`Undo it: <span class="cUndo">${undoOp(q)}</span>`, m:eqHTML(L1), m2:eqHTML(L2), tip };
+      }
+      case "check": return { lab:"Check", m:eqHTML(subP(q)) + ` <span class="okMark">&#10003;</span>`,
+        tip:`Put ${x} back in for ${v}. Both sides match, so ${v} = ${x} is right.` };
+    }
+    return { lab:id, m:"", tip:"" };
+  }
+  function hintFor(id){
+    const q = S.q, v = letterHTML(q.v), ex = eqHTML(exprP(q)), c = fmt(q.c);
+    switch(id){
+      case "start": return `Where could ${v} be on the line?`;
+      case "build":
+        if(q.op === "add") return `Why is ${ex} to the right of ${v}?`;
+        if(q.op === "sub") return `Why is ${ex} to the left of ${v}?`;
+        if(q.op === "mul") return `How many groups of ${v} make ${ex}?`;
+        return `How many equal parts is ${v} cut into?`;
+      case "value": return q.turn ? `Can <b>${c}</b> really be to the right of 0?` : `What do we know now? What don&rsquo;t we know yet?`;
+      case "turn": return `Why did every point swap sides?`;
+      case "think": return `What is ${v}? How do you know?`;
+      case "solve":
+        if(isAS(q)) return `What undoes <b class="cBuild">${buildOp(q)}</b>? Why does it work on both lines?`;
+        if(q.op === "mul") return `Why does <b class="cUndo">${undoOp(q)}</b> get back to one ${v}?`;
+        return `Why does <b class="cUndo">${undoOp(q)}</b> get back to the whole of ${v}?`;
+      case "check": return `Does ${v} = ${fmt(q.x)} make the equation true?`;
+    }
+    return "";
+  }
+
+  /* ================= render ================= */
+  function paintStory(){
+    const box = $("story"); let h = "";
+    for(let i = 0; i <= S.step; i++){
+      const s = storyFor(IDS[i]);
+      h += `<div class="sLine ${i === S.step ? "cur" : "done"}"><div class="lab"><span class="n">${i + 1}</span><span>${s.lab}</span></div>` +
+        (s.m ? `<div class="m">${s.m}</div>` : "") + (s.m2 ? `<div class="m">${s.m2}</div>` : "") +
+        (s.tip && i === S.step ? `<div class="tip">${s.tip}</div>` : "") + `</div>`;
+    }
+    box.innerHTML = h;
+    const sc = $("storyScroll"); sc.scrollTop = sc.scrollHeight;
+    $("stepCount").textContent = `Step ${S.step + 1} of ${IDS.length}`;
+    const last = S.step >= IDS.length - 1;
+    $("nextBtn").disabled = last; $("miniNext").disabled = last;
+    $("nextBtn").innerHTML = last ? "Done &#10003;" : "Next &#9656;"; $("miniNext").innerHTML = last ? "&#10003;" : "Next &#9656;";
+    $("backBtn").disabled = S.step === 0; $("miniBack").disabled = S.step === 0; $("againBtn").disabled = S.step === 0;
+    $("allBtn").disabled = last;
+    $("hint").innerHTML = hintFor(sid());
+  }
+  function frame(){
+    if(!S.q) return;
+    layout();
+    const svg = $("board");
+    if(S.anim){
+      const T = Math.min(1, (performance.now() - S.anim.t0) / S.anim.dur);
+      if(S.anim.flip){
+        /* turning the line around: a real half-turn of the board. The far side is drawn already turned,
+           so its labels read the right way (only the line itself is mirrored). */
+        const e = ease(T), first = e < 0.5;
+        drawEls(scene(first ? S.anim.from : S.anim.to));
+        const deg = first ? e * 180 : (e - 1) * 180, edge = Math.abs(Math.sin(e * Math.PI));
+        svg.style.transform = `perspective(1600px) rotateY(${deg.toFixed(2)}deg) scale(${(1 - edge * 0.04).toFixed(3)})`;
+        svg.style.filter = `brightness(${(1 - edge * 0.12).toFixed(3)})`;
+      } else drawEls(mix(scene(S.anim.from), scene(S.anim.to), T));
+      if(T < 1){ S.anim.raf = requestAnimationFrame(frame); return; }
+      S.anim = null;
+    }
+    svg.style.transform = ""; svg.style.filter = "";
+    drawEls(scene(sid()));
+  }
+  function stopAnim(){ if(S.anim){ cancelAnimationFrame(S.anim.raf); S.anim = null; } const b = $("board"); b.style.transform = ""; b.style.filter = ""; }
+  const DUR = { build:1900, value:900, turn:1500, think:700, solve:2100, check:800, start:1300 };
+  function go(to){
+    to = clamp(to, 0, IDS.length - 1);
+    if(to === S.step) return;
+    const from = sid();
+    stopAnim();
+    S.step = to;
+    paintStmt(); paintStory();
+    if(!reduce && !S.noAnim && Math.abs(IDS.indexOf(from) - to) === 1){
+      const fwd = IDS.indexOf(from) < to, key = fwd ? sid() : from;
+      S.anim = { from, to:sid(), t0:performance.now(), dur:DUR[key] || 900, flip:key === "turn" };
+    }
+    frame();
+  }
+  const next = () => go(S.step + 1), back = () => go(S.step - 1);
+  function startAgain(){ stopAnim(); go(0); }
+  function showAll(){ stopAnim(); S.step = IDS.length - 2; go(IDS.length - 1); }
+  function spinAgain(){ const b = $("againIcon"); b.classList.remove("spin"); void b.offsetWidth; b.classList.add("spin"); }
+
+  function refresh(){
+    IDS = stepIds(S.q);
+    if(S.step > IDS.length - 1) S.step = IDS.length - 1;
+    paintStmt(); fitStmt(); paintStory(); paintPanel(); frame();
+  }
+  function setQ(q, own){
+    stopAnim(); S.q = q; S.own = !!own; S.step = 0;
+    refresh();
+  }
+  function newQuestion(){ setQ(makeQ(), false); }
+
+  /* ================= panel + settings ================= */
+  function paintPanel(){
+    document.querySelectorAll(".modeBtn").forEach(b => b.setAttribute("aria-selected", String(b.dataset.op === S.set.op && !S.own)));
+    document.querySelectorAll("#negSeg button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.neg === S.set.neg)));
+    const tag = $("typeTag");
+    tag.textContent = S.own ? "Your own" : S.set.neg === "off" ? "Whole numbers" : S.set.neg === "some" ? "Some negatives" : "Negatives";
+    tag.classList.toggle("let", S.own || S.set.neg !== "off");
+    $("divSel").value = S.set.div; $("workSel").value = S.set.work;
+    $("varyToggle").checked = S.set.vary; $("predictToggle").checked = S.set.predict; $("checkToggle").checked = S.set.check;
+    $("movesToggle").checked = S.set.moves; $("bothToggle").checked = S.set.both; $("ticksToggle").checked = S.set.ticks;
+    $("bothToggle").disabled = !S.set.moves; $("bothToggle").closest(".sw").classList.toggle("dim", !S.set.moves);
+  }
+  function setOp(op){ S.set.op = op; save(); newQuestion(); }
+  function setNeg(n){ S.set.neg = n; save(); newQuestion(); }
+  document.querySelectorAll(".modeBtn").forEach(b => b.addEventListener("click", () => setOp(b.dataset.op)));
+  document.querySelectorAll("#negSeg button").forEach(b => b.addEventListener("click", () => setNeg(b.dataset.neg)));
+  $("newBtn").addEventListener("click", newQuestion);
+  $("newQBtn").addEventListener("click", newQuestion);
+  $("ownBtn").addEventListener("click", () => {
+    const box = $("ownBox"), open = box.hidden; box.hidden = !open; $("ownBtn").setAttribute("aria-expanded", String(open));
+    if(open) $("ownIn").focus();
   });
-
-drawBottomText(fracPoint.px, BOTTOM_Y_MAIN, String(q.quotient), 82, 'green');
-}
-
-      function renderDivNegativeKnown(){
-        drawBaseLine();
-
-        const q = state.question;
-        const points = q.points;
-        const xPoint = points[q.xIndex];
-        const fracPoint = points[q.fracIndex];
-        const zeroPoint = points[q.zeroIndex];
-
-        points.forEach((p, idx) => {
-          drawTick(p.px, idx === q.zeroIndex || idx === q.fracIndex || idx === q.xIndex);
-        });
-
-        drawTopText(zeroPoint.px, TOP_Y_MAIN, '0', 62, 'black');
-        drawBottomText(zeroPoint.px, BOTTOM_Y_MAIN, '0', 68, 'black');
-
-        drawFractionTop(fracPoint.px, TOP_Y_MAIN - 12, 'x', String(q.d), 52, 'blue');
-        drawBottomText(fracPoint.px, BOTTOM_Y_MAIN, String(q.quotient), 82, 'green');
-
-        drawTopText(xPoint.px, TOP_Y_MAIN, 'x', 72, 'blue');
-        drawBottomText(xPoint.px, BOTTOM_Y_MAIN, '?', 84, 'green');
-
-        if(state.settings.showStrategyPrompts){
-          drawCueText('equal groups', {
-            fromX: xPoint.px,
-            toX: zeroPoint.px,
-            textY: DIV_TEXT_Y,
-            mainFontSize: 27
-          });
-        }
-
-        const orderedPoints = orderedPointSpan(points, q.xIndex, q.zeroIndex);
-        drawPartitionLoopsStatic(orderedPoints, { cueY: GROUP_LOOP_Y, height:72, inset:8 });
-      }
-
-      function renderDivSolve(animated, token, revealAnswer){
-        drawBaseLine();
-
-        const q = state.question;
-        const points = q.points;
-        const xPoint = points[q.xIndex];
-        const fracPoint = points[q.fracIndex];
-        const zeroPoint = points[q.zeroIndex];
-
-        points.forEach((p, idx) => drawTick(p.px, idx === q.zeroIndex || idx === q.fracIndex || idx === q.xIndex));
-
-        drawTopText(zeroPoint.px, TOP_Y_MAIN, '0', 62, 'black');
-        drawBottomText(zeroPoint.px, BOTTOM_Y_MAIN, '0', 68, 'black');
-        drawFractionTop(fracPoint.px, TOP_Y_MAIN - 12, 'x', String(q.d), 52, 'blue');
-        drawTopText(xPoint.px, TOP_Y_MAIN, 'x', 72, 'blue');
-        drawBottomText(fracPoint.px, BOTTOM_Y_MAIN, String(q.quotient), 82, 'green');
-
-        const orderedPoints = orderedPointSpan(points, q.zeroIndex, q.xIndex);
-        drawPartitionLoopsStatic(orderedPoints, { cueY: GROUP_LOOP_Y, height:72, inset:8 });
-
-        let mids = points.filter((_, idx) => idx !== q.zeroIndex && idx !== q.fracIndex && idx !== q.xIndex);
-        if(q.negative) mids = mids.reverse();
-
-        const perDelay = adaptiveDelay(mids.length, REVEAL_BASE_MS);
-        const revealStart = animated ? STAGE3_PAUSE_MS : 0;
-        const questionMark = drawBottomText(xPoint.px, BOTTOM_Y_MAIN, '?', 84, 'green');
-
-        if(animated && state.navDirection === 'forward'){
-          mids.forEach((p, orderIdx) => {
-            const top = drawFractionTop(p.px, TOP_Y_SMALL - 18, `${p.numerator}x`, String(q.d), 30, 'ghost');
-            const bottom = drawBottomText(p.px, BOTTOM_Y_SMALL, String(p.value), 30, 'ghost');
-            schedule(() => {
-              if(!isActiveRender(token)) return;
-              addGhostAnimation(top);
-              addGhostAnimation(bottom);
-            }, revealStart + Math.round(orderIdx * perDelay));
-          });
-
-          if(state.settings.showStrategyPrompts){
-            schedule(() => {
-              if(!isActiveRender(token)) return;
-              drawCueText(divPromptText(q), {
-                fromX: zeroPoint.px, toX: xPoint.px, textY: DIV_TEXT_Y, mainFontSize: 27
-              });
-            }, revealStart + 100);
-          }
-
-          if(revealAnswer){
-            const answerDelay = revealStart + Math.max(REVEAL_BASE_MS, mids.length * perDelay);
-            schedule(() => {
-              if(!isActiveRender(token)) return;
-              questionMark.style.opacity = '0';
-              const finalX = drawBottomText(xPoint.px, BOTTOM_Y_MAIN, String(q.x), 82, 'green');
-              finalX.style.opacity = '0';
-              finalX.classList.add('answer-pop');
-              finalX.style.opacity = '1';
-            }, answerDelay);
-          }
-        } else {
-          mids.forEach((p) => {
-            drawFractionTop(p.px, TOP_Y_SMALL - 18, `${p.numerator}x`, String(q.d), 30, 'ghost');
-            drawBottomText(p.px, BOTTOM_Y_SMALL, String(p.value), 30, 'ghost');
-          });
-          if(state.settings.showStrategyPrompts){
-            drawCueText(divPromptText(q), {
-              fromX: zeroPoint.px, toX: xPoint.px, textY: DIV_TEXT_Y, mainFontSize: 27
-            });
-          }
-          if(revealAnswer){
-            questionMark.style.opacity = '0';
-            drawBottomText(xPoint.px, BOTTOM_Y_MAIN, String(q.x), 82, 'green');
-          }
-        }
-      }
-
-      function cleanupFlipCard(){
-        const existingCard = flipStage.querySelector('.flip-card');
-        const existingShadow = flipStage.querySelector('.flip-shadow');
-        if(existingCard) existingCard.remove();
-        if(existingShadow) existingShadow.remove();
-        svg.style.visibility = 'visible';
-      }
-
-      function renderFlipAnimation(token, drawFront, drawBack, reverse = false){
-        cleanupFlipCard();
-
-        svg.style.visibility = 'hidden';
-
-        const card = document.createElement('div');
-        card.className = 'flip-card is-animating';
-
-        const faceFront = document.createElement('div');
-        faceFront.className = 'flip-face front';
-
-        const faceBack = document.createElement('div');
-        faceBack.className = 'flip-face back';
-
-        const frontSVG = createBoardSVG();
-        const backSVG = createBoardSVG();
-
-        faceFront.appendChild(frontSVG);
-        faceBack.appendChild(backSVG);
-
-        const shadow = document.createElement('div');
-        shadow.className = 'flip-shadow';
-
-        const gloss = document.createElement('div');
-        gloss.className = 'flip-gloss';
-
-        const edge = document.createElement('div');
-        edge.className = 'flip-edge';
-
-        card.appendChild(faceFront);
-        card.appendChild(faceBack);
-        card.appendChild(gloss);
-        card.appendChild(edge);
-
-        flipStage.appendChild(shadow);
-        flipStage.appendChild(card);
-
-        clearSVGBoard(frontSVG);
-        addDefsTo(frontSVG);
-        withDrawRoot(frontSVG, () => drawFront());
-
-        clearSVGBoard(backSVG);
-        addDefsTo(backSVG);
-        withDrawRoot(backSVG, () => drawBack());
-
-        if(reverse){
-          card.style.transform = 'rotateY(180deg) rotateX(0deg)';
-        } else {
-          card.style.transform = 'rotateY(0deg) rotateX(0deg)';
-        }
-
-        const start = performance.now();
-        const duration = FLIP_MS;
-
-        function easeInOut(t){
-          return t < 0.5
-            ? 4 * t * t * t
-            : 1 - Math.pow(-2 * t + 2, 3) / 2;
-        }
-
-        function frame(now){
-          if(!isActiveRender(token)){
-            cleanupFlipCard();
-            return;
-          }
-
-          const raw = Math.min(1, (now - start) / duration);
-          const p = easeInOut(raw);
-
-          const angle = reverse ? (180 - 180 * p) : (180 * p);
-
-          const edgeStrength = Math.sin(p * Math.PI);
-          const tilt = Math.sin(p * Math.PI) * 5.5;
-          const scale = 1 - edgeStrength * 0.02;
-
-          card.style.transform = `rotateY(${angle}deg) rotateX(${tilt}deg) scale(${scale})`;
-
-          shadow.style.opacity = String(0.28 + edgeStrength * 0.34);
-          shadow.style.width = `${52 - edgeStrength * 16}%`;
-          shadow.style.transform = `translateX(-50%) scaleX(${1 - edgeStrength * 0.08}) scaleY(${1 - edgeStrength * 0.22})`;
-
-          edge.style.opacity = String(edgeStrength * 0.95);
-          edge.style.width = `${4 + edgeStrength * 10}px`;
-
-          const frontDim = Math.max(0, Math.cos((angle * Math.PI) / 180));
-          const backDim = Math.max(0, Math.cos(((180 - angle) * Math.PI) / 180));
-
-          faceFront.style.filter = `brightness(${0.82 + frontDim * 0.18})`;
-          faceBack.style.filter = `brightness(${0.82 + backDim * 0.18})`;
-
-          if(raw < 1){
-            requestAnimationFrame(frame);
-          } else {
-            shadow.remove();
-            card.remove();
-
-            clearBoard();
-            addDefs();
-
-            if(reverse){
-              withDrawRoot(svg, () => drawFront());
-            } else {
-              withDrawRoot(svg, () => drawBack());
-            }
-
-            svg.style.visibility = 'visible';
-          }
-        }
-
-        requestAnimationFrame(frame);
-      }
-
-      function renderBoard(animated){
-        const token = nextRenderToken();
-        clearBoard();
-        addDefs();
-
-        const q = state.question;
-        const revealAnswer = isAnswerStage();
-
-        if(state.stage === 1){
-          if(state.navDirection === 'backward' && state.prevStage === 2){
-            renderStage1BackwardSlide(token);
-          } else {
-            drawStage1Intro();
-          }
-          return;
-        }
-
-        if(q.mode === 'addsub'){
-          if(state.stage === 2) renderAddSubBuild(animated, token, false, true);
-          else if(state.stage === 3) renderAddSubGiven(animated, token);
-          else renderAddSubSolve(animated, token, revealAnswer);
-          return;
-        }
-
-        if(q.mode === 'mult'){
-          if(!q.negative){
-            if(state.stage === 2) renderMultPreBuild(animated, token);
-            else if(state.stage === 3) renderMultGiven(animated);
-            else renderMultSolve(animated, token, revealAnswer);
-            return;
-          }
-
-          const flipStageNum = 4;
-
-          if(state.stage === 2){
-            renderMultPreBuild(animated, token);
-          } else if(state.stage === 3){
-            if(state.navDirection === 'backward' && state.prevStage === flipStageNum){
-              renderFlipAnimation(
-                token,
-                () => { renderMultGiven(false); },
-                () => { renderMultNegativeKnown(); },
-                true
-              );
-            } else {
-              renderMultGiven(animated);
-            }
-          } else if(state.stage === flipStageNum){
-            if(state.navDirection === 'forward' && state.prevStage === 3 && animated){
-              renderFlipAnimation(
-                token,
-                () => { renderMultGiven(false); },
-                () => { renderMultNegativeKnown(); },
-                false
-              );
-            } else {
-              renderMultNegativeKnown();
-            }
-          } else {
-            if(state.navDirection === 'backward' && state.prevStage === getMaxStage()){
-              renderMultSolve(false, token, false);
-            } else if(state.navDirection === 'backward'){
-              renderMultNegativeKnown();
-            } else {
-              renderMultSolve(animated, token, revealAnswer);
-            }
-          }
-          return;
-        }
-
-        if(!q.negative){
-          if(state.stage === 2) renderDivPreBuild(animated, token);
-          else if(state.stage === 3) renderDivGiven(animated);
-          else renderDivSolve(animated, token, revealAnswer);
-          return;
-        }
-
-        const flipStageNum = 4;
-
-        if(state.stage === 2){
-          renderDivPreBuild(animated, token);
-        } else if(state.stage === 3){
-          if(state.navDirection === 'backward' && state.prevStage === flipStageNum){
-            renderFlipAnimation(
-              token,
-              () => { renderDivGiven(false); },
-              () => { renderDivNegativeKnown(); },
-              true
-            );
-          } else {
-            renderDivGiven(animated);
-          }
-        } else if(state.stage === flipStageNum){
-          if(state.navDirection === 'forward' && state.prevStage === 3 && animated){
-            renderFlipAnimation(
-              token,
-              () => { renderDivGiven(false); },
-              () => { renderDivNegativeKnown(); },
-              false
-            );
-          } else {
-            renderDivNegativeKnown();
-          }
-        } else {
-          if(state.navDirection === 'backward' && state.prevStage === getMaxStage()){
-            renderDivSolve(false, token, false);
-          } else if(state.navDirection === 'backward'){
-            renderDivNegativeKnown();
-          } else {
-            renderDivSolve(animated, token, revealAnswer);
-          }
-        }
-      }
-
-      toolsBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        setToolsOpen(!toolsMenu.classList.contains('open'));
-      });
-
-      teacherBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        setTeacherOpen(!teacherPanel.classList.contains('open'));
-      });
-
-      document.addEventListener('click', (e) => {
-        if(teacherPanel.classList.contains('open') && !teacherPanel.contains(e.target) && !teacherBtn.contains(e.target)){
-          setTeacherOpen(false);
-        }
-        if(toolsMenu.classList.contains('open') && !toolsMenu.contains(e.target) && !toolsBtn.contains(e.target)){
-          setToolsOpen(false);
-        }
-      });
-
-     equationTypeSelect.addEventListener('change', () => {
-  state.settings.equationType = equationTypeSelect.value;
-  startNewQuestion();
-});
-
-      showStrategyPrompts.addEventListener('change', () => {
-        state.settings.showStrategyPrompts = showStrategyPrompts.checked;
-        if(state.question){
-          renderBoard(false);
-        }
-      });
-
-      pauseBeforeAnswer.addEventListener('change', () => {
-        state.settings.pauseBeforeAnswer = pauseBeforeAnswer.checked;
-        if(state.question){
-          const maxStage = getMaxStage();
-          if(state.stage > maxStage) state.stage = maxStage;
-          updateStageUI();
-          renderBoard(false);
-          updateControls();
-        }
-      });
-
-      nextStepBtn.addEventListener('click', () => nextStage(true));
-      backStepBtn.addEventListener('click', prevStage);
-      footerNewQ.addEventListener('click', startNewQuestion);
-      newBtn.addEventListener('click', startNewQuestion);
-      resetBtn.addEventListener('click', resetTool);
-
-      document.addEventListener('keydown', (e) => {
-        const tag = document.activeElement?.tagName;
-        const isFormFocus = tag === 'SELECT' || tag === 'INPUT' || tag === 'TEXTAREA';
-        if(isFormFocus && e.key !== 'Escape') return;
-
-        if(e.key === 'ArrowRight'){
-          e.preventDefault();
-          nextStage(true);
-        } else if(e.key === 'ArrowLeft'){
-          e.preventDefault();
-          prevStage();
-        } else if(e.key === 'Enter'){
-          e.preventDefault();
-          startNewQuestion();
-        } else if(e.key === 'Escape'){
-          e.preventDefault();
-          closeOverlays();
-        } else if(e.key.toLowerCase() === 't'){
-          e.preventDefault();
-          setToolsOpen(!toolsMenu.classList.contains('open'));
-        }
-      });
-
-      equationTypeSelect.value = DEFAULT_SETTINGS.equationType;
-      showStrategyPrompts.checked = DEFAULT_SETTINGS.showStrategyPrompts;
-      pauseBeforeAnswer.checked = DEFAULT_SETTINGS.pauseBeforeAnswer;
-
-      setToolsOpen(false);
-      setTeacherOpen(false, true);
-      startNewQuestion();
-    })();
-  </script>
-  <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
+  function useOwn(){
+    const r = parseOwn($("ownIn").value), msg = $("ownMsg");
+    if(r.err){ msg.textContent = r.err; msg.classList.add("err"); return false; }
+    msg.classList.remove("err"); msg.innerHTML = "Showing your equation. <b>New question</b> goes back to random ones.";
+    setQ(r.q, true); return true;
+  }
+  $("ownGo").addEventListener("click", useOwn);
+  $("ownIn").addEventListener("keydown", e => { if(e.key === "Enter"){ e.preventDefault(); useOwn(); } e.stopPropagation(); });
+  const onSet = (id, key, fresh) => $(id).addEventListener("change", e => {
+    S.set[key] = e.target.type === "checkbox" ? e.target.checked : e.target.value; save();
+    if(fresh) newQuestion(); else { stopAnim(); refresh(); }
+  });
+  onSet("divSel", "div"); onSet("varyToggle", "vary", true); onSet("predictToggle", "predict"); onSet("checkToggle", "check");
+  onSet("workSel", "work"); onSet("movesToggle", "moves"); onSet("bothToggle", "both"); onSet("ticksToggle", "ticks");
+
+  $("nextBtn").addEventListener("click", next); $("backBtn").addEventListener("click", back);
+  $("miniNext").addEventListener("click", next); $("miniBack").addEventListener("click", back);
+  $("againBtn").addEventListener("click", startAgain);
+  $("againIcon").addEventListener("click", () => { startAgain(); spinAgain(); });
+  $("allBtn").addEventListener("click", showAll);
+  $("board").addEventListener("click", () => { if(S.step < IDS.length - 1) next(); });
+
+  /* ================= panel toggle + full screen (as Number Groups) ================= */
+  function applyPanel(){
+    $("app").classList.toggle("noPanel", !S.set.panel);
+    const b = $("panelBtn"); b.setAttribute("aria-pressed", String(!!S.set.panel));
+    b.title = S.set.panel ? "Hide the side panel" : "Show the side panel";
+    $("miniSteps").hidden = !!S.set.panel && !S.fs;
+  }
+  $("panelBtn").addEventListener("click", () => { S.set.panel = !S.set.panel; save(); applyPanel(); });
+  const fsEl = document.documentElement;
+  const fsActive = () => !!(document.fullscreenElement || document.webkitFullscreenElement);
+  function setFs(on){
+    S.fs = on; $("app").classList.toggle("fs", on);
+    $("fsBtn").querySelector(".fsIn").toggleAttribute("hidden", on);
+    $("fsBtn").querySelector(".fsOut").toggleAttribute("hidden", !on);
+    $("fsBtn").title = on ? "Leave full screen (F)" : "Full screen (F)";
+    closeMenus(); applyPanel();
+  }
+  function toggleFs(){
+    if(!S.fs){ setFs(true); const req = fsEl.requestFullscreen || fsEl.webkitRequestFullscreen;
+      if(req){ try { const pr = req.call(fsEl); if(pr && pr.catch) pr.catch(() => {}); } catch(e){} } }
+    else { if(fsActive()){ const ex = document.exitFullscreen || document.webkitExitFullscreen; try { const pr = ex.call(document); if(pr && pr.catch) pr.catch(() => {}); } catch(e){} } setFs(false); }
+  }
+  const onFsChange = () => { if(!fsActive() && S.fs) setFs(false); };
+  document.addEventListener("fullscreenchange", onFsChange);
+  document.addEventListener("webkitfullscreenchange", onFsChange);
+  $("fsBtn").addEventListener("click", toggleFs);
+
+  function closeMenus(){ [["settingsBtn","settingsMenu"],["toolsBtn","toolsMenu"]].forEach(([b, m]) => { $(m).classList.remove("open"); $(b).setAttribute("aria-expanded","false"); }); }
+  [["settingsBtn","settingsMenu"],["toolsBtn","toolsMenu"]].forEach(([b, m]) => {
+    $(b).addEventListener("click", e => { e.stopPropagation(); const was = $(m).classList.contains("open"); closeMenus(); if(!was){ $(m).classList.add("open"); $(b).setAttribute("aria-expanded","true"); } });
+    $(m).addEventListener("click", e => e.stopPropagation());
+  });
+  document.addEventListener("click", closeMenus);
+  const NEG_CYCLE = { off:"some", some:"all", all:"off" };
+  document.addEventListener("keydown", e => {
+    const tag = (e.target && e.target.tagName) || "";
+    if(e.key === "Escape"){ closeMenus(); if(S.fs && !fsActive()) setFs(false); return; }
+    if(tag === "INPUT" || tag === "SELECT" || tag === "TEXTAREA" || e.metaKey || e.ctrlKey || e.altKey) return;
+    if(tag === "BUTTON" && (e.key === " " || e.key === "Enter")){ e.preventDefault(); e.target.blur(); }
+    const k = e.key;
+    if(k === " "){ e.preventDefault(); startAgain(); spinAgain(); }
+    else if(k === "Enter"){ e.preventDefault(); newQuestion(); }
+    else if(k === "ArrowRight"){ e.preventDefault(); next(); }
+    else if(k === "ArrowLeft"){ e.preventDefault(); back(); }
+    else if(k === "1") setOp("as"); else if(k === "2") setOp("mul"); else if(k === "3") setOp("div"); else if(k === "4") setOp("mix");
+    else if(k === "n" || k === "N") setNeg(NEG_CYCLE[S.set.neg] || "off");
+    else if(k === "f" || k === "F") toggleFs();
+  });
+  let rz = 0;
+  const onResize = () => { cancelAnimationFrame(rz); rz = requestAnimationFrame(() => { fitStmt(); frame(); }); };
+  if(window.ResizeObserver) new ResizeObserver(onResize).observe($("stage")); else window.addEventListener("resize", onResize);
+
+  const statics = ".modeBtn i, .settingsMenu i, .ownMsg i";
+  if(MATH_ALPHA) document.querySelectorAll(statics).forEach(el => { el.outerHTML = `<span class="mi">${mathItalic(el.textContent)}</span>`; });
+  else document.querySelectorAll(statics).forEach(el => el.classList.add("mv"));
+  applyPanel();
+  newQuestion();
+
+  /* test surface */
+  window.__DNL__ = { MATH_ALPHA, S, get IDS(){ return IDS; }, get L(){ return L; }, makeQ, finish, parseOwn, genAS, genMul, genDiv, scene, layout,
+    storyFor, hintFor, next, back, go, startAgain, showAll, newQuestion, setQ, setOp, setNeg, frame, refresh, toggleFs, useOwn, exprP, subP, workLines, plainP };
+})();
+</script>
 </body>
 </html>

@@ -96,6 +96,38 @@
 > §2 "TWO folders", §3 deploy paths and §5's `mathstools-main 2` heading below
 > describe the OLD layout — this block supersedes them.
 >
+> **NEW (2026-11-17): ONE-STEP EQUATIONS – DOUBLE NUMBER LINE REBUILT.**
+> `interactive-tools/stage-4/algebra/double-numberline/index.html`, same URL, one self-contained file on the
+> Number Groups shell (topbar, board card, side panel, panel/full-screen icons, mini Back/Next). Project doc
+> `claude/double-number-line.md`. localStorage `mmt.doubleNumberLine.v1`; test surface `window.__DNL__`.
+> Quizzes / worksheet / lesson plan UNCHANGED (Tools menu links them).
+> * **Drawn in real pixels** (`layout()` sets the SVG viewBox to the board's size; label sizes from the board's
+>   height). The old 1800×620 letterboxed viewBox drew in-between labels at ~10px.
+> * **Steps (data, `stepIds`)**: start · build · value · [turn, × ÷ with a negative] · [think, Settings] · solve ·
+>   [check, Settings, on]. Scenes are keyed elements tweened by `mix()` (Number Groups' mixer), so Back replays
+>   every motion in reverse. Build labels the TOP line (x + 1…, 2x…, 2x/4…); solve fills the BOTTOM line.
+> * **Colour = role:** top line blue (expressions), bottom green (numbers), the build move ORANGE (−5, ×3, ÷4,
+>   what was done to x, faded once the value is shown), the undo move PURPLE (+5, ÷3, ×4) drawn on BOTH lines
+>   (Settings › Show the undo move on both lines). Add/subtract = unit jumps with arrowheads that start at the
+>   tick ENDS (meeting at the line made top+bottom read as "equal groups" lenses); ×/÷ = one big arc over the
+>   labels; equal groups/parts = grey dashed lenses.
+> * **Negatives (× ÷):** the value step shows the known number in RED on the wrong side of 0 (the picture assumed
+>   x > 0), hint "Can −12 really be to the right of 0?"; the turn step is a real 3D half-turn of the board
+>   (`S.anim.flip`, rotateY to 90°, then the far side is drawn already mirrored so labels read correctly).
+> * **The answer never appears before solve** (checked). Statement row 2: think "x = ?", solve "x = 7",
+>   check substitution "3 × (−4) = −12 ✓" (negatives bracketed after ×). Panel writes the working: both sides
+>   (x − 5 + 5 = 7 + 5) or short (x = 7 + 5), Settings › Written working.
+> * Settings: division as fraction or ÷ (board + statement), vary the form (5 + x, 12 = x + 5), predict, check,
+>   moves, both lines, label every mark. Board-top switch: Add/subtract · Multiply · Divide · Mixed (keys 1–4);
+>   panel: negatives None/Some/Always (N), New question (Enter), **Type your own** (`parseOwn`: x+k, k+x, x−k, ax,
+>   x·a, x/d, x÷d, either side, any letter; refuses 10 − x, two-step, non-whole answers). Generation ranges as
+>   the old tool (k 3–14; a, d 2–8; |values| ≤ 72). Add/subtract with k > 24 (typed) draws one jump, no unit marks.
+> * Verified (Playwright): 18,000 generated questions (equation true, integers, ranges, negative settings),
+>   27 parser cases, every step of 14 typed + 27 random questions × both division notations at 1366×768,
+>   1280×800, 1024×768, 1920×1080, 390×844 (2,167 frames: nothing off the board, no label overlapping a label or a
+>   jump, answer never early, no page scroll on desktop), 64 settings combinations, 29 UI checks (keys, panel,
+>   full screen, menus, type your own, persistence, real animations both ways).
+>
 > **NEW (2026-11-17): TAXED BY THE KING — MMT COLOURS + OFFLINE CLASS GAME + RECORDING SHEET.**
 > `games/taxed-by-the-king.html`, same URL. Project doc `claude/taxed-by-the-king-offline.md`.
 > * **Colours:** the red header, red primary buttons and warm background became the standard MMT navy→blue header,
