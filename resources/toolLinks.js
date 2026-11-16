@@ -794,12 +794,12 @@ window.MMT_TOOL_LINKS = {
       tags: ["algebra", "like terms", "simplifying", "coefficients", "visual"]
     },
     {
-      title: "Number Pattern (Coefficient Groups)",
+      title: "Number Groups — Collecting Like Terms",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-4/algebra/number-groups/",
       ideas: ["laws-properties"],
-      note: "Set how many terms and the total of the coefficients, then reveal and combine.",
-      tags: ["algebra", "like terms", "coefficients", "generalising", "patterns"]
+      note: "Like terms as equal groups: each term becomes bars, the bars stack, count the groups first. Numbers, then the same picture with letters.",
+      tags: ["algebra", "like terms", "coefficients", "equal groups", "distributive", "generalising", "patterns"]
     },
     {
       title: "Substitution in Algebra",
@@ -818,7 +818,7 @@ window.MMT_TOOL_LINKS = {
       tags: ["lesson plan", "ELPSA", "algebra", "planning"]
     },
     {
-      title: "Number Pattern — ELPSA Lesson Plan",
+      title: "Number Groups — ELPSA Lesson Plan",
       kind: "Lesson plan",
       url: "/interactive-tools/stage-4/algebra/number-groups/lesson-plan.html",
       ideas: ["laws-properties"],

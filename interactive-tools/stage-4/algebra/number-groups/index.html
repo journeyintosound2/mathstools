@@ -3,580 +3,267 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Number Pattern</title>
+  <title>Number Groups — Collecting Like Terms | Mills Maths Tools</title>
+  <meta name="description" content="Collecting like terms as counting equal groups: 3 × 7 + 2 × 7 + 5 × 7 is 10 groups of 7, and the same picture with 7 swapped for x is 3x + 2x + 5x = 10x." />
 
   <style>
-:root{
-  --bg:#f6f7fb;
-  --card:#ffffff;
-  --ink:#111827;
-  --muted:#6b7280;
-  --border:#e5e7eb;
-  --shadow:0 14px 40px rgba(0,0,0,.10);
-  --blue:#2563eb;
-  --green:#16a34a;
-  --redSoft:#fee2e2;
-  --purpleSoft:#f3e8ff;
-  --mathFont: "Cambria Math", "STIX Two Math", "STIXGeneral", "Times New Roman", serif;
-}
-
-    *{box-sizing:border-box}
+    :root{
+      --bg:#f8fafc; --card:#ffffff; --ink:#0f172a; --muted:#64748b; --border:#e2e8f0;
+      --shadow:0 18px 45px rgba(15,23,42,.13);
+      --blue:#2563eb; --blue-dark:#1d4ed8;
+      --green:#22c55e; --green-dark:#15803d; --green-ink:#14532d;
+      --purple:#7c3aed; --purple-dark:#5b21b6;
+      --orange:#f97316; --orange-dark:#c2410c;
+      --red:#dc2626; --red-dark:#991b1b;
+      --line:#334155; --line-soft:#94a3b8;
+      --uiFont:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+      --mathFont:"STIX Two Math","Cambria Math","Latin Modern Math","Times New Roman",Georgia,serif;
+    }
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
     body{
-      margin:0;
-      font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
-      background:var(--bg);
-      color:var(--ink);
+      margin:0; font-family:var(--uiFont); color:var(--ink);
+      background:
+        radial-gradient(circle at top left,rgba(37,99,235,.14),transparent 32rem),
+        radial-gradient(circle at top right,rgba(124,58,237,.12),transparent 34rem),
+        var(--bg);
+      overflow-x:hidden;
     }
+    button,input,select{ font:inherit; }
+    [hidden]{ display:none !important; }
+    .app{ height:100dvh; display:flex; flex-direction:column; min-width:0; }
 
-    .page{
-      max-width:1440px;
-      margin:0 auto;
-      padding:16px;
-      min-height:100vh;
+    /* ---------- topbar (shared MMT shell) ---------- */
+    .mmtTopbar{
+      position:relative; z-index:40; flex:0 0 auto;
+      background:linear-gradient(135deg,#0f172a,#123b7a 55%,#2563eb);
+      color:white; padding:14px 24px;
+      display:grid; grid-template-columns:minmax(200px,1fr) auto minmax(300px,1fr);
+      align-items:center; gap:18px; box-shadow:0 10px 28px rgba(15,23,42,.22);
     }
+    .mmtBrand{ display:flex; align-items:center; gap:12px; justify-self:start; text-decoration:none; color:white; border-radius:14px;
+      padding:8px 12px; margin-left:-12px; font-weight:900; transition:background .18s ease,transform .18s ease,box-shadow .18s ease; }
+    .mmtBrand:hover{ background:rgba(255,255,255,.12); transform:translateY(-1px); box-shadow:0 0 10px rgba(124,58,237,.6),0 0 18px rgba(37,99,235,.4); }
+    .mmtBrandLogo{ width:44px; height:44px; border-radius:9px; background:white; color:#1d4ed8; display:grid; place-items:center;
+      font-weight:1000; letter-spacing:-.08em; box-shadow:inset 0 -2px 0 rgba(15,23,42,.08); flex:0 0 auto; }
+    .mmtBrandText strong{ display:block; font-size:1.18rem; line-height:1; letter-spacing:-.03em; color:white; }
+    .mmtBrandText span{ display:block; font-size:.78rem; opacity:.82; font-weight:650; color:white; }
+    .mmtTopTitle{ font-weight:850; font-size:clamp(1.05rem,1.8vw,1.45rem); letter-spacing:-.04em; text-align:center; color:white; white-space:nowrap; }
+    .topActions{ justify-self:end; display:flex; align-items:center; justify-content:flex-end; gap:10px; flex-wrap:wrap; }
+    .btn{ appearance:none; border:1px solid rgba(255,255,255,.28); background:rgba(255,255,255,.14); color:white; padding:11px 15px;
+      border-radius:14px; font-weight:900; font-size:15px; cursor:pointer; transition:.18s ease; user-select:none; }
+    .btn:hover:not(:disabled){ background:rgba(255,255,255,.22); transform:translateY(-1px); }
+    .btn:focus-visible{ outline:none; box-shadow:0 0 0 4px rgba(255,255,255,.23); }
+    .btn-primary{ background:white; color:#1d4ed8; border-color:white; }
+    .btn-primary:hover:not(:disabled){ background:#eef2ff; color:#1d4ed8; }
 
-    .card{
-      min-height:calc(100vh - 32px);
-      background:linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,255,255,.92));
-      border:1px solid var(--border);
-      border-radius:26px;
-      box-shadow:var(--shadow);
-      padding:18px;
-      display:flex;
-      flex-direction:column;
-      overflow:hidden;
+    .menuWrap{ position:relative; display:inline-flex; }
+    .dropMenu{ position:absolute; top:calc(100% + 8px); right:0; min-width:270px; background:#fff; color:var(--ink);
+      border:1px solid rgba(226,232,240,.95); border-radius:14px; box-shadow:0 18px 45px rgba(15,23,42,.22);
+      padding:7px; display:none; z-index:120; text-align:left; }
+    .dropMenu.open{ display:grid; gap:4px; }
+    .toolLink{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 12px; border-radius:10px;
+      color:var(--ink); text-decoration:none; font-weight:900; font-size:.9rem; }
+    .toolLink::after{ content:'\203A'; color:var(--blue); font-weight:1000; font-size:1.1rem; line-height:1; }
+    .toolLink:hover,.toolLink:focus-visible{ background:#eef2ff; color:#1d4ed8; outline:none; }
+    .toolLink small{ display:block; font-weight:650; font-size:.74rem; color:var(--muted); }
+    .menuRule{ height:1px; background:var(--border); margin:3px 6px; }
+    .settingsMenu.open{ gap:11px; padding:15px 18px; min-width:350px; max-height:min(78vh,700px); overflow:auto; }
+    .settingsHead{ font-size:.68rem; letter-spacing:.14em; text-transform:uppercase; font-weight:950; color:var(--muted); }
+    .settingsNote{ margin:-4px 0 0; font-size:.76rem; font-weight:650; color:var(--muted); line-height:1.4; }
+    .settingsRule{ height:1px; background:var(--border); margin:1px 0; }
+    .selRow{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .selRow > span{ font-weight:900; font-size:.92rem; color:var(--ink); white-space:nowrap; }
+    .selRow select{ appearance:none; border:1.5px solid var(--border); padding:8px 30px 8px 11px; border-radius:11px; font-weight:850; font-size:.88rem;
+      color:var(--line); min-width:170px; cursor:pointer;
+      background:#fff url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' fill='none' stroke='%232563eb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/></svg>") no-repeat right 10px center;
+      background-size:11px; }
+    .selRow select:focus-visible{ outline:none; border-color:var(--blue); box-shadow:0 0 0 4px rgba(37,99,235,.16); }
+    .sw{ display:inline-flex; align-items:center; gap:11px; cursor:pointer; user-select:none; font-weight:850; color:var(--line); font-size:.93rem; }
+    .sw input{ position:absolute; opacity:0; width:0; height:0; }
+    .sw .track{ position:relative; width:50px; height:29px; border-radius:999px; background:#cbd5e1; transition:.18s ease; flex:0 0 auto; box-shadow:inset 0 1px 3px rgba(15,23,42,.18); }
+    .sw .track::after{ content:""; position:absolute; top:3px; left:3px; width:23px; height:23px; border-radius:50%; background:#fff; box-shadow:0 2px 6px rgba(15,23,42,.3); transition:.18s ease; }
+    .sw input:checked + .track{ background:var(--green); }
+    .sw input:checked + .track::after{ transform:translateX(21px); }
+    .sw input:focus-visible + .track{ box-shadow:0 0 0 4px rgba(37,99,235,.28); }
+    .sw.dim{ opacity:.45; }
+
+    /* ---------- layout ---------- */
+    .layout{ flex:1 1 auto; min-height:0; width:min(1640px,100%); margin:0 auto; padding:14px 18px 16px;
+      display:grid; grid-template-columns:minmax(0,1fr) 372px; gap:14px; min-width:0; }
+    .card{ background:var(--card); border:1px solid var(--border); border-radius:22px; box-shadow:var(--shadow); min-width:0; }
+
+    /* ---------- board ---------- */
+    .boardCard{ display:flex; flex-direction:column; min-height:0; padding:12px 14px 8px; position:relative; overflow:hidden; }
+    .boardTop{ position:relative; z-index:3; background:var(--card); display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+    .modeSwitch{ display:inline-flex; background:#f1f5f9; border:1px solid var(--border); border-radius:15px; padding:4px; gap:4px; flex-wrap:wrap; }
+    .modeBtn{ appearance:none; border:none; background:transparent; padding:7px 14px 7px 8px; border-radius:11px; font-weight:900; font-size:.95rem;
+      color:var(--muted); cursor:pointer; display:flex; align-items:center; gap:9px; transition:.16s ease; }
+    .modeBtn:hover{ color:var(--ink); }
+    .modeBtn .sym{ min-width:34px; height:32px; padding:0 6px; border-radius:9px; display:grid; place-items:center; background:#e2e8f0; color:var(--line);
+      transition:.16s ease; flex:0 0 auto; font-family:var(--mathFont); font-weight:700; font-size:1.05rem; white-space:nowrap; }
+    .modeBtn .sym i{ font-style:italic; }
+    .modeBtn small{ display:block; font-size:.7rem; font-weight:750; color:var(--line-soft); margin-top:1px; }
+    .modeBtn .txt{ text-align:left; line-height:1.1; }
+    .modeBtn[aria-selected="true"]{ background:#fff; color:var(--ink); box-shadow:0 3px 10px rgba(15,23,42,.12); }
+    .modeBtn[aria-selected="true"] .sym{ background:var(--blue); color:#fff; }
+    .modeBtn:focus-visible{ outline:none; box-shadow:0 0 0 3px rgba(37,99,235,.3); }
+    .topRight{ display:flex; align-items:center; gap:10px; }
+    .typeTag{ font-size:.74rem; letter-spacing:.06em; font-weight:950; text-transform:uppercase; padding:6px 11px; border-radius:999px; white-space:nowrap;
+      border:1px solid rgba(21,128,61,.25); color:var(--green-dark); background:rgba(34,197,94,.12); }
+    .typeTag.let{ color:var(--purple-dark); background:rgba(124,58,237,.1); border-color:rgba(124,58,237,.25); }
+    .iconGroup{ display:inline-flex; gap:6px; }
+    .iconBtn{ appearance:none; width:42px; height:42px; border-radius:13px; border:1.5px solid var(--border); background:#fff; color:var(--line);
+      display:grid; place-items:center; cursor:pointer; transition:.16s ease; padding:0; }
+    .iconBtn svg{ width:21px; height:21px; display:block; }
+    .iconBtn:hover:not(:disabled){ border-color:var(--blue); background:#eef2ff; color:var(--blue-dark); transform:translateY(-1px); }
+    .iconBtn:focus-visible{ outline:none; box-shadow:0 0 0 3px rgba(37,99,235,.3); }
+    .iconBtn[aria-pressed="true"]{ background:#eef2ff; border-color:#c7d2fe; color:var(--blue-dark); }
+    .iconBtn.spin svg{ animation:spin .5s ease; }
+    @keyframes spin{ from{ transform:rotate(0);} to{ transform:rotate(-360deg);} }
+
+    .app.noPanel .layout, .app.fs .layout{ grid-template-columns:minmax(0,1fr); }
+    .app.noPanel .side, .app.fs .side{ display:none; }
+    .app.fs .mmtTopbar{ display:none; }
+    .app.fs .layout{ width:100%; padding:10px; }
+    .app.fs #panelBtn{ display:none; }
+    .miniSteps{ position:absolute; right:14px; bottom:10px; display:flex; gap:7px; z-index:5; }
+    .miniSteps .nextBtn{ flex:none; padding:10px 16px; font-size:.95rem; }
+    .miniSteps .stepBtn.icon{ width:42px; padding:10px 0; }
+    .app.noPanel .hint, .app.fs .hint{ padding-right:220px; padding-left:220px; }
+
+    /* the stage holds the number sentence and the picture under it */
+    .stage{ position:relative; flex:1 1 auto; min-height:0; margin-top:4px; }
+    .stmt{ position:absolute; left:0; right:0; top:0; z-index:2; display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
+      font-family:var(--mathFont); font-weight:700; color:var(--line); line-height:1.25; pointer-events:none;
+      transition:transform .75s cubic-bezier(.45,.05,.25,1); will-change:transform; }
+    .stmt .row{ white-space:nowrap; display:flex; align-items:baseline; justify-content:center; flex-wrap:nowrap; min-height:1.25em; padding:0 .2em; }
+    .stmt.wrap .row{ white-space:normal; flex-wrap:wrap; }
+    .stmt .r2{ color:var(--line); }
+    .tk{ display:inline-block; white-space:pre; transition:color .5s ease, background-color .5s ease; }
+    .op{ padding:0 .22em; }
+    .word{ font-family:var(--uiFont); font-weight:800; font-size:.62em; color:var(--muted); padding:0 .36em; letter-spacing:-.01em; }
+    .mv{ font-style:italic; }
+    .cC{ color:var(--blue-dark); }
+    .cG{ color:var(--green-dark); }
+    .cU{ color:var(--purple-dark); }
+    .cM{ color:var(--red); }
+    .cT{ color:var(--blue-dark); font-weight:800; }
+    .stmt.plain .cC, .stmt.plain .cG, .stmt.plain .cU, .stmt.plain .cM{ color:var(--ink); }
+    .ans{ background:#fef9c3; border-radius:.18em; padding:0 .16em; box-shadow:inset 0 -.1em 0 #fde047; color:var(--ink); }
+    .tk.new{ animation:tkIn .5s ease both; }
+    .tk.new.late{ animation-delay:.34s; }
+    @keyframes tkIn{ from{ opacity:0; transform:translateY(.25em) scale(.9);} to{ opacity:1; transform:none;} }
+    .boardWrap{ position:absolute; left:0; right:0; bottom:0; top:0; }
+    #board{ position:absolute; inset:0; width:100%; height:100%; display:block; user-select:none; -webkit-user-select:none; overflow:visible; }
+    #board text{ pointer-events:none; font-family:var(--mathFont); font-weight:700; }
+    .plainM .cC, .plainM .cG, .plainM .cU, .plainM .cM{ color:inherit; }
+    .hint{ flex:0 0 auto; min-height:1.45em; text-align:center; font-size:.92rem; font-weight:750; color:var(--muted); padding:3px 8px 0; line-height:1.4; }
+    .hint b{ color:var(--line); }
+    .hint .eq{ font-family:var(--mathFont); font-weight:700; font-size:1.12em; color:var(--line); }
+
+    /* ---------- side panel ---------- */
+    .side{ display:flex; flex-direction:column; gap:12px; min-height:0; min-width:0; }
+    .panel{ padding:12px 14px; }
+    .pHead{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:9px; }
+    .pTitle{ font-size:.68rem; letter-spacing:.14em; text-transform:uppercase; font-weight:950; color:var(--muted); }
+    .pCount{ font-size:.74rem; font-weight:900; color:var(--line-soft); }
+    .kindSeg{ display:grid; grid-template-columns:1fr 1fr; background:#f1f5f9; border:1px solid var(--border); border-radius:13px; padding:3px; gap:3px; margin-bottom:10px; }
+    .kindSeg button{ appearance:none; border:none; background:transparent; border-radius:10px; padding:7px 6px; font-weight:900; font-size:.88rem; color:var(--muted); cursor:pointer; }
+    .kindSeg button .s{ font-family:var(--mathFont); font-weight:700; margin-right:5px; }
+    .kindSeg button[aria-pressed="true"]{ background:#fff; color:var(--ink); box-shadow:0 2px 8px rgba(15,23,42,.12); }
+    .kindSeg button:focus-visible{ outline:none; box-shadow:0 0 0 3px rgba(37,99,235,.3); }
+    .dimRow{ display:grid; grid-template-columns:62px auto 1fr; align-items:center; gap:10px; margin-bottom:8px; }
+    .dimRow .lbl{ font-weight:900; font-size:.88rem; color:var(--line); }
+    .stepper{ display:inline-flex; align-items:center; border:1.5px solid var(--border); border-radius:13px; overflow:hidden; background:#fff; }
+    .stepper button{ appearance:none; border:none; background:#f8fafc; width:38px; height:40px; font-size:1.25rem; font-weight:900; color:var(--line); cursor:pointer; }
+    .stepper button:hover:not(:disabled){ background:#eef2ff; color:var(--blue-dark); }
+    .stepper button:disabled{ opacity:.35; cursor:not-allowed; }
+    .stepper input{ width:52px; height:40px; border:none; border-left:1.5px solid var(--border); border-right:1.5px solid var(--border); text-align:center;
+      font-family:var(--mathFont); font-size:1.4rem; font-weight:700; color:var(--blue-dark); -moz-appearance:textfield; }
+    .stepper input::-webkit-outer-spin-button,.stepper input::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0; }
+    .stepper input:focus{ outline:none; background:#eef2ff; }
+    .stepper.off input{ color:var(--line-soft); }
+    .dice{ appearance:none; justify-self:start; display:inline-flex; align-items:center; gap:6px; border:1.5px solid var(--border); background:#fff; border-radius:11px;
+      padding:6px 9px; font-weight:850; font-size:.76rem; color:var(--muted); cursor:pointer; transition:.15s ease; }
+    .dice svg{ width:16px; height:16px; }
+    .dice:hover{ border-color:var(--blue); color:var(--blue-dark); }
+    .dice[aria-pressed="true"]{ background:#eef2ff; border-color:#c7d2fe; color:var(--blue-dark); }
+    .qBtns{ display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:4px; }
+    .qBtn{ appearance:none; border:1.5px solid var(--border); background:#fff; border-radius:12px; padding:9px 6px; font-weight:900; font-size:.84rem; color:var(--line);
+      cursor:pointer; transition:.14s ease; }
+    .qBtn:hover{ border-color:var(--blue); background:#eef2ff; color:var(--blue-dark); transform:translateY(-1px); }
+    .qBtn small{ display:block; font-weight:700; font-size:.7rem; color:var(--line-soft); }
+    .qBtn.wide{ grid-column:1 / -1; }
+    .ownRow{ display:flex; gap:6px; margin-top:8px; }
+    .ownRow input{ flex:1 1 auto; min-width:0; border:1.5px solid var(--border); border-radius:11px; padding:9px 10px; font-family:var(--mathFont); font-size:1.08rem; font-weight:700; color:var(--line); }
+    .ownRow input:focus{ outline:none; border-color:var(--blue); box-shadow:0 0 0 4px rgba(37,99,235,.14); }
+    .ownRow button{ appearance:none; border:none; border-radius:11px; padding:0 14px; font-weight:900; background:var(--blue); color:#fff; cursor:pointer; }
+    .ownMsg{ font-size:.76rem; font-weight:750; color:var(--muted); margin-top:5px; line-height:1.35; min-height:1em; }
+    .ownMsg.err{ color:var(--red); }
+
+    .storyPanel{ flex:1 1 auto; min-height:0; display:flex; flex-direction:column; }
+    .storyScroll{ flex:1 1 auto; min-height:0; overflow:auto; margin:0 -6px; padding:0 6px; }
+    .sLine{ border-radius:13px; padding:8px 11px 9px; border:1px solid var(--border); background:#f8fafc; margin-bottom:6px; animation:fadeUp .3s ease; }
+    .sLine .lab{ display:flex; gap:7px; align-items:baseline; font-size:.8rem; font-weight:900; color:var(--line); line-height:1.3; }
+    .sLine .n{ font-size:.7rem; font-weight:950; color:#fff; background:var(--line-soft); border-radius:7px; min-width:20px; height:20px; display:inline-grid; place-items:center; flex:0 0 auto; }
+    .sLine .m{ font-family:var(--mathFont); font-weight:700; font-size:1.16rem; color:var(--line); margin-top:3px; line-height:1.4; }
+    .sLine .m .word{ font-size:.66em; }
+    .sLine .tip{ font-size:.76rem; font-weight:750; color:var(--muted); margin-top:4px; line-height:1.4; }
+    .sLine .tip .eq{ font-family:var(--mathFont); font-weight:700; font-size:1.18em; color:var(--line); }
+    .sLine.cur{ background:#fff; border-color:rgba(37,99,235,.45); box-shadow:0 0 0 3px rgba(37,99,235,.08); }
+    .sLine.cur .n{ background:var(--blue); }
+    .sLine.done{ background:rgba(34,197,94,.07); border-color:rgba(21,128,61,.28); }
+    .sLine.done .n{ background:var(--green-dark); }
+    .stepRow{ display:flex; gap:7px; padding-top:10px; margin-top:8px; border-top:1px solid var(--border); }
+    .stepBtn{ appearance:none; border:1.5px solid var(--border); background:#fff; color:var(--line); padding:11px 12px; border-radius:14px;
+      font-weight:950; font-size:.95rem; cursor:pointer; transition:.16s ease; white-space:nowrap; }
+    .stepBtn:hover:not(:disabled){ border-color:var(--blue); background:#eef2ff; color:var(--blue-dark); transform:translateY(-1px); }
+    .stepBtn:disabled{ opacity:.38; cursor:not-allowed; transform:none; }
+    .stepBtn.icon{ width:46px; padding:11px 0; font-size:1.05rem; }
+    .nextBtn{ flex:1 1 auto; min-width:0; appearance:none; border:none; background:linear-gradient(135deg,var(--blue),var(--purple)); color:#fff;
+      padding:12px 14px; border-radius:15px; font-weight:950; font-size:1.02rem; cursor:pointer; box-shadow:0 10px 24px rgba(37,99,235,.30);
+      transition:.18s ease; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .nextBtn:hover:not(:disabled){ transform:translateY(-1px); box-shadow:0 14px 30px rgba(37,99,235,.38); }
+    .nextBtn:disabled{ background:linear-gradient(135deg,var(--green-dark),#0f766e); box-shadow:none; cursor:default; opacity:.92; }
+    .keyHint{ font-size:.72rem; font-weight:800; color:var(--line-soft); text-align:center; margin-top:7px; line-height:1.6; }
+    .keyHint kbd{ font-family:var(--uiFont); font-size:.7rem; font-weight:900; color:var(--muted); border:1px solid var(--border); border-bottom-width:2px;
+      border-radius:6px; padding:0 5px; background:#f8fafc; }
+
+    @keyframes fadeUp{ from{ opacity:0; transform:translateY(5px);} to{ opacity:1; transform:none;} }
+    @media (prefers-reduced-motion:reduce){ .sLine,.tk.new{ animation:none !important; } .stmt{ transition:none; } }
+
+    /* ---------- responsive ---------- */
+    @media (max-width:1280px){ .layout{ grid-template-columns:minmax(0,1fr) 344px; } .modeBtn small{ display:none; } }
+    @media (max-width:1180px){
+      .mmtTopbar{ grid-template-columns:auto minmax(0,1fr) auto; padding:12px 16px; gap:12px; }
+      .mmtBrandText{ display:none; }
+      .btn{ padding:10px 13px; font-size:14px; }
+      .layout{ padding:12px 12px 14px; gap:12px; }
     }
-
-    .topbar{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:16px;
-      flex-wrap:wrap;
+    @media (max-width:980px){
+      .app:not(.fs){ height:auto; min-height:100dvh; }
+      .layout{ grid-template-columns:1fr; }
+      .stage{ flex:none; height:clamp(360px,62vh,600px); }
+      .app.fs .stage{ flex:1 1 auto; height:auto; }
+      .app.noPanel .hint, .app.fs .hint{ padding:3px 8px 56px; }
+      .storyPanel{ flex:none; }
+      .storyScroll{ overflow:visible; }
     }
-
-    .back-btn{
-      display:inline-flex;
-      align-items:center;
-      gap:12px;
-      text-decoration:none;
-      color:var(--ink);
-      background:#fff;
-      border:1px solid var(--border);
-      border-radius:999px;
-      padding:12px 18px;
-      font-weight:800;
-      font-size:18px;
-      box-shadow:0 6px 18px rgba(0,0,0,.05);
+    @media (max-width:760px){
+      .mmtTopbar{ grid-template-columns:1fr; justify-items:center; padding:12px 14px; }
+      .mmtBrand{ margin-left:0; } .topActions{ justify-self:center; justify-content:center; }
+      .dropMenu{ right:auto; left:50%; transform:translateX(-50%); }
+      .settingsMenu.open{ min-width:min(350px,92vw); }
+      .mmtTopTitle{ white-space:normal; }
+      .boardTop{ flex-direction:column; align-items:stretch; }
+      .modeSwitch{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); width:100%; }
+      .modeBtn{ flex-direction:column; padding:6px 4px; font-size:.8rem; gap:4px; text-align:center; }
+      .modeBtn .txt{ text-align:center; }
+      .topRight{ justify-content:center; }
+      .typeTag{ display:none; }
     }
-
-    .back-btn img{
-      width:54px;
-      height:54px;
-      object-fit:contain;
-      flex:0 0 auto;
-    }
-
-    .controls{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      flex-wrap:wrap;
-      justify-content:flex-end;
-    }
-
-    .tools-menu-wrap{
-      position:relative;
-    }
-
-    button{
-      appearance:none;
-      border:none;
-      cursor:pointer;
-      border-radius:14px;
-      font-weight:800;
-      font-size:17px;
-      padding:14px 20px;
-      transition:transform .15s ease, box-shadow .15s ease;
-      box-shadow:0 8px 20px rgba(0,0,0,.08);
-    }
-    button:hover{ transform:translateY(-1px); }
-    button:active{ transform:translateY(0); }
-
-    .btn-tools,
-    .btn-settings{
-      background:#fff;
-      color:var(--ink);
-      border:1px solid var(--border);
-    }
-    .btn-reset{ background:var(--redSoft); color:#9f1239; }
-    .btn-reveal{ background:var(--purpleSoft); color:#6d28d9; }
-    .btn-new{ background:var(--blue); color:#fff; }
-
-    .tools-menu{
-      position:absolute;
-      top:calc(100% + 10px);
-      right:0;
-      min-width:260px;
-      background:#fff;
-      border:1px solid var(--border);
-      border-radius:16px;
-      box-shadow:0 18px 36px rgba(0,0,0,.14);
-      padding:8px;
-      display:none;
-      z-index:80;
-    }
-
-    .tools-menu.show{
-      display:block;
-    }
-
-    .tools-link{
-      display:block;
-      width:100%;
-      text-decoration:none;
-      color:var(--ink);
-      font-weight:800;
-      padding:12px 14px;
-      border-radius:12px;
-    }
-
-    .tools-link:hover{
-      background:#f3f4f6;
-    }
-
-    .check-row,
-    .check-row-main{
-      display:flex;
-      align-items:flex-start;
-      gap:12px;
-      padding:14px 16px;
-      border:1px solid var(--border);
-      border-radius:20px;
-      background:#fafafa;
-    }
-
-    .toggle-stack{
-      position:absolute;
-      top:-100px;
-      right:-6px;
-      z-index:5;
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-      opacity:.22;
-      transition:opacity .18s ease, transform .18s ease;
-      pointer-events:auto;
-    }
-
-    .problem-wrap:hover .toggle-stack,
-    .problem-wrap:focus-within .toggle-stack,
-    .toggle-stack:hover{
-      opacity:1;
-      transform:translateY(-1px);
-    }
-
-    .check-row-main{
-      position:relative;
-      top:auto;
-      right:auto;
-      z-index:auto;
-      align-items:center;
-      background:#ede9fe;
-      border:1px solid #c4b5fd;
-      border-radius:999px;
-      padding:12px 18px;
-      box-shadow:0 8px 20px rgba(0,0,0,.08);
-      cursor:pointer;
-      transition:background .18s ease;
-      min-width:240px;
-    }
-
-    .check-row-main:hover{
-      background:#ddd6fe;
-    }
-
-    .check-row.algebra-row{
-      background:#ede9fe;
-      border:1px solid #c4b5fd;
-      border-radius:28px;
-      padding:18px 16px;
-    }
-
-    .check-row input,
-    .check-row-main input{
-      appearance:none;
-      width:22px;
-      height:22px;
-      border-radius:50%;
-      border:2px solid #6d28d9;
-      position:relative;
-      cursor:pointer;
-      background:#fff;
-      flex:0 0 auto;
-      margin-top:2px;
-    }
-
-    .check-row input:checked,
-    .check-row-main input:checked{
-      background:#6d28d9;
-      border-color:#6d28d9;
-    }
-
-    .check-row input:checked::after,
-    .check-row-main input:checked::after{
-      content:"✓";
-      position:absolute;
-      color:#fff;
-      font-size:14px;
-      font-weight:900;
-      left:50%;
-      top:50%;
-      transform:translate(-50%,-55%);
-    }
-
-    .check-row-main input{
-      transform:scale(1.2);
-      margin-top:0;
-    }
-
-    .check-label{
-      font-size:15px;
-      font-weight:800;
-      color:var(--ink);
-      line-height:1.35;
-    }
-
-    .check-row-main .check-label{
-      font-size:18px;
-      font-weight:900;
-      color:#6d28d9;
-      white-space:nowrap;
-      display:flex;
-      align-items:center;
-      gap:6px;
-    }
-
-    .check-row-main.reveal-toggle .check-label::before{
-      content:"👀";
-      font-size:19px;
-    }
-
-    .check-row-main.mult-toggle .check-label::before{
-      content:"×";
-      font-size:22px;
-      font-weight:900;
-      line-height:1;
-    }
-
-    .main{
-      flex:1;
-      display:flex;
-      flex-direction:column;
-      justify-content:center;
-      padding:140px 8px 18px;
-    }
-
-    .problem-wrap{
-      position:relative;
-    }
-
-    .question-stage{
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      text-align:center;
-      padding:70px 16px 52px;
-      min-height:220px;
-    }
-
-    .expression{
-      font-size:clamp(40px, 5.6vw, 84px);
-      font-weight:800;
-      font-family: var(--mathFont);
-      line-height:1.12;
-      color:#000;
-      letter-spacing:-.03em;
-      word-break:break-word;
-      transition:font-size .18s ease;
-    }
-
-    .expression.tight{ font-size:clamp(34px, 4.7vw, 70px); }
-    .expression.tighter{ font-size:clamp(28px, 3.9vw, 58px); }
-
-    .coef{ color:var(--blue); }
-    .times,.op,.paren{ color:#000; }
-    .factor{ color:#000; }
-    .factor.reveal-groups{ color:var(--green); }
-
-    .answer-stage{
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      text-align:center;
-      padding:0 16px 6px;
-    }
-
-    .answer-row{
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:28px;
-      width:100%;
-      max-width:900px;
-      margin:0 auto;
-    }
-
-    .answer-box{
-      min-width:min(420px, 82vw);
-      min-height:120px;
-      border:6px solid #000;
-      border-radius:24px;
-      background:#fff;
-      box-shadow:0 10px 24px rgba(0,0,0,.08);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:16px 20px;
-    }
-
-    .answer-value{
-      font-size:clamp(34px, 4vw, 60px);
-      font-weight:900;
-      font-family: var(--mathFont);
-      color:#000;
-      letter-spacing:-.03em;
-      opacity:0;
-      transform:translateY(10px) scale(.98);
-      transition:opacity .22s ease, transform .22s ease;
-      text-align:center;
-    }
-
-    .answer-value.show{
-      opacity:1;
-      transform:translateY(0) scale(1);
-      animation:answerPop .28s ease;
-    }
-
-    @keyframes answerPop{
-      0%{
-        opacity:0;
-        transform:translateY(12px) scale(.94);
-      }
-      60%{
-        opacity:1;
-        transform:translateY(-2px) scale(1.03);
-      }
-      100%{
-        opacity:1;
-        transform:translateY(0) scale(1);
-      }
-    }
-
-    .status-row{
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      min-height:34px;
-      margin-top:18px;
-    }
-
-    .status{
-      font-size:16px;
-      font-weight:800;
-      color:var(--muted);
-      text-align:center;
-    }
-
-    .footer{
-      margin-top:auto;
-      padding-top:10px;
-      border-top:1px solid rgba(229,231,235,.8);
-      display:flex;
-      justify-content:space-between;
-      gap:12px;
-      flex-wrap:wrap;
-      color:var(--muted);
-      font-size:14px;
-    }
-
-    .footer strong{ color:var(--ink); }
-
-    .site-banner{
-      width:100%;
-      text-align:center;
-      margin-top:18px;
-      padding:14px 10px;
-      font-weight:700;
-      background:#f3f4f6;
-      border-radius:12px;
-      color:#111827;
-      font-size:16px;
-    }
-
-    .site-banner a{
-      color:#2563eb;
-      text-decoration:none;
-      font-weight:900;
-    }
-    .site-banner a:hover{ text-decoration:underline; }
-
-    .overlay{
-      position:fixed;
-      inset:0;
-      background:rgba(17,24,39,.35);
-      opacity:0;
-      pointer-events:none;
-      transition:opacity .2s ease;
-      z-index:50;
-    }
-    .overlay.show{ opacity:1; pointer-events:auto; }
-
-    .side-panel{
-      position:fixed;
-      top:0;
-      right:0;
-      width:min(380px, 92vw);
-      height:100vh;
-      background:#fff;
-      border-left:1px solid var(--border);
-      box-shadow:-10px 0 30px rgba(0,0,0,.12);
-      transform:translateX(100%);
-      transition:transform .24s ease;
-      z-index:60;
-      display:flex;
-      flex-direction:column;
-    }
-    .side-panel.open{ transform:translateX(0); }
-
-    .panel-head{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      padding:18px 18px 14px;
-      border-bottom:1px solid var(--border);
-    }
-
-    .panel-head h2{
-      margin:0;
-      font-size:22px;
-      font-weight:900;
-    }
-
-    .close-btn{
-      background:#fff;
-      color:var(--ink);
-      border:1px solid var(--border);
-      box-shadow:none;
-      padding:10px 14px;
-      font-size:15px;
-    }
-
-    .panel-body{
-      padding:18px;
-      overflow:auto;
-      display:grid;
-      gap:18px;
-      align-content:start;
-    }
-
-    .field{
-      display:grid;
-      gap:8px;
-    }
-
-    .field label{
-      font-size:15px;
-      font-weight:800;
-    }
-
-    .field select{
-      border:2px solid var(--border);
-      border-radius:18px;
-      background:#fff;
-      font:inherit;
-      font-weight:800;
-      color:var(--ink);
-      outline:none;
-      cursor:pointer;
-      min-width:120px;
-      padding:14px 16px;
-      box-shadow:0 6px 16px rgba(0,0,0,.04);
-    }
-
-    .field-total select{
-      background:#eff6ff;
-      border-color:#93c5fd;
-      color:#1d4ed8;
-    }
-
-    .field-terms select{
-      background:#ecfdf5;
-      border-color:#86efac;
-      color:#15803d;
-    }
-
-    .field select:disabled{
-      background:#f3f4f6;
-      color:#9ca3af;
-      cursor:not-allowed;
-    }
-
-    .help{
-      font-size:13px;
-      color:var(--muted);
-      line-height:1.4;
-      font-weight:500;
-    }
-
-    @media (max-width:900px){
-      .question-stage{ min-height:180px; }
-    }
-
-    @media (max-width:720px){
-      .topbar{
-        flex-direction:column;
-        align-items:stretch;
-      }
-      .controls{ justify-content:stretch; }
-      .controls button{ flex:1 1 auto; }
-
-      .toggle-stack{
-        position:static;
-        margin:0 auto 18px;
-        width:fit-content;
-        opacity:1;
-        transform:none !important;
-      }
-
-      .check-row-main{
-        min-width:250px;
-      }
-
-      .question-stage{ padding:40px 16px 36px; }
-
-      .answer-row{
-        flex-direction:column;
-        gap:16px;
-      }
-
-      .answer-box{
-        min-width:min(420px, 82vw);
-        min-height:120px;
-        border:6px solid #000;
-        border-radius:24px;
-        background:#fff;
-        box-shadow:0 10px 24px rgba(0,0,0,.08);
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        padding:16px 20px;
-        font-family: var(--mathFont);
-      }
-
-      .footer{ flex-direction:column; }
-    }
+    @media print{ .mmtTopbar,.side .stepRow,.hint,.iconGroup{ display:none; } }
   </style>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
 <!-- mmt-pwa -->
@@ -590,417 +277,939 @@
 <!-- /mmt-pwa -->
 </head>
 <body>
-  <div class="page">
-    <div class="card">
-      <div class="topbar">
-        <a class="back-btn" href="https://millsmathstools.au" aria-label="Back to Mills Maths Tools">
-          <img src="../../../../assets/mmt.png" alt="Mills Maths Tools logo" onerror="this.onerror=null;this.src='../../../../assets/mmt.png';" />
-          <span>Back to Mills Maths Tools</span>
-        </a>
-
-        <div class="controls">
-          <div class="tools-menu-wrap">
-            <button id="toolsBtn" class="btn-tools" type="button" aria-expanded="false">Tools ▲</button>
-            <div id="toolsMenu" class="tools-menu">
-              <a class="tools-link" href="../../../../online-quizzes/stage-4/algebra/number-groups.html">Student Quiz</a>
-              <a class="tools-link" href="../../../../worksheet-creators/stage-4/algebra/number-groups.html">Worksheet Creator</a>
-              <a class="tools-link" href="lesson-plan.html">Lesson Plan</a>
-              <a class="tools-link" href="https://millsmathstools.au/collecting-like-terms/" target="_blank" rel="noopener noreferrer">Collecting Like Terms</a>
-            </div>
-          </div>
-          <button id="settingsBtn" class="btn-settings" type="button">Teacher settings</button>
-          <button id="resetBtn" class="btn-reset" type="button">Reset</button>
+  <div class="app" id="app">
+    <header class="mmtTopbar">
+      <a class="mmtBrand" href="https://www.millsmathstools.au" target="_self" aria-label="Back to Mills Maths Tools">
+        <span class="mmtBrandLogo" aria-hidden="true">MMT</span>
+        <span class="mmtBrandText"><strong>MMT</strong><span>Mills Maths Tools</span></span>
+      </a>
+      <div class="mmtTopTitle">Number Groups &mdash; Collecting Like Terms</div>
+      <div class="topActions">
+        <div class="menuWrap">
+          <button class="btn" id="settingsBtn" type="button" aria-haspopup="true" aria-expanded="false">Settings &#9662;</button>
+          <nav class="dropMenu settingsMenu" id="settingsMenu" aria-label="Settings">
+            <div class="settingsHead">New questions</div>
+            <label class="selRow"><span>Size of a group</span>
+              <select id="sizeSel" aria-label="Size of a group when it is a number">
+                <option value="small">2 to 9</option>
+                <option value="mid" selected>3 to 12</option>
+                <option value="big">Big: 13 to 99</option>
+              </select>
+            </label>
+            <p class="settingsNote">Big groups make the point: 3 &times; 38 + 2 &times; 38 + 5 &times; 38 is easy once you count the groups first.</p>
+            <label class="sw"><input type="checkbox" id="twoLetToggle" checked><span class="track"></span><span>Two-letter groups now and then (<i>ab</i>)</span></label>
+            <label class="sw"><input type="checkbox" id="oneToggle" checked><span class="track"></span><span>Allow a single group (1 &times; 7, <i>x</i>)</span></label>
+            <label class="sw"><input type="checkbox" id="takeToggle"><span class="track"></span><span>Include taking groups away</span></label>
+            <p class="settingsNote">One term is subtracted, e.g. 3<i>x</i> + 8<i>x</i> &minus; 2<i>x</i>: two groups come off the pile.</p>
+            <label class="sw"><input type="checkbox" id="unlikeToggle"><span class="track"></span><span>Include an unlike term</span></label>
+            <p class="settingsNote">One term is groups of something else (2 &times; 5, or 2<i>y</i>). Its bars are a different size, so they can&rsquo;t join the pile.</p>
+            <div class="settingsRule" role="separator"></div>
+            <div class="settingsHead">On screen</div>
+            <label class="sw"><input type="checkbox" id="unitsToggle" checked><span class="track"></span><span>Show what is inside each group</span></label>
+            <p class="settingsNote">A group of 7 is drawn as 7 little squares. Turn it off and a group of 7 looks just like a group of <i>x</i> &mdash; which is the point.</p>
+            <label class="sw"><input type="checkbox" id="longToggle" checked><span class="track"></span><span>Compare with the long way (numbers)</span></label>
+            <label class="sw"><input type="checkbox" id="checkToggle"><span class="track"></span><span>Try a number for the letter (letters)</span></label>
+            <p class="settingsNote">Adds a last step: give <i>x</i> a value and the same picture becomes a numbers question with the same answer both ways.</p>
+          </nav>
         </div>
+        <div class="menuWrap">
+          <button class="btn" id="toolsBtn" type="button" aria-haspopup="true" aria-expanded="false">Tools &#9662;</button>
+          <nav class="dropMenu" id="toolsMenu" aria-label="Related tools">
+            <a class="toolLink" href="/worksheet-creators/stage-4/algebra/number-groups.html">Worksheet Creator<small>Printable number-groups practice</small></a>
+            <a class="toolLink" href="/online-quizzes/stage-4/algebra/number-groups.html">Student Quiz<small>Saves to the student dashboard</small></a>
+            <a class="toolLink" href="lesson-plan.html">Lesson Plan<small>ELPSA sequence for this tool</small></a>
+            <div class="menuRule" role="separator"></div>
+            <a class="toolLink" href="/interactive-tools/stage-4/algebra/collecting-like-terms/">Collecting Like Terms<small>The next step: term tiles</small></a>
+            <a class="toolLink" href="/interactive-tools/stage-4/algebra/visual-patterns/">Visual Patterns<small>Growing patterns to rules</small></a>
+          </nav>
+        </div>
+        <button class="btn btn-primary" id="newBtn" type="button" title="New question (Enter)">New question</button>
       </div>
+    </header>
 
-      <main class="main">
-        <div class="problem-wrap">
-          <div class="toggle-stack">
-            <div class="check-row-main reveal-toggle">
-              <input id="revealGroupsCheck" type="checkbox" />
-              <label class="check-label" for="revealGroupsCheck">Reveal groups</label>
-            </div>
-
-            <div class="check-row-main mult-toggle">
-              <input id="showMultCheck" type="checkbox" checked />
-              <label class="check-label" for="showMultCheck">Show multiplication sign</label>
+    <main class="layout">
+      <section class="card boardCard" id="boardCard">
+        <div class="boardTop">
+          <div class="modeSwitch" role="tablist" aria-label="How the terms are written">
+            <button class="modeBtn" data-not="words" role="tab" aria-selected="false" type="button" title="Write it in words: 3 groups of 7 (1)">
+              <span class="sym" aria-hidden="true">abc</span>
+              <span class="txt">Groups of<small>3 groups of 7</small></span>
+            </button>
+            <button class="modeBtn" data-not="times" role="tab" aria-selected="true" type="button" title="Times sign: 3 × 7 (2)">
+              <span class="sym" aria-hidden="true">&times;</span>
+              <span class="txt">Times sign<small>3 &times; 7 &middot; 3 &times; <i>x</i></small></span>
+            </button>
+            <button class="modeBtn" data-not="brackets" role="tab" aria-selected="false" type="button" title="Brackets: 3(7), and 3x for letters (3)">
+              <span class="sym" aria-hidden="true">( )</span>
+              <span class="txt">Brackets<small>3(7) &middot; 3<i>x</i></small></span>
+            </button>
+          </div>
+          <div class="topRight">
+            <span class="typeTag" id="typeTag">Numbers</span>
+            <div class="iconGroup">
+              <button class="iconBtn" id="againIcon" type="button" title="Back to the start of the steps (Space)" aria-label="Back to the start of the steps">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1"/><path d="M3.5 4v5h5"/></svg>
+              </button>
+              <button class="iconBtn" id="panelBtn" type="button" aria-pressed="true" title="Hide the side panel" aria-label="Show or hide the side panel">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M15 4v16"/><path d="M17 8h2M17 11h2M17 14h2"/></svg>
+              </button>
+              <button class="iconBtn" id="fsBtn" type="button" title="Full screen (F)" aria-label="Full screen">
+                <svg class="fsIn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+                <svg class="fsOut" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" hidden><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg>
+              </button>
             </div>
           </div>
-
-          <section class="question-stage" aria-label="Question area">
-            <div id="expression" class="expression"></div>
-          </section>
         </div>
+        <div class="stage" id="stage">
+          <div class="boardWrap" id="boardWrap">
+            <svg id="board" role="img" aria-label="Each term drawn as bars, one bar for each group"></svg>
+          </div>
+          <div class="stmt plain" id="stmt" aria-live="polite"><div class="row r1" id="row1"></div><div class="row r2" id="row2"></div></div>
+        </div>
+        <div class="hint" id="hint" aria-live="polite"></div>
+        <div class="miniSteps" id="miniSteps" hidden>
+          <button class="stepBtn icon" id="miniBack" type="button" title="Back a step (&larr;)" aria-label="Back a step">&#9664;</button>
+          <button class="nextBtn" id="miniNext" type="button">Next &#9656;</button>
+        </div>
+      </section>
 
-        <section class="answer-stage" aria-label="Answer area">
-          <div class="answer-row">
-            <button id="newBtn" class="btn-new" type="button">New Q</button>
-
-            <div class="answer-box">
-              <div id="answerValue" class="answer-value">&nbsp;</div>
-            </div>
-
-            <button id="revealBtn" class="btn-reveal" type="button">Reveal</button>
+      <aside class="side">
+        <section class="card panel" aria-label="The question">
+          <div class="pHead"><span class="pTitle">The question</span></div>
+          <div class="kindSeg" role="group" aria-label="Group is a number or a letter">
+            <button type="button" data-kind="num" aria-pressed="true" title="Groups of a number, e.g. 3 × 7"><span class="s">7</span>Numbers</button>
+            <button type="button" data-kind="let" aria-pressed="false" title="Groups of a letter, e.g. 3x (keeps the same counts)"><span class="s"><i>x</i></span>Letters</button>
+          </div>
+          <div class="dimRow">
+            <span class="lbl">Groups</span>
+            <span class="stepper" id="totStep"><button type="button" data-d="total" data-s="-1" aria-label="Fewer groups">&minus;</button><input id="totalIn" type="number" inputmode="numeric" min="2" max="20" aria-label="Groups altogether once collected"><button type="button" data-d="total" data-s="1" aria-label="More groups">+</button></span>
+            <button class="dice" type="button" id="rTotal" aria-pressed="false" title="A different number of groups each question"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3.5" y="3.5" width="17" height="17" rx="3.5"/><circle cx="8.5" cy="8.5" r="1.3" fill="currentColor"/><circle cx="15.5" cy="15.5" r="1.3" fill="currentColor"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/></svg>Random</button>
+          </div>
+          <div class="dimRow">
+            <span class="lbl">Terms</span>
+            <span class="stepper" id="termStep"><button type="button" data-d="terms" data-s="-1" aria-label="Fewer terms">&minus;</button><input id="termsIn" type="number" inputmode="numeric" min="2" max="5" aria-label="Number of like terms"><button type="button" data-d="terms" data-s="1" aria-label="More terms">+</button></span>
+            <button class="dice" type="button" id="rTerms" aria-pressed="false" title="A different number of terms each question"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3.5" y="3.5" width="17" height="17" rx="3.5"/><circle cx="8.5" cy="8.5" r="1.3" fill="currentColor"/><circle cx="15.5" cy="15.5" r="1.3" fill="currentColor"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/></svg>Random</button>
+          </div>
+          <div class="qBtns">
+            <button class="qBtn" type="button" id="newQBtn">New question<small>Enter</small></button>
+            <button class="qBtn" type="button" id="newGBtn">Same counts, new group<small>G &middot; swap the 7</small></button>
+            <button class="qBtn wide" type="button" id="ownBtn" aria-expanded="false">Type your own</button>
+          </div>
+          <div id="ownBox" hidden>
+            <div class="ownRow"><input id="ownIn" type="text" autocomplete="off" spellcheck="false" placeholder="3 × 7 + 2 × 7 + 5 × 7  or  4x + x − 2x" aria-label="Type your own expression"><button type="button" id="ownGo">Use</button></div>
+            <div class="ownMsg" id="ownMsg">Use &times; or brackets for numbers, e.g. 4 &times; 9 or 4(9). Letters can be written 4<i>a</i>.</div>
           </div>
         </section>
 
-        <div class="status-row">
-          <div id="status" class="status" aria-live="polite">Press Enter to reveal. Press Space for a new question.</div>
-        </div>
-      </main>
-
-      <footer class="footer">
-        <div><strong>Pattern:</strong> add the coefficients first, then multiply by the common factor.</div>
-        <div><strong>Shortcuts:</strong> Enter = reveal, Space = new question.</div>
-      </footer>
-
-      <div class="site-banner">
-        This tool and more can be found at <strong><a href="https://www.millsmathstools.au" target="_blank" rel="noopener noreferrer">www.millsmathstools.au</a></strong>
-      </div>
-    </div>
+        <section class="card panel storyPanel" aria-label="Collecting the groups">
+          <div class="pHead"><span class="pTitle">Count the groups</span><span class="pCount" id="stepCount"></span></div>
+          <div class="storyScroll" id="storyScroll"><div id="story" aria-live="polite"></div></div>
+          <div class="stepRow">
+            <button class="stepBtn icon" id="backBtn" type="button" title="Back a step (&larr;)" aria-label="Back a step">&#9664;</button>
+            <button class="stepBtn icon" id="againBtn" type="button" title="Back to the start (Space)" aria-label="Back to the start">&#8634;</button>
+            <button class="stepBtn" id="allBtn" type="button">Show all</button>
+            <button class="nextBtn" id="nextBtn" type="button" title="Next step (&rarr;)">Next &#9656;</button>
+          </div>
+          <div class="keyHint"><kbd>&rarr;</kbd>/<kbd>&larr;</kbd> step &middot; <kbd>Space</kbd> start again &middot; <kbd>Enter</kbd> new question &middot; <kbd>G</kbd> new group &middot; <kbd>1</kbd>–<kbd>3</kbd> notation &middot; <kbd>L</kbd> numbers/letters &middot; <kbd>F</kbd> full screen</div>
+        </section>
+      </aside>
+    </main>
   </div>
 
-  <div id="overlay" class="overlay"></div>
+<script>
+(function(){
+  "use strict";
+  const $ = id => document.getElementById(id);
+  const STORE = "mmt.numberGroups.v1";
+  const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  <aside id="sidePanel" class="side-panel" aria-hidden="true">
-    <div class="panel-head">
-      <h2>Teacher settings</h2>
-      <button id="closePanelBtn" class="close-btn" type="button">Close</button>
-    </div>
-    <div class="panel-body">
-      <div class="check-row algebra-row">
-        <input id="algebraExamplesCheck" type="checkbox" />
-        <label class="check-label" for="algebraExamplesCheck">
-          Algebraic examples
-          <div class="help">Replace the repeated factor with a random letter. About 20% of the time this will be a two-letter combination such as <strong>ab</strong>.</div>
-        </label>
-      </div>
+  /* ================= state ================= */
+  const DEF = { kind:"num", total:10, terms:3, rTotal:false, rTerms:false, size:"mid", twoLet:true, one:true,
+    take:false, unlike:false, units:true, long:true, check:false, not:"times", panel:true };
+  const S = { set:Object.assign({}, DEF), q:null, step:0, anim:null, fs:false, noAnim:false };
+  try { const sv = JSON.parse(localStorage.getItem(STORE) || "null"); if(sv && sv.set) Object.assign(S.set, sv.set); } catch(e){}
+  function save(){ try { localStorage.setItem(STORE, JSON.stringify({ set:S.set })); } catch(e){} }
 
-      <div class="field field-total">
-        <label for="totalSelect">Total</label>
-        <select id="totalSelect" aria-label="Select total"></select>
-        <div class="help">Choose the combined total of the coefficients.</div>
-      </div>
-
-      <div class="field field-terms">
-        <label for="termCountSelect">Number of terms</label>
-        <select id="termCountSelect" aria-label="Select number of terms">
-          <option value="2">2</option>
-          <option value="3" selected>3</option>
-          <option value="4">4</option>
-          <option value="5">5</option>
-        </select>
-        <div class="help">The chosen number of coefficients will add to the selected total.</div>
-      </div>
-
-      <div class="check-row">
-        <input id="randomTotalCheck" type="checkbox" />
-        <label class="check-label" for="randomTotalCheck">
-          Randomise total
-          <div class="help">Choose a new total each time. The total dropdown will be disabled while this is on.</div>
-        </label>
-      </div>
-
-      <div class="check-row">
-        <input id="randomTermsCheck" type="checkbox" />
-        <label class="check-label" for="randomTermsCheck">
-          Randomise Number of Terms
-          <div class="help">Choose a new number of terms each time. The terms dropdown will be disabled while this is on.</div>
-        </label>
-      </div>
-    </div>
-  </aside>
-
-  <script>
-    const expressionEl = document.getElementById('expression');
-    const answerValueEl = document.getElementById('answerValue');
-    const statusEl = document.getElementById('status');
-    const newBtn = document.getElementById('newBtn');
-    const resetBtn = document.getElementById('resetBtn');
-    const revealBtn = document.getElementById('revealBtn');
-    const settingsBtn = document.getElementById('settingsBtn');
-    const toolsBtn = document.getElementById('toolsBtn');
-    const toolsMenu = document.getElementById('toolsMenu');
-    const closePanelBtn = document.getElementById('closePanelBtn');
-    const overlay = document.getElementById('overlay');
-    const sidePanel = document.getElementById('sidePanel');
-    const totalSelect = document.getElementById('totalSelect');
-    const termCountSelect = document.getElementById('termCountSelect');
-    const revealGroupsCheck = document.getElementById('revealGroupsCheck');
-    const showMultCheck = document.getElementById('showMultCheck');
-    const randomTotalCheck = document.getElementById('randomTotalCheck');
-    const randomTermsCheck = document.getElementById('randomTermsCheck');
-    const algebraExamplesCheck = document.getElementById('algebraExamplesCheck');
-
-    let current = null;
-    let isRevealed = false;
-
-    function randInt(min, max){
-      return Math.floor(Math.random() * (max - min + 1)) + min;
+  /* ================= numbers ================= */
+  const ri = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+  const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+  function shuffle(a){ a = a.slice(); for(let i = a.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+  /* n whole parts (each >= min) adding to total, in random order */
+  function compose(total, n, min){
+    /* random cut points, but no one term hogs the groups and at most one term is a lone 1 */
+    const cap = n === 2 ? total - min : Math.max(Math.ceil(total * 0.45), Math.ceil(total / n) + 2);
+    let best = null;
+    for(let t = 0; t < 80; t++){
+      const cuts = []; for(let i = 0; i < n - 1; i++) cuts.push(ri(1, total - 1));
+      cuts.sort((x, y) => x - y);
+      const v = []; let prev = 0; cuts.concat(total).forEach(c => { v.push(c - prev); prev = c; });
+      if(v.some(x => x < min)) continue;
+      best = v;
+      if(Math.max(...v) <= cap && v.filter(x => x === 1).length <= 1) return shuffle(v);
     }
+    if(best) return shuffle(best);
+    const v = Array(n).fill(min); let left = total - n * min, i = 0;
+    while(left-- > 0){ v[i % n]++; i++; }
+    return shuffle(v);
+  }
+  function countsFor(total, n, take, allowOne){
+    n = Math.max(2, Math.min(n, 5)); total = Math.max(n, total);
+    const min = allowOne ? 1 : 2;
+    if(!allowOne && total < 2 * n) total = 2 * n;
+    if(take){
+      const k = ri(1, Math.max(1, Math.min(6, Math.floor(total / 2))));
+      const pos = compose(total + k, n - 1, min);
+      const at = ri(1, n - 1);
+      const out = pos.map(c => ({ c, sign:1 }));
+      out.splice(at, 0, { c:k, sign:-1 });
+      return out;
+    }
+    return compose(total, n, min).map(c => ({ c, sign:1 }));
+  }
+  const LETTERS = "abcdefghjkmnpqrstuvwxyz".split("");
+  function numRange(){ return S.set.size === "small" ? [2, 9] : S.set.size === "big" ? [13, 99] : [3, 12]; }
+  function pickNum(avoid){ const [a, b] = numRange(); let g, t = 0; do { g = ri(a, b); } while((g === avoid || g === 10) && t++ < 40); return g; }
+  function pickLet(avoid){
+    let f, t = 0;
+    do {
+      if(S.set.twoLet && Math.random() < 0.2){ let p = pick(LETTERS), q = pick(LETTERS); while(q === p) q = pick(LETTERS); f = [p, q].sort().join(""); }
+      else f = pick(LETTERS);
+    } while((f === avoid || (avoid && f.length === 1 && avoid.includes(f) && avoid.length > 1 && Math.random() < .3)) && t++ < 40);
+    return f;
+  }
+  function pickUnlike(kind, A){
+    if(kind === "let"){ let f, t = 0; do { f = pick(LETTERS); } while((f === A || A.includes(f)) && t++ < 40); return f; }
+    const [a, b] = numRange(); let g, t = 0;
+    do { g = ri(Math.max(a, Math.ceil(A * 0.5)), Math.min(b, Math.floor(A * 1.6))); } while((g === A || g === 10) && t++ < 60);
+    if(g === A){ g = A > a ? A - 1 : A + 1; }
+    return g;
+  }
+  /* a question: terms [{c, sign, u}] (u = unlike), A = the group, B = the other group */
+  function makeQ(opts){
+    opts = opts || {};
+    const st = S.set, old = S.q;
+    let total = st.total, n = st.terms;
+    if(st.rTotal && !opts.keep){ total = ri(Math.max(5, n), 20); st.total = total; }
+    if(st.rTerms && !opts.keep){ n = ri(2, 5); st.terms = n; }
+    let terms;
+    if(opts.keep && old){ terms = old.terms.map(t => Object.assign({}, t)); }
+    else {
+      terms = countsFor(total, n, st.take, st.one);
+      if(st.unlike){ const at = ri(0, terms.length); terms.splice(at, 0, { c:ri(st.one ? 1 : 2, 4), sign:1, u:true }); }
+    }
+    const kind = st.kind;
+    const keepA = opts.keepGroup && old && old.kind === kind;
+    const A = keepA ? old.A : (kind === "num" ? pickNum(old && old.kind === "num" ? old.A : null) : pickLet(old && old.kind === "let" ? old.A : null));
+    const hasU = terms.some(t => t.u);
+    const B = hasU ? (keepA && old.B != null ? old.B : pickUnlike(kind, A)) : null;
+    const q = { kind, A, B, terms, own:!!opts.own };
+    q.tryA = ri(2, 9); q.tryB = ri(2, 9); if(q.tryB === q.tryA) q.tryB = q.tryA === 9 ? 8 : q.tryA + 1;
+    return finish(q);
+  }
+  function finish(q){
+    const like = q.terms.filter(t => !t.u);
+    q.pos = like.filter(t => t.sign > 0).reduce((s, t) => s + t.c, 0);
+    q.neg = like.filter(t => t.sign < 0).reduce((s, t) => s + t.c, 0);
+    q.n = q.pos - q.neg;
+    const u = q.terms.find(t => t.u); q.uc = u ? u.c : 0;
+    q.take = q.neg > 0; q.unlike = !!u;
+    if(q.kind === "num"){ q.likeVal = q.n * q.A; q.uVal = q.uc * (q.B || 0); q.value = q.likeVal + q.uVal; }
+    return q;
+  }
 
-    function shuffle(arr){
-      const copy = [...arr];
-      for(let i = copy.length - 1; i > 0; i--){
-        const j = Math.floor(Math.random() * (i + 1));
-        [copy[i], copy[j]] = [copy[j], copy[i]];
+  /* ================= notation ================= */
+  /* every token is a span; keyed ones (data-k) glide when the notation changes */
+  const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;");
+  const tk = (k, txt, cls) => `<span class="tk${cls ? " " + cls : ""}"${k ? ` data-k="${k}"` : ""}>${txt}</span>`;
+  function grpTxt(f){ return typeof f === "number" ? String(f) : `<span class="mv">${esc(f)}</span>`; }
+  function isLetter(f){ return typeof f !== "number"; }
+  /* one term: c groups of f, in the chosen notation */
+  function termHTML(c, f, key, cCls, fCls, not){
+    not = not || S.set.not;
+    const C = tk(key + "c", String(c), cCls), F = tk(key + "f", grpTxt(f), fCls);
+    if(not === "words") return C + tk(key + "w", c === 1 ? "group of" : "groups of", "word") + F;
+    if(not === "times") return C + tk(key + "x", "×", "op") + F;
+    if(isLetter(f)) return (c === 1 ? "" : C) + F;
+    return C + tk(key + "pa", "(") + F + tk(key + "pb", ")");
+  }
+  /* the grouped count, e.g. (3 + 2 + 5) × 7 */
+  function groupedHTML(q, key, not){
+    not = not || S.set.not;
+    let inner = "";
+    q.terms.filter(t => !t.u).forEach((t, i) => {
+      if(i > 0) inner += tk(key + "s" + i, t.sign < 0 ? "−" : "+", "op" + (t.sign < 0 ? " cM" : ""));
+      inner += tk(key + "n" + i, String(t.c), "cC");
+    });
+    const open = tk(key + "o", "("), close = tk(key + "e", ")");
+    const F = tk(key + "f", grpTxt(q.A), "cG");
+    if(not === "words") return open + inner + close + tk(key + "w", "groups of", "word") + F;
+    if(not === "times") return open + inner + close + tk(key + "x", "×", "op") + F;
+    if(isLetter(q.A)) return open + inner + close + F;
+    return open + inner + close + tk(key + "pa", "(") + F + tk(key + "pb", ")");
+  }
+  function unlikeHTML(q, key){ return tk(key + "us", "+", "op") + termHTML(q.uc, q.B, key + "u", "cC", "cU"); }
+  const plain = s => s.replace(/<[^>]+>/g, "").replace(/&amp;/g, "&").replace(/&lt;/g, "<");
+
+  function row1HTML(q){
+    return q.terms.map((t, i) => {
+      const sign = i === 0 ? "" : tk("s" + i, t.sign < 0 ? "−" : "+", "op" + (t.sign < 0 ? " cM" : ""));
+      return sign + termHTML(t.c, t.u ? q.B : q.A, "t" + i, "cC", t.u ? "cU" : "cG");
+    }).join("");
+  }
+  /* the working line, up to step index s (by step id) */
+  function row2HTML(q, upto){
+    const has = id => upto.includes(id);
+    if(!has("write")) return "";
+    let h = tk("eq1", "=", "op") + groupedHTML(q, "g");
+    if(q.unlike) h += unlikeHTML(q, "g");
+    h += tk("eq2", "=", "op") + termHTML(q.n, q.A, "r", "cT", "cG");
+    if(q.unlike) h += unlikeHTML(q, "r");
+    if(has("value")){
+      if(q.unlike) h += tk("eq3", "=", "op") + tk("v1", String(q.likeVal)) + tk("v2", "+", "op") + tk("v3", String(q.uVal));
+      h += tk("eq4", "=", "op") + tk("ans", String(q.value), "ans");
+    }
+    return h;
+  }
+
+  /* ================= steps ================= */
+  function stepIds(q){
+    const s = ["read", "spot", "draw", "collect"];
+    if(q.take) s.push("take");
+    s.push("write");
+    if(q.kind === "num") s.push("value"); else { s.push("simple"); if(S.set.check) s.push("try"); }
+    return s;
+  }
+  let IDS = [];
+  const sid = () => IDS[S.step];
+  const reached = id => IDS.indexOf(id) > -1 && IDS.indexOf(id) <= S.step;
+
+  /* ================= layout ================= */
+  const cv = document.createElement("canvas").getContext("2d");
+  function tw(txt, px, fam, wt){ cv.font = `${wt || 700} ${px}px ${fam || 'Cambria Math, "STIX Two Math", "Times New Roman", serif'}`; return cv.measureText(txt).width; }
+  const UI = 'system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif';
+  function termPlain(c, f, not){ return plain(termHTML(c, f, "z", "", "", not)).replace(/\s+/g, " ").replace(/(groups? of)/, " $1 "); }
+
+  let L = null;
+  function layout(minW, tries){
+    minW = minW || 560; tries = tries || 0;
+    const q = S.q, svg = $("board");
+    /* a phone-width board is drawn at 560 wide and scaled down to fit, so nothing runs off the side */
+    const cw = Math.max(200, svg.clientWidth), ch = Math.max(200, svg.clientHeight);
+    const W = Math.max(minW, cw), sc = cw / W, H = ch / sc;
+    const vb = `0 0 ${W.toFixed(1)} ${H.toFixed(1)}`;
+    if(svg.getAttribute("viewBox") !== vb) svg.setAttribute("viewBox", vb);
+    const top = (S.stmtH || 0) / sc;
+    /* never smaller than about 12px on the actual screen */
+    const minPx = tries > 0 ? 9 : 12;
+    const capF = Math.max(minPx / sc, Math.min(24, W / 40));
+    const base = H - capF * 2.1 - 6;
+    const n = q.terms.length;
+    /* bar lengths: a group of B is drawn in proportion to a group of A when both are numbers */
+    const ratio = q.unlike ? (q.kind === "num" ? q.B / q.A : (q.B.charCodeAt(0) % 2 ? 0.62 : 1.45)) : 1;
+    const lenOf = t => t.u ? ratio : 1;
+    const marg = Math.max(14, W * 0.03), sgnGap = Math.max(22, capF * 1.7);
+    /* spread: one column per term, captions under them read as the expression */
+    let f = capF, Lk, capNot = S.set.not;
+    let caps = q.terms.map(t => termPlain(t.c, t.u ? q.B : q.A, capNot));
+    for(let it = 0; it < 40; it++){
+      const capW = caps.map(c => tw(c, f) * 1.04);
+      const free = W - 2 * marg - (n - 1) * sgnGap;
+      Lk = Math.min(W * 0.26, 230, free / q.terms.reduce((s, t) => s + lenOf(t), 0) * 0.92);
+      const need = q.terms.reduce((s, t, i) => s + Math.max(Lk * lenOf(t), capW[i]), 0);
+      if(need <= free) break;
+      if(f <= Math.max(11.5, minPx / sc)){
+        /* the words version will not fit under the columns: write the captions with × instead */
+        if(capNot !== "words") break;
+        capNot = "times"; f = capF; caps = q.terms.map(t => termPlain(t.c, t.u ? q.B : q.A, capNot)); continue;
       }
-      return copy;
+      f *= 0.93;
     }
+    /* stacked: braces | pile | label  [ unlike pile | label ]  [ waiting take-away bars ] */
+    const lblF = Math.max(11, minPx / sc, Math.min(24, W / 42));
+    const lbl = Math.max(tw("3 + 2 + 5 + 4 + 6", lblF), tw("= 20 groups of 99", lblF, null, 800)) + 34;
+    const uLbl = q.unlike ? Math.max(tw("2 groups of 5", lblF * .82, UI, 800), tw("a different size", lblF * .72, UI, 700)) + 24 : 0;
+    const takeLbl = q.take ? tw(`take away ${q.neg}`, f * .8, UI, 800) + 10 : 0;
+    const fixed = 66 + lbl + (q.unlike ? 30 + uLbl : 0) + (q.take ? 40 : 0) + 2 * marg;
+    const stackFree = (W - fixed) / (1 + (q.unlike ? ratio : 0) + (q.take ? 1 : 0));
+    Lk = Math.max(24, Math.min(Lk, stackFree));
+    /* rows */
+    const colRows = Math.max(...q.terms.map(t => t.c));
+    const pileRows = Math.max(q.pos, q.uc);
+    const room = base - top - 12;
+    const pitch = Math.max(5, Math.min(44, room / Math.max(colRows, pileRows)));
+    const bh = Math.max(3.5, pitch - Math.max(2, pitch * 0.17));
+    /* spread x */
+    const slots = q.terms.map((t, i) => Math.max(Lk * lenOf(t), tw(caps[i], f) * 1.04));
+    const tot = slots.reduce((s, x) => s + x, 0) + (n - 1) * sgnGap;
+    let x = (W - tot) / 2; const colC = [];
+    slots.forEach(w => { colC.push(x + w / 2); x += w + sgnGap; });
+    /* stacked x */
+    const parts = [66, Lk, lbl]; if(q.unlike) parts.push(30, Lk * ratio, uLbl); if(q.take) parts.push(40, Math.max(Lk, takeLbl));
+    const sw = parts.reduce((s, v) => s + v, 0);
+    /* too much for a small board (unlike AND taking away on a phone): draw it on a wider canvas */
+    if(sw > W - 2 * marg + 1 && tries < 4) return layout(W * (sw + 2 * marg) / W + 20, tries + 1);
+    const sx = Math.max(marg, (W - sw) / 2);
+    const pileX = sx + 66, uX = pileX + Lk + lbl + 30, takeX = (q.unlike ? uX + Lk * ratio + uLbl : pileX + Lk + lbl) + 40 + Math.max(0, takeLbl - Lk) / 2;
+    L = { W, H, top, base, capNot, capF:f, lblF, Lk, ratio, pitch, bh, colC, slots, sgnGap, pileX, uX, takeX };
+    return L;
+  }
 
-    function escapeHtml(str){
-      return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
-    }
-
-    function fillTotalOptions(){
-      let html = '';
-      for(let i = 5; i <= 20; i++){
-        html += `<option value="${i}" ${i === 10 ? 'selected' : ''}>${i}</option>`;
-      }
-      totalSelect.innerHTML = html;
-    }
-
-    function randomComposition(total, parts, minValue = 1){
-      const values = [];
-      let remaining = total;
-      for(let i = 0; i < parts - 1; i++){
-        const minRemaining = (parts - i - 1) * minValue;
-        const maxForThis = remaining - minRemaining;
-        const value = randInt(minValue, maxForThis);
-        values.push(value);
-        remaining -= value;
-      }
-      values.push(remaining);
-      return shuffle(values);
-    }
-
-    function buildTerms(total, termCount){
-      return randomComposition(total, termCount, 1);
-    }
-
-    function randomLetterFactor(){
-      const singleLetters = 'abcdefghijkmnpqrstuvwxyz'.split('');
-      if(Math.random() < 0.2){
-        let first = singleLetters[randInt(0, singleLetters.length - 1)];
-        let second = singleLetters[randInt(0, singleLetters.length - 1)];
-        while(second === first){
-          second = singleLetters[randInt(0, singleLetters.length - 1)];
+  /* ================= scenes ================= */
+  const SHADE_S = ["#4ade80", "#22c55e", "#34d399"], SHADE_P = ["#bbf7d0", "#d1fae5", "#a7f3d0"];
+  function barY(r){ return L.base - (r + 1) * L.pitch + (L.pitch - L.bh); }
+  /* the board at a step: a list of keyed elements. Moving between two steps tweens every key. */
+  function scene(id){
+    const q = S.q, at = IDS.indexOf(id), has = s => { const k = IDS.indexOf(s); return k > -1 && k <= at; };
+    const els = [];
+    const drawn = has("draw"), stacked = has("collect"), taken = has("take");
+    const tryIt = has("try");
+    const grpLab = u => {
+      const f = u ? q.B : q.A;
+      if(tryIt) return String(u ? q.tryB : q.tryA);
+      return String(f);
+    };
+    const unitsOf = u => {
+      if(!S.set.units) return 0;
+      const v = q.kind === "num" ? (u ? q.B : q.A) : (tryIt ? (u ? q.tryB : q.tryA) : 0);
+      return v && v <= 12 ? v : 0;
+    };
+    const likeTerms = q.terms.map((t, i) => ({ t, i })).filter(o => !o.t.u);
+    /* where each like, positive term starts in the pile */
+    /* the first term goes on TOP of the pile, so the braces read in the same order as the sentence */
+    let r = 0; const start = {};
+    likeTerms.slice().reverse().forEach(o => { if(o.t.sign > 0){ start[o.i] = r; r += o.t.c; } });
+    const total = q.terms.reduce((s, t) => s + t.c, 0); let seq = 0;
+    q.terms.forEach((t, i) => {
+      const len = L.Lk * (t.u ? L.ratio : 1);
+      /* neighbouring bands alternate strong / pale so each term's groups stay visible in the pile */
+      const pIdx = likeTerms.filter(o => o.t.sign > 0).findIndex(o => o.i === i);
+      const shade = t.u ? null : (pIdx % 2 ? SHADE_P : SHADE_S)[Math.floor(pIdx / 2) % 3];
+      for(let j = 0; j < t.c; j++){
+        const e = { key:`b${i}_${j}`, type:"bar", w:len, h:L.bh, lab:grpLab(t.u), units:unitsOf(t.u), o:0 };
+        e.fill = t.u ? "#ddd6fe" : t.sign < 0 ? "#fecaca" : shade;
+        e.stroke = t.u ? "#6d28d9" : t.sign < 0 ? "#dc2626" : "#15803d";
+        e.lc = t.u ? "#4c1d95" : t.sign < 0 ? "#991b1b" : "#14532d";
+        /* spread */
+        e.x = L.colC[i] - len / 2; e.y = barY(j);
+        if(drawn){ e.o = 1; e.d = 0.42 * (seq / Math.max(1, total)); }
+        if(stacked){
+          e.d = 0.4 * (i / Math.max(1, q.terms.length)) + 0.012 * j;
+          if(t.u){ e.x = L.uX; e.y = barY(j); }
+          else if(t.sign > 0){ e.x = L.pileX; e.y = barY(start[i] + j); }
+          else { e.x = L.takeX; e.y = barY(j); }
         }
-        return first + second;
+        if(taken && t.sign < 0){
+          /* the take-away bars land on the top of the pile and both disappear */
+          e.x = L.pileX; e.y = barY(q.pos - 1 - j); e.o = 0; e.d = 0.05 * j; e.late = true;
+        }
+        seq++;
+        els.push(e);
       }
-      return singleLetters[randInt(0, singleLetters.length - 1)];
+    });
+    /* the top bars of the pile that are taken away */
+    if(taken){
+      els.forEach(e => {
+        if(e.type !== "bar") return;
+        const m = /^b(\d+)_(\d+)$/.exec(e.key), t = q.terms[+m[1]];
+        if(t.u || t.sign < 0) return;
+        const row = start[+m[1]] + +m[2];
+        if(row >= q.n){ e.fill = "#fff"; e.stroke = "#fca5a5"; e.dash = true; e.lc = "#fca5a5"; e.o = 0.55; e.units = 0; e.d = 0.05 * (q.pos - 1 - row); e.late = true; }
+      });
     }
-
-    function renderSingleTerm(term, commonFactor, revealGroups, showMult){
-      const coefClass = revealGroups ? 'coef' : '';
-      const factorClass = revealGroups ? 'factor reveal-groups' : 'factor';
-      const safeFactor = escapeHtml(commonFactor);
-      const isNumericFactor = typeof commonFactor === 'number';
-
-      const coefHtml = `<span class="${coefClass}">${term}</span>`;
-      const factorHtml = `<span class="${factorClass}">${safeFactor}</span>`;
-
-      if(showMult){
-        return `${coefHtml}<span class="times"> × </span>${factorHtml}`;
-      }
-
-      if(isNumericFactor){
-        return `${coefHtml}<span class="paren">(</span>${factorHtml}<span class="paren">)</span>`;
-      }
-
-      if(term === 1){
-        return factorHtml;
-      }
-
-      return `${coefHtml}${factorHtml}`;
+    /* captions under the columns: the expression again, one term under each column */
+    if(drawn && !stacked){
+      q.terms.forEach((t, i) => {
+        els.push({ key:"cap" + i, type:"text", x:L.colC[i], y:L.base + L.capF * 1.35, o:1, size:L.capF,
+          html:svgTerm(t.c, t.u ? q.B : q.A, t.u ? "#5b21b6" : "#15803d", null, L.capNot), d:0.1 });
+        if(i > 0) els.push({ key:"sg" + i, type:"text", x:L.colC[i] - L.slots[i] / 2 - L.sgnGap / 2, y:L.base + L.capF * 1.35, o:1, size:L.capF * 1.1,
+          html:`<tspan fill="${t.sign < 0 ? "#dc2626" : "#334155"}">${t.sign < 0 ? "−" : "+"}</tspan>`, d:0.1 });
+      });
     }
-
-    function renderExpression(terms, commonFactor, revealGroups, showMult){
-      return terms.map((term, index) => {
-        const op = index === 0 ? '' : ' <span class="op">+</span> ';
-        return `${op}${renderSingleTerm(term, commonFactor, revealGroups, showMult)}`;
-      }).join('');
-    }
-
-    function applyExpressionSizing(){
-      if(!current) return;
-      expressionEl.classList.remove('tight', 'tighter');
-      const count = current.terms.length;
-      const factorLength = String(current.commonFactor).length;
-      if(count >= 5 || factorLength >= 2){
-        expressionEl.classList.add('tight');
+    if(stacked){
+      const pileTop = barY(q.pos - 1), pileBot = L.base;
+      /* a brace for each term's band, with its count */
+      likeTerms.forEach(o => {
+        if(o.t.sign < 0) return;
+        const y1 = barY(start[o.i] + o.t.c - 1) - 1, y2 = barY(start[o.i]) + L.bh + 1;
+        els.push({ key:"bb" + o.i, type:"brace", x:L.pileX - 8, y1, y2, dir:-1, o:taken ? 0.35 : 1, col:"#2563eb", d:0.5 });
+        els.push({ key:"bt" + o.i, type:"text", x:L.pileX - 30, y:(y1 + y2) / 2 + L.lblF * 0.34, o:taken ? 0.35 : 1, size:L.lblF, anchor:"end",
+          html:`<tspan fill="#1d4ed8">${o.t.c}</tspan>`, d:0.5 });
+      });
+      /* the count on the right */
+      const posList = likeTerms.filter(o => o.t.sign > 0).map(o => o.t.c);
+      const yTop = taken ? barY(q.n - 1) - 1 : pileTop - 1;
+      const midY = (yTop + pileBot) / 2;
+      const rx = L.pileX + L.Lk + 8;
+      els.push({ key:taken ? "rb2" : "rb", type:"brace", x:rx, y1:yTop, y2:pileBot, dir:1, o:1, col:"#1d4ed8", d:0.55 });
+      const count = taken ? `${q.pos} − ${q.neg}` : posList.join(" + ");
+      const nNow = taken ? q.n : q.pos;
+      els.push({ key:taken ? "rl1b" : "rl1", type:"text", x:rx + 26, y:midY - L.lblF * 0.25, o:1, size:L.lblF, anchor:"start",
+        html:`<tspan fill="#1d4ed8">${count.replace(/−/g, `</tspan><tspan fill="#dc2626">−</tspan><tspan fill="#1d4ed8">`)}</tspan>`, d:0.6 });
+      els.push({ key:taken ? "rl2b" : "rl2", type:"text", x:rx + 26, y:midY + L.lblF * 1.05, o:1, size:L.lblF, anchor:"start",
+        html:`<tspan fill="#334155">= </tspan><tspan fill="#1d4ed8" font-weight="800">${nNow}</tspan><tspan fill="#64748b" font-family='${UI}' font-weight="800" font-size="${(L.lblF * .7).toFixed(1)}"> ${nNow === 1 ? "group" : "groups"} of </tspan>${svgGrp(q.A, "#15803d")}`, d:0.6 });
+      if(q.unlike){
+        const uy = (barY(q.uc - 1) + L.base) / 2;
+        els.push({ key:"ul1", type:"text", x:L.uX + L.Lk * L.ratio + 12, y:uy - 2, o:1, size:L.lblF * .82, anchor:"start", fam:UI,
+          html:`<tspan fill="#5b21b6" font-weight="800">${q.uc} ${q.uc === 1 ? "group" : "groups"} of </tspan>${svgGrp(q.B, "#5b21b6")}`, d:0.6 });
+        els.push({ key:"ul2", type:"text", x:L.uX + L.Lk * L.ratio + 12, y:uy + L.lblF * 0.9, o:1, size:L.lblF * .72, anchor:"start", fam:UI,
+          html:`<tspan fill="#64748b" font-weight="700">a different size</tspan>`, d:0.6 });
       }
-      if((count >= 5 && factorLength >= 2) || count >= 6){
-        expressionEl.classList.add('tighter');
+      if(q.take && !taken){
+        els.push({ key:"tl", type:"text", x:L.takeX + L.Lk / 2, y:L.base + L.capF * 1.35, o:1, size:L.capF * .8, fam:UI,
+          html:`<tspan fill="#dc2626" font-weight="800">take away ${q.neg}</tspan>`, d:0.6 });
+        els[els.length - 1].x = Math.min(L.W - 4 - tw(`take away ${q.neg}`, L.capF * .8, UI, 800) / 2, els[els.length - 1].x);
+      }
+      /* the pile's caption once it is written short */
+      if(has("write")){
+        const cy = L.base + L.capF * 1.35;
+        let h = svgTerm(q.n, q.A, "#15803d", "#1d4ed8");
+        if(tryIt) h = svgTerm(q.n, q.tryA, "#15803d", "#1d4ed8", "times") + ` <tspan fill="#334155">= </tspan><tspan fill="#0f172a" font-weight="800">${q.n * q.tryA}</tspan>`;
+        else if(has("value")) h += ` <tspan fill="#334155">= </tspan><tspan fill="#0f172a" font-weight="800">${q.likeVal}</tspan>`;
+        els.push({ key:tryIt ? "pcapT" : has("value") ? "pcapV" : "pcap", type:"text", x:clampX(L.pileX + L.Lk / 2, h, L.capF), y:cy, o:1, size:L.capF, html:h, d:0.2 });
+        if(q.unlike){
+          let u = svgTerm(q.uc, q.B, "#5b21b6", "#1d4ed8");
+          if(tryIt) u = svgTerm(q.uc, q.tryB, "#5b21b6", "#1d4ed8", "times") + ` <tspan fill="#334155">= </tspan><tspan fill="#0f172a" font-weight="800">${q.uc * q.tryB}</tspan>`;
+          else if(has("value")) u += ` <tspan fill="#334155">= </tspan><tspan fill="#0f172a" font-weight="800">${q.uVal}</tspan>`;
+          els.push({ key:tryIt ? "ucapT" : has("value") ? "ucapV" : "ucap", type:"text", x:clampX(L.uX + L.Lk * L.ratio / 2, u, L.capF), y:cy, o:1, size:L.capF, html:u, d:0.2 });
+        }
       }
     }
-
-  function simplifyDisplay(total, commonFactor, value){
-  if(showMultCheck.checked){
-    return `${total} × ${commonFactor} = ${value}`;
+    return els;
+  }
+  /* keep a centred caption inside the board: width measured from its plain text */
+  function clampX(x, html, size){
+    const w = tw(html.replace(/<[^>]+>/g, ""), size) * 1.05;
+    return Math.max(w / 2 + 4, Math.min(L.W - w / 2 - 4, x));
+  }
+  function svgGrp(f, col){ return typeof f === "number" ? `<tspan fill="${col}">${f}</tspan>` : `<tspan fill="${col}" font-style="italic">${esc(f)}</tspan>`; }
+  function svgTerm(c, f, fCol, cCol, not){
+    not = not || S.set.not; cCol = cCol || "#1d4ed8";
+    const C = `<tspan fill="${cCol}">${c}</tspan>`, F = svgGrp(f, fCol);
+    if(not === "words") return `${C}<tspan fill="#64748b" font-family='${UI}' font-weight="800" font-size=".66em"> ${c === 1 ? "group" : "groups"} of </tspan>${F}`;
+    if(not === "times") return `${C}<tspan fill="#334155"> × </tspan>${F}`;
+    if(typeof f !== "number") return (c === 1 ? "" : C) + F;
+    return `${C}<tspan fill="#334155">(</tspan>${F}<tspan fill="#334155">)</tspan>`;
   }
 
-  // bracket notation for numeric factors
-  if(typeof commonFactor === 'number'){
-    return `${total}(${commonFactor}) = ${value}`;
+  /* ================= drawing ================= */
+  const ease = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  const lerp = (a, b, t) => a + (b - a) * t;
+  function brace(x, y1, y2, dir){
+    let w = Math.min(9, (y2 - y1) / 4); if(w < 1.5) w = 1.5;
+    const m = (y1 + y2) / 2, b = x + dir * w, tip = x + 2 * dir * w;
+    return `M${x} ${y1}Q${b} ${y1} ${b} ${y1 + w}L${b} ${m - w}Q${b} ${m} ${tip} ${m}Q${b} ${m} ${b} ${m + w}L${b} ${y2 - w}Q${b} ${y2} ${x} ${y2}`;
+  }
+  function drawEls(list){
+    let bars = "", over = "";
+    list.forEach(e => {
+      if(e.o <= 0.004) return;
+      if(e.type === "bar"){
+        const op = e.o.toFixed(3), rx = Math.min(5, e.h * .3);
+        let s = `<g opacity="${op}"><rect x="${e.x.toFixed(1)}" y="${e.y.toFixed(1)}" width="${e.w.toFixed(1)}" height="${e.h.toFixed(1)}" rx="${rx}" fill="${e.fill}" stroke="${e.stroke}" stroke-width="1.6"${e.dash ? ' stroke-dasharray="5 4"' : ""}/>`;
+        if(e.units > 1 && e.w / e.units >= 5 && e.h >= 6){
+          let p = ""; for(let k = 1; k < e.units; k++){ const xx = e.x + e.w * k / e.units; p += `M${xx.toFixed(1)} ${(e.y + 1.5).toFixed(1)}V${(e.y + e.h - 1.5).toFixed(1)}`; }
+          s += `<path d="${p}" stroke="${e.stroke}" stroke-opacity=".38" stroke-width="1.1"/>`;
+        }
+        if(e.h >= 11 && e.lab){
+          const fs = Math.min(e.h * 0.74, 22, e.w * 0.42);
+          const it = /^[a-z]+$/.test(e.lab) ? ' font-style="italic"' : "";
+          s += `<text x="${(e.x + e.w / 2).toFixed(1)}" y="${(e.y + e.h / 2 + fs * 0.34).toFixed(1)}" text-anchor="middle" font-size="${fs.toFixed(1)}" fill="${e.lc}"${it} stroke="${e.dash ? "none" : "#ffffff"}" stroke-width="${e.units > 1 ? 3.2 : 0}" stroke-opacity=".85" paint-order="stroke">${esc(e.lab)}</text>`;
+        }
+        bars += s + "</g>";
+      } else if(e.type === "text"){
+        over += `<text x="${e.x.toFixed(1)}" y="${e.y.toFixed(1)}" opacity="${e.o.toFixed(3)}" text-anchor="${e.anchor || "middle"}" font-size="${e.size.toFixed(1)}"${e.fam ? ` style='font-family:${e.fam}'` : ""}>${e.html}</text>`;
+      } else if(e.type === "brace"){
+        over += `<path d="${brace(e.x, e.y1, e.y2, e.dir)}" fill="none" stroke="${e.col}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="${e.o.toFixed(3)}"/>`;
+      }
+    });
+    $("board").innerHTML = bars + over;
+  }
+  /* tween between two scenes; T in 0..1 */
+  function mix(A, B, T){
+    const out = [], mapA = new Map(A.map(e => [e.key, e]));
+    const span = 0.58;
+    B.forEach(b => {
+      const a = mapA.get(b.key); mapA.delete(b.key);
+      const d = Math.min(0.42, b.d || 0), t = ease(Math.max(0, Math.min(1, (T - d) / span)));
+      if(!a){ out.push(Object.assign({}, b, { o:b.o * t })); return; }
+      /* "late" elements travel first and change (colour, fade) only once they have landed */
+      const late = (b.late && !a.late) || (a.late && !b.late);
+      const tc = late ? Math.max(0, Math.min(1, (t - 0.62) / 0.38)) : t;
+      const e = Object.assign({}, tc < 0.5 ? a : b);
+      ["x", "y", "w", "h", "y1", "y2"].forEach(p => { if(typeof a[p] === "number" && typeof b[p] === "number") e[p] = lerp(a[p], b[p], t); });
+      if(typeof a.o === "number" && typeof b.o === "number") e.o = lerp(a.o, b.o, tc);
+      if(a.type === "bar"){ e.lab = tc < 0.5 ? a.lab : b.lab; e.units = tc < 0.5 ? a.units : b.units; }
+      out.push(e);
+    });
+    mapA.forEach(a => { const t = ease(Math.max(0, Math.min(1, T / span))); out.push(Object.assign({}, a, { o:a.o * (1 - t) })); });
+    return out;
   }
 
-  // algebraic (no brackets, just adjacency)
-  return `${total}${commonFactor}`;
-}
-
-    function generateQuestion(){
-      let total = Number(totalSelect.value);
-      let termCount = Number(termCountSelect.value);
-
-      if(randomTotalCheck.checked){
-        total = randInt(5, 20);
-        totalSelect.value = String(total);
-      }
-
-      if(randomTermsCheck.checked){
-        termCount = randInt(2, 5);
-        termCountSelect.value = String(termCount);
-      }
-
-      const commonFactor = algebraExamplesCheck.checked ? randomLetterFactor() : randInt(4, 10);
-      const terms = buildTerms(total, termCount);
-      const coefficientTotal = terms.reduce((sum, n) => sum + n, 0);
-      const numericValue = typeof commonFactor === 'number' ? coefficientTotal * commonFactor : null;
-
-      return {
-        total: coefficientTotal,
-        termCount,
-        commonFactor,
-        terms,
-        answer: typeof commonFactor === 'number'
-          ? simplifyDisplay(coefficientTotal, commonFactor, numericValue)
-          : `${coefficientTotal}${commonFactor}`
-      };
+  /* ================= the number sentence ================= */
+  function fitStmt(){
+    const st = $("stmt"), r1 = $("row1"), r2 = $("row2"), stage = $("stage");
+    const W = stage.clientWidth - 16;
+    st.classList.remove("wrap");
+    /* size it for the LONGEST the working ever gets, so nothing changes size mid-steps */
+    const keep2 = r2.innerHTML;
+    r2.innerHTML = row2HTML(S.q, IDS);
+    let F = Math.min(46, Math.max(18, stage.clientHeight / 9));
+    st.style.fontSize = F + "px";
+    const need = Math.max(r1.scrollWidth, r2.scrollWidth);
+    if(need > W) F = Math.max(16, F * W / need * 0.97);
+    st.style.fontSize = F + "px";
+    if(Math.max(r1.scrollWidth, r2.scrollWidth) > W + 2) st.classList.add("wrap");
+    S.stmtH = st.offsetHeight + 8;
+    r2.innerHTML = keep2;
+    S.fitF = F;
+  }
+  function placeStmt(){
+    const st = $("stmt"), stage = $("stage"), r1 = $("row1");
+    const centre = IDS.indexOf(sid()) < IDS.indexOf("draw");
+    if(!centre){ st.style.transform = "none"; return; }
+    const H = stage.clientHeight, W = stage.clientWidth;
+    const cy = r1.offsetTop + r1.offsetHeight / 2;
+    const s = Math.max(1, Math.min(2.1, (W * 0.9) / Math.max(1, r1.scrollWidth), (H * 0.4) / Math.max(1, r1.offsetHeight)));
+    st.style.transformOrigin = `50% ${cy}px`;
+    st.style.transform = `translateY(${(H * 0.45 - cy).toFixed(1)}px) scale(${s.toFixed(3)})`;
+  }
+  /* repaint the sentence; keyed tokens glide from where they were (notation switch) */
+  function paintStmt(glide){
+    const st = $("stmt"), r1 = $("row1"), r2 = $("row2");
+    const before = new Map();
+    if(glide && !reduce) st.querySelectorAll("[data-k]").forEach(el => before.set(el.closest(".row").id + el.dataset.k, el.getBoundingClientRect()));
+    const old2 = new Set([...r2.querySelectorAll("[data-k]")].map(el => el.dataset.k));
+    r1.innerHTML = row1HTML(S.q);
+    r2.innerHTML = row2HTML(S.q, IDS.slice(0, S.step + 1));
+    st.classList.toggle("plain", S.step < IDS.indexOf("spot"));
+    if(glide){ fitStmt(); }
+    if(glide && !reduce){
+      st.querySelectorAll("[data-k]").forEach(el => {
+        const b = before.get(el.closest(".row").id + el.dataset.k);
+        if(!b){ el.classList.add("new", "late"); return; }
+        const a = el.getBoundingClientRect();
+        const dx = b.left - a.left, dy = b.top - a.top;
+        if(Math.abs(dx) + Math.abs(dy) > 0.5) el.animate([{ transform:`translate(${dx}px,${dy}px)` }, { transform:"none" }], { duration:520, easing:"cubic-bezier(.45,.05,.25,1)" });
+      });
+    } else if(!glide){
+      /* new working appears as the steps go on */
+      r2.querySelectorAll("[data-k]").forEach(el => { if(!old2.has(el.dataset.k) && !reduce && !S.noAnim) el.classList.add("new"); });
     }
+  }
 
-    function renderQuestion(){
-      current = generateQuestion();
-      isRevealed = false;
-      expressionEl.innerHTML = renderExpression(
-        current.terms,
-        current.commonFactor,
-        revealGroupsCheck.checked,
-        showMultCheck.checked
-      );
-      applyExpressionSizing();
-      answerValueEl.innerHTML = '&nbsp;';
-      answerValueEl.classList.remove('show');
-      statusEl.textContent = 'Press Enter to reveal. Press Space for a new question.';
-    }
-
-    function rerenderCurrentExpression(){
-      if(!current) return;
-      expressionEl.innerHTML = renderExpression(
-        current.terms,
-        current.commonFactor,
-        revealGroupsCheck.checked,
-        showMultCheck.checked
-      );
-      applyExpressionSizing();
-    }
-
-    function revealAnswer(){
-      if(!current || isRevealed) return;
-      answerValueEl.textContent = current.answer;
-      answerValueEl.classList.remove('show');
-      void answerValueEl.offsetWidth;
-      answerValueEl.classList.add('show');
-      isRevealed = true;
-      statusEl.textContent = 'Press Space for a new question.';
-    }
-
-    function openPanel(){
-      sidePanel.classList.add('open');
-      overlay.classList.add('show');
-      sidePanel.setAttribute('aria-hidden', 'false');
-    }
-
-    function closePanel(){
-      sidePanel.classList.remove('open');
-      overlay.classList.remove('show');
-      sidePanel.setAttribute('aria-hidden', 'true');
-    }
-
-    settingsBtn.addEventListener('click', openPanel);
-    closePanelBtn.addEventListener('click', closePanel);
-    overlay.addEventListener('click', closePanel);
-
-    toolsBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const show = !toolsMenu.classList.contains('show');
-      toolsMenu.classList.toggle('show', show);
-      toolsBtn.setAttribute('aria-expanded', show ? 'true' : 'false');
-    });
-
-    document.addEventListener('click', (e) => {
-      if(!toolsMenu.contains(e.target) && e.target !== toolsBtn){
-        toolsMenu.classList.remove('show');
-        toolsBtn.setAttribute('aria-expanded', 'false');
+  /* ================= words: story + hint ================= */
+  const G = () => grpTxt(S.q.A);
+  const gw = c => c === 1 ? "group" : "groups";
+  function storyFor(id){
+    const q = S.q, A = G(), lik = q.terms.filter(t => !t.u);
+    const cs = lik.filter(t => t.sign > 0).map(t => `<span class="cC">${t.c}</span>`);
+    const B = q.unlike ? grpTxt(q.B) : "";
+    switch(id){
+      case "read": return { lab:"Read it", m:`<span class="plainM">${row1HTML(q).replace(/data-k="[^"]*"/g, "")}</span>`, tip:"What is the same in every term? What is different?" };
+      case "spot": return { lab:"Spot the group", m:`<span class="word">every term is some groups of</span> <span class="cG">${A}</span>`,
+        tip:`The <b style="color:var(--green-dark)">${plain(A)}</b> is the size of one group. The blue numbers count how many groups.` +
+          (q.unlike ? ` Except one term: it is groups of <b style="color:var(--purple-dark)">${plain(B)}</b>.` : "") +
+          (q.kind === "let" && lik.some(t => t.c === 1) ? ` <span class="eq">${A}</span> on its own is <b>1</b> group of <span class="eq">${A}</span>.` : "") };
+      case "draw": return { lab:"Draw the groups", m:lik.map((t, i) => (i ? (t.sign < 0 ? ' <span class="cM">−</span> ' : " + ") : "") + `<span class="cC">${t.c}</span> <span class="word">${gw(t.c)}</span>`).join(""),
+        tip:"One bar for each group. Every bar is the same size, because every group is the same." };
+      case "collect": return { lab:"Put the groups together", m:`${cs.join(" + ")} = <span class="cT">${q.pos}</span> <span class="word">${gw(q.pos)} of</span> <span class="cG">${A}</span>`,
+        tip:(q.unlike ? `The groups of <span class="eq cU">${B}</span> are a different size, so they can&rsquo;t join the pile. ` : "") +
+          (q.take ? `The red ${gw(q.neg)} still ${q.neg === 1 ? "has" : "have"} to come off.` : "We are adding up how many groups there are, not the size of a group.") };
+      case "take": return { lab:`Take ${q.neg} ${gw(q.neg)} away`, m:`${q.pos} <span class="cM">−</span> ${q.neg} = <span class="cT">${q.n}</span> <span class="word">${gw(q.n)} of</span> <span class="cG">${A}</span>`,
+        tip:`Taking away ${q.neg} ${gw(q.neg)} of ${plain(A)} takes ${q.neg} ${q.neg === 1 ? "bar" : "bars"} off the pile.` };
+      case "write": return { lab:"Write it shorter", m:groupedHTML(q, "q") + (q.unlike ? unlikeHTML(q, "q") : "") + ` = ` + termHTML(q.n, q.A, "w", "cT", "cG") + (q.unlike ? unlikeHTML(q, "w") : ""),
+        tip:`Count the groups first, then there is only one multiplication.` };
+      case "value": {
+        const long = q.terms.map((t, i) => (i ? (t.sign < 0 ? " − " : " + ") : "") + t.c * (t.u ? q.B : q.A)).join("");
+        const one = `${q.n} × ${q.A} = ${q.likeVal}` + (q.unlike ? `, then ${q.likeVal} + ${q.uVal}` : "");
+        const mm = q.unlike
+          ? `<span class="cT">${q.n}</span> × <span class="cG">${q.A}</span> = ${q.likeVal}<span class="word">, so</span>${q.likeVal} + ${q.uVal} = <span class="ans">${q.value}</span>`
+          : `<span class="cT">${q.n}</span> × <span class="cG">${q.A}</span> = <span class="ans">${q.value}</span>`;
+        return { lab:"Work it out", m:mm,
+          tip:S.set.long ? `The long way: <span class="eq">${long} = ${q.value}</span>. Same answer, but that is ${q.terms.length} multiplications instead of ${q.unlike ? 2 : 1}: <span class="eq">${one}</span>.` : "" };
       }
-    });
-
-    revealBtn.addEventListener('click', revealAnswer);
-    newBtn.addEventListener('click', renderQuestion);
-    resetBtn.addEventListener('click', () => {
-      window.location.reload();
-    });
-
-    totalSelect.addEventListener('change', renderQuestion);
-    termCountSelect.addEventListener('change', renderQuestion);
-
-    revealGroupsCheck.addEventListener('change', rerenderCurrentExpression);
-    showMultCheck.addEventListener('change', rerenderCurrentExpression);
-
-    randomTotalCheck.addEventListener('change', () => {
-      totalSelect.disabled = randomTotalCheck.checked;
-      renderQuestion();
-    });
-
-    randomTermsCheck.addEventListener('change', () => {
-      termCountSelect.disabled = randomTermsCheck.checked;
-      renderQuestion();
-    });
-
-    algebraExamplesCheck.addEventListener('change', () => {
-      renderQuestion();
-    });
-
-    document.addEventListener('keydown', (e) => {
-      const tag = document.activeElement ? document.activeElement.tagName : '';
-      if(tag === 'SELECT') return;
-
-      if(e.key === 'Enter'){
-        e.preventDefault();
-        revealAnswer();
+      case "simple": return { lab:"Simplest form", m:termHTML(q.n, q.A, "s", "cT", "cG", "brackets") + (q.unlike ? ` + ` + termHTML(q.uc, q.B, "su", "cC", "cU", "brackets") : "") + (S.set.not === "brackets" ? "" : ` <span class="word">(${q.n} ${gw(q.n)} of ${G()}${q.unlike ? ` and ${q.uc} of ${grpTxt(q.B)}` : ""})</span>`),
+        tip:`We stop here. <span class="eq">${q.n}${plain(A)}</span> means ${q.n} ${gw(q.n)} of whatever <span class="eq">${A}</span> is &mdash; we don&rsquo;t know its size, so we can&rsquo;t multiply it out.` +
+          (q.unlike ? ` And <span class="eq">${q.uc}${plain(B)}</span> stays as it is: groups of <span class="eq">${B}</span> are not groups of <span class="eq">${A}</span>.` : "") };
+      case "try": {
+        const xs = q.terms.map((t, i) => (i ? (t.sign < 0 ? " − " : " + ") : "") + `${t.c} × ${t.u ? q.tryB : q.tryA}`).join("");
+        const vs = q.terms.map((t, i) => (i ? (t.sign < 0 ? " − " : " + ") : "") + t.c * (t.u ? q.tryB : q.tryA)).join("");
+        const tot = q.terms.reduce((s, t) => s + t.sign * t.c * (t.u ? q.tryB : q.tryA), 0);
+        const short = `${q.n} × ${q.tryA}` + (q.unlike ? ` + ${q.uc} × ${q.tryB}` : "");
+        return { lab:`Try ${plain(A)} = ${q.tryA}` + (q.unlike ? `, ${plain(B)} = ${q.tryB}` : ""),
+          m:`<span class="word">long way</span> ${xs} = ${vs} = <span class="ans">${tot}</span>`,
+          tip:`Short way: <span class="eq">${short} = ${tot}</span>. Any value for <span class="eq">${A}</span> gives the same answer both ways &mdash; that is why <span class="eq">${row1HTML(q).replace(/data-k="[^"]*"/g, "")}</span> and <span class="eq">${termHTML(q.n, q.A, "z", "", "", "brackets")}${q.unlike ? " + " + termHTML(q.uc, q.B, "z", "", "", "brackets") : ""}</span> are equivalent.` };
       }
+    }
+    return { lab:id, m:"", tip:"" };
+  }
+  function hintFor(id){
+    const q = S.q, A = plain(G());
+    switch(id){
+      case "read": return "What is the same in every term?";
+      case "spot": return `The green <b>${A}</b> is one group. What do the blue numbers count?`;
+      case "draw": return `How many groups of <span class="eq">${G()}</span> are there altogether?`;
+      case "collect": return q.take ? "Some of those groups have to come off. How many will be left?" : "Can you write that as one multiplication?";
+      case "take": return "Can you write what is left as one multiplication?";
+      case "write": return q.kind === "num" ? "Which is quicker: one multiplication, or " + q.terms.length + "?" : `Can we go any further than <span class="eq">${q.n}${G()}</span>?`;
+      case "value": return q.unlike ? "The groups that matched were counted together. The others were worked out on their own." : `Would counting the groups first still be quick if every ${A} were 38?`;
+      case "simple": return S.set.check ? `What if <span class="eq">${G()}</span> were ${q.tryA}?` : `Like terms are groups of the same thing. We add the number of groups.`;
+      case "try": return "Both ways give the same answer, whatever the letter is worth.";
+    }
+    return "";
+  }
 
-      if(e.code === 'Space' || e.key === ' '){
-        e.preventDefault();
-        renderQuestion();
-      }
+  /* ================= render ================= */
+  function paintStory(){
+    const box = $("story"); let h = "";
+    for(let i = 0; i <= S.step; i++){
+      const s = storyFor(IDS[i]);
+      h += `<div class="sLine ${i === S.step ? "cur" : "done"}"><div class="lab"><span class="n">${i + 1}</span>${s.lab}</div>` +
+        (s.m ? `<div class="m">${s.m}</div>` : "") + (s.tip && i === S.step ? `<div class="tip">${s.tip}</div>` : "") + `</div>`;
+    }
+    box.innerHTML = h;
+    const sc = $("storyScroll"); sc.scrollTop = sc.scrollHeight;
+    $("stepCount").textContent = `Step ${S.step + 1} of ${IDS.length}`;
+    const last = S.step >= IDS.length - 1;
+    $("nextBtn").disabled = last; $("miniNext").disabled = last;
+    $("nextBtn").innerHTML = last ? "Done &#10003;" : "Next &#9656;"; $("miniNext").innerHTML = last ? "&#10003;" : "Next &#9656;";
+    $("backBtn").disabled = S.step === 0; $("miniBack").disabled = S.step === 0; $("againBtn").disabled = S.step === 0;
+    $("allBtn").disabled = last;
+    $("hint").innerHTML = hintFor(sid());
+  }
+  function frame(){
+    if(!S.q) return;
+    layout();
+    const now = performance.now();
+    if(S.anim){
+      const T = Math.min(1, (now - S.anim.t0) / S.anim.dur);
+      drawEls(mix(scene(S.anim.from), scene(S.anim.to), T));
+      if(T < 1){ S.anim.raf = requestAnimationFrame(frame); return; }
+      S.anim = null;
+    }
+    drawEls(scene(sid()));
+  }
+  function stopAnim(){ if(S.anim){ cancelAnimationFrame(S.anim.raf); S.anim = null; } }
+  function go(to){
+    to = Math.max(0, Math.min(IDS.length - 1, to));
+    if(to === S.step) return;
+    const from = sid();
+    stopAnim();
+    S.step = to;
+    paintStmt(false); placeStmt(); paintStory(); save();
+    const big = (from === "draw" && sid() === "collect") || (from === "collect" && sid() === "draw");
+    if(!reduce && !S.noAnim && Math.abs(IDS.indexOf(from) - to) === 1){
+      S.anim = { from, to:sid(), t0:performance.now(), dur:big ? 1500 : sid() === "draw" || from === "draw" ? 1250 : 900 };
+    }
+    frame();
+  }
+  const next = () => go(S.step + 1), back = () => go(S.step - 1);
+  function startAgain(){ stopAnim(); go(0); }
+  function showAll(){ stopAnim(); S.step = IDS.length - 2; go(IDS.length - 1); }
+  function spinAgain(){ const b = $("againIcon"); b.classList.remove("spin"); void b.offsetWidth; b.classList.add("spin"); }
 
-      if(e.key === 'Escape'){
-        closePanel();
-        toolsMenu.classList.remove('show');
-        toolsBtn.setAttribute('aria-expanded', 'false');
-      }
+  /* a whole repaint: new question, notation, window size */
+  function refresh(glide){
+    IDS = stepIds(S.q);
+    if(S.step > IDS.length - 1) S.step = IDS.length - 1;
+    paintStmt(!!glide);
+    if(!glide) fitStmt();
+    placeStmt(); paintStory(); paintPanel(); frame();
+  }
+  function setQ(q, keepStep){
+    stopAnim(); S.q = q;
+    if(!keepStep) S.step = 0;
+    const st = $("stmt"); st.style.transition = "none"; refresh(false);
+    void st.offsetWidth; st.style.transition = "";
+  }
+  function newQuestion(){ setQ(makeQ()); }
+  function newGroup(){ setQ(makeQ({ keep:true }), true); }
+  function setNot(n){
+    if(!["words", "times", "brackets"].includes(n) || n === S.set.not) return;
+    S.set.not = n; save();
+    document.querySelectorAll(".modeBtn").forEach(b => b.setAttribute("aria-selected", String(b.dataset.not === n)));
+    refresh(true);
+  }
+  function setKind(k){
+    if(k === S.set.kind) return;
+    S.set.kind = k; save();
+    /* same counts, the group becomes a letter (or a number): the picture does not change */
+    if(S.q){ const q = makeQ({ keep:true }); setQ(q, true); } else newQuestion();
+  }
+
+  /* ================= side panel ================= */
+  function paintPanel(){
+    const st = S.set;
+    document.querySelectorAll(".kindSeg button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.kind === st.kind)));
+    $("typeTag").textContent = st.kind === "num" ? "Numbers" : "Letters"; $("typeTag").classList.toggle("let", st.kind === "let");
+    const q = S.q;
+    $("totalIn").value = q && q.own ? q.n : st.total; $("termsIn").value = q && q.own ? q.terms.filter(t => !t.u).length : st.terms;
+    $("rTotal").setAttribute("aria-pressed", String(st.rTotal)); $("rTerms").setAttribute("aria-pressed", String(st.rTerms));
+    $("totStep").classList.toggle("off", st.rTotal); $("termStep").classList.toggle("off", st.rTerms);
+    document.querySelectorAll(".modeBtn").forEach(b => b.setAttribute("aria-selected", String(b.dataset.not === st.not)));
+    $("newGBtn").querySelector("small").innerHTML = `G &middot; swap the ${q ? plain(grpTxt(q.A)) : 7}`;
+    $("longToggle").closest(".sw").classList.toggle("dim", st.kind !== "num");
+    $("checkToggle").closest(".sw").classList.toggle("dim", st.kind !== "let");
+  }
+  function bump(d, s){
+    const st = S.set;
+    if(d === "total"){ st.total = Math.max(2, Math.min(20, st.total + s)); st.rTotal = false; if(st.terms > st.total) st.terms = st.total; }
+    else { st.terms = Math.max(2, Math.min(5, st.terms + s)); st.rTerms = false; if(st.total < st.terms) st.total = st.terms; }
+    save(); newQuestion();
+  }
+  document.querySelectorAll(".stepper button").forEach(b => b.addEventListener("click", () => bump(b.dataset.d, +b.dataset.s)));
+  [["totalIn", "total", 2, 20], ["termsIn", "terms", 2, 5]].forEach(([id, k, lo, hi]) => {
+    $(id).addEventListener("change", () => {
+      const v = parseInt($(id).value, 10);
+      if(isFinite(v)){ S.set[k] = Math.max(lo, Math.min(hi, v)); if(k === "total") S.set.rTotal = false; else S.set.rTerms = false;
+        if(S.set.terms > S.set.total) S.set.total = S.set.terms; save(); newQuestion(); }
+      else paintPanel();
     });
+  });
+  $("rTotal").addEventListener("click", () => { S.set.rTotal = !S.set.rTotal; save(); newQuestion(); });
+  $("rTerms").addEventListener("click", () => { S.set.rTerms = !S.set.rTerms; save(); newQuestion(); });
+  document.querySelectorAll(".kindSeg button").forEach(b => b.addEventListener("click", () => setKind(b.dataset.kind)));
+  document.querySelectorAll(".modeBtn").forEach(b => b.addEventListener("click", () => setNot(b.dataset.not)));
+  $("newQBtn").addEventListener("click", newQuestion);
+  $("newBtn").addEventListener("click", newQuestion);
+  $("newGBtn").addEventListener("click", newGroup);
+  $("ownBtn").addEventListener("click", () => {
+    const open = $("ownBox").hidden; $("ownBox").hidden = !open; $("ownBtn").setAttribute("aria-expanded", String(open));
+    if(open){ $("ownIn").focus(); }
+  });
 
-    fillTotalOptions();
-    totalSelect.disabled = false;
-    termCountSelect.disabled = false;
-    renderQuestion();
-  </script>
+  /* ================= type your own ================= */
+  /* accepts 3 × 7 + 2 × 7, 3(7) + 2(7), 3 groups of 7, 3x + 2x − x */
+  function parseOwn(src){
+    let s = String(src).toLowerCase().replace(/[−–—]/g, "-").replace(/[·∙*]/g, "×").replace(/\s+/g, " ").trim();
+    if(!s) return { err:"Type an expression first." };
+    s = s.replace(/groups? of/g, "g");
+    const parts = []; const re = /([+-]?)\s*([^+-]+)/g; let mt;
+    if(/[+-]\s*$/.test(s)) return { err:"It ends with a sign — finish the last term." };
+    while((mt = re.exec(s))){ if(mt[2].trim()) parts.push({ sign:mt[1] === "-" ? -1 : 1, body:mt[2].replace(/\s+/g, "") }); }
+    if(parts.length < 2) return { err:"Use at least two terms, e.g. 4 × 9 + 3 × 9." };
+    if(parts.length > 6) return { err:"Six terms at most, so the picture fits." };
+    const terms = [];
+    for(const p of parts){
+      let b = p.body, c, f, mm;
+      if((mm = /^(\d+)(?:×|g)(\d+|[a-z]{1,2})$/.exec(b))){ c = +mm[1]; f = mm[2]; }
+      else if((mm = /^(\d*)\((\d+|[a-z]{1,2})\)$/.exec(b))){ c = mm[1] === "" ? 1 : +mm[1]; f = mm[2]; }
+      else if((mm = /^(\d*)([a-z]{1,2})$/.exec(b))){ c = mm[1] === "" ? 1 : +mm[1]; f = mm[2]; }
+      else if(/^\d+$/.test(b)) return { err:`“${b}” on its own isn’t groups of anything. Write it as groups, e.g. 4 × 9.` };
+      else return { err:`I can’t read “${b}”. Try 4 × 9, 4(9) or 4x.` };
+      if(c < 1 || c > 20) return { err:"Each term can have 1 to 20 groups." };
+      if(/^\d+$/.test(f)){ f = +f; if(f < 1 || f > 99) return { err:"Keep a number group between 1 and 99." }; }
+      else f = f.split("").sort().join("");
+      terms.push({ c, f, sign:p.sign });
+    }
+    const kinds = new Set(terms.map(t => typeof t.f)); if(kinds.size > 1) return { err:"Use all numbers or all letters for the groups." };
+    const tally = new Map(); terms.forEach(t => tally.set(t.f, (tally.get(t.f) || 0) + 1));
+    if(tally.size > 2) return { err:"Use at most two different groups (one can be unlike)." };
+    const order = [...tally.keys()].sort((a, b) => tally.get(b) - tally.get(a));
+    let A = order[0], B = order[1];
+    if(B != null && tally.get(A) === tally.get(B)){ A = terms[0].f; B = order.find(k => k !== A); }
+    if(B != null && tally.get(B) > 1) return { err:"Only one term can be groups of something else." };
+    if(terms[0].sign < 0) return { err:"Start with a term that is added." };
+    const u = terms.find(t => t.f === B);
+    if(u && u.sign < 0) return { err:"Only groups that match can be taken away here." };
+    const out = terms.map(t => ({ c:t.c, sign:t.sign, u:t.f === B }));
+    const pos = out.filter(t => !t.u && t.sign > 0).reduce((s, t) => s + t.c, 0), neg = out.filter(t => !t.u && t.sign < 0).reduce((s, t) => s + t.c, 0);
+    if(neg >= pos) return { err:"Take away fewer groups than you start with." };
+    if(pos > 26) return { err:"That’s a lot of groups — keep it to 26 or fewer before taking away." };
+    if(out.filter(t => t.sign < 0).length > 1) return { err:"Only one term can be taken away." };
+    return { q:{ kind:typeof A === "number" ? "num" : "let", A, B:B == null ? null : B, terms:out } };
+  }
+  function useOwn(){
+    const r = parseOwn($("ownIn").value);
+    if(r.err){ $("ownMsg").textContent = r.err; $("ownMsg").classList.add("err"); return; }
+    $("ownMsg").classList.remove("err"); $("ownMsg").innerHTML = "On the board. <b>G</b> swaps the group, and the notation buttons rewrite it.";
+    S.set.kind = r.q.kind; save();
+    const q = Object.assign(r.q, { own:true }); q.tryA = ri(2, 9); q.tryB = q.tryA === 9 ? 8 : q.tryA + 1;
+    setQ(finish(q));
+  }
+  $("ownGo").addEventListener("click", useOwn);
+  $("ownIn").addEventListener("keydown", e => { if(e.key === "Enter"){ e.preventDefault(); useOwn(); } });
+
+  /* ================= settings ================= */
+  const TOG = { twoLetToggle:"twoLet", oneToggle:"one", takeToggle:"take", unlikeToggle:"unlike", unitsToggle:"units", longToggle:"long", checkToggle:"check" };
+  Object.entries(TOG).forEach(([id, k]) => {
+    $(id).checked = !!S.set[k];
+    $(id).addEventListener("change", e => {
+      S.set[k] = e.target.checked; save();
+      if(["take", "unlike", "one", "twoLet"].includes(k)) newQuestion();
+      else refresh(false);
+    });
+  });
+  $("sizeSel").value = S.set.size;
+  $("sizeSel").addEventListener("change", () => { S.set.size = $("sizeSel").value; save(); if(S.set.kind === "num") newGroup(); });
+
+  /* ================= steps buttons ================= */
+  $("nextBtn").addEventListener("click", next); $("miniNext").addEventListener("click", next);
+  $("backBtn").addEventListener("click", back); $("miniBack").addEventListener("click", back);
+  $("againBtn").addEventListener("click", startAgain);
+  $("againIcon").addEventListener("click", () => { startAgain(); spinAgain(); });
+  $("allBtn").addEventListener("click", showAll);
+  $("board").addEventListener("click", () => { if(S.step < IDS.length - 1) next(); });
+
+  function applyPanel(){
+    $("app").classList.toggle("noPanel", !S.set.panel);
+    const b = $("panelBtn"); b.setAttribute("aria-pressed", String(!!S.set.panel));
+    b.title = S.set.panel ? "Hide the side panel" : "Show the side panel";
+    $("miniSteps").hidden = !!S.set.panel && !S.fs;
+  }
+  $("panelBtn").addEventListener("click", () => { S.set.panel = !S.set.panel; save(); applyPanel(); });
+  const fsEl = document.documentElement;
+  const fsActive = () => !!(document.fullscreenElement || document.webkitFullscreenElement);
+  function setFs(on){
+    S.fs = on; $("app").classList.toggle("fs", on);
+    $("fsBtn").querySelector(".fsIn").toggleAttribute("hidden", on);
+    $("fsBtn").querySelector(".fsOut").toggleAttribute("hidden", !on);
+    $("fsBtn").title = on ? "Leave full screen (F)" : "Full screen (F)";
+    closeMenus(); applyPanel();
+  }
+  function toggleFs(){
+    if(!S.fs){ setFs(true); const req = fsEl.requestFullscreen || fsEl.webkitRequestFullscreen;
+      if(req){ try { const pr = req.call(fsEl); if(pr && pr.catch) pr.catch(() => {}); } catch(e){} } }
+    else { if(fsActive()){ const ex = document.exitFullscreen || document.webkitExitFullscreen; try { const pr = ex.call(document); if(pr && pr.catch) pr.catch(() => {}); } catch(e){} } setFs(false); }
+  }
+  const onFsChange = () => { if(!fsActive() && S.fs) setFs(false); };
+  document.addEventListener("fullscreenchange", onFsChange);
+  document.addEventListener("webkitfullscreenchange", onFsChange);
+  $("fsBtn").addEventListener("click", toggleFs);
+
+  function closeMenus(){ [["settingsBtn","settingsMenu"],["toolsBtn","toolsMenu"]].forEach(([b, m]) => { $(m).classList.remove("open"); $(b).setAttribute("aria-expanded","false"); }); }
+  [["settingsBtn","settingsMenu"],["toolsBtn","toolsMenu"]].forEach(([b, m]) => {
+    $(b).addEventListener("click", e => { e.stopPropagation(); const was = $(m).classList.contains("open"); closeMenus(); if(!was){ $(m).classList.add("open"); $(b).setAttribute("aria-expanded","true"); } });
+    $(m).addEventListener("click", e => e.stopPropagation());
+  });
+  document.addEventListener("click", closeMenus);
+  document.addEventListener("keydown", e => {
+    const tag = (e.target && e.target.tagName) || "";
+    if(e.key === "Escape"){ closeMenus(); if(S.fs && !fsActive()) setFs(false); return; }
+    if(tag === "INPUT" || tag === "SELECT" || tag === "TEXTAREA" || e.metaKey || e.ctrlKey || e.altKey) return;
+    if(tag === "BUTTON" && (e.key === " " || e.key === "Enter")){ e.preventDefault(); e.target.blur(); }
+    const k = e.key;
+    if(k === " "){ e.preventDefault(); startAgain(); spinAgain(); }
+    else if(k === "Enter"){ e.preventDefault(); newQuestion(); }
+    else if(k === "ArrowRight"){ e.preventDefault(); next(); }
+    else if(k === "ArrowLeft"){ e.preventDefault(); back(); }
+    else if(k === "1") setNot("words"); else if(k === "2") setNot("times"); else if(k === "3") setNot("brackets");
+    else if(k === "g" || k === "G") newGroup();
+    else if(k === "l" || k === "L") setKind(S.set.kind === "num" ? "let" : "num");
+    else if(k === "n" || k === "N") newQuestion();
+    else if(k === "f" || k === "F") toggleFs();
+  });
+  let rz = 0;
+  const onResize = () => { cancelAnimationFrame(rz); rz = requestAnimationFrame(() => { fitStmt(); placeStmt(); frame(); }); };
+  if(window.ResizeObserver) new ResizeObserver(onResize).observe($("stage")); else window.addEventListener("resize", onResize);
+
+  applyPanel();
+  newQuestion();
+
+  /* test surface */
+  window.__NG__ = { S, get IDS(){ return IDS; }, get L(){ return L; }, makeQ, finish, countsFor, parseOwn, scene, layout, row1HTML, row2HTML, storyFor,
+    next, back, go, startAgain, showAll, newQuestion, newGroup, setNot, setKind, setQ, plain, useOwn, frame, refresh, toggleFs };
+})();
+</script>
 </body>
 </html>

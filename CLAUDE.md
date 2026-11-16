@@ -96,6 +96,42 @@
 > §2 "TWO folders", §3 deploy paths and §5's `mathstools-main 2` heading below
 > describe the OLD layout — this block supersedes them.
 >
+> **NEW (2026-11-16, evening): NUMBER GROUPS REBUILT — COLLECTING LIKE TERMS AS COUNTING EQUAL GROUPS.**
+> `interactive-tools/stage-4/algebra/number-groups/index.html` (same URL; was "Number Pattern", an expression +
+> answer box on the old back-pill shell). Now on the trapezium tool's shell (topbar, board card, step story panel,
+> panel/full-screen icons, mini Back/Next). Self-contained, no Firebase. localStorage `mmt.numberGroups.v1`; test
+> surface `window.__NG__`. Project doc `claude/number-groups.md`.
+> * **THE PEDAGOGY (Jeff, 2026-11-16): like terms are MULTIPLICATIVE, not "3 apples + 2 apples".** A term is a
+>   number of groups of the same thing; collecting is counting the groups first: a×k + b×k = (a + b)×k. Each term is
+>   drawn as that many BARS (one bar = one group; green, the counts blue), so 3 × 7 + 2 × 7 + 5 × 7 is three columns
+>   of bars; the bars then STACK into one pile with braces 3, 2, 5 and "= 10 groups of 7". The SAME picture with 7
+>   swapped for x is 3x + 2x + 5x = 10x — Numbers/Letters (L) keeps the counts and only relabels the bars.
+> * Steps (`stepIds`): read (expression alone, big, centred) · spot (factor green, counts blue) · draw (the sentence
+>   rises to the top, columns of bars appear under captions that repeat each term) · collect · [take] · write
+>   ((3 + 2 + 5) × 7 = 10 × 7) · value (= 70, story compares the long way) — letters end on "simple" (10x, why we stop)
+>   and optional "try" (Settings: give x a value; bar labels become the number, both ways agree). **The value is never
+>   on screen before the last step** (checked).
+> * **Notation switch kept and upgraded:** groups of / × / brackets (keys 1–3), as a segmented control above the board.
+>   Sentence tokens carry `data-k` and GLIDE to their new places (FLIP); new words fade in after a .34s delay so they
+>   never sit under moving numbers. Brackets: 3(7) for numbers, 3x (1 hidden: x) for letters. Captions under the
+>   columns fall back to × on a board too narrow for "groups of".
+> * Options (Settings): size of a group 2–9 / 3–12 / big 13–99 (the lesson plan's "what if every 7 were 38?"); two-letter
+>   groups; allow a single group; **taking groups away** (one subtracted term: its red bars land on the top of the pile
+>   and both fade — `late` elements move first, change after landing); **an unlike term** (groups of 5 or y, drawn a
+>   different length — proportional for numbers — in its own pile, "a different size"). Side panel: Groups (total) and
+>   Terms steppers with Random toggles, New question (Enter), **Same counts, new group** (G), **Type your own**
+>   (`parseOwn`: 3 × 7, 3(7), 3 groups of 7, 4a + a − 2a; at most one unlike and one subtracted term).
+> * Board: SVG redrawn per frame from keyed scenes (`scene(id)`), tweened by `mix()` — Back plays the same motion in
+>   reverse. Below 560px the board is drawn at a wider virtual width and scaled (and wider again if unlike + take
+>   would not fit). First term goes on TOP of the pile so the braces read in sentence order.
+> * Keys: →/← step, Space start again, Enter new question (was Enter = reveal, Space = new — changed to match the
+>   newer tools), G, L, 1–3, F. Lesson plan updated to the new controls; toolLinks title/note + homepage card text
+>   updated (`toolLinks.js?v=` bumped). The quiz and worksheet creator are unchanged.
+> * Verified (Playwright): 16,128 generated questions against the rules, every step of 5 configurations × 4 questions
+>   at 1366×768, 1280×800, 1024×768, 1920×1080, 390×844 (nothing off the board, sentence clear of the picture, no text
+>   overlapping, value never early, no page scroll on desktop), notation text for all three, 19 typed-input cases,
+>   keys.
+>
 > **NEW (2026-11-16, later): FORMULA MODE in the trapezium, triangle and parallelogram tools.** Settings →
 > Formula mode (`S.set.formula`, saved; off by default). Every length label becomes a letter (trapezium a, b, h;
 > triangle and parallelogram b, h; Rectangle mode l and b; rhombus diagonals x and y, half of one ½y — the NSW
