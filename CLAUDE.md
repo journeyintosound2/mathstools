@@ -96,6 +96,38 @@
 > §2 "TWO folders", §3 deploy paths and §5's `mathstools-main 2` heading below
 > describe the OLD layout — this block supersedes them.
 >
+> **NEW (2026-11-16, late night): COLLECTING LIKE TERMS – BUBBLES REBUILT + THE TWO LIKE-TERMS TOOLS RENAMED.**
+> Names (Jeff): `interactive-tools/stage-4/algebra/number-groups/` = **Collecting Like Terms – Number Groups** (count
+> the groups); `interactive-tools/stage-4/algebra/collecting-like-terms/` = **Collecting Like Terms – Bubbles** (do the
+> collecting by hand). Each is first in the other's Tools menu. Renamed in titles, toolLinks (tools, lesson plans,
+> quizzes, worksheets; `?v=` bumped in resources + teacher portal) and homepage cards. `mmtToolRegistry.js` titles NOT
+> changed (that would need the registry `?v=` chain). Bubbles tool: same URL, one self-contained file on the Number
+> Groups shell; localStorage `mmt.likeTermsBubbles.v1`; test surface `window.__CLT__`. Project doc
+> `claude/collecting-like-terms-bubbles.md`.
+> * **A term is a bubble of pieces** (3x = three x pieces; −2x a red bubble of −x pieces; a plain number is a pile of
+>   1s; Numbers mode: 5 × 8 = five 8 pieces). The board IS the expression in reading order; the big line above is
+>   always the current board, with "Simplify …" (the question) above it once a move is made.
+> * Drag (pointer events, touch OK): bubble onto like bubble → **join**; onto like bubble of opposite sign → pieces
+>   fly onto partners and **pop in zero pairs** ("0" + sparks); one piece → moves across / one zero pair; one piece onto
+>   empty space → **split**; bubble into a gap → **rearrange** (the sign travels with its term); onto an **unlike**
+>   bubble → shake + toast saying why (x vs y, x vs x² = x × x, groups of 8 vs 5). ab and ba share a key: they join and
+>   the ba pieces re-pop as ab. A one-piece bubble always drags as a bubble.
+> * **The working** writes one `= …` line per move, named (Join like terms / Zero pairs / Split a term / Rearrange /
+>   Move one across); consecutive rearranges collapse. **Show me** (→) = like terms side by side → join same signs →
+>   zero pairs → (Numbers) work out each group, add, and the big line ends "= 67". Finish it plays all. Undo (←)
+>   restores full snapshots. Done = no two bubbles share a key ("Simplified ✓").
+> * Layout: pieces on a hex grid nearest the middle first; one piece size for the board (≤ 72px), largest that fits
+>   every bubble + caption; captions MEASURED in the page (hidden `.cap.measure`). The statement is painted BEFORE the
+>   layout (its height decides the board's). ≤ 980px the board grows taller instead of shrinking pieces below 30px.
+> * Settings: taking away (on), plain numbers, look-alikes, Numbers group size, colour each kind (off — students read
+>   the bubbles), split (on), name each move (on). Notation switch Groups of / Times sign / Algebra (3x, 3(7)).
+> * Lesson plan updated (title, controls, Number Groups first). The old quiz/worksheet at `collecting-like-terms.html`
+>   are unchanged apart from their listed titles ("– Bubbles") — they are the old ones, worth rebuilding on this model.
+> * Verified (Playwright): real-mouse join / zero pair / unlike refused / split / rearrange / undo, a touch drag at 390,
+>   Finish it on 300 random questions (every kind's total conserved, Numbers totals re-derived, undo back to the
+>   start), nothing outside the board or overlapping at 1366×768, 1024×768, 1920×1080, 1280×800, 390×844, no page
+>   scroll above 980px.
+>
 > **NEW (2026-11-16, night): NUMBER GROUPS — STUDENT QUIZ + WORKSHEET CREATOR REBUILT on the new model.**
 > Same URLs. Quiz: thin shell `online-quizzes/stage-4/algebra/number-groups.html` + engine
 > `number-groups-quiz/quiz.js` + `quiz.css` (css = the trapezium quiz's + its own block; bump BOTH `?v=` in the

@@ -786,15 +786,15 @@ window.MMT_TOOL_LINKS = {
 
   "MA4-ALG-C-01": [
     {
-      title: "Collecting Like Terms",
+      title: "Collecting Like Terms – Bubbles",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-4/algebra/collecting-like-terms/",
       ideas: ["laws-properties"],
-      note: "Group and combine like terms with visual term tiles.",
-      tags: ["algebra", "like terms", "simplifying", "coefficients", "visual"]
+      note: "Each term is a bubble of pieces: drag like bubbles together, split a term, make zero pairs, and the working writes an equal line for every move. Letters, plain numbers, look-alikes (ab and ba, x and x²) and groups of numbers.",
+      tags: ["algebra", "like terms", "simplifying", "coefficients", "zero pairs", "unlike terms", "visual", "drag and drop"]
     },
     {
-      title: "Number Groups — Collecting Like Terms",
+      title: "Collecting Like Terms – Number Groups",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-4/algebra/number-groups/",
       ideas: ["laws-properties"],
@@ -810,7 +810,7 @@ window.MMT_TOOL_LINKS = {
       tags: ["algebra", "substitution", "evaluating", "expressions"]
     },
     {
-      title: "Collecting Like Terms — ELPSA Lesson Plan",
+      title: "Collecting Like Terms – Bubbles — ELPSA Lesson Plan",
       kind: "Lesson plan",
       url: "/interactive-tools/stage-4/algebra/collecting-like-terms/lesson-plan.html",
       ideas: ["laws-properties"],
@@ -818,7 +818,7 @@ window.MMT_TOOL_LINKS = {
       tags: ["lesson plan", "ELPSA", "algebra", "planning"]
     },
     {
-      title: "Number Groups — ELPSA Lesson Plan",
+      title: "Collecting Like Terms – Number Groups — ELPSA Lesson Plan",
       kind: "Lesson plan",
       url: "/interactive-tools/stage-4/algebra/number-groups/lesson-plan.html",
       ideas: ["laws-properties"],
@@ -842,7 +842,7 @@ window.MMT_TOOL_LINKS = {
       tags: ["quiz", "algebra", "simplifying", "expanding", "factorising", "subset builder"]
     },
     {
-      title: "Collecting Like Terms",
+      title: "Collecting Like Terms – Bubbles",
       kind: "Student quiz",
       url: "/online-quizzes/stage-4/algebra/collecting-like-terms.html",
       ideas: ["laws-properties"],
@@ -850,7 +850,7 @@ window.MMT_TOOL_LINKS = {
       tags: ["quiz", "algebra", "like terms", "simplifying"]
     },
     {
-      title: "Number Groups — Collecting Like Terms",
+      title: "Collecting Like Terms – Number Groups",
       kind: "Student quiz",
       url: "/online-quizzes/stage-4/algebra/number-groups.html",
       ideas: ["laws-properties"],
@@ -874,7 +874,7 @@ window.MMT_TOOL_LINKS = {
       tags: ["worksheet generator", "printable", "algebra", "simplifying", "expanding"]
     },
     {
-      title: "Collecting Like Terms",
+      title: "Collecting Like Terms – Bubbles",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-4/algebra/collecting-like-terms.html",
       ideas: ["laws-properties"],
@@ -882,7 +882,7 @@ window.MMT_TOOL_LINKS = {
       tags: ["worksheet generator", "printable", "like terms"]
     },
     {
-      title: "Number Groups — Collecting Like Terms",
+      title: "Collecting Like Terms – Number Groups",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-4/algebra/number-groups.html",
       ideas: ["laws-properties"],

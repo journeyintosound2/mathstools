@@ -3,684 +3,341 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Collecting Like Terms</title>
+  <title>Collecting Like Terms – Number Groups | Mills Maths Tools</title>
+  <meta name="description" content="Collecting like terms by hand: each term is a bubble of pieces. Drag like bubbles together to join them, drop a piece on its opposite to make a zero pair, and watch the working write itself." />
 
   <style>
-   :root{
-  --bg:#f6f7fb;
-  --card:#ffffff;
-  --ink:#111827;
-  --muted:#6b7280;
-  --border:#e5e7eb;
-  --shadow: 0 14px 40px rgba(0,0,0,.10);
-
-  --blue:#2563eb;
-  --blue2:#1d4ed8;
-
-  --purple:#8b5cf6;
-
-  --ok:#16a34a;
-  --bad:#dc2626;
-
-  --bubbleStroke:#8b5cf6;
-  --bubbleDia:220px;
-
-  --bubbleFont: 20px;
-  --exprFontSmall: 54px;
-
-  --termChipBg:#eef2ff;
-  --termChipBd:#c7d2fe;
-  --termChipInk:#1d4ed8;
-
-  --mathFont: "Cambria Math", "STIX Two Math", "STIXGeneral", "Times New Roman", serif;
-}
-
+    :root{
+      --bg:#f8fafc; --card:#ffffff; --ink:#0f172a; --muted:#64748b; --border:#e2e8f0;
+      --shadow:0 18px 45px rgba(15,23,42,.13);
+      --blue:#2563eb; --blue-dark:#1d4ed8;
+      --green:#22c55e; --green-dark:#15803d; --green-ink:#14532d;
+      --purple:#7c3aed; --purple-dark:#5b21b6;
+      --orange:#f97316; --orange-dark:#c2410c;
+      --red:#dc2626; --red-dark:#991b1b;
+      --line:#334155; --line-soft:#94a3b8;
+      --uiFont:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+      --mathFont:"Cambria Math","STIX Two Math","Latin Modern Math","Asana Math",Cambria,"Palatino Linotype","Book Antiqua",Palatino,"Times New Roman",Georgia,serif;
+      --mathWeight:500;
+      /* fallback for letters when the maths alphabet is missing: a serif with a REAL italic face (curly x) */
+      --itFont:"Cambria","Times New Roman","STIX Two Text",Georgia,serif;
+    }
     *{ box-sizing:border-box; }
+    html,body{ height:100%; }
     body{
-      margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-      background: radial-gradient(1200px 700px at 50% -200px, #eaf2ff 0%, var(--bg) 60%, var(--bg) 100%);
-      color:var(--ink);
+      margin:0; font-family:var(--uiFont); color:var(--ink);
+      background:
+        radial-gradient(circle at top left,rgba(37,99,235,.14),transparent 32rem),
+        radial-gradient(circle at top right,rgba(124,58,237,.12),transparent 34rem),
+        var(--bg);
+      overflow-x:hidden;
     }
+    button,input,select{ font:inherit; }
+    [hidden]{ display:none !important; }
+    .app{ height:100dvh; display:flex; flex-direction:column; min-width:0; }
 
-    .topbar{
-      position: sticky;
-      top:0;
-      z-index: 20;
-      background: rgba(246,247,251,.82);
-      backdrop-filter: blur(10px);
-      border-bottom:1px solid rgba(229,231,235,.6);
+    /* ---------- topbar (shared MMT shell) ---------- */
+    .mmtTopbar{
+      position:relative; z-index:40; flex:0 0 auto;
+      background:linear-gradient(135deg,#0f172a,#123b7a 55%,#2563eb);
+      color:white; padding:14px 24px;
+      display:grid; grid-template-columns:minmax(200px,1fr) auto minmax(300px,1fr);
+      align-items:center; gap:18px; box-shadow:0 10px 28px rgba(15,23,42,.22);
     }
-    .topbar-inner{
-      max-width: 1480px;
-      margin: 0 auto;
-      padding: 14px 12px;
-      display:flex;
-      align-items:center;
-      gap:14px;
-    }
+    .mmtBrand{ display:flex; align-items:center; gap:12px; justify-self:start; text-decoration:none; color:white; border-radius:14px;
+      padding:8px 12px; margin-left:-12px; font-weight:900; transition:background .18s ease,transform .18s ease,box-shadow .18s ease; }
+    .mmtBrand:hover{ background:rgba(255,255,255,.12); transform:translateY(-1px); box-shadow:0 0 10px rgba(124,58,237,.6),0 0 18px rgba(37,99,235,.4); }
+    .mmtBrandLogo{ width:44px; height:44px; border-radius:9px; background:white; color:#1d4ed8; display:grid; place-items:center;
+      font-weight:1000; letter-spacing:-.08em; box-shadow:inset 0 -2px 0 rgba(15,23,42,.08); flex:0 0 auto; }
+    .mmtBrandText strong{ display:block; font-size:1.18rem; line-height:1; letter-spacing:-.03em; color:white; }
+    .mmtBrandText span{ display:block; font-size:.78rem; opacity:.82; font-weight:650; color:white; }
+    .mmtTopTitle{ font-weight:850; font-size:clamp(1.05rem,1.8vw,1.45rem); letter-spacing:-.04em; text-align:center; color:white; white-space:nowrap; }
+    .topActions{ justify-self:end; display:flex; align-items:center; justify-content:flex-end; gap:10px; flex-wrap:wrap; }
+    .btn{ appearance:none; border:1px solid rgba(255,255,255,.28); background:rgba(255,255,255,.14); color:white; padding:11px 15px;
+      border-radius:14px; font-weight:900; font-size:15px; cursor:pointer; transition:.18s ease; user-select:none; }
+    .btn:hover:not(:disabled){ background:rgba(255,255,255,.22); transform:translateY(-1px); }
+    .btn:focus-visible{ outline:none; box-shadow:0 0 0 4px rgba(255,255,255,.23); }
+    .btn-primary{ background:white; color:#1d4ed8; border-color:white; }
+    .btn-primary:hover:not(:disabled){ background:#eef2ff; color:#1d4ed8; }
 
-    .backBtn{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      border:1px solid var(--border);
-      background:#fff;
-      padding:10px 14px;
-      border-radius: 999px;
-      box-shadow: 0 10px 20px rgba(0,0,0,.05);
-      text-decoration:none;
-      color:var(--ink);
-      font-weight:700;
-      white-space:nowrap;
-    }
-    .backBtn img{
-      width:28px; height:28px;
-      border-radius: 8px;
-      object-fit: contain;
-    }
+    .menuWrap{ position:relative; display:inline-flex; }
+    .dropMenu{ position:absolute; top:calc(100% + 8px); right:0; min-width:270px; background:#fff; color:var(--ink);
+      border:1px solid rgba(226,232,240,.95); border-radius:14px; box-shadow:0 18px 45px rgba(15,23,42,.22);
+      padding:7px; display:none; z-index:120; text-align:left; }
+    .dropMenu.open{ display:grid; gap:4px; }
+    .toolLink{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 12px; border-radius:10px;
+      color:var(--ink); text-decoration:none; font-weight:900; font-size:.9rem; }
+    .toolLink::after{ content:'\203A'; color:var(--blue); font-weight:1000; font-size:1.1rem; line-height:1; }
+    .toolLink:hover,.toolLink:focus-visible{ background:#eef2ff; color:#1d4ed8; outline:none; }
+    .toolLink small{ display:block; font-weight:650; font-size:.74rem; color:var(--muted); }
+    .menuRule{ height:1px; background:var(--border); margin:3px 6px; }
+    .settingsMenu.open{ gap:11px; padding:15px 18px; min-width:350px; max-height:min(78vh,700px); overflow:auto; }
+    .settingsHead{ font-size:.68rem; letter-spacing:.14em; text-transform:uppercase; font-weight:950; color:var(--muted); }
+    .settingsNote{ margin:-4px 0 0; font-size:.76rem; font-weight:650; color:var(--muted); line-height:1.4; }
+    .settingsRule{ height:1px; background:var(--border); margin:1px 0; }
+    .selRow{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .selRow > span{ font-weight:900; font-size:.92rem; color:var(--ink); white-space:nowrap; }
+    .selRow select{ appearance:none; border:1.5px solid var(--border); padding:8px 30px 8px 11px; border-radius:11px; font-weight:850; font-size:.88rem;
+      color:var(--line); min-width:170px; cursor:pointer;
+      background:#fff url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' fill='none' stroke='%232563eb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/></svg>") no-repeat right 10px center;
+      background-size:11px; }
+    .selRow select:focus-visible{ outline:none; border-color:var(--blue); box-shadow:0 0 0 4px rgba(37,99,235,.16); }
+    .sw{ display:inline-flex; align-items:center; gap:11px; cursor:pointer; user-select:none; font-weight:850; color:var(--line); font-size:.93rem; }
+    .sw input{ position:absolute; opacity:0; width:0; height:0; }
+    .sw .track{ position:relative; width:50px; height:29px; border-radius:999px; background:#cbd5e1; transition:.18s ease; flex:0 0 auto; box-shadow:inset 0 1px 3px rgba(15,23,42,.18); }
+    .sw .track::after{ content:""; position:absolute; top:3px; left:3px; width:23px; height:23px; border-radius:50%; background:#fff; box-shadow:0 2px 6px rgba(15,23,42,.3); transition:.18s ease; }
+    .sw input:checked + .track{ background:var(--green); }
+    .sw input:checked + .track::after{ transform:translateX(21px); }
+    .sw input:focus-visible + .track{ box-shadow:0 0 0 4px rgba(37,99,235,.28); }
+    .sw.dim{ opacity:.45; }
 
-    .titlePill{
-      margin-left:auto;
-      margin-right:auto;
-      padding: 10px 18px;
-      border-radius: 999px;
-      background: linear-gradient(180deg, var(--blue) 0%, var(--blue2) 100%);
-      color:#fff;
-      font-weight: 900;
-      letter-spacing: .2px;
-      box-shadow: 0 16px 30px rgba(37,99,235,.18);
-      min-width: 280px;
-      text-align:center;
-    }
+    /* ---------- layout ---------- */
+    .layout{ flex:1 1 auto; min-height:0; width:min(1640px,100%); margin:0 auto; padding:14px 18px 16px;
+      display:grid; grid-template-columns:minmax(0,1fr) 372px; gap:14px; min-width:0; }
+    .card{ background:var(--card); border:1px solid var(--border); border-radius:22px; box-shadow:var(--shadow); min-width:0; }
 
-    .topActions{
-      display:flex;
-      align-items:center;
-      gap:10px;
-    }
+    /* ---------- board ---------- */
+    .boardCard{ display:flex; flex-direction:column; min-height:0; padding:12px 14px 8px; position:relative; overflow:hidden; }
+    .boardTop{ position:relative; z-index:3; background:var(--card); display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+    .modeSwitch{ display:inline-flex; background:#f1f5f9; border:1px solid var(--border); border-radius:15px; padding:4px; gap:4px; flex-wrap:wrap; }
+    .modeBtn{ appearance:none; border:none; background:transparent; padding:7px 14px 7px 8px; border-radius:11px; font-weight:900; font-size:.95rem;
+      color:var(--muted); cursor:pointer; display:flex; align-items:center; gap:9px; transition:.16s ease; }
+    .modeBtn:hover{ color:var(--ink); }
+    .modeBtn .sym{ min-width:34px; height:32px; padding:0 6px; border-radius:9px; display:grid; place-items:center; background:#e2e8f0; color:var(--line);
+      transition:.16s ease; flex:0 0 auto; font-family:var(--mathFont); font-weight:700; font-size:1.05rem; white-space:nowrap; }
+    .modeBtn .sym i{ font-style:italic; }
+    .modeBtn small{ display:block; font-size:.7rem; font-weight:750; color:var(--line-soft); margin-top:1px; }
+    .modeBtn .txt{ text-align:left; line-height:1.1; }
+    .modeBtn[aria-selected="true"]{ background:#fff; color:var(--ink); box-shadow:0 3px 10px rgba(15,23,42,.12); }
+    .modeBtn[aria-selected="true"] .sym{ background:var(--blue); color:#fff; }
+    .modeBtn:focus-visible{ outline:none; box-shadow:0 0 0 3px rgba(37,99,235,.3); }
+    .topRight{ display:flex; align-items:center; gap:10px; }
+    .typeTag{ font-size:.74rem; letter-spacing:.06em; font-weight:950; text-transform:uppercase; padding:6px 11px; border-radius:999px; white-space:nowrap;
+      border:1px solid rgba(21,128,61,.25); color:var(--green-dark); background:rgba(34,197,94,.12); }
+    .typeTag.let{ color:var(--purple-dark); background:rgba(124,58,237,.1); border-color:rgba(124,58,237,.25); }
+    .iconGroup{ display:inline-flex; gap:6px; }
+    .iconBtn{ appearance:none; width:42px; height:42px; border-radius:13px; border:1.5px solid var(--border); background:#fff; color:var(--line);
+      display:grid; place-items:center; cursor:pointer; transition:.16s ease; padding:0; }
+    .iconBtn svg{ width:21px; height:21px; display:block; }
+    .iconBtn:hover:not(:disabled){ border-color:var(--blue); background:#eef2ff; color:var(--blue-dark); transform:translateY(-1px); }
+    .iconBtn:focus-visible{ outline:none; box-shadow:0 0 0 3px rgba(37,99,235,.3); }
+    .iconBtn[aria-pressed="true"]{ background:#eef2ff; border-color:#c7d2fe; color:var(--blue-dark); }
+    .iconBtn.spin svg{ animation:spin .5s ease; }
+    @keyframes spin{ from{ transform:rotate(0);} to{ transform:rotate(-360deg);} }
 
-    .pillBtn, .pillSelect{
-      border:1px solid var(--border);
-      background:#fff;
-      padding:10px 14px;
-      border-radius: 999px;
-      box-shadow: 0 10px 20px rgba(0,0,0,.05);
-      font-weight:800;
-      cursor:pointer;
-      white-space:nowrap;
-      color:var(--ink);
-      display:flex;
-      align-items:center;
-      gap:10px;
-    }
-    .pillBtn.blue{
-      border-color:#bfdbfe;
-      background:#eff6ff;
-      color:#1d4ed8;
-    }
-    .pillBtn.red{
-      border-color:#fecaca;
-      background:#fff1f2;
-      color:#b91c1c;
-    }
-    .pillBtn.purple{
-      border-color:#ddd6fe;
-      background:#faf5ff;
-      color:#6d28d9;
-    }
-    .pillSelect{
-      padding: 10px 12px;
-    }
-    .pillSelect select{
-      border:none;
-      background:transparent;
-      font: inherit;
-      font-weight:800;
-      cursor:pointer;
-      outline:none;
-    }
+    .app.noPanel .layout, .app.fs .layout{ grid-template-columns:minmax(0,1fr); }
+    .app.noPanel .side, .app.fs .side{ display:none; }
+    .app.fs .mmtTopbar{ display:none; }
+    .app.fs .layout{ width:100%; padding:10px; }
+    .app.fs #panelBtn{ display:none; }
+    .miniSteps{ position:absolute; right:14px; bottom:10px; display:flex; gap:7px; z-index:5; }
+    .miniSteps .nextBtn{ flex:none; padding:10px 16px; font-size:.95rem; }
+    .miniSteps .stepBtn.icon{ width:42px; padding:10px 0; }
+    .app.noPanel .hint, .app.fs .hint{ padding-right:220px; padding-left:220px; }
 
-    .wrap{
-      max-width: 1480px;
-      margin: 14px auto 0;
-      padding: 0 10px 24px;
-    }
+        /* =====================================================================
+       COLLECTING LIKE TERMS — BUBBLES: the board
+       ===================================================================== */
+    .stage{ position:relative; flex:1 1 auto; min-height:0; margin-top:4px; display:flex; flex-direction:column; }
+    .stmt{ flex:0 0 auto; text-align:center; font-family:var(--mathFont); font-weight:var(--mathWeight); color:var(--line); line-height:1.25;
+      padding:2px 8px 0; white-space:nowrap; overflow:hidden; min-height:1.3em; }
+    .stmt.wrap{ white-space:normal; }
+    .stmt .orig{ display:block; font-size:.5em; color:var(--muted); font-family:var(--uiFont); font-weight:800; letter-spacing:.01em; margin-bottom:2px; }
+    .stmt .orig .m{ font-family:var(--mathFont); font-weight:var(--mathWeight); font-size:1.25em; color:var(--line-soft); }
+    .t{ display:inline-block; transition:color .3s ease; }
+    .t.pos{ color:var(--green-dark); } .t.neg{ color:var(--red); }
+    .t.op{ color:var(--line); padding:0 .3em; }
+    .tm{ padding:0 .12em; }
+    .t.op.neg{ color:var(--red); }
+    .wd{ font-family:var(--uiFont); font-weight:800; font-size:.6em; color:var(--muted); padding:0 .3em; }
+    .mi{ font-family:var(--mathFont); font-style:normal; }
+    .mv{ font-family:var(--itFont); font-style:italic; }
+    .doneTag{ font-size:.74rem; letter-spacing:.06em; font-weight:950; text-transform:uppercase; padding:6px 11px; border-radius:999px; white-space:nowrap;
+      border:1px solid rgba(21,128,61,.3); color:var(--green-dark); background:rgba(34,197,94,.12); }
+    .doneTag.not{ color:var(--line-soft); background:#f1f5f9; border-color:var(--border); }
 
-    .card{
-      background: rgba(255,255,255,.92);
-      border:1px solid rgba(229,231,235,.9);
-      border-radius: 24px;
-      box-shadow: var(--shadow);
-      padding: 14px;
-    }
+    .board{ position:relative; flex:1 1 auto; min-height:220px; touch-action:pan-y; user-select:none; -webkit-user-select:none; }
+    .bub{ position:absolute; border-radius:50%; border:5px solid #8b5cf6; background:radial-gradient(circle at 35% 30%, #fff, #f5f3ff 72%);
+      box-shadow:0 12px 30px rgba(124,58,237,.16), inset 0 2px 0 #fff; cursor:grab;
+      transition:left .5s cubic-bezier(.45,.05,.25,1), top .5s cubic-bezier(.45,.05,.25,1), width .5s ease, height .5s ease, border-color .2s, box-shadow .2s, opacity .3s; }
+    .bub.neg{ border-color:#f87171; background:radial-gradient(circle at 35% 30%, #fff, #fff1f2 72%); box-shadow:0 12px 30px rgba(220,38,38,.12), inset 0 2px 0 #fff; }
+    .bub.kind{ border-color:var(--kc); background:radial-gradient(circle at 35% 30%, #fff, var(--kl) 74%); }
+    .bub.kind.neg{ border-style:dashed; }
+    .bub.lift, .tok.lift, .cap.lift{ transition:none !important; z-index:30; }
+    .bub.lift{ box-shadow:0 26px 50px rgba(15,23,42,.24); cursor:grabbing; }
+    .bub.ok{ box-shadow:0 0 0 7px rgba(34,197,94,.35), 0 12px 30px rgba(34,197,94,.25); border-color:#22c55e; }
+    .bub.pair{ box-shadow:0 0 0 7px rgba(124,58,237,.35), 0 12px 30px rgba(124,58,237,.3); border-color:#7c3aed; }
+    .bub.no{ border-style:dashed; border-color:#dc2626; box-shadow:0 0 0 6px rgba(220,38,38,.18); }
+    .bub.shake{ animation:shake .4s; }
+    .bub.born{ animation:bornIn .45s cubic-bezier(.34,1.56,.64,1); }
+    @keyframes bornIn{ from{ transform:scale(.4); opacity:0; } to{ transform:none; opacity:1; } }
+    @keyframes shake{ 0%,100%{ translate:0; } 20%{ translate:-8px 0; } 40%{ translate:8px 0; } 60%{ translate:-5px 0; } 80%{ translate:4px 0; } }
+    .tok{ position:absolute; border-radius:999px; display:grid; place-items:center; background:#fff; border:2.5px solid #c4b5fd; color:var(--green-dark);
+      font-family:var(--mathFont); font-weight:var(--mathWeight); box-shadow:0 3px 8px rgba(15,23,42,.12); cursor:grab; z-index:5; white-space:nowrap;
+      transition:left .5s cubic-bezier(.45,.05,.25,1), top .5s cubic-bezier(.45,.05,.25,1), width .5s ease, height .5s ease, font-size .5s ease, transform .2s ease, opacity .3s; }
+    .tok.neg{ color:var(--red); border-color:#fca5a5; }
+    .tok.kind{ background:var(--kl); border-color:var(--kc); color:var(--kd); }
+    .tok.kind.neg{ background:#fff; border-style:dashed; color:var(--red); border-color:var(--kc); }
+    .tok:hover{ transform:scale(1.08); }
+    .tok.lift{ transform:scale(1.18); box-shadow:0 14px 28px rgba(15,23,42,.28); cursor:grabbing; z-index:40; }
+    .tok.born{ animation:tokIn .4s cubic-bezier(.34,1.56,.64,1); }
+    @keyframes tokIn{ from{ transform:scale(.2); opacity:0; } to{ transform:none; opacity:1; } }
+    .tok.pop{ animation:tokPop .42s ease forwards; pointer-events:none; }
+    @keyframes tokPop{ 0%{ transform:scale(1); opacity:1; } 45%{ transform:scale(1.35); opacity:1; } 100%{ transform:scale(.1); opacity:0; } }
+    .zero{ position:absolute; z-index:45; pointer-events:none; font-family:var(--mathFont); font-weight:700; color:#7c3aed; text-shadow:0 2px 0 #fff, 0 0 8px #fff;
+      animation:zeroUp .9s ease forwards; transform:translate(-50%,-50%); }
+    @keyframes zeroUp{ 0%{ opacity:0; transform:translate(-50%,-30%) scale(.6); } 25%{ opacity:1; transform:translate(-50%,-60%) scale(1.15); } 100%{ opacity:0; transform:translate(-50%,-160%) scale(1); } }
+    .spark{ position:absolute; z-index:44; width:9px; height:9px; border-radius:50%; pointer-events:none; }
+    .cap{ position:absolute; transform:translateX(-50%); font-family:var(--mathFont); font-weight:var(--mathWeight); color:var(--line); white-space:nowrap; text-align:center;
+      padding:1px 10px; border-radius:999px; cursor:grab;
+      transition:left .5s cubic-bezier(.45,.05,.25,1), top .5s cubic-bezier(.45,.05,.25,1), opacity .3s; }
+    .cap:hover{ background:#f5f3ff; }
+    .cap .ev{ color:var(--ink); }
+    .slot{ position:absolute; width:6px; border-radius:6px; background:#7c3aed; opacity:.0; transition:opacity .15s, left .12s; pointer-events:none; z-index:3; }
+    .slot.on{ opacity:.65; }
+    .ghostBub{ position:absolute; border-radius:50%; border:3px dashed #a78bfa; background:rgba(245,243,255,.5); pointer-events:none; opacity:0; transition:opacity .15s; z-index:2; }
+    .ghostBub.on{ opacity:1; }
+    .zeroBoard{ position:absolute; inset:0; display:grid; place-items:center; font-family:var(--mathFont); font-size:clamp(4rem,10vw,8rem); color:#c4b5fd; pointer-events:none; }
+    .hint{ flex:0 0 auto; min-height:1.45em; text-align:center; font-size:.92rem; font-weight:750; color:var(--muted); padding:3px 8px 0; line-height:1.4; }
+    .hint b{ color:var(--line); }
+    .toast{ position:fixed; left:50%; bottom:28px; transform:translate(-50%, 20px); background:#0f172a; color:#fff; padding:11px 18px; border-radius:14px; font-weight:850; font-size:.95rem;
+      opacity:0; pointer-events:none; transition:.25s ease; z-index:200; max-width:min(560px,92vw); text-align:center; box-shadow:0 18px 40px rgba(15,23,42,.3); }
+    .toast.show{ opacity:1; transform:translate(-50%, 0); }
+    .toast .mi, .toast .mv{ color:#c4b5fd; }
 
-    .termsRow{
-      display:flex;
-      flex-wrap:wrap;
-      gap:10px;
-      justify-content:center;
-      align-items:center;
-      padding: 8px 4px 4px;
+    /* the working: one line per move, every line equal to the first */
+    .work{ flex:1 1 auto; min-height:0; overflow:auto; margin:0 -6px; padding:0 6px; }
+    .wLine{ display:flex; align-items:baseline; gap:8px; padding:6px 10px; border-radius:12px; font-family:var(--mathFont); font-weight:var(--mathWeight); font-size:1.24rem; color:var(--line);
+      border:1px solid transparent; animation:fadeUp .3s ease; flex-wrap:wrap; }
+    .wLine .eqs{ color:var(--line-soft); min-width:.8em; }
+    .wLine .why{ font-family:var(--uiFont); font-size:.7rem; font-weight:850; color:var(--line-soft); margin-left:auto; text-transform:uppercase; letter-spacing:.05em; }
+    .wLine .val{ font-family:var(--uiFont); font-size:.74rem; font-weight:800; color:#7c3aed; background:#f5f3ff; border-radius:999px; padding:1px 8px; }
+    .wLine.cur{ background:#fff; border-color:rgba(37,99,235,.35); box-shadow:0 0 0 3px rgba(37,99,235,.06); }
+    .wLine.done{ background:rgba(34,197,94,.08); border-color:rgba(21,128,61,.3); }
+    .valNote{ font-size:.74rem; font-weight:800; color:#7c3aed; margin:0 0 6px; }
+    .valNote .mi, .valNote .mv{ font-size:1.15em; }
+    .legend{ display:flex; flex-wrap:wrap; gap:6px 12px; font-size:.78rem; font-weight:800; color:var(--muted); margin-top:8px; }
+    .legend span{ display:inline-flex; align-items:center; gap:6px; }
+    .legend i{ display:inline-grid; place-items:center; width:24px; height:24px; border-radius:999px; border:2px solid #c4b5fd; background:#fff; font-family:var(--mathFont); font-style:normal; font-weight:600; font-size:.82rem; color:var(--green-dark); }
+    .legend i.n{ color:var(--red); border-color:#fca5a5; }
+    @keyframes fadeUp{ from{ opacity:0; transform:translateY(5px);} to{ opacity:1; transform:none;} }
+    @media (prefers-reduced-motion:reduce){ .bub,.tok,.cap{ transition:none !important; } .tok.born,.bub.born,.wLine{ animation:none !important; } }
+    .sLine .whyTxt{ color:var(--line); }
+    .sLine .m .eqs{ color:var(--line-soft); }
+    .sLine .m .wd{ font-size:.62em; }
+    .stmt .cur{ display:block; }
+    .board .cap .wd{ font-size:.7em; }
+    .stmt .t.ev{ color:var(--green-dark); }
+    .stmt .t.ev .t.op{ color:var(--green-dark); }
+    .cap.measure{ visibility:hidden; left:0; top:0; transform:none; transition:none; pointer-events:none; }
+    @media (max-width:980px){
+      .app:not(.fs) .stage{ height:auto; }
+      .app:not(.fs) .board{ flex:none; min-height:clamp(300px,52vh,520px); }
     }
-    .termChip{
-      position: relative;
-      display:flex;
-      align-items:center;
-      gap:8px;
-      padding: 8px 10px;
-      border-radius: 16px;
-      background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
-      border: 2px solid #dbeafe;
-      box-shadow: 0 12px 26px rgba(0,0,0,.06);
-    }
+    .bub, .tok, .cap{ touch-action:none; }
+    #toolsMenu.open{ min-width:340px; }
+    /* ---------- side panel ---------- */
+    .side{ display:flex; flex-direction:column; gap:12px; min-height:0; min-width:0; }
+    .panel{ padding:12px 14px; }
+    .pHead{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:9px; }
+    .pTitle{ font-size:.68rem; letter-spacing:.14em; text-transform:uppercase; font-weight:950; color:var(--muted); }
+    .pCount{ font-size:.74rem; font-weight:900; color:var(--line-soft); }
+    .kindSeg{ display:grid; grid-template-columns:1fr 1fr; background:#f1f5f9; border:1px solid var(--border); border-radius:13px; padding:3px; gap:3px; margin-bottom:10px; }
+    .kindSeg button{ appearance:none; border:none; background:transparent; border-radius:10px; padding:7px 6px; font-weight:900; font-size:.88rem; color:var(--muted); cursor:pointer; }
+    .kindSeg button .s{ font-family:var(--mathFont); font-weight:700; margin-right:5px; }
+    .kindSeg button[aria-pressed="true"]{ background:#fff; color:var(--ink); box-shadow:0 2px 8px rgba(15,23,42,.12); }
+    .kindSeg button:focus-visible{ outline:none; box-shadow:0 0 0 3px rgba(37,99,235,.3); }
+    .dimRow{ display:grid; grid-template-columns:62px auto 1fr; align-items:center; gap:10px; margin-bottom:8px; }
+    .dimRow .lbl{ font-weight:900; font-size:.88rem; color:var(--line); }
+    .stepper{ display:inline-flex; align-items:center; border:1.5px solid var(--border); border-radius:13px; overflow:hidden; background:#fff; }
+    .stepper button{ appearance:none; border:none; background:#f8fafc; width:38px; height:40px; font-size:1.25rem; font-weight:900; color:var(--line); cursor:pointer; }
+    .stepper button:hover:not(:disabled){ background:#eef2ff; color:var(--blue-dark); }
+    .stepper button:disabled{ opacity:.35; cursor:not-allowed; }
+    .stepper input{ width:52px; height:40px; border:none; border-left:1.5px solid var(--border); border-right:1.5px solid var(--border); text-align:center;
+      font-family:var(--mathFont); font-size:1.4rem; font-weight:700; color:var(--blue-dark); -moz-appearance:textfield; }
+    .stepper input::-webkit-outer-spin-button,.stepper input::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0; }
+    .stepper input:focus{ outline:none; background:#eef2ff; }
+    .stepper.off input{ color:var(--line-soft); }
+    .dice{ appearance:none; justify-self:start; display:inline-flex; align-items:center; gap:6px; border:1.5px solid var(--border); background:#fff; border-radius:11px;
+      padding:6px 9px; font-weight:850; font-size:.76rem; color:var(--muted); cursor:pointer; transition:.15s ease; }
+    .dice svg{ width:16px; height:16px; }
+    .dice:hover{ border-color:var(--blue); color:var(--blue-dark); }
+    .dice[aria-pressed="true"]{ background:#eef2ff; border-color:#c7d2fe; color:var(--blue-dark); }
+    .qBtns{ display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:4px; }
+    .qBtn{ appearance:none; border:1.5px solid var(--border); background:#fff; border-radius:12px; padding:9px 6px; font-weight:900; font-size:.84rem; color:var(--line);
+      cursor:pointer; transition:.14s ease; }
+    .qBtn:hover{ border-color:var(--blue); background:#eef2ff; color:var(--blue-dark); transform:translateY(-1px); }
+    .qBtn small{ display:block; font-weight:700; font-size:.7rem; color:var(--line-soft); }
+    .qBtn.wide{ grid-column:1 / -1; }
+    .ownRow{ display:flex; gap:6px; margin-top:8px; }
+    .ownRow input{ flex:1 1 auto; min-width:0; border:1.5px solid var(--border); border-radius:11px; padding:9px 10px; font-family:var(--mathFont); font-size:1.08rem; font-weight:700; color:var(--line); }
+    .ownRow input:focus{ outline:none; border-color:var(--blue); box-shadow:0 0 0 4px rgba(37,99,235,.14); }
+    .ownRow button{ appearance:none; border:none; border-radius:11px; padding:0 14px; font-weight:900; background:var(--blue); color:#fff; cursor:pointer; }
+    .ownMsg{ font-size:.76rem; font-weight:750; color:var(--muted); margin-top:5px; line-height:1.35; min-height:1em; }
+    .ownMsg.err{ color:var(--red); }
 
-    .closeTerm{
-      position:absolute;
-      top:-9px;
-      right:-9px;
-      width:22px;
-      height:22px;
-      border-radius:999px;
-      border:2px solid rgba(139,92,246,.45);
-      background: rgba(255,255,255,.96);
-      box-shadow: 0 8px 16px rgba(0,0,0,.10);
-      color:#6d28d9;
-      font-weight: 1000;
-      line-height: 1;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      cursor:pointer;
-      user-select:none;
-      padding:0;
-    }
-    .closeTerm:hover{
-      transform: scale(1.06);
-      border-color: rgba(139,92,246,.70);
-    }
-    .closeTerm:active{
-      transform: scale(.98);
-    }
-    .closeTerm:disabled{
-      opacity:.45;
-      cursor:not-allowed;
-      transform:none;
-    }
+    .storyPanel{ flex:1 1 auto; min-height:0; display:flex; flex-direction:column; }
+    .storyScroll{ flex:1 1 auto; min-height:0; overflow:auto; margin:0 -6px; padding:0 6px; }
+    .sLine{ border-radius:13px; padding:8px 11px 9px; border:1px solid var(--border); background:#f8fafc; margin-bottom:6px; animation:fadeUp .3s ease; }
+    .sLine .lab{ display:flex; gap:7px; align-items:baseline; font-size:.8rem; font-weight:900; color:var(--line); line-height:1.3; }
+    .sLine .n{ font-size:.7rem; font-weight:950; color:#fff; background:var(--line-soft); border-radius:7px; min-width:20px; height:20px; display:inline-grid; place-items:center; flex:0 0 auto; }
+    .sLine .m{ font-family:var(--mathFont); font-weight:var(--mathWeight); font-size:1.16rem; color:var(--line); margin-top:3px; line-height:1.4; }
+    .sLine .m .word{ font-size:.66em; }
+    .sLine .tip{ font-size:.76rem; font-weight:750; color:var(--muted); margin-top:4px; line-height:1.4; }
+    .sLine .tip .eq{ font-family:var(--mathFont); font-weight:var(--mathWeight); font-size:1.18em; color:var(--line); }
+    .sLine.cur{ background:#fff; border-color:rgba(37,99,235,.45); box-shadow:0 0 0 3px rgba(37,99,235,.08); }
+    .sLine.cur .n{ background:var(--blue); }
+    .sLine.done{ background:rgba(34,197,94,.07); border-color:rgba(21,128,61,.28); }
+    .sLine.done .n{ background:var(--green-dark); }
+    .stepRow{ display:flex; gap:7px; padding-top:10px; margin-top:8px; border-top:1px solid var(--border); }
+    .stepBtn{ appearance:none; border:1.5px solid var(--border); background:#fff; color:var(--line); padding:11px 12px; border-radius:14px;
+      font-weight:950; font-size:.95rem; cursor:pointer; transition:.16s ease; white-space:nowrap; }
+    .stepBtn:hover:not(:disabled){ border-color:var(--blue); background:#eef2ff; color:var(--blue-dark); transform:translateY(-1px); }
+    .stepBtn:disabled{ opacity:.38; cursor:not-allowed; transform:none; }
+    .stepBtn.icon{ width:46px; padding:11px 0; font-size:1.05rem; }
+    .nextBtn{ flex:1 1 auto; min-width:0; appearance:none; border:none; background:linear-gradient(135deg,var(--blue),var(--purple)); color:#fff;
+      padding:12px 14px; border-radius:15px; font-weight:950; font-size:1.02rem; cursor:pointer; box-shadow:0 10px 24px rgba(37,99,235,.30);
+      transition:.18s ease; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .nextBtn:hover:not(:disabled){ transform:translateY(-1px); box-shadow:0 14px 30px rgba(37,99,235,.38); }
+    .nextBtn:disabled{ background:linear-gradient(135deg,var(--green-dark),#0f766e); box-shadow:none; cursor:default; opacity:.92; }
+    .keyHint{ font-size:.72rem; font-weight:800; color:var(--line-soft); text-align:center; margin-top:7px; line-height:1.6; }
+    .keyHint kbd{ font-family:var(--uiFont); font-size:.7rem; font-weight:900; color:var(--muted); border:1px solid var(--border); border-bottom-width:2px;
+      border-radius:6px; padding:0 5px; background:#f8fafc; }
 
-    .termChip .seg{
-      display:flex;
-      align-items:center;
-      gap:6px;
-      background: var(--termChipBg);
-      border: 1px solid var(--termChipBd);
-      border-radius: 12px;
-      padding: 6px 8px;
-    }
-    .seg label{
-      color: var(--termChipInk);
-      font-weight: 900;
-      letter-spacing:.2px;
-      white-space:nowrap;
-      font-size: 14px;
-    }
-   .seg input{
-  width: 40px;
-  border: 2px solid #c7d2fe;
-  background:#fff;
-  border-radius: 10px;
-  padding: 6px 8px;
-  font-weight: 900;
-  font-family: var(--mathFont);
-  color: #1d4ed8;
-  outline:none;
-  text-align:center;
-}
-    .seg input.unit{
-      width: 46px;
-      text-transform:none;
-    }
+    @keyframes fadeUp{ from{ opacity:0; transform:translateY(5px);} to{ opacity:1; transform:none;} }
+    @media (prefers-reduced-motion:reduce){ .sLine,.tk.new{ animation:none !important; } .stmt{ transition:none; } }
 
-    .opSelect{
-      border: 2px solid #ddd6fe;
-      background:#f5f3ff;
-      color:#5b21b6;
-      border-radius: 12px;
-      padding: 6px 8px;
-      font-weight: 900;
-      outline:none;
-      cursor:pointer;
-      font-size: 14px;
+    /* ---------- responsive ---------- */
+    @media (max-width:1280px){ .layout{ grid-template-columns:minmax(0,1fr) 344px; } .modeBtn small{ display:none; } }
+    @media (max-width:1180px){
+      .mmtTopbar{ grid-template-columns:auto minmax(0,1fr) auto; padding:12px 16px; gap:12px; }
+      .mmtBrandText{ display:none; }
+      .btn{ padding:10px 13px; font-size:14px; }
+      .layout{ padding:12px 12px 14px; gap:12px; }
     }
-
-    .addTermBtn{
-      margin: 10px auto 4px;
-      display:block;
-      border: 2px solid #ddd6fe;
-      background: #faf5ff;
-      color:#6d28d9;
-      padding: 10px 14px;
-      border-radius: 999px;
-      font-weight: 900;
-      cursor:pointer;
-      box-shadow: 0 10px 20px rgba(0,0,0,.05);
+    @media (max-width:980px){
+      .app:not(.fs){ height:auto; min-height:100dvh; }
+      .layout{ grid-template-columns:1fr; }
+      .stage{ flex:none; height:clamp(360px,62vh,600px); }
+      .app.fs .stage{ flex:1 1 auto; height:auto; }
+      .app.noPanel .hint, .app.fs .hint{ padding:3px 8px 56px; }
+      .storyPanel{ flex:none; }
+      .storyScroll{ overflow:visible; }
     }
-    .addTermBtn:disabled{
-      opacity:.45;
-      cursor:not-allowed;
+    @media (max-width:760px){
+      .mmtTopbar{ grid-template-columns:1fr; justify-items:center; padding:12px 14px; }
+      .mmtBrand{ margin-left:0; } .topActions{ justify-self:center; justify-content:center; }
+      .dropMenu{ right:auto; left:50%; transform:translateX(-50%); }
+      .settingsMenu.open{ min-width:min(350px,92vw); }
+      .mmtTopTitle{ white-space:normal; }
+      .boardTop{ flex-direction:column; align-items:stretch; }
+      .modeSwitch{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); width:100%; }
+      .modeBtn{ flex-direction:column; padding:6px 4px; font-size:.8rem; gap:4px; text-align:center; }
+      .modeBtn .txt{ text-align:center; }
+      .topRight{ justify-content:center; }
+      .typeTag{ display:none; }
     }
-
-    .bubblesRow{
-      margin-top: 14px;
-      display:flex;
-      gap:14px;
-      justify-content:center;
-      flex-wrap:wrap;
-      padding-bottom: 28px;
-    }
-    .bubble{
-      width: var(--bubbleDia);
-      height: var(--bubbleDia);
-      border-radius: 999px;
-      border: 5px solid var(--bubbleStroke);
-      background: rgba(255,255,255,.92);
-      box-shadow: 0 14px 35px rgba(0,0,0,.08);
-      position:relative;
-      overflow:visible;
-      --dotScale: 1;
-      transition: box-shadow 140ms ease, transform 140ms ease;
-    }
-    .bubble.dropTarget{
-      box-shadow: 0 0 0 6px rgba(139,92,246,.10), 0 18px 40px rgba(0,0,0,.10);
-      transform: scale(1.015);
-    }
-
- .bubble .dot{
-  position:absolute;
-  transform: translate(-50%,-50%) scale(var(--dotScale));
-  font-weight: 1000;
-  font-size: var(--bubbleFont);
-  font-family: var(--mathFont);
-  line-height: 1;
-  letter-spacing: .2px;
-  user-select:none;
-  white-space:nowrap;
-  padding: 6px 10px;
-  border-radius: 999px;
-  background: rgba(255,255,255,.95);
-  border: 2px solid rgba(139,92,246,.55);
-  box-shadow: 0 6px 14px rgba(0,0,0,.10);
-  cursor: grab;
-  touch-action: none;
-  transition: box-shadow 120ms ease, transform 120ms ease;
-}
-    .bubble .dot:active{
-      cursor: grabbing;
-    }
-    .dot.pos{ color: var(--ok); }
-    .dot.neg{ color: var(--bad); }
-    .dot.dragOrigin{
-      opacity: .18;
-    }
-    .dot.shake{
-      animation: shakeDot 260ms ease;
-    }
-    @keyframes shakeDot{
-      0%{ transform: translate(-50%,-50%) scale(var(--dotScale)) translateX(0); }
-      25%{ transform: translate(-50%,-50%) scale(var(--dotScale)) translateX(-5px); }
-      50%{ transform: translate(-50%,-50%) scale(var(--dotScale)) translateX(5px); }
-      75%{ transform: translate(-50%,-50%) scale(var(--dotScale)) translateX(-4px); }
-      100%{ transform: translate(-50%,-50%) scale(var(--dotScale)) translateX(0); }
-    }
-
-.dragGhost{
-  position: fixed;
-  left: 0;
-  top: 0;
-  z-index: 10050;
-  pointer-events: none;
-  transform: translate(-50%,-50%);
-  font-weight: 1000;
-  font-size: var(--bubbleFont);
-  font-family: var(--mathFont);
-  line-height: 1;
-  letter-spacing: .2px;
-  white-space:nowrap;
-  padding: 6px 10px;
-  border-radius: 999px;
-  background: rgba(255,255,255,.98);
-  border: 2px solid rgba(139,92,246,.70);
-  box-shadow: 0 14px 28px rgba(0,0,0,.18);
-}
-    .dragGhost.pos{ color: var(--ok); }
-    .dragGhost.neg{ color: var(--bad); }
-
-    .pop{
-      position: fixed;
-      width: 12px;
-      height: 12px;
-      border-radius: 999px;
-      pointer-events: none;
-      z-index: 10060;
-      opacity: 1;
-    }
-
-    .belowRow{
-      margin-top: 20px;
-      display:flex;
-      justify-content:center;
-    }
-    .simplifyWrap{
-      width: 100%;
-      max-width: 1220px;
-      position: relative;
-    }
-    .simplifyBtn{
-      position:absolute;
-      left: 10px;
-      top: -44px;
-      border: 2px solid #ddd6fe;
-      background: #faf5ff;
-      color:#6d28d9;
-      padding: 10px 14px;
-      border-radius: 999px;
-      font-weight: 900;
-      cursor:pointer;
-      box-shadow: 0 10px 20px rgba(0,0,0,.06);
-      z-index: 5;
-      transform: translateZ(0);
-    }
-    .simplifyBtn:disabled{ opacity:.55; cursor:not-allowed; }
-
-    @keyframes pulseBtn {
-      0%   { transform: translateZ(0) scale(1); }
-      40%  { transform: translateZ(0) scale(1.06); }
-      100% { transform: translateZ(0) scale(1); }
-    }
-    .simplifyBtn.pulse{
-      animation: pulseBtn 260ms cubic-bezier(.2,.9,.2,1);
-    }
-
-    .workBox{
-      background:#fff;
-      border: 1px solid rgba(229,231,235,.9);
-      border-radius: 22px;
-      box-shadow: 0 14px 35px rgba(0,0,0,.07);
-      padding: 18px 16px 14px;
-      position: relative;
-    }
-    .workLines{
-      display:flex;
-      flex-direction:column;
-      gap: 14px;
-      align-items:center;
-    }
-
-    .line0{
-      width:100%;
-      display:grid;
-      gap: 8px;
-      align-items:center;
-    }
-
-.termCell{
-  text-align:center;
-  font-weight: 1000;
-  font-size: var(--exprFontSmall);
-  font-family: var(--mathFont);
-  color:#0f172a;
-  letter-spacing: .2px;
-  white-space: nowrap;
-}
-    .termCell.pos{ color: var(--ok); }
-    .termCell.neg{ color: var(--bad); }
-
-    .rule{
-      width:100%;
-      border-top: 2px dashed #c7d2fe;
-      margin: 6px 0 0;
-    }
-
-  .eqLine{
-  width:100%;
-  display:flex;
-  justify-content:center;
-  gap: 14px;
-  align-items:baseline;
-  font-weight:1000;
-  font-size: var(--exprFontSmall);
-  font-family: var(--mathFont);
-  color:#0f172a;
-  position: relative;
-}
-    .eqLine .eq{ font-weight:1000; opacity:.9; }
-
-    @keyframes flashLine {
-      0%   { transform: translateY(-2px); filter: drop-shadow(0 0 0 rgba(37,99,235,0)); }
-      60%  { transform: translateY(0);   filter: drop-shadow(0 10px 18px rgba(37,99,235,.14)); }
-      100% { transform: translateY(0);   filter: drop-shadow(0 0 0 rgba(37,99,235,0)); }
-    }
-    .eqLine.flash{
-      animation: flashLine 320ms cubic-bezier(.2,.9,.2,1);
-    }
-
-    .eqTokens{
-      display:inline-flex;
-      align-items:baseline;
-      gap:0;
-      flex-wrap:wrap;
-    }
-   .eqTok{
-  display:inline-block;
-  white-space: pre;
-  font-family: var(--mathFont);
-  transform: translateZ(0);
-}
-    .eqTok.pos{ color: var(--ok); }
-    .eqTok.neg{ color: var(--bad); }
-
-    .animLayer{
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 9999;
-    }
-.ghost{
-  position: fixed;
-  left: 0;
-  top: 0;
-  transform: translate(0,0);
-  will-change: transform, opacity;
-  pointer-events: none;
-  filter: drop-shadow(0 10px 18px rgba(0,0,0,.18));
-  font-family: var(--mathFont);
-}
-
-    .toast{
-      position: fixed;
-      left: 50%;
-      bottom: 18px;
-      transform: translateX(-50%);
-      background: rgba(17,24,39,.92);
-      color: #fff;
-      padding: 10px 14px;
-      border-radius: 999px;
-      font-weight: 800;
-      box-shadow: 0 16px 30px rgba(0,0,0,.20);
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 160ms ease;
-      z-index: 10000;
-    }
-    .toast.show{ opacity: 1; }
-
-    .footerLink{
-      margin: 18px auto 22px;
-      max-width: 1480px;
-      text-align:center;
-      color:#111827;
-      font-weight:800;
-      opacity:.9;
-    }
-    .footerLink a{ color:#2563eb; text-decoration:none; font-weight:900; }
-
-    .drawerBackdrop{
-      position: fixed;
-      inset: 0;
-      background: rgba(15,23,42,.24);
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 180ms ease;
-      z-index: 70;
-    }
-    .drawerBackdrop.open{
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    .settingsDrawer{
-      position: fixed;
-      top: 0;
-      right: 0;
-      width: min(430px, 92vw);
-      height: 100vh;
-      background: #fff;
-      box-shadow: -12px 0 40px rgba(0,0,0,.14);
-      border-left: 1px solid rgba(229,231,235,.95);
-      transform: translateX(104%);
-      transition: transform 220ms cubic-bezier(.2,.9,.2,1);
-      z-index: 80;
-      display:flex;
-      flex-direction:column;
-    }
-    .settingsDrawer.open{
-      transform: translateX(0);
-    }
-
-    .drawerHeader{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      padding: 24px 22px;
-      border-bottom: 1px solid rgba(229,231,235,.95);
-      flex: 0 0 auto;
-    }
-    .drawerTitle{
-      font-size: 28px;
-      line-height: 1.1;
-      font-weight: 1000;
-      color:#0f172a;
-    }
-    .drawerClose{
-      border:1px solid var(--border);
-      background:#fff;
-      padding:12px 18px;
-      border-radius: 24px;
-      font-weight:900;
-      font-size: 18px;
-      color:#111827;
-      cursor:pointer;
-      box-shadow: 0 8px 16px rgba(0,0,0,.04);
-    }
-
-    .drawerBody{
-      padding: 18px 22px 26px;
-      overflow:auto;
-      display:flex;
-      flex-direction:column;
-      gap:18px;
-    }
-
-    .settingBubble{
-      border-radius: 28px;
-      padding: 22px 20px;
-      border: 1px solid #d1fae5;
-      background: #ecfdf5;
-      box-shadow: inset 0 0 0 2px rgba(34,197,94,.06);
-    }
-    .settingBubble.green{
-      border-color: #86efac;
-      background: #ecfdf5;
-    }
-    .settingBubble.purple{
-      border-color: #c4b5fd;
-      background: #f5f3ff;
-    }
-
-    .settingLabel{
-      font-size: 15px;
-      font-weight: 900;
-      color:#166534;
-      text-transform: uppercase;
-      letter-spacing: .3px;
-      margin-bottom: 12px;
-    }
-    .settingBubble.purple .settingLabel{
-      color:#6d28d9;
-    }
-
-    .settingTitle{
-      font-size: 19px;
-      font-weight: 1000;
-      color:#111827;
-      margin-bottom: 6px;
-    }
-    .settingHelp{
-      font-size: 14px;
-      line-height: 1.4;
-      color:#6b7280;
-    }
-
-    .modePills{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      margin-top: 14px;
-    }
-    .modeBtn{
-      border:2px solid #86efac;
-      background:#fff;
-      color:#166534;
-      padding: 12px 16px;
-      border-radius: 999px;
-      font-weight: 900;
-      cursor:pointer;
-      box-shadow: 0 8px 18px rgba(0,0,0,.04);
-    }
-    .modeBtn.active{
-      background:#dcfce7;
-      border-color:#4ade80;
-    }
-
-    .toggleRow{
-      display:flex;
-      align-items:flex-start;
-      gap:14px;
-      margin-top: 10px;
-    }
-    .toggleBox{
-      width:24px;
-      height:24px;
-      margin-top:2px;
-      accent-color: #16a34a;
-      cursor:pointer;
-      flex: 0 0 auto;
-    }
-    .toggleText{
-      min-width:0;
-    }
-
-    @media (max-width: 860px){
-      .topbar-inner{
-        flex-wrap:wrap;
-        justify-content:center;
-      }
-      .titlePill{
-        order:-1;
-        margin:0;
-      }
-    }
+    @media print{ .mmtTopbar,.side .stepRow,.hint,.iconGroup{ display:none; } }
   </style>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
 <!-- mmt-pwa -->
@@ -693,1359 +350,973 @@
 <script src="../../../../pwa.js" defer></script>
 <!-- /mmt-pwa -->
 </head>
-
 <body>
-  <div class="topbar">
-    <div class="topbar-inner">
-      <a class="backBtn" href="https://www.millsmathstools.au" target="_blank" rel="noopener">
-        <img src="../../../../assets/mmt.png" alt="MMT" />
-        <span>Back to Mills Maths Tools</span>
+  <div class="app" id="app">
+    <header class="mmtTopbar">
+      <a class="mmtBrand" href="https://www.millsmathstools.au" target="_self" aria-label="Back to Mills Maths Tools">
+        <span class="mmtBrandLogo" aria-hidden="true">MMT</span>
+        <span class="mmtBrandText"><strong>MMT</strong><span>Mills Maths Tools</span></span>
       </a>
-
-      <div class="titlePill">Collecting Like Terms</div>
-
+      <div class="mmtTopTitle">Collecting Like Terms &ndash; Bubbles</div>
       <div class="topActions">
-        <div class="pillSelect" title="Tools">
-          <select id="toolsMenu">
-            <option value="" selected>Tools ▾</option>
-            <option value="lesson-plan.html">Lesson plan</option>
-            <option value="worksheet-creator.html">Worksheet Creator</option>
-            <option value="student-quiz.html">Student Quiz</option>
-            <option value="https://millsmathstools.au/collecting-like-terms/number-groups/">Collecting Like Terms 2</option>
-          </select>
+        <div class="menuWrap">
+          <button class="btn" id="settingsBtn" type="button" aria-haspopup="true" aria-expanded="false">Settings &#9662;</button>
+          <nav class="dropMenu settingsMenu" id="settingsMenu" aria-label="Settings">
+            <div class="settingsHead">New questions</div>
+            <label class="sw"><input type="checkbox" id="negToggle" checked><span class="track"></span><span>Include taking away (&minus;2<i>x</i>)</span></label>
+            <p class="settingsNote">A &minus;<i>x</i> and an <i>x</i> make a zero pair: drop one on the other and both pop.</p>
+            <label class="sw"><input type="checkbox" id="onesToggle"><span class="track"></span><span>Include plain numbers (letters)</span></label>
+            <p class="settingsNote">A number on its own is a pile of ones: 4 is four 1s. Ones only join ones.</p>
+            <label class="sw"><input type="checkbox" id="alikeToggle"><span class="track"></span><span>Include look-alikes</span></label>
+            <p class="settingsNote"><i>ab</i> and <i>ba</i> are like terms (they join, and the <i>ba</i>s turn into <i>ab</i>s). <i>x</i> and <i>x</i>&sup2; are not.</p>
+            <label class="selRow"><span>Size of a group (numbers)</span>
+              <select id="sizeSel" aria-label="Size of a group when it is a number">
+                <option value="small">2 to 9</option>
+                <option value="mid" selected>3 to 12</option>
+                <option value="big">Big: 13 to 99</option>
+              </select>
+            </label>
+            <div class="settingsRule" role="separator"></div>
+            <div class="settingsHead">On the board</div>
+            <label class="sw"><input type="checkbox" id="colourToggle"><span class="track"></span><span>Colour each kind of term</span></label>
+            <p class="settingsNote">Off by default, so the class has to read each bubble to find its partners.</p>
+            <label class="sw"><input type="checkbox" id="splitToggle" checked><span class="track"></span><span>Drag a piece out to split a term</span></label>
+            <p class="settingsNote">Drop one <i>x</i> on empty space and 5<i>x</i> becomes 4<i>x</i> + <i>x</i> &mdash; the same amount, written another way.</p>
+            <label class="sw"><input type="checkbox" id="whyToggle" checked><span class="track"></span><span>Name each move in the working</span></label>
+          </nav>
         </div>
-
-        <button class="pillBtn purple" id="settingsBtn" type="button">Settings</button>
-        <button class="pillBtn red" id="resetBtn" type="button">Reset</button>
-        <button class="pillBtn blue" id="randomBtn" type="button">Random</button>
+        <div class="menuWrap">
+          <button class="btn" id="toolsBtn" type="button" aria-haspopup="true" aria-expanded="false">Tools &#9662;</button>
+          <nav class="dropMenu" id="toolsMenu" aria-label="Related tools">
+            <a class="toolLink" href="/worksheet-creators/stage-4/algebra/collecting-like-terms.html">Worksheet Creator<small>Printable like-terms practice</small></a>
+            <a class="toolLink" href="/online-quizzes/stage-4/algebra/collecting-like-terms.html">Student Quiz<small>Saves to the student dashboard</small></a>
+            <a class="toolLink" href="lesson-plan.html">Lesson Plan<small>ELPSA sequence for this tool</small></a>
+            <div class="menuRule" role="separator"></div>
+            <a class="toolLink" href="/interactive-tools/stage-4/algebra/number-groups/">Collecting Like Terms &ndash; Number Groups<small>Start here: count the groups</small></a>
+            <a class="toolLink" href="/interactive-tools/stage-4/algebra/visual-patterns/">Visual Patterns<small>Growing patterns to rules</small></a>
+          </nav>
+        </div>
+        <button class="btn btn-primary" id="newBtn" type="button" title="New question (Enter)">New question</button>
       </div>
-    </div>
-  </div>
+    </header>
 
-  <div class="wrap">
-    <div class="card">
-      <div class="termsRow" id="termsRow"></div>
-      <button class="addTermBtn" id="addTermBtn" type="button">Click to add term</button>
-
-      <div class="bubblesRow" id="bubblesRow"></div>
-
-      <div class="belowRow">
-        <div class="simplifyWrap">
-          <button class="simplifyBtn" id="simplifyBtn" type="button">Simplify 0/1</button>
-          <div class="workBox">
-            <div class="workLines" id="workLines"></div>
+    <main class="layout">
+      <section class="card boardCard" id="boardCard">
+        <div class="boardTop">
+          <div class="modeSwitch" role="tablist" aria-label="How the terms are written">
+            <button class="modeBtn" data-not="words" role="tab" aria-selected="false" type="button" title="Write it in words: 3 groups of x (1)">
+              <span class="sym" aria-hidden="true">abc</span>
+              <span class="txt">Groups of<small>3 groups of <i>x</i></small></span>
+            </button>
+            <button class="modeBtn" data-not="times" role="tab" aria-selected="false" type="button" title="Times sign: 3 × x (2)">
+              <span class="sym" aria-hidden="true">&times;</span>
+              <span class="txt">Times sign<small>3 &times; <i>x</i> &middot; 3 &times; 7</small></span>
+            </button>
+            <button class="modeBtn" data-not="brackets" role="tab" aria-selected="true" type="button" title="Algebra: 3x, and 3(7) for numbers (3)">
+              <span class="sym" aria-hidden="true"><span>3<i>x</i></span></span>
+              <span class="txt">Algebra<small>3<i>x</i> &middot; 3(7)</small></span>
+            </button>
+          </div>
+          <div class="topRight">
+            <span class="doneTag not" id="doneTag">Not yet simplified</span>
+            <div class="iconGroup">
+              <button class="iconBtn" id="againIcon" type="button" title="Start this question again (Space)" aria-label="Start this question again">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1"/><path d="M3.5 4v5h5"/></svg>
+              </button>
+              <button class="iconBtn" id="panelBtn" type="button" aria-pressed="true" title="Hide the side panel" aria-label="Show or hide the side panel">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M15 4v16"/><path d="M17 8h2M17 11h2M17 14h2"/></svg>
+              </button>
+              <button class="iconBtn" id="fsBtn" type="button" title="Full screen (F)" aria-label="Full screen">
+                <svg class="fsIn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+                <svg class="fsOut" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" hidden><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg>
+              </button>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
-
-    <div class="footerLink">
-      This tool and more can be found at <a href="https://www.millsmathstools.au" target="_blank" rel="noopener">www.millsmathstools.au</a>
-    </div>
-  </div>
-
-  <div class="drawerBackdrop" id="drawerBackdrop"></div>
-
-  <aside class="settingsDrawer" id="settingsDrawer" aria-hidden="true">
-    <div class="drawerHeader">
-      <div class="drawerTitle">Teacher settings</div>
-      <button class="drawerClose" id="drawerClose" type="button">Close</button>
-    </div>
-
-    <div class="drawerBody">
-      <div class="settingBubble green">
-        <div class="settingLabel">Term structure</div>
-        <div class="settingTitle">Choose single or double terms</div>
-        <div class="settingHelp">This controls the type of expressions you generate and edit in the tool.</div>
-
-        <div class="modePills">
-          <button class="modeBtn active" id="modeSingleBtn" type="button">Single terms</button>
-          <button class="modeBtn" id="modeDoubleBtn" type="button">Double terms</button>
+        <div class="stage" id="stage">
+          <div class="stmt" id="stmt" aria-live="polite"></div>
+          <div class="board" id="board" role="application" aria-label="Bubbles of terms. Drag a bubble onto a like bubble to join them."></div>
         </div>
-      </div>
+        <div class="hint" id="hint" aria-live="polite"></div>
+        <div class="miniSteps" id="miniSteps" hidden>
+          <button class="stepBtn icon" id="miniBack" type="button" title="Undo (&larr;)" aria-label="Undo the last move">&#8630;</button>
+          <button class="nextBtn" id="miniNext" type="button">Show me &#9656;</button>
+        </div>
+      </section>
 
-      <div class="settingBubble green">
-        <div class="settingLabel">Notation</div>
-        <div class="settingTitle">Use bracket notation</div>
-        <div class="settingHelp">Switch multiplication display between <strong>×</strong> and brackets (e.g. 3(4), 3(4x)).</div>
-
-        <label class="toggleRow" for="drawerMulToggle">
-          <input class="toggleBox" id="drawerMulToggle" type="checkbox" />
-          <div class="toggleText">
-            <div class="settingTitle" style="font-size:18px; margin:0 0 4px;">Use brackets instead of × where appropriate</div>
-            <div class="settingHelp">This changes how multiplication is shown in the expression and simplification lines.</div>
+      <aside class="side">
+        <section class="card panel" aria-label="The question">
+          <div class="pHead"><span class="pTitle">The question</span></div>
+          <div class="kindSeg" role="group" aria-label="Terms are letters or groups of numbers">
+            <button type="button" data-kind="let" aria-pressed="true" title="Letters, e.g. 3x + 2y + 4x"><span class="s"><i>x</i></span>Letters</button>
+            <button type="button" data-kind="num" aria-pressed="false" title="Groups of numbers, e.g. 5 × 8 + 2 × 8"><span class="s">8</span>Numbers</button>
           </div>
-        </label>
-      </div>
-    </div>
-  </aside>
+          <div class="dimRow">
+            <span class="lbl">Terms</span>
+            <span class="stepper"><button type="button" data-d="terms" data-s="-1" aria-label="Fewer terms">&minus;</button><input id="termsIn" type="number" inputmode="numeric" min="2" max="6" aria-label="Number of terms"><button type="button" data-d="terms" data-s="1" aria-label="More terms">+</button></span>
+            <button class="dice" type="button" id="rTerms" aria-pressed="false" title="A different number of terms each question"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3.5" y="3.5" width="17" height="17" rx="3.5"/><circle cx="8.5" cy="8.5" r="1.3" fill="currentColor"/><circle cx="15.5" cy="15.5" r="1.3" fill="currentColor"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/></svg>Random</button>
+          </div>
+          <div class="dimRow">
+            <span class="lbl">Kinds</span>
+            <span class="stepper"><button type="button" data-d="kinds" data-s="-1" aria-label="Fewer kinds of term">&minus;</button><input id="kindsIn" type="number" inputmode="numeric" min="1" max="3" aria-label="Kinds of term"><button type="button" data-d="kinds" data-s="1" aria-label="More kinds of term">+</button></span>
+            <button class="dice" type="button" id="rKinds" aria-pressed="false" title="A different number of kinds each question"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3.5" y="3.5" width="17" height="17" rx="3.5"/><circle cx="8.5" cy="8.5" r="1.3" fill="currentColor"/><circle cx="15.5" cy="15.5" r="1.3" fill="currentColor"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/></svg>Random</button>
+          </div>
+          <div class="qBtns">
+            <button class="qBtn" type="button" id="newQBtn">New question<small>Enter</small></button>
+            <button class="qBtn" type="button" id="ownBtn" aria-expanded="false">Type your own<small>3x + 2y &minus; x</small></button>
+          </div>
+          <div id="ownBox" hidden>
+            <div class="ownRow"><input id="ownIn" type="text" autocomplete="off" spellcheck="false" placeholder="3x + 2y + 4x − 2y  or  5 × 8 + 3 × 8" aria-label="Type your own expression"><button type="button" id="ownGo">Use</button></div>
+            <div class="ownMsg" id="ownMsg">Letters: 3<i>x</i> + 2<i>y</i> &minus; <i>x</i> + 4. Numbers: 5 &times; 8 + 2(8). Up to 6 terms, 12 of each.</div>
+          </div>
+        </section>
 
-  <div class="toast" id="toast"></div>
-
+        <section class="card panel storyPanel" aria-label="The working">
+          <div class="pHead"><span class="pTitle">The working</span><span class="pCount" id="moveCount"></span></div>
+          <div class="storyScroll" id="storyScroll"><div id="story" aria-live="polite"></div></div>
+          <div class="stepRow">
+            <button class="stepBtn icon" id="undoBtn" type="button" title="Undo the last move (&larr;)" aria-label="Undo the last move">&#8630;</button>
+            <button class="stepBtn icon" id="againBtn" type="button" title="Start this question again (Space)" aria-label="Start again">&#8634;</button>
+            <button class="stepBtn" id="allBtn" type="button" title="Play every move to the end">Finish it</button>
+            <button class="nextBtn" id="showBtn" type="button" title="Make the next move (&rarr;)">Show me &#9656;</button>
+          </div>
+          <div class="keyHint"><kbd>&rarr;</kbd> show me &middot; <kbd>&larr;</kbd> undo &middot; <kbd>Space</kbd> start again &middot; <kbd>Enter</kbd> new question &middot; <kbd>1</kbd>–<kbd>3</kbd> notation &middot; <kbd>L</kbd> letters/numbers &middot; <kbd>F</kbd> full screen</div>
+        </section>
+      </aside>
+    </main>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script>
-(() => {
-  const MAX_TERMS = 5;
-  const MAX_GROUPS = 10;
+(function(){
+  "use strict";
+  const $ = id => document.getElementById(id);
+  const STORE = "mmt.likeTermsBubbles.v1";
+  const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  let terms = [
-    { op: '+', groups: 5, unit: '8' },
-    { op: '+', groups: 4, unit: 'x' },
-    { op: '-', groups: 7, unit: 'x' }
-  ];
+  /* ================= state ================= */
+  const DEF = { kind:"let", terms:4, kinds:2, rTerms:false, rKinds:false, neg:true, ones:false, alike:false, size:"mid",
+    colour:false, split:true, why:true, not:"brackets", panel:true };
+  /* bubs: the board, in reading order. A bubble is one term: { id, key, d, s, toks:[token ids] }.
+     key = what kind of term it is (x, ab, 1, n8); d = how it is written (ab or ba); s = +1 / -1. */
+  const S = { set:Object.assign({}, DEF), q:null, bubs:[], lines:[], hist:[], evalDone:false, busy:false, fs:false, noAnim:false, msg:"" };
+  try { const sv = JSON.parse(localStorage.getItem(STORE) || "null"); if(sv && sv.set) Object.assign(S.set, sv.set); } catch(e){}
+  function save(){ try { localStorage.setItem(STORE, JSON.stringify({ set:S.set })); } catch(e){} }
+  let NID = 1; const nid = p => p + (NID++);
 
-  let mode = 'single';
-  let simplifyStep = 0;
-  let simplifyTotal = 1;
-  let cachedLines = [];
+  /* ================= numbers ================= */
+  const ri = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+  const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+  function shuffle(a){ a = a.slice(); for(let i = a.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+  const wait = ms => new Promise(r => setTimeout(r, S.noAnim || reduce ? 0 : ms));
 
-  let busyReveal = false;
-  let lastResetArmAt = 0;
-  let useBracket = false;
+  /* ================= what a key means ================= */
+  /* x, ab, x² = letters; "1" = a plain number (a pile of ones); "n8" = groups of the number 8 */
+  const typeOf = key => key === "1" ? "one" : key[0] === "n" && /^n\d+$/.test(key) ? "num" : "let";
+  const valOf = key => +key.slice(1);
+  function keyOfLetters(d){ return d.includes("²") ? d : d.split("").sort().join(""); }
 
-  const dragState = {
-    active: false,
-    sourceIdx: -1,
-    sourceTokenIdx: -1,
-    originEl: null,
-    ghostEl: null,
-    pointerId: null,
-    currentX: 0,
-    currentY: 0,
-    hoveredBubble: null
-  };
-
-  const el = (id) => document.getElementById(id);
-
-  const termsRow = el('termsRow');
-  const bubblesRow = el('bubblesRow');
-  const addTermBtn = el('addTermBtn');
-  const simplifyBtn = el('simplifyBtn');
-  const workLines = el('workLines');
-  const toastEl = el('toast');
-
-  const settingsBtn = el('settingsBtn');
-  const settingsDrawer = el('settingsDrawer');
-  const drawerBackdrop = el('drawerBackdrop');
-  const drawerClose = el('drawerClose');
-  const modeSingleBtn = el('modeSingleBtn');
-  const modeDoubleBtn = el('modeDoubleBtn');
-  const drawerMulToggle = el('drawerMulToggle');
-
-  const MUL = () => '×';
-
-  function showToast(msg, ms=1200){
-    toastEl.textContent = msg;
-    toastEl.classList.add('show');
-    window.clearTimeout(showToast._t);
-    showToast._t = window.setTimeout(() => toastEl.classList.remove('show'), ms);
-  }
-
-  function pulseSimplify(){
-    simplifyBtn.classList.remove('pulse');
-    void simplifyBtn.offsetWidth;
-    simplifyBtn.classList.add('pulse');
-  }
-
-  function openSettings(){
-    settingsDrawer.classList.add('open');
-    drawerBackdrop.classList.add('open');
-    settingsDrawer.setAttribute('aria-hidden', 'false');
-    syncSettingsUI();
-  }
-
-  function closeSettings(){
-    settingsDrawer.classList.remove('open');
-    drawerBackdrop.classList.remove('open');
-    settingsDrawer.setAttribute('aria-hidden', 'true');
-  }
-
-  function syncSettingsUI(){
-    modeSingleBtn.classList.toggle('active', mode === 'single');
-    modeDoubleBtn.classList.toggle('active', mode === 'two');
-    drawerMulToggle.checked = useBracket;
-  }
-
-  settingsBtn.addEventListener('click', openSettings);
-  drawerClose.addEventListener('click', closeSettings);
-  drawerBackdrop.addEventListener('click', closeSettings);
-
-  modeSingleBtn.addEventListener('click', () => {
-    if (mode === 'single') return;
-    mode = 'single';
-    simplifyStep = 0;
-    busyReveal = false;
-    endDragCleanup();
-    makeRandomQuestion();
-    syncSettingsUI();
-    renderAll();
-  });
-
-  modeDoubleBtn.addEventListener('click', () => {
-    if (mode === 'two') return;
-    mode = 'two';
-    simplifyStep = 0;
-    busyReveal = false;
-    endDragCleanup();
-    makeRandomQuestion();
-    syncSettingsUI();
-    renderAll();
-  });
-
-  drawerMulToggle.addEventListener('change', (e) => {
-    useBracket = !!e.target.checked;
-    try{ localStorage.setItem('mmt_collect_bracket', useBracket ? '1' : '0'); }catch(_){}
-    computeSimplifyLines();
-    renderWorkBox();
-    syncSettingsUI();
-  });
-
-  el('toolsMenu').addEventListener('change', (e) => {
-    const v = e.target.value;
-    if (v) window.location.href = v;
-    e.target.value = '';
-  });
-
-  try{
-    const saved = localStorage.getItem('mmt_collect_bracket');
-    if (saved === '1') useBracket = true;
-  }catch(_){}
-  syncSettingsUI();
-
-  function doReset(){
-    endDragCleanup();
-    terms = [
-      { op: '+', groups: 5, unit: '8' },
-      { op: '+', groups: 4, unit: 'x' },
-      { op: '-', groups: 7, unit: 'x' }
-    ];
-    simplifyStep = 0;
-    busyReveal = false;
-    renderAll();
-  }
-
-  el('resetBtn').addEventListener('click', () => {
-    doReset();
-  });
-
-  el('randomBtn').addEventListener('click', () => {
-    endDragCleanup();
-    makeRandomQuestion();
-    simplifyStep = 0;
-    busyReveal = false;
-    renderAll();
-  });
-
-  window.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && settingsDrawer.classList.contains('open')){
-      closeSettings();
-      return;
+  /* ================= maths type ================= */
+  const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;");
+  function mathItalic(str){
+    let out = "";
+    for(const ch of String(str)){
+      const c = ch.codePointAt(0);
+      if(ch === "h") out += "ℎ";
+      else if(c >= 97 && c <= 122) out += String.fromCodePoint(0x1D44E + c - 97);
+      else out += ch;
     }
+    return out;
+  }
+  function detectMathAlpha(){
+    try {
+      const x = document.createElement("canvas").getContext("2d");
+      x.font = '500 100px "Cambria Math","STIX Two Math","Latin Modern Math",serif';
+      const real = x.measureText("\u{1D465}\u{1D44E}\u{1D44F}\u{1D450}").width, gone = x.measureText("").width;
+      return real > 0 && gone > 0 && Math.abs(real - gone) > 1;
+    } catch(e){ return false; }
+  }
+  const MATH_ALPHA = detectMathAlpha();
+  const letHTML = d => MATH_ALPHA ? `<span class="mi">${mathItalic(d)}</span>` : `<span class="mv">${esc(d)}</span>`;
+  const letTxt = d => MATH_ALPHA ? mathItalic(d) : d;
+  const MINUS = "−", TIMES = "×";
 
-    if (dragState.active) return;
-    if (e.code === 'Space') {
-      const a = document.activeElement;
-      const tag = a ? a.tagName.toLowerCase() : '';
-      if (tag === 'input' || tag === 'select' || tag === 'textarea') return;
-      e.preventDefault();
-      makeRandomQuestion();
-      simplifyStep = 0;
-      busyReveal = false;
-      renderAll();
+  /* what one piece in a bubble says */
+  function unitHTML(key, d){ const t = typeOf(key); return t === "one" ? "1" : t === "num" ? String(valOf(key)) : letHTML(d); }
+  function unitLen(key, d){ const t = typeOf(key); return t === "one" ? 1 : t === "num" ? String(valOf(key)).length : d.length; }
+  /* the body of a term without its sign: n of key, in the chosen notation */
+  function bodyHTML(n, key, d, not){
+    const t = typeOf(key);
+    if(not === "words"){
+      if(t === "one") return `${n}<span class="wd">${n === 1 ? "one" : "ones"}</span>`;
+      return `${n}<span class="wd">${n === 1 ? "group of" : "groups of"}</span>${unitHTML(key, d)}`;
     }
-  }, { passive: false });
+    if(t === "one") return String(n);
+    if(t === "num") return not === "times" ? `${n}<span class="tm">${TIMES}</span>${valOf(key)}` : `${n}(${valOf(key)})`;
+    if(not === "times") return `${n}<span class="tm">${TIMES}</span>${letHTML(d)}`;
+    return (n === 1 ? "" : n) + letHTML(d);
+  }
+  /* a whole expression from a list of terms {key, d, s, n} */
+  function exprHTML(terms, not, opt){
+    opt = opt || {};
+    if(!terms.length) return `<span class="t">0</span>`;
+    return terms.map((tm, i) => {
+      const neg = tm.s < 0, col = opt.colour ? colourStyle(tm.key) : "";
+      let op = "";
+      if(i > 0) op = not === "words" && neg ? `<span class="t op neg"><span class="wd">take away</span></span>` : `<span class="t op${neg ? " neg" : ""}">${neg ? MINUS : "+"}</span>`;
+      else if(neg) op = not === "words" ? `<span class="t op neg"><span class="wd">take away</span></span>` : `<span class="t neg">${MINUS}</span>`;
+      return `${op}<span class="t${neg ? " neg" : ""}"${col}>${bodyHTML(tm.n, tm.key, tm.d, not)}</span>`;
+    }).join("");
+  }
+  const termsOf = bubs => bubs.map(b => ({ key:b.key, d:b.d, s:b.s, n:b.toks.length }));
+  const plainTerm = (n, key, d) => typeOf(key) === "let" ? (n === 1 ? "" : n) + letTxt(d) : typeOf(key) === "one" ? String(n) : `${n}(${valOf(key)})`;
 
-  window.addEventListener('keydown', (e) => {
-    if (dragState.active) return;
+  /* ================= colour per kind (optional) ================= */
+  const PAL = [["#7c3aed","#ede9fe","#5b21b6"],["#0d9488","#ccfbf1","#115e59"],["#d97706","#fef3c7","#92400e"],["#0284c7","#e0f2fe","#075985"],["#db2777","#fce7f3","#9d174d"]];
+  function kindIndex(key){ const ks = S.q ? S.q.kinds : []; const i = ks.indexOf(key); return i < 0 ? 0 : i; }
+  function colourStyle(key){ const p = PAL[kindIndex(key) % PAL.length]; return ` style="color:${p[2]}"`; }
 
-    const a = document.activeElement;
-    const tag = a ? a.tagName.toLowerCase() : '';
-    const inInput = (tag === 'input' || tag === 'select' || tag === 'textarea');
-
-    if (inInput) return;
-
-    if (e.key === 'n' || e.key === 'N'){
-      e.preventDefault();
-      el('randomBtn').click();
-      return;
+  /* ================= questions ================= */
+  const SINGLES = "xyabmnpktw".split("");
+  const PAIRS = [["a","b"],["x","y"],["m","n"],["p","q"],["a","c"]];
+  function numRange(){ return S.set.size === "small" ? [2, 9] : S.set.size === "big" ? [13, 99] : [3, 12]; }
+  function chooseKinds(K, mode){
+    if(mode === "num"){
+      const [a, b] = numRange(), out = [];
+      let t = 0; while(out.length < K && t++ < 200){ const v = ri(a, b); if(v !== 10 && !out.includes("n" + v)) out.push("n" + v); }
+      return out.map(k => ({ key:k, ds:[k] }));
     }
-
-    if (e.key === 'r' || e.key === 'R' || e.key === 's' || e.key === 'S'){
-      e.preventDefault();
-      if (!simplifyBtn.disabled) simplifyBtn.click();
-      return;
-    }
-
-    if (e.key === 'Backspace'){
-      e.preventDefault();
-      const now = Date.now();
-      if (now - lastResetArmAt < 1500){
-        doReset();
-        showToast('Reset ✓', 900);
-        lastResetArmAt = 0;
-      } else {
-        lastResetArmAt = now;
-        showToast('Press Backspace again to reset', 1200);
-      }
-    }
-  });
-
-  addTermBtn.addEventListener('click', () => {
-    if (terms.length >= MAX_TERMS) return;
-    terms.push({ op: '+', groups: 1, unit: 'x' });
-    simplifyStep = 0;
-    busyReveal = false;
-    renderAll();
-  });
-
-  simplifyBtn.addEventListener('click', async () => {
-    if (dragState.active) return;
-    if (busyReveal) return;
-    if (simplifyStep >= simplifyTotal) return;
-
-    const nextLine = cachedLines[simplifyStep + 1];
-
-    if (simplifyStep === 0 && nextLine && nextLine.anim === 'collect'){
-      busyReveal = true;
-      simplifyBtn.disabled = true;
-      pulseSimplify();
-
-      const eqEl = renderWorkBoxPreviewEq(nextLine);
-      await animateCollectSequential(eqEl);
-
-      simplifyStep++;
-      busyReveal = false;
-      renderWorkBox();
-      renderSimplifyBtn();
-      flashNewestEq();
-      return;
-    }
-
-    pulseSimplify();
-    simplifyStep++;
-    renderWorkBox();
-    renderSimplifyBtn();
-    flashNewestEq();
-  });
-
-  function clampInt(v, min, max, fallback){
-    const n = parseInt(String(v), 10);
-    if (Number.isFinite(n)) return Math.max(min, Math.min(max, n));
-    return fallback;
-  }
-
-  function sanitizeGroups(v){
-    return clampInt(v, 1, MAX_GROUPS, 1);
-  }
-
-  function sanitizeUnit(raw){
-    let s = String(raw ?? '').trim();
-    if (!s) return 'x';
-
-    s = s.replace(/^\-+/, '');
-
-    if (mode === 'single'){
-      s = s.replace(/[^a-zA-Z0-9]/g, '');
-      if (!s) return 'x';
-      s = s.slice(0, 1);
-
-      if (/^\d$/.test(s)){
-        const d = clampInt(s, 1, 9, 1);
-        return String(d);
-      }
-      return s.toLowerCase();
-    }
-
-    s = s.replace(/[^a-zA-Z0-9]/g, '');
-    if (!s) return 'x';
-
-    const digits = (s.match(/\d+/g) || []).join('');
-    const letters = (s.match(/[a-zA-Z]+/g) || []).join('').toLowerCase();
-
-    let d = digits ? String(clampInt(digits, 1, 99, 1)) : '';
-    let l = letters ? letters : '';
-
-    if (!d && !l) return 'x';
-    return (d + l) || 'x';
-  }
-
-  function normalizeUnit(u){
-    const s = String(u).trim().toLowerCase();
-    if (!s) return 'x';
-    const digits = (s.match(/^\d+/) || [''])[0];
-    const rest = s.slice(digits.length);
-    return digits + rest;
-  }
-
-  function isNumericUnit(u){
-    return /^\d+$/.test(u);
-  }
-
-  function hasLeadingDigit(u){
-    return /^\d/.test(u);
-  }
-
-  function splitNumLetters(u){
-    const m = String(u).toLowerCase().match(/^(\d+)([a-z]+)$/);
-    if (!m) return null;
-    return { num: parseInt(m[1],10), letters: m[2] };
-  }
-
-  function shouldUseBracketNotation(u){
-    if (!useBracket) return false;
-    if (isNumericUnit(u)) return true;
-    return /^\d+[a-z]+$/.test(String(u).toLowerCase());
-  }
-
-  function termKey(u){
-    return normalizeUnit(u);
-  }
-
-  function termSignAtIndex(idx){
-    return idx === 0 ? +1 : (terms[idx]?.op === '-' ? -1 : +1);
-  }
-
-  function termToExpression(groups, unit, signForText){
-    const g = groups;
-    const u = normalizeUnit(unit);
-
-    const neg = signForText < 0;
-    const signPrefix = neg ? '− ' : '+ ';
-
-    if (g === 1){
-      return signPrefix + u;
-    }
-
-    if (!hasLeadingDigit(u) && !isNumericUnit(u)){
-      return signPrefix + String(g) + u;
-    }
-
-    if (shouldUseBracketNotation(u)){
-      return signPrefix + String(g) + '(' + u + ')';
-    }
-    return signPrefix + String(g) + '×' + u;
-  }
-
-  function termToExpressionFirst(groups, unit){
-    const g = groups;
-    const u = normalizeUnit(unit);
-
-    if (g === 1) return u;
-    if (!hasLeadingDigit(u) && !isNumericUnit(u)) return String(g) + u;
-    if (shouldUseBracketNotation(u)){
-      return String(g) + '(' + u + ')';
-    }
-    return String(g) + '×' + u;
-  }
-
-  function makeRandomQuestion(){
-    const nTerms = Math.random() < 0.6 ? 4 : 3;
-    const groupsPool = [1,2,3,4,5,6,7,8,9,10];
-
-    const unitChoicesSingle = ['x','a','b','c','m','n','p', '2','3','4','5','6','7','8','9'];
-    const unitChoicesTwo = ['x','a','b','ab','xy','m','n','p','38','43','59','12','7b','9b','7ab','3x','5x','6a','4b','9x','11a'];
-
-    let u1, u2;
-    if (mode === 'single'){
-      u1 = unitChoicesSingle[Math.floor(Math.random()*unitChoicesSingle.length)];
-      do { u2 = unitChoicesSingle[Math.floor(Math.random()*unitChoicesSingle.length)]; } while (u2 === u1);
+    const st = S.set, kinds = [];
+    const useOnes = st.ones && K >= 2;
+    const letK = K - (useOnes ? 1 : 0);
+    let alike = st.alike ? pick(["swap","power"]) : null;
+    if(alike === "power" && letK < 2) alike = "swap";
+    const pool = shuffle(SINGLES);
+    if(alike === "swap"){
+      const [p, q] = pick(PAIRS); kinds.push({ key:p + q, ds:[p + q, q + p] });
+      while(kinds.length < letK){ const l = pool.pop(); if(l !== p && l !== q) kinds.push({ key:l, ds:[l] }); }
+    } else if(alike === "power"){
+      const l = pick(["x","a","y","m"]); kinds.push({ key:l, ds:[l] }, { key:l + "²", ds:[l + "²"] });
+      while(kinds.length < letK){ const c = pool.pop(); if(c !== l) kinds.push({ key:c, ds:[c] }); }
     } else {
-      u1 = unitChoicesTwo[Math.floor(Math.random()*unitChoicesTwo.length)];
-      do { u2 = unitChoicesTwo[Math.floor(Math.random()*unitChoicesTwo.length)]; } while (normalizeUnit(u2) === normalizeUnit(u1));
+      while(kinds.length < letK) kinds.push({ key:pool.pop(), ds:[] });
+      kinds.forEach(k => k.ds = [k.key]);
     }
-
-    const units = [u1, u2];
-    const local = [];
-
-    for (let i=0;i<nTerms;i++){
-      const unit = (i < 2) ? units[i] : units[Math.floor(Math.random()*2)];
-      const groups = groupsPool[Math.floor(Math.random()*groupsPool.length)];
-      local.push({ op: '+', groups, unit });
+    if(useOnes) kinds.push({ key:"1", ds:["1"] });
+    return shuffle(kinds);
+  }
+  /* terms are dealt so that like terms are NOT already side by side: finding them is half the job */
+  function scatter(list){
+    let best = list;
+    for(let t = 0; t < 60; t++){
+      const a = shuffle(list);
+      const adjacent = a.some((x, i) => i > 0 && a[i - 1].key === x.key);
+      if(!adjacent) return a;
+      best = a;
     }
-
-    local[0].op = '+';
-    for (let i=1;i<local.length;i++){
-      local[i].op = Math.random() < 0.35 ? '-' : '+';
-    }
-
-    terms = local;
+    return best;
   }
-
-  function renderAll(){
-    addTermBtn.disabled = terms.length >= MAX_TERMS;
-
-    terms = terms.map((t, idx) => {
-      const groups = sanitizeGroups(t.groups);
-      const unit = sanitizeUnit(t.unit);
-      const op = (idx === 0) ? '+' : (t.op === '-' ? '-' : '+');
-      return { op, groups, unit };
-    });
-
-    simplifyStep = 0;
-    busyReveal = false;
-
-    renderTermsUI();
-    renderBubbles();
-    computeSimplifyLines();
-    renderWorkBox();
-    renderSimplifyBtn();
-    syncSettingsUI();
-  }
-
-  function renderTermsUI(){
-    termsRow.innerHTML = '';
-
-    terms.forEach((t, idx) => {
-      const chip = document.createElement('div');
-      chip.className = 'termChip';
-
-      const closeBtn = document.createElement('button');
-      closeBtn.className = 'closeTerm';
-      closeBtn.type = 'button';
-      closeBtn.textContent = '×';
-      closeBtn.title = 'Remove this term';
-      closeBtn.disabled = (terms.length <= 1);
-
-      closeBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-
-        if (terms.length <= 1){
-          showToast('You need at least 1 term', 1100);
-          return;
-        }
-
-        terms.splice(idx, 1);
-        simplifyStep = 0;
-        busyReveal = false;
-        endDragCleanup();
-        renderAll();
-      });
-
-      chip.appendChild(closeBtn);
-
-      if (idx !== 0){
-        const op = document.createElement('select');
-        op.className = 'opSelect';
-        op.innerHTML = `
-          <option value="+">+</option>
-          <option value="-">−</option>
-        `;
-        op.value = t.op;
-        op.addEventListener('change', () => {
-          t.op = op.value;
-          simplifyStep = 0;
-          busyReveal = false;
-          endDragCleanup();
-          renderBubbles();
-          computeSimplifyLines();
-          renderWorkBox();
-          renderSimplifyBtn();
-        });
-        chip.appendChild(op);
-      }
-
-      const seg = document.createElement('div');
-      seg.className = 'seg';
-
-      const gInp = document.createElement('input');
-      gInp.type = 'text';
-      gInp.inputMode = 'numeric';
-      gInp.value = String(t.groups);
-      gInp.title = `Number of groups (1–${MAX_GROUPS})`;
-      gInp.addEventListener('input', () => {
-        t.groups = sanitizeGroups(gInp.value);
-        gInp.value = String(t.groups);
-        simplifyStep = 0;
-        busyReveal = false;
-        endDragCleanup();
-        renderBubbles();
-        computeSimplifyLines();
-        renderWorkBox();
-        renderSimplifyBtn();
-      });
-
-      const lbl = document.createElement('label');
-      lbl.textContent = 'groups of';
-
-      const uInp = document.createElement('input');
-      uInp.type = 'text';
-      uInp.className = 'unit';
-      uInp.value = t.unit;
-      uInp.title = (mode === 'single')
-        ? 'Unit: one digit (1–9) OR one letter'
-        : 'Unit: number up to 99, letters, or number+letters (e.g., 7b, ab)';
-      uInp.addEventListener('input', () => {
-        const before = uInp.value;
-        const cleaned = sanitizeUnit(before);
-        t.unit = cleaned;
-        if (cleaned !== before){
-          uInp.value = cleaned;
-        }
-        simplifyStep = 0;
-        busyReveal = false;
-        endDragCleanup();
-        renderBubbles();
-        computeSimplifyLines();
-        renderWorkBox();
-        renderSimplifyBtn();
-      });
-
-      seg.appendChild(gInp);
-      seg.appendChild(lbl);
-      seg.appendChild(uInp);
-
-      chip.appendChild(seg);
-      termsRow.appendChild(chip);
-    });
-  }
-
-  const DOTS = {
-    1: [[50,50]],
-    2: [[30,35],[70,65]],
-    3: [[30,35],[50,50],[70,65]],
-    4: [[30,30],[70,30],[30,70],[70,70]],
-    5: [[30,30],[70,30],[50,50],[30,70],[70,70]],
-    6: [[30,25],[70,25],[30,50],[70,50],[30,75],[70,75]],
-    7: [[30,25],[70,25],[30,50],[70,50],[30,75],[70,75],[50,50]],
-    8: [[30,25],[70,25],[30,50],[70,50],[30,75],[70,75],[50,37],[50,63]],
-    9: [[30,22],[50,22],[70,22],[30,50],[50,50],[70,50],[30,78],[50,78],[70,78]],
-    10:[[30,22],[50,18],[70,22],[30,42],[50,39],[70,42],[30,62],[50,61],[70,62],[50,82]]
-  };
-
-  function positionsForCount(n){
-    const k = Math.max(1, Math.min(MAX_GROUPS, n));
-    return DOTS[k];
-  }
-
-  function renderBubbles(){
-    bubblesRow.innerHTML = '';
-
-    terms.forEach((t, termIdx) => {
-      const bubble = document.createElement('div');
-      bubble.className = 'bubble';
-      bubble.dataset.termIdx = String(termIdx);
-      bubble.dataset.key = termKey(t.unit);
-      bubble.dataset.sign = String(termSignAtIndex(termIdx));
-
-      bubble.style.setProperty('--dotScale', (t.groups >= 9 ? '0.88' : (t.groups >= 8 ? '0.92' : '1')));
-
-      const signNeg = (termSignAtIndex(termIdx) < 0);
-      const cls = signNeg ? 'neg' : 'pos';
-      const token = normalizeUnit(t.unit);
-      const shownToken = signNeg ? ('-' + token) : token;
-
-      const pos = positionsForCount(t.groups);
-      pos.forEach(([x,y], tokenIdx) => {
-        const d = document.createElement('div');
-        d.className = 'dot ' + cls;
-        d.style.left = x + '%';
-        d.style.top = y + '%';
-        d.textContent = shownToken;
-        d.dataset.termIdx = String(termIdx);
-        d.dataset.tokenIdx = String(tokenIdx);
-        d.dataset.key = termKey(t.unit);
-        d.dataset.sign = String(termSignAtIndex(termIdx));
-        d.addEventListener('pointerdown', onDotPointerDown);
-        bubble.appendChild(d);
-      });
-
-      bubblesRow.appendChild(bubble);
-    });
-  }
-
-  function collectedMap(){
-    const order = [];
-    const map = new Map();
-    terms.forEach((t, idx) => {
-      const u = termKey(t.unit);
-      const sgn = (idx === 0 ? +1 : (t.op === '-' ? -1 : +1));
-      const add = sgn * t.groups;
-      if (!map.has(u)){
-        map.set(u, add);
-        order.push(u);
-      } else {
-        map.set(u, map.get(u) + add);
+  function makeQ(){
+    const st = S.set;
+    let T = st.rTerms ? ri(3, 6) : st.terms;
+    let K = st.rKinds ? ri(1, 3) : st.kinds;
+    T = Math.max(2, Math.min(6, T)); K = Math.max(1, Math.min(3, K, T - 1));
+    const kinds = chooseKinds(K, st.kind);
+    /* every kind gets at least one term; at least one kind gets two */
+    const counts = kinds.map(() => 1); let left = T - kinds.length;
+    counts[0]++; left--;
+    while(left-- > 0) counts[ri(0, kinds.length - 1)]++;
+    const maxC = st.kind === "num" ? 5 : 6;
+    let terms = [];
+    kinds.forEach((k, i) => {
+      for(let j = 0; j < counts[i]; j++){
+        terms.push({ key:k.key, d:k.ds[j % k.ds.length], s:1, n:ri(1, maxC) });
       }
     });
-    return { map, order };
-  }
-
-  function buildCollectedTokens(map, order){
-    const tokens = [];
-    for (const u of order){
-      const c = map.get(u);
-      if (!c) continue;
-
-      const neg = c < 0;
-      const abs = Math.abs(c);
-
-      let body;
-      if (abs === 1){
-        body = u;
-      } else {
-        if (!hasLeadingDigit(u) && !isNumericUnit(u)) {
-          body = String(abs) + u;
-        } else if (shouldUseBracketNotation(u)) {
-          body = String(abs) + '(' + u + ')';
-        } else {
-          body = String(abs) + MUL() + u;
-        }
-      }
-
-      const text = (tokens.length === 0)
-        ? ((neg ? '− ' : '') + body)
-        : ((neg ? ' − ' : ' + ') + body);
-
-      tokens.push({ key: u, text, neg });
-    }
-    if (!tokens.length) tokens.push({ key:'__0__', text:'0', neg:false });
-    return tokens;
-  }
-
-  function stringifyFromTokens(tokens){
-    return tokens.map(t => t.text).join('');
-  }
-
-  function evaluateNumericAndCoeffAlgebra(map, order){
-    let constSum = 0;
-
-    const newOrder = [];
-    const newMap = new Map();
-    const seen = new Set();
-
-    for (const u of order){
-      const c = map.get(u);
-      if (!c) continue;
-
-      if (isNumericUnit(u)){
-        constSum += c * parseInt(u,10);
-        continue;
-      }
-
-      const nl = splitNumLetters(u);
-      if (nl){
-        const mergedCoeff = c * nl.num;
-        const key = nl.letters;
-        if (!seen.has(key)){
-          newOrder.push(key);
-          seen.add(key);
-          newMap.set(key, mergedCoeff);
-        } else {
-          newMap.set(key, newMap.get(key) + mergedCoeff);
-        }
-        continue;
-      }
-
-      if (!seen.has(u)){
-        newOrder.push(u);
-        seen.add(u);
-        newMap.set(u, c);
-      } else {
-        newMap.set(u, newMap.get(u) + c);
+    /* signs: a take-away or two, never on every term of a kind */
+    if(st.neg){
+      const idx = shuffle(terms.map((_, i) => i));
+      let negs = Math.max(1, Math.round(T * 0.35));
+      for(const i of idx){
+        if(negs <= 0) break;
+        const sameKind = terms.filter(x => x.key === terms[i].key);
+        if(sameKind.length < 2 && Math.random() < .6) continue;
+        if(sameKind.filter(x => x.s > 0).length <= 1 && terms[i].s > 0 && Math.random() < .5) continue;
+        terms[i].s = -1; negs--;
       }
     }
-
-    return { constSum, newMap, newOrder };
+    /* keep it drawable: no kind above 14 pieces, no more than 34 on the board */
+    terms.forEach(tm => { if(tm.n > 1 && Math.random() < .12) tm.n = 1; });
+    let total = terms.reduce((a, x) => a + x.n, 0);
+    while(total > 34){ const big = terms.reduce((a, x) => x.n > a.n ? x : a); big.n--; total--; }
+    terms = scatter(terms);
+    if(terms[0].s < 0 && terms.some(x => x.s > 0) && Math.random() < .7){
+      const j = terms.findIndex(x => x.s > 0); [terms[0], terms[j]] = [terms[j], terms[0]];
+    }
+    return finishQ(terms, st.kind);
+  }
+  function finishQ(terms, mode){
+    const kinds = []; terms.forEach(t => { if(!kinds.includes(t.key)) kinds.push(t.key); });
+    return { terms, mode, kinds };
   }
 
-  function buildFinalTokens(constSum, map, order){
-    const tokens = [];
-    const pushTok = (neg, body, key) => {
-      const text = (tokens.length === 0)
-        ? ((neg ? '− ' : '') + body)
-        : ((neg ? ' − ' : ' + ') + body);
-      tokens.push({ key: key || '__final__', text, neg });
+  /* ================= type your own ================= */
+  function parseOwn(raw){
+    let s = String(raw || "").trim().toLowerCase()
+      .replace(/[−–—]/g, "-").replace(/[×⋅·*]/g, "×").replace(/\^2/g, "²").replace(/\s+/g, "");
+    if(!s) return { err:"Type an expression first." };
+    if(!/^[-+]/.test(s)) s = "+" + s;
+    const parts = s.match(/[-+][^-+]+/g);
+    if(!parts || parts.join("") !== s) return { err:"I couldn't read that. Try 3x + 2y − x." };
+    if(parts.length > 6) return { err:"Up to 6 terms, please." };
+    const numMode = /×|\(/.test(s) || /^\+?\d+x\d+/.test(s);
+    const terms = [];
+    for(const p of parts){
+      const sign = p[0] === "-" ? -1 : 1, body = p.slice(1);
+      let m, n, key, d;
+      if(numMode){
+        if((m = body.match(/^(\d+)(?:×|x)(\d+)$/)) || (m = body.match(/^(\d+)\((\d+)\)$/))){ n = +m[1]; const v = +m[2]; if(v < 2) return { err:"A group needs to be 2 or more." }; key = "n" + v; d = key; }
+        else return { err:`“${body}” — in a numbers question write each term as 5 × 8 or 5(8).` };
+      } else if((m = body.match(/^(\d*)([a-z]{1,2})(²?)$/))){
+        n = m[1] === "" ? 1 : +m[1]; const L = m[2];
+        if(L.length === 2 && L[0] === L[1]) return { err:`Write ${L} as ${L[0]}².` };
+        if(m[3] && L.length > 1) return { err:"Powers only on a single letter, e.g. x²." };
+        d = L + m[3]; key = keyOfLetters(d);
+      } else if((m = body.match(/^(\d+)$/))){ n = +m[1]; key = "1"; d = "1"; }
+      else return { err:`I couldn't read “${body}”.` };
+      if(!n) return { err:"A term of 0 has nothing to draw." };
+      if(n > 12) return { err:"Keep each term to 12 or fewer, so the bubbles fit." };
+      terms.push({ key, d, s:sign, n });
+    }
+    if(terms.reduce((a, t) => a + t.n, 0) > 40) return { err:"That's too many pieces to draw — keep it to 40 altogether." };
+    return { q:finishQ(terms, numMode ? "num" : "let") };
+  }
+
+  /* ================= the board model ================= */
+  function boardFromQ(q){
+    return q.terms.map(t => ({ id:nid("b"), key:t.key, d:t.d, s:t.s, toks:Array.from({ length:t.n }, () => nid("t")) }));
+  }
+  const bub = id => S.bubs.find(b => b.id === id);
+  const bubOfTok = tid => S.bubs.find(b => b.toks.includes(tid));
+  const snap = () => ({ bubs:JSON.parse(JSON.stringify(S.bubs)), lines:JSON.parse(JSON.stringify(S.lines)), evalDone:S.evalDone });
+  function isDone(bubs){ bubs = bubs || S.bubs; const ks = bubs.map(b => b.key); return ks.length === new Set(ks).size; }
+  function relation(a, b){ return a.key !== b.key ? "no" : a.s === b.s ? "ok" : "pair"; }
+
+  /* ================= the working ================= */
+  const WHY = { start:"Start", join:"Join like terms", move:"Move one across", pair:"Zero pairs", split:"Split a term",
+    order:"Rearrange", eval:"Work out each group", add:"Add", done:"Simplified" };
+  function pushLine(why, extra){
+    const terms = termsOf(S.bubs);
+    const last = S.lines[S.lines.length - 1];
+    if(why === "order" && last && last.why === "order"){ last.terms = terms; return; }
+    S.lines.push(Object.assign({ why, terms }, extra || {}));
+  }
+  function lineMath(L, not){
+    not = not === "words" ? "brackets" : not;
+    if(L.html) return L.html;
+    return exprHTML(L.terms, not, { colour:S.set.colour });
+  }
+  function renderStory(){
+    const box = $("story"), n = S.lines.length;
+    box.innerHTML = S.lines.map((L, i) => {
+      const cur = i === n - 1, done = cur && isDone() && i > 0;
+      const lab = S.set.why ? `<span class="whyTxt">${WHY[L.why] || ""}</span>` : "";
+      return `<div class="sLine${cur ? (done ? " done cur" : " cur") : ""}"><div class="lab"><span class="n">${i === 0 ? "&#9679;" : i}</span>${lab}</div><div class="m">${i ? `<span class="eqs">= </span>` : ""}${lineMath(L, S.set.not)}</div></div>`;
+    }).join("");
+    $("moveCount").textContent = n > 1 ? `${n - 1} move${n === 2 ? "" : "s"}` : "";
+    const sc = $("storyScroll"); sc.scrollTop = sc.scrollHeight;
+  }
+
+  /* ================= layout ================= */
+  /* pieces sit on a hexagonal grid, nearest the middle first: 3 is a triangle, 7 a flower */
+  const HEX = (() => { const p = []; for(let j = -8; j <= 8; j++) for(let i = -8; i <= 8; i++){ const x = i + j / 2, y = j * Math.sqrt(3) / 2; p.push({ x, y, d:Math.hypot(x, y), a:Math.atan2(y, x) }); }
+    p.sort((u, v) => (u.d - v.d) || (u.a - v.a)); return p; })();
+  const PACK = {};
+  function pack(n){
+    if(PACK[n]) return PACK[n];
+    if(n <= 0) return (PACK[n] = { pts:[], R:0 });
+    const pts = HEX.slice(0, n).map(p => ({ x:p.x, y:p.y }));
+    const cx = pts.reduce((a, p) => a + p.x, 0) / n, cy = pts.reduce((a, p) => a + p.y, 0) / n;
+    pts.forEach(p => { p.x -= cx; p.y -= cy; });
+    const R = Math.max(...pts.map(p => Math.hypot(p.x, p.y)));
+    return (PACK[n] = { pts, R });
+  }
+  const bubR = (n, t) => t * (pack(Math.max(1, n)).R + 0.5) + t * 0.34;
+  /* captions are measured in the page itself, in the same font they are drawn in */
+  let measEl = null; const MEAS = new Map();
+  function capSize(html, px){
+    const k = px.toFixed(1) + "|" + html;
+    if(MEAS.has(k)) return MEAS.get(k);
+    if(!measEl){ measEl = document.createElement("div"); measEl.className = "cap measure"; measEl.setAttribute("aria-hidden", "true"); $("board").appendChild(measEl); }
+    measEl.style.fontSize = px + "px"; measEl.innerHTML = html;
+    const r = { w:measEl.offsetWidth + 4, h:measEl.offsetHeight };
+    if(MEAS.size > 3000) MEAS.clear();
+    MEAS.set(k, r); return r;
+  }
+  const textW = (html, px) => capSize(html, px).w;
+  function capHTML(b){
+    const n = b.toks.length, neg = b.s < 0;
+    const sign = neg ? (S.set.not === "words" ? `<span class="wd">take away</span> ` : `<span class="t neg">${MINUS}</span>`) : "";
+    return `${sign}<span class="t${neg ? " neg" : ""}"${S.set.colour ? colourStyle(b.key) : ""}>${bodyHTML(n, b.key, b.d, S.set.not)}</span>`;
+  }
+  let L = null;
+  function layout(bubs, W, H){
+    bubs = bubs || S.bubs;
+    const words = S.set.not === "words";
+    const tryT = t => {
+      const fs = Math.max(15, Math.min(34, t * (words ? .5 : .6)));
+      const gap = t * .8, padX = 14, rowGap = t * .55;
+      let capH = fs * 1.35;
+      const items = bubs.map(b => { const r = bubR(b.toks.length, t), cs = capSize(capHTML(b), fs); capH = Math.max(capH, cs.h); return { b, r, w:Math.max(2 * r, cs.w) }; });
+      const rows = []; let row = [], rw = 0;
+      items.forEach(it => { const add = row.length ? gap + it.w : it.w;
+        if(row.length && rw + add > W - 2 * padX){ rows.push(row); row = [it]; rw = it.w; } else { row.push(it); rw += add; } });
+      if(row.length) rows.push(row);
+      const rh = rows.map(r => 2 * Math.max(...r.map(i => i.r)) + capH + t * .2);
+      const totH = rh.reduce((a, h) => a + h, 0) + rowGap * Math.max(0, rows.length - 1);
+      const widest = Math.max(0, ...rows.map(r => r.reduce((a, i, k) => a + i.w + (k ? gap : 0), 0)));
+      return { ok:totH <= H - 8 && widest <= W - 2 * padX, t, fs, capH, gap, rowGap, rows, rh, totH, widest };
     };
-
-    if (constSum !== 0){
-      const neg = constSum < 0;
-      pushTok(neg, String(Math.abs(constSum)), '__const__');
-    }
-
-    for (const u of order){
-      const c = map.get(u);
-      if (!c) continue;
-      const neg = c < 0;
-      const abs = Math.abs(c);
-
-      let body;
-      if (abs === 1) body = u;
-      else body = String(abs) + u;
-
-      pushTok(neg, body, u);
-    }
-
-    if (!tokens.length){
-      tokens.push({ key:'__final__', text:'0', neg:false });
-    }
-    return tokens;
-  }
-
-  function computeSimplifyLines(){
-    const originalItems = terms.map((t, idx) => {
-      const sgn = (idx === 0 ? +1 : (t.op === '-' ? -1 : +1));
-      if (idx === 0){
-        return termToExpressionFirst(t.groups, t.unit);
-      }
-      return termToExpression(t.groups, t.unit, sgn);
-    });
-
-    const { map, order } = collectedMap();
-    const collectedTokens = buildCollectedTokens(map, order);
-    const collectedExpr = stringifyFromTokens(collectedTokens);
-
-    const { constSum, newMap, newOrder } = evaluateNumericAndCoeffAlgebra(map, order);
-    const finalTokens = buildFinalTokens(constSum, newMap, newOrder);
-    const finalExpr = stringifyFromTokens(finalTokens);
-
-    const line0Text = originalItems.join(' ');
-    const line1Text = collectedExpr;
-    const line2Text = finalExpr;
-
-    const needLine1 = (normalizeSpaces(line1Text) !== normalizeSpaces(line0Text));
-    const needLine2 = (normalizeSpaces(line2Text) !== normalizeSpaces(line1Text));
-
-    cachedLines = [];
-    cachedLines.push({ type:'line0', items: originalItems.slice() });
-
-    if (needLine1){
-      cachedLines.push({ type:'eq', text: line1Text, tokens: collectedTokens, anim: 'collect' });
-    }
-    if (needLine2){
-      cachedLines.push({ type:'eq', text: line2Text, tokens: finalTokens });
-    }
-
-    simplifyTotal = Math.max(1, cachedLines.length - 1);
-  }
-
-  function normalizeSpaces(s){
-    return String(s).replace(/\s+/g,' ').trim();
-  }
-
-  function renderSimplifyBtn(){
-    simplifyBtn.textContent = `Simplify ${Math.min(simplifyStep, simplifyTotal)}/${simplifyTotal}`;
-    simplifyBtn.disabled = dragState.active || busyReveal || (simplifyStep >= simplifyTotal);
-  }
-
-  function renderWorkBox(){
-    workLines.innerHTML = '';
-
-    const l0 = cachedLines.find(x => x.type === 'line0');
-
-    const grid = document.createElement('div');
-    grid.className = 'line0';
-
-    const n = (l0?.items?.length || 1);
-    grid.style.gridTemplateColumns = `repeat(${n}, var(--bubbleDia))`;
-    grid.style.columnGap = '14px';
-    grid.style.width = 'fit-content';
-    grid.style.margin = '0 auto';
-    grid.style.justifyContent = 'center';
-
-    (l0?.items || ['']).forEach((txt, idx) => {
-      const cell = document.createElement('div');
-      const trimmed = String(txt).trim();
-      const isNeg = trimmed.startsWith('−') || trimmed.startsWith('-');
-      cell.className = 'termCell ' + (isNeg ? 'neg' : 'pos');
-
-      const key = termKey(terms[idx]?.unit ?? 'x');
-      cell.dataset.key = key;
-      cell.dataset.idx = String(idx);
-      cell.dataset.neg = isNeg ? '1' : '0';
-
-      cell.textContent = txt;
-      grid.appendChild(cell);
-    });
-
-    workLines.appendChild(grid);
-    workLines.appendChild(ruleEl());
-
-    let shown = 0;
-    for (let i=1;i<cachedLines.length;i++){
-      if (shown >= simplifyStep) break;
-
-      const line = cachedLines[i];
-      const eq = document.createElement('div');
-      eq.className = 'eqLine';
-
-      if (line.tokens && line.tokens.length){
-        eq.innerHTML = `<span class="eq">=</span><span class="eqTokens"></span>`;
-        const holder = eq.querySelector('.eqTokens');
-
-        line.tokens.forEach(tok => {
-          const s = document.createElement('span');
-          s.className = 'eqTok ' + (tok.neg ? 'neg' : 'pos');
-          s.dataset.key = tok.key;
-          s.textContent = tok.text;
-          holder.appendChild(s);
-        });
-      } else {
-        eq.innerHTML = `<span class="eq">=</span><span>${escapeHtml(line.text)}</span>`;
-      }
-
-      workLines.appendChild(eq);
-      shown++;
-    }
-  }
-
-  function renderWorkBoxPreviewEq(line){
-    workLines.innerHTML = '';
-
-    const l0 = cachedLines.find(x => x.type === 'line0');
-
-    const grid = document.createElement('div');
-    grid.className = 'line0';
-    const n = (l0?.items?.length || 1);
-    grid.style.gridTemplateColumns = `repeat(${n}, var(--bubbleDia))`;
-    grid.style.columnGap = '14px';
-    grid.style.width = 'fit-content';
-    grid.style.margin = '0 auto';
-    grid.style.justifyContent = 'center';
-
-    (l0?.items || ['']).forEach((txt, idx) => {
-      const cell = document.createElement('div');
-      const trimmed = String(txt).trim();
-      const isNeg = trimmed.startsWith('−') || trimmed.startsWith('-');
-      cell.className = 'termCell ' + (isNeg ? 'neg' : 'pos');
-
-      const key = termKey(terms[idx]?.unit ?? 'x');
-      cell.dataset.key = key;
-      cell.dataset.idx = String(idx);
-      cell.dataset.neg = isNeg ? '1' : '0';
-
-      cell.textContent = txt;
-      grid.appendChild(cell);
-    });
-
-    workLines.appendChild(grid);
-    workLines.appendChild(ruleEl());
-
-    const eq = document.createElement('div');
-    eq.className = 'eqLine';
-    eq.innerHTML = `<span class="eq">=</span><span class="eqTokens"></span>`;
-    const holder = eq.querySelector('.eqTokens');
-
-    (line.tokens || []).forEach(tok => {
-      const s = document.createElement('span');
-      s.className = 'eqTok ' + (tok.neg ? 'neg' : 'pos');
-      s.dataset.key = tok.key;
-      s.textContent = tok.text;
-      s.style.opacity = '0';
-      s.style.transform = 'scale(0.98)';
-      holder.appendChild(s);
-    });
-
-    workLines.appendChild(eq);
-    return eq;
-  }
-
-  function flashNewestEq(){
-    const lines = [...workLines.querySelectorAll('.eqLine')];
-    if (!lines.length) return;
-    const last = lines[lines.length - 1];
-    last.classList.remove('flash');
-    void last.offsetWidth;
-    last.classList.add('flash');
-  }
-
-  function ruleEl(){
-    const r = document.createElement('div');
-    r.className = 'rule';
-    return r;
-  }
-
-  function escapeHtml(s){
-    return String(s)
-      .replaceAll('&','&amp;')
-      .replaceAll('<','&lt;')
-      .replaceAll('>','&gt;');
-  }
-
-  function ensureAnimLayer(){
-    let layer = document.querySelector('.animLayer');
-    if (!layer){
-      layer = document.createElement('div');
-      layer.className = 'animLayer';
-      document.body.appendChild(layer);
-    }
-    return layer;
-  }
-
-  function wait(ms){
-    return new Promise(res => setTimeout(res, ms));
-  }
-
-  async function animateCollectSequential(eqLineEl){
-    const layer = ensureAnimLayer();
-
-    const targets = [...eqLineEl.querySelectorAll('.eqTok[data-key]')];
-    const sourceCells = [...document.querySelectorAll('.termCell[data-key]')];
-
-    for (let ti = 0; ti < targets.length; ti++){
-      const t = targets[ti];
-      const key = t.dataset.key;
-
-      if (!key || key === '__0__') {
-        t.style.opacity = '1';
-        t.style.transform = 'scale(1)';
-        continue;
-      }
-
-      const sources = sourceCells.filter(s => s.dataset.key === key);
-      const tRect = t.getBoundingClientRect();
-      const tx = tRect.left + tRect.width/2;
-      const ty = tRect.top + tRect.height/2;
-
-      const driftPromises = [];
-
-      for (let si=0; si<sources.length; si++){
-        const s = sources[si];
-        const sRect = s.getBoundingClientRect();
-        const sx = sRect.left + sRect.width/2;
-        const sy = sRect.top + sRect.height/2;
-
-        const ghost = document.createElement('div');
-        ghost.className = 'ghost termCell ' + (s.dataset.neg === '1' ? 'neg' : 'pos');
-        ghost.textContent = s.textContent;
-        ghost.style.left = (sx) + 'px';
-        ghost.style.top = (sy) + 'px';
-        ghost.style.transform = 'translate(-50%, -50%)';
-        layer.appendChild(ghost);
-
-        const dx = tx - sx;
-        const dy = ty - sy;
-
-        const drift = ghost.animate([
-          { transform: 'translate(-50%, -50%) scale(1)', opacity: 1 },
-          { transform: `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) scale(1.03)`, opacity: 1 }
-        ], {
-          duration: 520,
-          delay: 40 * si,
-          easing: 'cubic-bezier(.2,.9,.2,1)',
-          fill: 'forwards'
-        });
-
-        driftPromises.push(drift.finished.then(() => ghost.remove()));
-      }
-
-      const lastDelay = 40 * Math.max(0, sources.length - 1);
-      await wait(520 + lastDelay - 140);
-
-      t.animate([
-        { opacity: 0, transform: 'scale(0.98)' },
-        { opacity: 1, transform: 'scale(1.12)' },
-        { opacity: 1, transform: 'scale(1)' }
-      ], {
-        duration: 420,
-        easing: 'cubic-bezier(.2,.9,.2,1)',
-        fill: 'forwards'
+    let best = null;
+    for(let t = 72; t >= 14; t -= 1){ const r = tryT(t); if(r.ok){ best = r; break; } best = r; }
+    /* stacked (phone) layout: rather than shrink the pieces past touch size, let the board grow taller */
+    if((!best.ok || best.t < 30) && stacked()){ for(let t = 36; t >= 16; t--){ const r = tryT(t); if(r.widest <= W - 28){ best = r; break; } } best.grow = best.totH + 16; }
+    const out = { t:best.t, fs:best.fs, gap:best.gap, B:{}, T:{}, rows:[], grow:best.grow || 0 };
+    let y = Math.max(4, (H - best.totH) / 2);
+    best.rows.forEach((row, ri2) => {
+      const maxR = Math.max(...row.map(i => i.r));
+      const rowW = row.reduce((a, i, k) => a + i.w + (k ? best.gap : 0), 0);
+      let x = (W - rowW) / 2;
+      const cy = y + maxR, capY = y + 2 * maxR + best.t * .16;
+      const rowItems = [];
+      row.forEach(it => {
+        const cx = x + it.w / 2;
+        out.B[it.b.id] = { x:cx, y:cy, r:it.r, w:it.w, capY, row:ri2 };
+        const p = pack(it.b.toks.length);
+        it.b.toks.forEach((tid, k) => { out.T[tid] = { x:cx + p.pts[k].x * best.t, y:cy + p.pts[k].y * best.t }; });
+        rowItems.push(it.b.id);
+        x += it.w + best.gap;
       });
-
-      t.style.opacity = '1';
-
-      await Promise.allSettled(driftPromises);
-      await wait(120);
-    }
-
-    eqLineEl.classList.remove('flash');
-    void eqLineEl.offsetWidth;
-    eqLineEl.classList.add('flash');
-  }
-
-  function onDotPointerDown(e){
-    if (busyReveal) return;
-    if (dragState.active) return;
-
-    const dot = e.currentTarget;
-    const sourceIdx = parseInt(dot.dataset.termIdx, 10);
-    const sourceTokenIdx = parseInt(dot.dataset.tokenIdx, 10);
-
-    if (!Number.isFinite(sourceIdx) || !terms[sourceIdx]) return;
-
-    e.preventDefault();
-
-    const rect = dot.getBoundingClientRect();
-    const ghost = document.createElement('div');
-    ghost.className = 'dragGhost ' + ((dot.dataset.sign === '-1') ? 'neg' : 'pos');
-    ghost.textContent = dot.textContent;
-    ghost.style.left = (rect.left + rect.width/2) + 'px';
-    ghost.style.top = (rect.top + rect.height/2) + 'px';
-    document.body.appendChild(ghost);
-
-    dragState.active = true;
-    dragState.sourceIdx = sourceIdx;
-    dragState.sourceTokenIdx = sourceTokenIdx;
-    dragState.originEl = dot;
-    dragState.ghostEl = ghost;
-    dragState.pointerId = e.pointerId;
-    dragState.currentX = e.clientX;
-    dragState.currentY = e.clientY;
-    dragState.hoveredBubble = null;
-
-    dot.classList.add('dragOrigin');
-    dot.setPointerCapture?.(e.pointerId);
-
-    document.addEventListener('pointermove', onGlobalPointerMove, { passive:false });
-    document.addEventListener('pointerup', onGlobalPointerUp, { passive:false });
-    document.addEventListener('pointercancel', onGlobalPointerCancel, { passive:false });
-
-    updateGhostPosition(e.clientX, e.clientY);
-    highlightHoveredBubble(e.clientX, e.clientY);
-    renderSimplifyBtn();
-  }
-
-  function onGlobalPointerMove(e){
-    if (!dragState.active) return;
-    if (e.pointerId !== dragState.pointerId) return;
-    e.preventDefault();
-    dragState.currentX = e.clientX;
-    dragState.currentY = e.clientY;
-    updateGhostPosition(e.clientX, e.clientY);
-    highlightHoveredBubble(e.clientX, e.clientY);
-  }
-
-  async function onGlobalPointerUp(e){
-    if (!dragState.active) return;
-    if (e.pointerId !== dragState.pointerId) return;
-    e.preventDefault();
-
-    const targetBubble = findBubbleUnderPoint(e.clientX, e.clientY);
-    const sourceIdx = dragState.sourceIdx;
-    const dropType = getDropType(sourceIdx, targetBubble);
-
-    if (dropType === 'cancel'){
-      const targetIdx = parseInt(targetBubble.dataset.termIdx, 10);
-      await commitZeroPair(sourceIdx, targetIdx, e.clientX, e.clientY);
-    } else if (dropType === 'combine'){
-      const targetIdx = parseInt(targetBubble.dataset.termIdx, 10);
-      await commitCombine(sourceIdx, targetIdx);
-    } else if (dropType === 'full'){
-      showToast('no more than 10 per circle', 1200);
-      await snapBackInvalidDrop();
-    } else {
-      await snapBackInvalidDrop();
-    }
-
-    endDragCleanup();
-    renderSimplifyBtn();
-  }
-
-  function onGlobalPointerCancel(e){
-    if (!dragState.active) return;
-    if (e.pointerId !== dragState.pointerId) return;
-    snapBackInvalidDrop().finally(() => {
-      endDragCleanup();
-      renderSimplifyBtn();
+      out.rows.push({ ids:rowItems, cy, top:y, h:best.rh[ri2] });
+      y += best.rh[ri2] + best.rowGap;
     });
+    return out;
   }
 
-  function updateGhostPosition(x, y){
-    if (!dragState.ghostEl) return;
-    dragState.ghostEl.style.left = x + 'px';
-    dragState.ghostEl.style.top = y + 'px';
+  /* ================= drawing ================= */
+  const EB = {}, EC = {}, ET = {};
+  const stacked = () => window.innerWidth <= 980 && !S.fs;
+  function boardSize(){ const bd = $("board"); return { W:bd.clientWidth, H:bd.clientHeight }; }
+  function tokLabel(b){ return `<span class="tl">${b.s < 0 ? MINUS : ""}${unitHTML(b.key, b.d)}</span>`; }
+  function render(opt){
+    opt = opt || {};
+    const bd = $("board");
+    /* measured from the CSS height every time, then grown in the same frame if a phone needs more room,
+       so a ResizeObserver never sees the board bounce between the two */
+    /* the statement first: its size decides how much height the board gets */
+    if(!opt.keepText) paintText();
+    bd.style.minHeight = "";
+    let { W, H } = boardSize();
+    if(!W || !H) return;
+    L = layout(S.bubs, W, H);
+    if(L.grow && stacked()){ bd.style.minHeight = Math.ceil(L.grow) + "px"; ({ W, H } = boardSize()); L = layout(S.bubs, W, H); }
+    const t = L.t, tokD = t * .9;
+    const live = new Set();
+    S.bubs.forEach(b => {
+      const P = L.B[b.id]; live.add(b.id);
+      let e = EB[b.id];
+      if(!e){ e = EB[b.id] = document.createElement("div"); e.className = "bub"; e.dataset.id = b.id; bd.appendChild(e);
+        if(opt.born !== false && !S.noAnim) e.classList.add("born"); setTimeout(() => e.classList.remove("born"), 500); }
+      e.classList.toggle("neg", b.s < 0);
+      const ci = kindIndex(b.key) % PAL.length;
+      e.classList.toggle("kind", S.set.colour);
+      if(S.set.colour){ e.style.setProperty("--kc", PAL[ci][0]); e.style.setProperty("--kl", PAL[ci][1]); e.style.setProperty("--kd", PAL[ci][2]); }
+      e.style.left = (P.x - P.r) + "px"; e.style.top = (P.y - P.r) + "px"; e.style.width = e.style.height = (2 * P.r) + "px";
+      e.style.borderWidth = Math.max(3, t * .09) + "px";
+      e.setAttribute("aria-label", plainTerm(b.toks.length, b.key, b.d));
+      let c = EC[b.id];
+      if(!c){ c = EC[b.id] = document.createElement("div"); c.className = "cap"; c.dataset.id = b.id; bd.appendChild(c); }
+      c.innerHTML = capHTML(b);
+      c.style.left = P.x + "px"; c.style.top = P.capY + "px"; c.style.fontSize = L.fs + "px";
+      const lab = tokLabel(b), len = unitLen(b.key, b.d) + (b.s < 0 ? .8 : 0);
+      const fsT = tokD * Math.min(.6, 1.02 / (len + .35));
+      b.toks.forEach(tid => {
+        const q = L.T[tid]; live.add(tid);
+        let k = ET[tid];
+        if(!k){ k = ET[tid] = document.createElement("div"); k.className = "tok"; k.dataset.id = tid; bd.appendChild(k);
+          if(!S.noAnim){ k.classList.add("born"); setTimeout(() => k.classList.remove("born"), 450); } }
+        if(k.dataset.lab !== lab){
+          if(k.dataset.lab && !S.noAnim){ k.classList.remove("born"); void k.offsetWidth; k.classList.add("born"); setTimeout(() => k.classList.remove("born"), 450); }
+          k.innerHTML = lab; k.dataset.lab = lab;
+        }
+        k.classList.toggle("neg", b.s < 0);
+        k.classList.toggle("kind", S.set.colour);
+        if(S.set.colour){ k.style.setProperty("--kc", PAL[ci][0]); k.style.setProperty("--kl", PAL[ci][1]); k.style.setProperty("--kd", PAL[ci][2]); }
+        k.style.left = (q.x - tokD / 2) + "px"; k.style.top = (q.y - tokD / 2) + "px";
+        k.style.width = k.style.height = tokD + "px"; k.style.fontSize = fsT + "px";
+        k.style.borderWidth = Math.max(1.5, t * .045) + "px";
+      });
+    });
+    [EB, EC].forEach(M => Object.keys(M).forEach(id => { if(!live.has(id)){ M[id].remove(); delete M[id]; } }));
+    Object.keys(ET).forEach(id => { if(!live.has(id)){ ET[id].remove(); delete ET[id]; } });
+    let z = bd.querySelector(".zeroBoard");
+    if(!S.bubs.length){ if(!z){ z = document.createElement("div"); z.className = "zeroBoard"; z.textContent = "0"; bd.appendChild(z); } }
+    else if(z) z.remove();
   }
 
-  function clearBubbleHighlights(){
-    document.querySelectorAll('.bubble.dropTarget').forEach(b => b.classList.remove('dropTarget'));
+  /* ================= statement, hint, buttons ================= */
+  function paintText(){
+    const terms = termsOf(S.bubs), not = S.set.not;
+    const orig = S.q ? S.q.terms : [];
+    const moved = S.lines.length > 1;
+    const o = $("stmt");
+    o.innerHTML = (moved ? `<span class="orig">Simplify &nbsp;<span class="m">${exprHTML(orig, not === "words" ? "brackets" : not, { colour:S.set.colour })}</span></span>` : "")
+      + `<span class="cur">${exprHTML(terms, not, { colour:S.set.colour })}${S.evalDone && S.lines.length ? `<span class="t op">=</span><span class="t ev">${S.lines[S.lines.length - 1].html}</span>` : ""}</span>`;
+    fitStmt();
+    const done = isDone();
+    const tag = $("doneTag"); tag.classList.toggle("not", !done);
+    tag.textContent = done ? "Simplified ✓" : "Not yet simplified";
+    const hint = $("hint");
+    if(S.msg) hint.innerHTML = S.msg;
+    else if(done) hint.innerHTML = S.bubs.length ? "<b>Simplified.</b> No two bubbles hold the same kind of term, so nothing else can join." : "<b>Everything cancelled.</b> Each piece found a partner to make zero.";
+    else hint.innerHTML = "Drag a bubble onto a <b>like</b> bubble to join them" + (S.bubs.some(b => b.s < 0) ? " &middot; a piece and its opposite make a <b>zero pair</b>" : "") + (S.set.split ? " &middot; drag one piece out to split a term" : "") + ".";
+    renderStory();
+    const can = !!nextMove();
+    $("showBtn").disabled = $("miniNext").disabled = !can || S.busy;
+    $("showBtn").innerHTML = $("miniNext").innerHTML = (!can && done) ? "Simplified &#10003;" : "Show me &#9656;";
+    $("allBtn").disabled = !can || S.busy;
+    $("undoBtn").disabled = $("miniBack").disabled = !S.hist.length || S.busy;
+    $("againBtn").disabled = $("againIcon").disabled = (!S.hist.length && S.lines.length <= 1) || S.busy;
   }
+  function fitStmt(){
+    const o = $("stmt"), st = $("stage");
+    const H = st.clientHeight || 400;
+    let fs = Math.max(26, Math.min(58, H * .1));
+    o.classList.toggle("wrap", false);
+    o.style.fontSize = fs + "px";
+    let guard = 0;
+    while(o.scrollWidth > o.clientWidth + 1 && fs > 18 && guard++ < 60){ fs -= 1.5; o.style.fontSize = fs + "px"; }
+    if(o.scrollWidth > o.clientWidth + 1){ o.classList.add("wrap"); }
+  }
+  let toastT = 0;
+  function toast(html){
+    const t = $("toast"); t.innerHTML = html; t.classList.add("show");
+    clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("show"), 3200);
+  }
+  function say(html){ S.msg = html; }
 
-  function highlightHoveredBubble(x, y){
-    clearBubbleHighlights();
-    const bubble = findBubbleUnderPoint(x, y);
-    dragState.hoveredBubble = bubble || null;
-    const type = getDropType(dragState.sourceIdx, bubble);
-    if (bubble && (type === 'cancel' || type === 'combine')){
-      bubble.classList.add('dropTarget');
+  /* ================= moves ================= */
+  function remember(){ S.hist.push(snap()); if(S.hist.length > 80) S.hist.shift(); }
+  const nameOf = b => plainTerm(b.toks.length, b.key, b.d);
+  const termName = b => (b.s < 0 ? MINUS : "") + nameOf(b);
+  function unlikeMsg(a, b){
+    const ta = typeOf(a.key), tb = typeOf(b.key);
+    const A = ta === "one" ? "a 1" : ta === "num" ? `a group of ${valOf(a.key)}` : letHTML(a.d);
+    const B = tb === "one" ? "a 1" : tb === "num" ? `a group of ${valOf(b.key)}` : letHTML(b.d);
+    if(ta === "num" && tb === "num") return `<b>Unlike terms.</b> A group of ${valOf(a.key)} and a group of ${valOf(b.key)} are different sizes &mdash; only groups of the same number join.`;
+    if((a.d + b.d).includes("²")) return `<b>Unlike terms.</b> ${A} and ${B} are not the same thing: ${letHTML(a.key.replace("²",""))}&sup2; means ${letHTML(a.key.replace("²",""))} &times; ${letHTML(a.key.replace("²",""))}.`;
+    return `<b>Unlike terms.</b> ${A} and ${B} are different things, so they can&rsquo;t be counted together.`;
+  }
+  function reject(target){
+    const e = EB[target.id]; if(!e) return;
+    e.classList.remove("shake"); void e.offsetWidth; e.classList.add("shake");
+    setTimeout(() => e.classList.remove("shake"), 450);
+  }
+  function lookAlike(a, b){
+    if(a.d === b.d || typeOf(a.key) !== "let") return;
+    toast(`${letHTML(a.d)} is the same as ${letHTML(b.d)}: ${letHTML(a.d[0])} &times; ${letHTML(a.d[1])} = ${letHTML(b.d[0])} &times; ${letHTML(b.d[1])}`);
+  }
+  /* a whole bubble joins a like bubble */
+  async function doJoin(aId, bId){
+    const a = bub(aId), b = bub(bId); if(!a || !b) return;
+    remember();
+    const before = `${termName(b)} ${a.s < 0 ? MINUS : "+"} ${nameOf(a)}`;
+    lookAlike(a, b);
+    b.toks = b.toks.concat(a.toks);
+    S.bubs = S.bubs.filter(x => x !== a);
+    pushLine("join");
+    say(`<b>Joined:</b> ${before} = ${termName(b)}`);
+    render();
+  }
+  /* one piece moves across to a like bubble */
+  async function doMoveTok(tid, bId){
+    const src = bubOfTok(tid), b = bub(bId); if(!src || !b) return;
+    remember();
+    lookAlike(src, b);
+    src.toks = src.toks.filter(x => x !== tid); b.toks.push(tid);
+    const emptied = !src.toks.length;
+    if(emptied) S.bubs = S.bubs.filter(x => x !== src);
+    pushLine(emptied ? "join" : "move");
+    say(emptied ? `<b>Joined:</b> now ${termName(b)}` : `<b>Moved one across:</b> ${termName(src)} and ${termName(b)} &mdash; still the same amount.`);
+    render();
+  }
+  function zeroFx(x, y){
+    if(S.noAnim) return;
+    const bd = $("board"), z = document.createElement("div");
+    z.className = "zero"; z.textContent = "0"; z.style.left = x + "px"; z.style.top = y + "px"; z.style.fontSize = (L ? L.t * .9 : 34) + "px";
+    bd.appendChild(z); setTimeout(() => z.remove(), 950);
+    if(reduce) return;
+    for(let i = 0; i < 8; i++){
+      const s = document.createElement("div"); s.className = "spark";
+      s.style.background = i % 2 ? "#a78bfa" : "#f87171";
+      s.style.left = x + "px"; s.style.top = y + "px"; bd.appendChild(s);
+      const a = (i / 8) * Math.PI * 2, d = (L ? L.t : 40) * (0.9 + Math.random() * .5);
+      s.animate([{ transform:"translate(-50%,-50%) scale(1)", opacity:1 }, { transform:`translate(${Math.cos(a) * d - 4}px,${Math.sin(a) * d - 4}px) scale(.3)`, opacity:0 }], { duration:520, easing:"cubic-bezier(.2,.7,.3,1)" });
+      setTimeout(() => s.remove(), 540);
     }
   }
-
-  function findBubbleUnderPoint(x, y){
-    const els = document.elementsFromPoint(x, y);
-    for (const node of els){
-      if (node instanceof Element){
-        const bubble = node.closest('.bubble');
-        if (bubble) return bubble;
-      }
+  /* pieces of opposite sign meet in pairs and pop. moving = the pieces that travel, onto partners in target */
+  async function popPairs(pairs){
+    const tokD = L ? L.t * .9 : 40;
+    pairs.forEach(([m, p], i) => {
+      const em = ET[m], q = L.T[p];
+      if(em && q){ em.classList.remove("lift"); em.style.zIndex = 20; em.style.left = (q.x - tokD / 2 + tokD * .18) + "px"; em.style.top = (q.y - tokD / 2 - tokD * .12) + "px"; }
+    });
+    await wait(430);
+    for(let i = 0; i < pairs.length; i++){
+      const [m, p] = pairs[i], q = L.T[p];
+      [m, p].forEach(id => { const e = ET[id]; if(e) e.classList.add("pop"); });
+      if(q) zeroFx(q.x, q.y);
+      await wait(pairs.length > 6 ? 70 : 120);
     }
+    await wait(330);
+  }
+  async function doPairTok(tid, bId){
+    const src = bubOfTok(tid), b = bub(bId); if(!src || !b) return;
+    S.busy = true; remember(); paintText();
+    const partner = b.toks[b.toks.length - 1];
+    await popPairs([[tid, partner]]);
+    src.toks = src.toks.filter(x => x !== tid); b.toks = b.toks.filter(x => x !== partner);
+    S.bubs = S.bubs.filter(x => x.toks.length);
+    pushLine("pair");
+    say(`<b>Zero pair:</b> ${unitPlain(b)} ${MINUS} ${unitPlain(b)} = 0. One piece from each bubble is gone.`);
+    S.busy = false; render();
+  }
+  const unitPlain = b => typeOf(b.key) === "one" ? "1" : typeOf(b.key) === "num" ? `1(${valOf(b.key)})` : letTxt(b.d);
+  async function doCancel(aId, bId){
+    const a = bub(aId), b = bub(bId); if(!a || !b) return;
+    S.busy = true; remember(); paintText();
+    const before = `${termName(b)} ${a.s < 0 ? MINUS : "+"} ${nameOf(a)}`;
+    const k = Math.min(a.toks.length, b.toks.length);
+    const am = a.toks.slice(a.toks.length - k), bm = b.toks.slice(b.toks.length - k);
+    await popPairs(am.map((m, i) => [m, bm[i]]));
+    const ra = a.toks.slice(0, a.toks.length - k), rb = b.toks.slice(0, b.toks.length - k);
+    if(ra.length){ b.toks = ra; b.s = a.s; b.d = a.d; }
+    else b.toks = rb;
+    S.bubs = S.bubs.filter(x => x !== a && x.toks.length);
+    pushLine("pair");
+    const res = S.bubs.includes(b) ? termName(b) : "0";
+    say(`<b>${k} zero pair${k === 1 ? "" : "s"}:</b> ${before} = ${res}`);
+    S.busy = false; render();
+  }
+  function doSplit(tid, idx){
+    const src = bubOfTok(tid); if(!src) return;
+    remember();
+    src.toks = src.toks.filter(x => x !== tid);
+    const nb = { id:nid("b"), key:src.key, d:src.d, s:src.s, toks:[tid] };
+    S.bubs.splice(Math.max(0, Math.min(idx, S.bubs.length)), 0, nb);
+    pushLine("split");
+    say(`<b>Split:</b> ${termName(src)} and ${termName(nb)} together are the same amount as before.`);
+    render();
+  }
+  function doOrder(bId, idx){
+    const b = bub(bId); if(!b) return;
+    const i0 = S.bubs.indexOf(b);
+    const rest = S.bubs.filter(x => x !== b);
+    idx = Math.max(0, Math.min(idx, rest.length));
+    rest.splice(idx, 0, b);
+    if(rest.every((x, i) => x === S.bubs[i])){ render(); return; }
+    remember();
+    S.bubs = rest;
+    pushLine("order");
+    say(`<b>Rearranged.</b> Adding works in any order &mdash; ${b.s < 0 ? "the minus sign travels with its term" : "each term keeps its own sign"}.`);
+    render();
+  }
+
+  /* ================= show me: the next sensible move ================= */
+  function kindOrder(bubs){ const ks = []; bubs.forEach(b => { if(!ks.includes(b.key)) ks.push(b.key); }); return ks; }
+  function nextMove(){
+    const bubs = S.bubs, ks = kindOrder(bubs);
+    /* 1. like terms side by side, each keeping its own sign */
+    const contiguous = ks.every(k => { const ix = bubs.map((b, i) => b.key === k ? i : -1).filter(i => i >= 0); return ix[ix.length - 1] - ix[0] === ix.length - 1; });
+    if(!contiguous){
+      const order = []; ks.forEach(k => bubs.forEach(b => { if(b.key === k) order.push(b.id); }));
+      return { type:"order", order };
+    }
+    /* 2. join same signs, then make zero pairs */
+    for(const k of ks){
+      const same = bubs.filter(b => b.key === k);
+      if(same.length < 2) continue;
+      for(const sg of [1, -1]){ const g = same.filter(b => b.s === sg); if(g.length >= 2) return { type:"join", a:g[1].id, b:g[0].id }; }
+      const pos = same.find(b => b.s > 0), neg = same.find(b => b.s < 0);
+      const first = bubs.indexOf(pos) < bubs.indexOf(neg) ? pos : neg, second = first === pos ? neg : pos;
+      return { type:"cancel", a:second.id, b:first.id };
+    }
+    /* 3. groups of numbers: work each group out, then add */
+    if(S.q && S.q.mode === "num" && !S.evalDone && bubs.length) return { type:"eval" };
     return null;
   }
-
-  function getDropType(sourceIdx, bubbleEl){
-    if (!bubbleEl) return 'invalid';
-
-    const targetIdx = parseInt(bubbleEl.dataset.termIdx, 10);
-    if (!Number.isFinite(targetIdx)) return 'invalid';
-    if (sourceIdx === targetIdx) return 'invalid';
-    if (!terms[sourceIdx] || !terms[targetIdx]) return 'invalid';
-
-    const sourceKey = termKey(terms[sourceIdx].unit);
-    const targetKey = termKey(terms[targetIdx].unit);
-    if (sourceKey !== targetKey) return 'invalid';
-
-    const sourceSign = termSignAtIndex(sourceIdx);
-    const targetSign = termSignAtIndex(targetIdx);
-
-    if (sourceSign === targetSign){
-      if (terms[targetIdx].groups >= MAX_GROUPS) return 'full';
-      return 'combine';
+  async function play(m){
+    if(!m || S.busy) return;
+    S.msg = "";
+    if(m.type === "order"){
+      remember();
+      S.bubs = m.order.map(id => bub(id));
+      pushLine("order");
+      say("<b>Like terms side by side.</b> Each term moves with its own sign.");
+      render();
+    } else if(m.type === "join") await doJoin(m.a, m.b);
+    else if(m.type === "cancel") await doCancel(m.a, m.b);
+    else if(m.type === "eval"){
+      remember();
+      const vals = S.bubs.map(b => b.s * b.toks.length * valOf(b.key));
+      const valsHTML = vals.map((v, i) => i === 0 ? (v < 0 ? MINUS + Math.abs(v) : String(v)) : `<span class="t op${v < 0 ? " neg" : ""}">${v < 0 ? MINUS : "+"}</span>${Math.abs(v)}`).join("");
+      S.lines.push({ why:"eval", terms:[], html:valsHTML });
+      if(vals.length > 1){ const sum = vals.reduce((a, v) => a + v, 0); S.lines.push({ why:"add", terms:[], html:(sum < 0 ? MINUS : "") + Math.abs(sum) }); }
+      S.evalDone = true;
+      say(`<b>Worked out:</b> each group counted, then added.`);
+      render();
     }
-
-    return 'cancel';
   }
-
-  async function snapBackInvalidDrop(){
-    const origin = dragState.originEl;
-    const ghost = dragState.ghostEl;
-    if (!origin || !ghost) return;
-
-    const rect = origin.getBoundingClientRect();
-    const tx = rect.left + rect.width/2;
-    const ty = rect.top + rect.height/2;
-
-    const dx = tx - dragState.currentX;
-    const dy = ty - dragState.currentY;
-
-    const anim = ghost.animate([
-      { transform: 'translate(-50%,-50%) scale(1)', opacity: 1 },
-      { transform: `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) scale(.98)`, opacity: 1 }
-    ], {
-      duration: 180,
-      easing: 'cubic-bezier(.2,.9,.2,1)',
-      fill: 'forwards'
-    });
-
-    try{ await anim.finished; }catch(_){}
-
-    origin.classList.remove('dragOrigin');
-    origin.classList.remove('shake');
-    void origin.offsetWidth;
-    origin.classList.add('shake');
+  async function showMe(){ if(S.busy) return; await play(nextMove()); }
+  async function finishAll(){
+    if(S.busy) return;
+    let m, guard = 0;
+    while((m = nextMove()) && guard++ < 40){ await play(m); await wait(560); }
   }
+  function undo(){
+    if(S.busy || !S.hist.length) return;
+    const h = S.hist.pop();
+    S.bubs = h.bubs; S.lines = h.lines; S.evalDone = h.evalDone; S.msg = "<b>Undone.</b>";
+    render();
+  }
+  function startAgain(){
+    if(S.busy || !S.q) return;
+    S.bubs = boardFromQ(S.q); S.lines = [{ why:"start", terms:termsOf(S.bubs) }]; S.hist = []; S.evalDone = false; S.msg = "";
+    clearBoard(); render();
+  }
+  function clearBoard(){ [EB, EC, ET].forEach(M => Object.keys(M).forEach(id => { M[id].remove(); delete M[id]; })); }
+  function setQ(q){
+    S.q = q; S.bubs = boardFromQ(q); S.lines = [{ why:"start", terms:termsOf(S.bubs) }]; S.hist = []; S.evalDone = false; S.msg = "";
+    clearBoard(); render();
+  }
+  function newQuestion(){ if(S.busy) return; setQ(makeQ()); }
 
-  async function commitZeroPair(sourceIdx, targetIdx, x, y){
-    const origin = dragState.originEl;
-    const ghost = dragState.ghostEl;
-    if (!origin || !ghost) return;
-
-    const destDot = document.querySelector(`.dot[data-termIdx="${targetIdx}"]`);
-    let tx = x;
-    let ty = y;
-    if (destDot){
-      const r = destDot.getBoundingClientRect();
-      tx = r.left + r.width/2;
-      ty = r.top + r.height/2;
+  /* ================= dragging ================= */
+  let D = null;
+  const slotEl = document.createElement("div"); slotEl.className = "slot";
+  const ghostEl = document.createElement("div"); ghostEl.className = "ghostBub";
+  $("board").append(slotEl, ghostEl);
+  function boardPt(e){ const r = $("board").getBoundingClientRect(); return { x:e.clientX - r.left, y:e.clientY - r.top }; }
+  function startDrag(e, kind, id){
+    if(S.busy || e.button > 0) return;
+    e.preventDefault(); e.stopPropagation();
+    const p = boardPt(e);
+    if(kind === "tok"){
+      const src = bubOfTok(id); if(!src) return;
+      if(src.toks.length === 1){ kind = "bub"; id = src.id; }
     }
-
-    const dx = tx - dragState.currentX;
-    const dy = ty - dragState.currentY;
-
-    const anim = ghost.animate([
-      { transform: 'translate(-50%,-50%) scale(1)', opacity: 1 },
-      { transform: `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) scale(1.02)`, opacity: 1 }
-    ], {
-      duration: 140,
-      easing: 'cubic-bezier(.2,.9,.2,1)',
-      fill: 'forwards'
-    });
-
-    try{ await anim.finished; }catch(_){}
-
-    createPopBurst(tx, ty);
-
-    if (terms[sourceIdx]) terms[sourceIdx].groups = Math.max(0, terms[sourceIdx].groups - 1);
-    if (terms[targetIdx]) terms[targetIdx].groups = Math.max(0, terms[targetIdx].groups - 1);
-
-    removeZeroTerms();
-    simplifyStep = 0;
-    busyReveal = false;
-    renderAll();
+    D = { kind, id, sx:p.x, sy:p.y, moved:false, target:null, slot:null, els:[] };
+    if(kind === "tok"){ const e2 = ET[id]; D.els = [{ el:e2, x:parseFloat(e2.style.left), y:parseFloat(e2.style.top) }]; D.src = bubOfTok(id); }
+    else { const b = bub(id); D.src = b;
+      D.els = [EB[id], EC[id]].concat(b.toks.map(t => ET[t])).filter(Boolean).map(el => ({ el, x:parseFloat(el.style.left), y:parseFloat(el.style.top) })); }
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+    window.addEventListener("pointercancel", onUp);
   }
-
-  async function commitCombine(sourceIdx, targetIdx){
-    if (!terms[sourceIdx] || !terms[targetIdx]) return;
-    if (terms[targetIdx].groups >= MAX_GROUPS){
-      showToast('no more than 10 per circle', 1200);
-      await snapBackInvalidDrop();
+  function hitBubble(p, excludeId){
+    let best = null, bd = Infinity;
+    S.bubs.forEach(b => { if(b.id === excludeId) return; const P = L.B[b.id]; if(!P) return;
+      const d = Math.hypot(p.x - P.x, p.y - P.y); if(d < P.r + 10 && d < bd){ bd = d; best = b; } });
+    return best;
+  }
+  function slotAt(p, excludeId){
+    const others = S.bubs.filter(b => b.id !== excludeId);
+    if(!others.length) return { idx:0, x:p.x, y:p.y };
+    let best = null, bd = Infinity;
+    others.forEach((b, i) => { const P = L.B[b.id]; const d = Math.hypot(p.x - P.x, (p.y - P.y) * 1.6); if(d < bd){ bd = d; best = { b, i, P }; } });
+    const after = p.x > best.P.x;
+    const idx = best.i + (after ? 1 : 0);
+    const x = best.P.x + (after ? 1 : -1) * (best.P.w / 2 + L.gap / 2);
+    return { idx, x, y:best.P.y, h:best.P.r * 1.6 };
+  }
+  function clearMarks(){ Object.values(EB).forEach(e => e.classList.remove("ok", "pair", "no")); slotEl.classList.remove("on"); ghostEl.classList.remove("on"); }
+  function onMove(e){
+    if(!D) return;
+    const p = boardPt(e), dx = p.x - D.sx, dy = p.y - D.sy;
+    if(!D.moved){ if(Math.hypot(dx, dy) < 5) return; D.moved = true; D.els.forEach(o => o.el.classList.add("lift")); }
+    D.els.forEach(o => { o.el.style.left = (o.x + dx) + "px"; o.el.style.top = (o.y + dy) + "px"; });
+    clearMarks();
+    const excl = D.kind === "bub" ? D.id : null;
+    const tgt = hitBubble(p, excl);
+    D.target = null; D.slot = null;
+    if(tgt && tgt !== (D.kind === "tok" ? D.src : null)){
+      D.target = tgt; EB[tgt.id].classList.add(relation(D.src, tgt));
+    } else if(tgt && D.kind === "tok"){
+      /* back over its own bubble: nothing happens */
+    } else {
+      const sl = slotAt(p, excl);
+      if(D.kind === "bub" || S.set.split){
+        D.slot = sl;
+        slotEl.style.left = (sl.x - 3) + "px"; slotEl.style.top = (sl.y - (sl.h || 60) / 2) + "px"; slotEl.style.height = (sl.h || 60) + "px";
+        slotEl.classList.add("on");
+        if(D.kind === "tok"){ const r = bubR(1, L.t); ghostEl.style.width = ghostEl.style.height = 2 * r + "px"; ghostEl.style.left = (p.x - r) + "px"; ghostEl.style.top = (p.y - r) + "px"; ghostEl.classList.add("on"); }
+      }
+    }
+  }
+  async function onUp(){
+    window.removeEventListener("pointermove", onMove);
+    window.removeEventListener("pointerup", onUp);
+    window.removeEventListener("pointercancel", onUp);
+    if(!D) return;
+    const d = D; D = null;
+    clearMarks();
+    d.els.forEach(o => o.el.classList.remove("lift"));
+    if(!d.moved) return;
+    S.msg = "";
+    if(d.target){
+      const rel = relation(d.src, d.target);
+      if(rel === "no"){ reject(d.target); toast(unlikeMsg(d.src, d.target)); render(); return; }
+      if(d.kind === "tok"){
+        if(rel === "ok") await doMoveTok(d.id, d.target.id); else await doPairTok(d.id, d.target.id);
+      } else {
+        if(rel === "ok") await doJoin(d.id, d.target.id); else await doCancel(d.id, d.target.id);
+      }
       return;
     }
-
-    terms[sourceIdx].groups = Math.max(0, terms[sourceIdx].groups - 1);
-    terms[targetIdx].groups = Math.min(MAX_GROUPS, terms[targetIdx].groups + 1);
-
-    removeZeroTerms();
-    simplifyStep = 0;
-    busyReveal = false;
-    renderAll();
-  }
-
-  function removeZeroTerms(){
-    terms = terms.filter(t => t.groups > 0);
-    if (!terms.length){
-      terms = [{ op: '+', groups: 1, unit: 'x' }];
+    if(d.slot){
+      if(d.kind === "bub") doOrder(d.id, d.slot.idx);
+      else {
+        /* the slot was worked out with the token's own bubble still on the board */
+        doSplit(d.id, d.slot.idx);
+      }
+      return;
     }
-    terms = terms.map((t, idx) => ({
-      op: idx === 0 ? '+' : (t.op === '-' ? '-' : '+'),
-      groups: t.groups,
-      unit: t.unit
-    }));
+    render();
   }
+  $("board").addEventListener("pointerdown", e => {
+    const tk = e.target.closest(".tok"); if(tk){ startDrag(e, "tok", tk.dataset.id); return; }
+    const bb = e.target.closest(".bub, .cap"); if(bb){ startDrag(e, "bub", bb.dataset.id); }
+  });
 
-  function createPopBurst(x, y){
-    const layer = ensureAnimLayer();
-    const count = 10;
-    for (let i=0;i<count;i++){
-      const p = document.createElement('div');
-      p.className = 'pop';
-      p.style.left = x + 'px';
-      p.style.top = y + 'px';
-      p.style.background = (i % 2 === 0) ? 'rgba(139,92,246,.92)' : 'rgba(37,99,235,.88)';
-      layer.appendChild(p);
-
-      const angle = (Math.PI * 2 * i) / count + (Math.random() * 0.35);
-      const dist = 14 + Math.random() * 24;
-      const dx = Math.cos(angle) * dist;
-      const dy = Math.sin(angle) * dist;
-
-      const a = p.animate([
-        { transform: 'translate(-50%,-50%) scale(.6)', opacity: 1 },
-        { transform: `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) scale(1)`, opacity: .95 },
-        { transform: `translate(calc(-50% + ${dx*1.25}px), calc(-50% + ${dy*1.25}px)) scale(.2)`, opacity: 0 }
-      ], {
-        duration: 300 + Math.random() * 120,
-        easing: 'cubic-bezier(.2,.9,.2,1)',
-        fill: 'forwards'
-      });
-
-      a.finished.finally(() => p.remove());
-    }
+  /* ================= controls ================= */
+  function setNot(n){
+    S.set.not = n; save();
+    document.querySelectorAll(".modeBtn").forEach(b => b.setAttribute("aria-selected", String(b.dataset.not === n)));
+    render();
   }
-
-  function endDragCleanup(){
-    clearBubbleHighlights();
-
-    if (dragState.originEl){
-      dragState.originEl.classList.remove('dragOrigin');
-    }
-    if (dragState.ghostEl){
-      dragState.ghostEl.remove();
-    }
-
-    document.removeEventListener('pointermove', onGlobalPointerMove, { passive:false });
-    document.removeEventListener('pointerup', onGlobalPointerUp, { passive:false });
-    document.removeEventListener('pointercancel', onGlobalPointerCancel, { passive:false });
-
-    dragState.active = false;
-    dragState.sourceIdx = -1;
-    dragState.sourceTokenIdx = -1;
-    dragState.originEl = null;
-    dragState.ghostEl = null;
-    dragState.pointerId = null;
-    dragState.currentX = 0;
-    dragState.currentY = 0;
-    dragState.hoveredBubble = null;
+  document.querySelectorAll(".modeBtn").forEach(b => b.addEventListener("click", () => setNot(b.dataset.not)));
+  function setKind(k){
+    S.set.kind = k; save();
+    document.querySelectorAll(".kindSeg button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.kind === k)));
+    newQuestion();
   }
+  document.querySelectorAll(".kindSeg button").forEach(b => b.addEventListener("click", () => setKind(b.dataset.kind)));
+  function paintSteppers(){
+    $("termsIn").value = S.set.terms; $("kindsIn").value = S.set.kinds;
+    $("rTerms").setAttribute("aria-pressed", String(S.set.rTerms)); $("rKinds").setAttribute("aria-pressed", String(S.set.rKinds));
+    $("termsIn").disabled = S.set.rTerms; $("kindsIn").disabled = S.set.rKinds;
+  }
+  function clampSet(){
+    S.set.terms = Math.max(2, Math.min(6, Math.round(+S.set.terms || 4)));
+    S.set.kinds = Math.max(1, Math.min(3, Math.round(+S.set.kinds || 2)));
+    if(S.set.kinds > S.set.terms - 1) S.set.kinds = S.set.terms - 1;
+  }
+  document.querySelectorAll(".stepper button").forEach(b => b.addEventListener("click", () => {
+    const d = b.dataset.d; S.set[d] = (+S.set[d]) + (+b.dataset.s);
+    if(d === "kinds" && S.set.kinds > S.set.terms - 1) S.set.terms = S.set.kinds + 1;
+    clampSet(); if(d === "terms") S.set.rTerms = false; else S.set.rKinds = false; save(); paintSteppers(); newQuestion();
+  }));
+  [["termsIn","terms","rTerms"],["kindsIn","kinds","rKinds"]].forEach(([i, k, r]) => $(i).addEventListener("change", () => { S.set[k] = $(i).value; clampSet(); S.set[r] = false; save(); paintSteppers(); newQuestion(); }));
+  [["rTerms","rTerms"],["rKinds","rKinds"]].forEach(([i, k]) => $(i).addEventListener("click", () => { S.set[k] = !S.set[k]; save(); paintSteppers(); newQuestion(); }));
+  const TOG = { negToggle:"neg", onesToggle:"ones", alikeToggle:"alike", colourToggle:"colour", splitToggle:"split", whyToggle:"why" };
+  Object.entries(TOG).forEach(([id, k]) => {
+    $(id).checked = !!S.set[k];
+    $(id).addEventListener("change", () => { S.set[k] = $(id).checked; save();
+      if(["neg","ones","alike"].includes(k)) newQuestion(); else { render(); } });
+  });
+  $("sizeSel").value = S.set.size;
+  $("sizeSel").addEventListener("change", () => { S.set.size = $("sizeSel").value; save(); if(S.set.kind === "num") newQuestion(); });
+  $("newBtn").addEventListener("click", newQuestion);
+  $("newQBtn").addEventListener("click", newQuestion);
+  $("ownBtn").addEventListener("click", () => { const box = $("ownBox"); box.hidden = !box.hidden; $("ownBtn").setAttribute("aria-expanded", String(!box.hidden)); if(!box.hidden) $("ownIn").focus(); });
+  function useOwn(){
+    const r = parseOwn($("ownIn").value), m = $("ownMsg");
+    if(r.err){ m.textContent = r.err; m.classList.add("err"); return false; }
+    m.classList.remove("err"); m.innerHTML = "Done &mdash; drag the bubbles to collect it.";
+    if(r.q.mode !== S.set.kind){ S.set.kind = r.q.mode; save(); document.querySelectorAll(".kindSeg button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.kind === r.q.mode))); }
+    setQ(r.q); return true;
+  }
+  $("ownGo").addEventListener("click", useOwn);
+  $("ownIn").addEventListener("keydown", e => { if(e.key === "Enter"){ e.preventDefault(); useOwn(); } });
+  $("showBtn").addEventListener("click", showMe);
+  $("miniNext").addEventListener("click", showMe);
+  $("allBtn").addEventListener("click", finishAll);
+  $("undoBtn").addEventListener("click", undo);
+  $("miniBack").addEventListener("click", undo);
+  $("againBtn").addEventListener("click", startAgain);
+  $("againIcon").addEventListener("click", startAgain);
 
-  renderAll();
+  function applyPanel(){
+    $("app").classList.toggle("noPanel", !S.set.panel);
+    const b = $("panelBtn"); b.setAttribute("aria-pressed", String(!!S.set.panel));
+    b.title = S.set.panel ? "Hide the side panel" : "Show the side panel";
+    $("miniSteps").hidden = !!S.set.panel && !S.fs;
+  }
+  $("panelBtn").addEventListener("click", () => { S.set.panel = !S.set.panel; save(); applyPanel(); });
+  const fsEl = document.documentElement;
+  const fsActive = () => !!(document.fullscreenElement || document.webkitFullscreenElement);
+  function setFs(on){
+    S.fs = on; $("app").classList.toggle("fs", on);
+    $("fsBtn").querySelector(".fsIn").toggleAttribute("hidden", on);
+    $("fsBtn").querySelector(".fsOut").toggleAttribute("hidden", !on);
+    $("fsBtn").title = on ? "Leave full screen (F)" : "Full screen (F)";
+    closeMenus(); applyPanel();
+  }
+  function toggleFs(){
+    if(!S.fs){ setFs(true); const req = fsEl.requestFullscreen || fsEl.webkitRequestFullscreen;
+      if(req){ try { const pr = req.call(fsEl); if(pr && pr.catch) pr.catch(() => {}); } catch(e){} } }
+    else { if(fsActive()){ const ex = document.exitFullscreen || document.webkitExitFullscreen; try { const pr = ex.call(document); if(pr && pr.catch) pr.catch(() => {}); } catch(e){} } setFs(false); }
+  }
+  const onFsChange = () => { if(!fsActive() && S.fs) setFs(false); };
+  document.addEventListener("fullscreenchange", onFsChange);
+  document.addEventListener("webkitfullscreenchange", onFsChange);
+  $("fsBtn").addEventListener("click", toggleFs);
+
+  function closeMenus(){ [["settingsBtn","settingsMenu"],["toolsBtn","toolsMenu"]].forEach(([b, m]) => { $(m).classList.remove("open"); $(b).setAttribute("aria-expanded","false"); }); }
+  [["settingsBtn","settingsMenu"],["toolsBtn","toolsMenu"]].forEach(([b, m]) => {
+    $(b).addEventListener("click", e => { e.stopPropagation(); const was = $(m).classList.contains("open"); closeMenus(); if(!was){ $(m).classList.add("open"); $(b).setAttribute("aria-expanded","true"); } });
+    $(m).addEventListener("click", e => e.stopPropagation());
+  });
+  document.addEventListener("click", closeMenus);
+  document.addEventListener("keydown", e => {
+    const tag = (e.target && e.target.tagName) || "";
+    if(e.key === "Escape"){ closeMenus(); if(S.fs && !fsActive()) setFs(false); return; }
+    if(tag === "INPUT" || tag === "SELECT" || tag === "TEXTAREA" || e.metaKey || e.ctrlKey || e.altKey) return;
+    if(tag === "BUTTON" && (e.key === " " || e.key === "Enter")){ e.preventDefault(); e.target.blur(); }
+    const k = e.key;
+    if(k === " "){ e.preventDefault(); startAgain(); }
+    else if(k === "Enter"){ e.preventDefault(); newQuestion(); }
+    else if(k === "ArrowRight"){ e.preventDefault(); showMe(); }
+    else if(k === "ArrowLeft"){ e.preventDefault(); undo(); }
+    else if(k === "1") setNot("words"); else if(k === "2") setNot("times"); else if(k === "3") setNot("brackets");
+    else if(k === "l" || k === "L") setKind(S.set.kind === "let" ? "num" : "let");
+    else if(k === "n" || k === "N") newQuestion();
+    else if(k === "f" || k === "F") toggleFs();
+  });
+  let rz = 0;
+  const onResize = () => { cancelAnimationFrame(rz); rz = requestAnimationFrame(() => { if(!D && !S.busy) render({ born:false }); }); };
+  if(window.ResizeObserver) new ResizeObserver(onResize).observe($("board")); else window.addEventListener("resize", onResize);
+
+  if(MATH_ALPHA) document.querySelectorAll(".modeBtn i, .kindSeg i, .settingsMenu i, .ownMsg i").forEach(el => { el.outerHTML = `<span class="mi">${mathItalic(el.textContent)}</span>`; });
+  else document.querySelectorAll(".modeBtn i, .kindSeg i, .settingsMenu i, .ownMsg i").forEach(el => el.classList.add("mv"));
+  document.querySelectorAll(".modeBtn").forEach(b => b.setAttribute("aria-selected", String(b.dataset.not === S.set.not)));
+  document.querySelectorAll(".kindSeg button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.kind === S.set.kind)));
+  clampSet(); paintSteppers(); applyPanel();
+  newQuestion();
+
+  /* test surface */
+  window.__CLT__ = { MATH_ALPHA, S, get L(){ return L; }, makeQ, parseOwn, setQ, render, layout, nextMove, play, showMe, finishAll, undo, startAgain,
+    newQuestion, setNot, setKind, doJoin, doMoveTok, doPairTok, doCancel, doSplit, doOrder, isDone, exprHTML, termsOf, pack, toggleFs };
 })();
 </script>
 </body>
