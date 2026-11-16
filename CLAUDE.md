@@ -96,6 +96,31 @@
 > §2 "TWO folders", §3 deploy paths and §5's `mathstools-main 2` heading below
 > describe the OLD layout — this block supersedes them.
 >
+> **NEW (2026-11-17): CLOSEST TO 100 — LAYOUT REBUILT + ROLL CARD.** `games/closest-to-100.html`, same URL,
+> one self-contained file. Game rules, Firestore room shape (`closestTo100Games`) and the online commit functions are
+> UNCHANGED (copied verbatim); the page around them is new. Project doc `claude/closest-to-100.md`.
+> * **Layout:** three columns ≥1181px — side (turn, score(s), squares-filled bar, 10 roll slots) · board · turn panel +
+>   number-sentence log. `--board` = min(860px, 100dvh − 112px, 100vw − side − panel − 100px), so the whole grid is
+>   always on screen (1280×720 up). Panel and log are rows 1 and 2 beside the board (`.rightcol{display:contents}`);
+>   the log has `contain:size` so it takes only the height the board leaves and can never push into the footer.
+>   ≤1180: side + panel above the board (Roll stays near the top); ≤700: one column. Undo moved from the banner to
+>   the panel; "Back to menu" is now "Menu" so the banner is one row at 1366. Full-screen icon host is `#turnCard`;
+>   no `data-fit` (the CSS sizes the board, two sizers would fight).
+> * **Roll card** (`#rollModal`, z 95): darkened + blurred page, two CSS 3D dice (`buildCube`, `FACE_ROT`, spins
+>   accumulate so they always tumble forward), then `a × b = [ ]`. The card has its OWN phase (`rollUI.phase`
+>   rolling/answer/correct/wrong) so a Firestore snapshot can never close it under the student. Correct → confetti
+>   from the card, fades after 1.6s (or a click/Enter), board pulses. Wrong → the answer, a dot array (a rows of b),
+>   a strategy line (`strategyText`) and OK; the turn is missed only when OK is pressed (online it is committed at
+>   once). Empty/non-numeric Enter costs nothing (the old page counted an empty Enter as a wrong answer).
+>   `rollUI.settled` stops the card re-opening for a roll already answered while online sync catches up.
+> * **Pedagogy added:** pick a way round (a × b / b × a buttons) then click (mouse) or tap-twice (touch) to place, as
+>   well as drag; live "w × h" label on the preview; a wrong-sized drag says what was drawn and what is needed;
+>   Pass asks "look again" when the array still fits; log shows running totals; end screen writes the whole game as
+>   one addition (+ 100 − total) and a "Talk about it" prompt; grid has bolder halfway lines at 5.
+> * Verified (Playwright, stubbed Firebase): full single games at 1366 and 390, pass-and-play (pass check, touch
+>   tap-twice, undo, drag), two-browser online room via a localStorage/BroadcastChannel Firestore stub, reduced
+>   motion, Arabic, full screen, layout sweep at 10 viewports (grid on screen, log above footer, no sideways scroll).
+>
 > **NEW (2026-11-16, latest): COLLECTING LIKE TERMS – BUBBLES — STUDENT QUIZ + WORKSHEET CREATOR REBUILT.**
 > Same URLs. Quiz: thin shell `online-quizzes/stage-4/algebra/collecting-like-terms.html` + engine
 > `collecting-like-terms-quiz/quiz.js` + `quiz.css` (css = the Number Groups quiz's + a bubbles block; bump BOTH `?v=`).

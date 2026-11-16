@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Closest to 100</title>
-  <!-- Closest to 100: fixed d6 dice, product required before every move/pass, Youcubed credit under roll panel -->
+  <!-- Closest to 100: d6 dice roll in a centred card, product required before every move/pass, youcubed credit under the turn panel. Rebuilt 2026-11-17. -->
   <style>
     :root{
       --bg:#f8fafc;--card:#ffffff;--ink:#0f172a;--muted:#64748b;--border:#e2e8f0;
@@ -24,20 +24,243 @@
     .btn,.btn-soft{border-color:rgba(15,23,42,.08);background:var(--btn);color:var(--ink)}.mmtTopbar .btn,.mmtTopbar .btn-soft{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,.14);color:#fff}.btn:hover,.btn-soft:hover{background:var(--btnHover)}.mmtTopbar .btn:hover,.mmtTopbar .btn-soft:hover{background:rgba(255,255,255,.22)}.btn-primary{background:var(--blue);color:#fff;border-color:var(--blue);box-shadow:0 10px 24px rgba(37,99,235,.20)}.btn-primary:hover{background:var(--blue2)}.mmtTopbar .btn-primary{background:#fff;color:var(--blue2);border-color:#fff}.btn-green{background:var(--green);color:#fff;border-color:var(--green);box-shadow:0 10px 24px rgba(108,188,74,.22)}.btn-green:hover{background:var(--green2)}.btn-red{background:var(--red);color:#fff;border-color:var(--red)}.small-btn{padding:8px 12px;font-size:.88rem}
     label{color:#334155;font-weight:850;font-size:.92rem} select,input[type=text],input[type=number]{width:100%;border:1px solid var(--border);background:#fff;border-radius:14px;padding:12px 14px;color:var(--ink);outline:none;font-weight:800;transition:border-color .16s ease,box-shadow .16s ease} select:focus,input[type=text]:focus,input[type=number]:focus{border-color:var(--blue);box-shadow:0 0 0 4px rgba(37,99,235,.12)}
     .i18n-dual{display:inline-flex;flex-direction:column;gap:2px;line-height:1.12}.i18n-dual .native{font-weight:inherit}html[lang=ar] .i18n-dual .native,html[lang=fa] .i18n-dual .native{direction:rtl;unicode-bidi:isolate}.i18n-dual .english-under{font-size:.72em;opacity:.72;font-weight:800;line-height:1.12}.status-title .english-under,.status-subtitle .english-under,.message .english-under{display:block;margin-top:3px}
-    .layout{width:min(1720px,calc(100vw - 28px));margin:10px auto 8px;display:grid;grid-template-columns:1fr;gap:16px;align-items:start}.card{background:rgba(255,255,255,.94);border:1px solid rgba(226,232,240,.9);border-radius:26px;box-shadow:var(--shadow);overflow:hidden}.board-wrap{padding:14px}.status-strip{display:block;margin-bottom:10px}.turn-card{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:18px;background:linear-gradient(180deg,#fff,#f8fafc);border:1px solid var(--border);min-height:56px}.player-dot{width:28px;height:28px;border-radius:50%;box-shadow:inset 0 -4px 0 rgba(0,0,0,.16),0 5px 12px rgba(0,0,0,.16);flex:0 0 auto;background:var(--single)}.player-dot.p1{background:var(--p1)}.player-dot.p2{background:var(--p2)}.status-title{font-weight:950;font-size:1rem;line-height:1.1;letter-spacing:-.02em}.status-subtitle{color:var(--muted);font-size:.84rem;margin-top:4px;font-weight:750}
-    .play-area{display:grid;grid-template-columns:minmax(190px,240px) minmax(480px,720px) minmax(280px,340px);gap:18px;align-items:start;justify-content:center}.score-stack{display:grid;gap:10px}.score-card{border-radius:18px;padding:13px;background:linear-gradient(180deg,#fff,#f8fafc);border:1px solid var(--border);min-width:0}.score-card.player-one{border-left:8px solid var(--p1)}.score-card.player-two{border-left:8px solid var(--p2)}.score-card.single{border-left:8px solid var(--single)}.score-card span{display:block;color:#334155;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.score-card strong{display:block;font-size:1.8rem;margin-top:3px;line-height:1;font-weight:950}.metric-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.metric{border-radius:16px;padding:11px;background:#f8fafc;border:1px solid var(--border)}.metric span{display:block;color:var(--muted);font-size:.78rem;font-weight:900;text-transform:uppercase;letter-spacing:.03em}.metric strong{display:block;font-size:1.35rem;font-weight:950;margin-top:2px}
-    .grid-holder{position:relative;width:100%;max-width:min(720px,calc(100dvh - 170px));aspect-ratio:1/1;background:linear-gradient(180deg,#fff,#f9fafb);border-radius:22px;border:1px solid var(--border);overflow:hidden;touch-action:none}.grid-holder.dragging{cursor:crosshair}.grid-holder.shake{animation:missShake .34s ease-in-out 0s 2}svg{width:100%;height:100%;display:block;user-select:none}.grid-line{stroke:var(--grid);stroke-width:1.25}.grid-border{fill:#fff;stroke:#334155;stroke-width:2.4}.placed-rect{stroke:rgba(15,23,42,.38);stroke-width:2;filter:drop-shadow(0 5px 7px rgba(15,23,42,.11))}.placed-rect.p1{fill:rgba(34,197,94,.38)}.placed-rect.p2{fill:rgba(37,99,235,.36)}.placed-rect.single{fill:rgba(108,188,74,.38)}.placed-label{font-family:var(--mathFont);font-size:18px;font-weight:950;fill:#0f172a;paint-order:stroke;stroke:#fff;stroke-width:4;stroke-linejoin:round}.cell-hit{fill:transparent;cursor:crosshair}.preview{stroke-width:3;stroke-dasharray:8 6;pointer-events:none}.preview.legal{fill:rgba(108,188,74,.26);stroke:#22c55e}.preview.p1{fill:rgba(34,197,94,.24);stroke:#22c55e}.preview.p2{fill:rgba(37,99,235,.22);stroke:#2563eb}.preview.illegal{fill:rgba(239,68,68,.22);stroke:#ef4444}@keyframes missShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
-    .control-area{display:grid;gap:12px}.dice-area{display:grid;gap:12px;background:linear-gradient(180deg,#f5f3ff,#faf5ff);border:1px solid #ddd6fe;border-radius:24px;padding:16px;width:100%;box-shadow:0 18px 42px rgba(109,40,217,.16)}.dice-row{display:flex;align-items:center;justify-content:center;gap:10px}.die{width:56px;height:56px;border-radius:15px;background:#fff;display:grid;place-items:center;font-weight:950;font-size:1.55rem;box-shadow:inset 0 -5px 0 rgba(15,23,42,.08),0 7px 14px rgba(15,23,42,.12);border:1px solid var(--border);position:relative;overflow:hidden;font-family:var(--mathFont)}.die.rolling{animation:diceShake .42s ease-in-out infinite}@keyframes diceShake{0%{transform:rotate(0deg) translate(0,0)}25%{transform:rotate(-12deg) translate(-2px,2px)}50%{transform:rotate(9deg) translate(2px,-2px)}75%{transform:rotate(-6deg) translate(1px,2px)}100%{transform:rotate(0deg) translate(0,0)}}.choice-title{text-align:center;font-weight:950;color:#5b21b6;letter-spacing:-.02em;font-size:.98rem;margin-top:-2px}.product-row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center}.product-row input{text-align:center;font-size:1.35rem;font-weight:950;font-family:var(--mathFont)}.product-row input.correct{border-color:#22c55e;background:#f0fdf4;color:#166534;box-shadow:0 0 0 4px rgba(34,197,94,.12)}.product-row input.wrong{border-color:#ef4444;background:#fff1f2;color:#991b1b;animation:missShake .34s ease-in-out 0s 2;box-shadow:0 0 0 4px rgba(239,68,68,.12)}.drag-hint{padding:12px 13px;border-radius:16px;background:#eef2ff;border:1px solid #c7d2fe;color:#1e3a8a;font-weight:850;line-height:1.35;text-align:center}.message{padding:14px 16px;border-radius:18px;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;font-weight:800;min-height:50px;display:flex;align-items:center;line-height:1.35}.message.success{background:#dcfce7;border-color:#86efac;color:#166534}.message.info{background:#eef2ff;border-color:#c7d2fe;color:#1e3a8a}.pass-turn-btn{width:100%;background:#fff;color:#1e3a8a;border-color:#bfdbfe;box-shadow:0 8px 18px rgba(37,99,235,.10)}.pass-turn-btn:hover{background:#eff6ff}.message.is-hidden{display:none}.youcubed-credit{font-size:12px;font-weight:850;line-height:1.35;text-align:center;color:#64748b;padding:8px 10px 0}.youcubed-credit a{color:var(--blue);text-decoration:none;font-weight:950}
-    .record-panel{border-radius:22px;padding:16px;background:#f8fafc;border:1px solid var(--border);display:grid;gap:12px}.record-panel h2{font-size:1.08rem;margin:0;font-weight:950;letter-spacing:-.02em}.record-list{display:grid;gap:7px;max-height:calc(100dvh - 470px);overflow:auto;padding-right:3px}.record-row{display:grid;grid-template-columns:28px 1fr auto;gap:8px;align-items:center;padding:8px 10px;border-radius:14px;background:#fff;border:1px solid var(--border);font-weight:850}.record-row .turn-no{width:26px;height:26px;border-radius:9px;display:grid;place-items:center;background:#e2e8f0;color:#334155;font-size:.82rem;font-weight:950}.record-row.miss{background:#fff7ed;border-color:#fed7aa;color:#9a3412}.record-row.p1{border-left:6px solid var(--p1)}.record-row.p2{border-left:6px solid var(--p2)}.record-row.single{border-left:6px solid var(--single)}.record-empty{padding:12px;border-radius:14px;background:#fff;border:1px dashed #cbd5e1;color:var(--muted);font-weight:850;text-align:center}
-    .online-panel{display:grid;gap:12px}.online-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.join-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}.room-badge{display:none;gap:8px;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:16px;background:#eef6ff;border:1px solid #bfdbfe;color:#1e3a8a;font-weight:950}.room-badge.show{display:flex}.room-code{letter-spacing:.14em;font-size:1.25rem;font-family:var(--mathFont)}.online-status{padding:10px 12px;border-radius:16px;background:#f1f5f9;border:1px solid var(--border);color:#475569;font-weight:750;font-size:.92rem;line-height:1.35}.online-status.good{background:#dcfce7;border-color:#86efac;color:#166534}.online-status.warn{background:#fff7ed;border-color:#fed7aa;color:#9a3412}.name-field{display:grid;gap:7px}.name-helper{font-size:.82rem;color:var(--muted);font-weight:750;line-height:1.35;margin-top:-2px}
-    .modal-backdrop{position:fixed;inset:0;background:rgba(15,23,42,.36);display:none;place-items:center;z-index:90;padding:18px}.modal-backdrop.open{display:grid}.modal{width:min(600px,100%);background:#fff;border-radius:28px;box-shadow:0 34px 90px rgba(15,23,42,.34);border:1px solid #dbe3ef;padding:22px}.modal-header{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:8px}.modal h2{margin:0;font-size:1.45rem;font-weight:950;letter-spacing:-.03em}.mode-modal{width:min(760px,100%);padding:26px}.mode-modal-header h2{font-size:1.9rem;margin:0 0 6px;font-weight:950;letter-spacing:-.04em}.mode-modal-header p{margin:0 0 18px;color:var(--muted);font-weight:750}.mode-card-grid{display:grid;grid-template-columns:1fr;gap:14px}.mode-card{display:grid;grid-template-columns:auto 1fr;grid-template-areas:"icon title" "icon desc";gap:3px 16px;text-align:left;padding:18px 20px;border-radius:22px;border:2px solid var(--border);background:linear-gradient(180deg,#fff,#f8fafc);box-shadow:0 14px 28px rgba(15,23,42,.08);color:var(--ink)}.mode-card:hover{border-color:#bfdbfe;background:linear-gradient(180deg,#eef6ff,#fff);box-shadow:0 18px 36px rgba(37,99,235,.14)}.mode-card .mode-icon{grid-area:icon;width:58px;height:58px;border-radius:18px;background:#eef2ff;display:grid;place-items:center;font-size:2rem}.mode-card strong{grid-area:title;font-size:1.35rem;font-weight:950;letter-spacing:-.03em}.mode-card span:last-child{grid-area:desc;color:var(--muted);font-size:.95rem;font-weight:750}.setup-fields{display:grid;gap:12px;margin:12px 0 16px}.setup-fields label{display:grid;gap:8px}.setup-start{width:100%;padding:14px 18px;font-size:1.02rem}.rules-list{display:grid;gap:12px;margin:18px 0 0;padding:0;list-style:none}.rules-list li{padding:13px 14px;border-radius:16px;background:#f8fafc;border:1px solid var(--border);font-weight:850;line-height:1.35;color:#334155}.rules-list .english-under{display:block;margin-top:5px;color:#64748b;font-size:.82em}.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:16px;flex-wrap:wrap}
-    .final-podium{margin:16px 0 12px;display:grid;place-items:center}.final-podium[hidden]{display:none!important}.podium-result{width:100%;display:flex;align-items:end;justify-content:center;gap:16px;min-height:194px;padding:18px;border-radius:24px;background:linear-gradient(180deg,#f8fafc,#eef2ff);border:1px solid #dbeafe;box-shadow:inset 0 1px 0 rgba(255,255,255,.8)}.podium-player{display:grid;justify-items:center;gap:6px;min-width:128px;text-align:center}.podium-player .crown{font-size:1.8rem;line-height:1;margin-bottom:-4px}.podium-player .face{font-size:2.7rem;line-height:1;filter:drop-shadow(0 8px 10px rgba(15,23,42,.16))}.podium-player strong{max-width:150px;font-size:1.08rem;font-weight:950;letter-spacing:-.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.score-pill{padding:5px 9px;border-radius:999px;background:#fff;border:1px solid var(--border);color:#334155;font-weight:900;font-size:.86rem}.podium-step{width:100%;border-radius:18px 18px 12px 12px;display:grid;place-items:center;color:#fff;font-size:1.85rem;font-weight:950;box-shadow:0 14px 26px rgba(15,23,42,.14)}.podium-player.winner .podium-step{height:84px}.podium-player.runner-up .podium-step{height:56px;opacity:.88}.podium-player.runner-up .face{font-size:2.15rem}.podium-player.p1 .podium-step{background:linear-gradient(180deg,#22c55e,#15803d)}.podium-player.p2 .podium-step{background:linear-gradient(180deg,#2563eb,#1d4ed8)}.podium-player.draw .podium-step{height:68px;background:linear-gradient(180deg,#64748b,#334155)}#finalSummary{text-align:center;font-weight:850;color:#334155;line-height:1.4;margin:10px 0 0}@media(max-width:520px){.podium-result{gap:10px;padding:14px}.podium-player{min-width:106px}.podium-player strong{max-width:116px}.podium-player .face{font-size:2.3rem}}
-    .brand-footer{width:min(1720px,calc(100vw - 28px));margin:0 auto 8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:56px;padding:8px 12px;font-size:12px;font-weight:900;color:#111827;background:rgba(255,255,255,.86);border:1px solid rgba(229,231,235,.95);border-radius:14px;text-align:center}.brand-footer a{color:var(--blue);text-decoration:none;font-weight:950}.confetti{position:fixed;width:10px;height:14px;top:-20px;z-index:100;animation:fall 900ms linear forwards;border-radius:3px}@keyframes fall{to{transform:translateY(110vh) rotate(520deg);opacity:0}}
-    @media(max-width:1180px){.play-area{grid-template-columns:1fr;justify-items:center}.score-stack,.control-area{width:100%;max-width:720px}.score-stack{grid-template-columns:repeat(2,minmax(0,1fr))}.metric-grid{grid-column:1/-1}.record-panel{grid-column:1/-1}.grid-holder{max-width:720px}.record-list{max-height:280px}}
-    @media(max-width:1080px){.mmtTopbar{grid-template-columns:1fr;justify-items:center;padding:12px 14px}.mmtBrand{justify-self:center;margin-left:0}.actions{justify-content:center}.layout{width:calc(100vw - 28px);margin-top:14px}.grid-holder{width:100%}.dice-area{width:100%;max-width:720px;justify-self:center}}
-    @media(max-width:700px){.mmtBrandText span{display:none}.actions button{font-size:14px;padding:10px 12px}.layout{width:calc(100vw - 20px)}.board-wrap{padding:12px}.join-row,.online-actions,.score-stack,.metric-grid{grid-template-columns:1fr}.brand-footer{width:calc(100vw - 20px);padding:8px 10px}.mode-card{grid-template-columns:1fr;grid-template-areas:"icon" "title" "desc"}}
-    @media print{.mmtTopbar,.status-strip,.control-area,.modal-backdrop,.brand-footer{display:none!important}body{background:#fff}.layout{display:block;width:auto;margin:0}.card{box-shadow:none;border:0}.play-area{display:block}.grid-holder{width:19cm;border:1px solid #000}}
-  
+    /* ==== CLOSEST TO 100 — GAME LAYOUT (rebuilt 2026-11-17) ====================
+       Three columns on a laptop/projector: who is playing and how close they are
+       (left), the hundred grid sized to fit the HEIGHT of the screen (middle), and
+       the turn panel + number sentences (right). --board is the one number that
+       sizes the grid: it is capped by the height under the header AND by the width
+       left over after the two side columns, so the grid is never cut off. */
+    :root{--side:250px;--panel:340px;--board:min(860px,calc(100dvh - 112px),calc(100vw - var(--side) - var(--panel) - 100px));--p1soft:rgba(34,197,94,.14);--p2soft:rgba(37,99,235,.13)}
+    .mmtTopbar{grid-template-columns:minmax(170px,1fr) auto minmax(max-content,1fr)}
+    .language-control select{min-width:96px}
+    .layout{width:min(1720px,calc(100vw - 24px));margin:10px auto 8px;display:block}
+    .game-card{padding:14px}
+    .game-grid{display:grid;grid-template-columns:var(--side) var(--board) var(--panel);grid-template-rows:auto 1fr;grid-template-areas:"side board panel" "side board log";gap:14px 18px;justify-content:center;align-items:start}
+    @media(max-width:1440px){:root{--side:226px;--panel:318px}}
+    .side{grid-area:side;display:grid;gap:10px;align-content:start;min-width:0}
+    .board-col{grid-area:board;min-width:0;display:grid;justify-items:center}
+    .rightcol{display:contents}
+
+    /* status */
+    .turn-card{display:flex;align-items:center;gap:11px;padding:11px 12px;border-radius:18px;background:linear-gradient(180deg,#fff,#f8fafc);border:1px solid var(--border);min-height:62px}
+    .turn-card>div:nth-child(2){flex:1;min-width:0}
+    .player-dot{width:26px;height:26px;border-radius:50%;box-shadow:inset 0 -4px 0 rgba(0,0,0,.16),0 5px 12px rgba(0,0,0,.16);flex:0 0 auto;background:var(--single)}.player-dot.p1{background:var(--p1)}.player-dot.p2{background:var(--p2)}
+    .status-title{font-weight:950;font-size:1rem;line-height:1.15;letter-spacing:-.02em}.status-subtitle{color:var(--muted);font-size:.84rem;margin-top:3px;font-weight:750;line-height:1.3}
+
+    /* scores */
+    .score-stack{display:grid;gap:10px}
+    .score-card{position:relative;border-radius:18px;padding:12px 14px;background:linear-gradient(180deg,#fff,#f8fafc);border:1px solid var(--border);min-width:0;display:grid;grid-template-columns:1fr auto;align-items:center;gap:2px 8px;transition:box-shadow .2s ease,border-color .2s ease,transform .2s ease}
+    .score-card::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:6px;border-radius:0 6px 6px 0;background:var(--single)}
+    .score-card.player-one::before{background:var(--p1)}.score-card.player-two::before{background:var(--p2)}
+    .score-card .sc-name{grid-column:1;font-weight:900;color:#334155;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .score-card strong{grid-column:2;grid-row:1/3;font-size:2.1rem;line-height:1;font-weight:950;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+    .score-card small{grid-column:1;color:var(--muted);font-weight:800;font-size:.76rem}
+    .score-card.active{border-color:#93c5fd;box-shadow:0 0 0 3px rgba(37,99,235,.14),0 10px 22px rgba(15,23,42,.08)}
+    .score-card.player-one.active{border-color:#86efac;box-shadow:0 0 0 3px rgba(34,197,94,.16),0 10px 22px rgba(15,23,42,.08)}
+    .score-card .turn-flag{display:none;position:absolute;right:10px;top:-9px;font-size:.66rem;font-weight:950;letter-spacing:.06em;text-transform:uppercase;background:#0f172a;color:#fff;border-radius:999px;padding:3px 8px}
+    .score-card.active .turn-flag{display:block}
+
+    /* progress to 100 */
+    .mini-card{border-radius:18px;padding:12px 14px;background:#f8fafc;border:1px solid var(--border);display:grid;gap:8px}
+    .mini-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+    .mini-head>span{color:var(--muted);font-size:.76rem;font-weight:900;text-transform:uppercase;letter-spacing:.04em}
+    .mini-head strong{font-size:1.05rem;font-weight:950;font-variant-numeric:tabular-nums;white-space:nowrap}
+    .bar100{position:relative;height:16px;border-radius:999px;background:#e2e8f0;overflow:hidden;display:flex}
+    .bar100 i{display:block;height:100%;transition:width .5s cubic-bezier(.2,.8,.2,1)}
+    .bar100 i.single,.bar100 i.p1{background:linear-gradient(90deg,#4ade80,#16a34a)}.bar100 i.p2{background:linear-gradient(90deg,#60a5fa,#2563eb)}
+    .bar100::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 calc(10% - 1px),rgba(255,255,255,.75) calc(10% - 1px) 10%);pointer-events:none}
+    .mini-foot{color:#475569;font-size:.84rem;font-weight:800}
+    .mini-foot b{font-variant-numeric:tabular-nums}
+
+    /* the ten rolls */
+    .turn-track{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+    .turn-slot{height:34px;border-radius:10px;border:1.5px dashed #cbd5e1;display:grid;place-items:center;font-weight:950;font-size:.9rem;color:#94a3b8;background:#fff;font-variant-numeric:tabular-nums}
+    .turn-slot.done{border-style:solid;color:#0f172a}
+    .turn-slot.done.single,.turn-slot.done.p1{background:var(--p1soft);border-color:#86efac}.turn-slot.done.p2{background:var(--p2soft);border-color:#93c5fd}
+    .turn-slot.miss{border-style:solid;background:#fff7ed;border-color:#fed7aa;color:#c2410c}
+    .turn-slot.now{border:2px solid var(--purple);color:var(--purple);animation:slotPulse 1.6s ease-in-out infinite}
+    @keyframes slotPulse{0%,100%{box-shadow:0 0 0 0 rgba(124,58,237,.28)}50%{box-shadow:0 0 0 5px rgba(124,58,237,0)}}
+
+    /* the board */
+    .grid-holder{position:relative;width:var(--board);max-width:100%;aspect-ratio:1/1;background:linear-gradient(180deg,#fff,#f9fafb);border-radius:22px;border:1px solid var(--border);overflow:hidden;touch-action:none;transition:box-shadow .3s ease,border-color .3s ease}
+    .grid-holder.ready{border-color:#a78bfa;box-shadow:0 0 0 4px rgba(124,58,237,.14)}
+    .grid-holder.ready-pulse{animation:boardPulse 1.1s ease-out 1}
+    @keyframes boardPulse{0%{box-shadow:0 0 0 0 rgba(124,58,237,.45)}100%{box-shadow:0 0 0 22px rgba(124,58,237,0)}}
+    .grid-holder.dragging{cursor:crosshair}.grid-holder.shake{animation:missShake .34s ease-in-out 0s 2}
+    svg{width:100%;height:100%;display:block;user-select:none}
+    .grid-line{stroke:var(--grid);stroke-width:1.2}.grid-line.half{stroke:#8ea4c2;stroke-width:2.2}
+    .grid-border{fill:#fff;stroke:#334155;stroke-width:2.6}
+    .placed-rect{stroke:rgba(15,23,42,.42);stroke-width:2}.placed-rect.p1,.placed-rect.single{fill:rgba(34,197,94,.36)}.placed-rect.p2{fill:rgba(37,99,235,.34)}
+    .placed-g.fresh{transform-box:fill-box;transform-origin:center;animation:popIn .45s cubic-bezier(.2,1.5,.4,1) 1}
+    @keyframes popIn{0%{transform:scale(.6);opacity:0}100%{transform:scale(1);opacity:1}}
+    .placed-label{font-family:var(--mathFont);font-weight:800;fill:#0f172a;paint-order:stroke;stroke:#fff;stroke-width:4;stroke-linejoin:round}
+    .placed-area{font-family:var(--uiFont);font-weight:900;fill:#334155;paint-order:stroke;stroke:#fff;stroke-width:4;stroke-linejoin:round}
+    .cell-hit{fill:transparent;cursor:crosshair}
+    .preview{stroke-width:3;stroke-dasharray:8 6;pointer-events:none}
+    .preview.legal,.preview.p1{fill:rgba(34,197,94,.24);stroke:#16a34a}.preview.p2{fill:rgba(37,99,235,.22);stroke:#2563eb}.preview.illegal{fill:rgba(239,68,68,.20);stroke:#ef4444}
+    .preview-label{font-family:var(--mathFont);font-weight:800;font-size:22px;pointer-events:none;paint-order:stroke;stroke:#fff;stroke-width:5;stroke-linejoin:round;fill:#14532d}.preview-label.p2{fill:#1e3a8a}.preview-label.illegal{fill:#991b1b}
+    @keyframes missShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+
+    /* the turn panel */
+    .panel{grid-area:panel;min-width:0;border-radius:22px;padding:14px;background:linear-gradient(180deg,#f5f3ff,#faf5ff);border:1px solid #ddd6fe;box-shadow:0 14px 34px rgba(109,40,217,.12);display:grid;gap:12px;flex:0 0 auto}
+    .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+    .step{position:relative;display:grid;justify-items:center;gap:4px;text-align:center;font-size:.74rem;font-weight:900;color:#94a3b8;line-height:1.15}
+    .step b{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:#fff;border:2px solid #e2e8f0;color:#94a3b8;font-size:.82rem}
+    .step.active{color:#5b21b6}.step.active b{background:var(--purple);border-color:var(--purple);color:#fff;box-shadow:0 0 0 4px rgba(124,58,237,.16)}
+    .step.done{color:#15803d}.step.done b{background:#dcfce7;border-color:#86efac;color:#15803d}
+    .roll-btn{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;padding:15px 16px;font-size:1.15rem;border-radius:18px;background:linear-gradient(180deg,#8b5cf6,#6d28d9);color:#fff;border-color:#6d28d9;box-shadow:0 12px 26px rgba(109,40,217,.32),inset 0 1px 0 rgba(255,255,255,.25)}
+    .roll-btn:hover{background:linear-gradient(180deg,#7c3aed,#5b21b6)}
+    .roll-btn .ic{font-size:1.45rem;line-height:1}
+    .roll-btn .kbd{font-size:.72rem;font-weight:900;padding:2px 6px;border-radius:6px;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.3)}
+    .roll-btn.idle-pulse:not(:disabled){animation:rollPulse 2.2s ease-in-out infinite}
+    @keyframes rollPulse{0%,100%{box-shadow:0 12px 26px rgba(109,40,217,.32),0 0 0 0 rgba(124,58,237,.35)}50%{box-shadow:0 12px 26px rgba(109,40,217,.32),0 0 0 9px rgba(124,58,237,0)}}
+    .roll-summary{display:none;align-items:center;justify-content:center;gap:10px;padding:10px;border-radius:16px;background:#fff;border:1px solid #e9d5ff}
+    .roll-summary.show{display:flex}
+    .roll-summary .op{font-family:var(--mathFont);font-size:1.5rem;font-weight:700;color:#475569}
+    .roll-summary .res{font-family:var(--mathFont);font-size:1.6rem;font-weight:800;color:#0f172a;min-width:2ch}
+    .roll-summary .res.ok{color:#15803d}
+    .orient{display:none;gap:8px}.orient.show{display:grid}
+    .orient-title{font-size:.82rem;font-weight:850;color:#5b21b6;text-align:center;line-height:1.3}
+    .orient-opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:8px}
+    .orient-btn{display:grid;justify-items:center;gap:3px;padding:8px 6px;border-radius:14px;background:#fff;border:2px solid #e2e8f0;color:#334155;font-weight:900}
+    .orient-btn svg{width:auto;height:auto;max-width:100%}
+    .orient-btn .ob-pic{height:48px;display:grid;place-items:center}
+    .orient-btn .ol{font-family:var(--mathFont);font-size:1.1rem}
+    .orient-btn .os{white-space:nowrap}
+    .orient-btn .os{font-family:var(--uiFont);font-size:.7rem;color:var(--muted);font-weight:800}
+    .orient-btn[aria-pressed=true]{border-color:var(--purple);background:#faf5ff;box-shadow:0 0 0 3px rgba(124,58,237,.14)}
+    .panel-actions{display:grid;grid-template-columns:1fr auto;gap:8px}
+    .panel-actions.solo{grid-template-columns:1fr}
+    .pass-turn-btn{background:#fff;color:#1e3a8a;border-color:#bfdbfe;box-shadow:0 6px 14px rgba(37,99,235,.08)}.pass-turn-btn:hover{background:#eff6ff}
+    .undo-btn{background:#fff;color:#334155;border-color:#e2e8f0}
+    .pass-check{display:none;padding:11px 12px;border-radius:16px;background:#fffbeb;border:1px solid #fde68a;color:#92400e;font-weight:850;line-height:1.35;font-size:.9rem}
+    .pass-check.show{display:grid;gap:9px}
+    .pass-check .pc-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .pass-check button{padding:9px 10px;font-size:.88rem}
+    .message{padding:11px 13px;border-radius:16px;background:#eef2ff;border:1px solid #c7d2fe;color:#1e3a8a;font-weight:800;line-height:1.35;font-size:.92rem}
+    .message.success{background:#dcfce7;border-color:#86efac;color:#166534}.message.warn{background:#fff7ed;border-color:#fed7aa;color:#9a3412}
+    .message:empty{display:none}
+    .youcubed-credit{font-size:11.5px;font-weight:800;line-height:1.35;text-align:center;color:#7c6f99}
+    .youcubed-credit a{color:#6d28d9;text-decoration:none;font-weight:950}.youcubed-credit a:hover{text-decoration:underline}
+
+    /* number sentences */
+    .record-panel{grid-area:log;align-self:stretch;contain:size;min-width:0;border-radius:22px;padding:14px;background:#f8fafc;border:1px solid var(--border);display:flex;flex-direction:column;gap:10px;min-height:130px;overflow:hidden}
+    .record-panel h2{font-size:1.02rem;margin:0;font-weight:950;letter-spacing:-.02em;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+    .record-panel h2 small{font-size:.74rem;color:var(--muted);font-weight:850}
+    .record-list{display:grid;gap:6px;overflow:auto;padding-right:3px;align-content:start;flex:1 1 auto;min-height:0}
+    .record-row{display:grid;grid-template-columns:24px 1fr auto;gap:8px;align-items:center;padding:7px 9px;border-radius:12px;background:#fff;border:1px solid var(--border);font-weight:850;font-size:.92rem}
+    .record-row .turn-no{width:24px;height:24px;border-radius:8px;display:grid;place-items:center;background:#e2e8f0;color:#334155;font-size:.78rem;font-weight:950}
+    .record-row .sent{font-family:var(--mathFont);font-size:1.05rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .record-row .who{font-family:var(--uiFont);font-size:.74rem;font-weight:900;color:var(--muted);margin-right:4px}
+    .record-row .run{font-size:.8rem;color:#475569;font-weight:900;font-variant-numeric:tabular-nums;white-space:nowrap}
+    .record-row .run b{color:#0f172a}
+    .record-row.miss{background:#fff7ed;border-color:#fed7aa;color:#9a3412}.record-row.miss .sent{font-family:var(--uiFont);font-size:.86rem;font-weight:850}
+    .record-row.p1,.record-row.single{border-left:5px solid var(--p1)}.record-row.p2{border-left:5px solid var(--p2)}
+    .record-empty{padding:12px;border-radius:14px;background:#fff;border:1px dashed #cbd5e1;color:var(--muted);font-weight:850;text-align:center;font-size:.9rem}
+
+    /* online / setup / modals */
+    .online-panel{display:grid;gap:12px}.join-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}.room-badge{display:none;gap:8px;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:16px;background:#eef6ff;border:1px solid #bfdbfe;color:#1e3a8a;font-weight:950}.room-badge.show{display:flex}.room-code{letter-spacing:.14em;font-size:1.25rem;font-family:var(--mathFont)}.online-status{padding:10px 12px;border-radius:16px;background:#f1f5f9;border:1px solid var(--border);color:#475569;font-weight:750;font-size:.92rem;line-height:1.35}.online-status.good{background:#dcfce7;border-color:#86efac;color:#166534}.online-status.warn{background:#fff7ed;border-color:#fed7aa;color:#9a3412}.name-field{display:grid;gap:7px}.name-helper{font-size:.82rem;color:var(--muted);font-weight:750;line-height:1.35;margin-top:-2px}
+    .modal-backdrop{position:fixed;inset:0;background:rgba(15,23,42,.45);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);display:none;place-items:center;z-index:90;padding:18px}.modal-backdrop.open{display:grid}.modal{width:min(600px,100%);background:#fff;border-radius:28px;box-shadow:0 34px 90px rgba(15,23,42,.34);border:1px solid #dbe3ef;padding:22px;max-height:calc(100dvh - 36px);overflow:auto}.modal-header{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:8px}.modal h2{margin:0;font-size:1.45rem;font-weight:950;letter-spacing:-.03em}
+    .mode-modal{width:min(760px,100%);padding:26px}.mode-hero{display:flex;align-items:center;gap:16px;margin-bottom:18px}.mode-hero .mh-dice{display:flex;gap:6px;flex:0 0 auto}.mode-hero .mh-dice .pipdie{--pd:46px;transform:rotate(-8deg)}.mode-hero .mh-dice .pipdie+.pipdie{transform:rotate(9deg) translateY(6px)}.mode-modal-header h2{font-size:1.9rem;margin:0 0 4px;font-weight:950;letter-spacing:-.04em}.mode-modal-header p{margin:0;color:var(--muted);font-weight:750;line-height:1.4}
+    .mode-card-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.mode-card{display:grid;justify-items:start;align-content:start;gap:6px;text-align:left;padding:18px;border-radius:22px;border:2px solid var(--border);background:linear-gradient(180deg,#fff,#f8fafc);box-shadow:0 12px 24px rgba(15,23,42,.07);color:var(--ink)}.mode-card:hover{border-color:#c4b5fd;background:linear-gradient(180deg,#faf5ff,#fff);box-shadow:0 18px 36px rgba(124,58,237,.14)}.mode-card .mode-icon{width:52px;height:52px;border-radius:16px;background:#f3e8ff;display:grid;place-items:center;font-size:1.7rem;margin-bottom:4px}.mode-card strong{font-size:1.15rem;font-weight:950;letter-spacing:-.03em}.mode-card span:last-child{color:var(--muted);font-size:.9rem;font-weight:750;line-height:1.35}
+    .setup-fields{display:grid;gap:12px;margin:12px 0 16px}.setup-fields label{display:grid;gap:8px}.setup-start{width:100%;padding:14px 18px;font-size:1.02rem}.rules-list{display:grid;gap:10px;margin:14px 0 0;padding:0;list-style:none;counter-reset:rule}.rules-list li{position:relative;padding:12px 14px 12px 48px;border-radius:16px;background:#f8fafc;border:1px solid var(--border);font-weight:850;line-height:1.35;color:#334155}.rules-list li::before{counter-increment:rule;content:counter(rule);position:absolute;left:12px;top:11px;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:#ede9fe;color:#5b21b6;font-weight:950;font-size:.85rem}.rules-list .english-under{display:block;margin-top:5px;color:#64748b;font-size:.82em}.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:16px;flex-wrap:wrap}
+
+    /* final */
+    .final-big{display:flex;align-items:baseline;justify-content:center;gap:6px;margin:10px 0 2px;font-weight:950;letter-spacing:-.05em}.final-big b{font-size:4rem;line-height:1;color:#15803d}.final-big span{font-size:1.6rem;color:#94a3b8}
+    .final-podium{margin:16px 0 12px;display:grid;place-items:center}.final-podium[hidden]{display:none!important}.podium-result{width:100%;display:flex;align-items:end;justify-content:center;gap:16px;min-height:194px;padding:18px;border-radius:24px;background:linear-gradient(180deg,#f8fafc,#eef2ff);border:1px solid #dbeafe}.podium-player{display:grid;justify-items:center;gap:6px;min-width:128px;text-align:center}.podium-player .crown{font-size:1.8rem;line-height:1;margin-bottom:-4px}.podium-player .face{font-size:2.7rem;line-height:1;filter:drop-shadow(0 8px 10px rgba(15,23,42,.16))}.podium-player strong{max-width:150px;font-size:1.08rem;font-weight:950;letter-spacing:-.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.score-pill{padding:5px 9px;border-radius:999px;background:#fff;border:1px solid var(--border);color:#334155;font-weight:900;font-size:.86rem}.podium-step{width:100%;border-radius:18px 18px 12px 12px;display:grid;place-items:center;color:#fff;font-size:1.85rem;font-weight:950;box-shadow:0 14px 26px rgba(15,23,42,.14)}.podium-player.winner .podium-step{height:84px}.podium-player.runner-up .podium-step{height:56px;opacity:.88}.podium-player.runner-up .face{font-size:2.15rem}.podium-player.p1 .podium-step{background:linear-gradient(180deg,#22c55e,#15803d)}.podium-player.p2 .podium-step{background:linear-gradient(180deg,#2563eb,#1d4ed8)}.podium-player.draw .podium-step{height:68px;background:linear-gradient(180deg,#64748b,#334155)}
+    #finalSummary{text-align:center;font-weight:850;color:#334155;line-height:1.4;margin:6px 0 0}
+    .final-working{display:grid;gap:8px;margin-top:14px}
+    .fw-row{padding:10px 12px;border-radius:14px;background:#f8fafc;border:1px solid var(--border);font-family:var(--mathFont);font-size:1.12rem;line-height:1.5;color:#0f172a;overflow-wrap:anywhere}
+    .fw-row .who{display:block;font-family:var(--uiFont);font-size:.76rem;font-weight:900;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+    .fw-row b{color:#15803d}
+    .talk{margin-top:12px;padding:12px 14px;border-radius:16px;background:#faf5ff;border:1px solid #e9d5ff;color:#4c1d95;font-weight:850;line-height:1.4}
+    .talk span{display:block;font-size:.72rem;font-weight:950;text-transform:uppercase;letter-spacing:.06em;color:#7c3aed;margin-bottom:2px}
+    @media(max-width:520px){.podium-result{gap:10px;padding:14px}.podium-player{min-width:106px}.podium-player strong{max-width:116px}.podium-player .face{font-size:2.3rem}.final-big b{font-size:3.2rem}}
+
+    /* ---- THE ROLL CARD ------------------------------------------------------
+       Opens in the middle of the screen over a darkened page. Two real 3D dice
+       tumble and land; the student types the product; correct = confetti and the
+       card fades away so the grid is theirs. */
+    .roll-backdrop{position:fixed;inset:0;z-index:95;display:none;place-items:center;padding:18px;background:rgba(15,23,42,0);transition:background .28s ease,backdrop-filter .28s ease}
+    .roll-backdrop.open{display:grid}
+    .roll-backdrop.show{background:rgba(15,23,42,.62);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+    .roll-card{position:relative;width:min(520px,100%);max-height:calc(100dvh - 36px);overflow:auto;background:#fff;border-radius:30px;padding:24px 24px 22px;box-shadow:0 40px 100px rgba(15,23,42,.45);border:1px solid #e9d5ff;text-align:center;opacity:0;transform:translateY(18px) scale(.94);transition:opacity .28s ease,transform .32s cubic-bezier(.2,1.2,.4,1)}
+    .roll-backdrop.show .roll-card{opacity:1;transform:none}
+    .roll-card.leaving{opacity:0;transform:translateY(-10px) scale(.96)}
+    .roll-who{display:inline-flex;align-items:center;gap:8px;padding:5px 12px;border-radius:999px;background:#f3e8ff;color:#5b21b6;font-weight:950;font-size:.86rem}
+    .roll-who i{width:12px;height:12px;border-radius:50%;background:var(--single)}.roll-who i.p1{background:var(--p1)}.roll-who i.p2{background:var(--p2)}
+    .dice-stage{display:flex;align-items:center;justify-content:center;gap:clamp(18px,5vw,36px);padding:26px 0 18px;--ds:clamp(84px,22vw,112px)}
+    .die-wrap{position:relative;width:var(--ds);height:var(--ds);perspective:700px}
+    .die-wrap.throw{animation:dieThrow 1.15s cubic-bezier(.3,.7,.3,1) 1}
+    .die-wrap.throw.b{animation-delay:.08s}
+    @keyframes dieThrow{0%{transform:translate(-40px,-120px) scale(.7)}55%{transform:translate(0,0) scale(1)}70%{transform:translate(0,-16px)}84%{transform:translate(0,0)}92%{transform:translate(0,-4px)}100%{transform:none}}
+    .die-wrap .shadow{position:absolute;left:8%;right:8%;bottom:-16px;height:14px;border-radius:50%;background:radial-gradient(closest-side,rgba(15,23,42,.28),transparent);}
+    .die3d{position:absolute;inset:0;transform-style:preserve-3d;transition:transform 1.15s cubic-bezier(.18,.7,.22,1)}
+    .face{position:absolute;inset:0;border-radius:20%;background:linear-gradient(145deg,#ffffff,#eef2f7);border:2px solid #dbe3ef;box-shadow:inset 0 -6px 0 rgba(15,23,42,.06);display:grid;grid-template:repeat(3,1fr)/repeat(3,1fr);padding:15%;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+    .die-wrap.b .face{background:linear-gradient(145deg,#ffffff,#f3eefe);border-color:#ddd6fe}
+    .face .pip{width:74%;height:74%;place-self:center;border-radius:50%;background:radial-gradient(circle at 35% 30%,#475569,#0f172a 70%)}
+    .die-wrap.b .face .pip{background:radial-gradient(circle at 35% 30%,#8b5cf6,#4c1d95 70%)}
+    .face.f1{transform:translateZ(calc(var(--ds)/2))}.face.f6{transform:rotateY(180deg) translateZ(calc(var(--ds)/2))}.face.f3{transform:rotateY(90deg) translateZ(calc(var(--ds)/2))}.face.f4{transform:rotateY(-90deg) translateZ(calc(var(--ds)/2))}.face.f2{transform:rotateX(90deg) translateZ(calc(var(--ds)/2))}.face.f5{transform:rotateX(-90deg) translateZ(calc(var(--ds)/2))}
+    .times{font-family:var(--mathFont);font-size:2.4rem;font-weight:700;color:#94a3b8}
+    .roll-q{display:grid;gap:12px;justify-items:center}
+    .roll-q[hidden]{display:none}
+    .rq-prompt{font-weight:950;color:#5b21b6;font-size:1.02rem}
+    .eqn{display:flex;align-items:center;justify-content:center;gap:12px;font-family:var(--mathFont);font-size:clamp(2rem,7vw,2.8rem);font-weight:700;color:#0f172a}
+    .eqn .n{min-width:1ch}
+    .eqn input{width:3.2ch;padding:4px 8px;text-align:center;font-family:var(--mathFont);font-size:inherit;font-weight:800;border:3px solid #c4b5fd;border-radius:16px;background:#faf5ff;color:#0f172a;-moz-appearance:textfield}
+    .eqn input::-webkit-outer-spin-button,.eqn input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+    .eqn input:focus{border-color:var(--purple);box-shadow:0 0 0 5px rgba(124,58,237,.16)}
+    .eqn input.correct{border-color:#22c55e;background:#f0fdf4;color:#166534}
+    .eqn input.wrong{border-color:#ef4444;background:#fff1f2;color:#991b1b}
+    .eqn input.nudge{animation:missShake .3s ease-in-out 1}
+    .rq-actions{display:flex;gap:10px;justify-content:center}
+    .rq-actions .btn-primary{min-width:140px;padding:13px 22px;font-size:1.05rem;background:var(--purple);border-color:var(--purple);box-shadow:0 10px 22px rgba(124,58,237,.25)}
+    .rq-actions .btn-primary:hover{background:#6d28d9}
+    .rq-hint{font-size:.8rem;color:var(--muted);font-weight:800}
+    .rolling-note{color:#7c3aed}
+    .roll-q.waiting .eqn{color:#cbd5e1}.roll-q.waiting .eqn input{border-style:dashed;background:#fff}.roll-q.waiting .rq-actions,.roll-q.waiting .rq-hint{visibility:hidden}
+    .roll-feedback{display:none;gap:12px;justify-items:center}
+    .roll-feedback.show{display:grid}
+    .fb-badge{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:999px;font-weight:950;font-size:1.1rem}
+    .fb-badge.good{background:#dcfce7;color:#166534}.fb-badge.bad{background:#fff1f2;color:#9f1239}
+    .fb-sentence{font-family:var(--mathFont);font-size:clamp(1.9rem,6vw,2.5rem);font-weight:800;color:#0f172a}
+    .fb-sentence b{color:#15803d}
+    .fb-next{color:#334155;font-weight:850;line-height:1.4}
+    .dot-array{display:grid;gap:5px;padding:12px;border-radius:16px;background:#f8fafc;border:1px solid var(--border)}
+    .dot-array i{width:14px;height:14px;border-radius:50%;background:#7c3aed}
+    .dot-array i.alt{background:#a78bfa}
+    .da-cap{font-size:.82rem;color:var(--muted);font-weight:850}
+    .strategy{max-width:420px;padding:10px 14px;border-radius:14px;background:#fffbeb;border:1px solid #fde68a;color:#92400e;font-weight:850;line-height:1.4;font-size:.95rem}
+    .strategy span{display:block;font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;color:#b45309;font-weight:950}
+
+    .confetti{position:fixed;width:10px;height:14px;top:-20px;z-index:120;animation:fall 1100ms linear forwards;border-radius:3px;pointer-events:none}@keyframes fall{to{transform:translateY(110vh) rotate(520deg);opacity:0}}
+    .confetti-bit{position:fixed;z-index:120;pointer-events:none;border-radius:2px;will-change:transform,opacity}
+    .brand-footer{width:min(1720px,calc(100vw - 24px));margin:0 auto 8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:48px;padding:8px 12px;font-size:12px;font-weight:900;color:#111827;background:rgba(255,255,255,.86);border:1px solid rgba(229,231,235,.95);border-radius:14px;text-align:center}.brand-footer a{color:var(--blue);text-decoration:none;font-weight:950}
+    [hidden]{display:none!important}
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
+
+    /* ---- narrower screens: everything in one column, board first ---------- */
+    @media(max-width:1180px){
+      :root{--board:min(720px,100%)}
+      .game-grid{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:none;grid-template-areas:"side panel" "board board" "log log";gap:14px;max-width:760px;margin:0 auto;align-items:stretch}
+      .side{grid-template-columns:repeat(2,minmax(0,1fr));align-content:start}
+      .side .turn-card,.side .mini-card:last-child{grid-column:1/-1}
+      .score-stack{align-content:start}
+      .board-col{justify-items:center}
+      .grid-holder{width:min(720px,100%)}
+      .panel{align-self:start}
+      .record-panel{contain:none;max-height:320px}
+    }
+    @media(max-width:1080px) and (min-width:701px){.mmtTopbar{grid-template-columns:auto minmax(0,1fr);justify-items:start;padding:10px 16px;gap:8px 14px}.mmtTopTitle{text-align:left}.mmtBrand{justify-self:start;margin-left:-9px}.actions{grid-column:1/-1;justify-content:center;justify-self:stretch}}
+    @media(max-width:760px){.mode-card-grid{grid-template-columns:1fr}.mode-card{grid-template-columns:auto 1fr;grid-template-areas:"icon title" "icon desc";column-gap:14px;justify-items:start}.mode-card .mode-icon{grid-area:icon;margin:0}.mode-card strong{grid-area:title}.mode-card span:last-child{grid-area:desc}.mode-hero .mh-dice{display:none}}
+    @media(prefers-reduced-motion:reduce){.die3d,.roll-card,.roll-backdrop{transition:none!important}.die-wrap.throw,.turn-slot.now,.roll-btn.idle-pulse,.placed-g.fresh,.grid-holder.ready-pulse{animation:none!important}}
+    @media print{.mmtTopbar,.side,.rightcol,.modal-backdrop,.roll-backdrop,.brand-footer{display:none!important}body{background:#fff}.layout{width:auto;margin:0}.card{box-shadow:none;border:0}.game-grid{display:block}.grid-holder{width:19cm;border:1px solid #000}}
+
+    /* flat pip dice (panel summary + menu) */
+    .pipdie{--pd:42px;width:var(--pd);height:var(--pd);border-radius:22%;background:linear-gradient(145deg,#fff,#eef2f7);border:1.5px solid #dbe3ef;box-shadow:0 4px 10px rgba(15,23,42,.10),inset 0 -3px 0 rgba(15,23,42,.06);display:grid;grid-template:repeat(3,1fr)/repeat(3,1fr);padding:calc(var(--pd)*.15);flex:0 0 auto}
+    .pipdie .pip{width:76%;height:76%;place-self:center;border-radius:50%;background:#0f172a}
+    .pipdie.b{background:linear-gradient(145deg,#fff,#f3eefe);border-color:#ddd6fe}.pipdie.b .pip{background:#5b21b6}
+
 /* ==== MMT PHONE LAYOUT (added 2026-09-18) — do not edit above this line ==== */
 /* ---- PHONES ----------------------------------------------------------------
    The shell is built for a projector: a three-column header and side panels.
@@ -92,32 +315,44 @@
 }
 
 
-/* Closest to 100 — two score cards, two metrics and the number-sentence list all
-   ran full width above the hundred grid, pushing the grid and the dice off the
-   first screen. Two-up cards and a capped record list bring them back. */
+/* Closest to 100 (rebuilt 2026-11-17) — board first, then the turn panel, so the
+   Roll button sits just under the grid; side cards go two-up and compact. */
 @media(max-width:700px){
-  .play-area{grid-template-columns:minmax(0,1fr);gap:10px;}
-  /* auto-fit, so the single-player card fills the row instead of leaving a gap. */
-  .score-stack{grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;align-items:start;}
-  .score-card{padding:8px 10px;border-radius:14px;}
-  .metric-grid{grid-column:1/-1;grid-template-columns:1fr 1fr;gap:8px;}
-  .metric{padding:8px 10px;border-radius:14px;}
-  .record-panel{grid-column:1/-1;padding:10px;}
-  .record-list{max-height:120px;overflow:auto;-webkit-overflow-scrolling:touch;}
-  .grid-holder{width:min(100%,calc(100vw - 46px));max-width:none;}
-  .board-wrap,.side-panel{padding:11px;}
+  .game-card{padding:10px;}
+  .game-grid{grid-template-columns:minmax(0,1fr);grid-template-areas:"side" "panel" "board" "log";gap:10px;}
+  .side{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}
+  .side .turn-card{padding:8px 10px;min-height:0;}
+  .score-stack{gap:8px;}
+  .score-card{padding:8px 10px 8px 14px;border-radius:14px;}
+  .score-card strong{font-size:1.6rem;}
+  .mini-card{padding:9px 10px;border-radius:14px;gap:6px;}
+  .turn-track{grid-template-columns:repeat(10,minmax(0,1fr));gap:3px;}
+  .turn-slot{height:28px;font-size:.74rem;border-radius:7px;}
+  .grid-holder{width:min(100%,calc(100vw - 40px));}
+  .panel{padding:11px;gap:10px;}
+  .steps{display:none;}
+  .roll-btn{padding:13px 14px;}
+  .roll-btn .kbd{display:none;}
+  .record-panel{max-height:220px;padding:11px;}
+  .roll-card{padding:18px 14px 16px;border-radius:24px;}
   /* 16px stops iOS zooming the page when the product box is tapped. */
-  #productInput,.product-input,input[type="text"],input[inputmode="numeric"]{font-size:16px;}
+  #productInput,input[type="text"],input[inputmode="numeric"]{font-size:max(16px,1em);}
 }
 /* ==== end MMT PHONE LAYOUT ==== */
 
-
-
-
-
-
-/* ==== MMT FULL SCREEN SIZING (added 2026-10-16) — used with games/shared/mmt-fullscreen.js ==== */
-@media(min-width:860px) and (max-width:1180px) and (orientation:landscape){html.mmt-focus .play-area{grid-template-columns:minmax(170px,210px) minmax(0,1fr) minmax(230px,280px);justify-items:stretch;}html.mmt-focus .score-stack,html.mmt-focus .control-area{width:auto;max-width:none;}html.mmt-focus .score-stack{grid-template-columns:1fr;}html.mmt-focus .metric-grid,html.mmt-focus .record-panel{grid-column:auto;}html.mmt-focus .grid-holder{justify-self:center;}}
+/* ==== MMT FULL SCREEN SIZING (rebuilt 2026-11-17) — used with games/shared/mmt-fullscreen.js ====
+   The board sizes itself from --board, so full screen just gives --board the
+   height the slim banner frees up. No data-fit on the script tag: two sizers
+   would fight. */
+html.mmt-focus{--board:min(1100px,calc(100dvh - 84px),calc(100vw - var(--side) - var(--panel) - 100px));}
+@media(min-width:860px) and (max-width:1180px) and (orientation:landscape){
+  html.mmt-focus{--side:200px;--panel:270px;--board:min(calc(100dvh - 84px),calc(100vw - 530px));}
+  html.mmt-focus .game-grid{grid-template-columns:var(--side) var(--board) var(--panel);grid-template-rows:auto 1fr;grid-template-areas:"side board panel" "side board log";}
+  html.mmt-focus .side{grid-template-columns:1fr;max-width:none;}
+  html.mmt-focus .panel,html.mmt-focus .record-panel{max-width:none;}
+  html.mmt-focus .record-panel{contain:size;max-height:none;}
+  html.mmt-focus .grid-holder{width:var(--board);}
+}
 /* ==== end MMT FULL SCREEN SIZING ==== */
 </style>
 <!-- mmt-pwa -->
@@ -129,6 +364,7 @@
 <meta name="apple-mobile-web-app-title" content="MMT">
 <script src="../pwa.js" defer></script>
 <!-- /mmt-pwa -->
+</head>
 </head>
 <body>
   <header class="mmtTopbar">
@@ -142,48 +378,75 @@
         <label id="languageMainLabel" for="mainLanguageSelect" data-i18n="Language">Language</label>
         <select id="mainLanguageSelect" aria-label="Language">
           <option value="en" selected>English</option>
-          <option value="ar">Arabic العربية</option>
-          <option value="fa">Farsi فارسی</option>
+          <option value="ar">Arabic (العربية)</option>
+          <option value="fa">Farsi (فارسی)</option>
         </select>
       </div>
       <button class="btn" id="rulesBtn" type="button" data-i18n="Rules">Rules</button>
-      <button class="btn" id="undoBtn" type="button" data-i18n="Undo">Undo</button>
       <button class="btn btn-primary" id="newGameBtn" type="button" data-i18n="New Game">New Game</button>
-      <button class="btn" id="backToMenuBtn" type="button" data-i18n="Back to menu">Back to menu</button>
+      <button class="btn" id="backToMenuBtn" type="button" data-i18n="Menu">Menu</button>
     </div>
   </header>
 
   <main class="layout" id="gameLayout">
-    <section class="card board-wrap">
-      <div class="status-strip">
-        <div class="turn-card" id="turnCard">
-          <div class="player-dot" id="turnDot"></div>
-          <div>
-            <div class="status-title" id="statusTitle">Choose a game mode</div>
-            <div class="status-subtitle" id="statusSubtitle">Roll two dice, enter the product, place the array, and get as close to 100 as possible.</div>
+    <section class="card game-card">
+      <div class="game-grid">
+        <aside class="side" aria-label="Scores">
+          <div class="turn-card" id="turnCard">
+            <div class="player-dot" id="turnDot"></div>
+            <div>
+              <div class="status-title" id="statusTitle">Choose a game mode</div>
+              <div class="status-subtitle" id="statusSubtitle">Roll two dice, work out the product, draw the array.</div>
+            </div>
           </div>
-        </div>
-      </div>
-      <div class="play-area">
-        <div class="score-stack" id="scoreStack">
-          <div class="score-card single" id="p1ScoreCard"><span id="p1Label">You</span><strong id="p1Score">0</strong></div>
-          <div class="score-card player-two" id="p2ScoreCard"><span id="p2Label">Player 2</span><strong id="p2Score">0</strong></div>
-          <div class="metric-grid">
-            <div class="metric"><span data-i18n="Turn">Turn</span><strong id="turnReadout">0 / 10</strong></div>
-            <div class="metric"><span data-i18n="Left">Left</span><strong id="leftReadout">100</strong></div>
+          <div class="score-stack" id="scoreStack">
+            <div class="score-card single" id="p1ScoreCard"><span class="turn-flag">Turn</span><span class="sc-name" id="p1Label">You</span><strong id="p1Score">0</strong><small data-i18n="squares">squares</small></div>
+            <div class="score-card player-two" id="p2ScoreCard"><span class="turn-flag">Turn</span><span class="sc-name" id="p2Label">Player 2</span><strong id="p2Score">0</strong><small data-i18n="squares">squares</small></div>
           </div>
-          <div class="record-panel"><h2 data-i18n="Number sentences">Number sentences</h2><div class="record-list" id="recordList"></div></div>
+          <div class="mini-card">
+            <div class="mini-head"><span data-i18n="Squares filled">Squares filled</span><strong><span id="filledReadout">0</span> / 100</strong></div>
+            <div class="bar100" id="filledBar" role="img" aria-label="0 of 100 squares filled"></div>
+            <div class="mini-foot"><b id="leftReadout">100</b> <span id="leftWord">squares to go</span></div>
+          </div>
+          <div class="mini-card">
+            <div class="mini-head"><span data-i18n="Rolls">Rolls</span><strong id="turnReadout">0 / 10</strong></div>
+            <div class="turn-track" id="turnTrack"></div>
+          </div>
+        </aside>
+
+        <div class="board-col">
+          <div class="grid-holder" id="gridHolder"><svg id="boardSvg" viewBox="0 0 640 640" role="img" aria-label="Closest to 100 hundred grid"></svg></div>
         </div>
-        <div class="grid-holder" id="gridHolder"><svg id="boardSvg" viewBox="0 0 640 640" role="img" aria-label="Closest to 100 hundred grid"></svg></div>
-        <div class="control-area">
-          <div class="dice-area">
-            <div class="dice-row"><div class="die" id="dieA">?</div><div class="die" id="dieB">?</div><button class="btn-green" id="rollBtn" type="button" data-i18n="Roll">Roll</button></div>
-            <div class="choice-title" id="productPrompt" data-i18n="Enter the product">Enter the product</div>
-            <div class="product-row" id="productRow"><input id="productInput" type="number" inputmode="numeric" min="0" placeholder="Product" autocomplete="off" disabled /><button class="btn-primary" id="submitProductBtn" type="button" data-i18n="Check" disabled>Check</button></div>
-            <div class="drag-hint" id="dragHint" data-i18n="Roll, then enter the product.">Roll, then enter the product.</div>
-            <button class="btn-soft pass-turn-btn" id="passTurnBtn" type="button" data-i18n="Pass" hidden>Pass</button>
-            <div class="message info" id="messageBox" aria-live="polite">Choose a mode to begin.</div>
-            <div class="youcubed-credit">Credit to <a href="https://www.youcubed.org/tasks/how-close-to-100/" target="_blank" rel="noopener">https://www.youcubed.org/tasks/how-close-to-100/</a></div>
+
+        <div class="rightcol">
+          <div class="panel" id="actionPanel">
+            <div class="steps" id="stepTrack" aria-hidden="true">
+              <div class="step" data-step="1"><b>1</b><span data-i18n="Roll">Roll</span></div>
+              <div class="step" data-step="2"><b>2</b><span data-i18n="Multiply">Multiply</span></div>
+              <div class="step" data-step="3"><b>3</b><span data-i18n="Draw the array">Draw the array</span></div>
+            </div>
+            <button class="roll-btn idle-pulse" id="rollBtn" type="button"><span class="ic">🎲</span><span id="rollBtnText">Roll the dice</span><span class="kbd" id="rollKbd">R</span></button>
+            <div class="roll-summary" id="rollSummary">
+              <div class="pipdie" id="dieA"></div><span class="op">×</span><div class="pipdie b" id="dieB"></div><span class="op">=</span><span class="res" id="rollRes">?</span>
+            </div>
+            <div class="orient" id="orientBox">
+              <div class="orient-title" id="orientTitle">Drag on the grid to draw it — or pick a way round and tap.</div>
+              <div class="orient-opts" id="orientOpts"></div>
+            </div>
+            <div class="pass-check" id="passCheck" role="alert">
+              <div id="passCheckText">Look again — this array still fits on the grid.</div>
+              <div class="pc-btns"><button class="btn-soft" id="keepLookingBtn" type="button" data-i18n="Keep looking">Keep looking</button><button class="btn-soft" id="passAnywayBtn" type="button" data-i18n="Pass anyway">Pass anyway</button></div>
+            </div>
+            <div class="panel-actions" id="panelActions">
+              <button class="btn-soft pass-turn-btn" id="passTurnBtn" type="button">Won't fit? Pass</button>
+              <button class="btn-soft undo-btn" id="undoBtn" type="button" data-i18n="Undo">Undo</button>
+            </div>
+            <div class="message info" id="messageBox" aria-live="polite"></div>
+            <div class="youcubed-credit">Based on <a href="https://www.youcubed.org/tasks/how-close-to-100/" target="_blank" rel="noopener">How Close to 100?</a> from youcubed</div>
+          </div>
+          <div class="record-panel">
+            <h2><span data-i18n="Number sentences">Number sentences</span><small id="recordTotal"></small></h2>
+            <div class="record-list" id="recordList"></div>
           </div>
         </div>
       </div>
@@ -192,9 +455,31 @@
 
   <div class="brand-footer"><span>This tool and more can be found at&nbsp;<a href="https://www.millsmathstools.au" target="_self">www.millsmathstools.au</a></span></div>
 
+  <!-- The roll card: two dice tumble in the middle of a darkened screen. -->
+  <div class="roll-backdrop" id="rollModal" aria-hidden="true">
+    <div class="roll-card" id="rollCard" role="dialog" aria-modal="true" aria-labelledby="rollWho">
+      <div class="roll-who" id="rollWho"><i id="rollWhoDot"></i><span id="rollWhoText">Your roll</span></div>
+      <div class="dice-stage">
+        <div class="die-wrap a" id="wrapA"><div class="shadow"></div><div class="die3d" id="cubeA"></div></div>
+        <div class="times">×</div>
+        <div class="die-wrap b" id="wrapB"><div class="shadow"></div><div class="die3d" id="cubeB"></div></div>
+      </div>
+      <div class="roll-q" id="rollQ">
+        <div class="rq-prompt"><span id="rollingNote" class="rolling-note">Rolling…</span><span id="rqPrompt" data-i18n="What is the product?">What is the product?</span></div>
+        <div class="eqn"><span class="n" id="eqA">?</span><span>×</span><span class="n" id="eqB">?</span><span>=</span><input id="productInput" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" autocomplete="off" aria-label="Product" /></div>
+        <div class="rq-actions"><button class="btn-primary" id="submitProductBtn" type="button" data-i18n="Check">Check</button></div>
+        <div class="rq-hint">Press Enter to check</div>
+      </div>
+      <div class="roll-feedback" id="rollFeedback" aria-live="assertive"></div>
+    </div>
+  </div>
+
   <div class="modal-backdrop open" id="modeMenuModal" aria-hidden="false">
     <div class="modal mode-modal" role="dialog" aria-modal="true" aria-labelledby="modeMenuTitle">
-      <div class="mode-modal-header"><h2 id="modeMenuTitle" data-i18n="Choose a game mode">Choose a game mode</h2><p data-i18n="Select how you would like to play Closest to 100.">Select how you would like to play Closest to 100.</p></div>
+      <div class="mode-hero">
+        <div class="mh-dice" id="menuDice"></div>
+        <div class="mode-modal-header"><h2 id="modeMenuTitle" data-i18n="Closest to 100">Closest to 100</h2><p data-i18n="Roll two dice, multiply, and draw the array on the hundred grid. Ten rolls — how close to 100 can you get?">Roll two dice, multiply, and draw the array on the hundred grid. Ten rolls — how close to 100 can you get?</p></div>
+      </div>
       <div class="mode-card-grid">
         <button class="mode-card" id="chooseSingleBtn" type="button"><span class="mode-icon">🎯</span><strong data-i18n="Single Player">Single Player</strong><span data-i18n="Get as close to 100 as you can in 10 rolls.">Get as close to 100 as you can in 10 rolls.</span></button>
         <button class="mode-card" id="choosePassPlayBtn" type="button"><span class="mode-icon">🔄</span><strong data-i18n="Pass and Play">Pass and Play</strong><span data-i18n="Two players share one device and take 10 turns altogether.">Two players share one device and take 10 turns altogether.</span></button>
@@ -239,8 +524,11 @@
   <div class="modal-backdrop" id="finalModal" aria-hidden="true">
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="finalTitle">
       <div class="modal-header"><h2 id="finalTitle">How close to 100?</h2><button class="btn-soft" id="closeFinalBtn" type="button" data-i18n="Close">Close</button></div>
+      <div class="final-big" id="finalBig" hidden></div>
       <div id="finalPodium" class="final-podium" hidden></div>
       <p id="finalSummary">You filled 0 out of 100 squares.</p>
+      <div class="final-working" id="finalWorking"></div>
+      <div class="talk" id="finalTalk"></div>
       <div class="modal-actions"><button class="btn-primary" id="finalNewGameBtn" type="button" data-i18n="New Game">New Game</button></div>
     </div>
   </div>
@@ -263,8 +551,8 @@
   const SIZE = 640, PAD = 40, BOARD = 560, GRID = 10, CELL = BOARD / GRID, MAX_TURNS = 10;
   const ROOM_COLLECTION = 'closestTo100Games';
 
-  const svg = $('boardSvg'), gridHolder = $('gridHolder'), dieA = $('dieA'), dieB = $('dieB'), rollBtn = $('rollBtn');
-  const productInput = $('productInput'), submitProductBtn = $('submitProductBtn'), dragHint = $('dragHint'), passTurnBtn = $('passTurnBtn'), messageBox = $('messageBox');
+  const svg = $('boardSvg'), gridHolder = $('gridHolder'), dieA = $('dieA'), dieB = $('dieB'), rollBtn = $('rollBtn'), rollBtnText = $('rollBtnText');
+  const productInput = $('productInput'), submitProductBtn = $('submitProductBtn'), passTurnBtn = $('passTurnBtn'), messageBox = $('messageBox');
   const turnDot = $('turnDot'), statusTitle = $('statusTitle'), statusSubtitle = $('statusSubtitle');
   const p1ScoreCard = $('p1ScoreCard'), p2ScoreCard = $('p2ScoreCard'), p1Label = $('p1Label'), p2Label = $('p2Label'), p1Score = $('p1Score'), p2Score = $('p2Score');
   const turnReadout = $('turnReadout'), leftReadout = $('leftReadout'), recordList = $('recordList');
@@ -272,6 +560,10 @@
   const mainLanguageSelect = $('mainLanguageSelect'), undoBtn = $('undoBtn'), newGameBtn = $('newGameBtn'), backToMenuBtn = $('backToMenuBtn');
   const passP1Name = $('passP1Name'), passP2Name = $('passP2Name'), playerNameInput = $('playerNameInput'), roomCodeInput = $('roomCodeInput');
   const onlineStatus = $('onlineStatus'), roomBadge = $('roomBadge'), onlineRoomCode = $('onlineRoomCode');
+  const rollModal = $('rollModal'), rollCard = $('rollCard'), cubeA = $('cubeA'), cubeB = $('cubeB'), wrapA = $('wrapA'), wrapB = $('wrapB');
+  const rollQ = $('rollQ'), rollingNote = $('rollingNote'), rollFeedback = $('rollFeedback'), eqA = $('eqA'), eqB = $('eqB');
+  const orientBox = $('orientBox'), orientOpts = $('orientOpts'), passCheck = $('passCheck'), rollSummary = $('rollSummary'), rollRes = $('rollRes');
+  const reduceMotion = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : {matches:false};
 
   let app = null, auth = null, db = null, authReadyPromise = null;
   try {
@@ -282,12 +574,16 @@
     signInAnonymously(auth).catch(err => console.error('Firebase sign-in failed', err));
   } catch (err) { console.error('Firebase setup failed', err); }
 
-  let uiLang = 'en', rolling = false, dragStart = null, dragCurrent = null, finalShownForKey = '', lastRenderedRollKey = '';
+  let uiLang = 'en', rolling = false, dragStart = null, dragCurrent = null, dragMoved = false, downType = 'mouse', finalShownForKey = '', lastRenderedRollKey = '';
+  let hoverCell = null, touchGhost = null, orientIndex = 0, freshKey = '', passCheckOpen = false;
+  /* The roll card has its own phase, separate from the game state, so a snapshot
+     from Firestore can never yank it shut while a student is reading feedback. */
+  const rollUI = {open:false, phase:'closed', a:0, b:0, closeTimer:0, hideTimer:0};
 
   const state = {
     gameMode:'menu', board:blankBoard(), placements:[], scores:{1:0,2:0}, players:{1:'Player 1',2:'Player 2'},
     currentPlayer:1, turnNumber:0, maxTurns:MAX_TURNS, currentRoll:null, gameOver:false, winner:null,
-    message:'Choose a mode to begin.', messageTone:'info'
+    message:'', messageTone:'info'
   };
   const online = {active:false,roomCode:null,ref:null,unsub:null,uid:null,myPlayer:null,data:null};
 
@@ -300,46 +596,71 @@
     }
   };
 
+  Object.assign(TRANSLATIONS.ar, {
+    'Menu':'القائمة','Roll the dice':'ارمِ النرد','What is the product?':'ما حاصل الضرب؟','Correct!':'صحيح!','Not quite':'ليس تمامًا','OK':'حسنًا',
+    'Squares filled':'المربعات المملوءة','squares':'مربعات','Rolls':'الرميات','Multiply':'اضرب','Draw the array':'ارسم المصفوفة','Keep looking':'واصل البحث','Pass anyway':'مرّر على أي حال',
+    'Play again':'العب مجددًا','Rolling…':'جارٍ الرمي…','Talk about it':'ناقشوا',
+    'Roll two dice, multiply, and draw the array on the hundred grid. Ten rolls — how close to 100 can you get?':'ارمِ تاسين، واضرب، وارسم المصفوفة على شبكة المئة. عشر رميات — كم يمكنك الاقتراب من 100؟'
+  });
+  Object.assign(TRANSLATIONS.fa, {
+    'Menu':'فهرست','Roll the dice':'تاس‌ها را بیندازید','What is the product?':'حاصل‌ضرب چند است؟','Correct!':'درست است!','Not quite':'نه کاملاً','OK':'باشه',
+    'Squares filled':'مربع‌های پرشده','squares':'مربع','Rolls':'پرتاب‌ها','Multiply':'ضرب کنید','Draw the array':'آرایه را رسم کنید','Keep looking':'بیشتر بگردید','Pass anyway':'به هر حال رد کن',
+    'Play again':'دوباره بازی کن','Rolling…':'در حال پرتاب…','Talk about it':'درباره‌اش صحبت کنید',
+    'Roll two dice, multiply, and draw the array on the hundred grid. Ten rolls — how close to 100 can you get?':'دو تاس بیندازید، ضرب کنید و آرایه را روی جدول صدتایی رسم کنید. ده پرتاب — چقدر به ۱۰۰ نزدیک می‌شوید؟'
+  });
+
   const RULES = [
-    'Roll two dice. You must enter the correct product before you can place anything.',
-    'Use the two dice numbers as the side lengths of a rectangle array.',
-    'Drag on the hundred grid to draw the matching array. For example, a 3 and 5 can be placed as 3 × 5 or 5 × 3.',
-    'If the product is incorrect, your turn is missed.',
-    'If the product is correct but the array cannot fit, press Pass to finish the turn.',
-    'The aim is to fill as much of the 10 by 10 grid as possible and get closest to 100.'
+    'Roll two dice. Work out the product before you can draw anything.',
+    'The two numbers are the side lengths of a rectangle array. A 3 and a 5 make a 3 × 5 or a 5 × 3 array.',
+    'Drag on the hundred grid to draw the array, or pick a way round and tap where it goes.',
+    'Arrays cannot overlap and must stay inside the grid.',
+    'A wrong product misses your turn. If the array cannot fit anywhere, press Pass.',
+    'The game ends after 10 rolls or when the grid is full. Playing alone: how close to 100 can you get? Two players: the most squares wins.'
   ];
-  const RULES_AR = ['ارمِ تاسين. يجب إدخال حاصل الضرب الصحيح قبل وضع أي شيء.','استخدم رقمي التاسين كطولي ضلع لمستطيل.','اسحب على شبكة المئة لرسم المصفوفة المطابقة. مثلًا 3 و5 يمكن وضعهما 3 × 5 أو 5 × 3.','إذا كان حاصل الضرب غير صحيح، تفقد دورك.','إذا كان حاصل الضرب صحيحًا لكن لا توجد مساحة للمصفوفة، تفقد دورك بعد الإجابة.','الهدف هو ملء أكبر قدر ممكن من شبكة 10 × 10 والاقتراب من 100.'];
-  const RULES_FA = ['دو تاس بیندازید. قبل از قرار دادن هر چیزی باید حاصل‌ضرب درست را وارد کنید.','از دو عدد تاس به عنوان طول ضلع‌های یک آرایه مستطیلی استفاده کنید.','روی جدول صدتایی بکشید تا آرایهٔ درست را رسم کنید. مثلاً ۳ و ۵ می‌تواند ۳ × ۵ یا ۵ × ۳ باشد.','اگر حاصل‌ضرب نادرست باشد، نوبت خود را از دست می‌دهید.','اگر حاصل‌ضرب درست باشد اما برای آن آرایه جا نباشد، پس از پاسخ دادن نوبت را از دست می‌دهید.','هدف این است که تا حد ممکن جدول ۱۰ × ۱۰ را پر کنید و به ۱۰۰ نزدیک شوید.'];
+  const RULES_AR = ['ارمِ تاسين. احسب حاصل الضرب قبل أن ترسم أي شيء.','العددان هما طولا ضلعي مصفوفة مستطيلة. 3 و5 تعطيان مصفوفة 3 × 5 أو 5 × 3.','اسحب على شبكة المئة لرسم المصفوفة، أو اختر الاتجاه واضغط حيث تريد وضعها.','لا يمكن أن تتداخل المصفوفات، ويجب أن تبقى داخل الشبكة.','إذا كان حاصل الضرب خاطئًا تفقد دورك. إذا لم تتسع المصفوفة في أي مكان، اضغط مرّر.','تنتهي اللعبة بعد 10 رميات أو عند امتلاء الشبكة. وحدك: كم تقترب من 100؟ لاعبان: من يملأ مربعات أكثر يفوز.'];
+  const RULES_FA = ['دو تاس بیندازید. پیش از رسم هر چیزی، حاصل‌ضرب را حساب کنید.','دو عدد، طول ضلع‌های یک آرایهٔ مستطیلی هستند. ۳ و ۵ آرایهٔ ۳ × ۵ یا ۵ × ۳ می‌سازند.','روی جدول صدتایی بکشید تا آرایه را رسم کنید، یا جهت را انتخاب کنید و جای آن را لمس کنید.','آرایه‌ها نباید روی هم بیفتند و باید داخل جدول بمانند.','اگر حاصل‌ضرب نادرست باشد، نوبتتان را از دست می‌دهید. اگر آرایه هیچ جا جا نشود، «رد کردن» را بزنید.','بازی پس از ۱۰ پرتاب یا وقتی جدول پر شود تمام می‌شود. تک‌نفره: چقدر به ۱۰۰ نزدیک می‌شوید؟ دو نفره: هر کس مربع بیشتری پر کند برنده است.'];
+  const TALK = [
+    'Which roll was the hardest to place? Why?',
+    'Where could a big array have gone to leave more room for later rolls?',
+    'Which rolls would have filled your last gaps exactly?',
+    'Is it better to place big arrays first, or small ones? Why?',
+    'Look at your number sentences. Which products did you know straight away?'
+  ];
 
   function blankBoard(){ return Array(GRID * GRID).fill(0); }
   function idx(row,col){ return row * GRID + col; }
   function randomInt(n){ return Math.floor(Math.random() * n) + 1; }
   function wait(ms){ return new Promise(resolve => setTimeout(resolve, ms)); }
   function tr(key){ return TRANSLATIONS[uiLang]?.[key] || key; }
-  function bilingual(key){ if (uiLang === 'en') return key; return `<span class="i18n-dual"><span class="native">${tr(key)}</span><span class="english-under">${key}</span></span>`; }
+  /* A key with no translation is shown once, in English — never twice. */
+  function bilingual(key){ if (uiLang === 'en' || !TRANSLATIONS[uiLang]?.[key]) return escapeHTML(key); return `<span class="i18n-dual"><span class="native">${tr(key)}</span><span class="english-under">${escapeHTML(key)}</span></span>`; }
   function setI18n(el,key){ if (el) el.innerHTML = bilingual(key); }
   function openModal(modal){ modal.classList.add('open'); modal.setAttribute('aria-hidden','false'); }
   function closeModal(modal){ modal.classList.remove('open'); modal.setAttribute('aria-hidden','true'); }
   function otherPlayer(p){ return p === 1 ? 2 : 1; }
   function playerName(p){ return state.players[p] || `Player ${p}`; }
+  function activeRoller(){ return state.gameMode === 'single' ? 1 : Number(state.currentPlayer); }
   function areaFilled(board = state.board){ return board.reduce((n,v) => n + (v ? 1 : 0), 0); }
   function productExpected(){ return state.currentRoll ? Number(state.currentRoll.a) * Number(state.currentRoll.b) : 0; }
-  function setMessage(text,tone='info'){ state.message = text; state.messageTone = tone; if (messageBox){ messageBox.className = `message ${tone}`; messageBox.innerHTML = uiLang === 'en' ? text : bilingual(text); } }
-  function orientationText(){ if (!state.currentRoll) return ''; const {a,b} = state.currentRoll; return a === b ? `${a} × ${b}` : `${a} × ${b} or ${b} × ${a}`; }
+  function setMessage(text,tone='info'){ state.message = text || ''; state.messageTone = tone; paintMessage(); }
+  function paintMessage(){ if (!messageBox) return; messageBox.className = `message ${state.messageTone || 'info'}`; messageBox.innerHTML = state.message ? bilingual(state.message) : ''; }
+  function orientationText(roll = state.currentRoll){ if (!roll) return ''; const {a,b} = roll; return Number(a) === Number(b) ? `${a} × ${b}` : `${a} × ${b} or ${b} × ${a}`; }
   function isMyOnlineTurn(){ return !online.active || (online.myPlayer && Number(state.currentPlayer) === Number(online.myPlayer)); }
-  function canRoll(){ return !rolling && !state.gameOver && !state.currentRoll && state.gameMode !== 'menu' && isMyOnlineTurn() && (!online.active || online.data?.status === 'playing'); }
+  function canRoll(){ return !rolling && !rollUI.open && !state.gameOver && !state.currentRoll && state.gameMode !== 'menu' && isMyOnlineTurn() && (!online.active || online.data?.status === 'playing'); }
   function canAnswerProduct(){ return Boolean(state.currentRoll && !state.currentRoll.productConfirmed && !state.gameOver && isMyOnlineTurn()); }
-  function canPlace(){ return Boolean(state.currentRoll && state.currentRoll.productConfirmed && !state.gameOver && isMyOnlineTurn()); }
+  function canPlace(){ return Boolean(state.currentRoll && state.currentRoll.productConfirmed && !state.gameOver && isMyOnlineTurn() && !rollUI.open); }
   function canPassTurn(){ return Boolean(state.currentRoll && state.currentRoll.productConfirmed && !state.gameOver && isMyOnlineTurn()); }
+  function rollKeyOf(roll){ return roll ? `${roll.a}-${roll.b}` : ''; }
 
   function resetState(mode='single'){
-    state.gameMode = mode; state.board = blankBoard(); state.placements = []; state.scores = {1:0,2:0}; state.currentPlayer = 1; state.turnNumber = 0; state.maxTurns = MAX_TURNS; state.currentRoll = null; state.gameOver = false; state.winner = null; state.message = 'Roll, then enter the product.'; state.messageTone = 'info';
-    dragStart = dragCurrent = null; finalShownForKey = ''; lastRenderedRollKey = ''; dieA.textContent = '?'; dieB.textContent = '?'; productInput.value = ''; productInput.classList.remove('correct','wrong');
+    state.gameMode = mode; state.board = blankBoard(); state.placements = []; state.scores = {1:0,2:0}; state.currentPlayer = 1; state.turnNumber = 0; state.maxTurns = MAX_TURNS; state.currentRoll = null; state.gameOver = false; state.winner = null; state.message = ''; state.messageTone = 'info';
+    dragStart = dragCurrent = null; hoverCell = touchGhost = null; orientIndex = 0; drawnCount = 0; finalShownForKey = ''; lastRenderedRollKey = ''; rolling = false;
+    rollUI.settled = ''; closeRollModal(true); hidePassCheck(); closeModal(finalModal);
   }
 
-  function startSingle(){ closeModal(modeMenuModal); resetState('single'); state.players = {1:'You',2:'Player 2'}; setMessage('Roll, then enter the product.','info'); refreshUI(); drawBoard(); }
+  function startSingle(){ closeModal(modeMenuModal); resetState('single'); state.players = {1:'You',2:'Player 2'}; refreshUI(); drawBoard(); rollBtn.focus({preventScroll:true}); }
   function showPassPlay(){ closeModal(modeMenuModal); openModal(passPlayModal); }
-  function startPassPlay(){ closeModal(passPlayModal); resetState('pass'); state.players = {1:passP1Name.value.trim() || 'Player 1',2:passP2Name.value.trim() || 'Player 2'}; setMessage(`${playerName(1)} to roll.`,'info'); refreshUI(); drawBoard(); }
+  function startPassPlay(){ closeModal(passPlayModal); resetState('pass'); state.players = {1:passP1Name.value.trim() || 'Player 1',2:passP2Name.value.trim() || 'Player 2'}; refreshUI(); drawBoard(); rollBtn.focus({preventScroll:true}); }
   function showOnlineSetup(){ closeModal(modeMenuModal); openModal(onlineSetupModal); setOnlineStatus('Create a room or enter a room code to join.',''); }
 
   function applyLanguage(){ uiLang = mainLanguageSelect.value || 'en'; document.documentElement.lang = uiLang; document.querySelectorAll('[data-i18n]').forEach(el => setI18n(el, el.getAttribute('data-i18n'))); renderRules(); refreshUI(); }
@@ -358,119 +679,372 @@
   function normalisedRect(a,b){ if (!a || !b) return null; const row = Math.min(a.row,b.row), col = Math.min(a.col,b.col); return {row,col,w:Math.abs(a.col-b.col)+1,h:Math.abs(a.row-b.row)+1}; }
   function markBoard(board, rect, player){ const next = board.slice(); for (let r=rect.row; r<rect.row+rect.h; r++) for (let c=rect.col; c<rect.col+rect.w; c++) next[idx(r,c)] = player; return next; }
 
-  async function rollDice(){
-    if (!canRoll()) return;
-    rolling = true; refreshUI(); dieA.classList.add('rolling'); dieB.classList.add('rolling'); setMessage('Rolling.','info');
-    const ticker = setInterval(() => { dieA.textContent = randomInt(6); dieB.textContent = randomInt(6); }, 70);
-    await wait(650); clearInterval(ticker);
-    const a = randomInt(6), b = randomInt(6); dieA.textContent = a; dieB.textContent = b; dieA.classList.remove('rolling'); dieB.classList.remove('rolling');
-    try {
-      if (online.active) await commitOnlineRoll(a,b);
-      else {
-        state.currentRoll = {a,b,productConfirmed:false}; lastRenderedRollKey = `${a}-${b}-false`; productInput.value = ''; productInput.classList.remove('correct','wrong'); setMessage('Enter the product of the two dice.','info'); setTimeout(() => productInput.focus(), 60);
-      }
-    } catch (err) { console.error(err); setMessage(err.message || 'Could not roll.','info'); }
-    finally { rolling = false; refreshUI(); drawBoard(); }
+  /* ---------- dice ---------- */
+  const PIPS = {1:[5],2:[3,7],3:[3,5,7],4:[1,3,7,9],5:[1,3,5,7,9],6:[1,3,4,6,7,9]};
+  function pipHTML(v){ return (PIPS[v] || []).map(n => `<i class="pip" style="grid-area:${Math.ceil(n/3)}/${(n-1)%3+1}"></i>`).join(''); }
+  function setPipDie(el, v){ el.innerHTML = pipHTML(v); el.setAttribute('role','img'); el.setAttribute('aria-label', v ? `die showing ${v}` : 'die'); }
+  function buildCube(el){ el.innerHTML = [1,2,3,4,5,6].map(n => `<div class="face f${n}">${pipHTML(n)}</div>`).join(''); }
+  /* Which way to turn the cube so face v looks at us. Opposite faces add to 7. */
+  const FACE_ROT = {1:[0,0],2:[-90,0],3:[0,-90],4:[0,90],5:[90,0],6:[0,180]};
+  const spin = {A:{x:0,y:0},B:{x:0,y:0}};
+  function setCube(cube, key, v, mode){
+    const s = spin[key]; let X, Y;
+    if (mode === 'tilt'){ X = s.x * 360 - 28; Y = s.y * 360 + 38; }
+    else { if (mode === 'spin'){ s.x += 2 + (Math.random() < .5 ? 1 : 0); s.y += 1 + (Math.random() < .5 ? 1 : 0); } const [tx,ty] = FACE_ROT[v]; X = s.x * 360 + tx; Y = s.y * 360 + ty; }
+    const t = `rotateX(${X}deg) rotateY(${Y}deg)`;
+    if (mode !== 'spin' || reduceMotion.matches){ cube.style.transition = 'none'; cube.style.transform = t; void cube.offsetWidth; cube.style.transition = ''; }
+    else cube.style.transform = t;
+    cube.dataset.value = v || '';
+  }
+  function animateDice(a,b){
+    setCube(cubeA,'A',null,'tilt'); setCube(cubeB,'B',null,'tilt');
+    if (reduceMotion.matches){ setCube(cubeA,'A',a,'instant'); setCube(cubeB,'B',b,'instant'); return wait(250); }
+    [wrapA,wrapB].forEach(w => { w.classList.remove('throw'); void w.offsetWidth; w.classList.add('throw'); });
+    requestAnimationFrame(() => { setCube(cubeA,'A',a,'spin'); setTimeout(() => setCube(cubeB,'B',b,'spin'), 80); });
+    return wait(1320);
+  }
+
+  /* ---------- the roll card ---------- */
+  function openRollModal(){
+    clearTimeout(rollUI.closeTimer); clearTimeout(rollUI.hideTimer);
+    rollUI.open = true; rollUI.phase = 'rolling';
+    const p = activeRoller();
+    $('rollWhoDot').className = state.gameMode === 'single' ? '' : `p${p}`;
+    $('rollWhoText').textContent = state.gameMode === 'single' || (online.active && Number(online.myPlayer) === p) ? 'Your roll' : `${playerName(p)}'s roll`;
+    rollQ.hidden = false; rollQ.classList.add('waiting'); rollFeedback.className = 'roll-feedback'; rollFeedback.innerHTML = '';
+    rollingNote.hidden = false; rollingNote.innerHTML = bilingual('Rolling…'); $('rqPrompt').hidden = true;
+    productInput.value = ''; productInput.className = ''; productInput.disabled = true; submitProductBtn.disabled = true; eqA.textContent = '?'; eqB.textContent = '?';
+    rollCard.classList.remove('leaving');
+    rollModal.classList.add('open'); rollModal.setAttribute('aria-hidden','false');
+    requestAnimationFrame(() => requestAnimationFrame(() => rollModal.classList.add('show')));
+  }
+  function showAnswerPhase(a,b){
+    rollUI.phase = 'answer'; rollUI.a = Number(a); rollUI.b = Number(b);
+    eqA.textContent = a; eqB.textContent = b; rollingNote.hidden = true; $('rqPrompt').hidden = false; rollQ.hidden = false; rollQ.classList.remove('waiting');
+    productInput.disabled = false; submitProductBtn.disabled = false; productInput.className = '';
+    setTimeout(() => { if (rollUI.phase === 'answer') productInput.focus({preventScroll:true}); }, 40);
+  }
+  function closeRollModal(instant=false){
+    clearTimeout(rollUI.closeTimer); clearTimeout(rollUI.hideTimer);
+    if (!rollUI.open && !rollModal.classList.contains('open')) return;
+    rollUI.open = false; rollUI.phase = 'closed';
+    const done = () => { rollModal.classList.remove('open','show'); rollModal.setAttribute('aria-hidden','true'); rollCard.classList.remove('leaving'); };
+    if (instant || reduceMotion.matches){ done(); return; }
+    rollCard.classList.add('leaving'); rollModal.classList.remove('show');
+    rollUI.hideTimer = setTimeout(done, 320);
+  }
+  function nudgeInput(){ productInput.classList.remove('nudge'); void productInput.offsetWidth; productInput.classList.add('nudge'); productInput.focus(); }
+
+  function strategyText(a,b){
+    const s = Math.min(a,b), l = Math.max(a,b), p = a * b;
+    if (s === 1) return `1 group of ${l} is just ${l}.`;
+    if (s === 2) return `Double ${l}: ${l} + ${l} = ${p}.`;
+    if (s === 5 || l === 5){ const o = s === 5 ? l : s; return `10 × ${o} = ${10*o}. 5 × ${o} is half of that: ${p}.`; }
+    if (s === 4 || l === 4){ const o = s === 4 ? l : s; return `Double ${o} is ${2*o}. Double it again: ${p}.`; }
+    if (s === 3) return `Double ${l} is ${2*l}. Add one more ${l}: ${2*l} + ${l} = ${p}.`;
+    return `5 × ${l} = ${5*l}. Add one more ${l}: ${5*l} + ${l} = ${p}.`;
+  }
+  function dotArrayHTML(a,b){
+    let dots = ''; for (let r=0; r<a; r++) for (let c=0; c<b; c++) dots += `<i class="${r % 2 ? 'alt' : ''}"></i>`;
+    return `<div class="dot-array" style="grid-template-columns:repeat(${b},14px)" role="img" aria-label="${a} rows of ${b} dots">${dots}</div><div class="da-cap">${a} row${a === 1 ? '' : 's'} of ${b}</div>`;
   }
 
   function submitProduct(){
-    if (!canAnswerProduct()) return;
-    const expected = productExpected(); const value = Number(productInput.value);
-    if (!Number.isFinite(value) || value !== expected) {
-      shakeProductInput();
-      if (online.active) commitOnlineProductMiss().catch(err => { console.error(err); setMessage(err.message || 'Incorrect product. Turn missed.','info'); });
-      else addMissForCurrentRoll('Incorrect product. Turn missed.');
+    if (rollUI.phase !== 'answer') return;
+    const raw = productInput.value.trim();
+    if (!/^\d+$/.test(raw)) { nudgeInput(); return; }           // empty or not a number: no penalty
+    const value = Number(raw), a = rollUI.a, b = rollUI.b, p = a * b;
+    productInput.disabled = true; submitProductBtn.disabled = true;
+    rollUI.settled = `${a}-${b}`;
+    if (value !== p){
+      rollUI.phase = 'wrong'; productInput.classList.add('wrong');
+      rollQ.hidden = true;
+      rollFeedback.innerHTML = `<div class="fb-badge bad">${bilingual('Not quite')}</div>
+        <div class="fb-sentence">${a} × ${b} = <b>${p}</b></div>
+        <div class="fb-next">You wrote ${escapeHTML(raw)}.</div>
+        ${dotArrayHTML(a,b)}
+        <div class="strategy"><span>A way to think about it</span>${strategyText(a,b)}</div>
+        <div class="fb-next">Your turn is missed this time.</div>
+        <button class="btn-primary" id="wrongOkBtn" type="button" style="min-width:140px">${bilingual('OK')}</button>`;
+      rollFeedback.classList.add('show');
+      $('wrongOkBtn').addEventListener('click', acceptMiss);
+      setTimeout(() => $('wrongOkBtn')?.focus({preventScroll:true}), 40);
+      if (online.active) commitOnlineProductMiss().catch(err => { console.error(err); setMessage(err.message || 'Incorrect product. Turn missed.','warn'); });
       return;
     }
-    productInput.classList.remove('wrong'); productInput.classList.add('correct');
-    if (online.active) { commitOnlineProductCorrect().catch(err => { console.error(err); setMessage(err.message || 'Could not check product.','info'); }); return; }
-    state.currentRoll.productConfirmed = true;
-    setMessage('Product correct. Place the array or press Pass if it cannot fit.','success'); refreshUI(); drawBoard();
+    rollUI.phase = 'correct'; productInput.classList.add('correct');
+    rollQ.hidden = true;
+    const o = orientationText({a,b});
+    rollFeedback.innerHTML = `<div class="fb-badge good">✓ ${bilingual('Correct!')}</div><div class="fb-sentence">${a} × ${b} = <b>${p}</b></div><div class="fb-next">Now draw a ${o} array on the grid.</div>`;
+    rollFeedback.classList.add('show');
+    if (online.active) commitOnlineProductCorrect().catch(err => { console.error(err); setMessage(err.message || 'Could not check product.','warn'); });
+    else if (state.currentRoll) state.currentRoll.productConfirmed = true;
+    setMessage('','info'); refreshUI(); drawBoard();
+    const r = rollCard.getBoundingClientRect(); confettiBurst(64, r.left + r.width/2, r.top + r.height*0.42, 1.15);
+    rollUI.closeTimer = setTimeout(finishCorrect, reduceMotion.matches ? 1000 : 1600);
+  }
+  function finishCorrect(){
+    if (rollUI.phase !== 'correct') return;
+    closeRollModal(); refreshUI(); drawBoard();
+    if (!canPlace()) return;
+    gridHolder.classList.remove('ready-pulse'); void gridHolder.offsetWidth; gridHolder.classList.add('ready-pulse');
+    const br = gridHolder.getBoundingClientRect();
+    if (br.top < 0 || br.bottom > window.innerHeight) gridHolder.scrollIntoView({behavior: reduceMotion.matches ? 'auto' : 'smooth', block:'center'});
+    orientOpts.querySelector('button')?.focus({preventScroll:true});
+  }
+  function acceptMiss(){
+    if (rollUI.phase !== 'wrong') return;
+    closeRollModal();
+    if (!online.active) addMissForCurrentRoll('Incorrect product. Turn missed.');
+    else { refreshUI(); drawBoard(); }
+    rollBtn.focus({preventScroll:true});
   }
 
-  function shakeProductInput(){ productInput.classList.remove('wrong'); void productInput.offsetWidth; productInput.classList.add('wrong'); }
+  async function rollDice(){
+    if (!canRoll()) return;
+    rolling = true; touchGhost = null; hoverCell = null; rollUI.settled = ''; hidePassCheck(); setMessage('','info');
+    const a = randomInt(6), b = randomInt(6);
+    openRollModal(); refreshUI();
+    await animateDice(a,b);
+    try {
+      if (online.active) await commitOnlineRoll(a,b);
+      else state.currentRoll = {a,b,productConfirmed:false};
+    } catch (err) {
+      console.error(err); rolling = false; closeRollModal(); setMessage(err.message || 'Could not roll.','warn'); refreshUI(); drawBoard(); return;
+    }
+    rolling = false; orientIndex = 0;
+    showAnswerPhase(a,b); refreshUI(); drawBoard();
+  }
+
   function shakeGrid(){ gridHolder.classList.remove('shake'); void gridHolder.offsetWidth; gridHolder.classList.add('shake'); setTimeout(() => gridHolder.classList.remove('shake'), 800); }
 
   function addMissForCurrentRoll(reason='Turn missed.'){
     if (!state.currentRoll || state.gameOver) return;
     const player = state.gameMode === 'single' ? 1 : state.currentPlayer; const a = Number(state.currentRoll.a), b = Number(state.currentRoll.b);
-    state.turnNumber += 1; state.placements.push({turn:state.turnNumber,player,a,b,w:a,h:b,area:0,miss:true,reason}); state.currentRoll = null; productInput.value = ''; productInput.classList.remove('correct','wrong');
-    if (state.turnNumber >= state.maxTurns || areaFilled() >= 100) endGame(); else { if (state.gameMode !== 'single') state.currentPlayer = otherPlayer(state.currentPlayer); setMessage(`${reason} ${state.gameMode === 'single' ? 'Roll again.' : `${playerName(state.currentPlayer)} to roll.`}`,'info'); }
+    state.turnNumber += 1; state.placements.push({turn:state.turnNumber,player,a,b,w:a,h:b,area:0,miss:true,reason}); state.currentRoll = null; touchGhost = null; hidePassCheck();
+    if (state.turnNumber >= state.maxTurns || areaFilled() >= 100) endGame(); else { if (state.gameMode !== 'single') state.currentPlayer = otherPlayer(state.currentPlayer); setMessage(`${reason} ${state.gameMode === 'single' ? 'Roll again.' : `${playerName(state.currentPlayer)} to roll.`}`,'warn'); }
     refreshUI(); drawBoard();
   }
 
+  function showPassCheck(){
+    passCheckOpen = true;
+    $('passCheckText').textContent = `Look again — a ${orientationText()} array still fits somewhere on the grid.`;
+    passCheck.classList.add('show'); refreshUI();
+    $('keepLookingBtn').focus({preventScroll:true});
+  }
+  function hidePassCheck(){ passCheckOpen = false; passCheck?.classList.remove('show'); }
   function passTurn(){
     if (!canPassTurn()) return;
+    if (!passCheckOpen && anyLegalForRoll(state.board, state.currentRoll)) { showPassCheck(); return; }
+    doPass();
+  }
+  function doPass(){
+    if (!canPassTurn()) return;
+    hidePassCheck();
     const reason = 'Passed. Turn missed.';
-    if (online.active) commitOnlinePassTurn(reason).catch(err => { console.error(err); setMessage(err.message || 'Could not pass the turn.','info'); });
+    if (online.active) commitOnlinePassTurn(reason).catch(err => { console.error(err); setMessage(err.message || 'Could not pass the turn.','warn'); });
     else addMissForCurrentRoll(reason);
   }
 
+  function placeAny(rect){
+    if (!canPlace() || !rect) return;
+    if (!isLegalPlacement(state.board,rect,state.currentRoll)) { shakeGrid(); explainIllegal(rect); drawBoard(); return; }
+    touchGhost = null; hoverCell = null; hidePassCheck();
+    if (online.active) commitOnlinePlacement(rect).catch(err => { console.error(err); setMessage(err.message || 'Could not place that array.','warn'); shakeGrid(); refreshUI(); drawBoard(); });
+    else placeRect(rect);
+  }
+  function explainIllegal(rect){
+    if (!rectMatchesRoll(rect)) setMessage(`That is a ${rect.w} × ${rect.h} array. You need ${orientationText()}.`,'warn');
+    else if (!rectIsInside(rect)) setMessage('That array goes off the grid.','warn');
+    else setMessage('That array overlaps one already on the grid. Try another spot.','warn');
+  }
   function placeRect(rect){
-    if (!canPlace()) return;
-    if (!isLegalPlacement(state.board,rect,state.currentRoll)) { shakeGrid(); return; }
     const player = state.gameMode === 'single' ? 1 : state.currentPlayer; const area = rect.w * rect.h;
     state.board = markBoard(state.board,rect,player); state.scores[player] = Number(state.scores[player] || 0) + area; state.turnNumber += 1;
     state.placements.push({turn:state.turnNumber,player,a:state.currentRoll.a,b:state.currentRoll.b,row:rect.row,col:rect.col,w:rect.w,h:rect.h,area,miss:false});
-    state.currentRoll = null; dragStart = dragCurrent = null; productInput.value = ''; productInput.classList.remove('correct','wrong'); confettiBurst();
-    if (state.turnNumber >= state.maxTurns || areaFilled() >= 100) endGame(); else { if (state.gameMode !== 'single') state.currentPlayer = otherPlayer(state.currentPlayer); setMessage(state.gameMode === 'single' ? 'Array placed. Roll again.' : `Array placed. ${playerName(state.currentPlayer)} to roll.`, 'success'); }
+    state.currentRoll = null; dragStart = dragCurrent = null;
+    if (state.turnNumber >= state.maxTurns || areaFilled() >= 100) endGame(); else { if (state.gameMode !== 'single') state.currentPlayer = otherPlayer(state.currentPlayer); setMessage(state.gameMode === 'single' ? `${rect.w} × ${rect.h} = ${area} placed. Roll again.` : `${rect.w} × ${rect.h} = ${area} placed. ${playerName(state.currentPlayer)} to roll.`, 'success'); }
     refreshUI(); drawBoard();
   }
 
   function undo(){
-    if (online.active || state.currentRoll || rolling || state.placements.length === 0 || state.gameOver) return;
-    const last = state.placements.pop(); state.turnNumber = Math.max(0,state.turnNumber - 1); state.currentPlayer = state.gameMode === 'single' ? 1 : last.player; rebuildFromPlacements(); setMessage('Undo complete.','info'); refreshUI(); drawBoard();
+    if (online.active || state.currentRoll || rolling || rollUI.open || state.placements.length === 0 || state.gameOver) return;
+    const last = state.placements.pop(); state.turnNumber = Math.max(0,state.turnNumber - 1); state.currentPlayer = state.gameMode === 'single' ? 1 : last.player; rebuildFromPlacements(); drawnCount = state.placements.length; setMessage('Undo complete.','info'); refreshUI(); drawBoard();
   }
   function rebuildFromPlacements(){ state.board = blankBoard(); state.scores = {1:0,2:0}; for (const p of state.placements){ if (p.miss) continue; state.board = markBoard(state.board,p,p.player); state.scores[p.player] += p.area; } state.gameOver = false; state.winner = null; }
   function determineWinner(scores){ const s1 = Number(scores?.[1] || 0), s2 = Number(scores?.[2] || 0); if (s1 === s2) return 0; return s1 > s2 ? 1 : 2; }
-  function endGame(){ state.gameOver = true; state.currentRoll = null; if (state.gameMode !== 'single') state.winner = determineWinner(state.scores); setMessage('Game finished.','success'); refreshUI(); drawBoard(); showFinalModal(); }
+  function endGame(){ state.gameOver = true; state.currentRoll = null; if (state.gameMode !== 'single') state.winner = determineWinner(state.scores); setMessage('Game finished.','success'); refreshUI(); drawBoard(); setTimeout(showFinalModal, 650); }
 
+  /* ---------- placing: drag to draw, or tap with a chosen way round ---------- */
   function cellFromEvent(e){
     const rect = svg.getBoundingClientRect(); const x = (e.clientX - rect.left) / rect.width * SIZE; const y = (e.clientY - rect.top) / rect.height * SIZE;
     const col = Math.floor((x - PAD) / CELL), row = Math.floor((y - PAD) / CELL); if (row < 0 || col < 0 || row >= GRID || col >= GRID) return null; return {row,col};
   }
-  function onPointerDown(e){ if (!canPlace()) return; const cell = cellFromEvent(e); if (!cell) return; e.preventDefault(); dragStart = cell; dragCurrent = cell; svg.setPointerCapture?.(e.pointerId); drawBoard(); }
-  function onPointerMove(e){ if (!dragStart || !canPlace()) return; const cell = cellFromEvent(e); if (!cell) return; dragCurrent = cell; drawBoard(); }
-  function onPointerUp(e){ if (!dragStart || !canPlace()) return; const cell = cellFromEvent(e) || dragCurrent; const rect = normalisedRect(dragStart,cell); dragStart = dragCurrent = null; if (online.active) commitOnlinePlacement(rect).catch(err => { console.error(err); setMessage(err.message || 'Could not place that array.','info'); shakeGrid(); refreshUI(); drawBoard(); }); else placeRect(rect); }
+  function currentOrient(){ const os = orientationsForRoll(); return os.length ? os[orientIndex % os.length] : null; }
+  function ghostAt(cell){ const o = currentOrient(); if (!o || !cell) return null; const clamp = (v,lo,hi) => Math.max(lo, Math.min(hi, v)); return {row:clamp(cell.row - Math.floor((o.h-1)/2), 0, GRID-o.h), col:clamp(cell.col - Math.floor((o.w-1)/2), 0, GRID-o.w), w:o.w, h:o.h}; }
+  function inside(rect, cell){ return rect && cell && cell.row >= rect.row && cell.row < rect.row + rect.h && cell.col >= rect.col && cell.col < rect.col + rect.w; }
+  function onPointerDown(e){ if (!canPlace()) return; const cell = cellFromEvent(e); if (!cell) return; e.preventDefault(); dragStart = cell; dragCurrent = cell; dragMoved = false; downType = e.pointerType || 'mouse'; svg.setPointerCapture?.(e.pointerId); drawBoard(); }
+  function onPointerMove(e){
+    if (dragStart){ if (!canPlace()) return; const cell = cellFromEvent(e); if (!cell) return; if (cell.row !== dragStart.row || cell.col !== dragStart.col) dragMoved = true; dragCurrent = cell; drawBoard(); return; }
+    if (canPlace() && (e.pointerType || 'mouse') === 'mouse'){ const cell = cellFromEvent(e); if (cell?.row !== hoverCell?.row || cell?.col !== hoverCell?.col){ hoverCell = cell; drawBoard(); } }
+  }
+  function onPointerUp(e){
+    if (!dragStart || !canPlace()) { dragStart = dragCurrent = null; return; }
+    const cell = cellFromEvent(e) || dragCurrent; const start = dragStart; const moved = dragMoved; dragStart = dragCurrent = null; dragMoved = false;
+    if (moved){ placeAny(normalisedRect(start, cell)); return; }
+    if (downType === 'mouse'){ placeAny(ghostAt(cell)); return; }
+    // touch / pen: first tap shows where it would go, a tap on it places it
+    if (touchGhost && inside(touchGhost, cell)) { placeAny(touchGhost); return; }
+    touchGhost = ghostAt(cell); setMessage('Tap the shaded array again to place it, or tap somewhere else to move it.','info'); drawBoard();
+  }
+  function rotate(){
+    const os = orientationsForRoll(); if (!canPlace() || os.length < 2) return;
+    const anchor = touchGhost ? {row:touchGhost.row + Math.floor((touchGhost.h-1)/2), col:touchGhost.col + Math.floor((touchGhost.w-1)/2)} : null;
+    orientIndex = (orientIndex + 1) % os.length; if (anchor) touchGhost = ghostAt(anchor);
+    renderOrient(true); drawBoard();
+  }
 
+  /* ---------- drawing the board ---------- */
+  let drawnCount = 0, freshIdx = -1, freshAt = 0;
   function drawBoard(){
     svg.innerHTML = ''; const ns = 'http://www.w3.org/2000/svg'; const add = (tag,attrs={},parent=svg) => { const el = document.createElementNS(ns,tag); Object.entries(attrs).forEach(([k,v]) => el.setAttribute(k,v)); parent.appendChild(el); return el; };
     add('rect',{x:PAD,y:PAD,width:BOARD,height:BOARD,class:'grid-border',rx:4});
-    for (let i=1;i<GRID;i++){ const p = PAD + i * CELL; add('line',{x1:PAD,y1:p,x2:PAD+BOARD,y2:p,class:'grid-line'}); add('line',{x1:p,y1:PAD,x2:p,y2:PAD+BOARD,class:'grid-line'}); }
-    for (const p of state.placements){ if (p.miss) continue; const x = PAD + p.col * CELL, y = PAD + p.row * CELL, w = p.w * CELL, h = p.h * CELL; const cls = state.gameMode === 'single' ? 'single' : `p${p.player}`; add('rect',{x,y,width:w,height:h,rx:7,class:`placed-rect ${cls}`}); const label = add('text',{x:x+w/2,y:y+h/2+6,'text-anchor':'middle',class:'placed-label'}); label.textContent = `${p.w}×${p.h}`; }
-    if (dragStart && dragCurrent && canPlace()){
-      const rect = normalisedRect(dragStart,dragCurrent); const legal = isLegalPlacement(state.board,rect,state.currentRoll); const player = state.gameMode === 'single' ? 1 : state.currentPlayer; const cls = legal ? (state.gameMode === 'single' ? 'legal' : `p${player}`) : 'illegal'; add('rect',{x:PAD+rect.col*CELL,y:PAD+rect.row*CELL,width:rect.w*CELL,height:rect.h*CELL,rx:7,class:`preview ${cls}`});
+    for (let i=1;i<GRID;i++){ const p = PAD + i * CELL; const cls = i === 5 ? 'grid-line half' : 'grid-line'; add('line',{x1:PAD,y1:p,x2:PAD+BOARD,y2:p,class:cls}); add('line',{x1:p,y1:PAD,x2:p,y2:PAD+BOARD,class:cls}); }
+    const placed = state.placements.filter(p => !p.miss);
+    if (placed.length > drawnCount && placed.length) { freshIdx = placed.length - 1; freshAt = performance.now(); }
+    else if (placed.length < drawnCount) freshIdx = -1;
+    const freshAge = performance.now() - freshAt;
+    placed.forEach((p,i) => {
+      const x = PAD + p.col * CELL, y = PAD + p.row * CELL, w = p.w * CELL, h = p.h * CELL; const cls = state.gameMode === 'single' ? 'single' : `p${p.player}`;
+      const g = add('g',{class:`placed-g${i === freshIdx && freshAge < 450 ? ' fresh' : ''}`}); if (i === freshIdx && freshAge < 450) g.style.animationDelay = `-${Math.round(freshAge)}ms`;
+      add('rect',{x:x+1.5,y:y+1.5,width:w-3,height:h-3,rx:7,class:`placed-rect ${cls}`},g);
+      const big = p.w >= 2 && p.h >= 2; const fs = Math.max(15, Math.min(30, Math.min(w / 3.6, big ? h / 3 : h / 1.9)));
+      const label = add('text',{x:x+w/2,y:y+h/2+(big ? -2 : fs*0.35),'text-anchor':'middle',class:'placed-label','font-size':fs},g); label.textContent = big ? `${p.w} × ${p.h}` : `${p.w}×${p.h}`;
+      if (big){ const area = add('text',{x:x+w/2,y:y+h/2+fs*0.95,'text-anchor':'middle',class:'placed-area','font-size':Math.max(12, fs*0.72)},g); area.textContent = `= ${p.area}`; }
+    });
+    if (placed.length > drawnCount && drawnCount >= 0 && placed.length){
+      const p = placed[placed.length-1]; const r = svg.getBoundingClientRect(); const k = r.width / SIZE;
+      if (r.width) confettiBurst(22, r.left + (PAD + (p.col + p.w/2) * CELL) * k, r.top + (PAD + (p.row + p.h/2) * CELL) * k, 0.6);
+    }
+    drawnCount = placed.length;
+    if (canPlace()){
+      let rect = null, dragging = false;
+      if (dragStart && dragCurrent && dragMoved){ rect = normalisedRect(dragStart,dragCurrent); dragging = true; }
+      else if (touchGhost) rect = touchGhost;
+      else if (hoverCell && !dragStart) rect = ghostAt(hoverCell);
+      if (rect){
+        const legal = isLegalPlacement(state.board,rect,state.currentRoll); const player = state.gameMode === 'single' ? 1 : state.currentPlayer; const cls = legal ? (state.gameMode === 'single' ? 'legal' : `p${player}`) : 'illegal';
+        add('rect',{x:PAD+rect.col*CELL+2,y:PAD+rect.row*CELL+2,width:rect.w*CELL-4,height:rect.h*CELL-4,rx:7,class:`preview ${cls}`});
+        const t = add('text',{x:PAD+(rect.col+rect.w/2)*CELL,y:PAD+(rect.row+rect.h/2)*CELL+8,'text-anchor':'middle',class:`preview-label ${legal ? (player === 2 && state.gameMode !== 'single' ? 'p2' : '') : 'illegal'}`});
+        t.textContent = dragging || rect.w * rect.h > 1 ? `${rect.w} × ${rect.h}` : '';
+      }
     }
     add('rect',{x:PAD,y:PAD,width:BOARD,height:BOARD,class:'cell-hit'});
   }
 
+  /* ---------- the side and the panel ---------- */
+  let orientKey = '';
+  function renderOrient(force=false){
+    const show = canPlace();
+    orientBox.classList.toggle('show', show);
+    if (!show){ orientKey = ''; return; }
+    const os = orientationsForRoll(); const key = `${rollKeyOf(state.currentRoll)}|${orientIndex}`;
+    if (!force && key === orientKey) return; orientKey = key;
+    $('orientTitle').textContent = os.length > 1 ? `Drag on the grid to draw a ${orientationText()} array — or choose a way round, then tap where it goes.` : `Drag on the grid to draw a ${orientationText()} array — or tap where it goes.`;
+    orientOpts.innerHTML = '';
+    os.forEach((o,i) => {
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'orient-btn'; b.setAttribute('aria-pressed', String(i === orientIndex % os.length));
+      const u = 8; let cells = ''; for (let r=0;r<o.h;r++) for (let c=0;c<o.w;c++) cells += `<rect x="${c*u+.5}" y="${r*u+.5}" width="${u-1}" height="${u-1}" rx="1.5" fill="${state.gameMode !== 'single' && Number(state.currentPlayer) === 2 ? '#93c5fd' : '#86efac'}" stroke="#334155" stroke-opacity=".35"/>`;
+      b.innerHTML = `<span class="ob-pic"><svg width="${o.w*u+1}" height="${o.h*u+1}" viewBox="0 0 ${o.w*u+1} ${o.h*u+1}" aria-hidden="true">${cells}</svg></span><span class="ol">${o.w} × ${o.h}</span><span class="os">${o.w} across, ${o.h} down</span>`;
+      b.addEventListener('click', () => { orientIndex = i; if (touchGhost){ const anchor = {row:touchGhost.row, col:touchGhost.col}; touchGhost = ghostAt(anchor); } renderOrient(true); drawBoard(); });
+      orientOpts.appendChild(b);
+    });
+  }
+  function paintSteps(){
+    const myTurn = state.gameMode !== 'menu' && !state.gameOver && isMyOnlineTurn();
+    const step = !state.currentRoll ? (rolling ? 2 : 1) : state.currentRoll.productConfirmed ? 3 : 2;
+    document.querySelectorAll('#stepTrack .step').forEach(el => { const n = Number(el.dataset.step); el.classList.toggle('active', myTurn && n === step); el.classList.toggle('done', myTurn && n < step); });
+  }
   function refreshUI(){
-    const filled = areaFilled(); p1Label.textContent = playerName(1); p2Label.textContent = playerName(2); p1Score.textContent = state.scores[1] || 0; p2Score.textContent = state.scores[2] || 0; turnReadout.textContent = `${state.turnNumber} / ${state.maxTurns}`; leftReadout.textContent = Math.max(0,100-filled);
-    p2ScoreCard.style.display = state.gameMode === 'single' ? 'none' : ''; p1ScoreCard.className = `score-card ${state.gameMode === 'single' ? 'single' : 'player-one'}`;
-    const dotClass = state.gameMode === 'single' ? '' : (state.currentPlayer === 1 ? 'p1' : 'p2'); turnDot.className = `player-dot ${dotClass}`;
-    if (state.gameMode === 'menu') { statusTitle.innerHTML = bilingual('Choose a game mode'); statusSubtitle.textContent = 'Roll two dice, enter the product, place the array, and get as close to 100 as possible.'; }
+    const filled = areaFilled(); const two = state.gameMode !== 'single' && state.gameMode !== 'menu';
+    p1Label.textContent = playerName(1); p2Label.textContent = playerName(2); p1Score.textContent = state.scores[1] || 0; p2Score.textContent = state.scores[2] || 0;
+    turnReadout.textContent = `${state.turnNumber} / ${state.maxTurns}`; leftReadout.textContent = Math.max(0,100-filled); $('filledReadout').textContent = filled;
+    p2ScoreCard.style.display = two ? '' : 'none'; p1ScoreCard.className = `score-card ${two ? 'player-one' : 'single'}`; p2ScoreCard.className = 'score-card player-two';
+    if (two && !state.gameOver){ (Number(state.currentPlayer) === 1 ? p1ScoreCard : p2ScoreCard).classList.add('active'); }
+    const bar = $('filledBar'); bar.innerHTML = two ? `<i class="p1" style="width:${state.scores[1]||0}%"></i><i class="p2" style="width:${state.scores[2]||0}%"></i>` : `<i class="single" style="width:${filled}%"></i>`; bar.setAttribute('aria-label', `${filled} of 100 squares filled`);
+    $('leftWord').textContent = Math.max(0,100-filled) === 1 ? 'square to go' : 'squares to go';
+    paintTurnTrack();
+    turnDot.className = `player-dot ${two ? (Number(state.currentPlayer) === 1 ? 'p1' : 'p2') : ''}`;
+    if (state.gameMode === 'menu') { statusTitle.innerHTML = bilingual('Choose a game mode'); statusSubtitle.textContent = 'Roll two dice, work out the product, draw the array.'; }
     else if (state.gameOver) { statusTitle.textContent = 'Game finished'; statusSubtitle.textContent = finalSummaryText(); }
     else if (online.active && online.data?.status === 'waiting') { statusTitle.textContent = 'Waiting for Player 2'; statusSubtitle.textContent = `Share room code ${online.roomCode || ''}.`; }
-    else { statusTitle.textContent = state.gameMode === 'single' ? 'Single Player' : `${playerName(state.currentPlayer)}'s turn`; statusSubtitle.textContent = state.currentRoll ? `Dice: ${state.currentRoll.a} and ${state.currentRoll.b}` : 'Roll two dice, then enter the product.'; }
-    messageBox.className = `message ${state.messageTone || 'info'}`; messageBox.innerHTML = uiLang === 'en' ? state.message : bilingual(state.message); messageBox.classList.toggle('is-hidden', Boolean(state.currentRoll?.productConfirmed));
-    rollBtn.disabled = !canRoll(); undoBtn.disabled = online.active || rolling || Boolean(state.currentRoll) || state.placements.length === 0 || state.gameOver; setI18n(newGameBtn, online.active ? 'New Round' : 'New Game');
-    const rollKey = state.currentRoll ? `${state.currentRoll.a}-${state.currentRoll.b}-${Boolean(state.currentRoll.productConfirmed)}` : 'none';
-    if (rollKey !== lastRenderedRollKey){ if (state.currentRoll?.productConfirmed){ productInput.value = productExpected(); productInput.classList.add('correct'); productInput.classList.remove('wrong'); } else { productInput.value = ''; productInput.classList.remove('correct','wrong'); } lastRenderedRollKey = rollKey; }
-    productInput.disabled = !canAnswerProduct(); submitProductBtn.disabled = !canAnswerProduct();
-    passTurnBtn.hidden = !canPassTurn(); passTurnBtn.disabled = !canPassTurn();
-    if (!state.currentRoll) setI18n(dragHint,'Roll, then enter the product.'); else if (!state.currentRoll.productConfirmed) dragHint.textContent = `Dice: ${state.currentRoll.a} and ${state.currentRoll.b}. Enter the product to unlock the grid.`; else dragHint.textContent = `Drag a ${orientationText()} array on the grid. If it can’t fit, press Pass.`;
-    gridHolder.classList.toggle('dragging', Boolean(canPlace())); renderRecords();
+    else {
+      const me = !online.active || isMyOnlineTurn();
+      statusTitle.textContent = state.gameMode === 'single' ? `Roll ${Math.min(state.turnNumber + 1, state.maxTurns)} of ${state.maxTurns}` : (online.active && me ? 'Your turn' : `${playerName(state.currentPlayer)}'s turn`);
+      statusSubtitle.textContent = !me ? `Waiting for ${playerName(state.currentPlayer)}…` : !state.currentRoll ? 'Press Roll (or the R key) to roll two dice.' : !state.currentRoll.productConfirmed ? 'Work out the product.' : `Draw a ${orientationText()} array on the grid.`;
+    }
+    // roll button / summary
+    const rollKey = rollKeyOf(state.currentRoll);
+    rollSummary.classList.toggle('show', Boolean(state.currentRoll));
+    rollBtn.hidden = Boolean(state.currentRoll) && !state.gameOver;
+    if (state.currentRoll){ setPipDie(dieA, Number(state.currentRoll.a)); setPipDie(dieB, Number(state.currentRoll.b)); rollRes.textContent = state.currentRoll.productConfirmed ? productExpected() : '?'; rollRes.classList.toggle('ok', Boolean(state.currentRoll.productConfirmed)); }
+    if (state.gameOver){ rollBtnText.innerHTML = bilingual('Play again'); rollBtn.disabled = false; $('rollKbd').hidden = true; rollBtn.classList.remove('idle-pulse'); }
+    else {
+      const waitingOther = online.active && (!isMyOnlineTurn() || online.data?.status !== 'playing');
+      rollBtnText.innerHTML = waitingOther ? escapeHTML(online.data?.status === 'waiting' ? 'Waiting for Player 2…' : `Waiting for ${playerName(state.currentPlayer)}…`) : bilingual('Roll the dice');
+      rollBtn.disabled = !canRoll(); $('rollKbd').hidden = waitingOther; rollBtn.classList.toggle('idle-pulse', canRoll());
+    }
+    // pass / undo
+    const showUndo = !online.active && state.gameMode !== 'menu';
+    passTurnBtn.hidden = !canPassTurn() || rollUI.open; passTurnBtn.disabled = !canPassTurn();
+    undoBtn.hidden = !showUndo; undoBtn.disabled = rolling || rollUI.open || Boolean(state.currentRoll) || state.placements.length === 0 || state.gameOver;
+    $('panelActions').hidden = passTurnBtn.hidden && undoBtn.hidden;
+    $('panelActions').classList.toggle('solo', passTurnBtn.hidden || undoBtn.hidden);
+    if (!canPassTurn()) hidePassCheck();
+    setI18n(newGameBtn, online.active ? 'New Round' : 'New Game');
+    paintSteps(); renderOrient(); paintMessage();
+    gridHolder.classList.toggle('dragging', canPlace()); gridHolder.classList.toggle('ready', canPlace());
+    // reopen the roll card if a roll is waiting for this player's product (reload, sync)
+    if (!rollUI.open && !rolling && canAnswerProduct() && rollUI.settled !== rollKey){
+      openRollModal(); setCube(cubeA,'A',Number(state.currentRoll.a),'instant'); setCube(cubeB,'B',Number(state.currentRoll.b),'instant'); showAnswerPhase(state.currentRoll.a, state.currentRoll.b);
+    } else if (rollUI.phase === 'answer' && state.currentRoll && rollKey !== `${rollUI.a}-${rollUI.b}`){
+      setCube(cubeA,'A',Number(state.currentRoll.a),'instant'); setCube(cubeB,'B',Number(state.currentRoll.b),'instant'); showAnswerPhase(state.currentRoll.a, state.currentRoll.b);
+    }
+    renderRecords();
+  }
+  function paintTurnTrack(){
+    const track = $('turnTrack'); let html = '';
+    for (let i=0;i<state.maxTurns;i++){
+      const p = state.placements[i]; const cls = state.gameMode === 'single' ? 'single' : `p${p?.player || 1}`;
+      if (p) html += p.miss ? `<div class="turn-slot miss" title="Roll ${i+1}: missed">✕</div>` : `<div class="turn-slot done ${cls}" title="Roll ${i+1}: ${p.w} × ${p.h} = ${p.area}">${p.area}</div>`;
+      else html += `<div class="turn-slot${i === state.turnNumber && !state.gameOver && state.gameMode !== 'menu' ? ' now' : ''}">${i+1}</div>`;
+    }
+    track.innerHTML = html;
   }
   function renderRecords(){
-    recordList.innerHTML = ''; if (!state.placements.length){ const empty = document.createElement('div'); empty.className = 'record-empty'; empty.textContent = 'No arrays placed yet.'; recordList.appendChild(empty); return; }
-    for (const p of state.placements){ const row = document.createElement('div'); const cls = p.miss ? 'miss' : (state.gameMode === 'single' ? 'single' : `p${p.player}`); row.className = `record-row ${cls}`; const no = document.createElement('span'); no.className = 'turn-no'; no.textContent = p.turn; const sent = document.createElement('span'); sent.textContent = p.miss ? `${playerName(p.player)}: ${p.a} × ${p.b} — ${p.reason || 'missed turn'}` : `${playerName(p.player)}: ${p.w} × ${p.h} = ${p.area}`; const area = document.createElement('strong'); area.textContent = p.miss ? '0' : `+${p.area}`; row.append(no,sent,area); recordList.appendChild(row); }
+    recordList.innerHTML = ''; const two = state.gameMode !== 'single';
+    $('recordTotal').textContent = state.placements.length ? (two ? `${playerName(1)} ${state.scores[1]||0} · ${playerName(2)} ${state.scores[2]||0}` : `Total ${state.scores[1]||0}`) : '';
+    if (!state.placements.length){ const empty = document.createElement('div'); empty.className = 'record-empty'; empty.textContent = 'Each array you place is written here as a number sentence.'; recordList.appendChild(empty); return; }
+    const run = {1:0,2:0};
+    for (const p of state.placements){
+      const row = document.createElement('div'); const cls = p.miss ? 'miss' : (two ? `p${p.player}` : 'single'); row.className = `record-row ${cls}`;
+      const no = document.createElement('span'); no.className = 'turn-no'; no.textContent = p.turn;
+      const sent = document.createElement('span'); sent.className = 'sent';
+      if (two){ const who = document.createElement('span'); who.className = 'who'; who.textContent = playerName(p.player); sent.appendChild(who); }
+      sent.appendChild(document.createTextNode(p.miss ? `${p.a} × ${p.b} — ${/Pass/i.test(p.reason || '') ? 'passed' : 'missed'}` : `${p.w} × ${p.h} = ${p.area}`));
+      const right = document.createElement('span'); right.className = 'run';
+      run[p.player] = (run[p.player] || 0) + (p.miss ? 0 : p.area);
+      right.innerHTML = p.miss ? '+0' : `<b>+${p.area}</b> → ${run[p.player]}`;
+      row.append(no,sent,right); recordList.appendChild(row);
+    }
     recordList.scrollTop = recordList.scrollHeight;
   }
 
+  /* ---------- end of game ---------- */
   function finalSummaryText(){
     if (state.gameMode === 'single'){
       const filled = state.scores[1] || 0;
-      return `You filled ${filled} out of 100 squares. You were ${100-filled} away from 100.`;
+      return filled === 100 ? 'You filled the whole grid — exactly 100!' : `You filled ${filled} out of 100 squares. You were ${100-filled} away from 100.`;
     }
     if (state.winner === 0) return `Draw: both players filled ${state.scores[1]} squares.`;
     const winner = Number(state.winner);
@@ -503,22 +1077,53 @@
     const loserName = escapeHTML(playerName(loser));
     return `<div class="podium-result" aria-label="Final result podium"><div class="podium-player runner-up p${loser}"><div class="face">😢</div><strong>${loserName}</strong><span class="score-pill">${state.scores[loser] || 0} squares</span><div class="podium-step">2</div></div><div class="podium-player winner p${winner}"><div class="crown">🏆</div><div class="face">😊</div><strong>${winnerName}</strong><span class="score-pill">${state.scores[winner] || 0} squares</span><div class="podium-step">1</div></div></div>`;
   }
+  /* The whole game written as one addition, so the final number is something the
+     class can check, not just a score. */
+  function workingHTML(){
+    const players = state.gameMode === 'single' ? [1] : [1,2]; let html = '';
+    for (const pl of players){
+      const areas = state.placements.filter(p => !p.miss && Number(p.player) === pl).map(p => p.area);
+      const total = areas.reduce((s,v) => s + v, 0);
+      const who = state.gameMode === 'single' ? 'Your squares' : escapeHTML(playerName(pl));
+      const sum = areas.length ? (areas.length > 1 ? `${areas.join(' + ')} = <b>${total}</b>` : `<b>${total}</b>`) : 'No arrays placed';
+      html += `<div class="fw-row"><span class="who">${who}</span>${sum}${state.gameMode === 'single' && areas.length ? `<br>100 − ${total} = <b>${100-total}</b> to go` : ''}</div>`;
+    }
+    return html;
+  }
   function showFinalModal(){
     const key = `${state.gameMode}-${state.turnNumber}-${state.scores[1]}-${state.scores[2]}-${state.gameOver}`;
-    if (finalShownForKey === key) return;
+    if (finalShownForKey === key || !state.gameOver) return;
     finalShownForKey = key;
     $('finalTitle').textContent = finalTitleText();
     $('finalSummary').textContent = finalSummaryText();
+    const big = $('finalBig'); big.hidden = state.gameMode !== 'single'; big.innerHTML = `<b>${state.scores[1] || 0}</b><span>/ 100</span>`;
     const podium = $('finalPodium');
-    if (podium){
-      const html = finalPodiumHTML();
-      podium.innerHTML = html;
-      podium.hidden = !html;
-    }
+    if (podium){ const html = finalPodiumHTML(); podium.innerHTML = html; podium.hidden = !html; }
+    $('finalWorking').innerHTML = workingHTML();
+    $('finalTalk').innerHTML = `<span>${bilingual('Talk about it')}</span>${escapeHTML(TALK[Math.floor(Math.random() * TALK.length)])}`;
     openModal(finalModal);
-    if (state.gameMode !== 'single' && state.winner !== 0) confettiBurst(70);
+    if (state.gameMode === 'single' ? (state.scores[1] || 0) >= 70 : state.winner !== 0) confettiRain(70);
   }
-  function confettiBurst(count=24){ for (let i=0;i<count;i++){ const c = document.createElement('div'); c.className = 'confetti'; c.style.left = Math.random()*100 + 'vw'; c.style.background = ['#22c55e','#2563eb','#7c3aed','#f59e0b','#ef4444'][i%5]; c.style.animationDelay = Math.random()*160 + 'ms'; document.body.appendChild(c); setTimeout(() => c.remove(), 1200); } }
+
+  /* ---------- confetti ---------- */
+  const CONFETTI = ['#22c55e','#2563eb','#7c3aed','#f59e0b','#ef4444','#ec4899','#14b8a6'];
+  function confettiBurst(count=24, x=window.innerWidth/2, y=window.innerHeight/3, power=1){
+    if (reduceMotion.matches || !document.body.animate) return;
+    for (let i=0;i<count;i++){
+      const el = document.createElement('div'); el.className = 'confetti-bit';
+      const s = 6 + Math.random() * 7; el.style.width = `${s}px`; el.style.height = `${s * (0.5 + Math.random())}px`; el.style.left = `${x}px`; el.style.top = `${y}px`; el.style.background = CONFETTI[i % CONFETTI.length];
+      document.body.appendChild(el);
+      const ang = Math.random() * Math.PI * 2, sp = (140 + Math.random() * 260) * power;
+      const dx = Math.cos(ang) * sp, dy = Math.sin(ang) * sp - 160 * power, rot = (Math.random() - .5) * 1080;
+      const anim = el.animate([
+        {transform:'translate(-50%,-50%) rotate(0deg)', opacity:1},
+        {transform:`translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) rotate(${rot/2}deg)`, opacity:1, offset:.45},
+        {transform:`translate(calc(-50% + ${dx*1.25}px), calc(-50% + ${dy + 380}px)) rotate(${rot}deg)`, opacity:0}
+      ], {duration:1200 + Math.random() * 600, easing:'cubic-bezier(.15,.7,.35,1)'});
+      anim.onfinish = () => el.remove();
+    }
+  }
+  function confettiRain(count=60){ if (reduceMotion.matches) return; for (let i=0;i<count;i++){ const c = document.createElement('div'); c.className = 'confetti'; c.style.left = Math.random()*100 + 'vw'; c.style.background = CONFETTI[i % CONFETTI.length]; c.style.animationDelay = Math.random()*300 + 'ms'; document.body.appendChild(c); setTimeout(() => c.remove(), 1600); } }
 
   function setOnlineStatus(msg,tone=''){ onlineStatus.textContent = msg; onlineStatus.className = `online-status ${tone || ''}`; }
   async function ensureAuth(){ if (!db || !auth) throw new Error('Firebase is not connected.'); let user = auth.currentUser || await authReadyPromise; if (!user){ await signInAnonymously(auth); user = auth.currentUser || await authReadyPromise; } if (!user) throw new Error('Could not sign in anonymously.'); online.uid = user.uid; return user; }
@@ -536,7 +1141,7 @@
     online.unsub = onSnapshot(online.ref, snap => { if (!snap.exists()){ setOnlineStatus('Room closed.','warn'); leaveOnline(false); return; } syncRoom(snap.data()); }, err => { console.error(err); setOnlineStatus('Connection error.','warn'); });
   }
   function syncRoom(d){
-    online.data = d; state.gameMode = 'online'; state.board = Array.isArray(d.board) ? d.board.slice() : blankBoard(); state.placements = Array.isArray(d.placements) ? d.placements.slice() : []; state.scores = {1:Number(d.scores?.[1] || 0),2:Number(d.scores?.[2] || 0)}; state.players = {1:d.players?.[1]?.name || 'Player 1',2:d.players?.[2]?.name || 'Player 2'}; state.currentPlayer = Number(d.currentPlayer || 1); state.turnNumber = Number(d.turnNumber || 0); state.maxTurns = Number(d.maxTurns || MAX_TURNS); state.currentRoll = d.currentRoll || null; state.winner = d.winner ?? null; state.gameOver = d.status === 'finished'; if (d.status === 'waiting') setMessage('Waiting for Player 2.','info'); else if (state.gameOver) setMessage('Game finished.','success'); else if (isMyOnlineTurn()) setMessage(state.currentRoll ? (state.currentRoll.productConfirmed ? `Drag a ${orientationText()} array on the grid.` : 'Enter the product of the two dice.') : 'Your turn. Roll the dice.','info'); else setMessage(`Waiting for ${playerName(state.currentPlayer)}.`, 'info'); refreshUI(); drawBoard(); if (state.gameOver) showFinalModal(); }
+    online.data = d; state.gameMode = 'online'; state.board = Array.isArray(d.board) ? d.board.slice() : blankBoard(); state.placements = Array.isArray(d.placements) ? d.placements.slice() : []; state.scores = {1:Number(d.scores?.[1] || 0),2:Number(d.scores?.[2] || 0)}; state.players = {1:d.players?.[1]?.name || 'Player 1',2:d.players?.[2]?.name || 'Player 2'}; state.currentPlayer = Number(d.currentPlayer || 1); state.turnNumber = Number(d.turnNumber || 0); state.maxTurns = Number(d.maxTurns || MAX_TURNS); state.currentRoll = d.currentRoll || null; state.winner = d.winner ?? null; state.gameOver = d.status === 'finished'; if (d.status === 'waiting') setMessage('Waiting for Player 2.','info'); else if (state.gameOver) setMessage('Game finished.','success'); else if (state.message === 'Waiting for Player 2.' || state.message === 'Game finished.') setMessage('','info'); refreshUI(); drawBoard(); if (state.gameOver) showFinalModal(); }
   async function resetOnlineRoom(){
     if (!online.active || !online.ref) return; if (online.myPlayer !== 1) { setMessage('Only Player 1 can start a new online round.','info'); return; }
     await runTransaction(db, async tx => { const snap = await tx.get(online.ref); if (!snap.exists()) throw new Error('Room not found.'); const d = snap.data(); tx.update(online.ref,{status:d.players?.[2]?.uid ? 'playing' : 'waiting',board:blankBoard(),placements:[],scores:{1:0,2:0},currentPlayer:1,turnNumber:0,maxTurns:MAX_TURNS,currentRoll:null,winner:null,updatedAt:serverTimestamp()}); });
@@ -565,19 +1170,42 @@
     await runTransaction(db, async tx => { const snap = await tx.get(online.ref); if (!snap.exists()) throw new Error('You are not connected to a room.'); const d = snap.data(); if (d.status !== 'playing') throw new Error('Game is not active.'); const player = Number(d.currentPlayer || 1); if (!d.players?.[player] || d.players[player].uid !== online.uid) throw new Error('It is not your turn.'); if (!d.currentRoll?.productConfirmed) throw new Error('Enter the product first.'); const board = Array.isArray(d.board) ? d.board.slice() : blankBoard(); if (!isLegalPlacement(board,rect,d.currentRoll)) throw new Error('That array does not fit there.'); const nextBoard = markBoard(board,rect,player); const area = rect.w * rect.h; const scores = {1:Number(d.scores?.[1] || 0),2:Number(d.scores?.[2] || 0)}; scores[player] += area; const nextTurn = Number(d.turnNumber || 0) + 1; const placements = Array.isArray(d.placements) ? d.placements.slice() : []; placements.push({turn:nextTurn,player,a:d.currentRoll.a,b:d.currentRoll.b,row:rect.row,col:rect.col,w:rect.w,h:rect.h,area,miss:false}); const finished = nextTurn >= Number(d.maxTurns || MAX_TURNS) || areaFilled(nextBoard) >= 100; const winner = finished ? determineWinner(scores) : null; tx.update(online.ref,{board:nextBoard,placements,scores,turnNumber:nextTurn,currentRoll:null,currentPlayer:finished ? player : otherPlayer(player),status:finished ? 'finished' : 'playing',winner,updatedAt:serverTimestamp()}); });
   }
 
-  function newGame(){ if (online.active) resetOnlineRoom().catch(err => setMessage(err.message || 'Could not start a new round.','info')); else if (state.gameMode === 'single') startSingle(); else if (state.gameMode === 'pass') startPassPlay(); else { resetState('menu'); openModal(modeMenuModal); refreshUI(); drawBoard(); } }
-  function backToMenu(){ leaveOnline(false); resetState('menu'); closeModal(passPlayModal); closeModal(onlineSetupModal); closeModal(finalModal); openModal(modeMenuModal); setMessage('Choose a mode to begin.','info'); refreshUI(); drawBoard(); }
+  function newGame(){ if (online.active) resetOnlineRoom().catch(err => setMessage(err.message || 'Could not start a new round.','warn')); else if (state.gameMode === 'single') startSingle(); else if (state.gameMode === 'pass') startPassPlay(); else { resetState('menu'); openModal(modeMenuModal); refreshUI(); drawBoard(); } }
+  function backToMenu(){ leaveOnline(false); resetState('menu'); closeModal(passPlayModal); closeModal(onlineSetupModal); closeModal(finalModal); openModal(modeMenuModal); refreshUI(); drawBoard(); }
 
   $('chooseSingleBtn').addEventListener('click', startSingle); $('choosePassPlayBtn').addEventListener('click', showPassPlay); $('chooseOnlineBtn').addEventListener('click', showOnlineSetup); $('passBackBtn').addEventListener('click', () => { closeModal(passPlayModal); openModal(modeMenuModal); }); $('onlineBackBtn').addEventListener('click', () => { closeModal(onlineSetupModal); if (!online.active) openModal(modeMenuModal); }); $('startPassPlayBtn').addEventListener('click', startPassPlay); $('createOnlineBtn').addEventListener('click', createOnlineGame); $('joinOnlineBtn').addEventListener('click', joinOnlineGame); $('leaveOnlineBtn').addEventListener('click', () => leaveOnline(true)); $('copyRoomBtn').addEventListener('click', async () => { if (!online.roomCode) return; try { await navigator.clipboard.writeText(online.roomCode); setOnlineStatus(`Copied room ${online.roomCode}.`,'good'); } catch { setOnlineStatus(`Room code: ${online.roomCode}`,'good'); } });
   roomCodeInput.addEventListener('input', () => { roomCodeInput.value = roomCodeInput.value.toUpperCase().replace(/[^A-Z0-9]/g,''); }); roomCodeInput.addEventListener('keydown', e => { if (e.key === 'Enter') joinOnlineGame(); }); playerNameInput.addEventListener('keydown', e => { if (e.key === 'Enter' && roomCodeInput.value) joinOnlineGame(); });
-  rollBtn.addEventListener('click', rollDice); submitProductBtn.addEventListener('click', submitProduct); passTurnBtn.addEventListener('click', passTurn); productInput.addEventListener('keydown', e => { if (e.key === 'Enter') submitProduct(); }); undoBtn.addEventListener('click', undo); newGameBtn.addEventListener('click', newGame); backToMenuBtn.addEventListener('click', backToMenu); mainLanguageSelect.addEventListener('change', applyLanguage);
+  passP1Name.addEventListener('keydown', e => { if (e.key === 'Enter') passP2Name.focus(); }); passP2Name.addEventListener('keydown', e => { if (e.key === 'Enter') startPassPlay(); });
+  rollBtn.addEventListener('click', () => { if (state.gameOver) newGame(); else rollDice(); });
+  submitProductBtn.addEventListener('click', submitProduct);
+  productInput.addEventListener('input', () => { productInput.value = productInput.value.replace(/\D/g,'').slice(0,3); productInput.classList.remove('nudge'); });
+  productInput.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); submitProduct(); } });
+  rollModal.addEventListener('click', () => { if (rollUI.phase === 'correct') finishCorrect(); });
+  passTurnBtn.addEventListener('click', passTurn); $('keepLookingBtn').addEventListener('click', () => { hidePassCheck(); refreshUI(); }); $('passAnywayBtn').addEventListener('click', doPass);
+  undoBtn.addEventListener('click', undo); newGameBtn.addEventListener('click', newGame); backToMenuBtn.addEventListener('click', backToMenu); mainLanguageSelect.addEventListener('change', applyLanguage);
   $('rulesBtn').addEventListener('click', () => { renderRules(); openModal(rulesModal); }); $('closeRulesBtn').addEventListener('click', () => closeModal(rulesModal)); rulesModal.addEventListener('click', e => { if (e.target === rulesModal) closeModal(rulesModal); }); $('closeFinalBtn').addEventListener('click', () => closeModal(finalModal)); $('finalNewGameBtn').addEventListener('click', newGame);
-  svg.addEventListener('pointerdown', onPointerDown); svg.addEventListener('pointermove', onPointerMove); svg.addEventListener('pointerup', onPointerUp); svg.addEventListener('pointercancel', () => { dragStart = dragCurrent = null; drawBoard(); });
-  window.addEventListener('keydown', e => { const typing = e.target && e.target.matches && e.target.matches('input,select,textarea'); if (!typing && (e.key === 'r' || e.key === 'R')) rollDice(); if (!typing && (e.key === 'u' || e.key === 'U')) undo(); if (e.key === 'Escape'){ closeModal(rulesModal); closeModal(finalModal); } });
+  svg.addEventListener('pointerdown', onPointerDown); svg.addEventListener('pointermove', onPointerMove); svg.addEventListener('pointerup', onPointerUp);
+  svg.addEventListener('pointercancel', () => { dragStart = dragCurrent = null; dragMoved = false; drawBoard(); });
+  svg.addEventListener('pointerleave', e => { if (!dragStart && (e.pointerType || 'mouse') === 'mouse' && hoverCell){ hoverCell = null; drawBoard(); } });
+  svg.addEventListener('contextmenu', e => { if (canPlace()) { e.preventDefault(); rotate(); } });
+  window.addEventListener('keydown', e => {
+    if (rollUI.phase === 'correct' && (e.key === 'Enter' || e.key === 'Escape' || e.key === ' ')) { e.preventDefault(); finishCorrect(); return; }
+    const typing = e.target && e.target.matches && e.target.matches('input,select,textarea');
+    const modalOpen = rollUI.open || document.querySelector('.modal-backdrop.open');
+    if (!typing && !modalOpen && !e.ctrlKey && !e.metaKey && !e.altKey){
+      if (e.key === 'r' || e.key === 'R') rollDice();
+      if (e.key === 'u' || e.key === 'U') undo();
+      if (e.key === 't' || e.key === 'T') rotate();
+    }
+    if (e.key === 'Escape'){ closeModal(rulesModal); closeModal(finalModal); if (passCheckOpen){ hidePassCheck(); refreshUI(); } if (touchGhost){ touchGhost = null; drawBoard(); } }
+  });
 
+  buildCube(cubeA); buildCube(cubeB);
+  $('menuDice').innerHTML = '<div class="pipdie"></div><div class="pipdie b"></div>'; setPipDie($('menuDice').children[0], 4); setPipDie($('menuDice').children[1], 6);
   applyLanguage(); refreshUI(); drawBoard();
+  window.__C100__ = {state, rollUI, online, canPlace, placeAny, refreshUI};
 </script>
-<!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
-  <script src="shared/mmt-fullscreen.js" data-fit="#gridHolder" data-icon-host=".status-strip .turn-card" data-icon-pos="end" defer></script>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
+  <script src="shared/mmt-fullscreen.js" data-icon-host="#turnCard" data-icon-pos="end" defer></script>
 </body>
 </html>
