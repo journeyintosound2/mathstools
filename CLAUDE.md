@@ -150,6 +150,13 @@
 >   ghost circle to the end; dashed πr × r target outline) · thinner slices (doubles to ≥ 64: 8→16→32→64, each new
 >   count fades in over the old; `enterMore`/`leaveMore` set and restore `S.n`, Back undoes it) · the area (πr × r =
 >   πr² inside the shape, the ghost circle refills with "πr²").
+> * **Feedback 2026-11-16:** (1) at "go round the rim" each half gets a faint blue DOUBLE-HEADED ARROW round it
+>   (`dimCurve` + `dimArrow`, `data-dim`) with its πr pill on the arrow; the arrow is the circle through the half's
+>   first, middle and last corners, offset outward, so it straightens WITH the rim while it unrolls and ends as a
+>   straight πr arrow above / below the shape. Each arrow stops 5px short of its ends so the two halves'
+>   arrowheads meet tip to tip. (2) At "measure it" a COPY of the circle's radius (orange) flies from the ghost
+>   circle and ROTATES into place on the shape's end (`radiusEdge`: vertical in rectangle mode, the sloping end in
+>   parallelogram mode), its "r" pill riding alongside.
 > * **The slice count (4–128, `LIST`) can change at ANY step** (board-top − / + / slider / chips, keys ↑↓ + −) and
 >   the picture redraws in place: the drawing scale is fixed for every n and every step (`frameFor` samples every n
 >   through the motion). Orientation: circle beside the shape, or above it on portrait/phone — whichever draws it

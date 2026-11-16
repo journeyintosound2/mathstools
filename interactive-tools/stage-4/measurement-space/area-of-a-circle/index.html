@@ -861,32 +861,88 @@
     const g = A.g, top = A.yc + g.H / 2;
     return S.set.finish === "rect" ? [[A.X0, top], [A.X0, A.yc - g.H / 2 - g.bump]] : [[A.X0, top], [A.X0 + g.c / 2, A.yc - g.H / 2]];
   }
+  /* a curve beside one half of the rim, offset outwards by `px`: round when the half is round, straight when
+     it is laid flat, in between while it unrolls (a circle through its first, middle and last corners) */
+  function dimCurve(A, tn, px){
+    const g = A.g, sg = tn === "top" ? 1 : -1, pcs = A.pcs.filter(pc => pc.tone === tn).sort((x, y) => x.i - y.i);
+    const off = g.bump * (1 - A.fl) + px / L.s, out = [];
+    const base = pcs.filter(pc => !pc.moved);
+    const corner = i => { const pc = base.find(q => q.i === i && q.a1 > 0 && q.a0 < 0) || base.find(q => q.i === i);
+      return sg > 0 ? arcPt(pc, pc.a1) : arcPt(pc, pc.a0); };
+    const endC = () => { const pc = base.find(q => q.i === g.m - 1 && q.a1 > 0) || base.find(q => q.i === g.m - 1);
+      return sg > 0 ? arcPt(pc, -g.th / 2) : arcPt(pc, g.th / 2); };
+    const c0 = corner(0), c2 = endC(), c1 = corner(Math.floor(g.m / 2));
+    /* circle through the three corners */
+    const ax = c0[0], ay = c0[1], bx = c1[0], by = c1[1], cx = c2[0], cy = c2[1];
+    const dd = 2 * (ax * (by - cy) + bx * (cy - ay) + cx * (ay - by));
+    if(A.fl > .002 && Math.abs(dd) > 1e-9){
+      const ux = ((ax * ax + ay * ay) * (by - cy) + (bx * bx + by * by) * (cy - ay) + (cx * cx + cy * cy) * (ay - by)) / dd;
+      const uy = ((ax * ax + ay * ay) * (cx - bx) + (bx * bx + by * by) * (ax - cx) + (cx * cx + cy * cy) * (bx - ax)) / dd;
+      const R = Math.hypot(ax - ux, ay - uy) + off;
+      const s0 = Math.atan2(ay - uy, ax - ux), sm = Math.atan2(by - uy, bx - ux);
+      let s1 = Math.atan2(cy - uy, cx - ux), dl = s1 - s0;
+      const norm = v => { while(v > Math.PI) v -= 2 * Math.PI; while(v <= -Math.PI) v += 2 * Math.PI; return v; };
+      dl = norm(dl); const dm = norm(sm - s0);
+      if(Math.sign(dm) !== Math.sign(dl) || Math.abs(dm) > Math.abs(dl)) dl = dl > 0 ? dl - 2 * Math.PI : dl + 2 * Math.PI;
+      for(let k = 0; k <= 48; k++){ const a = s0 + dl * k / 48; out.push([L.X(ux + R * Math.cos(a)), L.Y(uy + R * Math.sin(a))]); }
+    } else {
+      /* laid flat: along the rim, above (or below) the bumps; while the half slice is carried across the
+         bottom rim's ends slide with it */
+      let x0 = Math.min(c0[0], c2[0]), x1 = Math.max(c0[0], c2[0]);
+      if(A.mover && tn === "bot"){ const left = pcs.find(q => q.i === g.m - 1 && !q.moved), sh = left.P[0] - A.mover.P[0]; x0 -= sh * g.c / 2 / g.len; x1 -= sh * g.c / 2 / g.len; }
+      const y = c0[1] + sg * off;
+      for(let k = 0; k <= 48; k++) out.push([L.X(lerp(x0, x1, k / 48)), L.Y(y)]);
+    }
+    /* stop just short of each end, so the two halves' arrowheads meet tip to tip rather than crossing */
+    const cut = (P, px2) => { let d = 0, i = 0; while(i < P.length - 1 && d < px2){ d += Math.hypot(P[i + 1][0] - P[i][0], P[i + 1][1] - P[i][1]); i++; } return i; };
+    const k0 = cut(out, 5), k1 = out.length - 1 - cut(out.slice().reverse(), 5);
+    const trimmed = out.slice(k0, k1 + 1);
+    return { pts:trimmed, mid:out[24] };
+  }
+  /* drawn out from the middle, arrowheads at both ends once it is all there */
+  function dimArrow(D, grow, g){
+    if(grow <= 0) return;
+    const n = D.pts.length - 1, a = Math.round(n / 2 - grow * n / 2), b = Math.round(n / 2 + grow * n / 2), P = D.pts.slice(a, b + 1);
+    if(P.length < 2) return;
+    const st = { fill:"none", stroke:"#60a5fa", "stroke-width":2.2, "stroke-linecap":"round", "stroke-linejoin":"round", opacity:.8 };
+    el("polyline", Object.assign({ points:P.map(q => q[0].toFixed(1) + "," + q[1].toFixed(1)).join(" "), "data-dim":1 }, st), g);
+    if(grow < .97) return;
+    [[P[0], P[2]], [P[P.length - 1], P[P.length - 3]]].forEach(([e, pv]) => {
+      const ang = Math.atan2(e[1] - pv[1], e[0] - pv[0]), r = 10;
+      const l = [e[0] - Math.cos(ang - .5) * r, e[1] - Math.sin(ang - .5) * r], rr = [e[0] - Math.cos(ang + .5) * r, e[1] - Math.sin(ang + .5) * r];
+      el("path", Object.assign({ d:`M${l[0].toFixed(1)} ${l[1].toFixed(1)}L${e[0].toFixed(1)} ${e[1].toFixed(1)}L${rr[0].toFixed(1)} ${rr[1].toFixed(1)}` }, st), g);
+    });
+  }
   function drawLabels(P, n, G){
     const O = L.O, f = fsz(), A = arrange(n, P, O), g = A.g;
-    /* the rim halves: 2πr round the circle, then πr on each half, which travel with it */
+    /* the rim halves: 2πr round the circle, then πr on each half — a faint double arrow round each half
+       of the rim, which straightens with it as it unrolls, with πr on it */
     if(P.rim > 0){
       const cP = [L.X(O.C0[0] + 1.02 * Math.cos(.72)) + 34, L.Y(O.C0[1] + 1.02 * Math.sin(.72)) - 18];
       if(P.k === idx("rim")) pill(cP[0], cP[1], T.circ(), f, Object.assign({ op:span01(P.rim, [.3, .48]) * (1 - span01(P.rim, [.6, .7])) }, PILL_B), G.lab);
-      const hop = span01(P.rim, [.6, .72]), mv = ease(span01(P.rim, [.62, .88]));
+      const hop = span01(P.rim, [.6, .72]), mv = ease(span01(P.rim, [.62, .88])), grow = ease(span01(P.rim, [.62, .9]));
       ["top", "bot"].forEach(tn => {
-        const pcs = A.pcs.filter(pc => pc.tone === tn && !pc.moved), sg = tn === "top" ? 1 : -1;
-        let ext = sg > 0 ? -1e9 : 1e9;
-        pcs.forEach(pc => [arcPt(pc, pc.a0), arcPt(pc, 0), arcPt(pc, pc.a1)].forEach(q => { ext = sg > 0 ? Math.max(ext, q[1]) : Math.min(ext, q[1]); }));
-        const cx = pcs.reduce((s, pc) => s + arcPt(pc, 0)[0], 0) / pcs.length;
-        const end = [L.X(cx), L.Y(ext) - sg * f * 1.25];
+        const D = dimCurve(A, tn, L.compact ? 14 : 18);
+        dimArrow(D, grow, G.top);
+        const end = D.mid;
         const pos = mv < 1 ? [lerp(cP[0], end[0], mv), lerp(cP[1], end[1], mv)] : end;
         pill(pos[0], pos[1], T.half(), f, Object.assign({ op:hop }, PILL_B), G.lab);
       });
     }
-    /* the end that is a radius */
+    /* the end that is a radius: a copy of the circle's radius lifts off, travels across and turns
+       (clockwise, centre end first) onto the end of the shape, carrying its r */
     if(P.nm > 0){
-      const e = radiusEdge(A), grow = span01(P.nm, [.35, .7]);
-      const a = e[0], b = [lerp(e[0][0], e[1][0], grow), lerp(e[0][1], e[1][1], grow)];
-      if(grow > 0) el("line", { x1:L.X(a[0]), y1:L.Y(a[1]), x2:L.X(b[0]), y2:L.Y(b[1]), stroke:RAD, "stroke-width":5, "stroke-linecap":"round", "data-edge":1 }, G.top);
-      const mid = [(e[0][0] + e[1][0]) / 2, (e[0][1] + e[1][1]) / 2], pw = pillW(T.r(), f);
-      const to = [L.X(mid[0]) - pw / 2 - 14, L.Y(mid[1])], from = [L.X(O.C0[0] + .5), L.Y(O.C0[1]) - f * 1.15];
-      const fly = ease(span01(P.nm, [.15, .65]));
-      pill(lerp(from[0], to[0], fly), lerp(from[1], to[1], fly), T.r(), f, Object.assign({ op:span01(P.nm, [0, .15]) }, PILL_R), G.lab);
+      const e = radiusEdge(A), fly = ease(span01(P.nm, [.16, .72])), pw = pillW(T.r(), f);
+      const m0 = [O.C0[0] + .5, O.C0[1]], m1 = [(e[0][0] + e[1][0]) / 2, (e[0][1] + e[1][1]) / 2];
+      const a1 = Math.atan2(e[1][1] - e[0][1], e[1][0] - e[0][0]);
+      let d = a1; while(d > Math.PI) d -= 2 * Math.PI; while(d <= -Math.PI) d += 2 * Math.PI;
+      const ang = d * fly, m = [lerp(m0[0], m1[0], fly), lerp(m0[1], m1[1], fly)], u = [.5 * Math.cos(ang), .5 * Math.sin(ang)];
+      const p = [m[0] - u[0], m[1] - u[1]], q = [m[0] + u[0], m[1] + u[1]], op = span01(P.nm, [.06, .16]);
+      if(op > 0){
+        el("line", { x1:L.X(p[0]), y1:L.Y(p[1]), x2:L.X(q[0]), y2:L.Y(q[1]), stroke:RAD, "stroke-width":5, "stroke-linecap":"round", opacity:op < 1 ? op : null, "data-edge":1 }, G.top);
+        const off = [lerp(0, -(pw / 2 + 14), fly), lerp(-f * 1.15, 0, fly)];
+        pill(L.X(m[0]) + off[0], L.Y(m[1]) + off[1], T.r(), f, Object.assign({ op }, PILL_R), G.lab);
+      }
     }
     /* the area: inside the shape, then back in the circle */
     if(P.ar > 0){
