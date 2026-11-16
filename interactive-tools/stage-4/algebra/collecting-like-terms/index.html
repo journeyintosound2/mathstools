@@ -236,6 +236,12 @@
     }
     .bub, .tok, .cap{ touch-action:none; }
     #toolsMenu.open{ min-width:340px; }
+    .stmtFly{ position:absolute; inset:0; pointer-events:none; z-index:6; overflow:visible; }
+    .sGhost{ position:absolute; display:flex; align-items:center; justify-content:center; white-space:nowrap; font-family:var(--mathFont); font-weight:var(--mathWeight); color:var(--line); line-height:1.25; }
+    .sGhost > .t{ padding:0; }
+    .sZero{ position:absolute; transform:translate(-50%,-50%); font-family:var(--mathFont); color:#7c3aed; animation:zeroUp .8s ease forwards; }
+    .stmt .t{ transform-origin:50% 55%; }
+    .stmt .orig .lbl{ display:inline-block; }
     /* ---------- side panel ---------- */
     .side{ display:flex; flex-direction:column; gap:12px; min-height:0; min-width:0; }
     .panel{ padding:12px 14px; }
@@ -558,16 +564,20 @@
   /* a whole expression from a list of terms {key, d, s, n} */
   function exprHTML(terms, not, opt){
     opt = opt || {};
-    if(!terms.length) return `<span class="t">0</span>`;
+    /* opt.pre keys each term and sign to its bubble (data-k / data-op, data-ok / data-oop on the question line),
+       so the statement can morph as the board changes */
+    const pre = opt.pre;
+    if(!terms.length) return `<span class="t"${pre != null ? ` data-${pre}k="zero"` : ""}>0</span>`;
     return terms.map((tm, i) => {
       const neg = tm.s < 0, col = opt.colour ? colourStyle(tm.key) : "";
+      const kT = pre != null && tm.id ? ` data-${pre}k="${tm.id}"` : "", kO = pre != null && tm.id ? ` data-${pre}op="${tm.id}"` : "";
       let op = "";
-      if(i > 0) op = not === "words" && neg ? `<span class="t op neg"><span class="wd">take away</span></span>` : `<span class="t op${neg ? " neg" : ""}">${neg ? MINUS : "+"}</span>`;
-      else if(neg) op = not === "words" ? `<span class="t op neg"><span class="wd">take away</span></span>` : `<span class="t neg">${MINUS}</span>`;
-      return `${op}<span class="t${neg ? " neg" : ""}"${col}>${bodyHTML(tm.n, tm.key, tm.d, not)}</span>`;
+      if(i > 0) op = not === "words" && neg ? `<span class="t op neg"${kO}><span class="wd">take away</span></span>` : `<span class="t op${neg ? " neg" : ""}"${kO}>${neg ? MINUS : "+"}</span>`;
+      else if(neg) op = not === "words" ? `<span class="t op neg"${kO}><span class="wd">take away</span></span>` : `<span class="t neg"${kO}>${MINUS}</span>`;
+      return `${op}<span class="t${neg ? " neg" : ""}"${col}${kT}>${bodyHTML(tm.n, tm.key, tm.d, not)}</span>`;
     }).join("");
   }
-  const termsOf = bubs => bubs.map(b => ({ key:b.key, d:b.d, s:b.s, n:b.toks.length }));
+  const termsOf = bubs => bubs.map(b => ({ id:b.id, key:b.key, d:b.d, s:b.s, n:b.toks.length }));
   const plainTerm = (n, key, d) => typeOf(key) === "let" ? (n === 1 ? "" : n) + letTxt(d) : typeOf(key) === "one" ? String(n) : `${n}(${valOf(key)})`;
 
   /* ================= colour per kind (optional) ================= */
@@ -813,7 +823,7 @@
     /* measured from the CSS height every time, then grown in the same frame if a phone needs more room,
        so a ResizeObserver never sees the board bounce between the two */
     /* the statement first: its size decides how much height the board gets */
-    if(!opt.keepText) paintText();
+    if(!opt.keepText) paintText({ anim:opt.born !== false });
     bd.style.minHeight = "";
     let { W, H } = boardSize();
     if(!W || !H) return;
@@ -864,14 +874,114 @@
   }
 
   /* ================= statement, hint, buttons ================= */
-  function paintText(){
+  /* ================= the statement morphs: every term is keyed to its bubble ================= */
+  function snapStmt(o){
+    const r = { any:false, k:{}, op:{}, ok:{}, oop:{} };
+    o.querySelectorAll("[data-k],[data-op],[data-ok],[data-oop]").forEach(el => {
+      const a = el.hasAttribute("data-k") ? "k" : el.hasAttribute("data-op") ? "op" : el.hasAttribute("data-ok") ? "ok" : "oop";
+      const box = el.getBoundingClientRect();
+      if(!box.width) return;
+      r[a][el.getAttribute("data-" + a)] = { box, html:el.outerHTML, fs:parseFloat(getComputedStyle(el).fontSize) };
+      r.any = true;
+    });
+    return r;
+  }
+  const EASE = "cubic-bezier(.45,.05,.25,1)";
+  const ctr = b => ({ x:b.left + b.width / 2, y:b.top + b.height / 2 });
+  function flipFrom(el, from, delay){
+    const nb = el.getBoundingClientRect(); if(!nb.width || !nb.height) return;
+    const a = ctr(from), z = ctr(nb), s = from.height / nb.height;
+    if(Math.abs(a.x - z.x) < .5 && Math.abs(a.y - z.y) < .5 && Math.abs(s - 1) < .01) return;
+    el.animate([{ transform:`translate(${a.x - z.x}px,${a.y - z.y}px) scale(${s})` }, { transform:"none" }], { duration:620, delay:delay || 0, easing:EASE, fill:"backwards" });
+  }
+  const fadeIn = (el, delay) => el.animate([{ opacity:0, transform:"scale(.6)" }, { opacity:1, transform:"none" }], { duration:420, delay:delay || 0, easing:"ease-out", fill:"backwards" });
+  const popIn = el => el.animate([{ opacity:0, transform:"scale(.4)" }, { opacity:1, transform:"scale(1.4)", offset:.55 }, { opacity:1, transform:"none" }], { duration:480, easing:"ease-out", fill:"backwards" });
+  const pulse = (el, delay) => el.animate([{ transform:"none" }, { transform:"scale(1.25)" }, { transform:"none" }], { duration:460, delay:delay || 0, easing:"ease-in-out" });
+  function flyLayer(){
+    let f = document.querySelector("#stage .stmtFly");
+    if(!f){ f = document.createElement("div"); f.className = "stmtFly"; f.setAttribute("aria-hidden", "true"); $("stage").appendChild(f); }
+    return f;
+  }
+  /* a copy of a term as it was, floating over the stage at its old place */
+  function ghost(rec){
+    const st = $("stage").getBoundingClientRect(), g = document.createElement("div");
+    g.className = "sGhost"; g.innerHTML = rec.html;
+    g.querySelectorAll("[data-k],[data-op],[data-ok],[data-oop]").forEach(e => ["data-k","data-op","data-ok","data-oop"].forEach(a => e.removeAttribute(a)));
+    g.style.left = (rec.box.left - st.left) + "px"; g.style.top = (rec.box.top - st.top) + "px";
+    g.style.width = rec.box.width + "px"; g.style.height = rec.box.height + "px"; g.style.fontSize = rec.fs + "px";
+    flyLayer().appendChild(g); return g;
+  }
+  function morphStmt(o, before, fx){
+    const merge = fx.merge || null, from = new Set(merge ? merge.from : []);
+    const bumps = new Set(fx.bump || []);
+    const COL = 520;                         /* how long the colliding terms take to meet */
+    let target = null;
+    o.querySelectorAll("[data-k]").forEach(el => {
+      const k = el.getAttribute("data-k");
+      if(merge && merge.to === k){ target = el; el.style.opacity = "0"; return; }
+      if(fx.split && fx.split.id === k && before.k[fx.split.from]){ flipFrom(el, before.k[fx.split.from].box); return; }
+      if(before.k[k] && !from.has(k)) flipFrom(el, before.k[k].box);
+      else if(before.ok[k]) flipFrom(el, before.ok[k].box);
+      else if(!from.has(k)) fadeIn(el, 120);
+      if(bumps.has(k)) pulse(el, 560);
+    });
+    o.querySelectorAll("[data-op]").forEach(el => {
+      const k = el.getAttribute("data-op");
+      if(merge && merge.to === k && before.op[k] && from.has(k)){ flipFrom(el, before.op[k].box); return; }
+      if(before.op[k]) flipFrom(el, before.op[k].box);
+      else if(before.oop[k]) flipFrom(el, before.oop[k].box);
+      else fadeIn(el, 120);
+    });
+    const lbl = o.querySelector(".orig .lbl");
+    if(lbl && !Object.keys(before.ok).length) lbl.animate([{ opacity:0, transform:"translateX(-12px)" }, { opacity:1, transform:"none" }], { duration:500, delay:260, easing:"ease-out", fill:"backwards" });
+    /* the question line: on the first move it is the old line, shrinking up into place */
+    o.querySelectorAll("[data-ok]").forEach(el => { const k = el.getAttribute("data-ok"); const r = before.ok[k] || before.k[k]; if(r) flipFrom(el, r.box); else fadeIn(el); });
+    o.querySelectorAll("[data-oop]").forEach(el => { const k = el.getAttribute("data-oop"); const r = before.oop[k] || before.op[k]; if(r) flipFrom(el, r.box); else fadeIn(el); });
+    const st = $("stage").getBoundingClientRect();
+    const ghosts = [];
+    if(merge){
+      merge.from.forEach(id => { if(before.k[id]) ghosts.push(ghost(before.k[id])); });
+      /* the sign in front of a term that has joined another goes with it */
+      Object.keys(before.op).forEach(id => { if(!o.querySelector(`[data-op="${id}"]`)) ghosts.push(ghost(before.op[id])); });
+      let aim;
+      if(target){ aim = ctr(target.getBoundingClientRect()); }
+      else { const pts = merge.from.map(id => before.k[id]).filter(Boolean).map(r => ctr(r.box)); aim = pts.length ? { x:pts.reduce((a, p) => a + p.x, 0) / pts.length, y:pts.reduce((a, p) => a + p.y, 0) / pts.length } : null; }
+      if(aim) ghosts.forEach(g => {
+        const b = g.getBoundingClientRect(), c = ctr(b);
+        g.animate([{ transform:"none", opacity:1 }, { transform:`translate(${aim.x - c.x}px,${aim.y - c.y}px) scale(1.12)`, opacity:1, offset:.88 }, { transform:`translate(${aim.x - c.x}px,${aim.y - c.y}px) scale(.8)`, opacity:0 }], { duration:COL, easing:"cubic-bezier(.55,0,.75,.4)", fill:"forwards" });
+      });
+      setTimeout(() => {
+        ghosts.forEach(g => g.remove());
+        if(target){ target.style.opacity = ""; popIn(target); }
+        else if(aim){ const z = document.createElement("div"); z.className = "sZero"; z.textContent = "0";
+          const fs = before.k[merge.from[0]] ? before.k[merge.from[0]].fs : 40;
+          z.style.left = (aim.x - st.left) + "px"; z.style.top = (aim.y - st.top) + "px"; z.style.fontSize = fs + "px";
+          flyLayer().appendChild(z); setTimeout(() => z.remove(), 800); }
+      }, COL);
+    } else {
+      /* anything that has gone without a merge (an undo) fades where it was */
+      Object.keys(before.k).forEach(id => { if(!o.querySelector(`[data-k="${id}"]`) && !o.querySelector(`[data-ok="${id}"]`)) { const g = ghost(before.k[id]); g.animate([{ opacity:1 }, { opacity:0, transform:"scale(.7)" }], { duration:300, fill:"forwards" }); setTimeout(() => g.remove(), 320); } });
+      Object.keys(before.op).forEach(id => { if(!o.querySelector(`[data-op="${id}"]`) && !o.querySelector(`[data-oop="${id}"]`)) { const g = ghost(before.op[id]); g.animate([{ opacity:1 }, { opacity:0 }], { duration:250, fill:"forwards" }); setTimeout(() => g.remove(), 270); } });
+    }
+  }
+
+  function paintText(popt){
+    popt = popt || {};
     const terms = termsOf(S.bubs), not = S.set.not;
-    const orig = S.q ? S.q.terms : [];
+    const orig = S.q ? S.q.terms.map((t, i) => Object.assign({}, t, { id:S.origIds[i] })) : [];
     const moved = S.lines.length > 1;
     const o = $("stmt");
-    o.innerHTML = (moved ? `<span class="orig">Simplify &nbsp;<span class="m">${exprHTML(orig, not === "words" ? "brackets" : not, { colour:S.set.colour })}</span></span>` : "")
-      + `<span class="cur">${exprHTML(terms, not, { colour:S.set.colour })}${S.evalDone && S.lines.length ? `<span class="t op">=</span><span class="t ev">${S.lines[S.lines.length - 1].html}</span>` : ""}</span>`;
-    fitStmt();
+    const html = (moved ? `<span class="orig"><span class="lbl">Simplify</span> &nbsp;<span class="m">${exprHTML(orig, not === "words" ? "brackets" : not, { colour:S.set.colour, pre:"o" })}</span></span>` : "")
+      + `<span class="cur">${exprHTML(terms, not, { colour:S.set.colour, pre:"" })}${S.evalDone && S.lines.length ? `<span class="t op">=</span><span class="t ev">${S.lines[S.lines.length - 1].html}</span>` : ""}</span>`;
+    /* nothing to say differently (a resize, a busy repaint): leave the line alone so a morph in flight keeps going */
+    if(o._html === html && !(S.fx && S.fx.fresh)){ fitStmt(); }
+    else {
+      const before = snapStmt(o);
+      o.innerHTML = html; o._html = html;
+      fitStmt();
+      const fx = S.fx; S.fx = null;
+      if(popt.anim !== false && !S.noAnim && !reduce && before.any && !(fx && fx.fresh)) morphStmt(o, before, fx || {});
+    }
     const done = isDone();
     const tag = $("doneTag"); tag.classList.toggle("not", !done);
     tag.textContent = done ? "Simplified ✓" : "Not yet simplified";
@@ -933,6 +1043,7 @@
     lookAlike(a, b);
     b.toks = b.toks.concat(a.toks);
     S.bubs = S.bubs.filter(x => x !== a);
+    S.fx = { merge:{ from:[a.id, b.id], to:b.id } };
     pushLine("join");
     say(`<b>Joined:</b> ${before} = ${termName(b)}`);
     render();
@@ -945,6 +1056,7 @@
     src.toks = src.toks.filter(x => x !== tid); b.toks.push(tid);
     const emptied = !src.toks.length;
     if(emptied) S.bubs = S.bubs.filter(x => x !== src);
+    S.fx = emptied ? { merge:{ from:[src.id, b.id], to:b.id } } : { bump:[src.id, b.id] };
     pushLine(emptied ? "join" : "move");
     say(emptied ? `<b>Joined:</b> now ${termName(b)}` : `<b>Moved one across:</b> ${termName(src)} and ${termName(b)} &mdash; still the same amount.`);
     render();
@@ -987,6 +1099,8 @@
     await popPairs([[tid, partner]]);
     src.toks = src.toks.filter(x => x !== tid); b.toks = b.toks.filter(x => x !== partner);
     S.bubs = S.bubs.filter(x => x.toks.length);
+    { const sa = S.bubs.includes(src), sb = S.bubs.includes(b);
+      S.fx = sa && sb ? { bump:[src.id, b.id] } : { merge:{ from:[src.id, b.id], to:sb ? b.id : sa ? src.id : null } }; }
     pushLine("pair");
     say(`<b>Zero pair:</b> ${unitPlain(b)} ${MINUS} ${unitPlain(b)} = 0. One piece from each bubble is gone.`);
     S.busy = false; render();
@@ -1003,6 +1117,7 @@
     if(ra.length){ b.toks = ra; b.s = a.s; b.d = a.d; }
     else b.toks = rb;
     S.bubs = S.bubs.filter(x => x !== a && x.toks.length);
+    S.fx = { merge:{ from:[a.id, b.id], to:S.bubs.includes(b) ? b.id : null } };
     pushLine("pair");
     const res = S.bubs.includes(b) ? termName(b) : "0";
     say(`<b>${k} zero pair${k === 1 ? "" : "s"}:</b> ${before} = ${res}`);
@@ -1014,6 +1129,7 @@
     src.toks = src.toks.filter(x => x !== tid);
     const nb = { id:nid("b"), key:src.key, d:src.d, s:src.s, toks:[tid] };
     S.bubs.splice(Math.max(0, Math.min(idx, S.bubs.length)), 0, nb);
+    S.fx = { split:{ from:src.id, id:nb.id }, bump:[src.id] };
     pushLine("split");
     say(`<b>Split:</b> ${termName(src)} and ${termName(nb)} together are the same amount as before.`);
     render();
@@ -1091,12 +1207,13 @@
   }
   function startAgain(){
     if(S.busy || !S.q) return;
-    S.bubs = boardFromQ(S.q); S.lines = [{ why:"start", terms:termsOf(S.bubs) }]; S.hist = []; S.evalDone = false; S.msg = "";
+    S.bubs = boardFromQ(S.q); S.origIds = S.bubs.map(b => b.id); S.fx = { fresh:true };
+    S.lines = [{ why:"start", terms:termsOf(S.bubs) }]; S.hist = []; S.evalDone = false; S.msg = "";
     clearBoard(); render();
   }
   function clearBoard(){ [EB, EC, ET].forEach(M => Object.keys(M).forEach(id => { M[id].remove(); delete M[id]; })); }
   function setQ(q){
-    S.q = q; S.bubs = boardFromQ(q); S.lines = [{ why:"start", terms:termsOf(S.bubs) }]; S.hist = []; S.evalDone = false; S.msg = "";
+    S.q = q; S.bubs = boardFromQ(q); S.origIds = S.bubs.map(b => b.id); S.fx = { fresh:true }; S.lines = [{ why:"start", terms:termsOf(S.bubs) }]; S.hist = []; S.evalDone = false; S.msg = "";
     clearBoard(); render();
   }
   function newQuestion(){ if(S.busy) return; setQ(makeQ()); }

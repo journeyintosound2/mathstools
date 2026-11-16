@@ -121,6 +121,14 @@
 >   layout (its height decides the board's). ≤ 980px the board grows taller instead of shrinking pieces below 30px.
 > * Settings: taking away (on), plain numbers, look-alikes, Numbers group size, colour each kind (off — students read
 >   the bubbles), split (on), name each move (on). Notation switch Groups of / Times sign / Algebra (3x, 3(7)).
+> * **The statement morphs with the board (Jeff's feedback, same night).** Every term and sign in the big line is
+>   keyed to its bubble (`data-k` / `data-op`; the question line `data-ok` / `data-oop`, ids in `S.origIds`).
+>   `paintText` snapshots the old spans, rewrites, then `morphStmt` FLIPs each span from where it was. On the FIRST
+>   move the old line splits in two: one copy shrinks up into "Simplify …", the other slides into the new line. A
+>   move sets `S.fx`: `merge {from, to}` (join, zero pairs, a piece emptying a bubble) sends ghost copies of the old
+>   terms and the sign between them crashing into the new term, which pops in (or a "0" puffs if nothing is left);
+>   `bump` pulses terms whose count changed; `split` makes the new term emerge from its source. A repaint with the
+>   SAME html (a resize) does not touch the line, or it would kill a morph in flight.
 > * Lesson plan updated (title, controls, Number Groups first). The old quiz/worksheet at `collecting-like-terms.html`
 >   are unchanged apart from their listed titles ("– Bubbles") — they are the old ones, worth rebuilding on this model.
 > * Verified (Playwright): real-mouse join / zero pair / unlike refused / split / rearrange / undo, a touch drag at 390,
