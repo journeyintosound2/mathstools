@@ -96,6 +96,26 @@
 > §2 "TWO folders", §3 deploy paths and §5's `mathstools-main 2` heading below
 > describe the OLD layout — this block supersedes them.
 >
+> **NEW (2026-11-17, evening): ONE-STEP DOUBLE NUMBER LINE — "EQUATION FIRST" MODE, TYPE PICKER, GREEN ANSWER.**
+> `interactive-tools/stage-4/algebra/double-numberline/index.html` (same URL). Source edited as one file; the Multi-Step
+> tool's pieces were PORTED in, not shared — fix one, port to the other.
+> * **Settings › How it starts › Equation first** (`S.set.eqf`, saved, key E; default OFF = the explore flow exactly as
+>   before). On, the tool works like Multi-Step: steps `s` (equation as one point, left side on top) → `m0` (same move on
+>   both lines; respects Show the moves / both lines / label every mark) → `r0` (reset on the answer) → `check`.
+>   `EF` module (inside the IIFE) = `build(q)` turning the one-step `q` into two stages + one move, plus the Multi-Step
+>   tool's own `layout/scene/seeScene/moveScene/checkScene/drawEls/mix` (copied verbatim, renamed refs). `frame()`,
+>   `paintStmt()`, `fitStmt()`, `storyFor/hintFor` branch on `eqf()`. LEFT/RIGHT SIDE tags (`S.set.sides`, no UI).
+> * Board in eqf: `#bOrig` (first equation card, green at the start and the check) + `#stepWin` (green current-line
+>   card that scrolls), working panel `#workSide` via `#wpBtn` between ↺ and the panel button (key V, only shown in
+>   eqf; never open with the side panel; turning eqf off closes it and brings the side panel back). Same code as
+>   Multi-Step (`workHTML`, `stepHTML`, `scrollWin`, `fitBoard`, `fitPanel`, `paintWork`, `morphWork`, `setWP`).
+> * The four kinds (Add or subtract / Multiply / Divide / Mixed) moved from the board's mode switch into the
+>   Multi-Step style **Equation type** button + menu (`#typeBtn`, `#typePop`, `OPTS`; keys T, 1–4). `.modeBtn` is gone.
+> * Explore's final answer is GREEN (number-line box `#dcfce7/#86efac`, `.ans` green); eqf uses green too.
+> * Verified: explore 2,162 audit frames (unchanged), eqf 1,640 and eqf + working panel 1,640 (5 viewports × both
+>   division notations, nothing off the board or overlapping, answer never early, cards never over the line);
+>   46 UI checks (picker, eqf toggle, panel swap, persistence, typed equations, Tools menu 6 links).
+>
 > **NEW (2026-11-17, latest): MULTI-STEP EQUATIONS ON THE DOUBLE NUMBER LINE — new teaching tool** at
 > `interactive-tools/stage-4/algebra/multi-step-double-numberline/index.html`, on the rebuilt one-step tool's shell
 > (single self-contained file, no Firebase). Under **MA4-EQU-C-01** (ideas two-steps, verify; toolLinks row, homepage

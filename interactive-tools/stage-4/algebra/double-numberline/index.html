@@ -301,7 +301,129 @@
     .sLine .lab .eq{ font-family:var(--mathFont); font-weight:var(--mathWeight); font-size:1.14em; color:var(--line); }
     .hint .cBuild{ color:var(--orange-dark); } .hint .cUndo{ color:var(--purple-dark); }
     #board{ transform-origin:50% 50%; }
-    @media (max-width:760px){ .stage{ height:clamp(300px, calc(62vw + 130px), 520px); } .modeSwitch{ grid-template-columns:repeat(4,minmax(0,1fr)); } }
+    @media (max-width:760px){ .stage{ height:clamp(300px, calc(62vw + 130px), 520px); } .typeWrap, .typeBtn{ width:100%; } .app.eqf .stage{ height:clamp(380px, calc(100vw + 150px), 640px); } }
+
+    /* ===== Equation first (ported from the Multi-Step tool) and the equation-type picker ===== */
+    /* the working: one grid, = under = */
+    .work{ position:relative; display:grid; grid-template-columns:max-content max-content max-content; justify-content:center; align-items:center;
+      column-gap:.14em; margin:0 auto; line-height:1.18; }
+    .work .wc{ position:relative; z-index:1; white-space:nowrap; display:flex; align-items:center; }
+    .work .wl{ justify-content:flex-end; } .work .we{ justify-content:center; } .work .wr{ justify-content:flex-start; }
+    .work .wc.fut{ visibility:hidden; }
+    .work .wc.new{ animation:rowIn .55s cubic-bezier(.3,.6,.3,1) both; }
+    @keyframes rowIn{ from{ opacity:0; transform:translateY(-.45em);} to{ opacity:1; transform:none;} }
+    .work .w0{ padding:.12em 0 .14em; margin-bottom:.22em; }
+    .work .we.w0{ padding-left:.12em; padding-right:.12em; }
+    .work .we.wq{ padding-left:.1em; padding-right:.1em; }
+    .work .wq{ font-size:.6em; color:var(--line); padding:.04em 0; }
+    .work .wp{ font-size:.23em; padding:.1em 0 .08em; }
+    .work .wl.wp{ padding-right:.3em; } .work .wr.wp{ padding-left:.3em; }
+    .trOp{ font-family:var(--uiFont); font-weight:900; color:#475569; background:#f1f5f9; border:1px solid #cbd5e1;
+      border-radius:999px; padding:.08em .6em; white-space:nowrap; line-height:1.2; }
+    .work .wq.fin{ color:var(--ink); }
+    .origCard, .curHi{ position:absolute; z-index:0; display:none; pointer-events:none; }
+    .origCard{ background:#fff; border:1.5px solid var(--border); border-radius:14px; box-shadow:0 2px 10px rgba(15,23,42,.08), 0 1px 2px rgba(15,23,42,.05); }
+    .curHi{ background:rgba(34,197,94,.17); border-radius:.3em; box-shadow:inset 0 0 0 1.5px rgba(22,163,74,.38), inset 0 -.1em 0 rgba(22,163,74,.5); }
+    /* the working panel: the working leaves the board and gets a column of its own (it replaces the side panel) */
+    .workSide{ display:none; flex-direction:column; min-height:0; padding:12px 14px; }
+    .app.wpOn .workSide{ display:flex; }
+    .app.wpOn .side{ display:none; }
+    @media (min-width:981px){
+      .app.wpOn .layout, .app.noPanel.wpOn .layout, .app.fs.wpOn .layout{ grid-template-columns:minmax(0,1fr) 400px; }
+    }
+    @media (min-width:981px) and (max-width:1280px){
+      .app.wpOn .layout, .app.noPanel.wpOn .layout, .app.fs.wpOn .layout{ grid-template-columns:minmax(0,1fr) 344px; }
+    }
+    .wsBody{ position:relative; flex:1 1 auto; min-height:0; overflow:hidden; padding:10px 4px 6px; }
+    .wsBody .work{ row-gap:.2em; }
+    .wsBody .work .w0{ padding:.16em 0 .18em; margin-bottom:.5em; }
+    .wsBody .work .wq{ font-size:.8em; padding:.06em 0; }
+    .wsBody .work .wp{ font-size:.36em; padding:.3em 0 .12em; }
+    .wsBody .work .wl.wp{ padding-right:.45em; } .wsBody .work .wr.wp{ padding-left:.45em; }
+    .wsBody .work .wq.fin{ margin-top:.1em; }
+    .workSide{ position:relative; }
+    .app.morphing .boardCard, .app.morphing .wsBody, .app.morphing .workSide{ overflow:visible; }
+    .app.toPanel .workSide{ z-index:6; } .app.toBoard .boardCard{ z-index:6; }
+    @media (max-width:980px){ .workSide{ min-height:420px; } }
+    /* the board: the first equation in its card, the current line in a green card that scrolls */
+    .bOrig{ position:relative; z-index:2; display:inline-flex; align-items:center; gap:.16em; white-space:nowrap; line-height:1.18;
+      background:#fff; border:1.5px solid var(--border); border-radius:14px; padding:.1em .42em .12em;
+      box-shadow:0 2px 10px rgba(15,23,42,.08), 0 1px 2px rgba(15,23,42,.05); transition:background .45s ease, border-color .45s ease, box-shadow .45s ease; }
+    .bOrig .wt{ display:inline-flex; align-items:center; }
+    .bOrig.cur{ background:#f0fdf4; border-color:rgba(22,163,74,.6); box-shadow:0 0 0 3px rgba(34,197,94,.16), 0 2px 10px rgba(15,23,42,.08); }
+    .stepWin{ position:relative; z-index:1; margin-top:.2em; font-size:.8em; background:#f0fdf4; border:1.5px solid rgba(22,163,74,.5); border-radius:14px;
+      padding:0 .6em; box-shadow:0 2px 8px rgba(22,163,74,.10); transition:opacity .45s ease, transform .58s cubic-bezier(.45,.05,.2,1); }
+    .stepWin.rest{ opacity:0; transform:translateY(-60%) scale(.95); }
+    .stepVp{ position:relative; overflow:hidden;
+      -webkit-mask-image:linear-gradient(transparent, #000 11%, #000 89%, transparent); mask-image:linear-gradient(transparent, #000 11%, #000 89%, transparent); }
+    .stepList{ display:grid; grid-template-columns:max-content max-content max-content; column-gap:.14em; align-items:center; line-height:1.18; will-change:transform; }
+    .stepList .sc{ display:flex; align-items:center; white-space:nowrap; }
+    .stepList .wl{ justify-content:flex-end; } .stepList .we{ justify-content:center; } .stepList .wr{ justify-content:flex-start; }
+    .stepList .sq{ color:var(--ink); padding:.02em 0 .08em; }
+    .stepList .we.sq{ padding-left:.1em; padding-right:.1em; }
+    .stepList .sp{ font-size:.3em; padding:.6em 0 .15em; margin-top:1.6em; }
+    .stepList .wl.sp{ padding-right:.35em; } .stepList .wr.sp{ padding-left:.35em; }
+    .trOp.ghost{ visibility:hidden; }
+    /* the equation type: the main choice on the board, so it gets a button of its own */
+    .typeWrap{ position:relative; z-index:40; }
+    .typeBtn{ appearance:none; cursor:pointer; display:grid; grid-template-columns:auto auto 18px; grid-template-rows:auto auto; column-gap:14px; align-items:center;
+      text-align:left; padding:6px 12px 7px 14px; border-radius:16px; border:1.5px solid #bfdbfe; color:var(--ink);
+      background:linear-gradient(135deg, #eff6ff 0%, #eef2ff 100%); box-shadow:0 3px 12px rgba(37,99,235,.13), inset 0 1px 0 #fff; transition:.16s ease; }
+    .typeBtn:hover{ border-color:#93c5fd; box-shadow:0 5px 18px rgba(37,99,235,.2), inset 0 1px 0 #fff; transform:translateY(-1px); }
+    .typeBtn:focus-visible{ outline:none; box-shadow:0 0 0 4px rgba(37,99,235,.25); }
+    .typeBtn[aria-expanded="true"]{ border-color:var(--blue); background:#fff; }
+    .tbLab{ grid-row:1; grid-column:1; font-size:.66rem; font-weight:950; letter-spacing:.09em; text-transform:uppercase; color:var(--blue-dark); line-height:1.2; }
+    .tbMain{ grid-row:2; grid-column:1; display:flex; align-items:center; gap:8px; white-space:nowrap; }
+    .tbFam{ font-size:.7rem; font-weight:900; padding:3px 9px; border-radius:999px; background:var(--blue); color:#fff; letter-spacing:.02em; }
+    .typeBtn.fBoth .tbFam{ background:var(--purple-dark); }
+    .typeBtn.fOwn .tbFam{ background:#475569; }
+    .typeBtn.fBoth{ border-color:#ddd6fe; background:linear-gradient(135deg, #f5f3ff 0%, #eef2ff 100%); box-shadow:0 3px 12px rgba(124,58,237,.13), inset 0 1px 0 #fff; }
+    .tbName{ font-size:1rem; font-weight:900; }
+    .tbEx{ grid-row:1 / 3; grid-column:2; font-family:var(--mathFont); font-weight:var(--mathWeight); font-size:1.32rem; color:var(--line); white-space:nowrap;
+      padding-left:14px; border-left:1.5px solid rgba(148,163,184,.35); line-height:1.1; }
+    .tbEx .frac{ font-size:.72em; }
+    .tbNote{ font-family:var(--uiFont); font-size:.8rem; font-weight:800; color:var(--muted); }
+    .tbChev{ grid-row:1 / 3; grid-column:3; width:18px; height:18px; color:var(--blue-dark); transition:transform .2s ease; }
+    .typeBtn[aria-expanded="true"] .tbChev{ transform:rotate(180deg); }
+    .typeBtn.compact .tbEx{ display:none; } .typeBtn.compact{ grid-template-columns:auto 18px; } .typeBtn.compact .tbChev{ grid-column:2; }
+    .typePop{ position:absolute; left:0; top:calc(100% + 10px); width:min(680px, calc(100vw - 40px)); background:#fff; border:1px solid var(--border); border-radius:20px;
+      box-shadow:0 24px 60px rgba(15,23,42,.22), 0 4px 14px rgba(15,23,42,.08); padding:12px; animation:popIn .18s ease both; }
+    @keyframes popIn{ from{ opacity:0; transform:translateY(-6px) scale(.98);} to{ opacity:1; transform:none;} }
+    .famSeg{ display:grid; grid-template-columns:1fr 1fr; gap:4px; background:#f1f5f9; border:1px solid var(--border); border-radius:15px; padding:4px; margin-bottom:10px; }
+    .famSeg button{ appearance:none; border:none; background:transparent; border-radius:11px; padding:7px 10px; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:1px; color:var(--muted); transition:.15s ease; }
+    .famSeg button b{ font-size:.95rem; font-weight:900; }
+    .famSeg button small{ font-family:var(--mathFont); font-weight:var(--mathWeight); font-size:.92rem; color:var(--line-soft); }
+    .famSeg button:hover{ color:var(--ink); }
+    .famSeg button[aria-selected="true"]{ background:#fff; color:var(--blue-dark); box-shadow:0 3px 10px rgba(15,23,42,.12); }
+    .famSeg button[data-fam="both"][aria-selected="true"]{ color:var(--purple-dark); }
+    .typeGrid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(168px, 1fr)); gap:8px; }
+    .tEx .frac, .tEx .mi{ white-space:nowrap; }
+    .typeGrid.fBoth{ grid-template-columns:repeat(auto-fill, minmax(230px, 1fr)); }
+    .tCard{ appearance:none; position:relative; cursor:pointer; text-align:left; display:flex; flex-direction:column; gap:6px; min-height:96px; padding:10px 12px 11px;
+      border-radius:14px; border:1.5px solid var(--border); background:#fff; color:var(--ink); transition:.14s ease; }
+    .tCard:hover{ border-color:#93c5fd; background:#f8fbff; transform:translateY(-1px); }
+    .tCard:focus-visible{ outline:none; box-shadow:0 0 0 3px rgba(37,99,235,.3); }
+    .tCard.on{ border-color:var(--blue); background:#eff6ff; box-shadow:inset 0 0 0 1px var(--blue); }
+    .typeGrid.fBoth .tCard:hover{ border-color:#c4b5fd; background:#faf8ff; }
+    .typeGrid.fBoth .tCard.on{ border-color:var(--purple-dark); background:#f5f3ff; box-shadow:inset 0 0 0 1px var(--purple-dark); }
+    .tKey{ position:absolute; top:8px; right:9px; min-width:20px; height:20px; border-radius:6px; background:#f1f5f9; border:1px solid var(--border);
+      font-size:.7rem; font-weight:900; color:var(--muted); display:grid; place-items:center; }
+    .tCard.on .tKey{ background:var(--blue); color:#fff; border-color:var(--blue); }
+    .typeGrid.fBoth .tCard.on .tKey{ background:var(--purple-dark); border-color:var(--purple-dark); }
+    .tName{ font-size:.84rem; font-weight:900; padding-right:24px; line-height:1.2; }
+    .tEx{ font-family:var(--mathFont); font-weight:var(--mathWeight); font-size:1.3rem; color:var(--line); white-space:normal; margin-top:auto; line-height:1.1; }
+    .tEx .frac{ font-size:.74em; }
+    .tNote{ font-size:.72rem; font-weight:750; color:var(--muted); line-height:1.25; }
+    .tCard.mixC{ background:repeating-linear-gradient(135deg, #fff 0 10px, #f8fafc 10px 20px); }
+    .popFoot{ margin-top:9px; text-align:right; font-size:.72rem; font-weight:750; color:var(--line-soft); }
+    .popFoot kbd{ font-size:.7rem; }
+    @media (max-width:760px){ .typeGrid{ grid-template-columns:repeat(2, minmax(0,1fr)); } .typePop{ width:calc(100vw - 32px); } .tEx{ font-size:1.1rem; white-space:normal; } }
+    /* one-step: which board statement shows */
+    .app:not(.eqf) #bOrig, .app:not(.eqf) #stepWin{ display:none; }
+    .app.eqf .stmt.eqn .row{ display:none; }
+    .typeGrid{ grid-template-columns:repeat(auto-fill, minmax(132px, 1fr)); }
+    /* the answer is green (it used to be yellow) */
+    .ans{ background:#dcfce7; box-shadow:inset 0 -.1em 0 #86efac; color:var(--ink); }
   </style>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
 <!-- mmt-pwa -->
@@ -326,6 +448,10 @@
         <div class="menuWrap">
           <button class="btn" id="settingsBtn" type="button" aria-haspopup="true" aria-expanded="false">Settings &#9662;</button>
           <nav class="dropMenu settingsMenu" id="settingsMenu" aria-label="Settings">
+            <div class="settingsHead">How it starts</div>
+            <label class="sw"><input type="checkbox" id="eqfToggle"><span class="track"></span><span>Equation first</span></label>
+            <p class="settingsNote">On: start from the whole equation as one point and make the same move on both lines, as in the Multi-Step tool, with the working beside it. Off: build the expression from <i>x</i> first (explore). Key E.</p>
+            <div class="settingsRule" role="separator"></div>
             <div class="settingsHead">New questions</div>
             <label class="selRow"><span>Division written as</span>
               <select id="divSel" aria-label="How division is written">
@@ -375,29 +501,26 @@
     <main class="layout">
       <section class="card boardCard" id="boardCard">
         <div class="boardTop">
-          <div class="modeSwitch" role="tablist" aria-label="Kind of equation">
-            <button class="modeBtn" data-op="as" role="tab" aria-selected="true" type="button" title="Add and subtract (1)">
-              <span class="sym" aria-hidden="true">+ &minus;</span>
-              <span class="txt">Add / subtract<small><i>x</i> + 5 = 12</small></span>
+          <div class="typeWrap" id="typeWrap">
+            <button class="typeBtn" id="typeBtn" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="typePop" title="Choose the equation type (T)">
+              <span class="tbLab">Equation type</span>
+              <span class="tbMain"><span class="tbFam" id="tbFam">One-step</span><span class="tbName" id="tbName">Add or subtract</span></span>
+              <span class="tbEx" id="tbEx" aria-hidden="true"></span>
+              <svg class="tbChev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
             </button>
-            <button class="modeBtn" data-op="mul" role="tab" aria-selected="false" type="button" title="Multiply (2)">
-              <span class="sym" aria-hidden="true">&times;</span>
-              <span class="txt">Multiply<small>3<i>x</i> = 12</small></span>
-            </button>
-            <button class="modeBtn" data-op="div" role="tab" aria-selected="false" type="button" title="Divide (3)">
-              <span class="sym" aria-hidden="true">&divide;</span>
-              <span class="txt">Divide<small><i>x</i> &divide; 4 = 6</small></span>
-            </button>
-            <button class="modeBtn" data-op="mix" role="tab" aria-selected="false" type="button" title="Any of them (4)">
-              <span class="sym" aria-hidden="true">?</span>
-              <span class="txt">Mixed<small>any one-step</small></span>
-            </button>
+            <div class="typePop" id="typePop" role="dialog" aria-label="Choose the equation type" hidden>
+              <div class="typeGrid" id="typeGrid" role="listbox" aria-label="Equation type"></div>
+              <div class="popFoot"><span><kbd>1</kbd>&ndash;<kbd>4</kbd> choose &middot; <kbd>T</kbd> open or close</span></div>
+            </div>
           </div>
           <div class="topRight">
             <span class="typeTag" id="typeTag">Whole numbers</span>
             <div class="iconGroup">
               <button class="iconBtn" id="againIcon" type="button" title="Back to the start of the steps (Space)" aria-label="Back to the start of the steps">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1"/><path d="M3.5 4v5h5"/></svg>
+              </button>
+              <button class="iconBtn" id="wpBtn" type="button" aria-pressed="false" title="Show the working in a side panel (V)" aria-label="Show or hide the working panel">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M12 4v16"/><path d="M14.8 8.6h3.6M14.8 10.9h3.6M14.8 14.1h3.6M14.8 16.4h3.6"/></svg>
               </button>
               <button class="iconBtn" id="panelBtn" type="button" aria-pressed="true" title="Hide the side panel" aria-label="Show or hide the side panel">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M15 4v16"/><path d="M17 8h2M17 11h2M17 14h2"/></svg>
@@ -410,7 +533,7 @@
           </div>
         </div>
         <div class="stage" id="stage">
-          <div class="stmt eqn" id="stmt" aria-live="polite"><div class="row r1" id="row1"></div><div class="row r2" id="row2"></div></div>
+          <div class="stmt eqn" id="stmt" aria-live="polite"><div class="row r1" id="row1"></div><div class="row r2" id="row2"></div><div class="bOrig" id="bOrig"></div><div class="stepWin" id="stepWin"><div class="stepVp" id="stepVp"><div class="stepList" id="stepList"></div></div></div></div>
           <div class="boardWrap" id="boardWrap">
             <svg id="board" role="img" aria-label="Double number line: expressions in x on top, numbers underneath"></svg>
           </div>
@@ -450,8 +573,12 @@
             <button class="stepBtn" id="allBtn" type="button">Show all</button>
             <button class="nextBtn" id="nextBtn" type="button" title="Next step (&rarr;)">Next &#9656;</button>
           </div>
-          <div class="keyHint"><kbd>&rarr;</kbd>/<kbd>&larr;</kbd> step &middot; <kbd>Space</kbd> start again &middot; <kbd>Enter</kbd> new question &middot; <kbd>1</kbd>&ndash;<kbd>4</kbd> kind &middot; <kbd>N</kbd> negatives &middot; <kbd>F</kbd> full screen</div>
+          <div class="keyHint"><kbd>&rarr;</kbd>/<kbd>&larr;</kbd> step &middot; <kbd>Space</kbd> start again &middot; <kbd>Enter</kbd> new question &middot; <kbd>T</kbd>/<kbd>1</kbd>&ndash;<kbd>4</kbd> equation type &middot; <kbd>E</kbd> equation first &middot; <kbd>V</kbd> working panel &middot; <kbd>N</kbd> negatives &middot; <kbd>F</kbd> full screen</div>
         </section>
+      </aside>
+      <aside class="card workSide" id="workSide" aria-label="The working">
+        <div class="pHead"><span class="pTitle">Working</span><span class="pCount" id="wsCount"></span></div>
+        <div class="wsBody" id="wsBody"><div class="work" id="work"></div></div>
       </aside>
     </main>
   </div>
@@ -465,9 +592,11 @@
 
   /* ================= state ================= */
   const DEF = { op:"as", neg:"off", div:"frac", vary:false, predict:false, check:true, work:"both",
-    moves:true, both:true, ticks:true, panel:true };
+    moves:true, both:true, ticks:true, panel:true, eqf:false, wpanel:false, panelBefore:true, sides:true };
   const S = { set:Object.assign({}, DEF), q:null, step:0, anim:null, fs:false, noAnim:false, own:false, lastSig:"" };
   try { const sv = JSON.parse(localStorage.getItem(STORE) || "null"); if(sv && sv.set) Object.assign(S.set, sv.set); } catch(e){}
+  if(!S.set.eqf) S.set.wpanel = false;
+  if(S.set.wpanel) S.set.panel = false;
   function save(){ try { localStorage.setItem(STORE, JSON.stringify({ set:S.set })); } catch(e){} }
 
   /* ================= small helpers ================= */
@@ -897,7 +1026,7 @@
     let bg = "";
     if(e.bg){
       const w = measureP(e.p, e.size) + e.size * 0.5, h = e.size * 1.18;
-      bg = `<rect x="${f1(e.x - w / 2)}" y="${f1(e.y - h / 2)}" width="${f1(w)}" height="${f1(h)}" rx="${f1(e.size * 0.22)}" fill="#fef9c3" stroke="#fde047" stroke-width="1.5"/>`;
+      bg = `<rect x="${f1(e.x - w / 2)}" y="${f1(e.y - h / 2)}" width="${f1(w)}" height="${f1(h)}" rx="${f1(e.size * 0.22)}" fill="#dcfce7" stroke="#86efac" stroke-width="1.5"/>`;
     }
     if(isFrac(e.p)){
       const s = e.size, fr = e.p[0].fr;
@@ -970,13 +1099,15 @@
     const left = exprP(q), right = [N(q.c)];
     return q.rev ? { first:right, second:left } : { first:left, second:right };
   }
-  function subP(q){
+  function subE(q){
     const xv = q.x, br = xv < 0 ? [{ t:"(" }, N(xv), { t:")" }] : [N(xv)];
-    let e;
-    if(q.op === "add") e = q.kFirst ? [N(q.k), O("+"), ...br] : [N(xv), O("+"), N(q.k)];
-    else if(q.op === "sub") e = [N(xv), O(MINUS), N(q.k)];
-    else if(q.op === "mul") e = [N(q.a), O(TIMES), ...br];
-    else e = fracOn() ? [{ fr:[[N(xv)], [N(q.d)]] }] : [N(xv), O(DIVIDE), N(q.d)];
+    if(q.op === "add") return q.kFirst ? [N(q.k), O("+"), ...br] : [N(xv), O("+"), N(q.k)];
+    if(q.op === "sub") return [N(xv), O(MINUS), N(q.k)];
+    if(q.op === "mul") return [N(q.a), O(TIMES), ...br];
+    return fracOn() ? [{ fr:[[N(xv)], [N(q.d)]] }] : [N(xv), O(DIVIDE), N(q.d)];
+  }
+  function subP(q){
+    const e = subE(q);
     return q.rev ? [N(q.c), O("="), ...e] : [...e, O("="), N(q.c)];
   }
   function row1HTML(q){
@@ -994,6 +1125,7 @@
     return "";
   }
   function fitStmt(){
+    if(eqf()){ fitBoard(); fitPanel(); return; }
     const st = $("stmt"), r1 = $("row1"), stage = $("stage");
     const W = stage.clientWidth - 16;
     let F = clamp(stage.clientHeight * 0.1, 20, 54);
@@ -1003,6 +1135,7 @@
     st.style.fontSize = F + "px";
   }
   function paintStmt(){
+    if(eqf()){ paintWork(); return; }
     const r1 = $("row1"), r2 = $("row2");
     const shown = new Set([...r1.querySelectorAll("[data-k]:not(.fut)"), ...r2.querySelectorAll("[data-k]")].map(el => el.dataset.k));
     r1.innerHTML = row1HTML(S.q); r2.innerHTML = row2HTML(S.q);
@@ -1033,6 +1166,7 @@
     return { L1, L2:[V, O("="), { ans:[N(q.x)] }] };
   }
   function storyFor(id){
+    if(eqf()) return eqfStory(id);
     const q = S.q, v = letterHTML(q.v), ex = eqHTML(exprP(q)), c = fmt(q.c), x = fmt(q.x);
     const eqn = (() => { const { first, second } = eqParts(q); return [...first, O("="), ...second]; })();
     switch(id){
@@ -1069,6 +1203,7 @@
     return { lab:id, m:"", tip:"" };
   }
   function hintFor(id){
+    if(eqf()) return eqfHint(id);
     const q = S.q, v = letterHTML(q.v), ex = eqHTML(exprP(q)), c = fmt(q.c);
     switch(id){
       case "start": return `Where could ${v} be on the line?`;
@@ -1089,6 +1224,433 @@
     return "";
   }
 
+
+  /* ================= EQUATION FIRST (Settings › Equation first) =================
+     The Multi-Step tool's way of showing it: the finished equation is ONE point (left side on top, right side
+     underneath), the same move is made on both lines, the line resets on the answer, then the check.
+     The scenes and drawing below are the Multi-Step tool's own, so both tools look and move the same. */
+  const EF = (function(){
+    let EQ = null;
+    const T = t => ({ t });
+    const rF = v => v;
+    const hasFr = p => p.some(it => it.fr);
+    const topP = i => EQ.stages[i].tp, botP = i => EQ.stages[i].bp;
+    const eqP = i => [...topP(i), O("="), ...botP(i)];
+    const kindOf = id => id === "check" ? "check" : id[0];
+    const idxOf = id => id === "check" || id === "s" ? 0 : parseInt(id.slice(1), 10);
+    function build(q){
+      const ex = exprP(q), cP = [N(q.c)], xP = [N(q.x)];
+      const s0 = q.rev ? { tp:cP, bp:ex, top:{ t:"num" }, bot:{ t:"x" } } : { tp:ex, bp:cP, top:{ t:"x" }, bot:{ t:"num" } };
+      const s1 = q.rev ? { tp:xP, bp:[V], top:{ t:"num" }, bot:{ t:"x" } } : { tp:[V], bp:xP, top:{ t:"x" }, bot:{ t:"num" } };
+      s0.val = q.c; s1.val = q.x;
+      const kind = q.op === "add" ? "sub" : q.op === "sub" ? "add" : q.op === "mul" ? "div" : "mul";
+      const n = q.op === "add" || q.op === "sub" ? q.k : q.op === "mul" ? q.a : q.d;
+      EQ = { q, stages:[s0, s1], moves:[{ kind, n }], x:q.x, pill:undoOp(q) };
+      return EQ;
+    }
+    const stepIds = () => ["s", "m0", "r0"].concat(S.set.check ? ["check"] : []);
+    /* the line of working the number line is showing (the check substitutes into the first equation) */
+    const hiRow = id => id === "m0" || id === "r0" ? 1 : 0;
+    function checkP(){
+      const q = EQ.q, s = [...subE(q), O("="), N(q.c)];
+      return q.rev ? { top:[N(q.c)], bot:s } : { top:s, bot:[N(q.c)] };
+    }
+    const runTxt = items => items.map(it => it.v ? (MATH_ALPHA ? mathItalic(S.q.v) : S.q.v) : it.n != null ? it.n : it.o ? ` ${it.o} ` : it.t || "").join("");
+    function segsOf(p, size){
+      const segs = []; let run = [];
+      const flush = () => { if(run.length){ segs.push({ run, w:tw(runTxt(run), size) * 1.03 }); run = []; } };
+      p.forEach(it => { if(it.fr){ flush(); const s2 = size * 0.74; segs.push({ fr:it.fr, w:Math.max(measureP(it.fr[0], s2), measureP(it.fr[1], s2)) + size * 0.22 }); } else run.push(it); });
+      flush(); return segs;
+    }
+    function measureP(p, size){ const sg = segsOf(p, size); return sg.reduce((a, s) => a + s.w, 0) + Math.max(0, sg.length - 1) * size * 0.07; }
+    function svgLetter(){ return MATH_ALPHA ? `<tspan>${mathItalic(S.q.v)}</tspan>` : `<tspan font-style="italic" style="font-family:var(--itFont)">${esc(S.q.v)}</tspan>`; }
+    const svgIn = items => items.map(it => it.v ? svgLetter() : it.n != null ? `<tspan>${it.n}</tspan>` : it.o ? `<tspan> ${it.o} </tspan>` : `<tspan>${esc(it.t || "")}</tspan>`).join("");
+    const f1 = v => v.toFixed(1);
+    function pSVG(p, x, y, size, col){
+      const sg = segsOf(p, size), gap = size * 0.07, total = sg.reduce((a, s) => a + s.w, 0) + Math.max(0, sg.length - 1) * gap;
+      let cx = x - total / 2, out = "";
+      const txt = (items, tx, ty, sz) => `<text xml:space="preserve" x="${f1(tx)}" y="${f1(ty)}" text-anchor="middle" dominant-baseline="central" font-size="${f1(sz)}" fill="${col}">${svgIn(items)}</text>`;
+      sg.forEach(s => {
+        const mid = cx + s.w / 2;
+        if(s.run) out += txt(s.run, mid, y, size);
+        else {
+          const s2 = size * 0.74;
+          out += txt(s.fr[0], mid, y - size * 0.47, s2) +
+            `<line x1="${f1(mid - s.w / 2 + size * 0.03)}" x2="${f1(mid + s.w / 2 - size * 0.03)}" y1="${f1(y)}" y2="${f1(y)}" stroke="${col}" stroke-width="${f1(Math.max(1.6, size * 0.06))}" stroke-linecap="round"/>` +
+            txt(s.fr[1], mid, y + size * 0.5, s2);
+        }
+        cx += s.w + gap;
+      });
+      return out;
+    }
+
+    const L = {};
+    function layout(){
+      const wrapEl = $("boardWrap"), q = EQ;
+      const W = Math.max(240, wrapEl.clientWidth), Hh = Math.max(170, wrapEl.clientHeight);
+      L.W = W; L.H = Hh;
+      let fr = false;
+      q.stages.forEach((st, i) => { if(hasFr(topP(i)) || hasFr(botP(i))) fr = true; });
+      L.fracs = fr;
+      let fsM = Math.min(58, Hh / (fr ? 8.7 : 7.4), W / 15);
+      fsM = Math.max(15, fsM);
+      L.fsM = fsM; L.fsS = fsM * 0.6;
+      L.tk = fsM * 0.44; L.tkm = L.tk * 0.6; L.arcH = fsM * 0.62;
+      L.half = fr ? fsM * 0.86 : fsM * 0.55;
+      L.d = L.tk + L.arcH * 0.95 + L.half;
+      L.y0 = Math.round(Hh / 2);
+      L.yLt = L.y0 - L.d; L.yLb = L.y0 + L.d;
+      L.yAt = L.yLt - L.half - fsM * 0.2; L.yAb = L.yLb + L.half + fsM * 0.2;
+      L.arrH = fsM * 1.05;
+      L.cx = W / 2;
+      return L;
+    }
+    const fit = (p, size, maxW) => { const w = measureP(p, size); return w > maxW ? Math.max(7, size * maxW / w) : size; };
+
+    const COL = { ink:"#0f172a", line:"#334155", soft:"#94a3b8", top:"#1d4ed8", bot:"#15803d", undo:"#7c3aed", undoBg:"#f5f3ff", q:"#64748b" };
+    const tick = (key, x, major, o, d) => ({ key, type:"tick", x, y:L.y0, h:major ? L.tk : L.tkm, w:major ? Math.max(3.5, L.fsM * 0.09) : Math.max(2.2, L.fsM * 0.055), col:major ? COL.ink : COL.soft, o, d:d || 0, z:4 });
+    const lab = (key, x, top, p, size, col, o, d, extra) => Object.assign({ key, type:"lab", x, y:top ? L.yLt : L.yLb, p, size, col, o, d:d || 0, z:5 }, extra || {});
+    const pill = (key, x, y, text, o, d) => ({ key, type:"pill", x, y, text, col:COL.undo, bg:COL.undoBg, o, d:d || 0, z:6 });
+    const hop = (key, x1, x2, side, o, d, dash) => ({ key, type:"hop", x1, x2, y:L.y0 + side * L.tkm * 1.05, h:L.arcH * 1.75, side, col:COL.undo, o, d:d || 0, head:true, dash:!!dash, w:Math.max(2.4, L.fsM * 0.07), z:3 });
+    const arrow = (key, x1, x2, side, o, d) => ({ key, type:"hop", x1, x2, y:side < 0 ? L.yAt : L.yAb, h:L.arrH, side, col:COL.undo, o, d:d || 0, head:true, w:Math.max(2.4, L.fsM * 0.07), z:3 });
+    const loop = (key, x1, x2, o, d) => ({ key, type:"loop", x1, x2, y:L.y0, ry:L.arcH * 0.95, o, d:d || 0, z:2 });
+
+    function scene(id){
+      const q = EQ, els = [{ key:"axis", type:"axis", x1:6, x2:L.W - 6, y:L.y0, o:1, z:1 }];
+      const k = kindOf(id);
+      if(k === "s") seeScene(0, els);
+      else if(k === "r") seeScene(idxOf(id) + 1, els);
+      else if(k === "t") moveScene(idxOf(id), true, els);
+      else if(k === "m") moveScene(idxOf(id), false, els);
+      else checkScene(els);
+      return els;
+    }
+    function tags(els, o){
+      if(!S.set.sides || L.W < 560) return;
+      els.push({ key:"tagT", type:"tag", x:14, y:L.yLt, text:"LEFT SIDE", col:COL.top, o, z:1 });
+      els.push({ key:"tagB", type:"tag", x:14, y:L.yLb, text:"RIGHT SIDE", col:COL.bot, o, z:1 });
+    }
+    /* one point: an equation says two things are at the same place */
+    function seeScene(i, els){
+      const q = EQ, st = q.stages[i], last = i === q.stages.length - 1, big = L.fsM * 1.14;
+      const tp = topP(i), bp = botP(i), size = Math.min(fit(tp, big, L.W * 0.7), fit(bp, big, L.W * 0.7));
+      els.push({ key:"halo", type:"halo", x:L.cx, y:L.y0, r:L.fsM * 2.1, o:1, z:0 });
+      els.push(tick("p" + i, L.cx, true, 1));
+      els.push(lab("lt" + i, L.cx, true, tp, size, COL.top, 1, 0, { bg:last && st.top.t === "num" }));
+      els.push(lab("lb" + i, L.cx, false, bp, size, COL.bot, 1, 0, { bg:last && st.bot.t === "num" }));
+      tags(els, 1);
+      return size;
+    }
+    /* written another way (expand, collect): the point does not move. The old way shrinks into a grey note beside its side. */
+    function moveGeom(i){
+      const q = EQ, mv = q.moves[i], a = q.stages[i], b = q.stages[i + 1], W = L.W;
+      if(mv.kind === "div" || mv.kind === "mul"){
+        const whole = mv.kind === "div" ? a : b, sgn = rF(whole.val) < 0 ? -1 : 1, n = mv.n;
+        const left = W * 0.13, right = W * 0.87, step = (right - left) / n;
+        const pos = j => sgn > 0 ? left + j * step : right - j * step;
+        return { mult:true, n, step, pos, x1:mv.kind === "div" ? pos(n) : pos(1), x2:mv.kind === "div" ? pos(1) : pos(n), unitI:mv.kind === "div" ? i + 1 : i, wholeI:mv.kind === "div" ? i : i + 1 };
+      }
+      const dir = rF(b.val) > rF(a.val) ? 1 : -1, xa = W * 0.25, xb = W * 0.75;
+      return { mult:false, x1:dir > 0 ? xa : xb, x2:dir > 0 ? xb : xa, dir };
+    }
+    function moveScene(i, topOnly, els){
+      const q = EQ, mv = q.moves[i], g = moveGeom(i), fsM = L.fsM, text = EQ.pill;
+      const pw = tw(text, L.fsS * 0.95, UI, 900) + L.fsS * 1.05;
+      const t1 = topP(i), b1 = botP(i), t2 = topP(i + 1), b2 = botP(i + 1), qm = [T("?")];
+      const last = i + 1 === q.stages.length - 1, st2 = q.stages[i + 1];
+      let s1, s2;
+      if(g.mult){
+        const zs = Math.min(fsM * 0.9, g.step * 0.42), z = measureP([N(0)], zs) / 2;
+        const wholeIs1 = mv.kind === "div";
+        const wT = wholeIs1 ? t1 : t2, wB = wholeIs1 ? b1 : b2, uT = wholeIs1 ? t2 : t1, uB = wholeIs1 ? b2 : b1;
+        const maxWhole = 2 * (L.W * 0.13 - 8);
+        const sW = Math.min(fit(wT, fsM, maxWhole), fit(wB, fsM, maxWhole));
+        const wholeHalf = Math.max(measureP(wT, sW), measureP(wB, sW)) / 2;
+        const maxUnit = 2 * Math.min(g.step - z - 10, g.n === 1 ? 1e9 : (g.n - 1) * g.step - wholeHalf - 12);
+        const boxPad = last ? fsM * 0.5 : 0;
+        let sU = Math.min(fit(uT, fsM, maxUnit - boxPad), fit(uB, fsM, maxUnit - boxPad));
+        /* many small parts (× 20): if one part still won't fit beside the 0, the 0 tick keeps quiet and the part gets the room */
+        const uHalf = Math.max(measureP(uT, sU), measureP(uB, sU)) / 2, noZero = uHalf + z + 4 > g.step;
+        if(noZero){ const room = 2 * (g.step - 6) - boxPad; sU = Math.min(fit(uT, fsM, room), fit(uB, fsM, room)); }
+        s1 = wholeIs1 ? sW : sU; s2 = wholeIs1 ? sU : sW;
+        els.push(tick("z" + i, g.pos(0), true, 1, 0.05));
+        if(!noZero){
+          els.push(lab("zt" + i, g.pos(0), true, [N(0)], zs, COL.ink, 1, 0.05));
+          els.push(lab("zb" + i, g.pos(0), false, [N(0)], zs, COL.ink, 1, 0.05));
+        }
+        for(let j = 2; j < g.n; j++) els.push(tick("mt" + i + "_" + j, g.pos(j), false, 1, 0.08 + 0.2 * j / g.n));
+        if(S.set.ticks) for(let j = 0; j < g.n; j++){ const a = g.pos(j), b = g.pos(j + 1); els.push(loop("g" + i + "_" + j, Math.min(a, b), Math.max(a, b), 1, 0.08 + 0.2 * j / g.n)); }
+        if(S.set.moves){
+          const mid = (g.x1 + g.x2) / 2;
+          els.push(arrow("h" + i + "t", g.x1, g.x2, -1, 1, 0.2));
+          els.push(pill("pl" + i + "t", mid, L.yAt - L.arrH * 0.5, text, 1, 0.22));
+          if(!topOnly && S.set.both){
+            els.push(arrow("h" + i + "b", g.x1, g.x2, 1, 1, 0.3));
+            els.push(pill("pl" + i + "b", mid, L.yAb + L.arrH * 0.5, text, 1, 0.32));
+          }
+        }
+      } else {
+        const half = L.W * 0.25 - pw / 2 - 12, boxPad = last ? fsM * 0.5 : 0;
+        const s = Math.min(fit(t1, fsM, 2 * half), fit(b1, fsM, 2 * half), fit(t2, fsM, 2 * half - boxPad), fit(b2, fsM, 2 * half - boxPad));
+        s1 = s2 = s;
+        if(mv.kind !== "xterm" && mv.n <= 20 && S.set.ticks){
+          for(let j = 1; j < mv.n; j++) els.push(tick("mt" + i + "_" + j, g.x1 + (g.x2 - g.x1) * j / mv.n, false, 1, 0.06 + 0.2 * j / mv.n));
+        }
+        if(S.set.moves){
+          const mid = (g.x1 + g.x2) / 2, dash = mv.kind === "xterm";
+          els.push(hop("h" + i + "t", g.x1, g.x2, -1, 1, 0.16, dash));
+          els.push(pill("pl" + i + "t", mid, L.yLt, text, 1, 0.2));
+          if(!topOnly && S.set.both){
+            els.push(hop("h" + i + "b", g.x1, g.x2, 1, 1, 0.28, dash));
+            els.push(pill("pl" + i + "b", mid, L.yLb, text, 1, 0.3));
+          }
+        }
+      }
+      els.push({ key:"halo", type:"halo", x:g.x1, y:L.y0, r:fsM * 2.1, o:0, z:0 });
+      els.push(tick("p" + i, g.x1, true, 1));
+      els.push(lab("lt" + i, g.x1, true, t1, s1, COL.top, 1));
+      els.push(lab("lb" + i, g.x1, false, b1, s1, COL.bot, 1));
+      els.push(tick("p" + (i + 1), g.x2, true, 1, 0.24));
+      els.push(lab("lt" + (i + 1), g.x2, true, t2, s2, COL.top, 1, 0.3, { bg:last && st2.top.t === "num" }));
+      if(topOnly) els.push(lab("q" + i, g.x2, false, qm, s2 * 1.1, COL.q, 1, 0.3));
+      else els.push(lab("lb" + (i + 1), g.x2, false, b2, s2, COL.bot, 1, 0.42, { bg:last && st2.bot.t === "num" }));
+      tags(els, 0);
+    }
+    function checkScene(els){
+      const c = checkP(), size = Math.min(fit(c.top, L.fsM, L.W * 0.8), fit(c.bot, L.fsM, L.W * 0.8));
+      els.push({ key:"halo", type:"halo", x:L.cx, y:L.y0, r:L.fsM * 2.1, o:1, z:0 });
+      els.push(tick("pc", L.cx, true, 1));
+      els.push(lab("ltc", L.cx, true, c.top, size, COL.top, 1, 0.05));
+      els.push(lab("lbc", L.cx, false, c.bot, size, COL.bot, 1, 0.15));
+      const r = L.fsM * 0.3;
+      [[c.top, L.yLt, "ck"], [c.bot, L.yLb, "ck2"]].forEach(([p, y, key], j) => els.push({ key, type:"badge", x:Math.min(L.W - r - 4, L.cx + measureP(p, size) / 2 + r + 12), y, r, o:1, d:0.3 + j * 0.08, z:7 }));
+      tags(els, 1);
+    }
+
+    const ease = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    const lerp = (a, b, t) => a + (b - a) * t;
+    function labSVG(e){
+      let bg = "";
+      if(e.bg){
+        const w = measureP(e.p, e.size) + e.size * 0.5, h = hasFr(e.p) ? e.size * 1.9 : e.size * 1.18;
+        bg = `<rect x="${f1(e.x - w / 2)}" y="${f1(e.y - h / 2)}" width="${f1(w)}" height="${f1(h)}" rx="${f1(e.size * 0.22)}" fill="#dcfce7" stroke="#86efac" stroke-width="1.5"/>`;
+      }
+      return `<g data-key="${e.key}" opacity="${e.o.toFixed(3)}">${bg}${pSVG(e.p, e.x, e.y, e.size, e.col)}</g>`;
+    }
+    function hopPath(e){ const mx = (e.x1 + e.x2) / 2, cy = e.y + e.side * e.h; return `M${f1(e.x1)} ${f1(e.y)}Q${f1(mx)} ${f1(cy)} ${f1(e.x2)} ${f1(e.y)}`; }
+    function headSVG(e){
+      const mx = (e.x1 + e.x2) / 2, cy = e.y + e.side * e.h;
+      const ang = Math.atan2(e.y - cy, e.x2 - mx), s = e.w * 3.4;
+      const bx = e.x2 - Math.cos(ang) * s, by = e.y - Math.sin(ang) * s, wx = -Math.sin(ang) * s * 0.55, wy = Math.cos(ang) * s * 0.55;
+      return `<polygon points="${f1(e.x2)},${f1(e.y)} ${f1(bx + wx)},${f1(by + wy)} ${f1(bx - wx)},${f1(by - wy)}" fill="${e.col}"/>`;
+    }
+    function drawEls(list){
+      const out = [];
+      list.slice().sort((a, b) => (a.z || 0) - (b.z || 0)).forEach(e => {
+        if(e.o <= 0.004) return;
+        const op = e.o.toFixed(3);
+        if(e.type === "axis") out.push(`<line x1="${f1(e.x1)}" x2="${f1(e.x2)}" y1="${f1(e.y)}" y2="${f1(e.y)}" stroke="${COL.line}" stroke-width="${f1(Math.max(3, L.fsM * 0.085))}" stroke-linecap="round" opacity="${op}"/>`);
+        else if(e.type === "halo") out.push(`<circle class="halo" cx="${f1(e.x)}" cy="${f1(e.y)}" r="${f1(e.r)}" fill="url(#haloG)" opacity="${op}"/>`);
+        else if(e.type === "tick") out.push(`<line data-key="${e.key}" x1="${f1(e.x)}" x2="${f1(e.x)}" y1="${f1(e.y - e.h)}" y2="${f1(e.y + e.h)}" stroke="${e.col}" stroke-width="${f1(e.w)}" stroke-linecap="round" opacity="${op}"/>`);
+        else if(e.type === "lab") out.push(labSVG(e));
+        else if(e.type === "tag") out.push(`<text x="${f1(e.x)}" y="${f1(e.y)}" dominant-baseline="central" font-size="${f1(clamp(L.fsM * 0.22, 9.5, 12.5))}" fill="${e.col}" opacity="${(e.o * 0.75).toFixed(3)}" style='font-family:${UI};font-weight:900;letter-spacing:.08em'>${e.text}</text>`);
+        else if(e.type === "badge"){
+          const r = e.r, x = e.x, y = e.y;
+          out.push(`<g data-key="${e.key}" opacity="${op}"><circle cx="${f1(x)}" cy="${f1(y)}" r="${f1(r)}" fill="${COL.bot}" stroke="#fff" stroke-width="2"/>` +
+            `<path d="M${f1(x - r * 0.45)} ${f1(y + r * 0.02)}L${f1(x - r * 0.1)} ${f1(y + r * 0.36)}L${f1(x + r * 0.48)} ${f1(y - r * 0.34)}" fill="none" stroke="#fff" stroke-width="${f1(Math.max(2, r * 0.28))}" stroke-linecap="round" stroke-linejoin="round"/></g>`);
+        }
+        else if(e.type === "loop"){
+          const inset = Math.min(6, (e.x2 - e.x1) * 0.08), a = e.x1 + inset, b = e.x2 - inset, rx = Math.max(4, (b - a) / 2);
+          out.push(`<path d="M${f1(a)} ${f1(e.y - 3)}A${f1(rx)} ${f1(e.ry)} 0 0 1 ${f1(b)} ${f1(e.y - 3)}M${f1(b)} ${f1(e.y + 3)}A${f1(rx)} ${f1(e.ry)} 0 0 1 ${f1(a)} ${f1(e.y + 3)}" fill="rgba(148,163,184,.08)" stroke="${COL.soft}" stroke-width="${f1(Math.max(1.6, L.fsM * 0.045))}" stroke-dasharray="7 6" opacity="${op}"/>`);
+        } else if(e.type === "hop"){
+          out.push(`<g data-key="${e.key}" opacity="${op}"><path d="${hopPath(e)}" fill="none" stroke="${e.col}" stroke-width="${f1(e.w)}" stroke-linecap="round"${e.dash ? ` stroke-dasharray="${f1(e.w * 2.6)} ${f1(e.w * 2.4)}"` : ""}/>${headSVG(e)}</g>`);
+        } else if(e.type === "pill"){
+          const fs = e.fs || L.fsS * 0.95, w = tw(e.text, fs, UI, 900) + fs * 1.05, h = fs * 1.5;
+          out.push(`<g data-key="${e.key}" opacity="${op}"><rect x="${f1(e.x - w / 2)}" y="${f1(e.y - h / 2)}" width="${f1(w)}" height="${f1(h)}" rx="${f1(h / 2)}" fill="${e.bg}" stroke="${e.col}" stroke-width="${e.fs ? 1.2 : 1.8}"/>` +
+            `<text x="${f1(e.x)}" y="${f1(e.y)}" text-anchor="middle" dominant-baseline="central" font-size="${f1(fs)}" fill="${e.col}" style='font-family:${UI};font-weight:900'>${esc(e.text)}</text></g>`);
+        }
+      });
+      $("board").setAttribute("viewBox", `0 0 ${L.W} ${L.H}`);
+      $("board").innerHTML = `<defs><radialGradient id="haloG"><stop offset="0" stop-color="#bfdbfe" stop-opacity=".95"/><stop offset=".65" stop-color="#dbeafe" stop-opacity=".45"/><stop offset="1" stop-color="#dbeafe" stop-opacity="0"/></radialGradient></defs>` + out.join("");
+    }
+    /* tween between two scenes; T in 0..1. The point both scenes share is the anchor: everything that comes or goes
+       slides with it, so the whole line pans as one piece while the old marks fade (the reset) or the new ones arrive. */
+    function mix(A, B, T){
+      const out = [], mapA = new Map(A.map(e => [e.key, e])), span = 0.58;
+      const t0 = ease(clamp(T / span, 0, 1));
+      let dx = 0;
+      for(const b of B){ if(b.type === "tick" && b.key[0] === "p"){ const a = mapA.get(b.key); if(a && Math.abs(a.x - b.x) > 0.5){ dx = b.x - a.x; break; } } }
+      const shift = (e, by) => { ["x", "x1", "x2"].forEach(p => { if(typeof e[p] === "number") e[p] += by; }); return e; };
+      B.forEach(b => {
+        const a = mapA.get(b.key); mapA.delete(b.key);
+        const d = Math.min(0.42, b.d || 0), t = ease(clamp((T - d) / span, 0, 1));
+        if(!a){ const e = Object.assign({}, b, { o:b.o * t }); if(dx && b.type !== "axis" && b.type !== "tag") shift(e, -dx * (1 - t0)); out.push(e); return; }
+        const e = Object.assign({}, t0 < 0.5 ? a : b);
+        ["x", "y", "x1", "x2", "h", "r", "size"].forEach(p => { if(typeof a[p] === "number" && typeof b[p] === "number") e[p] = lerp(a[p], b[p], t0); });
+        e.o = lerp(a.o, b.o, t0);
+        out.push(e);
+      });
+      mapA.forEach(a => { const e = Object.assign({}, a, { o:a.o * (1 - t0) }); if(dx && a.type !== "axis" && a.type !== "tag") shift(e, dx * t0); out.push(e); });
+      return out;
+    }
+    return { build, stepIds, hiRow, scene, layout, drawEls, mix, eqP, topP, botP, checkP, kindOf, get EQ(){ return EQ; } };
+  })();
+
+  /* ================= Equation first: the first equation in a card, ONE green card for the current line,
+     and the whole working in an optional panel (all as the Multi-Step tool) ================= */
+  const eqf = () => !!S.set.eqf;
+  const eRow = () => EF.hiRow(sid());
+  const shownRows = () => sid() === "s" ? 0 : 1;
+  function workHTML(){
+    const id = sid(), n = shownRows(), E = EF.EQ;
+    const cell = (cls, html, key, show) => `<div class="wc ${cls}${show ? "" : " fut"}" data-k="${key}">${html}</div>`;
+    let h = `<div class="origCard" id="origCard" aria-hidden="true"></div><div class="curHi" id="curHi" aria-hidden="true"></div>`;
+    h += cell("wl w0", `<span class="wt cE">${H(EF.topP(0))}</span>`, "L0", true) + cell("we w0", `<span class="wt eqSign">=</span>`, "M0", true) + cell("wr w0", `<span class="wt cV">${H(EF.botP(0))}</span>`, "R0", true);
+    const pt = esc(E.pill), show = n >= 1, ok = id === "check" ? `<span class="okMark">&#10003;</span>` : "";
+    h += cell("wl wp", `<span class="trOp">${pt}</span>`, "pL1", show) + cell("we wp", "", "pM1", show) + cell("wr wp", S.set.both ? `<span class="trOp">${pt}</span>` : "", "pR1", show);
+    h += cell("wl wq fin", `<span class="wt">${H(EF.topP(1))}</span>`, "eL1", show) + cell("we wq fin", `<span class="wt">=</span>`, "eM1", show) +
+      cell("wr wq fin", `<span class="wt">${H(EF.botP(1))}</span>${ok}`, "eR1", show);
+    return h;
+  }
+  function stepHTML(){
+    const E = EF.EQ, cell = (cls, html, key) => `<div class="sc ${cls}" data-k="${key}">${html}</div>`;
+    let h = cell("wl sp", `<span class="trOp ghost">&nbsp;</span>`, "pL0") + cell("we sp", "", "pM0") + cell("wr sp", `<span class="trOp ghost">&nbsp;</span>`, "pR0");
+    h += cell("wl sq", `<span class="wt">${H(EF.topP(0))}</span>`, "eL0") + cell("we sq", `<span class="wt">=</span>`, "eM0") + cell("wr sq", `<span class="wt">${H(EF.botP(0))}</span>`, "eR0");
+    const pt = esc(E.pill);
+    h += cell("wl sp", `<span class="trOp">${pt}</span>`, "pL1") + cell("we sp", "", "pM1") + cell("wr sp", `<span class="trOp${S.set.both ? "" : " ghost"}">${pt}</span>`, "pR1");
+    h += cell("wl sq", `<span class="wt">${H(EF.topP(1))}</span>`, "eL1") + cell("we sq", `<span class="wt">=</span>`, "eM1") + cell("wr sq", `<span class="wt">${H(EF.botP(1))}</span>`, "eR1");
+    return h;
+  }
+  /* a box behind a row of the panel's working (layout offsets: the text may be mid-flight under a transform) */
+  function boxBehind(box, row, padX, padY){
+    const g = $("work");
+    const l = g.querySelector(`[data-k="L${row}"] .wt, [data-k="eL${row}"] .wt`), r = g.querySelector(`[data-k="R${row}"] .wt, [data-k="eR${row}"] .wt`);
+    if(!l || !r){ box.style.display = "none"; return; }
+    const pos = el => { const c = el.parentNode; return { x:c.offsetLeft + el.offsetLeft, y:c.offsetTop + el.offsetTop, w:el.offsetWidth, h:el.offsetHeight }; };
+    const a = pos(l), b = pos(r);
+    const top = Math.min(a.y, b.y), bot = Math.max(a.y + a.h, b.y + b.h);
+    Object.assign(box.style, { display:"block", left:(a.x - padX) + "px", top:(top - padY) + "px", width:(b.x + b.w - a.x + 2 * padX) + "px", height:(bot - top + 2 * padY) + "px" });
+  }
+  function placeBoxes(){
+    const g = $("work"), F = parseFloat(g.style.fontSize) || 40, r = eRow();
+    boxBehind($("origCard"), 0, F * 0.42, F * 0.1);
+    const rf = r === 0 ? F : F * 0.8;
+    boxBehind($("curHi"), r, rf * (r === 0 ? 0.16 : 0.24), rf * (r === 0 ? 0.04 : 0.06));
+    $("curHi").dataset.row = r;
+  }
+  function blockOf(j){
+    const l = $("stepList"), p = l.querySelector(`[data-k="pL${j}"]`);
+    if(!p) return { top:0, h:0 };
+    const top = p.offsetTop, bot = Math.max(...[...l.querySelectorAll(`[data-k$="${j}"].sq`)].map(c => c.offsetTop + c.offsetHeight));
+    return { top, h:bot - top };
+  }
+  /* anim: true = scroll to the line, false = jump there, "keep" = re-aim a scroll that is running (a re-fit mid-scroll) */
+  function scrollWin(anim){
+    const j = eRow(), win = $("stepWin"), list = $("stepList"), vp = $("stepVp"), H0 = vp.clientHeight;
+    const b = blockOf(j), y = b.top - (H0 - b.h) / 2;
+    if(anim === "keep"){ list.style.transform = `translateY(${-y}px)`; return; }
+    const on = anim && !reduce && !S.noAnim;
+    list.style.transition = on ? "transform .62s cubic-bezier(.45,.05,.2,1)" : "none";
+    win.style.transition = on ? "" : "none";
+    list.style.transform = `translateY(${-y}px)`;
+    win.classList.toggle("rest", j === 0);
+    $("bOrig").classList.toggle("cur", j === 0);
+    if(!on){ void list.offsetWidth; list.style.transition = ""; win.style.transition = ""; }
+  }
+  function fitBoard(force){
+    const st = $("stmt"), o = $("bOrig"), list = $("stepList"), vp = $("stepVp"), stage = $("stage");
+    const W = stage.clientWidth - 24, Hmax = stage.clientHeight * (stage.clientWidth < 700 ? 0.46 : 0.42);
+    const set = F => { st.style.fontSize = F + "px"; vp.style.height = Math.ceil(Math.max(blockOf(0).h, blockOf(1).h) + F * 0.42) + "px"; };
+    const was = st.style.fontSize + "|" + vp.style.height;
+    let F = clamp(stage.clientHeight * 0.095, 18, 54);
+    set(F);
+    const w = Math.max(o.offsetWidth, list.offsetWidth + F * 1.2), h = st.offsetHeight;
+    if(w > W || h > Hmax){ F = Math.max(12, F * Math.min(W / w, Hmax / h) * 0.98); set(F); }
+    if(force) scrollWin(false); else if(was !== st.style.fontSize + "|" + vp.style.height) scrollWin("keep");
+  }
+  function fitPanel(){
+    const g = $("work");
+    if(!(eqf() && S.set.wpanel)) return;
+    const body = $("wsBody"), W = body.clientWidth - 8, Hmax = body.clientHeight - 14;
+    let F = 50;
+    g.style.fontSize = F + "px";
+    const cells = [...g.querySelectorAll(".wc")];
+    const cw = Math.max(...cells.map(c => c.offsetLeft + c.offsetWidth)) - Math.min(...cells.map(c => c.offsetLeft));
+    const w = cw + 0.9 * F, h = g.offsetHeight + 0.25 * F;
+    if(Hmax > 40 && (w > W || h > Hmax)){ F = Math.max(14, F * Math.min(W / w, Hmax / h) * 0.98); g.style.fontSize = F + "px"; }
+    placeBoxes();
+  }
+  let lastWorkQ = null, lastStepHTML = "";
+  function paintWork(){
+    const sh = stepHTML(), oh0 = `<span class="wt bl cE">${H(EF.topP(0))}</span><span class="wt bm eqSign">=</span><span class="wt br cV">${H(EF.botP(0))}</span>`;
+    if(sh !== lastStepHTML){ $("stepList").innerHTML = sh; $("bOrig").innerHTML = oh0; lastStepHTML = sh; fitBoard(true); }
+    else scrollWin(true);
+    const g = $("work");
+    const shown = new Set([...g.querySelectorAll(".wc:not(.fut)")].map(el => el.dataset.k));
+    const same = lastWorkQ === S.q && g.children.length, animOK = same && !reduce && !S.noAnim && S.set.wpanel;
+    const oh = $("curHi"), was = oh && oh.style.display === "block" ? { left:oh.style.left, top:oh.style.top, width:oh.style.width, height:oh.style.height } : null;
+    lastWorkQ = S.q;
+    g.innerHTML = workHTML();
+    if(animOK){
+      g.querySelectorAll(".wc:not(.fut)").forEach(el => { if(!shown.has(el.dataset.k)) el.classList.add("new"); });
+      g.querySelectorAll(".wc.fut").forEach(el => { if(shown.has(el.dataset.k))
+        el.animate([{ visibility:"visible", opacity:1 }, { visibility:"visible", opacity:0, transform:"translateY(-.45em)" }], { duration:420, easing:"ease-in" }); });
+    }
+    if(S.set.wpanel) fitPanel(); else placeBoxes();
+    const nh = $("curHi");
+    if(animOK && was && nh.style.display === "block" && (was.top !== nh.style.top || was.left !== nh.style.left || was.width !== nh.style.width))
+      nh.animate([was, { left:nh.style.left, top:nh.style.top, width:nh.style.width, height:nh.style.height }], { duration:650, easing:"cubic-bezier(.45,.05,.2,1)" });
+  }
+  /* the first equation (and its card) flies into the panel; the rest of the working is written in after it */
+  function morphWork(before){
+    if(reduce || S.noAnim || !before.size) return;
+    const hr = +($("curHi").dataset.row || 0), g = $("work"), fly = ["L0", "M0", "R0", "origCard"].concat(hr === 0 ? ["curHi"] : []), D = 720, ease = "cubic-bezier(.45,.05,.2,1)";
+    const els = [...g.querySelectorAll(".wc:not(.fut)")].map(el => [el.dataset.k, fly.includes(el.dataset.k) ? (el.querySelector(".wt") || el) : el]);
+    ["origCard", "curHi"].forEach(id => { if($(id).style.display !== "none") els.push([id, $(id)]); });
+    let row = 0, lastRow = "";
+    els.forEach(([k, el]) => {
+      const a = before.get(k), b = el.getBoundingClientRect();
+      if(fly.includes(k) && a && b.width > 0){
+        const sx = a.width / b.width, sy = a.height / b.height, s = k === "origCard" || k === "curHi" ? null : sy;
+        const tf = s ? `translate(${a.left - b.left}px,${a.top - b.top}px) scale(${s})` : `translate(${a.left - b.left}px,${a.top - b.top}px) scale(${sx},${sy})`;
+        el.animate([{ transformOrigin:"0 0", transform:tf }, { transformOrigin:"0 0", transform:"none" }], { duration:D, easing:ease });
+      } else {
+        const r = (k.match(/\d+$/) || ["0"])[0] + k[0];
+        if(k !== "curHi" && r !== lastRow){ row++; lastRow = r; }
+        const at = k === "curHi" ? 2 * hr : row;
+        el.animate([{ opacity:0, transform:"translateY(.35em)" }, { opacity:1, transform:"none" }], { duration:380, delay:D * 0.75 + at * 110, easing:"ease-out", fill:"backwards" });
+      }
+    });
+    $("board").animate([{ opacity:.25 }, { opacity:1 }], { duration:520, easing:"ease-out" });
+    const app = $("app");
+    app.classList.add("morphing");
+    clearTimeout(morphWork.t); morphWork.t = setTimeout(() => app.classList.remove("morphing"), D + 60);
+  }
+
+  function eqfStory(id){
+    const q = S.q, v = letterHTML(q.v), ex = eqHTML(exprP(q)), c = fmt(q.c), x = fmt(q.x), pill = `<b class="cUndo">${esc(undoOp(q))}</b>`;
+    if(id === "s") return { lab:"The equation is one point", m:eqHTML(EF.eqP(0)),
+      tip:`${eqHTML(EF.topP(0))} and ${eqHTML(EF.botP(0))} are the same number, so they share one point: the left side on top, the right side underneath.` };
+    if(id === "m0"){
+      const { L1 } = workLines(q);
+      let tip;
+      if(q.op === "add") tip = `${ex} is ${q.k} more than ${v}. Step back ${q.k} on both lines: ${c} &minus; ${q.k} = ${x}.`;
+      else if(q.op === "sub") tip = `${ex} is ${q.k} less than ${v}. Step forward ${q.k} on both lines: ${c} + ${q.k} = ${x}.`;
+      else if(q.op === "mul") tip = `${ex} is ${q.a} lots of ${v}. Measure from 0 and cut both lines into ${q.a} equal parts: ${c} &divide; ${q.a} = ${x}.`;
+      else tip = `${ex} is one of ${q.d} equal parts of ${v}. Measure from 0 and put ${q.d} parts together: ${c} &times; ${q.d} = ${x}.`;
+      return { lab:(S.set.both ? "Same move on both lines: " : "Undo it: ") + pill, m:S.set.work === "both" ? eqHTML(L1) : "", m2:eqHTML(EF.eqP(1)), tip };
+    }
+    if(id === "r0") return { lab:"The solution", m:eqHTML([V, O("="), { ans:[N(q.x)] }]), tip:`${v} is on its own, so the other line shows what it is.` };
+    return { lab:"Check", m:eqHTML(subP(q)) + ` <span class="okMark">&#10003;</span>`, tip:`Put ${x} back in for ${v} in the first equation. Both sides are ${c}, so they share a point: ${v} = ${x} is right.` };
+  }
+  function eqfHint(id){
+    const q = S.q, v = letterHTML(q.v);
+    if(id === "s") return `What was done to ${v}? What undoes it?`;
+    if(id === "m0") return `Why do both lines make the same move?`;
+    if(id === "r0") return `How could we check that ${eqHTML([V, O("="), N(q.x)])}?`;
+    return `Do both sides give the same number?`;
+  }
+
   /* ================= render ================= */
   function paintStory(){
     const box = $("story"); let h = "";
@@ -1100,7 +1662,7 @@
     }
     box.innerHTML = h;
     const sc = $("storyScroll"); sc.scrollTop = sc.scrollHeight;
-    $("stepCount").textContent = `Step ${S.step + 1} of ${IDS.length}`;
+    $("stepCount").textContent = $("wsCount").textContent = `Step ${S.step + 1} of ${IDS.length}`;
     const last = S.step >= IDS.length - 1;
     $("nextBtn").disabled = last; $("miniNext").disabled = last;
     $("nextBtn").innerHTML = last ? "Done &#10003;" : "Next &#9656;"; $("miniNext").innerHTML = last ? "&#10003;" : "Next &#9656;";
@@ -1110,6 +1672,16 @@
   }
   function frame(){
     if(!S.q) return;
+    if(eqf()){
+      EF.layout();
+      if(S.anim){
+        const T = Math.min(1, (performance.now() - S.anim.t0) / S.anim.dur);
+        EF.drawEls(EF.mix(EF.scene(S.anim.from), EF.scene(S.anim.to), T));
+        if(T < 1){ S.anim.raf = requestAnimationFrame(frame); return; }
+        S.anim = null;
+      }
+      EF.drawEls(EF.scene(sid())); return;
+    }
     layout();
     const svg = $("board");
     if(S.anim){
@@ -1130,7 +1702,7 @@
     drawEls(scene(sid()));
   }
   function stopAnim(){ if(S.anim){ cancelAnimationFrame(S.anim.raf); S.anim = null; } const b = $("board"); b.style.transform = ""; b.style.filter = ""; }
-  const DUR = { build:1900, value:900, turn:1500, think:700, solve:2100, check:800, start:1300 };
+  const DUR = { build:1900, value:900, turn:1500, think:700, solve:2100, check:800, start:1300, m0:2000, r0:1400 };
   function go(to){
     to = clamp(to, 0, IDS.length - 1);
     if(to === S.step) return;
@@ -1140,7 +1712,7 @@
     paintStmt(); paintStory();
     if(!reduce && !S.noAnim && Math.abs(IDS.indexOf(from) - to) === 1){
       const fwd = IDS.indexOf(from) < to, key = fwd ? sid() : from;
-      S.anim = { from, to:sid(), t0:performance.now(), dur:DUR[key] || 900, flip:key === "turn" };
+      S.anim = { from, to:sid(), t0:performance.now(), dur:(eqf() && key === "check" ? 1100 : DUR[key]) || 900, flip:key === "turn" };
     }
     frame();
   }
@@ -1150,7 +1722,8 @@
   function spinAgain(){ const b = $("againIcon"); b.classList.remove("spin"); void b.offsetWidth; b.classList.add("spin"); }
 
   function refresh(){
-    IDS = stepIds(S.q);
+    EF.build(S.q);
+    IDS = eqf() ? EF.stepIds() : stepIds(S.q);
     if(S.step > IDS.length - 1) S.step = IDS.length - 1;
     paintStmt(); fitStmt(); paintStory(); paintPanel(); frame();
   }
@@ -1162,7 +1735,8 @@
 
   /* ================= panel + settings ================= */
   function paintPanel(){
-    document.querySelectorAll(".modeBtn").forEach(b => b.setAttribute("aria-selected", String(b.dataset.op === S.set.op && !S.own)));
+    paintTypeBtn();
+    $("eqfToggle").checked = !!S.set.eqf;
     document.querySelectorAll("#negSeg button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.neg === S.set.neg)));
     const tag = $("typeTag");
     tag.textContent = S.own ? "Your own" : S.set.neg === "off" ? "Whole numbers" : S.set.neg === "some" ? "Some negatives" : "Negatives";
@@ -1172,9 +1746,64 @@
     $("movesToggle").checked = S.set.moves; $("bothToggle").checked = S.set.both; $("ticksToggle").checked = S.set.ticks;
     $("bothToggle").disabled = !S.set.moves; $("bothToggle").closest(".sw").classList.toggle("dim", !S.set.moves);
   }
-  function setOp(op){ S.set.op = op; save(); newQuestion(); }
+  function setOp(op){ S.set.op = op; S.own = false; save(); newQuestion(); }
   function setNeg(n){ S.set.neg = n; save(); newQuestion(); }
-  document.querySelectorAll(".modeBtn").forEach(b => b.addEventListener("click", () => setOp(b.dataset.op)));
+
+  /* ================= the equation type: a button that says what is chosen, and a menu of example cards ================= */
+  const X_ = () => letterHTML("x");
+  const fr_ = (a, b) => `<span class="frac"><span class="fn">${a}</span><span class="fd">${b}</span></span>`;
+  const OPTS = [
+    { id:"as", name:"Add or subtract", note:"Step forward or back", ex:() => `${X_()} + 5 = 12` },
+    { id:"mul", name:"Multiply", note:"Equal groups of the letter", ex:() => `3${X_()} = 12` },
+    { id:"div", name:"Divide", note:"One of some equal parts", ex:() => fracOn() ? `${fr_(X_(), 4)} = 6` : `${X_()} &divide; 4 = 6` },
+    { id:"mix", name:"Mixed", note:"Any one-step equation", ex:() => "" }
+  ];
+  const optOf = id => OPTS.find(o => o.id === id) || OPTS[0];
+  function paintTypeBtn(){
+    const o = optOf(S.set.op), btn = $("typeBtn");
+    btn.classList.toggle("fOwn", S.own);
+    $("tbFam").textContent = S.own ? "Your own" : "One-step";
+    $("tbName").textContent = S.own ? "Typed in" : o.name;
+    $("tbEx").innerHTML = S.own ? "" : (o.ex() || `<span class="tbNote">${o.note}</span>`);
+    if(!$("typePop").hidden) paintTypePop();
+    fitTypeBtn();
+  }
+  function fitTypeBtn(){
+    const btn = $("typeBtn"), tr = document.querySelector(".topRight");
+    btn.classList.remove("compact");
+    if(tr && tr.offsetTop > $("typeWrap").offsetTop + 4) btn.classList.add("compact");
+  }
+  function paintTypePop(){
+    $("typeGrid").innerHTML = OPTS.map((o, i) => {
+      const on = !S.own && o.id === S.set.op;
+      return `<button type="button" class="tCard${on ? " on" : ""}${o.ex() ? "" : " mixC"}" role="option" aria-selected="${on}" data-t="${o.id}">` +
+        `<span class="tKey">${i + 1}</span><span class="tName">${o.name}</span>` + (o.ex() ? `<span class="tEx">${o.ex()}</span>` : "") +
+        `<span class="tNote">${o.note}</span></button>`;
+    }).join("");
+    $("typeGrid").querySelectorAll(".tCard").forEach(c => c.addEventListener("click", () => { closeTypePop(); setOp(c.dataset.t); }));
+  }
+  function openTypePop(){
+    closeMenus(); $("typePop").hidden = false; $("typeBtn").setAttribute("aria-expanded", "true");
+    $("typePop").style.width = Math.min(620, $("boardCard").clientWidth - 28) + "px";
+    paintTypePop();
+    const on = $("typeGrid").querySelector(".tCard.on") || $("typeGrid").querySelector(".tCard"); if(on) on.focus({ preventScroll:true });
+  }
+  function closeTypePop(){ if($("typePop").hidden) return; $("typePop").hidden = true; $("typeBtn").setAttribute("aria-expanded", "false"); }
+  const typePopOpen = () => !$("typePop").hidden;
+  $("typeBtn").addEventListener("click", e => { e.stopPropagation(); typePopOpen() ? closeTypePop() : openTypePop(); });
+  $("typePop").addEventListener("click", e => e.stopPropagation());
+  document.addEventListener("click", closeTypePop);
+
+  /* Equation first: the Multi-Step tool's way in (Settings, or E) */
+  function setEqf(on){
+    on = !!on;
+    if(on === !!S.set.eqf) return;
+    S.set.eqf = on;
+    if(!on && S.set.wpanel){ S.set.wpanel = false; S.set.panel = !!S.set.panelBefore; }
+    save(); stopAnim(); S.step = 0; lastStepHTML = ""; lastWorkQ = null;
+    applyPanel(); refresh(); fitStmt(); frame();
+  }
+  $("eqfToggle").addEventListener("change", e => { setEqf(e.target.checked); e.target.blur(); });
   document.querySelectorAll("#negSeg button").forEach(b => b.addEventListener("click", () => setNeg(b.dataset.neg)));
   $("newBtn").addEventListener("click", newQuestion);
   $("newQBtn").addEventListener("click", newQuestion);
@@ -1206,12 +1835,33 @@
 
   /* ================= panel toggle + full screen (as Number Groups) ================= */
   function applyPanel(){
+    const app = $("app"), wp = eqf() && !!S.set.wpanel;
+    app.classList.toggle("eqf", eqf());
+    app.classList.toggle("wpOn", wp);
+    const w = $("wpBtn"); w.hidden = !eqf(); w.setAttribute("aria-pressed", String(wp));
+    w.title = wp ? "Put the working back (V)" : "Show the working in a side panel (V)";
     $("app").classList.toggle("noPanel", !S.set.panel);
     const b = $("panelBtn"); b.setAttribute("aria-pressed", String(!!S.set.panel));
     b.title = S.set.panel ? "Hide the side panel" : "Show the side panel";
     $("miniSteps").hidden = !!S.set.panel && !S.fs;
   }
-  $("panelBtn").addEventListener("click", () => { S.set.panel = !S.set.panel; save(); applyPanel(); });
+  /* the working panel (Equation first only): it takes the side panel's place, never both */
+  function setWP(on){
+    on = !!on && eqf();
+    if(on === !!S.set.wpanel) return;
+    const o = $("bOrig"), before = new Map();
+    if(on){ before.set("origCard", o.getBoundingClientRect()); [["L0", ".bl"], ["M0", ".bm"], ["R0", ".br"]].forEach(([k, c]) => { const el = o.querySelector(c); if(el) before.set(k, el.getBoundingClientRect()); }); }
+    if(on){ S.set.panelBefore = !!S.set.panel; S.set.panel = false; S.set.wpanel = true; }
+    else { S.set.wpanel = false; if(S.set.panelBefore) S.set.panel = true; }
+    save(); closeMenus(); applyPanel(); fitTypeBtn();
+    lastWorkQ = null; paintStmt(); fitStmt(); frame();
+    if(on) morphWork(before);
+  }
+  $("wpBtn").addEventListener("click", () => setWP(!S.set.wpanel));
+  $("panelBtn").addEventListener("click", () => {
+    if(S.set.wpanel && !S.set.panel){ S.set.panelBefore = true; setWP(false); if(!S.set.panel){ S.set.panel = true; save(); applyPanel(); fitStmt(); frame(); } return; }
+    S.set.panel = !S.set.panel; save(); applyPanel();
+  });
   const fsEl = document.documentElement;
   const fsActive = () => !!(document.fullscreenElement || document.webkitFullscreenElement);
   function setFs(on){
@@ -1240,23 +1890,32 @@
   const NEG_CYCLE = { off:"some", some:"all", all:"off" };
   document.addEventListener("keydown", e => {
     const tag = (e.target && e.target.tagName) || "";
-    if(e.key === "Escape"){ closeMenus(); if(S.fs && !fsActive()) setFs(false); return; }
+    if(e.key === "Escape"){ if(typePopOpen()){ closeTypePop(); $("typeBtn").focus(); return; } closeMenus(); if(S.fs && !fsActive()) setFs(false); return; }
     if(tag === "INPUT" || tag === "SELECT" || tag === "TEXTAREA" || e.metaKey || e.ctrlKey || e.altKey) return;
+    if(typePopOpen() && (e.key === "Enter" || e.key === " ") && tag === "BUTTON") return;
+    if(typePopOpen() && /^Arrow/.test(e.key)){
+      const cards = [...$("typeGrid").querySelectorAll(".tCard")], i = cards.indexOf(document.activeElement), cols = getComputedStyle($("typeGrid")).gridTemplateColumns.split(" ").length;
+      const d = { ArrowRight:1, ArrowLeft:-1, ArrowDown:cols, ArrowUp:-cols }[e.key];
+      cards[clamp((i < 0 ? 0 : i) + d, 0, cards.length - 1)].focus(); e.preventDefault(); return;
+    }
     if(tag === "BUTTON" && (e.key === " " || e.key === "Enter")){ e.preventDefault(); e.target.blur(); }
     const k = e.key;
     if(k === " "){ e.preventDefault(); startAgain(); spinAgain(); }
     else if(k === "Enter"){ e.preventDefault(); newQuestion(); }
     else if(k === "ArrowRight"){ e.preventDefault(); next(); }
     else if(k === "ArrowLeft"){ e.preventDefault(); back(); }
-    else if(k === "1") setOp("as"); else if(k === "2") setOp("mul"); else if(k === "3") setOp("div"); else if(k === "4") setOp("mix");
+    else if(k >= "1" && k <= "4"){ closeTypePop(); setOp(OPTS[+k - 1].id); }
+    else if(k === "t" || k === "T"){ e.preventDefault(); typePopOpen() ? closeTypePop() : openTypePop(); }
+    else if(k === "e" || k === "E") setEqf(!S.set.eqf);
+    else if(k === "v" || k === "V"){ if(eqf()) setWP(!S.set.wpanel); }
     else if(k === "n" || k === "N") setNeg(NEG_CYCLE[S.set.neg] || "off");
     else if(k === "f" || k === "F") toggleFs();
   });
   let rz = 0;
-  const onResize = () => { cancelAnimationFrame(rz); rz = requestAnimationFrame(() => { fitStmt(); frame(); }); };
-  if(window.ResizeObserver) new ResizeObserver(onResize).observe($("stage")); else window.addEventListener("resize", onResize);
+  const onResize = () => { cancelAnimationFrame(rz); rz = requestAnimationFrame(() => { fitTypeBtn(); fitStmt(); frame(); }); };
+  if(window.ResizeObserver){ const ro = new ResizeObserver(onResize); ro.observe($("stage")); ro.observe($("wsBody")); } else window.addEventListener("resize", onResize);
 
-  const statics = ".modeBtn i, .settingsMenu i, .ownMsg i";
+  const statics = ".settingsMenu i, .ownMsg i";
   if(MATH_ALPHA) document.querySelectorAll(statics).forEach(el => { el.outerHTML = `<span class="mi">${mathItalic(el.textContent)}</span>`; });
   else document.querySelectorAll(statics).forEach(el => el.classList.add("mv"));
   applyPanel();
@@ -1264,7 +1923,7 @@
 
   /* test surface */
   window.__DNL__ = { MATH_ALPHA, S, get IDS(){ return IDS; }, get L(){ return L; }, makeQ, finish, parseOwn, genAS, genMul, genDiv, scene, layout,
-    storyFor, hintFor, next, back, go, startAgain, showAll, newQuestion, setQ, setOp, setNeg, frame, refresh, toggleFs, useOwn, exprP, subP, workLines, plainP };
+    storyFor, hintFor, next, back, go, startAgain, showAll, newQuestion, setQ, setOp, setNeg, frame, refresh, toggleFs, useOwn, exprP, subP, workLines, plainP, EF, setEqf, setWP, openTypePop, closeTypePop, eqf };
 })();
 </script>
 </body>
