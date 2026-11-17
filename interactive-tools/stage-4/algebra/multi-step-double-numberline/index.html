@@ -410,6 +410,11 @@
     .popFoot kbd{ font-size:.7rem; }
     @media (max-width:760px){ .typeGrid, .typeGrid.fBoth{ grid-template-columns:repeat(auto-fill, minmax(230px, 1fr)); } .typePop{ width:calc(100vw - 32px); } .tEx{ font-size:1.1rem; white-space:normal; } }
     .trOp.rw{ border-style:dashed; background:#fff; color:#64748b; font-weight:800; }
+    /* the working panel keeps a New question button and the keys (Daniela's feedback 2026-11-17) */
+    .wsFoot{ flex:0 0 auto; border-top:1px solid var(--border); padding-top:8px; display:flex; flex-direction:column; gap:2px; align-items:stretch; }
+    .wsFoot .qBtn.wsNew{ width:100%; }
+    .wsFoot .keyHint{ margin-top:4px; }
+    .cBuild{ color:#ea580c; }
   </style>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
 <!-- mmt-pwa -->
@@ -453,6 +458,8 @@
             <label class="sw"><input type="checkbox" id="lettersToggle"><span class="track"></span><span>Use other letters as well as <i>x</i></span></label>
             <div class="settingsRule" role="separator"></div>
             <div class="settingsHead">Steps</div>
+            <label class="sw"><input type="checkbox" id="eqfToggle" checked><span class="track"></span><span>Equation first</span></label>
+            <p class="settingsNote">On: start from the whole equation as one point. Off: a two-step equation is first built from <i>x</i>, one operation at a time (<i>x</i> &rarr; 3<i>x</i> &rarr; 3<i>x</i> + 4), then undone last thing first. Equations with <i>x</i> on both sides always start from the equation. Key E.</p>
             <label class="sw"><input type="checkbox" id="splitToggle"><span class="track"></span><span>Top line first, then the bottom</span></label>
             <p class="settingsNote">Each move pauses with a ? underneath, so the class can say what the bottom line must do.</p>
             <label class="sw"><input type="checkbox" id="checkToggle" checked><span class="track"></span><span>Check by substituting</span></label>
@@ -571,12 +578,16 @@
             <button class="stepBtn" id="allBtn" type="button">Show all</button>
             <button class="nextBtn" id="nextBtn" type="button" title="Next step (&rarr;)">Next &#9656;</button>
           </div>
-          <div class="keyHint"><kbd>&rarr;</kbd>/<kbd>&larr;</kbd> step &middot; <kbd>Space</kbd> start again &middot; <kbd>Enter</kbd> new question &middot; <kbd>T</kbd> equation type &middot; <kbd>1</kbd>&ndash;<kbd>6</kbd> type &middot; <kbd>B</kbd> two-step / both sides &middot; <kbd>N</kbd> negatives &middot; <kbd>W</kbd> whole / non-whole &middot; <kbd>V</kbd> working panel &middot; <kbd>F</kbd> full screen</div>
+          <div class="keyHint"><kbd>&rarr;</kbd>/<kbd>&larr;</kbd> step &middot; <kbd>Space</kbd> start again &middot; <kbd>Enter</kbd> new question &middot; <kbd>T</kbd> equation type &middot; <kbd>1</kbd>&ndash;<kbd>6</kbd> type &middot; <kbd>B</kbd> two-step / both sides &middot; <kbd>E</kbd> equation first &middot; <kbd>N</kbd> negatives &middot; <kbd>W</kbd> whole / non-whole &middot; <kbd>V</kbd> working panel &middot; <kbd>F</kbd> full screen</div>
         </section>
       </aside>
       <aside class="card workSide" id="workSide" aria-label="The working">
         <div class="pHead"><span class="pTitle">Working</span><span class="pCount" id="wsCount"></span></div>
         <div class="wsBody" id="wsBody"><div class="work" id="work"></div></div>
+        <div class="wsFoot">
+          <button class="qBtn wsNew" type="button" id="wsNewBtn">New question<small>Enter</small></button>
+          <div class="keyHint"><kbd>&rarr;</kbd>/<kbd>&larr;</kbd> step &middot; <kbd>Space</kbd> start again &middot; <kbd>Enter</kbd> new question &middot; <kbd>T</kbd> equation type &middot; <kbd>1</kbd>&ndash;<kbd>6</kbd> type &middot; <kbd>B</kbd> two-step / both sides &middot; <kbd>E</kbd> equation first &middot; <kbd>N</kbd> negatives &middot; <kbd>W</kbd> whole / non-whole &middot; <kbd>V</kbd> working panel &middot; <kbd>F</kbd> full screen</div>
+        </div>
       </aside>
     </main>
   </div>
@@ -589,7 +600,7 @@
   const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   /* ================= state ================= */
-  const DEF = { type:"axb", neg:"off", nonwhole:false, nw:"frac", div:"frac", vary:false, letters:false, split:false, check:true,
+  const DEF = { eqf:true, type:"axb", neg:"off", nonwhole:false, nw:"frac", div:"frac", vary:false, letters:false, split:false, check:true,
     work:"both", moves:true, parts:true, sides:true, panel:true, wpanel:false, panelBefore:true };
   const S = { set:Object.assign({}, DEF), q:null, step:0, anim:null, fs:false, noAnim:false, own:false, lastSig:"" };
   try { const sv = JSON.parse(localStorage.getItem(STORE) || "null"); if(sv && sv.set) Object.assign(S.set, sv.set); } catch(e){}
@@ -1219,16 +1230,30 @@
      "check"        put the answer back into the first equation */
   let IDS = [];
   function stepIds(q){
-    const s = ["s"];
+    const s = [];
+    /* Equation first OFF (key E): a two-step equation is first BUILT from x, one operation at a time, on its own line */
+    const bs = buildSide(q);
+    if(bs) for(let i = 0; i <= bs.side.ops.length; i++) s.push("b" + i);
+    s.push("s");
     q.moves.forEach((m, i) => { if(isRewrite(m)){ s.push("w" + i); return; } if(S.set.split) s.push("t" + i); s.push("m" + i); s.push("r" + i); });
     if(S.set.check) s.push("check");
     return s;
   }
   const sid = () => IDS[S.step];
+  /* which side was built from x (two-step: a side written as operations on the letter, the other a number) */
+  function buildSide(q){
+    if(S.set.eqf || !q) return null;
+    const st = q.stages[0];
+    if(st.top.t === "ops" && st.bot.t === "num") return { top:true, side:st.top };
+    if(st.bot.t === "ops" && st.top.t === "num") return { top:false, side:st.bot };
+    return null;
+  }
+  /* the expression after the first i operations: x, 3x, 3x + 4 */
+  const builtP = (sd, i) => i === 0 ? [V] : sideP(opsS(sd.ops.slice(0, i), sd.kFirst && i === sd.ops.length));
   const kindOf = id => id === "check" ? "check" : id[0];
   const idxOf = id => id === "check" || id === "s" ? 0 : parseInt(id.slice(1), 10);
   /* the latest equation on the board at a step */
-  function stageAt(id){ const k = kindOf(id); return k === "s" ? 0 : k === "t" ? idxOf(id) : k === "check" ? S.q.stages.length - 1 : idxOf(id) + 1; }
+  function stageAt(id){ const k = kindOf(id); return k === "s" || k === "b" ? 0 : k === "t" ? idxOf(id) : k === "check" ? S.q.stages.length - 1 : idxOf(id) + 1; }
   /* a side that is written the same way in stages j … i keeps one key, so it stays put instead of fading and coming back */
   const pkey = p => JSON.stringify(p);
   const keyT = i => { let j = i; while(j > 0 && pkey(topP(j - 1)) === pkey(topP(j))) j--; return "lt" + j; };
@@ -1272,7 +1297,7 @@
   const fit = (p, size, maxW) => { const w = measureP(p, size); return w > maxW ? Math.max(7, size * maxW / w) : size; };
 
   /* ================= scenes: the board at a step is a list of keyed elements ================= */
-  const COL = { ink:"#0f172a", line:"#334155", soft:"#94a3b8", top:"#1d4ed8", bot:"#15803d", undo:"#7c3aed", undoBg:"#f5f3ff", q:"#64748b" };
+  const COL = { build:"#ea580c", buildBg:"#fff7ed", ink:"#0f172a", line:"#334155", soft:"#94a3b8", top:"#1d4ed8", bot:"#15803d", undo:"#7c3aed", undoBg:"#f5f3ff", q:"#64748b" };
   const tick = (key, x, major, o, d) => ({ key, type:"tick", x, y:L.y0, h:major ? L.tk : L.tkm, w:major ? Math.max(3.5, L.fsM * 0.09) : Math.max(2.2, L.fsM * 0.055), col:major ? COL.ink : COL.soft, o, d:d || 0, z:4 });
   const lab = (key, x, top, p, size, col, o, d, extra) => Object.assign({ key, type:"lab", x, y:top ? L.yLt : L.yLb, p, size, col, o, d:d || 0, z:5 }, extra || {});
   const pill = (key, x, y, text, o, d) => ({ key, type:"pill", x, y, text, col:COL.undo, bg:COL.undoBg, o, d:d || 0, z:6 });
@@ -1284,6 +1309,7 @@
     const q = S.q, els = [{ key:"axis", type:"axis", x1:6, x2:L.W - 6, y:L.y0, o:1, z:1 }];
     const k = kindOf(id);
     if(k === "s") seeScene(0, els);
+    else if(k === "b") buildScene(idxOf(id), els);
     else if(k === "r") seeScene(idxOf(id) + 1, els);
     else if(k === "t") moveScene(idxOf(id), true, els);
     else if(k === "m") moveScene(idxOf(id), false, els);
@@ -1320,6 +1346,54 @@
       els.push(lab(key, gx, top, p, g, COL.q, 0.85, 0, { y }));
       els.push({ key:"pw" + i + s2, type:"pill", x:gx + w / 2 + 12 + pw / 2, y, text, col:"#64748b", bg:"#f1f5f9", o:1, d:0.25, z:6, fs });
     });
+  }
+  /* building: x on its own (b0), then each operation done to it in turn, in orange, on the line that side lives on.
+     The expression just made keeps the key the next step (or the equation) uses, so the line pans on to it. */
+  function buildScene(i, els){
+    const bs = buildSide(S.q), sd = bs.side, n = sd.ops.length, top = bs.top, fsM = L.fsM;
+    const key = j => j === n ? (top ? keyT(0) : keyB(0)) : "bl" + j, tk = j => j === n ? "p0" : "bp" + j;
+    const col = top ? COL.top : COL.bot;
+    if(i === 0){
+      els.push({ key:"halo", type:"halo", x:L.cx, y:L.y0, r:fsM * 2.1, o:1, z:0 });
+      els.push(tick(tk(0), L.cx, true, 1));
+      els.push(lab(key(0), L.cx, top, [V], fsM * 1.14, col, 1));
+      tags(els, 1);
+      return;
+    }
+    const op = sd.ops[i - 1], a = builtP(sd, i - 1), b = builtP(sd, i), text = { add:"+ ", sub:MINUS + " ", mul:TIMES + " ", div:DIVIDE + " " }[op.o] + op.n;
+    const W = L.W, side = top ? -1 : 1;
+    let x1, x2, s1, s2;
+    if(op.o === "mul" || op.o === "div"){
+      const left = W * 0.13, right = W * 0.87, step = (right - left) / op.n, pos = j => left + j * step;
+      x1 = op.o === "mul" ? pos(1) : pos(op.n); x2 = op.o === "mul" ? pos(op.n) : pos(1);
+      const zs = Math.min(fsM * 0.9, step * 0.42), whole = op.o === "mul" ? b : a, unit = op.o === "mul" ? a : b;
+      const sW = fit(whole, fsM, 2 * (W * 0.13 - 8)), sU = fit(unit, fsM, 2 * (step - measureP([N(0)], zs) / 2 - 10));
+      s1 = op.o === "mul" ? sU : sW; s2 = op.o === "mul" ? sW : sU;
+      els.push(tick("bz" + i, pos(0), true, 1, 0.05));
+      els.push(lab("bzl" + i, pos(0), top, [N(0)], zs, COL.ink, 1, 0.05));
+      for(let j = 2; j < op.n; j++) els.push(tick("bm" + i + "_" + j, pos(j), false, 1, 0.08 + 0.2 * j / op.n));
+      if(S.set.parts) for(let j = 0; j < op.n; j++) els.push(loop("bg" + i + "_" + j, pos(j), pos(j + 1), 1, 0.08 + 0.2 * j / op.n));
+      if(S.set.moves){
+        const e = arrow("bh" + i, x1, x2, side, 1, 0.2); e.col = COL.build; els.push(e);
+        const p = pill("bpl" + i, (x1 + x2) / 2, top ? L.yAt - L.arrH * 0.5 : L.yAb + L.arrH * 0.5, text, 1, 0.22); p.col = COL.build; p.bg = COL.buildBg; els.push(p);
+      }
+    } else {
+      const dir = op.o === "add" ? 1 : -1, xa = W * 0.25, xb = W * 0.75, pw = tw(text, L.fsS * 0.95, UI, 900) + L.fsS * 1.05;
+      x1 = dir > 0 ? xa : xb; x2 = dir > 0 ? xb : xa;
+      const half = W * 0.25 - pw / 2 - 12;
+      s1 = s2 = Math.min(fit(a, fsM, 2 * half), fit(b, fsM, 2 * half));
+      if(op.n <= 20 && S.set.parts) for(let j = 1; j < op.n; j++) els.push(tick("bm" + i + "_" + j, x1 + (x2 - x1) * j / op.n, false, 1, 0.06 + 0.2 * j / op.n));
+      if(S.set.moves){
+        const e = hop("bh" + i, x1, x2, side, 1, 0.16); e.col = COL.build; els.push(e);
+        const p = pill("bpl" + i, (x1 + x2) / 2, top ? L.yLt : L.yLb, text, 1, 0.2); p.col = COL.build; p.bg = COL.buildBg; els.push(p);
+      }
+    }
+    els.push({ key:"halo", type:"halo", x:x2, y:L.y0, r:fsM * 2.1, o:0, z:0 });
+    els.push(tick(tk(i - 1), x1, true, 1));
+    els.push(lab(key(i - 1), x1, top, a, s1, col, 1));
+    els.push(tick(tk(i), x2, true, 1, 0.24));
+    els.push(lab(key(i), x2, top, b, s2, col, 1, 0.3));
+    tags(els, 0);
   }
   function moveGeom(i){
     const q = S.q, mv = q.moves[i], a = q.stages[i], b = q.stages[i + 1], W = L.W;
@@ -1647,6 +1721,15 @@
   }
   function storyFor(id){
     const q = S.q, k = kindOf(id), i = idxOf(id), v = letterHTML(q.v), last = q.stages.length - 1;
+    if(k === "b"){
+      const bs = buildSide(q), sd = bs.side;
+      if(i === 0) return { lab:`Start with ${v}`, m:eqHTML([V]), tip:`${v} is a number we don&rsquo;t know yet. Watch what is done to it, one step at a time.` };
+      const op = sd.ops[i - 1], a = eqHTML(builtP(sd, i - 1)), b = eqHTML(builtP(sd, i)), n = op.n;
+      const pl = `<b class="cBuild">${{ add:"+ ", sub:"&minus; ", mul:"&times; ", div:"&divide; " }[op.o]}${n}</b>`;
+      const tip = op.o === "add" ? `${b} is ${n} more than ${a}, so it sits ${n} to the right.` : op.o === "sub" ? `${b} is ${n} less than ${a}, so it sits ${n} to the left.`
+        : op.o === "mul" ? `${n} equal groups of ${a}, laid end to end from 0, make ${b}.` : `Cut the line from 0 to ${a} into ${n} equal parts. The first mark is ${b}.`;
+      return { lab:`Build it: ${pl}`, m:b, tip:i === sd.ops.length ? tip + ` Now it is set equal to a number&hellip;` : tip };
+    }
     if(k === "s") return { lab:"The equation is one point", m:eqHTML(eqP(0)),
       tip:`${eqHTML(topP(0))} and ${eqHTML(botP(0))} are the same number, so they share one point: the left side on top, the right side underneath.` };
     if(k === "t"){
@@ -1687,7 +1770,11 @@
       if(mv.kind === "mul" && hasX(q.stages[j].top) && hasX(q.stages[j].bot)) return `There is a fraction. What could we multiply both sides by to clear it?`;
       return `What was the last thing done to ${v}? What undoes it?`;
     };
-    if(k === "s") return ask(0);
+    if(k === "b"){
+      const n = buildSide(q).side.ops.length;
+      return i === 0 ? `Where could ${v} be on the line?` : i < n ? `What has been done to ${v} so far?` : `What was the last thing done to ${v}?`;
+    }
+        if(k === "s") return ask(0);
     if(k === "t") return `The top line moved by ${pillHTML(q.moves[i])}. What must the bottom line do?`;
     if(k === "m") return q.moves[i].kind === "xterm" ? `Are the two sides still equal? How do you know?` : `Why do both lines make the same move?`;
     if(k === "w") return `Has the point moved? Why not?`;
@@ -1715,7 +1802,7 @@
     $("allBtn").disabled = last;
     $("hint").innerHTML = hintFor(sid());
     const id = sid(), k = kindOf(id), nm = S.q.moves.length, tag = $("typeTag");
-    tag.textContent = k === "s" ? "The equation" : k === "check" ? "Check" : k === "w" ? (q_w(id)) : k === "r" && idxOf(id) === nm - 1 ? "Solved" : k === "r" ? "Simpler equation" : `Move ${idxOf(id) + 1} of ${nm}`;
+    tag.textContent = k === "b" ? "Build it" : k === "s" ? "The equation" : k === "check" ? "Check" : k === "w" ? (q_w(id)) : k === "r" && idxOf(id) === nm - 1 ? "Solved" : k === "r" ? "Simpler equation" : `Move ${idxOf(id) + 1} of ${nm}`;
     tag.classList.toggle("let", k === "t" || k === "m");
   }
   function frame(){
@@ -1730,7 +1817,7 @@
     drawEls(scene(sid()));
   }
   function stopAnim(){ if(S.anim){ cancelAnimationFrame(S.anim.raf); S.anim = null; } }
-  const DUR = { t:1500, m:2000, r:1400, c:1100, w:1500 };
+  const DUR = { t:1500, m:2000, r:1400, c:1100, w:1500, b:1700, s:1400 };
   function go(to){
     to = clamp(to, 0, IDS.length - 1);
     if(to === S.step) return;
@@ -1765,7 +1852,7 @@
     document.querySelectorAll("#negSeg button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.neg === S.set.neg)));
     document.querySelectorAll("#nwSeg button").forEach(b => b.setAttribute("aria-pressed", String((b.dataset.nw === "on") === !!S.set.nonwhole)));
     $("divSel").value = S.set.div; $("workSel").value = S.set.work; $("nwSel").value = S.set.nw;
-    [["varyToggle", "vary"], ["lettersToggle", "letters"], ["splitToggle", "split"], ["checkToggle", "check"], ["movesToggle", "moves"], ["partsToggle", "parts"], ["sidesToggle", "sides"]]
+    [["eqfToggle", "eqf"], ["varyToggle", "vary"], ["lettersToggle", "letters"], ["splitToggle", "split"], ["checkToggle", "check"], ["movesToggle", "moves"], ["partsToggle", "parts"], ["sidesToggle", "sides"]]
       .forEach(([id, key]) => { $(id).checked = !!S.set[key]; });
     const noFrac = !S.own && S.set.nonwhole && (S.set.type === "xab" || S.set.type === "frc");
     $("nwNote").hidden = !noFrac;
@@ -1862,9 +1949,10 @@
     if(fresh && !S.own) newQuestion(); else { stopAnim(); refresh(); }
   });
   onSet("divSel", "div"); onSet("nwSel", "nw", true); onSet("varyToggle", "vary", true); onSet("lettersToggle", "letters", true);
-  onSet("splitToggle", "split"); onSet("checkToggle", "check"); onSet("workSel", "work");
+  onSet("eqfToggle", "eqf"); onSet("splitToggle", "split"); onSet("checkToggle", "check"); onSet("workSel", "work");
   onSet("movesToggle", "moves"); onSet("partsToggle", "parts"); onSet("sidesToggle", "sides");
 
+  $("wsNewBtn").addEventListener("click", () => newQuestion());
   $("nextBtn").addEventListener("click", next); $("backBtn").addEventListener("click", back);
   $("miniNext").addEventListener("click", next); $("miniBack").addEventListener("click", back);
   $("againBtn").addEventListener("click", startAgain);
@@ -1984,6 +2072,7 @@
     else if(k === "w" || k === "W") setNW(!S.set.nonwhole);
     else if(k === "f" || k === "F") toggleFs();
     else if(k === "v" || k === "V") setWP(!S.set.wpanel);
+    else if(k === "e" || k === "E"){ S.set.eqf = !S.set.eqf; save(); stopAnim(); S.step = 0; refresh(); }
   });
   let rz = 0;
   const onResize = () => { cancelAnimationFrame(rz); rz = requestAnimationFrame(() => { fitTypeBtn(); fitStmt(); frame(); }); };

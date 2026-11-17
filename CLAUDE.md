@@ -254,6 +254,19 @@
 >   jump, answer never early, no page scroll on desktop), 64 settings combinations, 29 UI checks (keys, panel,
 >   full screen, menus, type your own, persistence, real animations both ways).
 >
+> **NEW (2026-11-17, latest): DANIELA'S FEEDBACK — BUILD IT FIRST IN THE MULTI-STEP TOOL + KEYS ON THE WORKING PANEL.**
+> * **Multi-step tool, Settings › Steps › Equation first (`S.set.eqf`, default ON, key E):** OFF = a two-step equation (one
+>   side `ops`, the other a number) is first BUILT from x, one operation at a time, before the usual steps: `b0` (x on its own),
+>   `b1`…`bN` (each operation as an orange hop/arrow + pill on the line that side lives on, `buildScene`; `builtP(sd, i)` = the
+>   expression after i operations). The last built expression carries the equation's own keys (`p0`, `keyT(0)`/`keyB(0)`) so it
+>   pans into the "s" scene. Hints: "What has been done to x so far?" → "What was the last thing done to x?". Equations with x
+>   on both sides (and 10 − 2x, a `lin` side) always start from the equation. `stageAt` maps b-steps to row 0.
+> * **Both equations tools: the Working panel has a footer** (`.wsFoot`): a New question button (`#wsNewBtn`) and the same
+>   keyboard-shortcut line as the side panel — opening the working panel closes the side panel, which hid both (Daniela couldn't
+>   find how to get a new equation). The multi-step key line now lists E.
+> * Verified: multi-step ui 64 checks, build mode on all nine types × written-another-way (every step drawn inside the board,
+>   build steps only on two-step `ops` equations); one-step ui 46 checks; New question from the working panel in both.
+>
 > **NEW (2026-11-17, latest): MULTI-STEP EQUATIONS — FIVE STUDENT QUIZZES + STAGE 5 LISTINGS.**
 > `online-quizzes/stage-4/algebra/multi-step-equations/` — thin shells `two-step.html`, `two-step-grouping.html`,
 > `pronumerals-both-sides.html`, `fractions-harder.html`, `mixed.html` (each sets `window.MSQ = {scope, toolId, tool, title,
