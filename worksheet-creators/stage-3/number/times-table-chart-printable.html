@@ -1,0 +1,581 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Printable Times Table Chart &ndash; Poster Maker | Mills Maths Tools</title>
+  <meta name="description" content="Make a colourful printable times table chart (multiplication chart) to 10 × 10 or 12 × 12: themed borders, colour patterns (square numbers, turnarounds, L-shapes, odd and even, last digits, multiples) and desk-sized copies. Print and laminate." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#f8fafc; --card:#ffffff; --ink:#0f172a; --muted:#64748b; --border:#e2e8f0;
+      --shadow:0 18px 45px rgba(15,23,42,.13);
+      --blue:#2563eb; --blue-dark:#1d4ed8; --green:#22c55e; --green-dark:#15803d; --purple:#7c3aed; --red:#dc2626;
+      --line:#334155; --line-soft:#94a3b8;
+      --uiFont:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+      --kidFont:"Fredoka","Baloo 2","Nunito","Arial Rounded MT Bold","Trebuchet MS","Segoe UI",system-ui,sans-serif;
+    }
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{ margin:0; font-family:var(--uiFont); color:var(--ink);
+      background:radial-gradient(circle at top left,rgba(37,99,235,.14),transparent 32rem),radial-gradient(circle at top right,rgba(124,58,237,.12),transparent 34rem),var(--bg); }
+    button,input,select{ font:inherit; }
+    [hidden]{ display:none !important; }
+    .app{ min-height:100dvh; display:flex; flex-direction:column; }
+    .mmtTopbar{ position:relative; z-index:60; background:linear-gradient(135deg,#0f172a,#123b7a 55%,#2563eb); color:white; padding:14px 24px;
+      display:grid; grid-template-columns:minmax(200px,1fr) auto minmax(200px,1fr); align-items:center; gap:18px; box-shadow:0 10px 28px rgba(15,23,42,.22); }
+    .mmtBrand{ display:flex; align-items:center; gap:12px; justify-self:start; text-decoration:none; color:white; border-radius:14px; padding:8px 12px; margin-left:-12px; font-weight:900; transition:.18s ease; }
+    .mmtBrand:hover{ background:rgba(255,255,255,.12); }
+    .mmtBrandLogo{ width:44px; height:44px; border-radius:9px; background:white; color:#1d4ed8; display:grid; place-items:center; font-weight:1000; letter-spacing:-.08em; }
+    .mmtBrandText strong{ display:block; font-size:1.18rem; line-height:1; letter-spacing:-.03em; }
+    .mmtBrandText span{ display:block; font-size:.78rem; opacity:.82; font-weight:650; }
+    .mmtTopTitle{ margin:0; font-weight:850; font-size:clamp(1.05rem,1.8vw,1.45rem); letter-spacing:-.04em; text-align:center; white-space:nowrap; }
+    .topActions{ justify-self:end; display:flex; gap:10px; flex-wrap:wrap; }
+    .btn{ appearance:none; border:1px solid rgba(255,255,255,.28); background:rgba(255,255,255,.14); color:white; padding:11px 15px; border-radius:14px; font-weight:900; font-size:15px; cursor:pointer; text-decoration:none; transition:.18s ease; }
+    .btn:hover{ background:rgba(255,255,255,.22); transform:translateY(-1px); }
+    .btn-primary{ background:white; color:#1d4ed8; border-color:white; }
+    .btn-primary:hover{ background:#eef2ff; }
+
+    .layout{ flex:1 1 auto; width:min(1680px,100%); margin:0 auto; padding:14px 18px 18px; display:grid; grid-template-columns:400px minmax(0,1fr); gap:14px; align-items:start; }
+    .card{ background:var(--card); border:1px solid var(--border); border-radius:22px; box-shadow:var(--shadow); min-width:0; }
+    .controls{ padding:14px; display:flex; flex-direction:column; gap:12px; position:sticky; top:14px; max-height:calc(100dvh - 28px); overflow:auto; }
+    .band{ border:1px solid var(--border); border-radius:16px; padding:12px 13px; background:linear-gradient(180deg,#fff,#f9fafb); display:flex; flex-direction:column; gap:10px; }
+    .bandHead{ font-size:.68rem; letter-spacing:.14em; text-transform:uppercase; font-weight:950; color:var(--muted); margin:0; }
+    .row2{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    label.f{ display:flex; flex-direction:column; gap:5px; font-size:.84rem; font-weight:900; color:var(--line); }
+    select, input[type=text]{ border:1.5px solid var(--border); border-radius:11px; padding:9px 11px; font-weight:800; font-size:.9rem; color:var(--ink); background:#fff; width:100%; }
+    select:focus, input:focus{ outline:none; border-color:var(--blue); box-shadow:0 0 0 4px rgba(37,99,235,.14); }
+    .seg{ display:grid; grid-auto-flow:column; grid-auto-columns:1fr; background:#f1f5f9; border:1px solid var(--border); border-radius:12px; padding:3px; gap:3px; }
+    .seg button{ appearance:none; border:none; background:transparent; border-radius:9px; padding:7px 6px; font-weight:900; font-size:.84rem; color:var(--muted); cursor:pointer; white-space:nowrap; }
+    .seg button[aria-pressed="true"]{ background:#fff; color:var(--ink); box-shadow:0 2px 8px rgba(15,23,42,.12); }
+    .segLab{ font-size:.84rem; font-weight:900; color:var(--line); margin-bottom:-4px; }
+    .patGrid{ display:grid; grid-template-columns:repeat(3,1fr); gap:7px; }
+    .patBtn{ appearance:none; border:1.5px solid var(--border); background:#fff; border-radius:12px; padding:6px 5px 7px; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:5px; font-weight:900; font-size:.72rem; color:var(--line); transition:.14s ease; }
+    .patBtn svg{ width:100%; height:auto; border-radius:6px; display:block; }
+    .patBtn:hover{ border-color:#93c5fd; transform:translateY(-1px); }
+    .patBtn[aria-pressed="true"]{ border-color:var(--blue); background:#eff6ff; box-shadow:inset 0 0 0 1px var(--blue); }
+    .themeGrid{ display:grid; grid-template-columns:repeat(5,1fr); gap:6px; }
+    .themeBtn{ appearance:none; border:1.5px solid var(--border); background:#fff; border-radius:12px; padding:5px 4px 6px; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:4px; font-weight:900; font-size:.68rem; color:var(--line); }
+    .themeBtn svg{ width:100%; height:auto; display:block; }
+    .themeBtn[aria-pressed="true"]{ border-color:var(--blue); background:#eff6ff; box-shadow:inset 0 0 0 1px var(--blue); }
+    .chips{ display:flex; flex-wrap:wrap; gap:6px; }
+    .chip{ appearance:none; border:1.5px solid var(--border); background:#fff; border-radius:999px; min-width:38px; padding:5px 9px; font-weight:900; font-size:.88rem; color:var(--line); cursor:pointer; }
+    .chip[aria-pressed="true"]{ color:#fff; }
+    .note{ margin:0; font-size:.76rem; font-weight:750; color:var(--muted); line-height:1.45; }
+    .note b{ color:var(--line); }
+    .sw{ display:flex; align-items:center; gap:10px; cursor:pointer; user-select:none; font-weight:850; color:var(--line); font-size:.88rem; }
+    .sw input{ position:absolute; opacity:0; width:0; height:0; }
+    .sw .track{ position:relative; width:44px; height:26px; border-radius:999px; background:#cbd5e1; transition:.18s ease; flex:0 0 auto; }
+    .sw .track::after{ content:""; position:absolute; top:3px; left:3px; width:20px; height:20px; border-radius:50%; background:#fff; box-shadow:0 2px 6px rgba(15,23,42,.3); transition:.18s ease; }
+    .sw input:checked + .track{ background:var(--green); }
+    .sw input:checked + .track::after{ transform:translateX(18px); }
+    .sw input:focus-visible + .track{ box-shadow:0 0 0 4px rgba(37,99,235,.28); }
+    .btnRow{ display:flex; gap:8px; flex-wrap:wrap; }
+    .pBtn{ appearance:none; border:none; border-radius:13px; padding:12px 16px; font-weight:950; font-size:.98rem; cursor:pointer; background:linear-gradient(135deg,var(--blue),var(--purple)); color:#fff; box-shadow:0 10px 24px rgba(37,99,235,.3); flex:1 1 auto; }
+    .gBtn{ appearance:none; border:1.5px solid var(--border); background:#fff; border-radius:13px; padding:11px 14px; font-weight:900; font-size:.9rem; cursor:pointer; color:var(--line); }
+    .gBtn:hover{ border-color:var(--blue); color:var(--blue-dark); background:#eef2ff; }
+
+    .previewCard{ padding:14px; display:flex; flex-direction:column; gap:10px; min-height:0; }
+    .previewHead{ display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+    .pvTitle{ font-size:.68rem; letter-spacing:.14em; text-transform:uppercase; font-weight:950; color:var(--muted); }
+    .pvInfo{ font-size:.8rem; font-weight:800; color:var(--line-soft); }
+    .stage{ background:repeating-conic-gradient(#eef2f7 0 25%, #f8fafc 0 50%) 0 0/22px 22px; border-radius:16px; padding:18px; display:flex; justify-content:center; overflow:hidden; }
+    .scaler{ transform-origin:0 0; }
+    .sheet{ background:#fff; box-shadow:0 18px 40px rgba(15,23,42,.22); }
+    .sheet svg{ display:block; }
+    #printRoot{ display:none; }
+    .mmtFooter{ text-align:center; font-size:.82rem; font-weight:800; color:var(--muted); padding:8px 0 16px; }
+    .mmtFooter a{ color:var(--blue); text-decoration:none; }
+
+    @media (max-width:1100px){ .layout{ grid-template-columns:1fr; } .controls{ position:static; max-height:none; } .mmtBrandText{ display:none; } }
+    @media (max-width:760px){ .mmtTopbar{ grid-template-columns:1fr; justify-items:center; } .topActions{ justify-self:center; } .mmtTopTitle{ white-space:normal; } }
+
+    @media print{
+      html,body{ background:#fff !important; height:auto; }
+      .app{ display:none !important; }
+      #printRoot{ display:block !important; }
+      #printRoot .sheet{ box-shadow:none; break-after:page; page-break-after:always; }
+      #printRoot .sheet:last-child{ break-after:auto; page-break-after:auto; }
+    }
+  </style>
+  <style id="pageStyle">@page{ size:210mm 297mm; margin:0; }</style>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
+<!-- mmt-pwa -->
+<link rel="manifest" href="../../../manifest.webmanifest">
+<meta name="theme-color" content="#1f3a5f">
+<link rel="apple-touch-icon" href="../../../icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="MMT">
+<script src="../../../pwa.js" defer></script>
+<!-- /mmt-pwa -->
+</head>
+<body>
+<div class="app">
+  <header class="mmtTopbar">
+    <a class="mmtBrand" href="https://www.millsmathstools.au" aria-label="Back to Mills Maths Tools">
+      <span class="mmtBrandLogo" aria-hidden="true">MMT</span>
+      <span class="mmtBrandText"><strong>MMT</strong><span>Mills Maths Tools</span></span>
+    </a>
+    <h1 class="mmtTopTitle">Printable Times Table Chart</h1>
+    <div class="topActions">
+      <a class="btn" href="/interactive-tools/stage-3/number/timestable-chart/">&larr; Interactive chart</a>
+      <button class="btn btn-primary" id="printTop" type="button">Print</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="card controls" aria-label="Choose your chart">
+      <div class="band">
+        <p class="bandHead">Colour pattern</p>
+        <div class="patGrid" id="patGrid"></div>
+        <div id="multBox" hidden>
+          <div class="segLab" style="margin-bottom:6px">Multiples of (up to three)</div>
+          <div class="chips" id="multChips"></div>
+        </div>
+        <p class="note" id="patNote"></p>
+      </div>
+
+      <div class="band">
+        <p class="bandHead">Theme</p>
+        <div class="themeGrid" id="themeGrid"></div>
+        <div class="row2">
+          <label class="f">Title<input id="titleIn" type="text" maxlength="28" value="Times Tables"></label>
+          <label class="f">Under the title<input id="subIn" type="text" maxlength="48" placeholder="e.g. Room 12"></label>
+        </div>
+        <div class="segLab">Colour</div>
+        <div class="seg" id="inkSeg">
+          <button type="button" data-v="full" aria-pressed="true">Full colour</button>
+          <button type="button" data-v="saver" aria-pressed="false">Ink saver</button>
+          <button type="button" data-v="bw" aria-pressed="false">Black &amp; white</button>
+        </div>
+      </div>
+
+      <div class="band">
+        <p class="bandHead">The chart</p>
+        <div class="row2">
+          <div><div class="segLab" style="margin-bottom:5px">Size</div>
+            <div class="seg" id="sizeSeg"><button type="button" data-v="10" aria-pressed="false">10 &times; 10</button><button type="button" data-v="12" aria-pressed="true">12 &times; 12</button></div></div>
+          <label class="f">Numbers
+            <select id="fillSel">
+              <option value="all">All filled in</option>
+              <option value="some">Some left blank</option>
+              <option value="none">Products blank</option>
+            </select>
+          </label>
+        </div>
+        <button class="gBtn" id="reblank" type="button" hidden>New blanks</button>
+        <label class="sw"><input type="checkbox" id="matchToggle" checked><span class="track"></span><span>Same colour for a number on the top and the side</span></label>
+        <label class="sw"><input type="checkbox" id="legendToggle" checked><span class="track"></span><span>Key to the colours</span></label>
+        <label class="sw"><input type="checkbox" id="qToggle" checked><span class="track"></span><span>A question to talk about</span></label>
+        <label class="sw"><input type="checkbox" id="howToggle" checked><span class="track"></span><span>How to read it</span></label>
+      </div>
+
+      <div class="band">
+        <p class="bandHead">The paper</p>
+        <div class="row2">
+          <div><div class="segLab" style="margin-bottom:5px">Paper</div>
+            <div class="seg" id="paperSeg"><button type="button" data-v="A4" aria-pressed="true">A4</button><button type="button" data-v="A3" aria-pressed="false">A3</button></div></div>
+          <div><div class="segLab" style="margin-bottom:5px">Turn the page</div>
+            <div class="seg" id="orientSeg"><button type="button" data-v="p" aria-pressed="true">Portrait</button><button type="button" data-v="l" aria-pressed="false">Landscape</button></div></div>
+        </div>
+        <div class="segLab">Charts on a page</div>
+        <div class="seg" id="perSeg">
+          <button type="button" data-v="1" aria-pressed="true">1 &middot; poster</button>
+          <button type="button" data-v="2" aria-pressed="false">2 &middot; desk</button>
+          <button type="button" data-v="4" aria-pressed="false">4 &middot; small</button>
+        </div>
+        <p class="note">In the print window choose <b>Margins: None</b> (or Minimum) and, for A3, the A3 paper size. The design keeps everything clear of the edge, so a printer that can&rsquo;t print to the edge only trims plain border.</p>
+      </div>
+
+      <div class="btnRow">
+        <button class="pBtn" id="printBtn" type="button">Print</button>
+        <button class="gBtn" id="resetBtn" type="button">Reset</button>
+      </div>
+    </section>
+
+    <section class="card previewCard" aria-label="Preview">
+      <div class="previewHead"><span class="pvTitle">Preview</span><span class="pvInfo" id="pvInfo"></span></div>
+      <div class="stage" id="stage"><div class="scaler" id="scaler"></div></div>
+    </section>
+  </main>
+  <div class="mmtFooter">This tool and more can be found at&nbsp;<a href="https://www.millsmathstools.au">www.millsmathstools.au</a></div>
+</div>
+<div id="printRoot"></div>
+
+<script>
+(() => {
+"use strict";
+/* =====================================================================
+   Printable Times Table Chart.
+   One poster is drawn as SVG in A4 millimetres (210 x 297 portrait or
+   297 x 210 landscape). A page is a paper size in mm holding 1, 2 or 4
+   posters scaled into place, so A3 and the desk copies are the same
+   drawing at another scale and print exactly as they preview.
+   ===================================================================== */
+const $ = id => document.getElementById(id);
+const LS_KEY = "mmtTimesPoster.v1";
+const DEF = { pat:"rows", mult:[3, 4], theme:"rainbow", title:"Times Tables", sub:"", ink:"full", n:12, fill:"all", match:true, legend:true, q:true, how:true, paper:"A4", orient:"p", per:1, seed:1 };
+let O = { ...DEF };
+const FONT = `'Fredoka','Baloo 2','Nunito','Arial Rounded MT Bold','Trebuchet MS','Segoe UI',sans-serif`;
+const NAVY = "#1e2a5a";
+
+/* ---------- colour helpers ---------- */
+const hex2 = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+const toHex = a => "#" + a.map(v => Math.round(Math.max(0, Math.min(255, v))).toString(16).padStart(2, "0")).join("");
+const mix = (h, t, w = "#ffffff") => { const a = hex2(h), b = hex2(w); return toHex(a.map((v, i) => v + (b[i] - v) * t)); };
+const grey = h => { const [r, g, b] = hex2(h); const y = .3 * r + .59 * g + .11 * b; return toHex([y, y, y]); };
+// one colour per number, so the 4 row and the 4 column match (darker than a pastel so white numbers stay readable)
+const HUE = ["#e11d48", "#ea580c", "#d97706", "#65a30d", "#16a34a", "#0d9488", "#0891b2", "#2563eb", "#4f46e5", "#7c3aed", "#c026d3", "#db2777"];
+const PPAL = ["#bfdbfe", "#ddd6fe", "#bbf7d0", "#fed7aa", "#fde68a", "#fbcfe8", "#a5f3fc", "#c7d2fe", "#d9f99d", "#fecaca", "#fef08a", "#f5d0fe", "#e9d5ff", "#99f6e4"];
+const DIG = ["#e5e7eb", "#bfdbfe", "#bbf7d0", "#fde68a", "#fbcfe8", "#fed7aa", "#ddd6fe", "#a5f3fc", "#fef08a", "#fecaca"];
+const MC = ["#2563eb", "#ea580c", "#9333ea"];
+const gcd = (a, b) => b ? gcd(b, a % b) : a, lcm = (a, b) => a / gcd(a, b) * b;
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c]));
+function rng(seed){ let s = seed >>> 0 || 1; return () => { s ^= s << 13; s ^= s >>> 17; s ^= s << 5; return ((s >>> 0) % 100000) / 100000; }; }
+
+/* ---------- the patterns ---------- */
+const PATS = {
+  plain:{ name:"Rainbow", q:"Which facts do you already know?" },
+  rows:{ name:"Rows of multiples", q:"What do you notice about each row?" },
+  squares:{ name:"Square numbers", q:"What do you notice about the numbers next to each square number?" },
+  turn:{ name:"Turnarounds", q:"What do you notice about the two halves?" },
+  L:{ name:"L-shapes", q:"Add up all the numbers in one L. What do you notice?" },
+  same:{ name:"Same numbers", q:"Why do some numbers appear more often than others?" },
+  odd:{ name:"Odd and even", q:"Where are the odd numbers? Why are they there?" },
+  digit:{ name:"Last digits", q:"Look along one row at the last digits. What repeats?" },
+  mult:{ name:"Multiples", q:"" }
+};
+const PAT_ORDER = ["plain", "rows", "squares", "turn", "L", "same", "odd", "digit", "mult"];
+const PAT_NOTE = {
+  plain:"Every number on the top and the side has its own colour.",
+  rows:"Each row is tinted with its own number's colour: the 4 row counts in 4s, and so does the 4 column.",
+  squares:"The square numbers make a green diagonal; each colour is a stripe the same distance from it.",
+  turn:"The diagonal of square numbers splits the chart into two matching halves: 4 &times; 6 and 6 &times; 4.",
+  L:"Each L-shape gets its own colour. Every L adds up to a cube number.",
+  same:"Squares holding the same number share a colour; numbers that appear once stay white.",
+  odd:"Odd numbers in orange. Only odd rows crossing odd columns are odd.",
+  digit:"Coloured by last digit, so the repeating patterns along each row show up.",
+  mult:"Choose up to three numbers. Their multiples are coloured, the common multiples are green, and the lowest common multiple is ringed."
+};
+function counts(n){ const o = {}; for(let r = 1; r <= n; r++) for(let c = 1; c <= n; c++) o[r * c] = (o[r * c] || 0) + 1; return o; }
+function cellFill(r, c, o, cnt){
+  const v = r * c, P = o.pat;
+  if(P === "plain") return { f:"#ffffff" };
+  if(P === "rows") return { f:mix(HUE[r - 1], .78) };
+  if(P === "squares"){ const d = Math.abs(r - c); return { f:d === 0 ? "#4ade80" : PPAL[(d - 1) % PPAL.length] }; }
+  if(P === "turn") return { f:r < c ? "#bfdbfe" : r > c ? "#fed7aa" : "#86efac" };
+  if(P === "L") return { f:PPAL[(Math.max(r, c) - 1) % PPAL.length] };
+  if(P === "same") return { f:cnt[v] > 1 ? PPAL[(v * 7) % PPAL.length] : "#ffffff" };
+  if(P === "odd") return { f:v % 2 ? "#fdba74" : "#ffffff" };
+  if(P === "digit") return { f:DIG[v % 10] };
+  if(P === "mult"){
+    const sel = o.mult; if(!sel.length) return { f:"#ffffff" };
+    const mem = []; sel.forEach((m, i) => { if(v % m === 0) mem.push(i); });
+    if(!mem.length) return { f:"#ffffff", faint:true };
+    if(sel.length >= 2 && mem.length === sel.length) return { f:"#86efac", ring:v === sel.reduce(lcm) ? "#15803d" : "#22c55e", ringW:v === sel.reduce(lcm) ? 2.2 : 1 };
+    if(mem.length === 1) return { f:mix(MC[mem[0]], .78) };
+    return { f:mix(MC[mem[0]], .78), f2:mix(MC[mem[1]], .78) };
+  }
+  return { f:"#ffffff" };
+}
+
+/* ---------- drawing the chart ---------- */
+function chartSVG(x, y, S, o){
+  const n = o.n, cell = S / (n + 1), g = cell * .075, t = cell - g, rad = cell * .2, cnt = counts(n);
+  const ink = o.ink, bw = ink === "bw", saver = ink === "saver";
+  const col = h => bw ? grey(h) : h;
+  const hcol = h => bw ? mix(grey(h), .45, "#000000") : h;   // header tiles carry white numbers, so keep them dark in black and white
+  const blank = new Set();
+  if(o.fill === "some"){ const rr = rng(o.seed * 7919 + n); for(let r = 1; r <= n; r++) for(let c = 1; c <= n; c++) if(rr() < .3) blank.add(r + "," + c); }
+  let s = `<g font-family="${FONT}" font-weight="600" text-anchor="middle">`;
+  const tile = (cx, cy, fill, stroke, sw) => `<rect x="${(cx + g / 2).toFixed(2)}" y="${(cy + g / 2).toFixed(2)}" width="${t.toFixed(2)}" height="${t.toFixed(2)}" rx="${rad.toFixed(2)}" fill="${fill}"${stroke ? ` stroke="${stroke}" stroke-width="${sw}"` : ""}/>`;
+  const num = (cx, cy, v, fill, size, w) => `<text x="${(cx + cell / 2).toFixed(2)}" y="${(cy + cell / 2 + size * .36).toFixed(2)}" font-size="${size.toFixed(2)}" fill="${fill}"${w ? ` font-weight="${w}"` : ""}>${v}</text>`;
+  // corner
+  s += `<circle cx="${x + cell / 2}" cy="${y + cell / 2}" r="${t * .46}" fill="${bw ? "#111827" : NAVY}"/>` + num(x, y, "&#215;", "#fff", cell * .62, 700);
+  // headers: one colour per number
+  for(let k = 1; k <= n; k++){
+    const hc = o.pat === "mult" && o.mult.includes(k) ? MC[o.mult.indexOf(k)] : null;
+    const topC = hcol(hc || (o.match ? HUE[k - 1] : "#2563eb")), sideC = hcol(hc || (o.match ? HUE[k - 1] : "#ea580c"));
+    [[x + k * cell, y, topC], [x, y + k * cell, sideC]].forEach(([cx, cy, cc]) => {
+      if(saver) s += tile(cx, cy, "#ffffff", cc, .7) + num(cx, cy, k, cc, cell * .5, 700);
+      else s += tile(cx, cy, cc) + num(cx, cy, k, "#ffffff", cell * .5, 700);
+    });
+  }
+  // body
+  for(let r = 1; r <= n; r++) for(let c = 1; c <= n; c++){
+    const cx = x + c * cell, cy = y + r * cell, F = cellFill(r, c, o, cnt);
+    let f = F.f; if(saver) f = mix(f, .55); f = col(f);
+    if(F.f2){
+      const f2 = col(saver ? mix(F.f2, .55) : F.f2);
+      s += `<clipPath id="cp${r}_${c}"><rect x="${cx + g / 2}" y="${cy + g / 2}" width="${t}" height="${t}" rx="${rad}"/></clipPath><g clip-path="url(#cp${r}_${c})"><rect x="${cx}" y="${cy}" width="${cell}" height="${cell}" fill="${f}"/><path d="M${cx + cell} ${cy}L${cx + cell} ${cy + cell}L${cx} ${cy + cell}Z" fill="${f2}"/></g>`;
+      s += tile(cx, cy, "none", bw ? "#9ca3af" : "#cbd5e1", .25);
+    } else s += tile(cx, cy, f, F.ring ? col(F.ring) : (f === "#ffffff" ? (bw ? "#9ca3af" : "#d6dbe4") : null), F.ring ? F.ringW * (cell / 13) : .3);
+    const v = r * c, size = cell * (v >= 100 ? .37 : .43);
+    if(o.fill !== "none" && !blank.has(r + "," + c)) s += num(cx, cy, v, F.faint ? "#94a3b8" : (bw ? "#111827" : "#1f2937"), size, F.faint ? 500 : 600);
+  }
+  return s + "</g>";
+}
+
+/* ---------- decorations ---------- */
+function star(cx, cy, R, r, rot = -90){ let p = ""; for(let i = 0; i < 10; i++){ const a = (rot + i * 36) * Math.PI / 180, rr = i % 2 ? r : R; p += (i ? "L" : "M") + (cx + rr * Math.cos(a)).toFixed(2) + " " + (cy + rr * Math.sin(a)).toFixed(2); } return p + "Z"; }
+const RAINBOW = ["#ef4444", "#f97316", "#facc15", "#22c55e", "#3b82f6", "#8b5cf6"];
+const CONF = ["#ef4444", "#f97316", "#facc15", "#22c55e", "#06b6d4", "#3b82f6", "#8b5cf6", "#ec4899"];
+function frame(W, H, o){
+  const T = o.theme, bw = o.ink === "bw", c = h => bw ? grey(h) : h;
+  let s = "";
+  if(T === "rainbow"){
+    RAINBOW.forEach((h, i) => { const ins = 6.2 + i * 1.55; s += `<rect x="${ins}" y="${ins}" width="${W - 2 * ins}" height="${H - 2 * ins}" rx="${14 - i * 1.3}" fill="none" stroke="${c(h)}" stroke-width="1.6"/>`; });
+    // a cloud in each top corner, and little stars
+    const cloud = (cx, cy, k) => `<g fill="#fff" stroke="${c("#93c5fd")}" stroke-width=".7"><path d="M${cx - 9 * k} ${cy + 3 * k}a${4 * k} ${4 * k} 0 0 1 ${2 * k} ${-7 * k}a${5 * k} ${5 * k} 0 0 1 ${9 * k} ${-2 * k}a${4 * k} ${4 * k} 0 0 1 ${7 * k} ${3 * k}a${3.5 * k} ${3.5 * k} 0 0 1 ${0} ${6 * k}z"/></g>`;
+    s += cloud(24, 24, 1) + cloud(W - 15, 24, 1);
+    [[W - 24, H - 22, "#facc15"], [22, H - 22, "#f472b6"]].forEach(([x, y, h]) => s += `<path d="${star(x, y, 4.4, 1.9)}" fill="${c(h)}"/>`);
+  }
+  if(T === "confetti"){
+    const R = rng(97 + (W > H ? 3 : 0));
+    const inBand = (x, y) => x < 17 || x > W - 17 || y < 17 || y > H - 17;
+    let placed = 0, guard = 0;
+    while(placed < 120 && guard++ < 4000){
+      const x = 4 + R() * (W - 8), y = 4 + R() * (H - 8); if(!inBand(x, y)) continue;
+      const h = c(CONF[Math.floor(R() * CONF.length)]), k = R(), rot = Math.floor(R() * 180);
+      if(k < .34) s += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(0.9 + R() * 1.4).toFixed(2)}" fill="${h}"/>`;
+      else if(k < .62) s += `<rect x="${(x - 1.6).toFixed(1)}" y="${(y - .6).toFixed(1)}" width="3.6" height="1.3" rx=".6" fill="${h}" transform="rotate(${rot} ${x.toFixed(1)} ${y.toFixed(1)})"/>`;
+      else if(k < .82) s += `<path d="M${x.toFixed(1)} ${(y - 1.6).toFixed(1)}l1.6 2.8h-3.2z" fill="${h}" transform="rotate(${rot} ${x.toFixed(1)} ${y.toFixed(1)})"/>`;
+      else s += `<path d="M${(x - 2.6).toFixed(1)} ${y.toFixed(1)}q1.3 -1.6 2.6 0t2.6 0" fill="none" stroke="${h}" stroke-width=".8" stroke-linecap="round" transform="rotate(${rot} ${x.toFixed(1)} ${y.toFixed(1)})"/>`;
+      placed++;
+    }
+    s += `<rect x="17" y="17" width="${W - 34}" height="${H - 34}" rx="9" fill="none" stroke="${c("#cbd5e1")}" stroke-width=".5" stroke-dasharray="1.6 1.4"/>`;
+  }
+  if(T === "stars"){
+    const b = 12;
+    s += `<path fill-rule="evenodd" fill="${bw ? "#4b5563" : "#1e3a8a"}" d="M5 15a10 10 0 0 1 10 -10H${W - 15}a10 10 0 0 1 10 10V${H - 15}a10 10 0 0 1 -10 10H15a10 10 0 0 1 -10 -10Z M${5 + b} ${5 + b + 6}a6 6 0 0 1 6 -6H${W - 5 - b - 6}a6 6 0 0 1 6 6V${H - 5 - b - 6}a6 6 0 0 1 -6 6H${5 + b + 6}a6 6 0 0 1 -6 -6Z"/>`;
+    const R = rng(31 + (W > H ? 5 : 0)); let k = 0, guard = 0;
+    while(k < 70 && guard++ < 3000){
+      const x = 6 + R() * (W - 12), y = 6 + R() * (H - 12);
+      if(!(x < 5 + b - 1.5 || x > W - 5 - b + 1.5 || y < 5 + b - 1.5 || y > H - 5 - b + 1.5)) continue;
+      const big = R() < .35, h = R() < .6 ? "#fde047" : "#ffffff";
+      s += big ? `<path d="${star(x, y, 2.3, 1, -90 + R() * 30)}" fill="${bw ? "#e5e7eb" : h}"/>` : `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(.35 + R() * .55).toFixed(2)}" fill="#fff" opacity=".9"/>`;
+      k++;
+    }
+    // a planet with a ring in one corner
+    s += `<g transform="translate(${W - 13} ${H - 13})"><circle r="4.8" fill="${c("#f472b6")}"/><ellipse rx="7.6" ry="2" fill="none" stroke="${c("#fde047")}" stroke-width="1.1" transform="rotate(-20)"/></g>`;
+  }
+  if(T === "polka"){
+    const b = 12;
+    s += `<path fill-rule="evenodd" fill="${c("#c7d2fe")}" d="M5 15a10 10 0 0 1 10 -10H${W - 15}a10 10 0 0 1 10 10V${H - 15}a10 10 0 0 1 -10 10H15a10 10 0 0 1 -10 -10Z M${5 + b} ${5 + b}H${W - 5 - b}V${H - 5 - b}H${5 + b}Z"/>`;
+    for(let x = 9; x < W - 4; x += 6) for(let y = 9; y < H - 4; y += 6){ const off = ((x - 9) / 6) % 2 ? 3 : 0, yy = y + off; if(yy > H - 6) continue; if(x < 5 + b || x > W - 5 - b || yy < 5 + b || yy > H - 5 - b) s += `<circle cx="${x}" cy="${yy}" r="1.25" fill="#fff"/>`; }
+    // scalloped inner edge
+    const R = 2.2, step = 2 * R;
+    for(let x = 5 + b + R; x <= W - 5 - b - R + .1; x += step){ s += `<circle cx="${x}" cy="${5 + b}" r="${R}" fill="${c("#c7d2fe")}"/><circle cx="${x}" cy="${H - 5 - b}" r="${R}" fill="${c("#c7d2fe")}"/>`; }
+    for(let y = 5 + b + R; y <= H - 5 - b - R + .1; y += step){ s += `<circle cx="${5 + b}" cy="${y}" r="${R}" fill="${c("#c7d2fe")}"/><circle cx="${W - 5 - b}" cy="${y}" r="${R}" fill="${c("#c7d2fe")}"/>`; }
+  }
+  if(T === "clean"){
+    s += `<rect x="7" y="7" width="${W - 14}" height="${H - 14}" rx="6" fill="none" stroke="${bw ? "#111827" : NAVY}" stroke-width="1.2"/><rect x="9.5" y="9.5" width="${W - 19}" height="${H - 19}" rx="4.5" fill="none" stroke="${bw ? "#111827" : NAVY}" stroke-width=".4"/>`;
+  }
+  return s;
+}
+function titleSVG(cx, y, maxW, o){
+  const txt = (o.title || "").trim(); if(!txt) return { s:"", h:0 };
+  let fs = 17; const est = f => txt.length * f * .56;
+  while(est(fs) > maxW && fs > 8) fs -= .5;
+  const bw = o.ink === "bw", T = o.theme;
+  const letters = [...txt];
+  const colours = T === "clean" ? [NAVY] : T === "stars" ? ["#1e3a8a", "#2563eb", "#7c3aed"] : ["#ef4444", "#f97316", "#eab308", "#22c55e", "#0ea5e9", "#8b5cf6", "#ec4899"];
+  let k = 0;
+  const spans = letters.map(ch => { if(ch === " ") return " "; const h = colours[k++ % colours.length]; return `<tspan fill="${bw ? "#111827" : h}">${esc(ch)}</tspan>`; }).join("");
+  const base = y + fs * .82;
+  let s = "";
+  if(T === "confetti"){
+    const w = Math.min(maxW + 10, est(fs) + fs * 1.6), h = fs * 1.35, x0 = cx - w / 2, y0 = y - fs * .12, notch = h * .32;
+    const ribbon = bw ? "#374151" : "#1e3a8a", tail = bw ? "#6b7280" : "#3b5bdb";
+    s += `<path d="M${x0 - 9} ${y0 + 4}h12v${h}h-12l${notch} ${-h / 2}z" fill="${tail}"/><path d="M${x0 + w + 9} ${y0 + 4}h-12v${h}h12l${-notch} ${-h / 2}z" fill="${tail}"/>`;
+    s += `<rect x="${x0}" y="${y0}" width="${w}" height="${h}" rx="2.2" fill="${ribbon}"/>`;
+    s += `<text x="${cx}" y="${base}" font-family="${FONT}" font-weight="700" font-size="${fs}" text-anchor="middle" fill="#fff">${esc(txt)}</text>`;
+    return { s, h:h + 2 };
+  }
+  // sticker letters: a dark shadow, then the colours with a white outline
+  s += `<text x="${cx + .9}" y="${base + 1.1}" font-family="${FONT}" font-weight="700" font-size="${fs}" text-anchor="middle" fill="${bw ? "#111827" : NAVY}" stroke="${bw ? "#111827" : NAVY}" stroke-width="${fs * .16}" stroke-linejoin="round">${esc(txt)}</text>`;
+  s += `<text x="${cx}" y="${base}" font-family="${FONT}" font-weight="700" font-size="${fs}" text-anchor="middle" stroke="#fff" stroke-width="${fs * .1}" stroke-linejoin="round" paint-order="stroke">${spans}</text>`;
+  if(T === "stars"){ const half = est(fs) / 2 + fs * .5; s += `<path d="${star(cx - half, y + fs * .5, fs * .32, fs * .14)}" fill="${bw ? "#9ca3af" : "#facc15"}"/><path d="${star(cx + half, y + fs * .5, fs * .32, fs * .14)}" fill="${bw ? "#9ca3af" : "#facc15"}"/>`; }
+  return { s, h:fs * 1.2 };
+}
+function wrap(text, maxChars){ const w = text.split(" "), out = []; let line = ""; w.forEach(x => { if((line + " " + x).trim().length > maxChars && line){ out.push(line); line = x; } else line = (line + " " + x).trim(); }); if(line) out.push(line); return out; }
+function legendItems(o){
+  const bw = o.ink === "bw", c = h => bw ? grey(h) : h, P = o.pat, sel = o.mult;
+  if(P === "squares") return [[c("#4ade80"), "Square numbers: 1, 4, 9, 16 …"], [c(PPAL[0]), "One step from a square"], [c(PPAL[1]), "Two steps"]];
+  if(P === "turn") return [[c("#bfdbfe"), "Top half"], [c("#fed7aa"), "Bottom half"], [c("#86efac"), "The diagonal: square numbers"]];
+  if(P === "odd") return [[c("#fdba74"), "Odd"], ["#ffffff", "Even"]];
+  if(P === "rows") return [[c(mix(HUE[3], .78)), "The 4 row: counting in 4s"], [c(mix(HUE[6], .78)), "The 7 row: counting in 7s"]];
+  if(P === "digit") return [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(d => [c(DIG[d]), "ends in " + d]);
+  if(P === "mult"){
+    const it = sel.map((m, i) => [c(mix(MC[i], .78)), "Multiples of " + m]);
+    if(sel.length >= 2) it.push([c("#86efac"), "Multiples of " + (sel.length === 2 ? "both" : "all three")], ["ring", "Lowest common multiple: " + sel.reduce(lcm)]);
+    return it;
+  }
+  if(P === "L") return [[c(PPAL[2]), "The 3 L"], [c(PPAL[3]), "The 4 L"], [c(PPAL[4]), "The 5 L"]];
+  if(P === "same") return [[c(PPAL[(24 * 7) % PPAL.length]), "Every 24 is the same colour"], ["#ffffff", "Appears only once"]];
+  return [];
+}
+function questionText(o){ if(o.pat === "mult") return o.mult.length >= 2 ? `Where do the multiples of ${o.mult.join(" and ")} meet?` : o.mult.length ? `Where are the multiples of ${o.mult[0]}? Only in the ${o.mult[0]} row?` : ""; return PATS[o.pat].q; }
+
+/* ---------- one poster, in A4 millimetres ---------- */
+function posterSVG(o, land){
+  const W = land ? 297 : 210, H = land ? 210 : 297;
+  const pad = o.theme === "stars" || o.theme === "polka" ? 21 : o.theme === "confetti" ? 21 : 18;
+  let s = `<rect width="${W}" height="${H}" fill="#fff"/>` + frame(W, H, o);
+  const ink = o.ink === "bw" ? "#111827" : NAVY, mut = o.ink === "bw" ? "#374151" : "#475569";
+  const legend = o.legend ? legendItems(o) : [], q = o.q ? questionText(o) : "", how = o.how;
+  if(!land){
+    let y = pad - 3;
+    const T = titleSVG(W / 2, y, W - 2 * pad - 10, o); s += T.s; y += T.h + (T.h ? 2 : 0);
+    if(o.sub){ s += `<text x="${W / 2}" y="${y + 4.6}" font-family="${FONT}" font-weight="600" font-size="5.6" fill="${mut}" text-anchor="middle">${esc(o.sub)}</text>`; y += 8; }
+    if(how){ s += `<text x="${W / 2}" y="${y + 4}" font-family="${FONT}" font-weight="500" font-size="4.1" fill="${mut}" text-anchor="middle">Find the row. Find the column. The answer is where they meet.</text>`; y += 7.5; }
+    const lgH = legendHeight(legend, W - 2 * pad, 4.5, false);
+    const qLines = q ? wrap(q, 52) : [];
+    const below = (lgH ? lgH + 4 : 0) + (q ? qLines.length * 7.4 + 4 : 0);
+    const bottom = H - 22;   // room for the web address above the border
+    const S = Math.min(W - 2 * pad, bottom - below - y - 4);
+    // the chart, the key and the question sit together in the middle of the space left
+    let gy = y + Math.max(2, (bottom - y - (S + 4 + below)) / 2);
+    const cx = (W - S) / 2; s += chartSVG(cx, gy, S, o); gy += S + 5;
+    if(lgH){ s += legendSVG(pad, gy, W - 2 * pad, legend, o, false, 4.5); gy += lgH + 4; }
+    if(q) s += `<text x="${W / 2}" y="${gy + 5.6}" font-family="${FONT}" font-weight="600" font-size="6" fill="${ink}" text-anchor="middle">${qLines.map((l, i) => `<tspan x="${W / 2}" dy="${i ? 7.4 : 0}">${esc(l)}</tspan>`).join("")}</text>`;
+    s += `<text x="${W / 2}" y="${H - (o.theme === "polka" ? 22 : 19)}" font-family="${FONT}" font-weight="500" font-size="2.7" fill="#94a3b8" text-anchor="middle">millsmathstools.au</text>`;
+  } else {
+    let y = pad - 3;
+    const T = titleSVG(W / 2, y, W - 2 * pad - 10, o); s += T.s; y += T.h + (T.h ? 2 : 0);
+    if(o.sub){ s += `<text x="${W / 2}" y="${y + 4.4}" font-family="${FONT}" font-weight="600" font-size="5.2" fill="${mut}" text-anchor="middle">${esc(o.sub)}</text>`; y += 7.5; }
+    const S = H - 24 - y, cx = pad + 2;
+    s += chartSVG(cx, y + 1, S, o);
+    const rx = cx + S + 9, rw = W - pad - rx; let ry = y + 6;
+    if(how){ const lines = wrap("Find the row. Find the column. The answer is where they meet.", Math.floor(rw / 2.2)); s += `<text x="${rx}" y="${ry + 4}" font-family="${FONT}" font-weight="500" font-size="4.3" fill="${mut}">${lines.map((l, i) => `<tspan x="${rx}" dy="${i ? 5.6 : 0}">${esc(l)}</tspan>`).join("")}</text>`; ry += lines.length * 5.6 + 7; }
+    if(legend.length){ s += legendSVG(rx, ry, rw, legend, o, true); ry += legend.length * 7 + 6; }
+    if(q){ const lines = wrap(q, Math.floor(rw / 2.55)); s += `<text x="${rx}" y="${ry + 5}" font-family="${FONT}" font-weight="600" font-size="5.2" fill="${ink}">${lines.map((l, i) => `<tspan x="${rx}" dy="${i ? 6.4 : 0}">${esc(l)}</tspan>`).join("")}</text>`; }
+    s += `<text x="${W - pad}" y="${H - (o.theme === "polka" ? 22 : 19)}" font-family="${FONT}" font-weight="500" font-size="2.7" fill="#94a3b8" text-anchor="end">millsmathstools.au</text>`;
+  }
+  return { W, H, s };
+}
+function legendRows(items, w, fs, column){
+  // flow the key left to right, wrapping when a row is full; each row is centred
+  if(column) return items.map(it => [it]);
+  const sw = fs * 1.25, gap = fs * 1.6, rows = [[]]; let used = 0;
+  items.forEach(it => { const iw = sw + fs * .5 + it[1].length * fs * .5; if(used && used + gap + iw > w){ rows.push([]); used = 0; } rows[rows.length - 1].push(it); used += (used ? gap : 0) + iw; });
+  return rows;
+}
+function legendSVG(x, y, w, items, o, column, fsz){
+  if(!items.length) return "";
+  const fs = fsz || (column ? 4.4 : 3.9), sw = fs * 1.25, gap = fs * 1.6, lh = column ? 7 : fs * 1.7;
+  let s = `<g font-family="${FONT}" font-weight="500" font-size="${fs}" fill="${o.ink === "bw" ? "#111827" : "#334155"}">`;
+  legendRows(items, w, fs, column).forEach((row, ri) => {
+    const widths = row.map(it => sw + fs * .5 + it[1].length * fs * .5), total = widths.reduce((a, b) => a + b, 0) + gap * (row.length - 1);
+    let cx = column ? x : x + (w - total) / 2; const cy = y + ri * lh + 1;
+    row.forEach(([fill, label], i) => {
+      if(fill === "ring") s += `<rect x="${cx}" y="${cy}" width="${sw}" height="${sw}" rx="1.3" fill="#86efac" stroke="#15803d" stroke-width=".9"/>`;
+      else s += `<rect x="${cx}" y="${cy}" width="${sw}" height="${sw}" rx="1.3" fill="${fill}" stroke="#cbd5e1" stroke-width=".3"/>`;
+      s += `<text x="${cx + sw + fs * .5}" y="${cy + sw * .8}">${esc(label)}</text>`;
+      cx += widths[i] + gap;
+    });
+  });
+  return s + "</g>";
+}
+const legendHeight = (items, w, fs, column) => items.length ? legendRows(items, w, fs, column).length * (column ? 7 : fs * 1.7) : 0;
+
+/* ---------- pages ---------- */
+const PAPER = { A4:[210, 297], A3:[297, 420] };
+function pageSVG(o){
+  let [PW, PH] = PAPER[o.paper]; if(o.orient === "l") [PW, PH] = [PH, PW];
+  const land = o.orient === "l";
+  let slots = [];
+  if(o.per === 1) slots = [{ x:0, y:0, w:PW, h:PH, land }];
+  else if(o.per === 2) slots = land ? [{ x:0, y:0, w:PW / 2, h:PH, land:false }, { x:PW / 2, y:0, w:PW / 2, h:PH, land:false }] : [{ x:0, y:0, w:PW, h:PH / 2, land:true }, { x:0, y:PH / 2, w:PW, h:PH / 2, land:true }];
+  else slots = [0, 1, 2, 3].map(i => ({ x:(i % 2) * PW / 2, y:Math.floor(i / 2) * PH / 2, w:PW / 2, h:PH / 2, land }));
+  const cache = {};
+  let s = `<svg xmlns="http://www.w3.org/2000/svg" width="${PW}mm" height="${PH}mm" viewBox="0 0 ${PW} ${PH}">`;
+  slots.forEach(sl => { const P = cache[sl.land] || (cache[sl.land] = posterSVG(o, sl.land)); s += `<svg x="${sl.x}" y="${sl.y}" width="${sl.w}" height="${sl.h}" viewBox="0 0 ${P.W} ${P.H}" preserveAspectRatio="xMidYMid meet">${P.s}</svg>`; });
+  if(o.per > 1){
+    const d = `stroke="#94a3b8" stroke-width=".3" stroke-dasharray="2 1.6"`;
+    if(o.per === 2) s += land ? `<path d="M${PW / 2} 0V${PH}" ${d}/>` : `<path d="M0 ${PH / 2}H${PW}" ${d}/>`;
+    else s += `<path d="M${PW / 2} 0V${PH}M0 ${PH / 2}H${PW}" ${d}/>`;
+  }
+  return { PW, PH, s:s + "</svg>" };
+}
+function render(){
+  const P = pageSVG(O);
+  const html = `<div class="sheet" style="width:${P.PW}mm;height:${P.PH}mm">${P.s}</div>`;
+  $("scaler").innerHTML = html;
+  $("pageStyle").textContent = `@page{ size:${P.PW}mm ${P.PH}mm; margin:0; }`;
+  $("pvInfo").textContent = `${O.paper} ${O.orient === "l" ? "landscape" : "portrait"} · ${O.per === 1 ? "one poster" : O.per + " charts"} · ${O.n} × ${O.n}`;
+  fitPreview(P);
+  save();
+}
+function fitPreview(P){
+  P = P || pageSVG(O);
+  const st = $("stage"), pxPerMm = 96 / 25.4, wPx = P.PW * pxPerMm, hPx = P.PH * pxPerMm;
+  const availW = st.clientWidth - 36, availH = Math.max(360, window.innerHeight - st.getBoundingClientRect().top - 60);
+  const k = Math.min(1, availW / wPx, window.innerWidth > 1100 ? availH / hPx : 9);
+  const sc = $("scaler"); sc.style.transform = `scale(${k})`; sc.style.width = wPx + "px"; sc.style.height = hPx + "px";
+  st.style.height = (hPx * k + 36) + "px";
+  sc.style.marginLeft = "";
+}
+
+/* ---------- controls ---------- */
+function thumb(p){
+  const o = { ...O, pat:p, n:6, fill:"none", match:true, ink:"full", mult:[2, 3] };
+  return `<svg viewBox="0 0 70 70"><rect width="70" height="70" fill="#fff"/>${chartSVG(1, 1, 68, o)}</svg>`;
+}
+function themeThumb(t){
+  const o = { ...O, theme:t, ink:"full" };
+  return `<svg viewBox="0 0 210 297"><rect width="210" height="297" fill="#fff"/>${frame(210, 297, o)}${titleSVG(105, 20, 160, { ...o, title:"Aa" }).s}<rect x="55" y="100" width="100" height="100" rx="8" fill="#e0e7ff"/></svg>`;
+}
+function paintControls(){
+  $("patGrid").innerHTML = PAT_ORDER.map(p => `<button type="button" class="patBtn" data-p="${p}" aria-pressed="${O.pat === p}">${thumb(p)}<span>${PATS[p].name}</span></button>`).join("");
+  $("themeGrid").innerHTML = [["rainbow", "Rainbow"], ["confetti", "Confetti"], ["stars", "Stars"], ["polka", "Polka dots"], ["clean", "Clean"]].map(([t, n]) => `<button type="button" class="themeBtn" data-t="${t}" aria-pressed="${O.theme === t}">${themeThumb(t)}<span>${n}</span></button>`).join("");
+  $("multBox").hidden = O.pat !== "mult";
+  $("multChips").innerHTML = Array.from({ length:O.n - 1 }, (_, i) => i + 2).map(m => { const i = O.mult.indexOf(m); return `<button type="button" class="chip" data-m="${m}" aria-pressed="${i >= 0}" style="${i >= 0 ? `background:${MC[i]};border-color:${MC[i]}` : ""}">${m}</button>`; }).join("");
+  $("patNote").innerHTML = PAT_NOTE[O.pat];
+  [["inkSeg", "ink"], ["sizeSeg", "n"], ["paperSeg", "paper"], ["orientSeg", "orient"], ["perSeg", "per"]].forEach(([id, k]) => $(id).querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(String(O[k]) === b.dataset.v))));
+  $("titleIn").value = O.title; $("subIn").value = O.sub; $("fillSel").value = O.fill;
+  $("matchToggle").checked = O.match; $("legendToggle").checked = O.legend; $("qToggle").checked = O.q; $("howToggle").checked = O.how;
+  $("reblank").hidden = O.fill !== "some";
+}
+$("patGrid").addEventListener("click", e => { const b = e.target.closest("[data-p]"); if(!b) return; O.pat = b.dataset.p; if(O.pat === "mult" && !O.mult.length) O.mult = [3, 4]; paintControls(); render(); });
+$("themeGrid").addEventListener("click", e => { const b = e.target.closest("[data-t]"); if(!b) return; O.theme = b.dataset.t; paintControls(); render(); });
+$("multChips").addEventListener("click", e => { const b = e.target.closest("[data-m]"); if(!b) return; const m = +b.dataset.m, i = O.mult.indexOf(m); if(i >= 0) O.mult.splice(i, 1); else { if(O.mult.length >= 3) O.mult.shift(); O.mult.push(m); } paintControls(); render(); });
+[["inkSeg", "ink", v => v], ["sizeSeg", "n", v => +v], ["paperSeg", "paper", v => v], ["orientSeg", "orient", v => v], ["perSeg", "per", v => +v]].forEach(([id, k, f]) =>
+  $(id).addEventListener("click", e => { const b = e.target.closest("button[data-v]"); if(!b) return; O[k] = f(b.dataset.v); if(k === "n") O.mult = O.mult.filter(m => m <= O.n); paintControls(); render(); }));
+$("titleIn").addEventListener("input", () => { O.title = $("titleIn").value; render(); });
+$("subIn").addEventListener("input", () => { O.sub = $("subIn").value; render(); });
+$("fillSel").addEventListener("change", () => { O.fill = $("fillSel").value; paintControls(); render(); });
+$("reblank").addEventListener("click", () => { O.seed = (O.seed % 997) + 1; render(); });
+[["matchToggle", "match"], ["legendToggle", "legend"], ["qToggle", "q"], ["howToggle", "how"]].forEach(([id, k]) => $(id).addEventListener("change", () => { O[k] = $(id).checked; render(); }));
+$("resetBtn").addEventListener("click", () => { O = { ...DEF, mult:[...DEF.mult] }; paintControls(); render(); });
+function doPrint(){
+  const P = pageSVG(O);
+  $("printRoot").innerHTML = `<div class="sheet" style="width:${P.PW}mm;height:${P.PH}mm">${P.s}</div>`;
+  window.print();
+}
+$("printBtn").addEventListener("click", doPrint); $("printTop").addEventListener("click", doPrint);
+window.addEventListener("beforeprint", () => { if(!$("printRoot").innerHTML){ const P = pageSVG(O); $("printRoot").innerHTML = `<div class="sheet" style="width:${P.PW}mm;height:${P.PH}mm">${P.s}</div>`; } });
+window.addEventListener("afterprint", () => { $("printRoot").innerHTML = ""; });
+window.addEventListener("resize", () => fitPreview());
+
+function save(){ try { localStorage.setItem(LS_KEY, JSON.stringify(O)); } catch(e){} }
+function load(){
+  try { const d = JSON.parse(localStorage.getItem(LS_KEY) || "null"); if(d) O = { ...DEF, ...d }; } catch(e){}
+  // a link from the interactive chart can ask for a pattern: ?pattern=squares, ?pattern=mult&m=4,6
+  const q = new URLSearchParams(location.search);
+  if(q.get("pattern") && PATS[q.get("pattern")]) O.pat = q.get("pattern");
+  if(q.get("m")) O.mult = q.get("m").split(",").map(Number).filter(m => m >= 2 && m <= 12).slice(0, 3);
+  if(q.get("n") === "10" || q.get("n") === "12") O.n = +q.get("n");
+  if(![10, 12].includes(O.n)) O.n = 12;
+  O.mult = (O.mult || []).filter(m => m <= O.n);
+}
+load(); paintControls(); render();
+if(document.fonts && document.fonts.ready) document.fonts.ready.then(() => render());
+window.__TP__ = { O:() => O, render, pageSVG, posterSVG, set:o => { Object.assign(O, o); paintControls(); render(); } };
+})();
+</script>
+</body>
+</html>

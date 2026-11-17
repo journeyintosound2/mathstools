@@ -96,6 +96,21 @@
 > §2 "TWO folders", §3 deploy paths and §5's `mathstools-main 2` heading below
 > describe the OLD layout — this block supersedes them.
 >
+> **NEW (2026-11-18, later): TIMES TABLE CHART FEEDBACK + PRINTABLE POSTER MAKER.**
+> * Chart: Settings › **Keep faded values** (`S.set.faded`, `.app.fadedVals`): squares keep their numbers at opacity .17
+>   and each reveal (`tot`, `cornA`, `fone`, `fans`, `hit`) is dark. Off by default (then the answer can't be read early).
+>   Keys: **Space = whole chart** (unchoose; Esc too), **R = start the steps again**. Tools menu = **Printable chart** (`#printLink`,
+>   its href carries the current pattern / multiples: `?pattern=squares`, `?pattern=mult&m=4,6`, `&n=10`) + **Related tools**
+>   flyout (`.subWrap`, opens on hover or click; inline under 760px). Patterns and Multiples lenses have a "Print this" chip.
+> * Poster maker `worksheet-creators/stage-3/number/times-table-chart-printable.html` (single file; reached from the chart's
+>   Tools menu, homepage Worksheet Creator card, toolLinks "Worksheet maker" rows under MA3-MR-01/02, toolFamilies). One
+>   poster = SVG in A4 mm (`posterSVG(o, land)`); a page (`pageSVG`) places 1, 2 or 4 posters scaled into A4/A3, so the
+>   preview IS the print (`@page` size written into `#pageStyle`, `#printRoot` holds the copy). Themes rainbow / confetti /
+>   stars / polka / clean (`frame`), sticker title (`titleSVG`), nine patterns (`cellFill`: plain, rows, squares, turn, L,
+>   same, odd, digit, mult), legend flows and centres (`legendRows`), question, "how to read it", numbers all / some blank /
+>   products blank, full colour / ink saver / black & white. One colour per number on the top AND side (`HUE`). Font
+>   Fredoka from Google Fonts with rounded fallbacks. Options in `mmtTimesPoster.v1`; test surface `window.__TP__`.
+>
 > **REMOVED (2026-11-18): the old Stage 4 "Fraction of Amount Using a Timestable Chart" family** (Jeff: redundant now the
 > Times Table Chart has a Fraction of an amount lens): `interactive-tools/stage-4/number/fraction-of-amount/`,
 > `online-quizzes/stage-4/number/fraction-of-amount.html`, `worksheet-creators/stage-4/number/fraction-of-amount.html`.

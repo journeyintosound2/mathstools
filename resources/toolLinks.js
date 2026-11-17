@@ -402,6 +402,14 @@ window.MMT_TOOL_LINKS = {
       tags: ["times tables", "timestable chart", "multiplication chart", "multiplication grid", "multiplication table", "arrays", "area model", "skip counting", "turnaround facts", "commutative", "fact families", "known facts", "distributive", "doubling", "halving", "multiplication", "division", "fraction of an amount", "factors", "multiples", "common multiples", "square numbers", "patterns", "notice and wonder", "recall", "visual", "whole-class teaching"]
     },
     {
+      title: "Printable Times Table Chart",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-3/number/times-table-chart-printable.html",
+      ideas: ["products-factors"],
+      note: "A colourful times table chart to print and laminate: five themed borders, nine colour patterns (rows of multiples, square numbers, turnarounds, L-shapes, same numbers, odd and even, last digits, multiples of up to three numbers), a key and a question. A4 or A3 posters or desk copies; ink saver, black and white, and blank charts to fill in.",
+      tags: ["printable", "poster", "times table chart", "timestable chart", "multiplication chart", "multiplication grid", "times tables", "classroom display", "desk chart", "laminate", "patterns", "multiples", "square numbers", "fill in"]
+    },
+    {
       title: "Products & Factors — Escape the Factor Circle Room",
       kind: "Student quiz",
       url: "/online-quizzes/stage-4/number/factor-circles.html",
@@ -501,6 +509,14 @@ window.MMT_TOOL_LINKS = {
       ideas: ["patterns-multiples", "equivalent-sentences"],
       note: "Colour the multiples of up to three numbers and see where they meet (common multiples, the lowest one ringed); patterns to notice and wonder (turnarounds, square numbers, L-shapes, odd and even, last digits); and Divide, which ends on the fact family: 4 \u00d7 6, 6 \u00d7 4, 24 \u00f7 4, 24 \u00f7 6.",
       tags: ["times tables", "timestable chart", "multiplication chart", "multiplication grid", "multiplication table", "arrays", "area model", "skip counting", "turnaround facts", "commutative", "fact families", "known facts", "distributive", "doubling", "halving", "multiplication", "division", "fraction of an amount", "factors", "multiples", "common multiples", "square numbers", "patterns", "notice and wonder", "recall", "visual", "whole-class teaching"]
+    },
+    {
+      title: "Printable Times Table Chart",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-3/number/times-table-chart-printable.html",
+      ideas: ["patterns-multiples"],
+      note: "A colourful times table chart to print and laminate: five themed borders, nine colour patterns (rows of multiples, square numbers, turnarounds, L-shapes, same numbers, odd and even, last digits, multiples of up to three numbers), a key and a question. A4 or A3 posters or desk copies; ink saver, black and white, and blank charts to fill in.",
+      tags: ["printable", "poster", "times table chart", "timestable chart", "multiplication chart", "multiplication grid", "times tables", "classroom display", "desk chart", "laminate", "patterns", "multiples", "square numbers", "fill in"]
     },
     {
       title: "Fraction of an Amount \u2014 Divide, Then Multiply",

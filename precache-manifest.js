@@ -1,6 +1,6 @@
 /* Written by tools/build-pwa.mjs — do not edit by hand. */
 self.MMT_PRECACHE = {
- "version": "e7b436b8f1",
+ "version": "c1a8e9ae77",
  "files": [
   "./",
   "assessment/exam-builder/app.js",
@@ -1054,6 +1054,7 @@ self.MMT_PRECACHE = {
   "worksheet-creators/stage-3/number/multiplicative-strategies/index.html",
   "worksheet-creators/stage-3/number/multiply-divide-by-ten.html",
   "worksheet-creators/stage-3/number/ratio-table-division.html",
+  "worksheet-creators/stage-3/number/times-table-chart-printable.html",
   "worksheet-creators/stage-4/algebra/algebraic-techniques/border_page0.png",
   "worksheet-creators/stage-4/algebra/algebraic-techniques/index.html",
   "worksheet-creators/stage-4/algebra/collecting-like-terms.html",

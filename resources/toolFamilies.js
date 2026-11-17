@@ -22,6 +22,9 @@
 
 window.MMT_TOOL_FAMILIES = {
   /* ---- Stage 3 ---- */
+  "/interactive-tools/stage-3/number/timestable-chart/": [
+    "/worksheet-creators/stage-3/number/times-table-chart-printable.html"
+  ],
   "/interactive-tools/stage-3/number/addition-compensation/": [
     "/online-quizzes/stage-3/number/addition-compensation.html"
   ],
