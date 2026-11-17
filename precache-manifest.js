@@ -1,6 +1,6 @@
 /* Written by tools/build-pwa.mjs — do not edit by hand. */
 self.MMT_PRECACHE = {
- "version": "6566fb9139",
+ "version": "a8f1f464a6",
  "files": [
   "./",
   "assessment/exam-builder/app.js",

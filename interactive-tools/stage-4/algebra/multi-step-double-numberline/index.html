@@ -310,16 +310,11 @@
     .origCard, .curHi{ position:absolute; z-index:0; display:none; pointer-events:none; }
     .origCard{ background:#fff; border:1.5px solid var(--border); border-radius:14px; box-shadow:0 2px 10px rgba(15,23,42,.08), 0 1px 2px rgba(15,23,42,.05); }
     .curHi{ background:rgba(34,197,94,.17); border-radius:.3em; box-shadow:inset 0 0 0 1.5px rgba(22,163,74,.38), inset 0 -.1em 0 rgba(22,163,74,.5); }
-    .typePick{ display:inline-flex; align-items:center; gap:9px; background:#f1f5f9; border:1px solid var(--border); border-radius:15px; padding:5px 6px 5px 13px; }
-    .typePick > span{ font-size:.74rem; font-weight:950; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); }
-    .typePick select{ appearance:none; border:1.5px solid var(--border); background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23475569' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 11px center/11px;
-      padding:8px 34px 8px 13px; border-radius:11px; font-family:var(--mathFont); font-weight:600; font-size:1.08rem; color:var(--ink); cursor:pointer; box-shadow:0 2px 8px rgba(15,23,42,.08); max-width:100%; }
-    .typePick select:focus-visible{ outline:none; border-color:var(--blue); box-shadow:0 0 0 4px rgba(37,99,235,.16); }
     .toolLink.soon{ opacity:.5; cursor:default; }
     #board .halo{ animation:haloPulse 2.2s ease-in-out infinite; transform-box:fill-box; transform-origin:center; }
     @keyframes haloPulse{ 0%,100%{ opacity:.55; } 50%{ opacity:.9; } }
     @media (prefers-reduced-motion:reduce){ #board .halo{ animation:none; } }
-    @media (max-width:760px){ .stage{ height:clamp(380px, calc(100vw + 150px), 640px); } .typePick{ justify-content:space-between; } }
+    @media (max-width:760px){ .stage{ height:clamp(380px, calc(100vw + 150px), 640px); } .typeWrap, .typeBtn{ width:100%; } }
     /* the working panel: the working leaves the board and gets a column of its own (it replaces the side panel) */
     .workSide{ display:none; flex-direction:column; min-height:0; padding:12px 14px; }
     .app.wpOn .workSide{ display:flex; }
@@ -360,6 +355,61 @@
     .stepList .sp{ font-size:.3em; padding:.6em 0 .15em; margin-top:1.6em; }
     .stepList .wl.sp{ padding-right:.35em; } .stepList .wr.sp{ padding-left:.35em; }
     .trOp.ghost{ visibility:hidden; }
+    /* the equation type: the main choice on the board, so it gets a button of its own */
+    .typeWrap{ position:relative; z-index:40; }
+    .typeBtn{ appearance:none; cursor:pointer; display:grid; grid-template-columns:auto auto 18px; grid-template-rows:auto auto; column-gap:14px; align-items:center;
+      text-align:left; padding:6px 12px 7px 14px; border-radius:16px; border:1.5px solid #bfdbfe; color:var(--ink);
+      background:linear-gradient(135deg, #eff6ff 0%, #eef2ff 100%); box-shadow:0 3px 12px rgba(37,99,235,.13), inset 0 1px 0 #fff; transition:.16s ease; }
+    .typeBtn:hover{ border-color:#93c5fd; box-shadow:0 5px 18px rgba(37,99,235,.2), inset 0 1px 0 #fff; transform:translateY(-1px); }
+    .typeBtn:focus-visible{ outline:none; box-shadow:0 0 0 4px rgba(37,99,235,.25); }
+    .typeBtn[aria-expanded="true"]{ border-color:var(--blue); background:#fff; }
+    .tbLab{ grid-row:1; grid-column:1; font-size:.66rem; font-weight:950; letter-spacing:.09em; text-transform:uppercase; color:var(--blue-dark); line-height:1.2; }
+    .tbMain{ grid-row:2; grid-column:1; display:flex; align-items:center; gap:8px; white-space:nowrap; }
+    .tbFam{ font-size:.7rem; font-weight:900; padding:3px 9px; border-radius:999px; background:var(--blue); color:#fff; letter-spacing:.02em; }
+    .typeBtn.fBoth .tbFam{ background:var(--purple-dark); }
+    .typeBtn.fOwn .tbFam{ background:#475569; }
+    .typeBtn.fBoth{ border-color:#ddd6fe; background:linear-gradient(135deg, #f5f3ff 0%, #eef2ff 100%); box-shadow:0 3px 12px rgba(124,58,237,.13), inset 0 1px 0 #fff; }
+    .tbName{ font-size:1rem; font-weight:900; }
+    .tbEx{ grid-row:1 / 3; grid-column:2; font-family:var(--mathFont); font-weight:var(--mathWeight); font-size:1.32rem; color:var(--line); white-space:nowrap;
+      padding-left:14px; border-left:1.5px solid rgba(148,163,184,.35); line-height:1.1; }
+    .tbEx .frac{ font-size:.72em; }
+    .tbNote{ font-family:var(--uiFont); font-size:.8rem; font-weight:800; color:var(--muted); }
+    .tbChev{ grid-row:1 / 3; grid-column:3; width:18px; height:18px; color:var(--blue-dark); transition:transform .2s ease; }
+    .typeBtn[aria-expanded="true"] .tbChev{ transform:rotate(180deg); }
+    .typeBtn.compact .tbEx{ display:none; } .typeBtn.compact{ grid-template-columns:auto 18px; } .typeBtn.compact .tbChev{ grid-column:2; }
+    .typePop{ position:absolute; left:0; top:calc(100% + 10px); width:min(680px, calc(100vw - 40px)); background:#fff; border:1px solid var(--border); border-radius:20px;
+      box-shadow:0 24px 60px rgba(15,23,42,.22), 0 4px 14px rgba(15,23,42,.08); padding:12px; animation:popIn .18s ease both; }
+    @keyframes popIn{ from{ opacity:0; transform:translateY(-6px) scale(.98);} to{ opacity:1; transform:none;} }
+    .famSeg{ display:grid; grid-template-columns:1fr 1fr; gap:4px; background:#f1f5f9; border:1px solid var(--border); border-radius:15px; padding:4px; margin-bottom:10px; }
+    .famSeg button{ appearance:none; border:none; background:transparent; border-radius:11px; padding:7px 10px; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:1px; color:var(--muted); transition:.15s ease; }
+    .famSeg button b{ font-size:.95rem; font-weight:900; }
+    .famSeg button small{ font-family:var(--mathFont); font-weight:var(--mathWeight); font-size:.92rem; color:var(--line-soft); }
+    .famSeg button:hover{ color:var(--ink); }
+    .famSeg button[aria-selected="true"]{ background:#fff; color:var(--blue-dark); box-shadow:0 3px 10px rgba(15,23,42,.12); }
+    .famSeg button[data-fam="both"][aria-selected="true"]{ color:var(--purple-dark); }
+    .typeGrid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(168px, 1fr)); gap:8px; }
+    .tEx .frac, .tEx .mi{ white-space:nowrap; }
+    .typeGrid.fBoth{ grid-template-columns:repeat(auto-fill, minmax(230px, 1fr)); }
+    .tCard{ appearance:none; position:relative; cursor:pointer; text-align:left; display:flex; flex-direction:column; gap:6px; min-height:96px; padding:10px 12px 11px;
+      border-radius:14px; border:1.5px solid var(--border); background:#fff; color:var(--ink); transition:.14s ease; }
+    .tCard:hover{ border-color:#93c5fd; background:#f8fbff; transform:translateY(-1px); }
+    .tCard:focus-visible{ outline:none; box-shadow:0 0 0 3px rgba(37,99,235,.3); }
+    .tCard.on{ border-color:var(--blue); background:#eff6ff; box-shadow:inset 0 0 0 1px var(--blue); }
+    .typeGrid.fBoth .tCard:hover{ border-color:#c4b5fd; background:#faf8ff; }
+    .typeGrid.fBoth .tCard.on{ border-color:var(--purple-dark); background:#f5f3ff; box-shadow:inset 0 0 0 1px var(--purple-dark); }
+    .tKey{ position:absolute; top:8px; right:9px; min-width:20px; height:20px; border-radius:6px; background:#f1f5f9; border:1px solid var(--border);
+      font-size:.7rem; font-weight:900; color:var(--muted); display:grid; place-items:center; }
+    .tCard.on .tKey{ background:var(--blue); color:#fff; border-color:var(--blue); }
+    .typeGrid.fBoth .tCard.on .tKey{ background:var(--purple-dark); border-color:var(--purple-dark); }
+    .tName{ font-size:.84rem; font-weight:900; padding-right:24px; line-height:1.2; }
+    .tEx{ font-family:var(--mathFont); font-weight:var(--mathWeight); font-size:1.3rem; color:var(--line); white-space:normal; margin-top:auto; line-height:1.1; }
+    .tEx .frac{ font-size:.74em; }
+    .tNote{ font-size:.72rem; font-weight:750; color:var(--muted); line-height:1.25; }
+    .tCard.mixC{ background:repeating-linear-gradient(135deg, #fff 0 10px, #f8fafc 10px 20px); }
+    .popFoot{ margin-top:9px; text-align:right; font-size:.72rem; font-weight:750; color:var(--line-soft); }
+    .popFoot kbd{ font-size:.7rem; }
+    @media (max-width:760px){ .typeGrid, .typeGrid.fBoth{ grid-template-columns:repeat(auto-fill, minmax(230px, 1fr)); } .typePop{ width:calc(100vw - 32px); } .tEx{ font-size:1.1rem; white-space:normal; } }
+    .trOp.rw{ border-style:dashed; background:#fff; color:#64748b; font-weight:800; }
   </style>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
 <!-- mmt-pwa -->
@@ -435,18 +485,22 @@
     <main class="layout">
       <section class="card boardCard" id="boardCard">
         <div class="boardTop">
-          <label class="typePick"><span>Type</span>
-            <select id="typeSel" aria-label="Type of equation">
-              <option value="axb">3{x} + 4 = 13</option>
-              <option value="xab">{x}/4 + 3 = 5</option>
-              <option value="brk">3({x} + 2) = 15</option>
-              <option value="frc">({x} &minus; 1)/4 = 3</option>
-              <option value="bax">10 &minus; 2{x} = 4</option>
-              <option value="both">5{x} + 2 = 3{x} + 10</option>
-              <option value="mix">Mixed</option>
-              <option value="own" hidden>Your own</option>
-            </select>
-          </label>
+          <div class="typeWrap" id="typeWrap">
+            <button class="typeBtn" id="typeBtn" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="typePop" title="Choose the equation type (T)">
+              <span class="tbLab">Equation type</span>
+              <span class="tbMain"><span class="tbFam" id="tbFam">Two-step</span><span class="tbName" id="tbName">Multiply, then add</span></span>
+              <span class="tbEx" id="tbEx" aria-hidden="true"></span>
+              <svg class="tbChev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div class="typePop" id="typePop" role="dialog" aria-label="Choose the equation type" hidden>
+              <div class="famSeg" role="tablist" aria-label="Family of equations">
+                <button type="button" role="tab" data-fam="two"><b>Two-step</b><small id="famEx2"></small></button>
+                <button type="button" role="tab" data-fam="both"><b>Pronumerals on both sides</b><small id="famExB"></small></button>
+              </div>
+              <div class="typeGrid" id="typeGrid" role="listbox" aria-label="Equation type"></div>
+              <div class="popFoot"><span><kbd>1</kbd>&ndash;<kbd>6</kbd> choose &middot; <kbd>B</kbd> other family &middot; <kbd>T</kbd> open or close</span></div>
+            </div>
+          </div>
           <div class="topRight">
             <span class="typeTag" id="typeTag">The equation</span>
             <div class="iconGroup">
@@ -499,8 +553,8 @@
             <button class="qBtn" type="button" id="ownBtn" aria-expanded="false">Type your own<small>e.g. 3x + 4 = 13</small></button>
           </div>
           <div id="ownBox" hidden>
-            <div class="ownRow"><input id="ownIn" type="text" autocomplete="off" spellcheck="false" placeholder="3x + 4 = 13    5x + 2 = 3x + 10" aria-label="Type your own equation"><button type="button" id="ownGo">Use</button></div>
-            <div class="ownMsg" id="ownMsg">3<i>x</i> + 4 = 13 &middot; <i>x</i>/4 + 3 = 5 &middot; 2(<i>x</i> &minus; 1) = 8 &middot; (<i>x</i> + 2)/3 = 4 &middot; 10 &minus; 2<i>x</i> = 4 &middot; 5<i>x</i> + 2 = 3<i>x</i> + 10. Any letter works.</div>
+            <div class="ownRow"><input id="ownIn" type="text" autocomplete="off" spellcheck="false" placeholder="3x + 4 = 13    3(x + 2) = x + 14" aria-label="Type your own equation"><button type="button" id="ownGo">Use</button></div>
+            <div class="ownMsg" id="ownMsg">3<i>x</i> + 4 = 13 &middot; <i>x</i>/4 + 3 = 5 &middot; 2(<i>x</i> &minus; 1) = 8 &middot; (<i>x</i> + 2)/3 = 4 &middot; 10 &minus; 2<i>x</i> = 4 &middot; 5<i>x</i> + 2 = 3<i>x</i> + 10 &middot; 3(<i>x</i> + 2) = <i>x</i> + 14 &middot; (<i>x</i> + 7)/2 = <i>x</i> + 2 &middot; 5(<i>x</i> + 2) &minus; 2(<i>x</i> &minus; 1) = <i>x</i> + 20. Any letter works.</div>
           </div>
         </section>
 
@@ -513,7 +567,7 @@
             <button class="stepBtn" id="allBtn" type="button">Show all</button>
             <button class="nextBtn" id="nextBtn" type="button" title="Next step (&rarr;)">Next &#9656;</button>
           </div>
-          <div class="keyHint"><kbd>&rarr;</kbd>/<kbd>&larr;</kbd> step &middot; <kbd>Space</kbd> start again &middot; <kbd>Enter</kbd> new question &middot; <kbd>1</kbd>&ndash;<kbd>7</kbd> type &middot; <kbd>N</kbd> negatives &middot; <kbd>W</kbd> whole / non-whole &middot; <kbd>V</kbd> working panel &middot; <kbd>F</kbd> full screen</div>
+          <div class="keyHint"><kbd>&rarr;</kbd>/<kbd>&larr;</kbd> step &middot; <kbd>Space</kbd> start again &middot; <kbd>Enter</kbd> new question &middot; <kbd>T</kbd> equation type &middot; <kbd>1</kbd>&ndash;<kbd>6</kbd> type &middot; <kbd>B</kbd> two-step / both sides &middot; <kbd>N</kbd> negatives &middot; <kbd>W</kbd> whole / non-whole &middot; <kbd>V</kbd> working panel &middot; <kbd>F</kbd> full screen</div>
         </section>
       </aside>
       <aside class="card workSide" id="workSide" aria-label="The working">
@@ -586,10 +640,11 @@
   const num = v => ({ t:"num", v:typeof v === "number" ? rI(v) : v });
   const opsS = (ops, kFirst) => ({ t:"ops", ops, kFirst:!!kFirst });
   const linS = (m, k, kFirst) => ({ t:"lin", m, k, kFirst:!!kFirst });
-  const hasX = s => s.t !== "num";
+  const hasX = s => s.t === "ex" ? linOf(s).m.n !== 0 : s.t !== "num";
   function evalS(s, x){
     if(s.t === "num") return s.v;
     if(s.t === "lin") return rAdd(rMul(rI(s.m), x), rI(s.k));
+    if(s.t === "ex") return exVal(s, x);
     let v = x;
     s.ops.forEach(op => { const n = rI(op.n); v = op.o === "add" ? rAdd(v, n) : op.o === "sub" ? rSub(v, n) : op.o === "mul" ? rMul(v, n) : rDiv(v, n); });
     return v;
@@ -637,13 +692,190 @@
     return { stages, moves };
   }
 
+
+  /* ================= harder equations: a side written as a list of terms =================
+     {t:"ex", terms:[{s:±1, f}]}, f is one of
+       {k:"x", c}                 c·x (c ≥ 1)
+       {k:"n", v}                 a whole number ≥ 0 (the sign lives in s)
+       {k:"br", c, m, kk, kFirst} c(m·x + kk)
+       {k:"fr", top, d}           top over d, top is {k:"x"}, {k:"lin", m, kk, kFirst} or {k:"br"}
+     Solving one: clear the fractions (× both sides), expand the brackets, collect like terms; then it is an ordinary
+     ax + b = cx + d and the solver above takes over. Expanding and collecting are not moves on the line: the point stays. */
+  const exS = terms => ({ t:"ex", terms });
+  const fX = c => ({ k:"x", c }), fN = v => ({ k:"n", v }), fBr = (c, m, kk, kFirst) => ({ k:"br", c, m, kk, kFirst:!!kFirst });
+  const fLin = (m, kk, kFirst) => ({ k:"lin", m, kk, kFirst:!!kFirst }), fFr = (top, d) => ({ k:"fr", top, d });
+  const tm = (s, f) => ({ s, f });
+  const nT = v => tm(v < 0 ? -1 : 1, fN(Math.abs(v))), xT = c => tm(c < 0 ? -1 : 1, fX(Math.abs(c)));
+  /* m·x + k of a piece, exact */
+  function linF(f){
+    if(f.k === "x") return { m:rI(f.c), k:rI(0) };
+    if(f.k === "n") return { m:rI(0), k:rI(f.v) };
+    if(f.k === "lin") return { m:rI(f.m), k:rI(f.kk) };
+    if(f.k === "br") return { m:rI(f.c * f.m), k:rI(f.c * f.kk) };
+    const t = linF(f.top); return { m:rDiv(t.m, rI(f.d)), k:rDiv(t.k, rI(f.d)) };
+  }
+  function linOf(s){
+    if(s.t === "num") return { m:rI(0), k:s.v };
+    if(s.t !== "ex"){ const k = evalS(s, rI(0)); return { m:rSub(evalS(s, rI(1)), k), k }; }
+    let m = rI(0), k = rI(0);
+    s.terms.forEach(t => { const l = linF(t.f); m = rAdd(m, rMul(rI(t.s), l.m)); k = rAdd(k, rMul(rI(t.s), l.k)); });
+    return { m, k };
+  }
+  const exVal = (s, x) => { const l = linOf(s); return rAdd(rMul(l.m, x), l.k); };
+  const lcm = (a, b) => a / gcd(a, b) * b;
+  const densOf = s => s.t === "ex" ? s.terms.filter(t => t.f.k === "fr").map(t => t.f.d) : [];
+  const hasBr = s => s.t === "ex" && s.terms.some(t => t.f.k === "br");
+  const needCol = s => s.t === "ex" && (s.terms.filter(t => t.f.k === "x").length > 1 || s.terms.filter(t => t.f.k === "n").length > 1);
+  /* the terms m·x + kk, in the order they are written */
+  const linTerms = (s, m, kk, kFirst) => { const a = m ? [tm(s * Math.sign(m), fX(Math.abs(m)))] : [], b = kk ? [tm(s * Math.sign(kk), fN(Math.abs(kk)))] : []; return kFirst ? b.concat(a) : a.concat(b); };
+  function mulTerm(t, L){
+    const f = t.f;
+    if(f.k === "x") return [tm(t.s, fX(f.c * L))];
+    if(f.k === "n") return [tm(t.s, fN(f.v * L))];
+    if(f.k === "br") return [tm(t.s, fBr(f.c * L, f.m, f.kk, f.kFirst))];
+    if(f.k === "lin") return [tm(t.s, fBr(L, f.m, f.kk, f.kFirst))];
+    const q = L / f.d, top = f.top;
+    if(top.k === "x") return [tm(t.s, fX(top.c * q))];
+    if(top.k === "br") return [tm(t.s, fBr(top.c * q, top.m, top.kk, top.kFirst))];
+    return q === 1 ? linTerms(t.s, top.m, top.kk, top.kFirst) : [tm(t.s, fBr(q, top.m, top.kk, top.kFirst))];
+  }
+  /* × L: a side with a fraction is multiplied term by term (that is what clears it); any other side gets a bracket */
+  function mulSide(s, L){
+    if(s.t === "num") return num(rMul(s.v, rI(L)));
+    if(s.t !== "ex"){ const l = linOf(s); s = exS(linTerms(1, l.m.n, l.k.n, s.kFirst)); }
+    if(s.terms.some(t => t.f.k === "fr") || s.terms.length === 1) return exS(s.terms.flatMap(t => mulTerm(t, L)));
+    const l = linOf(s), first = s.terms[0].f.k === "n";
+    return exS([tm(1, fBr(L, l.m.n, l.k.n, first))]);
+  }
+  function expandSide(s){
+    if(!hasBr(s)) return s;
+    return exS(s.terms.flatMap(t => t.f.k === "br" ? linTerms(t.s, t.f.c * t.f.m, t.f.c * t.f.kk, t.f.kFirst) : [t]));
+  }
+  function collectSide(s){
+    if(!needCol(s)) return s;
+    const l = linOf(s), first = s.terms[0].f.k === "n";
+    const out = linTerms(1, l.m.n, l.k.n, first);
+    return exS(out.length ? out : [tm(1, fN(0))]);
+  }
+  /* a side that is now just m·x + k (or a number) goes back to the ordinary forms */
+  function plainSide(s){
+    if(s.t !== "ex") return s;
+    const l = linOf(s);
+    if(l.m.n === 0) return num(l.k);
+    return linS(l.m.n, l.k.n, s.terms[0].f.k === "n" && l.k.n !== 0);
+  }
+  const isPlain = s => s.t !== "ex" || (!densOf(s).length && !hasBr(s) && !needCol(s));
+  function exSolve(top, bot, x){
+    const stages = [{ top, bot, val:exVal(top, x) }], moves = [];
+    for(let g = 0; g < 8; g++){
+      const cur = stages[stages.length - 1], t = cur.top, b = cur.bot;
+      if(isPlain(t) && isPlain(b)) break;
+      let nt, nb, mv;
+      const dens = densOf(t).concat(densOf(b));
+      if(dens.length){ const L = dens.reduce(lcm, 1); nt = mulSide(t, L); nb = mulSide(b, L); mv = { kind:"mul", n:L }; }
+      else if(hasBr(t) || hasBr(b)){ nt = expandSide(t); nb = expandSide(b); mv = { kind:"exp", sides:{ t:hasBr(t), b:hasBr(b) } }; }
+      else { nt = collectSide(t); nb = collectSide(b); mv = { kind:"col", sides:{ t:needCol(t), b:needCol(b) } }; }
+      moves.push(mv); stages.push({ top:nt, bot:nb, val:exVal(nt, x) });
+    }
+    const last = stages[stages.length - 1];
+    last.top = plainSide(last.top); last.bot = plainSide(last.bot);
+    if(!isPlain(last.top) || !isPlain(last.bot)) return null;
+    if(hasX(last.top) && hasX(last.bot) && last.top.m === last.bot.m) return null;
+    const rest = solve(last.top, last.bot, x);
+    if(!rest) return null;
+    return { stages:stages.concat(rest.stages.slice(1)), moves:moves.concat(rest.moves) };
+  }
+  const isRewrite = mv => mv.kind === "exp" || mv.kind === "col";
+
   /* ================= questions ================= */
-  const TYPES = ["axb", "xab", "brk", "frc", "bax", "both"];
+  const TWO = ["axb", "xab", "brk", "frc", "bax"], BOTH = ["both", "bbrk", "bfrc", "bhard"];
+  const TYPES = TWO.concat(BOTH);
   const TYPE_NAME = { axb:"Multiply, then add or subtract", xab:"Divide, then add or subtract", brk:"Brackets", frc:"A sum, then divide",
-    bax:"Taking the pronumeral away", both:"Pronumerals on both sides", mix:"Mixed" };
+    bax:"Taking the pronumeral away", mix:"Mixed two-step", both:"Simple", bbrk:"Involving brackets", bfrc:"Involving one fraction",
+    bhard:"Harder", bmix:"Mixed: pronumerals on both sides" };
+  const familyOf = t => BOTH.includes(t) || t === "bmix" ? "both" : "two";
   const fracPool = () => S.set.nw === "dec" ? [2, 4, 5, 10] : [2, 3, 4, 5];
   const nonMult = (a, lo, hi) => { for(let t = 0; t < 60; t++){ const n = ri(lo, hi); if(n % a !== 0) return n; } return a + 1; };
+
+  /* ---- pronumerals on both sides: brackets, a fraction, harder ones ----
+     Every form is built from its answer: all the numbers but one are picked, and the last one is worked out so the
+     equation is true. A form that would need a non-whole number there is thrown away and another is tried. */
+  function genBoth(type, wantNeg, wantFrac){
+    const sg = wantNeg ? -1 : 1, pm = () => Math.random() < 0.5 ? 1 : -1;
+    let x;
+    if(wantFrac){ const d = pick([2, 3, 4]); x = R(sg * nonMult(d, 1, d * 6), d); } else x = rI(sg * ri(1, 10));
+    const at = (side) => exVal(side, x);
+    const whole = r => rInt(r) && Math.abs(r.n) <= 40 ? r.n : null;
+    const swap = (A, B) => Math.random() < 0.3 ? { top:B, bot:A, x } : { top:A, bot:B, x };
+    const form = type === "bbrk" ? pick(["a", "a", "b", "c"]) : type === "bfrc" ? pick(["a", "a", "b"]) : pick(["a", "b", "c", "d", "e"]);
+    if(type === "bbrk"){
+      const a = ri(2, 6), b = pm() * ri(1, 9);
+      const A = exS([tm(1, fBr(a, 1, b))]);
+      if(form === "a"){                                   /* a(x + b) = cx + d */
+        const c = ri(1, 9); if(c === a) return null;
+        const d = whole(rSub(at(A), rMul(rI(c), x))); if(d === null || d === 0) return null;
+        return swap(A, linS(c, d));
+      }
+      if(form === "b"){                                   /* a(x + b) = c(x + d) */
+        const c = ri(2, 6); if(c === a) return null;
+        const d = whole(rSub(rDiv(at(A), rI(c)), x)); if(d === null || d === 0 || d === b) return null;
+        return swap(A, exS([tm(1, fBr(c, 1, d))]));
+      }
+      /* a(x + b) + e = cx + d */
+      const e = pm() * ri(1, 9), A2 = exS([tm(1, fBr(a, 1, b)), nT(e)]), c = ri(1, 9); if(c === a) return null;
+      const d = whole(rSub(at(A2), rMul(rI(c), x))); if(d === null || d === 0) return null;
+      return swap(A2, linS(c, d));
+    }
+    if(type === "bfrc"){
+      if(form === "a"){                                   /* (ax + b)/c = dx + e */
+        const a = ri(1, 4), c = ri(2, 5), d = ri(1, 4); if(a === c * d) return null;
+        const V = Math.round(rF(rMul(rI(a), x)) / c) + ri(-3, 4), b = whole(rSub(rI(c * V), rMul(rI(a), x)));
+        if(b === null || b === 0 || Math.abs(b) > 20) return null;
+        const A = exS([tm(1, fFr(a === 1 ? fLin(1, b) : fLin(a, b), c))]);
+        const e = whole(rSub(rI(V), rMul(rI(d), x))); if(e === null || e === 0) return null;
+        return swap(A, linS(d, e));
+      }
+      /* x/c + b = dx + e */
+      const c = ri(2, 5), b = pm() * ri(1, 9), d = ri(1, 3);
+      const A = exS([tm(1, fFr(fX(1), c)), nT(b)]);
+      const e = whole(rSub(at(A), rMul(rI(d), x))); if(e === null || e === 0) return null;
+      return swap(A, linS(d, e));
+    }
+    /* harder */
+    if(form === "a"){                                     /* a(x + b) − c(x + d) = ex + f */
+      const a = ri(3, 7), c = ri(2, a - 1), b = pm() * ri(1, 8), d = pm() * ri(1, 8), e = ri(1, 5); if(a - c === e || b === d) return null;
+      const A = exS([tm(1, fBr(a, 1, b)), tm(-1, fBr(c, 1, d))]);
+      const f = whole(rSub(at(A), rMul(rI(e), x))); if(f === null || f === 0) return null;
+      return { top:A, bot:linS(e, f), x };
+    }
+    if(form === "b"){                                     /* (x + a)/b = (x + c)/d */
+      const b = ri(2, 5), d = ri(2, 6); if(b === d) return null;
+      const V = Math.round(rF(x) / Math.max(b, d)) + ri(-2, 3);
+      const a = whole(rSub(rI(b * V), x)), c = whole(rSub(rI(d * V), x));
+      if(a === null || c === null || a === 0 || c === 0 || a === c || Math.abs(a) > 20 || Math.abs(c) > 20) return null;
+      return { top:exS([tm(1, fFr(fLin(1, a), b))]), bot:exS([tm(1, fFr(fLin(1, c), d))]), x };
+    }
+    if(form === "c"){                                     /* b − a(x + c) = dx + e */
+      const a = ri(2, 5), c = ri(1, 6), b = ri(10, 40), d = ri(1, 5);
+      const A = exS([nT(b), tm(-1, fBr(a, 1, c))]);
+      const e = whole(rSub(at(A), rMul(rI(d), x))); if(e === null || e === 0) return null;
+      return swap(A, linS(d, e));
+    }
+    if(form === "d"){                                     /* x/a + b = x/c + d */
+      const a = ri(2, 5), c = ri(2, 6); if(a === c) return null;
+      const b = pm() * ri(1, 9), A = exS([tm(1, fFr(fX(1), a)), nT(b)]);
+      const d = whole(rSub(at(A), rDiv(x, rI(c)))); if(d === null || d === 0) return null;
+      return { top:A, bot:exS([tm(1, fFr(fX(1), c)), nT(d)]), x };
+    }
+    /* a(x + b) = c(x + d) + e */
+    const a = ri(2, 6), c = ri(2, 6); if(a === c) return null;
+    const b = pm() * ri(1, 8), d = pm() * ri(1, 8); if(b === d) return null;
+    const A = exS([tm(1, fBr(a, 1, b))]);
+    const e = whole(rSub(at(A), rMul(rI(c), rAdd(x, rI(d))))); if(e === null || e === 0) return null;
+    return swap(A, exS([tm(1, fBr(c, 1, d)), nT(e)]));
+  }
   function genType(type, wantNeg, wantFrac){
+    if(type !== "both" && BOTH.includes(type)) return genBoth(type, wantNeg, wantFrac);
     const sg = wantNeg ? -1 : 1, pm = () => Math.random() < 0.5 ? 1 : -1;
     if(type === "axb"){
       const sgn = pm(), b = ri(1, 12); let a, x;
@@ -689,17 +921,18 @@
     if(A.k === 0 && B.k === 0) return null;
     return Math.random() < 0.35 ? { top:B, bot:A, x } : { top:A, bot:B, x };
   }
-  const FRAC_OK = { axb:1, brk:1, bax:1, both:1 };
+  const FRAC_OK = { axb:1, brk:1, bax:1, both:1, bbrk:1, bfrc:1, bhard:1 };
   function sigOf(q){ return JSON.stringify([q.stages[0].top, q.stages[0].bot]); }
   function finish(g, v, own){
-    const sol = solve(g.top, g.bot, g.x);
+    const sol = g.top.t === "ex" || g.bot.t === "ex" ? exSolve(g.top, g.bot, g.x) : solve(g.top, g.bot, g.x);
     if(!sol || !sol.moves.length) return null;
     const q = { v:v || "x", x:g.x, stages:sol.stages, moves:sol.moves, type:g.type || "own", own:!!own };
     return q;
   }
   function okQ(q, wantNeg){
     const vals = q.stages.map(s => rF(s.val));
-    if(vals.some(v => v === 0 || Math.abs(v) > 99)) return false;
+    const lim = q.type && BOTH.includes(q.type) && q.type !== "both" ? 160 : 99;
+    if(vals.some(v => v === 0 || Math.abs(v) > lim)) return false;
     if(!q.stages.every(s => [s.top, s.bot].every(sd => sd.t !== "lin" || (Math.abs(sd.k) <= 60 && !(sd.m < 0 && sd.k <= 0))))) return false;
     if(q.stages[0].top.t === "num" && Math.abs(rF(q.stages[0].top.v)) > 99) return false;
     const xf = rF(q.x);
@@ -716,14 +949,14 @@
   function makeQ(){
     const set = S.set; let q = null;
     for(let t = 0; t < 4000; t++){
-      const type = set.type === "mix" ? pick(TYPES) : set.type;
+      const type = set.type === "mix" ? pick(TWO) : set.type === "bmix" ? pick(BOTH) : TYPES.includes(set.type) ? set.type : "axb";
       const wantNeg = set.neg === "all" || (set.neg === "some" && Math.random() < 0.4);
       const wantFrac = set.nonwhole && FRAC_OK[type] && Math.random() < 0.6;
       const g = genType(type, wantNeg, wantFrac); if(!g) continue;
       g.type = type;
       if(set.vary){
         if(g.top.t === "ops"){ const l = g.top.ops[g.top.ops.length - 1]; if(l.o === "add" && Math.random() < 0.3) g.top.kFirst = true; }
-        if(type !== "both" && Math.random() < 0.25){ const tmp = g.top; g.top = g.bot; g.bot = tmp; }
+        if(!BOTH.includes(type) && Math.random() < 0.25){ const tmp = g.top; g.top = g.bot; g.bot = tmp; }
       }
       const cand = finish(g, set.letters ? pick(OTHER) : "x");
       if(!cand || !okQ(cand, wantNeg)) continue;
@@ -751,21 +984,83 @@
     if((m = /^(-?\d+)([+-]\d*)\*?([a-z])$/.exec(s))) return { v:m[3], side:linS(co(m[2]), parseInt(m[1], 10), true) };
     return null;
   }
+
+  /* a side with brackets, fractions or several terms: 5(x + 2) − 2(x − 1), (x + 7)/2, x/3 + 4, 3x + 2 − x */
+  function parseEx(src){
+    let i = 0, v = null; const s = src;
+    const numTok = () => { const m = /^\d+/.exec(s.slice(i)); if(!m) return null; i += m[0].length; return +m[0]; };
+    const letter = () => { const c = s[i] || ""; if(/[a-z]/.test(c)){ if(v && v !== c) throw "letters"; v = c; i++; return true; } return false; };
+    const sgnTok = () => { if(s[i] === "+"){ i++; return 1; } if(s[i] === "-"){ i++; return -1; } return 0; };
+    function inner(){
+      let m = 0, k = 0, first = null, any = false;
+      while(i < s.length && s[i] !== ")"){
+        const sg = sgnTok() || (any ? NaN : 1); if(isNaN(sg)) throw "bad";
+        const n = numTok(); if(s[i] === "*") i++;
+        if(letter()){ m += sg * (n == null ? 1 : n); if(first === null) first = "x"; }
+        else if(n != null){ k += sg * n; if(first === null) first = "n"; }
+        else throw "bad";
+        any = true;
+      }
+      if(!any || !m) throw "bad";
+      return fLin(m, k, first === "n" && k !== 0);
+    }
+    const over = top => { if(s[i] !== "/") return top; i++; const d = numTok(); if(d == null || d < 2 || d > 12) throw "bad"; return fFr(top, d); };
+    function factor(){
+      const c = numTok(); if(c != null && s[i] === "*") i++;
+      if(s[i] === "("){
+        i++; const L = inner(); if(s[i] !== ")") throw "bad"; i++;
+        if(c == null && s[i] === "/") return over(L);
+        return over(fBr(c == null ? 1 : c, L.m, L.kk, L.kFirst));
+      }
+      if(letter()) return over(fX(c == null ? 1 : c));
+      if(c == null) throw "bad";
+      return fN(c);
+    }
+    const terms = [];
+    while(i < s.length){
+      const sg = sgnTok() || (terms.length ? NaN : 1); if(isNaN(sg)) throw "bad";
+      const f = factor();
+      if(f.k === "x" && f.c === 0) throw "bad";
+      terms.push(tm(sg, f));
+    }
+    if(!terms.length) throw "bad";
+    const side = exS(terms);
+    if(linOf(side).m.n === 0 && terms.length === 1 && terms[0].f.k === "n") return { v, side:num(rI(sg0(terms[0]) * terms[0].f.v)) };
+    return { v, side };
+  }
+  const sg0 = t => t.s;
   function parseOwn(src){
     const s = String(src || "").toLowerCase().replace(/\s+/g, "").replace(/[−–—]/g, "-").replace(/[×·]/g, "*").replace(/÷/g, "/");
-    const eg = "Try 3x + 4 = 13, 2(x − 1) = 8, x/4 + 3 = 5, (x + 2)/3 = 4, 10 − 2x = 4 or 5x + 2 = 3x + 10.";
+    const eg = "Try 3x + 4 = 13, 2(x − 1) = 8, (x + 2)/3 = 4, 5x + 2 = 3x + 10, 3(x + 2) = x + 14 or (x + 7)/2 = x + 2.";
     if(!s) return { err:"Type an equation. " + eg };
     const parts = s.split("=");
     if(parts.length !== 2 || !parts[0] || !parts[1]) return { err:"It needs one = sign. " + eg };
-    const A = parseSide(parts[0]), B = parseSide(parts[1]);
-    if(!A || !B) return { err:"This tool can’t read that one. " + eg };
+    let A = parseSide(parts[0]), B = parseSide(parts[1]);
+    /* anything the simple reader can't take (brackets with the letter on both sides, fractions, several terms) goes to the fuller one */
+    const both = A && B && hasX(A.side) && hasX(B.side) && (A.side.t !== "lin" || B.side.t !== "lin");
+    if(!A || !B || both){
+      try { A = parseEx(parts[0]); B = parseEx(parts[1]); } catch(e){ return { err:e === "letters" ? "Use the same letter on both sides." : "This tool can’t read that one. " + eg }; }
+      if(!A.v && !B.v) return { err:"It needs a letter for the unknown, e.g. x." };
+      if(A.v && B.v && A.v !== B.v) return { err:"Use the same letter on both sides." };
+      const big = sd => sd.t === "ex" && sd.terms.some(t => (t.f.k === "n" && t.f.v > 99) || (t.f.k === "x" && t.f.c > 20) || (t.f.k === "br" && (t.f.c > 12 || Math.abs(t.f.kk) > 99)));
+      if(big(A.side) || big(B.side)) return { err:"Keep the numbers small: up to 12 outside a bracket, up to 99 on their own." };
+      const lt = linOf(A.side), lb = linOf(B.side);
+      if(rEq(lt.m, lb.m)) return { err:"Both sides have the same amount of the letter, so there is no single answer." };
+      const x = rDiv(rSub(lb.k, lt.k), rSub(lt.m, lb.m));
+      if(x.n === 0) return { err:"That one has the answer 0, which leaves nothing to show on the line. Try another." };
+      if(x.d > 12) return { err:"That answer is an awkward fraction (" + x.n + "/" + x.d + "). Try other numbers." };
+      const q = finish({ top:A.side, bot:B.side, x, type:"own" }, A.v || B.v, true);
+      if(!q) return { err:"This tool can’t solve that one in steps. " + eg };
+      if(q.stages.some(st => st.val.n === 0)) return { err:"One of the steps lands on 0, which this picture can’t show well. Try other numbers." };
+      if(q.stages.some(st => Math.abs(rF(st.val)) > 400)) return { err:"The numbers get very big along the way. Try smaller ones." };
+      return { q };
+    }
     if(!A.v && !B.v) return { err:"It needs a letter for the unknown, e.g. x." };
     if(A.v && B.v && A.v !== B.v) return { err:"Use the same letter on both sides." };
     let top = A.side, bot = B.side;
     const bad = sd => (sd.t === "lin" && (sd.m === 0 || Math.abs(sd.m) > 12 || Math.abs(sd.k) > 99)) || (sd.t === "ops" && sd.ops.some(o => o.n < 1 || o.n > 99 || ((o.o === "mul" || o.o === "div") && (o.n < 2 || o.n > 12))));
     if(bad(top) || bad(bot)) return { err:"Keep the numbers small: multiply or divide by 2 to 12, and add or subtract up to 99." };
     if(hasX(top) && hasX(bot)){
-      if(top.t !== "lin" || bot.t !== "lin") return { err:"With the letter on both sides, write each side like 5x + 2 or 12 − 2x." };
       if(top.m === bot.m) return { err:"Both sides have the same number of the letter, so there is no single answer." };
     }
     /* a lin side with a positive coefficient and the letter on one side only is just its ops */
@@ -799,8 +1094,40 @@
   }
   const hasSum = p => p.some(it => it.o === "+" || it.o === MINUS);
   const wrap = p => [T("("), ...p, T(")")];
+  /* a side written as terms (brackets, fractions, several terms) */
+  function linPcs(m, k, kFirst){
+    if(k === 0) return termP(m);
+    if(m < 0 && k > 0) return [N(k), O(MINUS), ...termP(-m)];
+    if(kFirst && k > 0) return [N(k), O(m < 0 ? MINUS : "+"), ...termP(Math.abs(m))];
+    return [...termP(m), O(k > 0 ? "+" : MINUS), N(Math.abs(k))];
+  }
+  function factorP(f){
+    if(f.k === "x") return termP(f.c);
+    if(f.k === "n") return [N(f.v)];
+    if(f.k === "lin") return linPcs(f.m, f.kk, f.kFirst);
+    if(f.k === "br"){ const inner = wrap(linPcs(f.m, f.kk, f.kFirst)); return f.c === 1 ? inner : [N(f.c), ...inner]; }
+    const tp = factorP(f.top);
+    return fracOn() ? [{ fr:[tp, [N(f.d)]] }] : [...(hasSum(tp) && f.top.k !== "br" ? wrap(tp) : tp), O(DIVIDE), N(f.d)];
+  }
+  const exP = s => s.terms.flatMap((t, i) => { const p = factorP(t.f); return i === 0 ? (t.s < 0 ? [T(MINUS), ...p] : p) : [O(t.s < 0 ? MINUS : "+"), ...p]; });
+  /* the answer put in for the letter, anywhere in a list of pieces: 3x is 3 × 4, 2(x + 1) is 2 × (4 + 1) */
+  function substP(p, x, inFr){
+    /* inside a fraction a fractional answer is written on one line, (3/2), since a fraction can't sit in a fraction here */
+    let xv = valP(x);
+    if(inFr && xv.some(it => it.fr)) xv = [T("(")].concat(xv.flatMap(it => it.fr ? [...it.fr[0], T("/"), ...it.fr[1]] : [it]), [T(")")]);
+    const neg = x.n < 0, xb = (neg || (!rInt(x) && !xv.some(it => it.fr))) && xv[0].t !== "(" ? wrap(xv) : xv, out = [];
+    p.forEach((it, i) => {
+      const prev = p[i - 1];
+      if(it.v){ if(prev && prev.n != null) out.push(O(TIMES), ...xb); else out.push(...xb); }
+      else if(it.fr) out.push({ fr:[substP(it.fr[0], x, true), substP(it.fr[1], x, true)] });
+      else if(it.t === "(" && prev && prev.n != null) out.push(O(TIMES), it);
+      else out.push(it);
+    });
+    return out;
+  }
   function sideP(s){
     if(s.t === "num") return valP(s.v);
+    if(s.t === "ex") return exP(s);
     if(s.t === "lin"){
       if(s.k === 0) return termP(s.m);
       if(s.m < 0 && s.k > 0) return [N(s.k), O(MINUS), ...termP(-s.m)];
@@ -819,6 +1146,7 @@
   }
   /* the same side with the answer put in for the letter */
   function subP(s, x){
+    if(s.t === "ex") return substP(exP(s), x);
     const neg = x.n < 0, xv = valP(x), xb = neg || (!rInt(x) && !xv.some(it => it.fr)) ? wrap(xv) : xv;
     if(s.t === "num") return valP(s.v);
     const times = m => Math.abs(m) === 1 ? (m < 0 ? [T(MINUS), ...wrap(xv)] : xv) : [N(m), O(TIMES), ...xb];
@@ -888,7 +1216,7 @@
   let IDS = [];
   function stepIds(q){
     const s = ["s"];
-    q.moves.forEach((m, i) => { if(S.set.split) s.push("t" + i); s.push("m" + i); s.push("r" + i); });
+    q.moves.forEach((m, i) => { if(isRewrite(m)){ s.push("w" + i); return; } if(S.set.split) s.push("t" + i); s.push("m" + i); s.push("r" + i); });
     if(S.set.check) s.push("check");
     return s;
   }
@@ -897,6 +1225,10 @@
   const idxOf = id => id === "check" || id === "s" ? 0 : parseInt(id.slice(1), 10);
   /* the latest equation on the board at a step */
   function stageAt(id){ const k = kindOf(id); return k === "s" ? 0 : k === "t" ? idxOf(id) : k === "check" ? S.q.stages.length - 1 : idxOf(id) + 1; }
+  /* a side that is written the same way in stages j … i keeps one key, so it stays put instead of fading and coming back */
+  const pkey = p => JSON.stringify(p);
+  const keyT = i => { let j = i; while(j > 0 && pkey(topP(j - 1)) === pkey(topP(j))) j--; return "lt" + j; };
+  const keyB = i => { let j = i; while(j > 0 && pkey(botP(j - 1)) === pkey(botP(j))) j--; return "lb" + j; };
   const topP = i => sideP(S.q.stages[i].top), botP = i => sideP(S.q.stages[i].bot);
   const eqP = i => [...topP(i), O("="), ...botP(i)];
   function pillText(mv){
@@ -904,6 +1236,8 @@
     if(mv.kind === "add") return "+ " + mv.n;
     if(mv.kind === "div") return DIVIDE + " " + mv.n;
     if(mv.kind === "mul") return TIMES + " " + mv.n;
+    if(mv.kind === "exp") return "expand";
+    if(mv.kind === "col") return "collect";
     const a = Math.abs(mv.s), L = MATH_ALPHA ? mathItalic(LV()) : LV();
     return (mv.s > 0 ? MINUS + " " : "+ ") + (a === 1 ? "" : a) + L;
   }
@@ -949,6 +1283,7 @@
     else if(k === "r") seeScene(idxOf(id) + 1, els);
     else if(k === "t") moveScene(idxOf(id), true, els);
     else if(k === "m") moveScene(idxOf(id), false, els);
+    else if(k === "w") rewriteScene(idxOf(id), els);
     else checkScene(els);
     return els;
   }
@@ -963,9 +1298,24 @@
     const tp = topP(i), bp = botP(i), size = Math.min(fit(tp, big, L.W * 0.7), fit(bp, big, L.W * 0.7));
     els.push({ key:"halo", type:"halo", x:L.cx, y:L.y0, r:L.fsM * 2.1, o:1, z:0 });
     els.push(tick("p" + i, L.cx, true, 1));
-    els.push(lab("lt" + i, L.cx, true, tp, size, COL.top, 1, 0, { bg:last && st.top.t === "num" }));
-    els.push(lab("lb" + i, L.cx, false, bp, size, COL.bot, 1, 0, { bg:last && st.bot.t === "num" }));
+    els.push(lab(keyT(i), L.cx, true, tp, size, COL.top, 1, 0, { bg:last && st.top.t === "num" }));
+    els.push(lab(keyB(i), L.cx, false, bp, size, COL.bot, 1, 0, { bg:last && st.bot.t === "num" }));
     tags(els, 1);
+    return size;
+  }
+  /* written another way (expand, collect): the point does not move. The old way shrinks into a grey note beside its side. */
+  function rewriteScene(i, els){
+    const q = S.q, mv = q.moves[i], size = seeScene(i + 1, els), gs = Math.min(size * 0.56, L.fsM * 0.62), text = pillText(mv);
+    const fs = L.fsS * 0.85, pw = tw(text, fs, UI, 900) + fs * 1.05;
+    [[mv.sides.t, topP(i), true, keyT(i), "t"], [mv.sides.b, botP(i), false, keyB(i), "b"]].forEach(([on, p, top, key, s2]) => {
+      if(!on) return;
+      const half = (hasFr(p) ? 0.95 : 0.6) * gs, newHalf = L.half * size / (L.fsM * 1.14);
+      const y = top ? L.yLt - newHalf - L.fsM * 0.32 - half : L.yLb + newHalf + L.fsM * 0.32 + half;
+      const g = fit(p, gs, L.W * 0.62), w = measureP(p, g);
+      const gx = L.cx - (pw + 12) / 2;
+      els.push(lab(key, gx, top, p, g, COL.q, 0.85, 0, { y }));
+      els.push({ key:"pw" + i + s2, type:"pill", x:gx + w / 2 + 12 + pw / 2, y, text, col:"#64748b", bg:"#f1f5f9", o:1, d:0.25, z:6, fs });
+    });
   }
   function moveGeom(i){
     const q = S.q, mv = q.moves[i], a = q.stages[i], b = q.stages[i + 1], W = L.W;
@@ -993,11 +1343,16 @@
       const wholeHalf = Math.max(measureP(wT, sW), measureP(wB, sW)) / 2;
       const maxUnit = 2 * Math.min(g.step - z - 10, g.n === 1 ? 1e9 : (g.n - 1) * g.step - wholeHalf - 12);
       const boxPad = last ? fsM * 0.5 : 0;
-      const sU = Math.min(fit(uT, fsM, maxUnit - boxPad), fit(uB, fsM, maxUnit - boxPad));
+      let sU = Math.min(fit(uT, fsM, maxUnit - boxPad), fit(uB, fsM, maxUnit - boxPad));
+      /* many small parts (× 20): if one part still won't fit beside the 0, the 0 tick keeps quiet and the part gets the room */
+      const uHalf = Math.max(measureP(uT, sU), measureP(uB, sU)) / 2, noZero = uHalf + z + 4 > g.step;
+      if(noZero){ const room = 2 * (g.step - 6) - boxPad; sU = Math.min(fit(uT, fsM, room), fit(uB, fsM, room)); }
       s1 = wholeIs1 ? sW : sU; s2 = wholeIs1 ? sU : sW;
       els.push(tick("z" + i, g.pos(0), true, 1, 0.05));
-      els.push(lab("zt" + i, g.pos(0), true, [N(0)], zs, COL.ink, 1, 0.05));
-      els.push(lab("zb" + i, g.pos(0), false, [N(0)], zs, COL.ink, 1, 0.05));
+      if(!noZero){
+        els.push(lab("zt" + i, g.pos(0), true, [N(0)], zs, COL.ink, 1, 0.05));
+        els.push(lab("zb" + i, g.pos(0), false, [N(0)], zs, COL.ink, 1, 0.05));
+      }
       for(let j = 2; j < g.n; j++) els.push(tick("mt" + i + "_" + j, g.pos(j), false, 1, 0.08 + 0.2 * j / g.n));
       if(S.set.parts) for(let j = 0; j < g.n; j++){ const a = g.pos(j), b = g.pos(j + 1); els.push(loop("g" + i + "_" + j, Math.min(a, b), Math.max(a, b), 1, 0.08 + 0.2 * j / g.n)); }
       if(S.set.moves){
@@ -1028,12 +1383,12 @@
     }
     els.push({ key:"halo", type:"halo", x:g.x1, y:L.y0, r:fsM * 2.1, o:0, z:0 });
     els.push(tick("p" + i, g.x1, true, 1));
-    els.push(lab("lt" + i, g.x1, true, t1, s1, COL.top, 1));
-    els.push(lab("lb" + i, g.x1, false, b1, s1, COL.bot, 1));
+    els.push(lab(keyT(i), g.x1, true, t1, s1, COL.top, 1));
+    els.push(lab(keyB(i), g.x1, false, b1, s1, COL.bot, 1));
     els.push(tick("p" + (i + 1), g.x2, true, 1, 0.24));
-    els.push(lab("lt" + (i + 1), g.x2, true, t2, s2, COL.top, 1, 0.3, { bg:last && st2.top.t === "num" }));
+    els.push(lab(keyT(i + 1), g.x2, true, t2, s2, COL.top, 1, 0.3, { bg:last && st2.top.t === "num" }));
     if(topOnly) els.push(lab("q" + i, g.x2, false, qm, s2 * 1.1, COL.q, 1, 0.3));
-    else els.push(lab("lb" + (i + 1), g.x2, false, b2, s2, COL.bot, 1, 0.42, { bg:last && st2.bot.t === "num" }));
+    else els.push(lab(keyB(i + 1), g.x2, false, b2, s2, COL.bot, 1, 0.42, { bg:last && st2.bot.t === "num" }));
     tags(els, 0);
   }
   function checkP(){
@@ -1091,8 +1446,8 @@
       } else if(e.type === "hop"){
         out.push(`<g data-key="${e.key}" opacity="${op}"><path d="${hopPath(e)}" fill="none" stroke="${e.col}" stroke-width="${f1(e.w)}" stroke-linecap="round"${e.dash ? ` stroke-dasharray="${f1(e.w * 2.6)} ${f1(e.w * 2.4)}"` : ""}/>${headSVG(e)}</g>`);
       } else if(e.type === "pill"){
-        const fs = L.fsS * 0.95, w = tw(e.text, fs, UI, 900) + fs * 1.05, h = fs * 1.5;
-        out.push(`<g data-key="${e.key}" opacity="${op}"><rect x="${f1(e.x - w / 2)}" y="${f1(e.y - h / 2)}" width="${f1(w)}" height="${f1(h)}" rx="${f1(h / 2)}" fill="${e.bg}" stroke="${e.col}" stroke-width="1.8"/>` +
+        const fs = e.fs || L.fsS * 0.95, w = tw(e.text, fs, UI, 900) + fs * 1.05, h = fs * 1.5;
+        out.push(`<g data-key="${e.key}" opacity="${op}"><rect x="${f1(e.x - w / 2)}" y="${f1(e.y - h / 2)}" width="${f1(w)}" height="${f1(h)}" rx="${f1(h / 2)}" fill="${e.bg}" stroke="${e.col}" stroke-width="${e.fs ? 1.2 : 1.8}"/>` +
           `<text x="${f1(e.x)}" y="${f1(e.y)}" text-anchor="middle" dominant-baseline="central" font-size="${f1(fs)}" fill="${e.col}" style='font-family:${UI};font-weight:900'>${esc(e.text)}</text></g>`);
       }
     });
@@ -1130,8 +1485,9 @@
     let h = `<div class="origCard" id="origCard" aria-hidden="true"></div><div class="curHi" id="curHi" aria-hidden="true"></div>`;
     h += cell("wl w0", `<span class="wt cE">${H(topP(0))}</span>`, "L0", true) + cell("we w0", `<span class="wt eqSign">=</span>`, "M0", true) + cell("wr w0", `<span class="wt cV">${H(botP(0))}</span>`, "R0", true);
     for(let j = 1; j <= nm; j++){
-      const pt = esc(pillText(q.moves[j - 1])), showL = j <= n + (k === "t" ? 1 : 0), showR = j <= n;
-      h += cell("wl wp", `<span class="trOp">${pt}</span>`, "pL" + j, showL) + cell("we wp", "", "pM" + j, showR) + cell("wr wp", `<span class="trOp">${pt}</span>`, "pR" + j, showR);
+      const mvj = q.moves[j - 1], pt = esc(pillText(mvj)), showL = j <= n + (k === "t" ? 1 : 0), showR = j <= n;
+      const pL = !isRewrite(mvj) || mvj.sides.t, pR = !isRewrite(mvj) || mvj.sides.b, cls = isRewrite(mvj) ? "trOp rw" : "trOp";
+      h += cell("wl wp", pL ? `<span class="${cls}">${pt}</span>` : "", "pL" + j, showL) + cell("we wp", "", "pM" + j, showR) + cell("wr wp", pR ? `<span class="${cls}">${pt}</span>` : "", "pR" + j, showR);
       const fin = j === last ? " fin" : "", ok = j === last && k === "check" ? `<span class="okMark">&#10003;</span>` : "";
       h += cell("wl wq" + fin, `<span class="wt">${H(topP(j))}</span>`, "eL" + j, showR) + cell("we wq" + fin, `<span class="wt">=</span>`, "eM" + j, showR) +
         cell("wr wq" + fin, `<span class="wt">${H(botP(j))}</span>${ok}`, "eR" + j, showR);
@@ -1169,8 +1525,9 @@
     let h = cell("wl sp", `<span class="trOp ghost">&nbsp;</span>`, "pL0") + cell("we sp", "", "pM0") + cell("wr sp", `<span class="trOp ghost">&nbsp;</span>`, "pR0");
     h += cell("wl sq", `<span class="wt">${H(topP(0))}</span>`, "eL0") + cell("we sq", `<span class="wt">=</span>`, "eM0") + cell("wr sq", `<span class="wt">${H(botP(0))}</span>`, "eR0");
     for(let j = 1; j <= nm; j++){
-      const pt = esc(pillText(q.moves[j - 1]));
-      h += cell("wl sp", `<span class="trOp">${pt}</span>`, "pL" + j) + cell("we sp", "", "pM" + j) + cell("wr sp", `<span class="trOp">${pt}</span>`, "pR" + j);
+      const mvj = q.moves[j - 1], pt = esc(pillText(mvj)), cls = isRewrite(mvj) ? "trOp rw" : "trOp";
+      const pl = t => `<span class="${cls}${t ? "" : " ghost"}">${pt}</span>`;
+      h += cell("wl sp", pl(!isRewrite(mvj) || mvj.sides.t), "pL" + j) + cell("we sp", "", "pM" + j) + cell("wr sp", pl(!isRewrite(mvj) || mvj.sides.b), "pR" + j);
       h += cell("wl sq", `<span class="wt">${H(topP(j))}</span>`, "eL" + j) + cell("we sq", `<span class="wt">=</span>`, "eM" + j) + cell("wr sq", `<span class="wt">${H(botP(j))}</span>`, "eR" + j);
     }
     return h;
@@ -1276,6 +1633,8 @@
       if(mv.s > 0) return `Both sides have ${v}. Take ${term} from both sides and they are still equal. Now only one side has ${v}.` + dash;
       return `${term} is being taken away. Add ${term} to both sides and they are still equal. Now ${v} is only being added.` + dash;
     }
+    if(mv.kind === "mul" && hasX(q.stages[i].top) && hasX(q.stages[i].bot))
+      return `There is a fraction, so multiply both sides by ${mv.n}. Measure from 0: both points go ${mv.n} times as far, so they still match. Every term is ${mv.n} times bigger and the fraction is gone.`;
     const X1 = eqHTML(sideP(xSide(i))), X2 = eqHTML(sideP(xSide(i + 1))), v1 = eqHTML(sideP(nSide(i))), v2 = eqHTML(sideP(nSide(i + 1)));
     if(mv.kind === "sub") return `${X1} is ${mv.n} more than ${X2}. Step back ${mv.n} on both lines: ${v1} &minus; ${mv.n} = ${v2}.`;
     if(mv.kind === "add") return `${X1} is ${mv.n} less than ${X2}. Step forward ${mv.n} on both lines: ${v1} + ${mv.n} = ${v2}.`;
@@ -1295,6 +1654,13 @@
       return { lab:(S.set.split ? "The same move underneath: " : "Same move on both lines: ") + pillHTML(mv),
         m:S.set.work === "both" ? eqHTML(workP(i)) : "", m2:eqHTML(eqP(i + 1)), tip:moveTip(i) };
     }
+    if(k === "w"){
+      const mv = q.moves[i], what = mv.sides.t && mv.sides.b ? "Both sides are" : mv.sides.t ? `${eqHTML(topP(i))} is` : `${eqHTML(botP(i))} is`;
+      if(mv.kind === "exp") return { lab:"Expand the brackets", m:eqHTML(eqP(i + 1)),
+        tip:`${what} written another way: the number outside the brackets multiplies every term inside. It is the same amount, so the point does not move.` };
+      return { lab:"Collect like terms", m:eqHTML(eqP(i + 1)),
+        tip:`Put the ${v} terms together and the numbers together. ${what} still the same amount, so the point does not move.` };
+    }
     if(k === "r"){
       if(i + 1 === last){
         const flip = !hasX(q.stages[last].top);
@@ -1312,16 +1678,21 @@
     const ask = j => {
       const mv = q.moves[j];
       if(mv.kind === "xterm") return mv.s > 0 ? `Which side has fewer ${v}? What could we take from both sides?` : `${v} is being taken away. What could we add to both sides?`;
+      if(mv.kind === "exp") return `What do the brackets mean? How could we write it without them?`;
+      if(mv.kind === "col") return `Which terms are alike? Can we put them together?`;
+      if(mv.kind === "mul" && hasX(q.stages[j].top) && hasX(q.stages[j].bot)) return `There is a fraction. What could we multiply both sides by to clear it?`;
       return `What was the last thing done to ${v}? What undoes it?`;
     };
     if(k === "s") return ask(0);
     if(k === "t") return `The top line moved by ${pillHTML(q.moves[i])}. What must the bottom line do?`;
     if(k === "m") return q.moves[i].kind === "xterm" ? `Are the two sides still equal? How do you know?` : `Why do both lines make the same move?`;
+    if(k === "w") return `Has the point moved? Why not?`;
     if(k === "r") return i + 1 === last ? `How could we check that ${eqHTML([V, O("="), ...valP(q.x)])}?` : ask(i + 1);
     return `Do both sides give the same number?`;
   }
 
   /* ================= render ================= */
+  const q_w = id => S.q.moves[idxOf(id)].kind === "exp" ? "Expand" : "Collect";
   function paintStory(){
     const box = $("story"); let h = "";
     for(let i = 0; i <= S.step; i++){
@@ -1340,7 +1711,7 @@
     $("allBtn").disabled = last;
     $("hint").innerHTML = hintFor(sid());
     const id = sid(), k = kindOf(id), nm = S.q.moves.length, tag = $("typeTag");
-    tag.textContent = k === "s" ? "The equation" : k === "check" ? "Check" : k === "r" && idxOf(id) === nm - 1 ? "Solved" : k === "r" ? "Simpler equation" : `Move ${idxOf(id) + 1} of ${nm}`;
+    tag.textContent = k === "s" ? "The equation" : k === "check" ? "Check" : k === "w" ? (q_w(id)) : k === "r" && idxOf(id) === nm - 1 ? "Solved" : k === "r" ? "Simpler equation" : `Move ${idxOf(id) + 1} of ${nm}`;
     tag.classList.toggle("let", k === "t" || k === "m");
   }
   function frame(){
@@ -1355,7 +1726,7 @@
     drawEls(scene(sid()));
   }
   function stopAnim(){ if(S.anim){ cancelAnimationFrame(S.anim.raf); S.anim = null; } }
-  const DUR = { t:1500, m:2000, r:1400, c:1100 };
+  const DUR = { t:1500, m:2000, r:1400, c:1100, w:1500 };
   function go(to){
     to = clamp(to, 0, IDS.length - 1);
     if(to === S.step) return;
@@ -1386,8 +1757,7 @@
 
   /* ================= panel + settings ================= */
   function paintPanel(){
-    $("typeSel").value = S.own ? "own" : S.set.type;
-    $("typeSel").querySelector('option[value="own"]').hidden = !S.own;
+    paintTypeBtn();
     document.querySelectorAll("#negSeg button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.neg === S.set.neg)));
     document.querySelectorAll("#nwSeg button").forEach(b => b.setAttribute("aria-pressed", String((b.dataset.nw === "on") === !!S.set.nonwhole)));
     $("divSel").value = S.set.div; $("workSel").value = S.set.work; $("nwSel").value = S.set.nw;
@@ -1396,10 +1766,77 @@
     const noFrac = !S.own && S.set.nonwhole && (S.set.type === "xab" || S.set.type === "frc");
     $("nwNote").hidden = !noFrac;
   }
-  function setType(t){ S.set.type = t; save(); newQuestion(); }
+
+  /* ================= the equation type: a button that says what is chosen, and a menu of example cards ================= */
+  const X_ = () => letterHTML("x");
+  const fr_ = (a, b) => `<span class="frac"><span class="fn">${a}</span><span class="fd">${b}</span></span>`;
+  const OPTS = {
+    two:[
+      { id:"axb", name:"Multiply, then add or subtract", ex:() => `3${X_()} + 4 = 13` },
+      { id:"xab", name:"Divide, then add or subtract", ex:() => `${fr_(X_(), 4)} + 3 = 5` },
+      { id:"brk", name:"Brackets", ex:() => `3(${X_()} + 2) = 15` },
+      { id:"frc", name:"A sum, then divide", ex:() => `${fr_(X_() + " &minus; 1", 4)} = 3` },
+      { id:"bax", name:"Taking the pronumeral away", ex:() => `10 &minus; 2${X_()} = 4` },
+      { id:"mix", name:"Mixed", note:"A mix of all five", ex:() => "" }
+    ],
+    both:[
+      { id:"both", name:"Simple", note:"Take the smaller term from both sides", ex:() => `5${X_()} + 2 = 3${X_()} + 10` },
+      { id:"bbrk", name:"Involving brackets", note:"Expand first", ex:() => `3(${X_()} + 2) = ${X_()} + 14` },
+      { id:"bfrc", name:"Involving one fraction", note:"Multiply both sides to clear it", ex:() => `${fr_(X_() + " + 7", 2)} = ${X_()} + 2` },
+      { id:"bhard", name:"Harder", note:"Two brackets, two fractions, taking away a bracket", ex:() => `5(${X_()} + 2) &minus; 2(${X_()} &minus; 1) = ${X_()} + 20` },
+      { id:"bmix", name:"Mixed", note:"A mix of these four", ex:() => "" }
+    ]
+  };
+  const FAM_NAME = { two:"Two-step", both:"Pronumerals on both sides" };
+  const optOf = id => OPTS.two.concat(OPTS.both).find(o => o.id === id) || OPTS.two[0];
+  let popFam = "two";
+  function paintTypeBtn(){
+    const fam = familyOf(S.set.type), o = optOf(S.set.type), btn = $("typeBtn");
+    btn.classList.toggle("fBoth", !S.own && fam === "both"); btn.classList.toggle("fOwn", S.own);
+    $("tbFam").textContent = S.own ? "Your own" : fam === "two" ? "Two-step" : "Both sides";
+    $("tbName").textContent = S.own ? "Typed in" : o.name;
+    $("tbEx").innerHTML = S.own ? "" : (o.ex() || `<span class="tbNote">${o.note}</span>`);
+    if(!$("typePop").hidden) paintTypePop();
+    fitTypeBtn();
+  }
+  /* the example goes when the board's top row would otherwise wrap */
+  function fitTypeBtn(){
+    const btn = $("typeBtn"), tr = document.querySelector(".topRight");
+    btn.classList.remove("compact");
+    if(tr && tr.offsetTop > $("typeWrap").offsetTop + 4) btn.classList.add("compact");
+  }
+  function paintTypePop(){
+    document.querySelectorAll(".famSeg button").forEach(b => b.setAttribute("aria-selected", String(b.dataset.fam === popFam)));
+    $("famEx2").innerHTML = `3${X_()} + 4 = 13`; $("famExB").innerHTML = `5${X_()} + 2 = 3${X_()} + 10`;
+    $("typeGrid").classList.toggle("fBoth", popFam === "both");
+    $("typeGrid").innerHTML = OPTS[popFam].map((o, i) => {
+      const on = !S.own && o.id === S.set.type;
+      return `<button type="button" class="tCard${on ? " on" : ""}${o.ex() ? "" : " mixC"}" role="option" aria-selected="${on}" data-t="${o.id}">` +
+        `<span class="tKey">${i + 1}</span><span class="tName">${o.name}</span>` +
+        (o.ex() ? `<span class="tEx">${o.ex()}</span>` : "") + (o.note ? `<span class="tNote">${o.note}</span>` : "") + `</button>`;
+    }).join("");
+    $("typeGrid").querySelectorAll(".tCard").forEach(c => c.addEventListener("click", () => { closeTypePop(); setType(c.dataset.t); }));
+  }
+  function openTypePop(){
+    closeMenus(); popFam = familyOf(S.set.type); $("typePop").hidden = false;
+    $("typePop").style.width = Math.min(680, $("boardCard").clientWidth - 28) + "px"; $("typeBtn").setAttribute("aria-expanded", "true"); paintTypePop();
+    const on = $("typeGrid").querySelector(".tCard.on") || $("typeGrid").querySelector(".tCard"); if(on) on.focus({ preventScroll:true });
+  }
+  function closeTypePop(){ if($("typePop").hidden) return; $("typePop").hidden = true; $("typeBtn").setAttribute("aria-expanded", "false"); }
+  const typePopOpen = () => !$("typePop").hidden;
+  $("typeBtn").addEventListener("click", e => { e.stopPropagation(); typePopOpen() ? closeTypePop() : openTypePop(); });
+  $("typePop").addEventListener("click", e => e.stopPropagation());
+  document.querySelectorAll(".famSeg button").forEach(b => b.addEventListener("click", () => { popFam = b.dataset.fam; paintTypePop(); }));
+  document.addEventListener("click", closeTypePop);
+  /* B swaps family, going back to the type last used in the other one */
+  function swapFamily(){
+    const fam = familyOf(S.set.type);
+    if(fam === "two"){ S.set.lastTwo = S.set.type; setType(S.set.lastBoth || "both"); }
+    else { S.set.lastBoth = S.set.type; setType(S.set.lastTwo || "axb"); }
+  }
+  function setType(t){ S.set.type = t; if(familyOf(t) === "two") S.set.lastTwo = t; else S.set.lastBoth = t; S.own = false; save(); newQuestion(); }
   function setNeg(n){ S.set.neg = n; save(); newQuestion(); }
   function setNW(on){ S.set.nonwhole = !!on; save(); newQuestion(); }
-  $("typeSel").addEventListener("change", e => { if(e.target.value !== "own") setType(e.target.value); e.target.blur(); });
   document.querySelectorAll("#negSeg button").forEach(b => b.addEventListener("click", () => setNeg(b.dataset.neg)));
   document.querySelectorAll("#nwSeg button").forEach(b => b.addEventListener("click", () => setNW(b.dataset.nw === "on")));
   $("newBtn").addEventListener("click", newQuestion);
@@ -1485,7 +1922,7 @@
     if(on){ before.set("origCard", o.getBoundingClientRect()); [["L0", ".bl"], ["M0", ".bm"], ["R0", ".br"]].forEach(([k, c]) => before.set(k, o.querySelector(c).getBoundingClientRect())); }
     if(on){ S.set.panelBefore = !!S.set.panel; S.set.panel = false; S.set.wpanel = true; }
     else { S.set.wpanel = false; if(S.set.panelBefore) S.set.panel = true; }
-    save(); closeMenus(); applyPanel();
+    save(); closeMenus(); applyPanel(); fitTypeBtn();
     lastWorkQ = null; paintStmt(); fitStmt(); frame();
     if(on) morphWork(before);
   }
@@ -1519,25 +1956,33 @@
     $(m).addEventListener("click", e => e.stopPropagation());
   });
   document.addEventListener("click", closeMenus);
-  const NEG_CYCLE = { off:"some", some:"all", all:"off" }, TKEYS = ["axb", "xab", "brk", "frc", "bax", "both", "mix"];
+  const NEG_CYCLE = { off:"some", some:"all", all:"off" };
   document.addEventListener("keydown", e => {
     const tag = (e.target && e.target.tagName) || "";
-    if(e.key === "Escape"){ closeMenus(); if(S.fs && !fsActive()) setFs(false); return; }
+    if(e.key === "Escape"){ if(typePopOpen()){ closeTypePop(); $("typeBtn").focus(); return; } closeMenus(); if(S.fs && !fsActive()) setFs(false); return; }
     if(tag === "INPUT" || tag === "SELECT" || tag === "TEXTAREA" || e.metaKey || e.ctrlKey || e.altKey) return;
+    if(typePopOpen() && (e.key === "Enter" || e.key === " ") && tag === "BUTTON") return;
+    if(typePopOpen() && /^Arrow/.test(e.key)){
+      const cards = [...$("typeGrid").querySelectorAll(".tCard")], i = cards.indexOf(document.activeElement), cols = getComputedStyle($("typeGrid")).gridTemplateColumns.split(" ").length;
+      const d = { ArrowRight:1, ArrowLeft:-1, ArrowDown:cols, ArrowUp:-cols }[e.key];
+      cards[clamp((i < 0 ? 0 : i) + d, 0, cards.length - 1)].focus(); e.preventDefault(); return;
+    }
     if(tag === "BUTTON" && (e.key === " " || e.key === "Enter")){ e.preventDefault(); e.target.blur(); }
     const k = e.key;
     if(k === " "){ e.preventDefault(); startAgain(); spinAgain(); }
     else if(k === "Enter"){ e.preventDefault(); newQuestion(); }
     else if(k === "ArrowRight"){ e.preventDefault(); next(); }
     else if(k === "ArrowLeft"){ e.preventDefault(); back(); }
-    else if(k >= "1" && k <= "7") setType(TKEYS[+k - 1]);
+    else if(k >= "1" && k <= "6"){ const list = OPTS[typePopOpen() ? popFam : familyOf(S.set.type)], o = list[+k - 1]; if(o){ closeTypePop(); setType(o.id); } }
+    else if(k === "t" || k === "T"){ e.preventDefault(); typePopOpen() ? closeTypePop() : openTypePop(); }
+    else if(k === "b" || k === "B"){ if(typePopOpen()){ popFam = popFam === "two" ? "both" : "two"; paintTypePop(); } else swapFamily(); }
     else if(k === "n" || k === "N") setNeg(NEG_CYCLE[S.set.neg] || "off");
     else if(k === "w" || k === "W") setNW(!S.set.nonwhole);
     else if(k === "f" || k === "F") toggleFs();
     else if(k === "v" || k === "V") setWP(!S.set.wpanel);
   });
   let rz = 0;
-  const onResize = () => { cancelAnimationFrame(rz); rz = requestAnimationFrame(() => { fitStmt(); frame(); }); };
+  const onResize = () => { cancelAnimationFrame(rz); rz = requestAnimationFrame(() => { fitTypeBtn(); fitStmt(); frame(); }); };
   if(document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if(S.q){ fitStmt(); frame(); } });
   if(window.ResizeObserver){ const ro = new ResizeObserver(onResize); ro.observe($("stage")); ro.observe($("wsBody")); } else window.addEventListener("resize", onResize);
 
@@ -1552,7 +1997,7 @@
 
   /* test surface */
   window.__MS__ = { MATH_ALPHA, S, TYPES, get IDS(){ return IDS; }, get L(){ return L; }, makeQ, genType, finish, okQ, solve, parseOwn, scene, layout, evalS, sideP, subP, valP, checkP, workP,
-    storyFor, hintFor, next, back, go, startAgain, showAll, newQuestion, setQ, setType, setNeg, setNW, frame, refresh, toggleFs, setWP, hiRow, useOwn, measureP, R, rF, rInt, num, opsS, linS };
+    storyFor, hintFor, next, back, go, startAgain, showAll, newQuestion, setQ, setType, setNeg, setNW, openTypePop, closeTypePop, swapFamily, frame, refresh, toggleFs, setWP, hiRow, useOwn, measureP, R, rF, rInt, num, opsS, linS };
 })();
 </script>
 </body>

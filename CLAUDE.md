@@ -122,6 +122,25 @@
 >   none / some / always (N). "None" = no negative number anywhere. Settings: division as fraction or ÷, non-whole as
 >   fraction / mixed / decimal (decimal limits denominators to 2, 4, 5, 10), write it another way, other letters,
 >   top line first, check, written working, moves, units and parts, line names. Type your own (`parseOwn`).
+>   * **MORE TYPES + EQUATION-TYPE PICKER (2026-11-17, Jeff):** two families. Two-step: axb, xab, brk, frc, bax, `mix`
+>     (now two-step only). Pronumerals on both sides: `both` (Simple), `bbrk` (brackets: a(x+b)=cx+d, a(x+b)=c(x+d),
+>     a(x+b)+e=cx+d), `bfrc` (one fraction: (ax+b)/c=dx+e, x/c+b=dx+e), `bhard` (a(x+b)−c(x+d)=ex+f, (x+a)/b=(x+c)/d,
+>     b−a(x+c)=dx+e, x/a+b=x/c+d, a(x+b)=c(x+d)+e), `bmix`. Also listed under **MA5-EQU-C-01** (toolLinks row).
+>     * Engine: a new side kind `{t:"ex", terms:[{s, f}]}` (f = x, n, br c(mx+k), fr top/d). `exSolve`: clear fractions
+>       (× LCD both sides: a side with a fraction is multiplied term by term, any other side gets a bracket) → expand
+>       (`exp`) → collect (`col`) → `plainSide` turns each side back into num/lin and the ORIGINAL `solve` finishes it.
+>       Generators build each form from its answer and solve for the last constant (`genBoth`). `hasX(ex)` uses `linOf`.
+>     * `exp`/`col` are REWRITES, not moves: one step id `w{i}` (no t/r), the point stays; `rewriteScene` shrinks the old
+>       side into a grey note above/below its label with a grey "expand"/"collect" pill (`keyT/keyB` keep an unchanged
+>       side's key so it doesn't flicker). Working/step card show the pill (dashed, `.trOp.rw`) only under the side that changed.
+>     * Picker (`#typeBtn` + `#typePop`): button shows family chip (blue Two-step / purple Both sides), name, example
+>       (`.compact` drops the example when the board's top row would wrap); menu = family tabs + example cards (`OPTS`).
+>       Keys: T open/close, 1–6 within the current family, B swap family (remembers `lastTwo`/`lastBoth`), arrows in the menu.
+>     * Type your own reads all of these (`parseEx`, e.g. 5(x+2)−2(x−1)=x+20, (x+6)/4=(x+3)/3, 3(x+2)+4=19).
+>     * Verified: every type × negatives × non-whole generated and re-checked (each line balances, ends on x alone);
+>       27,284 audit frames incl. the new types at 5 viewports; 64 UI checks; current-line card 3,200 and working panel
+>       2,880 frames with the new equations. On a phone with ÷ notation, a × 20 step drops the 0 labels when the first
+>       part would collide; inside a fraction a fractional answer is written (3/2) on one line in the check.
 > * Verified (Playwright): 20,000+ step frames over all types × settings at 1366×768, 1280×800, 1024×768, 1920×1080,
 >   390×844 (both sides equal at every stage, nothing off the board or overlapping, no page scroll on desktop), 50 UI
 >   checks (keys, settings, typed equations, answer never shown before the last move, full screen, persistence).

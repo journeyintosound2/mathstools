@@ -1123,7 +1123,7 @@ window.MMT_TOOL_LINKS = {
       kind: "Teacher tool",
       url: "/interactive-tools/stage-4/algebra/multi-step-double-numberline/",
       ideas: ["two-steps", "verify"],
-      note: "Two-step equations (3x + 4 = 13, x/4 + 3 = 5, 3(x + 2) = 15, (x − 1)/4 = 3, 10 − 2x = 4) and pronumerals on both sides. Starts from the finished equation as one point; each move is made on both lines and the line resets after every step. Whole, non-whole and negative solutions, with a substitution check.",
+      note: "Two-step equations (3x + 4 = 13, x/4 + 3 = 5, 3(x + 2) = 15, (x − 1)/4 = 3, 10 − 2x = 4) and pronumerals on both sides, including brackets, one fraction and harder ones. Starts from the finished equation as one point; each move is made on both lines and the line resets after every step. Whole, non-whole and negative solutions, with a substitution check.",
       tags: ["equations", "two-step", "both sides", "double number line", "brackets", "solving", "inverse operations", "substitution"]
     },
     {
@@ -1922,6 +1922,16 @@ window.MMT_TOOL_LINKS = {
     },
   ],
 
+  "MA5-EQU-C-01": [
+    {
+      title: "Multi-Step Equations on the Double Number Line",
+      kind: "Teacher tool",
+      url: "/interactive-tools/stage-4/algebra/multi-step-double-numberline/",
+      ideas: ["three-steps", "one-fraction"],
+      note: "Pronumerals on both sides with brackets (3(x + 2) = x + 14), one algebraic fraction ((x + 7)/2 = x + 2) and harder ones (5(x + 2) − 2(x − 1) = x + 20, two fractions). Clear the fraction by multiplying both sides, expand and collect like terms (the point doesn’t move), then the same move on both lines. Working shown line by line in a side panel.",
+      tags: ["equations", "both sides", "brackets", "algebraic fractions", "expand", "collect like terms", "double number line", "solving"]
+    }
+  ],
   "MA5-EQU-P-01": [
     {
       title: "Complete the Square",
