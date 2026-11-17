@@ -96,6 +96,39 @@
 > §2 "TWO folders", §3 deploy paths and §5's `mathstools-main 2` heading below
 > describe the OLD layout — this block supersedes them.
 >
+> **NEW (2026-11-18): TIMES TABLE CHART REBUILT (same URL).** `interactive-tools/stage-3/number/timestable-chart/index.html`,
+> one self-contained file on the MMT shell (topbar, board card, side panel, panel/full-screen icons). Project doc
+> `claude/times-table-chart.md`. localStorage `mmt.timesChart.v1`; test surface `window.__TT__`.
+> * **ONE CHART, A CAMERA.** Every square is an absolutely placed div; `S.cam = {x, y, u, gr, gc}` places them all
+>   (`placeCells`, `cellX/cellY`). Zooming into a fact = the camera fitting region `[0..R]×[0..C]` (every rectangle starts at
+>   the top-left, so the region WITH its headers is always contiguous); squares outside get `.out` and fade. `gr/gc` open
+>   gaps between rows/columns (Divide › Share it). The overlay SVG (`#ov`) is redrawn from the camera every frame; parts
+>   carry keys and only NEW keys get the entrance animation (`S.ovKeys`).
+> * **Board = chart (left, square, `--side` from `fit()`) + readout column** (lens picker, statement in maths font,
+>   lens options, info, hint). `fit()` sizes from the WINDOW, never the board. Below ~340px chart it stacks (`.stack`:
+>   readCol `display:contents`, chart under the statement) and the page scrolls (`.app.scrolly`). The side panel starts
+>   folded on screens under 1200px wide.
+> * **Nine lenses** (picker + keys 1–9, T): Build the rectangle (count row by row: the RIGHT-HAND COLUMN of the rectangle
+>   is the skip count; optional Turn it around = a CSS 3D `rotate3d(1,1,0,180deg)` flip over the diagonal) · Find it
+>   (row, column, meet, turn) · Split it (draggable cut; 5 + rest, 10 + rest, halves, 2 + rest, one less; 10 take away 1 for
+>   9, which extends the region to 10 rows with the extra row hatched) · Divide (count the jumps along the row, read the
+>   top, share into exploded rows, fact family) · Fraction of an amount (rectangle = whole, columns = parts, headers become
+>   k/c, click a column for k) · Factors (every cell with the value, its rectangle outlined) · Multiples (up to 3, common in
+>   green, lowest ringed) · Patterns (turnarounds, squares, L-shapes, same numbers, odd/even, last digits; teacher notes
+>   behind a reveal) · Cover up (quiz a hidden fact, click to check; header click covers a row/column).
+> * Colour = role: rows (first number) blue, in each row (second) orange, product green; split pieces teal/violet,
+>   taken away red hatched. **The answer is never on the board or in the statement before its step** (audit checks it).
+> * Type your own: `7 × 8`, `56 ÷ 8` (→ Divide), `2/3 of 24` (→ Fraction), `24` (→ Factors). Settings: 10 × 10 / 12 × 12,
+>   random range (incl. tricky 6–9), "rows of / groups of / times", turn-around step, hover preview, diagonal tint,
+>   animations (off also switches off the CSS fades).
+> * Homepage card retitled "Times Table Chart" (data-stage Stage 3) with a long `data-search` (timestable, times tables,
+>   multiplication chart/grid/table, 12 x 12, factors, multiples, …) and a "times tables" find chip. toolLinks rows under
+>   MA3-MR-01, MA3-MR-02 and MA3-RQF-02 (`toolLinks.js?v=` bumped in resources + teacher portal).
+> * Verified (Playwright): 6,153 layout checks (6 lenses × 10 facts incl. 1×1 and 12×12 × every step × 1366×768, 1024×768,
+>   1920×1080, 390×844: answer never early, statement never overflows, no cell or label off the chart, labels never
+>   overlap, no page scroll on desktop) and 54 interaction checks (picker, keys, real-mouse choose/drag the cut, Back during
+>   the flip, type your own, multiples, cover-up, patterns, 10 × 10, panel, full screen, persistence, keyboard cursor).
+>
 > **NEW (2026-11-17, evening): ONE-STEP DOUBLE NUMBER LINE — "EQUATION FIRST" MODE, TYPE PICKER, GREEN ANSWER.**
 > `interactive-tools/stage-4/algebra/double-numberline/index.html` (same URL). Source edited as one file; the Multi-Step
 > tool's pieces were PORTED in, not shared — fix one, port to the other.

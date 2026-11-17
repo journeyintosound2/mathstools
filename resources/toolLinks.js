@@ -394,12 +394,12 @@ window.MMT_TOOL_LINKS = {
       tags: ["factors", "multiples", "factor pairs", "arrays", "visual"]
     },
     {
-      title: "Times Table Chart — Area, Product, Division, Fractions",
+      title: "Times Table Chart",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-3/number/timestable-chart/",
-      ideas: ["products-factors"],
-      note: "One chart, four lenses: array area, product, division and fraction of an amount.",
-      tags: ["times tables", "arrays", "multiplication", "division", "factors", "visual"]
+      ideas: ["products-factors", "whole-numbers"],
+      note: "The multiplication chart to 12 \u00d7 12, nine ways in. Click a fact and the chart zooms into its rectangle: count it row by row (the end of each row is a skip count), split it into facts you know (7 \u00d7 8 = 5 \u00d7 8 + 2 \u00d7 8, or 10 \u00d7 6 \u2212 1 \u00d7 6), divide it, or flip it over the diagonal. Then factors as rectangles, multiples, patterns to notice and wonder, and a cover-up mode for recall.",
+      tags: ["times tables", "timestable chart", "multiplication chart", "multiplication grid", "multiplication table", "arrays", "area model", "skip counting", "turnaround facts", "commutative", "fact families", "known facts", "distributive", "doubling", "halving", "multiplication", "division", "fraction of an amount", "factors", "multiples", "common multiples", "square numbers", "patterns", "notice and wonder", "recall", "visual", "whole-class teaching"]
     },
     {
       title: "Products & Factors — Escape the Factor Circle Room",
@@ -494,6 +494,14 @@ window.MMT_TOOL_LINKS = {
   ],
 
   "MA3-MR-02": [
+    {
+      title: "Times Table Chart",
+      kind: "Teacher tool",
+      url: "/interactive-tools/stage-3/number/timestable-chart/",
+      ideas: ["patterns-multiples", "equivalent-sentences"],
+      note: "Colour the multiples of up to three numbers and see where they meet (common multiples, the lowest one ringed); patterns to notice and wonder (turnarounds, square numbers, L-shapes, odd and even, last digits); and Divide, which ends on the fact family: 4 \u00d7 6, 6 \u00d7 4, 24 \u00f7 4, 24 \u00f7 6.",
+      tags: ["times tables", "timestable chart", "multiplication chart", "multiplication grid", "multiplication table", "arrays", "area model", "skip counting", "turnaround facts", "commutative", "fact families", "known facts", "distributive", "doubling", "halving", "multiplication", "division", "fraction of an amount", "factors", "multiples", "common multiples", "square numbers", "patterns", "notice and wonder", "recall", "visual", "whole-class teaching"]
+    },
     {
       title: "Fraction of an Amount \u2014 Divide, Then Multiply",
       kind: "Teacher tool",
@@ -734,6 +742,14 @@ window.MMT_TOOL_LINKS = {
   ],
 
   "MA3-RQF-02": [
+    {
+      title: "Times Table Chart",
+      kind: "Teacher tool",
+      url: "/interactive-tools/stage-3/number/timestable-chart/",
+      ideas: ["fraction-of-quantity"],
+      note: "Fraction of an amount on the times table chart: the rectangle is the whole, its columns are the equal parts, and the number at the bottom of the last part taken is the answer (2/6 of 24 = 8).",
+      tags: ["times tables", "timestable chart", "multiplication chart", "multiplication grid", "multiplication table", "arrays", "area model", "skip counting", "turnaround facts", "commutative", "fact families", "known facts", "distributive", "doubling", "halving", "multiplication", "division", "fraction of an amount", "factors", "multiples", "common multiples", "square numbers", "patterns", "notice and wonder", "recall", "visual", "whole-class teaching"]
+    },
     {
       title: "Fraction of an Amount \u2014 Divide, Then Multiply",
       kind: "Teacher tool",
