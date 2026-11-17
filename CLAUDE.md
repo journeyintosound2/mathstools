@@ -96,6 +96,33 @@
 > §2 "TWO folders", §3 deploy paths and §5's `mathstools-main 2` heading below
 > describe the OLD layout — this block supersedes them.
 >
+> **NEW (2026-11-17, latest): MULTI-STEP EQUATIONS ON THE DOUBLE NUMBER LINE — new teaching tool** at
+> `interactive-tools/stage-4/algebra/multi-step-double-numberline/index.html`, on the rebuilt one-step tool's shell
+> (single self-contained file, no Firebase). Under **MA4-EQU-C-01** (ideas two-steps, verify; toolLinks row, homepage
+> Interactive card, pill 42 → 43); the one-step tool's Tools menu links to it. Its own Tools menu has Worksheet / Quiz
+> greyed. localStorage `mmt.multiStepDNL.v1`; test surface `window.__MS__`. Project doc `claude/multi-step-double-number-line.md`.
+> * **STARTS FROM THE FINISHED EQUATION (Jeff): the equation is ONE POINT.** Top line = LEFT side, bottom line = RIGHT
+>   side (blue / green, also in the equation above the board). 3x + 4 = 13 opens as one tick with 3x + 4 above and 13
+>   below. With pronumerals on both sides the bottom label is an expression too (5x + 2 over 3x + 10).
+> * **Steps (`stepIds`): `s` → per move `[t{i}]` `m{i}` `r{i}` → `check`.** `m` = the line opens out and the SAME purple
+>   move is made on both lines; `r` = RESET: the line pans so the new, simpler equation is one point in the centre and
+>   everything else fades (`mix()` slides coming/going elements with the shared tick `p{i}` so it reads as one pan).
+>   `t` (Settings › Top line first) pauses with "?" underneath. Check puts the answer into the FIRST equation.
+>   The trail under the equation (`row2HTML`) keeps every move pill and simpler equation, since the line itself resets.
+> * **Engine:** a side is `num` / `ops` (things done to x in order: [mul 3, add 4] = 3x + 4, [add 2, mul 3] = 3(x + 2)) /
+>   `lin` (mx + k, for both-sides and 10 − 2x). `solve()` undoes the LAST op on both sides; with x on both sides it takes
+>   the smaller x-term from both (adds it when negative, so 10 − 2x = 4 becomes 10 = 4 + 2x). All values are exact
+>   fractions (`R`). Pictures: + − moves = two points and one hop (unit ticks between; an x-term hop is DASHED, length
+>   unknown); × ÷ moves = 0 plus n equal parts, mirrored when the value is negative.
+> * Types (select on the board, keys 1–7): ax ± b = c · x/a ± b = c · a(x ± b) = c · (x ± b)/a = c · b − ax = c ·
+>   ax + b = cx + d · Mixed. Panel: Solutions whole / can be non-whole (W; only where it can happen), Negative solutions
+>   none / some / always (N). "None" = no negative number anywhere. Settings: division as fraction or ÷, non-whole as
+>   fraction / mixed / decimal (decimal limits denominators to 2, 4, 5, 10), write it another way, other letters,
+>   top line first, check, written working, moves, units and parts, line names. Type your own (`parseOwn`).
+> * Verified (Playwright): 20,000+ step frames over all types × settings at 1366×768, 1280×800, 1024×768, 1920×1080,
+>   390×844 (both sides equal at every stage, nothing off the board or overlapping, no page scroll on desktop), 50 UI
+>   checks (keys, settings, typed equations, answer never shown before the last move, full screen, persistence).
+>
 > **NEW (2026-11-17, later): DOUBLE NUMBER LINE — STUDENT QUIZZES + WORKSHEET CREATOR REBUILT.**
 > Project doc `claude/double-number-line.md`. Same URLs, registry entries and saved tool names, so tasks/results carry on.
 > * **Quizzes: ONE engine, THREE thin shells.** `online-quizzes/stage-4/algebra/double-numberline/student-quiz.html` (mixed),

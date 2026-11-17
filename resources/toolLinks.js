@@ -1119,6 +1119,14 @@ window.MMT_TOOL_LINKS = {
       tags: ["equations", "double number line", "solving", "inverse operations", "balance"]
     },
     {
+      title: "Multi-Step Equations on the Double Number Line",
+      kind: "Teacher tool",
+      url: "/interactive-tools/stage-4/algebra/multi-step-double-numberline/",
+      ideas: ["two-steps", "verify"],
+      note: "Two-step equations (3x + 4 = 13, x/4 + 3 = 5, 3(x + 2) = 15, (x − 1)/4 = 3, 10 − 2x = 4) and pronumerals on both sides. Starts from the finished equation as one point; each move is made on both lines and the line resets after every step. Whole, non-whole and negative solutions, with a substitution check.",
+      tags: ["equations", "two-step", "both sides", "double number line", "brackets", "solving", "inverse operations", "substitution"]
+    },
+    {
       title: "Double Number Line Equations — ELPSA Lesson Plan",
       kind: "Lesson plan",
       url: "/interactive-tools/stage-4/algebra/double-numberline/lesson-plan.html",

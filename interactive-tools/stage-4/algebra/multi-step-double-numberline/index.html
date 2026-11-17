@@ -1,0 +1,1344 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Multi-Step Equations on the Double Number Line | Mills Maths Tools</title>
+  <meta name="description" content="Solve two-step equations and equations with pronumerals on both sides on a double number line: the left side on top, the right side underneath, the same move on both lines, and a fresh line after every step." />
+
+  <style>
+    :root{
+      --bg:#f8fafc; --card:#ffffff; --ink:#0f172a; --muted:#64748b; --border:#e2e8f0;
+      --shadow:0 18px 45px rgba(15,23,42,.13);
+      --blue:#2563eb; --blue-dark:#1d4ed8;
+      --green:#22c55e; --green-dark:#15803d; --green-ink:#14532d;
+      --purple:#7c3aed; --purple-dark:#5b21b6;
+      --orange:#f97316; --orange-dark:#c2410c;
+      --red:#dc2626; --red-dark:#991b1b;
+      --line:#334155; --line-soft:#94a3b8;
+      --uiFont:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+      --mathFont:"Cambria Math","STIX Two Math","Latin Modern Math","Asana Math",Cambria,"Palatino Linotype","Book Antiqua",Palatino,"Times New Roman",Georgia,serif;
+      --mathWeight:500;
+      /* fallback for letters when the maths alphabet is missing: a serif with a REAL italic face (curly x) */
+      --itFont:"Cambria","Times New Roman","STIX Two Text",Georgia,serif;
+    }
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0; font-family:var(--uiFont); color:var(--ink);
+      background:
+        radial-gradient(circle at top left,rgba(37,99,235,.14),transparent 32rem),
+        radial-gradient(circle at top right,rgba(124,58,237,.12),transparent 34rem),
+        var(--bg);
+      overflow-x:hidden;
+    }
+    button,input,select{ font:inherit; }
+    [hidden]{ display:none !important; }
+    .app{ height:100dvh; display:flex; flex-direction:column; min-width:0; }
+
+    /* ---------- topbar (shared MMT shell) ---------- */
+    .mmtTopbar{
+      position:relative; z-index:40; flex:0 0 auto;
+      background:linear-gradient(135deg,#0f172a,#123b7a 55%,#2563eb);
+      color:white; padding:14px 24px;
+      display:grid; grid-template-columns:minmax(200px,1fr) auto minmax(300px,1fr);
+      align-items:center; gap:18px; box-shadow:0 10px 28px rgba(15,23,42,.22);
+    }
+    .mmtBrand{ display:flex; align-items:center; gap:12px; justify-self:start; text-decoration:none; color:white; border-radius:14px;
+      padding:8px 12px; margin-left:-12px; font-weight:900; transition:background .18s ease,transform .18s ease,box-shadow .18s ease; }
+    .mmtBrand:hover{ background:rgba(255,255,255,.12); transform:translateY(-1px); box-shadow:0 0 10px rgba(124,58,237,.6),0 0 18px rgba(37,99,235,.4); }
+    .mmtBrandLogo{ width:44px; height:44px; border-radius:9px; background:white; color:#1d4ed8; display:grid; place-items:center;
+      font-weight:1000; letter-spacing:-.08em; box-shadow:inset 0 -2px 0 rgba(15,23,42,.08); flex:0 0 auto; }
+    .mmtBrandText strong{ display:block; font-size:1.18rem; line-height:1; letter-spacing:-.03em; color:white; }
+    .mmtBrandText span{ display:block; font-size:.78rem; opacity:.82; font-weight:650; color:white; }
+    .mmtTopTitle{ font-weight:850; font-size:clamp(1.05rem,1.8vw,1.45rem); letter-spacing:-.04em; text-align:center; color:white; white-space:nowrap; }
+    .topActions{ justify-self:end; display:flex; align-items:center; justify-content:flex-end; gap:10px; flex-wrap:wrap; }
+    .btn{ appearance:none; border:1px solid rgba(255,255,255,.28); background:rgba(255,255,255,.14); color:white; padding:11px 15px;
+      border-radius:14px; font-weight:900; font-size:15px; cursor:pointer; transition:.18s ease; user-select:none; }
+    .btn:hover:not(:disabled){ background:rgba(255,255,255,.22); transform:translateY(-1px); }
+    .btn:focus-visible{ outline:none; box-shadow:0 0 0 4px rgba(255,255,255,.23); }
+    .btn-primary{ background:white; color:#1d4ed8; border-color:white; }
+    .btn-primary:hover:not(:disabled){ background:#eef2ff; color:#1d4ed8; }
+
+    .menuWrap{ position:relative; display:inline-flex; }
+    .dropMenu{ position:absolute; top:calc(100% + 8px); right:0; min-width:270px; background:#fff; color:var(--ink);
+      border:1px solid rgba(226,232,240,.95); border-radius:14px; box-shadow:0 18px 45px rgba(15,23,42,.22);
+      padding:7px; display:none; z-index:120; text-align:left; }
+    .dropMenu.open{ display:grid; gap:4px; }
+    .toolLink{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 12px; border-radius:10px;
+      color:var(--ink); text-decoration:none; font-weight:900; font-size:.9rem; }
+    .toolLink::after{ content:'\203A'; color:var(--blue); font-weight:1000; font-size:1.1rem; line-height:1; }
+    .toolLink:hover,.toolLink:focus-visible{ background:#eef2ff; color:#1d4ed8; outline:none; }
+    .toolLink small{ display:block; font-weight:650; font-size:.74rem; color:var(--muted); }
+    .menuRule{ height:1px; background:var(--border); margin:3px 6px; }
+    .settingsMenu.open{ gap:11px; padding:15px 18px; min-width:350px; max-height:min(78vh,700px); overflow:auto; }
+    .settingsHead{ font-size:.68rem; letter-spacing:.14em; text-transform:uppercase; font-weight:950; color:var(--muted); }
+    .settingsNote{ margin:-4px 0 0; font-size:.76rem; font-weight:650; color:var(--muted); line-height:1.4; }
+    .settingsRule{ height:1px; background:var(--border); margin:1px 0; }
+    .selRow{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .selRow > span{ font-weight:900; font-size:.92rem; color:var(--ink); white-space:nowrap; }
+    .selRow select{ appearance:none; border:1.5px solid var(--border); padding:8px 30px 8px 11px; border-radius:11px; font-weight:850; font-size:.88rem;
+      color:var(--line); min-width:170px; cursor:pointer;
+      background:#fff url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' fill='none' stroke='%232563eb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/></svg>") no-repeat right 10px center;
+      background-size:11px; }
+    .selRow select:focus-visible{ outline:none; border-color:var(--blue); box-shadow:0 0 0 4px rgba(37,99,235,.16); }
+    .sw{ display:inline-flex; align-items:center; gap:11px; cursor:pointer; user-select:none; font-weight:850; color:var(--line); font-size:.93rem; }
+    .sw input{ position:absolute; opacity:0; width:0; height:0; }
+    .sw .track{ position:relative; width:50px; height:29px; border-radius:999px; background:#cbd5e1; transition:.18s ease; flex:0 0 auto; box-shadow:inset 0 1px 3px rgba(15,23,42,.18); }
+    .sw .track::after{ content:""; position:absolute; top:3px; left:3px; width:23px; height:23px; border-radius:50%; background:#fff; box-shadow:0 2px 6px rgba(15,23,42,.3); transition:.18s ease; }
+    .sw input:checked + .track{ background:var(--green); }
+    .sw input:checked + .track::after{ transform:translateX(21px); }
+    .sw input:focus-visible + .track{ box-shadow:0 0 0 4px rgba(37,99,235,.28); }
+    .sw.dim{ opacity:.45; }
+
+    /* ---------- layout ---------- */
+    .layout{ flex:1 1 auto; min-height:0; width:min(1640px,100%); margin:0 auto; padding:14px 18px 16px;
+      display:grid; grid-template-columns:minmax(0,1fr) 372px; gap:14px; min-width:0; }
+    .card{ background:var(--card); border:1px solid var(--border); border-radius:22px; box-shadow:var(--shadow); min-width:0; }
+
+    /* ---------- board ---------- */
+    .boardCard{ display:flex; flex-direction:column; min-height:0; padding:12px 14px 8px; position:relative; overflow:hidden; }
+    .boardTop{ position:relative; z-index:3; background:var(--card); display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+    .modeSwitch{ display:inline-flex; background:#f1f5f9; border:1px solid var(--border); border-radius:15px; padding:4px; gap:4px; flex-wrap:wrap; }
+    .modeBtn{ appearance:none; border:none; background:transparent; padding:7px 14px 7px 8px; border-radius:11px; font-weight:900; font-size:.95rem;
+      color:var(--muted); cursor:pointer; display:flex; align-items:center; gap:9px; transition:.16s ease; }
+    .modeBtn:hover{ color:var(--ink); }
+    .modeBtn .sym{ min-width:34px; height:32px; padding:0 6px; border-radius:9px; display:grid; place-items:center; background:#e2e8f0; color:var(--line);
+      transition:.16s ease; flex:0 0 auto; font-family:var(--mathFont); font-weight:700; font-size:1.05rem; white-space:nowrap; }
+    .modeBtn .sym i{ font-style:italic; }
+    .modeBtn small{ display:block; font-size:.7rem; font-weight:750; color:var(--line-soft); margin-top:1px; }
+    .modeBtn .txt{ text-align:left; line-height:1.1; }
+    .modeBtn[aria-selected="true"]{ background:#fff; color:var(--ink); box-shadow:0 3px 10px rgba(15,23,42,.12); }
+    .modeBtn[aria-selected="true"] .sym{ background:var(--blue); color:#fff; }
+    .modeBtn:focus-visible{ outline:none; box-shadow:0 0 0 3px rgba(37,99,235,.3); }
+    .topRight{ display:flex; align-items:center; gap:10px; }
+    .typeTag{ font-size:.74rem; letter-spacing:.06em; font-weight:950; text-transform:uppercase; padding:6px 11px; border-radius:999px; white-space:nowrap;
+      border:1px solid rgba(21,128,61,.25); color:var(--green-dark); background:rgba(34,197,94,.12); }
+    .typeTag.let{ color:var(--purple-dark); background:rgba(124,58,237,.1); border-color:rgba(124,58,237,.25); }
+    .iconGroup{ display:inline-flex; gap:6px; }
+    .iconBtn{ appearance:none; width:42px; height:42px; border-radius:13px; border:1.5px solid var(--border); background:#fff; color:var(--line);
+      display:grid; place-items:center; cursor:pointer; transition:.16s ease; padding:0; }
+    .iconBtn svg{ width:21px; height:21px; display:block; }
+    .iconBtn:hover:not(:disabled){ border-color:var(--blue); background:#eef2ff; color:var(--blue-dark); transform:translateY(-1px); }
+    .iconBtn:focus-visible{ outline:none; box-shadow:0 0 0 3px rgba(37,99,235,.3); }
+    .iconBtn[aria-pressed="true"]{ background:#eef2ff; border-color:#c7d2fe; color:var(--blue-dark); }
+    .iconBtn.spin svg{ animation:spin .5s ease; }
+    @keyframes spin{ from{ transform:rotate(0);} to{ transform:rotate(-360deg);} }
+
+    .app.noPanel .layout, .app.fs .layout{ grid-template-columns:minmax(0,1fr); }
+    .app.noPanel .side, .app.fs .side{ display:none; }
+    .app.fs .mmtTopbar{ display:none; }
+    .app.fs .layout{ width:100%; padding:10px; }
+    .app.fs #panelBtn{ display:none; }
+    .miniSteps{ position:absolute; right:14px; bottom:10px; display:flex; gap:7px; z-index:5; }
+    .miniSteps .nextBtn{ flex:none; padding:10px 16px; font-size:.95rem; }
+    .miniSteps .stepBtn.icon{ width:42px; padding:10px 0; }
+    .app.noPanel .hint, .app.fs .hint{ padding-right:220px; padding-left:220px; }
+
+    /* the stage holds the number sentence and the picture under it */
+    .stage{ position:relative; flex:1 1 auto; min-height:0; margin-top:4px; }
+    .stmt{ position:absolute; left:0; right:0; top:0; z-index:2; display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
+      font-family:var(--mathFont); font-weight:var(--mathWeight); color:var(--line); line-height:1.25; pointer-events:none;
+      transition:transform .75s cubic-bezier(.45,.05,.25,1); will-change:transform; }
+    .stmt .row{ white-space:nowrap; display:flex; align-items:baseline; justify-content:center; flex-wrap:nowrap; min-height:1.25em; padding:0 .2em; }
+    .stmt.wrap .row{ white-space:normal; flex-wrap:wrap; }
+    .stmt .r2{ display:none; }
+    .tk.fut{ visibility:hidden; }
+    .flyLayer{ position:fixed; inset:0; pointer-events:none; z-index:60; }
+    .flyNum{ position:fixed; left:0; top:0; font-family:var(--mathFont); font-weight:var(--mathWeight); color:var(--blue-dark); white-space:nowrap; line-height:1; will-change:transform,opacity; }
+    .flyNum.m{ color:var(--red); }
+    .tk{ display:inline-block; white-space:pre; transition:color .5s ease, background-color .5s ease; }
+    .op{ padding:0 .22em; }
+    .word{ font-family:var(--uiFont); font-weight:800; font-size:.62em; color:var(--muted); padding:0 .36em; letter-spacing:-.01em; }
+    .mv{ font-family:var(--itFont); font-style:italic; }
+    .mi{ font-family:var(--mathFont); font-style:normal; }
+    .cC{ color:var(--blue-dark); }
+    .cG{ color:var(--green-dark); }
+    .cU{ color:var(--purple-dark); }
+    .cM{ color:var(--red); }
+    .cT{ color:var(--blue-dark); }
+    .stmt.plain .cC, .stmt.plain .cG, .stmt.plain .cU, .stmt.plain .cM{ color:var(--ink); }
+    .ans{ background:#fef9c3; border-radius:.18em; padding:0 .16em; box-shadow:inset 0 -.1em 0 #fde047; color:var(--ink); }
+    .tk.new{ animation:tkIn .5s ease both; }
+    .tk.new.late{ animation-delay:.34s; }
+    @keyframes tkIn{ from{ opacity:0; transform:translateY(.25em) scale(.9);} to{ opacity:1; transform:none;} }
+    .boardWrap{ position:absolute; left:0; right:0; bottom:0; top:0; }
+    #board{ position:absolute; inset:0; width:100%; height:100%; display:block; user-select:none; -webkit-user-select:none; overflow:visible; }
+    #board text{ pointer-events:none; font-family:var(--mathFont); font-weight:var(--mathWeight); }
+    .plainM .cC, .plainM .cG, .plainM .cU, .plainM .cM{ color:inherit; }
+    .hint{ flex:0 0 auto; min-height:1.45em; text-align:center; font-size:.92rem; font-weight:750; color:var(--muted); padding:3px 8px 0; line-height:1.4; }
+    .hint b{ color:var(--line); }
+    .hint .eq{ font-family:var(--mathFont); font-weight:var(--mathWeight); font-size:1.12em; color:var(--line); }
+
+    /* ---------- side panel ---------- */
+    .side{ display:flex; flex-direction:column; gap:12px; min-height:0; min-width:0; }
+    .panel{ padding:12px 14px; }
+    .pHead{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:9px; }
+    .pTitle{ font-size:.68rem; letter-spacing:.14em; text-transform:uppercase; font-weight:950; color:var(--muted); }
+    .pCount{ font-size:.74rem; font-weight:900; color:var(--line-soft); }
+    .kindSeg{ display:grid; grid-template-columns:1fr 1fr; background:#f1f5f9; border:1px solid var(--border); border-radius:13px; padding:3px; gap:3px; margin-bottom:10px; }
+    .kindSeg button{ appearance:none; border:none; background:transparent; border-radius:10px; padding:7px 6px; font-weight:900; font-size:.88rem; color:var(--muted); cursor:pointer; }
+    .kindSeg button .s{ font-family:var(--mathFont); font-weight:700; margin-right:5px; }
+    .kindSeg button[aria-pressed="true"]{ background:#fff; color:var(--ink); box-shadow:0 2px 8px rgba(15,23,42,.12); }
+    .kindSeg button:focus-visible{ outline:none; box-shadow:0 0 0 3px rgba(37,99,235,.3); }
+    .dimRow{ display:grid; grid-template-columns:62px auto 1fr; align-items:center; gap:10px; margin-bottom:8px; }
+    .dimRow .lbl{ font-weight:900; font-size:.88rem; color:var(--line); }
+    .stepper{ display:inline-flex; align-items:center; border:1.5px solid var(--border); border-radius:13px; overflow:hidden; background:#fff; }
+    .stepper button{ appearance:none; border:none; background:#f8fafc; width:38px; height:40px; font-size:1.25rem; font-weight:900; color:var(--line); cursor:pointer; }
+    .stepper button:hover:not(:disabled){ background:#eef2ff; color:var(--blue-dark); }
+    .stepper button:disabled{ opacity:.35; cursor:not-allowed; }
+    .stepper input{ width:52px; height:40px; border:none; border-left:1.5px solid var(--border); border-right:1.5px solid var(--border); text-align:center;
+      font-family:var(--mathFont); font-size:1.4rem; font-weight:700; color:var(--blue-dark); -moz-appearance:textfield; }
+    .stepper input::-webkit-outer-spin-button,.stepper input::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0; }
+    .stepper input:focus{ outline:none; background:#eef2ff; }
+    .stepper.off input{ color:var(--line-soft); }
+    .dice{ appearance:none; justify-self:start; display:inline-flex; align-items:center; gap:6px; border:1.5px solid var(--border); background:#fff; border-radius:11px;
+      padding:6px 9px; font-weight:850; font-size:.76rem; color:var(--muted); cursor:pointer; transition:.15s ease; }
+    .dice svg{ width:16px; height:16px; }
+    .dice:hover{ border-color:var(--blue); color:var(--blue-dark); }
+    .dice[aria-pressed="true"]{ background:#eef2ff; border-color:#c7d2fe; color:var(--blue-dark); }
+    .qBtns{ display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:4px; }
+    .qBtn{ appearance:none; border:1.5px solid var(--border); background:#fff; border-radius:12px; padding:9px 6px; font-weight:900; font-size:.84rem; color:var(--line);
+      cursor:pointer; transition:.14s ease; }
+    .qBtn:hover{ border-color:var(--blue); background:#eef2ff; color:var(--blue-dark); transform:translateY(-1px); }
+    .qBtn small{ display:block; font-weight:700; font-size:.7rem; color:var(--line-soft); }
+    .qBtn.wide{ grid-column:1 / -1; }
+    .ownRow{ display:flex; gap:6px; margin-top:8px; }
+    .ownRow input{ flex:1 1 auto; min-width:0; border:1.5px solid var(--border); border-radius:11px; padding:9px 10px; font-family:var(--mathFont); font-size:1.08rem; font-weight:700; color:var(--line); }
+    .ownRow input:focus{ outline:none; border-color:var(--blue); box-shadow:0 0 0 4px rgba(37,99,235,.14); }
+    .ownRow button{ appearance:none; border:none; border-radius:11px; padding:0 14px; font-weight:900; background:var(--blue); color:#fff; cursor:pointer; }
+    .ownMsg{ font-size:.76rem; font-weight:750; color:var(--muted); margin-top:5px; line-height:1.35; min-height:1em; }
+    .ownMsg.err{ color:var(--red); }
+
+    .storyPanel{ flex:1 1 auto; min-height:0; display:flex; flex-direction:column; }
+    .storyScroll{ flex:1 1 auto; min-height:0; overflow:auto; margin:0 -6px; padding:0 6px; }
+    .sLine{ border-radius:13px; padding:8px 11px 9px; border:1px solid var(--border); background:#f8fafc; margin-bottom:6px; animation:fadeUp .3s ease; }
+    .sLine .lab{ display:flex; gap:7px; align-items:baseline; font-size:.8rem; font-weight:900; color:var(--line); line-height:1.3; }
+    .sLine .n{ font-size:.7rem; font-weight:950; color:#fff; background:var(--line-soft); border-radius:7px; min-width:20px; height:20px; display:inline-grid; place-items:center; flex:0 0 auto; }
+    .sLine .m{ font-family:var(--mathFont); font-weight:var(--mathWeight); font-size:1.16rem; color:var(--line); margin-top:3px; line-height:1.4; }
+    .sLine .m .word{ font-size:.66em; }
+    .sLine .tip{ font-size:.76rem; font-weight:750; color:var(--muted); margin-top:4px; line-height:1.4; }
+    .sLine .tip .eq{ font-family:var(--mathFont); font-weight:var(--mathWeight); font-size:1.18em; color:var(--line); }
+    .sLine.cur{ background:#fff; border-color:rgba(37,99,235,.45); box-shadow:0 0 0 3px rgba(37,99,235,.08); }
+    .sLine.cur .n{ background:var(--blue); }
+    .sLine.done{ background:rgba(34,197,94,.07); border-color:rgba(21,128,61,.28); }
+    .sLine.done .n{ background:var(--green-dark); }
+    .stepRow{ display:flex; gap:7px; padding-top:10px; margin-top:8px; border-top:1px solid var(--border); }
+    .stepBtn{ appearance:none; border:1.5px solid var(--border); background:#fff; color:var(--line); padding:11px 12px; border-radius:14px;
+      font-weight:950; font-size:.95rem; cursor:pointer; transition:.16s ease; white-space:nowrap; }
+    .stepBtn:hover:not(:disabled){ border-color:var(--blue); background:#eef2ff; color:var(--blue-dark); transform:translateY(-1px); }
+    .stepBtn:disabled{ opacity:.38; cursor:not-allowed; transform:none; }
+    .stepBtn.icon{ width:46px; padding:11px 0; font-size:1.05rem; }
+    .nextBtn{ flex:1 1 auto; min-width:0; appearance:none; border:none; background:linear-gradient(135deg,var(--blue),var(--purple)); color:#fff;
+      padding:12px 14px; border-radius:15px; font-weight:950; font-size:1.02rem; cursor:pointer; box-shadow:0 10px 24px rgba(37,99,235,.30);
+      transition:.18s ease; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .nextBtn:hover:not(:disabled){ transform:translateY(-1px); box-shadow:0 14px 30px rgba(37,99,235,.38); }
+    .nextBtn:disabled{ background:linear-gradient(135deg,var(--green-dark),#0f766e); box-shadow:none; cursor:default; opacity:.92; }
+    .keyHint{ font-size:.72rem; font-weight:800; color:var(--line-soft); text-align:center; margin-top:7px; line-height:1.6; }
+    .keyHint kbd{ font-family:var(--uiFont); font-size:.7rem; font-weight:900; color:var(--muted); border:1px solid var(--border); border-bottom-width:2px;
+      border-radius:6px; padding:0 5px; background:#f8fafc; }
+
+    @keyframes fadeUp{ from{ opacity:0; transform:translateY(5px);} to{ opacity:1; transform:none;} }
+    @media (prefers-reduced-motion:reduce){ .sLine,.tk.new{ animation:none !important; } .stmt{ transition:none; } }
+
+    /* ---------- responsive ---------- */
+    @media (max-width:1280px){ .layout{ grid-template-columns:minmax(0,1fr) 344px; } .modeBtn small{ display:none; } }
+    @media (max-width:1180px){
+      .mmtTopbar{ grid-template-columns:auto minmax(0,1fr) auto; padding:12px 16px; gap:12px; }
+      .mmtBrandText{ display:none; }
+      .btn{ padding:10px 13px; font-size:14px; }
+      .layout{ padding:12px 12px 14px; gap:12px; }
+    }
+    @media (max-width:980px){
+      .app:not(.fs){ height:auto; min-height:100dvh; }
+      .layout{ grid-template-columns:1fr; }
+      .stage{ flex:none; height:clamp(360px,62vh,600px); }
+      .app.fs .stage{ flex:1 1 auto; height:auto; }
+      .app.noPanel .hint, .app.fs .hint{ padding:3px 8px 56px; }
+      .storyPanel{ flex:none; }
+      .storyScroll{ overflow:visible; }
+    }
+    @media (max-width:760px){
+      .mmtTopbar{ grid-template-columns:1fr; justify-items:center; padding:12px 14px; }
+      .mmtBrand{ margin-left:0; } .topActions{ justify-self:center; justify-content:center; }
+      .dropMenu{ right:auto; left:50%; transform:translateX(-50%); }
+      .settingsMenu.open{ min-width:min(350px,92vw); }
+      .mmtTopTitle{ white-space:normal; }
+      .boardTop{ flex-direction:column; align-items:stretch; }
+      .modeSwitch{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); width:100%; }
+      .modeBtn{ flex-direction:column; padding:6px 4px; font-size:.8rem; gap:4px; text-align:center; }
+      .modeBtn .txt{ text-align:center; }
+      .topRight{ justify-content:center; }
+      .typeTag{ display:none; }
+    }
+
+    /* ================= Multi-Step Equations: its own parts ================= */
+    .kindSeg.three{ grid-template-columns:repeat(3,1fr); }
+    .segLabel{ font-size:.74rem; font-weight:900; color:var(--muted); margin:2px 0 5px; }
+    .segNote{ font-size:.74rem; font-weight:750; color:var(--muted); margin:-6px 0 8px; }
+    .stage{ display:flex; flex-direction:column; }
+    .stmt.eqn{ position:relative; inset:auto; flex:0 0 auto; transform:none; transition:none; padding:2px 0 0; }
+    .stmt.eqn .row{ align-items:center; }
+    .stmt.eqn .r2{ display:flex; font-size:.5em; min-height:1.9em; gap:.1em; margin-top:.1em; }
+    .stage .boardWrap{ position:relative; flex:1 1 auto; min-height:0; }
+    .frac{ display:inline-flex; flex-direction:column; align-items:center; vertical-align:middle; line-height:1.02; font-size:.78em; margin:0 .08em; }
+    .frac > .fn{ padding:0 .14em .05em; border-bottom:.075em solid currentColor; }
+    .frac > .fd{ padding:.05em .14em 0; }
+    .cE{ color:var(--blue-dark); }
+    .cV{ color:var(--green-dark); }
+    .cUndo{ color:var(--purple-dark); }
+    .okMark{ font-family:var(--uiFont); font-weight:950; color:var(--green-dark); margin-left:.35em; font-size:.9em; }
+    .eqSign{ color:var(--line-soft); }
+    .sLine .m + .m{ margin-top:1px; }
+    .sLine .lab .eq, .sLine .tip .eq{ font-family:var(--mathFont); font-weight:var(--mathWeight); font-size:1.14em; color:var(--line); }
+    .hint .cUndo{ color:var(--purple-dark); }
+    /* the trail: every simpler equation so far, with the move that made it */
+    .trail .trOp{ font-family:var(--uiFont); font-weight:900; font-size:.82em; color:var(--purple-dark); background:rgba(124,58,237,.09); border:1.5px solid rgba(124,58,237,.4);
+      border-radius:999px; padding:.12em .6em; margin:0 .45em; white-space:nowrap; position:relative; }
+    .trail .trOp::before{ content:"\2192"; position:absolute; right:100%; margin-right:.3em; color:var(--line-soft); font-weight:700; opacity:0; }
+    .trail .trEq{ color:var(--line); white-space:nowrap; }
+    .trail .trEq.fin{ background:#fef9c3; border-radius:.2em; padding:0 .25em; box-shadow:inset 0 -.1em 0 #fde047; color:var(--ink); }
+    .trail .trEq + .trOp{ margin-left:.7em; }
+    .typePick{ display:inline-flex; align-items:center; gap:9px; background:#f1f5f9; border:1px solid var(--border); border-radius:15px; padding:5px 6px 5px 13px; }
+    .typePick > span{ font-size:.74rem; font-weight:950; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); }
+    .typePick select{ appearance:none; border:1.5px solid var(--border); background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23475569' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 11px center/11px;
+      padding:8px 34px 8px 13px; border-radius:11px; font-family:var(--mathFont); font-weight:600; font-size:1.08rem; color:var(--ink); cursor:pointer; box-shadow:0 2px 8px rgba(15,23,42,.08); max-width:100%; }
+    .typePick select:focus-visible{ outline:none; border-color:var(--blue); box-shadow:0 0 0 4px rgba(37,99,235,.16); }
+    .toolLink.soon{ opacity:.5; cursor:default; }
+    #board .halo{ animation:haloPulse 2.2s ease-in-out infinite; transform-box:fill-box; transform-origin:center; }
+    @keyframes haloPulse{ 0%,100%{ opacity:.55; } 50%{ opacity:.9; } }
+    @media (prefers-reduced-motion:reduce){ #board .halo{ animation:none; } }
+    @media (max-width:760px){ .stage{ height:clamp(300px, calc(62vw + 130px), 520px); } .typePick{ justify-content:space-between; } }
+  </style>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
+<!-- mmt-pwa -->
+<link rel="manifest" href="../../../../manifest.webmanifest">
+<meta name="theme-color" content="#1f3a5f">
+<link rel="apple-touch-icon" href="../../../../icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="MMT">
+<script src="../../../../pwa.js" defer></script>
+<!-- /mmt-pwa -->
+</head>
+<body>
+  <div class="app" id="app">
+    <header class="mmtTopbar">
+      <a class="mmtBrand" href="https://www.millsmathstools.au" target="_self" aria-label="Back to Mills Maths Tools">
+        <span class="mmtBrandLogo" aria-hidden="true">MMT</span>
+        <span class="mmtBrandText"><strong>MMT</strong><span>Mills Maths Tools</span></span>
+      </a>
+      <div class="mmtTopTitle">Multi-Step Equations on the Double Number Line</div>
+      <div class="topActions">
+        <div class="menuWrap">
+          <button class="btn" id="settingsBtn" type="button" aria-haspopup="true" aria-expanded="false">Settings &#9662;</button>
+          <nav class="dropMenu settingsMenu" id="settingsMenu" aria-label="Settings">
+            <div class="settingsHead">New questions</div>
+            <label class="selRow"><span>Division written as</span>
+              <select id="divSel" aria-label="How division is written">
+                <option value="frac">A fraction: {x}/4</option>
+                <option value="obelus">{x} &divide; 4</option>
+              </select>
+            </label>
+            <label class="selRow"><span>Non-whole answers as</span>
+              <select id="nwSel" aria-label="How non-whole numbers are written">
+                <option value="frac">Fractions: 7/2</option>
+                <option value="mixed">Mixed numbers: 3 1/2</option>
+                <option value="dec">Decimals: 3.5</option>
+              </select>
+            </label>
+            <label class="sw"><input type="checkbox" id="varyToggle"><span class="track"></span><span>Sometimes write it another way</span></label>
+            <p class="settingsNote">Now and then the number comes first (4 + 3<i>x</i> = 13), the sides are swapped (13 = 3<i>x</i> + 4), or one side takes <i>x</i> away (3<i>x</i> + 2 = 12 &minus; 2<i>x</i>).</p>
+            <label class="sw"><input type="checkbox" id="lettersToggle"><span class="track"></span><span>Use other letters as well as <i>x</i></span></label>
+            <div class="settingsRule" role="separator"></div>
+            <div class="settingsHead">Steps</div>
+            <label class="sw"><input type="checkbox" id="splitToggle"><span class="track"></span><span>Top line first, then the bottom</span></label>
+            <p class="settingsNote">Each move pauses with a ? underneath, so the class can say what the bottom line must do.</p>
+            <label class="sw"><input type="checkbox" id="checkToggle" checked><span class="track"></span><span>Check by substituting</span></label>
+            <label class="selRow"><span>Written working</span>
+              <select id="workSel" aria-label="How the working is written">
+                <option value="both">Both sides: 3{x} + 4 &minus; 4 = 13 &minus; 4</option>
+                <option value="short">Just the new equation: 3{x} = 9</option>
+              </select>
+            </label>
+            <div class="settingsRule" role="separator"></div>
+            <div class="settingsHead">On the number line</div>
+            <label class="sw"><input type="checkbox" id="movesToggle" checked><span class="track"></span><span>Show the moves (&minus; 4, &divide; 3)</span></label>
+            <label class="sw"><input type="checkbox" id="partsToggle" checked><span class="track"></span><span>Show the units and equal parts</span></label>
+            <label class="sw"><input type="checkbox" id="sidesToggle" checked><span class="track"></span><span>Name the lines (left side, right side)</span></label>
+          </nav>
+        </div>
+        <div class="menuWrap">
+          <button class="btn" id="toolsBtn" type="button" aria-haspopup="true" aria-expanded="false">Tools &#9662;</button>
+          <nav class="dropMenu" id="toolsMenu" aria-label="Related tools">
+            <a class="toolLink" href="/interactive-tools/stage-4/algebra/double-numberline/">One-Step Equations &ndash; Double Number Line<small>Where this picture starts</small></a>
+            <div class="menuRule" role="separator"></div>
+            <span class="toolLink soon" aria-disabled="true">Worksheet Creator<small>Coming soon</small></span>
+            <span class="toolLink soon" aria-disabled="true">Student Quiz<small>Coming soon</small></span>
+          </nav>
+        </div>
+        <button class="btn btn-primary" id="newBtn" type="button" title="New question (Enter)">New question</button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="card boardCard" id="boardCard">
+        <div class="boardTop">
+          <label class="typePick"><span>Type</span>
+            <select id="typeSel" aria-label="Type of equation">
+              <option value="axb">3{x} + 4 = 13</option>
+              <option value="xab">{x}/4 + 3 = 5</option>
+              <option value="brk">3({x} + 2) = 15</option>
+              <option value="frc">({x} &minus; 1)/4 = 3</option>
+              <option value="bax">10 &minus; 2{x} = 4</option>
+              <option value="both">5{x} + 2 = 3{x} + 10</option>
+              <option value="mix">Mixed</option>
+              <option value="own" hidden>Your own</option>
+            </select>
+          </label>
+          <div class="topRight">
+            <span class="typeTag" id="typeTag">The equation</span>
+            <div class="iconGroup">
+              <button class="iconBtn" id="againIcon" type="button" title="Back to the start of the steps (Space)" aria-label="Back to the start of the steps">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1"/><path d="M3.5 4v5h5"/></svg>
+              </button>
+              <button class="iconBtn" id="panelBtn" type="button" aria-pressed="true" title="Hide the side panel" aria-label="Show or hide the side panel">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M15 4v16"/><path d="M17 8h2M17 11h2M17 14h2"/></svg>
+              </button>
+              <button class="iconBtn" id="fsBtn" type="button" title="Full screen (F)" aria-label="Full screen">
+                <svg class="fsIn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+                <svg class="fsOut" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" hidden><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="stage" id="stage">
+          <div class="stmt eqn" id="stmt" aria-live="polite"><div class="row r1" id="row1"></div><div class="row r2 trail" id="row2"></div></div>
+          <div class="boardWrap" id="boardWrap">
+            <svg id="board" role="img" aria-label="Double number line: the left side of the equation on top, the right side underneath"></svg>
+          </div>
+        </div>
+        <div class="hint" id="hint" aria-live="polite"></div>
+        <div class="miniSteps" id="miniSteps" hidden>
+          <button class="stepBtn icon" id="miniBack" type="button" title="Back a step (&larr;)" aria-label="Back a step">&#9664;</button>
+          <button class="nextBtn" id="miniNext" type="button">Next &#9656;</button>
+        </div>
+      </section>
+
+      <aside class="side">
+        <section class="card panel" aria-label="The equation">
+          <div class="pHead"><span class="pTitle">The equation</span></div>
+          <div class="segLabel">Solutions</div>
+          <div class="kindSeg" id="nwSeg" role="group" aria-label="Whole or non-whole solutions">
+            <button type="button" data-nw="off" aria-pressed="true" title="Every solution is a whole number (W)">Whole numbers</button>
+            <button type="button" data-nw="on" aria-pressed="false" title="Some solutions are fractions or decimals (W)">Can be non-whole</button>
+          </div>
+          <p class="segNote" id="nwNote" hidden>This type always has a whole-number solution.</p>
+          <div class="segLabel">Negative solutions</div>
+          <div class="kindSeg three" id="negSeg" role="group" aria-label="Negative solutions">
+            <button type="button" data-neg="off" aria-pressed="true" title="No negative numbers anywhere">None</button>
+            <button type="button" data-neg="some" aria-pressed="false" title="Some solutions are negative">Some</button>
+            <button type="button" data-neg="all" aria-pressed="false" title="Every solution is negative">Always</button>
+          </div>
+          <div class="qBtns">
+            <button class="qBtn" type="button" id="newQBtn">New question<small>Enter</small></button>
+            <button class="qBtn" type="button" id="ownBtn" aria-expanded="false">Type your own<small>e.g. 3x + 4 = 13</small></button>
+          </div>
+          <div id="ownBox" hidden>
+            <div class="ownRow"><input id="ownIn" type="text" autocomplete="off" spellcheck="false" placeholder="3x + 4 = 13    5x + 2 = 3x + 10" aria-label="Type your own equation"><button type="button" id="ownGo">Use</button></div>
+            <div class="ownMsg" id="ownMsg">3<i>x</i> + 4 = 13 &middot; <i>x</i>/4 + 3 = 5 &middot; 2(<i>x</i> &minus; 1) = 8 &middot; (<i>x</i> + 2)/3 = 4 &middot; 10 &minus; 2<i>x</i> = 4 &middot; 5<i>x</i> + 2 = 3<i>x</i> + 10. Any letter works.</div>
+          </div>
+        </section>
+
+        <section class="card panel storyPanel" aria-label="Solving it">
+          <div class="pHead"><span class="pTitle">Solve it</span><span class="pCount" id="stepCount"></span></div>
+          <div class="storyScroll" id="storyScroll"><div id="story" aria-live="polite"></div></div>
+          <div class="stepRow">
+            <button class="stepBtn icon" id="backBtn" type="button" title="Back a step (&larr;)" aria-label="Back a step">&#9664;</button>
+            <button class="stepBtn icon" id="againBtn" type="button" title="Back to the start (Space)" aria-label="Back to the start">&#8634;</button>
+            <button class="stepBtn" id="allBtn" type="button">Show all</button>
+            <button class="nextBtn" id="nextBtn" type="button" title="Next step (&rarr;)">Next &#9656;</button>
+          </div>
+          <div class="keyHint"><kbd>&rarr;</kbd>/<kbd>&larr;</kbd> step &middot; <kbd>Space</kbd> start again &middot; <kbd>Enter</kbd> new question &middot; <kbd>1</kbd>&ndash;<kbd>7</kbd> type &middot; <kbd>N</kbd> negatives &middot; <kbd>W</kbd> whole / non-whole &middot; <kbd>F</kbd> full screen</div>
+        </section>
+      </aside>
+    </main>
+  </div>
+
+<script>
+(function(){
+  "use strict";
+  const $ = id => document.getElementById(id);
+  const STORE = "mmt.multiStepDNL.v1";
+  const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* ================= state ================= */
+  const DEF = { type:"axb", neg:"off", nonwhole:false, nw:"frac", div:"frac", vary:false, letters:false, split:false, check:true,
+    work:"both", moves:true, parts:true, sides:true, panel:true };
+  const S = { set:Object.assign({}, DEF), q:null, step:0, anim:null, fs:false, noAnim:false, own:false, lastSig:"" };
+  try { const sv = JSON.parse(localStorage.getItem(STORE) || "null"); if(sv && sv.set) Object.assign(S.set, sv.set); } catch(e){}
+  function save(){ try { localStorage.setItem(STORE, JSON.stringify({ set:S.set })); } catch(e){} }
+
+  /* ================= small helpers ================= */
+  const ri = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+  const pick = a => a[Math.floor(Math.random() * a.length)];
+  const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;");
+  const fmt = n => n < 0 ? "−" + Math.abs(n) : String(n);
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+
+  /* exact numbers: every value is a fraction {n, d}, d > 0, in lowest terms */
+  const gcd = (a, b) => { a = Math.abs(a); b = Math.abs(b); while(b){ [a, b] = [b, a % b]; } return a || 1; };
+  const R = (n, d) => { d = d || 1; if(d < 0){ n = -n; d = -d; } const g = gcd(n, d); return { n:n / g, d:d / g }; };
+  const rAdd = (a, b) => R(a.n * b.d + b.n * a.d, a.d * b.d), rSub = (a, b) => R(a.n * b.d - b.n * a.d, a.d * b.d);
+  const rMul = (a, b) => R(a.n * b.n, a.d * b.d), rDiv = (a, b) => R(a.n * b.d, a.d * b.n);
+  const rI = n => R(n, 1), rF = r => r.n / r.d, rInt = r => r.d === 1, rEq = (a, b) => a.n === b.n && a.d === b.d;
+
+  /* MATHS ITALICS (as the other tools): real glyphs when a font has them, else a serif italic */
+  function mathItalic(str){
+    let out = "";
+    for(const ch of String(str)){
+      const c = ch.codePointAt(0);
+      if(ch === "h") out += "ℎ";
+      else if(c >= 97 && c <= 122) out += String.fromCodePoint(0x1D44E + c - 97);
+      else out += ch;
+    }
+    return out;
+  }
+  function detectMathAlpha(){
+    try {
+      const x = document.createElement("canvas").getContext("2d");
+      x.font = '500 100px "Cambria Math","STIX Two Math","Latin Modern Math",serif';
+      const real = x.measureText("\u{1D465}\u{1D44E}\u{1D44F}\u{1D450}").width, gone = x.measureText("").width;
+      return real > 0 && gone > 0 && Math.abs(real - gone) > 1;
+    } catch(e){ return false; }
+  }
+  const MATH_ALPHA = detectMathAlpha();
+  const LV = () => (S.q && S.q.v) || "x";
+  const letterHTML = v => MATH_ALPHA ? `<span class="mi">${mathItalic(v)}</span>` : `<span class="mv">${esc(v)}</span>`;
+  const UI = 'system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif';
+  const MF = '"Cambria Math","STIX Two Math","Latin Modern Math",Cambria,"Times New Roman",serif';
+  const cv = document.createElement("canvas").getContext("2d");
+  function tw(txt, px, fam, wt){ cv.font = `${wt || 500} ${px}px ${fam || MF}`; return cv.measureText(txt).width; }
+
+  /* ================= sides of an equation =================
+     {t:"num", v:R}                       a number
+     {t:"ops", ops:[{o,n}], kFirst}       things done to the letter, in order:  [mul 3, add 4] is 3x + 4,  [add 2, mul 3] is 3(x + 2)
+     {t:"lin", m, k, kFirst}              m·x + k with whole m and k (used when the letter is on both sides, or taken away: 10 − 2x) */
+  const num = v => ({ t:"num", v:typeof v === "number" ? rI(v) : v });
+  const opsS = (ops, kFirst) => ({ t:"ops", ops, kFirst:!!kFirst });
+  const linS = (m, k, kFirst) => ({ t:"lin", m, k, kFirst:!!kFirst });
+  const hasX = s => s.t !== "num";
+  function evalS(s, x){
+    if(s.t === "num") return s.v;
+    if(s.t === "lin") return rAdd(rMul(rI(s.m), x), rI(s.k));
+    let v = x;
+    s.ops.forEach(op => { const n = rI(op.n); v = op.o === "add" ? rAdd(v, n) : op.o === "sub" ? rSub(v, n) : op.o === "mul" ? rMul(v, n) : rDiv(v, n); });
+    return v;
+  }
+  function linToOps(s){
+    const ops = [];
+    if(s.m !== 1) ops.push({ o:"mul", n:s.m });
+    if(s.k > 0) ops.push({ o:"add", n:s.k }); else if(s.k < 0) ops.push({ o:"sub", n:-s.k });
+    return opsS(ops, s.kFirst && s.k > 0);
+  }
+  /* solve: a list of stages (each one an equation: top = left side, bottom = right side) and the moves between them */
+  function solve(top, bot, x){
+    const stages = [{ top, bot, val:evalS(top, x) }], moves = [];
+    for(let guard = 0; guard < 8; guard++){
+      const cur = stages[stages.length - 1]; let t = cur.top, b = cur.bot, mv = null, nt, nb;
+      if(hasX(t) && hasX(b)){
+        if(t.t !== "lin" || b.t !== "lin") return null;
+        const s = Math.min(t.m, b.m);
+        const strip = side => side.m - s === 0 ? num(side.k) : linS(side.m - s, side.k, side.kFirst);
+        nt = strip(t); nb = strip(b); mv = { kind:"xterm", s };
+      } else {
+        const onTop = hasX(t); let X = onTop ? t : b, other = onTop ? b : t;
+        if(!hasX(X)) return null;
+        if(X.t === "lin" && X.m < 0){
+          /* 10 − 2x = 4: add 2x to both sides */
+          const s = X.m, nX = num(X.k), nO = linS(-s, rInt(other.v) ? other.v.n : NaN, true);
+          if(!rInt(other.v)) return null;
+          nt = onTop ? nX : nO; nb = onTop ? nO : nX; mv = { kind:"xterm", s };
+        } else {
+          if(X.t === "lin") X = linToOps(X);
+          if(!X.ops.length) break;
+          const last = X.ops[X.ops.length - 1], rest = opsS(X.ops.slice(0, -1), false), n = rI(last.n);
+          let v;
+          if(last.o === "add"){ v = rSub(other.v, n); mv = { kind:"sub", n:last.n }; }
+          else if(last.o === "sub"){ v = rAdd(other.v, n); mv = { kind:"add", n:last.n }; }
+          else if(last.o === "mul"){ v = rDiv(other.v, n); mv = { kind:"div", n:last.n }; }
+          else { v = rMul(other.v, n); mv = { kind:"mul", n:last.n }; }
+          nt = onTop ? rest : num(v); nb = onTop ? num(v) : rest;
+        }
+      }
+      moves.push(mv);
+      stages.push({ top:nt, bot:nb, val:evalS(hasX(nt) ? nt : nb, x) });
+    }
+    /* tidy: a lin side that is ready to be undone reads the same as its ops */
+    return { stages, moves };
+  }
+
+  /* ================= questions ================= */
+  const TYPES = ["axb", "xab", "brk", "frc", "bax", "both"];
+  const TYPE_NAME = { axb:"Multiply, then add or subtract", xab:"Divide, then add or subtract", brk:"Brackets", frc:"A sum, then divide",
+    bax:"Taking the pronumeral away", both:"Pronumerals on both sides", mix:"Mixed" };
+  const fracPool = () => S.set.nw === "dec" ? [2, 4, 5, 10] : [2, 3, 4, 5];
+  const nonMult = (a, lo, hi) => { for(let t = 0; t < 60; t++){ const n = ri(lo, hi); if(n % a !== 0) return n; } return a + 1; };
+  function genType(type, wantNeg, wantFrac){
+    const sg = wantNeg ? -1 : 1, pm = () => Math.random() < 0.5 ? 1 : -1;
+    if(type === "axb"){
+      const sgn = pm(), b = ri(1, 12); let a, x;
+      if(wantFrac){ a = pick(fracPool()); x = R(sg * nonMult(a, 1, a * 9), a); } else { a = ri(2, 9); x = rI(sg * ri(1, 12)); }
+      const c = rAdd(rMul(rI(a), x), rI(sgn * b));
+      return { top:opsS([{ o:"mul", n:a }, { o:sgn > 0 ? "add" : "sub", n:b }]), bot:num(c), x };
+    }
+    if(type === "xab"){
+      const a = ri(2, 8), q = sg * ri(1, 10), sgn = pm(), b = ri(1, 12);
+      return { top:opsS([{ o:"div", n:a }, { o:sgn > 0 ? "add" : "sub", n:b }]), bot:num(q + sgn * b), x:rI(a * q) };
+    }
+    if(type === "brk"){
+      const sgn = pm(), b = ri(1, 9); let a, u;
+      if(wantFrac){ a = pick(fracPool()); u = R(pm() * nonMult(a, 1, a * 9), a); } else { a = ri(2, 8); u = rI(pm() * ri(1, 12)); }
+      const x = rSub(u, rI(sgn * b));
+      return { top:opsS([{ o:sgn > 0 ? "add" : "sub", n:b }, { o:"mul", n:a }]), bot:num(rMul(rI(a), u)), x };
+    }
+    if(type === "frc"){
+      const a = ri(2, 8), c = pm() * ri(1, 10), sgn = pm(), b = ri(1, 12);
+      return { top:opsS([{ o:sgn > 0 ? "add" : "sub", n:b }, { o:"div", n:a }]), bot:num(c), x:rI(a * c - sgn * b) };
+    }
+    if(type === "bax"){
+      let a, x; const b = ri(2, 30);
+      if(wantFrac){ a = pick(fracPool()); x = R(sg * nonMult(a, 1, a * 8), a); } else { a = ri(1, 7); x = rI(sg * ri(1, 10)); }
+      const c = rSub(rI(b), rMul(rI(a), x));
+      return { top:linS(-a, b), bot:num(c), x };
+    }
+    /* both sides */
+    let big, small, x;
+    if(wantFrac){ const dlt = pick(fracPool().filter(d => d <= 5)); small = ri(1, 5); big = small + dlt; x = R(sg * nonMult(dlt, 1, dlt * 8), dlt); }
+    else { big = ri(2, 9); small = ri(1, big - 1); x = rI(sg * ri(1, 10)); }
+    let neg2 = S.set.vary && Math.random() < 0.25;
+    const k1 = Math.random() < 0.12 ? 0 : ri(-9, 12);
+    let A, B;
+    if(neg2){
+      const k2 = rAdd(rMul(rI(big + small), x), rI(k1)); if(!rInt(k2)) return null;
+      A = linS(big, k1); B = linS(-small, k2.n);
+    } else {
+      const k2 = rAdd(rMul(rI(big - small), x), rI(k1)); if(!rInt(k2)) return null;
+      if(k1 === 0 && k2.n === 0) return null;
+      A = linS(big, k1); B = linS(small, k2.n);
+    }
+    if(A.k === 0 && B.k === 0) return null;
+    return Math.random() < 0.35 ? { top:B, bot:A, x } : { top:A, bot:B, x };
+  }
+  const FRAC_OK = { axb:1, brk:1, bax:1, both:1 };
+  function sigOf(q){ return JSON.stringify([q.stages[0].top, q.stages[0].bot]); }
+  function finish(g, v, own){
+    const sol = solve(g.top, g.bot, g.x);
+    if(!sol || !sol.moves.length) return null;
+    const q = { v:v || "x", x:g.x, stages:sol.stages, moves:sol.moves, type:g.type || "own", own:!!own };
+    return q;
+  }
+  function okQ(q, wantNeg){
+    const vals = q.stages.map(s => rF(s.val));
+    if(vals.some(v => v === 0 || Math.abs(v) > 99)) return false;
+    if(!q.stages.every(s => [s.top, s.bot].every(sd => sd.t !== "lin" || (Math.abs(sd.k) <= 60 && !(sd.m < 0 && sd.k <= 0))))) return false;
+    if(q.stages[0].top.t === "num" && Math.abs(rF(q.stages[0].top.v)) > 99) return false;
+    const xf = rF(q.x);
+    if(wantNeg){ if(xf >= 0) return false; }
+    else {
+      if(xf <= 0 || vals.some(v => v < 0)) return false;
+      /* no negative number is written anywhere */
+      if(!q.stages.every(s => [s.top, s.bot].every(sd => sd.t !== "num" || rF(sd.v) > 0))) return false;
+      if(!q.stages.every(s => [s.top, s.bot].every(sd => sd.t !== "lin" || (sd.m > 0 ? true : sd.k > 0)))) return false;
+    }
+    return true;
+  }
+  const OTHER = ["n", "y", "a", "p", "t", "k", "m", "w"];
+  function makeQ(){
+    const set = S.set; let q = null;
+    for(let t = 0; t < 4000; t++){
+      const type = set.type === "mix" ? pick(TYPES) : set.type;
+      const wantNeg = set.neg === "all" || (set.neg === "some" && Math.random() < 0.4);
+      const wantFrac = set.nonwhole && FRAC_OK[type] && Math.random() < 0.6;
+      const g = genType(type, wantNeg, wantFrac); if(!g) continue;
+      g.type = type;
+      if(set.vary){
+        if(g.top.t === "ops"){ const l = g.top.ops[g.top.ops.length - 1]; if(l.o === "add" && Math.random() < 0.3) g.top.kFirst = true; }
+        if(type !== "both" && Math.random() < 0.25){ const tmp = g.top; g.top = g.bot; g.bot = tmp; }
+      }
+      const cand = finish(g, set.letters ? pick(OTHER) : "x");
+      if(!cand || !okQ(cand, wantNeg)) continue;
+      if(wantFrac && rInt(cand.x)) continue;
+      if(!wantFrac && !rInt(cand.x)) continue;
+      if(sigOf(cand) === S.lastSig) continue;
+      q = cand; break;
+    }
+    if(!q) q = finish({ top:opsS([{ o:"mul", n:3 }, { o:"add", n:4 }]), bot:num(13), x:rI(3), type:"axb" }, "x");
+    S.lastSig = sigOf(q);
+    return q;
+  }
+
+  /* ---- type your own ---- */
+  function parseSide(s){
+    let m;
+    if(/^-?\d+$/.test(s)) return { side:num(parseInt(s, 10)) };
+    const as = sg => sg === "+" ? "add" : "sub";
+    if((m = /^(\d+)\*?\(([a-z])([+-])(\d+)\)$/.exec(s))) return { v:m[2], side:opsS([{ o:as(m[3]), n:+m[4] }, { o:"mul", n:+m[1] }]) };
+    if((m = /^\(([a-z])([+-])(\d+)\)\/(\d+)$/.exec(s))) return { v:m[1], side:opsS([{ o:as(m[2]), n:+m[3] }, { o:"div", n:+m[4] }]) };
+    if((m = /^([a-z])\/(\d+)(?:([+-])(\d+))?$/.exec(s))) return { v:m[1], side:opsS([{ o:"div", n:+m[2] }].concat(m[3] ? [{ o:as(m[3]), n:+m[4] }] : [])) };
+    if((m = /^(\d+)\+([a-z])\/(\d+)$/.exec(s))) return { v:m[2], side:opsS([{ o:"div", n:+m[3] }, { o:"add", n:+m[1] }], true) };
+    const co = t => t === "" || t === "+" ? 1 : t === "-" ? -1 : parseInt(t, 10);
+    if((m = /^([+-]?\d*)\*?([a-z])([+-]\d+)?$/.exec(s))) return { v:m[2], side:linS(co(m[1]), m[3] ? parseInt(m[3], 10) : 0) };
+    if((m = /^(-?\d+)([+-]\d*)\*?([a-z])$/.exec(s))) return { v:m[3], side:linS(co(m[2]), parseInt(m[1], 10), true) };
+    return null;
+  }
+  function parseOwn(src){
+    const s = String(src || "").toLowerCase().replace(/\s+/g, "").replace(/[−–—]/g, "-").replace(/[×·]/g, "*").replace(/÷/g, "/");
+    const eg = "Try 3x + 4 = 13, 2(x − 1) = 8, x/4 + 3 = 5, (x + 2)/3 = 4, 10 − 2x = 4 or 5x + 2 = 3x + 10.";
+    if(!s) return { err:"Type an equation. " + eg };
+    const parts = s.split("=");
+    if(parts.length !== 2 || !parts[0] || !parts[1]) return { err:"It needs one = sign. " + eg };
+    const A = parseSide(parts[0]), B = parseSide(parts[1]);
+    if(!A || !B) return { err:"This tool can’t read that one. " + eg };
+    if(!A.v && !B.v) return { err:"It needs a letter for the unknown, e.g. x." };
+    if(A.v && B.v && A.v !== B.v) return { err:"Use the same letter on both sides." };
+    let top = A.side, bot = B.side;
+    const bad = sd => (sd.t === "lin" && (sd.m === 0 || Math.abs(sd.m) > 12 || Math.abs(sd.k) > 99)) || (sd.t === "ops" && sd.ops.some(o => o.n < 1 || o.n > 99 || ((o.o === "mul" || o.o === "div") && (o.n < 2 || o.n > 12))));
+    if(bad(top) || bad(bot)) return { err:"Keep the numbers small: multiply or divide by 2 to 12, and add or subtract up to 99." };
+    if(hasX(top) && hasX(bot)){
+      if(top.t !== "lin" || bot.t !== "lin") return { err:"With the letter on both sides, write each side like 5x + 2 or 12 − 2x." };
+      if(top.m === bot.m) return { err:"Both sides have the same number of the letter, so there is no single answer." };
+    }
+    /* a lin side with a positive coefficient and the letter on one side only is just its ops */
+    const tidy = (sd, alone) => sd.t === "lin" && sd.m > 0 && alone ? linToOps(sd) : sd;
+    const alone = !(hasX(top) && hasX(bot)); top = tidy(top, alone); bot = tidy(bot, alone);
+    const f = sd => [evalS(sd, rI(0)), rSub(evalS(sd, rI(1)), evalS(sd, rI(0)))];
+    const [kt, mt] = f(top), [kb, mb] = f(bot);
+    const x = rDiv(rSub(kb, kt), rSub(mt, mb));
+    if(x.n === 0) return { err:"That one has the answer 0, which leaves nothing to show on the line. Try another." };
+    if(x.d > 12) return { err:"That answer is an awkward fraction (" + x.n + "/" + x.d + "). Try other numbers." };
+    const q = finish({ top, bot, x, type:"own" }, A.v || B.v, true);
+    if(!q) return { err:"That is already solved, or this tool can’t solve it in steps. " + eg };
+    if(q.stages.some(st => st.val.n === 0)) return { err:"One of the steps lands on 0, which this picture can’t show well. Try other numbers." };
+    if(q.stages.some(st => Math.abs(rF(st.val)) > 200)) return { err:"Keep the numbers under 200." };
+    return { q };
+  }
+
+  /* ================= pieces: one description of a bit of maths, drawn as HTML or SVG =================
+     {v:1} the letter · {n:"5"} a number · {o:"+"} an operator · {fr:[top, bottom]} a fraction · {t:"("} text */
+  const V = { v:1 }, N = n => ({ n:fmt(n) }), O = o => ({ o }), T = t => ({ t });
+  const MINUS = "−", TIMES = "×", DIVIDE = "÷";
+  const fracOn = () => S.set.div === "frac";
+  const termP = m => Math.abs(m) === 1 ? (m < 0 ? [T(MINUS), V] : [V]) : [N(m), V];
+  function decStr(r){ let d = r.d, k = 0; while(d % 2 === 0){ d /= 2; k++; } let j = 0; while(d % 5 === 0){ d /= 5; j++; } if(d !== 1) return null; return fmt(+(r.n / r.d).toFixed(Math.max(k, j))); }
+  function valP(r){
+    if(rInt(r)) return [N(r.n)];
+    const a = Math.abs(r.n), sign = r.n < 0 ? [T(MINUS)] : [];
+    if(S.set.nw === "dec"){ const s = decStr(r); if(s) return [{ n:s }]; }
+    if(S.set.nw === "mixed" && a > r.d) return [...sign, N(Math.floor(a / r.d)), { fr:[[N(a % r.d)], [N(r.d)]] }];
+    return [...sign, { fr:[[N(a)], [N(r.d)]] }];
+  }
+  const hasSum = p => p.some(it => it.o === "+" || it.o === MINUS);
+  const wrap = p => [T("("), ...p, T(")")];
+  function sideP(s){
+    if(s.t === "num") return valP(s.v);
+    if(s.t === "lin"){
+      if(s.k === 0) return termP(s.m);
+      if(s.m < 0 && s.k > 0) return [N(s.k), O(MINUS), ...termP(-s.m)];
+      if(s.kFirst && s.k > 0) return [N(s.k), O("+"), ...termP(s.m)];
+      return [...termP(s.m), O(s.k > 0 ? "+" : MINUS), N(Math.abs(s.k))];
+    }
+    let cur = [V];
+    s.ops.forEach((op, i) => {
+      const lastOne = i === s.ops.length - 1;
+      if(op.o === "mul") cur = cur.length === 1 && cur[0].v ? [N(op.n), V] : [N(op.n), ...wrap(cur)];
+      else if(op.o === "add") cur = s.kFirst && lastOne ? [N(op.n), O("+"), ...cur] : [...cur, O("+"), N(op.n)];
+      else if(op.o === "sub") cur = [...cur, O(MINUS), N(op.n)];
+      else cur = fracOn() ? [{ fr:[cur, [N(op.n)]] }] : [...(hasSum(cur) ? wrap(cur) : cur), O(DIVIDE), N(op.n)];
+    });
+    return cur;
+  }
+  /* the same side with the answer put in for the letter */
+  function subP(s, x){
+    const neg = x.n < 0, xv = valP(x), xb = neg || (!rInt(x) && !xv.some(it => it.fr)) ? wrap(xv) : xv;
+    if(s.t === "num") return valP(s.v);
+    const times = m => Math.abs(m) === 1 ? (m < 0 ? [T(MINUS), ...wrap(xv)] : xv) : [N(m), O(TIMES), ...xb];
+    if(s.t === "lin"){
+      if(s.k === 0) return times(s.m);
+      if(s.m < 0 && s.k > 0) return [N(s.k), O(MINUS), ...(s.m === -1 ? xb : times(-s.m))];
+      if(s.kFirst && s.k > 0) return [N(s.k), O("+"), ...(s.m === 1 ? xb : times(s.m))];
+      return [...times(s.m), O(s.k > 0 ? "+" : MINUS), N(Math.abs(s.k))];
+    }
+    let cur = xv, atom = true;
+    s.ops.forEach((op, i) => {
+      const lastOne = i === s.ops.length - 1;
+      if(op.o === "mul") cur = [N(op.n), O(TIMES), ...(atom ? xb : wrap(cur))];
+      else if(op.o === "add") cur = s.kFirst && lastOne ? [N(op.n), O("+"), ...(atom ? xb : cur)] : [...cur, O("+"), N(op.n)];
+      else if(op.o === "sub") cur = [...cur, O(MINUS), N(op.n)];
+      else cur = fracOn() && !cur.some(it => it.fr) ? [{ fr:[cur, [N(op.n)]] }] : [...(hasSum(cur) || (atom && neg) ? wrap(atom ? xv : cur) : cur), O(DIVIDE), N(op.n)];
+      atom = false;
+    });
+    return cur;
+  }
+  function H(p){
+    return p.map(it => it.v ? letterHTML(LV())
+      : it.n != null ? `<span>${it.n}</span>`
+      : it.o ? `<span class="op">${it.o}</span>`
+      : it.fr ? `<span class="frac"><span class="fn">${H(it.fr[0])}</span><span class="fd">${H(it.fr[1])}</span></span>`
+      : it.ans ? `<span class="ans">${H(it.ans)}</span>`
+      : `<span>${it.t}</span>`).join("");
+  }
+  const eqHTML = p => `<span class="eq">${H(p)}</span>`;
+  const hasFr = p => p.some(it => it.fr);
+  /* SVG text: runs of inline text and stacked fractions, side by side */
+  const runTxt = items => items.map(it => it.v ? (MATH_ALPHA ? mathItalic(LV()) : LV()) : it.n != null ? it.n : it.o ? ` ${it.o} ` : it.t || "").join("");
+  function segsOf(p, size){
+    const segs = []; let run = [];
+    const flush = () => { if(run.length){ segs.push({ run, w:tw(runTxt(run), size) * 1.03 }); run = []; } };
+    p.forEach(it => { if(it.fr){ flush(); const s2 = size * 0.74; segs.push({ fr:it.fr, w:Math.max(measureP(it.fr[0], s2), measureP(it.fr[1], s2)) + size * 0.22 }); } else run.push(it); });
+    flush(); return segs;
+  }
+  function measureP(p, size){ const sg = segsOf(p, size); return sg.reduce((a, s) => a + s.w, 0) + Math.max(0, sg.length - 1) * size * 0.07; }
+  function svgLetter(){ return MATH_ALPHA ? `<tspan>${mathItalic(LV())}</tspan>` : `<tspan font-style="italic" style="font-family:var(--itFont)">${esc(LV())}</tspan>`; }
+  const svgIn = items => items.map(it => it.v ? svgLetter() : it.n != null ? `<tspan>${it.n}</tspan>` : it.o ? `<tspan> ${it.o} </tspan>` : `<tspan>${esc(it.t || "")}</tspan>`).join("");
+  const f1 = v => v.toFixed(1);
+  function pSVG(p, x, y, size, col){
+    const sg = segsOf(p, size), gap = size * 0.07, total = sg.reduce((a, s) => a + s.w, 0) + Math.max(0, sg.length - 1) * gap;
+    let cx = x - total / 2, out = "";
+    const txt = (items, tx, ty, sz) => `<text xml:space="preserve" x="${f1(tx)}" y="${f1(ty)}" text-anchor="middle" dominant-baseline="central" font-size="${f1(sz)}" fill="${col}">${svgIn(items)}</text>`;
+    sg.forEach(s => {
+      const mid = cx + s.w / 2;
+      if(s.run) out += txt(s.run, mid, y, size);
+      else {
+        const s2 = size * 0.74;
+        out += txt(s.fr[0], mid, y - size * 0.47, s2) +
+          `<line x1="${f1(mid - s.w / 2 + size * 0.03)}" x2="${f1(mid + s.w / 2 - size * 0.03)}" y1="${f1(y)}" y2="${f1(y)}" stroke="${col}" stroke-width="${f1(Math.max(1.6, size * 0.06))}" stroke-linecap="round"/>` +
+          txt(s.fr[1], mid, y + size * 0.5, s2);
+      }
+      cx += s.w + gap;
+    });
+    return out;
+  }
+
+  /* ================= steps =================
+     "s"            the equation as one point
+     "t{i}"         (setting) move i on the top line only, the bottom still a ?
+     "m{i}"         move i on both lines
+     "r{i}"         reset: the new, simpler equation as one point
+     "check"        put the answer back into the first equation */
+  let IDS = [];
+  function stepIds(q){
+    const s = ["s"];
+    q.moves.forEach((m, i) => { if(S.set.split) s.push("t" + i); s.push("m" + i); s.push("r" + i); });
+    if(S.set.check) s.push("check");
+    return s;
+  }
+  const sid = () => IDS[S.step];
+  const kindOf = id => id === "check" ? "check" : id[0];
+  const idxOf = id => id === "check" || id === "s" ? 0 : parseInt(id.slice(1), 10);
+  /* the latest equation on the board at a step */
+  function stageAt(id){ const k = kindOf(id); return k === "s" ? 0 : k === "t" ? idxOf(id) : k === "check" ? S.q.stages.length - 1 : idxOf(id) + 1; }
+  const topP = i => sideP(S.q.stages[i].top), botP = i => sideP(S.q.stages[i].bot);
+  const eqP = i => [...topP(i), O("="), ...botP(i)];
+  function pillText(mv){
+    if(mv.kind === "sub") return MINUS + " " + mv.n;
+    if(mv.kind === "add") return "+ " + mv.n;
+    if(mv.kind === "div") return DIVIDE + " " + mv.n;
+    if(mv.kind === "mul") return TIMES + " " + mv.n;
+    const a = Math.abs(mv.s), L = MATH_ALPHA ? mathItalic(LV()) : LV();
+    return (mv.s > 0 ? MINUS + " " : "+ ") + (a === 1 ? "" : a) + L;
+  }
+  const pillHTML = mv => `<b class="cUndo">${esc(pillText(mv))}</b>`;
+
+  /* ================= layout (real pixels: the board is drawn at the size it is shown) ================= */
+  const L = {};
+  function layout(){
+    const wrapEl = $("boardWrap"), q = S.q;
+    const W = Math.max(240, wrapEl.clientWidth), Hh = Math.max(170, wrapEl.clientHeight);
+    L.W = W; L.H = Hh;
+    let fr = false;
+    q.stages.forEach((st, i) => { if(hasFr(topP(i)) || hasFr(botP(i))) fr = true; });
+    L.fracs = fr;
+    let fsM = Math.min(58, Hh / (fr ? 8.7 : 7.4), W / 15);
+    fsM = Math.max(15, fsM);
+    L.fsM = fsM; L.fsS = fsM * 0.6;
+    L.tk = fsM * 0.44; L.tkm = L.tk * 0.6; L.arcH = fsM * 0.62;
+    L.half = fr ? fsM * 0.86 : fsM * 0.55;
+    L.d = L.tk + L.arcH * 0.95 + L.half;
+    L.y0 = Math.round(Hh / 2);
+    L.yLt = L.y0 - L.d; L.yLb = L.y0 + L.d;
+    L.yAt = L.yLt - L.half - fsM * 0.2; L.yAb = L.yLb + L.half + fsM * 0.2;
+    L.arrH = fsM * 1.05;
+    L.cx = W / 2;
+    return L;
+  }
+  const fit = (p, size, maxW) => { const w = measureP(p, size); return w > maxW ? Math.max(7, size * maxW / w) : size; };
+
+  /* ================= scenes: the board at a step is a list of keyed elements ================= */
+  const COL = { ink:"#0f172a", line:"#334155", soft:"#94a3b8", top:"#1d4ed8", bot:"#15803d", undo:"#7c3aed", undoBg:"#f5f3ff", q:"#64748b" };
+  const tick = (key, x, major, o, d) => ({ key, type:"tick", x, y:L.y0, h:major ? L.tk : L.tkm, w:major ? Math.max(3.5, L.fsM * 0.09) : Math.max(2.2, L.fsM * 0.055), col:major ? COL.ink : COL.soft, o, d:d || 0, z:4 });
+  const lab = (key, x, top, p, size, col, o, d, extra) => Object.assign({ key, type:"lab", x, y:top ? L.yLt : L.yLb, p, size, col, o, d:d || 0, z:5 }, extra || {});
+  const pill = (key, x, y, text, o, d) => ({ key, type:"pill", x, y, text, col:COL.undo, bg:COL.undoBg, o, d:d || 0, z:6 });
+  const hop = (key, x1, x2, side, o, d, dash) => ({ key, type:"hop", x1, x2, y:L.y0 + side * L.tkm * 1.05, h:L.arcH * 1.75, side, col:COL.undo, o, d:d || 0, head:true, dash:!!dash, w:Math.max(2.4, L.fsM * 0.07), z:3 });
+  const arrow = (key, x1, x2, side, o, d) => ({ key, type:"hop", x1, x2, y:side < 0 ? L.yAt : L.yAb, h:L.arrH, side, col:COL.undo, o, d:d || 0, head:true, w:Math.max(2.4, L.fsM * 0.07), z:3 });
+  const loop = (key, x1, x2, o, d) => ({ key, type:"loop", x1, x2, y:L.y0, ry:L.arcH * 0.95, o, d:d || 0, z:2 });
+
+  function scene(id){
+    const q = S.q, els = [{ key:"axis", type:"axis", x1:6, x2:L.W - 6, y:L.y0, o:1, z:1 }];
+    const k = kindOf(id);
+    if(k === "s") seeScene(0, els);
+    else if(k === "r") seeScene(idxOf(id) + 1, els);
+    else if(k === "t") moveScene(idxOf(id), true, els);
+    else if(k === "m") moveScene(idxOf(id), false, els);
+    else checkScene(els);
+    return els;
+  }
+  function tags(els, o){
+    if(!S.set.sides || L.W < 560) return;
+    els.push({ key:"tagT", type:"tag", x:14, y:L.yLt, text:"LEFT SIDE", col:COL.top, o, z:1 });
+    els.push({ key:"tagB", type:"tag", x:14, y:L.yLb, text:"RIGHT SIDE", col:COL.bot, o, z:1 });
+  }
+  /* one point: an equation says two things are at the same place */
+  function seeScene(i, els){
+    const q = S.q, st = q.stages[i], last = i === q.stages.length - 1, big = L.fsM * 1.14;
+    const tp = topP(i), bp = botP(i), size = Math.min(fit(tp, big, L.W * 0.7), fit(bp, big, L.W * 0.7));
+    els.push({ key:"halo", type:"halo", x:L.cx, y:L.y0, r:L.fsM * 2.1, o:1, z:0 });
+    els.push(tick("p" + i, L.cx, true, 1));
+    els.push(lab("lt" + i, L.cx, true, tp, size, COL.top, 1, 0, { bg:last && st.top.t === "num" }));
+    els.push(lab("lb" + i, L.cx, false, bp, size, COL.bot, 1, 0, { bg:last && st.bot.t === "num" }));
+    tags(els, 1);
+  }
+  function moveGeom(i){
+    const q = S.q, mv = q.moves[i], a = q.stages[i], b = q.stages[i + 1], W = L.W;
+    if(mv.kind === "div" || mv.kind === "mul"){
+      const whole = mv.kind === "div" ? a : b, sgn = rF(whole.val) < 0 ? -1 : 1, n = mv.n;
+      const left = W * 0.13, right = W * 0.87, step = (right - left) / n;
+      const pos = j => sgn > 0 ? left + j * step : right - j * step;
+      return { mult:true, n, step, pos, x1:mv.kind === "div" ? pos(n) : pos(1), x2:mv.kind === "div" ? pos(1) : pos(n), unitI:mv.kind === "div" ? i + 1 : i, wholeI:mv.kind === "div" ? i : i + 1 };
+    }
+    const dir = rF(b.val) > rF(a.val) ? 1 : -1, xa = W * 0.25, xb = W * 0.75;
+    return { mult:false, x1:dir > 0 ? xa : xb, x2:dir > 0 ? xb : xa, dir };
+  }
+  function moveScene(i, topOnly, els){
+    const q = S.q, mv = q.moves[i], g = moveGeom(i), fsM = L.fsM, text = pillText(mv);
+    const pw = tw(text, L.fsS * 0.95, UI, 900) + L.fsS * 1.05;
+    const t1 = topP(i), b1 = botP(i), t2 = topP(i + 1), b2 = botP(i + 1), qm = [T("?")];
+    const last = i + 1 === q.stages.length - 1, st2 = q.stages[i + 1];
+    let s1, s2;
+    if(g.mult){
+      const zs = Math.min(fsM * 0.9, g.step * 0.42), z = measureP([N(0)], zs) / 2;
+      const wholeIs1 = mv.kind === "div";
+      const wT = wholeIs1 ? t1 : t2, wB = wholeIs1 ? b1 : b2, uT = wholeIs1 ? t2 : t1, uB = wholeIs1 ? b2 : b1;
+      const maxWhole = 2 * (L.W * 0.13 - 8);
+      const sW = Math.min(fit(wT, fsM, maxWhole), fit(wB, fsM, maxWhole));
+      const wholeHalf = Math.max(measureP(wT, sW), measureP(wB, sW)) / 2;
+      const maxUnit = 2 * Math.min(g.step - z - 10, g.n === 1 ? 1e9 : (g.n - 1) * g.step - wholeHalf - 12);
+      const boxPad = last ? fsM * 0.5 : 0;
+      const sU = Math.min(fit(uT, fsM, maxUnit - boxPad), fit(uB, fsM, maxUnit - boxPad));
+      s1 = wholeIs1 ? sW : sU; s2 = wholeIs1 ? sU : sW;
+      els.push(tick("z" + i, g.pos(0), true, 1, 0.05));
+      els.push(lab("zt" + i, g.pos(0), true, [N(0)], zs, COL.ink, 1, 0.05));
+      els.push(lab("zb" + i, g.pos(0), false, [N(0)], zs, COL.ink, 1, 0.05));
+      for(let j = 2; j < g.n; j++) els.push(tick("mt" + i + "_" + j, g.pos(j), false, 1, 0.08 + 0.2 * j / g.n));
+      if(S.set.parts) for(let j = 0; j < g.n; j++){ const a = g.pos(j), b = g.pos(j + 1); els.push(loop("g" + i + "_" + j, Math.min(a, b), Math.max(a, b), 1, 0.08 + 0.2 * j / g.n)); }
+      if(S.set.moves){
+        const mid = (g.x1 + g.x2) / 2;
+        els.push(arrow("h" + i + "t", g.x1, g.x2, -1, 1, 0.2));
+        els.push(pill("pl" + i + "t", mid, L.yAt - L.arrH * 0.5, text, 1, 0.22));
+        if(!topOnly){
+          els.push(arrow("h" + i + "b", g.x1, g.x2, 1, 1, 0.3));
+          els.push(pill("pl" + i + "b", mid, L.yAb + L.arrH * 0.5, text, 1, 0.32));
+        }
+      }
+    } else {
+      const half = L.W * 0.25 - pw / 2 - 12, boxPad = last ? fsM * 0.5 : 0;
+      const s = Math.min(fit(t1, fsM, 2 * half), fit(b1, fsM, 2 * half), fit(t2, fsM, 2 * half - boxPad), fit(b2, fsM, 2 * half - boxPad));
+      s1 = s2 = s;
+      if(mv.kind !== "xterm" && mv.n <= 20 && S.set.parts){
+        for(let j = 1; j < mv.n; j++) els.push(tick("mt" + i + "_" + j, g.x1 + (g.x2 - g.x1) * j / mv.n, false, 1, 0.06 + 0.2 * j / mv.n));
+      }
+      if(S.set.moves){
+        const mid = (g.x1 + g.x2) / 2, dash = mv.kind === "xterm";
+        els.push(hop("h" + i + "t", g.x1, g.x2, -1, 1, 0.16, dash));
+        els.push(pill("pl" + i + "t", mid, L.yLt, text, 1, 0.2));
+        if(!topOnly){
+          els.push(hop("h" + i + "b", g.x1, g.x2, 1, 1, 0.28, dash));
+          els.push(pill("pl" + i + "b", mid, L.yLb, text, 1, 0.3));
+        }
+      }
+    }
+    els.push({ key:"halo", type:"halo", x:g.x1, y:L.y0, r:fsM * 2.1, o:0, z:0 });
+    els.push(tick("p" + i, g.x1, true, 1));
+    els.push(lab("lt" + i, g.x1, true, t1, s1, COL.top, 1));
+    els.push(lab("lb" + i, g.x1, false, b1, s1, COL.bot, 1));
+    els.push(tick("p" + (i + 1), g.x2, true, 1, 0.24));
+    els.push(lab("lt" + (i + 1), g.x2, true, t2, s2, COL.top, 1, 0.3, { bg:last && st2.top.t === "num" }));
+    if(topOnly) els.push(lab("q" + i, g.x2, false, qm, s2 * 1.1, COL.q, 1, 0.3));
+    else els.push(lab("lb" + (i + 1), g.x2, false, b2, s2, COL.bot, 1, 0.42, { bg:last && st2.bot.t === "num" }));
+    tags(els, 0);
+  }
+  function checkP(){
+    const q = S.q, st = q.stages[0], v = valP(st.val);
+    const one = sd => sd.t === "num" ? valP(sd.v) : [...subP(sd, q.x), O("="), ...v];
+    return { top:one(st.top), bot:one(st.bot) };
+  }
+  function checkScene(els){
+    const c = checkP(), size = Math.min(fit(c.top, L.fsM, L.W * 0.8), fit(c.bot, L.fsM, L.W * 0.8));
+    els.push({ key:"halo", type:"halo", x:L.cx, y:L.y0, r:L.fsM * 2.1, o:1, z:0 });
+    els.push(tick("pc", L.cx, true, 1));
+    els.push(lab("ltc", L.cx, true, c.top, size, COL.top, 1, 0.05));
+    els.push(lab("lbc", L.cx, false, c.bot, size, COL.bot, 1, 0.15));
+    const r = L.fsM * 0.3;
+    [[c.top, L.yLt, "ck"], [c.bot, L.yLb, "ck2"]].forEach(([p, y, key], j) => els.push({ key, type:"badge", x:Math.min(L.W - r - 4, L.cx + measureP(p, size) / 2 + r + 12), y, r, o:1, d:0.3 + j * 0.08, z:7 }));
+    tags(els, 1);
+  }
+
+  /* ================= drawing ================= */
+  const ease = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  const lerp = (a, b, t) => a + (b - a) * t;
+  function labSVG(e){
+    let bg = "";
+    if(e.bg){
+      const w = measureP(e.p, e.size) + e.size * 0.5, h = hasFr(e.p) ? e.size * 1.9 : e.size * 1.18;
+      bg = `<rect x="${f1(e.x - w / 2)}" y="${f1(e.y - h / 2)}" width="${f1(w)}" height="${f1(h)}" rx="${f1(e.size * 0.22)}" fill="#fef9c3" stroke="#fde047" stroke-width="1.5"/>`;
+    }
+    return `<g data-key="${e.key}" opacity="${e.o.toFixed(3)}">${bg}${pSVG(e.p, e.x, e.y, e.size, e.col)}</g>`;
+  }
+  function hopPath(e){ const mx = (e.x1 + e.x2) / 2, cy = e.y + e.side * e.h; return `M${f1(e.x1)} ${f1(e.y)}Q${f1(mx)} ${f1(cy)} ${f1(e.x2)} ${f1(e.y)}`; }
+  function headSVG(e){
+    const mx = (e.x1 + e.x2) / 2, cy = e.y + e.side * e.h;
+    const ang = Math.atan2(e.y - cy, e.x2 - mx), s = e.w * 3.4;
+    const bx = e.x2 - Math.cos(ang) * s, by = e.y - Math.sin(ang) * s, wx = -Math.sin(ang) * s * 0.55, wy = Math.cos(ang) * s * 0.55;
+    return `<polygon points="${f1(e.x2)},${f1(e.y)} ${f1(bx + wx)},${f1(by + wy)} ${f1(bx - wx)},${f1(by - wy)}" fill="${e.col}"/>`;
+  }
+  function drawEls(list){
+    const out = [];
+    list.slice().sort((a, b) => (a.z || 0) - (b.z || 0)).forEach(e => {
+      if(e.o <= 0.004) return;
+      const op = e.o.toFixed(3);
+      if(e.type === "axis") out.push(`<line x1="${f1(e.x1)}" x2="${f1(e.x2)}" y1="${f1(e.y)}" y2="${f1(e.y)}" stroke="${COL.line}" stroke-width="${f1(Math.max(3, L.fsM * 0.085))}" stroke-linecap="round" opacity="${op}"/>`);
+      else if(e.type === "halo") out.push(`<circle class="halo" cx="${f1(e.x)}" cy="${f1(e.y)}" r="${f1(e.r)}" fill="url(#haloG)" opacity="${op}"/>`);
+      else if(e.type === "tick") out.push(`<line data-key="${e.key}" x1="${f1(e.x)}" x2="${f1(e.x)}" y1="${f1(e.y - e.h)}" y2="${f1(e.y + e.h)}" stroke="${e.col}" stroke-width="${f1(e.w)}" stroke-linecap="round" opacity="${op}"/>`);
+      else if(e.type === "lab") out.push(labSVG(e));
+      else if(e.type === "tag") out.push(`<text x="${f1(e.x)}" y="${f1(e.y)}" dominant-baseline="central" font-size="${f1(clamp(L.fsM * 0.22, 9.5, 12.5))}" fill="${e.col}" opacity="${(e.o * 0.75).toFixed(3)}" style='font-family:${UI};font-weight:900;letter-spacing:.08em'>${e.text}</text>`);
+      else if(e.type === "badge"){
+        const r = e.r, x = e.x, y = e.y;
+        out.push(`<g data-key="${e.key}" opacity="${op}"><circle cx="${f1(x)}" cy="${f1(y)}" r="${f1(r)}" fill="${COL.bot}" stroke="#fff" stroke-width="2"/>` +
+          `<path d="M${f1(x - r * 0.45)} ${f1(y + r * 0.02)}L${f1(x - r * 0.1)} ${f1(y + r * 0.36)}L${f1(x + r * 0.48)} ${f1(y - r * 0.34)}" fill="none" stroke="#fff" stroke-width="${f1(Math.max(2, r * 0.28))}" stroke-linecap="round" stroke-linejoin="round"/></g>`);
+      }
+      else if(e.type === "loop"){
+        const inset = Math.min(6, (e.x2 - e.x1) * 0.08), a = e.x1 + inset, b = e.x2 - inset, rx = Math.max(4, (b - a) / 2);
+        out.push(`<path d="M${f1(a)} ${f1(e.y - 3)}A${f1(rx)} ${f1(e.ry)} 0 0 1 ${f1(b)} ${f1(e.y - 3)}M${f1(b)} ${f1(e.y + 3)}A${f1(rx)} ${f1(e.ry)} 0 0 1 ${f1(a)} ${f1(e.y + 3)}" fill="rgba(148,163,184,.08)" stroke="${COL.soft}" stroke-width="${f1(Math.max(1.6, L.fsM * 0.045))}" stroke-dasharray="7 6" opacity="${op}"/>`);
+      } else if(e.type === "hop"){
+        out.push(`<g data-key="${e.key}" opacity="${op}"><path d="${hopPath(e)}" fill="none" stroke="${e.col}" stroke-width="${f1(e.w)}" stroke-linecap="round"${e.dash ? ` stroke-dasharray="${f1(e.w * 2.6)} ${f1(e.w * 2.4)}"` : ""}/>${headSVG(e)}</g>`);
+      } else if(e.type === "pill"){
+        const fs = L.fsS * 0.95, w = tw(e.text, fs, UI, 900) + fs * 1.05, h = fs * 1.5;
+        out.push(`<g data-key="${e.key}" opacity="${op}"><rect x="${f1(e.x - w / 2)}" y="${f1(e.y - h / 2)}" width="${f1(w)}" height="${f1(h)}" rx="${f1(h / 2)}" fill="${e.bg}" stroke="${e.col}" stroke-width="1.8"/>` +
+          `<text x="${f1(e.x)}" y="${f1(e.y)}" text-anchor="middle" dominant-baseline="central" font-size="${f1(fs)}" fill="${e.col}" style='font-family:${UI};font-weight:900'>${esc(e.text)}</text></g>`);
+      }
+    });
+    $("board").setAttribute("viewBox", `0 0 ${L.W} ${L.H}`);
+    $("board").innerHTML = `<defs><radialGradient id="haloG"><stop offset="0" stop-color="#bfdbfe" stop-opacity=".95"/><stop offset=".65" stop-color="#dbeafe" stop-opacity=".45"/><stop offset="1" stop-color="#dbeafe" stop-opacity="0"/></radialGradient></defs>` + out.join("");
+  }
+  /* tween between two scenes; T in 0..1. The point both scenes share is the anchor: everything that comes or goes
+     slides with it, so the whole line pans as one piece while the old marks fade (the reset) or the new ones arrive. */
+  function mix(A, B, T){
+    const out = [], mapA = new Map(A.map(e => [e.key, e])), span = 0.58;
+    const t0 = ease(clamp(T / span, 0, 1));
+    let dx = 0;
+    for(const b of B){ if(b.type === "tick" && b.key[0] === "p"){ const a = mapA.get(b.key); if(a && Math.abs(a.x - b.x) > 0.5){ dx = b.x - a.x; break; } } }
+    const shift = (e, by) => { ["x", "x1", "x2"].forEach(p => { if(typeof e[p] === "number") e[p] += by; }); return e; };
+    B.forEach(b => {
+      const a = mapA.get(b.key); mapA.delete(b.key);
+      const d = Math.min(0.42, b.d || 0), t = ease(clamp((T - d) / span, 0, 1));
+      if(!a){ const e = Object.assign({}, b, { o:b.o * t }); if(dx && b.type !== "axis" && b.type !== "tag") shift(e, -dx * (1 - t0)); out.push(e); return; }
+      const e = Object.assign({}, t0 < 0.5 ? a : b);
+      ["x", "y", "x1", "x2", "h", "r", "size"].forEach(p => { if(typeof a[p] === "number" && typeof b[p] === "number") e[p] = lerp(a[p], b[p], t0); });
+      e.o = lerp(a.o, b.o, t0);
+      out.push(e);
+    });
+    mapA.forEach(a => { const e = Object.assign({}, a, { o:a.o * (1 - t0) }); if(dx && a.type !== "axis" && a.type !== "tag") shift(e, dx * t0); out.push(e); });
+    return out;
+  }
+
+  /* ================= the equation above the board, and the trail of simpler equations ================= */
+  function row1HTML(){
+    return `<span class="tk cE" data-k="L">${H(topP(0))}</span><span class="tk op eqSign" data-k="eq">=</span><span class="tk cV" data-k="R">${H(botP(0))}</span>`;
+  }
+  function row2HTML(){
+    const q = S.q, id = sid(), k = kindOf(id), n = stageAt(id), last = q.stages.length - 1;
+    let h = "";
+    for(let j = 1; j <= n + (k === "t" ? 1 : 0); j++){
+      h += `<span class="tk trOp" data-k="o${j}">${esc(pillText(q.moves[j - 1]))}</span>`;
+      if(j <= n) h += `<span class="tk trEq${j === last ? " fin" : ""}" data-k="e${j}">${H(eqP(j))}</span>`;
+    }
+    if(k === "check") h += `<span class="tk okMark" data-k="ok">&#10003;</span>`;
+    return h;
+  }
+  function fitStmt(){
+    const st = $("stmt"), r1 = $("row1"), r2 = $("row2"), stage = $("stage");
+    const W = stage.clientWidth - 16;
+    let F = clamp(stage.clientHeight * 0.095, 20, 52);
+    st.style.fontSize = F + "px";
+    if(r1.scrollWidth > W) F = Math.max(16, F * W / r1.scrollWidth * 0.97);
+    st.style.fontSize = F + "px";
+    r2.style.fontSize = "";
+    if(r2.scrollWidth > W){ const base = parseFloat(getComputedStyle(r2).fontSize); r2.style.fontSize = Math.max(10, base * W / r2.scrollWidth * 0.96) + "px"; }
+  }
+  function paintStmt(){
+    const r1 = $("row1"), r2 = $("row2");
+    const shown = new Set([...r2.querySelectorAll("[data-k]")].map(el => el.dataset.k));
+    r1.innerHTML = row1HTML(); r2.innerHTML = row2HTML();
+    if(!reduce && !S.noAnim) r2.querySelectorAll("[data-k]").forEach(el => { if(!shown.has(el.dataset.k)) el.classList.add("new"); });
+    fitStmt();
+  }
+
+  /* ================= words: the written working (panel) and one question under the board ================= */
+  function workP(i){
+    const q = S.q, mv = q.moves[i], t = topP(i), b = botP(i);
+    const one = p => {
+      if(mv.kind === "sub") return [...p, O(MINUS), N(mv.n)];
+      if(mv.kind === "add") return [...p, O("+"), N(mv.n)];
+      if(mv.kind === "xterm") return [...p, O(mv.s > 0 ? MINUS : "+"), ...termP(Math.abs(mv.s))];
+      if(mv.kind === "div") return fracOn() && !hasFr(p) ? [{ fr:[p, [N(mv.n)]] }] : [...(hasSum(p) ? wrap(p) : p), O(DIVIDE), N(mv.n)];
+      return [...p, O(TIMES), N(mv.n)];
+    };
+    return [...one(t), O("="), ...one(b)];
+  }
+  const xSide = i => { const st = S.q.stages[i]; return hasX(st.top) ? st.top : st.bot; };
+  const nSide = i => { const st = S.q.stages[i]; return hasX(st.top) ? st.bot : st.top; };
+  function solP(){
+    const q = S.q; return [V, O("="), { ans:valP(q.x) }];
+  }
+  function moveTip(i){
+    const q = S.q, mv = q.moves[i], v = letterHTML(q.v);
+    if(mv.kind === "xterm"){
+      const term = eqHTML(termP(Math.abs(mv.s)));
+      const dash = S.set.moves ? ` The jump is dashed because we don&rsquo;t know how long it is yet.` : "";
+      if(mv.s > 0) return `Both sides have ${v}. Take ${term} from both sides and they are still equal. Now only one side has ${v}.` + dash;
+      return `${term} is being taken away. Add ${term} to both sides and they are still equal. Now ${v} is only being added.` + dash;
+    }
+    const X1 = eqHTML(sideP(xSide(i))), X2 = eqHTML(sideP(xSide(i + 1))), v1 = eqHTML(sideP(nSide(i))), v2 = eqHTML(sideP(nSide(i + 1)));
+    if(mv.kind === "sub") return `${X1} is ${mv.n} more than ${X2}. Step back ${mv.n} on both lines: ${v1} &minus; ${mv.n} = ${v2}.`;
+    if(mv.kind === "add") return `${X1} is ${mv.n} less than ${X2}. Step forward ${mv.n} on both lines: ${v1} + ${mv.n} = ${v2}.`;
+    if(mv.kind === "div") return `${X1} is ${mv.n} lots of ${X2}. Measure from 0 and cut both lines into ${mv.n} equal parts: ${v1} &divide; ${mv.n} = ${v2}.`;
+    return `${X1} is one of ${mv.n} equal parts of ${X2}. Measure from 0 and put ${mv.n} parts together: ${v1} &times; ${mv.n} = ${v2}.`;
+  }
+  function storyFor(id){
+    const q = S.q, k = kindOf(id), i = idxOf(id), v = letterHTML(q.v), last = q.stages.length - 1;
+    if(k === "s") return { lab:"The equation is one point", m:eqHTML(eqP(0)),
+      tip:`${eqHTML(topP(0))} and ${eqHTML(botP(0))} are the same number, so they share one point: the left side on top, the right side underneath.` };
+    if(k === "t"){
+      const mv = q.moves[i];
+      return { lab:`Undo on the top line: ${pillHTML(mv)}`, m:"", tip:`${pillHTML(mv)} takes ${eqHTML(topP(i))} to ${eqHTML(topP(i + 1))}. The bottom line has to make the same move.` };
+    }
+    if(k === "m"){
+      const mv = q.moves[i];
+      return { lab:(S.set.split ? "The same move underneath: " : "Same move on both lines: ") + pillHTML(mv),
+        m:S.set.work === "both" ? eqHTML(workP(i)) : "", m2:eqHTML(eqP(i + 1)), tip:moveTip(i) };
+    }
+    if(k === "r"){
+      if(i + 1 === last){
+        const flip = !hasX(q.stages[last].top);
+        return { lab:"The solution", m:eqHTML(solP()), tip:(flip ? `${eqHTML(eqP(last))} says the same thing as ${eqHTML([V, O("="), ...valP(q.x)])}. ` : "") + `${v} is on its own, so the other line shows what it is.` };
+      }
+      return { lab:"A simpler equation", m:eqHTML(eqP(i + 1)), tip:`It has the same solution as the one we started with, and it is one step simpler. The line starts again from this point.` };
+    }
+    const c = checkP(), st = q.stages[0];
+    const both = hasX(st.top) && hasX(st.bot);
+    return { lab:"Check", m:eqHTML(hasX(st.top) ? c.top : c.bot) + (both ? "" : ` <span class="okMark">&#10003;</span>`), m2:both ? eqHTML(c.bot) + ` <span class="okMark">&#10003;</span>` : "",
+      tip:`Put ${eqHTML(valP(q.x))} back in for ${v} in the first equation. Both sides are ${eqHTML(valP(st.val))}, so they share a point: ${eqHTML([V, O("="), ...valP(q.x)])} is right.` };
+  }
+  function hintFor(id){
+    const q = S.q, k = kindOf(id), i = idxOf(id), v = letterHTML(q.v), last = q.stages.length - 1;
+    const ask = j => {
+      const mv = q.moves[j];
+      if(mv.kind === "xterm") return mv.s > 0 ? `Which side has fewer ${v}? What could we take from both sides?` : `${v} is being taken away. What could we add to both sides?`;
+      return `What was the last thing done to ${v}? What undoes it?`;
+    };
+    if(k === "s") return ask(0);
+    if(k === "t") return `The top line moved by ${pillHTML(q.moves[i])}. What must the bottom line do?`;
+    if(k === "m") return q.moves[i].kind === "xterm" ? `Are the two sides still equal? How do you know?` : `Why do both lines make the same move?`;
+    if(k === "r") return i + 1 === last ? `How could we check that ${eqHTML([V, O("="), ...valP(q.x)])}?` : ask(i + 1);
+    return `Do both sides give the same number?`;
+  }
+
+  /* ================= render ================= */
+  function paintStory(){
+    const box = $("story"); let h = "";
+    for(let i = 0; i <= S.step; i++){
+      const s = storyFor(IDS[i]);
+      h += `<div class="sLine ${i === S.step ? "cur" : "done"}"><div class="lab"><span class="n">${i + 1}</span><span>${s.lab}</span></div>` +
+        (s.m ? `<div class="m">${s.m}</div>` : "") + (s.m2 ? `<div class="m">${s.m2}</div>` : "") +
+        (s.tip && i === S.step ? `<div class="tip">${s.tip}</div>` : "") + `</div>`;
+    }
+    box.innerHTML = h;
+    const sc = $("storyScroll"); sc.scrollTop = sc.scrollHeight;
+    $("stepCount").textContent = `Step ${S.step + 1} of ${IDS.length}`;
+    const last = S.step >= IDS.length - 1;
+    $("nextBtn").disabled = last; $("miniNext").disabled = last;
+    $("nextBtn").innerHTML = last ? "Done &#10003;" : "Next &#9656;"; $("miniNext").innerHTML = last ? "&#10003;" : "Next &#9656;";
+    $("backBtn").disabled = S.step === 0; $("miniBack").disabled = S.step === 0; $("againBtn").disabled = S.step === 0;
+    $("allBtn").disabled = last;
+    $("hint").innerHTML = hintFor(sid());
+    const id = sid(), k = kindOf(id), nm = S.q.moves.length, tag = $("typeTag");
+    tag.textContent = k === "s" ? "The equation" : k === "check" ? "Check" : k === "r" && idxOf(id) === nm - 1 ? "Solved" : k === "r" ? "Simpler equation" : `Move ${idxOf(id) + 1} of ${nm}`;
+    tag.classList.toggle("let", k === "t" || k === "m");
+  }
+  function frame(){
+    if(!S.q) return;
+    layout();
+    if(S.anim){
+      const T = Math.min(1, (performance.now() - S.anim.t0) / S.anim.dur);
+      drawEls(mix(scene(S.anim.from), scene(S.anim.to), T));
+      if(T < 1){ S.anim.raf = requestAnimationFrame(frame); return; }
+      S.anim = null;
+    }
+    drawEls(scene(sid()));
+  }
+  function stopAnim(){ if(S.anim){ cancelAnimationFrame(S.anim.raf); S.anim = null; } }
+  const DUR = { t:1500, m:2000, r:1400, c:1100 };
+  function go(to){
+    to = clamp(to, 0, IDS.length - 1);
+    if(to === S.step) return;
+    const from = sid(), fi = S.step;
+    stopAnim();
+    S.step = to;
+    paintStmt(); paintStory();
+    if(!reduce && !S.noAnim && Math.abs(fi - to) === 1){
+      const key = fi < to ? sid() : from, k = kindOf(key);
+      let dur = DUR[k] || 1100;
+      if(k === "m" && S.set.split) dur = 1200;
+      S.anim = { from, to:sid(), t0:performance.now(), dur };
+    }
+    frame();
+  }
+  const next = () => go(S.step + 1), back = () => go(S.step - 1);
+  function startAgain(){ stopAnim(); go(0); }
+  function showAll(){ stopAnim(); S.step = Math.max(0, IDS.length - 2); go(IDS.length - 1); }
+  function spinAgain(){ const b = $("againIcon"); b.classList.remove("spin"); void b.offsetWidth; b.classList.add("spin"); }
+
+  function refresh(){
+    IDS = stepIds(S.q);
+    if(S.step > IDS.length - 1) S.step = IDS.length - 1;
+    paintStmt(); paintStory(); paintPanel(); frame();
+  }
+  function setQ(q, own){ stopAnim(); S.q = q; S.own = !!own; S.step = 0; refresh(); }
+  function newQuestion(){ setQ(makeQ(), false); }
+
+  /* ================= panel + settings ================= */
+  function paintPanel(){
+    $("typeSel").value = S.own ? "own" : S.set.type;
+    $("typeSel").querySelector('option[value="own"]').hidden = !S.own;
+    document.querySelectorAll("#negSeg button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.neg === S.set.neg)));
+    document.querySelectorAll("#nwSeg button").forEach(b => b.setAttribute("aria-pressed", String((b.dataset.nw === "on") === !!S.set.nonwhole)));
+    $("divSel").value = S.set.div; $("workSel").value = S.set.work; $("nwSel").value = S.set.nw;
+    [["varyToggle", "vary"], ["lettersToggle", "letters"], ["splitToggle", "split"], ["checkToggle", "check"], ["movesToggle", "moves"], ["partsToggle", "parts"], ["sidesToggle", "sides"]]
+      .forEach(([id, key]) => { $(id).checked = !!S.set[key]; });
+    const noFrac = !S.own && S.set.nonwhole && (S.set.type === "xab" || S.set.type === "frc");
+    $("nwNote").hidden = !noFrac;
+  }
+  function setType(t){ S.set.type = t; save(); newQuestion(); }
+  function setNeg(n){ S.set.neg = n; save(); newQuestion(); }
+  function setNW(on){ S.set.nonwhole = !!on; save(); newQuestion(); }
+  $("typeSel").addEventListener("change", e => { if(e.target.value !== "own") setType(e.target.value); e.target.blur(); });
+  document.querySelectorAll("#negSeg button").forEach(b => b.addEventListener("click", () => setNeg(b.dataset.neg)));
+  document.querySelectorAll("#nwSeg button").forEach(b => b.addEventListener("click", () => setNW(b.dataset.nw === "on")));
+  $("newBtn").addEventListener("click", newQuestion);
+  $("newQBtn").addEventListener("click", newQuestion);
+  $("ownBtn").addEventListener("click", () => {
+    const box = $("ownBox"), open = box.hidden; box.hidden = !open; $("ownBtn").setAttribute("aria-expanded", String(open));
+    if(open) $("ownIn").focus();
+  });
+  function useOwn(){
+    const r = parseOwn($("ownIn").value), msg = $("ownMsg");
+    if(r.err){ msg.textContent = r.err; msg.classList.add("err"); return false; }
+    msg.classList.remove("err"); msg.innerHTML = "Showing your equation. <b>New question</b> goes back to random ones.";
+    setQ(r.q, true); return true;
+  }
+  $("ownGo").addEventListener("click", useOwn);
+  $("ownIn").addEventListener("keydown", e => { if(e.key === "Enter"){ e.preventDefault(); useOwn(); } e.stopPropagation(); });
+  const onSet = (id, key, fresh) => $(id).addEventListener("change", e => {
+    S.set[key] = e.target.type === "checkbox" ? e.target.checked : e.target.value; save();
+    if(fresh && !S.own) newQuestion(); else { stopAnim(); refresh(); }
+  });
+  onSet("divSel", "div"); onSet("nwSel", "nw", true); onSet("varyToggle", "vary", true); onSet("lettersToggle", "letters", true);
+  onSet("splitToggle", "split"); onSet("checkToggle", "check"); onSet("workSel", "work");
+  onSet("movesToggle", "moves"); onSet("partsToggle", "parts"); onSet("sidesToggle", "sides");
+
+  $("nextBtn").addEventListener("click", next); $("backBtn").addEventListener("click", back);
+  $("miniNext").addEventListener("click", next); $("miniBack").addEventListener("click", back);
+  $("againBtn").addEventListener("click", startAgain);
+  $("againIcon").addEventListener("click", () => { startAgain(); spinAgain(); });
+  $("allBtn").addEventListener("click", showAll);
+  $("board").addEventListener("click", () => { if(S.step < IDS.length - 1) next(); });
+
+  /* ================= panel toggle + full screen (as Number Groups) ================= */
+  function applyPanel(){
+    $("app").classList.toggle("noPanel", !S.set.panel);
+    const b = $("panelBtn"); b.setAttribute("aria-pressed", String(!!S.set.panel));
+    b.title = S.set.panel ? "Hide the side panel" : "Show the side panel";
+    $("miniSteps").hidden = !!S.set.panel && !S.fs;
+  }
+  $("panelBtn").addEventListener("click", () => { S.set.panel = !S.set.panel; save(); applyPanel(); });
+  const fsEl = document.documentElement;
+  const fsActive = () => !!(document.fullscreenElement || document.webkitFullscreenElement);
+  function setFs(on){
+    S.fs = on; $("app").classList.toggle("fs", on);
+    $("fsBtn").querySelector(".fsIn").toggleAttribute("hidden", on);
+    $("fsBtn").querySelector(".fsOut").toggleAttribute("hidden", !on);
+    $("fsBtn").title = on ? "Leave full screen (F)" : "Full screen (F)";
+    closeMenus(); applyPanel();
+  }
+  function toggleFs(){
+    if(!S.fs){ setFs(true); const req = fsEl.requestFullscreen || fsEl.webkitRequestFullscreen;
+      if(req){ try { const pr = req.call(fsEl); if(pr && pr.catch) pr.catch(() => {}); } catch(e){} } }
+    else { if(fsActive()){ const ex = document.exitFullscreen || document.webkitExitFullscreen; try { const pr = ex.call(document); if(pr && pr.catch) pr.catch(() => {}); } catch(e){} } setFs(false); }
+  }
+  const onFsChange = () => { if(!fsActive() && S.fs) setFs(false); };
+  document.addEventListener("fullscreenchange", onFsChange);
+  document.addEventListener("webkitfullscreenchange", onFsChange);
+  $("fsBtn").addEventListener("click", toggleFs);
+
+  function closeMenus(){ [["settingsBtn","settingsMenu"],["toolsBtn","toolsMenu"]].forEach(([b, m]) => { $(m).classList.remove("open"); $(b).setAttribute("aria-expanded","false"); }); }
+  [["settingsBtn","settingsMenu"],["toolsBtn","toolsMenu"]].forEach(([b, m]) => {
+    $(b).addEventListener("click", e => { e.stopPropagation(); const was = $(m).classList.contains("open"); closeMenus(); if(!was){ $(m).classList.add("open"); $(b).setAttribute("aria-expanded","true"); } });
+    $(m).addEventListener("click", e => e.stopPropagation());
+  });
+  document.addEventListener("click", closeMenus);
+  const NEG_CYCLE = { off:"some", some:"all", all:"off" }, TKEYS = ["axb", "xab", "brk", "frc", "bax", "both", "mix"];
+  document.addEventListener("keydown", e => {
+    const tag = (e.target && e.target.tagName) || "";
+    if(e.key === "Escape"){ closeMenus(); if(S.fs && !fsActive()) setFs(false); return; }
+    if(tag === "INPUT" || tag === "SELECT" || tag === "TEXTAREA" || e.metaKey || e.ctrlKey || e.altKey) return;
+    if(tag === "BUTTON" && (e.key === " " || e.key === "Enter")){ e.preventDefault(); e.target.blur(); }
+    const k = e.key;
+    if(k === " "){ e.preventDefault(); startAgain(); spinAgain(); }
+    else if(k === "Enter"){ e.preventDefault(); newQuestion(); }
+    else if(k === "ArrowRight"){ e.preventDefault(); next(); }
+    else if(k === "ArrowLeft"){ e.preventDefault(); back(); }
+    else if(k >= "1" && k <= "7") setType(TKEYS[+k - 1]);
+    else if(k === "n" || k === "N") setNeg(NEG_CYCLE[S.set.neg] || "off");
+    else if(k === "w" || k === "W") setNW(!S.set.nonwhole);
+    else if(k === "f" || k === "F") toggleFs();
+  });
+  let rz = 0;
+  const onResize = () => { cancelAnimationFrame(rz); rz = requestAnimationFrame(() => { fitStmt(); frame(); }); };
+  if(window.ResizeObserver) new ResizeObserver(onResize).observe($("stage")); else window.addEventListener("resize", onResize);
+
+  /* italic letters in the fixed text (options in a select can only hold plain text) */
+  const statics = ".settingsMenu i, .ownMsg i, .panel i";
+  if(MATH_ALPHA){
+    document.querySelectorAll(statics).forEach(el => { el.outerHTML = `<span class="mi">${mathItalic(el.textContent)}</span>`; });
+    } else document.querySelectorAll(statics).forEach(el => el.classList.add("mv"));
+  document.querySelectorAll("select option").forEach(o => { o.textContent = o.textContent.replace(/\{x\}/g, MATH_ALPHA ? mathItalic("x") : "x"); });
+  applyPanel();
+  newQuestion();
+
+  /* test surface */
+  window.__MS__ = { MATH_ALPHA, S, TYPES, get IDS(){ return IDS; }, get L(){ return L; }, makeQ, genType, finish, okQ, solve, parseOwn, scene, layout, evalS, sideP, subP, valP, checkP, workP,
+    storyFor, hintFor, next, back, go, startAgain, showAll, newQuestion, setQ, setType, setNeg, setNW, frame, refresh, toggleFs, useOwn, measureP, R, rF, rInt, num, opsS, linS };
+})();
+</script>
+</body>
+</html>

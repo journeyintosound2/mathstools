@@ -1,6 +1,6 @@
 /* Written by tools/build-pwa.mjs — do not edit by hand. */
 self.MMT_PRECACHE = {
- "version": "aa628e2236",
+ "version": "fa0d1e7861",
  "files": [
   "./",
   "assessment/exam-builder/app.js",
@@ -793,6 +793,7 @@ self.MMT_PRECACHE = {
   "interactive-tools/stage-4/algebra/counting-strategies-linear/index.html",
   "interactive-tools/stage-4/algebra/double-numberline/index.html",
   "interactive-tools/stage-4/algebra/double-numberline/lesson-plan.html",
+  "interactive-tools/stage-4/algebra/multi-step-double-numberline/index.html",
   "interactive-tools/stage-4/algebra/number-groups/index.html",
   "interactive-tools/stage-4/algebra/number-groups/lesson-plan.html",
   "interactive-tools/stage-4/algebra/substitution/image.png",
