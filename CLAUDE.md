@@ -108,7 +108,10 @@
 >   move is made on both lines; `r` = RESET: the line pans so the new, simpler equation is one point in the centre and
 >   everything else fades (`mix()` slides coming/going elements with the shared tick `p{i}` so it reads as one pan).
 >   `t` (Settings › Top line first) pauses with "?" underneath. Check puts the answer into the FIRST equation.
->   The trail under the equation (`row2HTML`) keeps every move pill and simpler equation, since the line itself resets.
+>   Above the board: the ORIGINAL equation sits in a subtle bordered card (`#origCard`, measured behind row 0) and the
+>   WORKING runs down under it (`workHTML`, one 3-column grid so every = lines up): the move pill under BOTH sides, then
+>   the simpler equation, the last one highlighted (`#finHi`). Every row is laid out from the start (hidden until reached)
+>   so the board never changes size mid-question; `fitStmt` keeps the working under ~47% of the stage height.
 > * **Engine:** a side is `num` / `ops` (things done to x in order: [mul 3, add 4] = 3x + 4, [add 2, mul 3] = 3(x + 2)) /
 >   `lin` (mx + k, for both-sides and 10 − 2x). `solve()` undoes the LAST op on both sides; with x on both sides it takes
 >   the smaller x-term from both (adds it when negative, so 10 − 2x = 4 becomes 10 = 4 + 2x). All values are exact

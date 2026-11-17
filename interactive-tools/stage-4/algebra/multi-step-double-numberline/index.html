@@ -278,8 +278,6 @@
     .segNote{ font-size:.74rem; font-weight:750; color:var(--muted); margin:-6px 0 8px; }
     .stage{ display:flex; flex-direction:column; }
     .stmt.eqn{ position:relative; inset:auto; flex:0 0 auto; transform:none; transition:none; padding:2px 0 0; }
-    .stmt.eqn .row{ align-items:center; }
-    .stmt.eqn .r2{ display:flex; font-size:.5em; min-height:1.9em; gap:.1em; margin-top:.1em; }
     .stage .boardWrap{ position:relative; flex:1 1 auto; min-height:0; }
     .frac{ display:inline-flex; flex-direction:column; align-items:center; vertical-align:middle; line-height:1.02; font-size:.78em; margin:0 .08em; }
     .frac > .fn{ padding:0 .14em .05em; border-bottom:.075em solid currentColor; }
@@ -292,13 +290,25 @@
     .sLine .m + .m{ margin-top:1px; }
     .sLine .lab .eq, .sLine .tip .eq{ font-family:var(--mathFont); font-weight:var(--mathWeight); font-size:1.14em; color:var(--line); }
     .hint .cUndo{ color:var(--purple-dark); }
-    /* the trail: every simpler equation so far, with the move that made it */
-    .trail .trOp{ font-family:var(--uiFont); font-weight:900; font-size:.82em; color:var(--purple-dark); background:rgba(124,58,237,.09); border:1.5px solid rgba(124,58,237,.4);
-      border-radius:999px; padding:.12em .6em; margin:0 .45em; white-space:nowrap; position:relative; }
-    .trail .trOp::before{ content:"\2192"; position:absolute; right:100%; margin-right:.3em; color:var(--line-soft); font-weight:700; opacity:0; }
-    .trail .trEq{ color:var(--line); white-space:nowrap; }
-    .trail .trEq.fin{ background:#fef9c3; border-radius:.2em; padding:0 .25em; box-shadow:inset 0 -.1em 0 #fde047; color:var(--ink); }
-    .trail .trEq + .trOp{ margin-left:.7em; }
+    /* the working: one grid, = under = */
+    .work{ position:relative; display:grid; grid-template-columns:max-content max-content max-content; justify-content:center; align-items:center;
+      column-gap:.14em; margin:0 auto; line-height:1.18; }
+    .work .wc{ position:relative; z-index:1; white-space:nowrap; display:flex; align-items:center; }
+    .work .wl{ justify-content:flex-end; } .work .we{ justify-content:center; } .work .wr{ justify-content:flex-start; }
+    .work .wc.fut{ visibility:hidden; }
+    .work .wc.new{ animation:tkIn .5s ease both; }
+    .work .w0{ padding:.12em 0 .14em; margin-bottom:.22em; }
+    .work .we.w0{ padding-left:.12em; padding-right:.12em; }
+    .work .we.wq{ padding-left:.1em; padding-right:.1em; }
+    .work .wq{ font-size:.6em; color:var(--line); padding:.04em 0; }
+    .work .wp{ font-size:.46em; padding:.18em 0 .14em; }
+    .work .wl.wp{ padding-right:.2em; } .work .wr.wp{ padding-left:.2em; }
+    .work .trOp{ font-family:var(--uiFont); font-weight:900; color:var(--purple-dark); background:rgba(124,58,237,.09); border:1.5px solid rgba(124,58,237,.4);
+      border-radius:999px; padding:.06em .6em; white-space:nowrap; line-height:1.2; }
+    .work .wq.fin{ color:var(--ink); }
+    .origCard, .finHi{ position:absolute; z-index:0; display:none; pointer-events:none; }
+    .origCard{ background:#fff; border:1.5px solid var(--border); border-radius:14px; box-shadow:0 2px 10px rgba(15,23,42,.08), 0 1px 2px rgba(15,23,42,.05); }
+    .finHi{ background:#fef9c3; border-radius:.3em; box-shadow:inset 0 -.12em 0 #fde047; }
     .typePick{ display:inline-flex; align-items:center; gap:9px; background:#f1f5f9; border:1px solid var(--border); border-radius:15px; padding:5px 6px 5px 13px; }
     .typePick > span{ font-size:.74rem; font-weight:950; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); }
     .typePick select{ appearance:none; border:1.5px solid var(--border); background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23475569' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 11px center/11px;
@@ -308,7 +318,7 @@
     #board .halo{ animation:haloPulse 2.2s ease-in-out infinite; transform-box:fill-box; transform-origin:center; }
     @keyframes haloPulse{ 0%,100%{ opacity:.55; } 50%{ opacity:.9; } }
     @media (prefers-reduced-motion:reduce){ #board .halo{ animation:none; } }
-    @media (max-width:760px){ .stage{ height:clamp(300px, calc(62vw + 130px), 520px); } .typePick{ justify-content:space-between; } }
+    @media (max-width:760px){ .stage{ height:clamp(380px, calc(100vw + 150px), 640px); } .typePick{ justify-content:space-between; } }
   </style>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
 <!-- mmt-pwa -->
@@ -413,7 +423,7 @@
           </div>
         </div>
         <div class="stage" id="stage">
-          <div class="stmt eqn" id="stmt" aria-live="polite"><div class="row r1" id="row1"></div><div class="row r2 trail" id="row2"></div></div>
+          <div class="stmt eqn" id="stmt" aria-live="polite"><div class="work" id="work"></div></div>
           <div class="boardWrap" id="boardWrap">
             <svg id="board" role="img" aria-label="Double number line: the left side of the equation on top, the right side underneath"></svg>
           </div>
@@ -1061,35 +1071,55 @@
     return out;
   }
 
-  /* ================= the equation above the board, and the trail of simpler equations ================= */
-  function row1HTML(){
-    return `<span class="tk cE" data-k="L">${H(topP(0))}</span><span class="tk op eqSign" data-k="eq">=</span><span class="tk cV" data-k="R">${H(botP(0))}</span>`;
-  }
-  function row2HTML(){
-    const q = S.q, id = sid(), k = kindOf(id), n = stageAt(id), last = q.stages.length - 1;
-    let h = "";
-    for(let j = 1; j <= n + (k === "t" ? 1 : 0); j++){
-      h += `<span class="tk trOp" data-k="o${j}">${esc(pillText(q.moves[j - 1]))}</span>`;
-      if(j <= n) h += `<span class="tk trEq${j === last ? " fin" : ""}" data-k="e${j}">${H(eqP(j))}</span>`;
+  /* ================= the equation above the board, and the working under it =================
+     One grid of three columns (left side · = · right side) so every = lines up under the first equation's =.
+     Under each equation, the move is written under BOTH sides, then the simpler equation it makes.
+     Every row is laid out from the start (rows not reached yet are hidden), so the board never changes size mid-question. */
+  function workHTML(){
+    const q = S.q, id = sid(), k = kindOf(id), n = stageAt(id), nm = q.moves.length, last = q.stages.length - 1;
+    const cell = (cls, html, key, show) => `<div class="wc ${cls}${show ? "" : " fut"}" data-k="${key}">${html}</div>`;
+    let h = `<div class="origCard" id="origCard" aria-hidden="true"></div><div class="finHi" id="finHi" aria-hidden="true"></div>`;
+    h += cell("wl w0", `<span class="wt cE">${H(topP(0))}</span>`, "L0", true) + cell("we w0", `<span class="wt eqSign">=</span>`, "M0", true) + cell("wr w0", `<span class="wt cV">${H(botP(0))}</span>`, "R0", true);
+    for(let j = 1; j <= nm; j++){
+      const pt = esc(pillText(q.moves[j - 1])), showL = j <= n + (k === "t" ? 1 : 0), showR = j <= n;
+      h += cell("wl wp", `<span class="trOp">${pt}</span>`, "pL" + j, showL) + cell("we wp", "", "pM" + j, showR) + cell("wr wp", `<span class="trOp">${pt}</span>`, "pR" + j, showR);
+      const fin = j === last ? " fin" : "", ok = j === last && k === "check" ? `<span class="okMark">&#10003;</span>` : "";
+      h += cell("wl wq" + fin, `<span class="wt">${H(topP(j))}</span>`, "eL" + j, showR) + cell("we wq" + fin, `<span class="wt">=</span>`, "eM" + j, showR) +
+        cell("wr wq" + fin, `<span class="wt">${H(botP(j))}</span>${ok}`, "eR" + j, showR);
     }
-    if(k === "check") h += `<span class="tk okMark" data-k="ok">&#10003;</span>`;
     return h;
   }
+  /* a box drawn behind a row: from the left of its left side to the right of its right side */
+  function boxBehind(box, row, padX, padY){
+    const g = $("work"), gr = g.getBoundingClientRect();
+    const l = g.querySelector(`[data-k="L${row}"] .wt, [data-k="eL${row}"] .wt`), r = g.querySelector(`[data-k="R${row}"] .wt, [data-k="eR${row}"] .wt`);
+    if(!l || !r){ box.style.display = "none"; return; }
+    const a = l.getBoundingClientRect(), b = r.getBoundingClientRect();
+    const top = Math.min(a.top, b.top), bot = Math.max(a.bottom, b.bottom);
+    Object.assign(box.style, { display:"block", left:(a.left - gr.left - padX) + "px", top:(top - gr.top - padY) + "px",
+      width:(b.right - a.left + 2 * padX) + "px", height:(bot - top + 2 * padY) + "px" });
+  }
+  function placeBoxes(){
+    const g = $("work"), F = parseFloat(g.style.fontSize) || 40, q = S.q, last = q.stages.length - 1;
+    boxBehind($("origCard"), 0, F * 0.42, F * 0.1);
+    const hi = $("finHi"), shown = !g.querySelector(`[data-k="eL${last}"]`).classList.contains("fut");
+    if(shown) boxBehind(hi, last, F * 0.6 * 0.22, F * 0.6 * 0.04); else hi.style.display = "none";
+  }
   function fitStmt(){
-    const st = $("stmt"), r1 = $("row1"), r2 = $("row2"), stage = $("stage");
-    const W = stage.clientWidth - 16;
-    let F = clamp(stage.clientHeight * 0.095, 20, 52);
-    st.style.fontSize = F + "px";
-    if(r1.scrollWidth > W) F = Math.max(16, F * W / r1.scrollWidth * 0.97);
-    st.style.fontSize = F + "px";
-    r2.style.fontSize = "";
-    if(r2.scrollWidth > W){ const base = parseFloat(getComputedStyle(r2).fontSize); r2.style.fontSize = Math.max(10, base * W / r2.scrollWidth * 0.96) + "px"; }
+    const g = $("work"), stage = $("stage");
+    const W = stage.clientWidth - 24, Hmax = stage.clientHeight * (stage.clientWidth < 700 ? 0.5 : 0.47);
+    let F = clamp(stage.clientHeight * 0.085, 18, 46);
+    g.style.fontSize = F + "px";
+    const w = g.scrollWidth, h = g.offsetHeight;
+    if(w > W || h > Hmax){ F = Math.max(12, F * Math.min(W / w, Hmax / h) * 0.98); g.style.fontSize = F + "px"; }
+    placeBoxes();
   }
   function paintStmt(){
-    const r1 = $("row1"), r2 = $("row2");
-    const shown = new Set([...r2.querySelectorAll("[data-k]")].map(el => el.dataset.k));
-    r1.innerHTML = row1HTML(); r2.innerHTML = row2HTML();
-    if(!reduce && !S.noAnim) r2.querySelectorAll("[data-k]").forEach(el => { if(!shown.has(el.dataset.k)) el.classList.add("new"); });
+    const g = $("work");
+    const shown = new Set([...g.querySelectorAll(".wc:not(.fut)")].map(el => el.dataset.k));
+    const first = !g.children.length;
+    g.innerHTML = workHTML();
+    if(!reduce && !S.noAnim && !first) g.querySelectorAll(".wc:not(.fut)").forEach(el => { if(!shown.has(el.dataset.k)) el.classList.add("new"); });
     fitStmt();
   }
 
@@ -1324,6 +1354,7 @@
   });
   let rz = 0;
   const onResize = () => { cancelAnimationFrame(rz); rz = requestAnimationFrame(() => { fitStmt(); frame(); }); };
+  if(document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if(S.q){ fitStmt(); frame(); } });
   if(window.ResizeObserver) new ResizeObserver(onResize).observe($("stage")); else window.addEventListener("resize", onResize);
 
   /* italic letters in the fixed text (options in a select can only hold plain text) */
