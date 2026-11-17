@@ -134,6 +134,23 @@
 >     `boxBehind` measures OFFSETS, not screen rects, because a resize re-fit can land mid-flight. Panel fit measures
 >     the cells (the grid is panel-wide) + .9em for the card. Panel spacing is looser and its pills .36em (board .23em).
 >     Verified: 1,566 panel frames (11 equations × split × 5 viewports + full screen) inside the panel, no overlaps.
+>   * **CURRENT-STEP HIGHLIGHT (2026-11-17, Jeff):** the yellow box on the final line is gone. A GREEN box (`#curHi`)
+>     sits behind the line of working the number line is showing: `hiRow()` = `stageAt(id)` (s → 0, t{i} → i, m{i}/r{i}
+>     → i + 1), except `check` → row 0, because the check substitutes into the first equation. `paintStmt` remembers
+>     the box's old left/top/size and animates it to the new row (650ms); stepping back, a line that was shown and is
+>     now hidden fades out (visibility held visible by the WAAPI keyframes) instead of vanishing. Not across a new question.
+>   * **BOARD = FIRST EQUATION + ONE CURRENT-LINE CARD (2026-11-17, Jeff; supersedes the vertical working on the board):**
+>     the full working lives ONLY in the working panel now (`#work` is permanently in `#wsBody`). Above the number line:
+>     `#bOrig` (the first equation in its white card; turns green, `.cur`, when it IS the current line: step s and the
+>     check) and `#stepWin`, a green card that is a WINDOW (`#stepVp`, overflow hidden, faded edges) onto `#stepList`, a
+>     3-column grid holding every line (pill row + equation row, built once per question by `stepHTML`). `scrollWin`
+>     translates the list so line `hiRow()` sits in the window (.62s), so Next scrolls up to the next line and Back scrolls
+>     down; on row 0 the card gets `.rest` and tucks up under the first equation. Pill rows carry a margin so neighbouring
+>     lines never peek into the window. `fitBoard(force)`: a re-fit that changed the size only RE-AIMS a running scroll
+>     (`scrollWin("keep")`) — the hint wraps to two lines on some steps, the stage height changes, and a plain re-fit was
+>     snapping every scroll to its end. Working panel on: a COPY of `#bOrig` flies into the panel (the board keeps its own);
+>     panel lines slide down into place (`rowIn`) and slide back up on Back. Verified: 1,740 window frames (11 equations ×
+>     split × panel on/off × 5 viewports; no other line visible, current line never cut, nothing over the number line).
 >
 > **NEW (2026-11-17, later): DOUBLE NUMBER LINE — STUDENT QUIZZES + WORKSHEET CREATOR REBUILT.**
 > Project doc `claude/double-number-line.md`. Same URLs, registry entries and saved tool names, so tasks/results carry on.

@@ -296,19 +296,20 @@
     .work .wc{ position:relative; z-index:1; white-space:nowrap; display:flex; align-items:center; }
     .work .wl{ justify-content:flex-end; } .work .we{ justify-content:center; } .work .wr{ justify-content:flex-start; }
     .work .wc.fut{ visibility:hidden; }
-    .work .wc.new{ animation:tkIn .5s ease both; }
+    .work .wc.new{ animation:rowIn .55s cubic-bezier(.3,.6,.3,1) both; }
+    @keyframes rowIn{ from{ opacity:0; transform:translateY(-.45em);} to{ opacity:1; transform:none;} }
     .work .w0{ padding:.12em 0 .14em; margin-bottom:.22em; }
     .work .we.w0{ padding-left:.12em; padding-right:.12em; }
     .work .we.wq{ padding-left:.1em; padding-right:.1em; }
     .work .wq{ font-size:.6em; color:var(--line); padding:.04em 0; }
     .work .wp{ font-size:.23em; padding:.1em 0 .08em; }
     .work .wl.wp{ padding-right:.3em; } .work .wr.wp{ padding-left:.3em; }
-    .work .trOp{ font-family:var(--uiFont); font-weight:900; color:#475569; background:#f1f5f9; border:1px solid #cbd5e1;
+    .trOp{ font-family:var(--uiFont); font-weight:900; color:#475569; background:#f1f5f9; border:1px solid #cbd5e1;
       border-radius:999px; padding:.08em .6em; white-space:nowrap; line-height:1.2; }
     .work .wq.fin{ color:var(--ink); }
-    .origCard, .finHi{ position:absolute; z-index:0; display:none; pointer-events:none; }
+    .origCard, .curHi{ position:absolute; z-index:0; display:none; pointer-events:none; }
     .origCard{ background:#fff; border:1.5px solid var(--border); border-radius:14px; box-shadow:0 2px 10px rgba(15,23,42,.08), 0 1px 2px rgba(15,23,42,.05); }
-    .finHi{ background:#fef9c3; border-radius:.3em; box-shadow:inset 0 -.12em 0 #fde047; }
+    .curHi{ background:rgba(34,197,94,.17); border-radius:.3em; box-shadow:inset 0 0 0 1.5px rgba(22,163,74,.38), inset 0 -.1em 0 rgba(22,163,74,.5); }
     .typePick{ display:inline-flex; align-items:center; gap:9px; background:#f1f5f9; border:1px solid var(--border); border-radius:15px; padding:5px 6px 5px 13px; }
     .typePick > span{ font-size:.74rem; font-weight:950; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); }
     .typePick select{ appearance:none; border:1.5px solid var(--border); background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23475569' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 11px center/11px;
@@ -340,6 +341,25 @@
     .app.morphing .boardCard, .app.morphing .wsBody, .app.morphing .workSide{ overflow:visible; }
     .app.toPanel .workSide{ z-index:6; } .app.toBoard .boardCard{ z-index:6; }
     @media (max-width:980px){ .workSide{ min-height:420px; } }
+    /* the board: the first equation in its card, the current line in a green card that scrolls */
+    .bOrig{ position:relative; z-index:2; display:inline-flex; align-items:center; gap:.16em; white-space:nowrap; line-height:1.18;
+      background:#fff; border:1.5px solid var(--border); border-radius:14px; padding:.1em .42em .12em;
+      box-shadow:0 2px 10px rgba(15,23,42,.08), 0 1px 2px rgba(15,23,42,.05); transition:background .45s ease, border-color .45s ease, box-shadow .45s ease; }
+    .bOrig .wt{ display:inline-flex; align-items:center; }
+    .bOrig.cur{ background:#f0fdf4; border-color:rgba(22,163,74,.6); box-shadow:0 0 0 3px rgba(34,197,94,.16), 0 2px 10px rgba(15,23,42,.08); }
+    .stepWin{ position:relative; z-index:1; margin-top:.2em; font-size:.8em; background:#f0fdf4; border:1.5px solid rgba(22,163,74,.5); border-radius:14px;
+      padding:0 .6em; box-shadow:0 2px 8px rgba(22,163,74,.10); transition:opacity .45s ease, transform .58s cubic-bezier(.45,.05,.2,1); }
+    .stepWin.rest{ opacity:0; transform:translateY(-60%) scale(.95); }
+    .stepVp{ position:relative; overflow:hidden;
+      -webkit-mask-image:linear-gradient(transparent, #000 11%, #000 89%, transparent); mask-image:linear-gradient(transparent, #000 11%, #000 89%, transparent); }
+    .stepList{ display:grid; grid-template-columns:max-content max-content max-content; column-gap:.14em; align-items:center; line-height:1.18; will-change:transform; }
+    .stepList .sc{ display:flex; align-items:center; white-space:nowrap; }
+    .stepList .wl{ justify-content:flex-end; } .stepList .we{ justify-content:center; } .stepList .wr{ justify-content:flex-start; }
+    .stepList .sq{ color:var(--ink); padding:.02em 0 .08em; }
+    .stepList .we.sq{ padding-left:.1em; padding-right:.1em; }
+    .stepList .sp{ font-size:.3em; padding:.6em 0 .15em; margin-top:1.6em; }
+    .stepList .wl.sp{ padding-right:.35em; } .stepList .wr.sp{ padding-left:.35em; }
+    .trOp.ghost{ visibility:hidden; }
   </style>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
 <!-- mmt-pwa -->
@@ -447,7 +467,7 @@
           </div>
         </div>
         <div class="stage" id="stage">
-          <div class="stmt eqn" id="stmt" aria-live="polite"><div class="work" id="work"></div></div>
+          <div class="stmt eqn" id="stmt" aria-live="polite"><div class="bOrig" id="bOrig"></div><div class="stepWin" id="stepWin"><div class="stepVp" id="stepVp"><div class="stepList" id="stepList"></div></div></div></div>
           <div class="boardWrap" id="boardWrap">
             <svg id="board" role="img" aria-label="Double number line: the left side of the equation on top, the right side underneath"></svg>
           </div>
@@ -498,7 +518,7 @@
       </aside>
       <aside class="card workSide" id="workSide" aria-label="The working">
         <div class="pHead"><span class="pTitle">Working</span><span class="pCount" id="wsCount"></span></div>
-        <div class="wsBody" id="wsBody"></div>
+        <div class="wsBody" id="wsBody"><div class="work" id="work"></div></div>
       </aside>
     </main>
   </div>
@@ -1107,7 +1127,7 @@
   function workHTML(){
     const q = S.q, id = sid(), k = kindOf(id), n = stageAt(id), nm = q.moves.length, last = q.stages.length - 1;
     const cell = (cls, html, key, show) => `<div class="wc ${cls}${show ? "" : " fut"}" data-k="${key}">${html}</div>`;
-    let h = `<div class="origCard" id="origCard" aria-hidden="true"></div><div class="finHi" id="finHi" aria-hidden="true"></div>`;
+    let h = `<div class="origCard" id="origCard" aria-hidden="true"></div><div class="curHi" id="curHi" aria-hidden="true"></div>`;
     h += cell("wl w0", `<span class="wt cE">${H(topP(0))}</span>`, "L0", true) + cell("we w0", `<span class="wt eqSign">=</span>`, "M0", true) + cell("wr w0", `<span class="wt cV">${H(botP(0))}</span>`, "R0", true);
     for(let j = 1; j <= nm; j++){
       const pt = esc(pillText(q.moves[j - 1])), showL = j <= n + (k === "t" ? 1 : 0), showR = j <= n;
@@ -1130,41 +1150,105 @@
     Object.assign(box.style, { display:"block", left:(a.x - padX) + "px", top:(top - padY) + "px",
       width:(b.x + b.w - a.x + 2 * padX) + "px", height:(bot - top + 2 * padY) + "px" });
   }
+  /* the line of working the number line is showing right now (the check substitutes into the first equation) */
+  const hiRow = () => { const id = sid(); return id === "check" ? 0 : stageAt(id); };
   function placeBoxes(){
-    const g = $("work"), F = parseFloat(g.style.fontSize) || 40, q = S.q, last = q.stages.length - 1;
+    const g = $("work"), F = parseFloat(g.style.fontSize) || 40, r = hiRow();
     boxBehind($("origCard"), 0, F * 0.42, F * 0.1);
-    const hi = $("finHi"), shown = !g.querySelector(`[data-k="eL${last}"]`).classList.contains("fut");
-    if(shown) boxBehind(hi, last, F * 0.6 * 0.22, F * 0.6 * 0.04); else hi.style.display = "none";
+    const rf = r === 0 ? F : F * 0.8;
+    boxBehind($("curHi"), r, rf * (r === 0 ? 0.16 : 0.24), rf * (r === 0 ? 0.04 : 0.06));
+    $("curHi").dataset.row = r;
   }
-  function fitStmt(){
-    const g = $("work");
-    if(S.set.wpanel && g.parentNode === $("wsBody")){
-      /* in the working panel: as big as the column allows, the whole working on show */
-      /* the grid is as wide as the panel, so measure the cells themselves; the card reaches .42em past the text each side */
-      const body = $("wsBody"), W = body.clientWidth - 8, Hmax = body.clientHeight - 14;
-      let F = 50;
-      g.style.fontSize = F + "px";
-      const cells = [...g.querySelectorAll(".wc")];
-      const cw = Math.max(...cells.map(c => c.offsetLeft + c.offsetWidth)) - Math.min(...cells.map(c => c.offsetLeft));
-      const w = cw + 0.9 * F, h = g.offsetHeight + 0.25 * F;
-      if(Hmax > 40 && (w > W || h > Hmax)){ F = Math.max(14, F * Math.min(W / w, Hmax / h) * 0.98); g.style.fontSize = F + "px"; }
-      placeBoxes(); return;
+  /* ---------- on the board: the first equation in its card, and ONE card under it that holds the current line ----------
+     The current-step card is a window onto the whole working (pill row + equation row for each line). Stepping on scrolls
+     the list up to the next line; stepping back scrolls it down. On the first equation (and at the check) the card tucks
+     up under the first equation and that card turns green instead. */
+  function stepHTML(){
+    const q = S.q, nm = q.moves.length;
+    const cell = (cls, html, key) => `<div class="sc ${cls}" data-k="${key}">${html}</div>`;
+    let h = cell("wl sp", `<span class="trOp ghost">&nbsp;</span>`, "pL0") + cell("we sp", "", "pM0") + cell("wr sp", `<span class="trOp ghost">&nbsp;</span>`, "pR0");
+    h += cell("wl sq", `<span class="wt">${H(topP(0))}</span>`, "eL0") + cell("we sq", `<span class="wt">=</span>`, "eM0") + cell("wr sq", `<span class="wt">${H(botP(0))}</span>`, "eR0");
+    for(let j = 1; j <= nm; j++){
+      const pt = esc(pillText(q.moves[j - 1]));
+      h += cell("wl sp", `<span class="trOp">${pt}</span>`, "pL" + j) + cell("we sp", "", "pM" + j) + cell("wr sp", `<span class="trOp">${pt}</span>`, "pR" + j);
+      h += cell("wl sq", `<span class="wt">${H(topP(j))}</span>`, "eL" + j) + cell("we sq", `<span class="wt">=</span>`, "eM" + j) + cell("wr sq", `<span class="wt">${H(botP(j))}</span>`, "eR" + j);
     }
-    const stage = $("stage");
-    const W = stage.clientWidth - 24, Hmax = stage.clientHeight * (stage.clientWidth < 700 ? 0.5 : 0.47);
+    return h;
+  }
+  /* where line j sits inside the list (layout offsets, so a scroll in progress does not matter) */
+  function blockOf(j){
+    const l = $("stepList"), p = l.querySelector(`[data-k="pL${j}"]`), e = l.querySelector(`[data-k="eL${j}"]`);
+    if(!p || !e) return { top:0, h:0 };
+    const top = p.offsetTop, bot = Math.max(...[...l.querySelectorAll(`[data-k$="${j}"].sq`)].map(c => c.offsetTop + c.offsetHeight));
+    return { top, h:bot - top };
+  }
+  /* anim: true = scroll to the line, false = jump there, "keep" = re-aim whatever is running (a re-fit mid-scroll) */
+  function scrollWin(anim){
+    const j = hiRow(), win = $("stepWin"), list = $("stepList"), vp = $("stepVp"), H0 = vp.clientHeight;
+    const b = blockOf(j), y = b.top - (H0 - b.h) / 2;
+    if(anim === "keep"){ list.style.transform = `translateY(${-y}px)`; return; }
+    const on = anim && !reduce && !S.noAnim;
+    list.style.transition = on ? "transform .62s cubic-bezier(.45,.05,.2,1)" : "none";
+    win.style.transition = on ? "" : "none";
+    list.style.transform = `translateY(${-y}px)`;
+    win.classList.toggle("rest", j === 0);
+    $("bOrig").classList.toggle("cur", j === 0);
+    if(!on){ void list.offsetWidth; list.style.transition = ""; win.style.transition = ""; }
+  }
+  function fitBoard(force){
+    const st = $("stmt"), o = $("bOrig"), list = $("stepList"), vp = $("stepVp"), stage = $("stage");
+    const W = stage.clientWidth - 24, Hmax = stage.clientHeight * (stage.clientWidth < 700 ? 0.46 : 0.42);
+    const set = F => {
+      st.style.fontSize = F + "px";
+      let mh = 0; for(let j = 0; j <= S.q.moves.length; j++) mh = Math.max(mh, blockOf(j).h);
+      vp.style.height = Math.ceil(mh + F * 0.42) + "px";
+    };
+    const was = st.style.fontSize + "|" + vp.style.height;
     let F = clamp(stage.clientHeight * 0.095, 18, 54);
+    set(F);
+    const w = Math.max(o.offsetWidth, list.offsetWidth + F * 1.2), h = st.offsetHeight;
+    if(w > W || h > Hmax){ F = Math.max(12, F * Math.min(W / w, Hmax / h) * 0.98); set(F); }
+    /* a re-fit that changed nothing must not cut short a scroll that is under way */
+    if(force) scrollWin(false); else if(was !== st.style.fontSize + "|" + vp.style.height) scrollWin("keep");
+  }
+  function fitPanel(){
+    const g = $("work");
+    if(!S.set.wpanel) return;
+    /* the grid is as wide as the panel, so measure the cells themselves; the card reaches .42em past the text each side */
+    const body = $("wsBody"), W = body.clientWidth - 8, Hmax = body.clientHeight - 14;
+    let F = 50;
     g.style.fontSize = F + "px";
-    const w = g.scrollWidth, h = g.offsetHeight;
-    if(w > W || h > Hmax){ F = Math.max(12, F * Math.min(W / w, Hmax / h) * 0.98); g.style.fontSize = F + "px"; }
+    const cells = [...g.querySelectorAll(".wc")];
+    const cw = Math.max(...cells.map(c => c.offsetLeft + c.offsetWidth)) - Math.min(...cells.map(c => c.offsetLeft));
+    const w = cw + 0.9 * F, h = g.offsetHeight + 0.25 * F;
+    if(Hmax > 40 && (w > W || h > Hmax)){ F = Math.max(14, F * Math.min(W / w, Hmax / h) * 0.98); g.style.fontSize = F + "px"; }
     placeBoxes();
   }
+  function fitStmt(){ fitBoard(); fitPanel(); }
+  let lastWorkQ = null, lastStepHTML = "";
   function paintStmt(){
+    /* the board */
+    const sh = stepHTML(), oh0 = `<span class="wt bl cE">${H(topP(0))}</span><span class="wt bm eqSign">=</span><span class="wt br cV">${H(botP(0))}</span>`;
+    if(sh !== lastStepHTML){ $("stepList").innerHTML = sh; $("bOrig").innerHTML = oh0; lastStepHTML = sh; fitBoard(true); }
+    else scrollWin(true);
+    /* the working panel */
     const g = $("work");
     const shown = new Set([...g.querySelectorAll(".wc:not(.fut)")].map(el => el.dataset.k));
-    const first = !g.children.length;
+    const same = lastWorkQ === S.q && g.children.length, animOK = same && !reduce && !S.noAnim && S.set.wpanel;
+    const oh = $("curHi"), was = oh && oh.style.display === "block" ? { left:oh.style.left, top:oh.style.top, width:oh.style.width, height:oh.style.height } : null;
+    lastWorkQ = S.q;
     g.innerHTML = workHTML();
-    if(!reduce && !S.noAnim && !first) g.querySelectorAll(".wc:not(.fut)").forEach(el => { if(!shown.has(el.dataset.k)) el.classList.add("new"); });
-    fitStmt();
+    if(animOK){
+      g.querySelectorAll(".wc:not(.fut)").forEach(el => { if(!shown.has(el.dataset.k)) el.classList.add("new"); });
+      /* stepping back: the line that was just written slides back up and fades instead of vanishing */
+      g.querySelectorAll(".wc.fut").forEach(el => { if(shown.has(el.dataset.k))
+        el.animate([{ visibility:"visible", opacity:1 }, { visibility:"visible", opacity:0, transform:"translateY(-.45em)" }], { duration:420, easing:"ease-in" }); });
+    }
+    if(S.set.wpanel) fitPanel(); else placeBoxes();
+    /* the green highlight glides from the line it was on to the line now on the number line */
+    const nh = $("curHi");
+    if(animOK && was && nh.style.display === "block" && (was.top !== nh.style.top || was.left !== nh.style.left || was.width !== nh.style.width))
+      nh.animate([was, { left:nh.style.left, top:nh.style.top, width:nh.style.width, height:nh.style.height }], { duration:650, easing:"cubic-bezier(.45,.05,.2,1)" });
   }
 
   /* ================= words: the written working (panel) and one question under the board ================= */
@@ -1357,35 +1441,34 @@
     const w = $("wpBtn"); w.setAttribute("aria-pressed", String(!!S.set.wpanel));
     w.title = S.set.wpanel ? "Put the working back on the board (V)" : "Show the working in a side panel (V)";
     $("miniSteps").hidden = !!S.set.panel && !S.fs;
-    /* the working lives in the panel or above the number line, never both */
-    const g = $("work"), home = S.set.wpanel ? $("wsBody") : $("stmt");
-    if(g.parentNode !== home) home.appendChild(g);
   }
   /* where each piece of the working is on screen now, so it can glide to where it lands */
   function snapWork(){
     const m = new Map(), g = $("work");
     g.querySelectorAll(".wc:not(.fut)").forEach(el => m.set(el.dataset.k, (el.querySelector(".wt") || el).getBoundingClientRect()));
-    ["origCard", "finHi"].forEach(id => { const r = $(id).getBoundingClientRect(); if(r.width > 0) m.set(id, r); });
+    ["origCard", "curHi"].forEach(id => { const r = $(id).getBoundingClientRect(); if(r.width > 0) m.set(id, r); });
     return m;
   }
   /* the first equation (and its card) flies to its new place; the rest of the working is written in after it, line by line */
   function morphWork(before){
     if(reduce || S.noAnim || !before.size) return;
-    const g = $("work"), fly = ["L0", "M0", "R0", "origCard"], D = 720, ease = "cubic-bezier(.45,.05,.2,1)";
+    const hr = +($("curHi").dataset.row || 0), g = $("work"), fly = ["L0", "M0", "R0", "origCard"].concat(hr === 0 ? ["curHi"] : []), D = 720, ease = "cubic-bezier(.45,.05,.2,1)";
     const els = [...g.querySelectorAll(".wc:not(.fut)")].map(el => [el.dataset.k, fly.includes(el.dataset.k) ? (el.querySelector(".wt") || el) : el]);
-    ["origCard", "finHi"].forEach(id => { if($(id).style.display !== "none") els.push([id, $(id)]); });
+    ["origCard", "curHi"].forEach(id => { if($(id).style.display !== "none") els.push([id, $(id)]); });
     let row = 0, lastRow = "";
     els.forEach(([k, el]) => {
       const a = before.get(k), b = el.getBoundingClientRect();
       if(fly.includes(k) && a && b.width > 0){
-        const sx = a.width / b.width, sy = a.height / b.height, s = k === "origCard" ? null : sy;
+        const sx = a.width / b.width, sy = a.height / b.height, s = k === "origCard" || k === "curHi" ? null : sy;
         const tf = s ? `translate(${a.left - b.left}px,${a.top - b.top}px) scale(${s})` : `translate(${a.left - b.left}px,${a.top - b.top}px) scale(${sx},${sy})`;
         el.animate([{ transformOrigin:"0 0", transform:tf }, { transformOrigin:"0 0", transform:"none" }], { duration:D, easing:ease });
       } else {
-        const r = k === "finHi" ? lastRow : (k.match(/\d+$/) || ["0"])[0] + k[0];
-        if(r !== lastRow){ row++; lastRow = r; }
+        const r = (k.match(/\d+$/) || ["0"])[0] + k[0];
+        if(k !== "curHi" && r !== lastRow){ row++; lastRow = r; }
+        /* the highlight arrives with its own line (equation row j is the 2j-th row written in) */
+        const at = k === "curHi" ? 2 * hr : row;
         el.animate([{ opacity:0, transform:"translateY(.35em)" }, { opacity:1, transform:"none" }],
-          { duration:380, delay:D * 0.75 + row * 110, easing:"ease-out", fill:"backwards" });
+          { duration:380, delay:D * 0.75 + at * 110, easing:"ease-out", fill:"backwards" });
       }
     });
     $("board").animate([{ opacity:.25 }, { opacity:1 }], { duration:520, easing:"ease-out" });
@@ -1397,12 +1480,14 @@
   function setWP(on){
     on = !!on;
     if(on === !!S.set.wpanel) return;
-    const before = snapWork();
+    /* turning it on: a copy of the board's first equation (the board keeps its own) flies into the empty panel */
+    const o = $("bOrig"), before = new Map();
+    if(on){ before.set("origCard", o.getBoundingClientRect()); [["L0", ".bl"], ["M0", ".bm"], ["R0", ".br"]].forEach(([k, c]) => before.set(k, o.querySelector(c).getBoundingClientRect())); }
     if(on){ S.set.panelBefore = !!S.set.panel; S.set.panel = false; S.set.wpanel = true; }
     else { S.set.wpanel = false; if(S.set.panelBefore) S.set.panel = true; }
     save(); closeMenus(); applyPanel();
-    fitStmt(); frame();
-    morphWork(before);
+    lastWorkQ = null; paintStmt(); fitStmt(); frame();
+    if(on) morphWork(before);
   }
   $("wpBtn").addEventListener("click", () => setWP(!S.set.wpanel));
   $("panelBtn").addEventListener("click", () => {
@@ -1467,7 +1552,7 @@
 
   /* test surface */
   window.__MS__ = { MATH_ALPHA, S, TYPES, get IDS(){ return IDS; }, get L(){ return L; }, makeQ, genType, finish, okQ, solve, parseOwn, scene, layout, evalS, sideP, subP, valP, checkP, workP,
-    storyFor, hintFor, next, back, go, startAgain, showAll, newQuestion, setQ, setType, setNeg, setNW, frame, refresh, toggleFs, setWP, useOwn, measureP, R, rF, rInt, num, opsS, linS };
+    storyFor, hintFor, next, back, go, startAgain, showAll, newQuestion, setQ, setType, setNeg, setNW, frame, refresh, toggleFs, setWP, hiRow, useOwn, measureP, R, rF, rInt, num, opsS, linS };
 })();
 </script>
 </body>
