@@ -125,6 +125,15 @@
 > * Verified (Playwright): 20,000+ step frames over all types × settings at 1366×768, 1280×800, 1024×768, 1920×1080,
 >   390×844 (both sides equal at every stage, nothing off the board or overlapping, no page scroll on desktop), 50 UI
 >   checks (keys, settings, typed equations, answer never shown before the last move, full screen, persistence).
+>   * **WORKING PANEL (2026-11-17, Jeff):** icon button `#wpBtn` between ↺ and the panel button (key V, saved as
+>     `S.set.wpanel`). On: the side panel closes and the whole `#work` grid MOVES (same element, `applyPanel`) from
+>     `#stmt` into `#workSide > #wsBody`, so the number line gets the full board. Never both panels: turning it on
+>     remembers `panelBefore` and hides the side panel; the panel button or turning it off brings the side panel back.
+>     Kept in full screen (`.app.fs.wpOn`). Morph (`snapWork` / `morphWork`): the first equation's `.wt` spans + card
+>     FLIP to their new place (720ms), the other rows fade in row by row after it, `.app.morphing` lifts the clipping.
+>     `boxBehind` measures OFFSETS, not screen rects, because a resize re-fit can land mid-flight. Panel fit measures
+>     the cells (the grid is panel-wide) + .9em for the card. Panel spacing is looser and its pills .36em (board .23em).
+>     Verified: 1,566 panel frames (11 equations × split × 5 viewports + full screen) inside the panel, no overlaps.
 >
 > **NEW (2026-11-17, later): DOUBLE NUMBER LINE — STUDENT QUIZZES + WORKSHEET CREATOR REBUILT.**
 > Project doc `claude/double-number-line.md`. Same URLs, registry entries and saved tool names, so tasks/results carry on.
