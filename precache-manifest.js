@@ -1,6 +1,6 @@
 /* Written by tools/build-pwa.mjs — do not edit by hand. */
 self.MMT_PRECACHE = {
- "version": "cf1c160461",
+ "version": "e2109f9265",
  "files": [
   "./",
   "assessment/exam-builder/app.js",
@@ -934,6 +934,13 @@ self.MMT_PRECACHE = {
   "online-quizzes/stage-4/algebra/double-numberline/student-quiz.html",
   "online-quizzes/stage-4/algebra/equations.html",
   "online-quizzes/stage-4/algebra/linear-relationships.html",
+  "online-quizzes/stage-4/algebra/multi-step-equations/fractions-harder.html",
+  "online-quizzes/stage-4/algebra/multi-step-equations/mixed.html",
+  "online-quizzes/stage-4/algebra/multi-step-equations/msq/quiz.css",
+  "online-quizzes/stage-4/algebra/multi-step-equations/msq/quiz.js",
+  "online-quizzes/stage-4/algebra/multi-step-equations/pronumerals-both-sides.html",
+  "online-quizzes/stage-4/algebra/multi-step-equations/two-step-grouping.html",
+  "online-quizzes/stage-4/algebra/multi-step-equations/two-step.html",
   "online-quizzes/stage-4/algebra/number-groups-quiz/quiz.css",
   "online-quizzes/stage-4/algebra/number-groups-quiz/quiz.js",
   "online-quizzes/stage-4/algebra/number-groups.html",

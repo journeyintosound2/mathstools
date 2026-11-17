@@ -1135,6 +1135,38 @@ window.MMT_TOOL_LINKS = {
       tags: ["worksheet generator", "printable", "equations", "two-step", "both sides", "double number line"]
     },
     {
+      title: "Two-Step Equations — Student Quiz",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-4/algebra/multi-step-equations/two-step.html",
+      ideas: ["two-steps", "verify"],
+      note: "Two-step equations (3x + 4 = 19, x/4 + 3 = 5, 10 − 2x = 4). Sweet: drive the double number line; Mild: write the working = under =; Medium and Spicy: negative and fraction answers, mistakes and worded problems. Saves to the student dashboard.",
+      tags: ["equations", "double number line", "student quiz"]
+    },
+    {
+      title: "Two-Step Equations with Grouping — Student Quiz",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-4/algebra/multi-step-equations/two-step-grouping.html",
+      ideas: ["two-steps", "verify"],
+      note: "Two-step equations with a bracket or a fraction bar (3(x + 2) = 15, (x − 1)/4 = 3), Sweet to Spicy on the double number line. Saves to the student dashboard.",
+      tags: ["equations", "double number line", "student quiz"]
+    },
+    {
+      title: "Pronumerals on Both Sides — Student Quiz",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-4/algebra/multi-step-equations/pronumerals-both-sides.html",
+      ideas: ["two-steps", "verify"],
+      note: "Pronumerals on both sides (5x + 2 = 3x + 10, 3(x + 2) = x + 14), Sweet to Spicy on the double number line. Saves to the student dashboard.",
+      tags: ["equations", "double number line", "student quiz"]
+    },
+    {
+      title: "Multi-Step Equations — Mixed — Student Quiz",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-4/algebra/multi-step-equations/mixed.html",
+      ideas: ["two-steps", "verify"],
+      note: "Every kind of multi-step equation, Sweet to Spicy: two-step, grouping, both sides, fractions and harder ones. Saves to the student dashboard.",
+      tags: ["equations", "double number line", "student quiz"]
+    },
+    {
       title: "Double Number Line Equations — ELPSA Lesson Plan",
       kind: "Lesson plan",
       url: "/interactive-tools/stage-4/algebra/double-numberline/lesson-plan.html",
@@ -1930,6 +1962,24 @@ window.MMT_TOOL_LINKS = {
     },
   ],
 
+  "MA5-ALG-C-01": [
+    {
+      title: "Multi-Step Equations on the Double Number Line",
+      kind: "Teacher tool",
+      url: "/interactive-tools/stage-4/algebra/multi-step-double-numberline/",
+      ideas: ["distributive"],
+      note: "The distributive law inside equations: 3(x + 2) = x + 14 and 5(x + 2) − 2(x − 1) = x + 20 — expand the brackets and collect like terms (the point on the line doesn’t move), then solve. Working shown line by line.",
+      tags: ["expand", "brackets", "distributive law", "collect like terms", "equations", "double number line"]
+    },
+    {
+      title: "Multi-Step Equations \u2014 Double Number Line",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-4/algebra/multi-step-double-numberline.html",
+      ideas: ["distributive"],
+      note: "Printable worksheets: tick \u201cInvolving brackets\u201d and \u201cHarder\u201d for equations that need the brackets expanded and like terms collected, including the half-expanded bracket and lost-sign mistakes to spot. With an answer key.",
+      tags: ["worksheet generator", "printable", "expand", "brackets", "collect like terms"]
+    }
+  ],
   "MA5-EQU-C-01": [
     {
       title: "Multi-Step Equations on the Double Number Line",
@@ -1943,9 +1993,33 @@ window.MMT_TOOL_LINKS = {
       title: "Multi-Step Equations \u2014 Double Number Line",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-4/algebra/multi-step-double-numberline.html",
-      ideas: ["three-steps", "one-fraction"],
+      ideas: ["three-steps", "one-fraction", "word-problems"],
       note: "Printable worksheets on pronumerals on both sides with brackets, one algebraic fraction and harder ones, worked on the double number line and = under =. Sweet to Spicy, with an answer key.",
       tags: ["worksheet generator", "printable", "equations", "both sides", "brackets", "algebraic fractions"]
+    },
+    {
+      title: "Pronumerals on Both Sides — Student Quiz",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-4/algebra/multi-step-equations/pronumerals-both-sides.html",
+      ideas: ["three-steps"],
+      note: "Pronumerals on both sides (5x + 2 = 3x + 10, 3(x + 2) = x + 14), Sweet to Spicy on the double number line. Saves to the student dashboard.",
+      tags: ["equations", "double number line", "student quiz"]
+    },
+    {
+      title: "Equations with Fractions (and Harder Ones) — Student Quiz",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-4/algebra/multi-step-equations/fractions-harder.html",
+      ideas: ["one-fraction", "three-steps"],
+      note: "One algebraic fraction and harder equations ((x + 7)/2 = x + 2, two fractions, two brackets): clear the fraction, expand, collect, then solve. Sweet to Spicy. Saves to the student dashboard.",
+      tags: ["equations", "double number line", "student quiz"]
+    },
+    {
+      title: "Multi-Step Equations — Mixed — Student Quiz",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-4/algebra/multi-step-equations/mixed.html",
+      ideas: ["three-steps", "one-fraction", "word-problems"],
+      note: "Every kind of multi-step equation, Sweet to Spicy: two-step, grouping, both sides, fractions and harder ones. Saves to the student dashboard.",
+      tags: ["equations", "double number line", "student quiz"]
     }
   ],
   "MA5-EQU-P-01": [

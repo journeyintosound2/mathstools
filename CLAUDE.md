@@ -254,6 +254,43 @@
 >   jump, answer never early, no page scroll on desktop), 64 settings combinations, 29 UI checks (keys, panel,
 >   full screen, menus, type your own, persistence, real animations both ways).
 >
+> **NEW (2026-11-17, latest): MULTI-STEP EQUATIONS — FIVE STUDENT QUIZZES + STAGE 5 LISTINGS.**
+> `online-quizzes/stage-4/algebra/multi-step-equations/` — thin shells `two-step.html`, `two-step-grouping.html`,
+> `pronumerals-both-sides.html`, `fractions-harder.html`, `mixed.html` (each sets `window.MSQ = {scope, toolId, tool, title,
+> mastery}`) + ONE engine `msq/quiz.js` + `msq/quiz.css` (bump BOTH `?v=` in all five shells). Registry toolIds
+> `multi-step-{two-step,grouping,both-sides,fractions,mixed}-quiz`; achievementToolNames `two-step-equations-student-quiz`,
+> `two-step-grouping-equations-student-quiz`, `pronumerals-both-sides-student-quiz`, `equations-fractions-harder-student-quiz`,
+> `multi-step-equations-mixed-student-quiz`. Scopes: two = axb/xab/bax · group = brk/frc · both = both/bbrk · frac = bfrc/bhard ·
+> mix = all nine. The tool's Tools menu links all five; each quiz's menu links the tool, the worksheet and the other four.
+> Project doc `claude/multi-step-double-number-line.md`.
+> * **The tool's engine AND board (app1 + app2) are copied VERBATIM into `const MS`**, with ONE hook: `S.hide = {i, side}`
+>   makes moveScene draw the new number as "?". Change the tool's engine/board → re-copy it.
+> * **The level is how much of the tool the student keeps (same on all five pages):** Sweet = DRIVE the double number line:
+>   choose each move from four pills (the right one + doing it again / undoing in the wrong order / another operation, with a
+>   reason for each), it plays on both lines (choose → move → reset, the tool's own scenes and `mix`), then type the new number
+>   in place of the "?"; expand/collect are a press (unmarked). Mild = write the working = under =: a move box under the left
+>   side (mirrored on the right) and both sides of each new equation typed (`parseSideIn` reads any linear form; equal but not
+>   simplified, or brackets/fraction bar left in, is a free nudge; a rewrite's untouched side is printed). Medium = answer only,
+>   every second answer negative, which-move-first MC, check MC, spot the mistake, think of a number. Spicy = negative and
+>   fraction answers (MathLive fraction box from jsDelivr, plain box fallback; unsimplified fraction = free nudge), spot the
+>   mistake, worded problems (contexts with AR/FA). A question scores only if EVERY part is right first time; Next on an
+>   unfinished question = wrong. types[] object shape `msq-<kind>`, `msq-eq-<type>`, negatives/fractions + level/scope/lang tags.
+>   No typed answer is saved. Test surface `window.__MSQ__`; `window.__MSQ_FAST__ = 1` skips the board animations.
+> * **Trilingual EN/AR/FA** (Counting Strategies convention; `mmt-msq-lang`). Every word is in the `UI` block; think-of-a-number
+>   sentences are built per language from the equation's structure (`PH`, `sideWordsL`); the stories carry `t` and `w` in all
+>   three. The Arabic and Farsi want a fluent proofread.
+> * **Stage 5 listings (Jeff: so Stage 5 teachers find it without going back to Stage 4):** MA5-EQU-C-01 has the tool, the
+>   worksheet (ideas three-steps / one-fraction / word-problems) and the Both sides, Fractions and Mixed quizzes; NEW
+>   MA5-ALG-C-01 key (distributive) lists the tool and the worksheet (expanding and collecting inside equations). MA4-EQU-C-01
+>   has the Two-step, Grouping, Both sides and Mixed quizzes. toolFamilies: the five quizzes fold into the tool's row. Homepage:
+>   five quiz mini cards (Online Quizzes pill 44 → 49). `?v=` bumped: registry (teacher, student, resultUtils), resultUtils,
+>   toolLinks, toolFamilies.
+> * Verified (Playwright): 1,200 papers (every stage of every equation true, Sweet/Mild positive whole, four distinct move
+>   choices with one right, first-move questions never start on a rewrite, think sentences in all three languages, contexts
+>   translated), every page × level played right through (10/10) and with a wrong first attempt on every other question (5/10)
+>   in EN, AR and FA with no answer on the card early, 30 parser unit checks, payload with no typed answer, 1366×768 and 390 wide.
+>   MathLive itself was not loaded in testing (the container blocks the CDN); the plain box path is what was played.
+>
 > **NEW (2026-11-17, latest): MULTI-STEP EQUATIONS — WORKSHEET CREATOR.**
 > `worksheet-creators/stage-4/algebra/multi-step-double-numberline.html` (single file, the one-step creator's frame:
 > bands, level tick-chips, lettered types with counts, measured A4 packing, key). Linked from the multi-step tool's

@@ -109,7 +109,12 @@ window.MMT_TOOL_FAMILIES = {
     "/online-quizzes/stage-4/algebra/counting-strategies-all-quadrants.html"
   ],
   "/interactive-tools/stage-4/algebra/multi-step-double-numberline/": [
-    "/worksheet-creators/stage-4/algebra/multi-step-double-numberline.html"
+    "/worksheet-creators/stage-4/algebra/multi-step-double-numberline.html",
+    "/online-quizzes/stage-4/algebra/multi-step-equations/two-step.html",
+    "/online-quizzes/stage-4/algebra/multi-step-equations/two-step-grouping.html",
+    "/online-quizzes/stage-4/algebra/multi-step-equations/pronumerals-both-sides.html",
+    "/online-quizzes/stage-4/algebra/multi-step-equations/fractions-harder.html",
+    "/online-quizzes/stage-4/algebra/multi-step-equations/mixed.html"
   ],
   "/interactive-tools/stage-4/algebra/double-numberline/": [
     "/worksheet-creators/stage-4/algebra/double-numberline.html",
