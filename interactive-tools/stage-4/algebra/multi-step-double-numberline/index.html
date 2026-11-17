@@ -420,6 +420,11 @@
     .wsCtlBtn:hover{ color:var(--blue-dark, #1d4ed8); background:#eef2ff; }
     .wsCtl{ display:flex; flex-direction:column; gap:2px; margin-top:6px; }
     .wsCtl[hidden]{ display:none; }
+    /* building first: the top card writes the build out in order (Daniela's feedback 2026-11-17) */
+    .bOrig.chain{ gap:.28em; }
+    .chStep{ display:inline-flex; flex-direction:column; align-items:center; font-size:.5em; line-height:1; margin:0 .1em; }
+    .chStep .chArr{ color:#ea580c; font-family:var(--uiFont); font-weight:900; font-size:1.3em; line-height:.9; }
+    .trOp.build{ color:#c2410c; background:#fff7ed; border-color:#fdba74; }
   </style>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
 <!-- mmt-pwa -->
@@ -1243,11 +1248,18 @@
     const bs = buildSide(q);
     if(bs) for(let i = 0; i <= bs.side.ops.length; i++) s.push("b" + i);
     s.push("s");
-    q.moves.forEach((m, i) => { if(isRewrite(m)){ s.push("w" + i); return; } if(S.set.split) s.push("t" + i); s.push("m" + i); s.push("r" + i); });
+    q.moves.forEach((m, i) => { if(isRewrite(m)){ s.push("w" + i); return; } if(needsTurn(q, i)){ s.push("u" + i); s.push("f" + i); } if(S.set.split) s.push("t" + i); s.push("m" + i); s.push("r" + i); });
     if(S.set.check) s.push("check");
     return s;
   }
   const sid = () => IDS[S.step];
+  /* NEGATIVES (Jeff 2026-11-17). Until there is evidence, x is pictured as POSITIVE: an x-term jump goes the way it would
+     if x were positive (taking away 2x goes left), and measuring from 0 puts the point to the right of 0 when no number
+     on the line says otherwise. The evidence is a NEGATIVE NUMBER at a × or ÷ move (6x = −12): the point is first drawn
+     where we assumed (the −12 in red, "u"), then the line turns around ("f", a real half-turn of the board) and the
+     move is made from the mirrored picture — as the One-Step tool does. */
+  const stageNum = st => st.top.t === "num" || st.bot.t === "num";
+  const needsTurn = (q, i) => { const mv = q.moves[i]; return (mv.kind === "mul" || mv.kind === "div") && stageNum(q.stages[i]) && rF(q.stages[i].val) < 0; };
   /* which side was built from x (two-step: a side written as operations on the letter, the other a number) */
   function buildSide(q){
     if(S.set.eqf || !q) return null;
@@ -1261,7 +1273,7 @@
   const kindOf = id => id === "check" ? "check" : id[0];
   const idxOf = id => id === "check" || id === "s" ? 0 : parseInt(id.slice(1), 10);
   /* the latest equation on the board at a step */
-  function stageAt(id){ const k = kindOf(id); return k === "s" || k === "b" ? 0 : k === "t" ? idxOf(id) : k === "check" ? S.q.stages.length - 1 : idxOf(id) + 1; }
+  function stageAt(id){ const k = kindOf(id); return k === "s" || k === "b" || k === "c" ? 0 : k === "u" || k === "f" ? idxOf(id) : k === "t" ? idxOf(id) : k === "check" ? S.q.stages.length - 1 : idxOf(id) + 1; }
   /* a side that is written the same way in stages j … i keeps one key, so it stays put instead of fading and coming back */
   const pkey = p => JSON.stringify(p);
   const keyT = i => { let j = i; while(j > 0 && pkey(topP(j - 1)) === pkey(topP(j))) j--; return "lt" + j; };
@@ -1305,7 +1317,7 @@
   const fit = (p, size, maxW) => { const w = measureP(p, size); return w > maxW ? Math.max(7, size * maxW / w) : size; };
 
   /* ================= scenes: the board at a step is a list of keyed elements ================= */
-  const COL = { build:"#ea580c", buildBg:"#fff7ed", ink:"#0f172a", line:"#334155", soft:"#94a3b8", top:"#1d4ed8", bot:"#15803d", undo:"#7c3aed", undoBg:"#f5f3ff", q:"#64748b" };
+  const COL = { bad:"#dc2626", build:"#ea580c", buildBg:"#fff7ed", ink:"#0f172a", line:"#334155", soft:"#94a3b8", top:"#1d4ed8", bot:"#15803d", undo:"#7c3aed", undoBg:"#f5f3ff", q:"#64748b" };
   const tick = (key, x, major, o, d) => ({ key, type:"tick", x, y:L.y0, h:major ? L.tk : L.tkm, w:major ? Math.max(3.5, L.fsM * 0.09) : Math.max(2.2, L.fsM * 0.055), col:major ? COL.ink : COL.soft, o, d:d || 0, z:4 });
   const lab = (key, x, top, p, size, col, o, d, extra) => Object.assign({ key, type:"lab", x, y:top ? L.yLt : L.yLb, p, size, col, o, d:d || 0, z:5 }, extra || {});
   const pill = (key, x, y, text, o, d) => ({ key, type:"pill", x, y, text, col:COL.undo, bg:COL.undoBg, o, d:d || 0, z:6 });
@@ -1318,6 +1330,9 @@
     const k = kindOf(id);
     if(k === "s") seeScene(0, els);
     else if(k === "b") buildScene(idxOf(id), els);
+    else if(k === "c") buildScene(idxOf(id), els, true);
+    else if(k === "u") turnScene(idxOf(id), false, els);
+    else if(k === "f") turnScene(idxOf(id), true, els);
     else if(k === "r") seeScene(idxOf(id) + 1, els);
     else if(k === "t") moveScene(idxOf(id), true, els);
     else if(k === "m") moveScene(idxOf(id), false, els);
@@ -1357,7 +1372,7 @@
   }
   /* building: x on its own (b0), then each operation done to it in turn, in orange, on the line that side lives on.
      The expression just made keeps the key the next step (or the equation) uses, so the line pans on to it. */
-  function buildScene(i, els){
+  function buildScene(i, els, pre){
     const bs = buildSide(S.q), sd = bs.side, n = sd.ops.length, top = bs.top, fsM = L.fsM;
     const key = j => j === n ? (top ? keyT(0) : keyB(0)) : "bl" + j, tk = j => j === n ? "p0" : "bp" + j;
     const col = top ? COL.top : COL.bot;
@@ -1369,6 +1384,7 @@
       return;
     }
     const op = sd.ops[i - 1], a = builtP(sd, i - 1), b = builtP(sd, i), text = { add:"+ ", sub:MINUS + " ", mul:TIMES + " ", div:DIVIDE + " " }[op.o] + op.n;
+    const st = j => 0.04 + 0.34 * j / Math.max(1, op.n);       /* one at a time, along the line */
     const W = L.W, side = top ? -1 : 1;
     let x1, x2, s1, s2;
     if(op.o === "mul" || op.o === "div"){
@@ -1377,41 +1393,73 @@
       const zs = Math.min(fsM * 0.9, step * 0.42), whole = op.o === "mul" ? b : a, unit = op.o === "mul" ? a : b;
       const sW = fit(whole, fsM, 2 * (W * 0.13 - 8)), sU = fit(unit, fsM, 2 * (step - measureP([N(0)], zs) / 2 - 10));
       s1 = op.o === "mul" ? sU : sW; s2 = op.o === "mul" ? sW : sU;
-      els.push(tick("bz" + i, pos(0), true, 1, 0.05));
-      els.push(lab("bzl" + i, pos(0), top, [N(0)], zs, COL.ink, 1, 0.05));
-      for(let j = 2; j < op.n; j++) els.push(tick("bm" + i + "_" + j, pos(j), false, 1, 0.08 + 0.2 * j / op.n));
-      if(S.set.parts) for(let j = 0; j < op.n; j++) els.push(loop("bg" + i + "_" + j, pos(j), pos(j + 1), 1, 0.08 + 0.2 * j / op.n));
-      if(S.set.moves){
-        const e = arrow("bh" + i, x1, x2, side, 1, 0.2); e.col = COL.build; els.push(e);
-        const p = pill("bpl" + i, (x1 + x2) / 2, top ? L.yAt - L.arrH * 0.5 : L.yAb + L.arrH * 0.5, text, 1, 0.22); p.col = COL.build; p.bg = COL.buildBg; els.push(p);
+      els.push(tick("bz" + i, pos(0), true, 1, 0));
+      els.push(lab("bzl" + i, pos(0), top, [N(0)], zs, COL.ink, 1, 0));
+      if(!pre){
+        /* ×: the groups are laid end to end from 0, one at a time;  ÷: the line from 0 to it is cut into parts, one at a time */
+        for(let j = 2; j < op.n; j++) els.push(tick("bm" + i + "_" + j, pos(j), false, 1, st(op.o === "mul" ? j - 1 : j)));
+        if(S.set.parts) for(let j = 0; j < op.n; j++) els.push(loop("bg" + i + "_" + j, pos(j), pos(j + 1), 1, st(op.o === "mul" ? j : j)));
+        if(S.set.moves){
+          const e = arrow("bh" + i, x1, x2, side, 1, 0.3); e.col = COL.build; els.push(e);
+          const p = pill("bpl" + i, (x1 + x2) / 2, top ? L.yAt - L.arrH * 0.5 : L.yAb + L.arrH * 0.5, text, 1, 0.32); p.col = COL.build; p.bg = COL.buildBg; els.push(p);
+        }
       }
     } else {
       const dir = op.o === "add" ? 1 : -1, xa = W * 0.25, xb = W * 0.75, pw = tw(text, L.fsS * 0.95, UI, 900) + L.fsS * 1.05;
       x1 = dir > 0 ? xa : xb; x2 = dir > 0 ? xb : xa;
       const half = W * 0.25 - pw / 2 - 12;
       s1 = s2 = Math.min(fit(a, fsM, 2 * half), fit(b, fsM, 2 * half));
-      if(op.n <= 20 && S.set.parts) for(let j = 1; j < op.n; j++) els.push(tick("bm" + i + "_" + j, x1 + (x2 - x1) * j / op.n, false, 1, 0.06 + 0.2 * j / op.n));
-      if(S.set.moves){
-        const e = hop("bh" + i, x1, x2, side, 1, 0.16); e.col = COL.build; els.push(e);
-        const p = pill("bpl" + i, (x1 + x2) / 2, top ? L.yLt : L.yLb, text, 1, 0.2); p.col = COL.build; p.bg = COL.buildBg; els.push(p);
+      if(!pre){
+        /* + / −: counted along, one jump at a time (as the One-Step tool builds), when the steps are small enough to see */
+        const units = op.n <= 12 && S.set.parts, u = j => x1 + (x2 - x1) * j / op.n;
+        if(units) for(let j = 1; j < op.n; j++) els.push(tick("bm" + i + "_" + j, u(j), false, 1, st(j)));
+        if(S.set.moves){
+          if(units) for(let j = 0; j < op.n; j++){
+            const e = hop("bh" + i + "_" + j, u(j), u(j + 1), side, 1, st(j)); e.col = COL.build; e.h = L.arcH * 0.85; e.head = j === op.n - 1; els.push(e);
+          } else { const e = hop("bh" + i, x1, x2, side, 1, 0.16); e.col = COL.build; els.push(e); }
+          const p = pill("bpl" + i, (x1 + x2) / 2, top ? L.yLt : L.yLb, text, 1, 0.3); p.col = COL.build; p.bg = COL.buildBg; els.push(p);
+        }
       }
     }
-    els.push({ key:"halo", type:"halo", x:x2, y:L.y0, r:fsM * 2.1, o:0, z:0 });
+    els.push({ key:"halo", type:"halo", x:x1, y:L.y0, r:fsM * 2.1, o:pre ? 1 : 0, z:0 });
     els.push(tick(tk(i - 1), x1, true, 1));
     els.push(lab(key(i - 1), x1, top, a, s1, col, 1));
-    els.push(tick(tk(i), x2, true, 1, 0.24));
-    els.push(lab(key(i), x2, top, b, s2, col, 1, 0.3));
+    if(!pre){
+      els.push(tick(tk(i), x2, true, 1, 0.38));
+      els.push(lab(key(i), x2, top, b, s2, col, 1, 0.42));
+    }
     tags(els, 0);
+  }
+  /* before a × / ÷ move with a negative number: measured from 0 as if positive (turned = false, the number red because it
+     is on the wrong side of 0), then mirrored (turned = true). Built from the move's own scene so every key carries on into it. */
+  function turnScene(i, turned, els){
+    S.forceSgn = turned ? -1 : 1;
+    const tmp = []; moveScene(i, false, tmp);
+    S.forceSgn = 0;
+    const st = S.q.stages[i], kT = keyT(i), kB = keyB(i);
+    const keep = e => [kT, kB, "p" + i, "z" + i, "zt" + i, "zb" + i].includes(e.key) || e.key.startsWith("mt" + i + "_") || e.key.startsWith("g" + i + "_");
+    let px = L.cx;
+    tmp.forEach(e => {
+      if(!keep(e)) return;
+      if(e.key === "p" + i) px = e.x;
+      if(!turned && e.type === "lab" && ((e.key === kT && st.top.t === "num") || (e.key === kB && st.bot.t === "num"))) e.col = COL.bad;
+      els.push(e);
+    });
+    els.push({ key:"halo", type:"halo", x:px, y:L.y0, r:L.fsM * 2.1, o:1, z:0 });
+    tags(els, turned ? 0 : 1);
   }
   function moveGeom(i){
     const q = S.q, mv = q.moves[i], a = q.stages[i], b = q.stages[i + 1], W = L.W;
     if(mv.kind === "div" || mv.kind === "mul"){
-      const whole = mv.kind === "div" ? a : b, sgn = rF(whole.val) < 0 ? -1 : 1, n = mv.n;
+      const whole = mv.kind === "div" ? a : b, n = mv.n;
+      let sgn = rF(whole.val) < 0 && (stageNum(a) || stageNum(b)) ? -1 : 1;     /* no number on the line: x is pictured positive */
+      if(S.forceSgn) sgn = S.forceSgn;
       const left = W * 0.13, right = W * 0.87, step = (right - left) / n;
       const pos = j => sgn > 0 ? left + j * step : right - j * step;
       return { mult:true, n, step, pos, x1:mv.kind === "div" ? pos(n) : pos(1), x2:mv.kind === "div" ? pos(1) : pos(n), unitI:mv.kind === "div" ? i + 1 : i, wholeI:mv.kind === "div" ? i : i + 1 };
     }
-    const dir = rF(b.val) > rF(a.val) ? 1 : -1, xa = W * 0.25, xb = W * 0.75;
+    /* an x-term jump goes the way it would if x were positive (its length is unknown — it is dashed) */
+    const dir = mv.kind === "xterm" ? (mv.s > 0 ? -1 : 1) : rF(b.val) > rF(a.val) ? 1 : -1, xa = W * 0.25, xb = W * 0.75;
     return { mult:false, x1:dir > 0 ? xa : xb, x2:dir > 0 ? xb : xa, dir };
   }
   function moveScene(i, topOnly, els){
@@ -1530,7 +1578,7 @@
         const inset = Math.min(6, (e.x2 - e.x1) * 0.08), a = e.x1 + inset, b = e.x2 - inset, rx = Math.max(4, (b - a) / 2);
         out.push(`<path d="M${f1(a)} ${f1(e.y - 3)}A${f1(rx)} ${f1(e.ry)} 0 0 1 ${f1(b)} ${f1(e.y - 3)}M${f1(b)} ${f1(e.y + 3)}A${f1(rx)} ${f1(e.ry)} 0 0 1 ${f1(a)} ${f1(e.y + 3)}" fill="rgba(148,163,184,.08)" stroke="${COL.soft}" stroke-width="${f1(Math.max(1.6, L.fsM * 0.045))}" stroke-dasharray="7 6" opacity="${op}"/>`);
       } else if(e.type === "hop"){
-        out.push(`<g data-key="${e.key}" opacity="${op}"><path d="${hopPath(e)}" fill="none" stroke="${e.col}" stroke-width="${f1(e.w)}" stroke-linecap="round"${e.dash ? ` stroke-dasharray="${f1(e.w * 2.6)} ${f1(e.w * 2.4)}"` : ""}/>${headSVG(e)}</g>`);
+        out.push(`<g data-key="${e.key}" opacity="${op}"><path d="${hopPath(e)}" fill="none" stroke="${e.col}" stroke-width="${f1(e.w)}" stroke-linecap="round"${e.dash ? ` stroke-dasharray="${f1(e.w * 2.6)} ${f1(e.w * 2.4)}"` : ""}/>${e.head === false ? "" : headSVG(e)}</g>`);
       } else if(e.type === "pill"){
         const fs = e.fs || L.fsS * 0.95, w = tw(e.text, fs, UI, 900) + fs * 1.05, h = fs * 1.5;
         out.push(`<g data-key="${e.key}" opacity="${op}"><rect x="${f1(e.x - w / 2)}" y="${f1(e.y - h / 2)}" width="${f1(w)}" height="${f1(h)}" rx="${f1(h / 2)}" fill="${e.bg}" stroke="${e.col}" stroke-width="${e.fs ? 1.2 : 1.8}"/>` +
@@ -1668,11 +1716,20 @@
     placeBoxes();
   }
   function fitStmt(){ fitBoard(); fitPanel(); }
-  let lastWorkQ = null, lastStepHTML = "";
+  let lastWorkQ = null, lastStepHTML = "", lastOrigHTML = "";
+  /* while building, the top card writes the build out in order, so the order to undo it in is there to see */
+  function buildChainHTML(){
+    const id = sid(); if(kindOf(id) !== "b") return "";
+    const sd = buildSide(S.q).side, i = idxOf(id), sym = { add:"+ ", sub:MINUS + " ", mul:TIMES + " ", div:DIVIDE + " " };
+    let h = `<span class="wt cE">${H([V])}</span>`;
+    for(let j = 1; j <= i; j++){ const op = sd.ops[j - 1];
+      h += `<span class="chStep"><span class="trOp build">${esc(sym[op.o] + op.n)}</span><span class="chArr">&rarr;</span></span><span class="wt cE">${H(builtP(sd, j))}</span>`; }
+    return h;
+  }
   function paintStmt(){
     /* the board */
-    const sh = stepHTML(), oh0 = `<span class="wt bl cE">${H(topP(0))}</span><span class="wt bm eqSign">=</span><span class="wt br cV">${H(botP(0))}</span>`;
-    if(sh !== lastStepHTML){ $("stepList").innerHTML = sh; $("bOrig").innerHTML = oh0; lastStepHTML = sh; fitBoard(true); }
+    const sh = stepHTML(), oh0 = buildChainHTML() || `<span class="wt bl cE">${H(topP(0))}</span><span class="wt bm eqSign">=</span><span class="wt br cV">${H(botP(0))}</span>`;
+    if(sh !== lastStepHTML || oh0 !== lastOrigHTML){ $("stepList").innerHTML = sh; $("bOrig").innerHTML = oh0; $("bOrig").classList.toggle("chain", oh0 !== "" && kindOf(sid()) === "b"); lastStepHTML = sh; lastOrigHTML = oh0; fitBoard(true); }
     else scrollWin(true);
     /* the working panel */
     const g = $("work");
@@ -1715,7 +1772,7 @@
     const q = S.q, mv = q.moves[i], v = letterHTML(q.v);
     if(mv.kind === "xterm"){
       const term = eqHTML(termP(Math.abs(mv.s)));
-      const dash = S.set.moves ? ` The jump is dashed because we don&rsquo;t know how long it is yet.` : "";
+      const dash = S.set.moves ? ` The jump is dashed because we don&rsquo;t know how long it is yet. We picture ${v} as positive until we know.` : "";
       if(mv.s > 0) return `Both sides have ${v}. Take ${term} from both sides and they are still equal. Now only one side has ${v}.` + dash;
       return `${term} is being taken away. Add ${term} to both sides and they are still equal. Now ${v} is only being added.` + dash;
     }
@@ -1727,9 +1784,25 @@
     if(mv.kind === "div") return `${X1} is ${mv.n} lots of ${X2}. Measure from 0 and cut both lines into ${mv.n} equal parts: ${v1} &divide; ${mv.n} = ${v2}.`;
     return `${X1} is one of ${mv.n} equal parts of ${X2}. Measure from 0 and put ${mv.n} parts together: ${v1} &times; ${mv.n} = ${v2}.`;
   }
-  function storyFor(id){
+  /* x turned out negative: an x-term jump we drew as if x were positive really went the other way */
+  function xtermLookBack(){
+    const q = S.q, mv = q.moves.find(m => m.kind === "xterm");
+    if(!mv || rF(q.x) >= 0) return "";
+    const t = eqHTML(termP(Math.abs(mv.s))), v = letterHTML(q.v);
+    return mv.s > 0 ? ` So ${v} is negative: when we took ${t} from both sides, the point really moved to the right, not the left.`
+      : ` So ${v} is negative: when we added ${t} to both sides, the point really moved to the left, not the right.`;
+  }
+    function storyFor(id){
     const q = S.q, k = kindOf(id), i = idxOf(id), v = letterHTML(q.v), last = q.stages.length - 1;
-    if(k === "b"){
+    if(k === "u" || k === "f"){
+      const mv = q.moves[i], st = q.stages[i], xs = hasX(st.top) ? st.top : st.bot, ns = hasX(st.top) ? st.bot : st.top;
+      const X = eqHTML(sideP(xs)), c = eqHTML(sideP(ns)), n = mv.n;
+      if(k === "u") return { lab:"Measure from 0", m:eqHTML(eqP(i)),
+        tip:(mv.kind === "div" ? `${X} is ${n} equal groups, laid end to end from 0.` : `${X} is one of ${n} equal parts, measured from 0.`) + ` We pictured it to the right of 0&hellip; but ${c} is less than 0.` };
+      return { lab:"Turn the line around", m:eqHTML(eqP(i)),
+        tip:`${c} is less than 0, so ${X} sits to the left of 0. Every point swaps to its mirror image across 0.` + xtermLookBack() };
+    }
+        if(k === "b"){
       const bs = buildSide(q), sd = bs.side;
       if(i === 0) return { lab:`Start with ${v}`, m:eqHTML([V]), tip:`${v} is a number we don&rsquo;t know yet. Watch what is done to it, one step at a time.` };
       const op = sd.ops[i - 1], a = eqHTML(builtP(sd, i - 1)), b = eqHTML(builtP(sd, i)), n = op.n;
@@ -1758,8 +1831,8 @@
     }
     if(k === "r"){
       if(i + 1 === last){
-        const flip = !hasX(q.stages[last].top);
-        return { lab:"The solution", m:eqHTML(solP()), tip:(flip ? `${eqHTML(eqP(last))} says the same thing as ${eqHTML([V, O("="), ...valP(q.x)])}. ` : "") + `${v} is on its own, so the other line shows what it is.` };
+        const flip = !hasX(q.stages[last].top), turned = q.moves.some((m, j) => needsTurn(q, j));
+        return { lab:"The solution", m:eqHTML(solP()), tip:(flip ? `${eqHTML(eqP(last))} says the same thing as ${eqHTML([V, O("="), ...valP(q.x)])}. ` : "") + `${v} is on its own, so the other line shows what it is.` + (turned ? "" : xtermLookBack()) };
       }
       return { lab:"A simpler equation", m:eqHTML(eqP(i + 1)), tip:`It has the same solution as the one we started with, and it is one step simpler. The line starts again from this point.` };
     }
@@ -1778,7 +1851,9 @@
       if(mv.kind === "mul" && hasX(q.stages[j].top) && hasX(q.stages[j].bot)) return `There is a fraction. What could we multiply both sides by to clear it?`;
       return `What was the last thing done to ${v}? What undoes it?`;
     };
-    if(k === "b"){
+    if(k === "u"){ const st = q.stages[i], ns = hasX(st.top) ? st.bot : st.top; return `Can ${eqHTML(sideP(ns))} really be to the right of 0?`; }
+    if(k === "f") return `Why did every point swap sides?`;
+        if(k === "b"){
       const n = buildSide(q).side.ops.length;
       return i === 0 ? `Where could ${v} be on the line?` : i < n ? `What has been done to ${v} so far?` : `What was the last thing done to ${v}?`;
     }
@@ -1810,22 +1885,35 @@
     $("allBtn").disabled = last;
     $("hint").innerHTML = hintFor(sid());
     const id = sid(), k = kindOf(id), nm = S.q.moves.length, tag = $("typeTag");
-    tag.textContent = k === "b" ? "Build it" : k === "s" ? "The equation" : k === "check" ? "Check" : k === "w" ? (q_w(id)) : k === "r" && idxOf(id) === nm - 1 ? "Solved" : k === "r" ? "Simpler equation" : `Move ${idxOf(id) + 1} of ${nm}`;
+    tag.textContent = k === "u" ? "Measure from 0" : k === "f" ? "Turn the line around" : k === "b" ? "Build it" : k === "s" ? "The equation" : k === "check" ? "Check" : k === "w" ? (q_w(id)) : k === "r" && idxOf(id) === nm - 1 ? "Solved" : k === "r" ? "Simpler equation" : `Move ${idxOf(id) + 1} of ${nm}`;
     tag.classList.toggle("let", k === "t" || k === "m");
   }
   function frame(){
     if(!S.q) return;
     layout();
+    const svg = $("board");
     if(S.anim){
-      const T = Math.min(1, (performance.now() - S.anim.t0) / S.anim.dur);
-      drawEls(mix(scene(S.anim.from), scene(S.anim.to), T));
-      if(T < 1){ S.anim.raf = requestAnimationFrame(frame); return; }
+      const A = S.anim, T = Math.min(1, (performance.now() - A.t0) / A.dur);
+      if(A.flip){
+        /* turning the line around: a real half-turn of the board (as the One-Step tool). The far side is drawn already
+           turned, so its labels read the right way. */
+        const e = ease(T), first = e < 0.5;
+        drawEls(scene(first ? A.from : A.to));
+        const deg = first ? e * 180 : (e - 1) * 180, edge = Math.abs(Math.sin(e * Math.PI));
+        svg.style.transform = `perspective(1600px) rotateY(${deg.toFixed(2)}deg) scale(${(1 - edge * 0.04).toFixed(3)})`;
+        svg.style.filter = `brightness(${(1 - edge * 0.12).toFixed(3)})`;
+      } else drawEls(mix(scene(A.from), scene(A.to), T));
+      if(T < 1){ A.raf = requestAnimationFrame(frame); return; }
+      svg.style.transform = ""; svg.style.filter = "";
+      /* a step played in parts (the build: slide along, then build) */
+      if(A.legs && A.legs.length){ const n = A.legs.shift(); Object.assign(A, n, { t0:performance.now() }); A.raf = requestAnimationFrame(frame); return; }
       S.anim = null;
     }
+    svg.style.transform = ""; svg.style.filter = "";
     drawEls(scene(sid()));
   }
-  function stopAnim(){ if(S.anim){ cancelAnimationFrame(S.anim.raf); S.anim = null; } }
-  const DUR = { t:1500, m:2000, r:1400, c:1100, w:1500, b:1700, s:1400 };
+  function stopAnim(){ if(S.anim){ cancelAnimationFrame(S.anim.raf); S.anim = null; } const b = $("board"); b.style.transform = ""; b.style.filter = ""; }
+  const DUR = { t:1500, m:2000, r:1400, c:1100, w:1500, b:2000, s:1400, u:1300, f:1500 };
   function go(to){
     to = clamp(to, 0, IDS.length - 1);
     if(to === S.step) return;
@@ -1837,7 +1925,10 @@
       const key = fi < to ? sid() : from, k = kindOf(key);
       let dur = DUR[k] || 1100;
       if(k === "m" && S.set.split) dur = 1200;
-      S.anim = { from, to:sid(), t0:performance.now(), dur };
+      S.anim = { from, to:sid(), t0:performance.now(), dur, flip:k === "f" };
+      /* building forwards: first the line slides along so the last expression is the start, then the new one is built */
+      const to2 = sid();
+      if(fi < to && kindOf(to2) === "b" && idxOf(to2) > 0) S.anim = { from, to:"c" + idxOf(to2), t0:performance.now(), dur:900, legs:[{ from:"c" + idxOf(to2), to:to2, dur:2000 }] };
     }
     frame();
   }

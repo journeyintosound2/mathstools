@@ -254,6 +254,25 @@
 >   jump, answer never early, no page scroll on desktop), 64 settings combinations, 29 UI checks (keys, panel,
 >   full screen, menus, type your own, persistence, real animations both ways).
 >
+> **NEW (2026-11-17, latest): MULTI-STEP TOOL — NEGATIVE ANSWERS TURN THE LINE AROUND + A SMOOTHER BUILD.**
+> * **x is pictured POSITIVE until there is evidence** (Jeff: "subtracting pronumerals moves right" is only intuitive if you
+>   know the answer is negative). An x-term jump (`xterm`) is drawn the way it would go if x were positive (taking away 2x goes
+>   LEFT) — `moveGeom` no longer reads the hidden value. A × / ÷ move with no number on the line is measured as if positive.
+> * **The evidence is a negative number at a × / ÷ move** (6x = −12, x/4 = −5): two steps before the move (`needsTurn`):
+>   `u{i}` "Measure from 0" — drawn to the right of 0 as assumed, the number in RED, hint "Can −12 really be to the right of 0?";
+>   `f{i}` "Turn the line around" — a real half-turn of the board (rotateY, as the One-Step tool), every point mirrored across 0.
+>   Then `m{i}` from the mirrored picture. `turnScene` is built from `moveScene` with `S.forceSgn`, so every key carries on.
+>   When x is negative and an x-term jump came earlier, the turn's tip (or the solution's, if there was no turn) says so:
+>   "when we took 2x from both sides, the point really moved to the right, not the left" (`xtermLookBack`).
+> * **Build first is smoother (Daniela: "not as smooth as the one-step… blurs the order")**: each build step plays in two parts —
+>   the line slides so the last expression is the start (`c{i}`, an id not in the step list, chained in `go()` via `S.anim.legs`),
+>   then the new expression is built: + / − counted along one unit jump at a time (n ≤ 12), × groups laid end to end one at a
+>   time, ÷ parts cut one at a time. The TOP CARD writes the build out in order while building (x ×3→ 3x +5→ 3x + 5,
+>   `buildChainHTML`), so the order to undo it in is on screen; at "s" it becomes the equation.
+> * The quizzes keep their earlier copy of the board (Sweet, the only level that draws the line, has no negatives).
+> * Verified: 90 questions with negatives always (70 with a turn) and 72 build-first questions, every step drawn inside the
+>   board, no undefined text; ui 64 checks.
+>
 > **NEW (2026-11-17, latest): DANIELA'S FEEDBACK — BUILD IT FIRST IN THE MULTI-STEP TOOL + KEYS ON THE WORKING PANEL.**
 > * **Multi-step tool, Settings › Steps › Equation first (`S.set.eqf`, default ON, key E):** OFF = a two-step equation (one
 >   side `ops`, the other a number) is first BUILT from x, one operation at a time, before the usual steps: `b0` (x on its own),
