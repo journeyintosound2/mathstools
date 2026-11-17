@@ -415,6 +415,11 @@
     .wsFoot .qBtn.wsNew{ width:100%; }
     .wsFoot .keyHint{ margin-top:4px; }
     .cBuild{ color:#ea580c; }
+    .wsFoot{ gap:0; padding-top:6px; }
+    .wsCtlBtn{ appearance:none; align-self:center; border:none; background:none; color:var(--muted); font:inherit; font-size:.78rem; font-weight:900; letter-spacing:.02em; padding:4px 10px; border-radius:999px; cursor:pointer; }
+    .wsCtlBtn:hover{ color:var(--blue-dark, #1d4ed8); background:#eef2ff; }
+    .wsCtl{ display:flex; flex-direction:column; gap:2px; margin-top:6px; }
+    .wsCtl[hidden]{ display:none; }
   </style>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
 <!-- mmt-pwa -->
@@ -585,8 +590,11 @@
         <div class="pHead"><span class="pTitle">Working</span><span class="pCount" id="wsCount"></span></div>
         <div class="wsBody" id="wsBody"><div class="work" id="work"></div></div>
         <div class="wsFoot">
+          <button class="wsCtlBtn" type="button" id="wsCtlBtn" aria-expanded="false" aria-controls="wsCtl">Show controls &#9662;</button>
+          <div class="wsCtl" id="wsCtl" hidden>
           <button class="qBtn wsNew" type="button" id="wsNewBtn">New question<small>Enter</small></button>
           <div class="keyHint"><kbd>&rarr;</kbd>/<kbd>&larr;</kbd> step &middot; <kbd>Space</kbd> start again &middot; <kbd>Enter</kbd> new question &middot; <kbd>T</kbd> equation type &middot; <kbd>1</kbd>&ndash;<kbd>6</kbd> type &middot; <kbd>B</kbd> two-step / both sides &middot; <kbd>E</kbd> equation first &middot; <kbd>N</kbd> negatives &middot; <kbd>W</kbd> whole / non-whole &middot; <kbd>V</kbd> working panel &middot; <kbd>F</kbd> full screen</div>
+          </div>
         </div>
       </aside>
     </main>
@@ -1953,6 +1961,16 @@
   onSet("movesToggle", "moves"); onSet("partsToggle", "parts"); onSet("sidesToggle", "sides");
 
   $("wsNewBtn").addEventListener("click", () => newQuestion());
+  /* the working panel's controls fold away (Jeff, 2026-11-17): closed by default, the choice is remembered */
+  function paintWsCtl(){
+    const on = !!S.set.wsCtl, b = $("wsCtlBtn");
+    $("wsCtl").hidden = !on;
+    b.setAttribute("aria-expanded", String(on));
+    b.innerHTML = on ? "Hide controls &#9652;" : "Show controls &#9662;";
+  }
+  $("wsCtlBtn").addEventListener("click", () => { S.set.wsCtl = !S.set.wsCtl; save(); paintWsCtl(); });
+  paintWsCtl();
+
   $("nextBtn").addEventListener("click", next); $("backBtn").addEventListener("click", back);
   $("miniNext").addEventListener("click", next); $("miniBack").addEventListener("click", back);
   $("againBtn").addEventListener("click", startAgain);

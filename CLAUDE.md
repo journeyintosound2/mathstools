@@ -261,7 +261,8 @@
 >   expression after i operations). The last built expression carries the equation's own keys (`p0`, `keyT(0)`/`keyB(0)`) so it
 >   pans into the "s" scene. Hints: "What has been done to x so far?" → "What was the last thing done to x?". Equations with x
 >   on both sides (and 10 − 2x, a `lin` side) always start from the equation. `stageAt` maps b-steps to row 0.
-> * **Both equations tools: the Working panel has a footer** (`.wsFoot`): a New question button (`#wsNewBtn`) and the same
+> * **Both equations tools: the Working panel has a footer** (`.wsFoot`): a "Show controls ▾" toggle (`#wsCtlBtn`, folded by
+>   default, remembered as `S.set.wsCtl`) that opens a New question button (`#wsNewBtn`) and the same
 >   keyboard-shortcut line as the side panel — opening the working panel closes the side panel, which hid both (Daniela couldn't
 >   find how to get a new equation). The multi-step key line now lists E.
 > * Verified: multi-step ui 64 checks, build mode on all nine types × written-another-way (every step drawn inside the board,
