@@ -1,0 +1,1776 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Multi-Step Equations — Double Number Line — Worksheet Generator | Mills Maths Tools</title>
+  <meta name="description" content="Differentiated A4 worksheets on multi-step equations with the double number line: two-step equations and pronumerals on both sides, with brackets and fractions — the first move on the line, the working = under =, draw your own, solve, spot the mistake, think of a number, contexts and make your own, with an answer key.">
+
+  <style>
+    :root{
+      --bg:#f6f7fb;
+      --card:#ffffff;
+      --ink:#111827;
+      --muted:#6b7280;
+      --border:#e5e7eb;
+      --shadow:0 14px 40px rgba(0,0,0,.10);
+      --radius:18px;
+      --blue:#2563eb;
+      --green:#16a34a;
+      --red:#dc2626;
+      --sweet1:#4ade80;  --sweet2:#16a34a;
+      --mild1:#facc15;   --mild2:#d97706;
+      --medium1:#fb923c; --medium2:#ea580c;
+      --spicy1:#f87171;  --spicy2:#b91c1c;
+      --footer-h:44px;
+      --mathFont:"Cambria Math","STIX Two Math","Latin Modern Math","Asana Math",Cambria,"Palatino Linotype","Book Antiqua",Palatino,"Times New Roman",Georgia,serif;
+      --itFont:"Cambria","Times New Roman","STIX Two Text",Georgia,serif;
+      --uiFont:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+    }
+    *{ box-sizing:border-box; }
+    body{ margin:0; background:var(--bg); color:var(--ink); font-family:var(--uiFont); padding-bottom:var(--footer-h); }
+    .wrap{ max-width:1280px; margin:14px auto 32px; padding:0 14px; }
+    .card{ background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); padding:16px; }
+    .title{ margin:0 0 4px; font-size:28px; font-weight:1000; letter-spacing:.2px; }
+    .subtitle{ margin:0 0 14px; color:var(--muted); font-weight:850; font-size:15px; line-height:1.4; }
+    .subtitle a{ color:var(--blue); text-decoration:none; font-weight:1000; }
+
+    .controls{ display:grid; gap:10px; }
+    .band{ border:1px solid var(--border); border-radius:18px; padding:12px 14px; background:linear-gradient(180deg,#ffffff,#f9fafb); }
+    .bandHead{ font-size:11px; letter-spacing:.14em; text-transform:uppercase; font-weight:1000; color:var(--muted); margin:0 0 9px; }
+    .bandGrid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:14px; align-items:end; }
+    .bandRow{ display:flex; gap:16px 22px; flex-wrap:wrap; align-items:center; }
+    label{ display:block; margin:0 0 7px; font-size:15px; font-weight:950; }
+    select, input[type="number"]{ border:2px solid #e5e7eb; border-radius:14px; padding:12px 13px; font-size:15px; font-weight:900; width:100%; background:#fff; color:var(--ink); font-family:inherit; }
+    select:focus, input:focus{ outline:none; border-color:var(--blue); }
+    .sw{ display:inline-flex; align-items:center; gap:10px; cursor:pointer; user-select:none; font-weight:900; font-size:14.5px; margin:0; }
+    .sw input{ position:absolute; opacity:0; width:0; height:0; }
+    .sw .track{ position:relative; width:46px; height:27px; border-radius:999px; background:#cbd5e1; transition:.16s ease; flex:0 0 auto; }
+    .sw .track::after{ content:""; position:absolute; top:3px; left:3px; width:21px; height:21px; border-radius:50%; background:#fff; box-shadow:0 2px 5px rgba(0,0,0,.28); transition:.16s ease; }
+    .sw input:checked + .track{ background:var(--green); }
+    .sw input:checked + .track::after{ transform:translateX(19px); }
+    .sw input:focus-visible + .track{ box-shadow:0 0 0 4px rgba(37,99,235,.25); }
+    .sw input:disabled + .track{ opacity:.45; }
+
+    /* what we're practising: area, perimeter or both */
+    .seg{ display:inline-flex; background:#f1f5f9; border:1px solid var(--border); border-radius:15px; padding:4px; gap:4px; flex-wrap:wrap; }
+    .seg button{ appearance:none; border:none; background:transparent; border-radius:11px; padding:10px 16px; font:inherit; font-weight:950; font-size:15px; color:var(--muted); cursor:pointer; display:flex; align-items:center; gap:9px; }
+    .seg button .sym{ font-family:var(--mathFont); font-size:20px; width:28px; height:28px; border-radius:8px; display:grid; place-items:center; background:#e2e8f0; color:#334155; }
+    .seg button[aria-pressed="true"]{ background:#fff; color:var(--ink); box-shadow:0 3px 10px rgba(15,23,42,.12); }
+    .seg button[aria-pressed="true"] .sym{ background:var(--blue); color:#fff; }
+    .seg button[data-focus="perim"][aria-pressed="true"] .sym{ background:#7c3aed; }
+    .seg button[data-focus="both"][aria-pressed="true"] .sym{ background:linear-gradient(135deg,var(--blue),#7c3aed); }
+
+    /* levels: tick one or several; each section climbs through the ticked ones */
+    .lvChips{ display:grid; grid-template-columns:repeat(auto-fit,minmax(178px,1fr)); gap:8px; }
+    .lvChip{ position:relative; display:flex; align-items:center; gap:10px; margin:0; border:1.5px solid var(--border); border-radius:14px; padding:9px 11px; cursor:pointer; background:#fff; transition:.14s ease; }
+    .lvChip input{ position:absolute; opacity:0; width:0; height:0; }
+    .lvChip .dot{ width:22px; height:22px; border-radius:7px; border:2px solid #cbd5e1; display:grid; place-items:center; flex:0 0 auto; color:#fff; font-size:13px; font-weight:1000; }
+    .lvChip .txt{ font-size:14px; font-weight:950; line-height:1.2; }
+    .lvChip small{ display:block; font-family:var(--mathFont); font-size:15px; font-weight:600; color:var(--muted); }
+    .lvChip input:checked ~ .dot{ background:var(--lc); border-color:var(--lc); }
+    .lvChip input:checked ~ .dot::after{ content:"\2713"; }
+    .lvChip:has(input:checked){ border-color:var(--lc); box-shadow:inset 4px 0 0 var(--lc); }
+    .lvChip input:focus-visible ~ .dot{ box-shadow:0 0 0 4px rgba(37,99,235,.25); }
+    .quick{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:9px; font-size:13px; font-weight:900; color:var(--muted); }
+    .quick button{ appearance:none; border:1.5px solid var(--border); background:#fff; border-radius:999px; padding:6px 12px; font:inherit; font-weight:950; font-size:13px; color:#334155; cursor:pointer; }
+    .quick button:hover{ border-color:var(--blue); color:var(--blue); }
+
+    /* the problem types: a checkbox, what it asks, and what it looks like */
+    .typeGrid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:10px; }
+    .typeOpt{ border:1.5px solid var(--border); border-radius:16px; padding:11px 13px 12px; background:#fff; display:flex; flex-direction:column; gap:7px; transition:.15s ease; }
+    .typeOpt.on{ border-color:var(--tc); box-shadow:inset 4px 0 0 var(--tc); }
+    .typeOpt.na{ opacity:.45; }
+    .typeTop{ display:flex; align-items:center; gap:10px; }
+    .typeTop .sw{ font-size:15px; }
+    .typeLetter{ width:26px; height:26px; border-radius:8px; background:var(--tc); color:#fff; font-weight:1000; display:grid; place-items:center; font-size:14px; flex:0 0 auto; }
+    .typeTag{ margin-left:auto; font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; font-weight:1000; border-radius:999px; padding:3px 8px; flex:0 0 auto; }
+    .typeTag.area{ background:#eff6ff; color:#1d4ed8; }
+    .typeTag.perim{ background:#f5f3ff; color:#6d28d9; }
+    .typeTag.both{ background:#f1f5f9; color:#334155; }
+    .typeDesc{ font-size:13px; font-weight:800; color:var(--muted); line-height:1.4; margin:0; }
+    .typeEx{ display:flex; align-items:center; gap:9px; flex-wrap:wrap; background:#f8fafc; border:1px dashed #cbd5e1; border-radius:11px; padding:7px 10px; font-size:13.5px; font-weight:850; }
+    .typeEx .exLab{ font-size:10px; letter-spacing:.12em; text-transform:uppercase; font-weight:1000; color:var(--muted); }
+    .typeEx .m{ font-family:var(--mathFont); font-size:17px; font-weight:600; white-space:nowrap; }
+    .typeEx .arrow{ color:#94a3b8; font-weight:1000; }
+    .typeEx svg{ height:46px; width:auto; display:block; }
+    .cntRow{ display:flex; align-items:center; gap:10px; }
+    .cntRow label{ margin:0; font-size:13px; color:var(--muted); white-space:nowrap; }
+    .cntRow input{ width:78px; padding:8px 10px; }
+    .totalRow{ display:flex; align-items:center; gap:10px; margin-top:10px; font-weight:950; font-size:14px; flex-wrap:wrap; }
+    .pill{ background:#eef2ff; color:#1d4ed8; border-radius:999px; padding:5px 12px; font-weight:1000; font-size:13px; }
+    .note{ margin:9px 0 0; font-size:12.6px; font-weight:800; color:var(--muted); line-height:1.5; }
+    .note b{ color:var(--ink); }
+    .note a{ color:var(--blue); font-weight:1000; text-decoration:none; }
+    .note.warn{ color:#991b1b; font-size:14px; }
+    .btnRow{ display:flex; gap:10px; flex-wrap:wrap; margin-top:2px; }
+    button.primary, button.ghost, button.danger{ border-radius:14px; padding:13px 18px; font-size:15px; font-weight:1000; cursor:pointer; border:2px solid transparent; font-family:inherit; }
+    button.primary{ background:var(--blue); color:#fff; }
+    button.primary:hover{ background:#1d4ed8; }
+    button.ghost{ background:#fff; color:var(--ink); border-color:var(--border); }
+    button.ghost:hover{ border-color:#c7ccd4; }
+    button.danger{ background:#fff; color:var(--red); border-color:#fecaca; }
+    button.danger:hover{ background:#fef2f2; }
+    .outWrap{ margin-top:8px; }
+
+    /* =====================================================================
+       THE PAPER — 196 × 281 mm on screen AND in print (the printable area of
+       A4 at the print margins), so what the preview shows is what prints.
+       ===================================================================== */
+    .page{
+      margin:14px auto 0; background:#fff; border:1px solid var(--border);
+      border-radius:14px; box-shadow:0 10px 26px rgba(15,23,42,.08); overflow:hidden;
+      width:196mm; height:281mm; display:flex; flex-direction:column;
+      --fs:1; --lineH:10mm;
+    }
+    .page.d-roomy{ --fs:1.16; --lineH:11.5mm; }
+    .page.d-normal{ --fs:1; --lineH:9.5mm; }
+    .page.d-tight{ --fs:.88; --lineH:8mm; }
+    .pageHeader{ padding:4mm 5mm 2.6mm; border-bottom:2.2px solid #111827; display:flex; align-items:flex-end; justify-content:space-between; gap:10px; }
+    .hdrTitle{ font-weight:1000; font-size:16px; line-height:1.1; }
+    .hdrSub{ color:var(--muted); font-weight:850; font-size:11px; margin-top:2px; white-space:nowrap; }
+    .nameDate{ display:flex; gap:8px; align-items:flex-end; }
+    .lineField{ display:flex; flex-direction:column; gap:3px; width:34mm; }
+    .lineLabel{ font-size:10px; font-weight:950; color:var(--muted); }
+    .lineBox{ height:6mm; border-bottom:1.6px solid #111827; }
+    .sheet{ padding:3.2mm 5mm 2mm; flex:1 1 auto; display:flex; flex-direction:column; min-height:0; }
+
+    /* worked example, page 1 */
+    .exStrip{ display:flex; gap:4mm; align-items:center; border:1.5px solid #c7d2fe; background:#f5f7ff; border-radius:3.4mm; padding:2mm 3mm; margin-bottom:3mm; }
+    .exStrip .exHead{ font-size:calc(10.5px * var(--fs)); font-weight:1000; letter-spacing:.1em; text-transform:uppercase; color:#3730a3; }
+    .exStrip .exBody{ display:flex; flex-direction:column; gap:1.2mm; min-width:0; }
+    .exStrip .exLine{ font-family:var(--mathFont); font-weight:700; font-size:calc(15.5px * var(--fs)); line-height:1.25; }
+    .exStrip .exLine .k{ font-family:var(--uiFont); font-size:calc(10.5px * var(--fs)); font-weight:1000; color:var(--muted); letter-spacing:.04em; margin-right:1.5mm; }
+    .exStrip svg{ flex:0 0 auto; display:block; }
+    .bw .exStrip{ background:#fff; border-color:#9ca3af; }
+    .bw .exStrip .exHead{ color:#111827; }
+
+    .section{ margin-bottom:3mm; }
+    .secHead{ display:flex; align-items:center; gap:2.4mm; padding:1.6mm 2.4mm; margin-bottom:2.2mm; border-radius:3mm; background:var(--sc-bg); border:1.4px solid var(--sc); }
+    .secLetter{ font-weight:1000; font-size:calc(14px * var(--fs)); background:var(--sc); color:#fff; border-radius:2mm; padding:.6mm 2.2mm; flex:0 0 auto; }
+    .secText{ font-weight:950; font-size:calc(13.4px * var(--fs)); color:#111827; line-height:1.3; }
+    .secCont{ margin-left:auto; font-size:11px; font-weight:900; color:var(--muted); flex:0 0 auto; }
+
+    .qGrid{ display:grid; gap:3mm; grid-template-columns:repeat(var(--cols,2),minmax(0,1fr)); margin-bottom:3mm; }
+    .qCard{ border:1.4px solid #d7dce3; border-radius:3.4mm; padding:2.4mm 3mm 3mm; display:flex; flex-direction:column; gap:1.8mm; break-inside:avoid; background:#fff; min-width:0; }
+    .qCard.full{ grid-column:1 / -1; }
+    .qTop{ display:flex; align-items:center; gap:2.2mm; width:100%; min-width:0; overflow:hidden; }
+    .qNum{ width:calc(22px * var(--fs)); height:calc(22px * var(--fs)); border-radius:999px; color:#fff; display:flex; align-items:center; justify-content:center; font-size:calc(11.5px * var(--fs)); font-weight:1000; flex:0 0 auto; }
+    .qNum.sweet{ background:linear-gradient(180deg,var(--sweet1),var(--sweet2)); }
+    .qNum.mild{ background:linear-gradient(180deg,var(--mild1),var(--mild2)); }
+    .qNum.medium{ background:linear-gradient(180deg,var(--medium1),var(--medium2)); }
+    .qNum.spicy{ background:linear-gradient(180deg,var(--spicy1),var(--spicy2)); }
+    .expr{ font-family:var(--mathFont); font-weight:600; font-size:calc(21px * var(--fs)); line-height:1.15; white-space:nowrap; }
+    .expr .x{ color:#1d4ed8; } .expr .y{ color:#c2410c; }
+    .bw .expr .x, .bw .expr .y{ color:inherit; }
+    .qTop .ln{ flex:1 1 auto; min-width:12mm; max-width:34mm; height:calc(var(--lineH) * .8); border-bottom:1.6px solid #111827; }
+    .qTop .unit{ font-family:var(--mathFont); font-weight:600; font-size:calc(17px * var(--fs)); }
+    .qTop .word{ font-weight:950; font-size:calc(13.5px * var(--fs)); white-space:nowrap; }
+    .pic{ display:flex; justify-content:center; }
+    .pic svg{ display:block; overflow:visible; }
+    .picPair{ display:grid; grid-template-columns:1fr 1fr; gap:3mm; }
+    .picBox{ border:1.2px dashed #cbd5e1; border-radius:3mm; padding:1.4mm; display:flex; flex-direction:column; gap:1.4mm; }
+    .picCap{ font-size:calc(10.5px * var(--fs)); font-weight:1000; color:var(--muted); text-align:center; letter-spacing:.06em; text-transform:uppercase; }
+
+    .ansLine{ display:flex; align-items:flex-end; gap:2mm; font-family:var(--mathFont); font-weight:700; font-size:calc(17px * var(--fs)); }
+    .ansLine .ln{ flex:1 1 auto; height:var(--lineH); border-bottom:1.6px solid #111827; }
+    .ansLine .ln.sm{ flex:0 0 20%; }
+    .ansLine .ln.xs{ flex:0 0 13%; }
+    .ansLine .lab{ font-family:var(--uiFont); font-size:calc(10.5px * var(--fs)); font-weight:1000; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; align-self:center; white-space:nowrap; }
+    .ansLine .u{ font-size:.85em; }
+    .ticks{ display:flex; flex-wrap:wrap; align-items:center; gap:1.5mm 3mm; font-weight:900; font-size:calc(12px * var(--fs)); color:#374151; padding-top:1mm; }
+    .ticks .tb{ display:inline-block; width:3.6mm; height:3.6mm; border:1.5px solid #111827; border-radius:.8mm; vertical-align:-.5mm; margin-right:1mm; }
+    .say{ display:flex; flex-direction:column; }
+    .wl{ height:var(--lineH); border-bottom:1.5px solid #9aa3af; }
+    .workHead{ font-size:calc(10px * var(--fs)); font-weight:1000; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; }
+    .work{ border:1.4px dashed #9aa3af; border-radius:3mm; padding:1mm 2.4mm 0; }
+    .qCard.flu{ padding:2.2mm 3mm; }
+    .qCard.flu .qTop{ align-items:flex-end; }
+    .qCard.flu .qNum{ align-self:center; }
+    .qCard.flu .qTop .ln{ max-width:none; }
+    .qCard.flu .fluAns{ font-family:var(--mathFont); font-weight:700; font-size:calc(19px * var(--fs)); color:#15803d; white-space:nowrap; }
+
+    /* whatever a page leaves is a question the student makes for themselves */
+    .yourTurn{ border:1.8px dashed #c4b5fd; border-radius:3.4mm; padding:2.4mm 3mm 3mm; background:#fdfcff; display:flex; flex-direction:column; gap:2mm; margin-bottom:3mm; }
+    .ytHead{ display:flex; align-items:center; gap:2mm; font-weight:1000; font-size:calc(13.5px * var(--fs)); color:#6d28d9; }
+    .ytHead .star{ font-size:1.2em; }
+    .ytText{ font-weight:850; font-size:calc(12.5px * var(--fs)); color:#374151; line-height:1.35; }
+    .drawBox{ border:1.8px dashed #9aa3af; border-radius:3mm; height:var(--drawH,42mm); background-image:linear-gradient(#e5e7eb 1px, transparent 1px),linear-gradient(90deg,#e5e7eb 1px, transparent 1px); background-size:5mm 5mm; background-position:-1px -1px; }
+    .bw .yourTurn{ background:#fff; border-color:#9ca3af; }
+    .bw .ytHead{ color:#111827; }
+
+    /* answer key */
+    .isKey .qCard{ border-color:#bbf7d0; background:#f7fdf9; }
+    .keyAns{ font-family:var(--mathFont); font-weight:700; font-size:calc(16.5px * var(--fs)); color:#15803d; line-height:1.35; }
+    .keyAns .lab{ font-family:var(--uiFont); font-size:calc(10px * var(--fs)); font-weight:1000; color:#166534; letter-spacing:.05em; text-transform:uppercase; margin-right:1.4mm; }
+    .keyWhy{ font-size:calc(11.2px * var(--fs)); font-weight:850; color:#374151; line-height:1.4; }
+
+    /* black and white, for the photocopier */
+    .bw .secHead{ background:#fff !important; border-color:#111827 !important; }
+    .bw .secLetter{ background:#111827 !important; }
+    .bw .qNum{ background:#111827 !important; }
+    .bw .isKey .qCard, .isKey.bw .qCard{ background:#fff; border-color:#9ca3af; }
+
+    .pageFooter{ padding:1.4mm 5mm 2mm; border-top:1px solid rgba(229,231,235,.95); display:flex; align-items:center; justify-content:space-between; font-weight:900; color:var(--muted); font-size:10px; }
+    .pageFooter a{ color:#2563eb; text-decoration:none; font-weight:1000; }
+    .measure{ position:absolute; left:-10000px; top:0; visibility:hidden; }
+    .mmtFooter{ position:fixed; left:0; right:0; bottom:0; height:var(--footer-h); display:flex; align-items:center; justify-content:center; padding:0 12px; background:rgba(255,255,255,.92); border-top:1px solid rgba(229,231,235,.95); backdrop-filter:blur(8px); z-index:500; font-weight:900; color:#111827; text-align:center; font-size:13px; }
+    .mmtFooter a{ color:#2563eb; text-decoration:none; font-weight:950; }
+
+    @media print{
+      @page{ size:A4; margin:8mm 7mm; }
+      html, body{ width:196mm; height:auto; }
+      body{ background:#fff; padding-bottom:0; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+      .wrap{ max-width:none; margin:0; padding:0; }
+      .card{ box-shadow:none; border-radius:0; padding:0; }
+      .controls, .title, .subtitle, .mmtFooter{ display:none !important; }
+      .outWrap{ margin:0; }
+      .page{ height:280.5mm; }
+      .page{ margin:0; border:none; border-radius:0; box-shadow:none; page-break-after:always; }
+      .page:last-child{ page-break-after:auto; }
+    }
+        /* ---------- the number groups generator's own pieces ---------- */
+    .mi{ font-family:var(--mathFont); font-style:normal; }
+    .mv{ font-family:var(--itFont); font-style:italic; }
+    .kSub{ display:block; font-size:12px; font-weight:800; color:var(--muted); }
+    .lvChip small{ font-family:var(--uiFont); font-size:12.5px; font-weight:800; }
+    .expr{ font-weight:500; }
+    .wd{ font-family:var(--uiFont); font-weight:850; font-size:.62em; color:#374151; }
+    .blank{ display:inline-block; width:9mm; height:1.1em; border-bottom:1.6px solid #111827; vertical-align:-.2em; margin:0 .8mm; }
+    .blank.sm{ width:1.6em; }
+    .ansLine{ font-weight:500; align-items:baseline; }
+    .ansLine .lab{ align-self:baseline; }
+    .ansLine .eqs{ white-space:nowrap; }
+    .ansLine.cnt{ flex-wrap:nowrap; }
+    .ansLine.cnt .ln.xs{ flex:0 0 12mm; }
+    .ansLine .lab{ text-transform:none; letter-spacing:0; font-size:calc(11.5px * var(--fs)); color:#374151; }
+    .ansLine .lab.big{ font-size:calc(13.5px * var(--fs)); font-weight:950; color:#111827; }
+    .ansLine .ln.xs{ flex:0 0 12mm; }
+    .qTop{ flex-wrap:nowrap; }
+    .qTop .word{ margin-right:1mm; }
+    .qText{ font-weight:850; font-size:calc(13px * var(--fs)); line-height:1.45; color:#1f2937; }
+    .qText .m{ font-family:var(--mathFont); font-weight:500; font-size:1.25em; white-space:nowrap; }
+    .said{ font-weight:850; font-size:calc(12.5px * var(--fs)); color:#374151; line-height:1.4; }
+    .saidM{ font-family:var(--mathFont); font-weight:500; font-size:calc(18px * var(--fs)); color:#111827; margin-top:1mm; padding:1.2mm 3mm; border:1.2px dashed #cbd5e1; border-radius:2.4mm; display:inline-block; }
+    .pic svg.bars{ max-width:100%; height:auto; }
+    .pic svg text{ font-family:var(--mathFont); font-weight:500; }
+    .exStrip svg text{ font-family:var(--mathFont); font-weight:500; }
+    .exStrip .exLine{ font-weight:500; }
+    .exStrip.ng{ display:block; }
+    .exStrip.ng .exHead{ margin-bottom:1.5mm; }
+    .exStrip.ng .exCols{ display:grid; grid-template-columns:1fr 1fr; gap:4mm; }
+    .exStrip.ng .exCol{ display:flex; flex-direction:column; align-items:center; gap:1mm; }
+    .exStrip.ng .exCol svg{ max-width:100%; height:auto; }
+    .exStrip.ng .exLine.small{ margin-top:1.6mm; }
+    .exStrip .exLine.small{ font-family:var(--uiFont); font-weight:850; font-size:calc(11.5px * var(--fs)); color:#374151; }
+    .keyAns{ font-weight:500; }
+    .qCard.flu .fluAns{ font-weight:500; }
+    .typeEx .m{ font-weight:500; }
+    .typeEx .arrow{ color:#94a3b8; font-weight:1000; }
+
+    /* ---------- the double number line generator's own pieces ---------- */
+    .frac{ display:inline-flex; flex-direction:column; align-items:center; vertical-align:middle; font-size:.78em; line-height:1.05; margin:0 .06em; }
+    .frac > span:first-child{ border-bottom:.08em solid currentColor; padding:0 .12em .04em; }
+    .frac > span:last-child{ padding:.04em .12em 0; }
+    .typeEx .bl{ display:inline-block; width:1.6em; height:1em; border:1.4px dashed #64748b; border-radius:4px; vertical-align:-.15em; }
+    .typeEx .pl, .pl{ display:inline-block; font-family:var(--mathFont); font-size:.95em; font-weight:600; color:#6d28d9; border:1.5px solid #7c3aed; background:#f5f3ff; border-radius:999px; padding:0 7px; }
+    .keyIn{ font-family:var(--mathFont); font-weight:600; color:#15803d; font-size:1.02em; padding:0 1mm; flex:1 1 auto; border-bottom:1.6px solid #15803d; white-space:nowrap; }
+    .exStrip.ng .exCols.one{ grid-template-columns:1fr; }
+    .exStrip.ng .exCol .exLine{ font-size:calc(14px * var(--fs)); }
+    .pic svg.dnl{ max-width:100%; height:auto; display:block; }
+    .exStrip svg.dnl{ max-width:100%; height:auto; }
+    .seg button .sym{ width:auto; min-width:28px; padding:0 4px; font-size:17px; }
+    .ansLine .lab{ white-space:nowrap; }
+    .qText .frac, .said .frac, .saidM .frac{ font-size:.82em; }
+    .said .m{ font-family:var(--mathFont); font-weight:500; font-size:1.25em; white-space:nowrap; }
+    .bw .keyIn{ color:#111827; border-color:#111827; }
+    /* ---------- the multi-step generator's own pieces ---------- */
+    .etFam{ margin-top:8px; }
+    .etFamHead{ margin:6px 0 6px; }
+    .famChip{ display:inline-block; font-size:11px; font-weight:1000; letter-spacing:.1em; text-transform:uppercase; border-radius:999px; padding:3px 10px; }
+    .famChip.two{ background:#eef2ff; color:#3730a3; border:1.5px solid #c7d2fe; }
+    .famChip.both{ background:#f0fdfa; color:#0f766e; border:1.5px solid #99f6e4; }
+    .etGrid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:8px; }
+    .etChip{ position:relative; display:block; margin:0; cursor:pointer; }
+    .etChip input{ position:absolute; opacity:0; width:0; height:0; }
+    .etBox{ display:flex; flex-direction:column; gap:3px; border:1.5px solid var(--border); border-radius:13px; padding:8px 11px 8px 36px; background:#fff; transition:.14s ease; position:relative; min-height:100%; box-sizing:border-box; }
+    .etBox::before{ content:""; position:absolute; left:10px; top:10px; width:18px; height:18px; border-radius:6px; border:2px solid #cbd5e1; background:#fff; }
+    .etChip input:checked + .etBox{ border-color:#4f46e5; background:#f5f7ff; box-shadow:0 0 0 2px #e0e7ff; }
+    .etChip input:checked + .etBox::before{ background:#4f46e5; border-color:#4f46e5; content:"✓"; color:#fff; font-size:12px; font-weight:1000; display:grid; place-items:center; line-height:1; }
+    .etChip input:focus-visible + .etBox{ outline:3px solid #a5b4fc; outline-offset:2px; }
+    .etName{ font-size:13.5px; font-weight:950; color:#111827; }
+    .etEx{ font-family:var(--mathFont); font-size:16px; font-weight:500; color:#334155; white-space:nowrap; }
+    .etQuick{ margin-top:8px; }
+    .bandGrid.three{ grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); }
+    .lvChip small{ font-family:var(--uiFont); font-size:12px; font-weight:800; }
+    /* B: the working = under =, as on the tool's panel */
+    .wgWrap{ display:flex; justify-content:center; }
+    .wg{ display:grid; grid-template-columns:auto auto auto; column-gap:2.4mm; align-items:center; font-family:var(--mathFont); font-weight:500; font-size:calc(18px * var(--fs)); }
+    .wg .gL{ justify-self:end; } .wg .gR{ justify-self:start; } .wg .gE{ justify-self:center; }
+    .wg .wp{ min-height:calc(6mm * var(--fs)); display:flex; align-items:center; }
+    .wg .gL.wp{ justify-content:flex-end; } .wg .gR.wp{ justify-content:flex-start; }
+    .wg .wq{ min-height:calc(var(--lineH) * .92); display:flex; align-items:flex-end; }
+    .wg .gL.wq{ justify-content:flex-end; }
+    .wPill{ display:inline-block; font-family:var(--mathFont); font-size:.74em; font-weight:600; color:#475569; background:#f1f5f9; border:1.3px solid #cbd5e1; border-radius:999px; padding:0 2.2mm; white-space:nowrap; }
+    .wPill.rw{ font-family:var(--uiFont); font-size:.6em; font-weight:900; font-style:italic; }
+    .wPill.blank{ width:18mm; height:calc(5mm * var(--fs)); background:#fff; border:1.4px dashed #94a3b8; }
+    .wPill.k{ color:#15803d; border-color:#86efac; background:#f0fdf4; }
+    .wBl{ display:inline-block; width:26mm; border-bottom:1.6px solid #111827; height:calc(var(--lineH) * .75); }
+    .wg .kIn{ color:#15803d; white-space:nowrap; }
+    /* the key's working */
+    .kWork{ display:flex; flex-direction:column; gap:.6mm; }
+    .kRow{ display:flex; align-items:center; gap:2.4mm; white-space:nowrap; font-size:calc(14px * var(--fs)); }
+    .kMv{ flex:0 0 auto; min-width:15mm; font-family:var(--mathFont); font-size:.86em; font-weight:600; color:#475569; background:#f1f5f9; border:1.1px solid #cbd5e1; border-radius:999px; padding:0 1.8mm; text-align:center; }
+    .kMv.rw{ font-family:var(--uiFont); font-size:.72em; font-weight:900; font-style:italic; }
+    .kMv.none{ visibility:hidden; }
+    .kEq{ font-family:var(--mathFont); font-weight:500; font-size:1.14em; color:#15803d; }
+    /* E: the mistake */
+    .mLines{ margin-top:1.4mm; display:flex; flex-direction:column; gap:.8mm; padding:1.4mm 3mm; border:1.2px dashed #cbd5e1; border-radius:2.4mm; }
+    .mRow{ display:flex; align-items:baseline; gap:3mm; }
+    .mN{ flex:0 0 13mm; font-size:calc(10.5px * var(--fs)); font-weight:1000; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; }
+    .mEq{ font-family:var(--mathFont); font-weight:500; font-size:calc(17px * var(--fs)); color:#111827; white-space:nowrap; }
+    .mRow.bad .mEq{ color:#b91c1c; text-decoration:underline wavy #ef4444; text-underline-offset:3px; }
+    .mRow.bad .mN{ color:#b91c1c; }
+    .kNot{ color:#64748b; font-family:var(--uiFont); font-size:.7em; font-weight:800; }
+    .keyAns .frac, .kEq .frac, .mEq .frac, .wg .frac, .expr .frac{ font-size:.74em; }
+    .exStrip .exPic + .exPic{ margin-top:2mm; }
+    .exStrip .exWork{ display:flex; justify-content:center; overflow:hidden; }
+    .bw .wPill.k, .bw .kEq, .bw .wg .kIn{ color:#111827; }
+    .bw .mRow.bad .mEq{ color:#111827; text-decoration-color:#111827; }
+    .op{ padding:0 .27em; } .frac .op{ padding:0 .12em; }
+    .hdrSub{ white-space:normal; } .pageHeader > div:first-child{ min-width:0; flex:1 1 auto; } .nameDate{ flex:0 0 auto; }
+    .yourTurn.work .ytHead{ color:var(--muted); font-size:calc(10.5px * var(--fs)); letter-spacing:.08em; text-transform:uppercase; }
+    .qLet{ font-size:calc(11.5px * var(--fs)); font-weight:800; color:var(--muted); } .qLet .m{ font-family:var(--mathFont); font-weight:500; font-size:1.2em; color:#111827; }
+    .qCard.flu .qTop .word{ font-family:var(--mathFont); font-size:calc(19px * var(--fs)); font-weight:500; }
+    .hdrSub .nw{ white-space:nowrap; }
+    .keyIn.chk{ white-space:normal; line-height:1.35; font-size:.9em; }
+
+  </style>
+
+
+<!-- mmt-pwa -->
+<link rel="manifest" href="../../../manifest.webmanifest">
+<meta name="theme-color" content="#1f3a5f">
+<link rel="apple-touch-icon" href="../../../icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="MMT">
+<script src="../../../pwa.js" defer></script>
+<!-- /mmt-pwa -->
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1 class="title">Multi-Step Equations &mdash; Double Number Line &mdash; Worksheet Generator</h1>
+      <p class="subtitle">Printable A4 worksheets from the <a href="/interactive-tools/stage-4/algebra/multi-step-double-numberline/">Multi-Step Equations</a> teaching tool. An equation is one point on a double number line &mdash; the left side on top, the right side underneath &mdash; and solving is the same move on both lines, until <i>x</i> is on its own. The first move is printed on the line in section A, the working is laid out = under = in section B, students draw their own in C, and from D on the picture is in their heads.</p>
+
+      <div class="controls">
+        <div class="band">
+          <p class="bandHead">The equations &mdash; tick any of the kinds in the tool</p>
+          <div class="etFam"><div class="etFamHead"><span class="famChip two">Two-step</span></div><div class="etGrid" id="etTwo"></div></div>
+          <div class="etFam"><div class="etFamHead"><span class="famChip both">Pronumerals on both sides</span></div><div class="etGrid" id="etBoth"></div></div>
+          <div class="quick etQuick">Quick sets:
+            <button type="button" data-fam="two">All two-step</button>
+            <button type="button" data-fam="both">All pronumerals on both sides</button>
+            <button type="button" data-fam="all">Everything</button>
+          </div>
+          <p class="note">Each section deals out the ticked kinds in turn, so a paper with three kinds ticked has each one in every section. <b>Involving brackets</b> means expanding first; <b>one fraction</b> means clearing it by multiplying both sides; <b>Harder</b> has two brackets (one taken away), a fraction on each side, or a bracket with a number added.</p>
+          <p class="bandHead" style="margin-top:14px">The numbers &mdash; tick one level, or several for a ladder</p>
+          <div class="lvChips" id="lvChips"></div>
+          <div class="quick">Quick sets:
+            <button type="button" data-quick="sweet,mild">Getting started</button>
+            <button type="button" data-quick="mild,medium">Core</button>
+            <button type="button" data-quick="medium,spicy">Extension</button>
+            <button type="button" data-quick="sweet,mild,medium,spicy">All four &mdash; a full ladder</button>
+          </div>
+          <p class="note">One level ticked: every question is that size. Several ticked: each section climbs through them, easiest first. <b>Sweet</b>: small positive whole numbers, nothing written another way. <b>Mild</b>: bigger whole numbers. <b>Medium</b>: negative numbers &mdash; every other answer is negative. <b>Spicy</b>: negatives and fraction answers.</p>
+        </div>
+
+        <div class="band">
+          <p class="bandHead">How the equations are written</p>
+          <div class="bandGrid three">
+            <div>
+              <label for="divSel">Division</label>
+              <select id="divSel">
+                <option value="frac" selected>A fraction &mdash; x/4 + 3 = 5</option>
+                <option value="obelus">The &divide; sign &mdash; x &divide; 4 + 3 = 5</option>
+              </select>
+            </div>
+            <div>
+              <label for="nwSel">Fraction answers (Spicy)</label>
+              <select id="nwSel">
+                <option value="frac" selected>Fractions &mdash; 7/2</option>
+                <option value="mixed">Mixed numbers &mdash; 3 1/2</option>
+                <option value="dec">Decimals &mdash; 3.5</option>
+              </select>
+            </div>
+            <div>
+              <label for="colourSel">Colour</label>
+              <select id="colourSel">
+                <option value="colour" selected>Colour &mdash; as the teaching tool</option>
+                <option value="bw">Black and white &mdash; for photocopying</option>
+              </select>
+            </div>
+          </div>
+          <div class="bandRow" style="margin-top:12px">
+            <label class="sw"><input type="checkbox" id="varyToggle" checked /><span class="track"></span><span>Write some another way, from Mild <small class="kSub">4 + 3<i>x</i> = 19, 19 = 3<i>x</i> + 4, 3<i>x</i> + 2 = 12 &minus; 2<i>x</i></small></span></label>
+            <label class="sw"><input type="checkbox" id="letterToggle" checked /><span class="track"></span><span>Other letters, from Mild <small class="kSub">5<i>m</i> &minus; 4 = 21</small></span></label>
+          </div>
+        </div>
+
+        <div class="band">
+          <p class="bandHead">Problem types &mdash; tick the ones you want, and how many</p>
+          <div class="typeGrid" id="typeGrid"></div>
+          <div class="totalRow"><span>On the paper:</span><span class="pill" id="totalPill">0 questions</span></div>
+          <p class="note">The order is the lesson, and the picture fades: <b>the first move on the line</b> (printed), <b>write the working</b> = under =, <b>draw the first move</b> yourself, then <b>solve</b>, <b>spot the mistake</b>, <b>think of a number</b>, <b>use it</b> and <b>make your own</b>. <b>I Fluency</b> is off until you tick it.</p>
+        </div>
+
+        <div class="band">
+          <p class="bandHead">Scaffolding and the paper</p>
+          <div class="bandGrid">
+            <div>
+              <label for="densitySel">Spacing</label>
+              <select id="densitySel">
+                <option value="roomy">Spacious &mdash; large print, one to a row</option>
+                <option value="normal" selected>Standard &mdash; two to a row</option>
+                <option value="tight">Compact &mdash; more to a row</option>
+              </select>
+            </div>
+            <div>
+              <label for="bSel">In section B</label>
+              <select id="bSel">
+                <option value="blank" selected>Students write the moves and the equations</option>
+                <option value="moves">The moves are given &mdash; students write the equations</option>
+              </select>
+            </div>
+          </div>
+          <div class="bandRow" style="margin-top:12px">
+            <label class="sw"><input type="checkbox" id="checkToggle" /><span class="track"></span><span>Check by substituting in D</span></label>
+            <label class="sw"><input type="checkbox" id="exToggle" checked /><span class="track"></span><span>Worked example on page 1</span></label>
+            <label class="sw"><input type="checkbox" id="nameToggle" checked /><span class="track"></span><span>Name and date</span></label>
+            <label class="sw"><input type="checkbox" id="keyToggle" /><span class="track"></span><span>Answer key pages</span></label>
+          </div>
+          <p class="note">The worked example solves one equation on the line, each move on both lines, beside the working = under = and a check. The answer key gives every step with its move, so it can be handed to a student.</p>
+        </div>
+
+        <div class="btnRow">
+          <button id="genBtn" class="primary">Generate worksheet</button>
+          <button id="printBtn" class="ghost">Print (Ctrl+P)</button>
+          <button id="resetBtn" class="danger">Reset</button>
+        </div>
+      </div>
+
+      <div id="out" class="outWrap"></div>
+    </div>
+  </div>
+
+  <div class="measure" id="measure" aria-hidden="true"></div>
+
+  <div class="mmtFooter">
+    This tool and more can be found at&nbsp;
+    <a href="https://www.millsmathstools.au">www.millsmathstools.au</a>
+  </div>
+
+<script>
+  /* ================= THE TOOL'S ENGINE (copied from the Multi-Step teaching tool, verbatim) =================
+     Sides, exact fractions, the question generators, the solver (expand / collect / clear fractions, then the
+     two-step moves) and the pieces that draw a side. Change the tool's engine → re-copy it here. */
+  const ENG = (function(){
+    const S = { set:{ div:"frac", nw:"frac", vary:false, letters:false }, q:null, lastSig:"" };
+  /* ================= small helpers ================= */
+  const ri = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+  const pick = a => a[Math.floor(Math.random() * a.length)];
+  const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;");
+  const fmt = n => n < 0 ? "−" + Math.abs(n) : String(n);
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+
+  /* exact numbers: every value is a fraction {n, d}, d > 0, in lowest terms */
+  const gcd = (a, b) => { a = Math.abs(a); b = Math.abs(b); while(b){ [a, b] = [b, a % b]; } return a || 1; };
+  const R = (n, d) => { d = d || 1; if(d < 0){ n = -n; d = -d; } const g = gcd(n, d); return { n:n / g, d:d / g }; };
+  const rAdd = (a, b) => R(a.n * b.d + b.n * a.d, a.d * b.d), rSub = (a, b) => R(a.n * b.d - b.n * a.d, a.d * b.d);
+  const rMul = (a, b) => R(a.n * b.n, a.d * b.d), rDiv = (a, b) => R(a.n * b.d, a.d * b.n);
+  const rI = n => R(n, 1), rF = r => r.n / r.d, rInt = r => r.d === 1, rEq = (a, b) => a.n === b.n && a.d === b.d;
+
+  /* MATHS ITALICS (as the other tools): real glyphs when a font has them, else a serif italic */
+  function mathItalic(str){
+    let out = "";
+    for(const ch of String(str)){
+      const c = ch.codePointAt(0);
+      if(ch === "h") out += "ℎ";
+      else if(c >= 97 && c <= 122) out += String.fromCodePoint(0x1D44E + c - 97);
+      else out += ch;
+    }
+    return out;
+  }
+  function detectMathAlpha(){
+    try {
+      const x = document.createElement("canvas").getContext("2d");
+      x.font = '500 100px "Cambria Math","STIX Two Math","Latin Modern Math",serif';
+      const real = x.measureText("\u{1D465}\u{1D44E}\u{1D44F}\u{1D450}").width, gone = x.measureText("").width;
+      return real > 0 && gone > 0 && Math.abs(real - gone) > 1;
+    } catch(e){ return false; }
+  }
+  const MATH_ALPHA = detectMathAlpha();
+  const LV = () => (S.q && S.q.v) || "x";
+  const letterHTML = v => MATH_ALPHA ? `<span class="mi">${mathItalic(v)}</span>` : `<span class="mv">${esc(v)}</span>`;
+  const UI = 'system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif';
+  const MF = '"Cambria Math","STIX Two Math","Latin Modern Math",Cambria,"Times New Roman",serif';
+  const cv = document.createElement("canvas").getContext("2d");
+  function tw(txt, px, fam, wt){ cv.font = `${wt || 500} ${px}px ${fam || MF}`; return cv.measureText(txt).width; }
+
+  /* ================= sides of an equation =================
+     {t:"num", v:R}                       a number
+     {t:"ops", ops:[{o,n}], kFirst}       things done to the letter, in order:  [mul 3, add 4] is 3x + 4,  [add 2, mul 3] is 3(x + 2)
+     {t:"lin", m, k, kFirst}              m·x + k with whole m and k (used when the letter is on both sides, or taken away: 10 − 2x) */
+  const num = v => ({ t:"num", v:typeof v === "number" ? rI(v) : v });
+  const opsS = (ops, kFirst) => ({ t:"ops", ops, kFirst:!!kFirst });
+  const linS = (m, k, kFirst) => ({ t:"lin", m, k, kFirst:!!kFirst });
+  const hasX = s => s.t === "ex" ? linOf(s).m.n !== 0 : s.t !== "num";
+  function evalS(s, x){
+    if(s.t === "num") return s.v;
+    if(s.t === "lin") return rAdd(rMul(rI(s.m), x), rI(s.k));
+    if(s.t === "ex") return exVal(s, x);
+    let v = x;
+    s.ops.forEach(op => { const n = rI(op.n); v = op.o === "add" ? rAdd(v, n) : op.o === "sub" ? rSub(v, n) : op.o === "mul" ? rMul(v, n) : rDiv(v, n); });
+    return v;
+  }
+  function linToOps(s){
+    const ops = [];
+    if(s.m !== 1) ops.push({ o:"mul", n:s.m });
+    if(s.k > 0) ops.push({ o:"add", n:s.k }); else if(s.k < 0) ops.push({ o:"sub", n:-s.k });
+    return opsS(ops, s.kFirst && s.k > 0);
+  }
+  /* solve: a list of stages (each one an equation: top = left side, bottom = right side) and the moves between them */
+  function solve(top, bot, x){
+    const stages = [{ top, bot, val:evalS(top, x) }], moves = [];
+    for(let guard = 0; guard < 8; guard++){
+      const cur = stages[stages.length - 1]; let t = cur.top, b = cur.bot, mv = null, nt, nb;
+      if(hasX(t) && hasX(b)){
+        if(t.t !== "lin" || b.t !== "lin") return null;
+        const s = Math.min(t.m, b.m);
+        const strip = side => side.m - s === 0 ? num(side.k) : linS(side.m - s, side.k, side.kFirst);
+        nt = strip(t); nb = strip(b); mv = { kind:"xterm", s };
+      } else {
+        const onTop = hasX(t); let X = onTop ? t : b, other = onTop ? b : t;
+        if(!hasX(X)) return null;
+        if(X.t === "lin" && X.m < 0){
+          /* 10 − 2x = 4: add 2x to both sides */
+          const s = X.m, nX = num(X.k), nO = linS(-s, rInt(other.v) ? other.v.n : NaN, true);
+          if(!rInt(other.v)) return null;
+          nt = onTop ? nX : nO; nb = onTop ? nO : nX; mv = { kind:"xterm", s };
+        } else {
+          if(X.t === "lin") X = linToOps(X);
+          if(!X.ops.length) break;
+          const last = X.ops[X.ops.length - 1], rest = opsS(X.ops.slice(0, -1), false), n = rI(last.n);
+          let v;
+          if(last.o === "add"){ v = rSub(other.v, n); mv = { kind:"sub", n:last.n }; }
+          else if(last.o === "sub"){ v = rAdd(other.v, n); mv = { kind:"add", n:last.n }; }
+          else if(last.o === "mul"){ v = rDiv(other.v, n); mv = { kind:"div", n:last.n }; }
+          else { v = rMul(other.v, n); mv = { kind:"mul", n:last.n }; }
+          nt = onTop ? rest : num(v); nb = onTop ? num(v) : rest;
+        }
+      }
+      moves.push(mv);
+      stages.push({ top:nt, bot:nb, val:evalS(hasX(nt) ? nt : nb, x) });
+    }
+    /* tidy: a lin side that is ready to be undone reads the same as its ops */
+    return { stages, moves };
+  }
+
+
+  /* ================= harder equations: a side written as a list of terms =================
+     {t:"ex", terms:[{s:±1, f}]}, f is one of
+       {k:"x", c}                 c·x (c ≥ 1)
+       {k:"n", v}                 a whole number ≥ 0 (the sign lives in s)
+       {k:"br", c, m, kk, kFirst} c(m·x + kk)
+       {k:"fr", top, d}           top over d, top is {k:"x"}, {k:"lin", m, kk, kFirst} or {k:"br"}
+     Solving one: clear the fractions (× both sides), expand the brackets, collect like terms; then it is an ordinary
+     ax + b = cx + d and the solver above takes over. Expanding and collecting are not moves on the line: the point stays. */
+  const exS = terms => ({ t:"ex", terms });
+  const fX = c => ({ k:"x", c }), fN = v => ({ k:"n", v }), fBr = (c, m, kk, kFirst) => ({ k:"br", c, m, kk, kFirst:!!kFirst });
+  const fLin = (m, kk, kFirst) => ({ k:"lin", m, kk, kFirst:!!kFirst }), fFr = (top, d) => ({ k:"fr", top, d });
+  const tm = (s, f) => ({ s, f });
+  const nT = v => tm(v < 0 ? -1 : 1, fN(Math.abs(v))), xT = c => tm(c < 0 ? -1 : 1, fX(Math.abs(c)));
+  /* m·x + k of a piece, exact */
+  function linF(f){
+    if(f.k === "x") return { m:rI(f.c), k:rI(0) };
+    if(f.k === "n") return { m:rI(0), k:rI(f.v) };
+    if(f.k === "lin") return { m:rI(f.m), k:rI(f.kk) };
+    if(f.k === "br") return { m:rI(f.c * f.m), k:rI(f.c * f.kk) };
+    const t = linF(f.top); return { m:rDiv(t.m, rI(f.d)), k:rDiv(t.k, rI(f.d)) };
+  }
+  function linOf(s){
+    if(s.t === "num") return { m:rI(0), k:s.v };
+    if(s.t !== "ex"){ const k = evalS(s, rI(0)); return { m:rSub(evalS(s, rI(1)), k), k }; }
+    let m = rI(0), k = rI(0);
+    s.terms.forEach(t => { const l = linF(t.f); m = rAdd(m, rMul(rI(t.s), l.m)); k = rAdd(k, rMul(rI(t.s), l.k)); });
+    return { m, k };
+  }
+  const exVal = (s, x) => { const l = linOf(s); return rAdd(rMul(l.m, x), l.k); };
+  const lcm = (a, b) => a / gcd(a, b) * b;
+  const densOf = s => s.t === "ex" ? s.terms.filter(t => t.f.k === "fr").map(t => t.f.d) : [];
+  const hasBr = s => s.t === "ex" && s.terms.some(t => t.f.k === "br");
+  const needCol = s => s.t === "ex" && (s.terms.filter(t => t.f.k === "x").length > 1 || s.terms.filter(t => t.f.k === "n").length > 1);
+  /* the terms m·x + kk, in the order they are written */
+  const linTerms = (s, m, kk, kFirst) => { const a = m ? [tm(s * Math.sign(m), fX(Math.abs(m)))] : [], b = kk ? [tm(s * Math.sign(kk), fN(Math.abs(kk)))] : []; return kFirst ? b.concat(a) : a.concat(b); };
+  function mulTerm(t, L){
+    const f = t.f;
+    if(f.k === "x") return [tm(t.s, fX(f.c * L))];
+    if(f.k === "n") return [tm(t.s, fN(f.v * L))];
+    if(f.k === "br") return [tm(t.s, fBr(f.c * L, f.m, f.kk, f.kFirst))];
+    if(f.k === "lin") return [tm(t.s, fBr(L, f.m, f.kk, f.kFirst))];
+    const q = L / f.d, top = f.top;
+    if(top.k === "x") return [tm(t.s, fX(top.c * q))];
+    if(top.k === "br") return [tm(t.s, fBr(top.c * q, top.m, top.kk, top.kFirst))];
+    return q === 1 ? linTerms(t.s, top.m, top.kk, top.kFirst) : [tm(t.s, fBr(q, top.m, top.kk, top.kFirst))];
+  }
+  /* × L: a side with a fraction is multiplied term by term (that is what clears it); any other side gets a bracket */
+  function mulSide(s, L){
+    if(s.t === "num") return num(rMul(s.v, rI(L)));
+    if(s.t !== "ex"){ const l = linOf(s); s = exS(linTerms(1, l.m.n, l.k.n, s.kFirst)); }
+    if(s.terms.some(t => t.f.k === "fr") || s.terms.length === 1) return exS(s.terms.flatMap(t => mulTerm(t, L)));
+    const l = linOf(s), first = s.terms[0].f.k === "n";
+    return exS([tm(1, fBr(L, l.m.n, l.k.n, first))]);
+  }
+  function expandSide(s){
+    if(!hasBr(s)) return s;
+    return exS(s.terms.flatMap(t => t.f.k === "br" ? linTerms(t.s, t.f.c * t.f.m, t.f.c * t.f.kk, t.f.kFirst) : [t]));
+  }
+  function collectSide(s){
+    if(!needCol(s)) return s;
+    const l = linOf(s), first = s.terms[0].f.k === "n";
+    const out = linTerms(1, l.m.n, l.k.n, first);
+    return exS(out.length ? out : [tm(1, fN(0))]);
+  }
+  /* a side that is now just m·x + k (or a number) goes back to the ordinary forms */
+  function plainSide(s){
+    if(s.t !== "ex") return s;
+    const l = linOf(s);
+    if(l.m.n === 0) return num(l.k);
+    return linS(l.m.n, l.k.n, s.terms[0].f.k === "n" && l.k.n !== 0);
+  }
+  const isPlain = s => s.t !== "ex" || (!densOf(s).length && !hasBr(s) && !needCol(s));
+  function exSolve(top, bot, x){
+    const stages = [{ top, bot, val:exVal(top, x) }], moves = [];
+    for(let g = 0; g < 8; g++){
+      const cur = stages[stages.length - 1], t = cur.top, b = cur.bot;
+      if(isPlain(t) && isPlain(b)) break;
+      let nt, nb, mv;
+      const dens = densOf(t).concat(densOf(b));
+      if(dens.length){ const L = dens.reduce(lcm, 1); nt = mulSide(t, L); nb = mulSide(b, L); mv = { kind:"mul", n:L }; }
+      else if(hasBr(t) || hasBr(b)){ nt = expandSide(t); nb = expandSide(b); mv = { kind:"exp", sides:{ t:hasBr(t), b:hasBr(b) } }; }
+      else { nt = collectSide(t); nb = collectSide(b); mv = { kind:"col", sides:{ t:needCol(t), b:needCol(b) } }; }
+      moves.push(mv); stages.push({ top:nt, bot:nb, val:exVal(nt, x) });
+    }
+    const last = stages[stages.length - 1];
+    last.top = plainSide(last.top); last.bot = plainSide(last.bot);
+    if(!isPlain(last.top) || !isPlain(last.bot)) return null;
+    if(hasX(last.top) && hasX(last.bot) && last.top.m === last.bot.m) return null;
+    const rest = solve(last.top, last.bot, x);
+    if(!rest) return null;
+    return { stages:stages.concat(rest.stages.slice(1)), moves:moves.concat(rest.moves) };
+  }
+  const isRewrite = mv => mv.kind === "exp" || mv.kind === "col";
+
+  /* ================= questions ================= */
+  const TWO = ["axb", "xab", "brk", "frc", "bax"], BOTH = ["both", "bbrk", "bfrc", "bhard"];
+  const TYPES = TWO.concat(BOTH);
+  const TYPE_NAME = { axb:"Multiply, then add or subtract", xab:"Divide, then add or subtract", brk:"Brackets", frc:"A sum, then divide",
+    bax:"Taking the pronumeral away", mix:"Mixed two-step", both:"Simple", bbrk:"Involving brackets", bfrc:"Involving one fraction",
+    bhard:"Harder", bmix:"Mixed: pronumerals on both sides" };
+  const familyOf = t => BOTH.includes(t) || t === "bmix" ? "both" : "two";
+  const fracPool = () => S.set.nw === "dec" ? [2, 4, 5, 10] : [2, 3, 4, 5];
+  const nonMult = (a, lo, hi) => { for(let t = 0; t < 60; t++){ const n = ri(lo, hi); if(n % a !== 0) return n; } return a + 1; };
+
+  /* ---- pronumerals on both sides: brackets, a fraction, harder ones ----
+     Every form is built from its answer: all the numbers but one are picked, and the last one is worked out so the
+     equation is true. A form that would need a non-whole number there is thrown away and another is tried. */
+  function genBoth(type, wantNeg, wantFrac){
+    const sg = wantNeg ? -1 : 1, pm = () => Math.random() < 0.5 ? 1 : -1;
+    let x;
+    if(wantFrac){ const d = pick([2, 3, 4]); x = R(sg * nonMult(d, 1, d * 6), d); } else x = rI(sg * ri(1, 10));
+    const at = (side) => exVal(side, x);
+    const whole = r => rInt(r) && Math.abs(r.n) <= 40 ? r.n : null;
+    const swap = (A, B) => Math.random() < 0.3 ? { top:B, bot:A, x } : { top:A, bot:B, x };
+    const form = type === "bbrk" ? pick(["a", "a", "b", "c"]) : type === "bfrc" ? pick(["a", "a", "b"]) : pick(["a", "b", "c", "d", "e"]);
+    if(type === "bbrk"){
+      const a = ri(2, 6), b = pm() * ri(1, 9);
+      const A = exS([tm(1, fBr(a, 1, b))]);
+      if(form === "a"){                                   /* a(x + b) = cx + d */
+        const c = ri(1, 9); if(c === a) return null;
+        const d = whole(rSub(at(A), rMul(rI(c), x))); if(d === null || d === 0) return null;
+        return swap(A, linS(c, d));
+      }
+      if(form === "b"){                                   /* a(x + b) = c(x + d) */
+        const c = ri(2, 6); if(c === a) return null;
+        const d = whole(rSub(rDiv(at(A), rI(c)), x)); if(d === null || d === 0 || d === b) return null;
+        return swap(A, exS([tm(1, fBr(c, 1, d))]));
+      }
+      /* a(x + b) + e = cx + d */
+      const e = pm() * ri(1, 9), A2 = exS([tm(1, fBr(a, 1, b)), nT(e)]), c = ri(1, 9); if(c === a) return null;
+      const d = whole(rSub(at(A2), rMul(rI(c), x))); if(d === null || d === 0) return null;
+      return swap(A2, linS(c, d));
+    }
+    if(type === "bfrc"){
+      if(form === "a"){                                   /* (ax + b)/c = dx + e */
+        const a = ri(1, 4), c = ri(2, 5), d = ri(1, 4); if(a === c * d) return null;
+        const V = Math.round(rF(rMul(rI(a), x)) / c) + ri(-3, 4), b = whole(rSub(rI(c * V), rMul(rI(a), x)));
+        if(b === null || b === 0 || Math.abs(b) > 20) return null;
+        const A = exS([tm(1, fFr(a === 1 ? fLin(1, b) : fLin(a, b), c))]);
+        const e = whole(rSub(rI(V), rMul(rI(d), x))); if(e === null || e === 0) return null;
+        return swap(A, linS(d, e));
+      }
+      /* x/c + b = dx + e */
+      const c = ri(2, 5), b = pm() * ri(1, 9), d = ri(1, 3);
+      const A = exS([tm(1, fFr(fX(1), c)), nT(b)]);
+      const e = whole(rSub(at(A), rMul(rI(d), x))); if(e === null || e === 0) return null;
+      return swap(A, linS(d, e));
+    }
+    /* harder */
+    if(form === "a"){                                     /* a(x + b) − c(x + d) = ex + f */
+      const a = ri(3, 7), c = ri(2, a - 1), b = pm() * ri(1, 8), d = pm() * ri(1, 8), e = ri(1, 5); if(a - c === e || b === d) return null;
+      const A = exS([tm(1, fBr(a, 1, b)), tm(-1, fBr(c, 1, d))]);
+      const f = whole(rSub(at(A), rMul(rI(e), x))); if(f === null || f === 0) return null;
+      return { top:A, bot:linS(e, f), x };
+    }
+    if(form === "b"){                                     /* (x + a)/b = (x + c)/d */
+      const b = ri(2, 5), d = ri(2, 6); if(b === d) return null;
+      const V = Math.round(rF(x) / Math.max(b, d)) + ri(-2, 3);
+      const a = whole(rSub(rI(b * V), x)), c = whole(rSub(rI(d * V), x));
+      if(a === null || c === null || a === 0 || c === 0 || a === c || Math.abs(a) > 20 || Math.abs(c) > 20) return null;
+      return { top:exS([tm(1, fFr(fLin(1, a), b))]), bot:exS([tm(1, fFr(fLin(1, c), d))]), x };
+    }
+    if(form === "c"){                                     /* b − a(x + c) = dx + e */
+      const a = ri(2, 5), c = ri(1, 6), b = ri(10, 40), d = ri(1, 5);
+      const A = exS([nT(b), tm(-1, fBr(a, 1, c))]);
+      const e = whole(rSub(at(A), rMul(rI(d), x))); if(e === null || e === 0) return null;
+      return swap(A, linS(d, e));
+    }
+    if(form === "d"){                                     /* x/a + b = x/c + d */
+      const a = ri(2, 5), c = ri(2, 6); if(a === c) return null;
+      const b = pm() * ri(1, 9), A = exS([tm(1, fFr(fX(1), a)), nT(b)]);
+      const d = whole(rSub(at(A), rDiv(x, rI(c)))); if(d === null || d === 0) return null;
+      return { top:A, bot:exS([tm(1, fFr(fX(1), c)), nT(d)]), x };
+    }
+    /* a(x + b) = c(x + d) + e */
+    const a = ri(2, 6), c = ri(2, 6); if(a === c) return null;
+    const b = pm() * ri(1, 8), d = pm() * ri(1, 8); if(b === d) return null;
+    const A = exS([tm(1, fBr(a, 1, b))]);
+    const e = whole(rSub(at(A), rMul(rI(c), rAdd(x, rI(d))))); if(e === null || e === 0) return null;
+    return swap(A, exS([tm(1, fBr(c, 1, d)), nT(e)]));
+  }
+  function genType(type, wantNeg, wantFrac){
+    if(type !== "both" && BOTH.includes(type)) return genBoth(type, wantNeg, wantFrac);
+    const sg = wantNeg ? -1 : 1, pm = () => Math.random() < 0.5 ? 1 : -1;
+    if(type === "axb"){
+      const sgn = pm(), b = ri(1, 12); let a, x;
+      if(wantFrac){ a = pick(fracPool()); x = R(sg * nonMult(a, 1, a * 9), a); } else { a = ri(2, 9); x = rI(sg * ri(1, 12)); }
+      const c = rAdd(rMul(rI(a), x), rI(sgn * b));
+      return { top:opsS([{ o:"mul", n:a }, { o:sgn > 0 ? "add" : "sub", n:b }]), bot:num(c), x };
+    }
+    if(type === "xab"){
+      const a = ri(2, 8), q = sg * ri(1, 10), sgn = pm(), b = ri(1, 12);
+      return { top:opsS([{ o:"div", n:a }, { o:sgn > 0 ? "add" : "sub", n:b }]), bot:num(q + sgn * b), x:rI(a * q) };
+    }
+    if(type === "brk"){
+      const sgn = pm(), b = ri(1, 9); let a, u;
+      if(wantFrac){ a = pick(fracPool()); u = R(pm() * nonMult(a, 1, a * 9), a); } else { a = ri(2, 8); u = rI(pm() * ri(1, 12)); }
+      const x = rSub(u, rI(sgn * b));
+      return { top:opsS([{ o:sgn > 0 ? "add" : "sub", n:b }, { o:"mul", n:a }]), bot:num(rMul(rI(a), u)), x };
+    }
+    if(type === "frc"){
+      const a = ri(2, 8), c = pm() * ri(1, 10), sgn = pm(), b = ri(1, 12);
+      return { top:opsS([{ o:sgn > 0 ? "add" : "sub", n:b }, { o:"div", n:a }]), bot:num(c), x:rI(a * c - sgn * b) };
+    }
+    if(type === "bax"){
+      let a, x; const b = ri(2, 30);
+      if(wantFrac){ a = pick(fracPool()); x = R(sg * nonMult(a, 1, a * 8), a); } else { a = ri(1, 7); x = rI(sg * ri(1, 10)); }
+      const c = rSub(rI(b), rMul(rI(a), x));
+      return { top:linS(-a, b), bot:num(c), x };
+    }
+    /* both sides */
+    let big, small, x;
+    if(wantFrac){ const dlt = pick(fracPool().filter(d => d <= 5)); small = ri(1, 5); big = small + dlt; x = R(sg * nonMult(dlt, 1, dlt * 8), dlt); }
+    else { big = ri(2, 9); small = ri(1, big - 1); x = rI(sg * ri(1, 10)); }
+    let neg2 = S.set.vary && Math.random() < 0.25;
+    const k1 = Math.random() < 0.12 ? 0 : ri(-9, 12);
+    let A, B;
+    if(neg2){
+      const k2 = rAdd(rMul(rI(big + small), x), rI(k1)); if(!rInt(k2)) return null;
+      A = linS(big, k1); B = linS(-small, k2.n);
+    } else {
+      const k2 = rAdd(rMul(rI(big - small), x), rI(k1)); if(!rInt(k2)) return null;
+      if(k1 === 0 && k2.n === 0) return null;
+      A = linS(big, k1); B = linS(small, k2.n);
+    }
+    if(A.k === 0 && B.k === 0) return null;
+    return Math.random() < 0.35 ? { top:B, bot:A, x } : { top:A, bot:B, x };
+  }
+  const FRAC_OK = { axb:1, brk:1, bax:1, both:1, bbrk:1, bfrc:1, bhard:1 };
+  function sigOf(q){ return JSON.stringify([q.stages[0].top, q.stages[0].bot]); }
+  function finish(g, v, own){
+    const sol = g.top.t === "ex" || g.bot.t === "ex" ? exSolve(g.top, g.bot, g.x) : solve(g.top, g.bot, g.x);
+    if(!sol || !sol.moves.length) return null;
+    const q = { v:v || "x", x:g.x, stages:sol.stages, moves:sol.moves, type:g.type || "own", own:!!own };
+    return q;
+  }
+  function okQ(q, wantNeg){
+    const vals = q.stages.map(s => rF(s.val));
+    const lim = q.type && BOTH.includes(q.type) && q.type !== "both" ? 160 : 99;
+    if(vals.some(v => v === 0 || Math.abs(v) > lim)) return false;
+    if(!q.stages.every(s => [s.top, s.bot].every(sd => sd.t !== "lin" || (Math.abs(sd.k) <= 60 && !(sd.m < 0 && sd.k <= 0))))) return false;
+    if(q.stages[0].top.t === "num" && Math.abs(rF(q.stages[0].top.v)) > 99) return false;
+    const xf = rF(q.x);
+    if(wantNeg){ if(xf >= 0) return false; }
+    else {
+      if(xf <= 0 || vals.some(v => v < 0)) return false;
+      /* no negative number is written anywhere */
+      if(!q.stages.every(s => [s.top, s.bot].every(sd => sd.t !== "num" || rF(sd.v) > 0))) return false;
+      if(!q.stages.every(s => [s.top, s.bot].every(sd => sd.t !== "lin" || (sd.m > 0 ? true : sd.k > 0)))) return false;
+    }
+    return true;
+  }
+
+  /* ================= pieces: one description of a bit of maths, drawn as HTML or SVG =================
+     {v:1} the letter · {n:"5"} a number · {o:"+"} an operator · {fr:[top, bottom]} a fraction · {t:"("} text */
+  const V = { v:1 }, N = n => ({ n:fmt(n) }), O = o => ({ o }), T = t => ({ t });
+  const MINUS = "−", TIMES = "×", DIVIDE = "÷";
+  const fracOn = () => S.set.div === "frac";
+  const termP = m => Math.abs(m) === 1 ? (m < 0 ? [T(MINUS), V] : [V]) : [N(m), V];
+  function decStr(r){ let d = r.d, k = 0; while(d % 2 === 0){ d /= 2; k++; } let j = 0; while(d % 5 === 0){ d /= 5; j++; } if(d !== 1) return null; return fmt(+(r.n / r.d).toFixed(Math.max(k, j))); }
+  function valP(r){
+    if(rInt(r)) return [N(r.n)];
+    const a = Math.abs(r.n), sign = r.n < 0 ? [T(MINUS)] : [];
+    if(S.set.nw === "dec"){ const s = decStr(r); if(s) return [{ n:s }]; }
+    if(S.set.nw === "mixed" && a > r.d) return [...sign, N(Math.floor(a / r.d)), { fr:[[N(a % r.d)], [N(r.d)]] }];
+    return [...sign, { fr:[[N(a)], [N(r.d)]] }];
+  }
+  const hasSum = p => p.some(it => it.o === "+" || it.o === MINUS);
+  const wrap = p => [T("("), ...p, T(")")];
+  /* a side written as terms (brackets, fractions, several terms) */
+  function linPcs(m, k, kFirst){
+    if(k === 0) return termP(m);
+    if(m < 0 && k > 0) return [N(k), O(MINUS), ...termP(-m)];
+    if(kFirst && k > 0) return [N(k), O(m < 0 ? MINUS : "+"), ...termP(Math.abs(m))];
+    return [...termP(m), O(k > 0 ? "+" : MINUS), N(Math.abs(k))];
+  }
+  function factorP(f){
+    if(f.k === "x") return termP(f.c);
+    if(f.k === "n") return [N(f.v)];
+    if(f.k === "lin") return linPcs(f.m, f.kk, f.kFirst);
+    if(f.k === "br"){ const inner = wrap(linPcs(f.m, f.kk, f.kFirst)); return f.c === 1 ? inner : [N(f.c), ...inner]; }
+    const tp = factorP(f.top);
+    return fracOn() ? [{ fr:[tp, [N(f.d)]] }] : [...(hasSum(tp) && f.top.k !== "br" ? wrap(tp) : tp), O(DIVIDE), N(f.d)];
+  }
+  const exP = s => s.terms.flatMap((t, i) => { const p = factorP(t.f); return i === 0 ? (t.s < 0 ? [T(MINUS), ...p] : p) : [O(t.s < 0 ? MINUS : "+"), ...p]; });
+  /* the answer put in for the letter, anywhere in a list of pieces: 3x is 3 × 4, 2(x + 1) is 2 × (4 + 1) */
+  function substP(p, x, inFr){
+    /* inside a fraction a fractional answer is written on one line, (3/2), since a fraction can't sit in a fraction here */
+    let xv = valP(x);
+    if(inFr && xv.some(it => it.fr)) xv = [T("(")].concat(xv.flatMap(it => it.fr ? [...it.fr[0], T("/"), ...it.fr[1]] : [it]), [T(")")]);
+    const neg = x.n < 0, xb = (neg || (!rInt(x) && !xv.some(it => it.fr))) && xv[0].t !== "(" ? wrap(xv) : xv, out = [];
+    p.forEach((it, i) => {
+      const prev = p[i - 1];
+      if(it.v){ if(prev && prev.n != null) out.push(O(TIMES), ...xb); else out.push(...xb); }
+      else if(it.fr) out.push({ fr:[substP(it.fr[0], x, true), substP(it.fr[1], x, true)] });
+      else if(it.t === "(" && prev && prev.n != null) out.push(O(TIMES), it);
+      else out.push(it);
+    });
+    return out;
+  }
+  function sideP(s){
+    if(s.t === "num") return valP(s.v);
+    if(s.t === "ex") return exP(s);
+    if(s.t === "lin"){
+      if(s.k === 0) return termP(s.m);
+      if(s.m < 0 && s.k > 0) return [N(s.k), O(MINUS), ...termP(-s.m)];
+      if(s.kFirst && s.k > 0) return [N(s.k), O("+"), ...termP(s.m)];
+      return [...termP(s.m), O(s.k > 0 ? "+" : MINUS), N(Math.abs(s.k))];
+    }
+    let cur = [V];
+    s.ops.forEach((op, i) => {
+      const lastOne = i === s.ops.length - 1;
+      if(op.o === "mul") cur = cur.length === 1 && cur[0].v ? [N(op.n), V] : [N(op.n), ...wrap(cur)];
+      else if(op.o === "add") cur = s.kFirst && lastOne ? [N(op.n), O("+"), ...cur] : [...cur, O("+"), N(op.n)];
+      else if(op.o === "sub") cur = [...cur, O(MINUS), N(op.n)];
+      else cur = fracOn() ? [{ fr:[cur, [N(op.n)]] }] : [...(hasSum(cur) ? wrap(cur) : cur), O(DIVIDE), N(op.n)];
+    });
+    return cur;
+  }
+  /* the same side with the answer put in for the letter */
+  function subP(s, x){
+    if(s.t === "ex") return substP(exP(s), x);
+    const neg = x.n < 0, xv = valP(x), xb = neg || (!rInt(x) && !xv.some(it => it.fr)) ? wrap(xv) : xv;
+    if(s.t === "num") return valP(s.v);
+    const times = m => Math.abs(m) === 1 ? (m < 0 ? [T(MINUS), ...wrap(xv)] : xv) : [N(m), O(TIMES), ...xb];
+    if(s.t === "lin"){
+      if(s.k === 0) return times(s.m);
+      if(s.m < 0 && s.k > 0) return [N(s.k), O(MINUS), ...(s.m === -1 ? xb : times(-s.m))];
+      if(s.kFirst && s.k > 0) return [N(s.k), O("+"), ...(s.m === 1 ? xb : times(s.m))];
+      return [...times(s.m), O(s.k > 0 ? "+" : MINUS), N(Math.abs(s.k))];
+    }
+    let cur = xv, atom = true;
+    s.ops.forEach((op, i) => {
+      const lastOne = i === s.ops.length - 1;
+      if(op.o === "mul") cur = [N(op.n), O(TIMES), ...(atom ? xb : wrap(cur))];
+      else if(op.o === "add") cur = s.kFirst && lastOne ? [N(op.n), O("+"), ...(atom ? xb : cur)] : [...cur, O("+"), N(op.n)];
+      else if(op.o === "sub") cur = [...cur, O(MINUS), N(op.n)];
+      else cur = fracOn() && !cur.some(it => it.fr) ? [{ fr:[cur, [N(op.n)]] }] : [...(hasSum(cur) || (atom && neg) ? wrap(atom ? xv : cur) : cur), O(DIVIDE), N(op.n)];
+      atom = false;
+    });
+    return cur;
+  }
+  function H(p){
+    return p.map(it => it.v ? letterHTML(LV())
+      : it.n != null ? `<span>${it.n}</span>`
+      : it.o ? `<span class="op">${it.o}</span>`
+      : it.fr ? `<span class="frac"><span class="fn">${H(it.fr[0])}</span><span class="fd">${H(it.fr[1])}</span></span>`
+      : it.ans ? `<span class="ans">${H(it.ans)}</span>`
+      : `<span>${it.t}</span>`).join("");
+  }
+  const eqHTML = p => `<span class="eq">${H(p)}</span>`;
+  const hasFr = p => p.some(it => it.fr);
+  /* SVG text: runs of inline text and stacked fractions, side by side */
+  const runTxt = items => items.map(it => it.v ? (MATH_ALPHA ? mathItalic(LV()) : LV()) : it.n != null ? it.n : it.o ? ` ${it.o} ` : it.t || "").join("");
+  function segsOf(p, size){
+    const segs = []; let run = [];
+    const flush = () => { if(run.length){ segs.push({ run, w:tw(runTxt(run), size) * 1.03 }); run = []; } };
+    p.forEach(it => { if(it.fr){ flush(); const s2 = size * 0.74; segs.push({ fr:it.fr, w:Math.max(measureP(it.fr[0], s2), measureP(it.fr[1], s2)) + size * 0.22 }); } else run.push(it); });
+    flush(); return segs;
+  }
+  function measureP(p, size){ const sg = segsOf(p, size); return sg.reduce((a, s) => a + s.w, 0) + Math.max(0, sg.length - 1) * size * 0.07; }
+  function svgLetter(){ return MATH_ALPHA ? `<tspan>${mathItalic(LV())}</tspan>` : `<tspan font-style="italic" style="font-family:var(--itFont)">${esc(LV())}</tspan>`; }
+  const svgIn = items => items.map(it => it.v ? svgLetter() : it.n != null ? `<tspan>${it.n}</tspan>` : it.o ? `<tspan> ${it.o} </tspan>` : `<tspan>${esc(it.t || "")}</tspan>`).join("");
+  const f1 = v => v.toFixed(1);
+  function pSVG(p, x, y, size, col){
+    const sg = segsOf(p, size), gap = size * 0.07, total = sg.reduce((a, s) => a + s.w, 0) + Math.max(0, sg.length - 1) * gap;
+    let cx = x - total / 2, out = "";
+    const txt = (items, tx, ty, sz) => `<text xml:space="preserve" x="${f1(tx)}" y="${f1(ty)}" text-anchor="middle" dominant-baseline="central" font-size="${f1(sz)}" fill="${col}">${svgIn(items)}</text>`;
+    sg.forEach(s => {
+      const mid = cx + s.w / 2;
+      if(s.run) out += txt(s.run, mid, y, size);
+      else {
+        const s2 = size * 0.74;
+        out += txt(s.fr[0], mid, y - size * 0.47, s2) +
+          `<line x1="${f1(mid - s.w / 2 + size * 0.03)}" x2="${f1(mid + s.w / 2 - size * 0.03)}" y1="${f1(y)}" y2="${f1(y)}" stroke="${col}" stroke-width="${f1(Math.max(1.6, size * 0.06))}" stroke-linecap="round"/>` +
+          txt(s.fr[1], mid, y + size * 0.5, s2);
+      }
+      cx += s.w + gap;
+    });
+    return out;
+  }
+
+
+    const pillOf = mv => {
+      if(mv.kind === "sub") return MINUS + " " + mv.n;
+      if(mv.kind === "add") return "+ " + mv.n;
+      if(mv.kind === "div") return DIVIDE + " " + mv.n;
+      if(mv.kind === "mul") return TIMES + " " + mv.n;
+      if(mv.kind === "exp") return "expand";
+      if(mv.kind === "col") return "collect";
+      const a = Math.abs(mv.s), Lx = MATH_ALPHA ? mathItalic(LV()) : LV();
+      return (mv.s > 0 ? MINUS + " " : "+ ") + (a === 1 ? "" : a) + Lx;
+    };
+    return { S, TWO, BOTH, TYPE_NAME, FRAC_OK, genType, finish, okQ, solve, exSolve, sideP, subP, valP, H, R, rI, rF, rInt, rAdd, rSub, rMul, rDiv, rEq,
+      linOf, evalS, hasX, isRewrite, num, linS, opsS, exS, tm, fX, fN, fBr, fLin, fFr, nT, linTerms, plainSide, MATH_ALPHA, mathItalic, letterHTML, pillOf,
+      V, N, O, T, fmt, hasFr, linPcs };
+  })();
+
+(() => {
+  "use strict";
+
+  /* ================= small helpers ================= */
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;");
+  const SITE = "https://www.millsmathstools.au";
+  const rnd = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+  const pick = a => a[Math.floor(Math.random() * a.length)];
+  const shuffle = a => { const b = a.slice(); for(let i = b.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; };
+  const PX_MM = 96 / 25.4;
+  const { V, N, O, T, fmt } = ENG;
+  const MINUS = "−", TIMES = "×", DIVIDE = "÷";
+  const Lt = v => ENG.letterHTML(v);
+  /* a bit of maths as HTML, drawn with the question's own letter and the paper's settings */
+  const H = (q, p) => { ENG.S.q = q; return ENG.H(p); };
+  const sideP = (q, sd) => { ENG.S.q = q; return ENG.sideP(sd); };
+  const topP = (q, i) => sideP(q, q.stages[i].top), botP = (q, i) => sideP(q, q.stages[i].bot);
+  const eqH = (q, i) => `${H(q, topP(q, i))} = ${H(q, botP(q, i))}`;
+  const valH = (q, r) => { ENG.S.q = q; return ENG.H(ENG.valP(r)); };
+  const pillT = (q, mv) => { ENG.S.q = q; return ENG.pillOf(mv); };
+  const xEqH = q => `${Lt(q.v)} = ${valH(q, q.x)}`;
+  const realMoves = q => q.moves.map((m, i) => i).filter(i => !ENG.isRewrite(q.moves[i]));
+
+  /* ================= the equations (the teaching tool's types) ================= */
+  const fr_ = (a, b) => `<span class="frac"><span>${a}</span><span>${b}</span></span>`;
+  const X_ = () => Lt("x");
+  const ETYPES = [
+    { k:"axb",  fam:"two",  name:"Multiply, then add or subtract", ex:() => `3${X_()} + 4 = 19` },
+    { k:"xab",  fam:"two",  name:"Divide, then add or subtract", ex:() => `${fr_(X_(), 4)} + 3 = 5` },
+    { k:"brk",  fam:"two",  name:"Brackets", ex:() => `3(${X_()} + 2) = 15` },
+    { k:"frc",  fam:"two",  name:"A sum, then divide", ex:() => `${fr_(X_() + " − 1", 4)} = 3` },
+    { k:"bax",  fam:"two",  name:"Taking the pronumeral away", ex:() => `10 − 2${X_()} = 4` },
+    { k:"both", fam:"both", name:"Simple", ex:() => `5${X_()} + 2 = 3${X_()} + 10` },
+    { k:"bbrk", fam:"both", name:"Involving brackets", ex:() => `3(${X_()} + 2) = ${X_()} + 14` },
+    { k:"bfrc", fam:"both", name:"Involving one fraction", ex:() => `${fr_(X_() + " + 7", 2)} = ${X_()} + 2` },
+    { k:"bhard", fam:"both", name:"Harder", ex:() => `5(${X_()} + 2) − 2(${X_()} − 1) = ${X_()} + 20` }
+  ];
+  const ETK = Object.fromEntries(ETYPES.map(e => [e.k, e]));
+
+  /* ================= levels =================
+     Sweet: small positive whole numbers, nothing written another way.  Mild: bigger whole numbers, and (if ticked) the
+     number first or the sides swapped.  Medium: negative numbers — every other question has a negative answer.
+     Spicy: negatives and fraction answers, bigger numbers. */
+  const LV = [
+    { k:"sweet",  name:"Sweet",  ex:"small whole numbers",          col:"#16a34a", maxN:20, maxX:10, neg:() => false, frac:() => false },
+    { k:"mild",   name:"Mild",   ex:"bigger whole numbers",         col:"#d97706", maxN:40, maxX:15, neg:() => false, frac:() => false },
+    { k:"medium", name:"Medium", ex:"negative numbers",             col:"#ea580c", maxN:40, maxX:15, neg:i => i % 2 === 1, frac:() => false },
+    { k:"spicy",  name:"Spicy",  ex:"negatives, fraction answers",  col:"#b91c1c", maxN:60, maxX:20, neg:i => i % 3 !== 0, frac:i => i % 2 === 0 }
+  ];
+  const LVK = Object.fromEntries(LV.map(l => [l.k, l]));
+  function levelAt(levels, i, n){ return levels[Math.min(levels.length - 1, Math.floor(i * levels.length / Math.max(1, n)))]; }
+  const LETTERS = "abcdfghkmnpqrstuwyz".split("");
+
+  /* every number written in a list of pieces */
+  const numsIn = p => p.flatMap(it => it.fr ? numsIn(it.fr[0]).concat(numsIn(it.fr[1])) : it.n != null ? [Math.abs(parseFloat(String(it.n).replace(MINUS, "-")) || 0)] : []);
+  const sigOf = q => JSON.stringify([q.stages[0].top, q.stages[0].bot]);
+
+  /* one equation from the tool's own generators, held to the level's sizes */
+  function makeEq(type, level, i, opts, used, extra){
+    const L = LVK[level];
+    ENG.S.set.div = opts.div; ENG.S.set.nw = opts.nw;
+    ENG.S.set.vary = !!(opts.vary && level !== "sweet" && !(extra && extra.plain));
+    for(let t = 0; t < 5000; t++){
+      const wantNeg = L.neg(i), wantFrac = L.frac(i) && !!ENG.FRAC_OK[type] && !(extra && extra.whole);
+      const g = ENG.genType(type, wantNeg, wantFrac); if(!g) continue;
+      g.type = type;
+      if(ENG.S.set.vary && ENG.TWO.includes(type)){
+        if(g.top.t === "ops"){ const l = g.top.ops[g.top.ops.length - 1]; if(l.o === "add" && Math.random() < 0.3) g.top.kFirst = true; }
+        if(Math.random() < 0.25){ const tmp = g.top; g.top = g.bot; g.bot = tmp; }
+      }
+      const v = opts.letters && level !== "sweet" && Math.random() < 0.3 ? pick(LETTERS) : "x";
+      const q = ENG.finish(g, v);
+      if(!q || !ENG.okQ(q, wantNeg)) continue;
+      if(wantFrac === ENG.rInt(q.x)) continue;
+      if(ENG.rInt(q.x) && Math.abs(q.x.n) > L.maxX) continue;
+      if(!ENG.rInt(q.x) && q.x.d > 6) continue;
+      if(numsIn(topP(q, 0).concat(botP(q, 0))).some(n => n > L.maxN)) continue;
+      if(q.stages.some(st => Math.abs(ENG.rF(st.val)) > (level === "spicy" ? 160 : 120))) continue;
+      if(extra && extra.test && !extra.test(q)) continue;
+      const sg = sigOf(q); if(used.has(sg)) continue;
+      used.add(sg); q.level = level;
+      return q;
+    }
+    return null;
+  }
+
+  /* ================= F: think of a number — the words come from the equation's own structure ================= */
+  const nWord = n => n < 0 ? `subtract ${-n}` : `add ${n}`;
+  function sideWords(sd){
+    if(sd.t === "ops"){
+      const w = sd.ops.map(o => o.o === "mul" ? `multiply it by ${o.n}` : o.o === "div" ? `divide it by ${o.n}` : o.o === "add" ? `add ${o.n}` : `subtract ${o.n}`);
+      return w.length === 1 ? w[0] : w.slice(0, -1).join(", ") + ", then " + w[w.length - 1];
+    }
+    if(sd.t === "lin"){
+      if(sd.m < 0) return sd.k > 0 ? `multiply it by ${-sd.m} and take that away from ${sd.k}` : null;
+      if(sd.m === 1) return sd.k ? nWord(sd.k) : null;
+      return sd.k ? `multiply it by ${sd.m}, then ${nWord(sd.k)}` : `multiply it by ${sd.m}`;
+    }
+    if(sd.t === "ex"){
+      const ts = sd.terms;
+      if(ts.length === 1 && ts[0].s > 0){
+        const f = ts[0].f;
+        if(f.k === "br" && f.m === 1) return `${nWord(f.kk)}, then multiply by ${f.c}`;
+        if(f.k === "fr" && f.top.k === "lin") return (f.top.m === 1 ? nWord(f.top.kk) : `multiply it by ${f.top.m}, ${nWord(f.top.kk)}`) + `, then divide by ${f.d}`;
+      }
+      if(ts.length === 2 && ts[0].s > 0 && ts[0].f.k === "fr" && ts[0].f.top.k === "x" && ts[0].f.top.c === 1 && ts[1].f.k === "n")
+        return `divide it by ${ts[0].f.d}, then ${nWord(ts[1].s * ts[1].f.v)}`;
+    }
+    return null;
+  }
+  function thinkSentence(q){
+    const st = q.stages[0], hT = ENG.hasX(st.top), hB = ENG.hasX(st.bot);
+    if(hT && hB){
+      const a = sideWords(st.top), b = sideWords(st.bot);
+      return a && b ? `I think of a number. If I ${a}, I get the same as if I ${b}.` : null;
+    }
+    const xs = hT ? st.top : st.bot, ns = hT ? st.bot : st.top, w = sideWords(xs);
+    return w && ns.t === "num" ? `I think of a number. I ${w}, and get ${valH(q, ns.v)}.` : null;
+  }
+
+  /* ================= G: use it — short contexts, built from the answer so every number is a sensible whole one ================= */
+  const CTX = {
+    axb:[ () => { const a = rnd(2, 6), b = rnd(3, 15), x = rnd(3, 20);
+            return { top:ENG.opsS([{ o:"mul", n:a }, { o:"add", n:b }]), bot:ENG.num(a * x + b), x, v:"k", u:"km", w:"the number of kilometres",
+              t:`A taxi charges a $${b} flag fall plus $${a} for each kilometre. A trip cost $${a * x + b}. How many kilometres was the trip?` }; },
+          () => { const a = rnd(4, 12), b = rnd(10, 40), x = rnd(3, 15);
+            return { top:ENG.opsS([{ o:"mul", n:a }, { o:"add", n:b }]), bot:ENG.num(a * x + b), x, v:"v", u:"visits", w:"the number of visits",
+              t:`A gym charges $${b} to join and $${a} for each visit. Ruby has paid $${a * x + b} altogether. How many visits has she made?` }; } ],
+    xab:[ () => { const a = rnd(2, 5), p = rnd(4, 12), b = rnd(5, 20), x = a * p;
+            return { top:ENG.opsS([{ o:"div", n:a }, { o:"add", n:b }]), bot:ENG.num(p + b), x, v:"r", u:"cm", w:"the length of the ribbon in cm",
+              t:`A ribbon is cut into ${a} equal pieces. One piece and a ${b} cm offcut measure ${p + b} cm together. How long was the ribbon?` }; } ],
+    brk:[ () => { const a = rnd(2, 6), b = rnd(2, 6), x = rnd(5, 20);
+            return { top:ENG.opsS([{ o:"add", n:b }, { o:"mul", n:a }]), bot:ENG.num(a * (x + b)), x, v:"t", u:"dollars", w:"the price of one ticket in dollars",
+              t:`${a} friends each buy a movie ticket and a $${b} drink. Altogether they pay $${a * (x + b)}. How much is one ticket?` }; } ],
+    frc:[ () => { const a = rnd(2, 6), b = rnd(2, 12), c = rnd(3, 12), x = a * c - b;
+            return x > 0 ? { top:ENG.opsS([{ o:"add", n:b }, { o:"div", n:a }]), bot:ENG.num(c), x, v:"l", u:"lollies", w:"the number of lollies in the bag",
+              t:`Mia has a bag of lollies. She adds ${b} more, then shares them equally between ${a} friends. Each friend gets ${c}. How many lollies were in the bag?` } : null; } ],
+    bax:[ () => { const a = rnd(2, 4), x = rnd(2, 8), c = rnd(3, 12), b = c + a * x;
+            return { top:ENG.linS(-a, b), bot:ENG.num(c), x, v:"h", u:"hours", w:"the number of hours",
+              t:`A candle is ${b} cm tall and burns down ${a} cm every hour. After how many hours is it ${c} cm tall?` }; } ],
+    both:[ () => { const c = rnd(2, 6), a = c + rnd(1, 5), x = rnd(3, 12), b = rnd(5, 30), d = b + (a - c) * x;
+            return { top:ENG.linS(a, b), bot:ENG.linS(c, d), x, v:"w", u:"weeks", w:"the number of weeks",
+              t:`Ava has $${b} and saves $${a} a week. Leo has $${d} and saves $${c} a week. After how many weeks will they have the same amount?` }; },
+           () => { const c = rnd(1, 4), a = c + rnd(1, 4), x = rnd(4, 15), b = rnd(5, 20), d = b + (a - c) * x;
+            return { top:ENG.linS(a, b), bot:ENG.linS(c, d), x, v:"g", u:"GB", w:"the number of GB",
+              t:`Phone plan A costs $${b} plus $${a} per GB of data. Plan B costs $${d} plus $${c} per GB. For how many GB do they cost the same?` }; } ],
+    bbrk:[ () => { const a = rnd(2, 4), c = a + rnd(1, 3), b = rnd(3, 9), x = rnd(3, 12), d = a * (x + b) - c * x;
+            return d > 0 ? { top:ENG.exS([ENG.tm(1, ENG.fBr(a, 1, b))]), bot:ENG.linS(c, d), x, v:"m", u:"marbles", w:"the number of marbles in a bag",
+              t:`Ella buys ${a} bags of marbles, and each bag comes with ${b} bonus marbles. Sam buys ${c} bags with no bonus, plus ${d} loose marbles. They end up with the same number. How many marbles are in a bag?` } : null; } ]
+  };
+  function makeCtx(type, used){
+    const list = CTX[type]; if(!list) return null;
+    for(let t = 0; t < 400; t++){
+      const c = pick(list)(); if(!c) continue;
+      const q = ENG.finish({ top:c.top, bot:c.bot, x:ENG.rI(c.x), type }, c.v);
+      if(!q) continue;
+      const sg = sigOf(q); if(used.has(sg)) continue; used.add(sg);
+      q.st = c; q.level = "mild";
+      return q;
+    }
+    return null;
+  }
+
+  /* ================= E: spot the mistake — one classic slip, then the working carries on from it ================= */
+  const R0 = ENG.rI(0);
+  function solveFrom(top, bot){
+    /* the answer the (wrong) equation leads to, and its working */
+    const lt = ENG.linOf(top), lb = ENG.linOf(bot);
+    if(ENG.rEq(lt.m, lb.m)) return null;
+    const x = ENG.rDiv(ENG.rSub(lb.k, lt.k), ENG.rSub(lt.m, lb.m));
+    const sol = top.t === "ex" || bot.t === "ex" ? ENG.exSolve(top, bot, x) : ENG.solve(top, bot, x);
+    return sol && sol.moves.length ? { x, stages:sol.stages } : null;
+  }
+  /* the slips, from what a move was */
+  function slips(q, j){
+    const mv = q.moves[j], a = q.stages[j], b = q.stages[j + 1], out = [];
+    const numSide = a.top.t === "num" ? "top" : a.bot.t === "num" ? "bot" : null;
+    if(mv.kind === "add" || mv.kind === "sub" || mv.kind === "mul" || mv.kind === "div"){
+      if(numSide){
+        const v = a[numSide].v, n = ENG.rI(mv.n);
+        const wrong = mv.kind === "sub" ? ENG.rAdd(v, n) : mv.kind === "add" ? ENG.rSub(v, n) : mv.kind === "div" ? ENG.rMul(v, n) : ENG.rDiv(v, n);
+        const opp = { sub:"+ " + mv.n, add:MINUS + " " + mv.n, div:TIMES + " " + mv.n, mul:DIVIDE + " " + mv.n }[mv.kind];
+        out.push({ kind:"way", side:numSide, val:wrong, why:`the move was ${pillT(q, mv)} on one side but ${opp} on the other. Both sides need the same move.` });
+        out.push({ kind:"one", side:numSide, val:v, why:`${pillT(q, mv)} was only done to one side. Whatever is done to one side has to be done to the other.` });
+      }
+    }
+    if(mv.kind === "xterm" && a.top.t === "lin" && a.bot.t === "lin"){
+      const side = "bot", sd = a.bot;
+      out.push({ kind:"xway", side, sideObj:ENG.linS(sd.m + mv.s, sd.k, sd.kFirst), why:`the move was ${pillT(q, mv)} on one side but the opposite on the other. Both sides need the same move.` });
+    }
+    if(mv.kind === "exp"){
+      ["top", "bot"].forEach(sk => {
+        const sd = a[sk]; if(sd.t !== "ex") return;
+        const bi = sd.terms.findIndex(t => t.f.k === "br"); if(bi < 0) return;
+        const t0 = sd.terms[bi], f = t0.f;
+        /* only the first term multiplied */
+        const half = ENG.exS(sd.terms.flatMap((t, i) => i === bi ? ENG.linTerms(t.s, f.c * f.m, f.kk, f.kFirst) : [t]));
+        out.push({ kind:"half", side:sk, sideObj:half, why:`the ${f.c} outside the bracket multiplies BOTH terms inside it, not just the first.` });
+        if(t0.s < 0){
+          const sgn = ENG.exS(sd.terms.flatMap((t, i) => i === bi ? ENG.linTerms(1, -f.c * f.m, f.c * f.kk, f.kFirst) : [t]));
+          out.push({ kind:"neg", side:sk, sideObj:sgn, why:`${MINUS}${f.c} multiplies every term in the bracket, so the sign of the second term changes too.` });
+        }
+      });
+    }
+    if(mv.kind === "mul" && (a.top.t === "ex" || a.bot.t === "ex")){
+      ["top", "bot"].forEach(sk => {
+        const sd = a[sk]; if(sd.t !== "ex" || !sd.terms.some(t => t.f.k === "fr") || !sd.terms.some(t => t.f.k === "n")) return;
+        const correct = b[sk];
+        if(correct.t !== "ex") return;
+        /* the plain number was left as it was */
+        const nTerm = sd.terms.find(t => t.f.k === "n");
+        const wrong = ENG.exS(correct.terms.map(t => t.f.k === "n" ? nTerm : t));
+        out.push({ kind:"frac", side:sk, sideObj:wrong, why:`× ${mv.n} has to multiply EVERY term on the side, including the ${nTerm.f.v}.` });
+      });
+    }
+    return out;
+  }
+  function makeMistake(q, level, rng){
+    const cands = [];
+    q.moves.forEach((m, j) => slips(q, j).forEach(s => cands.push({ j, s })));
+    if(!cands.length) return null;
+    /* the harder slips first where they exist, from Medium */
+    const hardK = ["half", "neg", "frac"], late = level === "medium" || level === "spicy";
+    const pool = late && cands.some(c => hardK.includes(c.s.kind)) ? cands.filter(c => hardK.includes(c.s.kind)) : cands;
+    for(const c of shuffle(pool)){
+      const a = q.stages[c.j], b = q.stages[c.j + 1], s = c.s;
+      const wrong = { top:b.top, bot:b.bot };
+      if(s.sideObj){ wrong[s.side] = s.sideObj; if(s.kind === "half" || s.kind === "neg" || s.kind === "frac"){ const o = s.side === "top" ? "bot" : "top"; wrong[o] = b[o]; } }
+      else wrong[s.side] = ENG.num(s.val);
+      const rest = solveFrom(wrong.top, wrong.bot);
+      if(!rest || ENG.rEq(rest.x, q.x) || rest.x.d > 12 || Math.abs(ENG.rF(rest.x)) > 400) continue;
+      const lines = q.stages.slice(0, c.j + 1).map(st => ({ top:st.top, bot:st.bot })).concat([wrong], rest.stages.slice(1).map(st => ({ top:st.top, bot:st.bot })));
+      if(lines.length > 7) continue;
+      return { lines, bad:c.j + 1, wrongX:rest.x, why:s.why, right:{ top:b.top, bot:b.bot } };
+    }
+    return null;
+  }
+
+
+  /* ================= the double number line, in millimetres (the teaching tool's move picture) ================= */
+  const cvx = document.createElement("canvas").getContext("2d");
+  const MF = '"Cambria Math","STIX Two Math","Latin Modern Math","Times New Roman",serif', UF = 'system-ui,"Segoe UI",Roboto,Arial,sans-serif';
+  function twMM(txt, fs, fam, wt){ cvx.font = `${wt || 500} ${fs * 10}px ${fam || MF}`; return cvx.measureText(txt).width / 10; }
+  const letT = v => ENG.MATH_ALPHA ? ENG.mathItalic(v) : v;
+  const runTxt = (items, v) => items.map(it => it.v ? letT(v) : it.n != null ? it.n : it.o ? ` ${it.o} ` : it.t || "").join("");
+  function segsMM(p, fs, v){
+    const segs = []; let run = [];
+    const flush = () => { if(run.length){ segs.push({ run, w:twMM(runTxt(run, v), fs) * 1.03 }); run = []; } };
+    p.forEach(it => { if(it.fr){ flush(); const f = fs * .76; segs.push({ fr:it.fr, w:Math.max(wMM(it.fr[0], f, v), wMM(it.fr[1], f, v)) + fs * .22 }); } else run.push(it); });
+    flush(); return segs;
+  }
+  function wMM(p, fs, v){ const sg = segsMM(p, fs, v); return sg.reduce((a, s) => a + s.w, 0) + Math.max(0, sg.length - 1) * fs * .07; }
+  const hasFrP = p => p.some(it => it.fr);
+  const tsp = (items, v) => items.map(it => it.v ? `<tspan${ENG.MATH_ALPHA ? "" : ' font-style="italic"'}>${esc(letT(v))}</tspan>` : it.n != null ? `<tspan>${esc(it.n)}</tspan>` : it.o ? `<tspan> ${it.o} </tspan>` : `<tspan>${esc(it.t || "")}</tspan>`).join("");
+  function labMM(p, x, y, fs, col, v){
+    const sg = segsMM(p, fs, v), gap = fs * .07, total = sg.reduce((a, s) => a + s.w, 0) + Math.max(0, sg.length - 1) * gap;
+    let cx = x - total / 2, out = "";
+    const txt = (items, tx, ty, sz) => `<text xml:space="preserve" x="${tx.toFixed(2)}" y="${ty.toFixed(2)}" text-anchor="middle" dominant-baseline="central" font-size="${sz.toFixed(2)}" fill="${col}">${tsp(items, v)}</text>`;
+    sg.forEach(s => {
+      const mid = cx + s.w / 2;
+      if(s.run) out += txt(s.run, mid, y, fs);
+      else {
+        const f = fs * .76;
+        out += txt(s.fr[0], mid, y - fs * .5, f) + `<line x1="${(mid - s.w / 2 + .3).toFixed(2)}" x2="${(mid + s.w / 2 - .3).toFixed(2)}" y1="${y.toFixed(2)}" y2="${y.toFixed(2)}" stroke="${col}" stroke-width=".28"/>` + txt(s.fr[1], mid, y + fs * .54, f);
+      }
+      cx += s.w + gap;
+    });
+    return out;
+  }
+  const fitMM = (p, fs, maxW, v) => { const w = wMM(p, fs, v); return w > maxW ? Math.max(2.4, fs * maxW / w) : fs; };
+
+  /* move j of q, from stage j to stage j + 1.
+     blanks: the move pills and the new value under the line are left empty (dashed) for students; key: filled in green. */
+  function moveSVG(q, j, opts, w, mode){
+    const bw = opts.bw, key = mode === "key", blank = mode === "blank";
+    const INK = "#111827", TOP = bw ? INK : "#1d4ed8", BOT = bw ? INK : "#15803d", GRN = bw ? INK : "#15803d";
+    const MOVE = bw ? INK : "#7c3aed", MOVEBG = bw ? "#fff" : "#f5f3ff";
+    const mv = q.moves[j], a = q.stages[j], b = q.stages[j + 1];
+    const t1 = topP(q, j), b1 = botP(q, j), t2 = topP(q, j + 1), b2 = botP(q, j + 1);
+    /* which side does the student fill in? the one that is a plain number after the move, else the bottom */
+    const fillTop = b.top.t === "num" && b.bot.t !== "num";
+    const fs0 = opts.density === "roomy" ? 4.5 : opts.density === "tight" ? 3.6 : 4.1;
+    const fr = [t1, b1, t2, b2].some(hasFrP);
+    const half = fr ? fs0 * .98 : fs0 * .58, tk = 1.9, hopH = 3, pillH = 4.6, pillW = Math.max(11.5, twMM(pillT(q, mv), pillH * .64, UF, 900) + 4.5);
+    const mult = mv.kind === "mul" || mv.kind === "div";
+    const arrH = 3.4;
+    const yLt0 = half + (mult ? arrH + pillH + 1.4 : .6);
+    const y0 = yLt0 + half + .6 + hopH + tk * .5;
+    const yLt = yLt0, yLb = y0 + (y0 - yLt);
+    const Hh = yLb + half + (mult ? arrH + pillH + 1.4 : .9);
+    const op = pillT(q, mv);
+    let s = `<svg class="dnl" width="${w.toFixed(1)}mm" height="${Hh.toFixed(1)}mm" viewBox="0 0 ${w.toFixed(2)} ${Hh.toFixed(2)}" xmlns="http://www.w3.org/2000/svg">`;
+    s += `<line x1=".6" x2="${(w - .6).toFixed(2)}" y1="${y0.toFixed(2)}" y2="${y0.toFixed(2)}" stroke="${INK}" stroke-width=".55" stroke-linecap="round"/>`;
+    const tickS = (x, major) => `<line x1="${x.toFixed(2)}" x2="${x.toFixed(2)}" y1="${(y0 - (major ? tk : tk * .6)).toFixed(2)}" y2="${(y0 + (major ? tk : tk * .6)).toFixed(2)}" stroke="${major ? INK : "#9ca3af"}" stroke-width="${major ? .55 : .35}" stroke-linecap="round"/>`;
+    const head = (x1, x2, yb, cy, col) => {
+      const mx = (x1 + x2) / 2, ang = Math.atan2(yb - cy, x2 - mx), bb = 1.25;
+      const bx = x2 - Math.cos(ang) * bb, by = yb - Math.sin(ang) * bb, wx = -Math.sin(ang) * bb * .55, wy = Math.cos(ang) * bb * .55;
+      return `<polygon points="${x2.toFixed(2)},${yb.toFixed(2)} ${(bx + wx).toFixed(2)},${(by + wy).toFixed(2)} ${(bx - wx).toFixed(2)},${(by - wy).toFixed(2)}" fill="${col}"/>`;
+    };
+    const arc = (x1, x2, yb, h, side, dash) => { const cy = yb + side * h;
+      return `<path d="M${x1.toFixed(2)} ${yb.toFixed(2)}Q${((x1 + x2) / 2).toFixed(2)} ${cy.toFixed(2)} ${x2.toFixed(2)} ${yb.toFixed(2)}" fill="none" stroke="${MOVE}" stroke-width=".42"${dash ? ' stroke-dasharray="1.2 .8"' : ""}/>` + head(x1, x2, yb, cy, MOVE); };
+    const pillS = (x, y, show) => `<rect x="${(x - pillW / 2).toFixed(2)}" y="${(y - pillH / 2).toFixed(2)}" width="${pillW.toFixed(2)}" height="${pillH}" rx="${pillH / 2}" fill="${show ? MOVEBG : "#fff"}" stroke="${show ? MOVE : INK}" stroke-width=".35"${show ? "" : ' stroke-dasharray=".9 .6"'}/>`
+      + (show ? `<text x="${x.toFixed(2)}" y="${y.toFixed(2)}" text-anchor="middle" dominant-baseline="central" font-size="${(pillH * .64).toFixed(2)}" fill="${key ? GRN : MOVE}" style="font-family:${UF};font-weight:900">${esc(op)}</text>` : "");
+    const boxS = (x, y, p, fs) => {
+      const bwid = Math.max(9, wMM(p, fs, q.v) + 3), bh = (hasFrP(p) ? fs * 2 : fs * 1.3);
+      return `<rect x="${(x - bwid / 2).toFixed(2)}" y="${(y - bh / 2).toFixed(2)}" width="${bwid.toFixed(2)}" height="${bh.toFixed(2)}" rx=".9" fill="${key ? (bw ? "#fff" : "#f0fdf4") : "#fff"}" stroke="${key ? GRN : INK}" stroke-width=".35"${key ? "" : ' stroke-dasharray=".9 .6"'}/>`
+        + (key ? labMM(p, x, y, fs, GRN, q.v) : "");
+    };
+    const showMove = !blank;
+    let X1, X2, s1, s2, s1b, s2b;
+    if(!mult){
+      const dir = ENG.rF(b.val) > ENG.rF(a.val) ? 1 : -1;
+      X1 = dir > 0 ? w * .25 : w * .75; X2 = dir > 0 ? w * .75 : w * .25;
+      const halfW = 2 * (w * .25 - pillW / 2 - 2);
+      s1 = s2 = Math.min(fitMM(t1, fs0, halfW, q.v), fitMM(b1, fs0, halfW, q.v), fitMM(t2, fs0, halfW - 3, q.v), fitMM(b2, fs0, halfW - 3, q.v));
+      if(mv.kind !== "xterm" && mv.n <= 12) for(let k = 1; k < mv.n; k++) s += tickS(X1 + (X2 - X1) * k / mv.n, false);
+      const yT = y0 - tk * .5, yB = y0 + tk * .5, dash = mv.kind === "xterm";
+      s += arc(X1, X2, yT, hopH, -1, dash) + arc(X1, X2, yB, hopH, 1, dash);
+      const mid = (X1 + X2) / 2;
+      s += pillS(mid, yLt, showMove || key) + pillS(mid, yLb, showMove || key);
+    } else {
+      const div = mv.kind === "div", whole = div ? a : b, sgn = ENG.rF(whole.val) < 0 ? -1 : 1, n = mv.n;
+      const left = w * .1, right = w * .9, step = (right - left) / n, pos = k => sgn > 0 ? left + k * step : right - k * step;
+      X1 = div ? pos(n) : pos(1); X2 = div ? pos(1) : pos(n);
+      const zs = Math.min(fs0, step * .5);
+      const wT = div ? t1 : t2, wB = div ? b1 : b2, uT = div ? t2 : t1, uB = div ? b2 : b1;
+      const room = 2 * (w * .1 + step * .45), uRoom = 2 * (step - zs - 1);
+      const sWt = fitMM(wT, fs0, room, q.v), sWb = fitMM(wB, fs0, room, q.v), sUt = fitMM(uT, fs0, uRoom, q.v), sUb = fitMM(uB, fs0, uRoom, q.v);
+      s1 = div ? sWt : sUt; s1b = div ? sWb : sUb; s2 = div ? sUt : sWt; s2b = div ? sUb : sWb;
+      for(let k = 1; k < n; k++) if(k !== 1) s += tickS(pos(k), false);
+      for(let k = 0; k < n; k++){
+        const p1 = Math.min(pos(k), pos(k + 1)) + .5, p2 = Math.max(pos(k), pos(k + 1)) - .5, rx = (p2 - p1) / 2;
+        s += `<path d="M${p1.toFixed(2)} ${(y0 - .3).toFixed(2)}A${rx.toFixed(2)} ${hopH * .8} 0 0 1 ${p2.toFixed(2)} ${(y0 - .3).toFixed(2)}M${p2.toFixed(2)} ${(y0 + .3).toFixed(2)}A${rx.toFixed(2)} ${hopH * .8} 0 0 1 ${p1.toFixed(2)} ${(y0 + .3).toFixed(2)}" fill="none" stroke="#9ca3af" stroke-width=".3" stroke-dasharray=".9 .7"/>`;
+      }
+      s += tickS(pos(0), true) + labMM([N(0)], pos(0), yLt, zs, INK, q.v) + labMM([N(0)], pos(0), yLb, zs, INK, q.v);
+      const yAt = yLt - half - .5, yAb = yLb + half + .5;
+      s += arc(X1, X2, yAt, arrH, -1) + arc(X1, X2, yAb, arrH, 1);
+      const mid = (X1 + X2) / 2;
+      s += pillS(mid, yAt - arrH * .55 - pillH / 2 + .4, showMove || key) + pillS(mid, yAb + arrH * .55 + pillH / 2 - .4, showMove || key);
+    }
+    s += tickS(X1, true) + tickS(X2, true);
+    if(s1b == null){ s1b = s1; s2b = s2; }
+    s += labMM(t1, X1, yLt, s1, TOP, q.v) + labMM(b1, X1, yLb, s1b, BOT, q.v);
+    /* after the move: one side printed, the other for the student */
+    if(fillTop){ s += boxS(X2, yLt, t2, s2) + labMM(b2, X2, yLb, s2b, BOT, q.v); }
+    else { s += labMM(t2, X2, yLt, s2, TOP, q.v) + (blank || key ? boxS(X2, yLb, b2, s2b) : labMM(b2, X2, yLb, s2b, BOT, q.v)); }
+    return s + "</svg>";
+  }
+  /* an empty strip to draw a double number line on */
+  function blankSVG(w, h){
+    return `<svg class="dnl" width="${w.toFixed(1)}mm" height="${h.toFixed(1)}mm" viewBox="0 0 ${w.toFixed(2)} ${h.toFixed(2)}" xmlns="http://www.w3.org/2000/svg">`
+      + `<rect x=".3" y=".3" width="${(w - .6).toFixed(2)}" height="${(h - .6).toFixed(2)}" rx="2.4" fill="#fff" stroke="#9aa3af" stroke-width=".3" stroke-dasharray="1 .8"/>`
+      + `<line x1="4" x2="${(w - 4).toFixed(2)}" y1="${(h / 2).toFixed(2)}" y2="${(h / 2).toFixed(2)}" stroke="#111827" stroke-width=".55" stroke-linecap="round"/></svg>`;
+  }
+
+
+  /* ================= the problem types (sections) =================
+     The picture fades, as in the tool: the first move printed on the line → the working with = under = (the tool's
+     panel) → draw the first move yourself → solve → spot the mistake → words and contexts → make your own. */
+  const TYPES = [
+    { k:"A", col:"#7c3aed", bg:"#faf5ff", n:4, pic:true, title:"The first move on the line",
+      desc:"The equation is one point on a printed double number line, with the first move drawn on both lines. Students write the move in both pills and the new value, then finish solving.",
+      ex:() => `<span class="m">3${X_()} + 4 = 19: <span class="pl">${MINUS} 4</span> on both lines → 3${X_()} = <span class="bl"></span></span>` },
+    { k:"B", col:"#0d9488", bg:"#f0fdfa", n:4, title:"Write the working",
+      desc:"The working laid out as on the tool's panel: = under =, a box for the move under both sides, then the new equation. One row for every step.",
+      ex:() => `<span class="m">5${X_()} + 2 = 3${X_()} + 10 → <span class="pl">${MINUS} 3${X_()}</span> → <span class="bl"></span> = <span class="bl"></span></span>` },
+    { k:"C", col:"#2563eb", bg:"#eff6ff", n:2, title:"Draw the first move",
+      desc:"An empty line under each equation: students draw the first move on a double number line themselves, then finish solving.",
+      ex:() => `<span class="m">${fr_(X_(), 4)} + 3 = 5</span><span class="arrow">→</span><span class="m">draw it → ${X_()} = 8</span>` },
+    { k:"D", col:"#4f46e5", bg:"#eef2ff", n:6, title:"Solve",
+      desc:"No picture and no layout: room to work, then the answer. Tick \"Check\" below to add a substitution line.",
+      ex:() => `<span class="m">3(${X_()} + 2) = ${X_()} + 14 → ${X_()} = 4</span>` },
+    { k:"E", col:"#db2777", bg:"#fdf2f8", n:2, title:"Spot the mistake",
+      desc:"Someone's working with one classic slip: a move made on one side only or the wrong way, a bracket half expanded, a sign lost on a negative bracket, a fraction cleared from only one term.",
+      ex:() => `<span class="m">3(${X_()} + 2) = ${X_()} + 14 → 3${X_()} + 2 = …</span>` },
+    { k:"F", col:"#c2410c", bg:"#fff7ed", n:2, title:"Think of a number",
+      desc:"\"I think of a number. I multiply it by 3, then add 4, and get 19.\" Students write the equation, then solve it.",
+      ex:() => `<span class="m">3${X_()} + 4 = 19, ${X_()} = 5</span>` },
+    { k:"G", col:"#0369a1", bg:"#f0f9ff", n:2, title:"Use it",
+      desc:"Short contexts for the ticked equations: taxi fares and gym fees, tickets and drinks, candles, two savings plans or phone plans that cost the same.",
+      ex:() => `<span class="m">20 + 3${Lt("w")} = 35 + ${Lt("w")}</span>` },
+    { k:"H", col:"#ea580c", bg:"#fff7ed", n:1, title:"Make your own",
+      desc:"Write equations with a given answer, of the kinds ticked. Low floor, high ceiling.",
+      ex:() => `<span class="m">${X_()} = 4: 2(${X_()} + 1) = 10, 3${X_()} + 1 = ${X_()} + 9</span>` },
+    { k:"I", col:"#475569", bg:"#f8fafc", n:12, off:true, title:"Fluency — no picture",
+      desc:"Bare equations, answer only, a mix of the ticked kinds and levels. Tick it on its own for a warm-up.",
+      ex:() => `<span class="m">4${X_()} − 3 = 17</span><span class="m">${X_()} =</span><span style="display:inline-block;width:2.2em;border-bottom:1.6px solid currentColor"></span>` }
+  ];
+  const LT = Object.fromEntries(TYPES.map((T, i) => [T.k, "ABCDEFGHI"[i]]));
+  function headFor(T, opts){
+    switch(T.k){
+      case "A": return "Make the same move on both lines: write it in both pills and fill in the new value. Then finish solving.";
+      case "B": return opts.bMoves ? "The moves are given. Write the new equation after each one, = under =." : "Write the move under both sides, then the new equation, = under =.";
+      case "C": return "Draw the first move on a double number line. Then finish solving.";
+      case "D": return opts.check ? "Solve, then check: put your answer back into the equation." : "Solve.";
+      case "E": return "Spot the mistake. Find the first line that is wrong, explain what went wrong, then give the correct answer.";
+      case "F": return "Write an equation for each one, then solve it.";
+      case "G": return "Write an equation, then solve it.";
+      case "H": return "Make your own.";
+      case "I": return "Fluency. Solve.";
+    }
+  }
+
+  /* ================= making questions for a section ================= */
+  const firstReal = q => realMoves(q)[0];
+  function makeQ(T, level, i, n, opts, used){
+    const base = { type:T.k, level, cls:level };
+    if(!used.deck || !used.deck.length) used.deck = shuffle(used.pool);
+    let et = used.deck.pop();
+    if(T.k === "H") return Object.assign(base, { target:level === "sweet" ? 4 : level === "mild" ? 7 : level === "medium" ? -3 : -5 });
+    if(T.k === "G"){
+      const can = used.pool.filter(k => CTX[k]);
+      const k = can.length ? can[i % can.length] : (used.pool.some(t => ETK[t].fam === "two") ? "axb" : "both");
+      const q = makeCtx(k, used.sigs); return q ? Object.assign(base, { q }) : null;
+    }
+    let test = null, extra = {};
+    if(T.k === "A" || T.k === "C"){
+      test = q => { const j = firstReal(q); if(j == null) return false; const m = q.moves[j]; return !((m.kind === "mul" || m.kind === "div") && m.n > 8); };
+    }
+    if(T.k === "B") test = q => q.moves.length <= 6;
+    if(T.k === "E"){ test = q => !!(q._mk = makeMistake(q, level)); }
+    if(T.k === "F"){ extra.plain = true; test = q => !!thinkSentence(q); if(et === "bhard" && Math.random() < .5) et = "bbrk"; }
+    extra.test = test;
+    let q = makeEq(et, level, i, opts, used.sigs, extra);
+    /* a kind that can't make this section's question (e.g. no sentence) hands over to another ticked kind */
+    for(let t = 0; !q && t < used.pool.length; t++) q = makeEq(used.pool[t], level, i, opts, used.sigs, extra);
+    if(!q && T.k === "F") for(const k of ["bbrk", "both", "axb"]){ q = makeEq(k, level, i, opts, used.sigs, extra); if(q) break; }
+    if(!q) return null;
+    const out = Object.assign(base, { q });
+    if(T.k === "E"){ out.mk = q._mk; if(!used.names || !used.names.length) used.names = shuffle(NAMES); out.name = used.names.pop(); }
+    return out;
+  }
+  const NAMES = ["Mia", "Sam", "Noah", "Zara", "Kai", "Lily", "Jai", "Ava", "Leo", "Ruby", "Omar", "Tia"];
+
+  /* ================= sizes ================= */
+  const COLS = { roomy:2, normal:2, tight:3 };
+  const colsFor = (g, opts) => g.T.k === "I" ? (opts.density === "roomy" ? 2 : 3) : ["E", "H"].includes(g.T.k) ? 1 : ["A", "B", "C", "F", "G"].includes(g.T.k) ? (opts.density === "roomy" ? 1 : 2) : opts.cols;
+  const cardInner = cols => (186 - 3 * (cols - 1)) / cols - 6.6;
+
+  /* ================= cards ================= */
+  const top = (o, n, inner) => `<div class="qTop"><span class="qNum ${o.cls}">${n}</span>${inner || ""}</div>`;
+  const ruled = k => '<div class="say">' + '<div class="wl"></div>'.repeat(k) + "</div>";
+  const keyLine = (lab, txt) => `<div class="keyAns">${lab ? `<span class="lab">${lab}</span>` : ""}${txt}</div>`;
+  const keyWhy = txt => `<div class="keyWhy">${txt}</div>`;
+  const ln = cls => `<span class="ln${cls ? " " + cls : ""}"></span>`;
+  const xIs = (q, key) => `<div class="ansLine"><span class="eqs">${Lt(q.v)} =</span>${key ? `<span class="keyIn">${valH(q, q.x)}</span>` : ln()}</div>`;
+  /* the working as the key writes it: each step with its move */
+  function workingKey(q, from){
+    let h = `<div class="kWork">`;
+    for(let i = from || 0; i < q.stages.length; i++){
+      const mv = i ? q.moves[i - 1] : null;
+      h += `<div class="kRow">${mv ? `<span class="kMv${ENG.isRewrite(mv) ? " rw" : ""}">${esc(pillT(q, mv))}</span>` : `<span class="kMv none"></span>`}<span class="kEq">${eqH(q, i)}</span></div>`;
+    }
+    return h + "</div>";
+  }
+  /* B: the tool's panel — = under =, a box for the move under both sides, then the new equation */
+  function gridHTML(q, opts, key){
+    const cell = (cls, html) => `<div class="wc ${cls}">${html}</div>`;
+    const pill = (mv, on) => {
+      if(!on) return "";
+      if(key || opts.bMoves) return `<span class="wPill${ENG.isRewrite(mv) ? " rw" : ""}${key && !opts.bMoves ? " k" : ""}">${esc(pillT(q, mv))}</span>`;
+      return `<span class="wPill blank"></span>`;
+    };
+    const side = (p) => key ? `<span class="kIn">${H(q, p)}</span>` : `<span class="wBl"></span>`;
+    let h = `<div class="wg">` + cell("gL w0", H(q, topP(q, 0))) + cell("gE w0", "=") + cell("gR w0", H(q, botP(q, 0)));
+    q.moves.forEach((mv, j) => {
+      const rw = ENG.isRewrite(mv), onT = !rw || mv.sides.t, onB = !rw || mv.sides.b;
+      h += cell("gL wp", pill(mv, onT)) + cell("gE wp", "") + cell("gR wp", pill(mv, onB));
+      h += cell("gL wq", side(topP(q, j + 1))) + cell("gE wq", "=") + cell("gR wq", side(botP(q, j + 1)));
+    });
+    return h + "</div>";
+  }
+  function cardHTML(o, n, opts, key){
+    const cols = colsFor({ T:{ k:o.type } }, opts), w = cardInner(cols), q = o.q;
+    if(o.type === "A"){
+      const j = firstReal(q);
+      const body = (key ? keyWhy(`${pillT(q, q.moves[j])} on both lines: ${eqH(q, j + 1)}.`) + workingKey(q, j + 1) : "") + `<div class="ansLine"><span class="lab">Finish:</span><span class="eqs">${Lt(q.v)} =</span>${key ? `<span class="keyIn">${valH(q, q.x)}</span>` : ln()}</div>`;
+      return `<div class="qCard">${top(o, n, `<span class="expr">${eqH(q, j)}</span>`)}<div class="pic">${moveSVG(q, j, opts, w, key ? "key" : "blank")}</div>${key ? "" : ruled(1)}${body}</div>`;
+    }
+    if(o.type === "B") return `<div class="qCard">${top(o, n, `<span class="expr">${eqH(q, 0)}</span>`)}<div class="wgWrap">${gridHTML(q, opts, key)}</div></div>`;
+    if(o.type === "C"){
+      const j = firstReal(q), h = opts.density === "roomy" ? 34 : opts.density === "tight" ? 24 : 28;
+      const pic = key ? moveSVG(q, j, opts, w, "key") : blankSVG(w, h);
+      return `<div class="qCard">${top(o, n, `<span class="expr">${eqH(q, 0)}</span>`)}<div class="pic">${pic}</div>${key ? workingKey(q) : ruled(Math.min(4, q.moves.length))}${xIs(q, key)}</div>`;
+    }
+    if(o.type === "D"){
+      let body = key ? workingKey(q) : ruled(Math.min(5, Math.max(2, q.moves.length)));
+      body += xIs(q, key);
+      if(opts.check) body += `<div class="ansLine"><span class="lab">Check:</span>${key ? `<span class="keyIn chk">${checkH(q)}</span>` : ln()}</div>`;
+      return `<div class="qCard">${top(o, n, `<span class="expr">${eqH(q, 0)}</span>`)}${body}</div>`;
+    }
+    if(o.type === "E"){
+      const mk = o.mk, lH = l => `${H(q, sideP(q, l.top))} = ${H(q, sideP(q, l.bot))}`;
+      const rows = mk.lines.map((l, i) => `<div class="mRow${key && i === mk.bad ? " bad" : ""}"><span class="mN">Line ${i + 1}</span><span class="mEq">${lH(l)}</span></div>`).join("");
+      const said = `<div class="said"><b>${esc(o.name)}</b> solved <span class="m">${eqH(q, 0)}</span> like this:<div class="mLines">${rows}</div></div>`;
+      const body = key ? keyLine("", `Line ${mk.bad + 1} is wrong: ${mk.why}`) + keyLine("Should be", `${H(q, sideP(q, mk.right.top))} = ${H(q, sideP(q, mk.right.bot))}`) + keyLine("Correct", `${xEqH(q)} <span class="kNot">(not ${valH(q, mk.wrongX)})</span>`)
+        : `<div class="ansLine"><span class="lab">First wrong line:</span>${ln("sm")}</div><div class="workHead">What went wrong?</div>${ruled(2)}<div class="ansLine"><span class="lab big">Correct answer:</span><span class="eqs">${Lt(q.v)} =</span>${ln()}</div>`;
+      return `<div class="qCard full">${top(o, n, '<span class="word">Spot the mistake</span>')}${said}${body}</div>`;
+    }
+    if(o.type === "F"){
+      const body = key ? keyLine("Equation", eqH(q, 0)) + xIs(q, true) : `<div class="ansLine"><span class="lab">Equation:</span>${ln()}</div>` + ruled(1) + xIs(q, false);
+      return `<div class="qCard">${top(o, n, "")}<div class="qText">${thinkSentence(q)}</div>${body}</div>`;
+    }
+    if(o.type === "G"){
+      const body = key ? keyLine("Equation", eqH(q, 0)) + keyLine("", `${xEqH(q)} ${esc(q.st.u)}`) : `<div class="ansLine"><span class="lab">Equation:</span>${ln()}</div>` + ruled(1) + xIs(q, false);
+      return `<div class="qCard">${top(o, n, "")}<div class="qText">${esc(q.st.t)}</div><div class="qLet">Let <span class="m">${Lt(q.st.v)}</span> be ${esc(q.st.w)}.</div>${body}</div>`;
+    }
+    if(o.type === "H"){
+      const t = o.target, fams = new Set(opts.etypes.map(k => ETK[k].fam));
+      const want = [];
+      if(fams.has("two")) want.push(["a two-step equation", `3${X_()} + 2 = ${fmt(3 * t + 2)}`], ["a two-step equation with a bracket", `2(${X_()} + 5) = ${fmt(2 * (t + 5))}`]);
+      if(fams.has("both")) want.push([`an equation with ${X_()} on both sides`, `4${X_()} + 1 = 2${X_()} + ${fmt(2 * t + 1)}`], [`one with ${X_()} on both sides and a bracket`, `3(${X_()} + 1) = ${X_()} + ${fmt(2 * t + 3)}`]);
+      const txt = `Write equations whose answer is <span class="m">${X_()} = ${fmt(t)}</span>: ${want.map(w => w[0]).join(", ")}. Check each one by putting ${fmt(t)} back in.`;
+      const body = key ? keyLine("", "Any that work, for example:") + keyWhy(want.map(w => `<span class="m">${w[1]}</span>`).join(" &nbsp;·&nbsp; ")) : ruled(want.length + 1);
+      return `<div class="qCard full">${top(o, n, "")}<div class="qText">${txt}</div>${body}</div>`;
+    }
+    if(o.type === "I") return `<div class="qCard flu">${top(o, n, `<span class="expr">${eqH(q, 0)}</span><span class="word">${Lt(q.v)} =</span>` + (key ? `<span class="fluAns">${valH(q, q.x)}</span>` : ln()))}</div>`;
+    return "";
+  }
+
+
+  /* ================= page furniture ================= */
+  function exampleHTML(opts){
+    const two = opts.etypes.some(k => ETK[k].fam === "two");
+    const src = two ? "3x+4=19" : "2x+5=x+9";
+    ENG.S.set.div = opts.div; ENG.S.set.nw = opts.nw;
+    const q = exParse(src);
+    const w = 96, o2 = Object.assign({}, opts, { density:"normal" });
+    const pics = realMoves(q).slice(0, 2).map(j => `<div class="exPic">${moveSVG(q, j, o2, w, "show")}</div>`).join("");
+    return `<div class="exStrip ng"><div class="exHead">Worked example — the same move on both lines</div><div class="exCols two">`
+      + `<div class="exCol">${pics}</div><div class="exCol"><div class="exWork">${gridHTML(q, Object.assign({}, opts, { bMoves:true }), true)}</div>`
+      + `<div class="exLine small"><span class="k">CHECK</span>${checkH(q)}</div></div></div>`
+      + `<div class="exLine small"><span class="k">WHY</span>An equation says two things are at the same point: the left side on the top line, the right side underneath. Undo what was done to ${X_()}, last thing first — and make each move on both lines, so they stay at the same point.</div></div>`;
+  }
+  const checkH = q => { ENG.S.q = q; const st = q.stages[0], v = ENG.H(ENG.valP(st.val));
+    const sides = [st.top, st.bot].filter(sd => ENG.hasX(sd)).map(sd => `${ENG.H(ENG.subP(sd, q.x))} = ${v}`);
+    return sides.join(" and ") + " ✓"; };
+  /* the worked example's equations, built directly */
+  function exParse(s){
+    if(s === "3x+4=19") return ENG.finish({ top:ENG.opsS([{ o:"mul", n:3 }, { o:"add", n:4 }]), bot:ENG.num(19), x:ENG.rI(5), type:"axb" }, "x");
+    return ENG.finish({ top:ENG.linS(2, 5), bot:ENG.linS(1, 9), x:ENG.rI(4), type:"both" }, "x");
+  }
+  function secHeadHTML(g, cont, opts){
+    return `<div class="secHead" style="--sc:${g.T.col};--sc-bg:${g.T.bg}"><span class="secLetter">${LT[g.T.k]}</span>`
+      + `<span class="secText">${esc(headFor(g.T, opts))}</span>${cont ? '<span class="secCont">continued</span>' : ""}</div>`;
+  }
+  const levelLabel = opts => opts.levels.map(k => LVK[k].name).join(" → ");
+  function scopeLabel(opts){
+    const fams = new Set(opts.etypes.map(k => ETK[k].fam));
+    return fams.size === 2 ? "Two-step and pronumerals on both sides" : fams.has("two") ? "Two-step equations" : "Pronumerals on both sides";
+  }
+  function pageHTML(inner, opts, key, no, total){
+    return `<section class="page d-${opts.density}${opts.bw ? " bw" : ""}${key ? " isKey" : ""}">`
+      + '<div class="pageHeader"><div>'
+      + `<div class="hdrTitle">Multi-Step Equations — Double Number Line${key ? " — ANSWERS" : ""}</div>`
+      + `<div class="hdrSub">${key ? "Answer key · " : ""}${esc(scopeLabel(opts))} · ${esc(levelLabel(opts))} · <span class="nw">MA4-EQU-C-01 · MA5-EQU-C-01</span></div></div>`
+      + (!key && opts.name ? '<div class="nameDate"><div class="lineField"><span class="lineLabel">Name</span><span class="lineBox"></span></div>'
+        + '<div class="lineField"><span class="lineLabel">Date</span><span class="lineBox"></span></div></div>' : "")
+      + `</div><div class="sheet">${inner}</div>`
+      + `<div class="pageFooter"><span>Page ${no} of ${total}</span><span><a href="${SITE}">www.millsmathstools.au</a></span></div></section>`;
+  }
+
+  /* ================= build ================= */
+  function readOpts(){
+    const density = $("densitySel").value;
+    const levels = LV.map(l => l.k).filter(k => $("lv" + k).checked);
+    const etypes = ETYPES.map(e => e.k).filter(k => $("et" + k).checked);
+    return {
+      etypes:etypes.length ? etypes : ["axb"], levels:levels.length ? levels : ["mild"], density, cols:COLS[density], bw:$("colourSel").value === "bw",
+      div:$("divSel").value, nw:$("nwSel").value, vary:$("varyToggle").checked, letters:$("letterToggle").checked,
+      bMoves:$("bSel").value === "moves", check:$("checkToggle").checked,
+      example:$("exToggle").checked, name:$("nameToggle").checked, key:$("keyToggle").checked
+    };
+  }
+  function buildQuestions(opts){
+    const used = { sigs:new Set(), pool:opts.etypes }, groups = [];
+    let num = 0, total = 0;
+    TYPES.forEach(T => {
+      if(!$("k" + T.k).checked) return;
+      const n = Math.max(0, Math.min(30, parseInt($("n" + T.k).value, 10) || 0));
+      if(!n) return;
+      const qs = [];
+      used.deck = [];
+      for(let i = 0; i < n; i++){ const q = makeQ(T, levelAt(opts.levels, i, n), i, n, opts, used); if(q) qs.push(q); }
+      total += qs.length;
+      if(qs.length) groups.push({ T, qs });
+    });
+    if(!total) return { error:"Tick at least one problem type and give it a number of questions." };
+    groups.forEach(g => g.qs.forEach(q => { q.n = ++num; }));
+    return { groups };
+  }
+  function measureAndPack(groups, opts, key){
+    const m = $("measure");
+    m.innerHTML = pageHTML("", opts, key, 1, 1);
+    const sheet = m.querySelector(".sheet");
+    const cs = getComputedStyle(sheet);
+    const room = sheet.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - 2;
+    let stripH = 0;
+    if(opts.example && !key){ sheet.innerHTML = exampleHTML(opts); stripH = sheet.firstElementChild.getBoundingClientRect().height + 3 * PX_MM; sheet.innerHTML = ""; }
+    const units = [];
+    groups.forEach(g => {
+      const sec = document.createElement("div"); sec.className = "section";
+      sec.innerHTML = secHeadHTML(g, true, opts);
+      sheet.appendChild(sec);
+      const headH = sec.getBoundingClientRect().height + 3 * PX_MM;
+      const gc = colsFor(g, opts), rows = [];
+      for(let i = 0; i < g.qs.length; i += gc) rows.push(g.qs.slice(i, i + gc));
+      rows.forEach(r => {
+        const grid = document.createElement("div");
+        grid.className = "qGrid"; grid.style.setProperty("--cols", gc);
+        grid.innerHTML = r.map(q => cardHTML(q, q.n, opts, key)).join("");
+        sec.appendChild(grid);
+        fitCards(grid);
+        const h = grid.getBoundingClientRect().height + 3 * PX_MM;
+        grid.remove();
+        units.push({ g, row:r, h, headH });
+      });
+      sec.remove();
+    });
+    m.innerHTML = "";
+    const pages = [];
+    let cur = [], used = stripH, lastG = null;
+    units.forEach(u => {
+      const cost = (lastG === u.g ? 0 : u.headH) + u.h;
+      if(cur.length && used + cost > room){ pages.push(cur); cur = []; used = 0; lastG = null; }
+      used += (lastG === u.g ? 0 : u.headH) + u.h; cur.push(u); lastG = u.g;
+    });
+    if(cur.length) pages.push(cur);
+    pages.left = pages.map((pu, i) => {
+      let u2 = i === 0 && opts.example && !key ? stripH : 0, l2 = null;
+      pu.forEach(u => { u2 += (l2 === u.g ? 0 : u.headH) + u.h; l2 = u.g; });
+      return room - u2;
+    });
+    return pages;
+  }
+  /* "Your turn": a different prompt on each page that has room */
+  const YT = [
+    { f:"two",  t:() => `Draw 3${X_()} + 4 = 19 as one point on a double number line. Show the first move on both lines. Why is it ${MINUS} 4 first and not ${DIVIDE} 3?` },
+    { f:"both", t:() => `5${X_()} + 2 = 3${X_()} + 10. Would you take away 3${X_()} or 5${X_()} from both sides? Try both. Do you get the same answer?` },
+    { f:"any",  t:() => `Make up an equation whose answer is ${X_()} = 6 that takes three steps to solve. Swap with a partner and solve each other's.` },
+    { f:"two",  t:() => `Are 2(${X_()} + 3) = 14 and 2${X_()} + 3 = 14 the same equation? Solve both and explain the difference.` },
+    { f:"both", t:() => `Write a story that matches 4${X_()} + 10 = 2${X_()} + 30. Solve it and check your answer in the story.` },
+    { f:"any",  t:() => `Expanding a bracket does not move the point on the line, but ${MINUS} 4 does. Explain why.` }
+  ];
+  function yourTurnHTML(px, n, opts){
+    const fams = new Set(opts.etypes.map(k => ETK[k].fam));
+    const list = YT.filter(y => y.f === "any" || fams.has(y.f));
+    const drawPx = Math.max(18 * PX_MM, Math.min(100 * PX_MM, px - 24 * PX_MM));
+    return `<div class="yourTurn"><div class="ytHead"><span class="star">★</span>Your turn</div><div class="ytText">${list[n % list.length].t()}</div>`
+      + `<div class="drawBox" style="--drawH:${drawPx.toFixed(0)}px"></div></div>`;
+  }
+  const workBoxHTML = px => `<div class="yourTurn work"><div class="ytHead">Working space</div><div class="drawBox" style="--drawH:${Math.max(18 * PX_MM, Math.min(100 * PX_MM, px - 14 * PX_MM)).toFixed(0)}px"></div></div>`;
+  function pagesHTML(pages, opts, key){
+    const seen = new Set(); let ytN = 0;
+    return pages.map((pu, i) => {
+      let inner = (i === 0 && opts.example && !key) ? exampleHTML(opts) : "";
+      let lastG = null, open = false;
+      pu.forEach(u => {
+        if(u.g !== lastG){
+          if(open) inner += "</div>";
+          inner += '<div class="section">' + secHeadHTML(u.g, seen.has(u.g), opts);
+          seen.add(u.g); open = true; lastG = u.g;
+        }
+        inner += `<div class="qGrid" style="--cols:${colsFor(u.g, opts)}">` + u.row.map(q => cardHTML(q, q.n, opts, key)).join("") + "</div>";
+      });
+      if(open) inner += "</div>";
+      const cont = i < pages.length - 1 && pages[i + 1][0].g === pu[pu.length - 1].g;
+      if(!key && pages.left[i] > 44 * PX_MM) inner += cont ? workBoxHTML(pages.left[i] - 4 * PX_MM) : yourTurnHTML(pages.left[i] - 4 * PX_MM, ytN++, opts);
+      return inner;
+    }).map((inner, i, all) => pageHTML(inner, opts, key, i + 1, all.length)).join("");
+  }
+
+  let LAST = null;
+  /* settings that change WHAT is asked re-roll; settings that change how it looks don't */
+  const sigOfOpts = o => [o.etypes.join(), o.levels.join(), o.vary, o.letters].join("|");
+  function generate(reroll){
+    const opts = readOpts();
+    ENG.S.set.div = opts.div; ENG.S.set.nw = opts.nw;
+    if(reroll || !LAST || LAST.sig !== sigOfOpts(opts)){
+      const b = buildQuestions(opts);
+      if(b.error){ $("out").innerHTML = `<p class="note warn">${esc(b.error)}</p>`; LAST = null; return; }
+      b.sig = sigOfOpts(opts);
+      LAST = b;
+    }
+    const pages = measureAndPack(LAST.groups, opts, false);
+    let html = pagesHTML(pages, opts, false);
+    if(opts.key) html += pagesHTML(measureAndPack(LAST.groups, opts, true), opts, true);
+    $("out").innerHTML = html;
+    fitPass();
+  }
+  /* long equations shrink to fit their card rather than spill */
+  function fitCards(root){
+    root.querySelectorAll(".qCard").forEach(c => {
+      const t = c.querySelector(".qTop");
+      if(t){ let g = 0; while(t.scrollWidth > t.clientWidth + 1 && g++ < 16) t.querySelectorAll(".expr, .word, .fluAns").forEach(e => { e.style.fontSize = (parseFloat(getComputedStyle(e).fontSize) * .93) + "px"; }); }
+      c.querySelectorAll(".ansLine, .keyAns, .kRow, .mRow, .wgWrap").forEach(a => { let k = 0; while(a.scrollWidth > a.clientWidth + 1 && k++ < 14) a.style.fontSize = (parseFloat(getComputedStyle(a).fontSize) * .93) + "px"; });
+    });
+  }
+  function fitPass(){
+    fitCards($("out"));
+    document.querySelectorAll("#out .exStrip .exWork").forEach(a => { let k = 0; while(a.scrollWidth > a.clientWidth + 1 && k++ < 12) a.style.fontSize = (parseFloat(getComputedStyle(a).fontSize) * .93) + "px"; });
+    document.querySelectorAll("#out .page").forEach(p => {
+      const yt = p.querySelector(".yourTurn"); if(!yt) return;
+      const sb = p.querySelector(".sheet").getBoundingClientRect().bottom;
+      const over = yt.getBoundingClientRect().bottom - sb;
+      if(over > -2){
+        const db = yt.querySelector(".drawBox");
+        const h = db.getBoundingClientRect().height - over - 6;
+        if(h < 50) yt.remove(); else db.style.setProperty("--drawH", h + "px");
+      }
+    });
+  }
+
+  /* ================= controls ================= */
+  const DEF_ET = ["axb", "xab", "brk", "frc", "bax"];
+  function buildEtypes(){
+    const grp = fam => ETYPES.filter(e => e.fam === fam).map(e =>
+      `<label class="etChip"><input type="checkbox" id="et${e.k}"${DEF_ET.includes(e.k) ? " checked" : ""} /><span class="etBox"><span class="etName">${esc(e.name)}</span><span class="etEx">${e.ex()}</span></span></label>`).join("");
+    $("etTwo").innerHTML = grp("two"); $("etBoth").innerHTML = grp("both");
+    ETYPES.forEach(e => $("et" + e.k).addEventListener("change", ev => {
+      if(!ETYPES.some(x => $("et" + x.k).checked)) ev.target.checked = true;
+      generate(true);
+    }));
+    document.querySelectorAll(".etQuick button").forEach(b => b.addEventListener("click", () => {
+      const f = b.dataset.fam;
+      ETYPES.forEach(e => { $("et" + e.k).checked = f === "all" || e.fam === f; });
+      generate(true);
+    }));
+  }
+  function buildLevels(){
+    $("lvChips").innerHTML = LV.map(l =>
+      `<label class="lvChip" style="--lc:${l.col}"><input type="checkbox" id="lv${l.k}" value="${l.k}"${l.k === "sweet" || l.k === "mild" ? " checked" : ""} /><span class="dot"></span><span class="txt">${esc(l.name)}<small>${esc(l.ex)}</small></span></label>`).join("");
+    LV.forEach(l => $("lv" + l.k).addEventListener("change", e => {
+      if(!LV.some(x => $("lv" + x.k).checked)) e.target.checked = true;
+      generate(true);
+    }));
+    document.querySelectorAll(".quick button[data-quick]").forEach(b => b.addEventListener("click", () => {
+      const set = new Set(b.dataset.quick.split(","));
+      LV.forEach(l => { $("lv" + l.k).checked = set.has(l.k); });
+      generate(true);
+    }));
+  }
+  function buildTypeGrid(){
+    $("typeGrid").innerHTML = TYPES.map(T =>
+      `<div class="typeOpt${T.off ? "" : " on"}" id="opt${T.k}" style="--tc:${T.col}">`
+      + `<div class="typeTop"><span class="typeLetter">${LT[T.k]}</span>`
+      + `<label class="sw"><input type="checkbox" id="k${T.k}"${T.off ? "" : " checked"} /><span class="track"></span><span>${esc(T.title)}</span></label>`
+      + (T.pic ? '<span class="typeTag area">Line printed</span>' : "") + `</div>`
+      + `<p class="typeDesc">${esc(T.desc)}</p>`
+      + `<div class="typeEx"><span class="exLab">e.g.</span>${T.ex()}</div>`
+      + `<div class="cntRow"><label for="n${T.k}">How many</label><input id="n${T.k}" type="number" min="0" max="30" value="${T.n}" /></div>`
+      + "</div>").join("");
+    TYPES.forEach(T => {
+      const box_ = $("k" + T.k), cnt = $("n" + T.k), opt = $("opt" + T.k);
+      box_.addEventListener("change", () => {
+        if(box_.checked && !(parseInt(cnt.value, 10) > 0)) cnt.value = T.n;
+        opt.classList.toggle("on", box_.checked); totals(); generate(true);
+      });
+      cnt.addEventListener("change", () => {
+        const v = parseInt(cnt.value, 10) || 0;
+        box_.checked = v > 0; opt.classList.toggle("on", v > 0); totals(); generate(true);
+      });
+    });
+  }
+  function totals(){
+    let t = 0;
+    TYPES.forEach(T => { if($("k" + T.k).checked) t += Math.max(0, parseInt($("n" + T.k).value, 10) || 0); });
+    $("totalPill").textContent = t + (t === 1 ? " question" : " questions");
+  }
+  function reset(){
+    ETYPES.forEach(e => { $("et" + e.k).checked = DEF_ET.includes(e.k); });
+    LV.forEach(l => { $("lv" + l.k).checked = l.k === "sweet" || l.k === "mild"; });
+    $("divSel").value = "frac"; $("nwSel").value = "frac"; $("colourSel").value = "colour"; $("densitySel").value = "normal"; $("bSel").value = "blank";
+    ["varyToggle", "letterToggle", "exToggle", "nameToggle"].forEach(id => { $(id).checked = true; });
+    $("keyToggle").checked = false; $("checkToggle").checked = false;
+    TYPES.forEach(T => { $("k" + T.k).checked = !T.off; $("n" + T.k).value = T.n; $("opt" + T.k).classList.toggle("on", !T.off); });
+    totals();
+    generate(true);
+  }
+
+  if(ENG.MATH_ALPHA) document.querySelectorAll(".subtitle i, .note i, .kSub i").forEach(el => { el.outerHTML = `<span class="mi">${ENG.mathItalic(el.textContent)}</span>`; });
+  buildEtypes(); buildLevels(); buildTypeGrid(); totals();
+  ["varyToggle", "letterToggle"].forEach(id => $(id).addEventListener("change", () => generate(true)));
+  ["divSel", "nwSel", "colourSel", "densitySel", "bSel", "checkToggle", "exToggle", "nameToggle", "keyToggle"].forEach(id => $(id).addEventListener("change", () => generate(false)));
+  $("genBtn").addEventListener("click", () => generate(true));
+  $("printBtn").addEventListener("click", () => window.print());
+  $("resetBtn").addEventListener("click", reset);
+  const go = () => generate(true);
+  if(document.fonts && document.fonts.ready) document.fonts.ready.then(go); else go();
+
+  window.__WS__ = { generate, readOpts, get last(){ return LAST; }, TYPES, ETYPES, makeQ, makeEq, makeMistake, thinkSentence, LV, ENG, moveSVG };
+
+})();
+</script>
+</body>
+</html>

@@ -108,6 +108,9 @@ window.MMT_TOOL_FAMILIES = {
     "/online-quizzes/stage-4/algebra/counting-strategies-first-quadrant.html",
     "/online-quizzes/stage-4/algebra/counting-strategies-all-quadrants.html"
   ],
+  "/interactive-tools/stage-4/algebra/multi-step-double-numberline/": [
+    "/worksheet-creators/stage-4/algebra/multi-step-double-numberline.html"
+  ],
   "/interactive-tools/stage-4/algebra/double-numberline/": [
     "/worksheet-creators/stage-4/algebra/double-numberline.html",
     "/online-quizzes/stage-4/algebra/double-numberline/student-quiz.html",

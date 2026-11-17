@@ -254,6 +254,29 @@
 >   jump, answer never early, no page scroll on desktop), 64 settings combinations, 29 UI checks (keys, panel,
 >   full screen, menus, type your own, persistence, real animations both ways).
 >
+> **NEW (2026-11-17, latest): MULTI-STEP EQUATIONS — WORKSHEET CREATOR.**
+> `worksheet-creators/stage-4/algebra/multi-step-double-numberline.html` (single file, the one-step creator's frame:
+> bands, level tick-chips, lettered types with counts, measured A4 packing, key). Linked from the multi-step tool's
+> Tools menu (Student Quiz still greyed), toolLinks "Worksheet maker" rows under MA4-EQU-C-01 and MA5-EQU-C-01,
+> toolFamilies row, homepage mini card (Worksheet pill 38 → 39). Project doc `claude/multi-step-double-number-line.md`.
+> * **The tool's engine is copied VERBATIM into `const ENG`** (sides, exact fractions, `genType`, `solve`/`exSolve`,
+>   `finish`, pieces → HTML). Change the tool's engine → re-copy it. Source for the build lives in the session scratch.
+> * **Two controls:** the nine EQUATION KINDS as chips in two families (Two-step: ax ± b, x/a ± b, a(x ± b), (x ± b)/a,
+>   b − ax · Pronumerals on both sides: plain, brackets, one fraction, harder) with quick sets, default all five
+>   two-step; each section deals the ticked kinds from a shuffled deck. LEVELS set the numbers: Sweet whole ≤ 20,
+>   x ≤ 10, nothing rewritten · Mild ≤ 40 · Medium every other answer negative · Spicy negatives + fraction answers.
+>   "Write some another way" and other letters from Mild (toggles).
+> * **Sections (the picture fades):** A first move printed on a double number line (both pills dashed, new value boxed;
+>   skipped for a × / ÷ by more than 8) · B the working = under =, a box for the move under each side (or moves given) ·
+>   C draw the first move (empty line) · D solve (+ check) · E spot the mistake (way / one side / x-term on one side /
+>   half-expanded bracket / lost sign on a negative bracket / fraction cleared from one term; key names the line) ·
+>   F think of a number (sentence built from the equation) · G use it (contexts per kind, "Let x be …") · H make your
+>   own (x = target, per family) · I fluency (off). Worked example: 3x + 4 = 19 (or 2x + 5 = x + 9 if no two-step kind)
+>   on the line beside the working. Pages that a section continues past get a "Working space" box, not Your turn.
+> * Verified (Playwright): 3,888 generated questions (every stage of every solution true, sign/fraction rules per level,
+>   mistake line false with the lines before it true, 0 failures), 24 random configurations × 3 spacings (nothing below
+>   a page or wider than its card, key mirrors the paper, no answers on student pages), PDF pages = preview.
+>
 > **NEW (2026-11-17): TAXED BY THE KING — MMT COLOURS + OFFLINE CLASS GAME + RECORDING SHEET.**
 > `games/taxed-by-the-king.html`, same URL. Project doc `claude/taxed-by-the-king-offline.md`.
 > * **Colours:** the red header, red primary buttons and warm background became the standard MMT navy→blue header,

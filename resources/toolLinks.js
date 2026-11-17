@@ -1127,6 +1127,14 @@ window.MMT_TOOL_LINKS = {
       tags: ["equations", "two-step", "both sides", "double number line", "brackets", "solving", "inverse operations", "substitution"]
     },
     {
+      title: "Multi-Step Equations \u2014 Double Number Line",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-4/algebra/multi-step-double-numberline.html",
+      ideas: ["two-steps", "verify"],
+      note: "Printable worksheets on two-step equations and pronumerals on both sides (brackets, one fraction, harder ones): the first move on a printed double number line, the working = under =, draw your own, solve and check, spot the mistake, think of a number, contexts and make your own. Sweet to Spicy, with an answer key.",
+      tags: ["worksheet generator", "printable", "equations", "two-step", "both sides", "double number line"]
+    },
+    {
       title: "Double Number Line Equations — ELPSA Lesson Plan",
       kind: "Lesson plan",
       url: "/interactive-tools/stage-4/algebra/double-numberline/lesson-plan.html",
@@ -1930,6 +1938,14 @@ window.MMT_TOOL_LINKS = {
       ideas: ["three-steps", "one-fraction"],
       note: "Pronumerals on both sides with brackets (3(x + 2) = x + 14), one algebraic fraction ((x + 7)/2 = x + 2) and harder ones (5(x + 2) − 2(x − 1) = x + 20, two fractions). Clear the fraction by multiplying both sides, expand and collect like terms (the point doesn’t move), then the same move on both lines. Working shown line by line in a side panel.",
       tags: ["equations", "both sides", "brackets", "algebraic fractions", "expand", "collect like terms", "double number line", "solving"]
+    },
+    {
+      title: "Multi-Step Equations \u2014 Double Number Line",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-4/algebra/multi-step-double-numberline.html",
+      ideas: ["three-steps", "one-fraction"],
+      note: "Printable worksheets on pronumerals on both sides with brackets, one algebraic fraction and harder ones, worked on the double number line and = under =. Sweet to Spicy, with an answer key.",
+      tags: ["worksheet generator", "printable", "equations", "both sides", "brackets", "algebraic fractions"]
     }
   ],
   "MA5-EQU-P-01": [

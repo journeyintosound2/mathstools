@@ -1,6 +1,6 @@
 /* Written by tools/build-pwa.mjs — do not edit by hand. */
 self.MMT_PRECACHE = {
- "version": "dfcdf1c792",
+ "version": "cf1c160461",
  "files": [
   "./",
   "assessment/exam-builder/app.js",
@@ -1056,6 +1056,7 @@ self.MMT_PRECACHE = {
   "worksheet-creators/stage-4/algebra/double-numberline.html",
   "worksheet-creators/stage-4/algebra/equations/border_page0.png",
   "worksheet-creators/stage-4/algebra/equations/index.html",
+  "worksheet-creators/stage-4/algebra/multi-step-double-numberline.html",
   "worksheet-creators/stage-4/algebra/number-groups.html",
   "worksheet-creators/stage-4/algebra/substitution.html",
   "worksheet-creators/stage-4/algebra/visual-patterns.html",
