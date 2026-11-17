@@ -96,6 +96,37 @@
 > §2 "TWO folders", §3 deploy paths and §5's `mathstools-main 2` heading below
 > describe the OLD layout — this block supersedes them.
 >
+> **NEW (2026-11-17, later): DOUBLE NUMBER LINE — STUDENT QUIZZES + WORKSHEET CREATOR REBUILT.**
+> Project doc `claude/double-number-line.md`. Same URLs, registry entries and saved tool names, so tasks/results carry on.
+> * **Quizzes: ONE engine, THREE thin shells.** `online-quizzes/stage-4/algebra/double-numberline/student-quiz.html` (mixed),
+>   `student-quiz-add-subtract.html`, `student-quiz-mult-div.html` each set `window.DNQ = {scope:"mix"|"as"|"md", tool, title,
+>   mastery}` and load `dnl-quiz/quiz.js?v=` + `quiz.css?v=` (bump BOTH `?v=` in all three shells — `mkshell` logic: first 8 of
+>   md5) + `/portal/shared/quizAuthUI.js?v=5a88072e`. tool / mastery = the old names (`equations-double-number-line-student-quiz`,
+>   `addition-subtraction-equations-student-quiz`, `multiplication-division-equations-student-quiz`). The old pages' inline
+>   Firebase login is gone (shared sign-in, `MMTSave`, early submit, confetti). 10 questions (was 15). css = Number Groups quiz css + block.
+>   Test surface `window.__DNQ__`.
+> * **Levels:** Sweet small whole numbers (k 2–9, a/d 2–5), read the line forward (x over 7: what goes under x + 5?), what undoes
+>   it (MC of + − × ÷), solve. Mild bigger whole numbers, 5 + x / 12 = x + 5, other letters, check by substituting (MC), spot the
+>   mistake (move made the wrong way). Medium negatives, write the equation from words (MC), a word problem, sign mistake.
+>   Spicy k to 60, a/d to 12, sides swapped, 2 word problems (diver / temperature / share price below zero only where the
+>   story makes sense). **Model = the teaching tool's double number line (Sweet + Mild only):** opens on "What it equals",
+>   Back shows the build, Show me plays the move on BOTH lines (purple undo; reading forward = orange build copied underneath).
+>   Sweet also counts along the bottom line; Mild draws the move only. Answer stays "?" until settled; "What undoes it?"
+>   pills read "?" until settled; a wrong first answer runs the model to its end. types[] object shape `dnl-<cat>`
+>   (add, sub, mul, div, pair, undo, check, mistake, write, word, negatives) + `level:x` + `scope:x`.
+> * **Worksheet** `worksheet-creators/stage-4/algebra/double-numberline.html` on the Number Groups generator's frame. Scope
+>   (+− / ×÷ / both), level tick-chips (ladder), division as fraction or ÷, vary forms, other letters, colour/B&W (build move
+>   dashed), spacing, D/E scaffold "Undo: ___ on both sides" or answer only, worked example, name/date, key. Sections:
+>   A Read the line (printed, orange move, write the move on the bottom pill + the missing value) · B Undo it on the line
+>   (printed, purple moves, blank pills on both lines + box under x) · C Draw the line (empty line) · D Solve · E Solve and
+>   check · F Write the equation · G Use it · H Spot the mistake · I Make your own · J Fluency (off). Printed lines (`lineSVG`,
+>   mm) cap k ≤ 12 and a, d ≤ 8; × ÷ with negative x are drawn turned (0 on the right). `window.__WS__`.
+> * Verified (Playwright): quiz 3,000 papers (equations true, scope, ranges, one right MC option, distinct options), every
+>   level of all three pages played to 10/10 at 1366×768, 1280×800, 1024×768, 1920×1080, 390×844 with every model step audited
+>   (nothing off the board or overlapping, answer never early), marking rules, payload; worksheet 48 random configurations /
+>   1,824 questions (nothing past a page or card, equations true, key mirrors the paper, no answers on student pages),
+>   PDF pages = preview.
+>
 > **NEW (2026-11-17): ONE-STEP EQUATIONS – DOUBLE NUMBER LINE REBUILT.**
 > `interactive-tools/stage-4/algebra/double-numberline/index.html`, same URL, one self-contained file on the
 > Number Groups shell (topbar, board card, side panel, panel/full-screen icons, mini Back/Next). Project doc

@@ -1,6 +1,6 @@
 /* Written by tools/build-pwa.mjs — do not edit by hand. */
 self.MMT_PRECACHE = {
- "version": "5c992983bc",
+ "version": "aa628e2236",
  "files": [
   "./",
   "assessment/exam-builder/app.js",
@@ -926,6 +926,8 @@ self.MMT_PRECACHE = {
   "online-quizzes/stage-4/algebra/counting-strategies-first-quadrant.html",
   "online-quizzes/stage-4/algebra/counting-strategies-quiz/quiz.css",
   "online-quizzes/stage-4/algebra/counting-strategies-quiz/quiz.js",
+  "online-quizzes/stage-4/algebra/double-numberline/dnl-quiz/quiz.css",
+  "online-quizzes/stage-4/algebra/double-numberline/dnl-quiz/quiz.js",
   "online-quizzes/stage-4/algebra/double-numberline/student-quiz-add-subtract.html",
   "online-quizzes/stage-4/algebra/double-numberline/student-quiz-mult-div.html",
   "online-quizzes/stage-4/algebra/double-numberline/student-quiz.html",
