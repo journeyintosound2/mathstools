@@ -1,6 +1,6 @@
 /* Written by tools/build-pwa.mjs — do not edit by hand. */
 self.MMT_PRECACHE = {
- "version": "622d62c859",
+ "version": "e7b436b8f1",
  "files": [
   "./",
   "assessment/exam-builder/app.js",
@@ -870,7 +870,6 @@ self.MMT_PRECACHE = {
   "interactive-tools/stage-4/number/factor-circles/two.png",
   "interactive-tools/stage-4/number/fraction-bar-number-line/index.html",
   "interactive-tools/stage-4/number/fraction-grid-number-line/index.html",
-  "interactive-tools/stage-4/number/fraction-of-amount/index.html",
   "interactive-tools/stage-4/number/fraction-to-percentage/index.html",
   "interactive-tools/stage-4/number/integer-addition/index.html",
   "interactive-tools/stage-4/number/integer-combined-signs/index.html",
@@ -970,7 +969,6 @@ self.MMT_PRECACHE = {
   "online-quizzes/stage-4/number/computation-with-integers.html",
   "online-quizzes/stage-4/number/decimal-zoom.html",
   "online-quizzes/stage-4/number/factor-circles.html",
-  "online-quizzes/stage-4/number/fraction-of-amount.html",
   "online-quizzes/stage-4/number/fraction-thinking-explorer.html",
   "online-quizzes/stage-4/number/fraction-thinking-quest.html",
   "online-quizzes/stage-4/number/fraction-to-percentage.html",
@@ -1083,7 +1081,6 @@ self.MMT_PRECACHE = {
   "worksheet-creators/stage-4/number/computation-with-integers/index.html",
   "worksheet-creators/stage-4/number/factor-circles.html",
   "worksheet-creators/stage-4/number/fraction-grid-number-line.html",
-  "worksheet-creators/stage-4/number/fraction-of-amount.html",
   "worksheet-creators/stage-4/number/fraction-to-percentage.html",
   "worksheet-creators/stage-4/number/fractions-decimals-percentages.html",
   "worksheet-creators/stage-4/number/integer-addition.html",

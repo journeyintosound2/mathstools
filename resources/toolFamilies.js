@@ -67,10 +67,6 @@ window.MMT_TOOL_FAMILIES = {
   "/interactive-tools/stage-4/number/fraction-grid-number-line/": [
     "/worksheet-creators/stage-4/number/fraction-grid-number-line.html"
   ],
-  "/interactive-tools/stage-4/number/fraction-of-amount/": [
-    "/worksheet-creators/stage-4/number/fraction-of-amount.html",
-    "/online-quizzes/stage-4/number/fraction-of-amount.html"
-  ],
   "/interactive-tools/stage-4/number/fraction-to-percentage/": [
     "/worksheet-creators/stage-4/number/fraction-to-percentage.html",
     "/online-quizzes/stage-4/number/fraction-to-percentage.html"

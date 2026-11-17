@@ -773,30 +773,6 @@ window.MMT_TOOL_LINKS = {
       ideas: ["fraction-of-quantity", "build-whole"],
       note: "Ten questions with the teaching tool's bar beside each one: cut it, shade it, type into one part and every part fills \u2014 it never shows a value. Sweet and Mild are unit fractions (as a division and as n/b); Medium is more than one part in all five forms; Spicy has any fraction to twelfths, back to the whole and word problems. Saves to the student dashboard.",
       tags: ["quiz", "fraction of an amount", "fraction of a quantity", "unit fractions", "fraction as division", "divide then multiply", "bar model", "equivalent forms", "build the whole", "word problems", "sweet mild medium spicy", "student code login", "teacher dashboard"]
-    },
-    {
-      title: "Times Table Chart — Fractions of an Amount",
-      kind: "Teacher tool",
-      url: "/interactive-tools/stage-4/number/fraction-of-amount/",
-      ideas: ["fraction-of-quantity"],
-      note: "Uses the times-table grid to find a fraction of an amount.",
-      tags: ["fraction of an amount", "times tables", "visual", "arrays"]
-    },
-    {
-      title: "Calculating Fractions of Amounts",
-      kind: "Student quiz",
-      url: "/online-quizzes/stage-4/number/fraction-of-amount.html",
-      ideas: ["fraction-of-quantity"],
-      note: "Saves to the student dashboard.",
-      tags: ["quiz", "fraction of an amount"]
-    },
-    {
-      title: "Calculating Fractions of Amounts",
-      kind: "Worksheet maker",
-      url: "/worksheet-creators/stage-4/number/fraction-of-amount.html",
-      ideas: ["fraction-of-quantity"],
-      note: "Generates printable questions with answers.",
-      tags: ["worksheet generator", "printable", "fraction of an amount"]
     }
   ],
 
@@ -1330,22 +1306,6 @@ window.MMT_TOOL_LINKS = {
       tags: ["worksheet", "fractions", "multiplying fractions", "area model", "unit square", "shading", "of", "denominators multiply", "numerators multiply", "simplifying", "reasoning", "misconceptions", "answer key"]
     },
     {
-      title: "Times Table Chart — Fractions of an Amount",
-      kind: "Teacher tool",
-      url: "/interactive-tools/stage-4/number/fraction-of-amount/",
-      ideas: ["multiply-divide"],
-      note: "Uses the times-table grid to find a fraction of an amount.",
-      tags: ["fraction of an amount", "times tables", "visual", "arrays"]
-    },
-    {
-      title: "Calculating Fractions of Amounts",
-      kind: "Student quiz",
-      url: "/online-quizzes/stage-4/number/fraction-of-amount.html",
-      ideas: ["multiply-divide"],
-      note: "Saves to the student dashboard.",
-      tags: ["quiz", "fraction of an amount"]
-    },
-    {
       title: "Adding and Subtracting Fractions",
       kind: "Student quiz",
       url: "/online-quizzes/stage-4/number/adding-subtracting-fractions.html",
@@ -1400,14 +1360,6 @@ window.MMT_TOOL_LINKS = {
       ideas: ["add-subtract"],
       note: "Prints the tool's bar + number-line model with each question, or plain cards. Same/related/unrelated/Extra-hot (coprime) ladder or mixed spice, past 1 whole, negatives, answer key. Instructions print bilingually in Arabic or Farsi with English beneath.",
       tags: ["worksheet generator", "printable", "fractions", "adding fractions", "subtracting fractions", "common denominator", "number line", "bar model", "scaffolding", "differentiation", "multilingual", "Arabic", "Farsi", "EAL/D"]
-    },
-    {
-      title: "Calculating Fractions of Amounts",
-      kind: "Worksheet maker",
-      url: "/worksheet-creators/stage-4/number/fraction-of-amount.html",
-      ideas: ["multiply-divide"],
-      note: "Generates printable questions with answers.",
-      tags: ["worksheet generator", "printable", "fraction of an amount"]
     },
     {
       title: "Fractions, Decimals and Percentages",

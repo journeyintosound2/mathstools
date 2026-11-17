@@ -96,6 +96,13 @@
 > §2 "TWO folders", §3 deploy paths and §5's `mathstools-main 2` heading below
 > describe the OLD layout — this block supersedes them.
 >
+> **REMOVED (2026-11-18): the old Stage 4 "Fraction of Amount Using a Timestable Chart" family** (Jeff: redundant now the
+> Times Table Chart has a Fraction of an amount lens): `interactive-tools/stage-4/number/fraction-of-amount/`,
+> `online-quizzes/stage-4/number/fraction-of-amount.html`, `worksheet-creators/stage-4/number/fraction-of-amount.html`.
+> Homepage cards, toolLinks rows, the toolFamilies entry and the Stage 3 Fraction of an Amount tool/quiz Tools-menu links
+> went with them. The registry entry `fraction-of-amount-quiz` is kept with `enabled:false` so old results keep their name
+> (`toolIdForAchievement` looks through ALL tools). Do not confuse with `.../stage-3/number/fraction-of-amount-division/`.
+>
 > **NEW (2026-11-18): TIMES TABLE CHART REBUILT (same URL).** `interactive-tools/stage-3/number/timestable-chart/index.html`,
 > one self-contained file on the MMT shell (topbar, board card, side panel, panel/full-screen icons). Project doc
 > `claude/times-table-chart.md`. localStorage `mmt.timesChart.v1`; test surface `window.__TT__`.

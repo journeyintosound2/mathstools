@@ -195,7 +195,7 @@ export const MMT_TOOLS = Object.freeze([
   },
   {
     toolId: "fraction-of-amount-quiz", title: "Fraction of an Amount — Student Quiz", category: "Quiz",
-    enabled: true, resultCollection: "achievements", richCollection: null,
+    enabled: false,   // RETIRED 2026-11-18: the page was removed (the Times Table Chart's Fraction lens replaces the tool). Kept, disabled, so old results still have a name. resultCollection: "achievements", richCollection: null,
     achievementToolName: "fraction-of-amount-student-quiz", topics: ["fdp"], stage: "Stage 4",
     launchUrl: "/online-quizzes/stage-4/number/fraction-of-amount.html",
     supportsAdventureAttempts: false, supportsSkillBreakdown: false,
