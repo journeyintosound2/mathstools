@@ -143,6 +143,21 @@
 >   filled as the clock passes (`S.tmax`). A time chip and rising/falling chip sit top-left of the board. P key `td`,
 >   view R6; steps K_T1 7, K_T2 8; menu row `data-app="7"`.
 > * The Ferris graphs' ±9 spec had been lost in the sunrise change (it plotted ±1); restored in `gspec`.
+> * **THE PENDULUM (Jeff, 2026-11-18, evening):** a bob on a long string from a lab stand; released from the right, its
+>   horizontal displacement is x = cos θ — the bob always hangs directly below the foot of the triangle (the shadow of
+>   the point on the reference circle), a ruler under it (−1 … 1, left / right). `PEND`, `bobY`, `pendBack` (wall,
+>   stand, string, ruler, dashed reference circle) and `pendFront` (drop line, bob, ruler mark). Steps `pen1` (morph,
+>   P key `pd`, view R7), `pen2` "A photo every twelfth of a swing" (strobe photos stack down the page, view R8, blue
+>   line), `pen3` fill to 1080° + turn. Panel: the upright live graph (`sunGraph`, shared with the sunrise; "right" /
+>   "left", time in swings) + a quarter-turn table (Far right / Centre ← / Far left / Centre →). Menu `data-app="9"`;
+>   steps K_P1–K_P3 = 9–11. `drawStack` is now shared: `stkTop()`, blue for the pendulum, red for the sunrise.
+> * **EVERY APPLICATION RUNS FOR THREE TURNS (`TURNS`, `MAXA` = 1080°) AND STARTS AGAIN PAST THEM (Jeff):** dragging or
+>   ↑ past 1080° wraps to the same angle minus 1080° and clears the records (`wrapPast`: fmax/smax/tmax = 0, flash
+>   "Three turns done"); dragging below 0° holds at 0°. Ferris table 13 positions in one row (short names, `.many`).
+>   Sunrise: the hand starts at the December 2025 solstice, so the three turns are 2026, 2027, 2028 (`monthYear`), a
+>   date chip on the board, 37 photo strips (labels every 6 months), table every 3 months Dec 2025 … Dec 2028. Tide:
+>   clock times from Saturday 6:00 am (`tClock`; high tide Sat 9:06 am, three tides end Sun 7:15 pm), graph ticks
+>   6 am / noon / 6 pm / Sun. Leaving an application from its first step brings the hand back within 360° first.
 > * **Tick numbers and axis letters carry class `tk`; `declutter()` hides any that sit on another label** after every
 >   render — the safety net for collisions. `tk2` (the words on the tide clock's face) gives way to both. SVG drops a text run's leading spaces, so `runSVG` turns them into an x offset.
 > * **ADDING ANOTHER SCENE:** steps with `prev`/`app`/`appName`, a P parameter (like `fw`, `sr`), a view (like
@@ -160,6 +175,9 @@
 > * **Radicals are drawn** (SVG path / `.rad` span), never a typed √. `rich()` clamps every label onto the board.
 > * The step text reserves the height of the longest step (`fitCue`) and the hint is one line: the board never resizes
 >   between steps or mid-drag. `#board` is `overflow:hidden`. Narrow screens use short table/row names (`.ln` / `.sn`).
+> * Pendulum + three turns verified: 28 behaviour checks (bob below the foot to the pixel, readouts, wrap past 1080°
+>   in every application and the records clearing, photos, turn, Back, sunrise dates, tide clock times, Ferris table);
+>   label audit 1,980 frames over all twelve steps at 5 viewports, no overlaps.
 > * Tide verified: water surface level with the tip to the pixel, readouts, unwrap and 1080° cap, Shift + ↑ one hour,
 >   typed angles, the run to 37 h 15 min filling the table, Back to the circle from 820°, Show all, sweep; label audit
 >   1,155 frames over all nine steps, no overlaps.
