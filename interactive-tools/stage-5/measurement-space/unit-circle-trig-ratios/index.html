@@ -1,0 +1,1322 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>The Unit Circle and the Trigonometric Ratios | Mills Maths Tools</title>
+  <meta name="description" content="A stick 1 unit long becomes the radius of the unit circle. Turn it past 90° and watch sine, cosine and tangent change sign, while their graphs are recorded beside it." />
+
+  <style>
+    :root{
+      --bg:#f8fafc; --card:#ffffff; --ink:#0f172a; --muted:#64748b; --border:#e2e8f0;
+      --shadow:0 18px 45px rgba(15,23,42,.13);
+      --blue:#2563eb; --blue-dark:#1d4ed8;
+      --green:#22c55e; --green-dark:#15803d;
+      --purple:#7c3aed; --purple-dark:#5b21b6;
+      --orange:#f97316; --orange-dark:#c2410c;
+      --amber:#facc15; --amber-dark:#a16207;
+      --line:#334155; --line-soft:#94a3b8; --red:#dc2626;
+      --cx:#2563eb; --cy:#ea580c; --ct:#16a34a;
+      --uiFont:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+      --mathFont:"STIX Two Math","Cambria Math","Latin Modern Math","Times New Roman",Georgia,serif;
+    }
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0; font-family:var(--uiFont); color:var(--ink);
+      background:
+        radial-gradient(circle at top left,rgba(37,99,235,.14),transparent 32rem),
+        radial-gradient(circle at top right,rgba(124,58,237,.12),transparent 34rem),
+        var(--bg);
+      overflow-x:hidden;
+    }
+    button,input,select{ font:inherit; }
+    [hidden]{ display:none !important; }
+    .app{ height:100dvh; display:flex; flex-direction:column; min-width:0; }
+
+    /* ---------- topbar (shared MMT shell) ---------- */
+    .mmtTopbar{
+      position:relative; z-index:40; flex:0 0 auto;
+      background:linear-gradient(135deg,#0f172a,#123b7a 55%,#2563eb);
+      color:white; padding:14px 24px;
+      display:grid; grid-template-columns:minmax(200px,1fr) auto minmax(300px,1fr);
+      align-items:center; gap:18px; box-shadow:0 10px 28px rgba(15,23,42,.22);
+    }
+    .mmtBrand{ display:flex; align-items:center; gap:12px; justify-self:start; text-decoration:none; color:white; border-radius:14px;
+      padding:8px 12px; margin-left:-12px; font-weight:900; transition:background .18s ease,transform .18s ease,box-shadow .18s ease; }
+    .mmtBrand:hover{ background:rgba(255,255,255,.12); transform:translateY(-1px); box-shadow:0 0 10px rgba(124,58,237,.6),0 0 18px rgba(37,99,235,.4); }
+    .mmtBrandLogo{ width:44px; height:44px; border-radius:9px; background:white; color:#1d4ed8; display:grid; place-items:center;
+      font-weight:1000; letter-spacing:-.08em; box-shadow:inset 0 -2px 0 rgba(15,23,42,.08); flex:0 0 auto; }
+    .mmtBrandText strong{ display:block; font-size:1.18rem; line-height:1; letter-spacing:-.03em; color:white; }
+    .mmtBrandText span{ display:block; font-size:.78rem; opacity:.82; font-weight:650; color:white; }
+    .mmtTopTitle{ font-weight:850; font-size:clamp(1.05rem,1.8vw,1.45rem); letter-spacing:-.04em; text-align:center; color:white; white-space:nowrap; }
+    .topActions{ justify-self:end; display:flex; align-items:center; justify-content:flex-end; gap:10px; flex-wrap:wrap; }
+    .btn{ appearance:none; border:1px solid rgba(255,255,255,.28); background:rgba(255,255,255,.14); color:white; padding:11px 15px;
+      border-radius:14px; font-weight:900; font-size:15px; cursor:pointer; transition:.18s ease; user-select:none; }
+    .btn:hover:not(:disabled){ background:rgba(255,255,255,.22); transform:translateY(-1px); }
+    .btn:focus-visible{ outline:none; box-shadow:0 0 0 4px rgba(255,255,255,.23); }
+    .btn:disabled{ opacity:.45; cursor:not-allowed; }
+    .btn-primary{ background:white; color:#1d4ed8; border-color:white; }
+    .btn-primary:hover:not(:disabled){ background:#eef2ff; color:#1d4ed8; }
+
+    .menuWrap{ position:relative; display:inline-flex; }
+    .dropMenu{ position:absolute; top:calc(100% + 8px); right:0; min-width:270px; background:#fff; color:var(--ink);
+      border:1px solid rgba(226,232,240,.95); border-radius:14px; box-shadow:0 18px 45px rgba(15,23,42,.22);
+      padding:7px; display:none; z-index:120; text-align:left; }
+    .dropMenu.open{ display:grid; gap:4px; }
+    .toolLink{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 12px; border-radius:10px;
+      color:var(--ink); text-decoration:none; font-weight:900; font-size:.9rem; }
+    .toolLink::after{ content:'\203A'; color:var(--blue); font-weight:1000; font-size:1.1rem; line-height:1; }
+    .toolLink:hover,.toolLink:focus-visible{ background:#eef2ff; color:#1d4ed8; outline:none; }
+    .toolLink small{ display:block; font-weight:650; font-size:.74rem; color:var(--muted); }
+    .toolLink.soon{ opacity:.45; cursor:default; }
+    .toolLink.soon::after{ content:none; }
+    .toolLink.soon:hover{ background:none; color:var(--ink); }
+    .settingsMenu.open{ gap:11px; padding:15px 18px; min-width:350px; max-height:min(78vh,680px); overflow:auto; }
+    .settingsHead{ font-size:.68rem; letter-spacing:.14em; text-transform:uppercase; font-weight:950; color:var(--muted); }
+    .settingsNote{ margin:-4px 0 0; font-size:.76rem; font-weight:650; color:var(--muted); line-height:1.4; }
+    .settingsRule{ height:1px; background:var(--border); margin:1px 0; }
+    .selRow{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .selRow > span{ font-weight:900; font-size:.92rem; color:var(--ink); white-space:nowrap; }
+    .selRow select{ appearance:none; border:1.5px solid var(--border); padding:8px 30px 8px 11px; border-radius:11px; font-weight:850; font-size:.88rem;
+      color:var(--line); min-width:170px; cursor:pointer;
+      background:#fff url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' fill='none' stroke='%232563eb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/></svg>") no-repeat right 10px center;
+      background-size:11px; }
+    .selRow select:focus-visible{ outline:none; border-color:var(--blue); box-shadow:0 0 0 4px rgba(37,99,235,.16); }
+    .sw{ display:inline-flex; align-items:center; gap:11px; cursor:pointer; user-select:none; font-weight:850; color:var(--line); font-size:.93rem; }
+    .sw input{ position:absolute; opacity:0; width:0; height:0; }
+    .sw .track{ position:relative; width:50px; height:29px; border-radius:999px; background:#cbd5e1; transition:.18s ease; flex:0 0 auto; box-shadow:inset 0 1px 3px rgba(15,23,42,.18); }
+    .sw .track::after{ content:""; position:absolute; top:3px; left:3px; width:23px; height:23px; border-radius:50%; background:#fff; box-shadow:0 2px 6px rgba(15,23,42,.3); transition:.18s ease; }
+    .sw input:checked + .track{ background:var(--green); }
+    .sw input:checked + .track::after{ transform:translateX(21px); }
+    .sw input:focus-visible + .track{ box-shadow:0 0 0 4px rgba(37,99,235,.28); }
+
+    /* ---------- layout ---------- */
+    .layout{ flex:1 1 auto; min-height:0; width:min(1700px,100%); margin:0 auto; padding:14px 18px 16px;
+      display:grid; grid-template-columns:minmax(0,1.08fr) minmax(340px,1fr); gap:14px; min-width:0; }
+    .card{ background:var(--card); border:1px solid var(--border); border-radius:22px; box-shadow:var(--shadow); min-width:0; }
+
+    /* ---------- board ---------- */
+    .boardCard{ display:flex; flex-direction:column; min-height:0; padding:12px 14px 10px; position:relative; overflow:hidden; }
+    .boardTop{ display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; position:relative; z-index:2; }
+    .topLeft,.topRight{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+    .stepChip{ font-size:.74rem; letter-spacing:.06em; font-weight:950; text-transform:uppercase; padding:6px 11px; border-radius:999px; white-space:nowrap;
+      color:var(--blue-dark); background:rgba(37,99,235,.1); border:1px solid rgba(37,99,235,.25); }
+    .seg{ display:inline-flex; background:#f1f5f9; border:1px solid var(--border); border-radius:13px; padding:3px; gap:3px; }
+    .seg button{ appearance:none; border:none; background:transparent; padding:6px 12px; border-radius:10px; font-weight:900; font-size:.88rem; color:var(--muted); cursor:pointer; }
+    .seg button[aria-pressed="true"]{ background:#fff; color:var(--ink); box-shadow:0 2px 8px rgba(15,23,42,.12); }
+    .seg button:focus-visible{ outline:none; box-shadow:0 0 0 3px rgba(37,99,235,.3); }
+    .seg .mi{ font-family:var(--mathFont); font-style:italic; font-weight:700; font-size:1.05em; }
+    .angPill{ display:inline-flex; align-items:center; gap:6px; border:1.5px solid var(--border); border-radius:13px; padding:3px 6px 3px 11px; background:#fff;
+      font-family:var(--mathFont); font-weight:700; font-size:1.2rem; color:var(--line); }
+    .angPill i{ font-style:italic; }
+    .angPill input{ width:3.6em; border:none; border-radius:8px; background:#f1f5f9; text-align:center; font-family:var(--mathFont); font-weight:700; font-size:1.15rem;
+      color:var(--ink); padding:3px 2px; -moz-appearance:textfield; }
+    .angPill input::-webkit-outer-spin-button,.angPill input::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0; }
+    .angPill input:focus{ outline:none; background:#eef2ff; box-shadow:0 0 0 2px rgba(37,99,235,.35); }
+    .angPill input:disabled{ background:transparent; color:var(--line-soft); }
+    .quadTag{ font-family:var(--uiFont); font-size:.7rem; letter-spacing:.06em; font-weight:950; text-transform:uppercase; color:var(--muted);
+      padding:4px 8px; border-radius:999px; background:#f1f5f9; white-space:nowrap; }
+    .iconGroup{ display:inline-flex; gap:6px; }
+    .iconBtn{ appearance:none; width:42px; height:42px; border-radius:13px; border:1.5px solid var(--border); background:#fff; color:var(--line);
+      display:grid; place-items:center; cursor:pointer; transition:.16s ease; padding:0; }
+    .iconBtn svg{ width:21px; height:21px; display:block; }
+    .iconBtn:hover:not(:disabled){ border-color:var(--blue); background:#eef2ff; color:var(--blue-dark); transform:translateY(-1px); }
+    .iconBtn:focus-visible{ outline:none; box-shadow:0 0 0 3px rgba(37,99,235,.3); }
+    .iconBtn[aria-pressed="true"]{ background:#eef2ff; border-color:#c7d2fe; color:var(--blue-dark); }
+    .iconBtn:disabled{ opacity:.38; cursor:not-allowed; }
+    .iconBtn.spin svg{ animation:spin .5s ease; }
+    @keyframes spin{ from{ transform:rotate(0);} to{ transform:rotate(-360deg);} }
+
+    .cue{ text-align:center; margin:8px 0 0; line-height:1.3; min-height:1.3em; }
+    .cue b{ display:inline; font-size:clamp(1.05rem,1.6vw,1.35rem); font-weight:900; color:var(--ink); letter-spacing:-.02em; }
+    .cue span{ display:block; font-size:clamp(.86rem,1.15vw,.98rem); font-weight:700; color:var(--muted); margin-top:2px; }
+    .cue i,.hint i,.fExpr i{ font-family:var(--mathFont); font-style:italic; font-weight:700; }
+
+    .boardWrap{ position:relative; flex:1 1 auto; min-height:0; margin-top:4px; }
+    #board{ position:absolute; inset:0; width:100%; height:100%; display:block; touch-action:none; user-select:none; -webkit-user-select:none; overflow:visible; }
+    #board.can{ cursor:grab; } #board.dragging{ cursor:grabbing; }
+    #board text{ font-family:var(--mathFont); font-weight:700; pointer-events:none; }
+    #board text.ui{ font-family:var(--uiFont); font-weight:850; }
+    #board .h{ stroke:#fff; stroke-width:5px; paint-order:stroke; stroke-linejoin:round; }
+    .hint{ flex:0 0 auto; height:1.75em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; text-align:center; font-size:.88rem; font-weight:750; color:var(--muted); padding:3px 8px 0; line-height:1.4; }
+    .hint b{ color:var(--line); }
+    .hint .eq{ font-family:var(--mathFont); font-weight:700; font-size:1.1em; color:var(--line); }
+    .hint.msg{ color:var(--purple-dark); }
+
+    .stepRow{ display:flex; gap:7px; padding-top:9px; margin-top:6px; border-top:1px solid var(--border); align-items:center; }
+    .stepBtn{ appearance:none; border:1.5px solid var(--border); background:#fff; color:var(--line); padding:11px 12px; border-radius:14px;
+      font-weight:950; font-size:.95rem; cursor:pointer; transition:.16s ease; white-space:nowrap; }
+    .stepBtn:hover:not(:disabled){ border-color:var(--blue); background:#eef2ff; color:var(--blue-dark); transform:translateY(-1px); }
+    .stepBtn:disabled{ opacity:.38; cursor:not-allowed; transform:none; }
+    .stepBtn.icon{ width:46px; padding:11px 0; font-size:1.05rem; }
+    .nextBtn{ flex:1 1 auto; min-width:0; appearance:none; border:none; background:linear-gradient(135deg,var(--blue),var(--purple)); color:#fff;
+      padding:12px 14px; border-radius:15px; font-weight:950; font-size:1.02rem; cursor:pointer; box-shadow:0 10px 24px rgba(37,99,235,.30);
+      transition:.18s ease; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .nextBtn:hover:not(:disabled){ transform:translateY(-1px); box-shadow:0 14px 30px rgba(37,99,235,.38); }
+    .nextBtn.busy{ pointer-events:none; opacity:.75; }
+    .nextBtn:disabled{ background:linear-gradient(135deg,var(--green-dark),#0f766e); box-shadow:none; cursor:default; opacity:.92; }
+    .keyHint{ font-size:.72rem; font-weight:800; color:var(--line-soft); text-align:center; margin-top:6px; }
+    .keyHint kbd{ font-family:var(--uiFont); font-size:.7rem; font-weight:900; color:var(--muted); border:1px solid var(--border); border-bottom-width:2px;
+      border-radius:6px; padding:0 5px; background:#f8fafc; }
+
+    /* ---------- graphs panel ---------- */
+    .side{ display:flex; flex-direction:column; min-height:0; min-width:0; }
+    .graphCard{ flex:1 1 auto; min-height:0; display:flex; flex-direction:column; padding:12px 14px 12px; }
+    .gHead{ display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; margin-bottom:8px; }
+    .pTitle{ font-size:.68rem; letter-spacing:.14em; text-transform:uppercase; font-weight:950; color:var(--muted); }
+    .gTools{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+    .fTog{ appearance:none; border:1.5px solid var(--border); background:#fff; border-radius:999px; padding:5px 11px 5px 8px; font-weight:900; font-size:.82rem;
+      color:var(--muted); cursor:pointer; display:inline-flex; align-items:center; gap:6px; }
+    .fTog::before{ content:""; width:11px; height:11px; border-radius:50%; background:var(--c); opacity:.3; }
+    .fTog[aria-pressed="true"]{ color:var(--ink); border-color:color-mix(in srgb,var(--c) 45%,white); background:color-mix(in srgb,var(--c) 8%,white); }
+    .fTog[aria-pressed="true"]::before{ opacity:1; }
+    .fTog:focus-visible{ outline:none; box-shadow:0 0 0 3px rgba(37,99,235,.3); }
+    .gBtn{ appearance:none; border:1.5px solid var(--border); background:#fff; border-radius:11px; padding:5px 10px; font-weight:900; font-size:.82rem; color:var(--line); cursor:pointer; }
+    .gBtn:hover:not(:disabled){ border-color:var(--blue); background:#eef2ff; color:var(--blue-dark); }
+    .gBtn:disabled{ opacity:.38; cursor:not-allowed; }
+    .gBtn.on{ background:#eef2ff; border-color:#c7d2fe; color:var(--blue-dark); }
+    .rows{ flex:1 1 auto; min-height:0; display:flex; flex-direction:column; gap:8px; }
+    .fRow{ flex:1 1 0; min-height:0; display:flex; flex-direction:column; border:1px solid var(--border); border-radius:16px; padding:7px 10px 4px;
+      background:linear-gradient(#fff,#fff) padding-box; position:relative; }
+    .fRow::before{ content:""; position:absolute; left:-1px; top:12px; bottom:12px; width:4px; border-radius:4px; background:var(--c); opacity:.85; }
+    .fRow.dim::before{ opacity:.2; }
+    .fHead{ display:flex; align-items:center; gap:9px; min-height:34px; }
+    .fName{ font-size:.66rem; letter-spacing:.12em; text-transform:uppercase; font-weight:950; color:var(--c); white-space:nowrap; }
+    .fRow.dim .fName{ color:var(--line-soft); }
+    .fExpr{ flex:1 1 auto; min-width:0; font-family:var(--mathFont); font-weight:700; font-size:clamp(1.05rem,1.55vw,1.4rem); color:var(--line);
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:flex; align-items:center; gap:.22em; }
+    .fExpr .fn{ color:var(--c); }
+    .fExpr .rel{ color:var(--purple-dark); }
+    .fExpr .q{ color:var(--line-soft); }
+    .frac{ display:inline-flex; flex-direction:column; align-items:center; font-size:.7em; line-height:1.02; vertical-align:middle; margin:0 .06em; }
+    .frac > span:first-child{ border-bottom:.08em solid currentColor; padding:0 .14em .05em; }
+    .frac > span:last-child{ padding:.05em .14em 0; }
+    .rad{ display:inline-flex; align-items:stretch; vertical-align:middle; }
+    .rad svg{ width:.5em; height:auto; display:block; flex:0 0 auto; overflow:visible; }
+    .rad svg path{ fill:none; stroke:currentColor; stroke-width:1.5px; vector-effect:non-scaling-stroke; stroke-linejoin:round; stroke-linecap:round; }
+    .rad > span{ border-top:.07em solid currentColor; padding:.04em .06em 0 .03em; line-height:1.05; }
+    .sgn{ font-size:.66rem; letter-spacing:.08em; text-transform:uppercase; font-weight:950; padding:4px 8px; border-radius:999px; white-space:nowrap; flex:0 0 auto; }
+    .sgn.pos{ color:var(--green-dark); background:rgba(34,197,94,.13); }
+    .sgn.neg{ color:#b91c1c; background:rgba(220,38,38,.1); }
+    .sgn.zero,.sgn.und{ color:var(--line); background:#f1f5f9; }
+    .fGraph{ position:relative; flex:1 1 auto; min-height:0; }
+    .fGraph svg{ position:absolute; inset:0; width:100%; height:100%; display:block; overflow:visible; }
+    .fGraph text{ font-family:var(--uiFont); font-weight:800; }
+    .fGraph text.m{ font-family:var(--mathFont); font-weight:700; }
+
+    .app.noPanel .layout{ grid-template-columns:minmax(0,1fr); }
+    .app.noPanel .side{ display:none; }
+    .app.fs .mmtTopbar{ display:none; }
+    .app.fs .layout{ width:100%; padding:10px; }
+
+    @keyframes fadeUp{ from{ opacity:0; transform:translateY(5px);} to{ opacity:1; transform:none;} }
+    .cue.anim{ animation:fadeUp .35s ease; }
+    @media (prefers-reduced-motion:reduce){ .cue.anim{ animation:none; } }
+
+    /* ---------- responsive ---------- */
+    @media (max-width:1280px){ .layout{ grid-template-columns:minmax(0,1fr) minmax(320px,.9fr); } }
+    @media (max-width:1180px){
+      .stepChip,.quadTag{ display:none; }
+      .layout{ grid-template-columns:minmax(0,1fr) minmax(300px,.82fr); }
+      .mmtTopbar{ grid-template-columns:auto minmax(0,1fr) auto; padding:12px 16px; gap:12px; }
+      .mmtBrandText{ display:none; }
+      .btn{ padding:10px 13px; font-size:14px; }
+      .layout{ padding:12px 12px 14px; gap:12px; }
+      .keyHint{ display:none; }
+    }
+    @media (max-width:980px){
+      .app:not(.fs){ height:auto; min-height:100dvh; }
+      .layout{ grid-template-columns:1fr; }
+      .boardWrap{ flex:none; height:clamp(320px,64vh,580px); }
+      .side{ min-height:0; }
+      .graphCard{ flex:none; }
+      .rows{ flex:none; }
+      .fRow{ flex:none; height:200px; }
+    }
+    @media (max-width:760px){
+      .mmtTopbar{ grid-template-columns:1fr; justify-items:center; padding:12px 14px; }
+      .mmtBrand{ margin-left:0; } .topActions{ justify-self:center; justify-content:center; }
+      .dropMenu{ right:auto; left:50%; transform:translateX(-50%); }
+      .settingsMenu.open{ min-width:min(350px,92vw); }
+      .mmtTopTitle{ white-space:normal; }
+      .boardTop{ justify-content:center; }
+      .stepChip{ display:none; }
+      .fRow{ height:170px; }
+      .stepRow #allBtn{ display:none; }
+    }
+  </style>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
+<!-- mmt-pwa -->
+<link rel="manifest" href="../../../../manifest.webmanifest">
+<meta name="theme-color" content="#1f3a5f">
+<link rel="apple-touch-icon" href="../../../../icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="MMT">
+<script src="../../../../pwa.js" defer></script>
+<!-- /mmt-pwa -->
+</head>
+<body>
+  <div class="app" id="app">
+    <header class="mmtTopbar">
+      <a class="mmtBrand" href="https://www.millsmathstools.au" target="_self" aria-label="Back to Mills Maths Tools">
+        <span class="mmtBrandLogo" aria-hidden="true">MMT</span>
+        <span class="mmtBrandText"><strong>MMT</strong><span>Mills Maths Tools</span></span>
+      </a>
+      <div class="mmtTopTitle">The Unit Circle and the Trigonometric Ratios</div>
+      <div class="topActions">
+        <div class="menuWrap">
+          <button class="btn" id="settingsBtn" type="button" aria-haspopup="true" aria-expanded="false">Settings &#9662;</button>
+          <nav class="dropMenu settingsMenu" id="settingsMenu" aria-label="Settings">
+            <div class="settingsHead">On the triangle</div>
+            <label class="selRow"><span>Side labels</span>
+              <select id="labelSel" aria-label="Side labels">
+                <option value="letters" selected>Letters (&plusmn;x, &plusmn;y)</option>
+                <option value="numbers">Numbers</option>
+              </select>
+            </label>
+            <label class="sw"><input type="checkbox" id="exactToggle" checked><span class="track"></span><span>Exact values at 30&deg;, 45&deg;, 60&deg;&hellip;</span></label>
+            <p class="settingsNote">At special angles the numbers are written exactly (&frac12;, &radic;3 &frasl; 2, 1 &frasl; &radic;2). Off, every value is a decimal to 2 places.</p>
+            <label class="sw"><input type="checkbox" id="relToggle" checked><span class="track"></span><span>Show the related angle</span></label>
+            <p class="settingsNote">Past 90&deg;: the acute angle the stick makes with the <i>x</i>-axis, the same triangle drawn faintly in the first quadrant, and sin 150&deg; = sin 30&deg; in the readout.</p>
+            <div class="settingsRule" role="separator"></div>
+            <div class="settingsHead">Turning the stick</div>
+            <label class="selRow"><span>Turn in steps of</span>
+              <select id="snapSel" aria-label="Turn the stick in steps of">
+                <option value="1" selected>1&deg;</option>
+                <option value="5">5&deg;</option>
+                <option value="15">15&deg;</option>
+                <option value="special">Special angles (30&deg;, 45&deg;&hellip;)</option>
+              </select>
+            </label>
+            <label class="selRow"><span>Swing speed</span>
+              <select id="speedSel" aria-label="Swing speed">
+                <option value="slow">Slow</option>
+                <option value="normal" selected>Normal</option>
+                <option value="fast">Fast</option>
+              </select>
+            </label>
+            <div class="settingsRule" role="separator"></div>
+            <div class="settingsHead">Graphs</div>
+            <label class="sw"><input type="checkbox" id="ghostToggle"><span class="track"></span><span>Show the whole curve faintly</span></label>
+            <p class="settingsNote">Off, a graph is only drawn where the stick has actually been &mdash; the curve is built by the class.</p>
+          </nav>
+        </div>
+        <div class="menuWrap">
+          <button class="btn" id="toolsBtn" type="button" aria-haspopup="true" aria-expanded="false">Tools &#9662;</button>
+          <nav class="dropMenu" id="toolsMenu" aria-label="Related tools">
+            <span class="toolLink soon" aria-disabled="true">Worksheet Creator<small>Coming soon</small></span>
+            <span class="toolLink soon" aria-disabled="true">Student Quiz<small>Coming soon</small></span>
+          </nav>
+        </div>
+        <button class="btn btn-primary" id="randBtn" type="button" title="Turn to a random angle (Enter)">Random angle</button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="card boardCard" id="boardCard">
+        <div class="boardTop">
+          <div class="topLeft">
+            <span class="stepChip" id="stepChip">Step 1 of 10</span>
+            <div class="seg" role="group" aria-label="Side labels">
+              <button type="button" data-lab="letters" aria-pressed="true" title="Label the sides with letters (L)"><span class="mi">x</span>, <span class="mi">y</span></button>
+              <button type="button" data-lab="numbers" aria-pressed="false" title="Label the sides with numbers (L)">0.87</button>
+            </div>
+          </div>
+          <div class="topRight">
+            <label class="angPill" title="Type an angle and press Enter"><i>&theta;</i> =<input id="angIn" type="number" inputmode="numeric" step="1" aria-label="Angle in degrees">&deg;</label>
+            <span class="quadTag" id="quadTag"></span>
+            <div class="iconGroup">
+              <button class="iconBtn" id="againIcon" type="button" title="Back to the start (Space)" aria-label="Back to the start">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1"/><path d="M3.5 4v5h5"/></svg>
+              </button>
+              <button class="iconBtn" id="panelBtn" type="button" aria-pressed="true" title="Hide the graphs (G)" aria-label="Show or hide the graphs">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M13 4v16"/><path d="M15 13c1.2-4 2.2-4 3.2 0s2 4 2.8 0" /></svg>
+              </button>
+              <button class="iconBtn" id="fsBtn" type="button" title="Full screen (F)" aria-label="Full screen">
+                <svg class="fsIn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+                <svg class="fsOut" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" hidden><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="cue" id="cue" aria-live="polite"></div>
+        <div class="boardWrap" id="boardWrap">
+          <svg id="board" role="application" aria-label="A stick 1 unit long that turns about the origin, drawing the unit circle"></svg>
+        </div>
+        <div class="hint" id="hint" aria-live="polite"></div>
+        <div class="stepRow">
+          <button class="stepBtn icon" id="backBtn" type="button" title="Back a step (&larr;)" aria-label="Back a step">&#9664;</button>
+          <button class="nextBtn" id="nextBtn" type="button" title="Next step (&rarr;)">Next &#9656;</button>
+          <button class="stepBtn" id="allBtn" type="button" title="Jump to the last step">Show all</button>
+        </div>
+        <div class="keyHint"><kbd>&rarr;</kbd><kbd>&larr;</kbd> step &middot; <kbd>&uarr;</kbd><kbd>&darr;</kbd> turn 1&deg; &middot; <kbd>Enter</kbd> random angle &middot; <kbd>L</kbd> letters/numbers &middot; <kbd>G</kbd> graphs &middot; <kbd>F</kbd> full screen</div>
+      </section>
+
+      <aside class="side">
+        <section class="card graphCard" aria-label="The ratios and their graphs">
+          <div class="gHead">
+            <span class="pTitle">The ratios as the stick turns</span>
+            <div class="gTools">
+              <button class="fTog" type="button" data-f="s" aria-pressed="true" style="--c:var(--cy)" title="Show or hide the sine graph">sin</button>
+              <button class="fTog" type="button" data-f="c" aria-pressed="true" style="--c:var(--cx)" title="Show or hide the cosine graph">cos</button>
+              <button class="fTog" type="button" data-f="t" aria-pressed="true" style="--c:var(--ct)" title="Show or hide the tangent graph">tan</button>
+              <button class="gBtn" id="swingBtn" type="button" title="Swing the stick all the way round, recording as it goes">&#9654; Swing round</button>
+              <button class="gBtn" id="clearBtn" type="button" title="Clear what the graphs have recorded">Clear</button>
+            </div>
+          </div>
+          <div class="rows" id="rows">
+            <div class="fRow" id="row_s" style="--c:var(--cy)"><div class="fHead"><span class="fName">Sine</span><span class="fExpr" id="ex_s"></span><span class="sgn" id="sg_s" hidden></span></div><div class="fGraph"><svg id="g_s" aria-label="Graph of sin θ"></svg></div></div>
+            <div class="fRow" id="row_c" style="--c:var(--cx)"><div class="fHead"><span class="fName">Cosine</span><span class="fExpr" id="ex_c"></span><span class="sgn" id="sg_c" hidden></span></div><div class="fGraph"><svg id="g_c" aria-label="Graph of cos θ"></svg></div></div>
+            <div class="fRow" id="row_t" style="--c:var(--ct)"><div class="fHead"><span class="fName">Tangent</span><span class="fExpr" id="ex_t"></span><span class="sgn" id="sg_t" hidden></span></div><div class="fGraph"><svg id="g_t" aria-label="Graph of tan θ"></svg></div></div>
+          </div>
+        </section>
+      </aside>
+    </main>
+  </div>
+
+<script>
+(function(){
+  "use strict";
+  const $ = id => document.getElementById(id);
+  const reduceMotion = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+  const lerp = (p, q, u) => p + (q - p) * u;
+  const ease = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+  const span01 = (v, a, b) => clamp((v - a) / (b - a), 0, 1);
+  const RAD = Math.PI / 180;
+  const MINUS = "−";
+
+  /* THE IDEA THIS TOOL IS BUILT AROUND
+     A stick exactly 1 unit long. Put one end at the origin and turn it: the other end draws the
+     unit circle, and dropping a line to the x-axis makes a right-angled triangle whose hypotenuse
+     is the stick. Because the hypotenuse is 1, sin θ = y ÷ 1 = y and cos θ = x ÷ 1 = x, so the
+     end of the stick IS the point (cos θ, sin θ). That sentence is what lets the ratios keep going
+     past 90°: the triangle stops being "a right-angled triangle with angle θ" and becomes "the
+     triangle under the end of the stick", whose sides point the negative way in some quadrants.
+     The sides are always lengths; the SIGN says which way they point (±x, ±y), and the hypotenuse
+     is the stick, so it is always 1. Tangent comes last, as the height where the extended stick
+     meets the line x = 1 (similar triangles: tan θ ÷ 1 = y ÷ x), which is also why it has no value
+     at 90° and 270° — the stick is then parallel to x = 1.
+
+     Every step is a list of segments that tween a small set of numbers (P). Back plays the same
+     segments in reverse. The graphs record wherever the stick has actually been (half-degree
+     buckets), so a curve is built by the class rather than shown to them. */
+
+  const STEPS = [
+    { id:"stick",  t:"A stick 1 unit long",       m:"Here is a stick. It is exactly 1 unit long.", segs:[] },
+    { id:"plane",  t:"Put it on the number plane", m:"One end at the origin, lying along the positive <i>x</i>-axis.", segs:[{ d:1800, to:{ m:1, ax:1 } }] },
+    { id:"turn",   t:"Turn it",                    m:"Turn the stick anticlockwise about the origin. The angle it turns through is <i>θ</i>.", segs:[{ d:1500, to:{ ang:40, arc:1 } }] },
+    { id:"circle", t:"Where can the end go?",      m:"Every point exactly 1 unit from the origin: the unit circle.", segs:[{ d:2100, to:{ circ:1 } }] },
+    { id:"tri",    t:"Drop a line to the x-axis",  m:"A right-angled triangle. Its hypotenuse is the stick, so it is 1.", segs:[{ d:1300, to:{ tri:1 } }] },
+    { id:"ratios", t:"Sine and cosine",            m:"The hypotenuse is 1, so sin <i>θ</i> = <i>y</i> and cos <i>θ</i> = <i>x</i>: the end of the stick is (cos <i>θ</i>, sin <i>θ</i>).", segs:[{ d:1000, to:{ rat:1 } }] },
+    { id:"past",   t:"Past 90°",                   m:"Now the triangle is on the left: its <i>x</i>-side points the negative way.", segs:[{ d:700, to:{ sg:1 } }, { d:2600, to:{ ang:150 } }] },
+    { id:"graphs", t:"Record the graphs",          m:"Swing the stick all the way round, recording the two sides as it turns.", segs:[{ d:1300, to:{ ang:0, gr:1 } }, { sweep:true, to:{ ang:360 }, tr:"sc" }] },
+    { id:"tan",    t:"And tangent?",               m:"Extend the stick until it meets the line <i>x</i> = 1. The height where they meet is tan <i>θ</i>.", segs:[{ set:{ ang:0 } }, { d:1100, to:{ tan:1 } }, { sweep:true, to:{ ang:360 }, tr:"t" }] },
+    { id:"signs",  t:"Signs in each quadrant",     m:"Which ratios are positive in each quadrant? Turn the stick and check the graphs.", segs:[{ set:{ ang:0 } }, { d:1500, to:{ quad:1, ang:135 } }] }
+  ];
+  const ST = id => STEPS.findIndex(s => s.id === id);
+  const K_TURN = ST("turn"), K_TRI = ST("tri"), K_RAT = ST("ratios"), K_PAST = ST("past"), K_GR = ST("graphs"), K_TAN = ST("tan");
+  const BASE = { m:0, ax:0, ang:0, arc:0, circ:0, tri:0, rat:0, sg:0, gr:0, tan:0, quad:0 };
+
+  /* canonical state at the end of every step, and before every segment of it */
+  function applySeg(st, sg){ const o = Object.assign({}, st); Object.assign(o, sg.set || sg.to); return o; }
+  const END = [];
+  STEPS.forEach((s, k) => { let st = k ? END[k - 1] : Object.assign({}, BASE); s.segs.forEach(sg => { st = applySeg(st, sg); }); END[k] = st; });
+  function beforeSeg(k, i){ let st = k ? END[k - 1] : Object.assign({}, BASE); for(let j = 0; j < i; j++) st = applySeg(st, STEPS[k].segs[j]); return st; }
+
+  const S = {
+    step:0, P:Object.assign({}, BASE), anim:null, drag:false, dragged:false,
+    set:{ labels:"letters", exact:true, rel:true, snap:"1", speed:"normal", ghost:false, panel:true, show:{ s:true, c:true, t:true } },
+    fs:false, msg:"", msgT:0
+  };
+  const STORE = "mmt.unitCircle.v1";
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORE) || "null");
+    if(saved && saved.set && typeof saved.set === "object"){
+      const sh = Object.assign({}, S.set.show, saved.set.show || {});
+      Object.assign(S.set, saved.set); S.set.show = sh;
+    }
+  } catch(e){}
+  const save = () => { try { localStorage.setItem(STORE, JSON.stringify({ set:S.set })); } catch(e){} };
+  const SWEEP = () => ({ slow:13000, normal:8500, fast:5000 })[S.set.speed] || 8500;
+
+  /* ------------------------------------------------------------ the maths */
+  const norm = a => { const r = ((a % 360) + 360) % 360; return (r === 0 && a > 0) ? 360 : r; };
+  const sinD = a => Math.sin(a * RAD), cosD = a => Math.cos(a * RAD);
+  const isWhole = a => Math.abs(a - Math.round(a)) < 1e-6;
+  /* axis angles: the triangle collapses onto an axis */
+  function axisAngle(a){ const r = ((a % 360) + 360) % 360; return Math.min(r % 90, 90 - (r % 90)) < 1e-6; }
+  function quadrant(a){ if(axisAngle(a)) return 0; const r = ((a % 360) + 360) % 360; return 1 + Math.floor(r / 90); }
+  function related(a){ const r = ((a % 360) + 360) % 360; return r <= 90 ? r : r <= 180 ? 180 - r : r <= 270 ? r - 180 : 360 - r; }
+  const tanUndef = a => Math.abs(cosD(a)) < 1e-9;
+  /* exact values: {z} zero, {u} undefined, or {neg, n, d} */
+  const SIN_R = { 0:{ z:1 }, 30:{ n:"1", d:"2" }, 45:{ n:"1", d:"√2" }, 60:{ n:"√3", d:"2" }, 90:{ n:"1" } };
+  const TAN_R = { 0:{ z:1 }, 30:{ n:"1", d:"√3" }, 45:{ n:"1" }, 60:{ n:"√3" }, 90:{ u:1 } };
+  function isSpecial(a){ if(!isWhole(a)) return false; const r = Math.round(((a % 360) + 360) % 360); return r % 30 === 0 || r % 45 === 0; }
+  function exactOf(f, a){
+    if(!S.set.exact || !isSpecial(a)) return null;
+    const r = Math.round(related(Math.round(a)));
+    const v = f === "s" ? sinD(a) : f === "c" ? cosD(a) : (tanUndef(a) ? NaN : Math.tan(a * RAD));
+    const base = f === "s" ? SIN_R[r] : f === "c" ? SIN_R[90 - r] : TAN_R[r];
+    if(!base) return null;
+    if(base.z || base.u) return Object.assign({}, base);
+    return { neg:v < 0, n:base.n, d:base.d };
+  }
+  function fx(f, a){ return f === "s" ? sinD(a) : f === "c" ? cosD(a) : (tanUndef(a) ? NaN : Math.tan(a * RAD)); }
+  function dec(v){
+    if(!isFinite(v)) return "undefined";
+    let r = Math.round(v * 100) / 100; if(Object.is(r, -0) || Math.abs(r) < .005) r = 0;
+    return (r < 0 ? MINUS : "") + String(Math.abs(r));
+  }
+  function signWord(f, a){
+    if(f === "t" && tanUndef(a)) return "und";
+    const v = fx(f, a); return Math.abs(v) < 1e-9 ? "zero" : v > 0 ? "pos" : "neg";
+  }
+  const SIGN_TEXT = { pos:"positive", neg:"negative", zero:"zero", und:"undefined" };
+  function snapA(a){
+    const s = S.set.snap;
+    if(s === "special"){
+      const list = [0,30,45,60,90,120,135,150,180,210,225,240,270,300,315,330,360];
+      let best = 0, bd = 1e9; list.forEach(v => { const d = Math.abs(v - a); if(d < bd){ bd = d; best = v; } });
+      return best;
+    }
+    const k = +s || 1; return Math.round(a / k) * k;
+  }
+
+  /* ------------------------------------------------------------ the graph record (half-degree buckets) */
+  const NB = 721;
+  const REC = { s:new Uint8Array(NB), c:new Uint8Array(NB), t:new Uint8Array(NB) };
+  const bi = a => clamp(Math.round(clamp(a, 0, 360) * 2), 0, NB - 1);
+  function mark(fs, a0, a1){ if(!fs) return; const lo = bi(Math.min(a0, a1)), hi = bi(Math.max(a0, a1)); for(const f of fs) for(let i = lo; i <= hi; i++) REC[f][i] = 1; }
+  function unmarkAbove(fs, a){ if(!fs) return; const lo = bi(a) + 1; for(const f of fs) for(let i = lo; i < NB; i++) REC[f][i] = 0; }
+  function clearRec(fs){ for(const f of fs) REC[f].fill(0); }
+  /* which graphs record when the stick is moved by hand */
+  const recNow = () => (S.step >= K_GR ? "sc" : "") + (S.step >= K_TAN ? "t" : "");
+  /* move the stick from its current angle to a, recording on the way (a may wrap past 0/360) */
+  function moveTo(a, fs, wrap){
+    const p = S.P.ang;
+    if(wrap === 1){ mark(fs, p, 360); mark(fs, 0, a); }
+    else if(wrap === -1){ mark(fs, 0, p); mark(fs, a, 360); }
+    else mark(fs, p, a);
+    S.P.ang = a;
+  }
+
+  /* ------------------------------------------------------------ layout */
+  const svg = $("board");
+  let L = null;
+  /* the step text above the board is given the height of the longest one, so the board never changes size between steps */
+  let cueW = -1;
+  function fitCue(){
+    const cue = $("cue"), w = cue.clientWidth;
+    if(!w || w === cueW) return; cueW = w;
+    const m = document.createElement("div");
+    m.className = "cue"; m.style.cssText = `position:absolute;visibility:hidden;left:0;top:0;width:${w}px;margin:0`;
+    cue.parentNode.appendChild(m);
+    let mx = 0; STEPS.forEach(st => { m.innerHTML = `<b>${st.t}</b><span>${st.m}</span>`; mx = Math.max(mx, m.offsetHeight); });
+    m.remove(); cue.style.minHeight = mx + "px";
+  }
+  function layout(){
+    fitCue();
+    const r = $("boardWrap").getBoundingClientRect();
+    const w = Math.max(240, r.width), h = Math.max(220, r.height);
+    const D = 1.44;                                     /* half the board, in units */
+    const R = Math.min(w, h) / (2 * D);
+    const ox = w / 2, oy = h / 2;
+    L = { w, h, R, ox, oy, X:u => ox + u * R, Y:v => oy - v * R, f:clamp(R * .118, 13, 26) };
+    svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
+  }
+
+  /* ------------------------------------------------------------ text: plain runs and stacked fractions */
+  const mctx = document.createElement("canvas").getContext("2d");
+  const FONT = '"STIX Two Math","Cambria Math","Latin Modern Math","Times New Roman",Georgia,serif';
+  const wCache = new Map();
+  function tw(t, size, it){
+    const key = t + "|" + Math.round(size * 10) + "|" + (it ? 1 : 0);
+    if(wCache.has(key)) return wCache.get(key);
+    mctx.font = `${it ? "italic " : ""}700 ${size}px ${FONT}`;
+    const w = mctx.measureText(t).width; wCache.set(key, w); return w;
+  }
+  const T = (t, c) => ({ t, c }), I = (t, c) => ({ t, c, i:1 }), F = (n, d, c) => ({ fr:[n, d], c });
+  /* a number that may hold a square root: "√3" becomes a drawn radical (a typed √ hangs below the line in maths fonts) */
+  const N = (s, c) => { const m = /^√(\d+)$/.exec(s); return m ? { rad:m[1], c } : { t:s, c }; };
+  function segW(g, f){
+    if(g.fr){ const s = f * .8; return Math.max(runW(g.fr[0], s), runW(g.fr[1], s)) + f * .26; }
+    if(g.rad) return f * .5 + tw(g.rad, f) + f * .08;
+    return tw(g.t, f, g.i);
+  }
+  function runW(segs, f){ return segs.reduce((s, g) => s + segW(g, f), 0); }
+  const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;");
+  function runSVG(segs, x, y, f, col, op){
+    let out = "", cx = x;
+    for(const g of segs){
+      const w = segW(g, f), c = g.c || col;
+      if(g.fr){
+        const s = f * .8, mid = cx + w / 2;
+        out += `<line x1="${cx + f * .08}" x2="${cx + w - f * .08}" y1="${y}" y2="${y}" stroke="#fff" stroke-width="${f * .32}" stroke-linecap="round"/>`;
+        out += `<line x1="${cx + f * .08}" x2="${cx + w - f * .08}" y1="${y}" y2="${y}" stroke="${c}" stroke-width="${Math.max(1.3, f * .07)}"/>`;
+        out += runSVG(g.fr[0], mid - runW(g.fr[0], s) / 2, y - f * .43, s, c);
+        out += runSVG(g.fr[1], mid - runW(g.fr[1], s) / 2, y + f * .47, s, c);
+      } else if(g.rad){
+        const x1 = cx + f * .5 + tw(g.rad, f) + f * .06, top = y - f * .47, sw = Math.max(1.3, f * .065);
+        const d = `M${f3(cx + f * .03)} ${f3(y + f * .08)} L${f3(cx + f * .14)} ${f3(y + f * .01)} L${f3(cx + f * .27)} ${f3(y + f * .38)} L${f3(cx + f * .44)} ${f3(top)} L${f3(x1)} ${f3(top)}`;
+        out += `<path d="${d}" fill="none" stroke="#fff" stroke-width="${sw + 3.5}" stroke-linejoin="round"/><path d="${d}" fill="none" stroke="${c}" stroke-width="${sw}" stroke-linejoin="round" stroke-linecap="round"/>`;
+        out += `<text class="h" x="${cx + f * .48}" y="${y}" font-size="${f}" fill="${c}" dominant-baseline="central">${esc(g.rad)}</text>`;
+      } else {
+        out += `<text class="h" x="${cx}" y="${y}" font-size="${f}" fill="${c}"${g.i ? ' font-style="italic"' : ""} dominant-baseline="central">${esc(g.t)}</text>`;
+      }
+      cx += w;
+    }
+    return out;
+  }
+  function rich(x, y, segs, f, col, anchor, op, key){
+    const w = runW(segs, f), x0 = anchor === "middle" ? x - w / 2 : anchor === "end" ? x - w : x;
+    return `<g${key ? ` data-k="${key}"` : ""}${op != null && op < 1 ? ` opacity="${op.toFixed(3)}"` : ""}>${runSVG(segs, x0, y, f, col)}</g>`;
+  }
+  /* a value as segments: exact fraction where it can be, else a decimal */
+  function valSegs(f, a, c){
+    const ex = exactOf(f, a);
+    if(ex){
+      if(ex.z) return [T("0", c)];
+      if(ex.u) return [T("undefined", c)];
+      const sg = ex.neg ? [T(MINUS, c)] : [];
+      return ex.d ? sg.concat([F([N(ex.n)], [N(ex.d)], c)]) : sg.concat([N(ex.n, c)]);
+    }
+    return [T(dec(fx(f, a)), c)];
+  }
+
+  /* ------------------------------------------------------------ colours */
+  const C = { ink:"#1e293b", axis:"#475569", grid:"#e8eef6", gridB:"#d7e0ec", tick:"#64748b",
+    x:"#2563eb", xd:"#1d4ed8", y:"#ea580c", yd:"#c2410c", t:"#16a34a", td:"#15803d",
+    rel:"#7c3aed", reld:"#5b21b6", circ:"#64748b", th:"#334155" };
+
+  /* ------------------------------------------------------------ drawing the board */
+  const f3 = v => (Math.round(v * 100) / 100);
+  function arcPath(r, a0, a1){
+    /* polyline arc (degrees, anticlockwise from +x), in board coords about the origin */
+    const n = Math.max(2, Math.ceil(Math.abs(a1 - a0) / 3));
+    let d = "";
+    for(let i = 0; i <= n; i++){ const a = lerp(a0, a1, i / n) * RAD; d += (i ? "L" : "M") + f3(L.ox + r * Math.cos(a)) + " " + f3(L.oy - r * Math.sin(a)); }
+    return d;
+  }
+  function woodStick(x0, y0, len, th, op){
+    if(op <= .01) return "";
+    const r = th / 2;
+    let g = `<g opacity="${op.toFixed(3)}">`;
+    g += `<rect x="${x0}" y="${y0 - r}" width="${len}" height="${th}" rx="${r * .8}" fill="url(#wood)" stroke="#7c4a1e" stroke-width="1.6"/>`;
+    /* grain */
+    const lines = [[.12, .62, -.2], [.3, .9, .25], [.05, .45, .05], [.55, .97, -.05]];
+    lines.forEach(([a, b, dy]) => { g += `<path d="M${x0 + len * a} ${y0 + dy * th} q ${len * (b - a) / 2} ${th * .14} ${len * (b - a)} 0" fill="none" stroke="#8b5a2b" stroke-opacity=".38" stroke-width="1.1"/>`; });
+    g += `<ellipse cx="${x0 + len * .7}" cy="${y0 + th * .08}" rx="${th * .32}" ry="${th * .16}" fill="none" stroke="#8b5a2b" stroke-opacity=".45" stroke-width="1"/>`;
+    g += `<rect x="${x0}" y="${y0 - r}" width="${th * .5}" height="${th}" rx="${r * .5}" fill="#c98a4f" opacity=".55"/>`;
+    g += `<rect x="${x0 + len - th * .5}" y="${y0 - r}" width="${th * .5}" height="${th}" rx="${r * .5}" fill="#c98a4f" opacity=".55"/>`;
+    return g + "</g>";
+  }
+  function arrowHead(x, y, dx, dy, s, col){
+    const l = Math.hypot(dx, dy) || 1, ux = dx / l, uy = dy / l;
+    return `<path d="M${f3(x)} ${f3(y)} L${f3(x - ux * s - uy * s * .55)} ${f3(y - uy * s + ux * s * .55)} L${f3(x - ux * s + uy * s * .55)} ${f3(y - uy * s - ux * s * .55)}Z" fill="${col}"/>`;
+  }
+
+  function render(){
+    if(!L) layout();
+    const P = S.P, { R, ox, oy, X, Y, w, h } = L, f = L.f;
+    const a = P.ang, c = cosD(a), s = sinD(a);
+    const letters = S.set.labels === "letters";
+    const signs = P.sg > .5;
+    let o = `<defs><linearGradient id="wood" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f1cf9c"/><stop offset=".5" stop-color="#dba567"/><stop offset="1" stop-color="#b9783f"/></linearGradient>
+      <clipPath id="clipB"><rect x="0" y="0" width="${w}" height="${h}"/></clipPath></defs>`;
+
+    /* --- grid and axes --- */
+    const ax = P.ax;
+    if(ax > .01){
+      let g = `<g opacity="${ax.toFixed(3)}">`;
+      const ux = Math.ceil(ox / (R * .5)), uy = Math.ceil(oy / (R * .5));
+      for(let i = -ux; i <= ux; i++){ const x = ox + i * R * .5; if(!i || x < 0 || x > w) continue; g += `<line x1="${f3(x)}" x2="${f3(x)}" y1="0" y2="${h}" stroke="${i % 2 ? C.grid : C.gridB}" stroke-width="1"/>`; }
+      for(let i = -uy; i <= uy; i++){ const y = oy + i * R * .5; if(!i || y < 0 || y > h) continue; g += `<line y1="${f3(y)}" y2="${f3(y)}" x1="0" x2="${w}" stroke="${i % 2 ? C.grid : C.gridB}" stroke-width="1"/>`; }
+      g += `<line x1="6" x2="${w - 8}" y1="${oy}" y2="${oy}" stroke="${C.axis}" stroke-width="2"/>` + arrowHead(w - 4, oy, 1, 0, 10, C.axis);
+      g += `<line y1="${h - 6}" y2="8" x1="${ox}" x2="${ox}" stroke="${C.axis}" stroke-width="2"/>` + arrowHead(ox, 4, 0, -1, 10, C.axis);
+      g += `<text x="${w - 12}" y="${oy - f * .9}" font-size="${f * 1.05}" fill="${C.axis}" font-style="italic" text-anchor="end" dominant-baseline="central">x</text>`;
+      g += `<text x="${ox + f * .75}" y="${10 + f * .5}" font-size="${f * 1.05}" fill="${C.axis}" font-style="italic" dominant-baseline="central">y</text>`;
+      /* ticks at ±1 and ±½ */
+      const tf = f * .78;
+      [[-1, MINUS + "1"], [-.5, ""], [.5, ""], [1, "1"]].forEach(([u, lab]) => {
+        g += `<line x1="${X(u)}" x2="${X(u)}" y1="${oy - 5}" y2="${oy + 5}" stroke="${C.axis}" stroke-width="2"/>`;
+        g += `<line y1="${Y(u)}" y2="${Y(u)}" x1="${ox - 5}" x2="${ox + 5}" stroke="${C.axis}" stroke-width="2"/>`;
+        if(lab){
+          g += `<text class="h" x="${X(u) + (u > 0 ? 9 : -9)}" y="${oy + tf * .9}" font-size="${tf}" fill="${C.tick}" text-anchor="${u > 0 ? "start" : "end"}" dominant-baseline="central">${lab}</text>`;
+          g += `<text class="h" x="${ox - 8}" y="${Y(u) + (u > 0 ? -tf * .62 : tf * .62)}" font-size="${tf}" fill="${C.tick}" text-anchor="end" dominant-baseline="central">${lab}</text>`;
+        }
+      });
+      if(P.arc < .5) g += `<text class="h" x="${ox - 8}" y="${oy + tf * .9}" font-size="${tf}" fill="${C.tick}" text-anchor="end" dominant-baseline="central">0</text>`;
+      o += g + "</g>";
+    }
+
+    /* --- quadrant tiles (under everything else) --- */
+    if(P.quad > .01){
+      const q = quadrant(a), tw2 = clamp(f * 7.6, 118, 168), th2 = f * 4.5, m = 10;
+      const QS = { 1:["+","+","+"], 2:["+",MINUS,MINUS], 3:[MINUS,MINUS,"+"], 4:[MINUS,"+",MINUS] };
+      const pos = { 1:[w - tw2 - m, m], 2:[m, m], 3:[m, h - th2 - m], 4:[w - tw2 - m, h - th2 - m] };
+      [1, 2, 3, 4].forEach(k => {
+        const [x, y] = pos[k], on = q === k, op = P.quad * (on ? 1 : (q ? .5 : .85));
+        let g = `<g opacity="${op.toFixed(3)}"><rect x="${x}" y="${y}" width="${tw2}" height="${th2}" rx="12" fill="${on ? "#eef2ff" : "#f8fafc"}" stroke="${on ? "#a5b4fc" : "#e2e8f0"}" stroke-width="${on ? 2 : 1.2}"/>`;
+        g += `<text class="ui" x="${x + 10}" y="${y + f * .66}" font-size="${f * .58}" fill="#64748b" dominant-baseline="central">Quadrant ${k}</text>`;
+        ["sin", "cos", "tan"].forEach((nm, j) => {
+          const sg = QS[k][j], col = [C.yd, C.xd, C.td][j], yy = y + f * (1.62 + j * .96);
+          g += `<text x="${x + 11}" y="${yy}" font-size="${f * .86}" fill="${col}" dominant-baseline="central">${nm}</text>`;
+          g += `<text class="ui" x="${x + tw2 - 12}" y="${yy}" font-size="${f * .66}" fill="${sg === "+" ? C.td : "#dc2626"}" text-anchor="end" dominant-baseline="central">${sg === "+" ? "+ positive" : MINUS + " negative"}</text>`;
+        });
+        o += g + "</g>";
+      });
+    }
+
+    /* --- the unit circle, traced by the end of the stick --- */
+    if(P.circ > .001){
+      const a0 = P.circ >= .999 ? 0 : a, sweep = 360 * P.circ;
+      o += `<path d="${arcPath(R, a0, a0 + sweep)}" fill="none" stroke="${C.circ}" stroke-width="2.4" stroke-dasharray="7 6" stroke-linecap="round"/>`;
+      /* while it is being drawn, a ghost of the stick sweeps round in front of it: the end of the stick draws the circle */
+      if(P.circ < .999){
+        const fa = (a0 + sweep) * RAD, fx2 = ox + R * Math.cos(fa), fy2 = oy - R * Math.sin(fa);
+        o += `<line x1="${ox}" y1="${oy}" x2="${f3(fx2)}" y2="${f3(fy2)}" stroke="${C.ink}" stroke-opacity=".22" stroke-width="5" stroke-linecap="round"/>`;
+        o += `<circle cx="${f3(fx2)}" cy="${f3(fy2)}" r="6" fill="${C.circ}"/>`;
+      }
+      const lo = span01(P.circ, .7, 1);
+      if(lo > 0){
+        const tf = f * .72;
+        let g = `<g opacity="${lo.toFixed(3)}">`;
+        [[1, 0, "(1, 0)", "start", 8, -tf * .8, 0], [0, 1, "(0, 1)", "start", 8, -tf * .8, 90], [-1, 0, "(" + MINUS + "1, 0)", "end", -8, -tf * .8, 180], [0, -1, "(0, " + MINUS + "1)", "start", 8, tf * .8, 270]].forEach(([u, v, lab, an, dx, dy, at]) => {
+          g += `<circle cx="${X(u)}" cy="${Y(v)}" r="3.6" fill="${C.circ}"/>`;
+          const gap = Math.abs((((a - at) % 360) + 540) % 360 - 180);
+          if(P.tri > .5 && gap < 14) return;           /* the point's own label says it */
+          g += `<text class="h" x="${X(u) + dx}" y="${Y(v) + dy}" font-size="${tf}" fill="${C.tick}" text-anchor="${an}" dominant-baseline="central">${lab}</text>`;
+        });
+        /* the circle's name, out of the way of the stick */
+        const angGap = (u, v) => { const d = Math.abs(((u - v) % 360 + 360) % 360); return Math.min(d, 360 - d); };
+        const relShown = S.set.rel && P.sg > .5 && quadrant(a) > 1 && P.tri > .5, ra = related(a);
+        const clear = v => Math.min(angGap(v, a), relShown ? angGap(v, ra) + 25 : 999, P.tan > .5 ? angGap(v, 0) + 30 : 999);
+        const la = [125, 235, 305, 55].reduce((b, v) => clear(v) > clear(b) ? v : b, 125);
+        const lx = X(cosD(la) * 1.13), ly = Y(sinD(la) * 1.13);
+        g += `<text class="h ui" x="${lx}" y="${ly}" font-size="${f * .66}" fill="${C.circ}" text-anchor="middle" dominant-baseline="central">unit circle</text>`;
+        o += g + "</g>";
+      }
+    }
+
+    /* --- θ (the turn) --- */
+    const showTri = P.tri > .01 && !axisAngle(a);
+    if(P.arc > .01 && a > .3){
+      const r0 = R * .17;
+      let g = `<g opacity="${P.arc.toFixed(3)}">`;
+      g += `<path d="M${ox} ${oy} ${arcPath(r0, 0, a).replace(/^M/, "L")} Z" fill="#64748b" fill-opacity=".08"/>`;
+      g += `<path d="${arcPath(r0, 0, a)}" fill="none" stroke="${C.th}" stroke-width="2"/>`;
+      if(a > 12){ const ea = a * RAD; g += arrowHead(ox + r0 * Math.cos(ea), oy - r0 * Math.sin(ea), -Math.sin(ea), -Math.cos(ea), 9, C.th); }
+      /* the label sits on the arc, away from the arm, the x-side's label and the related angle */
+      const q0 = quadrant(a), dirL = axisAngle(a) ? (Math.round(a) % 360 === 90 ? 45 : Math.round(a) % 360 === 180 ? 90 : 135)
+        : q0 === 1 ? (a < 28 ? a + 14 : a / 2) : q0 === 2 ? a / 2 : q0 === 3 ? 45 : 135;
+      const ma = dirL * RAD, lr = r0 + f * 1.05;
+      const lab = letters ? [I("θ", C.th)] : [T(Math.round(a) + "°", C.th)];
+      g += rich(ox + lr * Math.cos(ma), oy - lr * Math.sin(ma), lab, f * .9, C.th, "middle", null, "th");
+      o += g + "</g>";
+    }
+
+    /* --- related angle and the matching first-quadrant triangle --- */
+    const q = quadrant(a), relA = related(a);
+    const relOn = S.set.rel && signs && q > 1;
+    if(relOn && P.tri > .5){
+      const op = span01(P.sg, .5, 1);
+      /* ghost triangle in quadrant 1 */
+      const gc = cosD(relA), gs = sinD(relA);
+      let g = `<g opacity="${(op * .9).toFixed(3)}">`;
+      g += `<path d="M${ox} ${oy} L${X(gc)} ${oy} L${X(gc)} ${Y(gs)} Z" fill="${C.rel}" fill-opacity=".06" stroke="${C.rel}" stroke-opacity=".55" stroke-width="2" stroke-dasharray="6 5"/>`;
+      g += `<circle cx="${X(gc)}" cy="${Y(gs)}" r="4" fill="${C.rel}" fill-opacity=".5"/>`;
+      /* the related angle inside the real triangle */
+      const ar = R * .27;
+      let from, to;
+      if(q === 2){ from = a; to = 180; } else if(q === 3){ from = 180; to = a; } else { from = a; to = 360; }
+      g += `<path d="${arcPath(ar, from, to)}" fill="none" stroke="${C.rel}" stroke-width="2.6"/>`;
+      const mid = (from + to) / 2 * RAD, lr = ar + f * .98;
+      g += rich(ox + lr * Math.cos(mid), oy - lr * Math.sin(mid), [T(Math.round(related(Math.round(a))) + "°", C.reld)], f * .78, C.reld, "middle", null, "rel");
+      g += `<path d="${arcPath(ar, 0, relA)}" fill="none" stroke="${C.rel}" stroke-opacity=".5" stroke-width="2" stroke-dasharray="4 4"/>`;
+      o += g + "</g>";
+    }
+
+    /* --- tangent: the line x = 1, the stick made longer, and the height where they meet --- */
+    if(P.tan > .01){
+      const op = P.tan, und = tanUndef(a), tv = und ? Infinity : s / c;
+      let g = `<g opacity="${op.toFixed(3)}" clip-path="url(#clipB)">`;
+      g += `<line x1="${X(1)}" x2="${X(1)}" y1="0" y2="${h}" stroke="${C.t}" stroke-opacity=".55" stroke-width="2" stroke-dasharray="3 5"/>`;
+      g += `<text class="h" x="${X(1) + 8}" y="${Math.min(h - 14, oy + R * 1.33)}" font-size="${f * .78}" fill="${C.td}" dominant-baseline="central"><tspan font-style="italic">x</tspan> = 1</text>`;
+      if(!und){
+        const ty = Y(tv), top = -40, bot = h + 40, tyc = clamp(ty, top, bot);
+        /* the similar triangle: origin, (1, 0), (1, tan θ) */
+        g += `<path d="M${ox} ${oy} L${X(1)} ${oy} L${X(1)} ${tyc} Z" fill="${C.t}" fill-opacity=".07"/>`;
+        /* the stick, made longer (or backwards through the origin when it points left) */
+        const ex = X(1), ey = tyc;
+        if(c > 0) g += `<line x1="${X(c)}" y1="${Y(s)}" x2="${ex}" y2="${ey}" stroke="${C.ink}" stroke-width="2.4" stroke-dasharray="7 5"/>`;
+        else g += `<line x1="${ox}" y1="${oy}" x2="${ex}" y2="${ey}" stroke="${C.ink}" stroke-width="2.4" stroke-dasharray="7 5"/>`;
+        g += `<line x1="${X(1)}" x2="${X(1)}" y1="${oy}" y2="${tyc}" stroke="${C.t}" stroke-width="6" stroke-linecap="round"/>`;
+        if(ty >= 6 && ty <= h - 6) g += `<circle cx="${X(1)}" cy="${ty}" r="6" fill="#fff" stroke="${C.td}" stroke-width="3"/>`;
+        else g += arrowHead(X(1), ty < 0 ? 8 : h - 8, 0, ty < 0 ? -1 : 1, 13, C.td);
+        /* label beside the green height, kept on the board */
+        const ly = clamp((oy + clamp(ty, 0, h)) / 2, f, h - f);
+        const lab = letters ? [T("tan ", C.td), I("θ", C.td)] : valSegs("t", a, C.td);
+        if(Math.abs(ty - oy) > f * .9) g += rich(X(1) + 12, ly, lab, f * .92, C.td, "start", null, "tl");
+      } else {
+        /* parallel: the stick never meets x = 1 */
+        g += `<line x1="${ox}" y1="0" x2="${ox}" y2="${h}" stroke="${C.ink}" stroke-width="2.2" stroke-dasharray="7 5" stroke-opacity=".7"/>`;
+        g += `<text class="h ui" x="${X(1) + 10}" y="${oy - R * .6}" font-size="${f * .66}" fill="${C.td}" dominant-baseline="central">never meet</text>`;
+      }
+      o += g + "</g>";
+    }
+
+    /* --- the triangle --- */
+    if(showTri){
+      const t = P.tri, ex = X(c), ey = Y(s), foot = oy;
+      const dropY = lerp(ey, foot, clamp(t * 1.3, 0, 1));
+      const fillOp = span01(t, .55, 1);
+      let g = "";
+      if(fillOp > 0) g += `<path d="M${ox} ${oy} L${ex} ${oy} L${ex} ${ey} Z" fill="#0ea5e9" fill-opacity="${(.07 * fillOp).toFixed(3)}"/>`;
+      /* x-side along the axis, y-side straight down */
+      const legOp = span01(t, .4, 1);
+      if(legOp > 0) g += `<line x1="${ox}" y1="${oy}" x2="${ex}" y2="${oy}" stroke="${C.x}" stroke-width="5.5" stroke-linecap="round" opacity="${legOp.toFixed(3)}"/>`;
+      g += `<line x1="${ex}" y1="${ey}" x2="${ex}" y2="${dropY}" stroke="${C.y}" stroke-width="5.5" stroke-linecap="round"/>`;
+      /* right-angle mark */
+      if(t > .8){
+        const k = Math.min(R * .08, Math.abs(ex - ox) * .4, Math.abs(ey - oy) * .4), sx = c > 0 ? -1 : 1, sy = s > 0 ? -1 : 1;
+        g += `<path d="M${ex + sx * k} ${oy} L${ex + sx * k} ${oy + sy * k} L${ex} ${oy + sy * k}" fill="none" stroke="${C.ink}" stroke-width="1.6" opacity="${span01(t, .8, 1).toFixed(3)}"/>`;
+      }
+      o += g;
+    }
+
+    /* --- the stick --- */
+    const m = ease(P.m);
+    {
+      const len = R, th = lerp(R * .13, 6, m);
+      /* at m = 0 the stick lies centred on the board; at m = 1 it starts at the origin */
+      const cx0 = ox - len / 2, cy0 = oy + R * .05;
+      const x0 = lerp(cx0, ox, m), y0 = lerp(cy0, oy, m) - Math.sin(m * Math.PI) * R * .18;
+      const ang = m >= .999 ? a : 0;
+      let g = `<g transform="rotate(${f3(-ang)} ${f3(x0)} ${f3(y0)})">`;
+      g += woodStick(x0, y0, len, th, 1 - m);
+      if(m > .01) g += `<line x1="${x0}" y1="${y0}" x2="${x0 + len}" y2="${y0}" stroke="${C.ink}" stroke-width="${Math.max(5, th * .9)}" stroke-linecap="round" opacity="${m.toFixed(3)}"/>`;
+      g += "</g>";
+      o += g;
+      /* "1 unit" bracket under the stick at the start */
+      const bo = 1 - span01(m, 0, .45);
+      if(bo > .01){
+        const by = cy0 + R * .16;
+        o += `<g opacity="${bo.toFixed(3)}"><path d="M${cx0} ${by - 7} V${by} H${cx0 + len} V${by - 7}" fill="none" stroke="${C.axis}" stroke-width="2"/>`;
+        o += `<text class="h" x="${ox}" y="${by + f * .95}" font-size="${f * 1.1}" fill="${C.ink}" text-anchor="middle" dominant-baseline="central">1 unit</text></g>`;
+      }
+      if(m >= .999){
+        const ex = X(c), ey = Y(s);
+        /* hypotenuse label "1" on the outside of the triangle */
+        if(showTri && P.tri > .5){
+          const nx = -s, ny = c;                       /* normal to the stick */
+          const side = (nx * (c - c) + ny * (0 - s)) > 0 ? -1 : 1;   /* away from the foot (c, 0) */
+          const pushOut = (P.tan > .01 && c > .55) ? .2 : .1;   /* the y-side's label is inside then */
+          const mx = c / 2 + side * nx * pushOut, my = s / 2 + side * ny * pushOut;
+          o += rich(X(mx), Y(my), [T("1", C.ink)], f * 1.02, C.ink, "middle", span01(P.tri, .5, 1), "hyp");
+        }
+        /* pivot and handle */
+        o += `<circle cx="${ox}" cy="${oy}" r="5.5" fill="${C.ink}"/>`;
+        const can = canDrag();
+        if(can && !S.dragged){
+          const tt = (performance.now() % 1600) / 1600;
+          o += `<circle cx="${ex}" cy="${ey}" r="${12 + tt * 16}" fill="none" stroke="${C.x}" stroke-width="3" opacity="${(.55 * (1 - tt)).toFixed(3)}"/>`;
+        }
+        o += `<circle cx="${ex}" cy="${ey}" r="${can ? 11 : 7}" fill="#fff" stroke="${C.ink}" stroke-width="3.2"/>`;
+      }
+    }
+
+    /* --- side labels (after the stick so they sit on top) --- */
+    if(showTri && P.tri > .5){
+      const op = span01(P.tri, .5, 1), ex = X(c), ey = Y(s), lf = f * 1.02;
+      const sx = c >= 0 ? "+" : MINUS, sy = s >= 0 ? "+" : MINUS;
+      const xl = letters ? (signs ? [T(sx, C.xd), I("x", C.xd)] : [I("x", C.xd)]) : valSegs("c", a, C.xd);
+      const yl = letters ? (signs ? [T(sy, C.yd), I("y", C.yd)] : [I("y", C.yd)]) : valSegs("s", a, C.yd);
+      /* x-side: under the axis when the triangle is above it, and over it when below */
+      const xly = oy + (s >= 0 ? 1 : -1) * lf * (letters ? .85 : 1.05);
+      if(Math.abs(ex - ox) > lf * .8) o += rich((ox + ex) / 2, xly, xl, lf, C.xd, "middle", op, "xl");
+      /* y-side: outside the triangle, or inside when the side is short and the point label would sit on it */
+      /* y-side: outside the triangle, except when the tangent line is just outside it (then inside, if there is room) */
+      const legH = Math.abs(ey - oy), crowded = P.tan > .01 && c > .55;
+      const inside = crowded;
+      const ylx = inside ? ex - 10 : ex + (c >= 0 ? 1 : -1) * 11;
+      const an = inside ? "end" : (c >= 0 ? "start" : "end");
+      if(legH > lf * .7 && !(crowded && legH < lf * 2.2)) o += rich(ylx, (ey + oy) / 2, yl, lf, C.yd, an, op, "yl");
+    }
+
+    /* --- the point's coordinates --- */
+    if(P.tri > .5 && P.m >= .999){
+      const op = span01(P.tri, .5, 1), ex = X(c), ey = Y(s), pf = f * .92;
+      const ratM = P.rat > .5;
+      let segs;
+      if(!letters || axisAngle(a)) segs = [T("(")].concat(valSegs("c", a, C.xd), [T(", ")], valSegs("s", a, C.yd), [T(")")]);
+      else if(ratM) segs = [T("("), T("cos ", C.xd), I("θ", C.xd), T(", "), T("sin ", C.yd), I("θ", C.yd), T(")")];
+      else segs = [T("("), I("x", C.xd), T(", "), I("y", C.yd), T(")")];
+      const dx = c >= -1e-9 ? 1 : -1, dy = s >= -1e-9 ? 1 : -1;
+      const px = ex + dx * 14, py = ey - dy * (pf * .95);
+      const wv = runW(segs, pf);
+      /* keep the label on the board */
+      let x0 = dx > 0 ? px : px - wv;
+      x0 = clamp(x0, 4, w - wv - 4);
+      o += rich(x0, clamp(py, pf, h - pf), segs, pf, C.ink, "start", op, "pt");
+    }
+
+    svg.innerHTML = o;
+    svg.classList.toggle("can", canDrag());
+    renderPanel();
+    renderGraphs();
+  }
+
+  /* ------------------------------------------------------------ the panel: readouts */
+  function fracH(n, d){ return `<span class="frac"><span>${n}</span><span>${d}</span></span>`; }
+  const radH = s => String(s).replace(/√(\d+)/g, (m, d) => `<span class="rad"><svg viewBox="0 0 10 20" preserveAspectRatio="none" aria-hidden="true"><path d="M.5 12 L3 10.5 L5.6 19.5 L10 .6"/></svg><span>${d}</span></span>`);
+  const mi = t => `<i>${t}</i>`;
+  function valH(f, a){
+    const ex = exactOf(f, a);
+    if(ex){
+      if(ex.z) return "0";
+      if(ex.u) return "undefined";
+      return (ex.neg ? MINUS : "") + (ex.d ? fracH(radH(ex.n), radH(ex.d)) : radH(ex.n));
+    }
+    return dec(fx(f, a));
+  }
+  const NAME = { s:"sin", c:"cos", t:"tan" };
+  function exprH(f){
+    const P = S.P, a = P.ang, letters = S.set.labels === "letters", signs = P.sg > .5;
+    const shown = f === "t" ? P.tan > .5 : P.rat > .5;
+    const aTxt = (letters && !signs) ? mi("θ") : `${Math.round(a)}°`;
+    const lhs = `<span class="fn">${NAME[f]} ${aTxt}</span>`;
+    if(!shown) return `<span class="q">${NAME[f]} ${mi("θ")} = ?</span>`;
+    const und = f === "t" && tanUndef(a);
+    let parts = [lhs, "="];
+    if(letters){
+      if(!signs){
+        /* first quadrant: the ratio itself */
+        if(f === "s") parts.push(fracH(mi("y"), "1"), "=", mi("y"));
+        else if(f === "c") parts.push(fracH(mi("x"), "1"), "=", mi("x"));
+        else parts.push(fracH(mi("y"), mi("x")));
+      } else if(axisAngle(a)){
+        parts.push(und ? "undefined" : valH(f, a));
+      } else {
+        const sx = cosD(a) >= 0 ? "+" : MINUS, sy = sinD(a) >= 0 ? "+" : MINUS;
+        if(f === "s") parts.push(sy + mi("y"));
+        else if(f === "c") parts.push(sx + mi("x"));
+        else parts.push(fracH(sy + mi("y"), sx + mi("x")));
+      }
+    } else parts.push(und ? "undefined" : valH(f, a));
+    /* related angle: sin 150° = sin 30° */
+    const q = quadrant(a);
+    if(S.set.rel && signs && q > 1){
+      const neg = fx(f, a) < 0, r = Math.round(related(Math.round(a)));
+      parts.push("=", `<span class="rel">${neg ? MINUS : ""}${NAME[f]} ${r}°</span>`);
+    }
+    return parts.map(p => p === "=" ? "<span>=</span>" : `<span>${p}</span>`).join("");
+  }
+  const lastH = { s:"", c:"", t:"" };
+  function renderPanel(){
+    const P = S.P, k = S.step;
+    ["s", "c", "t"].forEach(f => {
+      const shown = f === "t" ? P.tan > .5 : P.rat > .5;
+      $("row_" + f).classList.toggle("dim", !shown);
+      $("row_" + f).hidden = !S.set.show[f];
+      const html = exprH(f);
+      if(html !== lastH[f]){ $("ex_" + f).innerHTML = html; lastH[f] = html; }
+      const sg = $("sg_" + f);
+      if(shown){ const w = signWord(f, P.ang); sg.hidden = false; sg.className = "sgn " + w; sg.textContent = SIGN_TEXT[w]; }
+      else sg.hidden = true;
+    });
+    document.querySelectorAll(".fTog").forEach(b => b.setAttribute("aria-pressed", String(!!S.set.show[b.dataset.f])));
+    /* steps */
+    const last = STEPS.length - 1, st = STEPS[k];
+    $("stepChip").textContent = `Step ${k + 1} of ${STEPS.length}`;
+    const cueH = `<b>${st.t}</b><span>${st.m}</span>`;
+    const cue = $("cue");
+    if(cue.dataset.k !== String(k)){ cue.innerHTML = cueH; cue.dataset.k = String(k); cue.classList.remove("anim"); void cue.offsetWidth; cue.classList.add("anim"); }
+    const nb = $("nextBtn");
+    nb.disabled = k >= last; nb.classList.toggle("busy", !!S.anim);
+    nb.innerHTML = k >= last ? "Done &#10003; &mdash; drag the stick" : `Next: ${STEPS[k + 1].t} &#9656;`;
+    $("backBtn").disabled = k === 0;
+    $("allBtn").disabled = k >= last;
+    /* angle box and quadrant */
+    const inp = $("angIn");
+    inp.disabled = k < K_TURN; inp.closest(".angPill").hidden = k < K_TURN;
+    if(document.activeElement !== inp) inp.value = k < K_TURN ? "" : String(Math.round(P.ang));
+    const q = quadrant(P.ang), qt = $("quadTag");
+    qt.textContent = k < K_TURN ? "" : q ? `Quadrant ${q}` : "On an axis";
+    qt.hidden = k < K_TURN;
+    $("randBtn").disabled = k < K_TURN;
+    $("swingBtn").disabled = k < K_GR || !!S.anim;
+    $("clearBtn").disabled = k < K_GR || !!S.anim;
+    document.querySelectorAll(".seg button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.lab === S.set.labels)));
+    /* the hint line */
+    const hint = $("hint");
+    let hh = "";
+    if(S.msg){ hh = S.msg; }
+    else if(!S.set.panel && P.rat > .5){
+      hh = ["s", "c", "t"].filter(f => f !== "t" || P.tan > .5).map(f => `<span class="eq">${NAME[f]} ${Math.round(P.ang)}° = ${valH(f, P.ang)}</span>`).join(" &nbsp;·&nbsp; ");
+    }
+    else if(P.tan > .5 && tanUndef(P.ang)) hh = `tan ${Math.round(P.ang)}° is <b>undefined</b>: the stick is parallel to <i>x</i> = 1, so they never meet.`;
+    else if(S.set.rel && P.sg > .5 && quadrant(P.ang) > 1 && P.tri > .5) hh = `Related angle <b>${Math.round(related(Math.round(P.ang)))}°</b> &mdash; the same triangle as the dashed one`;
+    else if(canDrag() && !S.dragged) hh = `<b>Drag the end of the stick</b> (or click anywhere on the board) &middot; <b>&uarr; &darr;</b> turn it 1&deg;`;
+    else if(k === 0) hh = "Press <b>Next</b> (or &rarr;) to start.";
+    if(hint.innerHTML !== hh) hint.innerHTML = hh;
+    hint.classList.toggle("msg", !!S.msg);
+  }
+
+  /* ------------------------------------------------------------ the graphs */
+  const YMAX = { s:1.25, c:1.25, t:3.4 };
+  const COL = { s:C.y, c:C.x, t:C.t }, COLD = { s:C.yd, c:C.xd, t:C.td };
+  function graphLayout(f){
+    const el = $("g_" + f), r = el.getBoundingClientRect();
+    const w = Math.max(120, r.width), h = Math.max(60, r.height);
+    const ml = 34, mr = 12, mt = 6, mb = 20;
+    const ym = YMAX[f];
+    return { el, w, h, ml, mr, mt, mb, ym, X:d => ml + d / 360 * (w - ml - mr), Y:v => mt + (ym - v) / (2 * ym) * (h - mt - mb) };
+  }
+  function curvePath(G, f, test){
+    /* runs of half-degree samples where test(i) holds; tan breaks at 90° and 270° */
+    let d = "", on = false;
+    for(let i = 0; i < NB; i++){
+      const a = i / 2, und = f === "t" && (i === 180 || i === 540);
+      const ok = test(i) && !und;
+      if(ok){
+        let v = fx(f, a);
+        if(f === "t") v = clamp(v, -G.ym * 1.6, G.ym * 1.6);
+        d += (on ? "L" : "M") + f3(G.X(a)) + " " + f3(G.Y(v));
+        on = true;
+      } else on = false;
+      if(f === "t" && (i === 179 || i === 539)) on = false;
+    }
+    return d;
+  }
+  function renderGraphs(){
+    if(!S.set.panel) return;
+    const P = S.P, a = P.ang;
+    ["s", "c", "t"].forEach(f => {
+      if(!S.set.show[f]) return;
+      const G = graphLayout(f), { w, h, X, Y, ym } = G;
+      G.el.setAttribute("viewBox", `0 0 ${w} ${h}`);
+      const live = f === "t" ? P.tan : P.gr;
+      let o = `<defs><clipPath id="gc_${f}"><rect x="${G.ml}" y="${G.mt - 2}" width="${w - G.ml - G.mr}" height="${h - G.mt - G.mb + 4}"/></clipPath></defs>`;
+      /* quadrant bands */
+      if(P.quad > .01){
+        const q = quadrant(a);
+        for(let k = 0; k < 4; k++){
+          const fv = fx(f, k * 90 + 45), pos = fv > 0;
+          o += `<rect x="${X(k * 90)}" y="${G.mt}" width="${X(90) - X(0)}" height="${h - G.mt - G.mb}" fill="${pos ? "#22c55e" : "#ef4444"}" fill-opacity="${(P.quad * (q === k + 1 ? .1 : .045)).toFixed(3)}"/>`;
+          o += `<text x="${X(k * 90 + 45)}" y="${G.mt + 10}" font-size="10" fill="#64748b" text-anchor="middle" opacity="${P.quad.toFixed(3)}">Q${k + 1}</text>`;
+        }
+      }
+      /* grid */
+      const ticks = f === "t" ? [-3, -2, -1, 1, 2, 3] : [-1, -.5, .5, 1];
+      ticks.forEach(v => { o += `<line x1="${G.ml}" x2="${w - G.mr}" y1="${f3(Y(v))}" y2="${f3(Y(v))}" stroke="${Math.abs(v) === 1 || Math.abs(v) === 2 ? "#dbe3ee" : "#eef2f7"}" stroke-width="1"/>`; });
+      for(let d = 30; d < 360; d += 30) o += `<line x1="${f3(X(d))}" x2="${f3(X(d))}" y1="${G.mt}" y2="${h - G.mb}" stroke="${d % 90 ? "#f1f5f9" : "#dbe3ee"}" stroke-width="1"/>`;
+      o += `<line x1="${G.ml}" x2="${w - G.mr}" y1="${Y(0)}" y2="${Y(0)}" stroke="#64748b" stroke-width="1.6"/>`;
+      o += `<line x1="${G.ml}" x2="${G.ml}" y1="${G.mt}" y2="${h - G.mb}" stroke="#64748b" stroke-width="1.6"/>`;
+      /* labels */
+      const yl = f === "t" ? [[-2, MINUS + "2"], [0, "0"], [2, "2"]] : [[-1, MINUS + "1"], [0, "0"], [1, "1"]];
+      yl.forEach(([v, t]) => { o += `<text x="${G.ml - 6}" y="${Y(v)}" font-size="11" fill="#64748b" text-anchor="end" dominant-baseline="central">${t}</text>`; });
+      [0, 90, 180, 270, 360].forEach(d => { o += `<text x="${X(d)}" y="${h - G.mb + 13}" font-size="11" fill="#64748b" text-anchor="${d === 0 ? "start" : d === 360 ? "end" : "middle"}">${d}°</text>`; });
+      if(live < .01){
+        o += `<text x="${(G.ml + w - G.mr) / 2}" y="${Y(0) - 12}" font-size="12" fill="#94a3b8" text-anchor="middle">${f === "t" ? "Recorded in step " + (K_TAN + 1) : "Recorded in step " + (K_GR + 1)}</text>`;
+        G.el.innerHTML = o; return;
+      }
+      let g = `<g opacity="${live.toFixed(3)}" clip-path="url(#gc_${f})">`;
+      /* asymptotes for tan */
+      if(f === "t") [90, 270].forEach(d => {
+        const seen = S.set.ghost || REC.t[bi(d - 1)] || REC.t[bi(d + 1)];
+        if(seen) g += `<line x1="${X(d)}" x2="${X(d)}" y1="${G.mt}" y2="${h - G.mb}" stroke="${C.td}" stroke-width="1.4" stroke-dasharray="5 4" opacity=".7"/>`;
+      });
+      if(S.set.ghost) g += `<path d="${curvePath(G, f, () => true)}" fill="none" stroke="${COL[f]}" stroke-opacity=".22" stroke-width="2.2"/>`;
+      g += `<path d="${curvePath(G, f, i => REC[f][i])}" fill="none" stroke="${COL[f]}" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/>`;
+      /* where the stick is now */
+      const ad = a % 360 === 0 && a > 0 ? 360 : ((a % 360) + 360) % 360, xm = X(ad);
+      g += `<line x1="${xm}" x2="${xm}" y1="${G.mt}" y2="${h - G.mb}" stroke="#334155" stroke-opacity=".35" stroke-width="1.4" stroke-dasharray="3 4"/>`;
+      if(!(f === "t" && tanUndef(ad))){
+        const v = fx(f, ad), yv = Y(v), yc = clamp(yv, G.mt, h - G.mb);
+        g += `<line x1="${xm}" x2="${xm}" y1="${Y(0)}" y2="${yc}" stroke="${COL[f]}" stroke-width="5" stroke-linecap="round" opacity=".85"/>`;
+        if(yv >= G.mt && yv <= h - G.mb) g += `<circle cx="${xm}" cy="${yv}" r="5.5" fill="#fff" stroke="${COLD[f]}" stroke-width="3"/>`;
+        else g += arrowHead(xm, yv < G.mt ? G.mt + 1 : h - G.mb - 1, 0, yv < G.mt ? -1 : 1, 10, COLD[f]);
+      }
+      g += "</g>";
+      G.el.innerHTML = o + g;
+    });
+  }
+
+  /* ------------------------------------------------------------ stepping and animation */
+  let raf = 0;
+  function canDrag(){ return !S.anim && S.step >= K_TURN && S.P.m >= .999; }
+  /* a queue of tweens; each: {to, d, tr, back, set, lin} */
+  function run(queue, onEnd){
+    cancelAnimationFrame(raf);
+    if(!queue.length){ S.anim = null; onEnd && onEnd(); render(); return; }
+    S.anim = { queue, i:-1, onEnd };
+    nextTween();
+  }
+  function nextTween(){
+    const A = S.anim; if(!A) return;
+    A.i++;
+    if(A.i >= A.queue.length){ S.anim = null; const e = A.onEnd; e && e(); render(); return; }
+    const tw0 = A.queue[A.i];
+    if(tw0.set){ apply(tw0, 1, Object.assign({}, S.P)); render(); nextTween(); return; }
+    const from = Object.assign({}, S.P);
+    if(reduceMotion || tw0.d <= 0){ apply(tw0, 1, from); nextTween(); return; }
+    const start = performance.now();
+    const fr = now => {
+      if(S.anim !== A) return;
+      const p = clamp((now - start) / tw0.d, 0, 1);
+      apply(tw0, p, from); render();
+      if(p < 1) raf = requestAnimationFrame(fr); else nextTween();
+    };
+    raf = requestAnimationFrame(fr);
+  }
+  function apply(tw0, p, from){
+    const u = tw0.lin ? p : ease(p);
+    const tgt = tw0.set || tw0.to;
+    const prevAng = S.P.ang;
+    for(const k in tgt){ if(k !== "ang") S.P[k] = tw0.set ? tgt[k] : lerp(from[k], tgt[k], u); }
+    if("ang" in tgt){
+      const na = tw0.set ? tgt.ang : lerp(from.ang, tgt.ang, u);
+      if(tw0.tr && !tw0.back) mark(tw0.tr, prevAng, na);
+      if(tw0.tr && tw0.back) unmarkAbove(tw0.tr, na);
+      if(!tw0.tr && tw0.rec) mark(tw0.rec, prevAng, na);
+      S.P.ang = na;
+    }
+  }
+  function segTween(sg, back, target){
+    const d = sg.sweep ? SWEEP() : (sg.d || 0);
+    if(sg.set) return { set:back ? target : sg.set };
+    return { to:back ? target : sg.to, d:back ? Math.min(d, sg.sweep ? d * .5 : d) : d, tr:sg.tr, back, lin:!!sg.sweep };
+  }
+  function next(){
+    if(S.anim || S.step >= STEPS.length - 1) return;
+    const k = S.step + 1;
+    S.step = k; S.msg = "";
+    run(STEPS[k].segs.map(sg => segTween(sg, false)));
+  }
+  function back(){
+    if(S.anim || S.step === 0) return;
+    const k = S.step, segs = STEPS[k].segs, q = [];
+    for(let i = segs.length - 1; i >= 0; i--){
+      const before = beforeSeg(k, i), keys = Object.keys(segs[i].set || segs[i].to), tgt = {};
+      keys.forEach(key => tgt[key] = before[key]);
+      q.push(segTween(segs[i], true, tgt));
+    }
+    S.msg = "";
+    run(q, () => { S.step = k - 1; tidyRec(); });
+  }
+  function tidyRec(){
+    if(S.step < K_GR) clearRec(["s", "c"]);
+    if(S.step < K_TAN) clearRec(["t"]);
+  }
+  function jump(k){
+    cancelAnimationFrame(raf); S.anim = null;
+    S.step = k; S.P = Object.assign({}, END[k]); S.msg = "";
+    clearRec(["s", "c", "t"]);
+    if(k >= K_GR) mark("sc", 0, 360);
+    if(k >= K_TAN) mark("t", 0, 360);
+    render();
+  }
+  function startAgain(){ if(S.step === 0 && !S.anim) return; S.dragged = false; jump(0); }
+  function showAll(){ jump(STEPS.length - 1); }
+
+  /* turning the stick by hand, by the keys or by typing an angle */
+  const LIM = () => S.step < K_PAST ? [0, 90] : null;
+  function flash(msg, ms){ S.msg = msg; clearTimeout(S.msgT); S.msgT = setTimeout(() => { S.msg = ""; render(); }, ms || 4200); }
+  function turnTo(target, opt){
+    /* smooth turn from the current angle to target (both 0..360), recording on the way */
+    if(S.anim) return;
+    const lim = LIM(); if(lim) target = clamp(target, lim[0], lim[1]);
+    const d = Math.abs(target - S.P.ang);
+    if(d < 1e-6){ render(); return; }
+    run([{ to:{ ang:target }, d:reduceMotion ? 0 : clamp(380 + d * 6, 420, 2600), rec:recNow() || null }]);
+  }
+  function nudge(dA){
+    if(!canDrag()) return;
+    S.dragged = true;
+    let a = S.P.ang + dA;
+    const lim = LIM();
+    if(lim){
+      if(a > lim[1]) flash("The triangle only goes up to 90° here &mdash; press <b>Next</b> to go past it.");
+      a = clamp(a, lim[0], lim[1]);
+      moveTo(a, recNow(), 0);
+    } else {
+      if(a > 360){ a -= 360; moveTo(a, recNow(), 1); }
+      else if(a < 0){ a += 360; moveTo(a, recNow(), -1); }
+      else moveTo(a, recNow(), 0);
+    }
+    render();
+  }
+  function pointerAngle(e){
+    const r = svg.getBoundingClientRect();
+    const x = (e.clientX - r.left) * (L.w / r.width), y = (e.clientY - r.top) * (L.h / r.height);
+    if(Math.hypot(x - L.ox, y - L.oy) < 4) return null;
+    let d = Math.atan2(L.oy - y, x - L.ox) / RAD; if(d < 0) d += 360;
+    return d;
+  }
+  function dragTo(raw){
+    if(raw == null) return;
+    let a = snapA(raw);
+    const p = S.P.ang, lim = LIM();
+    if(lim){
+      /* first quadrant only: past 90 sticks at 90, below the axis sticks at 0 */
+      if(a > 90 && a <= 225){ a = 90; flash("The triangle only goes up to 90° here &mdash; press <b>Next</b> to go past it.", 3000); }
+      else if(a > 225) a = 0;
+      moveTo(a, "", 0);
+    } else {
+      if(a >= 360) a = 0;
+      const pp = p >= 360 ? 0 : p;
+      if(pp > 270 && a < 90) moveTo(a, recNow(), 1);
+      else if(pp < 90 && a > 270) moveTo(a, recNow(), -1);
+      else { if(p >= 360 && a > 270) S.P.ang = 360; moveTo(a, recNow(), 0); }
+    }
+    render();
+  }
+  svg.addEventListener("pointerdown", e => {
+    if(!canDrag() || e.button > 0) return;
+    e.preventDefault();
+    try { svg.setPointerCapture(e.pointerId); } catch(err){}
+    S.drag = true; S.dragged = true; svg.classList.add("dragging");
+    dragTo(pointerAngle(e));
+  });
+  svg.addEventListener("pointermove", e => { if(S.drag) dragTo(pointerAngle(e)); });
+  const endDrag = () => { if(!S.drag) return; S.drag = false; svg.classList.remove("dragging"); render(); };
+  svg.addEventListener("pointerup", endDrag);
+  svg.addEventListener("pointercancel", endDrag);
+
+  function typedAngle(){
+    const inp = $("angIn"), v = Number(inp.value);
+    if(inp.value === "" || !isFinite(v) || S.step < K_TURN){ render(); return; }
+    let n = norm(v);
+    if(Math.abs(v) > 3600){ flash("Try an angle between " + MINUS + "360° and 720°."); render(); return; }
+    if(S.step < K_PAST && (v < 0 || v > 90)){ flash("For now the triangle goes from 0° to 90° &mdash; press <b>Next</b> to go past 90°."); }
+    else if(v > 360){ const t = Math.floor(v / 360), rest = Math.round(v - 360 * t);
+      flash(rest ? `${Math.round(v)}° is ${t} full turn${t > 1 ? "s" : ""} and ${rest}° more, so the stick ends up at <b>${rest}°</b>.` : `${Math.round(v)}° is ${t} full turns, so the stick ends up back where it started.`, 6000); }
+    else if(v < 0){ flash(`${MINUS}${Math.round(-v)}° turns <b>clockwise</b>, so the stick ends up at <b>${Math.round(n)}°</b>.`, 6000); }
+    if(v === 360) n = 360;
+    S.dragged = true;
+    turnTo(n);
+  }
+  function randomAngle(){
+    if(S.step < K_TURN || S.anim) return;
+    const cur = S.P.ang, lim = LIM();
+    let a, tries = 0;
+    do {
+      if(S.set.snap === "special"){ const L2 = [30,45,60,120,135,150,210,225,240,300,315,330]; a = L2[Math.floor(Math.random() * L2.length)]; }
+      else { const k = Math.max(5, +S.set.snap || 1); a = Math.round(Math.random() * 359 / k) * k; }
+      if(lim) a = 5 + Math.round(Math.random() * 16) * 5;
+      tries++;
+    } while((Math.abs(a - cur) < 25 || axisAngle(a)) && tries < 40);
+    S.dragged = true;
+    turnTo(a);
+  }
+  function swingRound(){
+    if(S.anim || S.step < K_GR) return;
+    const fs = recNow(), a0 = S.P.ang >= 360 ? 0 : S.P.ang;
+    S.P.ang = a0;
+    /* one full anticlockwise turn from wherever it is now */
+    const q = [];
+    if(a0 > 0){ q.push({ to:{ ang:360 }, d:SWEEP() * (360 - a0) / 360, tr:fs, lin:true }, { set:{ ang:0 } }, { to:{ ang:a0 }, d:SWEEP() * a0 / 360, tr:fs, lin:true }); }
+    else q.push({ to:{ ang:360 }, d:SWEEP(), tr:fs, lin:true });
+    run(q);
+  }
+
+  /* ------------------------------------------------------------ wiring */
+  $("nextBtn").addEventListener("click", next);
+  $("backBtn").addEventListener("click", back);
+  $("allBtn").addEventListener("click", showAll);
+  const spinAgain = () => { const b = $("againIcon"); b.classList.remove("spin"); void b.offsetWidth; b.classList.add("spin"); };
+  $("againIcon").addEventListener("click", () => { spinAgain(); startAgain(); });
+  $("randBtn").addEventListener("click", randomAngle);
+  $("swingBtn").addEventListener("click", swingRound);
+  $("clearBtn").addEventListener("click", () => { clearRec(["s", "c", "t"]); render(); });
+  $("angIn").addEventListener("keydown", e => { if(e.key === "Enter"){ e.preventDefault(); typedAngle(); $("angIn").blur(); } });
+  $("angIn").addEventListener("change", typedAngle);
+  function setLabels(v){ S.set.labels = v; $("labelSel").value = v; save(); render(); }
+  document.querySelectorAll(".seg button").forEach(b => b.addEventListener("click", () => setLabels(b.dataset.lab)));
+  document.querySelectorAll(".fTog").forEach(b => b.addEventListener("click", () => {
+    const f = b.dataset.f, on = !S.set.show[f];
+    if(!on && Object.values(S.set.show).filter(Boolean).length <= 1) return;   /* keep one graph */
+    S.set.show[f] = on; save(); render();
+  }));
+
+  function applyPanel(){
+    $("app").classList.toggle("noPanel", !S.set.panel);
+    const b = $("panelBtn"); b.setAttribute("aria-pressed", String(!!S.set.panel));
+    b.title = S.set.panel ? "Hide the graphs (G)" : "Show the graphs (G)";
+  }
+  const togglePanel = () => { S.set.panel = !S.set.panel; save(); applyPanel(); layout(); render(); };
+  $("panelBtn").addEventListener("click", togglePanel);
+  applyPanel();
+  const fsEl = document.documentElement;
+  const fsActive = () => !!(document.fullscreenElement || document.webkitFullscreenElement);
+  function setFs(on){
+    S.fs = on; $("app").classList.toggle("fs", on);
+    $("fsBtn").querySelector(".fsIn").toggleAttribute("hidden", on);
+    $("fsBtn").querySelector(".fsOut").toggleAttribute("hidden", !on);
+    $("fsBtn").title = on ? "Leave full screen (F)" : "Full screen (F)";
+    closeMenus(); layout(); render();
+  }
+  function toggleFs(){
+    if(!S.fs){ setFs(true); const req = fsEl.requestFullscreen || fsEl.webkitRequestFullscreen;
+      if(req){ try { const pr = req.call(fsEl); if(pr && pr.catch) pr.catch(() => {}); } catch(e){} } }
+    else { if(fsActive()){ const ex = document.exitFullscreen || document.webkitExitFullscreen; try { const pr = ex.call(document); if(pr && pr.catch) pr.catch(() => {}); } catch(e){} } setFs(false); }
+  }
+  const onFsChange = () => { if(!fsActive() && S.fs) setFs(false); };
+  document.addEventListener("fullscreenchange", onFsChange);
+  document.addEventListener("webkitfullscreenchange", onFsChange);
+  $("fsBtn").addEventListener("click", toggleFs);
+
+  $("labelSel").value = S.set.labels; $("snapSel").value = S.set.snap; $("speedSel").value = S.set.speed;
+  $("exactToggle").checked = !!S.set.exact; $("relToggle").checked = !!S.set.rel; $("ghostToggle").checked = !!S.set.ghost;
+  $("labelSel").addEventListener("change", () => setLabels($("labelSel").value));
+  $("snapSel").addEventListener("change", () => { S.set.snap = $("snapSel").value; save(); });
+  $("speedSel").addEventListener("change", () => { S.set.speed = $("speedSel").value; save(); });
+  $("exactToggle").addEventListener("change", e => { S.set.exact = e.target.checked; save(); render(); });
+  $("relToggle").addEventListener("change", e => { S.set.rel = e.target.checked; save(); render(); });
+  $("ghostToggle").addEventListener("change", e => { S.set.ghost = e.target.checked; save(); render(); });
+
+  function closeMenus(){ [["settingsBtn","settingsMenu"],["toolsBtn","toolsMenu"]].forEach(([b, m]) => { $(m).classList.remove("open"); $(b).setAttribute("aria-expanded","false"); }); }
+  [["settingsBtn","settingsMenu"],["toolsBtn","toolsMenu"]].forEach(([b, m]) => {
+    $(b).addEventListener("click", e => { e.stopPropagation(); const was = $(m).classList.contains("open"); closeMenus(); if(!was){ $(m).classList.add("open"); $(b).setAttribute("aria-expanded","true"); } });
+    $(m).addEventListener("click", e => e.stopPropagation());
+  });
+  document.addEventListener("click", closeMenus);
+  document.addEventListener("keydown", e => {
+    const tag = (e.target && e.target.tagName) || "";
+    if(e.key === "Escape"){ closeMenus(); if(S.fs && !fsActive()) setFs(false); return; }
+    if(tag === "INPUT" || tag === "SELECT" || tag === "TEXTAREA" || e.metaKey || e.ctrlKey || e.altKey) return;
+    if(tag === "BUTTON" && (e.key === " " || e.key === "Enter")){ e.preventDefault(); e.target.blur(); }
+    if(e.key === " "){ e.preventDefault(); spinAgain(); startAgain(); }
+    else if(e.key === "Enter"){ e.preventDefault(); randomAngle(); }
+    else if(e.key === "ArrowRight"){ e.preventDefault(); next(); }
+    else if(e.key === "ArrowLeft"){ e.preventDefault(); back(); }
+    else if(e.key === "ArrowUp"){ e.preventDefault(); nudge(e.shiftKey ? 15 : 1); }
+    else if(e.key === "ArrowDown"){ e.preventDefault(); nudge(e.shiftKey ? -15 : -1); }
+    else if(e.key === "l" || e.key === "L") setLabels(S.set.labels === "letters" ? "numbers" : "letters");
+    else if(e.key === "g" || e.key === "G") togglePanel();
+    else if(e.key === "f" || e.key === "F") toggleFs();
+  });
+  let rz = 0;
+  const onResize = () => { cancelAnimationFrame(rz); rz = requestAnimationFrame(() => { layout(); if(!S.anim) render(); }); };
+  if(window.ResizeObserver){ const ro = new ResizeObserver(onResize); ro.observe($("boardWrap")); ro.observe($("rows")); }
+  else window.addEventListener("resize", onResize);
+
+  /* the pulsing ring on the handle needs frames of its own while nothing else is moving */
+  (function pulse(){
+    if(!S.anim && !S.drag && !S.dragged && canDrag() && !reduceMotion) render();
+    setTimeout(() => requestAnimationFrame(pulse), 60);
+  })();
+
+  layout();
+  render();
+
+  /* test surface */
+  window.__UC__ = { S, STEPS, END, REC, render, next, back, jump, startAgain, showAll, turnTo, nudge, dragTo, swingRound, randomAngle, setLabels,
+    exactOf, related, quadrant, axisAngle, fx, valH, exprH, canDrag, typedAngle, togglePanel, toggleFs, get L(){ return L; }, K:{ K_TURN, K_TRI, K_RAT, K_PAST, K_GR, K_TAN } };
+})();
+</script>
+</body>
+</html>

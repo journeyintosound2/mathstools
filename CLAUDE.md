@@ -96,6 +96,33 @@
 > §2 "TWO folders", §3 deploy paths and §5's `mathstools-main 2` heading below
 > describe the OLD layout — this block supersedes them.
 >
+> **NEW (2026-11-18, latest): THE UNIT CIRCLE AND THE TRIGONOMETRIC RATIOS — new Stage 5 teaching tool** at
+> `interactive-tools/stage-5/measurement-space/unit-circle-trig-ratios/index.html` (single file, trapezium shell, no Firebase),
+> under **MA5-TRG-P-02** (Trigonometry D, ideas unit-circle + trig-equations; toolLinks row, `?v=` bumped in resources +
+> teacher portal; homepage Interactive card, pill 42 → 43). Tools menu = Worksheet / Quiz greyed. localStorage
+> `mmt.unitCircle.v1` (settings only — every load starts at the stick); test surface `window.__UC__`. Project doc
+> `claude/unit-circle.md`.
+> * **Ten steps, each a list of segments tweening a few numbers `P`** (m stick→interval, ax axes, ang, arc, circ, tri, rat,
+>   sg signs, gr graphs, tan, quad). `END[k]` is folded from the segments; Back plays them in reverse from the live state.
+>   A stick (wood, "1 unit") → lands on the plane at the origin → turns to 40° (θ) → a ghost stick sweeps the dashed unit
+>   circle → drop to the x-axis (x-side blue, y-side orange, hypotenuse "1") → sin θ = y ÷ 1, cos θ = x ÷ 1, point label
+>   becomes (cos θ, sin θ) → past 90° (labels gain signs ±x, ±y, swings to 150°, related angle purple + dashed matching
+>   triangle in Q1) → graphs: swings 0→360 recording sin/cos → tangent: line x = 1, stick extended (backwards through
+>   the origin when it points left), green height = tan θ, recorded 0→360 → quadrant sign tiles + graph bands, ends at 135°.
+> * **Before "Past 90°" the stick is held to 0–90°** (drag, keys, typed and random angles all clamp; a message says why).
+> * **The sides are LENGTHS; the sign says the direction.** Letters mode labels ±x/±y and the readout says cos 150° = −x =
+>   −cos 30°; the point label stays (cos θ, sin θ) in every quadrant (that is the definition). Numbers mode shows values,
+>   EXACT at 30/45/60 multiples (Settings). **Radicals are drawn** (SVG path / `.rad` span), never a typed √ — the maths
+>   font hangs it below the line and √3/2 read as 3/√2.
+> * **Graphs record where the stick has been** (half-degree buckets `REC`), by hand from the graphs step on (tan from the
+>   tangent step); dragging across 0° records both ends only. Panel: sin/cos/tan row toggles, ▶ Swing round, Clear,
+>   Settings › whole curve faintly. The panel hidden (G) puts the readout in the hint line; full screen keeps the graphs.
+> * The step text above the board is given the height of the longest step (`fitCue`) and the hint line is one line, so
+>   the circle never changes size between steps or mid-drag (R checked constant over all ten steps).
+> * Verified (Playwright): every step forward/back lands on its end state with the right recordings; 782 label frames ×
+>   5 viewports (no label off the board; no overlaps on desktop; 6 near-misses at 390 wide); exact values for all 16
+>   special angles; drag clamp, wrap, keys, typed 390/−45, random, swing, clear, panel, full screen, reduced motion, saved settings.
+>
 > **NEW (2026-11-18, later): TIMES TABLE CHART FEEDBACK + PRINTABLE POSTER MAKER.**
 > * Chart: Settings › **Keep faded values** (`S.set.faded`, `.app.fadedVals`): squares keep their numbers at opacity .17
 >   and each reveal (`tot`, `cornA`, `fone`, `fans`, `hit`) is dark. Off by default (then the answer can't be read early).

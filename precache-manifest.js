@@ -1,6 +1,6 @@
 /* Written by tools/build-pwa.mjs — do not edit by hand. */
 self.MMT_PRECACHE = {
- "version": "87da221eb2",
+ "version": "9ada406312",
  "files": [
   "./",
   "assessment/exam-builder/app.js",
@@ -887,6 +887,7 @@ self.MMT_PRECACHE = {
   "interactive-tools/stage-4/ratios-rates/stacked-bar-ratio/index.html",
   "interactive-tools/stage-5/algebra/complete-the-square/index.html",
   "interactive-tools/stage-5/measurement-space/square-sum-chain/index.html",
+  "interactive-tools/stage-5/measurement-space/unit-circle-trig-ratios/index.html",
   "interactive-tools/stage-5/statistics-probability/financial-expectation-spinner/index.html",
   "manifest.webmanifest",
   "mmt-screen/app.js",
