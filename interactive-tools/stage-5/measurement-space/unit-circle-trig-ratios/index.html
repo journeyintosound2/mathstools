@@ -205,6 +205,17 @@
     .fGraph text{ font-family:var(--uiFont); font-weight:800; }
     .fGraph text.m{ font-family:var(--mathFont); font-weight:700; }
 
+    .ftab{ position:absolute; inset:0; overflow:auto; display:flex; align-items:center; }
+    .ftab table{ width:100%; border-collapse:collapse; table-layout:fixed; }
+    .ftab th,.ftab td{ border:1px solid var(--border); padding:4px 2px; text-align:center; }
+    .ftab th{ background:#f8fafc; font-weight:900; color:var(--muted); font-size:.66rem; line-height:1.15; }
+    .ftab td{ font-family:var(--mathFont); font-weight:700; font-size:clamp(.85rem,1.2vw,1.05rem); }
+    .ftab td.h{ color:var(--orange-dark); } .ftab td.d{ color:var(--blue-dark); }
+    .ftab td.q{ color:var(--line-soft); font-weight:600; }
+    .ftab .rh{ text-align:left; font-family:var(--uiFont); font-size:.68rem; font-weight:900; color:var(--muted); width:58px; padding-left:6px; background:#f8fafc; }
+    .ftab .cur{ background:#fff7ed; }
+    .ftab .sn,.fName .sn{ display:none; }
+    @media (max-width:1180px){ .ftab .ln,.fName .ln{ display:none; } .ftab .sn,.fName .sn{ display:inline; } .ftab td{ font-size:.85rem; } }
     .app.noPanel .layout{ grid-template-columns:minmax(0,1fr); }
     .app.noPanel .side{ display:none; }
     .app.fs .mmtTopbar{ display:none; }
@@ -215,6 +226,7 @@
     @media (prefers-reduced-motion:reduce){ .cue.anim{ animation:none; } }
 
     /* ---------- responsive ---------- */
+    @media (max-width:1440px){ .stepChip{ display:none; } .seg button{ padding:6px 10px; } }
     @media (max-width:1280px){ .layout{ grid-template-columns:minmax(0,1fr) minmax(320px,.9fr); } }
     @media (max-width:1180px){
       .stepChip,.quadTag{ display:none; }
@@ -242,7 +254,9 @@
       .mmtTopTitle{ white-space:normal; }
       .boardTop{ justify-content:center; }
       .stepChip{ display:none; }
-      .fRow{ height:170px; }
+      .fRow{ height:180px; }
+      .fHead{ flex-wrap:wrap; row-gap:2px; }
+      .fHead .sgn{ margin-left:auto; }
       .stepRow #allBtn{ display:none; }
     }
   </style>
@@ -274,6 +288,7 @@
               <select id="labelSel" aria-label="Side labels">
                 <option value="letters" selected>Letters (&plusmn;x, &plusmn;y)</option>
                 <option value="numbers">Numbers</option>
+                <option value="names">Names (opposite, adjacent)</option>
               </select>
             </label>
             <label class="sw"><input type="checkbox" id="cosSinToggle"><span class="track"></span><span>Label the point (cos <i>&theta;</i>, sin <i>&theta;</i>)</span></label>
@@ -314,6 +329,10 @@
             <div class="settingsRule" role="separator"></div>
             <div class="settingsHead">Graphs</div>
             <label class="sw"><input type="checkbox" id="ghostToggle"><span class="track"></span><span>Show the whole curve faintly</span></label>
+            <div class="settingsRule" role="separator"></div>
+            <div class="settingsHead">Ferris wheel</div>
+            <label class="sw"><input type="checkbox" id="ruleToggle"><span class="track"></span><span>Show the rules (<i>h</i> = 11 + 9 sin <i>&theta;</i>)</span></label>
+            <p class="settingsNote">Off, the readouts give only the height and the distance across, so the class can work out the rule from the table and the graphs.</p>
             <p class="settingsNote">Off, each curve is drawn from 0 up to where the stick is now &mdash; turn the stick back and it winds back.</p>
           </nav>
         </div>
@@ -336,6 +355,7 @@
             <div class="seg" role="group" aria-label="Side labels">
               <button type="button" data-lab="letters" aria-pressed="true" title="Label the sides with letters (L)"><span class="mi">x</span>, <span class="mi">y</span></button>
               <button type="button" data-lab="numbers" aria-pressed="false" title="Label the sides with numbers (L)">0.87</button>
+              <button type="button" data-lab="names" aria-pressed="false" title="Label the sides opposite and adjacent (L)">Names</button>
             </div>
           </div>
           <div class="topRight">
@@ -371,7 +391,7 @@
       <aside class="side">
         <section class="card graphCard" aria-label="The ratios and their graphs">
           <div class="gHead">
-            <span class="pTitle">The ratios as the stick turns</span>
+            <span class="pTitle" id="pTitle">The ratios as the stick turns</span>
             <div class="gTools">
               <button class="fTog" type="button" data-f="s" aria-pressed="true" style="--c:var(--cy)" title="Show or hide the sine graph">sin</button>
               <button class="fTog" type="button" data-f="c" aria-pressed="true" style="--c:var(--cx)" title="Show or hide the cosine graph">cos</button>
@@ -380,9 +400,9 @@
             </div>
           </div>
           <div class="rows" id="rows">
-            <div class="fRow" id="row_s" style="--c:var(--cy)"><div class="fHead"><span class="fName">Sine</span><span class="fExpr" id="ex_s"></span><span class="sgn" id="sg_s" hidden></span></div><div class="fGraph"><svg id="g_s" aria-label="Graph of sin θ"></svg></div></div>
-            <div class="fRow" id="row_c" style="--c:var(--cx)"><div class="fHead"><span class="fName">Cosine</span><span class="fExpr" id="ex_c"></span><span class="sgn" id="sg_c" hidden></span></div><div class="fGraph"><svg id="g_c" aria-label="Graph of cos θ"></svg></div></div>
-            <div class="fRow" id="row_t" style="--c:var(--ct)"><div class="fHead"><span class="fName">Tangent</span><span class="fExpr" id="ex_t"></span><span class="sgn" id="sg_t" hidden></span></div><div class="fGraph"><svg id="g_t" aria-label="Graph of tan θ"></svg></div></div>
+            <div class="fRow" id="row_s" style="--c:var(--cy)"><div class="fHead"><span class="fName" id="fn_s">Sine</span><span class="fExpr" id="ex_s"></span><span class="sgn" id="sg_s" hidden></span></div><div class="fGraph"><svg id="g_s" aria-label="Graph of sin θ"></svg></div></div>
+            <div class="fRow" id="row_c" style="--c:var(--cx)"><div class="fHead"><span class="fName" id="fn_c">Cosine</span><span class="fExpr" id="ex_c"></span><span class="sgn" id="sg_c" hidden></span></div><div class="fGraph"><svg id="g_c" aria-label="Graph of cos θ"></svg></div></div>
+            <div class="fRow" id="row_t" style="--c:var(--ct)"><div class="fHead"><span class="fName" id="fn_t">Tangent</span><span class="fExpr" id="ex_t"></span><span class="sgn" id="sg_t" hidden></span></div><div class="fGraph"><svg id="g_t" aria-label="Graph of tan θ"></svg><div class="ftab" id="ftab" hidden></div></div></div>
           </div>
         </section>
       </aside>
@@ -403,35 +423,38 @@
 
   /* THE IDEA THIS TOOL IS BUILT AROUND
      A stick exactly 1 unit long. Put one end at the origin and turn it: the triangle under its end
-     has hypotenuse 1, so sin θ = y and cos θ = x. Three steps only:
+     has hypotenuse 1, so sin θ = y and cos θ = x.
        1. the stick on its own;
-       2. the stick lands on the number plane, ZOOMED IN on the first quadrant, and can be dragged
-          from 0° to 90°. The three graphs (x-axis 0° to 90°) draw from 0 up to the stick's angle and
-          wind back when it is turned back, so the class can notice and wonder about sin, cos and tan
-          before anything goes past 90°;
-       3. the board zooms out to the whole unit circle and the graphs' x-axis zooms out to 360°.
-          The sides of the triangle are lengths; past 90° the SIGN says which way they point (±x, ±y).
-     Everything on the board is drawn from a few numbers (P) that the steps tween; Back plays the
-     same tweens in reverse. Every extra layer (point as (cos θ, sin θ), related angle, quadrant
-     summaries, tan on the circle, radians) is a setting and starts OFF. */
+       2. the stick on the number plane, ZOOMED IN on the first quadrant, dragged from 0° to 90°. The
+          graphs (x-axis 0° to 90°) draw from 0 up to the stick's angle and wind back when it turns back;
+       3. zoom out to the whole unit circle and 360°; the sides gain signs (±x, ±y);
+       4+ REAL-WORLD SCENES. The unit circle morphs into something that turns (the Ferris wheel is
+          the first): same stick, same angle, same triangle, measured in metres. A scene adds a
+          morph parameter to P (fw for the wheel), its own view, its own drawing and its own graphs.
+          To add another scene: a step with its segments, a P parameter, a view (like L.R3) and
+          `if(P.<param>)` branches in render(), renderGraphs() and the panel — follow "ferris".
+     Everything on the board is drawn from the numbers in P that the steps tween; Back plays the
+     same tweens in reverse. Optional layers are settings and start OFF. */
 
   const STEPS = [
     { id:"stick", t:"A stick 1 unit long", m:"Here is a stick. It is exactly 1 unit long.", segs:[] },
     { id:"quad1", t:"The first quadrant",  m:"One end at the origin, so the stick is the hypotenuse. Drag the other end and watch the three graphs.",
       segs:[{ d:1800, to:{ m:1, ax:1 } }, { d:1400, to:{ ang:40, tri:1 } }] },
     { id:"whole", t:"The whole unit circle", m:"Now the stick can go all the way round. What happens to each ratio past 90°?",
-      segs:[{ d:1900, to:{ z:1, sg:1 } }] }
+      segs:[{ d:1900, to:{ z:1, sg:1 } }] },
+    { id:"ferris", t:"The Ferris wheel", m:"The bottom of the wheel is 2 m above the ground and it is 18 m across. Start halfway up on the right and turn anticlockwise.",
+      segs:[{ d:1300, to:{ ang:270, tri:0 } }, { set:{ ang:-90 } }, { d:2400, to:{ fw:1 } }, { d:4200, to:{ walk:1 }, lin:true }, { d:2300, to:{ ang:0, tri:1 } }] }
   ];
-  const K_Q1 = 1, K_ALL = 2;
-  const BASE = { m:0, ax:0, ang:0, tri:0, z:0, sg:0 };
+  const K_Q1 = 1, K_ALL = 2, K_FW = 3;
+  const BASE = { m:0, ax:0, ang:0, tri:0, z:0, sg:0, fw:0, walk:0 };
   function applySeg(st, sg){ const o = Object.assign({}, st); Object.assign(o, sg.set || sg.to); return o; }
   const END = [];
   STEPS.forEach((s, k) => { let st = k ? END[k - 1] : Object.assign({}, BASE); s.segs.forEach(sg => { st = applySeg(st, sg); }); END[k] = st; });
   function beforeSeg(k, i){ let st = k ? END[k - 1] : Object.assign({}, BASE); for(let j = 0; j < i; j++) st = applySeg(st, STEPS[k].segs[j]); return st; }
 
   const S = {
-    step:0, P:Object.assign({}, BASE), anim:null, drag:false, dragged:false,
-    set:{ labels:"letters", cosSin:false, rel:false, quad:false, tanLine:false, unit:"deg", exact:true, snap:"1", speed:"normal", ghost:false,
+    step:0, P:Object.assign({}, BASE), anim:null, drag:false, dragged:false, fmax:0,
+    set:{ labels:"letters", cosSin:false, rel:false, quad:false, tanLine:false, unit:"deg", exact:true, snap:"1", speed:"normal", ghost:false, rule:false,
           panel:true, show:{ s:true, c:true, t:true } },
     fs:false, msg:"", msgT:0
   };
@@ -445,7 +468,8 @@
   } catch(e){}
   const save = () => { try { localStorage.setItem(STORE, JSON.stringify({ set:S.set })); } catch(e){} };
   const SWEEP = () => ({ slow:13000, normal:8500, fast:5000 })[S.set.speed] || 8500;
-  const maxAng = () => S.step >= K_ALL ? 360 : 90;
+  const maxAng = () => S.step >= K_FW ? 720 : S.step >= K_ALL ? 360 : 90;
+  const ferris = () => S.P.fw > .5;
 
   /* ------------------------------------------------------------ the maths */
   const norm = a => { const r = ((a % 360) + 360) % 360; return (r === 0 && a > 0) ? 360 : r; };
@@ -477,12 +501,8 @@
     const v = fx(f, a); return Math.abs(v) < 1e-9 ? "zero" : v > 0 ? "pos" : "neg";
   }
   const SIGN_TEXT = { pos:"positive", neg:"negative", zero:"zero", und:"undefined" };
-  /* an angle (always held in degrees) as the class should read it */
   const isRad = () => S.set.unit === "rad";
-  function angTxt(a){
-    if(isRad()){ let v = Math.round(a * RAD * 10) / 10; return v.toFixed(1); }
-    return Math.round(a) + "°";
-  }
+  function angTxt(a){ return isRad() ? (Math.round(a * RAD * 10) / 10).toFixed(1) : Math.round(a) + "°"; }
   function snapA(a){
     const s = S.set.snap;
     if(s === "special"){
@@ -493,32 +513,44 @@
     const k = +s || 1; return Math.round(a / k) * k;
   }
 
-  /* ------------------------------------------------------------ layout: two views, tweened by P.z */
+  /* ------------------------------------------------------------ the Ferris wheel (step 4) in numbers
+     bottom 2 m above the ground, diameter 18 m: radius 9 m, centre 11 m up. One board unit = 9 m. */
+  const FW = { r:9, c:11, bottom:2 };
+  const GROUND = -FW.c / FW.r;                /* the ground, in board units below the centre */
+  const CABW = .17, CABH = .19;               /* a gondola, in board units */
+  const PLAT = -1 - .65 * CABH;               /* the boarding platform = the floor of the bottom gondola */
+  const fh = a => FW.c + FW.r * sinD(a);      /* height above the ground (m) */
+  const fd = a => FW.r * cosD(a);             /* across from the centre (m), right positive */
+  const POS_NAMES = ["Halfway up", "Top", "Halfway down", "Bottom"];
+  const posName = a => POS_NAMES[(((Math.round(a / 90)) % 4) + 4) % 4];
+  const m2 = v => dec(v);
+
+  /* ------------------------------------------------------------ layout: three views, tweened by P.z and P.fw */
   const svg = $("board");
   let L = null, V = null;
   function layout(){
     fitCue();
     const r = $("boardWrap").getBoundingClientRect();
     const w = Math.max(240, r.width), h = Math.max(220, r.height);
-    /* first quadrant, zoomed: x from −0.2 to 1.4, y from −0.22 to 1.32 */
-    const qw = 1.6, qh = 1.54;
+    const qw = 1.6, qh = 1.54;                                       /* first quadrant: x −0.2..1.4, y −0.22..1.32 */
     const R1 = Math.min(w / qw, h / qh);
     const ox1 = (w - qw * R1) / 2 + .2 * R1, oy1 = h - ((h - qh * R1) / 2 + .22 * R1);
-    /* the whole circle */
-    const D = 1.44, R2 = Math.min(w, h) / (2 * D);
-    L = { w, h, R1, ox1, oy1, R2, ox2:w / 2, oy2:h / 2 };
+    const D = 1.44, R2 = Math.min(w, h) / (2 * D);                  /* the whole circle */
+    const fw3 = 3.48, fh3 = 2.66;                                     /* Ferris wheel: x −1.78..1.7, y −1.38..1.28 */
+    const R3 = Math.min(w / fw3, h / fh3);
+    const ox3 = (w - fw3 * R3) / 2 + 1.78 * R3, oy3 = (h - fh3 * R3) / 2 + 1.28 * R3;
+    L = { w, h, R1, ox1, oy1, R2, ox2:w / 2, oy2:h / 2, R3, ox3, oy3 };
     svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
   }
   function view(){
-    const z = ease(clamp(S.P.z, 0, 1));
-    /* zoom about the origin's path: log-interpolate the scale so the zoom feels even */
-    const R = Math.exp(lerp(Math.log(L.R1), Math.log(L.R2), z));
-    const ox = lerp(L.ox1, L.ox2, z), oy = lerp(L.oy1, L.oy2, z);
-    const f = clamp(lerp(L.R1 * .068, L.R2 * .118, z), 13, 28);
+    const z = ease(clamp(S.P.z, 0, 1)), fw = ease(clamp(S.P.fw, 0, 1));
+    let R = Math.exp(lerp(Math.log(L.R1), Math.log(L.R2), z));
+    let ox = lerp(L.ox1, L.ox2, z), oy = lerp(L.oy1, L.oy2, z);
+    R = Math.exp(lerp(Math.log(R), Math.log(L.R3), fw)); ox = lerp(ox, L.ox3, fw); oy = lerp(oy, L.oy3, fw);
+    const f = clamp(lerp(lerp(L.R1 * .068, L.R2 * .118, z), L.R3 * .1, fw), 13, 28);
     V = { R, ox, oy, z, w:L.w, h:L.h, f, X:u => ox + u * R, Y:v => oy - v * R };
     return V;
   }
-  /* the step text above the board gets the height of the longest one, so the board never changes size between steps */
   let cueW = -1;
   function fitCue(){
     const cue = $("cue"), w = cue.clientWidth;
@@ -541,7 +573,6 @@
     const w = mctx.measureText(t).width; wCache.set(key, w); return w;
   }
   const T = (t, c) => ({ t, c }), I = (t, c) => ({ t, c, i:1 }), F = (n, d, c) => ({ fr:[n, d], c });
-  /* "√3" becomes a drawn radical: a typed √ hangs below the line in maths fonts */
   const N = (s, c) => { const m = /^√(\d+)$/.exec(s); return m ? { rad:m[1], c } : { t:s, c }; };
   function segW(g, f){
     if(g.fr){ const s = f * .8; return Math.max(runW(g.fr[0], s), runW(g.fr[1], s)) + f * .26; }
@@ -574,7 +605,9 @@
     return out;
   }
   function rich(x, y, segs, f, col, anchor, op, key){
-    const w = runW(segs, f), x0 = anchor === "middle" ? x - w / 2 : anchor === "end" ? x - w : x;
+    const w = runW(segs, f);
+    let x0 = anchor === "middle" ? x - w / 2 : anchor === "end" ? x - w : x;
+    if(V) x0 = clamp(x0, 3, V.w - w - 3);                      /* never off the board */
     return `<g${key ? ` data-k="${key}"` : ""}${op != null && op < 1 ? ` opacity="${op.toFixed(3)}"` : ""}>${runSVG(segs, x0, y, f, col)}</g>`;
   }
   function valSegs(f, a, c){
@@ -592,8 +625,9 @@
   const C = { ink:"#1e293b", axis:"#475569", grid:"#e8eef6", gridB:"#d7e0ec", gridF:"#f1f5f9", tick:"#64748b",
     x:"#2563eb", xd:"#1d4ed8", y:"#ea580c", yd:"#c2410c", t:"#16a34a", td:"#15803d",
     rel:"#7c3aed", reld:"#5b21b6", circ:"#64748b", th:"#334155" };
+  const CAB = ["#f97316", "#3b82f6", "#22c55e", "#a855f7", "#ec4899", "#14b8a6"];
 
-  /* ------------------------------------------------------------ drawing the board */
+  /* ------------------------------------------------------------ drawing helpers */
   function arcPath(r, a0, a1){
     const n = Math.max(2, Math.ceil(Math.abs(a1 - a0) / 3));
     let d = "";
@@ -618,22 +652,67 @@
     return `<path d="M${f3(x)} ${f3(y)} L${f3(x - ux * s - uy * s * .55)} ${f3(y - uy * s + ux * s * .55)} L${f3(x - ux * s + uy * s * .55)} ${f3(y - uy * s - ux * s * .55)}Z" fill="${col}"/>`;
   }
   const angGap = (u, v) => { const d = Math.abs(((u - v) % 360 + 360) % 360); return Math.min(d, 360 - d); };
+  const NAMES = { x:"Adjacent", y:"Opposite" };
 
+  /* a stick figure, feet at (x, y) in board units; phase swings the legs; sc scales it */
+  function person(x, y, phase, op, sc){
+    const { X, Y, R } = V, s = (sc || 1) * .2;
+    const sw = Math.max(2, R * .016), sw2 = Math.sin(phase) * .45;
+    const hip = [x, y + s * .42], neck = [x, y + s * .78], head = [x, y + s * .9];
+    const leg = (k) => `<line x1="${X(hip[0])}" y1="${Y(hip[1])}" x2="${X(x + Math.sin(k) * s * .32)}" y2="${Y(y + (1 - Math.cos(k)) * s * .05)}" stroke="${C.ink}" stroke-width="${sw}" stroke-linecap="round"/>`;
+    const arm = (k) => `<line x1="${X(neck[0])}" y1="${Y(neck[1] - s * .04)}" x2="${X(x + Math.sin(k) * s * .26)}" y2="${Y(y + s * .46)}" stroke="${C.ink}" stroke-width="${sw}" stroke-linecap="round"/>`;
+    let g = `<g data-k="walker" opacity="${op.toFixed(3)}">`;
+    g += leg(sw2) + leg(-sw2) + arm(-sw2 * .8) + arm(sw2 * .8);
+    g += `<line x1="${X(hip[0])}" y1="${Y(hip[1])}" x2="${X(neck[0])}" y2="${Y(neck[1])}" stroke="${C.ink}" stroke-width="${sw * 1.15}" stroke-linecap="round"/>`;
+    g += `<circle cx="${X(head[0])}" cy="${Y(head[1])}" r="${R * s * .13}" fill="#fde68a" stroke="${C.ink}" stroke-width="${sw * .8}"/>`;
+    return g + "</g>";
+  }
+  /* where the walker is at walk = t: along the ground, up the stairs, along the platform, into the gondola */
+  function walkerAt(t){
+    const x0 = (0 - V.ox) / V.R - .12;
+    if(t < .5) return [lerp(x0, -.84, t / .5), GROUND];
+    if(t < .74){ const u = (t - .5) / .24; return [lerp(-.84, -.38, u), lerp(GROUND, PLAT, u)]; }
+    if(t < .94) return [lerp(-.38, 0, (t - .74) / .2), PLAT];
+    return [0, PLAT];
+  }
+  function gondola(x, y, col, me){
+    const { X, Y, R } = V, w = CABW * R, hh = CABH * R, cx = X(x), top = Y(y) - hh * .35;
+    let g = `<line x1="${cx}" y1="${Y(y)}" x2="${cx}" y2="${top + 2}" stroke="#334155" stroke-width="2"/>`;
+    g += `<path d="M${cx - w * .55} ${top + hh * .18} Q${cx} ${top - hh * .12} ${cx + w * .55} ${top + hh * .18} Z" fill="${me ? "#b45309" : "#334155"}"/>`;
+    g += `<rect x="${cx - w / 2}" y="${top + hh * .16}" width="${w}" height="${hh * .84}" rx="${w * .2}" fill="${col}" stroke="${me ? C.ink : "rgba(15,23,42,.35)"}" stroke-width="${me ? 2.6 : 1.2}"/>`;
+    g += `<rect x="${cx - w * .36}" y="${top + hh * .3}" width="${w * .72}" height="${hh * .3}" rx="${w * .08}" fill="#e0f2fe" opacity=".95"/>`;
+    g += `<circle cx="${cx}" cy="${Y(y)}" r="3" fill="#334155"/>`;
+    return g;
+  }
+
+  /* ------------------------------------------------------------ the board */
   function render(){
     if(!L) layout();
     view();
     const P = S.P, { R, ox, oy, X, Y, w, h, f, z } = V;
     const a = P.ang, c = cosD(a), s = sinD(a);
-    const letters = S.set.labels === "letters";
+    const mode = S.set.labels, letters = mode !== "numbers", names = mode === "names";
     const signs = P.sg > .5;
-    const whole = span01(z, .55, 1);                    /* how far the whole-circle extras have faded in */
-    let o = `<defs><linearGradient id="wood" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f1cf9c"/><stop offset=".5" stop-color="#dba567"/><stop offset="1" stop-color="#b9783f"/></linearGradient></defs>`;
+    const fw = P.fw, uo = 1 - span01(fw, 0, .55), fo = span01(fw, .3, 1), FER = fw > .5;
+    const whole = span01(z, .55, 1) * uo;
+    if(S.step === K_FW && P.walk >= 1 && P.tri > .5) S.fmax = Math.max(S.fmax, a);
+    let o = `<defs><linearGradient id="wood" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f1cf9c"/><stop offset=".5" stop-color="#dba567"/><stop offset="1" stop-color="#b9783f"/></linearGradient>
+      <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bfdbfe"/><stop offset="1" stop-color="#f0f9ff"/></linearGradient></defs>`;
 
-    /* --- grid and axes --- */
-    const ax = P.ax;
+    /* --- Ferris: sky and clouds behind everything --- */
+    if(fo > .01){
+      o += `<g opacity="${fo.toFixed(3)}"><rect x="0" y="0" width="${w}" height="${h}" fill="url(#sky)"/>`;
+      [[.12, .14, 1], [.3, .08, .7], [.82, .12, .85]].forEach(([u, v, k]) => {
+        const cx = w * u, cy = h * v, r0 = R * .1 * k;
+        o += `<g fill="#fff" opacity=".9"><ellipse cx="${cx}" cy="${cy}" rx="${r0 * 1.6}" ry="${r0 * .7}"/><ellipse cx="${cx - r0 * .7}" cy="${cy - r0 * .2}" rx="${r0}" ry="${r0 * .7}"/><ellipse cx="${cx + r0 * .6}" cy="${cy - r0 * .35}" rx="${r0 * .9}" ry="${r0 * .8}"/></g>`;
+      });
+      o += "</g>";
+    }
+
+    /* --- grid and axes (the unit circle's; they fade as the wheel arrives) --- */
+    const ax = P.ax * uo;
     if(ax > .01){
       let g = `<g opacity="${ax.toFixed(3)}">`;
-      /* tenths, faint, while zoomed in on the first quadrant (for reading off x and y) */
       const fine = (1 - z) * .9;
       if(fine > .03){
         for(let i = -20; i <= 20; i++){ if(i % 5 === 0) continue;
@@ -661,6 +740,32 @@
       o += g + "</g>";
     }
 
+    /* --- Ferris: ground, legs, stairs, platform, the halfway-up line (where the x-axis was) --- */
+    if(fo > .01){
+      const gy = Y(GROUND);
+      let g = `<g opacity="${fo.toFixed(3)}">`;
+      g += `<rect x="0" y="${gy}" width="${w}" height="${Math.max(0, h - gy)}" fill="#dcfce7"/><line x1="0" x2="${w}" y1="${gy}" y2="${gy}" stroke="#4d7c0f" stroke-width="3"/>`;
+      const legW = Math.max(5, R * .04);
+      [-1, 1].forEach(sx => {
+        g += `<line x1="${ox}" y1="${oy}" x2="${X(sx * .68)}" y2="${gy}" stroke="#475569" stroke-width="${legW}" stroke-linecap="round"/>`;
+        g += `<rect x="${X(sx * .68) - legW * 1.4}" y="${gy - legW * .5}" width="${legW * 2.8}" height="${legW}" rx="2" fill="#334155"/>`;
+      });
+      const by = -.62, bx = .68 * (by / GROUND);
+      g += `<line x1="${X(-bx)}" y1="${Y(by)}" x2="${X(bx)}" y2="${Y(by)}" stroke="#64748b" stroke-width="${legW * .55}"/>`;
+      /* stairs up to the platform */
+      const n = 5; let d = `M${X(-.86)} ${gy}`;
+      for(let i = 0; i < n; i++){ const yy = lerp(GROUND, PLAT, (i + 1) / n), xx = lerp(-.86, -.38, (i + 1) / n); d += ` V${f3(Y(yy))} H${f3(X(xx))}`; }
+      d += ` V${gy} Z`;
+      g += `<path d="${d}" fill="#cbd5e1" stroke="#64748b" stroke-width="1.5" stroke-linejoin="round"/>`;
+      g += `<rect x="${X(-.38)}" y="${Y(PLAT)}" width="${X(.2) - X(-.38)}" height="${Math.max(4, R * .035)}" fill="#94a3b8" stroke="#64748b" stroke-width="1.2"/>`;
+      g += `<line x1="${X(.16)}" y1="${Y(PLAT)}" x2="${X(.16)}" y2="${gy}" stroke="#64748b" stroke-width="2"/>`;
+      /* the halfway-up line */
+      g += `<line x1="0" x2="${w}" y1="${oy}" y2="${oy}" stroke="#64748b" stroke-width="1.8" stroke-dasharray="8 6" opacity=".75"/>`;
+      g += `<text class="h ui" x="10" y="${oy - f * .7}" font-size="${f * .66}" fill="#475569" dominant-baseline="central">halfway up (11 m)</text>`;
+      g += `<text class="h ui" x="10" y="${gy - f * .7}" font-size="${f * .66}" fill="#3f6212" dominant-baseline="central">ground level</text>`;
+      o += g + "</g>";
+    }
+
     /* --- quadrant summaries (whole circle only, a setting) --- */
     const quadOp = S.set.quad ? whole : 0;
     if(quadOp > .01){
@@ -680,46 +785,58 @@
       });
     }
 
-    /* --- the unit circle --- */
-    if(ax > .01 && P.m >= .999){
-      o += `<path d="${arcPath(R, 0, 360)}" fill="none" stroke="${C.circ}" stroke-width="2.4" stroke-dasharray="7 6" stroke-linecap="round" opacity="${ax.toFixed(3)}"/>`;
-      const tf = f * .72;
-      let g = `<g opacity="${ax.toFixed(3)}">`;
-      [[1, 0, "(1, 0)", "start", 8, -tf * .8, 0], [0, 1, "(0, 1)", "start", 8, -tf * .8, 90], [-1, 0, "(" + MINUS + "1, 0)", "end", -8, -tf * .8, 180], [0, -1, "(0, " + MINUS + "1)", "start", 8, tf * .8, 270]].forEach(([u, v, lab, an, dx, dy, at]) => {
-        const xx = X(u), yy = Y(v);
-        if(xx < -20 || xx > w + 20 || yy < -20 || yy > h + 20) return;
-        g += `<circle cx="${xx}" cy="${yy}" r="3.6" fill="${C.circ}"/>`;
-        if(P.tri > .5 && angGap(a, at) < 14) return;     /* the point's own label says it */
-        g += `<text class="h" x="${xx + dx}" y="${yy + dy}" font-size="${tf}" fill="${C.tick}" text-anchor="${an}" dominant-baseline="central">${lab}</text>`;
-      });
-      /* the circle's name, somewhere on the board and out of the way of the stick */
-      const relShown = S.set.rel && signs && quadrant(a) > 1 && P.tri > .5, ra = related(a);
-      const cands = z < .5 ? [72, 18] : [125, 235, 305, 55];
-      const clear = v => Math.min(angGap(v, a), relShown ? angGap(v, ra) + 25 : 999, S.set.tanLine ? angGap(v, 0) + 30 : 999);
-      const la = cands.reduce((b, v) => clear(v) > clear(b) ? v : b, cands[0]);
-      g += `<text class="h ui" x="${X(cosD(la) * 1.13)}" y="${Y(sinD(la) * 1.13)}" font-size="${f * .66}" fill="${C.circ}" text-anchor="middle" dominant-baseline="central">unit circle</text>`;
-      o += g + "</g>";
+    /* --- the unit circle (dashed), which becomes the rim of the wheel --- */
+    if(P.ax > .01 && P.m >= .999){
+      if(uo > .01){
+        o += `<path d="${arcPath(R, 0, 360)}" fill="none" stroke="${C.circ}" stroke-width="2.4" stroke-dasharray="7 6" stroke-linecap="round" opacity="${(P.ax * uo).toFixed(3)}"/>`;
+        const tf = f * .72;
+        let g = `<g opacity="${(P.ax * uo).toFixed(3)}">`;
+        [[1, 0, "(1, 0)", "start", 8, -tf * .8, 0], [0, 1, "(0, 1)", "start", 8, -tf * .8, 90], [-1, 0, "(" + MINUS + "1, 0)", "end", -8, -tf * .8, 180], [0, -1, "(0, " + MINUS + "1)", "start", 8, tf * .8, 270]].forEach(([u, v, lab, an, dx, dy, at]) => {
+          const xx = X(u), yy = Y(v);
+          if(xx < -20 || xx > w + 20 || yy < -20 || yy > h + 20) return;
+          g += `<circle cx="${xx}" cy="${yy}" r="3.6" fill="${C.circ}"/>`;
+          if(P.tri > .5 && angGap(a, at) < 14) return;
+          g += `<text class="h" x="${xx + dx}" y="${yy + dy}" font-size="${tf}" fill="${C.tick}" text-anchor="${an}" dominant-baseline="central">${lab}</text>`;
+        });
+        const relShown = S.set.rel && signs && quadrant(a) > 1 && P.tri > .5, ra = related(a);
+        const cands = z < .5 ? [72, 18] : [125, 235, 305, 55];
+        const clear = v => Math.min(angGap(v, a), relShown ? angGap(v, ra) + 25 : 999, S.set.tanLine ? angGap(v, 0) + 30 : 999);
+        const la = cands.reduce((b, v) => clear(v) > clear(b) ? v : b, cands[0]);
+        g += `<text class="h ui" x="${X(cosD(la) * 1.13)}" y="${Y(sinD(la) * 1.13)}" font-size="${f * .66}" fill="${C.circ}" text-anchor="middle" dominant-baseline="central">unit circle</text>`;
+        o += g + "</g>";
+      }
+      if(fo > .01){
+        /* the wheel: rim, inner ring, spokes, hub; every spoke turns with the stick */
+        let g = `<g opacity="${fo.toFixed(3)}">`;
+        g += `<circle cx="${ox}" cy="${oy}" r="${R}" fill="none" stroke="#334155" stroke-width="${Math.max(4, R * .035)}"/>`;
+        g += `<circle cx="${ox}" cy="${oy}" r="${R * .93}" fill="none" stroke="#64748b" stroke-width="2"/>`;
+        for(let i = 1; i < 12; i++){ const t = (a + i * 30) * RAD; g += `<line x1="${ox}" y1="${oy}" x2="${f3(ox + R * Math.cos(t))}" y2="${f3(oy - R * Math.sin(t))}" stroke="#94a3b8" stroke-width="2"/>`; }
+        o += g + "</g>";
+      }
     }
 
     /* --- θ --- */
     const showTri = P.tri > .01 && !axisAngle(a);
     if(P.tri > .01 && a > .3){
-      const r0 = R * clamp(lerp(.12, .17, z), .1, .2), op = P.tri;
+      const r0 = R * clamp(lerp(lerp(.12, .17, z), .15, fw), .1, .2), op = P.tri;
+      const aa = a > 360 ? a - 360 : a;
       let g = `<g opacity="${op.toFixed(3)}">`;
-      g += `<path d="M${ox} ${oy} ${arcPath(r0, 0, a).replace(/^M/, "L")} Z" fill="#64748b" fill-opacity=".08"/>`;
-      g += `<path d="${arcPath(r0, 0, a)}" fill="none" stroke="${C.th}" stroke-width="2"/>`;
-      if(a > 12){ const ea = a * RAD; g += arrowHead(ox + r0 * Math.cos(ea), oy - r0 * Math.sin(ea), -Math.sin(ea), -Math.cos(ea), 9, C.th); }
-      const q0 = quadrant(a), dirL = axisAngle(a) ? (Math.round(a) % 360 === 90 ? 45 : Math.round(a) % 360 === 180 ? 90 : 135)
-        : q0 === 1 ? (a < 28 ? a + 14 : a / 2) : q0 === 2 ? a / 2 : q0 === 3 ? 45 : 135;
+      if(aa > .3){
+        g += `<path d="M${ox} ${oy} ${arcPath(r0, 0, aa).replace(/^M/, "L")} Z" fill="#64748b" fill-opacity=".1"/>`;
+        g += `<path d="${arcPath(r0, 0, aa)}" fill="none" stroke="${C.th}" stroke-width="2"/>`;
+        if(aa > 12){ const ea = aa * RAD; g += arrowHead(ox + r0 * Math.cos(ea), oy - r0 * Math.sin(ea), -Math.sin(ea), -Math.cos(ea), 9, C.th); }
+      }
+      const q0 = quadrant(a), dirL = axisAngle(a) ? ({ 90:45, 180:90, 270:135, 0:135 })[Math.round(((a % 360) + 360) % 360)] || 135
+        : q0 === 1 ? (aa < 28 ? aa + 14 : aa / 2) : q0 === 2 ? aa / 2 : q0 === 3 ? 45 : 135;
       const ma = dirL * RAD, lr = r0 + f * 1.05;
-      const lab = letters ? [I("θ", C.th)] : [T(angTxt(a), C.th)];
+      const lab = (letters && !FER) ? [I("θ", C.th)] : [T(angTxt(a), C.th)];
       g += rich(ox + lr * Math.cos(ma), oy - lr * Math.sin(ma), lab, f * .9, C.th, "middle", null, "th");
       o += g + "</g>";
     }
 
-    /* --- related angle (a setting) --- */
+    /* --- related angle (a setting, unit circle only) --- */
     const q = quadrant(a), relA = related(a);
-    if(S.set.rel && signs && q > 1 && P.tri > .5){
+    if(S.set.rel && signs && q > 1 && P.tri > .5 && !FER){
       const gc = cosD(relA), gs = sinD(relA);
       let g = `<g opacity="${(whole * .9).toFixed(3)}">`;
       g += `<path d="M${ox} ${oy} L${X(gc)} ${oy} L${X(gc)} ${Y(gs)} Z" fill="${C.rel}" fill-opacity=".06" stroke="${C.rel}" stroke-opacity=".55" stroke-width="2" stroke-dasharray="6 5"/>`;
@@ -734,10 +851,10 @@
       o += g + "</g>";
     }
 
-    /* --- tan θ on the circle (a setting): the line x = 1 and the stick extended to meet it --- */
-    if(S.set.tanLine && P.tri > .5){
+    /* --- tan θ on the circle (a setting, unit circle only) --- */
+    if(S.set.tanLine && P.tri > .5 && uo > .01){
       const und = tanUndef(a), tv = und ? Infinity : s / c;
-      let g = `<g opacity="${P.tri.toFixed(3)}">`;
+      let g = `<g opacity="${(P.tri * uo).toFixed(3)}">`;
       g += `<line x1="${X(1)}" x2="${X(1)}" y1="0" y2="${h}" stroke="${C.t}" stroke-opacity=".55" stroke-width="2" stroke-dasharray="3 5"/>`;
       g += `<text class="h" x="${X(1) + 8}" y="${Math.min(h - 14, oy + R * (z < .5 ? .12 : 1.33))}" font-size="${f * .78}" fill="${C.td}" dominant-baseline="central"><tspan font-style="italic">x</tspan> = 1</text>`;
       if(!und){
@@ -748,12 +865,19 @@
         if(ty >= 6 && ty <= h - 6) g += `<circle cx="${X(1)}" cy="${ty}" r="6" fill="#fff" stroke="${C.td}" stroke-width="3"/>`;
         else g += arrowHead(X(1), ty < 0 ? 8 : h - 8, 0, ty < 0 ? -1 : 1, 13, C.td);
         const ly = clamp((oy + clamp(ty, 0, h)) / 2, f, h - f);
-        const lab = letters ? [T("tan ", C.td), I("θ", C.td)] : valSegs("t", a, C.td);
+        const lab = mode === "numbers" ? valSegs("t", a, C.td) : [T("tan ", C.td), I("θ", C.td)];
         if(Math.abs(ty - oy) > f * .9) g += rich(X(1) + 12, ly, lab, f * .92, C.td, "start", null, "tl");
       } else {
         g += `<line x1="${ox}" y1="0" x2="${ox}" y2="${h}" stroke="${C.ink}" stroke-width="2.2" stroke-dasharray="7 5" stroke-opacity=".7"/>`;
         g += `<text class="h ui" x="${X(1) + 10}" y="${oy - R * .6}" font-size="${f * .66}" fill="${C.td}" dominant-baseline="central">never meet</text>`;
       }
+      o += g + "</g>";
+    }
+
+    /* --- Ferris: the other gondolas (under the triangle and the rider's spoke) --- */
+    if(fo > .01 && P.m >= .999){
+      let g = `<g opacity="${fo.toFixed(3)}">`;
+      for(let i = 1; i < 12; i++){ const t = a + i * 30; g += gondola(cosD(t), sinD(t), CAB[i % CAB.length], false); }
       o += g + "</g>";
     }
 
@@ -763,7 +887,7 @@
       const dropY = lerp(ey, oy, clamp(t * 1.3, 0, 1));
       const fillOp = span01(t, .55, 1);
       let g = "";
-      if(fillOp > 0) g += `<path d="M${ox} ${oy} L${ex} ${oy} L${ex} ${ey} Z" fill="#0ea5e9" fill-opacity="${(.07 * fillOp).toFixed(3)}"/>`;
+      if(fillOp > 0) g += `<path d="M${ox} ${oy} L${ex} ${oy} L${ex} ${ey} Z" fill="#0ea5e9" fill-opacity="${((FER ? .14 : .07) * fillOp).toFixed(3)}"/>`;
       const legOp = span01(t, .4, 1);
       if(legOp > 0) g += `<line x1="${ox}" y1="${oy}" x2="${ex}" y2="${oy}" stroke="${C.x}" stroke-width="5.5" stroke-linecap="round" opacity="${legOp.toFixed(3)}"/>`;
       g += `<line x1="${ex}" y1="${ey}" x2="${ex}" y2="${dropY}" stroke="${C.y}" stroke-width="5.5" stroke-linecap="round"/>`;
@@ -774,7 +898,7 @@
       o += g;
     }
 
-    /* --- the stick --- */
+    /* --- the stick (on the wheel: the rider's spoke) --- */
     const m = ease(P.m);
     {
       const len = lerp(L.R1, R, m), th = lerp(L.R1 * .1, 6, m);
@@ -794,19 +918,32 @@
       if(m >= .999){
         const ex = X(c), ey = Y(s);
         if(showTri && P.tri > .5){
-          const nx = -s, ny = c;
-          const side = (ny * (0 - s)) > 0 ? -1 : 1;     /* away from the foot (cos θ, 0) */
-          const pushOut = (S.set.tanLine && c > .55) ? .2 : .1;
+          const nx = -s, ny = c, side = (ny * (0 - s)) > 0 ? -1 : 1;
+          const pushOut = (S.set.tanLine && !FER && c > .55) ? .2 : .1;
           const mx = c / 2 + side * nx * pushOut, my = s / 2 + side * ny * pushOut;
-          o += rich(X(mx), Y(my), [T("1", C.ink)], f * 1.02, C.ink, "middle", span01(P.tri, .5, 1), "hyp");
+          o += rich(X(mx), Y(my), [T(FER ? "9 m" : "1", C.ink)], f * 1.02, C.ink, "middle", span01(P.tri, .5, 1), "hyp");
         }
-        o += `<circle cx="${ox}" cy="${oy}" r="5.5" fill="${C.ink}"/>`;
+        if(fo > .01){
+          o += `<circle cx="${ox}" cy="${oy}" r="${R * .065}" fill="#334155" opacity="${fo.toFixed(3)}"/><circle cx="${ox}" cy="${oy}" r="${R * .03}" fill="#e2e8f0" opacity="${fo.toFixed(3)}"/>`;
+        }
+        o += `<circle cx="${ox}" cy="${oy}" r="5.5" fill="${C.ink}" opacity="${(1 - fo).toFixed(3)}"/>`;
         const can = canDrag();
         if(can && !S.dragged && !reduceMotion){
           const tt = (performance.now() % 1600) / 1600;
           o += `<circle cx="${ex}" cy="${ey}" r="${12 + tt * 16}" fill="none" stroke="${C.x}" stroke-width="3" opacity="${(.55 * (1 - tt)).toFixed(3)}"/>`;
         }
-        o += `<circle cx="${ex}" cy="${ey}" r="${can ? 11 : 7}" fill="#fff" stroke="${C.ink}" stroke-width="3.2"/>`;
+        if(fo > .01){
+          /* the rider's gondola, with the rider in it once they have climbed in */
+          let g = `<g opacity="${fo.toFixed(3)}">` + gondola(c, s, "#facc15", true);
+          const inC = span01(P.walk, .9, 1);
+          if(inC > .01){
+            const cx = ex, top = ey - CABH * R * .35, hr = R * .026;
+            g += `<g opacity="${inC.toFixed(3)}"><circle cx="${cx}" cy="${top + CABH * R * .38}" r="${hr}" fill="#fde68a" stroke="${C.ink}" stroke-width="1.6"/>`;
+            g += `<path d="M${cx - hr * 1.5} ${top + CABH * R * .6} Q${cx} ${top + CABH * R * .44} ${cx + hr * 1.5} ${top + CABH * R * .6}" fill="none" stroke="${C.ink}" stroke-width="2"/></g>`;
+          }
+          o += g + "</g>";
+        }
+        if(fo < .99) o += `<circle cx="${ex}" cy="${ey}" r="${can ? 11 : 7}" fill="#fff" stroke="${C.ink}" stroke-width="3.2" opacity="${(1 - fo).toFixed(3)}"/>`;
       }
     }
 
@@ -814,31 +951,63 @@
     if(showTri && P.tri > .5){
       const op = span01(P.tri, .5, 1), ex = X(c), ey = Y(s), lf = f * 1.02;
       const sx = c >= 0 ? "+" : MINUS, sy = s >= 0 ? "+" : MINUS;
-      const xl = letters ? (signs ? [T(sx, C.xd), I("x", C.xd)] : [I("x", C.xd)]) : valSegs("c", a, C.xd);
-      const yl = letters ? (signs ? [T(sy, C.yd), I("y", C.yd)] : [I("y", C.yd)]) : valSegs("s", a, C.yd);
-      const xly = oy + (s >= 0 ? 1 : -1) * lf * (letters ? .85 : 1.05);
+      let xl, yl;
+      if(names){ xl = [T((c < 0 ? MINUS : "") + NAMES.x, C.xd)]; yl = [T((s < 0 ? MINUS : "") + NAMES.y, C.yd)]; }
+      else if(FER){
+        xl = mode === "numbers" ? [T(m2(fd(a)) + " m", C.xd)] : [T("9 cos ", C.xd), I("θ", C.xd)];
+        yl = mode === "numbers" ? [T(m2(FW.r * s) + " m", C.yd)] : [T("9 sin ", C.yd), I("θ", C.yd)];
+      }
+      else if(letters){ xl = signs ? [T(sx, C.xd), I("x", C.xd)] : [I("x", C.xd)]; yl = signs ? [T(sy, C.yd), I("y", C.yd)] : [I("y", C.yd)]; }
+      else { xl = valSegs("c", a, C.xd); yl = valSegs("s", a, C.yd); }
+      const xly = oy + (s >= 0 ? 1 : -1) * lf * (mode === "numbers" && !FER ? 1.05 : .85);
       if(Math.abs(ex - ox) > lf * .8) o += rich((ox + ex) / 2, xly, xl, lf, C.xd, "middle", op, "xl");
-      const legH = Math.abs(ey - oy), crowded = S.set.tanLine && c > .55;
-      const ylx = crowded ? ex - 10 : ex + (c >= 0 ? 1 : -1) * 11;
+      const legH = Math.abs(ey - oy), crowded = S.set.tanLine && !FER && c > .55;
+      const ylx = crowded ? ex - 10 : ex + (c >= 0 ? 1 : -1) * (FER ? CABW * V.R * .6 + 6 : 11);
       const an = crowded ? "end" : (c >= 0 ? "start" : "end");
       if(legH > lf * .7 && !(crowded && legH < lf * 2.2)) o += rich(ylx, (ey + oy) / 2, yl, lf, C.yd, an, op, "yl");
     }
 
-    /* --- the point --- */
-    if(P.tri > .5 && P.m >= .999){
-      const op = span01(P.tri, .5, 1), ex = X(c), ey = Y(s), pf = f * .92;
+    /* --- the point (unit circle only) --- */
+    if(P.tri > .5 && P.m >= .999 && !FER){
+      const op = span01(P.tri, .5, 1) * uo, ex = X(c), ey = Y(s), pf = f * .92;
       let segs;
       const sx = c >= 0 ? "+" : MINUS, sy = s >= 0 ? "+" : MINUS;
-      if(!letters || axisAngle(a)) segs = [T("(")].concat(valSegs("c", a, C.xd), [T(", ")], valSegs("s", a, C.yd), [T(")")]);
+      if(mode === "numbers" || axisAngle(a)) segs = [T("(")].concat(valSegs("c", a, C.xd), [T(", ")], valSegs("s", a, C.yd), [T(")")]);
       else if(S.set.cosSin) segs = [T("("), T("cos ", C.xd), I("θ", C.xd), T(", "), T("sin ", C.yd), I("θ", C.yd), T(")")];
       else if(signs) segs = [T("("), T(sx, C.xd), I("x", C.xd), T(", "), T(sy, C.yd), I("y", C.yd), T(")")];
       else segs = [T("("), I("x", C.xd), T(", "), I("y", C.yd), T(")")];
       const dx = c >= -1e-9 ? 1 : -1, dy = s >= -1e-9 ? 1 : -1;
-      const px = ex + dx * 14, py = ey - dy * (pf * .95);
       const wv = runW(segs, pf);
-      let x0 = dx > 0 ? px : px - wv;
-      x0 = clamp(x0, 4, w - wv - 4);
-      o += rich(x0, clamp(py, pf, h - pf), segs, pf, C.ink, "start", op, "pt");
+      const x0 = dx > 0 ? ex + 14 : ex - 14 - wv;
+      o += rich(x0, clamp(ey - dy * (pf * .95), pf, h - pf), segs, pf, C.ink, "start", op, "pt");
+    }
+
+    /* --- Ferris: the height scale on the right, and the rider's height on it --- */
+    if(fo > .01){
+      const xr = Math.min(w - 30, X(1.52)), gy = Y(GROUND), tf = f * .7;
+      let g = `<g opacity="${fo.toFixed(3)}">`;
+      const topY = Y(GROUND + 22 / FW.r);
+      g += `<line x1="${xr}" x2="${xr}" y1="${gy}" y2="${topY}" stroke="#334155" stroke-width="2"/>` + arrowHead(xr, topY - 6, 0, -1, 9, "#334155");
+      for(let mm = 0; mm <= 22; mm++){
+        const yy = Y(GROUND + mm / FW.r), big = [0, 2, 11, 20].includes(mm);
+        g += `<line x1="${xr - (big ? 8 : mm % 5 === 0 ? 6 : 3.5)}" x2="${xr}" y1="${f3(yy)}" y2="${f3(yy)}" stroke="#334155" stroke-width="${big ? 2 : 1}"/>`;
+        if(big) g += `<text class="h" x="${xr + 7}" y="${yy}" font-size="${tf}" fill="#334155" dominant-baseline="central">${mm}</text>`;
+      }
+      g += `<text class="h ui" x="${xr}" y="${topY - f * 1.05}" font-size="${f * .6}" fill="#334155" text-anchor="middle" dominant-baseline="central">height (m)</text>`;
+      if(P.tri > .5 && a >= -1e-9){
+        const op = span01(P.tri, .5, 1), ex = X(c), ey = Y(s), hv = fh(a);
+        g += `<g opacity="${op.toFixed(3)}"><line x1="${ex}" x2="${xr}" y1="${ey}" y2="${ey}" stroke="${C.y}" stroke-width="2" stroke-dasharray="5 5"/>`;
+        g += `<circle cx="${xr}" cy="${ey}" r="5" fill="${C.y}"/></g>`;
+        const lab = mode === "numbers" ? [I("h", C.yd), T(" = " + m2(hv) + " m", C.yd)] : [I("h", C.yd)];
+        g += rich(xr - 10, ey + (s < 0 ? 1 : -1) * f * .75, lab, f * .9, C.yd, "end", op, "hm");
+      }
+      o += g + "</g>";
+    }
+
+    /* --- Ferris: the walker on the way in --- */
+    if(P.walk > .001 && P.walk < .97 && fo > .5){
+      const [x, y] = walkerAt(P.walk);
+      o += person(x, y, P.walk * 46, 1 - span01(P.walk, .9, .97), 1.3);
     }
 
     svg.innerHTML = o;
@@ -861,13 +1030,19 @@
     return dec(fx(f, a));
   }
   const NAME = { s:"sin", c:"cos", t:"tan" };
+  const joinParts = parts => parts.map(p => p === "=" ? "<span>=</span>" : `<span>${p}</span>`).join("");
   function exprH(f){
-    const P = S.P, a = P.ang, letters = S.set.labels === "letters", signs = P.sg > .5;
+    const P = S.P, a = P.ang, letters = S.set.labels !== "numbers", signs = P.sg > .5;
+    if(ferris()){
+      if(f === "t") return `<span class="q">Turn the wheel to fill it in</span>`;
+      if(P.tri < .5 || a < 0) return `<span class="q">${f === "s" ? mi("h") : mi("d")} = ?</span>`;
+      if(f === "s") return joinParts([`<span class="fn">${mi("h")}</span>`, "="].concat(S.set.rule ? [`11 + 9 sin ${angTxt(a)}`, "="] : [], [`${m2(fh(a))} m`]));
+      return joinParts([`<span class="fn">${mi("d")}</span>`, "="].concat(S.set.rule ? [`9 cos ${angTxt(a)}`, "="] : [], [`${m2(fd(a))} m`]));
+    }
     if(P.tri < .5) return `<span class="q">${NAME[f]} ${mi("θ")} = ?</span>`;
     const aTxt = (letters && !signs) ? mi("θ") : angTxt(a);
-    const lhs = `<span class="fn">${NAME[f]} ${aTxt}</span>`;
+    const parts = [`<span class="fn">${NAME[f]} ${aTxt}</span>`, "="];
     const und = f === "t" && tanUndef(a);
-    const parts = [lhs, "="];
     if(letters){
       if(!signs){
         if(f === "s") parts.push(fracH(mi("y"), "1"), "=", mi("y"));
@@ -877,8 +1052,8 @@
         parts.push(und ? "undefined" : valH(f, a));
       } else {
         const sx = cosD(a) >= 0 ? "+" : MINUS, sy = sinD(a) >= 0 ? "+" : MINUS;
-        if(f === "s") parts.push(sy + mi("y"));
-        else if(f === "c") parts.push(sx + mi("x"));
+        if(f === "s") parts.push(fracH(sy + mi("y"), "1"), "=", sy + mi("y"));
+        else if(f === "c") parts.push(fracH(sx + mi("x"), "1"), "=", sx + mi("x"));
         else parts.push(fracH(sy + mi("y"), sx + mi("x")));
       }
     } else parts.push(und ? "undefined" : valH(f, a));
@@ -887,21 +1062,52 @@
       const neg = fx(f, a) < 0;
       parts.push("=", `<span class="rel">${neg ? MINUS : ""}${NAME[f]} ${angTxt(related(Math.round(a)))}</span>`);
     }
-    return parts.map(p => p === "=" ? "<span>=</span>" : `<span>${p}</span>`).join("");
+    return joinParts(parts);
+  }
+  function ferrisSign(f, a){
+    if(f === "s"){ const v = fh(a) - FW.c; return Math.abs(v) < 1e-6 ? ["zero", "level with the centre"] : v > 0 ? ["pos", "above the centre"] : ["neg", "below the centre"]; }
+    const v = fd(a); return Math.abs(v) < 1e-6 ? ["zero", "in line with the centre"] : v > 0 ? ["pos", "right of centre"] : ["neg", "left of centre"];
+  }
+  function tableH(){
+    const cols = []; for(let d = 0; d <= 720; d += 90) cols.push(d);
+    const done = d => S.fmax >= d - 1e-6, cur = d => Math.abs(S.P.ang - d) < 1e-6;
+    const SHORT = { "Halfway up":"½ up", "Top":"Top", "Halfway down":"½ down", "Bottom":"Bottom" };
+    let t = `<table><tr><th class="rh">Position</th>${cols.map(d => `<th class="${cur(d) ? "cur" : ""}"><span class="ln">${posName(d)}</span><span class="sn">${SHORT[posName(d)]}</span></th>`).join("")}</tr>`;
+    t += `<tr><td class="rh">${mi("θ")}</td>${cols.map(d => `<td class="${cur(d) ? "cur" : ""}">${angTxt(d)}</td>`).join("")}</tr>`;
+    t += `<tr><td class="rh">${mi("h")} (m)</td>${cols.map(d => done(d) ? `<td class="h ${cur(d) ? "cur" : ""}">${m2(fh(d))}</td>` : `<td class="q">?</td>`).join("")}</tr>`;
+    t += `<tr><td class="rh">${mi("d")} (m)</td>${cols.map(d => done(d) ? `<td class="d ${cur(d) ? "cur" : ""}">${m2(fd(d))}</td>` : `<td class="q">?</td>`).join("")}</tr></table>`;
+    return t;
   }
   const lastH = { s:"", c:"", t:"" };
+  let lastTab = "", lastMode = "";
   function renderPanel(){
-    const P = S.P, k = S.step;
+    const P = S.P, k = S.step, FER = ferris();
+    const modeKey = FER ? "f" : "u";
+    if(modeKey !== lastMode){
+      lastMode = modeKey;
+      $("fn_s").innerHTML = FER ? `<span class="ln">Height above the ground</span><span class="sn">Height</span>` : "Sine";
+      $("fn_c").innerHTML = FER ? `<span class="ln">Across from the centre</span><span class="sn">Across</span>` : "Cosine";
+      $("fn_t").textContent = FER ? "Table" : "Tangent";
+      $("pTitle").textContent = FER ? "The wheel as it turns" : "The ratios as the stick turns";
+      document.querySelectorAll(".fTog").forEach(b => { b.textContent = FER ? ({ s:"height", c:"across", t:"table" })[b.dataset.f] : NAME[b.dataset.f]; });
+      $("row_t").style.setProperty("--c", FER ? "var(--purple)" : "var(--ct)");
+      $("g_t").style.display = FER ? "none" : "";
+      $("ftab").hidden = !FER;
+    }
     ["s", "c", "t"].forEach(f => {
-      const shown = P.tri > .5;
-      $("row_" + f).classList.toggle("dim", !shown);
+      const shown = P.tri > .5 && (!FER || P.ang >= 0);
+      $("row_" + f).classList.toggle("dim", !shown && !(FER && f === "t"));
       $("row_" + f).hidden = !S.set.show[f];
       const html = exprH(f);
       if(html !== lastH[f]){ $("ex_" + f).innerHTML = html; lastH[f] = html; }
       const sg = $("sg_" + f);
-      if(shown){ const wd = signWord(f, P.ang); sg.hidden = false; sg.className = "sgn " + wd; sg.textContent = SIGN_TEXT[wd]; }
+      if(FER){
+        if(f === "t" || !shown) sg.hidden = true;
+        else { const [cl, tx] = ferrisSign(f, P.ang); sg.hidden = false; sg.className = "sgn " + cl; sg.textContent = tx; }
+      } else if(shown){ const wd = signWord(f, P.ang); sg.hidden = false; sg.className = "sgn " + wd; sg.textContent = SIGN_TEXT[wd]; }
       else sg.hidden = true;
     });
+    if(FER){ const th = tableH(); if(th !== lastTab){ $("ftab").innerHTML = th; lastTab = th; } }
     document.querySelectorAll(".fTog").forEach(b => b.setAttribute("aria-pressed", String(!!S.set.show[b.dataset.f])));
     const last = STEPS.length - 1, st = STEPS[k];
     $("stepChip").textContent = `Step ${k + 1} of ${STEPS.length}`;
@@ -909,7 +1115,7 @@
     if(cue.dataset.k !== String(k)){ cue.innerHTML = `<b>${st.t}</b><span>${st.m}</span>`; cue.dataset.k = String(k); cue.classList.remove("anim"); void cue.offsetWidth; cue.classList.add("anim"); }
     const nb = $("nextBtn");
     nb.disabled = k >= last; nb.classList.toggle("busy", !!S.anim);
-    nb.innerHTML = k >= last ? "Done &#10003; &mdash; drag the stick" : `Next: ${STEPS[k + 1].t} &#9656;`;
+    nb.innerHTML = k >= last ? (FER ? "Done &#10003; &mdash; turn the wheel" : "Done &#10003; &mdash; drag the stick") : `Next: ${STEPS[k + 1].t} &#9656;`;
     $("backBtn").disabled = k === 0;
     $("allBtn").disabled = k >= last;
     const inp = $("angIn");
@@ -918,19 +1124,25 @@
     inp.step = isRad() ? "0.1" : "1";
     if(document.activeElement !== inp) inp.value = k < K_Q1 ? "" : (isRad() ? (Math.round(P.ang * RAD * 10) / 10).toFixed(1) : String(Math.round(P.ang)));
     const q = quadrant(P.ang), qt = $("quadTag");
-    qt.textContent = q ? `Quadrant ${q}` : "On an axis";
+    qt.textContent = FER ? (q ? `Quadrant ${q}` : posName(P.ang)) : q ? `Quadrant ${q}` : "On an axis";
     qt.hidden = k < K_Q1;
     $("randBtn").disabled = k < K_Q1;
     $("swingBtn").disabled = k < K_Q1 || !!S.anim;
-    $("swingBtn").innerHTML = `&#9654; Sweep 0 to ${k >= K_ALL ? (isRad() ? "6.3" : "360°") : (isRad() ? "1.6" : "90°")}`;
+    const mx = maxAng();
+    $("swingBtn").innerHTML = `&#9654; Sweep 0 to ${isRad() ? (mx * RAD).toFixed(1) : mx + "°"}`;
     document.querySelectorAll(".seg button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.lab === S.set.labels)));
     const hint = $("hint");
     let hh = "";
     const aT = angTxt(P.ang);
     if(S.msg) hh = S.msg;
-    else if(!S.set.panel && P.tri > .5) hh = ["s", "c", "t"].map(f => `<span class="eq">${NAME[f]} ${aT} = ${valH(f, P.ang)}</span>`).join(" &nbsp;·&nbsp; ");
-    else if(P.tri > .5 && tanUndef(P.ang)) hh = S.set.tanLine ? `tan ${aT} is <b>undefined</b>: the stick is parallel to <i>x</i> = 1, so they never meet.` : `tan ${aT} is <b>undefined</b>: <i>x</i> = 0, and you can't divide by 0.`;
-    else if(S.set.rel && P.sg > .5 && quadrant(P.ang) > 1 && P.tri > .5) hh = `Related angle <b>${angTxt(related(Math.round(P.ang)))}</b> &mdash; the same triangle as the dashed one`;
+    else if(FER && k === K_FW && S.anim) hh = P.walk < 1 ? "The rider walks up the steps and climbs into the gondola at the bottom&hellip;" : "&hellip;and the wheel turns 90° to the start: halfway up on the right.";
+    else if(!S.set.panel && P.tri > .5){
+      hh = FER ? `<span class="eq"><i>h</i> = ${m2(fh(P.ang))} m &nbsp;·&nbsp; <i>d</i> = ${m2(fd(P.ang))} m</span>`
+               : ["s", "c", "t"].map(f => `<span class="eq">${NAME[f]} ${aT} = ${valH(f, P.ang)}</span>`).join(" &nbsp;·&nbsp; ");
+    }
+    else if(!FER && P.tri > .5 && tanUndef(P.ang)) hh = S.set.tanLine ? `tan ${aT} is <b>undefined</b>: the stick is parallel to <i>x</i> = 1, so they never meet.` : `tan ${aT} is <b>undefined</b>: <i>x</i> = 0, and you can't divide by 0.`;
+    else if(!FER && S.set.rel && P.sg > .5 && quadrant(P.ang) > 1 && P.tri > .5) hh = `Related angle <b>${angTxt(related(Math.round(P.ang)))}</b> &mdash; the same triangle as the dashed one`;
+    else if(FER && canDrag()) hh = `<b>Drag the wheel round</b> (or click on it) &middot; two turns, 0&deg; to 720&deg; &middot; <b>&uarr; &darr;</b> turn it 1&deg;`;
     else if(canDrag() && !S.dragged) hh = `<b>Drag the end of the stick</b> (or click anywhere on the board) &middot; <b>&uarr; &darr;</b> turn it 1&deg;`;
     else if(k === 0) hh = "Press <b>Next</b> (or &rarr;) to put it on the number plane.";
     if(hint.innerHTML !== hh) hint.innerHTML = hh;
@@ -938,30 +1150,32 @@
   }
 
   /* ------------------------------------------------------------ the graphs: 0 up to the stick's angle */
-  const YMAX = { s:1.25, c:1.25, t:3.4 };
-  const COL = { s:C.y, c:C.x, t:C.t }, COLD = { s:C.yd, c:C.xd, t:C.td };
+  function gspec(f){
+    if(ferris()) return f === "s"
+      ? { lo:-1, hi:22.5, fn:fh, col:C.y, cold:C.yd, grid:[2, 11, 20], labs:[[2, "2"], [11, "11"], [20, "20"]], fine:[5, 10, 15] }
+      : { lo:-10.5, hi:10.5, fn:fd, col:C.x, cold:C.xd, grid:[-9, 9], labs:[[-9, MINUS + "9"], [0, "0"], [9, "9"]], fine:[-5, 5] };
+    if(f === "t") return { lo:-3.4, hi:3.4, fn:a => fx("t", a), col:C.t, cold:C.td, grid:[-2, 2], labs:[[-2, MINUS + "2"], [0, "0"], [2, "2"]], fine:[-3, -1, 1, 3], tan:true };
+    return { lo:-1.25, hi:1.25, fn:a => fx(f, a), col:f === "s" ? C.y : C.x, cold:f === "s" ? C.yd : C.xd, grid:[-1, 1], labs:[[-1, MINUS + "1"], [0, "0"], [1, "1"]], fine:[-.5, .5] };
+  }
   function graphLayout(f){
     const el = $("g_" + f), r = el.getBoundingClientRect();
     const w = Math.max(120, r.width), h = Math.max(60, r.height);
-    const ml = 34, mr = 14, mt = 6, mb = 20, ym = YMAX[f];
-    /* the x-axis runs to 90° on the first quadrant and zooms out to 360° with the board */
-    const gx = Math.exp(lerp(Math.log(90), Math.log(360), ease(clamp(S.P.z, 0, 1))));
-    return { el, w, h, ml, mr, mt, mb, ym, gx, X:d => ml + d / gx * (w - ml - mr), Y:v => mt + (ym - v) / (2 * ym) * (h - mt - mb) };
+    const ml = 34, mr = 14, mt = 6, mb = 20, sp = gspec(f);
+    let gx = Math.exp(lerp(Math.log(90), Math.log(360), ease(clamp(S.P.z, 0, 1))));
+    gx = lerp(gx, 720, ease(clamp(S.P.fw, 0, 1)));
+    return { el, w, h, ml, mr, mt, mb, sp, gx, X:d => ml + d / gx * (w - ml - mr), Y:v => mt + (sp.hi - v) / (sp.hi - sp.lo) * (h - mt - mb) };
   }
-  function curvePath(G, f, upTo){
+  function curvePath(G, upTo){
+    const sp = G.sp, end = Math.min(upTo, G.gx), lim = (sp.hi - sp.lo) * .8;
+    if(end < 0) return "";
     let d = "", on = false;
-    const end = Math.min(upTo, G.gx);
     for(let a = 0; a <= end + 1e-9; a += .5){
-      const und = f === "t" && (Math.abs(a - 90) < .01 || Math.abs(a - 270) < .01);
-      if(und){ on = false; continue; }
-      let v = fx(f, a);
-      if(f === "t") v = clamp(v, -G.ym * 1.6, G.ym * 1.6);
-      d += (on ? "L" : "M") + f3(G.X(a)) + " " + f3(G.Y(v));
-      on = true;
+      if(sp.tan && (Math.abs(a - 90) < .01 || Math.abs(a - 270) < .01)){ on = false; continue; }
+      let v = sp.fn(a); if(sp.tan) v = clamp(v, -lim, lim);
+      d += (on ? "L" : "M") + f3(G.X(a)) + " " + f3(G.Y(v)); on = true;
     }
-    /* land exactly on the stick's angle */
-    if(upTo < G.gx && !(f === "t" && tanUndef(upTo)) && Math.abs(upTo * 2 - Math.round(upTo * 2)) > 1e-9){
-      let v = fx(f, upTo); if(f === "t") v = clamp(v, -G.ym * 1.6, G.ym * 1.6);
+    if(upTo < G.gx && !(sp.tan && tanUndef(upTo)) && Math.abs(upTo * 2 - Math.round(upTo * 2)) > 1e-9){
+      let v = sp.fn(upTo); if(sp.tan) v = clamp(v, -lim, lim);
       d += (on ? "L" : "M") + f3(G.X(upTo)) + " " + f3(G.Y(v));
     }
     return d;
@@ -969,40 +1183,36 @@
   const tickTxt = d => isRad() ? (d * RAD).toFixed(1) : d + "°";
   function renderGraphs(){
     if(!S.set.panel) return;
-    const P = S.P, a = P.ang;
+    const P = S.P, a = P.ang, FER = ferris();
     ["s", "c", "t"].forEach(f => {
-      if(!S.set.show[f]) return;
-      const G = graphLayout(f), { w, h, X, Y, gx } = G;
+      if(!S.set.show[f] || (FER && f === "t")) return;
+      const G = graphLayout(f), { w, h, X, Y, gx, sp } = G;
       G.el.setAttribute("viewBox", `0 0 ${w} ${h}`);
-      const live = P.tri;
+      const live = FER ? P.tri : P.tri;
       let o = `<defs><clipPath id="gc_${f}"><rect x="${G.ml}" y="${G.mt - 2}" width="${w - G.ml - G.mr}" height="${h - G.mt - G.mb + 4}"/></clipPath></defs>`;
-      const zq = span01(P.z, .55, 1);
-      /* quadrant bands (a setting, whole circle only) */
-      if(S.set.quad && zq > .01){
+      const zq = span01(P.z, .55, 1) * (1 - span01(P.fw, 0, .5));
+      if(S.set.quad && zq > .01 && !FER){
         const q = quadrant(a);
         for(let k = 0; k < 4; k++){
-          const pos = fx(f, k * 90 + 45) > 0;
+          const pos = sp.fn(k * 90 + 45) > 0;
           o += `<rect x="${X(k * 90)}" y="${G.mt}" width="${X(90) - X(0)}" height="${h - G.mt - G.mb}" fill="${pos ? "#22c55e" : "#ef4444"}" fill-opacity="${(zq * (q === k + 1 ? .1 : .045)).toFixed(3)}"/>`;
           o += `<text x="${X(k * 90 + 45)}" y="${G.mt + 10}" font-size="10" fill="#64748b" text-anchor="middle" opacity="${zq.toFixed(3)}">Q${k + 1}</text>`;
         }
       }
-      /* grid */
-      const ticks = f === "t" ? [-3, -2, -1, 1, 2, 3] : [-1, -.5, .5, 1];
-      ticks.forEach(v => { o += `<line x1="${G.ml}" x2="${w - G.mr}" y1="${f3(Y(v))}" y2="${f3(Y(v))}" stroke="${Math.abs(v) === 1 || Math.abs(v) === 2 ? "#dbe3ee" : "#eef2f7"}" stroke-width="1"/>`; });
-      const zin = 1 - ease(clamp(P.z, 0, 1));
-      for(let d = 15; d <= 360; d += 15){
+      sp.fine.forEach(v => { o += `<line x1="${G.ml}" x2="${w - G.mr}" y1="${f3(Y(v))}" y2="${f3(Y(v))}" stroke="#eef2f7" stroke-width="1"/>`; });
+      sp.grid.forEach(v => { o += `<line x1="${G.ml}" x2="${w - G.mr}" y1="${f3(Y(v))}" y2="${f3(Y(v))}" stroke="#d7e0ec" stroke-width="1"${FER ? ' stroke-dasharray="4 4"' : ""}/>`; });
+      const zin = 1 - ease(clamp(P.z, 0, 1)), thin = 1 - ease(clamp(P.fw, 0, 1)) * .75;
+      for(let d = 15; d <= 720; d += 15){
         if(d > gx + .01) break;
         const strong = d % 90 === 0, mid = d % 30 === 0;
-        const op = strong ? 1 : mid ? 1 : zin;
+        const op = strong ? 1 : mid ? thin : zin;
         if(op < .03) continue;
-        o += `<line x1="${f3(X(d))}" x2="${f3(X(d))}" y1="${G.mt}" y2="${h - G.mb}" stroke="${strong ? "#dbe3ee" : "#eef2f7"}" stroke-width="1" opacity="${op.toFixed(3)}"/>`;
+        o += `<line x1="${f3(X(d))}" x2="${f3(X(d))}" y1="${G.mt}" y2="${h - G.mb}" stroke="${strong ? (d === 360 && FER ? "#94a3b8" : "#dbe3ee") : "#eef2f7"}" stroke-width="${d === 360 && FER ? 1.6 : 1}" opacity="${op.toFixed(3)}"/>`;
       }
       o += `<line x1="${G.ml}" x2="${w - G.mr}" y1="${Y(0)}" y2="${Y(0)}" stroke="#64748b" stroke-width="1.6"/>`;
       o += `<line x1="${G.ml}" x2="${G.ml}" y1="${G.mt}" y2="${h - G.mb}" stroke="#64748b" stroke-width="1.6"/>`;
-      const yl = f === "t" ? [[-2, MINUS + "2"], [0, "0"], [2, "2"]] : [[-1, MINUS + "1"], [0, "0"], [1, "1"]];
-      yl.forEach(([v, t]) => { o += `<text x="${G.ml - 6}" y="${Y(v)}" font-size="11" fill="#64748b" text-anchor="end" dominant-baseline="central">${t}</text>`; });
-      /* x labels: every 15° on the first quadrant, every 90° on the whole turn */
-      for(let d = 0; d <= 360; d += 15){
+      sp.labs.forEach(([v, t]) => { o += `<text x="${G.ml - 6}" y="${Y(v)}" font-size="11" fill="#64748b" text-anchor="end" dominant-baseline="central">${t}</text>`; });
+      for(let d = 0; d <= 720; d += 15){
         if(d > gx + .01) break;
         const op = d % 90 === 0 ? 1 : d % 30 === 0 ? zin : 0;
         if(op < .05) continue;
@@ -1011,19 +1221,20 @@
       }
       if(live < .01){ G.el.innerHTML = o; return; }
       let g = `<g opacity="${live.toFixed(3)}" clip-path="url(#gc_${f})">`;
-      if(f === "t") [90, 270].forEach(d => {
+      if(sp.tan) [90, 270].forEach(d => {
         if(d <= gx + .01 && (S.set.ghost || a >= d - 1)) g += `<line x1="${X(d)}" x2="${X(d)}" y1="${G.mt}" y2="${h - G.mb}" stroke="${C.td}" stroke-width="1.4" stroke-dasharray="5 4" opacity=".7"/>`;
       });
-      if(S.set.ghost) g += `<path d="${curvePath(G, f, 360)}" fill="none" stroke="${COL[f]}" stroke-opacity=".22" stroke-width="2.2"/>`;
-      g += `<path d="${curvePath(G, f, a)}" fill="none" stroke="${COL[f]}" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/>`;
-      /* where the stick is now */
-      const xm = X(a);
-      g += `<line x1="${xm}" x2="${xm}" y1="${G.mt}" y2="${h - G.mb}" stroke="#334155" stroke-opacity=".35" stroke-width="1.4" stroke-dasharray="3 4"/>`;
-      if(!(f === "t" && tanUndef(a))){
-        const v = fx(f, a), yv = Y(v), yc = clamp(yv, G.mt, h - G.mb);
-        g += `<line x1="${xm}" x2="${xm}" y1="${Y(0)}" y2="${yc}" stroke="${COL[f]}" stroke-width="5" stroke-linecap="round" opacity=".85"/>`;
-        if(yv >= G.mt && yv <= h - G.mb) g += `<circle cx="${xm}" cy="${yv}" r="5.5" fill="#fff" stroke="${COLD[f]}" stroke-width="3"/>`;
-        else g += arrowHead(xm, yv < G.mt ? G.mt + 1 : h - G.mb - 1, 0, yv < G.mt ? -1 : 1, 10, COLD[f]);
+      if(S.set.ghost) g += `<path d="${curvePath(G, 720)}" fill="none" stroke="${sp.col}" stroke-opacity=".22" stroke-width="2.2"/>`;
+      g += `<path d="${curvePath(G, a)}" fill="none" stroke="${sp.col}" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/>`;
+      if(a >= -1e-9 && a <= gx + 1e-9){
+        const xm = X(a);
+        g += `<line x1="${xm}" x2="${xm}" y1="${G.mt}" y2="${h - G.mb}" stroke="#334155" stroke-opacity=".35" stroke-width="1.4" stroke-dasharray="3 4"/>`;
+        if(!(sp.tan && tanUndef(a))){
+          const v = sp.fn(a), yv = Y(v), yc = clamp(yv, G.mt, h - G.mb);
+          g += `<line x1="${xm}" x2="${xm}" y1="${Y(0)}" y2="${yc}" stroke="${sp.col}" stroke-width="5" stroke-linecap="round" opacity=".85"/>`;
+          if(yv >= G.mt && yv <= h - G.mb) g += `<circle cx="${xm}" cy="${yv}" r="5.5" fill="#fff" stroke="${sp.cold}" stroke-width="3"/>`;
+          else g += arrowHead(xm, yv < G.mt ? G.mt + 1 : h - G.mb - 1, 0, yv < G.mt ? -1 : 1, 10, sp.cold);
+        }
       }
       G.el.innerHTML = o + g + "</g>";
     });
@@ -1031,7 +1242,7 @@
 
   /* ------------------------------------------------------------ stepping and animation */
   let raf = 0;
-  function canDrag(){ return !S.anim && S.step >= K_Q1 && S.P.m >= .999; }
+  function canDrag(){ return !S.anim && S.step >= K_Q1 && S.P.m >= .999 && (S.step < K_FW || S.P.walk >= 1); }
   function run(queue, onEnd){
     cancelAnimationFrame(raf);
     if(!queue.length){ S.anim = null; onEnd && onEnd(); render(); return; }
@@ -1062,24 +1273,25 @@
     if(S.anim || S.step >= STEPS.length - 1) return;
     const k = S.step + 1;
     S.step = k; S.msg = "";
-    run(STEPS[k].segs.map(sg => ({ to:sg.to, set:sg.set, d:sg.d })));
+    if(k === K_FW) S.fmax = 0;
+    run(STEPS[k].segs.map(sg => ({ to:sg.to, set:sg.set, d:sg.d, lin:sg.lin })));
   }
   function back(){
     if(S.anim || S.step === 0) return;
     const k = S.step, segs = STEPS[k].segs, q = [];
-    /* leaving the whole circle: bring the stick back into the first quadrant first */
     if(k === K_ALL && S.P.ang > 90) q.push({ to:{ ang:90 }, d:clamp((S.P.ang - 90) * 5, 400, 1400) });
+    if(k === K_FW && S.P.ang > 360) q.push({ set:{ ang:S.P.ang - 360 } });
     for(let i = segs.length - 1; i >= 0; i--){
       const before = beforeSeg(k, i), tgt = {};
       Object.keys(segs[i].set || segs[i].to).forEach(key => tgt[key] = before[key]);
-      q.push(segs[i].set ? { set:tgt } : { to:tgt, d:segs[i].d });
+      q.push(segs[i].set ? { set:tgt } : { to:tgt, d:segs[i].d, lin:segs[i].lin });
     }
     S.msg = "";
-    run(q, () => { S.step = k - 1; });
+    run(q, () => { S.step = k - 1; S.fmax = 0; });
   }
   function jump(k){
     cancelAnimationFrame(raf); S.anim = null;
-    S.step = k; S.P = Object.assign({}, END[k]); S.msg = "";
+    S.step = k; S.P = Object.assign({}, END[k]); S.msg = ""; S.fmax = 0;
     render();
   }
   function startAgain(){ if(S.step === 0 && !S.anim) return; S.dragged = false; jump(0); }
@@ -1113,12 +1325,14 @@
     if(raw == null) return;
     let a = snapA(raw);
     const p = S.P.ang;
-    if(S.step < K_ALL){
-      /* first quadrant: past 90 holds at 90, below the axis holds at 0 */
+    if(S.step >= K_FW){
+      /* the wheel keeps count of its turns (0° to 720°): move to the nearest angle that looks like this one */
+      const dd = ((((a - p) % 360) + 540) % 360) - 180;
+      a = clamp(p + dd, 0, 720);
+    } else if(S.step < K_ALL){
       if(a > 90 && a <= 225){ a = 90; flash(LIMIT_MSG, 3000); }
       else if(a > 225) a = 0;
     } else {
-      /* one turn, 0 to 360: the curves are drawn from 0 up to the stick, so it does not jump round past 0 */
       if(a >= 360) a = 0;
       if(jumpTo) { /* a click goes straight to where it lands */ }
       else if(p > 270 && a < 90) a = 360;
@@ -1143,10 +1357,14 @@
   function typedAngle(){
     const inp = $("angIn"), raw = Number(inp.value);
     if(inp.value === "" || !isFinite(raw) || S.step < K_Q1){ render(); return; }
-    const v = isRad() ? raw / RAD : raw;          /* held in degrees */
+    const v = isRad() ? raw / RAD : raw;
     if(Math.abs(v) > 3600){ flash("Try an angle between " + MINUS + "360° and 720°."); render(); return; }
-    let n = norm(v);
     const shown = isRad() ? raw.toFixed(1) : Math.round(raw) + "°";
+    if(S.step >= K_FW){
+      if(v < 0 || v > 720) flash(`The wheel goes round twice here, from 0° to 720° &mdash; ${shown} is outside that.`);
+      S.dragged = true; turnTo(clamp(v, 0, 720)); return;
+    }
+    let n = norm(v);
     if(S.step < K_ALL && (v < 0 || v > 90)) flash(LIMIT_MSG);
     else if(v > 360){ const t = Math.floor(v / 360), rest = v - 360 * t;
       flash(rest > .05 ? `${shown} is ${t} full turn${t > 1 ? "s" : ""} and ${angTxt(rest)} more, so the stick ends up at <b>${angTxt(rest)}</b>.` : `${shown} is ${t} full turns, so the stick ends up back where it started.`, 6000); }
@@ -1156,24 +1374,24 @@
     turnTo(n);
   }
   function randomAngle(){
-    if(S.step < K_Q1 || S.anim) return;
+    if(!canDrag()) return;
     const cur = S.P.ang;
     let a, tries = 0;
     do {
       if(S.step < K_ALL) a = 5 + Math.round(Math.random() * 16) * 5;
+      else if(S.step >= K_FW) a = 15 * (1 + Math.floor(Math.random() * 47));
       else if(S.set.snap === "special"){ const L2 = [30,45,60,120,135,150,210,225,240,300,315,330]; a = L2[Math.floor(Math.random() * L2.length)]; }
       else { const k = Math.max(5, +S.set.snap || 1); a = Math.round(Math.random() * 359 / k) * k; }
       tries++;
-    } while((Math.abs(a - cur) < 20 || axisAngle(a)) && tries < 40);
+    } while((Math.abs(a - cur) < 20 || (S.step < K_FW && axisAngle(a))) && tries < 40);
     S.dragged = true;
     turnTo(a);
   }
-  /* sweep: back to 0, then a steady turn to 90° (first quadrant) or 360° (whole circle) */
   function sweep(){
-    if(S.anim || S.step < K_Q1) return;
+    if(!canDrag()) return;
     const mx = maxAng(), q = [];
-    if(S.P.ang > 0) q.push({ to:{ ang:0 }, d:reduceMotion ? 0 : clamp(S.P.ang * 3, 300, 900) });
-    q.push({ to:{ ang:mx }, d:SWEEP() * mx / 360 * (mx === 90 ? 2 : 1), lin:true });
+    if(S.P.ang > 0) q.push({ to:{ ang:0 }, d:reduceMotion ? 0 : clamp(S.P.ang * 2.5, 300, 1200) });
+    q.push({ to:{ ang:mx }, d:SWEEP() * (mx === 90 ? .5 : mx / 360), lin:true });
     S.dragged = true;
     run(q);
   }
@@ -1188,7 +1406,8 @@
   $("swingBtn").addEventListener("click", sweep);
   $("angIn").addEventListener("keydown", e => { if(e.key === "Enter"){ e.preventDefault(); typedAngle(); $("angIn").blur(); } });
   $("angIn").addEventListener("change", typedAngle);
-  function setLabels(v){ S.set.labels = v; $("labelSel").value = v; save(); render(); }
+  const LABS = ["letters", "numbers", "names"];
+  function setLabels(v){ S.set.labels = LABS.includes(v) ? v : "letters"; $("labelSel").value = S.set.labels; save(); render(); }
   document.querySelectorAll(".seg button").forEach(b => b.addEventListener("click", () => setLabels(b.dataset.lab)));
   document.querySelectorAll(".fTog").forEach(b => b.addEventListener("click", () => {
     const f = b.dataset.f, on = !S.set.show[f];
@@ -1223,11 +1442,12 @@
   document.addEventListener("webkitfullscreenchange", onFsChange);
   $("fsBtn").addEventListener("click", toggleFs);
 
-  const TOG = { cosSinToggle:"cosSin", relToggle:"rel", quadToggle:"quad", tanLineToggle:"tanLine", exactToggle:"exact", ghostToggle:"ghost" };
+  const TOG = { cosSinToggle:"cosSin", relToggle:"rel", quadToggle:"quad", tanLineToggle:"tanLine", exactToggle:"exact", ghostToggle:"ghost", ruleToggle:"rule" };
   Object.entries(TOG).forEach(([id, key]) => {
     $(id).checked = !!S.set[key];
     $(id).addEventListener("change", e => { S.set[key] = e.target.checked; save(); render(); });
   });
+  if(!LABS.includes(S.set.labels)) S.set.labels = "letters";
   $("labelSel").value = S.set.labels; $("snapSel").value = S.set.snap; $("speedSel").value = S.set.speed; $("unitSel").value = S.set.unit;
   $("labelSel").addEventListener("change", () => setLabels($("labelSel").value));
   $("snapSel").addEventListener("change", () => { S.set.snap = $("snapSel").value; save(); });
@@ -1251,7 +1471,7 @@
     else if(e.key === "ArrowLeft"){ e.preventDefault(); back(); }
     else if(e.key === "ArrowUp"){ e.preventDefault(); nudge(e.shiftKey ? 15 : 1); }
     else if(e.key === "ArrowDown"){ e.preventDefault(); nudge(e.shiftKey ? -15 : -1); }
-    else if(e.key === "l" || e.key === "L") setLabels(S.set.labels === "letters" ? "numbers" : "letters");
+    else if(e.key === "l" || e.key === "L") setLabels(LABS[(LABS.indexOf(S.set.labels) + 1) % LABS.length]);
     else if(e.key === "g" || e.key === "G") togglePanel();
     else if(e.key === "f" || e.key === "F") toggleFs();
   });
@@ -1260,7 +1480,6 @@
   if(window.ResizeObserver){ const ro = new ResizeObserver(onResize); ro.observe($("boardWrap")); ro.observe($("rows")); }
   else window.addEventListener("resize", onResize);
 
-  /* the pulsing ring on the handle needs frames of its own while nothing else is moving */
   (function pulse(){
     if(!S.anim && !S.drag && !S.dragged && canDrag() && !reduceMotion) render();
     setTimeout(() => requestAnimationFrame(pulse), 60);
@@ -1270,8 +1489,8 @@
   render();
 
   window.__UC__ = { S, STEPS, END, render, next, back, jump, startAgain, showAll, turnTo, nudge, dragTo, sweep, randomAngle, setLabels,
-    exactOf, related, quadrant, axisAngle, fx, valH, exprH, angTxt, canDrag, typedAngle, togglePanel, toggleFs,
-    get L(){ return L; }, get V(){ return V; }, K:{ K_Q1, K_ALL } };
+    exactOf, related, quadrant, axisAngle, fx, valH, exprH, angTxt, canDrag, typedAngle, togglePanel, toggleFs, fh, fd,
+    get L(){ return L; }, get V(){ return V; }, K:{ K_Q1, K_ALL, K_FW } };
 })();
 </script>
 </body>

@@ -96,32 +96,41 @@
 > §2 "TWO folders", §3 deploy paths and §5's `mathstools-main 2` heading below
 > describe the OLD layout — this block supersedes them.
 >
-> **NEW (2026-11-18, latest; reworked same afternoon on Jeff's feedback): THE UNIT CIRCLE AND THE TRIGONOMETRIC RATIOS —
-> new Stage 5 teaching tool** at `interactive-tools/stage-5/measurement-space/unit-circle-trig-ratios/index.html` (single
+> **NEW (2026-11-18, latest; reworked twice on Jeff's feedback): THE UNIT CIRCLE AND THE TRIGONOMETRIC RATIOS —
+> Stage 5 teaching tool** at `interactive-tools/stage-5/measurement-space/unit-circle-trig-ratios/index.html` (single
 > file, trapezium shell, no Firebase), under **MA5-TRG-P-02** (Trigonometry D, ideas unit-circle + trig-equations;
 > toolLinks row, `?v=` bumped in resources + teacher portal; homepage Interactive card, pill 42 → 43). Tools menu =
-> Worksheet / Quiz greyed. localStorage `mmt.unitCircle.v2` (settings only — every load starts at the stick; v1 was
-> retired so the new off-by-default toggles apply); test surface `window.__UC__`. Project doc `claude/unit-circle.md`.
-> * **THREE STEPS (Jeff):** (1) a wooden stick, "1 unit"; (2) it lands on the number plane ZOOMED IN ON THE FIRST
->   QUADRANT and turns to 40°: triangle (x-side blue, y-side orange, hypotenuse 1), drag 0–90° only (a message says
->   Next goes further); (3) the board zooms out to the whole unit circle and the graphs' x-axis zooms 90° → 360°; the
->   side labels gain signs (±x, ±y). Back from the whole circle first turns the stick back to ≤ 90°. Params `P` (m, ax,
->   ang, tri, z, sg) are tweened; `view()` log-interpolates the scale between the two views (`L.R1/ox1/oy1` first
->   quadrant, `L.R2/ox2/oy2` whole circle) and the graphs' x-range the same way.
-> * **The graphs draw from 0 UP TO THE STICK'S ANGLE** (`curvePath(G, f, a)`), so turning back winds them back — the
->   notice-and-wonder in the first quadrant. One turn only: dragging past 360° holds at 360°, back past 0° holds at 0°;
->   a CLICK goes straight to where it lands (`dragTo(raw, true)`). ▶ Sweep = back to 0, then a steady turn to 90° / 360°.
-> * **Settings, all OFF by default:** label the point (cos θ, sin θ) (else (x, y), then (±x, ±y) on the whole circle) ·
->   related angle (purple arc, dashed matching triangle in Q1, "= sin 30°" in the readout) · quadrant summaries (corner
->   tiles + graph bands, whole circle only) · tan θ on the circle (line x = 1 and the extended stick; the green filled
->   similar triangle was removed) · angles in radians to 1 d.p. (θ label, angle box — typed values read as radians —,
->   readouts, graph ticks). Also: letters/numbers (L), exact values (on), turn steps, sweep speed, whole curve faintly.
-> * **Radicals are drawn** (SVG path / `.rad` span), never a typed √ — the maths font hangs it below the line.
-> * The step text reserves the height of the longest step (`fitCue`) and the hint is one line, so the board never
->   resizes between steps or mid-drag. `#board` is `overflow:hidden` (the zoomed view draws past its edges).
-> * Verified (Playwright): forward/back land on each step's end state; label audit over both views × letters/numbers ×
->   4 setting combinations × 5 viewports (nothing off the board; no overlaps on desktop); curve ends exactly at the stick;
->   drag clamps (90° in Q1, 0/360 on the whole circle), keys, sweep, radians typed input, default-off extras, saved settings.
+> Worksheet / Quiz greyed. localStorage `mmt.unitCircle.v2` (settings only — every load starts at the stick); test
+> surface `window.__UC__`. Project doc `claude/unit-circle.md`.
+> * **FOUR STEPS:** (1) a wooden stick, "1 unit"; (2) it lands on the plane ZOOMED IN ON QUADRANT 1 and turns to 40°;
+>   drag 0–90° only; (3) zoom out to the whole unit circle, graphs' x-axis 90° → 360°, side labels gain signs (±x, ±y);
+>   (4) **THE FERRIS WHEEL** (the first "real-world scene"): the stick swings to the bottom, the unit circle morphs into
+>   the wheel (dashed circle → rim, spokes, 12 gondolas, A-frame, ground, sky, stairs + platform; the x-axis becomes
+>   the dashed "halfway up (11 m)" line), a stick figure walks in and climbs into the bottom gondola, and the wheel turns
+>   90° to the start, halfway up on the right. Bottom 2 m up, diameter 18 m: h = 11 + 9 sin θ, d = 9 cos θ (`FW`, `fh`,
+>   `fd`; one board unit = 9 m). The triangle stays, in metres (9 sin θ / 9 cos θ / 9 m), with a height scale (m) on the
+>   right and the rider's height marked on it. Two turns, 0°–720°: dragging unwraps (keeps counting past 360°).
+>   Panel in the wheel: Height above the ground (0–22 m, lines at 2, 11, 20) · Across from the centre (±9) · a TABLE of
+>   the textbook positions (halfway up, top, halfway down, bottom … every 90° to 720°) whose h and d cells stay "?"
+>   until the wheel has reached that angle (`S.fmax`). Settings › Show the rules adds "= 11 + 9 sin θ" (off by default).
+> * **ADDING ANOTHER SCENE:** a step with segments, a P parameter (like `fw`, `walk`), a view (like `L.R3/ox3/oy3`,
+>   blended in `view()`), and `if(<param>)` branches in render(), gspec()/renderGraphs() and renderPanel()/exprH().
+> * Steps are segments tweening `P` (m, ax, ang, tri, z, sg, fw, walk); Back plays them in reverse (from the wheel it
+>   first takes off whole turns; from the whole circle it first turns back to ≤ 90°).
+> * **The graphs draw from 0 UP TO THE STICK'S ANGLE** (`curvePath(G, a)`), so turning back winds them back. On the
+>   whole circle dragging holds at 0° and 360°; a click goes straight to where it lands. ▶ Sweep = back to 0 then steady.
+> * **Side labels: Letters / Numbers / Names (L cycles).** Names = "Opposite" / "Adjacent", "−Opposite" when negative.
+>   Readouts in letters mode keep the fraction over 1 with the sign: sin 303° = (−y)/1 = −y.
+> * **Settings, optional layers OFF by default:** label the point (cos θ, sin θ) · related angle · quadrant summaries ·
+>   tan θ on the circle (no filled green triangle) · radians to 1 d.p. · Ferris rules. Also exact values (on), turn
+>   steps, sweep speed, whole curve faintly.
+> * **Radicals are drawn** (SVG path / `.rad` span), never a typed √. `rich()` clamps every label onto the board.
+> * The step text reserves the height of the longest step (`fitCue`) and the hint is one line: the board never resizes
+>   between steps or mid-drag. `#board` is `overflow:hidden`. Narrow screens use short table/row names (`.ln` / `.sn`).
+> * Verified (Playwright): every step forward/back lands on its end state; label audit over all four views × letters /
+>   numbers / names × 4 setting combinations × 5 viewports (nothing off the board, no overlaps on desktop); Ferris:
+>   boarding blocks dragging, lands at 0°, drag unwraps to 420°, table fills to the angle reached, sweep fills it, curve
+>   ends at the wheel, 720° cap, rules toggle, typed 450°, Back to the unit circle.
 >
 > **NEW (2026-11-18, later): TIMES TABLE CHART FEEDBACK + PRINTABLE POSTER MAKER.**
 > * Chart: Settings › **Keep faded values** (`S.set.faded`, `.app.fadedVals`): squares keep their numbers at opacity .17
