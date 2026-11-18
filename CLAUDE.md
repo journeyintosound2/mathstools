@@ -102,7 +102,7 @@
 > toolLinks row, `?v=` bumped in resources + teacher portal; homepage Interactive card, pill 42 → 43). Tools menu =
 > Worksheet / Quiz greyed. localStorage `mmt.unitCircle.v2` (settings only — every load starts at the stick); test
 > surface `window.__UC__`. Project doc `claude/unit-circle.md`.
-> * **FOUR STEPS:** (1) a wooden stick, "1 unit"; (2) it lands on the plane ZOOMED IN ON QUADRANT 1 and turns to 40°;
+> * **FOUR MAIN STEPS (+ the sunrise branch below):** (1) a wooden stick, "1 unit"; (2) it lands on the plane ZOOMED IN ON QUADRANT 1 and turns to 40°;
 >   drag 0–90° only; (3) zoom out to the whole unit circle, graphs' x-axis 90° → 360°, side labels gain signs (±x, ±y);
 >   (4) **THE FERRIS WHEEL** (the first "real-world scene"): the stick swings to the bottom, the unit circle morphs into
 >   the wheel (dashed circle → rim, spokes, 12 gondolas, A-frame, ground, sky, stairs + platform; the x-axis becomes
@@ -114,10 +114,36 @@
 >   Two turns, 0°–720°: dragging unwraps (keeps counting past 360°). Panel in the wheel: Height from the centre · Across
 >   from the centre · a TABLE of the textbook positions (halfway up, top, halfway down, bottom … every 90° to 720°) whose
 >   h and d cells stay "?" until the wheel has reached that angle (`S.fmax`). Settings › Show the rules adds "= 9 sin θ".
-> * **"More applications ▾"** (`#appsBtn` / `#appsMenu`, opens upward) beside the Next/Done button: one greyed
->   "Coming soon" row for now. A new scene gets a live row here as well as its step.
-> * **ADDING ANOTHER SCENE:** a step with segments, a P parameter (like `fw`, `walk`), a view (like `L.R3/ox3/oy3`,
->   blended in `view()`), and `if(<param>)` branches in render(), gspec()/renderGraphs() and renderPanel()/exprH().
+> * **"More applications ▾"** (`#appsBtn` / `#appsMenu`, opens upward) beside the Next/Done button: The Ferris wheel ·
+>   Sunrise over the year · a greyed "Coming soon" row. **Applications BRANCH off the whole unit circle (step 2):** every
+>   step has a `prev`; `nextOf(k)` gives its next; app steps carry `app`/`appName`. Next from step 2 = the Ferris wheel;
+>   the menu's `goApp(t)` backs out to the whole circle and enters the chosen app. Indices: K_Q1 1, K_ALL 2, K_FW 3,
+>   K_S1–K_S3 4–6. Show all = the end of the current app's chain. Back always returns to `prev`.
+> * **SUNRISE OVER THE YEAR (Jeff's design, 2026-11-18):** looking east from Jetty Beach, Coffs Harbour — stylised
+>   Muttonbird Island + northern breakwall left, the jetty in the middle, southern breakwall right; dawn sky, sea. The
+>   x-axis IS the horizon, scaled −1…1 (±1 ≈ 27° either side of due east: north to the left, south to the right). The
+>   stick is a MONTH HAND, 30° a month, **December (summer solstice, furthest south) at 0°**, so the sun rises at the foot
+>   of the triangle: position = cos θ. (1) `sun1` the scene; (2) `sun2` a PHOTO A MONTH: 13 strips (`SUNS`) stack DOWN
+>   the page below the scene, each kept when the hand reaches its month (`S.smax`), a red line joins the suns;
+>   (3) `sun3` the year fills and the record TURNS a quarter-turn (`P.turn`, −90°) into the graph of cos θ over 12
+>   months (labels counter-rotate). Panel: only the cos row ("Sunrise position", graph appears after the turn) + a
+>   table Dec 0 … Dec 12 in two blocks of months. Shift + ↑/↓ = one month. P keys added: `sr`, `stk`, `turn`; views R4/R5.
+> * **THE TIDE (Jeff, 2026-11-18):** Coffs Harbour Jetty side on (not to scale): harbour floor, Jetty Beach rising to the
+>   right with the strip between the tide marks and "high tide mark", the jetty on piles with a TIDE BOARD on the seaward
+>   pile, Muttonbird Island behind, a fishing boat and a yacht on moorings (lines go slack as the water falls). The circle
+>   becomes a TIDE CLOCK (white face, HIGH TIDE / LOW TIDE / rising / falling) and **the water is always level with the
+>   tip of the hand**: h = 0.7 sin θ m from mean sea level (Coffs: range about 1.4 m), one turn = 12 h 25 min (`TIDE`,
+>   `tH`, `tHours`). θ = 0 is mid-tide rising. `tide1` the morph (drag 0–1080°, unwraps like the wheel; Shift + ↑ = one
+>   hour); `tide2` "Three tides" runs the clock to 1080° (37 h 15 min, `fillTide`). Panel: only the sine row (orange,
+>   "Height of the tide", hours on the x-axis) + a table every quarter turn (Mid ↑ / High / Mid ↓ / Low, time h:mm, h),
+>   filled as the clock passes (`S.tmax`). A time chip and rising/falling chip sit top-left of the board. P key `td`,
+>   view R6; steps K_T1 7, K_T2 8; menu row `data-app="7"`.
+> * The Ferris graphs' ±9 spec had been lost in the sunrise change (it plotted ±1); restored in `gspec`.
+> * **Tick numbers and axis letters carry class `tk`; `declutter()` hides any that sit on another label** after every
+>   render — the safety net for collisions. `tk2` (the words on the tide clock's face) gives way to both. SVG drops a text run's leading spaces, so `runSVG` turns them into an x offset.
+> * **ADDING ANOTHER SCENE:** steps with `prev`/`app`/`appName`, a P parameter (like `fw`, `sr`), a view (like
+>   `L.R3/ox3/oy3`, blended in `view()`), `if(<param>)` branches in render(), gspec()/renderGraphs() and
+>   renderPanel()/exprH(), and a live row in `#appsMenu` (`data-app` = its first step).
 > * Steps are segments tweening `P` (m, ax, ang, tri, z, sg, fw, walk); Back plays them in reverse (from the wheel it
 >   first takes off whole turns; from the whole circle it first turns back to ≤ 90°).
 > * **The graphs draw from 0 UP TO THE STICK'S ANGLE** (`curvePath(G, a)`), so turning back winds them back. On the
@@ -130,6 +156,12 @@
 > * **Radicals are drawn** (SVG path / `.rad` span), never a typed √. `rich()` clamps every label onto the board.
 > * The step text reserves the height of the longest step (`fitCue`) and the hint is one line: the board never resizes
 >   between steps or mid-drag. `#board` is `overflow:hidden`. Narrow screens use short table/row names (`.ln` / `.sn`).
+> * Tide verified: water surface level with the tip to the pixel, readouts, unwrap and 1080° cap, Shift + ↑ one hour,
+>   typed angles, the run to 37 h 15 min filling the table, Back to the circle from 820°, Show all, sweep; label audit
+>   1,155 frames over all nine steps, no overlaps.
+> * Sunrise verified: menu switching Ferris → Sunrise, readouts and north/south chip, photos kept when turning back,
+>   the turn ending inside the board as cos θ (Dec +1, June −1), Back ×3 to the circle; label audit 765 frames
+>   (7 steps × letters/numbers/names × up to 10 angles × 5 viewports): nothing off the board, no overlaps.
 > * Verified (Playwright): every step forward/back lands on its end state; label audit over all four views × letters /
 >   numbers / names × 4 setting combinations × 5 viewports (nothing off the board, no overlaps on desktop); Ferris:
 >   boarding blocks dragging, lands at 0°, drag unwraps to 420°, table fills to the angle reached, sweep fills it, curve

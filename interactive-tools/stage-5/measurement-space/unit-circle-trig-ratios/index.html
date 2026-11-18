@@ -66,6 +66,9 @@
     .dropMenu.open{ display:grid; gap:4px; }
     .dropMenu.up{ top:auto; bottom:calc(100% + 8px); }
     #appsBtn .sn{ display:none; }
+    .appLink{ appearance:none; border:none; background:none; width:100%; text-align:left; cursor:pointer; font:inherit; font-weight:900; font-size:.9rem; }
+    .appLink[aria-current="true"]{ background:#eef2ff; color:#1d4ed8; }
+    #board .hd{ stroke:rgba(15,23,42,.55); stroke-width:3px; paint-order:stroke; stroke-linejoin:round; }
     .toolLink{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 12px; border-radius:10px;
       color:var(--ink); text-decoration:none; font-weight:900; font-size:.9rem; }
     .toolLink::after{ content:'\203A'; color:var(--blue); font-weight:1000; font-size:1.1rem; line-height:1; }
@@ -216,6 +219,8 @@
     .ftab td.q{ color:var(--line-soft); font-weight:600; }
     .ftab .rh{ text-align:left; font-family:var(--uiFont); font-size:.68rem; font-weight:900; color:var(--muted); width:58px; padding-left:6px; background:#f8fafc; }
     .ftab .cur{ background:#fff7ed; }
+    .ftab.two{ flex-direction:column; justify-content:center; gap:10px; }
+    .ftab .pad{ border:none; background:none; }
     .ftab .sn,.fName .sn{ display:none; }
     @media (max-width:1180px){ .ftab .ln,.fName .ln{ display:none; } .ftab .sn,.fName .sn{ display:inline; } .ftab td{ font-size:.85rem; } }
     .app.noPanel .layout{ grid-template-columns:minmax(0,1fr); }
@@ -391,6 +396,9 @@
           <div class="menuWrap">
             <button class="stepBtn" id="appsBtn" type="button" aria-haspopup="true" aria-expanded="false" title="More real-world applications of the unit circle"><span class="ln">More applications</span><span class="sn">More</span> &#9662;</button>
             <nav class="dropMenu up" id="appsMenu" aria-label="More applications">
+              <button type="button" class="toolLink appLink" data-app="3"><span>The Ferris wheel<small>Height and distance across as the wheel turns</small></span></button>
+              <button type="button" class="toolLink appLink" data-app="4"><span>Sunrise over the year<small>Coffs Harbour: where the sun rises each month</small></span></button>
+              <button type="button" class="toolLink appLink" data-app="7"><span>The tide<small>Coffs Harbour Jetty: high and low tide over a day and a half</small></span></button>
               <span class="toolLink soon" aria-disabled="true"><span>Coming soon<small>More real-world applications are on the way</small></span></span>
             </nav>
           </div>
@@ -454,17 +462,38 @@
     { id:"whole", t:"The whole unit circle", m:"Now the stick can go all the way round. What happens to each ratio past 90°?",
       segs:[{ d:1900, to:{ z:1, sg:1 } }] },
     { id:"ferris", t:"The Ferris wheel", m:"The wheel is 18 m across. Heights are measured from the centre of the wheel. Start halfway up on the right and turn anticlockwise.",
-      segs:[{ d:1300, to:{ ang:270, tri:0 } }, { set:{ ang:-90 } }, { d:2400, to:{ fw:1 } }, { d:4200, to:{ walk:1 }, lin:true }, { d:2300, to:{ ang:0, tri:1 } }] }
+      app:"ferris", appName:"The Ferris wheel", prev:2,
+      segs:[{ d:1300, to:{ ang:270, tri:0 } }, { set:{ ang:-90 } }, { d:2400, to:{ fw:1 } }, { d:4200, to:{ walk:1 }, lin:true }, { d:2300, to:{ ang:0, tri:1 } }] },
+    /* Sunrise over the year (Coffs Harbour, looking east from Jetty Beach): the circle becomes a year dial,
+       the x-axis becomes the horizon, and the sun rises at the foot of the triangle (cos θ). */
+    { id:"sun1", t:"Sunrise over the year", m:"Looking east from Jetty Beach, Coffs Harbour. The month hand turns once a year, and the sun rises at the foot of the triangle.",
+      app:"sunrise", appName:"Sunrise over the year", prev:2,
+      segs:[{ d:1100, to:{ ang:0 } }, { d:2600, to:{ sr:1 } }] },
+    { id:"sun2", t:"A photo every month", m:"Turn the hand through the year. Each month's sunrise is kept in a strip below, and the red line joins them.",
+      app:"sunrise", prev:4, segs:[{ d:1800, to:{ stk:1 } }] },
+    { id:"sun3", t:"Turn it on its side", m:"Turn the record of sunrises a quarter-turn. Which graph is it?",
+      app:"sunrise", prev:5, segs:[{ fillYear:true, to:{ ang:360 }, lin:true }, { d:2900, to:{ turn:1 } }] },
+    /* The tide (Coffs Harbour Jetty, side on): the circle becomes a tide clock, one turn every 12 h 25 min,
+       and the water is always level with the tip of the hand: h = 0.7 sin θ metres from mean sea level. */
+    { id:"tide1", t:"The tide clock", m:"Coffs Harbour Jetty, side on. The hand turns once every 12 h 25 min, and the water is always level with its tip.",
+      app:"tide", appName:"The tide", prev:2,
+      segs:[{ d:1100, to:{ ang:0 } }, { d:2800, to:{ td:1 } }] },
+    { id:"tide2", t:"Three tides", m:"Let the clock run for a day and a half. Watch the water climb the beach, the boats rise and fall, and the graph of the height.",
+      app:"tide", prev:7, segs:[{ fillTide:true, to:{ ang:1080 }, lin:true }] }
   ];
-  const K_Q1 = 1, K_ALL = 2, K_FW = 3;
-  const BASE = { m:0, ax:0, ang:0, tri:0, z:0, sg:0, fw:0, walk:0 };
+  STEPS.forEach((s, k) => { if(s.prev === undefined) s.prev = k - 1; });
+  const K_Q1 = 1, K_ALL = 2, K_FW = 3, K_S1 = 4, K_S2 = 5, K_S3 = 6, K_T1 = 7, K_T2 = 8;
+  const BASE = { m:0, ax:0, ang:0, tri:0, z:0, sg:0, fw:0, walk:0, sr:0, stk:0, turn:0, td:0 };
   function applySeg(st, sg){ const o = Object.assign({}, st); Object.assign(o, sg.set || sg.to); return o; }
   const END = [];
-  STEPS.forEach((s, k) => { let st = k ? END[k - 1] : Object.assign({}, BASE); s.segs.forEach(sg => { st = applySeg(st, sg); }); END[k] = st; });
-  function beforeSeg(k, i){ let st = k ? END[k - 1] : Object.assign({}, BASE); for(let j = 0; j < i; j++) st = applySeg(st, STEPS[k].segs[j]); return st; }
+  STEPS.forEach((s, k) => { let st = k ? END[s.prev] : Object.assign({}, BASE); s.segs.forEach(sg => { st = applySeg(st, sg); }); END[k] = st; });
+  function beforeSeg(k, i){ let st = k ? END[STEPS[k].prev] : Object.assign({}, BASE); for(let j = 0; j < i; j++) st = applySeg(st, STEPS[k].segs[j]); return st; }
+  const nextOf = k => STEPS.findIndex((s, i) => i > 0 && s.prev === k);
+  const appOf = k => STEPS[k] && STEPS[k].app;
+  const appSteps = app => STEPS.map((s, i) => s.app === app ? i : -1).filter(i => i >= 0);
 
   const S = {
-    step:0, P:Object.assign({}, BASE), anim:null, drag:false, dragged:false, fmax:0,
+    step:0, P:Object.assign({}, BASE), anim:null, drag:false, dragged:false, fmax:0, smax:0, tmax:0,
     set:{ labels:"letters", cosSin:false, rel:false, quad:false, tanLine:false, unit:"deg", exact:true, snap:"1", speed:"normal", ghost:false, rule:false,
           panel:true, show:{ s:true, c:true, t:true } },
     fs:false, msg:"", msgT:0
@@ -479,8 +508,11 @@
   } catch(e){}
   const save = () => { try { localStorage.setItem(STORE, JSON.stringify({ set:S.set })); } catch(e){} };
   const SWEEP = () => ({ slow:13000, normal:8500, fast:5000 })[S.set.speed] || 8500;
-  const maxAng = () => S.step >= K_FW ? 720 : S.step >= K_ALL ? 360 : 90;
+  const isTideStep = () => appOf(S.step) === "tide";
+  const maxAng = () => isTideStep() ? 1080 : S.step === K_FW ? 720 : S.step >= K_ALL ? 360 : 90;
   const ferris = () => S.P.fw > .5;
+  const sunrise = () => S.P.sr > .5;
+  const tide = () => S.P.td > .5;
 
   /* ------------------------------------------------------------ the maths */
   const norm = a => { const r = ((a % 360) + 360) % 360; return (r === 0 && a > 0) ? 360 : r; };
@@ -536,6 +568,45 @@
   const posName = a => POS_NAMES[(((Math.round(a / 90)) % 4) + 4) % 4];
   const m2 = v => dec(v);
 
+  /* ------------------------------------------------------------ Sunrise over the year (sunrise steps)
+     Looking east from Jetty Beach, Coffs Harbour (about 30°S). Over a year the sunrise swings about 27°
+     either side of due east: north (left) in June, south (right) in December, due east at the equinoxes.
+     Scaled to −1…1 and started at the December solstice, the position is cos θ with θ = 30° per month.
+     Silhouettes are stylised: Muttonbird Island (Giidany Miirlarl) and the northern breakwall on the
+     left, the southern breakwall running to Corambirra Point on the right. */
+  const SUNS = { top:-1.36, rh:.2, n:13, w:1.45 };
+  const MONTHS = ["Dec", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const ISLAND = [[-1.68,0],[-1.63,.04],[-1.56,.1],[-1.48,.15],[-1.4,.18],[-1.32,.195],[-1.24,.18],[-1.18,.14],[-1.13,.08],[-1.09,.03],[-1.06,0]];
+  const NBW = [[-2.2,0],[-2.2,.028],[-1.66,.03],[-1.66,0]];
+  const SBW = [[1.1,0],[1.12,.026],[1.48,.03],[1.55,.05],[1.63,.085],[1.72,.095],[1.82,.075],[2.2,.065],[2.2,0]];
+  function silPath(yh, ph){
+    const pts = arr => arr.map(([x, hh], i) => (i ? "L" : "M") + f3(V.X(x)) + " " + f3(yh - hh * ph)).join(" ") + "Z";
+    return pts(ISLAND) + " " + pts(NBW) + " " + pts(SBW);
+  }
+
+  /* ------------------------------------------------------------ The tide (tide steps)
+     Coffs Harbour Jetty: the tide is semidiurnal (two highs and two lows a day), about 12 h 25 min from
+     high tide to high tide, with a typical range of about 1.4 m (highs near 1.7 m, lows near 0.3 m above
+     the lowest tides). Measured from mean sea level that is h = 0.7 sin θ metres, one board unit = 0.7 m.
+     Side-on view, not to scale: the harbour floor, the beach rising to the right, the jetty on its piles
+     with a tide board, two moored boats, Muttonbird Island behind. */
+  const TIDE = { amp:.7, per:12 + 25 / 60, bed:-1.55, sx:2.4, slope:.95, board:2.75, deck:1.85 };
+  const tH = a => TIDE.amp * sinD(a);                         /* height from mean sea level (m) */
+  const tHours = a => a / 360 * TIDE.per;
+  function hm(a){ const t = tHours(a); let hh = Math.floor(t + 1e-9), mm = Math.round((t - hh) * 60); if(mm === 60){ hh++; mm = 0; } return `${hh} h ${String(mm).padStart(2, "0")} min`; }
+  function hmShort(a){ const t = tHours(a); let hh = Math.floor(t + 1e-9), mm = Math.round((t - hh) * 60); if(mm === 60){ hh++; mm = 0; } return `${hh}:${String(mm).padStart(2, "0")}`; }
+  const sandY = x => x < TIDE.sx ? TIDE.bed : Math.min(2.4, TIDE.bed + (x - TIDE.sx) * TIDE.slope);
+  const shoreX = y => TIDE.sx + (y - TIDE.bed) / TIDE.slope;
+  const TIDE_NAMES = ["Mid-tide, rising", "High tide", "Mid-tide, falling", "Low tide"], TIDE_SHORT = ["Mid &uarr;", "High", "Mid &darr;", "Low"];
+  const tideName = a => TIDE_NAMES[(((Math.round(a / 90)) % 4) + 4) % 4];
+  function tideState(a){
+    const r = ((a % 360) + 360) % 360;
+    if(Math.abs(r - 90) < .5) return "high tide";
+    if(Math.abs(r - 270) < .5) return "low tide";
+    return (r < 90 || r > 270) ? "rising" : "falling";
+  }
+  const ISL3 = [[.55,-1.75],[.6,-.2],[.75,.25],[.95,.55],[1.15,.82],[1.35,1.0],[1.55,1.08],[1.75,1.02],[1.95,.86],[2.15,.62],[2.4,.4],[2.7,.2],[3.0,.06],[3.3,-.2],[3.4,-1.75]];
+
   /* ------------------------------------------------------------ layout: three views, tweened by P.z and P.fw */
   const svg = $("board");
   let L = null, V = null;
@@ -550,7 +621,16 @@
     const fw3 = 3.48, fh3 = 2.66;                                     /* Ferris wheel: x −1.78..1.7, y −1.38..1.28 */
     const R3 = Math.min(w / fw3, h / fh3);
     const ox3 = (w - fw3 * R3) / 2 + 1.78 * R3, oy3 = (h - fh3 * R3) / 2 + 1.28 * R3;
-    L = { w, h, R1, ox1, oy1, R2, ox2:w / 2, oy2:h / 2, R3, ox3, oy3 };
+    /* sunrise, the scene: x −1.65..1.65, y −1.3..1.42 */
+    const sw4 = 3.3, sh4 = 2.72, R4 = Math.min(w / sw4, h / sh4);
+    const ox4 = w / 2, oy4 = (h - sh4 * R4) / 2 + 1.42 * R4;
+    /* sunrise with the stack of monthly strips under it: x −1.9..1.6, y 1.38 down to the bottom strip */
+    const bot = SUNS.top - SUNS.n * SUNS.rh - .08, sw5 = 3.5, sh5 = 1.38 - bot, R5 = Math.min(w / sw5, h / sh5);
+    const ox5 = (w - sw5 * R5) / 2 + 1.9 * R5, oy5 = (h - sh5 * R5) / 2 + 1.38 * R5;
+    /* the tide: x −1.25..5.6, y −1.75..2.2 (the clock is the unit circle, its centre at mean sea level) */
+    const tw6 = 6.85, th6 = 3.95, R6 = Math.min(w / tw6, h / th6);
+    const ox6 = (w - tw6 * R6) / 2 + 1.25 * R6, oy6 = (h - th6 * R6) / 2 + 2.2 * R6;
+    L = { w, h, R1, ox1, oy1, R2, ox2:w / 2, oy2:h / 2, R3, ox3, oy3, R4, ox4, oy4, R5, ox5, oy5, R6, ox6, oy6 };
     svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
   }
   function view(){
@@ -558,7 +638,13 @@
     let R = Math.exp(lerp(Math.log(L.R1), Math.log(L.R2), z));
     let ox = lerp(L.ox1, L.ox2, z), oy = lerp(L.oy1, L.oy2, z);
     R = Math.exp(lerp(Math.log(R), Math.log(L.R3), fw)); ox = lerp(ox, L.ox3, fw); oy = lerp(oy, L.oy3, fw);
-    const f = clamp(lerp(lerp(L.R1 * .068, L.R2 * .118, z), L.R3 * .1, fw), 13, 28);
+    const sr = ease(clamp(S.P.sr, 0, 1)), sk = ease(clamp(S.P.stk, 0, 1));
+    R = Math.exp(lerp(Math.log(R), Math.log(L.R4), sr)); ox = lerp(ox, L.ox4, sr); oy = lerp(oy, L.oy4, sr);
+    R = Math.exp(lerp(Math.log(R), Math.log(L.R5), sk)); ox = lerp(ox, L.ox5, sk); oy = lerp(oy, L.oy5, sk);
+    const td = ease(clamp(S.P.td, 0, 1));
+    R = Math.exp(lerp(Math.log(R), Math.log(L.R6), td)); ox = lerp(ox, L.ox6, td); oy = lerp(oy, L.oy6, td);
+    let f = lerp(lerp(L.R1 * .068, L.R2 * .118, z), L.R3 * .1, fw);
+    f = clamp(lerp(lerp(lerp(f, L.R4 * .085, sr), L.R5 * .13, sk), L.R6 * .14, td), 13, 28);
     V = { R, ox, oy, z, w:L.w, h:L.h, f, X:u => ox + u * R, Y:v => oy - v * R };
     return V;
   }
@@ -609,7 +695,10 @@
         out += `<path d="${d}" fill="none" stroke="#fff" stroke-width="${sw + 3.5}" stroke-linejoin="round"/><path d="${d}" fill="none" stroke="${c}" stroke-width="${sw}" stroke-linejoin="round" stroke-linecap="round"/>`;
         out += `<text class="h" x="${cx + f * .48}" y="${y}" font-size="${f}" fill="${c}" dominant-baseline="central">${esc(g.rad)}</text>`;
       } else {
-        out += `<text class="h" x="${cx}" y="${y}" font-size="${f}" fill="${c}"${g.i ? ' font-style="italic"' : ""} dominant-baseline="central">${esc(g.t)}</text>`;
+        /* SVG collapses leading spaces, so a run's leading spaces become an offset */
+        const lead = g.t.length - g.t.replace(/^\s+/, "").length, body = g.t.slice(lead);
+        const ox = lead ? tw(g.t.slice(0, lead), f, g.i) : 0;
+        if(body) out += `<text class="h" x="${cx + ox}" y="${y}" font-size="${f}" fill="${c}"${g.i ? ' font-style="italic"' : ""} dominant-baseline="central">${esc(body)}</text>`;
       }
       cx += w;
     }
@@ -664,6 +753,8 @@
   }
   const angGap = (u, v) => { const d = Math.abs(((u - v) % 360 + 360) % 360); return Math.min(d, 360 - d); };
   const NAMES = { x:"Adjacent", y:"Opposite" };
+  /* sunrise: the base of the triangle is the sun's position along the horizon */
+  const sunXL = a => S.set.labels === "numbers" ? valSegs("c", a, C.xd) : [T("cos ", C.xd), I("θ", C.xd)];
 
   /* a stick figure, feet at (x, y) in board units; phase swings the legs; sc scales it */
   function person(x, y, phase, op, sc){
@@ -696,6 +787,21 @@
     return g;
   }
 
+  /* tick numbers and axis letters (class tk) step aside for any label they would sit on */
+  function declutter(svg){
+    const shown = el => { for(let n = el; n && n !== svg; n = n.parentNode){ const o = n.getAttribute && n.getAttribute("opacity"); if(o != null && +o < .3) return false; } return true; };
+    /* tk gives way to ordinary labels; tk2 (the words on the tide clock's face) gives way to both */
+    const others = [], tks = [], tk2 = [];
+    svg.querySelectorAll("text").forEach(t => {
+      if(!t.textContent.trim()) return;
+      (t.classList.contains("tk2") ? tk2 : t.classList.contains("tk") ? tks : others).push(t);
+    });
+    const boxes = others.filter(shown).map(t => t.getBoundingClientRect()).filter(r => r.width);
+    const hits = a => boxes.some(b => Math.min(a.right, b.right) - Math.max(a.left, b.left) > 1 && Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top) > 1);
+    tks.forEach(t => { const a = t.getBoundingClientRect(); if(hits(a)) t.style.visibility = "hidden"; else if(shown(t) && a.width) boxes.push(a); });
+    tk2.forEach(t => { if(hits(t.getBoundingClientRect())) t.style.visibility = "hidden"; });
+  }
+
   /* ------------------------------------------------------------ the board */
   function render(){
     if(!L) layout();
@@ -704,11 +810,21 @@
     const a = P.ang, c = cosD(a), s = sinD(a);
     const mode = S.set.labels, letters = mode !== "numbers", names = mode === "names";
     const signs = P.sg > .5;
-    const fw = P.fw, uo = 1 - span01(fw, 0, .55), fo = span01(fw, .3, 1), FER = fw > .5;
+    const fw = P.fw, uo = 1 - Math.max(span01(fw, 0, .55), span01(P.sr, 0, .55), span01(P.td, 0, .55)), fo = span01(fw, .3, 1), FER = fw > .5;
+    const TID = P.td > .5, tdo = span01(P.td, .25, 1);
+    const SUNM = P.sr > .5, so = span01(P.sr, .25, 1) * (1 - span01(P.turn, 0, .45));
     const whole = span01(z, .55, 1) * uo;
     if(S.step === K_FW && P.walk >= 1 && P.tri > .5) S.fmax = Math.max(S.fmax, a);
+    if((S.step === K_S2 || S.step === K_S3) && P.stk > .5) S.smax = Math.max(S.smax, a);
+    if(appOf(S.step) === "tide" && P.td >= .999 && P.tri > .5) S.tmax = Math.max(S.tmax, a);
     let o = `<defs><linearGradient id="wood" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f1cf9c"/><stop offset=".5" stop-color="#dba567"/><stop offset="1" stop-color="#b9783f"/></linearGradient>
-      <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bfdbfe"/><stop offset="1" stop-color="#f0f9ff"/></linearGradient></defs>`;
+      <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bfdbfe"/><stop offset="1" stop-color="#f0f9ff"/></linearGradient>
+      <linearGradient id="dawn" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#22386b"/><stop offset=".42" stop-color="#6578b8"/><stop offset=".75" stop-color="#ef9f9a"/><stop offset="1" stop-color="#fcd38d"/></linearGradient>
+      <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e9b58c"/><stop offset=".18" stop-color="#7b8fbd"/><stop offset="1" stop-color="#2e4474"/></linearGradient>
+      <linearGradient id="daySky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7cc4f2"/><stop offset="1" stop-color="#e0f2fe"/></linearGradient>
+      <linearGradient id="harbour" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#22a3c9"/><stop offset="1" stop-color="#0b4f6c"/></linearGradient>
+      <linearGradient id="sand" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f3e2b3"/><stop offset="1" stop-color="#d9bf86"/></linearGradient>
+      <radialGradient id="sunG"><stop offset="0" stop-color="#fffbe6"/><stop offset=".25" stop-color="#fde68a" stop-opacity=".9"/><stop offset="1" stop-color="#fdba74" stop-opacity="0"/></radialGradient></defs>`;
 
     /* --- Ferris: sky and clouds behind everything --- */
     if(fo > .01){
@@ -719,6 +835,46 @@
       });
       o += "</g>";
     }
+
+    /* --- Sunrise: sky, sun, sea, the island and breakwalls, the jetty, the horizon (where the x-axis was) --- */
+    if(so > .01){
+      const hy = Y(0), seaBot = lerp(h, Y(SUNS.top + .02), ease(clamp(P.stk, 0, 1)));
+      let g = `<g opacity="${so.toFixed(3)}"><rect x="0" y="0" width="${w}" height="${hy}" fill="url(#dawn)"/>`;
+      const sx = X(c), sr0 = R * .075;
+      g += `<circle cx="${sx}" cy="${hy}" r="${R * .42}" fill="url(#sunG)"/><circle cx="${sx}" cy="${hy - sr0 * .3}" r="${sr0}" fill="#fff4c2" stroke="#fcd34d" stroke-width="2"/>`;
+      g += `<rect x="0" y="${hy}" width="${w}" height="${Math.max(0, seaBot - hy)}" fill="url(#sea)"/>`;
+      g += `<path d="${silPath(hy, R)}" fill="#1f2a44"/>`;
+      /* the jetty, from the beach out towards the horizon */
+      const jb = Math.min(seaBot, Y(-1.3)), jt = Y(-.3);
+      if(jb > jt + 4){
+        g += `<path d="M${X(-.2)} ${jb} L${X(.2)} ${jb} L${X(.03)} ${jt} L${X(-.01)} ${jt} Z" fill="#3b2f2a" opacity=".75"/>`;
+        for(let i = 1; i <= 6; i++){ const u = i / 7, yy = lerp(jb, jt, u), xa = lerp(X(-.2), X(-.01), u), xb = lerp(X(.2), X(.03), u);
+          g += `<line x1="${xa}" y1="${yy}" x2="${xa}" y2="${yy + (jb - jt) * .05 * (1 - u)}" stroke="#3b2f2a" stroke-width="${2 * (1 - u) + .6}" opacity=".7"/><line x1="${xb}" y1="${yy}" x2="${xb}" y2="${yy + (jb - jt) * .05 * (1 - u)}" stroke="#3b2f2a" stroke-width="${2 * (1 - u) + .6}" opacity=".7"/>`; }
+      }
+      g += `<line x1="0" x2="${w}" y1="${hy}" y2="${hy}" stroke="#fff7ed" stroke-width="1.6" opacity=".9"/>`;
+      const tf = f * .7;
+      /* the cos θ label sits under the base when the sun is above: tick numbers make way for it */
+      let gapL = 1e9, gapR = -1e9;
+      if(P.tri > .5 && sinD(P.ang) >= 0 && Math.abs(X(cosD(P.ang)) - X(0)) > f * .8){
+        const lw = runW(sunXL(P.ang), f * 1.02), lcx = (X(0) + X(cosD(P.ang))) / 2;
+        gapL = lcx - lw / 2 - tf * .9; gapR = lcx + lw / 2 + tf * .9;
+      }
+      [[-1, MINUS + "1"], [-.5, MINUS + "0.5"], [0, "0"], [.5, "0.5"], [1, "1"]].forEach(([u, lab]) => {
+        g += `<line x1="${X(u)}" x2="${X(u)}" y1="${hy - 5}" y2="${hy + 5}" stroke="#fff7ed" stroke-width="2"/>`;
+        if(X(u) > gapL && X(u) < gapR) return;
+        g += `<text class="hd tk" x="${X(u)}" y="${hy + tf * 1.15}" font-size="${tf}" fill="#fff" text-anchor="middle" dominant-baseline="central">${lab}</text>`;
+      });
+      g += `<text class="hd ui" x="${X(0)}" y="${hy + tf * 2.25}" font-size="${tf * .82}" fill="#fff" text-anchor="middle" dominant-baseline="central">due east</text>`;
+      g += `<text class="hd ui" x="${Math.max(8, X(-1.6))}" y="${hy + tf * 2.25}" font-size="${tf * .82}" fill="#fff" dominant-baseline="central">&#8592; north</text>`;
+      g += `<text class="hd ui" x="${Math.min(w - 8, X(1.6))}" y="${hy + tf * 2.25}" font-size="${tf * .82}" fill="#fff" text-anchor="end" dominant-baseline="central">south &#8594;</text>`;
+      g += `<text class="hd ui" x="${Math.max(8, X(-1.62))}" y="${hy - R * .3}" font-size="${tf * .78}" fill="#fff" dominant-baseline="central">Muttonbird Island</text>`;
+      const capOp = 1 - span01(P.stk, 0, .4);
+      if(capOp > .01) g += `<text class="hd ui" x="10" y="${h - 12}" font-size="${tf * .8}" fill="#fff" opacity="${capOp.toFixed(3)}">Looking east from Jetty Beach, Coffs Harbour (stylised)</text>`;
+      o += g + "</g>";
+    }
+
+    /* --- The tide: sky, island, harbour floor and beach, jetty and tide board, boats, then the water over them --- */
+    if(tdo > .01) o += tideScene(a, tdo);
 
     /* --- grid and axes (the unit circle's; they fade as the wheel arrives) --- */
     const ax = P.ax * uo;
@@ -736,18 +892,18 @@
       for(let i = -6; i <= 6; i++){ const y = oy + i * R * .5; if(!i || y < 0 || y > h) continue; g += `<line y1="${f3(y)}" y2="${f3(y)}" x1="0" x2="${w}" stroke="${i % 2 ? C.grid : C.gridB}" stroke-width="1"/>`; }
       g += `<line x1="0" x2="${w - 8}" y1="${oy}" y2="${oy}" stroke="${C.axis}" stroke-width="2"/>` + arrowHead(w - 4, oy, 1, 0, 10, C.axis);
       g += `<line y1="${h}" y2="8" x1="${ox}" x2="${ox}" stroke="${C.axis}" stroke-width="2"/>` + arrowHead(ox, 4, 0, -1, 10, C.axis);
-      g += `<text x="${w - 12}" y="${oy - f * .9}" font-size="${f * 1.05}" fill="${C.axis}" font-style="italic" text-anchor="end" dominant-baseline="central">x</text>`;
-      g += `<text x="${ox + f * .75}" y="${10 + f * .5}" font-size="${f * 1.05}" fill="${C.axis}" font-style="italic" dominant-baseline="central">y</text>`;
+      g += `<text class="tk" x="${w - 12}" y="${oy - f * .9}" font-size="${f * 1.05}" fill="${C.axis}" font-style="italic" text-anchor="end" dominant-baseline="central">x</text>`;
+      g += `<text class="tk" x="${ox + f * .75}" y="${10 + f * .5}" font-size="${f * 1.05}" fill="${C.axis}" font-style="italic" dominant-baseline="central">y</text>`;
       const tf = f * .78;
       [[-1, MINUS + "1", 1], [-.5, MINUS + "0.5", 1 - z], [.5, "0.5", 1 - z], [1, "1", 1]].forEach(([u, lab, lop]) => {
         g += `<line x1="${X(u)}" x2="${X(u)}" y1="${oy - 5}" y2="${oy + 5}" stroke="${C.axis}" stroke-width="2"/>`;
         g += `<line y1="${Y(u)}" y2="${Y(u)}" x1="${ox - 5}" x2="${ox + 5}" stroke="${C.axis}" stroke-width="2"/>`;
         if(lop > .03){
-          g += `<text class="h" x="${X(u) + (u > 0 ? 9 : -9)}" y="${oy + tf * .9}" font-size="${tf}" fill="${C.tick}" text-anchor="${u > 0 ? "start" : "end"}" dominant-baseline="central" opacity="${lop.toFixed(3)}">${lab}</text>`;
-          g += `<text class="h" x="${ox - 8}" y="${Y(u) + (u > 0 ? -tf * .62 : tf * .62)}" font-size="${tf}" fill="${C.tick}" text-anchor="end" dominant-baseline="central" opacity="${lop.toFixed(3)}">${lab}</text>`;
+          g += `<text class="h tk" x="${X(u) + (u > 0 ? 9 : -9)}" y="${oy + tf * .9}" font-size="${tf}" fill="${C.tick}" text-anchor="${u > 0 ? "start" : "end"}" dominant-baseline="central" opacity="${lop.toFixed(3)}">${lab}</text>`;
+          g += `<text class="h tk" x="${ox - 8}" y="${Y(u) + (u > 0 ? -tf * .62 : tf * .62)}" font-size="${tf}" fill="${C.tick}" text-anchor="end" dominant-baseline="central" opacity="${lop.toFixed(3)}">${lab}</text>`;
         }
       });
-      g += `<text class="h" x="${ox - 8}" y="${oy + tf * .9}" font-size="${tf}" fill="${C.tick}" text-anchor="end" dominant-baseline="central">0</text>`;
+      g += `<text class="h tk" x="${ox - 8}" y="${oy + tf * .9}" font-size="${tf}" fill="${C.tick}" text-anchor="end" dominant-baseline="central">0</text>`;
       o += g + "</g>";
     }
 
@@ -826,11 +982,41 @@
       }
     }
 
+    /* --- Sunrise: the year dial (months round the circle, December at 0°) --- */
+    if(so > .01 && P.m >= .999){
+      let g = `<g opacity="${so.toFixed(3)}"><circle cx="${ox}" cy="${oy}" r="${R}" fill="none" stroke="#fff" stroke-opacity=".8" stroke-width="2" stroke-dasharray="6 6"/>`;
+      for(let k = 0; k < 12; k++){
+        const t = k * 30 * RAD, cx = Math.cos(t), sy = Math.sin(t);
+        g += `<line x1="${X(cx * .95)}" y1="${Y(sy * .95)}" x2="${X(cx * 1.05)}" y2="${Y(sy * 1.05)}" stroke="#fff" stroke-width="2.4"/>`;
+        const lyU = k === 0 || k === 6 ? .1 : sy * 1.15;
+        g += `<text class="hd ui" x="${X(cx * 1.15)}" y="${Y(lyU)}" font-size="${f * .68}" fill="#fff" text-anchor="middle" dominant-baseline="central">${MONTHS[k]}</text>`;
+      }
+      o += g + "</g>";
+    }
+
+    /* --- The tide clock: a white face, the water inside it level with the tip of the hand --- */
+    if(tdo > .01 && P.m >= .999){
+      const wl = Y(s), half = Math.sqrt(Math.max(0, 1 - s * s)) * R;
+      let g = `<g opacity="${tdo.toFixed(3)}"><defs><clipPath id="faceClip"><circle cx="${ox}" cy="${oy}" r="${R}"/></clipPath></defs>`;
+      g += `<circle cx="${ox}" cy="${oy}" r="${R}" fill="#fffdf7"/>`;
+      g += `<rect x="${ox - R}" y="${wl}" width="${2 * R}" height="${Math.max(0, oy + R - wl)}" fill="#38bdf8" fill-opacity=".22" clip-path="url(#faceClip)"/>`;
+      g += `<line x1="${ox - half}" x2="${ox + half}" y1="${wl}" y2="${wl}" stroke="#0369a1" stroke-width="2" stroke-dasharray="6 5"/>`;
+      for(let k = 0; k < 12; k++){ const t = k * 30 * RAD, cx = Math.cos(t), sy = Math.sin(t), big = k % 3 === 0;
+        g += `<line x1="${X(cx * (big ? .84 : .9))}" y1="${Y(sy * (big ? .84 : .9))}" x2="${X(cx * .97)}" y2="${Y(sy * .97)}" stroke="#1e3a5f" stroke-width="${big ? 3 : 1.6}"/>`; }
+      g += `<circle cx="${ox}" cy="${oy}" r="${R}" fill="none" stroke="#1e3a5f" stroke-width="${Math.max(4, R * .06)}"/>`;
+      const lf = Math.max(9, f * .55);
+      g += `<text class="h ui tk2" x="${ox}" y="${Y(.66)}" font-size="${lf}" fill="#1e3a5f" text-anchor="middle" dominant-baseline="central">HIGH TIDE</text>`;
+      g += `<text class="h ui tk2" x="${ox}" y="${Y(-.66)}" font-size="${lf}" fill="#1e3a5f" text-anchor="middle" dominant-baseline="central">LOW TIDE</text>`;
+      g += `<text class="h ui tk2" x="${X(.66)}" y="${Y(-.16)}" font-size="${lf * .9}" fill="#0369a1" text-anchor="middle" dominant-baseline="central">rising</text>`;
+      g += `<text class="h ui tk2" x="${X(-.66)}" y="${Y(-.16)}" font-size="${lf * .9}" fill="#0369a1" text-anchor="middle" dominant-baseline="central">falling</text>`;
+      o += g + "</g>";
+    }
+
     /* --- θ --- */
     const showTri = P.tri > .01 && !axisAngle(a);
-    if(P.tri > .01 && a > .3){
-      const r0 = R * clamp(lerp(lerp(.12, .17, z), .15, fw), .1, .2), op = P.tri;
-      const aa = a > 360 ? a - 360 : a;
+    if(P.tri > .01 && a > .3 && P.turn < .45){
+      const r0 = R * clamp(lerp(lerp(.12, .17, z), .15, fw), .1, .2), op = P.tri * (1 - span01(P.turn, 0, .45));
+      const aa = a > 360 ? (((a % 360) + 360) % 360 || 360) : a;
       let g = `<g opacity="${op.toFixed(3)}">`;
       if(aa > .3){
         g += `<path d="M${ox} ${oy} ${arcPath(r0, 0, aa).replace(/^M/, "L")} Z" fill="#64748b" fill-opacity=".1"/>`;
@@ -847,7 +1033,7 @@
 
     /* --- related angle (a setting, unit circle only) --- */
     const q = quadrant(a), relA = related(a);
-    if(S.set.rel && signs && q > 1 && P.tri > .5 && !FER){
+    if(S.set.rel && signs && q > 1 && P.tri > .5 && !FER && !TID){
       const gc = cosD(relA), gs = sinD(relA);
       let g = `<g opacity="${(whole * .9).toFixed(3)}">`;
       g += `<path d="M${ox} ${oy} L${X(gc)} ${oy} L${X(gc)} ${Y(gs)} Z" fill="${C.rel}" fill-opacity=".06" stroke="${C.rel}" stroke-opacity=".55" stroke-width="2" stroke-dasharray="6 5"/>`;
@@ -898,11 +1084,13 @@
       const dropY = lerp(ey, oy, clamp(t * 1.3, 0, 1));
       const fillOp = span01(t, .55, 1);
       let g = "";
-      if(fillOp > 0) g += `<path d="M${ox} ${oy} L${ex} ${oy} L${ex} ${ey} Z" fill="#0ea5e9" fill-opacity="${((FER ? .14 : .07) * fillOp).toFixed(3)}"/>`;
-      const legOp = span01(t, .4, 1);
+      const triOp = 1 - span01(P.turn, 0, .45);
+      if(fillOp > 0 && !SUNM) g += `<path d="M${ox} ${oy} L${ex} ${oy} L${ex} ${ey} Z" fill="#0ea5e9" fill-opacity="${((FER ? .14 : .07) * fillOp).toFixed(3)}"/>`;
+      const legOp = span01(t, .4, 1) * triOp;
+      if(legOp > 0 && so > .01) g += `<line x1="${ox}" y1="${oy}" x2="${ex}" y2="${oy}" stroke="#fff" stroke-width="10" stroke-linecap="round" opacity="${(legOp * so).toFixed(3)}"/>`;
       if(legOp > 0) g += `<line x1="${ox}" y1="${oy}" x2="${ex}" y2="${oy}" stroke="${C.x}" stroke-width="5.5" stroke-linecap="round" opacity="${legOp.toFixed(3)}"/>`;
-      g += `<line x1="${ex}" y1="${ey}" x2="${ex}" y2="${dropY}" stroke="${C.y}" stroke-width="5.5" stroke-linecap="round"/>`;
-      if(t > .8){
+      g += `<line x1="${ex}" y1="${ey}" x2="${ex}" y2="${dropY}" stroke="${SUNM ? "#fff" : C.y}" stroke-width="${SUNM ? 3 : 5.5}" stroke-linecap="round"${SUNM ? ' stroke-dasharray="6 6"' : ""} opacity="${triOp.toFixed(3)}"/>`;
+      if(t > .8 && !SUNM){
         const k = Math.min(R * .07, 16, Math.abs(ex - ox) * .4, Math.abs(ey - oy) * .4), sx = c > 0 ? -1 : 1, sy = s > 0 ? -1 : 1;
         g += `<path d="M${ex + sx * k} ${oy} L${ex + sx * k} ${oy + sy * k} L${ex} ${oy + sy * k}" fill="none" stroke="${C.ink}" stroke-width="1.6" opacity="${span01(t, .8, 1).toFixed(3)}"/>`;
       }
@@ -918,7 +1106,9 @@
       const ang = m >= .999 ? a : 0;
       let g = `<g transform="rotate(${f3(-ang)} ${f3(x0)} ${f3(y0)})">`;
       g += woodStick(x0, y0, len, th, 1 - m);
-      if(m > .01) g += `<line x1="${x0}" y1="${y0}" x2="${x0 + len}" y2="${y0}" stroke="${C.ink}" stroke-width="${Math.max(5, th * .9)}" stroke-linecap="round" opacity="${m.toFixed(3)}"/>`;
+      if(m > .01 && so > .01) g += `<line x1="${x0}" y1="${y0}" x2="${x0 + len}" y2="${y0}" stroke="#fff" stroke-width="${Math.max(5, th * .9) + 5}" stroke-linecap="round" opacity="${(m * so).toFixed(3)}"/>`;
+      const stickOp = m * (1 - span01(P.turn, 0, .45));
+      if(m > .01) g += `<line x1="${x0}" y1="${y0}" x2="${x0 + len}" y2="${y0}" stroke="${C.ink}" stroke-width="${Math.max(5, th * .9)}" stroke-linecap="round" opacity="${stickOp.toFixed(3)}"/>`;
       o += g + "</g>";
       const bo = 1 - span01(m, 0, .45);
       if(bo > .01){
@@ -928,16 +1118,17 @@
       }
       if(m >= .999){
         const ex = X(c), ey = Y(s);
-        if(showTri && P.tri > .5){
+        if(showTri && P.tri > .5 && P.turn < .3){
           const nx = -s, ny = c, side = (ny * (0 - s)) > 0 ? -1 : 1;
           const pushOut = (S.set.tanLine && !FER && c > .55) ? .2 : .1;
           const mx = c / 2 + side * nx * pushOut, my = s / 2 + side * ny * pushOut;
-          o += rich(X(mx), Y(my), [T(FER ? "9 m" : "1", C.ink)], f * 1.02, C.ink, "middle", span01(P.tri, .5, 1), "hyp");
+          const hyp = rich(X(mx), Y(my), [T(FER ? "9 m" : TID ? "0.7 m" : "1", C.ink)], f * 1.02, C.ink, "middle", span01(P.tri, .5, 1), "hyp");
+          o += TID ? hyp.replace(/class="h"/g, 'class="h tk"') : hyp;    /* on the small tide clock it steps aside for θ and the side */
         }
         if(fo > .01){
           o += `<circle cx="${ox}" cy="${oy}" r="${R * .065}" fill="#334155" opacity="${fo.toFixed(3)}"/><circle cx="${ox}" cy="${oy}" r="${R * .03}" fill="#e2e8f0" opacity="${fo.toFixed(3)}"/>`;
         }
-        o += `<circle cx="${ox}" cy="${oy}" r="5.5" fill="${C.ink}" opacity="${(1 - fo).toFixed(3)}"/>`;
+        o += `<circle cx="${ox}" cy="${oy}" r="5.5" fill="${C.ink}" opacity="${((1 - fo) * (1 - span01(P.turn, 0, .45))).toFixed(3)}"/>`;
         const can = canDrag();
         if(can && !S.dragged && !reduceMotion){
           const tt = (performance.now() % 1600) / 1600;
@@ -954,16 +1145,18 @@
           }
           o += g + "</g>";
         }
-        if(fo < .99) o += `<circle cx="${ex}" cy="${ey}" r="${can ? 11 : 7}" fill="#fff" stroke="${C.ink}" stroke-width="3.2" opacity="${(1 - fo).toFixed(3)}"/>`;
+        if(fo < .99) o += `<circle cx="${ex}" cy="${ey}" r="${can ? 11 : 7}" fill="#fff" stroke="${C.ink}" stroke-width="3.2" opacity="${((1 - fo) * (1 - span01(P.turn, 0, .45))).toFixed(3)}"/>`;
       }
     }
 
     /* --- side labels --- */
-    if(showTri && P.tri > .5){
-      const op = span01(P.tri, .5, 1), ex = X(c), ey = Y(s), lf = f * 1.02;
+    if(showTri && P.tri > .5 && P.turn < .3){
+      const op = span01(P.tri, .5, 1) * (1 - span01(P.turn, 0, .3)), ex = X(c), ey = Y(s), lf = f * 1.02;
       const sx = c >= 0 ? "+" : MINUS, sy = s >= 0 ? "+" : MINUS;
       let xl, yl;
-      if(names){ xl = [T((c < 0 ? MINUS : "") + NAMES.x, C.xd)]; yl = [T((s < 0 ? MINUS : "") + NAMES.y, C.yd)]; }
+      if(SUNM){ xl = sunXL(a); yl = null; }
+      else if(TID){ xl = null; yl = mode === "numbers" ? [T(m2(tH(a)) + " m", C.yd)] : [T("0.7 sin ", C.yd), I("θ", C.yd)]; }
+      else if(names){ xl = [T((c < 0 ? MINUS : "") + NAMES.x, C.xd)]; yl = [T((s < 0 ? MINUS : "") + NAMES.y, C.yd)]; }
       else if(FER){
         xl = mode === "numbers" ? [T(m2(fd(a)) + " m", C.xd)] : [T("9 cos ", C.xd), I("θ", C.xd)];
         yl = mode === "numbers" ? [T(m2(FW.r * s) + " m", C.yd)] : [T("9 sin ", C.yd), I("θ", C.yd)];
@@ -971,15 +1164,15 @@
       else if(letters){ xl = signs ? [T(sx, C.xd), I("x", C.xd)] : [I("x", C.xd)]; yl = signs ? [T(sy, C.yd), I("y", C.yd)] : [I("y", C.yd)]; }
       else { xl = valSegs("c", a, C.xd); yl = valSegs("s", a, C.yd); }
       const xly = oy + (s >= 0 ? 1 : -1) * lf * (mode === "numbers" && !FER ? 1.05 : .85);
-      if(Math.abs(ex - ox) > lf * .8) o += rich((ox + ex) / 2, xly, xl, lf, C.xd, "middle", op, "xl");
+      if(xl && Math.abs(ex - ox) > lf * .8) o += rich((ox + ex) / 2, SUNM ? oy - (s >= 0 ? -1 : 1) * lf * .85 : xly, xl, lf, C.xd, "middle", op, "xl");
       const legH = Math.abs(ey - oy), crowded = S.set.tanLine && !FER && c > .55;
       const ylx = crowded ? ex - 10 : ex + (c >= 0 ? 1 : -1) * (FER ? CABW * V.R * .6 + 6 : 11);
       const an = crowded ? "end" : (c >= 0 ? "start" : "end");
-      if(legH > lf * .7 && !(crowded && legH < lf * 2.2)) o += rich(ylx, (ey + oy) / 2, yl, lf, C.yd, an, op, "yl");
+      if(yl && legH > lf * .7 && !(crowded && legH < lf * 2.2)) o += rich(ylx, (ey + oy) / 2, yl, lf, C.yd, an, op, "yl");
     }
 
     /* --- the point (unit circle only) --- */
-    if(P.tri > .5 && P.m >= .999 && !FER){
+    if(P.tri > .5 && P.m >= .999 && !FER && !SUNM && !TID){
       const op = span01(P.tri, .5, 1) * uo, ex = X(c), ey = Y(s), pf = f * .92;
       let segs;
       const sx = c >= 0 ? "+" : MINUS, sy = s >= 0 ? "+" : MINUS;
@@ -1021,10 +1214,179 @@
       o += person(x, y, P.walk * 46, 1 - span01(P.walk, .9, .97), 1.3);
     }
 
+    if(P.stk > .01) o += drawStack(a);
+    if(tdo > .01){
+      const tf = Math.max(12, f * .78), txt = `time ${hm(Math.max(0, a))}`, st = tideState(a);
+      const w1 = runW([T(txt)], tf) + 22, w2 = runW([T(st)], tf * .9) + 22;
+      o += `<g opacity="${tdo.toFixed(3)}"><rect x="10" y="10" width="${w1}" height="${tf * 1.7}" rx="${tf * .85}" fill="#fff" fill-opacity=".92" stroke="#bae6fd"/>`;
+      o += `<text class="ui" x="${10 + w1 / 2}" y="${10 + tf * .85}" font-size="${tf}" fill="#0c4a6e" text-anchor="middle" dominant-baseline="central">${txt}</text>`;
+      o += `<rect x="${16 + w1}" y="10" width="${w2}" height="${tf * 1.7}" rx="${tf * .85}" fill="${st === "falling" || st === "low tide" ? "#fee2e2" : "#dcfce7"}" fill-opacity=".95"/>`;
+      o += `<text class="ui" x="${16 + w1 + w2 / 2}" y="${10 + tf * .85}" font-size="${tf * .9}" fill="${st === "falling" || st === "low tide" ? "#991b1b" : "#166534"}" text-anchor="middle" dominant-baseline="central">${st}</text></g>`;
+    }
+
     svg.innerHTML = o;
+    declutter(svg);
     svg.classList.toggle("can", canDrag());
     renderPanel();
     renderGraphs();
+  }
+
+  /* the tide scene, side on: everything here is drawn from the water level wl = sin θ (board units) */
+  function boatSVG(xc, wl, kind, ph){
+    const { X, Y, R } = V, Wd = kind ? .52 : .44, tilt = Math.sin(ph) * 2.2;
+    const x0 = X(xc), y0 = Y(wl);
+    let g = `<g transform="rotate(${f3(tilt)} ${f3(x0)} ${f3(y0)})">`;
+    const hw = Wd * R / 2, deck = y0 - R * .07, keel = y0 + R * .06;
+    if(kind){       /* a yacht: white hull, tall mast, furled sail */
+      g += `<path d="M${x0 - hw} ${deck} L${x0 + hw * 1.05} ${deck} L${x0 + hw * .72} ${keel} L${x0 - hw * .8} ${keel} Z" fill="#f8fafc" stroke="#334155" stroke-width="1.4"/>`;
+      g += `<line x1="${x0 - hw}" x2="${x0 + hw * 1.05}" y1="${deck + R * .028}" y2="${deck + R * .028}" stroke="#2563eb" stroke-width="${Math.max(1.5, R * .018)}"/>`;
+      g += `<rect x="${x0 - hw * .35}" y="${deck - R * .07}" width="${hw * .7}" height="${R * .07}" rx="3" fill="#e2e8f0" stroke="#334155" stroke-width="1"/>`;
+      g += `<line x1="${x0 + hw * .1}" x2="${x0 + hw * .1}" y1="${deck}" y2="${deck - R * .78}" stroke="#334155" stroke-width="2"/>`;
+      g += `<line x1="${x0 + hw * .1}" x2="${x0 - hw * .85}" y1="${deck - R * .16}" y2="${deck - R * .16}" stroke="#334155" stroke-width="2"/>`;
+      g += `<path d="M${x0 + hw * .1} ${deck - R * .2} L${x0 - hw * .8} ${deck - R * .17} L${x0 + hw * .1} ${deck - R * .3} Z" fill="#cbd5e1"/>`;
+    } else {        /* a fishing boat: red hull, wheelhouse, short mast */
+      g += `<path d="M${x0 - hw} ${deck - R * .02} L${x0 + hw * 1.08} ${deck - R * .05} L${x0 + hw * .78} ${keel} L${x0 - hw * .82} ${keel} Z" fill="#dc2626" stroke="#7f1d1d" stroke-width="1.4"/>`;
+      g += `<line x1="${x0 - hw}" x2="${x0 + hw * 1.06}" y1="${deck + R * .012}" y2="${deck - R * .014}" stroke="#fff" stroke-width="${Math.max(1.5, R * .016)}"/>`;
+      g += `<rect x="${x0 + hw * .05}" y="${deck - R * .16}" width="${hw * .6}" height="${R * .14}" rx="2" fill="#f8fafc" stroke="#334155" stroke-width="1.2"/>`;
+      g += `<rect x="${x0 + hw * .14}" y="${deck - R * .13}" width="${hw * .4}" height="${R * .045}" fill="#7dd3fc"/>`;
+      g += `<line x1="${x0 - hw * .5}" x2="${x0 - hw * .5}" y1="${deck}" y2="${deck - R * .36}" stroke="#334155" stroke-width="2"/>`;
+      g += `<line x1="${x0 - hw * .5}" x2="${x0 + hw * .9}" y1="${deck - R * .34}" y2="${deck - R * .06}" stroke="#334155" stroke-width="1.2"/>`;
+    }
+    return g + "</g>";
+  }
+  function tideScene(a, op){
+    const { X, Y, R, w, h, f } = V, s = sinD(a), wl = s, yW = Y(wl);
+    let g = `<g opacity="${op.toFixed(3)}">`;
+    g += `<rect x="0" y="0" width="${w}" height="${h}" fill="url(#daySky)"/>`;
+    [[.42, .1, .8], [.66, .16, 1], [.9, .08, .7]].forEach(([u, v, k]) => {
+      const cx = w * u, cy = h * v, r0 = R * .12 * k;
+      g += `<g fill="#fff" opacity=".85"><ellipse cx="${cx}" cy="${cy}" rx="${r0 * 1.6}" ry="${r0 * .6}"/><ellipse cx="${cx - r0 * .6}" cy="${cy - r0 * .25}" rx="${r0 * .9}" ry="${r0 * .6}"/><ellipse cx="${cx + r0 * .5}" cy="${cy - r0 * .35}" rx="${r0 * .8}" ry="${r0 * .7}"/></g>`;
+    });
+    /* Muttonbird Island behind the harbour */
+    g += `<path d="${ISL3.map(([x, y], i) => (i ? "L" : "M") + f3(X(x)) + " " + f3(Y(y))).join(" ")}Z" fill="#5f8f6a"/>`;
+    g += `<path d="M${X(1.35)} ${Y(1.0)} Q${X(1.55)} ${Y(1.13)} ${X(1.8)} ${Y(1.0)}" fill="none" stroke="#7fb08a" stroke-width="3" opacity=".7"/>`;
+    g += `<text class="hd ui" x="${X(1.65)}" y="${Y(1.6)}" font-size="${Math.max(10, f * .58)}" fill="#fff" text-anchor="middle" dominant-baseline="central">Muttonbird Island</text>`;
+    /* harbour floor and beach */
+    const xr = (w - V.ox) / R + .1, xl = -V.ox / R - .1;
+    g += `<path d="M${X(xl)} ${Y(TIDE.bed)} L${X(TIDE.sx)} ${Y(TIDE.bed)} L${X(xr)} ${Y(sandY(xr))} L${X(xr)} ${h} L${X(xl)} ${h} Z" fill="url(#sand)"/>`;
+    /* the strip between the low and high tide marks, and seaweed at the high tide mark */
+    const xLo = shoreX(-1), xHi = shoreX(1);
+    g += `<line x1="${X(xLo)}" y1="${Y(-1)}" x2="${X(xHi)}" y2="${Y(1)}" stroke="#c9a96a" stroke-width="${Math.max(4, R * .05)}" stroke-linecap="round" opacity=".75"/>`;
+    for(let i = 0; i < 6; i++){ const xx = X(xHi) + (i - 2.5) * R * .05; g += `<circle cx="${xx}" cy="${Y(sandY((xx - V.ox) / R)) - 2}" r="${Math.max(2, R * .018)}" fill="#3f6212" opacity=".8"/>`; }
+    const tf = Math.max(10, f * .55);
+    {  /* along the beach, just inside the sand, ending at the mark */
+      const ang = Math.atan(TIDE.slope) / RAD, ux = Math.cos(ang * RAD), uy = Math.sin(ang * RAD);
+      const lx = X(xHi) - ux * 6 + uy * tf * .95, ly = Y(1) + uy * 6 + ux * tf * .95;
+      g += `<text class="ui" transform="rotate(${f3(-ang)} ${f3(lx)} ${f3(ly)})" x="${f3(lx)}" y="${f3(ly)}" font-size="${tf * .92}" fill="#7c5a1f" text-anchor="end" dominant-baseline="central">high tide mark</text>`;
+    }
+    /* the jetty: deck, rail, piles down into the sand; the tide board on the seaward pile */
+    const dk = TIDE.deck;
+    for(let x = TIDE.board; x < xr; x += .5){
+      g += `<rect x="${X(x) - R * .03}" y="${Y(dk)}" width="${R * .06}" height="${Math.max(0, Y(sandY(x)) - Y(dk))}" fill="#6b5b4b"/>`;
+    }
+    g += `<rect x="${X(TIDE.board - .08)}" y="${Y(dk + .06)}" width="${Math.max(0, w - X(TIDE.board - .08))}" height="${R * .1}" fill="#8b6f4e" stroke="#5b4636" stroke-width="1"/>`;
+    g += `<line x1="${X(TIDE.board - .08)}" x2="${w}" y1="${Y(dk + .2)}" y2="${Y(dk + .2)}" stroke="#5b4636" stroke-width="2"/>`;
+    for(let x = TIDE.board - .05; x < xr; x += .25) g += `<line x1="${X(x)}" x2="${X(x)}" y1="${Y(dk + .06)}" y2="${Y(dk + .2)}" stroke="#5b4636" stroke-width="1.6"/>`;
+    g += `<text class="hd ui" x="${Math.min(w - 8, X(4.3))}" y="${Y(dk + .29)}" font-size="${tf}" fill="#fff" text-anchor="${X(4.3) > w - 8 ? "end" : "middle"}" dominant-baseline="central">Coffs Harbour Jetty</text>`;
+    const bx = X(TIDE.board), bw = Math.max(10, R * .1);
+    g += `<rect x="${bx - bw / 2}" y="${Y(1.15)}" width="${bw}" height="${Y(-1.15) - Y(1.15)}" fill="#fff" stroke="#334155" stroke-width="1.4"/>`;
+    for(let k = -4; k <= 4; k++){ const yy = Y(k / 4), big = k % 2 === 0;
+      g += `<line x1="${bx - bw / 2}" x2="${bx - bw / 2 + bw * (big ? .8 : .45)}" y1="${yy}" y2="${yy}" stroke="${k === 0 ? "#dc2626" : "#334155"}" stroke-width="${big ? 2 : 1}"/>`; }
+    [[1, "0.7"], [0, "0"], [-1, MINUS + "0.7"]].forEach(([v, lab]) => {
+      g += `<text class="h tk" x="${bx + bw / 2 + 5}" y="${Y(v)}" font-size="${tf}" fill="#334155" dominant-baseline="central">${lab}</text>`; });
+    g += `<text class="h ui tk" x="${bx}" y="${Y(1.15) - tf * .9}" font-size="${tf * .9}" fill="#334155" text-anchor="middle" dominant-baseline="central">m</text>`;
+    /* mean sea level, where the x-axis was */
+    g += `<line x1="${X(1.02)}" x2="${X(shoreX(0))}" y1="${Y(0)}" y2="${Y(0)}" stroke="#334155" stroke-width="1.6" stroke-dasharray="7 6" opacity=".55"/>`;
+    g += `<text class="h ui tk" x="${X(shoreX(0)) + 6}" y="${Y(0)}" font-size="${tf}" fill="#334155" dominant-baseline="central">mean sea level</text>`;
+    /* moored boats: the mooring lines go slack as the tide falls */
+    [[1.4, 0, -.95], [2.12, 1, 1.4]].forEach(([xc, kind, ph]) => {
+      const bowX = xc - (kind ? .27 : .23), anX = xc - .62, slack = .35 * (1 - (wl + 1) / 2);
+      const mx = (bowX + anX) / 2, my = (wl + TIDE.bed) / 2 - slack;
+      g += `<path d="M${X(bowX)} ${Y(wl - .02)} Q${X(mx - slack * .3)} ${Y(my)} ${X(anX)} ${Y(TIDE.bed)}" fill="none" stroke="#475569" stroke-width="1.6"/>`;
+      g += `<rect x="${X(anX) - 4}" y="${Y(TIDE.bed) - 4}" width="8" height="5" fill="#475569"/>`;
+      g += boatSVG(xc, wl, kind, a * RAD * 2.7 + ph);
+    });
+    /* the water, in front of the floor, the piles and the hulls */
+    const xs = shoreX(wl), amp = Math.max(1.5, R * .018), lam = Math.max(18, R * .28), phase = a * RAD * 3;
+    let d = `M${X(xl)} ${yW}`;
+    for(let x = X(xl); x <= X(xs); x += 6) d += ` L${f3(x)} ${f3(yW + amp * Math.sin((x / lam) * 2 * Math.PI + phase))}`;
+    d += ` L${X(xs)} ${yW} L${X(TIDE.sx)} ${Y(TIDE.bed)} L${X(TIDE.sx)} ${h} L${X(xl)} ${h} Z`;
+    g += `<path d="${d}" fill="url(#harbour)" fill-opacity=".72"/>`;
+    g += `<path d="M${X(xl)} ${yW} L${X(xs)} ${yW}" stroke="#e0f2fe" stroke-width="2" opacity=".85"/>`;
+    g += `<path d="M${X(xs) - R * .12} ${yW + 1.5} L${X(xs) + R * .02} ${yW + 1.5}" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".9"/>`;
+    /* where the water reaches the tide board, and its height */
+    g += `<polygon points="${bx - bw / 2 - 9},${yW - 6} ${bx - bw / 2 - 1},${yW} ${bx - bw / 2 - 9},${yW + 6}" fill="${C.yd}"/>`;
+    g += `<text class="h ui" x="10" y="${h - 12}" font-size="${tf * .9}" fill="#0c4a6e">Coffs Harbour Jetty and Jetty Beach, side on (not to scale)</text>`;
+    return g + "</g>";
+  }
+
+  /* the record of sunrises: one strip per month under the horizon, the red line through the suns, and
+     (P.turn) the quarter-turn that lays it down as the graph of cos θ: down the page becomes left to right,
+     December's +1 becomes the top. Labels counter-rotate so they stay upright. */
+  function drawStack(a){
+    const P = S.P, { X, Y, R, w, h, f } = V, e = ease(clamp(P.turn, 0, 1));
+    const x0 = X(-SUNS.w), x1 = X(SUNS.w), yT = Y(SUNS.top), rowPx = SUNS.rh * R, yB = yT + SUNS.n * rowPx;
+    const scx = (x0 + x1) / 2, scy = (yT + yB) / 2, Ws = x1 - x0, Hs = yB - yT;
+    const kF = Math.min((w - 120) / Hs, (h - 96) / Ws), tx = w / 2 + 24, ty = h / 2 - 16;
+    const cx = lerp(scx, tx, e), cy = lerp(scy, ty, e), sc = lerp(1, kF, e), rot = -90 * e;
+    const up = (x, y) => `transform="rotate(${f3(90 * e)} ${f3(x)} ${f3(y)})"`;
+    const lf = f * .62 / sc;
+    let g = `<defs><clipPath id="stkClip" clipPathUnits="userSpaceOnUse"><rect x="${x0}" y="${yT}" width="${Ws}" height="${Hs}"/></clipPath></defs>`;
+    g += `<g data-k="stack" opacity="${span01(P.stk, .35, 1).toFixed(3)}" transform="translate(${f3(cx)} ${f3(cy)}) rotate(${f3(rot)}) scale(${f3(sc)}) translate(${f3(-scx)} ${f3(-scy)})">`;
+    const photo = 1 - .94 * e;
+    g += `<rect x="${x0 - 2}" y="${yT - 2}" width="${Ws + 4}" height="${Hs + 4}" fill="#fff" stroke="#cbd5e1" stroke-width="1.2" rx="4"/>`;
+    g += `<g clip-path="url(#stkClip)" opacity="${photo.toFixed(3)}">`;
+    for(let k = 0; k < SUNS.n; k++){
+      const yy = yT + k * rowPx, hh = rowPx * .9, rec = S.smax >= k * 30 - 1e-6;
+      if(rec){
+        const hz = yy + hh * .7, sx = X(cosD(k * 30));
+        g += `<rect x="${x0}" y="${yy}" width="${Ws}" height="${hh * .7}" fill="url(#dawn)"/><rect x="${x0}" y="${hz}" width="${Ws}" height="${hh * .3}" fill="url(#sea)"/>`;
+        g += `<circle cx="${sx}" cy="${hz}" r="${hh * .55}" fill="url(#sunG)"/><circle cx="${sx}" cy="${hz - hh * .04}" r="${hh * .12}" fill="#fff4c2"/>`;
+        g += `<path d="${silPath(hz, hh * 2.4)}" fill="#1f2a44"/>`;
+      } else g += `<rect x="${x0}" y="${yy}" width="${Ws}" height="${hh}" fill="#f1f5f9"/>`;
+    }
+    g += "</g>";
+    /* due east, which becomes the time axis */
+    g += `<line x1="${X(0)}" x2="${X(0)}" y1="${yT}" y2="${yB}" stroke="${e > .5 ? "#64748b" : "#fff"}" stroke-width="${1.6 / sc}" stroke-dasharray="${e > .5 ? "none" : "4 4"}" opacity=".9"/>`;
+    if(e > .02){
+      [-1, 1].forEach(u => { g += `<line x1="${X(u)}" x2="${X(u)}" y1="${yT}" y2="${yB}" stroke="#94a3b8" stroke-width="${1 / sc}" stroke-dasharray="3 4" opacity="${e.toFixed(3)}"/>`; });
+    }
+    /* labels: months down the side, −1…1 across the top */
+    for(let k = 0; k < SUNS.n; k++){
+      const lx = x0 - 6 / sc, ly = yT + (k + .45) * rowPx, done = S.smax >= k * 30 - 1e-6;
+      g += `<g ${up(lx, ly)}><text class="h ui" x="${f3(lx)}" y="${f3(ly)}" font-size="${f3(lf)}" fill="${done ? "#334155" : "#94a3b8"}" text-anchor="${e > .5 ? "middle" : "end"}" dominant-baseline="${e > .5 ? "hanging" : "central"}">${e > .5 ? k : k + " " + MONTHS[k]}</text></g>`;
+    }
+    [[-1, MINUS + "1"], [-.5, MINUS + "0.5"], [0, "0"], [.5, "0.5"], [1, "1"]].forEach(([u, lab]) => {
+      const lx = X(u), ly = yT - 6 / sc;
+      g += `<g ${up(lx, ly)}><text class="h tk" x="${f3(lx)}" y="${f3(ly)}" font-size="${f3(lf * 1.05)}" fill="#334155" text-anchor="${e > .5 ? "end" : "middle"}" dominant-baseline="${e > .5 ? "central" : "auto"}">${lab}</text></g>`;
+    });
+    /* the red line, from December up to the hand */
+    const end = clamp(a, 0, 360);
+    if(end > 0 || S.smax > 0){
+      let d = "";
+      for(let t = 0; t <= end + 1e-9; t += 1) d += (t ? "L" : "M") + f3(X(cosD(t))) + " " + f3(yT + (t / 30 + .45) * rowPx);
+      if(end % 1) d += "L" + f3(X(cosD(end))) + " " + f3(yT + (end / 30 + .45) * rowPx);
+      g += `<path d="${d}" fill="none" stroke="#fff" stroke-width="${6 / Math.sqrt(sc)}" stroke-linejoin="round" opacity="${(1 - e).toFixed(3)}"/>`;
+      g += `<path d="${d}" fill="none" stroke="#dc2626" stroke-width="${3.4 / Math.sqrt(sc)}" stroke-linejoin="round" stroke-linecap="round"/>`;
+      g += `<circle cx="${f3(X(cosD(end)))}" cy="${f3(yT + (end / 30 + .45) * rowPx)}" r="${5 / sc}" fill="#fff" stroke="#dc2626" stroke-width="${2.6 / sc}"/>`;
+    }
+    g += "</g>";
+    /* the sun drops into the record */
+    if(e < .3 && S.P.tri > .5){
+      const sx = X(cosD(a)), yE = yT + (clamp(a, 0, 360) / 30 + .45) * rowPx;
+      g += `<line x1="${sx}" x2="${sx}" y1="${Y(0)}" y2="${yE}" stroke="#fde68a" stroke-width="2" stroke-dasharray="3 5" opacity="${(.9 * (1 - e / .3) * span01(P.stk, .5, 1)).toFixed(3)}"/>`;
+    }
+    /* once it is lying down: what the axes are */
+    const lab = span01(P.turn, .8, 1);
+    if(lab > .01){
+      const gw = Hs * kF, gh = Ws * kF;
+      g += `<g opacity="${lab.toFixed(3)}">`;
+      g += `<text class="h ui" x="${tx}" y="${ty + gh / 2 + f * 2.2}" font-size="${f * .72}" fill="#334155" text-anchor="middle" dominant-baseline="central">months after the December solstice</text>`;
+      g += `<text class="h ui" transform="rotate(-90 ${tx - gw / 2 - f * 2.6} ${ty})" x="${tx - gw / 2 - f * 2.6}" y="${ty}" font-size="${f * .72}" fill="#334155" text-anchor="middle" dominant-baseline="central">sunrise position</text>`;
+      g += rich(tx + gw / 2, ty - gh / 2 - f * .9, [T("position = cos "), I("θ"), T(",  "), I("θ"), T(" = 30° × month")], f * .95, "#b91c1c", "end", null, "rule");
+      g += "</g>";
+    }
+    return g;
   }
 
   /* ------------------------------------------------------------ the panel: readouts */
@@ -1044,11 +1406,21 @@
   const joinParts = parts => parts.map(p => p === "=" ? "<span>=</span>" : `<span>${p}</span>`).join("");
   function exprH(f){
     const P = S.P, a = P.ang, letters = S.set.labels !== "numbers", signs = P.sg > .5;
+    if(tide()){
+      if(f === "t") return `<span class="q">Run the clock to fill it in</span>`;
+      if(P.tri < .5) return `<span class="q">${mi("h")} = ?</span>`;
+      return joinParts([`<span class="fn">${mi("h")}</span>`, "="].concat(S.set.rule ? [`0.7 sin ${angTxt(a)}`, "="] : [], [`${m2(tH(a))} m`]));
+    }
     if(ferris()){
       if(f === "t") return `<span class="q">Turn the wheel to fill it in</span>`;
       if(P.tri < .5 || a < 0) return `<span class="q">${f === "s" ? mi("h") : mi("d")} = ?</span>`;
       if(f === "s") return joinParts([`<span class="fn">${mi("h")}</span>`, "="].concat(S.set.rule ? [`9 sin ${angTxt(a)}`, "="] : [], [`${m2(fh(a))} m`]));
       return joinParts([`<span class="fn">${mi("d")}</span>`, "="].concat(S.set.rule ? [`9 cos ${angTxt(a)}`, "="] : [], [`${m2(fd(a))} m`]));
+    }
+    if(sunrise()){
+      if(f === "t") return `<span class="q">A month at a time</span>`;
+      if(P.tri < .5) return `<span class="q">position = ?</span>`;
+      return joinParts([`<span class="fn">position</span>`, "="].concat(S.set.rule ? [`cos ${angTxt(a)}`, "="] : [], [dec(cosD(a))]));
     }
     if(P.tri < .5) return `<span class="q">${NAME[f]} ${mi("θ")} = ?</span>`;
     const aTxt = (letters && !signs) ? mi("θ") : angTxt(a);
@@ -1079,6 +1451,30 @@
     if(f === "s"){ const v = fh(a); return Math.abs(v) < 1e-6 ? ["zero", "level with the centre"] : v > 0 ? ["pos", "above the centre"] : ["neg", "below the centre"]; }
     const v = fd(a); return Math.abs(v) < 1e-6 ? ["zero", "in line with the centre"] : v > 0 ? ["pos", "right of centre"] : ["neg", "left of centre"];
   }
+  function tideSign(a){ const v = tH(a); return Math.abs(v) < 1e-6 ? ["zero", "at mean sea level"] : v > 0 ? ["pos", "above mean sea level"] : ["neg", "below mean sea level"]; }
+  function tideTableH(){
+    const done = d => S.tmax >= d - 1e-6, cur = d => Math.abs(S.P.ang - d) < 1e-6;
+    const block = ds => {
+      const pad = ds.length < 7 ? `<th class="pad"></th>` : "", padD = ds.length < 7 ? `<td class="pad"></td>` : "";
+      let t = `<table><tr><th class="rh">Tide</th>${ds.map(d => `<th class="${cur(d) ? "cur" : ""}">${TIDE_SHORT[((Math.round(d / 90) % 4) + 4) % 4]}</th>`).join("")}${pad}</tr>`;
+      t += `<tr><td class="rh">time</td>${ds.map(d => `<td class="${cur(d) ? "cur" : ""}" style="font-size:.86em">${hmShort(d)}</td>`).join("")}${padD}</tr>`;
+      t += `<tr><td class="rh">${mi("h")} (m)</td>${ds.map(d => done(d) ? `<td class="h ${cur(d) ? "cur" : ""}">${m2(tH(d))}</td>` : `<td class="q">?</td>`).join("")}${padD}</tr></table>`;
+      return t;
+    };
+    return block([0, 90, 180, 270, 360, 450, 540]) + block([630, 720, 810, 900, 990, 1080]);
+  }
+  function sunSign(a){ const v = cosD(a); return Math.abs(v) < 1e-6 ? ["zero", "due east"] : v > 0 ? ["pos", "south of east"] : ["neg", "north of east"]; }
+  function sunTableH(){
+    const done = k => S.smax >= k * 30 - 1e-6, cur = k => Math.abs(S.P.ang - k * 30) < 1e-6;
+    const block = ks => {
+      const pad = ks.length < 7 ? `<th class="pad"></th>` : "", padD = ks.length < 7 ? `<td class="pad"></td>` : "";
+      let t = `<table><tr><th class="rh">Month</th>${ks.map(k => `<th class="${cur(k) ? "cur" : ""}">${MONTHS[k]}<br>${k}</th>`).join("")}${pad}</tr>`;
+      t += `<tr><td class="rh">${mi("θ")}</td>${ks.map(k => `<td class="${cur(k) ? "cur" : ""}">${angTxt(k * 30)}</td>`).join("")}${padD}</tr>`;
+      t += `<tr><td class="rh">position</td>${ks.map(k => done(k) ? `<td class="h ${cur(k) ? "cur" : ""}" style="color:#b91c1c">${dec(cosD(k * 30))}</td>` : `<td class="q">?</td>`).join("")}${padD}</tr></table>`;
+      return t;
+    };
+    return block([0, 1, 2, 3, 4, 5, 6]) + block([7, 8, 9, 10, 11, 12]);
+  }
   function tableH(){
     const cols = []; for(let d = 0; d <= 720; d += 90) cols.push(d);
     const done = d => S.fmax >= d - 1e-6, cur = d => Math.abs(S.P.ang - d) < 1e-6;
@@ -1092,50 +1488,65 @@
   const lastH = { s:"", c:"", t:"" };
   let lastTab = "", lastMode = "";
   function renderPanel(){
-    const P = S.P, k = S.step, FER = ferris();
-    const modeKey = FER ? "f" : "u";
+    const P = S.P, k = S.step, FER = ferris(), SUN = sunrise(), TID = tide(), TAB = FER || SUN || TID;
+    const modeKey = FER ? "f" : SUN ? "s" : TID ? "d" : "u";
     if(modeKey !== lastMode){
       lastMode = modeKey;
-      $("fn_s").innerHTML = FER ? `<span class="ln">Height from the centre</span><span class="sn">Height</span>` : "Sine";
-      $("fn_c").innerHTML = FER ? `<span class="ln">Across from the centre</span><span class="sn">Across</span>` : "Cosine";
-      $("fn_t").textContent = FER ? "Table" : "Tangent";
-      $("pTitle").textContent = FER ? "The wheel as it turns" : "The ratios as the stick turns";
-      document.querySelectorAll(".fTog").forEach(b => { b.textContent = FER ? ({ s:"height", c:"across", t:"table" })[b.dataset.f] : NAME[b.dataset.f]; });
-      $("row_t").style.setProperty("--c", FER ? "var(--purple)" : "var(--ct)");
-      $("g_t").style.display = FER ? "none" : "";
-      $("ftab").hidden = !FER;
+      $("fn_s").innerHTML = FER ? `<span class="ln">Height from the centre</span><span class="sn">Height</span>` : TID ? `<span class="ln">Height of the tide</span><span class="sn">Tide</span>` : "Sine";
+      $("fn_c").innerHTML = FER ? `<span class="ln">Across from the centre</span><span class="sn">Across</span>` : SUN ? `<span class="ln">Sunrise position</span><span class="sn">Sunrise</span>` : "Cosine";
+      $("fn_t").textContent = TAB ? "Table" : "Tangent";
+      $("pTitle").textContent = FER ? "The wheel as it turns" : SUN ? "Sunrise over the year" : TID ? "The tide at Coffs Harbour Jetty" : "The ratios as the stick turns";
+      document.querySelectorAll(".fTog").forEach(b => {
+        b.textContent = FER ? ({ s:"height", c:"across", t:"table" })[b.dataset.f] : SUN ? ({ s:"", c:"graph", t:"table" })[b.dataset.f] : TID ? ({ s:"graph", c:"", t:"table" })[b.dataset.f] : NAME[b.dataset.f];
+        b.hidden = (SUN && b.dataset.f === "s") || (TID && b.dataset.f === "c");
+      });
+      $("row_c").style.setProperty("--c", SUN ? "#dc2626" : "var(--cx)");
+      $("row_t").style.setProperty("--c", TAB ? "var(--purple)" : "var(--ct)");
+      $("g_t").style.display = TAB ? "none" : "";
+      $("ftab").hidden = !TAB;
+      $("ftab").classList.toggle("two", !!(SUN || TID));
+      lastTab = "";
     }
     ["s", "c", "t"].forEach(f => {
       const shown = P.tri > .5 && (!FER || P.ang >= 0);
-      $("row_" + f).classList.toggle("dim", !shown && !(FER && f === "t"));
-      $("row_" + f).hidden = !S.set.show[f];
+      $("row_" + f).classList.toggle("dim", !shown && !(TAB && f === "t"));
+      $("row_" + f).hidden = !S.set.show[f] || (SUN && f === "s") || (TID && f === "c");
       const html = exprH(f);
       if(html !== lastH[f]){ $("ex_" + f).innerHTML = html; lastH[f] = html; }
       const sg = $("sg_" + f);
-      if(FER){
+      if(TID){
+        if(f !== "s" || !shown) sg.hidden = true;
+        else { const [cl, tx] = tideSign(P.ang); sg.hidden = false; sg.className = "sgn " + cl; sg.textContent = tx; }
+      } else if(SUN){
+        if(f !== "c" || !shown) sg.hidden = true;
+        else { const [cl, tx] = sunSign(P.ang); sg.hidden = false; sg.className = "sgn " + cl; sg.textContent = tx; }
+      } else if(FER){
         if(f === "t" || !shown) sg.hidden = true;
         else { const [cl, tx] = ferrisSign(f, P.ang); sg.hidden = false; sg.className = "sgn " + cl; sg.textContent = tx; }
       } else if(shown){ const wd = signWord(f, P.ang); sg.hidden = false; sg.className = "sgn " + wd; sg.textContent = SIGN_TEXT[wd]; }
       else sg.hidden = true;
     });
-    if(FER){ const th = tableH(); if(th !== lastTab){ $("ftab").innerHTML = th; lastTab = th; } }
+    if(TAB){ const th = SUN ? sunTableH() : TID ? tideTableH() : tableH(); if(th !== lastTab){ $("ftab").innerHTML = th; lastTab = th; } }
     document.querySelectorAll(".fTog").forEach(b => b.setAttribute("aria-pressed", String(!!S.set.show[b.dataset.f])));
-    const last = STEPS.length - 1, st = STEPS[k];
-    $("stepChip").textContent = `Step ${k + 1} of ${STEPS.length}`;
+    const st = STEPS[k], nx = nextOf(k);
+    if(st.app){ const ch = appSteps(st.app); $("stepChip").textContent = ch.length > 1 ? `${STEPS[ch[0]].appName} · ${ch.indexOf(k) + 1} of ${ch.length}` : STEPS[ch[0]].appName; }
+    else $("stepChip").textContent = `Step ${k + 1} of 3`;
     const cue = $("cue");
     if(cue.dataset.k !== String(k)){ cue.innerHTML = `<b>${st.t}</b><span>${st.m}</span>`; cue.dataset.k = String(k); cue.classList.remove("anim"); void cue.offsetWidth; cue.classList.add("anim"); }
     const nb = $("nextBtn");
-    nb.disabled = k >= last; nb.classList.toggle("busy", !!S.anim);
-    nb.innerHTML = k >= last ? (FER ? "Done &#10003; &mdash; turn the wheel" : "Done &#10003; &mdash; drag the stick") : `Next: ${STEPS[k + 1].t} &#9656;`;
+    nb.disabled = nx < 0; nb.classList.toggle("busy", !!S.anim);
+    nb.innerHTML = nx < 0 ? (st.app === "ferris" ? "Done &#10003; &mdash; turn the wheel" : st.app === "sunrise" ? "Done &#10003; &mdash; turn the hand" : st.app === "tide" ? "Done &#10003; &mdash; run the clock" : "Done &#10003; &mdash; drag the stick") : `Next: ${STEPS[nx].t} &#9656;`;
     $("backBtn").disabled = k === 0;
-    $("allBtn").disabled = k >= last;
+    $("allBtn").disabled = nx < 0;
+    document.querySelectorAll("#appsMenu [data-app]").forEach(b => b.setAttribute("aria-current", String(appOf(k) === STEPS[+b.dataset.app].app)));
     const inp = $("angIn");
     inp.disabled = k < K_Q1; inp.closest(".angPill").hidden = k < K_Q1;
     $("angUnit").textContent = isRad() ? "rad" : "°";
     inp.step = isRad() ? "0.1" : "1";
     if(document.activeElement !== inp) inp.value = k < K_Q1 ? "" : (isRad() ? (Math.round(P.ang * RAD * 10) / 10).toFixed(1) : String(Math.round(P.ang)));
     const q = quadrant(P.ang), qt = $("quadTag");
-    qt.textContent = FER ? (q ? `Quadrant ${q}` : posName(P.ang)) : q ? `Quadrant ${q}` : "On an axis";
+    const mo = P.ang / 30;
+    qt.textContent = TID ? tideState(P.ang) : SUN ? `${isWhole(mo) ? "" : "≈ "}${MONTHS[clamp(Math.round(mo), 0, 12)]}` : FER ? (q ? `Quadrant ${q}` : posName(P.ang)) : q ? `Quadrant ${q}` : "On an axis";
     qt.hidden = k < K_Q1;
     $("randBtn").disabled = k < K_Q1;
     $("swingBtn").disabled = k < K_Q1 || !!S.anim;
@@ -1146,13 +1557,21 @@
     let hh = "";
     const aT = angTxt(P.ang);
     if(S.msg) hh = S.msg;
+    else if(TID && S.anim && k === K_T2) hh = "A day and a half: high tide every 12 h 25 min, and each turn of the hand is one tide.";
+    else if(TID && k === K_T2 && !S.anim) hh = `The height of the tide is the graph of <b><i>h</i> = 0.7 sin <i>θ</i></b> &mdash; three turns, three tides.`;
+    else if(TID && S.anim && k === K_T1 && P.td < 1) hh = "The circle becomes a tide clock, and the x-axis becomes mean sea level&hellip;";
+    else if(TID && k === K_T1 && canDrag()) hh = `<b>Drag the hand</b> &middot; the water is always level with its tip &middot; <b>Shift + &uarr;</b> about an hour`;
+    else if(SUN && S.anim && k === K_S3) hh = P.turn < .02 ? "Finishing the year&hellip;" : "A quarter-turn: down the page becomes left to right, and December's +1 becomes the top.";
+    else if(SUN && k === K_S3 && P.turn > .9) hh = "The year of sunrises, lying down, is the graph of <b>cos <i>θ</i></b> &mdash; starting at December's +1.";
+    else if(SUN && k === K_S2 && canDrag()) hh = `<b>Turn the hand through the year</b> &middot; <b>Shift + &uarr;</b> one month &middot; &#9654; Sweep for the whole year`;
+    else if(SUN && k === K_S1 && canDrag()) hh = "The sun rises at the foot of the triangle: cos <i>θ</i>. &plusmn;1 is about 27&deg; either side of due east.";
     else if(FER && k === K_FW && S.anim) hh = P.walk < 1 ? "The rider walks up the steps and climbs into the gondola at the bottom&hellip;" : "&hellip;and the wheel turns 90° to the start: halfway up on the right.";
     else if(!S.set.panel && P.tri > .5){
-      hh = FER ? `<span class="eq"><i>h</i> = ${m2(fh(P.ang))} m &nbsp;·&nbsp; <i>d</i> = ${m2(fd(P.ang))} m</span>`
+      hh = TID ? `<span class="eq"><i>h</i> = ${m2(tH(P.ang))} m &nbsp;·&nbsp; ${hm(P.ang)}</span>` : SUN ? `<span class="eq">position = ${dec(cosD(P.ang))}</span>` : FER ? `<span class="eq"><i>h</i> = ${m2(fh(P.ang))} m &nbsp;·&nbsp; <i>d</i> = ${m2(fd(P.ang))} m</span>`
                : ["s", "c", "t"].map(f => `<span class="eq">${NAME[f]} ${aT} = ${valH(f, P.ang)}</span>`).join(" &nbsp;·&nbsp; ");
     }
-    else if(!FER && P.tri > .5 && tanUndef(P.ang)) hh = S.set.tanLine ? `tan ${aT} is <b>undefined</b>: the stick is parallel to <i>x</i> = 1, so they never meet.` : `tan ${aT} is <b>undefined</b>: <i>x</i> = 0, and you can't divide by 0.`;
-    else if(!FER && S.set.rel && P.sg > .5 && quadrant(P.ang) > 1 && P.tri > .5) hh = `Related angle <b>${angTxt(related(Math.round(P.ang)))}</b> &mdash; the same triangle as the dashed one`;
+    else if(!FER && !SUN && !TID && P.tri > .5 && tanUndef(P.ang)) hh = S.set.tanLine ? `tan ${aT} is <b>undefined</b>: the stick is parallel to <i>x</i> = 1, so they never meet.` : `tan ${aT} is <b>undefined</b>: <i>x</i> = 0, and you can't divide by 0.`;
+    else if(!FER && !SUN && !TID && S.set.rel && P.sg > .5 && quadrant(P.ang) > 1 && P.tri > .5) hh = `Related angle <b>${angTxt(related(Math.round(P.ang)))}</b> &mdash; the same triangle as the dashed one`;
     else if(FER && canDrag()) hh = `<b>Drag the wheel round</b> (or click on it) &middot; two turns, 0&deg; to 720&deg; &middot; <b>&uarr; &darr;</b> turn it 1&deg;`;
     else if(canDrag() && !S.dragged) hh = `<b>Drag the end of the stick</b> (or click anywhere on the board) &middot; <b>&uarr; &darr;</b> turn it 1&deg;`;
     else if(k === 0) hh = "Press <b>Next</b> (or &rarr;) to put it on the number plane.";
@@ -1162,6 +1581,8 @@
 
   /* ------------------------------------------------------------ the graphs: 0 up to the stick's angle */
   function gspec(f){
+    if(sunrise()) return { lo:-1.25, hi:1.25, fn:cosD, col:"#dc2626", cold:"#b91c1c", grid:[-1, 1], labs:[[-1, MINUS + "1"], [0, "0"], [1, "1"]], fine:[-.5, .5], months:true };
+    if(tide()) return { lo:-.88, hi:.88, fn:tH, col:C.y, cold:C.yd, grid:[-.7, .7], labs:[[-.7, MINUS + "0.7"], [0, "0"], [.7, "0.7"]], fine:[-.35, .35], hours:true };
     if(ferris()) return f === "s"
       ? { lo:-10.5, hi:10.5, fn:fh, col:C.y, cold:C.yd, grid:[-9, 9], labs:[[-9, MINUS + "9"], [0, "0"], [9, "9"]], fine:[-5, 5] }
       : { lo:-10.5, hi:10.5, fn:fd, col:C.x, cold:C.xd, grid:[-9, 9], labs:[[-9, MINUS + "9"], [0, "0"], [9, "9"]], fine:[-5, 5] };
@@ -1174,6 +1595,7 @@
     const ml = 34, mr = 14, mt = 6, mb = 20, sp = gspec(f);
     let gx = Math.exp(lerp(Math.log(90), Math.log(360), ease(clamp(S.P.z, 0, 1))));
     gx = lerp(gx, 720, ease(clamp(S.P.fw, 0, 1)));
+    gx = lerp(gx, 1080, ease(clamp(S.P.td, 0, 1)));
     return { el, w, h, ml, mr, mt, mb, sp, gx, X:d => ml + d / gx * (w - ml - mr), Y:v => mt + (sp.hi - v) / (sp.hi - sp.lo) * (h - mt - mb) };
   }
   function curvePath(G, upTo){
@@ -1191,15 +1613,15 @@
     }
     return d;
   }
-  const tickTxt = d => isRad() ? (d * RAD).toFixed(1) : d + "°";
+  const tickTxt = d => tide() ? tHours(d).toFixed(1) : sunrise() ? `${d / 30}` : isRad() ? (d * RAD).toFixed(1) : d + "°";
   function renderGraphs(){
     if(!S.set.panel) return;
-    const P = S.P, a = P.ang, FER = ferris();
+    const P = S.P, a = P.ang, FER = ferris(), SUN = sunrise(), TID = tide();
     ["s", "c", "t"].forEach(f => {
-      if(!S.set.show[f] || (FER && f === "t")) return;
+      if(!S.set.show[f] || ((FER || SUN || TID) && f === "t") || (SUN && f === "s") || (TID && f === "c")) return;
       const G = graphLayout(f), { w, h, X, Y, gx, sp } = G;
       G.el.setAttribute("viewBox", `0 0 ${w} ${h}`);
-      const live = FER ? P.tri : P.tri;
+      const live = SUN ? span01(P.turn, .6, 1) : P.tri;
       let o = `<defs><clipPath id="gc_${f}"><rect x="${G.ml}" y="${G.mt - 2}" width="${w - G.ml - G.mr}" height="${h - G.mt - G.mb + 4}"/></clipPath></defs>`;
       const zq = span01(P.z, .55, 1) * (1 - span01(P.fw, 0, .5));
       if(S.set.quad && zq > .01 && !FER){
@@ -1212,30 +1634,34 @@
       }
       sp.fine.forEach(v => { o += `<line x1="${G.ml}" x2="${w - G.mr}" y1="${f3(Y(v))}" y2="${f3(Y(v))}" stroke="#eef2f7" stroke-width="1"/>`; });
       sp.grid.forEach(v => { o += `<line x1="${G.ml}" x2="${w - G.mr}" y1="${f3(Y(v))}" y2="${f3(Y(v))}" stroke="#d7e0ec" stroke-width="1"${FER ? ' stroke-dasharray="4 4"' : ""}/>`; });
-      const zin = 1 - ease(clamp(P.z, 0, 1)), thin = 1 - ease(clamp(P.fw, 0, 1)) * .75;
-      for(let d = 15; d <= 720; d += 15){
+      const zin = 1 - ease(clamp(P.z, 0, 1)), thin = 1 - ease(clamp(Math.max(P.fw, P.td), 0, 1)) * .75;
+      for(let d = 15; d <= 1080; d += 15){
         if(d > gx + .01) break;
         const strong = d % 90 === 0, mid = d % 30 === 0;
         const op = strong ? 1 : mid ? thin : zin;
         if(op < .03) continue;
-        o += `<line x1="${f3(X(d))}" x2="${f3(X(d))}" y1="${G.mt}" y2="${h - G.mb}" stroke="${strong ? (d === 360 && FER ? "#94a3b8" : "#dbe3ee") : "#eef2f7"}" stroke-width="${d === 360 && FER ? 1.6 : 1}" opacity="${op.toFixed(3)}"/>`;
+        o += `<line x1="${f3(X(d))}" x2="${f3(X(d))}" y1="${G.mt}" y2="${h - G.mb}" stroke="${strong ? ((d === 360 && FER) || (TID && d % 360 === 0) ? "#94a3b8" : "#dbe3ee") : "#eef2f7"}" stroke-width="${(d === 360 && FER) || (TID && d % 360 === 0) ? 1.6 : 1}" opacity="${op.toFixed(3)}"/>`;
       }
       o += `<line x1="${G.ml}" x2="${w - G.mr}" y1="${Y(0)}" y2="${Y(0)}" stroke="#64748b" stroke-width="1.6"/>`;
       o += `<line x1="${G.ml}" x2="${G.ml}" y1="${G.mt}" y2="${h - G.mb}" stroke="#64748b" stroke-width="1.6"/>`;
       sp.labs.forEach(([v, t]) => { o += `<text x="${G.ml - 6}" y="${Y(v)}" font-size="11" fill="#64748b" text-anchor="end" dominant-baseline="central">${t}</text>`; });
-      for(let d = 0; d <= 720; d += 15){
+      for(let d = 0; d <= 1080; d += 15){
         if(d > gx + .01) break;
-        const op = d % 90 === 0 ? 1 : d % 30 === 0 ? zin : 0;
+        const op = TID ? (d % 180 === 0 ? 1 : 0) : d % 90 === 0 ? 1 : d % 30 === 0 ? zin : 0;
         if(op < .05) continue;
         const anchor = d === 0 ? "start" : Math.abs(d - gx) < .5 ? "end" : "middle";
         o += `<text x="${X(d)}" y="${h - G.mb + 13}" font-size="11" fill="#64748b" text-anchor="${anchor}" opacity="${op.toFixed(3)}">${tickTxt(d)}</text>`;
       }
-      if(live < .01){ G.el.innerHTML = o; return; }
+      if(SUN || TID) o += `<text x="${w - G.mr}" y="${h - G.mb + 13}" font-size="10" fill="#94a3b8" text-anchor="end" dy="-14">${TID ? "hours" : "months"}</text>`;
+      if(live < .01){
+        if(SUN) o += `<text x="${(G.ml + w - G.mr) / 2}" y="${Y(0) - 14}" font-size="12" fill="#94a3b8" text-anchor="middle">Appears when the record is turned on its side</text>`;
+        G.el.innerHTML = o; return;
+      }
       let g = `<g opacity="${live.toFixed(3)}" clip-path="url(#gc_${f})">`;
       if(sp.tan) [90, 270].forEach(d => {
         if(d <= gx + .01 && (S.set.ghost || a >= d - 1)) g += `<line x1="${X(d)}" x2="${X(d)}" y1="${G.mt}" y2="${h - G.mb}" stroke="${C.td}" stroke-width="1.4" stroke-dasharray="5 4" opacity=".7"/>`;
       });
-      if(S.set.ghost) g += `<path d="${curvePath(G, 720)}" fill="none" stroke="${sp.col}" stroke-opacity=".22" stroke-width="2.2"/>`;
+      if(S.set.ghost) g += `<path d="${curvePath(G, 1080)}" fill="none" stroke="${sp.col}" stroke-opacity=".22" stroke-width="2.2"/>`;
       g += `<path d="${curvePath(G, a)}" fill="none" stroke="${sp.col}" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/>`;
       if(a >= -1e-9 && a <= gx + 1e-9){
         const xm = X(a);
@@ -1253,7 +1679,7 @@
 
   /* ------------------------------------------------------------ stepping and animation */
   let raf = 0;
-  function canDrag(){ return !S.anim && S.step >= K_Q1 && S.P.m >= .999 && (S.step < K_FW || S.P.walk >= 1); }
+  function canDrag(){ return !S.anim && S.step >= K_Q1 && S.P.m >= .999 && (S.step !== K_FW || S.P.walk >= 1); }
   function run(queue, onEnd){
     cancelAnimationFrame(raf);
     if(!queue.length){ S.anim = null; onEnd && onEnd(); render(); return; }
@@ -1280,33 +1706,62 @@
     const u = tw0.lin ? p : ease(p), tgt = tw0.set || tw0.to;
     for(const k in tgt) S.P[k] = tw0.set ? tgt[k] : lerp(from[k], tgt[k], u);
   }
-  function next(){
-    if(S.anim || S.step >= STEPS.length - 1) return;
-    const k = S.step + 1;
-    S.step = k; S.msg = "";
-    if(k === K_FW) S.fmax = 0;
-    run(STEPS[k].segs.map(sg => ({ to:sg.to, set:sg.set, d:sg.d, lin:sg.lin })));
+  /* the tweens that play a step forwards, and the ones that take it back to the step before it */
+  function enterQueue(k, ang){
+    return STEPS[k].segs.map(sg => sg.fillYear
+      ? { to:sg.to, d:reduceMotion ? 0 : Math.max(0, (360 - ang) / 360 * SWEEP() * .6), lin:true }
+      : sg.fillTide ? { to:sg.to, d:reduceMotion ? 0 : Math.max(0, (1080 - ang) / 1080 * SWEEP() * 1.6), lin:true }
+      : { to:sg.to, set:sg.set, d:sg.d, lin:sg.lin });
   }
-  function back(){
-    if(S.anim || S.step === 0) return;
-    const k = S.step, segs = STEPS[k].segs, q = [];
-    if(k === K_ALL && S.P.ang > 90) q.push({ to:{ ang:90 }, d:clamp((S.P.ang - 90) * 5, 400, 1400) });
-    if(k === K_FW && S.P.ang > 360) q.push({ set:{ ang:S.P.ang - 360 } });
+  function leaveQueue(k, ang){
+    const segs = STEPS[k].segs, q = [];
+    if(k === K_ALL && ang > 90) q.push({ to:{ ang:90 }, d:clamp((ang - 90) * 5, 400, 1400) });
+    if(k === K_FW && ang > 360) q.push({ set:{ ang:ang - 360 } });
+    if(k === K_T1 && ang > 360) q.push({ set:{ ang:((ang % 360) + 360) % 360 || 360 } });
     for(let i = segs.length - 1; i >= 0; i--){
       const before = beforeSeg(k, i), tgt = {};
       Object.keys(segs[i].set || segs[i].to).forEach(key => tgt[key] = before[key]);
-      q.push(segs[i].set ? { set:tgt } : { to:tgt, d:segs[i].d, lin:segs[i].lin });
+      q.push(segs[i].set ? { set:tgt } : { to:tgt, d:segs[i].fillYear || segs[i].fillTide ? 1600 : segs[i].d, lin:segs[i].lin });
     }
+    return q;
+  }
+  function next(){
+    if(S.anim) return;
+    const k = nextOf(S.step); if(k < 0) return;
+    S.step = k; S.msg = "";
+    if(k === K_FW) S.fmax = 0;
+    if(k === K_S2) S.smax = 0;
+    if(k === K_T1) S.tmax = 0;
+    run(enterQueue(k, S.P.ang));
+  }
+  function back(){
+    if(S.anim || S.step === 0) return;
+    const k = S.step, pv = STEPS[k].prev;
     S.msg = "";
-    run(q, () => { S.step = k - 1; S.fmax = 0; });
+    run(leaveQueue(k, S.P.ang), () => { S.step = pv; S.fmax = 0; if(pv < K_S2) S.smax = 0; if(pv !== K_T1) S.tmax = 0; });
+  }
+  /* More applications: back out to the whole unit circle, then into the chosen application */
+  function goApp(t){
+    closeMenus();
+    if(S.anim || S.step === t) return;
+    if(S.step < K_ALL) jump(K_ALL);
+    const q = []; let k = S.step, ang = S.P.ang;
+    while(k !== K_ALL && k !== t){
+      q.push(...leaveQueue(k, ang));
+      const pv = STEPS[k].prev; ang = beforeSeg(k, 0).ang; k = pv;
+    }
+    const path = []; for(let j = t; j !== k; j = STEPS[j].prev) path.unshift(j);
+    path.forEach(j => q.push(...enterQueue(j, END[STEPS[j].prev].ang)));
+    S.step = t; S.msg = ""; S.fmax = 0; S.smax = 0; S.tmax = 0;
+    run(q);
   }
   function jump(k){
     cancelAnimationFrame(raf); S.anim = null;
-    S.step = k; S.P = Object.assign({}, END[k]); S.msg = ""; S.fmax = 0;
+    S.step = k; S.P = Object.assign({}, END[k]); S.msg = ""; S.fmax = 0; S.smax = k === K_S3 ? 360 : 0; S.tmax = k === K_T2 ? 1080 : 0;
     render();
   }
   function startAgain(){ if(S.step === 0 && !S.anim) return; S.dragged = false; jump(0); }
-  function showAll(){ jump(STEPS.length - 1); }
+  function showAll(){ const app = appOf(S.step) || "ferris", ch = appSteps(app); jump(ch[ch.length - 1]); }
 
   function flash(msg, ms){ S.msg = msg; clearTimeout(S.msgT); S.msgT = setTimeout(() => { S.msg = ""; render(); }, ms || 4200); }
   const LIMIT_MSG = "The first quadrant stops at 90° &mdash; press <b>Next</b> to see the whole circle.";
@@ -1336,10 +1791,10 @@
     if(raw == null) return;
     let a = snapA(raw);
     const p = S.P.ang;
-    if(S.step >= K_FW){
-      /* the wheel keeps count of its turns (0° to 720°): move to the nearest angle that looks like this one */
+    if(S.step === K_FW || isTideStep()){
+      /* the wheel and the tide clock keep count of their turns: move to the nearest angle that looks like this one */
       const dd = ((((a - p) % 360) + 540) % 360) - 180;
-      a = clamp(p + dd, 0, 720);
+      a = clamp(p + dd, 0, maxAng());
     } else if(S.step < K_ALL){
       if(a > 90 && a <= 225){ a = 90; flash(LIMIT_MSG, 3000); }
       else if(a > 225) a = 0;
@@ -1371,7 +1826,11 @@
     const v = isRad() ? raw / RAD : raw;
     if(Math.abs(v) > 3600){ flash("Try an angle between " + MINUS + "360° and 720°."); render(); return; }
     const shown = isRad() ? raw.toFixed(1) : Math.round(raw) + "°";
-    if(S.step >= K_FW){
+    if(isTideStep()){
+      if(v < 0 || v > 1080) flash(`The tide clock goes round three times here, from 0° to 1080° &mdash; ${shown} is outside that.`);
+      S.dragged = true; turnTo(clamp(v, 0, 1080)); return;
+    }
+    if(S.step === K_FW){
       if(v < 0 || v > 720) flash(`The wheel goes round twice here, from 0° to 720° &mdash; ${shown} is outside that.`);
       S.dragged = true; turnTo(clamp(v, 0, 720)); return;
     }
@@ -1390,7 +1849,9 @@
     let a, tries = 0;
     do {
       if(S.step < K_ALL) a = 5 + Math.round(Math.random() * 16) * 5;
-      else if(S.step >= K_FW) a = 15 * (1 + Math.floor(Math.random() * 47));
+      else if(S.step === K_FW) a = 15 * (1 + Math.floor(Math.random() * 47));
+      else if(appOf(S.step) === "sunrise") a = 30 * (1 + Math.floor(Math.random() * 11));
+      else if(isTideStep()) a = 15 * (1 + Math.floor(Math.random() * 71));
       else if(S.set.snap === "special"){ const L2 = [30,45,60,120,135,150,210,225,240,300,315,330]; a = L2[Math.floor(Math.random() * L2.length)]; }
       else { const k = Math.max(5, +S.set.snap || 1); a = Math.round(Math.random() * 359 / k) * k; }
       tries++;
@@ -1402,7 +1863,7 @@
     if(!canDrag()) return;
     const mx = maxAng(), q = [];
     if(S.P.ang > 0) q.push({ to:{ ang:0 }, d:reduceMotion ? 0 : clamp(S.P.ang * 2.5, 300, 1200) });
-    q.push({ to:{ ang:mx }, d:SWEEP() * (mx === 90 ? .5 : mx / 360), lin:true });
+    q.push({ to:{ ang:mx }, d:SWEEP() * (mx === 90 ? .5 : mx > 720 ? 1.6 * 1080 / 360 / 2 : mx / 360), lin:true });
     S.dragged = true;
     run(q);
   }
@@ -1415,6 +1876,7 @@
   $("againIcon").addEventListener("click", () => { spinAgain(); startAgain(); });
   $("randBtn").addEventListener("click", randomAngle);
   $("swingBtn").addEventListener("click", sweep);
+  document.querySelectorAll("#appsMenu [data-app]").forEach(b => b.addEventListener("click", () => goApp(+b.dataset.app)));
   $("angIn").addEventListener("keydown", e => { if(e.key === "Enter"){ e.preventDefault(); typedAngle(); $("angIn").blur(); } });
   $("angIn").addEventListener("change", typedAngle);
   const LABS = ["letters", "numbers", "names"];
@@ -1480,8 +1942,8 @@
     else if(e.key === "Enter"){ e.preventDefault(); randomAngle(); }
     else if(e.key === "ArrowRight"){ e.preventDefault(); next(); }
     else if(e.key === "ArrowLeft"){ e.preventDefault(); back(); }
-    else if(e.key === "ArrowUp"){ e.preventDefault(); nudge(e.shiftKey ? 15 : 1); }
-    else if(e.key === "ArrowDown"){ e.preventDefault(); nudge(e.shiftKey ? -15 : -1); }
+    else if(e.key === "ArrowUp"){ e.preventDefault(); nudge(e.shiftKey ? (appOf(S.step) === "sunrise" ? 30 : isTideStep() ? 360 / TIDE.per : 15) : 1); }
+    else if(e.key === "ArrowDown"){ e.preventDefault(); nudge(e.shiftKey ? (appOf(S.step) === "sunrise" ? -30 : isTideStep() ? -360 / TIDE.per : -15) : -1); }
     else if(e.key === "l" || e.key === "L") setLabels(LABS[(LABS.indexOf(S.set.labels) + 1) % LABS.length]);
     else if(e.key === "g" || e.key === "G") togglePanel();
     else if(e.key === "f" || e.key === "F") toggleFs();
@@ -1500,8 +1962,8 @@
   render();
 
   window.__UC__ = { S, STEPS, END, render, next, back, jump, startAgain, showAll, turnTo, nudge, dragTo, sweep, randomAngle, setLabels,
-    exactOf, related, quadrant, axisAngle, fx, valH, exprH, angTxt, canDrag, typedAngle, togglePanel, toggleFs, fh, fd,
-    get L(){ return L; }, get V(){ return V; }, K:{ K_Q1, K_ALL, K_FW } };
+    exactOf, related, quadrant, axisAngle, fx, valH, exprH, angTxt, canDrag, typedAngle, togglePanel, toggleFs, fh, fd, goApp, nextOf,
+    get L(){ return L; }, get V(){ return V; }, tH, tHours, K:{ K_Q1, K_ALL, K_FW, K_S1, K_S2, K_S3, K_T1, K_T2 } };
 })();
 </script>
 </body>
