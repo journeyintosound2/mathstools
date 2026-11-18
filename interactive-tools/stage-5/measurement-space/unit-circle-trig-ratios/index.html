@@ -1619,6 +1619,7 @@
     const P = S.P, a = P.ang, FER = ferris(), SUN = sunrise(), TID = tide();
     ["s", "c", "t"].forEach(f => {
       if(!S.set.show[f] || ((FER || SUN || TID) && f === "t") || (SUN && f === "s") || (TID && f === "c")) return;
+      if(SUN){ sunGraph(f); return; }
       const G = graphLayout(f), { w, h, X, Y, gx, sp } = G;
       G.el.setAttribute("viewBox", `0 0 ${w} ${h}`);
       const live = SUN ? span01(P.turn, .6, 1) : P.tri;
@@ -1654,7 +1655,6 @@
       }
       if(SUN || TID) o += `<text x="${w - G.mr}" y="${h - G.mb + 13}" font-size="10" fill="#94a3b8" text-anchor="end" dy="-14">${TID ? "hours" : "months"}</text>`;
       if(live < .01){
-        if(SUN) o += `<text x="${(G.ml + w - G.mr) / 2}" y="${Y(0) - 14}" font-size="12" fill="#94a3b8" text-anchor="middle">Appears when the record is turned on its side</text>`;
         G.el.innerHTML = o; return;
       }
       let g = `<g opacity="${live.toFixed(3)}" clip-path="url(#gc_${f})">`;
@@ -1675,6 +1675,69 @@
       }
       G.el.innerHTML = o + g + "</g>";
     });
+  }
+
+  /* Sunrise: the panel graph is drawn live as the hand turns, standing up like the record of photos:
+     months run UP the panel and the position runs across with +1 (south) on the LEFT. That is the ordinary
+     cos graph turned a quarter-turn anticlockwise, so at "Turn it on its side" it turns a quarter-turn
+     clockwise (with P.turn, in step with the photo stack) into the usual view: months across, +1 at the top.
+     One mapping does all of it: a point (u = months/12 − ½, v = position) sits at C + u·a·dT + v·b·dV, where
+     dT (the time direction) turns from up to right, dV is dT turned a quarter-turn anticlockwise, and the
+     lengths a, b move from the upright box to the lying-down box. */
+  function sunGraph(f){
+    const el = $("g_" + f), r = el.getBoundingClientRect();
+    const w = Math.max(120, r.width), h = Math.max(60, r.height), P = S.P, a = P.ang;
+    const e = ease(clamp(P.turn, 0, 1));
+    el.setAttribute("viewBox", `0 0 ${w} ${h}`);
+    const x0 = lerp(16, 34, e), x1 = w - lerp(34, 14, e), y0 = lerp(8, 6, e), y1 = h - lerp(26, 20, e);
+    const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2, W = x1 - x0, H = y1 - y0;
+    const psi = (90 * (1 - e)) * RAD, dT = [Math.cos(psi), -Math.sin(psi)], dV = [dT[1], -dT[0]];
+    let A = lerp(H, W, e), B = lerp(W / 2 / 1.25, H / 2 / 1.25, e);
+    {  /* while it turns, shrink just enough that the whole frame stays inside the panel */
+      const cs = [[-.5, -1.25], [.5, -1.25], [.5, 1.25], [-.5, 1.25]].map(([u, v]) => [u * A * dT[0] + v * B * dV[0], u * A * dT[1] + v * B * dV[1]]);
+      const bw = Math.max(...cs.map(c => c[0])) - Math.min(...cs.map(c => c[0])), bh = Math.max(...cs.map(c => c[1])) - Math.min(...cs.map(c => c[1]));
+      const k = Math.min(1, W / bw, H / bh); A *= k; B *= k;
+    }
+    const pt = (u, v) => [cx + u * A * dT[0] + v * B * dV[0], cy + u * A * dT[1] + v * B * dV[1]];
+    const ln = (u1, v1, u2, v2, st) => { const p = pt(u1, v1), q = pt(u2, v2); return `<line x1="${f3(p[0])}" y1="${f3(p[1])}" x2="${f3(q[0])}" y2="${f3(q[1])}" ${st}/>`; };
+    const sp = gspec(f);
+    let o = "";
+    /* grid: months (every 3 strong) and the position lines */
+    for(let m = 0; m <= 12; m++) o += ln(m / 12 - .5, -1.25, m / 12 - .5, 1.25, `stroke="${m % 3 ? "#eef2f7" : "#dbe3ee"}" stroke-width="1"`);
+    [-.5, .5].forEach(v => { o += ln(-.5, v, .5, v, `stroke="#eef2f7" stroke-width="1"`); });
+    [-1, 1].forEach(v => { o += ln(-.5, v, .5, v, `stroke="#d7e0ec" stroke-width="1"`); });
+    /* axes: due east (0) and December */
+    o += ln(-.5, 0, .5, 0, `stroke="#64748b" stroke-width="1.6"`);
+    o += ln(-.5, -1.25, -.5, 1.25, `stroke="#64748b" stroke-width="1.6"`);
+    /* labels stay upright: position numbers beside the December axis, months beside the −1.25 edge */
+    const off = (u, v, du, dv, px) => { const p = pt(u, v); const d = [du * dT[0] + dv * dV[0], du * dT[1] + dv * dV[1]]; return [p[0] + d[0] * px, p[1] + d[1] * px]; };
+    sp.labs.forEach(([v, t]) => { const [x, y] = off(-.5, v, -1, 0, 9 + 4 * e);
+      o += `<text x="${f3(x)}" y="${f3(y)}" font-size="11" fill="#64748b" text-anchor="${e > .5 ? "end" : "middle"}" dominant-baseline="${e > .5 ? "central" : "hanging"}">${t}</text>`; });
+    for(let m = 0; m <= 12; m += 3){ const [x, y] = off(m / 12 - .5, -1.25, 0, -1, 8);
+      o += `<text x="${f3(x)}" y="${f3(y)}" font-size="11" fill="#64748b" text-anchor="${e > .5 ? "middle" : "start"}" dominant-baseline="${e > .5 ? "hanging" : "central"}">${m}</text>`; }
+    const top0 = pt(.5, 0);
+    o += e > .5 ? `<text x="${w - 14}" y="${h - 7}" font-size="10" fill="#94a3b8" text-anchor="end" dy="-14">months</text>`
+                : `<text x="${f3(top0[0] + 6)}" y="${f3(top0[1] + 9)}" font-size="10" fill="#94a3b8" dominant-baseline="central">months &uarr;</text>`;
+    const wo = 1 - span01(e, 0, .35);
+    if(wo > .01){
+      [[1, "south"], [-1, "north"]].forEach(([v, t]) => { const [x, y] = off(-.5, v, -1, 0, 24);
+        o += `<text x="${f3(x)}" y="${f3(y)}" font-size="10" fill="#94a3b8" text-anchor="middle" dominant-baseline="hanging" opacity="${wo.toFixed(3)}">${t}</text>`; });
+    }
+    /* the curve, December up to the hand */
+    if(P.tri > .5){
+      const end = clamp(a, 0, 360);
+      let d = "";
+      for(let t = 0; t <= end + 1e-9; t += 1){ const p = pt(t / 360 - .5, cosD(t)); d += (t ? "L" : "M") + f3(p[0]) + " " + f3(p[1]); }
+      if(end % 1){ const p = pt(end / 360 - .5, cosD(end)); d += "L" + f3(p[0]) + " " + f3(p[1]); }
+      if(S.set.ghost){ let gd = ""; for(let t = 0; t <= 360; t += 2){ const p = pt(t / 360 - .5, cosD(t)); gd += (t ? "L" : "M") + f3(p[0]) + " " + f3(p[1]); }
+        o += `<path d="${gd}" fill="none" stroke="${sp.col}" stroke-opacity=".22" stroke-width="2.2"/>`; }
+      o += ln(end / 360 - .5, -1.25, end / 360 - .5, 1.25, `stroke="#334155" stroke-opacity=".35" stroke-width="1.4" stroke-dasharray="3 4"`);
+      o += ln(end / 360 - .5, 0, end / 360 - .5, cosD(end), `stroke="${sp.col}" stroke-width="5" stroke-linecap="round" opacity=".85"`);
+      o += `<path d="${d}" fill="none" stroke="${sp.col}" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/>`;
+      const p = pt(end / 360 - .5, cosD(end));
+      o += `<circle cx="${f3(p[0])}" cy="${f3(p[1])}" r="5.5" fill="#fff" stroke="${sp.cold}" stroke-width="3"/>`;
+    }
+    el.innerHTML = o;
   }
 
   /* ------------------------------------------------------------ stepping and animation */

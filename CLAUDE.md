@@ -126,8 +126,12 @@
 >   of the triangle: position = cos θ. (1) `sun1` the scene; (2) `sun2` a PHOTO A MONTH: 13 strips (`SUNS`) stack DOWN
 >   the page below the scene, each kept when the hand reaches its month (`S.smax`), a red line joins the suns;
 >   (3) `sun3` the year fills and the record TURNS a quarter-turn (`P.turn`, −90°) into the graph of cos θ over 12
->   months (labels counter-rotate). Panel: only the cos row ("Sunrise position", graph appears after the turn) + a
->   table Dec 0 … Dec 12 in two blocks of months. Shift + ↑/↓ = one month. P keys added: `sr`, `stk`, `turn`; views R4/R5.
+>   months (labels counter-rotate). Panel: only the cos row ("Sunrise position") + a table Dec 0 … Dec 12 in two
+>   blocks of months. **The panel graph is LIVE from step 1 and STANDS UP (Jeff, 2026-11-18):** months run UP the panel
+>   and the position runs across with +1 (south) on the LEFT, so the curve climbs as the hand turns. That is the cos
+>   graph turned a quarter-turn anticlockwise; at "Turn it on its side" it turns a quarter-turn CLOCKWISE (with
+>   `P.turn`, together with the photo stack, which turns anticlockwise) into the usual view. `sunGraph()` draws it
+>   through one mapping C + u·a·dT + v·b·dV, shrunk mid-turn so the frame stays inside the panel. Shift + ↑/↓ = one month. P keys added: `sr`, `stk`, `turn`; views R4/R5.
 > * **THE TIDE (Jeff, 2026-11-18):** Coffs Harbour Jetty side on (not to scale): harbour floor, Jetty Beach rising to the
 >   right with the strip between the tide marks and "high tide mark", the jetty on piles with a TIDE BOARD on the seaward
 >   pile, Muttonbird Island behind, a fishing boat and a yacht on moorings (lines go slack as the water falls). The circle
