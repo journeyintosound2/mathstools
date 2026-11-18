@@ -2050,7 +2050,7 @@ window.MMT_TOOL_LINKS = {
       kind: "Teacher tool",
       url: "/interactive-tools/stage-5/measurement-space/unit-circle-trig-ratios/",
       ideas: ["unit-circle", "trig-equations"],
-      note: "A stick 1 unit long becomes the radius of the unit circle. Drop a line to the x-axis and the end of the stick is (cos \u03b8, sin \u03b8); turn it past 90\u00b0 and the sides point the negative way (\u00b1x, \u00b1y), with the related angle beside it. Sine, cosine and tangent are graphed as the stick swings round, and tan \u03b8 is where the extended stick meets x = 1.",
+      note: "A stick 1 unit long lands on the number plane, zoomed in on the first quadrant: drag it and the sine, cosine and tangent graphs draw from 0 up to its angle (and wind back). Then zoom out to the whole unit circle and 360\u00b0, where the sides point the negative way (\u00b1x, \u00b1y). Related angle, quadrant signs, tan on the circle and radians are optional layers.",
       tags: ["unit circle", "trigonometric ratios", "trig functions", "sine", "cosine", "tangent", "sin cos tan", "angles of any magnitude", "obtuse angles", "past 90 degrees", "related angle", "reference angle", "supplementary angles", "ASTC", "quadrants", "signs of trig ratios", "exact values", "trig graphs", "graph of sine", "graph of cosine", "graph of tangent", "asymptote", "stage 5"]
     }
   ],
