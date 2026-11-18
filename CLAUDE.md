@@ -107,12 +107,15 @@
 >   (4) **THE FERRIS WHEEL** (the first "real-world scene"): the stick swings to the bottom, the unit circle morphs into
 >   the wheel (dashed circle → rim, spokes, 12 gondolas, A-frame, ground, sky, stairs + platform; the x-axis becomes
 >   the dashed "halfway up (11 m)" line), a stick figure walks in and climbs into the bottom gondola, and the wheel turns
->   90° to the start, halfway up on the right. Bottom 2 m up, diameter 18 m: h = 11 + 9 sin θ, d = 9 cos θ (`FW`, `fh`,
->   `fd`; one board unit = 9 m). The triangle stays, in metres (9 sin θ / 9 cos θ / 9 m), with a height scale (m) on the
->   right and the rider's height marked on it. Two turns, 0°–720°: dragging unwraps (keeps counting past 360°).
->   Panel in the wheel: Height above the ground (0–22 m, lines at 2, 11, 20) · Across from the centre (±9) · a TABLE of
->   the textbook positions (halfway up, top, halfway down, bottom … every 90° to 720°) whose h and d cells stay "?"
->   until the wheel has reached that angle (`S.fmax`). Settings › Show the rules adds "= 11 + 9 sin θ" (off by default).
+>   90° to the start, halfway up on the right. Diameter 18 m, the ground drawn 2 m below the bottom. **HEIGHT IS
+>   MEASURED FROM THE CENTRE OF THE WHEEL (Jeff, 2026-11-18): h = 9 sin θ, d = 9 cos θ** (`FW`, `fh`, `fd`; one board
+>   unit = 9 m), so both graphs run −9 to 9 about zero. The triangle stays, in metres (9 sin θ / 9 cos θ / 9 m), with a
+>   height scale on the right whose 0 is the centre (−9 bottom, 9 top, −11 ground) and the rider's height marked on it.
+>   Two turns, 0°–720°: dragging unwraps (keeps counting past 360°). Panel in the wheel: Height from the centre · Across
+>   from the centre · a TABLE of the textbook positions (halfway up, top, halfway down, bottom … every 90° to 720°) whose
+>   h and d cells stay "?" until the wheel has reached that angle (`S.fmax`). Settings › Show the rules adds "= 9 sin θ".
+> * **"More applications ▾"** (`#appsBtn` / `#appsMenu`, opens upward) beside the Next/Done button: one greyed
+>   "Coming soon" row for now. A new scene gets a live row here as well as its step.
 > * **ADDING ANOTHER SCENE:** a step with segments, a P parameter (like `fw`, `walk`), a view (like `L.R3/ox3/oy3`,
 >   blended in `view()`), and `if(<param>)` branches in render(), gspec()/renderGraphs() and renderPanel()/exprH().
 > * Steps are segments tweening `P` (m, ax, ang, tri, z, sg, fw, walk); Back plays them in reverse (from the wheel it
