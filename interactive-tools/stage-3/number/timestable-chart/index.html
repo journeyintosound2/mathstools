@@ -621,7 +621,7 @@
             <button class="stepBtn" id="allBtn" type="button">Show all</button>
             <button class="nextBtn" id="nextBtn" type="button" title="Next step (&rarr;)">Next &#9656;</button>
           </div>
-          <div class="keyHint"><kbd>&rarr;</kbd>/<kbd>&larr;</kbd> step &middot; <kbd>R</kbd> start again &middot; <kbd>Space</kbd> whole chart &middot; <kbd>Enter</kbd> new fact &middot; <kbd>T</kbd> choose &middot; <kbd>1</kbd>&ndash;<kbd>9</kbd> lenses &middot; <kbd>F</kbd> full screen</div>
+          <div class="keyHint"><kbd>&rarr;</kbd>/<kbd>&larr;</kbd> step &middot; <kbd>R</kbd> start again &middot; <kbd>Space</kbd> whole chart &middot; <kbd>Enter</kbd> new fact &middot; <kbd>T</kbd> choose &middot; <kbd>1</kbd>&ndash;<kbd>9</kbd> lenses &middot; <kbd>F</kbd> full screen &middot; <kbd>Esc</kbd> leave it</div>
         </section>
       </aside>
     </main>
@@ -1792,7 +1792,7 @@ function setFs(on){
   S.fs = on; app.classList.toggle("fs", on);
   $("fsBtn").querySelector(".fsIn").toggleAttribute("hidden", on);
   $("fsBtn").querySelector(".fsOut").toggleAttribute("hidden", !on);
-  $("fsBtn").title = on ? "Leave full screen (F)" : "Full screen (F)";
+  $("fsBtn").title = on ? "Leave full screen (Esc)" : "Full screen (F)";
   closeMenus(); applyPanel();
 }
 function toggleFs(){
@@ -1802,7 +1802,7 @@ function toggleFs(){
 const onFsChange = () => { if(!fsActive() && S.fs) setFs(false); };
 document.addEventListener("fullscreenchange", onFsChange);
 document.addEventListener("webkitfullscreenchange", onFsChange);
-$("fsBtn").addEventListener("click", toggleFs);
+$("fsBtn").addEventListener("click", () => { toggleFs(); $("fsBtn").blur(); });
 
 function closeMenus(){ [["settingsBtn", "settingsMenu"], ["toolsBtn", "toolsMenu"]].forEach(([b, m]) => { $(m).classList.remove("open"); $(b).setAttribute("aria-expanded", "false"); }); const w = $("relWrap"); if(w){ w.classList.remove("open"); $("relBtn").setAttribute("aria-expanded", "false"); } }
 [["settingsBtn", "settingsMenu"], ["toolsBtn", "toolsMenu"]].forEach(([b, m]) => {
@@ -1853,6 +1853,9 @@ function load(){
 }
 
 /* ---------------- keyboard ---------------- */
+// the last button pressed with the mouse or a finger; a button reached with Tab is a different element
+let ptrButton = null;
+document.addEventListener("pointerdown", e => { ptrButton = e.target.closest ? e.target.closest("button") : null; }, true);
 document.addEventListener("keydown", e => {
   if(e.ctrlKey || e.metaKey || e.altKey) return;
   const tag = (e.target.tagName || "").toLowerCase();
@@ -1860,7 +1863,7 @@ document.addEventListener("keydown", e => {
   if(e.key === "Escape"){
     if(!$("typePop").hidden){ setPop(false); $("typeBtn").focus(); return; }
     if(document.querySelector(".dropMenu.open")){ closeMenus(); return; }
-    if(S.fs && !fsActive()){ setFs(false); return; }
+    if(S.fs){ toggleFs(); return; }   // Esc is the one key that leaves full screen (the browser may already have left its own)
     unchoose(); return;
   }
   // the arrow keys move a cursor round the chart only when it was reached from the keyboard and there is something to choose;
@@ -1875,7 +1878,15 @@ document.addEventListener("keydown", e => {
     render({ light:true }); return;
   }
   if(onArea && (e.key === "Enter" || e.key === " ")){ e.preventDefault(); pickCell(S.kf.r, S.kf.c); return; }
-  if(tag === "button" && (e.key === "Enter" || e.key === " ")) return;
+  if(tag === "button" && (e.key === "Enter" || e.key === " ")){
+    // A button reached with Tab keeps Enter and Space (and a card in the open picker always does). A button that was
+    // CLICKED keeps focus too, and without this the next Enter or Space would press it again: the full-screen icon
+    // would close full screen, Next would step instead of giving a new problem. So for those the shortcut wins.
+    // (":focus-visible" can't tell them apart: Chrome turns it on for the focused button as soon as a key is pressed)
+    const clicked = e.target === ptrButton;
+    if(e.target.closest("#typePop") || (!clicked && !(S.fs && e.target.id === "fsBtn"))) return;
+    e.preventDefault(); e.target.blur();
+  }
   if(!$("typePop").hidden){
     const n = parseInt(e.key, 10);
     if(n >= 1 && n <= LENSES.length){ setLens(LENSES[n - 1].id); setPop(false); e.preventDefault(); }
@@ -1889,7 +1900,7 @@ document.addEventListener("keydown", e => {
   else if(k === "r" || k === "R"){ e.preventDefault(); again(); }
   else if(k === "Enter"){ e.preventDefault(); newFact(); }
   else if(k === "t" || k === "T"){ e.preventDefault(); setPop(true); }
-  else if(k === "f" || k === "F"){ e.preventDefault(); toggleFs(); }
+  else if(k === "f" || k === "F"){ e.preventDefault(); if(!S.fs) toggleFs(); }   // F only goes in: Esc is the one key that leaves full screen
   else { const n = parseInt(k, 10); if(n >= 1 && n <= LENSES.length){ e.preventDefault(); setLens(LENSES[n - 1].id); } }
 });
 

@@ -99,7 +99,12 @@
 > **NEW (2026-11-18, later): TIMES TABLE CHART FEEDBACK + PRINTABLE POSTER MAKER.**
 > * Chart: Settings › **Keep faded values** (`S.set.faded`, `.app.fadedVals`): squares keep their numbers at opacity .17
 >   and each reveal (`tot`, `cornA`, `fone`, `fans`, `hit`) is dark. Off by default (then the answer can't be read early).
->   Keys: **Space = whole chart** (unchoose; Esc too), **R = start the steps again**. Tools menu = **Printable chart** (`#printLink`,
+>   Keys: **Space = whole chart** (unchoose; Esc too), **R = start the steps again**, **Enter = a new problem of the
+>   same lens at any step**. **Esc is the ONLY key that leaves full screen** (F only enters). A button that was CLICKED
+>   keeps focus and would swallow the next Enter/Space (Enter pressed Next again; Space/Enter on the full-screen icon left
+>   full screen), so `ptrButton` records the last button pressed with a pointer and the shortcut wins over it; a button
+>   reached with Tab keeps Enter/Space. `:focus-visible` can't be used to tell them apart: Chrome switches it on for the
+>   focused button the moment any key is pressed. Tools menu = **Printable chart** (`#printLink`,
 >   its href carries the current pattern / multiples: `?pattern=squares`, `?pattern=mult&m=4,6`, `&n=10`) + **Related tools**
 >   flyout (`.subWrap`, opens on hover or click; inline under 760px). Patterns and Multiples lenses have a "Print this" chip.
 > * Poster maker `worksheet-creators/stage-3/number/times-table-chart-printable.html` (single file; reached from the chart's
