@@ -151,6 +151,17 @@
 >   line), `pen3` fill to 1080° + turn. Panel: the upright live graph (`sunGraph`, shared with the sunrise; "right" /
 >   "left", time in swings) + a quarter-turn table (Far right / Centre ← / Far left / Centre →). Menu `data-app="9"`;
 >   steps K_P1–K_P3 = 9–11. `drawStack` is now shared: `stkTop()`, blue for the pendulum, red for the sunrise.
+> * **SWITCHING APPLICATIONS MORPHS STRAIGHT ACROSS (Jeff, 2026-11-18):** from another application, `goApp(t)` no longer
+>   unwinds to the unit circle. The photo record fades (`stk`), the hand is set within one turn and comes the short way
+>   to 0°, the rider is already seated (`walk` set at once), and every P key tweens in ONE 2.6 s tween to `END[t]`.
+>   `apply()` takes `win: {key:[a,b]}`: keys rising use [0, .55], keys falling [.45, 1], so the new scene is at full
+>   strength before the old one fades (a plain crossfade was washed out at the midpoint). `S.morph` swaps the hint to
+>   "Over to <app>…". From the unit circle (step ≤ 2) an application still plays its own way in (walk-in, etc.).
+> * **LESSON PLAN** `lesson-plan.html` beside the tool (Tools menu: "Lesson plan – intro to the unit circle"; toolLinks
+>   "Lesson plan" row under MA5-TRG-P-02; toolFamilies folds it into the tool's row). 60-minute ELPSA first lesson:
+>   notice and wonder in quadrant 1, the whole circle, signs by quadrant built by students, mini-whiteboard checks,
+>   hinge question, exit ticket, 16 cut-out sign flip cards with an answer table. Same styling as the Number Groups
+>   lesson plan; prints as 6 A4 pages (5 + the cards).
 > * **EVERY APPLICATION RUNS FOR THREE TURNS (`TURNS`, `MAXA` = 1080°) AND STARTS AGAIN PAST THEM (Jeff):** dragging or
 >   ↑ past 1080° wraps to the same angle minus 1080° and clears the records (`wrapPast`: fmax/smax/tmax = 0, flash
 >   "Three turns done"); dragging below 0° holds at 0°. Ferris table 13 positions in one row (short names, `.many`).

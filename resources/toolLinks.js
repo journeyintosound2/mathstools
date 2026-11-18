@@ -2052,6 +2052,14 @@ window.MMT_TOOL_LINKS = {
       ideas: ["unit-circle", "trig-equations"],
       note: "A stick 1 unit long lands on the number plane, zoomed in on the first quadrant: drag it and the sine, cosine and tangent graphs draw from 0 up to its angle. Zoom out to the whole unit circle and 360\u00b0, where the sides point the negative way. Then More applications: the circle becomes a Ferris wheel (18 m across): a rider climbs in and the height and distance across from the centre are graphed over three turns, with a table to fill in; or Sunrise over the year at Coffs Harbour: the sun rises at the foot of the triangle, a photo a month is stacked into a record, and turning the record on its side gives the graph of cos; or The tide at Coffs Harbour Jetty: the circle becomes a tide clock (one turn every 12 h 25 min), the water is always level with the tip of the hand, and three tides over a weekend graph h = 0.7 sin \u03b8 against the time of day; or The pendulum: the bob hangs below the foot of the triangle, so its horizontal displacement is x = cos \u03b8, a strobe photo every twelfth of a swing is stacked and turned on its side into the cos graph. Every application runs for three turns (0\u00b0 to 1080\u00b0) and starts again after that.",
       tags: ["unit circle", "trigonometric ratios", "trig functions", "sine", "cosine", "tangent", "sin cos tan", "angles of any magnitude", "obtuse angles", "past 90 degrees", "related angle", "reference angle", "supplementary angles", "ASTC", "quadrants", "signs of trig ratios", "exact values", "trig graphs", "graph of sine", "graph of cosine", "graph of tangent", "asymptote", "stage 5", "ferris wheel", "periodic", "height above the ground", "modelling", "real world", "sunrise", "sunrise over the year", "solstice", "equinox", "coffs harbour", "muttonbird island", "seasons", "cosine model", "tide", "tides", "high tide", "low tide", "tide clock", "jetty", "sine model", "hours", "pendulum", "simple harmonic motion", "horizontal displacement", "oscillation", "reference circle"]
+    },
+    {
+      title: "Introducing the Unit Circle — ELPSA Lesson Plan",
+      kind: "Lesson plan",
+      url: "/interactive-tools/stage-5/measurement-space/unit-circle-trig-ratios/lesson-plan.html",
+      ideas: ["unit-circle"],
+      note: "A 60-minute first lesson with the unit circle tool: notice and wonder in the first quadrant, then the whole circle, signs by quadrant, mini-whiteboard checks, a hinge question, an exit ticket and 16 printable sign flip cards.",
+      tags: ["lesson plan", "ELPSA", "unit circle", "trigonometry", "notice and wonder", "flip cards", "planning"]
     }
   ],
 

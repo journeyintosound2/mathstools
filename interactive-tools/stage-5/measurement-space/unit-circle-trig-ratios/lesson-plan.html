@@ -1,0 +1,701 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Introducing the Unit Circle — ELPSA Lesson Plan</title>
+
+  <style>
+    :root{
+      --bg:#f6f7fb;
+      --card:#ffffff;
+      --ink:#111827;
+      --muted:#6b7280;
+      --border:#e5e7eb;
+      --shadow:0 14px 40px rgba(0,0,0,.10);
+      --radius:18px;
+
+      --blue:#2563eb;
+      --blue2:#1d4ed8;
+      --green:#16a34a;
+      --amber:#f59e0b;
+      --purple:#7c3aed;
+      --red:#dc2626;
+
+      --pagePad: 12mm;
+    }
+
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      color:var(--ink);
+      background:var(--bg);
+    }
+
+    .topbar{
+      position:sticky;
+      top:0;
+      z-index:20;
+      background: linear-gradient(180deg, rgba(246,247,251,.98), rgba(246,247,251,.92));
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+    }
+    .topbarInner{
+      max-width: 1020px;
+      margin:0 auto;
+      padding: 12px 14px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-width:240px;
+    }
+    .brand img{
+      width:34px;
+      height:34px;
+      object-fit:contain;
+    }
+    .brandTitle{
+      display:grid;
+      line-height:1.05;
+    }
+    .brandTitle .t1{
+      font-weight:1000;
+      font-size:16px;
+      letter-spacing:.2px;
+    }
+    .brandTitle .t2{
+      font-weight:900;
+      font-size:12px;
+      color:var(--muted);
+    }
+
+    .actions{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    .btn{
+      border:1px solid var(--border);
+      background:#fff;
+      border-radius:14px;
+      padding:10px 12px;
+      font-weight:1000;
+      cursor:pointer;
+      box-shadow:0 10px 22px rgba(0,0,0,.07);
+      text-decoration:none;
+      color:var(--ink);
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      white-space:nowrap;
+    }
+    .btn.primary{
+      background: var(--blue);
+      color:#fff;
+      border-color:#1d4ed8;
+      box-shadow:0 14px 30px rgba(37,99,235,.22);
+    }
+    .btn:active{ transform:translateY(1px); }
+
+    .wrap{
+      max-width:1020px;
+      margin:0 auto;
+      padding:14px;
+    }
+
+    .card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:22px;
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+
+    .header{
+      padding:18px 18px 14px;
+      border-bottom:1px solid var(--border);
+      background:
+        radial-gradient(circle at 20% 0%, rgba(37,99,235,.10), transparent 45%),
+        radial-gradient(circle at 90% 20%, rgba(124,58,237,.10), transparent 40%),
+        #fff;
+    }
+    .titleRow{
+      display:flex;
+      gap:14px;
+      align-items:flex-start;
+      justify-content:space-between;
+      flex-wrap:wrap;
+    }
+    h1{
+      margin:0;
+      font-size:26px;
+      font-weight:1000;
+      letter-spacing:.2px;
+    }
+    .subtitle{
+      margin:10px 0 0;
+      color:var(--muted);
+      font-weight:800;
+      line-height:1.45;
+      font-size:13.5px;
+      max-width:820px;
+    }
+
+    .meta{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:flex-end;
+    }
+    .pill{
+      border:1px solid var(--border);
+      background:#fff;
+      border-radius:999px;
+      padding:7px 10px;
+      font-size:12px;
+      font-weight:1000;
+      color:#374151;
+      display:flex;
+      gap:8px;
+      align-items:center;
+      box-shadow:0 10px 22px rgba(0,0,0,.04);
+    }
+    .dot{
+      width:10px;
+      height:10px;
+      border-radius:999px;
+      background:var(--blue);
+      box-shadow:0 8px 14px rgba(37,99,235,.22);
+    }
+
+    .content{
+      padding:16px 18px 18px;
+      display:grid;
+      gap:14px;
+    }
+
+    .grid2{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:14px;
+    }
+    @media (max-width: 920px){
+      .grid2{ grid-template-columns:1fr; }
+      .brand{ min-width:0; }
+    }
+
+    .panel{
+      border:1px solid var(--border);
+      border-radius:18px;
+      background:#fff;
+      padding:14px;
+      display:grid;
+      gap:10px;
+    }
+
+    .panel h2{
+      margin:0;
+      font-size:18px;
+      font-weight:1000;
+      letter-spacing:.2px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .tag{
+      font-size:11px;
+      font-weight:1000;
+      padding:4px 9px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      color:#374151;
+      background:#f9fafb;
+      white-space:nowrap;
+    }
+    .tag.e{ border-color:rgba(37,99,235,.25); background:rgba(37,99,235,.08); color:#1d4ed8; }
+    .tag.l{ border-color:rgba(245,158,11,.30); background:rgba(245,158,11,.10); color:#92400e; }
+    .tag.p{ border-color:rgba(124,58,237,.25); background:rgba(124,58,237,.08); color:#5b21b6; }
+    .tag.s{ border-color:rgba(22,163,74,.25); background:rgba(22,163,74,.08); color:#065f46; }
+    .tag.a{ border-color:rgba(220,38,38,.22); background:rgba(220,38,38,.06); color:#991b1b; }
+
+    .small{
+      color:var(--muted);
+      font-size:12.5px;
+      font-weight:800;
+      line-height:1.45;
+    }
+
+    ul, ol{
+      margin:0;
+      padding-left:18px;
+      line-height:1.55;
+    }
+    li{ margin:5px 0; }
+
+    .callout{
+      border:1px dashed #c7dcff;
+      background:rgba(37,99,235,.06);
+      border-radius:18px;
+      padding:12px 14px;
+      display:grid;
+      gap:8px;
+    }
+    .calloutTitle{
+      font-weight:1000;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+    .kbd{
+      font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono";
+      font-size:12px;
+      padding:2px 7px;
+      border-radius:8px;
+      border:1px solid var(--border);
+      background:#fff;
+      font-weight:900;
+    }
+
+    .twoCols{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+    }
+    @media (max-width: 920px){
+      .twoCols{ grid-template-columns:1fr; }
+    }
+
+    .box{
+      border:1px solid var(--border);
+      border-radius:16px;
+      padding:12px;
+      background:#fff;
+      display:grid;
+      gap:8px;
+    }
+    .boxTitle{
+      font-weight:1000;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+
+    .quote{
+      border-left:4px solid rgba(37,99,235,.35);
+      padding:8px 10px;
+      background:rgba(37,99,235,.06);
+      border-radius:12px;
+      font-weight:900;
+      color:#1d4ed8;
+      line-height:1.45;
+    }
+
+    .warn{
+      border-left:4px solid rgba(220,38,38,.35);
+      background:rgba(220,38,38,.06);
+      color:#991b1b;
+    }
+
+    .links{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:6px;
+    }
+    .linkPill{
+      border:1px solid var(--border);
+      background:#fff;
+      border-radius:999px;
+      padding:8px 10px;
+      font-weight:1000;
+      font-size:12px;
+      color:#1d4ed8;
+      text-decoration:none;
+    }
+    .linkPill:hover{ text-decoration:underline; }
+
+    .footer{
+      border-top:1px solid var(--border);
+      padding:12px 18px;
+      color:var(--muted);
+      font-weight:900;
+      font-size:12.5px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+      background:#fff;
+    }
+    .footer a{
+      color:#1d4ed8;
+      text-decoration:none;
+      font-weight:1000;
+    }
+    .footer a:hover{ text-decoration:underline; }
+
+    @media print{
+      body{ background:#fff; }
+      .topbar{ display:none !important; }
+      .wrap{ max-width:none; padding:0; }
+      .card{
+        border:none;
+        box-shadow:none;
+        border-radius:0;
+      }
+      .header, .content, .footer{
+        padding-left:var(--pagePad);
+        padding-right:var(--pagePad);
+      }
+      .header{ padding-top:var(--pagePad); }
+      .footer{ padding-bottom:var(--pagePad); }
+
+      a{ color:#000; text-decoration:none; }
+      .linkPill{ border:1px solid #ddd; color:#000; }
+    }
+
+    /* unit circle lesson plan additions */
+    table.lp{ width:100%; border-collapse:collapse; font-size:13px; }
+    table.lp th, table.lp td{ border:1px solid var(--border); padding:6px 8px; text-align:left; vertical-align:top; line-height:1.4; }
+    table.lp th{ background:#f8fafc; font-weight:1000; color:#374151; font-size:12px; }
+    table.lp td.c, table.lp th.c{ text-align:center; }
+    .pos{ color:var(--green); font-weight:1000; } .neg{ color:var(--red); font-weight:1000; } .zero{ color:#64748b; font-weight:1000; }
+    .timeline{ display:grid; grid-template-columns:repeat(6, 1fr); gap:6px; }
+    .timeline div{ border-radius:12px; padding:8px 6px; text-align:center; font-weight:1000; font-size:12px; border:1px solid var(--border); }
+    .timeline small{ display:block; font-weight:800; color:var(--muted); font-size:11px; }
+    .t-e{ background:rgba(37,99,235,.08); color:#1d4ed8; } .t-l{ background:rgba(245,158,11,.10); color:#92400e; }
+    .t-p{ background:rgba(124,58,237,.08); color:#5b21b6; } .t-s{ background:rgba(22,163,74,.08); color:#065f46; }
+    .t-a{ background:rgba(220,38,38,.06); color:#991b1b; } .t-x{ background:#f8fafc; color:#374151; }
+    .formula{ font-family:"Cambria Math","STIX Two Math","Latin Modern Math",Cambria,"Times New Roman",serif; font-size:20px; font-weight:500;
+      text-align:center; padding:10px; border:1px solid var(--border); border-radius:14px; background:#fbfcff; }
+    .formula i{ font-style:italic; }
+    .signRow{ display:grid; grid-template-columns:auto 1fr; gap:14px; align-items:center; }
+    @media (max-width: 720px){ .signRow{ grid-template-columns:1fr; } .timeline{ grid-template-columns:repeat(3, 1fr); } }
+    .phase{ border-top:4px solid var(--blue); }
+    .phase.l{ border-top-color:var(--amber); } .phase.p{ border-top-color:var(--purple); } .phase.s{ border-top-color:var(--green); } .phase.a{ border-top-color:var(--red); }
+    .cards{ display:grid; grid-template-columns:repeat(4, 1fr); gap:0; border:1px dashed #94a3b8; }
+    .cards div{ border:1px dashed #94a3b8; height:42mm; display:grid; place-items:center; font-family:"Cambria Math","STIX Two Math",Cambria,"Times New Roman",serif;
+      font-size:34px; font-weight:500; }
+    .cards div i{ font-style:normal; }
+    .printOnlyBreak{ break-before:page; page-break-before:always; }
+    @media print{
+      .callout, .box, table.lp tr, .timeline, .signRow, .quote{ break-inside:avoid; }
+      .panel h2{ break-after:avoid; }
+      .content{ gap:10px; }
+      .cards div{ height:40mm; }
+    }
+  </style>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
+<!-- mmt-pwa -->
+<link rel="manifest" href="../../../../manifest.webmanifest">
+<meta name="theme-color" content="#1f3a5f">
+<link rel="apple-touch-icon" href="../../../../icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="MMT">
+<script src="../../../../pwa.js" defer></script>
+<!-- /mmt-pwa -->
+</head>
+
+<body>
+  <div class="topbar">
+    <div class="topbarInner">
+      <div class="brand">
+        <img src="../../../../assets/mmt.png" alt="MMT logo" onerror="this.onerror=null;this.src='../../../../assets/mmt.png';">
+        <div class="brandTitle">
+          <div class="t1">Introducing the Unit Circle</div>
+          <div class="t2">ELPSA Lesson Plan (Printable)</div>
+        </div>
+      </div>
+      <div class="actions">
+        <a class="btn" href="index.html">Open teacher tool</a>
+        <button class="btn primary" type="button" onclick="window.print()">&#128424;&#65039; Print</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="card">
+
+      <div class="header">
+        <div class="titleRow">
+          <div>
+            <h1>Introducing the Unit Circle &mdash; ELPSA Lesson Plan</h1>
+            <p class="subtitle">
+              Students extend <b>sine, cosine and tangent past 90&deg;</b> by watching a 1-unit stick turn on the number plane,
+              noticing the patterns <b>before any rule is named</b>. A first lesson for Stage 5, built around the
+              <b>The Unit Circle and the Trigonometric Ratios</b> tool, with notice-and-wonder moments and quick mini-whiteboard checks throughout.
+            </p>
+          </div>
+          <div class="meta">
+            <div class="pill"><span class="dot"></span> Duration: 60 min</div>
+            <div class="pill"><span class="dot" style="background:var(--green)"></span> MA5-TRG-P-02 (Trigonometry D)</div>
+            <div class="pill"><span class="dot" style="background:var(--purple)"></span> Mini-whiteboards &middot; flip cards</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+
+        <div class="timeline" aria-label="Lesson timing">
+          <div class="t-e">E &middot; Experience<small>10 min</small></div>
+          <div class="t-l">L &middot; Language<small>8 min</small></div>
+          <div class="t-p">P &middot; Pictorial<small>15 min</small></div>
+          <div class="t-s">S &middot; Symbolic<small>15 min</small></div>
+          <div class="t-a">A &middot; Application<small>8 min</small></div>
+          <div class="t-x">Exit ticket<small>4 min</small></div>
+        </div>
+
+        <div class="grid2">
+          <div class="panel">
+            <h2>Learning intention <span class="tag">LI</span></h2>
+            <ul>
+              <li>We are learning how <b>sine, cosine and tangent</b> work for angles <b>bigger than 90&deg;</b>.</li>
+            </ul>
+            <div class="small">Assumed knowledge: SOH CAH TOA in right-angled triangles; plotting points on the number plane.</div>
+          </div>
+          <div class="panel">
+            <h2>Success criteria <span class="tag">SC</span></h2>
+            <ul>
+              <li>I can explain why, on a unit circle, <b>sin &theta; is the y-coordinate</b> and <b>cos &theta; is the x-coordinate</b>.</li>
+              <li>I can sketch the stick for any angle up to 360&deg; and say which quadrant it is in.</li>
+              <li>I can decide whether sin, cos or tan of an angle is <b>positive, negative or zero</b>, and say why.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="callout">
+          <div class="calloutTitle">Tool set-up and shortcuts <span class="tag">Before the lesson</span></div>
+          <div class="small">
+            Open <b>The Unit Circle and the Trigonometric Ratios</b> (Stage 5 &rsaquo; Measurement &amp; Space). Leave every Settings layer <b>off</b> (they start off),
+            side labels on <b>Letters</b>, graph panel open.
+          </div>
+          <div class="small">
+            <span class="kbd">&rarr;</span> / <span class="kbd">&larr;</span> next / back a step &nbsp;&bull;&nbsp;
+            <span class="kbd">&uarr;</span> <span class="kbd">&darr;</span> turn the stick 1&deg; (Shift: 15&deg;) &nbsp;&bull;&nbsp;
+            <span class="kbd">L</span> labels: letters / numbers / names &nbsp;&bull;&nbsp;
+            <span class="kbd">G</span> graph panel &nbsp;&bull;&nbsp; <span class="kbd">F</span> full screen &nbsp;&bull;&nbsp;
+            <span class="kbd">Space</span> start again &nbsp;&bull;&nbsp; type any angle in the <b>&theta;</b> box
+          </div>
+          <div class="small">Materials: mini-whiteboards and markers, the sign flip cards (last page), exit ticket slips.</div>
+        </div>
+
+        <div class="panel phase">
+          <h2>Experience &mdash; a stick that turns <span class="tag e">E &middot; 10 min</span></h2>
+          <div class="small">Start from what students know and something they can picture. Say very little; let them notice.</div>
+          <ol>
+            <li><b>Hook (2 min).</b> &ldquo;What things in your life turn round and round?&rdquo; Collect a few: Ferris wheel, bike wheel, clock hands, the Earth. &ldquo;Today we find out what trigonometry says about things that turn.&rdquo;</li>
+            <li><b>The stick (1 min).</b> Step 1 of the tool: &ldquo;Here is a stick. It is exactly 1 unit long. If one end stays still and the other turns, what shape does the free end trace?&rdquo; (a circle)</li>
+            <li><b>The first quadrant (2 min).</b> Press Next: the stick lands on the plane and turns to 40&deg;. &ldquo;Where have you seen this triangle before?&rdquo; (SOH CAH TOA). &ldquo;The hypotenuse is 1. So what is sin 40&deg; here?&rdquo; Pairs work it out: opposite &divide; 1, the <b>height of the point</b>.</li>
+            <li><b>Notice and wonder (5 min).</b> Drag the stick slowly 0&deg; &rarr; 90&deg; and back while the three graphs draw and wind back. Whiteboards: <b>one notice, one wonder</b> each. Share four or five and write their words on the board <b>exactly as said</b> &mdash; they become the Language phase.</li>
+          </ol>
+          <div class="box">
+            <div class="boxTitle">Likely noticings</div>
+            <ul>
+              <li>sin gets bigger as cos gets smaller; at 45&deg; they are equal</li>
+              <li>tan shoots up near 90&deg;; the graphs are curves, not straight lines</li>
+            </ul>
+          </div>
+          <div class="quote">Teacher move: don&rsquo;t correct or name anything yet. If no one wonders about it, ask &ldquo;The stick could keep turning. What would happen to sin after 90&deg;?&rdquo; Students commit a prediction on their whiteboard and keep it &mdash; it is answered in the Pictorial phase.</div>
+        </div>
+
+        <div class="panel phase l">
+          <h2>Language &mdash; from their words to ours <span class="tag l">L &middot; 8 min</span></h2>
+          <div class="small">Turn the class&rsquo;s noticings into shared vocabulary, linking each term to something a student said. Build a word wall as you go.</div>
+          <table class="lp">
+            <tr><th>Their words (likely)</th><th>The term we use</th><th>Point at on the tool</th></tr>
+            <tr><td>&ldquo;the circle the stick draws&rdquo;</td><td><b>unit circle</b> (radius 1, centre at the origin)</td><td>the dashed circle</td></tr>
+            <tr><td>&ldquo;how far the point is up&rdquo;</td><td>the point&rsquo;s <b>y-coordinate</b>, which is <b>sin &theta;</b></td><td>the vertical side</td></tr>
+            <tr><td>&ldquo;how far across it is&rdquo;</td><td>the point&rsquo;s <b>x-coordinate</b>, which is <b>cos &theta;</b></td><td>the horizontal side</td></tr>
+            <tr><td>&ldquo;the angle from the flat line&rdquo;</td><td><b>&theta;</b>, measured <b>anticlockwise from the positive x-axis</b></td><td>the arc at the origin</td></tr>
+            <tr><td>&ldquo;the four corners of the graph&rdquo;</td><td><b>quadrants</b> 1 to 4, numbered anticlockwise</td><td>the axes</td></tr>
+          </table>
+          <div class="quote">Key sentence to say and repeat: &ldquo;On the unit circle, <b>cos is across</b> and <b>sin is up</b>.&rdquo;</div>
+          <ul>
+            <li><b>Why it works (1 min).</b> The hypotenuse is 1, so opposite &divide; hypotenuse is just the opposite side &mdash; the height of the point. Show it with side labels on <b>Numbers</b>, then back to <b>Letters</b> (<span class="kbd">L</span>).</li>
+            <li><b>Quick check (2 min, whiteboards).</b> Call out &ldquo;the y-coordinate&rdquo;, &ldquo;cos&rdquo;, &ldquo;the vertical side&rdquo;, &ldquo;across&rdquo;. Students write <b>sin</b> or <b>cos</b>. Re-teach anyone mixing up across and up, using the stick.</li>
+          </ul>
+        </div>
+
+        <div class="panel phase p">
+          <h2>Pictorial &mdash; the whole circle <span class="tag p">P &middot; 15 min</span></h2>
+          <div class="small">Students check their past-90&deg; predictions against the picture, then learn to sketch the stick and read signs from it.</div>
+          <ol>
+            <li><b>The reveal (3 min).</b> Press Next to zoom out to the whole unit circle; the graphs stretch to 360&deg;. Drag to 120&deg; and stop. &ldquo;Look at your prediction. What happened to sin? To cos?&rdquo; Whiteboards up. Then turn right round to 360&deg; while the graphs draw.</li>
+            <li><b>Second notice and wonder (4 min).</b> One notice each. Look for: the side labels gain signs (&minus;<i>x</i> left of the y-axis, &minus;<i>y</i> below the x-axis); sin is positive above the x-axis and cos to the right of the y-axis; the graphs repeat their shapes, mirrored or flipped; tan goes off the graph at 90&deg; and 270&deg;.
+              <div class="quote" style="margin-top:6px">Key question: &ldquo;The triangle&rsquo;s sides are lengths. How can a length be negative?&rdquo; Steer to: the sides aren&rsquo;t negative &mdash; the <b>coordinates</b> are. The point at 150&deg; is left of the origin, so its x-coordinate is negative.</div>
+            </li>
+            <li><b>Quadrant check (2 min).</b> Call 200&deg;, 95&deg;, 300&deg;, 170&deg;, 45&deg;: students hold up 1&ndash;4 fingers. Repeat any that split the room, dragging the stick there.</li>
+            <li><b>Sketch the stick (6 min).</b> On whiteboards: a small circle with axes, then the stick and triangle for 150&deg;, 240&deg;, 330&deg;, with + or &minus; on the horizontal and vertical sides. Reveal each by dragging the stick there in Letters mode.</li>
+          </ol>
+          <div class="quote warn">Look for: angles measured from the y-axis or turned clockwise; triangles drawn to the y-axis. Fix it now: the triangle always drops (or rises) to the <b>x-axis</b>.</div>
+        </div>
+
+        <div class="panel phase s">
+          <h2>Symbolic &mdash; writing it down <span class="tag s">S &middot; 15 min</span></h2>
+          <div class="small">Name what the pictures showed, then practise it in symbols with the flip cards.</div>
+          <div class="formula">sin <i>&theta;</i> = <i>y</i> &nbsp;&nbsp;&nbsp;&nbsp; cos <i>&theta;</i> = <i>x</i> &nbsp;&nbsp;&nbsp;&nbsp; tan <i>&theta;</i> = <i>y</i> &frasl; <i>x</i></div>
+          <ul>
+            <li><b>Notes for books (4 min).</b> The point on the unit circle at angle &theta; is <b>(cos &theta;, sin &theta;)</b> &mdash; turn on Settings &rsaquo; <i>label the point</i> to show it. The sign of each ratio comes from the signs of <i>x</i> and <i>y</i> in that quadrant. Have students <b>build this table from their sketches</b>, not copy it.</li>
+          </ul>
+          <div class="signRow">
+            <svg width="190" height="190" viewBox="0 0 190 190" role="img" aria-label="Signs of sin, cos and tan in each quadrant">
+              <circle cx="95" cy="95" r="70" fill="none" stroke="#64748b" stroke-width="2" stroke-dasharray="6 5"/>
+              <line x1="8" x2="182" y1="95" y2="95" stroke="#475569" stroke-width="2"/><line x1="95" x2="95" y1="8" y2="182" stroke="#475569" stroke-width="2"/>
+              <g font-family="ui-sans-serif,system-ui" font-size="11" font-weight="800" text-anchor="middle">
+                <text x="140" y="44" fill="#065f46">Q1</text><text x="140" y="58" fill="#16a34a">all +</text>
+                <text x="50" y="44" fill="#5b21b6">Q2</text><text x="50" y="58" fill="#16a34a">sin +</text>
+                <text x="50" y="138" fill="#5b21b6">Q3</text><text x="50" y="152" fill="#16a34a">tan +</text>
+                <text x="140" y="138" fill="#065f46">Q4</text><text x="140" y="152" fill="#16a34a">cos +</text>
+                <text x="178" y="88" fill="#475569" font-size="10">0&deg;</text><text x="104" y="16" fill="#475569" font-size="10">90&deg;</text>
+                <text x="16" y="88" fill="#475569" font-size="10">180&deg;</text><text x="110" y="180" fill="#475569" font-size="10">270&deg;</text>
+              </g>
+            </svg>
+            <table class="lp">
+              <tr><th>Quadrant</th><th class="c"><i>x</i> (cos)</th><th class="c"><i>y</i> (sin)</th><th class="c"><i>y</i> &divide; <i>x</i> (tan)</th></tr>
+              <tr><td>1 (0&deg; to 90&deg;)</td><td class="c pos">+</td><td class="c pos">+</td><td class="c pos">+</td></tr>
+              <tr><td>2 (90&deg; to 180&deg;)</td><td class="c neg">&minus;</td><td class="c pos">+</td><td class="c neg">&minus;</td></tr>
+              <tr><td>3 (180&deg; to 270&deg;)</td><td class="c neg">&minus;</td><td class="c neg">&minus;</td><td class="c pos">+</td></tr>
+              <tr><td>4 (270&deg; to 360&deg;)</td><td class="c pos">+</td><td class="c neg">&minus;</td><td class="c neg">&minus;</td></tr>
+            </table>
+          </div>
+          <div class="small">If you use ASTC (All Stations To Central), introduce it here as a memory aid for a table they have just built &mdash; never as the starting point.</div>
+          <ul>
+            <li><b>Flip cards (6 min).</b> Show a card. Students <b>sketch the stick first</b>, then write <b>+</b>, <b>&minus;</b> or <b>0</b> and hold up. Reveal by flipping the card or dragging the stick. Thumbs up / down / sideways is faster for the last few. Cards are on the last page; answers in the table below.</li>
+            <li><b>Hinge question (3 min).</b> Whiteboards, letter only: <b>Which of these is negative?</b> &nbsp;A&nbsp; sin 150&deg; &nbsp;&middot;&nbsp; B&nbsp; cos 300&deg; &nbsp;&middot;&nbsp; C&nbsp; tan 225&deg; &nbsp;&middot;&nbsp; D&nbsp; cos 120&deg;</li>
+          </ul>
+          <div class="twoCols">
+            <div class="box">
+              <div class="boxTitle">Reading the hinge answers</div>
+              <ul>
+                <li><b>D</b> is correct.</li>
+                <li>Many choose <b>B</b>: they have mixed up sin and cos &rarr; back to &ldquo;cos is across&rdquo;.</li>
+                <li>Many choose <b>C</b>: they missed that negative &divide; negative is positive &rarr; back to the quadrant table.</li>
+              </ul>
+            </div>
+            <div class="box">
+              <div class="boxTitle">Tan at 90&deg; (2 min)</div>
+              <ul>
+                <li>Drag the stick to 90&deg;: the tool says tan 90&deg; is <b>undefined</b>.</li>
+                <li>&ldquo;Why?&rdquo; &mdash; <i>x</i> = 0, and you can&rsquo;t divide by 0. Point to the dashed asymptote on the tan graph.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel phase a">
+          <h2>Application &mdash; where it turns up <span class="tag a">A &middot; 8 min</span></h2>
+          <div class="small">Close with one real situation and a final notice and wonder, so the graph becomes a picture of something real.</div>
+          <ol>
+            <li><b>The Ferris wheel (4 min).</b> More applications &rsaquo; <b>The Ferris wheel</b>: the circle becomes an 18 m wheel and a rider climbs in. Before it turns: &ldquo;Sketch what you think their height from the centre will look like over time.&rdquo; Whiteboards, then press <b>Sweep</b> and compare with the height graph.</li>
+            <li><b>Final notice and wonder (4 min).</b> &ldquo;What do you notice about the rider&rsquo;s height graph and the sin graph from earlier?&rdquo; (same shape, 9 times taller). &ldquo;What do you wonder?&rdquo; Praise: &ldquo;Does this work for other things that turn?&rdquo; If time allows, flick through <b>The tide</b>, <b>Sunrise over the year</b> or <b>The pendulum</b> without explaining &mdash; a teaser for next lesson.</li>
+          </ol>
+        </div>
+
+        <div class="grid2">
+          <div class="panel">
+            <h2>Exit ticket <span class="tag">4 min</span></h2>
+            <ol>
+              <li>Sketch the stick at 240&deg; and label the signs of <i>x</i> and <i>y</i>.</li>
+              <li>Is cos 240&deg; positive or negative? How do you know?</li>
+              <li>Find another angle with the same sine as 240&deg;.</li>
+            </ol>
+            <div class="small">Sort the slips into three piles: sign + reason &middot; sign, no reason &middot; sign wrong. Question 3 (300&deg;) shows who is ready for related angles next lesson.</div>
+          </div>
+          <div class="panel">
+            <h2>Misconceptions to listen for <span class="tag">Watch</span></h2>
+            <ul>
+              <li>Treating the triangle&rsquo;s <b>side lengths</b> as negative, rather than the <b>coordinates</b>.</li>
+              <li>Measuring the angle from the y-axis, or turning clockwise.</li>
+              <li>Swapping sin and cos (which is <i>x</i>, which is <i>y</i>).</li>
+              <li>Thinking tan 90&deg; is 0, or &ldquo;just very big&rdquo;.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h2>Differentiation <span class="tag">Support &amp; extend</span></h2>
+          <div class="twoCols">
+            <div class="box">
+              <div class="boxTitle">Support</div>
+              <ul>
+                <li>Give a printed unit circle with the quadrants numbered to sketch on.</li>
+                <li>Keep side labels on <b>Names</b> (Opposite / Adjacent) to bridge from SOH CAH TOA.</li>
+                <li>Do the flip cards for sin and cos only; leave tan for later.</li>
+              </ul>
+            </div>
+            <div class="box">
+              <div class="boxTitle">Extend</div>
+              <ul>
+                <li>Which two angles between 0&deg; and 360&deg; have sin &theta; = 0.5? How do you know from the circle?</li>
+                <li>Why does tan repeat every 180&deg;, not every 360&deg;?</li>
+                <li>Turn on <b>angles in radians</b> and redo three flip cards.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h2>Flip card answers <span class="tag">Teacher copy</span></h2>
+          <table class="lp">
+            <tr><th>Card</th><th class="c">Quadrant</th><th class="c">Sign</th><th>Why (from the picture)</th></tr>
+            <tr><td>sin 120&deg;</td><td class="c">2</td><td class="c pos">+</td><td>the point is above the x-axis</td></tr>
+            <tr><td>cos 120&deg;</td><td class="c">2</td><td class="c neg">&minus;</td><td>the point is left of the y-axis</td></tr>
+            <tr><td>tan 120&deg;</td><td class="c">2</td><td class="c neg">&minus;</td><td>positive &divide; negative</td></tr>
+            <tr><td>sin 210&deg;</td><td class="c">3</td><td class="c neg">&minus;</td><td>below the x-axis</td></tr>
+            <tr><td>cos 210&deg;</td><td class="c">3</td><td class="c neg">&minus;</td><td>left of the y-axis</td></tr>
+            <tr><td>tan 210&deg;</td><td class="c">3</td><td class="c pos">+</td><td>negative &divide; negative</td></tr>
+            <tr><td>sin 300&deg;</td><td class="c">4</td><td class="c neg">&minus;</td><td>below the x-axis</td></tr>
+            <tr><td>cos 300&deg;</td><td class="c">4</td><td class="c pos">+</td><td>right of the y-axis</td></tr>
+            <tr><td>tan 300&deg;</td><td class="c">4</td><td class="c neg">&minus;</td><td>negative &divide; positive</td></tr>
+            <tr><td>sin 135&deg;</td><td class="c">2</td><td class="c pos">+</td><td>above the x-axis</td></tr>
+            <tr><td>cos 225&deg;</td><td class="c">3</td><td class="c neg">&minus;</td><td>left of the y-axis</td></tr>
+            <tr><td>tan 315&deg;</td><td class="c">4</td><td class="c neg">&minus;</td><td>negative &divide; positive</td></tr>
+            <tr><td>sin 180&deg;</td><td class="c">on an axis</td><td class="c zero">0</td><td>the point is on the x-axis: (&minus;1, 0)</td></tr>
+            <tr><td>cos 90&deg;</td><td class="c">on an axis</td><td class="c zero">0</td><td>the point is on the y-axis: (0, 1)</td></tr>
+            <tr><td>cos 180&deg;</td><td class="c">on an axis</td><td class="c neg">&minus;</td><td>it is &minus;1: the point is (&minus;1, 0)</td></tr>
+            <tr><td>tan 90&deg;</td><td class="c">on an axis</td><td class="c zero">undefined</td><td><i>x</i> = 0, so <i>y</i> &divide; <i>x</i> can&rsquo;t be worked out</td></tr>
+          </table>
+        </div>
+
+        <div class="panel printOnlyBreak">
+          <h2>Flip cards &mdash; print, cut out and fold <span class="tag">16 cards</span></h2>
+          <div class="small">Show the angle; students sketch the stick, then write +, &minus; or 0. Answers are in the table above.</div>
+          <div class="cards">
+            <div><i>sin 120&deg;</i></div><div><i>cos 120&deg;</i></div><div><i>tan 120&deg;</i></div><div><i>sin 210&deg;</i></div>
+            <div><i>cos 210&deg;</i></div><div><i>tan 210&deg;</i></div><div><i>sin 300&deg;</i></div><div><i>cos 300&deg;</i></div>
+            <div><i>tan 300&deg;</i></div><div><i>sin 135&deg;</i></div><div><i>cos 225&deg;</i></div><div><i>tan 315&deg;</i></div>
+            <div><i>sin 180&deg;</i></div><div><i>cos 90&deg;</i></div><div><i>cos 180&deg;</i></div><div><i>tan 90&deg;</i></div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="footer">
+        <div>
+          <b>This resource and more can be found at</b>
+          <a href="https://www.millsmathstools.au" target="_blank" rel="noopener noreferrer">www.millsmathstools.au</a>
+        </div>
+        <div class="small">Introducing the Unit Circle &bull; ELPSA lesson plan &bull; MA5-TRG-P-02</div>
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>

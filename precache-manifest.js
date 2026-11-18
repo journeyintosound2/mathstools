@@ -1,6 +1,6 @@
 /* Written by tools/build-pwa.mjs — do not edit by hand. */
 self.MMT_PRECACHE = {
- "version": "6e4373f6f0",
+ "version": "6a49b7038c",
  "files": [
   "./",
   "assessment/exam-builder/app.js",
@@ -888,6 +888,7 @@ self.MMT_PRECACHE = {
   "interactive-tools/stage-5/algebra/complete-the-square/index.html",
   "interactive-tools/stage-5/measurement-space/square-sum-chain/index.html",
   "interactive-tools/stage-5/measurement-space/unit-circle-trig-ratios/index.html",
+  "interactive-tools/stage-5/measurement-space/unit-circle-trig-ratios/lesson-plan.html",
   "interactive-tools/stage-5/statistics-probability/financial-expectation-spinner/index.html",
   "manifest.webmanifest",
   "mmt-screen/app.js",

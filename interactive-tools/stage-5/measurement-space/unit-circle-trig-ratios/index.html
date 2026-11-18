@@ -351,6 +351,7 @@
         <div class="menuWrap">
           <button class="btn" id="toolsBtn" type="button" aria-haspopup="true" aria-expanded="false">Tools &#9662;</button>
           <nav class="dropMenu" id="toolsMenu" aria-label="Related tools">
+            <a class="toolLink" href="lesson-plan.html">Lesson plan &ndash; intro to the unit circle<small>ELPSA sequence with notice and wonder</small></a>
             <span class="toolLink soon" aria-disabled="true">Worksheet Creator<small>Coming soon</small></span>
             <span class="toolLink soon" aria-disabled="true">Student Quiz<small>Coming soon</small></span>
           </nav>
@@ -1688,6 +1689,7 @@
     let hh = "";
     const aT = angTxt(P.ang);
     if(S.msg) hh = S.msg;
+    else if(S.morph && S.anim) hh = `Over to <b>${STEPS[k].appName || STEPS[k].t}</b>&hellip;`;
     else if(TID && S.anim && k === K_T2) hh = "A day and a half: high tide every 12 h 25 min, and each turn of the hand is one tide.";
     else if(TID && k === K_T2 && !S.anim) hh = `The height of the tide is the graph of <b><i>h</i> = 0.7 sin <i>θ</i></b> &mdash; three turns, three tides.`;
     else if(TID && S.anim && k === K_T1 && P.td < 1) hh = "The circle becomes a tide clock, and the x-axis becomes mean sea level&hellip;";
@@ -1916,8 +1918,12 @@
     raf = requestAnimationFrame(fr);
   }
   function apply(tw0, p, from){
-    const u = tw0.lin ? p : ease(p), tgt = tw0.set || tw0.to;
-    for(const k in tgt) S.P[k] = tw0.set ? tgt[k] : lerp(from[k], tgt[k], u);
+    const tgt = tw0.set || tw0.to;
+    for(const k in tgt){
+      if(tw0.set){ S.P[k] = tgt[k]; continue; }
+      const w = tw0.win && tw0.win[k], q = w ? span01(p, w[0], w[1]) : p;   /* win: a key that moves in part of the tween only */
+      S.P[k] = lerp(from[k], tgt[k], tw0.lin ? q : ease(q));
+    }
   }
   /* the tweens that play a step forwards, and the ones that take it back to the step before it */
   function enterQueue(k, ang){
@@ -1953,24 +1959,38 @@
     S.msg = "";
     run(leaveQueue(k, S.P.ang), () => { S.step = pv; S.fmax = 0; if(![K_S2, K_P2].includes(pv)) S.smax = 0; if(pv !== K_T1) S.tmax = 0; });
   }
-  /* More applications: back out to the whole unit circle, then into the chosen application */
+  /* More applications. From the unit circle (or before it) the chosen application plays its own way in.
+     From another application it MORPHS straight across (Jeff, 2026-11-18): the record of photos fades, the
+     hand comes the short way round to 0°, and every scene parameter tweens at once to the new application's
+     starting state, so one background fades into the next while the circle glides to its new place. */
   function goApp(t){
     closeMenus();
     if(S.anim || S.step === t) return;
-    if(S.step < K_ALL) jump(K_ALL);
-    const q = []; let k = S.step, ang = S.P.ang;
-    while(k !== K_ALL && k !== t){
-      q.push(...leaveQueue(k, ang));
-      const pv = STEPS[k].prev, touches = STEPS[k].segs.some(sg => (sg.to || sg.set || {}).ang !== undefined);
-      ang = touches ? beforeSeg(k, 0).ang : (pv === K_ALL && ang > 360 ? (((ang % 360) + 360) % 360 || 360) : ang); k = pv;
+    if(!appOf(S.step)){
+      if(S.step < K_ALL) jump(K_ALL);
+      const q = enterQueue(t, S.P.ang);
+      S.step = t; S.msg = ""; S.fmax = 0; S.smax = 0; S.tmax = 0;
+      run(q);
+      return;
     }
-    const path = []; for(let j = t; j !== k; j = STEPS[j].prev) path.unshift(j);
-    path.forEach(j => q.push(...enterQueue(j, END[STEPS[j].prev].ang)));
-    S.step = t; S.msg = ""; S.fmax = 0; S.smax = 0; S.tmax = 0;
-    run(q);
+    const T = END[t], q = [];
+    if(S.P.stk > .01) q.push({ to:{ stk:0 }, d:650 });
+    const r = ((S.P.ang % 360) + 360) % 360;
+    q.push({ set:{ ang:r, walk:T.walk } });
+    const to = {}; Object.keys(T).forEach(k => { if(k !== "walk" && k !== "stk") to[k] = T[k]; });
+    to.ang = r > 180 ? 360 : 0;
+    to.stk = T.stk;
+    /* a crossfade that is never washed out: what arrives comes up to full first, what leaves fades after it */
+    const win = {};
+    Object.keys(to).forEach(k => { if(k === "ang") return;
+      if(to[k] > S.P[k] + 1e-9) win[k] = [0, .55]; else if(to[k] < S.P[k] - 1e-9) win[k] = [.45, 1]; });
+    q.push({ to, win, d:reduceMotion ? 0 : 2600 });
+    if(to.ang === 360) q.push({ set:{ ang:0 } });
+    S.step = t; S.msg = ""; S.fmax = 0; S.smax = 0; S.tmax = 0; S.morph = true;
+    run(q, () => { S.morph = false; });
   }
   function jump(k){
-    cancelAnimationFrame(raf); S.anim = null;
+    cancelAnimationFrame(raf); S.anim = null; S.morph = false;
     S.step = k; S.P = Object.assign({}, END[k]); S.msg = ""; S.fmax = 0; S.smax = (k === K_S3 || k === K_P3) ? MAXA : 0; S.tmax = k === K_T2 ? MAXA : 0;
     render();
   }

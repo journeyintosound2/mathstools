@@ -175,6 +175,9 @@ window.MMT_TOOL_FAMILIES = {
   /* ---- Stage 5 ---- */
   "/interactive-tools/stage-5/algebra/complete-the-square/": [
     "/worksheet-creators/stage-5/algebra/complete-the-square.html"
+  ],
+  "/interactive-tools/stage-5/measurement-space/unit-circle-trig-ratios/": [
+    "/interactive-tools/stage-5/measurement-space/unit-circle-trig-ratios/lesson-plan.html"
   ]
 };
 
