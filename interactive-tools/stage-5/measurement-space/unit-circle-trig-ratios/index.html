@@ -107,6 +107,9 @@
     .topLeft,.topRight{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
     .stepChip{ font-size:.74rem; letter-spacing:.06em; font-weight:950; text-transform:uppercase; padding:6px 11px; border-radius:999px; white-space:nowrap;
       color:var(--blue-dark); background:rgba(37,99,235,.1); border:1px solid rgba(37,99,235,.25); }
+    .boardTop.tight, .boardTop.tight .topLeft, .boardTop.tight .topRight{ gap:6px; }
+    .boardTop.tight .seg button{ padding:6px 7px; font-size:.82rem; }
+    .boardTop.tighter .quadTag{ display:none; }
     .seg{ display:inline-flex; background:#f1f5f9; border:1px solid var(--border); border-radius:13px; padding:3px; gap:3px; }
     .seg button{ appearance:none; border:none; background:transparent; padding:6px 12px; border-radius:10px; font-weight:900; font-size:.88rem; color:var(--muted); cursor:pointer; }
     .seg button[aria-pressed="true"]{ background:#fff; color:var(--ink); box-shadow:0 2px 8px rgba(15,23,42,.12); }
@@ -301,6 +304,7 @@
                 <option value="letters" selected>Letters (&plusmn;x, &plusmn;y)</option>
                 <option value="numbers">Numbers</option>
                 <option value="names">Names (opposite, adjacent)</option>
+                <option value="trig">Trig names (&plusmn;cos <i>&theta;</i>, &plusmn;sin <i>&theta;</i>)</option>
               </select>
             </label>
             <label class="sw"><input type="checkbox" id="cosSinToggle"><span class="track"></span><span>Label the point (cos <i>&theta;</i>, sin <i>&theta;</i>)</span></label>
@@ -370,6 +374,7 @@
               <button type="button" data-lab="letters" aria-pressed="true" title="Label the sides with letters (L)"><span class="mi">x</span>, <span class="mi">y</span></button>
               <button type="button" data-lab="numbers" aria-pressed="false" title="Label the sides with numbers (L)">0.87</button>
               <button type="button" data-lab="names" aria-pressed="false" title="Label the sides opposite and adjacent (L)">Names</button>
+              <button type="button" data-lab="trig" aria-pressed="false" title="Trig names: label the sides cos θ and sin θ (L)" aria-label="Trig names">sin <span class="mi">θ</span></button>
             </div>
           </div>
           <div class="topRight">
@@ -654,7 +659,15 @@
   /* ------------------------------------------------------------ layout: three views, tweened by P.z and P.fw */
   const svg = $("board");
   let L = null, V = null;
+  /* the board's top row must stay one row: a fourth label button (Trig names) wraps it beside the open panel */
+  function fitTop(){
+    const bt = document.querySelector(".boardTop"); if(!bt) return;
+    bt.classList.remove("tight", "tighter");
+    if(window.innerWidth <= 760) return;
+    if(bt.offsetHeight > 56){ bt.classList.add("tight"); if(bt.offsetHeight > 56) bt.classList.add("tighter"); }
+  }
   function layout(){
+    fitTop();
     fitCue();
     const r = $("boardWrap").getBoundingClientRect();
     const w = Math.max(240, r.width), h = Math.max(220, r.height);
@@ -860,7 +873,7 @@
     view();
     const P = S.P, { R, ox, oy, X, Y, w, h, f, z } = V;
     const a = P.ang, c = cosD(a), s = sinD(a);
-    const mode = S.set.labels, letters = mode !== "numbers", names = mode === "names";
+    const mode = S.set.labels, letters = mode !== "numbers", names = mode === "names", trigN = mode === "trig";
     const signs = P.sg > .5;
     const fw = P.fw, uo = 1 - Math.max(span01(fw, 0, .55), span01(P.sr, 0, .55), span01(P.td, 0, .55), span01(P.pd, 0, .55)), fo = span01(fw, .3, 1), FER = fw > .5;
     const PENM = P.pd > .5, po = span01(P.pd, .25, 1) * (1 - span01(P.turn, 0, .45));
@@ -1218,6 +1231,7 @@
         xl = mode === "numbers" ? [T(m2(fd(a)) + " m", C.xd)] : [T("9 cos ", C.xd), I("θ", C.xd)];
         yl = mode === "numbers" ? [T(m2(FW.r * s) + " m", C.yd)] : [T("9 sin ", C.yd), I("θ", C.yd)];
       }
+      else if(trigN){ xl = (signs ? [T(sx, C.xd)] : []).concat([T("cos ", C.xd), I("θ", C.xd)]); yl = (signs ? [T(sy, C.yd)] : []).concat([T("sin ", C.yd), I("θ", C.yd)]); }
       else if(letters){ xl = signs ? [T(sx, C.xd), I("x", C.xd)] : [I("x", C.xd)]; yl = signs ? [T(sy, C.yd), I("y", C.yd)] : [I("y", C.yd)]; }
       else { xl = valSegs("c", a, C.xd); yl = valSegs("s", a, C.yd); }
       const xly = oy + (s >= 0 ? 1 : -1) * lf * (mode === "numbers" && !FER ? 1.05 : .85);
@@ -1234,7 +1248,7 @@
       let segs;
       const sx = c >= 0 ? "+" : MINUS, sy = s >= 0 ? "+" : MINUS;
       if(mode === "numbers" || axisAngle(a)) segs = [T("(")].concat(valSegs("c", a, C.xd), [T(", ")], valSegs("s", a, C.yd), [T(")")]);
-      else if(S.set.cosSin) segs = [T("("), T("cos ", C.xd), I("θ", C.xd), T(", "), T("sin ", C.yd), I("θ", C.yd), T(")")];
+      else if(S.set.cosSin || trigN) segs = [T("("), T("cos ", C.xd), I("θ", C.xd), T(", "), T("sin ", C.yd), I("θ", C.yd), T(")")];
       else if(signs) segs = [T("("), T(sx, C.xd), I("x", C.xd), T(", "), T(sy, C.yd), I("y", C.yd), T(")")];
       else segs = [T("("), I("x", C.xd), T(", "), I("y", C.yd), T(")")];
       const dx = c >= -1e-9 ? 1 : -1, dy = s >= -1e-9 ? 1 : -1;
@@ -1548,14 +1562,14 @@
       if(!signs){
         if(f === "s") parts.push(fracH(mi("y"), "1"), "=", mi("y"));
         else if(f === "c") parts.push(fracH(mi("x"), "1"), "=", mi("x"));
-        else parts.push(fracH(mi("y"), mi("x")));
+        else parts.push(S.set.labels === "trig" ? fracH(`sin ${mi("θ")}`, `cos ${mi("θ")}`) : fracH(mi("y"), mi("x")));
       } else if(axisAngle(a)){
         parts.push(und ? "undefined" : valH(f, a));
       } else {
         const sx = cosD(a) >= 0 ? "+" : MINUS, sy = sinD(a) >= 0 ? "+" : MINUS;
         if(f === "s") parts.push(fracH(sy + mi("y"), "1"), "=", sy + mi("y"));
         else if(f === "c") parts.push(fracH(sx + mi("x"), "1"), "=", sx + mi("x"));
-        else parts.push(fracH(sy + mi("y"), sx + mi("x")));
+        else parts.push(S.set.labels === "trig" ? fracH(`${sy}sin ${mi("θ")}`, `${sx}cos ${mi("θ")}`) : fracH(sy + mi("y"), sx + mi("x")));
       }
     } else parts.push(und ? "undefined" : valH(f, a));
     const q = quadrant(a);
@@ -1681,6 +1695,13 @@
     const mo = P.ang / 30;
     qt.textContent = TID ? tideState(P.ang) : PEN ? pendState(P.ang) : SUN ? `${isWhole(mo) ? "" : "≈ "}${monthYear(clamp(Math.round(mo), 0, 36))}` : FER ? (q ? `Quadrant ${q}` : posName(P.ang)) : q ? `Quadrant ${q}` : "On an axis";
     qt.hidden = k < K_Q1;
+    const topSig = qt.textContent.length + "|" + qt.hidden + "|" + S.set.labels + "|" + S.set.panel;
+    if(topSig !== fitTop.sig){
+      fitTop.sig = topSig;
+      const bt = document.querySelector(".boardTop"), h0 = bt.offsetHeight;
+      fitTop();
+      if(bt.offsetHeight !== h0) requestAnimationFrame(() => { layout(); render(); });
+    }
     $("randBtn").disabled = k < K_Q1;
     $("swingBtn").disabled = k < K_Q1 || !!S.anim;
     const mx = maxAng();
@@ -2118,7 +2139,7 @@
   document.querySelectorAll("#appsMenu [data-app]").forEach(b => b.addEventListener("click", () => goApp(+b.dataset.app)));
   $("angIn").addEventListener("keydown", e => { if(e.key === "Enter"){ e.preventDefault(); typedAngle(); $("angIn").blur(); } });
   $("angIn").addEventListener("change", typedAngle);
-  const LABS = ["letters", "numbers", "names"];
+  const LABS = ["letters", "numbers", "names", "trig"];
   function setLabels(v){ S.set.labels = LABS.includes(v) ? v : "letters"; $("labelSel").value = S.set.labels; save(); render(); }
   document.querySelectorAll(".seg button").forEach(b => b.addEventListener("click", () => setLabels(b.dataset.lab)));
   document.querySelectorAll(".fTog").forEach(b => b.addEventListener("click", () => {
