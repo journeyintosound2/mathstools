@@ -165,6 +165,10 @@
     #board .handle.base{ cursor:ew-resize; }
     #board.slide .handle.apex{ cursor:ew-resize; }
     #board.dragging .handle{ cursor:grabbing; }
+    .app[data-fsz="m"] .stmt{ font-size:clamp(2rem,3.7vw,3.2rem); }
+    .app[data-fsz="l"] .stmt{ font-size:clamp(2.4rem,4.6vw,4rem); }
+    .app[data-fsz="m"] .hint{ font-size:1.1rem; }
+    .app[data-fsz="l"] .hint{ font-size:1.35rem; }
     .hint{ flex:0 0 auto; min-height:1.45em; text-align:center; font-size:.88rem; font-weight:750; color:var(--muted); padding:3px 8px 0; line-height:1.4; }
     .hint b{ color:var(--line); }
     .hint .eq{ font-family:var(--mathFont); font-weight:700; font-size:1.12em; color:var(--line); }
@@ -308,6 +312,13 @@
             </label>
             <div class="settingsRule" role="separator"></div>
             <div class="settingsHead">On screen</div>
+            <label class="selRow"><span>Font size</span>
+              <select id="fszSel" aria-label="Font size on the board">
+                <option value="s">Small</option>
+                <option value="m">Medium</option>
+                <option value="l">Large</option>
+              </select>
+            </label>
             <label class="sw"><input type="checkbox" id="formulaToggle"><span class="track"></span><span>Formula mode</span></label>
             <p class="settingsNote">Letters instead of numbers: the sides are labelled <i>a</i> and <i>b</i> (the parallel sides) and <i>h</i>, and the steps build the formula instead of an answer.</p>
             <label class="sw"><input type="checkbox" id="gridToggle" checked><span class="track"></span><span>Show the unit squares</span></label>
@@ -477,7 +488,7 @@
     anim:null,
     revealed:false,
     drag:null, frozen:null,
-    set:{ grid:true, calc:false, units:"", panel:true, kind:"any", colour:"green", formula:false },
+    set:{ grid:true, calc:false, units:"", panel:true, kind:"any", colour:"green", formula:false, fsz:"s" },
     fs:false
   };
   const STORE = "mmt.trapArea.v1";
@@ -489,7 +500,11 @@
   function clampShape(){
     S.b = clamp(Math.round(S.b), B_MIN, B_MAX);
     S.a = clamp(Math.round(S.a), 1, S.b - 1);
+    /* Average base: a + b is even, so the average base is a whole number */
+    if(S.mode === "avg" && (S.a + S.b) % 2) S.a = S.a + 1 <= S.b - 1 ? S.a + 1 : S.a - 1;
     S.h = clamp(Math.round(S.h), H_MIN, H_MAX);
+    /* Halve the height: h is even, so half the height is a whole number */
+    if(S.mode === "mid" && S.h % 2) S.h = S.h + 1 <= H_MAX ? S.h + 1 : S.h - 1;
     const r = pRange(); S.p = clamp(Math.round(S.p), r[0], r[1]);
   }
   try {
@@ -837,8 +852,10 @@
     const want = Math.round(clamp(fh * s + M.T + M.B + (compact ? boxFont(true) * 2.05 + 14 : 0), 230, window.innerHeight * .68));
     if(Math.abs(wrap.offsetHeight - want) > 2) wrap.style.height = want + "px";
   }
-  const fs = () => L.compact ? 15 : 18;
-  const offB = () => L.compact ? 28 : 32;
+  /* Settings → Font size (small / medium / large) for projecting on a big board */
+  const FZ = () => ({ s:1, m:1.3, l:1.65 })[S.set.fsz] || 1;
+  const fs = () => (L.compact ? 15 : 18) * FZ();
+  const offB = () => (L.compact ? 28 : 32) * (1 + (FZ() - 1) * .6);
 
   /* ------------------------------------------------------------ the pose: everything on the board, from the step and its t */
   function rowsTL(){
@@ -1178,7 +1195,7 @@
     mCache.set(key, w); return w;
   }
   if(document.fonts && document.fonts.ready) document.fonts.ready.then(() => { mCache.clear(); render(); });
-  const boxFont = compact => compact ? 17 : 21;
+  const boxFont = compact => (compact ? 17 : 21) * FZ();
   function boxMetrics(lab, f){
     const pad = f * .75, gap = f * .4, u = U2().trim();
     const uw = u ? textW([{ s:u }], f * .8) + f * .3 : 0, pw = textW(lab.pre, f), nw = textW([{ s:lab.num }], f);
@@ -1364,7 +1381,7 @@
   function startAgain(){ if(S.step === 0 && !S.anim) return; jump(0); }
   function setMode(m){
     if(m === S.mode || !["avg", "para", "mid"].includes(m)) return;
-    stopAnim(); S.mode = m; S.step = 0; S.revealed = false; save(); render();
+    stopAnim(); S.mode = m; S.step = 0; S.revealed = false; clampShape(); save(); render();
   }
   function changed(){ stopAnim(); S.revealed = false; S.step = 0; clampShape(); save(); render(); }
   function setTrap(b, a, h, p){ stopAnim(); S.b = b; S.a = a; S.h = h; S.p = p; S.step = 0; S.revealed = false; clampShape(); save(); render(); }
@@ -1410,11 +1427,18 @@
     const before = [S.b, S.a, S.h, S.p].join();
     if(S.drag === "tl" || S.drag === "tr"){
       const topY = L.iy(8);
-      S.h = clamp(Math.round(y), H_MIN, Math.min(H_MAX, Math.floor(topY)));
+      const hMax = Math.min(H_MAX, Math.floor(topY));
+      S.h = clamp(S.mode === "mid" ? 2 * Math.round(y / 2) : Math.round(y), H_MIN, hMax);
+      if(S.mode === "mid" && S.h % 2) S.h = S.h + 1 <= hMax ? S.h + 1 : S.h - 1;
       if(S.drag === "tl"){ const r = pRange(); S.p = clamp(Math.round(x), r[0], r[1]); }
-      else { S.a = clamp(Math.round(x) - S.p, 1, S.b - 1); const r = pRange(); S.p = clamp(S.p, r[0], r[1]); }
+      else {
+        let na = clamp(Math.round(x) - S.p, 1, S.b - 1);
+        if(S.mode === "avg" && (na + S.b) % 2) na = na + 1 <= S.b - 1 && (x - S.p >= na || na - 1 < 1) ? na + 1 : na - 1;
+        S.a = na; const r = pRange(); S.p = clamp(S.p, r[0], r[1]);
+      }
     } else {
-      const nb = clamp(Math.round(x), Math.max(B_MIN, S.a + 1), B_MAX);
+      let nb = clamp(Math.round(x), Math.max(B_MIN, S.a + 1), B_MAX);
+      if(S.mode === "avg" && (S.a + nb) % 2) nb = nb + 1 <= B_MAX && (x >= nb || nb - 1 < Math.max(B_MIN, S.a + 1)) ? nb + 1 : nb - 1;
       if(L.X(nb) < L.w - 10){ S.b = nb; const r = pRange(); S.p = clamp(S.p, r[0], r[1]); }
     }
     if([S.b, S.a, S.h, S.p].join() !== before){ S.revealed = false; render(); }
@@ -1434,7 +1458,9 @@
   $("newBtn").addEventListener("click", randomTrap);
   document.querySelectorAll(".preset").forEach(p => p.addEventListener("click", () => makeTrap(p.dataset.kind, S.b, S.h)));
   document.querySelectorAll(".stepper button").forEach(bt => bt.addEventListener("click", () => {
-    const d = bt.dataset.d; S[d] += +bt.dataset.s;
+    const d = bt.dataset.d; let st = +bt.dataset.s;
+    if((S.mode === "mid" && d === "h") || (S.mode === "avg" && (d === "a" || d === "b"))) st *= 2;   /* keep it whole */
+    S[d] += st;
     if(d === "b" && S.a > S.b - 1) S.a = S.b - 1;
     changed();
   }));
@@ -1473,6 +1499,9 @@
 
   $("kindSel").value = S.set.kind; $("unitSel").value = S.set.units;
   $("gridToggle").checked = !!S.set.grid; $("calcToggle").checked = !!S.set.calc; $("formulaToggle").checked = !!S.set.formula;
+  const applyFsz = () => { $("app").dataset.fsz = S.set.fsz || "s"; };
+  applyFsz(); $("fszSel").value = S.set.fsz || "s";
+  $("fszSel").addEventListener("change", e => { S.set.fsz = e.target.value; mCache.clear(); applyFsz(); save(); render(); });
   $("formulaToggle").addEventListener("change", e => { S.set.formula = e.target.checked; S.revealed = false; mCache.clear(); save(); render(); });
   $("kindSel").addEventListener("change", () => { S.set.kind = $("kindSel").value; save(); randomTrap(); });
   $("unitSel").addEventListener("change", () => { S.set.units = $("unitSel").value; save(); render(); });

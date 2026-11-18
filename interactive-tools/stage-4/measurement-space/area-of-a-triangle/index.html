@@ -168,6 +168,10 @@
     #board .handle.base{ cursor:ew-resize; }
     #board.slide .handle.apex{ cursor:ew-resize; }
     #board.dragging .handle{ cursor:grabbing; }
+    .app[data-fsz="m"] .stmt{ font-size:clamp(2rem,3.7vw,3.2rem); }
+    .app[data-fsz="l"] .stmt{ font-size:clamp(2.4rem,4.6vw,4rem); }
+    .app[data-fsz="m"] .hint{ font-size:1.1rem; }
+    .app[data-fsz="l"] .hint{ font-size:1.35rem; }
     .hint{ flex:0 0 auto; min-height:1.45em; text-align:center; font-size:.88rem; font-weight:750; color:var(--muted); padding:3px 8px 0; line-height:1.4; }
     .hint b{ color:var(--line); }
     .hint .eq{ font-family:var(--mathFont); font-weight:700; font-size:1.12em; color:var(--line); }
@@ -301,6 +305,13 @@
             </label>
             <div class="settingsRule" role="separator"></div>
             <div class="settingsHead">On screen</div>
+            <label class="selRow"><span>Font size</span>
+              <select id="fszSel" aria-label="Font size on the board">
+                <option value="s">Small</option>
+                <option value="m">Medium</option>
+                <option value="l">Large</option>
+              </select>
+            </label>
             <label class="sw"><input type="checkbox" id="formulaToggle"><span class="track"></span><span>Formula mode</span></label>
             <p class="settingsNote">Letters instead of numbers: the sides are labelled <i>b</i> (base) and <i>h</i> (height), and the steps build the formula instead of an answer.</p>
             <label class="sw"><input type="checkbox" id="gridToggle" checked><span class="track"></span><span>Show the unit squares</span></label>
@@ -460,7 +471,7 @@
     slideFrom:null,                 /* where the top started before "slide" */
     revealed:false,
     drag:null, frozen:null,
-    set:{ grid:true, calc:false, units:"", panel:true, kind:"any", colour:"green", formula:false },
+    set:{ grid:true, calc:false, units:"", panel:true, kind:"any", colour:"green", formula:false, fsz:"s" },
     fs:false
   };
   const STORE = "mmt.triArea.v1";
@@ -725,7 +736,9 @@
   const T = () => [[0, 0], [S.b, 0], [S.a, S.h]];
   const drawTri = (g, o) => poly(T(), Object.assign({ fill:C.tri, stroke:C.triS, "stroke-width":3 }, o || {}), g);
   const dashedRect = (x0, x1, g, o) => poly([[x0, 0], [x1, 0], [x1, S.h], [x0, S.h]], Object.assign({ fill:"none", stroke:C.rect, "stroke-width":2.2, "stroke-dasharray":"8 6" }, o || {}), g);
-  const fs = () => L.compact ? 15 : 18;
+  /* Settings → Font size (small / medium / large) for projecting on a big board */
+  const FZ = () => ({ s:1, m:1.3, l:1.65 })[S.set.fsz] || 1;
+  const fs = () => (L.compact ? 15 : 18) * FZ();
 
   /* ----- 1. the rectangle around it (height inside, or on a side) -----
      the dotted height, scissors cut along it, a pale copy of each piece
@@ -924,7 +937,7 @@
     mCache.set(key, w); return w;
   }
   if(document.fonts && document.fonts.ready) document.fonts.ready.then(() => { mCache.clear(); render(); });
-  const boxFont = compact => compact ? 17 : 21;
+  const boxFont = compact => (compact ? 17 : 21) * FZ();
   function boxMetrics(lab, f){
     const pad = f * .75, gap = f * .4, u = U2().trim();
     const uw = u ? textW([{ s:u }], f * .8) + f * .3 : 0, pw = textW(lab.pre, f), nw = textW([{ s:lab.num }], f);
@@ -1232,6 +1245,9 @@
 
   $("kindSel").value = S.set.kind; $("unitSel").value = S.set.units;
   $("gridToggle").checked = !!S.set.grid; $("calcToggle").checked = !!S.set.calc; $("formulaToggle").checked = !!S.set.formula;
+  const applyFsz = () => { $("app").dataset.fsz = S.set.fsz || "s"; };
+  applyFsz(); $("fszSel").value = S.set.fsz || "s";
+  $("fszSel").addEventListener("change", e => { S.set.fsz = e.target.value; mCache.clear(); applyFsz(); save(); render(); });
   $("formulaToggle").addEventListener("change", e => { S.set.formula = e.target.checked; S.revealed = false; mCache.clear(); save(); render(); });
   $("kindSel").addEventListener("change", () => { S.set.kind = $("kindSel").value; save(); randomTri(); });
   $("unitSel").addEventListener("change", () => { S.set.units = $("unitSel").value; save(); render(); });

@@ -159,6 +159,10 @@
     #board .handle.base{ cursor:ew-resize; }
     #board.slide .handle.apex{ cursor:ew-resize; }
     #board.dragging .handle{ cursor:grabbing; }
+    .app[data-fsz="m"] .stmt{ font-size:clamp(2rem,3.7vw,3.2rem); }
+    .app[data-fsz="l"] .stmt{ font-size:clamp(2.4rem,4.6vw,4rem); }
+    .app[data-fsz="m"] .hint{ font-size:1.1rem; }
+    .app[data-fsz="l"] .hint{ font-size:1.35rem; }
     .hint{ flex:0 0 auto; min-height:1.45em; text-align:center; font-size:.88rem; font-weight:750; color:var(--muted); padding:3px 8px 0; line-height:1.4; }
     .hint b{ color:var(--line); }
     .hint .eq{ font-family:var(--mathFont); font-weight:700; font-size:1.12em; color:var(--line); }
@@ -282,6 +286,13 @@
           <button class="btn" id="settingsBtn" type="button" aria-haspopup="true" aria-expanded="false">Settings &#9662;</button>
           <nav class="dropMenu settingsMenu" id="settingsMenu" aria-label="Settings">
             <div class="settingsHead">On screen</div>
+            <label class="selRow"><span>Font size</span>
+              <select id="fszSel" aria-label="Font size on the board">
+                <option value="s">Small</option>
+                <option value="m">Medium</option>
+                <option value="l">Large</option>
+              </select>
+            </label>
             <label class="sw"><input type="checkbox" id="formulaToggle"><span class="track"></span><span>Formula mode</span></label>
             <p class="settingsNote">Letters instead of numbers: the sides are labelled <i>b</i> and <i>h</i> for a parallelogram, <i>l</i> and <i>b</i> for a rectangle, <i>x</i> and <i>y</i> for the diagonals of a rhombus, and the steps build the formula instead of an answer.</p>
             <label class="sw"><input type="checkbox" id="calcToggle"><span class="track"></span><span>Show the calculation</span></label>
@@ -424,7 +435,7 @@
     b:8, h:5, d:3, p:10, q:6,
     rw:7, rh:4,                       /* the Rectangle mode's own size */
     drag:null, frozen:null, revealed:false,
-    set:{ grid:true, calc:false, units:"", panel:true, slant:true, formula:false },
+    set:{ grid:true, calc:false, units:"", panel:true, slant:true, formula:false, fsz:"s" },
     fs:false
   };
   const STORE = "mmt.paraArea.v1";
@@ -562,7 +573,9 @@
     return gg;
   }
   const C = { solid:"#65c288", fill:"rgba(22,163,74,.66)", edge:"#14532d", pale:"rgba(34,197,94,.15)", paleS:"#4ade80", alt:"#ea580c", cut:"#0f172a", cell:"rgba(22,163,74,.55)" };
-  const fs = () => L.compact ? 15 : 18;
+  /* Settings → Font size (small / medium / large) for projecting on a big board */
+  const FZ = () => ({ s:1, m:1.3, l:1.65 })[S.set.fsz] || 1;
+  const fs = () => (L.compact ? 15 : 18) * FZ();
   const baseOpt = { color:"#1d4ed8", stroke:"#93c5fd", sw:2 }, hOpt = { color:"#c2410c", stroke:"#fdba74", sw:2 };
   function scissors(x, y, ang, snip, g){
     const o = .25 + .75 * Math.abs(Math.sin(snip * Math.PI * 9));
@@ -981,6 +994,9 @@
 
   $("unitSel").value = S.set.units;
   $("gridToggle").checked = !!S.set.grid; $("calcToggle").checked = !!S.set.calc; $("slantToggle").checked = !!S.set.slant; $("formulaToggle").checked = !!S.set.formula;
+  const applyFsz = () => { $("app").dataset.fsz = S.set.fsz || "s"; };
+  applyFsz(); $("fszSel").value = S.set.fsz || "s";
+  $("fszSel").addEventListener("change", e => { S.set.fsz = e.target.value; applyFsz(); save(); render(); });
   $("formulaToggle").addEventListener("change", e => { S.set.formula = e.target.checked; S.revealed = false; save(); render(); });
   $("unitSel").addEventListener("change", () => { S.set.units = $("unitSel").value; save(); render(); });
   $("gridToggle").addEventListener("change", e => { S.set.grid = e.target.checked; save(); render(); });
