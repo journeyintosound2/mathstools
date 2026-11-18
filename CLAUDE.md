@@ -200,6 +200,34 @@
 >   boarding blocks dragging, lands at 0°, drag unwraps to 420°, table fills to the angle reached, sweep fills it, curve
 >   ends at the wheel, 720° cap, rules toggle, typed 450°, Back to the unit circle.
 >
+> **NEW (2026-11-19, last): UNIT CIRCLE — SEVEN MORE APPLICATIONS, MENU GROUPED BY SIN / COS / TAN.**
+> `interactive-tools/stage-5/measurement-space/unit-circle-trig-ratios/index.html`. Project doc `claude/unit-circle.md`.
+> * **THE NEW ONES GO THROUGH ONE REGISTRY, `XAPPS`** (the first four are still written into render()/panel directly).
+>   One object per app: `keys` (morph params in P), `core(P)` (restyle/hide the stick, triangle, point, θ colour),
+>   `labels`, `back`/`mid`/`front` SVG layers, `rows`/`expr`/`sign`/`graph`/`table` (panel; rows s, c = graphs via
+>   `xGraph`, t = table via `xTab`), `tag`, `hint`, `drag`, `brief`, `done`, `fillMsg`, `big` (Shift+↑), `rand`, `sweep`.
+>   Views in `XVIEWS` (one box per morph key, blended in order; `boxP` = portrait box). `xActive()` (>.5) drives logic,
+>   `xDominant()` drives the drawing blend. Step flags: `range:[0,hi]` + `rangeMsg` (camera 0–atan 2, road 0–45°, gradient
+>   0–360°, shadow 0–180°; clamps instead of the three-turn wrap), `full`, `xreset`; segment flags `fill` (sweep to ang),
+>   `long` (back plays in 1.6 s), `reset` (clear marks), `derive:"cam"` (ang = atan(rs): a steady runner). `S.xmax` =
+>   table filled to, `S.mmax` = marks (lighthouse every 10°, camera every 5° / every 10 m, shadow every hour).
+> * Apps (step indices 12–29): **Phases of the Moon** (top-down orbit, sunlight from the right, gold = lit part facing
+>   Earth, inset disc as seen from Coffs = Southern Hemisphere, lit = (1 − cos θ)/2, 29.5 days; step 3 builds it from cos θ
+>   in the panel: P.bt, P.bs stages cos → −cos → 1 − cos → ÷2) · **A mass on a spring** (mass LEFT of the circle, level with the
+>   point; step 2 a pen on paper moving left, so the trace reads left→right; step 3 the pendulum hangs below: sin from the
+>   side, cos from below) · **Mains electricity** (coil end-on between N/S poles, V = 325 sin θ, 20 ms a turn, bulb ∝ V²) ·
+>   **The lighthouse beam** (x = 1 becomes the sea wall — `x1Morph` shows the tan line first; spot = tan θ km; marks every 10°;
+>   back beam pink brings the spot back: repeats every 180°; graph branches coloured front/back) · **The gradient of a line**
+>   (m = tan θ with run 1/rise tan θ, then road signs 100 tan θ %) · **A camera follows a runner** (lane = x = 1, 50 m;
+>   steady camera vs steady runner) · **A flagpole's shadow** (pole top at the origin, shadow 8 ÷ tan θ, 6 am–6 pm at 15°/h,
+>   says the real sun doesn't climb steadily). Lighthouse deliberately unnamed (South Solitary Island's light is now a
+>   flashing LED, not a rotating beam).
+> * Menu `#appsMenu` = three `.appGroup` columns (Sine · Cosine · Tangent), sized to the board card by `sizeApps()`.
+> * Verified (Playwright): 2,190 layout frames (every new step × letters/numbers × angles × 5 viewports: nothing off the
+>   board, no label overlaps, no NaN), 191 interaction checks (next/back chains, morph between all 11 apps, ranges, derived
+>   runner, marks, keys, drawn values = the maths, Moon disc area = lit fraction), old suites q2/t26/t28/audit5 still pass,
+>   cue height unchanged at 4 widths.
+>
 > **NEW (2026-11-19, latest): UNIT CIRCLE — FIRST QUADRANT ONLY, THEN THREE TURNS ON THE WHOLE CIRCLE.**
 > * Step "The first quadrant" draws ONLY quadrant 1: grid clipped to it (`#q1clip`, x ≥ origin, y above it), positive
 >   axes, a quarter of the dashed circle, no (−1, 0)/(0, −1), no "unit circle" label. Going to "The whole unit circle"

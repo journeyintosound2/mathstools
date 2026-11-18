@@ -68,6 +68,16 @@
     #appsBtn .sn{ display:none; }
     .appLink{ appearance:none; border:none; background:none; width:100%; text-align:left; cursor:pointer; font:inherit; font-weight:900; font-size:.9rem; }
     .appLink[aria-current="true"]{ background:#eef2ff; color:#1d4ed8; }
+    .appsMenu.open{ grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); align-items:start; gap:4px 10px; padding:10px;
+      width:min(740px,92vw); max-height:min(72vh,560px); overflow:auto; }
+    .appGroup{ display:grid; gap:2px; align-content:start; }
+    .appHead{ display:flex; align-items:center; gap:8px; font-size:.68rem; letter-spacing:.14em; text-transform:uppercase; font-weight:950; color:var(--muted);
+      padding:4px 12px 6px; margin:0 4px 2px; border-bottom:2px solid color-mix(in srgb,var(--hc) 45%,white); }
+    .appHead::before{ content:""; width:10px; height:10px; border-radius:50%; background:var(--hc); }
+    .appLink small i{ font-family:var(--mathFont); font-weight:700; font-size:1.05em; }
+    .appLink{ padding:8px 12px; }
+    .fGraph .ftab svg{ position:static; inset:auto; width:.5em; height:auto; display:block; }
+    .ftab td.g{ color:var(--green-dark); } .ftab td.a{ color:#b45309; } .ftab td.v{ color:var(--purple-dark); }
     #board .hd{ stroke:rgba(15,23,42,.55); stroke-width:3px; paint-order:stroke; stroke-linejoin:round; }
     .toolLink{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 12px; border-radius:10px;
       color:var(--ink); text-decoration:none; font-weight:900; font-size:.9rem; }
@@ -223,6 +233,7 @@
     .ftab .rh{ text-align:left; font-family:var(--uiFont); font-size:.68rem; font-weight:900; color:var(--muted); width:58px; padding-left:6px; background:#f8fafc; }
     .ftab .cur{ background:#fff7ed; }
     .ftab.two{ flex-direction:column; justify-content:center; gap:10px; }
+    @supports (align-items:safe center){ .ftab{ align-items:safe center; } .ftab.two{ justify-content:safe center; } }
     .ftab .pad{ border:none; background:none; }
     .ftab table.many td{ font-size:clamp(.7rem,.95vw,.9rem); padding:4px 1px; }
     .ftab table.many th{ font-size:.6rem; }
@@ -346,9 +357,9 @@
             <div class="settingsHead">Graphs</div>
             <label class="sw"><input type="checkbox" id="ghostToggle"><span class="track"></span><span>Show the whole curve faintly</span></label>
             <div class="settingsRule" role="separator"></div>
-            <div class="settingsHead">Ferris wheel</div>
-            <label class="sw"><input type="checkbox" id="ruleToggle"><span class="track"></span><span>Show the rules (<i>h</i> = 9 sin <i>&theta;</i>)</span></label>
-            <p class="settingsNote">Off, the readouts give only the height and the distance across, so the class can work out the rule from the table and the graphs.</p>
+            <div class="settingsHead">Applications</div>
+            <label class="sw"><input type="checkbox" id="ruleToggle"><span class="track"></span><span>Show the rules (<i>h</i> = 9 sin <i>&theta;</i>, spot = tan <i>&theta;</i>&hellip;)</span></label>
+            <p class="settingsNote">Off, the readouts give only the values (the height, the voltage, the spot along the wall&hellip;), so the class can work out the rule from the table and the graphs.</p>
             <p class="settingsNote">Off, each curve is drawn from 0 up to where the stick is now &mdash; turn the stick back and it winds back.</p>
           </nav>
         </div>
@@ -404,12 +415,27 @@
           <button class="nextBtn" id="nextBtn" type="button" title="Next step (&rarr;)">Next &#9656;</button>
           <div class="menuWrap">
             <button class="stepBtn" id="appsBtn" type="button" aria-haspopup="true" aria-expanded="false" title="More real-world applications of the unit circle"><span class="ln">More applications</span><span class="sn">More</span> &#9662;</button>
-            <nav class="dropMenu up" id="appsMenu" aria-label="More applications">
-              <button type="button" class="toolLink appLink" data-app="3"><span>The Ferris wheel<small>Height and distance across as the wheel turns</small></span></button>
-              <button type="button" class="toolLink appLink" data-app="4"><span>Sunrise over the year<small>Coffs Harbour: where the sun rises each month</small></span></button>
-              <button type="button" class="toolLink appLink" data-app="7"><span>The tide<small>Coffs Harbour Jetty: high and low tide over a weekend</small></span></button>
-              <button type="button" class="toolLink appLink" data-app="9"><span>The pendulum<small>Horizontal displacement of a swinging bob</small></span></button>
-              <span class="toolLink soon" aria-disabled="true"><span>Coming soon<small>More real-world applications are on the way</small></span></span>
+            <nav class="dropMenu up appsMenu" id="appsMenu" aria-label="More applications">
+              <div class="appGroup" style="--hc:var(--cy)">
+                <div class="appHead">Sine</div>
+                <button type="button" class="toolLink appLink" data-app="3"><span>The Ferris wheel<small><i>h</i> = 9 sin <i>&theta;</i> &middot; and <i>d</i> = 9 cos <i>&theta;</i></small></span></button>
+                <button type="button" class="toolLink appLink" data-app="7"><span>The tide<small><i>h</i> = 0.7 sin <i>&theta;</i> &middot; Coffs Harbour Jetty</small></span></button>
+                <button type="button" class="toolLink appLink" data-app="15"><span>A mass on a spring<small><i>y</i> = sin <i>&theta;</i> &middot; beside the pendulum</small></span></button>
+                <button type="button" class="toolLink appLink" data-app="18"><span>Mains electricity<small><i>V</i> = 325 sin <i>&theta;</i> &middot; a coil in a magnet</small></span></button>
+              </div>
+              <div class="appGroup" style="--hc:var(--cx)">
+                <div class="appHead">Cosine</div>
+                <button type="button" class="toolLink appLink" data-app="4"><span>Sunrise over the year<small>position = cos <i>&theta;</i> &middot; Coffs Harbour</small></span></button>
+                <button type="button" class="toolLink appLink" data-app="9"><span>The pendulum<small><i>x</i> = cos <i>&theta;</i> &middot; a swinging bob</small></span></button>
+                <button type="button" class="toolLink appLink" data-app="12"><span>Phases of the Moon<small>lit = (1 &minus; cos <i>&theta;</i>) &divide; 2 &middot; 29&frac12; days</small></span></button>
+              </div>
+              <div class="appGroup" style="--hc:var(--ct)">
+                <div class="appHead">Tangent</div>
+                <button type="button" class="toolLink appLink" data-app="20"><span>The lighthouse beam<small>spot = tan <i>&theta;</i> &middot; on a straight sea wall</small></span></button>
+                <button type="button" class="toolLink appLink" data-app="23"><span>The gradient of a line<small><i>m</i> = tan <i>&theta;</i> &middot; and road signs</small></span></button>
+                <button type="button" class="toolLink appLink" data-app="25"><span>A camera follows a runner<small><i>s</i> = 50 tan <i>&theta;</i> &middot; steady camera or runner?</small></span></button>
+                <button type="button" class="toolLink appLink" data-app="28"><span>A flagpole's shadow<small>8 &divide; tan <i>&theta;</i> &middot; sunrise to sunset</small></span></button>
+              </div>
             </nav>
           </div>
           <button class="stepBtn" id="allBtn" type="button" title="Jump to the last step">Show all</button>
@@ -463,11 +489,13 @@
        4+ REAL-WORLD SCENES. The unit circle morphs into something that turns (the Ferris wheel is
           the first): same stick, same angle, same triangle, measured in metres. A scene adds a
           morph parameter to P (fw for the wheel), its own view, its own drawing and its own graphs.
-          To add another scene: a step with its segments, a P parameter, a view (like L.R3) and
-          `if(P.<param>)` branches in render(), renderGraphs() and the panel — follow "ferris".
+          The first four (Ferris wheel, sunrise, tide, pendulum) are written into render() and the panel directly.
+          Every later one (Moon, spring, mains, lighthouse, gradient, camera, shadow) goes through the XAPPS registry:
+          ONE object per application (its views, scenes, panel, graphs, table, hints). Add a new scene there.
      Everything on the board is drawn from the numbers in P that the steps tween; Back plays the
      same tweens in reverse. Optional layers are settings and start OFF. */
 
+  const CAMHI = Math.atan(2) * 180 / Math.PI;     /* the camera's last angle: the finish line, 100 m along a lane 50 m away */
   const STEPS = [
     { id:"stick", t:"A stick 1 unit long", m:"Here is a stick. It is exactly 1 unit long.", segs:[] },
     { id:"quad1", t:"The first quadrant",  m:"One end at the origin, so the stick is the hypotenuse. Drag the other end and watch the three graphs.",
@@ -501,11 +529,72 @@
     { id:"pen2", t:"A photo every twelfth of a swing", m:"A strobe light photographs the bob every twelfth of a swing. The photos stack down the page, and the blue line joins the bobs.",
       app:"pendulum", prev:9, segs:[{ d:1800, to:{ stk:1 } }] },
     { id:"pen3", t:"Turn it on its side", m:"Turn the record of the swings a quarter-turn. Which graph is it?",
-      app:"pendulum", prev:10, segs:[{ fillYear:true, to:{ ang:1080 }, lin:true }, { d:2900, to:{ turn:1 } }] }
+      app:"pendulum", prev:10, segs:[{ fillYear:true, to:{ ang:1080 }, lin:true }, { d:2900, to:{ turn:1 } }] },
+    /* ---- MORE APPLICATIONS (2026-11-19): each goes through the XAPPS registry below ---- */
+    /* Phases of the Moon: the circle is the Moon's orbit seen from far above; sunlight from the right */
+    { id:"moon1", t:"Phases of the Moon", m:"Looking down on the Earth and the Moon, with sunlight from the right. The Moon goes round once every 29½ days. How much of it do we see lit?",
+      app:"moon", appName:"Phases of the Moon", prev:2,
+      segs:[{ d:1100, to:{ ang:60 } }, { d:2600, to:{ mo:1 } }] },
+    { id:"moon2", t:"Three lunar months", m:"Let the Moon go round three times: 88½ days. Watch the fraction that is lit, from new moon to full moon and back.",
+      app:"moon", prev:12, full:true, segs:[{ fill:1.5, to:{ ang:1080 }, lin:true }] },
+    { id:"moon3", t:"Build it from cos θ", m:"The fraction lit is a transformed cosine. Start with cos θ, turn it upside down, move it up 1, then halve it.",
+      app:"moon", prev:13, full:true,
+      segs:[{ d:1400, to:{ ang:840 } }, { d:1300, to:{ bt:1 } }, { d:600, to:{} }, { d:1600, to:{ bs:1 } }, { d:700, to:{} }, { d:1600, to:{ bs:2 } }, { d:700, to:{} }, { d:1600, to:{ bs:3 } }] },
+    /* A mass on a spring: the mass is always level with the point, so its height is y = sin θ */
+    { id:"spr1", t:"A mass on a spring", m:"A mass bounces on a spring beside the reference circle. It is always level with the point, so its height is y = sin θ.",
+      app:"spring", appName:"A mass on a spring", prev:2,
+      segs:[{ d:2600, to:{ sp:1 } }] },
+    { id:"spr2", t:"A pen on the mass", m:"A pen on the mass draws on paper that moves steadily to the left. Watch three bounces draw themselves.",
+      app:"spring", prev:15, full:true, segs:[{ d:1600, to:{ pt:1 } }, { fill:1.7, to:{ ang:1080 }, lin:true }] },
+    { id:"spr3", t:"Beside the pendulum", m:"Hang the pendulum under the same circle. Read the point from the side: sine (the spring). Read it from below: cosine (the pendulum).",
+      app:"spring", prev:16, full:true, segs:[{ d:2200, to:{ pt:0, pc:1 } }] },
+    /* Mains electricity: a coil turning in a magnet; V = 325 sin θ volts, 50 turns a second */
+    { id:"el1", t:"Mains electricity", m:"A generator is a coil turning in a magnet. Its voltage is 325 sin θ volts: most when the wire cuts across the field, none when it slides along it.",
+      app:"mains", appName:"Mains electricity", prev:2,
+      segs:[{ d:1100, to:{ ang:30 } }, { d:2600, to:{ el:1 } }] },
+    { id:"el2", t:"50 turns every second", m:"In Australia the coil turns 50 times a second, so one turn takes 20 ms. Here are three turns: 60 milliseconds of a wall socket.",
+      app:"mains", prev:18, full:true, segs:[{ fill:1.5, to:{ ang:1080 }, lin:true }] },
+    /* The lighthouse beam: the line x = 1 becomes a straight sea wall; the spot is tan θ km along it */
+    { id:"lh1", t:"The lighthouse beam", m:"A lighthouse 1 km off a straight sea wall. The lamp turns, and its beam makes a spot on the wall tan θ km from the nearest point.",
+      app:"light", appName:"The lighthouse beam", prev:2,
+      segs:[{ d:1100, to:{ ang:30 } }, { d:2600, to:{ lh:1 } }] },
+    { id:"lh2", t:"A mark every 10°", m:"Turn the lamp at a steady rate and mark the spot every 10°. The turns are equal, but the marks get further and further apart.",
+      app:"light", prev:20, segs:[{ d:900, to:{ ang:0 } }, { set:{ mk:1 }, reset:true }, { d:8000, to:{ ang:80 }, lin:true, long:true }] },
+    { id:"lh3", t:"Off to infinity, and back", m:"At 90° the beam is parallel to the wall, so the spot runs off to infinity. Then the beam on the other side of the lamp brings it back.",
+      app:"light", prev:21, segs:[{ d:11000, to:{ ang:360 }, lin:true, long:true }] },
+    /* The gradient of a line: m = tan θ; road signs give 100 tan θ % */
+    { id:"gr1", t:"The gradient of a line", m:"Extend the stick into a line through the origin. A run of 1 to the line x = 1 gives a rise of tan θ, so the gradient is m = tan θ.",
+      app:"grad", appName:"The gradient of a line", prev:2, range:[0, 360],
+      rangeMsg:"A full turn brings the line back where it started &mdash; and every 180&deg; it is the same line again.",
+      segs:[{ d:2200, to:{ gr:1 } }, { d:1100, to:{ ang:45 } }] },
+    { id:"gr2", t:"Road signs", m:"A road sign gives the steepness as a percentage: the rise for every 100 m across. That is 100 tan θ %, so a 10% hill is only 5.7°.",
+      app:"grad", prev:23, range:[0, 45], xreset:true,
+      rangeMsg:"45&deg; is a gradient of 100% &mdash; far steeper than any road.",
+      segs:[{ d:900, to:{ ang:10 } }, { d:2600, to:{ gr:0, rd:1 } }] },
+    /* A camera following a runner: the lane is the line x = 1, 50 m from the camera; s = 50 tan θ */
+    { id:"cm1", t:"A camera follows a runner", m:"A TV camera 50 m from the track, level with the start, turns to follow the runner along the 100 m straight. The runner is 50 tan θ m along.",
+      app:"camera", appName:"A camera follows a runner", prev:2, range:[0, CAMHI],
+      rangeMsg:"The straight ends at the finish line: 100 m along, when the camera has turned 63.4&deg;.",
+      segs:[{ d:1100, to:{ ang:20 } }, { d:2600, to:{ cm:1 } }] },
+    { id:"cm2", t:"Is the camera turning steadily?", m:"Turn the camera at a steady rate and mark the runner every 5°. The marks spread out, so the runner would have to keep speeding up.",
+      app:"camera", prev:25, range:[0, CAMHI], rangeMsg:"The straight ends at the finish line: 100 m along, when the camera has turned 63.4&deg;.",
+      segs:[{ d:900, to:{ ang:0 } }, { set:{ mk:1 }, reset:true }, { d:9000, to:{ ang:CAMHI }, lin:true, long:true }] },
+    { id:"cm3", t:"Or is the runner?", m:"Now the runner runs at a steady 10 m/s. Mark every 10 m: the camera turns less each time, so the camera has to slow down.",
+      app:"camera", prev:26, range:[0, CAMHI], xreset:true, rangeMsg:"The straight ends at the finish line: 100 m along, when the camera has turned 63.4&deg;.",
+      segs:[{ d:500, to:{ mk:0 } }, { d:900, to:{ ang:0 } }, { set:{ rn:1, mk:1, rs:0 }, reset:true }, { d:10000, to:{ rs:2, ang:CAMHI }, lin:true, long:true, derive:"cam" }] },
+    /* A flagpole's shadow: the sun's angle is measured at the top of the pole; the shadow is 8 ÷ tan θ m */
+    { id:"sh1", t:"A flagpole's shadow", m:"An 8 m flagpole in the sun. The sun's angle θ is measured at the top of the pole, so the shadow is 8 ÷ tan θ m long.",
+      app:"shadow", appName:"A flagpole's shadow", prev:2, range:[0, 180],
+      rangeMsg:"The sun is up from sunrise (0&deg;) to sunset (180&deg;).",
+      segs:[{ d:1100, to:{ ang:45 } }, { d:2600, to:{ sh:1 } }] },
+    { id:"sh2", t:"Sunrise to sunset", m:"Pretend the sun climbs a steady 15° every hour (the real sun doesn't quite). Mark the tip of the shadow every hour.",
+      app:"shadow", prev:28, range:[0, 180], rangeMsg:"The sun is up from sunrise (0&deg;) to sunset (180&deg;).",
+      segs:[{ d:900, to:{ ang:0 } }, { set:{ mk:1 }, reset:true }, { d:9000, to:{ ang:180 }, lin:true, long:true }] }
   ];
   STEPS.forEach((s, k) => { if(s.prev === undefined) s.prev = k - 1; });
   const K_Q1 = 1, K_ALL = 2, K_FW = 3, K_S1 = 4, K_S2 = 5, K_S3 = 6, K_T1 = 7, K_T2 = 8, K_P1 = 9, K_P2 = 10, K_P3 = 11;
-  const BASE = { m:0, ax:0, ang:0, tri:0, z:0, sg:0, fw:0, walk:0, sr:0, stk:0, turn:0, td:0, pd:0 };
+  const BASE = { m:0, ax:0, ang:0, tri:0, z:0, sg:0, fw:0, walk:0, sr:0, stk:0, turn:0, td:0, pd:0,
+    mo:0, bt:0, bs:0, sp:0, pt:0, pc:0, el:0, lh:0, mk:0, gr:0, rd:0, cm:0, rn:0, rs:0, sh:0 };
   const TURNS = 3, MAXA = 360 * TURNS;          /* every application runs for three turns; past that it starts again */
   function applySeg(st, sg){ const o = Object.assign({}, st); Object.assign(o, sg.set || sg.to); return o; }
   const END = [];
@@ -516,7 +605,7 @@
   const appSteps = app => STEPS.map((s, i) => s.app === app ? i : -1).filter(i => i >= 0);
 
   const S = {
-    step:0, P:Object.assign({}, BASE), anim:null, drag:false, dragged:false, fmax:0, smax:0, tmax:0,
+    step:0, P:Object.assign({}, BASE), anim:null, drag:false, dragged:false, fmax:0, smax:0, tmax:0, xmax:0, mmax:0,
     set:{ labels:"letters", cosSin:false, rel:false, quad:false, tanLine:false, unit:"deg", exact:true, snap:"1", speed:"normal", ghost:false, rule:false,
           panel:true, show:{ s:true, c:true, t:true } },
     fs:false, msg:"", msgT:0
@@ -534,7 +623,8 @@
   const isTideStep = () => appOf(S.step) === "tide";
   const isAppStep = () => !!appOf(S.step);
   const isRecStep = () => [K_S2, K_S3, K_P2, K_P3].includes(S.step);
-  const maxAng = () => S.step >= K_ALL ? MAXA : 90;          /* the whole circle and every application: three turns */
+  const stepRange = () => STEPS[S.step] && STEPS[S.step].range;
+  const maxAng = () => stepRange() ? stepRange()[1] : S.step >= K_ALL ? MAXA : 90;   /* the whole circle and most applications: three turns */
   const ferris = () => S.P.fw > .5;
   const sunrise = () => S.P.sr > .5;
   const tide = () => S.P.td > .5;
@@ -659,6 +749,1059 @@
   /* the record of photos, under the scene: 37 strips for three turns (one every 30°) */
   const stkTop = () => S.P.pd > .5 ? -1.66 : SUNS.top;
 
+
+  /* ============================================================ MORE APPLICATIONS (2026-11-19, later)
+     The first four applications (Ferris wheel, sunrise, tide, pendulum) are written into render() and the panel
+     directly. The seven below go through ONE registry instead, so each lives in one place:
+       XAPPS[id] = { id, keys (its morph parameters in P), core(P) (how the stick, triangle and point look),
+         labels(a, mode, P) (side labels), back / mid / front(a, P) (SVG behind the grid, over the grid, in front),
+         chips(a, P), rows(P) (panel rows s and c are graphs, t is the table), expr, sign, graph(f, P), table(P),
+         tag (the chip above the board), hint(k, P), brief(a), drag (the drag hint), done, big (Shift + ↑), rand }
+     XVIEWS are the board layouts they blend into, one per morph parameter, in order (view()).
+     A step may carry range:[0, hi] (the camera, the road, the shadow stop there), full (its table is complete),
+     xreset (start its table again). A segment may carry reset (clear the marks) or derive:"cam" (the angle
+     follows a runner moving at a steady speed). S.xmax = how far the table has been filled; S.mmax = marks. */
+  const XAPPS = {};
+  const XVIEWS = [
+    { k:"mo", box:[-2.5, 1.78, -1.32, 1.32], boxP:[-1.38, 1.8, -1.62, 2.98], fs:.095 },
+    { k:"sp", box:[-2.32, 1.3, -1.3, 2.02], fs:.11 },
+    { k:"pt", box:[-4.42, 1.3, -1.42, 2.02], fs:.105 },
+    { k:"pc", box:[-2.34, 1.42, -1.68, 2.04], fs:.105 },
+    { k:"el", box:[-1.75, 2.95, -1.64, 1.64], fs:.1 },
+    { k:"lh", box:[-1.45, 2.55, -2.34, 2.34], fs:.13 },
+    { k:"gr", box:[-1.95, 1.95, -1.5, 1.5], fs:.105 },
+    { k:"rd", box:[-0.86, 2.02, -0.36, 1.36], fs:.075 },
+    { k:"cm", box:[-0.98, 2.4, -0.58, 2.4], fs:.105 },
+    { k:"sh", box:[-2.45, 2.45, -1.46, 1.3], fs:.12 }
+  ];
+  const XFADE = ["mo", "sp", "el", "lh", "rd", "cm", "sh"];     /* these fade the unit circle's grid (the gradient keeps it) */
+  const KX = {}; STEPS.forEach((s, i) => { KX[s.id] = i; });
+  /* the application whose scene is in charge: more than half-way morphed in */
+  function xActive(){ for(const id in XAPPS){ const d = XAPPS[id]; if(d.keys.some(k => S.P[k] > .5)) return d; } return null; }
+  /* for drawing: the application morphing in, and how far (0..1) */
+  function xDominant(){ let best = null, bv = .02; for(const id in XAPPS){ const d = XAPPS[id], v = Math.max(...d.keys.map(k => S.P[k])); if(v > bv){ bv = v; best = d; } } return best ? [best, span01(bv, .2, .8)] : [null, 0]; }
+  const xOp = d => span01(Math.max(...d.keys.map(k => S.P[k])), .25, 1);
+  function xLayer(which, a){
+    let o = "";
+    for(const id in XAPPS){ const d = XAPPS[id]; if(d[which] && Math.max(...d.keys.map(k => S.P[k])) > .01) o += d[which](a, S.P); }
+    return o;
+  }
+
+  /* ---- small helpers for the scenes ---- */
+  const hex2 = c => [parseInt(c.slice(1, 3), 16), parseInt(c.slice(3, 5), 16), parseInt(c.slice(5, 7), 16)];
+  const mixHex = (p, q, u) => { const A = hex2(p), B = hex2(q); return "#" + A.map((v, i) => Math.round(lerp(v, B[i], clamp(u, 0, 1))).toString(16).padStart(2, "0")).join(""); };
+  function scatter(n, seed){ let s = seed; const r = () => (s = (s * 16807) % 2147483647) / 2147483647; return Array.from({ length:n }, () => [r(), r(), r()]); }
+  const STARS = scatter(110, 7), LIGHTS = scatter(30, 19), WAVES = scatter(54, 31), CROWD = scatter(70, 43);
+  const tx = (x, y, t, s, col, an, cls, extra) => `<text class="${cls || "h ui"}" x="${f3(x)}" y="${f3(y)}" font-size="${f3(s)}" fill="${col}"${an ? ` text-anchor="${an}"` : ""} dominant-baseline="central"${extra || ""}>${t}</text>`;
+  const ln = (x1, y1, x2, y2, st) => `<line x1="${f3(x1)}" y1="${f3(y1)}" x2="${f3(x2)}" y2="${f3(y2)}" ${st}/>`;
+  const polyD = pts => pts.map(([x, y], i) => (i ? "L" : "M") + f3(x) + " " + f3(y)).join(" ") + "Z";
+  const angTxt1 = a => isRad() ? (Math.round(a * RAD * 10) / 10).toFixed(1) : (isWhole(a) ? Math.round(a) : Math.round(a * 10) / 10) + "°";
+  function chipRow(list, op, right){
+    const tf = Math.max(12, V.f * .74);
+    let x = 10, o = `<g opacity="${op.toFixed(3)}">`;
+    if(right) x = V.w - 10 - list.reduce((t, [txt]) => t + runW([T(txt)], tf) + 28, -6);
+    list.forEach(([txt, ink, fill, st]) => {
+      const w1 = runW([T(txt)], tf) + 22;
+      o += `<rect x="${x}" y="10" width="${f3(w1)}" height="${f3(tf * 1.7)}" rx="${f3(tf * .85)}" fill="${fill}" fill-opacity=".94"${st ? ` stroke="${st}"` : ""}/>`;
+      o += `<text class="ui" x="${f3(x + w1 / 2)}" y="${f3(10 + tf * .85)}" font-size="${f3(tf)}" fill="${ink}" text-anchor="middle" dominant-baseline="central">${esc(txt)}</text>`;
+      x += w1 + 6;
+    });
+    return o + "</g>";
+  }
+  /* a table for the panel: cols (values), head(c), rows [[label, cell(c), class]], done(c) */
+  function xTab(cols, title, head, rows, done, opt){
+    opt = opt || {};
+    const cur = c => opt.cur ? opt.cur(c) : Math.abs(S.P.ang - c) < 1e-6;
+    const block = (cs, n) => {
+      const pad = cs.length < n ? `<th class="pad"></th>`.repeat(n - cs.length) : "", padD = cs.length < n ? `<td class="pad"></td>`.repeat(n - cs.length) : "";
+      let t = `<table${opt.many ? ' class="many"' : ""}><tr><th class="rh">${title}</th>${cs.map(c => `<th class="${cur(c) ? "cur" : ""}">${head(c)}</th>`).join("")}${pad}</tr>`;
+      rows.forEach(([lab, cell, cls, always]) => {
+        t += `<tr><td class="rh">${lab}</td>${cs.map(c => (always || done(c)) ? `<td class="${cls || ""}${cur(c) ? " cur" : ""}">${cell(c)}</td>` : `<td class="q">?</td>`).join("")}${padD}</tr>`;
+      });
+      return t + "</table>";
+    };
+    if(opt.split) return block(cols.slice(0, opt.split), opt.split) + block(cols.slice(opt.split), opt.split);
+    return block(cols, cols.length);
+  }
+  const reached = d => Math.max(S.xmax, S.mmax) >= d - 1e-6;
+  const quarterCols = () => { const a = []; for(let d = 0; d <= MAXA; d += 90) a.push(d); return a; };
+  const turnTicks = (fmt) => { const a = []; for(let d = 0; d <= MAXA; d += 180) a.push([d, fmt(d)]); return a; };
+  const quarterGrid = (x1, every) => { const a = []; for(let d = 0; d <= x1 + 1e-9; d += every || 90) a.push([d, d % 360 === 0 && d > 0]); return a; };
+  const turnsTxt = d => d === 0 ? "0" : d % 360 ? `${(d - 180) / 360 || ""}½` : `${d / 360}`;
+  const num1 = v => { let r = Math.round(v * 10) / 10; if(Object.is(r, -0)) r = 0; return (r < 0 ? MINUS : "") + Math.abs(r).toFixed(1).replace(/\.0$/, ""); };
+
+  /* ---- the panel graph for the new applications: x from 0 to x1 (degrees, or seconds), any function ---- */
+  const XG = {};
+  function xEnd(f, want){
+    const g = XG[f] || (XG[f] = { cur:want, from:want, to:want, t0:0, raf:0 });
+    if(want !== g.to){ g.from = g.cur; g.to = want; g.t0 = performance.now(); }
+    const k = reduceMotion ? 1 : clamp((performance.now() - g.t0) / 750, 0, 1);
+    g.cur = Math.exp(lerp(Math.log(g.from), Math.log(g.to), ease(k)));
+    if(k < 1 && !g.raf) g.raf = requestAnimationFrame(() => { g.raf = 0; if(!S.anim) render(); });
+    return g.cur;
+  }
+  function xGraph(f, sp){
+    const el = $("g_" + f), r = el.getBoundingClientRect(), P = S.P;
+    const w = Math.max(120, r.width), h = Math.max(60, r.height);
+    const ml = 40, mr = 14, mt = 6, mb = 20;
+    const x1 = sp.zoom ? xEnd(f, sp.x1) : sp.x1;
+    const xNow = sp.xNow != null ? sp.xNow : P.ang, upTo = sp.upTo != null ? sp.upTo : xNow;
+    const X = u => ml + u / x1 * (w - ml - mr), Y = v => mt + (sp.hi - v) / (sp.hi - sp.lo) * (h - mt - mb);
+    const yIn = v => v >= sp.lo - 1e-9 && v <= sp.hi + 1e-9;
+    el.setAttribute("viewBox", `0 0 ${w} ${h}`);
+    let o = `<defs><clipPath id="gc_${f}"><rect x="${ml}" y="${mt - 2}" width="${w - ml - mr}" height="${h - mt - mb + 4}"/></clipPath></defs>`;
+    const hl = (v, col) => yIn(v) ? ln(ml, Y(v), w - mr, Y(v), `stroke="${col}" stroke-width="1"`) : "";
+    (sp.vgrid || []).forEach(([u, k]) => { if(u <= x1 + .01) o += ln(X(u), mt, X(u), h - mb, `stroke="${k ? "#cbd5e1" : "#eef2f7"}" stroke-width="${k ? 1.5 : 1}"`); });
+    (sp.fine || []).forEach(v => { o += hl(v, "#eef2f7"); });
+    (sp.grid || []).forEach(v => { o += hl(v, "#d7e0ec"); });
+    const y0 = clamp(0, sp.lo, sp.hi);
+    o += ln(ml, Y(y0), w - mr, Y(y0), `stroke="#64748b" stroke-width="1.6"`);
+    o += ln(ml, mt, ml, h - mb, `stroke="#64748b" stroke-width="1.6"`);
+    (sp.labs || []).forEach(([v, t]) => { if(yIn(v)) o += `<text x="${ml - 6}" y="${f3(Y(v))}" font-size="11" fill="#64748b" text-anchor="end" dominant-baseline="central">${t}</text>`; });
+    { /* x labels: a label that would run into the one before it is left out (the last one wins) */
+      const labs = (sp.xt || []).filter(([u, t]) => u <= x1 + .01 && t !== "").map(([u, t]) => {
+        const an = u < 1e-9 ? "start" : Math.abs(u - x1) < x1 * .03 ? "end" : "middle", tw2 = String(t).replace(/&[a-z]+;/g, "x").length * 6.3;
+        const l = X(u) - (an === "middle" ? tw2 / 2 : an === "end" ? tw2 : 0); return { u, t, an, l, r:l + tw2 }; });
+      for(let i = labs.length - 1; i > 0; i--){ let j = i - 1; while(j >= 0 && labs[j].r > labs[i].l - 5){ labs.splice(j, 1); i--; j--; } }
+      labs.forEach(L2 => { o += `<text x="${f3(X(L2.u))}" y="${h - mb + 13}" font-size="11" fill="#64748b" text-anchor="${L2.an}">${L2.t}</text>`; });
+    }
+    if(sp.under) o += sp.under(X, Y, w, h, mt, mb);
+    const live = sp.live != null ? sp.live : P.tri;
+    if(live < .01){ el.innerHTML = o; return; }
+    let g = `<g opacity="${live.toFixed(3)}" clip-path="url(#gc_${f})">`;
+    (sp.asym || []).forEach(u => {
+      if(u <= x1 + .01 && (S.set.ghost || sp.asymAll || upTo >= u - 1)) g += ln(X(u), mt, X(u), h - mb, `stroke="${sp.cold}" stroke-width="1.4" stroke-dasharray="5 4" opacity=".7"`);
+    });
+    const lim = (sp.hi - sp.lo) * .8, step = sp.step || .5;
+    const curve = (fn, to, colAt) => {
+      const parts = []; let cur = null, prev = null;
+      const push = (u) => {
+        const v = fn(u);
+        if(!isFinite(v) || Math.abs(v) > 1e7){ cur = null; prev = null; return; }
+        const col = colAt ? colAt(u) : sp.col;
+        const pt = f3(X(u)) + " " + f3(Y(clamp(v, sp.lo - lim, sp.hi + lim)));
+        if(!cur || cur.col !== col){ const n = { col, d:(cur && prev ? "M" + prev + " L" : "M") + pt }; parts.push(n); cur = n; }
+        else cur.d += " L" + pt;
+        prev = pt;
+      };
+      const end = Math.min(to, x1);
+      if(end < 0) return parts;
+      let u = 0;
+      for(; u <= end + 1e-9; u = Math.round((u + step) * 1e6) / 1e6) push(u);
+      if(Math.abs(u - step - end) > 1e-6) push(end);
+      return parts;
+    };
+    if(S.set.ghost || sp.ghostAll) curve(sp.fn, x1, sp.colAt).forEach(p => { g += `<path d="${p.d}" fill="none" stroke="${p.col}" stroke-opacity=".22" stroke-width="2.2"/>`; });
+    if(sp.behind) g += sp.behind(X, Y, curve);
+    curve(sp.fn, upTo, sp.colAt).forEach(p => { g += `<path d="${p.d}" fill="none" stroke="${p.col}" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/>`; });
+    if(sp.marker !== false && xNow >= -1e-9 && xNow <= x1 + 1e-9){
+      const xm = X(xNow);
+      g += ln(xm, mt, xm, h - mb, `stroke="#334155" stroke-opacity=".35" stroke-width="1.4" stroke-dasharray="3 4"`);
+      const v = sp.fn(xNow);
+      if(isFinite(v) && Math.abs(v) < 1e7){
+        const yv = Y(v), yc = clamp(yv, mt, h - mb), col = sp.colAt ? sp.colAt(xNow) : sp.col;
+        g += ln(xm, Y(y0), xm, yc, `stroke="${col}" stroke-width="5" stroke-linecap="round" opacity=".85"`);
+        if(yv >= mt && yv <= h - mb) g += `<circle cx="${f3(xm)}" cy="${f3(yv)}" r="5.5" fill="#fff" stroke="${col}" stroke-width="3"/>`;
+        else g += arrowHead(xm, yv < mt ? mt + 1 : h - mb - 1, 0, yv < mt ? -1 : 1, 10, col);
+      }
+    }
+    g += "</g>";
+    if(sp.over) g += sp.over(X, Y, w, h, mt, mb);
+    el.innerHTML = o + g;
+  }
+
+  /* ============================================================ Phases of the Moon
+     Looking down on the Earth and the Moon from far above (not to scale), sunlight from the right. The Moon is at
+     the end of the stick; θ = 0 is a new moon (the Moon between the Earth and the Sun). Half the Moon is always lit
+     (the half facing the Sun); from the Earth we see the part of that half which faces us. The fraction of the
+     disc we see lit is (1 − cos θ)/2. One turn = one lunar month, about 29½ days. The phase disc is drawn as seen
+     from Coffs Harbour (Southern Hemisphere): a waxing Moon is lit on the LEFT. */
+  const MOON = { days:29.5, rE:.16, rM:.105, ix:-1.93, iy:.08, ir:.34 };
+  const litF = a => (1 - cosD(a)) / 2;
+  const moonDays = a => a / 360 * MOON.days;
+  function moonName(a){
+    const r = ((a % 360) + 360) % 360;
+    if(angGap(r, 0) < 6) return "New moon";
+    if(angGap(r, 90) < 6) return "First quarter";
+    if(angGap(r, 180) < 6) return "Full moon";
+    if(angGap(r, 270) < 6) return "Last quarter";
+    return r < 90 ? "Waxing crescent" : r < 180 ? "Waxing gibbous" : r < 270 ? "Waning gibbous" : "Waning crescent";
+  }
+  function phaseDisc(cx, cy, r, a){
+    const c = cosD(a), wax = (((a % 360) + 360) % 360) <= 180, sg = wax ? -1 : 1, n = 44;
+    let d = "";
+    for(let i = 0; i <= n; i++){ const p = -Math.PI / 2 + Math.PI * i / n; d += (i ? "L" : "M") + f3(cx + sg * r * Math.cos(p)) + " " + f3(cy + r * Math.sin(p)); }
+    for(let i = n; i >= 0; i--){ const p = -Math.PI / 2 + Math.PI * i / n; d += "L" + f3(cx + sg * r * c * Math.cos(p)) + " " + f3(cy + r * Math.sin(p)); }
+    let g = `<circle cx="${f3(cx)}" cy="${f3(cy)}" r="${f3(r)}" fill="#2b3548"/>`;
+    if(litF(a) > .003) g += `<path d="${d}Z" fill="#fbf3d0"/>`;
+    [[.32, -.28, .16], [-.22, .3, .12], [.05, .05, .09]].forEach(([u, v, k]) => { g += `<circle cx="${f3(cx + u * r)}" cy="${f3(cy + v * r)}" r="${f3(k * r)}" fill="#64748b" opacity=".18"/>`; });
+    return g + `<circle cx="${f3(cx)}" cy="${f3(cy)}" r="${f3(r)}" fill="none" stroke="#94a3b8" stroke-width="1.4"/>`;
+  }
+  XAPPS.moon = {
+    id:"moon", keys:["mo"], big:360 / MOON.days, done:"Done &#10003; &mdash; turn the Moon",
+    core:() => ({ fill:false, x:"#60a5fa", y:"#94a3b8", yd:true, legW:4, stick:.6, stickCol:"#cbd5e1", stickW:2.5, point:false, ra:false, th:"#e2e8f0" }),
+    labels:(a, mode) => ({ xl:mode === "numbers" ? valSegs("c", a, C.x) : [T("cos ", C.x), I("θ", C.x)], xlY:sinD(a) >= 0 ? -.29 : .29 }),
+    fillMsg:"Turn the Moon to fill it in",
+    back(a, P){
+      const { X, Y, R, w, h, f } = V, op = xOp(this);
+      let g = `<g opacity="${op.toFixed(3)}"><rect x="0" y="0" width="${w}" height="${h}" fill="url(#space)"/>`;
+      STARS.forEach(([u, v, k]) => { g += `<circle cx="${f3(u * w)}" cy="${f3(v * h)}" r="${f3(.5 + k * 1.2)}" fill="#fff" opacity="${f3(.2 + k * .55)}"/>`; });
+      /* sunlight from the right */
+      const xs = X(1.74), xe = X(1.34);
+      [-.9, -.45, 0, .45, .9].forEach(v => { g += ln(xs, Y(v), xe + 8, Y(v), `stroke="#fcd34d" stroke-width="2.4" opacity=".75"`) + arrowHead(xe, Y(v), -1, 0, 9, "#fcd34d"); });
+      g += tx(X(1.54), Y(1.13), "sunlight", f * .72, "#fde68a", "middle", "hd ui tk");
+      /* the direction of the Sun, through the Earth */
+      g += ln(X(-1.18), Y(0), X(1.3), Y(0), `stroke="#fde68a" stroke-width="1.4" stroke-dasharray="3 6" opacity=".5"`);
+      /* the orbit */
+      g += `<circle cx="${f3(X(0))}" cy="${f3(Y(0))}" r="${f3(R)}" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="7 6" opacity=".65"/>`;
+      const la = angGap(a, 130) > 30 ? 130 : 230;
+      g += tx(X(cosD(la) * 1.17), Y(sinD(la) * 1.17), "the Moon's orbit", f * .6, "#cbd5e1", "middle", "hd ui tk");
+      /* the Earth: day side towards the Sun */
+      const er = MOON.rE * R, ex = X(0), ey = Y(0);
+      g += `<defs><clipPath id="earthC"><circle cx="${f3(ex)}" cy="${f3(ey)}" r="${f3(er)}"/></clipPath></defs>`;
+      g += `<circle cx="${f3(ex)}" cy="${f3(ey)}" r="${f3(er * 1.35)}" fill="#60a5fa" opacity=".12"/>`;
+      g += `<circle cx="${f3(ex)}" cy="${f3(ey)}" r="${f3(er)}" fill="#1d4ed8"/>`;
+      g += `<g clip-path="url(#earthC)" fill="#22c55e" opacity=".85"><ellipse cx="${f3(ex + er * .35)}" cy="${f3(ey + er * .35)}" rx="${f3(er * .42)}" ry="${f3(er * .3)}"/><ellipse cx="${f3(ex - er * .3)}" cy="${f3(ey - er * .42)}" rx="${f3(er * .5)}" ry="${f3(er * .22)}"/><ellipse cx="${f3(ex + er * .15)}" cy="${f3(ey - er * .1)}" rx="${f3(er * .18)}" ry="${f3(er * .26)}"/></g>`;
+      g += `<rect x="${f3(ex - er)}" y="${f3(ey - er)}" width="${f3(er)}" height="${f3(2 * er)}" fill="#020617" opacity=".6" clip-path="url(#earthC)"/>`;
+      g += `<circle cx="${f3(ex)}" cy="${f3(ey)}" r="${f3(er)}" fill="none" stroke="#93c5fd" stroke-width="1.5"/>`;
+      g += tx(ex, ey + er + f * .62, "Earth", f * .66, "#e2e8f0", "middle", "hd ui tk");
+      return g + "</g>";
+    },
+    front(a, P){
+      const { X, Y, R, f } = V, op = xOp(this), c = cosD(a), s = sinD(a), mx = X(c), my = Y(s), mr = MOON.rM * R;
+      let g = `<g opacity="${op.toFixed(3)}">`;
+      /* the Moon on its orbit: the half towards the Sun is lit; gold = the lit part that faces the Earth (what we see) */
+      g += `<circle cx="${f3(mx)}" cy="${f3(my)}" r="${f3(mr)}" fill="#334155"/>`;
+      g += `<path d="M${f3(mx)} ${f3(my - mr)} A${f3(mr)} ${f3(mr)} 0 0 1 ${f3(mx)} ${f3(my + mr)} Z" fill="#e5e7eb"/>`;
+      const ea = (a + 180) * RAD, half = [];
+      for(let i = 0; i <= 24; i++){ const t = ea - Math.PI / 2 + Math.PI * i / 24; half.push([mx + mr * Math.cos(t), my - mr * Math.sin(t)]); }
+      g += `<defs><clipPath id="mFace"><path d="${polyD(half)}"/></clipPath></defs>`;
+      g += `<path d="M${f3(mx)} ${f3(my - mr)} A${f3(mr)} ${f3(mr)} 0 0 1 ${f3(mx)} ${f3(my + mr)} Z" fill="#fbbf24" clip-path="url(#mFace)"/>`;
+      const p1 = [mx + mr * Math.cos(ea + Math.PI / 2), my - mr * Math.sin(ea + Math.PI / 2)], p2 = [mx - mr * Math.cos(ea + Math.PI / 2), my + mr * Math.sin(ea + Math.PI / 2)];
+      g += ln(p1[0], p1[1], p2[0], p2[1], `stroke="#fff" stroke-width="1.6" stroke-dasharray="3 3" opacity=".8"`);
+      g += `<circle cx="${f3(mx)}" cy="${f3(my)}" r="${f3(mr)}" fill="none" stroke="#cbd5e1" stroke-width="1.5"/>`;
+      /* building it from cos θ (step 3): the gold bar is 1 − cos θ, out of the whole diameter, 2 */
+      const bo = span01(P.bs, 1.6, 2.1) * span01(P.bt, .5, 1);
+      if(bo > .01 && P.tri > .5){
+        const y0 = Y(0), b0 = X(c), b1 = X(1), side = s >= 0 ? 1 : -1;
+        g += `<g opacity="${bo.toFixed(3)}">` + ln(b0, y0, b1, y0, `stroke="#fbbf24" stroke-width="7" stroke-linecap="round"`);
+        g += rich(X(Math.max((c + 1) / 2, .62)), y0 + side * f * 1.15, [T("1 − cos ", "#fbbf24"), I("θ", "#fbbf24")], f * .9, "#fbbf24", "middle", null, "omc").replace(/class="h"/g, 'class="hd"');
+        const up = !L.portrait, by = Y(up ? 1.2 : -1.22), hb = span01(P.bs, 2.4, 3), tk = up ? 7 : -7;   /* above the orbit, or below it on a tall board */
+        g += `<path d="M${f3(X(-1))} ${f3(by + tk)} V${f3(by)} H${f3(X(1))} V${f3(by + tk)}" fill="none" stroke="#e2e8f0" stroke-width="2"/>`;
+        g += tx(X(0), by - (up ? 1 : -1) * f * .62, hb > .5 ? "lit = (1 − cos θ) ÷ 2" : "the whole diameter: 2", f * .72, hb > .5 ? "#fde68a" : "#e2e8f0", "middle", "hd ui");
+        g += "</g>";
+      }
+      /* what we see from Coffs Harbour */
+      const IX = L.portrait ? 0 : MOON.ix, IY = L.portrait ? 2.3 : MOON.iy;      /* beside the orbit, or above it on a tall board */
+      const ix = X(IX), iy = Y(IY), ir = MOON.ir * R;
+      g += `<rect x="${f3(X(IX - .5))}" y="${f3(Y(IY + .56))}" width="${f3(R)}" height="${f3(1.7 * R)}" rx="14" fill="#0f172a" fill-opacity=".86" stroke="#334155" stroke-width="1.5"/>`;
+      const fitS = (t, sz) => Math.min(sz, sz * R * .9 / Math.max(1, runW([T(t)], sz) * 1.05));   /* never wider than the panel */
+      g += tx(ix, Y(IY + .44), "Seen from Coffs Harbour", fitS("Seen from Coffs Harbour", f * .58), "#cbd5e1", "middle", "ui");
+      g += `<circle cx="${f3(ix)}" cy="${f3(iy)}" r="${f3(ir * 1.5)}" fill="url(#moonGlow)" opacity="${f3(litF(a))}"/>`;
+      g += phaseDisc(ix, iy, ir, a);
+      g += tx(ix, Y(IY - .54), moonName(a), fitS("Waxing crescent", f * .68), "#fef3c7", "middle", "ui");
+      g += tx(ix, Y(IY - .76), `${Math.round(litF(a) * 100)}% lit`, f * .66, "#fbbf24", "middle", "ui");
+      g += tx(ix, Y(IY - .97), "Southern Hemisphere", fitS("Southern Hemisphere", f * .5), "#94a3b8", "middle", "ui");
+      g += "</g>";
+      return g + chipRow([[`Day ${num1(moonDays(Math.max(0, a)))}`, "#e2e8f0", "#1e293b", "#475569"]], op);
+    },
+    rows:P => ({ sig:P.bt > .5 ? "b" : "", s:{ name:`<span class="ln">Fraction of the Moon lit</span><span class="sn">Lit</span>`, tog:"lit", col:"#d97706" },
+      t:{ name:"Table", tog:"table", col:"var(--purple)" }, title:"Phases of the Moon", two:true }),
+    expr(f, a, P){
+      if(P.tri < .5) return `<span class="q">lit = ?</span>`;
+      return joinParts([`<span class="fn">lit</span>`, "="].concat(S.set.rule ? [fracH(`1 ${MINUS} cos ${angTxt(a)}`, "2"), "="] : [], [dec(litF(a))]));
+    },
+    sign(f, a){ const r = ((a % 360) + 360) % 360;
+      if(angGap(r, 0) < .5) return ["zero", "new moon"]; if(angGap(r, 180) < .5) return ["zero", "full moon"];
+      return r < 180 ? ["pos", "waxing"] : ["neg", "waning"]; },
+    graph(f, P){
+      const bt = ease(clamp(P.bt, 0, 1)), bs = clamp(P.bs, 0, 3);
+      const G = [a => cosD(a), a => -cosD(a), a => 1 - cosD(a), litF];
+      const stage = a => { const i = Math.min(2, Math.floor(bs)), u = bs - i; return lerp(G[i](a), G[i + 1](a), ease(u)); };
+      const B = bt > .01, fn = B ? (a => lerp(litF(a), stage(a), bt)) : litF;
+      const blue = B && bt > .5 && bs < 2.95;
+      const NM = ["cos θ", MINUS + "cos θ  (upside down)", "1 " + MINUS + " cos θ  (up 1)", "(1 " + MINUS + " cos θ) ÷ 2  (halved)"];
+      const dayLab = d => num1(moonDays(d));
+      return { lo:lerp(-.15, -1.25, bt), hi:lerp(1.15, 2.25, bt), fn, col:blue ? C.x : "#d97706", cold:blue ? C.xd : "#b45309",
+        grid:B ? [-1, 1, 2] : [0, 1], fine:B ? [-.5, .5, 1.5] : [.25, .5, .75],
+        labs:B ? [[-1, MINUS + "1"], [0, "0"], [1, "1"], [2, "2"]] : [[0, "0"], [.5, "½"], [1, "1"]],
+        x1:MAXA, xt:turnTicks(dayLab).concat([[MAXA, "88.5 days"]]).filter((t, i, arr) => !(t[0] === MAXA && i < arr.length - 1)), vgrid:quarterGrid(MAXA),
+        upTo:B ? MAXA : undefined, ghostAll:false,
+        behind:B && bt > .5 ? ((X, Y, curve) => { const i = Math.min(3, Math.floor(bs + 1e-6)); if(i === 0) return ""; let o = "";
+          curve(G[i - 1], MAXA).forEach(p => { o += `<path d="${p.d}" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="4 4" opacity=".7"/>`; }); return o; }) : null,
+        over:B && bt > .5 ? ((X, Y, w, h, mt) => `<text class="m" x="${w - 18}" y="${mt + 12}" font-size="13" fill="${blue ? C.xd : "#b45309"}" text-anchor="end">${NM[Math.min(3, Math.round(bs))]}</text>`) : null };
+    },
+    table(){
+      const SH = ["New", `<span class="ln">1st quarter</span><span class="sn">1st Q</span>`, "Full", `<span class="ln">Last quarter</span><span class="sn">Last Q</span>`];
+      return xTab(quarterCols(), "Moon", d => SH[((Math.round(d / 90) % 4) + 4) % 4], [
+        ["day", d => num1(moonDays(d)), "", true],
+        ["lit", d => dec(litF(d)), "a"]
+      ], reached, { split:7 });
+    },
+    tag:a => moonName(a),
+    hint(k, P){
+      if(S.anim && k === KX.moon1) return P.mo < 1 ? "The circle becomes the Moon's orbit; the stick joins the Earth to the Moon&hellip;" : "";
+      if(S.anim && k === KX.moon2) return "Three lunar months: from new moon round to new moon every 29&frac12; days.";
+      if(k === KX.moon2 && !S.anim) return "The fraction lit is a cosine graph &mdash; upside down, moved up and squashed.";
+      if(S.anim && k === KX.moon3) return P.bt < .9 ? "Start with the graph of cos <i>&theta;</i>&hellip;" : P.bs < 1 ? "Turn it upside down: &minus;cos <i>&theta;</i>&hellip;" : P.bs < 2 ? "Move it up 1: 1 &minus; cos <i>&theta;</i>&hellip;" : "Halve it: (1 &minus; cos <i>&theta;</i>) &divide; 2&hellip;";
+      if(k === KX.moon3) return "Lit = <b>(1 &minus; cos <i>&theta;</i>) &divide; 2</b>: the gold bar is 1 &minus; cos <i>&theta;</i> out of the whole diameter, 2.";
+      return "";
+    },
+    drag:`<b>Drag the Moon round</b> &middot; gold is the lit part facing the Earth &middot; <b>Shift + &uarr;</b> one day`,
+    brief:a => `<span class="eq">lit = ${dec(litF(a))}</span> &nbsp;·&nbsp; day ${num1(moonDays(a))}`,
+    rand:() => 15 * (1 + Math.floor(Math.random() * 71))
+  };
+
+  /* ============================================================ A mass on a spring
+     The vertical twin of the pendulum: the mass hangs beside the reference circle (on its LEFT) and is always LEVEL
+     with the point, so its height above the rest position is y = sin θ (one board unit = the amplitude). A pen on the
+     mass draws on paper moving steadily to the LEFT, so the ink runs left from the pen: the oldest on the left, the
+     newest at the pen, and the trace reads left to right like the graph in the panel. Step 3 hangs the pendulum under
+     the same circle (the bob below the point: x = cos θ): the same motion, read from the side and from below. */
+  const SPR = { x:-1.5, top:1.86, mw:.28, mh:.22, ruler:-1.88, px0:-1.76, px1:-4.3, turn:1, L:3.18 };
+  const sprBobY = x => SPR.top - Math.sqrt(SPR.L * SPR.L - x * x);
+  function springD(x, y0, y1){
+    const { X, Y } = V, lead = .07, n = 12, wd = .075, span = Math.max(.05, (y0 - y1) - 2 * lead);
+    let d = `M${f3(X(x))} ${f3(Y(y0))} L${f3(X(x))} ${f3(Y(y0 - lead))}`;
+    for(let i = 0; i < n; i++) d += ` L${f3(X(x + (i % 2 ? -wd : wd)))} ${f3(Y(y0 - lead - span * (i + .5) / n))}`;
+    return d + ` L${f3(X(x))} ${f3(Y(y1 + lead))} L${f3(X(x))} ${f3(Y(y1))}`;
+  }
+  function sprState(a){ const r = ((a % 360) + 360) % 360;
+    if(angGap(r, 90) < .5) return "top"; if(angGap(r, 270) < .5) return "bottom";
+    return (r < 90 || r > 270) ? "moving up" : "moving down"; }
+  XAPPS.spring = {
+    id:"spring", keys:["sp"], big:30, done:"Done &#10003; &mdash; turn the hand", fillMsg:"Turn the hand to fill it in",
+    core:P => ({ fill:false, x:P.pc > .5 ? C.x : "#94a3b8", xd:P.pc <= .5, y:C.y, stick:1, point:true, ra:true }),
+    labels:(a, mode, P) => ({ yl:mode === "numbers" ? valSegs("s", a, C.yd) : [T("sin ", C.yd), I("θ", C.yd)],
+      xl:P.pc > .5 ? (mode === "numbers" ? valSegs("c", a, C.xd) : [T("cos ", C.xd), I("θ", C.xd)]) : null }),
+    back(a, P){
+      const { X, Y, R, w, h, f } = V, op = xOp(this), rl = 1 - span01(P.pt, 0, .6), pco = span01(P.pc, .2, 1), tf = Math.max(10, f * .58);
+      let g = `<g opacity="${op.toFixed(3)}"><rect x="0" y="0" width="${w}" height="${h}" fill="#f8fafc"/>`;
+      for(let i = -6; i <= 8; i++) g += ln(0, Y(i * .5), w, Y(i * .5), `stroke="#eef2f7" stroke-width="1"`);
+      /* the ceiling the spring (and the pendulum) hang from */
+      const cy = Y(SPR.top), cx0 = Math.max(0, X(-2.15)), cx1 = Math.min(w, X(lerp(-.9, 1.35, pco)));
+      g += `<rect x="${f3(cx0)}" y="${f3(cy - R * .06)}" width="${f3(cx1 - cx0)}" height="${f3(R * .06)}" fill="#cbd5e1" stroke="#94a3b8"/>`;
+      for(let x = cx0 + 4; x < cx1; x += 12) g += ln(x, cy - R * .06, x + 7, cy - R * .06 - 7, `stroke="#94a3b8" stroke-width="1.3"`);
+      /* the rest position */
+      g += ln(X(1.12), Y(0), X(SPR.x + SPR.mw / 2 + .02), Y(0), `stroke="#64748b" stroke-width="1.6" stroke-dasharray="7 6" opacity=".55"`);
+      g += tx(X(-1.18), Y(0) - tf * .8, "rest", tf * .9, "#64748b", "middle", "h ui tk");
+      /* the reference circle */
+      g += `<circle cx="${f3(X(0))}" cy="${f3(Y(0))}" r="${f3(R)}" fill="none" stroke="#64748b" stroke-width="2" stroke-dasharray="7 6"/>`;
+      g += tx(X(0), Y(1.13), "reference circle", tf * .92, "#64748b", "middle", "h ui tk");
+      /* a ruler beside the spring */
+      if(rl > .01){
+        const rx = X(SPR.ruler);
+        g += `<g opacity="${rl.toFixed(3)}"><rect x="${f3(rx - R * .045)}" y="${f3(Y(1.15))}" width="${f3(R * .09)}" height="${f3(Y(-1.15) - Y(1.15))}" rx="3" fill="#fef3c7" stroke="#b45309" stroke-width="1.2"/>`;
+        for(let k = -10; k <= 10; k++){ const yy = Y(k / 10), big = k % 5 === 0; g += ln(rx + R * .045, yy, rx + R * .045 - R * (big ? .05 : .025), yy, `stroke="#92400e" stroke-width="${big ? 1.6 : 1}"`); }
+        [[1, "1"], [.5, "0.5"], [0, "0"], [-.5, MINUS + "0.5"], [-1, MINUS + "1"]].forEach(([v, t]) => { g += tx(rx - R * .06, Y(v), t, tf, "#78350f", "end", "h tk"); });
+        g += tx(rx, Y(1.15) - tf * .75, "up", tf * .9, "#78350f", "middle", "h ui tk") + tx(rx, Y(-1.15) + tf * .8, "down", tf * .9, "#78350f", "middle", "h ui tk");
+        g += "</g>";
+      }
+      /* the pendulum's string (step 3), behind the circle */
+      if(pco > .01){
+        const x = cosD(a), yb = sprBobY(x);
+        g += `<g opacity="${pco.toFixed(3)}">` + ln(X(0), Y(SPR.top), X(x), Y(yb), `stroke="#475569" stroke-width="1.6" opacity=".7"`);
+        g += `<circle cx="${f3(X(0))}" cy="${f3(Y(SPR.top))}" r="${f3(Math.max(3, R * .03))}" fill="#334155"/></g>`;
+      }
+      return g + "</g>";
+    },
+    front(a, P){
+      const { X, Y, R, f } = V, op = xOp(this), c = cosD(a), s = sinD(a), pto = span01(P.pt, .2, 1), pco = span01(P.pc, .2, 1), tf = Math.max(10, f * .58);
+      let g = `<g opacity="${op.toFixed(3)}">`;
+      /* level with the point */
+      if(P.tri > .5) g += ln(X(c), Y(s), X(SPR.x + SPR.mw / 2), Y(s), `stroke="${C.y}" stroke-width="2.2" stroke-dasharray="5 5" opacity=".9"`);
+      /* the spring and the mass */
+      g += `<path d="${springD(SPR.x, SPR.top, s + SPR.mh / 2)}" fill="none" stroke="#475569" stroke-width="2.6" stroke-linejoin="round"/>`;
+      g += `<rect x="${f3(X(SPR.x - SPR.mw / 2))}" y="${f3(Y(s + SPR.mh / 2))}" width="${f3(SPR.mw * R)}" height="${f3(SPR.mh * R)}" rx="5" fill="url(#massG)" stroke="#334155" stroke-width="1.6"/>`;
+      g += ln(X(SPR.x - SPR.mw * .32), Y(s), X(SPR.x + SPR.mw * .32), Y(s), `stroke="#e2e8f0" stroke-width="1.4" opacity=".6"`);
+      const rl = 1 - span01(P.pt, 0, .6);
+      if(rl > .01){ const rx = X(SPR.ruler) + R * .045; g += `<polygon points="${f3(rx + 9)},${f3(Y(s) - 6)} ${f3(rx + 1)},${f3(Y(s))} ${f3(rx + 9)},${f3(Y(s) + 6)}" fill="${C.yd}" opacity="${rl.toFixed(3)}"/>`; }
+      /* the paper and the pen (step 2): the paper moves LEFT one unit every turn, so the ink runs left from the pen */
+      if(pto > .01){
+        const x0 = SPR.px0, x1 = SPR.px1, top = 1.24, bot = -1.24, U = SPR.turn, xL = X(x1), xR = X(x0);
+        let p = `<g opacity="${pto.toFixed(3)}"><rect x="${f3(xL)}" y="${f3(Y(top))}" width="${f3(xR - xL)}" height="${f3((top - bot) * R)}" fill="#fff" stroke="#cbd5e1" stroke-width="1.5"/>`;
+        [-1, -.5, .5, 1].forEach(v => { p += ln(xL, Y(v), xR, Y(v), `stroke="${Math.abs(v) === 1 ? "#d7e0ec" : "#eef2f7"}" stroke-width="1"`); });
+        p += ln(xL, Y(0), xR, Y(0), `stroke="#94a3b8" stroke-width="1.4"`);
+        p += `<defs><clipPath id="paperC"><rect x="${f3(xL)}" y="${f3(Y(top))}" width="${f3(xR - xL)}" height="${f3((top - bot) * R)}"/></clipPath></defs><g clip-path="url(#paperC)">`;
+        for(let d = 0; d <= a + 1e-9; d += 90){
+          const xx = x0 - (a - d) / 360 * U; if(xx < x1) continue;
+          p += ln(X(xx), Y(top), X(xx), Y(bot), `stroke="${d % 360 ? "#eef2f7" : "#cbd5e1"}" stroke-width="${d % 360 ? 1 : 1.5}"`);
+        }
+        const t0 = Math.max(0, a - (x0 - x1) / U * 360);
+        let d = "";
+        for(let t = a; t >= t0 - 1e-9; t -= 2) d += (d ? "L" : "M") + f3(X(x0 - (a - t) / 360 * U)) + " " + f3(Y(sinD(t)));
+        if(d) p += `<path d="${d}" fill="none" stroke="#fff" stroke-width="5.5" stroke-linejoin="round" opacity=".9"/><path d="${d}" fill="none" stroke="${C.y}" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>`;
+        p += "</g>";
+        for(let d2 = 0; d2 <= a + 1e-9; d2 += 360){
+          const xx = x0 - (a - d2) / 360 * U; if(xx < x1 + .05) continue;
+          p += tx(X(xx), Y(bot) + tf * .85, d2 ? `${d2 / 360} turn${d2 > 360 ? "s" : ""}` : "start", tf * .85, "#64748b", "middle", "h ui tk");
+        }
+        p += tx(xL + 6, Y(top) - tf * .8, "&larr; the paper moves this way", tf * .9, "#64748b", "start", "h ui tk");
+        p += rich(xL + 8, Y(1.1), [I("y", C.yd), T(" = sin ", C.yd), I("θ", C.yd)], f * .78, C.yd, "start", null, "py");
+        /* the pen arm, from the mass to the paper */
+        p += ln(X(SPR.x - SPR.mw / 2), Y(s), xR, Y(s), `stroke="#334155" stroke-width="2.2"`);
+        p += `<circle cx="${f3(xR)}" cy="${f3(Y(s))}" r="4" fill="${C.yd}" stroke="#fff" stroke-width="1.5"/>`;
+        g += p + "</g>";
+      }
+      /* the pendulum below the same circle (step 3) */
+      if(pco > .01){
+        const yb = sprBobY(c), br = Math.max(7, R * .09);
+        g += `<g opacity="${pco.toFixed(3)}">`;
+        if(P.tri > .5) g += ln(X(c), Y(s), X(c), Y(yb) - br, `stroke="${C.x}" stroke-width="2.2" stroke-dasharray="5 5" opacity=".9"`);
+        g += `<circle cx="${f3(X(c))}" cy="${f3(Y(yb))}" r="${f3(br)}" fill="url(#bobG)" stroke="#78350f" stroke-width="1.4"/>`;
+        g += tx(X(c), Y(yb) + br + tf * .85, "pendulum", tf * .9, "#475569", "middle", "h ui tk");
+        g += tx(X(SPR.x), Y(s - SPR.mh / 2) + tf * .85, "spring", tf * .9, "#475569", "middle", "h ui tk");
+        g += "</g>";
+      }
+      return g + "</g>";
+    },
+    rows:P => ({ sig:P.pc > .5 ? "c" : "",
+      s:{ name:`<span class="ln">Height of the mass</span><span class="sn">Height</span>`, tog:"spring", col:"var(--cy)" },
+      c:P.pc > .5 ? { name:`<span class="ln">Pendulum: across</span><span class="sn">Across</span>`, tog:"pendulum", col:"var(--cx)" } : null,
+      t:{ name:"Table", tog:"table", col:"var(--purple)" }, title:P.pc > .5 ? "The spring and the pendulum" : "The mass on the spring", two:P.pc <= .5 }),
+    expr(f, a, P){
+      if(f === "c"){ if(P.tri < .5) return `<span class="q">${mi("x")} = ?</span>`;
+        return joinParts([`<span class="fn">${mi("x")}</span>`, "="].concat(S.set.rule ? [`cos ${angTxt(a)}`, "="] : [], [dec(cosD(a))])); }
+      if(P.tri < .5) return `<span class="q">${mi("y")} = ?</span>`;
+      return joinParts([`<span class="fn">${mi("y")}</span>`, "="].concat(S.set.rule ? [`sin ${angTxt(a)}`, "="] : [], [dec(sinD(a))]));
+    },
+    sign(f, a){
+      const v = f === "c" ? cosD(a) : sinD(a);
+      if(Math.abs(v) < 1e-6) return ["zero", f === "c" ? "centre" : "at rest height"];
+      return f === "c" ? (v > 0 ? ["pos", "right"] : ["neg", "left"]) : (v > 0 ? ["pos", "above rest"] : ["neg", "below rest"]);
+    },
+    graph(f){
+      const sinG = f !== "c";
+      return { lo:-1.25, hi:1.25, fn:sinG ? sinD : cosD, col:sinG ? C.y : C.x, cold:sinG ? C.yd : C.xd, grid:[-1, 1], fine:[-.5, .5],
+        labs:[[-1, MINUS + "1"], [0, "0"], [1, "1"]], x1:MAXA, xt:turnTicks(turnsTxt).concat([[MAXA, "3 turns"]]).filter((t, i, arr) => !(t[0] === MAXA && i < arr.length - 1)), vgrid:quarterGrid(MAXA) };
+    },
+    table(){
+      const SH = ["Rest &uarr;", "Top", "Rest &darr;", "Bottom"], pc = S.P.pc > .5;
+      const rows = [[mi("θ"), d => angTxt(d), "", true], [mi("y"), d => dec(sinD(d)), "h"]];
+      if(pc) rows.push([mi("x"), d => dec(cosD(d)), "d"]);
+      return xTab(quarterCols(), "Mass", d => SH[((Math.round(d / 90) % 4) + 4) % 4], rows, reached, pc ? { many:true } : { split:7 });
+    },
+    tag:a => sprState(a),
+    hint(k, P){
+      if(S.anim && k === KX.spr1) return "The circle becomes the reference circle; the mass hangs level with the point&hellip;";
+      if(S.anim && k === KX.spr2) return P.pt < 1 ? "A pen on the mass, and paper that moves steadily to the left&hellip;" : "Three bounces: the pen draws the graph of sin <i>&theta;</i>.";
+      if(k === KX.spr2 && !S.anim && P.ang >= MAXA - 1e-6) return "The pen draws <b><i>y</i> = sin <i>&theta;</i></b>: the mass is always level with the point.";
+      if(S.anim && k === KX.spr3) return "The pendulum hangs below the same circle&hellip;";
+      if(k === KX.spr3 && !S.anim && !S.dragged) return "One point: <b>level with it</b> is sin <i>&theta;</i> (the spring), <b>below it</b> is cos <i>&theta;</i> (the pendulum).";
+      return "";
+    },
+    drag:`<b>Drag the hand</b> &middot; the mass is always level with the point: <i>y</i> = sin <i>&theta;</i>`,
+    brief:a => S.P.pc > .5 ? `<span class="eq"><i>y</i> = ${dec(sinD(a))} &nbsp;·&nbsp; <i>x</i> = ${dec(cosD(a))}</span>` : `<span class="eq"><i>y</i> = ${dec(sinD(a))}</span>`,
+    rand:() => 30 * (1 + Math.floor(Math.random() * 35))
+  };
+
+  /* ============================================================ Mains electricity
+     A generator is a coil turning in a magnet, seen end-on: the coil is a line through the axle with a wire at each
+     end (out of the page ⊙ and into it ⊗); the stick runs from the axle to the ⊙ wire. The field runs from N (top) to
+     S (bottom). The voltage is greatest when the wire cuts straight across the field (top and bottom) and zero when it
+     slides along it (the sides): V = 325 sin θ volts (230 V is the effective voltage; the peak is 230 × √2 ≈ 325 V).
+     In Australia the coil turns 50 times a second, so one turn takes 20 ms. */
+  const ELEC = { Vp:325, ms:20, pr:1.2, pw:.8 };
+  const volts = a => ELEC.Vp * sinD(a);
+  const msOf = a => a / 360 * ELEC.ms;
+  XAPPS.mains = {
+    id:"mains", keys:["el"], big:18, done:"Done &#10003; &mdash; turn the coil", fillMsg:"Turn the coil to fill it in",
+    core:() => ({ fill:false, x:"#94a3b8", xd:true, y:C.y, stick:0, point:false, ra:true }),
+    labels:(a, mode) => ({ yl:mode === "numbers" ? [T(num1(volts(a)) + " V", C.yd)] : [T("325 sin ", C.yd), I("θ", C.yd)] }),
+    back(a, P){
+      const { X, Y, R, w, h, f } = V, op = xOp(this), tf = Math.max(10, f * .58), pr = ELEC.pr, pw = ELEC.pw;
+      let g = `<g opacity="${op.toFixed(3)}"><rect x="0" y="0" width="${w}" height="${h}" fill="#eef2f7"/>`;
+      /* the iron yoke joining the poles */
+      g += `<path d="M${f3(X(-1.6))} ${f3(Y(1.58))} H${f3(X(pw + .2))} V${f3(Y(1.3))} H${f3(X(-1.32))} V${f3(Y(-1.3))} H${f3(X(pw + .2))} V${f3(Y(-1.58))} H${f3(X(-1.6))} Z" fill="#64748b" stroke="#475569" stroke-width="1.5"/>`;
+      /* the poles: N above, S below, their faces curved round the coil */
+      const face = sgn => { const pts = []; for(let i = 0; i <= 20; i++){ const x = -pw + 2 * pw * i / 20; pts.push([X(x), Y(sgn * Math.sqrt(pr * pr - x * x))]); } return pts; };
+      g += `<path d="${polyD([[X(-pw), Y(1.32)]].concat(face(1), [[X(pw), Y(1.32)]]))}" fill="#dc2626" stroke="#991b1b" stroke-width="1.5"/>`;
+      g += `<path d="${polyD([[X(-pw), Y(-1.32)]].concat(face(-1), [[X(pw), Y(-1.32)]]))}" fill="#2563eb" stroke="#1e3a8a" stroke-width="1.5"/>`;
+      g += tx(X(0), Y(1.42), "N", f * 1.05, "#fff", "middle", "ui") + tx(X(0), Y(-1.42), "S", f * 1.05, "#fff", "middle", "ui");
+      /* the field, N to S */
+      [-.6, -.3, 0, .3, .6].forEach(x => {
+        const yt = Math.sqrt(pr * pr - x * x);
+        g += ln(X(x), Y(yt), X(x), Y(-yt), `stroke="#3b82f6" stroke-width="1.6" stroke-dasharray="4 6" opacity=".45"`);
+        [.62, -.62].forEach(v => { g += arrowHead(X(x), Y(v), 0, 1, 8, "#3b82f6").replace("/>", ` opacity=".55"/>`); });
+      });
+      g += tx(X(pw + .3), Y(.98), "magnetic field &darr;", tf * .92, "#1d4ed8", "start", "h ui tk");
+      /* the circuit: brushes on the slip rings, two wires to a bulb, and a meter */
+      const bx = 2.28, by = .55, gr = .25, Vn = Math.abs(volts(a)) / ELEC.Vp, b = Vn * Vn;
+      g += `<circle cx="${f3(X(bx))}" cy="${f3(Y(by))}" r="${f3((gr + .75 * b) * R)}" fill="url(#bulbG)" opacity="${f3(.15 + .85 * b)}"/>`;
+      g += `<path d="M${f3(X(1.22))} ${f3(Y(.12))} H${f3(X(bx - .08))} V${f3(Y(by - gr - .14))} M${f3(X(1.22))} ${f3(Y(-.12))} H${f3(X(bx + .08))} V${f3(Y(by - gr - .14))}" fill="none" stroke="#334155" stroke-width="2.2"/>`;
+      g += `<rect x="${f3(X(1.12))}" y="${f3(Y(.2))}" width="${f3(R * .12)}" height="${f3(R * .4)}" rx="3" fill="#334155"/>`;
+      g += tx(X(1.18), Y(-.36), "slip rings", tf * .85, "#334155", "middle", "h ui tk");
+      g += `<circle cx="${f3(X(bx))}" cy="${f3(Y(by))}" r="${f3(gr * R)}" fill="${mixHex("#f1f5f9", "#fef3c7", b)}" stroke="#94a3b8" stroke-width="1.6"/>`;
+      g += `<path d="M${f3(X(bx - .07))} ${f3(Y(by - .2))} L${f3(X(bx - .05))} ${f3(Y(by + .02))} L${f3(X(bx - .02))} ${f3(Y(by + .07))} L${f3(X(bx + .02))} ${f3(Y(by + .02))} L${f3(X(bx + .05))} ${f3(Y(by + .07))} L${f3(X(bx + .07))} ${f3(Y(by - .2))}" fill="none" stroke="${mixHex("#64748b", "#f59e0b", b)}" stroke-width="${f3(1.6 + 1.6 * b)}"/>`;
+      g += `<rect x="${f3(X(bx - .11))}" y="${f3(Y(by - gr + .02))}" width="${f3(R * .22)}" height="${f3(R * .16)}" rx="3" fill="#94a3b8" stroke="#64748b"/>`;
+      /* the voltmeter */
+      const mw = 1.02, mh = .3, my = -.72;
+      g += `<rect x="${f3(X(bx - mw / 2))}" y="${f3(Y(my + mh / 2))}" width="${f3(mw * R)}" height="${f3(mh * R)}" rx="9" fill="#0f172a" stroke="#334155" stroke-width="1.5"/>`;
+      g += tx(X(bx), Y(my), `${volts(a) > .05 ? "+" : ""}${num1(volts(a))} V`, f * .95, volts(a) < -.05 ? "#fca5a5" : "#86efac", "middle", "ui");
+      g += tx(X(bx), Y(my - mh / 2) + tf * .85, "voltage", tf * .9, "#475569", "middle", "h ui tk");
+      return g + "</g>";
+    },
+    front(a, P){
+      const { X, Y, R } = V, op = xOp(this), c = cosD(a), s = sinD(a);
+      let g = `<g opacity="${op.toFixed(3)}">`;
+      /* the coil, end on: a copper bar through the axle, a wire at each end */
+      g += ln(X(-c), Y(-s), X(c), Y(s), `stroke="#92400e" stroke-width="${f3(Math.max(8, R * .11))}" stroke-linecap="round"`);
+      g += ln(X(-c), Y(-s), X(c), Y(s), `stroke="#f59e0b" stroke-width="${f3(Math.max(3, R * .04))}" stroke-linecap="round" opacity=".85"`);
+      g += `<circle cx="${f3(X(0))}" cy="${f3(Y(0))}" r="${f3(R * .075)}" fill="#334155" stroke="#0f172a" stroke-width="1.5"/>`;
+      const wr = Math.max(8, R * .085);
+      g += `<circle cx="${f3(X(-c))}" cy="${f3(Y(-s))}" r="${f3(wr)}" fill="#fff" stroke="#92400e" stroke-width="3"/>`;
+      g += ln(X(-c) - wr * .5, Y(-s) - wr * .5, X(-c) + wr * .5, Y(-s) + wr * .5, `stroke="#0f172a" stroke-width="2"`) + ln(X(-c) - wr * .5, Y(-s) + wr * .5, X(-c) + wr * .5, Y(-s) - wr * .5, `stroke="#0f172a" stroke-width="2"`);
+      g += `<circle cx="${f3(X(c))}" cy="${f3(Y(s))}" r="${f3(wr)}" fill="#fff" stroke="#92400e" stroke-width="3"/><circle cx="${f3(X(c))}" cy="${f3(Y(s))}" r="${f3(wr * .3)}" fill="#0f172a"/>`;
+      /* which way the wire is moving: along the circle */
+      const tx0 = X(c - s * .13), ty0 = Y(s + c * .13), tx1 = X(c - s * .44), ty1 = Y(s + c * .44);
+      g += ln(tx0, ty0, tx1, ty1, `stroke="#334155" stroke-width="2.4" opacity=".75"`) + arrowHead(tx1, ty1, tx1 - tx0, ty1 - ty0, 9, "#334155").replace("/>", ` opacity=".75"/>`);
+      g += "</g>";
+      return g + chipRow([[`t = ${num1(msOf(Math.max(0, a)))} ms`, "#0f172a", "#fff", "#cbd5e1"], ["50 turns every second", "#1e3a8a", "#dbeafe"]], op, true);
+    },
+    rows:() => ({ s:{ name:`<span class="ln">Voltage (volts)</span><span class="sn">Voltage</span>`, tog:"voltage", col:"var(--cy)" },
+      t:{ name:"Table", tog:"table", col:"var(--purple)" }, title:"The voltage as the coil turns", two:true }),
+    expr(f, a, P){
+      if(P.tri < .5) return `<span class="q">${mi("V")} = ?</span>`;
+      return joinParts([`<span class="fn">${mi("V")}</span>`, "="].concat(S.set.rule ? [`325 sin ${angTxt(a)}`, "="] : [], [`${num1(volts(a))} V`]));
+    },
+    sign(f, a){ const v = volts(a); return Math.abs(v) < .05 ? ["zero", "no voltage"] : v > 0 ? ["pos", "positive"] : ["neg", "negative"]; },
+    graph(){
+      return { lo:-400, hi:400, fn:volts, col:C.y, cold:C.yd, grid:[-325, 325], fine:[-162.5, 162.5],
+        labs:[[-325, MINUS + "325"], [0, "0"], [325, "325"]], x1:MAXA, vgrid:quarterGrid(MAXA),
+        xt:turnTicks(d => `${msOf(d)}`).map(t => t[0] === MAXA ? [MAXA, "60 ms"] : t) };
+    },
+    table(){
+      return xTab(quarterCols(), "t (ms)", d => num1(msOf(d)), [["wire", d => ["side", "top", "side", "bottom"][((Math.round(d / 90) % 4) + 4) % 4], "", true], [mi("V"), d => num1(volts(d)), "h"]], reached, { split:7 });
+    },
+    tag:a => { const v = volts(a); return Math.abs(v) < .05 ? "no voltage" : v > 0 ? "positive voltage" : "negative voltage"; },
+    hint(k, P){
+      if(S.anim && k === KX.el1) return P.el < 1 ? "The circle becomes the path of the coil's wire, between the poles of a magnet&hellip;" : "";
+      if(S.anim && k === KX.el2) return "Three turns of the coil: 60 thousandths of a second, slowed right down.";
+      if(k === KX.el2 && !S.anim) return "230 V is the <b>effective</b> voltage of a socket: its peak is 230 &times; &radic;2 &asymp; 325 V.";
+      return "";
+    },
+    drag:`<b>Turn the coil</b> &middot; at the top and bottom it cuts across the field: most voltage`,
+    brief:a => `<span class="eq"><i>V</i> = ${num1(volts(a))} V &nbsp;·&nbsp; <i>t</i> = ${num1(msOf(a))} ms</span>`,
+    rand:() => 18 * (1 + Math.floor(Math.random() * 59))
+  };
+
+  /* ============================================================ The lighthouse beam
+     Plan view at night. The lamp is 1 km off a straight sea wall; the wall is the line x = 1 (the tan line of the
+     unit circle). The lamp shines from BOTH sides, so whichever beam points at the wall makes the spot, and the spot
+     is tan θ km along the wall from the nearest point (north positive). Near the nearest point it moves slowly, then
+     faster and faster; at 90° the beam is parallel to the wall and the spot is gone to infinity; then the beam on the
+     other side of the lamp brings it back from the far end, so the spot (and tan θ) repeats every 180°. */
+  const LH = { ww:.085, vis:2.25, fan:2.2 };
+  const spotY = a => tanUndef(a) ? NaN : Math.tan(a * RAD);
+  const FRONT = "#fde047", BACK = "#f9a8d4", FRONT_G = "#ca8a04", BACK_G = "#db2777";
+  function beamSVG(dir, tint, key){
+    const { X, Y } = V, ends = [dir - LH.fan, dir, dir + LH.fan].map(d => { const cs = cosD(d); const L = cs > .02 ? Math.min(9, 1 / cs) : 9; return [cosD(d) * L, sinD(d) * L]; });
+    let g = `<defs><linearGradient id="bm${key}" gradientUnits="userSpaceOnUse" x1="${f3(X(0))}" y1="${f3(Y(0))}" x2="${f3(X(ends[1][0]))}" y2="${f3(Y(ends[1][1]))}"><stop offset="0" stop-color="${tint}" stop-opacity=".78"/><stop offset="1" stop-color="${tint}" stop-opacity=".22"/></linearGradient></defs>`;
+    g += `<path d="${polyD([[X(0), Y(0)], [X(ends[0][0]), Y(ends[0][1])], [X(ends[2][0]), Y(ends[2][1])]])}" fill="url(#bm${key})"/>`;
+    g += ln(X(0), Y(0), X(ends[1][0]), Y(ends[1][1]), `stroke="#fffbeb" stroke-width="1.6" opacity=".55"`);
+    return g;
+  }
+  /* on the way in, the unit circle's tan line x = 1 shows first, then hands over to the wall (or the lane) */
+  function x1Morph(a, m){
+    const o = span01(m, 0, .28) * (1 - span01(m, .55, .92));
+    if(o < .01) return "";
+    const { X, Y, h, f } = V, t = Math.tan(a * RAD);
+    let g = `<g opacity="${o.toFixed(3)}">` + ln(X(1), 0, X(1), h, `stroke="${C.t}" stroke-width="2.6" stroke-dasharray="3 5"`);
+    if(!tanUndef(a) && cosD(a) > 0){
+      g += ln(X(0), Y(0), X(1), Y(t), `stroke="${C.ink}" stroke-width="2.4" stroke-dasharray="7 5"`);
+      g += ln(X(1), Y(0), X(1), Y(t), `stroke="${C.t}" stroke-width="6" stroke-linecap="round"`);
+    }
+    return g + tx(X(1) + 8, h - 14, "<tspan font-style=\"italic\">x</tspan> = 1", f * .8, C.td, "start", "h") + "</g>";
+  }
+  function markList(step, hi){ const out = []; for(let d = 0; d <= hi + 1e-6; d += step) out.push(Math.round(d * 1e6) / 1e6); return out; }
+  XAPPS.light = {
+    id:"light", keys:["lh"], big:10, done:"Done &#10003; &mdash; turn the lamp", fillMsg:"Turn the lamp to fill it in",
+    core:() => ({ fill:false, x:"#93c5fd", y:"#fdba74", op:.5, legW:2.5, stick:0, point:false, ra:false, th:"#e2e8f0" }),
+    labels:() => ({}),
+    mid:(a, P) => x1Morph(a, P.lh),
+    back(a, P){
+      const { X, Y, R, w, h, f } = V, op = xOp(this), tf = Math.max(10, f * .5), wx = X(1), wx2 = X(1 + LH.ww);
+      let g = `<g opacity="${op.toFixed(3)}"><rect x="0" y="0" width="${w}" height="${h}" fill="url(#night)"/>`;
+      WAVES.forEach(([u, v, k]) => { const x = u * (wx - 20) + 4, y = v * h; g += `<path d="M${f3(x)} ${f3(y)} q ${f3(5 + k * 6)} ${f3(-3 - k * 2)} ${f3(10 + k * 12)} 0" fill="none" stroke="#93c5fd" stroke-width="1.2" opacity="${f3(.08 + k * .12)}"/>`; });
+      /* the land beyond the wall: a road and the lights of the town */
+      g += `<rect x="${f3(wx2)}" y="0" width="${f3(Math.max(0, w - wx2))}" height="${h}" fill="#1e293b"/>`;
+      g += ln(X(1.62), 0, X(1.62), h, `stroke="#334155" stroke-width="${f3(R * .07)}"`);
+      LIGHTS.forEach(([u, v, k]) => { const x = X(1 + LH.ww + .3) + u * Math.max(0, w - X(1 + LH.ww + .3) - 8), y = v * h; if(Math.abs(x - X(1.62)) < R * .05) return;
+        g += `<rect x="${f3(x)}" y="${f3(y)}" width="${f3(3 + k * 3)}" height="${f3(3 + k * 3)}" fill="#fbbf24" opacity="${f3(.35 + k * .45)}"/>`; });
+      /* the sea wall, and a scale along it (km from the nearest point, north up) */
+      g += `<rect x="${f3(wx)}" y="0" width="${f3(wx2 - wx)}" height="${h}" fill="#94a3b8"/>`;
+      for(let v = -4; v <= 4; v += .25) g += ln(wx, Y(v), wx2, Y(v), `stroke="#64748b" stroke-width="1"`);
+      for(let v = -4; v <= 4; v += .5){
+        const yy = Y(v); if(yy < 0 || yy > h) continue; const big = Math.abs(v % 1) < 1e-9;
+        g += ln(wx2, yy, wx2 + (big ? 10 : 6), yy, `stroke="#e2e8f0" stroke-width="${big ? 2 : 1.2}"`);
+        if(big) g += tx(wx2 + 13, yy, v === 0 ? "0 (nearest point)" : `${v < 0 ? MINUS : ""}${Math.abs(v)} km`, tf, "#e2e8f0", "start", "hd ui tk");
+      }
+      g += tx(wx2 + 13, 14, "north &uarr;", tf, "#cbd5e1", "start", "hd ui tk") + tx(wx2 + 13, h - 12, "south &darr;", tf, "#cbd5e1", "start", "hd ui tk");
+      g += tx(wx - 8, 14, "sea wall (the line <tspan font-style=\"italic\">x</tspan> = 1) &rarr;", tf, "#cbd5e1", "end", "hd ui tk");
+      /* the shortest way to the wall: 1 km */
+      g += ln(X(0), Y(0), X(1), Y(0), `stroke="#e2e8f0" stroke-width="1.6" stroke-dasharray="5 6" opacity=".7"`);
+      g += tx(X(.56), Y(0) + f * .8, "1 km", f * .78, "#e2e8f0", "middle", "hd ui tk");
+      /* the lamp's turning circle */
+      g += `<circle cx="${f3(X(0))}" cy="${f3(Y(0))}" r="${f3(R)}" fill="none" stroke="#cbd5e1" stroke-width="1.6" stroke-dasharray="5 7" opacity=".3"/>`;
+      /* equal turns at the lamp: a faint ray to every mark */
+      const mo = span01(P.mk, 0, 1);
+      if(mo > .01 && S.mmax > 0) markList(10, S.mmax).forEach(d => { if(tanUndef(d)) return; const t = Math.tan(d * RAD); if(Math.abs(t) > (h / 2) / R) return;
+        g += ln(X(0), Y(0), X(1), Y(t), `stroke="${cosD(d) >= 0 ? "#fde68a" : "#f9a8d4"}" stroke-width="1" opacity="${f3(.25 * mo)}"`); });
+      /* the two beams: front (along the stick) and back */
+      g += beamSVG(a, FRONT, "f") + beamSVG(a + 180, BACK, "b");
+      /* the island and the lighthouse */
+      const isl = []; for(let i = 0; i < 16; i++){ const t = i / 16 * 2 * Math.PI, k = .16 * (1 + .2 * Math.sin(3 * t + 1) + .12 * Math.cos(5 * t)); isl.push([X(k * Math.cos(t)), Y(k * Math.sin(t))]); }
+      g += `<path d="${polyD(isl)}" fill="#57534e" stroke="#292524" stroke-width="1.5"/>`;
+      g += `<circle cx="${f3(X(0))}" cy="${f3(Y(0))}" r="${f3(R * .3)}" fill="url(#lampG)"/>`;
+      g += `<circle cx="${f3(X(0))}" cy="${f3(Y(0))}" r="${f3(Math.max(6, R * .06))}" fill="#f8fafc" stroke="#dc2626" stroke-width="3"/>`;
+      g += `<circle cx="${f3(X(0))}" cy="${f3(Y(0))}" r="${f3(Math.max(3, R * .026))}" fill="#fde047"/>`;
+      g += tx(X(-.05), Y(-.3), "lighthouse", tf, "#e2e8f0", "middle", "hd ui tk");
+      return g + "</g>";
+    },
+    front(a, P){
+      const { X, Y, R, h, f } = V, op = xOp(this), t = spotY(a), vis = (h / 2) / R - .08, front = cosD(a) >= 0;
+      let g = `<g opacity="${op.toFixed(3)}">`;
+      /* the tan triangle: lamp, nearest point, spot */
+      if(P.tri > .5 && isFinite(t)){
+        const yc = clamp(t, -vis - .6, vis + .6), to = span01(P.tri, .5, 1);
+        g += `<g opacity="${to.toFixed(3)}"><path d="${polyD([[X(0), Y(0)], [X(1), Y(0)], [X(1), Y(yc)]])}" fill="#facc15" fill-opacity=".12"/>`;
+        g += ln(X(1) - 4, Y(0), X(1) - 4, Y(yc), `stroke="#22c55e" stroke-width="6" stroke-linecap="round"`);
+        /* on the land side of the wall, so it never reaches back to the lamp (the scale's numbers make way) */
+        const ly = (Y(0) + Y(clamp(t, -vis, vis))) / 2;
+        if(Math.abs(Y(clamp(t, -vis, vis)) - Y(0)) > f * 1.1) g += rich(X(1 + LH.ww) + 14, ly, S.set.labels === "numbers" ? [T(dec(t) + " km", "#16a34a")] : [T("tan ", "#16a34a"), I("θ", "#16a34a")], f * .95, "#16a34a", "start", null, "lt");
+        g += "</g>";
+      }
+      /* the marks: one every 10° of turn; the back beam's land on top of the front beam's, 180° later */
+      const mo = span01(P.mk, 0, 1);
+      if(mo > .01 && S.mmax > 0){
+        const at = new Map();
+        markList(10, S.mmax).forEach(d => { if(tanUndef(d)) return; const y = Math.tan(d * RAD); if(Math.abs(y) > vis) return; const key = y.toFixed(3); if(!at.has(key)) at.set(key, { y, ds:[] }); at.get(key).ds.push(d); });
+        let m = `<g opacity="${mo.toFixed(3)}">`;
+        at.forEach(({ y, ds }) => {
+          const back = ds.some(d => cosD(d) < 0), fr = ds.some(d => cosD(d) >= 0);
+          m += `<circle cx="${f3(X(1) + 1)}" cy="${f3(Y(y))}" r="5.5" fill="${fr ? FRONT : BACK}" stroke="${back && fr ? BACK : "#0f172a"}" stroke-width="${back && fr ? 3 : 1.2}"/>`;
+          const lab = ds.slice(0, 2).map(d => angTxt1(d)).join(", ") + (ds.length > 2 ? "&hellip;" : "");
+          m += tx(X(1) - 10, Y(y), lab, Math.max(9.5, f * .5), back && !fr ? BACK : "#fef9c3", "end", "hd ui tk");
+        });
+        g += m + "</g>";
+      }
+      /* the spot of light, stretched along the wall when the beam is steep */
+      if(isFinite(t) && Math.abs(t) <= vis + .1){
+        const cs = Math.abs(cosD(a)), ry = Math.min(R * .5, R * .045 / (cs * cs)), col = front ? FRONT : BACK;
+        g += `<ellipse cx="${f3(X(1))}" cy="${f3(Y(t))}" rx="${f3(R * .12)}" ry="${f3(ry + R * .1)}" fill="url(#spotG)"/>`;
+        g += `<ellipse cx="${f3(X(1))}" cy="${f3(Y(t))}" rx="${f3(Math.max(4, R * .035))}" ry="${f3(Math.max(5, ry))}" fill="#fffef5" stroke="${col}" stroke-width="2.5"/>`;
+      } else if(P.tri > .5){
+        const up = !isFinite(t) ? true : t > 0, yy = up ? 10 : V.h - 10;
+        g += arrowHead(X(1) - 14, yy, 0, up ? -1 : 1, 14, front ? FRONT : BACK);
+        const msg = !isFinite(t) ? "parallel to the wall: no spot" : `spot ${dec(Math.abs(t))} km ${t > 0 ? "north" : "south"}`;
+        g += tx(X(1) - 26, up ? 22 : V.h - 22, msg, Math.max(10, f * .58), "#fef9c3", "end", "hd ui");
+      }
+      return g + "</g>";
+    },
+    rows:() => ({ s:{ name:`<span class="ln">Spot along the wall (km)</span><span class="sn">Spot</span>`, tog:"spot", col:"var(--ct)" },
+      t:{ name:"Table", tog:"table", col:"var(--purple)" }, title:"The spot along the sea wall" }),
+    expr(f, a, P){
+      if(P.tri < .5) return `<span class="q">spot = ?</span>`;
+      if(tanUndef(a)) return joinParts([`<span class="fn">spot</span>`, "=", "undefined"]);
+      return joinParts([`<span class="fn">spot</span>`, "="].concat(S.set.rule ? [`tan ${angTxt(a)}`, "="] : [], [`${dec(Math.tan(a * RAD))} km`]));
+    },
+    sign(f, a){ if(tanUndef(a)) return ["und", "never meets the wall"]; const t = Math.tan(a * RAD);
+      return Math.abs(t) < 1e-9 ? ["zero", "nearest point"] : t > 0 ? ["pos", "north"] : ["neg", "south"]; },
+    graph(f, P){
+      const a = Math.max(P.ang, S.mmax), x1 = 360 * clamp(Math.ceil(a / 360 - 1e-6), 1, TURNS), asym = [];
+      for(let d = 90; d <= MAXA; d += 180) asym.push(d);
+      const xt = []; for(let d = 0; d <= MAXA; d += 90) xt.push([d, (x1 > 361 && d % 180) ? "" : (isRad() ? (d * RAD).toFixed(1) : d + "°")]);
+      return { lo:-3.4, hi:3.4, fn:spotY, col:FRONT_G, cold:"#15803d", colAt:u => cosD(u) >= -1e-9 ? FRONT_G : BACK_G,
+        grid:[-2, 2], fine:[-3, -1, 1, 3], labs:[[-2, MINUS + "2"], [0, "0"], [2, "2"]], x1, zoom:true, asym, vgrid:quarterGrid(MAXA), xt,
+        over:(X, Y, w, h, mt) => `<text x="${w - 18}" y="${mt + 10}" font-size="10.5" fill="${FRONT_G}" text-anchor="end">front beam</text><text x="${w - 18}" y="${mt + 23}" font-size="10.5" fill="${BACK_G}" text-anchor="end">back beam</text>` };
+    },
+    table(){
+      const cols = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90];
+      return xTab(cols, mi("θ"), d => angTxt(d), [
+        ["spot (km)", d => d === 90 ? "&infin;" : dec(Math.tan(d * RAD)), "g"],
+        ["gap (km)", d => d === 0 ? "&ndash;" : d === 90 ? "&infin;" : dec(Math.tan(d * RAD) - Math.tan((d - 10) * RAD)), "v"]
+      ], d => reached(d) || reached(d + 180), { many:true, cur:d => angGap(S.P.ang, d) < 1e-6 || angGap(S.P.ang, d + 180) < 1e-6 });
+    },
+    tag:a => tanUndef(a) ? "parallel to the wall" : cosD(a) >= 0 ? "front beam" : "back beam",
+    hint(k, P){
+      if(S.anim && k === KX.lh1) return P.lh < 1 ? "The line <i>x</i> = 1 becomes a sea wall, and the stick a lighthouse beam&hellip;" : "";
+      if(S.anim && k === KX.lh2) return P.mk < .5 ? "Back to the nearest point&hellip;" : "Equal turns at the lamp, 10&deg; each time&hellip;";
+      if(k === KX.lh2 && !S.anim) return "Each 10&deg; moves the spot further: 0.18, 0.19, 0.21&hellip; 2.92 km. <b>Faster and faster.</b>";
+      if(S.anim && k === KX.lh3){ const r = ((P.ang % 180) + 180) % 180; return r > 66 && r < 114 ? "Nearly parallel to the wall: the spot races off to infinity&hellip;" : P.ang > 100 ? "&hellip;and the beam on the other side of the lamp brings it back from the far end." : "Keep turning steadily&hellip;"; }
+      if(k === KX.lh3 && !S.anim) return "The pink marks land on the yellow ones: <b>the spot, and tan <i>&theta;</i>, repeat every 180&deg;.</b>";
+      return "";
+    },
+    drag:`<b>Turn the lamp</b> &middot; the spot is tan <i>&theta;</i> km from the nearest point &middot; <b>Shift + &uarr;</b> 10&deg;`,
+    brief:a => tanUndef(a) ? `The beam is parallel to the wall: <b>no spot</b>` : `<span class="eq">spot = ${dec(Math.tan(a * RAD))} km</span>`,
+    rand:() => { let d; do { d = 10 * (1 + Math.floor(Math.random() * 35)); } while(d % 90 === 0); return d; }
+  };
+
+  /* ============================================================ The gradient of a line, and road signs
+     Step 1: the stick extended into a line through the origin. A run of 1 (to the line x = 1) gives a rise of tan θ,
+     so the gradient is m = tan θ: 1 at 45°, √3 at 60°; every 180° it is the same line again. Step 2: a road up a hill;
+     the sign gives the rise for every 100 m across, 100 tan θ %. */
+  XAPPS.grad = {
+    id:"grad", keys:["gr", "rd"], get done(){ return S.P.rd > .5 ? "Done &#10003; &mdash; drag the road" : "Done &#10003; &mdash; turn the line"; },
+    get fillMsg(){ return S.P.rd > .5 ? "Drag the road to fill it in" : "Turn the line to fill it in"; },
+    get big(){ return S.P.rd > .5 ? 1 : 15; },
+    core:P => P.rd > .5 ? ({ op:0, stick:0, point:false, ra:false }) : ({ fill:false, x:C.x, y:C.y, op:.35, legW:2.5, stick:1, point:true, ra:false }),
+    labels:() => ({}),
+    mid(a, P){
+      const { X, Y, R, w, h, f } = V, op = span01(P.gr, .25, 1);
+      if(op < .01) return "";
+      const c = cosD(a), s = sinD(a), und = tanUndef(a), t = und ? NaN : s / c;
+      let g = `<g opacity="${op.toFixed(3)}">`;
+      g += ln(X(1), 0, X(1), h, `stroke="${C.t}" stroke-opacity=".5" stroke-width="2" stroke-dasharray="3 5"`);
+      g += tx(X(1) + 8, h - 14, "<tspan font-style=\"italic\">x</tspan> = 1", f * .78, C.td, "start", "h tk");
+      g += ln(X(-9 * c), Y(-9 * s), X(9 * c), Y(9 * s), `stroke="${C.ink}" stroke-width="3" opacity=".85"`);
+      if(P.tri > .5 && !und){
+        const ymax = (h / 2) / R + .3, yc = clamp(t, -ymax, ymax), to = span01(P.tri, .5, 1);
+        g += `<g opacity="${to.toFixed(3)}"><path d="${polyD([[X(0), Y(0)], [X(1), Y(0)], [X(1), Y(yc)]])}" fill="${C.t}" fill-opacity=".09"/>`;
+        g += ln(X(0), Y(0), X(1), Y(0), `stroke="${C.x}" stroke-width="5" stroke-linecap="round"`);
+        g += ln(X(1), Y(0), X(1), Y(yc), `stroke="${C.t}" stroke-width="6" stroke-linecap="round"`);
+        if(Math.abs(t) * R < h / 2 - 8) g += `<circle cx="${f3(X(1))}" cy="${f3(Y(t))}" r="6" fill="#fff" stroke="${C.td}" stroke-width="3"/>`;
+        else g += arrowHead(X(1), t > 0 ? 8 : h - 8, 0, t > 0 ? -1 : 1, 13, C.td);
+        g += rich(X(.5), Y(0) + (t >= 0 ? 1 : -1) * f * .95, [T("run = 1", C.xd)], f * .9, C.xd, "middle", null, "run");
+        const ly = (Y(0) + clamp(Y(t), f, h - f)) / 2;
+        if(Math.abs(Y(t) - Y(0)) > f * 1.2) g += rich(X(1) + 12, ly, [T("rise = ", C.td)].concat(S.set.labels === "numbers" ? valSegs("t", a, C.td) : [T("tan ", C.td), I("θ", C.td)]), f * .9, C.td, "start", null, "rise");
+        g += "</g>";
+      } else if(P.tri > .5) g += rich(X(1) + 10, Y(.6), [T("vertical: no run, so no gradient", C.td)], f * .72, C.td, "start", null, "vert");
+      return g + "</g>";
+    },
+    back(a, P){
+      const { X, Y, R, w, h, f } = V, op = span01(P.rd, .25, 1);
+      if(op < .01) return "";
+      const c = cosD(a), s = sinD(a), tf = Math.max(10, f * .78), t = Math.tan(a * RAD);
+      let g = `<g opacity="${op.toFixed(3)}"><rect x="0" y="0" width="${w}" height="${h}" fill="url(#daySky)"/>`;
+      g += `<path d="M0 ${f3(Y(.5))} Q${f3(w * .25)} ${f3(Y(.75))} ${f3(w * .5)} ${f3(Y(.55))} T${f3(w)} ${f3(Y(.6))} V${f3(Y(0))} H0 Z" fill="#bbf7d0" opacity=".55"/>`;
+      /* the hill, the road along it, and the road on the flat */
+      g += `<path d="${polyD([[X(-6), Y(0)], [X(0), Y(0)], [X(6 * c), Y(6 * s)], [X(6 * c), h + 10], [X(-6), h + 10]])}" fill="url(#grassG)"/>`;
+      const rw = Math.max(8, R * .05);
+      g += `<path d="M${f3(X(-6))} ${f3(Y(0))} L${f3(X(0))} ${f3(Y(0))} L${f3(X(6 * c))} ${f3(Y(6 * s))}" fill="none" stroke="#475569" stroke-width="${f3(rw)}" stroke-linejoin="round"/>`;
+      g += `<path d="M${f3(X(-6))} ${f3(Y(0))} L${f3(X(0))} ${f3(Y(0))} L${f3(X(6 * c))} ${f3(Y(6 * s))}" fill="none" stroke="#fff" stroke-width="2" stroke-dasharray="12 10" opacity=".8"/>`;
+      /* run and rise: 100 m across, 100 tan θ m up */
+      if(P.tri > .5){
+        const to = span01(P.tri, .5, 1);
+        g += `<g opacity="${to.toFixed(3)}"><path d="${polyD([[X(0), Y(0)], [X(1), Y(0)], [X(1), Y(t)]])}" fill="#fef9c3" fill-opacity=".55"/>`;
+        g += ln(X(0), Y(0), X(1), Y(0), `stroke="${C.xd}" stroke-width="3" stroke-dasharray="7 5"`);
+        g += ln(X(1), Y(0), X(1), Y(t), `stroke="${C.t}" stroke-width="5" stroke-linecap="round"`);
+        g += tx(X(.5), Y(0) + tf * 1.1, "100 m across", tf, C.xd, "middle", "h ui");
+        if(t * R > tf * 1.3) g += rich(X(1) + 10, (Y(0) + Y(t)) / 2, S.set.labels === "numbers" ? [T(num1(100 * t) + " m up", C.td)] : [T("100 tan ", C.td), I("θ", C.td), T(" m up", C.td)], tf, C.td, "start", null, "rup");
+        g += "</g>";
+      }
+      /* a car on the slope */
+      const u = .58, cx = X(u * c - s * .07), cy = Y(u * s + c * .07), cw = R * .24, ch = R * .075;
+      g += `<g transform="rotate(${f3(-a)} ${f3(cx)} ${f3(cy)})"><rect x="${f3(cx - cw / 2)}" y="${f3(cy - ch / 2)}" width="${f3(cw)}" height="${f3(ch)}" rx="${f3(ch * .4)}" fill="#dc2626" stroke="#7f1d1d" stroke-width="1.4"/>`;
+      g += `<path d="M${f3(cx - cw * .28)} ${f3(cy - ch / 2)} L${f3(cx - cw * .16)} ${f3(cy - ch * 1.25)} L${f3(cx + cw * .2)} ${f3(cy - ch * 1.25)} L${f3(cx + cw * .32)} ${f3(cy - ch / 2)} Z" fill="#bfdbfe" stroke="#7f1d1d" stroke-width="1.2"/>`;
+      [-.3, .3].forEach(k => { g += `<circle cx="${f3(cx + k * cw)}" cy="${f3(cy + ch / 2)}" r="${f3(ch * .42)}" fill="#1f2937"/>`; });
+      g += "</g>";
+      /* the road sign: a yellow diamond and a plate with the percentage */
+      const sx = X(-.5), sy0 = Y(0), pct = Math.round(100 * t);
+      g += ln(sx, sy0, sx, Y(.9), `stroke="#64748b" stroke-width="4"`);
+      const dg = R * .17, dcy = Y(.92);
+      g += `<path d="M${f3(sx)} ${f3(dcy - dg)} L${f3(sx + dg)} ${f3(dcy)} L${f3(sx)} ${f3(dcy + dg)} L${f3(sx - dg)} ${f3(dcy)} Z" fill="#facc15" stroke="#111827" stroke-width="2.5" stroke-linejoin="round"/>`;
+      g += `<path d="M${f3(sx - dg * .5)} ${f3(dcy + dg * .32)} L${f3(sx + dg * .5)} ${f3(dcy + dg * .32)} L${f3(sx + dg * .5)} ${f3(dcy - dg * .3)} Z" fill="#111827"/>`;
+      const pw = R * .3, ph = R * .14, py = Y(.58);
+      g += `<rect x="${f3(sx - pw / 2)}" y="${f3(py - ph / 2)}" width="${f3(pw)}" height="${f3(ph)}" rx="4" fill="#fff" stroke="#111827" stroke-width="2"/>`;
+      g += tx(sx, py, `${pct}%`, ph * .72, "#111827", "middle", "ui");
+      return g + "</g>";
+    },
+    chips:(a, P) => P.rd > .5 ? [[`${num1(100 * Math.tan(a * RAD))} m up for every 100 m across`, "#14532d", "#dcfce7", "#86efac"]]
+      : [[tanUndef(a) ? "gradient: undefined" : `gradient m = ${dec(Math.tan(a * RAD))}`, "#14532d", "#dcfce7", "#86efac"]],
+    rows:P => P.rd > .5
+      ? { sig:"r", s:{ name:`<span class="ln">Road gradient (%)</span><span class="sn">Percent</span>`, tog:"percent", col:"#d97706" }, t:{ name:"Table", tog:"table", col:"var(--purple)" }, title:"Road signs" }
+      : { sig:"g", s:{ name:`<span class="ln">Gradient of the line</span><span class="sn">Gradient</span>`, tog:"gradient", col:"var(--ct)" }, t:{ name:"Table", tog:"table", col:"var(--purple)" }, title:"The gradient as the line turns" },
+    expr(f, a, P){
+      if(P.rd > .5){
+        if(P.tri < .5) return `<span class="q">gradient = ?</span>`;
+        return joinParts([`<span class="fn">gradient</span>`, "="].concat(S.set.rule ? [`100 tan ${angTxt(a)}`, "="] : [], [`${num1(100 * Math.tan(a * RAD))}%`]));
+      }
+      if(P.tri < .5) return `<span class="q">${mi("m")} = ?</span>`;
+      return joinParts([`<span class="fn">${mi("m")}</span>`, "="].concat(S.set.rule ? [`tan ${angTxt(a)}`, "="] : [], [tanUndef(a) ? "undefined" : valH("t", a)]));
+    },
+    sign(f, a, P){
+      if(P.rd > .5) return null;
+      if(tanUndef(a)) return ["und", "vertical"];
+      const t = Math.tan(a * RAD); return Math.abs(t) < 1e-9 ? ["zero", "flat"] : t > 0 ? ["pos", "uphill &rarr;"] : ["neg", "downhill &rarr;"];
+    },
+    graph(f, P){
+      if(P.rd > .5){
+        const xt = [0, 15, 30, 45].map(d => [d, isRad() ? (d * RAD).toFixed(2) : d + "°"]), vg = []; for(let d = 0; d <= 45; d += 5) vg.push([d, false]);
+        return { lo:-6, hi:112, fn:a => 100 * Math.tan(a * RAD), col:"#d97706", cold:"#b45309", grid:[50, 100], fine:[25, 75],
+          labs:[[0, "0%"], [50, "50%"], [100, "100%"]], x1:45, xt, vgrid:vg, step:.1 };
+      }
+      const xt = []; for(let d = 0; d <= 360; d += 45) xt.push([d, d % 90 ? "" : (isRad() ? (d * RAD).toFixed(1) : d + "°")]);
+      return { lo:-3.4, hi:3.4, fn:a => fx("t", a), col:C.t, cold:C.td, grid:[-2, 2], fine:[-3, -1, 1, 3],
+        labs:[[-2, MINUS + "2"], [0, "0"], [2, "2"]], x1:360, xt, vgrid:quarterGrid(360, 45), asym:[90, 270] };
+    },
+    table(){
+      if(S.P.rd > .5){
+        const cols = [0, 3, 5, 10, 15, 20, 30, 45];
+        return xTab(cols, mi("θ"), d => angTxt(d), [["gradient", d => `${Math.round(100 * Math.tan(d * RAD))}%`, "a"], ["rise per 100 m", d => `${num1(100 * Math.tan(d * RAD))} m`, "g"]], reached, { many:true });
+      }
+      const cols = [0, 30, 45, 60, 90, 120, 135, 150, 180];
+      return xTab(cols, mi("θ"), d => angTxt(d), [[mi("m"), d => d === 90 ? "undefined" : valH("t", d), "g"]], reached, { many:true });
+    },
+    tag:(a, P) => P.rd > .5 ? `${Math.round(100 * Math.tan(a * RAD))}% sign` : tanUndef(a) ? "vertical" : Math.abs(Math.tan(a * RAD)) < 1e-9 ? "flat" : Math.tan(a * RAD) > 0 ? "uphill" : "downhill",
+    hint(k, P){
+      if(S.anim && k === KX.gr1) return P.gr < 1 ? "The stick becomes a whole line through the origin&hellip;" : "&hellip;and at 45&deg; the rise equals the run: the gradient is 1.";
+      if(S.anim && k === KX.gr2) return "The line becomes a road up a hill&hellip;";
+      if(k === KX.gr1 && !S.dragged) return "At 45&deg; the gradient is <b>1</b>; at 60&deg; it is <b>&radic;3</b>. What happens past 90&deg;?";
+      return "";
+    },
+    get drag(){ return S.P.rd > .5 ? `<b>Drag the road steeper</b> &middot; 100 m across climbs 100 tan <i>&theta;</i> m` : `<b>Turn the line</b> &middot; run 1, rise tan <i>&theta;</i>, so <i>m</i> = tan <i>&theta;</i> &middot; <b>Shift + &uarr;</b> 15&deg;`; },
+    brief:a => S.P.rd > .5 ? `<span class="eq">gradient = ${num1(100 * Math.tan(a * RAD))}%</span>` : `<span class="eq"><i>m</i> = ${tanUndef(a) ? "undefined" : dec(Math.tan(a * RAD))}</span>`,
+    rand:k => { if(k === KX.gr2) return 1 + Math.floor(Math.random() * 40); const L2 = [30, 45, 60, 120, 135, 150, 210, 225, 240, 300, 315, 330, 20, 70, 160]; return L2[Math.floor(Math.random() * L2.length)]; }
+  };
+
+  /* ============================================================ A camera follows a runner
+     Plan view of a 100 m straight. The camera is 50 m from the runner's lane, level with the start, and the lane is
+     the line x = 1 (one board unit = 50 m), so the runner is s = 50 tan θ m along. Step 2: the camera turns steadily,
+     so the runner has to keep speeding up. Step 3: the runner runs steadily (10 m/s), so the camera has to slow down
+     (the tween moves P.rs steadily and the angle follows: derive "cam"). */
+  const CAM = { hi:CAMHI };
+  XAPPS.camera = {
+    id:"camera", keys:["cm"], big:5, done:"Done &#10003; &mdash; turn the camera", fillMsg:"Turn the camera to fill it in",
+    core:() => ({ op:0, stick:0, point:false, ra:false, th:"#f8fafc" }),
+    labels:() => ({}),
+    mid:(a, P) => x1Morph(a, P.cm),
+    back(a, P){
+      const { X, Y, R, w, h, f } = V, op = xOp(this), tf = Math.max(10, f * .55), L0 = .805, L1 = 1.325;
+      let g = `<g opacity="${op.toFixed(3)}"><rect x="0" y="0" width="${w}" height="${h}" fill="#4d7c0f"/>`;
+      for(let k = -4; k < 14; k += 2) g += `<rect x="0" y="${f3(Y((k + 1) * .2))}" width="${f3(X(L0))}" height="${f3(.2 * R)}" fill="#65a30d" opacity=".5"/>`;
+      /* the stands, with a crowd */
+      g += `<rect x="${f3(X(L1))}" y="0" width="${f3(Math.max(0, w - X(L1)))}" height="${h}" fill="#cbd5e1"/>`;
+      for(let v = -1; v < 3; v += .07) g += ln(X(L1 + .1), Y(v), w, Y(v), `stroke="#94a3b8" stroke-width="1"`);
+      CROWD.forEach(([u, v, k]) => { const x = X(L1 + .14) + u * Math.max(0, w - X(L1 + .14) - 6); g += `<circle cx="${f3(x)}" cy="${f3(v * h)}" r="${f3(2 + k * 2)}" fill="${["#ef4444", "#3b82f6", "#f59e0b", "#10b981", "#8b5cf6"][Math.floor(k * 5)]}" opacity=".55"/>`; });
+      /* the track: four lanes, the runner's lane centred on x = 1 */
+      g += `<rect x="${f3(X(L0))}" y="0" width="${f3((L1 - L0) * R)}" height="${h}" fill="#c2563f"/>`;
+      [L0, .935, 1.065, 1.195, L1].forEach(x => { g += ln(X(x), 0, X(x), h, `stroke="#fff" stroke-width="1.6" opacity=".85"`); });
+      g += ln(X(L0), Y(0), X(L1), Y(0), `stroke="#fff" stroke-width="4"`);
+      for(let i = 0; i < 8; i++) g += `<rect x="${f3(X(L0 + i * (L1 - L0) / 8))}" y="${f3(Y(2) - 5)}" width="${f3((L1 - L0) / 8 * R)}" height="5" fill="${i % 2 ? "#111827" : "#fff"}"/><rect x="${f3(X(L0 + i * (L1 - L0) / 8))}" y="${f3(Y(2))}" width="${f3((L1 - L0) / 8 * R)}" height="5" fill="${i % 2 ? "#fff" : "#111827"}"/>`;
+      for(let k = 1; k < 10; k++) g += ln(X(L1), Y(k * .2), X(L1) + 7, Y(k * .2), `stroke="#475569" stroke-width="1.6"`) + tx(X(L1) + 10, Y(k * .2), `${k * 10} m`, tf, "#334155", "start", "h ui tk");
+      g += tx(X(L1) + 10, Y(0), "start", tf, "#111827", "start", "h ui tk") + tx(X(L1) + 10, Y(2), "finish, 100 m", tf, "#111827", "start", "h ui tk");
+      /* 50 m from the camera to the lane */
+      g += ln(X(0), Y(0), X(1), Y(0), `stroke="#fff" stroke-width="1.6" stroke-dasharray="5 6" opacity=".75"`);
+      g += tx(X(.45), Y(0) + f * .8, "50 m", f * .78, "#fff", "middle", "hd ui tk");
+      /* equal steps: a faint ray from the camera to every mark */
+      const mo = span01(P.mk, 0, 1);
+      if(mo > .01 && S.mmax > 0) camMarks(P).forEach(([y]) => { g += ln(X(0), Y(0), X(1), Y(y), `stroke="#fff" stroke-width="1" opacity="${f3(.3 * mo)}"`); });
+      g += `<rect x="${f3(X(-.17))}" y="${f3(Y(.13))}" width="${f3(.34 * R)}" height="${f3(.26 * R)}" rx="6" fill="#334155" opacity=".55"/>`;
+      return g + "</g>";
+    },
+    front(a, P){
+      const { X, Y, R, f } = V, op = xOp(this), t = Math.tan(clamp(a, 0, 89) * RAD), tf = Math.max(10, f * .55);
+      let g = `<g opacity="${op.toFixed(3)}">`;
+      /* what the camera sees */
+      const e0 = Math.tan(clamp(a - 3.5, -20, 89) * RAD), e1 = Math.tan(clamp(a + 3.5, -20, 89) * RAD);
+      g += `<path d="${polyD([[X(0), Y(0)], [X(1), Y(e0)], [X(1), Y(e1)]])}" fill="#fff" fill-opacity=".2"/>`;
+      if(P.tri > .5 && a > .2){
+        const to = span01(P.tri, .5, 1);
+        g += `<g opacity="${to.toFixed(3)}"><path d="${polyD([[X(0), Y(0)], [X(1), Y(0)], [X(1), Y(t)]])}" fill="#facc15" fill-opacity=".13"/>`;
+        g += ln(X(1), Y(0), X(1), Y(t), `stroke="#22c55e" stroke-width="5" stroke-linecap="round" opacity=".9"`);
+        if(t * R > f * 1.2) g += rich(X(.92), (Y(0) + Y(t)) / 2, S.set.labels === "numbers" ? [T(num1(50 * t) + " m", "#14532d")] : [T("50 tan ", "#14532d"), I("θ", "#14532d")], f * .9, "#14532d", "end", null, "cs");
+        g += "</g>";
+      }
+      /* the marks */
+      const mo = span01(P.mk, 0, 1);
+      if(mo > .01 && S.mmax > 0){
+        let m = `<g opacity="${mo.toFixed(3)}">`;
+        camMarks(P).forEach(([y, lab]) => {
+          m += `<circle cx="${f3(X(1))}" cy="${f3(Y(y))}" r="5" fill="#fde047" stroke="#111827" stroke-width="1.3"/>`;
+          m += tx(X(.88), Y(y), lab, Math.max(9.5, f * .5), "#fefce8", "end", "hd ui tk");
+        });
+        g += m + "</g>";
+      }
+      /* the runner, seen from above */
+      if(t <= 2.4){
+        const rx = X(1), ry = Y(t), sc = R * .05, ph = t * 40;
+        g += `<ellipse cx="${f3(rx + sc * .3)}" cy="${f3(ry + sc * .25)}" rx="${f3(sc * 1.1)}" ry="${f3(sc * .7)}" fill="#000" opacity=".2"/>`;
+        [-1, 1].forEach(k => { g += ln(rx + k * sc * .35, ry, rx + k * sc * .35, ry - k * Math.sin(ph) * sc * 1.1, `stroke="#1f2937" stroke-width="${f3(sc * .32)}" stroke-linecap="round"`); });
+        g += `<ellipse cx="${f3(rx)}" cy="${f3(ry)}" rx="${f3(sc * .95)}" ry="${f3(sc * .5)}" fill="#2563eb" stroke="#1e3a8a" stroke-width="1.2"/>`;
+        g += `<circle cx="${f3(rx)}" cy="${f3(ry - sc * .15)}" r="${f3(sc * .42)}" fill="#7c2d12"/>`;
+      }
+      /* the camera, turned to face the runner */
+      const cx = X(0), cy = Y(0), cb = R * .085;
+      g += `<g transform="rotate(${f3(-a)} ${f3(cx)} ${f3(cy)})"><rect x="${f3(cx - cb)}" y="${f3(cy - cb * .62)}" width="${f3(cb * 1.7)}" height="${f3(cb * 1.24)}" rx="4" fill="#1f2937" stroke="#0f172a" stroke-width="1.5"/>`;
+      g += `<rect x="${f3(cx + cb * .7)}" y="${f3(cy - cb * .36)}" width="${f3(cb)}" height="${f3(cb * .72)}" rx="2" fill="#0f172a"/>`;
+      g += `<circle cx="${f3(cx - cb * .55)}" cy="${f3(cy - cb * .3)}" r="${f3(Math.max(2, cb * .14))}" fill="#ef4444"/></g>`;
+      g += "</g>";
+      const chips = P.rn > .5 ? [["a steady runner: 10 m/s", "#1e3a8a", "#dbeafe", "#93c5fd"], [`time ${num1(50 * t / 10)} s`, "#0f172a", "#fff", "#cbd5e1"]]
+        : P.mk > .5 ? [["a steady camera: 5° at a time", "#14532d", "#dcfce7", "#86efac"]] : [];
+      return g + (chips.length ? chipRow(chips, op) : "");
+    },
+    rows:P => ({ sig:P.rn > .5 ? "r" : "",
+      s:{ name:`<span class="ln">Runner's distance (m)</span><span class="sn">Distance</span>`, tog:"distance", col:"var(--ct)" },
+      c:P.rn > .5 ? { name:`<span class="ln">The camera's angle over time</span><span class="sn">Angle</span>`, tog:"angle", col:"var(--purple)" } : null,
+      t:{ name:"Table", tog:"table", col:"var(--purple)" }, title:P.rn > .5 ? "A steady runner" : "The camera and the runner" }),
+    expr(f, a, P){
+      const t = Math.tan(a * RAD);
+      if(f === "c"){ if(P.tri < .5) return `<span class="q">${mi("θ")} = ?</span>`;
+        return joinParts([`<span class="fn">${mi("θ")}</span>`, "=", angTxt1(a), "after", `${num1(5 * t)} s`]); }
+      if(P.tri < .5) return `<span class="q">${mi("s")} = ?</span>`;
+      return joinParts([`<span class="fn">${mi("s")}</span>`, "="].concat(S.set.rule ? [`50 tan ${angTxt1(a)}`, "="] : [], [`${num1(50 * t)} m`]));
+    },
+    sign:() => null,
+    graph(f, P){
+      if(f === "c"){
+        const xt = [0, 2, 4, 6, 8, 10].map(u => [u, u === 10 ? "10 s" : `${u}`]), vg = []; for(let u = 0; u <= 10; u++) vg.push([u, false]);
+        const tNow = 5 * Math.tan(P.ang * RAD);
+        return { lo:-4, hi:72, fn:u => Math.atan(u / 5) / RAD, col:"#7c3aed", cold:"#5b21b6", grid:[30, 60], fine:[15, 45],
+          labs:[[0, "0°"], [30, "30°"], [60, "60°"]], x1:10, xt, vgrid:vg, xNow:tNow, upTo:tNow, step:.02 };
+      }
+      const xt = [0, 10, 20, 30, 40, 50, 60].map(d => [d, isRad() ? (d * RAD).toFixed(2) : d + "°"]), vg = []; for(let d = 0; d <= 65; d += 5) vg.push([d, false]);
+      return { lo:-6, hi:112, fn:a => a > 89 ? NaN : 50 * Math.tan(a * RAD), col:C.t, cold:C.td, grid:[50, 100], fine:[25, 75],
+        labs:[[0, "0"], [50, "50 m"], [100, "100 m"]], x1:65, xt, vgrid:vg, step:.1 };
+    },
+    table(){
+      if(S.P.rn > .5){
+        const cols = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100], th = s => Math.atan(s / 50) / RAD;
+        return xTab(cols, mi("s"), s => `${s} m`, [[mi("θ"), s => angTxt1(Math.round(th(s) * 10) / 10), "v"], ["turned", s => s === 0 ? "&ndash;" : num1(th(s) - th(s - 10)) + "°", "g"]],
+          s => Math.max(S.xmax, S.mmax) >= th(s) - .05, { many:true, cur:s => Math.abs(50 * Math.tan(S.P.ang * RAD) - s) < .05 });
+      }
+      const cols = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60];
+      return xTab(cols, mi("θ"), d => angTxt(d), [[mi("s") + " (m)", d => num1(50 * Math.tan(d * RAD)), "g"], ["gap (m)", d => d === 0 ? "&ndash;" : num1(50 * (Math.tan(d * RAD) - Math.tan((d - 5) * RAD))), "v"]], reached, { many:true });
+    },
+    tag:(a, P) => P.rn > .5 ? "steady runner" : P.mk > .5 ? "steady camera" : `${num1(50 * Math.tan(a * RAD))} m along`,
+    hint(k, P){
+      if(S.anim && k === KX.cm1) return P.cm < 1 ? "The line <i>x</i> = 1 becomes the runner's lane, 50 m from the camera&hellip;" : "";
+      if(S.anim && k === KX.cm2) return P.mk < .5 ? "Back to the start&hellip;" : "The camera turns steadily, 5&deg; at a time&hellip;";
+      if(k === KX.cm2 && !S.anim) return "Each 5&deg; covers more track (4.4 m, up to 15.2 m): <b>the runner must speed up.</b>";
+      if(S.anim && k === KX.cm3) return P.rn < .5 ? "Now the other way round&hellip;" : "A steady 10 m every second&hellip;";
+      if(k === KX.cm3 && !S.anim) return "Each 10 m needs a smaller turn (11.3&deg;, down to 2.5&deg;): <b>the camera must slow down.</b>";
+      return "";
+    },
+    drag:`<b>Turn the camera</b> &middot; the runner is 50 tan <i>&theta;</i> m along the straight &middot; <b>Shift + &uarr;</b> 5&deg;`,
+    brief:a => `<span class="eq"><i>s</i> = ${num1(50 * Math.tan(a * RAD))} m</span>`,
+    rand:() => 5 * (1 + Math.floor(Math.random() * 12)),
+    sweep:k => k === KX.cm3 ? [{ to:{ ang:0, rs:0 }, d:reduceMotion ? 0 : 700 }, { set:{ mk:1, rn:1 }, reset:true }, { to:{ rs:2, ang:CAM.hi }, d:reduceMotion ? 0 : 10000, lin:true, derive:"cam" }] : null
+  };
+  function camMarks(P){
+    const out = [];
+    if(P.rn > .5){ const top = Math.tan(clamp(S.mmax, 0, 89) * RAD) * 50; for(let s = 0; s <= 100 + 1e-9; s += 10){ if(s <= top + .05) out.push([s / 50, angTxt1(Math.round(Math.atan(s / 50) / RAD * 10) / 10)]); } }
+    else markList(5, Math.min(S.mmax, CAM.hi)).forEach(d => { const y = Math.tan(d * RAD); if(y <= 2.3) out.push([y, angTxt1(d)]); });
+    return out;
+  }
+
+  /* ============================================================ A flagpole's shadow
+     Side view. The pole is 8 m tall (one board unit) with its top at the origin; the sun's angle θ (above the eastern
+     horizon) is measured at the top of the pole, and the ray from the sun past the top meets the ground at the tip
+     of the shadow: x = −8 ÷ tan θ m (west negative). The shadow is 8 ÷ tan θ m long in the morning (and −8 ÷ tan θ in
+     the afternoon, when tan θ is negative). Pretend the sun climbs a steady 15° an hour from 6 am. */
+  const SHD = { vis:2.85 };
+  const tipX = a => Math.abs(sinD(a)) < 1e-9 ? NaN : -1 / Math.tan(a * RAD);
+  function sunClock(a){ const mins = Math.round(6 * 60 + a / 15 * 60), hh = Math.floor(mins / 60), mm = mins % 60, h12 = hh % 12 || 12;
+    return hh === 12 && mm === 0 ? "noon" : `${h12}:${String(mm).padStart(2, "0")} ${hh < 12 ? "am" : "pm"}`; }
+  const HOURS = ["6 am", "7 am", "8 am", "9 am", "10 am", "11 am", "noon", "1 pm", "2 pm", "3 pm", "4 pm", "5 pm", "6 pm"];
+  XAPPS.shadow = {
+    id:"shadow", keys:["sh"], big:15, done:"Done &#10003; &mdash; move the sun", fillMsg:"Move the sun to fill it in",
+    core:() => ({ fill:false, x:"#2563eb", y:"#ea580c", op:.32, legW:2.5, stick:.55, stickCol:"#d97706", stickW:2.5, point:false, ra:false }),
+    labels:() => ({}),
+    back(a, P){
+      const { X, Y, R, w, h, f } = V, op = xOp(this), e = Math.pow(clamp(sinD(a), 0, 1), .6), tf = Math.max(10, f * .55);
+      let g = `<g opacity="${op.toFixed(3)}"><defs><linearGradient id="shSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${mixHex("#fb923c", "#3b82f6", e)}"/><stop offset="1" stop-color="${mixHex("#fde68a", "#e0f2fe", e)}"/></linearGradient></defs>`;
+      g += `<rect x="0" y="0" width="${w}" height="${h}" fill="url(#shSky)"/>`;
+      /* the sun's path (pretend: straight over the top) with the hours */
+      g += `<path d="${arcPath(R, 0, 180)}" fill="none" stroke="#fff" stroke-width="2" stroke-dasharray="6 6" opacity=".75"/>`;
+      for(let k = 0; k <= 12; k++){ const d = k * 15, big = k % 3 === 0;
+        g += ln(X(cosD(d) * .96), Y(sinD(d) * .96), X(cosD(d) * 1.04), Y(sinD(d) * 1.04), `stroke="#fff" stroke-width="${big ? 2.4 : 1.4}" opacity=".85"`);
+        if(big) g += tx(X(cosD(d) * 1.15), Y(sinD(d) * 1.15 + (k === 0 || k === 12 ? .1 : 0)), HOURS[k], tf, "#fff", "middle", "hd ui tk"); }
+      /* the ground */
+      const gy = Y(-1);
+      g += `<rect x="0" y="${f3(gy)}" width="${w}" height="${f3(Math.max(0, h - gy))}" fill="url(#grassG)"/>` + ln(0, gy, w, gy, `stroke="#3f6212" stroke-width="2.5"`);
+      g += tx(w - 10, gy + tf * 2.6, "east &rarr;", tf, "#1a2e05", "end", "h ui tk") + tx(10, gy + tf * 2.6, "&larr; west", tf, "#1a2e05", "start", "h ui tk");
+      /* the hourly marks of the tip of the shadow */
+      const mo = span01(P.mk, 0, 1);
+      if(mo > .01 && S.mmax > 0){
+        let m = `<g opacity="${mo.toFixed(3)}">`;
+        for(let k = 1; k <= 11; k++){ const d = k * 15; if(d > S.mmax + 1e-6) break; const x = tipX(d); if(Math.abs(x) > (w / 2) / R - .05) continue;
+          m += ln(X(x), gy, X(x), gy - R * .06, `stroke="#7c2d12" stroke-width="2.2"`) + `<circle cx="${f3(X(x))}" cy="${f3(gy - R * .06)}" r="3.5" fill="#f97316"/>`;
+          m += tx(X(x), gy + tf * 1.15, HOURS[k], tf * .92, "#1a2e05", "middle", "h ui tk"); }
+        g += m + "</g>";
+      }
+      return g + "</g>";
+    },
+    front(a, P){
+      const { X, Y, R, w, h, f } = V, op = xOp(this), c = cosD(a), s = sinD(a), tip = tipX(a), half = (w / 2) / R, gy = Y(-1);
+      const inf = !isFinite(tip), xt = inf ? (c > 0 ? -half - 1 : half + 1) : clamp(tip, -half - 1, half + 1);
+      let g = `<g opacity="${op.toFixed(3)}">`;
+      /* the shadow on the ground, and the ray from the sun past the top of the pole to its tip */
+      if(s > -1e-9){
+        g += `<rect x="${f3(Math.min(X(0), X(xt)))}" y="${f3(gy)}" width="${f3(Math.abs(X(xt) - X(0)))}" height="${f3(Math.max(6, R * .05))}" fill="#0f172a" opacity=".5"/>`;
+        if(!inf) g += ln(X(c * 1.05), Y(s * 1.05), X(xt), gy, `stroke="#f59e0b" stroke-width="2.2" stroke-dasharray="7 5"`);
+      }
+      /* the shadow triangle: the pole, the shadow, the ray */
+      if(P.tri > .5 && !inf){
+        const to = span01(P.tri, .5, 1);
+        g += `<g opacity="${to.toFixed(3)}"><path d="${polyD([[X(0), Y(0)], [X(0), gy], [X(xt), gy]])}" fill="#facc15" fill-opacity=".16"/>`;
+        g += rich(X(0) + (tip <= 0 ? 12 : -12), Y(-.42), [T("8 m", C.ink)], f * .82, C.ink, tip <= 0 ? "start" : "end", null, "pole");
+        const lab = S.set.labels === "numbers" ? [T(num1(8 * Math.abs(tip)) + " m", "#7c2d12")] : [T(c >= 0 ? "8 ÷ tan " : MINUS + "8 ÷ tan ", "#7c2d12"), I("θ", "#7c2d12")];
+        const mx = clamp((X(0) + X(xt)) / 2, 60, w - 60);
+        if(Math.abs(X(xt) - X(0)) > f * 2.2) g += rich(mx, gy + f * 1.15, lab, f * .86, "#7c2d12", "middle", null, "shd");
+        /* the sun's angle again, at the tip of the shadow */
+        if(Math.abs(xt) < half - .2 && Math.abs(tip) > .08){
+          const el = s >= 0 ? (c >= 0 ? a : 180 - a) : 0, dir = tip < 0 ? 0 : 180, r0 = R * .32;
+          const d0 = dir, d1 = tip < 0 ? el : 180 - el, n = 16;
+          let d = ""; for(let i = 0; i <= n; i++){ const t2 = lerp(d0, d1, i / n) * RAD; d += (i ? "L" : "M") + f3(X(xt) + r0 * Math.cos(t2)) + " " + f3(gy - r0 * Math.sin(t2)); }
+          g += `<path d="${d}" fill="none" stroke="${C.th}" stroke-width="2"/>`;
+          const mid = (d0 + d1) / 2 * RAD;
+          g += rich(X(xt) + (r0 + f * .9) * Math.cos(mid), gy - (r0 + f * .9) * Math.sin(mid), S.set.labels === "numbers" || c < 0 ? [T(angTxt1(el), C.th)] : [I("θ", C.th)], f * .82, C.th, "middle", null, "elv");
+        }
+        g += "</g>";
+      }
+      if(inf || Math.abs(tip) > half){
+        const right = (inf ? c < 0 : tip > 0), ax = right ? w - 10 : 10;
+        g += arrowHead(ax, gy + R * .03, right ? 1 : -1, 0, 13, "#0f172a");
+        g += tx(right ? w - 26 : 26, gy - f * .75, inf ? "the shadow stretches to the horizon" : `shadow ${num1(8 * Math.abs(tip))} m`, Math.max(10, f * .62), "#0f172a", right ? "end" : "start", "h ui");
+      }
+      /* the flagpole and its flag */
+      const pw = Math.max(3, R * .022), wv = Math.sin(a * RAD * 6) * R * .015;
+      g += `<rect x="${f3(X(0) - pw / 2)}" y="${f3(Y(0))}" width="${f3(pw)}" height="${f3(gy - Y(0))}" fill="#94a3b8" stroke="#64748b" stroke-width="1"/>`;
+      g += `<rect x="${f3(X(0) - pw * 2.2)}" y="${f3(gy - pw * 1.2)}" width="${f3(pw * 4.4)}" height="${f3(pw * 1.2)}" fill="#64748b"/>`;
+      const fx0 = X(0) + pw / 2, fy0 = Y(-.03), fw2 = R * .26, fh2 = R * .15;
+      g += `<path d="M${f3(fx0)} ${f3(fy0)} Q${f3(fx0 + fw2 * .5)} ${f3(fy0 - wv)} ${f3(fx0 + fw2)} ${f3(fy0 + wv * .5)} L${f3(fx0 + fw2)} ${f3(fy0 + fh2 + wv * .5)} Q${f3(fx0 + fw2 * .5)} ${f3(fy0 + fh2 - wv)} ${f3(fx0)} ${f3(fy0 + fh2)} Z" fill="#1d4ed8" stroke="#1e3a8a" stroke-width="1"/>`;
+      g += `<path d="M${f3(fx0)} ${f3(fy0 + fh2 * .38)} Q${f3(fx0 + fw2 * .5)} ${f3(fy0 + fh2 * .38 - wv)} ${f3(fx0 + fw2)} ${f3(fy0 + fh2 * .38 + wv * .5)} L${f3(fx0 + fw2)} ${f3(fy0 + fh2 * .62 + wv * .5)} Q${f3(fx0 + fw2 * .5)} ${f3(fy0 + fh2 * .62 - wv)} ${f3(fx0)} ${f3(fy0 + fh2 * .62)} Z" fill="#fff"/>`;
+      g += `<circle cx="${f3(X(0))}" cy="${f3(Y(0))}" r="${f3(pw * 1.3)}" fill="#facc15" stroke="#a16207"/>`;
+      /* the sun */
+      if(s > -.02){
+        g += `<circle cx="${f3(X(c))}" cy="${f3(Y(s))}" r="${f3(R * .3)}" fill="url(#sunG)"/>`;
+        g += `<circle cx="${f3(X(c))}" cy="${f3(Y(s))}" r="${f3(Math.max(8, R * .085))}" fill="#fde047" stroke="#f59e0b" stroke-width="2.5"/>`;
+      }
+      g += "</g>";
+      const st = a < .5 ? "sunrise" : a > 179.5 ? "sunset" : Math.abs(a - 90) < .5 ? "noon" : a < 90 ? "morning" : "afternoon";
+      return g + chipRow([[sunClock(clamp(a, 0, 180)), "#7c2d12", "#fff", "#fed7aa"], [st, "#1e3a8a", "#dbeafe"]], op);
+    },
+    rows:() => ({ s:{ name:`<span class="ln">Tip of the shadow (m east of the pole)</span><span class="sn">Tip</span>`, tog:"tip", col:"var(--ct)" },
+      t:{ name:"Table", tog:"table", col:"var(--purple)" }, title:"The shadow through the day" }),
+    expr(f, a, P){
+      if(P.tri < .5) return `<span class="q">tip = ?</span>`;
+      const t = tipX(a);
+      if(!isFinite(t)) return joinParts([`<span class="fn">tip</span>`, "=", "undefined"]);
+      return joinParts([`<span class="fn">tip</span>`, "="].concat(S.set.rule ? [`${MINUS}8 &divide; tan ${angTxt(a)}`, "="] : [], [`${num1(8 * t)} m`]));
+    },
+    sign(f, a){ const t = tipX(a); if(!isFinite(t)) return ["und", "endless"]; return Math.abs(t) < 1e-9 ? ["zero", "no shadow"] : t < 0 ? ["neg", "west"] : ["pos", "east"]; },
+    graph(){
+      const xt = [[0, "6 am"], [45, "9 am"], [90, "noon"], [135, "3 pm"], [180, "6 pm"]], vg = []; for(let d = 0; d <= 180; d += 15) vg.push([d, d % 45 === 0]);
+      return { lo:-36, hi:36, fn:a => { const t = tipX(a); return isFinite(t) ? 8 * t : NaN; }, col:C.t, cold:C.td, grid:[-30, 30], fine:[-20, -10, 10, 20],
+        labs:[[-30, MINUS + "30"], [0, "0"], [30, "30"]], x1:180, xt, vgrid:vg, asym:[0, 180], asymAll:true, step:.25 };
+    },
+    table(){
+      const cols = []; for(let d = 0; d <= 180; d += 15) cols.push(d);
+      const HS = ["6am", "7", "8", "9", "10", "11", "noon", "1pm", "2", "3", "4", "5", "6pm"];
+      return xTab(cols, "time", d => HS[d / 15], [[mi("θ"), d => angTxt(d), "", true], ["shadow (m)", d => d === 0 || d === 180 ? "&infin;" : num1(Math.abs(8 * tipX(d))), "g"]], reached, { many:true });
+    },
+    tag:a => a < .5 ? "sunrise" : a > 179.5 ? "sunset" : Math.abs(a - 90) < .5 ? "noon" : a < 90 ? "morning" : "afternoon",
+    hint(k, P){
+      if(S.anim && k === KX.sh1) return P.sh < 1 ? "The circle becomes the sun's path, measured at the top of the pole&hellip;" : "";
+      if(S.anim && k === KX.sh2) return P.mk < .5 ? "Back to sunrise&hellip;" : "One hour (15&deg;) at a time&hellip;";
+      if(k === KX.sh2 && !S.anim) return "Fast at sunrise and sunset, slow at noon &mdash; endless when tan <i>&theta;</i> = 0.";
+      return "";
+    },
+    drag:`<b>Drag the sun</b> &middot; the shadow is 8 &divide; tan <i>&theta;</i> m long &middot; <b>Shift + &uarr;</b> one hour`,
+    brief:a => { const t = tipX(a); return isFinite(t) ? `<span class="eq">shadow = ${num1(8 * Math.abs(t))} m</span> &nbsp;·&nbsp; ${sunClock(a)}` : "The sun is on the horizon: the shadow is endless"; },
+    rand:() => 5 * (1 + Math.floor(Math.random() * 35))
+  };
+
   /* ------------------------------------------------------------ layout: three views, tweened by P.z and P.fw */
   const svg = $("board");
   let L = null, V = null;
@@ -695,7 +1838,11 @@
     const ox7 = w / 2, oy7 = (h - ph7 * R7) / 2 + 2.2 * R7;
     const bot8 = -1.66 - SUNS.n * SUNS.rh - .08, sw8 = 3.5, sh8 = 1.22 - bot8, R8 = Math.min(w / sw8, h / sh8);
     const ox8 = (w - sw8 * R8) / 2 + 1.9 * R8, oy8 = (h - sh8 * R8) / 2 + 1.22 * R8;
-    L = { w, h, R1, ox1, oy1, R2, ox2:w / 2, oy2:h / 2, R3, ox3, oy3, R4, ox4, oy4, R5, ox5, oy5, R6, ox6, oy6, R7, ox7, oy7, R8, ox8, oy8 };
+    L = { w, h, R1, ox1, oy1, R2, ox2:w / 2, oy2:h / 2, R3, ox3, oy3, R4, ox4, oy4, R5, ox5, oy5, R6, ox6, oy6, R7, ox7, oy7, R8, ox8, oy8, xv:{} };
+    /* the new applications' views: each box (x0, x1, y0, y1 in board units) fitted to the board */
+    L.portrait = h > w * 1.15;
+    XVIEWS.forEach(v => { const [x0, x1, y0, y1] = (L.portrait && v.boxP) || v.box, bw = x1 - x0, bh = y1 - y0, Rv = Math.min(w / bw, h / bh);
+      L.xv[v.k] = { R:Rv, ox:(w - bw * Rv) / 2 - x0 * Rv, oy:(h - bh * Rv) / 2 + y1 * Rv, f:Rv * v.fs }; });
     svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
   }
   function view(){
@@ -712,7 +1859,10 @@
     const td = ease(clamp(S.P.td, 0, 1));
     R = Math.exp(lerp(Math.log(R), Math.log(L.R6), td)); ox = lerp(ox, L.ox6, td); oy = lerp(oy, L.oy6, td);
     let f = lerp(lerp(L.R1 * .068, L.R2 * .118, z), L.R3 * .1, fw);
-    f = clamp(lerp(lerp(lerp(lerp(f, L.R4 * .085, sr), L.R7 * .12, pd), R5 * .13, sk), L.R6 * .14, td), 13, 28);
+    f = lerp(lerp(lerp(lerp(f, L.R4 * .085, sr), L.R7 * .12, pd), R5 * .13, sk), L.R6 * .14, td);
+    XVIEWS.forEach(v => { const e = ease(clamp(S.P[v.k], 0, 1)); if(e <= 0) return; const t = L.xv[v.k];
+      R = Math.exp(lerp(Math.log(R), Math.log(t.R), e)); ox = lerp(ox, t.ox, e); oy = lerp(oy, t.oy, e); f = lerp(f, t.f, e); });
+    f = clamp(f, 13, 28);
     V = { R, ox, oy, z, w:L.w, h:L.h, f, X:u => ox + u * R, Y:v => oy - v * R };
     return V;
   }
@@ -878,7 +2028,10 @@
     const a = P.ang, c = cosD(a), s = sinD(a);
     const mode = S.set.labels, letters = mode !== "numbers", names = mode === "names", trigN = mode === "trig";
     const signs = P.sg > .5;
-    const fw = P.fw, uo = 1 - Math.max(span01(fw, 0, .55), span01(P.sr, 0, .55), span01(P.td, 0, .55), span01(P.pd, 0, .55)), fo = span01(fw, .3, 1), FER = fw > .5;
+    const XM = xActive(), [XD, xw] = xDominant();
+    const XC = XD ? Object.assign({ op:1, fill:false, x:C.x, y:C.y, stick:1, point:true, ra:true }, XD.core(P)) : null;
+    const xfade = Math.max(0, ...XFADE.map(k => span01(P[k], 0, .55)));
+    const fw = P.fw, uo = 1 - Math.max(span01(fw, 0, .55), span01(P.sr, 0, .55), span01(P.td, 0, .55), span01(P.pd, 0, .55), xfade), fo = span01(fw, .3, 1), FER = fw > .5;
     const PENM = P.pd > .5, po = span01(P.pd, .25, 1) * (1 - span01(P.turn, 0, .45));
     const TID = P.td > .5, tdo = span01(P.td, .25, 1);
     const SUNM = P.sr > .5, so = span01(P.sr, .25, 1) * (1 - span01(P.turn, 0, .45));
@@ -886,6 +2039,8 @@
     if(S.step === K_FW && P.walk >= 1 && P.tri > .5) S.fmax = Math.max(S.fmax, a);
     if(isRecStep() && P.stk > .5) S.smax = Math.max(S.smax, a);
     if(appOf(S.step) === "tide" && P.td >= .999 && P.tri > .5) S.tmax = Math.max(S.tmax, a);
+    if(XM && P.tri > .5 && Math.max(...XM.keys.map(k => P[k])) >= .999) S.xmax = Math.max(S.xmax, a);
+    if(XM && P.mk > .5) S.mmax = Math.max(S.mmax, a);
     let o = `<defs><linearGradient id="wood" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f1cf9c"/><stop offset=".5" stop-color="#dba567"/><stop offset="1" stop-color="#b9783f"/></linearGradient>
       <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bfdbfe"/><stop offset="1" stop-color="#f0f9ff"/></linearGradient>
       <linearGradient id="dawn" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#22386b"/><stop offset=".42" stop-color="#6578b8"/><stop offset=".75" stop-color="#ef9f9a"/><stop offset="1" stop-color="#fcd38d"/></linearGradient>
@@ -894,7 +2049,15 @@
       <linearGradient id="harbour" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#22a3c9"/><stop offset="1" stop-color="#0b4f6c"/></linearGradient>
       <linearGradient id="sand" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f3e2b3"/><stop offset="1" stop-color="#d9bf86"/></linearGradient>
       <radialGradient id="bobG" cx=".35" cy=".35"><stop offset="0" stop-color="#fef3c7"/><stop offset=".45" stop-color="#f59e0b"/><stop offset="1" stop-color="#92400e"/></radialGradient>
-      <radialGradient id="sunG"><stop offset="0" stop-color="#fffbe6"/><stop offset=".25" stop-color="#fde68a" stop-opacity=".9"/><stop offset="1" stop-color="#fdba74" stop-opacity="0"/></radialGradient></defs>`;
+      <radialGradient id="sunG"><stop offset="0" stop-color="#fffbe6"/><stop offset=".25" stop-color="#fde68a" stop-opacity=".9"/><stop offset="1" stop-color="#fdba74" stop-opacity="0"/></radialGradient>
+      <linearGradient id="space" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#050816"/><stop offset="1" stop-color="#151d3b"/></linearGradient>
+      <linearGradient id="night" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#061427"/><stop offset="1" stop-color="#0e2c4f"/></linearGradient>
+      <linearGradient id="grassG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#86efac"/><stop offset="1" stop-color="#4d7c0f"/></linearGradient>
+      <linearGradient id="massG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#cbd5e1"/><stop offset="1" stop-color="#475569"/></linearGradient>
+      <radialGradient id="moonGlow"><stop offset="0" stop-color="#fef3c7" stop-opacity=".55"/><stop offset="1" stop-color="#fef3c7" stop-opacity="0"/></radialGradient>
+      <radialGradient id="lampG"><stop offset="0" stop-color="#fffbe6" stop-opacity=".95"/><stop offset=".35" stop-color="#fde68a" stop-opacity=".45"/><stop offset="1" stop-color="#fde68a" stop-opacity="0"/></radialGradient>
+      <radialGradient id="spotG"><stop offset="0" stop-color="#fffbe6" stop-opacity=".95"/><stop offset=".5" stop-color="#fde68a" stop-opacity=".35"/><stop offset="1" stop-color="#fde68a" stop-opacity="0"/></radialGradient>
+      <radialGradient id="bulbG"><stop offset="0" stop-color="#fffbeb" stop-opacity=".95"/><stop offset=".4" stop-color="#fde68a" stop-opacity=".6"/><stop offset="1" stop-color="#fde68a" stop-opacity="0"/></radialGradient></defs>`;
 
     /* --- Ferris: sky and clouds behind everything --- */
     if(fo > .01){
@@ -948,6 +2111,9 @@
 
     /* --- The pendulum: the lab wall, the stand, the string, the ruler, the reference circle --- */
     if(po > .01) o += pendBack(a, po);
+
+    /* --- the new applications' scenes, behind everything (XAPPS) --- */
+    o += xLayer("back", a);
 
     /* --- grid and axes (the unit circle's; they fade as the wheel arrives) --- */
     const ax = P.ax * uo;
@@ -1013,7 +2179,7 @@
     }
 
     /* --- quadrant summaries (whole circle only, a setting) --- */
-    const quadOp = S.set.quad ? whole : 0;
+    const quadOp = S.set.quad && !XM ? whole : 0;
     if(quadOp > .01){
       const q = quadrant(a), tw2 = clamp(f * 7.6, 118, 168), th2 = f * 4.5, m = 10;
       const QS = { 1:["+","+","+"], 2:["+",MINUS,MINUS], 3:[MINUS,MINUS,"+"], 4:[MINUS,"+",MINUS] };
@@ -1091,28 +2257,33 @@
       o += g + "</g>";
     }
 
+    /* --- the new applications: anything drawn over the grid but under the triangle (the gradient's line) --- */
+    o += xLayer("mid", a);
+
     /* --- θ --- */
     const showTri = P.tri > .01 && !axisAngle(a);
+    const thc = XC && xw > .5 && XC.th ? XC.th : C.th;
     if(P.tri > .01 && a > .3 && P.turn < .45){
       const r0 = R * clamp(lerp(lerp(.12, .17, z), .15, fw), .1, .2), op = P.tri * (1 - span01(P.turn, 0, .45));
       const aa = a > 360 ? (((a % 360) + 360) % 360 || 360) : a;
       let g = `<g opacity="${op.toFixed(3)}">`;
       if(aa > .3){
         g += `<path d="M${ox} ${oy} ${arcPath(r0, 0, aa).replace(/^M/, "L")} Z" fill="#64748b" fill-opacity=".1"/>`;
-        g += `<path d="${arcPath(r0, 0, aa)}" fill="none" stroke="${C.th}" stroke-width="2"/>`;
-        if(aa > 12){ const ea = aa * RAD; g += arrowHead(ox + r0 * Math.cos(ea), oy - r0 * Math.sin(ea), -Math.sin(ea), -Math.cos(ea), 9, C.th); }
+        g += `<path d="${arcPath(r0, 0, aa)}" fill="none" stroke="${thc}" stroke-width="2"/>`;
+        if(aa > 12){ const ea = aa * RAD; g += arrowHead(ox + r0 * Math.cos(ea), oy - r0 * Math.sin(ea), -Math.sin(ea), -Math.cos(ea), 9, thc); }
       }
       const q0 = quadrant(a), dirL = axisAngle(a) ? ({ 90:45, 180:90, 270:135, 0:135 })[Math.round(((a % 360) + 360) % 360)] || 135
         : q0 === 1 ? (aa < 28 ? aa + 14 : aa / 2) : q0 === 2 ? aa / 2 : q0 === 3 ? 45 : 135;
       const ma = dirL * RAD, lr = r0 + f * 1.05;
-      const lab = (letters && !FER) ? [I("θ", C.th)] : [T(angTxt(a), C.th)];
-      g += rich(ox + lr * Math.cos(ma), oy - lr * Math.sin(ma), lab, f * .9, C.th, "middle", null, "th");
+      const lab = (letters && !FER) ? [I("θ", thc)] : [T(angTxt1(a), thc)];
+      const thl = rich(ox + lr * Math.cos(ma), oy - lr * Math.sin(ma), lab, f * .9, thc, "middle", null, "th");
+      g += thc !== C.th ? thl.replace(/class="h"/g, 'class="hd"') : thl;
       o += g + "</g>";
     }
 
     /* --- related angle (a setting, unit circle only) --- */
     const q = quadrant(a), relA = related(a);
-    if(S.set.rel && signs && q > 1 && P.tri > .5 && !FER && !TID && !PENM){
+    if(S.set.rel && signs && q > 1 && P.tri > .5 && !FER && !TID && !PENM && !XM){
       const gc = cosD(relA), gs = sinD(relA);
       let g = `<g opacity="${(whole * .9).toFixed(3)}">`;
       g += `<path d="M${ox} ${oy} L${X(gc)} ${oy} L${X(gc)} ${Y(gs)} Z" fill="${C.rel}" fill-opacity=".06" stroke="${C.rel}" stroke-opacity=".55" stroke-width="2" stroke-dasharray="6 5"/>`;
@@ -1128,7 +2299,7 @@
     }
 
     /* --- tan θ on the circle (a setting, unit circle only) --- */
-    if(S.set.tanLine && P.tri > .5 && uo > .01){
+    if(S.set.tanLine && P.tri > .5 && uo > .01 && !XM){
       const und = tanUndef(a), tv = und ? Infinity : s / c;
       let g = `<g opacity="${(P.tri * uo).toFixed(3)}">`;
       g += `<line x1="${X(1)}" x2="${X(1)}" y1="0" y2="${h}" stroke="${C.t}" stroke-opacity=".55" stroke-width="2" stroke-dasharray="3 5"/>`;
@@ -1163,15 +2334,18 @@
       const dropY = lerp(ey, oy, clamp(t * 1.3, 0, 1));
       const fillOp = span01(t, .55, 1);
       let g = "";
-      const triOp = 1 - span01(P.turn, 0, .45);
-      if(fillOp > 0 && !SUNM && !PENM) g += `<path d="M${ox} ${oy} L${ex} ${oy} L${ex} ${ey} Z" fill="#0ea5e9" fill-opacity="${((FER ? .14 : .07) * fillOp).toFixed(3)}"/>`;
-      const legOp = span01(t, .4, 1) * triOp;
+      const xop = XC ? lerp(1, XC.op, xw) : 1, xs = XC && xw > .5;    /* a new application restyles (or hides) the triangle */
+      const triOp = (1 - span01(P.turn, 0, .45)) * xop;
+      if(fillOp > 0 && !SUNM && !PENM && !(xs && !XC.fill)) g += `<path d="M${ox} ${oy} L${ex} ${oy} L${ex} ${ey} Z" fill="#0ea5e9" fill-opacity="${((FER ? .14 : .07) * fillOp * xop).toFixed(3)}"/>`;
+      const legOp = span01(t, .4, 1) * triOp, lw = xs && XC.legW ? XC.legW : 5.5;
       if(legOp > 0 && so > .01) g += `<line x1="${ox}" y1="${oy}" x2="${ex}" y2="${oy}" stroke="#fff" stroke-width="10" stroke-linecap="round" opacity="${(legOp * so).toFixed(3)}"/>`;
-      if(legOp > 0) g += `<line x1="${ox}" y1="${oy}" x2="${ex}" y2="${oy}" stroke="${C.x}" stroke-width="5.5" stroke-linecap="round" opacity="${legOp.toFixed(3)}"/>`;
-      g += `<line x1="${ex}" y1="${ey}" x2="${ex}" y2="${dropY}" stroke="${SUNM ? "#fff" : PENM ? "#64748b" : C.y}" stroke-width="${SUNM || PENM ? 3 : 5.5}" stroke-linecap="round"${SUNM || PENM ? ' stroke-dasharray="6 6"' : ""} opacity="${triOp.toFixed(3)}"/>`;
-      if(t > .8 && !SUNM){
+      const xcol = xs ? XC.x : C.x;
+      if(legOp > 0 && xcol) g += `<line x1="${ox}" y1="${oy}" x2="${ex}" y2="${oy}" stroke="${xcol}" stroke-width="${lw}" stroke-linecap="round"${xs && XC.xd ? ' stroke-dasharray="6 6"' : ""} opacity="${legOp.toFixed(3)}"/>`;
+      const ycol = xs ? XC.y : (SUNM ? "#fff" : PENM ? "#64748b" : C.y), ydash = xs ? XC.yd : (SUNM || PENM);
+      if(ycol && triOp > .01) g += `<line x1="${ex}" y1="${ey}" x2="${ex}" y2="${dropY}" stroke="${ycol}" stroke-width="${xs ? lw : SUNM || PENM ? 3 : 5.5}" stroke-linecap="round"${ydash ? ' stroke-dasharray="6 6"' : ""} opacity="${triOp.toFixed(3)}"/>`;
+      if(t > .8 && !SUNM && !(xs && XC.ra === false) && xop > .01){
         const k = Math.min(R * .07, 16, Math.abs(ex - ox) * .4, Math.abs(ey - oy) * .4), sx = c > 0 ? -1 : 1, sy = s > 0 ? -1 : 1;
-        g += `<path d="M${ex + sx * k} ${oy} L${ex + sx * k} ${oy + sy * k} L${ex} ${oy + sy * k}" fill="none" stroke="${C.ink}" stroke-width="1.6" opacity="${span01(t, .8, 1).toFixed(3)}"/>`;
+        g += `<path d="M${ex + sx * k} ${oy} L${ex + sx * k} ${oy + sy * k} L${ex} ${oy + sy * k}" fill="none" stroke="${C.ink}" stroke-width="1.6" opacity="${(span01(t, .8, 1) * xop).toFixed(3)}"/>`;
       }
       o += g;
     }
@@ -1186,8 +2360,9 @@
       let g = `<g transform="rotate(${f3(-ang)} ${f3(x0)} ${f3(y0)})">`;
       g += woodStick(x0, y0, len, th, 1 - m);
       if(m > .01 && so > .01) g += `<line x1="${x0}" y1="${y0}" x2="${x0 + len}" y2="${y0}" stroke="#fff" stroke-width="${Math.max(5, th * .9) + 5}" stroke-linecap="round" opacity="${(m * so).toFixed(3)}"/>`;
-      const stickOp = m * (1 - span01(P.turn, 0, .45));
-      if(m > .01) g += `<line x1="${x0}" y1="${y0}" x2="${x0 + len}" y2="${y0}" stroke="${C.ink}" stroke-width="${Math.max(5, th * .9)}" stroke-linecap="round" opacity="${stickOp.toFixed(3)}"/>`;
+      const stickOp = m * (1 - span01(P.turn, 0, .45)) * (XC ? lerp(1, XC.stick, xw) : 1);
+      const stCol = XC && xw > .5 && XC.stickCol ? XC.stickCol : C.ink, stW = XC && xw > .5 && XC.stickW ? XC.stickW : Math.max(5, th * .9);
+      if(m > .01 && stickOp > .005) g += `<line x1="${x0}" y1="${y0}" x2="${x0 + len}" y2="${y0}" stroke="${stCol}" stroke-width="${stW}" stroke-linecap="round" opacity="${stickOp.toFixed(3)}"/>`;
       o += g + "</g>";
       const bo = 1 - span01(m, 0, .45);
       if(bo > .01){
@@ -1197,7 +2372,7 @@
       }
       if(m >= .999){
         const ex = X(c), ey = Y(s);
-        if(showTri && P.tri > .5 && P.turn < .3){
+        if(showTri && P.tri > .5 && P.turn < .3 && !(XC && xw > .5)){
           const nx = -s, ny = c, side = (ny * (0 - s)) > 0 ? -1 : 1;
           const pushOut = (S.set.tanLine && !FER && c > .55) ? .2 : .1;
           const mx = c / 2 + side * nx * pushOut, my = s / 2 + side * ny * pushOut;
@@ -1207,9 +2382,10 @@
         if(fo > .01){
           o += `<circle cx="${ox}" cy="${oy}" r="${R * .065}" fill="#334155" opacity="${fo.toFixed(3)}"/><circle cx="${ox}" cy="${oy}" r="${R * .03}" fill="#e2e8f0" opacity="${fo.toFixed(3)}"/>`;
         }
-        o += `<circle cx="${ox}" cy="${oy}" r="5.5" fill="${C.ink}" opacity="${((1 - fo) * (1 - span01(P.turn, 0, .45))).toFixed(3)}"/>`;
+        const ptF = XC && !XC.point ? 1 - xw : 1;
+        o += `<circle cx="${ox}" cy="${oy}" r="5.5" fill="${C.ink}" opacity="${((1 - fo) * (1 - span01(P.turn, 0, .45)) * ptF).toFixed(3)}"/>`;
         const can = canDrag();
-        if(can && !S.dragged && !reduceMotion){
+        if(can && !S.dragged && !reduceMotion && !(XC && !XC.point && xw > .5)){
           const tt = (performance.now() % 1600) / 1600;
           o += `<circle cx="${ex}" cy="${ey}" r="${12 + tt * 16}" fill="none" stroke="${C.x}" stroke-width="3" opacity="${(.55 * (1 - tt)).toFixed(3)}"/>`;
         }
@@ -1224,7 +2400,7 @@
           }
           o += g + "</g>";
         }
-        if(fo < .99) o += `<circle cx="${ex}" cy="${ey}" r="${can ? 11 : 7}" fill="#fff" stroke="${C.ink}" stroke-width="3.2" opacity="${((1 - fo) * (1 - span01(P.turn, 0, .45))).toFixed(3)}"/>`;
+        if(fo < .99 && ptF > .01) o += `<circle cx="${ex}" cy="${ey}" r="${can ? 11 : 7}" fill="#fff" stroke="${C.ink}" stroke-width="3.2" opacity="${((1 - fo) * (1 - span01(P.turn, 0, .45)) * ptF).toFixed(3)}"/>`;
       }
     }
 
@@ -1233,7 +2409,9 @@
       const op = span01(P.tri, .5, 1) * (1 - span01(P.turn, 0, .3)), ex = X(c), ey = Y(s), lf = f * 1.02;
       const sx = c >= 0 ? "+" : MINUS, sy = s >= 0 ? "+" : MINUS;
       let xl, yl;
-      if(SUNM || PENM){ xl = sunXL(a); yl = null; }
+      let xlY = null;
+      if(XM){ const lb = XM.labels(a, mode, P) || {}; xl = lb.xl || null; yl = lb.yl || null; if(lb.xlY != null) xlY = Y(lb.xlY); }
+      else if(SUNM || PENM){ xl = sunXL(a); yl = null; }
       else if(TID){ xl = null; yl = mode === "numbers" ? [T(m2(tH(a)) + " m", C.yd)] : [T("0.7 sin ", C.yd), I("θ", C.yd)]; }
       else if(names){ xl = [T((c < 0 ? MINUS : "") + NAMES.x, C.xd)]; yl = [T((s < 0 ? MINUS : "") + NAMES.y, C.yd)]; }
       else if(FER){
@@ -1244,7 +2422,7 @@
       else if(letters){ xl = signs ? [T(sx, C.xd), I("x", C.xd)] : [I("x", C.xd)]; yl = signs ? [T(sy, C.yd), I("y", C.yd)] : [I("y", C.yd)]; }
       else { xl = valSegs("c", a, C.xd); yl = valSegs("s", a, C.yd); }
       const xly = oy + (s >= 0 ? 1 : -1) * lf * (mode === "numbers" && !FER ? 1.05 : .85);
-      if(xl && Math.abs(ex - ox) > lf * .8) o += rich((ox + ex) / 2, SUNM || PENM ? oy - (s >= 0 ? -1 : 1) * lf * .85 : xly, xl, lf, C.xd, "middle", op, "xl");
+      if(xl && Math.abs(ex - ox) > lf * .8) o += rich((ox + ex) / 2, xlY != null ? xlY : SUNM || PENM ? oy - (s >= 0 ? -1 : 1) * lf * .85 : xly, xl, lf, C.xd, "middle", op, "xl");
       const legH = Math.abs(ey - oy), crowded = S.set.tanLine && !FER && c > .55;
       const ylx = crowded ? ex - 10 : ex + (c >= 0 ? 1 : -1) * (FER ? CABW * V.R * .6 + 6 : 11);
       const an = crowded ? "end" : (c >= 0 ? "start" : "end");
@@ -1252,7 +2430,7 @@
     }
 
     /* --- the point (unit circle only) --- */
-    if(P.tri > .5 && P.m >= .999 && !FER && !SUNM && !TID && !PENM){
+    if(P.tri > .5 && P.m >= .999 && !FER && !SUNM && !TID && !PENM && !XD){
       const op = span01(P.tri, .5, 1) * uo, ex = X(c), ey = Y(s), pf = f * .92;
       let segs;
       const sx = c >= 0 ? "+" : MINUS, sy = s >= 0 ? "+" : MINUS;
@@ -1295,6 +2473,8 @@
     }
 
     if(po > .01) o += pendFront(a, po);
+    o += xLayer("front", a);
+    if(XM && XM.chips){ const ch = XM.chips(a, P); if(ch && ch.length) o += chipRow(ch, xOp(XM)); }
     if(P.stk > .01) o += drawStack(a);
     const sro = span01(P.sr, .25, 1) * (1 - span01(P.turn, 0, .45));
     if(sro > .01){
@@ -1542,6 +2722,7 @@
   const joinParts = parts => parts.map(p => p === "=" ? "<span>=</span>" : `<span>${p}</span>`).join("");
   function exprH(f){
     const P = S.P, a = P.ang, letters = S.set.labels !== "numbers", signs = P.sg > .5;
+    const XM = xActive(); if(XM) return f === "t" ? `<span class="q">${XM.fillMsg || "Turn it to fill it in"}</span>` : XM.expr(f, a, P);
     if(pendulum()){
       if(f === "t") return `<span class="q">Turn the hand to fill it in</span>`;
       if(P.tri < .5) return `<span class="q">${mi("x")} = ?</span>`;
@@ -1641,10 +2822,21 @@
   const lastH = { s:"", c:"", t:"" };
   let lastTab = "", lastMode = "";
   function renderPanel(){
-    const P = S.P, k = S.step, FER = ferris(), SUN = sunrise(), TID = tide(), PEN = pendulum(), TAB = FER || SUN || TID || PEN;
-    const modeKey = FER ? "f" : SUN ? "s" : TID ? "d" : PEN ? "p" : "u";
+    const P = S.P, k = S.step, FER = ferris(), SUN = sunrise(), TID = tide(), PEN = pendulum(), XM = xActive(), XR = XM ? XM.rows(P) : null, TAB = FER || SUN || TID || PEN || !!XM;
+    const modeKey = XM ? "x" + XM.id + (XR.sig || "") : FER ? "f" : SUN ? "s" : TID ? "d" : PEN ? "p" : "u";
+    if(modeKey !== lastMode && XM){
+      lastMode = modeKey;
+      ["s", "c", "t"].forEach(f => { const r = XR[f]; $("fn_" + f).innerHTML = r ? r.name : ""; $("row_" + f).style.setProperty("--c", r ? r.col : "var(--line-soft)"); });
+      $("pTitle").textContent = XR.title || STEPS[k].appName || "";
+      document.querySelectorAll(".fTog").forEach(b => { const r = XR[b.dataset.f]; b.textContent = r ? r.tog : ""; b.hidden = !r; });
+      $("g_t").style.display = "none";
+      $("ftab").hidden = false;
+      $("ftab").classList.toggle("two", !!XR.two);
+      lastTab = "";
+    }
     if(modeKey !== lastMode){
       lastMode = modeKey;
+      $("row_s").style.setProperty("--c", "var(--cy)");
       $("fn_s").innerHTML = FER ? `<span class="ln">Height from the centre</span><span class="sn">Height</span>` : TID ? `<span class="ln">Height of the tide</span><span class="sn">Tide</span>` : "Sine";
       $("fn_c").innerHTML = FER ? `<span class="ln">Across from the centre</span><span class="sn">Across</span>` : SUN ? `<span class="ln">Sunrise position</span><span class="sn">Sunrise</span>` : PEN ? `<span class="ln">Horizontal displacement</span><span class="sn">Across</span>` : "Cosine";
       $("fn_t").textContent = TAB ? "Table" : "Tangent";
@@ -1663,11 +2855,14 @@
     ["s", "c", "t"].forEach(f => {
       const shown = P.tri > .5 && (!FER || P.ang >= 0);
       $("row_" + f).classList.toggle("dim", !shown && !(TAB && f === "t"));
-      $("row_" + f).hidden = !S.set.show[f] || ((SUN || PEN) && f === "s") || (TID && f === "c");
+      $("row_" + f).hidden = !S.set.show[f] || (XM ? !XR[f] : (((SUN || PEN) && f === "s") || (TID && f === "c")));
       const html = exprH(f);
       if(html !== lastH[f]){ $("ex_" + f).innerHTML = html; lastH[f] = html; }
       const sg = $("sg_" + f);
-      if(PEN){
+      if(XM){
+        const r = XM.sign && f !== "t" && shown ? XM.sign(f, P.ang, P) : null;
+        if(!r) sg.hidden = true; else { sg.hidden = false; sg.className = "sgn " + r[0]; sg.innerHTML = r[1]; }
+      } else if(PEN){
         if(f !== "c" || !shown) sg.hidden = true;
         else { const [cl, tx] = pendSign(P.ang); sg.hidden = false; sg.className = "sgn " + cl; sg.textContent = tx; }
       } else if(TID){
@@ -1682,7 +2877,7 @@
       } else if(shown){ const wd = signWord(f, P.ang); sg.hidden = false; sg.className = "sgn " + wd; sg.textContent = SIGN_TEXT[wd]; }
       else sg.hidden = true;
     });
-    if(TAB){ const th = SUN ? sunTableH() : TID ? tideTableH() : PEN ? pendTableH() : tableH(); if(th !== lastTab){ $("ftab").innerHTML = th; lastTab = th; } }
+    if(TAB){ const th = XM ? XM.table() : SUN ? sunTableH() : TID ? tideTableH() : PEN ? pendTableH() : tableH(); if(th !== lastTab){ $("ftab").innerHTML = th; lastTab = th; } }
     document.querySelectorAll(".fTog").forEach(b => b.setAttribute("aria-pressed", String(!!S.set.show[b.dataset.f])));
     const st = STEPS[k], nx = nextOf(k);
     if(st.app){ const ch = appSteps(st.app); $("stepChip").textContent = ch.length > 1 ? `${STEPS[ch[0]].appName} · ${ch.indexOf(k) + 1} of ${ch.length}` : STEPS[ch[0]].appName; }
@@ -1691,7 +2886,7 @@
     if(cue.dataset.k !== String(k)){ cue.innerHTML = `<b>${st.t}</b><span>${st.m}</span>`; cue.dataset.k = String(k); cue.classList.remove("anim"); void cue.offsetWidth; cue.classList.add("anim"); }
     const nb = $("nextBtn");
     nb.disabled = nx < 0; nb.classList.toggle("busy", !!S.anim);
-    nb.innerHTML = nx < 0 ? (st.app === "ferris" ? "Done &#10003; &mdash; turn the wheel" : st.app === "sunrise" || st.app === "pendulum" ? "Done &#10003; &mdash; turn the hand" : st.app === "tide" ? "Done &#10003; &mdash; run the clock" : "Done &#10003; &mdash; drag the stick") : `Next: ${STEPS[nx].t} &#9656;`;
+    nb.innerHTML = nx < 0 ? (XAPPS[st.app] ? XAPPS[st.app].done : st.app === "ferris" ? "Done &#10003; &mdash; turn the wheel" : st.app === "sunrise" || st.app === "pendulum" ? "Done &#10003; &mdash; turn the hand" : st.app === "tide" ? "Done &#10003; &mdash; run the clock" : "Done &#10003; &mdash; drag the stick") : `Next: ${STEPS[nx].t} &#9656;`;
     $("backBtn").disabled = k === 0;
     $("allBtn").disabled = nx < 0;
     document.querySelectorAll("#appsMenu [data-app]").forEach(b => b.setAttribute("aria-current", String(appOf(k) === STEPS[+b.dataset.app].app)));
@@ -1702,7 +2897,7 @@
     if(document.activeElement !== inp) inp.value = k < K_Q1 ? "" : (isRad() ? (Math.round(P.ang * RAD * 10) / 10).toFixed(1) : String(Math.round(P.ang)));
     const q = quadrant(P.ang), qt = $("quadTag");
     const mo = P.ang / 30;
-    qt.textContent = TID ? tideState(P.ang) : PEN ? pendState(P.ang) : SUN ? `${isWhole(mo) ? "" : "≈ "}${monthYear(clamp(Math.round(mo), 0, 36))}` : FER ? (q ? `Quadrant ${q}` : posName(P.ang)) : (q ? `Quadrant ${q}` : "On an axis") + (k === K_ALL && P.ang > 360 ? ` \u00b7 turn ${Math.min(3, Math.floor((P.ang - 1e-9) / 360) + 1)}` : "");
+    qt.textContent = XM ? XM.tag(P.ang, P) : TID ? tideState(P.ang) : PEN ? pendState(P.ang) : SUN ? `${isWhole(mo) ? "" : "≈ "}${monthYear(clamp(Math.round(mo), 0, 36))}` : FER ? (q ? `Quadrant ${q}` : posName(P.ang)) : (q ? `Quadrant ${q}` : "On an axis") + (k === K_ALL && P.ang > 360 ? ` \u00b7 turn ${Math.min(3, Math.floor((P.ang - 1e-9) / 360) + 1)}` : "");
     qt.hidden = k < K_Q1;
     const topSig = qt.textContent.length + "|" + qt.hidden + "|" + S.set.labels + "|" + S.set.panel;
     if(topSig !== fitTop.sig){
@@ -1714,13 +2909,14 @@
     $("randBtn").disabled = k < K_Q1;
     $("swingBtn").disabled = k < K_Q1 || !!S.anim;
     const mx = maxAng();
-    $("swingBtn").innerHTML = `&#9654; Sweep 0 to ${isRad() ? (mx * RAD).toFixed(1) : mx + "°"}`;
+    $("swingBtn").innerHTML = `&#9654; Sweep 0 to ${isRad() ? (mx * RAD).toFixed(1) : Math.round(mx) + "°"}`;
     document.querySelectorAll(".seg button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.lab === S.set.labels)));
     const hint = $("hint");
     let hh = "";
     const aT = angTxt(P.ang);
     if(S.msg) hh = S.msg;
     else if(S.morph && S.anim) hh = `Over to <b>${STEPS[k].appName || STEPS[k].t}</b>&hellip;`;
+    else if(XM){ hh = XM.hint(k, P) || (!S.set.panel && P.tri > .5 && XM.brief ? XM.brief(P.ang) : canDrag() ? XM.drag : ""); }
     else if(TID && S.anim && k === K_T2) hh = "A day and a half: high tide every 12 h 25 min, and each turn of the hand is one tide.";
     else if(TID && k === K_T2 && !S.anim) hh = `The height of the tide is the graph of <b><i>h</i> = 0.7 sin <i>θ</i></b> &mdash; three turns, three tides.`;
     else if(TID && S.anim && k === K_T1 && P.td < 1) hh = "The circle becomes a tide clock, and the x-axis becomes mean sea level&hellip;";
@@ -1799,6 +2995,8 @@
   const tickTxt = d => tide() ? tHours(d).toFixed(1) : sunrise() ? `${d / 30}` : isRad() ? (d * RAD).toFixed(1) : d + "°";
   function renderGraphs(){
     if(!S.set.panel) return;
+    const XMg = xActive();
+    if(XMg){ const XR = XMg.rows(S.P); ["s", "c"].forEach(f => { if(XR[f] && S.set.show[f]) xGraph(f, XMg.graph(f, S.P)); }); return; }
     const P = S.P, a = P.ang, FER = ferris(), SUN = sunrise(), TID = tide(), PEN = pendulum();
     ["s", "c", "t"].forEach(f => {
       if(!S.set.show[f] || ((FER || SUN || TID || PEN) && f === "t") || ((SUN || PEN) && f === "s") || (TID && f === "c")) return;
@@ -1952,6 +3150,7 @@
     A.i++;
     if(A.i >= A.queue.length){ S.anim = null; const e = A.onEnd; e && e(); render(); return; }
     const tw0 = A.queue[A.i];
+    if(tw0.reset) S.mmax = 0;              /* a fresh set of marks (the lighthouse, the camera, the shadow) */
     const from = Object.assign({}, S.P);
     if(tw0.set || reduceMotion || !(tw0.d > 0)){ apply(tw0, 1, from); render(); nextTween(); return; }
     const start = performance.now();
@@ -1970,6 +3169,7 @@
       const w = tw0.win && tw0.win[k], q = w ? span01(p, w[0], w[1]) : p;   /* win: a key that moves in part of the tween only */
       S.P[k] = lerp(from[k], tgt[k], tw0.lin ? q : ease(q));
     }
+    if(tw0.derive === "cam") S.P.ang = Math.atan(S.P.rs) / RAD;     /* a runner moving steadily: the camera's angle follows */
   }
   /* the tweens that play a step forwards, and the ones that take it back to the step before it */
   /* the whole circle can be up to three turns round; an application starts from the same place in the first turn */
@@ -1979,7 +3179,8 @@
     return STEPS[k].segs.map(sg => sg.fillYear
       ? { to:sg.to, d:reduceMotion ? 0 : Math.max(0, (MAXA - ang) / MAXA * SWEEP() * 1.4), lin:true }
       : sg.fillTide ? { to:sg.to, d:reduceMotion ? 0 : Math.max(0, (MAXA - ang) / MAXA * SWEEP() * 1.6), lin:true }
-      : { to:sg.to, set:sg.set, d:sg.d, lin:sg.lin });
+      : sg.fill ? { to:sg.to, d:reduceMotion ? 0 : Math.max(0, (sg.to.ang - ang) / MAXA * SWEEP() * sg.fill), lin:true }
+      : { to:sg.to, set:sg.set, d:sg.d, lin:sg.lin, derive:sg.derive, reset:sg.reset });
   }
   function leaveQueue(k, ang){
     const segs = STEPS[k].segs, q = [];
@@ -1989,7 +3190,7 @@
     for(let i = segs.length - 1; i >= 0; i--){
       const before = beforeSeg(k, i), tgt = {};
       Object.keys(segs[i].set || segs[i].to).forEach(key => tgt[key] = before[key]);
-      q.push(segs[i].set ? { set:tgt } : { to:tgt, d:segs[i].fillYear || segs[i].fillTide ? 1600 : segs[i].d, lin:segs[i].lin });
+      q.push(segs[i].set ? { set:tgt } : { to:tgt, d:segs[i].fillYear || segs[i].fillTide || segs[i].fill || segs[i].long ? 1600 : segs[i].d, lin:segs[i].lin });
     }
     return q;
   }
@@ -2002,13 +3203,15 @@
     if(k === K_S2) S.smax = 0;
     if(k === K_T1) S.tmax = 0;
     if(k === K_P2) S.smax = 0;
+    if(XAPPS[STEPS[k].app] && (STEPS[k].prev === K_ALL || STEPS[k].xreset)){ S.xmax = 0; S.mmax = 0; }
     run(fq.concat(enterQueue(k, fa)));
   }
   function back(){
     if(S.anim || S.step === 0) return;
     const k = S.step, pv = STEPS[k].prev;
     S.msg = "";
-    run(leaveQueue(k, S.P.ang), () => { S.step = pv; S.fmax = 0; if(![K_S2, K_P2].includes(pv)) S.smax = 0; if(pv !== K_T1) S.tmax = 0; });
+    run(leaveQueue(k, S.P.ang), () => { S.step = pv; S.fmax = 0; if(![K_S2, K_P2].includes(pv)) S.smax = 0; if(pv !== K_T1) S.tmax = 0;
+      const sp = STEPS[pv]; S.xmax = sp.full ? (sp.range ? sp.range[1] : MAXA) : Math.max(0, S.P.ang); S.mmax = S.P.mk > .5 ? S.P.ang : 0; });
   }
   /* More applications. From the unit circle (or before it) the chosen application plays its own way in.
      From another application it MORPHS straight across (Jeff, 2026-11-18): the record of photos fades, the
@@ -2020,16 +3223,19 @@
     if(!appOf(S.step)){
       if(S.step < K_ALL) jump(K_ALL);
       const q = foldTurns().concat(enterQueue(t, foldAng()));
-      S.step = t; S.msg = ""; S.fmax = 0; S.smax = 0; S.tmax = 0;
+      S.step = t; S.msg = ""; S.fmax = 0; S.smax = 0; S.tmax = 0; S.xmax = 0; S.mmax = 0;
       run(q);
       return;
     }
     const T = END[t], q = [];
     if(S.P.stk > .01) q.push({ to:{ stk:0 }, d:650 });
-    const r = ((S.P.ang % 360) + 360) % 360;
+    let r = ((S.P.ang % 360) + 360) % 360;
+    const xT = XAPPS[STEPS[t].app];       /* a new application starts at its own angle, reached the short way round */
+    if(xT){ if(T.ang - r > 180) r += 360; else if(r - T.ang > 180) r -= 360; }
+    if(S.P.mk > .01) q.push({ to:{ mk:0 }, d:500 });
     q.push({ set:{ ang:r, walk:T.walk } });
     const to = {}; Object.keys(T).forEach(k => { if(k !== "walk" && k !== "stk") to[k] = T[k]; });
-    to.ang = r > 180 ? 360 : 0;
+    to.ang = xT ? T.ang : r > 180 ? 360 : 0;
     to.stk = T.stk;
     /* a crossfade that is never washed out: what arrives comes up to full first, what leaves fades after it */
     const win = {};
@@ -2037,12 +3243,13 @@
       if(to[k] > S.P[k] + 1e-9) win[k] = [0, .55]; else if(to[k] < S.P[k] - 1e-9) win[k] = [.45, 1]; });
     q.push({ to, win, d:reduceMotion ? 0 : 2600 });
     if(to.ang === 360) q.push({ set:{ ang:0 } });
-    S.step = t; S.msg = ""; S.fmax = 0; S.smax = 0; S.tmax = 0; S.morph = true;
-    run(q, () => { S.morph = false; });
+    S.step = t; S.msg = ""; S.fmax = 0; S.smax = 0; S.tmax = 0; S.xmax = 0; S.mmax = 0; S.morph = true;
+    run(q, () => { S.morph = false; S.mmax = 0; S.xmax = 0; });
   }
   function jump(k){
     cancelAnimationFrame(raf); S.anim = null; S.morph = false;
     S.step = k; S.P = Object.assign({}, END[k]); S.msg = ""; S.fmax = 0; S.smax = (k === K_S3 || k === K_P3) ? MAXA : 0; S.tmax = k === K_T2 ? MAXA : 0;
+    S.xmax = STEPS[k].full ? (STEPS[k].range ? STEPS[k].range[1] : MAXA) : (STEPS[k].app ? END[k].ang : 0); S.mmax = END[k].mk > .5 ? END[k].ang : 0;
     render();
   }
   function startAgain(){ if(S.step === 0 && !S.anim) return; S.dragged = false; jump(0); }
@@ -2061,7 +3268,7 @@
   const RESET_MSG = "Three turns done &mdash; starting again from 0&deg;.";
   const TURNS_MSG = "Three turns is as far as it goes here (1080&deg;). Turn back, or press <b>Next</b> for the applications.";
   function wrapPast(a){
-    if(!isAppStep() || a <= MAXA + 1e-9) return a;
+    if(!isAppStep() || stepRange() || a <= MAXA + 1e-9) return a;
     S.fmax = 0; S.smax = 0; S.tmax = 0; flash(RESET_MSG, 3000);
     return a - MAXA;
   }
@@ -2069,6 +3276,7 @@
     if(!canDrag()) return;
     S.dragged = true;
     let a = S.P.ang + dA; const mx = maxAng();
+    if(stepRange()){ if(a > mx + 1e-9) flash(STEPS[S.step].rangeMsg, 3000); S.P.ang = clamp(a, 0, mx); render(); return; }
     if(a > mx && mx === 90) flash(LIMIT_MSG);
     if(a > mx && S.step === K_ALL) flash(TURNS_MSG, 3000);
     a = wrapPast(a);
@@ -2086,7 +3294,12 @@
     if(raw == null) return;
     let a = snapA(raw);
     const p = S.P.ang;
-    if(isAppStep()){
+    if(stepRange()){
+      /* the camera, the road and the shadow stop at their own limit */
+      const hi = stepRange()[1];
+      if(a > hi + 1e-9){ const over = a > (hi + 360) / 2 ? 0 : hi; if(over === hi && S.P.ang > hi - 15) flash(STEPS[S.step].rangeMsg, 2600); a = over; }
+      if(a < 0) a = 0;
+    } else if(isAppStep()){
       /* every application keeps count of its turns: move to the nearest angle that looks like this one;
          past three turns it starts again from 0 */
       const dd = ((((a - p) % 360) + 540) % 360) - 180;
@@ -2123,6 +3336,11 @@
     const v = isRad() ? raw / RAD : raw;
     if(Math.abs(v) > 3600){ flash("Try an angle between " + MINUS + "360° and 720°."); render(); return; }
     const shown = isRad() ? raw.toFixed(1) : Math.round(raw) + "°";
+    if(stepRange()){
+      const hi = stepRange()[1];
+      if(v < 0 || v > hi + 1e-9) flash(STEPS[S.step].rangeMsg);
+      S.dragged = true; turnTo(clamp(v, 0, hi)); return;
+    }
     if(isAppStep()){
       if(v < 0 || v > MAXA) flash(`Each application goes round three times, from 0° to 1080° &mdash; ${shown} is outside that.`);
       S.dragged = true; turnTo(clamp(v, 0, MAXA)); return;
@@ -2147,17 +3365,20 @@
     let a, tries = 0;
     do {
       if(S.step < K_ALL) a = 5 + Math.round(Math.random() * 16) * 5;
+      else if(XAPPS[appOf(S.step)]) a = XAPPS[appOf(S.step)].rand(S.step);
       else if(appOf(S.step) === "sunrise" || appOf(S.step) === "pendulum") a = 30 * (1 + Math.floor(Math.random() * 35));
       else if(isAppStep()) a = 15 * (1 + Math.floor(Math.random() * 71));
       else if(S.set.snap === "special"){ const L2 = [30,45,60,120,135,150,210,225,240,300,315,330]; a = L2[Math.floor(Math.random() * L2.length)]; }
       else { const k = Math.max(5, +S.set.snap || 1); a = Math.round(Math.random() * 359 / k) * k; }
       tries++;
-    } while((Math.abs(a - cur) < 20 || (S.step < K_FW && axisAngle(a))) && tries < 40);
+    } while((Math.abs(a - cur) < (stepRange() ? 6 : 20) || (S.step < K_FW && axisAngle(a))) && tries < 40);
     S.dragged = true;
     turnTo(a);
   }
   function sweep(){
     if(!canDrag()) return;
+    const XMs = XAPPS[appOf(S.step)], xq = XMs && XMs.sweep ? XMs.sweep(S.step) : null;
+    if(xq){ S.dragged = true; run(xq); return; }
     const mx = maxAng(), q = [];
     if(S.P.ang > 0) q.push({ to:{ ang:0 }, d:reduceMotion ? 0 : clamp(S.P.ang * 2.5, 300, 1200) });
     q.push({ to:{ ang:mx }, d:SWEEP() * (mx === 90 ? .5 : mx > 360 ? 2.4 : 1), lin:true });
@@ -2225,8 +3446,17 @@
   $("unitSel").addEventListener("change", () => { S.set.unit = $("unitSel").value; save(); render(); });
 
   function closeMenus(){ [["settingsBtn","settingsMenu"],["toolsBtn","toolsMenu"],["appsBtn","appsMenu"]].forEach(([b, m]) => { $(m).classList.remove("open"); $(b).setAttribute("aria-expanded","false"); }); }
+  /* the applications menu is three groups wide: keep it inside the board card, above the step row */
+  function sizeApps(){
+    const m = $("appsMenu"), card = $("boardCard").getBoundingClientRect(), b = $("appsBtn").getBoundingClientRect();
+    const W = Math.min(740, card.width - 20);
+    m.style.width = W + "px";
+    const left = b.right - W, minL = card.left + 10;
+    m.style.right = left < minL ? (left - minL) + "px" : "0px";
+    m.style.maxHeight = Math.max(220, Math.min(560, b.top - card.top - 16)) + "px";
+  }
   [["settingsBtn","settingsMenu"],["toolsBtn","toolsMenu"],["appsBtn","appsMenu"]].forEach(([b, m]) => {
-    $(b).addEventListener("click", e => { e.stopPropagation(); const was = $(m).classList.contains("open"); closeMenus(); if(!was){ $(m).classList.add("open"); $(b).setAttribute("aria-expanded","true"); } });
+    $(b).addEventListener("click", e => { e.stopPropagation(); const was = $(m).classList.contains("open"); closeMenus(); if(!was){ $(m).classList.add("open"); $(b).setAttribute("aria-expanded","true"); if(m === "appsMenu") sizeApps(); } });
     $(m).addEventListener("click", e => e.stopPropagation());
   });
   document.addEventListener("click", closeMenus);
@@ -2239,8 +3469,12 @@
     else if(e.key === "Enter"){ e.preventDefault(); randomAngle(); }
     else if(e.key === "ArrowRight"){ e.preventDefault(); next(); }
     else if(e.key === "ArrowLeft"){ e.preventDefault(); back(); }
-    else if(e.key === "ArrowUp"){ e.preventDefault(); nudge(e.shiftKey ? (appOf(S.step) === "sunrise" || appOf(S.step) === "pendulum" ? 30 : isTideStep() ? 360 / TIDE.per : 15) : 1); }
-    else if(e.key === "ArrowDown"){ e.preventDefault(); nudge(e.shiftKey ? (appOf(S.step) === "sunrise" || appOf(S.step) === "pendulum" ? -30 : isTideStep() ? -360 / TIDE.per : -15) : -1); }
+    else if(e.key === "ArrowUp" || e.key === "ArrowDown"){
+      e.preventDefault();
+      const xk = XAPPS[appOf(S.step)], sgn = e.key === "ArrowUp" ? 1 : -1;
+      const big = xk ? xk.big : appOf(S.step) === "sunrise" || appOf(S.step) === "pendulum" ? 30 : isTideStep() ? 360 / TIDE.per : 15;
+      nudge(sgn * (e.shiftKey ? big : 1));
+    }
     else if(e.key === "l" || e.key === "L") setLabels(LABS[(LABS.indexOf(S.set.labels) + 1) % LABS.length]);
     else if(e.key === "g" || e.key === "G") togglePanel();
     else if(e.key === "f" || e.key === "F") toggleFs();
@@ -2260,7 +3494,8 @@
 
   window.__UC__ = { S, STEPS, END, render, next, back, jump, startAgain, showAll, turnTo, nudge, dragTo, sweep, randomAngle, setLabels,
     exactOf, related, quadrant, axisAngle, fx, valH, exprH, angTxt, canDrag, typedAngle, togglePanel, toggleFs, fh, fd, goApp, nextOf,
-    get L(){ return L; }, get V(){ return V; }, tH, tHours, tClock, monthYear, bobY, K:{ K_Q1, K_ALL, K_FW, K_S1, K_S2, K_S3, K_T1, K_T2, K_P1, K_P2, K_P3 } };
+    get L(){ return L; }, get V(){ return V; }, tH, tHours, tClock, monthYear, bobY, K:{ K_Q1, K_ALL, K_FW, K_S1, K_S2, K_S3, K_T1, K_T2, K_P1, K_P2, K_P3 },
+    XAPPS, KX, xActive, litF, volts, tipX, spotY, moonName, phaseDisc };
 })();
 </script>
 </body>
