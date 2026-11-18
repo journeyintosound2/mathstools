@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Unit Circle Flip Cards — Related Angles | Mills Maths Tools</title>
+  <meta name="description" content="On-screen flip cards for the unit circle: is it positive or negative, write sin 210° as −sin 30°, exact values, complementary angles and solving trigonometric equations from 0° to 360°. Show a card, students write on mini-whiteboards, flip to reveal." />
+  <link rel="stylesheet" href="shared/flipcards.css?v=702d72fe" />
+<style>
+    .fnm{ font-family:var(--mathFont); font-style:normal; }
+  .faceSub:not(.math) .fnm, .faceSub:not(.math) .mv{ font-size:1.15em; }
+    .ui.und{ font-family:var(--uiFont); font-weight:850; font-size:.7em; color:#64748b; }
+    .faceMain .neg{ font-weight:700; }
+  </style>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
+<!-- mmt-pwa -->
+<link rel="manifest" href="../manifest.webmanifest">
+<meta name="theme-color" content="#1f3a5f">
+<link rel="apple-touch-icon" href="../icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="MMT">
+<script src="../pwa.js" defer></script>
+<!-- /mmt-pwa -->
+</head>
+<body>
+<script>
+/* =========================================================================
+   UNIT CIRCLE FLIP CARDS — RELATED ANGLES (2026-11-18), MA5-TRG-P-02
+   The class writes the EQUIVALENT STATEMENT, not just a sign: sin 210° is
+   −sin 30°. Every card is built from one angle θ, so the related angle, the
+   sign and the sketch can never disagree:
+     quadrant 2: 180° − θ   quadrant 3: θ − 180°   quadrant 4: 360° − θ
+     sin is positive in quadrants 1 and 2, cos in 1 and 4, tan in 1 and 3.
+   The back carries a small unit circle: the stick at θ, the related angle
+   marked against the x-axis, and the same triangle drawn faintly in the
+   first quadrant, with the ratio's side in the tool's colours
+   (cos blue = x, sin orange = y, tan green).
+   ========================================================================= */
+(() => {
+  const R = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+  const pick = a => a[Math.floor(Math.random() * a.length)];
+  const MINUS = "−", DEG = "°";
+  const fn = f => `<span class="fnm">${f}</span>`;
+  const T = n => `<i class="mv">θ</i>`;
+  const neg = '<span class="neg">' + MINUS + "</span>";
+  const st = (f, a) => `${fn(f)} ${a < 0 ? "(" + MINUS + Math.abs(a) + DEG + ")" : a + DEG}`;
+  const signed = (s, f, a) => (s < 0 ? neg : "") + `${fn(f)} ${a}${DEG}`;
+  const radH = d => `<span class="rad"><svg viewBox="0 0 10 20" preserveAspectRatio="none" aria-hidden="true"><path d="M.5 12 L3 10.5 L5.6 19.5 L10 .6"/></svg><span>${d}</span></span>`;
+  const frH = (t, b) => `<span class="frac"><span>${t}</span><span>${b}</span></span>`;
+
+  /* ---------------------------------------------------------- the maths */
+  const quad = th => { const a = ((th % 360) + 360) % 360; return a < 90 ? 1 : a < 180 ? 2 : a < 270 ? 3 : 4; };
+  const onAxis = th => (((th % 90) + 90) % 90) === 0;
+  const relOf = th => { const a = ((th % 360) + 360) % 360, q = quad(a); return q === 1 ? a : q === 2 ? 180 - a : q === 3 ? a - 180 : 360 - a; };
+  const POS = { sin:[1, 2], cos:[1, 4], tan:[1, 3] };
+  const signOf = (f, th) => POS[f].includes(quad(th)) ? 1 : -1;
+  const QNAME = ["", "first", "second", "third", "fourth"];
+  const posWords = q => ["", "all three are positive", "only sin is positive", "only tan is positive", "only cos is positive"][q];
+  const relRule = q => ["", "", "180" + DEG + " " + MINUS + " " + T(), T() + " " + MINUS + " 180" + DEG, "360" + DEG + " " + MINUS + " " + T()][q];
+  /* exact values at the special angles, from the triangles */
+  const EX = {
+    sin:{ 0:"0", 30:"1/2", 45:"1/r2", 60:"r3/2", 90:"1" },
+    cos:{ 0:"1", 30:"r3/2", 45:"1/r2", 60:"1/2", 90:"0" },
+    tan:{ 0:"0", 30:"1/r3", 45:"1", 60:"r3", 90:"und" }
+  };
+  function exH(code, s, opts){
+    if(code === "und") return '<span class="ui und">undefined</span>';
+    if(opts.rat === "rat"){ if(code === "1/r2") code = "r2/2"; if(code === "1/r3") code = "r3/3"; }
+    const sg = s < 0 && code !== "0" ? neg : "";
+    const part = p => p.startsWith("r") ? radH(p.slice(1)) : p;
+    if(code.includes("/")){ const [t, b] = code.split("/"); return sg + frH(part(t), part(b)); }
+    return sg + part(code);
+  }
+  const exactAt = (f, th) => { const a = ((th % 360) + 360) % 360; if(a % 90 === 0){ const v = { sin:[0, 1, 0, -1], cos:[1, 0, -1, 0], tan:[0, "und", 0, "und"] }[f][a / 90]; return v === "und" ? { code:"und", s:1 } : { code:String(Math.abs(v)), s:v < 0 ? -1 : 1 }; }
+    return { code:EX[f][relOf(a)], s:signOf(f, a) }; };
+
+  /* ---------------------------------------------------------- the sketch */
+  const CX = "#2563eb", CY = "#ea580c", CT = "#16a34a", ARC = "#7c3aed";
+  function sketch(th, f, opts, more){
+    const a = ((th % 360) + 360) % 360, rad = a * Math.PI / 180, x = Math.cos(rad), y = -Math.sin(rad);
+    const q = onAxis(a) ? 0 : quad(a), r = relOf(a);
+    let s = `<svg viewBox="-1.42 -1.42 2.84 2.84" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Unit circle sketch">`;
+    if(q) s += `<path d="M0 0 L${q === 1 || q === 4 ? 1 : -1} 0 A1 1 0 0 ${q === 1 || q === 3 ? 0 : 1} 0 ${q <= 2 ? -1 : 1} Z" fill="${q === 1 ? "#eef2ff" : "#f1f5f9"}"/>`;
+    s += `<line x1="-1.34" x2="1.34" y1="0" y2="0" stroke="#94a3b8" stroke-width=".018"/><line y1="-1.34" y2="1.34" x1="0" x2="0" stroke="#94a3b8" stroke-width=".018"/>`;
+    s += `<circle r="1" fill="none" stroke="#64748b" stroke-width=".025"/>`;
+    /* the angle turned: a spiral when it goes past a full turn or backwards */
+    const tot = th, n = Math.max(12, Math.ceil(Math.abs(tot) / 6)), pts = [];
+    for(let i = 0; i <= n; i++){ const t = tot * i / n, rr = .2 + .1 * Math.abs(t) / 360, tr = t * Math.PI / 180; pts.push((rr * Math.cos(tr)).toFixed(3) + "," + (-rr * Math.sin(tr)).toFixed(3)); }
+    s += `<polyline points="${pts.join(" ")}" fill="none" stroke="${ARC}" stroke-width=".03" stroke-linecap="round"/>`;
+    if(q && q !== 1 && opts.ghost !== false){
+      const gr = r * Math.PI / 180, gx = Math.cos(gr), gy = -Math.sin(gr);
+      s += `<path d="M0 0 L${gx.toFixed(3)} ${gy.toFixed(3)} L${gx.toFixed(3)} 0 Z" fill="#cbd5e1" fill-opacity=".35" stroke="#94a3b8" stroke-width=".015" stroke-dasharray=".05 .04"/>`;
+    }
+    /* the triangle: x (cos) along the axis, y (sin) up to the point */
+    if(q){
+      if(f === "cos" || f === "tan") s += `<line x1="0" y1="0" x2="${x.toFixed(3)}" y2="0" stroke="${f === "tan" ? CT : CX}" stroke-width=".07" stroke-linecap="round"/>`;
+      if(f === "sin" || f === "tan") s += `<line x1="${x.toFixed(3)}" y1="0" x2="${x.toFixed(3)}" y2="${y.toFixed(3)}" stroke="${f === "tan" ? CT : CY}" stroke-width=".07" stroke-linecap="round"/>`;
+      if(f !== "sin" && f !== "cos" && f !== "tan") s += "";
+    }
+    (more || []).forEach(t2 => { const r2 = t2 * Math.PI / 180; s += `<line x1="0" y1="0" x2="${Math.cos(r2).toFixed(3)}" y2="${(-Math.sin(r2)).toFixed(3)}" stroke="#334155" stroke-width=".04" stroke-linecap="round"/><circle cx="${Math.cos(r2).toFixed(3)}" cy="${(-Math.sin(r2)).toFixed(3)}" r=".06" fill="#0f172a"/>`; });
+    s += `<line x1="0" y1="0" x2="${x.toFixed(3)}" y2="${y.toFixed(3)}" stroke="#0f172a" stroke-width=".045" stroke-linecap="round"/><circle cx="${x.toFixed(3)}" cy="${y.toFixed(3)}" r=".07" fill="#0f172a"/>`;
+    /* the related angle against the x-axis */
+    if(q && q !== 1){
+      const base = q === 2 || q === 3 ? 180 : 360, a0 = Math.min(base, a), a1 = Math.max(base, a), rr = .46;
+      const p = t => { const u = t * Math.PI / 180; return (rr * Math.cos(u)).toFixed(3) + " " + (-rr * Math.sin(u)).toFixed(3); };
+      s += `<path d="M0 0 L${p(a0)} A${rr} ${rr} 0 0 0 ${p(a1)} Z" fill="#fed7aa" fill-opacity=".8" stroke="#f97316" stroke-width=".02"/>`;
+      const mid = (a0 + a1) / 2 * Math.PI / 180, lr = .7, side = q === 2 ? -1 : 1;
+      let ly = -lr * Math.sin(mid); ly = side * Math.max(.24, Math.abs(ly));
+      s += `<text x="${(lr * Math.cos(mid)).toFixed(3)}" y="${(ly + .07).toFixed(3)}" text-anchor="middle" font-size=".22" font-weight="700" fill="#c2410c" font-family="Cambria Math,STIX Two Math,Times New Roman,serif" paint-order="stroke" stroke="#fff" stroke-width=".05">${r}${DEG}</text>`;
+    }
+    return s + "</svg>";
+  }
+
+  /* ---------------------------------------------------------- angles */
+  const relPool = (opts, forceSpecial) => forceSpecial || opts.angles === "special" ? [30, 45, 60] : opts.angles === "five" ? [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85] : [10, 20, 30, 40, 50, 60, 70, 80];
+  const fns = opts => opts.fns === "sc" ? ["sin", "cos"] : ["sin", "cos", "tan"];
+  const inQuad = (q, r) => q === 1 ? r : q === 2 ? 180 - r : q === 3 ? 180 + r : 360 - r;
+  const AXES = [0, 90, 180, 270, 360];
+
+  /* the back of a related-angle card */
+  function relBack(f, th, opts, extra){
+    const a = ((th % 360) + 360) % 360, q = quad(a), r = relOf(a), s = signOf(f, a);
+    const main = q === 1 && a === th ? `${fn(f)} ${r}${DEG}` : signed(s, f, r);
+    let sub = "";
+    if(opts.reason){
+      if(extra) sub += extra + "<br>";
+      sub += q === 1 ? `Already in the first quadrant: all three are positive.` : `${QNAME[q][0].toUpperCase() + QNAME[q].slice(1)} quadrant: ${posWords(q)}.<br>Related angle: ${relRule(q)} = ${r}${DEG}`;
+    }
+    return { main, sub, pic:opts.sketch ? sketch(th, f, opts) : "", side:opts.sketch };
+  }
+
+  /* ---------------------------------------------------------- the sets */
+  const sets = [
+    { id:"sign", name:"Positive or negative?", chip:"Positive or negative?", sub:"Sketch the stick, then write +, " + MINUS + " or 0.", ex:"cos 120" + DEG + " → negative",
+      prompt:"Positive, negative or zero? Sketch the stick first.",
+      gen(opts){
+        const f = pick(fns(opts));
+        let th = opts.axes && Math.random() < .15 ? pick(AXES.slice(1)) : inQuad(R(1, 4), pick(relPool(opts)));
+        if(f === "tan" && (th === 90 || th === 270)) th = 180;
+        return { key:f + th, render(o){
+          const a = th, ax = onAxis(a), v = ax ? exactAt(f, a) : null;
+          const zero = ax && v.code === "0", und = ax && v.code === "und", s = ax ? v.s : signOf(f, a);
+          const word = zero ? '<span class="zero">Zero</span>' : und ? '<span class="zero">Undefined</span>' : s > 0 ? '<span class="pos">+ Positive</span>' : `<span class="neg">${MINUS} Negative</span>`;
+          let sub = "";
+          if(o.reason) sub = ax ? (zero ? `The point is on an axis: ${f === "cos" ? "x" : "y"} = 0.` : und ? "The stick is upright: x = 0, and you can’t divide by 0." : `On an axis: ${fn(f)} ${a}${DEG} = ${s < 0 ? MINUS : ""}1.`)
+            : (quad(a) === 1 ? "" : `${fn(f)} ${a}${DEG} = ${signed(s, f, relOf(a))}<br>`) + `${QNAME[quad(a)][0].toUpperCase() + QNAME[quad(a)].slice(1)} quadrant: ${posWords(quad(a))}.`;
+          return { front:{ main:st(f, a) }, back:{ main:word, ui:true, sub, pic:o.sketch ? sketch(a, f, o) : "", side:o.sketch } };
+        } };
+      } },
+    ...[2, 3, 4].map(qn => ({ id:"q" + qn, name:["", "", "Second", "Third", "Fourth"][qn] + " quadrant",
+      sub:`${[0, 0, 90, 180, 270][qn]}${DEG} to ${[0, 0, 180, 270, 360][qn]}${DEG} · related angle ${relRule(qn)}`,
+      ex:{ 2:`sin 150${DEG} = sin 30${DEG}`, 3:`sin 210${DEG} = ${MINUS}sin 30${DEG}`, 4:`cos 300${DEG} = cos 60${DEG}` }[qn],
+      prompt:"Write it as a ratio of the related (acute) angle.",
+      gen(opts){ const f = pick(fns(opts)), th = inQuad(qn, pick(relPool(opts)));
+        return { key:f + th, render:o => ({ front:{ main:st(f, th) }, back:relBack(f, th, o) }) }; } })),
+    { id:"all", name:"All four quadrants", sub:"Any angle from 0" + DEG + " to 360" + DEG + ". Which quadrant first, then the related angle.", ex:`tan 330${DEG} = ${MINUS}tan 30${DEG}`,
+      prompt:"Write it as a ratio of the related (acute) angle.",
+      gen(opts){ const f = pick(fns(opts)), q = Math.random() < .1 ? 1 : R(2, 4), th = inQuad(q, pick(relPool(opts)));
+        return { key:f + th, render:o => ({ front:{ main:st(f, th) }, back:relBack(f, th, o) }) }; } },
+    { id:"exact", name:"Exact values", sub:"Special angles in every quadrant: related angle, then the exact value.", ex:`cos 135${DEG} = ${MINUS}cos 45${DEG}`,
+      prompt:"Write the exact value.",
+      gen(opts){
+        const f = pick(fns(opts));
+        let th = opts.axes && Math.random() < .2 ? pick(AXES) : inQuad(R(1, 4), pick([30, 45, 60]));
+        return { key:f + th, render(o){
+          const v = exactAt(f, th), ax = onAxis(th), r = relOf(th);
+          const ans = exH(v.code, v.s, o);
+          let sub = "";
+          if(o.reason) sub = ax ? (v.code === "und" ? "The stick is upright: x = 0, and dividing by 0 has no answer." : `On an axis: the point is (${Math.round(Math.cos(th * Math.PI / 180))}, ${Math.round(Math.sin(th * Math.PI / 180))}).`)
+            : (quad(th) === 1 ? `${fn(f)} ${th}${DEG} = ${ans}` : `${fn(f)} ${th}${DEG} = ${signed(v.s, f, r)} = ${ans}`);
+          return { front:{ main:st(f, th) }, back:{ main:ans, sub, subMath:true, pic:o.sketch ? sketch(th, f, o) : "", side:o.sketch } };
+        } };
+      } },
+    { id:"comp", name:"Complementary angles", sub:"sin of an angle is cos of the angle that makes 90" + DEG + " with it.", ex:`sin 70${DEG} = cos 20${DEG}`,
+      prompt:"Write it using the other ratio.",
+      gen(opts){
+        const f = Math.random() < .5 ? "sin" : "cos", g = f === "sin" ? "cos" : "sin";
+        const pool = relPool(opts).filter(a => a !== 45);
+        const a = pick(pool);
+        return { key:f + a, render:o => ({ front:{ main:st(f, a) }, back:{ main:`${fn(g)} ${90 - a}${DEG}`,
+          sub:o.reason ? `${a}${DEG} + ${90 - a}${DEG} = 90${DEG}<br>The side opposite ${a}${DEG} is adjacent to ${90 - a}${DEG}.` : "",
+          pic:o.sketch ? compSketch(a) : "", side:o.sketch } }) };
+      } },
+    { id:"solve", name:"Solve: find " + "θ", sub:"Every angle from 0" + DEG + " to 360" + DEG + " with the same sin, cos or tan.", ex:`sin θ = ${MINUS}sin 40${DEG} → 220${DEG}, 320${DEG}`,
+      prompt:`Find every angle from 0${DEG} to 360${DEG}.`,
+      gen(opts){
+        const f = pick(fns(opts)), r = pick(relPool(opts)), s = Math.random() < .55 ? -1 : 1;
+        return { key:"s" + f + r + s, render(o){
+          const qs = [1, 2, 3, 4].filter(q => (POS[f].includes(q) ? 1 : -1) === s), ths = qs.map(q => inQuad(q, r));
+          const front = `${fn(f)} ${T()} = ${s < 0 ? MINUS : ""}${fn(f)} ${r}${DEG}`;
+          const sub = o.reason ? `${fn(f)} is ${s < 0 ? "negative" : "positive"} in the ${qs.map(q => QNAME[q]).join(" and ")} quadrants: ${qs.map(q => q === 1 ? `${r}${DEG}` : q === 2 ? `180${DEG} ${MINUS} ${r}${DEG}` : q === 3 ? `180${DEG} + ${r}${DEG}` : `360${DEG} ${MINUS} ${r}${DEG}`).join(", ")}.` : "";
+          return { front:{ main:front, sub:`0${DEG} ≤ ${T()} ≤ 360${DEG}`, subMath:true },
+            back:{ main:`${T()} = ${ths.join(DEG + ", ") + DEG}`, sub, pic:o.sketch ? sketch(ths[0], f, o, ths.slice(1)) : "", side:o.sketch } };
+        } };
+      } },
+    { id:"solveEx", name:"Solve: exact values", sub:"From an exact value back to the angles.", ex:`sin θ = ½ → 30${DEG}, 150${DEG}`,
+      prompt:`Find every angle from 0${DEG} to 360${DEG}.`,
+      gen(opts){
+        const f = pick(fns(opts)), r = pick([30, 45, 60]), s = Math.random() < .55 ? -1 : 1;
+        return { key:"e" + f + r + s, render(o){
+          const qs = [1, 2, 3, 4].filter(q => (POS[f].includes(q) ? 1 : -1) === s), ths = qs.map(q => inQuad(q, r));
+          const val = exH(EX[f][r], s, o);
+          const sub = o.reason ? `${fn(f)} ${r}${DEG} = ${exH(EX[f][r], 1, o)}, so the related angle is ${r}${DEG}. ${fn(f)} is ${s < 0 ? "negative" : "positive"} in the ${qs.map(q => QNAME[q]).join(" and ")} quadrants.` : "";
+          return { front:{ main:`${fn(f)} ${T()} = ${val}`, sub:`0${DEG} ≤ ${T()} ≤ 360${DEG}`, subMath:true },
+            back:{ main:`${T()} = ${ths.join(DEG + ", ") + DEG}`, sub, pic:o.sketch ? sketch(ths[0], f, o, ths.slice(1)) : "", side:o.sketch } };
+        } };
+      } },
+    { id:"beyond", name:"Beyond 360" + DEG + " and negative angles", sub:"Extension: a full turn changes nothing; a negative angle turns clockwise.", ex:`sin 400${DEG} = sin 40${DEG}`,
+      prompt:"Write it as a ratio of an acute angle.",
+      gen(opts){
+        const f = pick(fns(opts)), base = inQuad(R(1, 4), pick(relPool(opts)));
+        const th = Math.random() < .5 ? base + 360 : base - 360;
+        return { key:f + th, render(o){
+          const extra = th > 360 ? `${th}${DEG} = 360${DEG} + ${th - 360}${DEG}: a full turn, then ${th - 360}${DEG}.` : `${MINUS}${Math.abs(th)}${DEG} turns clockwise and ends where ${th + 360}${DEG} does.`;
+          return { front:{ main:st(f, th) }, back:relBack(f, th, o, extra) };
+        } };
+      } }
+  ];
+  function compSketch(a){
+    /* a right-angled triangle with the two acute angles marked */
+    const W = 2.4, h = W * Math.tan(a * Math.PI / 180) > 1.7 ? 1.7 : W * Math.tan(a * Math.PI / 180), w = h / Math.tan(a * Math.PI / 180);
+    const x0 = -w / 2, y0 = h / 2, x1 = w / 2, y1 = -h / 2;
+    return `<svg viewBox="-1.42 -1.2 2.84 2.4" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Right-angled triangle">`
+      + `<path d="M${x0} ${y0} L${x1} ${y0} L${x1} ${y1} Z" fill="#eef2ff" stroke="#334155" stroke-width=".04" stroke-linejoin="round"/>`
+      + `<path d="M${x1 - .14} ${y0} L${x1 - .14} ${y0 - .14} L${x1} ${y0 - .14}" fill="none" stroke="#334155" stroke-width=".025"/>`
+      + `<line x1="${x1}" y1="${y0}" x2="${x1}" y2="${y1}" stroke="${CY}" stroke-width=".07"/>`
+      + `<text x="${x0 + .5}" y="${y0 - .1}" font-size=".2" font-weight="700" fill="#7c3aed" font-family="Cambria Math,Times New Roman,serif">${a}${DEG}</text>`
+      + `<text x="${x1 - .1}" y="${y1 + .45}" text-anchor="end" font-size=".2" font-weight="700" fill="#7c3aed" font-family="Cambria Math,Times New Roman,serif">${90 - a}${DEG}</text>`
+      + "</svg>";
+  }
+
+  window.FLIP_DECK = {
+    title:"Unit Circle Flip Cards — Related Angles",
+    outcome:"MA5-TRG-P-02",
+    storeKey:"mmtFlip.unitCircle.v1",
+    sets,
+    settings:[
+      { id:"angles", type:"select", label:"Related angles", def:"ten", options:[["special", "30°, 45°, 60° only"], ["ten", "Multiples of 10°"], ["five", "Multiples of 5°"]],
+        note:"The exact-value sets always use 30°, 45° and 60°." },
+      { id:"fns", type:"select", label:"Ratios", def:"all", options:[["all", "sin, cos and tan"], ["sc", "sin and cos only"]], note:"sin and cos only is a good first lesson; tan the next." },
+      { id:"axes", type:"switch", label:"Include 0°, 90°, 180°, 270°, 360°", def:false, note:"In Positive or negative and Exact values: zero, ±1 and undefined." },
+      { id:"sketch", type:"switch", label:"Unit circle sketch on the back", def:true, repaint:true, group:"On the back" },
+      { id:"reason", type:"switch", label:"Say why (quadrant and related angle)", def:true, repaint:true, group:"On the back" },
+      { id:"ghost", type:"switch", label:"Same triangle drawn in the first quadrant", def:true, repaint:true, group:"On the back" },
+      { id:"rat", type:"select", label:"Write 1/√2 as", def:"surd", repaint:true, group:"Exact values", options:[["surd", "1/√2 and 1/√3"], ["rat", "√2/2 and √3/3"]] }
+    ],
+    tools:[
+      { href:"/interactive-tools/stage-5/measurement-space/unit-circle-trig-ratios/", label:"The Unit Circle", sub:"The teaching tool: turn the stick and watch the signs" },
+      { href:"/worksheet-creators/stage-5/measurement-space/unit-circle-trig.html", label:"Worksheet Creator", sub:"Related angles, exact values, equations, applications" },
+      { href:"/interactive-tools/stage-5/measurement-space/unit-circle-trig-ratios/lesson-plan.html", label:"Lesson plan – intro to the unit circle", sub:"ELPSA sequence with notice and wonder" }
+    ],
+    notes:`<p><b>Routine:</b> show a card, give think time (the ring), everyone writes on a mini-whiteboard, &ldquo;3, 2, 1, show me&rdquo;, then flip.</p>
+      <ul><li>Ask for the sketch before the answer: which quadrant is the stick in?</li>
+      <li>The back is the <b>equivalent statement</b>: sin 210&deg; = &minus;sin 30&deg;. A sign on its own is set 1.</li>
+      <li>Hinge: after a few cards in one quadrant, switch to <b>All four quadrants</b>. Students who slip are using one rule for every quadrant.</li>
+      <li>Keys: <span class="kbd">Enter</span> flip, <span class="kbd">Space</span> next, <span class="kbd">&larr;</span> back, <span class="kbd">1</span>&ndash;<span class="kbd">9</span> sets, <span class="kbd">T</span> think time.</li></ul>`
+  };
+})();
+</script>
+<script src="shared/flipcards.js?v=ed8c1019"></script>
+</body>
+</html>

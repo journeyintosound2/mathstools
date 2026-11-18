@@ -319,11 +319,11 @@ window.MMT_TOOL_LINKS = {
       tags: ["quiz", "protractor", "measuring angles"]
     },
     {
-      title: "Angle Types Flip Fluency",
+      title: "Angle Relationships Flip Cards",
       kind: "Flip cards",
       url: "/flip-cards/Geometry/angles.html",
       ideas: ["protractor"],
-      note: "Flip-card fluency on acute, obtuse, reflex and right angles.",
+      note: "On-screen flip cards: name the angle relationship (complementary, supplementary, vertically opposite, angles at a point), or find the unknown angle and give the reason.",
       tags: ["flip cards", "angle types", "fluency", "classifying"]
     }
   ],
@@ -674,7 +674,7 @@ window.MMT_TOOL_LINKS = {
       kind: "Flip cards",
       url: "/flip-cards/divide-by-tens.html",
       ideas: ["partition-billion"],
-      note: "Quick flip-card fluency on dividing by 10.",
+      note: "On-screen flip cards: divide by 10, 100 and 1000 in five levels, from whole-number answers to hundredths, with an optional place-value reason on the back.",
       tags: ["flip cards", "fluency", "division", "place value"]
     },
     {
@@ -910,7 +910,7 @@ window.MMT_TOOL_LINKS = {
       kind: "Flip cards",
       url: "/flip-cards/algebra-to-words.html",
       ideas: ["expressions-substitution"],
-      note: "Flip-card fluency converting worded phrases into algebraic expressions.",
+      note: "On-screen flip cards both ways: worded phrases to algebraic expressions, and expressions back into words, Basic and Expected, with 2x / x÷2 notation as a setting.",
       tags: ["flip cards", "fluency", "algebra", "worded problems", "translating"]
     }
   ],
@@ -961,15 +961,15 @@ window.MMT_TOOL_LINKS = {
       kind: "Flip cards",
       url: "/flip-cards/Angles-parallel-lines/",
       ideas: ["transversals"],
-      note: "Flip-card fluency on angle relationships formed by parallel lines.",
+      note: "On-screen flip cards: name the pair of angles on parallel lines (alternate, corresponding, cointerior), all three or one kind at a time, with the rule on the back.",
       tags: ["flip cards", "fluency", "angles", "parallel lines", "transversal"]
     },
     {
-      title: "Angle Types Flip Fluency",
+      title: "Angle Relationships Flip Cards",
       kind: "Flip cards",
       url: "/flip-cards/Geometry/angles.html",
       ideas: ["language-notation"],
-      note: "Flip-card fluency on acute, obtuse, reflex and right angles.",
+      note: "On-screen flip cards: name the angle relationship (complementary, supplementary, vertically opposite, angles at a point), or find the unknown angle and give the reason.",
       tags: ["flip cards", "fluency", "angle types", "classifying"]
     }
   ],
@@ -1599,7 +1599,7 @@ window.MMT_TOOL_LINKS = {
       kind: "Flip cards",
       url: "/flip-cards/multiply-divide-integers.html",
       ideas: ["multiply-divide"],
-      note: "Flip-card fluency on multiplying and dividing integers.",
+      note: "On-screen flip cards: multiply and divide integers in five levels, positive numbers green and negative red, with an optional sign rule on the back.",
       tags: ["flip cards", "fluency", "integers", "multiplication", "division", "sign rules"]
     }
   ],
@@ -2060,6 +2060,22 @@ window.MMT_TOOL_LINKS = {
       ideas: ["unit-circle"],
       note: "A 60-minute first lesson with the unit circle tool: notice and wonder in the first quadrant, then the whole circle, signs by quadrant, mini-whiteboard checks, a hinge question, an exit ticket and 16 printable sign flip cards.",
       tags: ["lesson plan", "ELPSA", "unit circle", "trigonometry", "notice and wonder", "flip cards", "planning"]
+    },
+    {
+      title: "Unit Circle Flip Cards — Related Angles",
+      kind: "Flip cards",
+      url: "/flip-cards/unit-circle-related-angles.html",
+      ideas: ["unit-circle", "trig-equations"],
+      note: "On-screen flip cards for mini-whiteboards: the card shows sin 210°, students write the equivalent statement (−sin 30°), flip to reveal it with a small unit circle and the reason. Ten sets: positive or negative, one quadrant at a time, all four quadrants, exact values, complementary angles, solve for θ (related angle or exact value), past 360° and negative angles. Think-time timer, full screen.",
+      tags: ["flip cards", "unit circle", "related angle", "reference angle", "equivalent statement", "ASTC", "quadrants", "signs of trig ratios", "exact values", "complementary angles", "supplementary angles", "trig equations", "solve for theta", "mini-whiteboards", "check for understanding", "warm-up", "fluency", "stage 5"]
+    },
+    {
+      title: "The Unit Circle — Worksheet Creator",
+      kind: "Worksheet creator",
+      url: "/worksheet-creators/stage-5/measurement-space/unit-circle-trig.html",
+      ideas: ["unit-circle", "trig-equations"],
+      note: "Differentiated A4 worksheets: read the unit circle, signs by quadrant, related angles, exact values (and Spicy expressions), complementary and supplementary angles, solve 0° to 360° (exact, two-step and calculator), read the sine and cosine graphs, worded problems from the tool (Ferris wheel, the tide at Coffs Harbour, a pendulum, hours of daylight) and spot the mistake. Sweet to Spicy ladder, answer key with reasons.",
+      tags: ["worksheet", "worksheet creator", "printable", "unit circle", "trigonometric ratios", "related angle", "exact values", "trig equations", "solve for theta", "sine graph", "cosine graph", "worded problems", "ferris wheel", "tide", "pendulum", "daylight", "applications", "differentiated", "answer key", "stage 5"]
     }
   ],
 

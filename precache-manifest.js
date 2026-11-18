@@ -1,6 +1,6 @@
 /* Written by tools/build-pwa.mjs — do not edit by hand. */
 self.MMT_PRECACHE = {
- "version": "6a49b7038c",
+ "version": "3020af1712",
  "files": [
   "./",
   "assessment/exam-builder/app.js",
@@ -235,6 +235,9 @@ self.MMT_PRECACHE = {
   "flip-cards/algebra-to-words.html",
   "flip-cards/divide-by-tens.html",
   "flip-cards/multiply-divide-integers.html",
+  "flip-cards/shared/flipcards.css",
+  "flip-cards/shared/flipcards.js",
+  "flip-cards/unit-circle-related-angles.html",
   "game-platforms/mills-maths-adventure-source/dist/assets/KaTeX_AMS-Regular-BQhdFMY1.woff2",
   "game-platforms/mills-maths-adventure-source/dist/assets/KaTeX_Caligraphic-Bold-Dq_IR9rO.woff2",
   "game-platforms/mills-maths-adventure-source/dist/assets/KaTeX_Caligraphic-Regular-Di6jR-x-.woff2",
@@ -1092,6 +1095,7 @@ self.MMT_PRECACHE = {
   "worksheet-creators/stage-4/number/order-of-operations-in-words.html",
   "worksheet-creators/stage-4/ratios-rates/stacked-bar-ratio.html",
   "worksheet-creators/stage-5/algebra/complete-the-square.html",
+  "worksheet-creators/stage-5/measurement-space/unit-circle-trig.html",
   "index.html"
  ]
 };

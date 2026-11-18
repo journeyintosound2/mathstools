@@ -3,336 +3,12 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Angle Relationships | Mills Maths Tools</title>
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-
+  <title>Angles on Parallel Lines — Flip Cards | Mills Maths Tools</title>
+  <meta name="description" content="On-screen flip cards: name the pair of angles on parallel lines (alternate, corresponding, cointerior)." />
+  <link rel="stylesheet" href="../shared/flipcards.css?v=702d72fe" />
   <style>
-    :root{
-      --bg:#f5f6f8;
-      --ink:#111827;
-      --muted:#6b7280;
-      --border:#e5e7eb;
-      --shadow:0 16px 40px rgba(15,23,42,.08);
-      --blue:#2563eb;
-      --green:#16a34a;
-      --orange:#f97316;
-      --red-soft:#fee2e2;
-      --card-outline:#1f6feb;
-    }
-
-    *{ box-sizing:border-box; }
-    html,body{ height:100%; }
-
-    body{
-      margin:0;
-      font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-      background:var(--bg);
-      color:var(--ink);
-      overflow-x:hidden;
-    }
-
-    .app{
-      min-height:100vh;
-      display:flex;
-      flex-direction:column;
-    }
-
-    .topbar{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:20px;
-      padding:22px 24px 8px;
-      flex-wrap:wrap;
-      position:relative;
-      z-index:5;
-    }
-
-    .left-actions,.right-actions{
-      display:flex;
-      align-items:center;
-      gap:14px;
-      flex-wrap:wrap;
-    }
-
-    .btn{
-      appearance:none;
-      border:none;
-      border-radius:18px;
-      padding:14px 20px;
-      font:800 17px/1 Inter, sans-serif;
-      cursor:pointer;
-      transition:transform .16s ease, box-shadow .16s ease, background .16s ease, opacity .16s ease;
-      box-shadow:0 2px 0 rgba(17,24,39,.03), inset 0 0 0 1px rgba(17,24,39,.05);
-      white-space:nowrap;
-    }
-    .btn:hover{ transform:translateY(-1px); }
-    .btn:active{ transform:translateY(0); }
-
-    .btn-light{ background:#fff; color:var(--ink); }
-    .btn-red{ background:var(--red-soft); color:#b91c1c; }
-
-    .back-btn{
-      display:flex;
-      align-items:center;
-      gap:12px;
-      padding-inline:18px 22px;
-      text-decoration:none;
-    }
-
-    .logo-badge{
-      width:42px;
-      height:42px;
-      border-radius:12px;
-      display:grid;
-      place-items:center;
-      background:linear-gradient(180deg,#e0f2fe,#dbeafe);
-      overflow:hidden;
-      flex:0 0 auto;
-    }
-
-    .logo-badge img{
-      width:100%;
-      height:100%;
-      object-fit:contain;
-      display:block;
-    }
-
-    .title{
-      text-align:center;
-      font-size:clamp(24px, 3vw, 34px);
-      font-weight:800;
-      margin:8px 18px 0;
-      line-height:1.15;
-    }
-
-    .subtitle{
-      text-align:center;
-      color:var(--muted);
-      font-size:16px;
-      font-weight:600;
-      margin:10px 18px 0;
-    }
-
-    .main{
-      flex:1;
-      display:grid;
-      place-items:center;
-      padding:10px 24px 24px;
-    }
-
-    .board{
-      width:min(980px, 100%);
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      gap:26px;
-    }
-
-    .flip-scene{
-      width:min(640px, 92vw);
-      height:380px;
-      perspective:1200px;
-      position:relative;
-    }
-
-    .flip-card{
-      position:relative;
-      width:100%;
-      height:100%;
-      transform-style:preserve-3d;
-      transition:transform .18s linear;
-    }
-    .flip-card.revealed{ transform:rotateY(180deg); }
-
-    .face{
-      position:absolute;
-      inset:0;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      border:8px solid var(--card-outline);
-      border-radius:24px;
-      background:#fff;
-      backface-visibility:hidden;
-      box-shadow:var(--shadow);
-      overflow:hidden;
-      padding:18px;
-      transition:border-color .18s ease;
-    }
-    .face::before{
-      content:"";
-      position:absolute;
-      inset:10px 14px 12px 10px;
-      border-radius:20px;
-      border:2px solid rgba(37,99,235,.08);
-      pointer-events:none;
-    }
-
-    .front-value,
-    .back-value{
-      position:relative;
-      z-index:1;
-      width:100%;
-      height:100%;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      text-align:center;
-      user-select:none;
-    }
-
-    .front-value img{
-      display:block;
-      max-width:100%;
-      max-height:100%;
-      object-fit:contain;
-      border-radius:14px;
-    }
-
-    .back{
-      transform:rotateY(180deg);
-    }
-
-    .back-value{
-      font-size:clamp(34px, 5vw, 56px);
-      line-height:1.15;
-      font-weight:800;
-      padding:18px;
-      transition:color .18s ease;
-    }
-
-    .button-row{
-      display:flex;
-      gap:14px;
-      flex-wrap:wrap;
-      justify-content:center;
-      align-items:center;
-    }
-
-    .flip-btn,
-    .new-btn{
-      appearance:none;
-      border:none;
-      border-radius:18px;
-      padding:16px 28px;
-      cursor:pointer;
-      transition:transform .16s ease, box-shadow .16s ease, background .16s ease, opacity .16s ease;
-      box-shadow:0 2px 0 rgba(17,24,39,.03), inset 0 0 0 1px rgba(17,24,39,.08);
-      font-family:Inter, sans-serif;
-    }
-    .flip-btn:hover,
-    .new-btn:hover{ transform:translateY(-1px); }
-    .flip-btn:active,
-    .new-btn:active{ transform:translateY(0); }
-
-    .flip-btn{
-      background:#ffffff;
-      color:#111827;
-      font:800 28px/1 Inter, sans-serif;
-    }
-
-    .new-btn{
-      background:var(--blue);
-      color:#fff;
-      font:800 22px/1 Inter, sans-serif;
-    }
-
-    .hint{
-      color:var(--muted);
-      font-size:15px;
-      font-weight:600;
-      text-align:center;
-      margin-top:2px;
-    }
-
-    .kbd{
-      display:inline-block;
-      min-width:28px;
-      padding:4px 8px;
-      border-radius:8px;
-      background:#fff;
-      border:1px solid var(--border);
-      box-shadow:0 2px 0 rgba(0,0,0,.04);
-      color:var(--ink);
-      font:800 13px/1 Inter, sans-serif;
-      margin:0 2px;
-    }
-
-    .loading-overlay{
-      position:fixed;
-      inset:0;
-      background:rgba(245,246,248,.96);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      z-index:100;
-      transition:opacity .25s ease, visibility .25s ease;
-    }
-
-    .loading-overlay.hidden{
-      opacity:0;
-      visibility:hidden;
-      pointer-events:none;
-    }
-
-    .loading-card{
-      background:#fff;
-      border:1px solid var(--border);
-      border-radius:24px;
-      padding:28px 34px;
-      box-shadow:var(--shadow);
-      text-align:center;
-      min-width:min(420px, 88vw);
-    }
-
-    .loading-title{
-      font-size:22px;
-      font-weight:800;
-      margin-bottom:8px;
-    }
-
-    .loading-sub{
-      color:var(--muted);
-      font-weight:600;
-      margin-bottom:18px;
-    }
-
-    .progress-wrap{
-      height:14px;
-      background:#eef2f7;
-      border-radius:999px;
-      overflow:hidden;
-    }
-
-    .progress-bar{
-      height:100%;
-      width:0%;
-      background:linear-gradient(90deg,#2563eb,#60a5fa);
-      transition:width .18s ease;
-    }
-
-    .progress-text{
-      margin-top:12px;
-      color:var(--muted);
-      font-weight:700;
-      font-size:14px;
-    }
-
-    @media (max-width: 760px){
-      .topbar{ padding-inline:14px; }
-      .right-actions{ gap:10px; }
-      .btn{ padding:12px 16px; font-size:15px; }
-      .flip-scene{ height:300px; }
-      .flip-btn{ font-size:22px; padding:14px 22px; }
-      .new-btn{ font-size:18px; padding:14px 20px; }
-      .back-value{ font-size:clamp(28px, 6vw, 42px); }
-      .back-btn{ padding-inline:14px 16px; }
-      .logo-badge{ width:38px; height:38px; }
-    }
+  .facePic img{ border-radius:12px; user-select:none; }
+  .facePic.side img{ width:calc(var(--cw) * .44); max-width:none; height:auto; }
   </style>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
 <!-- mmt-pwa -->
@@ -346,216 +22,49 @@
 <!-- /mmt-pwa -->
 </head>
 <body>
-  <div class="loading-overlay" id="loadingOverlay" aria-live="polite">
-    <div class="loading-card">
-      <div class="loading-title">Loading images…</div>
-      <div class="loading-sub">Preparing the flip cards for smooth use</div>
-      <div class="progress-wrap">
-        <div class="progress-bar" id="progressBar"></div>
-      </div>
-      <div class="progress-text" id="progressText">0 / 30</div>
-    </div>
-  </div>
-
-  <div class="app">
-    <header class="topbar">
-      <div class="left-actions">
-        <a class="btn btn-light back-btn" href="https://millsmathstools.au" aria-label="Back to Mills Maths Tools">
-          <span class="logo-badge">
-            <img src="../../assets/mmt.png" alt="Mills Maths Tools logo">
-          </span>
-          <span>Back to Mills Maths Tools</span>
-        </a>
-      </div>
-
-      <div class="right-actions">
-        <button class="btn btn-red" id="resetBtn" type="button">Reset</button>
-      </div>
-    </header>
-
-    <div class="title">Angle Relationships Flip Card</div>
-    <div class="subtitle">Name the angle relationship before flipping.</div>
-
-    <main class="main">
-      <div class="board">
-        <div class="flip-scene" aria-live="polite">
-          <div class="flip-card" id="flipCard">
-            <div class="face front">
-              <div class="front-value" id="frontValue"></div>
-            </div>
-            <div class="face back">
-              <div class="back-value" id="backValue"></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="button-row">
-          <button class="flip-btn" id="flipBtn" type="button">Flip</button>
-          <button class="new-btn" id="newBtn" type="button">New Q</button>
-        </div>
-
-        <div class="hint">
-          Press <span class="kbd">Enter</span> or <span class="kbd">R</span> to reveal.&nbsp;&nbsp;
-          Press <span class="kbd">Space</span> for a new question.
-        </div>
-      </div>
-    </main>
-  </div>
-
-  <script>
-    const CARDS = [];
-
-    // 1–10 Alternate (Green)
-    for (let i = 1; i <= 10; i++) {
-      CARDS.push({ img: `${i}.png`, text: "Alternate Angles", color: "#16a34a" });
-    }
-
-    // 11–20 Corresponding (Blue)
-    for (let i = 11; i <= 20; i++) {
-      CARDS.push({ img: `${i}.png`, text: "Corresponding Angles", color: "#2563eb" });
-    }
-
-    // 21–30 Cointerior (Orange)
-    for (let i = 21; i <= 30; i++) {
-      CARDS.push({ img: `${i}.png`, text: "Cointerior Angles", color: "#f97316" });
-    }
-
-    const state = {
-      index: 0,
-      revealed: false,
-      ready: false
-    };
-
-    const flipCard = document.getElementById('flipCard');
-    const frontValue = document.getElementById('frontValue');
-    const backValue = document.getElementById('backValue');
-    const resetBtn = document.getElementById('resetBtn');
-    const flipBtn = document.getElementById('flipBtn');
-    const newBtn = document.getElementById('newBtn');
-
-    const loadingOverlay = document.getElementById('loadingOverlay');
-    const progressBar = document.getElementById('progressBar');
-    const progressText = document.getElementById('progressText');
-
-    function setControlsEnabled(enabled){
-      [flipBtn, newBtn, resetBtn].forEach(btn => {
-        btn.disabled = !enabled;
-        btn.style.opacity = enabled ? '1' : '.6';
-        btn.style.cursor = enabled ? 'pointer' : 'not-allowed';
-      });
-    }
-
-    function setFaceBorders(color){
-      document.querySelectorAll('.face').forEach(face => {
-        face.style.borderColor = color;
-      });
-    }
-
-    function updateDisplay(){
-      const card = CARDS[state.index];
-
-      frontValue.innerHTML = `<img src="${card.img}" alt="${card.text}">`;
-      backValue.textContent = card.text;
-      backValue.style.color = card.color;
-
-      flipCard.classList.toggle('revealed', state.revealed);
-
-      if (state.revealed) {
-        setFaceBorders(card.color);
-      } else {
-        setFaceBorders('var(--card-outline)');
-      }
-    }
-
-    function generateCard(){
-      let newIndex = Math.floor(Math.random() * CARDS.length);
-      while (newIndex === state.index && CARDS.length > 1) {
-        newIndex = Math.floor(Math.random() * CARDS.length);
-      }
-      state.index = newIndex;
-    }
-
-    function newQuestion(){
-      if (!state.ready) return;
-      generateCard();
-      state.revealed = false;
-      updateDisplay();
-    }
-
-    function flip(){
-      if (!state.ready) return;
-      state.revealed = !state.revealed;
-      updateDisplay();
-    }
-
-    function reset(){
-      if (!state.ready) return;
-      state.revealed = false;
-      updateDisplay();
-    }
-
-    function preloadImages(cards){
-      const uniqueSources = [...new Set(cards.map(card => card.img))];
-      const total = uniqueSources.length;
-      let loaded = 0;
-
-      progressText.textContent = `0 / ${total}`;
-      progressBar.style.width = '0%';
-
-      const loaders = uniqueSources.map(src => {
-        return new Promise(resolve => {
-          const img = new Image();
-
-          const done = () => {
-            loaded++;
-            const pct = (loaded / total) * 100;
-            progressBar.style.width = `${pct}%`;
-            progressText.textContent = `${loaded} / ${total}`;
-            resolve();
-          };
-
-          img.onload = done;
-          img.onerror = done;
-          img.src = src;
-        });
-      });
-
-      return Promise.all(loaders);
-    }
-
-    async function init(){
-      setControlsEnabled(false);
-      await preloadImages(CARDS);
-      state.ready = true;
-      setControlsEnabled(true);
-      newQuestion();
-      loadingOverlay.classList.add('hidden');
-    }
-
-    flipBtn.addEventListener('click', flip);
-    newBtn.addEventListener('click', newQuestion);
-    resetBtn.addEventListener('click', reset);
-
-    document.addEventListener('keydown', (e) => {
-      if (!state.ready) return;
-
-      if (e.key === 'Enter' || e.key.toLowerCase() === 'r') {
-        e.preventDefault();
-        flip();
-      }
-
-      if (e.key === ' ') {
-        e.preventDefault();
-        newQuestion();
-      }
-
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        reset();
-      }
-    });
-
-    init();
-  </script>
+<script>
+/* ANGLES ON PARALLEL LINES — flip cards on the shared MMT engine (rebuilt 2026-11-18).
+   The 30 original drawings (1–10 alternate, 11–20 corresponding, 21–30
+   cointerior), now with a set for each kind as well as all three mixed. The back
+   names the pair in its colour and says the rule. */
+(() => {
+  const KIND = {
+    alt:{ name:"Alternate angles", colour:"#16a34a", rule:"Alternate angles on parallel lines are equal.", from:1 },
+    cor:{ name:"Corresponding angles", colour:"#2563eb", rule:"Corresponding angles on parallel lines are equal.", from:11 },
+    co:{ name:"Cointerior angles", colour:"#f97316", rule:"Cointerior angles on parallel lines add to 180°.", from:21 }
+  };
+  const img = n => `<img src="${n}.png" alt="Angle pair on parallel lines" draggable="false">`;
+  const mk = kinds => () => {
+    const k = kinds[Math.floor(Math.random() * kinds.length)], n = KIND[k].from + Math.floor(Math.random() * 10);
+    return { key:n, colour:KIND[k].colour, render:o => ({
+      front:{ pic:img(n) },
+      back:{ main:`<span style="color:${KIND[k].colour}">${KIND[k].name}</span>`, ui:true, wrap:true, sub:o.why ? KIND[k].rule : "", pic:o.pic ? img(n) : "", side:o.pic }
+    }) };
+  };
+  const pre = []; for(let i = 1; i <= 30; i++) pre.push(i + ".png");
+  window.FLIP_DECK = {
+    title:"Flip Cards — Angles on Parallel Lines",
+    outcome:"MA4-ANG-C-01",
+    storeKey:"mmtFlip.parallelLines.v2",
+    prompt:"Name the pair of angles.",
+    ratio:1.62,
+    preload:pre,
+    sets:[
+      { id:"all", name:"All three", sub:"Alternate, corresponding and cointerior mixed", gen:mk(["alt", "cor", "co"]) },
+      { id:"alt", name:"Alternate", sub:"The Z shape: equal", gen:mk(["alt"]) },
+      { id:"cor", name:"Corresponding", sub:"The F shape: equal", gen:mk(["cor"]) },
+      { id:"co", name:"Cointerior", sub:"The C shape: add to 180°", gen:mk(["co"]) },
+      { id:"ac", name:"Alternate or corresponding?", sub:"The two that are both equal", gen:mk(["alt", "cor"]) }
+    ],
+    settings:[
+      { id:"why", type:"switch", label:"Say the rule on the back", def:true, repaint:true },
+      { id:"pic", type:"switch", label:"Keep the drawing on the back", def:true, repaint:true }
+    ],
+    tools:[],
+    notes:`<p>The colours match each kind: alternate green, corresponding blue, cointerior orange.</p><p>Ask for the name, then: are they equal, or do they add to 180&deg;?</p>`
+  };
+})();
+</script>
+<script src="../shared/flipcards.js?v=ed8c1019"></script>
 </body>
 </html>

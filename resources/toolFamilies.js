@@ -177,7 +177,9 @@ window.MMT_TOOL_FAMILIES = {
     "/worksheet-creators/stage-5/algebra/complete-the-square.html"
   ],
   "/interactive-tools/stage-5/measurement-space/unit-circle-trig-ratios/": [
-    "/interactive-tools/stage-5/measurement-space/unit-circle-trig-ratios/lesson-plan.html"
+    "/interactive-tools/stage-5/measurement-space/unit-circle-trig-ratios/lesson-plan.html",
+    "/flip-cards/unit-circle-related-angles.html",
+    "/worksheet-creators/stage-5/measurement-space/unit-circle-trig.html"
   ]
 };
 
