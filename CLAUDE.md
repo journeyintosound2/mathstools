@@ -200,6 +200,19 @@
 >   boarding blocks dragging, lands at 0°, drag unwraps to 420°, table fills to the angle reached, sweep fills it, curve
 >   ends at the wheel, 720° cap, rules toggle, typed 450°, Back to the unit circle.
 >
+> **NEW (2026-11-19, latest): UNIT CIRCLE — FIRST QUADRANT ONLY, THEN THREE TURNS ON THE WHOLE CIRCLE.**
+> * Step "The first quadrant" draws ONLY quadrant 1: grid clipped to it (`#q1clip`, x ≥ origin, y above it), positive
+>   axes, a quarter of the dashed circle, no (−1, 0)/(0, −1), no "unit circle" label. Going to "The whole unit circle"
+>   (P.z 0→1) the clip, the negative axes, the arc (90° → 360°), the negative ticks and those points grow out together.
+> * The whole circle now runs 0°–1080° like the applications, but HOLDS at both ends (no reset; `TURNS_MSG`). Drag keeps
+>   count of turns (a click lands in the current turn); typed 0–1080 goes there; Sweep is 0 to 1080°; the quadrant tag
+>   adds "· turn 2/3". Next / More applications / Back first fold the angle into the first turn (`foldTurns`,
+>   `foldAng`, and the K_ALL branch of `leaveQueue`).
+> * Graphs: `gxWhole()` sets the x-axis to 360/720/1080 from the CURRENT angle (zooms back in when the stick turns back),
+>   a 750 ms log tween driven by its own rAF; labels every 180° past one turn, turn lines darker. Tan now skips every
+>   undefined angle (90°, 270°, 450°…: a NaN there used to cut the whole path) with asymptotes up to 990°.
+>   Checked: 1,440 audit frames (4 label modes, angles to 1080°, 5 viewports), real-mouse drag over 2½ turns, t26/t28.
+>
 > **NEW (2026-11-19, later): UNIT CIRCLE — "TRIG NAMES" SIDE LABELS.** A fourth label mode `trig` (board switch button
 > "sin θ", Settings › Side labels › Trig names, L cycles all four): the sides read ±cos θ and ±sin θ (signs once the
 > whole circle is reached, like Letters), the point reads (cos θ, sin θ) and the tan readout is ±sin θ / ±cos θ.

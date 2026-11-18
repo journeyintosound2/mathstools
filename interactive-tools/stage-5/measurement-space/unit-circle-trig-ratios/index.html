@@ -454,9 +454,12 @@
      A stick exactly 1 unit long. Put one end at the origin and turn it: the triangle under its end
      has hypotenuse 1, so sin θ = y and cos θ = x.
        1. the stick on its own;
-       2. the stick on the number plane, ZOOMED IN on the first quadrant, dragged from 0° to 90°. The
-          graphs (x-axis 0° to 90°) draw from 0 up to the stick's angle and wind back when it turns back;
-       3. zoom out to the whole unit circle and 360°; the sides gain signs (±x, ±y);
+       2. the stick on the number plane, ZOOMED IN on the first quadrant, dragged from 0° to 90°. ONLY the
+          first quadrant is drawn (grid, positive axes, a quarter of the dashed circle); the graphs (x-axis
+          0° to 90°) draw from 0 up to the stick's angle and wind back when it turns back;
+       3. zoom out to the whole unit circle: the rest of the circle, the grid and the negative axes grow out
+          with P.z; the sides gain signs (±x, ±y). The stick goes up to three turns (0°–1080°, held at both
+          ends) and the graphs' x-axis zooms smoothly to 360°, 720° or 1080° to fit the angle (gxWhole);
        4+ REAL-WORLD SCENES. The unit circle morphs into something that turns (the Ferris wheel is
           the first): same stick, same angle, same triangle, measured in metres. A scene adds a
           morph parameter to P (fw for the wheel), its own view, its own drawing and its own graphs.
@@ -469,7 +472,7 @@
     { id:"stick", t:"A stick 1 unit long", m:"Here is a stick. It is exactly 1 unit long.", segs:[] },
     { id:"quad1", t:"The first quadrant",  m:"One end at the origin, so the stick is the hypotenuse. Drag the other end and watch the three graphs.",
       segs:[{ d:1800, to:{ m:1, ax:1 } }, { d:1400, to:{ ang:40, tri:1 } }] },
-    { id:"whole", t:"The whole unit circle", m:"Now the stick can go all the way round. What happens to each ratio past 90°?",
+    { id:"whole", t:"The whole unit circle", m:"Now the stick can go all the way round, and round again (up to three turns). What happens to each ratio past 90°?",
       segs:[{ d:1900, to:{ z:1, sg:1 } }] },
     { id:"ferris", t:"The Ferris wheel", m:"The wheel is 18 m across. Heights are measured from the centre of the wheel. Start halfway up on the right and turn anticlockwise.",
       app:"ferris", appName:"The Ferris wheel", prev:2,
@@ -531,7 +534,7 @@
   const isTideStep = () => appOf(S.step) === "tide";
   const isAppStep = () => !!appOf(S.step);
   const isRecStep = () => [K_S2, K_S3, K_P2, K_P3].includes(S.step);
-  const maxAng = () => isAppStep() ? MAXA : S.step >= K_ALL ? 360 : 90;
+  const maxAng = () => S.step >= K_ALL ? MAXA : 90;          /* the whole circle and every application: three turns */
   const ferris = () => S.P.fw > .5;
   const sunrise = () => S.P.sr > .5;
   const tide = () => S.P.td > .5;
@@ -948,8 +951,11 @@
 
     /* --- grid and axes (the unit circle's; they fade as the wheel arrives) --- */
     const ax = P.ax * uo;
+    /* The first quadrant shows ONLY the first quadrant (Jeff, 2026-11-19): grid, axes and the quarter of the circle
+       the stick will trace. Going to the whole circle, the grid, the negative axes and the rest of the circle grow out with z. */
+    const qx0 = lerp(ox, 0, z), qy1 = lerp(oy, h, z);
     if(ax > .01){
-      let g = `<g opacity="${ax.toFixed(3)}">`;
+      let g = `<g opacity="${ax.toFixed(3)}"><defs><clipPath id="q1clip"><rect x="${f3(qx0)}" y="0" width="${f3(w - qx0)}" height="${f3(qy1)}"/></clipPath></defs><g clip-path="url(#q1clip)">`;
       const fine = (1 - z) * .9;
       if(fine > .03){
         for(let i = -20; i <= 20; i++){ if(i % 5 === 0) continue;
@@ -960,14 +966,17 @@
       }
       for(let i = -6; i <= 6; i++){ const x = ox + i * R * .5; if(!i || x < 0 || x > w) continue; g += `<line x1="${f3(x)}" x2="${f3(x)}" y1="0" y2="${h}" stroke="${i % 2 ? C.grid : C.gridB}" stroke-width="1"/>`; }
       for(let i = -6; i <= 6; i++){ const y = oy + i * R * .5; if(!i || y < 0 || y > h) continue; g += `<line y1="${f3(y)}" y2="${f3(y)}" x1="0" x2="${w}" stroke="${i % 2 ? C.grid : C.gridB}" stroke-width="1"/>`; }
-      g += `<line x1="0" x2="${w - 8}" y1="${oy}" y2="${oy}" stroke="${C.axis}" stroke-width="2"/>` + arrowHead(w - 4, oy, 1, 0, 10, C.axis);
-      g += `<line y1="${h}" y2="8" x1="${ox}" x2="${ox}" stroke="${C.axis}" stroke-width="2"/>` + arrowHead(ox, 4, 0, -1, 10, C.axis);
+      g += "</g>";
+      g += `<line x1="${f3(qx0)}" x2="${w - 8}" y1="${oy}" y2="${oy}" stroke="${C.axis}" stroke-width="2"/>` + arrowHead(w - 4, oy, 1, 0, 10, C.axis);
+      g += `<line y1="${f3(qy1)}" y2="8" x1="${ox}" x2="${ox}" stroke="${C.axis}" stroke-width="2"/>` + arrowHead(ox, 4, 0, -1, 10, C.axis);
       g += `<text class="tk" x="${w - 12}" y="${oy - f * .9}" font-size="${f * 1.05}" fill="${C.axis}" font-style="italic" text-anchor="end" dominant-baseline="central">x</text>`;
       g += `<text class="tk" x="${ox + f * .75}" y="${10 + f * .5}" font-size="${f * 1.05}" fill="${C.axis}" font-style="italic" dominant-baseline="central">y</text>`;
       const tf = f * .78;
       [[-1, MINUS + "1", 1], [-.5, MINUS + "0.5", 1 - z], [.5, "0.5", 1 - z], [1, "1", 1]].forEach(([u, lab, lop]) => {
-        g += `<line x1="${X(u)}" x2="${X(u)}" y1="${oy - 5}" y2="${oy + 5}" stroke="${C.axis}" stroke-width="2"/>`;
-        g += `<line y1="${Y(u)}" y2="${Y(u)}" x1="${ox - 5}" x2="${ox + 5}" stroke="${C.axis}" stroke-width="2"/>`;
+        if(u < 0){ if(z < .02) return; lop *= z; }
+        const top = u < 0 ? ` opacity="${z.toFixed(3)}"` : "";
+        g += `<line x1="${X(u)}" x2="${X(u)}" y1="${oy - 5}" y2="${oy + 5}" stroke="${C.axis}" stroke-width="2"${top}/>`;
+        g += `<line y1="${Y(u)}" y2="${Y(u)}" x1="${ox - 5}" x2="${ox + 5}" stroke="${C.axis}" stroke-width="2"${top}/>`;
         if(lop > .03){
           g += `<text class="h tk" x="${X(u) + (u > 0 ? 9 : -9)}" y="${oy + tf * .9}" font-size="${tf}" fill="${C.tick}" text-anchor="${u > 0 ? "start" : "end"}" dominant-baseline="central" opacity="${lop.toFixed(3)}">${lab}</text>`;
           g += `<text class="h tk" x="${ox - 8}" y="${Y(u) + (u > 0 ? -tf * .62 : tf * .62)}" font-size="${tf}" fill="${C.tick}" text-anchor="end" dominant-baseline="central" opacity="${lop.toFixed(3)}">${lab}</text>`;
@@ -1025,21 +1034,21 @@
     /* --- the unit circle (dashed), which becomes the rim of the wheel --- */
     if(P.ax > .01 && P.m >= .999){
       if(uo > .01){
-        o += `<path d="${arcPath(R, 0, 360)}" fill="none" stroke="${C.circ}" stroke-width="2.4" stroke-dasharray="7 6" stroke-linecap="round" opacity="${(P.ax * uo).toFixed(3)}"/>`;
+        o += `<path d="${arcPath(R, 0, lerp(90, 360, z))}" fill="none" stroke="${C.circ}" stroke-width="2.4" stroke-dasharray="7 6" stroke-linecap="round" opacity="${(P.ax * uo).toFixed(3)}"/>`;
         const tf = f * .72;
         let g = `<g opacity="${(P.ax * uo).toFixed(3)}">`;
         [[1, 0, "(1, 0)", "start", 8, -tf * .8, 0], [0, 1, "(0, 1)", "start", 8, -tf * .8, 90], [-1, 0, "(" + MINUS + "1, 0)", "end", -8, -tf * .8, 180], [0, -1, "(0, " + MINUS + "1)", "start", 8, tf * .8, 270]].forEach(([u, v, lab, an, dx, dy, at]) => {
-          const xx = X(u), yy = Y(v);
-          if(xx < -20 || xx > w + 20 || yy < -20 || yy > h + 20) return;
-          g += `<circle cx="${xx}" cy="${yy}" r="3.6" fill="${C.circ}"/>`;
+          const xx = X(u), yy = Y(v), po2 = at > 90 ? z : 1;          /* (−1, 0) and (0, −1) arrive with the rest of the circle */
+          if(xx < -20 || xx > w + 20 || yy < -20 || yy > h + 20 || po2 < .02) return;
+          g += `<circle cx="${xx}" cy="${yy}" r="3.6" fill="${C.circ}" opacity="${po2.toFixed(3)}"/>`;
           if(P.tri > .5 && angGap(a, at) < 14) return;
-          g += `<text class="h" x="${xx + dx}" y="${yy + dy}" font-size="${tf}" fill="${C.tick}" text-anchor="${an}" dominant-baseline="central">${lab}</text>`;
+          g += `<text class="h" x="${xx + dx}" y="${yy + dy}" font-size="${tf}" fill="${C.tick}" text-anchor="${an}" dominant-baseline="central" opacity="${po2.toFixed(3)}">${lab}</text>`;
         });
         const relShown = S.set.rel && signs && quadrant(a) > 1 && P.tri > .5, ra = related(a);
         const cands = z < .5 ? [72, 18] : [125, 235, 305, 55];
         const clear = v => Math.min(angGap(v, a), relShown ? angGap(v, ra) + 25 : 999, S.set.tanLine ? angGap(v, 0) + 30 : 999);
         const la = cands.reduce((b, v) => clear(v) > clear(b) ? v : b, cands[0]);
-        g += `<text class="h ui" x="${X(cosD(la) * 1.13)}" y="${Y(sinD(la) * 1.13)}" font-size="${f * .66}" fill="${C.circ}" text-anchor="middle" dominant-baseline="central">unit circle</text>`;
+        if(z > .02) g += `<text class="h ui" x="${X(cosD(la) * 1.13)}" y="${Y(sinD(la) * 1.13)}" font-size="${f * .66}" fill="${C.circ}" text-anchor="middle" dominant-baseline="central" opacity="${z.toFixed(3)}">unit circle</text>`;
         o += g + "</g>";
       }
       if(fo > .01){
@@ -1693,7 +1702,7 @@
     if(document.activeElement !== inp) inp.value = k < K_Q1 ? "" : (isRad() ? (Math.round(P.ang * RAD * 10) / 10).toFixed(1) : String(Math.round(P.ang)));
     const q = quadrant(P.ang), qt = $("quadTag");
     const mo = P.ang / 30;
-    qt.textContent = TID ? tideState(P.ang) : PEN ? pendState(P.ang) : SUN ? `${isWhole(mo) ? "" : "≈ "}${monthYear(clamp(Math.round(mo), 0, 36))}` : FER ? (q ? `Quadrant ${q}` : posName(P.ang)) : q ? `Quadrant ${q}` : "On an axis";
+    qt.textContent = TID ? tideState(P.ang) : PEN ? pendState(P.ang) : SUN ? `${isWhole(mo) ? "" : "≈ "}${monthYear(clamp(Math.round(mo), 0, 36))}` : FER ? (q ? `Quadrant ${q}` : posName(P.ang)) : (q ? `Quadrant ${q}` : "On an axis") + (k === K_ALL && P.ang > 360 ? ` \u00b7 turn ${Math.min(3, Math.floor((P.ang - 1e-9) / 360) + 1)}` : "");
     qt.hidden = k < K_Q1;
     const topSig = qt.textContent.length + "|" + qt.hidden + "|" + S.set.labels + "|" + S.set.panel;
     if(topSig !== fitTop.sig){
@@ -1750,11 +1759,24 @@
     if(f === "t") return { lo:-3.4, hi:3.4, fn:a => fx("t", a), col:C.t, cold:C.td, grid:[-2, 2], labs:[[-2, MINUS + "2"], [0, "0"], [2, "2"]], fine:[-3, -1, 1, 3], tan:true };
     return { lo:-1.25, hi:1.25, fn:a => fx(f, a), col:f === "s" ? C.y : C.x, cold:f === "s" ? C.yd : C.xd, grid:[-1, 1], labs:[[-1, MINUS + "1"], [0, "0"], [1, "1"]], fine:[-.5, .5] };
   }
+  /* The whole circle's graphs scale to the turns used: 0–360°, then a smooth zoom out to 720° as the stick passes
+     360°, and to 1080° past 720° (and back in when it turns back). Held still once an application starts. */
+  const GX = { cur:360, from:360, to:360, t0:0, raf:0 };
+  function gxWhole(){
+    if(S.step <= K_ALL){
+      const want = 360 * clamp(Math.ceil(S.P.ang / 360 - 1e-6), 1, TURNS);
+      if(want !== GX.to){ GX.from = GX.cur; GX.to = want; GX.t0 = performance.now(); }
+    }
+    const k = reduceMotion ? 1 : clamp((performance.now() - GX.t0) / 750, 0, 1);
+    GX.cur = Math.exp(lerp(Math.log(GX.from), Math.log(GX.to), ease(k)));
+    if(k < 1 && !GX.raf) GX.raf = requestAnimationFrame(() => { GX.raf = 0; if(!S.anim) render(); });
+    return GX.cur;
+  }
   function graphLayout(f){
     const el = $("g_" + f), r = el.getBoundingClientRect();
     const w = Math.max(120, r.width), h = Math.max(60, r.height);
     const ml = 34, mr = 14, mt = 6, mb = 20, sp = gspec(f);
-    let gx = Math.exp(lerp(Math.log(90), Math.log(360), ease(clamp(S.P.z, 0, 1))));
+    let gx = Math.exp(lerp(Math.log(90), Math.log(gxWhole()), ease(clamp(S.P.z, 0, 1))));
     gx = lerp(gx, MAXA, ease(clamp(S.P.fw, 0, 1)));
     gx = lerp(gx, 1080, ease(clamp(S.P.td, 0, 1)));
     return { el, w, h, ml, mr, mt, mb, sp, gx, X:d => ml + d / gx * (w - ml - mr), Y:v => mt + (sp.hi - v) / (sp.hi - sp.lo) * (h - mt - mb) };
@@ -1764,7 +1786,7 @@
     if(end < 0) return "";
     let d = "", on = false;
     for(let a = 0; a <= end + 1e-9; a += .5){
-      if(sp.tan && (Math.abs(a - 90) < .01 || Math.abs(a - 270) < .01)){ on = false; continue; }
+      if(sp.tan && tanUndef(a)){ on = false; continue; }               /* 90°, 270°, 450°, … */
       let v = sp.fn(a); if(sp.tan) v = clamp(v, -lim, lim);
       d += (on ? "L" : "M") + f3(G.X(a)) + " " + f3(G.Y(v)); on = true;
     }
@@ -1802,7 +1824,8 @@
         const strong = d % 90 === 0, mid = d % 30 === 0;
         const op = strong ? 1 : mid ? thin : zin;
         if(op < .03) continue;
-        o += `<line x1="${f3(X(d))}" x2="${f3(X(d))}" y1="${G.mt}" y2="${h - G.mb}" stroke="${strong ? ((FER || TID) && d % 360 === 0 ? "#94a3b8" : "#dbe3ee") : "#eef2f7"}" stroke-width="${(FER || TID) && d % 360 === 0 ? 1.6 : 1}" opacity="${op.toFixed(3)}"/>`;
+        const turnLine = (FER || TID || gx > 361) && d % 360 === 0;
+        o += `<line x1="${f3(X(d))}" x2="${f3(X(d))}" y1="${G.mt}" y2="${h - G.mb}" stroke="${strong ? (turnLine ? "#94a3b8" : "#dbe3ee") : "#eef2f7"}" stroke-width="${turnLine ? 1.6 : 1}" opacity="${op.toFixed(3)}"/>`;
       }
       o += `<line x1="${G.ml}" x2="${w - G.mr}" y1="${Y(0)}" y2="${Y(0)}" stroke="#64748b" stroke-width="1.6"/>`;
       o += `<line x1="${G.ml}" x2="${G.ml}" y1="${G.mt}" y2="${h - G.mb}" stroke="#64748b" stroke-width="1.6"/>`;
@@ -1810,7 +1833,8 @@
       for(let d = 0; d <= 1080; d += 15){
         if(d > gx + .01) break;
         if(TID) break;
-        const op = FER ? (d % 180 === 0 ? 1 : 0) : d % 90 === 0 ? 1 : d % 30 === 0 ? zin : 0;
+        const odd90 = clamp((600 - gx) / 200, 0, 1);              /* past one turn, label every 180° */
+        const op = FER ? (d % 180 === 0 ? 1 : 0) : d % 180 === 0 ? 1 : d % 90 === 0 ? odd90 : d % 30 === 0 ? zin : 0;
         if(op < .05) continue;
         const anchor = d === 0 ? "start" : Math.abs(d - gx) < .5 ? "end" : "middle";
         o += `<text x="${X(d)}" y="${h - G.mb + 13}" font-size="11" fill="#64748b" text-anchor="${anchor}" opacity="${op.toFixed(3)}">${tickTxt(d)}</text>`;
@@ -1829,7 +1853,7 @@
         G.el.innerHTML = o; return;
       }
       let g = `<g opacity="${live.toFixed(3)}" clip-path="url(#gc_${f})">`;
-      if(sp.tan) [90, 270].forEach(d => {
+      if(sp.tan) [90, 270, 450, 630, 810, 990].forEach(d => {
         if(d <= gx + .01 && (S.set.ghost || a >= d - 1)) g += `<line x1="${X(d)}" x2="${X(d)}" y1="${G.mt}" y2="${h - G.mb}" stroke="${C.td}" stroke-width="1.4" stroke-dasharray="5 4" opacity=".7"/>`;
       });
       if(S.set.ghost) g += `<path d="${curvePath(G, 1080)}" fill="none" stroke="${sp.col}" stroke-opacity=".22" stroke-width="2.2"/>`;
@@ -1948,6 +1972,9 @@
     }
   }
   /* the tweens that play a step forwards, and the ones that take it back to the step before it */
+  /* the whole circle can be up to three turns round; an application starts from the same place in the first turn */
+  const foldAng = () => S.P.ang > 360 ? (((S.P.ang % 360) + 360) % 360) : S.P.ang;
+  const foldTurns = () => S.step === K_ALL && S.P.ang > 360 ? [{ set:{ ang:foldAng() } }] : [];
   function enterQueue(k, ang){
     return STEPS[k].segs.map(sg => sg.fillYear
       ? { to:sg.to, d:reduceMotion ? 0 : Math.max(0, (MAXA - ang) / MAXA * SWEEP() * 1.4), lin:true }
@@ -1956,6 +1983,7 @@
   }
   function leaveQueue(k, ang){
     const segs = STEPS[k].segs, q = [];
+    if(k === K_ALL && ang > 360){ ang = ((ang % 360) + 360) % 360 || 360; q.push({ set:{ ang } }); }
     if(k === K_ALL && ang > 90) q.push({ to:{ ang:90 }, d:clamp((ang - 90) * 5, 400, 1400) });
     if(STEPS[k].app && STEPS[k].prev === K_ALL && ang > 360) q.push({ set:{ ang:((ang % 360) + 360) % 360 || 360 } });
     for(let i = segs.length - 1; i >= 0; i--){
@@ -1968,12 +1996,13 @@
   function next(){
     if(S.anim) return;
     const k = nextOf(S.step); if(k < 0) return;
+    const fq = foldTurns(), fa = foldAng();
     S.step = k; S.msg = "";
     if(k === K_FW) S.fmax = 0;
     if(k === K_S2) S.smax = 0;
     if(k === K_T1) S.tmax = 0;
     if(k === K_P2) S.smax = 0;
-    run(enterQueue(k, S.P.ang));
+    run(fq.concat(enterQueue(k, fa)));
   }
   function back(){
     if(S.anim || S.step === 0) return;
@@ -1990,7 +2019,7 @@
     if(S.anim || S.step === t) return;
     if(!appOf(S.step)){
       if(S.step < K_ALL) jump(K_ALL);
-      const q = enterQueue(t, S.P.ang);
+      const q = foldTurns().concat(enterQueue(t, foldAng()));
       S.step = t; S.msg = ""; S.fmax = 0; S.smax = 0; S.tmax = 0;
       run(q);
       return;
@@ -2030,6 +2059,7 @@
   }
   /* past three turns an application starts again from 0: the graphs and tables clear */
   const RESET_MSG = "Three turns done &mdash; starting again from 0&deg;.";
+  const TURNS_MSG = "Three turns is as far as it goes here (1080&deg;). Turn back, or press <b>Next</b> for the applications.";
   function wrapPast(a){
     if(!isAppStep() || a <= MAXA + 1e-9) return a;
     S.fmax = 0; S.smax = 0; S.tmax = 0; flash(RESET_MSG, 3000);
@@ -2040,6 +2070,7 @@
     S.dragged = true;
     let a = S.P.ang + dA; const mx = maxAng();
     if(a > mx && mx === 90) flash(LIMIT_MSG);
+    if(a > mx && S.step === K_ALL) flash(TURNS_MSG, 3000);
     a = wrapPast(a);
     S.P.ang = clamp(a, 0, mx);
     render();
@@ -2064,11 +2095,12 @@
       if(a > 90 && a <= 225){ a = 90; flash(LIMIT_MSG, 3000); }
       else if(a > 225) a = 0;
     } else {
+      /* the whole circle keeps count of its turns (0° to 1080°); a click goes to that point in the current turn */
       if(a >= 360) a = 0;
-      if(jumpTo) { /* a click goes straight to where it lands */ }
-      else if(p > 270 && a < 90) a = 360;
-      else if(p < 90 && a > 270) a = 0;
-      else if(p >= 359.5 && a < 1) a = 360;
+      if(jumpTo){ const base = Math.min(720, 360 * Math.floor(p / 360)); a = base + a; }
+      else { const dd = ((((a - p) % 360) + 540) % 360) - 180; a = p + dd; }
+      if(a > MAXA){ a = MAXA; flash(TURNS_MSG, 3000); }
+      a = clamp(a, 0, MAXA);
     }
     S.P.ang = a;
     render();
@@ -2096,6 +2128,11 @@
       S.dragged = true; turnTo(clamp(v, 0, MAXA)); return;
     }
     let n = norm(v);
+    if(S.step === K_ALL && v >= 0 && v <= MAXA){
+      if(v > 360){ const t = Math.floor(v / 360), rest = v - 360 * t;
+        flash(rest > .05 ? `${shown} is ${t} full turn${t > 1 ? "s" : ""} and ${angTxt(rest)} more: the stick ends up at <b>${angTxt(rest)}</b>, and the graphs keep going.` : `${shown} is ${t} full turns: the stick is back where it started, and the graphs keep going.`, 6000); }
+      S.dragged = true; turnTo(v); return;
+    }
     if(S.step < K_ALL && (v < 0 || v > 90)) flash(LIMIT_MSG);
     else if(v > 360){ const t = Math.floor(v / 360), rest = v - 360 * t;
       flash(rest > .05 ? `${shown} is ${t} full turn${t > 1 ? "s" : ""} and ${angTxt(rest)} more, so the stick ends up at <b>${angTxt(rest)}</b>.` : `${shown} is ${t} full turns, so the stick ends up back where it started.`, 6000); }
