@@ -140,6 +140,9 @@
     .exStrip .exHead{ font-size:calc(10.5px * var(--fs)); font-weight:1000; letter-spacing:.1em; text-transform:uppercase; color:#3730a3; }
     .exStrip .exBody{ display:flex; flex-direction:column; gap:1.2mm; min-width:0; }
     .exStrip .exLine{ font-family:var(--mathFont); font-weight:700; font-size:calc(15.5px * var(--fs)); line-height:1.25; }
+    .exStrip .ec{ color:#1d4ed8; }
+    .exStrip .eg{ color:#15803d; }
+    .page.bw .exStrip .ec, .page.bw .exStrip .eg{ color:inherit; }
     .exStrip .exLine .k{ font-family:var(--uiFont); font-size:calc(10.5px * var(--fs)); font-weight:1000; color:var(--muted); letter-spacing:.04em; margin-right:1.5mm; }
     .exStrip svg{ flex:0 0 auto; display:block; }
     .bw .exStrip{ background:#fff; border-color:#9ca3af; }
@@ -803,12 +806,19 @@
   }
 
   /* ---------------------------------------------------------- page furniture */
+  /* the worked example mimics the live tool: the group (7, x) in green, the number of groups in blue */
+  const eC = s => `<span class="ec">${s}</span>`, eG = s => `<span class="eg">${s}</span>`;
+  function exprC(terms, not){
+    return terms.map((t, i) => (i ? " + " : "") + (not === "words" ? `${eC(t.c)} <span class="wd">${gw(t.c)} of</span> ${eG(G(t.f))}`
+      : isNum(t.f) ? (not === "brackets" ? `${eC(t.c)}(${eG(t.f)})` : `${eC(t.c)} ${X} ${eG(t.f)}`)
+      : (t.c === 1 ? "" : eC(t.c)) + eG(Lt(t.f)))).join("");
+  }
   function exampleHTML(opts){
     const numT = EXT, letT = EXT.map(t => Object.assign({}, t, { f:"x" }));
     const not = opts.not;
     return `<div class="exStrip ng"><div class="exHead">Worked example — count the groups</div><div class="exCols">`
-      + `<div class="exCol">${pileSVG(numT, 7, opts, 74, 30)}<div class="exLine">${exprH(numT, not)} = 10 ${X} 7 = 70</div></div>`
-      + `<div class="exCol">${pileSVG(letT, "x", opts, 74, 30)}<div class="exLine">${exprH(letT)} = 10${Lt("x")}</div></div>`
+      + `<div class="exCol">${pileSVG(numT, 7, opts, 74, 30)}<div class="exLine">${exprC(numT, not)} = ${eC(10)} ${X} ${eG(7)} = 70</div></div>`
+      + `<div class="exCol">${pileSVG(letT, "x", opts, 74, 30)}<div class="exLine">${exprC(letT)} = ${eC(10)}${eG(Lt("x"))}</div></div>`
       + `</div><div class="exLine small"><span class="k">WHY</span>Each term is some groups of the same thing. Add how many groups (3 + 2 + 5 = 10), not the 7s &mdash; and the same picture works with ${Lt("x")}.</div></div>`;
   }
   function secHeadHTML(g, cont, opts){

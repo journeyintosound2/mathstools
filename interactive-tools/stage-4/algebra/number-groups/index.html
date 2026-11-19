@@ -413,7 +413,7 @@
           </div>
           <div id="ownBox" hidden>
             <div class="ownRow"><input id="ownIn" type="text" autocomplete="off" spellcheck="false" placeholder="3 × 7 + 2 × 7 + 5 × 7  or  4x + x − 2x" aria-label="Type your own expression"><button type="button" id="ownGo">Use</button></div>
-            <div class="ownMsg" id="ownMsg">Use &times; or brackets for numbers, e.g. 4 &times; 9 or 4(9). Letters can be written 4<i>a</i>.</div>
+            <div class="ownMsg" id="ownMsg">Use &times; or brackets for numbers, e.g. 4 &times; 9 or 4(9). Letters can be written 4<i>a</i>, <i>ab</i> or <i>ba</i>, and powers 3<i>x</i>&sup2;.</div>
           </div>
         </section>
 
@@ -508,7 +508,7 @@
     if(st.rTotal && !opts.keep){ total = ri(Math.max(5, n), 20); st.total = total; }
     if(st.rTerms && !opts.keep){ n = ri(2, 5); st.terms = n; }
     let terms;
-    if(opts.keep && old){ terms = old.terms.map(t => Object.assign({}, t)); }
+    if(opts.keep && old){ terms = old.terms.map(t => { const c = Object.assign({}, t); delete c.fd; return c; }); }
     else {
       terms = countsFor(total, n, st.take, st.one);
       if(st.unlike){ const at = ri(0, terms.length); terms.splice(at, 0, { c:ri(st.one ? 1 : 2, 4), sign:1, u:true }); }
@@ -591,10 +591,12 @@
 
   /* ONE line: the question, then (from "write") = 10x, then (numbers) = 70. Parts not reached yet are
      still laid out but hidden (.fut), so the line never shifts sideways when they appear. */
+  /* a term's group as it was typed: 6ba stays 6ba under a pile of ab (same group, written the other way round) */
+  const fOf = (q, t) => (t.fd && q.kind === "let") ? t.fd : (t.u ? q.B : q.A);
   function exprHTML(q){
     return q.terms.map((t, i) => {
       const sign = i === 0 ? "" : tk("s" + i, t.sign < 0 ? "−" : "+", "op" + (t.sign < 0 ? " cM" : ""));
-      return sign + termHTML(t.c, t.u ? q.B : q.A, "t" + i, "cC", t.u ? "cU" : "cG");
+      return sign + termHTML(t.c, fOf(q, t), "t" + i, "cC", t.u ? "cU" : "cG");
     }).join("");
   }
   function row1HTML(q, upto){
@@ -650,7 +652,7 @@
     const marg = Math.max(14, W * 0.03), sgnGap = Math.max(22, capF * 1.7);
     /* spread: one column per term, captions under them read as the expression */
     let f = capF, Lk, capNot = S.set.not;
-    let caps = q.terms.map(t => termPlain(t.c, t.u ? q.B : q.A, capNot));
+    let caps = q.terms.map(t => termPlain(t.c, fOf(q, t), capNot));
     for(let it = 0; it < 40; it++){
       const capW = caps.map(c => tw(c, f) * 1.04);
       const free = W - 2 * marg - (n - 1) * sgnGap;
@@ -660,7 +662,7 @@
       if(f <= Math.max(11.5, minPx / sc)){
         /* the words version will not fit under the columns: write the captions with × instead */
         if(capNot !== "words") break;
-        capNot = "times"; f = capF; caps = q.terms.map(t => termPlain(t.c, t.u ? q.B : q.A, capNot)); continue;
+        capNot = "times"; f = capF; caps = q.terms.map(t => termPlain(t.c, fOf(q, t), capNot)); continue;
       }
       f *= 0.93;
     }
@@ -760,7 +762,7 @@
     if(drawn && !stacked){
       q.terms.forEach((t, i) => {
         els.push({ key:"cap" + i, type:"text", x:L.colC[i], y:L.base + L.capF * 1.35, o:1, size:L.capF,
-          html:svgTerm(t.c, t.u ? q.B : q.A, t.u ? "#5b21b6" : "#15803d", null, L.capNot), d:0.1 });
+          html:svgTerm(t.c, fOf(q, t), t.u ? "#5b21b6" : "#15803d", null, L.capNot), d:0.1 });
         if(i > 0) els.push({ key:"sg" + i, type:"text", x:L.colC[i] - L.slots[i] / 2 - L.sgnGap / 2, y:L.base + L.capF * 1.35, o:1, size:L.capF * 1.1,
           html:`<tspan fill="${t.sign < 0 ? "#dc2626" : "#334155"}">${t.sign < 0 ? "−" : "+"}</tspan>`, d:0.1 });
       });
@@ -992,6 +994,7 @@
       case "spot": return { lab:"Spot the group", m:`<span class="word">every term is some groups of</span> <span class="cG">${A}</span>`,
         tip:`The <b style="color:var(--green-dark)">${plain(A)}</b> is the size of one group. The blue numbers count how many groups.` +
           (q.unlike ? ` Except one term: it is groups of <b style="color:var(--purple-dark)">${plain(B)}</b>.` : "") +
+          (q.kind === "let" && q.terms.some(t => t.fd) ? ` <span class="eq">${q.terms.filter(t => t.fd).map(t => grpTxt(t.fd)).filter((v, i, a) => a.indexOf(v) === i).join(", ")}</span> is the same group as <span class="eq">${plain(q.terms.some(t => t.fd && t.u) && !q.terms.some(t => t.fd && !t.u) ? B : A)}</span>, because the order we multiply in doesn&rsquo;t change the size.` : "") +
           (q.kind === "let" && lik.some(t => t.c === 1) ? ` <span class="eq">${A}</span> on its own is <b>1</b> group of <span class="eq">${A}</span>.` : "") };
       case "draw": return { lab:"Draw the groups", m:lik.map((t, i) => (i ? (t.sign < 0 ? ' <span class="cM">−</span> ' : " + ") : "") + `<span class="cC">${t.c}</span> <span class="word">${gw(t.c)}</span>`).join(""),
         tip:"One bar for each group. Every bar is the same size, because every group is the same." };
@@ -1173,40 +1176,53 @@
     let s = String(src).toLowerCase().replace(/[−–—]/g, "-").replace(/[·∙*]/g, "×").replace(/\s+/g, " ").trim();
     if(!s) return { err:"Type an expression first." };
     s = s.replace(/groups? of/g, "g");
+    const SUP = { "2":"²", "3":"³" };
+    /* x^2 and x² are the same thing: one letter with a power. ab stays two letters. */
+    const LET = "(?:[a-z](?:\\^[23]|[²³])|[a-z]{1,2})";
+    const normPow = f => f.replace(/\^([23])/, (m, d) => SUP[d]);
     const parts = []; const re = /([+-]?)\s*([^+-]+)/g; let mt;
     if(/[+-]\s*$/.test(s)) return { err:"It ends with a sign — finish the last term." };
     while((mt = re.exec(s))){ if(mt[2].trim()) parts.push({ sign:mt[1] === "-" ? -1 : 1, body:mt[2].replace(/\s+/g, "") }); }
     if(parts.length < 2) return { err:"Use at least two terms, e.g. 4 × 9 + 3 × 9." };
     if(parts.length > 6) return { err:"Six terms at most, so the picture fits." };
     const terms = [];
+    const reTimes = new RegExp("^(\\d+)(?:×|g)(\\d+|" + LET + ")$"), reBr = new RegExp("^(\\d*)\\((\\d+|" + LET + ")\\)$"), reLet = new RegExp("^(\\d*)(" + LET + ")$");
     for(const p of parts){
       let b = p.body, c, f, mm;
-      if((mm = /^(\d+)(?:×|g)(\d+|[a-z]{1,2})$/.exec(b))){ c = +mm[1]; f = mm[2]; }
-      else if((mm = /^(\d*)\((\d+|[a-z]{1,2})\)$/.exec(b))){ c = mm[1] === "" ? 1 : +mm[1]; f = mm[2]; }
-      else if((mm = /^(\d*)([a-z]{1,2})$/.exec(b))){ c = mm[1] === "" ? 1 : +mm[1]; f = mm[2]; }
+      if((mm = reTimes.exec(b))){ c = +mm[1]; f = mm[2]; }
+      else if((mm = reBr.exec(b))){ c = mm[1] === "" ? 1 : +mm[1]; f = mm[2]; }
+      else if((mm = reLet.exec(b))){ c = mm[1] === "" ? 1 : +mm[1]; f = mm[2]; }
       else if(/^\d+$/.test(b)) return { err:`“${b}” on its own isn’t groups of anything. Write it as groups, e.g. 4 × 9.` };
-      else return { err:`I can’t read “${b}”. Try 4 × 9, 4(9) or 4x.` };
+      else if(/[\^²³]/.test(b)) return { err:`I can read powers of 2 or 3 on one letter, like 3x² or 3x^2, but not “${b}”.` };
+      else return { err:`I can’t read “${b}”. Try 4 × 9, 4(9), 4x, 4ab or 4x².` };
       if(c < 1 || c > 20) return { err:"Each term can have 1 to 20 groups." };
-      if(/^\d+$/.test(f)){ f = +f; if(f < 1 || f > 99) return { err:"Keep a number group between 1 and 99." }; }
-      else f = f.split("").sort().join("");
-      terms.push({ c, f, sign:p.sign });
+      let key;
+      if(/^\d+$/.test(f)){ f = +f; if(f < 1 || f > 99) return { err:"Keep a number group between 1 and 99." }; key = f; }
+      else { f = normPow(f); key = /[²³]/.test(f) ? f : f.split("").sort().join(""); }   /* ab and ba are one group */
+      terms.push({ c, f, key, sign:p.sign });
     }
-    const kinds = new Set(terms.map(t => typeof t.f)); if(kinds.size > 1) return { err:"Use all numbers or all letters for the groups." };
-    const tally = new Map(); terms.forEach(t => tally.set(t.f, (tally.get(t.f) || 0) + 1));
-    if(tally.size > 2) return { err:"Use at most two different groups (one can be unlike)." };
+    const kinds = new Set(terms.map(t => typeof t.key)); if(kinds.size > 1) return { err:"Use all numbers or all letters for the groups." };
+    const tally = new Map(), shown = new Map();
+    terms.forEach(t => { tally.set(t.key, (tally.get(t.key) || 0) + 1); if(!shown.has(t.key)) shown.set(t.key, t.f); });
+    const nm = k => String(shown.get(k));
+    if(tally.size > 2) return { err:`That has ${tally.size} different groups (${[...tally.keys()].map(nm).join(", ")}). This tool shows one main group plus one different term.` };
     const order = [...tally.keys()].sort((a, b) => tally.get(b) - tally.get(a));
     let A = order[0], B = order[1];
-    if(B != null && tally.get(A) === tally.get(B)){ A = terms[0].f; B = order.find(k => k !== A); }
-    if(B != null && tally.get(B) > 1) return { err:"Only one term can be groups of something else." };
+    if(B != null && tally.get(A) === tally.get(B)){ A = terms[0].key; B = order.find(k => k !== A); }
+    if(B != null && tally.get(B) > 1) return { err:`“${nm(B)}” appears ${tally.get(B)} times as well as “${nm(A)}”. This tool shows one main group (${nm(A)}) plus ONE different term, e.g. ${terms.find(t => t.key === A).c}${nm(A)} + 3${nm(B)}. Collect the ${nm(B)}s first, or use Collecting Like Terms – Bubbles for longer ones.` };
     if(terms[0].sign < 0) return { err:"Start with a term that is added." };
-    const u = terms.find(t => t.f === B);
-    if(u && u.sign < 0) return { err:"Only groups that match can be taken away here." };
-    const out = terms.map(t => ({ c:t.c, sign:t.sign, u:t.f === B }));
+    const u = terms.find(t => t.key === B);
+    if(u && u.sign < 0) return { err:`Only the main group (${nm(A)}) can be taken away here. The different term, ${nm(B)}, has to be added.` };
+    const out = terms.map(t => {
+      const o = { c:t.c, sign:t.sign, u:t.key === B };
+      if(typeof t.key === "string" && t.f !== shown.get(t.key)) o.fd = t.f;    /* typed the other way round */
+      return o;
+    });
     const pos = out.filter(t => !t.u && t.sign > 0).reduce((s, t) => s + t.c, 0), neg = out.filter(t => !t.u && t.sign < 0).reduce((s, t) => s + t.c, 0);
     if(neg >= pos) return { err:"Take away fewer groups than you start with." };
     if(pos > 26) return { err:"That’s a lot of groups — keep it to 26 or fewer before taking away." };
     if(out.filter(t => t.sign < 0).length > 1) return { err:"Only one term can be taken away." };
-    return { q:{ kind:typeof A === "number" ? "num" : "let", A, B:B == null ? null : B, terms:out } };
+    return { q:{ kind:typeof A === "number" ? "num" : "let", A:shown.get(A), B:B == null ? null : shown.get(B), terms:out } };
   }
   function useOwn(){
     const r = parseOwn($("ownIn").value);
