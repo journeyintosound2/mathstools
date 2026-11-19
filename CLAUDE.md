@@ -290,6 +290,18 @@
 >   MA5-TRG-P-02 + refreshed notes on the old flip-card rows; toolFamilies; homepage flip card (pill 6) and worksheet mini
 >   card (pill 40). Project doc `claude/unit-circle.md`.
 >
+> **NEW (2026-11-19): TIMES TABLE CHART — "DOUBLE IT" LENS (colleague feedback: double double).**
+> Fourth lens, key 4 (`id:"double"`, fam md, in FACT_LENSES). There are TEN lenses now: keys 1–9 and **0 = Patterns / Cover up**
+> (the 10th; `tKey` shows `(i+1)%10`, both key handlers map "0" → 10). `doubleInfo()` halves the factor with more 2s (`twos()`;
+> tie → the larger) until it is odd (8 → 1, 2, 4, 8); the DEFAULT start is "double double" (`levels[len-3]`: 6 × 8 starts at
+> 6 × 2 = 12 → 24 → 48), chips on the board pick another start (6 × 4 = one double, 6 × 1 = double double double) and a seg
+> picks rows or columns (odd one disabled); `S.dbl = {dir, start}`, reset by setFact. Steps fact · start · d1…dn. The camera
+> holds the whole rectangle; each doubling's block is its own colour (`DBL_COL`), every reached corner along the bottom edge /
+> right edge shows its value (6, 12, 24, 48), the answer only on the last step. Forward d-steps play `playCopy()`: a copy of the
+> block so far slides across by its own width in `#flipLayer` (`.copySheet`). Readout "6 × 4 = double 12 = 24" per line.
+> Both factors odd → one step, "Both numbers are odd… Try Split it". New fact (Enter) prefers a factor that halves twice.
+> Verified: audit 6,903 (incl. double), ui 56, fb 23, double 16 (every fact 1–12 re-checked line by line).
+>
 > **NEW (2026-11-18, later): TIMES TABLE CHART FEEDBACK + PRINTABLE POSTER MAKER.**
 > * Chart: Settings › **Keep faded values** (`S.set.faded`, `.app.fadedVals`): squares keep their numbers at opacity .17
 >   and each reveal (`tot`, `cornA`, `fone`, `fans`, `hit`) is dark. Off by default (then the answer can't be read early).

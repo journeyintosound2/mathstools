@@ -214,6 +214,9 @@
     #ov .handle:active{ cursor:grabbing; }
     .flipSheet{ position:absolute; left:0; top:0; transform-origin:0 0; transition:transform 1s cubic-bezier(.45,.05,.3,1); backface-visibility:visible;
       display:grid; box-shadow:0 14px 30px rgba(15,23,42,.18); }
+    .copySheet{ position:absolute; left:0; top:0; display:grid; z-index:6; transition:transform .78s cubic-bezier(.45,.05,.3,1), opacity .3s ease;
+      box-shadow:0 16px 32px rgba(15,23,42,.25); border-radius:4px; overflow:hidden; }
+    .copySheet i{ display:block; border:1px solid rgba(255,255,255,.55); }
     .flipSheet i{ background:#a7f3d0; border:1px solid #86efac; display:block; }
 
     .backChart{ appearance:none; height:42px; border:1.5px solid var(--border); background:rgba(255,255,255,.94);
@@ -553,7 +556,7 @@
                 <div class="typeGrid" id="gridMD" role="listbox" aria-label="Multiply and divide"></div>
                 <div class="famHead pat">Look for patterns <small>explore the whole chart</small></div>
                 <div class="typeGrid" id="gridPat" role="listbox" aria-label="Look for patterns"></div>
-                <div class="popFoot"><kbd>1</kbd>&ndash;<kbd>9</kbd> choose &middot; <kbd>T</kbd> open or close</div>
+                <div class="popFoot"><kbd>1</kbd>&ndash;<kbd>9</kbd>, <kbd>0</kbd> choose &middot; <kbd>T</kbd> open or close</div>
               </div>
             </div>
             <button class="backChart" id="backChart" type="button" hidden title="Back to the whole chart (Space)">&#8592; Whole chart</button>
@@ -621,7 +624,7 @@
             <button class="stepBtn" id="allBtn" type="button">Show all</button>
             <button class="nextBtn" id="nextBtn" type="button" title="Next step (&rarr;)">Next &#9656;</button>
           </div>
-          <div class="keyHint"><kbd>&rarr;</kbd>/<kbd>&larr;</kbd> step &middot; <kbd>R</kbd> start again &middot; <kbd>Space</kbd> whole chart &middot; <kbd>Enter</kbd> new fact &middot; <kbd>T</kbd> choose &middot; <kbd>1</kbd>&ndash;<kbd>9</kbd> lenses &middot; <kbd>F</kbd> full screen &middot; <kbd>Esc</kbd> leave it</div>
+          <div class="keyHint"><kbd>&rarr;</kbd>/<kbd>&larr;</kbd> step &middot; <kbd>R</kbd> start again &middot; <kbd>Space</kbd> whole chart &middot; <kbd>Enter</kbd> new fact &middot; <kbd>T</kbd> choose &middot; <kbd>0</kbd>&ndash;<kbd>9</kbd> lenses &middot; <kbd>F</kbd> full screen &middot; <kbd>Esc</kbd> leave it</div>
         </section>
       </aside>
     </main>
@@ -665,6 +668,7 @@ const op = s => `<span class="op">${s}</span>`;
 const X = op("&times;"), DV = op("&divide;"), EQ = op("="), PL = op("+"), MI = op("&minus;");
 const fr = (a, b, c = "") => `<span class="fr ${c}"><span>${a}</span><span>${b}</span></span>`;
 const ansW = x => `<span class="ans">${x}</span>`;
+const DBLW = '<span style="font-family:var(--uiFont);font-weight:800;font-size:.6em;color:var(--muted);padding:0 .3em">double</span>';
 const OF = '<span style="font-family:var(--uiFont);font-weight:800;font-size:.62em;color:var(--muted);padding:0 .3em">of</span>';
 function wordsFor(a, b){
   const w = S.set.words;
@@ -685,6 +689,7 @@ const ICON = {
   div:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M5 12h14"/><circle cx="12" cy="6.3" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="17.7" r="1.6" fill="currentColor" stroke="none"/></svg>',
   frac:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M9 6v12M15 6v12"/><rect x="3.8" y="6.8" width="4.4" height="10.4" fill="currentColor" stroke="none" opacity=".45"/></svg>',
   factors:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="6"/><rect x="3" y="3" width="10" height="11"/><rect x="3" y="3" width="6" height="18"/></svg>',
+  double:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="5" height="12" rx="1.2" fill="currentColor" stroke="none" opacity=".5"/><rect x="8.5" y="6" width="5" height="12" rx="1.2"/><path d="M15.5 12h5.5M18.5 9.2l2.6 2.8-2.6 2.8"/></svg>',
   mult:'<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><circle cx="5" cy="5" r="1.8"/><circle cx="12" cy="5" r="1.8" opacity=".35"/><circle cx="19" cy="5" r="1.8"/><circle cx="5" cy="12" r="1.8" opacity=".35"/><circle cx="12" cy="12" r="2.6"/><circle cx="19" cy="12" r="1.8" opacity=".35"/><circle cx="5" cy="19" r="1.8"/><circle cx="12" cy="19" r="1.8" opacity=".35"/><circle cx="19" cy="19" r="1.8"/></svg>',
   pat:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 3.5l17 17" stroke-dasharray="2.5 2.4"/><rect x="12" y="4" width="7" height="7" rx="1.5"/><rect x="5" y="13" width="7" height="7" rx="1.5"/></svg>',
   cover:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="1.6"/><rect x="13" y="3" width="8" height="8" rx="1.6" fill="currentColor" opacity=".35"/><rect x="3" y="13" width="8" height="8" rx="1.6" fill="currentColor" opacity=".35"/><rect x="13" y="13" width="8" height="8" rx="1.6"/><path d="M16 16.2c0-1 .8-1.6 1.6-1.6s1.4.6 1.4 1.4c0 1.2-1.5 1.2-1.5 2.3"/></svg>'
@@ -693,6 +698,7 @@ const LENSES = [
   { id:"array", fam:"md", name:"Build the rectangle", steps:true, ex:() => `${nR(4)}${X}${nC(6)}${EQ}${nP(24)}`, note:"An array of squares: count it row by row. The end of each row is a skip count." },
   { id:"find", fam:"md", name:"Find it", steps:true, ex:() => `${nR(4)}${X}${nC(6)}${EQ}${nC(6)}${X}${nR(4)}`, note:"Along the row, down the column, then turn it around." },
   { id:"split", fam:"md", name:"Split it", steps:true, ex:() => `${nR(7)}${X}8${EQ}${nA(5)}${X}8${PL}${nB(2)}${X}8`, note:"Work out a fact from facts you know: halves, fives and tens." },
+  { id:"double", fam:"md", name:"Double it", steps:true, ex:() => `${nR(6)}${X}${nC(8)}${EQ}${DBLW}${nR(6)}${X}${nC(4)}`, note:"Double double: halve to a fact you know, then double back up. 6 &times; 2 = 12, 24, 48." },
   { id:"div", fam:"md", name:"Divide", steps:true, ex:() => `${nP(24)}${DV}${nR(4)}${EQ}${nC(6)}`, note:"How many 4s make 24? Then share 24 into 4 equal rows." },
   { id:"frac", fam:"md", name:"Fraction of an amount", steps:true, ex:() => `${fr(nK(2), nC(6))}${OF}${nP(24)}${EQ}8`, note:"The rectangle is the whole and its columns are the equal parts." },
   { id:"factors", fam:"pat", name:"Factors", steps:true, ex:() => `${nP(24)}${EQ}3${X}8${EQ}4${X}6`, note:"Every rectangle with the same number of squares." },
@@ -701,7 +707,7 @@ const LENSES = [
   { id:"cover", fam:"pat", name:"Cover up", steps:false, ex:() => `${nR(7)}${X}${nC(8)}${EQ}${nQ}`, note:"Hide the chart and recall the facts, one square at a time." }
 ];
 const lensOf = id => LENSES.find(l => l.id === id) || LENSES[0];
-const FACT_LENSES = ["array", "find", "split", "div", "frac", "factors"];
+const FACT_LENSES = ["array", "find", "split", "double", "div", "frac", "factors"];
 const isFactLens = () => FACT_LENSES.includes(S.lens);
 
 const PATS = {
@@ -756,6 +762,22 @@ function defaultSplit(){
   const opts = splitOptions(dir);
   return opts.length ? { dir, at:opts[0].at, kind:opts[0].kind } : null;
 }
+const twos = x => { let k = 0; while(x > 0 && x % 2 === 0){ x /= 2; k++; } return k; };
+const DBL_COL = ["#5eead4", "#c4b5fd", "#fcd34d", "#f9a8d4", "#93c5fd"];   // the known fact, then each copy
+function doubleInfo(){
+  const r = S.r, c = S.c, tr = twos(r), tc = twos(c);
+  if(!tr && !tc) return null;
+  let dir = S.dbl && S.dbl.dir;
+  if(!dir || (dir === "row" ? !tr : !tc)) dir = tc > tr ? "col" : tr > tc ? "row" : (c >= r ? "col" : "row");
+  const d = dir === "row" ? r : c, o = dir === "row" ? c : r;
+  const levels = [d]; let k = d; while(k % 2 === 0){ k /= 2; levels.unshift(k); }   // 8 → [1, 2, 4, 8]
+  const start = S.dbl && S.dbl.dir === dir && levels.includes(S.dbl.start) && S.dbl.start < d ? S.dbl.start : levels[Math.max(0, levels.length - 3)];   // default: double double
+  const seq = levels.slice(levels.indexOf(start));
+  return { dir, d, o, levels, start, seq, n:seq.length - 1 };
+}
+const dExpr = (D, k, html) => D.dir === "col" ? (html ? `${nR(S.r)}${X}${nC(k)}` : `${S.r} &times; ${k}`) : (html ? `${nR(k)}${X}${nC(S.c)}` : `${k} &times; ${S.c}`);
+const dblWords = n => ["", "Double", "Double double", "Double double double", "Double double double double"][n] || "Double";
+function dblStage(id){ return id === "fact" ? -1 : id === "start" ? 0 : id && id[0] === "d" ? +id.slice(1) : -1; }
 function splitInfo(){
   if(!S.split) S.split = defaultSplit();
   const s = S.split; if(!s) return null;
@@ -802,6 +824,17 @@ function steps(){
       { id:"total", title:s.kind === "-" ? "Take it away" : "Put them together", tip:`${s.A} ${s.kind === "-" ? "&minus;" : "+"} ${s.B} = ${s.total}, so ${r} &times; ${c} = ${s.total}.` }
     ];
   }
+  if(L === "double"){
+    const D = doubleInfo();
+    if(!D) return [{ id:"fact", title:"Both numbers are odd", tip:`${r} &times; ${c}: neither number halves, so there is no smaller fact to double up from. Try Split it instead.` }];
+    const st = [
+      { id:"fact", title:"A fact to work out", tip:`${r} &times; ${c}. ${D.d} halves to ${D.d / 2}${D.n > 1 ? `, and ${D.d / 2} halves again` : ""}, so a smaller fact you know can be doubled up to it.` },
+      { id:"start", title:`Start with ${dExpr(D, D.start)}`, tip:`${dExpr(D, D.start)} = ${D.start * D.o}: a fact you know. It is already on the chart, in the corner of the small rectangle.` }
+    ];
+    for(let i = 1; i <= D.n; i++) st.push({ id:"d" + i, title:`Double it: ${dExpr(D, D.seq[i])}`,
+      tip:`Two copies of ${dExpr(D, D.seq[i - 1])} make ${dExpr(D, D.seq[i])}. Double ${D.seq[i - 1] * D.o} is ${D.seq[i] * D.o}.${i === D.n ? ` ${dblWords(D.n)}: ${D.seq.map(k => k * D.o).join(" &rarr; ")}.` : ""}` });
+    return st;
+  }
   if(L === "div"){
     const byRow = S.divBy === "row", d = byRow ? r : c, q = byRow ? c : r;
     const st = [
@@ -845,7 +878,7 @@ function region(){
     const R = s.kind === "-" && s.dir === "row" ? s.a : r, C = s.kind === "-" && s.dir === "col" ? s.a : c;
     return s.dir === "row" ? { R, C, padR:.75 } : { R, C, padB:.75 };
   }
-  if(L === "frac") return { R:r, C:c };
+  if(L === "frac" || L === "double") return { R:r, C:c };
   if(L === "div" && id === "share") return S.divBy === "row" ? { R:r, C:c, gr:.3, padR:1.25 } : { R:r, C:c, gc:.3, padB:1.05 };
   return null;
 }
@@ -1002,6 +1035,27 @@ function lookFn(x){
       if(id === "total" && cornAll) return { k:k + " hit", pop:fwd ? 200 : false };
       if((id === "parts" || id === "total") && cornA) return { k:k + " cornA", pop:fwd && id === "parts" ? 0 : false };
       return { k:k + " ghost" };
+    };
+  }
+  if(L === "double"){
+    if(!id) return hv ? hoverRect(hv) : () => null;
+    const D = doubleInfo(), stage = dblStage(id);
+    return (r, c) => {
+      if(r === 0 && c === 0) return null;
+      if(r === 0 || c === 0) return headerRun(r, c, r0, c0, true, true) || { k:"faint" };
+      if(r > r0 || c > c0) return { k:"faint" };
+      if(!D || stage < 0) return { k:"sq ghost" };
+      const pos = D.dir === "col" ? c : r, other = D.dir === "col" ? r : c, otherMax = D.dir === "col" ? r0 : c0;
+      const cur = D.seq[stage];
+      if(pos > cur) return { k:"sq ghost" };
+      const layer = D.seq.findIndex(k => pos <= k);
+      // the corner of every rectangle made so far is on the chart: start, then each double
+      const isCorner = other === otherMax && D.seq.slice(0, stage + 1).includes(pos);
+      const isNew = stage > 0 && layer === stage;
+      const d = x.anim && isNew ? 820 : 0;
+      if(isCorner && pos === cur && stage === D.n) return { k:"pbg hit", bg:DBL_COL[layer % DBL_COL.length], d, pop:x.anim ? 860 : false };
+      if(isCorner) return { k:"pbg tot", bg:DBL_COL[layer % DBL_COL.length], d, pop:x.anim && pos === cur ? (isNew ? 860 : 0) : false };
+      return { k:"pbg ghost", bg:DBL_COL[layer % DBL_COL.length], d };
     };
   }
   if(L === "div"){
@@ -1223,6 +1277,14 @@ function ovParts(){
       }
     }
   }
+  if(L === "double" && id){
+    parts.push(oRect("dAll", box(1, 1, r0, c0), "#94a3b8", 2, "6 5"));
+    const D = doubleInfo(), stage = dblStage(id);
+    if(D && stage >= 0){
+      const cur = D.seq[stage], b = D.dir === "col" ? box(1, 1, r0, cur) : box(1, 1, cur, c0);
+      parts.push(oRect("dCur" + cur, b, "#0f172a", Math.max(3, u * .07), null, stage > 0 ? 820 : 0));
+    }
+  }
   if(L === "div" && id === "share"){
     const byRow = S.divBy === "row";
     if(byRow) for(let i = 1; i <= r0; i++){ const b = box(i, 1, i, c0); parts.push(oRect("g" + i, b, "#1d4ed8", 2.5, null, (i - 1) * 140)); parts.push(oLabel("gl" + i, b.x + b.w + u * .62, b.cy, String(c0), "#c2410c", u * .42, 0, (i - 1) * 140 + 200)); }
@@ -1259,7 +1321,7 @@ function readout(x){
   const L = S.lens, id = x.id, r = S.r, c = S.c, p = r * c, hv = S.set.hover ? S.hover : null, o = { lines:[], words:"", info:"", prompt:false, hint:"" };
   const fact = (a, b, done) => `${nR(a)}${X}${nC(b)}${EQ}${done ? ansW(nP(a * b)) : nQ}`;
   const hvBody = hv && hv.r > 0 && hv.c > 0;
-  if(L === "array" || L === "find" || L === "split" || L === "div" || L === "frac" || L === "factors"){
+  if(isFactLens()){
     if(!id){
       if(hvBody){
         if(L === "factors"){ o.lines = [nP(hv.r * hv.c)]; o.words = `Click to find every rectangle of ${hv.r * hv.c} squares.`; }
@@ -1270,6 +1332,7 @@ function readout(x){
       } else {
         o.prompt = true;
         o.lines = [{ array:"Click any number on the chart to build its rectangle.", find:"Click any number on the chart to find where it comes from.", split:"Click a fact to split into facts you know. The tricky ones live in the middle.",
+          double:"Click a fact with an even number in it: 6 &times; 8, 7 &times; 4, 3 &times; 12 &hellip; then double up to it.",
           div:"Click any number on the chart to divide it.", frac:"Click any number to make it the whole. Its column number is how many parts.", factors:"Click any number to find every rectangle it makes." }[L]];
         o.hint = "Or press <b>Enter</b> for a random fact, or set it in the side panel.";
       }
@@ -1305,6 +1368,18 @@ function readout(x){
     const w = s.dir === "row" ? "row" : "column";
     o.words = id === "fact" ? cap(wordsFor(r, c)) + "." : s.kind === "-" ? `${s.a} ${w}s of ${s.o}, take away ${s.b} ${pl(s.b, w)} of ${s.o}.` : `${s.a} ${pl(s.a, w)} of ${s.o} and ${s.b} ${pl(s.b, w)} of ${s.o}.`;
     o.hint = { fact:"Which facts do you already know?", split:"Drag the round handle to cut somewhere else.", parts:"Two facts you know.", total:s.kind === "-" ? "Take the extra back off." : "Add the two parts." }[id];
+  }
+  else if(L === "double"){
+    const D = doubleInfo(), stage = dblStage(id);
+    if(!D){ o.lines = [fact(r, c, false)]; o.words = "Both numbers are odd, so there is nothing to halve."; o.hint = "Try Split it, or choose a fact with an even number."; return o; }
+    o.lines = [fact(r, c, stage === D.n)];
+    if(stage >= 0){
+      o.lines.push(`${dExpr(D, D.start, true)}${EQ}${nA(D.start * D.o)}`);
+      for(let i = 1; i <= stage; i++) o.lines.push(`${dExpr(D, D.seq[i], true)}${EQ}${DBLW}${nA(D.seq[i - 1] * D.o)}${EQ}${i === stage ? nP(D.seq[i] * D.o) : nA(D.seq[i] * D.o)}`);
+    }
+    o.words = stage < 0 ? `Halve the ${D.d} to ${D.d / 2}${D.n > 1 ? `, then ${D.d / 4}` : ""}${D.n > 2 ? `, then ${D.d / 8}` : ""} &hellip;` :
+      stage === 0 ? `Start with a fact you know.` : stage === D.n ? `${dblWords(D.n)}: ${D.seq.map(k => k * D.o).join(" &rarr; ")}.` : `Double ${D.seq[stage - 1] * D.o} is ${D.seq[stage] * D.o}. Keep doubling&hellip;`;
+    o.hint = stage < 0 ? "Which smaller fact do you already know?" : stage === 0 ? "Press Next to double it." : stage === D.n ? "The corners along the edge are every step of the doubling." : "A copy slides across: two of the same make double.";
   }
   else if(L === "div"){
     const byRow = S.divBy === "row", d = byRow ? r : c, q = byRow ? c : r, dn = byRow ? nR : nC, qn = byRow ? nC : nR;
@@ -1424,6 +1499,13 @@ function paintOpts(){
       h += `<div class="chips">${opts.map(o => `<button class="chip" type="button" data-act="sopt" data-v="${o.at}${o.kind}" aria-pressed="${o.at === s.at && o.kind === s.kind}">${o.label}<small>${o.kind === "-" ? `${o.at} &minus; ${o.at - d}` : `${o.at} + ${d - o.at}`}</small></button>`).join("")}</div>`;
     }
   }
+  if(L === "double" && S.chosen){
+    const D = doubleInfo();
+    if(D){
+      h = `<div class="optRow"><span class="optLab">Halve the</span>${seg("Which number to halve", [{ act:"ddir", v:"row", label:`${S.r} rows`, on:D.dir === "row", dis:S.r % 2 }, { act:"ddir", v:"col", label:`${S.c} columns`, on:D.dir === "col", dis:S.c % 2 }])}</div>`;
+      h += `<div class="optRow"><span class="optLab">Start from</span></div><div class="chips">${D.levels.slice(0, -1).map((k, i, arr) => `<button class="chip" type="button" data-act="dstart" data-v="${k}" aria-pressed="${k === D.start}">${dExpr(D, k)}<small>${dblWords(D.levels.length - 1 - i).toLowerCase()}</small></button>`).join("")}</div>`;
+    }
+  }
   if(L === "div" && S.r !== S.c) h = `<div class="optRow"><span class="optLab">Divide by</span>${seg("Divide by", [{ act:"divby", v:"row", label:`&divide; ${S.r}`, on:S.divBy === "row" }, { act:"divby", v:"col", label:`&divide; ${S.c}`, on:S.divBy === "col" }])}</div>`;
   if(L === "frac" && S.chosen) h = `<div class="optRow"><span class="optLab">Parts taken</span><span class="miniStep"><button type="button" data-act="fk" data-v="-1" aria-label="One part fewer"${S.fracK <= 1 ? " disabled" : ""}>&minus;</button><span>${fr(clamp(S.fracK, 1, S.c), S.c)}</span><button type="button" data-act="fk" data-v="1" aria-label="One more part"${S.fracK >= S.c ? " disabled" : ""}>+</button></span></div>`;
   if(L === "mult") h = `<div class="chips">${range(2, N).map(m => { const i = S.mult.indexOf(m); return `<button class="chip num" type="button" data-act="mnum" data-v="${m}" data-ci="${i}" aria-pressed="${i >= 0}">${m}</button>`; }).join("")}<button class="chip ghostChip" type="button" data-act="mclear">Clear</button></div>`;
@@ -1438,6 +1520,8 @@ $("lensOpts").addEventListener("click", e => {
   if(a === "count"){ S.set.countBy = v; syncSettings(); render({ anim:stepId() === "count" }); }
   if(a === "sdir"){ const opts = (S.split = { dir:v, at:0, kind:"+" }, splitOptions(v)); S.split = opts.length ? { dir:v, at:opts[0].at, kind:opts[0].kind } : { dir:v, at:1, kind:"+" }; if(S.step === 0) S.step = 1; render({ anim:true }); }
   if(a === "sopt"){ const kind = v.slice(-1), at = parseInt(v, 10); S.split = { dir:S.split.dir, at, kind }; if(S.step === 0) S.step = 1; render({ anim:true }); }
+  if(a === "ddir"){ S.dbl = { dir:v, start:0 }; S.step = Math.min(S.step, 1); render({ anim:true }); }
+  if(a === "dstart"){ const D = doubleInfo(); S.dbl = { dir:D.dir, start:+v }; S.step = 1; render({ anim:true }); }
   if(a === "divby"){ S.divBy = v; S.step = 0; render({ anim:true }); }
   if(a === "fk"){ S.fracK = clamp(S.fracK + (+v), 1, S.c); if(stepId() !== "take") S.step = steps().length - 1; render({ anim:true }); }
   if(a === "mnum") toggleMult(+v);
@@ -1536,7 +1620,7 @@ function paintPicker(){
   if(!$("typePop").hidden) buildPop();
 }
 function buildPop(){
-  const cardH = (l, i) => `<button type="button" role="option" class="tCard${l.fam === "pat" ? " pat" : ""}${l.id === S.lens ? " on" : ""}" data-lens="${l.id}" aria-selected="${l.id === S.lens}"><span class="tKey">${i + 1}</span><span class="tName">${l.name}</span><span class="tEx">${l.ex()}</span><span class="tNote">${l.note}</span></button>`;
+  const cardH = (l, i) => `<button type="button" role="option" class="tCard${l.fam === "pat" ? " pat" : ""}${l.id === S.lens ? " on" : ""}" data-lens="${l.id}" aria-selected="${l.id === S.lens}"><span class="tKey">${(i + 1) % 10}</span><span class="tName">${l.name}</span><span class="tEx">${l.ex()}</span><span class="tNote">${l.note}</span></button>`;
   $("gridMD").innerHTML = LENSES.map(cardH).filter((_, i) => LENSES[i].fam === "md").join("");
   $("gridPat").innerHTML = LENSES.map(cardH).filter((_, i) => LENSES[i].fam === "pat").join("");
 }
@@ -1551,6 +1635,7 @@ function setLens(id){
   S.lens = id; S.step = 0; S.turnPhase = null; S.pick = null; S.hover = null;
   if(id === "cover"){ S.quiz = null; if(!S.hidden.size) for(let r = 1; r <= N; r++) for(let c = 1; c <= N; c++) S.hidden.add(r + "," + c); }
   if(id === "split") S.split = null;
+  if(id === "double") S.dbl = null;
   if(id === "frac") S.fracK = clamp(S.fracK, 1, S.c);
   render({ anim:true });
 }
@@ -1578,6 +1663,24 @@ function startFlip(tok){
   setTimeout(end, 1250);
 }
 
+function playCopy(tok){
+  if(tok !== S.tok || !S.cam) return;
+  const D = doubleInfo(), stage = dblStage(stepId()); if(!D || stage < 1) return;
+  const prev = D.seq[stage - 1], u = S.cam.u, col = D.dir === "col";
+  const b = col ? box(1, 1, S.r, prev) : box(1, 1, prev, S.c);
+  const rows = col ? S.r : prev, cols = col ? prev : S.c;
+  const sheet = document.createElement("div"); sheet.className = "copySheet";
+  sheet.style.cssText = `left:${b.x}px;top:${b.y}px;width:${b.w}px;height:${b.h}px;grid-template-columns:repeat(${cols},1fr);grid-template-rows:repeat(${rows},1fr)`;
+  let cells = "";
+  for(let r = 1; r <= rows; r++) for(let c = 1; c <= cols; c++){ const pos = col ? c : r, layer = D.seq.findIndex(k => pos <= k); cells += `<i style="background:${DBL_COL[layer % DBL_COL.length]}"></i>`; }
+  sheet.innerHTML = cells;
+  flipL.textContent = ""; flipL.appendChild(sheet);
+  void sheet.offsetWidth;
+  sheet.style.transform = col ? `translate(${prev * u}px, 0)` : `translate(0, ${prev * u}px)`;
+  setTimeout(() => { if(sheet.parentNode) sheet.style.opacity = "0"; }, 780);
+  setTimeout(() => { if(sheet.parentNode) sheet.remove(); }, 1150);
+}
+
 /* ---------------- render ---------------- */
 function ctx(){ return { id:stepId(), reg:region(), anim:false, base:0 }; }
 function render(o = {}){
@@ -1600,7 +1703,8 @@ function render(o = {}){
   $("backChart").hidden = !x.reg;
   if(!light){ paintStory(); paintOpts(); paintFact(); paintPicker(); paintNav(); paintPrintLink(); save(); }
   const tok = S.tok;
-  moveCam(to, ms, turnSeq ? () => setTimeout(() => startFlip(tok), 120) : null);
+  const copySeq = S.lens === "double" && x.anim && dblStage(x.id) > 0;
+  moveCam(to, ms, turnSeq ? () => setTimeout(() => startFlip(tok), 120) : copySeq ? () => playCopy(tok) : null);
 }
 
 /* ---------------- stepping ---------------- */
@@ -1619,7 +1723,7 @@ function showAll(){ if(!lensOf(S.lens).steps) return; if(!S.chosen) S.chosen = t
 function unchoose(){ if(!S.chosen) return; S.chosen = false; S.step = 0; S.turnPhase = null; render({ back:true }); }
 function spinAgain(){ const b = $("againIcon"); b.classList.remove("spin"); void b.offsetWidth; b.classList.add("spin"); }
 function setFact(r, c, o = {}){
-  S.r = clamp(r, 1, N); S.c = clamp(c, 1, N); S.chosen = true; S.step = o.step || 0; S.split = null; S.turnPhase = null; S.hover = null;
+  S.r = clamp(r, 1, N); S.c = clamp(c, 1, N); S.chosen = true; S.step = o.step || 0; S.split = null; S.dbl = null; S.turnPhase = null; S.hover = null;
   S.fracK = o.k ? clamp(o.k, 1, S.c) : clamp(S.c > 2 ? 2 : 1, 1, S.c);
   render({ anim:true });
 }
@@ -1631,7 +1735,7 @@ function newFact(){
   const lim = { any:[2, N], small:[2, Math.min(5, N)], ten:[2, Math.min(10, N)], tricky:[6, Math.min(9, N)] }[S.set.rand] || [2, N];
   let r, c, g = 0;
   do { r = rnd(lim[0], lim[1]); c = rnd(lim[0], lim[1]); }
-  while(g++ < 80 && ((r === S.r && c === S.c) || (L === "factors" && pairsOf(r * c).length < 3) || (L === "split" && r < 3 && c < 3) || (L === "frac" && c < 2)));
+  while(g++ < 80 && ((r === S.r && c === S.c) || (L === "factors" && pairsOf(r * c).length < 3) || (L === "split" && r < 3 && c < 3) || (L === "frac" && c < 2) || (L === "double" && (Math.max(twos(r), twos(c)) < 2 || Math.min(r, c) < 3) && g < 70)));
   setFact(r, c);
 }
 
@@ -1888,7 +1992,7 @@ document.addEventListener("keydown", e => {
     e.preventDefault(); e.target.blur();
   }
   if(!$("typePop").hidden){
-    const n = parseInt(e.key, 10);
+    const n = e.key === "0" ? 10 : parseInt(e.key, 10);
     if(n >= 1 && n <= LENSES.length){ setLens(LENSES[n - 1].id); setPop(false); e.preventDefault(); }
     if(e.key === "t" || e.key === "T"){ setPop(false); e.preventDefault(); }
     return;
@@ -1901,7 +2005,7 @@ document.addEventListener("keydown", e => {
   else if(k === "Enter"){ e.preventDefault(); newFact(); }
   else if(k === "t" || k === "T"){ e.preventDefault(); setPop(true); }
   else if(k === "f" || k === "F"){ e.preventDefault(); if(!S.fs) toggleFs(); }   // F only goes in: Esc is the one key that leaves full screen
-  else { const n = parseInt(k, 10); if(n >= 1 && n <= LENSES.length){ e.preventDefault(); setLens(LENSES[n - 1].id); } }
+  else { const n = k === "0" ? 10 : parseInt(k, 10); if(n >= 1 && n <= LENSES.length){ e.preventDefault(); setLens(LENSES[n - 1].id); } }
 });
 
 /* ---------------- fitting the board to the screen ---------------- */
