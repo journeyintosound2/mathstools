@@ -319,6 +319,14 @@
     .ucAns .ansLine{ flex-wrap:wrap; }
     .ucAns .keyAns, .ucAns .keyWhy{ white-space:normal; overflow-wrap:anywhere; }
 
+    .drawSw{ margin-top:8px; font-size:13px; }
+    .drawRow{ display:flex; flex-wrap:wrap; justify-content:space-evenly; gap:2.4mm 3mm; margin-top:2.6mm; }
+    .drawCell{ position:relative; }
+    .drawCell .dl{ position:absolute; left:-.6mm; top:-.4mm; font-family:system-ui,"Segoe UI",Roboto,Arial,sans-serif; font-weight:800; font-size:.74em; color:#475569; }
+    svg.uc.draw{ overflow:visible; }
+    .ucAns .keyIn{ white-space:normal; min-width:0; overflow-wrap:anywhere; }
+    .ucAns .ansLine .eqs{ white-space:normal; }
+
   </style>
 
 <!-- mmt-pwa -->
@@ -398,6 +406,14 @@
               </select>
             </div>
             <div>
+              <label for="marksSel">Unit circles to draw on</label>
+              <select id="marksSel">
+                <option value="blank" selected>Blank &mdash; the axes and the circle</option>
+                <option value="sp">Ticks at every 30&deg; and 45&deg;</option>
+                <option value="ten">Ticks every 10&deg;</option>
+              </select>
+            </div>
+            <div>
               <label for="scafSel">In section F (solving)</label>
               <select id="scafSel">
                 <option value="steps" selected>Steps: related angle, quadrants, then &theta;</option>
@@ -411,6 +427,7 @@
             <label class="sw"><input type="checkbox" id="nameToggle" checked /><span class="track"></span><span>Name and date</span></label>
             <label class="sw"><input type="checkbox" id="keyToggle" /><span class="track"></span><span>Answer key pages</span></label>
           </div>
+          <p class="note"><b>Unit circles to draw on</b> are switched on in C, D and F above (one circle per part, or one per equation in F): students draw the stick at the angle and drop the triangle to find the related angle. The answer key draws the working in. Ticks help weaker students place the angle.</p>
           <p class="note">The worked example draws sin 210&deg; on the unit circle, finds the related angle and the sign, then solves sin &theta; = &minus;&frac12;. The answer key gives every answer with a one-line reason, so it can be handed to a student.</p>
         </div>
 
@@ -588,16 +605,16 @@
     { k:"B", col:"#7c3aed", bg:"#faf5ff", n:2, title:"Positive or negative?",
       desc:"Four ratios to a card: write + or −. Spicy adds “which quadrant is θ in?”.",
       ex:() => `<span class="m">${fn("cos")} 200${DEG}: ${MINUS}</span>` },
-    { k:"C", col:"#2563eb", bg:"#eff6ff", n:2, title:"Related angles",
+    { k:"C", col:"#2563eb", bg:"#eff6ff", n:2, title:"Related angles", draw:true,
       desc:"Write each one as a ratio of an acute angle, with its sign — the equivalent statement from the flip cards.",
       ex:() => `<span class="m">${fn("sin")} 210${DEG} = ${MINUS}${fn("sin")} 30${DEG}</span>` },
-    { k:"D", col:"#4f46e5", bg:"#eef2ff", n:2, title:"Exact values",
+    { k:"D", col:"#4f46e5", bg:"#eef2ff", n:2, title:"Exact values", draw:true,
       desc:"Related angle, sign, then the exact value from the special triangles. Medium adds 0°, 90°, 180°, 270°; Spicy adds sums, products and squares.",
       ex:() => `<span class="m">${fn("cos")} 135${DEG} = ${MINUS}${frH("1", radH(2))}</span>` },
     { k:"E", col:"#15803d", bg:"#f0fdf4", n:1, title:"Complementary and supplementary",
       desc:"sin of an angle is cos of its complement; an angle and its supplement have the same sine.",
       ex:() => `<span class="m">${fn("sin")} 70${DEG} = ${fn("cos")} 20${DEG}</span>` },
-    { k:"F", col:"#c2410c", bg:"#fff7ed", n:4, title:"Solve for θ",
+    { k:"F", col:"#c2410c", bg:"#fff7ed", n:4, title:"Solve for θ", draw:true,
       desc:"Every angle from 0° to 360°: related angle, the quadrants where the sign fits, then θ. Spicy: two-step equations and calculator answers to the nearest degree.",
       ex:() => `<span class="m">${fn("sin")} ${TH} = ${MINUS}${frH(1, 2)} → ${TH} = 210${DEG}, 330${DEG}</span>` },
     { k:"G", col:"#0369a1", bg:"#f0f9ff", n:2, title:"Read the graph", pic:true,
@@ -618,10 +635,10 @@
     switch(T.k){
       case "A": return "P is on the unit circle. Write the trigonometric ratios of the angle.";
       case "B": return "Is each one positive or negative? Write + or −.";
-      case "C": return "Write each one as a trigonometric ratio of an acute angle (the related angle). Keep the sign.";
-      case "D": return "Find the exact value.";
+      case "C": return "Write each one as a trigonometric ratio of an acute angle (the related angle). Keep the sign." + (opts.draw.C ? " Draw each angle and its triangle on the unit circle first." : "");
+      case "D": return "Find the exact value." + (opts.draw.D ? " Draw the angle and its triangle on the unit circle." : "");
       case "E": return "Use complementary and supplementary angles.";
-      case "F": return opts.scaf === "steps" ? `Solve for 0${DEG} ≤ θ ≤ 360${DEG}. Find the related angle and the quadrants first.` : `Solve for 0${DEG} ≤ θ ≤ 360${DEG}.`;
+      case "F": return (opts.scaf === "steps" ? `Solve for 0${DEG} ≤ θ ≤ 360${DEG}. Find the related angle and the quadrants first.` : `Solve for 0${DEG} ≤ θ ≤ 360${DEG}.`) + (opts.draw.F ? " Draw each answer on the unit circle." : "");
       case "G": return "Use the graph.";
       case "H": return "Use the unit circle in context. Show your working.";
       case "I": return "Spot the mistake. Explain what went wrong, then write the correct answer.";
@@ -829,6 +846,62 @@
     return s + "</svg>";
   }
 
+  /* ---------------------------------------------------------- a unit circle to draw on (C, D, F; 2026-11-19)
+     Blank: the axes, the circle and the four axis angles. marks "sp" adds ticks at every multiple of 30° and 45°,
+     "ten" every 10°. In the answer key the working is drawn in: the stick at each angle (with the turn, for angles
+     past 360° or below 0°), the dropped triangle and the related angle, shaded and labelled. */
+  function drawUC(w, o){
+    o = o || {};
+    const bw = o.bw, c = w / 2, Rr = w * .39, fs = Math.max(1.6, w * .062);
+    const REL = bw ? "#e2e8f0" : "#fed7aa", RELS = bw ? "#475569" : "#f97316", RELT = bw ? "#111827" : "#c2410c", DROP = bw ? "#111827" : "#ea580c", ARC = bw ? "#334155" : "#7c3aed";
+    const P = (r, t) => [c + r * Math.cos(rad(t)), c - r * Math.sin(rad(t))];
+    let s = `<svg class="uc draw" viewBox="0 0 ${f2(w)} ${f2(w)}" width="${f2(w)}mm" height="${f2(w)}mm" xmlns="http://www.w3.org/2000/svg">`;
+    s += `<line x1="${f2(c - w * .47)}" y1="${f2(c)}" x2="${f2(c + w * .47)}" y2="${f2(c)}" stroke="#64748b" stroke-width=".3"/><line x1="${f2(c)}" y1="${f2(c - w * .47)}" x2="${f2(c)}" y2="${f2(c + w * .47)}" stroke="#64748b" stroke-width=".3"/>`;
+    s += `<circle cx="${f2(c)}" cy="${f2(c)}" r="${f2(Rr)}" fill="none" stroke="#111827" stroke-width=".4"/>`;
+    if(o.marks && o.marks !== "blank"){
+      const step = o.marks === "ten" ? 10 : 15;
+      for(let t = 0; t < 360; t += step){
+        if(o.marks === "sp" && t % 30 && t % 45) continue;
+        const big = t % 90 === 0, k = o.marks === "ten" ? (t % 30 ? .05 : .09) : .08;
+        if(big) continue;
+        const [x1, y1] = P(Rr * (1 - k), t), [x2, y2] = P(Rr, t);
+        s += `<line x1="${f2(x1)}" y1="${f2(y1)}" x2="${f2(x2)}" y2="${f2(y2)}" stroke="#475569" stroke-width="${o.marks === "ten" && t % 30 ? .18 : .28}"/>`;
+      }
+    }
+    const lab = (x, y, t, an) => `<text x="${f2(x)}" y="${f2(y)}" text-anchor="${an}" font-size="${f2(fs * .82)}" font-family='${UF}' fill="#64748b">${t}</text>`;
+    s += lab(c + Rr + .5, c - .7, "0°", "start") + lab(c + .6, c - Rr - .6, "90°", "start") + lab(c - Rr - .5, c - .7, "180°", "end") + lab(c + .6, c + Rr + fs * .85, "270°", "start");
+    (o.ans || []).forEach((th, j) => {
+      const n = norm(th), q = onAxis(n) ? 0 : quad(n), [px, py] = P(Rr, n);
+      if(o.arc && j === 0){
+        const pts = [], N = 48, r0 = Rr * .16;
+        for(let i = 0; i <= N; i++){ const t = th * i / N, rr = r0 + Rr * .06 * Math.abs(t) / 360; const [x, y] = P(rr, t); pts.push(f2(x) + "," + f2(y)); }
+        s += `<polyline points="${pts.join(" ")}" fill="none" stroke="${ARC}" stroke-width=".3"/>`;
+      }
+      if(q){
+        const base = q === 1 ? 0 : q === 4 ? 360 : 180, a0 = Math.min(base, n), a1 = Math.max(base, n), rr = Rr * .45, [x0, y0] = P(rr, a0), [x1, y1] = P(rr, a1);
+        s += `<path d="M${f2(c)} ${f2(c)} L${f2(x0)} ${f2(y0)} A${f2(rr)} ${f2(rr)} 0 0 0 ${f2(x1)} ${f2(y1)} Z" fill="${REL}" stroke="${RELS}" stroke-width=".22"/>`;
+      }
+      if(q){
+        s += `<line x1="${f2(px)}" y1="${f2(py)}" x2="${f2(px)}" y2="${f2(c)}" stroke="${DROP}" stroke-width=".45" stroke-dasharray=".9 .6"/>`;
+        s += `<path d="M${f2(c)} ${f2(c)} L${f2(px)} ${f2(c)} L${f2(px)} ${f2(py)} Z" fill="${REL}" fill-opacity=".35"/>`;
+      }
+      s += `<line x1="${f2(c)}" y1="${f2(c)}" x2="${f2(px)}" y2="${f2(py)}" stroke="#111827" stroke-width=".5" stroke-linecap="round"/><circle cx="${f2(px)}" cy="${f2(py)}" r="${f2(w * .02)}" fill="#111827"/>`;
+      if(q){
+        const r = relOf(n), base = q === 1 ? 0 : q === 4 ? 360 : 180, mid = r < 22 ? n + Math.sign(n - base) * 13 : (Math.min(base, n) + Math.max(base, n)) / 2, [lx, ly] = P(Rr * (r < 22 ? .6 : .7), mid);
+        s += `<text x="${f2(lx)}" y="${f2(ly + fs * .35)}" text-anchor="middle" font-size="${f2(fs)}" font-weight="700" font-family='${MF}' fill="${RELT}" stroke="#fff" stroke-width="${f2(w * .012)}" paint-order="stroke">${Math.round(r * 10) / 10}°</text>`;
+      }
+    });
+    return s + "</svg>";
+  }
+  /* a row of circles, one for each angle on a C or D card */
+  function drawRow(items, w, opts, key){
+    const idx = items.map((t, j) => t.ex ? -1 : j).filter(j => j >= 0);
+    if(!idx.length) return "";
+    const gap = 3, per = Math.max(1, Math.min(idx.length, Math.floor((w + gap) / (24 + gap))));
+    const size = Math.min(34, (w - gap * (per - 1)) / per - 1.2);
+    return `<div class="drawRow" style="--cw:${f2(size)}mm">${idx.map(j => `<div class="drawCell"><span class="dl">${LETTERS[j]})</span>${drawUC(size, { bw:opts.bw, marks:opts.marks, ans:key ? [items[j].a] : null, arc:key })}</div>`).join("")}</div>`;
+  }
+
   /* ---------------------------------------------------------- the graphs, in millimetres */
   function graphSVG(curves, w, o){
     o = o || {};
@@ -926,7 +999,7 @@
     if(q.type === "C"){
       const body = q.items.map((t, j) => item(LETTERS[j] + ")", `${st(t.f, t.a)} =`, relAns(t.f, t.a), key,
         key ? `<span class="iw">${relWhy(t.a)}</span>` : opts.why ? `<span class="qq">Quadrant ${ln("xs")}</span>` : "")).join("");
-      return `<div class="qCard">${top(q, n, '<span class="word">Related angle</span>')}<div class="items">${body}</div></div>`;
+      return `<div class="qCard">${top(q, n, '<span class="word">Related angle</span>')}<div class="items">${body}</div>${opts.draw.C ? drawRow(q.items, w, opts, key) : ""}</div>`;
     }
     if(q.type === "D"){
       const body = q.items.map((t, j) => {
@@ -936,7 +1009,7 @@
           : quad(n2) === 1 ? "A special-triangle value." : `= ${relAns(t.f, t.a)} (Q${quad(n2)}: ${posWords(quad(n2))})`;
         return item(LETTERS[j] + ")", `${st(t.f, t.a)} =`, exH(v), key, key ? `<span class="iw">${why}</span>` : opts.why && !onAxis(n2) && quad(n2) > 1 ? `<span class="qq">Quadrant ${ln("xs")}</span>` : "");
       }).join("");
-      return `<div class="qCard">${top(q, n, '<span class="word">Exact value</span>')}<div class="items">${body}</div></div>`;
+      return `<div class="qCard">${top(q, n, '<span class="word">Exact value</span>')}<div class="items">${body}</div>${opts.draw.D ? drawRow(q.items, w, opts, key) : ""}</div>`;
     }
     if(q.type === "E"){
       const body = q.items.map((t, j) => {
@@ -970,6 +1043,10 @@
       if(opts.scaf === "steps") body += `<div class="ansLine"><span class="lab">Related angle:</span>${key ? kIn(rel) : ln("sm")}</div><div class="ansLine"><span class="lab">Quadrants:</span>${key ? kIn(qs.join(" and ")) : ln("sm")}</div>`;
       body += `<div class="ansLine"><span class="eqs">${TH} =</span>${key ? kIn(ths + (q.mode === "calc" ? " (nearest degree)" : "")) : ln()}</div>`;
       if(key) body += keyWhy(why);
+      if(opts.draw.F){
+        const thN = q.mode === "calc" ? calcSet(q.f, q.v).thetas : solveSet(q.f, q.s, q.r), cw = Math.min(w * .42, 34);
+        return `<div class="qCard">${top(q, n, `<span class="expr">${eq}</span>`)}<div class="ucRow"><div class="pic">${drawUC(cw, { bw:opts.bw, marks:opts.marks, ans:key ? thN : null })}</div><div class="ucAns">${body}</div></div></div>`;
+      }
       return `<div class="qCard">${top(q, n, `<span class="expr">${eq}</span>`)}${body}</div>`;
     }
     if(q.type === "G"){
@@ -1086,7 +1163,8 @@
     return {
       levels:levels.length ? levels : ["mild"], density, cols:COLS[density], bw:$("colourSel").value === "bw",
       fns:$("fnSel").value, rat:$("ratSel").value, scaf:$("scafSel").value, why:$("whyToggle").checked,
-      example:$("exToggle").checked, name:$("nameToggle").checked, key:$("keyToggle").checked
+      example:$("exToggle").checked, name:$("nameToggle").checked, key:$("keyToggle").checked,
+      draw:{ C:$("dcC").checked, D:$("dcD").checked, F:$("dcF").checked }, marks:$("marksSel").value
     };
   }
   function buildQuestions(opts){
@@ -1241,6 +1319,7 @@
       + `<p class="typeDesc">${esc(T.desc)}</p>`
       + `<div class="typeEx"><span class="exLab">e.g.</span>${T.ex()}</div>`
       + `<div class="cntRow"><label for="n${T.k}">How many</label><input id="n${T.k}" type="number" min="0" max="30" value="${T.n}" /></div>`
+      + (T.draw ? `<label class="sw drawSw"><input type="checkbox" id="dc${T.k}" /><span class="track"></span><span>Unit circle to draw on${T.k === "F" ? " (one per equation)" : " (one per part)"}</span></label>` : "")
       + "</div>").join("");
     TYPES.forEach(T => {
       const box_ = $("k" + T.k), cnt = $("n" + T.k), opt = $("opt" + T.k);
@@ -1252,6 +1331,7 @@
         const v = parseInt(cnt.value, 10) || 0;
         box_.checked = v > 0; opt.classList.toggle("on", v > 0); totals(); generate(true);
       });
+      if(T.draw) $("dc" + T.k).addEventListener("change", () => generate(false));     /* same questions, circles on or off */
     });
   }
   function totals(){
@@ -1263,7 +1343,8 @@
     LV.forEach(l => { $("lv" + l.k).checked = l.k === "sweet" || l.k === "mild"; });
     $("fnSel").value = "all"; $("ratSel").value = "surd"; $("colourSel").value = "colour"; $("densitySel").value = "normal"; $("scafSel").value = "steps";
     ["whyToggle", "exToggle", "nameToggle"].forEach(id => { $(id).checked = true; });
-    $("keyToggle").checked = false;
+    $("keyToggle").checked = false; $("marksSel").value = "blank";
+    TYPES.forEach(T => { if(T.draw) $("dc" + T.k).checked = false; });
     TYPES.forEach(T => { $("k" + T.k).checked = !T.off; $("n" + T.k).value = T.n; $("opt" + T.k).classList.toggle("on", !T.off); });
     totals();
     generate(true);
@@ -1277,16 +1358,18 @@
     if(qp.get("levels")){ const set = new Set(qp.get("levels").split(",")); if(LV.some(l => set.has(l.k))) LV.forEach(l => { $("lv" + l.k).checked = set.has(l.k); }); }
     if(qp.get("types")){ const set = new Set(qp.get("types").toUpperCase().split(",")); TYPES.forEach(T => { const on = set.has(LT[T.k]); $("k" + T.k).checked = on; $("opt" + T.k).classList.toggle("on", on); }); totals(); }
     if(qp.get("key") === "1") $("keyToggle").checked = true;
+    if(qp.get("draw")){ const set = new Set(qp.get("draw").toUpperCase().split(",")); TYPES.forEach(T => { if(T.draw) $("dc" + T.k).checked = set.has(LT[T.k]); }); }
+    if(["blank", "sp", "ten"].includes(qp.get("marks"))) $("marksSel").value = qp.get("marks");
   })();
   ["fnSel"].forEach(id => $(id).addEventListener("change", () => generate(true)));
-  ["ratSel", "colourSel", "densitySel", "scafSel", "whyToggle", "exToggle", "nameToggle", "keyToggle"].forEach(id => $(id).addEventListener("change", () => generate(false)));
+  ["ratSel", "colourSel", "densitySel", "scafSel", "marksSel", "whyToggle", "exToggle", "nameToggle", "keyToggle"].forEach(id => $(id).addEventListener("change", () => generate(false)));
   $("genBtn").addEventListener("click", () => generate(true));
   $("printBtn").addEventListener("click", () => window.print());
   $("resetBtn").addEventListener("click", reset);
   const go = () => generate(true);
   if(document.fonts && document.fonts.ready) document.fonts.ready.then(go); else go();
 
-  window.__WS__ = { generate, readOpts, get last(){ return LAST; }, TYPES, makeQ, LV, LT, exact, exH, relOf, quad, solveSet, calcSet, signOf, norm, cardHTML, CTX, TRIG, exNum, expr, setFns:f => { FNS = f; } };
+  window.__WS__ = { generate, readOpts, get last(){ return LAST; }, TYPES, makeQ, LV, LT, exact, exH, relOf, quad, solveSet, calcSet, signOf, norm, cardHTML, drawUC, CTX, TRIG, exNum, expr, setFns:f => { FNS = f; } };
 })();
 
 </script>

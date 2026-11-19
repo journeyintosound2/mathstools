@@ -206,6 +206,22 @@
 > * Still ONE unlike term max (e.g. 4ab + 6ba + 6b − 2b is refused, message points at Bubbles). Allowing more needs a multi-term unlike pile + take-away in scene()/storyFor()/panel (all key off scalar `q.uc`). Possible next: setting "Allow two kinds of groups", off by default.
 > * Worksheet worked example: number of groups blue, the group (7, x) green, like the live tool (`exprC`, `.ec`/`.eg`; plain in B&W).
 >
+> **NEW (2026-11-19, latest): UNIT CIRCLE WORKSHEET — A UNIT CIRCLE TO DRAW ON IN C, D AND F.**
+> `worksheet-creators/stage-5/measurement-space/unit-circle-trig.html` (built from parts in the session scratch:
+> base css + extra.css + body.html + script.js, `assemble.py`). Each of C Related angles, D Exact values and
+> F Solve has its own switch on its type card, "Unit circle to draw on" (`#dcC/#dcD/#dcF`, off by default,
+> `opts.draw.{C,D,F}`; types carry `draw:true`). On: C and D get a row of blank circles under the parts, one per
+> part, lettered a) b) c) (`drawRow`; expression items in Spicy D get none; circles ≥ 24 mm, wrapping and
+> centred on a narrow card); F gets one circle beside the working (`.ucRow`). The heading adds "Draw each angle
+> and its triangle on the unit circle first." Paper-wide select **Unit circles to draw on**: blank (axes, circle,
+> 0°/90°/180°/270°) · ticks at every 30° and 45° · ticks every 10° (`#marksSel`, `opts.marks`). `drawUC(w, o)`
+> draws it; in the KEY the working is drawn in: the stick (with the turn arc in C/D, so 400° and −30° show the
+> extra turn), the dropped triangle, the related-angle wedge shaded and labelled (small angles labelled just
+> outside the wedge); F's key draws every solution. Toggling a circle switch keeps the same questions
+> (`generate(false)`). URL `&draw=C,D,F&marks=blank|sp|ten`. Verified: 92 configurations × 2 (every level ×
+> density × marks, key on) with nothing past a page or card, key mirrors the paper, no working on student
+> circles, every key circle carries a stick; PDF pages = preview; circles-off suite unchanged.
+>
 > **NEW (2026-11-19, last): UNIT CIRCLE — SEVEN MORE APPLICATIONS, MENU GROUPED BY SIN / COS / TAN.**
 > `interactive-tools/stage-5/measurement-space/unit-circle-trig-ratios/index.html`. Project doc `claude/unit-circle.md`.
 > * **THE NEW ONES GO THROUGH ONE REGISTRY, `XAPPS`** (the first four are still written into render()/panel directly).
