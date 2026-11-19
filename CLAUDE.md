@@ -96,6 +96,43 @@
 > §2 "TWO folders", §3 deploy paths and §5's `mathstools-main 2` heading below
 > describe the OLD layout — this block supersedes them.
 >
+> **NEW (2026-11-19, latest): VENN DIAGRAMS: SORTING NUMBERS — Stage 5 teaching tool** at
+> `interactive-tools/stage-5/statistics-probability/venn-diagrams/index.html` (single file, no Firebase). Filed ONLY under
+> **MA5-PRO-P-01** (ideas venn-two-way, mutually-exclusive): Jeff's rule (2026-11-19) — link to Stage 5 only when no
+> Stage 4 content point mentions Venn diagrams, and MA4-PRO-C-01 does not. Homepage Interactive card (pill 43 → 44),
+> toolLinks row (`?v=` bumped in resources + teacher portal). Built from Jeff's "Intro to Maths Venns" deck, in the spirit
+> of Craig Barton's Maths Venns (NOT named after them). Tools menu: Worksheet / Quiz greyed. localStorage `mmt.venns.v1`;
+> test surface `window.__VENN__`. Project doc `claude/venn-diagrams.md`.
+> * **The slow reveal (steps are data, `buildSteps`):** one circle (A) → sort into it → a second circle arrives APART →
+>   sort again: a number in both is STUCK in the gap, wobbling with a "?" (the reason circles overlap) → the circles slide
+>   together and it drops into the overlap → [3 sets: third circle apart → stuck again → overlap all three] → name the
+>   regions (cards dim, region numbers, click a region for its name) → practice numbers one at a time (ask: the card lifts
+>   in the tray; the teacher DRAGS it to the class's whiteboard answer; Next marks it green/red and flies it home) →
+>   fill every region (dashed "?" boxes) → possible answers (✗ + hatching for impossible regions, reasons in the panel,
+>   A = other answers, "What if…" buttons swap one circle and jump to fill). Settings toggle each layer (one circle first,
+>   start apart, names, practice 0/3/4/6, fill). First load: Even · Greater than 10 with 6, 15, 12, 7, 10 (10 = boundary).
+> * **15 presets** (`PRESETS`): starting out (even/>10, multiple of 5/even, prime/odd, negative/>−5), factors and multiples
+>   (4/6 → LCM, factors of 24/36 → HCF, square/cube), three circles (Jeff's deck: even/factor of 30/>10, square/multiple of
+>   3/factor of 36; prime/even/>10 with an impossible region), decimals (>0.4, <0.5, last digit 4) and big numbers (Jeff's
+>   deck), probability (die; 1–20 even/multiple of 3; 1–20 prime/odd). Codes: bit 0 = A, 1 = B, 2 = C; `imp`/`note` keyed by code.
+>   **Probability Venns** sort the whole sample space, count each region, then P(and / or / not / or-but-not-both / neither)
+>   pose → reveal (regions shaded, fraction simplified). Set notation setting gives ξ, A: …, A ∩ B′, P(A ∪ B).
+> * **Change a circle** (panel; whole-number Venns only) from `PRED` (even, odd, prime, square, cube, multiple of, factor of,
+>   greater/less than, last digit); + third circle. New numbers (Enter) = `genNums`: covers every region (overlap forced) +
+>   one boundary number. Every number/answer is tested by the predicates — nothing is hand-classified.
+> * **Layout:** every layout (`CFG_L` landscape / `CFG_P` portrait: circles stacked, labels above/below) is fitted by
+>   binary search; the two-circle stage caps the radius so circles never grow mid-story. Three-circle centres 1.1 r apart
+>   (measured: roomiest smallest region, ~0.33 r). Labels wrap to two lines when wider than the circle (`labelLines`).
+>   Cards are placed INCREMENTALLY (`placeIn`): earlier cards keep their spot, newcomers take the free spot that does not
+>   overlap (wide-short spacing), then room from lines, then near the middle; labels, region numbers and the stuck-gap are
+>   obstacles. `layout()` rehearses every step (`crowding`) and shrinks the cards until no two touch. Canvas font strings
+>   are `"800 %px …"` with `%` replaced by the number only (a double "px" silently measured everything at 10px).
+> * Verified (Playwright): audit 1,245 frames (15 Venns × every step × 1366/1920/1024/1280/390) — no card in the wrong
+>   region, nothing off the board or outside the box, no label over a card; no overlaps at desktop sizes, also with large
+>   type + region numbers + notation (only the big-number Venn crowds a 390 px phone). 54 UI checks with real animations and
+>   a real mouse (clash, overlap, back, region and card clicks, drag-to-answer marking both ways, editor, what-if, keys,
+>   persistence, panel, full screen); 1,185 answers/cards re-derived with independent tests; layout under 55 ms per Venn.
+>
 > **NEW (2026-11-18, latest; reworked twice on Jeff's feedback): THE UNIT CIRCLE AND THE TRIGONOMETRIC RATIOS —
 > Stage 5 teaching tool** at `interactive-tools/stage-5/measurement-space/unit-circle-trig-ratios/index.html` (single
 > file, trapezium shell, no Firebase), under **MA5-TRG-P-02** (Trigonometry D, ideas unit-circle + trig-equations;

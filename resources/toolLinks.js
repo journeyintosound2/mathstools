@@ -2098,5 +2098,16 @@ window.MMT_TOOL_LINKS = {
       note: "Build a spinner, run many trials, and compare observed relative frequency with theoretical probability.",
       tags: ["probability", "spinner", "simulation", "relative frequency", "expected value", "experiment"]
     }
+  ],
+
+  "MA5-PRO-P-01": [
+    {
+      title: "Venn Diagrams: Sorting Numbers",
+      kind: "Teacher tool",
+      url: "/interactive-tools/stage-5/statistics-probability/venn-diagrams/",
+      ideas: ["venn-two-way", "mutually-exclusive"],
+      note: "A slow reveal for mini whiteboards: one circle, then a second that starts apart until a number belongs in both, then the overlap, the third circle, naming every region, practice numbers, fill every region (and spot the impossible ones). Probability Venns sort a whole sample space, count it and ask and / or / not / neither questions.",
+      tags: ["venn diagram", "venn", "sorting", "regions", "and", "or", "not", "neither", "mutually exclusive", "set notation", "even", "prime", "factors", "multiples", "probability", "mini whiteboards"]
+    }
   ]
 };

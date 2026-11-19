@@ -1,0 +1,1805 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Venn Diagrams: Sorting Numbers | Mills Maths Tools</title>
+  <meta name="description" content="A slow-reveal Venn diagram for mini whiteboards: one circle, then a second that does not overlap until a number needs to be in both, then names for every region, practice numbers, fill every region and probability from the counts." />
+
+  <style>
+    :root{
+      --bg:#f8fafc; --card:#ffffff; --ink:#0f172a; --muted:#64748b; --border:#e2e8f0;
+      --shadow:0 18px 45px rgba(15,23,42,.13);
+      --blue:#2563eb; --blue-dark:#1d4ed8;
+      --green:#22c55e; --green-dark:#15803d;
+      --purple:#7c3aed; --purple-dark:#5b21b6;
+      --orange:#f97316; --orange-dark:#c2410c;
+      --amber:#facc15; --amber-dark:#a16207;
+      --line:#334155; --line-soft:#94a3b8; --red:#dc2626;
+      --setA:#2563eb; --setB:#ea580c; --setC:#7c3aed;
+      --uiFont:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+      --mathFont:"STIX Two Math","Cambria Math","Latin Modern Math","Times New Roman",Georgia,serif;
+    }
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0; font-family:var(--uiFont); color:var(--ink);
+      background:
+        radial-gradient(circle at top left,rgba(37,99,235,.14),transparent 32rem),
+        radial-gradient(circle at top right,rgba(124,58,237,.12),transparent 34rem),
+        var(--bg);
+      overflow-x:hidden;
+    }
+    button,input,select{ font:inherit; }
+    [hidden]{ display:none !important; }
+    .app{ height:100dvh; display:flex; flex-direction:column; min-width:0; }
+
+    /* ---------- topbar (shared MMT shell) ---------- */
+    .mmtTopbar{
+      position:relative; z-index:40; flex:0 0 auto;
+      background:linear-gradient(135deg,#0f172a,#123b7a 55%,#2563eb);
+      color:white; padding:14px 24px;
+      display:grid; grid-template-columns:minmax(200px,1fr) auto minmax(300px,1fr);
+      align-items:center; gap:18px; box-shadow:0 10px 28px rgba(15,23,42,.22);
+    }
+    .mmtBrand{ display:flex; align-items:center; gap:12px; justify-self:start; text-decoration:none; color:white; border-radius:14px;
+      padding:8px 12px; margin-left:-12px; font-weight:900; transition:background .18s ease,transform .18s ease,box-shadow .18s ease; }
+    .mmtBrand:hover{ background:rgba(255,255,255,.12); transform:translateY(-1px); box-shadow:0 0 10px rgba(124,58,237,.6),0 0 18px rgba(37,99,235,.4); }
+    .mmtBrandLogo{ width:44px; height:44px; border-radius:9px; background:white; color:#1d4ed8; display:grid; place-items:center;
+      font-weight:1000; letter-spacing:-.08em; box-shadow:inset 0 -2px 0 rgba(15,23,42,.08); flex:0 0 auto; }
+    .mmtBrandText strong{ display:block; font-size:1.18rem; line-height:1; letter-spacing:-.03em; color:white; }
+    .mmtBrandText span{ display:block; font-size:.78rem; opacity:.82; font-weight:650; color:white; }
+    .mmtTopTitle{ font-weight:850; font-size:clamp(1.05rem,1.8vw,1.45rem); letter-spacing:-.04em; text-align:center; color:white; white-space:nowrap; }
+    .topActions{ justify-self:end; display:flex; align-items:center; justify-content:flex-end; gap:10px; flex-wrap:wrap; }
+    .btn{ appearance:none; border:1px solid rgba(255,255,255,.28); background:rgba(255,255,255,.14); color:white; padding:11px 15px;
+      border-radius:14px; font-weight:900; font-size:15px; cursor:pointer; transition:.18s ease; user-select:none; }
+    .btn:hover:not(:disabled){ background:rgba(255,255,255,.22); transform:translateY(-1px); }
+    .btn:focus-visible{ outline:none; box-shadow:0 0 0 4px rgba(255,255,255,.23); }
+    .btn:disabled{ opacity:.45; cursor:not-allowed; }
+    .btn-primary{ background:white; color:#1d4ed8; border-color:white; }
+    .btn-primary:hover:not(:disabled){ background:#eef2ff; color:#1d4ed8; }
+
+    .menuWrap{ position:relative; display:inline-flex; }
+    .dropMenu{ position:absolute; top:calc(100% + 8px); right:0; min-width:270px; background:#fff; color:var(--ink);
+      border:1px solid rgba(226,232,240,.95); border-radius:14px; box-shadow:0 18px 45px rgba(15,23,42,.22);
+      padding:7px; display:none; z-index:120; text-align:left; }
+    .dropMenu.open{ display:grid; gap:4px; }
+    .toolLink{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 12px; border-radius:10px;
+      color:var(--ink); text-decoration:none; font-weight:900; font-size:.9rem; }
+    .toolLink::after{ content:'\203A'; color:var(--blue); font-weight:1000; font-size:1.1rem; line-height:1; }
+    .toolLink:hover,.toolLink:focus-visible{ background:#eef2ff; color:#1d4ed8; outline:none; }
+    .toolLink small{ display:block; font-weight:650; font-size:.74rem; color:var(--muted); }
+    .toolLink.soon{ opacity:.45; cursor:default; }
+    .toolLink.soon::after{ content:none; }
+    .toolLink.soon:hover{ background:none; color:var(--ink); }
+    .menuRule{ height:1px; background:var(--border); margin:3px 6px; }
+    .settingsMenu.open{ gap:11px; padding:15px 18px; min-width:350px; max-height:min(80vh,720px); overflow:auto; }
+    .settingsHead{ font-size:.68rem; letter-spacing:.14em; text-transform:uppercase; font-weight:950; color:var(--muted); }
+    .settingsNote{ margin:-4px 0 0; font-size:.76rem; font-weight:650; color:var(--muted); line-height:1.4; }
+    .settingsRule{ height:1px; background:var(--border); margin:1px 0; }
+    .selRow{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .selRow > span{ font-weight:900; font-size:.92rem; color:var(--ink); white-space:nowrap; }
+    select.nice{ appearance:none; border:1.5px solid var(--border); padding:8px 30px 8px 11px; border-radius:11px; font-weight:850; font-size:.88rem;
+      color:var(--line); cursor:pointer;
+      background:#fff url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' fill='none' stroke='%232563eb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/></svg>") no-repeat right 10px center;
+      background-size:11px; }
+    .selRow select{ min-width:150px; }
+    select.nice:focus-visible{ outline:none; border-color:var(--blue); box-shadow:0 0 0 4px rgba(37,99,235,.16); }
+    select.nice:disabled{ opacity:.5; cursor:not-allowed; }
+    .sw{ display:inline-flex; align-items:center; gap:11px; cursor:pointer; user-select:none; font-weight:850; color:var(--line); font-size:.93rem; }
+    .sw input{ position:absolute; opacity:0; width:0; height:0; }
+    .sw .track{ position:relative; width:50px; height:29px; border-radius:999px; background:#cbd5e1; transition:.18s ease; flex:0 0 auto; box-shadow:inset 0 1px 3px rgba(15,23,42,.18); }
+    .sw .track::after{ content:""; position:absolute; top:3px; left:3px; width:23px; height:23px; border-radius:50%; background:#fff; box-shadow:0 2px 6px rgba(15,23,42,.3); transition:.18s ease; }
+    .sw input:checked + .track{ background:var(--green); }
+    .sw input:checked + .track::after{ transform:translateX(21px); }
+    .sw input:focus-visible + .track{ box-shadow:0 0 0 4px rgba(37,99,235,.28); }
+
+    /* ---------- layout ---------- */
+    .layout{ flex:1 1 auto; min-height:0; width:min(1640px,100%); margin:0 auto; padding:14px 18px 16px;
+      display:grid; grid-template-columns:minmax(0,1fr) 372px; gap:14px; min-width:0; }
+    .card{ background:var(--card); border:1px solid var(--border); border-radius:22px; box-shadow:var(--shadow); min-width:0; }
+
+    /* ---------- board ---------- */
+    .boardCard{ display:flex; flex-direction:column; min-height:0; padding:12px 14px 8px; position:relative; overflow:hidden; }
+    .boardTop{ position:relative; z-index:2; background:var(--card); display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:nowrap; }
+    .vennNav{ display:flex; align-items:center; gap:8px; min-width:0; flex:1 1 auto; }
+    .vennName{ min-width:0; line-height:1.15; flex:0 1 auto; }
+    .topRight{ flex:0 0 auto; }
+    .vennName small{ display:block; font-size:.68rem; letter-spacing:.12em; text-transform:uppercase; font-weight:950; color:var(--muted); }
+    .vennName b{ display:block; font-size:1.02rem; font-weight:900; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .navBtn{ appearance:none; width:38px; height:38px; border-radius:12px; border:1.5px solid var(--border); background:#fff; color:var(--line);
+      cursor:pointer; font-weight:950; font-size:1rem; display:grid; place-items:center; transition:.16s ease; padding:0; flex:0 0 auto; }
+    .navBtn:hover:not(:disabled){ border-color:var(--blue); background:#eef2ff; color:var(--blue-dark); }
+    .navBtn:disabled{ opacity:.35; cursor:not-allowed; }
+    .topRight{ display:flex; align-items:center; gap:10px; }
+    .typeTag{ font-size:.74rem; letter-spacing:.06em; font-weight:950; text-transform:uppercase; padding:6px 11px; border-radius:999px; white-space:nowrap;
+      border:1px solid rgba(37,99,235,.25); color:var(--blue-dark); background:rgba(37,99,235,.1); }
+    .typeTag.three{ color:var(--purple-dark); background:rgba(124,58,237,.1); border-color:rgba(124,58,237,.25); }
+    .typeTag.prob{ color:var(--amber-dark); background:rgba(250,204,21,.18); border-color:rgba(161,98,7,.28); }
+    .iconGroup{ display:inline-flex; gap:6px; }
+    .iconBtn{ appearance:none; width:42px; height:42px; border-radius:13px; border:1.5px solid var(--border); background:#fff; color:var(--line);
+      display:grid; place-items:center; cursor:pointer; transition:.16s ease; padding:0; font-weight:950; }
+    .iconBtn svg{ width:21px; height:21px; display:block; }
+    .iconBtn:hover:not(:disabled){ border-color:var(--blue); background:#eef2ff; color:var(--blue-dark); transform:translateY(-1px); }
+    .iconBtn:focus-visible{ outline:none; box-shadow:0 0 0 3px rgba(37,99,235,.3); }
+    .iconBtn[aria-pressed="true"]{ background:#eef2ff; border-color:#c7d2fe; color:var(--blue-dark); }
+    .iconBtn.spin svg{ animation:spin .5s ease; }
+    @keyframes spin{ from{ transform:rotate(0);} to{ transform:rotate(-360deg);} }
+
+    .app.noPanel .layout, .app.fs .layout{ grid-template-columns:minmax(0,1fr); }
+    .app.noPanel .side, .app.fs .side{ display:none; }
+    .app.fs .mmtTopbar{ display:none; }
+    .app.fs .layout{ width:100%; padding:10px; }
+    .app.fs #panelBtn{ display:none; }
+    .miniSteps{ position:absolute; right:14px; bottom:10px; display:flex; gap:7px; z-index:5; }
+    .miniSteps .nextBtn{ flex:none; padding:10px 16px; font-size:.95rem; }
+    .miniSteps .stepBtn.icon{ width:42px; padding:10px 0; }
+    .app.noPanel .hint, .app.fs .hint{ padding-right:200px; padding-left:200px; }
+
+    /* the question above the board */
+    .stmt{ display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:0 .3em; margin:8px 0 0; min-height:1.3em;
+      font-family:var(--uiFont); font-weight:900; font-size:clamp(1.25rem,2.25vw,2.05rem); line-height:1.25; color:var(--ink);
+      text-align:center; letter-spacing:-.02em; }
+    .stmt.swap{ animation:fadeUp .35s ease; }
+    .app[data-fsz="m"] .stmt{ font-size:clamp(1.5rem,2.8vw,2.5rem); }
+    .app[data-fsz="l"] .stmt{ font-size:clamp(1.75rem,3.4vw,3rem); }
+    .nm{ font-family:var(--mathFont); font-weight:700; white-space:nowrap; letter-spacing:0; }
+    .sA{ color:var(--setA); } .sB{ color:var(--setB); } .sC{ color:var(--setC); }
+    .sym{ font-family:var(--mathFont); font-weight:700; white-space:nowrap; }
+    .sym i{ font-style:italic; }
+    .frac{ display:inline-flex; flex-direction:column; align-items:center; font-family:var(--mathFont); font-weight:700; font-size:.78em; line-height:1; vertical-align:middle; margin:0 .08em; }
+    .frac > span:first-child{ border-bottom:.08em solid currentColor; padding:0 .14em .06em; }
+    .frac > span:last-child{ padding:.06em .14em 0; }
+    .ansV{ color:var(--green-dark); }
+    .stmt .ansV{ animation:popIn .4s cubic-bezier(.34,1.5,.5,1); display:inline-flex; align-items:center; gap:.25em; }
+    .q{ display:inline-grid; place-items:center; min-width:1.35em; padding:0 .2em; border-radius:10px; background:#f1f5f9; border:1.5px dashed #cbd5e1; color:var(--line-soft); font-family:var(--mathFont); }
+
+    .boardWrap{ position:relative; flex:1 1 auto; min-height:0; margin-top:4px; }
+    #board{ position:absolute; inset:0; width:100%; height:100%; display:block; touch-action:none; user-select:none; -webkit-user-select:none; overflow:visible; }
+    #board text{ pointer-events:none; }
+    #board .boxR{ fill:#fff; stroke:#94a3b8; stroke-width:2; }
+    #board .boxLab{ font-family:var(--uiFont); font-weight:850; fill:var(--line-soft); letter-spacing:.02em; }
+    #board .boxLab .xi{ font-family:var(--mathFont); font-style:italic; fill:var(--line); }
+    #board .vC{ stroke-width:3.2; fill-opacity:.075; }
+    .app.noTint #board .vC{ fill-opacity:0; }
+    #board .vLab{ font-family:var(--uiFont); font-weight:850; }
+    #board .vLab .let{ font-family:var(--mathFont); font-style:italic; font-weight:700; }
+    #board .card{ cursor:grab; }
+    #board .card.dragging{ cursor:grabbing; }
+    #board .card .cIn{ transition:opacity .35s ease; }
+    #board .card .cBg{ fill:#fff; stroke:#334155; stroke-width:1.6; filter:drop-shadow(0 2px 2.5px rgba(15,23,42,.16)); }
+    #board .card text.cT{ font-family:var(--mathFont); font-weight:700; fill:var(--ink); }
+    #board .card .cRing{ fill:none; stroke-width:4; opacity:0; }
+    #board .card .cQ{ opacity:0; }
+    #board .card.asked .cBg{ stroke:var(--amber-dark); stroke-width:2.6; filter:drop-shadow(0 0 7px rgba(250,204,21,.95)) drop-shadow(0 6px 10px rgba(15,23,42,.22)); }
+    #board .card.trayDim .cIn{ opacity:.42; }
+    #board .card.dim .cIn{ opacity:.24; }
+    #board .card.stuck .cIn{ animation:wob 1.15s ease-in-out infinite; transform-box:fill-box; transform-origin:center; }
+    #board .card.stuck .cBg{ stroke:var(--amber-dark); stroke-width:2.6; stroke-dasharray:6 4; fill:#fefce8; }
+    #board .card.stuck .cQ{ opacity:1; }
+    #board .card.fxOk .cRing{ stroke:var(--green); animation:ring 1.4s ease forwards; }
+    #board .card.fxNo .cRing{ stroke:var(--red); animation:ring 1.4s ease forwards; }
+    #board .card.sel .cBg{ stroke:var(--blue); stroke-width:2.8; }
+    @keyframes wob{ 0%,100%{ transform:rotate(0); } 25%{ transform:rotate(-6deg); } 75%{ transform:rotate(6deg); } }
+    @keyframes ring{ 0%{ opacity:0; } 15%{ opacity:1; } 70%{ opacity:1; } 100%{ opacity:0; } }
+    #board .fb rect{ fill:#f8fafc; stroke:#94a3b8; stroke-width:2; stroke-dasharray:6 5; }
+    #board .fb text{ font-family:var(--mathFont); font-weight:700; fill:var(--line-soft); }
+    #board .fb.ans rect{ fill:#f0fdf4; stroke:var(--green-dark); stroke-dasharray:none; }
+    #board .fb.ans text{ fill:var(--green-dark); }
+    #board .fb.imp rect{ fill:#fef2f2; stroke:var(--red); stroke-dasharray:none; }
+    #board .fb.imp text{ fill:var(--red); font-family:var(--uiFont); font-weight:950; }
+    #board .fb.only rect{ stroke:var(--amber-dark); }
+    #board .bdg circle{ fill:#0f172a; stroke:#fff; stroke-width:2; }
+    #board .bdg text{ fill:#fff; font-family:var(--uiFont); font-weight:950; }
+    #board .cnt circle{ fill:#fff; stroke:#0f172a; stroke-width:2.6; filter:drop-shadow(0 3px 5px rgba(15,23,42,.2)); }
+    #board .cnt text{ font-family:var(--mathFont); font-weight:700; fill:var(--ink); }
+    #board .sh rect{ fill:#facc15; fill-opacity:.5; }
+    #board .sh.imp rect{ fill:url(#hatch); fill-opacity:1; }
+    #board .hl rect{ fill:#2563eb; fill-opacity:0; }
+    #board .hl.on rect{ animation:hlPulse 2.6s ease forwards; }
+    @keyframes hlPulse{ 0%{ fill-opacity:0; } 12%{ fill-opacity:.28; } 70%{ fill-opacity:.22; } 100%{ fill-opacity:0; } }
+    .app[data-fsz="m"] .hint{ font-size:1.08rem; }
+    .app[data-fsz="l"] .hint{ font-size:1.3rem; }
+    .hint{ flex:0 0 auto; min-height:1.45em; text-align:center; font-size:.92rem; font-weight:750; color:var(--muted); padding:3px 8px 0; line-height:1.4; }
+    .hint b{ color:var(--line); }
+    .hint.flash{ animation:fadeUp .3s ease; color:var(--line); }
+
+    /* 3-2-1 show me */
+    .showMe{ position:absolute; inset:0; display:grid; place-items:center; pointer-events:none; z-index:8; }
+    .showMe span{ font-weight:1000; font-size:clamp(4rem,14vw,11rem); color:var(--blue-dark); letter-spacing:-.04em;
+      text-shadow:0 10px 30px rgba(37,99,235,.25); animation:pop321 .8s ease forwards; background:rgba(255,255,255,.75); border-radius:40px; padding:0 .3em; }
+    .showMe span.go{ color:var(--green-dark); font-size:clamp(3rem,10vw,8rem); animation:pop321 1.3s ease forwards; }
+    @keyframes pop321{ 0%{ transform:scale(.4); opacity:0; } 25%{ transform:scale(1.08); opacity:1; } 70%{ transform:scale(1); opacity:1; } 100%{ transform:scale(1); opacity:0; } }
+
+    /* ---------- side panel ---------- */
+    .side{ display:flex; flex-direction:column; gap:12px; min-height:0; min-width:0; }
+    .panel{ padding:12px 14px; }
+    .pHead{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:9px; }
+    .pTitle{ font-size:.68rem; letter-spacing:.14em; text-transform:uppercase; font-weight:950; color:var(--muted); }
+    .pCount{ font-size:.74rem; font-weight:900; color:var(--line-soft); }
+    #vennSel{ width:100%; }
+    .cRows{ display:grid; gap:7px; margin-top:10px; }
+    .cRow{ display:grid; grid-template-columns:26px minmax(0,1fr) 74px; gap:8px; align-items:center; }
+    .cRow .dot{ width:26px; height:26px; border-radius:50%; border:3px solid var(--c); background:color-mix(in srgb,var(--c) 12%,#fff);
+      display:grid; place-items:center; font-family:var(--mathFont); font-style:italic; font-weight:700; color:var(--c); font-size:.9rem; }
+    .cRow select{ width:100%; padding:7px 26px 7px 9px; font-size:.84rem; }
+    .cRow input{ width:100%; height:36px; border:1.5px solid var(--border); border-radius:10px; text-align:center; font-family:var(--mathFont); font-weight:700; font-size:1.05rem; color:var(--ink); }
+    .cRow input:focus{ outline:none; border-color:var(--blue); background:#eef2ff; }
+    .cRow input:disabled{ background:#f8fafc; color:var(--line-soft); }
+    .rowBtns{ display:flex; gap:6px; margin-top:9px; flex-wrap:wrap; }
+    .smallBtn{ appearance:none; border:1.5px solid var(--border); background:#fff; color:var(--line); padding:7px 11px; border-radius:11px;
+      font-weight:900; font-size:.82rem; cursor:pointer; transition:.14s ease; }
+    .smallBtn:hover:not(:disabled){ border-color:var(--blue); background:#eef2ff; color:var(--blue-dark); }
+    .smallBtn:disabled{ opacity:.4; cursor:not-allowed; }
+    .pNote{ font-size:.74rem; font-weight:700; color:var(--line-soft); margin:7px 0 0; line-height:1.35; }
+
+    .storyPanel{ flex:1 1 auto; min-height:0; display:flex; flex-direction:column; }
+    .storyScroll{ flex:1 1 auto; min-height:0; overflow:auto; margin:0 -6px; padding:0 6px; }
+    .sLine{ border-radius:13px; padding:8px 11px 9px; border:1px solid var(--border); background:#f8fafc; margin-bottom:6px; animation:fadeUp .3s ease; }
+    .sLine .lab{ display:flex; gap:7px; align-items:baseline; font-size:.84rem; font-weight:900; color:var(--line); line-height:1.3; }
+    .sLine .n{ font-size:.7rem; font-weight:950; color:#fff; background:var(--line-soft); border-radius:7px; min-width:20px; height:20px; display:inline-grid; place-items:center; flex:0 0 auto; }
+    .sLine .bd{ font-size:.82rem; font-weight:700; color:var(--line); margin-top:5px; line-height:1.45; }
+    .sLine .bd .nm{ font-size:1.12em; }
+    .sLine .tip{ font-size:.77rem; font-weight:750; color:var(--muted); margin-top:5px; line-height:1.38; }
+    .sLine .tip b{ color:var(--purple-dark); }
+    .sLine.cur{ background:#fff; border-color:rgba(37,99,235,.45); box-shadow:0 0 0 3px rgba(37,99,235,.08); }
+    .sLine.cur .n{ background:var(--blue); }
+    .sLine.done{ background:rgba(34,197,94,.06); border-color:rgba(21,128,61,.25); }
+    .sLine.done .n{ background:var(--green-dark); }
+    .sLine.done .tip{ display:none; }
+    .why{ display:grid; grid-template-columns:auto minmax(0,1fr); gap:2px 8px; margin-top:4px; }
+    .why .ok{ color:var(--green-dark); font-weight:950; } .why .no{ color:var(--red); font-weight:950; }
+    .regList{ display:grid; gap:4px; margin-top:4px; }
+    .regList > div{ display:grid; grid-template-columns:22px minmax(0,1fr); gap:7px; align-items:start; }
+    .rb{ width:20px; height:20px; border-radius:50%; background:#0f172a; color:#fff; font-size:.7rem; font-weight:950; display:grid; place-items:center; margin-top:1px; }
+    .regList .ex{ color:var(--muted); font-weight:700; }
+    .regList .imp{ color:var(--red); }
+    .wiBtns{ display:grid; gap:5px; margin-top:7px; }
+    .wiBtn{ appearance:none; text-align:left; border:1.5px solid rgba(124,58,237,.3); background:rgba(124,58,237,.06); color:var(--purple-dark);
+      border-radius:11px; padding:7px 10px; font-weight:850; font-size:.8rem; cursor:pointer; line-height:1.35; }
+    .wiBtn:hover{ background:rgba(124,58,237,.12); border-color:var(--purple); }
+    .stepRow{ display:flex; gap:7px; padding-top:10px; margin-top:8px; border-top:1px solid var(--border); }
+    .stepBtn{ appearance:none; border:1.5px solid var(--border); background:#fff; color:var(--line); padding:11px 12px; border-radius:14px;
+      font-weight:950; font-size:.95rem; cursor:pointer; transition:.16s ease; white-space:nowrap; }
+    .stepBtn:hover:not(:disabled){ border-color:var(--blue); background:#eef2ff; color:var(--blue-dark); transform:translateY(-1px); }
+    .stepBtn:disabled{ opacity:.38; cursor:not-allowed; transform:none; }
+    .stepBtn.icon{ width:46px; padding:11px 0; font-size:1.05rem; }
+    .nextBtn{ flex:1 1 auto; min-width:0; appearance:none; border:none; background:linear-gradient(135deg,var(--blue),var(--purple)); color:#fff;
+      padding:12px 14px; border-radius:15px; font-weight:950; font-size:1.02rem; cursor:pointer; box-shadow:0 10px 24px rgba(37,99,235,.30);
+      transition:.18s ease; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .nextBtn:hover:not(:disabled){ transform:translateY(-1px); box-shadow:0 14px 30px rgba(37,99,235,.38); }
+    .nextBtn:disabled{ background:linear-gradient(135deg,var(--green-dark),#0f766e); box-shadow:none; cursor:default; opacity:.92; }
+    .keyHint{ font-size:.72rem; font-weight:800; color:var(--line-soft); text-align:center; margin-top:7px; line-height:1.6; }
+    .keyHint kbd{ font-family:var(--uiFont); font-size:.7rem; font-weight:900; color:var(--muted); border:1px solid var(--border); border-bottom-width:2px;
+      border-radius:6px; padding:0 5px; background:#f8fafc; }
+
+    @keyframes popIn{ 0%{ transform:scale(.5); opacity:0;} 60%{ transform:scale(1.14);} 100%{ transform:scale(1); opacity:1;} }
+    @keyframes fadeUp{ from{ opacity:0; transform:translateY(5px);} to{ opacity:1; transform:none;} }
+    @media (prefers-reduced-motion:reduce){
+      .sLine,.stmt.swap,.stmt .ansV,.hint.flash{ animation:none !important; }
+      #board .card.stuck .cIn{ animation:none; }
+    }
+
+    /* ---------- responsive ---------- */
+    @media (max-width:1280px){ .layout{ grid-template-columns:minmax(0,1fr) 340px; } }
+    @media (max-width:1180px){
+      .mmtTopbar{ grid-template-columns:auto minmax(0,1fr) auto; padding:12px 16px; gap:12px; }
+      .mmtBrandText{ display:none; }
+      .btn{ padding:10px 13px; font-size:14px; }
+      .layout{ padding:12px 12px 14px; gap:12px; }
+      .typeTag{ display:none; }
+    }
+    @media (max-width:980px){
+      .app:not(.fs){ height:auto; min-height:100dvh; }
+      .layout{ grid-template-columns:1fr; }
+      .boardWrap{ flex:none; height:clamp(360px,64vh,600px); }
+      .app.fs .boardWrap{ flex:1 1 auto; height:auto; }
+      .app.noPanel .hint, .app.fs .hint{ padding:3px 8px 56px; }
+      .storyPanel{ flex:none; }
+      .storyScroll{ overflow:visible; }
+    }
+    @media (max-width:760px){
+      .mmtTopbar{ grid-template-columns:1fr; justify-items:center; padding:12px 14px; }
+      .mmtBrand{ margin-left:0; } .topActions{ justify-self:center; justify-content:center; }
+      .dropMenu{ right:auto; left:50%; transform:translateX(-50%); }
+      .settingsMenu.open{ min-width:min(350px,92vw); }
+      .mmtTopTitle{ white-space:normal; }
+      .boardTop{ flex-direction:column; align-items:stretch; }
+      .topRight{ justify-content:center; }
+      .vennName b{ white-space:normal; }
+    }
+    @media print{ .mmtTopbar,.side,.hint,.iconGroup,.miniSteps{ display:none !important; } }
+  </style>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
+<!-- mmt-pwa -->
+<link rel="manifest" href="../../../../manifest.webmanifest">
+<meta name="theme-color" content="#1f3a5f">
+<link rel="apple-touch-icon" href="../../../../icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="MMT">
+<script src="../../../../pwa.js" defer></script>
+<!-- /mmt-pwa -->
+</head>
+<body>
+  <div class="app" id="app">
+    <header class="mmtTopbar">
+      <a class="mmtBrand" href="https://www.millsmathstools.au" target="_self" aria-label="Back to Mills Maths Tools">
+        <span class="mmtBrandLogo" aria-hidden="true">MMT</span>
+        <span class="mmtBrandText"><strong>MMT</strong><span>Mills Maths Tools</span></span>
+      </a>
+      <div class="mmtTopTitle">Venn Diagrams: Sorting Numbers</div>
+      <div class="topActions">
+        <div class="menuWrap">
+          <button class="btn" id="settingsBtn" type="button" aria-haspopup="true" aria-expanded="false">Settings &#9662;</button>
+          <nav class="dropMenu settingsMenu" id="settingsMenu" aria-label="Settings">
+            <div class="settingsHead">The slow reveal</div>
+            <label class="sw"><input type="checkbox" id="oneToggle" checked><span class="track"></span><span>Start with one circle</span></label>
+            <label class="sw"><input type="checkbox" id="apartToggle" checked><span class="track"></span><span>The circles start apart</span></label>
+            <p class="settingsNote">The second circle arrives <b>apart</b> from the first, so a number that belongs in both has nowhere to go. That is the reason circles overlap.</p>
+            <label class="sw"><input type="checkbox" id="namesToggle" checked><span class="track"></span><span>Name the regions</span></label>
+            <label class="selRow"><span>Practice numbers</span>
+              <select class="nice" id="practiceSel" aria-label="How many practice numbers to ask one at a time">
+                <option value="0">None</option>
+                <option value="3">3, one at a time</option>
+                <option value="4" selected>4, one at a time</option>
+                <option value="6">6, one at a time</option>
+              </select>
+            </label>
+            <label class="sw"><input type="checkbox" id="fillToggle" checked><span class="track"></span><span>Fill every region</span></label>
+            <p class="settingsNote">The probability Venns skip practice and filling: they sort a whole sample space, count it and ask probability questions.</p>
+            <div class="settingsRule" role="separator"></div>
+            <div class="settingsHead">On screen</div>
+            <label class="selRow"><span>Font size</span>
+              <select class="nice" id="fszSel" aria-label="Font size on the board">
+                <option value="s">Small</option>
+                <option value="m">Medium</option>
+                <option value="l">Large</option>
+              </select>
+            </label>
+            <label class="sw"><input type="checkbox" id="numsToggle"><span class="track"></span><span>Region numbers</span></label>
+            <p class="settingsNote">A number in every region, so a student answers with one digit on a mini whiteboard. Also the <b>#</b> button on the board.</p>
+            <label class="sw"><input type="checkbox" id="notToggle"><span class="track"></span><span>Set notation</span></label>
+            <p class="settingsNote">Letters for the circles, <i>&xi;</i> for the box, and region names such as <i>A</i> &cap; <i>B</i>&prime;.</p>
+            <label class="sw"><input type="checkbox" id="tintToggle" checked><span class="track"></span><span>Tint the circles</span></label>
+          </nav>
+        </div>
+        <div class="menuWrap">
+          <button class="btn" id="toolsBtn" type="button" aria-haspopup="true" aria-expanded="false">Tools &#9662;</button>
+          <nav class="dropMenu" id="toolsMenu" aria-label="Related tools">
+            <span class="toolLink soon" aria-disabled="true">Worksheet Creator<small>Coming soon</small></span>
+            <span class="toolLink soon" aria-disabled="true">Student Quiz<small>Coming soon</small></span>
+            <div class="menuRule" role="separator"></div>
+            <a class="toolLink" href="/interactive-tools/stage-4/number/factor-circles/">Factor Circles<small>Factors, primes and square numbers</small></a>
+            <a class="toolLink" href="/interactive-tools/stage-3/number/timestable-chart/">Times Table Chart<small>Factors and multiples lenses</small></a>
+            <a class="toolLink" href="/interactive-tools/stage-5/statistics-probability/financial-expectation-spinner/">Probability Spinner Simulator<small>Expected value and the long run</small></a>
+          </nav>
+        </div>
+        <button class="btn btn-primary" id="newBtn" type="button" title="New numbers (Enter)">New numbers</button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="card boardCard" id="boardCard">
+        <div class="boardTop">
+          <div class="vennNav">
+            <button class="navBtn" id="prevVenn" type="button" title="Previous Venn ([)" aria-label="Previous Venn">&#9664;</button>
+            <div class="vennName"><small id="vennGrp">Starting out</small><b id="vennTitle">Venn</b></div>
+            <button class="navBtn" id="nextVenn" type="button" title="Next Venn (])" aria-label="Next Venn">&#9654;</button>
+          </div>
+          <div class="topRight">
+            <span class="typeTag" id="typeTag">2 circles</span>
+            <div class="iconGroup">
+              <button class="iconBtn" id="showMeBtn" type="button" title="3, 2, 1 &hellip; show me your whiteboards (W)" aria-label="Countdown: show me your whiteboards">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20l4-4 4 4"/><path d="M7 9.5c1.2-1.6 2.4-1.6 3.6 0s2.4 1.6 3.6 0 2.4-1.6 3.6 0"/></svg>
+              </button>
+              <button class="iconBtn" id="numsBtn" type="button" aria-pressed="false" title="Region numbers (R)" aria-label="Show or hide region numbers">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 4L7 20M17 4l-2 16M4.5 9h16M3.5 15h16"/></svg>
+              </button>
+              <button class="iconBtn" id="againIcon" type="button" title="Back to the start of the steps (Space)" aria-label="Back to the start of the steps">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1"/><path d="M3.5 4v5h5"/></svg>
+              </button>
+              <button class="iconBtn" id="panelBtn" type="button" aria-pressed="true" title="Hide the side panel (P)" aria-label="Show or hide the side panel">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M15 4v16"/><path d="M17 8h2M17 11h2M17 14h2"/></svg>
+              </button>
+              <button class="iconBtn" id="fsBtn" type="button" title="Full screen (F)" aria-label="Full screen">
+                <svg class="fsIn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+                <svg class="fsOut" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" hidden><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="stmt" id="stmt" aria-live="polite"></div>
+        <div class="boardWrap" id="boardWrap">
+          <svg id="board" role="application" aria-label="A Venn diagram with number cards to sort"></svg>
+          <div class="showMe" id="showMe" aria-hidden="true"></div>
+        </div>
+        <div class="hint" id="hint" aria-live="polite"></div>
+        <div class="miniSteps" id="miniSteps" hidden>
+          <button class="stepBtn icon" id="miniBack" type="button" title="Back a step (&larr;)" aria-label="Back a step">&#9664;</button>
+          <button class="nextBtn" id="miniNext" type="button">Next &#9656;</button>
+        </div>
+      </section>
+
+      <aside class="side">
+        <section class="card panel" aria-label="Choose a Venn">
+          <div class="pHead"><span class="pTitle">The Venn</span><span class="pCount" id="vennCount"></span></div>
+          <select class="nice" id="vennSel" aria-label="Choose a Venn diagram"></select>
+          <div class="cRows" id="cRows"></div>
+          <div class="rowBtns">
+            <button class="smallBtn" id="thirdBtn" type="button">+ Third circle</button>
+            <button class="smallBtn" id="newBtn2" type="button">New numbers</button>
+          </div>
+          <p class="pNote" id="editNote">Change one circle to make it harder or easier.</p>
+        </section>
+
+        <section class="card panel storyPanel" aria-label="The steps">
+          <div class="pHead"><span class="pTitle">The slow reveal</span><span class="pCount" id="stepCount"></span></div>
+          <div class="storyScroll" id="storyScroll"><div id="story" aria-live="polite"></div></div>
+          <div class="stepRow">
+            <button class="stepBtn icon" id="backBtn" type="button" title="Back a step (&larr;)" aria-label="Back a step">&#9664;</button>
+            <button class="stepBtn icon" id="againBtn" type="button" title="Back to the start" aria-label="Back to the start">&#8634;</button>
+            <button class="stepBtn" id="allBtn" type="button">Show all</button>
+            <button class="nextBtn" id="nextBtn" type="button" title="Next step (&rarr;)">Next &#9656;</button>
+          </div>
+          <div class="keyHint"><kbd>&rarr;</kbd>/<kbd>&larr;</kbd> step &middot; <kbd>Space</kbd> start again &middot; <kbd>Enter</kbd> new numbers<br><kbd>[</kbd> <kbd>]</kbd> another Venn &middot; <kbd>W</kbd> show me &middot; <kbd>R</kbd> region numbers &middot; <kbd>F</kbd> full screen</div>
+        </section>
+      </aside>
+    </main>
+  </div>
+
+<script>
+(() => {
+  "use strict";
+  const $ = id => document.getElementById(id);
+  const NS = "http://www.w3.org/2000/svg";
+  const STORE = "mmt.venns.v1";
+  const RM = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const MINUS = "−";
+  const LET = ["A","B","C"];
+  const COL = ["#2563eb","#ea580c","#7c3aed"];
+
+  /* ================= numbers ================= */
+  function fmt(v){
+    if(typeof v === "string") return v.replace("-", MINUS);
+    const neg = v < 0; let a = Math.abs(v); let s = String(a);
+    if(Number.isInteger(a) && a >= 10000) s = s.replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+    return (neg ? MINUS : "") + s;
+  }
+  function mk(x){
+    if(typeof x === "string") return { t: fmt(x), v: parseFloat(x), raw: x.replace("-", "") };
+    return { t: fmt(x), v: x, raw: String(Math.abs(x)) };
+  }
+  const T = n => `<span class="nm">${n.t}</span>`;
+  const Pn = k => `<span class="nm">${fmt(k)}</span>`;
+  const isInt = v => Number.isInteger(v);
+  const isPrime = v => { if(!isInt(v) || v < 2) return false; for(let i = 2; i * i <= v; i++) if(v % i === 0) return false; return true; };
+  const smallF = v => { for(let i = 2; i * i <= v; i++) if(v % i === 0) return i; return 0; };
+  const sqrtI = v => Math.round(Math.sqrt(v)), cbrtI = v => Math.round(Math.cbrt(v));
+  const isSq = v => isInt(v) && v >= 0 && sqrtI(v) ** 2 === v;
+  const isCube = v => isInt(v) && v >= 0 && cbrtI(v) ** 3 === v;
+  const gcd = (a, b) => b ? gcd(b, a % b) : Math.abs(a);
+
+  /* ================= what can go on a circle =================
+     label: the circle's label · is: "12 is ___" · pl: "which numbers are ___" · why: one-line reason */
+  const PRED = {
+    even:  { name:"An even number", label:()=>"An even number", is:()=>"even", pl:()=>"even",
+             test:n=>isInt(n.v) && n.v % 2 === 0, why:(n,ok)=> ok ? `${T(n)} is even` : `${T(n)} is odd` },
+    odd:   { name:"An odd number", label:()=>"An odd number", is:()=>"odd", pl:()=>"odd",
+             test:n=>isInt(n.v) && Math.abs(n.v % 2) === 1, why:(n,ok)=> ok ? `${T(n)} is odd` : `${T(n)} is even` },
+    prime: { name:"A prime number", label:()=>"A prime number", is:()=>"prime", pl:()=>"prime", bnd:()=>[1,2],
+             test:n=>isPrime(n.v),
+             why:(n,ok)=>{ if(ok) return `${T(n)} is prime: its only factors are 1 and ${T(n)}`;
+               if(n.v === 1) return `1 is not prime: it has only one factor`;
+               const f = isInt(n.v) && n.v > 1 ? smallF(n.v) : 0;
+               return f ? `${T(n)} is not prime: ${f} &times; ${n.v / f} = ${T(n)}` : `${T(n)} is not prime`; } },
+    square:{ name:"A square number", label:()=>"A square number", is:()=>"a square number", pl:()=>"square numbers", bnd:()=>[1],
+             test:n=>isSq(n.v), why:(n,ok)=> ok ? `${sqrtI(n.v)} &times; ${sqrtI(n.v)} = ${T(n)}` : `${T(n)} is not a square number` },
+    cube:  { name:"A cube number", label:()=>"A cube number", is:()=>"a cube number", pl:()=>"cube numbers", bnd:()=>[1],
+             test:n=>isCube(n.v), why:(n,ok)=>{ const c = cbrtI(n.v); return ok ? `${c} &times; ${c} &times; ${c} = ${T(n)}` : `${T(n)} is not a cube number`; } },
+    mult:  { name:"A multiple of …", par:true, def:3, min:2, max:25, label:k=>`A multiple of ${fmt(k)}`, is:k=>`a multiple of ${fmt(k)}`, pl:k=>`multiples of ${fmt(k)}`, bnd:k=>[k],
+             test:(n,k)=>isInt(n.v) && n.v > 0 && n.v % k === 0,
+             why:(n,ok,k)=> ok ? `${k} &times; ${n.v / k} = ${T(n)}` : `${T(n)} &divide; ${k} leaves a remainder of ${((n.v % k) + k) % k}` },
+    factor:{ name:"A factor of …", par:true, def:30, min:2, max:200, label:k=>`A factor of ${fmt(k)}`, is:k=>`a factor of ${fmt(k)}`, pl:k=>`factors of ${fmt(k)}`, bnd:k=>[1,k],
+             test:(n,k)=>isInt(n.v) && n.v > 0 && k % n.v === 0,
+             why:(n,ok,k)=> ok ? `${T(n)} &times; ${k / n.v} = ${k}` : (n.v > k ? `${T(n)} is bigger than ${k}` : `${k} &divide; ${T(n)} leaves a remainder of ${k % n.v}`) },
+    gt:    { name:"Greater than …", par:true, def:10, min:-100, max:1000000, label:k=>`Greater than ${fmt(k)}`, is:k=>`greater than ${fmt(k)}`, pl:k=>`greater than ${fmt(k)}`, bnd:k=>[k],
+             test:(n,k)=>n.v > k, why:(n,ok,k)=> ok ? `${T(n)} &gt; ${Pn(k)}` : (n.v === k ? `${T(n)} is equal to ${Pn(k)}, not greater` : `${T(n)} &lt; ${Pn(k)}`) },
+    lt:    { name:"Less than …", par:true, def:20, min:-100, max:1000000, label:k=>`Less than ${fmt(k)}`, is:k=>`less than ${fmt(k)}`, pl:k=>`less than ${fmt(k)}`, bnd:k=>[k],
+             test:(n,k)=>n.v < k, why:(n,ok,k)=> ok ? `${T(n)} &lt; ${Pn(k)}` : (n.v === k ? `${T(n)} is equal to ${Pn(k)}, not less` : `${T(n)} &gt; ${Pn(k)}`) },
+    last:  { name:"Last digit is …", par:true, def:4, min:0, max:9, label:d=>`Last digit is ${d}`, is:d=>`a number ending in ${d}`, pl:d=>`numbers ending in ${d}`,
+             test:(n,d)=>n.raw.slice(-1) === String(d), why:(n,ok,d)=> `${T(n)} ends in ${n.raw.slice(-1)}` },
+    neg:   { name:"A negative number", label:()=>"A negative number", is:()=>"negative", pl:()=>"negative", bnd:()=>[0],
+             test:n=>n.v < 0, why:(n,ok)=> ok ? `${T(n)} &lt; 0` : (n.v === 0 ? `0 is neither negative nor positive` : `${T(n)} &gt; 0`) },
+    digits:{ name:"… digits long", par:true, def:5, min:1, max:7, label:k=>`${k} digits long`, is:k=>`${k} digits long`, pl:k=>`${k} digits long`,
+             test:(n,k)=>isInt(n.v) && n.v > 0 && String(n.v).length === k, why:(n,ok,k)=> `${T(n)} has ${String(Math.abs(n.v)).length} digit${String(Math.abs(n.v)).length === 1 ? "" : "s"}` },
+  };
+  const EDIT_KINDS = ["even","odd","prime","square","cube","mult","factor","gt","lt","last"];
+  const pr = s => PRED[s.k];
+  const labOf = s => pr(s).label(s.p), isOf = s => pr(s).is(s.p), plOf = s => pr(s).pl(s.p);
+  const testOf = (s, n) => !!pr(s).test(n, s.p);
+  const whyOf = (s, n) => pr(s).why(n, testOf(s, n), s.p);
+
+  /* ================= the Venns =================
+     codes: bit 0 = first circle (A), bit 1 = B, bit 2 = C.  imp: reasons a region is impossible; note: a word on a region */
+  const PRESETS = [
+    { id:"even-gt10", grp:"Starting out", sets:[{k:"even"},{k:"gt",p:10}], nums:[6,15,12,7,10],
+      whatIf:[ {i:1, s:{k:"mult",p:4}, say:"Swap “Greater than 10” for “A multiple of 4”. One region can never be filled now. Which, and why?"},
+               {i:1, s:{k:"gt",p:50}, say:"Make it “Greater than 50”. Which region gets easier? Harder?"},
+               {i:0, s:{k:"odd"}, say:"Swap “An even number” for “An odd number”."} ] },
+    { id:"m5-even", grp:"Starting out", sets:[{k:"mult",p:5},{k:"even"}], nums:[15,20,8,3,10],
+      note:{3:"Every number in the overlap ends in 0. Why must it?"},
+      whatIf:[ {i:1, s:{k:"odd"}, say:"Swap “An even number” for “An odd number”. What do the numbers in the overlap end in now?"},
+               {i:0, s:{k:"mult",p:3}, say:"Make it “A multiple of 3”. What are the numbers in the overlap?"} ] },
+    { id:"prime-odd", grp:"Starting out", sets:[{k:"prime"},{k:"odd"}], nums:[7,2,9,11,4],
+      note:{1:"Only one number can ever go here: 2. Every other even number has 2 as a factor, so it cannot be prime."},
+      whatIf:[ {i:1, s:{k:"gt",p:2}, say:"Swap “An odd number” for “Greater than 2”. Which region now holds just one number?"} ] },
+    { id:"neg-gt", grp:"Starting out", sets:[{k:"neg"},{k:"gt",p:-5}], nums:[-3,-8,4,0,-5], dom:"int",
+      imp:{0:"A number that is not negative is 0 or more, and every number that is 0 or more is greater than −5. So nothing can be outside both circles."} },
+    { id:"m4-m6", grp:"Factors and multiples", sets:[{k:"mult",p:4},{k:"mult",p:6}], nums:[8,18,12,24,10],
+      note:{3:"The overlap holds the multiples of 12. The smallest, 12, is the lowest common multiple of 4 and 6."},
+      whatIf:[ {i:1, s:{k:"mult",p:8}, say:"Make it “A multiple of 8”. Which region empties, and why?"} ] },
+    { id:"f24-f36", grp:"Factors and multiples", sets:[{k:"factor",p:24},{k:"factor",p:36}], nums:[8,9,6,12,5],
+      note:{3:"The overlap holds the common factors of 24 and 36: 1, 2, 3, 4, 6 and 12. The biggest, 12, is the highest common factor."},
+      whatIf:[ {i:1, s:{k:"factor",p:12}, say:"Make it “A factor of 12”. Which region can never be filled now? Why?"} ] },
+    { id:"sq-cube", grp:"Factors and multiples", sets:[{k:"square"},{k:"cube"}], nums:[4,27,64,10,1],
+      note:{3:"1 and 64 are both: 1 = 1 × 1 = 1 × 1 × 1 and 64 = 8 × 8 = 4 × 4 × 4. The next one is 729."} },
+    { id:"even-f30-gt10", grp:"Three circles", sets:[{k:"even"},{k:"factor",p:30},{k:"gt",p:10}], nums:[10,15,30,12,5,9,4],
+      whatIf:[ {i:2, s:{k:"gt",p:30}, say:"Make it “Greater than 30”. Which regions can never be filled now?"} ] },
+    { id:"sq-m3-f36", grp:"Three circles", sets:[{k:"square"},{k:"mult",p:3},{k:"factor",p:36}], nums:[9,4,16,12,15,2,10] },
+    { id:"prime-even-gt10", grp:"Three circles", sets:[{k:"prime"},{k:"even"},{k:"gt",p:10}], nums:[2,13,9,12,7,4],
+      imp:{7:"The only even prime number is 2, and 2 is not greater than 10."},
+      note:{3:"Only one number can ever go here: 2."} },
+    { id:"decimals", grp:"Decimals and big numbers", sets:[{k:"gt",p:0.4},{k:"lt",p:0.5},{k:"last",p:4}], nums:["0.45","0.4","0.6","0.44","0.84","0.3"], dom:"dec",
+      imp:{0:"Every number is greater than 0.4 or less than 0.5 (or both), so nothing can be outside both of those circles.",
+           4:"Every number is greater than 0.4 or less than 0.5 (or both), so nothing can be outside both of those circles."} },
+    { id:"big", grp:"Decimals and big numbers", sets:[{k:"gt",p:7000},{k:"lt",p:20000},{k:"digits",p:5}], nums:[8500,15000,25000,4000,7000,100000], dom:"big",
+      imp:{0:"Every number is greater than 7000 or less than 20 000 (or both).",
+           4:"A 5-digit number is at least 10 000, so it is always greater than 7000. (And every number is greater than 7000 or less than 20 000.)",
+           6:"A 5-digit number is at least 10 000, so it is always greater than 7000."} },
+    { id:"die", grp:"Probability", sets:[{k:"even"},{k:"gt",p:3}], space:[1,6], say:"A fair six-sided die is rolled.", boxName:"Rolling a die" },
+    { id:"twenty", grp:"Probability", sets:[{k:"even"},{k:"mult",p:3}], space:[1,20], say:"A number from 1 to 20 is chosen at random.", boxName:"The numbers 1 to 20" },
+    { id:"twenty-prime", grp:"Probability", sets:[{k:"prime"},{k:"odd"}], space:[1,20], say:"A number from 1 to 20 is chosen at random.", boxName:"The numbers 1 to 20" },
+  ];
+  const vennName = sets => sets.map(labOf).join(" · ");
+  const DOM_NAME = { whole:"Whole numbers", int:"Integers", dec:"Decimals", big:"Whole numbers" };
+
+  /* ================= state ================= */
+  const S = {
+    set:{ one:true, apart:true, names:true, practice:4, fill:true, fsz:"s", nums:false, notation:false, tint:true, panel:true },
+    vid:"even-gt10", custom:null, seed:0, step:0, fs:false
+  };
+  (function load(){
+    try {
+      const d = JSON.parse(localStorage.getItem(STORE) || "null");
+      if(d){ Object.assign(S.set, d.set || {}); if(d.vid) S.vid = d.vid; if(d.custom) S.custom = d.custom; }
+    } catch(e){}
+    if(S.vid !== "custom" && !PRESETS.some(p => p.id === S.vid)) S.vid = PRESETS[0].id;
+    if(S.vid === "custom" && !S.custom) S.vid = PRESETS[0].id;
+  })();
+  function save(){ try { localStorage.setItem(STORE, JSON.stringify({ set:S.set, vid:S.vid, custom:S.custom })); } catch(e){} }
+
+  /* ================= random ================= */
+  function rngOf(a){ return function(){ a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  const hashStr = s => { let h = 2166136261; for(const ch of s){ h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; };
+  function shuffle(a, rng){ for(let i = a.length - 1; i > 0; i--){ const j = Math.floor(rng() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+
+  /* ================= the current Venn ================= */
+  let V = null;
+  function domainList(v){
+    if(v.space){ const o = []; for(let i = v.space[0]; i <= v.space[1]; i++) o.push(mk(i)); return o; }
+    const d = v.dom || "whole", o = [];
+    if(d === "whole") for(let i = 1; i <= 200; i++) o.push(mk(i));
+    else if(d === "int") for(let i = -40; i <= 40; i++) o.push(mk(i));
+    else if(d === "dec"){
+      const add = s => o.push(mk(s));
+      for(let i = 1; i <= 9; i++) add("0." + i);
+      for(let i = 1; i <= 99; i++) if(i % 10) add("0." + String(i).padStart(2, "0"));
+      for(let i = 401; i <= 499; i++) if(i % 10) add("0." + i);
+      for(let w = 1; w <= 4; w++) for(let i = 1; i <= 9; i++) add(w + "." + i);
+    } else if(d === "big"){
+      const seen = new Set(), add = x => { if(!seen.has(x)){ seen.add(x); o.push(mk(x)); } };
+      for(let x = 500; x <= 150000; x += 500) add(x);
+      [999,4321,6999,7001,9999,10000,12345,19999,20001,54321,99999,100000,123456,250000].forEach(add);
+    }
+    return o;
+  }
+  function tier(v, n){
+    if(v.space) return 0;
+    const d = v.dom || "whole", a = Math.abs(n.v);
+    if(d === "whole") return a <= 30 ? 0 : a <= 60 ? 1 : a <= 100 ? 2 : 3;
+    if(d === "int") return a <= 12 ? 0 : a <= 25 ? 1 : 2;
+    if(d === "dec"){ const dp = (n.raw.split(".")[1] || "").length; return n.v >= 1 ? 1 : dp <= 2 ? 0 : 1; }
+    return n.v % 1000 === 0 ? 0 : n.v % 500 === 0 ? 1 : 1;
+  }
+  const codeOf = n => V.sets.reduce((c, s, i) => c | (testOf(s, n) ? 1 << i : 0), 0);
+  const ORDER = () => V.sets.length === 2 ? [1,3,2,0] : [1,3,2,5,7,6,4,0];
+  const FULL = () => (1 << V.sets.length) - 1;
+
+  function resolveVenn(){
+    let base;
+    if(S.vid === "custom") base = Object.assign({ id:"custom", grp:"Your own Venn" }, JSON.parse(JSON.stringify(S.custom)));
+    else base = PRESETS.find(p => p.id === S.vid);
+    V = Object.assign({}, base);
+    V.name = vennName(V.sets);
+    V.domain = domainList(V);
+    V.cand = {};
+    for(let c = 0; c <= FULL(); c++) V.cand[c] = [];
+    V.domain.forEach(n => V.cand[codeOf(n)].push(n));
+    const rng = rngOf(S.seed ? S.seed : hashStr(V.id + V.name));
+    // pools: nicest numbers first, shuffled inside each tier
+    V.pool = {};
+    for(let c = 0; c <= FULL(); c++){
+      const tiers = {};
+      V.cand[c].forEach(n => { const t = tier(V, n); (tiers[t] = tiers[t] || []).push(n); });
+      V.pool[c] = Object.keys(tiers).sort((a, b) => a - b).flatMap(t => shuffle(tiers[t].slice(), rng));
+    }
+    // the numbers to sort
+    let O;
+    if(V.space) O = V.domain.slice();
+    else if(!S.seed && V.nums) O = V.nums.map(mk);
+    else O = genNums(rng);
+    // practice numbers
+    const P = V.space ? [] : genPractice(rngOf((S.seed || hashStr(V.id)) + 77), S.set.practice, O);
+    S.cards = [];
+    O.forEach((n, i) => S.cards.push({ id:"o" + i, n, code:codeOf(n), grp:"o" }));
+    P.forEach((n, i) => S.cards.push({ id:"p" + i, n, code:codeOf(n), grp:"p" }));
+    // answers for "fill every region": a different nice number each time, preferring ones not on the board
+    const used = new Set(S.cards.map(c => c.n.t));
+    V.ans = {};
+    for(let c = 0; c <= FULL(); c++){ const l = V.pool[c]; V.ans[c] = l.filter(n => !used.has(n.t)).concat(l.filter(n => used.has(n.t))); }
+    S.ansIx = 0;
+    V.ord = ORDER();
+  }
+  function genNums(rng){
+    const n = V.sets.length, N = n === 2 ? 5 : 7, used = new Set(), out = [];
+    const pick = c => { const l = V.pool[c].filter(x => !used.has(x.t)); if(!l.length) return null;
+      const x = l[Math.floor(rng() * Math.min(l.length, 8))]; used.add(x.t); return x; };
+    const live = ORDER().filter(c => V.cand[c].length);
+    const must = live.includes(FULL()) ? [FULL()] : [];
+    if(n === 3 && !must.length){ const two = live.filter(c => (c & 4) && (c & 3)); if(two.length) must.push(two[Math.floor(rng() * two.length)]); }
+    const rest = shuffle(live.filter(c => !must.includes(c)), rng);
+    const codes = must.concat(rest).slice(0, N - 1);
+    codes.forEach(c => { const x = pick(c); if(x) out.push(x); });
+    // one boundary number if there is one (10 for "greater than 10", 1 for "prime"…)
+    const bnds = shuffle(V.sets.flatMap(s => pr(s).bnd ? pr(s).bnd(s.p) : []), rng);
+    for(const b of bnds){ const x = V.domain.find(d => d.v === b); if(x && !used.has(x.t)){ used.add(x.t); out.push(x); break; } }
+    let guard = 0;
+    while(out.length < N && guard++ < 40){ const c = live[Math.floor(rng() * live.length)]; const x = pick(c); if(x) out.push(x); }
+    return shuffle(out, rng);
+  }
+  function genPractice(rng, k, O){
+    if(!k) return [];
+    const used = new Set(O.map(n => n.t)), out = [], count = {};
+    O.forEach(n => { const c = codeOf(n); count[c] = (count[c] || 0) + 1; });
+    const live = ORDER().filter(c => V.cand[c].length);
+    for(let j = 0; j < k; j++){
+      const bits = c => (c & 1) + ((c >> 1) & 1) + ((c >> 2) & 1);
+      const roomy = c => bits(c) <= 1 ? 0 : 1;
+      const order = shuffle(live.slice(), rng).sort((a, b) => (count[a] ? 1 : 0) - (count[b] ? 1 : 0) || (count[a] ? roomy(a) - roomy(b) : 0) || (count[a] || 0) - (count[b] || 0));
+      for(const c of order){
+        const l = V.pool[c].filter(x => !used.has(x.t));
+        if(!l.length) continue;
+        const x = l[Math.floor(rng() * Math.min(l.length, 6))];
+        used.add(x.t); out.push(x); count[c] = (count[c] || 0) + 1; break;
+      }
+    }
+    return out;
+  }
+
+  /* ================= the steps ================= */
+  function buildSteps(){
+    const st = S.set, n = V.sets.length, out = [];
+    if(V.space){
+      out.push({id:"space"},{id:"events"},{id:"sortAll"},{id:"count"});
+      probQs().forEach((q, i) => out.push({id:"qPose", q:i}, {id:"qShow", q:i}));
+      return out;
+    }
+    if(st.one) out.push({id:"one"},{id:"sortOne"});
+    if(st.apart) out.push({id:"apart"},{id:"sortApart"},{id:"overlap"});
+    else out.push({id:"two"},{id:"sortTwo"});
+    if(n === 3){ if(st.apart) out.push({id:"cApart"},{id:"sortC"},{id:"overlap3"}); else out.push({id:"three"}); }
+    if(st.names) out.push({id:"regions"});
+    S.cards.filter(c => c.grp === "p").forEach((c, j) => out.push({id:"ask", j}, {id:"place", j}));
+    if(st.fill) out.push({id:"fill"},{id:"answers"});
+    return out;
+  }
+  function probQs(){
+    const [a, b] = V.sets.map((s, i) => `<span class="s${LET[i]}">${isOf(s)}</span>`);
+    return [
+      { d:`${a} and ${b}`, sym:"<i>A</i> &cap; <i>B</i>", codes:[3] },
+      { d:`${a} or ${b}`, sym:"<i>A</i> &cup; <i>B</i>", codes:[1,2,3], tip:"“or” includes the numbers that are both." },
+      { d:`not ${a}`, sym:"<i>A</i>&prime;", codes:[0,2] },
+      { d:`${a} or ${b}, but not both`, sym:"(<i>A</i> &cap; <i>B</i>&prime;) &cup; (<i>A</i>&prime; &cap; <i>B</i>)", codes:[1,2], tip:"This is an exclusive “or”: the overlap is left out." },
+      { d:`neither ${a} nor ${b}`, sym:"<i>A</i>&prime; &cap; <i>B</i>&prime;", codes:[0] },
+    ];
+  }
+
+  /* ================= words ================= */
+  const joinAnd = a => a.length <= 1 ? (a[0] || "") : a.length === 2 ? `${a[0]} and ${a[1]}` : `${a.slice(0, -1).join(", ")} and ${a[a.length - 1]}`;
+  const cIs = i => `<span class="s${LET[i]}">${isOf(V.sets[i])}</span>`;
+  const cPl = i => `<span class="s${LET[i]}">${plOf(V.sets[i])}</span>`;
+  const cLab = i => `<span class="s${LET[i]}">${labOf(V.sets[i])}</span>`;
+  function regionName(code, html = true){
+    const n = V.sets.length, ph = V.sets.map((s, i) => html ? cIs(i) : isOf(s));
+    const pos = [], neg = [];
+    for(let i = 0; i < n; i++) ((code >> i) & 1 ? pos : neg).push(ph[i]);
+    if(!neg.length) return joinAnd(pos);
+    if(!pos.length) return n === 2 ? `neither ${neg[0]} nor ${neg[1]}` : `not ${neg[0]}, not ${neg[1]} and not ${neg[2]}`;
+    if(neg.length === 1) return `${joinAnd(pos)}, but not ${neg[0]}`;
+    return `${pos[0]}, but neither ${neg[0]} nor ${neg[1]}`;
+  }
+  const regionSym = code => V.sets.map((s, i) => (code >> i) & 1 ? `<i>${LET[i]}</i>` : `<i>${LET[i]}</i>&prime;`).join(" &cap; ");
+  const regNo = code => V.ord.indexOf(code) + 1;
+  const listNums = arr => joinAnd(arr.map(c => T(c.n)));
+  const isAre = arr => arr.length === 1 ? "is" : "are";
+  function whyHTML(card, nSets){
+    const k = nSets == null ? V.sets.length : nSets;
+    return `<div class="why">${V.sets.slice(0, k).map(s => { const ok = testOf(s, card.n);
+      return `<span class="${ok ? "ok" : "no"}">${ok ? "&#10003;" : "&#10007;"}</span><span>${whyOf(s, card.n)}</span>`; }).join("")}</div>`;
+  }
+  const frac = (a, b) => `<span class="frac"><span>${a}</span><span>${b}</span></span>`;
+  function probAnswer(count, N){
+    const g = gcd(count, N);
+    let s = frac(count, N);
+    if(count === 0) s += ` = <span class="nm">0</span>`;
+    else if(count === N) s += ` = <span class="nm">1</span>`;
+    else if(g > 1) s += ` = ${frac(count / g, N / g)}`;
+    return s;
+  }
+
+  function info(k){
+    const st = S.steps[k], n = V.sets.length, O = S.cards.filter(c => c.grp === "o");
+    const nums = S.set.nums;
+    const R = { title:"", q:"", hint:"", tip:"", body:"" };
+    const stuck2 = O.filter(c => (c.code & 3) === 3);
+    const stuck3 = O.filter(c => (c.code & 4) && (c.code & 3));
+    switch(st.id){
+      case "one":
+        R.title = "One circle";
+        R.q = `Which of these numbers are ${cPl(0)}?`;
+        R.hint = "Whiteboards: write the numbers that belong inside the circle.";
+        R.tip = `<b>Ask:</b> Which numbers go inside? Everything else goes outside the circle, but still inside the box.`;
+        break;
+      case "sortOne": {
+        const inn = O.filter(c => c.code & 1), out = O.filter(c => !(c.code & 1));
+        R.title = "Sorted with one circle";
+        R.q = `${inn.length ? `${listNums(inn)} ${isAre(inn)} ${cIs(0)}.` : `None of them are ${cPl(0)}.`}`;
+        R.hint = out.length ? `${listNums(out)} ${out.length === 1 ? "stays" : "stay"} outside the circle. Click any number to see why.` : "Click any number to see why.";
+        R.body = O.map(c => `<div style="margin-top:4px"><span class="nm">${c.n.t}</span>${whyHTML(c, 1)}</div>`).join("");
+        break; }
+      case "apart":
+        R.title = S.set.one ? "A second circle" : "Two circles";
+        R.q = S.set.one ? `A second circle: ${cLab(1)}. Sort them again.` : `Two circles. Where does each number go?`;
+        R.hint = "Whiteboards: write the numbers for each circle.";
+        R.tip = `<b>Watch for</b> a number that wants to be in both circles. Let students commit before you press Next.`;
+        break;
+      case "sortApart":
+        if(stuck2.length){
+          R.title = `${stuck2.map(c => c.n.t).join(" and ")} ${stuck2.length === 1 ? "has" : "have"} nowhere to go`;
+          R.q = `${listNums(stuck2)} ${isAre(stuck2)} ${cIs(0)} <i>and</i> ${cIs(1)}. Where can ${stuck2.length === 1 ? "it" : "they"} go?`;
+          R.hint = "Whiteboards: sketch how you would fix the diagram.";
+          R.tip = `<b>Ask:</b> How could we fix it? Write it twice? Add a new circle? Let students argue it out before you overlap the circles.`;
+        } else {
+          R.title = "Every number found a home";
+          R.q = `Every number found a home. Could a number ever be ${cIs(0)} <i>and</i> ${cIs(1)}?`;
+          R.hint = "If no number can ever be in both, the circles never need to touch.";
+        }
+        R.body = O.map(c => `<div style="margin-top:4px"><span class="nm">${c.n.t}</span>${whyHTML(c, 2)}</div>`).join("");
+        break;
+      case "overlap": {
+        R.title = "Overlap the circles";
+        R.q = `The overlap is for numbers that are ${cIs(0)} <i>and</i> ${cIs(1)}.`;
+        const empty = !V.cand[3].length;
+        R.hint = stuck2.length ? `${listNums(stuck2)} ${stuck2.length === 1 ? "goes" : "go"} in the overlap. Now every number has exactly one place.`
+          : empty ? "No number can ever go in the overlap: these are mutually exclusive." : "Nothing here is in the overlap yet. Can you think of a number that would be?";
+        const nei = O.find(c => (c.code & 3) === 0);
+        R.tip = nei ? `<b>Ask:</b> Why is ${T(nei.n)} still in the diagram, even though it is in neither circle?` : `<b>Ask:</b> What would a number in neither circle look like? Where would it go?`;
+        break; }
+      case "two":
+        R.title = S.set.one ? "A second circle" : "Two circles";
+        R.q = S.set.one ? `A second circle: ${cLab(1)}. Where does each number go now?` : `Where does each number go?`;
+        R.hint = "Whiteboards: which numbers go in the overlap?";
+        break;
+      case "sortTwo":
+        R.title = "Sorted into the Venn diagram";
+        R.q = "Every number has exactly one place.";
+        R.hint = "Click any number to see why it goes there.";
+        R.body = O.map(c => `<div style="margin-top:4px"><span class="nm">${c.n.t}</span>${whyHTML(c, 2)}</div>`).join("");
+        break;
+      case "cApart":
+        R.title = "A third circle";
+        R.q = `A third circle: ${cLab(2)}. Which numbers belong in it?`;
+        R.hint = "Whiteboards: write the numbers that belong in the new circle.";
+        R.tip = `<b>Watch for</b> a number that is already inside a circle and belongs in this one too.`;
+        break;
+      case "sortC":
+        if(stuck3.length){
+          R.title = `${stuck3.map(c => c.n.t).join(" and ")} must be in two places`;
+          R.q = `${listNums(stuck3)} also ${stuck3.length === 1 ? "belongs" : "belong"} in ${cLab(2)}. How can ${stuck3.length === 1 ? "it" : "they"} be in two places at once?`;
+          R.hint = "Whiteboards: sketch where the third circle should go.";
+        } else {
+          R.title = "The third circle filled up";
+          R.q = `Could a number be in ${cLab(2)} <i>and</i> another circle?`;
+          R.hint = "Where should the third circle go so that it could?";
+        }
+        R.body = O.map(c => `<div style="margin-top:4px"><span class="nm">${c.n.t}</span>${whyHTML(c, 3)}</div>`).join("");
+        break;
+      case "overlap3":
+      case "three":
+        R.title = st.id === "three" ? "A third circle" : "Overlap all three";
+        R.q = st.id === "three" ? `A third circle: ${cLab(2)}. Watch where the numbers move.` : "Three overlapping circles: every region means something.";
+        R.hint = "How many regions are there? Count the outside too!";
+        R.tip = `<b>Ask:</b> How many regions does three circles make? (8, including outside all three.)`;
+        break;
+      case "regions": {
+        const N = 1 << n;
+        R.title = "Name the regions";
+        R.q = `There are ${N} regions. Click a region to name it.`;
+        R.hint = `Whiteboards: describe region ${n === 2 ? "③" : "⑥"} in words.`;
+        R.body = `<div class="regList">${V.ord.map(c => `<div><span class="rb">${regNo(c)}</span><span>${regionName(c)}${S.set.notation ? ` &nbsp;<span class="sym">${regionSym(c)}</span>` : ""}</span></div>`).join("")}</div>`;
+        R.tip = `<b>Ask:</b> Point to the region for numbers that are ${cIs(0)} but not ${cIs(1)}.`;
+        break; }
+      case "ask": {
+        const c = S.cards.filter(x => x.grp === "p")[st.j];
+        R.title = `Where does ${c.n.t} go?`;
+        R.q = `Where does ${T(c.n)} go?`;
+        R.hint = (nums ? "Whiteboards: write the region number." : "Whiteboards: write which circles it belongs in.") + " Drag the card to the class's answer, then press Next.";
+        R.tip = `<b>Tip:</b> turn on <b>#</b> region numbers so students answer with one digit.`;
+        break; }
+      case "place": {
+        const c = S.cards.filter(x => x.grp === "p")[st.j];
+        R.title = `${c.n.t}: ${nums ? `region ${regNo(c.code)}, ` : ""}${regionName(c.code, false)}`;
+        R.q = `${T(c.n)} is ${regionName(c.code)}.`;
+        R.hint = c.fb === "ok" ? "&#10003; That is where the class put it." : c.fb === "no" ? "&#10007; Not where the class put it: talk it through." : "";
+        R.body = whyHTML(c);
+        break; }
+      case "fill": {
+        R.title = "Your turn: fill every region";
+        R.q = "Find your own number for every region.";
+        R.hint = "Can you find a number nobody else will think of? Is any region impossible?";
+        R.tip = `<b>Ask:</b> Draw the diagram on your whiteboard and find a number for every region. Which region was hardest? Then swap and check a partner's.`;
+        break; }
+      case "answers": {
+        const impC = V.ord.filter(c => !V.cand[c].length);
+        R.title = "Possible answers";
+        R.q = impC.length ? `One possible answer for each region, and ${impC.length === 1 ? "one region that is" : impC.length + " regions that are"} impossible.` : "One possible answer for each region.";
+        R.hint = impC.length ? "Click an ✗ to see why it can never be filled. Many other answers are right too." : "Many other answers are right too. Check one from the class together.";
+        const exs = c => { const l = V.cand[c]; if(!l.length) return `<span class="imp">impossible. ${impWhy(c)}</span>`;
+          if(V.dom !== "dec" && V.dom !== "big" && l.length <= 8) return `<span class="ex">${l.length === 1 ? "only" : "all of them:"} ${l.map(T).join(", ")}${l.length === 1 ? ". Only one number fits!" : ""}</span>`;
+          return `<span class="ex">e.g. ${V.pool[c].slice(0, 6).map(T).join(", ")} …</span>`; };
+        R.body = `<div class="regList">${V.ord.map(c => `<div><span class="rb">${regNo(c)}</span><span>${regionName(c)}<br>${exs(c)}${V.note && V.note[c] ? `<br><span class="ex">${V.note[c]}</span>` : ""}</span></div>`).join("")}</div>
+          <div class="wiBtns"><button class="wiBtn" type="button" data-act="another">&#8635; Show other answers (A)</button>${(V.whatIf || []).map((w, i) => `<button class="wiBtn" type="button" data-wi="${i}">What if&hellip; ${w.say}</button>`).join("")}</div>`;
+        R.tip = `<b>Ask:</b> Which region was easiest? Hardest? Change one circle (in the panel) to make the hardest region harder still.`;
+        break; }
+      case "space":
+        R.title = "The sample space";
+        R.q = V.say;
+        R.hint = `${V.domain.length} equally likely outcomes: ${V.domain[0].t} to ${V.domain[V.domain.length - 1].t}.`;
+        break;
+      case "events":
+        R.title = "Two events";
+        R.q = `Where does each outcome go?`;
+        R.hint = `Whiteboards: which numbers go in the overlap? They are ${cIs(0)} <i>and</i> ${cIs(1)}.`;
+        break;
+      case "sortAll":
+        R.title = "Every outcome sorted";
+        R.q = "Every outcome has exactly one place.";
+        R.hint = "Click any number to see why it goes there.";
+        break;
+      case "count": {
+        const cs = V.ord.map(c => S.cards.filter(x => x.code === c).length);
+        R.title = "Count each region";
+        R.q = `<span class="nm">${cs.join(" + ")} = ${V.domain.length}</span>`;
+        R.hint = "The counts make up the whole sample space.";
+        R.body = `<div class="regList">${V.ord.map((c, i) => `<div><span class="rb">${regNo(c)}</span><span>${regionName(c)}: <b class="nm">${cs[i]}</b></span></div>`).join("")}</div>`;
+        break; }
+      case "qPose": case "qShow": {
+        const q = probQs()[st.q], cnt = S.cards.filter(x => q.codes.includes(x.code)).length, N = V.domain.length;
+        const head = S.set.notation ? `<span class="sym">P(${q.sym})</span>` : `P(${q.d})`;
+        R.title = st.id === "qPose" ? `P(${q.d.replace(/<[^>]+>/g, "")}) = ?` : `P(${q.d.replace(/<[^>]+>/g, "")}) = ${cnt}/${N}`;
+        R.q = st.id === "qPose" ? `${head} = <span class="q">?</span>` : `${head} = <span class="ansV">${probAnswer(cnt, N)}</span>`;
+        R.hint = st.id === "qPose" ? `Whiteboards: write the probability as a fraction.${q.tip ? " " + q.tip : ""}` : `${cnt} of the ${N} outcomes ${cnt === 1 ? "is" : "are"} ${q.d}.`;
+        if(S.set.notation && st.id === "qShow") R.hint += ` &nbsp;(${q.d})`;
+        break; }
+    }
+    return R;
+  }
+  function impWhy(c){ return (V.imp && V.imp[c]) || "No number we tried fits here. Is it impossible? Can you explain why?"; }
+
+  /* ================= geometry ================= */
+  // circle centres in radii; ang = where each circle's label sits (degrees, 0 = right, -90 = above)
+  const CFG_L = {
+    one:    { u:[[0,0],[1.3,0],[1.85,0]],        vis:[1,0,0], ang:[-135,-45,-45] },
+    apart2: { u:[[-1.3,0],[1.3,0],[1.3,0]],      vis:[1,1,0], ang:[-135,-45,-45] },
+    two:    { u:[[-0.6,0],[0.6,0],[1.85,0]],     vis:[1,1,0], ang:[-135,-45,-45] },
+    blank:  { u:[[-0.6,0],[0.6,0],[1.85,0]],     vis:[0,0,0], ang:[-135,-45,-45], like:"two" },
+    apart3: { u:[[-1.85,0],[-0.65,0],[1.85,0]],  vis:[1,1,1], ang:[-135,-62,-45] },
+    three:  { u:[[-0.55,-0.3175],[0.55,-0.3175],[0,0.635]], vis:[1,1,1], ang:[-135,-45,38] },
+  };
+  // a tall, narrow board (a phone, or a portrait iPad): the circles stack and the labels go above and below
+  const CFG_P = {
+    one:    { u:[[0,0],[0,1.3],[0,1.85]],        vis:[1,0,0], ang:[-90,90,90] },
+    apart2: { u:[[0,-1.3],[0,1.3],[0,1.3]],      vis:[1,1,0], ang:[-90,90,90] },
+    two:    { u:[[0,-0.6],[0,0.6],[0,1.85]],     vis:[1,1,0], ang:[-90,90,90] },
+    blank:  { u:[[0,-0.6],[0,0.6],[0,1.85]],     vis:[0,0,0], ang:[-90,90,90], like:"two" },
+    apart3: { u:[[0,-1.85],[0,-0.65],[0,1.85]],  vis:[1,1,1], ang:[-90,0,90] },
+    three:  { u:[[-0.55,-0.3175],[0.55,-0.3175],[0,0.635]], vis:[1,1,1], ang:[-118,-62,90] },
+  };
+  let CFG = CFG_L;
+  let G = null;
+  const ctx = document.createElement("canvas").getContext("2d");
+  function textW(s, size, font){ ctx.font = font.replace("%", size); return ctx.measureText(s).width; }
+  const UIF = `800 %px system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif`;
+  const MF = `700 %px "STIX Two Math","Cambria Math","Times New Roman",serif`;
+
+  function cfgsUsed(){
+    const set = new Set();
+    S.steps.forEach((s, k) => set.add(sceneOf(k).cfg));
+    return [...set];
+  }
+  // a label wider than its circle wraps onto two lines, split where the two halves are most even
+  const LB = { memo:{} };
+  function labelLines(i, r){
+    const maxW = Math.max(LB.lf * 5.2, r * (LB.portrait ? 1.9 : 1.3));
+    const key = i + "|" + Math.round(maxW) + "|" + LB.lf + "|" + LB.texts[i];
+    if(LB.memo[key]) return LB.memo[key];
+    const full = LB.texts[i], words = full.split(" ");
+    let lines = [full];
+    if(textW(full, LB.lf, UIF) > maxW && words.length > 1){
+      let best = null;
+      for(let k = 1; k < words.length; k++){
+        const l1 = words.slice(0, k).join(" "), l2 = words.slice(k).join(" ");
+        const m = Math.max(textW(l1, LB.lf, UIF), textW(l2, LB.lf, UIF));
+        if(!best || m < best.m) best = { m, l:[l1, l2] };
+      }
+      lines = best.l;
+    }
+    const w = Math.max(...lines.map(l => textW(l, LB.lf, UIF)));
+    return (LB.memo[key] = { lines, w });
+  }
+  function labelRect(ang, cx, cy, r, i){
+    const lf = LB.lf, { lines, w } = labelLines(i, r), L = lines.length, lh = lf * 1.12;
+    const t = ang * Math.PI / 180, c = Math.cos(t), s = Math.sin(t);
+    const gap = 8 + (Math.abs(s) > 0.3 ? 0 : 4);
+    const px = cx + (r + gap) * c, py = cy + (r + gap) * s;
+    const anchor = c < -0.25 ? "end" : c > 0.25 ? "start" : "middle";
+    const x0 = anchor === "end" ? px - w : anchor === "start" ? px : px - w / 2;
+    let ty, y0, y1;
+    if(s < -0.3){ ty = py - (L - 1) * lh; y0 = ty - lf * 0.92; y1 = py + lf * 0.22; }
+    else if(s > 0.3){ ty = py + lf * 0.82; y0 = py - lf * 0.05; y1 = ty + (L - 1) * lh + lf * 0.22; }
+    else { const h = (L - 1) * lh + lf * 1.14; ty = py - h / 2 + lf * 0.92; y0 = py - h / 2; y1 = py + h / 2; }
+    return { x:x0, y:y0, w, h:y1 - y0, tx:px, ty, anchor, lines, lh };
+  }
+  // lay out, then rehearse every step: if two cards would touch anywhere, make the cards a little smaller and try again
+  function layout(){
+    for(const shrink of [1, 0.9, 0.81, 0.73, 0.66]){
+      layoutCore(shrink);
+      if(G.ch <= 20.5 || crowding() >= 0.97) break;
+    }
+  }
+  function crowding(){
+    let worst = 9;
+    S.steps.forEach((st, k) => {
+      const sc = sceneOf(k), groups = {}, all = [];
+      S.cards.forEach(c => { const t = sc.cards[c.id]; if(t.m !== "place") return; const key = sc.cfg + "|" + t.code; (groups[key] = groups[key] || []).push(c); });
+      Object.entries(groups).forEach(([key, list]) => {
+        const [cfn, code] = key.split("|"); samplePts(G.cfg[cfn]);
+        const pos = placeIn(cfn, +code, list.length);
+        list.forEach((c, i) => all.push({ c, p:pos[i] }));
+      });
+      // every pair on the board, in the same region or across a line
+      for(let i = 0; i < all.length; i++) for(let j = i + 1; j < all.length; j++){
+        const a = all[i], b = all[j], sx = (a.c.w + b.c.w) / 2 + 4, sy = G.ch + 4;
+        worst = Math.min(worst, Math.max(Math.abs(a.p.x - b.p.x) / sx, Math.abs(a.p.y - b.p.y) / sy));
+      }
+    });
+    return worst;
+  }
+  function layoutCore(shrink){
+    const wrap = $("boardWrap");
+    const W = Math.max(260, wrap.clientWidth), H = Math.max(240, wrap.clientHeight);
+    const fs = { s:1, m:1.14, l:1.28 }[S.set.fsz] || 1;
+    const prob = !!V.space, n = V.sets.length, many = S.cards.filter(c => c.grp === "o").length > 10;
+    const pad = 10, zoneW = W - pad * 2;
+    const stage2 = ["one","apart2","two","blank"];
+    let lf = Math.max(14, Math.min(27, H * 0.036)) * fs;
+    let ch = Math.max(24, Math.min(56, Math.min(W * 0.05, H * 0.085))) * fs * shrink;
+    if(many) ch *= 0.74;
+    ch = Math.max(20, ch);
+    let R = null, trayH = 0, zone = null, cr = 0, mx = null, my = null, portrait = false, used = null;
+    for(let pass = 0; pass < 6; pass++){
+      const fsz = ch * 0.56;
+      S.cards.forEach(c => { c.w = Math.max(ch * 1.18, textW(c.n.t, fsz, MF) + ch * 0.62); });
+      const cw = Math.max(...S.cards.map(c => c.w));
+      cr = 0.5 * Math.hypot(cw, ch) * 0.84;
+      const rowsFor = list => { let rows = 1, x = 0; list.forEach(c => { const w = c.w * 1.3 + ch * 0.55; if(x + w > zoneW * 0.96 && x > 0){ rows++; x = 0; } x += w; }); return rows; };
+      const Oc = S.cards.filter(c => c.grp === "o"), Pc = S.cards.filter(c => c.grp === "p");
+      const trayRows = Math.max(rowsFor(Oc), Pc.length ? rowsFor(Pc) : 1);
+      trayH = trayRows * ch * 1.3 + ch * 0.62;
+      zone = { x:pad, y:pad, w:zoneW, h:H - trayH - pad - 4 };
+      portrait = zone.w / zone.h < 1.02;
+      CFG = portrait ? CFG_P : CFG_L;
+      Object.assign(LB, { lf, portrait, texts:V.sets.map((s2, i) => S.set.notation ? LET[i] + ": " + labOf(s2).charAt(0).toLowerCase() + labOf(s2).slice(1) : labOf(s2)) });
+      used = cfgsUsed();
+      // the box: room at the sides for "outside every circle", a slimmer band at the top and bottom (turned round when portrait)
+      const big = r => Math.max(cr * (prob ? 3.0 : 2.3) + 6, r * (prob ? 0.26 : 0.17));
+      const small = r => Math.max(cr * (prob ? 1.7 : 1.3) + 4, r * 0.09);
+      mx = portrait ? small : big; my = portrait ? big : small;
+      const ext = (name, r) => {
+        const def = CFG[name], cfv = def.like ? CFG[def.like] : def;
+        let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+        for(let i = 0; i < n; i++){
+          if(!cfv.vis[i]) continue;
+          const cx = cfv.u[i][0] * r, cy = cfv.u[i][1] * r;
+          x0 = Math.min(x0, cx - r); x1 = Math.max(x1, cx + r); y0 = Math.min(y0, cy - r); y1 = Math.max(y1, cy + r);
+          const L = labelRect(cfv.ang[i], cx, cy, r, i);
+          x0 = Math.min(x0, L.x); x1 = Math.max(x1, L.x + L.w); y0 = Math.min(y0, L.y); y1 = Math.max(y1, L.y + L.h);
+        }
+        return { x0, x1, y0, y1 };
+      };
+      LB.ext = ext;
+      const fit = name => { let lo = 8, hi = 900;
+        for(let it = 0; it < 30; it++){ const r = (lo + hi) / 2, e = ext(name, r);
+          if(e.x1 - e.x0 + 2 * mx(r) <= zone.w && e.y1 - e.y0 + 2 * my(r) <= zone.h) lo = r; else hi = r; }
+        return lo; };
+      const fits = {}; Object.keys(CFG).forEach(nm => fits[nm] = fit(nm));
+      const cap = Math.min(...stage2.filter(nm => used.includes(nm)).map(nm => fits[nm]).concat(used.includes("two") ? [] : [fits.two]));
+      R = {}; Object.keys(CFG).forEach(nm => R[nm] = stage2.includes(nm) ? cap : Math.min(fits[nm], cap));
+      const rMin = Math.min(n === 3 ? R.three : R.two, ...used.map(nm => R[nm]));
+      // a card must fit in the smallest region: about 0.33 r for three circles, 0.4 r for two
+      const crCap = (n === 3 ? R.three : R.two) * (n === 3 ? 0.3 : 0.36);
+      // very small circles: smaller type first, then smaller cards
+      if(rMin < 70 && lf > 12.5){ lf = Math.max(12, lf * 0.86); ch = Math.max(20, ch * 0.92); continue; }
+      if(cr <= crCap * 1.01 || ch <= 20.5) break;
+      ch = Math.max(20, ch * crCap / cr);
+    }
+    const fsz = ch * 0.56;
+    const cw = Math.max(...S.cards.map(c => c.w));
+    G = { W, H, ch, fsz, lf, cw, R, zone, trayH, pad, cfg:{}, bR:Math.max(11, Math.min(21, ch * 0.4)), prob, cr, portrait };
+    Object.keys(CFG).forEach(nm => {
+      const def = CFG[nm], cfv = def.like ? CFG[def.like] : def, r = R[nm];
+      const e = LB.ext(nm, r), MX = mx(r), MY = my(r);
+      const ox = zone.x + zone.w / 2 - (e.x0 + e.x1) / 2, oy = zone.y + zone.h / 2 - (e.y0 + e.y1) / 2;
+      const circles = [0,1,2].map(i => ({ x:cfv.u[i][0] * r + ox, y:cfv.u[i][1] * r + oy, r, vis: i < n ? def.vis[i] : 0 }));
+      const labels = [0,1,2].map(i => i < n ? labelRect(cfv.ang[i], circles[i].x, circles[i].y, r, i) : null);
+      const box = { x:e.x0 - MX + ox, y:e.y0 - MY + oy, w:e.x1 - e.x0 + 2 * MX, h:e.y1 - e.y0 + 2 * MY };
+      const blf = lf * 0.7;
+      const boxLab = { x:box.x + 6, y:box.y + 4, w:textW(boxLabelText(), blf, UIF) + 14, h:blf * 1.35, f:blf };
+      G.cfg[nm] = { name:nm, circles, labels, box, boxLab, ang:cfv.ang, place:{}, pts:null, full: nm === (n === 3 ? "three" : "two") };
+    });
+    traySlots();
+  }
+  function boxLabelText(){
+    const nm = V.space ? (V.boxName || "Outcomes") : (DOM_NAME[V.dom || "whole"]);
+    return S.set.notation ? "ξ  " + nm : nm;
+  }
+  function traySlots(){
+    const { ch, W, H, trayH, pad } = G, zoneW = W - pad * 2;
+    const doRow = (list, grow) => {
+      const rows = [[]]; let x = 0; const gap = ch * (grow ? 0.55 : 0.32), wOf = c => c.w * (grow ? 1.3 : 1);
+      list.forEach(c => { const w = wOf(c) + gap; if(x + w > zoneW * 0.96 && x > 0){ rows.push([]); x = 0; } rows[rows.length - 1].push(c); x += w; });
+      rows.forEach((row, ri) => {
+        const tot = row.reduce((s, c) => s + wOf(c), 0) + gap * (row.length - 1);
+        let x0 = W / 2 - tot / 2;
+        row.forEach(c => { c.tx = x0 + wOf(c) / 2; c.ty = H - trayH + ch * 0.95 + ri * ch * 1.3; x0 += wOf(c) + gap; });
+      });
+    };
+    doRow(S.cards.filter(c => c.grp === "o"), false);
+    doRow(S.cards.filter(c => c.grp === "p"), true);
+  }
+  // membership of a point in a cfg (only visible circles count)
+  function codeAt(cf, x, y, vis){
+    let c = 0;
+    cf.circles.forEach((ci, i) => { if((vis ? vis[i] : ci.vis) && Math.hypot(x - ci.x, y - ci.y) < ci.r) c |= 1 << i; });
+    return c;
+  }
+  function inBox(cf, x, y){ const b = cf.box; return x > b.x && x < b.x + b.w && y > b.y && y < b.y + b.h; }
+  function rectDist(R, x, y){ const dx = Math.max(R.x - x, 0, x - (R.x + R.w)), dy = Math.max(R.y - y, 0, y - (R.y + R.h)); return Math.hypot(dx, dy); }
+  function samplePts(cf){
+    if(cf.pts) return cf.pts;
+    const g = Math.max(5, Math.min(13, G.ch * 0.3)), b = cf.box, pts = [];
+    const obst = cf.labels.filter((L, i) => L && i < V.sets.length && cf.circles[i].vis).concat([cf.boxLab]);
+    if(cf.name === "apart2" || cf.name === "apart3"){
+      const a = cf.circles[cf.name === "apart3" ? 1 : 0], b2 = cf.circles[cf.name === "apart3" ? 2 : 1], mx = (a.x + b2.x) / 2, my2 = (a.y + b2.y) / 2;
+      if(G.portrait) obst.push({ x:mx - b2.r * 0.75, y:my2 - G.ch * 0.8, w:b2.r * 1.5, h:G.ch * 1.6 });
+      else obst.push({ x:mx - G.cw * 0.7, y:my2 - b2.r * 0.75, w:G.cw * 1.4, h:b2.r * 1.5 });
+    }
+    for(let y = b.y + g / 2; y < b.y + b.h; y += g) for(let x = b.x + g / 2; x < b.x + b.w; x += g){
+      let clr = Math.min(x - b.x, b.x + b.w - x, y - b.y, b.y + b.h - y);
+      cf.circles.forEach(ci => { if(ci.vis) clr = Math.min(clr, Math.abs(Math.hypot(x - ci.x, y - ci.y) - ci.r)); });
+      let ob = Infinity; obst.forEach(R => { ob = Math.min(ob, rectDist(R, x, y)); });
+      // how far a card centred here is from every label: 1 means just clear, measured across and up-down separately
+      let lc = Infinity; obst.forEach(R => { const dx = Math.max(R.x - x, 0, x - (R.x + R.w)), dy = Math.max(R.y - y, 0, y - (R.y + R.h)); lc = Math.min(lc, Math.max(dx / (G.cw / 2 + 4), dy / (G.ch / 2 + 4))); });
+      pts.push({ x, y, code:codeAt(cf, x, y), clr, ob, lc });
+    }
+    cf.pts = pts;
+    if(cf.full) badgesFor(cf);
+    return pts;
+  }
+  // region numbers sit near the top of each region; answer boxes and counts sit at the roomiest point
+  function badgesFor(cf){
+    cf.badge = {}; cf.anchor = {};
+    const bR = G.bR;
+    for(let c = 0; c <= FULL(); c++){
+      const P = cf.pts.filter(p => p.code === c);
+      if(!P.length) continue;
+      const mx = P.reduce((s, p) => s + p.x, 0) / P.length;
+      const okB = P.filter(p => p.clr >= bR + 5 && p.ob >= bR + 4);
+      const bb = (okB.length ? okB : P).reduce((best, p) => { const sc = p.y + Math.abs(p.x - mx) * 0.35; return !best || sc < best.sc ? { p, sc } : best; }, null).p;
+      cf.badge[c] = { x:bb.x, y:bb.y };
+      const an = P.reduce((best, p) => { const sc = Math.min(p.clr, p.ob, Math.hypot(p.x - bb.x, p.y - bb.y) - bR * 0.6) - Math.abs(p.x - mx) * 0.02; return !best || sc > best.sc ? { p, sc } : best; }, null).p;
+      cf.anchor[c] = { x:an.x, y:an.y, room:Math.max(G.ch * 0.5, Math.min(an.clr, an.ob)) };
+    }
+  }
+  function placeIn(cfName, code, k){
+    const cf = G.cfg[cfName];
+    let seq = cf.place[code];
+    if(!seq){
+      const P = allowedPts(cf, code);
+      const mx = P.reduce((s, p) => s + p.x, 0) / P.length, my = P.reduce((s, p) => s + p.y, 0) / P.length;
+      seq = cf.place[code] = { P, mx, my, pos:[] };
+    }
+    // cards are wide and short: two cards are clear of each other when they are a card's width apart across or a card's height apart up and down
+    const sx = G.cw + 8, sy = G.ch + 8, hd = 0.5 * Math.hypot(G.cw, G.ch);
+    const pick = P => {
+      let best = null, bs = -Infinity, bsep = 0;
+      P.forEach(p => {
+        let sep = Infinity; seq.pos.forEach(q => { sep = Math.min(sep, Math.max(Math.abs(p.x - q.x) / sx, Math.abs(p.y - q.y) / sy)); });
+        // first: not overlapping another card; then a little breathing room; then room from the lines; then near the middle
+        const sc = Math.min(sep, 1) * hd * 10 + Math.min(Math.max(sep - 1, 0), 0.3) * hd * 2 + 0.5 * Math.min(p.clr == null ? 0 : p.clr, hd * 1.4) - 0.03 * Math.hypot(p.x - seq.mx, p.y - seq.my);
+        if(sc > bs){ bs = sc; best = p; bsep = sep; }
+      });
+      return { best, bs, bsep };
+    };
+    while(seq.pos.length < k){
+      let r = pick(seq.P);
+      // a crowded region: try spots nearer its edges before letting cards overlap
+      if(r.bsep < 1){ seq.wide = seq.wide || allowedPts(cf, code, 0.3); const r2 = pick(seq.wide); if(r2.bsep > r.bsep + 0.05) r = r2; }
+      seq.pos.push(r.best ? { x:r.best.x, y:r.best.y } : { x:cf.box.x + cf.box.w / 2, y:cf.box.y + cf.box.h / 2 });
+    }
+    return seq.pos.slice(0, k);
+  }
+  function allowedPts(cf, code, only){
+    const all = samplePts(cf).filter(p => p.code === code);
+    const bads = cf.full ? Object.values(cf.badge || {}) : [];
+    const hd = 0.5 * Math.hypot(G.cw, G.ch);
+    // a card's corner may just touch a line, so the clearance asked for is a little under its half-diagonal
+    const ok = f => all.filter(p => p.clr >= hd * f && p.lc >= (f < 0.4 ? 0.7 : 1) && bads.every(b => Math.hypot(p.x - b.x, p.y - b.y) >= G.bR + hd * f * 0.8));
+    if(only != null){ const W2 = ok(only); return W2.length ? W2 : all; }
+    let P = ok(0.8);
+    if(P.length < 24) P = ok(0.62);
+    if(P.length < 10) P = ok(0.42);
+    if(!P.length) P = all.length ? all : [{ x:cf.box.x + cf.box.w / 2, y:cf.box.y + cf.box.h / 2, clr:0 }];
+    return P;
+  }
+
+  /* ================= scenes ================= */
+  function sceneOf(k){
+    const st = S.steps[k], n = V.sets.length, full = n === 3 ? "three" : "two";
+    const sc = { cfg:full, cards:{}, badges:false, fill:0, counts:false, shade:[], shadeKind:"", dimPlaced:false };
+    const O = S.cards.filter(c => c.grp === "o"), Pc = S.cards.filter(c => c.grp === "p");
+    const set = (c, m, code) => { sc.cards[c.id] = { m, code }; };
+    O.forEach(c => set(c, "tray"));
+    Pc.forEach(c => set(c, "hide"));
+    const placeAll = mask => O.forEach(c => set(c, "place", c.code & mask));
+    switch(st.id){
+      case "one": sc.cfg = "one"; break;
+      case "sortOne": sc.cfg = "one"; placeAll(1); break;
+      case "apart": sc.cfg = "apart2"; break;
+      case "sortApart": sc.cfg = "apart2"; O.forEach(c => (c.code & 3) === 3 ? set(c, "stuck") : set(c, "place", c.code & 3)); break;
+      case "overlap": sc.cfg = "two"; placeAll(3); break;
+      case "two": sc.cfg = "two"; break;
+      case "sortTwo": sc.cfg = "two"; placeAll(3); break;
+      case "cApart": sc.cfg = "apart3"; placeAll(3); break;
+      case "sortC": sc.cfg = "apart3"; O.forEach(c => (c.code & 4) && (c.code & 3) ? set(c, "stuck") : set(c, "place", (c.code & 4) ? 4 : c.code & 3)); break;
+      case "overlap3": case "three": sc.cfg = "three"; placeAll(7); break;
+      case "regions": placeAll(7); sc.badges = true; sc.dimPlaced = true; break;
+      case "ask": case "place":
+        placeAll(7);
+        Pc.forEach((c, j) => { if(j < st.j || (st.id === "place" && j === st.j)) set(c, "place", c.code); else if(j === st.j) set(c, "ask"); else set(c, "tray"); });
+        break;
+      case "fill": case "answers":
+        placeAll(7); Pc.forEach(c => set(c, "place", c.code));
+        S.cards.forEach(c => sc.cards[c.id].m = "fade");
+        sc.fill = st.id === "fill" ? 1 : 2;
+        break;
+      case "space": sc.cfg = "blank"; break;
+      case "events": sc.cfg = "two"; break;
+      case "sortAll": placeAll(3); break;
+      case "count": placeAll(3); sc.counts = true; sc.dimPlaced = true; break;
+      case "qPose": placeAll(3); sc.counts = true; sc.dimPlaced = true; break;
+      case "qShow": placeAll(3); sc.counts = true; sc.dimPlaced = true; sc.shade = probQs()[st.q].codes; sc.shadeKind = "q"; break;
+    }
+    if(st.id === "answers") { sc.shade = V.ord.filter(c => !V.cand[c].length); sc.shadeKind = "imp"; }
+    if(S.set.nums && G && sc.cfg === full) sc.badges = true;
+    if(!G && S.set.nums && sc.cfg === full) sc.badges = true;
+    return sc;
+  }
+
+  /* target values for a step: one flat map of numbers, plus a timing window for each */
+  function targetOf(k){
+    const sc = sceneOf(k), cf = G.cfg[sc.cfg], full = G.cfg[V.sets.length === 3 ? "three" : "two"];
+    samplePts(cf); samplePts(full);
+    const v = {}, cls = {};
+    cf.circles.forEach((c, i) => {
+      const vis = i < V.sets.length && c.vis;
+      v["c" + i + "x"] = c.x; v["c" + i + "y"] = c.y; v["c" + i + "r"] = c.r * (vis ? 1 : 0.7); v["c" + i + "o"] = vis ? 1 : 0;
+      v["c" + i + "a"] = cf.ang[i];
+    });
+    v.bx = cf.box.x; v.by = cf.box.y; v.bw = cf.box.w; v.bh = cf.box.h; v.bo = 1;
+    // cards
+    const groups = {};
+    S.cards.forEach(c => { const t = sc.cards[c.id]; if(t.m === "place" || t.m === "fade"){ const cfn = t.m === "fade" ? full.name : cf.name; const key = cfn + "|" + (t.m === "fade" ? c.code : t.code); (groups[key] = groups[key] || []).push(c); } });
+    Object.entries(groups).forEach(([key, list]) => {
+      const [cfn, code] = key.split("|");
+      const pos = placeIn(cfn, +code, list.length);
+      list.forEach((c, i) => { v[c.id + "x"] = pos[i].x; v[c.id + "y"] = pos[i].y; });
+    });
+    const stuck = S.cards.filter(c => sc.cards[c.id].m === "stuck");
+    const askedAny = S.cards.some(c => sc.cards[c.id].m === "ask");
+    S.cards.forEach(c => {
+      const t = sc.cards[c.id]; let x = v[c.id + "x"], y = v[c.id + "y"], s = 1, o = 1; const cl = [];
+      if(t.m === "tray" || t.m === "hide"){ x = c.tx; y = c.ty; if(t.m === "hide") o = 0; if(askedAny && t.m === "tray") cl.push("trayDim"); }
+      if(t.m === "ask"){ x = c.tx; y = c.ty - G.ch * 0.3; s = 1.55; cl.push("asked"); }
+      if(t.m === "stuck"){
+        const i = stuck.indexOf(c), m = stuck.length;
+        const a = sc.cfg === "apart3" ? cf.circles[1] : cf.circles[0], b = sc.cfg === "apart3" ? cf.circles[2] : cf.circles[1];
+        // stuck cards line up across the gap between the two circles
+        const off = (i - (m - 1) / 2);
+        if(G.portrait){ x = (a.x + b.x) / 2 + off * (c.w + 10) * 1.05; y = (a.y + b.y) / 2; }
+        else { x = (a.x + b.x) / 2; y = (a.y + b.y) / 2 + off * G.ch * 1.3; }
+        cl.push("stuck");
+      }
+      if(t.m === "fade") o = 0;
+      if(t.m === "place" && sc.dimPlaced) cl.push("dim");
+      v[c.id + "x"] = x; v[c.id + "y"] = y; v[c.id + "s"] = s; v[c.id + "o"] = o;
+      cls[c.id] = cl;
+    });
+    v.bdo = sc.badges ? 1 : 0;
+    v.fo = sc.fill ? 1 : 0;
+    v.co = sc.counts ? 1 : 0;
+    v.so = sc.shade.length ? 1 : 0;
+    return { v, cls, sc };
+  }
+
+  /* ================= SVG ================= */
+  const board = $("board");
+  const el = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); if(attrs) for(const k in attrs) e.setAttribute(k, attrs[k]); if(parent) parent.appendChild(e); return e; };
+  let E = null;
+  function buildBoard(){
+    board.innerHTML = "";
+    board.setAttribute("viewBox", `0 0 ${G.W} ${G.H}`);
+    const defs = el("defs", null, board);
+    const hatch = el("pattern", { id:"hatch", width:10, height:10, patternUnits:"userSpaceOnUse", patternTransform:"rotate(45)" }, defs);
+    el("rect", { width:10, height:10, fill:"#fef2f2" }, hatch);
+    el("line", { x1:0, y1:0, x2:0, y2:10, stroke:"#dc2626", "stroke-width":3, "stroke-opacity":.45 }, hatch);
+    E = { cp:[], mk:{}, sh:{}, hl:{}, circ:[], lab:[], fb:{}, cnt:{}, bdg:{}, cards:{} };
+    for(let i = 0; i < 3; i++){ const cp = el("clipPath", { id:"cp" + i }, defs); E.cp.push(el("circle", {}, cp)); }
+    const N = FULL();
+    for(let c = 0; c <= N; c++){
+      const m = el("mask", { id:"mk" + c, maskUnits:"userSpaceOnUse" }, defs);
+      const r = el("rect", { fill:"#fff" }, m);
+      const cs = [0,1,2].map(() => el("circle", { fill:"#000" }, m));
+      E.mk[c] = { r, cs };
+    }
+    const gBox = el("g", null, board);
+    E.box = el("rect", { class:"boxR", rx:14 }, gBox);
+    E.boxLab = el("text", { class:"boxLab" }, gBox);
+    const makeShade = (parent, cls) => { const out = {}; for(let c = 0; c <= N; c++){
+      const g = el("g", { class:cls }, parent); let inner = g;
+      for(let i = 0; i < V.sets.length; i++) if((c >> i) & 1) inner = el("g", { "clip-path":`url(#cp${i})` }, inner);
+      out[c] = { g, r:el("rect", { mask:`url(#mk${c})` }, inner) }; } return out; };
+    const gSh = el("g", null, board); E.sh = makeShade(gSh, "sh");
+    const gHl = el("g", null, board); E.hl = makeShade(gHl, "hl");
+    const gC = el("g", null, board);
+    for(let i = 0; i < V.sets.length; i++) E.circ.push(el("circle", { class:"vC", stroke:COL[i], fill:COL[i] }, gC));
+    const gL = el("g", null, board);
+    for(let i = 0; i < V.sets.length; i++){
+      const t = el("text", { class:"vLab", fill:COL[i], "font-size":G.lf }, gL);
+      t._lines = "";
+      E.lab.push(t);
+    }
+    const gF = el("g", null, board), gN = el("g", null, board), gB = el("g", null, board);
+    for(let c = 0; c <= N; c++){
+      const f = el("g", { class:"fb", "data-code":c }, gF); E.fb[c] = { g:f, r:el("rect", { rx:10 }, f), t:el("text", { "text-anchor":"middle", "dominant-baseline":"central" }, f) };
+      const n = el("g", { class:"cnt" }, gN); E.cnt[c] = { g:n, c:el("circle", {}, n), t:el("text", { "text-anchor":"middle", "dominant-baseline":"central" }, n) };
+      const b = el("g", { class:"bdg" }, gB); E.bdg[c] = { g:b, c:el("circle", { r:G.bR }, b), t:el("text", { "text-anchor":"middle", "dominant-baseline":"central", "font-size":G.bR * 1.15 }, b) };
+      E.bdg[c].t.textContent = V.ord.indexOf(c) + 1;
+    }
+    E.gCards = el("g", null, board);
+    S.cards.forEach(c => {
+      const g = el("g", { class:"card", "data-id":c.id }, E.gCards);
+      const inn = el("g", { class:"cIn" }, g);
+      const w = c.w, h = G.ch;
+      el("rect", { class:"cRing", x:-w / 2 - 5, y:-h / 2 - 5, width:w + 10, height:h + 10, rx:h * 0.34 + 4 }, inn);
+      el("rect", { class:"cBg", x:-w / 2, y:-h / 2, width:w, height:h, rx:h * 0.3 }, inn);
+      const t = el("text", { class:"cT", "text-anchor":"middle", "dominant-baseline":"central", "font-size":G.fsz, y:1 }, inn); t.textContent = c.n.t;
+      const qg = el("g", { class:"cQ", transform:`translate(${w / 2 - 2},${-h / 2 + 2})` }, inn);
+      el("circle", { r:h * 0.26, fill:"#a16207" }, qg);
+      const qt = el("text", { "text-anchor":"middle", "dominant-baseline":"central", fill:"#fff", "font-size":h * 0.34, "font-weight":900, "font-family":"system-ui,sans-serif" }, qg); qt.textContent = "?";
+      E.cards[c.id] = g;
+    });
+  }
+
+  /* ================= render ================= */
+  let D = {};          // what is on screen now
+  let cur = null;      // the target of the step on screen
+  function render(vals, clsMap, sc){
+    const n = V.sets.length;
+    // circles, clip paths and masks
+    for(let i = 0; i < n; i++){
+      const x = vals["c" + i + "x"], y = vals["c" + i + "y"], r = vals["c" + i + "r"], o = vals["c" + i + "o"];
+      const c = E.circ[i]; c.setAttribute("cx", x); c.setAttribute("cy", y); c.setAttribute("r", Math.max(0, r)); c.setAttribute("opacity", o);
+      E.cp[i].setAttribute("cx", x); E.cp[i].setAttribute("cy", y); E.cp[i].setAttribute("r", o > 0.02 ? r : 0);
+      const L = E.lab[i], R = labelRect(vals["c" + i + "a"], x, y, Math.max(1, vals["c" + i + "r"] / (o < 1 && o > 0 ? 1 : 1)), i);
+      const key = R.lines.join("|");
+      if(L._lines !== key){
+        L.textContent = ""; L._lines = key;
+        R.lines.forEach((line, li) => {
+          const ts = el("tspan", { dy: li ? R.lh : 0 }, L);
+          if(li === 0 && S.set.notation){ const a = el("tspan", { class:"let" }, ts); a.textContent = LET[i]; const b2 = el("tspan", null, ts); b2.textContent = line.slice(1); }
+          else ts.textContent = line;
+        });
+      }
+      L.setAttribute("text-anchor", R.anchor); L.setAttribute("opacity", o);
+      [...L.children].forEach((ts, li) => { ts.setAttribute("x", R.tx); if(li === 0) ts.setAttribute("y", R.ty); });
+    }
+    const bx = vals.bx, by = vals.by, bw = vals.bw, bh = vals.bh;
+    E.box.setAttribute("x", bx); E.box.setAttribute("y", by); E.box.setAttribute("width", bw); E.box.setAttribute("height", bh); E.box.setAttribute("opacity", vals.bo);
+    E.boxLab.setAttribute("x", bx + 12); E.boxLab.setAttribute("y", by + G.lf * 0.7 + 7); E.boxLab.setAttribute("font-size", G.lf * 0.7);
+    E.boxLab.textContent = boxLabelText();
+    for(let c = 0; c <= FULL(); c++){
+      const m = E.mk[c]; m.r.setAttribute("x", bx); m.r.setAttribute("y", by); m.r.setAttribute("width", bw); m.r.setAttribute("height", bh);
+      m.cs.forEach((ci, i) => { const out = i < n && !((c >> i) & 1) && vals["c" + i + "o"] > 0.02;
+        ci.setAttribute("cx", vals["c" + i + "x"] || 0); ci.setAttribute("cy", vals["c" + i + "y"] || 0); ci.setAttribute("r", out ? vals["c" + i + "r"] : 0); });
+      [E.sh[c], E.hl[c]].forEach(s => { s.r.setAttribute("x", bx); s.r.setAttribute("y", by); s.r.setAttribute("width", bw); s.r.setAttribute("height", bh); });
+      const shOn = sc.shade.includes(c);
+      E.sh[c].g.setAttribute("opacity", shOn ? vals.so : 0);
+      E.sh[c].g.setAttribute("class", "sh" + (sc.shadeKind === "imp" ? " imp" : ""));
+    }
+    // badges, fill boxes, counts (in the full diagram only)
+    const full = G.cfg[n === 3 ? "three" : "two"];
+    for(let c = 0; c <= FULL(); c++){
+      const b = full.badge && full.badge[c], a = full.anchor && full.anchor[c];
+      const has = !!b && !!a;
+      // region number: next to the answer box when boxes are showing
+      let bxp = b, byOff = 0;
+      if(has && (sc.fill || sc.counts)){
+        const { fw, fh } = fillSize(c, a);
+        bxp = sc.counts ? { x:a.x - G.ch * 0.78, y:a.y - G.ch * 0.78 } : { x:a.x - fw / 2, y:a.y - fh / 2 };
+      }
+      E.bdg[c].g.setAttribute("transform", has ? `translate(${bxp.x},${bxp.y})` : "translate(-999,-999)");
+      E.bdg[c].g.setAttribute("opacity", has ? vals.bdo : 0);
+      const F = E.fb[c];
+      if(has){
+        const { fw, fh, f } = fillSize(c, a);
+        F.r.setAttribute("x", a.x - fw / 2); F.r.setAttribute("y", a.y - fh / 2); F.r.setAttribute("width", fw); F.r.setAttribute("height", fh);
+        F.t.setAttribute("x", a.x); F.t.setAttribute("y", a.y + 1); F.t.setAttribute("font-size", f);
+        const imp = !V.cand[c].length;
+        if(sc.fill === 2){ F.t.textContent = imp ? "✗" : ansFor(c).t; F.g.setAttribute("class", "fb " + (imp ? "imp" : V.cand[c].length === 1 ? "ans only" : "ans")); }
+        else { F.t.textContent = "?"; F.g.setAttribute("class", "fb"); }
+        F.g.setAttribute("opacity", vals.fo);
+        F.g.style.pointerEvents = sc.fill === 2 ? "auto" : "none";
+        const C = E.cnt[c], cnt = S.cards.filter(x => x.grp === "o" && x.code === c).length;
+        const cR = Math.min(G.ch * 0.72, a.room * 0.95);
+        C.c.setAttribute("cx", a.x); C.c.setAttribute("cy", a.y); C.c.setAttribute("r", cR);
+        C.t.setAttribute("x", a.x); C.t.setAttribute("y", a.y + 1); C.t.setAttribute("font-size", cR * 1.12); C.t.textContent = cnt;
+        C.g.setAttribute("opacity", vals.co);
+      } else { F.g.setAttribute("opacity", 0); E.cnt[c].g.setAttribute("opacity", 0); }
+    }
+    // cards
+    S.cards.forEach(c => {
+      const g = E.cards[c.id];
+      let x = vals[c.id + "x"], y = vals[c.id + "y"];
+      if(S.ov[c.id]){ x = S.ov[c.id].x; y = S.ov[c.id].y; }
+      const s = vals[c.id + "s"], o = vals[c.id + "o"];
+      g.setAttribute("transform", `translate(${x.toFixed(2)},${y.toFixed(2)}) scale(${s.toFixed(3)})`);
+      g.setAttribute("opacity", o.toFixed(3));
+      g.style.pointerEvents = o < 0.3 ? "none" : "";
+      const want = "card " + (clsMap[c.id] || []).join(" ") + (S.sel === c.id ? " sel" : "") + (c.fx ? " " + c.fx : "");
+      if(g.getAttribute("class") !== want) g.setAttribute("class", want);
+    });
+  }
+  // an answer box fits the room its region has: a tiny region gets a smaller box and smaller type
+  function fillSize(c, a){
+    const room = a.room;
+    let f = Math.min(G.fsz * 1.05, room * 0.62);
+    const t = ansFor(c), tw = t ? textW(t.t, f, MF) : 0;
+    let fw = Math.max(f * 2.4, tw + f * 1.2), fh = f * 2.05;
+    const k = Math.min(1, (room * 1.85) / fw, (room * 1.6) / fh);
+    return { fw:fw * k, fh:fh * k, f:f * k };
+  }
+  function ansFor(c){ const l = V.ans[c]; return l && l.length ? l[S.ansIx % l.length] : null; }
+
+  /* ================= animation ================= */
+  let anim = null;
+  const ease = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  function go(k, animate = true){
+    k = Math.max(0, Math.min(S.steps.length - 1, k));
+    const from = Object.assign({}, D);
+    const prevSc = cur ? cur.sc : null;
+    // a card the teacher dragged: was the class right?
+    const tgt = targetOf(k);
+    S.cards.forEach(c => { c.fx = ""; });
+    Object.keys(S.ov).forEach(id => {
+      const c = S.cards.find(x => x.id === id), t = tgt.sc.cards[id];
+      if(!c || !t || t.m !== "place") return;
+      const o = S.ov[id], cf = G.cfg[tgt.sc.cfg];
+      if(!inBox(cf, o.x, o.y)) return;
+      const ok = codeAt(cf, o.x, o.y) === t.code;
+      c.fx = ok ? "fxOk" : "fxNo"; c.fb = ok ? "ok" : "no";
+      from[id + "x"] = o.x; from[id + "y"] = o.y;
+    });
+    if(S.steps[k].id === "place"){ const c = S.cards.filter(x => x.grp === "p")[S.steps[k].j]; if(!c.fx) c.fb = ""; }
+    S.ov = {}; S.sel = null;
+    S.step = k; cur = tgt;
+    paintText();
+    if(anim){ cancelAnimationFrame(anim.raf); anim = null; }
+    const to = tgt.v;
+    if(!animate || RM || !Object.keys(from).length){ D = Object.assign({}, to); render(D, tgt.cls, tgt.sc); afterAnim(); return; }
+    // timing
+    const moved = (a, b) => Math.abs((from[a] ?? to[a]) - to[a]) > 1.5 || Math.abs((from[b] ?? to[b]) - to[b]) > 1.5;
+    let circMove = false;
+    for(let i = 0; i < V.sets.length; i++){
+      const fo = from["c" + i + "o"] ?? 0, tov = to["c" + i + "o"];
+      if(fo < 0.02 && tov > 0.02){ from["c" + i + "x"] = to["c" + i + "x"]; from["c" + i + "y"] = to["c" + i + "y"]; from["c" + i + "a"] = to["c" + i + "a"]; }
+      if(fo > 0.02 && tov < 0.02){ to["c" + i + "x"] = from["c" + i + "x"]; to["c" + i + "y"] = from["c" + i + "y"]; }
+      if(moved("c" + i + "x", "c" + i + "y") || Math.abs(fo - tov) > 0.02) circMove = true;
+    }
+    if(moved("bx", "by") || Math.abs((from.bw ?? to.bw) - to.bw) > 1.5) circMove = true;
+    const CM = circMove ? 760 : 0;
+    const win = {};
+    const later = [], withCircles = [];
+    S.cards.forEach(c => {
+      const id = c.id, fo = from[id + "o"] ?? 0, tov = to[id + "o"];
+      if(fo < 0.02 && tov > 0.02){ from[id + "x"] = to[id + "x"]; from[id + "y"] = to[id + "y"]; }
+      if(tov < 0.02){ to[id + "x"] = from[id + "x"] ?? to[id + "x"]; to[id + "y"] = from[id + "y"] ?? to[id + "y"]; }
+      const ch = moved(id + "x", id + "y") || Math.abs((from[id + "s"] ?? 1) - to[id + "s"]) > 0.01 || Math.abs(fo - tov) > 0.02;
+      if(!ch) return;
+      const wasPlaced = prevSc && prevSc.cards[id] && prevSc.cards[id].m === "place";
+      const nowPlaced = tgt.sc.cards[id].m === "place" || tgt.sc.cards[id].m === "fade";
+      if(wasPlaced && nowPlaced && circMove) withCircles.push(id);
+      else if(tgt.sc.cards[id].m === "tray" || tgt.sc.cards[id].m === "hide" || tgt.sc.cards[id].m === "fade" || tgt.sc.cards[id].m === "ask") withCircles.push(id);
+      else later.push(id);
+    });
+    const many = later.length > 8;
+    const stag = many ? Math.max(28, 900 / later.length) : 170, fly = many ? 520 : 640;
+    const start = later.length ? (circMove ? CM * 0.85 : 0) : 0;
+    const total = Math.max(CM, withCircles.length ? Math.max(CM, 620) : 0, later.length ? start + (later.length - 1) * stag + fly : 0, 520);
+    const W = (a, b) => [a / total, Math.min(1, b / total)];
+    const fullWin = W(0, CM || 620);
+    ["bx","by","bw","bh","bo"].forEach(k2 => win[k2] = fullWin);
+    for(let i = 0; i < 3; i++) ["x","y","r","o","a"].forEach(p => win["c" + i + p] = fullWin);
+    withCircles.forEach(id => ["x","y","s","o"].forEach(p => win[id + p] = fullWin));
+    later.sort((a, b) => S.cards.findIndex(c => c.id === a) - S.cards.findIndex(c => c.id === b))
+      .forEach((id, j) => ["x","y","s","o"].forEach(p => win[id + p] = W(start + j * stag, start + j * stag + fly)));
+    ["bdo","fo","co","so"].forEach(p => win[p] = W(total * 0.35, total));
+    // stuck / landed effects wait for the card to land
+    const clsNow = {}, clsEnd = tgt.cls;
+    S.cards.forEach(c => { clsNow[c.id] = (tgt.cls[c.id] || []).filter(x => x !== "stuck" && x !== "dim"); });
+    const fxHold = {}; S.cards.forEach(c => { fxHold[c.id] = c.fx; c.fx = ""; });
+    const keys = Object.keys(to);
+    const t0 = performance.now();
+    const raf = () => {
+      const t = Math.min(1, (performance.now() - t0) / total);
+      const vals = {};
+      keys.forEach(kk => { const a = from[kk] ?? to[kk], b = to[kk], w = win[kk] || [0, 1];
+        const u = w[1] > w[0] ? Math.max(0, Math.min(1, (t - w[0]) / (w[1] - w[0]))) : (t >= w[0] ? 1 : 0);
+        vals[kk] = a + (b - a) * ease(u); });
+      D = vals;
+      // classes switch to their final form once each card has landed
+      const cm = {};
+      S.cards.forEach(c => { const w = win[c.id + "x"]; const landed = !w || t >= w[1]; cm[c.id] = landed ? clsEnd[c.id] : clsNow[c.id]; if(landed && fxHold[c.id]) c.fx = fxHold[c.id]; });
+      render(vals, cm, tgt.sc);
+      if(t < 1) anim.raf = requestAnimationFrame(raf);
+      else { anim = null; render(to, clsEnd, tgt.sc); D = Object.assign({}, to); afterAnim(); }
+    };
+    anim = { raf:requestAnimationFrame(raf) };
+  }
+  function afterAnim(){
+    clearTimeout(afterAnim.t);
+    afterAnim.t = setTimeout(() => { S.cards.forEach(c => c.fx = ""); if(cur) render(D, cur.cls, cur.sc); }, 1700);
+  }
+  function finishAnim(){ if(anim){ cancelAnimationFrame(anim.raf); anim = null; D = Object.assign({}, cur.v); render(D, cur.cls, cur.sc); } }
+
+  /* ================= text ================= */
+  let lastQ = "";
+  function paintText(){
+    const R = info(S.step);
+    const stmt = $("stmt");
+    if(R.q !== lastQ){ stmt.innerHTML = `<span>${R.q}</span>`; stmt.classList.remove("swap"); void stmt.offsetWidth; stmt.classList.add("swap"); lastQ = R.q; }
+    $("hint").innerHTML = R.hint; $("hint").classList.remove("flash");
+    // the story
+    const lines = [];
+    for(let k = 0; k <= S.step; k++){
+      const r = k === S.step ? R : info(k);
+      lines.push(`<div class="sLine ${k === S.step ? "cur" : "done"}"><div class="lab"><span class="n">${k + 1}</span><span>${r.title}</span></div>${k === S.step && r.body ? `<div class="bd">${r.body}</div>` : ""}${k === S.step && r.tip ? `<div class="tip">${r.tip}</div>` : ""}</div>`);
+    }
+    $("story").innerHTML = lines.join("");
+    const sc = $("storyScroll"); requestAnimationFrame(() => { const c = sc.querySelector(".sLine.cur"); if(c) sc.scrollTop = c.offsetTop - 6; });
+    $("stepCount").textContent = `Step ${S.step + 1} of ${S.steps.length}`;
+    const last = S.step >= S.steps.length - 1;
+    ["nextBtn","miniNext"].forEach(id => { $(id).disabled = last; $(id).innerHTML = last ? "Done &#10003;" : "Next &#9656;"; });
+    ["backBtn","miniBack","againBtn"].forEach(id => $(id).disabled = S.step === 0);
+    $("allBtn").disabled = last;
+  }
+  function paintVennUI(){
+    const idx = PRESETS.findIndex(p => p.id === S.vid);
+    $("vennGrp").textContent = V.grp;
+    $("vennTitle").textContent = V.name;
+    $("vennTitle").title = V.name;
+    const tag = $("typeTag");
+    tag.textContent = V.space ? "Probability" : V.sets.length + " circles";
+    tag.className = "typeTag" + (V.space ? " prob" : V.sets.length === 3 ? " three" : "");
+    $("prevVenn").disabled = idx === 0;
+    $("nextVenn").disabled = idx === PRESETS.length - 1;
+    $("vennCount").textContent = idx >= 0 ? `${idx + 1} of ${PRESETS.length}` : "Your own";
+    const sel = $("vennSel");
+    if(!sel.options.length){
+      const groups = {};
+      PRESETS.forEach(p => { (groups[p.grp] = groups[p.grp] || []).push(p); });
+      Object.entries(groups).forEach(([g, list]) => { const og = document.createElement("optgroup"); og.label = g;
+        list.forEach(p => { const o = document.createElement("option"); o.value = p.id; o.textContent = vennName(p.sets); og.appendChild(o); }); sel.appendChild(og); });
+      const o = document.createElement("option"); o.value = "custom"; o.textContent = "Your own Venn"; o.hidden = true; sel.appendChild(o);
+    }
+    sel.querySelector('option[value="custom"]').hidden = S.vid !== "custom";
+    sel.value = S.vid;
+    // circle editor
+    const editable = !V.dom || V.dom === "whole";
+    const rows = V.sets.map((s, i) => {
+      const opts = EDIT_KINDS.map(k => `<option value="${k}" ${k === s.k ? "selected" : ""}>${PRED[k].name}</option>`).join("") + (EDIT_KINDS.includes(s.k) ? "" : `<option value="${s.k}" selected>${PRED[s.k].name}</option>`);
+      const par = PRED[s.k].par;
+      return `<div class="cRow" style="--c:${COL[i]}"><span class="dot">${LET[i]}</span><select class="nice" data-i="${i}" ${editable ? "" : "disabled"} aria-label="Circle ${LET[i]}">${opts}</select><input type="number" data-i="${i}" value="${par ? s.p : ""}" ${par && editable ? "" : "disabled"} aria-label="Number for circle ${LET[i]}" ${par ? `min="${PRED[s.k].min}" max="${PRED[s.k].max}"` : `style="visibility:hidden"`}></div>`;
+    }).join("");
+    $("cRows").innerHTML = rows;
+    $("thirdBtn").textContent = V.sets.length === 3 ? "− Remove third circle" : "+ Third circle";
+    $("thirdBtn").disabled = !editable || !!V.space;
+    $("newBtn").disabled = $("newBtn2").disabled = !!V.space;
+    $("editNote").textContent = !editable ? "These circles use decimals, big numbers or negatives, so they are fixed. Pick a whole-number Venn to change a circle."
+      : V.space ? "Change a circle to ask about different events in the same sample space."
+      : "Change one circle to make it harder or easier. The numbers are chosen again.";
+  }
+
+  /* ================= set up a Venn ================= */
+  function setup(keepStep){
+    resolveVenn();
+    S.steps = buildSteps();
+    S.ov = {}; S.sel = null;
+    G = null; layout(); buildBoard();
+    D = {}; cur = null;
+    paintVennUI();
+    go(keepStep != null ? keepStep : 0, false);
+    save();
+  }
+  function relayout(){
+    if(!V) return;
+    S.ov = {};
+    layout(); buildBoard();
+    const tg = targetOf(S.step); cur = tg; D = Object.assign({}, tg.v); render(D, tg.cls, tg.sc);
+  }
+  function chooseVenn(id){ S.vid = id; S.seed = 0; setup(); }
+  function applySets(sets, jumpTo){
+    const base = V.space ? { space:V.space, say:V.say, boxName:V.boxName, grp:"Probability: your own" } : { dom:"whole" };
+    S.custom = Object.assign(base, { sets:JSON.parse(JSON.stringify(sets)) });
+    S.vid = "custom"; S.seed = (Math.random() * 1e9) | 0;
+    setup();
+    if(jumpTo){ const k = S.steps.findIndex(s => s.id === jumpTo); if(k > 0) go(k, false); }
+  }
+
+  /* ================= interaction ================= */
+  const next = () => { if(S.step < S.steps.length - 1) go(S.step + 1); };
+  const back = () => { if(S.step > 0) go(S.step - 1); };
+  const again = () => { $("againIcon").classList.remove("spin"); void $("againIcon").offsetWidth; $("againIcon").classList.add("spin"); go(0); };
+  $("nextBtn").addEventListener("click", next); $("miniNext").addEventListener("click", next);
+  $("backBtn").addEventListener("click", back); $("miniBack").addEventListener("click", back);
+  $("againBtn").addEventListener("click", again); $("againIcon").addEventListener("click", again);
+  $("allBtn").addEventListener("click", () => go(S.steps.length - 1));
+  const newNums = () => { if(V.space) return; S.seed = (Math.random() * 1e9) | 0; setup(); };
+  $("newBtn").addEventListener("click", newNums); $("newBtn2").addEventListener("click", newNums);
+  $("vennSel").addEventListener("change", e => chooseVenn(e.target.value));
+  const stepVenn = d => { let i = PRESETS.findIndex(p => p.id === S.vid); if(i < 0) i = d > 0 ? -1 : PRESETS.length; i = Math.max(0, Math.min(PRESETS.length - 1, i + d)); chooseVenn(PRESETS[i].id); };
+  $("prevVenn").addEventListener("click", () => stepVenn(-1));
+  $("nextVenn").addEventListener("click", () => stepVenn(1));
+  $("cRows").addEventListener("change", e => {
+    const i = +e.target.dataset.i; if(isNaN(i)) return;
+    const sets = JSON.parse(JSON.stringify(V.sets));
+    if(e.target.tagName === "SELECT"){ const k = e.target.value; sets[i] = PRED[k].par ? { k, p:PRED[k].def } : { k }; }
+    else { const p = PRED[sets[i].k]; let v = Math.round(+e.target.value); if(isNaN(v)) v = p.def; sets[i].p = Math.max(p.min, Math.min(p.max, v)); }
+    applySets(sets);
+  });
+  $("thirdBtn").addEventListener("click", () => {
+    const sets = JSON.parse(JSON.stringify(V.sets));
+    if(sets.length === 3) sets.pop(); else sets.push(sets.some(s => s.k === "square") ? { k:"gt", p:20 } : { k:"square" });
+    applySets(sets);
+  });
+  $("story").addEventListener("click", e => {
+    const b = e.target.closest("button"); if(!b) return;
+    if(b.dataset.act === "another"){ S.ansIx++; render(D, cur.cls, cur.sc); return; }
+    if(b.dataset.wi != null){ const w = V.whatIf[+b.dataset.wi]; const sets = JSON.parse(JSON.stringify(V.sets)); sets[w.i] = w.s; applySets(sets, "fill"); }
+  });
+
+  // pointer: drag a card, click a card for its reasons, click a region for its name, click an ✗ for why
+  let drag = null;
+  const svgPt = e => { const m = board.getScreenCTM(); if(!m) return { x:0, y:0 }; const p = new DOMPoint(e.clientX, e.clientY).matrixTransform(m.inverse()); return { x:p.x, y:p.y }; };
+  board.addEventListener("pointerdown", e => {
+    const cg = e.target.closest("g.card");
+    const p = svgPt(e);
+    if(cg){
+      finishAnim();
+      const id = cg.dataset.id, c = S.cards.find(x => x.id === id);
+      const x0 = S.ov[id] ? S.ov[id].x : D[id + "x"], y0 = S.ov[id] ? S.ov[id].y : D[id + "y"];
+      drag = { id, c, dx:p.x - x0, dy:p.y - y0, sx:p.x, sy:p.y, moved:false };
+      board.setPointerCapture(e.pointerId); cg.classList.add("dragging");
+      E.gCards.appendChild(cg);
+      e.preventDefault();
+      return;
+    }
+    const fb = e.target.closest("g.fb");
+    if(fb){ const c = +fb.dataset.code; if(!V.cand[c].length) flashHint(`<b>Region ${regNo(c)} is impossible.</b> ${impWhy(c)}`);
+      else { const a = ansFor(c); flashHint(`${T(a)} is ${regionName(c)}.${V.cand[c].length === 1 ? " It is the only number that fits!" : ""}`); } return; }
+    regionClick(p);
+  });
+  board.addEventListener("pointermove", e => {
+    if(!drag) return;
+    const p = svgPt(e);
+    if(!drag.moved && Math.hypot(p.x - drag.sx, p.y - drag.sy) < 5) return;
+    drag.moved = true;
+    const x = Math.max(G.ch * 0.6, Math.min(G.W - G.ch * 0.6, p.x - drag.dx)), y = Math.max(G.ch * 0.5, Math.min(G.H - G.ch * 0.5, p.y - drag.dy));
+    S.ov[drag.id] = { x, y };
+    render(D, cur.cls, cur.sc);
+  });
+  const endDrag = e => {
+    if(!drag) return;
+    const d = drag; drag = null;
+    E.cards[d.id] && E.cards[d.id].classList.remove("dragging");
+    if(!d.moved) cardClick(d.c);
+    else {
+      const cf = G.cfg[cur.sc.cfg], o = S.ov[d.id];
+      if(o && inBox(cf, o.x, o.y) && Object.values(cf.circles).some(c => c.vis)) { const code = codeAt(cf, o.x, o.y); flashHint(`Dropped in the region for numbers that are ${regionNameVis(code, cf)}. Press Next to check.`); }
+    }
+  };
+  board.addEventListener("pointerup", endDrag); board.addEventListener("pointercancel", endDrag);
+  function regionNameVis(code, cf){
+    const vis = cf.circles.map((c, i) => i < V.sets.length && c.vis);
+    const k = vis.filter(Boolean).length;
+    if(k === V.sets.length) return regionName(code);
+    if(k === 1){ const i = vis.indexOf(true); return (code >> i) & 1 ? cIs(i) : `not ${cIs(i)}`; }
+    const parts = []; vis.forEach((v, i) => { if(v) parts.push((code >> i) & 1 ? cIs(i) : `not ${cIs(i)}`); }); return joinAnd(parts);
+  }
+  function cardClick(c){
+    const t = cur.sc.cards[c.id];
+    S.sel = S.sel === c.id ? null : c.id;
+    render(D, cur.cls, cur.sc);
+    if(t.m === "ask"){ flashHint(`Where does ${T(c.n)} go? Drag it to the class's answer.`); return; }
+    if(t.m === "tray"){ flashHint(`${T(c.n)}: where do you think it goes?`); return; }
+    const cf = G.cfg[cur.sc.cfg];
+    const vis = cf.circles.map((ci, i) => i < V.sets.length && ci.vis);
+    const reasons = V.sets.map((s, i) => vis[i] ? whyOf(s, c.n) : null).filter(Boolean).join(" &middot; ");
+    flashHint(`<b>${c.n.t}:</b> ${reasons}`);
+  }
+  function regionClick(p){
+    if(!cur) return;
+    const cf = G.cfg[cur.sc.cfg];
+    if(!inBox(cf, p.x, p.y)) return;
+    const vis = cf.circles.map((c, i) => i < V.sets.length && c.vis);
+    if(!vis.some(Boolean)) return;
+    const code = codeAt(cf, p.x, p.y);
+    const full = vis.filter(Boolean).length === V.sets.length;
+    if(full){
+      const h = E.hl[code]; Object.values(E.hl).forEach(x => x.g.classList.remove("on")); void h.g.getBoundingClientRect(); h.g.classList.add("on");
+    }
+    const name = regionNameVis(code, cf);
+    flashHint(`${full && (S.set.nums || cur.sc.badges) ? `<b>Region ${regNo(code)}:</b> ` : "<b>This region:</b> "}numbers that are ${name}${S.set.notation && full ? ` &nbsp;<span class="sym">${regionSym(code)}</span>` : ""}`);
+  }
+  function flashHint(h){ const el2 = $("hint"); el2.innerHTML = h; el2.classList.remove("flash"); void el2.offsetWidth; el2.classList.add("flash"); }
+
+  // 3, 2, 1, show me
+  let smT = [];
+  function showMe(){
+    smT.forEach(clearTimeout); smT = [];
+    const box = $("showMe");
+    const seq = ["3","2","1","Show me!"];
+    seq.forEach((s, i) => smT.push(setTimeout(() => { box.innerHTML = `<span class="${i === 3 ? "go" : ""}">${s}</span>`; }, i * 800)));
+    smT.push(setTimeout(() => { box.innerHTML = ""; }, 3 * 800 + 1400));
+  }
+  $("showMeBtn").addEventListener("click", showMe);
+
+  // settings
+  const bindSw = (id, key, after) => { const b = $(id); b.checked = !!S.set[key]; b.addEventListener("change", () => { S.set[key] = b.checked; save(); after(); }); };
+  const restory = () => setup();
+  bindSw("oneToggle", "one", restory);
+  bindSw("apartToggle", "apart", restory);
+  bindSw("namesToggle", "names", restory);
+  bindSw("fillToggle", "fill", restory);
+  bindSw("numsToggle", "nums", () => paintNums());
+  bindSw("notToggle", "notation", () => { relayout(); paintText(); });
+  bindSw("tintToggle", "tint", () => $("app").classList.toggle("noTint", !S.set.tint));
+  $("practiceSel").value = String(S.set.practice);
+  $("practiceSel").addEventListener("change", e => { S.set.practice = +e.target.value; save(); setup(); });
+  const applyFsz = () => { $("app").dataset.fsz = S.set.fsz || "s"; };
+  $("fszSel").value = S.set.fsz || "s";
+  $("fszSel").addEventListener("change", e => { S.set.fsz = e.target.value; applyFsz(); save(); relayout(); });
+  function paintNums(){
+    $("numsToggle").checked = S.set.nums; $("numsBtn").setAttribute("aria-pressed", S.set.nums ? "true" : "false");
+    if(!cur) return; const tg = targetOf(S.step); cur = tg;
+    // fade the region numbers in or out without moving anything
+    const from = D.bdo ?? 0, to = tg.v.bdo, t0 = performance.now();
+    const step = () => { const t = Math.min(1, (performance.now() - t0) / 300); D.bdo = from + (to - from) * t; render(D, cur.cls, cur.sc); if(t < 1) requestAnimationFrame(step); };
+    step(); paintText(); save();
+  }
+  $("numsBtn").addEventListener("click", () => { S.set.nums = !S.set.nums; paintNums(); });
+
+  // panel + full screen
+  function setPanel(on){ S.set.panel = on; $("app").classList.toggle("noPanel", !on); $("panelBtn").setAttribute("aria-pressed", on ? "true" : "false");
+    $("panelBtn").title = on ? "Hide the side panel (P)" : "Show the side panel (P)"; $("miniSteps").hidden = on && !S.fs; save(); }
+  $("panelBtn").addEventListener("click", () => setPanel(!S.set.panel));
+  const fsEl = document.documentElement;
+  const fsActive = () => !!(document.fullscreenElement || document.webkitFullscreenElement);
+  function setFs(on){
+    S.fs = on; $("app").classList.toggle("fs", on);
+    $("fsBtn").querySelector(".fsIn").toggleAttribute("hidden", on);
+    $("fsBtn").querySelector(".fsOut").toggleAttribute("hidden", !on);
+    $("fsBtn").title = on ? "Leave full screen (F)" : "Full screen (F)";
+    $("miniSteps").hidden = S.set.panel && !on;
+    closeMenus();
+  }
+  function toggleFs(){
+    if(!S.fs){ setFs(true); const req = fsEl.requestFullscreen || fsEl.webkitRequestFullscreen;
+      if(req){ try { const p = req.call(fsEl); if(p && p.catch) p.catch(() => {}); } catch(e){} } }
+    else { if(fsActive()){ const ex = document.exitFullscreen || document.webkitExitFullscreen; try { const p = ex.call(document); if(p && p.catch) p.catch(() => {}); } catch(e){} } setFs(false); }
+  }
+  const onFsChange = () => { if(!fsActive() && S.fs) setFs(false); };
+  document.addEventListener("fullscreenchange", onFsChange);
+  document.addEventListener("webkitfullscreenchange", onFsChange);
+  $("fsBtn").addEventListener("click", toggleFs);
+
+  // menus
+  function closeMenus(){ [["settingsBtn","settingsMenu"],["toolsBtn","toolsMenu"]].forEach(([b, m]) => { $(m).classList.remove("open"); $(b).setAttribute("aria-expanded","false"); }); }
+  [["settingsBtn","settingsMenu"],["toolsBtn","toolsMenu"]].forEach(([b, m]) => {
+    $(b).addEventListener("click", e => { e.stopPropagation(); const open = !$(m).classList.contains("open"); closeMenus(); if(open){ $(m).classList.add("open"); $(b).setAttribute("aria-expanded","true"); } });
+    $(m).addEventListener("click", e => e.stopPropagation());
+  });
+  document.addEventListener("click", closeMenus);
+
+  // keys
+  document.addEventListener("keydown", e => {
+    const tag = (e.target.tagName || "").toLowerCase();
+    if(tag === "input" || tag === "select" || tag === "textarea" || e.metaKey || e.ctrlKey || e.altKey) return;
+    if(e.key === "Escape"){ closeMenus(); if(S.fs && !fsActive()) setFs(false); return; }
+    const k = e.key;
+    if(k === "ArrowRight" || k === "PageDown"){ e.preventDefault(); next(); }
+    else if(k === "ArrowLeft" || k === "PageUp"){ e.preventDefault(); back(); }
+    else if(k === " "){ e.preventDefault(); again(); }
+    else if(k === "Enter"){ if(e.target.tagName === "BUTTON") return; e.preventDefault(); newNums(); }
+    else if(k === "]"){ stepVenn(1); }
+    else if(k === "["){ stepVenn(-1); }
+    else if(k === "w" || k === "W"){ showMe(); }
+    else if(k === "r" || k === "R"){ S.set.nums = !S.set.nums; paintNums(); }
+    else if(k === "a" || k === "A"){ if(cur && cur.sc.fill === 2){ S.ansIx++; render(D, cur.cls, cur.sc); } }
+    else if(k === "f" || k === "F"){ toggleFs(); }
+    else if(k === "p" || k === "P"){ if(!S.fs) setPanel(!S.set.panel); }
+  });
+
+  // size
+  let rT = null, lastWH = "";
+  const ro = new ResizeObserver(() => { const w = $("boardWrap"); const key = w.clientWidth + "x" + w.clientHeight; if(key === lastWH) return; lastWH = key;
+    clearTimeout(rT); rT = setTimeout(() => { finishAnim(); relayout(); }, 90); });
+
+  // start
+  $("app").classList.toggle("noTint", !S.set.tint);
+  applyFsz();
+  setPanel(S.set.panel !== false);
+  $("numsBtn").setAttribute("aria-pressed", S.set.nums ? "true" : "false");
+  setup();
+  ro.observe($("boardWrap"));
+
+  // a small test surface
+  window.__VENN__ = {
+    S, get V(){ return V; }, get G(){ return G; }, PRESETS, go, next, back, chooseVenn, applySets, sceneOf, targetOf, codeAt, regionName, info, setup,
+    cardPos: id => ({ x:D[id + "x"], y:D[id + "y"] }), finish: finishAnim, isAnimating: () => !!anim,
+  };
+})();
+</script>
+</body>
+</html>
