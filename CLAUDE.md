@@ -202,7 +202,7 @@
 >
 > **NEW (2026-11-19, teacher feedback): NUMBER GROUPS — "TYPE YOUR OWN" ab/ba + POWERS + WORKSHEET COLOURS.**
 > * `parseOwn` matches groups by a SORTED key (ab = ba) but each term keeps the order typed (`fd`, shown via `fOf(q, t)` in the expression and captions); the "Spot the group" tip says ba is the same group as ab. `fd` is dropped on new counts / kind change.
-> * Powers: one letter with ², ³ (x^2, x²) is its own group, so 3x + 2x + 4x² is x plus ONE unlike x²; other powers give a clear error.
+> * Powers (any index 2–9, real superscripts): a letter, ab² or a²b is a group in its own right (`letterKey`: same key whichever order, ab² = b²a), so 3x + 2x + 4x² is x plus ONE unlike x². "Type your own" is a small editor: `tidyOwn` turns ^2 into ² as you type, a keypad (xⁿ power key, x², x³, ×, +, −, brackets) inserts at the cursor, and a live preview shows the expression in maths italics with true superscripts. Indices outside 2–9 and repeated letters (xx; write x²) get a clear message.
 > * Still ONE unlike term max (e.g. 4ab + 6ba + 6b − 2b is refused, message points at Bubbles). Allowing more needs a multi-term unlike pile + take-away in scene()/storyFor()/panel (all key off scalar `q.uc`). Possible next: setting "Allow two kinds of groups", off by default.
 > * Worksheet worked example: number of groups blue, the group (7, x) green, like the live tool (`exprC`, `.ec`/`.eg`; plain in B&W).
 >
