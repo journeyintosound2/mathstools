@@ -1,11 +1,22 @@
 /* Mills Maths Tools — service worker.
    The list of files to save for offline use lives in precache-manifest.js,
-   which tools/build-pwa.mjs writes. Run that before every push. */
+   which tools/build-pwa.mjs writes. Run that before every push.
+
+   RATE LIMIT (2026-11-20): GitHub Pages refused whole classes ("Rate limit exceeded").
+   Every NSW DoE school reaches the internet through a handful of shared IP addresses, and
+   this worker used to download all ~1,100 files (42 MB) on EVERY device, and again after
+   every push. Thirty Chromebooks = ~33,000 requests from one address. So now:
+   - a browser tab saves only the pages it opens (and their scripts, styles, models);
+   - the whole-site download happens ONLY in the installed home-screen app (pwa.js asks
+     for it), slowly, and fetches only files it does not already have.
+   Never go back to precaching the whole list in 'install'. */
 importScripts('./precache-manifest.js');
 
 const { version, files } = self.MMT_PRECACHE;
-const CACHE = `mmt-${version}`;      // the whole site, replaced on each new version
+const CACHE = 'mmt-pages';           // everything saved from this site; kept across versions
 const CDN = 'mmt-cdn';               // versioned third-party scripts and fonts
+const META = 'mmt-meta';             // remembers which version the installed app has saved
+const SHELL = ['./', 'pwa.js', 'manifest.webmanifest'];
 const SCOPE_PATH = new URL('./', self.location).pathname;
 const NAV_TIMEOUT_MS = 3500;         // slow classroom wifi: give up and use the saved copy
 
@@ -22,24 +33,50 @@ const CDN_HOSTS = new Set([
 self.addEventListener('install', (event) => {
   event.waitUntil((async () => {
     const cache = await caches.open(CACHE);
-    // Batches, and one missing file never blocks the install (addAll would).
-    for (let i = 0; i < files.length; i += 20) {
-      await Promise.all(files.slice(i, i + 20).map((f) =>
-        cache.add(new Request(new URL(f, self.location), { cache: 'reload' }))
-          .catch((err) => console.warn('[mmt] could not save', f, err))));
-    }
+    await Promise.all(SHELL.map((f) =>
+      cache.add(new URL(f, self.location).href).catch(() => {})));
     await self.skipWaiting();
   })());
 });
 
 self.addEventListener('activate', (event) => {
   event.waitUntil((async () => {
+    // Old versions kept one 42 MB cache per push (mmt-<hash>); drop them.
+    const keep = new Set([CACHE, CDN, META]);
     for (const key of await caches.keys()) {
-      if (key.startsWith('mmt-') && key !== CACHE && key !== CDN) await caches.delete(key);
+      if (key.startsWith('mmt-') && !keep.has(key)) await caches.delete(key);
     }
     await self.clients.claim();
   })());
 });
+
+// The installed app asks for the whole site (pwa.js). Gentle: 4 at a time with a pause,
+// only files not already saved, and once per version.
+let saving = null;
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'mmt-save-all') {
+    if (!saving) saving = saveAll().finally(() => { saving = null; });
+    event.waitUntil(saving);
+  }
+});
+
+async function saveAll() {
+  const meta = await caches.open(META);
+  const mark = new URL('__mmt_saved__', self.location).href;
+  const prev = await meta.match(mark);
+  if (prev && (await prev.text()) === version) return;
+  const cache = await caches.open(CACHE);
+  const todo = [];
+  for (const f of files) {
+    const href = new URL(f, self.location).href;
+    if (!(await cache.match(href, { ignoreSearch: true }))) todo.push(href);
+  }
+  for (let i = 0; i < todo.length; i += 4) {
+    await Promise.all(todo.slice(i, i + 4).map((href) => cache.add(href).catch(() => {})));
+    await new Promise((r) => setTimeout(r, 300));
+  }
+  await meta.put(mark, new Response(version));
+}
 
 self.addEventListener('fetch', (event) => {
   const req = event.request;

@@ -20,6 +20,16 @@
   if (!standalone) return;
   document.documentElement.classList.add('is-app');
 
+  // Only the installed app saves the whole site for offline use (sw.js explains why a
+  // browser tab must not: shared school IP addresses + GitHub Pages rate limits).
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.ready.then(function (reg) {
+      setTimeout(function () {
+        if (reg.active) reg.active.postMessage({ type: 'mmt-save-all' });
+      }, 8000);
+    });
+  }
+
   // target="_blank" in a home-screen app throws the user out to Safari. Keep our own links in the app.
   document.addEventListener('click', function (e) {
     var a = e.target.closest && e.target.closest('a[target="_blank"]');

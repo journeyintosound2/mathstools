@@ -1,4 +1,10 @@
 ## Offline app (PWA)
+- **RATE LIMIT RULE (2026-11-20):** `sw.js` must NEVER precache the whole site in `install`.
+  It did (1,096 files / 42 MB per device, again after every push) and GitHub Pages answered
+  whole classes with "Rate limit exceeded" — every NSW DoE school shares a few public IPs.
+  Now a browser tab caches only what it opens (`mmt-pages`, kept across versions); only the
+  installed home-screen app asks for the full list (`pwa.js` posts `mmt-save-all`), 4 at a
+  time with pauses, missing files only, once per version (`mmt-meta`).
 - Before every push: run `node tools/build-pwa.mjs` and commit `precache-manifest.js`.
 - New pages: run `node tools/build-pwa.mjs --inject` once so they get the PWA tags.
 - **Pages that load their own separate .js/.css (2026-10-28):** reference them as `file.js?v=<first 8 of md5>`
