@@ -116,8 +116,8 @@ exports.setStudentAvatar = onCall(async (request) => {
 });
 
 /**
- * exchangeTeacherCode({ teacherCode }) → { token, profile, claims }
- * Rejects missing / inactive teachers. uid `teacher:<CODE>` with role claims.
+ * exchangeTeacherCode({ teacherCode, pin? }) → { token, profile, claims }
+ * Rejects missing / inactive teachers, and a wrong/missing PIN when the teacher doc has `teacherPin`. uid `teacher:<CODE>` with role claims.
  */
 exports.exchangeTeacherCode = onCall(async (request) => {
   const code = normaliseCode(request.data && request.data.teacherCode);
@@ -128,6 +128,15 @@ exports.exchangeTeacherCode = onCall(async (request) => {
   const doc = { teacherCode: code, ...snap.data() };
 
   if (doc.active === false) throw new HttpsError("permission-denied", "This teacher code is not active.");
+
+  // OPTIONAL teacher PIN (2026-11-24). Only a teacher doc that carries a
+  // `teacherPin` field needs one; every other teacher signs in with the code
+  // alone, exactly as before. Set/cleared in the Firebase Console only; it is
+  // never returned to a client (safeTeacherProfile is a whitelist).
+  const requiredPin = doc.teacherPin;
+  if (requiredPin && String((request.data && request.data.pin) || "") !== String(requiredPin)) {
+    throw new HttpsError("permission-denied", "This teacher code needs its PIN. Enter it and try again (check the PIN if you already did).");
+  }
 
   const claims = { role: "teacher", teacherCode: code, school: doc.school || "" };
   const token = await admin.auth().createCustomToken(`teacher:${code}`, claims);

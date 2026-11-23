@@ -567,6 +567,10 @@
         <button type="button" id="codeToggle" class="code-toggle" aria-label="Show or hide code">Show</button>
       </div>
     </div>
+    <!-- Optional teacher PIN (2026-11-24): stays hidden unless the server says this code needs one. -->
+    <div class="field" id="pinField" hidden><label for="pinInput">PIN</label>
+      <input id="pinInput" type="password" placeholder="Your PIN" autocomplete="off" spellcheck="false"/>
+    </div>
     <button class="btn primary" id="loginBtn" type="button" style="width:100%" disabled><span class="btn-spin" aria-hidden="true"></span>Connecting…</button>
     <div class="loginhint" id="loginHint">Getting a secure connection ready…</div>
     <div class="loginprog" id="loginProg"><i></i></div>
@@ -660,7 +664,7 @@
 <div id="printSheet" aria-hidden="true"></div>
 
 <script type="module">
-import { initPortal, loginTeacher, logout, normaliseCode, getDb, updateTeacherProfile, updateCachedProfile, createStudent, createClass, setClassActive, setAdventureTaskActive, createDashboardTask, updateDashboardTask, setDashboardTaskActive, updateStudent, manageStudents } from "../shared/codeExchangeClient.js?v=2261aaea";
+import { initPortal, loginTeacher, logout, normaliseCode, getDb, updateTeacherProfile, updateCachedProfile, createStudent, createClass, setClassActive, setAdventureTaskActive, createDashboardTask, updateDashboardTask, setDashboardTaskActive, updateStudent, manageStudents } from "../shared/codeExchangeClient.js?v=ca0c5c39";
 import { COLLECTIONS } from "../shared/firebaseConfig.js";
 import { formatLocation } from "../shared/location.js";
 import { mountSchoolPicker, loadSchools } from "../shared/schoolPicker.js";
@@ -737,6 +741,7 @@ modalEl.addEventListener("click", e=>{ if(e.target.closest("[data-close]")) clos
 // ---- Login (unchanged behaviour) -------------------------------------------
 $("codeInput").addEventListener("input", e=>{ e.target.value=normaliseCode(e.target.value); });
 $("codeInput").addEventListener("keydown", e=>{ if(e.key==="Enter") $("loginBtn").click(); });
+$("pinInput").addEventListener("keydown", e=>{ if(e.key==="Enter") $("loginBtn").click(); });
 $("codeToggle").addEventListener("click", ()=>{ const i=$("codeInput"); const hidden=i.type==="password"; i.type=hidden?"text":"password"; $("codeToggle").textContent=hidden?"Hide":"Show"; i.focus(); });
 $("loginBtn").addEventListener("click", doLogin);
 $("signoutBtn").addEventListener("click", async ()=>{ await logout(); location.reload(); });
@@ -777,10 +782,11 @@ async function doLogin(){
   btn.disabled=true; btn.innerHTML='<span class="btn-spin" aria-hidden="true"></span>Signing in…';
   if(prog) prog.classList.add("show");
   $("loginMsg").className="msg";
-  const res = await loginTeacher(code);
+  const res = await loginTeacher(code, $("pinInput").value);
   if(!res.ok){
     btn.disabled=false; btn.textContent="Sign in";
     if(prog) prog.classList.remove("show");
+    if(/pin/i.test(res.error||"")){ const f=$("pinField"); const first=f.hidden; f.hidden=false; $("pinInput").focus(); if(first){ showMsg("This teacher code also needs its PIN. Enter it, then press Sign in.","info"); return; } }
     showMsg(res.error || "Could not sign in.","bad"); return;
   }
   btn.innerHTML='<span class="btn-spin" aria-hidden="true"></span>Loading your dashboard…';

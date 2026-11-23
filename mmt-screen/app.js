@@ -874,6 +874,8 @@ async function buildCloudPop(){
       <div class="pop-form">
         <input id="teacherCode" type="text" placeholder="Teacher code" autocomplete="off"
                spellcheck="false" aria-label="Teacher code" />
+        <input id="teacherPin" type="password" placeholder="PIN" autocomplete="off"
+               spellcheck="false" aria-label="PIN" hidden />
         <button class="btn primary" id="signInBtn" type="button">Sign in</button>
         <p class="pop-note">The same teacher code you use for the Teacher Dashboard. Signing in lets you save a screen and open it on any computer. On a shared classroom machine, sign out when you are done — the session stays until you do.</p>
         <p class="pop-msg" id="cloudMsg"></p>
@@ -884,7 +886,15 @@ async function buildCloudPop(){
       const btn = cloudPop.querySelector('#signInBtn');
       btn.disabled = true; btn.textContent = 'Signing in…';
       msg.className = 'pop-msg'; msg.textContent = '';
-      const res = await cloud.signIn(input.value);
+      const pinBox = cloudPop.querySelector('#teacherPin');
+      const res = await cloud.signIn(input.value, pinBox.value);
+      if(!res.ok && res.needsPin && pinBox.hidden){
+        // Optional teacher PIN (2026-11-24): only shown when this code needs one.
+        pinBox.hidden = false; pinBox.focus();
+        btn.disabled = false; btn.textContent = 'Sign in';
+        msg.className = 'pop-msg'; msg.textContent = 'This teacher code also needs its PIN.';
+        return;
+      }
       if(res.ok){
         teacher = res.code;
         paintCloudChrome();
@@ -897,6 +907,7 @@ async function buildCloudPop(){
     };
     cloudPop.querySelector('#signInBtn').addEventListener('click', go);
     input.addEventListener('keydown', e => { if(e.key === 'Enter') go(); });
+    cloudPop.querySelector('#teacherPin').addEventListener('keydown', e => { if(e.key === 'Enter') go(); });
     setTimeout(() => input.focus(), 30);
     return;
   }

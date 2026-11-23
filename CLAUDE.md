@@ -5445,7 +5445,16 @@ NSW maths teacher. It now also has a **secure Student/Teacher Platform** and
   (`mmt-firebase-games`) and are out of scope for these rules — BUT **Mills Maths
   Adventure is on `mills-maths-tools`** (it joined the secure ecosystem), so the
   claim-based rules above DO apply to it.
-- Functions region: **us-central1**. Test codes: student `8F6AYH`, teacher `MILLS0423`.
+- Functions region: **us-central1**. **NEVER write a real student or teacher code into any
+  file in this repo** — the repo is PUBLIC and GitHub Pages serves every file (two real codes
+  sat here and in `portal/PLACEMENT.md` until 2026-11-24). Ask Jeff for his test codes in chat.
+- **Optional teacher PIN (2026-11-24):** `exchangeTeacherCode` refuses a teacher whose doc has a
+  `teacherPin` field unless the same PIN is sent. No field = code alone, as before (every other
+  teacher). Set it ONLY in the Firebase Console (rules already block client writes to
+  `teachers/*`); never return it (`safeTeacherProfile` is a whitelist). The Teacher Platform and
+  MMT Screen's Save show a hidden PIN box when the server's error mentions a PIN. The 20 quiz
+  pages sign in STUDENTS only, so they need nothing. Deploy order: website + function first, set
+  the PIN last.
 
 ## 5. Website structure (`mathstools-main 2`)
 ```

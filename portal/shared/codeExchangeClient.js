@@ -96,12 +96,13 @@ export async function loginStudent(code, pin) {
   } catch (err) { return { ok: false, error: friendlyError(err) }; }
 }
 
-/** Secure teacher sign-in (mirror of loginStudent). */
-export async function loginTeacher(code) {
+/** Secure teacher sign-in (mirror of loginStudent). `pin` is optional: only a
+ *  teacher whose doc carries `teacherPin` needs one (2026-11-24). */
+export async function loginTeacher(code, pin) {
   initPortal();
   try {
     const call = httpsCallable(_functions, EXCHANGE_FUNCTIONS.teacher);
-    const res = await call({ teacherCode: code });
+    const res = await call({ teacherCode: code, pin: pin || undefined });
     const data = res.data || {};
     if (!data.token) return { ok: false, error: "Sign-in failed. Please try again." };
     await signInWithCustomToken(_auth, data.token);

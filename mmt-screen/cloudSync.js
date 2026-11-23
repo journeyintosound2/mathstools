@@ -25,7 +25,7 @@
 
 import {
   initPortal, loginTeacher, logout, getDb, getSession, normaliseCode, onAuth,
-} from '../portal/shared/codeExchangeClient.js?v=2261aaea';
+} from '../portal/shared/codeExchangeClient.js?v=ca0c5c39';
 
 /* Same SDK version as portal/shared/firebaseConfig.js — keep them in step. */
 import {
@@ -53,11 +53,11 @@ export function onCloudAuth(cb){
   return onAuth(user => cb(user ? currentTeacher() : null));
 }
 
-export async function signIn(code){
+export async function signIn(code, pin){
   const clean = normaliseCode(code);
   if(!clean) return { ok:false, error:'Enter your teacher code.' };
-  const res = await loginTeacher(clean);
-  if(!res.ok) return { ok:false, error: res.error || 'Could not sign in.' };
+  const res = await loginTeacher(clean, pin);   // pin: optional, only for a code that has one (2026-11-24)
+  if(!res.ok) return { ok:false, error: res.error || 'Could not sign in.', needsPin: /pin/i.test(res.error || '') };
   return { ok:true, code: currentTeacher() || clean };
 }
 

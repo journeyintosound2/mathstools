@@ -193,8 +193,8 @@ Rollback: `git checkout main` (old dashboards untouched), or revert the commit:
 
 ## Manual test checklist (before deploying strict rules)
 1. Deploy/preview this branch (Netlify). Open `/portal/student/`, sign in with a
-   real student code (e.g. `8F6AYH`) → profile + own results load.
-2. `/portal/teacher/` → sign in with a real teacher code (e.g. `MILLS0423`) →
+   real student code (your own test student) → profile + own results load.
+2. `/portal/teacher/` → sign in with a real teacher code (your own) →
    students + results load; CSV/copy/modal work; Adventure rich panel shows or
    degrades gracefully.
 3. Homepage buttons (hero, resource grid, footer) now open the new portal.
