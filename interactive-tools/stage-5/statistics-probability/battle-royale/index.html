@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Battle Royale Probability</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;700&family=Chakra+Petch:wght@600;700&display=swap" rel="stylesheet">
+<style>
+/* THEME — re-skin the whole tool from this block.
+   Layout idea: broadcast scoreboard. A fixed header with a five-step lesson rail, one large stage per step. */
+:root{
+  --bg:#ECEEF4; --surface:#FFFFFF; --surface-2:#F4F5FA; --ink:#141A2E; --muted:#555C76; --line:#D3D8E6;
+  --accent:#D93A25; --on-accent:#FFFFFF; --gold:#D99A00; --win:#1A8752; --out:#8389A0;
+  --hero:#2F6FE4; --opp:#8389A0;
+  --font-display:'Chakra Petch','Trebuchet MS',Verdana,sans-serif;
+  --font-body:'Lexend',Verdana,'Segoe UI',sans-serif;
+  --radius:14px; --shadow:0 1px 2px rgba(20,26,46,.06),0 6px 20px rgba(20,26,46,.07);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0D1120; --surface:#161C30; --surface-2:#1E2642; --ink:#EEF1FA; --muted:#A6AECA; --line:#2E3758;
+    --accent:#FF6A4D; --on-accent:#1A0B07; --gold:#F5BE3B; --win:#3DCB8A; --out:#727A96;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.35); color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0D1120; --surface:#161C30; --surface-2:#1E2642; --ink:#EEF1FA; --muted:#A6AECA; --line:#2E3758;
+  --accent:#FF6A4D; --on-accent:#1A0B07; --gold:#F5BE3B; --win:#3DCB8A; --out:#727A96;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.35); color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{font-size:clamp(15px,.72vw + 8px,22px);height:100%}
+body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font-family:var(--font-body);line-height:1.4}
+button,select,input{font:inherit;color:inherit}
+h1,h2,h3{font-family:var(--font-display);margin:0;text-wrap:balance;line-height:1.15}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+/* header */
+.top{background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+.top-in{max-width:1500px;margin:0 auto;padding:.6rem 1.2rem;display:flex;flex-wrap:wrap;gap:.6rem 1.2rem;align-items:center}
+.brand{display:flex;flex-direction:column}
+.brand b{font-family:var(--font-display);font-size:1.25rem;letter-spacing:.02em;text-transform:uppercase}
+.brand span{font-size:.72rem;color:var(--muted)}
+.rail{display:flex;gap:.25rem;flex-wrap:wrap;margin:0 auto}
+.rail button{border:0;background:none;padding:.4rem .7rem;border-radius:999px;cursor:pointer;display:flex;gap:.45rem;align-items:center;color:var(--muted);font-weight:700}
+.rail button i{font-style:normal;width:1.5rem;height:1.5rem;border-radius:50%;display:grid;place-items:center;background:var(--surface-2);border:1px solid var(--line);font-size:.8rem}
+.rail button[aria-current="step"]{background:var(--ink);color:var(--bg)}
+.rail button[aria-current="step"] i{background:var(--accent);color:var(--on-accent);border-color:transparent}
+.bar{background:var(--surface-2);border-bottom:1px solid var(--line)}
+.bar-in{max-width:1500px;margin:0 auto;padding:.45rem 1.2rem;display:flex;flex-wrap:wrap;gap:.5rem 1.4rem;align-items:center;font-size:.82rem}
+.ctl{display:flex;align-items:center;gap:.45rem}
+.ctl>span{color:var(--muted)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:none;padding:.28rem .7rem;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg);font-weight:700}
+.push{margin-left:auto}
+
+/* general */
+main{max-width:1500px;margin:0 auto;padding:1.1rem 1.2rem 2rem;display:flex;flex-direction:column;gap:1rem}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:1.1rem 1.2rem;min-width:0}
+.eyebrow{font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:700}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:.55rem 1rem;cursor:pointer;font-weight:700}
+.btn:hover{border-color:var(--ink)}
+.btn.primary{background:var(--accent);color:var(--on-accent);border-color:transparent;font-family:var(--font-display);font-size:1.1rem;padding:.7rem 1.4rem;text-transform:uppercase;letter-spacing:.03em}
+.btn.dark{background:var(--ink);color:var(--bg);border-color:transparent}
+.btn:disabled{opacity:.5;cursor:default}
+.row{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center}
+.muted{color:var(--muted)}
+.fr{display:inline-flex;flex-direction:column;text-align:center;vertical-align:middle;line-height:1.05;font-variant-numeric:tabular-nums;font-weight:700}
+.fr span:first-child{border-bottom:.11em solid currentColor;padding:0 .22em .04em}
+.fr span:last-child{padding:.04em .22em 0}
+.chip{display:inline-flex;flex-direction:column;align-items:center;gap:.15rem;min-width:3.1rem}
+.chip small{font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.chip b{background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:.25rem .45rem;min-width:2.9rem;min-height:2.5rem;display:grid;place-items:center;font-variant-numeric:tabular-nums}
+.ask{border-left:4px solid var(--gold);background:var(--surface);border-radius:0 var(--radius) var(--radius) 0;padding:.6rem 1rem;display:flex;gap:.4rem 1.6rem;flex-wrap:wrap;align-items:baseline;font-size:.9rem}
+.ask b{font-family:var(--font-display);text-transform:uppercase;font-size:.78rem;letter-spacing:.08em;color:var(--muted)}
+.ask span{max-width:60ch}
+
+/* choose */
+.choose{display:grid;grid-template-columns:minmax(0,1fr) minmax(17rem,24rem);gap:1rem;align-items:start}
+.roster{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.7rem}
+.card{background:var(--surface);border:2px solid var(--line);border-radius:var(--radius);padding:.8rem .6rem;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:.4rem;text-align:center;position:relative}
+.card:hover{border-color:var(--c)}
+.card[aria-pressed="true"]{border-color:var(--c);box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 30%,transparent)}
+.card h3{font-size:1rem}
+.card p{margin:0;font-size:.75rem;color:var(--muted);min-height:2.1em}
+.card .chips{display:flex;gap:.25rem;flex-wrap:wrap;justify-content:center}
+.title-chance{width:100%;font-size:.8rem;border-top:1px dashed var(--line);padding-top:.4rem;display:flex;flex-direction:column;gap:.25rem;align-items:center}
+.meter{width:100%;height:.5rem;background:var(--surface-2);border-radius:99px;overflow:hidden}
+.meter i{display:block;height:100%;background:var(--c)}
+.rank{position:absolute;top:.4rem;left:.5rem;font-family:var(--font-display);color:var(--muted);font-size:.85rem}
+.picked{display:flex;flex-direction:column;gap:.8rem;align-items:flex-start}
+.picked-head{display:flex;gap:.9rem;align-items:center}
+.edit{display:flex;flex-wrap:wrap;gap:.5rem}
+.edit label{display:flex;flex-direction:column;font-size:.68rem;color:var(--muted);gap:.15rem;text-transform:uppercase;letter-spacing:.05em}
+.edit select{padding:.3rem .4rem;border-radius:8px;border:1px solid var(--line);background:var(--surface);font-size:.95rem}
+
+/* predict */
+.predict{max-width:60rem;margin:0 auto;width:100%;display:flex;flex-direction:column;gap:1.1rem;align-items:center;text-align:center;padding:1.6rem 1.4rem}
+.predict h2{font-size:1.9rem}
+.readout{font-family:var(--font-display);font-size:4.2rem;line-height:1;color:var(--hero);font-variant-numeric:tabular-nums}
+.slider{width:100%;max-width:44rem}
+input[type=range]{width:100%;accent-color:var(--hero);height:2rem}
+.scale{display:flex;justify-content:space-between;font-size:.75rem;color:var(--muted)}
+
+/* path strip */
+.path{display:flex;gap:.5rem;align-items:stretch;overflow-x:auto;padding:2px}
+.stop{flex:1 1 0;min-width:11.5rem;border:2px solid var(--line);border-radius:12px;padding:.55rem .7rem;display:flex;gap:.6rem;align-items:center;background:var(--surface)}
+.stop.now{border-color:var(--hero);box-shadow:0 0 0 3px color-mix(in srgb,var(--hero) 25%,transparent)}
+.stop.W{border-color:var(--win)} .stop.L{border-color:var(--out);opacity:.75} .stop.off{opacity:.4}
+.stop .info{display:flex;flex-direction:column;min-width:0;flex:1}
+.stop .info b{font-family:var(--font-display);font-size:.9rem}
+.stop .info span{font-size:.72rem;color:var(--muted)}
+.stop .pv{font-size:1.05rem}
+.badge{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.badge.W{color:var(--win)} .badge.L{color:var(--out)}
+.crown{flex:0 0 auto;display:grid;place-items:center;padding:0 .6rem;border:2px dashed var(--line);border-radius:12px}
+.crown.won{border-style:solid;border-color:var(--gold);background:color-mix(in srgb,var(--gold) 18%,transparent)}
+
+/* arena */
+.battle{display:grid;grid-template-columns:minmax(0,1fr) minmax(15rem,20rem);gap:1rem;align-items:start}
+.arena{display:grid;grid-template-columns:1fr auto 1fr;gap:1rem;align-items:center;position:relative;overflow:hidden}
+.side{display:flex;flex-direction:column;align-items:center;gap:.3rem;text-align:center}
+.side h3{font-size:1.3rem}
+.side .pbig{font-size:1.6rem;display:flex;align-items:center;gap:.5rem}
+.side .pbig small{font-size:.8rem;color:var(--muted)}
+.wheelwrap{width:min(21rem,38vw);aspect-ratio:1;position:relative}
+.wheel{width:100%;height:100%;transition:transform var(--spin,3.4s) cubic-bezier(.12,.72,.1,1)}
+.pointer{position:absolute;left:50%;top:-.3rem;transform:translateX(-50%);width:1.6rem;height:1.6rem}
+.call{grid-column:1/-1;display:flex;flex-direction:column;align-items:center;gap:.7rem;min-height:6.2rem;text-align:center}
+.verdict{font-family:var(--font-display);font-size:1.5rem;min-height:1.8rem}
+.verdict.W{color:var(--win)} .verdict.L{color:var(--muted)} .verdict.C{color:var(--gold)}
+.lives{font-size:.8rem;color:var(--muted)}
+.log{display:flex;flex-direction:column;gap:.5rem}
+.log ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:.3rem;font-size:.85rem}
+.log li{display:flex;gap:.5rem;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:.25rem}
+.pips{display:flex;gap:.2rem}
+.pip{width:1.25rem;height:1.25rem;border-radius:50%;display:grid;place-items:center;font-size:.65rem;font-weight:700;color:#fff}
+.pip.W{background:var(--win)} .pip.L{background:var(--out)}
+.big{font-family:var(--font-display);font-size:2rem;font-variant-numeric:tabular-nums}
+.confetti{position:absolute;inset:0;pointer-events:none}
+.confetti i{position:absolute;top:-1rem;width:.5rem;height:.9rem;animation:fall 2.2s ease-in forwards}
+@keyframes fall{to{transform:translateY(34rem) rotate(600deg);opacity:0}}
+
+/* maths */
+.maths{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(19rem,1fr);gap:1rem;align-items:start}
+.treebox{overflow-x:auto}
+.treebox svg{display:block;width:100%;min-width:34rem;height:auto}
+.work{display:flex;flex-direction:column;gap:.9rem}
+.line{display:flex;flex-wrap:wrap;gap:.45rem;align-items:center;font-size:1.25rem}
+.line.sub{font-size:1rem;color:var(--muted)}
+.line .q{width:2rem;height:2.4rem;border:2px dashed var(--line);border-radius:6px;display:inline-block}
+.answer{background:color-mix(in srgb,var(--hero) 12%,var(--surface));border:2px solid var(--hero);border-radius:12px;padding:.7rem .9rem;display:flex;flex-direction:column;gap:.4rem}
+.answer .line{font-size:1.5rem}
+.funnel{display:flex;flex-direction:column;gap:.35rem}
+.frow{display:grid;grid-template-columns:6.5rem 1fr 5.2rem;gap:.6rem;align-items:center;font-size:.85rem}
+.frow .track{height:1.5rem;background:var(--surface-2);border-radius:6px;overflow:hidden}
+.frow .track i{display:block;height:100%;background:var(--hero);border-radius:6px;transition:width .5s}
+.frow .v{text-align:right;font-variant-numeric:tabular-nums;font-weight:700}
+table{border-collapse:collapse;width:100%;font-size:.95rem}
+th,td{padding:.35rem .5rem;border-bottom:1px solid var(--line);text-align:left}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+.tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.7rem}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:.7rem .9rem;display:flex;flex-direction:column;gap:.2rem;min-width:0}
+.tile .big small{font-size:.9rem;font-family:var(--font-body);color:var(--muted);font-weight:400}
+
+/* simulate */
+.sim{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:1rem;align-items:start}
+.obar{display:grid;grid-template-columns:8.5rem 1fr 8rem;gap:.7rem;align-items:center;padding:.35rem 0}
+.obar .track{height:1.9rem;background:var(--surface-2);border-radius:6px;position:relative}
+.obar .track i{display:block;height:100%;border-radius:6px;background:var(--out)}
+.obar.champ .track i{background:var(--hero)}
+.obar .mark{position:absolute;top:-.3rem;bottom:-.3rem;width:3px;background:var(--ink);border-radius:2px}
+.obar .num{font-variant-numeric:tabular-nums;font-size:.85rem;text-align:right}
+.legend{display:flex;gap:1rem;flex-wrap:wrap;font-size:.78rem;color:var(--muted);align-items:center}
+.legend i{display:inline-block;vertical-align:middle;margin-right:.3rem}
+.chart svg{width:100%;height:auto;display:block}
+.inv{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:1rem;align-items:start}
+.toast{position:fixed;bottom:1.2rem;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:.6rem 1rem;border-radius:10px;font-size:.9rem;z-index:20;max-width:90vw}
+
+@media (max-width:1000px){
+  .choose,.battle,.maths,.sim,.inv{grid-template-columns:minmax(0,1fr)}
+  .roster{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .rail{margin:0}
+}
+@media (max-width:560px){
+  .arena{grid-template-columns:1fr 1fr}.wheelwrap{grid-column:1/-1;grid-row:1;margin:0 auto;width:min(18rem,80vw)}
+  .tiles{grid-template-columns:1fr}.obar{grid-template-columns:5.5rem 1fr}.obar .num{grid-column:1/-1;text-align:left}
+  .rail button span{display:none}
+}
+@media (prefers-reduced-motion:reduce){.wheel{transition-duration:.01s!important}.confetti{display:none}.frow .track i{transition:none}}
+</style>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
+</head>
+<body>
+<header class="top"><div class="top-in">
+  <div class="brand"><b>Battle Royale</b><span>Multistage probability · Stage 5 · MA5-PRO-C-01</span></div>
+  <nav class="rail" id="rail" aria-label="Lesson steps"></nav>
+  <button class="btn" data-act="fullscreen" id="fsBtn">Full screen</button>
+</div></header>
+<div class="bar"><div class="bar-in" id="bar"></div></div>
+<main id="view"></main>
+<div id="toast" class="toast" hidden></div>
+
+<script>
+"use strict";
+/* ---------- fractions ---------- */
+const gcd=(a,b)=>b?gcd(b,a%b):Math.abs(a);
+const F=(n,d)=>{const g=gcd(n,d)||1;return [n/g,d/g]};
+const mul=(a,b)=>F(a[0]*b[0],a[1]*b[1]);
+const add=(a,b)=>F(a[0]*b[1]+b[0]*a[1],a[1]*b[1]);
+const comp=a=>F(a[1]-a[0],a[1]);
+const val=a=>a[0]/a[1];
+const same=(a,b)=>a[0]===b[0]&&a[1]===b[1];
+
+/* ---------- data ---------- */
+const rep=(n,d)=>[[n,d],[n,d],[n,d],[n,d],[n,d]];
+const FADE=[[9,10],[9,10],[9,10],[4,5],[1,2]];
+const FIGHTERS=[
+  {id:'cube', name:'Captain Cube',tag:'Steady in every match',     color:'#2F6FE4',shape:'cube',   p:R=>rep(3,4).slice(-R)},
+  {id:'nova', name:'Nova',        tag:'Almost never loses',        color:'#C8323C',shape:'star5',  p:R=>rep(9,10).slice(-R)},
+  {id:'hexa', name:'Hexa',        tag:'Flies early, fades late',   color:'#8A4FE0',shape:'hex',    p:R=>FADE.slice(-R)},
+  {id:'prism',name:'Prism',       tag:'Slow start, strong finish', color:'#D93F87',shape:'diamond',p:R=>FADE.slice(-R).reverse()},
+  {id:'orbit',name:'Orbit',       tag:'The crowd favourite',       color:'#0E9F9A',shape:'orbit',  p:R=>rep(4,5).slice(-R)},
+  {id:'zig',  name:'Zigzag',      tag:'Brilliant or terrible',     color:'#B88A00',shape:'tri',    p:R=>[[9,10],[1,4],[9,10],[1,4],[9,10]].slice(-R)},
+  {id:'spike',name:'Spike',       tag:'Every match is a coin toss',color:'#E8731A',shape:'star8',  p:R=>rep(1,2).slice(-R)},
+  {id:'moss', name:'Moss',        tag:'The underdog',              color:'#3F9A4B',shape:'blob',   p:R=>rep(2,5).slice(-R)}
+];
+const ROUNDS=[['Round of 32','R32'],['Round of 16','R16'],['Quarter-final','QF'],['Semi-final','SF'],['Grand Final','Final']];
+const FRIENDLY=[[1,10],[1,5],[1,4],[3,10],[1,3],[2,5],[1,2],[3,5],[2,3],[7,10],[3,4],[4,5],[9,10]];
+const STEPS=[['choose','Choose'],['predict','Predict'],['battle','Battle'],['maths','The maths'],['sim','Simulate'],['inv','Investigate']];
+const ASK={
+  choose:['Which fighter would you back, and why?','Hexa and Prism have the same chances in a different order. Does the order matter?'],
+  predict:['Is the chance of winning the title higher or lower than the chance of winning one match?','Hands up: more than half, or less than half?'],
+  battle:['What has to happen for our fighter to take the title?','One tournament is one trial. How many trials would we need before we trust the result?'],
+  maths:['Why do we multiply along the branches?','Why does the chance shrink with every round?'],
+  sim:['Why does the experiment not match the theory exactly?','What happens to the gap as we run more tournaments?'],
+  inv:['How many matches before a 9 in 10 fighter is more likely to lose the title than win it?','Is a great fighter in a long tournament better off than a good fighter in a short one?']
+};
+
+/* ---------- state ---------- */
+const S={step:'choose',hero:'cube',rounds:3,format:'frac',level:'core',extraLife:false,speed:'normal',
+  custom:{},reveal:false,pred:50,predLocked:false,show:0,theory:false,live:[],
+  B:null,sim:null,invP:[9,10],invA:'hexa',invB:'cube',invShow:false,revShow:false};
+try{const s=JSON.parse(localStorage.getItem('br-settings')||'{}');['rounds','format','level','speed'].forEach(k=>{if(s[k]!==undefined)S[k]=s[k]})}catch(e){}
+const save=()=>{try{localStorage.setItem('br-settings',JSON.stringify({rounds:S.rounds,format:S.format,level:S.level,speed:S.speed}))}catch(e){}};
+
+const fighter=id=>FIGHTERS.find(f=>f.id===id);
+const hero=()=>fighter(S.hero);
+const probsOf=f=>S.custom[f.id+S.rounds]||f.p(S.rounds);
+const probs=()=>probsOf(hero());
+const rnames=()=>ROUNDS.slice(-S.rounds);
+const lives=()=>(S.level==='ext'&&S.extraLife)?1:0;
+function opponents(){const i=FIGHTERS.findIndex(f=>f.id===S.hero);const off=[4,2,6,3,5];
+  return off.slice(-S.rounds).map(o=>FIGHTERS[(i+o)%FIGHTERS.length]);}
+
+/* ---------- the probability model: one tree drives the diagram, the working and the simulation ---------- */
+function model(P,L){
+  const R=P.length,nodes=[],leaves=[];let id=0;
+  function mk(depth,losses,prob,path,edge,ep,parent){
+    const n={id:id++,depth,losses,prob,path,edge,ep,parent,kids:[],leaf:null};nodes.push(n);
+    if(edge==='L'&&(losses>L||depth===R)){n.leaf='out';n.round=depth-1;leaves.push(n);return n}
+    if(depth===R){n.leaf='champ';leaves.push(n);return n}
+    n.kids.push(mk(depth+1,losses,mul(prob,P[depth]),path+'W','W',P[depth],n));
+    n.kids.push(mk(depth+1,losses+1,mul(prob,comp(P[depth])),path+'L','L',comp(P[depth]),n));
+    return n}
+  const root=mk(0,0,[1,1],'',null,null,null);
+  const sum=list=>list.reduce((a,n)=>add(a,n.prob),[0,1]);
+  const champ=sum(leaves.filter(n=>n.leaf==='champ'));
+  const outBy=P.map((_,r)=>sum(leaves.filter(n=>n.leaf==='out'&&n.round===r)));
+  const alive=[];for(let d=0;d<=R;d++)alive.push(sum(nodes.filter(n=>n.depth===d&&n.leaf!=='out')));
+  return {R,root,nodes,leaves,champ,outBy,alive};
+}
+const M=()=>model(probs(),lives());
+function categories(m){const rn=rnames();const c=[];
+  m.outBy.forEach((p,r)=>{if(p[0]>0)c.push({key:'out'+r,label:'Out in the '+rn[r][1],p})});
+  c.push({key:'champ',label:'Champion',p:m.champ});return c}
+function playOne(P,L){let losses=0;for(let i=0;i<P.length;i++){if(Math.random()>=val(P[i])){losses++;if(losses>L||i===P.length-1)return 'out'+i}}return 'champ'}
+
+/* ---------- formatting ---------- */
+function pct(x,approx){const v=x*100,r=Math.round(v*10)/10,exact=Math.abs(v-r)<1e-9;
+  return (exact||approx===false?'':'≈ ')+(Number.isInteger(r)?r:r.toFixed(1))+'%'}
+const eqPct=x=>{const t=pct(x);return t[0]==='≈'?t:'= '+t};
+const dec=x=>String(Number(x.toFixed(10)));
+const frH=a=>a[1]===1?String(a[0]):`<span class="fr"><span>${a[0]}</span><span>${a[1]}</span></span>`;
+const pH=a=>S.format==='frac'?frH(a):pct(val(a));
+const titleH=a=>S.format==='frac'?`${frH(a)} <span class="muted">${pct(val(a))}</span>`:pct(val(a));
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ---------- original fighters, drawn as simple shapes ---------- */
+function avatar(f,size,mood){
+  const c=f.color;let body,ey=46;
+  const star=(n,ro,ri)=>{let p=[];for(let i=0;i<n*2;i++){const r=i%2?ri:ro,a=Math.PI*i/n-Math.PI/2;p.push((50+r*Math.cos(a)).toFixed(1)+','+(50+r*Math.sin(a)).toFixed(1))}return p.join(' ')};
+  const st=`fill="${c}" stroke="${c}" stroke-width="6" stroke-linejoin="round"`;
+  switch(f.shape){
+    case 'cube':body=`<rect x="14" y="14" width="72" height="72" rx="12" ${st}/><rect x="14" y="30" width="72" height="30" fill="rgba(255,255,255,.18)"/>`;break;
+    case 'hex':body=`<polygon points="50,8 86,29 86,71 50,92 14,71 14,29" ${st}/>`;break;
+    case 'diamond':body=`<polygon points="50,6 88,50 50,94 12,50" ${st}/><polygon points="50,6 69,50 50,94 31,50" fill="rgba(255,255,255,.18)"/>`;ey=44;break;
+    case 'orbit':body=`<ellipse cx="50" cy="52" rx="47" ry="13" fill="none" stroke="${c}" stroke-width="5" opacity=".55" transform="rotate(-18 50 52)"/><circle cx="50" cy="50" r="33" ${st}/>`;break;
+    case 'tri':body=`<polygon points="50,10 90,86 10,86" ${st}/><line x1="50" y1="10" x2="50" y2="2" stroke="${c}" stroke-width="4"/><circle cx="50" cy="3" r="4" fill="${c}"/>`;ey=58;break;
+    case 'star8':body=`<polygon points="${star(8,44,31)}" ${st}/>`;break;
+    case 'star5':body=`<polygon points="${star(5,44,24)}" ${st}/>`;ey=50;break;
+    default:body=`<path d="M50 12 C78 9 92 31 89 56 C87 80 68 92 48 90 C25 90 10 75 11 52 C11 29 27 13 50 12Z" ${st}/><path d="M50 12 C52 2 62 0 68 3 C64 10 58 13 50 12Z" fill="${c}"/>`;
+  }
+  const dx=f.shape==='star5'?9:f.shape==='diamond'?10:12, my=ey+17;
+  const mouth=mood==='sad'?`M${50-8} ${my+4} Q50 ${my-4} ${50+8} ${my+4}`:mood==='joy'?`M${50-9} ${my-2} Q50 ${my+10} ${50+9} ${my-2}Z`:`M${50-8} ${my} Q50 ${my+7} ${50+8} ${my}`;
+  return `<svg viewBox="0 0 100 100" width="${size}" height="${size}" role="img" aria-label="${esc(f.name)}">${body}
+    <circle cx="${50-dx}" cy="${ey}" r="7.5" fill="#fff"/><circle cx="${50+dx}" cy="${ey}" r="7.5" fill="#fff"/>
+    <circle cx="${50-dx+1.5}" cy="${ey+1}" r="3.4" fill="#141A2E"/><circle cx="${50+dx+1.5}" cy="${ey+1}" r="3.4" fill="#141A2E"/>
+    <path d="${mouth}" fill="${mood==='joy'?'#fff':'none'}" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+}
+const trophy=(s,on)=>`<svg viewBox="0 0 40 40" width="${s}" height="${s}" aria-hidden="true"><path d="M11 5h18v9a9 9 0 0 1-18 0z" fill="${on?'var(--gold)':'var(--line)'}"/><path d="M11 8H5c0 6 3 9 7 9M29 8h6c0 6-3 9-7 9" fill="none" stroke="${on?'var(--gold)':'var(--line)'}" stroke-width="3"/><rect x="18" y="22" width="4" height="7" fill="${on?'var(--gold)':'var(--line)'}"/><rect x="11" y="29" width="18" height="5" rx="2" fill="${on?'var(--gold)':'var(--line)'}"/></svg>`;
+
+/* ---------- resets ---------- */
+function resetRun(){S.B=null;S.sim=null;S.live=[];S.show=0;S.theory=false;S.predLocked=false;S.pred=50;S.invShow=false;S.revShow=false}
+function newBattle(){S.B={i:0,losses:0,res:[],phase:'ready',rot:0,outcome:null}}
+function newSim(){S.sim={n:0,counts:{},series:[],stride:1,running:false}}
+function record(key){if(!S.sim)newSim();const s=S.sim;s.n++;s.counts[key]=(s.counts[key]||0)+1;
+  if(s.n%s.stride===0){s.series.push([s.n,(s.counts.champ||0)/s.n]);if(s.series.length>1200){s.series=s.series.filter((_,i)=>i%2===1);s.stride*=2}}}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,4200)}
+
+/* ---------- chrome ---------- */
+function renderChrome(){
+  const steps=STEPS.filter(s=>s[0]!=='inv'||S.level==='ext');
+  document.getElementById('rail').innerHTML=steps.map((s,i)=>`<button data-act="step" data-v="${s[0]}" ${S.step===s[0]?'aria-current="step"':''}><i>${i+1}</i><span>${s[1]}</span></button>`).join('');
+  const seg=(act,cur,opts)=>`<span class="seg">${opts.map(o=>`<button data-act="${act}" data-v="${o[0]}" aria-pressed="${String(cur)===String(o[0])}">${o[1]}</button>`).join('')}</span>`;
+  document.getElementById('bar').innerHTML=`
+    <div class="ctl"><span>Rounds</span>${seg('rounds',S.rounds,[[2,'2'],[3,'3'],[4,'4'],[5,'5']])}</div>
+    <div class="ctl"><span>Show chances as</span>${seg('format',S.format,[['frac','Fractions'],['pct','Percentages']])}</div>
+    <div class="ctl"><span>Level</span>${seg('level',S.level,[['core','Core'],['ext','Extension']])}</div>
+    ${S.level==='ext'?`<div class="ctl"><span>Extra life before the final</span>${seg('life',S.extraLife?1:0,[[0,'Off'],[1,'On']])}</div>`:''}
+    <div class="ctl"><span>Spin</span>${seg('speed',S.speed,[['normal','Normal'],['fast','Fast']])}</div>
+    <div class="ctl push"><span>${S.rounds} wins needed · ${2**S.rounds} fighters in the draw</span></div>`;
+  document.documentElement.style.setProperty('--hero',hero().color);
+}
+const askH=()=>`<div class="ask"><b>Ask the class</b>${ASK[S.step].map(q=>`<span>${q}</span>`).join('')}</div>`;
+const chipsH=(P)=>rnames().map((r,i)=>`<span class="chip"><small>${r[1]}</small><b>${pH(P[i])}</b></span>`).join('');
+
+/* ---------- step 1: choose ---------- */
+function vChoose(){
+  const rn=rnames(),h=hero(),P=probs();
+  const data=FIGHTERS.map(f=>({f,P:probsOf(f),t:model(probsOf(f),lives()).champ}));
+  const ranked=[...data].sort((a,b)=>val(b.t)-val(a.t));
+  const opts=S.format==='frac'?FRIENDLY:FRIENDLY.filter(a=>a[1]!==3);
+  return `<div class="choose">
+   <div class="roster">${data.map(d=>`<button class="card" style="--c:${d.f.color}" data-act="pick" data-v="${d.f.id}" aria-pressed="${d.f.id===S.hero}">
+      ${S.reveal?`<span class="rank">#${ranked.indexOf(d)+1}</span>`:''}
+      ${avatar(d.f,76)}<h3>${d.f.name}</h3><p>${d.f.tag}</p><div class="chips">${chipsH(d.P)}</div>
+      ${S.reveal?`<div class="title-chance"><span>Title chance <b>${titleH(d.t)}</b></span><div class="meter"><i style="width:${val(d.t)*100}%"></i></div></div>`:''}
+    </button>`).join('')}</div>
+   <div class="panel picked">
+     <span class="eyebrow">Our fighter</span>
+     <div class="picked-head">${avatar(h,104)}<div><h2>${h.name}</h2><span class="muted">${h.tag}</span></div></div>
+     <p style="margin:0">Each chip is the chance ${h.name} wins that match. To take the title, ${h.name} must win ${lives()?`get through <b>${S.rounds} rounds</b>`:`win <b>${S.rounds} matches in a row</b>`}${lives()?'. The extra life forgives one loss before the Grand Final':''}.</p>
+     <div>
+       <span class="eyebrow">Set the chances</span>
+       <div class="edit" style="margin-top:.35rem">${P.map((p,i)=>`<label for="e${i}">${rn[i][1]}<select id="e${i}" data-edit="${i}">${opts.map(o=>`<option value="${o[0]}/${o[1]}" ${same(o,p)?'selected':''}>${S.format==='frac'?o[0]+'/'+o[1]:pct(val(o))}</option>`).join('')}</select></label>`).join('')}</div>
+       ${S.custom[h.id+S.rounds]?`<button class="btn" style="margin-top:.5rem" data-act="resetP">Back to ${h.name}'s usual chances</button>`:''}
+     </div>
+     <div class="row"><button class="btn primary" data-act="step" data-v="predict">Lock in ${h.name}</button>
+     <button class="btn" data-act="reveal">${S.reveal?'Hide':'Reveal'} every title chance</button></div>
+   </div></div>${askH()}`;
+}
+
+/* ---------- step 2: predict ---------- */
+function vPredict(){
+  const h=hero(),P=probs();
+  return `<div class="panel predict">
+    <div class="row" style="justify-content:center">${avatar(h,96)}<div class="row">${chipsH(P)}</div></div>
+    <h2>What is the chance ${h.name} wins the whole tournament?</h2>
+    <p class="muted" style="margin:0;max-width:60ch">Agree on a class prediction before any maths. ${lives()?`${h.name} can lose once before the Grand Final and stay in, but must win the final.`:`${h.name} has to win all ${S.rounds} matches.`}</p>
+    <div class="readout" id="predOut">${S.pred}%</div>
+    <div class="slider"><input type="range" id="pred" min="0" max="100" step="1" value="${S.pred}" aria-label="Class prediction, per cent" ${S.predLocked?'disabled':''}>
+      <div class="scale"><span>0% impossible</span><span>50% even chance</span><span>100% certain</span></div></div>
+    <div class="row" style="justify-content:center">
+      ${S.predLocked?`<span class="badge W">Prediction locked in</span><button class="btn" data-act="unlock">Change it</button><button class="btn primary" data-act="step" data-v="battle">To the arena</button>`
+      :`<button class="btn primary" data-act="lock">Lock in class prediction</button><button class="btn" data-act="step" data-v="battle">Skip</button>`}
+    </div></div>${askH()}`;
+}
+
+/* ---------- step 3: battle ---------- */
+function pathH(){
+  const rn=rnames(),P=probs(),opp=opponents(),B=S.B;
+  return `<div class="path">${rn.map((r,i)=>{const res=B.res[i];
+    const cls=res?res:(i===B.i&&B.phase!=='done'?'now':(B.phase==='done'&&!res?'off':''));
+    return `<div class="stop ${cls}">${avatar(opp[i],40)}<div class="info"><b>${r[0]}</b><span>v ${opp[i].name}</span>
+      ${res?`<span class="badge ${res}">${res==='W'?'Won':'Lost'}</span>`:''}</div><span class="pv">${pH(P[i])}</span></div>`}).join('')}
+    <div class="crown ${B.outcome==='champ'?'won':''}">${trophy(44,B.outcome==='champ')}</div></div>`;
+}
+function wheelH(p,h,o,rot){
+  const a=val(p)*360,pt=t=>{const r=t*Math.PI/180;return (100+92*Math.sin(r)).toFixed(2)+','+(100-92*Math.cos(r)).toFixed(2)};
+  const sec=(a0,a1,c)=>`<path d="M100,100 L${pt(a0)} A92,92 0 ${a1-a0>180?1:0} 1 ${pt(a1)} Z" fill="${c}"/>`;
+  let ticks='';for(let k=0;k<p[1]&&p[1]<=10;k++){ticks+=`<line x1="100" y1="100" x2="${pt(k*360/p[1]).split(',')[0]}" y2="${pt(k*360/p[1]).split(',')[1]}" stroke="rgba(255,255,255,.75)" stroke-width="1.6"/>`}
+  return `<div class="wheelwrap"><svg class="wheel" id="wheel" viewBox="0 0 200 200" style="transform:rotate(${rot}deg);--spin:${S.speed==='fast'?'.9s':'3.4s'}" role="img" aria-label="Spinner. ${h.name} wins on ${p[0]} of ${p[1]} equal parts.">
+    <circle cx="100" cy="100" r="97" fill="var(--ink)"/>${sec(0,a,h.color)}${sec(a,360,'var(--opp)')}${ticks}
+    <circle cx="100" cy="100" r="13" fill="var(--surface)" stroke="var(--ink)" stroke-width="3"/></svg>
+    <svg class="pointer" viewBox="0 0 20 20" aria-hidden="true"><polygon points="10,19 2,2 18,2" fill="var(--ink)" stroke="var(--surface)" stroke-width="1.5"/></svg></div>`;
+}
+function vBattle(){
+  if(!S.B)newBattle();
+  const B=S.B,h=hero(),P=probs(),rn=rnames(),opp=opponents(),i=Math.min(B.i,S.rounds-1),o=opp[i],p=P[i];
+  const last=B.res[i],done=B.phase==='done';
+  let verdict='',vc='';
+  if(B.phase==='shown'||done){
+    if(B.outcome==='champ'){verdict=`${h.name} is the champion`;vc='C'}
+    else if(last==='W'){verdict=`${h.name} wins the ${rn[i][0]}`;vc='W'}
+    else if(done){verdict=`${o.name} wins. ${h.name} is out in the ${rn[i][0]}`;vc='L'}
+    else {verdict=`${o.name} wins, but ${h.name} uses the extra life and stays in`;vc='L'}
+  }
+  let btn;
+  if(done)btn=`<div class="row" style="justify-content:center"><button class="btn primary" data-act="again" data-main>Run another tournament</button><button class="btn dark" data-act="step" data-v="maths">See the maths</button></div>`;
+  else if(B.phase==='shown')btn=`<button class="btn primary" data-act="nextRound" data-main>On to the ${rn[i+1][0]}</button>`;
+  else btn=`<button class="btn primary" data-act="spin" data-main ${B.phase==='spinning'?'disabled':''}>${B.phase==='spinning'?'Spinning':'Spin the '+rn[i][0]}</button>`;
+  const titles=S.live.filter(l=>l.outcome==='champ').length;
+  const mh=B.outcome==='champ'?'joy':(done?'sad':''),mo=done&&B.outcome!=='champ'?'joy':'';
+  return `<div class="panel" style="padding:.7rem">${pathH()}</div>
+  <div class="battle"><div class="panel arena" style="--opp:${o.color}">
+    <div class="side">${avatar(h,150,mh)}<h3>${h.name}</h3><div class="pbig"><small>wins</small>${pH(p)}</div>
+      ${lives()?`<span class="lives">Extra life: ${B.losses?'used':'ready'}</span>`:''}</div>
+    ${wheelH(p,h,o,B.rot)}
+    <div class="side">${avatar(o,150,mo)}<h3>${o.name}</h3><div class="pbig"><small>wins</small>${pH(comp(p))}</div></div>
+    <div class="call"><div class="verdict ${vc}" aria-live="polite">${verdict}</div>${btn}</div>
+    ${B.outcome==='champ'&&B.fresh?confetti():''}
+  </div>
+  <div class="panel log"><span class="eyebrow">Tournaments played live</span>
+    <div class="big">${titles} <span class="muted" style="font-size:1rem;font-family:var(--font-body)">title${titles===1?'':'s'} from ${S.live.length}</span></div>
+    ${S.live.length?`<ol>${S.live.slice(-8).reverse().map(l=>`<li><span class="pips">${l.res.map(r=>`<span class="pip ${r}">${r}</span>`).join('')}</span><span>${l.outcome==='champ'?'Champion':'Out in the '+rn[+l.outcome.slice(3)][1]}</span></li>`).join('')}</ol>`
+      :`<span class="muted">Each finished tournament is recorded here and counted in the simulation.</span>`}
+  </div></div>${askH()}`;
+}
+function confetti(){const cols=['var(--gold)','var(--hero)','var(--accent)','var(--win)'];let s='';
+  for(let k=0;k<36;k++)s+=`<i style="left:${Math.random()*100}%;background:${cols[k%4]};animation-delay:${(Math.random()*.6).toFixed(2)}s"></i>`;return `<div class="confetti">${s}</div>`}
+function spin(){
+  const B=S.B;if(!B||B.phase!=='ready')return;
+  const p=probs()[B.i],win=Math.random()<val(p),a=val(p)*360;
+  const lo=win?0:a,span=win?a:360-a,m=Math.min(7,span*.15),th=lo+m+Math.random()*(span-2*m);
+  const turns=S.speed==='fast'?2:5;
+  B.rot=360*turns+(360-th);B.phase='spinning';render();
+  const w=document.getElementById('wheel');w.style.transform='rotate(0deg)';
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{w.style.transform=`rotate(${B.rot}deg)`}));
+  const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
+  setTimeout(()=>{ if(S.B!==B)return;
+    B.res[B.i]=win?'W':'L';if(!win)B.losses++;
+    if(!win&&(B.losses>lives()||B.i===S.rounds-1)){B.phase='done';B.outcome='out'+B.i}
+    else if(B.i===S.rounds-1){B.phase='done';B.outcome='champ'}
+    else B.phase='shown';
+    if(B.phase==='done'){S.live.push({res:B.res.slice(),outcome:B.outcome});record(B.outcome);B.fresh=true}
+    if(S.step==='battle'){render();B.fresh=false}
+  },reduce?60:(S.speed==='fast'?1000:3550));
+}
+
+/* ---------- step 4: the maths ---------- */
+function svgP(x,y,a,size,fill){
+  if(S.format==='pct'||a[1]===1)return `<text x="${x}" y="${y+size*.35}" text-anchor="middle" font-size="${size}" font-weight="700" fill="${fill}">${S.format==='pct'?pct(val(a)):a[0]}</text>`;
+  const w=Math.max(String(a[0]).length,String(a[1]).length)*size*.62+4;
+  return `<g font-size="${size}" font-weight="700" fill="${fill}" text-anchor="middle"><text x="${x}" y="${y-4}">${a[0]}</text><line x1="${x-w/2}" x2="${x+w/2}" y1="${y}" y2="${y}" stroke="${fill}" stroke-width="1.8"/><text x="${x}" y="${y+size*.9}">${a[1]}</text></g>`;
+}
+function treeH(m,s){
+  const R=m.R,rn=rnames(),ext=S.level==='ext';
+  const big=m.leaves.length>7,fr=S.format==='frac',rowH=big?60:92,fs=big?13:16,bh=fr?(big?36:44):28,colW=R>=5?128:R===4?150:176,padL=64,top=44;
+  m.leaves.forEach((n,i)=>n.y=top+i*rowH+rowH/2);
+  (function setY(n){if(n.kids.length){n.kids.forEach(setY);n.y=(n.kids[0].y+n.kids[1].y)/2}})(m.root);
+  m.nodes.forEach(n=>n.x=padL+n.depth*colW);
+  const W=padL+R*colW+260,H=top+m.leaves.length*rowH+10;
+  let e='',g='',hd='';
+  for(let d=1;d<=R;d++)if(d<=s)hd+=`<text x="${padL+d*colW-colW/2}" y="20" text-anchor="middle" font-size="14" font-weight="700" fill="var(--muted)" style="text-transform:uppercase;letter-spacing:.06em">${rn[d-1][0]}</text>`;
+  m.nodes.forEach(n=>{
+    if(n.depth>s)return;
+    if(n.parent){const p=n.parent,win=n.edge==='W',mx=p.x+(n.x-p.x)*.64,my=p.y+(n.y-p.y)*.64,pw=fr?(n.ep[1]>=10?40:32):52;
+      e+=`<line x1="${p.x}" y1="${p.y}" x2="${n.x}" y2="${n.y}" stroke="${win?'var(--hero)':'var(--out)'}" stroke-width="${win?4:2.5}" ${win?'':'stroke-dasharray="6 5"'}/>`;
+      g+=`<rect x="${mx-pw/2}" y="${my-bh/2}" width="${pw}" height="${bh}" rx="7" fill="var(--surface)" stroke="var(--line)"/>${svgP(mx,my,n.ep,fr?fs:14,'var(--ink)')}`;
+      g+=`<circle cx="${n.x}" cy="${n.y}" r="15" fill="${win?'var(--hero)':'var(--out)'}"/><text x="${n.x}" y="${n.y+5}" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">${n.edge}</text>`;
+    }else g+=`<rect x="${n.x-36}" y="${n.y-17}" width="60" height="34" rx="17" fill="var(--ink)"/><text x="${n.x-6}" y="${n.y+5}" text-anchor="middle" font-size="14" font-weight="700" fill="var(--bg)">Start</text>`;
+    if(n.leaf){const ch=n.leaf==='champ';
+      g+=`<text x="${n.x+26}" y="${n.y+5}" font-size="16" font-weight="${ch?700:400}" fill="${ch?'var(--ink)':'var(--muted)'}">${ch?'Champion':'Out in the '+rn[n.round][1]}</text>`;
+      if(s>=R+1&&(ch||ext)){const col=ch?'var(--hero)':'var(--muted)';
+        g+=fr?`<text x="${n.x+158}" y="${n.y+5}" font-size="16" fill="var(--muted)">=</text>${svgP(n.x+200,n.y,n.prob,16,col)}`
+             :`<text x="${n.x+158}" y="${n.y+5}" font-size="16" font-weight="700" fill="${col}">${eqPct(val(n.prob))}</text>`}
+    }
+  });
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Tree diagram for ${hero().name}'s tournament" font-family="var(--font-body)">${hd}${e}${g}</svg>`;
+}
+function workH(m,s){
+  const P=probs(),R=m.R,rn=rnames(),L=lives(),fr=S.format==='frac',h=hero(),out=[];
+  const x='<span>×</span>',eq='<span>=</span>';
+  if(!L){
+    out.push(`<div class="line sub">P(champion) ${eq} ${rn.map(r=>`P(win ${r[1]})`).join(' × ')}</div>`);
+    out.push(`<div class="line">${eq} ${P.map((p,i)=>i<s?pH(p):'<span class="q" aria-label="hidden"></span>').join(x)}</div>`);
+    if(s>=R+1){
+      if(fr){const N=P.reduce((a,p)=>a*p[0],1),D=P.reduce((a,p)=>a*p[1],1);
+        out.push(`<div class="line">${eq} <span class="fr"><span>${P.map(p=>p[0]).join(' × ')}</span><span>${P.map(p=>p[1]).join(' × ')}</span></span></div>`);
+        out.push(`<div class="line">${eq} ${frH([N,D])}${N!==m.champ[0]?` ${eq} ${frH(m.champ)}`:''}</div>`);
+      }else{out.push(`<div class="line">${eq} ${P.map(p=>dec(val(p))).join(' × ')}</div>`);out.push(`<div class="line">${eq} ${dec(val(m.champ))}</div>`)}
+    }
+  }else{
+    out.push(`<div class="line sub">The extra life forgives one loss before the Grand Final, so there is more than one way to win. Multiply along each winning path, then add the paths.</div>`);
+    if(s>=R+1){const ws=m.leaves.filter(n=>n.leaf==='champ');
+      out.push(`<table><thead><tr><th>Path</th><th>Multiply along the branches</th><th class="n">Chance</th></tr></thead><tbody>${ws.map(n=>{
+        const fs=[...n.path].map((c,i)=>c==='W'?P[i]:comp(P[i]));
+        return `<tr><td>${[...n.path].join(' ')}</td><td>${fs.map(f=>fr?frH(f):dec(val(f))).join(' × ')}</td><td class="n">${fr?frH(n.prob):dec(val(n.prob))}</td></tr>`}).join('')}</tbody></table>`);
+    }
+  }
+  if(s>=R+2){
+    out.push(`<div class="answer"><div class="line">P(${h.name} wins the title) ${fr?eq+' <b>'+frH(m.champ)+'</b> <span class="muted" style="font-size:1rem">'+pct(val(m.champ))+'</span>':'<b>'+eqPct(val(m.champ))+'</b>'}</div>
+      <div class="line sub" style="font-size:1.05rem">P(does not win) ${eq} ${fr?'1 − '+frH(m.champ)+' = '+frH(comp(m.champ)):'100% − '+pct(val(m.champ),false)+' = '+pct(1-val(m.champ),false)}</div></div>`);
+    if(S.predLocked){const d=S.pred-val(m.champ)*100;
+      out.push(`<div class="line sub">Class prediction ${S.pred}%. ${Math.abs(d)<2.5?'Very close.':`That was ${Math.abs(d).toFixed(0)} percentage points too ${d>0?'high':'low'}.`}</div>`)}
+    if(S.level==='ext'){const cats=categories(m);
+      out.push(`<div><span class="eyebrow">Every way the tournament can end</span><table><tbody>${cats.map(c=>`<tr><td>${c.label}</td><td class="n">${fr?frH(c.p):pct(val(c.p))}</td></tr>`).join('')}<tr><td><b>Total</b></td><td class="n"><b>${fr?'1':'100%'}</b></td></tr></tbody></table></div>`)}
+  }
+  return out.join('');
+}
+function funnelH(m,s){
+  const rn=rnames();
+  return `<div class="funnel">${m.alive.map((a,d)=>{const on=d===0||(d<=s&&(d<m.R||s>=m.R+1));
+    return `<div class="frow"><span>${d===0?'At the start':'After the '+rn[d-1][1]}</span><div class="track"><i style="width:${on?val(a)*100:0}%"></i></div><span class="v">${on?(d===0?(S.format==='frac'?'1':'100%'):(S.format==='frac'?frH(a):pct(val(a)))):''}</span></div>`}).join('')}</div>`;
+}
+function vMaths(){
+  const m=M(),R=m.R,s=S.show,max=R+2,rn=rnames();
+  const next=s<R?`Reveal the ${rn[s][0]}`:s===R?'Multiply along the branches':s===R+1?'Reveal the answer':'';
+  return `<div class="row"><h2 style="margin-right:auto">Why the chances multiply</h2>
+     ${s<max?`<button class="btn primary" data-act="more" data-main>${next}</button><button class="btn" data-act="all">Reveal everything</button>`:`<button class="btn primary" data-act="step" data-v="sim" data-main>Test it with a simulation</button>`}
+     <button class="btn" data-act="hide">Start again</button></div>
+   <div class="maths">
+    <div class="panel"><span class="eyebrow">Tree diagram · solid branch = win, dashed branch = lose</span><div class="treebox">${treeH(m,s)}</div></div>
+    <div style="display:flex;flex-direction:column;gap:1rem;min-width:0">
+      <div class="panel work"><span class="eyebrow">Working</span>${workH(m,s)}</div>
+      <div class="panel"><span class="eyebrow">Chance ${hero().name} is still in the tournament</span>
+        <p class="muted" style="margin:.2rem 0 .6rem;font-size:.85rem">${lives()?'Each round removes part of what is left.':'Each bar is a fraction of the bar above it, not of the whole.'}</p>${funnelH(m,s)}</div>
+    </div></div>${askH()}`;
+}
+
+/* ---------- step 5: simulate ---------- */
+function lineChart(m){
+  const s=S.sim||{n:0,series:[]},W=640,H=270,l=46,r=96,t=14,b=32,xm=Math.max(20,s.n);
+  const X=n=>l+(n/xm)*(W-l-r),Y=v=>t+(1-v)*(H-t-b);
+  let g='';[0,.25,.5,.75,1].forEach(v=>{g+=`<line x1="${l}" x2="${W-r}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)"/><text x="${l-8}" y="${Y(v)+4}" text-anchor="end" font-size="12" fill="var(--muted)">${v*100}%</text>`});
+  g+=`<text x="${l}" y="${H-8}" font-size="12" fill="var(--muted)">0</text><text x="${W-r}" y="${H-8}" text-anchor="end" font-size="12" fill="var(--muted)">${xm} tournaments</text>`;
+  const th=val(m.champ);let ty=Y(th),py=Y(S.pred/100);
+  if(S.theory&&S.predLocked&&Math.abs(ty-py)<14){py+= py>=ty?14-(py-ty):-(14-(ty-py))}
+  if(S.predLocked)g+=`<line x1="${l}" x2="${W-r}" y1="${Y(S.pred/100)}" y2="${Y(S.pred/100)}" stroke="var(--muted)" stroke-width="2" stroke-dasharray="2 5"/><text x="${W-r+6}" y="${py+4}" font-size="12" fill="var(--muted)">Prediction ${S.pred}%</text>`;
+  if(S.theory)g+=`<line x1="${l}" x2="${W-r}" y1="${Y(th)}" y2="${Y(th)}" stroke="var(--hero)" stroke-width="2.5" stroke-dasharray="9 5"/><text x="${W-r+6}" y="${ty+4}" font-size="12" font-weight="700" fill="var(--hero)">Theory ${pct(th,false)}</text>`;
+  if(s.series.length){const pts=s.series.map(p=>X(p[0]).toFixed(1)+','+Y(p[1]).toFixed(1)).join(' '),e=s.series[s.series.length-1];
+    g+=`<polyline points="${pts}" fill="none" stroke="var(--ink)" stroke-width="2.2" stroke-linejoin="round"/><circle cx="${X(e[0])}" cy="${Y(e[1])}" r="5" fill="var(--ink)" stroke="var(--surface)" stroke-width="2"/>`}
+  else g+=`<text x="${(l+W-r)/2}" y="${H/2}" text-anchor="middle" font-size="14" fill="var(--muted)">Run some tournaments to start the line</text>`;
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Share of tournaments won as the number of tournaments grows" font-family="var(--font-body)">${g}</svg>`;
+}
+function simBody(){
+  const m=M(),s=S.sim||{n:0,counts:{}},cats=categories(m),w=s.counts.champ||0,h=hero();
+  return `<div class="tiles">
+     <div class="tile"><span class="eyebrow">Class prediction</span><span class="big">${S.predLocked?S.pred+'%':'<small>none locked in</small>'}</span></div>
+     <div class="tile"><span class="eyebrow">Theory</span><span class="big">${S.theory?(S.format==='frac'?frH(m.champ)+' <small>'+pct(val(m.champ))+'</small>':pct(val(m.champ))):'<button class="btn" data-act="theory">Reveal</button>'}</span></div>
+     <div class="tile"><span class="eyebrow">Experiment</span><span class="big">${s.n?pct(w/s.n,false):'–'} <small>${w} titles from ${s.n}</small></span></div></div>
+   <div class="sim">
+    <div class="panel"><span class="eyebrow">How ${h.name}'s tournaments ended</span>
+      ${cats.map(c=>{const k=s.counts[c.key]||0,f=s.n?k/s.n:0;return `<div class="obar ${c.key==='champ'?'champ':''}"><span>${c.label}</span>
+        <div class="track"><i style="width:${f*100}%"></i>${S.theory?`<span class="mark" style="left:calc(${val(c.p)*100}% - 1.5px)" title="Expected ${pct(val(c.p))}"></span>`:''}</div>
+        <span class="num"><b>${k}</b> · ${s.n?pct(f,false):'–'}${S.theory?`<span class="muted" style="display:block">expected ${pct(val(c.p),false)}</span>`:''}</span></div>`}).join('')}
+      <div class="legend"><span><i style="width:1.2rem;height:.7rem;background:var(--hero);border-radius:3px"></i>share of tournaments</span>${S.theory?'<span><i style="width:3px;height:1rem;background:var(--ink)"></i>expected from the tree diagram</span>':''}</div></div>
+    <div class="panel chart"><span class="eyebrow">Share of tournaments won so far</span>${lineChart(m)}</div></div>`;
+}
+function vSim(){
+  const run=S.sim&&S.sim.running;
+  return `<div class="row"><h2 style="margin-right:auto">Run the tournament many times</h2>
+    ${[1,10,100,1000].map(n=>`<button class="btn ${n===100?'primary':'dark'}" data-act="run" data-v="${n}" ${n===100?'data-main':''} ${run?'disabled':''}>Run ${n}</button>`).join('')}
+    <button class="btn" data-act="clear" ${run?'disabled':''}>Clear results</button></div>
+    <div id="simBody" style="display:flex;flex-direction:column;gap:1rem">${simBody()}</div>${askH()}`;
+}
+function runSim(n){
+  if(!S.sim)newSim();const s=S.sim;if(s.running)return;s.running=true;render();
+  const P=probs(),L=lives(),chunk=Math.max(1,Math.ceil(n/40));let left=n;
+  (function tick(){ if(S.sim!==s)return;
+    for(let k=0;k<chunk&&left>0;k++,left--)record(playOne(P,L));
+    if(left>0){const b=document.getElementById('simBody');if(b)b.innerHTML=simBody();requestAnimationFrame(tick)}
+    else{s.running=false;render()}
+  })();
+}
+
+/* ---------- step 6: investigate (extension) ---------- */
+function vInv(){
+  const p=S.invP,fr=S.format==='frac',opts=fr?FRIENDLY:FRIENDLY.filter(a=>a[1]!==3);
+  let rows='',acc=[1,1];
+  for(let n=1;n<=8;n++){acc=mul(acc,p);rows+=`<div class="frow"><span>${n} match${n>1?'es':''}</span><div class="track"><i style="width:${val(acc)*100}%;${val(acc)<.5?'background:var(--out)':''}"></i></div><span class="v">${pct(val(acc))}</span></div>`}
+  const need=Math.pow(.5,1/S.rounds);
+  const A=fighter(S.invA),Bf=fighter(S.invB),ta=model(probsOf(A),0).champ,tb=model(probsOf(Bf),0).champ;
+  const sel=(id,cur)=>`<select id="${id}" data-inv="${id}" style="padding:.3rem;border-radius:8px;border:1px solid var(--line);background:var(--surface)">${FIGHTERS.map(f=>`<option value="${f.id}" ${f.id===cur?'selected':''}>${f.name}</option>`).join('')}</select>`;
+  const side=(f,t,id)=>`<div style="display:flex;flex-direction:column;gap:.5rem;align-items:center;flex:1;min-width:10rem">${avatar(f,84)}${sel(id,f.id)}<div class="row" style="justify-content:center">${chipsH(probsOf(f))}</div>
+     ${S.invShow?`<div class="big" style="color:${f.color}">${fr?frH(t):''} ${pct(val(t))}</div>`:''}</div>`;
+  return `<div class="inv">
+   <div class="panel" style="display:flex;flex-direction:column;gap:.7rem">
+     <h2>The same chance in every match</h2>
+     <div class="row"><label for="invP">Chance of winning each match</label>
+       <select id="invP" data-inv="invP" style="padding:.3rem;border-radius:8px;border:1px solid var(--line);background:var(--surface)">${opts.map(o=>`<option value="${o[0]}/${o[1]}" ${same(o,p)?'selected':''}>${fr?o[0]+'/'+o[1]:pct(val(o))}</option>`).join('')}</select></div>
+     <span class="eyebrow">Chance of winning every match in a row</span>
+     <div class="funnel">${rows}</div>
+     <span class="muted" style="font-size:.85rem">Grey bars are below an even chance.</span>
+     <div class="ask" style="border-radius:0 10px 10px 0"><span><b>Working backwards</b> &nbsp;For a title chance of at least one half over ${S.rounds} rounds, how good must a fighter be in each match?</span>
+       ${S.revShow?`<span><strong>About ${(need*100).toFixed(1)}% per match</strong>, because ${need.toFixed(3)}<sup>${S.rounds}</sup> ≈ 0.5</span>`:`<button class="btn" data-act="rev">Reveal</button>`}</div>
+   </div>
+   <div class="panel" style="display:flex;flex-direction:column;gap:.9rem">
+     <h2>Who would you back?</h2>
+     <span class="muted">Knockout over ${S.rounds} rounds. Decide as a class before revealing.</span>
+     <div class="row" style="align-items:flex-start">${side(A,ta,'invA')}<span class="big muted" style="align-self:center">v</span>${side(Bf,tb,'invB')}</div>
+     <button class="btn dark" data-act="invShow" style="align-self:center">${S.invShow?'Hide':'Reveal'} the title chances</button>
+   </div></div>${askH()}`;
+}
+
+/* ---------- render and events ---------- */
+const VIEWS={choose:vChoose,predict:vPredict,battle:vBattle,maths:vMaths,sim:vSim,inv:vInv};
+function render(){
+  if(S.step==='inv'&&S.level!=='ext')S.step='choose';
+  renderChrome();document.getElementById('view').innerHTML=VIEWS[S.step]();
+}
+const parseP=v=>{const a=v.split('/').map(Number);return F(a[0],a[1])};
+const ACT={
+  step(el){S.step=el.dataset.v;if(S.step==='sim'&&S.show>=S.rounds+2)S.theory=true},
+  pick(el){S.hero=el.dataset.v;resetRun()},
+  rounds(el){S.rounds=+el.dataset.v;resetRun();save()},
+  format(el){S.format=el.dataset.v;
+    if(S.format==='pct'){let ch=false;Object.values(S.custom).forEach(arr=>arr.forEach((p,i)=>{if(p[1]===3){arr[i]=p[0]===1?[3,10]:[7,10];ch=true}}));
+      if(same(S.invP,[1,3]))S.invP=[3,10];if(same(S.invP,[2,3]))S.invP=[7,10];
+      if(ch){resetRun();toast('Thirds are not friendly percentages, so they were changed to 30% and 70%.')}}
+    save()},
+  level(el){S.level=el.dataset.v;if(S.level==='core'&&S.extraLife){S.extraLife=false;resetRun()}save()},
+  life(el){S.extraLife=el.dataset.v==='1';resetRun()},
+  speed(el){S.speed=el.dataset.v;save()},
+  reveal(){S.reveal=!S.reveal},
+  resetP(){delete S.custom[S.hero+S.rounds];resetRun()},
+  lock(){S.predLocked=true},unlock(){S.predLocked=false},
+  spin(){spin();return false},
+  nextRound(){S.B.i++;S.B.phase='ready';S.B.rot=0},
+  again(){newBattle()},
+  more(){S.show=Math.min(S.show+1,S.rounds+2)},all(){S.show=S.rounds+2},hide(){S.show=0},
+  theory(){S.theory=true},
+  run(el){runSim(+el.dataset.v);return false},
+  clear(){newSim();S.live=[]},
+  rev(){S.revShow=true},invShow(){S.invShow=!S.invShow},
+  fullscreen(){const d=document.documentElement;try{(document.fullscreenElement?document.exitFullscreen():d.requestFullscreen()).catch(()=>toast('Full screen is not available here. Try your browser\'s own full screen key.'))}catch(e){toast('Full screen is not available here.')}return false}
+};
+document.addEventListener('click',e=>{const el=e.target.closest('[data-act]');if(!el||el.disabled)return;
+  if(ACT[el.dataset.act](el)!==false)render()});
+document.addEventListener('change',e=>{const t=e.target;
+  if(t.dataset.edit!==undefined){const k=S.hero+S.rounds,arr=(S.custom[k]||probs()).map(p=>p.slice());arr[+t.dataset.edit]=parseP(t.value);S.custom[k]=arr;resetRun();render()}
+  else if(t.dataset.inv==='invP'){S.invP=parseP(t.value);render()}
+  else if(t.dataset.inv){S[t.dataset.inv]=t.value;S.invShow=false;render()}});
+document.addEventListener('input',e=>{if(e.target.id==='pred'){S.pred=+e.target.value;document.getElementById('predOut').textContent=S.pred+'%'}});
+document.addEventListener('keydown',e=>{if(e.code!=='Space'&&e.key!=='Enter')return;
+  if(e.target.closest('button,select,input,a'))return;
+  const b=document.querySelector('[data-main]:not(:disabled)');if(b){e.preventDefault();b.click()}});
+render();
+</script>
+</body>
+</html>
