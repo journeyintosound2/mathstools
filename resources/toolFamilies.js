@@ -145,6 +145,9 @@ window.MMT_TOOL_FAMILIES = {
     "/worksheet-creators/stage-4/measurement-space/area-of-a-trapezium.html",
     "/online-quizzes/stage-4/measurement-space/area-of-a-trapezium.html"
   ],
+  "/interactive-tools/stage-4/measurement-space/area-of-a-circle/": [
+    "/worksheet-creators/stage-4/measurement-space/area-of-a-circle.html"
+  ],
   "/interactive-tools/stage-4/measurement-space/area-of-a-triangle/": [
     "/worksheet-creators/stage-4/measurement-space/area-of-a-triangle.html",
     "/online-quizzes/stage-4/measurement-space/area-of-a-triangle.html"

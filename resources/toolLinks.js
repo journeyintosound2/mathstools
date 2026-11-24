@@ -1048,6 +1048,14 @@ window.MMT_TOOL_LINKS = {
       tags: ["area", "circle", "area of a circle", "pi r squared", "sectors", "slices", "rearrangement", "half the circumference", "radius", "limit", "derivation", "visual", "whole-class teaching"]
     },
     {
+      title: "Area of a Circle \u2014 Worksheet Generator",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-4/measurement-space/area-of-a-circle.html",
+      ideas: ["circles-sectors"],
+      note: "Differentiated A4 sheets from the area of a circle teaching tool: slices fitted into a rectangle \u03c0r by r, then radius given, diameter given, semicircles, quarter circles and sectors, work backwards, spot the mistake, problems in context and shaded regions. Exact (in terms of \u03c0), \u03c0 \u2248 3.14, \u03c0 \u2248 3 or calculator \u03c0 for the same questions; fill-in steps, estimate first, Sweet to Spicy, answer key with working.",
+      tags: ["worksheet generator", "printable", "area", "circle", "area of a circle", "pi r squared", "radius", "diameter", "semicircle", "quarter circle", "sector", "in terms of pi", "3.14", "estimate", "work backwards", "composite area", "annulus", "spot the mistake", "differentiated", "answer key"]
+    },
+    {
       title: "Area of a Trapezium (Student Quiz)",
       kind: "Student quiz",
       url: "/online-quizzes/stage-4/measurement-space/area-of-a-trapezium.html",

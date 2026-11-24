@@ -1019,6 +1019,28 @@
 >   shapes in both modes, 16,000 frames at 5 viewports with no label off the board or on another label, 38
 >   behaviour checks (real animations, Back, drags, steppers, presets, settings, save/restore, no scroll).
 >
+> **NEW (2026-11-24): AREA OF A CIRCLE — WORKSHEET CREATOR.**
+> `worksheet-creators/stage-4/measurement-space/area-of-a-circle.html`, on the Area of a Parallelogram
+> generator's frame (same base CSS copied, bands, level chips, lettered types with counts, measured rows packed
+> into 196 × 281 mm pages, "Your turn" fill, answer key, `fitPass`). Single file, no `?v=`. Test surface `window.__WS__`.
+> * **π is a RENDER setting, not a question setting**: exact (25π) · π ≈ 3.14 · π ≈ 3 · calculator π, plus rounding
+>   (whole / 1 / 2 dp, only for 3.14 and calculator). Changing π, rounding, units or answer space keeps the SAME radii
+>   (`sigOf` = levels only), so a teacher can print one set two ways for different groups. "Estimate first (π ≈ 3)" adds
+>   a line before each answer (off in π ≈ 3 mode). Answers are `c + kπ` → `val(c, k, o)`; never round an intermediate.
+> * **Levels:** Sweet r 2–10 · Mild 2–12 · Medium 5–20 · Spicy decimal radii (x.5, one dp) and odd diameters; work
+>   backwards always lands on a whole radius. Answer space in B–D: fill-in steps (A = π × __² …) / working lines / answer only.
+> * **Types:** A Slices to a rectangle (the tool's picture: 12 slices fitted into πr by r; length, height, area) ·
+>   B Radius given · C Diameter given (halve first) · D Parts of a circle (semi, quarter; ¾ from Medium; sectors with an
+>   angle on Spicy, coefficient kept to ≤ 3 dp) · E Work backwards (÷ π, then √; diameter on Medium+) · F Spot the
+>   mistake (diameter as radius / r × 2 for r² / π squared too / whole circle for a semicircle) · G In context (pizza,
+>   sprinkler, goat, clock, tower, coaster, pond, trampoline, corner sprinkler; pizza comparison from Medium) ·
+>   H Shaded regions (off: ring, square less a circle, rectangle + semicircle from Medium) · I Fluency (off).
+> * Wiring: the tool's Tools menu row is live (Student Quiz still greyed); toolLinks "Worksheet maker" row under
+>   MA4-ARE-C-01 (`circles-sectors`); `toolFamilies.js` entry for the tool; homepage mini card (Worksheet group pill 40 → 41).
+> * Verified (Playwright): 720 option combinations (every level × π mode × spacing × answer space, all types on) with no
+>   JS errors and nothing past a card or page; answer arithmetic re-derived for r = 0.5–25 in all four π modes and
+>   roundings; key screenshots checked in each mode. No student quiz yet.
+>
 > **NEW (2026-11-11): AREA OF A TRIANGLE TOOL — TWO AREA STEPS AT THE END OF EVERY MODE.**
 > `interactive-tools/stage-4/measurement-space/area-of-a-triangle/index.html`. All three modes end on the same
 > base × height rectangle, so `steps()` = `storySteps()` + `areaSteps()`: **Count the squares, row by row**
