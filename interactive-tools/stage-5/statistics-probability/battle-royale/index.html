@@ -1,207 +1,440 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en-AU">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Battle Royale Probability</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;700&family=Chakra+Petch:wght@600;700&display=swap" rel="stylesheet">
-<style>
-/* THEME — re-skin the whole tool from this block.
-   Layout idea: broadcast scoreboard. A fixed header with a five-step lesson rail, one large stage per step. */
-:root{
-  --bg:#ECEEF4; --surface:#FFFFFF; --surface-2:#F4F5FA; --ink:#141A2E; --muted:#555C76; --line:#D3D8E6;
-  --accent:#D93A25; --on-accent:#FFFFFF; --gold:#D99A00; --win:#1A8752; --out:#8389A0;
-  --hero:#2F6FE4; --opp:#8389A0;
-  --font-display:'Chakra Petch','Trebuchet MS',Verdana,sans-serif;
-  --font-body:'Lexend',Verdana,'Segoe UI',sans-serif;
-  --radius:14px; --shadow:0 1px 2px rgba(20,26,46,.06),0 6px 20px rgba(20,26,46,.07);
-}
-@media (prefers-color-scheme:dark){
-  :root:not([data-theme="light"]){
-    --bg:#0D1120; --surface:#161C30; --surface-2:#1E2642; --ink:#EEF1FA; --muted:#A6AECA; --line:#2E3758;
-    --accent:#FF6A4D; --on-accent:#1A0B07; --gold:#F5BE3B; --win:#3DCB8A; --out:#727A96;
-    --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.35); color-scheme:dark;
-  }
-}
-:root[data-theme="dark"]{
-  --bg:#0D1120; --surface:#161C30; --surface-2:#1E2642; --ink:#EEF1FA; --muted:#A6AECA; --line:#2E3758;
-  --accent:#FF6A4D; --on-accent:#1A0B07; --gold:#F5BE3B; --win:#3DCB8A; --out:#727A96;
-  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.35); color-scheme:dark;
-}
-*{box-sizing:border-box}
-html{font-size:clamp(15px,.72vw + 8px,22px);height:100%}
-body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font-family:var(--font-body);line-height:1.4}
-button,select,input{font:inherit;color:inherit}
-h1,h2,h3{font-family:var(--font-display);margin:0;text-wrap:balance;line-height:1.15}
-:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Battle Royale: Multistage Probability | Mills Maths Tools</title>
+  <meta name="description" content="Follow one fighter through a knockout tournament. Each match is a spin, the chances multiply along the branches of a tree diagram, and a simulation tests the answer." />
 
-/* header */
-.top{background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
-.top-in{max-width:1500px;margin:0 auto;padding:.6rem 1.2rem;display:flex;flex-wrap:wrap;gap:.6rem 1.2rem;align-items:center}
-.brand{display:flex;flex-direction:column}
-.brand b{font-family:var(--font-display);font-size:1.25rem;letter-spacing:.02em;text-transform:uppercase}
-.brand span{font-size:.72rem;color:var(--muted)}
-.rail{display:flex;gap:.25rem;flex-wrap:wrap;margin:0 auto}
-.rail button{border:0;background:none;padding:.4rem .7rem;border-radius:999px;cursor:pointer;display:flex;gap:.45rem;align-items:center;color:var(--muted);font-weight:700}
-.rail button i{font-style:normal;width:1.5rem;height:1.5rem;border-radius:50%;display:grid;place-items:center;background:var(--surface-2);border:1px solid var(--line);font-size:.8rem}
-.rail button[aria-current="step"]{background:var(--ink);color:var(--bg)}
-.rail button[aria-current="step"] i{background:var(--accent);color:var(--on-accent);border-color:transparent}
-.bar{background:var(--surface-2);border-bottom:1px solid var(--line)}
-.bar-in{max-width:1500px;margin:0 auto;padding:.45rem 1.2rem;display:flex;flex-wrap:wrap;gap:.5rem 1.4rem;align-items:center;font-size:.82rem}
-.ctl{display:flex;align-items:center;gap:.45rem}
-.ctl>span{color:var(--muted)}
-.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--surface)}
-.seg button{border:0;background:none;padding:.28rem .7rem;cursor:pointer}
-.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg);font-weight:700}
-.push{margin-left:auto}
+  <style>
+    :root{
+      --bg:#f8fafc; --card:#ffffff; --ink:#0f172a; --muted:#64748b; --border:#e2e8f0; --soft:#f1f5f9;
+      --shadow:0 18px 45px rgba(15,23,42,.13);
+      --blue:#2563eb; --blue-dark:#1d4ed8;
+      --green:#22c55e; --green-dark:#15803d;
+      --purple:#7c3aed; --purple-dark:#5b21b6;
+      --orange:#f97316; --orange-dark:#c2410c;
+      --amber:#facc15; --amber-dark:#a16207;
+      --line:#334155; --line-soft:#94a3b8; --red:#dc2626;
+      --hero:#2563eb; --opp:#94a3b8;
+      --uiFont:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+      --mathFont:"STIX Two Math","Cambria Math","Latin Modern Math","Times New Roman",Georgia,serif;
+    }
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0; font-family:var(--uiFont); color:var(--ink);
+      background:
+        radial-gradient(circle at top left,rgba(37,99,235,.14),transparent 32rem),
+        radial-gradient(circle at top right,rgba(124,58,237,.12),transparent 34rem),
+        var(--bg);
+      overflow-x:hidden;
+    }
+    button,input,select{ font:inherit; }
+    [hidden]{ display:none !important; }
+    .app{ height:100dvh; display:flex; flex-direction:column; min-width:0; }
 
-/* general */
-main{max-width:1500px;margin:0 auto;padding:1.1rem 1.2rem 2rem;display:flex;flex-direction:column;gap:1rem}
-.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:1.1rem 1.2rem;min-width:0}
-.eyebrow{font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:700}
-.btn{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:.55rem 1rem;cursor:pointer;font-weight:700}
-.btn:hover{border-color:var(--ink)}
-.btn.primary{background:var(--accent);color:var(--on-accent);border-color:transparent;font-family:var(--font-display);font-size:1.1rem;padding:.7rem 1.4rem;text-transform:uppercase;letter-spacing:.03em}
-.btn.dark{background:var(--ink);color:var(--bg);border-color:transparent}
-.btn:disabled{opacity:.5;cursor:default}
-.row{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center}
-.muted{color:var(--muted)}
-.fr{display:inline-flex;flex-direction:column;text-align:center;vertical-align:middle;line-height:1.05;font-variant-numeric:tabular-nums;font-weight:700}
-.fr span:first-child{border-bottom:.11em solid currentColor;padding:0 .22em .04em}
-.fr span:last-child{padding:.04em .22em 0}
-.chip{display:inline-flex;flex-direction:column;align-items:center;gap:.15rem;min-width:3.1rem}
-.chip small{font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
-.chip b{background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:.25rem .45rem;min-width:2.9rem;min-height:2.5rem;display:grid;place-items:center;font-variant-numeric:tabular-nums}
-.ask{border-left:4px solid var(--gold);background:var(--surface);border-radius:0 var(--radius) var(--radius) 0;padding:.6rem 1rem;display:flex;gap:.4rem 1.6rem;flex-wrap:wrap;align-items:baseline;font-size:.9rem}
-.ask b{font-family:var(--font-display);text-transform:uppercase;font-size:.78rem;letter-spacing:.08em;color:var(--muted)}
-.ask span{max-width:60ch}
+    /* ---------- topbar (shared MMT shell) ---------- */
+    .mmtTopbar{
+      position:relative; z-index:40; flex:0 0 auto;
+      background:linear-gradient(135deg,#0f172a,#123b7a 55%,#2563eb);
+      color:white; padding:14px 24px;
+      display:grid; grid-template-columns:minmax(200px,1fr) auto minmax(300px,1fr);
+      align-items:center; gap:18px; box-shadow:0 10px 28px rgba(15,23,42,.22);
+    }
+    .mmtBrand{ display:flex; align-items:center; gap:12px; justify-self:start; text-decoration:none; color:white; border-radius:14px;
+      padding:8px 12px; margin-left:-12px; font-weight:900; transition:background .18s ease,transform .18s ease,box-shadow .18s ease; }
+    .mmtBrand:hover{ background:rgba(255,255,255,.12); transform:translateY(-1px); box-shadow:0 0 10px rgba(124,58,237,.6),0 0 18px rgba(37,99,235,.4); }
+    .mmtBrandLogo{ width:44px; height:44px; border-radius:9px; background:white; color:#1d4ed8; display:grid; place-items:center;
+      font-weight:1000; letter-spacing:-.08em; box-shadow:inset 0 -2px 0 rgba(15,23,42,.08); flex:0 0 auto; }
+    .mmtBrandText strong{ display:block; font-size:1.18rem; line-height:1; letter-spacing:-.03em; color:white; }
+    .mmtBrandText span{ display:block; font-size:.78rem; opacity:.82; font-weight:650; color:white; }
+    .mmtTopTitle{ font-weight:850; font-size:clamp(1.05rem,1.8vw,1.45rem); letter-spacing:-.04em; text-align:center; color:white; white-space:nowrap; }
+    .topActions{ justify-self:end; display:flex; align-items:center; justify-content:flex-end; gap:10px; flex-wrap:wrap; }
+    .btn{ appearance:none; border:1px solid rgba(255,255,255,.28); background:rgba(255,255,255,.14); color:white; padding:11px 15px;
+      border-radius:14px; font-weight:900; font-size:15px; cursor:pointer; transition:.18s ease; user-select:none; }
+    .btn:hover:not(:disabled){ background:rgba(255,255,255,.22); transform:translateY(-1px); }
+    .btn:focus-visible{ outline:none; box-shadow:0 0 0 4px rgba(255,255,255,.23); }
+    .btn:disabled{ opacity:.45; cursor:not-allowed; }
+    .btn-primary{ background:white; color:#1d4ed8; border-color:white; }
+    .btn-primary:hover:not(:disabled){ background:#eef2ff; color:#1d4ed8; }
 
-/* choose */
-.choose{display:grid;grid-template-columns:minmax(0,1fr) minmax(17rem,24rem);gap:1rem;align-items:start}
-.roster{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.7rem}
-.card{background:var(--surface);border:2px solid var(--line);border-radius:var(--radius);padding:.8rem .6rem;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:.4rem;text-align:center;position:relative}
-.card:hover{border-color:var(--c)}
-.card[aria-pressed="true"]{border-color:var(--c);box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 30%,transparent)}
-.card h3{font-size:1rem}
-.card p{margin:0;font-size:.75rem;color:var(--muted);min-height:2.1em}
-.card .chips{display:flex;gap:.25rem;flex-wrap:wrap;justify-content:center}
-.title-chance{width:100%;font-size:.8rem;border-top:1px dashed var(--line);padding-top:.4rem;display:flex;flex-direction:column;gap:.25rem;align-items:center}
-.meter{width:100%;height:.5rem;background:var(--surface-2);border-radius:99px;overflow:hidden}
-.meter i{display:block;height:100%;background:var(--c)}
-.rank{position:absolute;top:.4rem;left:.5rem;font-family:var(--font-display);color:var(--muted);font-size:.85rem}
-.picked{display:flex;flex-direction:column;gap:.8rem;align-items:flex-start}
-.picked-head{display:flex;gap:.9rem;align-items:center}
-.edit{display:flex;flex-wrap:wrap;gap:.5rem}
-.edit label{display:flex;flex-direction:column;font-size:.68rem;color:var(--muted);gap:.15rem;text-transform:uppercase;letter-spacing:.05em}
-.edit select{padding:.3rem .4rem;border-radius:8px;border:1px solid var(--line);background:var(--surface);font-size:.95rem}
+    .menuWrap{ position:relative; display:inline-flex; }
+    .dropMenu{ position:absolute; top:calc(100% + 8px); right:0; min-width:270px; background:#fff; color:var(--ink);
+      border:1px solid rgba(226,232,240,.95); border-radius:14px; box-shadow:0 18px 45px rgba(15,23,42,.22);
+      padding:7px; display:none; z-index:120; text-align:left; }
+    .dropMenu.open{ display:grid; gap:4px; }
+    .dropMenu.left{ right:auto; left:0; }
+    .toolLink{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 12px; border-radius:10px;
+      color:var(--ink); text-decoration:none; font-weight:900; font-size:.9rem; appearance:none; border:none; background:none; width:100%; text-align:left; cursor:pointer; font-family:inherit; }
+    .toolLink::after{ content:'\203A'; color:var(--blue); font-weight:1000; font-size:1.1rem; line-height:1; }
+    .toolLink:hover,.toolLink:focus-visible{ background:#eef2ff; color:#1d4ed8; outline:none; }
+    .toolLink small{ display:block; font-weight:650; font-size:.74rem; color:var(--muted); }
+    .toolLink[aria-current="true"]{ background:#eef2ff; color:#1d4ed8; }
+    .toolLink.soon{ opacity:.45; cursor:default; }
+    .toolLink.soon::after{ content:none; }
+    .toolLink.soon:hover{ background:none; color:var(--ink); }
+    .settingsMenu.open{ gap:11px; padding:15px 18px; min-width:350px; max-height:min(78vh,680px); overflow:auto; }
+    .settingsHead{ font-size:.68rem; letter-spacing:.14em; text-transform:uppercase; font-weight:950; color:var(--muted); }
+    .settingsNote{ margin:-4px 0 0; font-size:.76rem; font-weight:650; color:var(--muted); line-height:1.4; }
+    .settingsRule{ height:1px; background:var(--border); margin:1px 0; }
+    .selRow{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .selRow > span{ font-weight:900; font-size:.92rem; color:var(--ink); white-space:nowrap; }
+    .selRow select{ appearance:none; border:1.5px solid var(--border); padding:8px 30px 8px 11px; border-radius:11px; font-weight:850; font-size:.88rem;
+      color:var(--line); min-width:170px; cursor:pointer;
+      background:#fff url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' fill='none' stroke='%232563eb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/></svg>") no-repeat right 10px center;
+      background-size:11px; }
+    .selRow select:focus-visible{ outline:none; border-color:var(--blue); box-shadow:0 0 0 4px rgba(37,99,235,.16); }
+    .sw{ display:inline-flex; align-items:center; gap:11px; cursor:pointer; user-select:none; font-weight:850; color:var(--line); font-size:.93rem; }
+    .sw input{ position:absolute; opacity:0; width:0; height:0; }
+    .sw .track{ position:relative; width:50px; height:29px; border-radius:999px; background:#cbd5e1; transition:.18s ease; flex:0 0 auto; box-shadow:inset 0 1px 3px rgba(15,23,42,.18); }
+    .sw .track::after{ content:""; position:absolute; top:3px; left:3px; width:23px; height:23px; border-radius:50%; background:#fff; box-shadow:0 2px 6px rgba(15,23,42,.3); transition:.18s ease; }
+    .sw input:checked + .track{ background:var(--green); }
+    .sw input:checked + .track::after{ transform:translateX(21px); }
+    .sw input:focus-visible + .track{ box-shadow:0 0 0 4px rgba(37,99,235,.28); }
 
-/* predict */
-.predict{max-width:60rem;margin:0 auto;width:100%;display:flex;flex-direction:column;gap:1.1rem;align-items:center;text-align:center;padding:1.6rem 1.4rem}
-.predict h2{font-size:1.9rem}
-.readout{font-family:var(--font-display);font-size:4.2rem;line-height:1;color:var(--hero);font-variant-numeric:tabular-nums}
-.slider{width:100%;max-width:44rem}
-input[type=range]{width:100%;accent-color:var(--hero);height:2rem}
-.scale{display:flex;justify-content:space-between;font-size:.75rem;color:var(--muted)}
+    /* ---------- layout ---------- */
+    .layout{ flex:1 1 auto; min-height:0; width:min(1700px,100%); margin:0 auto; padding:14px 18px 16px;
+      display:grid; grid-template-columns:minmax(0,1.12fr) minmax(340px,1fr); gap:14px; min-width:0; }
+    .layout.noPanel{ grid-template-columns:minmax(0,1fr); }
+    .layout.noPanel .side{ display:none; }
+    .card{ background:var(--card); border:1px solid var(--border); border-radius:22px; box-shadow:var(--shadow); min-width:0; }
 
-/* path strip */
-.path{display:flex;gap:.5rem;align-items:stretch;overflow-x:auto;padding:2px}
-.stop{flex:1 1 0;min-width:11.5rem;border:2px solid var(--line);border-radius:12px;padding:.55rem .7rem;display:flex;gap:.6rem;align-items:center;background:var(--surface)}
-.stop.now{border-color:var(--hero);box-shadow:0 0 0 3px color-mix(in srgb,var(--hero) 25%,transparent)}
-.stop.W{border-color:var(--win)} .stop.L{border-color:var(--out);opacity:.75} .stop.off{opacity:.4}
-.stop .info{display:flex;flex-direction:column;min-width:0;flex:1}
-.stop .info b{font-family:var(--font-display);font-size:.9rem}
-.stop .info span{font-size:.72rem;color:var(--muted)}
-.stop .pv{font-size:1.05rem}
-.badge{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
-.badge.W{color:var(--win)} .badge.L{color:var(--out)}
-.crown{flex:0 0 auto;display:grid;place-items:center;padding:0 .6rem;border:2px dashed var(--line);border-radius:12px}
-.crown.won{border-style:solid;border-color:var(--gold);background:color-mix(in srgb,var(--gold) 18%,transparent)}
+    /* ---------- board ---------- */
+    .boardCard{ display:flex; flex-direction:column; min-height:0; padding:12px 14px 10px; position:relative; overflow:hidden; }
+    .boardTop{ display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; position:relative; z-index:2; }
+    .topLeft,.topRight{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+    .stepChip{ appearance:none; cursor:pointer; font-size:.74rem; letter-spacing:.06em; font-weight:950; text-transform:uppercase; padding:7px 12px; border-radius:999px; white-space:nowrap;
+      color:var(--blue-dark); background:rgba(37,99,235,.1); border:1px solid rgba(37,99,235,.25); }
+    .stepChip:hover{ background:rgba(37,99,235,.16); }
+    .stepChip:focus-visible{ outline:none; box-shadow:0 0 0 3px rgba(37,99,235,.3); }
+    .seg{ display:inline-flex; align-items:center; background:#f1f5f9; border:1px solid var(--border); border-radius:13px; padding:3px; gap:3px; }
+    .seg > i{ font-style:normal; font-size:.68rem; letter-spacing:.1em; text-transform:uppercase; font-weight:950; color:var(--muted); padding:0 7px 0 8px; }
+    .seg button{ appearance:none; border:none; background:transparent; padding:6px 12px; border-radius:10px; font-weight:900; font-size:.88rem; color:var(--muted); cursor:pointer; }
+    .seg button:hover:not(:disabled){ color:var(--ink); }
+    .seg button[aria-pressed="true"]{ background:#fff; color:var(--ink); box-shadow:0 2px 8px rgba(15,23,42,.12); }
+    .seg button:disabled{ opacity:.4; cursor:not-allowed; }
+    .seg button:focus-visible{ outline:none; box-shadow:0 0 0 3px rgba(37,99,235,.3); }
+    .iconGroup{ display:inline-flex; gap:6px; }
+    .iconBtn{ appearance:none; width:42px; height:42px; border-radius:13px; border:1.5px solid var(--border); background:#fff; color:var(--line);
+      display:grid; place-items:center; cursor:pointer; transition:.16s ease; padding:0; }
+    .iconBtn svg{ width:21px; height:21px; display:block; }
+    .iconBtn:hover:not(:disabled){ border-color:var(--blue); background:#eef2ff; color:var(--blue-dark); transform:translateY(-1px); }
+    .iconBtn:focus-visible{ outline:none; box-shadow:0 0 0 3px rgba(37,99,235,.3); }
+    .iconBtn[aria-pressed="true"]{ background:#eef2ff; border-color:#c7d2fe; color:var(--blue-dark); }
 
-/* arena */
-.battle{display:grid;grid-template-columns:minmax(0,1fr) minmax(15rem,20rem);gap:1rem;align-items:start}
-.arena{display:grid;grid-template-columns:1fr auto 1fr;gap:1rem;align-items:center;position:relative;overflow:hidden}
-.side{display:flex;flex-direction:column;align-items:center;gap:.3rem;text-align:center}
-.side h3{font-size:1.3rem}
-.side .pbig{font-size:1.6rem;display:flex;align-items:center;gap:.5rem}
-.side .pbig small{font-size:.8rem;color:var(--muted)}
-.wheelwrap{width:min(21rem,38vw);aspect-ratio:1;position:relative}
-.wheel{width:100%;height:100%;transition:transform var(--spin,3.4s) cubic-bezier(.12,.72,.1,1)}
-.pointer{position:absolute;left:50%;top:-.3rem;transform:translateX(-50%);width:1.6rem;height:1.6rem}
-.call{grid-column:1/-1;display:flex;flex-direction:column;align-items:center;gap:.7rem;min-height:6.2rem;text-align:center}
-.verdict{font-family:var(--font-display);font-size:1.5rem;min-height:1.8rem}
-.verdict.W{color:var(--win)} .verdict.L{color:var(--muted)} .verdict.C{color:var(--gold)}
-.lives{font-size:.8rem;color:var(--muted)}
-.log{display:flex;flex-direction:column;gap:.5rem}
-.log ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:.3rem;font-size:.85rem}
-.log li{display:flex;gap:.5rem;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:.25rem}
-.pips{display:flex;gap:.2rem}
-.pip{width:1.25rem;height:1.25rem;border-radius:50%;display:grid;place-items:center;font-size:.65rem;font-weight:700;color:#fff}
-.pip.W{background:var(--win)} .pip.L{background:var(--out)}
-.big{font-family:var(--font-display);font-size:2rem;font-variant-numeric:tabular-nums}
-.confetti{position:absolute;inset:0;pointer-events:none}
-.confetti i{position:absolute;top:-1rem;width:.5rem;height:.9rem;animation:fall 2.2s ease-in forwards}
-@keyframes fall{to{transform:translateY(34rem) rotate(600deg);opacity:0}}
+    .stepChip .stn{ font-weight:850; }
+    @media (max-width:1560px){ .stepChip .stn,.seg > i.lbl{ display:none; } }
+    .cue{ text-align:center; margin:8px 0 0; line-height:1.3; min-height:1.3em; }
+    .cue b{ display:inline; font-size:clamp(1.05rem,1.6vw,1.35rem); font-weight:900; color:var(--ink); letter-spacing:-.02em; }
+    .cue span{ display:block; font-size:clamp(.86rem,1.15vw,.98rem); font-weight:700; color:var(--muted); margin-top:2px; }
 
-/* maths */
-.maths{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(19rem,1fr);gap:1rem;align-items:start}
-.treebox{overflow-x:auto}
-.treebox svg{display:block;width:100%;min-width:34rem;height:auto}
-.work{display:flex;flex-direction:column;gap:.9rem}
-.line{display:flex;flex-wrap:wrap;gap:.45rem;align-items:center;font-size:1.25rem}
-.line.sub{font-size:1rem;color:var(--muted)}
-.line .q{width:2rem;height:2.4rem;border:2px dashed var(--line);border-radius:6px;display:inline-block}
-.answer{background:color-mix(in srgb,var(--hero) 12%,var(--surface));border:2px solid var(--hero);border-radius:12px;padding:.7rem .9rem;display:flex;flex-direction:column;gap:.4rem}
-.answer .line{font-size:1.5rem}
-.funnel{display:flex;flex-direction:column;gap:.35rem}
-.frow{display:grid;grid-template-columns:6.5rem 1fr 5.2rem;gap:.6rem;align-items:center;font-size:.85rem}
-.frow .track{height:1.5rem;background:var(--surface-2);border-radius:6px;overflow:hidden}
-.frow .track i{display:block;height:100%;background:var(--hero);border-radius:6px;transition:width .5s}
-.frow .v{text-align:right;font-variant-numeric:tabular-nums;font-weight:700}
-table{border-collapse:collapse;width:100%;font-size:.95rem}
-th,td{padding:.35rem .5rem;border-bottom:1px solid var(--line);text-align:left}
-td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
-.tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.7rem}
-.tile{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:.7rem .9rem;display:flex;flex-direction:column;gap:.2rem;min-width:0}
-.tile .big small{font-size:.9rem;font-family:var(--font-body);color:var(--muted);font-weight:400}
+    .boardWrap{ position:relative; flex:1 1 auto; min-height:0; margin-top:6px; }
+    #stage{ position:absolute; inset:0; overflow:auto; padding:4px 2px; }
+    .hint{ flex:0 0 auto; height:1.75em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; text-align:center; font-size:.88rem; font-weight:750; color:var(--muted); padding:3px 8px 0; line-height:1.4; }
 
-/* simulate */
-.sim{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:1rem;align-items:start}
-.obar{display:grid;grid-template-columns:8.5rem 1fr 8rem;gap:.7rem;align-items:center;padding:.35rem 0}
-.obar .track{height:1.9rem;background:var(--surface-2);border-radius:6px;position:relative}
-.obar .track i{display:block;height:100%;border-radius:6px;background:var(--out)}
-.obar.champ .track i{background:var(--hero)}
-.obar .mark{position:absolute;top:-.3rem;bottom:-.3rem;width:3px;background:var(--ink);border-radius:2px}
-.obar .num{font-variant-numeric:tabular-nums;font-size:.85rem;text-align:right}
-.legend{display:flex;gap:1rem;flex-wrap:wrap;font-size:.78rem;color:var(--muted);align-items:center}
-.legend i{display:inline-block;vertical-align:middle;margin-right:.3rem}
-.chart svg{width:100%;height:auto;display:block}
-.inv{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:1rem;align-items:start}
-.toast{position:fixed;bottom:1.2rem;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:.6rem 1rem;border-radius:10px;font-size:.9rem;z-index:20;max-width:90vw}
+    .stepRow{ display:flex; gap:7px; padding-top:9px; margin-top:6px; border-top:1px solid var(--border); align-items:center; }
+    .stepBtn{ appearance:none; border:1.5px solid var(--border); background:#fff; color:var(--line); padding:11px 14px; border-radius:14px;
+      font-weight:950; font-size:.95rem; cursor:pointer; transition:.16s ease; white-space:nowrap; }
+    .stepBtn:hover:not(:disabled){ border-color:var(--blue); background:#eef2ff; color:var(--blue-dark); transform:translateY(-1px); }
+    .stepBtn:disabled{ opacity:.38; cursor:not-allowed; transform:none; }
+    .stepBtn.icon{ width:46px; padding:11px 0; font-size:1.05rem; }
+    .nextBtn{ flex:1 1 auto; min-width:0; appearance:none; border:none; background:linear-gradient(135deg,var(--blue),var(--purple)); color:#fff;
+      padding:12px 14px; border-radius:15px; font-weight:950; font-size:1.02rem; cursor:pointer; box-shadow:0 10px 24px rgba(37,99,235,.30);
+      transition:.18s ease; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .nextBtn:hover:not(:disabled){ transform:translateY(-1px); box-shadow:0 14px 30px rgba(37,99,235,.38); }
+    .nextBtn:disabled{ background:linear-gradient(135deg,#64748b,#475569); box-shadow:none; cursor:default; opacity:.8; }
+    .keyHint{ font-size:.72rem; font-weight:800; color:var(--line-soft); text-align:center; margin-top:6px; }
+    .keyHint kbd{ font-family:var(--uiFont); font-size:.7rem; font-weight:900; color:var(--muted); border:1px solid var(--border); border-bottom-width:2px;
+      border-radius:6px; padding:0 5px; background:#f8fafc; }
 
-@media (max-width:1000px){
-  .choose,.battle,.maths,.sim,.inv{grid-template-columns:minmax(0,1fr)}
-  .roster{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .rail{margin:0}
-}
-@media (max-width:560px){
-  .arena{grid-template-columns:1fr 1fr}.wheelwrap{grid-column:1/-1;grid-row:1;margin:0 auto;width:min(18rem,80vw)}
-  .tiles{grid-template-columns:1fr}.obar{grid-template-columns:5.5rem 1fr}.obar .num{grid-column:1/-1;text-align:left}
-  .rail button span{display:none}
-}
-@media (prefers-reduced-motion:reduce){.wheel{transition-duration:.01s!important}.confetti{display:none}.frow .track i{transition:none}}
-</style>
+    /* ---------- side panel ---------- */
+    .side{ display:flex; flex-direction:column; min-height:0; min-width:0; }
+    .panelCard{ flex:1 1 auto; min-height:0; display:flex; flex-direction:column; padding:12px 14px 12px; }
+    .gHead{ display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; margin-bottom:8px; min-height:30px; }
+    .pTitle{ font-size:.68rem; letter-spacing:.14em; text-transform:uppercase; font-weight:950; color:var(--muted); }
+    .gBtn{ appearance:none; border:1.5px solid var(--border); background:#fff; border-radius:11px; padding:5px 10px; font-weight:900; font-size:.82rem; color:var(--line); cursor:pointer; }
+    .gBtn:hover:not(:disabled){ border-color:var(--blue); background:#eef2ff; color:var(--blue-dark); }
+    #panel{ flex:1 1 auto; min-height:0; overflow:auto; display:flex; flex-direction:column; gap:14px; padding:2px 2px 4px; }
+
+    /* ---------- shared bits ---------- */
+    .eyebrow{ font-size:.68rem; letter-spacing:.14em; text-transform:uppercase; font-weight:950; color:var(--muted); }
+    .muted{ color:var(--muted); }
+    .row{ display:flex; flex-wrap:wrap; gap:.6rem; align-items:center; }
+    .fr{ display:inline-flex; flex-direction:column; text-align:center; vertical-align:middle; line-height:1.05; font-family:var(--mathFont); font-variant-numeric:tabular-nums; font-weight:700; }
+    .fr span:first-child{ border-bottom:.09em solid currentColor; padding:0 .22em .04em; }
+    .fr span:last-child{ padding:.04em .22em 0; }
+    .pct{ font-family:var(--mathFont); font-weight:700; font-variant-numeric:tabular-nums; }
+    .chip{ display:inline-flex; flex-direction:column; align-items:center; gap:.15rem; min-width:3.1rem; }
+    .chip small{ font-size:.62rem; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; font-weight:900; }
+    .chip b{ background:var(--soft); border:1px solid var(--border); border-radius:9px; padding:.25rem .45rem; min-width:2.9rem; min-height:2.5rem; display:grid; place-items:center; font-weight:700; font-size:1rem; }
+
+    /* choose */
+    .roster{ display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:.7rem; }
+    .fcard{ background:#fff; border:2px solid var(--border); border-radius:18px; padding:.7rem .5rem; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:.35rem; text-align:center; position:relative; font-family:inherit; color:inherit; }
+    .fcard:hover{ border-color:var(--c); }
+    .fcard:focus-visible{ outline:none; box-shadow:0 0 0 4px color-mix(in srgb,var(--c) 30%,transparent); }
+    .fcard[aria-pressed="true"]{ border-color:var(--c); box-shadow:0 0 0 4px color-mix(in srgb,var(--c) 25%,transparent); background:color-mix(in srgb,var(--c) 5%,white); }
+    .fcard h3{ font-size:1rem; margin:0; font-weight:900; letter-spacing:-.02em; }
+    .fcard p{ margin:0; font-size:.74rem; color:var(--muted); font-weight:650; min-height:2.1em; }
+    .fcard .chips{ display:flex; gap:.25rem; flex-wrap:wrap; justify-content:center; }
+    .fcard .chip{ min-width:0; }
+    .fcard .chips{ gap:.2rem; }
+    .fcard .chip b{ min-width:2.2rem; min-height:2.1rem; padding:.15rem .2rem; font-size:.9rem; }
+    @media (max-height:860px){ .fcard p{ display:none; } .fcard > svg{ width:54px; height:54px; } .fcard{ padding:.5rem .4rem; gap:.25rem; } .roster{ gap:.55rem; } }
+    .titleChance{ width:100%; font-size:.8rem; font-weight:800; border-top:1px dashed var(--border); padding-top:.4rem; display:flex; flex-direction:column; gap:.25rem; align-items:center; }
+    .meter{ width:100%; height:.5rem; background:var(--soft); border-radius:99px; overflow:hidden; }
+    .meter i{ display:block; height:100%; background:var(--c); }
+    .rank{ position:absolute; top:.4rem; left:.55rem; font-weight:950; color:var(--muted); font-size:.85rem; }
+    .pHero{ display:flex; gap:.9rem; align-items:center; }
+    .pHero h2{ margin:0; font-size:1.35rem; letter-spacing:-.03em; }
+    .edit{ display:flex; flex-wrap:wrap; gap:.5rem; margin-top:.4rem; }
+    .edit label{ display:flex; flex-direction:column; font-size:.68rem; color:var(--muted); gap:.15rem; text-transform:uppercase; letter-spacing:.08em; font-weight:900; }
+    .edit select{ padding:.35rem .4rem; border-radius:10px; border:1.5px solid var(--border); background:#fff; font-size:.95rem; font-weight:800; color:var(--line); }
+    .panelNote{ margin:0; font-size:.9rem; font-weight:650; color:var(--line); line-height:1.45; }
+
+    /* predict */
+    .predict{ max-width:46rem; margin:0 auto; display:flex; flex-direction:column; gap:1rem; align-items:center; text-align:center; padding:.6rem .4rem; }
+    .predict h2{ margin:0; font-size:clamp(1.3rem,2.2vw,1.8rem); letter-spacing:-.03em; }
+    .readout{ font-size:clamp(3rem,7vw,4.6rem); line-height:1; font-weight:950; letter-spacing:-.04em; color:var(--hero); font-variant-numeric:tabular-nums; }
+    .slider{ width:100%; max-width:40rem; }
+    input[type=range]{ width:100%; accent-color:var(--hero); height:2rem; }
+    .scale{ display:flex; justify-content:space-between; font-size:.75rem; color:var(--muted); font-weight:750; }
+    .badge{ font-size:.68rem; font-weight:900; text-transform:uppercase; letter-spacing:.06em; }
+    .badge.W{ color:var(--green-dark); } .badge.L{ color:var(--muted); }
+
+    /* path list (panel) */
+    .path{ display:flex; flex-direction:column; gap:.5rem; }
+    .stop{ border:2px solid var(--border); border-radius:14px; padding:.5rem .7rem; display:flex; gap:.7rem; align-items:center; background:#fff; }
+    .stop.now{ border-color:var(--hero); box-shadow:0 0 0 3px color-mix(in srgb,var(--hero) 22%,transparent); }
+    .stop.W{ border-color:var(--green); background:#f0fdf4; } .stop.L{ border-color:var(--line-soft); background:#f8fafc; } .stop.off{ opacity:.4; }
+    .stop .info{ display:flex; flex-direction:column; min-width:0; flex:1; }
+    .stop .info b{ font-size:.95rem; font-weight:900; }
+    .stop .info span{ font-size:.74rem; color:var(--muted); font-weight:700; }
+    .stop .pv{ font-size:1.15rem; }
+    .crown{ display:flex; align-items:center; gap:.6rem; justify-content:center; padding:.4rem; border:2px dashed var(--border); border-radius:14px; font-weight:900; color:var(--muted); font-size:.9rem; }
+    .crown.won{ border-style:solid; border-color:var(--amber); background:color-mix(in srgb,var(--amber) 22%,white); color:var(--amber-dark); }
+
+    /* arena */
+    .arena{ display:grid; grid-template-columns:1fr auto 1fr; gap:.8rem; align-items:center; position:relative; overflow:hidden; padding:.5rem; min-height:100%; }
+    .side1{ display:flex; flex-direction:column; align-items:center; gap:.3rem; text-align:center; }
+    .side1 h3{ margin:0; font-size:1.25rem; font-weight:900; letter-spacing:-.02em; }
+    .pbig{ font-size:1.6rem; display:flex; align-items:center; gap:.5rem; }
+    .pbig small{ font-size:.8rem; color:var(--muted); font-weight:800; }
+    .wheelwrap{ width:clamp(190px,min(34vh,26vw),340px); aspect-ratio:1; position:relative; }
+    .wheel{ width:100%; height:100%; transition:transform var(--spin,3.4s) cubic-bezier(.12,.72,.1,1); }
+    .pointer{ position:absolute; left:50%; top:-.3rem; transform:translateX(-50%); width:1.6rem; height:1.6rem; }
+    .verdictRow{ grid-column:1/-1; text-align:center; min-height:2.2rem; }
+    .verdict{ font-size:clamp(1.15rem,2vw,1.6rem); font-weight:950; letter-spacing:-.02em; }
+    .verdict.W{ color:var(--green-dark); } .verdict.L{ color:var(--muted); } .verdict.C{ color:var(--amber-dark); }
+    .lives{ font-size:.8rem; color:var(--muted); font-weight:800; }
+    .log ol{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:.3rem; font-size:.88rem; font-weight:700; }
+    .log li{ display:flex; gap:.5rem; align-items:center; justify-content:space-between; border-bottom:1px solid var(--border); padding-bottom:.3rem; }
+    .pips{ display:flex; gap:.2rem; }
+    .pip{ width:1.3rem; height:1.3rem; border-radius:50%; display:grid; place-items:center; font-size:.65rem; font-weight:900; color:#fff; }
+    .pip.W{ background:var(--green-dark); } .pip.L{ background:var(--line-soft); }
+    .big{ font-size:2rem; font-weight:950; letter-spacing:-.04em; font-variant-numeric:tabular-nums; }
+    .big small{ font-size:.9rem; font-weight:700; color:var(--muted); letter-spacing:0; }
+    .confetti{ position:absolute; inset:0; pointer-events:none; }
+    .confetti i{ position:absolute; top:-1rem; width:.5rem; height:.9rem; animation:fall 2.2s ease-in forwards; }
+    @keyframes fall{ to{ transform:translateY(34rem) rotate(600deg); opacity:0; } }
+
+    /* maths */
+    .treebox svg{ display:block; width:100%; min-width:34rem; height:auto; }
+    .work{ display:flex; flex-direction:column; gap:.9rem; }
+    .line{ display:flex; flex-wrap:wrap; gap:.45rem; align-items:center; font-size:1.25rem; font-family:var(--mathFont); font-weight:700; }
+    .line.sub{ font-size:1rem; color:var(--muted); font-family:var(--uiFont); font-weight:700; }
+    .line .q{ width:2rem; height:2.4rem; border:2px dashed var(--border); border-radius:6px; display:inline-block; }
+    .answer{ background:color-mix(in srgb,var(--hero) 9%,white); border:2px solid var(--hero); border-radius:14px; padding:.7rem .9rem; display:flex; flex-direction:column; gap:.4rem; }
+    .answer .line{ font-size:1.5rem; }
+    .funnel{ display:flex; flex-direction:column; gap:.35rem; }
+    .frow{ display:grid; grid-template-columns:6.5rem 1fr 5.2rem; gap:.6rem; align-items:center; font-size:.85rem; font-weight:750; }
+    .frow .track{ height:1.5rem; background:var(--soft); border-radius:6px; overflow:hidden; }
+    .frow .track i{ display:block; height:100%; background:var(--hero); border-radius:6px; transition:width .5s; }
+    .frow .v{ text-align:right; font-variant-numeric:tabular-nums; font-weight:800; }
+    table{ border-collapse:collapse; width:100%; font-size:.95rem; }
+    th,td{ padding:.35rem .5rem; border-bottom:1px solid var(--border); text-align:left; font-weight:700; }
+    td.n,th.n{ text-align:right; font-variant-numeric:tabular-nums; }
+    th{ font-size:.72rem; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); font-weight:950; }
+
+    /* simulate */
+    .tiles{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.6rem; }
+    .tile{ background:#fff; border:1px solid var(--border); border-radius:14px; padding:.6rem .8rem; display:flex; flex-direction:column; gap:.2rem; min-width:0; }
+    .tile .big{ font-size:1.5rem; }
+    .gBtn.inline{ font-size:.9rem; padding:.4rem .8rem; }
+    .obar{ display:grid; grid-template-columns:8.5rem 1fr 8.5rem; gap:.7rem; align-items:center; padding:.4rem 0; font-weight:800; }
+    .obar .track{ height:2rem; background:var(--soft); border-radius:8px; position:relative; }
+    .obar .track i{ display:block; height:100%; border-radius:8px; background:var(--line-soft); }
+    .obar.champ .track i{ background:var(--hero); }
+    .obar .mark{ position:absolute; top:-.3rem; bottom:-.3rem; width:3px; background:var(--ink); border-radius:2px; }
+    .obar .num{ font-variant-numeric:tabular-nums; font-size:.85rem; text-align:right; }
+    .legend{ display:flex; gap:1rem; flex-wrap:wrap; font-size:.78rem; color:var(--muted); align-items:center; font-weight:750; margin-top:.4rem; }
+    .legend i{ display:inline-block; vertical-align:middle; margin-right:.3rem; }
+    .chart svg{ width:100%; height:auto; display:block; }
+    .invSide{ display:flex; flex-direction:column; gap:.5rem; align-items:center; flex:1; min-width:10rem; }
+    .pickSel{ padding:.35rem .5rem; border-radius:10px; border:1.5px solid var(--border); background:#fff; font-weight:850; color:var(--line); font-size:.95rem; }
+    .askBox{ border-left:4px solid var(--amber); background:#fffbeb; border-radius:0 12px 12px 0; padding:.6rem .9rem; font-size:.92rem; font-weight:700; color:var(--line); line-height:1.45; }
+    .toast{ position:fixed; bottom:1.2rem; left:50%; transform:translateX(-50%); background:var(--ink); color:#fff; padding:.6rem 1rem; border-radius:12px; font-size:.9rem; font-weight:800; z-index:200; max-width:90vw; }
+
+    .app.fs .mmtTopbar{ display:none; }
+    @media (max-width:1280px){ .layout{ grid-template-columns:minmax(0,1fr) minmax(320px,.9fr); } .layout.noPanel{ grid-template-columns:minmax(0,1fr); } }
+    @media (max-width:980px){
+      .app:not(.fs){ height:auto; min-height:100dvh; }
+      .layout{ grid-template-columns:1fr; }
+      .boardWrap{ flex:none; height:clamp(380px,72vh,640px); }
+      .panelCard{ flex:none; }
+      #panel{ overflow:visible; }
+      .roster{ grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .tiles{ grid-template-columns:1fr; }
+    }
+    @media (max-width:760px){
+      .mmtTopbar{ grid-template-columns:1fr; justify-items:center; padding:12px 14px; }
+      .mmtBrand{ margin-left:0; } .topActions{ justify-self:center; justify-content:center; }
+      .dropMenu{ right:auto; left:50%; transform:translateX(-50%); }
+      .dropMenu.left{ left:0; transform:none; }
+      .settingsMenu.open{ min-width:min(350px,92vw); }
+      .mmtTopTitle{ white-space:normal; }
+      .boardTop{ justify-content:center; }
+      .arena{ grid-template-columns:1fr 1fr; }
+      .wheelwrap{ grid-column:1/-1; grid-row:1; margin:0 auto; width:min(17rem,78vw); }
+      .obar{ grid-template-columns:5.5rem 1fr; } .obar .num{ grid-column:1/-1; text-align:left; }
+      .stepBtn.icon{ flex:0 0 46px; }
+      .stepRow{ gap:5px; } .stepBtn{ padding:11px 9px; font-size:.85rem; } .nextBtn{ font-size:.92rem; padding:12px 8px; } .keyHint{ display:none; }
+    }
+    @media (prefers-reduced-motion:reduce){ .wheel{ transition-duration:.01s !important; } .confetti{ display:none; } .frow .track i{ transition:none; } }
+  </style>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
+<!-- mmt-pwa -->
+<link rel="manifest" href="../../../../manifest.webmanifest">
+<meta name="theme-color" content="#1f3a5f">
+<link rel="apple-touch-icon" href="../../../../icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="MMT">
+<script src="../../../../pwa.js" defer></script>
+<!-- /mmt-pwa -->
 </head>
 <body>
-<header class="top"><div class="top-in">
-  <div class="brand"><b>Battle Royale</b><span>Multistage probability · Stage 5 · MA5-PRO-C-01</span></div>
-  <nav class="rail" id="rail" aria-label="Lesson steps"></nav>
-  <button class="btn" data-act="fullscreen" id="fsBtn">Full screen</button>
-</div></header>
-<div class="bar"><div class="bar-in" id="bar"></div></div>
-<main id="view"></main>
-<div id="toast" class="toast" hidden></div>
+  <div class="app" id="app">
+    <header class="mmtTopbar">
+      <a class="mmtBrand" href="https://www.millsmathstools.au" target="_self" aria-label="Back to Mills Maths Tools">
+        <span class="mmtBrandLogo" aria-hidden="true">MMT</span>
+        <span class="mmtBrandText"><strong>MMT</strong><span>Mills Maths Tools</span></span>
+      </a>
+      <div class="mmtTopTitle">Battle Royale: Multistage Probability</div>
+      <div class="topActions">
+        <div class="menuWrap">
+          <button class="btn" id="settingsBtn" type="button" data-menu="settingsMenu" aria-haspopup="true" aria-expanded="false">Settings &#9662;</button>
+          <nav class="dropMenu settingsMenu" id="settingsMenu" aria-label="Settings">
+            <div class="settingsHead">The tournament</div>
+            <label class="selRow"><span>Rounds</span>
+              <select id="roundsSel" data-set="rounds" aria-label="Rounds">
+                <option value="2">2 rounds (4 fighters)</option>
+                <option value="3">3 rounds (8 fighters)</option>
+                <option value="4">4 rounds (16 fighters)</option>
+                <option value="5">5 rounds (32 fighters)</option>
+              </select>
+            </label>
+            <label class="selRow"><span>Show chances as</span>
+              <select id="formatSel" data-set="format" aria-label="Show chances as">
+                <option value="frac">Fractions</option>
+                <option value="pct">Percentages</option>
+              </select>
+            </label>
+            <p class="settingsNote">Chances are always friendly numbers. Thirds are not friendly percentages, so they change to 30% and 70% when you switch.</p>
+            <label class="selRow"><span>Level</span>
+              <select id="levelSel" data-set="level" aria-label="Level">
+                <option value="core">Core</option>
+                <option value="ext">Extension</option>
+              </select>
+            </label>
+            <label class="sw" id="lifeRow"><input type="checkbox" id="lifeChk" data-set="life"><span class="track"></span><span>Extra life before the final</span></label>
+            <p class="settingsNote" id="lifeNote">Extension adds every possible ending, an Investigate step, and an extra life. With it, one loss before the Grand Final is forgiven, so there is more than one way to win.</p>
+            <div class="settingsRule" role="separator"></div>
+            <div class="settingsHead">The spinner</div>
+            <label class="selRow"><span>Spin speed</span>
+              <select id="speedSel" data-set="speed" aria-label="Spin speed">
+                <option value="normal">Normal</option>
+                <option value="fast">Fast</option>
+              </select>
+            </label>
+            <div class="settingsRule" role="separator"></div>
+            <div class="settingsHead">The class</div>
+            <label class="sw"><input type="checkbox" id="promptsChk" data-set="prompts"><span class="track"></span><span>Show questions for the class</span></label>
+            <p class="settingsNote">Two discussion questions for each step appear above the board. Off, the step shows a short instruction instead.</p>
+            <div class="settingsRule" role="separator"></div>
+            <button class="gBtn" type="button" data-act="resetAll">Reset every fighter to their usual chances</button>
+          </nav>
+        </div>
+        <div class="menuWrap">
+          <button class="btn" id="toolsBtn" type="button" data-menu="toolsMenu" aria-haspopup="true" aria-expanded="false">Tools &#9662;</button>
+          <nav class="dropMenu" id="toolsMenu" aria-label="Related tools">
+            <a class="toolLink" href="/interactive-tools/stage-5/statistics-probability/financial-expectation-spinner/index.html">Probability Spinner Simulator<small>Build a spinner and compare observed with theoretical</small></a>
+            <span class="toolLink soon" aria-disabled="true">Lesson plan<small>Coming soon</small></span>
+            <span class="toolLink soon" aria-disabled="true">Worksheet Creator<small>Coming soon</small></span>
+            <span class="toolLink soon" aria-disabled="true">Student Quiz<small>Coming soon</small></span>
+          </nav>
+        </div>
+        <button class="btn btn-primary" id="randBtn" type="button" data-act="randHero" title="Pick a random fighter (R)">Random fighter</button>
+      </div>
+    </header>
+
+    <main class="layout" id="layout">
+      <section class="card boardCard" id="boardCard">
+        <div class="boardTop">
+          <div class="topLeft">
+            <div class="menuWrap">
+              <button class="stepChip" id="stepChip" type="button" data-menu="stepsMenu" aria-haspopup="true" aria-expanded="false" title="Jump to a step"></button>
+              <nav class="dropMenu left" id="stepsMenu" aria-label="Steps"></nav>
+            </div>
+            <div class="seg" role="group" aria-label="Rounds">
+              <i class="lbl">Rounds</i>
+              <button type="button" data-act="rounds" data-v="2" aria-pressed="false">2</button>
+              <button type="button" data-act="rounds" data-v="3" aria-pressed="false">3</button>
+              <button type="button" data-act="rounds" data-v="4" aria-pressed="false">4</button>
+              <button type="button" data-act="rounds" data-v="5" aria-pressed="false">5</button>
+            </div>
+            <div class="seg" role="group" aria-label="Show chances as">
+              <button type="button" data-act="format" data-v="frac" aria-pressed="true" title="Show chances as fractions (P)">Fractions</button>
+              <button type="button" data-act="format" data-v="pct" aria-pressed="false" title="Show chances as percentages (P)">Percentages</button>
+            </div>
+          </div>
+          <div class="topRight">
+            <div id="topExtra"></div>
+            <div class="iconGroup">
+              <button class="iconBtn" id="againIcon" type="button" data-act="restart" title="Back to the start (Home)" aria-label="Back to the start">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1"/><path d="M3.5 4v5h5"/></svg>
+              </button>
+              <button class="iconBtn" id="panelBtn" type="button" data-act="panel" aria-pressed="true" title="Hide the side panel (G)" aria-label="Show or hide the side panel">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M14 4v16"/></svg>
+              </button>
+              <button class="iconBtn" id="fsBtn" type="button" data-act="fullscreen" title="Full screen (F)" aria-label="Full screen">
+                <svg class="fsIn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+                <svg class="fsOut" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" hidden><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="cue" id="cue" aria-live="polite"></div>
+        <div class="boardWrap" id="boardWrap"><div id="stage"></div></div>
+        <div class="hint" id="hint" aria-live="polite"></div>
+        <div class="stepRow">
+          <button class="stepBtn icon" id="backBtn" type="button" data-act="back" title="Back a step (&larr;)" aria-label="Back a step">&#9664;</button>
+          <button class="nextBtn" id="mainBtn" type="button"></button>
+          <button class="stepBtn" id="secBtn" type="button"></button>
+        </div>
+        <div class="keyHint"><kbd>&rarr;</kbd> or <kbd>Space</kbd> main button &middot; <kbd>&larr;</kbd> back &middot; <kbd>P</kbd> fractions / percentages &middot; <kbd>R</kbd> random fighter &middot; <kbd>G</kbd> panel &middot; <kbd>F</kbd> full screen</div>
+      </section>
+
+      <aside class="side">
+        <section class="card panelCard" aria-label="Working and results">
+          <div class="gHead"><span class="pTitle" id="pTitle"></span><div id="pTools"></div></div>
+          <div id="panel"></div>
+        </section>
+      </aside>
+    </main>
+  </div>
+  <div id="toast" class="toast" hidden></div>
 
 <script>
 "use strict";
@@ -218,18 +451,18 @@ const same=(a,b)=>a[0]===b[0]&&a[1]===b[1];
 const rep=(n,d)=>[[n,d],[n,d],[n,d],[n,d],[n,d]];
 const FADE=[[9,10],[9,10],[9,10],[4,5],[1,2]];
 const FIGHTERS=[
-  {id:'cube', name:'Captain Cube',tag:'Steady in every match',     color:'#2F6FE4',shape:'cube',   p:R=>rep(3,4).slice(-R)},
-  {id:'nova', name:'Nova',        tag:'Almost never loses',        color:'#C8323C',shape:'star5',  p:R=>rep(9,10).slice(-R)},
-  {id:'hexa', name:'Hexa',        tag:'Flies early, fades late',   color:'#8A4FE0',shape:'hex',    p:R=>FADE.slice(-R)},
-  {id:'prism',name:'Prism',       tag:'Slow start, strong finish', color:'#D93F87',shape:'diamond',p:R=>FADE.slice(-R).reverse()},
-  {id:'orbit',name:'Orbit',       tag:'The crowd favourite',       color:'#0E9F9A',shape:'orbit',  p:R=>rep(4,5).slice(-R)},
-  {id:'zig',  name:'Zigzag',      tag:'Brilliant or terrible',     color:'#B88A00',shape:'tri',    p:R=>[[9,10],[1,4],[9,10],[1,4],[9,10]].slice(-R)},
-  {id:'spike',name:'Spike',       tag:'Every match is a coin toss',color:'#E8731A',shape:'star8',  p:R=>rep(1,2).slice(-R)},
-  {id:'moss', name:'Moss',        tag:'The underdog',              color:'#3F9A4B',shape:'blob',   p:R=>rep(2,5).slice(-R)}
+  {id:'cube', name:'Captain Cube',tag:'Steady in every match',     color:'#2563eb',shape:'cube',   p:R=>rep(3,4).slice(-R)},
+  {id:'nova', name:'Nova',        tag:'Almost never loses',        color:'#dc2626',shape:'star5',  p:R=>rep(9,10).slice(-R)},
+  {id:'hexa', name:'Hexa',        tag:'Flies early, fades late',   color:'#7c3aed',shape:'hex',    p:R=>FADE.slice(-R)},
+  {id:'prism',name:'Prism',       tag:'Slow start, strong finish', color:'#db2777',shape:'diamond',p:R=>FADE.slice(-R).reverse()},
+  {id:'orbit',name:'Orbit',       tag:'The crowd favourite',       color:'#0d9488',shape:'orbit',  p:R=>rep(4,5).slice(-R)},
+  {id:'zig',  name:'Zigzag',      tag:'Brilliant or terrible',     color:'#ca8a04',shape:'tri',    p:R=>[[9,10],[1,4],[9,10],[1,4],[9,10]].slice(-R)},
+  {id:'spike',name:'Spike',       tag:'Every match is a coin toss',color:'#ea580c',shape:'star8',  p:R=>rep(1,2).slice(-R)},
+  {id:'moss', name:'Moss',        tag:'The underdog',              color:'#16a34a',shape:'blob',   p:R=>rep(2,5).slice(-R)}
 ];
 const ROUNDS=[['Round of 32','R32'],['Round of 16','R16'],['Quarter-final','QF'],['Semi-final','SF'],['Grand Final','Final']];
 const FRIENDLY=[[1,10],[1,5],[1,4],[3,10],[1,3],[2,5],[1,2],[3,5],[2,3],[7,10],[3,4],[4,5],[9,10]];
-const STEPS=[['choose','Choose'],['predict','Predict'],['battle','Battle'],['maths','The maths'],['sim','Simulate'],['inv','Investigate']];
+const STEPS=[['choose','Choose a fighter'],['predict','Predict'],['battle','Battle'],['maths','The maths'],['sim','Simulate'],['inv','Investigate']];
 const ASK={
   choose:['Which fighter would you back, and why?','Hexa and Prism have the same chances in a different order. Does the order matter?'],
   predict:['Is the chance of winning the title higher or lower than the chance of winning one match?','Hands up: more than half, or less than half?'],
@@ -238,13 +471,24 @@ const ASK={
   sim:['Why does the experiment not match the theory exactly?','What happens to the gap as we run more tournaments?'],
   inv:['How many matches before a 9 in 10 fighter is more likely to lose the title than win it?','Is a great fighter in a long tournament better off than a good fighter in a short one?']
 };
+const INFO={
+  choose:['Choose a fighter','Each chip is the chance of winning that match. Pick one to follow.'],
+  predict:['Predict the title chance','Agree on a class prediction before any maths.'],
+  battle:['Spin each match','The fighter must win every round to take the title.'],
+  maths:['The tree diagram','Reveal the tree one round at a time, then multiply along the branches.'],
+  sim:['Simulate the tournament','Run it many times and compare with the theory.'],
+  inv:['Investigate','Compare fighters and explore longer tournaments.']
+};
 
 /* ---------- state ---------- */
-const S={step:'choose',hero:'cube',rounds:3,format:'frac',level:'core',extraLife:false,speed:'normal',
+const STORE='mmt.battleRoyale.v1';
+const S={step:'choose',hero:'cube',rounds:3,format:'frac',level:'core',extraLife:false,speed:'normal',prompts:true,panel:true,fs:false,
   custom:{},reveal:false,pred:50,predLocked:false,show:0,theory:false,live:[],
   B:null,sim:null,invP:[9,10],invA:'hexa',invB:'cube',invShow:false,revShow:false};
-try{const s=JSON.parse(localStorage.getItem('br-settings')||'{}');['rounds','format','level','speed'].forEach(k=>{if(s[k]!==undefined)S[k]=s[k]})}catch(e){}
-const save=()=>{try{localStorage.setItem('br-settings',JSON.stringify({rounds:S.rounds,format:S.format,level:S.level,speed:S.speed}))}catch(e){}};
+try{const s=JSON.parse(localStorage.getItem(STORE)||'{}');
+  ['rounds','format','level','speed','prompts','panel'].forEach(k=>{if(s[k]!==undefined)S[k]=s[k]});
+  if(![2,3,4,5].includes(S.rounds))S.rounds=3;}catch(e){}
+const save=()=>{try{localStorage.setItem(STORE,JSON.stringify({rounds:S.rounds,format:S.format,level:S.level,speed:S.speed,prompts:S.prompts,panel:S.panel}))}catch(e){}};
 
 const fighter=id=>FIGHTERS.find(f=>f.id===id);
 const hero=()=>fighter(S.hero);
@@ -252,10 +496,12 @@ const probsOf=f=>S.custom[f.id+S.rounds]||f.p(S.rounds);
 const probs=()=>probsOf(hero());
 const rnames=()=>ROUNDS.slice(-S.rounds);
 const lives=()=>(S.level==='ext'&&S.extraLife)?1:0;
+const stepList=()=>STEPS.filter(s=>s[0]!=='inv'||S.level==='ext');
 function opponents(){const i=FIGHTERS.findIndex(f=>f.id===S.hero);const off=[4,2,6,3,5];
   return off.slice(-S.rounds).map(o=>FIGHTERS[(i+o)%FIGHTERS.length]);}
 
-/* ---------- the probability model: one tree drives the diagram, the working and the simulation ---------- */
+/* ---------- the probability model: one tree drives the diagram, the working and the simulation ----------
+   A loss in the Grand Final always ends the tournament, even with an extra life. */
 function model(P,L){
   const R=P.length,nodes=[],leaves=[];let id=0;
   function mk(depth,losses,prob,path,edge,ep,parent){
@@ -284,9 +530,10 @@ function pct(x,approx){const v=x*100,r=Math.round(v*10)/10,exact=Math.abs(v-r)<1
 const eqPct=x=>{const t=pct(x);return t[0]==='≈'?t:'= '+t};
 const dec=x=>String(Number(x.toFixed(10)));
 const frH=a=>a[1]===1?String(a[0]):`<span class="fr"><span>${a[0]}</span><span>${a[1]}</span></span>`;
-const pH=a=>S.format==='frac'?frH(a):pct(val(a));
-const titleH=a=>S.format==='frac'?`${frH(a)} <span class="muted">${pct(val(a))}</span>`:pct(val(a));
+const pH=a=>S.format==='frac'?frH(a):`<span class="pct">${pct(val(a))}</span>`;
+const titleH=a=>S.format==='frac'?`${frH(a)} <span class="muted">${pct(val(a))}</span>`:`<span class="pct">${pct(val(a))}</span>`;
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const $=id=>document.getElementById(id);
 
 /* ---------- original fighters, drawn as simple shapes ---------- */
 function avatar(f,size,mood){
@@ -305,12 +552,12 @@ function avatar(f,size,mood){
   }
   const dx=f.shape==='star5'?9:f.shape==='diamond'?10:12, my=ey+17;
   const mouth=mood==='sad'?`M${50-8} ${my+4} Q50 ${my-4} ${50+8} ${my+4}`:mood==='joy'?`M${50-9} ${my-2} Q50 ${my+10} ${50+9} ${my-2}Z`:`M${50-8} ${my} Q50 ${my+7} ${50+8} ${my}`;
-  return `<svg viewBox="0 0 100 100" width="${size}" height="${size}" role="img" aria-label="${esc(f.name)}">${body}
+  return `<svg viewBox="0 0 100 100" width="${size}" height="${size}" role="img" aria-label="${esc(f.name)}" style="flex:0 0 auto">${body}
     <circle cx="${50-dx}" cy="${ey}" r="7.5" fill="#fff"/><circle cx="${50+dx}" cy="${ey}" r="7.5" fill="#fff"/>
-    <circle cx="${50-dx+1.5}" cy="${ey+1}" r="3.4" fill="#141A2E"/><circle cx="${50+dx+1.5}" cy="${ey+1}" r="3.4" fill="#141A2E"/>
+    <circle cx="${50-dx+1.5}" cy="${ey+1}" r="3.4" fill="#0f172a"/><circle cx="${50+dx+1.5}" cy="${ey+1}" r="3.4" fill="#0f172a"/>
     <path d="${mouth}" fill="${mood==='joy'?'#fff':'none'}" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 }
-const trophy=(s,on)=>`<svg viewBox="0 0 40 40" width="${s}" height="${s}" aria-hidden="true"><path d="M11 5h18v9a9 9 0 0 1-18 0z" fill="${on?'var(--gold)':'var(--line)'}"/><path d="M11 8H5c0 6 3 9 7 9M29 8h6c0 6-3 9-7 9" fill="none" stroke="${on?'var(--gold)':'var(--line)'}" stroke-width="3"/><rect x="18" y="22" width="4" height="7" fill="${on?'var(--gold)':'var(--line)'}"/><rect x="11" y="29" width="18" height="5" rx="2" fill="${on?'var(--gold)':'var(--line)'}"/></svg>`;
+const trophy=(s,on)=>{const c=on?'#ca8a04':'#cbd5e1';return `<svg viewBox="0 0 40 40" width="${s}" height="${s}" aria-hidden="true"><path d="M11 5h18v9a9 9 0 0 1-18 0z" fill="${c}"/><path d="M11 8H5c0 6 3 9 7 9M29 8h6c0 6-3 9-7 9" fill="none" stroke="${c}" stroke-width="3"/><rect x="18" y="22" width="4" height="7" fill="${c}"/><rect x="11" y="29" width="18" height="5" rx="2" fill="${c}"/></svg>`};
 
 /* ---------- resets ---------- */
 function resetRun(){S.B=null;S.sim=null;S.live=[];S.show=0;S.theory=false;S.predLocked=false;S.pred=50;S.invShow=false;S.revShow=false}
@@ -318,87 +565,69 @@ function newBattle(){S.B={i:0,losses:0,res:[],phase:'ready',rot:0,outcome:null}}
 function newSim(){S.sim={n:0,counts:{},series:[],stride:1,running:false}}
 function record(key){if(!S.sim)newSim();const s=S.sim;s.n++;s.counts[key]=(s.counts[key]||0)+1;
   if(s.n%s.stride===0){s.series.push([s.n,(s.counts.champ||0)/s.n]);if(s.series.length>1200){s.series=s.series.filter((_,i)=>i%2===1);s.stride*=2}}}
-function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,4200)}
-
-/* ---------- chrome ---------- */
-function renderChrome(){
-  const steps=STEPS.filter(s=>s[0]!=='inv'||S.level==='ext');
-  document.getElementById('rail').innerHTML=steps.map((s,i)=>`<button data-act="step" data-v="${s[0]}" ${S.step===s[0]?'aria-current="step"':''}><i>${i+1}</i><span>${s[1]}</span></button>`).join('');
-  const seg=(act,cur,opts)=>`<span class="seg">${opts.map(o=>`<button data-act="${act}" data-v="${o[0]}" aria-pressed="${String(cur)===String(o[0])}">${o[1]}</button>`).join('')}</span>`;
-  document.getElementById('bar').innerHTML=`
-    <div class="ctl"><span>Rounds</span>${seg('rounds',S.rounds,[[2,'2'],[3,'3'],[4,'4'],[5,'5']])}</div>
-    <div class="ctl"><span>Show chances as</span>${seg('format',S.format,[['frac','Fractions'],['pct','Percentages']])}</div>
-    <div class="ctl"><span>Level</span>${seg('level',S.level,[['core','Core'],['ext','Extension']])}</div>
-    ${S.level==='ext'?`<div class="ctl"><span>Extra life before the final</span>${seg('life',S.extraLife?1:0,[[0,'Off'],[1,'On']])}</div>`:''}
-    <div class="ctl"><span>Spin</span>${seg('speed',S.speed,[['normal','Normal'],['fast','Fast']])}</div>
-    <div class="ctl push"><span>${S.rounds} wins needed · ${2**S.rounds} fighters in the draw</span></div>`;
-  document.documentElement.style.setProperty('--hero',hero().color);
-}
-const askH=()=>`<div class="ask"><b>Ask the class</b>${ASK[S.step].map(q=>`<span>${q}</span>`).join('')}</div>`;
-const chipsH=(P)=>rnames().map((r,i)=>`<span class="chip"><small>${r[1]}</small><b>${pH(P[i])}</b></span>`).join('');
+function toast(msg){const t=$('toast');t.textContent=msg;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,4200)}
+const chipsH=P=>rnames().map((r,i)=>`<span class="chip"><small>${r[1]}</small><b>${pH(P[i])}</b></span>`).join('');
 
 /* ---------- step 1: choose ---------- */
-function vChoose(){
-  const rn=rnames(),h=hero(),P=probs();
+function bChoose(){
   const data=FIGHTERS.map(f=>({f,P:probsOf(f),t:model(probsOf(f),lives()).champ}));
   const ranked=[...data].sort((a,b)=>val(b.t)-val(a.t));
-  const opts=S.format==='frac'?FRIENDLY:FRIENDLY.filter(a=>a[1]!==3);
-  return `<div class="choose">
-   <div class="roster">${data.map(d=>`<button class="card" style="--c:${d.f.color}" data-act="pick" data-v="${d.f.id}" aria-pressed="${d.f.id===S.hero}">
+  return `<div class="roster">${data.map(d=>`<button class="fcard" style="--c:${d.f.color}" data-act="pick" data-v="${d.f.id}" aria-pressed="${d.f.id===S.hero}">
       ${S.reveal?`<span class="rank">#${ranked.indexOf(d)+1}</span>`:''}
-      ${avatar(d.f,76)}<h3>${d.f.name}</h3><p>${d.f.tag}</p><div class="chips">${chipsH(d.P)}</div>
-      ${S.reveal?`<div class="title-chance"><span>Title chance <b>${titleH(d.t)}</b></span><div class="meter"><i style="width:${val(d.t)*100}%"></i></div></div>`:''}
-    </button>`).join('')}</div>
-   <div class="panel picked">
-     <span class="eyebrow">Our fighter</span>
-     <div class="picked-head">${avatar(h,104)}<div><h2>${h.name}</h2><span class="muted">${h.tag}</span></div></div>
-     <p style="margin:0">Each chip is the chance ${h.name} wins that match. To take the title, ${h.name} must win ${lives()?`get through <b>${S.rounds} rounds</b>`:`win <b>${S.rounds} matches in a row</b>`}${lives()?'. The extra life forgives one loss before the Grand Final':''}.</p>
-     <div>
-       <span class="eyebrow">Set the chances</span>
-       <div class="edit" style="margin-top:.35rem">${P.map((p,i)=>`<label for="e${i}">${rn[i][1]}<select id="e${i}" data-edit="${i}">${opts.map(o=>`<option value="${o[0]}/${o[1]}" ${same(o,p)?'selected':''}>${S.format==='frac'?o[0]+'/'+o[1]:pct(val(o))}</option>`).join('')}</select></label>`).join('')}</div>
-       ${S.custom[h.id+S.rounds]?`<button class="btn" style="margin-top:.5rem" data-act="resetP">Back to ${h.name}'s usual chances</button>`:''}
-     </div>
-     <div class="row"><button class="btn primary" data-act="step" data-v="predict">Lock in ${h.name}</button>
-     <button class="btn" data-act="reveal">${S.reveal?'Hide':'Reveal'} every title chance</button></div>
-   </div></div>${askH()}`;
+      ${avatar(d.f,72)}<h3>${d.f.name}</h3><p>${d.f.tag}</p><div class="chips">${chipsH(d.P)}</div>
+      ${S.reveal?`<div class="titleChance"><span>Title chance ${titleH(d.t)}</span><div class="meter"><i style="width:${val(d.t)*100}%"></i></div></div>`:''}
+    </button>`).join('')}</div>`;
+}
+function pChoose(){
+  const h=hero(),P=probs(),rn=rnames();
+  const opts=S.format==='frac'?FRIENDLY:FRIENDLY.filter(a=>a[1]!==3);
+  return `<div class="pHero">${avatar(h,96)}<div><h2>${h.name}</h2><span class="muted" style="font-weight:700">${h.tag}</span></div></div>
+    <p class="panelNote">${lives()?`To take the title, ${h.name} must get through <b>${S.rounds} rounds</b>. The extra life forgives one loss before the Grand Final.`:`To take the title, ${h.name} must win <b>${S.rounds} matches in a row</b>.`}</p>
+    <div><span class="eyebrow">Set the chances</span>
+      <div class="edit">${P.map((p,i)=>`<label for="e${i}">${rn[i][1]}<select id="e${i}" data-edit="${i}">${opts.map(o=>`<option value="${o[0]}/${o[1]}" ${same(o,p)?'selected':''}>${S.format==='frac'?o[0]+'/'+o[1]:pct(val(o))}</option>`).join('')}</select></label>`).join('')}</div>
+      ${S.custom[h.id+S.rounds]?`<button class="gBtn" style="margin-top:.6rem" data-act="resetP">Back to ${h.name}'s usual chances</button>`:''}</div>`;
 }
 
 /* ---------- step 2: predict ---------- */
-function vPredict(){
+function bPredict(){
   const h=hero(),P=probs();
-  return `<div class="panel predict">
-    <div class="row" style="justify-content:center">${avatar(h,96)}<div class="row">${chipsH(P)}</div></div>
+  return `<div class="predict">
+    <div class="row" style="justify-content:center">${avatar(h,92)}<div class="row">${chipsH(P)}</div></div>
     <h2>What is the chance ${h.name} wins the whole tournament?</h2>
-    <p class="muted" style="margin:0;max-width:60ch">Agree on a class prediction before any maths. ${lives()?`${h.name} can lose once before the Grand Final and stay in, but must win the final.`:`${h.name} has to win all ${S.rounds} matches.`}</p>
+    <p class="panelNote muted" style="max-width:56ch">${lives()?`${h.name} can lose once before the Grand Final and stay in, but must win the final.`:`${h.name} has to win all ${S.rounds} matches.`}</p>
     <div class="readout" id="predOut">${S.pred}%</div>
     <div class="slider"><input type="range" id="pred" min="0" max="100" step="1" value="${S.pred}" aria-label="Class prediction, per cent" ${S.predLocked?'disabled':''}>
       <div class="scale"><span>0% impossible</span><span>50% even chance</span><span>100% certain</span></div></div>
-    <div class="row" style="justify-content:center">
-      ${S.predLocked?`<span class="badge W">Prediction locked in</span><button class="btn" data-act="unlock">Change it</button><button class="btn primary" data-act="step" data-v="battle">To the arena</button>`
-      :`<button class="btn primary" data-act="lock">Lock in class prediction</button><button class="btn" data-act="step" data-v="battle">Skip</button>`}
-    </div></div>${askH()}`;
+    ${S.predLocked?`<span class="badge W">Prediction locked in</span>`:''}</div>`;
+}
+
+/* ---------- path list (panel) ---------- */
+function pathH(){
+  const rn=rnames(),P=probs(),opp=opponents(),B=S.step==='battle'?S.B:null;
+  return `<div class="path">${rn.map((r,i)=>{const res=B&&B.res[i];
+    const cls=res?res:(B&&i===B.i&&B.phase!=='done'?'now':(B&&B.phase==='done'&&!res?'off':''));
+    return `<div class="stop ${cls}">${avatar(opp[i],38)}<div class="info"><b>${r[0]}</b><span>v ${opp[i].name}</span>
+      ${res?`<span class="badge ${res}">${res==='W'?'Won':'Lost'}</span>`:''}</div><span class="pv">${pH(P[i])}</span></div>`}).join('')}
+    <div class="crown ${B&&B.outcome==='champ'?'won':''}">${trophy(34,B&&B.outcome==='champ')}<span>${B&&B.outcome==='champ'?'Champion':'Title'}</span></div></div>`;
+}
+function pPredict(){
+  const h=hero();
+  return `<p class="panelNote">The path ${h.name} must take. Each chance is ${h.name}'s chance of winning that match.</p>${pathH()}`;
 }
 
 /* ---------- step 3: battle ---------- */
-function pathH(){
-  const rn=rnames(),P=probs(),opp=opponents(),B=S.B;
-  return `<div class="path">${rn.map((r,i)=>{const res=B.res[i];
-    const cls=res?res:(i===B.i&&B.phase!=='done'?'now':(B.phase==='done'&&!res?'off':''));
-    return `<div class="stop ${cls}">${avatar(opp[i],40)}<div class="info"><b>${r[0]}</b><span>v ${opp[i].name}</span>
-      ${res?`<span class="badge ${res}">${res==='W'?'Won':'Lost'}</span>`:''}</div><span class="pv">${pH(P[i])}</span></div>`}).join('')}
-    <div class="crown ${B.outcome==='champ'?'won':''}">${trophy(44,B.outcome==='champ')}</div></div>`;
-}
-function wheelH(p,h,o,rot){
+function wheelH(p,h,rot){
   const a=val(p)*360,pt=t=>{const r=t*Math.PI/180;return (100+92*Math.sin(r)).toFixed(2)+','+(100-92*Math.cos(r)).toFixed(2)};
   const sec=(a0,a1,c)=>`<path d="M100,100 L${pt(a0)} A92,92 0 ${a1-a0>180?1:0} 1 ${pt(a1)} Z" fill="${c}"/>`;
-  let ticks='';for(let k=0;k<p[1]&&p[1]<=10;k++){ticks+=`<line x1="100" y1="100" x2="${pt(k*360/p[1]).split(',')[0]}" y2="${pt(k*360/p[1]).split(',')[1]}" stroke="rgba(255,255,255,.75)" stroke-width="1.6"/>`}
-  return `<div class="wheelwrap"><svg class="wheel" id="wheel" viewBox="0 0 200 200" style="transform:rotate(${rot}deg);--spin:${S.speed==='fast'?'.9s':'3.4s'}" role="img" aria-label="Spinner. ${h.name} wins on ${p[0]} of ${p[1]} equal parts.">
-    <circle cx="100" cy="100" r="97" fill="var(--ink)"/>${sec(0,a,h.color)}${sec(a,360,'var(--opp)')}${ticks}
-    <circle cx="100" cy="100" r="13" fill="var(--surface)" stroke="var(--ink)" stroke-width="3"/></svg>
-    <svg class="pointer" viewBox="0 0 20 20" aria-hidden="true"><polygon points="10,19 2,2 18,2" fill="var(--ink)" stroke="var(--surface)" stroke-width="1.5"/></svg></div>`;
+  let ticks='';for(let k=0;k<p[1]&&p[1]<=10;k++){const q=pt(k*360/p[1]).split(',');ticks+=`<line x1="100" y1="100" x2="${q[0]}" y2="${q[1]}" stroke="rgba(255,255,255,.8)" stroke-width="1.6"/>`}
+  return `<div class="wheelwrap"><svg class="wheel" id="wheel" viewBox="0 0 200 200" style="transform:rotate(${rot}deg);--spin:${S.speed==='fast'?'.9s':'3.4s'}" role="img" aria-label="Spinner. ${esc(h.name)} wins on ${p[0]} of ${p[1]} equal parts.">
+    <circle cx="100" cy="100" r="97" fill="#0f172a"/>${sec(0,a,h.color)}${sec(a,360,'var(--opp)')}${ticks}
+    <circle cx="100" cy="100" r="13" fill="#fff" stroke="#0f172a" stroke-width="3"/></svg>
+    <svg class="pointer" viewBox="0 0 20 20" aria-hidden="true"><polygon points="10,19 2,2 18,2" fill="#0f172a" stroke="#fff" stroke-width="1.5"/></svg></div>`;
 }
-function vBattle(){
-  if(!S.B)newBattle();
+function confetti(){const cols=['#facc15','var(--hero)','#f97316','#22c55e'];let s='';
+  for(let k=0;k<36;k++)s+=`<i style="left:${Math.random()*100}%;background:${cols[k%4]};animation-delay:${(Math.random()*.6).toFixed(2)}s"></i>`;return `<div class="confetti">${s}</div>`}
+function bBattle(){
   const B=S.B,h=hero(),P=probs(),rn=rnames(),opp=opponents(),i=Math.min(B.i,S.rounds-1),o=opp[i],p=P[i];
   const last=B.res[i],done=B.phase==='done';
   let verdict='',vc='';
@@ -408,36 +637,31 @@ function vBattle(){
     else if(done){verdict=`${o.name} wins. ${h.name} is out in the ${rn[i][0]}`;vc='L'}
     else {verdict=`${o.name} wins, but ${h.name} uses the extra life and stays in`;vc='L'}
   }
-  let btn;
-  if(done)btn=`<div class="row" style="justify-content:center"><button class="btn primary" data-act="again" data-main>Run another tournament</button><button class="btn dark" data-act="step" data-v="maths">See the maths</button></div>`;
-  else if(B.phase==='shown')btn=`<button class="btn primary" data-act="nextRound" data-main>On to the ${rn[i+1][0]}</button>`;
-  else btn=`<button class="btn primary" data-act="spin" data-main ${B.phase==='spinning'?'disabled':''}>${B.phase==='spinning'?'Spinning':'Spin the '+rn[i][0]}</button>`;
-  const titles=S.live.filter(l=>l.outcome==='champ').length;
+  const av=Math.round(Math.max(88,Math.min(150,innerHeight*.17)));
   const mh=B.outcome==='champ'?'joy':(done?'sad':''),mo=done&&B.outcome!=='champ'?'joy':'';
-  return `<div class="panel" style="padding:.7rem">${pathH()}</div>
-  <div class="battle"><div class="panel arena" style="--opp:${o.color}">
-    <div class="side">${avatar(h,150,mh)}<h3>${h.name}</h3><div class="pbig"><small>wins</small>${pH(p)}</div>
+  return `<div class="arena" style="--opp:${o.color}">
+    <div class="side1">${avatar(h,av,mh)}<h3>${h.name}</h3><div class="pbig"><small>wins</small>${pH(p)}</div>
       ${lives()?`<span class="lives">Extra life: ${B.losses?'used':'ready'}</span>`:''}</div>
-    ${wheelH(p,h,o,B.rot)}
-    <div class="side">${avatar(o,150,mo)}<h3>${o.name}</h3><div class="pbig"><small>wins</small>${pH(comp(p))}</div></div>
-    <div class="call"><div class="verdict ${vc}" aria-live="polite">${verdict}</div>${btn}</div>
-    ${B.outcome==='champ'&&B.fresh?confetti():''}
-  </div>
-  <div class="panel log"><span class="eyebrow">Tournaments played live</span>
-    <div class="big">${titles} <span class="muted" style="font-size:1rem;font-family:var(--font-body)">title${titles===1?'':'s'} from ${S.live.length}</span></div>
-    ${S.live.length?`<ol>${S.live.slice(-8).reverse().map(l=>`<li><span class="pips">${l.res.map(r=>`<span class="pip ${r}">${r}</span>`).join('')}</span><span>${l.outcome==='champ'?'Champion':'Out in the '+rn[+l.outcome.slice(3)][1]}</span></li>`).join('')}</ol>`
-      :`<span class="muted">Each finished tournament is recorded here and counted in the simulation.</span>`}
-  </div></div>${askH()}`;
+    ${wheelH(p,h,B.rot)}
+    <div class="side1">${avatar(o,av,mo)}<h3>${o.name}</h3><div class="pbig"><small>wins</small>${pH(comp(p))}</div></div>
+    <div class="verdictRow"><div class="verdict ${vc}" aria-live="polite">${verdict}</div></div>
+    ${B.outcome==='champ'&&B.fresh?confetti():''}</div>`;
 }
-function confetti(){const cols=['var(--gold)','var(--hero)','var(--accent)','var(--win)'];let s='';
-  for(let k=0;k<36;k++)s+=`<i style="left:${Math.random()*100}%;background:${cols[k%4]};animation-delay:${(Math.random()*.6).toFixed(2)}s"></i>`;return `<div class="confetti">${s}</div>`}
+function pBattle(){
+  const rn=rnames(),titles=S.live.filter(l=>l.outcome==='champ').length;
+  return `${pathH()}
+   <div class="log"><span class="eyebrow">Tournaments played live</span>
+    <div class="big">${titles} <small>title${titles===1?'':'s'} from ${S.live.length}</small></div>
+    ${S.live.length?`<ol>${S.live.slice(-6).reverse().map(l=>`<li><span class="pips">${l.res.map(r=>`<span class="pip ${r}">${r}</span>`).join('')}</span><span>${l.outcome==='champ'?'Champion':'Out in the '+rn[+l.outcome.slice(3)][1]}</span></li>`).join('')}</ol>`
+      :`<span class="muted" style="font-size:.88rem;font-weight:650">Each finished tournament is recorded here and counted in the simulation.</span>`}</div>`;
+}
 function spin(){
   const B=S.B;if(!B||B.phase!=='ready')return;
   const p=probs()[B.i],win=Math.random()<val(p),a=val(p)*360;
   const lo=win?0:a,span=win?a:360-a,m=Math.min(7,span*.15),th=lo+m+Math.random()*(span-2*m);
   const turns=S.speed==='fast'?2:5;
   B.rot=360*turns+(360-th);B.phase='spinning';render();
-  const w=document.getElementById('wheel');w.style.transform='rotate(0deg)';
+  const w=$('wheel');w.style.transform='rotate(0deg)';
   requestAnimationFrame(()=>requestAnimationFrame(()=>{w.style.transform=`rotate(${B.rot}deg)`}));
   const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
   setTimeout(()=>{ if(S.B!==B)return;
@@ -464,28 +688,28 @@ function treeH(m,s){
   m.nodes.forEach(n=>n.x=padL+n.depth*colW);
   const W=padL+R*colW+260,H=top+m.leaves.length*rowH+10;
   let e='',g='',hd='';
-  for(let d=1;d<=R;d++)if(d<=s)hd+=`<text x="${padL+d*colW-colW/2}" y="20" text-anchor="middle" font-size="14" font-weight="700" fill="var(--muted)" style="text-transform:uppercase;letter-spacing:.06em">${rn[d-1][0]}</text>`;
+  for(let d=1;d<=R;d++)if(d<=s)hd+=`<text x="${padL+d*colW-colW/2}" y="20" text-anchor="middle" font-size="14" font-weight="800" fill="#64748b" style="text-transform:uppercase;letter-spacing:.06em">${rn[d-1][0]}</text>`;
   m.nodes.forEach(n=>{
     if(n.depth>s)return;
     if(n.parent){const p=n.parent,win=n.edge==='W',mx=p.x+(n.x-p.x)*.64,my=p.y+(n.y-p.y)*.64,pw=fr?(n.ep[1]>=10?40:32):52;
-      e+=`<line x1="${p.x}" y1="${p.y}" x2="${n.x}" y2="${n.y}" stroke="${win?'var(--hero)':'var(--out)'}" stroke-width="${win?4:2.5}" ${win?'':'stroke-dasharray="6 5"'}/>`;
-      g+=`<rect x="${mx-pw/2}" y="${my-bh/2}" width="${pw}" height="${bh}" rx="7" fill="var(--surface)" stroke="var(--line)"/>${svgP(mx,my,n.ep,fr?fs:14,'var(--ink)')}`;
-      g+=`<circle cx="${n.x}" cy="${n.y}" r="15" fill="${win?'var(--hero)':'var(--out)'}"/><text x="${n.x}" y="${n.y+5}" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">${n.edge}</text>`;
-    }else g+=`<rect x="${n.x-36}" y="${n.y-17}" width="60" height="34" rx="17" fill="var(--ink)"/><text x="${n.x-6}" y="${n.y+5}" text-anchor="middle" font-size="14" font-weight="700" fill="var(--bg)">Start</text>`;
+      e+=`<line x1="${p.x}" y1="${p.y}" x2="${n.x}" y2="${n.y}" stroke="${win?'var(--hero)':'#94a3b8'}" stroke-width="${win?4:2.5}" ${win?'':'stroke-dasharray="6 5"'}/>`;
+      g+=`<rect x="${mx-pw/2}" y="${my-bh/2}" width="${pw}" height="${bh}" rx="7" fill="#fff" stroke="#e2e8f0"/>${svgP(mx,my,n.ep,fr?fs:14,'#0f172a')}`;
+      g+=`<circle cx="${n.x}" cy="${n.y}" r="15" fill="${win?'var(--hero)':'#94a3b8'}"/><text x="${n.x}" y="${n.y+5}" text-anchor="middle" font-size="14" font-weight="800" fill="#fff">${n.edge}</text>`;
+    }else g+=`<rect x="${n.x-36}" y="${n.y-17}" width="60" height="34" rx="17" fill="#0f172a"/><text x="${n.x-6}" y="${n.y+5}" text-anchor="middle" font-size="14" font-weight="800" fill="#fff">Start</text>`;
     if(n.leaf){const ch=n.leaf==='champ';
-      g+=`<text x="${n.x+26}" y="${n.y+5}" font-size="16" font-weight="${ch?700:400}" fill="${ch?'var(--ink)':'var(--muted)'}">${ch?'Champion':'Out in the '+rn[n.round][1]}</text>`;
-      if(s>=R+1&&(ch||ext)){const col=ch?'var(--hero)':'var(--muted)';
-        g+=fr?`<text x="${n.x+158}" y="${n.y+5}" font-size="16" fill="var(--muted)">=</text>${svgP(n.x+200,n.y,n.prob,16,col)}`
-             :`<text x="${n.x+158}" y="${n.y+5}" font-size="16" font-weight="700" fill="${col}">${eqPct(val(n.prob))}</text>`}
+      g+=`<text x="${n.x+26}" y="${n.y+5}" font-size="16" font-weight="${ch?800:600}" fill="${ch?'#0f172a':'#64748b'}">${ch?'Champion':'Out in the '+rn[n.round][1]}</text>`;
+      if(s>=R+1&&(ch||ext)){const col=ch?'var(--hero)':'#64748b';
+        g+=fr?`<text x="${n.x+158}" y="${n.y+5}" font-size="16" fill="#64748b">=</text>${svgP(n.x+200,n.y,n.prob,16,col)}`
+             :`<text x="${n.x+158}" y="${n.y+5}" font-size="16" font-weight="800" fill="${col}">${eqPct(val(n.prob))}</text>`}
     }
   });
-  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Tree diagram for ${hero().name}'s tournament" font-family="var(--font-body)">${hd}${e}${g}</svg>`;
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Tree diagram for ${esc(hero().name)}'s tournament" style="font-family:var(--uiFont)">${hd}${e}${g}</svg>`;
 }
 function workH(m,s){
   const P=probs(),R=m.R,rn=rnames(),L=lives(),fr=S.format==='frac',h=hero(),out=[];
   const x='<span>×</span>',eq='<span>=</span>';
   if(!L){
-    out.push(`<div class="line sub">P(champion) ${eq} ${rn.map(r=>`P(win ${r[1]})`).join(' × ')}</div>`);
+    out.push(`<div class="line sub">P(champion) = ${rn.map(r=>`P(win ${r[1]})`).join(' × ')}</div>`);
     out.push(`<div class="line">${eq} ${P.map((p,i)=>i<s?pH(p):'<span class="q" aria-label="hidden"></span>').join(x)}</div>`);
     if(s>=R+1){
       if(fr){const N=P.reduce((a,p)=>a*p[0],1),D=P.reduce((a,p)=>a*p[1],1);
@@ -502,8 +726,8 @@ function workH(m,s){
     }
   }
   if(s>=R+2){
-    out.push(`<div class="answer"><div class="line">P(${h.name} wins the title) ${fr?eq+' <b>'+frH(m.champ)+'</b> <span class="muted" style="font-size:1rem">'+pct(val(m.champ))+'</span>':'<b>'+eqPct(val(m.champ))+'</b>'}</div>
-      <div class="line sub" style="font-size:1.05rem">P(does not win) ${eq} ${fr?'1 − '+frH(m.champ)+' = '+frH(comp(m.champ)):'100% − '+pct(val(m.champ),false)+' = '+pct(1-val(m.champ),false)}</div></div>`);
+    out.push(`<div class="answer"><div class="line">P(${esc(h.name)} wins the title) ${fr?eq+' <b>'+frH(m.champ)+'</b> <span class="muted" style="font-size:1rem">'+pct(val(m.champ))+'</span>':'<b>'+eqPct(val(m.champ))+'</b>'}</div>
+      <div class="line sub" style="font-size:1.05rem">P(does not win) = ${fr?'1 − '+frH(m.champ)+' = '+frH(comp(m.champ)):'100% − '+pct(val(m.champ),false)+' = '+pct(1-val(m.champ),false)}</div></div>`);
     if(S.predLocked){const d=S.pred-val(m.champ)*100;
       out.push(`<div class="line sub">Class prediction ${S.pred}%. ${Math.abs(d)<2.5?'Very close.':`That was ${Math.abs(d).toFixed(0)} percentage points too ${d>0?'high':'low'}.`}</div>`)}
     if(S.level==='ext'){const cats=categories(m);
@@ -516,117 +740,161 @@ function funnelH(m,s){
   return `<div class="funnel">${m.alive.map((a,d)=>{const on=d===0||(d<=s&&(d<m.R||s>=m.R+1));
     return `<div class="frow"><span>${d===0?'At the start':'After the '+rn[d-1][1]}</span><div class="track"><i style="width:${on?val(a)*100:0}%"></i></div><span class="v">${on?(d===0?(S.format==='frac'?'1':'100%'):(S.format==='frac'?frH(a):pct(val(a)))):''}</span></div>`}).join('')}</div>`;
 }
-function vMaths(){
-  const m=M(),R=m.R,s=S.show,max=R+2,rn=rnames();
-  const next=s<R?`Reveal the ${rn[s][0]}`:s===R?'Multiply along the branches':s===R+1?'Reveal the answer':'';
-  return `<div class="row"><h2 style="margin-right:auto">Why the chances multiply</h2>
-     ${s<max?`<button class="btn primary" data-act="more" data-main>${next}</button><button class="btn" data-act="all">Reveal everything</button>`:`<button class="btn primary" data-act="step" data-v="sim" data-main>Test it with a simulation</button>`}
-     <button class="btn" data-act="hide">Start again</button></div>
-   <div class="maths">
-    <div class="panel"><span class="eyebrow">Tree diagram · solid branch = win, dashed branch = lose</span><div class="treebox">${treeH(m,s)}</div></div>
-    <div style="display:flex;flex-direction:column;gap:1rem;min-width:0">
-      <div class="panel work"><span class="eyebrow">Working</span>${workH(m,s)}</div>
-      <div class="panel"><span class="eyebrow">Chance ${hero().name} is still in the tournament</span>
-        <p class="muted" style="margin:.2rem 0 .6rem;font-size:.85rem">${lives()?'Each round removes part of what is left.':'Each bar is a fraction of the bar above it, not of the whole.'}</p>${funnelH(m,s)}</div>
-    </div></div>${askH()}`;
+const bMaths=()=>`<div class="treebox">${treeH(M(),S.show)}</div>`;
+function pMaths(){
+  const m=M(),s=S.show;
+  return `<div class="work">${workH(m,s)}</div>
+    <div><span class="eyebrow">Chance ${esc(hero().name)} is still in the tournament</span>
+    <p class="muted" style="margin:.2rem 0 .6rem;font-size:.85rem;font-weight:650">${lives()?'Each round removes part of what is left.':'Each bar is a fraction of the bar above it, not of the whole.'}</p>${funnelH(m,s)}</div>`;
 }
 
 /* ---------- step 5: simulate ---------- */
 function lineChart(m){
   const s=S.sim||{n:0,series:[]},W=640,H=270,l=46,r=96,t=14,b=32,xm=Math.max(20,s.n);
   const X=n=>l+(n/xm)*(W-l-r),Y=v=>t+(1-v)*(H-t-b);
-  let g='';[0,.25,.5,.75,1].forEach(v=>{g+=`<line x1="${l}" x2="${W-r}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)"/><text x="${l-8}" y="${Y(v)+4}" text-anchor="end" font-size="12" fill="var(--muted)">${v*100}%</text>`});
-  g+=`<text x="${l}" y="${H-8}" font-size="12" fill="var(--muted)">0</text><text x="${W-r}" y="${H-8}" text-anchor="end" font-size="12" fill="var(--muted)">${xm} tournaments</text>`;
+  let g='';[0,.25,.5,.75,1].forEach(v=>{g+=`<line x1="${l}" x2="${W-r}" y1="${Y(v)}" y2="${Y(v)}" stroke="#e2e8f0"/><text x="${l-8}" y="${Y(v)+4}" text-anchor="end" font-size="12" fill="#64748b">${v*100}%</text>`});
+  g+=`<text x="${l}" y="${H-8}" font-size="12" fill="#64748b">0</text><text x="${W-r}" y="${H-8}" text-anchor="end" font-size="12" fill="#64748b">${xm} tournaments</text>`;
   const th=val(m.champ);let ty=Y(th),py=Y(S.pred/100);
   if(S.theory&&S.predLocked&&Math.abs(ty-py)<14){py+= py>=ty?14-(py-ty):-(14-(ty-py))}
-  if(S.predLocked)g+=`<line x1="${l}" x2="${W-r}" y1="${Y(S.pred/100)}" y2="${Y(S.pred/100)}" stroke="var(--muted)" stroke-width="2" stroke-dasharray="2 5"/><text x="${W-r+6}" y="${py+4}" font-size="12" fill="var(--muted)">Prediction ${S.pred}%</text>`;
-  if(S.theory)g+=`<line x1="${l}" x2="${W-r}" y1="${Y(th)}" y2="${Y(th)}" stroke="var(--hero)" stroke-width="2.5" stroke-dasharray="9 5"/><text x="${W-r+6}" y="${ty+4}" font-size="12" font-weight="700" fill="var(--hero)">Theory ${pct(th,false)}</text>`;
+  if(S.predLocked)g+=`<line x1="${l}" x2="${W-r}" y1="${Y(S.pred/100)}" y2="${Y(S.pred/100)}" stroke="#64748b" stroke-width="2" stroke-dasharray="2 5"/><text x="${W-r+6}" y="${py+4}" font-size="12" fill="#64748b">Prediction ${S.pred}%</text>`;
+  if(S.theory)g+=`<line x1="${l}" x2="${W-r}" y1="${Y(th)}" y2="${Y(th)}" stroke="var(--hero)" stroke-width="2.5" stroke-dasharray="9 5"/><text x="${W-r+6}" y="${ty+4}" font-size="12" font-weight="800" fill="var(--hero)">Theory ${pct(th,false)}</text>`;
   if(s.series.length){const pts=s.series.map(p=>X(p[0]).toFixed(1)+','+Y(p[1]).toFixed(1)).join(' '),e=s.series[s.series.length-1];
-    g+=`<polyline points="${pts}" fill="none" stroke="var(--ink)" stroke-width="2.2" stroke-linejoin="round"/><circle cx="${X(e[0])}" cy="${Y(e[1])}" r="5" fill="var(--ink)" stroke="var(--surface)" stroke-width="2"/>`}
-  else g+=`<text x="${(l+W-r)/2}" y="${H/2}" text-anchor="middle" font-size="14" fill="var(--muted)">Run some tournaments to start the line</text>`;
-  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Share of tournaments won as the number of tournaments grows" font-family="var(--font-body)">${g}</svg>`;
+    g+=`<polyline points="${pts}" fill="none" stroke="#0f172a" stroke-width="2.2" stroke-linejoin="round"/><circle cx="${X(e[0])}" cy="${Y(e[1])}" r="5" fill="#0f172a" stroke="#fff" stroke-width="2"/>`}
+  else g+=`<text x="${(l+W-r)/2}" y="${H/2}" text-anchor="middle" font-size="14" fill="#64748b">Run some tournaments to start the line</text>`;
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Share of tournaments won as the number of tournaments grows" style="font-family:var(--uiFont)">${g}</svg>`;
 }
-function simBody(){
-  const m=M(),s=S.sim||{n:0,counts:{}},cats=categories(m),w=s.counts.champ||0,h=hero();
+function bSim(){
+  const m=M(),s=S.sim||{n:0,counts:{}},cats=categories(m);
+  return `<span class="eyebrow">How ${esc(hero().name)}'s tournaments ended</span>
+    ${cats.map(c=>{const k=s.counts[c.key]||0,f=s.n?k/s.n:0;return `<div class="obar ${c.key==='champ'?'champ':''}"><span>${c.label}</span>
+      <div class="track"><i style="width:${f*100}%"></i>${S.theory?`<span class="mark" style="left:calc(${val(c.p)*100}% - 1.5px)" title="Expected ${pct(val(c.p))}"></span>`:''}</div>
+      <span class="num"><b>${k}</b> · ${s.n?pct(f,false):'–'}${S.theory?`<span class="muted" style="display:block">expected ${pct(val(c.p),false)}</span>`:''}</span></div>`}).join('')}
+    <div class="legend"><span><i style="width:1.2rem;height:.7rem;background:var(--hero);border-radius:3px"></i>share of tournaments</span>${S.theory?'<span><i style="width:3px;height:1rem;background:#0f172a"></i>expected from the tree diagram</span>':''}</div>`;
+}
+function pSim(){
+  const m=M(),s=S.sim||{n:0,counts:{}},w=s.counts.champ||0;
   return `<div class="tiles">
      <div class="tile"><span class="eyebrow">Class prediction</span><span class="big">${S.predLocked?S.pred+'%':'<small>none locked in</small>'}</span></div>
-     <div class="tile"><span class="eyebrow">Theory</span><span class="big">${S.theory?(S.format==='frac'?frH(m.champ)+' <small>'+pct(val(m.champ))+'</small>':pct(val(m.champ))):'<button class="btn" data-act="theory">Reveal</button>'}</span></div>
-     <div class="tile"><span class="eyebrow">Experiment</span><span class="big">${s.n?pct(w/s.n,false):'–'} <small>${w} titles from ${s.n}</small></span></div></div>
-   <div class="sim">
-    <div class="panel"><span class="eyebrow">How ${h.name}'s tournaments ended</span>
-      ${cats.map(c=>{const k=s.counts[c.key]||0,f=s.n?k/s.n:0;return `<div class="obar ${c.key==='champ'?'champ':''}"><span>${c.label}</span>
-        <div class="track"><i style="width:${f*100}%"></i>${S.theory?`<span class="mark" style="left:calc(${val(c.p)*100}% - 1.5px)" title="Expected ${pct(val(c.p))}"></span>`:''}</div>
-        <span class="num"><b>${k}</b> · ${s.n?pct(f,false):'–'}${S.theory?`<span class="muted" style="display:block">expected ${pct(val(c.p),false)}</span>`:''}</span></div>`}).join('')}
-      <div class="legend"><span><i style="width:1.2rem;height:.7rem;background:var(--hero);border-radius:3px"></i>share of tournaments</span>${S.theory?'<span><i style="width:3px;height:1rem;background:var(--ink)"></i>expected from the tree diagram</span>':''}</div></div>
-    <div class="panel chart"><span class="eyebrow">Share of tournaments won so far</span>${lineChart(m)}</div></div>`;
-}
-function vSim(){
-  const run=S.sim&&S.sim.running;
-  return `<div class="row"><h2 style="margin-right:auto">Run the tournament many times</h2>
-    ${[1,10,100,1000].map(n=>`<button class="btn ${n===100?'primary':'dark'}" data-act="run" data-v="${n}" ${n===100?'data-main':''} ${run?'disabled':''}>Run ${n}</button>`).join('')}
-    <button class="btn" data-act="clear" ${run?'disabled':''}>Clear results</button></div>
-    <div id="simBody" style="display:flex;flex-direction:column;gap:1rem">${simBody()}</div>${askH()}`;
+     <div class="tile"><span class="eyebrow">Theory</span><span class="big">${S.theory?(S.format==='frac'?frH(m.champ)+' <small>'+pct(val(m.champ))+'</small>':pct(val(m.champ))):'<button class="gBtn inline" data-act="theory">Reveal</button>'}</span></div>
+     <div class="tile"><span class="eyebrow">Experiment</span><span class="big">${s.n?pct(w/s.n,false):'–'} <small>${w} of ${s.n}</small></span></div></div>
+   <div class="chart"><span class="eyebrow">Share of tournaments won so far</span>${lineChart(m)}</div>`;
 }
 function runSim(n){
   if(!S.sim)newSim();const s=S.sim;if(s.running)return;s.running=true;render();
   const P=probs(),L=lives(),chunk=Math.max(1,Math.ceil(n/40));let left=n;
   (function tick(){ if(S.sim!==s)return;
     for(let k=0;k<chunk&&left>0;k++,left--)record(playOne(P,L));
-    if(left>0){const b=document.getElementById('simBody');if(b)b.innerHTML=simBody();requestAnimationFrame(tick)}
+    if(left>0){if(S.step==='sim'){$('stage').innerHTML=bSim();$('panel').innerHTML=pSim()}requestAnimationFrame(tick)}
     else{s.running=false;render()}
   })();
 }
 
 /* ---------- step 6: investigate (extension) ---------- */
-function vInv(){
+function bInv(){
   const p=S.invP,fr=S.format==='frac',opts=fr?FRIENDLY:FRIENDLY.filter(a=>a[1]!==3);
   let rows='',acc=[1,1];
-  for(let n=1;n<=8;n++){acc=mul(acc,p);rows+=`<div class="frow"><span>${n} match${n>1?'es':''}</span><div class="track"><i style="width:${val(acc)*100}%;${val(acc)<.5?'background:var(--out)':''}"></i></div><span class="v">${pct(val(acc))}</span></div>`}
+  for(let n=1;n<=8;n++){acc=mul(acc,p);rows+=`<div class="frow"><span>${n} match${n>1?'es':''}</span><div class="track"><i style="width:${val(acc)*100}%;${val(acc)<.5?'background:#94a3b8':''}"></i></div><span class="v">${pct(val(acc))}</span></div>`}
   const need=Math.pow(.5,1/S.rounds);
-  const A=fighter(S.invA),Bf=fighter(S.invB),ta=model(probsOf(A),0).champ,tb=model(probsOf(Bf),0).champ;
-  const sel=(id,cur)=>`<select id="${id}" data-inv="${id}" style="padding:.3rem;border-radius:8px;border:1px solid var(--line);background:var(--surface)">${FIGHTERS.map(f=>`<option value="${f.id}" ${f.id===cur?'selected':''}>${f.name}</option>`).join('')}</select>`;
-  const side=(f,t,id)=>`<div style="display:flex;flex-direction:column;gap:.5rem;align-items:center;flex:1;min-width:10rem">${avatar(f,84)}${sel(id,f.id)}<div class="row" style="justify-content:center">${chipsH(probsOf(f))}</div>
-     ${S.invShow?`<div class="big" style="color:${f.color}">${fr?frH(t):''} ${pct(val(t))}</div>`:''}</div>`;
-  return `<div class="inv">
-   <div class="panel" style="display:flex;flex-direction:column;gap:.7rem">
-     <h2>The same chance in every match</h2>
-     <div class="row"><label for="invP">Chance of winning each match</label>
-       <select id="invP" data-inv="invP" style="padding:.3rem;border-radius:8px;border:1px solid var(--line);background:var(--surface)">${opts.map(o=>`<option value="${o[0]}/${o[1]}" ${same(o,p)?'selected':''}>${fr?o[0]+'/'+o[1]:pct(val(o))}</option>`).join('')}</select></div>
+  return `<div style="display:flex;flex-direction:column;gap:.7rem;max-width:44rem;margin:0 auto">
+     <div class="row"><label for="invP" style="font-weight:850">Chance of winning each match</label>
+       <select id="invP" class="pickSel" data-inv="invP">${opts.map(o=>`<option value="${o[0]}/${o[1]}" ${same(o,p)?'selected':''}>${fr?o[0]+'/'+o[1]:pct(val(o))}</option>`).join('')}</select></div>
      <span class="eyebrow">Chance of winning every match in a row</span>
      <div class="funnel">${rows}</div>
-     <span class="muted" style="font-size:.85rem">Grey bars are below an even chance.</span>
-     <div class="ask" style="border-radius:0 10px 10px 0"><span><b>Working backwards</b> &nbsp;For a title chance of at least one half over ${S.rounds} rounds, how good must a fighter be in each match?</span>
-       ${S.revShow?`<span><strong>About ${(need*100).toFixed(1)}% per match</strong>, because ${need.toFixed(3)}<sup>${S.rounds}</sup> ≈ 0.5</span>`:`<button class="btn" data-act="rev">Reveal</button>`}</div>
-   </div>
-   <div class="panel" style="display:flex;flex-direction:column;gap:.9rem">
-     <h2>Who would you back?</h2>
-     <span class="muted">Knockout over ${S.rounds} rounds. Decide as a class before revealing.</span>
-     <div class="row" style="align-items:flex-start">${side(A,ta,'invA')}<span class="big muted" style="align-self:center">v</span>${side(Bf,tb,'invB')}</div>
-     <button class="btn dark" data-act="invShow" style="align-self:center">${S.invShow?'Hide':'Reveal'} the title chances</button>
-   </div></div>${askH()}`;
+     <span class="muted" style="font-size:.85rem;font-weight:650">Grey bars are below an even chance.</span>
+     <div class="askBox"><b>Working backwards.</b> For a title chance of at least one half over ${S.rounds} rounds, how good must a fighter be in each match?
+       ${S.revShow?`<div style="margin-top:.4rem"><strong>About ${(need*100).toFixed(1)}% per match</strong>, because ${need.toFixed(3)}<sup>${S.rounds}</sup> ≈ 0.5</div>`:''}</div></div>`;
+}
+function pInv(){
+  const fr=S.format==='frac',A=fighter(S.invA),Bf=fighter(S.invB),ta=model(probsOf(A),0).champ,tb=model(probsOf(Bf),0).champ;
+  const sel=(id,cur)=>`<select id="${id}" class="pickSel" data-inv="${id}" aria-label="Fighter">${FIGHTERS.map(f=>`<option value="${f.id}" ${f.id===cur?'selected':''}>${f.name}</option>`).join('')}</select>`;
+  const side=(f,t,id)=>`<div class="invSide">${avatar(f,80)}${sel(id,f.id)}<div class="row" style="justify-content:center">${chipsH(probsOf(f))}</div>
+     ${S.invShow?`<div class="big" style="color:${f.color}">${fr?frH(t)+' ':''}<small>${pct(val(t))}</small></div>`:''}</div>`;
+  return `<p class="panelNote">Knockout over ${S.rounds} rounds, no extra life. Decide as a class before revealing.</p>
+    <div class="row" style="align-items:flex-start">${side(A,ta,'invA')}<span class="big muted" style="align-self:center">v</span>${side(Bf,tb,'invB')}</div>`;
 }
 
-/* ---------- render and events ---------- */
-const VIEWS={choose:vChoose,predict:vPredict,battle:vBattle,maths:vMaths,sim:vSim,inv:vInv};
+/* ---------- the step controller: what each step shows and what its buttons do ---------- */
+function stepInfo(){
+  const h=hero(),rn=rnames(),m=S.step==='maths'?M():null;
+  switch(S.step){
+    case 'choose':return {b:bChoose(),p:pChoose(),pt:'Our fighter',main:{t:`Lock in ${h.name} ▸`,act:'step',v:'predict'},sec:{t:S.reveal?'Hide title chances':'Reveal title chances',act:'reveal'}};
+    case 'predict':return {b:bPredict(),p:pPredict(),pt:'The path to the title',
+      main:S.predLocked?{t:'To the arena ▸',act:'step',v:'battle'}:{t:'Lock in class prediction',act:'lock'},
+      sec:S.predLocked?{t:'Change it',act:'unlock'}:{t:'Skip ▸',act:'step',v:'battle'}};
+    case 'battle':{const B=S.B,i=Math.min(B.i,S.rounds-1),done=B.phase==='done';
+      let main;
+      if(done)main={t:'Run another tournament',act:'again'};
+      else if(B.phase==='shown')main={t:`On to the ${rn[i+1][0]} ▸`,act:'nextRound'};
+      else main={t:B.phase==='spinning'?'Spinning…':`Spin the ${rn[i][0]}`,act:'spin',dis:B.phase==='spinning'};
+      return {b:bBattle(),p:pBattle(),pt:'The path and the results',main,sec:{t:'The maths ▸',act:'step',v:'maths'}}}
+    case 'maths':{const s=S.show,max=S.rounds+2;
+      const next=s<S.rounds?`Reveal the ${rn[s][0]}`:s===S.rounds?'Multiply along the branches':'Reveal the answer';
+      return {b:bMaths(),p:pMaths(),pt:'Working',main:s<max?{t:next,act:'more'}:{t:'Test it with a simulation ▸',act:'step',v:'sim'},
+        sec:s<max?{t:'Show all',act:'all'}:{t:'Start again',act:'hide'}}}
+    case 'sim':{const run=!!(S.sim&&S.sim.running);
+      return {b:bSim(),p:pSim(),pt:'Prediction, theory and experiment',main:{t:'Run 100 tournaments',act:'run',v:100,dis:run},sec:{t:'Clear results',act:'clear',dis:run},
+        top:`<div class="seg" role="group" aria-label="Run tournaments"><i>Run</i>${[1,10,1000].map(n=>`<button type="button" data-act="run" data-v="${n}" ${run?'disabled':''}>${n}</button>`).join('')}</div>`}}
+    default:return {b:bInv(),p:pInv(),pt:'Who would you back?',main:{t:S.invShow?'Hide the title chances':'Reveal the title chances',act:'invShow'},sec:{t:S.revShow?'Hide the working backwards':'Reveal working backwards',act:'revToggle'}};
+  }
+}
+
+/* ---------- render ---------- */
+function setBtn(el,c){el.textContent=c.t;el.dataset.act=c.act;if(c.v!==undefined)el.dataset.v=c.v;else delete el.dataset.v;el.disabled=!!c.dis}
 function render(){
   if(S.step==='inv'&&S.level!=='ext')S.step='choose';
-  renderChrome();document.getElementById('view').innerHTML=VIEWS[S.step]();
+  if(S.step==='battle'&&!S.B)newBattle();
+  document.documentElement.style.setProperty('--hero',hero().color);
+  const steps=stepList(),idx=steps.findIndex(s=>s[0]===S.step),v=stepInfo(),h=hero();
+  // header settings
+  $('roundsSel').value=String(S.rounds);$('formatSel').value=S.format;$('levelSel').value=S.level;$('speedSel').value=S.speed;
+  $('lifeChk').checked=S.extraLife;$('promptsChk').checked=S.prompts;
+  $('lifeRow').hidden=S.level!=='ext';
+  // board top
+  $('stepChip').innerHTML=`Step ${idx+1} of ${steps.length}<span class="stn"> · ${steps[idx][1]}</span> &#9662;`;
+  $('stepsMenu').innerHTML=steps.map((s,i)=>`<button type="button" class="toolLink" data-act="step" data-v="${s[0]}" ${s[0]===S.step?'aria-current="true"':''}><span>${i+1}. ${s[1]}</span></button>`).join('');
+  document.querySelectorAll('[data-act=rounds]').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.v===S.rounds)));
+  document.querySelectorAll('[data-act=format]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===S.format)));
+  $('topExtra').innerHTML=v.top||'';
+  $('panelBtn').setAttribute('aria-pressed',String(S.panel));
+  $('layout').classList.toggle('noPanel',!S.panel);
+  // cue and hint
+  const q=S.prompts?ASK[S.step]:INFO[S.step];
+  $('cue').innerHTML=`<b>${q[0]}</b><span>${q[1]}</span>`;
+  $('hint').textContent=`${h.name} · ${S.rounds} rounds · ${2**S.rounds} fighters in the draw · chances as ${S.format==='frac'?'fractions':'percentages'}${lives()?' · extra life on':''}`;
+  // body
+  $('stage').innerHTML=v.b;$('pTitle').textContent=v.pt;$('pTools').innerHTML='';$('panel').innerHTML=v.p;
+  setBtn($('mainBtn'),v.main);setBtn($('secBtn'),v.sec);
+  $('backBtn').disabled=idx===0;
 }
-const parseP=v=>{const a=v.split('/').map(Number);return F(a[0],a[1])};
-const ACT={
-  step(el){S.step=el.dataset.v;if(S.step==='sim'&&S.show>=S.rounds+2)S.theory=true},
-  pick(el){S.hero=el.dataset.v;resetRun()},
-  rounds(el){S.rounds=+el.dataset.v;resetRun();save()},
-  format(el){S.format=el.dataset.v;
-    if(S.format==='pct'){let ch=false;Object.values(S.custom).forEach(arr=>arr.forEach((p,i)=>{if(p[1]===3){arr[i]=p[0]===1?[3,10]:[7,10];ch=true}}));
+
+/* ---------- options ---------- */
+function setOpt(k,v){
+  if(k==='rounds'){S.rounds=+v;resetRun()}
+  else if(k==='format'){S.format=v;
+    if(v==='pct'){let ch=false;Object.values(S.custom).forEach(arr=>arr.forEach((p,i)=>{if(p[1]===3){arr[i]=p[0]===1?[3,10]:[7,10];ch=true}}));
       if(same(S.invP,[1,3]))S.invP=[3,10];if(same(S.invP,[2,3]))S.invP=[7,10];
-      if(ch){resetRun();toast('Thirds are not friendly percentages, so they were changed to 30% and 70%.')}}
-    save()},
-  level(el){S.level=el.dataset.v;if(S.level==='core'&&S.extraLife){S.extraLife=false;resetRun()}save()},
-  life(el){S.extraLife=el.dataset.v==='1';resetRun()},
-  speed(el){S.speed=el.dataset.v;save()},
+      if(ch){resetRun();toast('Thirds are not friendly percentages, so they were changed to 30% and 70%.')}}}
+  else if(k==='level'){S.level=v;if(v==='core'&&S.extraLife){S.extraLife=false;resetRun()}}
+  else if(k==='life'){S.extraLife=!!v;resetRun()}
+  else if(k==='speed'||k==='prompts'||k==='panel')S[k]=v;
+  save();
+}
+function goStep(id){S.step=id;if(id==='sim'&&S.show>=S.rounds+2)S.theory=true}
+function stepBy(d){const l=stepList(),i=l.findIndex(s=>s[0]===S.step),j=Math.max(0,Math.min(l.length-1,i+d));goStep(l[j][0])}
+const parseP=v=>{const a=v.split('/').map(Number);return F(a[0],a[1])};
+
+const ACT={
+  step(el){goStep(el.dataset.v)},
+  back(){stepBy(-1)},
+  restart(){resetRun();S.step='choose'},
+  pick(el){S.hero=el.dataset.v;resetRun()},
+  randHero(){const o=FIGHTERS.filter(f=>f.id!==S.hero);S.hero=o[Math.floor(Math.random()*o.length)].id;resetRun()},
+  rounds(el){setOpt('rounds',el.dataset.v)},
+  format(el){setOpt('format',el.dataset.v)},
+  panel(){setOpt('panel',!S.panel)},
   reveal(){S.reveal=!S.reveal},
   resetP(){delete S.custom[S.hero+S.rounds];resetRun()},
+  resetAll(){S.custom={};resetRun();toast('Every fighter is back to their usual chances.')},
   lock(){S.predLocked=true},unlock(){S.predLocked=false},
   spin(){spin();return false},
   nextRound(){S.B.i++;S.B.phase='ready';S.B.rot=0},
@@ -635,19 +903,48 @@ const ACT={
   theory(){S.theory=true},
   run(el){runSim(+el.dataset.v);return false},
   clear(){newSim();S.live=[]},
-  rev(){S.revShow=true},invShow(){S.invShow=!S.invShow},
-  fullscreen(){const d=document.documentElement;try{(document.fullscreenElement?document.exitFullscreen():d.requestFullscreen()).catch(()=>toast('Full screen is not available here. Try your browser\'s own full screen key.'))}catch(e){toast('Full screen is not available here.')}return false}
+  invShow(){S.invShow=!S.invShow},revToggle(){S.revShow=!S.revShow},
+  fullscreen(){
+    const app=$('app');
+    if(!S.fs){setFs(true);try{const r=app.requestFullscreen||app.webkitRequestFullscreen;const p=r&&r.call(app);if(p&&p.catch)p.catch(()=>{})}catch(e){}}
+    else{setFs(false);try{if(document.fullscreenElement)document.exitFullscreen()}catch(e){}}
+    return false}
 };
-document.addEventListener('click',e=>{const el=e.target.closest('[data-act]');if(!el||el.disabled)return;
+function setFs(on){S.fs=on;$('app').classList.toggle('fs',on);document.querySelector('.fsIn').hidden=on;document.querySelector('.fsOut').hidden=!on}
+document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement&&S.fs)setFs(false)});
+
+/* menus */
+function closeMenus(except){document.querySelectorAll('.dropMenu.open').forEach(m=>{if(m!==except){m.classList.remove('open');const b=document.querySelector(`[data-menu="${m.id}"]`);if(b)b.setAttribute('aria-expanded','false')}})}
+document.addEventListener('click',e=>{
+  const mb=e.target.closest('[data-menu]');
+  if(mb){const m=$(mb.dataset.menu),open=!m.classList.contains('open');closeMenus(open?m:null);m.classList.toggle('open',open);mb.setAttribute('aria-expanded',String(open));return}
+  if(!e.target.closest('.dropMenu'))closeMenus();
+  const el=e.target.closest('[data-act]');if(!el||el.disabled)return;
+  if(el.closest('#stepsMenu'))closeMenus();
   if(ACT[el.dataset.act](el)!==false)render()});
 document.addEventListener('change',e=>{const t=e.target;
-  if(t.dataset.edit!==undefined){const k=S.hero+S.rounds,arr=(S.custom[k]||probs()).map(p=>p.slice());arr[+t.dataset.edit]=parseP(t.value);S.custom[k]=arr;resetRun();render()}
+  if(t.dataset.set){const k=t.dataset.set;setOpt(k,t.type==='checkbox'?t.checked:t.value);
+    if(k==='life'&&t.checked&&S.level!=='ext')setOpt('level','ext');render()}
+  else if(t.dataset.edit!==undefined){const k=S.hero+S.rounds,arr=(S.custom[k]||probs()).map(p=>p.slice());arr[+t.dataset.edit]=parseP(t.value);S.custom[k]=arr;resetRun();render()}
   else if(t.dataset.inv==='invP'){S.invP=parseP(t.value);render()}
   else if(t.dataset.inv){S[t.dataset.inv]=t.value;S.invShow=false;render()}});
-document.addEventListener('input',e=>{if(e.target.id==='pred'){S.pred=+e.target.value;document.getElementById('predOut').textContent=S.pred+'%'}});
-document.addEventListener('keydown',e=>{if(e.code!=='Space'&&e.key!=='Enter')return;
-  if(e.target.closest('button,select,input,a'))return;
-  const b=document.querySelector('[data-main]:not(:disabled)');if(b){e.preventDefault();b.click()}});
+document.addEventListener('input',e=>{if(e.target.id==='pred'){S.pred=+e.target.value;$('predOut').textContent=S.pred+'%'}});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){closeMenus();if(S.fs&&!document.fullscreenElement)setFs(false);return}
+  if(e.ctrlKey||e.metaKey||e.altKey)return;
+  const tag=e.target.tagName;
+  if(/^(SELECT|INPUT|TEXTAREA|A)$/.test(tag))return;
+  const k=e.key.toLowerCase();
+  if((k===' '||k==='enter')&&tag==='BUTTON')return;
+  if(k===' '||k==='arrowright'){const b=$('mainBtn');if(!b.disabled){e.preventDefault();b.click()}}
+  else if(k==='arrowleft'){e.preventDefault();if(!$('backBtn').disabled)$('backBtn').click()}
+  else if(k==='p'){setOpt('format',S.format==='frac'?'pct':'frac');render()}
+  else if(k==='r'){ACT.randHero();render()}
+  else if(k==='g'){setOpt('panel',!S.panel);render()}
+  else if(k==='f'){ACT.fullscreen()}
+  else if(k==='home'){ACT.restart();render()}
+});
+window.__BR__={S,model,M,probs,hero,playOne,render,setOpt,ACT,stepList,FIGHTERS,probsOf,rep};
 render();
 </script>
 </body>

@@ -2105,6 +2105,14 @@ window.MMT_TOOL_LINKS = {
       ideas: ["simulations"],
       note: "Build a spinner, run many trials, and compare observed relative frequency with theoretical probability.",
       tags: ["probability", "spinner", "simulation", "relative frequency", "expected value", "experiment"]
+    },
+    {
+      title: "Battle Royale: Multistage Probability",
+      kind: "Teacher tool",
+      url: "/interactive-tools/stage-5/statistics-probability/battle-royale/",
+      ideas: ["multistage", "multistage-problems", "simulations"],
+      note: "Follow one fighter through a knockout tournament: predict the title chance, spin each match, build the tree diagram to see why chances multiply, then run the tournament many times and compare with the theory. Extension adds every possible ending, an extra life (more than one winning path) and a working-backwards investigation.",
+      tags: ["probability", "multistage", "tree diagram", "independent events", "multiply", "spinner", "simulation", "relative frequency", "tournament", "fractions", "percentages", "chance experiment"]
     }
   ],
 

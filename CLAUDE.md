@@ -102,6 +102,25 @@
 > §2 "TWO folders", §3 deploy paths and §5's `mathstools-main 2` heading below
 > describe the OLD layout — this block supersedes them.
 >
+> **NEW (2026-11-24): BATTLE ROYALE: MULTISTAGE PROBABILITY — Stage 5 teaching tool** at
+> `interactive-tools/stage-5/statistics-probability/battle-royale/index.html` (single file, unit-circle shell, no Firebase),
+> filed ONLY under **MA5-PRO-C-01** (ideas multistage, multistage-problems, simulations; Jeff 2026-11-24: Stage 5 only).
+> Homepage Interactive card (after Venn), toolLinks row (`toolLinks.js?v=14b36076` in resources + teacher portal). Tools menu:
+> link to the Probability Spinner Simulator; Lesson plan / Worksheet / Quiz greyed. localStorage `mmt.battleRoyale.v1`
+> (settings only); test surface `window.__BR__`. Project doc `claude/battle-royale-design-notes.md`.
+> * **Model:** one fighter follows a fixed path of named opponents; the chance belongs to the MATCH (opponent = complement); rounds are
+>   independent. Chances are exact fractions [n, d] from a friendly set (thirds become 30%/70% in percentage mode). ONE `model()`
+>   tree drives the tree diagram, the working and the simulation, so they cannot disagree. 8 original fighters (no third-party IP).
+> * **Steps:** Choose → Predict (class slider, before any maths) → Battle (spinner: result drawn first, then the wheel lands on it)
+>   → The maths (tree revealed round by round, then multiply, then answer) → Simulate (1 / 10 / 100 / 1000, theory line vs the class
+>   prediction) → Investigate (Extension only). Settings: rounds 2–5, fractions / percentages, Core / Extension, extra life, spin
+>   speed, class questions on/off. Extra life forgives one loss BEFORE the Grand Final (a final loss always ends it), which gives
+>   several winning paths: multiply along each, then add. Keys: → / Space main button, ← back, P format, R random fighter, G panel, F full screen.
+> * **Verified (Playwright, Chrome):** all eight fighters' title chances (e.g. Captain Cube 27/64, Nova 729/1000); extra-life 45/64 against
+>   200,000 simulated tournaments (0.703); every ending sums to 1; layout at 1366 × 768, 1920 × 1080 and 390 px; keyboard, menus, saved
+>   settings; homepage card + search; the Stage 5 resources page lists it under all three MA5-PRO-C-01 content statements.
+> * **Not built yet:** lesson plan, worksheet, student quiz, Firebase / `MMTSave`, dependent events (the "dependent" half of the MA5-PRO-C-01 first dot point).
+>
 > **NEW (2026-11-19, latest): VENN DIAGRAMS: SORTING NUMBERS — Stage 5 teaching tool** at
 > `interactive-tools/stage-5/statistics-probability/venn-diagrams/index.html` (single file, no Firebase). Filed ONLY under
 > **MA5-PRO-P-01** (ideas venn-two-way, mutually-exclusive): Jeff's rule (2026-11-19) — link to Stage 5 only when no
