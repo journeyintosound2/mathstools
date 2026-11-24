@@ -122,7 +122,7 @@
 > * **Update (2026-11-25): live tree panel.** In the Battle step the side panel is now a LIVE tree diagram (`liveTreeH`): the
 >   whole pruned tree sits faintly in the background, each round's two arms get their chances when reached, and the arm taken is
 >   drawn in bold. A knockout plays a KO/bomb animation at the L node; then the REST of the tournament plays out along that leaf's
->   row (amber arms, no spinner): the survivor uses their OWN chance for each later round (their Choose-screen chips), and the
+>   row (amber arms, no spinner): each later match is head to head: P(a beats b)=sa/(sa+sb), where s is the fighter's own chance for that round (Choose-screen chips), and the
 >   winner is named at the right. Arena: the match winner enlarges with a green halo and a confetti burst; the loser greys out
 >   ("Eliminated", or "Extra life used"). Panel tabs **Tree diagram / Results** (Results = Run 10/100/1000, tiles, line chart,
 >   outcome bars; the panel is redrawn on its own, so a run never disturbs a spin) and a **Calculate the chance** switch: shows

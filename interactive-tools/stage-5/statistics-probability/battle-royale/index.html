@@ -754,10 +754,12 @@ function spin(){
   },RM?60:(S.speed==='fast'?1000:3550));
 }
 /* After our fighter is knocked out, the rest of the tournament is played quickly along the arms.
-   Whoever is still in uses their OWN chance for that round (their chips on the Choose screen). */
+   Each remaining match is decided head to head: a fighter's strength in a round is their own chance for that round
+   (their chips on the Choose screen), and P(a beats b) = sa/(sa+sb). So a strong fighter usually, but not always, wins. */
+function h2h(a,b,r){const sa=val(probsOf(a)[r]),sb=val(probsOf(b)[r]);return sa+sb>0?sa/(sa+sb):.5}
 function startRest(B){
   const k=B.i,R=S.rounds,opp=opponents(),steps=[];let a=opp[k];
-  for(let r=k+1;r<R;r++){const b=opp[r],w=Math.random()<val(probsOf(a)[r])?a:b;steps.push({r,a,b,w});a=w}
+  for(let r=k+1;r<R;r++){const b=opp[r],w=Math.random()<h2h(a,b,r)?a:b;steps.push({r,a,b,w});a=w}
   B.rest={k,first:opp[k],steps,shown:0,t:[],winner:a,doneT:null};
   const fast=S.speed==='fast',d0=RM?0:(fast?1300:1950),dt=RM?0:(fast?520:950);
   const adv=()=>{if(S.B!==B)return;const r=B.rest;
