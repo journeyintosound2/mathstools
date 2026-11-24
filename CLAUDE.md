@@ -119,6 +119,18 @@
 > * **Verified (Playwright, Chrome):** all eight fighters' title chances (e.g. Captain Cube 27/64, Nova 729/1000); extra-life 45/64 against
 >   200,000 simulated tournaments (0.703); every ending sums to 1; layout at 1366 × 768, 1920 × 1080 and 390 px; keyboard, menus, saved
 >   settings; homepage card + search; the Stage 5 resources page lists it under all three MA5-PRO-C-01 content statements.
+> * **Update (2026-11-25): live tree panel.** In the Battle step the side panel is now a LIVE tree diagram (`liveTreeH`): the
+>   whole pruned tree sits faintly in the background, each round's two arms get their chances when reached, and the arm taken is
+>   drawn in bold. A knockout plays a KO/bomb animation at the L node; then the REST of the tournament plays out along that leaf's
+>   row (amber arms, no spinner): the survivor uses their OWN chance for each later round (their Choose-screen chips), and the
+>   winner is named at the right. Arena: the match winner enlarges with a green halo and a confetti burst; the loser greys out
+>   ("Eliminated", or "Extra life used"). Panel tabs **Tree diagram / Results** (Results = Run 10/100/1000, tiles, line chart,
+>   outcome bars; the panel is redrawn on its own, so a run never disturbs a spin) and a **Calculate the chance** switch: shows
+>   every arm's chance; the class types P(title) as a fraction, decimal or %; `doCheck` accepts equivalent fractions and ±0.5
+>   percentage points, and gives hints for one-match, added-up and (extra life) single-path answers. The entry is plotted as a purple
+>   **Calculation** line beside Theory and the prediction (labels pushed apart), with a mark on the Champion bar, in Results AND the
+>   Simulate step. Animations use a negative animation-delay from event timestamps so panel redraws continue them smoothly;
+>   `prefers-reduced-motion` shows end states. render() never rebuilds the wheel mid-spin (render({force:true}) only from spin()).
 > * **Not built yet:** lesson plan, worksheet, student quiz, Firebase / `MMTSave`, dependent events (the "dependent" half of the MA5-PRO-C-01 first dot point).
 >
 > **NEW (2026-11-19, latest): VENN DIAGRAMS: SORTING NUMBERS — Stage 5 teaching tool** at

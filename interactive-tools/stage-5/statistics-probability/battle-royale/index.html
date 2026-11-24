@@ -16,7 +16,7 @@
       --orange:#f97316; --orange-dark:#c2410c;
       --amber:#facc15; --amber-dark:#a16207;
       --line:#334155; --line-soft:#94a3b8; --red:#dc2626;
-      --hero:#2563eb; --opp:#94a3b8;
+      --hero:#2563eb; --opp:#94a3b8; --calc:#7c3aed;
       --uiFont:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
       --mathFont:"STIX Two Math","Cambria Math","Latin Modern Math","Times New Roman",Georgia,serif;
     }
@@ -216,7 +216,7 @@
     .crown.won{ border-style:solid; border-color:var(--amber); background:color-mix(in srgb,var(--amber) 22%,white); color:var(--amber-dark); }
 
     /* arena */
-    .arena{ display:grid; grid-template-columns:1fr auto 1fr; gap:.8rem; align-items:center; position:relative; overflow:hidden; padding:.5rem; min-height:100%; }
+    .arena{ display:grid; grid-template-columns:1fr auto 1fr; gap:.8rem; align-items:center; position:relative; overflow:hidden; padding:1.4rem 1.6rem .5rem; min-height:100%; }
     .side1{ display:flex; flex-direction:column; align-items:center; gap:.3rem; text-align:center; }
     .side1 h3{ margin:0; font-size:1.25rem; font-weight:900; letter-spacing:-.02em; }
     .pbig{ font-size:1.6rem; display:flex; align-items:center; gap:.5rem; }
@@ -258,9 +258,9 @@
     th{ font-size:.72rem; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); font-weight:950; }
 
     /* simulate */
-    .tiles{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.6rem; }
+    .tiles{ display:grid; grid-template-columns:repeat(auto-fit,minmax(118px,1fr)); gap:.6rem; }
     .tile{ background:#fff; border:1px solid var(--border); border-radius:14px; padding:.6rem .8rem; display:flex; flex-direction:column; gap:.2rem; min-width:0; }
-    .tile .big{ font-size:1.5rem; }
+    .tile .big{ font-size:1.35rem; display:flex; align-items:center; gap:.35rem; flex-wrap:wrap; }
     .gBtn.inline{ font-size:.9rem; padding:.4rem .8rem; }
     .obar{ display:grid; grid-template-columns:8.5rem 1fr 8.5rem; gap:.7rem; align-items:center; padding:.4rem 0; font-weight:800; }
     .obar .track{ height:2rem; background:var(--soft); border-radius:8px; position:relative; }
@@ -276,6 +276,81 @@
     .askBox{ border-left:4px solid var(--amber); background:#fffbeb; border-radius:0 12px 12px 0; padding:.6rem .9rem; font-size:.92rem; font-weight:700; color:var(--line); line-height:1.45; }
     .toast{ position:fixed; bottom:1.2rem; left:50%; transform:translateX(-50%); background:var(--ink); color:#fff; padding:.6rem 1rem; border-radius:12px; font-size:.9rem; font-weight:800; z-index:200; max-width:90vw; }
 
+
+    /* ---------- battle: winner and loser ---------- */
+    .side1 .av{ position:relative; display:grid; place-items:center; isolation:isolate; transition:transform .45s cubic-bezier(.2,1.4,.4,1),filter .4s,opacity .4s; }
+    .side1.won .av{ transform:scale(1.18); }
+    .side1.won .av::before{ content:""; position:absolute; inset:-9%; border-radius:50%; z-index:-1;
+      background:radial-gradient(circle,rgba(34,197,94,.42) 0%,rgba(34,197,94,.16) 48%,transparent 70%);
+      box-shadow:0 0 0 5px rgba(34,197,94,.55),0 0 30px 8px rgba(34,197,94,.38); animation:halo 1.5s ease-in-out infinite alternate; }
+    @keyframes halo{ from{ opacity:.7; transform:scale(.95); } to{ opacity:1; transform:scale(1.05); } }
+    .side1.won.fresh .av{ animation:winPop .6s cubic-bezier(.2,1.5,.4,1); }
+    @keyframes winPop{ 0%{ transform:scale(1); } 55%{ transform:scale(1.32); } 100%{ transform:scale(1.18); } }
+    .side1.lost .av{ filter:grayscale(1); opacity:.38; transform:scale(.88); }
+    .side1.lost h3,.side1.lost .pbig{ opacity:.45; }
+    .side1.lost.fresh .av{ animation:losePop .7s ease-out; }
+    @keyframes losePop{ 0%{ filter:none; opacity:1; transform:scale(1); } 25%{ transform:scale(1.03) translateX(-5px); } 45%{ transform:translateX(5px); } 100%{ filter:grayscale(1); opacity:.38; transform:scale(.88); } }
+    .tagSlot{ min-height:1.8rem; display:flex; align-items:center; justify-content:center; }
+    .tag{ font-size:.72rem; font-weight:950; letter-spacing:.1em; text-transform:uppercase; padding:4px 11px; border-radius:999px; border:1px solid; }
+    .tag.tWin{ background:#dcfce7; color:#15803d; border-color:#86efac; }
+    .tag.tOut{ background:#f1f5f9; color:#64748b; border-color:#cbd5e1; }
+    .tag.tLife{ background:#fef3c7; color:#a16207; border-color:#fcd34d; }
+    .tag.tChamp{ background:#fef9c3; color:#a16207; border-color:#facc15; }
+    .burst{ position:absolute; left:50%; top:50%; width:0; height:0; pointer-events:none; z-index:3; }
+    .burst i{ position:absolute; left:-4px; top:-6px; width:8px; height:12px; border-radius:2px; animation:burst 1.4s cubic-bezier(.12,.75,.3,1) both; }
+    @keyframes burst{ 0%{ opacity:1; transform:translate(0,0) rotate(0); } 75%{ opacity:1; } 100%{ opacity:0; transform:translate(var(--dx),var(--dy)) rotate(var(--rot)); } }
+
+    /* ---------- battle: live tree diagram ---------- */
+    .btree{ flex:1 1 auto; min-height:230px; display:flex; }
+    .btree svg{ display:block; width:100%; height:100%; }
+    @media (max-width:980px){ .btree{ flex:none; display:block; min-height:0; } .btree svg{ height:auto; } }
+    .btree .armDraw{ stroke-dasharray:var(--len); stroke-dashoffset:var(--len); animation:draw .55s ease-out both; }
+    @keyframes draw{ to{ stroke-dashoffset:0; } }
+    .btree .pulse{ transform-box:fill-box; transform-origin:center; animation:pulse 1.3s ease-in-out infinite; }
+    @keyframes pulse{ 0%,100%{ opacity:.15; transform:scale(1); } 50%{ opacity:.6; transform:scale(1.45); } }
+    .btree .fadeIn{ animation:fadeIn .35s ease-out both; }
+    @keyframes fadeIn{ from{ opacity:0; } to{ opacity:1; } }
+    .btree .popIn{ transform-box:fill-box; transform-origin:center; animation:popIn .45s cubic-bezier(.2,1.6,.4,1) both; }
+    @keyframes popIn{ from{ opacity:0; transform:scale(.2); } to{ opacity:1; transform:scale(1); } }
+    .btree .bFlash,.btree .bRing,.btree .bStar,.btree .bBit,.btree .bText{ transform-box:fill-box; transform-origin:center; }
+    .btree .bFlash{ animation:bFlash .7s ease-out both; }
+    @keyframes bFlash{ 0%{ opacity:0; transform:scale(.2); } 8%{ opacity:1; } 100%{ opacity:0; transform:scale(2.4); } }
+    .btree .bRing{ animation:bRing .9s ease-out both; }
+    @keyframes bRing{ 0%{ opacity:0; transform:scale(.3); } 10%{ opacity:1; } 100%{ opacity:0; transform:scale(2.8); } }
+    .btree .bStar{ animation:bStar .8s ease-out both; }
+    @keyframes bStar{ 0%{ opacity:1; transform:scale(0) rotate(0); } 35%{ opacity:1; transform:scale(1.25) rotate(15deg); } 100%{ opacity:0; transform:scale(.5) rotate(45deg); } }
+    .btree .bBit{ animation:bBit .9s cubic-bezier(.1,.7,.3,1) both; }
+    @keyframes bBit{ 0%{ opacity:0; transform:translate(0,0); } 8%{ opacity:1; } 100%{ opacity:0; transform:translate(var(--dx),var(--dy)); } }
+    .btree .bText{ animation:bText 1.3s ease-out both; }
+    @keyframes bText{ 0%{ opacity:0; transform:scale(.2); } 20%{ opacity:1; transform:scale(1.35); } 35%{ transform:scale(1); } 80%{ opacity:1; } 100%{ opacity:0; transform:translateY(-8px); } }
+    .btree .shake{ animation:shake .5s ease-in-out both; }
+    @keyframes shake{ 0%,100%{ transform:translate(0,0); } 20%{ transform:translate(-5px,2px); } 40%{ transform:translate(5px,-2px); } 60%{ transform:translate(-4px,1px); } 80%{ transform:translate(3px,-1px); } }
+    .liveCap{ margin:0; font-size:.95rem; font-weight:700; color:var(--line); line-height:1.5; min-height:3em; flex:0 0 auto; }
+    .liveCap .pips{ display:inline-flex; vertical-align:middle; margin-right:.25rem; }
+    .treeFoot{ display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; font-size:.88rem; font-weight:750; color:var(--muted); border-top:1px solid var(--border); padding-top:10px; margin-top:auto; }
+    .gBtn.prim{ background:linear-gradient(135deg,var(--blue),var(--purple)); color:#fff; border-color:transparent; }
+    .gBtn.prim:hover:not(:disabled){ color:#fff; background:linear-gradient(135deg,var(--blue-dark),var(--purple-dark)); }
+    .gBtn:disabled{ opacity:.45; cursor:not-allowed; }
+    .runRow{ display:flex; align-items:center; gap:7px; flex-wrap:wrap; }
+    .runRow .runN{ margin-left:auto; font-size:.8rem; font-weight:800; color:var(--muted); }
+
+    /* ---------- calculate the chance ---------- */
+    .sw.sm{ font-size:.86rem; gap:8px; }
+    .sw.sm .track{ width:42px; height:24px; }
+    .sw.sm .track::after{ width:18px; height:18px; }
+    .sw.sm input:checked + .track{ background:var(--calc); }
+    .sw.sm input:checked + .track::after{ transform:translateX(18px); }
+    .calcBox{ flex:0 0 auto; border:1.5px solid #ddd6fe; background:#f5f3ff; border-radius:14px; padding:9px 12px; display:flex; flex-direction:column; gap:6px; }
+    .calcRow{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-family:var(--mathFont); font-weight:700; font-size:1.08rem; }
+    .calcRow input{ width:10.5rem; padding:8px 10px; border:1.5px solid #c4b5fd; border-radius:10px; font-size:1.05rem; font-weight:800; font-family:var(--uiFont); color:var(--ink); background:#fff; }
+    .calcRow input:focus-visible{ outline:none; border-color:var(--calc); box-shadow:0 0 0 4px rgba(124,58,237,.18); }
+    .calcMsg{ font-size:.92rem; font-weight:800; line-height:1.45; }
+    .calcMsg.ok{ color:var(--green-dark); } .calcMsg.no{ color:#b91c1c; }
+    .calcMsg .fr{ font-size:1.05em; }
+    .calcNote{ font-size:.8rem; font-weight:700; color:var(--muted); }
+    .okT{ color:var(--green-dark) !important; font-weight:900 !important; } .noT{ color:#b91c1c !important; font-weight:900 !important; }
+    .obar .mark.calcM{ background:var(--calc); }
+
     .app.fs .mmtTopbar{ display:none; }
     @media (max-width:1280px){ .layout{ grid-template-columns:minmax(0,1fr) minmax(320px,.9fr); } .layout.noPanel{ grid-template-columns:minmax(0,1fr); } }
     @media (max-width:980px){
@@ -285,7 +360,6 @@
       .panelCard{ flex:none; }
       #panel{ overflow:visible; }
       .roster{ grid-template-columns:repeat(2,minmax(0,1fr)); }
-      .tiles{ grid-template-columns:1fr; }
     }
     @media (max-width:760px){
       .mmtTopbar{ grid-template-columns:1fr; justify-items:center; padding:12px 14px; }
@@ -301,7 +375,7 @@
       .stepBtn.icon{ flex:0 0 46px; }
       .stepRow{ gap:5px; } .stepBtn{ padding:11px 9px; font-size:.85rem; } .nextBtn{ font-size:.92rem; padding:12px 8px; } .keyHint{ display:none; }
     }
-    @media (prefers-reduced-motion:reduce){ .wheel{ transition-duration:.01s !important; } .confetti{ display:none; } .frow .track i{ transition:none; } }
+    @media (prefers-reduced-motion:reduce){ .wheel{ transition-duration:.01s !important; } .confetti,.burst{ display:none; } .frow .track i{ transition:none; } .side1 .av,.side1 .av::before{ transition:none; animation:none !important; } }
   </style>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
 <!-- mmt-pwa -->
@@ -484,7 +558,8 @@ const INFO={
 const STORE='mmt.battleRoyale.v1';
 const S={step:'choose',hero:'cube',rounds:3,format:'frac',level:'core',extraLife:false,speed:'normal',prompts:true,panel:true,fs:false,
   custom:{},reveal:false,pred:50,predLocked:false,show:0,theory:false,live:[],
-  B:null,sim:null,invP:[9,10],invA:'hexa',invB:'cube',invShow:false,revShow:false};
+  B:null,sim:null,invP:[9,10],invA:'hexa',invB:'cube',invShow:false,revShow:false,
+  view:'tree',calcOn:false,calcText:'',calc:null};
 try{const s=JSON.parse(localStorage.getItem(STORE)||'{}');
   ['rounds','format','level','speed','prompts','panel'].forEach(k=>{if(s[k]!==undefined)S[k]=s[k]});
   if(![2,3,4,5].includes(S.rounds))S.rounds=3;}catch(e){}
@@ -536,7 +611,7 @@ const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',
 const $=id=>document.getElementById(id);
 
 /* ---------- original fighters, drawn as simple shapes ---------- */
-function avatar(f,size,mood){
+function avatar(f,size,mood,attrs=''){
   const c=f.color;let body,ey=46;
   const star=(n,ro,ri)=>{let p=[];for(let i=0;i<n*2;i++){const r=i%2?ri:ro,a=Math.PI*i/n-Math.PI/2;p.push((50+r*Math.cos(a)).toFixed(1)+','+(50+r*Math.sin(a)).toFixed(1))}return p.join(' ')};
   const st=`fill="${c}" stroke="${c}" stroke-width="6" stroke-linejoin="round"`;
@@ -552,16 +627,16 @@ function avatar(f,size,mood){
   }
   const dx=f.shape==='star5'?9:f.shape==='diamond'?10:12, my=ey+17;
   const mouth=mood==='sad'?`M${50-8} ${my+4} Q50 ${my-4} ${50+8} ${my+4}`:mood==='joy'?`M${50-9} ${my-2} Q50 ${my+10} ${50+9} ${my-2}Z`:`M${50-8} ${my} Q50 ${my+7} ${50+8} ${my}`;
-  return `<svg viewBox="0 0 100 100" width="${size}" height="${size}" role="img" aria-label="${esc(f.name)}" style="flex:0 0 auto">${body}
+  return `<svg ${attrs} viewBox="0 0 100 100" width="${size}" height="${size}" role="img" aria-label="${esc(f.name)}" style="flex:0 0 auto">${body}
     <circle cx="${50-dx}" cy="${ey}" r="7.5" fill="#fff"/><circle cx="${50+dx}" cy="${ey}" r="7.5" fill="#fff"/>
     <circle cx="${50-dx+1.5}" cy="${ey+1}" r="3.4" fill="#0f172a"/><circle cx="${50+dx+1.5}" cy="${ey+1}" r="3.4" fill="#0f172a"/>
     <path d="${mouth}" fill="${mood==='joy'?'#fff':'none'}" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 }
-const trophy=(s,on)=>{const c=on?'#ca8a04':'#cbd5e1';return `<svg viewBox="0 0 40 40" width="${s}" height="${s}" aria-hidden="true"><path d="M11 5h18v9a9 9 0 0 1-18 0z" fill="${c}"/><path d="M11 8H5c0 6 3 9 7 9M29 8h6c0 6-3 9-7 9" fill="none" stroke="${c}" stroke-width="3"/><rect x="18" y="22" width="4" height="7" fill="${c}"/><rect x="11" y="29" width="18" height="5" rx="2" fill="${c}"/></svg>`};
+const trophy=(s,on,attrs='')=>{const c=on?'#ca8a04':'#cbd5e1';return `<svg ${attrs} viewBox="0 0 40 40" width="${s}" height="${s}" aria-hidden="true"><path d="M11 5h18v9a9 9 0 0 1-18 0z" fill="${c}"/><path d="M11 8H5c0 6 3 9 7 9M29 8h6c0 6-3 9-7 9" fill="none" stroke="${c}" stroke-width="3"/><rect x="18" y="22" width="4" height="7" fill="${c}"/><rect x="11" y="29" width="18" height="5" rx="2" fill="${c}"/></svg>`};
 
 /* ---------- resets ---------- */
-function resetRun(){S.B=null;S.sim=null;S.live=[];S.show=0;S.theory=false;S.predLocked=false;S.pred=50;S.invShow=false;S.revShow=false}
-function newBattle(){S.B={i:0,losses:0,res:[],phase:'ready',rot:0,outcome:null}}
+function resetRun(){S.B=null;S.sim=null;S.live=[];S.show=0;S.theory=false;S.predLocked=false;S.pred=50;S.invShow=false;S.revShow=false;S.view='tree';S.calc=null;S.calcText=''}
+function newBattle(){S.B={i:0,losses:0,res:[],phase:'ready',rot:0,outcome:null,armT:null,bombT:null,rest:null,fresh:false}}
 function newSim(){S.sim={n:0,counts:{},series:[],stride:1,running:false}}
 function record(key){if(!S.sim)newSim();const s=S.sim;s.n++;s.counts[key]=(s.counts[key]||0)+1;
   if(s.n%s.stride===0){s.series.push([s.n,(s.counts.champ||0)/s.n]);if(s.series.length>1200){s.series=s.series.filter((_,i)=>i%2===1);s.stride*=2}}}
@@ -616,6 +691,7 @@ function pPredict(){
 }
 
 /* ---------- step 3: battle ---------- */
+const RM=matchMedia('(prefers-reduced-motion:reduce)').matches;
 function wheelH(p,h,rot){
   const a=val(p)*360,pt=t=>{const r=t*Math.PI/180;return (100+92*Math.sin(r)).toFixed(2)+','+(100-92*Math.cos(r)).toFixed(2)};
   const sec=(a0,a1,c)=>`<path d="M100,100 L${pt(a0)} A92,92 0 ${a1-a0>180?1:0} 1 ${pt(a1)} Z" fill="${c}"/>`;
@@ -627,51 +703,249 @@ function wheelH(p,h,rot){
 }
 function confetti(){const cols=['#facc15','var(--hero)','#f97316','#22c55e'];let s='';
   for(let k=0;k<36;k++)s+=`<i style="left:${Math.random()*100}%;background:${cols[k%4]};animation-delay:${(Math.random()*.6).toFixed(2)}s"></i>`;return `<div class="confetti">${s}</div>`}
+/* a burst of confetti from the winner of a match */
+function burst(c){const cols=['#22c55e','#86efac','#facc15','#16a34a',c];let s='';
+  for(let k=0;k<34;k++){const a=Math.random()*Math.PI*2,d=70+Math.random()*95,dx=(Math.cos(a)*d).toFixed(0),dy=(Math.sin(a)*d+40).toFixed(0),r=(Math.random()*720-360).toFixed(0);
+    s+=`<i style="background:${cols[k%5]};--dx:${dx}px;--dy:${dy}px;--rot:${r}deg;animation-delay:${(Math.random()*.12).toFixed(2)}s"></i>`}
+  return `<span class="burst" aria-hidden="true">${s}</span>`}
 function bBattle(){
   const B=S.B,h=hero(),P=probs(),rn=rnames(),opp=opponents(),i=Math.min(B.i,S.rounds-1),o=opp[i],p=P[i];
-  const last=B.res[i],done=B.phase==='done';
+  const done=B.phase==='done',res=(B.phase==='shown'||done)?B.res[i]:null;
   let verdict='',vc='';
-  if(B.phase==='shown'||done){
+  if(res){
     if(B.outcome==='champ'){verdict=`${h.name} is the champion`;vc='C'}
-    else if(last==='W'){verdict=`${h.name} wins the ${rn[i][0]}`;vc='W'}
+    else if(res==='W'){verdict=`${h.name} wins the ${rn[i][0]}`;vc='W'}
     else if(done){verdict=`${o.name} wins. ${h.name} is out in the ${rn[i][0]}`;vc='L'}
     else {verdict=`${o.name} wins, but ${h.name} uses the extra life and stays in`;vc='L'}
   }
-  const av=Math.round(Math.max(88,Math.min(150,innerHeight*.17)));
-  const mh=B.outcome==='champ'?'joy':(done?'sad':''),mo=done&&B.outcome!=='champ'?'joy':'';
+  const av=Math.round(Math.max(72,Math.min(138,innerHeight*.16,innerWidth*.26))),fresh=!!B.fresh&&!RM;
+  const hc=res==='W'?'won':res==='L'?'lost':'',oc=res==='L'?'won':res==='W'?'lost':'';
+  const htag=res==='W'?(B.outcome==='champ'?['Champion','tChamp']:['Winner','tWin']):res==='L'?(done?['Eliminated','tOut']:['Extra life used','tLife']):null;
+  const otag=res==='L'?['Winner','tWin']:res==='W'?['Eliminated','tOut']:null;
+  const side=(f,cls,tag,pp,extra)=>`<div class="side1 ${cls}${fresh&&cls?' fresh':''}">
+      <div class="av">${avatar(f,av,cls==='won'?'joy':cls==='lost'?'sad':'')}${fresh&&cls==='won'?burst(f.color):''}</div>
+      <h3>${f.name}</h3><div class="pbig"><small>wins</small>${pH(pp)}</div>
+      <div class="tagSlot">${tag?`<span class="tag ${tag[1]}">${tag[0]}</span>`:extra}</div></div>`;
   return `<div class="arena" style="--opp:${o.color}">
-    <div class="side1">${avatar(h,av,mh)}<h3>${h.name}</h3><div class="pbig"><small>wins</small>${pH(p)}</div>
-      ${lives()?`<span class="lives">Extra life: ${B.losses?'used':'ready'}</span>`:''}</div>
+    ${side(h,hc,htag,p,lives()?`<span class="lives">Extra life: ${B.losses?'used':'ready'}</span>`:'')}
     ${wheelH(p,h,B.rot)}
-    <div class="side1">${avatar(o,av,mo)}<h3>${o.name}</h3><div class="pbig"><small>wins</small>${pH(comp(p))}</div></div>
+    ${side(o,oc,otag,comp(p),'')}
     <div class="verdictRow"><div class="verdict ${vc}" aria-live="polite">${verdict}</div></div>
-    ${B.outcome==='champ'&&B.fresh?confetti():''}</div>`;
-}
-function pBattle(){
-  const rn=rnames(),titles=S.live.filter(l=>l.outcome==='champ').length;
-  return `${pathH()}
-   <div class="log"><span class="eyebrow">Tournaments played live</span>
-    <div class="big">${titles} <small>title${titles===1?'':'s'} from ${S.live.length}</small></div>
-    ${S.live.length?`<ol>${S.live.slice(-6).reverse().map(l=>`<li><span class="pips">${l.res.map(r=>`<span class="pip ${r}">${r}</span>`).join('')}</span><span>${l.outcome==='champ'?'Champion':'Out in the '+rn[+l.outcome.slice(3)][1]}</span></li>`).join('')}</ol>`
-      :`<span class="muted" style="font-size:.88rem;font-weight:650">Each finished tournament is recorded here and counted in the simulation.</span>`}</div>`;
+    ${B.outcome==='champ'&&fresh?confetti():''}</div>`;
 }
 function spin(){
   const B=S.B;if(!B||B.phase!=='ready')return;
   const p=probs()[B.i],win=Math.random()<val(p),a=val(p)*360;
   const lo=win?0:a,span=win?a:360-a,m=Math.min(7,span*.15),th=lo+m+Math.random()*(span-2*m);
   const turns=S.speed==='fast'?2:5;
-  B.rot=360*turns+(360-th);B.phase='spinning';render();
+  B.rot=360*turns+(360-th);B.phase='spinning';S.view='tree';render({force:true});
   const w=$('wheel');w.style.transform='rotate(0deg)';
   requestAnimationFrame(()=>requestAnimationFrame(()=>{w.style.transform=`rotate(${B.rot}deg)`}));
-  const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
   setTimeout(()=>{ if(S.B!==B)return;
-    B.res[B.i]=win?'W':'L';if(!win)B.losses++;
-    if(!win&&(B.losses>lives()||B.i===S.rounds-1)){B.phase='done';B.outcome='out'+B.i}
+    const now=performance.now();
+    B.res[B.i]=win?'W':'L';if(!win)B.losses++;B.armT=now;
+    if(!win&&(B.losses>lives()||B.i===S.rounds-1)){B.phase='done';B.outcome='out'+B.i;B.bombT=now+450;startRest(B)}
     else if(B.i===S.rounds-1){B.phase='done';B.outcome='champ'}
     else B.phase='shown';
-    if(B.phase==='done'){S.live.push({res:B.res.slice(),outcome:B.outcome});record(B.outcome);B.fresh=true}
-    if(S.step==='battle'){render();B.fresh=false}
-  },reduce?60:(S.speed==='fast'?1000:3550));
+    if(B.phase==='done'){S.live.push({res:B.res.slice(),outcome:B.outcome});record(B.outcome)}
+    B.fresh=true;if(S.step==='battle')render();B.fresh=false;
+  },RM?60:(S.speed==='fast'?1000:3550));
+}
+/* After our fighter is knocked out, the rest of the tournament is played quickly along the arms.
+   Whoever is still in uses their OWN chance for that round (their chips on the Choose screen). */
+function startRest(B){
+  const k=B.i,R=S.rounds,opp=opponents(),steps=[];let a=opp[k];
+  for(let r=k+1;r<R;r++){const b=opp[r],w=Math.random()<val(probsOf(a)[r])?a:b;steps.push({r,a,b,w});a=w}
+  B.rest={k,first:opp[k],steps,shown:0,t:[],winner:a,doneT:null};
+  const fast=S.speed==='fast',d0=RM?0:(fast?1300:1950),dt=RM?0:(fast?520:950);
+  const adv=()=>{if(S.B!==B)return;const r=B.rest;
+    if(r.shown<r.steps.length){r.t[r.shown]=performance.now();r.shown++;if(S.step==='battle')renderPanel();setTimeout(adv,dt)}
+    else{r.doneT=performance.now();if(S.step==='battle')renderPanel()}};
+  setTimeout(adv,d0);
+}
+
+/* ---------- the live tree diagram (battle panel) ---------- */
+/* animation helper: e = ms since the event. Returns class + a negative delay so a re-render carries on mid-animation. */
+const ag=(cls,dur,delay,e,extra='')=>(!RM&&e<delay+dur)?` class="${cls}" style="${extra}animation-delay:${Math.round(delay-e)}ms"`:(extra?` style="${extra}"`:'');
+function starPts(x,y,k,ro,ri){const p=[];for(let i=0;i<k*2;i++){const r=i%2?ri:ro,a=Math.PI*i/k;p.push((x+r*Math.cos(a)).toFixed(1)+','+(y+r*Math.sin(a)).toFixed(1))}return p.join(' ')}
+function bombH(n,e){
+  const x=n.x,y=n.y,d=v=>`animation-delay:${Math.round(v-e)}ms`;let s='';
+  if(!RM){
+    if(e<700)s+=`<circle cx="${x}" cy="${y}" r="30" fill="#fde68a" class="bFlash" style="${d(0)}"/>`;
+    if(e<980)s+=`<circle cx="${x}" cy="${y}" r="22" fill="none" stroke="#ef4444" stroke-width="4" class="bRing" style="${d(80)}"/>`;
+    if(e<800)s+=`<polygon points="${starPts(x,y,12,42,18)}" fill="#f97316" stroke="#dc2626" stroke-width="2" class="bStar" style="${d(0)}"/>`;
+    if(e<900)for(let k=0;k<12;k++){const a=(k*30+12)*Math.PI/180,r=44+(k%3)*12;
+      s+=`<circle cx="${x}" cy="${y}" r="${2.5+k%3}" fill="${k%2?'#334155':'#f97316'}" class="bBit" style="--dx:${(r*Math.cos(a)).toFixed(1)}px;--dy:${(r*Math.sin(a)).toFixed(1)}px;${d(0)}"/>`}
+  }
+  s+=`<g${(!RM&&e<650)?` class="fadeIn" style="${d(300)}"`:''}><circle cx="${x}" cy="${y}" r="17" fill="#1e293b" stroke="#ef4444" stroke-width="3"/><path d="M${x-6} ${y-6}L${x+6} ${y+6}M${x+6} ${y-6}L${x-6} ${y+6}" stroke="#fff" stroke-width="3.2" stroke-linecap="round"/></g>`;
+  if(!RM&&e<1450)s+=`<text x="${x}" y="${y-28}" text-anchor="middle" font-size="22" font-weight="900" fill="#dc2626" stroke="#fff" stroke-width="5" paint-order="stroke" class="bText" style="${d(150)}">KO!</text>`;
+  return s;
+}
+function liveTreeH(){
+  const B=S.B,m=M(),R=m.R,rn=rnames(),opp=opponents(),fr=S.format==='frac',now=performance.now();
+  const calc=S.calcOn,ok=calc&&S.calc&&S.calc.ok,nL=m.leaves.length;
+  const rowH=nL<=4?100:nL<=6?78:nL<=10?(fr?60:52):(fr?54:46);
+  const colW=R<=2?164:R===3?130:R===4?112:100;
+  const padL=58,top=76,labelX=padL+R*colW+24,W=labelX+176,H=top+nL*rowH+6;
+  m.leaves.forEach((n,i)=>n.y=top+i*rowH+rowH/2);
+  (function setY(n){if(n.kids.length){n.kids.forEach(setY);n.y=(n.kids[0].y+n.kids[1].y)/2}})(m.root);
+  m.nodes.forEach(n=>n.x=padL+n.depth*colW);
+  const path=B.res.join(''),done=B.phase==='done',cur=m.nodes.find(n=>n.path===path);
+  const tk=n=>path.startsWith(n.path);
+  const st=n=>tk(n)?'taken':tk(n.parent)?((!done&&n.parent===cur)?'now':'missed'):'ghost';
+  const eA=now-(B.armT==null?-1e9:B.armT);
+
+  /* column headers: round and opponent */
+  let hd='';
+  for(let d=1;d<=R;d++){
+    const cx=padL+d*colW-colW/2,o=opp[d-1],act=d<=path.length||(!done&&d===path.length+1);
+    const tw=(o.name.length+2)*7.6,showN=tw+34<=colW+6,gx=showN?cx-(tw+34)/2:cx-14;
+    hd+=`<g opacity="${act?1:.45}"><text x="${cx}" y="17" text-anchor="middle" font-size="14" font-weight="900" fill="#64748b" letter-spacing="1.2">${rn[d-1][1].toUpperCase()}</text>
+      ${avatar(o,28,'',`x="${gx.toFixed(1)}" y="26"`)}${showN?`<text x="${(gx+34).toFixed(1)}" y="45" font-size="14" font-weight="800" fill="#334155">v ${esc(o.name)}</text>`:''}</g>`;
+  }
+
+  /* arms and the chances on them */
+  let back='',arms='',pills='',nodes='',lab='',over='';
+  m.nodes.forEach(n=>{
+    if(!n.parent)return;
+    const p=n.parent,s=st(n),w=n.edge==='W',hc=w?'var(--hero)':'#64748b',L=`x1="${p.x}" y1="${p.y.toFixed(1)}" x2="${n.x}" y2="${n.y.toFixed(1)}"`;
+    if(s==='taken'){
+      const len=Math.hypot(n.x-p.x,n.y-p.y).toFixed(1),last=n.path===path;
+      back+=`<line ${L} stroke="${hc}" stroke-width="15" stroke-linecap="round" opacity=".16"/>`;
+      arms+=`<line ${L} stroke="${hc}" stroke-width="6" stroke-linecap="round"${last?ag('armDraw',550,0,eA,`--len:${len};`):''}/>`;
+    }else{
+      const op=s==='now'?1:s==='missed'?.32:(calc?.45:.14);
+      back+=`<line ${L} stroke="${w?'var(--hero)':'#94a3b8'}" stroke-width="${s==='now'?3.5:2.5}" opacity="${op}"${w?'':' stroke-dasharray="7 6"'}/>`;
+    }
+    if(s!=='ghost'||calc){
+      const t=.6,mx=p.x+(n.x-p.x)*t,my=p.y+(n.y-p.y)*t,pw=fr?(n.ep[1]>=10?44:36):58,bh=fr?44:30;
+      const op=s==='missed'?.5:s==='ghost'?.85:1,bc=s==='taken'?hc:'#cbd5e1',bw=s==='taken'?2.5:1;
+      pills+=`<g opacity="${op}"><rect x="${(mx-pw/2).toFixed(1)}" y="${(my-bh/2).toFixed(1)}" width="${pw}" height="${bh}" rx="8" fill="#fff" stroke="${bc}" stroke-width="${bw}"/>${svgP(mx,my,n.ep,fr?17:16,'#0f172a')}</g>`;
+    }
+  });
+
+  /* nodes */
+  m.nodes.forEach(n=>{
+    if(!n.parent){
+      nodes+=`<rect x="${n.x-38}" y="${n.y-17}" width="62" height="34" rx="17" fill="#0f172a"/><text x="${n.x-7}" y="${n.y+5}" text-anchor="middle" font-size="14" font-weight="800" fill="#fff">Start</text>`;
+      if(n===cur&&!done&&!RM)nodes+=`<rect x="${n.x-38}" y="${n.y-17}" width="62" height="34" rx="17" fill="none" stroke="#0f172a" stroke-width="3" class="pulse"/>`;
+      return}
+    const s=st(n),w=n.edge==='W',c=w?'var(--hero)':'#64748b';
+    if(s==='taken'&&n.leaf==='out'){over+=bombH(n,now-(B.bombT==null?-1e9:B.bombT));return}
+    if(s==='taken'&&n.leaf==='champ'){
+      nodes+=`<g${ag('popIn',500,350,eA)}><circle cx="${n.x}" cy="${n.y}" r="23" fill="#facc15" opacity=".45"/><circle cx="${n.x}" cy="${n.y}" r="16" fill="#ca8a04"/><text x="${n.x}" y="${n.y+5}" text-anchor="middle" font-size="14" font-weight="900" fill="#fff">W</text></g>`;return}
+    if(s==='taken'){
+      nodes+=`<g${n.path===path?ag('popIn',450,380,eA):''}><circle cx="${n.x}" cy="${n.y}" r="16" fill="${c}"/><text x="${n.x}" y="${n.y+5}" text-anchor="middle" font-size="14" font-weight="900" fill="#fff">${n.edge}</text></g>`;
+      if(n===cur&&!done&&!RM)nodes+=`<circle cx="${n.x}" cy="${n.y}" r="16" fill="none" stroke="${c}" stroke-width="3" class="pulse"/>`;
+    }else if(s==='now'){
+      nodes+=`<circle cx="${n.x}" cy="${n.y}" r="15" fill="#fff" stroke="${w?'var(--hero)':'#94a3b8'}" stroke-width="3"/><text x="${n.x}" y="${n.y+5}" text-anchor="middle" font-size="14" font-weight="900" fill="${w?'var(--hero)':'#64748b'}">${n.edge}</text>`;
+    }else{
+      nodes+=`<g opacity="${s==='missed'?.38:(calc?.5:.18)}"><circle cx="${n.x}" cy="${n.y}" r="13" fill="${w?'var(--hero)':'#94a3b8'}"/><text x="${n.x}" y="${n.y+5}" text-anchor="middle" font-size="12" font-weight="900" fill="#fff">${n.edge}</text></g>`;
+    }
+  });
+
+  /* outcome labels at the right */
+  const outNode=done&&B.outcome!=='champ'?m.leaves.find(n=>n.leaf==='out'&&tk(n)):null;
+  m.leaves.forEach(n=>{
+    const s=st(n),mine=tk(n)&&done,ch=n.leaf==='champ',op=mine?1:(s==='ghost'?.42:.7);
+    if(n.depth<R&&!(mine&&B.rest&&B.rest.steps.length))lab+=`<line x1="${n.x+20}" y1="${n.y}" x2="${labelX-12}" y2="${n.y}" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="2 5" opacity="${op}"/>`;
+    if(ch){
+      if(mine)lab+=`<g${ag('popIn',500,450,eA)}>${trophy(26,true,`x="${labelX-2}" y="${n.y-13}"`)}<text x="${labelX+28}" y="${n.y+6}" font-size="17" font-weight="900" fill="#a16207">Champion</text></g>`;
+      else lab+=`<text x="${labelX}" y="${n.y+5}" font-size="16" font-weight="800" fill="#64748b" opacity="${op}">Champion</text>`;
+      if(ok){const vx=labelX+(mine?140:110);lab+=fr?svgP(vx,n.y,n.prob,15,'var(--calc)'):`<text x="${vx-34}" y="${n.y+5}" font-size="15" font-weight="800" fill="var(--calc)">${pct(val(n.prob))}</text>`}
+    }else{
+      const t='Out in the '+rn[n.round][1];
+      if(mine){const r=B.rest;
+        lab+=`<text x="${labelX}" y="${n.y+(r&&r.doneT?-9:5)}" font-size="16" font-weight="900" fill="#dc2626">${t}</text>`;
+        if(r&&r.doneT)lab+=`<g${ag('popIn',500,0,now-r.doneT)}>${trophy(20,true,`x="${labelX-2}" y="${n.y+2}"`)}${avatar(r.winner,22,'joy',`x="${labelX+20}" y="${n.y+1}"`)}<text x="${labelX+46}" y="${n.y+18}" font-size="15" font-weight="900" fill="#a16207">${esc(r.winner.name)} wins</text></g>`;
+      }else lab+=`<text x="${labelX}" y="${n.y+5}" font-size="15" font-weight="700" fill="#94a3b8" opacity="${op}">${t}</text>`;
+    }
+  });
+
+  /* the rest of the tournament, played along the arms after a knockout */
+  if(outNode&&B.rest){const r=B.rest,y=outNode.y;
+    if(r.steps.length)over+=`<g${ag('fadeIn',400,950,now-(B.bombT==null?-1e9:B.bombT))}>${avatar(r.first,28,'joy',`x="${outNode.x+20}" y="${y-14}"`)}</g>`;
+    r.steps.forEach((s,j)=>{ if(j>=r.shown)return;
+      const x0=padL+s.r*colW+(j===0?50:19),x1=padL+(s.r+1)*colW,e=now-r.t[j],len=(x1-19-x0).toFixed(1);
+      over+=`<line x1="${x0}" y1="${y}" x2="${x1-19}" y2="${y}" stroke="#f59e0b" stroke-width="5" stroke-linecap="round"${ag('armDraw',450,0,e,`--len:${len};`)}/>`;
+      if((s.b.name.length+2)*7<=x1-19-x0+4)over+=`<text x="${((x0+x1-19)/2).toFixed(1)}" y="${y-10}" text-anchor="middle" font-size="13" font-weight="800" fill="#b45309"${ag('fadeIn',300,200,e)}>v ${esc(s.b.name)}</text>`;
+      over+=`<g${ag('popIn',420,380,e)}><circle cx="${x1}" cy="${y}" r="19" fill="#fff" stroke="#f59e0b" stroke-width="3"/>${avatar(s.w,30,'',`x="${x1-15}" y="${y-15}"`)}</g>`;
+    });
+  }
+  const eB=now-(B.bombT==null?-1e9:B.bombT);
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Live tree diagram for ${esc(hero().name)}'s tournament" style="font-family:var(--uiFont);overflow:visible"><g${ag('shake',500,0,eB)}>${hd}${back}${arms}${lab}${pills}${nodes}${over}</g></svg>`;
+}
+function liveCaption(){
+  const B=S.B,h=hero(),rn=rnames(),n=B.res.length,done=B.phase==='done';
+  const pips=`<span class="pips">${B.res.map(r=>`<span class="pip ${r}">${r}</span>`).join('')}</span>`;
+  if(done&&B.outcome==='champ')return `<b>${esc(h.name)} is the champion.</b> The highlighted path ${pips} is how it happened.`;
+  if(done){const r=B.rest,parts=[`${esc(r.first.name)} knocked ${esc(h.name)} out in the ${rn[r.k][1]}.`];
+    r.steps.slice(0,r.shown).forEach(s=>parts.push(s.w===s.a?`${esc(s.a.name)} beat ${esc(s.b.name)} in the ${rn[s.r][1]}.`:`${esc(s.b.name)} beat ${esc(s.a.name)} in the ${rn[s.r][1]}.`));
+    if(r.doneT)parts.push(`<b>${esc(r.winner.name)} wins the title.</b>`);else if(r.steps.length)parts.push('The rest of the tournament plays out along the arms.');
+    return parts.join(' ')}
+  if(B.phase==='spinning')return `Spinning the ${rn[B.i][0]}…`;
+  if(!n)return `The arms show ${esc(h.name)}'s chance of winning (W) or losing (L) each match. The path lights up as the tournament is played.`;
+  const last=B.res[n-1];
+  return `${pips} ${esc(h.name)} ${last==='W'?'won':'lost'} the ${rn[n-1][0]}${last==='L'?' but used the extra life':''}. Next: the ${rn[n][0]}.`;
+}
+function liveFoot(){
+  const titles=S.live.filter(l=>l.outcome==='champ').length,n=S.live.length,run=!!(S.sim&&S.sim.running),done=S.B.phase==='done';
+  return `<div class="treeFoot"><span>${n?`Played live: <b>${titles}</b> title${titles===1?'':'s'} from ${n} tournament${n===1?'':'s'}`:'Live tournaments are added to the results.'}</span>
+    <button type="button" class="gBtn${done?' prim':''}" data-act="runP" data-v="100" ${run?'disabled':''}>Run 100 tournaments &#9656;</button></div>`;
+}
+
+/* ---------- calculate the chance ---------- */
+function parseEntry(t){
+  t=String(t||'').trim().replace(/\s+/g,'').replace(',','.');let m;
+  if((m=t.match(/^(\d+)\/(\d+)$/))){const n=+m[1],d=+m[2];return d?{kind:'frac',f:[n,d],v:n/d}:null}
+  if((m=t.match(/^(\d*\.?\d+)%$/)))return {kind:'pct',v:+m[1]/100,raw:+m[1]/100};
+  if((m=t.match(/^(\d*\.?\d+)$/))){const v=+m[1];if(v<=1)return {kind:'dec',v,raw:v};return {kind:'pct',v:v/100,raw:v,bare:true}}
+  return null;
+}
+function doCheck(){
+  const m=M(),champ=m.champ,tv=val(champ),h=hero(),L=lives(),P=probs(),e=parseEntry(S.calcText);
+  if(!e){S.calc={bad:true,ok:false,msg:'Type a fraction like 3/8, a decimal like 0.375 or a percentage like 37.5%.'};return}
+  const sumP=P.reduce((a,p)=>a+val(p),0),isSum=Math.abs(e.v-sumP)<1e-9||Math.abs((e.raw==null?e.v:e.raw)-sumP)<1e-9||(e.kind==='frac'&&Math.abs(e.v-sumP)<1e-9);
+  if(isSum&&!(Math.abs(sumP-tv)<1e-9)){S.calc={bad:sumP>1,ok:false,v:e.v,kind:e.kind,f:e.f,msg:`That adds the chances${sumP>1?', which gives more than 1':''}. Winning this match AND the next is an AND event: multiply the chances instead.`};if(sumP>1)return;return}
+  if(e.v>1){S.calc={bad:true,ok:false,msg:'A probability cannot be more than 1 (or 100%).'};return}
+  const ok=e.kind==='frac'?e.f[0]*champ[1]===e.f[1]*champ[0]:Math.abs(e.v-tv)<=0.005+1e-12;
+  const exact=`${frH(champ)} = ${dec(Number((tv*100).toFixed(6)))}%`;let msg;
+  if(ok){
+    if(e.kind==='frac')msg=same(e.f,champ)?`Correct. ${L?'Adding the winning paths':'Multiplying along the arms'} gives ${frH(champ)} ${eqPct(tv)}.`:`Correct. ${frH(e.f)} simplifies to ${frH(champ)} ${eqPct(tv)}.`;
+    else msg=`Correct. The exact answer is ${exact}.`;
+  }else{
+    const near=(a,b)=>e.kind==='frac'?Math.abs(a-b)<1e-9:Math.abs(a-b)<=0.005;
+    const allW=P.reduce((a,p)=>a*val(p),1);
+    if(P.some(p=>near(e.v,val(p))))msg='That is the chance of winning one match. To take the title, multiply the chances along the winning path.';
+    else if(L&&near(e.v,allW))msg=`That is only the path where ${esc(h.name)} wins every match. With the extra life there are other winning paths: work out each one, then add them.`;
+    else if(Math.abs(e.v-tv)<0.03)msg='Close, but not exact. Check your multiplying and any rounding.';
+    else msg=L?'Not yet. Multiply along each winning path, then add the paths.':'Not yet. Multiply the chances on the arms from Start to Champion.';
+  }
+  S.calc={ok,v:e.v,kind:e.kind,f:e.f,msg};
+}
+function calcBoxH(){
+  const h=hero(),c=S.calc;
+  return `<div class="calcBox">
+    <div class="calcRow"><label for="calcIn">P(${esc(h.name)} wins the title) =</label>
+      <input id="calcIn" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" value="${esc(S.calcText||'')}" placeholder="fraction, decimal or %">
+      <button type="button" class="gBtn prim" data-act="check">Check</button></div>
+    ${c?`<div class="calcMsg ${c.ok?'ok':'no'}" aria-live="polite">${c.ok?'&#10003; ':''}${c.msg}${c.bad?'':` <span class="calcNote">Plotted as the Calculation line in Results.</span>`}</div>`
+       :`<div class="calcNote">${lives()?'Multiply along each winning path, then add the paths.':'Multiply the chances on the arms from Start to Champion.'}</div>`}
+  </div>`;
+}
+const battleTools=()=>`<div class="seg" role="group" aria-label="Panel view"><button type="button" data-act="view" data-v="tree" aria-pressed="${S.view==='tree'}">Tree diagram</button><button type="button" data-act="view" data-v="results" aria-pressed="${S.view==='results'}">Results</button></div>
+  <label class="sw sm"><input type="checkbox" id="calcChk" data-panel="calc" ${S.calcOn?'checked':''}><span class="track"></span><span>Calculate the chance</span></label>`;
+function resultsH(){
+  const m=M(),s=S.sim||{n:0,counts:{},series:[]},run=!!(S.sim&&S.sim.running);
+  return `<div class="runRow"><span class="eyebrow">Run</span>${[10,100,1000].map(n=>`<button type="button" class="gBtn${n===100?' prim':''}" data-act="runP" data-v="${n}" ${run?'disabled':''}>${n}</button>`).join('')}<button type="button" class="gBtn" data-act="clear" ${run?'disabled':''}>Clear</button><span class="runN">${s.n} tournament${s.n===1?'':'s'} so far</span></div>
+    ${tilesH(m,s)}
+    <div class="chart"><span class="eyebrow">Share of tournaments won so far</span>${lineChart(m)}</div>
+    <div><span class="eyebrow">How ${esc(hero().name)}'s tournaments ended</span>${barsH(m,s)}</div>`;
+}
+function pBattle(){
+  const top=S.calcOn?calcBoxH():'';
+  if(S.view==='results')return top+resultsH();
+  return top+`<div class="btree">${liveTreeH()}</div><p class="liveCap">${liveCaption()}</p>${liveFoot()}`;
 }
 
 /* ---------- step 4: the maths ---------- */
@@ -748,44 +1022,51 @@ function pMaths(){
     <p class="muted" style="margin:.2rem 0 .6rem;font-size:.85rem;font-weight:650">${lives()?'Each round removes part of what is left.':'Each bar is a fraction of the bar above it, not of the whole.'}</p>${funnelH(m,s)}</div>`;
 }
 
-/* ---------- step 5: simulate ---------- */
+/* ---------- step 5: simulate (charts shared with the battle panel's Results view) ---------- */
+const calcV=()=>S.calc&&!S.calc.bad?S.calc.v:null;
 function lineChart(m){
-  const s=S.sim||{n:0,series:[]},W=640,H=270,l=46,r=96,t=14,b=32,xm=Math.max(20,s.n);
+  const s=S.sim||{n:0,series:[]},W=660,H=270,l=46,r=124,t=14,b=32,xm=Math.max(20,s.n);
   const X=n=>l+(n/xm)*(W-l-r),Y=v=>t+(1-v)*(H-t-b);
   let g='';[0,.25,.5,.75,1].forEach(v=>{g+=`<line x1="${l}" x2="${W-r}" y1="${Y(v)}" y2="${Y(v)}" stroke="#e2e8f0"/><text x="${l-8}" y="${Y(v)+4}" text-anchor="end" font-size="12" fill="#64748b">${v*100}%</text>`});
   g+=`<text x="${l}" y="${H-8}" font-size="12" fill="#64748b">0</text><text x="${W-r}" y="${H-8}" text-anchor="end" font-size="12" fill="#64748b">${xm} tournaments</text>`;
-  const th=val(m.champ);let ty=Y(th),py=Y(S.pred/100);
-  if(S.theory&&S.predLocked&&Math.abs(ty-py)<14){py+= py>=ty?14-(py-ty):-(14-(ty-py))}
-  if(S.predLocked)g+=`<line x1="${l}" x2="${W-r}" y1="${Y(S.pred/100)}" y2="${Y(S.pred/100)}" stroke="#64748b" stroke-width="2" stroke-dasharray="2 5"/><text x="${W-r+6}" y="${py+4}" font-size="12" fill="#64748b">Prediction ${S.pred}%</text>`;
-  if(S.theory)g+=`<line x1="${l}" x2="${W-r}" y1="${Y(th)}" y2="${Y(th)}" stroke="var(--hero)" stroke-width="2.5" stroke-dasharray="9 5"/><text x="${W-r+6}" y="${ty+4}" font-size="12" font-weight="800" fill="var(--hero)">Theory ${pct(th,false)}</text>`;
+  const th=val(m.champ),cv=calcV(),labs=[];
+  if(S.predLocked){g+=`<line x1="${l}" x2="${W-r}" y1="${Y(S.pred/100)}" y2="${Y(S.pred/100)}" stroke="#64748b" stroke-width="2" stroke-dasharray="2 5"/>`;labs.push({y:Y(S.pred/100),t:`Prediction ${S.pred}%`,c:'#64748b',w:600})}
+  if(cv!==null){g+=`<line x1="${l}" x2="${W-r}" y1="${Y(cv)}" y2="${Y(cv)}" stroke="var(--calc)" stroke-width="2.5" stroke-dasharray="12 4 2 4"/>`;labs.push({y:Y(cv),t:`Calculation ${pct(cv,false)}`,c:'var(--calc)',w:800})}
+  if(S.theory){g+=`<line x1="${l}" x2="${W-r}" y1="${Y(th)}" y2="${Y(th)}" stroke="var(--hero)" stroke-width="2.5" stroke-dasharray="9 5"/>`;labs.push({y:Y(th),t:`Theory ${pct(th,false)}`,c:'var(--hero)',w:800})}
+  labs.sort((a,c)=>a.y-c.y);for(let i=1;i<labs.length;i++)if(labs[i].y-labs[i-1].y<14)labs[i].y=labs[i-1].y+14;
+  const ov=labs.length?labs[labs.length-1].y-(H-b):0;if(ov>0)labs.forEach(x=>x.y-=ov);
+  labs.forEach(x=>{g+=`<text x="${W-r+6}" y="${(x.y+4).toFixed(1)}" font-size="12" font-weight="${x.w}" fill="${x.c}">${x.t}</text>`});
   if(s.series.length){const pts=s.series.map(p=>X(p[0]).toFixed(1)+','+Y(p[1]).toFixed(1)).join(' '),e=s.series[s.series.length-1];
     g+=`<polyline points="${pts}" fill="none" stroke="#0f172a" stroke-width="2.2" stroke-linejoin="round"/><circle cx="${X(e[0])}" cy="${Y(e[1])}" r="5" fill="#0f172a" stroke="#fff" stroke-width="2"/>`}
   else g+=`<text x="${(l+W-r)/2}" y="${H/2}" text-anchor="middle" font-size="14" fill="#64748b">Run some tournaments to start the line</text>`;
   return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Share of tournaments won as the number of tournaments grows" style="font-family:var(--uiFont)">${g}</svg>`;
 }
-function bSim(){
-  const m=M(),s=S.sim||{n:0,counts:{}},cats=categories(m);
-  return `<span class="eyebrow">How ${esc(hero().name)}'s tournaments ended</span>
-    ${cats.map(c=>{const k=s.counts[c.key]||0,f=s.n?k/s.n:0;return `<div class="obar ${c.key==='champ'?'champ':''}"><span>${c.label}</span>
-      <div class="track"><i style="width:${f*100}%"></i>${S.theory?`<span class="mark" style="left:calc(${val(c.p)*100}% - 1.5px)" title="Expected ${pct(val(c.p))}"></span>`:''}</div>
-      <span class="num"><b>${k}</b> · ${s.n?pct(f,false):'–'}${S.theory?`<span class="muted" style="display:block">expected ${pct(val(c.p),false)}</span>`:''}</span></div>`}).join('')}
-    <div class="legend"><span><i style="width:1.2rem;height:.7rem;background:var(--hero);border-radius:3px"></i>share of tournaments</span>${S.theory?'<span><i style="width:3px;height:1rem;background:#0f172a"></i>expected from the tree diagram</span>':''}</div>`;
-}
-function pSim(){
-  const m=M(),s=S.sim||{n:0,counts:{}},w=s.counts.champ||0;
+function tilesH(m,s){
+  const w=s.counts.champ||0,c=S.calc&&!S.calc.bad?S.calc:null;
   return `<div class="tiles">
-     <div class="tile"><span class="eyebrow">Class prediction</span><span class="big">${S.predLocked?S.pred+'%':'<small>none locked in</small>'}</span></div>
-     <div class="tile"><span class="eyebrow">Theory</span><span class="big">${S.theory?(S.format==='frac'?frH(m.champ)+' <small>'+pct(val(m.champ))+'</small>':pct(val(m.champ))):'<button class="gBtn inline" data-act="theory">Reveal</button>'}</span></div>
-     <div class="tile"><span class="eyebrow">Experiment</span><span class="big">${s.n?pct(w/s.n,false):'–'} <small>${w} of ${s.n}</small></span></div></div>
-   <div class="chart"><span class="eyebrow">Share of tournaments won so far</span>${lineChart(m)}</div>`;
+   <div class="tile"><span class="eyebrow">Class prediction</span><span class="big">${S.predLocked?S.pred+'%':'<small>none locked in</small>'}</span></div>
+   <div class="tile"><span class="eyebrow" style="color:var(--calc)">Calculation</span><span class="big">${c?`${c.kind==='frac'?frH(c.f):pct(c.v,false)} <small class="${c.ok?'okT':'noT'}">${c.ok?'&#10003; correct':'&#10007; check'}</small>`:'<small>none entered</small>'}</span></div>
+   <div class="tile"><span class="eyebrow">Theory</span><span class="big">${S.theory?(S.format==='frac'?frH(m.champ)+' <small>'+pct(val(m.champ))+'</small>':pct(val(m.champ))):'<button type="button" class="gBtn inline" data-act="theory">Reveal</button>'}</span></div>
+   <div class="tile"><span class="eyebrow">Experiment</span><span class="big">${s.n?pct(w/s.n,false):'–'} <small>${w} of ${s.n}</small></span></div></div>`;
 }
+function barsH(m,s){
+  const cats=categories(m),cv=calcV();
+  return cats.map(c=>{const k=s.counts[c.key]||0,f=s.n?k/s.n:0;return `<div class="obar ${c.key==='champ'?'champ':''}"><span>${c.label}</span>
+      <div class="track"><i style="width:${f*100}%"></i>${S.theory?`<span class="mark" style="left:calc(${val(c.p)*100}% - 1.5px)" title="Expected ${pct(val(c.p))}"></span>`:''}${c.key==='champ'&&cv!==null?`<span class="mark calcM" style="left:calc(${cv*100}% - 1.5px)" title="Class calculation"></span>`:''}</div>
+      <span class="num"><b>${k}</b> · ${s.n?pct(f,false):'–'}${S.theory?`<span class="muted" style="display:block">expected ${pct(val(c.p),false)}</span>`:''}</span></div>`}).join('')+
+    `<div class="legend"><span><i style="width:1.2rem;height:.7rem;background:var(--hero);border-radius:3px"></i>share of tournaments</span>${S.theory?'<span><i style="width:3px;height:1rem;background:#0f172a"></i>expected from the tree diagram</span>':''}${cv!==null?'<span><i style="width:3px;height:1rem;background:var(--calc)"></i>class calculation</span>':''}</div>`;
+}
+function bSim(){const m=M(),s=S.sim||{n:0,counts:{}};return `<span class="eyebrow">How ${esc(hero().name)}'s tournaments ended</span>${barsH(m,s)}`}
+function pSim(){const m=M(),s=S.sim||{n:0,counts:{}};
+  return `${tilesH(m,s)}<div class="chart"><span class="eyebrow">Share of tournaments won so far</span>${lineChart(m)}</div>`}
+function refresh(){if(S.step==='battle'){renderPanel();renderButtons()}else render()}
 function runSim(n){
-  if(!S.sim)newSim();const s=S.sim;if(s.running)return;s.running=true;render();
+  if(!S.sim)newSim();const s=S.sim;if(s.running)return;s.running=true;refresh();
   const P=probs(),L=lives(),chunk=Math.max(1,Math.ceil(n/40));let left=n;
   (function tick(){ if(S.sim!==s)return;
     for(let k=0;k<chunk&&left>0;k++,left--)record(playOne(P,L));
-    if(left>0){if(S.step==='sim'){$('stage').innerHTML=bSim();$('panel').innerHTML=pSim()}requestAnimationFrame(tick)}
-    else{s.running=false;render()}
+    if(left>0){if(S.step==='sim'){$('stage').innerHTML=bSim();$('panel').innerHTML=pSim()}else if(S.step==='battle'&&S.view==='results')renderPanel();requestAnimationFrame(tick)}
+    else{s.running=false;refresh()}
   })();
 }
 
@@ -815,32 +1096,37 @@ function pInv(){
 
 /* ---------- the step controller: what each step shows and what its buttons do ---------- */
 function stepInfo(){
-  const h=hero(),rn=rnames(),m=S.step==='maths'?M():null;
+  const h=hero(),rn=rnames();
   switch(S.step){
-    case 'choose':return {b:bChoose(),p:pChoose(),pt:'Our fighter',main:{t:`Lock in ${h.name} ▸`,act:'step',v:'predict'},sec:{t:S.reveal?'Hide title chances':'Reveal title chances',act:'reveal'}};
-    case 'predict':return {b:bPredict(),p:pPredict(),pt:'The path to the title',
+    case 'choose':return {b:bChoose,p:pChoose,pt:'Our fighter',main:{t:`Lock in ${h.name} ▸`,act:'step',v:'predict'},sec:{t:S.reveal?'Hide title chances':'Reveal title chances',act:'reveal'}};
+    case 'predict':return {b:bPredict,p:pPredict,pt:'The path to the title',
       main:S.predLocked?{t:'To the arena ▸',act:'step',v:'battle'}:{t:'Lock in class prediction',act:'lock'},
       sec:S.predLocked?{t:'Change it',act:'unlock'}:{t:'Skip ▸',act:'step',v:'battle'}};
-    case 'battle':{const B=S.B,i=Math.min(B.i,S.rounds-1),done=B.phase==='done';
-      let main;
+    case 'battle':{const B=S.B,i=Math.min(B.i,S.rounds-1),done=B.phase==='done';let main;
       if(done)main={t:'Run another tournament',act:'again'};
       else if(B.phase==='shown')main={t:`On to the ${rn[i+1][0]} ▸`,act:'nextRound'};
       else main={t:B.phase==='spinning'?'Spinning…':`Spin the ${rn[i][0]}`,act:'spin',dis:B.phase==='spinning'};
-      return {b:bBattle(),p:pBattle(),pt:'The path and the results',main,sec:{t:'The maths ▸',act:'step',v:'maths'}}}
+      return {b:bBattle,p:pBattle,pt:'',tools:battleTools(),main,sec:{t:'The maths ▸',act:'step',v:'maths'}}}
     case 'maths':{const s=S.show,max=S.rounds+2;
       const next=s<S.rounds?`Reveal the ${rn[s][0]}`:s===S.rounds?'Multiply along the branches':'Reveal the answer';
-      return {b:bMaths(),p:pMaths(),pt:'Working',main:s<max?{t:next,act:'more'}:{t:'Test it with a simulation ▸',act:'step',v:'sim'},
+      return {b:bMaths,p:pMaths,pt:'Working',main:s<max?{t:next,act:'more'}:{t:'Test it with a simulation ▸',act:'step',v:'sim'},
         sec:s<max?{t:'Show all',act:'all'}:{t:'Start again',act:'hide'}}}
     case 'sim':{const run=!!(S.sim&&S.sim.running);
-      return {b:bSim(),p:pSim(),pt:'Prediction, theory and experiment',main:{t:'Run 100 tournaments',act:'run',v:100,dis:run},sec:{t:'Clear results',act:'clear',dis:run},
+      return {b:bSim,p:pSim,pt:'Compare the results',main:{t:'Run 100 tournaments',act:'run',v:100,dis:run},sec:{t:'Clear results',act:'clear',dis:run},
         top:`<div class="seg" role="group" aria-label="Run tournaments"><i>Run</i>${[1,10,1000].map(n=>`<button type="button" data-act="run" data-v="${n}" ${run?'disabled':''}>${n}</button>`).join('')}</div>`}}
-    default:return {b:bInv(),p:pInv(),pt:'Who would you back?',main:{t:S.invShow?'Hide the title chances':'Reveal the title chances',act:'invShow'},sec:{t:S.revShow?'Hide the working backwards':'Reveal working backwards',act:'revToggle'}};
+    default:return {b:bInv,p:pInv,pt:'Who would you back?',main:{t:S.invShow?'Hide the title chances':'Reveal the title chances',act:'invShow'},sec:{t:S.revShow?'Hide the working backwards':'Reveal working backwards',act:'revToggle'}};
   }
 }
 
 /* ---------- render ---------- */
 function setBtn(el,c){el.textContent=c.t;el.dataset.act=c.act;if(c.v!==undefined)el.dataset.v=c.v;else delete el.dataset.v;el.disabled=!!c.dis}
-function render(){
+function renderPanel(){
+  const v=stepInfo(),pn=$('panel'),sc=pn.scrollTop,foc=document.activeElement&&document.activeElement.id;
+  $('pTitle').textContent=v.pt;$('pTools').innerHTML=v.tools||'';pn.innerHTML=v.p();pn.scrollTop=sc;
+  if(foc==='calcIn'){const i=$('calcIn');if(i){i.focus();const l=i.value.length;try{i.setSelectionRange(l,l)}catch(e){}}}
+}
+function renderButtons(){const v=stepInfo(),l=stepList(),idx=l.findIndex(s=>s[0]===S.step);setBtn($('mainBtn'),v.main);setBtn($('secBtn'),v.sec);$('backBtn').disabled=idx<=0}
+function render(opt){
   if(S.step==='inv'&&S.level!=='ext')S.step='choose';
   if(S.step==='battle'&&!S.B)newBattle();
   document.documentElement.style.setProperty('--hero',hero().color);
@@ -861,10 +1147,10 @@ function render(){
   const q=S.prompts?ASK[S.step]:INFO[S.step];
   $('cue').innerHTML=`<b>${q[0]}</b><span>${q[1]}</span>`;
   $('hint').textContent=`${h.name} · ${S.rounds} rounds · ${2**S.rounds} fighters in the draw · chances as ${S.format==='frac'?'fractions':'percentages'}${lives()?' · extra life on':''}`;
-  // body
-  $('stage').innerHTML=v.b;$('pTitle').textContent=v.pt;$('pTools').innerHTML='';$('panel').innerHTML=v.p;
-  setBtn($('mainBtn'),v.main);setBtn($('secBtn'),v.sec);
-  $('backBtn').disabled=idx===0;
+  // body (never rebuild the wheel mid-spin)
+  const spinning=S.step==='battle'&&S.B.phase==='spinning';
+  if(!spinning||(opt&&opt.force))$('stage').innerHTML=v.b();
+  renderPanel();renderButtons();
 }
 
 /* ---------- options ---------- */
@@ -882,6 +1168,7 @@ function setOpt(k,v){
 function goStep(id){S.step=id;if(id==='sim'&&S.show>=S.rounds+2)S.theory=true}
 function stepBy(d){const l=stepList(),i=l.findIndex(s=>s[0]===S.step),j=Math.max(0,Math.min(l.length-1,i+d));goStep(l[j][0])}
 const parseP=v=>{const a=v.split('/').map(Number);return F(a[0],a[1])};
+const PANEL=()=>S.step==='battle'?'panel':undefined;
 
 const ACT={
   step(el){goStep(el.dataset.v)},
@@ -898,11 +1185,14 @@ const ACT={
   lock(){S.predLocked=true},unlock(){S.predLocked=false},
   spin(){spin();return false},
   nextRound(){S.B.i++;S.B.phase='ready';S.B.rot=0},
-  again(){newBattle()},
+  again(){newBattle();S.view='tree'},
+  view(el){S.view=el.dataset.v;return 'panel'},
+  check(){doCheck();return 'panel'},
+  runP(el){S.view='results';runSim(+el.dataset.v);return false},
   more(){S.show=Math.min(S.show+1,S.rounds+2)},all(){S.show=S.rounds+2},hide(){S.show=0},
-  theory(){S.theory=true},
+  theory(){S.theory=true;return PANEL()},
   run(el){runSim(+el.dataset.v);return false},
-  clear(){newSim();S.live=[]},
+  clear(){newSim();S.live=[];return PANEL()},
   invShow(){S.invShow=!S.invShow},revToggle(){S.revShow=!S.revShow},
   fullscreen(){
     const app=$('app');
@@ -921,15 +1211,20 @@ document.addEventListener('click',e=>{
   if(!e.target.closest('.dropMenu'))closeMenus();
   const el=e.target.closest('[data-act]');if(!el||el.disabled)return;
   if(el.closest('#stepsMenu'))closeMenus();
-  if(ACT[el.dataset.act](el)!==false)render()});
+  const r=ACT[el.dataset.act](el);
+  if(r==='panel'){renderPanel();renderButtons()}else if(r!==false)render()});
 document.addEventListener('change',e=>{const t=e.target;
   if(t.dataset.set){const k=t.dataset.set;setOpt(k,t.type==='checkbox'?t.checked:t.value);
     if(k==='life'&&t.checked&&S.level!=='ext')setOpt('level','ext');render()}
+  else if(t.dataset.panel==='calc'){S.calcOn=t.checked;renderPanel()}
   else if(t.dataset.edit!==undefined){const k=S.hero+S.rounds,arr=(S.custom[k]||probs()).map(p=>p.slice());arr[+t.dataset.edit]=parseP(t.value);S.custom[k]=arr;resetRun();render()}
   else if(t.dataset.inv==='invP'){S.invP=parseP(t.value);render()}
   else if(t.dataset.inv){S[t.dataset.inv]=t.value;S.invShow=false;render()}});
-document.addEventListener('input',e=>{if(e.target.id==='pred'){S.pred=+e.target.value;$('predOut').textContent=S.pred+'%'}});
+document.addEventListener('input',e=>{
+  if(e.target.id==='pred'){S.pred=+e.target.value;$('predOut').textContent=S.pred+'%'}
+  else if(e.target.id==='calcIn')S.calcText=e.target.value});
 document.addEventListener('keydown',e=>{
+  if(e.target.id==='calcIn'){if(e.key==='Enter'){e.preventDefault();doCheck();renderPanel()}return}
   if(e.key==='Escape'){closeMenus();if(S.fs&&!document.fullscreenElement)setFs(false);return}
   if(e.ctrlKey||e.metaKey||e.altKey)return;
   const tag=e.target.tagName;
@@ -944,7 +1239,7 @@ document.addEventListener('keydown',e=>{
   else if(k==='f'){ACT.fullscreen()}
   else if(k==='home'){ACT.restart();render()}
 });
-window.__BR__={S,model,M,probs,hero,playOne,render,setOpt,ACT,stepList,FIGHTERS,probsOf,rep};
+window.__BR__={S,model,M,probs,hero,playOne,render,renderPanel,setOpt,ACT,stepList,FIGHTERS,probsOf,rep,parseEntry,doCheck,opponents};
 render();
 </script>
 </body>
