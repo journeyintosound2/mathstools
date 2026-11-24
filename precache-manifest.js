@@ -1,6 +1,6 @@
 /* Written by tools/build-pwa.mjs — do not edit by hand. */
 self.MMT_PRECACHE = {
- "version": "733201720c",
+ "version": "e96452f176",
  "files": [
   "./",
   "assessment/exam-builder/app.js",
@@ -712,7 +712,7 @@ self.MMT_PRECACHE = {
   "game-platforms/mills-maths-adventure/assets/KaTeX_Size2-Regular-Dy4dx90m.woff2",
   "game-platforms/mills-maths-adventure/assets/KaTeX_Size4-Regular-Dl5lxZxV.woff2",
   "game-platforms/mills-maths-adventure/assets/KaTeX_Typewriter-Regular-CO6r4hn1.woff2",
-  "game-platforms/mills-maths-adventure/assets/MathAnswerInput-BJNtEKm9.js",
+  "game-platforms/mills-maths-adventure/assets/MathAnswerInput-BzU8kkuz.js",
   "game-platforms/mills-maths-adventure/assets/MathAnswerInput-XpCQxquu.css",
   "game-platforms/mills-maths-adventure/assets/baloo-2-latin-500-normal-sFC1aiE7.woff2",
   "game-platforms/mills-maths-adventure/assets/baloo-2-latin-700-normal-DpwkDI0o.woff2",
@@ -1074,6 +1074,7 @@ self.MMT_PRECACHE = {
   "worksheet-creators/stage-4/algebra/visual-patterns.html",
   "worksheet-creators/stage-4/measurement-space/angle-relationships/border_page0.png",
   "worksheet-creators/stage-4/measurement-space/angle-relationships/index.html",
+  "worksheet-creators/stage-4/measurement-space/area-of-a-circle.html",
   "worksheet-creators/stage-4/measurement-space/area-of-a-parallelogram.html",
   "worksheet-creators/stage-4/measurement-space/area-of-a-trapezium.html",
   "worksheet-creators/stage-4/measurement-space/area-of-a-triangle.html",

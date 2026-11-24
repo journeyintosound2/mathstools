@@ -1,0 +1,1218 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Area of a Circle — Worksheet Generator | Mills Maths Tools</title>
+  <meta name="description" content="Differentiated A4 worksheets on the area of a circle: slices to a rectangle, radius and diameter, parts of a circle, working backwards, spot the mistake, problems in context and shaded regions — exact in terms of π, with π ≈ 3.14, π ≈ 3 or calculator π, with an answer key.">
+
+  <style>
+    :root{
+      --bg:#f6f7fb;
+      --card:#ffffff;
+      --ink:#111827;
+      --muted:#6b7280;
+      --border:#e5e7eb;
+      --shadow:0 14px 40px rgba(0,0,0,.10);
+      --radius:18px;
+      --blue:#2563eb;
+      --green:#16a34a;
+      --red:#dc2626;
+      --sweet1:#4ade80;  --sweet2:#16a34a;
+      --mild1:#facc15;   --mild2:#d97706;
+      --medium1:#fb923c; --medium2:#ea580c;
+      --spicy1:#f87171;  --spicy2:#b91c1c;
+      --footer-h:44px;
+      --mathFont:"STIX Two Math","Cambria Math","Latin Modern Math","Times New Roman",Georgia,serif;
+      --uiFont:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+    }
+    *{ box-sizing:border-box; }
+    body{ margin:0; background:var(--bg); color:var(--ink); font-family:var(--uiFont); padding-bottom:var(--footer-h); }
+    .wrap{ max-width:1280px; margin:14px auto 32px; padding:0 14px; }
+    .card{ background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); padding:16px; }
+    .title{ margin:0 0 4px; font-size:28px; font-weight:1000; letter-spacing:.2px; }
+    .subtitle{ margin:0 0 14px; color:var(--muted); font-weight:850; font-size:15px; line-height:1.4; }
+    .subtitle a{ color:var(--blue); text-decoration:none; font-weight:1000; }
+
+    .controls{ display:grid; gap:10px; }
+    .band{ border:1px solid var(--border); border-radius:18px; padding:12px 14px; background:linear-gradient(180deg,#ffffff,#f9fafb); }
+    .bandHead{ font-size:11px; letter-spacing:.14em; text-transform:uppercase; font-weight:1000; color:var(--muted); margin:0 0 9px; }
+    .bandGrid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:14px; align-items:end; }
+    .bandRow{ display:flex; gap:16px 22px; flex-wrap:wrap; align-items:center; }
+    label{ display:block; margin:0 0 7px; font-size:15px; font-weight:950; }
+    select, input[type="number"]{ border:2px solid #e5e7eb; border-radius:14px; padding:12px 13px; font-size:15px; font-weight:900; width:100%; background:#fff; color:var(--ink); font-family:inherit; }
+    select:focus, input:focus{ outline:none; border-color:var(--blue); }
+    .sw{ display:inline-flex; align-items:center; gap:10px; cursor:pointer; user-select:none; font-weight:900; font-size:14.5px; margin:0; }
+    .sw input{ position:absolute; opacity:0; width:0; height:0; }
+    .sw .track{ position:relative; width:46px; height:27px; border-radius:999px; background:#cbd5e1; transition:.16s ease; flex:0 0 auto; }
+    .sw .track::after{ content:""; position:absolute; top:3px; left:3px; width:21px; height:21px; border-radius:50%; background:#fff; box-shadow:0 2px 5px rgba(0,0,0,.28); transition:.16s ease; }
+    .sw input:checked + .track{ background:var(--green); }
+    .sw input:checked + .track::after{ transform:translateX(19px); }
+    .sw input:focus-visible + .track{ box-shadow:0 0 0 4px rgba(37,99,235,.25); }
+    .sw input:disabled + .track{ opacity:.45; }
+
+    /* what we're practising: area, perimeter or both */
+    .seg{ display:inline-flex; background:#f1f5f9; border:1px solid var(--border); border-radius:15px; padding:4px; gap:4px; flex-wrap:wrap; }
+    .seg button{ appearance:none; border:none; background:transparent; border-radius:11px; padding:10px 16px; font:inherit; font-weight:950; font-size:15px; color:var(--muted); cursor:pointer; display:flex; align-items:center; gap:9px; }
+    .seg button .sym{ font-family:var(--mathFont); font-size:20px; width:28px; height:28px; border-radius:8px; display:grid; place-items:center; background:#e2e8f0; color:#334155; }
+    .seg button[aria-pressed="true"]{ background:#fff; color:var(--ink); box-shadow:0 3px 10px rgba(15,23,42,.12); }
+    .seg button[aria-pressed="true"] .sym{ background:var(--blue); color:#fff; }
+    .seg button[data-focus="perim"][aria-pressed="true"] .sym{ background:#7c3aed; }
+    .seg button[data-focus="both"][aria-pressed="true"] .sym{ background:linear-gradient(135deg,var(--blue),#7c3aed); }
+
+    /* levels: tick one or several; each section climbs through the ticked ones */
+    .lvChips{ display:grid; grid-template-columns:repeat(auto-fit,minmax(178px,1fr)); gap:8px; }
+    .lvChip{ position:relative; display:flex; align-items:center; gap:10px; margin:0; border:1.5px solid var(--border); border-radius:14px; padding:9px 11px; cursor:pointer; background:#fff; transition:.14s ease; }
+    .lvChip input{ position:absolute; opacity:0; width:0; height:0; }
+    .lvChip .dot{ width:22px; height:22px; border-radius:7px; border:2px solid #cbd5e1; display:grid; place-items:center; flex:0 0 auto; color:#fff; font-size:13px; font-weight:1000; }
+    .lvChip .txt{ font-size:14px; font-weight:950; line-height:1.2; }
+    .lvChip small{ display:block; font-family:var(--mathFont); font-size:15px; font-weight:600; color:var(--muted); }
+    .lvChip input:checked ~ .dot{ background:var(--lc); border-color:var(--lc); }
+    .lvChip input:checked ~ .dot::after{ content:"\2713"; }
+    .lvChip:has(input:checked){ border-color:var(--lc); box-shadow:inset 4px 0 0 var(--lc); }
+    .lvChip input:focus-visible ~ .dot{ box-shadow:0 0 0 4px rgba(37,99,235,.25); }
+    .quick{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:9px; font-size:13px; font-weight:900; color:var(--muted); }
+    .quick button{ appearance:none; border:1.5px solid var(--border); background:#fff; border-radius:999px; padding:6px 12px; font:inherit; font-weight:950; font-size:13px; color:#334155; cursor:pointer; }
+    .quick button:hover{ border-color:var(--blue); color:var(--blue); }
+
+    /* the problem types: a checkbox, what it asks, and what it looks like */
+    .typeGrid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:10px; }
+    .typeOpt{ border:1.5px solid var(--border); border-radius:16px; padding:11px 13px 12px; background:#fff; display:flex; flex-direction:column; gap:7px; transition:.15s ease; }
+    .typeOpt.on{ border-color:var(--tc); box-shadow:inset 4px 0 0 var(--tc); }
+    .typeOpt.na{ opacity:.45; }
+    .typeTop{ display:flex; align-items:center; gap:10px; }
+    .typeTop .sw{ font-size:15px; }
+    .typeLetter{ width:26px; height:26px; border-radius:8px; background:var(--tc); color:#fff; font-weight:1000; display:grid; place-items:center; font-size:14px; flex:0 0 auto; }
+    .typeTag{ margin-left:auto; font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; font-weight:1000; border-radius:999px; padding:3px 8px; flex:0 0 auto; }
+    .typeTag.area{ background:#eff6ff; color:#1d4ed8; }
+    .typeTag.perim{ background:#f5f3ff; color:#6d28d9; }
+    .typeTag.both{ background:#f1f5f9; color:#334155; }
+    .typeDesc{ font-size:13px; font-weight:800; color:var(--muted); line-height:1.4; margin:0; }
+    .typeEx{ display:flex; align-items:center; gap:9px; flex-wrap:wrap; background:#f8fafc; border:1px dashed #cbd5e1; border-radius:11px; padding:7px 10px; font-size:13.5px; font-weight:850; }
+    .typeEx .exLab{ font-size:10px; letter-spacing:.12em; text-transform:uppercase; font-weight:1000; color:var(--muted); }
+    .typeEx .m{ font-family:var(--mathFont); font-size:17px; font-weight:600; white-space:nowrap; }
+    .typeEx .arrow{ color:#94a3b8; font-weight:1000; }
+    .typeEx svg{ height:46px; width:auto; display:block; }
+    .cntRow{ display:flex; align-items:center; gap:10px; }
+    .cntRow label{ margin:0; font-size:13px; color:var(--muted); white-space:nowrap; }
+    .cntRow input{ width:78px; padding:8px 10px; }
+    .totalRow{ display:flex; align-items:center; gap:10px; margin-top:10px; font-weight:950; font-size:14px; flex-wrap:wrap; }
+    .pill{ background:#eef2ff; color:#1d4ed8; border-radius:999px; padding:5px 12px; font-weight:1000; font-size:13px; }
+    .note{ margin:9px 0 0; font-size:12.6px; font-weight:800; color:var(--muted); line-height:1.5; }
+    .note b{ color:var(--ink); }
+    .note a{ color:var(--blue); font-weight:1000; text-decoration:none; }
+    .note.warn{ color:#991b1b; font-size:14px; }
+    .btnRow{ display:flex; gap:10px; flex-wrap:wrap; margin-top:2px; }
+    button.primary, button.ghost, button.danger{ border-radius:14px; padding:13px 18px; font-size:15px; font-weight:1000; cursor:pointer; border:2px solid transparent; font-family:inherit; }
+    button.primary{ background:var(--blue); color:#fff; }
+    button.primary:hover{ background:#1d4ed8; }
+    button.ghost{ background:#fff; color:var(--ink); border-color:var(--border); }
+    button.ghost:hover{ border-color:#c7ccd4; }
+    button.danger{ background:#fff; color:var(--red); border-color:#fecaca; }
+    button.danger:hover{ background:#fef2f2; }
+    .outWrap{ margin-top:8px; }
+
+    /* =====================================================================
+       THE PAPER — 196 × 281 mm on screen AND in print (the printable area of
+       A4 at the print margins), so what the preview shows is what prints.
+       ===================================================================== */
+    .page{
+      margin:14px auto 0; background:#fff; border:1px solid var(--border);
+      border-radius:14px; box-shadow:0 10px 26px rgba(15,23,42,.08); overflow:hidden;
+      width:196mm; height:281mm; display:flex; flex-direction:column;
+      --fs:1; --lineH:10mm;
+    }
+    .page.d-roomy{ --fs:1.16; --lineH:11.5mm; }
+    .page.d-normal{ --fs:1; --lineH:9.5mm; }
+    .page.d-tight{ --fs:.88; --lineH:8mm; }
+    .pageHeader{ padding:4mm 5mm 2.6mm; border-bottom:2.2px solid #111827; display:flex; align-items:flex-end; justify-content:space-between; gap:10px; }
+    .hdrTitle{ font-weight:1000; font-size:16px; line-height:1.1; }
+    .hdrSub{ color:var(--muted); font-weight:850; font-size:11px; margin-top:2px; white-space:nowrap; }
+    .nameDate{ display:flex; gap:8px; align-items:flex-end; }
+    .lineField{ display:flex; flex-direction:column; gap:3px; width:34mm; }
+    .lineLabel{ font-size:10px; font-weight:950; color:var(--muted); }
+    .lineBox{ height:6mm; border-bottom:1.6px solid #111827; }
+    .sheet{ padding:3.2mm 5mm 2mm; flex:1 1 auto; display:flex; flex-direction:column; min-height:0; }
+
+    /* worked example, page 1 */
+    .exStrip{ display:flex; gap:4mm; align-items:center; border:1.5px solid #c7d2fe; background:#f5f7ff; border-radius:3.4mm; padding:2mm 3mm; margin-bottom:3mm; }
+    .exStrip .exHead{ font-size:calc(10.5px * var(--fs)); font-weight:1000; letter-spacing:.1em; text-transform:uppercase; color:#3730a3; }
+    .exStrip .exBody{ display:flex; flex-direction:column; gap:1.2mm; min-width:0; }
+    .exStrip .exLine{ font-family:var(--mathFont); font-weight:700; font-size:calc(15.5px * var(--fs)); line-height:1.25; }
+    .exStrip .exLine .k{ font-family:var(--uiFont); font-size:calc(10.5px * var(--fs)); font-weight:1000; color:var(--muted); letter-spacing:.04em; margin-right:1.5mm; }
+    .exStrip svg{ flex:0 0 auto; display:block; }
+    .bw .exStrip{ background:#fff; border-color:#9ca3af; }
+    .bw .exStrip .exHead{ color:#111827; }
+
+    .section{ margin-bottom:3mm; }
+    .secHead{ display:flex; align-items:center; gap:2.4mm; padding:1.6mm 2.4mm; margin-bottom:2.2mm; border-radius:3mm; background:var(--sc-bg); border:1.4px solid var(--sc); }
+    .secLetter{ font-weight:1000; font-size:calc(14px * var(--fs)); background:var(--sc); color:#fff; border-radius:2mm; padding:.6mm 2.2mm; flex:0 0 auto; }
+    .secText{ font-weight:950; font-size:calc(13.4px * var(--fs)); color:#111827; line-height:1.3; }
+    .secCont{ margin-left:auto; font-size:11px; font-weight:900; color:var(--muted); flex:0 0 auto; }
+
+    .qGrid{ display:grid; gap:3mm; grid-template-columns:repeat(var(--cols,2),minmax(0,1fr)); margin-bottom:3mm; }
+    .qCard{ border:1.4px solid #d7dce3; border-radius:3.4mm; padding:2.4mm 3mm 3mm; display:flex; flex-direction:column; gap:1.8mm; break-inside:avoid; background:#fff; min-width:0; }
+    .qCard.full{ grid-column:1 / -1; }
+    .qTop{ display:flex; align-items:center; gap:2.2mm; width:100%; min-width:0; overflow:hidden; }
+    .qNum{ width:calc(22px * var(--fs)); height:calc(22px * var(--fs)); border-radius:999px; color:#fff; display:flex; align-items:center; justify-content:center; font-size:calc(11.5px * var(--fs)); font-weight:1000; flex:0 0 auto; }
+    .qNum.sweet{ background:linear-gradient(180deg,var(--sweet1),var(--sweet2)); }
+    .qNum.mild{ background:linear-gradient(180deg,var(--mild1),var(--mild2)); }
+    .qNum.medium{ background:linear-gradient(180deg,var(--medium1),var(--medium2)); }
+    .qNum.spicy{ background:linear-gradient(180deg,var(--spicy1),var(--spicy2)); }
+    .expr{ font-family:var(--mathFont); font-weight:600; font-size:calc(21px * var(--fs)); line-height:1.15; white-space:nowrap; }
+    .expr .x{ color:#1d4ed8; } .expr .y{ color:#c2410c; }
+    .bw .expr .x, .bw .expr .y{ color:inherit; }
+    .qTop .ln{ flex:1 1 auto; min-width:12mm; max-width:34mm; height:calc(var(--lineH) * .8); border-bottom:1.6px solid #111827; }
+    .qTop .unit{ font-family:var(--mathFont); font-weight:600; font-size:calc(17px * var(--fs)); }
+    .qTop .word{ font-weight:950; font-size:calc(13.5px * var(--fs)); white-space:nowrap; }
+    .pic{ display:flex; justify-content:center; }
+    .pic svg{ display:block; overflow:visible; }
+    .picPair{ display:grid; grid-template-columns:1fr 1fr; gap:3mm; }
+    .picBox{ border:1.2px dashed #cbd5e1; border-radius:3mm; padding:1.4mm; display:flex; flex-direction:column; gap:1.4mm; }
+    .picCap{ font-size:calc(10.5px * var(--fs)); font-weight:1000; color:var(--muted); text-align:center; letter-spacing:.06em; text-transform:uppercase; }
+
+    .ansLine{ display:flex; align-items:flex-end; gap:2mm; font-family:var(--mathFont); font-weight:700; font-size:calc(17px * var(--fs)); }
+    .ansLine .ln{ flex:1 1 auto; height:var(--lineH); border-bottom:1.6px solid #111827; }
+    .ansLine .ln.sm{ flex:0 0 20%; }
+    .ansLine .ln.xs{ flex:0 0 13%; }
+    .ansLine .lab{ font-family:var(--uiFont); font-size:calc(10.5px * var(--fs)); font-weight:1000; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; align-self:center; white-space:nowrap; }
+    .ansLine .u{ font-size:.85em; }
+    .ticks{ display:flex; flex-wrap:wrap; align-items:center; gap:1.5mm 3mm; font-weight:900; font-size:calc(12px * var(--fs)); color:#374151; padding-top:1mm; }
+    .ticks .tb{ display:inline-block; width:3.6mm; height:3.6mm; border:1.5px solid #111827; border-radius:.8mm; vertical-align:-.5mm; margin-right:1mm; }
+    .say{ display:flex; flex-direction:column; }
+    .wl{ height:var(--lineH); border-bottom:1.5px solid #9aa3af; }
+    .workHead{ font-size:calc(10px * var(--fs)); font-weight:1000; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; }
+    .work{ border:1.4px dashed #9aa3af; border-radius:3mm; padding:1mm 2.4mm 0; }
+    .qCard.flu{ padding:2.2mm 3mm; }
+    .qCard.flu .qTop{ align-items:flex-end; }
+    .qCard.flu .qNum{ align-self:center; }
+    .qCard.flu .qTop .ln{ max-width:none; }
+    .qCard.flu .fluAns{ font-family:var(--mathFont); font-weight:700; font-size:calc(19px * var(--fs)); color:#15803d; white-space:nowrap; }
+
+    /* whatever a page leaves is a question the student makes for themselves */
+    .yourTurn{ border:1.8px dashed #c4b5fd; border-radius:3.4mm; padding:2.4mm 3mm 3mm; background:#fdfcff; display:flex; flex-direction:column; gap:2mm; margin-bottom:3mm; }
+    .ytHead{ display:flex; align-items:center; gap:2mm; font-weight:1000; font-size:calc(13.5px * var(--fs)); color:#6d28d9; }
+    .ytHead .star{ font-size:1.2em; }
+    .ytText{ font-weight:850; font-size:calc(12.5px * var(--fs)); color:#374151; line-height:1.35; }
+    .drawBox{ border:1.8px dashed #9aa3af; border-radius:3mm; height:var(--drawH,42mm); background-image:linear-gradient(#e5e7eb 1px, transparent 1px),linear-gradient(90deg,#e5e7eb 1px, transparent 1px); background-size:5mm 5mm; background-position:-1px -1px; }
+    .bw .yourTurn{ background:#fff; border-color:#9ca3af; }
+    .bw .ytHead{ color:#111827; }
+
+    /* answer key */
+    .isKey .qCard{ border-color:#bbf7d0; background:#f7fdf9; }
+    .keyAns{ font-family:var(--mathFont); font-weight:700; font-size:calc(16.5px * var(--fs)); color:#15803d; line-height:1.35; }
+    .keyAns .lab{ font-family:var(--uiFont); font-size:calc(10px * var(--fs)); font-weight:1000; color:#166534; letter-spacing:.05em; text-transform:uppercase; margin-right:1.4mm; }
+    .keyWhy{ font-size:calc(11.2px * var(--fs)); font-weight:850; color:#374151; line-height:1.4; }
+
+    /* black and white, for the photocopier */
+    .bw .secHead{ background:#fff !important; border-color:#111827 !important; }
+    .bw .secLetter{ background:#111827 !important; }
+    .bw .qNum{ background:#111827 !important; }
+    .bw .isKey .qCard, .isKey.bw .qCard{ background:#fff; border-color:#9ca3af; }
+
+    .pageFooter{ padding:1.4mm 5mm 2mm; border-top:1px solid rgba(229,231,235,.95); display:flex; align-items:center; justify-content:space-between; font-weight:900; color:var(--muted); font-size:10px; }
+    .pageFooter a{ color:#2563eb; text-decoration:none; font-weight:1000; }
+    .measure{ position:absolute; left:-10000px; top:0; visibility:hidden; }
+    .mmtFooter{ position:fixed; left:0; right:0; bottom:0; height:var(--footer-h); display:flex; align-items:center; justify-content:center; padding:0 12px; background:rgba(255,255,255,.92); border-top:1px solid rgba(229,231,235,.95); backdrop-filter:blur(8px); z-index:500; font-weight:900; color:#111827; text-align:center; font-size:13px; }
+    .mmtFooter a{ color:#2563eb; text-decoration:none; font-weight:950; }
+
+    @media print{
+      @page{ size:A4; margin:8mm 7mm; }
+      html, body{ width:196mm; height:auto; }
+      body{ background:#fff; padding-bottom:0; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+      .wrap{ max-width:none; margin:0; padding:0; }
+      .card{ box-shadow:none; border-radius:0; padding:0; }
+      .controls, .title, .subtitle, .mmtFooter{ display:none !important; }
+      .outWrap{ margin:0; }
+      .page{ height:280.5mm; }
+      .page{ margin:0; border:none; border-radius:0; box-shadow:none; page-break-after:always; }
+      .page:last-child{ page-break-after:auto; }
+    }
+    /* ---------- shared generator pieces ---------- */
+    .kSub{ display:block; font-size:12px; font-weight:800; color:var(--muted); }
+    .typeEx svg{ height:58px; }
+    .lvChip small{ font-family:var(--uiFont); font-size:12.5px; font-weight:800; }
+    .qText{ font-weight:850; font-size:calc(13px * var(--fs)); line-height:1.4; color:#1f2937; }
+    .qText b{ font-weight:1000; }
+    .split{ display:grid; grid-template-columns:auto minmax(0,1fr); gap:4mm; align-items:center; }
+    .split .side{ display:flex; flex-direction:column; gap:1.8mm; min-width:0; }
+    .said{ font-weight:850; font-size:calc(12.5px * var(--fs)); color:#374151; line-height:1.4; }
+    .saidM{ font-family:var(--mathFont); font-weight:700; font-size:calc(17px * var(--fs)); color:#111827; margin-top:1mm; padding:1.2mm 2.4mm; border:1.2px dashed #cbd5e1; border-radius:2.4mm; display:inline-block; }
+    .ticks .tb{ font-style:normal; }
+    .qCard.full .pic{ justify-content:flex-start; }
+    .ansLine .lab.big{ text-transform:none; letter-spacing:0; font-size:calc(13.5px * var(--fs)); font-weight:950; color:#111827; }
+    /* ---------- the circle generator's own pieces ---------- */
+    .seg button .sym{ width:auto; min-width:28px; padding:0 6px; font-size:16px; }
+    select:disabled{ opacity:.5; background:#f3f4f6; }
+    .ansLine .t{ white-space:nowrap; }
+    .ansLine .ln.xs{ flex:0 0 15%; min-width:9mm; }
+    .ansLine .ln.sm{ flex:0 0 24%; min-width:12mm; }
+    .ansLine + .ansLine{ margin-top:-1mm; }
+    .keyAns{ overflow-wrap:anywhere; }
+    .typeEx svg{ height:52px; }
+    .keyAns .lab.mth{ font-family:var(--mathFont); text-transform:none; letter-spacing:0; font-size:calc(15px * var(--fs)); font-weight:700; color:#166534; }
+    .rt{ font-family:var(--uiFont); font-weight:800; margin-right:.5px; }
+  </style>
+<!-- mmt-pwa -->
+<link rel="manifest" href="../../../manifest.webmanifest">
+<meta name="theme-color" content="#1f3a5f">
+<link rel="apple-touch-icon" href="../../../icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="MMT">
+<script src="../../../pwa.js" defer></script>
+<!-- /mmt-pwa -->
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1 class="title">Area of a Circle &mdash; Worksheet Generator</h1>
+      <p class="subtitle">Printable A4 worksheets from the <a href="/interactive-tools/stage-4/measurement-space/area-of-a-circle/">Area of a Circle</a> teaching tool. Slice a circle, fit the slices together and they make a rectangle <b>half the circumference long</b> and <b>the radius high</b>: <b>&pi;r &times; r = &pi;r&sup2;</b>. Then radius, diameter, parts of a circle, working backwards, mistakes, real problems and shaded regions.</p>
+
+      <div class="controls">
+        <div class="band">
+          <p class="bandHead">The numbers &mdash; tick one level, or several for a ladder</p>
+          <div class="lvChips" id="lvChips"></div>
+          <div class="quick">Quick sets:
+            <button type="button" data-quick="sweet,mild">Getting started</button>
+            <button type="button" data-quick="mild,medium">Core Stage 4</button>
+            <button type="button" data-quick="medium,spicy">Extension</button>
+            <button type="button" data-quick="sweet,mild,medium,spicy">All four &mdash; a full ladder</button>
+          </div>
+          <p class="note">One level ticked: every question is that size. Several ticked: each section climbs through them, easiest first. <b>Spicy</b> uses decimal radii (4.5, 3.6) and odd diameters, and adds sectors to D. Working backwards always comes out to a whole-number radius.</p>
+        </div>
+
+        <div class="band">
+          <p class="bandHead">Pi and the answers</p>
+          <div class="seg" id="piSeg" role="group" aria-label="How to use pi">
+            <button type="button" data-pi="exact" aria-pressed="false"><span class="sym">&pi;</span>Exact &mdash; in terms of &pi;</button>
+            <button type="button" data-pi="p314" aria-pressed="true"><span class="sym">3.14</span>&pi; &asymp; 3.14</button>
+            <button type="button" data-pi="p3" aria-pressed="false"><span class="sym">3</span>&pi; &asymp; 3</button>
+            <button type="button" data-pi="calc" aria-pressed="false"><span class="sym">&pi;&#8202;=</span>Calculator &pi;</button>
+          </div>
+          <div class="bandGrid" style="margin-top:12px">
+            <div>
+              <label for="dpSel">Round decimal answers to</label>
+              <select id="dpSel">
+                <option value="0">The nearest whole number</option>
+                <option value="1">1 decimal place</option>
+                <option value="2" selected>2 decimal places</option>
+              </select>
+            </div>
+            <div>
+              <label for="workSel">Answer space in B, C and D</label>
+              <select id="workSel">
+                <option value="frame" selected>Fill-in steps &mdash; A = &pi; &times; __&sup2;</option>
+                <option value="lines">Working lines, then Area = ____</option>
+                <option value="answer">Area = ____ only</option>
+              </select>
+            </div>
+            <div>
+              <label for="unitSel">Units on the diagrams</label>
+              <select id="unitSel">
+                <option value="cm" selected>cm</option>
+                <option value="mm">mm</option>
+                <option value="m">m</option>
+                <option value="">None</option>
+              </select>
+            </div>
+          </div>
+          <div class="bandRow" style="margin-top:12px">
+            <label class="sw"><input type="checkbox" id="estToggle" /><span class="track"></span><span>Estimate first with &pi; &asymp; 3 <small class="kSub">an &ldquo;Estimate&rdquo; line before each answer</small></span></label>
+            <label class="sw"><input type="checkbox" id="namesToggle" checked /><span class="track"></span><span>Name the lengths <small class="kSub">r = 5 cm, d = 10 cm &mdash; off: just 5 cm</small></span></label>
+          </div>
+          <p class="note" id="piNote"></p>
+        </div>
+
+        <div class="band">
+          <p class="bandHead">Problem types &mdash; tick the ones you want, and how many</p>
+          <div class="typeGrid" id="typeGrid"></div>
+          <div class="totalRow"><span>On the paper:</span><span class="pill" id="totalPill">0 questions</span></div>
+          <p class="note">The order is the lesson: <b>slices to a rectangle</b> (why it is &pi;r&sup2;), <b>radius</b>, <b>diameter</b>, <b>parts of a circle</b>, <b>work backwards</b>, <b>spot the mistake</b>, then <b>problems in context</b>. <b>H Shaded regions</b> (composite areas) and <b>I Fluency</b> are off until you tick them.</p>
+        </div>
+
+        <div class="band">
+          <p class="bandHead">Scaffolding and the paper</p>
+          <div class="bandGrid">
+            <div>
+              <label for="densitySel">Spacing</label>
+              <select id="densitySel">
+                <option value="roomy">Spacious &mdash; large diagrams and print</option>
+                <option value="normal" selected>Standard &mdash; two to a row</option>
+                <option value="tight">Compact &mdash; three to a row</option>
+              </select>
+            </div>
+            <div>
+              <label for="colourSel">Colour</label>
+              <select id="colourSel">
+                <option value="colour" selected>Colour &mdash; green shapes</option>
+                <option value="bw">Black and white &mdash; for photocopying</option>
+              </select>
+            </div>
+          </div>
+          <div class="bandRow" style="margin-top:12px">
+            <label class="sw"><input type="checkbox" id="exToggle" checked /><span class="track"></span><span>Worked example on page 1</span></label>
+            <label class="sw"><input type="checkbox" id="formulaToggle" checked /><span class="track"></span><span>Show A = &pi;r&sup2; in the example</span></label>
+            <label class="sw"><input type="checkbox" id="nameToggle" checked /><span class="track"></span><span>Name and date</span></label>
+            <label class="sw"><input type="checkbox" id="keyToggle" /><span class="track"></span><span>Answer key pages</span></label>
+          </div>
+          <p class="note">Turn the <b>formula</b> off while the class is still discovering it &mdash; the example then shows the slices as a rectangle, half the circumference by the radius, without &ldquo;A = &pi;r&sup2;&rdquo;. <b>Changing &pi;, rounding, units or the answer space keeps the same questions</b>, so you can print one set with &pi; &asymp; 3 and an identical set in exact form for different groups. The answer key shows the working, so it can be handed to a student.</p>
+        </div>
+
+        <div class="btnRow">
+          <button id="genBtn" class="primary">Generate worksheet</button>
+          <button id="printBtn" class="ghost">Print (Ctrl+P)</button>
+          <button id="resetBtn" class="danger">Reset</button>
+        </div>
+      </div>
+
+      <div id="out" class="outWrap"></div>
+    </div>
+  </div>
+
+  <div class="measure" id="measure" aria-hidden="true"></div>
+
+  <div class="mmtFooter">
+    This tool and more can be found at&nbsp;
+    <a href="https://www.millsmathstools.au">www.millsmathstools.au</a>
+  </div>
+
+<script>
+(() => {
+  "use strict";
+  /* =====================================================================
+     AREA OF A CIRCLE — WORKSHEET GENERATOR (2026-11-24)
+     Same frame as the parallelogram, triangle and trapezium generators:
+     bands of settings, lettered problem types with counts, rows MEASURED
+     then packed into A4 pages, a "Your turn" box in whatever a page
+     leaves, and an answer key.
+
+     The story from the teaching tool: slice the circle, fit the halves
+     together, and it becomes a rectangle πr long and r high — so πr².
+       A  Slices to a rectangle — length (half the circumference), height, area
+       B  Radius given
+       C  Diameter given        — halve it first
+       D  Parts of a circle     — semicircles, quarters; ¾ (Medium), sectors (Spicy)
+       E  Work backwards        — area given: ÷ π, then the square root
+       F  Spot the mistake      — diameter as radius / 2r for r² / squared π / whole for half
+       G  In context            — radius or diameter hidden in words
+       H  Shaded regions        — rings, a square less a circle, a rectangle and a semicircle (off)
+       I  Fluency               — no diagram (off)
+
+     π is a RENDER setting, not a question setting: the same radii print
+     exact (25π), with 3.14, with 3, or with the calculator's π.
+     ===================================================================== */
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;");
+  const SITE = "https://www.millsmathstools.au";
+  const R = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+  const pick = a => a[Math.floor(Math.random() * a.length)];
+  const shuffle = a => { const b = a.slice(); for(let i = b.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; };
+  const fmt = n => String(Math.round(n * 1e6) / 1e6);
+  const isInt = v => Math.abs(v - Math.round(v)) < 1e-9;
+  const PX_MM = 96 / 25.4;
+  const X = "×";
+
+  /* ---------------------------------------------------------- levels */
+  const LV = [
+    { k:"sweet",  name:"Sweet",  ex:"radius 2 to 10",          cls:"sweet",  col:"#16a34a", lo:2, hi:10, dec:false },
+    { k:"mild",   name:"Mild",   ex:"radius 2 to 12",          cls:"mild",   col:"#d97706", lo:2, hi:12, dec:false },
+    { k:"medium", name:"Medium", ex:"radius 5 to 20",          cls:"medium", col:"#ea580c", lo:5, hi:20, dec:false },
+    { k:"spicy",  name:"Spicy",  ex:"decimals (4.5, 3.6)",     cls:"spicy",  col:"#b91c1c", lo:6, hi:25, dec:true }
+  ];
+  const LVK = Object.fromEntries(LV.map(l => [l.k, l]));
+  const LVI = k => LV.findIndex(l => l.k === k);
+  function levelAt(levels, i, n){ return levels[Math.min(levels.length - 1, Math.floor(i * levels.length / Math.max(1, n)))]; }
+
+  /* ---------------------------------------------------------- π */
+  const PI_MODES = {
+    exact:{ lab:"exact, in terms of π" }, p314:{ lab:"π ≈ 3.14" }, p3:{ lab:"π ≈ 3" }, calc:{ lab:"calculator π" }
+  };
+  const PV = o => o.pi === "p314" ? 3.14 : o.pi === "p3" ? 3 : Math.PI;
+  const PT = o => o.pi === "p314" ? "3.14" : o.pi === "p3" ? "3" : "π";
+  const piK = k => (isInt(k - 1) && Math.abs(k - 1) < 1e-9 ? "" : fmt(k)) + "π";
+  const dpWords = dp => dp === 0 ? "to the nearest whole number" : `to ${dp} decimal place${dp === 1 ? "" : "s"}`;
+  /* a number answer, rounded only when it has to be */
+  function numA(val, o, irrational){
+    const dp = (o.pi === "p314" || o.pi === "calc") ? o.dp : 6, f = Math.pow(10, dp), r = Math.round(val * f) / f;
+    const exact = !irrational && Math.abs(r - val) < 1e-9;
+    return { t:exact ? fmt(val) : r.toFixed(dp), eq:exact ? "=" : "≈" };
+  }
+  /* an answer c + kπ in the mode chosen */
+  function val(c, k, o){
+    if(o.pi === "exact"){
+      if(Math.abs(k) < 1e-12) return { t:fmt(c), eq:"=" };
+      if(Math.abs(c) < 1e-12) return { t:piK(k), eq:"=" };
+      return { t:k < 0 ? `${fmt(c)} − ${piK(-k)}` : `${fmt(c)} + ${piK(k)}`, eq:"=" };
+    }
+    return numA(c + PV(o) * k, o, o.pi === "calc" && Math.abs(k) > 1e-12);
+  }
+  function piPhrase(o){
+    if(o.pi === "exact") return "Give answers in terms of π.";
+    if(o.pi === "p3") return "Use π ≈ 3.";
+    if(o.pi === "p314") return "Use π ≈ 3.14." + (o.levels.includes("spicy") ? ` Round ${dpWords(o.dp)} where needed.` : "");
+    return `Use the π key on your calculator. Round ${dpWords(o.dp)}.`;
+  }
+  /* working for (fraction of) a circle of radius r */
+  const FR = { semi:{ v:.5, t:"½", name:"semicircle", word:"half" }, quarter:{ v:.25, t:"¼", name:"quarter circle", word:"a quarter" }, three:{ v:.75, t:"¾", name:"three-quarter circle", word:"three quarters" } };
+  const sectorFr = th => ({ v:th / 360, t:`${th}/360`, name:`sector (${th}°)`, word:`${th}/360` });
+  function circleWork(r, o, fr){
+    const r2 = r * r, f = fr ? fr.v : 1, ft = fr ? fr.t + " " + X + " " : "", a = val(0, r2 * f, o);
+    if(o.pi === "exact") return fr ? `${ft}π ${X} ${fmt(r)}² = ${ft}${piK(r2)} = ${a.t}` : `π ${X} ${fmt(r)}² = ${a.t}`;
+    if(o.pi === "calc") return `${ft}π ${X} ${fmt(r)}² ${a.eq} ${a.t}`;
+    const P = PT(o), whole = PV(o) * r2;
+    return fr ? `${ft}${P} ${X} ${fmt(r)}² = ${ft}${fmt(whole)} ${a.eq} ${a.t}` : `${P} ${X} ${fmt(r)}² = ${P} ${X} ${fmt(r2)} ${a.eq} ${a.t}`;
+  }
+  const estWork = (r, fr) => `${fr ? fr.t + " " + X + " " : ""}3 ${X} ${fmt(r)}² = ${fr ? fr.t + " " + X + " " : ""}${fmt(3 * r * r)}${fr ? " = " + fmt(3 * r * r * fr.v) : ""}`;
+
+  /* ---------------------------------------------------------- making numbers */
+  function makeR(level, used, o){
+    o = o || {};
+    const L = LVK[level];
+    for(let t = 0; t < 500; t++){
+      let r;
+      const lo = o.lo != null ? o.lo : L.lo, hi = o.hi != null ? o.hi : L.hi;
+      if(L.dec && !o.whole){
+        r = Math.random() < .55 ? R(Math.max(1, Math.floor(lo / 2)), Math.min(12, hi)) + .5 : R(11, Math.min(99, hi * 10)) / 10;
+        if(isInt(r)) continue;
+      } else r = R(Math.max(1, Math.ceil(lo)), Math.max(Math.ceil(lo), Math.floor(hi)));
+      if(o.ok && !o.ok(r)) continue;
+      const key = (o.tag || "") + r;
+      if(used.has(key) && t < 400) continue;
+      used.add(key);
+      return r;
+    }
+    return 5;
+  }
+  const tidy = k => isInt(k * 1000);   /* an exact coefficient with at most 3 decimals */
+
+  /* ---------------------------------------------------------- the problem types */
+  const TYPES = [
+    { k:"A", col:"#15803d", bg:"#f0fdf4", n:2, title:"Slices to a rectangle",
+      desc:"The circle cut into slices and fitted together. Students find the length (half the circumference, πr), the height (r), then length × height.",
+      ex:() => exSlices() + '<span class="arrow">→</span><span class="m">π × 5 by 5</span>' },
+    { k:"B", col:"#2563eb", bg:"#eff6ff", n:4, title:"Radius given",
+      desc:"Circles with the radius marked. With fill-in steps the answer space reads A = π × __² = …",
+      ex:() => exGeo({ kind:"circle", r:5, show:"r" }) + '<span class="arrow">→</span><span class="m">π × 5² = 25π</span>' },
+    { k:"C", col:"#7c3aed", bg:"#faf5ff", n:2, title:"Diameter given",
+      desc:"The diameter is marked, so halve it first. The most common slip in the topic — worth its own section.",
+      ex:() => exGeo({ kind:"circle", r:5, show:"d" }) + '<span class="arrow">→</span><span class="m">r = 10 ÷ 2 = 5</span>' },
+    { k:"D", col:"#0891b2", bg:"#ecfeff", n:2, title:"Parts of a circle",
+      desc:"Semicircles and quarter circles; three-quarter circles from Medium, sectors with an angle on Spicy. Whole circle first, then the fraction.",
+      ex:() => exGeo({ kind:"semi", r:4, show:"r" }) + '<span class="arrow">→</span><span class="m">½ × π × 4² = 8π</span>' },
+    { k:"E", col:"#0d9488", bg:"#f0fdfa", n:2, title:"Work backwards",
+      desc:"The area is given; find the radius (or the diameter on Medium and Spicy). Divide by π, then take the square root.",
+      ex:() => '<span class="m">A = 49π → r² = 49 → r = 7</span>' },
+    { k:"F", col:"#db2777", bg:"#fdf2f8", n:1, title:"Spot the mistake",
+      desc:"A worked answer with a classic error: the diameter used as the radius, 2r for r², π squared too, or a whole circle for a semicircle. Explain, then fix.",
+      ex:() => '<span class="m">π × 6 × 2 = 12π</span><span class="arrow">→</span><span class="m">6² not 6 × 2: 36π</span>' },
+    { k:"G", col:"#ea580c", bg:"#fff7ed", n:2, title:"In context",
+      desc:"Pizzas, sprinklers, a goat on a rope, phone towers. The length is in words — is it a radius or a diameter? Medium and Spicy add a pizza comparison.",
+      ex:() => '<span class="m">a pizza 30 cm across → r = 15</span>' },
+    { k:"H", col:"#b45309", bg:"#fffbeb", n:2, off:true, title:"Shaded regions",
+      desc:"Composite areas: a ring, a square with a circle cut out, a rectangle with a semicircle on the end (from Medium). Add or subtract.",
+      ex:() => exGeo({ kind:"ring", R:5, r:3 }) + '<span class="arrow">→</span><span class="m">25π − 9π = 16π</span>' },
+    { k:"I", col:"#475569", bg:"#f8fafc", n:12, off:true, title:"Fluency — no diagram",
+      desc:"Radius or diameter in words, no pictures; semicircles from Mild, a missing radius from Medium. Tick it on its own for a warm-up.",
+      ex:() => '<span class="m">circle, diameter 8 → area =</span><span style="display:inline-block;width:2.2em;border-bottom:1.6px solid currentColor"></span>' }
+  ];
+  function headFor(T, o, g){
+    const pp = " " + piPhrase(o);
+    switch(T.k){
+      case "A": return "Slices to a rectangle. The slices fit together into a shape that is almost a rectangle. Find its length (half the circumference) and height, then the area." + pp;
+      case "B": return "Find the area of each circle. The radius is marked." + pp;
+      case "C": return "Find the area of each circle. The diameter is marked — halve it to get the radius first." + pp;
+      case "D": return "Parts of a circle. Find the area of the whole circle, then take the fraction you need." + pp;
+      case "E": return `Work backwards. The area is given. Find the radius${g && g.qs.some(q => q.ask === "d") ? " or diameter" : ""}: ${o.pi === "exact" ? "divide by π" : "divide by " + PT(o)}, then take the square root.`;
+      case "F": return "Spot the mistake. Explain what went wrong, then find the correct area." + pp;
+      case "G": return "Problems in context. Is the length a radius or a diameter? Then find the area." + pp;
+      case "H": return "Shaded regions. Find the area of the shaded part." + pp;
+      case "I": return "Fluency. Find the area, or the missing length." + pp;
+    }
+  }
+
+  /* contexts: the length in words, with their own units and sizes */
+  const CTX = [
+    { id:"pizza",  u:"cm", lo:8,  hi:22, d:true,  t:v => `A round pizza has a diameter of <b>${v} cm</b>. What is the area of the top of the pizza?` },
+    { id:"sprink", u:"m",  lo:2,  hi:12, d:false, t:v => `A garden sprinkler sprays water <b>${v} m</b> in every direction. What area of lawn does it water?` },
+    { id:"goat",   u:"m",  lo:2,  hi:15, d:false, t:v => `A goat is tied to a post with a rope <b>${v} m</b> long. What area of grass can it reach?` },
+    { id:"clock",  u:"cm", lo:8,  hi:20, d:false, t:v => `The face of a wall clock has a radius of <b>${v} cm</b>. What is the area of the face?` },
+    { id:"tower",  u:"km", lo:3,  hi:25, d:false, t:v => `A mobile phone tower sends a signal <b>${v} km</b> in every direction. What area does it cover?` },
+    { id:"coast",  u:"cm", lo:4,  hi:6,  d:true,  t:v => `A round drink coaster is <b>${v} cm</b> across. What is its area?` },
+    { id:"pond",   u:"m",  lo:1,  hi:6,  d:true,  t:v => `A circular pond is <b>${v} m</b> wide, measured straight through the middle. What is the area of its surface?` },
+    { id:"tramp",  u:"m",  lo:1.5,hi:3.5,d:true,  t:v => `A round trampoline mat is <b>${v} m</b> across. What is the area of the mat?` },
+    { id:"corner", u:"m",  lo:2,  hi:10, d:false, part:"quarter", minLv:1, t:v => `A sprinkler in the corner of a rectangular lawn sprays a quarter circle of radius <b>${v} m</b>. What area does it water?` },
+    { id:"pizzas", u:"cm", compare:true, minLv:2 }
+  ];
+
+  /* ---------------------------------------------------------- making questions */
+  const NAMES = ["Mia","Sam","Noah","Zara","Kai","Lily","Jai","Ava","Leo","Ruby","Omar","Tia"];
+  function makeQ(T, level, i, n, opts, used){
+    const q = { type:T.k, level, cls:LVK[level].cls };
+    const lv = LVI(level), L = LVK[level];
+    if(T.k === "A"){ q.r = makeR(level, used, { whole:true, hi:Math.min(L.hi, 12), tag:"A" }); return q; }
+    if(T.k === "B"){ q.s = { kind:"circle", r:makeR(level, used, { tag:"B" }), show:"r" }; return q; }
+    if(T.k === "C"){ q.s = { kind:"circle", r:makeR(level, used, { tag:"C", lo:Math.max(1, L.lo), ok:r => isInt(2 * r * 10) }), show:"d" }; return q; }
+    if(T.k === "D"){
+      const kinds = ["semi", "quarter"].concat(lv >= 2 ? ["three"] : [], lv >= 3 ? ["sector"] : []);
+      const kind = kinds[(i + R(0, kinds.length - 1)) % kinds.length];
+      const th = kind === "sector" ? pick([30, 45, 60, 72, 120, 135, 150, 240, 300]) : 0;
+      const fv = kind === "sector" ? th / 360 : FR[kind].v;
+      const r = makeR(level, used, { tag:"D" + kind, whole:kind === "sector", ok:r => tidy(r * r * fv) });
+      q.s = { kind, r, th, show:kind === "semi" && i % 2 ? "d" : "r" };
+      return q;
+    }
+    if(T.k === "E"){
+      q.s = { kind:"circle", r:makeR(level, used, { whole:true, tag:"E" }), show:"r", missing:true };
+      q.ask = lv >= 2 && i % 2 ? "d" : "r";
+      if(q.ask === "d") q.s.show = "d";
+      return q;
+    }
+    if(T.k === "F"){
+      const kinds = ["diam", "twice", "squarepi"].concat(lv >= 1 ? ["semi"] : []);
+      q.mk = kinds[(i + R(0, kinds.length - 1)) % kinds.length];
+      const r = makeR(level, used, { whole:lv < 3, tag:"F" });
+      q.s = q.mk === "diam" ? { kind:"circle", r, show:"d" } : q.mk === "semi" ? { kind:"semi", r, show:"r" } : { kind:"circle", r, show:"r" };
+      if(!used.names || !used.names.length) used.names = shuffle(NAMES);
+      q.name = used.names.pop();
+      return q;
+    }
+    if(T.k === "G"){
+      const pool = CTX.filter(c => !(c.minLv > lv) && !used.has("G" + c.id));
+      const c = pool.length ? pick(pool) : pick(CTX.filter(c => !(c.minLv > lv)));
+      used.add("G" + c.id);
+      q.c = c;
+      if(c.compare){
+        const bigD = pick([30, 32, 34, 36, 40]), smD = pick([18, 20, 22, 24, 26].filter(d => d < bigD - 4));
+        q.bigD = bigD; q.smD = smD; q.count = 2;
+        return q;
+      }
+      /* the context sets the size; the level sets whole or decimal */
+      let r;
+      if(c.d){
+        r = L.dec ? makeR(level, used, { lo:c.lo, hi:c.hi, tag:"G" + c.id, ok:r => r >= c.lo && r <= c.hi })
+                  : (c.hi - c.lo < 1 ? 2.5 : R(Math.ceil(c.lo), Math.floor(c.hi)));
+      } else {
+        const lo = Math.max(c.lo, lv >= 2 ? Math.min(c.hi, L.lo) : c.lo), hi = Math.min(c.hi, L.hi);
+        r = L.dec ? makeR(level, used, { lo, hi, tag:"G" + c.id, ok:r => r >= c.lo && r <= c.hi }) : R(Math.ceil(lo), Math.max(Math.ceil(lo), Math.floor(hi)));
+      }
+      if(c.part && !tidy(r * r * FR[c.part].v)) r = Math.round(r);
+      q.r = r;
+      return q;
+    }
+    if(T.k === "H"){
+      const kinds = ["ring", "sqminus"].concat(lv >= 2 ? ["rectsemi"] : []);
+      const kind = kinds[(i + R(0, kinds.length - 1)) % kinds.length];
+      if(kind === "ring"){
+        const Rr = makeR(level, used, { whole:true, lo:Math.max(3, L.lo), tag:"Hr" });
+        const lo = Math.max(1, Math.ceil(Rr * .35)), hi = Math.max(lo, Math.floor(Rr * .65));
+        let ri = R(lo, hi); if(L.dec && ri + .5 < Rr * .7 && Math.random() < .5) ri += .5;
+        q.s = { kind, R:Rr, r:Math.min(ri, Rr - 1) };
+      }
+      else if(kind === "sqminus"){ const r = makeR(level, used, { whole:true, hi:Math.min(L.hi, 15), tag:"Hs" }); q.s = { kind, r, showR:lv < 2 }; }
+      else { const r = makeR(level, used, { whole:true, hi:Math.min(L.hi, 12), tag:"Hm", ok:r => isInt(r * r / 2 * 1000) }); q.s = { kind, r, L:R(Math.max(3, r), Math.max(r + 2, Math.min(30, 3 * r))) }; }
+      return q;
+    }
+    /* I fluency */
+    const kinds = ["r", "d"].concat(lv >= 1 ? ["semi"] : [], lv >= 2 ? ["back"] : []);
+    q.fk = kinds[i % kinds.length];
+    q.r = makeR(level, used, { whole:q.fk === "back", tag:"I" + q.fk, ok:r => q.fk !== "semi" || tidy(r * r / 2) });
+    return q;
+  }
+
+  /* ---------------------------------------------------------- drawing (sizes in mm) */
+  const tw = (s, fs) => String(s).length * fs * .58;
+  const arcPts = (cx, cy, rad, a0, a1, n) => { const out = []; n = n || Math.max(8, Math.ceil(Math.abs(a1 - a0) / 5)); for(let i = 0; i <= n; i++){ const a = (a0 + (a1 - a0) * i / n) * Math.PI / 180; out.push([cx + rad * Math.cos(a), cy + rad * Math.sin(a)]); } return out; };
+  function palette(bw){
+    return { fill:bw ? "#e5e7eb" : "rgba(22,163,74,.34)", fill2:bw ? "#f3f4f6" : "rgba(22,163,74,.14)", edge:bw ? "#111827" : "#14532d",
+      hl:bw ? "#111827" : "#c2410c", dia:bw ? "#111827" : "#1d4ed8", lab:bw ? "#111827" : "#1f2937", key:"#15803d", ghost:bw ? "#6b7280" : "#64748b",
+      hlPatch:bw ? "#111827" : "#fdba74", diaPatch:bw ? "#111827" : "#93c5fd" };
+  }
+  /* everything the label helpers need, once the box is fitted */
+  function frame(o, bb, labs){
+    const lw = Math.max(0, ...labs.map(t => tw(t, o.fs)));
+    const mx = Math.max(o.fs * 1.4, Math.min(o.w * .3, lw * .62 + 2)), myB = o.below === false ? o.fs * .7 : o.fs * 2.3, myT = o.below === false ? o.fs * 1.1 : o.fs * 1.3;
+    const sc = Math.min((o.w - 2 * mx) / Math.max(.01, bb[2] - bb[0]), (o.h - myB - myT) / Math.max(.01, bb[3] - bb[1]), o.maxS || 1e9);
+    const ox = (o.w - (bb[2] - bb[0]) * sc) / 2 - bb[0] * sc, oy = myT + (o.h - myB - myT - (bb[3] - bb[1]) * sc) / 2 + bb[3] * sc;
+    const S = p => [ox + p[0] * sc, oy - p[1] * sc];
+    const pts = A => A.map(p => S(p).map(v => v.toFixed(2)).join(",")).join(" ");
+    const dPath = A => "M" + A.map(p => S(p).map(v => v.toFixed(2)).join(" ")).join("L") + "Z";
+    const ln = (p, q, st) => { const A = S(p), B = S(q); return `<line x1="${A[0].toFixed(2)}" y1="${A[1].toFixed(2)}" x2="${B[0].toFixed(2)}" y2="${B[1].toFixed(2)}" ${st}/>`; };
+    const textAt = (xy, text, fill, weight, size, font) => `<text x="${xy[0].toFixed(2)}" y="${xy[1].toFixed(2)}" font-size="${(size || o.fs).toFixed(2)}" fill="${fill}" font-weight="${weight || 600}" text-anchor="middle" dominant-baseline="central"${font ? ` font-family="${font}"` : ""}>${esc(text)}</text>`;
+    const patch = (xy, text, fill, stroke, weight) => { const w = tw(text, o.fs) + 1.6, h = o.fs * 1.32;
+      return `<rect x="${(xy[0] - w / 2).toFixed(2)}" y="${(xy[1] - h / 2).toFixed(2)}" width="${w.toFixed(2)}" height="${h.toFixed(2)}" rx="${(h / 2).toFixed(2)}" fill="#fff" stroke="${stroke}" stroke-width="0.25"/>` + textAt(xy, text, fill, weight); };
+    const outside = (p, q, cen, text, fill, weight) => {
+      const A = S(p), B = S(q), M = [(A[0] + B[0]) / 2, (A[1] + B[1]) / 2], C = S(cen);
+      const dx = B[0] - A[0], dy = B[1] - A[1], dl = Math.hypot(dx, dy) || 1;
+      let nx = -dy / dl, ny = dx / dl;
+      if(nx * (M[0] - C[0]) + ny * (M[1] - C[1]) < 0){ nx = -nx; ny = -ny; }
+      const off = Math.abs(nx) * tw(text, o.fs) / 2 + Math.abs(ny) * o.fs * .6 + 1.2;
+      return textAt([M[0] + nx * off, M[1] + ny * off], text, fill, weight);
+    };
+    /* a label beside a segment, on the side away from "below", with a white halo so it reads over lines */
+    const above = (p, q, text, fill, weight, at) => {
+      const A = S(p), B = S(q), t = at == null ? .5 : at, M = [A[0] + (B[0] - A[0]) * t, A[1] + (B[1] - A[1]) * t];
+      const dx = B[0] - A[0], dy = B[1] - A[1], dl = Math.hypot(dx, dy) || 1;
+      let nx = -dy / dl, ny = dx / dl; if(ny > 0 || (Math.abs(ny) < 1e-6 && nx > 0)){ nx = -nx; ny = -ny; }
+      const off = Math.abs(nx) * tw(text, o.fs) / 2 + Math.abs(ny) * o.fs * .62 + .9;
+      return `<text x="${(M[0] + nx * off).toFixed(2)}" y="${(M[1] + ny * off).toFixed(2)}" font-size="${o.fs.toFixed(2)}" fill="${fill}" font-weight="${weight || 600}" text-anchor="middle" dominant-baseline="central" paint-order="stroke" stroke="#fff" stroke-width="${(o.fs * .32).toFixed(2)}" stroke-linejoin="round">${esc(text)}</text>`;
+    };
+    const dot = p => { const A = S(p); return `<circle cx="${A[0].toFixed(2)}" cy="${A[1].toFixed(2)}" r="0.6" fill="${palette(o.bw).edge}"/>`; };
+    return { S, pts, dPath, ln, textAt, patch, outside, above, dot, sc };
+  }
+  function wrapSVG(o, g){ return `<svg viewBox="0 0 ${o.w.toFixed(2)} ${o.h.toFixed(2)}" width="${o.w.toFixed(2)}mm" height="${o.h.toFixed(2)}mm" font-family="STIX Two Math, Cambria Math, Times New Roman, serif">${g}</svg>`; }
+
+  function geoSVG(s, o){
+    const col = palette(o.bw), U = o.unit ? " " + o.unit : "";
+    const lab = (name, v, miss) => { const t = miss ? (o.key ? fmt(v) + U : "?") : fmt(v) + U; return o.names && name ? `${name} = ${t}` : t; };
+    const mFill = (miss, normal) => miss ? (o.key ? col.key : "#6b7280") : normal;
+    const W = miss => miss ? 800 : 600;
+    const strong = c => `stroke="${c}" stroke-width="0.55" stroke-linecap="round"`;
+    const shape = `fill="${col.fill}" stroke="${col.edge}" stroke-width="0.55" stroke-linejoin="round"`;
+    let bb, labs = [], g = "";
+    const r = s.r;
+    switch(s.kind){
+      case "circle": case "sqminus": bb = [-r, -r, r, r]; break;
+      case "three": bb = [-r, -r, r, r]; break;
+      case "semi": bb = [-r, 0, r, r]; break;
+      case "quarter": bb = [0, 0, r, r]; break;
+      case "ring": bb = [-s.R, -s.R, s.R, s.R]; break;
+      case "rectsemi": bb = [-s.L, -r, r, r]; break;
+      case "sector": { const P = [[0, 0]].concat(arcPts(0, 0, r, 90 - s.th / 2, 90 + s.th / 2, 48)); bb = [Math.min(...P.map(p => p[0])), Math.min(...P.map(p => p[1])), Math.max(...P.map(p => p[0])), Math.max(...P.map(p => p[1]))]; break; }
+    }
+    if(s.kind === "rectsemi") labs = [lab("", s.L), lab("", 2 * r)];
+    if(s.kind === "ring") labs = [lab("R", s.R), lab("R", s.R)];
+    if(s.kind === "quarter" || s.kind === "sector" || s.kind === "three" || s.kind === "semi") labs = [lab("r", r)];
+    const below = s.kind === "quarter" || s.kind === "sqminus" || s.kind === "rectsemi" || (s.kind === "semi" && s.show === "d") || s.kind === "sector";
+    const F = frame(Object.assign({}, o, { below }), bb, labs), { S, pts, dPath, ln, patch, outside, above, dot, textAt } = F;
+    if(s.kind === "circle"){
+      g += `<polygon points="${pts(arcPts(0, 0, r, 0, 360, 90))}" ${shape}/>`;
+      if(s.show === "d"){
+        g += ln([-r, 0], [r, 0], strong(col.dia)) + dot([-r, 0]) + dot([r, 0]);
+        g += above([-r, 0], [r, 0], lab("d", 2 * r, s.missing), mFill(s.missing, col.dia), W(s.missing));
+      } else {
+        g += ln([0, 0], [r, 0], strong(col.hl)) + dot([0, 0]);
+        g += above([0, 0], [r, 0], lab("r", r, s.missing), mFill(s.missing, col.hl), W(s.missing));
+      }
+    } else if(s.kind === "semi"){
+      g += `<polygon points="${pts(arcPts(0, 0, r, 0, 180, 48))}" ${shape}/>`;
+      if(s.show === "d"){
+        g += ln([-r, 0], [r, 0], strong(col.dia));
+        g += outside([-r, 0], [r, 0], [0, r / 2], lab("d", 2 * r), col.dia);
+      } else {
+        const a = 50 * Math.PI / 180, E = [r * Math.cos(a), r * Math.sin(a)];
+        g += ln([0, 0], E, strong(col.hl)) + dot([0, 0]);
+        g += above([0, 0], E, lab("r", r), col.hl);
+      }
+    } else if(s.kind === "quarter" || s.kind === "three" || s.kind === "sector"){
+      let P, cen, edge;
+      if(s.kind === "quarter"){ P = [[0, 0]].concat(arcPts(0, 0, r, 0, 90, 30)); cen = [r * .42, r * .42]; edge = [[0, 0], [r, 0]]; }
+      else if(s.kind === "three"){ P = [[0, 0]].concat(arcPts(0, 0, r, 0, -270, 80)); cen = [-r * .3, -r * .3]; edge = [[0, 0], [r, 0]]; }
+      else { const a0 = 90 - s.th / 2, a1 = 90 + s.th / 2; P = [[0, 0]].concat(arcPts(0, 0, r, a0, a1, 48)); cen = s.th > 180 ? [0, -r * .3] : [0, r * .6]; const e = a0 * Math.PI / 180; edge = [[0, 0], [r * Math.cos(e), r * Math.sin(e)]]; }
+      g += `<polygon points="${pts(P)}" ${shape}/>`;
+      g += ln(edge[0], edge[1], strong(col.hl));
+      g += outside(edge[0], edge[1], cen, lab("r", r), col.hl);
+      const O = S([0, 0]), m = Math.min(2, F.sc * r * .12);
+      if(s.kind === "sector"){
+        const a0 = 90 - s.th / 2, a1 = 90 + s.th / 2, rr = Math.min(r * .2, 4 / F.sc);
+        g += `<polyline points="${pts(arcPts(0, 0, rr, a0, a1, 24))}" fill="none" stroke="${col.edge}" stroke-width="0.3"/>`;
+        const T = S([0, rr + o.fs * .75 / F.sc]);
+        g += textAt(T, s.th + "°", col.lab, 700);
+      } else {
+        /* quarter: the corner is a right angle; ¾: the piece missing is */
+        g += `<polyline points="${(O[0] + m).toFixed(2)},${O[1].toFixed(2)} ${(O[0] + m).toFixed(2)},${(O[1] - m).toFixed(2)} ${O[0].toFixed(2)},${(O[1] - m).toFixed(2)}" fill="none" stroke="${col.edge}" stroke-width="0.3"/>`;
+      }
+    } else if(s.kind === "ring"){
+      g += `<path d="${dPath(arcPts(0, 0, s.R, 0, 360, 90))} ${dPath(arcPts(0, 0, s.r, 0, 360, 72))}" fill-rule="evenodd" ${shape}/>`;
+      const a = 40 * Math.PI / 180, E = [s.R * Math.cos(a), s.R * Math.sin(a)];
+      g += ln([0, 0], E, strong(col.hl)) + ln([0, 0], [-s.r, 0], strong(col.dia)) + dot([0, 0]);
+      const Et = S(E), tR = lab("R", s.R);
+      g += textAt([Et[0] + tw(tR, o.fs) / 2 + 1, Et[1] - o.fs * .55], tR, col.hl);
+      g += above([0, 0], [-s.r, 0], lab("r", s.r), col.dia);
+    } else if(s.kind === "sqminus"){
+      g += `<path d="${dPath([[-r, -r], [r, -r], [r, r], [-r, r]])} ${dPath(arcPts(0, 0, r, 0, 360, 90))}" fill-rule="evenodd" ${shape}/>`;
+      g += outside([-r, -r], [r, -r], [0, 0], lab("", 2 * r), col.lab);
+      if(s.showR){ g += ln([0, 0], [r, 0], strong(col.hl)) + dot([0, 0]); g += above([0, 0], [r, 0], lab("r", r), col.hl); }
+    } else if(s.kind === "rectsemi"){
+      g += `<polygon points="${pts([[-s.L, -r], [0, -r]].concat(arcPts(0, 0, r, -90, 90, 48)).concat([[-s.L, r]]))}" ${shape}/>`;
+      g += ln([0, -r], [0, r], `stroke="${col.ghost}" stroke-width="0.35" stroke-dasharray="1.2 0.9"`);
+      g += outside([-s.L, -r], [0, -r], [-s.L / 2, 0], lab("", s.L), col.lab);
+      g += outside([-s.L, -r], [-s.L, r], [0, 0], lab("", 2 * r), col.lab);
+    }
+    return wrapSVG(o, g);
+  }
+
+  /* the teaching tool's picture: the circle, and its slices fitted together */
+  function slicesSVG(r, o){
+    const col = palette(o.bw), U = o.unit ? " " + o.unit : "";
+    const n = 12, th = 360 / n, m = n / 2, w = 2 * Math.sin(Math.PI / n), c = Math.cos(Math.PI / n);
+    const x0 = 2.25, yS = -.5;   /* the arrangement, in radii: x0 … x0 + m·w + w/2, centred on y = 0 */
+    const xEnd = x0 + m * w + w / 2;
+    const rLab = o.rText || (o.names ? `r = ${fmt(r)}${U}` : fmt(r) + U);
+    const lenLab = o.key ? (o.lenText || "") : "length", hLab = o.key ? (o.hText || "") : "height";
+    const bb = [-1, -1, xEnd + .12, 1];
+    const F = frame(Object.assign({}, o, { w:o.w }), bb, [hLab + "  "]);
+    const { S, pts, ln, patch, textAt, dot, above } = F;
+    const top = col.fill, bot = o.bw ? "#fff" : "rgba(22,163,74,.12)";
+    let g = "";
+    for(let i = 0; i < n; i++){
+      const a0 = i * th, a1 = a0 + th, up = a0 < 180;
+      g += `<polygon points="${pts([[0, 0]].concat(arcPts(0, 0, 1, a0, a1, 10)))}" fill="${up ? top : bot}" stroke="${col.edge}" stroke-width="0.3" stroke-linejoin="round"/>`;
+    }
+    g += ln([0, 0], [1, 0], `stroke="${col.hl}" stroke-width="0.55"`) + dot([0, 0]);
+    g += above([0, 0], [1, 0], rLab, col.hl);
+    /* the slices: top half's slices point down with the rim on top, the bottom half's in between */
+    for(let i = 0; i < m; i++){
+      const A = [x0 + (i + 1) * w, yS];
+      g += `<polygon points="${pts([A].concat(arcPts(A[0], A[1], 1, 90 - th / 2, 90 + th / 2, 10)))}" fill="${top}" stroke="${col.edge}" stroke-width="0.3" stroke-linejoin="round"/>`;
+      const B = [x0 + (i + .5) * w, yS + c];
+      g += `<polygon points="${pts([B].concat(arcPts(B[0], B[1], 1, -90 - th / 2, -90 + th / 2, 10)))}" fill="${bot}" stroke="${col.edge}" stroke-width="0.3" stroke-linejoin="round"/>`;
+    }
+    /* arrow from the circle to the slices */
+    const a1 = S([1.12, .72]), a2 = S([x0 - .05, .72]);
+    g += `<line x1="${a1[0].toFixed(2)}" y1="${a1[1].toFixed(2)}" x2="${a2[0].toFixed(2)}" y2="${a2[1].toFixed(2)}" stroke="${col.ghost}" stroke-width="0.4"/>`;
+    g += `<path d="M${(a2[0] - 1.4).toFixed(2)} ${(a2[1] - 1).toFixed(2)}L${a2[0].toFixed(2)} ${a2[1].toFixed(2)}L${(a2[0] - 1.4).toFixed(2)} ${(a2[1] + 1).toFixed(2)}" fill="none" stroke="${col.ghost}" stroke-width="0.4" stroke-linecap="round"/>`;
+    /* length along the top, height up the right */
+    const yT = yS + 1 + .14, L0 = x0 + w / 4, L1 = xEnd - w / 4;
+    g += ln([L0, yT], [L1, yT], `stroke="${col.dia}" stroke-width="0.4"`) + ln([L0, yT - .07], [L0, yT + .07], `stroke="${col.dia}" stroke-width="0.4"`) + ln([L1, yT - .07], [L1, yT + .07], `stroke="${col.dia}" stroke-width="0.4"`);
+    if(lenLab) g += patch(S([(L0 + L1) / 2, yT]), lenLab, o.key ? col.key : col.dia, col.diaPatch, o.key ? 800 : 600);
+    const xH = xEnd + .1;
+    g += ln([xH, yS], [xH, yS + 1], `stroke="${col.hl}" stroke-width="0.4"`) + ln([xH - .07, yS], [xH + .07, yS], `stroke="${col.hl}" stroke-width="0.4"`) + ln([xH - .07, yS + 1], [xH + .07, yS + 1], `stroke="${col.hl}" stroke-width="0.4"`);
+    if(hLab){ const H = S([xH, yS + .5]); g += textAt([H[0] + tw(hLab, o.fs) / 2 + 1.2, H[1]], hLab, o.key ? col.key : col.hl, o.key ? 800 : 600); }
+    return wrapSVG(o, g);
+  }
+  function exGeo(s){ return geoSVG(s, { w:34, h:19, fs:2.3, unit:"", names:false }).replace(/width="[^"]*mm" height="[^"]*mm"/, ""); }
+  function exSlices(){ return slicesSVG(5, { w:46, h:19, fs:2.2, unit:"", names:false, rText:"5" }).replace(/width="[^"]*mm" height="[^"]*mm"/, ""); }
+
+  /* ---------------------------------------------------------- sizes */
+  const COLS = { roomy:2, normal:2, tight:3 };
+  const DIAGH = { roomy:44, normal:32, tight:26 };
+  const FS = { roomy:4.2, normal:3.6, tight:3.1 };
+  const FLU_COLS = { roomy:2, normal:2, tight:2 };
+  const colsFor = (t, o) => t === "I" ? FLU_COLS[o.density] : t === "F" ? 1 : (t === "A" || t === "G") ? Math.min(2, o.cols) : o.cols;
+  const cardInner = cols => (186 - 3 * (cols - 1)) / cols - 6.6;
+
+  /* ---------------------------------------------------------- cards */
+  const uu = (o, sq, unit) => { const u = unit !== undefined ? unit : o.units; return u ? `<span class="u"> ${u}${sq ? "²" : ""}</span>` : (sq ? '<span class="u"> units²</span>' : ""); };
+  const uT = (o, sq, unit) => { const u = unit !== undefined ? unit : o.units; return u ? " " + u + (sq ? "²" : "") : (sq ? " units²" : ""); };
+  const top = (q, n, inner) => `<div class="qTop"><span class="qNum ${q.cls}">${n}</span>${inner || ""}</div>`;
+  const lines = k => '<div class="say">' + '<div class="wl"></div>'.repeat(k) + "</div>";
+  const keyLine = (lab, txt) => `<div class="keyAns">${lab ? `<span class="lab${/=/.test(lab) ? " mth" : ""}">${lab}</span>` : ""}${txt}</div>`;
+  const keyWhy = txt => `<div class="keyWhy">${txt}</div>`;
+  const bl = c => `<span class="ln${c ? " " + c : ""}"></span>`;
+  const tx = s => `<span class="t">${s}</span>`;
+  const row = (...parts) => `<div class="ansLine">${parts.join("")}</div>`;
+  const ansLine = (lab, o, sq, unit) => row(`<span class="lab big">${lab}</span>`, bl(), uu(o, sq, unit));
+  function pic(s, o, w, key){ return `<div class="pic">${geoSVG(s, { w, h:DIAGH[o.density], fs:FS[o.density], bw:o.bw, unit:o.units, key, names:o.names })}</div>`; }
+  const est = o => o.est && o.pi !== "p3";
+  /* the fill-in steps for "area of a circle of radius __" */
+  function circleFrame(o, unit){
+    const u = uu(o, true, unit), P = PT(o);
+    if(o.pi === "exact") return row(tx("A = π ×"), bl("xs"), tx("²")) + row(tx("="), bl(), tx("π"), u);
+    if(o.pi === "calc") return row(tx("A = π ×"), bl("xs"), tx("²")) + row(tx("≈"), bl(), u);
+    return row(tx(`A = ${P} ×`), bl("xs"), tx("²")) + row(tx(`= ${P} ×`), bl("sm")) + row(tx("="), bl(), u);
+  }
+  const estRow = (o, unit) => row(`<span class="lab">Estimate</span>`, tx("3 ×"), bl("xs"), tx("² ="), bl(), uu(o, true, unit));
+  function answerSpace(o, frameHTML, unit){
+    if(o.work === "frame") return frameHTML;
+    if(o.work === "lines") return lines(2) + ansLine("Area =", o, true, unit);
+    return ansLine("Area =", o, true, unit);
+  }
+  const cap = s => s[0].toUpperCase() + s.slice(1);
+
+  function cardHTML(q, n, o, key){
+    const cols = colsFor(q.type, o), w = cardInner(cols), s = q.s;
+    if(q.type === "A"){
+      const r = q.r, half = val(0, r, o), A = val(0, r * r, o);
+      const lenK = o.pi === "exact" ? `π ${X} ${fmt(r)} = ${half.t}` : `${PT(o)} ${X} ${fmt(r)} ${half.eq} ${half.t}`;
+      const svg = `<div class="pic">${slicesSVG(r, { w, h:DIAGH[o.density], fs:FS[o.density] * .92, bw:o.bw, unit:o.units, names:o.names, key, lenText:half.t + uT(o), hText:fmt(r) + uT(o) })}</div>`;
+      let body;
+      if(key){
+        const areaK = o.pi === "exact" ? `${half.t} ${X} ${fmt(r)} = ${A.t}` : o.pi === "calc" ? `π ${X} ${fmt(r)} ${X} ${fmt(r)} ${A.eq} ${A.t}` : `${fmt(PV(o) * r)} ${X} ${fmt(r)} ${A.eq} ${A.t}`;
+        body = keyLine("Length", lenK + uT(o)) + keyLine("Height", fmt(r) + uT(o)) + keyLine("Area", areaK + uT(o, true));
+      } else {
+        const lenRow = o.pi === "exact" ? row(`<span class="lab">Length</span>`, tx("π ×"), bl("xs"), tx("="), bl(), uu(o)) : row(`<span class="lab">Length</span>`, tx(`${PT(o)} ×`), bl("xs"), tx(o.pi === "calc" ? "≈" : "="), bl(), uu(o));
+        body = lenRow + row(`<span class="lab">Height</span>`, bl(), uu(o)) + row(`<span class="lab">Area</span>`, bl("sm"), tx("×"), bl("xs"), tx(o.pi === "calc" ? "≈" : "="), bl(), uu(o, true));
+      }
+      return `<div class="qCard">${top(q, n, '<span class="word">Slice it and fit it together</span>')}${svg}${body}</div>`;
+    }
+    if(q.type === "B" || q.type === "C"){
+      const r = s.r, A = val(0, r * r, o);
+      let body;
+      if(key){
+        body = (q.type === "C" ? keyLine("r =", `${fmt(2 * r)} ÷ 2 = ${fmt(r)}${uT(o)}`) : "")
+          + (est(o) ? keyLine("Estimate", estWork(r) + uT(o, true)) : "")
+          + keyLine("A =", circleWork(r, o) + uT(o, true));
+      } else {
+        body = (q.type === "C" && o.work !== "answer" ? row(tx("r ="), bl("xs"), tx("÷ 2 ="), bl("sm"), uu(o)) : "")
+          + (est(o) ? estRow(o) : "")
+          + answerSpace(o, circleFrame(o));
+      }
+      return `<div class="qCard">${top(q, n, `<span class="word">Circle</span>`)}${pic(s, o, w, key)}${body}</div>`;
+    }
+    if(q.type === "D"){
+      const r = s.r, fr = s.kind === "sector" ? sectorFr(s.th) : FR[s.kind], A = val(0, r * r * fr.v, o);
+      let body;
+      if(key){
+        body = (s.show === "d" ? keyLine("r =", `${fmt(2 * r)} ÷ 2 = ${fmt(r)}${uT(o)}`) : "")
+          + (est(o) ? keyLine("Estimate", estWork(r, fr) + uT(o, true)) : "")
+          + keyLine("A =", circleWork(r, o, fr) + uT(o, true))
+          + keyWhy(`A ${fr.name} is ${fr.word} of a whole circle.`);
+      } else {
+        const fd = (s.show === "d" ? row(tx("r ="), bl("xs"), tx("÷ 2 ="), bl("sm"), uu(o)) : "")
+          + row(`<span class="lab">Fraction of the circle</span>`, bl("sm"))
+          + row(`<span class="lab">Whole circle</span>`, bl(), uu(o, true))
+          + row(`<span class="lab big">Area =</span>`, bl(), uu(o, true));
+        body = (est(o) ? estRow(o) : "") + (o.work === "frame" ? fd : (s.show === "d" && o.work !== "answer" ? row(tx("r ="), bl("xs"), tx("÷ 2 ="), bl("sm"), uu(o)) : "") + answerSpace(o, ""));
+      }
+      return `<div class="qCard">${top(q, n, `<span class="word">${cap(fr.name)}</span>`)}${pic(s, o, w, key)}${body}</div>`;
+    }
+    if(q.type === "E"){
+      const r = s.r, r2 = r * r, Agiven = o.pi === "exact" ? piK(r2) : o.pi === "calc" ? (Math.PI * r2).toFixed(2) : fmt(PV(o) * r2);
+      const head = `<span class="expr">Area = ${Agiven}${uT(o, true)}</span>`;
+      let body;
+      if(key){
+        const step = o.pi === "exact" ? `${Agiven} ÷ π = ${fmt(r2)}` : o.pi === "calc" ? `${Agiven} ÷ π ≈ ${(+Agiven / Math.PI).toFixed(2)}` : `${Agiven} ÷ ${PT(o)} = ${fmt(r2)}`;
+        body = keyLine("r² =", step) + keyLine("r =", `<span class="rt">√</span>${fmt(r2)} = ${fmt(r)}${uT(o)}`) + (q.ask === "d" ? keyLine("d =", `2 ${X} ${fmt(r)} = ${fmt(2 * r)}${uT(o)}`) : "");
+      } else {
+        body = row(tx("r² ="), bl()) + row(tx("r ="), bl(), uu(o)) + (q.ask === "d" ? row(tx("d ="), bl(), uu(o)) : "");
+      }
+      const s2 = Object.assign({}, s, { show:"r" });
+      return `<div class="qCard">${top(q, n, head)}${pic(q.ask === "d" ? Object.assign({}, s, { show:"d" }) : s2, o, w, key)}${body}</div>`;
+    }
+    if(q.type === "F"){
+      const r = s.r, u2 = uT(o, true);
+      let work, what, right;
+      const P = PT(o);
+      if(q.mk === "diam"){
+        const d = 2 * r, Aw = val(0, d * d, o);
+        work = o.pi === "exact" ? `π ${X} ${fmt(d)}² = ${Aw.t}` : `${P} ${X} ${fmt(d)}² ${Aw.eq} ${Aw.t}`;
+        what = `Used the diameter (${fmt(d)}) as the radius. The radius is half of it: ${fmt(d)} ÷ 2 = ${fmt(r)}.`;
+        right = circleWork(r, o);
+      } else if(q.mk === "twice"){
+        const Aw = val(0, 2 * r, o);
+        work = o.pi === "exact" ? `π ${X} ${fmt(r)} ${X} 2 = ${Aw.t}` : `${P} ${X} ${fmt(r)} ${X} 2 ${Aw.eq} ${Aw.t}`;
+        what = `Did ${fmt(r)} ${X} 2 instead of ${fmt(r)}². Squaring means ${fmt(r)} ${X} ${fmt(r)} = ${fmt(r * r)}. (π ${X} ${fmt(r)} ${X} 2 is the circumference, not the area.)`;
+        right = circleWork(r, o);
+      } else if(q.mk === "squarepi"){
+        if(o.pi === "exact") work = `(π ${X} ${fmt(r)})² = ${fmt(r * r)}π²`;
+        else if(o.pi === "calc") work = `(π ${X} ${fmt(r)})² ≈ ${(Math.pow(Math.PI * r, 2)).toFixed(o.dp)}`;
+        else { const pr = PV(o) * r, Aw = numA(pr * pr, o); work = `(${P} ${X} ${fmt(r)})² = ${fmt(pr)}² ${Aw.eq} ${Aw.t}`; }
+        what = `Squared π as well. Only the radius is squared: π ${X} ${fmt(r)}², not (π ${X} ${fmt(r)})².`;
+        right = circleWork(r, o);
+      } else {
+        const Aw = val(0, r * r, o);
+        work = o.pi === "exact" ? `π ${X} ${fmt(r)}² = ${Aw.t}` : `${P} ${X} ${fmt(r)}² ${Aw.eq} ${Aw.t}`;
+        what = "That is the area of the whole circle. A semicircle is half of it.";
+        right = circleWork(r, o, FR.semi);
+      }
+      const shapeName = s.kind === "semi" ? "semicircle" : "circle";
+      const side = `<div class="said"><b>${esc(q.name)}</b> worked out the area of the ${shapeName}:<div class="saidM">${work}${u2}</div></div>`
+        + (key ? keyLine("", what) + keyLine("Correct area", right + u2)
+               : `<div class="workHead">What went wrong?</div>${lines(2)}${ansLine("Correct area =", o, true)}`);
+      return `<div class="qCard full">${top(q, n, '<span class="word">Spot the mistake</span>')}<div class="split">${pic(s, o, Math.min(56, w * .36), key)}<div class="side">${side}</div></div></div>`;
+    }
+    if(q.type === "G"){
+      const c = q.c;
+      if(c.compare){
+        const R1 = q.bigD / 2, R2 = q.smD / 2, A1 = val(0, R1 * R1, o), A2 = val(0, 2 * R2 * R2, o);
+        const txt = `Which is more pizza: <b>one large pizza ${q.bigD} cm across</b>, or <b>two small pizzas, each ${q.smD} cm across</b>? Show your working.`;
+        const more = R1 * R1 > 2 * R2 * R2 ? "One large pizza is more." : R1 * R1 < 2 * R2 * R2 ? "Two small pizzas are more." : "They are the same.";
+        const body = key ? keyLine("Large", circleWork(R1, o) + " cm²") + keyLine("Two small", (o.pi === "exact" ? `2 ${X} π ${X} ${fmt(R2)}² = 2 ${X} ${piK(R2 * R2)}` : `2 ${X} ${PT(o)} ${X} ${fmt(R2)}²`) + ` ${A2.eq} ${A2.t} cm²`) + keyWhy(more + " The radii are " + fmt(R1) + " and " + fmt(R2) + " cm.")
+          : lines(1) + row(`<span class="lab">Large</span>`, bl(), uu(o, true, "cm")) + row(`<span class="lab">Two small</span>`, bl(), uu(o, true, "cm")) + row(`<span class="lab">Which is more?</span>`, bl());
+        return `<div class="qCard">${top(q, n, '<span class="word">Pizza deal</span>')}<div class="qText">${txt}</div>${body}</div>`;
+      }
+      const v = c.d ? 2 * q.r : q.r, fr = c.part ? FR[c.part] : null;
+      let body;
+      if(key){
+        body = (c.d ? keyLine("r =", `${fmt(v)} ÷ 2 = ${fmt(q.r)} ${c.u}`) : keyWhy(`${fmt(v)} ${c.u} is the radius.`))
+          + keyLine("A =", circleWork(q.r, o, fr) + " " + c.u + "²");
+      } else {
+        body = o.work === "frame" ? row(tx("r ="), bl(), uu(o, false, c.u)) + (est(o) ? estRow(o, c.u) : "") + ansLine("Area =", o, true, c.u)
+          : lines(o.work === "answer" ? 1 : 2) + ansLine("Area =", o, true, c.u);
+      }
+      return `<div class="qCard">${top(q, n, "")}<div class="qText">${c.t(fmt(v))}</div>${body}</div>`;
+    }
+    if(q.type === "H"){
+      let body, k;
+      if(s.kind === "ring"){
+        const a = val(0, s.R * s.R, o), b = val(0, s.r * s.r, o), A = val(0, s.R * s.R - s.r * s.r, o);
+        k = o.pi === "exact" ? `${a.t} − ${b.t} = ${A.t}` : o.pi === "calc" ? `π ${X} (${fmt(s.R)}² − ${fmt(s.r)}²) = π ${X} ${fmt(s.R * s.R - s.r * s.r)} ${A.eq} ${A.t}` : `${PT(o)} ${X} ${fmt(s.R)}² − ${PT(o)} ${X} ${fmt(s.r)}² = ${fmt(PV(o) * s.R * s.R)} − ${fmt(PV(o) * s.r * s.r)} ${A.eq} ${A.t}`;
+        body = key ? keyLine("A =", k + uT(o, true)) + keyWhy("The big circle take away the hole.")
+          : (o.work === "frame" ? row(`<span class="lab">Big circle</span>`, bl(), uu(o, true)) + row(`<span class="lab">Small circle</span>`, bl(), uu(o, true)) + ansLine("Shaded =", o, true) : answerSpace(o, ""));
+      } else if(s.kind === "sqminus"){
+        const sq = 4 * s.r * s.r, cA = val(0, s.r * s.r, o), A = val(sq, -s.r * s.r, o);
+        k = o.pi === "exact" ? `${fmt(2 * s.r)}² − π ${X} ${fmt(s.r)}² = ${A.t}` : `${fmt(2 * s.r)}² − ${PT(o)} ${X} ${fmt(s.r)}² ${cA.eq} ${fmt(sq)} − ${cA.t} ${A.eq} ${A.t}`;
+        body = key ? keyLine("A =", k + uT(o, true)) + keyWhy(`The circle's diameter is the side, ${fmt(2 * s.r)}, so its radius is ${fmt(s.r)}.`)
+          : (o.work === "frame" ? row(`<span class="lab">Square</span>`, bl(), uu(o, true)) + row(`<span class="lab">Circle</span>`, bl(), uu(o, true)) + ansLine("Shaded =", o, true) : answerSpace(o, ""));
+      } else {
+        const rect = s.L * 2 * s.r, sA = val(0, s.r * s.r / 2, o), A = val(rect, s.r * s.r / 2, o);
+        k = o.pi === "exact" ? `${fmt(s.L)} ${X} ${fmt(2 * s.r)} + ½ ${X} π ${X} ${fmt(s.r)}² = ${A.t}` : `${fmt(s.L)} ${X} ${fmt(2 * s.r)} + ½ ${X} ${PT(o)} ${X} ${fmt(s.r)}² ${sA.eq} ${fmt(rect)} + ${sA.t} ${A.eq} ${A.t}`;
+        body = key ? keyLine("A =", k + uT(o, true)) + keyWhy(`The semicircle's diameter is the rectangle's side, ${fmt(2 * s.r)}, so its radius is ${fmt(s.r)}.`)
+          : (o.work === "frame" ? row(`<span class="lab">Rectangle</span>`, bl(), uu(o, true)) + row(`<span class="lab">Semicircle</span>`, bl(), uu(o, true)) + ansLine("Total =", o, true) : answerSpace(o, ""));
+      }
+      return `<div class="qCard">${top(q, n, '<span class="word">Shaded area</span>')}${pic(s, o, w, key)}${body}</div>`;
+    }
+    /* I fluency */
+    const r = q.r, U1 = uT(o), U2 = uT(o, true);
+    let ask, ans;
+    if(q.fk === "r"){ ask = `circle, radius ${fmt(r)}${U1}. Area =`; ans = val(0, r * r, o); }
+    else if(q.fk === "d"){ ask = `circle, diameter ${fmt(2 * r)}${U1}. Area =`; ans = val(0, r * r, o); }
+    else if(q.fk === "semi"){ ask = `semicircle, radius ${fmt(r)}${U1}. Area =`; ans = val(0, r * r / 2, o); }
+    else {
+      const Ag = o.pi === "exact" ? piK(r * r) : o.pi === "calc" ? (Math.PI * r * r).toFixed(2) : fmt(PV(o) * r * r);
+      ask = `circle, area ${Ag}${U2}. Radius =`; ans = { t:fmt(r), eq:"=" };
+      return `<div class="qCard flu">${top(q, n, `<span class="word">${ask}</span>` + (key ? `<span class="fluAns">${ans.t}${U1}</span>` : '<span class="ln"></span>'))}</div>`;
+    }
+    return `<div class="qCard flu">${top(q, n, `<span class="word">${ask}</span>` + (key ? `<span class="fluAns">${ans.eq === "≈" ? "≈ " : ""}${ans.t}</span>` : '<span class="ln"></span>'))}</div>`;
+  }
+
+  /* ---------------------------------------------------------- page furniture */
+  function exampleHTML(o){
+    const svg = slicesSVG(1, { w:62, h:30, fs:2.8, bw:o.bw, unit:"", names:false, rText:"r", key:true, lenText:"πr", hText:"r" });
+    const u2 = uT(o, true);
+    let l = `<div class="exLine"><span class="k">SLICES</span>fit together into a rectangle, half the circumference (πr) long and r high</div>`;
+    if(o.formula) l += `<div class="exLine"><span class="k">SO</span>A = πr ${X} r = πr²</div><div class="exLine"><span class="k">RADIUS 5</span>A = ${circleWork(5, o)}${u2}</div>`;
+    else { const A = val(0, 25, o); l += `<div class="exLine"><span class="k">RADIUS 5</span>${o.pi === "exact" ? `5π ${X} 5 = ${A.t}` : `${PT(o)} ${X} 5 ${X} 5 ${A.eq} ${A.t}`}${u2}</div>`; }
+    if($("kC").checked || $("kG").checked) l += `<div class="exLine"><span class="k">DIAMETER?</span>Halve it first: d = 10, so r = 5</div>`;
+    return `<div class="exStrip">${svg}<div class="exBody"><div class="exHead">Worked example — area of a circle</div>${l}</div></div>`;
+  }
+  function secHeadHTML(g, cont, o){
+    return `<div class="secHead" style="--sc:${g.T.col};--sc-bg:${g.T.bg}"><span class="secLetter">${g.T.k}</span>`
+      + `<span class="secText">${esc(headFor(g.T, o, g))}</span>${cont ? '<span class="secCont">continued</span>' : ""}</div>`;
+  }
+  const levelLabel = o => o.levels.map(k => LVK[k].name).join(" → ");
+  function pageHTML(inner, o, key, no, total){
+    return `<section class="page d-${o.density}${o.bw ? " bw" : ""}${key ? " isKey" : ""}">`
+      + '<div class="pageHeader"><div>'
+      + `<div class="hdrTitle">Area of a Circle${key ? " — ANSWERS" : ""}</div>`
+      + `<div class="hdrSub">${key ? "Answer key · " : ""}${esc(levelLabel(o))} · ${esc(PI_MODES[o.pi].lab)} · MA4-ARE-C-01 · diagrams not to scale</div></div>`
+      + (!key && o.name ? '<div class="nameDate"><div class="lineField"><span class="lineLabel">Name</span><span class="lineBox"></span></div>'
+        + '<div class="lineField"><span class="lineLabel">Date</span><span class="lineBox"></span></div></div>' : "")
+      + `</div><div class="sheet">${inner}</div>`
+      + `<div class="pageFooter"><span>Page ${no} of ${total}</span><span><a href="${SITE}">www.millsmathstools.au</a></span></div></section>`;
+  }
+
+  /* ---------------------------------------------------------- build */
+  let PI = "p314";
+  function readOpts(){
+    const density = $("densitySel").value;
+    const levels = LV.map(l => l.k).filter(k => $("lv" + k).checked);
+    return {
+      levels:levels.length ? levels : ["mild"], density, cols:COLS[density], bw:$("colourSel").value === "bw",
+      pi:PI, dp:parseInt($("dpSel").value, 10), work:$("workSel").value, units:$("unitSel").value,
+      est:$("estToggle").checked, names:$("namesToggle").checked,
+      example:$("exToggle").checked, formula:$("formulaToggle").checked, name:$("nameToggle").checked, key:$("keyToggle").checked
+    };
+  }
+  function buildQuestions(o){
+    const used = new Set(), groups = [];
+    let num = 0, total = 0;
+    TYPES.forEach(T => {
+      if(!$("k" + T.k).checked) return;
+      const n = Math.max(0, Math.min(30, parseInt($("n" + T.k).value, 10) || 0));
+      if(!n) return;
+      const qs = [];
+      for(let i = 0; i < n; i++){ const q = makeQ(T, levelAt(o.levels, i, n), i, n, o, used); if(q) qs.push(q); }
+      total += qs.length;
+      groups.push({ T, qs });
+    });
+    if(!total) return { error:"Tick at least one problem type and give it a number of questions." };
+    groups.forEach(g => g.qs.forEach(q => { q.n = ++num; }));
+    return { groups };
+  }
+  /* MEASURED, THEN PACKED: every row of cards is drawn into a real page off screen and its height read back */
+  function measureAndPack(groups, o, key){
+    const m = $("measure");
+    m.innerHTML = pageHTML("", o, key, 1, 1);
+    const sheet = m.querySelector(".sheet");
+    const cs = getComputedStyle(sheet);
+    const room = sheet.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - 2;
+    let stripH = 0;
+    if(o.example && !key){ sheet.innerHTML = exampleHTML(o); stripH = sheet.firstElementChild.getBoundingClientRect().height + 3 * PX_MM; sheet.innerHTML = ""; }
+    const units = [];
+    groups.forEach(g => {
+      const sec = document.createElement("div"); sec.className = "section";
+      sec.innerHTML = secHeadHTML(g, true, o);
+      sheet.appendChild(sec);
+      const headH = sec.getBoundingClientRect().height + 3 * PX_MM;
+      const gc = colsFor(g.T.k, o), rows = [];
+      for(let i = 0; i < g.qs.length; i += gc) rows.push(g.qs.slice(i, i + gc));
+      rows.forEach(r => {
+        const grid = document.createElement("div");
+        grid.className = "qGrid"; grid.style.setProperty("--cols", gc);
+        grid.innerHTML = r.map(q => cardHTML(q, q.n, o, key)).join("");
+        sec.appendChild(grid);
+        const h = grid.getBoundingClientRect().height + 3 * PX_MM;
+        grid.remove();
+        units.push({ g, row:r, h, headH });
+      });
+      sec.remove();
+    });
+    m.innerHTML = "";
+    const pages = [];
+    let cur = [], used = stripH, lastG = null;
+    units.forEach(u => {
+      const cost = (lastG === u.g ? 0 : u.headH) + u.h;
+      if(cur.length && used + cost > room){ pages.push(cur); cur = []; used = 0; lastG = null; }
+      used += (lastG === u.g ? 0 : u.headH) + u.h; cur.push(u); lastG = u.g;
+    });
+    if(cur.length) pages.push(cur);
+    pages.left = pages.map((pu, i) => {
+      let u2 = i === 0 && o.example && !key ? stripH : 0, l2 = null;
+      pu.forEach(u => { u2 += (l2 === u.g ? 0 : u.headH) + u.h; l2 = u.g; });
+      return room - u2;
+    });
+    return pages;
+  }
+  /* a different "Your turn" on each page that has room */
+  const YT = [
+    "Use a compass to draw a circle with a radius of 4 squares. Estimate its area by counting squares (two halves make a whole). Then calculate it. How close were you?",
+    "Double the radius of a circle. What happens to its area? Try a radius of 3 and a radius of 6, then explain why.",
+    "Which is bigger: a circle with a diameter of 10, or a square with sides of 9? Draw both and show your working.",
+    "Sketch a circle cut into 8 slices, and the slices fitted together. Label the length πr and the height r. Why is the area πr²?",
+    "A circle has an area of about 300 square units. Without a calculator, find a radius that gives close to that area. Explain your thinking."
+  ];
+  function yourTurnHTML(px, n){
+    const drawPx = Math.max(18 * PX_MM, Math.min(110 * PX_MM, px - 24 * PX_MM));
+    return `<div class="yourTurn"><div class="ytHead"><span class="star">★</span>Your turn</div><div class="ytText">${YT[n % YT.length]}</div>`
+      + `<div class="drawBox" style="--drawH:${drawPx.toFixed(0)}px"></div></div>`;
+  }
+  function pagesHTML(pages, o, key){
+    const seen = new Set(); let ytN = 0;
+    return pages.map((pu, i) => {
+      let inner = (i === 0 && o.example && !key) ? exampleHTML(o) : "";
+      let lastG = null, open = false;
+      pu.forEach(u => {
+        if(u.g !== lastG){
+          if(open) inner += "</div>";
+          inner += '<div class="section">' + secHeadHTML(u.g, seen.has(u.g), o);
+          seen.add(u.g); open = true; lastG = u.g;
+        }
+        inner += `<div class="qGrid" style="--cols:${colsFor(u.g.T.k, o)}">` + u.row.map(q => cardHTML(q, q.n, o, key)).join("") + "</div>";
+      });
+      if(open) inner += "</div>";
+      if(!key && pages.left[i] > 44 * PX_MM) inner += yourTurnHTML(pages.left[i] - 4 * PX_MM, ytN++);
+      return inner;
+    }).map((inner, i, all) => pageHTML(inner, o, key, i + 1, all.length)).join("");
+  }
+
+  let LAST = null;
+  /* settings that change WHAT is asked re-roll; π, rounding, units and looks don't */
+  const sigOf = o => o.levels.join();
+  function generate(reroll){
+    const o = readOpts();
+    piUI(o);
+    if(reroll || !LAST || LAST.sig !== sigOf(o)){
+      const b = buildQuestions(o);
+      if(b.error){ $("out").innerHTML = `<p class="note warn">${esc(b.error)}</p>`; LAST = null; return; }
+      b.sig = sigOf(o);
+      LAST = b;
+    }
+    const pages = measureAndPack(LAST.groups, o, false);
+    let html = pagesHTML(pages, o, false);
+    if(o.key) html += pagesHTML(measureAndPack(LAST.groups, o, true), o, true);
+    $("out").innerHTML = html;
+    fitPass();
+  }
+  function fitPass(){
+    document.querySelectorAll("#out .qCard").forEach(c => {
+      c.querySelectorAll(".qTop, .ansLine, .keyAns").forEach(t => {
+        let guard = 0;
+        while(t.scrollWidth > t.clientWidth + 1 && guard++ < 14){
+          const els = t.classList.contains("qTop") ? t.querySelectorAll(".expr, .word, .fluAns") : [t];
+          els.forEach(e => { e.style.fontSize = (parseFloat(getComputedStyle(e).fontSize) * .93) + "px"; });
+        }
+      });
+    });
+    document.querySelectorAll("#out .page").forEach(p => {
+      const yt = p.querySelector(".yourTurn"); if(!yt) return;
+      const sb = p.querySelector(".sheet").getBoundingClientRect().bottom;
+      const over = yt.getBoundingClientRect().bottom - sb;
+      if(over > -2){
+        const db = yt.querySelector(".drawBox");
+        const h = db.getBoundingClientRect().height - over - 6;
+        if(h < 50) yt.remove(); else db.style.setProperty("--drawH", h + "px");
+      }
+    });
+  }
+
+  /* ---------------------------------------------------------- controls */
+  const PI_NOTES = {
+    exact:"<b>Exact</b>: answers stay in terms of π (25π, 100 − 25π). No rounding, and the clearest view of the structure r² × π.",
+    p314:"<b>π ≈ 3.14</b>: whole-number radii give exact decimals (3.14 × 25 = 78.5); decimal radii on Spicy are rounded as set.",
+    p3:"<b>π ≈ 3</b>: quick mental answers for a first lesson or a non-calculator warm-up. Say it out loud: the answer is an estimate, a little too small.",
+    calc:"<b>Calculator π</b>: every answer is rounded as set, and the key uses ≈. Pairs well with “Estimate first” to check the calculator answer is sensible."
+  };
+  function piUI(o){
+    document.querySelectorAll("#piSeg button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.pi === o.pi)));
+    $("dpSel").disabled = !(o.pi === "p314" || o.pi === "calc");
+    $("estToggle").disabled = o.pi === "p3";
+    $("piNote").innerHTML = PI_NOTES[o.pi];
+  }
+  function buildLevels(){
+    $("lvChips").innerHTML = LV.map(l =>
+      `<label class="lvChip" style="--lc:${l.col}"><input type="checkbox" id="lv${l.k}" value="${l.k}"${l.k === "mild" ? " checked" : ""} /><span class="dot"></span><span class="txt">${esc(l.name)}<small>${esc(l.ex)}</small></span></label>`).join("");
+    LV.forEach(l => $("lv" + l.k).addEventListener("change", e => {
+      if(!LV.some(x => $("lv" + x.k).checked)) e.target.checked = true;
+      generate(true);
+    }));
+    document.querySelectorAll(".quick button").forEach(b => b.addEventListener("click", () => {
+      const set = new Set(b.dataset.quick.split(","));
+      LV.forEach(l => { $("lv" + l.k).checked = set.has(l.k); });
+      generate(true);
+    }));
+  }
+  function buildTypeGrid(){
+    $("typeGrid").innerHTML = TYPES.map(T =>
+      `<div class="typeOpt${T.off ? "" : " on"}" id="opt${T.k}" style="--tc:${T.col}">`
+      + `<div class="typeTop"><span class="typeLetter">${T.k}</span>`
+      + `<label class="sw"><input type="checkbox" id="k${T.k}"${T.off ? "" : " checked"} /><span class="track"></span><span>${esc(T.title)}</span></label></div>`
+      + `<p class="typeDesc">${esc(T.desc)}</p>`
+      + `<div class="typeEx"><span class="exLab">e.g.</span>${T.ex()}</div>`
+      + `<div class="cntRow"><label for="n${T.k}">How many</label><input id="n${T.k}" type="number" min="0" max="30" value="${T.n}" /></div>`
+      + "</div>").join("");
+    TYPES.forEach(T => {
+      const box_ = $("k" + T.k), cnt = $("n" + T.k), opt = $("opt" + T.k);
+      box_.addEventListener("change", () => {
+        if(box_.checked && !(parseInt(cnt.value, 10) > 0)) cnt.value = T.n;
+        opt.classList.toggle("on", box_.checked); totals(); generate(true);
+      });
+      cnt.addEventListener("change", () => {
+        const v = parseInt(cnt.value, 10) || 0;
+        box_.checked = v > 0; opt.classList.toggle("on", v > 0); totals(); generate(true);
+      });
+    });
+  }
+  function totals(){
+    let t = 0;
+    TYPES.forEach(T => { if($("k" + T.k).checked) t += Math.max(0, parseInt($("n" + T.k).value, 10) || 0); });
+    $("totalPill").textContent = t + (t === 1 ? " question" : " questions");
+  }
+  function reset(){
+    LV.forEach(l => { $("lv" + l.k).checked = l.k === "mild"; });
+    PI = "p314";
+    $("dpSel").value = "2"; $("workSel").value = "frame"; $("unitSel").value = "cm";
+    $("densitySel").value = "normal"; $("colourSel").value = "colour";
+    ["exToggle", "formulaToggle", "nameToggle", "namesToggle"].forEach(id => { $(id).checked = true; });
+    $("keyToggle").checked = false; $("estToggle").checked = false;
+    TYPES.forEach(T => { $("k" + T.k).checked = !T.off; $("n" + T.k).value = T.n; $("opt" + T.k).classList.toggle("on", !T.off); });
+    totals();
+    generate(true);
+  }
+
+  buildLevels(); buildTypeGrid(); totals();
+  document.querySelectorAll("#piSeg button").forEach(b => b.addEventListener("click", () => { PI = b.dataset.pi; generate(false); }));
+  ["dpSel", "workSel", "unitSel", "densitySel", "colourSel", "estToggle", "namesToggle", "exToggle", "formulaToggle", "nameToggle", "keyToggle"].forEach(id => $(id).addEventListener("change", () => generate(false)));
+  $("genBtn").addEventListener("click", () => generate(true));
+  $("printBtn").addEventListener("click", () => window.print());
+  $("resetBtn").addEventListener("click", reset);
+  const go = () => generate(true);
+  if(document.fonts && document.fonts.ready) document.fonts.ready.then(go); else go();
+
+  window.__WS__ = { generate, readOpts, get last(){ return LAST; }, TYPES, makeQ, val, circleWork, setPi:p => { PI = p; generate(false); } };
+})();
+</script>
+</body>
+</html>
