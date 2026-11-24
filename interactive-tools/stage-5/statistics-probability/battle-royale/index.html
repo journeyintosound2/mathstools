@@ -738,9 +738,11 @@ function spin(){
   const p=probs()[B.i],win=Math.random()<val(p),a=val(p)*360;
   const lo=win?0:a,span=win?a:360-a,m=Math.min(7,span*.15),th=lo+m+Math.random()*(span-2*m);
   const turns=S.speed==='fast'?2:5;
-  B.rot=360*turns+(360-th);B.phase='spinning';S.view='tree';render({force:true});
-  const w=$('wheel');w.style.transform='rotate(0deg)';
-  requestAnimationFrame(()=>requestAnimationFrame(()=>{w.style.transform=`rotate(${B.rot}deg)`}));
+  const target=360*turns+(360-th);
+  B.rot=0;B.phase='spinning';S.view='tree';render({force:true});   // build the wheel at 0deg...
+  const w=$('wheel');w.getBoundingClientRect();void w.getBoundingClientRect().width;   // ...commit that style...
+  B.rot=target;
+  requestAnimationFrame(()=>{w.style.transform=`rotate(${target}deg)`});               // ...then turn to the target so the transition runs
   setTimeout(()=>{ if(S.B!==B)return;
     const now=performance.now();
     B.res[B.i]=win?'W':'L';if(!win)B.losses++;B.armT=now;
