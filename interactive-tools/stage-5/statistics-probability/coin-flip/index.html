@@ -7,6 +7,7 @@
   <meta name="description" content="Flip a 50c coin two, three or four times and watch the tree diagram grow. The path travelled turns green, the chances multiply along the branches, and a simulation tests the answer." />
 
   <style>
+
     :root{
       --bg:#f8fafc; --card:#ffffff; --ink:#0f172a; --muted:#64748b; --border:#e2e8f0; --soft:#f1f5f9;
       --shadow:0 18px 45px rgba(15,23,42,.13);
@@ -264,17 +265,24 @@
     .settingsMenu .toolLink[aria-current="true"]{ border-color:#c7d2fe; }
     .settingsMenu .toolLink[aria-current="true"]::after{ content:'\2713'; }
 
-    /* ---------- coin flip: predict ---------- */
-    .pOpts{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.8rem; width:100%; }
-    .pOpt{ appearance:none; font-family:inherit; color:inherit; cursor:pointer; background:#fff; border:2px solid var(--border); border-radius:18px;
-      padding:1rem .6rem; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.5rem; min-height:11rem; transition:.16s ease; }
-    .pOpt:hover{ border-color:var(--blue); transform:translateY(-2px); }
-    .pOpt:focus-visible{ outline:none; box-shadow:0 0 0 4px rgba(37,99,235,.25); }
-    .pOpt[aria-pressed="true"]{ border-color:var(--blue); background:#eef2ff; box-shadow:0 0 0 4px rgba(37,99,235,.18); }
-    .pOpt .mini{ display:flex; gap:.25rem; flex-wrap:wrap; justify-content:center; }
-    .pOpt b{ font-size:1.25rem; font-weight:950; letter-spacing:.14em; }
-    .pOpt span{ font-size:.82rem; font-weight:750; color:var(--muted); }
-    .pOpt .eq{ font-size:3rem; font-weight:950; line-height:1; color:var(--blue-dark); }
+    /* ---------- coin flip: the set-up card ---------- */
+    .setupWrap{ display:grid; place-items:center; min-height:100%; padding:1rem .6rem; }
+    .setupCard{ background:#fff; border:1px solid var(--border); border-radius:22px; box-shadow:var(--shadow); padding:1.2rem 1.4rem 1.3rem;
+      width:min(31rem,100%); display:flex; flex-direction:column; gap:.7rem; animation:cardIn .32s cubic-bezier(.2,1.4,.4,1) both; }
+    @keyframes cardIn{ from{ opacity:0; transform:translateY(12px) scale(.96); } to{ opacity:1; transform:none; } }
+    .setupCard h2{ margin:0; font-size:1.4rem; letter-spacing:-.03em; text-align:center; }
+    .numRow,.predRow{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.55rem; }
+    .numBtn,.predBtn{ appearance:none; font-family:inherit; color:inherit; cursor:pointer; background:#fff; border:2px solid var(--border); border-radius:15px;
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.1rem; font-weight:950; transition:.16s ease; }
+    .numBtn{ padding:.65rem .3rem; } .predBtn{ padding:.5rem .3rem; letter-spacing:.1em; }
+    .numBtn b{ font-size:1.6rem; font-weight:950; line-height:1; }
+    .numBtn span,.predBtn small{ font-size:.68rem; font-weight:800; color:var(--muted); letter-spacing:0; }
+    .numBtn:hover,.predBtn:hover{ border-color:var(--blue); transform:translateY(-1px); }
+    .numBtn:focus-visible,.predBtn:focus-visible,.coinBtn:focus-visible{ outline:none; box-shadow:0 0 0 4px rgba(37,99,235,.25); }
+    .numBtn[aria-pressed="true"],.predBtn[aria-pressed="true"]{ border-color:var(--blue); background:#eef2ff; box-shadow:0 0 0 3px rgba(37,99,235,.15); }
+    .setupRule{ height:1px; background:var(--border); }
+    .setupQ{ margin:0; font-size:.92rem; font-weight:850; }
+    .setupNote{ margin:0; font-size:.8rem; font-weight:700; color:var(--muted); text-align:center; }
     .gloss{ display:grid; grid-template-columns:auto 1fr; gap:.45rem .9rem; font-size:.9rem; font-weight:650; color:var(--line); line-height:1.4; margin:0; }
     .gloss dt{ font-weight:950; color:var(--ink); } .gloss dd{ margin:0; }
 
@@ -314,7 +322,7 @@
     .obar .track i{ background:var(--green); transition:width .25s; }
     .obar.sm{ padding:.18rem 0; font-size:.88rem; } .obar.sm .track{ height:1.25rem; } .obar.sm .num .muted{ display:inline !important; }
     .secHead{ display:flex; align-items:baseline; justify-content:space-between; gap:.6rem; flex-wrap:wrap; }
-    @media (max-width:760px){ .pOpts{ grid-template-columns:1fr; } .pOpt{ min-height:0; } .obar.oc,.obar.hd{ grid-template-columns:4.6rem 1fr; } }
+    @media (max-width:760px){ .predRow{ grid-template-columns:1fr; } .obar.oc,.obar.hd{ grid-template-columns:4.6rem 1fr; } }
     @media (prefers-reduced-motion:reduce){ .slot.fresh svg,.obar .track i{ animation:none; transition:none; } }
     .answer .line.sub{ font-size:1rem; }
     .calcRow .gBtn{ font-family:var(--uiFont); }
@@ -326,9 +334,16 @@
       .coinShadow{ height:10px; margin-top:5px; }
       .slot{ width:4.6rem; padding:.2rem .3rem .25rem; } .slot svg,.slot .ph{ width:30px; height:30px; } .slot b{ font-size:.78rem; }
       .verdictRow{ min-height:0; } .verdict{ font-size:clamp(1rem,2.6vh,1.35rem); }
-      .pOpt{ min-height:8rem; padding:.6rem .5rem; } .predict{ gap:.6rem; padding:.2rem .4rem; }
     }
     @media (max-height:700px) and (min-width:700px){ .coinZone{ --cs:clamp(84px,min(15vh,18vw),160px); } }
+    /* the coin as a button (step 1) */
+    .coinBtn{ appearance:none; border:none; background:none; padding:0; display:block; cursor:pointer; }
+    .coinBtn:disabled{ cursor:default; }
+    .coinBtn:hover:not(:disabled) .coin{ filter:drop-shadow(0 8px 16px rgba(15,23,42,.25)); }
+    .flipArena.solo{ gap:1rem; justify-content:center; }
+    .coinZone.big{ --cs:clamp(130px,min(29vh,26vw),280px); padding-top:calc(var(--cs)*.34); }
+    .tapHint{ margin:0; font-size:.88rem; font-weight:750; color:var(--muted); }
+    @media (max-height:820px) and (min-width:700px){ .coinZone.big{ --cs:clamp(100px,min(24vh,22vw),210px); } .flipArena.solo{ gap:.6rem; } .setupCard{ padding:.9rem 1.1rem 1rem; gap:.5rem; } }
 
   </style>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
@@ -344,8 +359,9 @@
 </head>
 <body>
   <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
-    <linearGradient id="cfMetal" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f8fafc"/><stop offset=".45" stop-color="#cbd5e1"/><stop offset="1" stop-color="#94a3b8"/></linearGradient>
-    <linearGradient id="cfInner" x1="1" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#f1f5f9"/><stop offset="1" stop-color="#b6c0cd"/></linearGradient>
+    <linearGradient id="cfEdge" x1=".1" y1="0" x2=".9" y2="1"><stop offset="0" stop-color="#e7ecf1"/><stop offset=".3" stop-color="#aab4c1"/><stop offset=".62" stop-color="#78838f"/><stop offset="1" stop-color="#5c6773"/></linearGradient>
+    <radialGradient id="cfFace" cx=".34" cy=".28" r=".92"><stop offset="0" stop-color="#ffffff"/><stop offset=".3" stop-color="#e8edf2"/><stop offset=".68" stop-color="#c2cbd6"/><stop offset="1" stop-color="#9aa5b2"/></radialGradient>
+    <linearGradient id="cfSheen" x1="0" y1="0" x2=".85" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity=".5"/><stop offset=".38" stop-color="#ffffff" stop-opacity=".04"/><stop offset=".62" stop-color="#ffffff" stop-opacity="0"/><stop offset="1" stop-color="#ffffff" stop-opacity=".22"/></linearGradient>
   </defs></svg>
   <div class="app" id="app">
     <header class="mmtTopbar">
@@ -462,15 +478,15 @@ const same=(a,b)=>a[0]===b[0]&&a[1]===b[1];
 
 /* ---------- data ---------- */
 const COINS={fair:[1,2],w35:[3,5],w34:[3,4]};          // chance of heads
-const STEPS=[['predict','Predict'],['flip','Flip'],['maths','The maths'],['sim','Simulate']];
+const STEPS=[['coin','The coin'],['flip','Flip'],['maths','The maths'],['sim','Simulate']];
 const ASK={
-  predict:['Which is more likely?','Hands up for each option before we flip anything.'],
+  coin:['How many outcomes does one flip have, and are they equally likely?','Flip it a few times. Does the coin remember what it landed on last time?'],
   flip:['How many different paths could the coin take through the tree?','Does the coin remember what it landed on last time?'],
   maths:['Why do we multiply along the branches?','When do we add paths together?'],
   sim:['Why does the experiment not match the theory exactly?','Which bars are closest to level, and why are the others not?']
 };
 const INFO={
-  predict:['Make a class prediction','Choose one option, then flip to test it.'],
+  coin:['One flip, one stage','Click the coin to flip it. Nothing is recorded here.'],
   flip:['Flip the coin','Each flip adds a stage to the tree. The path travelled turns green.'],
   maths:['The tree diagram','Reveal the tree one flip at a time, then multiply along the branches.'],
   sim:['Simulate the experiment','Run it many times and compare with the tree diagram.']
@@ -478,8 +494,8 @@ const INFO={
 
 /* ---------- state ---------- */
 const STORE='mmt.coinFlip.v1';
-const S={step:'predict',flips:3,format:'frac',coin:'fair',speed:'normal',prompts:true,panel:true,fs:false,
-  pred:null,X:null,sim:null,view:'tree',work:false,show:0,ev:null,evShow:false,calcText:'',calc:null};
+const S={step:'coin',flips:3,format:'frac',coin:'fair',speed:'normal',prompts:true,panel:true,fs:false,
+  pred:null,C:{rot:0,side:null,busy:false},X:null,sim:null,view:'tree',work:false,show:0,ev:null,evShow:false,calcText:'',calc:null};
 try{const s=JSON.parse(localStorage.getItem(STORE)||'{}');
   ['flips','format','coin','speed','prompts','panel'].forEach(k=>{if(s[k]!==undefined)S[k]=s[k]});
   if(![2,3,4].includes(S.flips))S.flips=3;if(!COINS[S.coin])S.coin='fair';}catch(e){}
@@ -515,19 +531,29 @@ const eqH=a=>S.format==='frac'?'= '+frH(a):`<span class="pct">${eqPct(val(a))}</
 const eqBothH=a=>S.format==='frac'?`= ${frH(a)} <span class="muted">${pct(val(a))}</span>`:eqH(a);
 const prodH=path=>[...path].map(c=>pH(armP(c))).join(' × ');
 
-/* ---------- the coin: a stylised twelve-sided 50c piece (no portrait or coat of arms) ---------- */
+/* ---------- the coin ----------
+   A twelve-sided silver 50c drawn in SVG: dodecagonal rim, bevelled edge, metal shading and raised
+   lettering. The real coin's artwork (the Commonwealth Coat of Arms and the monarch's effigy) is
+   protected, so it is not reproduced here; the faces carry lettering instead. */
 function dodeca(r){const p=[];for(let i=0;i<12;i++){const a=Math.PI*(i+.5)/6;p.push((50+r*Math.cos(a)).toFixed(2)+','+(50+r*Math.sin(a)).toFixed(2))}return p.join(' ')}
-const D48=dodeca(48),D42=dodeca(42.5);
+const D49=dodeca(49),D44=dodeca(44),D39=dodeca(39);
+/* raised lettering: a light edge up-left, a dark edge down-right, the face between them */
+function emboss(t,x,y,size,ls,w){
+  const g=`font-size="${size}" font-weight="${w||900}" letter-spacing="${ls}" text-anchor="middle"`;
+  return `<g ${g}><text x="${(x+.9).toFixed(1)}" y="${(y+.9).toFixed(1)}" fill="#5f6b78" opacity=".55">${t}</text>
+    <text x="${(x-.9).toFixed(1)}" y="${(y-.9).toFixed(1)}" fill="#ffffff" opacity=".9">${t}</text>
+    <text x="${x}" y="${y}" fill="#929daa">${t}</text></g>`;
+}
 function coinSVG(side,size,attrs=''){
-  const art=side==='H'
-    ?`<circle cx="50" cy="38" r="13" fill="#7c8797"/><path d="M26 72 Q50 44 74 72 Z" fill="#7c8797"/><path d="M39 33 Q50 24 61 33" fill="none" stroke="#eef2f6" stroke-width="2.2" stroke-linecap="round" opacity=".7"/>
-      <text x="50" y="86" text-anchor="middle" font-size="9" font-weight="900" letter-spacing="2.4" fill="#5b6675">HEADS</text>`
-    :`<text x="50" y="62" text-anchor="middle" font-size="40" font-weight="900" letter-spacing="-1.5" fill="#5b6675" stroke="#eef2f6" stroke-width=".8" paint-order="stroke">50</text>
-      <text x="50" y="79" text-anchor="middle" font-size="8.5" font-weight="900" letter-spacing="2.4" fill="#5b6675">TAILS</text>
-      ${[[26,30],[74,30],[50,20]].map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="2.3" fill="#7c8797"/>`).join('')}`;
+  const tiny=size<60;let art;
+  if(side==='H')art=tiny?emboss('H',50,65,46,'0'):emboss('HEADS',50,59,20,'1.6')+emboss('50 CENTS',50,30,8.5,'1.9',800)+emboss('AUSTRALIA',50,78,8.5,'1.9',800);
+  else art=tiny?emboss('50',50,65,42,'-1'):emboss('50',50,63,38,'-1')+emboss('AUSTRALIA',50,30,8.5,'1.9',800)+emboss('CENTS',50,78,8.5,'1.9',800);
   return `<svg ${attrs} viewBox="0 0 100 100" width="${size}" height="${size}" role="img" aria-label="${sideName(side)}" style="font-family:var(--uiFont);flex:0 0 auto">
-    <polygon points="${D48}" fill="url(#cfMetal)" stroke="#64748b" stroke-width="1.6" stroke-linejoin="round"/>
-    <polygon points="${D42}" fill="url(#cfInner)" stroke="#8b96a5" stroke-width="1" stroke-linejoin="round"/>${art}</svg>`;
+    <polygon points="${D49}" fill="url(#cfEdge)" stroke="#5c6773" stroke-width=".7" stroke-linejoin="round"/>
+    <polygon points="${D44}" fill="url(#cfFace)" stroke="#aeb8c4" stroke-width=".9" stroke-linejoin="round"/>
+    ${tiny?'':`<polygon points="${D39}" fill="none" stroke="#b7c0cb" stroke-width=".9" stroke-linejoin="round" opacity=".75"/>`}
+    ${art}
+    <polygon points="${D44}" fill="url(#cfSheen)" stroke="none"/></svg>`;
 }
 
 /* ---------- resets ---------- */
@@ -597,7 +623,7 @@ function treeSVG(o){
   return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="${esc(o.aria)}" style="font-family:var(--uiFont);overflow:visible">${hd}${grey}${mid}${top}${start}${pills}${nodes}${lab}</svg>`;
 }
 
-/* ---------- prediction ---------- */
+/* ---------- the class prediction (chosen on the set-up card, revealed in the maths) ---------- */
 const PRED={A:()=>spaced(predA()),B:()=>spaced(predB()),C:()=>'Equally likely'};
 function predRevealH(){
   if(!S.pred)return '';
@@ -605,52 +631,53 @@ function predRevealH(){
   return `<div class="predBox"><b>Class prediction: ${PRED[S.pred]()}${S.pred===right?' &#10003;':''}</b><br>
     P(${predA()}) = ${pH(a)} and P(${predB()}) = ${pH(b)}, so ${eq?'they are <b>equally likely</b>. A mix can feel more random, but each exact sequence is just one path through the tree.':`<b>${spaced(right==='A'?predA():predB())}</b> is more likely with this weighted coin.`}</div>`;
 }
-function bPredict(){
-  const n=S.flips,mini=s=>`<span class="mini">${[...s].map(c=>coinSVG(c,n>3?38:46)).join('')}</span>`;
-  const opt=(v,inner)=>`<button type="button" class="pOpt" data-act="pred" data-v="${v}" aria-pressed="${S.pred===v}">${inner}</button>`;
-  return `<div class="predict"><h2>Flip a 50c coin ${n} times. Which is more likely?</h2>
-    <div class="pOpts">
-      ${opt('A',`${mini(predA())}<b>${spaced(predA())}</b><span>Heads every time</span>`)}
-      ${opt('B',`${mini(predB())}<b>${spaced(predB())}</b><span>A mix, in this order</span>`)}
-      ${opt('C',`<span class="eq">=</span><b style="letter-spacing:0">Equally likely</b><span>Neither is more likely</span>`)}
-    </div>
-    <p class="muted" style="margin:0;font-weight:700">${S.pred?'Prediction locked in. We will check it with the tree diagram.':'Vote as a class, then choose the most popular answer.'}</p></div>`;
+
+/* ---------- step 1: one coin, flipped freely. Nothing is recorded. ---------- */
+function coinBlock(rot,busy,tap){
+  const faces=`<div class="coin" id="coin" style="transform:rotateX(${rot}deg)"><div class="face fH">${coinSVG('H',240)}</div><div class="face fT">${coinSVG('T',240)}</div></div>`;
+  return `<div class="coinZone${tap?' big':''}">${tap?`<button type="button" class="coinBtn" data-act="toss" ${busy?'disabled':''} aria-label="Flip the coin">${faces}</button>`:faces}<div class="coinShadow" id="coinShadow"></div></div>`;
 }
-function pPredict(){
-  return `<p class="panelNote">Flipping a coin once is a <b>single-stage</b> experiment. Flipping it ${S.flips} times is a <b>multistage</b> experiment: the same simple step, repeated.</p>
+function bCoin(){
+  const C=S.C;
+  return `<div class="flipArena solo">${coinBlock(C.rot,C.busy,true)}
+    <div class="verdictRow" aria-live="polite">${C.busy?`<span class="verdict N" style="opacity:.5">Flipping…</span>`:C.side?`<span class="verdict W">${sideName(C.side)}</span>`:`<span class="verdict N">Click the coin to flip</span>`}</div>
+    <p class="tapHint">Flip it as often as you like. Nothing is recorded on this screen.</p></div>`;
+}
+function pCoin(){
+  return `<p class="panelNote">One flip is a <b>single-stage</b> experiment: two outcomes, ${S.coin==='fair'?'and they are equally likely.':'but with this weighted coin they are <b>not</b> equally likely.'}</p>
+    <div class="row" style="gap:1.4rem"><span class="chip"><small>Heads</small><b>${pH(pHd())}</b></span><span class="chip"><small>Tails</small><b>${pH(pTl())}</b></span></div>
+    <p class="panelNote">Flip it a few times and talk about what the class sees. A run of heads is not the coin "owing" anyone a tail: each flip starts again from the same two chances.</p>
+    <div class="askBox">When we flip it ${S.flips} times in a row, how many different sequences could we get? Make a guess, then move on to the next step.</div>`;
+}
+
+/* ---------- step 2 set-up: how many flips ---------- */
+function bSetup(){
+  const n=S.flips;
+  const num=k=>`<button type="button" class="numBtn" data-act="flips" data-v="${k}" aria-pressed="${k===n}"><b>${k}</b><span>${2**k} outcomes</span></button>`;
+  const pb=(v,t,sub)=>`<button type="button" class="predBtn" data-act="pred" data-v="${v}" aria-pressed="${S.pred===v}">${t}<small>${sub}</small></button>`;
+  return `<div class="setupWrap"><div class="setupCard">
+    <h2>How many flips?</h2>
+    <div class="numRow">${[2,3,4].map(num).join('')}</div>
+    <div class="setupRule" role="separator"></div>
+    <p class="setupQ">Class prediction <span class="muted">(optional)</span> &mdash; which is more likely?</p>
+    <div class="predRow">${pb('A',spaced(predA()),'Heads every time')}${pb('B',spaced(predB()),'A mix, in this order')}${pb('C','=','Equally likely')}</div>
+    <p class="setupNote">${S.pred?'We will check this against the tree diagram in the maths step.':'Take a vote, or skip it and start flipping.'}</p>
+  </div></div>`;
+}
+function pSetup(){
+  return `<p class="panelNote">Flipping the coin ${S.flips} times is a <b>multistage</b> experiment: the same simple step, repeated. The tree diagram appears here and fills out one flip at a time.</p>
     <dl class="gloss"><dt>Stage</dt><dd>One flip of the coin.</dd>
       <dt>Outcome</dt><dd>The whole sequence, in order, such as ${spaced(predB())}.</dd>
       <dt>Tree diagram</dt><dd>A map of every path the experiment could take. Each flip adds a new set of branches.</dd>
-      <dt>Independent</dt><dd>The coin has no memory. One flip does not change the chances for the next.</dd></dl>
-    <div class="askBox">Before flipping: how many different outcomes do you think there are for ${S.flips} flips?</div>`;
+      <dt>Independent</dt><dd>The coin has no memory. One flip does not change the chances for the next.</dd></dl>`;
 }
 
-/* ---------- step 2: flip ---------- */
-function bFlip(){
-  const X=S.X,n=S.flips,k=X.res.length,done=X.phase==='done',now=performance.now();
-  const slots=Array.from({length:n},(_,i)=>{const c=X.res[i],fresh=c&&i===k-1&&now-X.t[i]<600;
-    return `<div class="slot ${c?'done':i===k&&!done?'now':''}${fresh?' fresh':''}"><small>Flip ${i+1}</small>${c?coinSVG(c,44)+`<b>${sideName(c)}</b>`:`<span class="ph">?</span><b>&nbsp;</b>`}</div>`}).join('');
-  const verdict=done?`<span class="verdict W">Outcome: <span class="oc">${X.res.join('')}</span></span>`
-    :k?`<span class="verdict N">Flip ${k}: ${sideName(X.res[k-1])}</span>`:`<span class="verdict N" style="opacity:.55">Flip the coin to grow the tree</span>`;
-  return `<div class="flipArena">
-    <div class="coinZone"><div class="coin" id="coin" style="transform:rotateX(${X.rot}deg)"><div class="face fH">${coinSVG('H',200)}</div><div class="face fT">${coinSVG('T',200)}</div></div><div class="coinShadow" id="coinShadow"></div></div>
-    <div class="slots">${slots}</div>
-    <div class="verdictRow" aria-live="polite">${verdict}</div></div>`;
-}
-/* The result is decided first, then the coin is tossed to land on it. */
-function flip(){
-  const X=S.X;if(!X||X.phase!=='ready')return;
-  const isH=Math.random()<val(pHd()),fast=S.speed==='fast',turns=RM?0:fast?3:5,dur=RM?1:fast?950:1750;
-  const from=X.rot,to=Math.ceil(from/360)*360+360*turns+(isH?0:180);
-  X.phase='flipping';renderPanel();renderButtons();
-  let fin=false;
-  const done=()=>{if(fin)return;fin=true;if(S.X!==X)return;
-    X.rot=to;X.res.push(isH?'H':'T');X.t.push(performance.now());
-    if(X.res.length>=S.flips){X.phase='done';record(X.res.join(''))}else X.phase='ready';
-    render({force:true})};
+/* ---------- the toss: the result is decided first, then the coin lands on it ---------- */
+function spinCoin(from,to,dur,cb){
   const coin=$('coin'),sh=$('coinShadow');
   if(coin&&coin.animate&&!RM){
-    const lift=parseFloat(getComputedStyle(coin.parentNode).paddingTop)||coin.offsetWidth*.4;
+    const zone=coin.closest('.coinZone'),lift=(zone&&parseFloat(getComputedStyle(zone).paddingTop))||coin.offsetWidth*.4;
+    let fin=false;const done=()=>{if(fin)return;fin=true;cb()};
     const a=coin.animate([
       {transform:`translateY(0) rotateX(${from}deg) scale(1)`,easing:'cubic-bezier(.2,.75,.45,1)'},
       {transform:`translateY(${-lift}px) rotateX(${(from+to)/2}deg) scale(1.22)`,offset:.48,easing:'cubic-bezier(.55,0,.85,.4)'},
@@ -659,7 +686,36 @@ function flip(){
       {transform:`translateY(0) rotateX(${to}deg) scale(1)`}],{duration:dur,fill:'forwards'});
     if(sh)sh.animate([{transform:'scale(1)',opacity:1},{transform:'scale(.55)',opacity:.45,offset:.48},{transform:'scale(1)',opacity:1,offset:.9},{transform:'scale(1)',opacity:1}],{duration:dur});
     a.onfinish=done;setTimeout(done,dur+500);
-  }else setTimeout(done,dur);
+  }else setTimeout(cb,dur);
+}
+const tossPlan=from=>{const isH=Math.random()<val(pHd()),fast=S.speed==='fast',turns=RM?0:fast?3:5;
+  return {isH,dur:RM?1:fast?950:1750,to:Math.ceil(from/360)*360+360*turns+(isH?0:180)}};
+function freeToss(){
+  const C=S.C;if(C.busy)return;
+  const {isH,dur,to}=tossPlan(C.rot);
+  C.busy=true;renderPanel();renderButtons();
+  spinCoin(C.rot,to,dur,()=>{C.rot=to;C.side=isH?'H':'T';C.busy=false;if(S.step==='coin')render({force:true})});
+}
+
+/* ---------- step 2: the experiment ---------- */
+function bFlip(){
+  const X=S.X,n=S.flips,k=X.res.length,done=X.phase==='done',now=performance.now();
+  const slots=Array.from({length:n},(_,i)=>{const c=X.res[i],fresh=c&&i===k-1&&now-X.t[i]<600;
+    return `<div class="slot ${c?'done':i===k&&!done?'now':''}${fresh?' fresh':''}"><small>Flip ${i+1}</small>${c?coinSVG(c,44)+`<b>${sideName(c)}</b>`:`<span class="ph">?</span><b>&nbsp;</b>`}</div>`}).join('');
+  const verdict=done?`<span class="verdict W">Outcome: <span class="oc">${X.res.join('')}</span></span>`
+    :k?`<span class="verdict N">Flip ${k}: ${sideName(X.res[k-1])}</span>`:`<span class="verdict N" style="opacity:.55">Flip the coin to grow the tree</span>`;
+  return `<div class="flipArena">${coinBlock(X.rot,X.phase==='flipping',!done)}
+    <div class="slots">${slots}</div>
+    <div class="verdictRow" aria-live="polite">${verdict}</div></div>`;
+}
+function flip(){
+  const X=S.X;if(!X||X.phase!=='ready')return;
+  const {isH,dur,to}=tossPlan(X.rot);
+  X.phase='flipping';renderPanel();renderButtons();
+  spinCoin(X.rot,to,dur,()=>{if(S.X!==X)return;
+    X.rot=to;X.res.push(isH?'H':'T');X.t.push(performance.now());
+    if(X.res.length>=S.flips){X.phase='done';record(X.res.join(''))}else X.phase='ready';
+    render({force:true})});
 }
 function liveCaption(){
   const X=S.X,k=X.res.length,n=S.flips,path=X.res.join('');
@@ -783,9 +839,10 @@ function runSim(n){
 function stepInfo(){
   const n=S.flips;
   switch(S.step){
-    case 'predict':return {b:bPredict,p:pPredict,pt:'A multistage experiment',main:{t:S.pred?'Start flipping ▸':'Choose the class prediction',act:'step',v:'flip',dis:!S.pred},sec:{t:'Skip ▸',act:'step',v:'flip'}};
-    case 'flip':{const X=S.X,k=X.res.length;
-      const main=X.phase==='done'?{t:'New experiment',act:'again'}:{t:X.phase==='flipping'?'Flipping…':innerWidth<520?`Flip ${k+1} of ${n}`:`Flip the coin · flip ${k+1} of ${n}`,act:'flip',dis:X.phase==='flipping'};
+    case 'coin':return {b:bCoin,p:pCoin,pt:'One flip',main:{t:S.C.busy?'Flipping…':'Flip the coin',act:'toss',dis:S.C.busy},sec:{t:'Set up an experiment ▸',act:'step',v:'flip'}};
+    case 'flip':{if(!S.X)return {b:bSetup,p:pSetup,pt:'Set up the experiment',main:{t:innerWidth<560?'Start flipping ▸':`Start flipping · ${n} flips ▸`,act:'start'},sec:{t:'Back to one coin',act:'step',v:'coin'}};
+      const X=S.X,k=X.res.length;
+      const main=X.phase==='done'?{t:'New experiment',act:'newExp'}:{t:X.phase==='flipping'?'Flipping…':innerWidth<520?`Flip ${k+1} of ${n}`:`Flip the coin · flip ${k+1} of ${n}`,act:'flip',dis:X.phase==='flipping'};
       return {b:bFlip,p:pFlip,pt:'',tools:flipTools(),main,sec:{t:'The maths ▸',act:'step',v:'maths'}}}
     case 'maths':{const s=S.show,max=n+2;
       const next=s<n?`Reveal flip ${s+1}`:s===n?'List the outcomes':'Multiply along the branches';
@@ -805,7 +862,6 @@ function renderPanel(){
 }
 function renderButtons(){const v=stepInfo(),idx=STEPS.findIndex(s=>s[0]===S.step);setBtn($('mainBtn'),v.main);setBtn($('secBtn'),v.sec);$('backBtn').disabled=idx<=0}
 function render(opt){
-  if(S.step==='flip'&&!S.X)newX();
   const idx=STEPS.findIndex(s=>s[0]===S.step),v=stepInfo();
   $('coinSel').value=S.coin;$('speedSel').value=S.speed;$('promptsChk').checked=S.prompts;
   $('stepChip').innerHTML=`Step ${idx+1} of ${STEPS.length}<span class="stn"> · ${STEPS[idx][1]}</span> &#9662;`;
@@ -817,10 +873,10 @@ function render(opt){
   $('layout').classList.toggle('noPanel',!S.panel);
   const q=S.prompts?ASK[S.step]:INFO[S.step];
   $('cue').innerHTML=`<b>${q[0]}</b><span>${q[1]}</span>`;
-  $('hint').textContent=`${S.flips} flips · ${S.coin==='fair'?'fair coin':`weighted coin, heads ${S.format==='frac'?pHd().join('/'):pct(val(pHd()))}`} · chances as ${S.format==='frac'?'fractions':'percentages'}`;
+  $('hint').textContent=`${S.step==='coin'?'one flip':S.flips+' flips'} · ${S.coin==='fair'?'fair coin':`weighted coin, heads ${S.format==='frac'?pHd().join('/'):pct(val(pHd()))}`} · chances as ${S.format==='frac'?'fractions':'percentages'}`;
   // body (never rebuild the coin mid-flip)
-  const flipping=S.step==='flip'&&S.X.phase==='flipping';
-  if(!flipping||(opt&&opt.force))$('stage').innerHTML=v.b();
+  const busy=(S.step==='flip'&&S.X&&S.X.phase==='flipping')||(S.step==='coin'&&S.C.busy);
+  if(!busy||(opt&&opt.force))$('stage').innerHTML=v.b();
   renderPanel();renderButtons();
 }
 
@@ -836,14 +892,15 @@ const PANEL=()=>S.step==='flip'?'panel':undefined;
 const ACT={
   step(el){S.step=el.dataset.v},
   back(){stepBy(-1)},
-  restart(){resetRun();S.step='predict'},
+  restart(){resetRun();S.step='coin'},
   flips(el){setOpt('flips',el.dataset.v)},
   format(el){setOpt('format',el.dataset.v)},
   panel(){setOpt('panel',!S.panel)},
   pred(el){S.pred=S.pred===el.dataset.v?null:el.dataset.v},
+  toss(){S.step==='coin'?freeToss():flip();return false},
   flip(){flip();return false},
-  again(){newX();S.view='tree'},
-  newExp(){newX();S.view='tree';S.step='flip'},
+  start(){newX();S.view='tree'},
+  newExp(){S.X=null;S.view='tree';S.step='flip'},
   view(el){S.view=el.dataset.v;return 'panel'},
   more(){S.show=Math.min(S.show+1,S.flips+2)},all(){S.show=S.flips+2},hide(){S.show=0},
   ev(el){S.ev={t:el.dataset.t,k:+el.dataset.v};S.calc=null;S.calcText='';S.evShow=false},
@@ -891,7 +948,7 @@ document.addEventListener('keydown',e=>{
   else if(k==='f'){ACT.fullscreen()}
   else if(k==='home'){ACT.restart();render()}
 });
-window.__CF__={S,outcomes,probOf,sumP,evList,playOne,render,setOpt,ACT,parseEntry,doCheck,flip};
+window.__CF__={S,outcomes,probOf,sumP,evList,playOne,render,renderPanel,setOpt,ACT,parseEntry,doCheck,flip,freeToss,newX};
 render();
 </script>
 </body>

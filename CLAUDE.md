@@ -107,7 +107,12 @@
 > * **Second "setting" in the multistage series.** The **Settings menu in both tools is now the scenario chooser** (Battle Royale / Coin Flip
 >   links, current one ticked) plus a short Options list. Rounds and Fractions/Percentages were removed from the Battle Royale menu because
 >   they are already on the board toolbar. **A new setting = a new sibling folder + one more link in every setting's menu.**
-> * Steps: Predict (HHH v HTH v equally likely) → Flip → The maths → Simulate. 2–4 flips; Options: fair or weighted coin (3/5, 3/4), flip speed, class questions.
+> * Steps: **The coin** (one coin, click to flip, nothing recorded — teacher discussion of a single stage) → **Flip** (a small
+>   "How many flips?" set-up card: 2/3/4 plus the optional class prediction, then the experiment) → The maths → Simulate.
+>   Options: fair or weighted coin (3/5, 3/4), flip speed, class questions. "New experiment" and `R` return to the set-up card.
+> * **The coin art is deliberately not the real 50c.** The Coat of Arms (reverse) and the monarch's effigy (obverse) are protected
+>   designs, so the faces carry raised lettering instead: HEADS / 50 CENTS / AUSTRALIA and 50 / CENTS / AUSTRALIA on a twelve-sided
+>   silver blank with a bevelled rim. Do not trace the real faces or embed photos of the coin.
 > * **One tree renderer `treeSVG(o)`** draws the live tree (levels appear as flips land; taken arm green, arm not taken grey, the two arms about
 >   to be decided identical) and the worked tree (reveal by flip, outcomes, leaf chances, event paths in green).
 > * Coin: stylised twelve-sided 50c drawn in SVG (generic silhouette + HEADS, "50" + TAILS; **no portrait or coat of arms on purpose**).
