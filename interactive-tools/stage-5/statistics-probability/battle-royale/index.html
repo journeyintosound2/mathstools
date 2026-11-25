@@ -280,6 +280,35 @@
     .toast{ position:fixed; bottom:1.2rem; left:50%; transform:translateX(-50%); background:var(--ink); color:#fff; padding:.6rem 1rem; border-radius:12px; font-size:.9rem; font-weight:800; z-index:200; max-width:90vw; }
 
 
+    /* ---------- face off: bare roster, practice arena, the draw ---------- */
+    .roster.bare{ grid-template-columns:repeat(4,minmax(0,1fr)); gap:1rem; align-content:center; min-height:100%; }
+    .roster.bare .fcard{ padding:1.1rem .6rem; gap:.5rem; border-width:2.5px; }
+    .roster.bare .fcard h3{ font-size:1.1rem; }
+    @media (max-height:860px){ .roster.bare .fcard > svg{ width:66px; height:66px; } .roster.bare{ gap:.7rem; } .roster.bare .fcard{ padding:.7rem .5rem; } }
+    .faceFoot{ grid-column:1/-1; text-align:center; }
+    .linkBtn{ appearance:none; border:none; background:none; font:inherit; font-size:.85rem; font-weight:800; color:var(--muted);
+      text-decoration:underline; text-underline-offset:3px; cursor:pointer; padding:.3rem .5rem; border-radius:8px; }
+    .linkBtn:hover{ color:var(--blue-dark); }
+    .linkBtn:focus-visible{ outline:none; box-shadow:0 0 0 3px rgba(37,99,235,.3); }
+    .verdict.N{ color:var(--muted); }
+    .predict.draw{ justify-content:center; }
+    .drawCard{ display:grid; place-items:center; }
+    .drawCard.rolling{ animation:rollPulse .55s ease-in-out infinite alternate; }
+    @keyframes rollPulse{ from{ transform:scale(.95); } to{ transform:scale(1.06); } }
+    .drawnRow{ display:flex; align-items:center; justify-content:center; gap:1rem; flex-wrap:wrap; }
+    .drawnWho b{ display:block; font-size:1.35rem; font-weight:900; letter-spacing:-.03em; line-height:1.1; }
+    .drawnWho span{ display:block; font-size:.78rem; font-weight:750; color:var(--muted); }
+    .drawnChips{ display:flex; flex-direction:column; align-items:center; gap:.2rem; padding-left:1rem; border-left:1px solid var(--border); }
+    @media (max-width:560px){ .drawnChips{ padding-left:0; border-left:none; } }
+    @media (max-height:820px) and (min-width:700px){
+      .predict{ gap:.5rem; padding:.2rem .4rem; }
+      .predict h2{ font-size:clamp(1.1rem,3vh,1.5rem); }
+      .readout{ font-size:clamp(2rem,6vh,3.2rem); }
+      .drawnRow > svg{ width:58px; height:58px; }
+      .drawCard svg{ width:108px; height:108px; }
+    }
+    @media (prefers-reduced-motion:reduce){ .drawCard.rolling{ animation:none; } }
+
     /* ---------- battle: winner and loser ---------- */
     .side1 .av{ position:relative; display:grid; place-items:center; isolation:isolate; transition:transform .45s cubic-bezier(.2,1.4,.4,1),filter .4s,opacity .4s; }
     .side1.won .av{ transform:scale(1.18); }
@@ -456,14 +485,14 @@
               <button class="stepChip" id="stepChip" type="button" data-menu="stepsMenu" aria-haspopup="true" aria-expanded="false" title="Jump to a step"></button>
               <nav class="dropMenu left" id="stepsMenu" aria-label="Steps"></nav>
             </div>
-            <div class="seg" role="group" aria-label="Rounds">
+            <div class="seg" id="roundsSeg" role="group" aria-label="Rounds">
               <i class="lbl">Rounds</i>
               <button type="button" data-act="rounds" data-v="2" aria-pressed="false">2</button>
               <button type="button" data-act="rounds" data-v="3" aria-pressed="false">3</button>
               <button type="button" data-act="rounds" data-v="4" aria-pressed="false">4</button>
               <button type="button" data-act="rounds" data-v="5" aria-pressed="false">5</button>
             </div>
-            <div class="seg" role="group" aria-label="Show chances as">
+            <div class="seg" id="fmtSeg" role="group" aria-label="Show chances as">
               <button type="button" data-act="format" data-v="frac" aria-pressed="true" title="Show chances as fractions (P)">Fractions</button>
               <button type="button" data-act="format" data-v="pct" aria-pressed="false" title="Show chances as percentages (P)">Percentages</button>
             </div>
@@ -531,18 +560,26 @@ const FIGHTERS=[
 ];
 const ROUNDS=[['Round of 32','R32'],['Round of 16','R16'],['Quarter-final','QF'],['Semi-final','SF'],['Grand Final','Final']];
 const FRIENDLY=[[1,10],[1,5],[1,4],[3,10],[1,3],[2,5],[1,2],[3,5],[2,3],[7,10],[3,4],[4,5],[9,10]];
-const STEPS=[['choose','Choose a fighter'],['predict','Predict'],['battle','Battle'],['maths','The maths'],['sim','Simulate'],['inv','Investigate']];
+const STEPS=[['faceoff','Face off'],['predict','Predict'],['battle','Battle'],['maths','The maths'],['sim','Simulate'],['inv','Investigate']];
 const ASK={
-  choose:['Which fighter would you back, and why?','Hexa and Prism have the same chances in a different order. Does the order matter?'],
-  predict:['Is the chance of winning the title higher or lower than the chance of winning one match?','Hands up: more than half, or less than half?'],
+  faceoff:()=>{const F=S.F;
+    if(F.phase==='a')return ['Choose your player','You know nothing about them yet. Who do you pick, and why?'];
+    if(F.phase==='b')return ['Now choose their opponent','Will this be a fair fight? What would make a fight fair?'];
+    if(F.done)return ['What did you notice? What do you wonder?','Battle again. Does the bigger slice always win?'];
+    return ['Who do you think will win?','Look at the spinner. What do you notice?'];},
+  predict:()=>S.drawn?['Is the chance of winning the title higher or lower than the chance of winning one match?','Hands up: more than half, or less than half?']
+    :['Who will we follow?','A fighter is drawn at random, so nobody can pick the strongest.'],
   battle:['What has to happen for our fighter to take the title?','One tournament is one trial. How many trials would we need before we trust the result?'],
   maths:['Why do we multiply along the branches?','Why does the chance shrink with every round?'],
   sim:['Why does the experiment not match the theory exactly?','What happens to the gap as we run more tournaments?'],
   inv:['How many matches before a 9 in 10 fighter is more likely to lose the title than win it?','Is a great fighter in a long tournament better off than a good fighter in a short one?']
 };
 const INFO={
-  choose:['Choose a fighter','Each chip is the chance of winning that match. Pick one to follow.'],
-  predict:['Predict the title chance','Agree on a class prediction before any maths.'],
+  faceoff:()=>{const F=S.F;
+    if(F.phase==='a')return ['Choose your player','Tap a fighter.'];
+    if(F.phase==='b')return ['Choose the opponent','Tap another fighter.'];
+    return ['Battle','Nothing is recorded here. Battle as often as you like.'];},
+  predict:()=>S.drawn?['Predict the title chance','Agree on a class prediction before any maths.']:['Draw a fighter','A fighter is drawn at random.'],
   battle:['Spin each match','The fighter must win every round to take the title.'],
   maths:['The tree diagram','Reveal the tree one round at a time, then multiply along the branches.'],
   sim:['Simulate the tournament','Run it many times and compare with the theory.'],
@@ -551,14 +588,22 @@ const INFO={
 
 /* ---------- state ---------- */
 const STORE='mmt.battleRoyale.v1';
-const S={step:'choose',hero:'cube',rounds:3,format:'frac',level:'core',extraLife:false,speed:'normal',prompts:true,panel:true,fs:false,
-  custom:{},reveal:false,pred:50,predLocked:false,show:0,theory:false,live:[],
+const S={step:'faceoff',hero:'cube',rounds:3,format:'frac',level:'core',extraLife:false,speed:'normal',prompts:true,panel:true,fs:false,
+  custom:{},reveal:false,F:null,drawn:false,drawing:false,pred:50,predLocked:false,show:0,theory:false,live:[],
   B:null,sim:null,invP:[9,10],invA:'hexa',invB:'cube',invShow:false,revShow:false,
   view:'tree',calcOn:false,calcText:'',calc:null};
 try{const s=JSON.parse(localStorage.getItem(STORE)||'{}');
   ['rounds','format','level','speed','prompts','panel'].forEach(k=>{if(s[k]!==undefined)S[k]=s[k]});
+  S.panelPref=S.panel;
   if(![2,3,4,5].includes(S.rounds))S.rounds=3;}catch(e){}
-const save=()=>{try{localStorage.setItem(STORE,JSON.stringify({rounds:S.rounds,format:S.format,level:S.level,speed:S.speed,prompts:S.prompts,panel:S.panel}))}catch(e){}};
+S.panelPref=S.panel;S.panel=false;   // the opening step is full width
+const save=()=>{try{localStorage.setItem(STORE,JSON.stringify({rounds:S.rounds,format:S.format,level:S.level,speed:S.speed,prompts:S.prompts,panel:S.panelPref}))}catch(e){}};
+/* The opening steps carry no numbers, tree or working, so the side panel has nothing to hold:
+   the board takes the full width there and the panel returns by itself for the rest of the lesson.
+   G still forces it open in the moment, without changing the teacher's saved preference. */
+const bareStep=id=>id==='faceoff'||(id==='predict'&&!S.drawn);
+const syncPanel=()=>{S.panel=bareStep(S.step)?false:S.panelPref};
+const togglePanel=()=>{S.panel=!S.panel;if(!bareStep(S.step)){S.panelPref=S.panel;save()}};
 
 const fighter=id=>FIGHTERS.find(f=>f.id===id);
 const hero=()=>fighter(S.hero);
@@ -631,6 +676,12 @@ const trophy=(s,on,attrs='')=>{const c=on?'#ca8a04':'#cbd5e1';return `<svg ${att
 
 /* ---------- resets ---------- */
 function resetRun(){S.B=null;S.sim=null;S.live=[];S.show=0;S.theory=false;S.predLocked=false;S.pred=50;S.invShow=false;S.revShow=false;S.view='tree';S.calc=null;S.calcText=''}
+function newFace(){return {phase:'a',a:null,b:null,p:null,res:null,rot:0,spinning:false,done:false,fresh:false,showP:false}}
+/* every practice battle draws a new chance, so the slices change each time */
+function newMatch(){const F=S.F;let p=FRIENDLY[Math.floor(Math.random()*FRIENDLY.length)];
+  if(S.format==='pct'&&p[1]===3)p=p[0]===1?[3,10]:[7,10];
+  if(Math.random()<.5)p=comp(p);
+  F.p=p;F.res=null;F.done=false;F.rot=0}
 function newBattle(){S.B={i:0,losses:0,res:[],phase:'ready',rot:0,outcome:null,armT:null,bombT:null,rest:null,fresh:false}}
 function newSim(){S.sim={n:0,counts:{},series:[],stride:1,running:false}}
 function record(key){if(!S.sim)newSim();const s=S.sim;s.n++;s.counts[key]=(s.counts[key]||0)+1;
@@ -638,31 +689,81 @@ function record(key){if(!S.sim)newSim();const s=S.sim;s.n++;s.counts[key]=(s.cou
 function toast(msg){const t=$('toast');t.textContent=msg;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,4200)}
 const chipsH=P=>rnames().map((r,i)=>`<span class="chip"><small>${r[1]}</small><b>${pH(P[i])}</b></span>`).join('');
 
-/* ---------- step 1: choose ---------- */
-function bChoose(){
-  const data=FIGHTERS.map(f=>({f,P:probsOf(f),t:model(probsOf(f),lives()).champ}));
-  const ranked=[...data].sort((a,b)=>val(b.t)-val(a.t));
-  return `<div class="roster">${data.map(d=>`<button class="fcard" style="--c:${d.f.color}" data-act="pick" data-v="${d.f.id}" aria-pressed="${d.f.id===S.hero}">
-      ${S.reveal?`<span class="rank">#${ranked.indexOf(d)+1}</span>`:''}
-      ${avatar(d.f,72)}<h3>${d.f.name}</h3><p>${d.f.tag}</p><div class="chips">${chipsH(d.P)}</div>
-      ${S.reveal?`<div class="titleChance"><span>Title chance ${titleH(d.t)}</span><div class="meter"><i style="width:${val(d.t)*100}%"></i></div></div>`:''}
-    </button>`).join('')}</div>`;
+/* ---------- step 1: face off ----------
+   Two picks and a practice battle. No chances, no tree, nothing recorded: the class works out
+   how a battle is decided before any number is attached to it. */
+function rosterH(ex,act){
+  return `<div class="roster bare">${FIGHTERS.filter(f=>f.id!==ex).map(f=>`<button class="fcard" style="--c:${f.color}" data-act="${act}" data-v="${f.id}">${avatar(f,88)}<h3>${f.name}</h3></button>`).join('')}</div>`;
 }
-function pChoose(){
-  const h=hero(),P=probs(),rn=rnames();
-  const opts=S.format==='frac'?FRIENDLY:FRIENDLY.filter(a=>a[1]!==3);
-  return `<div class="pHero">${avatar(h,96)}<div><h2>${h.name}</h2><span class="muted" style="font-weight:700">${h.tag}</span></div></div>
-    <p class="panelNote">${lives()?`To take the title, ${h.name} must get through <b>${S.rounds} rounds</b>. The extra life forgives one loss before the Grand Final.`:`To take the title, ${h.name} must win <b>${S.rounds} matches in a row</b>.`}</p>
-    <div><span class="eyebrow">Set the chances</span>
-      <div class="edit">${P.map((p,i)=>`<label for="e${i}">${rn[i][1]}<select id="e${i}" data-edit="${i}">${opts.map(o=>`<option value="${o[0]}/${o[1]}" ${same(o,p)?'selected':''}>${S.format==='frac'?o[0]+'/'+o[1]:pct(val(o))}</option>`).join('')}</select></label>`).join('')}</div>
-      ${S.custom[h.id+S.rounds]?`<button class="gBtn" style="margin-top:.6rem" data-act="resetP">Back to ${h.name}'s usual chances</button>`:''}</div>`;
+function bFace(){
+  const F=S.F;
+  if(F.phase==='a')return rosterH(null,'fpickA');
+  if(F.phase==='b')return rosterH(F.a,'fpickB');
+  const A=fighter(F.a),O=fighter(F.b),p=F.p,res=F.done?F.res:null,fresh=!!F.fresh&&!RM;
+  const av=Math.round(Math.max(72,Math.min(138,innerHeight*.16,innerWidth*.26)));
+  const side=(f,cls,pp)=>`<div class="side1 ${cls}${fresh&&cls?' fresh':''}">
+      <div class="av">${avatar(f,av,cls==='won'?'joy':cls==='lost'?'sad':'')}${fresh&&cls==='won'?burst(f.color):''}</div>
+      <h3>${esc(f.name)}</h3>
+      <div class="pbig">${F.showP?`<small>wins</small>${pH(pp)}`:'&nbsp;'}</div>
+      <div class="tagSlot">${cls==='won'?'<span class="tag tWin">Winner</span>':cls==='lost'?'<span class="tag tOut">Beaten</span>':''}</div></div>`;
+  return `<div class="arena" style="--opp:${O.color}">
+    ${side(A,res==='a'?'won':res==='b'?'lost':'',p)}
+    ${wheelH(p,A,F.rot)}
+    ${side(O,res==='b'?'won':res==='a'?'lost':'',comp(p))}
+    <div class="verdictRow"><div class="verdict ${res?'W':'N'}" aria-live="polite">${res?`${esc((res==='a'?A:O).name)} wins`:F.spinning?'Spinning…':'&nbsp;'}</div></div>
+    <div class="faceFoot"><button type="button" class="linkBtn" data-act="fnew">Choose new fighters</button></div></div>`;
+}
+function pFace(){
+  const F=S.F;
+  if(F.phase==='a')return `<p class="panelNote">No numbers yet, on purpose. Let the class pick on instinct, then ask what they based it on.</p>
+    <div class="askBox">There is nothing to go on. Is one fighter better than another? How could we find out?</div>`;
+  if(F.phase==='b')return `<p class="panelNote">${esc(fighter(F.a).name)} needs someone to fight.</p>
+    <div class="askBox">Does it matter who they fight? What would make a fight fair, or unfair?</div>`;
+  return `<p class="panelNote">The spinner decides the match. Nothing is recorded and there is no tree diagram yet &mdash; this screen is only for working out <b>how one battle is decided</b>.</p>
+    <div class="askBox">Count the equal parts on the spinner. How many belong to ${esc(fighter(F.a).name)}? Who is more likely to win? Is the bigger slice <i>certain</i> to win?</div>
+    <p class="panelNote muted">Every battle draws a new chance, so the slices change each time. Turn on <b>Show the chance</b> above the board when the class is ready to put a number on it.</p>`;
+}
+function faceSpin(){
+  const F=S.F;if(!F||F.spinning)return;
+  const p=F.p,aWins=Math.random()<val(p),a=val(p)*360;
+  const lo=aWins?0:a,span=aWins?a:360-a,m=Math.min(7,span*.15),th=lo+m+Math.random()*(span-2*m);
+  const turns=S.speed==='fast'?2:5,target=360*turns+(360-th);
+  F.rot=0;F.spinning=true;F.res=null;F.done=false;render({force:true});
+  const w=$('wheel');w.getBoundingClientRect();void w.getBoundingClientRect().width;
+  F.rot=target;
+  requestAnimationFrame(()=>{w.style.transform=`rotate(${target}deg)`});
+  setTimeout(()=>{ if(S.F!==F)return;
+    F.spinning=false;F.res=aWins?'a':'b';F.done=true;F.fresh=true;
+    if(S.step==='faceoff')render();F.fresh=false;
+  },RM?60:(S.speed==='fast'?1000:3550));
 }
 
 /* ---------- step 2: predict ---------- */
+const qMark=sz=>`<svg viewBox="0 0 100 100" width="${sz}" height="${sz}" aria-hidden="true"><rect x="8" y="8" width="84" height="84" rx="20" fill="#eef2f7" stroke="#cbd5e1" stroke-width="3"/><text x="50" y="73" text-anchor="middle" font-size="58" font-weight="900" fill="#94a3b8">?</text></svg>`;
+/* the draw: cycle through the roster, then land on one. Nobody gets to pick the strongest. */
+function drawFighter(){
+  if(S.drawing)return;
+  const pool=FIGHTERS.filter(f=>f.id!==S.hero),pick=pool[Math.floor(Math.random()*pool.length)];
+  const land=()=>{S.hero=pick.id;S.drawing=false;resetRun();S.drawn=true;syncPanel();render()};
+  if(RM){land();return}
+  S.drawing=true;let k=0;const order=[...FIGHTERS].sort(()=>Math.random()-.5);
+  const frame=()=>{ if(!S.drawing)return;
+    S.hero=order[k%order.length].id;k++;
+    document.documentElement.style.setProperty('--hero',(S.step==='faceoff'&&S.F.a?fighter(S.F.a).color:hero().color));
+    $('stage').innerHTML=bPredict();
+    if(k<16)setTimeout(frame,66+k*10);else land()};
+  frame();
+}
 function bPredict(){
   const h=hero(),P=probs();
+  if(!S.drawn)return `<div class="predict draw">
+    <div class="drawCard${S.drawing?' rolling':''}">${S.drawing?avatar(h,150):qMark(150)}</div>
+    <h2>${S.drawing?'Drawing…':'Who will we follow?'}</h2>
+    <p class="panelNote muted" style="max-width:48ch">${S.drawing?'&nbsp;':'One fighter is drawn at random, so nobody can pick the strongest.'}</p></div>`;
   return `<div class="predict">
-    <div class="row" style="justify-content:center">${avatar(h,92)}<div class="row">${chipsH(P)}</div></div>
+    <div class="drawnRow">${avatar(h,78)}
+      <div class="drawnWho"><b>${esc(h.name)}</b><span>drawn at random</span></div>
+      <div class="drawnChips"><span class="eyebrow">wins each round</span><div class="row">${chipsH(P)}</div></div></div>
     <h2>What is the chance ${h.name} wins the whole tournament?</h2>
     <p class="panelNote muted" style="max-width:56ch">${lives()?`${h.name} can lose once before the Grand Final and stay in, but must win the final.`:`${h.name} has to win all ${S.rounds} matches.`}</p>
     <div class="readout" id="predOut">${S.pred}%</div>
@@ -681,8 +782,20 @@ function pathH(){
     <div class="crown ${B&&B.outcome==='champ'?'won':''}">${trophy(34,B&&B.outcome==='champ')}<span>${B&&B.outcome==='champ'?'Champion':'Title'}</span></div></div>`;
 }
 function pPredict(){
-  const h=hero();
-  return `<p class="panelNote">The path ${h.name} must take. Each chance is ${h.name}'s chance of winning that match.</p>${pathH()}`;
+  const h=hero(),rn=rnames(),P=probs();
+  if(!S.drawn)return `<p class="panelNote">A fighter is drawn at random, so nobody can pick the strongest. Once we have one, we meet its chance of winning each round.</p>
+    <div class="askBox">Before the draw: does it matter which fighter we get? Would any of them be <i>certain</i> to win the title?</div>`;
+  const opts=S.format==='frac'?FRIENDLY:FRIENDLY.filter(a=>a[1]!==3);
+  let x=`<p class="panelNote">The path ${esc(h.name)} must take. Each chance is ${esc(h.name)}'s chance of winning that match.</p>${pathH()}
+    <div><span class="eyebrow">Set the chances</span>
+      <div class="edit">${P.map((p,i)=>`<label for="e${i}">${rn[i][1]}<select id="e${i}" data-edit="${i}">${opts.map(o=>`<option value="${o[0]}/${o[1]}" ${same(o,p)?'selected':''}>${S.format==='frac'?o[0]+'/'+o[1]:pct(val(o))}</option>`).join('')}</select></label>`).join('')}</div>
+      ${S.custom[h.id+S.rounds]?`<button class="gBtn" style="margin-top:.6rem" data-act="resetP">Back to ${esc(h.name)}'s usual chances</button>`:''}</div>`;
+  if(S.predLocked){
+    const data=FIGHTERS.map(f=>({f,t:model(probsOf(f),lives()).champ})).sort((a,b)=>val(b.t)-val(a.t));
+    x+=`<div><button class="gBtn" data-act="reveal">${S.reveal?'Hide':'Reveal'} every fighter's title chance</button>
+      ${S.reveal?`<table style="margin-top:.5rem"><tr><th>Fighter</th><th class="n">Title chance</th></tr>${data.map(d=>`<tr><td>${esc(d.f.name)}</td><td class="n">${titleH(d.t)}</td></tr>`).join('')}</table>`:''}</div>`;
+  }
+  return x;
 }
 
 /* ---------- step 3: battle ---------- */
@@ -1106,10 +1219,17 @@ function pInv(){
 function stepInfo(){
   const h=hero(),rn=rnames();
   switch(S.step){
-    case 'choose':return {b:bChoose,p:pChoose,pt:'Our fighter',main:{t:`Lock in ${h.name} ▸`,act:'step',v:'predict'},sec:{t:S.reveal?'Hide title chances':'Reveal title chances',act:'reveal'}};
-    case 'predict':return {b:bPredict,p:pPredict,pt:'The path to the title',
-      main:S.predLocked?{t:'To the arena ▸',act:'step',v:'battle'}:{t:'Lock in class prediction',act:'lock'},
-      sec:S.predLocked?{t:'Change it',act:'unlock'}:{t:'Skip ▸',act:'step',v:'battle'}};
+    case 'faceoff':{const F=S.F;
+      if(F.phase==='a')return {b:bFace,p:pFace,pt:'Your player',main:{t:'Choose your player',act:'none',dis:true},sec:{t:'Skip to the experiment ▸',act:'step',v:'predict'}};
+      if(F.phase==='b')return {b:bFace,p:pFace,pt:'The opponent',main:{t:'Choose the opponent',act:'none',dis:true},sec:{t:'Back',act:'fback'}};
+      return {b:bFace,p:pFace,pt:'Practice battle',main:{t:F.spinning?'Spinning…':F.done?'Battle again':'Battle!',act:'fbattle',dis:F.spinning},
+        sec:{t:'Next: the experiment ▸',act:'step',v:'predict'},
+        top:`<label class="sw sm"><input type="checkbox" data-panel="showP" ${F.showP?'checked':''}><span class="track"></span><span>Show the chance</span></label>`}}
+    case 'predict':{
+      if(!S.drawn)return {b:bPredict,p:pPredict,pt:'The draw',main:{t:S.drawing?'Drawing…':'Draw a fighter',act:'draw',dis:S.drawing},sec:{t:'Skip ▸',act:'step',v:'battle'}};
+      return {b:bPredict,p:pPredict,pt:'The path to the title',
+        main:S.predLocked?{t:'To the arena ▸',act:'step',v:'battle'}:{t:'Lock in class prediction',act:'lock'},
+        sec:S.predLocked?{t:'Change it',act:'unlock'}:{t:'Draw again',act:'draw'}}}
     case 'battle':{const B=S.B,i=Math.min(B.i,S.rounds-1),done=B.phase==='done';let main;
       if(done)main={t:'Run another tournament',act:'again'};
       else if(B.phase==='shown')main={t:`On to the ${rn[i+1][0]} ▸`,act:'nextRound'};
@@ -1135,7 +1255,9 @@ function renderPanel(){
 }
 function renderButtons(){const v=stepInfo(),l=stepList(),idx=l.findIndex(s=>s[0]===S.step);setBtn($('mainBtn'),v.main);setBtn($('secBtn'),v.sec);$('backBtn').disabled=idx<=0}
 function render(opt){
-  if(S.step==='inv'&&S.level!=='ext')S.step='choose';
+  if(S.step==='inv'&&S.level!=='ext')S.step='faceoff';
+  if(!S.F)S.F=newFace();
+  if(S.panelPref===undefined)S.panelPref=S.panel;
   if(S.step==='battle'&&!S.B)newBattle();
   document.documentElement.style.setProperty('--hero',hero().color);
   const steps=stepList(),idx=steps.findIndex(s=>s[0]===S.step),v=stepInfo(),h=hero();
@@ -1152,11 +1274,15 @@ function render(opt){
   $('panelBtn').setAttribute('aria-pressed',String(S.panel));
   $('layout').classList.toggle('noPanel',!S.panel);
   // cue and hint
-  const q=S.prompts?ASK[S.step]:INFO[S.step];
+  const q0=(S.prompts?ASK:INFO)[S.step],q=typeof q0==='function'?q0():q0;
   $('cue').innerHTML=`<b>${q[0]}</b><span>${q[1]}</span>`;
-  $('hint').textContent=`${h.name} · ${S.rounds} rounds · ${2**S.rounds} fighters in the draw · chances as ${S.format==='frac'?'fractions':'percentages'}${lives()?' · extra life on':''}`;
+  $('hint').textContent=S.step==='faceoff'?'Practice battles · nothing is recorded · no tree diagram yet'
+    :`${h.name} · ${S.rounds} rounds · ${2**S.rounds} fighters in the draw · chances as ${S.format==='frac'?'fractions':'percentages'}${lives()?' · extra life on':''}`;
+  // the rounds and format switches mean nothing while no chances are on screen
+  const bare=S.step==='faceoff';
+  $('roundsSeg').hidden=bare;$('fmtSeg').hidden=bare&&!S.F.showP;$('randBtn').hidden=bare;
   // body (never rebuild the wheel mid-spin)
-  const spinning=S.step==='battle'&&S.B.phase==='spinning';
+  const spinning=(S.step==='battle'&&S.B.phase==='spinning')||(S.step==='faceoff'&&S.F.spinning)||S.drawing;
   if(!spinning||(opt&&opt.force))$('stage').innerHTML=v.b();
   renderPanel();renderButtons();
 }
@@ -1173,7 +1299,7 @@ function setOpt(k,v){
   else if(k==='speed'||k==='prompts'||k==='panel')S[k]=v;
   save();
 }
-function goStep(id){S.step=id;if(id==='sim'&&S.show>=S.rounds+2)S.theory=true}
+function goStep(id){S.step=id;if(id==='sim'&&S.show>=S.rounds+2)S.theory=true;syncPanel()}
 function stepBy(d){const l=stepList(),i=l.findIndex(s=>s[0]===S.step),j=Math.max(0,Math.min(l.length-1,i+d));goStep(l[j][0])}
 const parseP=v=>{const a=v.split('/').map(Number);return F(a[0],a[1])};
 const PANEL=()=>S.step==='battle'?'panel':undefined;
@@ -1181,12 +1307,19 @@ const PANEL=()=>S.step==='battle'?'panel':undefined;
 const ACT={
   step(el){goStep(el.dataset.v)},
   back(){stepBy(-1)},
-  restart(){resetRun();S.step='choose'},
-  pick(el){S.hero=el.dataset.v;resetRun()},
-  randHero(){const o=FIGHTERS.filter(f=>f.id!==S.hero);S.hero=o[Math.floor(Math.random()*o.length)].id;resetRun()},
+  restart(){resetRun();S.F=newFace();S.drawn=false;S.step='faceoff';syncPanel()},
+  none(){return false},
+  fpickA(el){S.F.a=el.dataset.v;S.F.phase='b'},
+  fpickB(el){S.F.b=el.dataset.v;S.F.phase='battle';newMatch()},
+  fback(){S.F.phase='a';S.F.b=null},
+  fnew(){const sp=S.F.showP;S.F=newFace();S.F.showP=sp},
+  fbattle(){if(S.F.done)newMatch();faceSpin();return false},
+  draw(){drawFighter();return false},
+  randHero(){ if(S.step==='predict'&&!S.drawn){drawFighter();return false}
+    if(S.step==='faceoff')return false;const o=FIGHTERS.filter(f=>f.id!==S.hero);S.hero=o[Math.floor(Math.random()*o.length)].id;resetRun()},
   rounds(el){setOpt('rounds',el.dataset.v)},
   format(el){setOpt('format',el.dataset.v)},
-  panel(){setOpt('panel',!S.panel)},
+  panel(){togglePanel()},
   reveal(){S.reveal=!S.reveal},
   resetP(){delete S.custom[S.hero+S.rounds];resetRun()},
   resetAll(){S.custom={};resetRun();toast('Every fighter is back to their usual chances.')},
@@ -1222,6 +1355,7 @@ document.addEventListener('click',e=>{
   const r=ACT[el.dataset.act](el);
   if(r==='panel'){renderPanel();renderButtons()}else if(r!==false)render()});
 document.addEventListener('change',e=>{const t=e.target;
+  if(t.dataset.panel==='showP'){S.F.showP=t.checked;render();return}
   if(t.dataset.set){const k=t.dataset.set;setOpt(k,t.type==='checkbox'?t.checked:t.value);
     if(k==='life'&&t.checked&&S.level!=='ext')setOpt('level','ext');render()}
   else if(t.dataset.panel==='calc'){S.calcOn=t.checked;renderPanel()}
@@ -1243,11 +1377,11 @@ document.addEventListener('keydown',e=>{
   else if(k==='arrowleft'){e.preventDefault();if(!$('backBtn').disabled)$('backBtn').click()}
   else if(k==='p'){setOpt('format',S.format==='frac'?'pct':'frac');render()}
   else if(k==='r'){ACT.randHero();render()}
-  else if(k==='g'){setOpt('panel',!S.panel);render()}
+  else if(k==='g'){togglePanel();render()}
   else if(k==='f'){ACT.fullscreen()}
   else if(k==='home'){ACT.restart();render()}
 });
-window.__BR__={S,model,M,probs,hero,playOne,render,renderPanel,setOpt,ACT,stepList,FIGHTERS,probsOf,rep,parseEntry,doCheck,opponents};
+window.__BR__={S,model,M,probs,hero,playOne,render,renderPanel,setOpt,ACT,stepList,FIGHTERS,probsOf,rep,parseEntry,doCheck,opponents,newFace,drawFighter,faceSpin};
 render();
 </script>
 </body>

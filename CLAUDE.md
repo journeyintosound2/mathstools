@@ -129,7 +129,18 @@
 > * **Model:** one fighter follows a fixed path of named opponents; the chance belongs to the MATCH (opponent = complement); rounds are
 >   independent. Chances are exact fractions [n, d] from a friendly set (thirds become 30%/70% in percentage mode). ONE `model()`
 >   tree drives the tree diagram, the working and the simulation, so they cannot disagree. 8 original fighters (no third-party IP).
-> * **Steps:** Choose → Predict (class slider, before any maths) → Battle (spinner: result drawn first, then the wheel lands on it)
+> * **Steps:** Face off → Predict → Battle (spinner: result drawn first, then the wheel lands on it)
+> * **Face off (2026-11-25, notice-and-wonder opening).** Three phases in one step: choose your player (bare roster, avatar and name
+>   only, no chances or tags) → choose the opponent → practice battle. Each battle draws a RANDOM friendly chance, so the slices
+>   change every time; **nothing is recorded, no tree, no round names**. A "Show the chance" switch above the board reveals the
+>   fraction when the class is ready. The spinner's equal-part ticks are the hook: the class can count the parts before any number
+>   appears. State is `S.F`, separate from `S.hero`, so practice never touches the real run.
+> * **Predict** opens with a randomiser: `drawFighter()` cycles the roster and lands on one (`S.drawn`), then reveals its per-round
+>   chances and the class slider. "Reveal every fighter's title chance" moved from the old Choose step into the predict panel,
+>   behind the prediction lock, together with the per-round chance editors.
+> * **The side panel is hidden on the opening steps** (`bareStep()` / `syncPanel()`): it has nothing to hold there, so the board
+>   takes the full width. `G` still forces it open in the moment without changing the saved preference, now stored as `panelPref`.
+> * Older flow, for reference: Choose → Predict (class slider, before any maths) → Battle
 >   → The maths (tree revealed round by round, then multiply, then answer) → Simulate (1 / 10 / 100 / 1000, theory line vs the class
 >   prediction) → Investigate (Extension only). Settings: rounds 2–5, fractions / percentages, Core / Extension, extra life, spin
 >   speed, class questions on/off. Extra life forgives one loss BEFORE the Grand Final (a final loss always ends it), which gives
