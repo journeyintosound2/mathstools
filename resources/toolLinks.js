@@ -2113,6 +2113,14 @@ window.MMT_TOOL_LINKS = {
       ideas: ["multistage", "multistage-problems", "simulations"],
       note: "Follow one fighter through a knockout tournament: predict the title chance, spin each match, build the tree diagram to see why chances multiply, then run the tournament many times and compare with the theory. Extension adds every possible ending, an extra life (more than one winning path) and a working-backwards investigation.",
       tags: ["probability", "multistage", "tree diagram", "independent events", "multiply", "spinner", "simulation", "relative frequency", "tournament", "fractions", "percentages", "chance experiment"]
+    },
+    {
+      title: "Coin Flip: Multistage Probability",
+      kind: "Teacher tool",
+      url: "/interactive-tools/stage-5/statistics-probability/coin-flip/",
+      ideas: ["multistage", "multistage-problems", "simulations"],
+      note: "Flip a 50c coin two, three or four times and watch the tree diagram grow: the path travelled turns green and the paths not taken turn grey. List the sample space, multiply along the branches, find the chance of an event such as exactly 2 heads by adding paths, then run the experiment many times and compare with the tree. A weighted coin is available as an extension.",
+      tags: ["probability", "multistage", "tree diagram", "coin", "heads", "tails", "sample space", "independent events", "multiply", "simulation", "relative frequency", "fractions", "percentages", "chance experiment"]
     }
   ],
 

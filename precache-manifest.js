@@ -1,6 +1,6 @@
 /* Written by tools/build-pwa.mjs — do not edit by hand. */
 self.MMT_PRECACHE = {
- "version": "45f5fb7f72",
+ "version": "d3cec8a8dc",
  "files": [
   "./",
   "assessment/exam-builder/app.js",
@@ -893,6 +893,7 @@ self.MMT_PRECACHE = {
   "interactive-tools/stage-5/measurement-space/unit-circle-trig-ratios/index.html",
   "interactive-tools/stage-5/measurement-space/unit-circle-trig-ratios/lesson-plan.html",
   "interactive-tools/stage-5/statistics-probability/battle-royale/index.html",
+  "interactive-tools/stage-5/statistics-probability/coin-flip/index.html",
   "interactive-tools/stage-5/statistics-probability/financial-expectation-spinner/index.html",
   "interactive-tools/stage-5/statistics-probability/venn-diagrams/index.html",
   "manifest.webmanifest",

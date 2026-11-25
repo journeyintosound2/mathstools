@@ -75,6 +75,9 @@
     .toolLink.soon::after{ content:none; }
     .toolLink.soon:hover{ background:none; color:var(--ink); }
     .settingsMenu.open{ gap:11px; padding:15px 18px; min-width:350px; max-height:min(78vh,680px); overflow:auto; }
+    .settingsMenu .toolLink{ border:1.5px solid var(--border); }
+    .settingsMenu .toolLink[aria-current="true"]{ border-color:#c7d2fe; }
+    .settingsMenu .toolLink[aria-current="true"]::after{ content:'\2713'; }
     .settingsHead{ font-size:.68rem; letter-spacing:.14em; text-transform:uppercase; font-weight:950; color:var(--muted); }
     .settingsNote{ margin:-4px 0 0; font-size:.76rem; font-weight:650; color:var(--muted); line-height:1.4; }
     .settingsRule{ height:1px; background:var(--border); margin:1px 0; }
@@ -221,11 +224,11 @@
     .side1 h3{ margin:0; font-size:1.25rem; font-weight:900; letter-spacing:-.02em; }
     .pbig{ font-size:1.6rem; display:flex; align-items:center; gap:.5rem; }
     .pbig small{ font-size:.8rem; color:var(--muted); font-weight:800; }
-    .wheelwrap{ width:clamp(190px,min(34vh,26vw),340px); aspect-ratio:1; position:relative; }
+    .wheelwrap{ width:clamp(170px,min(32vh,26vw),340px); aspect-ratio:1; position:relative; }
     .wheel{ width:100%; height:100%; transition:transform var(--spin,3.4s) cubic-bezier(.12,.72,.1,1); }
     .pointer{ position:absolute; left:50%; top:-.3rem; transform:translateX(-50%); width:1.6rem; height:1.6rem; }
-    .verdictRow{ grid-column:1/-1; text-align:center; min-height:2.2rem; }
-    .verdict{ font-size:clamp(1.15rem,2vw,1.6rem); font-weight:950; letter-spacing:-.02em; }
+    .verdictRow{ grid-column:1/-1; text-align:center; min-height:2.6rem; display:flex; align-items:center; justify-content:center; }
+    .verdict{ font-size:clamp(1.05rem,min(2vw,3.4vh),1.6rem); font-weight:950; letter-spacing:-.02em; line-height:1.15; text-wrap:balance; }
     .verdict.W{ color:var(--green-dark); } .verdict.L{ color:var(--muted); } .verdict.C{ color:var(--amber-dark); }
     .lives{ font-size:.8rem; color:var(--muted); font-weight:800; }
     .log ol{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:.3rem; font-size:.88rem; font-weight:700; }
@@ -375,6 +378,14 @@
       .stepBtn.icon{ flex:0 0 46px; }
       .stepRow{ gap:5px; } .stepBtn{ padding:11px 9px; font-size:.85rem; } .nextBtn{ font-size:.92rem; padding:12px 8px; } .keyHint{ display:none; }
     }
+    /* short laptop screens: tighten the arena so the verdict line is never clipped */
+    @media (max-height:820px) and (min-width:700px){
+      .arena{ padding:.3rem 1.2rem .2rem; gap:.4rem .8rem; }
+      .wheelwrap{ width:clamp(150px,min(27vh,24vw),300px); }
+      .verdict{ font-size:clamp(1rem,2.6vh,1.35rem); }
+      .verdictRow{ min-height:0; }
+      .side1 h3{ font-size:1.05rem; }
+    }
     @media (prefers-reduced-motion:reduce){ .wheel{ transition-duration:.01s !important; } .confetti,.burst{ display:none; } .frow .track i{ transition:none; } .side1 .av,.side1 .av::before{ transition:none; animation:none !important; } }
   </style>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
@@ -400,22 +411,11 @@
         <div class="menuWrap">
           <button class="btn" id="settingsBtn" type="button" data-menu="settingsMenu" aria-haspopup="true" aria-expanded="false">Settings &#9662;</button>
           <nav class="dropMenu settingsMenu" id="settingsMenu" aria-label="Settings">
-            <div class="settingsHead">The tournament</div>
-            <label class="selRow"><span>Rounds</span>
-              <select id="roundsSel" data-set="rounds" aria-label="Rounds">
-                <option value="2">2 rounds (4 fighters)</option>
-                <option value="3">3 rounds (8 fighters)</option>
-                <option value="4">4 rounds (16 fighters)</option>
-                <option value="5">5 rounds (32 fighters)</option>
-              </select>
-            </label>
-            <label class="selRow"><span>Show chances as</span>
-              <select id="formatSel" data-set="format" aria-label="Show chances as">
-                <option value="frac">Fractions</option>
-                <option value="pct">Percentages</option>
-              </select>
-            </label>
-            <p class="settingsNote">Chances are always friendly numbers. Thirds are not friendly percentages, so they change to 30% and 70% when you switch.</p>
+            <div class="settingsHead">Choose a setting</div>
+            <a class="toolLink" href="index.html" aria-current="true"><span>Battle Royale<small>Win every match to take the title</small></span></a>
+            <a class="toolLink" href="../coin-flip/index.html"><span>Coin Flip<small>Follow one path through the tree</small></span></a>
+            <div class="settingsRule" role="separator"></div>
+            <div class="settingsHead">Options</div>
             <label class="selRow"><span>Level</span>
               <select id="levelSel" data-set="level" aria-label="Level">
                 <option value="core">Core</option>
@@ -424,18 +424,13 @@
             </label>
             <label class="sw" id="lifeRow"><input type="checkbox" id="lifeChk" data-set="life"><span class="track"></span><span>Extra life before the final</span></label>
             <p class="settingsNote" id="lifeNote">Extension adds every possible ending, an Investigate step, and an extra life. With it, one loss before the Grand Final is forgiven, so there is more than one way to win.</p>
-            <div class="settingsRule" role="separator"></div>
-            <div class="settingsHead">The spinner</div>
             <label class="selRow"><span>Spin speed</span>
               <select id="speedSel" data-set="speed" aria-label="Spin speed">
                 <option value="normal">Normal</option>
                 <option value="fast">Fast</option>
               </select>
             </label>
-            <div class="settingsRule" role="separator"></div>
-            <div class="settingsHead">The class</div>
             <label class="sw"><input type="checkbox" id="promptsChk" data-set="prompts"><span class="track"></span><span>Show questions for the class</span></label>
-            <p class="settingsNote">Two discussion questions for each step appear above the board. Off, the step shows a short instruction instead.</p>
             <div class="settingsRule" role="separator"></div>
             <button class="gBtn" type="button" data-act="resetAll">Reset every fighter to their usual chances</button>
           </nav>
@@ -1145,7 +1140,7 @@ function render(opt){
   document.documentElement.style.setProperty('--hero',hero().color);
   const steps=stepList(),idx=steps.findIndex(s=>s[0]===S.step),v=stepInfo(),h=hero();
   // header settings
-  $('roundsSel').value=String(S.rounds);$('formatSel').value=S.format;$('levelSel').value=S.level;$('speedSel').value=S.speed;
+  $('levelSel').value=S.level;$('speedSel').value=S.speed;
   $('lifeChk').checked=S.extraLife;$('promptsChk').checked=S.prompts;
   $('lifeRow').hidden=S.level!=='ext';
   // board top

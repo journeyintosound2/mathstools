@@ -102,6 +102,19 @@
 > §2 "TWO folders", §3 deploy paths and §5's `mathstools-main 2` heading below
 > describe the OLD layout — this block supersedes them.
 >
+> **NEW (2026-11-25): COIN FLIP: MULTISTAGE PROBABILITY — Stage 5 teaching tool** at
+> `interactive-tools/stage-5/statistics-probability/coin-flip/` (single file, vanilla JS, same MMT shell as Battle Royale; MA5-PRO-C-01).
+> * **Second "setting" in the multistage series.** The **Settings menu in both tools is now the scenario chooser** (Battle Royale / Coin Flip
+>   links, current one ticked) plus a short Options list. Rounds and Fractions/Percentages were removed from the Battle Royale menu because
+>   they are already on the board toolbar. **A new setting = a new sibling folder + one more link in every setting's menu.**
+> * Steps: Predict (HHH v HTH v equally likely) → Flip → The maths → Simulate. 2–4 flips; Options: fair or weighted coin (3/5, 3/4), flip speed, class questions.
+> * **One tree renderer `treeSVG(o)`** draws the live tree (levels appear as flips land; taken arm green, arm not taken grey, the two arms about
+>   to be decided identical) and the worked tree (reveal by flip, outcomes, leaf chances, event paths in green).
+> * Coin: stylised twelve-sided 50c drawn in SVG (generic silhouette + HEADS, "50" + TAILS; **no portrait or coat of arms on purpose**).
+>   Result is decided first, then the toss runs with the Web Animations API (`flip()`), so there is no CSS-transition reflow bug.
+> * Maths step has an event checker (exactly k heads / at least 1) with hints for one-path, one-flip and "k out of n" answers.
+> * localStorage `mmt.coinFlip.v1` (settings only). Test hook `window.__CF__`. Not built yet: lesson plan, worksheet, quiz, Firebase.
+>
 > **NEW (2026-11-24): BATTLE ROYALE: MULTISTAGE PROBABILITY — Stage 5 teaching tool** at
 > `interactive-tools/stage-5/statistics-probability/battle-royale/index.html` (single file, unit-circle shell, no Firebase),
 > filed ONLY under **MA5-PRO-C-01** (ideas multistage, multistage-problems, simulations; Jeff 2026-11-24: Stage 5 only).
