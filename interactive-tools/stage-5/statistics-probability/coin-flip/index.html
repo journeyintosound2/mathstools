@@ -266,20 +266,27 @@
     .settingsMenu .toolLink[aria-current="true"]::after{ content:'\2713'; }
 
     /* ---------- coin flip: the set-up card ---------- */
-    .setupWrap{ display:grid; place-items:center; min-height:100%; padding:1rem .6rem; }
+    .setupWrap{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.9rem; min-height:100%; padding:1rem .6rem; }
     .setupCard{ background:#fff; border:1px solid var(--border); border-radius:22px; box-shadow:var(--shadow); padding:1.2rem 1.4rem 1.3rem;
       width:min(31rem,100%); display:flex; flex-direction:column; gap:.7rem; animation:cardIn .32s cubic-bezier(.2,1.4,.4,1) both; }
     @keyframes cardIn{ from{ opacity:0; transform:translateY(12px) scale(.96); } to{ opacity:1; transform:none; } }
     .setupCard h2{ margin:0; font-size:1.4rem; letter-spacing:-.03em; text-align:center; }
-    .numRow,.predRow{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.55rem; }
+    .numRow{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.55rem; }
     .numBtn,.predBtn{ appearance:none; font-family:inherit; color:inherit; cursor:pointer; background:#fff; border:2px solid var(--border); border-radius:15px;
       display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.1rem; font-weight:950; transition:.16s ease; }
-    .numBtn{ padding:.65rem .3rem; } .predBtn{ padding:.5rem .3rem; letter-spacing:.1em; }
-    .numBtn b{ font-size:1.6rem; font-weight:950; line-height:1; }
-    .numBtn span,.predBtn small{ font-size:.68rem; font-weight:800; color:var(--muted); letter-spacing:0; }
-    .numBtn:hover,.predBtn:hover{ border-color:var(--blue); transform:translateY(-1px); }
-    .numBtn:focus-visible,.predBtn:focus-visible,.coinBtn:focus-visible{ outline:none; box-shadow:0 0 0 4px rgba(37,99,235,.25); }
-    .numBtn[aria-pressed="true"],.predBtn[aria-pressed="true"]{ border-color:var(--blue); background:#eef2ff; box-shadow:0 0 0 3px rgba(37,99,235,.15); }
+    .numBtn{ padding:.75rem .3rem; }
+    .numBtn b{ font-size:2rem; font-weight:950; line-height:1; }
+    .numBtn:hover{ border-color:var(--blue); transform:translateY(-1px); }
+    .numBtn:focus-visible,.coinBtn:focus-visible{ outline:none; box-shadow:0 0 0 4px rgba(37,99,235,.25); }
+    .numBtn[aria-pressed="true"]{ border-color:var(--blue); background:#eef2ff; box-shadow:0 0 0 3px rgba(37,99,235,.15); }
+    .qRow{ display:flex; align-items:center; gap:.6rem; }
+    .qRow > span{ font-size:.8rem; font-weight:900; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); flex:0 0 auto; }
+    .qRow select{ flex:1 1 auto; min-width:0; padding:.5rem .6rem; border-radius:12px; border:2px solid var(--border); background:#fff;
+      font-family:inherit; font-size:.95rem; font-weight:800; color:var(--ink); cursor:pointer; }
+    .qRow select:focus-visible{ outline:none; border-color:var(--blue); box-shadow:0 0 0 3px rgba(37,99,235,.2); }
+    .predCard{ align-items:center; }
+    .qEcho{ margin:0; font-size:1rem; font-weight:850; color:var(--line); }
+    .verdict.big{ font-size:clamp(1.6rem,4.5vh,2.6rem); letter-spacing:-.02em; }
     .setupRule{ height:1px; background:var(--border); }
     .setupQ{ margin:0; font-size:.92rem; font-weight:850; }
     .setupNote{ margin:0; font-size:.8rem; font-weight:700; color:var(--muted); text-align:center; }
@@ -322,7 +329,7 @@
     .obar .track i{ background:var(--green); transition:width .25s; }
     .obar.sm{ padding:.18rem 0; font-size:.88rem; } .obar.sm .track{ height:1.25rem; } .obar.sm .num .muted{ display:inline !important; }
     .secHead{ display:flex; align-items:baseline; justify-content:space-between; gap:.6rem; flex-wrap:wrap; }
-    @media (max-width:760px){ .predRow{ grid-template-columns:1fr; } .obar.oc,.obar.hd{ grid-template-columns:4.6rem 1fr; } }
+    @media (max-width:760px){ .qRow{ flex-direction:column; align-items:stretch; gap:.3rem; } .obar.oc,.obar.hd{ grid-template-columns:4.6rem 1fr; } }
     @media (prefers-reduced-motion:reduce){ .slot.fresh svg,.obar .track i{ animation:none; transition:none; } }
     .answer .line.sub{ font-size:1rem; }
     .calcRow .gBtn{ font-family:var(--uiFont); }
@@ -344,6 +351,26 @@
     .coinZone.big{ --cs:clamp(130px,min(29vh,26vw),280px); padding-top:calc(var(--cs)*.34); }
     .tapHint{ margin:0; font-size:.88rem; font-weight:750; color:var(--muted); }
     @media (max-height:820px) and (min-width:700px){ .coinZone.big{ --cs:clamp(100px,min(24vh,22vw),210px); } .flipArena.solo{ gap:.6rem; } .setupCard{ padding:.9rem 1.1rem 1rem; gap:.5rem; } }
+
+    /* ---------- likelihood slider: red impossible → yellow even chance → blue certain ---------- */
+    .lsl{ width:100%; max-width:40rem; display:flex; flex-direction:column; gap:.1rem; }
+    .lslOut{ font-size:clamp(2.4rem,6vw,4rem); line-height:1.05; font-weight:950; letter-spacing:-.04em; font-variant-numeric:tabular-nums; text-align:center; transition:color .12s linear; }
+    .lslRange{ -webkit-appearance:none; appearance:none; width:100%; height:2.2rem; background:transparent; cursor:pointer; margin:0; }
+    .lslRange:disabled{ cursor:default; opacity:.8; }
+    .lslTrack{ height:16px; border-radius:99px; border:1px solid rgba(15,23,42,.14);
+      background:linear-gradient(90deg,#dc2626 0%,#f97316 25%,#facc15 50%,#22c55e 75%,#2563eb 100%); }
+    .lslRange::-webkit-slider-runnable-track{ height:16px; border-radius:99px; border:1px solid rgba(15,23,42,.14);
+      background:linear-gradient(90deg,#dc2626 0%,#f97316 25%,#facc15 50%,#22c55e 75%,#2563eb 100%); }
+    .lslRange::-moz-range-track{ height:16px; border-radius:99px; border:1px solid rgba(15,23,42,.14);
+      background:linear-gradient(90deg,#dc2626 0%,#f97316 25%,#facc15 50%,#22c55e 75%,#2563eb 100%); }
+    .lslRange::-webkit-slider-thumb{ -webkit-appearance:none; appearance:none; width:34px; height:34px; margin-top:-10px; border-radius:50%;
+      background:var(--thumb,#fff); border:4px solid #fff; box-shadow:0 2px 9px rgba(15,23,42,.42); }
+    .lslRange::-moz-range-thumb{ width:26px; height:26px; border-radius:50%; background:var(--thumb,#fff); border:4px solid #fff; box-shadow:0 2px 9px rgba(15,23,42,.42); }
+    .lslRange:focus-visible::-webkit-slider-thumb{ box-shadow:0 0 0 5px rgba(37,99,235,.35); }
+    .lslWords{ display:flex; justify-content:space-between; font-size:.7rem; font-weight:850; color:#94a3b8; text-transform:uppercase; letter-spacing:.03em; }
+    .lslWords span{ transition:color .12s; }
+    .lslWords span.on{ color:var(--ink); }
+    @media (max-width:560px){ .lslWords{ font-size:.58rem; } }
 
   </style>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
@@ -417,13 +444,13 @@
               <button class="stepChip" id="stepChip" type="button" data-menu="stepsMenu" aria-haspopup="true" aria-expanded="false" title="Jump to a step"></button>
               <nav class="dropMenu left" id="stepsMenu" aria-label="Steps"></nav>
             </div>
-            <div class="seg" role="group" aria-label="Number of flips">
+            <div class="seg" id="flipsSeg" role="group" aria-label="Number of flips">
               <i class="lbl">Flips</i>
               <button type="button" data-act="flips" data-v="2" aria-pressed="false">2</button>
               <button type="button" data-act="flips" data-v="3" aria-pressed="false">3</button>
               <button type="button" data-act="flips" data-v="4" aria-pressed="false">4</button>
             </div>
-            <div class="seg" role="group" aria-label="Show chances as">
+            <div class="seg" id="fmtSeg" role="group" aria-label="Show chances as">
               <button type="button" data-act="format" data-v="frac" aria-pressed="true" title="Show chances as fractions (P)">Fractions</button>
               <button type="button" data-act="format" data-v="pct" aria-pressed="false" title="Show chances as percentages (P)">Percentages</button>
             </div>
@@ -495,11 +522,17 @@ const INFO={
 /* ---------- state ---------- */
 const STORE='mmt.coinFlip.v1';
 const S={step:'coin',flips:3,format:'frac',coin:'fair',speed:'normal',prompts:true,panel:true,fs:false,
-  pred:null,C:{rot:0,side:null,busy:false},X:null,sim:null,view:'tree',work:false,show:0,ev:null,evShow:false,calcText:'',calc:null};
+  q:null,pred:null,C:{rot:0,side:null,busy:false},X:null,sim:null,view:'tree',work:false,show:0,ev:null,evShow:false,calcText:'',calc:null};
 try{const s=JSON.parse(localStorage.getItem(STORE)||'{}');
   ['flips','format','coin','speed','prompts','panel'].forEach(k=>{if(s[k]!==undefined)S[k]=s[k]});
   if(![2,3,4].includes(S.flips))S.flips=3;if(!COINS[S.coin])S.coin='fair';}catch(e){}
-const save=()=>{try{localStorage.setItem(STORE,JSON.stringify({flips:S.flips,format:S.format,coin:S.coin,speed:S.speed,prompts:S.prompts,panel:S.panel}))}catch(e){}};
+S.panelPref=S.panel;S.panel=false;
+const save=()=>{try{localStorage.setItem(STORE,JSON.stringify({flips:S.flips,format:S.format,coin:S.coin,speed:S.speed,prompts:S.prompts,panel:S.panelPref}))}catch(e){}};
+/* The opening screens carry no numbers, tree or working: no cue, no status line, no side panel.
+   The teacher does the talking. G still forces the panel open without changing the saved preference. */
+const bareStep=()=>S.step==='coin'||(S.step==='flip'&&!S.X);
+const syncPanel=()=>{S.panel=bareStep()?false:S.panelPref};
+const togglePanel=()=>{S.panel=!S.panel;if(!bareStep()){S.panelPref=S.panel;save()}};
 
 /* ---------- the probability model: every outcome is one path through the tree ---------- */
 const pHd=()=>COINS[S.coin], pTl=()=>comp(pHd());
@@ -508,11 +541,24 @@ const probOf=path=>[...path].reduce((a,c)=>mul(a,armP(c)),[1,1]);
 function outcomes(n=S.flips){const o=[];for(let i=0;i<2**n;i++){let s='';for(let d=n-1;d>=0;d--)s+=(i>>d)&1?'T':'H';o.push(s)}return o}
 const heads=s=>[...s].filter(c=>c==='H').length;
 const sumP=list=>list.reduce((a,s)=>add(a,probOf(s)),[0,1]);
-const defEv=()=>({t:'exact',k:Math.max(1,S.flips-1)});
-const ev=()=>S.ev||defEv();
-const inEv=(s,e)=>e.t==='exact'?heads(s)===e.k:heads(s)>=e.k;
-const evList=e=>outcomes().filter(s=>inEv(s,e));
-const evLabel=e=>e.t==='atleast'?'at least 1 head':e.k===0?'no heads':`exactly ${e.k} head${e.k===1?'':'s'}`;
+/* The questions the class can be asked, built from the number of flips. Two questions that pick out
+   the same outcomes are the same question, so duplicates are dropped. */
+function QS(n){
+  const outs=outcomes(n),L=[];
+  const push=(label,test,k)=>{const key=outs.filter(test).join('|');
+    if(key&&key!==outs.join('|')&&!L.some(q=>q.key===key))L.push({label,test,key,k})};
+  push('At least one head',s=>heads(s)>0);
+  push('At least one tail',s=>heads(s)<n);
+  push(`All ${n} heads`,s=>heads(s)===n);
+  push('No heads at all',s=>heads(s)===0);
+  for(let k=1;k<n;k++)push(`Exactly ${k} head${k===1?'':'s'}`,s=>heads(s)===k,k);
+  push('More heads than tails',s=>heads(s)*2>n);
+  push(`${spaced(predB())} in that order`,s=>s===predB());
+  return L.map((q,i)=>Object.assign(q,{id:'q'+i}));
+}
+const curQ=()=>{const L=QS(S.flips);return L.find(q=>q.id===S.q)||L[0]};
+const evList=()=>outcomes().filter(curQ().test);
+const evLabel=()=>curQ().label.toLowerCase();
 const playOne=()=>{let s='';const p=val(pHd());for(let i=0;i<S.flips;i++)s+=Math.random()<p?'H':'T';return s};
 const predA=()=>'H'.repeat(S.flips), predB=()=>'HTHT'.slice(0,S.flips);
 
@@ -530,6 +576,24 @@ const spaced=s=>[...s].join(' ');
 const eqH=a=>S.format==='frac'?'= '+frH(a):`<span class="pct">${eqPct(val(a))}</span>`;
 const eqBothH=a=>S.format==='frac'?`= ${frH(a)} <span class="muted">${pct(val(a))}</span>`:eqH(a);
 const prodH=path=>[...path].map(c=>pH(armP(c))).join(' × ');
+
+/* ---------- likelihood slider: 0 red, 50 yellow, 100 blue, with the words underneath ---------- */
+const LSTOP=[[220,38,38],[234,88,12],[202,138,4],[22,163,74],[37,99,235]];
+const LWORD=['Impossible','Unlikely','Even chance','Likely','Certain'];
+function lcol(v){const t=Math.max(0,Math.min(100,v))/25,i=Math.min(3,Math.floor(t)),f=t-i,a=LSTOP[i],b=LSTOP[i+1];
+  return `rgb(${a.map((c,k)=>Math.round(c+(b[k]-c)*f)).join(',')})`}
+function lslH(v,dis){
+  const c=lcol(v),on=Math.round(v/25);
+  return `<div class="lsl"><div class="lslOut" id="predOut" style="color:${c}">${v}%</div>
+    <input type="range" id="pred" class="lslRange" min="0" max="100" step="1" value="${v}" style="--thumb:${c}" aria-label="Prediction, per cent"${dis?' disabled':''}>
+    <div class="lslWords" id="lslWords">${LWORD.map((w,i)=>`<span${i===on?' class="on"':''}>${w}</span>`).join('')}</div></div>`;
+}
+function lslLive(v){
+  const c=lcol(v),o=$('predOut'),r=$('pred'),w=$('lslWords');
+  if(o){o.textContent=v+'%';o.style.color=c}
+  if(r)r.style.setProperty('--thumb',c);
+  if(w){const on=Math.round(v/25);[...w.children].forEach((s,i)=>s.classList.toggle('on',i===on))}
+}
 
 /* ---------- the coin ----------
    A twelve-sided silver 50c drawn in SVG: dodecagonal rim, bevelled edge, metal shading and raised
@@ -561,7 +625,7 @@ const RM=matchMedia('(prefers-reduced-motion:reduce)').matches;
 function newX(){S.X={res:[],phase:'ready',rot:0,t:[]}}
 function newSim(){S.sim={n:0,counts:{},running:false}}
 function record(key){if(!S.sim)newSim();S.sim.n++;S.sim.counts[key]=(S.sim.counts[key]||0)+1}
-function resetRun(){S.X=null;S.sim=null;S.show=0;S.ev=null;S.evShow=false;S.calc=null;S.calcText='';S.pred=null;S.view='tree'}
+function resetRun(){S.X=null;S.sim=null;S.show=0;S.evShow=false;S.calc=null;S.calcText='';S.view='tree'}
 function toast(msg){const t=$('toast');t.textContent=msg;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,3200)}
 
 /* ---------- the tree diagram: one renderer for the live tree and the worked tree ----------
@@ -585,7 +649,7 @@ function treeSVG(o){
   const outs=outcomes(),path=o.path,live=!!o.t,doneLive=path!=null&&path.length===n;
   const X=d=>padL+d*colW, leafY=s=>padT+outs.indexOf(s)*rowH;
   const Y=p=>{const under=outs.filter(s=>s.startsWith(p));return (leafY(under[0])+leafY(under[under.length-1]))/2};
-  const hiSet=o.hi?new Set(evList(o.hi)):null;
+  const hiSet=o.hi?new Set(evList()):null;
   let grey='',mid='',top='',pills='',nodes='',lab='',hd='';
   for(let d=1;d<=Math.min(o.depth,n);d++)hd+=`<text x="${X(d)-colW/2}" y="16" text-anchor="middle" font-size="12" font-weight="900" letter-spacing="1.5" fill="${path!=null&&d===path.length+1&&o.pending?'#334155':'#94a3b8'}">FLIP ${d}</text>`;
   const walk=p=>{ if(p.length>=Math.min(o.depth,n))return;
@@ -623,14 +687,14 @@ function treeSVG(o){
   return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="${esc(o.aria)}" style="font-family:var(--uiFont);overflow:visible">${hd}${grey}${mid}${top}${start}${pills}${nodes}${lab}</svg>`;
 }
 
-/* ---------- the class prediction (chosen on the set-up card, revealed in the maths) ---------- */
-const PRED={A:()=>spaced(predA()),B:()=>spaced(predB()),C:()=>'Equally likely'};
+/* ---------- the class prediction, set on the set-up card ---------- */
 function predRevealH(){
-  if(!S.pred)return '';
-  const a=probOf(predA()),b=probOf(predB()),eq=same(a,b),right=eq?'C':val(a)>val(b)?'A':'B';
-  return `<div class="predBox"><b>Class prediction: ${PRED[S.pred]()}${S.pred===right?' &#10003;':''}</b><br>
-    P(${predA()}) = ${pH(a)} and P(${predB()}) = ${pH(b)}, so ${eq?'they are <b>equally likely</b>. A mix can feel more random, but each exact sequence is just one path through the tree.':`<b>${spaced(right==='A'?predA():predB())}</b> is more likely with this weighted coin.`}</div>`;
+  if(S.pred==null)return '';
+  const t=val(sumP(evList())),gap=Math.abs(S.pred/100-t)*100;
+  return `<div class="predBox"><b>Class predicted ${S.pred}%</b> for P(${evLabel()}). The tree gives ${pct(t)}.${gap<=5?' A close prediction.':''}</div>`;
 }
+const qSelH=(id,none)=>{const L=QS(S.flips),q=curQ();
+  return `<label class="qRow" for="${id}"><span>Question</span><select id="${id}" data-pick="q">${none?`<option value="">None — just flip</option>`:''}${L.map(x=>`<option value="${x.id}" ${(none?S.q===x.id:q.id===x.id)?'selected':''}>${esc(x.label)}</option>`).join('')}</select></label>`};
 
 /* ---------- step 1: one coin, flipped freely. Nothing is recorded. ---------- */
 function coinBlock(rot,busy,tap){
@@ -640,8 +704,7 @@ function coinBlock(rot,busy,tap){
 function bCoin(){
   const C=S.C;
   return `<div class="flipArena solo">${coinBlock(C.rot,C.busy,true)}
-    <div class="verdictRow" aria-live="polite">${C.busy?`<span class="verdict N" style="opacity:.5">Flipping…</span>`:C.side?`<span class="verdict W">${sideName(C.side)}</span>`:`<span class="verdict N">Click the coin to flip</span>`}</div>
-    <p class="tapHint">Flip it as often as you like. Nothing is recorded on this screen.</p></div>`;
+    <div class="verdictRow" aria-live="polite">${C.busy?'&nbsp;':C.side?`<span class="verdict W big">${sideName(C.side)}</span>`:`<span class="verdict N">Click to flip the coin</span>`}</div></div>`;
 }
 function pCoin(){
   return `<p class="panelNote">One flip is a <b>single-stage</b> experiment: two outcomes, ${S.coin==='fair'?'and they are equally likely.':'but with this weighted coin they are <b>not</b> equally likely.'}</p>
@@ -652,24 +715,20 @@ function pCoin(){
 
 /* ---------- step 2 set-up: how many flips ---------- */
 function bSetup(){
-  const n=S.flips;
-  const num=k=>`<button type="button" class="numBtn" data-act="flips" data-v="${k}" aria-pressed="${k===n}"><b>${k}</b><span>${2**k} outcomes</span></button>`;
-  const pb=(v,t,sub)=>`<button type="button" class="predBtn" data-act="pred" data-v="${v}" aria-pressed="${S.pred===v}">${t}<small>${sub}</small></button>`;
-  return `<div class="setupWrap"><div class="setupCard">
-    <h2>How many flips?</h2>
-    <div class="numRow">${[2,3,4].map(num).join('')}</div>
-    <div class="setupRule" role="separator"></div>
-    <p class="setupQ">Class prediction <span class="muted">(optional)</span> &mdash; which is more likely?</p>
-    <div class="predRow">${pb('A',spaced(predA()),'Heads every time')}${pb('B',spaced(predB()),'A mix, in this order')}${pb('C','=','Equally likely')}</div>
-    <p class="setupNote">${S.pred?'We will check this against the tree diagram in the maths step.':'Take a vote, or skip it and start flipping.'}</p>
-  </div></div>`;
+  const n=S.flips,q=S.q&&QS(n).find(x=>x.id===S.q);
+  const num=k=>`<button type="button" class="numBtn" data-act="flips" data-v="${k}" aria-pressed="${k===n}"><b>${k}</b></button>`;
+  return `<div class="setupWrap">
+    <div class="setupCard"><h2>How many flips?</h2><div class="numRow">${[2,3,4].map(num).join('')}</div>
+      ${qSelH('qSel',true)}</div>
+    ${q?`<div class="setupCard predCard"><h2>Make your prediction</h2>
+      <p class="qEcho">P(${esc(q.label.toLowerCase())})</p>
+      ${lslH(S.pred==null?50:S.pred,false)}</div>`:''}</div>`;
 }
 function pSetup(){
-  return `<p class="panelNote">Flipping the coin ${S.flips} times is a <b>multistage</b> experiment: the same simple step, repeated. The tree diagram appears here and fills out one flip at a time.</p>
-    <dl class="gloss"><dt>Stage</dt><dd>One flip of the coin.</dd>
+  return `<dl class="gloss"><dt>Stage</dt><dd>One flip of the coin.</dd>
       <dt>Outcome</dt><dd>The whole sequence, in order, such as ${spaced(predB())}.</dd>
-      <dt>Tree diagram</dt><dd>A map of every path the experiment could take. Each flip adds a new set of branches.</dd>
-      <dt>Independent</dt><dd>The coin has no memory. One flip does not change the chances for the next.</dd></dl>`;
+      <dt>Tree diagram</dt><dd>Every path the experiment could take.</dd>
+      <dt>Independent</dt><dd>The coin has no memory.</dd></dl>`;
 }
 
 /* ---------- the toss: the result is decided first, then the coin lands on it ---------- */
@@ -745,8 +804,8 @@ function bMaths(){
   const n=S.flips,s=S.show,full=s>=n+2;
   const msg=s===0?'What could happen on the first flip?':s<n?`After ${s} flip${s===1?'':'s'} there ${s===1?'are':'are'} ${2**s} paths. What does flip ${s+1} do to each one?`
     :s===n?`${n} flips give ${2**n} paths. What is the outcome at the end of each one?`:s===n+1?'What is the chance of each outcome?'
-    :`Green paths: <b>${evLabel(ev())}</b>. Choose an event in the panel.`;
-  return `<div class="treeBoard"><div class="btree">${treeSVG({depth:s,path:null,labels:'all',leafText:s>n,leafProb:full?'all':'none',hi:full?ev():null,aria:'Tree diagram for '+n+' coin flips'})}</div><p class="treeMsg">${msg}</p></div>`;
+    :`Green paths: <b>${evLabel()}</b>.`;
+  return `<div class="treeBoard"><div class="btree">${treeSVG({depth:s,path:null,labels:'all',leafText:s>n,leafProb:full?'all':'none',hi:full,aria:'Tree diagram for '+n+' coin flips'})}</div><p class="treeMsg">${msg}</p></div>`;
 }
 function parseEntry(t){
   t=String(t||'').trim().replace(/\s+/g,'').replace(',','.');let m;
@@ -756,29 +815,30 @@ function parseEntry(t){
   return null;
 }
 function doCheck(){
-  const e=parseEntry(S.calcText),E=ev(),list=evList(E),target=sumP(list),tv=val(target),n=S.flips;
+  const e=parseEntry(S.calcText),q=curQ(),list=evList(),target=sumP(list),tv=val(target),n=S.flips;
   if(!e){S.calc={ok:false,msg:'Type a fraction like 3/8, a decimal like 0.375 or a percentage like 37.5%.'};return}
   if(e.v>1){S.calc={ok:false,msg:'A probability cannot be more than 1 (or 100%).'};return}
   const near=(a,b)=>e.kind==='frac'?Math.abs(a-b)<1e-9:Math.abs(a-b)<=0.005;
   const ok=e.kind==='frac'?e.f[0]*target[1]===e.f[1]*target[0]:Math.abs(e.v-tv)<=0.005+1e-12;
   let msg;
-  if(ok){msg=`Correct. P(${evLabel(E)}) = ${frH(target)} ${eqPct(tv)}.`;S.evShow=true}
-  else if(list.length>1&&near(e.v,val(probOf(list[0]))))msg=`That is the chance of <b>one</b> path. How many paths have ${evLabel(E)}? Add them together.`;
+  if(ok){msg=`Correct. P(${evLabel()}) = ${frH(target)} ${eqPct(tv)}.`;S.evShow=true}
+  else if(list.length>1&&near(e.v,val(probOf(list[0]))))msg=`That is the chance of <b>one</b> path. How many paths give ${evLabel()}? Add them together.`;
   else if(near(e.v,val(pHd()))&&n>1)msg='That is the chance for a single flip. Multiply along a whole path first.';
-  else if(E.t==='exact'&&E.k>0&&E.k<n&&near(e.v,E.k/n))msg=`It is tempting to say ${E.k} out of ${n}, but the flips are not the outcomes. Count the paths in the tree with ${evLabel(E)}.`;
+  else if(q.k!=null&&near(e.v,q.k/n))msg=`It is tempting to say ${q.k} out of ${n}, but the flips are not the outcomes. Count the paths in the tree.`;
   else if(Math.abs(e.v-tv)<0.03)msg='Close, but not exact. Check your adding and any rounding.';
   else msg='Not yet. Multiply along each green path, then add the paths.';
   S.calc={ok,msg};
 }
 function evWorkH(){
-  const E=ev(),list=evList(E),tot=sumP(list),n=S.flips;
+  const q=curQ(),list=evList(),other=outcomes().filter(s=>!q.test(s)),tot=sumP(list);
   const chips=`<div class="spaceList">${list.map(s=>`<span class="hi">${s}</span>`).join('')||'<span>none</span>'}</div>`;
   let line;
-  if(E.t==='atleast'){const none='T'.repeat(n);
-    line=`<div class="line sub">Quicker: the only outcome missing is ${none}.</div><div class="line">1 − ${pH(probOf(none))} ${eqH(tot)}</div>`}
+  if(other.length&&other.length<list.length)                       // fewer paths the other way round
+    line=`<div class="line sub">Quicker: take away the ${other.length===1?'one outcome':other.length+' outcomes'} that ${other.length===1?'does':'do'} not count (${other.join(', ')}).</div><div class="line">1 − ${pH(sumP(other))} ${eqH(tot)}</div>`;
   else if(list.length===1)line=`<div class="line">${prodH(list[0])} ${eqH(tot)}</div>`;
-  else line=`<div class="line">${list.length} × ${pH(probOf(list[0]))} ${eqH(tot)}</div>`;
-  return `<div class="line sub">${list.length} path${list.length===1?'':'s'} ${list.length===1?'has':'have'} ${evLabel(E)}. Multiply along each path, then add the paths.</div>${chips}${line}`;
+  else if(list.every(s=>same(probOf(s),probOf(list[0]))))line=`<div class="line">${list.length} × ${pH(probOf(list[0]))} ${eqH(tot)}</div>`;
+  else line=`<div class="line">${list.map(s=>pH(probOf(s))).join(' + ')} ${eqH(tot)}</div>`;
+  return `<div class="line sub">${list.length} path${list.length===1?'':'s'} ${list.length===1?'gives':'give'} ${evLabel()}. Multiply along each path, then add the paths.</div>${chips}${line}`;
 }
 function pMaths(){
   const n=S.flips,s=S.show,outs=outcomes(),fair=S.coin==='fair',X=S.X,ex=X&&X.phase==='done'?X.res.join(''):predB();
@@ -790,10 +850,10 @@ function pMaths(){
     h+=`<div class="answer"><span class="eyebrow">Multiply along the branches</span><div class="line">P(${ex}) = ${prodH(ex)} ${eqBothH(probOf(ex))}</div>
       <div class="line sub">${fair?`Every path multiplies the same arms, so all ${outs.length} outcomes are equally likely.`:'The arms are different, so the paths are not equally likely. More heads means a bigger chance.'}</div></div>`;
     h+=predRevealH();
-    const E=ev(),c=S.calc;
+    const c=S.calc;
     h+=`<div><span class="eyebrow">The chance of an event</span>
-      <div class="evRow" style="margin:.35rem 0 .5rem"><span class="muted" style="font-weight:800;font-size:.85rem">Heads:</span>${Array.from({length:n+1},(_,k)=>`<button type="button" class="gBtn" data-act="ev" data-t="exact" data-v="${k}" aria-pressed="${E.t==='exact'&&E.k===k}">exactly ${k}</button>`).join('')}<button type="button" class="gBtn" data-act="ev" data-t="atleast" data-v="1" aria-pressed="${E.t==='atleast'}">at least 1</button></div>
-      <div class="calcBox"><div class="calcRow"><label for="calcIn">P(${evLabel(E)}) =</label>
+      <div style="margin:.35rem 0 .5rem">${qSelH('qSel2',false)}</div>
+      <div class="calcBox"><div class="calcRow"><label for="calcIn">P(${evLabel()}) =</label>
         <input id="calcIn" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" value="${esc(S.calcText||'')}" placeholder="fraction, decimal or %">
         <button type="button" class="gBtn prim" data-act="check">Check</button><button type="button" class="gBtn" data-act="evShow">${S.evShow?'Hide working':'Show working'}</button></div>
         ${c?`<div class="calcMsg ${c.ok?'ok':'no'}" aria-live="polite">${c.ok?'&#10003; ':''}${c.msg}</div>`:`<div class="calcNote">The green paths on the tree are the ones that count. Multiply along each, then add.</div>`}
@@ -816,8 +876,11 @@ function barsH(items,s,cls,legend){
 }
 function tilesH(s){
   const outs=outcomes(),best=s.n?outs.reduce((a,o)=>(s.counts[o]||0)>(s.counts[a]||0)?o:a,outs[0]):null,fair=S.coin==='fair';
+  const list=evList(),hit=s.n?list.reduce((a,o)=>a+(s.counts[o]||0),0):0;
   return `<div class="tiles"><div class="tile"><span class="eyebrow">Experiments</span><span class="big">${s.n}</span></div>
-    <div class="tile"><span class="eyebrow">${fair?'Expected for each outcome':'Possible outcomes'}</span><span class="big">${fair?bothH(probOf(outs[0])):outs.length}</span></div>
+    ${S.pred!=null?`<div class="tile"><span class="eyebrow">Class predicted</span><span class="big" style="color:${lcol(S.pred)}">${S.pred}%</span></div>`:
+      `<div class="tile"><span class="eyebrow">${fair?'Expected for each outcome':'Possible outcomes'}</span><span class="big">${fair?bothH(probOf(outs[0])):outs.length}</span></div>`}
+    <div class="tile"><span class="eyebrow">${esc(curQ().label)}</span><span class="big">${s.n?pct(hit/s.n):'–'} <span class="muted" style="font-size:.8rem;font-weight:800">of ${pct(val(sumP(list)),false)}</span></span></div>
     <div class="tile"><span class="eyebrow">Most common so far</span><span class="big" style="letter-spacing:.1em">${best?best:'–'}</span></div></div>`;
 }
 function bSim(){const s=S.sim||{n:0,counts:{}};
@@ -871,9 +934,12 @@ function render(opt){
   $('topExtra').innerHTML=v.top||'';
   $('panelBtn').setAttribute('aria-pressed',String(S.panel));
   $('layout').classList.toggle('noPanel',!S.panel);
-  const q=S.prompts?ASK[S.step]:INFO[S.step];
-  $('cue').innerHTML=`<b>${q[0]}</b><span>${q[1]}</span>`;
-  $('hint').textContent=`${S.step==='coin'?'one flip':S.flips+' flips'} · ${S.coin==='fair'?'fair coin':`weighted coin, heads ${S.format==='frac'?pHd().join('/'):pct(val(pHd()))}`} · chances as ${S.format==='frac'?'fractions':'percentages'}`;
+  const bare=bareStep();
+  if(bare)$('cue').innerHTML='';
+  else{const q0=(S.prompts?ASK:INFO)[S.step],q=typeof q0==='function'?q0():q0;
+    $('cue').innerHTML=`<b>${q[0]}</b><span>${q[1]}</span>`}
+  $('flipsSeg').hidden=bare;$('fmtSeg').hidden=bare;
+  $('hint').textContent=bare?'':`${S.step==='coin'?'one flip':S.flips+' flips'} · ${S.coin==='fair'?'fair coin':`weighted coin, heads ${S.format==='frac'?pHd().join('/'):pct(val(pHd()))}`} · chances as ${S.format==='frac'?'fractions':'percentages'}`;
   // body (never rebuild the coin mid-flip)
   const busy=(S.step==='flip'&&S.X&&S.X.phase==='flipping')||(S.step==='coin'&&S.C.busy);
   if(!busy||(opt&&opt.force))$('stage').innerHTML=v.b();
@@ -882,28 +948,26 @@ function render(opt){
 
 /* ---------- options and actions ---------- */
 function setOpt(k,v){
-  if(k==='flips'){S.flips=+v;resetRun()}
-  else if(k==='coin'){S.coin=v;resetRun()}
+  if(k==='flips'){S.flips=+v;S.q=null;S.pred=null;resetRun()}
+  else if(k==='coin'){S.coin=v;resetRun()}  // the questions stay, their chances change
   else S[k]=v;
   save();
 }
 function stepBy(d){const i=STEPS.findIndex(s=>s[0]===S.step);S.step=STEPS[Math.max(0,Math.min(STEPS.length-1,i+d))][0]}
 const PANEL=()=>S.step==='flip'?'panel':undefined;
 const ACT={
-  step(el){S.step=el.dataset.v},
-  back(){stepBy(-1)},
-  restart(){resetRun();S.step='coin'},
+  step(el){S.step=el.dataset.v;syncPanel()},
+  back(){stepBy(-1);syncPanel()},
+  restart(){resetRun();S.step='coin';syncPanel()},
   flips(el){setOpt('flips',el.dataset.v)},
   format(el){setOpt('format',el.dataset.v)},
-  panel(){setOpt('panel',!S.panel)},
-  pred(el){S.pred=S.pred===el.dataset.v?null:el.dataset.v},
+  panel(){togglePanel()},
   toss(){S.step==='coin'?freeToss():flip();return false},
   flip(){flip();return false},
-  start(){newX();S.view='tree'},
-  newExp(){S.X=null;S.view='tree';S.step='flip'},
+  start(){newX();S.view='tree';syncPanel()},
+  newExp(){S.X=null;S.view='tree';S.step='flip';syncPanel()},
   view(el){S.view=el.dataset.v;return 'panel'},
   more(){S.show=Math.min(S.show+1,S.flips+2)},all(){S.show=S.flips+2},hide(){S.show=0},
-  ev(el){S.ev={t:el.dataset.t,k:+el.dataset.v};S.calc=null;S.calcText='';S.evShow=false},
   check(){doCheck()},
   evShow(){S.evShow=!S.evShow;return 'panel'},
   run(el){runSim(+el.dataset.v);return false},
@@ -930,8 +994,11 @@ document.addEventListener('click',e=>{
   if(r==='panel'){renderPanel();renderButtons()}else if(r!==false)render()});
 document.addEventListener('change',e=>{const t=e.target;
   if(t.dataset.set){setOpt(t.dataset.set,t.type==='checkbox'?t.checked:t.value);render()}
-  else if(t.dataset.panel==='work'){S.work=t.checked;renderPanel()}});
-document.addEventListener('input',e=>{if(e.target.id==='calcIn')S.calcText=e.target.value});
+  else if(t.dataset.panel==='work'){S.work=t.checked;renderPanel()}
+  else if(t.dataset.pick==='q'){S.q=t.value||null;S.calc=null;S.calcText='';S.evShow=false;render()}});
+document.addEventListener('input',e=>{
+  if(e.target.id==='calcIn')S.calcText=e.target.value;
+  else if(e.target.id==='pred'){S.pred=+e.target.value;lslLive(S.pred)}});
 document.addEventListener('keydown',e=>{
   if(e.target.id==='calcIn'){if(e.key==='Enter'){e.preventDefault();doCheck();render()}return}
   if(e.key==='Escape'){closeMenus();if(S.fs&&!document.fullscreenElement)setFs(false);return}
@@ -944,11 +1011,11 @@ document.addEventListener('keydown',e=>{
   else if(k==='arrowleft'){e.preventDefault();if(!$('backBtn').disabled)$('backBtn').click()}
   else if(k==='p'){setOpt('format',S.format==='frac'?'pct':'frac');render()}
   else if(k==='r'){ACT.newExp();render()}
-  else if(k==='g'){setOpt('panel',!S.panel);render()}
+  else if(k==='g'){togglePanel();render()}
   else if(k==='f'){ACT.fullscreen()}
   else if(k==='home'){ACT.restart();render()}
 });
-window.__CF__={S,outcomes,probOf,sumP,evList,playOne,render,renderPanel,setOpt,ACT,parseEntry,doCheck,flip,freeToss,newX};
+window.__CF__={S,outcomes,probOf,sumP,evList,QS,curQ,playOne,render,renderPanel,setOpt,ACT,parseEntry,doCheck,flip,freeToss,newX,lcol};
 render();
 </script>
 </body>

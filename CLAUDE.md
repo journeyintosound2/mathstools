@@ -107,6 +107,11 @@
 > * **Second "setting" in the multistage series.** The **Settings menu in both tools is now the scenario chooser** (Battle Royale / Coin Flip
 >   links, current one ticked) plus a short Options list. Rounds and Fractions/Percentages were removed from the Battle Royale menu because
 >   they are already on the board toolbar. **A new setting = a new sibling folder + one more link in every setting's menu.**
+> * **Questions model (2026-11-26).** `QS(n)` builds the questions the class can be asked for n flips (at least one head, at least
+>   one tail, all heads, no heads, exactly k heads, more heads than tails, a named order), dropping any two that pick out the same
+>   outcomes. ONE question drives the set-up card, the maths checker and the simulate tiles, so they cannot disagree. The set-up
+>   screen is just "How many flips?" + a Question dropdown; picking a question opens a "Make your prediction" card with the shared
+>   likelihood slider. Step 1 is the coin and the words "Click to flip the coin", nothing else.
 > * Steps: **The coin** (one coin, click to flip, nothing recorded — teacher discussion of a single stage) → **Flip** (a small
 >   "How many flips?" set-up card: 2/3/4 plus the optional class prediction, then the experiment) → The maths → Simulate.
 >   Options: fair or weighted coin (3/5, 3/4), flip speed, class questions. "New experiment" and `R` return to the set-up card.
@@ -129,6 +134,16 @@
 > * **Model:** one fighter follows a fixed path of named opponents; the chance belongs to the MATCH (opponent = complement); rounds are
 >   independent. Chances are exact fractions [n, d] from a friendly set (thirds become 30%/70% in percentage mode). ONE `model()`
 >   tree drives the tree diagram, the working and the simulation, so they cannot disagree. 8 original fighters (no third-party IP).
+> * **Minimal-interface pass (2026-11-26).** Across BOTH settings: the cue above the board is now ONE line (the sub-prompt that a
+>   teacher would say out loud was removed), the status line under the board is hidden on the play screens, and in-board text that
+>   repeated the cue is gone. Keep it that way — these are projector screens, not worksheets.
+> * **Shared likelihood slider** (`lslH()` / `lslLive()` / `lcol()`, duplicated in both files): gradient track red → orange → yellow
+>   → green → blue with IMPOSSIBLE / UNLIKELY / EVEN CHANCE / LIKELY / CERTAIN underneath, the nearest word bold, and the big
+>   readout and thumb coloured by interpolating the same five stops. Use this for any prediction slider in the series.
+> * Battle Royale predict step: the draw is a big tappable `?` card (`.drawCard` is a button; the main button says "Choose your
+>   fighter"), and once drawn the board shows avatar + name, a **Chances / Tree** toggle in `topExtra`, `P(<name> wins the title)`
+>   and the slider. `spineTreeH()` draws the path as a tree: a W node per round climbing right with a dashed L stub dropping away,
+>   a chance pill on both arms, "Champion" at the end. It scales to 2–5 rounds, unlike the full `treeH` tree.
 > * **Steps:** Face off → Predict → Battle (spinner: result drawn first, then the wheel lands on it)
 > * **Face off (2026-11-25, notice-and-wonder opening).** Three phases in one step: choose your player (bare roster, avatar and name
 >   only, no chances or tags) → choose the opponent → practice battle. Each battle draws a RANDOM friendly chance, so the slices
