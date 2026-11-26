@@ -102,6 +102,31 @@
 > §2 "TWO folders", §3 deploy paths and §5's `mathstools-main 2` heading below
 > describe the OLD layout — this block supersedes them.
 >
+> **NEW (2026-11-27): BIN TOSS: EXPERIMENTAL PROBABILITY — Stage 4 teaching tool** at
+> `interactive-tools/stage-4/statistics-probability/bin-toss/index.html` (single file, Coin Flip's shell CSS copied, no Firebase),
+> under **MA4-PRO-C-01** (ideas chance-experiments, complementary; toolLinks row, homepage Interactive card, pill now 47 — it had
+> drifted to 44 for 46 cards). Built from Jeff's "Year 8 Bin toss" deck + "Bin toss results" workbook.
+> * **Eight steps** (`STEPS`): The challenge ($50 prize card, "How much would you charge to play?", optional class first-guess price)
+>   → Predict (the shared likelihood slider; OR type each student's guess — 20, 20%, 0.2, 1/5 — which become a dot plot under the
+>   scale and LOCK the slider to their mean, like Jeff's Averages sheet) → Set up (throw-from text, 20/30/50/no-limit throws, fair-test
+>   list) → Throw (big green IN / red OUT, keys I / O, U undo; paper-ball flight in SVG) → Results (P(in), P(out), prediction vs data
+>   pins on the gradient line, P(in) + P(out) = 1) → Set a price ("if 100 play": winners, collect, pay out, profit; break-even reveal;
+>   first guess echoed) → Play for money (a NEW round that stores its price, prize and the estimate it was priced from) → Count the
+>   money (verdict + what the data said to expect).
+> * **The side panel is an Excel-style sheet**: formula bar (click any cell: `=COUNTIF(B$2:B9,"In")`, `=C9/A9`, `=E9-F9`), sticky
+>   two-row header, one SHEET TAB PER ROUND plus "+" (new round = new spot or another day), and a Graph tab (running chance of in with
+>   the prediction as a dashed line, In/Out bars, running profit for money rounds, an every-round table). Hover tooltips.
+> * **ALL DATA IS SAVED** (`mmt.binToss.v1`: rounds, guesses, prices, step, settings) — this is class data and Day 2 needs Day 1.
+>   "New experiment" asks first (Download CSV / Keep / Clear). CSV = one row per throw, every round.
+> * **The recording board is NOT rebuilt per throw** (`renderBoard` keys on step+round+settings and calls `updateRec`), or the ball
+>   animations would be cut off. Never call `render()` from an input's `change` while it may be blurring (that redraw-in-a-redraw threw).
+> * Colour: buttons green/red as asked, but data marks use #15803d / #f87171 (passes the CVD check) and every In/Out carries a word
+>   and ✓ / ✗. Settings: prize $10–$100, players to imagine, show the chance while throwing (on), tally marks, ball animation,
+>   class questions (off). Fraction / Decimal / % on the board (P). Test hook `window.__BT__`. Verified: 61 Playwright behaviour
+>   checks + walkthroughs at 1366×768, 1280×720, 1024×768, 1920×1080, 390 (no page scroll on desktop).
+> * Not built yet: lesson plan, worksheet, student quiz (greyed in Tools). Jeff's old Day 2 sheet's "Money Paid" used $15 where the
+>   price cell was $20; the tool counts every player's money in and each winner's prize out instead.
+>
 > **NEW (2026-11-27, later): WHOLE-TOPIC WORKSHEET CREATORS — ONE PER OUTCOME, ON ONE FRAME (Stage 4 and Stage 3 done; Stage 5 next).**
 > Jeff: every outcome gets a whole-topic worksheet creator (Basic + Expected, every content statement), shown on Resources by Stage
 > in a LIGHT-BLUE band at the foot of the outcome, above the yellow whole-topic quiz band, and never under a content statement.

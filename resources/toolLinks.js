@@ -1997,6 +1997,14 @@ window.MMT_TOOL_LINKS = {
 
   "MA4-PRO-C-01": [
     {
+      title: "Bin Toss: Experimental Probability",
+      kind: "Teacher tool",
+      url: "/interactive-tools/stage-4/statistics-probability/bin-toss/",
+      ideas: ["chance-experiments", "complementary"],
+      note: "A $50 prize for getting a ball of paper in the bin. The class predicts the chance (or averages everyone's guesses), the teacher presses IN or OUT after each throw, and a spreadsheet and graph fill as they go. Then use the data to set a price to play and count the money. Saves on the computer, so Day 2 carries on; CSV download.",
+      tags: ["probability", "experiment", "relative frequency", "experimental probability", "complementary events", "prediction", "spreadsheet", "expected number", "whole class", "bin toss"]
+    },
+    {
       title: "Probability — Whole Topic Worksheet",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-4/statistics-probability/probability/",

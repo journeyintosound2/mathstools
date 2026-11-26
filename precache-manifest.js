@@ -1,6 +1,6 @@
 /* Written by tools/build-pwa.mjs — do not edit by hand. */
 self.MMT_PRECACHE = {
- "version": "ed2dc63d6d",
+ "version": "a24af8ea3b",
  "files": [
   "./",
   "assessment/exam-builder/app.js",
@@ -888,6 +888,7 @@ self.MMT_PRECACHE = {
   "interactive-tools/stage-4/number/rounding-decimals/index.html",
   "interactive-tools/stage-4/ratios-rates/divide-a-ratio/index.html",
   "interactive-tools/stage-4/ratios-rates/stacked-bar-ratio/index.html",
+  "interactive-tools/stage-4/statistics-probability/bin-toss/index.html",
   "interactive-tools/stage-5/algebra/complete-the-square/index.html",
   "interactive-tools/stage-5/measurement-space/square-sum-chain/index.html",
   "interactive-tools/stage-5/measurement-space/unit-circle-trig-ratios/index.html",
