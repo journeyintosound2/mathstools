@@ -102,6 +102,45 @@
 > §2 "TWO folders", §3 deploy paths and §5's `mathstools-main 2` heading below
 > describe the OLD layout — this block supersedes them.
 >
+> **NEW (2026-11-27, later): WHOLE-TOPIC WORKSHEET CREATORS — ONE PER OUTCOME, ON ONE FRAME (Stage 4 done; Stage 3 and 5 next).**
+> Jeff: every outcome gets a whole-topic worksheet creator (Basic + Expected, every content statement), shown on Resources by Stage
+> in a LIGHT-BLUE band at the foot of the outcome, above the yellow whole-topic quiz band, and never under a content statement.
+> * **Banner:** `resources/toolFamilies.js` `MMT_WHOLE_TOPIC_WORKSHEETS` (url → topic name, all 16 Stage 4). `resources/index.html`
+>   `wholeTopicName()` now handles worksheets too (`.whole-quiz.ws`). A new one = a line there + its toolLinks row (`?v=` bumped in
+>   resources/index.html and the teacher portal). A toolLinks row tagged "whole topic" also works.
+> * **BUILT FILES — edit the parts, then re-assemble:** `tools/whole-topic-worksheets/` = `frame/shell.html` (the shared Length-style
+>   frame: topbar, bands, question types GROUPED BY CONTENT STATEMENT, fixed A4 pages in mm that ARE the print, measured packing, spare
+>   room shared out as working space, separate answer-key pagination with reasons, EN/AR/FA), `frame/grid.js` (the topic quiz's
+>   Cartesian plane, copied), `frame/rg-adapter.js`, `pages/<slug>.js` (each outcome's own types), `pages.json` (outcome, folder or
+>   file, bank, engines, subtitle). `python3 assemble.py <repo root> [slug…]` writes each page as one HTML file with every loaded script
+>   stamped `?v=`. `test.py <slug>` (Playwright, local server on :8765 from the repo root) = coverage (EXPECTED must cover every
+>   statement; Basic may leave out C-level content), every type generated N times (no empty/undefined/NaN, MC sane), 12 papers
+>   (2 levels × 3 languages × working on/off) with nothing past a page, no answers on student pages, no missing diagrams.
+> * **Where the questions come from:** pages on the new topic-quiz engine load THEIR QUIZ'S BANK (`online-quizzes/stage-4/topic-quiz/
+>   banks/*.js`; the frame defines `MMTQ.run` to capture it), so quiz and worksheet ask the same things — change a bank, both change.
+>   INT, FRC, EQU, ANG (older quizzes) are ES-module pages using the Revision Generator banks (`question-banks/{integers,fdp,equations,
+>   angles}`) through `rg-adapter.js` (prompt via its `renderMathText`, working → key reason). Whole-number/inequality types outside the
+>   outcome are left out. Every page adds PAPER-ONLY types (blue "paper" tag): draw distance–time graphs, draw lines/solve by graphing,
+>   draw shapes of a given area, draw views of cube stacks, draw column graphs/dot plots/stem-and-leaf/histograms (statistics engine
+>   `blank:true` on the paper, filled in the key), factor trees, show why index laws work, sketch triangles/quadrilaterals, irrational
+>   numbers, order f/d/%, fraction operations by type, × ÷ integers + the sign pattern, P(A)/P(not A), Pythagoras problems where the
+>   student draws the triangle.
+> * **Languages:** the frame translates only the OPENING INSTRUCTION, with `translatePrompt` from `assessment/exam-builder/utils/
+>   translation.js` (Jeff chose existing translations, nothing new). Maths is swapped for tokens first and put back after; a line is
+>   kept only if no English word is left, every maths token survives once and no stray punctuation — otherwise English only. Coverage is
+>   partial (RG-based pages translate far more prompts than quiz-bank pages). Page words (Worksheet, Answer key, Name, Date, Answer) are
+>   the Length creator's.
+> * **Pages (Stage 4):** new `number/indices/`, `ratios-rates/ratios-and-rates/`, `algebra/linear-relationships/`, `measurement-space/
+>   {area,volume,properties-of-geometrical-figures}/`, `statistics-probability/{data-classification-visualisation,data-analysis,
+>   probability}/`; REBUILT on the frame at the same URLs `number/computation-with-integers/`, `number/fractions-decimals-percentages.html`,
+>   `algebra/equations/`, `measurement-space/angle-relationships/`, `measurement-space/pythagoras-theorem/` (its old
+>   `pythagoras-engine.html` is now unused). Length and Algebraic Techniques stay bespoke (both cover every statement). Homepage: 9 new
+>   Worksheet Creator cards after Pythagoras (pill 41 → 50); the 5 rebuilt cards' text updated.
+> * Fixed in the Revision Generator: `equivalent-equations` could print the same option twice (choices now de-duplicated).
+> * **NEXT (Jeff: "Stage 4 first, then check"): Stage 3 (21 outcomes) and Stage 5 (41) — one hand-built page per outcome on this frame,
+>   from the Revision Generator banks (`question-banks/stage-3/*`, `stage-5/*`; banks often span several outcomes, so map TYPES to
+>   outcomes) plus paper types; whole-topic bands for each.**
+>
 > **NEW (2026-11-27): ALGEBRAIC TECHNIQUES WORKSHEET CREATOR REBUILT on the Length creator's frame.**
 > `worksheet-creators/stage-4/algebra/algebraic-techniques/index.html` (single file) now uses the same shell as
 > `worksheet-creators/stage-4/measurement-space/length/`: topbar, bands (The paper · Question types · Options), count pill,

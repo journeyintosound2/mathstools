@@ -3,28 +3,160 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>MMT Worksheet Generator — Equations</title>
+  <title>Equations — Worksheet Maker</title>
+  <!--
+    Equations (MA4-EQU-C-01) — whole-topic worksheet creator.
+    BUILT FILE. The shared frame (this page's layout, A4 pages, answer key,
+    languages) and this outcome's own question code were assembled by
+    assemble.py from frame/shell.html + pages/equations.js. Edit those parts
+    and re-assemble rather than editing the frame here, so every whole-topic
+    worksheet creator keeps the same frame. See CLAUDE.md (2026-11-27).
+  -->
   <style>
     :root{
-      --bg:#f6f7fb; --card:#ffffff; --ink:#111827; --muted:#6b7280; --border:#e5e7eb;
-      --shadow:0 14px 40px rgba(0,0,0,.10); --radius:18px; --ok:#16a34a; --footer-h:44px; --pagePad:12mm;
+      --bg:#f6f7fb; --ink:#111827; --muted:#6b7280; --border:#e5e7eb;
+      --shadow:0 14px 40px rgba(0,0,0,.10); --radius:18px;
+      --blue:#2563eb; --ans:#16a34a; --footer-h:44px;
       --mathFont:"Cambria Math","STIX Two Math","STIXGeneral","Times New Roman",serif;
+      --uiFont:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";
     }
     *{box-sizing:border-box}
-    body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;background:var(--bg);color:var(--ink);padding-bottom:var(--footer-h)}
-    .wrap{max-width:1100px;margin:18px auto 40px;padding:0 16px}.panel{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px}
-    .controls{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap;padding:14px;border:1px solid var(--border);border-radius:18px;background:linear-gradient(180deg,#fff,#f9fafb)}
-    label{display:block;font-weight:950;color:var(--ink);margin:0 0 8px;font-size:13px} select,input[type="number"]{border:2px solid #e5e7eb;border-radius:14px;padding:12px;font-weight:950;font-size:16px;background:#fff;min-width:260px;outline:none} input[type="number"]{min-width:190px}
-    .topSelectors{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap;width:100%}.outcomeControl{flex:1 1 360px;min-width:300px}.outcomeControl select{width:100%}.languageControl{flex:0 1 300px;min-width:240px;display:flex;flex-direction:column;align-items:flex-end}.languageControl select{width:100%;min-width:240px}.languageControl label{text-align:right}
-    .checks{display:flex;gap:12px 14px;flex-wrap:wrap;align-items:center;padding:6px 0 0}.checksHeader{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;width:100%;margin-bottom:2px}.checksTitle{margin:0;font-size:13px;font-weight:950;color:var(--muted)}
-    .miniBtn{border:none;border-radius:999px;padding:8px 12px;font-weight:950;cursor:pointer;background:#eef2ff;color:#1d4ed8;font-size:12px;line-height:1;box-shadow:0 8px 18px rgba(0,0,0,.04)}
-    .chk{display:flex;gap:10px;align-items:center;border:1px solid rgba(229,231,235,.95);background:#fff;border-radius:999px;padding:10px 12px;box-shadow:0 8px 18px rgba(0,0,0,.04);user-select:none}.chk input{width:18px;height:18px}.chk span{font-weight:950;font-size:13px;color:#111827;white-space:nowrap}
-    .togglePanel{width:100%;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}.toggleTitle{font-size:13px;font-weight:950;color:var(--muted);margin-bottom:8px}
-    .btnRow{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:flex-end}button{border:none;border-radius:14px;padding:12px 16px;font-weight:1000;cursor:pointer;background:#f3f4f6;color:#111827;transition:transform .04s ease,filter .15s ease,opacity .2s ease;user-select:none;font-size:16px}button:active,.miniBtn:active{transform:scale(.98)}button.primary{background:#2563eb;color:#fff}button.ghost{background:#eef2ff;color:#1d4ed8}button.danger{background:#fee2e2;color:#991b1b}.outWrap{margin-top:16px}
-    .page{margin-top:16px;background:#fff;border:1px solid var(--border);border-radius:18px;box-shadow:0 10px 26px rgba(15,23,42,.08);overflow:hidden;position:relative}.pageBorder{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;pointer-events:none}.pageInner{position:relative;z-index:1;padding:0}.pageContent{margin:var(--pagePad);background:#fff;border-radius:14px;padding:16px;box-shadow:0 0 0 1px rgba(229,231,235,.9) inset}.pageHeader{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:10px}.hdrLeft{min-width:240px}.hdrTitle{font-weight:1000;font-size:18px;line-height:1.15;margin-bottom:2px}.hdrSub{color:var(--muted);font-weight:900;font-size:12px;line-height:1.2}.nameRow{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;align-items:end;min-width:min(420px,100%)}.lineField{display:flex;flex-direction:column;gap:6px;min-width:0}.lineLabel{font-size:12px;font-weight:950;color:var(--muted)}.lineBox{height:30px;border:2px solid #111827;border-radius:10px;background:#fff;width:100%}
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 16px;margin-top:10px}.qCard{border:1px solid rgba(229,231,235,.95);border-radius:16px;padding:12px;background:#fff;min-height:190px;display:flex;flex-direction:column;gap:8px}.qTop{display:flex;align-items:flex-start;justify-content:flex-start;gap:12px}.qNum{font-weight:1000;font-size:18px;min-width:44px;color:#111827}.qText{font-weight:1000;font-size:16px;line-height:1.18;color:#111827}.workBox{margin-top:2px;border:2px solid #111827;border-radius:16px;padding:10px;background:#fff;flex:1;min-height:92px}.workBox.key{border-color:var(--ok);background:rgba(22,163,74,.08);color:var(--ok);display:flex;align-items:center;justify-content:center;text-align:center;font-weight:1000;font-size:17px;overflow-wrap:anywhere}.mcq{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px}.qCard.mcqCard{min-height:150px}.qCard.mcqCard .qText{font-size:14px;line-height:1.12}.qCard.mcqCard .opt{font-size:12px;padding:6px 8px}.opt{border:1px solid rgba(17,24,39,.25);border-radius:12px;padding:8px 10px;background:#fff;font-weight:950;font-size:14px}.opt.key{border-color:var(--ok);background:rgba(22,163,74,.08);color:var(--ok)}
-    .var{font-family:var(--mathFont);font-style:italic;font-weight:650}.math{font-family:var(--mathFont);font-weight:650}.frac{display:inline-flex;flex-direction:column;align-items:stretch;justify-content:center;vertical-align:middle;line-height:1.05;transform:translateY(-1px);margin:0 2px;min-width:34px}.frac .top,.frac .bottom{text-align:center;padding:0 4px;white-space:nowrap}.frac .bar{height:0;border-top:2px solid #111827;margin:2px 0;border-radius:999px}.page.lang-rtl .pageHeader,.page.lang-rtl .qTop{direction:rtl}.page.lang-rtl .qText,.page.lang-rtl .hdrTitle,.page.lang-rtl .hdrSub,.page.lang-rtl .lineLabel{text-align:right}.page.lang-rtl .qNum{text-align:left}.page.lang-rtl .math,.page.lang-rtl .frac,.page.lang-rtl .mcq{direction:ltr}.mmtFooter{position:fixed;left:0;right:0;bottom:0;height:var(--footer-h);display:flex;align-items:center;justify-content:center;padding:0 12px;background:rgba(255,255,255,.92);border-top:1px solid rgba(229,231,235,.95);backdrop-filter:blur(8px);z-index:500;font-weight:900;color:#111827;text-align:center;font-size:13px}.mmtFooter a{color:#2563eb;text-decoration:none;font-weight:950}.mmtFooter a:hover{text-decoration:underline}
-    @media print{@page{size:A4;margin:12mm}body{background:#fff!important;padding:0!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}.controls,.mmtFooter{display:none!important}.wrap{max-width:none!important;margin:0!important;padding:0!important}:root{--pagePad:6mm}.page{width:186mm;height:273mm;margin:0 auto;border:none;box-shadow:none;page-break-after:always}.page:last-child{page-break-after:auto}.pageContent{margin:var(--pagePad);padding:12px}.pageHeader{flex-wrap:nowrap!important;gap:10px!important}.grid{gap:12px!important}.qCard{break-inside:avoid;padding:12px!important}.frac .bar{border-top-width:2px!important}}
+    body{margin:0;font-family:var(--uiFont);background:radial-gradient(circle at top left,rgba(37,99,235,.10),transparent 30rem),radial-gradient(circle at top right,rgba(124,58,237,.09),transparent 30rem),var(--bg);color:var(--ink);padding-bottom:var(--footer-h)}
+    .topbar{position:sticky;top:0;z-index:20;background:linear-gradient(135deg,#0f172a,#123b7a 55%,#2563eb);color:white;padding:14px 24px;display:grid;grid-template-columns:minmax(180px,1fr) auto minmax(180px,1fr);align-items:center;gap:18px;box-shadow:0 10px 28px rgba(15,23,42,.22)}
+    .brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:white;justify-self:start;border-radius:14px;padding:8px 12px;margin-left:-12px;transition:background .18s ease,transform .18s ease,box-shadow .18s ease}
+    .brand:hover{background:rgba(255,255,255,.12);transform:translateY(-1px);box-shadow:0 0 10px rgba(124,58,237,.6),0 0 18px rgba(37,99,235,.4)}
+    .brand-logo{width:44px;height:44px;object-fit:contain;background:white;border-radius:6px;padding:3px}
+    .brand-text strong{display:block;font-size:1.18rem;line-height:1;letter-spacing:-.03em}.brand-text span{display:block;font-size:.78rem;opacity:.82;font-weight:650}
+    .top-title{font-weight:900;font-size:clamp(1.25rem,2vw,1.7rem);letter-spacing:-.04em;text-align:center}
+    .wrap{max-width:1280px;margin:14px auto 32px;padding:0 14px}
+    .card{background:rgba(255,255,255,.96);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;border:1px solid rgba(226,232,240,.9)}
+    .title{font-size:28px;font-weight:1000;letter-spacing:.2px;margin:0 0 4px}
+    .subtitle{margin:0 0 14px;color:var(--muted);font-weight:850;font-size:15px;line-height:1.35}
+    .subtitle .code{display:inline-block;font-family:ui-monospace,Menlo,Consolas,monospace;font-weight:800;font-size:13px;color:#1e3a8a;background:#eef2ff;border-radius:7px;padding:1px 7px;margin-right:4px}
+    .band{padding:12px;border:1px solid var(--border);border-radius:18px;background:linear-gradient(180deg,#fff,#f9fafb);margin-bottom:12px}
+    .bandLabel{font-weight:1000;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 10px}
+    .fieldGrid{display:grid;gap:14px 16px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+    label{display:block;font-weight:950;color:var(--ink);margin:0 0 7px;font-size:15px}
+    select,input[type="number"]{border:2px solid #e5e7eb;border-radius:14px;padding:12px 13px;font-weight:950;font-size:17px;background:#fff;width:100%;outline:none;font-family:var(--uiFont)}
+    .checks{display:flex;gap:9px 10px;flex-wrap:wrap;align-items:center}
+    .chk{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--border);background:#fff;border-radius:999px;padding:9px 12px;font-weight:950;font-size:14px;color:#111827;box-shadow:0 8px 18px rgba(0,0,0,.04);user-select:none;cursor:pointer}
+    .chk input{width:18px;height:18px;accent-color:var(--blue)}
+    .chk .wTag{font-size:10.5px;font-weight:900;color:#0369a1;background:#e0f2fe;border-radius:999px;padding:2px 7px;letter-spacing:.02em}
+    .stmtRow{padding:9px 0 11px;border-top:1px dashed var(--border)}
+    .stmtRow:first-child{border-top:0;padding-top:0}
+    .stmtText{margin:0 0 8px;font-size:13.5px;font-weight:850;color:#334155;line-height:1.35}
+    .stmtText .n{display:inline-grid;place-items:center;min-width:22px;height:22px;border-radius:7px;background:#eef2ff;color:#1d4ed8;font-size:12px;font-weight:1000;margin-right:7px}
+    .stmtNone{font-size:13px;font-weight:800;color:#94a3b8;font-style:italic}
+    .btnRow{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:flex-end}
+    button{border:none;border-radius:14px;padding:12px 16px;font-weight:1000;cursor:pointer;background:#f3f4f6;color:#111827;transition:transform .04s ease,filter .15s ease,opacity .2s ease;user-select:none;font-size:16px;font-family:var(--uiFont)}
+    button:active{transform:scale(.98)}button.primary{background:#2563eb;color:#fff}button.ghost{background:#eef2ff;color:#1d4ed8}button.danger{background:#fee2e2;color:#991b1b}
+    .pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:8px 13px;font-weight:1000;font-size:14px;background:#eef2ff;color:#1d4ed8;margin-right:auto}
+    .warn{padding:12px;font-weight:950;color:#991b1b}
+    .mmtFooter{position:fixed;left:0;right:0;bottom:0;height:var(--footer-h);display:flex;align-items:center;justify-content:center;padding:0 12px;background:rgba(255,255,255,.92);border-top:1px solid rgba(229,231,235,.95);backdrop-filter:blur(8px);z-index:500;font-weight:900;color:#111827;text-align:center;font-size:13px}
+    .mmtFooter a{color:#2563eb;text-decoration:none;font-weight:950}.mmtFooter a:hover{text-decoration:underline}
+
+    /* ================= A4 pages: the preview IS the print ================= */
+    .outWrap{margin-top:14px;display:flex;flex-direction:column;align-items:center;gap:14px}
+    .page{width:210mm;height:297mm;background:#fff;border:1px solid var(--border);box-shadow:0 10px 26px rgba(15,23,42,.08);display:flex;flex-direction:column;padding:7mm 7.5mm 5mm;overflow:hidden;position:relative}
+    .pageHeader{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding-bottom:2.2mm;border-bottom:1px solid #e5e7eb;flex:0 0 auto}
+    .hdrTitle{font-weight:1000;font-size:12.5pt;line-height:1.15}
+    .hdrTitle .loc{display:block;font-size:.8em;color:var(--muted);font-weight:900}
+    .hdrSub{color:var(--muted);font-weight:850;font-size:8.5pt;margin-top:1mm}
+    .nameDate{display:flex;gap:4mm;align-items:flex-end;margin-left:auto}
+    .lineField{display:flex;flex-direction:column;gap:1mm;min-width:34mm}
+    .lineLabel{font-size:7.5pt;font-weight:950;color:var(--muted);line-height:1.1}
+    .lineBox{height:6.5mm;border:1.3px solid #111827;border-radius:2.2mm;background:#fff}
+    .pageBody{flex:1 1 auto;display:flex;flex-direction:column;gap:3mm;padding-top:3mm;min-height:0}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:3mm;flex:0 0 auto}
+    .row.wide{grid-template-columns:1fr}
+    .pageFooter{flex:0 0 auto;padding-top:2mm;border-top:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between;gap:10px;font-weight:950;color:#111827;font-size:7.5pt}
+    .pageFooter a{color:#2563eb;text-decoration:none;font-weight:1000}
+    .pageFooter .oc{font-family:ui-monospace,Menlo,Consolas,monospace;color:var(--muted);font-weight:800}
+
+    /* ================= a question card ================= */
+    .qCard{border:1px solid #d5dae1;border-radius:2.6mm;padding:2.4mm 3mm 2.6mm;background:#fff;display:flex;flex-direction:column;min-width:0;height:100%;break-inside:avoid}
+    .qHead{display:flex;gap:2.2mm;align-items:flex-start}
+    .qNum{flex:0 0 auto;font-weight:1000;font-size:9.5pt;color:#fff;background:#1e3a8a;border-radius:1.6mm;padding:.5mm 1.6mm;line-height:1.25;margin-top:.3mm}
+    .qPrompt{flex:1;min-width:0;font-size:10pt;line-height:1.38;font-weight:650;color:var(--ink);overflow-wrap:anywhere}
+    .qPrompt .loc{display:block;direction:rtl;text-align:right;font-weight:800;margin-bottom:.6mm;font-size:1.02em}
+    .qPrompt .enLine{display:block}
+    .qPrompt.bi .enLine{font-size:.9em;color:#374151}
+    .qPrompt b,.qPrompt strong{font-weight:850}
+    .m{font-family:var(--mathFont);font-weight:500;font-size:1.08em;white-space:nowrap}
+    .qPrompt .big{display:block;margin-top:1.6mm;font-family:var(--mathFont);font-size:1.4em;font-weight:500;text-align:center}
+    .qPrompt .say{display:block;margin-top:1.6mm;font-weight:800;text-align:center;color:#1e3a8a;background:#f5f8ff;border:1px solid #dbe5ff;border-radius:2mm;padding:1.4mm 2mm}
+    .qPrompt .sub{display:block;margin-top:1mm;font-size:.84em;color:var(--muted);font-weight:650}
+    .fr{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;font-family:var(--mathFont);font-weight:500;line-height:1.05;margin:0 .12em;font-size:.95em}
+    .frn{border-bottom:1.3px solid currentColor;padding:0 .18em}.frd{padding:0 .18em}
+    .frs{position:absolute;margin-left:-.7em}
+    sup{font-size:.7em;line-height:0}
+    .dtab{border-collapse:collapse;margin:1.6mm auto 0;font-size:9pt;font-variant-numeric:tabular-nums}
+    .dtab th,.dtab td{border:1px solid #94a3b8;padding:1mm 2.4mm;text-align:center}
+    .dtab th{background:#f1f5f9;font-weight:850}
+    .dtab td.q{background:#fef9c3;font-weight:900}
+    .dtab.rows th{text-align:left}
+    .dtab td.blank{min-width:9mm}
+    .dataList{font-family:var(--mathFont);font-size:1.06em;word-spacing:.12em;line-height:1.5;background:#f8fafc;border:1px dashed #cbd5e1;border-radius:2mm;padding:1.2mm 2.4mm;display:block;margin-top:1.4mm}
+    .math-frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;font-family:var(--mathFont);font-weight:500;line-height:1.05;margin:0 .12em;font-size:.95em}
+    .math-frac span:first-child{border-bottom:1.3px solid currentColor;padding:0 .18em}.math-frac span:last-child{padding:0 .18em}
+    .math-expression{display:block;margin-top:1.4mm;text-align:center;font-family:var(--mathFont);font-size:1.25em;font-weight:500}
+    .math-inline,.math-relation,.value-item{font-family:var(--mathFont);font-weight:500;white-space:nowrap}
+    .prompt-indented-line{display:block;margin-top:.8mm}
+    .why .math-expression,.why .prompt-indented-line,.ansBox .math-expression,.ansBox .prompt-indented-line{display:inline;margin:0 .2em;font-size:1em;text-align:inherit}
+    .tcap{font-size:.84em;font-weight:800;color:var(--muted);text-align:center;margin-top:1.2mm}
+    .subs{list-style:none;margin:1.6mm 0 0;padding:0;display:flex;flex-direction:column;gap:1.4mm}
+    .subs .sl{font-weight:900;margin-right:1.2mm}
+    .qDiag{display:flex;justify-content:center;align-items:center;margin-top:2mm;min-width:0}
+    .qDiag svg{max-width:100%;height:auto}
+    .qDiag .engHolder{display:flex;flex-direction:column;align-items:center;max-width:100%}
+    .diagMissing{color:var(--muted);font-weight:800;padding:6mm}
+    .qgrid .gl{stroke:#cbd5e1;stroke-width:1}
+    .qgrid .ax{stroke:#0f172a;stroke-width:2}
+    .qgrid .axh{fill:#0f172a}
+    .qgrid .axl{font:italic 700 16px var(--mathFont);fill:#0f172a}
+    .qgrid .tk{font:600 12.5px var(--uiFont);fill:#475569}
+    .qgrid .ln{stroke-width:3;stroke-linecap:round}
+    .qgrid .lnl{font:700 15px var(--mathFont);stroke:#fff;stroke-width:4px}
+    .qgrid .pt{stroke:#fff;stroke-width:2}
+    .qgrid .ptl{font:800 16px var(--uiFont);fill:#0f172a;stroke:#fff;stroke-width:4px}
+    .opts{display:grid;grid-template-columns:1fr 1fr;gap:1.2mm 4mm;margin-top:2mm;font-size:9.6pt;font-weight:700}
+    .opts.long{grid-template-columns:1fr}
+    .opt{display:flex;gap:1.6mm;align-items:baseline;min-width:0}
+    .opt .L{flex:0 0 auto;display:inline-grid;place-items:center;width:4.6mm;height:4.6mm;border:1.2px solid #334155;border-radius:50%;font-size:7.6pt;font-weight:1000}
+    .opt.right .L{background:var(--ans);border-color:var(--ans);color:#fff}
+    .opt.right{color:#15803d}
+    .tfRow{display:flex;gap:7mm;justify-content:center;margin-top:2mm;font-weight:900;font-size:9.6pt}
+    .tfRow span{border:1.2px solid #334155;border-radius:99px;padding:.6mm 4mm}
+    .tfRow span.right{background:var(--ans);border-color:var(--ans);color:#fff}
+    .qFill{flex:1 1 auto;min-height:2mm}
+    .drawBox{margin-top:1.8mm;border:1.2px dashed #94a3b8;border-radius:2mm;flex:0 0 auto;position:relative}
+    .drawBox.sq{background-image:linear-gradient(#cbd5e1 1px,transparent 1px),linear-gradient(90deg,#cbd5e1 1px,transparent 1px);background-size:5mm 5mm;background-position:-1px -1px;border-style:solid;border-color:#94a3b8}
+    .drawBox .workTag{font-size:6.5pt;font-weight:950;color:#94a3b8;padding:.4mm 1.4mm;display:block;letter-spacing:.08em;text-transform:uppercase}
+    .workBox{margin-top:1.6mm;border:1.2px dashed #cbd5e1;border-radius:2mm;height:24mm;background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 7.4mm,#e2e8f0 7.4mm,#e2e8f0 calc(7.4mm + 1px));background-position:0 1.6mm;flex:0 0 auto}
+    .workBox .workTag{font-size:6.5pt;font-weight:950;color:#94a3b8;padding:.4mm 1.4mm;display:block;letter-spacing:.08em;text-transform:uppercase}
+    .ansRow{margin-top:1.8mm;display:flex;align-items:center;justify-content:flex-end;gap:1.6mm;flex-wrap:wrap;flex:0 0 auto}
+    .ansLabel{font-weight:950;font-size:9pt;line-height:1.05;text-align:right}
+    .ansLabel .loc{display:block}
+    .ansLabel .en{display:block;font-size:.78em;opacity:.75}
+    .ansBox{min-width:34mm;width:46%;height:7mm;border:1.3px solid #111827;border-radius:2.2mm;background:#fff}
+    .ansUnit{font-family:var(--mathFont);font-weight:600;font-size:10pt}
+    .ansBox.key{display:flex;align-items:center;justify-content:center;width:auto;min-width:34mm;max-width:100%;height:auto;min-height:7mm;padding:.8mm 2.6mm;font-family:var(--mathFont);font-weight:800;font-size:10.5pt;color:var(--ans);border-color:var(--ans);background:rgba(22,163,74,.07);text-align:center;line-height:1.25}
+    .why{margin-top:1.2mm;font-size:7.8pt;font-weight:700;color:#475569;line-height:1.35;border-left:2px solid #bbf7d0;padding-left:2mm}
+    .lang-rtl .hdrTitle .loc,.lang-rtl .lineLabel .loc{direction:rtl}
+
+    @media(max-width:880px){
+      .topbar{grid-template-columns:1fr auto;gap:10px}.top-title{grid-column:1/-1;grid-row:2;text-align:center}.brand-text span{display:none}
+      .outWrap{align-items:flex-start;overflow-x:auto}
+    }
+    @media print{
+      @page{size:A4;margin:0}
+      html,body{background:#fff;padding:0;margin:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+      .topbar,.card > :not(.outWrap),.mmtFooter{display:none!important}
+      .wrap{max-width:none;margin:0;padding:0}.card{box-shadow:none;border:none;border-radius:0;padding:0;background:#fff}
+      .outWrap{margin:0;gap:0;display:block}
+      .page{border:none;box-shadow:none;page-break-after:always;break-after:page;margin:0}
+      .page:last-child{page-break-after:auto;break-after:auto}
+    }
   </style>
 <!-- mmt-pwa -->
 <link rel="manifest" href="../../../../manifest.webmanifest">
@@ -35,133 +167,567 @@
 <meta name="apple-mobile-web-app-title" content="MMT">
 <script src="../../../../pwa.js" defer></script>
 <!-- /mmt-pwa -->
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
 </head>
 <body>
-  <div class="wrap"><div class="panel"><div class="controls" aria-label="Worksheet controls"><div style="min-width:320px;flex:1 1 600px"><div class="topSelectors"><div class="outcomeControl"><label for="outcomeSel" data-i18n="stageOutcome">Stage outcome</label><select id="outcomeSel"></select></div><div class="languageControl"><label for="languageSel" data-i18n="languageLabel">Worksheet language</label><select id="languageSel"><option value="en">English</option><option value="fa">Farsi / Persian (فارسی)</option><option value="ar">Arabic (العربية)</option></select></div></div><div class="checks" aria-label="Question types"><div class="checksHeader"><label class="checksTitle" data-i18n="questionTypes">Question types (checkboxes)</label><button id="toggleAllBtn" type="button" class="miniBtn">Deselect all</button></div><div id="chkWrap" style="display:flex;gap:12px 14px;flex-wrap:wrap;align-items:center"></div></div><div class="togglePanel"><div class="toggleTitle" data-i18n="globalToggles">Global options</div><div id="toggleWrap" style="display:flex;gap:12px 14px;flex-wrap:wrap;align-items:center"></div></div></div><div style="display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap"><div><label for="countInp" data-i18n="totalQuestions">Total questions (multiples of 8 recommended)</label><input id="countInp" type="number" min="8" max="96" step="8" value="16" /></div><div class="btnRow"><button id="genBtn" class="primary" data-i18n="generateBtn">Generate</button><button id="printBtn" class="ghost" data-i18n="printBtn">Print / Save as PDF</button><button id="resetBtn" class="danger" data-i18n="resetBtn">Reset</button></div></div></div><div id="out" class="outWrap"></div></div></div>
+  <header class="topbar">
+    <a class="brand" href="https://www.millsmathstools.au" aria-label="Back to Mills Maths Tools"><img src="../../../../assets/mmt.png" alt="Mills Maths Tools logo" class="brand-logo" onerror="this.style.visibility='hidden'"><div class="brand-text"><strong>MMT</strong><span>Mills Maths Tools</span></div></a>
+    <div class="top-title">Equations</div><div></div>
+  </header>
+
+  <div class="wrap"><div class="card">
+    <h1 class="title">Equations — Worksheet Maker</h1>
+    <p class="subtitle"><span class="code">MA4-EQU-C-01</span> Printable A4 worksheets with a completed answer key, covering every content statement in the outcome. <strong>Basic</strong> covers representing equations, balances and bar models, solving by inspection, one-step and two-step equations, word problems, checking by substitution and solving x² = c. <strong>Expected</strong> adds fraction and bracket equations, collecting like terms, pronumerals on both sides, equivalent equations, formulas, form-solve-check, spotting errors, multi-step word problems and ax² = c.</p>
+
+    <div class="band">
+      <p class="bandLabel">The paper</p>
+      <div class="fieldGrid">
+        <div><label for="levelSel">Level</label><select id="levelSel"><option value="basic" selected>Basic</option><option value="expected">Expected</option></select></div>
+        <div><label for="languageSel">Worksheet language</label><select id="languageSel"><option value="en" selected>English</option><option value="ar">Arabic (العربية)</option><option value="fa">Farsi / Persian (فارسی)</option></select></div>
+        <div><label for="countInp">Number of questions</label><input id="countInp" type="number" min="1" max="48" value="12"></div>
+      </div>
+    </div>
+
+    <div class="band">
+      <p class="bandLabel">Question types — by content statement</p>
+      <div id="chkWrap"></div>
+    </div>
+
+    <div class="band">
+      <p class="bandLabel">Options</p>
+      <div class="checks">
+        <label class="chk"><input id="toggleWorking" type="checkbox"> Working space under each question</label>
+        <label class="chk"><input id="toggleWhy" type="checkbox" checked> Reasons in the answer key</label>
+        <label class="chk"><input id="toggleMix" type="checkbox"> Mix the question order</label>
+      </div>
+    </div>
+
+    <div class="band">
+      <div class="btnRow">
+        <span class="pill" id="totalPill">12 questions + answer key</span>
+        <button id="selectBtn" class="ghost">Deselect all</button>
+        <button id="genBtn" class="primary">Generate worksheet</button>
+        <button id="printBtn" class="ghost">Print (Ctrl+P)</button>
+        <button id="resetBtn" class="danger">Reset</button>
+      </div>
+    </div>
+
+    <div id="out" class="outWrap"></div>
+    <div id="probe" aria-hidden="true" style="position:absolute;left:-10000px;top:0;visibility:hidden"></div>
+  </div></div>
+
   <div class="mmtFooter">This tool and more can be found at&nbsp;<a href="https://www.millsmathstools.au">www.millsmathstools.au</a></div>
+
+<script src="/online-quizzes/stage-4/topic-quiz/core.js?v=290fbdc3"></script>
+<script src="/assessment/exam-builder/engines/equations/equation-engine.js?v=0b61e690"></script>
 <script>
+/* ===================== WHOLE-TOPIC WORKSHEET FRAME ======================
+   Shared by every whole-topic worksheet creator. The page script after this
+   one calls WSF.page(config, types); a page built on its whole-topic quiz
+   also loads that quiz's bank, which calls MMTQ.run(bank) and hands its
+   generators over here, so the quiz and the worksheet ask the same things.
+
+   A QUESTION (from a quiz bank or written for paper) is
+     { prompt:html, diagram?, keyDiagram?, mode, value/unit/dp/pre (num),
+       options/correct (mc), truth (tf), x/y (coord/plot), answerHTML?, why? }
+   ======================================================================== */
 (() => {
-  const CONFIG={title:"Worksheet Generator — Equations",perPage:8,borderSrc:"border_page0.png",pageHeaderTitle:"Equations",answerKeyTitle:"Answer key",outcomes:[{value:"basic",label:"Basic — Equations (D/E)",level:"BASIC"},{value:"expected",label:"Expected — Equations (C)",level:"EXPECTED"}],defaultCount:16,minCount:8,maxCount:96};
-  const I18N={
-    en:{dir:'ltr',stageOutcome:'Stage outcome',languageLabel:'Worksheet language',questionTypes:'Question types (checkboxes)',globalToggles:'Global options',totalQuestions:'Total questions (multiples of 8 recommended)',generateBtn:'Generate',printBtn:'Print / Save as PDF',resetBtn:'Reset',selectAll:'Select all',deselectAll:'Deselect all',pageTitle:'Equations',answerKeyTitle:'Answer key',page:'Page',name:'Name',className:'Class',date:'Date',noTypes:'Please tick at least one question type.',includeFractions:'Include fractions',includeNegatives:'Include negatives',integerSolutions:'Integer solutions only',solve:'Solve:',whichEquation:'Which equation matches this description?',matchDesc:'Which description matches this equation?',incorrect:'Which equation is incorrect?',isSolution:(v,val,eq)=>`Is ${v} = ${val} a solution to ${eq}?`,word:(txt)=>`${txt} Write and solve an equation.`,true:'True',false:'False'},
-    fa:{dir:'rtl',stageOutcome:'مرحله / سطح',languageLabel:'زبان برگه',questionTypes:'نوع پرسش‌ها (گزینه‌ها)',globalToggles:'گزینه‌های کلی',totalQuestions:'تعداد کل پرسش‌ها (مضرب‌های ۸ پیشنهاد می‌شود)',generateBtn:'ساخت برگه',printBtn:'چاپ / ذخیره PDF',resetBtn:'بازنشانی',selectAll:'انتخاب همه',deselectAll:'لغو انتخاب همه',pageTitle:'معادله‌ها',answerKeyTitle:'پاسخ‌نامه',page:'صفحه',name:'نام',className:'کلاس',date:'تاریخ',noTypes:'لطفاً حداقل یک نوع پرسش را انتخاب کنید.',includeFractions:'شامل کسرها',includeNegatives:'شامل اعداد منفی',integerSolutions:'فقط جواب‌های صحیح',solve:'حل کنید:',whichEquation:'کدام معادله با این توصیف مطابقت دارد؟',matchDesc:'کدام توصیف با این معادله مطابقت دارد؟',incorrect:'کدام معادله نادرست است؟',isSolution:(v,val,eq)=>`آیا ${v} = ${val} جواب معادله ${eq} است؟`,word:(txt)=>`${txt} یک معادله بنویسید و حل کنید.`,true:'درست',false:'نادرست'},
-    ar:{dir:'rtl',stageOutcome:'المرحلة / المستوى',languageLabel:'لغة ورقة العمل',questionTypes:'أنواع الأسئلة (مربعات اختيار)',globalToggles:'خيارات عامة',totalQuestions:'إجمالي الأسئلة (يُفضّل مضاعفات ٨)',generateBtn:'إنشاء',printBtn:'طباعة / حفظ PDF',resetBtn:'إعادة ضبط',selectAll:'تحديد الكل',deselectAll:'إلغاء تحديد الكل',pageTitle:'المعادلات',answerKeyTitle:'دليل الإجابات',page:'صفحة',name:'الاسم',className:'الصف',date:'التاريخ',noTypes:'يرجى اختيار نوع سؤال واحد على الأقل.',includeFractions:'تضمين الكسور',includeNegatives:'تضمين الأعداد السالبة',integerSolutions:'حلول صحيحة فقط',solve:'حل:',whichEquation:'أي معادلة تطابق هذا الوصف؟',matchDesc:'أي وصف يطابق هذه المعادلة؟',incorrect:'أي معادلة غير صحيحة؟',isSolution:(v,val,eq)=>`هل ${v} = ${val} حل للمعادلة ${eq}؟`,word:(txt)=>`${txt} اكتب معادلة وحلها.`,true:'صحيح',false:'خطأ'}
+  'use strict';
+  const C = window.MMTQCore;
+  const SITE = 'https://www.millsmathstools.au';
+  const $ = id => document.getElementById(id);
+  const levelSel = $('levelSel'), languageSel = $('languageSel'), countInp = $('countInp'),
+        chkWrap = $('chkWrap'), out = $('out'), probe = $('probe'),
+        toggleWorking = $('toggleWorking'), toggleWhy = $('toggleWhy'), toggleMix = $('toggleMix'),
+        totalPill = $('totalPill'), selectBtn = $('selectBtn');
+
+  /* Page words in Arabic and Farsi: the site's existing ones (as on the
+     Length creator). A topic title with no existing translation stays in
+     English. */
+  const LANG = {
+    en: { dir:'ltr', worksheet:'Worksheet', answerKey:'Answer key', page:'Page', name:'Name', date:'Date', answer:'Answer:', working:'Working', trueW:'True', falseW:'False' },
+    ar: { dir:'rtl', worksheet:'ورقة عمل', answerKey:'دليل الإجابات', page:'صفحة', name:'الاسم', date:'التاريخ', answer:'الإجابة:', working:'الحل', trueW:'صح', falseW:'خطأ' },
+    fa: { dir:'rtl', worksheet:'برگه تمرین', answerKey:'پاسخ‌نامه', page:'صفحه', name:'نام', date:'تاریخ', answer:'پاسخ:', working:'راه حل', trueW:'درست', falseW:'نادرست' }
   };
-  const TYPES=[
-    {level:'BASIC',id:'one_add_sub',label:'One-step equations (addition/subtraction)',defaultOn:true},{level:'BASIC',id:'one_mul_div',label:'One-step equations (multiplication/division)',defaultOn:true},{level:'BASIC',id:'one_mixed',label:'One-step equations (mixed)',defaultOn:true},{level:'BASIC',id:'represent_basic',label:'Representing equations (multiple choice)',defaultOn:true},{level:'BASIC',id:'verify_basic',label:'Substitute into equations (True/False)',defaultOn:true},
-    {level:'EXPECTED',id:'two_standard',label:'Two-step equations (standard: ax + b = c)',defaultOn:true},{level:'EXPECTED',id:'two_frac_all',label:'Two-step equations (fraction: (x + a)/b = c)',defaultOn:true},{level:'EXPECTED',id:'two_frac_var',label:'Two-step equations (fraction: x/a + b = c)',defaultOn:true},{level:'EXPECTED',id:'two_brackets',label:'Two-step equations (brackets: a(x + b) = c)',defaultOn:true},{level:'EXPECTED',id:'both_sides',label:'Equations with pronumerals on both sides',defaultOn:true},{level:'EXPECTED',id:'collect_like',label:'Equations requiring collecting like terms',defaultOn:true},{level:'EXPECTED',id:'represent_expected',label:'Representing equations (multiple choice)',defaultOn:true},{level:'EXPECTED',id:'verify_expected',label:'Substitute into equations (True/False)',defaultOn:true},{level:'EXPECTED',id:'word_problems',label:'Word problems (form equation + solve)',defaultOn:true},{level:'EXPECTED',id:'quad_x2',label:'Solve x² = c',defaultOn:true},{level:'EXPECTED',id:'quad_ax2',label:'Solve ax² = c',defaultOn:true}
-  ];
-  const outcomeSel=document.getElementById('outcomeSel'),languageSel=document.getElementById('languageSel'),chkWrap=document.getElementById('chkWrap'),toggleWrap=document.getElementById('toggleWrap'),countInp=document.getElementById('countInp'),genBtn=document.getElementById('genBtn'),printBtn=document.getElementById('printBtn'),resetBtn=document.getElementById('resetBtn'),toggleAllBtn=document.getElementById('toggleAllBtn'),out=document.getElementById('out');
-  const randInt=(a,b)=>Math.floor(Math.random()*(b-a+1))+a, choice=a=>a[randInt(0,a.length-1)], shuffle=arr=>{const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}, gcd=(a,b)=>{a=Math.abs(a);b=Math.abs(b);while(b){let t=b;b=a%b;a=t}return a||1};
-  const VARS=['x','a','b','m','n','p','y']; const pickVar=()=>Math.random()<.5?'x':choice(VARS); const vHTML=v=>`<span class="var">${v}</span>`; const fmt=n=>n<0?`−${Math.abs(n)}`:String(n); const fracHTML=(top,bottom)=>`<span class="frac"><span class="top">${top}</span><span class="bar"></span><span class="bottom">${bottom}</span></span>`; const fracValue=(num,den)=>{ if(den<0){num=-num;den=-den} const g=gcd(num,den); num/=g; den/=g; if(den===1) return fmt(num); return `${num<0?'−':''}${fracHTML(String(Math.abs(num)),String(den))}`; }; const sign=(n)=>n<0?` − ${Math.abs(n)}`:` + ${n}`; const strip=s=>String(s).replace(/<[^>]*>/g,'').replace(/−/g,'-');
-  function L(){return I18N[languageSel.value]||I18N.en} function tr(k){return L()[k]??I18N.en[k]??k} function level(){return CONFIG.outcomes.find(o=>o.value===outcomeSel.value)?.level||'BASIC'} function opts(){return {frac:document.getElementById('tog_frac')?.checked,neg:document.getElementById('tog_neg')?.checked,intOnly:document.getElementById('tog_int')?.checked}}
-  function coeff(){return randInt(2,9)} function val(){return opts().neg?choice([...Array(17)].map((_,i)=>i-8).filter(n=>n!==0)):randInt(1,12)} function cleanVal(){return opts().neg?randInt(-9,12):randInt(1,12)}
-  function eqHTML(q){return `<span class="math">${q.eq}</span>`} function answerHTML(q){return `<span class="math">${q.answer}</span>`}
-  function linEq(type){
-    const o=opts(); let v=pickVar(), x=val(), a=coeff(), b=randInt(1,9), eq='', ans=`${v} = ${fmt(x)}`;
-    if(type==='one_add_sub'){ if(Math.random()<.5){eq=`${vHTML(v)} + ${b} = ${fmt(x+b)}`} else {eq=`${vHTML(v)} − ${b} = ${fmt(x-b)}`} }
-    if(type==='one_mul_div'){
-      if(Math.random()<.5){
-        eq=`${a}${vHTML(v)} = ${fmt(a*x)}`;
-      } else {
-        // Keep RHS as a whole number for one-step division equations.
-        // If fractions are enabled, fractions should appear in the equation structure, not as decimal/fraction RHS values.
-        eq=`${fracHTML(vHTML(v),a)} = ${fmt(x)}`;
-        ans=`${v} = ${fmt(a*x)}`;
+  const lang = () => languageSel.value;
+  const isEn = () => lang() === 'en';
+  const L = () => LANG[lang()] || LANG.en;
+
+  let CFG = null, TYPES = [], BANK = null, lastPaper = null, translate = null, booted = false;
+
+  /* ---- the Cartesian plane, copied from the whole-topic quiz engine ---- */
+  function grid(o) {
+    const NS = "http://www.w3.org/2000/svg";
+    const xMin = o.xMin ?? -6, xMax = o.xMax ?? 6, yMin = o.yMin ?? -6, yMax = o.yMax ?? 6;
+    const cell = o.cell || 34, pad = 26;
+    const W = (xMax - xMin) * cell + pad * 2, H = (yMax - yMin) * cell + pad * 2;
+    const X = x => pad + (x - xMin) * cell, Y = y => pad + (yMax - y) * cell;
+    const svg = document.createElementNS(NS, "svg");
+    svg.setAttribute("viewBox", `0 0 ${W} ${H}`); svg.setAttribute("class", "qgrid");
+    svg.setAttribute("role", "img"); svg.setAttribute("aria-label", "Cartesian plane");
+    const el = (n, a, txt) => { const e = document.createElementNS(NS, n); for (const k in a) e.setAttribute(k, a[k]); if (txt != null) e.textContent = txt; svg.appendChild(e); return e; };
+    for (let x = xMin; x <= xMax; x++) el("line", { x1: X(x), y1: Y(yMin), x2: X(x), y2: Y(yMax), class: "gl" });
+    for (let y = yMin; y <= yMax; y++) el("line", { x1: X(xMin), y1: Y(y), x2: X(xMax), y2: Y(y), class: "gl" });
+    if (yMin <= 0 && yMax >= 0) el("line", { x1: X(xMin) - 6, y1: Y(0), x2: X(xMax) + 10, y2: Y(0), class: "ax", "marker-end": "" });
+    if (xMin <= 0 && xMax >= 0) el("line", { x1: X(0), y1: Y(yMin) + 6, x2: X(0), y2: Y(yMax) - 10, class: "ax" });
+    if (yMin <= 0 && yMax >= 0) { el("path", { d: `M${X(xMax) + 14},${Y(0)} l-10,-5 v10 z`, class: "axh" }); el("text", { x: X(xMax) + 12, y: Y(0) - 10, class: "axl" }, "x"); }
+    if (xMin <= 0 && xMax >= 0) { el("path", { d: `M${X(0)},${Y(yMax) - 14} l-5,10 h10 z`, class: "axh" }); el("text", { x: X(0) + 12, y: Y(yMax) - 8, class: "axl" }, "y"); }
+    const ox = xMin <= 0 && xMax >= 0 ? X(0) : X(xMin), oy = yMin <= 0 && yMax >= 0 ? Y(0) : Y(yMin);
+    const step = o.labelStep || 1;
+    for (let x = xMin; x <= xMax; x += step) if (x !== 0) el("text", { x: X(x), y: oy + 15, class: "tk", "text-anchor": "middle" }, C.fmt(x));
+    for (let y = yMin; y <= yMax; y += step) if (y !== 0) el("text", { x: ox - 7, y: Y(y) + 4, class: "tk", "text-anchor": "end" }, C.fmt(y));
+    if (xMin <= 0 && xMax >= 0 && yMin <= 0 && yMax >= 0) el("text", { x: X(0) - 7, y: Y(0) + 15, class: "tk", "text-anchor": "end" }, "0");
+    // lines, clipped to the box
+    // Line labels go where they are farthest from other labels and from any crossing point.
+    const placed = [], cross = [];
+    (o.lines || []).forEach((L, i) => (o.lines || []).slice(i + 1).forEach(M2 => { if (L.m !== M2.m) { const x = (M2.b - L.b) / (L.m - M2.m); cross.push([X(x), Y(L.m * x + L.b)]); } }));
+    (o.lines || []).forEach(L => {
+      const pts = [];
+      const add = (x, y) => { if (x >= xMin - 1e-9 && x <= xMax + 1e-9 && y >= yMin - 1e-9 && y <= yMax + 1e-9) pts.push([x, y]); };
+      add(xMin, L.m * xMin + L.b); add(xMax, L.m * xMax + L.b);
+      if (L.m !== 0) { add((yMin - L.b) / L.m, yMin); add((yMax - L.b) / L.m, yMax); }
+      pts.sort((a, b) => a[0] - b[0]);
+      if (pts.length >= 2) {
+        const a = pts[0], b = pts[pts.length - 1];
+        el("line", { x1: X(a[0]), y1: Y(a[1]), x2: X(b[0]), y2: Y(b[1]), class: "ln", stroke: L.color || "#be123c" });
+        if (L.label) {
+          let best = null, bestD = -1;
+          [0.85, 0.72, 0.15, 0.28, 0.5].forEach(t => {
+            const px = X(a[0] + (b[0] - a[0]) * t), py = Y(a[1] + (b[1] - a[1]) * t);
+            const d = Math.min(1e9, ...placed.concat(cross).map(q => Math.hypot(q[0] - px, q[1] - py)));
+            if (d > bestD + 0.5) { bestD = d; best = [px, py]; }
+          });
+          placed.push(best);
+          // Step off the line at right angles (on the upper side), anchored so the text runs away from it.
+          let dx = X(b[0]) - X(a[0]), dy = Y(b[1]) - Y(a[1]); const len = Math.hypot(dx, dy) || 1; dx /= len; dy /= len;
+          let nx = -dy, ny = dx; if (ny > 0) { nx = -nx; ny = -ny; }
+          const anchor = Math.abs(nx) < 0.35 ? "middle" : nx > 0 ? "start" : "end";
+          const tx = el("text", { x: best[0] + nx * 12, y: best[1] + ny * 12 + (ny > -0.5 ? 5 : 0), class: "lnl", fill: L.color || "#be123c", "text-anchor": anchor }, L.label);
+          tx.setAttribute("paint-order", "stroke");
+        }
       }
+    });
+    (o.points || []).forEach(p => {
+      el("circle", { cx: X(p.x), cy: Y(p.y), r: 6.5, class: "pt", fill: p.color || "#1d4ed8" });
+      if (p.label) { const t = el("text", { x: X(p.x) + 9, y: Y(p.y) - 9, class: "ptl" }, p.label); t.setAttribute("paint-order", "stroke"); }
+    });
+    return svg;
+  }
+
+
+  /* ---- diagrams: a Revision Generator engine, the plane, or plain html ---- */
+  function engineFor(name) {
+    return window['MMT_' + String(name).replace(/-engine$/, '').toUpperCase().replace(/-/g, '_') + '_ENGINE'];
+  }
+  /* Draw at a constant scale, trimmed to the ink, so a label is the same
+     size in every question; capped so a tall figure cannot take the page. */
+  function drawDiagram(host, d) {
+    host.innerHTML = '';
+    if (!d) return;
+    if (d.html) { host.innerHTML = d.html; return; }
+    if (d.grid) {
+      // squared paper: about 5.5 mm a unit (unitMM), capped in height
+      const o = d.grid, g = grid(Object.assign({}, o, { interactive: false }));
+      const cell = o.cell || 34, u = (o.unitMM || 5.5) * 3.7795 / cell;
+      const vb = g.getAttribute('viewBox').split(' ').map(Number);
+      let w = vb[2] * u, h = vb[3] * u; const cap = (o.maxMM || 92) * 3.7795;
+      if (h > cap) { w *= cap / h; h = cap; }
+      g.style.width = Math.round(w) + 'px'; g.style.height = Math.round(h) + 'px';
+      host.appendChild(g); return;
     }
-    if(type==='one_mixed'){ const structures=['right','add','sub','mul','div']; const s=choice(structures); if(s==='right') eq=`${fmt(x+b)} = ${vHTML(v)} + ${b}`; if(s==='add') eq=`${vHTML(v)} + ${b} = ${fmt(x+b)}`; if(s==='sub') eq=`${vHTML(v)} − ${b} = ${fmt(x-b)}`; if(s==='mul') eq=`${a}${vHTML(v)} = ${fmt(a*x)}`; if(s==='div'){eq=`${fracHTML(vHTML(v),a)} = ${fmt(x)}`; ans=`${v} = ${fmt(a*x)}`;} }
-    if(type==='two_standard'){ eq=`${a}${vHTML(v)}${sign(b)} = ${fmt(a*x+b)}`; }
-    if(type==='two_frac_all'){ const rhs=x; eq=`${fracHTML(`${vHTML(v)}${sign(b)}`,a)} = ${fmt(rhs)}`; ans=`${v} = ${fmt(a*rhs-b)}`; }
-    if(type==='two_frac_var'){ const rhs=x+b; eq=`${fracHTML(vHTML(v),a)} + ${b} = ${fmt(rhs)}`; ans=`${v} = ${fmt(a*x)}`; }
-    if(type==='two_brackets'){ eq=`${a}(${vHTML(v)}${sign(b)}) = ${fmt(a*(x+b))}`; }
-    if(type==='both_sides'){ const r=randInt(1,a-1); const c=randInt(1,9); eq=`${a}${vHTML(v)}${sign(b)} = ${r}${vHTML(v)}${sign((a-r)*x+b)}`; }
-    if(type==='collect_like'){
-      if(Math.random()<.2){
-        let c=randInt(1,5),d=randInt(1,5),e=randInt(1,5), guard=0;
-        while(a+c===d+e && guard++<80){ d=randInt(1,5); e=randInt(1,5); }
-        eq=`${a}${vHTML(v)} + ${c}${vHTML(v)}${sign(b)} = ${d}${vHTML(v)} + ${e}${vHTML(v)}${sign((a+c-d-e)*x+b)}`;
-      } else {
-        const c=randInt(1,7); eq=`${a}${vHTML(v)} + ${c}${vHTML(v)} = ${fmt((a+c)*x)}`;
+    const E = engineFor(d.engine);
+    if (!E || !E.render) { host.innerHTML = '<div class="diagMissing">Diagram unavailable</div>'; return; }
+    const holder = document.createElement('div'); holder.className = 'engHolder';
+    host.appendChild(holder);
+    try { E.render(holder, d.config || {}); } catch (e) { console.warn('diagram', e); holder.innerHTML = '<div class="diagMissing">Diagram unavailable</div>'; return; }
+    holder.querySelectorAll('svg').forEach(svg => {
+      if (svg.parentElement && svg.parentElement.closest('svg')) return;
+      try {
+        const bb = svg.getBBox();
+        if (bb.width > 4 && bb.height > 4) {
+          const p = 10;
+          svg.setAttribute('viewBox', `${bb.x - p} ${bb.y - p} ${bb.width + 2 * p} ${bb.height + 2 * p}`);
+          svg.removeAttribute('width'); svg.removeAttribute('height');
+          const k = (d.scale || 1.15) * 0.62;
+          svg.style.width = Math.round((bb.width + 2 * p) * k) + 'px';
+          svg.style.maxWidth = '100%'; svg.style.height = 'auto';
+          svg.style.maxHeight = (d.maxH ? d.maxH * 0.62 : 230) + 'px';
+        }
+      } catch (e) { /* not laid out yet */ }
+    });
+  }
+
+  /* ---- answers ---- */
+  function answerHTML(q) {
+    if (q.answerHTML) return q.answerHTML;
+    if (q.mode === 'mc') { const o = q.options[q.correct]; return /^\s*[A-F][:.)]/.test(strip(o)) ? o : `${'ABCDEF'[q.correct]} &nbsp;${o}`; }
+    if (q.mode === 'tf') return q.truth ? 'True' : 'False';
+    if (q.mode === 'num') return (q.pre || '') + C.fmt(q.value, q.dp == null ? 4 : q.dp, q.dp != null && q.dp > 0) + (q.unit ? (q.unit === '°' ? '°' : ' ' + q.unit) : '');
+    if (q.mode === 'coord' || q.mode === 'plot') return `(${C.fmt(q.x)}, ${C.fmt(q.y)})`;
+    return '';
+  }
+  const strip = h => { const d = document.createElement('div'); d.innerHTML = String(h); return (d.textContent || '').replace(/\s+/g, ' ').trim(); };
+
+  /* Screen wording becomes paper wording. */
+  function paperPrompt(p) {
+    return String(p)
+      .replace(/Click the grid to plot/g, 'Plot')
+      .replace(/click the grid to plot/g, 'plot')
+      .replace(/\bType your answer/g, 'Write your answer').replace(/\btype your answer/g, 'write your answer');
+  }
+
+  /* Arabic/Farsi: only the opening instruction is translated, and only when
+     the Revision Generator's curated phrases have a real translation for it.
+     Its catch-all lines ("answer the question below") are not used. */
+  const FALLBACKS = /أجب عن السؤال أدناه|به پرسش زیر پاسخ دهید|استخدم المعلومات الإنجليزية|از اطلاعات انگلیسی زیر/;
+  function localLine(q) {
+    if (isEn() || !translate) return '';
+    if (q.loc && q.loc[lang()]) return q.loc[lang()];
+    // the opening instruction only, up to the first display block
+    const html = String(paperPrompt(q.prompt));
+    const cut = html.search(/<span class="(big|say|dataList|sub|math-expression|prompt-indented-line)"|<table|<br|<div|<ol/);
+    const div = document.createElement('div');
+    div.innerHTML = cut > 0 ? html.slice(0, cut) : html;
+    // protect the maths: each maths element becomes a token the phrases carry through
+    const keep = [];
+    const MATHS = '.m, .fr, sup, sub, .math-frac, .math-inline, .math-relation, .value-item';
+    div.querySelectorAll(MATHS).forEach(el => {
+      if (el.parentElement && el.parentElement.closest(MATHS)) return;
+      keep.push(el.outerHTML); el.replaceWith(document.createTextNode(` QQ${keep.length - 1}QQ `));
+    });
+    const lead = (div.textContent || '').replace(/\s+/g, ' ').trim();
+    if (!lead || lead.length > 170) return '';
+    let t = '';
+    try { t = translate(lead, lang(), { topic: CFG.translateTopic || CFG.topic, type: q.type || '' }) || ''; } catch (e) { t = ''; }
+    t = String(t).replace(/[\u2066-\u2069\u200e\u200f]/g, '').replace(/\s+([:،؛.؟])/g, '$1');
+    if (!t || FALLBACKS.test(t)) return '';
+    // a real translation: no English words left over, every maths token kept once, no stray punctuation
+    const words = t.replace(/QQ\d+QQ/g, ' ').match(/[A-Za-z]{2,}/g) || [];
+    if (words.some(w => !/^(HCF|LCM|km|cm|mm|kg|mL|ml|m|g|L|h|min|s|cos|sin|tan|ii?i?|iv)$/.test(w))) return '';
+    for (let i = 0; i < keep.length; i++) if ((t.match(new RegExp(`QQ${i}QQ`, 'g')) || []).length !== 1) return '';
+    if (/[:;,.]\s*[:;,.]|^\s*[:;,.]/.test(t.replace(/QQ\d+QQ/g, 'X'))) return '';
+    return C.esc(t).replace(/\s*QQ(\d+)QQ\s*/g, (m, i) => ` <bdi dir="ltr">${keep[+i]}</bdi> `).trim();
+  }
+
+  /* ---- one card ---- */
+  function cardHTML(q, idx, key) {
+    if (q.mode === 'plot' && q.grid && !q.diagram) { q.diagram = { grid: q.grid }; q.noAnswerBox = true; }
+    const loc = localLine(q);
+    const prompt = paperPrompt(q.prompt);
+    let body = '';
+    if (q.mode === 'mc' && q.options) {
+      const long = q.options.some(o => strip(o).length > 26);
+      body += `<div class="opts${long ? ' long' : ''}">` + q.options.map((o, k) =>
+        `<div class="opt${key && k === q.correct ? ' right' : ''}"><span class="L">${'ABCDEF'[k]}</span><span>${o}</span></div>`).join('') + '</div>';
+    }
+    if (q.mode === 'tf') {
+      body += `<div class="tfRow"><span class="${key && q.truth ? 'right' : ''}">${isEn() ? 'True' : L().trueW + ' / True'}</span><span class="${key && !q.truth ? 'right' : ''}">${isEn() ? 'False' : L().falseW + ' / False'}</span></div>`;
+    }
+    const diag = (key && q.keyDiagram) || q.diagram || (key && q.mode === 'plot' && q.grid) || null;
+    const ansLabel = isEn() ? `<span>${LANG.en.answer}</span>` : `<span class="loc" dir="rtl">${L().answer}</span><span class="en">${LANG.en.answer}</span>`;
+    const needsBox = !(q.mode === 'tf') && !(q.noAnswerBox);
+    const unitAfter = !key && q.mode === 'num' && q.unit && q.unit !== '°' ? `<span class="ansUnit">${q.unit}</span>` : (!key && q.unit === '°' && q.mode === 'num' ? '<span class="ansUnit">°</span>' : '');
+    const work = !key && toggleWorking.checked && !q.noWorking
+      ? `<div class="workBox"><span class="workTag">${isEn() ? LANG.en.working : L().working + ' · ' + LANG.en.working}</span></div>` : '';
+    const ans = key
+      ? `<div class="ansRow">${ansLabel}<div class="ansBox key">${answerHTML(q) || '—'}</div></div>${toggleWhy.checked && q.why ? `<div class="why">${q.why}</div>` : ''}`
+      : (needsBox ? `<div class="ansRow">${ansLabel}<div class="ansBox"></div>${unitAfter}</div>` : '');
+    return `<div class="qCard" data-type="${q.type}">` +
+      `<div class="qHead"><span class="qNum">Q${idx}</span><div class="qPrompt${loc ? ' bi' : ''}">${loc ? `<span class="loc">${loc}</span>` : ''}<span class="enLine">${prompt}</span>${body}</div></div>` +
+      (diag ? `<div class="qDiag" data-d="1"></div>` : '') +
+      (!key && q.drawSpace ? `<div class="drawBox${q.grid5 ? ' sq' : ''}" style="height:${q.drawSpace}mm"><span class="workTag">${q.drawTag || ''}</span></div>` : '') +
+      `<div class="qFill"></div>${work}${ans}</div>`;
+  }
+  function hydrate(el, q, key) {
+    const host = el.querySelector('.qDiag'); if (!host) return;
+    let d = (key && q.keyDiagram) || q.diagram;
+    if (key && q.mode === 'plot' && d && d.grid) d = { grid: Object.assign({}, d.grid, { points: (d.grid.points || []).concat([{ x: q.x, y: q.y, color: '#16a34a', label: `(${C.fmt(q.x)}, ${C.fmt(q.y)})` }]) }) };
+    drawDiagram(host, d);
+  }
+
+  /* ---- pages: measure every card at its printed width, then pack ---- */
+  function headerHTML(key, p, total) {
+    const lv = lastPaper.level === 'basic' ? 'Basic' : 'Expected';
+    const enTitle = `${CFG.topic} — ${key ? 'Answer key' : 'Worksheet'} (${lv})`;
+    const locT = isEn() ? '' : `<span class="loc" dir="rtl">${key ? L().answerKey : L().worksheet} (${lv})</span>`;
+    const sub = `${key ? 'Answer key' : 'Worksheet'} — ${isEn() ? 'Page' : L().page + ' / Page'} ${p} / ${total}`;
+    const field = (w, en) => `<div class="lineField"><div class="lineLabel">${isEn() ? en : `<span class="loc">${w}</span> ${en}`}</div><div class="lineBox"></div></div>`;
+    const nd = key ? '' : `<div class="nameDate">${field(L().name, 'Name')}${field(L().date, 'Date')}</div>`;
+    return `<div class="pageHeader"><div><div class="hdrTitle">${locT}${enTitle}</div><div class="hdrSub">${sub}</div></div>${nd}</div>`;
+  }
+  const footerHTML = () => `<div class="pageFooter"><span>This tool and more can be found at <a href="${SITE}">www.millsmathstools.au</a></span><span class="oc">${CFG.outcome}</span></div>`;
+
+  function measureRows(qs, key) {
+    // a probe page the same size as a real one
+    probe.innerHTML = `<div class="page${isEn() ? '' : ' lang-rtl'}">${headerHTML(key, 1, 1)}<div class="pageBody"><div class="row"><div id="pa"></div><div></div></div><div class="row wide"><div id="pw"></div></div></div>${footerHTML()}</div>`;
+    const pg = probe.firstChild, body = pg.querySelector('.pageBody');
+    const cs = getComputedStyle(body);
+    GAP = parseFloat(cs.rowGap) || 11;
+    const avail = body.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - 1;
+    const half = probe.querySelector('#pa'), full = probe.querySelector('#pw');
+    const items = qs.map((q, i) => {
+      half.innerHTML = cardHTML(q, i + 1, key); hydrate(half.firstChild, q, key);
+      const card = half.firstChild;
+      const over = card.scrollWidth > card.clientWidth + 2 || [...card.querySelectorAll('svg,table,.opts')].some(e => e.getBoundingClientRect().width > card.clientWidth - 6);
+      let wide = !!q.wide || over, h;
+      if (wide) { full.innerHTML = cardHTML(q, i + 1, key); hydrate(full.firstChild, q, key); h = full.firstChild.getBoundingClientRect().height; }
+      else h = card.getBoundingClientRect().height;
+      return { q, wide, h };
+    });
+    probe.innerHTML = '';
+    return { items, avail };
+  }
+  let GAP = 11;
+  function pack(items, avail) {
+    const rows = [];
+    for (let i = 0; i < items.length; i++) {
+      const a = items[i];
+      if (a.wide) { rows.push({ cells: [a], wide: true, h: a.h }); continue; }
+      const b = items[i + 1];
+      if (b && !b.wide) { rows.push({ cells: [a, b], h: Math.max(a.h, b.h) }); i++; }
+      else rows.push({ cells: [a], h: a.h });
+    }
+    const pages = [];
+    let cur = [], used = 0;
+    rows.forEach(r => {
+      const need = r.h + (cur.length ? GAP : 0);
+      if (cur.length && used + need > avail) { pages.push({ rows: cur, used }); cur = []; used = 0; }
+      cur.push(r); used += r.h + (cur.length > 1 ? GAP : 0);
+    });
+    if (cur.length) pages.push({ rows: cur, used });
+    return pages;
+  }
+  function buildHalf(qs, key) {
+    const { items, avail } = measureRows(qs, key);
+    const pages = pack(items, avail);
+    let n = 0;
+    return pages.map((pg, p) => {
+      const page = document.createElement('div');
+      page.className = 'page' + (isEn() ? '' : ' lang-rtl') + (key ? ' answerKeyPage' : '');
+      // Whatever the page has left is shared out as working room.
+      const extra = Math.max(0, avail - pg.used - 2);
+      const each = Math.min(extra / pg.rows.length, key ? 0 : 260);
+      page.innerHTML = headerHTML(key, p + 1, pages.length) + '<div class="pageBody"></div>' + footerHTML();
+      const body = page.querySelector('.pageBody');
+      pg.rows.forEach(r => {
+        const row = document.createElement('div');
+        row.className = 'row' + (r.wide ? ' wide' : '');
+        row.style.minHeight = (r.h + each) + 'px';
+        r.cells.forEach(c => {
+          n++;
+          const holder = document.createElement('div');
+          holder.innerHTML = cardHTML(c.q, qs.indexOf(c.q) + 1, key);
+          const card = holder.firstChild; row.appendChild(card);
+        });
+        body.appendChild(row);
+      });
+      return page;
+    });
+  }
+  function draw() {
+    out.innerHTML = '';
+    if (!lastPaper) return;
+    const { qs } = lastPaper;
+    const ws = buildHalf(qs, false), keyPages = buildHalf(qs, true);
+    ws.concat(keyPages).forEach(p => out.appendChild(p));
+    // diagrams are drawn once the cards are in the document
+    out.querySelectorAll('.qCard').forEach(card => {
+      const page = card.closest('.page');
+      const key = page.classList.contains('answerKeyPage');
+      const i = +card.querySelector('.qNum').textContent.slice(1) - 1;
+      hydrate(card, qs[i], key);
+    });
+    totalPill.textContent = `${qs.length} question${qs.length === 1 ? '' : 's'} · ${ws.length} page${ws.length === 1 ? '' : 's'} + ${keyPages.length}-page key`;
+  }
+
+  /* ---- the paper ---- */
+  const typesAt = lv => TYPES.filter(t => t.level === lv);
+  function activeIds() { return typesAt(levelSel.value).map(t => t.id).filter(id => { const b = document.getElementById('chk_' + id); return b && b.checked; }); }
+  function clampCount() { return Math.max(1, Math.min(48, Math.round(Number(countInp.value) || CFG.defaultCount || 12))); }
+  function generate() {
+    out.innerHTML = ''; lastPaper = null;
+    const ids = activeIds();
+    if (!ids.length) { out.innerHTML = '<div class="warn">Please tick at least one question type.</div>'; return; }
+    const n = clampCount(); countInp.value = String(n);
+    const order = new Map(typesAt(levelSel.value).map((t, i) => [t.id, i]));
+    const types = typesAt(levelSel.value).filter(t => ids.includes(t.id));
+    // every ticked type at least once, then dealt evenly
+    const plan = []; let deck = [];
+    while (plan.length < n) { if (!deck.length) deck = C.shuffle(types); plan.push(deck.pop()); }
+    const seen = new Set(), qs = [];
+    plan.forEach(t => {
+      let q = null;
+      for (let tries = 0; tries < 40; tries++) {
+        let c = null;
+        try { c = t.gen({ level: levelSel.value, paper: true }); } catch (e) { console.warn(t.id, e); }
+        if (!c) continue;
+        const sig = t.id + '|' + (c.key || strip(c.prompt) + JSON.stringify(c.diagram && (c.diagram.config || c.diagram.grid || c.diagram.html) || '') + JSON.stringify(c.options || ''));
+        q = c;
+        if (!seen.has(sig)) { seen.add(sig); break; }
       }
+      if (!q) return;
+      q.type = t.id; q.label = t.label; q.stmt = t.stmt;
+      q._o = toggleMix.checked ? Math.random() * 1000 : order.get(t.id) + Math.random() * 1.6;
+      qs.push(q);
+    });
+    qs.sort((a, b) => a._o - b._o);
+    lastPaper = { qs, level: levelSel.value };
+    draw();
+    out.firstElementChild && out.firstElementChild.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  /* ---- the controls ---- */
+  function renderChecks() {
+    const lv = levelSel.value, other = lv === 'basic' ? 'Expected' : 'Basic';
+    chkWrap.innerHTML = CFG.statements.map((s, i) => {
+      const here = typesAt(lv).filter(t => t.stmt === s.id);
+      const chips = here.map(t => `<label class="chk" title="${t.paper ? 'Written for paper (not in the online quiz)' : 'Also in the whole-topic quiz'}"><input type="checkbox" id="chk_${t.id}" checked> ${t.label}${t.paper ? ' <span class="wTag">paper</span>' : ''}</label>`).join('');
+      const none = `<span class="stmtNone">Covered in the ${other} paper.</span>`;
+      return `<div class="stmtRow"><p class="stmtText"><span class="n">${i + 1}</span>${s.text}</p><div class="checks">${chips || none}</div></div>`;
+    }).join('');
+    updateSelectBtn(); updatePill();
+  }
+  function updateSelectBtn() {
+    const boxes = [...chkWrap.querySelectorAll('input[type=checkbox]')];
+    selectBtn.textContent = boxes.some(b => b.checked) ? 'Deselect all' : 'Select all';
+  }
+  function updatePill() { const n = clampCount(); totalPill.textContent = `${n} question${n === 1 ? '' : 's'} + answer key`; }
+
+  function boot() {
+    if (booted) return; booted = true;
+    if (BANK) {
+      const skip = new Set(CFG.skip || []);
+      BANK.types.forEach(t => {
+        if (skip.has(t.id)) return;
+        const stmt = (CFG.stmtOf || {})[t.id];
+        if (!stmt) console.warn('No content statement for quiz type', t.id);
+        TYPES.push({ id: t.id, level: t.level, label: (CFG.relabel || {})[t.id] || t.label, stmt, gen: t.gen, paper: false });
+      });
     }
-    return {type,kind:'solve',eq,answer:ans,key:`solve_${strip(eq)}`};
+    (CFG.paperTypes || []).forEach(t => TYPES.push(Object.assign({ paper: true }, t)));
+    // keep each level's list in its intended climbing order
+    if (CFG.order) TYPES.sort((a, b) => (CFG.order.indexOf(a.id) + 1 || 999) - (CFG.order.indexOf(b.id) + 1 || 999));
+    try { const s = localStorage.getItem(CFG.langKey); if (s && LANG[s]) languageSel.value = s; } catch (e) {}
+    renderChecks();
   }
-  function quad(type){const v='x', root=choice([2,3,4,5,6,7,8,9,10,11,12]); if(type==='quad_x2') return {type,kind:'solve',eq:`${vHTML(v)}² = ${root*root}`,answer:`${v} = ±${root}`,key:`q1_${root}`}; const a=coeff(); return {type,kind:'solve',eq:`${a}${vHTML(v)}² = ${a*root*root}`,answer:`${v} = ±${root}`,key:`q2_${a}_${root}`};}
-  function verify(expected=false){const base=expected?choice(['two_standard','two_brackets','both_sides']):choice(['one_add_sub','one_mul_div']); const q=linEq(base); const trueAns=Number((q.answer.match(/=\s*[−-]?(\d+)/)||[])[1]); let proposed=Number(strip(q.answer).split('=')[1]); let ok=Math.random()<.55; if(!ok) proposed += choice([-3,-2,-1,1,2,3]); return {type:expected?'verify_expected':'verify_basic',kind:'verify',v:(strip(q.answer).split('=')[0]||'x').trim(),val:proposed,eq:q.eq,answer:ok?tr('true'):tr('false'),key:`ver_${strip(q.eq)}_${proposed}`};}
-  function localWordStory(name,a,b,total){
-    if(languageSel.value==='fa') return `${name} عددی را در ذهن دارد. آن را در ${a} ضرب می‌کند و سپس ${b} اضافه می‌کند. نتیجه ${total} است.`;
-    if(languageSel.value==='ar') return `${name} يفكر في عدد. يضربه في ${a} ثم يضيف ${b}. الناتج هو ${total}.`;
-    return `${name} thinks of a number. They multiply it by ${a} and then add ${b}. The result is ${total}.`;
-  }
-  function repText(mode,a,b,total,xplus,v){
-    const lang=languageSel.value;
-    if(lang==='fa'){
-      if(mode==='words') return {stem:`عددی در ${a} ضرب می‌شود، سپس ${b} اضافه می‌شود. نتیجه ${total} است.`,opts:[`${a}${vHTML(v)} + ${b} = ${total}`,`${a}${vHTML(v)} − ${b} = ${total}`,`${a}(${vHTML(v)} + ${b}) = ${total}`,`${vHTML(v)} + ${a} = ${total}`]};
-      if(mode==='match') return {stem:`${a}${vHTML(v)} + ${b} = ${total}`,opts:[`عددی در ${a} ضرب می‌شود، سپس ${b} اضافه می‌شود تا ${total} به دست آید.`,`عددی با ${a} جمع می‌شود، سپس در ${b} ضرب می‌شود.`,`عددی بر ${a} تقسیم می‌شود، سپس ${b} اضافه می‌شود.`,`عددی در ${b} ضرب می‌شود، سپس ${a} اضافه می‌شود.`]};
-      return {stem:`یک عدد به علاوه ${b} برابر با ${xplus} است.`,opts:[`${vHTML(v)} + ${b} = ${xplus}`,`${vHTML(v)} − ${b} = ${xplus}`,`${b}${vHTML(v)} = ${xplus}`,`${vHTML(v)} + ${xplus} = ${b}`]};
-    }
-    if(lang==='ar'){
-      if(mode==='words') return {stem:`يُضرب عدد في ${a}، ثم يُضاف ${b}. الناتج هو ${total}.`,opts:[`${a}${vHTML(v)} + ${b} = ${total}`,`${a}${vHTML(v)} − ${b} = ${total}`,`${a}(${vHTML(v)} + ${b}) = ${total}`,`${vHTML(v)} + ${a} = ${total}`]};
-      if(mode==='match') return {stem:`${a}${vHTML(v)} + ${b} = ${total}`,opts:[`يُضرب عدد في ${a}، ثم يُضاف ${b} ليصبح الناتج ${total}.`,`يُضاف عدد إلى ${a}، ثم يُضرب في ${b}.`,`يُقسم عدد على ${a}، ثم يُضاف ${b}.`,`يُضرب عدد في ${b}، ثم يُضاف ${a}.`]};
-      return {stem:`عدد زائد ${b} يساوي ${xplus}.`,opts:[`${vHTML(v)} + ${b} = ${xplus}`,`${vHTML(v)} − ${b} = ${xplus}`,`${b}${vHTML(v)} = ${xplus}`,`${vHTML(v)} + ${xplus} = ${b}`]};
-    }
-    if(mode==='words') return {stem:`A number is multiplied by ${a}, then ${b} is added. The result is ${total}.`,opts:[`${a}${vHTML(v)} + ${b} = ${total}`,`${a}${vHTML(v)} − ${b} = ${total}`,`${a}(${vHTML(v)} + ${b}) = ${total}`,`${vHTML(v)} + ${a} = ${total}`]};
-    if(mode==='match') return {stem:`${a}${vHTML(v)} + ${b} = ${total}`,opts:[`A number is multiplied by ${a}, then ${b} is added to make ${total}.`,`A number is added to ${a}, then multiplied by ${b}.`,`A number is divided by ${a}, then ${b} is added.`,`A number is multiplied by ${b}, then ${a} is added.`]};
-    return {stem:`A number plus ${b} is equal to ${xplus}.`,opts:[`${vHTML(v)} + ${b} = ${xplus}`,`${vHTML(v)} − ${b} = ${xplus}`,`${b}${vHTML(v)} = ${xplus}`,`${vHTML(v)} + ${xplus} = ${b}`]};
-  }
-  function repExpectedWords(v,b,x){
-    const total=2*(x+b);
-    if(languageSel.value==='fa') return {stem:`دو برابر مجموع یک عدد و ${b} برابر با ${total} است.`,opts:[`2(${vHTML(v)} + ${b}) = ${total}`,`2${vHTML(v)} + ${b} = ${total}`,`${vHTML(v)} + 2${b} = ${total}`,`2(${vHTML(v)} − ${b}) = ${total}`]};
-    if(languageSel.value==='ar') return {stem:`ضعف مجموع عدد و ${b} يساوي ${total}.`,opts:[`2(${vHTML(v)} + ${b}) = ${total}`,`2${vHTML(v)} + ${b} = ${total}`,`${vHTML(v)} + 2${b} = ${total}`,`2(${vHTML(v)} − ${b}) = ${total}`]};
-    return {stem:`Twice the sum of a number and ${b} is ${total}.`,opts:[`2(${vHTML(v)} + ${b}) = ${total}`,`2${vHTML(v)} + ${b} = ${total}`,`${vHTML(v)} + 2${b} = ${total}`,`2(${vHTML(v)} − ${b}) = ${total}`]};
-  }
-  function representation(expected=false){
-    const v=pickVar(), a=coeff(), b=randInt(2,9), x=val(), total=a*x+b, xplus=x+b;
-    const mode='words';
-    let data=repText(mode,a,b,total,xplus,v);
-    if(expected && mode==='words') data=repExpectedWords(v,b,x);
-    const prompt=`${tr('whichEquation')} ${data.stem}`;
-    return {type:expected?'represent_expected':'represent_basic',kind:'mcq',prompt,options:shuffle(data.opts.map((o,i)=>({html:o,correct:i===0}))),answer:data.opts[0],key:`rep_match_${strip(data.stem)}`};
-  }
-  function wordProblem(){const v='x', a=coeff(), b=randInt(2,9), x=val(), total=a*x+b; const names=['Mia','Sam','Ali','Nora','Leo','Ava']; const name=choice(names); const text=localWordStory(name,a,b,total); return {type:'word_problems',kind:'word',prompt:tr('word')(text),answer:`${v} = ${fmt(x)}`,key:`wp_${a}_${b}_${total}`};}
-  function genByType(id){if(id.startsWith('one_')||['two_standard','two_frac_all','two_frac_var','two_brackets','both_sides','collect_like'].includes(id))return linEq(id); if(id==='quad_x2'||id==='quad_ax2')return quad(id); if(id==='verify_basic')return verify(false); if(id==='verify_expected')return verify(true); if(id==='represent_basic')return representation(false); if(id==='represent_expected')return representation(true); if(id==='word_problems')return wordProblem(); return linEq('one_add_sub');}
-  function initUI(){document.title=CONFIG.title; outcomeSel.innerHTML=''; CONFIG.outcomes.forEach(o=>{let opt=document.createElement('option');opt.value=o.value;opt.textContent=o.label;outcomeSel.appendChild(opt)}); countInp.min=CONFIG.minCount; countInp.max=CONFIG.maxCount; countInp.step=CONFIG.perPage; countInp.value=CONFIG.defaultCount; renderChecks(); renderToggles(); translateUI();}
-  function uiText(k){return I18N.en[k]??k} function renderToggles(){toggleWrap.innerHTML=''; [['tog_frac','includeFractions'],['tog_neg','includeNegatives'],['tog_int','integerSolutions']].forEach(([id,key])=>{const lab=document.createElement('label');lab.className='chk';const inp=document.createElement('input');inp.type='checkbox';inp.id=id; if(id==='tog_int') inp.checked=true; const span=document.createElement('span');span.textContent=uiText(key);lab.append(inp,span);toggleWrap.appendChild(lab);});}
-  function renderChecks(){chkWrap.innerHTML=''; TYPES.filter(t=>t.level===level()).forEach(t=>{const lab=document.createElement('label');lab.className='chk';const inp=document.createElement('input');inp.type='checkbox';inp.id=`chk_${t.id}`;inp.checked=t.defaultOn;const span=document.createElement('span');span.textContent=t.label;lab.append(inp,span);chkWrap.appendChild(lab);}); updateToggleAll();}
-  function translateUI(){document.querySelectorAll('[data-i18n]').forEach(el=>{el.textContent=uiText(el.dataset.i18n)}); updateToggleAll();}
-  function activeTypes(){return TYPES.filter(t=>t.level===level()).filter(t=>document.getElementById(`chk_${t.id}`)?.checked)}
-  function updateToggleAll(){const boxes=[...chkWrap.querySelectorAll('input[type=checkbox]')]; const allOn=boxes.length&&boxes.every(b=>b.checked); toggleAllBtn.textContent=allOn?uiText('deselectAll'):uiText('selectAll');}
-  function generateQuestions(n){const ats=activeTypes(); if(!ats.length)return[]; const qs=[],seen=new Set(); let safety=0; const uniqueKey=q=>String(q.key||q.eq||q.prompt||'').replace(/<[^>]*>/g,'').replace(/\s+/g,' ').trim().toLowerCase(); while(qs.length<n&&safety<20000){safety++; const t=choice(ats); const q=genByType(t.id); const k=uniqueKey(q); if(!seen.has(k)){seen.add(k); qs.push(q)}} return qs;}
-  function makeCard(q,idx,showAnswers){
-    const card=document.createElement('div');
-    card.className='qCard'+(q.kind==='mcq'?' mcqCard':'');
-    const top=document.createElement('div'); top.className='qTop';
-    const num=document.createElement('div'); num.className='qNum'; num.textContent=`Q${idx}`;
-    const text=document.createElement('div'); text.className='qText';
-    if(q.kind==='mcq'||q.kind==='word') text.innerHTML=q.prompt;
-    else if(q.kind==='verify') text.innerHTML=L().isSolution(vHTML(q.v),fmt(q.val),eqHTML(q));
-    else text.innerHTML=`${tr('solve')} ${eqHTML(q)}`;
-    top.append(num,text); card.appendChild(top);
-    if(q.kind==='mcq'){
-      const mc=document.createElement('div'); mc.className='mcq';
-      q.options.forEach((o,i)=>{const opt=document.createElement('div'); opt.className='opt'+(showAnswers&&o.correct?' key':''); opt.innerHTML=`${String.fromCharCode(65+i)}. <span class="math">${o.html}</span>`; mc.appendChild(opt)});
-      card.appendChild(mc);
-      return card;
-    }
-    const wb=document.createElement('div');
-    wb.className='workBox'+(showAnswers?' key':'');
-    wb.innerHTML=showAnswers?answerHTML(q):'';
-    card.appendChild(wb);
-    return card;
-  }
-  function makePage(title,pageIdx,pageCount,langClass){const page=document.createElement('div'); page.className=`page ${langClass}`; const border=document.createElement('img'); border.className='pageBorder'; border.alt=''; border.src=CONFIG.borderSrc; page.appendChild(border); const inner=document.createElement('div'); inner.className='pageInner'; const cont=document.createElement('div'); cont.className='pageContent'; const hdr=document.createElement('div'); hdr.className='pageHeader'; const left=document.createElement('div'); left.className='hdrLeft'; left.innerHTML=`<div class="hdrTitle">${title}</div><div class="hdrSub">${tr('page')} ${pageIdx} / ${pageCount}</div>`; const name=document.createElement('div'); name.className='nameRow'; ['name','className','date'].forEach(k=>{const f=document.createElement('div');f.className='lineField';f.innerHTML=`<div class="lineLabel">${tr(k)}</div><div class="lineBox"></div>`;name.appendChild(f)}); hdr.append(left,name); cont.appendChild(hdr); const grid=document.createElement('div'); grid.className='grid'; cont.appendChild(grid); inner.appendChild(cont); page.appendChild(inner); return {page,grid};}
-  function render(qs,showAnswers=false){const totalPages=Math.ceil(qs.length/CONFIG.perPage); const langClass=L().dir==='rtl'?'lang-rtl':''; for(let p=0;p<totalPages;p++){const {page,grid}=makePage(showAnswers?tr('answerKeyTitle'):tr('pageTitle'),p+1,totalPages,langClass); qs.slice(p*CONFIG.perPage,(p+1)*CONFIG.perPage).forEach((q,i)=>grid.appendChild(makeCard(q,p*CONFIG.perPage+i+1,showAnswers))); out.appendChild(page);}}
-  function generate(){out.innerHTML=''; const n=Math.max(CONFIG.minCount,Math.min(CONFIG.maxCount,Number(countInp.value)||CONFIG.defaultCount)); const qs=generateQuestions(n); if(!qs.length){out.innerHTML=`<div class="page"><div class="pageContent"><strong>${tr('noTypes')}</strong></div></div>`; return;} render(qs,false); render(qs,true);}
-  genBtn.addEventListener('click',generate); printBtn.addEventListener('click',()=>window.print()); resetBtn.addEventListener('click',()=>{countInp.value=CONFIG.defaultCount; renderChecks(); renderToggles(); out.innerHTML='';}); outcomeSel.addEventListener('change',()=>{renderChecks(); out.innerHTML='';}); languageSel.addEventListener('change',()=>{translateUI();}); toggleAllBtn.addEventListener('click',()=>{const boxes=[...chkWrap.querySelectorAll('input[type=checkbox]')]; const allOn=boxes.every(b=>b.checked); boxes.forEach(b=>b.checked=!allOn); updateToggleAll();}); chkWrap.addEventListener('change',updateToggleAll);
-  initUI(); generate();
+
+  window.WSF = {
+    page(cfg) {
+      CFG = cfg;
+      countInp.value = String(cfg.defaultCount || 12);
+      if (!cfg.bank) (document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', boot) : boot());
+    },
+    C, grid, drawDiagram,
+    get types() { return TYPES; }, get statements() { return CFG ? CFG.statements : []; }, get paper() { return lastPaper; }, generate, answerHTML, cardHTML, boot
+  };
+  window.MMTQ = { run(bank) { BANK = bank; (document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', boot) : boot()); }, grid, drawDiagram, core: C };
+
+  import('/assessment/exam-builder/utils/translation.js?v=c4551780').then(m => { translate = m.translatePrompt; if (lastPaper && !isEn()) draw(); }).catch(() => { translate = null; });
+
+  levelSel.addEventListener('change', () => { out.innerHTML = ''; lastPaper = null; renderChecks(); });
+  languageSel.addEventListener('change', () => { try { localStorage.setItem(CFG.langKey, languageSel.value); } catch (e) {} draw(); });
+  chkWrap.addEventListener('change', updateSelectBtn);
+  selectBtn.addEventListener('click', e => { e.preventDefault(); const boxes = [...chkWrap.querySelectorAll('input[type=checkbox]')], any = boxes.some(b => b.checked); boxes.forEach(b => b.checked = !any); updateSelectBtn(); });
+  countInp.addEventListener('input', updatePill);
+  [toggleWorking, toggleWhy].forEach(el => el.addEventListener('change', draw));
+  toggleMix.addEventListener('change', () => { if (lastPaper) generate(); });
+  $('genBtn').addEventListener('click', generate);
+  $('printBtn').addEventListener('click', () => window.print());
+  $('resetBtn').addEventListener('click', () => { out.innerHTML = ''; lastPaper = null; levelSel.value = 'basic'; countInp.value = String(CFG.defaultCount || 12); toggleWorking.checked = false; toggleWhy.checked = true; toggleMix.checked = false; renderChecks(); });
 })();
 </script>
-  <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
+<script type="module">
+import { renderMathText } from '/assessment/exam-builder/renderers/question-renderer.js?v=2cac3fcf';
+import { generateEquationQuestions as BANK_GEN } from '/assessment/exam-builder/question-banks/equations/index.js?v=4b786bfd';
+/* ---- Revision Generator question → worksheet question ----
+   The Revision Generator banks (assessment/exam-builder/question-banks) give
+   { prompt, diagram:{engine,config}, table, choices, subparts, answer,
+   working[] }. Prompts use its own markup ([[frac:a:b]] …), so they go
+   through its own renderMathText. The working lines become the key's reason. */
+const RG = (() => {
+  const RM = v => renderMathText(String(v == null ? '' : v));
+  const table = t => !t || !Array.isArray(t.rows) || !t.rows.length ? '' :
+    `${t.caption ? `<div class="tcap">${RM(t.caption)}</div>` : ''}<table class="dtab">${t.rows.map((row, r) =>
+      `<tr>${row.map((c, i) => (t.headerRow === true && r === 0) || i === 0 ? `<th>${RM(c)}</th>` : `<td>${RM(c)}</td>`).join('')}</tr>`).join('')}</table>`;
+  const L = i => `(${'abcdefgh'[i]})`;
+  function correctIndex(choices, answer) {
+    const a = String(answer == null ? '' : answer).trim();
+    const m = /^\(?([A-F])\)?(?:[\s.:)]|$)/.exec(a);
+    if (m && choices.length > 'ABCDEF'.indexOf(m[1])) return 'ABCDEF'.indexOf(m[1]);
+    let i = choices.findIndex(c => String(c).trim() === a);
+    if (i < 0) i = choices.findIndex(c => a && String(c).trim() && a.includes(String(c).trim()));
+    return i;
+  }
+  function adapt(q) {
+    if (!q) return null;
+    if ((q.subparts || []).some(p => p.diagram)) return null;
+    const out = { prompt: RM(q.prompt) + table(q.table), mode: 'none', why: (q.working || []).map(RM).join(' &nbsp;·&nbsp; ') };
+    if (q.diagram && q.diagram.engine) out.diagram = { engine: q.diagram.engine, config: q.diagram.config || {}, scale: 1.0, maxH: 330 };
+    if (q.diagramSpace) { out.drawSpace = 30; }
+    if (Array.isArray(q.choices) && q.choices.length) {
+      if (new Set(q.choices.map(c => String(c).trim())).size !== q.choices.length) return null;
+      const i = correctIndex(q.choices, q.answer);
+      out.options = q.choices.map(RM);
+      if (i >= 0) { out.mode = 'mc'; out.correct = i; }
+      else out.prompt += `<ol class="subs">${out.options.map((o, k) => `<li><span class="sl">${'ABCDEF'[k]}</span> ${o}</li>`).join('')}</ol>`;
+    }
+    if (out.mode !== 'mc') out.answerHTML = RM(q.answer);
+    if (Array.isArray(q.subparts) && q.subparts.length) {
+      out.prompt += `<ol class="subs">${q.subparts.map((p, i) => `<li><span class="sl">${p.label || L(i)}</span> ${RM(p.prompt)}${table(p.table)}${p.choices ? ' ' + p.choices.map((c, k) => `${'ABCDEF'[k]}. ${RM(c)}`).join(' &nbsp; ') : ''}</li>`).join('')}</ol>`;
+      out.answerHTML = q.subparts.map((p, i) => `${p.label || L(i)} ${RM(p.answer)}`).join('<br>');
+      const w = q.subparts.flatMap(p => p.working || []);
+      if (w.length) out.why = w.map(RM).join(' &nbsp;·&nbsp; ');
+      out.drawSpace = Math.max(out.drawSpace || 0, 8 * q.subparts.length);
+    }
+    out.loc = null;
+    return out;
+  }
+  /* one worksheet type from one bank type, at one level */
+  function type(gen, level, rgId, label, stmt) {
+    return { id: `${level === 'basic' ? 'b' : 'e'}-${rgId}`, level, label, stmt,
+      gen: () => { for (let t = 0; t < 6; t++) { const q = adapt((gen({ count: 1, allowedTypes: [rgId] }) || [])[0]); if (q) return q; } return null; } };
+  }
+  return { adapt, type, RM, table };
+})();
+
+const STATEMENTS = [{"id": "two-steps", "text": "Solve linear equations up to 2 steps"}, {"id": "verify", "text": "Solve and verify linear equations by substitution"}, {"id": "quadratic", "text": "Solve quadratic equations"}];
+/* Equations — MA4-EQU-C-01. Question types from the Revision Generator's
+   equations bank (question-banks/equations/) under the three content
+   statements. Inequalities are left out: they are Stage 5, not this outcome. */
+const T = (lv, id, label, stmt) => RG.type(BANK_GEN, lv, id, label, stmt);
+WSF.page({
+  topic: 'Equations', outcome: 'MA4-EQU-C-01', langKey: 'mmt-equ-ws-lang', bank: false,
+  translateTopic: 'Equations', defaultCount: 12, statements: STATEMENTS,
+  paperTypes: [
+    T('basic', 'represent', 'Representing equations', 'two-steps'),
+    T('basic', 'balance-model', 'Form and solve from a balance', 'two-steps'),
+    T('basic', 'inspection', 'Solve by inspection', 'two-steps'),
+    T('basic', 'one-step-add-subtract', 'One-step: add and subtract', 'two-steps'),
+    T('basic', 'one-step-multiply-divide', 'One-step: multiply and divide', 'two-steps'),
+    T('basic', 'two-standard', 'Two-step: ax + b = c', 'two-steps'),
+    T('basic', 'bar-model-equation', 'Form an equation from a bar model', 'two-steps'),
+    T('basic', 'verify', 'Substitute to check: true or false', 'verify'),
+    T('basic', 'word-problems', 'Word problems: form and solve', 'two-steps'),
+    T('basic', 'quad-x2', 'Solve x² = c', 'quadratic'),
+
+    T('expected', 'two-standard', 'Two-step: ax + b = c', 'two-steps'),
+    T('expected', 'two-frac-var', 'Fraction equations: x/a + b = c', 'two-steps'),
+    T('expected', 'two-frac-all', 'Fraction equations: (x + a)/b = c', 'two-steps'),
+    T('expected', 'two-brackets', 'Bracket equations: a(x + b) = c', 'two-steps'),
+    T('expected', 'collect-like', 'Collect like terms first', 'two-steps'),
+    T('expected', 'both-sides', 'Pronumerals on both sides', 'two-steps'),
+    T('expected', 'equivalent-equations', 'Equivalent equations (reasoning)', 'two-steps'),
+    T('expected', 'verify', 'Substitute to check: true or false', 'verify'),
+    T('expected', 'formulas', 'Substitute into a formula', 'verify'),
+    T('expected', 'multi-part-equation', 'Form, solve and check', 'verify'),
+    T('expected', 'error-spot-equation', 'Spot the error (reasoning)', 'verify'),
+    T('expected', 'multi-step-word', 'Multi-step word problems', 'two-steps'),
+    T('expected', 'quad-x2', 'Solve x² = c', 'quadratic'),
+    T('expected', 'quad-ax2', 'Solve ax² = c', 'quadratic')
+  ]
+});
+
+</script>
+
 </body>
 </html>

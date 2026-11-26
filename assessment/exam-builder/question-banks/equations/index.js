@@ -806,7 +806,8 @@ function equivalentEquationsQuestion() {
     () => { const a = coeff(); return { prompt: `Which equation is equivalent to ${a}x = ${a * 5}?`, correct: `x = 5`, distractors: [`x = ${a * 5}`, `x = ${a + 5}`, `x = ${a}`] }; }
   ];
   const v = choice(variants)();
-  const choices = shuffle([v.correct, ...v.distractors]).slice(0, 4);
+  // distinct options only: a distractor can equal the answer or another distractor
+  const choices = shuffle([...new Set([v.correct, ...v.distractors])]).slice(0, 4);
   if (!choices.includes(v.correct)) choices[0] = v.correct;
 
   return createQuestion({

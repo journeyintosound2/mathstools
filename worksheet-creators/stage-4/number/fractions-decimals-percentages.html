@@ -1,107 +1,163 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Worksheet Creator — Fractions, Decimals and Percentages</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Fractions, Decimals and Percentages — Worksheet Maker</title>
+  <!--
+    Fractions, Decimals and Percentages (MA4-FRC-C-01) — whole-topic worksheet creator.
+    BUILT FILE. The shared frame (this page's layout, A4 pages, answer key,
+    languages) and this outcome's own question code were assembled by
+    assemble.py from frame/shell.html + pages/fdp.js. Edit those parts
+    and re-assemble rather than editing the frame here, so every whole-topic
+    worksheet creator keeps the same frame. See CLAUDE.md (2026-11-27).
+  -->
   <style>
     :root{
-      --bg:#f5f7fb;
-      --panel:#ffffff;
-      --ink:#111827;
-      --muted:#6b7280;
-      --line:#d1d5db;
-      --soft:#eef2ff;
-      --soft2:#ecfdf5;
-      --primary:#4f46e5;
-      --primaryDark:#3730a3;
-      --danger:#b91c1c;
-      --radius:18px;
-      --shadow:0 18px 45px rgba(15,23,42,.12);
+      --bg:#f6f7fb; --ink:#111827; --muted:#6b7280; --border:#e5e7eb;
+      --shadow:0 14px 40px rgba(0,0,0,.10); --radius:18px;
+      --blue:#2563eb; --ans:#16a34a; --footer-h:44px;
+      --mathFont:"Cambria Math","STIX Two Math","STIXGeneral","Times New Roman",serif;
+      --uiFont:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";
     }
     *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family:Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background:linear-gradient(135deg,#eef2ff 0%,#f8fafc 45%,#ecfdf5 100%);
-      color:var(--ink);
-    }
-    .wrap{max-width:1180px;margin:0 auto;padding:28px 18px 48px}
-    .hero{display:flex;justify-content:space-between;align-items:flex-end;gap:18px;margin-bottom:18px}
-    h1{font-size:clamp(28px,4vw,44px);line-height:1.02;margin:0 0 8px;font-weight:900;letter-spacing:-.04em}
-    .sub{margin:0;color:var(--muted);font-size:15px;max-width:760px}
-    .badge{background:#111827;color:#fff;padding:10px 14px;border-radius:999px;font-weight:800;white-space:nowrap}
-    .panel{background:rgba(255,255,255,.92);border:1px solid rgba(148,163,184,.25);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
-    .controls{display:grid;grid-template-columns:1.2fr .8fr;gap:18px;padding:18px;border-bottom:1px solid var(--line)}
-    .topSelectors{display:grid;grid-template-columns:repeat(2,minmax(190px,1fr));gap:12px;margin-bottom:14px}
-    label{display:block;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.06em;color:#374151;margin-bottom:6px}
-    select,input{width:100%;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);padding:11px 12px;font:inherit;font-weight:650;outline:none}
-    select:focus,input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(79,70,229,.13)}
-    .checks,.seedCard{background:#f8fafc;border:1px solid var(--line);border-radius:16px;padding:12px}
-    .checksHeader{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}
-    .checksTitle{margin:0}
-    .checksGrid{display:grid;grid-template-columns:repeat(2,minmax(220px,1fr));gap:8px 10px}
-    .chk{display:flex;align-items:flex-start;gap:8px;background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:9px 10px;font-size:14px;font-weight:700;text-transform:none;letter-spacing:0;color:#111827;line-height:1.25;cursor:pointer;margin:0}
-    .chk input{width:auto;margin-top:2px;accent-color:var(--primary)}
-    .sideControls{display:grid;gap:12px;align-content:start}
-    .btnRow{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-    button{border:0;border-radius:13px;padding:11px 14px;font-weight:900;font-size:14px;cursor:pointer;transition:.16s transform,.16s box-shadow,.16s background}
-    button:hover{transform:translateY(-1px)}
-    .primary{background:var(--primary);color:#fff;box-shadow:0 10px 24px rgba(79,70,229,.24)}
-    .primary:hover{background:var(--primaryDark)}
-    .ghost{background:#eef2ff;color:#312e81;border:1px solid #c7d2fe}
-    .danger{background:#fee2e2;color:#991b1b;border:1px solid #fecaca}
-    .miniBtn{padding:7px 10px;font-size:12px;background:#e0e7ff;color:#3730a3;border:1px solid #c7d2fe}
-    .hint{font-size:12.5px;color:var(--muted);line-height:1.35;margin-top:8px}
-    .outWrap{padding:18px;background:#e5e7eb;min-height:420px}
-    .emptyState{background:#fff;border:2px dashed #cbd5e1;border-radius:18px;padding:38px;text-align:center;color:var(--muted);font-weight:800}
-    .sheet{background:#fff;width:210mm;min-height:297mm;margin:0 auto 18px;padding:14mm 14mm 16mm;box-shadow:0 14px 35px rgba(15,23,42,.18);position:relative;color:#111827}
-    .sheet[dir="rtl"]{font-family:Tahoma,"Noto Naskh Arabic","Segoe UI",sans-serif}
-    .pageHeader{display:flex;justify-content:space-between;gap:18px;align-items:flex-start;border-bottom:2px solid #111827;padding-bottom:10px;margin-bottom:12px}
-    .pageTitle{font-size:24px;font-weight:950;letter-spacing:-.03em;line-height:1.1}
-    .pageMeta{font-size:12px;color:#374151;font-weight:800;text-align:right;line-height:1.45;min-width:170px}
-    .sheet[dir="rtl"] .pageMeta{text-align:left}
-    .studentLine{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:10px 0 14px;font-size:13px;font-weight:800;color:#374151}
-    .studentLine div{border-bottom:1px solid #9ca3af;padding-bottom:6px;min-height:26px}
-    .questionGrid{display:flex;flex-wrap:wrap;gap:10px}
-    .questionGrid>*{flex:0 0 calc(50% - 5px);max-width:calc(50% - 5px);box-sizing:border-box}
-    .qCard.full{flex-basis:100%;max-width:100%}
-    .qCard{border:1.4px solid #111827;border-radius:12px;padding:10px;min-height:96px;break-inside:avoid;background:#fff;position:relative;overflow:hidden}
-    .qHead{display:flex;align-items:flex-start;gap:8px;margin-bottom:6px}
-    .qNum{display:grid;place-items:center;min-width:25px;height:25px;border-radius:50%;background:#111827;color:#fff;font-weight:900;font-size:13px;flex:none}
-    .qText{font-size:15px;line-height:1.35;font-weight:760;width:100%}
-    .math{direction:ltr;unicode-bidi:isolate;display:inline-block;font-family:"Cambria Math","Times New Roman",serif;font-weight:800}
-    .frac{display:inline-grid;grid-template-rows:auto auto;vertical-align:middle;text-align:center;line-height:1;min-width:1.05em;margin:0 .08em;font-family:"Cambria Math","Times New Roman",serif;direction:ltr;unicode-bidi:isolate}
-    .frac .top{border-bottom:1.7px solid currentColor;padding:0 .13em .08em}
-    .frac .bottom{padding:.08em .13em 0}
-    .mixed{direction:ltr;unicode-bidi:isolate;white-space:nowrap;display:inline-flex;gap:.16em;align-items:center;font-family:"Cambria Math","Times New Roman",serif;font-weight:800}
+    body{margin:0;font-family:var(--uiFont);background:radial-gradient(circle at top left,rgba(37,99,235,.10),transparent 30rem),radial-gradient(circle at top right,rgba(124,58,237,.09),transparent 30rem),var(--bg);color:var(--ink);padding-bottom:var(--footer-h)}
+    .topbar{position:sticky;top:0;z-index:20;background:linear-gradient(135deg,#0f172a,#123b7a 55%,#2563eb);color:white;padding:14px 24px;display:grid;grid-template-columns:minmax(180px,1fr) auto minmax(180px,1fr);align-items:center;gap:18px;box-shadow:0 10px 28px rgba(15,23,42,.22)}
+    .brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:white;justify-self:start;border-radius:14px;padding:8px 12px;margin-left:-12px;transition:background .18s ease,transform .18s ease,box-shadow .18s ease}
+    .brand:hover{background:rgba(255,255,255,.12);transform:translateY(-1px);box-shadow:0 0 10px rgba(124,58,237,.6),0 0 18px rgba(37,99,235,.4)}
+    .brand-logo{width:44px;height:44px;object-fit:contain;background:white;border-radius:6px;padding:3px}
+    .brand-text strong{display:block;font-size:1.18rem;line-height:1;letter-spacing:-.03em}.brand-text span{display:block;font-size:.78rem;opacity:.82;font-weight:650}
+    .top-title{font-weight:900;font-size:clamp(1.25rem,2vw,1.7rem);letter-spacing:-.04em;text-align:center}
+    .wrap{max-width:1280px;margin:14px auto 32px;padding:0 14px}
+    .card{background:rgba(255,255,255,.96);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;border:1px solid rgba(226,232,240,.9)}
+    .title{font-size:28px;font-weight:1000;letter-spacing:.2px;margin:0 0 4px}
+    .subtitle{margin:0 0 14px;color:var(--muted);font-weight:850;font-size:15px;line-height:1.35}
+    .subtitle .code{display:inline-block;font-family:ui-monospace,Menlo,Consolas,monospace;font-weight:800;font-size:13px;color:#1e3a8a;background:#eef2ff;border-radius:7px;padding:1px 7px;margin-right:4px}
+    .band{padding:12px;border:1px solid var(--border);border-radius:18px;background:linear-gradient(180deg,#fff,#f9fafb);margin-bottom:12px}
+    .bandLabel{font-weight:1000;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 10px}
+    .fieldGrid{display:grid;gap:14px 16px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+    label{display:block;font-weight:950;color:var(--ink);margin:0 0 7px;font-size:15px}
+    select,input[type="number"]{border:2px solid #e5e7eb;border-radius:14px;padding:12px 13px;font-weight:950;font-size:17px;background:#fff;width:100%;outline:none;font-family:var(--uiFont)}
+    .checks{display:flex;gap:9px 10px;flex-wrap:wrap;align-items:center}
+    .chk{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--border);background:#fff;border-radius:999px;padding:9px 12px;font-weight:950;font-size:14px;color:#111827;box-shadow:0 8px 18px rgba(0,0,0,.04);user-select:none;cursor:pointer}
+    .chk input{width:18px;height:18px;accent-color:var(--blue)}
+    .chk .wTag{font-size:10.5px;font-weight:900;color:#0369a1;background:#e0f2fe;border-radius:999px;padding:2px 7px;letter-spacing:.02em}
+    .stmtRow{padding:9px 0 11px;border-top:1px dashed var(--border)}
+    .stmtRow:first-child{border-top:0;padding-top:0}
+    .stmtText{margin:0 0 8px;font-size:13.5px;font-weight:850;color:#334155;line-height:1.35}
+    .stmtText .n{display:inline-grid;place-items:center;min-width:22px;height:22px;border-radius:7px;background:#eef2ff;color:#1d4ed8;font-size:12px;font-weight:1000;margin-right:7px}
+    .stmtNone{font-size:13px;font-weight:800;color:#94a3b8;font-style:italic}
+    .btnRow{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:flex-end}
+    button{border:none;border-radius:14px;padding:12px 16px;font-weight:1000;cursor:pointer;background:#f3f4f6;color:#111827;transition:transform .04s ease,filter .15s ease,opacity .2s ease;user-select:none;font-size:16px;font-family:var(--uiFont)}
+    button:active{transform:scale(.98)}button.primary{background:#2563eb;color:#fff}button.ghost{background:#eef2ff;color:#1d4ed8}button.danger{background:#fee2e2;color:#991b1b}
+    .pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:8px 13px;font-weight:1000;font-size:14px;background:#eef2ff;color:#1d4ed8;margin-right:auto}
+    .warn{padding:12px;font-weight:950;color:#991b1b}
+    .mmtFooter{position:fixed;left:0;right:0;bottom:0;height:var(--footer-h);display:flex;align-items:center;justify-content:center;padding:0 12px;background:rgba(255,255,255,.92);border-top:1px solid rgba(229,231,235,.95);backdrop-filter:blur(8px);z-index:500;font-weight:900;color:#111827;text-align:center;font-size:13px}
+    .mmtFooter a{color:#2563eb;text-decoration:none;font-weight:950}.mmtFooter a:hover{text-decoration:underline}
 
-    .comparison{display:inline-flex;align-items:center;gap:.32em;white-space:nowrap;vertical-align:middle;direction:ltr;unicode-bidi:isolate;max-width:100%}
-    .comparison .frac{margin:0 .02em}
-    .blankSymbol{font-family:"Cambria Math","Times New Roman",serif;font-weight:900;letter-spacing:.04em}
-    .sqrt{display:inline-flex;align-items:flex-start;direction:ltr;unicode-bidi:isolate;white-space:nowrap;font-family:"Cambria Math","Times New Roman",serif;font-weight:900}
-    .sqrtSymbol{font-size:1.1em;line-height:.98;margin-right:-.02em}
-    .radicand{border-top:1.7px solid currentColor;padding:.02em .08em 0 .05em;line-height:1}
-    .diagram{height:92px;margin-top:7px;border:1px solid #e5e7eb;border-radius:10px;background:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden}
-    .diagram.tall{height:132px}
-    .diagram svg{width:100%;height:100%}
-    .workSpace{height:34px;border-bottom:1px dashed #9ca3af;margin-top:8px}
-    .workSpace.large{height:72px}
-    .workSpace.none{display:none}
-    .answerPage .questionGrid>*{flex-basis:100%;max-width:100%}
-    .answerList{columns:2;column-gap:22px;font-size:14px;line-height:1.55}
-    .answerItem{break-inside:avoid;margin:0 0 4px;font-weight:700}
-    .answerItem .ansNum{display:inline-block;min-width:28px;font-weight:950;color:#111827}
-    .footer{position:absolute;bottom:8mm;left:14mm;right:14mm;border-top:1px solid #d1d5db;padding-top:6px;font-size:10.5px;color:#6b7280;display:flex;justify-content:space-between;gap:8px}
-    .mmtFooter{text-align:center;color:#6b7280;font-size:13px;margin:14px 0 0}.mmtFooter a{color:#4f46e5;font-weight:900;text-decoration:none}
-    .warn{display:none;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;padding:9px 11px;border-radius:12px;font-weight:800;font-size:13px}
-    .warn.show{display:block}
-    @media(max-width:960px){.controls{grid-template-columns:1fr}.checksGrid{grid-template-columns:1fr}.sheet{width:100%;min-height:auto;padding:18px}.questionGrid{grid-template-columns:1fr}.hero{align-items:flex-start;flex-direction:column}.badge{white-space:normal}.answerList{columns:1}}
+    /* ================= A4 pages: the preview IS the print ================= */
+    .outWrap{margin-top:14px;display:flex;flex-direction:column;align-items:center;gap:14px}
+    .page{width:210mm;height:297mm;background:#fff;border:1px solid var(--border);box-shadow:0 10px 26px rgba(15,23,42,.08);display:flex;flex-direction:column;padding:7mm 7.5mm 5mm;overflow:hidden;position:relative}
+    .pageHeader{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding-bottom:2.2mm;border-bottom:1px solid #e5e7eb;flex:0 0 auto}
+    .hdrTitle{font-weight:1000;font-size:12.5pt;line-height:1.15}
+    .hdrTitle .loc{display:block;font-size:.8em;color:var(--muted);font-weight:900}
+    .hdrSub{color:var(--muted);font-weight:850;font-size:8.5pt;margin-top:1mm}
+    .nameDate{display:flex;gap:4mm;align-items:flex-end;margin-left:auto}
+    .lineField{display:flex;flex-direction:column;gap:1mm;min-width:34mm}
+    .lineLabel{font-size:7.5pt;font-weight:950;color:var(--muted);line-height:1.1}
+    .lineBox{height:6.5mm;border:1.3px solid #111827;border-radius:2.2mm;background:#fff}
+    .pageBody{flex:1 1 auto;display:flex;flex-direction:column;gap:3mm;padding-top:3mm;min-height:0}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:3mm;flex:0 0 auto}
+    .row.wide{grid-template-columns:1fr}
+    .pageFooter{flex:0 0 auto;padding-top:2mm;border-top:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between;gap:10px;font-weight:950;color:#111827;font-size:7.5pt}
+    .pageFooter a{color:#2563eb;text-decoration:none;font-weight:1000}
+    .pageFooter .oc{font-family:ui-monospace,Menlo,Consolas,monospace;color:var(--muted);font-weight:800}
+
+    /* ================= a question card ================= */
+    .qCard{border:1px solid #d5dae1;border-radius:2.6mm;padding:2.4mm 3mm 2.6mm;background:#fff;display:flex;flex-direction:column;min-width:0;height:100%;break-inside:avoid}
+    .qHead{display:flex;gap:2.2mm;align-items:flex-start}
+    .qNum{flex:0 0 auto;font-weight:1000;font-size:9.5pt;color:#fff;background:#1e3a8a;border-radius:1.6mm;padding:.5mm 1.6mm;line-height:1.25;margin-top:.3mm}
+    .qPrompt{flex:1;min-width:0;font-size:10pt;line-height:1.38;font-weight:650;color:var(--ink);overflow-wrap:anywhere}
+    .qPrompt .loc{display:block;direction:rtl;text-align:right;font-weight:800;margin-bottom:.6mm;font-size:1.02em}
+    .qPrompt .enLine{display:block}
+    .qPrompt.bi .enLine{font-size:.9em;color:#374151}
+    .qPrompt b,.qPrompt strong{font-weight:850}
+    .m{font-family:var(--mathFont);font-weight:500;font-size:1.08em;white-space:nowrap}
+    .qPrompt .big{display:block;margin-top:1.6mm;font-family:var(--mathFont);font-size:1.4em;font-weight:500;text-align:center}
+    .qPrompt .say{display:block;margin-top:1.6mm;font-weight:800;text-align:center;color:#1e3a8a;background:#f5f8ff;border:1px solid #dbe5ff;border-radius:2mm;padding:1.4mm 2mm}
+    .qPrompt .sub{display:block;margin-top:1mm;font-size:.84em;color:var(--muted);font-weight:650}
+    .fr{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;font-family:var(--mathFont);font-weight:500;line-height:1.05;margin:0 .12em;font-size:.95em}
+    .frn{border-bottom:1.3px solid currentColor;padding:0 .18em}.frd{padding:0 .18em}
+    .frs{position:absolute;margin-left:-.7em}
+    sup{font-size:.7em;line-height:0}
+    .dtab{border-collapse:collapse;margin:1.6mm auto 0;font-size:9pt;font-variant-numeric:tabular-nums}
+    .dtab th,.dtab td{border:1px solid #94a3b8;padding:1mm 2.4mm;text-align:center}
+    .dtab th{background:#f1f5f9;font-weight:850}
+    .dtab td.q{background:#fef9c3;font-weight:900}
+    .dtab.rows th{text-align:left}
+    .dtab td.blank{min-width:9mm}
+    .dataList{font-family:var(--mathFont);font-size:1.06em;word-spacing:.12em;line-height:1.5;background:#f8fafc;border:1px dashed #cbd5e1;border-radius:2mm;padding:1.2mm 2.4mm;display:block;margin-top:1.4mm}
+    .math-frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;font-family:var(--mathFont);font-weight:500;line-height:1.05;margin:0 .12em;font-size:.95em}
+    .math-frac span:first-child{border-bottom:1.3px solid currentColor;padding:0 .18em}.math-frac span:last-child{padding:0 .18em}
+    .math-expression{display:block;margin-top:1.4mm;text-align:center;font-family:var(--mathFont);font-size:1.25em;font-weight:500}
+    .math-inline,.math-relation,.value-item{font-family:var(--mathFont);font-weight:500;white-space:nowrap}
+    .prompt-indented-line{display:block;margin-top:.8mm}
+    .why .math-expression,.why .prompt-indented-line,.ansBox .math-expression,.ansBox .prompt-indented-line{display:inline;margin:0 .2em;font-size:1em;text-align:inherit}
+    .tcap{font-size:.84em;font-weight:800;color:var(--muted);text-align:center;margin-top:1.2mm}
+    .subs{list-style:none;margin:1.6mm 0 0;padding:0;display:flex;flex-direction:column;gap:1.4mm}
+    .subs .sl{font-weight:900;margin-right:1.2mm}
+    .qDiag{display:flex;justify-content:center;align-items:center;margin-top:2mm;min-width:0}
+    .qDiag svg{max-width:100%;height:auto}
+    .qDiag .engHolder{display:flex;flex-direction:column;align-items:center;max-width:100%}
+    .diagMissing{color:var(--muted);font-weight:800;padding:6mm}
+    .qgrid .gl{stroke:#cbd5e1;stroke-width:1}
+    .qgrid .ax{stroke:#0f172a;stroke-width:2}
+    .qgrid .axh{fill:#0f172a}
+    .qgrid .axl{font:italic 700 16px var(--mathFont);fill:#0f172a}
+    .qgrid .tk{font:600 12.5px var(--uiFont);fill:#475569}
+    .qgrid .ln{stroke-width:3;stroke-linecap:round}
+    .qgrid .lnl{font:700 15px var(--mathFont);stroke:#fff;stroke-width:4px}
+    .qgrid .pt{stroke:#fff;stroke-width:2}
+    .qgrid .ptl{font:800 16px var(--uiFont);fill:#0f172a;stroke:#fff;stroke-width:4px}
+    .opts{display:grid;grid-template-columns:1fr 1fr;gap:1.2mm 4mm;margin-top:2mm;font-size:9.6pt;font-weight:700}
+    .opts.long{grid-template-columns:1fr}
+    .opt{display:flex;gap:1.6mm;align-items:baseline;min-width:0}
+    .opt .L{flex:0 0 auto;display:inline-grid;place-items:center;width:4.6mm;height:4.6mm;border:1.2px solid #334155;border-radius:50%;font-size:7.6pt;font-weight:1000}
+    .opt.right .L{background:var(--ans);border-color:var(--ans);color:#fff}
+    .opt.right{color:#15803d}
+    .tfRow{display:flex;gap:7mm;justify-content:center;margin-top:2mm;font-weight:900;font-size:9.6pt}
+    .tfRow span{border:1.2px solid #334155;border-radius:99px;padding:.6mm 4mm}
+    .tfRow span.right{background:var(--ans);border-color:var(--ans);color:#fff}
+    .qFill{flex:1 1 auto;min-height:2mm}
+    .drawBox{margin-top:1.8mm;border:1.2px dashed #94a3b8;border-radius:2mm;flex:0 0 auto;position:relative}
+    .drawBox.sq{background-image:linear-gradient(#cbd5e1 1px,transparent 1px),linear-gradient(90deg,#cbd5e1 1px,transparent 1px);background-size:5mm 5mm;background-position:-1px -1px;border-style:solid;border-color:#94a3b8}
+    .drawBox .workTag{font-size:6.5pt;font-weight:950;color:#94a3b8;padding:.4mm 1.4mm;display:block;letter-spacing:.08em;text-transform:uppercase}
+    .workBox{margin-top:1.6mm;border:1.2px dashed #cbd5e1;border-radius:2mm;height:24mm;background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 7.4mm,#e2e8f0 7.4mm,#e2e8f0 calc(7.4mm + 1px));background-position:0 1.6mm;flex:0 0 auto}
+    .workBox .workTag{font-size:6.5pt;font-weight:950;color:#94a3b8;padding:.4mm 1.4mm;display:block;letter-spacing:.08em;text-transform:uppercase}
+    .ansRow{margin-top:1.8mm;display:flex;align-items:center;justify-content:flex-end;gap:1.6mm;flex-wrap:wrap;flex:0 0 auto}
+    .ansLabel{font-weight:950;font-size:9pt;line-height:1.05;text-align:right}
+    .ansLabel .loc{display:block}
+    .ansLabel .en{display:block;font-size:.78em;opacity:.75}
+    .ansBox{min-width:34mm;width:46%;height:7mm;border:1.3px solid #111827;border-radius:2.2mm;background:#fff}
+    .ansUnit{font-family:var(--mathFont);font-weight:600;font-size:10pt}
+    .ansBox.key{display:flex;align-items:center;justify-content:center;width:auto;min-width:34mm;max-width:100%;height:auto;min-height:7mm;padding:.8mm 2.6mm;font-family:var(--mathFont);font-weight:800;font-size:10.5pt;color:var(--ans);border-color:var(--ans);background:rgba(22,163,74,.07);text-align:center;line-height:1.25}
+    .why{margin-top:1.2mm;font-size:7.8pt;font-weight:700;color:#475569;line-height:1.35;border-left:2px solid #bbf7d0;padding-left:2mm}
+    .lang-rtl .hdrTitle .loc,.lang-rtl .lineLabel .loc{direction:rtl}
+
+    @media(max-width:880px){
+      .topbar{grid-template-columns:1fr auto;gap:10px}.top-title{grid-column:1/-1;grid-row:2;text-align:center}.brand-text span{display:none}
+      .outWrap{align-items:flex-start;overflow-x:auto}
+    }
     @media print{
-      body{background:#fff}.wrap{padding:0}.hero,.controls,.mmtFooter,.emptyState{display:none!important}.panel{box-shadow:none;border:0}.outWrap{padding:0;background:#fff}.sheet{box-shadow:none;margin:0;width:210mm;min-height:297mm;page-break-after:always;padding:13mm 12mm 15mm}.sheet:last-child{page-break-after:auto}.qCard{break-inside:avoid}.questionGrid{gap:8px}.workSpace{height:30px}.workSpace.large{height:64px}.pageHeader{margin-bottom:9px}.studentLine{margin-bottom:10px}.qText{font-size:14px}.diagram{height:82px}.diagram.tall{height:116px}
+      @page{size:A4;margin:0}
+      html,body{background:#fff;padding:0;margin:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+      .topbar,.card > :not(.outWrap),.mmtFooter{display:none!important}
+      .wrap{max-width:none;margin:0;padding:0}.card{box-shadow:none;border:none;border-radius:0;padding:0;background:#fff}
+      .outWrap{margin:0;gap:0;display:block}
+      .page{border:none;box-shadow:none;page-break-after:always;break-after:page;margin:0}
+      .page:last-child{page-break-after:auto;break-after:auto}
     }
   </style>
-<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
 <!-- mmt-pwa -->
 <link rel="manifest" href="../../../manifest.webmanifest">
 <meta name="theme-color" content="#1f3a5f">
@@ -111,628 +167,658 @@
 <meta name="apple-mobile-web-app-title" content="MMT">
 <script src="../../../pwa.js" defer></script>
 <!-- /mmt-pwa -->
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
 </head>
 <body>
-  <div class="wrap">
-    <div class="hero">
-      <div>
-        <h1 id="appTitle">Fractions, Decimals and Percentages</h1>
-        <p class="sub" id="appSub">Create printable Basic or Expected worksheets with translated instructions and an answer key.</p>
-      </div>
-      <div class="badge" id="badge">Worksheet Creator</div>
-    </div>
-    <div class="panel">
-      <div class="controls" aria-label="Worksheet controls">
-        <div>
-          <div class="topSelectors">
-            <div>
-              <label for="levelSel" data-i18n="levelLabel">Level</label>
-              <select id="levelSel">
-                <option value="basic">Basic</option>
-                <option value="expected">Expected</option>
-              </select>
-            </div>
-            <div>
-              <label for="languageSel" data-i18n="languageLabel">Worksheet language</label>
-              <select id="languageSel">
-                <option value="en">English</option>
-                <option value="fa">Farsi / Persian (فارسی)</option>
-                <option value="ar">Arabic (العربية)</option>
-              </select>
-            </div>
-          </div>
-          <div class="checks" aria-label="Question types">
-            <div class="checksHeader">
-              <label class="checksTitle" data-i18n="questionTypes">Question types</label>
-              <button id="toggleAllBtn" type="button" class="miniBtn">Deselect all</button>
-            </div>
-            <div id="chkWrap" class="checksGrid"></div>
-          </div>
-        </div>
-        <div class="sideControls">
-          <div>
-            <label for="countInp" data-i18n="totalQuestions">Total questions</label>
-            <input id="countInp" type="number" min="4" max="60" step="1" value="16" />
-            <div class="hint" data-i18n="countHint">The generator balances the selected question types as evenly as possible.</div>
-          </div>
-          <div class="seedCard">
-            <label for="seedInp" data-i18n="seedLabel">Seed (optional)</label>
-            <input id="seedInp" type="text" inputmode="numeric" placeholder="random" />
-            <div class="hint" data-i18n="seedHint">Use the same seed to regenerate the exact same worksheet.</div>
-          </div>
-          <div class="btnRow">
-            <button id="newSeedBtn" class="ghost" type="button" data-i18n="newSeed">New seed</button>
-            <button id="genBtn" class="primary" type="button" data-i18n="generate">Generate</button>
-            <button id="printBtn" class="ghost" type="button" data-i18n="print">Print / Save as PDF</button>
-            <button id="resetBtn" class="danger" type="button" data-i18n="reset">Reset</button>
-          </div>
-          <div id="warn" class="warn"></div>
-        </div>
-      </div>
-      <div id="out" class="outWrap">
-        <div class="emptyState" id="emptyState">Choose a level and generate a printable worksheet.</div>
+  <header class="topbar">
+    <a class="brand" href="https://www.millsmathstools.au" aria-label="Back to Mills Maths Tools"><img src="../../../assets/mmt.png" alt="Mills Maths Tools logo" class="brand-logo" onerror="this.style.visibility='hidden'"><div class="brand-text"><strong>MMT</strong><span>Mills Maths Tools</span></div></a>
+    <div class="top-title">Fractions, Decimals and Percentages</div><div></div>
+  </header>
+
+  <div class="wrap"><div class="card">
+    <h1 class="title">Fractions, Decimals and Percentages — Worksheet Maker</h1>
+    <p class="subtitle"><span class="code">MA4-FRC-C-01</span> Printable A4 worksheets with a completed answer key, covering every content statement in the outcome. <strong>Basic</strong> covers equivalent and simplified fractions, comparing, rounding, terminating and recurring decimals, conversions, rational and irrational numbers, ordering, adding and subtracting, fractions of quantities and sets, and percentages of quantities. <strong>Expected</strong> adds mixed numbers, multiplying and dividing fractions and decimals, one quantity as a percentage of another, percentage change, discounts, GST, profit and loss, reverse percentages, the double number line and reasoning.</p>
+
+    <div class="band">
+      <p class="bandLabel">The paper</p>
+      <div class="fieldGrid">
+        <div><label for="levelSel">Level</label><select id="levelSel"><option value="basic" selected>Basic</option><option value="expected">Expected</option></select></div>
+        <div><label for="languageSel">Worksheet language</label><select id="languageSel"><option value="en" selected>English</option><option value="ar">Arabic (العربية)</option><option value="fa">Farsi / Persian (فارسی)</option></select></div>
+        <div><label for="countInp">Number of questions</label><input id="countInp" type="number" min="1" max="48" value="12"></div>
       </div>
     </div>
-    <div class="mmtFooter">This tool and more can be found at <a href="https://www.millsmathstools.au">www.millsmathstools.au</a></div>
-  </div>
+
+    <div class="band">
+      <p class="bandLabel">Question types — by content statement</p>
+      <div id="chkWrap"></div>
+    </div>
+
+    <div class="band">
+      <p class="bandLabel">Options</p>
+      <div class="checks">
+        <label class="chk"><input id="toggleWorking" type="checkbox"> Working space under each question</label>
+        <label class="chk"><input id="toggleWhy" type="checkbox" checked> Reasons in the answer key</label>
+        <label class="chk"><input id="toggleMix" type="checkbox"> Mix the question order</label>
+      </div>
+    </div>
+
+    <div class="band">
+      <div class="btnRow">
+        <span class="pill" id="totalPill">12 questions + answer key</span>
+        <button id="selectBtn" class="ghost">Deselect all</button>
+        <button id="genBtn" class="primary">Generate worksheet</button>
+        <button id="printBtn" class="ghost">Print (Ctrl+P)</button>
+        <button id="resetBtn" class="danger">Reset</button>
+      </div>
+    </div>
+
+    <div id="out" class="outWrap"></div>
+    <div id="probe" aria-hidden="true" style="position:absolute;left:-10000px;top:0;visibility:hidden"></div>
+  </div></div>
+
+  <div class="mmtFooter">This tool and more can be found at&nbsp;<a href="https://www.millsmathstools.au">www.millsmathstools.au</a></div>
+
+<script src="/online-quizzes/stage-4/topic-quiz/core.js?v=290fbdc3"></script>
+<script src="/assessment/exam-builder/engines/fdp/fdp-engine.js?v=e9f7769c"></script>
 <script>
+/* ===================== WHOLE-TOPIC WORKSHEET FRAME ======================
+   Shared by every whole-topic worksheet creator. The page script after this
+   one calls WSF.page(config, types); a page built on its whole-topic quiz
+   also loads that quiz's bank, which calls MMTQ.run(bank) and hands its
+   generators over here, so the quiz and the worksheet ask the same things.
 
+   A QUESTION (from a quiz bank or written for paper) is
+     { prompt:html, diagram?, keyDiagram?, mode, value/unit/dp/pre (num),
+       options/correct (mc), truth (tf), x/y (coord/plot), answerHTML?, why? }
+   ======================================================================== */
 (() => {
-  const SITE = "www.millsmathstools.au";
-  const state = { questions: [], seed: null };
-  let rng = Math.random;
+  'use strict';
+  const C = window.MMTQCore;
+  const SITE = 'https://www.millsmathstools.au';
+  const $ = id => document.getElementById(id);
+  const levelSel = $('levelSel'), languageSel = $('languageSel'), countInp = $('countInp'),
+        chkWrap = $('chkWrap'), out = $('out'), probe = $('probe'),
+        toggleWorking = $('toggleWorking'), toggleWhy = $('toggleWhy'), toggleMix = $('toggleMix'),
+        totalPill = $('totalPill'), selectBtn = $('selectBtn');
 
-  const FRIENDLY = [
-    {n:1,d:2,dec:"0.5",pct:"50%"},{n:1,d:4,dec:"0.25",pct:"25%"},{n:3,d:4,dec:"0.75",pct:"75%"},
-    {n:1,d:5,dec:"0.2",pct:"20%"},{n:2,d:5,dec:"0.4",pct:"40%"},{n:3,d:5,dec:"0.6",pct:"60%"},{n:4,d:5,dec:"0.8",pct:"80%"},
-    {n:1,d:10,dec:"0.1",pct:"10%"},{n:3,d:10,dec:"0.3",pct:"30%"},{n:7,d:10,dec:"0.7",pct:"70%"},
-    {n:1,d:8,dec:"0.125",pct:"12.5%"},{n:3,d:8,dec:"0.375",pct:"37.5%"},{n:5,d:8,dec:"0.625",pct:"62.5%"},{n:7,d:8,dec:"0.875",pct:"87.5%"}
-  ];
-
-  const TYPE_SETS = {
-    basic:[
-      "visualFractions","simplifyEquivalent","compareFractions","friendlyConversions","roundDecimals","compareDecimals","compareOrderBasic","percentOfBasic","fractionAddSubBasic","decimalOpsBasic"
-    ],
-    expected:[
-      "terminatingRecurring","rationalIrrational","mixedImproper","fractionAddSubExpected","fractionMultDiv","decimalMultDiv","compareOrderExpected","quantityAsFdp","percentageChange","financialPercentages"
-    ]
+  /* Page words in Arabic and Farsi: the site's existing ones (as on the
+     Length creator). A topic title with no existing translation stays in
+     English. */
+  const LANG = {
+    en: { dir:'ltr', worksheet:'Worksheet', answerKey:'Answer key', page:'Page', name:'Name', date:'Date', answer:'Answer:', working:'Working', trueW:'True', falseW:'False' },
+    ar: { dir:'rtl', worksheet:'ورقة عمل', answerKey:'دليل الإجابات', page:'صفحة', name:'الاسم', date:'التاريخ', answer:'الإجابة:', working:'الحل', trueW:'صح', falseW:'خطأ' },
+    fa: { dir:'rtl', worksheet:'برگه تمرین', answerKey:'پاسخ‌نامه', page:'صفحه', name:'نام', date:'تاریخ', answer:'پاسخ:', working:'راه حل', trueW:'درست', falseW:'نادرست' }
   };
+  const lang = () => languageSel.value;
+  const isEn = () => lang() === 'en';
+  const L = () => LANG[lang()] || LANG.en;
 
-  const I18N = {
-    en:{
-      dir:"ltr", appTitle:"Fractions, Decimals and Percentages", appSub:"Create printable Basic or Expected worksheets with translated instructions and an answer key.", badge:"Worksheet Creator",
-      levelLabel:"Level", languageLabel:"Worksheet language", questionTypes:"Question types", totalQuestions:"Total questions", countHint:"The generator balances the selected question types as evenly as possible.", seedLabel:"Seed (optional)", seedHint:"Use the same seed to regenerate the exact same worksheet.",
-      newSeed:"New seed", generate:"Generate", print:"Print / Save as PDF", reset:"Reset", selectAll:"Select all", deselectAll:"Deselect all", noTypes:"Please tick at least one question type.",
-      name:"Name", className:"Class", date:"Date", page:"Page", answerKey:"Answer key", worksheet:"Worksheet", basic:"Basic", expected:"Expected", level:"Level", source:"Mills Maths Tools", generated:"Generated", approx:"approximately", terminating:"terminating", recurring:"recurring", rational:"rational", irrational:"irrational",
-      typeLabels:{visualFractions:"Represent fractions",simplifyEquivalent:"Simplify and equivalent fractions",compareFractions:"Compare fractions",friendlyConversions:"Friendly FDP conversions",roundDecimals:"Round decimals",compareDecimals:"Compare and order decimals",compareOrderBasic:"Compare and order simple FDP values",percentOfBasic:"Percentage of a quantity",fractionAddSubBasic:"Add/subtract simple fractions",decimalOpsBasic:"Decimal calculations",terminatingRecurring:"Terminating and recurring decimals",rationalIrrational:"Rational and irrational numbers",mixedImproper:"Mixed and improper fractions",fractionAddSubExpected:"Add/subtract fractions and mixed numbers",fractionMultDiv:"Multiply/divide fractions",decimalMultDiv:"Multiply/divide decimals",compareOrderExpected:"Compare and order FDP values",quantityAsFdp:"One quantity as FDP of another",percentageChange:"Percentage increase/decrease",financialPercentages:"Financial percentages"},
-      q:{
-        shadeFraction:a=>`Shade ${a.frac} on the bar below.`, identifyFraction:()=>`What fraction is shaded in the diagram below?`, identifySimplify:()=>`What fraction is shaded below? Simplify your answer.`, simplify:a=>`Simplify: ${a.frac}`, equivalent:a=>`Write ${a.frac} as an equivalent fraction with denominator ${a.den}.`, compareSymbol:a=>`Insert &lt; or &gt; to make this true: ${a.comparison || `${a.left} ___ ${a.right}`}`,
-        fracToDecPct:a=>`Convert ${a.frac} to a decimal and a percentage.`, decToFracPct:a=>`Convert ${a.dec} to a fraction and a percentage.`, pctToFracDec:a=>`Convert ${a.pct} to a fraction and a decimal.`, fracToDecimal:a=>`Convert ${a.frac} to a decimal.`, decToPercent:a=>`Convert ${a.dec} to a percentage.`, percentToFraction:a=>`Convert ${a.pct} to a fraction in simplest form.`,
-        round:a=> a.places===0 ? `Round ${a.value} to the nearest whole number.` : `Round ${a.value} to ${a.places} decimal place${a.places===1?"":"s"}.`, order:a=>`Order these from smallest to largest: ${a.items}.`, percentOf:a=>`Find ${a.pct}% of ${a.qty}.`, calc:a=>`Calculate: ${a.expr}`, timesByPow:a=>`Calculate: ${a.value} ${a.op} ${a.pow}.`,
-        classifyDecimal:a=>`Classify ${a.value} as terminating or recurring.`, convertClassify:a=>`Write ${a.frac} as a decimal and classify it as terminating or recurring.`, recurringNotation:a=>`Write ${a.value} using recurring decimal notation.`,
-        circleIrrational:a=>`Circle the irrational number: ${a.items}.`, approxRoot:a=>`Approximate ${a.root} to 1 decimal place.`, rootBetween:a=>`Between which two whole numbers does ${a.root} lie?`, mixedToImproper:a=>`Convert ${a.mixed} to an improper fraction.`, improperToMixed:a=>`Convert ${a.frac} to a mixed number.`, mixedToDecimal:a=>`Convert ${a.mixed} to an improper fraction and a decimal.`,
-        effect:a=>`Before calculating, state whether the answer will be larger or smaller than ${a.start}: ${a.expr}.`, quantityFdp:a=>`${a.part} out of ${a.whole} students chose ${a.context.en}. Write this as ${a.target.en}.`, percentChange:a=>`${a.action} ${a.amount} by ${a.pct}%.`, priceChange:a=>`A ${a.item} costs ${a.price}. It is ${a.action} by ${a.pct}%. Find the new price.`, discount:a=>`A ${a.item} costs ${a.price}. It is discounted by ${a.pct}%. Find the sale price.`, gstAdd:a=>`A ${a.item} costs ${a.price} before GST. Find the price including 10% GST.`, gstComponent:a=>`A ${a.item} costs ${a.price} including GST. Find the GST component.`, profitLoss:a=>`A shop buys an item for ${a.cost} and sells it for ${a.sell}. Find the ${a.kind} as a percentage of the cost price.`, bestBuy:a=>`Which is better value?<br>Option A: ${a.a}<br>Option B: ${a.b}`
-      }
-    },
-    ar:{
-      dir:"rtl", appTitle:"الكسور والأعداد العشرية والنسب المئوية", appSub:"أنشئ أوراق عمل قابلة للطباعة بمستوى أساسي أو متوقع مع مفتاح إجابات.", badge:"منشئ أوراق العمل",
-      levelLabel:"المستوى", languageLabel:"لغة ورقة العمل (Worksheet language)", questionTypes:"أنواع الأسئلة", totalQuestions:"عدد الأسئلة", countHint:"يقوم المنشئ بتوزيع أنواع الأسئلة المختارة بقدر الإمكان.", seedLabel:"رمز التوليد (اختياري)", seedHint:"استخدم الرمز نفسه لإعادة إنشاء ورقة العمل نفسها.",
-      newSeed:"رمز جديد", generate:"إنشاء", print:"طباعة / حفظ كملف PDF", reset:"إعادة ضبط", selectAll:"تحديد الكل", deselectAll:"إلغاء تحديد الكل", noTypes:"يرجى تحديد نوع واحد على الأقل من الأسئلة.",
-      name:"الاسم", className:"الصف", date:"التاريخ", page:"صفحة", answerKey:"مفتاح الإجابات", worksheet:"ورقة عمل", basic:"أساسي", expected:"متوقع", level:"المستوى", source:"Mills Maths Tools", generated:"تم الإنشاء", approx:"تقريبًا", terminating:"منتهٍ", recurring:"متكرر", rational:"نسبي", irrational:"غير نسبي",
-      typeLabels:{visualFractions:"تمثيل الكسور",simplifyEquivalent:"تبسيط الكسور والكسور المتكافئة",compareFractions:"مقارنة الكسور",friendlyConversions:"تحويلات بسيطة بين الكسر والعشري والنسبة",roundDecimals:"تقريب الأعداد العشرية",compareDecimals:"مقارنة وترتيب الأعداد العشرية",compareOrderBasic:"مقارنة وترتيب قيم بسيطة",percentOfBasic:"نسبة مئوية من كمية",fractionAddSubBasic:"جمع وطرح كسور بسيطة",decimalOpsBasic:"حسابات عشرية",terminatingRecurring:"الأعداد العشرية المنتهية والمتكررة",rationalIrrational:"الأعداد النسبية وغير النسبية",mixedImproper:"الأعداد الكسرية والكسور غير الحقيقية",fractionAddSubExpected:"جمع وطرح الكسور والأعداد الكسرية",fractionMultDiv:"ضرب وقسمة الكسور",decimalMultDiv:"ضرب وقسمة الأعداد العشرية",compareOrderExpected:"مقارنة وترتيب الكسور والعشريات والنسب",quantityAsFdp:"كمية ككسر أو عدد عشري أو نسبة",percentageChange:"زيادة ونقصان النسبة المئوية",financialPercentages:"النسب المئوية المالية"},
-      q:{
-        shadeFraction:a=>`ظلّل ${a.frac} على الشريط أدناه.`, identifyFraction:()=>`ما الكسر المظلّل في الشكل أدناه؟`, identifySimplify:()=>`ما الكسر المظلّل أدناه؟ بسّط إجابتك.`, simplify:a=>`بسّط: ${a.frac}`, equivalent:a=>`اكتب ${a.frac} ككسر مكافئ مقامه ${a.den}.`, compareSymbol:a=>`ضع &lt; أو &gt; لتكون العبارة صحيحة: ${a.comparison || `${a.left} ___ ${a.right}`}`,
-        fracToDecPct:a=>`حوّل ${a.frac} إلى عدد عشري ونسبة مئوية.`, decToFracPct:a=>`حوّل ${a.dec} إلى كسر ونسبة مئوية.`, pctToFracDec:a=>`حوّل ${a.pct} إلى كسر وعدد عشري.`, fracToDecimal:a=>`حوّل ${a.frac} إلى عدد عشري.`, decToPercent:a=>`حوّل ${a.dec} إلى نسبة مئوية.`, percentToFraction:a=>`حوّل ${a.pct} إلى كسر في أبسط صورة.`,
-        round:a=> a.places===0 ? `قرّب ${a.value} إلى أقرب عدد صحيح.` : `قرّب ${a.value} إلى ${a.places} منزلة عشرية.`, order:a=>`رتّب من الأصغر إلى الأكبر: ${a.items}.`, percentOf:a=>`أوجد ${a.pct}% من ${a.qty}.`, calc:a=>`احسب: ${a.expr}`, timesByPow:a=>`احسب: ${a.value} ${a.op} ${a.pow}.`,
-        classifyDecimal:a=>`صنّف ${a.value} هل هو عدد عشري منتهٍ أم متكرر.`, convertClassify:a=>`اكتب ${a.frac} كعدد عشري وصنّفه إلى منتهٍ أو متكرر.`, recurringNotation:a=>`اكتب ${a.value} باستخدام ترميز العشري المتكرر.`,
-        circleIrrational:a=>`ضع دائرة حول العدد غير النسبي: ${a.items}.`, approxRoot:a=>`قرّب ${a.root} إلى منزلة عشرية واحدة.`, rootBetween:a=>`بين أي عددين صحيحين يقع ${a.root}؟`, mixedToImproper:a=>`حوّل ${a.mixed} إلى كسر غير حقيقي.`, improperToMixed:a=>`حوّل ${a.frac} إلى عدد كسري.`, mixedToDecimal:a=>`حوّل ${a.mixed} إلى كسر غير حقيقي وعدد عشري.`,
-        effect:a=>`قبل الحساب، حدّد هل ستكون الإجابة أكبر أم أصغر من ${a.start}: ${a.expr}.`, quantityFdp:a=>`${a.part} من أصل ${a.whole} طالبًا اختاروا ${a.context.ar}. اكتب ذلك ${a.target.ar}.`, percentChange:a=>`${a.action} ${a.amount} بمقدار ${a.pct}%.`, priceChange:a=>`ثمن ${a.item} هو ${a.price}. تم ${a.action} بنسبة ${a.pct}%. أوجد السعر الجديد.`, discount:a=>`ثمن ${a.item} هو ${a.price}. عليه خصم بنسبة ${a.pct}%. أوجد سعر البيع.`, gstAdd:a=>`ثمن ${a.item} هو ${a.price} قبل GST. أوجد السعر شاملًا GST بنسبة 10%.`, gstComponent:a=>`ثمن ${a.item} هو ${a.price} شاملًا GST. أوجد قيمة GST.`, profitLoss:a=>`اشترى متجر سلعة بسعر ${a.cost} وباعها بسعر ${a.sell}. أوجد ${a.kind} كنسبة مئوية من سعر التكلفة.`, bestBuy:a=>`أي خيار أفضل قيمة؟<br>الخيار أ: ${a.a}<br>الخيار ب: ${a.b}`
-      }
-    },
-    fa:{
-      dir:"rtl", appTitle:"کسرها، اعشار و درصدها", appSub:"برگه‌های تمرین قابل چاپ در سطح پایه یا مورد انتظار با پاسخ‌نامه بسازید.", badge:"سازنده برگه تمرین",
-      levelLabel:"سطح", languageLabel:"زبان برگه تمرین (Worksheet language)", questionTypes:"نوع سؤال‌ها", totalQuestions:"تعداد سؤال‌ها", countHint:"سازنده، نوع سؤال‌های انتخاب‌شده را تا حد ممکن به‌طور متعادل پخش می‌کند.", seedLabel:"کد تولید (اختیاری)", seedHint:"برای ساختن دوباره همان برگه، از همان کد استفاده کنید.",
-      newSeed:"کد جدید", generate:"ساختن", print:"چاپ / ذخیره به PDF", reset:"بازنشانی", selectAll:"انتخاب همه", deselectAll:"لغو انتخاب همه", noTypes:"لطفاً حداقل یک نوع سؤال را انتخاب کنید.",
-      name:"نام", className:"کلاس", date:"تاریخ", page:"صفحه", answerKey:"پاسخ‌نامه", worksheet:"برگه تمرین", basic:"پایه", expected:"مورد انتظار", level:"سطح", source:"Mills Maths Tools", generated:"تولید شده", approx:"تقریباً", terminating:"مختوم", recurring:"تکرارشونده", rational:"گویا", irrational:"گنگ",
-      typeLabels:{visualFractions:"نمایش کسرها",simplifyEquivalent:"ساده‌سازی و کسرهای معادل",compareFractions:"مقایسه کسرها",friendlyConversions:"تبدیل‌های ساده بین کسر، اعشار و درصد",roundDecimals:"گرد کردن اعشار",compareDecimals:"مقایسه و مرتب کردن اعشار",compareOrderBasic:"مقایسه و مرتب کردن مقدارهای ساده",percentOfBasic:"درصدی از یک مقدار",fractionAddSubBasic:"جمع و تفریق کسرهای ساده",decimalOpsBasic:"محاسبات اعشاری",terminatingRecurring:"اعشار مختوم و تکرارشونده",rationalIrrational:"اعداد گویا و گنگ",mixedImproper:"عدد مخلوط و کسر ناسره",fractionAddSubExpected:"جمع و تفریق کسرها و عددهای مخلوط",fractionMultDiv:"ضرب و تقسیم کسرها",decimalMultDiv:"ضرب و تقسیم اعشار",compareOrderExpected:"مقایسه و مرتب کردن کسر، اعشار و درصد",quantityAsFdp:"یک مقدار به صورت کسر، اعشار یا درصد",percentageChange:"افزایش و کاهش درصدی",financialPercentages:"درصدها در مسائل مالی"},
-      q:{
-        shadeFraction:a=>`${a.frac} را روی نوار زیر سایه بزنید.`, identifyFraction:()=>`چه کسری از شکل زیر سایه زده شده است؟`, identifySimplify:()=>`چه کسری از شکل زیر سایه زده شده است؟ پاسخ را ساده کنید.`, simplify:a=>`ساده کنید: ${a.frac}`, equivalent:a=>`${a.frac} را به صورت کسر معادل با مخرج ${a.den} بنویسید.`, compareSymbol:a=>`علامت &lt; یا &gt; را بگذارید تا عبارت درست شود: ${a.comparison || `${a.left} ___ ${a.right}`}`,
-        fracToDecPct:a=>`${a.frac} را به عدد اعشاری و درصد تبدیل کنید.`, decToFracPct:a=>`${a.dec} را به کسر و درصد تبدیل کنید.`, pctToFracDec:a=>`${a.pct} را به کسر و عدد اعشاری تبدیل کنید.`, fracToDecimal:a=>`${a.frac} را به عدد اعشاری تبدیل کنید.`, decToPercent:a=>`${a.dec} را به درصد تبدیل کنید.`, percentToFraction:a=>`${a.pct} را به کسر در ساده‌ترین صورت تبدیل کنید.`,
-        round:a=> a.places===0 ? `${a.value} را به نزدیک‌ترین عدد صحیح گرد کنید.` : `${a.value} را تا ${a.places} رقم اعشار گرد کنید.`, order:a=>`از کوچک‌ترین تا بزرگ‌ترین مرتب کنید: ${a.items}.`, percentOf:a=>`${a.pct}% از ${a.qty} را پیدا کنید.`, calc:a=>`حساب کنید: ${a.expr}`, timesByPow:a=>`حساب کنید: ${a.value} ${a.op} ${a.pow}.`,
-        classifyDecimal:a=>`${a.value} را به عنوان اعشار مختوم یا تکرارشونده طبقه‌بندی کنید.`, convertClassify:a=>`${a.frac} را به عدد اعشاری تبدیل کنید و آن را مختوم یا تکرارشونده طبقه‌بندی کنید.`, recurringNotation:a=>`${a.value} را با نماد اعشار تکرارشونده بنویسید.`,
-        circleIrrational:a=>`عدد گنگ را مشخص کنید: ${a.items}.`, approxRoot:a=>`${a.root} را تا یک رقم اعشار تقریب بزنید.`, rootBetween:a=>`${a.root} بین کدام دو عدد صحیح قرار دارد؟`, mixedToImproper:a=>`${a.mixed} را به کسر ناسره تبدیل کنید.`, improperToMixed:a=>`${a.frac} را به عدد مخلوط تبدیل کنید.`, mixedToDecimal:a=>`${a.mixed} را به کسر ناسره و عدد اعشاری تبدیل کنید.`,
-        effect:a=>`قبل از محاسبه، مشخص کنید پاسخ از ${a.start} بزرگ‌تر است یا کوچک‌تر: ${a.expr}.`, quantityFdp:a=>`${a.part} نفر از ${a.whole} دانش‌آموز ${a.context.fa} را انتخاب کردند. آن را ${a.target.fa} بنویسید.`, percentChange:a=>`${a.amount} را به اندازه ${a.pct}% ${a.action}.`, priceChange:a=>`قیمت ${a.item} برابر ${a.price} است. قیمت به اندازه ${a.pct}% ${a.action}. قیمت جدید را پیدا کنید.`, discount:a=>`قیمت ${a.item} برابر ${a.price} است. ${a.pct}% تخفیف دارد. قیمت فروش را پیدا کنید.`, gstAdd:a=>`قیمت ${a.item} قبل از GST برابر ${a.price} است. قیمت شامل ۱۰٪ GST را پیدا کنید.`, gstComponent:a=>`قیمت ${a.item} شامل GST برابر ${a.price} است. مقدار GST را پیدا کنید.`, profitLoss:a=>`یک مغازه کالایی را به قیمت ${a.cost} می‌خرد و به قیمت ${a.sell} می‌فروشد. ${a.kind} را به صورت درصدی از قیمت خرید پیدا کنید.`, bestBuy:a=>`کدام گزینه ارزش خرید بهتری دارد؟<br>گزینه A: ${a.a}<br>گزینه B: ${a.b}`
-      }
-    }
-  };
+  let CFG = null, TYPES = [], BANK = null, lastPaper = null, translate = null, booted = false;
 
-  const dom = {
-    appTitle:document.getElementById("appTitle"), appSub:document.getElementById("appSub"), badge:document.getElementById("badge"), levelSel:document.getElementById("levelSel"), languageSel:document.getElementById("languageSel"), chkWrap:document.getElementById("chkWrap"), countInp:document.getElementById("countInp"), seedInp:document.getElementById("seedInp"), toggleAllBtn:document.getElementById("toggleAllBtn"), genBtn:document.getElementById("genBtn"), printBtn:document.getElementById("printBtn"), resetBtn:document.getElementById("resetBtn"), newSeedBtn:document.getElementById("newSeedBtn"), out:document.getElementById("out"), warn:document.getElementById("warn")
-  };
-
-  function lang(){ return dom.languageSel.value || "en"; }
-  function L(){ return I18N[lang()] || I18N.en; }
-  function t(key){ return L()[key] || I18N.en[key] || key; }
-  function prompt(key,args={}){
-    const enFn = I18N.en.q[key];
-    if(typeof enFn !== "function") return {en:key, ar:key, fa:key};
-    const arFn = typeof I18N.ar.q[key] === "function" ? I18N.ar.q[key] : enFn;
-    const faFn = typeof I18N.fa.q[key] === "function" ? I18N.fa.q[key] : enFn;
-    return {en:enFn(args), ar:arFn(args), fa:faFn(args)};
-  }
-  function answerSame(html){ return {en:html, ar:html, fa:html}; }
-  function answerWords(en,ar,fa){ return {en, ar, fa}; }
-  function local(obj){ if(typeof obj === "string") return obj; return (obj && obj[lang()]) || (obj && obj.en) || ""; }
-
-  function seededRng(seed){
-    let h = 1779033703 ^ String(seed).length;
-    const s = String(seed);
-    for(let i=0;i<s.length;i++){ h = Math.imul(h ^ s.charCodeAt(i), 3432918353); h = h << 13 | h >>> 19; }
-    return function(){ h = Math.imul(h ^ (h >>> 16), 2246822507); h = Math.imul(h ^ (h >>> 13), 3266489909); return ((h ^= h >>> 16) >>> 0) / 4294967296; };
-  }
-  function randInt(min,max){ return Math.floor(rng()*(max-min+1))+min; }
-  function choice(arr){ return arr[randInt(0,arr.length-1)]; }
-  function shuffle(arr){ const a=arr.slice(); for(let i=a.length-1;i>0;i--){ const j=randInt(0,i); [a[i],a[j]]=[a[j],a[i]]; } return a; }
-  function gcd(a,b){ a=Math.abs(a); b=Math.abs(b); while(b){ const t=b; b=a%b; a=t; } return a||1; }
-  function lcm(a,b){ return Math.abs(a*b)/gcd(a,b); }
-  function simplify(n,d){ if(d<0){n=-n;d=-d;} const g=gcd(n,d); return {n:n/g,d:d/g,g}; }
-  function fracHTML(n,d){ if(d===1) return `<span class="math">${n}</span>`; return `<span class="frac"><span class="top">${n}</span><span class="bottom">${d}</span></span>`; }
-  function mixedHTML(w,n,d){ return `<span class="mixed"><span>${w}</span>${fracHTML(n,d)}</span>`; }
-  function rootHTML(n){ return `<span class="sqrt math"><span class="sqrtSymbol">√</span><span class="radicand">${n}</span></span>`; }
-  function money(n){ return `$${Number(n).toFixed(2)}`; }
-  function num(n, places=2){ const fixed=Number(n).toFixed(places); return fixed.replace(/\.00$/,"").replace(/(\.\d*[1-9])0+$/,"$1"); }
-  function decValue(n,d,places=3){ return num(n/d, places); }
-  function fmtPercent(v){ return Number.isInteger(v) ? `${v}%` : `${v}%`; }
-  function htmlJoin(arr){ return arr.join(", "); }
-  function valOfItem(item){ return item.value; }
-
-  function makeQ(type, promptObj, answerObj, opts={}){
-    return { type, prompt:promptObj, answer:answerObj, diagram:opts.diagram||null, space:opts.space||"medium", fullWidth:opts.fullWidth||false };
-  }
-
-  function visualFractions(){
-    const mode = choice(["shade","identify","simplify"]);
-    const den = choice(mode==="simplify" ? [4,6,8,10,12] : [3,4,5,6,8,10,12]);
-    let nums = Array.from({length:den-1},(_,i)=>i+1);
-    if(mode==="simplify") nums = nums.filter(n=>gcd(n,den)>1);
-    const n = choice(nums.length ? nums : [1]);
-    const s = simplify(n,den);
-    if(mode==="shade"){
-      return makeQ("visualFractions", prompt("shadeFraction",{frac:fracHTML(n,den)}), answerSame(fracHTML(n,den)), {diagram:{type:"fraction-bar", n:0, d:den}, space:"small"});
-    }
-    if(mode==="simplify"){
-      return makeQ("visualFractions", prompt("identifySimplify",{}), answerSame(fracHTML(s.n,s.d)), {diagram:{type:"fraction-bar", n, d:den}, space:"small"});
-    }
-    return makeQ("visualFractions", prompt("identifyFraction",{}), answerSame(fracHTML(n,den)), {diagram:{type:"fraction-bar", n, d:den}, space:"small"});
-  }
-
-  function simplifyEquivalent(){
-    if(rng()<0.55){
-      const baseN=randInt(2,9), baseD=randInt(baseN+1,12), factor=randInt(2,8);
-      const n=baseN*factor, d=baseD*factor, s=simplify(n,d);
-      return makeQ("simplifyEquivalent", prompt("simplify",{frac:fracHTML(n,d)}), answerSame(fracHTML(s.n,s.d)), {space:"small"});
-    }
-    const item=choice(FRIENDLY.filter(x=>x.d<=8));
-    const factor=choice([2,3,4,5,6]);
-    return makeQ("simplifyEquivalent", prompt("equivalent",{frac:fracHTML(item.n,item.d), den:item.d*factor}), answerSame(fracHTML(item.n*factor,item.d*factor)), {space:"small"});
-  }
-
-  function compareFractions(){
-    let a=choice(FRIENDLY), b=choice(FRIENDLY);
-    while(a.n/a.d === b.n/b.d) b=choice(FRIENDLY);
-    const symbol = a.n/a.d < b.n/b.d ? "&lt;" : "&gt;";
-    const comparison = `<span class="comparison">${fracHTML(a.n,a.d)}<span class="math blankSymbol">___</span>${fracHTML(b.n,b.d)}</span>`;
-    return makeQ("compareFractions", prompt("compareSymbol",{left:fracHTML(a.n,a.d), right:fracHTML(b.n,b.d), comparison}), answerSame(`<span class="math">${symbol}</span>`), {space:"small"});
-  }
-
-  function compareDecimals(){
-    const values = shuffle([
-      (randInt(12,98)/100).toFixed(2),
-      (randInt(101,999)/1000).toFixed(3),
-      (randInt(3,9)/10).toFixed(1),
-      (randInt(1001,9999)/10000).toFixed(4)
-    ]);
-    const ordered = values.slice().sort((a,b)=>Number(a)-Number(b));
-    const asMath = arr => arr.map(v=>`<span class="math">${v}</span>`).join(", ");
-    return makeQ("compareDecimals", prompt("order",{items:asMath(values)}), answerSame(asMath(ordered)), {space:"small"});
-  }
-
-  function friendlyConversions(){
-    const item=choice(FRIENDLY); const s=simplify(item.n,item.d);
-    const mode=choice(["fd","df","pf","f2d","d2p","p2f"]);
-    if(mode==="fd") return makeQ("friendlyConversions", prompt("fracToDecPct",{frac:fracHTML(item.n,item.d)}), answerSame(`<span class="math">${item.dec}</span>, <span class="math">${item.pct}</span>`), {diagram:{type:"conversion-strip", fraction:fracText(item.n,item.d), decimal:"?", percent:"?"}, space:"small"});
-    if(mode==="df") return makeQ("friendlyConversions", prompt("decToFracPct",{dec:`<span class="math">${item.dec}</span>`}), answerSame(`${fracHTML(s.n,s.d)}, <span class="math">${item.pct}</span>`), {space:"small"});
-    if(mode==="pf") return makeQ("friendlyConversions", prompt("pctToFracDec",{pct:`<span class="math">${item.pct}</span>`}), answerSame(`${fracHTML(s.n,s.d)}, <span class="math">${item.dec}</span>`), {space:"small"});
-    if(mode==="f2d") return makeQ("friendlyConversions", prompt("fracToDecimal",{frac:fracHTML(item.n,item.d)}), answerSame(`<span class="math">${item.dec}</span>`), {space:"small"});
-    if(mode==="d2p") return makeQ("friendlyConversions", prompt("decToPercent",{dec:`<span class="math">${item.dec}</span>`}), answerSame(`<span class="math">${item.pct}</span>`), {space:"small"});
-    return makeQ("friendlyConversions", prompt("percentToFraction",{pct:`<span class="math">${item.pct}</span>`}), answerSame(fracHTML(s.n,s.d)), {space:"small"});
-  }
-
-  function roundDecimals(){
-    const value=Number((randInt(1001,99999)/10000).toFixed(4));
-    const places=choice([0,1,2]);
-    const ans=places===0 ? String(Math.round(value)) : value.toFixed(places);
-    return makeQ("roundDecimals", prompt("round",{value:`<span class="math">${value}</span>`, places}), answerSame(`<span class="math">${ans}</span>`), {space:"small"});
-  }
-
-  function compareOrderBasic(){
-    const base = shuffle(FRIENDLY).slice(0,4);
-    const forms = base.map(x=>{
-      const form=choice(["frac","dec","pct"]);
-      const display = form==="frac" ? fracHTML(x.n,x.d) : `<span class="math">${form==="dec"?x.dec:x.pct}</span>`;
-      return {display, value:x.n/x.d};
-    });
-    const items=shuffle(forms);
-    const ans=items.slice().sort((a,b)=>a.value-b.value).map(x=>x.display).join(", ");
-    return makeQ("compareOrderBasic", prompt("order",{items:items.map(x=>x.display).join(", ")}), answerSame(ans), {space:"medium"});
-  }
-
-  function percentOfBasic(){
-    const pct=choice([5,10,12.5,15,20,25,30,40,50,75]);
-    const quantities = [40,50,60,80,100,120,160,200,240,320,400].filter(q=>Number.isInteger(q*pct/100));
-    const qty=choice(quantities); const ans=qty*pct/100;
-    return makeQ("percentOfBasic", prompt("percentOf",{pct,qty}), answerSame(`<span class="math">${ans}</span>`), {space:"small"});
-  }
-
-  function fractionAddSubBasic(){
-    const related = rng()<0.45;
-    let d1,d2,n1,n2,op;
-    if(related){
-      d1=choice([2,3,4,5,6]); d2=d1*choice([2,3]);
-      n1=randInt(1,d1-1); n2=randInt(1,d2-1);
-    }else{
-      d1=choice([4,5,6,8,10,12]); d2=d1; n1=randInt(1,d1-1); n2=randInt(1,d2-1);
-    }
-    op=choice(["+","−"]);
-    let a=n1/d1,b=n2/d2;
-    if(op==="−" && a<b){ [n1,n2]=[n2,n1]; [d1,d2]=[d2,d1]; }
-    const common=lcm(d1,d2); let n = n1*(common/d1) + (op==="+"?1:-1)*n2*(common/d2); const s=simplify(n,common);
-    return makeQ("fractionAddSubBasic", prompt("calc",{expr:`${fracHTML(n1,d1)} <span class="math">${op}</span> ${fracHTML(n2,d2)}`}), answerSame(fracHTML(s.n,s.d)), {space:"medium"});
-  }
-
-  function decimalOpsBasic(){
-    if(rng()<0.45){
-      const value = Number((randInt(12,999)/10).toFixed(1)); const pow=choice([10,100,1000]); const op=choice(["×","÷"]); const ans=op==="×" ? value*pow : value/pow;
-      return makeQ("decimalOpsBasic", prompt("timesByPow",{value:`<span class="math">${value}</span>`, op:`<span class="math">${op}</span>`, pow:`<span class="math">${pow}</span>`}), answerSame(`<span class="math">${num(ans,4)}</span>`), {space:"small"});
-    }
-    const op=choice(["+","−"]); let a=Number((randInt(100,999)/10).toFixed(1)); let b=Number((randInt(10,299)/10).toFixed(1)); if(op==="−" && b>a) [a,b]=[b,a]; const ans=op==="+"?a+b:a-b;
-    return makeQ("decimalOpsBasic", prompt("calc",{expr:`<span class="math">${a} ${op} ${b}</span>`}), answerSame(`<span class="math">${num(ans,2)}</span>`), {space:"small"});
-  }
-
-  function terminatingRecurring(){
-    const mode=choice(["classifyDecimal","convertClassify","notation"]);
-    if(mode==="classifyDecimal"){
-      const item=choice([{v:"0.125",kind:"term"},{v:"0.272727...",kind:"rec"},{v:"1.4",kind:"term"},{v:"0.8333...",kind:"rec"},{v:"2.06",kind:"term"}]);
-      return makeQ("terminatingRecurring", prompt("classifyDecimal",{value:`<span class="math">${item.v}</span>`}), ansTermRec(item.kind), {space:"small"});
-    }
-    if(mode==="notation"){
-      const item=choice([{v:"0.333...",a:"0.3̇"},{v:"0.727272...",a:"0.7̇2̇"},{v:"1.1666...",a:"1.16̇"}]);
-      return makeQ("terminatingRecurring", prompt("recurringNotation",{value:`<span class="math">${item.v}</span>`}), answerSame(`<span class="math">${item.a}</span>`), {space:"small"});
-    }
-    const item=choice([{n:1,d:8,dec:"0.125",kind:"term"},{n:1,d:6,dec:"0.1666...",kind:"rec"},{n:2,d:3,dec:"0.666...",kind:"rec"},{n:3,d:20,dec:"0.15",kind:"term"},{n:4,d:11,dec:"0.363636...",kind:"rec"}]);
-    return makeQ("terminatingRecurring", prompt("convertClassify",{frac:fracHTML(item.n,item.d)}), joinAnswer(answerSame(`<span class="math">${item.dec}</span>`), ansTermRec(item.kind)), {space:"medium"});
-  }
-
-  function ansTermRec(kind){ return kind==="term" ? answerWords("terminating","منتهٍ","مختوم") : answerWords("recurring","متكرر","تکرارشونده"); }
-  function joinAnswer(a,b){ return {en:`${a.en}; ${b.en}`, ar:`${a.ar}; ${b.ar}`, fa:`${a.fa}; ${b.fa}`}; }
-
-  function rationalIrrational(){
-    const mode=choice(["circle","approx","between"]);
-    if(mode==="circle"){
-      const irr=choice([2,3,5,7,11]);
-      const options=shuffle([fracHTML(3,4), `<span class="math">0.25</span>`, rootHTML(irr), `<span class="math">40%</span>`]);
-      return makeQ("rationalIrrational", prompt("circleIrrational",{items:htmlJoin(options)}), answerSame(rootHTML(irr)), {space:"small"});
-    }
-    const n=choice([2,3,5,7,8,10,12,18,20,28,32]);
-    if(mode==="between"){
-      const low=Math.floor(Math.sqrt(n)), high=low+1;
-      const maxLine = n <= 3 ? 5 : Math.max(5, high + 2);
-      return makeQ("rationalIrrational", prompt("rootBetween",{root:rootHTML(n)}), answerSame(`<span class="math">${low}</span> and <span class="math">${high}</span>`), {diagram:{type:"number-line", min:0, max:maxLine, showPoint:false}, space:"small"});
-    }
-    return makeQ("rationalIrrational", prompt("approxRoot",{root:rootHTML(n)}), answerSame(`<span class="math">${Math.sqrt(n).toFixed(1)}</span>`), {space:"small"});
-  }
-
-  function mixedImproper(){
-    const mode=choice(["toImproper","toMixed","toDecimal"]);
-    const whole=randInt(1,5), d=randInt(3,10), n=randInt(1,d-1), improper=whole*d+n;
-    if(mode==="toImproper") return makeQ("mixedImproper", prompt("mixedToImproper",{mixed:mixedHTML(whole,n,d)}), answerSame(fracHTML(improper,d)), {space:"small"});
-    if(mode==="toMixed") return makeQ("mixedImproper", prompt("improperToMixed",{frac:fracHTML(improper,d)}), answerSame(mixedHTML(whole,n,d)), {space:"small"});
-    return makeQ("mixedImproper", prompt("mixedToDecimal",{mixed:mixedHTML(whole,n,d)}), answerSame(`${fracHTML(improper,d)}, <span class="math">${num(improper/d,3)}</span>`), {space:"small"});
-  }
-
-  function fractionAddSubExpected(){
-    if(rng()<0.25){
-      const whole=randInt(2,8), d=choice([3,4,5,6,8,10,12]), n=randInt(1,d-1); const s=simplify(whole*d-n,d);
-      return makeQ("fractionAddSubExpected", prompt("calc",{expr:`<span class="math">${whole}</span> <span class="math">−</span> ${fracHTML(n,d)}`}), answerSame(fracHTML(s.n,s.d)), {space:"large"});
-    }
-    const d1=choice([3,4,5,6,8,10,12]), d2=choice([5,6,7,8,9,10,12]); let n1=randInt(1,d1-1), n2=randInt(1,d2-1); const op=choice(["+","−"]); if(op==="−" && n1/d1<n2/d2){ [n1,n2]=[n2,n1]; }
-    const common=lcm(d1,d2); const n=n1*(common/d1)+(op==="+"?1:-1)*n2*(common/d2); const s=simplify(n,common);
-    return makeQ("fractionAddSubExpected", prompt("calc",{expr:`${fracHTML(n1,d1)} <span class="math">${op}</span> ${fracHTML(n2,d2)}`}), answerSame(fracHTML(s.n,s.d)), {space:"large"});
-  }
-
-  function fractionMultDiv(){
-    const op=choice(["×","÷"]); const d1=randInt(3,12), d2=randInt(3,12), n1=randInt(1,d1-1), n2=randInt(1,d2-1);
-    let n,d; if(op==="×"){ n=n1*n2; d=d1*d2; } else { n=n1*d2; d=d1*n2; }
-    const s=simplify(n,d);
-    return makeQ("fractionMultDiv", prompt("calc",{expr:`${fracHTML(n1,d1)} <span class="math">${op}</span> ${fracHTML(n2,d2)}`}), answerSame(fracHTML(s.n,s.d)), {space:"large"});
-  }
-
-  function decimalMultDiv(){
-    const mode=choice(["mult","div","effect"]);
-    if(mode==="effect"){
-      const start=choice([24,40,80,120]); const multiplier=choice([0.2,0.25,0.5,0.75]);
-      const isDiv = rng()<0.5; const expr=`<span class="math">${start} ${isDiv?"÷":"×"} ${multiplier}</span>`; const larger = isDiv ? true : false;
-      const ans = larger ? answerWords("larger", "أكبر", "بزرگ‌تر") : answerWords("smaller", "أصغر", "کوچک‌تر");
-      return makeQ("decimalMultDiv", prompt("effect",{start:`<span class="math">${start}</span>`, expr}), ans, {space:"medium"});
-    }
-    if(mode==="mult"){
-      const a=Number((randInt(12,95)/10).toFixed(1)), b=Number((randInt(2,9)/10).toFixed(1));
-      return makeQ("decimalMultDiv", prompt("calc",{expr:`<span class="math">${a} × ${b}</span>`}), answerSame(`<span class="math">${num(a*b,3)}</span>`), {space:"medium"});
-    }
-    const b=Number((randInt(2,9)/10).toFixed(1)); const ans=randInt(2,12); const a=Number((b*ans).toFixed(1));
-    return makeQ("decimalMultDiv", prompt("calc",{expr:`<span class="math">${a} ÷ ${b}</span>`}), answerSame(`<span class="math">${ans}</span>`), {space:"medium"});
-  }
-
-  function compareOrderExpected(){
-    const pool=[
-      {display:fracHTML(2,3),value:2/3},{display:`<span class="math">0.6̇</span>`,value:2/3},{display:`<span class="math">62%</span>`,value:.62},{display:mixedHTML(1,1,4),value:1.25},{display:`<span class="math">1.18</span>`,value:1.18},{display:`<span class="math">−0.4</span>`,value:-.4},{display:`<span class="math">−35%</span>`,value:-.35},{display:fracHTML(-1,2),value:-.5},{display:`<span class="math">0.75</span>`,value:.75},{display:fracHTML(7,8),value:.875}
-    ];
-    const items=shuffle(pool).slice(0,5); const ans=items.slice().sort((a,b)=>a.value-b.value).map(x=>x.display).join(", ");
-    return makeQ("compareOrderExpected", prompt("order",{items:items.map(x=>x.display).join(", ")}), answerSame(ans), {space:"medium"});
-  }
-
-  function quantityAsFdp(){
-    const wholes=[20,24,25,30,32,40,50,60]; const whole=choice(wholes); const divisors=[]; for(let i=2;i<whole;i++) if(whole%i===0) divisors.push(i); const part=choice(divisors); const s=simplify(part,whole); const dec=num(part/whole,3); const pct=num(100*part/whole,1)+"%";
-    const context=choice([
-      {en:"basketball", ar:"كرة السلة", fa:"بسکتبال"},
-      {en:"soccer", ar:"كرة القدم", fa:"فوتبال"},
-      {en:"chess club", ar:"نادي الشطرنج", fa:"باشگاه شطرنج"},
-      {en:"the school play", ar:"المسرحية المدرسية", fa:"نمایش مدرسه"},
-      {en:"reading challenge", ar:"تحدي القراءة", fa:"چالش مطالعه"}
-    ]);
-    const mode=choice(["fraction","decimal","percentage"]);
-    const targets={
-      fraction:{en:"a fraction", ar:"على صورة كسر", fa:"به صورت کسر", ans:fracHTML(s.n,s.d)},
-      decimal:{en:"a decimal", ar:"على صورة عدد عشري", fa:"به صورت اعشار", ans:`<span class="math">${dec}</span>`},
-      percentage:{en:"a percentage", ar:"على صورة نسبة مئوية", fa:"به صورت درصد", ans:`<span class="math">${pct}</span>`}
-    };
-    const target=targets[mode];
-    return makeQ("quantityAsFdp", prompt("quantityFdp",{part,whole,context,target}), answerSame(target.ans), {space:"medium"});
-  }
-
-  function percentageChange(){
-    const priceMode = rng()<0.55; const pct=choice([5,10,12,15,20,25,30]); const amount=choice([40,50,60,80,100,120,150,200,240,300]); const inc=rng()<0.5; const change=amount*pct/100; const ans=inc ? amount+change : amount-change;
-    const actionEn=inc?"Increase":"Decrease", actionAr=inc?"زيادة":"نقصان", actionFa=inc?"افزایش دهید":"کاهش دهید";
-    if(priceMode){
-      const item=choice(["school bag","calculator","sports jersey","headphones","textbook"]); const price=money(amount);
-      const p= {en:I18N.en.q.priceChange({item,price,action:inc?"increased":"decreased",pct}), ar:I18N.ar.q.priceChange({item:arabicItem(item),price,action:inc?"رفعه":"خفضه",pct}), fa:I18N.fa.q.priceChange({item:farsiItem(item),price,action:inc?"افزایش یافته است":"کاهش یافته است",pct})};
-      return makeQ("percentageChange", p, answerSame(money(ans)), {space:"large"});
-    }
-    return makeQ("percentageChange", {en:I18N.en.q.percentChange({action:actionEn,amount,pct}), ar:I18N.ar.q.percentChange({action:actionAr,amount,pct}), fa:I18N.fa.q.percentChange({action:actionFa,amount,pct})}, answerSame(`<span class="math">${num(ans,2)}</span>`), {space:"large"});
-  }
-
-  function financialPercentages(){
-    const mode=choice(["discount","gstAdd","gstComponent","profitLoss","bestBuy"]);
-    const item=choice(["school bag","calculator","jacket","textbook","sports shoes"]);
-    if(mode==="discount"){
-      const price=choice([40,60,80,100,120,160,200]); const pct=choice([10,15,20,25,30,40]); const sale=price-price*pct/100;
-      return makeQ("financialPercentages", {en:I18N.en.q.discount({item,price:money(price),pct}), ar:I18N.ar.q.discount({item:arabicItem(item),price:money(price),pct}), fa:I18N.fa.q.discount({item:farsiItem(item),price:money(price),pct})}, answerSame(money(sale)), {space:"large"});
-    }
-    if(mode==="gstAdd"){
-      const price=choice([30,40,50,60,80,100,120,150]); const total=price*1.1;
-      return makeQ("financialPercentages", {en:I18N.en.q.gstAdd({item,price:money(price)}), ar:I18N.ar.q.gstAdd({item:arabicItem(item),price:money(price)}), fa:I18N.fa.q.gstAdd({item:farsiItem(item),price:money(price)})}, answerSame(money(total)), {space:"large"});
-    }
-    if(mode==="gstComponent"){
-      const gst=choice([5,8,10,12,15,20]); const total=gst*11;
-      return makeQ("financialPercentages", {en:I18N.en.q.gstComponent({item,price:money(total)}), ar:I18N.ar.q.gstComponent({item:arabicItem(item),price:money(total)}), fa:I18N.fa.q.gstComponent({item:farsiItem(item),price:money(total)})}, answerSame(money(gst)), {space:"large"});
-    }
-    if(mode==="profitLoss"){
-      const cost=choice([30,40,50,60,80,100]); const profit=choice([10,15,20,25,30]); const sell=cost+cost*profit/100;
-      return makeQ("financialPercentages", {en:I18N.en.q.profitLoss({cost:money(cost),sell:money(sell),kind:"profit"}), ar:I18N.ar.q.profitLoss({cost:money(cost),sell:money(sell),kind:"الربح"}), fa:I18N.fa.q.profitLoss({cost:money(cost),sell:money(sell),kind:"سود"})}, answerSame(`<span class="math">${profit}%</span>`), {space:"large"});
-    }
-    const made=makeBestBuy();
-    return makeQ("financialPercentages", {en:I18N.en.q.bestBuy(made.en), ar:I18N.ar.q.bestBuy(made.ar), fa:I18N.fa.q.bestBuy(made.fa)}, answerWords(made.answerEn,made.answerAr,made.answerFa), {diagram:{type:"best-buy", a:made.unitsA, b:made.unitsB, priceA:made.priceA, priceB:made.priceB}, space:"large"});
-  }
-
-  function arabicItem(item){ return ({"school bag":"حقيبة مدرسية",calculator:"آلة حاسبة",jacket:"سترة",textbook:"كتاب دراسي","sports shoes":"حذاء رياضي","sports jersey":"قميص رياضي",headphones:"سماعات"})[item] || item; }
-  function farsiItem(item){ return ({"school bag":"کیف مدرسه",calculator:"ماشین حساب",jacket:"ژاکت",textbook:"کتاب درسی","sports shoes":"کفش ورزشی","sports jersey":"لباس ورزشی",headphones:"هدفون"})[item] || item; }
-
-  function makeBestBuy(){
-    const contexts=[
-      {noun:"cereal", q:[375,500,750,900], base:100, low:70, high:150, en:u=>`${u} g box of cereal`, ar:u=>`علبة حبوب ${u} g`, fa:u=>`جعبه غلات ${u} g`},
-      {noun:"milk", q:[600,1000,2000,3000], base:1000, low:180, high:360, en:u=>`${u} mL bottle of milk`, ar:u=>`زجاجة حليب ${u} mL`, fa:u=>`بطری شیر ${u} mL`},
-      {noun:"juice", q:[600,1000,1250,2000], base:1000, low:160, high:420, en:u=>`${u} mL bottle of juice`, ar:u=>`زجاجة عصير ${u} mL`, fa:u=>`بطری آبمیوه ${u} mL`},
-      {noun:"rice", q:[1,2,5], base:1, low:180, high:420, en:u=>`${u} kg bag of rice`, ar:u=>`كيس أرز ${u} kg`, fa:u=>`کیسه برنج ${u} kg`},
-      {noun:"pens", q:[4,6,10,12,20], base:1, low:45, high:130, en:u=>`pack of ${u} pens`, ar:u=>`علبة من ${u} أقلام`, fa:u=>`بسته ${u} عددی خودکار`},
-      {noun:"printer paper", q:[100,250,500], base:100, low:120, high:340, en:u=>`${u}-sheet pack of printer paper`, ar:u=>`رزمة ورق طابعة ${u} ورقة`, fa:u=>`بسته کاغذ چاپگر ${u} برگی`}
-    ];
-    const context=choice(contexts);
-    const [unitsA,unitsB]=shuffle(context.q).slice(0,2).sort((a,b)=>a-b);
-    const unitPriceCents=randInt(context.low,context.high);
-    let priceA=Number(((unitsA/context.base)*unitPriceCents/100 + randInt(-40,80)/100).toFixed(2));
-    let priceB=Number(((unitsB/context.base)*unitPriceCents/100 + randInt(-90,70)/100).toFixed(2));
-    priceA=Math.max(.5,priceA); priceB=Math.max(.5,priceB);
-    let rA=priceA/(unitsA/context.base), rB=priceB/(unitsB/context.base);
-    if(Math.abs(rA-rB)<0.005){ priceB=Number((priceB+0.25).toFixed(2)); rB=priceB/(unitsB/context.base); }
-    const bestA=rA<rB;
-    return {
-      en:{a:`${context.en(unitsA)} for ${money(priceA)}`, b:`${context.en(unitsB)} for ${money(priceB)}`},
-      ar:{a:`${context.ar(unitsA)} مقابل ${money(priceA)}`, b:`${context.ar(unitsB)} مقابل ${money(priceB)}`},
-      fa:{a:`${context.fa(unitsA)} به قیمت ${money(priceA)}`, b:`${context.fa(unitsB)} به قیمت ${money(priceB)}`},
-      answerEn:bestA?"Option A":"Option B", answerAr:bestA?"الخيار أ":"الخيار ب", answerFa:bestA?"گزینه A":"گزینه B", unitsA, unitsB, priceA, priceB
-    };
-  }
-
-  function fracText(n,d){ return d===1 ? String(n) : `${n}/${d}`; }
-
-  const GENERATORS = { visualFractions, simplifyEquivalent, compareFractions, friendlyConversions, roundDecimals, compareDecimals, compareOrderBasic, percentOfBasic, fractionAddSubBasic, decimalOpsBasic, terminatingRecurring, rationalIrrational, mixedImproper, fractionAddSubExpected, fractionMultDiv, decimalMultDiv, compareOrderExpected, quantityAsFdp, percentageChange, financialPercentages };
-
-  function renderTypes(){
-    const ids = TYPE_SETS[dom.levelSel.value];
-    dom.chkWrap.innerHTML = ids.map(id=>`<label class="chk"><input type="checkbox" value="${id}" checked> <span>${L().typeLabels[id]}</span></label>`).join("");
-    updateToggleText();
-  }
-
-  function updateUiText(){
-    document.documentElement.lang = lang();
-    dom.appTitle.textContent=t("appTitle"); dom.appSub.textContent=t("appSub"); dom.badge.textContent=t("badge");
-    document.querySelectorAll("[data-i18n]").forEach(el=>{ const key=el.getAttribute("data-i18n"); if(t(key)) el.textContent=t(key); });
-    [...dom.levelSel.options].forEach(opt=>{ opt.textContent = opt.value==="basic" ? t("basic") : t("expected"); });
-    [...dom.chkWrap.querySelectorAll(".chk")].forEach(label=>{ const input=label.querySelector("input"); const span=label.querySelector("span"); if(input && span) span.textContent=L().typeLabels[input.value]; });
-    updateToggleText();
-    if(state.questions.length) renderOutput();
-  }
-
-  function checkedTypes(){ return [...dom.chkWrap.querySelectorAll("input[type=checkbox]:checked")].map(x=>x.value); }
-  function updateToggleText(){
-    const boxes=[...dom.chkWrap.querySelectorAll("input[type=checkbox]")];
-    const all=boxes.length && boxes.every(b=>b.checked);
-    dom.toggleAllBtn.textContent = all ? t("deselectAll") : t("selectAll");
-  }
-  function showWarn(message){ dom.warn.textContent=message; dom.warn.classList.add("show"); }
-  function clearWarn(){ dom.warn.textContent=""; dom.warn.classList.remove("show"); }
-
-  function generate(){
-    clearWarn();
-    const ids=checkedTypes(); if(!ids.length){ showWarn(t("noTypes")); return; }
-    let count=Math.max(4,Math.min(60,Number(dom.countInp.value)||16)); dom.countInp.value=count;
-    const seed = dom.seedInp.value.trim() || String(Date.now()).slice(-8) + String(randIntNative(100,999));
-    dom.seedInp.value=seed; state.seed=seed; rng=seededRng(seed);
-    const plan=shuffle(Array.from({length:count},(_,i)=>ids[i%ids.length]));
-    state.questions = plan.map(id=>GENERATORS[id]()).filter(Boolean);
-    renderOutput();
-  }
-  function randIntNative(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
-
-  function renderOutput(){
-    const dir=L().dir;
-    const levelLabel = dom.levelSel.value==="basic" ? t("basic") : t("expected");
-    const date=i18nDate();
-    const chunks = paginateQuestions(state.questions,levelLabel,dir,date);
-    const totalPages = chunks.length + 1;
-    const pages = chunks.map((chunk,pi)=>sheetHTML(chunk,pi+1,totalPages,levelLabel,dir,date,false,pageOffset(chunks,pi))).join("");
-    const answer = answerSheetHTML(state.questions,totalPages,totalPages,levelLabel,dir,date);
-    dom.out.innerHTML = pages + answer;
-  }
-
-  function pageOffset(chunks,pageIndex){
-    let total=0;
-    for(let i=0;i<pageIndex;i++) total += chunks[i].length;
-    return total;
-  }
-
-  function paginateQuestions(questions,levelLabel,dir,date){
-    if(!questions.length) return [];
-    const chunks=[];
-    let start=0;
-    while(start<questions.length){
-      let page=[];
-      for(let i=start;i<questions.length;i++){
-        const trial=page.concat(questions[i]);
-        const fits = measurePageFits(trial,start,levelLabel,dir,date);
-        if(fits || page.length===0){
-          page=trial;
-        }else{
-          break;
+  /* ---- the Cartesian plane, copied from the whole-topic quiz engine ---- */
+  function grid(o) {
+    const NS = "http://www.w3.org/2000/svg";
+    const xMin = o.xMin ?? -6, xMax = o.xMax ?? 6, yMin = o.yMin ?? -6, yMax = o.yMax ?? 6;
+    const cell = o.cell || 34, pad = 26;
+    const W = (xMax - xMin) * cell + pad * 2, H = (yMax - yMin) * cell + pad * 2;
+    const X = x => pad + (x - xMin) * cell, Y = y => pad + (yMax - y) * cell;
+    const svg = document.createElementNS(NS, "svg");
+    svg.setAttribute("viewBox", `0 0 ${W} ${H}`); svg.setAttribute("class", "qgrid");
+    svg.setAttribute("role", "img"); svg.setAttribute("aria-label", "Cartesian plane");
+    const el = (n, a, txt) => { const e = document.createElementNS(NS, n); for (const k in a) e.setAttribute(k, a[k]); if (txt != null) e.textContent = txt; svg.appendChild(e); return e; };
+    for (let x = xMin; x <= xMax; x++) el("line", { x1: X(x), y1: Y(yMin), x2: X(x), y2: Y(yMax), class: "gl" });
+    for (let y = yMin; y <= yMax; y++) el("line", { x1: X(xMin), y1: Y(y), x2: X(xMax), y2: Y(y), class: "gl" });
+    if (yMin <= 0 && yMax >= 0) el("line", { x1: X(xMin) - 6, y1: Y(0), x2: X(xMax) + 10, y2: Y(0), class: "ax", "marker-end": "" });
+    if (xMin <= 0 && xMax >= 0) el("line", { x1: X(0), y1: Y(yMin) + 6, x2: X(0), y2: Y(yMax) - 10, class: "ax" });
+    if (yMin <= 0 && yMax >= 0) { el("path", { d: `M${X(xMax) + 14},${Y(0)} l-10,-5 v10 z`, class: "axh" }); el("text", { x: X(xMax) + 12, y: Y(0) - 10, class: "axl" }, "x"); }
+    if (xMin <= 0 && xMax >= 0) { el("path", { d: `M${X(0)},${Y(yMax) - 14} l-5,10 h10 z`, class: "axh" }); el("text", { x: X(0) + 12, y: Y(yMax) - 8, class: "axl" }, "y"); }
+    const ox = xMin <= 0 && xMax >= 0 ? X(0) : X(xMin), oy = yMin <= 0 && yMax >= 0 ? Y(0) : Y(yMin);
+    const step = o.labelStep || 1;
+    for (let x = xMin; x <= xMax; x += step) if (x !== 0) el("text", { x: X(x), y: oy + 15, class: "tk", "text-anchor": "middle" }, C.fmt(x));
+    for (let y = yMin; y <= yMax; y += step) if (y !== 0) el("text", { x: ox - 7, y: Y(y) + 4, class: "tk", "text-anchor": "end" }, C.fmt(y));
+    if (xMin <= 0 && xMax >= 0 && yMin <= 0 && yMax >= 0) el("text", { x: X(0) - 7, y: Y(0) + 15, class: "tk", "text-anchor": "end" }, "0");
+    // lines, clipped to the box
+    // Line labels go where they are farthest from other labels and from any crossing point.
+    const placed = [], cross = [];
+    (o.lines || []).forEach((L, i) => (o.lines || []).slice(i + 1).forEach(M2 => { if (L.m !== M2.m) { const x = (M2.b - L.b) / (L.m - M2.m); cross.push([X(x), Y(L.m * x + L.b)]); } }));
+    (o.lines || []).forEach(L => {
+      const pts = [];
+      const add = (x, y) => { if (x >= xMin - 1e-9 && x <= xMax + 1e-9 && y >= yMin - 1e-9 && y <= yMax + 1e-9) pts.push([x, y]); };
+      add(xMin, L.m * xMin + L.b); add(xMax, L.m * xMax + L.b);
+      if (L.m !== 0) { add((yMin - L.b) / L.m, yMin); add((yMax - L.b) / L.m, yMax); }
+      pts.sort((a, b) => a[0] - b[0]);
+      if (pts.length >= 2) {
+        const a = pts[0], b = pts[pts.length - 1];
+        el("line", { x1: X(a[0]), y1: Y(a[1]), x2: X(b[0]), y2: Y(b[1]), class: "ln", stroke: L.color || "#be123c" });
+        if (L.label) {
+          let best = null, bestD = -1;
+          [0.85, 0.72, 0.15, 0.28, 0.5].forEach(t => {
+            const px = X(a[0] + (b[0] - a[0]) * t), py = Y(a[1] + (b[1] - a[1]) * t);
+            const d = Math.min(1e9, ...placed.concat(cross).map(q => Math.hypot(q[0] - px, q[1] - py)));
+            if (d > bestD + 0.5) { bestD = d; best = [px, py]; }
+          });
+          placed.push(best);
+          // Step off the line at right angles (on the upper side), anchored so the text runs away from it.
+          let dx = X(b[0]) - X(a[0]), dy = Y(b[1]) - Y(a[1]); const len = Math.hypot(dx, dy) || 1; dx /= len; dy /= len;
+          let nx = -dy, ny = dx; if (ny > 0) { nx = -nx; ny = -ny; }
+          const anchor = Math.abs(nx) < 0.35 ? "middle" : nx > 0 ? "start" : "end";
+          const tx = el("text", { x: best[0] + nx * 12, y: best[1] + ny * 12 + (ny > -0.5 ? 5 : 0), class: "lnl", fill: L.color || "#be123c", "text-anchor": anchor }, L.label);
+          tx.setAttribute("paint-order", "stroke");
         }
       }
-      chunks.push(page);
-      start += page.length;
+    });
+    (o.points || []).forEach(p => {
+      el("circle", { cx: X(p.x), cy: Y(p.y), r: 6.5, class: "pt", fill: p.color || "#1d4ed8" });
+      if (p.label) { const t = el("text", { x: X(p.x) + 9, y: Y(p.y) - 9, class: "ptl" }, p.label); t.setAttribute("paint-order", "stroke"); }
+    });
+    return svg;
+  }
+
+
+  /* ---- diagrams: a Revision Generator engine, the plane, or plain html ---- */
+  function engineFor(name) {
+    return window['MMT_' + String(name).replace(/-engine$/, '').toUpperCase().replace(/-/g, '_') + '_ENGINE'];
+  }
+  /* Draw at a constant scale, trimmed to the ink, so a label is the same
+     size in every question; capped so a tall figure cannot take the page. */
+  function drawDiagram(host, d) {
+    host.innerHTML = '';
+    if (!d) return;
+    if (d.html) { host.innerHTML = d.html; return; }
+    if (d.grid) {
+      // squared paper: about 5.5 mm a unit (unitMM), capped in height
+      const o = d.grid, g = grid(Object.assign({}, o, { interactive: false }));
+      const cell = o.cell || 34, u = (o.unitMM || 5.5) * 3.7795 / cell;
+      const vb = g.getAttribute('viewBox').split(' ').map(Number);
+      let w = vb[2] * u, h = vb[3] * u; const cap = (o.maxMM || 92) * 3.7795;
+      if (h > cap) { w *= cap / h; h = cap; }
+      g.style.width = Math.round(w) + 'px'; g.style.height = Math.round(h) + 'px';
+      host.appendChild(g); return;
     }
-    return chunks;
+    const E = engineFor(d.engine);
+    if (!E || !E.render) { host.innerHTML = '<div class="diagMissing">Diagram unavailable</div>'; return; }
+    const holder = document.createElement('div'); holder.className = 'engHolder';
+    host.appendChild(holder);
+    try { E.render(holder, d.config || {}); } catch (e) { console.warn('diagram', e); holder.innerHTML = '<div class="diagMissing">Diagram unavailable</div>'; return; }
+    holder.querySelectorAll('svg').forEach(svg => {
+      if (svg.parentElement && svg.parentElement.closest('svg')) return;
+      try {
+        const bb = svg.getBBox();
+        if (bb.width > 4 && bb.height > 4) {
+          const p = 10;
+          svg.setAttribute('viewBox', `${bb.x - p} ${bb.y - p} ${bb.width + 2 * p} ${bb.height + 2 * p}`);
+          svg.removeAttribute('width'); svg.removeAttribute('height');
+          const k = (d.scale || 1.15) * 0.62;
+          svg.style.width = Math.round((bb.width + 2 * p) * k) + 'px';
+          svg.style.maxWidth = '100%'; svg.style.height = 'auto';
+          svg.style.maxHeight = (d.maxH ? d.maxH * 0.62 : 230) + 'px';
+        }
+      } catch (e) { /* not laid out yet */ }
+    });
   }
 
-  function measurePageFits(questions,offset,levelLabel,dir,date){
-    const section=document.createElement("section");
-    section.className="sheet measureSheet";
-    section.dir=dir;
-    section.innerHTML=`
-      <header class="pageHeader">
-        <div><div class="pageTitle">${t("appTitle")}</div><div style="font-size:13px;font-weight:850;color:#374151;margin-top:4px">${t("worksheet")} · ${t("level")}: ${levelLabel}</div></div>
-        <div class="pageMeta">${t("page")} 88/88<br>${t("generated")}: ${date}<br>Seed: ${state.seed || ""}</div>
-      </header>
-      <div class="studentLine"><div>${t("name")}:</div><div>${t("className")}:</div><div>${t("date")}:</div></div>
-      <div class="questionGrid">${questions.map((q,i)=>questionHTML(q,offset+i+1)).join("")}</div>
-      ${footerHTML()}
-    `;
-    document.body.appendChild(section);
-    const grid=section.querySelector(".questionGrid");
-    const footer=section.querySelector(".footer");
-    const gridBottom=grid.getBoundingClientRect().bottom;
-    const footerTop=footer.getBoundingClientRect().top;
-    const fits=gridBottom <= footerTop - 8;
-    section.remove();
-    return fits;
+  /* ---- answers ---- */
+  function answerHTML(q) {
+    if (q.answerHTML) return q.answerHTML;
+    if (q.mode === 'mc') { const o = q.options[q.correct]; return /^\s*[A-F][:.)]/.test(strip(o)) ? o : `${'ABCDEF'[q.correct]} &nbsp;${o}`; }
+    if (q.mode === 'tf') return q.truth ? 'True' : 'False';
+    if (q.mode === 'num') return (q.pre || '') + C.fmt(q.value, q.dp == null ? 4 : q.dp, q.dp != null && q.dp > 0) + (q.unit ? (q.unit === '°' ? '°' : ' ' + q.unit) : '');
+    if (q.mode === 'coord' || q.mode === 'plot') return `(${C.fmt(q.x)}, ${C.fmt(q.y)})`;
+    return '';
+  }
+  const strip = h => { const d = document.createElement('div'); d.innerHTML = String(h); return (d.textContent || '').replace(/\s+/g, ' ').trim(); };
+
+  /* Screen wording becomes paper wording. */
+  function paperPrompt(p) {
+    return String(p)
+      .replace(/Click the grid to plot/g, 'Plot')
+      .replace(/click the grid to plot/g, 'plot')
+      .replace(/\bType your answer/g, 'Write your answer').replace(/\btype your answer/g, 'write your answer');
   }
 
-  function i18nDate(){ return new Date().toLocaleDateString("en-AU"); }
-  function sheetHTML(questions,pageNo,totalPages,levelLabel,dir,date,isAnswer=false,offset=0){
-    return `<section class="sheet" dir="${dir}">
-      <header class="pageHeader">
-        <div><div class="pageTitle">${t("appTitle")}</div><div style="font-size:13px;font-weight:850;color:#374151;margin-top:4px">${t("worksheet")} · ${t("level")}: ${levelLabel}</div></div>
-        <div class="pageMeta">${t("page")} ${pageNo}/${totalPages}<br>${t("generated")}: ${date}<br>Seed: ${state.seed || ""}</div>
-      </header>
-      <div class="studentLine"><div>${t("name")}:</div><div>${t("className")}:</div><div>${t("date")}:</div></div>
-      <div class="questionGrid">${questions.map((q,i)=>questionHTML(q,offset+i+1)).join("")}</div>
-      ${footerHTML()}
-    </section>`;
-  }
-  function answerSheetHTML(questions,pageNo,totalPages,levelLabel,dir,date){
-    return `<section class="sheet answerPage" dir="${dir}">
-      <header class="pageHeader">
-        <div><div class="pageTitle">${t("answerKey")}</div><div style="font-size:13px;font-weight:850;color:#374151;margin-top:4px">${t("appTitle")} · ${t("level")}: ${levelLabel}</div></div>
-        <div class="pageMeta">${t("page")} ${pageNo}/${totalPages}<br>${t("generated")}: ${date}<br>Seed: ${state.seed || ""}</div>
-      </header>
-      <div class="answerList">${questions.map((q,i)=>`<div class="answerItem"><span class="ansNum">${i+1}.</span> ${local(q.answer)}</div>`).join("")}</div>
-      ${footerHTML()}
-    </section>`;
-  }
-  function footerHTML(){ return `<div class="footer"><span>${t("source")}: ${SITE}</span><span>${t("appTitle")}</span></div>`; }
-  function questionHTML(q,num){
-    const diag = q.diagram ? `<div class="diagram ${q.diagram.type==='percentage-grid'?'tall':''}">${diagramSVG(q.diagram)}</div>` : "";
-    return `<article class="qCard ${q.fullWidth?'full':''}"><div class="qHead"><div class="qNum">${num}</div><div class="qText">${local(q.prompt)}</div></div>${diag}<div class="workSpace ${q.space||"medium"}"></div></article>`;
+  /* Arabic/Farsi: only the opening instruction is translated, and only when
+     the Revision Generator's curated phrases have a real translation for it.
+     Its catch-all lines ("answer the question below") are not used. */
+  const FALLBACKS = /أجب عن السؤال أدناه|به پرسش زیر پاسخ دهید|استخدم المعلومات الإنجليزية|از اطلاعات انگلیسی زیر/;
+  function localLine(q) {
+    if (isEn() || !translate) return '';
+    if (q.loc && q.loc[lang()]) return q.loc[lang()];
+    // the opening instruction only, up to the first display block
+    const html = String(paperPrompt(q.prompt));
+    const cut = html.search(/<span class="(big|say|dataList|sub|math-expression|prompt-indented-line)"|<table|<br|<div|<ol/);
+    const div = document.createElement('div');
+    div.innerHTML = cut > 0 ? html.slice(0, cut) : html;
+    // protect the maths: each maths element becomes a token the phrases carry through
+    const keep = [];
+    const MATHS = '.m, .fr, sup, sub, .math-frac, .math-inline, .math-relation, .value-item';
+    div.querySelectorAll(MATHS).forEach(el => {
+      if (el.parentElement && el.parentElement.closest(MATHS)) return;
+      keep.push(el.outerHTML); el.replaceWith(document.createTextNode(` QQ${keep.length - 1}QQ `));
+    });
+    const lead = (div.textContent || '').replace(/\s+/g, ' ').trim();
+    if (!lead || lead.length > 170) return '';
+    let t = '';
+    try { t = translate(lead, lang(), { topic: CFG.translateTopic || CFG.topic, type: q.type || '' }) || ''; } catch (e) { t = ''; }
+    t = String(t).replace(/[\u2066-\u2069\u200e\u200f]/g, '').replace(/\s+([:،؛.؟])/g, '$1');
+    if (!t || FALLBACKS.test(t)) return '';
+    // a real translation: no English words left over, every maths token kept once, no stray punctuation
+    const words = t.replace(/QQ\d+QQ/g, ' ').match(/[A-Za-z]{2,}/g) || [];
+    if (words.some(w => !/^(HCF|LCM|km|cm|mm|kg|mL|ml|m|g|L|h|min|s|cos|sin|tan|ii?i?|iv)$/.test(w))) return '';
+    for (let i = 0; i < keep.length; i++) if ((t.match(new RegExp(`QQ${i}QQ`, 'g')) || []).length !== 1) return '';
+    if (/[:;,.]\s*[:;,.]|^\s*[:;,.]/.test(t.replace(/QQ\d+QQ/g, 'X'))) return '';
+    return C.esc(t).replace(/\s*QQ(\d+)QQ\s*/g, (m, i) => ` <bdi dir="ltr">${keep[+i]}</bdi> `).trim();
   }
 
-  function diagramSVG(d){
-    if(d.type==="fraction-bar") return fractionBarSvg(d.n,d.d);
-    if(d.type==="conversion-strip") return conversionStripSvg(d.fraction,d.decimal,d.percent);
-    if(d.type==="number-line") return numberLineSvg(d.min,d.max,d.showPoint,d.value);
-    if(d.type==="best-buy") return bestBuySvg(d.a,d.b,d.priceA,d.priceB);
-    return "";
+  /* ---- one card ---- */
+  function cardHTML(q, idx, key) {
+    if (q.mode === 'plot' && q.grid && !q.diagram) { q.diagram = { grid: q.grid }; q.noAnswerBox = true; }
+    const loc = localLine(q);
+    const prompt = paperPrompt(q.prompt);
+    let body = '';
+    if (q.mode === 'mc' && q.options) {
+      const long = q.options.some(o => strip(o).length > 26);
+      body += `<div class="opts${long ? ' long' : ''}">` + q.options.map((o, k) =>
+        `<div class="opt${key && k === q.correct ? ' right' : ''}"><span class="L">${'ABCDEF'[k]}</span><span>${o}</span></div>`).join('') + '</div>';
+    }
+    if (q.mode === 'tf') {
+      body += `<div class="tfRow"><span class="${key && q.truth ? 'right' : ''}">${isEn() ? 'True' : L().trueW + ' / True'}</span><span class="${key && !q.truth ? 'right' : ''}">${isEn() ? 'False' : L().falseW + ' / False'}</span></div>`;
+    }
+    const diag = (key && q.keyDiagram) || q.diagram || (key && q.mode === 'plot' && q.grid) || null;
+    const ansLabel = isEn() ? `<span>${LANG.en.answer}</span>` : `<span class="loc" dir="rtl">${L().answer}</span><span class="en">${LANG.en.answer}</span>`;
+    const needsBox = !(q.mode === 'tf') && !(q.noAnswerBox);
+    const unitAfter = !key && q.mode === 'num' && q.unit && q.unit !== '°' ? `<span class="ansUnit">${q.unit}</span>` : (!key && q.unit === '°' && q.mode === 'num' ? '<span class="ansUnit">°</span>' : '');
+    const work = !key && toggleWorking.checked && !q.noWorking
+      ? `<div class="workBox"><span class="workTag">${isEn() ? LANG.en.working : L().working + ' · ' + LANG.en.working}</span></div>` : '';
+    const ans = key
+      ? `<div class="ansRow">${ansLabel}<div class="ansBox key">${answerHTML(q) || '—'}</div></div>${toggleWhy.checked && q.why ? `<div class="why">${q.why}</div>` : ''}`
+      : (needsBox ? `<div class="ansRow">${ansLabel}<div class="ansBox"></div>${unitAfter}</div>` : '');
+    return `<div class="qCard" data-type="${q.type}">` +
+      `<div class="qHead"><span class="qNum">Q${idx}</span><div class="qPrompt${loc ? ' bi' : ''}">${loc ? `<span class="loc">${loc}</span>` : ''}<span class="enLine">${prompt}</span>${body}</div></div>` +
+      (diag ? `<div class="qDiag" data-d="1"></div>` : '') +
+      (!key && q.drawSpace ? `<div class="drawBox${q.grid5 ? ' sq' : ''}" style="height:${q.drawSpace}mm"><span class="workTag">${q.drawTag || ''}</span></div>` : '') +
+      `<div class="qFill"></div>${work}${ans}</div>`;
   }
-  function fractionBarSvg(n,d){
-    const w=420,h=44,x=50,y=36,cell=w/d; let cells="";
-    for(let i=0;i<d;i++) cells += `<rect x="${x+i*cell}" y="${y}" width="${cell}" height="${h}" fill="${i<n?'#bfdbfe':'#fff'}" stroke="#111827" stroke-width="1.3"/>`;
-    return `<svg viewBox="0 0 520 120" role="img">${cells}<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="none" stroke="#111827" stroke-width="2"/></svg>`;
+  function hydrate(el, q, key) {
+    const host = el.querySelector('.qDiag'); if (!host) return;
+    let d = (key && q.keyDiagram) || q.diagram;
+    if (key && q.mode === 'plot' && d && d.grid) d = { grid: Object.assign({}, d.grid, { points: (d.grid.points || []).concat([{ x: q.x, y: q.y, color: '#16a34a', label: `(${C.fmt(q.x)}, ${C.fmt(q.y)})` }]) }) };
+    drawDiagram(host, d);
   }
-  function conversionStripSvg(fraction,decimal,percent){
-    const boxes=[['Fraction',fraction,35],['Decimal',decimal,205],['Percentage',percent,375]];
-    return `<svg viewBox="0 0 560 150" role="img"><style>.small{font:700 15px system-ui}.big{font:900 20px Cambria Math,serif}</style>${boxes.map((b,i)=>`<rect x="${b[2]}" y="30" width="140" height="76" rx="8" fill="${i===1?'#d1fae5':'#eef2ff'}" stroke="#111827" stroke-width="2"/><text x="${b[2]+70}" y="53" text-anchor="middle" class="small">${b[0]}</text><text x="${b[2]+70}" y="86" text-anchor="middle" class="big">${stripTags(b[1])}</text>`).join("")}<line x1="178" y1="70" x2="202" y2="70" stroke="#111827"/><line x1="348" y1="70" x2="372" y2="70" stroke="#111827"/></svg>`;
-  }
-  function numberLineSvg(min,max,showPoint,value){
-    const left=65,right=495,y=70; let ticks=""; const tickCount=Math.max(1, Math.round(max-min));
-    for(let i=0;i<=tickCount;i++){ const x=left+(i/tickCount)*(right-left); const label=min+i; ticks+=`<line x1="${x}" y1="${y-16}" x2="${x}" y2="${y+16}" stroke="#111827" stroke-width="2.2"/>`; ticks+=`<text x="${x}" y="118" text-anchor="middle" font-size="16" font-weight="800">${label}</text>`; }
-    let dot=""; if(showPoint){ const x=left+((value-min)/(max-min))*(right-left); dot=`<circle cx="${x}" cy="${y}" r="8" fill="#bfdbfe" stroke="#111827"/>`; }
-    return `<svg viewBox="0 0 560 145" role="img"><line x1="${left}" y1="${y}" x2="${right}" y2="${y}" stroke="#111827" stroke-width="3"/>${ticks}${dot}</svg>`;
-  }
-  function bestBuySvg(a,b,priceA,priceB){
-    const max=Math.max(a,b); const wA=300*a/max, wB=300*b/max;
-    return `<svg viewBox="0 0 560 150" role="img"><text x="45" y="50" text-anchor="middle" font-weight="900">A</text><rect x="85" y="28" width="${wA}" height="34" rx="6" fill="#bfdbfe" stroke="#111827"/><text x="470" y="50" text-anchor="middle" font-weight="800">${a} for ${money(priceA)}</text><text x="45" y="108" text-anchor="middle" font-weight="900">B</text><rect x="85" y="86" width="${wB}" height="34" rx="6" fill="#d1fae5" stroke="#111827"/><text x="470" y="108" text-anchor="middle" font-weight="800">${b} for ${money(priceB)}</text></svg>`;
-  }
-  function stripTags(html){ const tmp=document.createElement("div"); tmp.innerHTML=html; return tmp.textContent || tmp.innerText || ""; }
 
-  dom.levelSel.addEventListener("change",()=>{ renderTypes(); updateUiText(); if(state.questions.length) generate(); });
-  dom.languageSel.addEventListener("change",updateUiText);
-  dom.chkWrap.addEventListener("change",updateToggleText);
-  dom.toggleAllBtn.addEventListener("click",()=>{ const boxes=[...dom.chkWrap.querySelectorAll("input[type=checkbox]")]; const all=boxes.every(b=>b.checked); boxes.forEach(b=>b.checked=!all); updateToggleText(); });
-  dom.genBtn.addEventListener("click",generate);
-  dom.printBtn.addEventListener("click",()=>window.print());
-  dom.resetBtn.addEventListener("click",()=>{ dom.levelSel.value="basic"; dom.languageSel.value="en"; dom.countInp.value=16; dom.seedInp.value=""; state.questions=[]; renderTypes(); updateUiText(); dom.out.innerHTML=`<div class="emptyState" id="emptyState">Choose a level and generate a printable worksheet.</div>`; clearWarn(); });
-  dom.newSeedBtn.addEventListener("click",()=>{ dom.seedInp.value=String(Date.now()).slice(-8)+String(randIntNative(100,999)); });
+  /* ---- pages: measure every card at its printed width, then pack ---- */
+  function headerHTML(key, p, total) {
+    const lv = lastPaper.level === 'basic' ? 'Basic' : 'Expected';
+    const enTitle = `${CFG.topic} — ${key ? 'Answer key' : 'Worksheet'} (${lv})`;
+    const locT = isEn() ? '' : `<span class="loc" dir="rtl">${key ? L().answerKey : L().worksheet} (${lv})</span>`;
+    const sub = `${key ? 'Answer key' : 'Worksheet'} — ${isEn() ? 'Page' : L().page + ' / Page'} ${p} / ${total}`;
+    const field = (w, en) => `<div class="lineField"><div class="lineLabel">${isEn() ? en : `<span class="loc">${w}</span> ${en}`}</div><div class="lineBox"></div></div>`;
+    const nd = key ? '' : `<div class="nameDate">${field(L().name, 'Name')}${field(L().date, 'Date')}</div>`;
+    return `<div class="pageHeader"><div><div class="hdrTitle">${locT}${enTitle}</div><div class="hdrSub">${sub}</div></div>${nd}</div>`;
+  }
+  const footerHTML = () => `<div class="pageFooter"><span>This tool and more can be found at <a href="${SITE}">www.millsmathstools.au</a></span><span class="oc">${CFG.outcome}</span></div>`;
 
-  renderTypes(); updateUiText(); generate();
+  function measureRows(qs, key) {
+    // a probe page the same size as a real one
+    probe.innerHTML = `<div class="page${isEn() ? '' : ' lang-rtl'}">${headerHTML(key, 1, 1)}<div class="pageBody"><div class="row"><div id="pa"></div><div></div></div><div class="row wide"><div id="pw"></div></div></div>${footerHTML()}</div>`;
+    const pg = probe.firstChild, body = pg.querySelector('.pageBody');
+    const cs = getComputedStyle(body);
+    GAP = parseFloat(cs.rowGap) || 11;
+    const avail = body.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - 1;
+    const half = probe.querySelector('#pa'), full = probe.querySelector('#pw');
+    const items = qs.map((q, i) => {
+      half.innerHTML = cardHTML(q, i + 1, key); hydrate(half.firstChild, q, key);
+      const card = half.firstChild;
+      const over = card.scrollWidth > card.clientWidth + 2 || [...card.querySelectorAll('svg,table,.opts')].some(e => e.getBoundingClientRect().width > card.clientWidth - 6);
+      let wide = !!q.wide || over, h;
+      if (wide) { full.innerHTML = cardHTML(q, i + 1, key); hydrate(full.firstChild, q, key); h = full.firstChild.getBoundingClientRect().height; }
+      else h = card.getBoundingClientRect().height;
+      return { q, wide, h };
+    });
+    probe.innerHTML = '';
+    return { items, avail };
+  }
+  let GAP = 11;
+  function pack(items, avail) {
+    const rows = [];
+    for (let i = 0; i < items.length; i++) {
+      const a = items[i];
+      if (a.wide) { rows.push({ cells: [a], wide: true, h: a.h }); continue; }
+      const b = items[i + 1];
+      if (b && !b.wide) { rows.push({ cells: [a, b], h: Math.max(a.h, b.h) }); i++; }
+      else rows.push({ cells: [a], h: a.h });
+    }
+    const pages = [];
+    let cur = [], used = 0;
+    rows.forEach(r => {
+      const need = r.h + (cur.length ? GAP : 0);
+      if (cur.length && used + need > avail) { pages.push({ rows: cur, used }); cur = []; used = 0; }
+      cur.push(r); used += r.h + (cur.length > 1 ? GAP : 0);
+    });
+    if (cur.length) pages.push({ rows: cur, used });
+    return pages;
+  }
+  function buildHalf(qs, key) {
+    const { items, avail } = measureRows(qs, key);
+    const pages = pack(items, avail);
+    let n = 0;
+    return pages.map((pg, p) => {
+      const page = document.createElement('div');
+      page.className = 'page' + (isEn() ? '' : ' lang-rtl') + (key ? ' answerKeyPage' : '');
+      // Whatever the page has left is shared out as working room.
+      const extra = Math.max(0, avail - pg.used - 2);
+      const each = Math.min(extra / pg.rows.length, key ? 0 : 260);
+      page.innerHTML = headerHTML(key, p + 1, pages.length) + '<div class="pageBody"></div>' + footerHTML();
+      const body = page.querySelector('.pageBody');
+      pg.rows.forEach(r => {
+        const row = document.createElement('div');
+        row.className = 'row' + (r.wide ? ' wide' : '');
+        row.style.minHeight = (r.h + each) + 'px';
+        r.cells.forEach(c => {
+          n++;
+          const holder = document.createElement('div');
+          holder.innerHTML = cardHTML(c.q, qs.indexOf(c.q) + 1, key);
+          const card = holder.firstChild; row.appendChild(card);
+        });
+        body.appendChild(row);
+      });
+      return page;
+    });
+  }
+  function draw() {
+    out.innerHTML = '';
+    if (!lastPaper) return;
+    const { qs } = lastPaper;
+    const ws = buildHalf(qs, false), keyPages = buildHalf(qs, true);
+    ws.concat(keyPages).forEach(p => out.appendChild(p));
+    // diagrams are drawn once the cards are in the document
+    out.querySelectorAll('.qCard').forEach(card => {
+      const page = card.closest('.page');
+      const key = page.classList.contains('answerKeyPage');
+      const i = +card.querySelector('.qNum').textContent.slice(1) - 1;
+      hydrate(card, qs[i], key);
+    });
+    totalPill.textContent = `${qs.length} question${qs.length === 1 ? '' : 's'} · ${ws.length} page${ws.length === 1 ? '' : 's'} + ${keyPages.length}-page key`;
+  }
+
+  /* ---- the paper ---- */
+  const typesAt = lv => TYPES.filter(t => t.level === lv);
+  function activeIds() { return typesAt(levelSel.value).map(t => t.id).filter(id => { const b = document.getElementById('chk_' + id); return b && b.checked; }); }
+  function clampCount() { return Math.max(1, Math.min(48, Math.round(Number(countInp.value) || CFG.defaultCount || 12))); }
+  function generate() {
+    out.innerHTML = ''; lastPaper = null;
+    const ids = activeIds();
+    if (!ids.length) { out.innerHTML = '<div class="warn">Please tick at least one question type.</div>'; return; }
+    const n = clampCount(); countInp.value = String(n);
+    const order = new Map(typesAt(levelSel.value).map((t, i) => [t.id, i]));
+    const types = typesAt(levelSel.value).filter(t => ids.includes(t.id));
+    // every ticked type at least once, then dealt evenly
+    const plan = []; let deck = [];
+    while (plan.length < n) { if (!deck.length) deck = C.shuffle(types); plan.push(deck.pop()); }
+    const seen = new Set(), qs = [];
+    plan.forEach(t => {
+      let q = null;
+      for (let tries = 0; tries < 40; tries++) {
+        let c = null;
+        try { c = t.gen({ level: levelSel.value, paper: true }); } catch (e) { console.warn(t.id, e); }
+        if (!c) continue;
+        const sig = t.id + '|' + (c.key || strip(c.prompt) + JSON.stringify(c.diagram && (c.diagram.config || c.diagram.grid || c.diagram.html) || '') + JSON.stringify(c.options || ''));
+        q = c;
+        if (!seen.has(sig)) { seen.add(sig); break; }
+      }
+      if (!q) return;
+      q.type = t.id; q.label = t.label; q.stmt = t.stmt;
+      q._o = toggleMix.checked ? Math.random() * 1000 : order.get(t.id) + Math.random() * 1.6;
+      qs.push(q);
+    });
+    qs.sort((a, b) => a._o - b._o);
+    lastPaper = { qs, level: levelSel.value };
+    draw();
+    out.firstElementChild && out.firstElementChild.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  /* ---- the controls ---- */
+  function renderChecks() {
+    const lv = levelSel.value, other = lv === 'basic' ? 'Expected' : 'Basic';
+    chkWrap.innerHTML = CFG.statements.map((s, i) => {
+      const here = typesAt(lv).filter(t => t.stmt === s.id);
+      const chips = here.map(t => `<label class="chk" title="${t.paper ? 'Written for paper (not in the online quiz)' : 'Also in the whole-topic quiz'}"><input type="checkbox" id="chk_${t.id}" checked> ${t.label}${t.paper ? ' <span class="wTag">paper</span>' : ''}</label>`).join('');
+      const none = `<span class="stmtNone">Covered in the ${other} paper.</span>`;
+      return `<div class="stmtRow"><p class="stmtText"><span class="n">${i + 1}</span>${s.text}</p><div class="checks">${chips || none}</div></div>`;
+    }).join('');
+    updateSelectBtn(); updatePill();
+  }
+  function updateSelectBtn() {
+    const boxes = [...chkWrap.querySelectorAll('input[type=checkbox]')];
+    selectBtn.textContent = boxes.some(b => b.checked) ? 'Deselect all' : 'Select all';
+  }
+  function updatePill() { const n = clampCount(); totalPill.textContent = `${n} question${n === 1 ? '' : 's'} + answer key`; }
+
+  function boot() {
+    if (booted) return; booted = true;
+    if (BANK) {
+      const skip = new Set(CFG.skip || []);
+      BANK.types.forEach(t => {
+        if (skip.has(t.id)) return;
+        const stmt = (CFG.stmtOf || {})[t.id];
+        if (!stmt) console.warn('No content statement for quiz type', t.id);
+        TYPES.push({ id: t.id, level: t.level, label: (CFG.relabel || {})[t.id] || t.label, stmt, gen: t.gen, paper: false });
+      });
+    }
+    (CFG.paperTypes || []).forEach(t => TYPES.push(Object.assign({ paper: true }, t)));
+    // keep each level's list in its intended climbing order
+    if (CFG.order) TYPES.sort((a, b) => (CFG.order.indexOf(a.id) + 1 || 999) - (CFG.order.indexOf(b.id) + 1 || 999));
+    try { const s = localStorage.getItem(CFG.langKey); if (s && LANG[s]) languageSel.value = s; } catch (e) {}
+    renderChecks();
+  }
+
+  window.WSF = {
+    page(cfg) {
+      CFG = cfg;
+      countInp.value = String(cfg.defaultCount || 12);
+      if (!cfg.bank) (document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', boot) : boot());
+    },
+    C, grid, drawDiagram,
+    get types() { return TYPES; }, get statements() { return CFG ? CFG.statements : []; }, get paper() { return lastPaper; }, generate, answerHTML, cardHTML, boot
+  };
+  window.MMTQ = { run(bank) { BANK = bank; (document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', boot) : boot()); }, grid, drawDiagram, core: C };
+
+  import('/assessment/exam-builder/utils/translation.js?v=c4551780').then(m => { translate = m.translatePrompt; if (lastPaper && !isEn()) draw(); }).catch(() => { translate = null; });
+
+  levelSel.addEventListener('change', () => { out.innerHTML = ''; lastPaper = null; renderChecks(); });
+  languageSel.addEventListener('change', () => { try { localStorage.setItem(CFG.langKey, languageSel.value); } catch (e) {} draw(); });
+  chkWrap.addEventListener('change', updateSelectBtn);
+  selectBtn.addEventListener('click', e => { e.preventDefault(); const boxes = [...chkWrap.querySelectorAll('input[type=checkbox]')], any = boxes.some(b => b.checked); boxes.forEach(b => b.checked = !any); updateSelectBtn(); });
+  countInp.addEventListener('input', updatePill);
+  [toggleWorking, toggleWhy].forEach(el => el.addEventListener('change', draw));
+  toggleMix.addEventListener('change', () => { if (lastPaper) generate(); });
+  $('genBtn').addEventListener('click', generate);
+  $('printBtn').addEventListener('click', () => window.print());
+  $('resetBtn').addEventListener('click', () => { out.innerHTML = ''; lastPaper = null; levelSel.value = 'basic'; countInp.value = String(CFG.defaultCount || 12); toggleWorking.checked = false; toggleWhy.checked = true; toggleMix.checked = false; renderChecks(); });
+})();
+</script>
+<script type="module">
+import { renderMathText } from '/assessment/exam-builder/renderers/question-renderer.js?v=2cac3fcf';
+import { generateFdpQuestions as BANK_GEN } from '/assessment/exam-builder/question-banks/fdp/index.js?v=6cad4f38';
+/* ---- Revision Generator question → worksheet question ----
+   The Revision Generator banks (assessment/exam-builder/question-banks) give
+   { prompt, diagram:{engine,config}, table, choices, subparts, answer,
+   working[] }. Prompts use its own markup ([[frac:a:b]] …), so they go
+   through its own renderMathText. The working lines become the key's reason. */
+const RG = (() => {
+  const RM = v => renderMathText(String(v == null ? '' : v));
+  const table = t => !t || !Array.isArray(t.rows) || !t.rows.length ? '' :
+    `${t.caption ? `<div class="tcap">${RM(t.caption)}</div>` : ''}<table class="dtab">${t.rows.map((row, r) =>
+      `<tr>${row.map((c, i) => (t.headerRow === true && r === 0) || i === 0 ? `<th>${RM(c)}</th>` : `<td>${RM(c)}</td>`).join('')}</tr>`).join('')}</table>`;
+  const L = i => `(${'abcdefgh'[i]})`;
+  function correctIndex(choices, answer) {
+    const a = String(answer == null ? '' : answer).trim();
+    const m = /^\(?([A-F])\)?(?:[\s.:)]|$)/.exec(a);
+    if (m && choices.length > 'ABCDEF'.indexOf(m[1])) return 'ABCDEF'.indexOf(m[1]);
+    let i = choices.findIndex(c => String(c).trim() === a);
+    if (i < 0) i = choices.findIndex(c => a && String(c).trim() && a.includes(String(c).trim()));
+    return i;
+  }
+  function adapt(q) {
+    if (!q) return null;
+    if ((q.subparts || []).some(p => p.diagram)) return null;
+    const out = { prompt: RM(q.prompt) + table(q.table), mode: 'none', why: (q.working || []).map(RM).join(' &nbsp;·&nbsp; ') };
+    if (q.diagram && q.diagram.engine) out.diagram = { engine: q.diagram.engine, config: q.diagram.config || {}, scale: 1.0, maxH: 330 };
+    if (q.diagramSpace) { out.drawSpace = 30; }
+    if (Array.isArray(q.choices) && q.choices.length) {
+      if (new Set(q.choices.map(c => String(c).trim())).size !== q.choices.length) return null;
+      const i = correctIndex(q.choices, q.answer);
+      out.options = q.choices.map(RM);
+      if (i >= 0) { out.mode = 'mc'; out.correct = i; }
+      else out.prompt += `<ol class="subs">${out.options.map((o, k) => `<li><span class="sl">${'ABCDEF'[k]}</span> ${o}</li>`).join('')}</ol>`;
+    }
+    if (out.mode !== 'mc') out.answerHTML = RM(q.answer);
+    if (Array.isArray(q.subparts) && q.subparts.length) {
+      out.prompt += `<ol class="subs">${q.subparts.map((p, i) => `<li><span class="sl">${p.label || L(i)}</span> ${RM(p.prompt)}${table(p.table)}${p.choices ? ' ' + p.choices.map((c, k) => `${'ABCDEF'[k]}. ${RM(c)}`).join(' &nbsp; ') : ''}</li>`).join('')}</ol>`;
+      out.answerHTML = q.subparts.map((p, i) => `${p.label || L(i)} ${RM(p.answer)}`).join('<br>');
+      const w = q.subparts.flatMap(p => p.working || []);
+      if (w.length) out.why = w.map(RM).join(' &nbsp;·&nbsp; ');
+      out.drawSpace = Math.max(out.drawSpace || 0, 8 * q.subparts.length);
+    }
+    out.loc = null;
+    return out;
+  }
+  /* one worksheet type from one bank type, at one level */
+  function type(gen, level, rgId, label, stmt) {
+    return { id: `${level === 'basic' ? 'b' : 'e'}-${rgId}`, level, label, stmt,
+      gen: () => { for (let t = 0; t < 6; t++) { const q = adapt((gen({ count: 1, allowedTypes: [rgId] }) || [])[0]); if (q) return q; } return null; } };
+  }
+  return { adapt, type, RM, table };
 })();
 
+const STATEMENTS = [{"id": "equivalence", "text": "Compare fractions using equivalence"}, {"id": "round-decimals", "text": "Round decimals to a specified degree of accuracy using approximations"}, {"id": "terminating-recurring", "text": "Identify terminating and recurring decimals"}, {"id": "fdp-conversions", "text": "Identify and make use of the relationship between fractions, decimals and percentages to carry out simple conversions"}, {"id": "irrational", "text": "Examine the concept of irrational numbers"}, {"id": "order-fdp", "text": "Order and compare the value of fractions, decimals and percentages"}, {"id": "add-subtract", "text": "Solve problems that involve the addition and subtraction of fractions"}, {"id": "multiply-divide", "text": "Solve problems that involve the multiplication and division of fractions and decimals"}, {"id": "one-as-another", "text": "Represent one quantity as a fraction, decimal or percentage of another, with and without the use of digital tools"}, {"id": "percentages", "text": "Solve problems that involve the use of percentages"}];
+/* Fractions, Decimals and Percentages — MA4-FRC-C-01. Question types from the
+   Revision Generator's FDP bank (question-banks/fdp/) under the ten content
+   statements, plus two written for paper where the bank has nothing:
+   ordering a mix of fractions, decimals and percentages, and rational or
+   irrational numbers. */
+const T = (lv, id, label, stmt) => RG.type(BANK_GEN, lv, id, label, stmt);
+const C = WSF.C;
+const M = s => `<span class="m">${s}</span>`;
+const fr = (n, d) => C.frac(n, d, false);
+function orderMix(level) {
+  for (let t = 0; t < 300; t++) {
+    const pool = level === 'basic'
+      ? [[1, 2], [1, 4], [3, 4], [1, 5], [2, 5], [3, 5], [4, 5], [1, 10], [3, 10], [7, 10], [9, 10]]
+      : [[1, 3], [2, 3], [1, 8], [3, 8], [5, 8], [7, 8], [3, 20], [7, 20], [11, 20], [5, 6], [4, 9], [2, 7]];
+    const items = [];
+    const used = new Set();
+    while (items.length < 4) {
+      const [n, d] = C.pick(pool), v = n / d, k = C.pick(['f', 'd', 'p']);
+      const key = Math.round(v * 1e4);
+      if (used.has(key)) continue;
+      used.add(key);
+      // a value close to another, written another way, is the point of the question
+      const show = k === 'f' ? fr(n, d) : k === 'd' ? C.fmt(Math.round(v * 1000) / 1000, 3) : C.fmt(Math.round(v * 1000) / 10, 1) + '%';
+      const txt = k === 'f' ? `${n}/${d}` : k === 'd' ? C.fmt(Math.round(v * 1000) / 1000, 3) : C.fmt(Math.round(v * 1000) / 10, 1) + '%';
+      items.push({ v, show, txt, k });
+    }
+    if (new Set(items.map(i => i.k)).size < 3) continue;
+    const asc = items.slice().sort((a, b) => a.v - b.v);
+    return {
+      prompt: `Write these numbers in order from smallest to largest.<span class="big">${items.map(i => i.show).join(' , ')}</span>`,
+      mode: 'none', answerHTML: asc.map(i => i.show).join(' , '),
+      why: 'As decimals: ' + asc.map(i => `${i.txt} = ${C.fmt(Math.round(i.v * 1000) / 1000, 3)}`).join(', ') + '.'
+    };
+  }
+}
+const IRR = [
+  ['√2', false, '√2 is not a whole number and cannot be written as a fraction; its decimal never ends or repeats.'],
+  ['√3', false, '3 is not a perfect square, so √3 is irrational.'],
+  ['√10', false, '10 is not a perfect square, so √10 is irrational.'],
+  ['π', false, 'π cannot be written as a fraction; its decimal never ends or repeats.'],
+  ['√16', true, '√16 = 4, a whole number.'],
+  ['√49', true, '√49 = 7.'],
+  ['0.75', true, '0.75 = 3/4.'],
+  ['0.3̇', true, '0.333… = 1/3: a repeating decimal is rational.'],
+  ['2/7', true, 'It is already a fraction of two integers.'],
+  ['−5', true, '−5 = −5/1.'],
+  ['1.2̇5̇', true, 'A repeating decimal can always be written as a fraction.'],
+  ['√(9/4)', true, '√(9/4) = 3/2.']
+];
+function irrational(level) {
+  if (level === 'basic') {
+    const it = C.pick(IRR);
+    return { prompt: `Is ${M(it[0])} rational or irrational?`, mode: 'mc', options: ['Rational', 'Irrational'], correct: it[1] ? 0 : 1, why: it[2] };
+  }
+  const pick = C.shuffle(IRR).slice(0, 5);
+  return { prompt: `Circle the irrational numbers. Explain how you know.<span class="big">${pick.map(p => p[0]).join(' &nbsp; ')}</span>`, mode: 'none', drawSpace: 8,
+    answerHTML: pick.filter(p => !p[1]).map(p => p[0]).join(', ') || 'None of them',
+    why: pick.map(p => `${p[0]}: ${p[2]}`).join(' ') };
+}
+function fracOp(kind, level) {
+  const g = C.gcd, sf = (n, d) => { const k = g(Math.abs(n), Math.abs(d)); return [n / k, d / k]; };
+  const show = (n, d) => { const [a, b] = sf(n, d); if (b === 1) return String(a); if (level === 'expected' && Math.abs(a) > b) { const w = Math.trunc(a / b), r = Math.abs(a % b); return `${w}${fr(r, b)}`; } return fr(a, b); };
+  for (let t = 0; t < 300; t++) {
+    const D = level === 'basic' ? [2, 3, 4, 5, 6, 8, 10] : [2, 3, 4, 5, 6, 7, 8, 9, 10, 12];
+    const b = C.pick(D), d = C.pick(D), a = C.ri(1, b - 1), c = C.ri(1, d - 1);
+    if (g(a, b) !== 1 || g(c, d) !== 1) continue;
+    if (level === 'basic' && kind === 'as' && !(b % d === 0 || d % b === 0)) continue;
+    let n, m, op, w;
+    if (kind === 'as') {
+      op = C.pick(['+', '−']);
+      if (op === '−' && a / b <= c / d) continue;
+      const L = C.lcm(b, d); n = op === '+' ? a * L / b + c * L / d : a * L / b - c * L / d; m = L;
+      w = `Common denominator ${L}: ${fr(a * L / b, L)} ${op} ${fr(c * L / d, L)} = ${fr(n, L)}${sf(n, m)[1] !== m || Math.abs(n) > m ? ` = ${show(n, m)}` : ''}.`;
+    } else {
+      op = C.pick(['×', '÷']);
+      if (op === '×') { n = a * c; m = b * d; w = `Multiply the numerators and the denominators: ${fr(a * c, b * d)}${sf(n, m)[1] !== m ? ` = ${show(n, m)}` : ''}.`; }
+      else { n = a * d; m = b * c; w = `Dividing by ${fr(c, d)} is multiplying by ${fr(d, c)}: ${fr(a, b)} × ${fr(d, c)} = ${fr(n, m)}${sf(n, m)[1] !== m || n > m ? ` = ${show(n, m)}` : ''}.`; }
+    }
+    if (n <= 0) continue;
+    return { prompt: `Calculate, giving your answer in simplest form.<span class="big">${fr(a, b)} ${op} ${fr(c, d)}</span>`, mode: 'none', answerHTML: show(n, m), why: w };
+  }
+}
+WSF.page({
+  topic: 'Fractions, Decimals and Percentages', outcome: 'MA4-FRC-C-01', langKey: 'mmt-fdp-ws-lang', bank: false,
+  translateTopic: 'Fractions, Decimals and Percentages', defaultCount: 12, statements: STATEMENTS,
+  paperTypes: [
+    T('basic', 'shaded-fractions', 'Shaded fractions', 'equivalence'),
+    T('basic', 'equivalent-fraction-visual', 'Equivalent fractions (bars)', 'equivalence'),
+    T('basic', 'equivalent-fractions', 'Equivalent fractions', 'equivalence'),
+    T('basic', 'simplify-fractions', 'Simplify fractions', 'equivalence'),
+    T('basic', 'compare-fractions', 'Compare fractions', 'equivalence'),
+    T('basic', 'round-decimals', 'Round decimals', 'round-decimals'),
+    T('basic', 'recurring-decimals', 'Terminating and recurring decimals', 'terminating-recurring'),
+    T('basic', 'fdp-conversions', 'Convert between fractions, decimals and percentages', 'fdp-conversions'),
+    { id: 'p-irr-b', level: 'basic', stmt: 'irrational', label: 'Rational or irrational?', gen: () => irrational('basic') },
+    T('basic', 'compare-decimals', 'Compare and order decimals', 'order-fdp'),
+    { id: 'p-order-b', level: 'basic', stmt: 'order-fdp', label: 'Order fractions, decimals and percentages', gen: () => orderMix('basic') },
+    { id: 'p-as-b', level: 'basic', stmt: 'add-subtract', label: 'Add and subtract fractions', gen: () => fracOp('as', 'basic') },
+    T('basic', 'fraction-of-quantity', 'Fraction of a quantity', 'multiply-divide'),
+    T('basic', 'fraction-multiply-area', 'Multiply fractions (area model)', 'multiply-divide'),
+    T('basic', 'fraction-of-group', 'Fraction of a set', 'one-as-another'),
+    T('basic', 'percentage-of', 'Percentage of a quantity', 'percentages'),
+
+    T('expected', 'compare-fractions', 'Compare and order fractions', 'equivalence'),
+    T('expected', 'mixed-improper', 'Mixed numbers and improper fractions', 'equivalence'),
+    T('expected', 'round-decimals', 'Round decimals', 'round-decimals'),
+    T('expected', 'recurring-decimals', 'Terminating and recurring decimals', 'terminating-recurring'),
+    T('expected', 'fdp-conversions', 'Convert between fractions, decimals and percentages', 'fdp-conversions'),
+    T('expected', 'true-false-fdp', 'True or false (reasoning)', 'fdp-conversions'),
+    { id: 'p-irr-e', level: 'expected', stmt: 'irrational', label: 'Find the irrational numbers', gen: () => irrational('expected') },
+    { id: 'p-order-e', level: 'expected', stmt: 'order-fdp', label: 'Order fractions, decimals and percentages', gen: () => orderMix('expected') },
+    { id: 'p-as-e', level: 'expected', stmt: 'add-subtract', label: 'Add and subtract fractions (any denominators)', gen: () => fracOp('as', 'expected') },
+    { id: 'p-md-e', level: 'expected', stmt: 'multiply-divide', label: 'Multiply and divide fractions', gen: () => fracOp('md', 'expected') },
+    T('expected', 'decimal-operations', 'Operations with decimals', 'multiply-divide'),
+    T('expected', 'fraction-of-quantity', 'Fraction of a quantity', 'multiply-divide'),
+    T('expected', 'quantity-as-percentage', 'One quantity as a percentage of another', 'one-as-another'),
+    T('expected', 'percentage-change', 'Percentage increase and decrease', 'percentages'),
+    T('expected', 'discounts', 'Discounts and best buys', 'percentages'),
+    T('expected', 'gst-tax', 'GST (10%)', 'percentages'),
+    T('expected', 'profit-and-loss', 'Profit and loss', 'percentages'),
+    T('expected', 'find-original-value', 'Find the original value', 'percentages'),
+    T('expected', 'proportion-double-line', 'Percentages on a double number line', 'percentages'),
+    T('expected', 'error-spot-fdp', 'Spot the error (reasoning)', 'percentages'),
+    T('expected', 'multi-part-percentage', 'Multi-part percentage problem', 'percentages')
+  ]
+});
+
 </script>
+
 </body>
 </html>

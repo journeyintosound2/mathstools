@@ -3,15 +3,22 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Pythagoras Theorem — Worksheet Creator</title>
+  <title>Pythagoras' Theorem — Worksheet Maker</title>
+  <!--
+    Pythagoras' Theorem (MA4-PYT-C-01) — whole-topic worksheet creator.
+    BUILT FILE. The shared frame (this page's layout, A4 pages, answer key,
+    languages) and this outcome's own question code were assembled by
+    assemble.py from frame/shell.html + pages/pythagoras.js. Edit those parts
+    and re-assemble rather than editing the frame here, so every whole-topic
+    worksheet creator keeps the same frame. See CLAUDE.md (2026-11-27).
+  -->
   <style>
     :root{
-      --bg:#f6f7fb; --card:#ffffff; --ink:#111827; --muted:#6b7280; --border:#e5e7eb;
+      --bg:#f6f7fb; --ink:#111827; --muted:#6b7280; --border:#e5e7eb;
       --shadow:0 14px 40px rgba(0,0,0,.10); --radius:18px;
-      --blue:#2563eb; --blue-dark:#1d4ed8; --ans:#16a34a; --danger:#ef4444;
-      --line:#111827; --footer-h:44px;
-      --mathFont:"Cambria Math", "STIX Two Math", "STIXGeneral", "Times New Roman", serif;
-      --uiFont:ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      --blue:#2563eb; --ans:#16a34a; --footer-h:44px;
+      --mathFont:"Cambria Math","STIX Two Math","STIXGeneral","Times New Roman",serif;
+      --uiFont:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";
     }
     *{box-sizing:border-box}
     body{margin:0;font-family:var(--uiFont);background:radial-gradient(circle at top left,rgba(37,99,235,.10),transparent 30rem),radial-gradient(circle at top right,rgba(124,58,237,.09),transparent 30rem),var(--bg);color:var(--ink);padding-bottom:var(--footer-h)}
@@ -21,41 +28,134 @@
     .brand-logo{width:44px;height:44px;object-fit:contain;background:white;border-radius:6px;padding:3px}
     .brand-text strong{display:block;font-size:1.18rem;line-height:1;letter-spacing:-.03em}.brand-text span{display:block;font-size:.78rem;opacity:.82;font-weight:650}
     .top-title{font-weight:900;font-size:clamp(1.25rem,2vw,1.7rem);letter-spacing:-.04em;text-align:center}
-    .wrap{max-width:1280px;margin:14px auto 32px;padding:0 14px}.card{background:rgba(255,255,255,.96);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;border:1px solid rgba(226,232,240,.9)}
-    .title{font-size:28px;font-weight:1000;letter-spacing:.2px;margin:0 0 4px}.subtitle{margin:0 0 14px;color:var(--muted);font-weight:850;font-size:15px;line-height:1.35}
-    .controls{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:12px;border:1px solid var(--border);border-radius:18px;background:linear-gradient(180deg,#fff,#f9fafb);margin-bottom:12px}
-    .fieldRow{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end}.controlGroup{min-width:220px}.wideGroup{flex:1 1 720px}
-    label{display:block;font-weight:950;color:var(--ink);margin:0 0 7px;font-size:15px} select,input[type="number"]{border:2px solid #e5e7eb;border-radius:14px;padding:12px 13px;font-weight:950;font-size:17px;background:#fff;min-width:220px;outline:none} input[type="number"]{min-width:160px}
-    .checks{display:flex;gap:9px 10px;flex-wrap:wrap;align-items:center}.chk{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--border);background:#fff;border-radius:999px;padding:9px 12px;font-weight:950;font-size:14px;color:#111827;box-shadow:0 8px 18px rgba(0,0,0,.04);user-select:none}.chk input{width:18px;height:18px;accent-color:var(--blue)}.chk.hidden{display:none}
-    .btnRow{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:flex-end}button{border:none;border-radius:14px;padding:12px 16px;font-weight:1000;cursor:pointer;background:#f3f4f6;color:#111827;transition:transform .04s ease,filter .15s ease,opacity .2s ease;user-select:none;font-size:16px;font-family:var(--uiFont)}button:active{transform:scale(.98)}button.primary{background:#2563eb;color:#fff}button.ghost{background:#eef2ff;color:#1d4ed8}button.danger{background:#fee2e2;color:#991b1b}
-    .hint{font-weight:850;color:var(--muted);font-size:12px;margin-top:6px;line-height:1.3}.outWrap{margin-top:14px}.notice{padding:12px;font-weight:950;color:#991b1b;background:#fff1f2;border:1px solid #fecdd3;border-radius:14px}
-    .page{margin-top:14px;background:#fff;border:1px solid var(--border);border-radius:18px;box-shadow:0 10px 26px rgba(15,23,42,.08);overflow:hidden}.pageHeader{padding:10px 14px 8px;border-bottom:1px solid rgba(229,231,235,.95);display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap}.hdrTitle{font-weight:1000;font-size:15px;line-height:1.12}.hdrSub{color:var(--muted);font-weight:850;font-size:12px;margin-top:2px}.nameDate{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;justify-content:flex-end;margin-left:auto}.lineField{display:flex;flex-direction:column;gap:4px;min-width:126px}.lineLabel{font-size:11px;font-weight:950;color:var(--muted)}.lineBox{height:22px;border:1.8px solid #111827;border-radius:9px;background:#fff}
-    .grid{padding:22px;display:grid;gap:24px 26px;align-content:start}.grid.twoCol{grid-template-columns:1fr 1fr}.grid.rows-4{min-height:auto;grid-template-rows:none;grid-auto-rows:auto}.qCard{border:1px solid rgba(229,231,235,.95);border-radius:14px;padding:8px 10px;background:#fff;break-inside:avoid;display:flex;flex-direction:column;justify-content:flex-start;min-height:0;height:auto;align-self:start}.qCard.compact{padding:14px 16px;min-height:auto}.qCard.diagramCard{padding:8px 10px}.prompt{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:4px}.promptSmall{font-weight:1000;font-size:17px;color:#111827;line-height:1.15;letter-spacing:.1px}.promptSub{font-size:12px;color:var(--muted);font-weight:900;margin-top:2px}.qNum{font-weight:1000;color:#111827}.vizWrap{display:flex;justify-content:center;align-items:center;padding:0;margin-top:2px;flex:0 0 auto;min-height:0}.triViz{width:100%;height:230px;display:block;overflow:visible;background:#fff}.tri-line{stroke:var(--line);stroke-width:4;fill:rgba(255,255,255,.2);stroke-linejoin:round}.right-marker{stroke:var(--line);stroke-width:3;fill:none;stroke-linejoin:round}.side-label text{font-family:var(--mathFont);font-size:19px;font-weight:1000;dominant-baseline:middle;text-anchor:middle;fill:#111827;paint-order:stroke;stroke:#fff;stroke-width:4.5px;stroke-linejoin:round}.workArea{margin-top:5px;flex:0 0 auto;display:flex;flex-direction:column;justify-content:flex-start;gap:4px}.compact .workArea{display:none}.workSpacer{height:24px}.scaffold{font-family:var(--mathFont);font-weight:950;font-size:14px;color:#111827;line-height:1.35}.scaffold .blank{display:inline-block;min-width:34px;border-bottom:1.4px solid #111827;height:14px}.mcOptions{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;font-family:var(--mathFont);font-weight:950;font-size:32px}.batchGrid{flex:0 0 auto;align-content:start;row-gap:18px}.estimateHolder{flex:0 0 auto;display:grid;grid-template-columns:1fr;align-content:start;gap:18px}.mcOpt{border:1px solid #e2e8f0;border-radius:12px;padding:14px 16px;background:#fff}.miniBlank{display:inline-block;min-width:54px;border-bottom:1.4px solid #111827;transform:translateY(-2px)}.estimateChunk{border:1px solid #e5e7eb;border-radius:10px;padding:8px;background:#f8fafc}.estimateTitle{font-weight:950;margin-bottom:10px;font-size:34px;line-height:1.15}.wordBox{font-size:18px;line-height:1.35;font-weight:850;margin-top:8px;color:#111827}.triadOptions{margin-top:10px}.multiStepViz{width:100%;height:230px;display:block;overflow:visible;background:#fff}.multi-line{stroke:var(--line);stroke-width:4;fill:none;stroke-linejoin:round;stroke-linecap:round}.multi-label{font-family:var(--mathFont);font-size:20px;font-weight:1000;dominant-baseline:middle;text-anchor:middle;fill:#111827;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}.multi-right{stroke:var(--line);stroke-width:3;fill:none;stroke-linejoin:round}.wordBox .math{font-family:var(--mathFont);font-weight:1000}.wordSub{font-size:14px;color:var(--muted);font-weight:900;margin-top:6px}.ansRow{margin-top:3px;display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap}.diagramCard .workArea{flex:0 0 auto;margin-top:2px}.diagramCard .ansRow{margin-top:2px}.diagramCard .vizWrap{margin-top:0}.ansLabel{font-weight:950;font-size:14px;font-family:var(--mathFont);line-height:1}.ansBox{width:min(120px,48%);height:22px;border:1.2px solid #111827;border-radius:6px;background:#fff}.ansBox.key{width:auto;min-width:150px;height:auto;min-height:24px;padding:4px 8px;display:flex;align-items:center;justify-content:center;text-align:center;font-weight:1000;font-size:13px;font-family:var(--mathFont);color:var(--ans);border-color:var(--ans);background:rgba(22,163,74,.08)}.keySteps{margin-top:4px;font-family:var(--mathFont);font-size:12px;line-height:1.22;color:#166534;font-weight:850}.pageFooter{padding:7px 14px;border-top:1px solid rgba(229,231,235,.95);display:flex;align-items:center;justify-content:center;gap:10px;font-weight:950;color:#111827;font-size:12px;background:rgba(255,255,255,.96)}.pageFooter a{color:#2563eb;text-decoration:none;font-weight:1000}.pageFooter a:hover{text-decoration:underline}.mmtFooter{position:fixed;left:0;right:0;bottom:0;height:var(--footer-h);display:flex;align-items:center;justify-content:center;padding:0 12px;background:rgba(255,255,255,.92);border-top:1px solid rgba(229,231,235,.95);backdrop-filter:blur(8px);z-index:500;font-weight:900;color:#111827;text-align:center;font-size:13px}.mmtFooter a{color:#2563eb;text-decoration:none;font-weight:950}.mmtFooter a:hover{text-decoration:underline}
+    .wrap{max-width:1280px;margin:14px auto 32px;padding:0 14px}
+    .card{background:rgba(255,255,255,.96);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;border:1px solid rgba(226,232,240,.9)}
+    .title{font-size:28px;font-weight:1000;letter-spacing:.2px;margin:0 0 4px}
+    .subtitle{margin:0 0 14px;color:var(--muted);font-weight:850;font-size:15px;line-height:1.35}
+    .subtitle .code{display:inline-block;font-family:ui-monospace,Menlo,Consolas,monospace;font-weight:800;font-size:13px;color:#1e3a8a;background:#eef2ff;border-radius:7px;padding:1px 7px;margin-right:4px}
+    .band{padding:12px;border:1px solid var(--border);border-radius:18px;background:linear-gradient(180deg,#fff,#f9fafb);margin-bottom:12px}
+    .bandLabel{font-weight:1000;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 10px}
+    .fieldGrid{display:grid;gap:14px 16px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+    label{display:block;font-weight:950;color:var(--ink);margin:0 0 7px;font-size:15px}
+    select,input[type="number"]{border:2px solid #e5e7eb;border-radius:14px;padding:12px 13px;font-weight:950;font-size:17px;background:#fff;width:100%;outline:none;font-family:var(--uiFont)}
+    .checks{display:flex;gap:9px 10px;flex-wrap:wrap;align-items:center}
+    .chk{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--border);background:#fff;border-radius:999px;padding:9px 12px;font-weight:950;font-size:14px;color:#111827;box-shadow:0 8px 18px rgba(0,0,0,.04);user-select:none;cursor:pointer}
+    .chk input{width:18px;height:18px;accent-color:var(--blue)}
+    .chk .wTag{font-size:10.5px;font-weight:900;color:#0369a1;background:#e0f2fe;border-radius:999px;padding:2px 7px;letter-spacing:.02em}
+    .stmtRow{padding:9px 0 11px;border-top:1px dashed var(--border)}
+    .stmtRow:first-child{border-top:0;padding-top:0}
+    .stmtText{margin:0 0 8px;font-size:13.5px;font-weight:850;color:#334155;line-height:1.35}
+    .stmtText .n{display:inline-grid;place-items:center;min-width:22px;height:22px;border-radius:7px;background:#eef2ff;color:#1d4ed8;font-size:12px;font-weight:1000;margin-right:7px}
+    .stmtNone{font-size:13px;font-weight:800;color:#94a3b8;font-style:italic}
+    .btnRow{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:flex-end}
+    button{border:none;border-radius:14px;padding:12px 16px;font-weight:1000;cursor:pointer;background:#f3f4f6;color:#111827;transition:transform .04s ease,filter .15s ease,opacity .2s ease;user-select:none;font-size:16px;font-family:var(--uiFont)}
+    button:active{transform:scale(.98)}button.primary{background:#2563eb;color:#fff}button.ghost{background:#eef2ff;color:#1d4ed8}button.danger{background:#fee2e2;color:#991b1b}
+    .pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:8px 13px;font-weight:1000;font-size:14px;background:#eef2ff;color:#1d4ed8;margin-right:auto}
+    .warn{padding:12px;font-weight:950;color:#991b1b}
+    .mmtFooter{position:fixed;left:0;right:0;bottom:0;height:var(--footer-h);display:flex;align-items:center;justify-content:center;padding:0 12px;background:rgba(255,255,255,.92);border-top:1px solid rgba(229,231,235,.95);backdrop-filter:blur(8px);z-index:500;font-weight:900;color:#111827;text-align:center;font-size:13px}
+    .mmtFooter a{color:#2563eb;text-decoration:none;font-weight:950}.mmtFooter a:hover{text-decoration:underline}
 
-    /* Expected question refinements */
-    .qCard.realWorld{min-height:300px}
-    .qCard.triad,.qCard.triadOptions{min-height:260px}
-    .qCard.triad .wordBox,.qCard.realWorld .wordBox{font-size:22px;line-height:1.36;font-weight:850}
-    .qCard.triad .wordSub{font-size:17px;line-height:1.25}
-    .qCard.triadOptions .estimateTitle{font-size:24px;line-height:1.2;margin-bottom:10px}
-    .qCard.triadOptions .mcOptions{font-size:24px;gap:10px;margin-top:8px}
-    .qCard.triadOptions .mcOpt{padding:10px 12px}
-    @media(max-width:780px){.topbar{grid-template-columns:1fr auto;gap:10px}.top-title{grid-column:1/-1;grid-row:2;text-align:center}.brand-text span{display:none}.controls{align-items:stretch}.fieldRow,.btnRow{width:100%}select,input[type="number"]{width:100%}.grid.twoCol{grid-template-columns:1fr}}
-    @media print{@page{size:A4;margin:7mm}html,body{width:210mm;height:auto}body{background:#fff;padding-bottom:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}.wrap{max-width:none;margin:0;padding:0}.card{box-shadow:none;border-radius:0;padding:0}.topbar,.controls,.title,.subtitle,.mmtFooter{display:none!important}.page{margin:0;border:none;border-radius:0;box-shadow:none;page-break-after:always}.page:last-child{page-break-after:auto}.pageHeader{padding:2.6mm 3.2mm 2mm}.hdrTitle{font-size:10px}.hdrSub{font-size:8.4px}.nameDate{gap:6px}.lineField{min-width:86px;gap:2px}.lineLabel{font-size:8px}.lineBox{height:15px;border-width:1.2px;border-radius:7px}.grid{padding:6mm 5mm 4mm;gap:7mm 8mm;align-content:start}.grid.twoCol{grid-template-columns:1fr 1fr!important}.grid.rows-4{min-height:auto;grid-template-rows:none;grid-auto-rows:auto}.qCard{padding:6px 7px 7px;border-radius:10px;min-height:0;height:auto;align-self:start;border-color:#d5dae1}.promptSmall{font-size:9.5px}.promptSub{font-size:7px}.triViz{height:150px}.tri-line{stroke-width:3}.right-marker{stroke-width:2.2}.side-label text{font-size:18px;stroke-width:4px}.workSpacer{height:14px}.scaffold{font-size:9px}.mcOptions{font-size:18px;gap:6px}.batchGrid{row-gap:10px}.mcOpt{padding:6px 8px;border-radius:8px}.estimateTitle{font-size:18px;line-height:1.15}.wordBox{font-size:13px;line-height:1.32}.wordSub{font-size:10px}.qCard.triad .wordBox,.qCard.realWorld .wordBox{font-size:13px}.qCard.realWorld{min-height:66mm;height:66mm}.qCard.triadOptions .estimateTitle{font-size:13px}.qCard.triadOptions .mcOptions{font-size:13px;gap:4px}.qCard.triadOptions .mcOpt{padding:4px 6px}.multiStepViz{height:150px}.multi-line{stroke-width:3}.multi-label{font-size:13px;stroke-width:3px}.multi-right{stroke-width:2.2}.estimateChunk{padding:3px;border-radius:7px}.miniBlank{min-width:42px}.ansRow{margin-top:2px;gap:4px}.ansLabel{font-size:9px}.ansBox{height:14px;border-width:1.2px;border-radius:7px;width:min(72px,36%)}.ansBox.key{font-size:9px;min-width:90px;padding:2px 5px}.keySteps{font-size:8.2px}.pageFooter{padding:2mm 3.2mm 1.3mm;font-size:7.8px}}
-  
+    /* ================= A4 pages: the preview IS the print ================= */
+    .outWrap{margin-top:14px;display:flex;flex-direction:column;align-items:center;gap:14px}
+    .page{width:210mm;height:297mm;background:#fff;border:1px solid var(--border);box-shadow:0 10px 26px rgba(15,23,42,.08);display:flex;flex-direction:column;padding:7mm 7.5mm 5mm;overflow:hidden;position:relative}
+    .pageHeader{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding-bottom:2.2mm;border-bottom:1px solid #e5e7eb;flex:0 0 auto}
+    .hdrTitle{font-weight:1000;font-size:12.5pt;line-height:1.15}
+    .hdrTitle .loc{display:block;font-size:.8em;color:var(--muted);font-weight:900}
+    .hdrSub{color:var(--muted);font-weight:850;font-size:8.5pt;margin-top:1mm}
+    .nameDate{display:flex;gap:4mm;align-items:flex-end;margin-left:auto}
+    .lineField{display:flex;flex-direction:column;gap:1mm;min-width:34mm}
+    .lineLabel{font-size:7.5pt;font-weight:950;color:var(--muted);line-height:1.1}
+    .lineBox{height:6.5mm;border:1.3px solid #111827;border-radius:2.2mm;background:#fff}
+    .pageBody{flex:1 1 auto;display:flex;flex-direction:column;gap:3mm;padding-top:3mm;min-height:0}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:3mm;flex:0 0 auto}
+    .row.wide{grid-template-columns:1fr}
+    .pageFooter{flex:0 0 auto;padding-top:2mm;border-top:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between;gap:10px;font-weight:950;color:#111827;font-size:7.5pt}
+    .pageFooter a{color:#2563eb;text-decoration:none;font-weight:1000}
+    .pageFooter .oc{font-family:ui-monospace,Menlo,Consolas,monospace;color:var(--muted);font-weight:800}
 
-    /* v7: taller 2x3 print cards to better fill A4 without spilling */
+    /* ================= a question card ================= */
+    .qCard{border:1px solid #d5dae1;border-radius:2.6mm;padding:2.4mm 3mm 2.6mm;background:#fff;display:flex;flex-direction:column;min-width:0;height:100%;break-inside:avoid}
+    .qHead{display:flex;gap:2.2mm;align-items:flex-start}
+    .qNum{flex:0 0 auto;font-weight:1000;font-size:9.5pt;color:#fff;background:#1e3a8a;border-radius:1.6mm;padding:.5mm 1.6mm;line-height:1.25;margin-top:.3mm}
+    .qPrompt{flex:1;min-width:0;font-size:10pt;line-height:1.38;font-weight:650;color:var(--ink);overflow-wrap:anywhere}
+    .qPrompt .loc{display:block;direction:rtl;text-align:right;font-weight:800;margin-bottom:.6mm;font-size:1.02em}
+    .qPrompt .enLine{display:block}
+    .qPrompt.bi .enLine{font-size:.9em;color:#374151}
+    .qPrompt b,.qPrompt strong{font-weight:850}
+    .m{font-family:var(--mathFont);font-weight:500;font-size:1.08em;white-space:nowrap}
+    .qPrompt .big{display:block;margin-top:1.6mm;font-family:var(--mathFont);font-size:1.4em;font-weight:500;text-align:center}
+    .qPrompt .say{display:block;margin-top:1.6mm;font-weight:800;text-align:center;color:#1e3a8a;background:#f5f8ff;border:1px solid #dbe5ff;border-radius:2mm;padding:1.4mm 2mm}
+    .qPrompt .sub{display:block;margin-top:1mm;font-size:.84em;color:var(--muted);font-weight:650}
+    .fr{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;font-family:var(--mathFont);font-weight:500;line-height:1.05;margin:0 .12em;font-size:.95em}
+    .frn{border-bottom:1.3px solid currentColor;padding:0 .18em}.frd{padding:0 .18em}
+    .frs{position:absolute;margin-left:-.7em}
+    sup{font-size:.7em;line-height:0}
+    .dtab{border-collapse:collapse;margin:1.6mm auto 0;font-size:9pt;font-variant-numeric:tabular-nums}
+    .dtab th,.dtab td{border:1px solid #94a3b8;padding:1mm 2.4mm;text-align:center}
+    .dtab th{background:#f1f5f9;font-weight:850}
+    .dtab td.q{background:#fef9c3;font-weight:900}
+    .dtab.rows th{text-align:left}
+    .dtab td.blank{min-width:9mm}
+    .dataList{font-family:var(--mathFont);font-size:1.06em;word-spacing:.12em;line-height:1.5;background:#f8fafc;border:1px dashed #cbd5e1;border-radius:2mm;padding:1.2mm 2.4mm;display:block;margin-top:1.4mm}
+    .math-frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;font-family:var(--mathFont);font-weight:500;line-height:1.05;margin:0 .12em;font-size:.95em}
+    .math-frac span:first-child{border-bottom:1.3px solid currentColor;padding:0 .18em}.math-frac span:last-child{padding:0 .18em}
+    .math-expression{display:block;margin-top:1.4mm;text-align:center;font-family:var(--mathFont);font-size:1.25em;font-weight:500}
+    .math-inline,.math-relation,.value-item{font-family:var(--mathFont);font-weight:500;white-space:nowrap}
+    .prompt-indented-line{display:block;margin-top:.8mm}
+    .why .math-expression,.why .prompt-indented-line,.ansBox .math-expression,.ansBox .prompt-indented-line{display:inline;margin:0 .2em;font-size:1em;text-align:inherit}
+    .tcap{font-size:.84em;font-weight:800;color:var(--muted);text-align:center;margin-top:1.2mm}
+    .subs{list-style:none;margin:1.6mm 0 0;padding:0;display:flex;flex-direction:column;gap:1.4mm}
+    .subs .sl{font-weight:900;margin-right:1.2mm}
+    .qDiag{display:flex;justify-content:center;align-items:center;margin-top:2mm;min-width:0}
+    .qDiag svg{max-width:100%;height:auto}
+    .qDiag .engHolder{display:flex;flex-direction:column;align-items:center;max-width:100%}
+    .diagMissing{color:var(--muted);font-weight:800;padding:6mm}
+    .qgrid .gl{stroke:#cbd5e1;stroke-width:1}
+    .qgrid .ax{stroke:#0f172a;stroke-width:2}
+    .qgrid .axh{fill:#0f172a}
+    .qgrid .axl{font:italic 700 16px var(--mathFont);fill:#0f172a}
+    .qgrid .tk{font:600 12.5px var(--uiFont);fill:#475569}
+    .qgrid .ln{stroke-width:3;stroke-linecap:round}
+    .qgrid .lnl{font:700 15px var(--mathFont);stroke:#fff;stroke-width:4px}
+    .qgrid .pt{stroke:#fff;stroke-width:2}
+    .qgrid .ptl{font:800 16px var(--uiFont);fill:#0f172a;stroke:#fff;stroke-width:4px}
+    .opts{display:grid;grid-template-columns:1fr 1fr;gap:1.2mm 4mm;margin-top:2mm;font-size:9.6pt;font-weight:700}
+    .opts.long{grid-template-columns:1fr}
+    .opt{display:flex;gap:1.6mm;align-items:baseline;min-width:0}
+    .opt .L{flex:0 0 auto;display:inline-grid;place-items:center;width:4.6mm;height:4.6mm;border:1.2px solid #334155;border-radius:50%;font-size:7.6pt;font-weight:1000}
+    .opt.right .L{background:var(--ans);border-color:var(--ans);color:#fff}
+    .opt.right{color:#15803d}
+    .tfRow{display:flex;gap:7mm;justify-content:center;margin-top:2mm;font-weight:900;font-size:9.6pt}
+    .tfRow span{border:1.2px solid #334155;border-radius:99px;padding:.6mm 4mm}
+    .tfRow span.right{background:var(--ans);border-color:var(--ans);color:#fff}
+    .qFill{flex:1 1 auto;min-height:2mm}
+    .drawBox{margin-top:1.8mm;border:1.2px dashed #94a3b8;border-radius:2mm;flex:0 0 auto;position:relative}
+    .drawBox.sq{background-image:linear-gradient(#cbd5e1 1px,transparent 1px),linear-gradient(90deg,#cbd5e1 1px,transparent 1px);background-size:5mm 5mm;background-position:-1px -1px;border-style:solid;border-color:#94a3b8}
+    .drawBox .workTag{font-size:6.5pt;font-weight:950;color:#94a3b8;padding:.4mm 1.4mm;display:block;letter-spacing:.08em;text-transform:uppercase}
+    .workBox{margin-top:1.6mm;border:1.2px dashed #cbd5e1;border-radius:2mm;height:24mm;background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 7.4mm,#e2e8f0 7.4mm,#e2e8f0 calc(7.4mm + 1px));background-position:0 1.6mm;flex:0 0 auto}
+    .workBox .workTag{font-size:6.5pt;font-weight:950;color:#94a3b8;padding:.4mm 1.4mm;display:block;letter-spacing:.08em;text-transform:uppercase}
+    .ansRow{margin-top:1.8mm;display:flex;align-items:center;justify-content:flex-end;gap:1.6mm;flex-wrap:wrap;flex:0 0 auto}
+    .ansLabel{font-weight:950;font-size:9pt;line-height:1.05;text-align:right}
+    .ansLabel .loc{display:block}
+    .ansLabel .en{display:block;font-size:.78em;opacity:.75}
+    .ansBox{min-width:34mm;width:46%;height:7mm;border:1.3px solid #111827;border-radius:2.2mm;background:#fff}
+    .ansUnit{font-family:var(--mathFont);font-weight:600;font-size:10pt}
+    .ansBox.key{display:flex;align-items:center;justify-content:center;width:auto;min-width:34mm;max-width:100%;height:auto;min-height:7mm;padding:.8mm 2.6mm;font-family:var(--mathFont);font-weight:800;font-size:10.5pt;color:var(--ans);border-color:var(--ans);background:rgba(22,163,74,.07);text-align:center;line-height:1.25}
+    .why{margin-top:1.2mm;font-size:7.8pt;font-weight:700;color:#475569;line-height:1.35;border-left:2px solid #bbf7d0;padding-left:2mm}
+    .lang-rtl .hdrTitle .loc,.lang-rtl .lineLabel .loc{direction:rtl}
+
+    @media(max-width:880px){
+      .topbar{grid-template-columns:1fr auto;gap:10px}.top-title{grid-column:1/-1;grid-row:2;text-align:center}.brand-text span{display:none}
+      .outWrap{align-items:flex-start;overflow-x:auto}
+    }
     @media print{
-      .grid{padding:5mm 5mm 3.5mm!important;gap:6mm 7mm!important;align-content:start!important;}
-      .qCard{height:76mm!important;min-height:76mm!important;align-self:stretch!important;overflow:hidden;}
-      .qCard.compact,.qCard.realWorld,.qCard.triad,.qCard.triadOptions,.qCard.diagramCard,.qCard.multiStep{height:76mm!important;min-height:76mm!important;}
-      .qCard.realWorld .wordBox{font-size:13.5px!important;line-height:1.34!important;}
-      .qCard.triad .wordBox{font-size:13.5px!important;line-height:1.34!important;}
-      .qCard.triad .wordSub{font-size:10.5px!important;}
-      .qCard.triadOptions .estimateTitle{font-size:13.5px!important;line-height:1.22!important;}
-      .qCard.triadOptions .mcOptions{font-size:13.5px!important;gap:5px!important;}
-      .qCard.triadOptions .mcOpt{padding:5px 7px!important;}
-      .multiStepViz,.triViz{height:158px!important;}
+      @page{size:A4;margin:0}
+      html,body{background:#fff;padding:0;margin:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+      .topbar,.card > :not(.outWrap),.mmtFooter{display:none!important}
+      .wrap{max-width:none;margin:0;padding:0}.card{box-shadow:none;border:none;border-radius:0;padding:0;background:#fff}
+      .outWrap{margin:0;gap:0;display:block}
+      .page{border:none;box-shadow:none;page-break-after:always;break-after:page;margin:0}
+      .page:last-child{page-break-after:auto;break-after:auto}
     }
   </style>
 <!-- mmt-pwa -->
@@ -67,451 +167,518 @@
 <meta name="apple-mobile-web-app-title" content="MMT">
 <script src="../../../../pwa.js" defer></script>
 <!-- /mmt-pwa -->
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
 </head>
 <body>
   <header class="topbar">
     <a class="brand" href="https://www.millsmathstools.au" aria-label="Back to Mills Maths Tools"><img src="../../../../assets/mmt.png" alt="Mills Maths Tools logo" class="brand-logo" onerror="this.style.visibility='hidden'"><div class="brand-text"><strong>MMT</strong><span>Mills Maths Tools</span></div></a>
-    <div class="top-title">Pythagoras Theorem</div><div></div>
+    <div class="top-title">Pythagoras' Theorem</div><div></div>
   </header>
 
   <div class="wrap"><div class="card">
-    <h1 class="title">Pythagoras Theorem — Worksheet Creator</h1>
-    <p class="subtitle">Printable A4 worksheets with larger working space, clear right-triangle diagrams, square-root fluency, estimation questions and completed answer keys.</p>
+    <h1 class="title">Pythagoras' Theorem — Worksheet Maker</h1>
+    <p class="subtitle"><span class="code">MA4-PYT-C-01</span> Printable A4 worksheets with a completed answer key, covering every content statement in the outcome. <strong>Basic</strong> covers the hypotenuse, writing Pythagoras' theorem, squares and square roots, testing for a right angle, and finding the hypotenuse (with and without a diagram). <strong>Expected</strong> adds Pythagorean triads, answers to 1 decimal place, shorter sides, mixed units, isosceles triangles and problems in context where students draw the diagram.</p>
 
-    <div class="controls">
-      <div class="fieldRow">
-        <div class="controlGroup"><label for="levelSel">Level</label><select id="levelSel"><option value="basic" selected>Basic</option><option value="expected">Expected</option></select></div>
-        <div class="controlGroup"><label for="countInp">Number of questions</label><input id="countInp" type="number" min="1" max="30" value="6"><div class="hint">6 larger questions per page is recommended.</div></div>
-        <div class="controlGroup"><label for="roundingSel">Decimal answer rule</label><select id="roundingSel"><option value="1" selected>Round to 1 decimal place</option><option value="2">Round to 2 decimal places</option></select></div>
+    <div class="band">
+      <p class="bandLabel">The paper</p>
+      <div class="fieldGrid">
+        <div><label for="levelSel">Level</label><select id="levelSel"><option value="basic" selected>Basic</option><option value="expected">Expected</option></select></div>
+        <div><label for="languageSel">Worksheet language</label><select id="languageSel"><option value="en" selected>English</option><option value="ar">Arabic (العربية)</option><option value="fa">Farsi / Persian (فارسی)</option></select></div>
+        <div><label for="countInp">Number of questions</label><input id="countInp" type="number" min="1" max="48" value="12"></div>
       </div>
-      <div class="btnRow"><button id="selectBtn" class="ghost">Deselect all</button><button id="genBtn" class="primary">Generate worksheet</button><button id="printBtn" class="ghost">Print (Ctrl+P)</button><button id="resetBtn" class="danger">Reset</button></div>
     </div>
 
-    <div class="controls"><div class="wideGroup"><label>Question types</label><div id="chkWrap" class="checks"></div></div></div>
+    <div class="band">
+      <p class="bandLabel">Question types — by content statement</p>
+      <div id="chkWrap"></div>
+    </div>
 
-    <div class="controls"><div class="wideGroup"><label>Worksheet options</label><div class="checks">
-      <label class="chk"><input id="toggleScaffold" type="checkbox"> Include working scaffold</label>
-      <label class="chk"><input id="toggleAlwaysX" type="checkbox" checked> Always use x</label>
-      <label class="chk" id="exactSurdWrap"><input id="toggleExactSurds" type="checkbox"> Use exact surd answers</label>
-    </div><div class="hint">Units vary randomly between cm and m. Diagrams use a plain white background for printing.</div></div></div>
+    <div class="band">
+      <p class="bandLabel">Options</p>
+      <div class="checks">
+        <label class="chk"><input id="toggleWorking" type="checkbox"> Working space under each question</label>
+        <label class="chk"><input id="toggleWhy" type="checkbox" checked> Reasons in the answer key</label>
+        <label class="chk"><input id="toggleMix" type="checkbox"> Mix the question order</label>
+      </div>
+    </div>
+
+    <div class="band">
+      <div class="btnRow">
+        <span class="pill" id="totalPill">12 questions + answer key</span>
+        <button id="selectBtn" class="ghost">Deselect all</button>
+        <button id="genBtn" class="primary">Generate worksheet</button>
+        <button id="printBtn" class="ghost">Print (Ctrl+P)</button>
+        <button id="resetBtn" class="danger">Reset</button>
+      </div>
+    </div>
 
     <div id="out" class="outWrap"></div>
+    <div id="probe" aria-hidden="true" style="position:absolute;left:-10000px;top:0;visibility:hidden"></div>
   </div></div>
+
   <div class="mmtFooter">This tool and more can be found at&nbsp;<a href="https://www.millsmathstools.au">www.millsmathstools.au</a></div>
 
+<script src="/online-quizzes/stage-4/topic-quiz/core.js?v=290fbdc3"></script>
+<script src="/assessment/exam-builder/engines/pythagoras/pythagoras-engine.js?v=d5bd495c"></script>
+<script src="/assessment/exam-builder/engines/geometry/geometry-engine.js?v=dfa42a36"></script>
 <script>
+/* ===================== WHOLE-TOPIC WORKSHEET FRAME ======================
+   Shared by every whole-topic worksheet creator. The page script after this
+   one calls WSF.page(config, types); a page built on its whole-topic quiz
+   also loads that quiz's bank, which calls MMTQ.run(bank) and hands its
+   generators over here, so the quiz and the worksheet ask the same things.
+
+   A QUESTION (from a quiz bank or written for paper) is
+     { prompt:html, diagram?, keyDiagram?, mode, value/unit/dp/pre (num),
+       options/correct (mc), truth (tf), x/y (coord/plot), answerHTML?, why? }
+   ======================================================================== */
 (() => {
-  const SITE='https://www.millsmathstools.au';
-  const SVG_NS='http://www.w3.org/2000/svg';
-  const VIEW={w:260,h:170};
-  const LETTERS='abcdefghijkmnpqrstuvwxyz'.split('');
+  'use strict';
+  const C = window.MMTQCore;
+  const SITE = 'https://www.millsmathstools.au';
+  const $ = id => document.getElementById(id);
+  const levelSel = $('levelSel'), languageSel = $('languageSel'), countInp = $('countInp'),
+        chkWrap = $('chkWrap'), out = $('out'), probe = $('probe'),
+        toggleWorking = $('toggleWorking'), toggleWhy = $('toggleWhy'), toggleMix = $('toggleMix'),
+        totalPill = $('totalPill'), selectBtn = $('selectBtn');
 
-  const levelSel=document.getElementById('levelSel'), countInp=document.getElementById('countInp'), roundingSel=document.getElementById('roundingSel'), chkWrap=document.getElementById('chkWrap'), out=document.getElementById('out');
-  const genBtn=document.getElementById('genBtn'), printBtn=document.getElementById('printBtn'), resetBtn=document.getElementById('resetBtn'), selectBtn=document.getElementById('selectBtn');
-  const toggleScaffold=document.getElementById('toggleScaffold'), toggleAlwaysX=document.getElementById('toggleAlwaysX'), toggleExactSurds=document.getElementById('toggleExactSurds'), exactSurdWrap=document.getElementById('exactSurdWrap');
-
-  const TYPE_SETS={
-    basic:[
-      ['squares','Calculate squares',true],
-      ['squareRoots','Calculate square roots',true],
-      ['estimateRoots','Estimate square roots',true],
-      ['hypWhole','Find the hypotenuse — whole numbers',true],
-      ['shortWhole','Find a shorter side — whole numbers',true],
-      ['longWhole','Find a longer side — whole numbers',true],
-      ['mixedWhole','Mixed Pythagoras — whole numbers',true]
-    ],
-    expected:[
-      ['expUnknown','Calculating unknown sides',true],
-      ['expDecimal','Calculating unknown sides — decimals',true],
-      ['expTriads','Pythagorean triads',true],
-      ['expRealWorld','Real world problems',true],
-      ['expMulti','Multi-step problems',true]
-    ]
+  /* Page words in Arabic and Farsi: the site's existing ones (as on the
+     Length creator). A topic title with no existing translation stays in
+     English. */
+  const LANG = {
+    en: { dir:'ltr', worksheet:'Worksheet', answerKey:'Answer key', page:'Page', name:'Name', date:'Date', answer:'Answer:', working:'Working', trueW:'True', falseW:'False' },
+    ar: { dir:'rtl', worksheet:'ورقة عمل', answerKey:'دليل الإجابات', page:'صفحة', name:'الاسم', date:'التاريخ', answer:'الإجابة:', working:'الحل', trueW:'صح', falseW:'خطأ' },
+    fa: { dir:'rtl', worksheet:'برگه تمرین', answerKey:'پاسخ‌نامه', page:'صفحه', name:'نام', date:'تاریخ', answer:'پاسخ:', working:'راه حل', trueW:'درست', falseW:'نادرست' }
   };
+  const lang = () => languageSel.value;
+  const isEn = () => lang() === 'en';
+  const L = () => LANG[lang()] || LANG.en;
 
-  const triples=[[3,4,5],[5,12,13],[8,15,17],[20,21,29],[28,45,53],[33,56,65]];
-  const decTriples=[[6.2,8.7],[4.8,9.1],[7.3,11.6],[5.4,12.8],[9.5,14.2],[10.6,15.9],[8.4,13.7],[11.2,18.5]];
+  let CFG = null, TYPES = [], BANK = null, lastPaper = null, translate = null, booted = false;
 
-  function choice(arr){return arr[Math.floor(Math.random()*arr.length)]}
-  function randInt(a,b){return Math.floor(Math.random()*(b-a+1))+a}
-  function fmt(n){return Math.abs(n-Math.round(n))<1e-9?String(Math.round(n)):Number(n).toFixed(1)}
-  function unit(){return choice(['cm','m'])}
-  function unknown(){return toggleAlwaysX.checked?'x':choice(LETTERS)}
-  function sq(n){return n*n}
-  function round(n,dp){return Number(n).toFixed(Number(dp))}
-  function smallestAngle(a,b,c){return Math.asin(Math.min(a,b)/c)*180/Math.PI}
-  function allowedTriangle(a,b,c){const ang=smallestAngle(a,b,c);return ang>=25&&ang<=65}
-
-  function gcd(a,b){a=Math.abs(a);b=Math.abs(b);while(b){const t=b;b=a%b;a=t}return a}
-  function simplifySurd(n){
-    n=Math.round(n);
-    let outside=1, inside=n;
-    for(let i=2;i*i<=inside;i++){
-      while(inside%(i*i)===0){outside*=i;inside/=i*i;}
-    }
-    if(inside===1) return String(outside);
-    if(outside===1) return `√${inside}`;
-    return `${outside}√${inside}`;
-  }
-  function maybeSurdFromRadicand(radicand, units){
-    const exact=simplifySurd(radicand);
-    return `${exact}${units?' '+units:''}`;
-  }
-
-  function makeSquare(){
-    const nums=[];
-    while(nums.length<6){const n=randInt(4,18);if(!nums.includes(n))nums.push(n)}
-    nums.sort((a,b)=>a-b);
-    const qs=nums.map(n=>({q:`${n}²`,a:String(n*n)}));
-    return{kind:'squareBatch',questions:qs,answer:qs.map((x,i)=>`${String.fromCharCode(97+i)}. ${x.a}`).join(' • ')}
-  }
-  function makeSquareRoot(){
-    const nums=[];
-    while(nums.length<6){const n=randInt(4,18);if(!nums.includes(n))nums.push(n)}
-    nums.sort((a,b)=>a-b);
-    const qs=nums.map(n=>({q:`√${n*n}`,a:String(n)}));
-    return{kind:'rootBatch',questions:qs,answer:qs.map((x,i)=>`${String.fromCharCode(97+i)}. ${x.a}`).join(' • ')}
-  }
-  function singleEstimate(){
-    const low=randInt(4,12), high=low+1;
-    const rad=randInt(low*low+1, high*high-1);
-    const ans=Math.sqrt(rad);
-    const correct=Number(ans.toFixed(1));
-    const correctLead=String(Math.floor(correct));
-    const distractorPool=[];
-    for(let lead=3;lead<=13;lead++){
-      if(String(lead)===correctLead) continue;
-      distractorPool.push(Number((lead+choice([0.2,0.3,0.4,0.6,0.7,0.8])).toFixed(1)));
-    }
-    const options=[correct];
-    while(options.length<4){const d=choice(distractorPool);if(!options.includes(d))options.push(d)}
-    options.sort(()=>Math.random()-.5);
-    const labels=['A','B','C','D'];
-    const correctIndex=options.indexOf(correct);
-    return{radicand:rad,options,answer:`${labels[correctIndex]}. ${correct}`}
-  }
-
-  function makeEstimateRoot(){
-    const qs=[singleEstimate(),singleEstimate()];
-    return{kind:'estimateBatch',questions:qs,answer:qs.map((x,i)=>`${String.fromCharCode(97+i)}. ${x.answer}`).join(' • '),steps:qs.map((x,i)=>`${String.fromCharCode(97+i)}. ${x.answer}`)};
+  /* ---- the Cartesian plane, copied from the whole-topic quiz engine ---- */
+  function grid(o) {
+    const NS = "http://www.w3.org/2000/svg";
+    const xMin = o.xMin ?? -6, xMax = o.xMax ?? 6, yMin = o.yMin ?? -6, yMax = o.yMax ?? 6;
+    const cell = o.cell || 34, pad = 26;
+    const W = (xMax - xMin) * cell + pad * 2, H = (yMax - yMin) * cell + pad * 2;
+    const X = x => pad + (x - xMin) * cell, Y = y => pad + (yMax - y) * cell;
+    const svg = document.createElementNS(NS, "svg");
+    svg.setAttribute("viewBox", `0 0 ${W} ${H}`); svg.setAttribute("class", "qgrid");
+    svg.setAttribute("role", "img"); svg.setAttribute("aria-label", "Cartesian plane");
+    const el = (n, a, txt) => { const e = document.createElementNS(NS, n); for (const k in a) e.setAttribute(k, a[k]); if (txt != null) e.textContent = txt; svg.appendChild(e); return e; };
+    for (let x = xMin; x <= xMax; x++) el("line", { x1: X(x), y1: Y(yMin), x2: X(x), y2: Y(yMax), class: "gl" });
+    for (let y = yMin; y <= yMax; y++) el("line", { x1: X(xMin), y1: Y(y), x2: X(xMax), y2: Y(y), class: "gl" });
+    if (yMin <= 0 && yMax >= 0) el("line", { x1: X(xMin) - 6, y1: Y(0), x2: X(xMax) + 10, y2: Y(0), class: "ax", "marker-end": "" });
+    if (xMin <= 0 && xMax >= 0) el("line", { x1: X(0), y1: Y(yMin) + 6, x2: X(0), y2: Y(yMax) - 10, class: "ax" });
+    if (yMin <= 0 && yMax >= 0) { el("path", { d: `M${X(xMax) + 14},${Y(0)} l-10,-5 v10 z`, class: "axh" }); el("text", { x: X(xMax) + 12, y: Y(0) - 10, class: "axl" }, "x"); }
+    if (xMin <= 0 && xMax >= 0) { el("path", { d: `M${X(0)},${Y(yMax) - 14} l-5,10 h10 z`, class: "axh" }); el("text", { x: X(0) + 12, y: Y(yMax) - 8, class: "axl" }, "y"); }
+    const ox = xMin <= 0 && xMax >= 0 ? X(0) : X(xMin), oy = yMin <= 0 && yMax >= 0 ? Y(0) : Y(yMin);
+    const step = o.labelStep || 1;
+    for (let x = xMin; x <= xMax; x += step) if (x !== 0) el("text", { x: X(x), y: oy + 15, class: "tk", "text-anchor": "middle" }, C.fmt(x));
+    for (let y = yMin; y <= yMax; y += step) if (y !== 0) el("text", { x: ox - 7, y: Y(y) + 4, class: "tk", "text-anchor": "end" }, C.fmt(y));
+    if (xMin <= 0 && xMax >= 0 && yMin <= 0 && yMax >= 0) el("text", { x: X(0) - 7, y: Y(0) + 15, class: "tk", "text-anchor": "end" }, "0");
+    // lines, clipped to the box
+    // Line labels go where they are farthest from other labels and from any crossing point.
+    const placed = [], cross = [];
+    (o.lines || []).forEach((L, i) => (o.lines || []).slice(i + 1).forEach(M2 => { if (L.m !== M2.m) { const x = (M2.b - L.b) / (L.m - M2.m); cross.push([X(x), Y(L.m * x + L.b)]); } }));
+    (o.lines || []).forEach(L => {
+      const pts = [];
+      const add = (x, y) => { if (x >= xMin - 1e-9 && x <= xMax + 1e-9 && y >= yMin - 1e-9 && y <= yMax + 1e-9) pts.push([x, y]); };
+      add(xMin, L.m * xMin + L.b); add(xMax, L.m * xMax + L.b);
+      if (L.m !== 0) { add((yMin - L.b) / L.m, yMin); add((yMax - L.b) / L.m, yMax); }
+      pts.sort((a, b) => a[0] - b[0]);
+      if (pts.length >= 2) {
+        const a = pts[0], b = pts[pts.length - 1];
+        el("line", { x1: X(a[0]), y1: Y(a[1]), x2: X(b[0]), y2: Y(b[1]), class: "ln", stroke: L.color || "#be123c" });
+        if (L.label) {
+          let best = null, bestD = -1;
+          [0.85, 0.72, 0.15, 0.28, 0.5].forEach(t => {
+            const px = X(a[0] + (b[0] - a[0]) * t), py = Y(a[1] + (b[1] - a[1]) * t);
+            const d = Math.min(1e9, ...placed.concat(cross).map(q => Math.hypot(q[0] - px, q[1] - py)));
+            if (d > bestD + 0.5) { bestD = d; best = [px, py]; }
+          });
+          placed.push(best);
+          // Step off the line at right angles (on the upper side), anchored so the text runs away from it.
+          let dx = X(b[0]) - X(a[0]), dy = Y(b[1]) - Y(a[1]); const len = Math.hypot(dx, dy) || 1; dx /= len; dy /= len;
+          let nx = -dy, ny = dx; if (ny > 0) { nx = -nx; ny = -ny; }
+          const anchor = Math.abs(nx) < 0.35 ? "middle" : nx > 0 ? "start" : "end";
+          const tx = el("text", { x: best[0] + nx * 12, y: best[1] + ny * 12 + (ny > -0.5 ? 5 : 0), class: "lnl", fill: L.color || "#be123c", "text-anchor": anchor }, L.label);
+          tx.setAttribute("paint-order", "stroke");
+        }
+      }
+    });
+    (o.points || []).forEach(p => {
+      el("circle", { cx: X(p.x), cy: Y(p.y), r: 6.5, class: "pt", fill: p.color || "#1d4ed8" });
+      if (p.label) { const t = el("text", { x: X(p.x) + 9, y: Y(p.y) - 9, class: "ptl" }, p.label); t.setAttribute("paint-order", "stroke"); }
+    });
+    return svg;
   }
 
-  function makePythagoras(type, decimal=false){
-    let a,b,c;
-    if(decimal){
-      [a,b]=choice(decTriples);
-      c=Math.sqrt(a*a+b*b);
-    }else{
-      [a,b,c]=choice(triples);
-      const scale=choice([1,2,3,4]); a*=scale; b*=scale; c*=scale;
+
+  /* ---- diagrams: a Revision Generator engine, the plane, or plain html ---- */
+  function engineFor(name) {
+    return window['MMT_' + String(name).replace(/-engine$/, '').toUpperCase().replace(/-/g, '_') + '_ENGINE'];
+  }
+  /* Draw at a constant scale, trimmed to the ink, so a label is the same
+     size in every question; capped so a tall figure cannot take the page. */
+  function drawDiagram(host, d) {
+    host.innerHTML = '';
+    if (!d) return;
+    if (d.html) { host.innerHTML = d.html; return; }
+    if (d.grid) {
+      // squared paper: about 5.5 mm a unit (unitMM), capped in height
+      const o = d.grid, g = grid(Object.assign({}, o, { interactive: false }));
+      const cell = o.cell || 34, u = (o.unitMM || 5.5) * 3.7795 / cell;
+      const vb = g.getAttribute('viewBox').split(' ').map(Number);
+      let w = vb[2] * u, h = vb[3] * u; const cap = (o.maxMM || 92) * 3.7795;
+      if (h > cap) { w *= cap / h; h = cap; }
+      g.style.width = Math.round(w) + 'px'; g.style.height = Math.round(h) + 'px';
+      host.appendChild(g); return;
     }
-    if(a>b){const t=a;a=b;b=t;}
-    let missing=type;
-    if(missing==='leg') missing=choice(['short','long']);
-    if(missing==='mixed') missing=choice(['hyp','short','long']);
-    const u=unknown(), units=unit(), dp=roundingSel.value;
-    const radicand = missing==='hyp' ? a*a+b*b : missing==='short' ? c*c-b*b : c*c-a*a;
-    const ansRaw=Math.sqrt(radicand);
-    const useSurd=levelSel.value==='expected' && toggleExactSurds.checked && !decimal && Math.abs(ansRaw-Math.round(ansRaw))>1e-9;
-    const ans = useSurd ? maybeSurdFromRadicand(radicand,units) : `${round(ansRaw, decimal?dp:0)}${units?' '+units:''}`;
-    const display={a:fmt(a),b:fmt(b),c:fmt(c)};
-    if(missing==='hyp') display.c=u;
-    if(missing==='short') display.a=u;
-    if(missing==='long') display.b=u;
-    return{kind:'pythagoras',a,b,c,display,missing,u,units,decimal,answer:ans,answerRaw:ansRaw,radicand,steps:pythagorasSteps({a,b,c,missing,u,units,decimal,dp,useSurd,radicand,ansRaw})};
+    const E = engineFor(d.engine);
+    if (!E || !E.render) { host.innerHTML = '<div class="diagMissing">Diagram unavailable</div>'; return; }
+    const holder = document.createElement('div'); holder.className = 'engHolder';
+    host.appendChild(holder);
+    try { E.render(holder, d.config || {}); } catch (e) { console.warn('diagram', e); holder.innerHTML = '<div class="diagMissing">Diagram unavailable</div>'; return; }
+    holder.querySelectorAll('svg').forEach(svg => {
+      if (svg.parentElement && svg.parentElement.closest('svg')) return;
+      try {
+        const bb = svg.getBBox();
+        if (bb.width > 4 && bb.height > 4) {
+          const p = 10;
+          svg.setAttribute('viewBox', `${bb.x - p} ${bb.y - p} ${bb.width + 2 * p} ${bb.height + 2 * p}`);
+          svg.removeAttribute('width'); svg.removeAttribute('height');
+          const k = (d.scale || 1.15) * 0.62;
+          svg.style.width = Math.round((bb.width + 2 * p) * k) + 'px';
+          svg.style.maxWidth = '100%'; svg.style.height = 'auto';
+          svg.style.maxHeight = (d.maxH ? d.maxH * 0.62 : 230) + 'px';
+        }
+      } catch (e) { /* not laid out yet */ }
+    });
   }
 
-  function pythagorasSteps(q){
-    const A=fmt(q.a), B=fmt(q.b), C=fmt(q.c), u=q.u, units=q.units;
-    if(q.missing==='hyp'){
-      const rad=q.a*q.a+q.b*q.b;
-      const final=q.useSurd?maybeSurdFromRadicand(rad,units):`${round(Math.sqrt(rad),q.decimal?q.dp:0)} ${units}`;
-      return [`${u}² = ${A}² + ${B}²`,`${u}² = ${fmt(rad)}`,`${u} = √${fmt(rad)}`,`${u} ${q.useSurd?'=':'≈'} ${final}`];
-    }
-    if(q.missing==='short'){
-      const rad=q.c*q.c-q.b*q.b;
-      const final=q.useSurd?maybeSurdFromRadicand(rad,units):`${round(Math.sqrt(rad),q.decimal?q.dp:0)} ${units}`;
-      return [`${u}² + ${B}² = ${C}²`,`${u}² = ${C}² − ${B}²`,`${u}² = ${fmt(rad)}`,`${u} ${q.useSurd?'=':'≈'} ${final}`];
-    }
-    const rad=q.c*q.c-q.a*q.a;
-    const final=q.useSurd?maybeSurdFromRadicand(rad,units):`${round(Math.sqrt(rad),q.decimal?q.dp:0)} ${units}`;
-    return [`${A}² + ${u}² = ${C}²`,`${u}² = ${C}² − ${A}²`,`${u}² = ${fmt(rad)}`,`${u} ${q.useSurd?'=':'≈'} ${final}`];
+  /* ---- answers ---- */
+  function answerHTML(q) {
+    if (q.answerHTML) return q.answerHTML;
+    if (q.mode === 'mc') { const o = q.options[q.correct]; return /^\s*[A-F][:.)]/.test(strip(o)) ? o : `${'ABCDEF'[q.correct]} &nbsp;${o}`; }
+    if (q.mode === 'tf') return q.truth ? 'True' : 'False';
+    if (q.mode === 'num') return (q.pre || '') + C.fmt(q.value, q.dp == null ? 4 : q.dp, q.dp != null && q.dp > 0) + (q.unit ? (q.unit === '°' ? '°' : ' ' + q.unit) : '');
+    if (q.mode === 'coord' || q.mode === 'plot') return `(${C.fmt(q.x)}, ${C.fmt(q.y)})`;
+    return '';
+  }
+  const strip = h => { const d = document.createElement('div'); d.innerHTML = String(h); return (d.textContent || '').replace(/\s+/g, ' ').trim(); };
+
+  /* Screen wording becomes paper wording. */
+  function paperPrompt(p) {
+    return String(p)
+      .replace(/Click the grid to plot/g, 'Plot')
+      .replace(/click the grid to plot/g, 'plot')
+      .replace(/\bType your answer/g, 'Write your answer').replace(/\btype your answer/g, 'write your answer');
   }
 
-  function makeExpectedUnknown(){ return makePythagoras('mixed',false); }
-  function makeExpectedDecimal(){ return makePythagoras(choice(['hyp','leg','mixed']),true); }
-
-  function makeTriad(){
-    const style=choice(['which','yesno','explain']);
-    if(style==='which'){
-      const good=choice(triples);
-      const bad1=[good[0],good[1],good[2]+choice([1,2,3])].sort((x,y)=>x-y);
-      const bad2=choice([[6,9,12],[8,15,20],[5,12,15],[9,12,16],[10,14,18]]);
-      const bad3=choice([[4,7,9],[7,10,13],[6,8,11],[12,16,21]]);
-      const opts=[good,bad1,bad2,bad3].sort(()=>Math.random()-.5);
-      const answerIndex=opts.findIndex(o=>o[0]*o[0]+o[1]*o[1]===o[2]*o[2]);
-      return {kind:'triadOptions',prompt:'Pythagorean triads',question:'Which set of side lengths forms a right-angled triangle?',options:opts,answer:`${['A','B','C','D'][answerIndex]}. ${opts[answerIndex].join(', ')}`,steps:[`${opts[answerIndex][0]}² + ${opts[answerIndex][1]}² = ${opts[answerIndex][2]}²`]};
-    }
-    const right = Math.random()<0.55;
-    let sides;
-    if(right){
-      let [a,b,c]=choice(triples);
-      const scale=choice([1,2,3]);
-      sides=[a*scale,b*scale,c*scale].sort((x,y)=>x-y);
-    }else{
-      let [a,b,c]=choice(triples);
-      const tweak=choice([-2,-1,1,2,3]);
-      sides=[a,b,c+tweak].sort((x,y)=>x-y);
-      if(sides[2]===c) sides[2]+=1;
-    }
-    const [a,b,c]=sides;
-    const left=a*a+b*b, rightSide=c*c;
-    return {kind:'triad',prompt:'Pythagorean triads',body:`Do the side lengths <span class="math">${a}, ${b}, ${c}</span> form a right-angled triangle?<div class="wordSub">${style==='explain'?'Show your reasoning using Pythagoras.':'Answer yes or no, then justify.'}</div>`,answer:left===rightSide?'Yes':'No',steps:[`${a}² + ${b}² = ${left}`,`${c}² = ${rightSide}`,left===rightSide?'The triangle is right-angled.':'The triangle is not right-angled.']};
+  /* Arabic/Farsi: only the opening instruction is translated, and only when
+     the Revision Generator's curated phrases have a real translation for it.
+     Its catch-all lines ("answer the question below") are not used. */
+  const FALLBACKS = /أجب عن السؤال أدناه|به پرسش زیر پاسخ دهید|استخدم المعلومات الإنجليزية|از اطلاعات انگلیسی زیر/;
+  function localLine(q) {
+    if (isEn() || !translate) return '';
+    if (q.loc && q.loc[lang()]) return q.loc[lang()];
+    // the opening instruction only, up to the first display block
+    const html = String(paperPrompt(q.prompt));
+    const cut = html.search(/<span class="(big|say|dataList|sub|math-expression|prompt-indented-line)"|<table|<br|<div|<ol/);
+    const div = document.createElement('div');
+    div.innerHTML = cut > 0 ? html.slice(0, cut) : html;
+    // protect the maths: each maths element becomes a token the phrases carry through
+    const keep = [];
+    const MATHS = '.m, .fr, sup, sub, .math-frac, .math-inline, .math-relation, .value-item';
+    div.querySelectorAll(MATHS).forEach(el => {
+      if (el.parentElement && el.parentElement.closest(MATHS)) return;
+      keep.push(el.outerHTML); el.replaceWith(document.createTextNode(` QQ${keep.length - 1}QQ `));
+    });
+    const lead = (div.textContent || '').replace(/\s+/g, ' ').trim();
+    if (!lead || lead.length > 170) return '';
+    let t = '';
+    try { t = translate(lead, lang(), { topic: CFG.translateTopic || CFG.topic, type: q.type || '' }) || ''; } catch (e) { t = ''; }
+    t = String(t).replace(/[\u2066-\u2069\u200e\u200f]/g, '').replace(/\s+([:،؛.؟])/g, '$1');
+    if (!t || FALLBACKS.test(t)) return '';
+    // a real translation: no English words left over, every maths token kept once, no stray punctuation
+    const words = t.replace(/QQ\d+QQ/g, ' ').match(/[A-Za-z]{2,}/g) || [];
+    if (words.some(w => !/^(HCF|LCM|km|cm|mm|kg|mL|ml|m|g|L|h|min|s|cos|sin|tan|ii?i?|iv)$/.test(w))) return '';
+    for (let i = 0; i < keep.length; i++) if ((t.match(new RegExp(`QQ${i}QQ`, 'g')) || []).length !== 1) return '';
+    if (/[:;,.]\s*[:;,.]|^\s*[:;,.]/.test(t.replace(/QQ\d+QQ/g, 'X'))) return '';
+    return C.esc(t).replace(/\s*QQ(\d+)QQ\s*/g, (m, i) => ` <bdi dir="ltr">${keep[+i]}</bdi> `).trim();
   }
 
-  function makeRealWorld(){
-    const scenario=choice(['ladder','rectangle','screen','park']);
-    if(scenario==='ladder'){
-      const a=choice([3,4,5,6]), b=choice([4,5,7,8]), c=Math.sqrt(a*a+b*b), dp=roundingSel.value;
-      return {kind:'realWorld',prompt:'Real world problem',body:`A ladder reaches <span class="math">${b} m</span> up a wall. Its base is <span class="math">${a} m</span> from the wall. How long is the ladder?`,answer:`${round(c,dp)} m`,steps:[`x² = ${a}² + ${b}²`,`x² = ${fmt(a*a+b*b)}`,`x ≈ ${round(c,dp)} m`]};
+  /* ---- one card ---- */
+  function cardHTML(q, idx, key) {
+    if (q.mode === 'plot' && q.grid && !q.diagram) { q.diagram = { grid: q.grid }; q.noAnswerBox = true; }
+    const loc = localLine(q);
+    const prompt = paperPrompt(q.prompt);
+    let body = '';
+    if (q.mode === 'mc' && q.options) {
+      const long = q.options.some(o => strip(o).length > 26);
+      body += `<div class="opts${long ? ' long' : ''}">` + q.options.map((o, k) =>
+        `<div class="opt${key && k === q.correct ? ' right' : ''}"><span class="L">${'ABCDEF'[k]}</span><span>${o}</span></div>`).join('') + '</div>';
     }
-    if(scenario==='rectangle'){
-      const a=choice([6,8,9,12]), b=choice([8,10,12,16]), c=Math.sqrt(a*a+b*b), dp=roundingSel.value;
-      return {kind:'realWorld',prompt:'Real world problem',body:`A rectangular garden is <span class="math">${a} m</span> by <span class="math">${b} m</span>. Find the length of the diagonal path.`,answer:`${round(c,dp)} m`,steps:[`x² = ${a}² + ${b}²`,`x² = ${fmt(a*a+b*b)}`,`x ≈ ${round(c,dp)} m`]};
+    if (q.mode === 'tf') {
+      body += `<div class="tfRow"><span class="${key && q.truth ? 'right' : ''}">${isEn() ? 'True' : L().trueW + ' / True'}</span><span class="${key && !q.truth ? 'right' : ''}">${isEn() ? 'False' : L().falseW + ' / False'}</span></div>`;
     }
-    if(scenario==='screen'){
-      const a=choice([30,40,50]), b=choice([40,60,80]), c=Math.sqrt(a*a+b*b), dp=roundingSel.value;
-      return {kind:'realWorld',prompt:'Real world problem',body:`A screen is <span class="math">${a} cm</span> high and <span class="math">${b} cm</span> wide. Find the diagonal length.`,answer:`${round(c,dp)} cm`,steps:[`x² = ${a}² + ${b}²`,`x² = ${fmt(a*a+b*b)}`,`x ≈ ${round(c,dp)} cm`]};
-    }
-    const a=choice([7,9,11]), b=choice([12,15,18]), c=Math.sqrt(a*a+b*b), dp=roundingSel.value;
-    return {kind:'realWorld',prompt:'Real world problem',body:`A student walks <span class="math">${a} m</span> east and <span class="math">${b} m</span> north. How far are they from the starting point?`,answer:`${round(c,dp)} m`,steps:[`x² = ${a}² + ${b}²`,`x² = ${fmt(a*a+b*b)}`,`x ≈ ${round(c,dp)} m`]};
+    const diag = (key && q.keyDiagram) || q.diagram || (key && q.mode === 'plot' && q.grid) || null;
+    const ansLabel = isEn() ? `<span>${LANG.en.answer}</span>` : `<span class="loc" dir="rtl">${L().answer}</span><span class="en">${LANG.en.answer}</span>`;
+    const needsBox = !(q.mode === 'tf') && !(q.noAnswerBox);
+    const unitAfter = !key && q.mode === 'num' && q.unit && q.unit !== '°' ? `<span class="ansUnit">${q.unit}</span>` : (!key && q.unit === '°' && q.mode === 'num' ? '<span class="ansUnit">°</span>' : '');
+    const work = !key && toggleWorking.checked && !q.noWorking
+      ? `<div class="workBox"><span class="workTag">${isEn() ? LANG.en.working : L().working + ' · ' + LANG.en.working}</span></div>` : '';
+    const ans = key
+      ? `<div class="ansRow">${ansLabel}<div class="ansBox key">${answerHTML(q) || '—'}</div></div>${toggleWhy.checked && q.why ? `<div class="why">${q.why}</div>` : ''}`
+      : (needsBox ? `<div class="ansRow">${ansLabel}<div class="ansBox"></div>${unitAfter}</div>` : '');
+    return `<div class="qCard" data-type="${q.type}">` +
+      `<div class="qHead"><span class="qNum">Q${idx}</span><div class="qPrompt${loc ? ' bi' : ''}">${loc ? `<span class="loc">${loc}</span>` : ''}<span class="enLine">${prompt}</span>${body}</div></div>` +
+      (diag ? `<div class="qDiag" data-d="1"></div>` : '') +
+      (!key && q.drawSpace ? `<div class="drawBox${q.grid5 ? ' sq' : ''}" style="height:${q.drawSpace}mm"><span class="workTag">${q.drawTag || ''}</span></div>` : '') +
+      `<div class="qFill"></div>${work}${ans}</div>`;
+  }
+  function hydrate(el, q, key) {
+    const host = el.querySelector('.qDiag'); if (!host) return;
+    let d = (key && q.keyDiagram) || q.diagram;
+    if (key && q.mode === 'plot' && d && d.grid) d = { grid: Object.assign({}, d.grid, { points: (d.grid.points || []).concat([{ x: q.x, y: q.y, color: '#16a34a', label: `(${C.fmt(q.x)}, ${C.fmt(q.y)})` }]) }) };
+    drawDiagram(host, d);
   }
 
-  function makeMultiStep(){
-    const a=choice([3,5,6,8]), b=choice([4,8,10,12]), d=choice([4,5,7,9]);
-    const x=Math.sqrt(a*a+b*b), y=Math.sqrt(x*x+d*d), dp=roundingSel.value;
-    return {kind:'multiStep',prompt:'Multi-step problem',a,b,d,x,y,answer:`${round(y,dp)} m`,steps:[`First triangle: x² = ${a}² + ${b}²`,`x² = ${fmt(a*a+b*b)}`,`Second triangle: y² = x² + ${d}²`,`y² = ${fmt(a*a+b*b+d*d)}`,`y ≈ ${round(y,dp)} m`]};
+  /* ---- pages: measure every card at its printed width, then pack ---- */
+  function headerHTML(key, p, total) {
+    const lv = lastPaper.level === 'basic' ? 'Basic' : 'Expected';
+    const enTitle = `${CFG.topic} — ${key ? 'Answer key' : 'Worksheet'} (${lv})`;
+    const locT = isEn() ? '' : `<span class="loc" dir="rtl">${key ? L().answerKey : L().worksheet} (${lv})</span>`;
+    const sub = `${key ? 'Answer key' : 'Worksheet'} — ${isEn() ? 'Page' : L().page + ' / Page'} ${p} / ${total}`;
+    const field = (w, en) => `<div class="lineField"><div class="lineLabel">${isEn() ? en : `<span class="loc">${w}</span> ${en}`}</div><div class="lineBox"></div></div>`;
+    const nd = key ? '' : `<div class="nameDate">${field(L().name, 'Name')}${field(L().date, 'Date')}</div>`;
+    return `<div class="pageHeader"><div><div class="hdrTitle">${locT}${enTitle}</div><div class="hdrSub">${sub}</div></div>${nd}</div>`;
+  }
+  const footerHTML = () => `<div class="pageFooter"><span>This tool and more can be found at <a href="${SITE}">www.millsmathstools.au</a></span><span class="oc">${CFG.outcome}</span></div>`;
+
+  function measureRows(qs, key) {
+    // a probe page the same size as a real one
+    probe.innerHTML = `<div class="page${isEn() ? '' : ' lang-rtl'}">${headerHTML(key, 1, 1)}<div class="pageBody"><div class="row"><div id="pa"></div><div></div></div><div class="row wide"><div id="pw"></div></div></div>${footerHTML()}</div>`;
+    const pg = probe.firstChild, body = pg.querySelector('.pageBody');
+    const cs = getComputedStyle(body);
+    GAP = parseFloat(cs.rowGap) || 11;
+    const avail = body.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - 1;
+    const half = probe.querySelector('#pa'), full = probe.querySelector('#pw');
+    const items = qs.map((q, i) => {
+      half.innerHTML = cardHTML(q, i + 1, key); hydrate(half.firstChild, q, key);
+      const card = half.firstChild;
+      const over = card.scrollWidth > card.clientWidth + 2 || [...card.querySelectorAll('svg,table,.opts')].some(e => e.getBoundingClientRect().width > card.clientWidth - 6);
+      let wide = !!q.wide || over, h;
+      if (wide) { full.innerHTML = cardHTML(q, i + 1, key); hydrate(full.firstChild, q, key); h = full.firstChild.getBoundingClientRect().height; }
+      else h = card.getBoundingClientRect().height;
+      return { q, wide, h };
+    });
+    probe.innerHTML = '';
+    return { items, avail };
+  }
+  let GAP = 11;
+  function pack(items, avail) {
+    const rows = [];
+    for (let i = 0; i < items.length; i++) {
+      const a = items[i];
+      if (a.wide) { rows.push({ cells: [a], wide: true, h: a.h }); continue; }
+      const b = items[i + 1];
+      if (b && !b.wide) { rows.push({ cells: [a, b], h: Math.max(a.h, b.h) }); i++; }
+      else rows.push({ cells: [a], h: a.h });
+    }
+    const pages = [];
+    let cur = [], used = 0;
+    rows.forEach(r => {
+      const need = r.h + (cur.length ? GAP : 0);
+      if (cur.length && used + need > avail) { pages.push({ rows: cur, used }); cur = []; used = 0; }
+      cur.push(r); used += r.h + (cur.length > 1 ? GAP : 0);
+    });
+    if (cur.length) pages.push({ rows: cur, used });
+    return pages;
+  }
+  function buildHalf(qs, key) {
+    const { items, avail } = measureRows(qs, key);
+    const pages = pack(items, avail);
+    let n = 0;
+    return pages.map((pg, p) => {
+      const page = document.createElement('div');
+      page.className = 'page' + (isEn() ? '' : ' lang-rtl') + (key ? ' answerKeyPage' : '');
+      // Whatever the page has left is shared out as working room.
+      const extra = Math.max(0, avail - pg.used - 2);
+      const each = Math.min(extra / pg.rows.length, key ? 0 : 260);
+      page.innerHTML = headerHTML(key, p + 1, pages.length) + '<div class="pageBody"></div>' + footerHTML();
+      const body = page.querySelector('.pageBody');
+      pg.rows.forEach(r => {
+        const row = document.createElement('div');
+        row.className = 'row' + (r.wide ? ' wide' : '');
+        row.style.minHeight = (r.h + each) + 'px';
+        r.cells.forEach(c => {
+          n++;
+          const holder = document.createElement('div');
+          holder.innerHTML = cardHTML(c.q, qs.indexOf(c.q) + 1, key);
+          const card = holder.firstChild; row.appendChild(card);
+        });
+        body.appendChild(row);
+      });
+      return page;
+    });
+  }
+  function draw() {
+    out.innerHTML = '';
+    if (!lastPaper) return;
+    const { qs } = lastPaper;
+    const ws = buildHalf(qs, false), keyPages = buildHalf(qs, true);
+    ws.concat(keyPages).forEach(p => out.appendChild(p));
+    // diagrams are drawn once the cards are in the document
+    out.querySelectorAll('.qCard').forEach(card => {
+      const page = card.closest('.page');
+      const key = page.classList.contains('answerKeyPage');
+      const i = +card.querySelector('.qNum').textContent.slice(1) - 1;
+      hydrate(card, qs[i], key);
+    });
+    totalPill.textContent = `${qs.length} question${qs.length === 1 ? '' : 's'} · ${ws.length} page${ws.length === 1 ? '' : 's'} + ${keyPages.length}-page key`;
   }
 
-  function makeErrorAnalysis(){
-    const q=makePythagoras(choice(['hyp','short','long']),false);
-    let body, steps;
-    if(q.missing==='hyp'){
-      body=`A student wrote <span class="math">${q.u}² = ${fmt(q.b)}² − ${fmt(q.a)}²</span>. Explain the error.`;
-      steps=[`The missing side is the hypotenuse, so the side lengths should be added.`,`${q.u}² = ${fmt(q.a)}² + ${fmt(q.b)}²`];
-    }else{
-      body=`A student wrote <span class="math">${q.u}² = ${fmt(q.a)}² + ${fmt(q.b)}²</span>. Explain the error.`;
-      steps=[`A shorter side is missing, so subtract from the hypotenuse squared.`,`Use c² − known leg².`];
-    }
-    return {kind:'errorAnalysis',prompt:'Error analysis',body,answer:'Explanation required',steps};
+  /* ---- the paper ---- */
+  const typesAt = lv => TYPES.filter(t => t.level === lv);
+  function activeIds() { return typesAt(levelSel.value).map(t => t.id).filter(id => { const b = document.getElementById('chk_' + id); return b && b.checked; }); }
+  function clampCount() { return Math.max(1, Math.min(48, Math.round(Number(countInp.value) || CFG.defaultCount || 12))); }
+  function generate() {
+    out.innerHTML = ''; lastPaper = null;
+    const ids = activeIds();
+    if (!ids.length) { out.innerHTML = '<div class="warn">Please tick at least one question type.</div>'; return; }
+    const n = clampCount(); countInp.value = String(n);
+    const order = new Map(typesAt(levelSel.value).map((t, i) => [t.id, i]));
+    const types = typesAt(levelSel.value).filter(t => ids.includes(t.id));
+    // every ticked type at least once, then dealt evenly
+    const plan = []; let deck = [];
+    while (plan.length < n) { if (!deck.length) deck = C.shuffle(types); plan.push(deck.pop()); }
+    const seen = new Set(), qs = [];
+    plan.forEach(t => {
+      let q = null;
+      for (let tries = 0; tries < 40; tries++) {
+        let c = null;
+        try { c = t.gen({ level: levelSel.value, paper: true }); } catch (e) { console.warn(t.id, e); }
+        if (!c) continue;
+        const sig = t.id + '|' + (c.key || strip(c.prompt) + JSON.stringify(c.diagram && (c.diagram.config || c.diagram.grid || c.diagram.html) || '') + JSON.stringify(c.options || ''));
+        q = c;
+        if (!seen.has(sig)) { seen.add(sig); break; }
+      }
+      if (!q) return;
+      q.type = t.id; q.label = t.label; q.stmt = t.stmt;
+      q._o = toggleMix.checked ? Math.random() * 1000 : order.get(t.id) + Math.random() * 1.6;
+      qs.push(q);
+    });
+    qs.sort((a, b) => a._o - b._o);
+    lastPaper = { qs, level: levelSel.value };
+    draw();
+    out.firstElementChild && out.firstElementChild.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  function activeIds(){return TYPE_SETS[levelSel.value].map(x=>x[0]).filter(id=>document.getElementById(`chk_${id}`)?.checked)}
-  function renderCheckboxes(){chkWrap.innerHTML='';TYPE_SETS[levelSel.value].forEach(([id,label,on])=>{const lab=document.createElement('label');lab.className='chk';lab.innerHTML=`<input type="checkbox" id="chk_${id}" ${on?'checked':''}> ${label}`;chkWrap.appendChild(lab)});updateSelectBtn();updateExactSurdVisibility()}
-  function updateSelectBtn(){const boxes=[...chkWrap.querySelectorAll('input[type="checkbox"]')];selectBtn.textContent=boxes.some(b=>b.checked)?'Deselect all':'Select all'}
-  function updateExactSurdVisibility(){const show=levelSel.value==='expected';exactSurdWrap.classList.toggle('hidden',!show);if(!show)toggleExactSurds.checked=false}
+  /* ---- the controls ---- */
+  function renderChecks() {
+    const lv = levelSel.value, other = lv === 'basic' ? 'Expected' : 'Basic';
+    chkWrap.innerHTML = CFG.statements.map((s, i) => {
+      const here = typesAt(lv).filter(t => t.stmt === s.id);
+      const chips = here.map(t => `<label class="chk" title="${t.paper ? 'Written for paper (not in the online quiz)' : 'Also in the whole-topic quiz'}"><input type="checkbox" id="chk_${t.id}" checked> ${t.label}${t.paper ? ' <span class="wTag">paper</span>' : ''}</label>`).join('');
+      const none = `<span class="stmtNone">Covered in the ${other} paper.</span>`;
+      return `<div class="stmtRow"><p class="stmtText"><span class="n">${i + 1}</span>${s.text}</p><div class="checks">${chips || none}</div></div>`;
+    }).join('');
+    updateSelectBtn(); updatePill();
+  }
+  function updateSelectBtn() {
+    const boxes = [...chkWrap.querySelectorAll('input[type=checkbox]')];
+    selectBtn.textContent = boxes.some(b => b.checked) ? 'Deselect all' : 'Select all';
+  }
+  function updatePill() { const n = clampCount(); totalPill.textContent = `${n} question${n === 1 ? '' : 's'} + answer key`; }
 
-  function generateQuestionById(id){
-    if(id==='squares') return makeSquare();
-    if(id==='squareRoots') return makeSquareRoot();
-    if(id==='estimateRoots') return makeEstimateRoot();
-    if(id==='hypWhole') return makePythagoras('hyp',false);
-    if(id==='shortWhole') return makePythagoras('short',false);
-    if(id==='longWhole') return makePythagoras('long',false);
-    if(id==='mixedWhole') return makePythagoras('mixed',false);
-
-    if(id==='expUnknown') return makeExpectedUnknown();
-    if(id==='expDecimal') return makeExpectedDecimal();
-    if(id==='expTriads') return makeTriad();
-    if(id==='expRealWorld') return makeRealWorld();
-    if(id==='expMulti') return makeMultiStep();
-
-    return makePythagoras('mixed',false);
+  function boot() {
+    if (booted) return; booted = true;
+    if (BANK) {
+      const skip = new Set(CFG.skip || []);
+      BANK.types.forEach(t => {
+        if (skip.has(t.id)) return;
+        const stmt = (CFG.stmtOf || {})[t.id];
+        if (!stmt) console.warn('No content statement for quiz type', t.id);
+        TYPES.push({ id: t.id, level: t.level, label: (CFG.relabel || {})[t.id] || t.label, stmt, gen: t.gen, paper: false });
+      });
+    }
+    (CFG.paperTypes || []).forEach(t => TYPES.push(Object.assign({ paper: true }, t)));
+    // keep each level's list in its intended climbing order
+    if (CFG.order) TYPES.sort((a, b) => (CFG.order.indexOf(a.id) + 1 || 999) - (CFG.order.indexOf(b.id) + 1 || 999));
+    try { const s = localStorage.getItem(CFG.langKey); if (s && LANG[s]) languageSel.value = s; } catch (e) {}
+    renderChecks();
   }
 
-  function orderedQuestionIds(ids,n){
-    const order=[
-      'squares','squareRoots','estimateRoots','hypWhole','shortWhole','longWhole','mixedWhole',
-      'expUnknown','expDecimal','expTriads','expRealWorld','expMulti'
-    ];
-    const allowed=order.filter(id=>ids.includes(id));
-    const result=[];
-    let i=0;
-    while(result.length<n){result.push(allowed[i%allowed.length]);i++;}
-    return result;
-  }
+  window.WSF = {
+    page(cfg) {
+      CFG = cfg;
+      countInp.value = String(cfg.defaultCount || 12);
+      if (!cfg.bank) (document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', boot) : boot());
+    },
+    C, grid, drawDiagram,
+    get types() { return TYPES; }, get statements() { return CFG ? CFG.statements : []; }, get paper() { return lastPaper; }, generate, answerHTML, cardHTML, boot
+  };
+  window.MMTQ = { run(bank) { BANK = bank; (document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', boot) : boot()); }, grid, drawDiagram, core: C };
 
-  function svgEl(name,attrs={},children=[]){const el=document.createElementNS(SVG_NS,name);for(const[k,v]of Object.entries(attrs))el.setAttribute(k,String(v));for(const c of children)el.appendChild(c);return el}
-  function rotatePoint(p,angleRad){const cos=Math.cos(angleRad),sin=Math.sin(angleRad);return{x:p.x*cos-p.y*sin,y:p.x*sin+p.y*cos}}
-  function transformTriangle(a,b){
-    let points=[{name:'A',x:0,y:0},{name:'B',x:b,y:0},{name:'C',x:0,y:-a}];
-    if(Math.random()<.5) points=points.map(p=>({...p,x:-p.x}));
-    const angle=choice([0,30,60,90,120,150,180,210,240,270,300,330])*Math.PI/180;
-    points=points.map(p=>({...p,...rotatePoint(p,angle)}));
-    const padding=34,minX=Math.min(...points.map(p=>p.x)),maxX=Math.max(...points.map(p=>p.x)),minY=Math.min(...points.map(p=>p.y)),maxY=Math.max(...points.map(p=>p.y));
-    const rawW=maxX-minX,rawH=maxY-minY,s=Math.min((VIEW.w-2*padding)/rawW,(VIEW.h-2*padding)/rawH);
-    points=points.map(p=>({...p,x:(p.x-minX)*s+(VIEW.w-rawW*s)/2,y:(p.y-minY)*s+(VIEW.h-rawH*s)/2}));
-    return Object.fromEntries(points.map(p=>[p.name,p]));
-  }
-  function unitVector(from,to){const dx=to.x-from.x,dy=to.y-from.y,len=Math.hypot(dx,dy)||1;return{x:dx/len,y:dy/len}}
-  function rightAngleMarker(A,B,C){const size=16,v1=unitVector(A,B),v2=unitVector(A,C),p1={x:A.x+v1.x*size,y:A.y+v1.y*size},p2={x:p1.x+v2.x*size,y:p1.y+v2.y*size},p3={x:A.x+v2.x*size,y:A.y+v2.y*size};return `<path class="right-marker" d="M ${p1.x} ${p1.y} L ${p2.x} ${p2.y} L ${p3.x} ${p3.y}" />`}
-  function rectIntersectsSegment(rect,p1,p2){function pointInside(p){return p.x>=rect.x&&p.x<=rect.x+rect.w&&p.y>=rect.y&&p.y<=rect.y+rect.h}function ccw(A,B,C){return(C.y-A.y)*(B.x-A.x)>(B.y-A.y)*(C.x-A.x)}function seg(A,B,C,D){return ccw(A,C,D)!==ccw(B,C,D)&&ccw(A,B,C)!==ccw(A,B,D)}const corners=[{x:rect.x,y:rect.y},{x:rect.x+rect.w,y:rect.y},{x:rect.x+rect.w,y:rect.y+rect.h},{x:rect.x,y:rect.y+rect.h}];if(pointInside(p1)||pointInside(p2))return true;for(let i=0;i<4;i++)if(seg(p1,p2,corners[i],corners[(i+1)%4]))return true;return false}
-  function rectsOverlap(r1,r2){return !(r1.x+r1.w<r2.x||r2.x+r2.w<r1.x||r1.y+r1.h<r2.y||r2.y+r2.h<r1.y)}
-  function pointInTriangle(p,A,B,C){const area=(P,Q,R)=>Math.abs((P.x*(Q.y-R.y)+Q.x*(R.y-P.y)+R.x*(P.y-Q.y))/2);const main=area(A,B,C);return Math.abs(main-(area(p,B,C)+area(A,p,C)+area(A,B,p)))<.6}
-  function makeLabelCandidate(p1,p2,text,centroid,t,off){const dx=p2.x-p1.x,dy=p2.y-p1.y,len=Math.hypot(dx,dy)||1;let nx=-dy/len,ny=dx/len;const mid={x:(p1.x+p2.x)/2,y:(p1.y+p2.y)/2},toMid={x:mid.x-centroid.x,y:mid.y-centroid.y};if(nx*toMid.x+ny*toMid.y<0){nx*=-1;ny*=-1}const x=p1.x+dx*t+nx*off,y=p1.y+dy*t+ny*off,w=Math.max(34,text.length*10+10),h=24;return{x,y,rect:{x:x-w/2,y:y-h/2,w,h},t,off}}
-  function scoreLabelCandidate(candidate,edges,triPts,placed){const margin=3,s={x:candidate.rect.x-margin,y:candidate.rect.y-margin,w:candidate.rect.w+margin*2,h:candidate.rect.h+margin*2},pts=[{x:s.x,y:s.y},{x:s.x+s.w,y:s.y},{x:s.x+s.w,y:s.y+s.h},{x:s.x,y:s.y+s.h},{x:candidate.x,y:candidate.y}];const inside=pts.filter(pt=>pointInTriangle(pt,triPts[0],triPts[1],triPts[2])).length,edgeHits=edges.filter(e=>rectIntersectsSegment(s,e[0],e[1])).length,labelHits=placed.filter(r=>rectsOverlap(s,r)).length,out=Math.max(0,8-candidate.rect.x)+Math.max(0,candidate.rect.x+candidate.rect.w-252)+Math.max(0,8-candidate.rect.y)+Math.max(0,candidate.rect.y+candidate.rect.h-162);return inside*2500+edgeHits*1400+labelHits*2200+out*10+candidate.off*2+Math.abs(candidate.t-.5)*45}
-  function labelForSide(p1,p2,text,centroid,edges,triPts,placed){const cand=[],ts=[.5,.42,.58,.34,.66,.26,.74],offs=[20,26,32,38,44,50];for(const off of offs)for(const t of ts)cand.push(makeLabelCandidate(p1,p2,text,centroid,t,off));let best=cand[0],bestScore=Infinity;for(const c of cand){const score=scoreLabelCandidate(c,edges,triPts,placed);if(score<bestScore){bestScore=score;best=c}if(score===c.off*2+Math.abs(c.t-.5)*45&&c.off<=32)break}placed.push({x:best.rect.x-4,y:best.rect.y-4,w:best.rect.w+8,h:best.rect.h+8});return `<g class="side-label"><text x="${best.x}" y="${best.y+1}">${text}</text></g>`}
-  function triLabel(side,q){if(side==='a')return `${q.display.a}${q.display.a===q.u?'':` ${q.units}`}`;if(side==='b')return `${q.display.b}${q.display.b===q.u?'':` ${q.units}`}`;return `${q.display.c}${q.display.c===q.u?'':` ${q.units}`}`}
-  function triangleSvg(q){const P=transformTriangle(q.a,q.b),A=P.A,B=P.B,C=P.C,centroid={x:(A.x+B.x+C.x)/3,y:(A.y+B.y+C.y)/3},edges=[[A,B],[A,C],[B,C]],pts=[A,B,C],placed=[];const labels=[labelForSide(A,C,triLabel('a',q),centroid,edges,pts,placed),labelForSide(A,B,triLabel('b',q),centroid,edges,pts,placed),labelForSide(B,C,triLabel('c',q),centroid,edges,pts,placed)].join('');return `<svg class="triViz" viewBox="0 0 ${VIEW.w} ${VIEW.h}" role="img" aria-label="Right triangle"><polygon class="tri-line" points="${A.x},${A.y} ${B.x},${B.y} ${C.x},${C.y}" />${rightAngleMarker(A,B,C)}${labels}</svg>`}
+  import('/assessment/exam-builder/utils/translation.js?v=c4551780').then(m => { translate = m.translatePrompt; if (lastPaper && !isEn()) draw(); }).catch(() => { translate = null; });
 
-  function scaffoldHTML(q){
-    if(!toggleScaffold.checked){return `<div class="workSpacer"></div><div class="workSpacer"></div><div class="workSpacer"></div><div class="workSpacer"></div>`}
-    if(q.kind!=='pythagoras') return `<div class="workSpacer"></div><div class="workSpacer"></div><div class="workSpacer"></div>`;
-    const u=q.u;
-    if(q.missing==='hyp') return `<div class="scaffold">${u}² = <span class="blank"></span>² + <span class="blank"></span>²</div><div class="scaffold">${u}² = <span class="blank"></span></div><div class="scaffold">${u} = √<span class="blank"></span></div><div class="workSpacer"></div>`;
-    return `<div class="scaffold"><span class="blank"></span>² + ${u}² = <span class="blank"></span>²</div><div class="scaffold">${u}² = <span class="blank"></span>² − <span class="blank"></span>²</div><div class="scaffold">${u}² = <span class="blank"></span></div><div class="workSpacer"></div>`;
-  }
-
-  function transformMultiPoints(points){
-    let pts=points.map(p=>({...p}));
-    if(Math.random()<0.5){pts=pts.map(p=>({...p,x:260-p.x}));}
-    const angle=choice([0,0,0,180]);
-    if(angle){
-      const cx=130,cy=85,rad=angle*Math.PI/180,cos=Math.cos(rad),sin=Math.sin(rad);
-      pts=pts.map(p=>{const x=p.x-cx,y=p.y-cy;return{...p,x:cx+x*cos-y*sin,y:cy+x*sin+y*cos};});
-    }
-    return Object.fromEntries(pts.map(p=>[p.name,p]));
-  }
-
-  function rightBoxAt(p,dir1,dir2,size=12){
-    const len1=Math.hypot(dir1.x,dir1.y)||1, len2=Math.hypot(dir2.x,dir2.y)||1;
-    const u1={x:dir1.x/len1,y:dir1.y/len1}, u2={x:dir2.x/len2,y:dir2.y/len2};
-    const p1={x:p.x+u1.x*size,y:p.y+u1.y*size};
-    const p2={x:p1.x+u2.x*size,y:p1.y+u2.y*size};
-    const p3={x:p.x+u2.x*size,y:p.y+u2.y*size};
-    return `M ${p1.x} ${p1.y} L ${p2.x} ${p2.y} L ${p3.x} ${p3.y}`;
-  }
-
-  function multiStepSvg(q){
-    const base=[{name:'A',x:55,y:42},{name:'B',x:55,y:128},{name:'C',x:150,y:128},{name:'D',x:220,y:58}];
-    const variant=choice(['normal','wide','tilt']);
-    let raw=base.map(p=>({...p}));
-    if(variant==='wide') raw=[{name:'A',x:45,y:50},{name:'B',x:45,y:128},{name:'C',x:148,y:128},{name:'D',x:224,y:64}];
-    if(variant==='tilt') raw=[{name:'A',x:50,y:48},{name:'B',x:76,y:132},{name:'C',x:166,y:112},{name:'D',x:218,y:46}];
-    if(Math.random()<0.45){ raw=raw.map(p=>({...p,x:260-p.x})); }
-    const P=Object.fromEntries(raw.map(p=>[p.name,p]));
-    const A=P.A,B=P.B,C=P.C,D=P.D;
-    const centre={x:(A.x+B.x+C.x+D.x)/4,y:(A.y+B.y+C.y+D.y)/4};
-    const mid=(p,r)=>({x:(p.x+r.x)/2,y:(p.y+r.y)/2});
-    const outwardLabel=(text,p1,p2,extra=18)=>{
-      const m=mid(p1,p2), dx=p2.x-p1.x, dy=p2.y-p1.y, len=Math.hypot(dx,dy)||1;
-      let nx=-dy/len, ny=dx/len;
-      if(nx*(m.x-centre.x)+ny*(m.y-centre.y)<0){nx*=-1;ny*=-1;}
-      return `<text class="multi-label" x="${m.x+nx*extra}" y="${m.y+ny*extra}">${text}</text>`;
-    };
-    const innerLabel=(text,p1,p2,dx=0,dy=0)=>{const m=mid(p1,p2);return `<text class="multi-label" x="${m.x+dx}" y="${m.y+dy}">${text}</text>`;};
-    const rb1=rightBoxAt(B,{x:A.x-B.x,y:A.y-B.y},{x:C.x-B.x,y:C.y-B.y});
-    const rb2=rightBoxAt(C,{x:A.x-C.x,y:A.y-C.y},{x:D.x-C.x,y:D.y-C.y});
-    return `<svg class="multiStepViz" viewBox="0 0 260 170" role="img" aria-label="Multi-step Pythagoras diagram">
-      <path class="multi-line" d="M ${A.x} ${A.y} L ${B.x} ${B.y} L ${C.x} ${C.y} L ${A.x} ${A.y} L ${D.x} ${D.y} L ${C.x} ${C.y}" />
-      <path class="multi-right" d="${rb1}" /><path class="multi-right" d="${rb2}" />
-      ${outwardLabel(q.a,A,B,20)}${outwardLabel(q.b,B,C,20)}${innerLabel('x',A,C,6,0)}${outwardLabel(q.d,C,D,20)}${outwardLabel('y',A,D,22)}
-    </svg>`;
-  }
-
-  function makeQuestionCard(q,showAnswer,idx){
-    const wrap=document.createElement('div');
-    const compactKinds=['squareBatch','rootBatch','estimateBatch'];
-    wrap.className=`qCard ${q.kind} ${compactKinds.includes(q.kind)?'compact':''} ${q.kind==='pythagoras'?'diagramCard':''}`;
-
-    const prompt=document.createElement('div');
-    prompt.className='prompt';
-    let title='';
-    if(q.kind==='squareBatch') title='Calculate squares';
-    else if(q.kind==='rootBatch') title='Calculate square roots';
-    else if(q.kind==='estimateBatch') title='Estimate square roots';
-    else if(q.kind==='triad'||q.kind==='triadOptions') title='Pythagorean triads';
-    else if(q.kind==='realWorld') title='Real world problem';
-    else if(q.kind==='multiStep') title='Multi-step problem';
-    else title='Find the value of the unknown side.';
-    prompt.innerHTML=`<div><div class="promptSmall"><span class="qNum">Q${idx}.</span> ${title}</div>${q.kind==='pythagoras'?'<div class="promptSub">Find the unknown side length.</div>':''}</div>`;
-    wrap.appendChild(prompt);
-
-    if(q.kind==='pythagoras'){
-      const viz=document.createElement('div');
-      viz.className='vizWrap';
-      viz.innerHTML=triangleSvg(q);
-      wrap.appendChild(viz);
-    }
-
-    if(q.kind==='squareBatch'){
-      const box=document.createElement('div');
-      box.className='mcOptions batchGrid';
-      box.style.gridTemplateColumns='1fr 1fr';
-      box.innerHTML=q.questions.map((item,i)=>`<div class="mcOpt"><strong>${String.fromCharCode(97+i)})</strong> ${item.q} = <span class="miniBlank"></span></div>`).join('');
-      wrap.appendChild(box);
-    }
-
-    if(q.kind==='rootBatch'){
-      const box=document.createElement('div');
-      box.className='mcOptions batchGrid';
-      box.style.gridTemplateColumns='1fr 1fr';
-      box.innerHTML=q.questions.map((item,i)=>`<div class="mcOpt"><strong>${String.fromCharCode(97+i)})</strong> ${item.q} = <span class="miniBlank"></span></div>`).join('');
-      wrap.appendChild(box);
-    }
-
-    if(q.kind==='estimateBatch'){
-      const holder=document.createElement('div');
-      holder.className='estimateHolder';
-      holder.innerHTML=q.questions.map((est,idx)=>`
-        <div class="estimateChunk">
-          <div class="estimateTitle">${String.fromCharCode(97+idx)}) Which option is closest to √${est.radicand}?</div>
-          <div class="mcOptions">
-            ${est.options.map((v,i)=>`<div class="mcOpt">${['A','B','C','D'][i]}. ${v}</div>`).join('')}
-          </div>
-        </div>`).join('');
-      wrap.appendChild(holder);
-    }
-
-    if(q.kind==='triadOptions'){
-      const holder=document.createElement('div');
-      holder.className='estimateHolder triadOptions';
-      holder.innerHTML=`<div class="estimateChunk"><div class="estimateTitle">${q.question}</div><div class="mcOptions">${q.options.map((o,i)=>`<div class="mcOpt">${['A','B','C','D'][i]}. ${o.join(', ')}</div>`).join('')}</div></div>`;
-      wrap.appendChild(holder);
-    }
-
-    if(q.kind==='multiStep'){
-      const viz=document.createElement('div');
-      viz.className='vizWrap';
-      viz.innerHTML=multiStepSvg(q);
-      wrap.appendChild(viz);
-    }
-
-    if(['triad','realWorld'].includes(q.kind)){
-      const text=document.createElement('div');
-      text.className='wordBox';
-      text.innerHTML=q.body;
-      wrap.appendChild(text);
-    }
-
-    const work=document.createElement('div');
-    work.className='workArea';
-    work.innerHTML=showAnswer?`<div class="keySteps">${(q.steps||[]).map(s=>`<div>${s}</div>`).join('')}</div>`:scaffoldHTML(q);
-    wrap.appendChild(work);
-
-    
-    return wrap}
-
-  function pageHeaderHTML(levelName,pageLabel,showNameDate){return `<div class="pageHeader"><div><div class="hdrTitle">Pythagoras Theorem — Worksheet (${levelName})</div><div class="hdrSub">${pageLabel}</div></div>${showNameDate?`<div class="nameDate"><div class="lineField"><div class="lineLabel">Name</div><div class="lineBox"></div></div><div class="lineField"><div class="lineLabel">Date</div><div class="lineBox"></div></div></div>`:''}</div>`}
-  function pageFooterHTML(){return `<div class="pageFooter">This tool and more can be found at <a href="${SITE}">www.millsmathstools.au</a></div>`}
-  function buildPages(qs,showAnswers){const per=6,total=Math.ceil(qs.length/per),pages=[];for(let p=0;p<total;p++){const page=document.createElement('div');page.className='page';const titleText=showAnswers?'Answer key':'Worksheet';page.innerHTML=pageHeaderHTML(levelSel.value==='basic'?'Basic':'Expected',`${titleText} — Page ${p+1} of ${total}`,!showAnswers);const grid=document.createElement('div');grid.className='grid twoCol rows-4';qs.slice(p*per,p*per+per).forEach((q,i)=>grid.appendChild(makeQuestionCard(q,showAnswers,p*per+i+1)));page.appendChild(grid);const footer=document.createElement('div');footer.innerHTML=pageFooterHTML();page.appendChild(footer.firstElementChild);pages.push(page)}return pages}
-
-  function generate(){out.innerHTML='';const ids=activeIds();if(!ids.length){out.innerHTML='<div class="notice">Please tick at least one question type.</div>';return}let n=Math.max(1,Math.min(30,Math.round(Number(countInp.value)||6)));countInp.value=String(n);const qs=orderedQuestionIds(ids,n).map(id=>generateQuestionById(id));buildPages(qs,false).forEach(p=>out.appendChild(p));buildPages(qs,true).forEach(p=>out.appendChild(p));out.firstElementChild?.scrollIntoView({behavior:'smooth',block:'start'})}
-  function resetAll(){out.innerHTML='';levelSel.value='basic';countInp.value='6';roundingSel.value='1';toggleScaffold.checked=false;toggleAlwaysX.checked=true;toggleExactSurds.checked=false;renderCheckboxes()}
-
-  levelSel.addEventListener('change',()=>{out.innerHTML='';renderCheckboxes()});chkWrap.addEventListener('change',updateSelectBtn);selectBtn.addEventListener('click',e=>{e.preventDefault();const boxes=[...chkWrap.querySelectorAll('input[type="checkbox"]')],any=boxes.some(b=>b.checked);boxes.forEach(b=>b.checked=!any);updateSelectBtn()});genBtn.addEventListener('click',generate);printBtn.addEventListener('click',()=>window.print());resetBtn.addEventListener('click',resetAll);[toggleScaffold,toggleAlwaysX,toggleExactSurds,roundingSel].forEach(el=>el&&el.addEventListener('change',()=>{if(out.children.length)generate()}));renderCheckboxes();
+  levelSel.addEventListener('change', () => { out.innerHTML = ''; lastPaper = null; renderChecks(); });
+  languageSel.addEventListener('change', () => { try { localStorage.setItem(CFG.langKey, languageSel.value); } catch (e) {} draw(); });
+  chkWrap.addEventListener('change', updateSelectBtn);
+  selectBtn.addEventListener('click', e => { e.preventDefault(); const boxes = [...chkWrap.querySelectorAll('input[type=checkbox]')], any = boxes.some(b => b.checked); boxes.forEach(b => b.checked = !any); updateSelectBtn(); });
+  countInp.addEventListener('input', updatePill);
+  [toggleWorking, toggleWhy].forEach(el => el.addEventListener('change', draw));
+  toggleMix.addEventListener('change', () => { if (lastPaper) generate(); });
+  $('genBtn').addEventListener('click', generate);
+  $('printBtn').addEventListener('click', () => window.print());
+  $('resetBtn').addEventListener('click', () => { out.innerHTML = ''; lastPaper = null; levelSel.value = 'basic'; countInp.value = String(CFG.defaultCount || 12); toggleWorking.checked = false; toggleWhy.checked = true; toggleMix.checked = false; renderChecks(); });
 })();
 </script>
-  <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
+<script>
+const STATEMENTS = [{"id": "define", "text": "Identify and define Pythagoras’ theorem"}, {"id": "problems", "text": "Examine problems involving Pythagoras’ theorem"}];
+/* Right-Angled Triangles (Pythagoras' Theorem) — MA4-PYT-C-01. Quiz types
+   from the whole-topic quiz bank (banks/pythagoras.js) under the two content
+   statements, plus problems with no diagram, where drawing the right-angled
+   triangle is part of the question. */
+(() => {
+  const C = WSF.C;
+  const { ri, pick, fmt } = C;
+  const TRIPLES = [[3, 4, 5], [5, 12, 13], [6, 8, 10], [8, 15, 17], [9, 12, 15], [7, 24, 25], [12, 16, 20], [20, 21, 29]];
+
+  function drawThenSolve(level) {
+    const k = pick(['ladder', 'diag', 'kite', 'walk']);
+    if (level === 'basic') {
+      const [a, b, c] = pick(TRIPLES.slice(0, 5));
+      if (k === 'ladder' || k === 'kite') return { prompt: `A ladder leans against a wall. Its foot is ${a} m from the wall and it reaches ${b} m up the wall. Draw a diagram, then find the length of the ladder.`, mode: 'num', value: c, unit: 'm', drawSpace: 26, why: `The ladder is the hypotenuse: c² = ${a}² + ${b}² = ${a * a + b * b}, so c = √${a * a + b * b} = ${c} m.` };
+      if (k === 'diag') return { prompt: `A rectangular screen is ${a * 10} cm wide and ${b * 10} cm tall. Draw a diagram, then find the length of its diagonal.`, mode: 'num', value: c * 10, unit: 'cm', drawSpace: 26, why: `c² = ${a * 10}² + ${b * 10}² = ${(a * a + b * b) * 100}, so c = ${c * 10} cm.` };
+      return { prompt: `Jo walks ${a} km east, then ${b} km north. Draw a diagram, then find how far Jo is from the start, in a straight line.`, mode: 'num', value: c, unit: 'km', drawSpace: 26, why: `East and north meet at a right angle: c² = ${a}² + ${b}² = ${a * a + b * b}, c = ${c} km.` };
+    }
+    if (k === 'ladder') { const L = ri(5, 9), f = ri(1, L - 2); const h = Math.sqrt(L * L - f * f); return { prompt: `A ${L} m ladder leans against a wall with its foot ${f} m from the wall. Draw a diagram, then find how high up the wall it reaches, to 1 decimal place.`, mode: 'num', value: Math.round(h * 10) / 10, dp: 1, unit: 'm', drawSpace: 26, why: `The ladder is the hypotenuse: h² = ${L}² − ${f}² = ${L * L - f * f}, h = √${L * L - f * f} ≈ ${fmt(Math.round(h * 10) / 10, 1, true)} m.` }; }
+    if (k === 'kite') { const s = ri(20, 60), h = ri(15, 50); const c = Math.sqrt(s * s + h * h); return { prompt: `A kite string is pegged to the ground. The kite is ${h} m above the ground, directly above a point ${s} m from the peg. Draw a diagram, then find the length of the string, to 1 decimal place.`, mode: 'num', value: Math.round(c * 10) / 10, dp: 1, unit: 'm', drawSpace: 26, why: `c² = ${s}² + ${h}² = ${s * s + h * h}, c ≈ ${fmt(Math.round(c * 10) / 10, 1, true)} m.` }; }
+    if (k === 'diag') { const w = ri(30, 90), d = w + ri(10, 40); const t = Math.sqrt(d * d - w * w); return { prompt: `A TV screen is ${w} cm wide and its diagonal is ${d} cm. Draw a diagram, then find the height of the screen, to 1 decimal place.`, mode: 'num', value: Math.round(t * 10) / 10, dp: 1, unit: 'cm', drawSpace: 26, why: `The diagonal is the hypotenuse: h² = ${d}² − ${w}² = ${d * d - w * w}, h ≈ ${fmt(Math.round(t * 10) / 10, 1, true)} cm.` }; }
+    const e = ri(2, 9), n = ri(2, 9); const c = Math.sqrt(e * e + n * n); return { prompt: `A boat sails ${e} km east and then ${n} km south. Draw a diagram, then find its distance from the start, to 1 decimal place.`, mode: 'num', value: Math.round(c * 10) / 10, dp: 1, unit: 'km', drawSpace: 26, why: `c² = ${e}² + ${n}² = ${e * e + n * n}, c ≈ ${fmt(Math.round(c * 10) / 10, 1, true)} km.` };
+  }
+
+  WSF.page({
+    topic: "Pythagoras' Theorem", outcome: 'MA4-PYT-C-01', langKey: 'mmt-pyt-ws-lang', bank: true,
+    translateTopic: 'Pythagoras', defaultCount: 12, statements: STATEMENTS,
+    stmtOf: {
+      'b-hypotenuse': 'define', 'b-statement': 'define', 'b-squares': 'define', 'b-hyp-whole': 'problems', 'b-is-right': 'define',
+      'e-hyp-dp': 'problems', 'e-shorter': 'problems', 'e-triad': 'define', 'e-units': 'problems', 'e-isosceles': 'problems', 'e-problems': 'problems'
+    },
+    order: ['b-hypotenuse', 'b-statement', 'b-squares', 'b-is-right', 'b-hyp-whole', 'p-draw-b',
+      'e-triad', 'e-hyp-dp', 'e-shorter', 'e-units', 'e-isosceles', 'e-problems', 'p-draw-e'],
+    paperTypes: [
+      { id: 'p-draw-b', level: 'basic', stmt: 'problems', label: 'Draw a diagram, then find the hypotenuse', gen: () => drawThenSolve('basic') },
+      { id: 'p-draw-e', level: 'expected', stmt: 'problems', label: 'Draw a diagram, then solve (1 decimal place)', gen: () => drawThenSolve('expected') }
+    ]
+  });
+})();
+
+</script>
+<script type="module" src="/online-quizzes/stage-4/topic-quiz/banks/pythagoras.js?v=6a5eee7f"></script>
 </body>
 </html>

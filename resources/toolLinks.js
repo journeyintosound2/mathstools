@@ -953,7 +953,7 @@ window.MMT_TOOL_LINKS = {
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-4/measurement-space/angle-relationships/",
       ideas: ["angles-at-a-point", "transversals", "reasoning"],
-      note: "Generates printable angle-relationship worksheets with diagrams.",
+      note: "Basic covers classifying and naming angles, reading a protractor, angles in a right angle, on a straight line and around a point, vertically opposite angles, and complementary and supplementary angles. Expected adds reflex angles, angle pairs on parallel lines (naming them, finding angles, and deciding whether lines are parallel), and multi-step problems and equations with reasons. Answer key with reasons; Arabic/Farsi lines where a translation exists.",
       tags: ["worksheet generator", "printable", "angles", "parallel lines"]
     },
     {
@@ -975,6 +975,13 @@ window.MMT_TOOL_LINKS = {
   ],
 
   "MA4-ARE-C-01": [
+    {
+      title: "Area — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-4/measurement-space/area/",
+      note: "Basic covers rectangles, triangles and parallelograms (including drawing shapes with a given area), missing lengths, the area of a circle in terms of π and choosing units. Expected adds trapeziums (and why the formula works), rhombuses and kites, circles, sectors, semicircles and quadrants, composite shapes, working backwards and converting units of area. Answer key with reasons; Arabic/Farsi lines where a translation exists.",
+      tags: ["worksheet generator", "printable", "whole topic", "area", "rectangles", "triangles", "parallelograms", "trapeziums", "rhombuses", "kites", "circles", "sectors", "units of area"]
+    },
     {
       title: "Area",
       kind: "Student quiz",
@@ -1107,6 +1114,13 @@ window.MMT_TOOL_LINKS = {
 
   "MA4-DAT-C-01": [
     {
+      title: "Data Classification and Visualisation — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-4/statistics-probability/data-classification-visualisation/",
+      note: "Basic covers categorical and numerical data, frequency tables, drawing column graphs and dot plots, and reading column graphs, dot plots, pictograms and line graphs. Expected adds classifying variables fully, census, sample and bias, choosing a display, drawing stem-and-leaf plots and histograms, and reading stem-and-leaf plots, histograms, sector and divided bar graphs and misleading graphs. Answer key with reasons; Arabic/Farsi lines where a translation exists.",
+      tags: ["worksheet generator", "printable", "whole topic", "data", "categorical", "numerical", "column graph", "dot plot", "stem-and-leaf", "histogram", "sector graph"]
+    },
+    {
       title: "Data Classification and Visualisation",
       kind: "Student quiz",
       url: "/online-quizzes/stage-4/statistics-probability/data-classification-visualisation.html",
@@ -1116,6 +1130,13 @@ window.MMT_TOOL_LINKS = {
     }
   ],
   "MA4-DAT-C-02": [
+    {
+      title: "Data Analysis — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-4/statistics-probability/data-analysis/",
+      note: "Basic covers the mean, median, mode and range (alone and together), the mean in context, the effect of a new value, and statistics from a dot plot. Expected adds even-sized data sets, the mean to 1 decimal place, missing values, outliers and changing data, frequency tables, stem-and-leaf plots, the shape of a distribution, comparing data sets and choosing a measure of centre. Answer key with reasons; Arabic/Farsi lines where a translation exists.",
+      tags: ["worksheet generator", "printable", "whole topic", "mean", "median", "mode", "range", "outliers", "statistics"]
+    },
     {
       title: "Data Analysis",
       kind: "Student quiz",
@@ -1227,7 +1248,7 @@ window.MMT_TOOL_LINKS = {
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-4/algebra/equations/",
       ideas: ["two-steps", "verify", "quadratic"],
-      note: "Generates printable equation worksheets with answers.",
+      note: "Basic covers representing equations, balances and bar models, solving by inspection, one-step and two-step equations, word problems, checking by substitution and solving x² = c. Expected adds fraction and bracket equations, collecting like terms, pronumerals on both sides, equivalent equations, formulas, form-solve-check, spotting errors, multi-step word problems and ax² = c. Answer key with reasons; Arabic/Farsi lines where a translation exists.",
       tags: ["worksheet generator", "printable", "equations"]
     },
     {
@@ -1390,7 +1411,7 @@ window.MMT_TOOL_LINKS = {
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-4/number/fractions-decimals-percentages.html",
       ideas: ["fdp-conversions", "order-fdp"],
-      note: "Generates printable FDP worksheets with answers.",
+      note: "Basic covers equivalent and simplified fractions, comparing, rounding, terminating and recurring decimals, conversions, rational and irrational numbers, ordering, adding and subtracting, fractions of quantities and sets, and percentages of quantities. Expected adds mixed numbers, multiplying and dividing fractions and decimals, one quantity as a percentage of another, percentage change, discounts, GST, profit and loss, reverse percentages, the double number line and reasoning. Answer key with reasons; Arabic/Farsi lines where a translation exists.",
       tags: ["worksheet generator", "printable", "fractions", "decimals", "percentages"]
     },
     {
@@ -1421,6 +1442,13 @@ window.MMT_TOOL_LINKS = {
 
   "MA4-GEO-C-01": [
     {
+      title: "Properties of Geometrical Figures — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-4/measurement-space/properties-of-geometrical-figures/",
+      note: "Basic covers classifying and sketching triangles and quadrilaterals, their properties, and the angle sums of triangles and quadrilaterals. Expected adds classifying by sides and angles together, which triangles are possible, isosceles and exterior angles, the quadrilateral family, convex and non-convex polygons, and angles and sides found from properties. Answer key with reasons; Arabic/Farsi lines where a translation exists.",
+      tags: ["worksheet generator", "printable", "whole topic", "triangles", "quadrilaterals", "angle sum", "classify", "properties", "exterior angle"]
+    },
+    {
       title: "Properties of Geometrical Figures",
       kind: "Student quiz",
       url: "/online-quizzes/stage-4/measurement-space/properties-of-geometrical-figures.html",
@@ -1439,6 +1467,13 @@ window.MMT_TOOL_LINKS = {
   ],
 
   "MA4-IND-C-01": [
+    {
+      title: "Indices — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-4/number/indices/",
+      note: "Basic covers index notation, powers, squares and square and cube roots, prime factors and factor trees, and the first index laws with the zero index. Expected adds prime factorisation in index form, HCF and LCM, estimating roots, order of operations, showing why the index laws work, and the index laws with pronumerals. Answer key with reasons; Arabic/Farsi lines where a translation exists.",
+      tags: ["worksheet generator", "printable", "whole topic", "indices", "index laws", "prime factors", "square roots", "cube roots", "factor trees", "HCF", "LCM"]
+    },
     {
       title: "Indices",
       kind: "Student quiz",
@@ -1583,7 +1618,7 @@ window.MMT_TOOL_LINKS = {
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-4/number/computation-with-integers/",
       ideas: ["add-subtract", "multiply-divide", "four-operations"],
-      note: "Generates printable integer worksheets with answers.",
+      note: "Basic covers integers on a number line, comparing and ordering, thermometers, adding and subtracting, multiplying and dividing, and problems in context. Expected adds why a negative times a negative is positive, chains of multiplication and division, order of operations, substitution with negatives, reasoning (true or false, spot the error) and multi-part problems. Answer key with reasons; Arabic/Farsi lines where a translation exists.",
       tags: ["worksheet generator", "printable", "integers"]
     },
     {
@@ -1713,6 +1748,13 @@ window.MMT_TOOL_LINKS = {
 
   "MA4-LIN-C-01": [
     {
+      title: "Linear Relationships — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-4/algebra/linear-relationships/",
+      note: "Basic covers reading and plotting points and quadrants, tables of values, matching rules, completing a table and drawing the line, and solving an equation by drawing graphs. Expected adds rules from tables and graphs, patterns, real-life relationships, lines in all four quadrants, and graphical solutions and points of intersection. Answer key with reasons; Arabic/Farsi lines where a translation exists.",
+      tags: ["worksheet generator", "printable", "whole topic", "linear relationships", "Cartesian plane", "plotting points", "table of values", "graphs", "gradient"]
+    },
+    {
       title: "Linear Relationships",
       kind: "Student quiz",
       url: "/online-quizzes/stage-4/algebra/linear-relationships.html",
@@ -1796,6 +1838,13 @@ window.MMT_TOOL_LINKS = {
 
   "MA4-PRO-C-01": [
     {
+      title: "Probability — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-4/statistics-probability/probability/",
+      note: "Basic covers chance words, the 0 to 1 scale, sample spaces, dice, spinners, bags and cards, and P(A) with P(not A). Expected adds probabilities as fractions, decimals and percentages, letters, outcomes that are not equally likely, relative frequency (and explaining it), expected numbers and complementary events. Answer key with reasons; Arabic/Farsi lines where a translation exists.",
+      tags: ["worksheet generator", "printable", "whole topic", "probability", "chance", "sample space", "complementary events", "relative frequency"]
+    },
+    {
       title: "Probability",
       kind: "Student quiz",
       url: "/online-quizzes/stage-4/statistics-probability/probability.html",
@@ -1843,12 +1892,19 @@ window.MMT_TOOL_LINKS = {
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-4/measurement-space/pythagoras-theorem/",
       ideas: ["define", "problems"],
-      note: "Generates printable Pythagoras worksheets with diagrams.",
+      note: "Basic covers the hypotenuse, writing Pythagoras' theorem, squares and square roots, testing for a right angle, and finding the hypotenuse (with and without a diagram). Expected adds Pythagorean triads, answers to 1 decimal place, shorter sides, mixed units, isosceles triangles and problems in context where students draw the diagram. Answer key with reasons; Arabic/Farsi lines where a translation exists.",
       tags: ["worksheet generator", "printable", "Pythagoras", "right-angled triangles"]
     }
   ],
 
   "MA4-RAT-C-01": [
+    {
+      title: "Ratios and Rates — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-4/ratios-rates/ratios-and-rates/",
+      note: "Basic covers simplifying and equivalent ratios, a ratio as a fraction, sharing in a ratio, unit rates and reading and drawing distance–time graphs. Expected adds ratios with units, three-part ratios, ratio problems from one part or a difference, scale, converting rates, best buys, speed, distance and time, and drawing and interpreting distance–time graphs with a return journey. Answer key with reasons; Arabic/Farsi lines where a translation exists.",
+      tags: ["worksheet generator", "printable", "whole topic", "ratio", "rates", "distance-time graphs", "speed", "best buys", "scale"]
+    },
     {
       title: "Ratios and Rates",
       kind: "Student quiz",
@@ -1926,6 +1982,13 @@ window.MMT_TOOL_LINKS = {
   ],
 
   "MA4-VOL-C-01": [
+    {
+      title: "Volume — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-4/measurement-space/volume/",
+      note: "Basic covers views of solids (choose and draw), prisms, counting cubes, V = Ah, rectangular prisms and units of volume and capacity. Expected adds drawing top, front and side views, triangular, trapezium and composite prisms, cylinders, missing dimensions, capacity and converting units. Answer key with reasons; Arabic/Farsi lines where a translation exists.",
+      tags: ["worksheet generator", "printable", "whole topic", "volume", "capacity", "prisms", "cylinders", "views of solids", "units of volume"]
+    },
     {
       title: "Volume",
       kind: "Student quiz",

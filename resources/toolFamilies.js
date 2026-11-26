@@ -18,6 +18,14 @@
      These sit OUTSIDE the content statements, in a yellow band at the foot of
      their outcome, titled "Whole Topic Quiz – <topic name>". A toolLinks row
      tagged "whole topic" is treated the same way (its title is the name).
+
+   MMT_WHOLE_TOPIC_WORKSHEETS
+     "<worksheet creator url>": "<topic name>"
+     The same for the whole-topic worksheet creators (one per outcome, Basic
+     and Expected, every content statement): a light-blue band at the foot of
+     the outcome, titled "Whole Topic Worksheet – <topic name>", above the
+     quiz band. They are never filed under a content statement, so each shows
+     once. A new one needs a line here.
    ========================================================================== */
 
 window.MMT_TOOL_FAMILIES = {
@@ -203,4 +211,23 @@ window.MMT_WHOLE_TOPIC_QUIZZES = {
   "/online-quizzes/stage-4/statistics-probability/data-classification-visualisation.html": "Data Classification and Visualisation",
   "/online-quizzes/stage-4/statistics-probability/data-analysis.html":                     "Data Analysis",
   "/online-quizzes/stage-4/statistics-probability/probability.html":                       "Probability"
+};
+
+window.MMT_WHOLE_TOPIC_WORKSHEETS = {
+  "/worksheet-creators/stage-4/number/computation-with-integers/": "Computation with Integers",
+  "/worksheet-creators/stage-4/number/fractions-decimals-percentages.html": "Fractions, Decimals and Percentages",
+  "/worksheet-creators/stage-4/ratios-rates/ratios-and-rates/": "Ratios and Rates",
+  "/worksheet-creators/stage-4/algebra/algebraic-techniques/": "Algebraic Techniques",
+  "/worksheet-creators/stage-4/number/indices/": "Indices",
+  "/worksheet-creators/stage-4/algebra/equations/": "Equations",
+  "/worksheet-creators/stage-4/algebra/linear-relationships/": "Linear Relationships",
+  "/worksheet-creators/stage-4/measurement-space/length/": "Length",
+  "/worksheet-creators/stage-4/measurement-space/pythagoras-theorem/": "Right-Angled Triangles (Pythagoras' Theorem)",
+  "/worksheet-creators/stage-4/measurement-space/area/": "Area",
+  "/worksheet-creators/stage-4/measurement-space/volume/": "Volume",
+  "/worksheet-creators/stage-4/measurement-space/angle-relationships/": "Angle Relationships",
+  "/worksheet-creators/stage-4/measurement-space/properties-of-geometrical-figures/": "Properties of Geometrical Figures",
+  "/worksheet-creators/stage-4/statistics-probability/data-classification-visualisation/": "Data Classification and Visualisation",
+  "/worksheet-creators/stage-4/statistics-probability/data-analysis/": "Data Analysis",
+  "/worksheet-creators/stage-4/statistics-probability/probability/": "Probability"
 };

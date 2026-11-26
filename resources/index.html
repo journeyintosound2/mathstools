@@ -341,6 +341,13 @@
     .whole-quiz .wq-text span{font-size:.74rem;font-weight:750;color:#92400e}
     .whole-quiz .res-year{color:#a16207}
     .whole-quiz:hover .res-arrow{color:#a16207}
+    /* whole-topic worksheet creator: the same band, light blue */
+    .whole-quiz.ws{background:#e0f2fe;border-color:#bae6fd}
+    .whole-quiz.ws:hover{background:#cdeafd;border-color:#7dd3fc}
+    .whole-quiz.ws .res-ico-box{color:#0369a1;border-color:#bae6fd}
+    .whole-quiz.ws .wq-text span{color:#075985}
+    .whole-quiz.ws .res-year{color:#0369a1}
+    .whole-quiz.ws:hover .res-arrow{color:#0369a1}
 
     .empty-note{margin:.7rem 0 0;padding:.6rem .75rem;border:1px dashed var(--line-strong);border-radius:12px;background:#fff;color:var(--muted-light);font-size:.8rem;font-weight:800}
 
@@ -491,8 +498,8 @@
 </main>
 
 <script src="resourcesManifest.js?v=8b6b6951"></script>
-<script src="toolLinks.js?v=f03bcb41"></script>
-<script src="toolFamilies.js?v=0ccf385e"></script>
+<script src="toolLinks.js?v=b248c49c"></script>
+<script src="toolFamilies.js?v=fd314d0b"></script>
 <script src="contentStatements.js?v=623c27a3"></script>
 <script>
 (function(){
@@ -505,6 +512,7 @@
      the whole-topic quizzes (which sit outside the content statements). */
   var FAMILIES = window.MMT_TOOL_FAMILIES || {};
   var WHOLE_Q  = window.MMT_WHOLE_TOPIC_QUIZZES || {};
+  var WHOLE_W  = window.MMT_WHOLE_TOPIC_WORKSHEETS || {};
   var LINK_BY_URL = {};
   Object.keys(LINKS).forEach(function(code){
     (LINKS[code] || []).forEach(function(r){ if(r.url && !LINK_BY_URL[r.url]) LINK_BY_URL[r.url] = r; });
@@ -609,12 +617,14 @@
 
   /* --- data ------------------------------------------------------------- */
 
-  /* A whole-topic quiz covers every content statement, so it is not filed
-     under any of them: it gets a yellow band at the foot of its outcome. */
+  /* A whole-topic quiz or worksheet creator covers every content statement,
+     so it is not filed under any of them: it gets a band at the foot of its
+     outcome (yellow for the quiz, light blue for the worksheet creator). */
   function wholeTopicName(r){
-    if(r._g !== 'quiz') return '';
+    if(r._g !== 'quiz' && r._g !== 'worksheet') return '';
     var u = String(r.url || '').split(/[?#]/)[0];
-    if(WHOLE_Q[u]) return WHOLE_Q[u];
+    var map = r._g === 'quiz' ? WHOLE_Q : WHOLE_W;
+    if(map[u]) return map[u];
     return (r.tags || []).some(function(t){ return String(t).toLowerCase() === 'whole topic'; }) ? r.title : '';
   }
   /* The worksheet creators, quizzes etc. that belong with an interactive. */
@@ -825,8 +835,8 @@
     });
     var wholeQ = (o._wtq || []).filter(function(r){
       if(state.type && r._g !== state.type) return false;
-      return !q || outcomeHit || ('whole topic quiz ' + r._wtq + ' ' + resHay(r)).toLowerCase().indexOf(q) !== -1;
-    });
+      return !q || outcomeHit || ('whole topic ' + (r._g === 'quiz' ? 'quiz ' : 'worksheet ') + r._wtq + ' ' + resHay(r)).toLowerCase().indexOf(q) !== -1;
+    }).sort(function(a, b){ return (a._g === 'quiz') - (b._g === 'quiz'); });
     if(!rows.length && !wholeQ.length) return null;
 
     /* No `path` => Stage 3 (K–6 has no Core/Path distinction) => no badge. */
@@ -855,13 +865,14 @@
 
   function wholeQuizHTML(r){
     var tip = [r.note].filter(Boolean).join('');
-    return '<a class="whole-quiz" href="' + esc(r.url) + '" target="_blank" rel="noopener"' + (tip ? ' title="' + esc(tip) + '"' : '') + '>' +
-      '<span class="res-ico-box k-quiz" aria-hidden="true">' + GROUP_ICON.quiz + '</span>' +
+    var ws = r._g === 'worksheet';
+    return '<a class="whole-quiz' + (ws ? ' ws' : '') + '" href="' + esc(r.url) + '" target="_blank" rel="noopener"' + (tip ? ' title="' + esc(tip) + '"' : '') + '>' +
+      '<span class="res-ico-box k-' + (ws ? 'worksheet' : 'quiz') + '" aria-hidden="true">' + GROUP_ICON[ws ? 'worksheet' : 'quiz'] + '</span>' +
       '<span class="wq-text">' +
-        '<strong>' + highlight('Whole Topic Quiz – ' + r._wtq, state.q) + '</strong>' +
-        '<span>Covers every content statement in this outcome</span>' +
+        '<strong>' + highlight((ws ? 'Whole Topic Worksheet – ' : 'Whole Topic Quiz – ') + r._wtq, state.q) + '</strong>' +
+        '<span>' + (ws ? 'Printable questions on every content statement in this outcome, with an answer key' : 'Covers every content statement in this outcome') + '</span>' +
       '</span>' +
-      '<span class="res-year">Quiz</span>' +
+      '<span class="res-year">' + (ws ? 'Worksheet' : 'Quiz') + '</span>' +
       '<span class="res-arrow" aria-hidden="true">↗</span>' +
     '</a>';
   }
