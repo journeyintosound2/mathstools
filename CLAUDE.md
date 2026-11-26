@@ -137,6 +137,15 @@
 > * **Minimal-interface pass (2026-11-26).** Across BOTH settings: the cue above the board is now ONE line (the sub-prompt that a
 >   teacher would say out loud was removed), the status line under the board is hidden on the play screens, and in-board text that
 >   repeated the cue is gone. Keep it that way — these are projector screens, not worksheets.
+> * **Chance cards + zoom layer (2026-11-26).** On the predict step the per-round chances are big tappable cards
+>   (`chanceCardsH()`, ~46px value in the fighter's colour), and the inline tree is a button too. Both open `zoomH()`: a dimmed
+>   full-screen layer (`#zoom`, a top-level div after `#toast`) holding one card — for a chance, the two fighters, a proportion
+>   bar and BOTH chances side by side; for the tree, a wider card at up to 520px tall. Backdrop, the close button and Escape all
+>   dismiss it; the card carries `data-act="none"` so clicking it does not. While it is open, keys do not reach the board.
+>   The layer is only rebuilt when its key changes, so the pop animation does not restart on every render.
+> * **Watch for stale width caps.** The inline tree was small because THREE rules capped it (`.predict` 46rem, an old
+>   `.miniTree` 40rem rule left over from an earlier edit, and the new one). When a box will not grow, measure the computed
+>   width of each ancestor before changing the height cap.
 > * **Shared likelihood slider** (`lslH()` / `lslLive()` / `lcol()`, duplicated in both files): gradient track red → orange → yellow
 >   → green → blue with IMPOSSIBLE / UNLIKELY / EVEN CHANCE / LIKELY / CERTAIN underneath, the nearest word bold, and the big
 >   readout and thumb coloured by interpolating the same five stops. Use this for any prediction slider in the series.

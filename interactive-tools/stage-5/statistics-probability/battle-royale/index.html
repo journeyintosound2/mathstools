@@ -197,7 +197,7 @@
     .panelNote{ margin:0; font-size:.9rem; font-weight:650; color:var(--line); line-height:1.45; }
 
     /* predict */
-    .predict{ max-width:46rem; margin:0 auto; display:flex; flex-direction:column; gap:.7rem; align-items:center; justify-content:center; min-height:100%; text-align:center; padding:.4rem; }
+    .predict{ max-width:min(100%,62rem); margin:0 auto; display:flex; flex-direction:column; gap:.7rem; align-items:center; justify-content:center; min-height:100%; text-align:center; padding:.4rem; }
     .predict h2{ margin:0; font-size:clamp(1.3rem,2.2vw,1.8rem); letter-spacing:-.03em; }
     .readout{ font-size:clamp(3rem,7vw,4.6rem); line-height:1; font-weight:950; letter-spacing:-.04em; color:var(--hero); font-variant-numeric:tabular-nums; }
     .slider{ width:100%; max-width:40rem; }
@@ -301,6 +301,53 @@
     .toast{ position:fixed; bottom:1.2rem; left:50%; transform:translateX(-50%); background:var(--ink); color:#fff; padding:.6rem 1rem; border-radius:12px; font-size:.9rem; font-weight:800; z-index:200; max-width:90vw; }
 
 
+    /* ---------- chance cards and the zoom layer ---------- */
+    .chanceRow{ display:flex; gap:clamp(.5rem,1.4vw,1rem); flex-wrap:wrap; justify-content:center; }
+    .chanceCard{ appearance:none; font-family:inherit; color:inherit; cursor:pointer; background:#fff; border:2.5px solid var(--border);
+      border-radius:18px; padding:.6rem clamp(.7rem,1.6vw,1.2rem) .7rem; min-width:6.2rem; display:flex; flex-direction:column; align-items:center; gap:.2rem;
+      box-shadow:0 2px 0 rgba(15,23,42,.04); transition:.16s ease; }
+    .chanceCard:hover{ border-color:var(--hero); transform:translateY(-3px); box-shadow:0 10px 22px rgba(15,23,42,.14); }
+    .chanceCard:focus-visible{ outline:none; box-shadow:0 0 0 4px color-mix(in srgb,var(--hero) 32%,transparent); }
+    .ccRound{ font-size:.7rem; font-weight:950; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); }
+    .ccVal{ font-size:clamp(1.9rem,4.4vw,2.9rem); font-weight:900; line-height:1; color:var(--hero); font-variant-numeric:tabular-nums; }
+    .ccVal .fr{ font-size:clamp(1.3rem,2.8vw,1.9rem); }
+    .ccVal .fr > span:first-child{ border-bottom:3px solid currentColor; padding:0 .18em .04em; }
+    .ccVal .pct{ font-weight:900; }
+    .miniTree{ appearance:none; background:none; border:2px solid transparent; border-radius:18px; padding:.3rem .4rem; cursor:pointer;
+      width:62rem; max-width:100%; display:block; position:relative; transition:.16s ease; }
+    .miniTree:hover{ border-color:var(--border); background:#fbfcfe; }
+    .miniTree:focus-visible{ outline:none; box-shadow:0 0 0 4px color-mix(in srgb,var(--hero) 30%,transparent); }
+    .zoomTag{ display:block; font-size:.68rem; font-weight:900; letter-spacing:.1em; text-transform:uppercase; color:#b6c0cd; margin-top:.1rem; }
+    .miniTree:hover .zoomTag{ color:var(--muted); }
+
+    .zoomWrap{ position:fixed; inset:0; z-index:400; display:grid; place-items:center; padding:clamp(.8rem,3.5vw,2.5rem);
+      background:rgba(15,23,42,.74); animation:zFade .16s ease both; }
+    .zoomWrap[hidden]{ display:none; }
+    @keyframes zFade{ from{ opacity:0; } to{ opacity:1; } }
+    .zCard{ position:relative; background:#fff; border-radius:26px; box-shadow:0 30px 70px rgba(2,6,23,.5); padding:clamp(1.1rem,2.6vw,2rem);
+      width:min(60rem,100%); max-height:100%; overflow:auto; display:flex; flex-direction:column; align-items:center; gap:clamp(.8rem,2vh,1.4rem);
+      text-align:center; animation:zPop .24s cubic-bezier(.2,1.25,.4,1) both; }
+    .zCard.wide{ width:min(80rem,100%); }
+    @keyframes zPop{ from{ opacity:0; transform:scale(.92) translateY(14px); } to{ opacity:1; transform:none; } }
+    .zCard h2{ margin:0; font-size:clamp(1.25rem,3vw,2rem); letter-spacing:-.03em; }
+    .zClose{ position:absolute; top:.7rem; right:.9rem; appearance:none; border:none; background:none; cursor:pointer; line-height:1;
+      font-size:2rem; font-weight:700; color:#94a3b8; padding:.1rem .5rem; border-radius:12px; }
+    .zClose:hover{ color:var(--ink); background:var(--soft); }
+    .zClose:focus-visible{ outline:none; box-shadow:0 0 0 3px rgba(37,99,235,.3); }
+    .zFight{ display:flex; align-items:center; gap:clamp(.8rem,3vw,2rem); }
+    .zV{ font-size:1.1rem; font-weight:900; color:var(--muted); text-transform:uppercase; letter-spacing:.1em; }
+    .zBar{ width:100%; max-width:34rem; height:1.5rem; border-radius:99px; background:#e2e8f0; overflow:hidden; border:1px solid var(--border); }
+    .zBar i{ display:block; height:100%; background:var(--hero); }
+    .zSplit{ display:flex; gap:clamp(1.2rem,5vw,3.5rem); align-items:flex-start; }
+    .zSplit span{ display:flex; flex-direction:column; align-items:center; gap:.2rem; }
+    .zSplit b{ font-size:clamp(2.2rem,7vw,3.6rem); font-weight:900; line-height:1; font-variant-numeric:tabular-nums; }
+    .zSplit .fr{ font-size:clamp(1.5rem,4.5vw,2.4rem); }
+    .zSplit .fr > span:first-child{ border-bottom:4px solid currentColor; padding:0 .18em .04em; }
+    .zWin b{ color:var(--hero); } .zLose b{ color:#64748b; }
+    .zSplit small{ font-size:.8rem; font-weight:850; color:var(--muted); }
+    .zTree{ width:100%; } .zTree svg{ width:100%; height:auto; max-height:min(58vh,520px); display:block; }
+    @media (prefers-reduced-motion:reduce){ .zoomWrap,.zCard{ animation:none; } }
+
     /* ---------- face off: bare roster, practice arena, the draw ---------- */
     .roster.bare{ grid-template-columns:repeat(4,minmax(0,1fr)); gap:1rem; align-content:center; min-height:100%; }
     .roster.bare .fcard{ padding:1.1rem .6rem; gap:.5rem; border-width:2.5px; }
@@ -320,8 +367,7 @@
     .drawnName{ font-size:clamp(1.4rem,3vw,2rem); font-weight:950; letter-spacing:-.03em; }
     .qEcho{ margin:0; font-size:1rem; font-weight:850; color:var(--line); }
     .tapHint{ margin:0; font-size:.95rem; font-weight:800; color:var(--muted); }
-    .miniTree{ width:100%; max-width:40rem; }
-    .miniTree svg{ width:100%; height:auto; max-height:min(32vh,266px); display:block; }
+    .miniTree svg{ width:100%; height:auto; max-height:min(29vh,460px); display:block; }
     .drawCard.rolling{ animation:rollPulse .55s ease-in-out infinite alternate; }
     @keyframes rollPulse{ from{ transform:scale(.95); } to{ transform:scale(1.06); } }
     .drawnRow{ display:flex; align-items:center; justify-content:center; gap:.8rem; }
@@ -560,6 +606,7 @@
     </main>
   </div>
   <div id="toast" class="toast" hidden></div>
+  <div id="zoom" class="zoomWrap" data-act="unzoom" hidden></div>
 
 <script>
 "use strict";
@@ -616,7 +663,7 @@ const INFO={
 /* ---------- state ---------- */
 const STORE='mmt.battleRoyale.v1';
 const S={step:'faceoff',hero:'cube',rounds:3,format:'frac',level:'core',extraLife:false,speed:'normal',prompts:true,panel:true,fs:false,
-  custom:{},reveal:false,F:null,drawn:false,drawing:false,pview:'chips',pred:50,predLocked:false,show:0,theory:false,live:[],
+  custom:{},reveal:false,F:null,drawn:false,drawing:false,pview:'chips',zoom:null,pred:50,predLocked:false,show:0,theory:false,live:[],
   B:null,sim:null,invP:[9,10],invA:'hexa',invB:'cube',invShow:false,revShow:false,
   view:'tree',calcOn:false,calcText:'',calc:null};
 try{const s=JSON.parse(localStorage.getItem(STORE)||'{}');
@@ -765,6 +812,27 @@ function faceSpin(){
   },RM?60:(S.speed==='fast'?1000:3550));
 }
 
+/* ---------- the chance cards: the headline numbers on the predict step ---------- */
+function chanceCardsH(){
+  const P=probs(),rn=rnames(),opp=opponents(),fmt=p=>S.format==='frac'?`${p[0]} out of ${p[1]}`:pct(val(p));
+  return `<div class="chanceRow">${P.map((p,i)=>`<button type="button" class="chanceCard" data-act="zoom" data-k="chance" data-v="${i}"
+      aria-label="${rn[i][0]}, against ${esc(opp[i].name)}: ${fmt(p)}. Tap to enlarge">
+      <span class="ccRound">${rn[i][1]}</span><span class="ccVal">${pH(p)}</span></button>`).join('')}</div>`;
+}
+
+/* ---------- the zoom: one card, darkened background. Chance cards and the tree both open it. ---------- */
+function zoomH(){
+  const z=S.zoom,h=hero();
+  const shell=(title,body,wide)=>`<div class="zCard${wide?' wide':''}" data-act="none"><button type="button" class="zClose" data-act="unzoom" aria-label="Close">&times;</button>
+    <h2>${title}</h2>${body}</div>`;
+  if(z.k==='tree')return shell(`${esc(h.name)}'s path to the title`,`<div class="zTree">${spineTreeH()}</div>`,true);
+  const P=probs(),rn=rnames(),opp=opponents(),i=z.i,p=P[i],q=comp(p),o=opp[i];
+  return shell(rn[i][0],`<div class="zFight">${avatar(h,86)}<span class="zV">v</span>${avatar(o,86)}</div>
+    <div class="zBar" role="img" aria-label="${esc(h.name)} wins ${pct(val(p))} of the time"><i style="width:${(val(p)*100).toFixed(2)}%"></i></div>
+    <div class="zSplit"><span class="zWin"><b>${pH(p)}</b><small>${esc(h.name)} wins</small></span>
+      <span class="zLose"><b>${pH(q)}</b><small>${esc(o.name)} wins</small></span></div>`);
+}
+
 /* ---------- the path as a tree: one node per round, a W arm up and an L arm down ---------- */
 function spineTreeH(){
   const R=S.rounds,P=probs(),rn=rnames(),fr=S.format==='frac';
@@ -811,7 +879,9 @@ function bPredict(){
     <p class="tapHint">${S.drawing?'&nbsp;':'Tap to choose your fighter'}</p></div>`;
   return `<div class="predict">
     <div class="drawnRow">${avatar(h,S.pview==='tree'?54:74)}<b class="drawnName">${esc(h.name)}</b></div>
-    ${S.pview==='tree'?`<div class="miniTree">${spineTreeH()}</div>`:`<div class="row" style="justify-content:center">${chipsH(P)}</div>`}
+    ${S.pview==='tree'
+      ?`<button type="button" class="miniTree" data-act="zoom" data-k="tree" aria-label="Enlarge the tree diagram">${spineTreeH()}<span class="zoomTag">Tap to enlarge</span></button>`
+      :chanceCardsH()}
     <p class="qEcho">P(${esc(h.name)} wins the title)</p>
     ${lslH(S.pred,S.predLocked)}
     ${S.predLocked?`<span class="badge W">Locked in</span>`:''}</div>`;
@@ -1345,6 +1415,8 @@ function render(opt){
   const bare=S.step==='faceoff';
   $('roundsSeg').hidden=bare;$('fmtSeg').hidden=bare&&!S.F.showP;$('randBtn').hidden=bare;
   // body (never rebuild the wheel mid-spin)
+  const z=$('zoom'),zk=S.zoom?S.zoom.k+(S.zoom.i||0)+S.format+S.rounds+S.hero:'';
+  if(z.dataset.key!==zk){z.dataset.key=zk;z.hidden=!S.zoom;z.innerHTML=S.zoom?zoomH():''}
   const spinning=(S.step==='battle'&&S.B.phase==='spinning')||(S.step==='faceoff'&&S.F.spinning)||S.drawing;
   if(!spinning||(opt&&opt.force))$('stage').innerHTML=v.b();
   renderPanel();renderButtons();
@@ -1379,6 +1451,8 @@ const ACT={
   fbattle(){if(S.F.done)newMatch();faceSpin();return false},
   draw(){drawFighter();return false},
   pview(el){S.pview=el.dataset.v},
+  zoom(el){S.zoom={k:el.dataset.k,i:+(el.dataset.v||0)}},
+  unzoom(){S.zoom=null},
   randHero(){ if(S.step==='predict'&&!S.drawn){drawFighter();return false}
     if(S.step==='faceoff')return false;const o=FIGHTERS.filter(f=>f.id!==S.hero);S.hero=o[Math.floor(Math.random()*o.length)].id;resetRun()},
   rounds(el){setOpt('rounds',el.dataset.v)},
@@ -1431,6 +1505,7 @@ document.addEventListener('input',e=>{
   else if(e.target.id==='calcIn')S.calcText=e.target.value});
 document.addEventListener('keydown',e=>{
   if(e.target.id==='calcIn'){if(e.key==='Enter'){e.preventDefault();doCheck();renderPanel()}return}
+  if(S.zoom){if(e.key==='Escape'||e.key===' '||e.key==='Enter'){e.preventDefault();S.zoom=null;render()}return}
   if(e.key==='Escape'){closeMenus();if(S.fs&&!document.fullscreenElement)setFs(false);return}
   if(e.ctrlKey||e.metaKey||e.altKey)return;
   const tag=e.target.tagName;
