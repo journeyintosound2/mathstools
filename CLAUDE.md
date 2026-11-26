@@ -102,6 +102,19 @@
 > §2 "TWO folders", §3 deploy paths and §5's `mathstools-main 2` heading below
 > describe the OLD layout — this block supersedes them.
 >
+> **NEW (2026-11-27): ALGEBRAIC TECHNIQUES WORKSHEET CREATOR REBUILT on the Length creator's frame.**
+> `worksheet-creators/stage-4/algebra/algebraic-techniques/index.html` (single file) now uses the same shell as
+> `worksheet-creators/stage-4/measurement-space/length/`: topbar, bands (The paper · Question types · Options), count pill,
+> Deselect all / Generate worksheet / Print / Reset, Length-style A4 pages (Name/Date on the worksheet, page footer, green key boxes).
+> * 8 questions a page, 6 with "Working space under each question". Default 16, max 48. Each ticked type is dealt once before random fill.
+> * Same 18 question types (9 Basic, 9 Expected). Bilingual convention as Length: chosen language on top, English beneath;
+>   numerals Western (word-problem stems switched from Eastern digits). New ar/fa instruction lines still need a native-speaker check.
+> * Changing language or working space redraws the SAME paper (`lastPaper`); Length regenerates. Test hook `window.__ALG__`.
+> * Fixed: `0x` in like terms, `1x` inside factorised answers, `x/1` in two-pronumeral substitution, hyphen instead of minus in answers,
+>   flex `.ansBox.key` swallowing the space after a pronumeral (answer now wrapped in a span), English support line under an RTL prompt
+>   showing its full stop first (`dir="ltr"`). Same two RTL/answer-box issues probably exist in the Length creator — not changed.
+> * Removed: the `border_page0.png` page border (file still in the folder, now unused), auto-generate on load, the dead quiz code.
+>
 > **NEW (2026-11-25): COIN FLIP: MULTISTAGE PROBABILITY — Stage 5 teaching tool** at
 > `interactive-tools/stage-5/statistics-probability/coin-flip/` (single file, vanilla JS, same MMT shell as Battle Royale; MA5-PRO-C-01).
 > * **Second "setting" in the multistage series.** The **Settings menu in both tools is now the scenario chooser** (Battle Royale / Coin Flip

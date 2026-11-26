@@ -3,66 +3,111 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>MMT Worksheet Generator — Algebraic Techniques</title>
+  <title>Algebraic Techniques — Worksheet Maker</title>
   <style>
     :root{
       --bg:#f6f7fb; --card:#ffffff; --ink:#111827; --muted:#6b7280; --border:#e5e7eb;
-      --shadow:0 14px 40px rgba(0,0,0,.10); --radius:18px; --ok:#16a34a; --footer-h:44px; --pagePad:12mm;
-      --mathFont:"Cambria Math","STIX Two Math","STIXGeneral","Times New Roman",serif;
-      --uiFont:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";
+      --shadow:0 14px 40px rgba(0,0,0,.10); --radius:18px;
+      --blue:#2563eb; --blue-dark:#1d4ed8; --ans:#16a34a; --green:#16a34a; --orange:#f97316; --red:#ef4444;
+      --line:#111827; --footer-h:44px;
+      --mathFont:"Cambria Math", "STIX Two Math", "STIXGeneral", "Times New Roman", serif;
+      --uiFont:ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
     }
     *{box-sizing:border-box}
-    body{margin:0;font-family:var(--uiFont);background:var(--bg);color:var(--ink);padding-bottom:var(--footer-h)}
-    .wrap{max-width:1120px;margin:18px auto 40px;padding:0 16px}
-    .panel{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px}
-    .controls{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap;padding:14px;border:1px solid var(--border);border-radius:18px;background:linear-gradient(180deg,#fff,#f9fafb)}
-    .topSelectors{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap;width:100%}
-    .outcomeControl{flex:1 1 360px;min-width:300px}.languageControl{flex:0 1 300px;min-width:240px;display:flex;flex-direction:column;align-items:flex-end}
-    label{display:block;font-weight:950;color:var(--ink);margin:0 0 8px;font-size:13px}
-    select,input[type="number"]{border:2px solid #e5e7eb;border-radius:14px;padding:12px;font-weight:950;font-size:16px;background:#fff;min-width:240px;outline:none}
-    select:focus,input[type="number"]:focus{border-color:#93c5fd;box-shadow:0 0 0 4px rgba(37,99,235,.14)}
-    .outcomeControl select,.languageControl select{width:100%}.languageControl label{text-align:right}
-    .checks{display:flex;gap:12px 14px;flex-wrap:wrap;align-items:center;padding:10px 0 0;width:100%}
-    .checksHeader{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;width:100%;margin-bottom:2px}
-    .checksTitle{margin:0;font-size:13px;font-weight:950;color:var(--muted)}
-    .miniBtn{border:none;border-radius:999px;padding:8px 12px;font-weight:950;cursor:pointer;background:#eef2ff;color:#1d4ed8;font-size:12px;line-height:1;box-shadow:0 8px 18px rgba(0,0,0,.04)}
-    .chk{display:flex;gap:10px;align-items:center;border:1px solid rgba(229,231,235,.95);background:#fff;border-radius:999px;padding:10px 12px;box-shadow:0 8px 18px rgba(0,0,0,.04);user-select:none}
-    .chk input{width:18px;height:18px;accent-color:#2563eb}.chk span{font-weight:950;font-size:13px;color:#111827;white-space:nowrap}
-    .chk .typeAlt{display:block;color:#6b7280;font-size:12px;white-space:normal;direction:rtl;text-align:right}
-    .countActions{display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap}
+    body{margin:0;font-family:var(--uiFont);background:radial-gradient(circle at top left,rgba(37,99,235,.10),transparent 30rem),radial-gradient(circle at top right,rgba(124,58,237,.09),transparent 30rem),var(--bg);color:var(--ink);padding-bottom:var(--footer-h)}
+    .topbar{position:sticky;top:0;z-index:20;background:linear-gradient(135deg,#0f172a,#123b7a 55%,#2563eb);color:white;padding:14px 24px;display:grid;grid-template-columns:minmax(180px,1fr) auto minmax(180px,1fr);align-items:center;gap:18px;box-shadow:0 10px 28px rgba(15,23,42,.22)}
+    .brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:white;justify-self:start;border-radius:14px;padding:8px 12px;margin-left:-12px;transition:background .18s ease,transform .18s ease,box-shadow .18s ease}
+    .brand:hover{background:rgba(255,255,255,.12);transform:translateY(-1px);box-shadow:0 0 10px rgba(124,58,237,.6),0 0 18px rgba(37,99,235,.4)}
+    .brand-logo{width:44px;height:44px;object-fit:contain;background:white;border-radius:6px;padding:3px}
+    .brand-text strong{display:block;font-size:1.18rem;line-height:1;letter-spacing:-.03em}.brand-text span{display:block;font-size:.78rem;opacity:.82;font-weight:650}
+    .top-title{font-weight:900;font-size:clamp(1.25rem,2vw,1.7rem);letter-spacing:-.04em;text-align:center}
+    .wrap{max-width:1280px;margin:14px auto 32px;padding:0 14px}
+    .card{background:rgba(255,255,255,.96);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;border:1px solid rgba(226,232,240,.9)}
+    .title{font-size:28px;font-weight:1000;letter-spacing:.2px;margin:0 0 4px}
+    .subtitle{margin:0 0 14px;color:var(--muted);font-weight:850;font-size:15px;line-height:1.35}
+    .band{padding:12px;border:1px solid var(--border);border-radius:18px;background:linear-gradient(180deg,#fff,#f9fafb);margin-bottom:12px}
+    .bandLabel{font-weight:1000;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 10px}
+    .fieldGrid{display:grid;gap:14px 16px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+    label{display:block;font-weight:950;color:var(--ink);margin:0 0 7px;font-size:15px}
+    select,input[type="number"]{border:2px solid #e5e7eb;border-radius:14px;padding:12px 13px;font-weight:950;font-size:17px;background:#fff;width:100%;outline:none;font-family:var(--uiFont)}
+    .checks{display:flex;gap:9px 10px;flex-wrap:wrap;align-items:center}
+    .chk{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--border);background:#fff;border-radius:999px;padding:9px 12px;font-weight:950;font-size:14px;color:#111827;box-shadow:0 8px 18px rgba(0,0,0,.04);user-select:none;cursor:pointer}
+    .chk input{width:18px;height:18px;accent-color:var(--blue)}
     .btnRow{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:flex-end}
-    button{border:none;border-radius:14px;padding:12px 16px;font-weight:1000;cursor:pointer;background:#f3f4f6;color:#111827;transition:transform .04s ease,filter .15s ease,opacity .2s ease;user-select:none;font-size:16px}
-    button:active,.miniBtn:active{transform:scale(.98)}button.primary{background:#2563eb;color:#fff}button.ghost{background:#eef2ff;color:#1d4ed8}button.danger{background:#fee2e2;color:#991b1b}
-    .warn{display:none;margin-top:12px;border:2px solid rgba(220,38,38,.28);background:#fee2e2;color:#991b1b;border-radius:14px;padding:10px 12px;font-weight:950;width:100%}.warn.show{display:block}
-    .outWrap{margin-top:16px}
-    .page{margin-top:16px;background:#fff;border:1px solid var(--border);border-radius:18px;box-shadow:0 10px 26px rgba(15,23,42,.08);overflow:hidden;position:relative}
-    .pageBorder{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;pointer-events:none}
-    .pageInner{position:relative;z-index:1;padding:0}.pageContent{margin:var(--pagePad);background:#fff;border-radius:14px;padding:16px;box-shadow:0 0 0 1px rgba(229,231,235,.9) inset}
-    .pageHeader{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:10px}
-    .hdrLeft{min-width:240px}.hdrTitle{font-weight:1000;font-size:18px;line-height:1.15;margin-bottom:2px}.hdrSub{color:var(--muted);font-weight:900;font-size:12px;line-height:1.2}
-    .nameRow{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;align-items:end;min-width:min(420px,100%)}
-    .lineField{display:flex;flex-direction:column;gap:6px;min-width:0}.lineLabel{font-size:12px;font-weight:950;color:var(--muted)}.lineBox{height:30px;border:2px solid #111827;border-radius:10px;background:#fff;width:100%}
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 16px;margin-top:10px}
-    .qCard{border:1px solid rgba(229,231,235,.95);border-radius:16px;padding:12px;background:#fff;min-height:190px;display:flex;flex-direction:column;gap:8px;break-inside:avoid}
-    .qTop{display:flex;align-items:flex-start;justify-content:flex-start;gap:12px}
-    .qNum{font-weight:1000;font-size:18px;min-width:44px;color:#111827}
-    .qText{font-weight:1000;font-size:16px;line-height:1.18;color:#111827;flex:1}
-    .qInstruction{display:block;margin-bottom:6px}
-    .qExprLine{display:block;text-align:center;font-family:var(--mathFont);font-weight:700;font-size:20px;line-height:1.25;direction:ltr;unicode-bidi:isolate;margin-top:4px}
-    .workBox{margin-top:2px;border:2px solid #111827;border-radius:16px;padding:10px;background:#fff;flex:1;min-height:92px}
-    .workBox.key{border-color:var(--ok);background:rgba(22,163,74,.08);color:#111827;display:flex;align-items:center;justify-content:center;text-align:center;font-weight:1000;font-size:18px;overflow-wrap:anywhere;font-family:var(--mathFont)}
-    .tableMini{width:100%;border-collapse:collapse;font-family:var(--mathFont);font-weight:700;font-size:16px;background:#fff;border-radius:12px;overflow:hidden;margin-top:4px}
-    .tableMini th,.tableMini td{border:1.5px solid rgba(17,24,39,.35);padding:7px 8px;text-align:center;min-width:40px;height:34px}
-    .tableMini th{background:#f9fafb}.tableMini .blank{height:34px;background:#fff}
-    .var{font-family:var(--mathFont);font-style:italic;font-weight:650}.math,.exprLTR{font-family:var(--mathFont);font-weight:650;direction:ltr;unicode-bidi:isolate}
-    .frac{display:inline-flex;flex-direction:column;align-items:stretch;justify-content:center;vertical-align:middle;line-height:1.05;transform:translateY(-1px);margin:0 2px;min-width:34px}
-    .frac .top,.frac .bottom{text-align:center;padding:0 4px;white-space:nowrap}.frac .bar{height:0;border-top:2px solid #111827;margin:2px 0;border-radius:999px}
-    .mulSign{display:inline-block;padding:0 .35em;font-style:normal}
-    .page.lang-rtl .pageHeader,.page.lang-rtl .qTop{direction:rtl}.page.lang-rtl .qText,.page.lang-rtl .hdrTitle,.page.lang-rtl .hdrSub,.page.lang-rtl .lineLabel{text-align:right}.page.lang-rtl .qNum{text-align:left}.page.lang-rtl .math,.page.lang-rtl .exprLTR,.page.lang-rtl .frac,.page.lang-rtl .tableMini{direction:ltr}
+    button{border:none;border-radius:14px;padding:12px 16px;font-weight:1000;cursor:pointer;background:#f3f4f6;color:#111827;transition:transform .04s ease,filter .15s ease,opacity .2s ease;user-select:none;font-size:16px;font-family:var(--uiFont)}
+    button:active{transform:scale(.98)}button.primary{background:#2563eb;color:#fff}button.ghost{background:#eef2ff;color:#1d4ed8}button.danger{background:#fee2e2;color:#991b1b}
+    .pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:8px 13px;font-weight:1000;font-size:14px;background:#eef2ff;color:#1d4ed8;margin-right:auto}
+
+    .outWrap{margin-top:14px}
+    .page{margin-top:14px;background:#fff;border:1px solid var(--border);border-radius:18px;box-shadow:0 10px 26px rgba(15,23,42,.08);overflow:hidden}
+    .pageHeader{padding:10px 14px 8px;border-bottom:1px solid rgba(229,231,235,.95);display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap}
+    .hdrTitle{font-weight:1000;font-size:15px;line-height:1.12}.hdrSub{color:var(--muted);font-weight:850;font-size:12px;margin-top:2px}
+    .nameDate{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;justify-content:flex-end;margin-left:auto}
+    .lineField{display:flex;flex-direction:column;gap:4px;min-width:126px}.lineLabel{font-size:11px;font-weight:950;color:var(--muted)}.lineBox{height:22px;border:1.8px solid #111827;border-radius:9px;background:#fff}
+    .grid{padding:18px 16px;display:grid;gap:14px 16px;align-content:stretch;grid-template-columns:1fr 1fr}
+    .grid.rows-3{min-height:1120px;grid-template-rows:repeat(3,minmax(0,1fr))}
+    .grid.rows-4{min-height:1120px;grid-template-rows:repeat(4,minmax(0,1fr))}
+    .qCard{border:1px solid rgba(229,231,235,.95);border-radius:14px;padding:8px 10px;background:#fff;break-inside:avoid;display:flex;flex-direction:column;justify-content:flex-start;min-height:0;height:100%}
+    .prompt{text-align:center;margin-top:0}
+    .promptSmall{font-weight:900;font-size:11px;color:var(--muted);margin-bottom:2px;line-height:1.15;letter-spacing:.15px}
+    .promptSmall .supportEnglish{display:block;font-size:.82em;opacity:.78;margin-top:2px}
+    .promptSmall.rtlPrompt{direction:rtl}
+    .ansLabel .supportEnglish{display:block;font-size:.78em;opacity:.78;margin-top:1px}
+    .lang-rtl .qCard{direction:rtl}.lang-rtl .exprWrap,.lang-rtl .ansRow,.lang-rtl .workBox{direction:ltr}
+    .lang-rtl .prompt{text-align:center}.lang-rtl .ansLabel{text-align:center}
+
+    /* ---- the maths in each card ---- */
+    .exprWrap{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:8px;padding:4px 0;margin-top:3px;flex:1 1 auto;min-height:70px;text-align:center}
+    .expr{font-family:var(--mathFont);font-weight:700;font-size:24px;line-height:1.3;direction:ltr;unicode-bidi:isolate}
+    .given{font-family:var(--mathFont);font-weight:700;font-size:18px;color:#1d4ed8;direction:ltr;unicode-bidi:isolate}
+    .words{font-weight:900;font-size:17px;line-height:1.3;color:#111827;max-width:95%}
+    .words .supportEnglish{display:block;font-size:.78em;color:var(--muted);margin-top:3px}
+    .var{font-family:var(--mathFont);font-style:italic;font-weight:700}
+    .frac{display:inline-flex;flex-direction:column;align-items:stretch;justify-content:center;vertical-align:middle;line-height:1.05;margin:0 2px;min-width:26px}
+    .frac .top,.frac .bottom{text-align:center;padding:0 4px;white-space:nowrap}.frac .bar{height:0;border-top:2px solid currentColor;margin:2px 0}
+    .mulSign{display:inline-block;padding:0 .3em;font-style:normal}
+    .tableMini{border-collapse:collapse;font-family:var(--mathFont);font-weight:700;font-size:18px;background:#fff;direction:ltr}
+    .tableMini th,.tableMini td{border:1.6px solid rgba(17,24,39,.45);padding:5px 10px;text-align:center;min-width:46px;height:34px}
+    .tableMini th{background:#f9fafb}
+    .tableMini td.key{color:var(--ans);background:rgba(22,163,74,.08)}
+
+    .workBox{margin-top:5px;border:1.4px dashed #cbd5e1;border-radius:10px;height:26mm;background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 7.4mm,#e2e8f0 7.4mm,#e2e8f0 calc(7.4mm + 1px));background-position:0 1.6mm}
+    .workBox .workTag{font-size:9px;font-weight:950;color:#94a3b8;padding:2px 6px;display:block;letter-spacing:.08em;text-transform:uppercase}
+    .ansRow{margin-top:5px;display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap}
+    .ansLabel{font-weight:950;font-size:15px;font-family:var(--mathFont);line-height:1}
+    .ansBox{width:min(200px,64%);height:28px;border:1.8px solid #111827;border-radius:12px;background:#fff}
+    .ansBox.key{display:flex;align-items:center;justify-content:center;font-weight:1000;font-size:17px;font-family:var(--mathFont);color:var(--ans);border-color:var(--ans);background:rgba(22,163,74,.08);height:auto;min-height:28px;padding:2px 6px;text-align:center;line-height:1.15;direction:ltr}
+    .pageFooter{padding:7px 14px;border-top:1px solid rgba(229,231,235,.95);display:flex;align-items:center;justify-content:center;gap:10px;font-weight:950;color:#111827;font-size:12px;background:rgba(255,255,255,.96)}
+    .pageFooter a{color:#2563eb;text-decoration:none;font-weight:1000}.pageFooter a:hover{text-decoration:underline}
     .mmtFooter{position:fixed;left:0;right:0;bottom:0;height:var(--footer-h);display:flex;align-items:center;justify-content:center;padding:0 12px;background:rgba(255,255,255,.92);border-top:1px solid rgba(229,231,235,.95);backdrop-filter:blur(8px);z-index:500;font-weight:900;color:#111827;text-align:center;font-size:13px}
     .mmtFooter a{color:#2563eb;text-decoration:none;font-weight:950}.mmtFooter a:hover{text-decoration:underline}
+    .warn{padding:12px;font-weight:950;color:#991b1b}
+
+    @media(max-width:780px){.topbar{grid-template-columns:1fr auto;gap:10px}.top-title{grid-column:1/-1;grid-row:2;text-align:center}.brand-text span{display:none}.btnRow{width:100%}.grid{grid-template-columns:1fr}}
     @media print{
-      @page{size:A4;margin:12mm}body{background:#fff!important;padding:0!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}.controls,.mmtFooter{display:none!important}.wrap{max-width:none!important;margin:0!important;padding:0!important}:root{--pagePad:6mm}.page{width:186mm;height:273mm;margin:0 auto;border:none;box-shadow:none;page-break-after:always;border-radius:0}.page:last-child{page-break-after:auto}.pageContent{margin:var(--pagePad);padding:12px}.pageHeader{flex-wrap:nowrap!important;gap:10px!important}.grid{gap:12px!important}.qCard{padding:12px!important;min-height:190px}.frac .bar{border-top-width:2px!important}
+      @page{size:A4;margin:7mm}
+      html,body{width:210mm;height:auto}
+      body{background:#fff;padding-bottom:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+      .wrap{max-width:none;margin:0;padding:0}.card{box-shadow:none;border-radius:0;padding:0;border:none;background:#fff}
+      .topbar,.band,.title,.subtitle,.mmtFooter{display:none!important}
+      .page{margin:0;border:none;border-radius:0;box-shadow:none;page-break-after:always}
+      .page:last-child{page-break-after:auto}
+      .pageHeader{padding:2.6mm 3.2mm 2mm}.hdrTitle{font-size:10px}.hdrSub{font-size:8.4px}
+      .nameDate{gap:6px}.lineField{min-width:86px;gap:2px}.lineLabel{font-size:8px}.lineBox{height:15px;border-width:1.2px;border-radius:7px}
+      .grid{padding:4mm 3.2mm 2.6mm;gap:2.8mm 3mm;grid-template-columns:1fr 1fr!important}
+      .grid.rows-3{min-height:253mm;grid-template-rows:repeat(3,minmax(0,1fr))}
+      .grid.rows-4{min-height:253mm;grid-template-rows:repeat(4,minmax(0,1fr))}
+      .qCard{padding:5px 6px 6px;border-radius:10px;min-height:0;border-color:#d5dae1}
+      .promptSmall{font-size:8.2px;margin-bottom:0}
+      .exprWrap{min-height:0;gap:5px}
+      .expr{font-size:16px}.given{font-size:12.5px}.words{font-size:11.5px}
+      .tableMini{font-size:12.5px}.tableMini th,.tableMini td{height:22px;min-width:32px;padding:2px 6px;border-width:1.1px}
+      .frac .bar{border-top-width:1.4px}
+      .workBox{height:24mm}
+      .ansRow{margin-top:3px;gap:5px}.ansLabel{font-size:10px}
+      .ansBox{height:17px;border-width:1.2px;border-radius:7px;width:min(130px,58%)}
+      .ansBox.key{font-size:11.5px;height:auto;min-height:17px}
+      .pageFooter{padding:2mm 3.2mm 1.3mm;font-size:7.8px}
     }
   </style>
 <!-- mmt-pwa -->
@@ -74,255 +119,537 @@
 <meta name="apple-mobile-web-app-title" content="MMT">
 <script src="../../../../pwa.js" defer></script>
 <!-- /mmt-pwa -->
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
 </head>
 <body>
-  <div class="wrap"><div class="panel"><div class="controls" aria-label="Worksheet controls">
-    <div style="min-width:320px;flex:1 1 620px">
-      <div class="topSelectors">
-        <div class="outcomeControl"><label for="levelSel" data-ui="levelLabel">Level</label><select id="levelSel"><option value="basic">Basic — Algebraic Techniques (D/E)</option><option value="expected">Expected — Algebraic Techniques (C)</option></select></div>
-        <div class="languageControl"><label for="languageSel" data-ui="languageLabel">Worksheet language</label><select id="languageSel"><option value="en">English</option><option value="fa">Farsi / Persian (فارسی)</option><option value="ar">Arabic (العربية)</option></select></div>
+  <header class="topbar">
+    <a class="brand" href="https://www.millsmathstools.au" aria-label="Back to Mills Maths Tools"><img src="../../../../assets/mmt.png" alt="Mills Maths Tools logo" class="brand-logo" onerror="this.style.visibility='hidden'"><div class="brand-text"><strong>MMT</strong><span>Mills Maths Tools</span></div></a>
+    <div class="top-title">Algebraic Techniques</div><div></div>
+  </header>
+
+  <div class="wrap"><div class="card">
+    <h1 class="title">Algebraic Techniques — Worksheet Maker</h1>
+    <p class="subtitle">Printable A4 worksheets plus a completed answer key. <strong>Basic</strong> covers algebraic notation, the parts of an expression, writing expressions from words, one-step substitution, collecting like terms, multiplying and dividing a single term, expanding one bracket and factorising by a common number. <strong>Expected</strong> moves on to multi-step word expressions, factorising (including negative and three-term cases), two-step and two-pronumeral substitution, simplifying mixed like terms, multiplying terms, expanding and simplifying, algebraic fractions and tables of values.</p>
+
+    <div class="band">
+      <p class="bandLabel">The paper</p>
+      <div class="fieldGrid">
+        <div><label for="levelSel">Level</label><select id="levelSel"><option value="basic" selected>Basic</option><option value="expected">Expected</option></select></div>
+        <div><label for="languageSel">Worksheet language</label><select id="languageSel"><option value="en" selected>English</option><option value="ar">Arabic (العربية)</option><option value="fa">Farsi / Persian (فارسی)</option></select></div>
+        <div><label for="countInp">Number of questions</label><input id="countInp" type="number" min="1" max="48" value="16"></div>
       </div>
-      <div class="checks" aria-label="Question types"><div class="checksHeader"><label class="checksTitle" data-ui="questionTypes">Question types</label><button id="toggleAllBtn" type="button" class="miniBtn">Deselect all</button></div><div id="chkWrap" style="display:flex;gap:12px 14px;flex-wrap:wrap;align-items:center"></div></div>
-      <div id="warn" class="warn">Please tick at least one question type.</div>
     </div>
-    <div class="countActions"><div><label for="countInp" data-ui="totalQuestions">Total questions (multiples of 8 recommended)</label><input id="countInp" type="number" min="8" max="96" step="8" value="16" /></div><div class="btnRow"><button id="genBtn" class="primary" data-ui="generateBtn">Generate</button><button id="printBtn" class="ghost" data-ui="printBtn">Print / Save as PDF</button><button id="resetBtn" class="danger" data-ui="resetBtn">Reset</button></div></div>
-  </div><div id="out" class="outWrap"></div></div></div>
+
+    <div class="band">
+      <p class="bandLabel">Question types</p>
+      <div id="chkWrap" class="checks"></div>
+    </div>
+
+    <div class="band">
+      <p class="bandLabel">Options</p>
+      <div class="checks">
+        <label class="chk"><input id="toggleWorking" type="checkbox"> Working space under each question</label>
+      </div>
+    </div>
+
+    <div class="band">
+      <div class="btnRow">
+        <span class="pill" id="totalPill">16 questions · 2 pages + key</span>
+        <button id="selectBtn" class="ghost">Deselect all</button>
+        <button id="genBtn" class="primary">Generate worksheet</button>
+        <button id="printBtn" class="ghost">Print (Ctrl+P)</button>
+        <button id="resetBtn" class="danger">Reset</button>
+      </div>
+    </div>
+
+    <div id="out" class="outWrap"></div>
+  </div></div>
+
   <div class="mmtFooter">This tool and more can be found at&nbsp;<a href="https://www.millsmathstools.au">www.millsmathstools.au</a></div>
+
 <script>
 (() => {
-  const state={language:'en'};
-  const QUIZ_LENGTH = 15;
-  const I18N = {
-    en:{dir:'ltr',alt:null,languageLabel:'Language / فارسی / العربية',back:'← Back',reset:'Reset',level:'Level',question:'Question',questionLabel:'Question:',answer:'Answer:',chooseLevel:'Choose your level',basic:'Basic',expected:'Expected',basicSub:'D/E basic algebraic techniques',expectedSub:'C expected algebraic techniques',start:'Start',skip:'Skip',retry:'Retry',submit:'Submit',prev:'← Previous',next:'Next →',close:'Close',copy:'Copy to clipboard',menu:'Back to level menu',scoreBreakdown:'Score breakdown:',selectTypes:'Select question types',typesHelp:'All boxes are ticked by default. Untick any you don’t want.',selectAll:'Select all',deselectAll:'Deselect all',selectOne:'Please select at least one question type.',totalQuestions:'Total questions (min 5, max 60)',begin:'Begin',typesBack:'← Back',tip:'Tip: Press Enter to submit • After feedback, press Enter again (or Next) to move on.',hint:'Use normal algebra notation. Example: 3x, x+4, or 4x/3.',correct:'Correct ✓',incorrect:'Incorrect ✕',skipped:'Skipped (counts as wrong)',correctAnswer:'Correct answer:',partialHCF:'This is correct, but you haven’t factored the highest common factor.',qCounter:(i,n)=>`Question ${i}/${n}`,levelText:n=>`Level: ${n}`,scoreLine:(level,c,t)=>`You completed ${level} and achieved a score of ${c}/${t}.`,copyTitle:l=>`Algebraic Techniques Quiz — ${l}`,score:(c,t)=>`Score: ${c}/${t}`,typeLabels:{identify_part:'Identify coefficient / pronumeral / constant',notation:'Rewrite using correct algebraic notation',words_to_expr:'Translate words → algebraic expression',sub_one:'Substitute and evaluate (one step)',like_terms:'Collect like terms (simple)',mul_single_term:'Multiply a single term',div_single_term:'Divide a single term',expand_bracket:'Expand a single bracket',factorise_number:'Factorise by common number',factorise_expected:'Factorising',translate_rich:'Translate words → expression (multi-step)',sub_two:'Substitute and evaluate (two-step)',sub_two_vars:'Substitute and evaluate (two pronumerals)',simplify_mixed:'Simplify mixed like terms',multiply_terms:'Multiplying terms',expand_simplify:'Expand and simplify',alg_frac:'Simplify algebraic fractions',pattern_table:'Complete a table of values'},
-      coefficient:'coefficient',pronumeral:'pronumeral',constant:'constant',value:'value',
-      identify:(expr,part)=>`In ${expr}, identify the ${part}.`,rewrite:e=>`Rewrite ${e} using algebraic notation.`,words:t=>`Write an expression for: “${t}”.`,evaluate:(e,v)=>`Evaluate ${e} when ${v}.`,simplify:e=>`Simplify: ${e}`,expand:e=>`Expand: ${e}`,factorise:e=>`Factorise: ${e}`,expandSimplify:e=>`Expand and simplify: ${e}`,completeTable:e=>`Complete the table for: ${e}`,
-      stems:{more5:v=>`5 more than ${v}`,inc7:v=>`${v} increased by 7`,less3:v=>`3 less than ${v}`,dec4:v=>`${v} decreased by 4`,twice:v=>`twice ${v}`,thrice:v=>`three times ${v}`,div2:v=>`${v} divided by 2`,half:v=>`half of ${v}`,twicePlus3:v=>`three more than twice ${v}`,threeMinus5:v=>`five less than three times ${v}`,sum7times2:v=>`the sum of ${v} and 7, multiplied by 2`,halfPlus6:v=>`half of (${v} + 6)`,diff10:v=>`the difference between 10 and ${v}`}
-    },
-    fa:{dir:'rtl',alt:'فارسی',languageLabel:'Language / فارسی / العربية',back:'← بازگشت',reset:'بازنشانی',level:'سطح',question:'پرسش',questionLabel:'پرسش:',answer:'پاسخ:',chooseLevel:'سطح خود را انتخاب کنید',basic:'Basic',expected:'Expected',basicSub:'تکنیک‌های جبری پایه D/E',expectedSub:'تکنیک‌های جبری مورد انتظار C',start:'شروع',skip:'رد کردن',retry:'دوباره تلاش کن',submit:'ثبت پاسخ',prev:'← قبلی',next:'بعدی ←',close:'بستن',copy:'کپی در کلیپ‌بورد',menu:'بازگشت به فهرست سطح‌ها',scoreBreakdown:'ریز نمره:',selectTypes:'انتخاب نوع پرسش‌ها',typesHelp:'همه گزینه‌ها به صورت پیش‌فرض انتخاب شده‌اند. هر موردی را که نمی‌خواهید بردارید.',selectAll:'انتخاب همه',deselectAll:'لغو انتخاب همه',selectOne:'لطفاً حداقل یک نوع پرسش را انتخاب کنید.',totalQuestions:'تعداد پرسش‌ها (حداقل ۵، حداکثر ۶۰)',begin:'شروع',typesBack:'← بازگشت',tip:'نکته: برای ثبت پاسخ Enter را بزنید • پس از بازخورد، دوباره Enter یا Next را بزنید.',hint:'از نمادگذاری معمول جبر استفاده کنید. مثال: 3x، x+4، یا 4x/3.',correct:'درست ✓',incorrect:'نادرست ✕',skipped:'رد شد (نادرست حساب می‌شود)',correctAnswer:'پاسخ درست:',partialHCF:'This is correct, but you haven’t factored the highest common factor.',qCounter:(i,n)=>`پرسش ${i}/${n}`,levelText:n=>`سطح: ${n}`,scoreLine:(level,c,t)=>`شما ${level} را کامل کردید و نمرهٔ ${c}/${t} گرفتید.`,copyTitle:l=>`آزمون تکنیک‌های جبری — ${l}`,score:(c,t)=>`نمره: ${c}/${t}`,typeLabels:{identify_part:'تشخیص ضریب / حرف جبری / عدد ثابت',notation:'بازنویسی با نمادگذاری جبری',words_to_expr:'تبدیل عبارت کلامی به عبارت جبری',sub_one:'جایگذاری و محاسبه (یک مرحله)',like_terms:'جمع‌آوری جمله‌های مشابه',mul_single_term:'ضرب یک جمله',div_single_term:'تقسیم یک جمله',expand_bracket:'بسط یک پرانتز',factorise_number:'عامل‌گیری با عدد مشترک',factorise_expected:'عامل‌گیری',translate_rich:'تبدیل عبارت کلامی به عبارت جبری (چند مرحله)',sub_two:'جایگذاری و محاسبه (دو مرحله)',sub_two_vars:'جایگذاری و محاسبه (دو حرف جبری)',simplify_mixed:'ساده کردن جمله‌های مشابه',multiply_terms:'ضرب جمله‌ها',expand_simplify:'بسط و ساده کردن',alg_frac:'ساده کردن کسرهای جبری',pattern_table:'کامل کردن جدول مقدارها'},
-      coefficient:'ضریب',pronumeral:'حرف جبری',constant:'عدد ثابت',value:'مقدار',
-      identify:(expr,part)=>`در ${expr}، ${part} را مشخص کنید.`,rewrite:e=>`${e} را با نمادگذاری جبری بازنویسی کنید.`,words:t=>`برای عبارت زیر یک عبارت جبری بنویسید: «${t}».`,evaluate:(e,v)=>`${e} را وقتی ${v} محاسبه کنید.`,simplify:e=>`ساده کنید: ${e}`,expand:e=>`بسط دهید: ${e}`,factorise:e=>`عامل‌گیری کنید: ${e}`,expandSimplify:e=>`بسط دهید و ساده کنید: ${e}`,completeTable:e=>`جدول را برای ${e} کامل کنید`,
-      stems:{more5:v=>`۵ بیشتر از ${v}`,inc7:v=>`${v} به اندازهٔ ۷ افزایش یافته است`,less3:v=>`۳ کمتر از ${v}`,dec4:v=>`${v} به اندازهٔ ۴ کاهش یافته است`,twice:v=>`دو برابر ${v}`,thrice:v=>`سه برابر ${v}`,div2:v=>`${v} تقسیم بر ۲`,half:v=>`نصف ${v}`,twicePlus3:v=>`۳ بیشتر از دو برابر ${v}`,threeMinus5:v=>`۵ کمتر از سه برابر ${v}`,sum7times2:v=>`مجموع ${v} و ۷، ضربدر ۲`,halfPlus6:v=>`نصف (${v} + ۶)`,diff10:v=>`اختلاف بین ۱۰ و ${v}`}
-    },
-    ar:{dir:'rtl',alt:'العربية',languageLabel:'Language / فارسی / العربية',back:'← رجوع',reset:'إعادة ضبط',level:'المستوى',question:'السؤال',questionLabel:'السؤال:',answer:'الإجابة:',chooseLevel:'اختر مستواك',basic:'Basic',expected:'Expected',basicSub:'تقنيات جبرية أساسية D/E',expectedSub:'تقنيات جبرية متوقعة C',start:'ابدأ',skip:'تخطي',retry:'حاول مرة أخرى',submit:'إرسال',prev:'← السابق',next:'التالي ←',close:'إغلاق',copy:'نسخ إلى الحافظة',menu:'العودة إلى قائمة المستويات',scoreBreakdown:'تفصيل النتيجة:',selectTypes:'اختر أنواع الأسئلة',typesHelp:'كل المربعات محددة افتراضيًا. أزل التحديد عمّا لا تريده.',selectAll:'تحديد الكل',deselectAll:'إلغاء تحديد الكل',selectOne:'يرجى اختيار نوع سؤال واحد على الأقل.',totalQuestions:'عدد الأسئلة (الحد الأدنى ٥، الأقصى ٦٠)',begin:'ابدأ',typesBack:'← رجوع',tip:'نصيحة: اضغط Enter لإرسال الإجابة • بعد الملاحظات، اضغط Enter مرة أخرى أو Next.',hint:'استخدم الصيغة الجبرية العادية. مثال: 3x أو x+4 أو 4x/3.',correct:'صحيح ✓',incorrect:'غير صحيح ✕',skipped:'تم التخطي (يُحسب خطأ)',correctAnswer:'الإجابة الصحيحة:',partialHCF:'This is correct, but you haven’t factored the highest common factor.',qCounter:(i,n)=>`السؤال ${i}/${n}`,levelText:n=>`المستوى: ${n}`,scoreLine:(level,c,t)=>`أكملت ${level} وحققت نتيجة ${c}/${t}.`,copyTitle:l=>`اختبار التقنيات الجبرية — ${l}`,score:(c,t)=>`النتيجة: ${c}/${t}`,typeLabels:{identify_part:'تحديد المعامل / المتغير / الثابت',notation:'إعادة الكتابة بالصيغة الجبرية',words_to_expr:'تحويل الكلمات إلى تعبير جبري',sub_one:'التعويض والحساب (خطوة واحدة)',like_terms:'تجميع الحدود المتشابهة',mul_single_term:'ضرب حد واحد',div_single_term:'قسمة حد واحد',expand_bracket:'توسيع قوس واحد',factorise_number:'التحليل بعامل مشترك',factorise_expected:'التحليل إلى عوامل',translate_rich:'تحويل الكلمات إلى تعبير جبري (متعدد الخطوات)',sub_two:'التعويض والحساب (خطوتان)',sub_two_vars:'التعويض والحساب (متغيران)',simplify_mixed:'تبسيط الحدود المتشابهة',multiply_terms:'ضرب الحدود',expand_simplify:'التوسيع والتبسيط',alg_frac:'تبسيط الكسور الجبرية',pattern_table:'إكمال جدول القيم'},
-      coefficient:'المعامل',pronumeral:'المتغير',constant:'الثابت',value:'القيمة',
-      identify:(expr,part)=>`في ${expr}، حدّد ${part}.`,rewrite:e=>`أعد كتابة ${e} بالصيغة الجبرية.`,words:t=>`اكتب تعبيرًا جبريًا لـ: «${t}».`,evaluate:(e,v)=>`احسب ${e} عندما ${v}.`,simplify:e=>`بسّط: ${e}`,expand:e=>`وسّع: ${e}`,factorise:e=>`حلّل إلى عوامل: ${e}`,expandSimplify:e=>`وسّع وبسّط: ${e}`,completeTable:e=>`أكمل الجدول لـ ${e}`,
-      stems:{more5:v=>`٥ أكثر من ${v}`,inc7:v=>`${v} زاد بمقدار ٧`,less3:v=>`٣ أقل من ${v}`,dec4:v=>`${v} نقص بمقدار ٤`,twice:v=>`ضعف ${v}`,thrice:v=>`ثلاثة أمثال ${v}`,div2:v=>`${v} مقسوم على ٢`,half:v=>`نصف ${v}`,twicePlus3:v=>`٣ أكثر من ضعف ${v}`,threeMinus5:v=>`٥ أقل من ثلاثة أمثال ${v}`,sum7times2:v=>`مجموع ${v} و٧ مضروب في ٢`,halfPlus6:v=>`نصف (${v} + ٦)`,diff10:v=>`الفرق بين ١٠ و ${v}`}
-    }
-  };
+  'use strict';
+  const SITE='https://www.millsmathstools.au';
+  const LANG_KEY='mmt-alg-ws-lang';
+  const MAX_Q=48, DEFAULT_Q=16;
 
+  const levelSel=document.getElementById('levelSel'), languageSel=document.getElementById('languageSel'),
+        countInp=document.getElementById('countInp'), chkWrap=document.getElementById('chkWrap'),
+        out=document.getElementById('out'), toggleWorking=document.getElementById('toggleWorking'),
+        totalPill=document.getElementById('totalPill'), genBtn=document.getElementById('genBtn'),
+        printBtn=document.getElementById('printBtn'), resetBtn=document.getElementById('resetBtn'),
+        selectBtn=document.getElementById('selectBtn');
+
+  /* ==================================================================
+     LANGUAGE
+     Same convention as the other creators: the chosen language sits on
+     top and English underneath. Numerals, pronumerals and expressions
+     stay Western / LTR.
+     ================================================================== */
+  const LANG={
+    en:{dir:'ltr',question:'Q',worksheet:'Worksheet',answerKey:'Answer key',page:'Page',name:'Name',date:'Date',answer:'Answer:',topic:'Algebraic Techniques',
+      identify:'Identify the {part}.',
+      notation:'Rewrite using algebraic notation.',
+      words:'Write an algebraic expression for:',
+      eval1:'Substitute the value and evaluate.',
+      eval2:'Substitute the values and evaluate.',
+      simplify:'Simplify.',
+      expand:'Expand.',
+      factorise:'Factorise.',
+      expandSimplify:'Expand and simplify.',
+      table:'Complete the table of values.',
+      working:'Working',
+      noTypes:'Please tick at least one question type.',
+      parts:{coefficient:'coefficient',pronumeral:'pronumeral',constant:'constant'},
+      stems:{more5:v=>`5 more than ${v}`,inc7:v=>`${v} increased by 7`,less3:v=>`3 less than ${v}`,dec4:v=>`${v} decreased by 4`,twice:v=>`twice ${v}`,thrice:v=>`three times ${v}`,div2:v=>`${v} divided by 2`,half:v=>`half of ${v}`,twicePlus3:v=>`three more than twice ${v}`,threeMinus5:v=>`five less than three times ${v}`,sum7times2:v=>`the sum of ${v} and 7, multiplied by 2`,halfPlus6:v=>`half of (${v} + 6)`,diff10:v=>`the difference between 10 and ${v}`}},
+    ar:{dir:'rtl',question:'سؤال',worksheet:'ورقة عمل',answerKey:'دليل الإجابات',page:'صفحة',name:'الاسم',date:'التاريخ',answer:'الإجابة:',topic:'التقنيات الجبرية',
+      identify:'حدّد {part}.',
+      notation:'أعد الكتابة بالصيغة الجبرية.',
+      words:'اكتب تعبيرًا جبريًا لـ:',
+      eval1:'عوّض بالقيمة المعطاة واحسب قيمة التعبير.',
+      eval2:'عوّض بالقيم المعطاة واحسب قيمة التعبير.',
+      simplify:'بسّط.',
+      expand:'وسّع.',
+      factorise:'حلّل إلى عوامل.',
+      expandSimplify:'وسّع وبسّط.',
+      table:'أكمل جدول القيم.',
+      working:'الحل',
+      noTypes:'يرجى اختيار نوع سؤال واحد على الأقل.',
+      parts:{coefficient:'المعامل',pronumeral:'المتغير',constant:'الثابت'},
+      stems:{more5:v=>`5 أكثر من ${v}`,inc7:v=>`${v} زاد بمقدار 7`,less3:v=>`3 أقل من ${v}`,dec4:v=>`${v} نقص بمقدار 4`,twice:v=>`ضعف ${v}`,thrice:v=>`ثلاثة أمثال ${v}`,div2:v=>`${v} مقسوم على 2`,half:v=>`نصف ${v}`,twicePlus3:v=>`3 أكثر من ضعف ${v}`,threeMinus5:v=>`5 أقل من ثلاثة أمثال ${v}`,sum7times2:v=>`مجموع ${v} و7 مضروب في 2`,halfPlus6:v=>`نصف (${v} + 6)`,diff10:v=>`الفرق بين 10 و ${v}`}},
+    fa:{dir:'rtl',question:'سؤال',worksheet:'برگه تمرین',answerKey:'پاسخ‌نامه',page:'صفحه',name:'نام',date:'تاریخ',answer:'پاسخ:',topic:'تکنیک‌های جبری',
+      identify:'{part} را مشخص کنید.',
+      notation:'با نمادگذاری جبری بازنویسی کنید.',
+      words:'برای عبارت زیر یک عبارت جبری بنویسید:',
+      eval1:'مقدار داده‌شده را جایگذاری و عبارت را محاسبه کنید.',
+      eval2:'مقدارهای داده‌شده را جایگذاری و عبارت را محاسبه کنید.',
+      simplify:'ساده کنید.',
+      expand:'بسط دهید.',
+      factorise:'عامل‌گیری کنید.',
+      expandSimplify:'بسط دهید و ساده کنید.',
+      table:'جدول مقدارها را کامل کنید.',
+      working:'راه حل',
+      noTypes:'لطفاً حداقل یک نوع پرسش را انتخاب کنید.',
+      parts:{coefficient:'ضریب',pronumeral:'حرف جبری',constant:'عدد ثابت'},
+      stems:{more5:v=>`5 بیشتر از ${v}`,inc7:v=>`${v} به اندازهٔ 7 افزایش یافته است`,less3:v=>`3 کمتر از ${v}`,dec4:v=>`${v} به اندازهٔ 4 کاهش یافته است`,twice:v=>`دو برابر ${v}`,thrice:v=>`سه برابر ${v}`,div2:v=>`${v} تقسیم بر 2`,half:v=>`نصف ${v}`,twicePlus3:v=>`3 بیشتر از دو برابر ${v}`,threeMinus5:v=>`5 کمتر از سه برابر ${v}`,sum7times2:v=>`مجموع ${v} و 7، ضربدر 2`,halfPlus6:v=>`نصف (${v} + 6)`,diff10:v=>`اختلاف بین 10 و ${v}`}}
+  };
+  function lang(){return languageSel.value}
+  function L(){return LANG[lang()]||LANG.en}
+  function isEn(){return lang()==='en'}
+  function fill(str,vals){return String(str).replace(/\{(\w+)\}/g,(m,k)=>vals[k]!=null?vals[k]:m)}
+  function TRword(en,loc){
+    if(isEn())return en;
+    return `<span dir="${L().dir}">${loc}</span><span class="supportEnglish" dir="ltr">${en}</span>`;
+  }
+
+  /* ==================================================================
+     RANDOM + ALGEBRA HELPERS
+     ================================================================== */
   function xmur3(str){let h=1779033703^str.length;for(let i=0;i<str.length;i++){h=Math.imul(h^str.charCodeAt(i),3432918353);h=(h<<13)|(h>>>19)}return function(){h=Math.imul(h^(h>>>16),2246822507);h=Math.imul(h^(h>>>13),3266489909);h^=h>>>16;return h>>>0}}
   function mulberry32(a){return function(){let t=a+=0x6D2B79F5;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return((t^(t>>>14))>>>0)/4294967296}}
-  let rng=Math.random;function reseed(){let seed=String(Date.now());try{const a=new Uint32Array(1);crypto.getRandomValues(a);seed+='-'+a[0]}catch(e){}rng=mulberry32(xmur3(seed)())}reseed();
-  const randInt=(a,b)=>Math.floor(rng()*(b-a+1))+a; const choice=a=>a[randInt(0,a.length-1)]; const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
-  const shuffle=(arr)=>{const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
-  function stripHTML(html){const d=document.createElement('div');d.innerHTML=String(html);return d.textContent||d.innerText||''}
-  function lang(){return state.language} function L(){return I18N[lang()]||I18N.en} function tr(k){return L()[k]??I18N.en[k]??k} function trType(id,label){return (L().typeLabels&&L().typeLabels[id])||(I18N.en.typeLabels&&I18N.en.typeLabels[id])||label||id} function dir(){return L().dir||'ltr'}
-  function fmtInt(n){return n<0?`−${Math.abs(n)}`:`${n}`}
-  const OTHER_VARS=['a','b','c','d','e','f','y','p','w','k']; function pickVar(){return rng()<.30?'x':choice(OTHER_VARS)}
-  const vHTML=v=>`<span class="var">${v}</span>`; function fracHTML(top,bottom){return `<span class="frac"><span class="top">${top}</span><span class="bar"></span><span class="bottom">${bottom}</span></span>`}
-  function termHTML(coeff,v){if(v==null)return String(Math.abs(coeff));const abs=Math.abs(coeff);return abs===1?vHTML(v):`${abs}${vHTML(v)}`}
-  function buildExpressionHTML(terms){const parts=[];terms.forEach((t,i)=>{const neg=t.coeff<0;const sign=i===0?(neg?'− ':''):(neg?' − ':' + ');parts.push(sign+(t.v?termHTML(t.coeff,t.v):String(Math.abs(t.coeff))))});return parts.join('')}
-  function simplifyTerms(terms){const map=new Map();let csum=0;for(const t of terms){if(t.v==null)csum+=t.coeff;else map.set(t.v,(map.get(t.v)||0)+t.coeff)}for(const[k,v]of map.entries())if(v===0)map.delete(k);return{map,csum}}
-  function buildSimplifiedHTML(map,csum){const vars=Array.from(map.keys()).sort((a,b)=>a.localeCompare(b));const terms=[];for(const v of vars)terms.push({coeff:map.get(v),v});if(csum!==0||terms.length===0)terms.push({coeff:csum,v:null});return buildExpressionHTML(terms)}
+  let rng=Math.random;
+  function reseed(){let seed=String(Date.now());try{const a=new Uint32Array(1);crypto.getRandomValues(a);seed+='-'+a[0]}catch(e){}rng=mulberry32(xmur3(seed)())}
+  reseed();
+  const randInt=(a,b)=>Math.floor(rng()*(b-a+1))+a;
+  const choice=a=>a[randInt(0,a.length-1)];
+  const shuffle=arr=>{const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
   function gcd(a,b){a=Math.abs(a);b=Math.abs(b);while(b){const t=b;b=a%b;a=t}return a||1}
-  function monomialHTML(coeff,vars){const sorted=(vars||[]).slice().sort((a,b)=>a.localeCompare(b));const vp=sorted.map(v=>vHTML(v)).join('');if(!sorted.length)return String(coeff);if(coeff===1)return vp;return `${coeff}${vp}`}
-  function productFactorHTML(f){return f.kind==='num'?String(f.value):vHTML(f.value)}
-  function buildMultiplyingTermsAnswer(factors){let n=1;const vars=[];for(const f of factors){if(f.kind==='num')n*=f.value;else vars.push(f.value)}vars.sort((a,b)=>a.localeCompare(b));const vp=vars.map(v=>vHTML(v)).join('');if(!vars.length)return String(n);return n===1?vp:`${n}${vp}`}
-  function valList(pairs){return pairs.map(([h,v])=>`${h} = ${fmtInt(v)}`).join(lang()==='en'?', ':'، ')}
-  function localStem(key,v){return (L().stems[key]||I18N.en.stems[key])(v)}
-  function splitPromptHTML(promptHTML){
-    const raw=String(promptHTML); const plain=stripHTML(raw).trim(); const colonIndex=raw.indexOf(':');
-    if(colonIndex>=0){const instructionHTML=raw.slice(0,colonIndex).trim();const expressionHTML=raw.slice(colonIndex+1).trim().replace(/^“|”$/g,'');return {instructionHTML,expressionHTML:expressionHTML||raw};}
-    let m=plain.match(/^In (.*), identify the (.*)\.$/); if(m){return {instructionHTML:`Identify the ${m[2]}`,expressionHTML:raw.match(/^In (.*), identify the .*\.$/)?.[1]||m[1]};}
-    m=plain.match(/^Rewrite (.*) using algebraic notation\.$/); if(m){return {instructionHTML:'Rewrite using algebraic notation',expressionHTML:raw.match(/^Rewrite (.*) using algebraic notation\.$/)?.[1]||m[1]};}
-    m=plain.match(/^Evaluate (.*) when (.*)\.$/); if(m){return {instructionHTML:`Evaluate when ${m[2]}`,expressionHTML:raw.match(/^Evaluate (.*) when .*\.$/)?.[1]||m[1]};}
-    m=plain.match(/^در (.*)، (.*) را مشخص کنید\.$/); if(m){return {instructionHTML:`${m[2]} را مشخص کنید`,expressionHTML:raw.match(/^در (.*)، .* را مشخص کنید\.$/)?.[1]||m[1]};}
-    m=plain.match(/^(.*) را با نمادگذاری جبری بازنویسی کنید\.$/); if(m){return {instructionHTML:'با نمادگذاری جبری بازنویسی کنید',expressionHTML:raw.match(/^(.*) را با نمادگذاری جبری بازنویسی کنید\.$/)?.[1]||m[1]};}
-    m=plain.match(/^(.*) را وقتی (.*) محاسبه کنید\.$/); if(m){return {instructionHTML:`محاسبه کنید وقتی ${m[2]}`,expressionHTML:raw.match(/^(.*) را وقتی .* محاسبه کنید\.$/)?.[1]||m[1]};}
-    m=plain.match(/^في (.*)، حدّد (.*)\.$/); if(m){return {instructionHTML:`حدّد ${m[2]}`,expressionHTML:raw.match(/^في (.*)، حدّد .*\.$/)?.[1]||m[1]};}
-    m=plain.match(/^أعد كتابة (.*) بالصيغة الجبرية\.$/); if(m){return {instructionHTML:'أعد الكتابة بالصيغة الجبرية',expressionHTML:raw.match(/^أعد كتابة (.*) بالصيغة الجبرية\.$/)?.[1]||m[1]};}
-    m=plain.match(/^احسب (.*) عندما (.*)\.$/); if(m){return {instructionHTML:`احسب عندما ${m[2]}`,expressionHTML:raw.match(/^احسب (.*) عندما .*\.$/)?.[1]||m[1]};}
-    return {instructionHTML:tr('questionLabel'),expressionHTML:raw};
-  }
-  function qObj(type,promptHTML,answerHTML,alts=[],instructionHTML=null,expressionHTML=null){const split=splitPromptHTML(promptHTML);const expr=expressionHTML??split.expressionHTML;return {type,promptHTML,instructionHTML:instructionHTML??split.instructionHTML,expressionHTML:`<span class="exprLTR">${expr}</span>`,answerHTML,answerText:stripHTML(answerHTML),alts:alts.map(String)}}
+  function stripHTML(html){const d=document.createElement('div');d.innerHTML=String(html);return d.textContent||''}
+  const fmtInt=n=>n<0?`−${Math.abs(n)}`:`${n}`;
 
-  const WORD_STEMS_DE=[{key:'more5',build:v=>`${vHTML(v)} + 5`},{key:'inc7',build:v=>`${vHTML(v)} + 7`},{key:'less3',build:v=>`${vHTML(v)} − 3`},{key:'dec4',build:v=>`${vHTML(v)} − 4`},{key:'twice',build:v=>`2${vHTML(v)}`},{key:'thrice',build:v=>`3${vHTML(v)}`},{key:'div2',build:v=>fracHTML(vHTML(v),'2')},{key:'half',build:v=>fracHTML(vHTML(v),'2')}];
-  const WORD_STEMS_C=[{key:'twicePlus3',build:v=>`2${vHTML(v)} + 3`},{key:'threeMinus5',build:v=>`3${vHTML(v)} − 5`},{key:'sum7times2',build:v=>`2(${vHTML(v)} + 7)`},{key:'halfPlus6',build:v=>fracHTML(`(${vHTML(v)} + 6)`,'2')},{key:'diff10',build:v=>`10 − ${vHTML(v)}`}];
-
-
-  function varsKey(vars){return (vars||[]).slice().sort((a,b)=>a.localeCompare(b)).join('')}
-  function termFromCoeffVars(coeff,vars){return {coeff, v: varsKey(vars)||null}}
-  function signedJoinHTML(terms){return buildExpressionHTML(terms.map(t=>({coeff:t.coeff,v:t.v||null}))) }
-  function factorAnswerHTML(outside,innerTerms){
-    const inner=signedJoinHTML(innerTerms);
-    const outsideHTML=outside===1?'':outside===-1?'−':String(outside);
-    return `${outsideHTML}(${inner})`;
+  const OTHER_VARS=['a','b','c','d','e','f','y','p','w','k'];
+  const pickVar=()=>rng()<.30?'x':choice(OTHER_VARS);
+  function pickOther(...used){let v=pickVar(),g=0;while(used.includes(v)&&g++<50)v=pickVar();return v}
+  const vH=v=>`<span class="var">${v}</span>`;
+  const fracHTML=(top,bottom)=>`<span class="frac"><span class="top">${top}</span><span class="bar"></span><span class="bottom">${bottom}</span></span>`;
+  const sortVars=vars=>(vars||[]).slice().sort((a,b)=>a.localeCompare(b));
+  /* One term, no sign. v may be a multi-letter key such as 'ab'. */
+  function termHTML(coeff,v){
+    if(v==null)return String(Math.abs(coeff));
+    const vp=v.split('').map(vH).join('');
+    return Math.abs(coeff)===1?vp:`${Math.abs(coeff)}${vp}`;
   }
-  function factorAnswerPlain(outside,innerTerms){
-    return stripHTML(factorAnswerHTML(outside,innerTerms)).replace(/−/g,'-').replace(/\s+/g,'');
+  function exprHTML(terms){
+    return terms.map((t,i)=>{const neg=t.coeff<0;const sign=i===0?(neg?'−':''):(neg?' − ':' + ');return sign+termHTML(t.coeff,t.v)}).join('');
   }
-  function makeFactoriseQuestion(id,exprTerms,outside,innerTerms){
-    const expr=signedJoinHTML(exprTerms);
-    const ans=factorAnswerHTML(outside,innerTerms);
-    const q=qObj(id,L().factorise(expr),ans,[factorAnswerPlain(outside,innerTerms)],(lang()==='fa'?'عامل‌گیری کنید':lang()==='ar'?'حلّل إلى عوامل':'Factorise'),expr);
-    const map={};
-    for(const t of exprTerms){map[t.v||'']=(map[t.v||'']||0)+t.coeff;}
-    q.factoriseMeta={terms:map,hcf:Math.abs(outside),v:exprTerms.find(t=>t.v)?.v||'x'};
-    if(exprTerms.length===2 && exprTerms.some(t=>!t.v)){
-      const vt=exprTerms.find(t=>t.v), ct=exprTerms.find(t=>!t.v);
-      q.factoriseMeta.A=vt.coeff; q.factoriseMeta.B=ct.coeff; q.factoriseMeta.v=vt.v;
+  function collect(terms){
+    const map=new Map();let c=0;
+    for(const t of terms){if(t.v==null)c+=t.coeff;else map.set(t.v,(map.get(t.v)||0)+t.coeff)}
+    const outTerms=sortVars([...map.keys()]).filter(v=>map.get(v)!==0).map(v=>({coeff:map.get(v),v}));
+    if(c!==0||!outTerms.length)outTerms.push({coeff:c,v:null});
+    return outTerms;
+  }
+  function monomialHTML(coeff,vars){
+    const vp=sortVars(vars).map(vH).join('');
+    if(!vp)return String(coeff);
+    return coeff===1?vp:`${coeff}${vp}`;
+  }
+  const varKey=vars=>sortVars(vars).join('')||null;
+
+  /* ==================================================================
+     QUESTION GENERATORS
+     Each returns { key, ...content, answer } where `key` is the prompt
+     line. Content is one of: expr (+ given), words, or table.
+     ================================================================== */
+  const WORD_STEMS_BASIC=[
+    {key:'more5',build:v=>`${vH(v)} + 5`},{key:'inc7',build:v=>`${vH(v)} + 7`},
+    {key:'less3',build:v=>`${vH(v)} − 3`},{key:'dec4',build:v=>`${vH(v)} − 4`},
+    {key:'twice',build:v=>`2${vH(v)}`},{key:'thrice',build:v=>`3${vH(v)}`},
+    {key:'div2',build:v=>fracHTML(vH(v),'2')},{key:'half',build:v=>fracHTML(vH(v),'2')}];
+  const WORD_STEMS_EXPECTED=[
+    {key:'twicePlus3',build:v=>`2${vH(v)} + 3`},{key:'threeMinus5',build:v=>`3${vH(v)} − 5`},
+    {key:'sum7times2',build:v=>`2(${vH(v)} + 7)`},{key:'halfPlus6',build:v=>fracHTML(`${vH(v)} + 6`,'2')},
+    {key:'diff10',build:v=>`10 − ${vH(v)}`}];
+
+  function factorQ(exprTerms,outside,inner){
+    const o=outside===1?'':outside===-1?'−':fmtInt(outside);
+    return {key:'factorise',expr:exprHTML(exprTerms),answer:`${o}(${exprHTML(inner)})`};
+  }
+  function coprimePair(lo,hi,lo2,hi2){let a,b,g=0;do{a=randInt(lo,hi);b=randInt(lo2,hi2)}while(gcd(a,b)!==1&&g++<80);return[a,b]}
+
+  const GEN={
+    /* ---------------- BASIC ---------------- */
+    identify_part(){
+      const v=pickVar(),a=randInt(2,9),b=randInt(1,9),part=choice(['coefficient','pronumeral','constant']);
+      return {key:'identify',part,expr:`${a}${vH(v)} + ${b}`,answer:part==='coefficient'?String(a):part==='pronumeral'?vH(v):String(b)};
+    },
+    notation(){
+      const v=pickVar(),a=randInt(2,9),c=randInt(1,9),kind=choice(['mult','power','bracket','divide']);
+      if(kind==='mult')return {key:'notation',expr:`${a} × ${vH(v)}`,answer:`${a}${vH(v)}`};
+      if(kind==='power')return {key:'notation',expr:`${vH(v)} × ${vH(v)}`,answer:`${vH(v)}²`};
+      if(kind==='divide')return {key:'notation',expr:`${vH(v)} ÷ ${a}`,answer:fracHTML(vH(v),String(a))};
+      return {key:'notation',expr:`${a} × (${vH(v)} + ${c})`,answer:`${a}(${vH(v)} + ${c})`};
+    },
+    words_to_expr(){const v=pickVar(),s=choice(WORD_STEMS_BASIC);return {key:'words',stem:s.key,v,answer:s.build(v)}},
+    sub_one(){
+      const v=pickVar(),val=randInt(-5,10),kind=choice(['av','vplus','vminus']),a=randInt(2,9),b=randInt(1,9);
+      let expr,value;
+      if(kind==='av'){expr=`${a}${vH(v)}`;value=a*val}
+      else if(kind==='vplus'){expr=`${vH(v)} + ${b}`;value=val+b}
+      else{expr=`${vH(v)} − ${b}`;value=val-b}
+      return {key:'eval1',expr,given:`${vH(v)} = ${fmtInt(val)}`,answer:fmtInt(value)};
+    },
+    like_terms(){
+      const v=pickVar(),op=choice(['+','-']);let a=randInt(1,9),b=randInt(1,9);
+      if(op==='-')while(a===b)b=randInt(1,9);          // never collapse to 0v
+      const value=op==='+'?a+b:a-b;
+      const t1=termHTML(a,v),t2=termHTML(b,v);
+      return {key:'simplify',expr:op==='+'?`${t1} + ${t2}`:`${t1} − ${t2}`,answer:exprHTML([{coeff:value,v}])};
+    },
+    mul_single_term(){const v=pickVar(),a=randInt(2,9),b=randInt(2,9);return {key:'simplify',expr:`${a}${vH(v)} × ${b}`,answer:exprHTML([{coeff:a*b,v}])}},
+    div_single_term(){const v=pickVar(),a=randInt(2,9),b=randInt(2,9);return {key:'simplify',expr:fracHTML(`${a*b}${vH(v)}`,String(b)),answer:exprHTML([{coeff:a,v}])}},
+    expand_bracket(){
+      const v=pickVar(),k=randInt(2,9),c=randInt(1,9),plus=rng()<.5;
+      return {key:'expand',expr:`${k}(${vH(v)} ${plus?'+':'−'} ${c})`,answer:exprHTML([{coeff:k,v},{coeff:plus?k*c:-k*c,v:null}])};
+    },
+    factorise_number(){
+      const v=pickVar(),g=randInt(2,8),[a,b]=coprimePair(1,9,1,9);
+      return factorQ([{coeff:g*a,v},{coeff:g*b,v:null}],g,[{coeff:a,v},{coeff:b,v:null}]);
+    },
+
+    /* ---------------- EXPECTED ---------------- */
+    translate_rich(){const v=pickVar(),s=choice(WORD_STEMS_EXPECTED);return {key:'words',stem:s.key,v,answer:s.build(v)}},
+    factorise_expected(){
+      const t=choice(['two_vars','negative_all','negative_mixed','three_terms','three_terms_neg']);
+      const v1=pickVar(),v2=pickOther(v1),g=randInt(2,9);let inner,outside=g;
+      if(t==='two_vars'){const[a,b]=coprimePair(1,7,1,7);inner=[{coeff:a,v:v1},{coeff:b,v:v2}]}
+      else if(t==='negative_all'){outside=-g;const[a,b]=coprimePair(1,7,1,7);inner=[{coeff:a,v:v1},{coeff:b,v:null}]}
+      else if(t==='negative_mixed'){const[a,b]=coprimePair(2,7,1,7);inner=[{coeff:a,v:v1},{coeff:-b,v:null}]}
+      else{
+        let a,b,c,gd=0;do{a=randInt(1,6);b=randInt(1,6);c=randInt(1,8)}while(gcd(gcd(a,b),c)!==1&&gd++<50);
+        inner=shuffle([{coeff:a,v:v1},{coeff:t==='three_terms_neg'?-b:b,v:v2},{coeff:c,v:null}]);
+        if(inner[0].coeff<0)inner=[inner[1],inner[0],inner[2]];   // don't lead with a negative inside
+      }
+      return factorQ(inner.map(x=>({coeff:outside*x.coeff,v:x.v})),outside,inner);
+    },
+    sub_two(){
+      const v=pickVar(),x=randInt(-4,8),a=randInt(2,5),b=randInt(1,9),kind=choice(['plus','minus','linear']);
+      let expr,val;
+      if(kind==='plus'){expr=`${a}(${vH(v)} + ${b})`;val=a*(x+b)}
+      else if(kind==='minus'){expr=`${a}(${vH(v)} − ${b})`;val=a*(x-b)}
+      else{expr=`${a}${vH(v)} + ${b}`;val=a*x+b}
+      return {key:'eval1',expr,given:`${vH(v)} = ${fmtInt(x)}`,answer:fmtInt(val)};
+    },
+    sub_two_vars(){
+      const v1=pickVar(),v2=pickOther(v1),kind=choice(['sumConst','productConst','coeffSum','mixedCoeff','difference','bracketMul','varDivPlus']);
+      let x=randInt(1,10);const y=randInt(1,10);let expr,val;
+      if(kind==='sumConst'){const c=randInt(1,12);expr=`${vH(v1)} + ${vH(v2)} + ${c}`;val=x+y+c}
+      else if(kind==='productConst'){const c=randInt(1,12);expr=`${vH(v1)}${vH(v2)} + ${c}`;val=x*y+c}
+      else if(kind==='coeffSum'){const a=randInt(2,12);expr=`${a}${vH(v1)} + ${vH(v2)}`;val=a*x+y}
+      else if(kind==='mixedCoeff'){const a=randInt(2,12),b=randInt(2,12);expr=`${a}${vH(v1)} + ${b}${vH(v2)}`;val=a*x+b*y}
+      else if(kind==='difference'){const a=randInt(2,12);expr=`${a}${vH(v1)} − ${vH(v2)}`;val=a*x-y}
+      else if(kind==='bracketMul'){const a=randInt(2,12);expr=`${a}(${vH(v1)} + ${vH(v2)})`;val=a*(x+y)}
+      else{const d=randInt(2,6);x=d*randInt(1,5);expr=`${fracHTML(vH(v1),String(d))} + ${vH(v2)}`;val=x/d+y}
+      return {key:'eval2',expr,given:`${vH(v1)} = ${fmtInt(x)},&nbsp; ${vH(v2)} = ${fmtInt(y)}`,answer:fmtInt(val)};
+    },
+    simplify_mixed(){
+      const total=randInt(3,6),constTerms=Math.min(randInt(0,2),total-2),varTerms=total-constTerms;
+      const groups=randInt(1,Math.max(1,Math.min(3,Math.floor(varTerms/2))));
+      const vars=[];while(vars.length<groups)vars.push(pickOther(...vars));
+      const counts=Array(groups).fill(2);let rem=varTerms-2*groups;while(rem-->0)counts[randInt(0,groups-1)]++;
+      const terms=[];
+      vars.forEach((v,i)=>{for(let k=0;k<counts[i];k++)terms.push({coeff:choice([1,-1])*randInt(1,9),v})});
+      for(let k=0;k<constTerms;k++)terms.push({coeff:choice([1,-1])*randInt(1,15),v:null});
+      const mixed=shuffle(terms);
+      return {key:'simplify',expr:exprHTML(mixed),answer:exprHTML(collect(mixed))};
+    },
+    multiply_terms(){
+      const pron=randInt(1,3),f=[],used=[];
+      for(let i=0;i<4-pron;i++)f.push({num:randInt(2,9)});
+      for(let i=0;i<pron;i++){const v=pickOther(...used);used.push(v);f.push({v})}
+      const s=shuffle(f);
+      const n=s.filter(x=>x.num).reduce((p,x)=>p*x.num,1);
+      return {key:'simplify',expr:s.map(x=>x.num?String(x.num):vH(x.v)).join('<span class="mulSign">×</span>'),answer:monomialHTML(n,used)};
+    },
+    expand_simplify(){
+      const t=choice(['c_plus_k','k_plus_var','two_var_plus','two_var_big']);let expr,fin;
+      if(t==='c_plus_k'){
+        const v=pickVar(),c0=randInt(1,9),k=randInt(2,6),b=randInt(1,9),sg=choice([1,-1]);
+        expr=`${c0} + ${k}(${vH(v)} ${sg>0?'+':'−'} ${b})`;fin=[{coeff:k,v},{coeff:c0+k*sg*b,v:null}];
+      }else if(t==='k_plus_var'){
+        const v=pickVar(),k=randInt(2,6),b=randInt(1,9),m=randInt(1,6),addC=randInt(0,9),sgB=choice([1,-1]),sgM=choice([1,-1]);
+        expr=`${k}(${vH(v)} ${sgB>0?'+':'−'} ${b}) ${sgM>0?'+':'−'} ${termHTML(m,v)}${addC?` + ${addC}`:''}`;
+        fin=[{coeff:k+sgM*m,v},{coeff:k*sgB*b+addC,v:null}];
+      }else if(t==='two_var_plus'){
+        const v1=pickVar(),v2=pickOther(v1),k=randInt(2,5),a=randInt(1,4),b=randInt(1,4),e1=randInt(0,6),e2=randInt(0,6);
+        expr=`${k}(${termHTML(a,v1)} + ${termHTML(b,v2)})${e2?` + ${termHTML(e2,v2)}`:''}${e1?` + ${termHTML(e1,v1)}`:''}`;
+        fin=[{coeff:k*a+e1,v:v1},{coeff:k*b+e2,v:v2}];
+      }else{
+        const v1=pickVar(),v2=pickOther(v1),k=randInt(2,4),a=randInt(1,5),b=randInt(1,5),c0=randInt(1,9),oa=randInt(0,5),ob=randInt(0,5);
+        expr=`${k}(${termHTML(a,v1)} − ${termHTML(b,v2)} + ${c0})${oa?` + ${termHTML(oa,v1)}`:''}${ob?` − ${termHTML(ob,v2)}`:''}`;
+        fin=[{coeff:k*a+oa,v:v1},{coeff:-(k*b+ob),v:v2},{coeff:k*c0,v:null}];
+      }
+      return {key:'expandSimplify',expr,answer:exprHTML(collect(fin))};
+    },
+    alg_frac(){
+      for(let tries=0;tries<300;tries++){
+        const t=choice(['numOnly','oneCommon','twoCancelOne','twoCancelToVarOverVar']);
+        const v1=pickVar(),v2=pickOther(v1);
+        const top=randInt(2,9)*randInt(2,6),bot=randInt(2,9)*randInt(2,6),g=gcd(top,bot);
+        if(g===1)continue;
+        let tv,bv;
+        if(t==='numOnly'){tv=[v1];bv=[]}
+        else if(t==='oneCommon'){tv=[v1];bv=[v1]}
+        else if(t==='twoCancelOne'){tv=[v1,v2];bv=[v1]}
+        else{tv=[v1,v2];bv=[v1,pickOther(v1,v2)]}
+        const rt=tv.slice(),rb=bv.slice();
+        for(const v of tv){const i=rt.indexOf(v),j=rb.indexOf(v);if(i>=0&&j>=0){rt.splice(i,1);rb.splice(j,1)}}
+        const a=top/g,b=bot/g;
+        if(b===1&&!rb.length)continue;
+        return {key:'simplify',expr:fracHTML(monomialHTML(top,tv),monomialHTML(bot,bv)),answer:fracHTML(monomialHTML(a,rt),monomialHTML(b,rb))};
+      }
+      return {key:'simplify',expr:fracHTML(`32${vH('a')}${vH('x')}`,`24${vH('a')}`),answer:fracHTML(`4${vH('x')}`,'3')};
+    },
+    pattern_table(ctx){
+      const forms=['n_plus_b','n_minus_b','an','an_plus_b','an_minus_b'];
+      const form=forms[(ctx&&ctx.tableIndex||0)%forms.length];
+      const m=randInt(2,6),b=randInt(1,9),ns=[1,2,3,4],n=vH('n');
+      let expr,vals;
+      if(form==='n_plus_b'){expr=`${n} + ${b}`;vals=ns.map(k=>k+b)}
+      else if(form==='n_minus_b'){expr=`${n} − ${b}`;vals=ns.map(k=>k-b)}
+      else if(form==='an'){expr=`${m}${n}`;vals=ns.map(k=>m*k)}
+      else if(form==='an_plus_b'){expr=`${m}${n} + ${b}`;vals=ns.map(k=>m*k+b)}
+      else{expr=`${m}${n} − ${b}`;vals=ns.map(k=>m*k-b)}
+      return {key:'table',table:{expr,ns,vals},answer:vals.map(fmtInt).join(', ')};
     }
-    return q;
-  }
-
-  const TYPES=[
-    {level:'basic',id:'identify_part',label:'Identify coefficient / pronumeral / constant',gen(){const v=pickVar(),a=randInt(2,9),b=randInt(1,9),part=choice(['coefficient','pronumeral','constant']);const expr=`${a}${vHTML(v)} + ${b}`;const ans=part==='coefficient'?String(a):part==='pronumeral'?v:String(b);return qObj(this.id,L().identify(expr,tr(part)),ans)}} ,
-    {level:'basic',id:'notation',label:'Rewrite using correct algebraic notation',gen(){const v=pickVar(),a=randInt(2,9),c=randInt(1,9),kind=choice(['mult','power','bracket']);let prompt,ans,alts=[];if(kind==='mult'){prompt=L().rewrite(`${a} × ${vHTML(v)}`);ans=`${a}${v}`;alts=[`${a}*${v}`,`${a}x`.replace('x',v)]}else if(kind==='power'){prompt=L().rewrite(`${vHTML(v)} × ${vHTML(v)}`);ans=`${v}²`;alts=[`${v}^2`,`${v}2`]}else{prompt=L().rewrite(`${a} × (${vHTML(v)} + ${c})`);ans=`${a}(${v} + ${c})`;alts=[`${a}*(${v}+${c})`,`${a}(${v}+${c})`]}return qObj(this.id,prompt,ans,alts)}} ,
-    {level:'basic',id:'words_to_expr',label:'Translate words → algebraic expression',gen(){const v=pickVar(),stem=choice(WORD_STEMS_DE),expr=stem.build(v);return qObj(this.id,L().words(localStem(stem.key,v)),expr)}} ,
-    {level:'basic',id:'sub_one',label:'Substitute and evaluate (one step)',gen(){const v=pickVar(),val=randInt(-5,10),kind=choice(['av','vplus','vminus']),a=randInt(2,9),b=randInt(1,9);let expr,value;if(kind==='av'){expr=`${a}${vHTML(v)}`;value=a*val}else if(kind==='vplus'){expr=`${vHTML(v)} + ${b}`;value=val+b}else{expr=`${vHTML(v)} − ${b}`;value=val-b}return qObj(this.id,L().evaluate(expr,`${vHTML(v)} = ${fmtInt(val)}`),String(value))}} ,
-    {level:'basic',id:'like_terms',label:'Collect like terms (simple)',gen(){const v=pickVar(),a=randInt(1,9),b=randInt(1,9),op=choice(['+','-']),value=op==='+'?a+b:a-b;const expr=op==='+'?`${a}${vHTML(v)} + ${b}${vHTML(v)}`:`${a}${vHTML(v)} − ${b}${vHTML(v)}`;const ans=buildExpressionHTML([{coeff:value,v}]);return qObj(this.id,L().simplify(expr),ans)}} ,
-    {level:'basic',id:'mul_single_term',label:'Multiply a single term',gen(){const v=pickVar(),a=randInt(2,9),b=randInt(2,9);const expr=`${a}${vHTML(v)} × ${b}`,ans=buildExpressionHTML([{coeff:a*b,v}]);return qObj(this.id,L().simplify(expr),ans)}} ,
-    {level:'basic',id:'div_single_term',label:'Divide a single term',gen(){const v=pickVar(),a=randInt(2,9),b=randInt(2,9),prod=a*b;const expr=fracHTML(`${prod}${vHTML(v)}`,`${b}`),ans=buildExpressionHTML([{coeff:a,v}]);return qObj(this.id,L().simplify(expr),ans)}} ,
-    {level:'basic',id:'expand_bracket',label:'Expand a single bracket',gen(){const v=pickVar(),k=randInt(2,9),c=randInt(1,9),sign=choice(['+','-']);const expr=sign==='+'?`${k}(${vHTML(v)} + ${c})`:`${k}(${vHTML(v)} − ${c})`;const ans=buildExpressionHTML([{coeff:k,v},{coeff:sign==='+'?k*c:-(k*c),v:null}]);return qObj(this.id,L().expand(expr),ans)}} ,
-    {level:'basic',id:'factorise_number',label:'Factorise by common number',gen(){const v=pickVar(),g=randInt(2,8);let a=randInt(1,9),b=randInt(1,9),guard=0;while(gcd(a,b)!==1&&guard++<80){a=randInt(1,9);b=randInt(1,9)}const A=g*a,B=g*b,h=gcd(A,B);const expr=`${A}${vHTML(v)} + ${B}`,ans=`${h}(${A/h}${vHTML(v)} + ${B/h})`;const q=qObj(this.id,L().factorise(expr),ans,[`${h}(${A/h}${v}+${B/h})`]);q.factoriseMeta={A,B,hcf:h,v};return q}},
-
-    {level:'expected',id:'translate_rich',label:'Translate words → expression (multi-step)',gen(){const v=pickVar(),stem=choice(WORD_STEMS_C),expr=stem.build(v);return qObj(this.id,L().words(localStem(stem.key,v)),expr)}} ,
-    {level:'expected',id:'factorise_expected',label:'Factorising',gen(){const template=choice(['two_vars','negative_all','negative_mixed','three_terms','three_terms_neg']);let v1=pickVar(),v2=pickVar();while(v2===v1)v2=pickVar();let g=randInt(2,9),inner=[],outside=g;if(template==='two_vars'){let a=randInt(1,7),b=randInt(1,7),guard=0;while(gcd(a,b)!==1&&guard++<50){a=randInt(1,7);b=randInt(1,7)}inner=[termFromCoeffVars(a,[v1]),termFromCoeffVars(b,[v2])];}else if(template==='negative_all'){outside=-g;let a=randInt(1,7),b=randInt(1,7),guard=0;while(gcd(a,b)!==1&&guard++<50){a=randInt(1,7);b=randInt(1,7)}inner=[termFromCoeffVars(a,[v1]),termFromCoeffVars(b,[])];}else if(template==='negative_mixed'){let a=randInt(2,7),b=randInt(1,7),guard=0;while(gcd(a,b)!==1&&guard++<50){a=randInt(2,7);b=randInt(1,7)}inner=[termFromCoeffVars(a,[v1]),termFromCoeffVars(-b,[])];}else if(template==='three_terms'){let a=randInt(1,6),b=randInt(1,6),c=randInt(1,8),guard=0;while(gcd(gcd(a,b),c)!==1&&guard++<50){a=randInt(1,6);b=randInt(1,6);c=randInt(1,8)}inner=shuffle([termFromCoeffVars(a,[v1]),termFromCoeffVars(b,[v2]),termFromCoeffVars(c,[])]);}else{let a=randInt(1,6),b=randInt(1,6),c=randInt(1,8),guard=0;while(gcd(gcd(a,b),c)!==1&&guard++<50){a=randInt(1,6);b=randInt(1,6);c=randInt(1,8)}inner=shuffle([termFromCoeffVars(a,[v1]),termFromCoeffVars(-b,[v2]),termFromCoeffVars(c,[])]);}const exprTerms=inner.map(t=>({coeff:outside*t.coeff,v:t.v}));return makeFactoriseQuestion(this.id,exprTerms,outside,inner)}} ,
-    {level:'expected',id:'sub_two',label:'Substitute and evaluate (two-step)',gen(){const v=pickVar(),xVal=randInt(-4,8),a=randInt(2,5),b=randInt(1,9),kind=choice(['a(v+b)','a(v-b)','av+b']);let expr,val;if(kind==='a(v+b)'){expr=`${a}(${vHTML(v)} + ${b})`;val=a*(xVal+b)}else if(kind==='a(v-b)'){expr=`${a}(${vHTML(v)} − ${b})`;val=a*(xVal-b)}else{expr=`${a}${vHTML(v)} + ${b}`;val=a*xVal+b}return qObj(this.id,L().evaluate(expr,`${vHTML(v)} = ${fmtInt(xVal)}`),String(val))}} ,
-    {level:'expected',id:'sub_two_vars',label:'Substitute and evaluate (two pronumerals)',gen(){let v1=pickVar(),v2=pickVar();while(v2===v1)v2=pickVar();const val1=randInt(1,10),val2=randInt(1,10),kind=choice(['sumConst','productConst','coeffSum','mixedCoeff','difference','bracketMul','varDivPlus']);let expr,val;if(kind==='sumConst'){const c=randInt(1,12);expr=`${vHTML(v1)} + ${vHTML(v2)} + ${c}`;val=val1+val2+c}else if(kind==='productConst'){const c=randInt(1,12);expr=`${vHTML(v1)}${vHTML(v2)} + ${c}`;val=val1*val2+c}else if(kind==='coeffSum'){const a=randInt(2,12);expr=`${a}${vHTML(v1)} + ${vHTML(v2)}`;val=a*val1+val2}else if(kind==='mixedCoeff'){const a=randInt(2,12),b=randInt(2,12);expr=`${a}${vHTML(v1)} + ${b}${vHTML(v2)}`;val=a*val1+b*val2}else if(kind==='difference'){const a=randInt(2,12);expr=`${a}${vHTML(v1)} − ${vHTML(v2)}`;val=a*val1-val2}else if(kind==='bracketMul'){const a=randInt(2,12);expr=`${a}(${vHTML(v1)} + ${vHTML(v2)})`;val=a*(val1+val2)}else{const divs=[2,3,4,5,6,7,8,9,10,11,12].filter(d=>val1%d===0);const d=divs.length?choice(divs):1;expr=`${fracHTML(vHTML(v1),String(d))} + ${vHTML(v2)}`;val=val1/d+val2}const vals=valList([[vHTML(v1),val1],[vHTML(v2),val2]]);return qObj(this.id,L().evaluate(expr,vals),String(val))}} ,
-    {level:'expected',id:'simplify_mixed',label:'Simplify (collect like terms — mixed order)',gen(){const total=randInt(2,6);let constTerms=Math.min(randInt(0,2),Math.max(0,total-2));const varTerms=total-constTerms,maxGroups=Math.min(3,Math.floor(varTerms/2)),groupCount=randInt(1,Math.max(1,maxGroups));const vars=[];while(vars.length<groupCount){const v=pickVar();if(!vars.includes(v))vars.push(v)}const counts=Array(groupCount).fill(2);let rem=varTerms-(2*groupCount);while(rem-->0)counts[randInt(0,groupCount-1)]++;const terms=[];for(let gi=0;gi<groupCount;gi++){for(let k=0;k<counts[gi];k++)terms.push({coeff:choice([1,-1])*randInt(1,9),v:vars[gi]})}for(let k=0;k<constTerms;k++)terms.push({coeff:choice([1,-1])*randInt(1,15),v:null});const mixed=shuffle(terms),expr=buildExpressionHTML(mixed),{map,csum}=simplifyTerms(mixed),ans=buildSimplifiedHTML(map,csum);return qObj(this.id,L().simplify(expr),ans,[],(lang()==='fa'?'ساده کنید':lang()==='ar'?'بسّط':'Simplify'),expr)}} ,
-    {level:'expected',id:'multiply_terms',label:'Multiplying terms',gen(){const pron=randInt(1,3),nums=4-pron,used=[],f=[];for(let i=0;i<nums;i++)f.push({kind:'num',value:randInt(2,9)});for(let i=0;i<pron;i++){let v=pickVar(),guard=0;while(used.includes(v)&&guard++<20)v=pickVar();used.push(v);f.push({kind:'var',value:v})}const s=shuffle(f),expr=s.map(productFactorHTML).join(' <span class="mulSign">×</span> '),ans=buildMultiplyingTermsAnswer(s);return qObj(this.id,L().simplify(expr),ans)}} ,
-    {level:'expected',id:'expand_simplify',label:'Expand and simplify',gen(){const template=choice(['c_plus_k_bracket','k_bracket_plus_var','two_var_bracket_plus','two_var_big']);let expr='',finalTerms=[];if(template==='c_plus_k_bracket'){const v=pickVar(),c0=randInt(1,9),k=randInt(2,6),b=randInt(1,9),sg=choice([1,-1]);expr=`${c0} + ${k}(${vHTML(v)} ${sg>0?'+':'−'} ${b})`;finalTerms=[{coeff:k,v},{coeff:c0+k*(sg*b),v:null}]}else if(template==='k_bracket_plus_var'){const v=pickVar(),k=randInt(2,6),b=randInt(1,9),m=randInt(1,6),addC=randInt(0,9),sgB=choice([1,-1]),sgM=choice([1,-1]);expr=`${k}(${vHTML(v)} ${sgB>0?'+':'−'} ${b}) ${sgM>0?'+':'−'} ${m}${vHTML(v)}${addC?` + ${addC}`:''}`;finalTerms=[{coeff:k+sgM*m,v},{coeff:k*(sgB*b)+addC,v:null}]}else if(template==='two_var_bracket_plus'){let v1=pickVar(),v2=pickVar();while(v2===v1)v2=pickVar();const k=randInt(2,5),a=randInt(1,4),b=randInt(1,4),e1=randInt(0,6),e2=randInt(0,6);expr=`${k}(${a}${vHTML(v1)} + ${b}${vHTML(v2)})${e2?` + ${e2}${vHTML(v2)}`:''}${e1?` + ${e1}${vHTML(v1)}`:''}`;finalTerms=[{coeff:k*a+e1,v:v1},{coeff:k*b+e2,v:v2}]}else{let v1=pickVar(),v2=pickVar();while(v2===v1)v2=pickVar();const k=randInt(2,4),a=randInt(1,5),b=randInt(1,5),c0=randInt(1,9),oa=randInt(0,5),ob=randInt(0,5);expr=`${k}(${a}${vHTML(v1)} − ${b}${vHTML(v2)} + ${c0})${oa?` + ${oa}${vHTML(v1)}`:''}${ob?` − ${ob}${vHTML(v2)}`:''}`;finalTerms=[{coeff:k*a+oa,v:v1},{coeff:-(k*b+ob),v:v2},{coeff:k*c0,v:null}]}const {map,csum}=simplifyTerms(finalTerms),ans=buildSimplifiedHTML(map,csum);return qObj(this.id,L().expandSimplify(expr),ans)}} ,
-    {level:'expected',id:'alg_frac',label:'Simplify algebraic fractions',gen(){const templates=['numOnly','oneCommonVar','twoVarsCancelOne','twoVarsCancelToVarOverVar'];for(let tries=0;tries<300;tries++){const template=choice(templates);let v1=pickVar(),v2=pickVar();while(v2===v1)v2=pickVar();let topCoeff=randInt(2,9)*randInt(2,6),botCoeff=randInt(2,9)*randInt(2,6);const g=gcd(topCoeff,botCoeff);if(g===1)continue;let topVars=[],botVars=[];if(template==='numOnly'){topVars=[v1];botVars=[]}else if(template==='oneCommonVar'){topVars=[v1];botVars=[v1]}else if(template==='twoVarsCancelOne'){topVars=[v1,v2];botVars=[v1]}else{topVars=[v1,v2];botVars=[v1,pickVar()];while(botVars[1]===v1||botVars[1]===v2)botVars[1]=pickVar()}const rt=topVars.slice(),rb=botVars.slice();for(const v of [...topVars]){const ti=rt.indexOf(v),bi=rb.indexOf(v);if(ti>=0&&bi>=0){rt.splice(ti,1);rb.splice(bi,1)}}const a=topCoeff/g,b=botCoeff/g;if(b===1&&rb.length===0)continue;const expr=fracHTML(monomialHTML(topCoeff,topVars),monomialHTML(botCoeff,botVars)),ans=fracHTML(monomialHTML(a,rt),monomialHTML(b,rb));return qObj(this.id,L().simplify(expr),ans)}return qObj(this.id,L().simplify(fracHTML(`32${vHTML('a')}${vHTML('x')}`,`24${vHTML('a')}`)),fracHTML(`4${vHTML('x')}`,'3'))}},
-    {level:'expected',id:'pattern_table',label:'Complete a table of values',gen(ctx={}){const sequence=['n_plus_b','n_minus_b','an','an_plus_b','an_minus_b'];const tableIndex=Number.isFinite(ctx.tableIndex)?ctx.tableIndex:0;const form=sequence[tableIndex%sequence.length];const m=randInt(2,6);const b=randInt(1,9);const ns=[1,2,3,4];let expr,vals;if(form==='n_plus_b'){expr=`<span class="var">n</span> + ${b}`;vals=ns.map(n=>n+b)}else if(form==='n_minus_b'){expr=`<span class="var">n</span> − ${b}`;vals=ns.map(n=>n-b)}else if(form==='an'){expr=`${m}<span class="var">n</span>`;vals=ns.map(n=>m*n)}else if(form==='an_plus_b'){expr=`${m}<span class="var">n</span> + ${b}`;vals=ns.map(n=>m*n+b)}else{expr=`${m}<span class="var">n</span> − ${b}`;vals=ns.map(n=>m*n-b)}const q=qObj(this.id,L().completeTable(expr),vals.join(','),[],(lang()==='fa'?'جدول را کامل کنید':lang()==='ar'?'أكمل الجدول':'Complete the table for'),expr);q.mode='table';q.tableForm=form;q.tableNs=ns;q.tableVals=vals;q.answerHTML=vals.join(', ');q.answerText=vals.join(',');return q}}
-  ];
-
-  function canonical(s){return String(s).toLowerCase().trim().replace(/[−–—]/g,'-').replace(/[×·]/g,'*').replace(/÷/g,'/').replace(/[²]/g,'^2').replace(/\s+/g,'').replace(/\*/g,'').replace(/\{/g,'(').replace(/\}/g,')').replace(/\[/g,'(').replace(/\]/g,')').replace(/−/g,'-')}
-  function normalizeFractionText(s){return canonical(s).replace(/^\((.*)\)$/,'$1')}
-  function answerOK(input,q){const raw=String(input||'');if(!raw.trim())return false;const a=canonical(raw),targets=[q.answerText,...(q.alts||[])].map(canonical);
-    if(targets.includes(a))return true;
-    const plainTarget=canonical(q.answerText).replace(/,/g,''); if(a===plainTarget)return true;
-    // allow simple fraction answers with or without parentheses around numerator/denominator
-    const af=normalizeFractionText(raw),tf=normalizeFractionText(q.answerText); if(af===tf)return true;
-    // accept x/2 for stacked fractions and coefficientless 1x variants
-    if(targets.some(t=>t.replace(/^1([a-z])/,'$1')===a.replace(/^1([a-z])/,'$1')))return true;
-    return false;
-  }
-  function parseSimpleFactorisation(input,v){
-    let s=canonical(input).replace(/\*/g,'');
-    const esc=String(v).replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
-    const re=new RegExp('^(-?\d+)\((-?\d*)'+esc+'([+-]\d+)\)$');
-    const m=s.match(re);
-    if(!m)return null;
-    const outside=Number(m[1]);
-    let innerCoeff=m[2];
-    if(innerCoeff===''||innerCoeff==='+')innerCoeff=1;
-    else if(innerCoeff==='-')innerCoeff=-1;
-    else innerCoeff=Number(innerCoeff);
-    const innerConst=Number(m[3]);
-    if(!Number.isFinite(outside)||!Number.isFinite(innerCoeff)||!Number.isFinite(innerConst))return null;
-    return {outside,innerCoeff,innerConst,A:outside*innerCoeff,B:outside*innerConst};
-  }
-  function parseLinearFactorisation(input){
-    const s=canonical(input).replace(/\*/g,'');
-    const m=s.match(/^(-?\d+)\((.+)\)$/);
-    if(!m)return null;
-    const outside=Number(m[1]);
-    if(!Number.isFinite(outside)||outside===0)return null;
-    let inner=m[2].replace(/-/g,'+-');
-    if(inner.startsWith('+'))inner=inner.slice(1);
-    const pieces=inner.split('+').filter(Boolean);
-    if(!pieces.length)return null;
-    const terms={};
-    for(const piece of pieces){
-      const tm=piece.match(/^(-?\d*)([a-z]*)$/);
-      if(!tm)return null;
-      let coeffTxt=tm[1], vars=tm[2]||'';
-      let coeff;
-      if(coeffTxt===''||coeffTxt==='+') coeff=1;
-      else if(coeffTxt==='-') coeff=-1;
-      else coeff=Number(coeffTxt);
-      if(!Number.isFinite(coeff))return null;
-      const key=vars.split('').sort((a,b)=>a.localeCompare(b)).join('');
-      terms[key]=(terms[key]||0)+outside*coeff;
-    }
-    return {outside,terms};
-  }
-  function sameTermMap(a,b){
-    const clean=o=>Object.fromEntries(Object.entries(o||{}).filter(([,v])=>v!==0));
-    a=clean(a); b=clean(b);
-    const keys=new Set([...Object.keys(a),...Object.keys(b)]);
-    for(const k of keys){if((a[k]||0)!==(b[k]||0))return false;}
-    return true;
-  }
-  function factorisePartialHCF(input,q){
-    if(!q.factoriseMeta)return false;
-    if(q.factoriseMeta.terms){
-      const p=parseLinearFactorisation(input);
-      if(!p)return false;
-      return sameTermMap(p.terms,q.factoriseMeta.terms)&&Math.abs(p.outside)!==q.factoriseMeta.hcf;
-    }
-    const p=parseSimpleFactorisation(input,q.factoriseMeta.v);
-    if(!p)return false;
-    return p.A===q.factoriseMeta.A&&p.B===q.factoriseMeta.B&&Math.abs(p.outside)!==q.factoriseMeta.hcf;
-  }
-  function answerStatus(input,q){
-    if(answerOK(input,q))return 'ok';
-    if(factorisePartialHCF(input,q))return 'partial';
-    return 'bad';
-  }
-  function genQuestions(level,n,typeIds=null){const allowed=typeIds?new Set(typeIds):null;const types=TYPES.filter(t=>t.level===level&&(!allowed||allowed.has(t.id)));const qs=[];let safety=0;while(qs.length<n&&safety++<3000){const t=choice(types);const tableIndex=qs.filter(x=>x.type==='pattern_table').length;const q=t.gen({tableIndex,questionIndex:qs.length});const key=canonical(stripHTML(q.promptHTML))+'|'+canonical(q.answerText);if(qs.some(x=>x.key===key))continue;q.key=key;q.label=t.label;qs.push(q)}return qs}
-
-  const CONFIG={title:'MMT Worksheet Generator — Algebraic Techniques', perPage:8, borderSrc:'border_page0.png', defaultCount:16, minCount:8, maxCount:96};
-  const UI={
-    en:{levelLabel:'Level',languageLabel:'Worksheet language',questionTypes:'Question types',totalQuestions:'Total questions (multiples of 8 recommended)',generateBtn:'Generate',printBtn:'Print / Save as PDF',resetBtn:'Reset',selectAll:'Select all',deselectAll:'Deselect all',pageTitle:'Algebraic Techniques',answerKeyTitle:'Answer key',page:'Page',name:'Name',className:'Class',date:'Date',noTypes:'Please tick at least one question type.'},
-    fa:{levelLabel:'سطح',languageLabel:'زبان برگه (Worksheet language)',questionTypes:'نوع پرسش‌ها',totalQuestions:'تعداد کل پرسش‌ها (مضرب‌های ۸ پیشنهاد می‌شود)',generateBtn:'ساخت برگه',printBtn:'چاپ / ذخیره PDF',resetBtn:'بازنشانی',selectAll:'انتخاب همه',deselectAll:'لغو انتخاب همه',pageTitle:'تکنیک‌های جبری',answerKeyTitle:'پاسخ‌نامه',page:'صفحه',name:'نام',className:'کلاس',date:'تاریخ',noTypes:'لطفاً حداقل یک نوع پرسش را انتخاب کنید.'},
-    ar:{levelLabel:'المستوى',languageLabel:'لغة ورقة العمل (Worksheet language)',questionTypes:'أنواع الأسئلة',totalQuestions:'إجمالي الأسئلة (يُفضّل مضاعفات ٨)',generateBtn:'إنشاء',printBtn:'طباعة / حفظ PDF',resetBtn:'إعادة ضبط',selectAll:'تحديد الكل',deselectAll:'إلغاء تحديد الكل',pageTitle:'التقنيات الجبرية',answerKeyTitle:'دليل الإجابات',page:'صفحة',name:'الاسم',className:'الصف',date:'التاريخ',noTypes:'يرجى اختيار نوع سؤال واحد على الأقل.'}
   };
-  const el=id=>document.getElementById(id);
-  const levelSel=el('levelSel'), languageSel=el('languageSel'), chkWrap=el('chkWrap'), countInp=el('countInp'), genBtn=el('genBtn'), printBtn=el('printBtn'), resetBtn=el('resetBtn'), toggleAllBtn=el('toggleAllBtn'), out=el('out'), warn=el('warn');
-  function ui(k){return (UI[state.language]&&UI[state.language][k])||UI.en[k]||k}
-  function currentLevel(){return levelSel.value}
-  function levelTitle(){return currentLevel()==='basic'?'Basic — Algebraic Techniques':'Expected — Algebraic Techniques'}
-  function activeTypes(){return TYPES.filter(t=>t.level===currentLevel()).filter(t=>el('chk_'+t.id)?.checked).map(t=>t.id)}
-  function updateToggleAll(){const boxes=[...chkWrap.querySelectorAll('input[type=checkbox]')];const all=boxes.length&&boxes.every(b=>b.checked);toggleAllBtn.textContent=all?ui('deselectAll'):ui('selectAll')}
-  function renderChecks(){chkWrap.innerHTML='';TYPES.filter(t=>t.level===currentLevel()).forEach(t=>{const lab=document.createElement('label');lab.className='chk';const inp=document.createElement('input');inp.type='checkbox';inp.id='chk_'+t.id;inp.checked=true;const span=document.createElement('span');span.innerHTML=state.language==='en'?t.label:`${t.label}<span class="typeAlt">${trType(t.id,t.label)}</span>`;lab.append(inp,span);chkWrap.appendChild(lab);});updateToggleAll();}
-  function translateUI(){document.documentElement.lang=state.language;document.documentElement.dir=(I18N[state.language]?.dir)||'ltr';document.querySelectorAll('[data-ui]').forEach(n=>n.textContent=ui(n.dataset.ui));updateToggleAll();}
-  function makePromptHTML(q){
-    const inst=q.instructionHTML||stripHTML(q.promptHTML)||'Question';
-    const expr=q.expressionHTML||'';
-    return `<span class="qInstruction">${inst}</span>${expr?`<span class="qExprLine">${expr}</span>`:''}`;
+
+  const TYPE_SETS={
+    basic:[
+      ['identify_part','Coefficient, pronumeral or constant'],
+      ['notation','Rewrite in algebraic notation'],
+      ['words_to_expr','Words → expression'],
+      ['sub_one','Substitute — one step'],
+      ['like_terms','Collect like terms'],
+      ['mul_single_term','Multiply a single term'],
+      ['div_single_term','Divide a single term'],
+      ['expand_bracket','Expand a single bracket'],
+      ['factorise_number','Factorise — common number']
+    ],
+    expected:[
+      ['translate_rich','Words → expression (multi-step)'],
+      ['factorise_expected','Factorising'],
+      ['sub_two','Substitute — two-step'],
+      ['sub_two_vars','Substitute — two pronumerals'],
+      ['simplify_mixed','Simplify — mixed like terms'],
+      ['multiply_terms','Multiplying terms'],
+      ['expand_simplify','Expand and simplify'],
+      ['alg_frac','Algebraic fractions'],
+      ['pattern_table','Complete a table of values']
+    ]
+  };
+
+  /* ==================================================================
+     RENDERING
+     Questions are generated once and stored, so changing the language
+     or the working-space option redraws the same paper.
+     ================================================================== */
+  let lastPaper=null;
+
+  function promptText(q,code){
+    const T=LANG[code];
+    return q.key==='identify'?fill(T.identify,{part:T.parts[q.part]}):T[q.key];
   }
-  function tableHTML(q,showAnswers){
-    if(!q.tableNs)return '';
-    const vals=showAnswers?q.tableVals.map(v=>fmtInt(v)):q.tableNs.map(()=>'<span class="blank"></span>');
-    return `<table class="tableMini"><tr><th><span class="var">n</span></th>${q.tableNs.map(n=>`<th>${n}</th>`).join('')}</tr><tr><th>${tr('value')}</th>${vals.map(v=>`<td>${v}</td>`).join('')}</tr></table>`;
+  function promptHTML(q,idx){
+    const rtl=L().dir==='rtl'&&!isEn();
+    const en=`${LANG.en.question}${idx} · ${promptText(q,'en')}`;
+    const body=isEn()?en
+      :`<span dir="${L().dir}">${L().question}${idx} · ${promptText(q,lang())}</span><span class="supportEnglish" dir="ltr">${en}</span>`;
+    return `<div class="promptSmall ${rtl?'rtlPrompt':''}">${body}</div>`;
   }
-  function makeCard(q,idx,showAnswers){
-    const card=document.createElement('div');card.className='qCard';
-    const top=document.createElement('div');top.className='qTop';
-    const num=document.createElement('div');num.className='qNum';num.textContent=`Q${idx}`;
-    const text=document.createElement('div');text.className='qText';text.innerHTML=makePromptHTML(q);
-    top.append(num,text);card.appendChild(top);
-    if(q.mode==='table'){card.insertAdjacentHTML('beforeend',tableHTML(q,showAnswers)); if(showAnswers){const wb=document.createElement('div');wb.className='workBox key';wb.innerHTML=q.answerHTML;card.appendChild(wb);} else {const wb=document.createElement('div');wb.className='workBox';card.appendChild(wb);} return card;}
-    const wb=document.createElement('div');wb.className='workBox'+(showAnswers?' key':'');wb.innerHTML=showAnswers?`<span class="math">${q.answerHTML}</span>`:'';card.appendChild(wb);return card;
+  function wordsHTML(q){
+    const en=`“${LANG.en.stems[q.stem](vH(q.v))}”`;
+    if(isEn())return `<div class="words">${en}</div>`;
+    return `<div class="words"><span dir="${L().dir}">«${L().stems[q.stem](vH(q.v))}»</span><span class="supportEnglish" dir="ltr">${en}</span></div>`;
   }
-  function makePage(title,pageIdx,pageCount,langClass){
-    const page=document.createElement('div');page.className=`page ${langClass}`;
-    const border=document.createElement('img');border.className='pageBorder';border.alt='';border.src=CONFIG.borderSrc;page.appendChild(border);
-    const inner=document.createElement('div');inner.className='pageInner';const cont=document.createElement('div');cont.className='pageContent';
-    const hdr=document.createElement('div');hdr.className='pageHeader';
-    const left=document.createElement('div');left.className='hdrLeft';left.innerHTML=`<div class="hdrTitle">${title}</div><div class="hdrSub">${levelTitle()} · ${ui('page')} ${pageIdx} / ${pageCount}</div>`;
-    const name=document.createElement('div');name.className='nameRow';['name','className','date'].forEach(k=>{const f=document.createElement('div');f.className='lineField';f.innerHTML=`<div class="lineLabel">${ui(k)}</div><div class="lineBox"></div>`;name.appendChild(f);});
-    hdr.append(left,name);cont.appendChild(hdr);const grid=document.createElement('div');grid.className='grid';cont.appendChild(grid);inner.appendChild(cont);page.appendChild(inner);return {page,grid};
+  function tableHTML(q,showAnswer){
+    const t=q.table;
+    const cells=showAnswer?t.vals.map(v=>`<td class="key">${fmtInt(v)}</td>`).join(''):t.ns.map(()=>'<td></td>').join('');
+    return `<table class="tableMini"><tr><th>${vH('n')}</th>${t.ns.map(n=>`<th>${n}</th>`).join('')}</tr><tr><th>${t.expr}</th>${cells}</tr></table>`;
   }
-  function render(qs,showAnswers=false){const totalPages=Math.ceil(qs.length/CONFIG.perPage);const langClass=(I18N[state.language]?.dir)==='rtl'?'lang-rtl':'';for(let p=0;p<totalPages;p++){const title=showAnswers?ui('answerKeyTitle'):ui('pageTitle');const pg=makePage(title,p+1,totalPages,langClass);qs.slice(p*CONFIG.perPage,(p+1)*CONFIG.perPage).forEach((q,i)=>pg.grid.appendChild(makeCard(q,p*CONFIG.perPage+i+1,showAnswers)));out.appendChild(pg.page);}}
-  function generate(){warn.classList.remove('show');out.innerHTML='';const ids=activeTypes();if(!ids.length){warn.textContent=ui('noTypes');warn.classList.add('show');return;}let n=Number(countInp.value||CONFIG.defaultCount);n=clamp(Math.round(n),CONFIG.minCount,CONFIG.maxCount);countInp.value=String(n);reseed();const qs=genQuestions(currentLevel(),n,ids);render(qs,false);render(qs,true);}
-  genBtn.addEventListener('click',generate);printBtn.addEventListener('click',()=>window.print());resetBtn.addEventListener('click',()=>{countInp.value=CONFIG.defaultCount;levelSel.value='basic';state.language='en';languageSel.value='en';renderChecks();translateUI();out.innerHTML='';generate();});
-  levelSel.addEventListener('change',()=>{renderChecks();out.innerHTML='';generate();});languageSel.addEventListener('change',()=>{state.language=languageSel.value;renderChecks();translateUI();out.innerHTML='';generate();});toggleAllBtn.addEventListener('click',()=>{const boxes=[...chkWrap.querySelectorAll('input[type=checkbox]')];const all=boxes.length&&boxes.every(b=>b.checked);boxes.forEach(b=>b.checked=!all);updateToggleAll();});chkWrap.addEventListener('change',updateToggleAll);
-  document.title=CONFIG.title;renderChecks();translateUI();generate();
+  function makeQuestionCard(q,showAnswer,idx){
+    const wrap=document.createElement('div');wrap.className='qCard';
+    const prompt=document.createElement('div');prompt.className='prompt';
+    prompt.innerHTML=promptHTML(q,idx);
+    wrap.appendChild(prompt);
+    const body=document.createElement('div');body.className='exprWrap';
+    if(q.table)body.innerHTML=tableHTML(q,showAnswer);
+    else if(q.stem)body.innerHTML=wordsHTML(q);
+    else body.innerHTML=`<div class="expr">${q.expr}</div>${q.given?`<div class="given">${q.given}</div>`:''}`;
+    wrap.appendChild(body);
+    if(toggleWorking.checked&&!showAnswer){
+      const w=document.createElement('div');w.className='workBox';
+      w.innerHTML=`<span class="workTag">${isEn()?LANG.en.working:L().working}</span>`;
+      wrap.appendChild(w);
+    }
+    if(!q.table){   // a table is answered in its own cells
+      const ans=document.createElement('div');ans.className='ansRow';
+      ans.innerHTML=`<div class="ansLabel">${TRword(LANG.en.answer,L().answer)}</div><div class="ansBox ${showAnswer?'key':''}">${showAnswer?`<span>${q.answer}</span>`:''}</div>`;
+      wrap.appendChild(ans);
+    }
+    return wrap;
+  }
+
+  function headerLabel(base){
+    if(isEn())return base;
+    const t=base==='Worksheet'?L().worksheet:base==='Answer key'?L().answerKey:base;
+    return `${t}<br><span style="font-size:.82em;color:var(--muted)">${base}</span>`;
+  }
+  function pageHeaderHTML(levelName,pageLabel,showNameDate){
+    const rtl=L().dir==='rtl'&&!isEn();
+    const enTitle=`Algebraic Techniques — Worksheet (${levelName})`;
+    const title=isEn()?enTitle
+      :`${L().topic} — ${L().worksheet} (${levelName})<br><span style="font-size:.82em;color:var(--muted)">${enTitle}</span>`;
+    const nameDate=showNameDate?`<div class="nameDate">
+        <div class="lineField"><div class="lineLabel">${L().name}${isEn()?'':`<br><span style="font-size:.82em">Name</span>`}</div><div class="lineBox"></div></div>
+        <div class="lineField"><div class="lineLabel">${L().date}${isEn()?'':`<br><span style="font-size:.82em">Date</span>`}</div><div class="lineBox"></div></div>
+      </div>`:'';
+    return `<div class="pageHeader"><div><div class="hdrTitle" ${rtl?'dir="rtl"':''}>${title}</div><div class="hdrSub">${pageLabel}</div></div>${nameDate}</div>`;
+  }
+  function pageFooterHTML(){return `<div class="pageFooter">This tool and more can be found at <a href="${SITE}">www.millsmathstools.au</a></div>`}
+
+  function perPage(){return toggleWorking.checked?6:8}
+  function paginate(n,per){const c=[];let r=n;while(r>0){const t=Math.min(per,r);c.push(t);r-=t}return c}
+  function buildPages(qs,counts,showAnswers,levelName){
+    const pages=[],rtl=L().dir==='rtl'&&!isEn(),total=counts.length,per=perPage();
+    let cursor=0;
+    counts.forEach((take,p)=>{
+      const page=document.createElement('div');
+      page.className='page'+(rtl?' lang-rtl':'')+(showAnswers?' answerKeyPage':'');
+      const titleText=showAnswers?'Answer key':'Worksheet';
+      const pageLabel=isEn()?`${titleText} — Page ${p+1} of ${total}`
+                            :`${headerLabel(titleText)} — ${L().page} ${p+1} / ${total}`;
+      page.innerHTML=pageHeaderHTML(levelName,pageLabel,!showAnswers);
+      const grid=document.createElement('div');
+      grid.className='grid '+(per===6?'rows-3':'rows-4');
+      for(let i=0;i<take;i++)grid.appendChild(makeQuestionCard(qs[cursor+i],showAnswers,cursor+i+1));
+      cursor+=take;
+      page.appendChild(grid);
+      const f=document.createElement('div');f.innerHTML=pageFooterHTML();
+      page.appendChild(f.firstElementChild);
+      pages.push(page);
+    });
+    return pages;
+  }
+  function draw(){
+    out.innerHTML='';
+    if(!lastPaper)return;
+    const {qs,levelName}=lastPaper,counts=paginate(qs.length,perPage());
+    buildPages(qs,counts,false,levelName).forEach(p=>out.appendChild(p));
+    buildPages(qs,counts,true,levelName).forEach(p=>out.appendChild(p));
+  }
+
+  function activeIds(){return TYPE_SETS[levelSel.value].map(x=>x[0]).filter(id=>document.getElementById(`chk_${id}`)?.checked)}
+  function renderCheckboxes(){
+    chkWrap.innerHTML='';
+    TYPE_SETS[levelSel.value].forEach(([id,label])=>{
+      const lab=document.createElement('label');lab.className='chk';
+      lab.innerHTML=`<input type="checkbox" id="chk_${id}" checked> ${label}`;
+      chkWrap.appendChild(lab);
+    });
+    updateSelectBtn();updatePill();
+  }
+  function updateSelectBtn(){
+    const boxes=[...chkWrap.querySelectorAll('input[type="checkbox"]')];
+    selectBtn.textContent=boxes.some(b=>b.checked)?'Deselect all':'Select all';
+  }
+  function clampCount(){return Math.max(1,Math.min(MAX_Q,Math.round(Number(countInp.value)||DEFAULT_Q)))}
+  function updatePill(){
+    const n=clampCount(),pages=paginate(n,perPage()).length;
+    totalPill.textContent=`${n} question${n===1?'':'s'} · ${pages} page${pages===1?'':'s'} + key`;
+  }
+
+  function generate(){
+    out.innerHTML='';lastPaper=null;
+    const ids=activeIds();
+    if(!ids.length){out.innerHTML=`<div class="warn">${isEn()?LANG.en.noTypes:L().noTypes+' / '+LANG.en.noTypes}</div>`;return}
+    const n=clampCount();countInp.value=String(n);
+    reseed();
+    // Deal one of every ticked type first, then fill at random and shuffle, so
+    // a short paper still shows each type the teacher asked for.
+    const order=[];
+    for(let i=0;i<n;i++)order.push(i<ids.length?ids[i]:choice(ids));
+    const dealt=shuffle(order);
+    const seen=new Set(),qs=[];let tables=0;
+    dealt.forEach(id=>{
+      let q,sig,tries=0;
+      do{q=GEN[id]({tableIndex:tables});sig=id+'|'+stripHTML((q.expr||'')+(q.given||'')+(q.stem||'')+(q.v||'')+(q.part||'')+(q.table?q.table.expr:''))+'|'+stripHTML(q.answer)}
+      while(seen.has(sig)&&tries++<40);
+      seen.add(sig);if(q.table)tables++;
+      q.sourceType=id;qs.push(q);
+    });
+    lastPaper={qs,levelName:levelSel.value==='basic'?'Basic':'Expected'};
+    draw();
+    out.firstElementChild?.scrollIntoView({behavior:'smooth',block:'start'});
+  }
+
+  function resetAll(){
+    out.innerHTML='';lastPaper=null;
+    levelSel.value='basic';countInp.value=String(DEFAULT_Q);toggleWorking.checked=false;
+    renderCheckboxes();updatePill();
+  }
+
+  /* ---- wiring ---- */
+  try{const saved=localStorage.getItem(LANG_KEY);if(saved&&LANG[saved])languageSel.value=saved}catch(e){}
+  levelSel.addEventListener('change',()=>{out.innerHTML='';lastPaper=null;renderCheckboxes()});
+  languageSel.addEventListener('change',()=>{try{localStorage.setItem(LANG_KEY,languageSel.value)}catch(e){}draw()});
+  chkWrap.addEventListener('change',updateSelectBtn);
+  selectBtn.addEventListener('click',e=>{
+    e.preventDefault();
+    const boxes=[...chkWrap.querySelectorAll('input[type="checkbox"]')],any=boxes.some(b=>b.checked);
+    boxes.forEach(b=>b.checked=!any);updateSelectBtn();
+  });
+  countInp.addEventListener('input',updatePill);
+  toggleWorking.addEventListener('change',()=>{updatePill();draw()});
+  genBtn.addEventListener('click',generate);
+  printBtn.addEventListener('click',()=>window.print());
+  resetBtn.addEventListener('click',resetAll);
+  renderCheckboxes();updatePill();
+
+  /* Exposed for the headless harness only. */
+  window.__ALG__={GEN,TYPE_SETS,LANG,paginate,generate,getPaper:()=>lastPaper};
 })();
 </script>
-  <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>
