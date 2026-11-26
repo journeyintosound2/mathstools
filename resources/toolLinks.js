@@ -29,7 +29,54 @@
    ========================================================================== */
 
 window.MMT_TOOL_LINKS = {
+  "MA3-RN-02": [
+    {
+      title: "Represents Numbers: Decimals — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-3/number/decimals/",
+      note: "Part A covers recognise that the place value system can be extended beyond hundredths; compare, order and represent decimals. Every content statement, with an answer key and reasons. English only for now.",
+      tags: ["worksheet generator", "printable", "whole topic", "decimals", "place value", "thousandths", "ordering decimals"]
+    }
+  ],
+
+  "MA3-3DS-01": [
+    {
+      title: "3D Spatial Structure: 3D Objects — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-3/measurement-space/3d-objects/",
+      note: "Part A covers compare, describe and name prisms and pyramids; connect three-dimensional objects with two-dimensional representations. Parts A and B add construct prisms and pyramids. Every content statement, with an answer key and reasons. English only for now.",
+      tags: ["worksheet generator", "printable", "whole topic", "3D objects", "prisms", "pyramids", "nets", "views"]
+    }
+  ],
+
+  "MA3-DATA-01": [
+    {
+      title: "Data: Collecting and Displaying Data — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-3/statistics-probability/data-collecting-displaying/",
+      note: "Part A covers collect categorical and discrete numerical data by observation or survey; choose and use appropriate tables and graphs. Every content statement, with an answer key and reasons. English only for now.",
+      tags: ["worksheet generator", "printable", "whole topic", "data", "surveys", "column graphs", "dot plots", "two-way tables"]
+    }
+  ],
+
+  "MA3-DATA-02": [
+    {
+      title: "Data: Interpreting Data — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-3/statistics-probability/data-interpreting/",
+      note: "Part A covers describe and interpret different datasets in context. Parts A and B add interpret and compare a range of data displays; interpret data presented in digital media and elsewhere. Every content statement, with an answer key and reasons. English only for now.",
+      tags: ["worksheet generator", "printable", "whole topic", "data", "interpreting graphs", "line graphs", "misleading graphs"]
+    }
+  ],
+
   "MA3-2DS-01": [
+    {
+      title: "2D Spatial Structure: Shapes and Transformations — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-3/measurement-space/2d-shapes/",
+      note: "Part A covers classify two-dimensional shapes and describe their properties. Parts A and B add dissect two-dimensional shapes and rearrange them using translations, reflections and rotations. Every content statement, with an answer key and reasons. English only for now.",
+      tags: ["worksheet generator", "printable", "whole topic", "2D shapes", "triangles", "quadrilaterals", "symmetry", "transformations"]
+    },
     {
       title: "Math Memory — Shapes",
       kind: "Game",
@@ -41,6 +88,13 @@ window.MMT_TOOL_LINKS = {
   ],
 
   "MA3-2DS-02": [
+    {
+      title: "2D Spatial Structure: Area of Rectangles — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-3/measurement-space/area-rectangles/",
+      note: "Part A covers use hectares and square kilometres as units of measurement for area; calculate the areas of rectangles using familiar metric units. Every content statement, with an answer key and reasons. English only for now.",
+      tags: ["worksheet generator", "printable", "whole topic", "area", "rectangles", "hectares", "square kilometres"]
+    },
     {
       title: "Area of a Parallelogram & Rhombus",
       kind: "Teacher tool",
@@ -101,6 +155,13 @@ window.MMT_TOOL_LINKS = {
 
   "MA3-2DS-03": [
     {
+      title: "2D Spatial Structure: Area of Composite Figures, Parallelograms and Triangles — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-3/measurement-space/area-triangles-composite/",
+      note: "Part B covers find the area of composite figures; calculate the area of a parallelogram using subdivision and rearrangement; determine the area of a triangle. Every content statement, with an answer key and reasons. English only for now.",
+      tags: ["worksheet generator", "printable", "whole topic", "area", "composite figures", "parallelograms", "triangles"]
+    },
+    {
       title: "Area of a Parallelogram & Rhombus",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-4/measurement-space/area-of-a-parallelogram/",
@@ -144,6 +205,13 @@ window.MMT_TOOL_LINKS = {
 
   "MA3-3DS-02": [
     {
+      title: "3D Spatial Structure: Volume and Capacity — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-3/measurement-space/volume-capacity/",
+      note: "Part A covers choose appropriate units of measurement for capacity; use displacement to investigate volumes of irregular solids; connect decimal representations to the metric system. Parts A and B add use cubic metres for measurement of volume; recognise the multiplicative structure for finding volume; find the volumes of rectangular prisms in cubic centimetres and cubic metres. Every content statement, with an answer key and reasons. English only for now.",
+      tags: ["worksheet generator", "printable", "whole topic", "volume", "capacity", "cubic centimetres", "cubic metres", "displacement"]
+    },
+    {
       title: "Unit Conversion \u2014 Double Number Line",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-4/measurement-space/unit-conversion-number-line/",
@@ -162,6 +230,13 @@ window.MMT_TOOL_LINKS = {
   ],
 
   "MA3-AR-01": [
+    {
+      title: "Additive Relations — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-3/number/additive-relations/",
+      note: "Part A covers apply efficient mental and written strategies to solve addition and subtraction problems; use estimation and place value understanding to determine the reasonableness of solutions. Parts A and B add choose and use efficient strategies to solve addition and subtraction problems; applies known strategies to add and subtract decimals. Every content statement, with an answer key and reasons. English only for now.",
+      tags: ["worksheet generator", "printable", "whole topic", "addition", "subtraction", "mental strategies", "bar model", "estimation", "decimals"]
+    },
     {
       title: "Addition by Compensation",
       kind: "Teacher tool",
@@ -230,6 +305,13 @@ window.MMT_TOOL_LINKS = {
 
   "MA3-CHAN-01": [
     {
+      title: "Chance — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-3/statistics-probability/chance/",
+      note: "Part A covers list outcomes of chance experiments involving equally likely outcomes and represent probabilities. Parts A and B add compare observed frequencies of outcomes with expected results; create random generators and describe probabilities using fractions; conduct chance experiments with both small and large numbers of trials. Every content statement, with an answer key and reasons. English only for now.",
+      tags: ["worksheet generator", "printable", "whole topic", "chance", "probability", "outcomes", "experiments"]
+    },
+    {
       title: "Probability Spinner Simulator",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-5/statistics-probability/financial-expectation-spinner/",
@@ -256,6 +338,13 @@ window.MMT_TOOL_LINKS = {
   ],
 
   "MA3-GM-01": [
+    {
+      title: "Geometric Measure: Position — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-3/measurement-space/position/",
+      note: "Part A covers explore the Cartesian coordinate system. Parts A and B add use the 4 quadrants of the coordinate plane. Every content statement, with an answer key and reasons. English only for now.",
+      tags: ["worksheet generator", "printable", "whole topic", "position", "Cartesian plane", "coordinates", "grid maps"]
+    },
     {
       title: "Capture the Grid",
       kind: "Game",
@@ -284,6 +373,13 @@ window.MMT_TOOL_LINKS = {
 
   "MA3-GM-02": [
     {
+      title: "Geometric Measure: Length — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-3/measurement-space/length/",
+      note: "Part A covers use metres and kilometres for length and distances; measure lengths to find perimeters. Parts A and B add connect decimal representations to the metric system; convert between common metric units of length; solve problems involving the comparison of lengths using appropriate units. Every content statement, with an answer key and reasons. English only for now.",
+      tags: ["worksheet generator", "printable", "whole topic", "length", "perimeter", "metric units", "converting units"]
+    },
+    {
       title: "Unit Conversion \u2014 Double Number Line",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-4/measurement-space/unit-conversion-number-line/",
@@ -302,6 +398,13 @@ window.MMT_TOOL_LINKS = {
   ],
 
   "MA3-GM-03": [
+    {
+      title: "Geometric Measure: Angles — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-3/measurement-space/angles/",
+      note: "Part A covers estimate, measure and compare angles using degrees; use a protractor to measure and identify types of angles. Parts A and B add investigate angles on a straight line and angles at a point; investigate the relationships formed by the intersection of straight lines. Every content statement, with an answer key and reasons. English only for now.",
+      tags: ["worksheet generator", "printable", "whole topic", "angles", "protractor", "angles on a straight line", "angles at a point"]
+    },
     {
       title: "Protractor Angle Explorer",
       kind: "Teacher tool",
@@ -329,6 +432,13 @@ window.MMT_TOOL_LINKS = {
   ],
 
   "MA3-MR-01": [
+    {
+      title: "Multiplicative Relations: Multiplying and Dividing — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-3/number/multiplying-dividing/",
+      note: "Part A covers determine products and factors; use partitioning and place value to multiply 2-, 3- and 4-digit numbers by one-digit numbers; select and apply mental and written strategies to multiply 2- and 3-digit numbers by 2-digit numbers; represent and solve division problems with whole number remainders; select and apply strategies to divide a number with 3 or more digits by a one-digit divisor; use estimation and rounding to check the reasonableness of answers to calculations. Parts A and B add select and apply strategies to solve problems involving multiplication and division with whole numbers; multiply and divide decimals by powers of 10. Every content statement, with an answer key and reasons. English only for now.",
+      tags: ["worksheet generator", "printable", "whole topic", "multiplication", "division", "area model", "factors", "remainders", "powers of 10"]
+    },
     {
       title: "Area Model \u2014 Multiplication & Perimeter",
       kind: "Teacher tool",
@@ -503,6 +613,13 @@ window.MMT_TOOL_LINKS = {
 
   "MA3-MR-02": [
     {
+      title: "Multiplicative Relations: Number Sentences and Patterns — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-3/number/number-sentences-patterns/",
+      note: "Part B covers use equivalent number sentences involving multiplication and division to find unknown quantities; represent and describe number patterns formed by multiples; explore the use of brackets and the order of operations to write number sentences. Every content statement, with an answer key and reasons. English only for now.",
+      tags: ["worksheet generator", "printable", "whole topic", "number sentences", "multiples", "order of operations", "brackets"]
+    },
+    {
       title: "Times Table Chart",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-3/number/timestable-chart/",
@@ -616,6 +733,13 @@ window.MMT_TOOL_LINKS = {
 
   "MA3-NSM-01": [
     {
+      title: "Non-Spatial Measure: Mass — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-3/measurement-space/mass/",
+      note: "Part A covers choose appropriate units of measurement for mass; connect decimal representations to the metric system. Parts A and B add convert between common metric units of mass. Every content statement, with an answer key and reasons. English only for now.",
+      tags: ["worksheet generator", "printable", "whole topic", "mass", "grams", "kilograms", "tonnes", "converting units"]
+    },
+    {
       title: "Unit Conversion \u2014 Double Number Line",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-4/measurement-space/unit-conversion-number-line/",
@@ -635,6 +759,13 @@ window.MMT_TOOL_LINKS = {
 
   "MA3-NSM-02": [
     {
+      title: "Non-Spatial Measure: Time — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-3/measurement-space/time/",
+      note: "Part A covers compare 12- and 24-hour time systems and convert between them. Parts A and B add solve problems involving duration, using 12- and 24-hour time. Every content statement, with an answer key and reasons. English only for now.",
+      tags: ["worksheet generator", "printable", "whole topic", "time", "24-hour time", "duration", "timetables"]
+    },
+    {
       title: "Math Memory — Clocks",
       kind: "Game",
       url: "/games/Maths%20Memory/",
@@ -645,6 +776,13 @@ window.MMT_TOOL_LINKS = {
   ],
 
   "MA3-RN-01": [
+    {
+      title: "Represents Numbers: Whole Numbers and Integers — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-3/number/whole-numbers-integers/",
+      note: "Part A covers recognise, represent and order numbers in the millions; apply place value to partition, regroup and rename numbers to 1 billion. Parts A and B add locate and represent integers on a number line. Every content statement, with an answer key and reasons. English only for now.",
+      tags: ["worksheet generator", "printable", "whole topic", "place value", "millions", "billions", "rounding", "integers", "negative numbers"]
+    },
     {
       title: "Place Value: Multiply & Divide by 10",
       kind: "Teacher tool",
@@ -713,6 +851,13 @@ window.MMT_TOOL_LINKS = {
 
   "MA3-RN-03": [
     {
+      title: "Represents Numbers: Percentages — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-3/number/percentages/",
+      note: "Part B covers make connections between benchmark fractions, decimals and percentages; determine percentage discounts of 10%, 25% and 50%. Every content statement, with an answer key and reasons. English only for now.",
+      tags: ["worksheet generator", "printable", "whole topic", "percentages", "benchmark fractions", "discounts"]
+    },
+    {
       title: "Math Memory — Fractions & Decimals",
       kind: "Game",
       url: "/games/Maths%20Memory/",
@@ -723,6 +868,13 @@ window.MMT_TOOL_LINKS = {
   ],
 
   "MA3-RQF-01": [
+    {
+      title: "Fractions: Comparing, Adding and Subtracting — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-3/number/fractions/",
+      note: "Part A covers recognise the role of the number 1 as representing the whole; compare and order common unit fractions; solve problems involving addition and subtraction of fractions with the same denominator. Parts A and B add recognise that a fraction can represent a division; compare common fractions with related denominators; use equivalence to add and subtract fractional quantities. Every content statement, with an answer key and reasons. English only for now.",
+      tags: ["worksheet generator", "printable", "whole topic", "fractions", "equivalent fractions", "adding fractions", "number line"]
+    },
     {
       title: "Fraction of an Amount \u2014 Divide, Then Multiply",
       kind: "Teacher tool",
@@ -758,6 +910,13 @@ window.MMT_TOOL_LINKS = {
   ],
 
   "MA3-RQF-02": [
+    {
+      title: "Fractions: Fractions of Quantities — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-3/number/fractions-of-quantities/",
+      note: "Part B covers build up to the whole from a given fractional part; find fractional quantities of whole numbers (halves, quarters, fifths and tenths). Every content statement, with an answer key and reasons. English only for now.",
+      tags: ["worksheet generator", "printable", "whole topic", "fractions", "fraction of a quantity", "fraction of an amount"]
+    },
     {
       title: "Times Table Chart",
       kind: "Teacher tool",

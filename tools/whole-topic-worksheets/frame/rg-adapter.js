@@ -9,6 +9,15 @@ const RG = (() => {
     `${t.caption ? `<div class="tcap">${RM(t.caption)}</div>` : ''}<table class="dtab">${t.rows.map((row, r) =>
       `<tr>${row.map((c, i) => (t.headerRow === true && r === 0) || i === 0 ? `<th>${RM(c)}</th>` : `<td>${RM(c)}</td>`).join('')}</tr>`).join('')}</table>`;
   const L = i => `(${'abcdefgh'[i]})`;
+  // rough printed width of a table (cells only break between words): too wide for half a page → the card spans the row
+  const tableWide = t => {
+    if (!t || !Array.isArray(t.rows) || !t.rows.length) return false;
+    const plain = v => String(v == null ? '' : v).replace(/\[\[[^\]]*\]\]|<[^>]*>/g, 'xx');
+    const cols = Math.max(...t.rows.map(r => r.length));
+    let w = 0;
+    for (let c = 0; c < cols; c++) w += 15 + 6.6 * Math.max(2, ...t.rows.map(r => Math.max(0, ...plain(r[c]).split(/\s+/).map(x => x.length))));
+    return w > 300;
+  };
   function correctIndex(choices, answer) {
     const a = String(answer == null ? '' : answer).trim();
     const m = /^\(?([A-F])\)?(?:[\s.:)]|$)/.exec(a);
@@ -19,9 +28,17 @@ const RG = (() => {
   }
   function adapt(q) {
     if (!q) return null;
-    if ((q.subparts || []).some(p => p.diagram)) return null;
+    // one picture in the parts (an area model to complete in part a) is shown with the stem
+    const subD = (q.subparts || []).filter(p => p.diagram);
+    if (subD.length > 1 || (subD.length && q.diagram)) return null;
+    if (subD.length) q = Object.assign({}, q, { diagram: subD[0].diagram });
     const out = { prompt: RM(q.prompt) + table(q.table), mode: 'none', why: (q.working || []).map(RM).join(' &nbsp;·&nbsp; ') };
-    if (q.diagram && q.diagram.engine) out.diagram = { engine: q.diagram.engine, config: q.diagram.config || {}, scale: 1.0, maxH: 330 };
+    if (q.diagram && q.diagram.engine) {
+      const blankAxes = q.diagram.config && q.diagram.config.blank;   // empty axes to draw on: give them room
+      out.diagram = { engine: q.diagram.engine, config: q.diagram.config || {}, scale: blankAxes ? 1.45 : 1.0, maxH: blankAxes ? 470 : 330 };
+    }
+    // answered by drawing on the picture: no answer box on the worksheet (the key still says what to draw)
+    if (/^(construct-|draw-hands|draw-transformation|complete-symmetric|plot-point|design-generator)/.test(q.type || '')) out.noAnswerBox = true;
     if (q.diagramSpace) { out.drawSpace = 30; }
     if (Array.isArray(q.choices) && q.choices.length) {
       if (new Set(q.choices.map(c => String(c).trim())).size !== q.choices.length) return null;
@@ -36,9 +53,10 @@ const RG = (() => {
       out.answerHTML = q.subparts.map((p, i) => `${p.label || L(i)} ${RM(p.answer)}`).join('<br>');
       const w = q.subparts.flatMap(p => p.working || []);
       if (w.length) out.why = w.map(RM).join(' &nbsp;·&nbsp; ');
-      out.drawSpace = Math.max(out.drawSpace || 0, 8 * q.subparts.length);
+      out.partLabels = q.subparts.map((p, i) => p.label || L(i));   // one answer line per part
     }
-    out.loc = null;
+    if (tableWide(q.table) || (q.subparts || []).some(p => tableWide(p.table))) out.wide = true;
+    out.loc = null; out.topic = q.topic || ''; out.rgType = q.type || '';
     return out;
   }
   /* one worksheet type from one bank type, at one level */

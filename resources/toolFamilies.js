@@ -22,7 +22,7 @@
    MMT_WHOLE_TOPIC_WORKSHEETS
      "<worksheet creator url>": "<topic name>"
      The same for the whole-topic worksheet creators (one per outcome, Basic
-     and Expected, every content statement): a light-blue band at the foot of
+     and Expected — Part A / Parts A and B in Stage 3 — every content statement): a light-blue band at the foot of
      the outcome, titled "Whole Topic Worksheet – <topic name>", above the
      quiz band. They are never filed under a content statement, so each shows
      once. A new one needs a line here.
@@ -214,6 +214,29 @@ window.MMT_WHOLE_TOPIC_QUIZZES = {
 };
 
 window.MMT_WHOLE_TOPIC_WORKSHEETS = {
+  /* ---- Stage 3 (levels are the syllabus parts: Part A / Parts A and B) ---- */
+  "/worksheet-creators/stage-3/number/whole-numbers-integers/": "Represents Numbers: Whole Numbers and Integers",
+  "/worksheet-creators/stage-3/number/decimals/": "Represents Numbers: Decimals",
+  "/worksheet-creators/stage-3/number/percentages/": "Represents Numbers: Percentages",
+  "/worksheet-creators/stage-3/number/additive-relations/": "Additive Relations",
+  "/worksheet-creators/stage-3/number/multiplying-dividing/": "Multiplicative Relations: Multiplying and Dividing",
+  "/worksheet-creators/stage-3/number/number-sentences-patterns/": "Multiplicative Relations: Number Sentences and Patterns",
+  "/worksheet-creators/stage-3/number/fractions/": "Fractions: Comparing, Adding and Subtracting",
+  "/worksheet-creators/stage-3/number/fractions-of-quantities/": "Fractions: Fractions of Quantities",
+  "/worksheet-creators/stage-3/measurement-space/position/": "Geometric Measure: Position",
+  "/worksheet-creators/stage-3/measurement-space/length/": "Geometric Measure: Length",
+  "/worksheet-creators/stage-3/measurement-space/angles/": "Geometric Measure: Angles",
+  "/worksheet-creators/stage-3/measurement-space/2d-shapes/": "2D Spatial Structure: Shapes and Transformations",
+  "/worksheet-creators/stage-3/measurement-space/area-rectangles/": "2D Spatial Structure: Area of Rectangles",
+  "/worksheet-creators/stage-3/measurement-space/area-triangles-composite/": "2D Spatial Structure: Area of Composite Figures, Parallelograms and Triangles",
+  "/worksheet-creators/stage-3/measurement-space/3d-objects/": "3D Spatial Structure: 3D Objects",
+  "/worksheet-creators/stage-3/measurement-space/volume-capacity/": "3D Spatial Structure: Volume and Capacity",
+  "/worksheet-creators/stage-3/measurement-space/mass/": "Non-Spatial Measure: Mass",
+  "/worksheet-creators/stage-3/measurement-space/time/": "Non-Spatial Measure: Time",
+  "/worksheet-creators/stage-3/statistics-probability/data-collecting-displaying/": "Data: Collecting and Displaying Data",
+  "/worksheet-creators/stage-3/statistics-probability/data-interpreting/": "Data: Interpreting Data",
+  "/worksheet-creators/stage-3/statistics-probability/chance/": "Chance",
+  /* ---- Stage 4 ---- */
   "/worksheet-creators/stage-4/number/computation-with-integers/": "Computation with Integers",
   "/worksheet-creators/stage-4/number/fractions-decimals-percentages.html": "Fractions, Decimals and Percentages",
   "/worksheet-creators/stage-4/ratios-rates/ratios-and-rates/": "Ratios and Rates",

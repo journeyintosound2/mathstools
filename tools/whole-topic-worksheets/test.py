@@ -29,11 +29,15 @@ async def main(slug, shots, N):
           const st = WSF.statements.map(s => s.id), T = WSF.types, out = {};
           for (const lv of ['basic','expected']) out[lv] = st.filter(id => !T.some(t => t.level === lv && t.stmt === id));
           out.union = st.filter(id => !T.some(t => t.stmt === id));
+          out.partA = WSF.statements.filter(s => s.part === 'A' && !T.some(t => t.level === 'basic' && t.stmt === s.id)).map(s => s.id);
+          out.hasParts = WSF.statements.some(s => s.part);
           out.nostmt = T.filter(t => !st.includes(t.stmt)).map(t => t.id);
           out.counts = { basic: T.filter(t => t.level==='basic').length, expected: T.filter(t => t.level==='expected').length, paper: T.filter(t => t.paper).length };
           return out; }''')
         print('coverage', json.dumps(cov))
         if cov['union']: fails.append('statements with no type at all: %s' % cov['union'])
+        if cov['hasParts'] and cov['partA']: fails.append('Part A paper misses Part A statements: %s' % cov['partA'])
+        if cov['hasParts'] and cov['basic']: cov['basic'] = [x for x in cov['basic'] if x not in cov['partA']]
         if cov['expected']: fails.append('Expected paper misses statements: %s' % cov['expected'])
         if cov['nostmt']: fails.append('types not filed under a statement: %s' % cov['nostmt'])
 
@@ -60,11 +64,13 @@ async def main(slug, shots, N):
         print('stress', 'ok' if not res else res[:12])
 
         # 3. papers
-        for lv in ['basic', 'expected']:
-            for lang in ['en', 'ar', 'fa']:
+        levels = await pg.evaluate("[...document.querySelectorAll('#levelSel option')].filter(o => !o.disabled).map(o => o.value)")
+        for lv in levels:
+            langs = ['en'] if await pg.evaluate("document.getElementById('languageSel').parentNode.hidden") else ['en', 'ar', 'fa']
+            for lang in langs:
                 for work in [False, True]:
                     await pg.select_option('#levelSel', lv)
-                    await pg.select_option('#languageSel', lang)
+                    if len(langs) > 1: await pg.select_option('#languageSel', lang)
                     await pg.evaluate('(w) => { document.getElementById("toggleWorking").checked = w; }', work)
                     await pg.fill('#countInp', '20')
                     await pg.click('#genBtn')

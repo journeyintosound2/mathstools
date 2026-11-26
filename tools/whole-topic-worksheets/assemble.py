@@ -49,13 +49,16 @@ def main():
             b = QZ + 'banks/' + p['bank']
             bank = '<script type="module" src="%s?v=%s"></script>' % (b, md5v(b))
         page_js = open(os.path.join(HERE, 'pages', slug + '.js'), encoding='utf-8').read()
-        st = [{'id': s['id'], 'text': s['text']} for s in stmts[p['outcome']]]
+        st = [dict({'id': s['id'], 'text': s['text']}, **({'part': s['part']} if s.get('part') else {})) for s in stmts[p['outcome']]]
         page_js = 'const STATEMENTS = %s;\n' % json.dumps(st, ensure_ascii=False) + page_js
         if p.get('rg'):
             # an ES module: the Revision Generator bank, its renderer, the adapter
             qr = '/assessment/exam-builder/renderers/question-renderer.js'
-            bk = '/assessment/exam-builder/question-banks/' + p['rg']['bank']
-            imports = "import { renderMathText } from '%s?v=%s';\nimport { %s as BANK_GEN } from '%s?v=%s';\n" % (qr, md5v(qr), p['rg']['fn'], bk, md5v(bk))
+            banks = p['rg'].get('banks') or [[p['rg']['bank'], p['rg']['fn'], 'BANK_GEN']]
+            imports = "import { renderMathText } from '%s?v=%s';\n" % (qr, md5v(qr))
+            for path, fn, alias in banks:
+                bk = '/assessment/exam-builder/question-banks/' + path
+                imports += "import { %s as %s } from '%s?v=%s';\n" % (fn, alias, bk, md5v(bk))
             adapter = open(os.path.join(HERE, 'frame/rg-adapter.js'), encoding='utf-8').read()
             page_script = '<script type="module">\n' + imports + adapter + '\n' + page_js + '\n</script>'
         else:

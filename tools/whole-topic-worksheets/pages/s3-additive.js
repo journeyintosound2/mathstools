@@ -1,0 +1,53 @@
+/* Additive Relations — MA3-AR-01. BUILT by stage3.py: types from the Revision Generator Stage 3
+   banks, mapped to this outcome's content statements. Part A types appear
+   in both papers; Part B types only in "Parts A and B". */
+const T = (gen, lv, id, label, stmt) => RG.type(gen, lv, id, label, stmt);
+WSF.page({
+  topic: "Additive Relations", outcome: 'MA3-AR-01', langKey: 'mmt-s3-additive-ws-lang', bank: false, noLanguage: true,
+  defaultCount: 12, statements: STATEMENTS,
+  levelNames: { basic: 'Part A', expected: "Parts A and B" },
+  paperTypes: [
+  T(G_AR, 'basic', 'add-multidigit', "Add multi-digit numbers", 'mental-written'),
+  T(G_AR, 'basic', 'subtract-multidigit', "Subtract multi-digit numbers", 'mental-written'),
+  T(G_AR, 'basic', 'add-three-numbers', "Add three or more numbers", 'mental-written'),
+  T(G_AR, 'basic', 'missing-addend', "Find the missing number", 'mental-written'),
+  T(G_AR, 'basic', 'onl-bridging-add', "Number line: bridging to ten (addition)", 'mental-written'),
+  T(G_AR, 'basic', 'onl-jump-add', "Number line: jump strategy (addition)", 'mental-written'),
+  T(G_AR, 'basic', 'onl-jumping-over-add', "Number line: jumping over (addition)", 'mental-written'),
+  T(G_AR, 'basic', 'onl-bridging-sub', "Number line: bridging to ten (subtraction)", 'mental-written'),
+  T(G_AR, 'basic', 'onl-counting-up', "Number line: counting up (subtraction)", 'mental-written'),
+  T(G_AR, 'basic', 'bar-model-total', "Bar model: find the total", 'mental-written'),
+  T(G_AR, 'basic', 'bar-model-part', "Bar model: find the missing part", 'mental-written'),
+  T(G_AR, 'basic', 'bar-model-compare', "Bar model: how many more?", 'mental-written'),
+  T(G_AR, 'basic', 'word-problem', "Word problems", 'mental-written'),
+  T(G_AR, 'basic', 'estimate-sum', "Estimate to check reasonableness", 'estimation'),
+  T(G_AR, 'basic', 'is-it-reasonable', "Is the answer reasonable?", 'estimation'),
+  T(G_AR, 'expected', 'add-multidigit', "Add multi-digit numbers", 'mental-written'),
+  T(G_AR, 'expected', 'subtract-multidigit', "Subtract multi-digit numbers", 'mental-written'),
+  T(G_AR, 'expected', 'add-three-numbers', "Add three or more numbers", 'mental-written'),
+  T(G_AR, 'expected', 'missing-addend', "Find the missing number", 'mental-written'),
+  T(G_AR, 'expected', 'onl-bridging-add', "Number line: bridging to ten (addition)", 'mental-written'),
+  T(G_AR, 'expected', 'onl-jump-add', "Number line: jump strategy (addition)", 'mental-written'),
+  T(G_AR, 'expected', 'onl-jumping-over-add', "Number line: jumping over (addition)", 'mental-written'),
+  T(G_AR, 'expected', 'onl-bridging-sub', "Number line: bridging to ten (subtraction)", 'mental-written'),
+  T(G_AR, 'expected', 'onl-counting-up', "Number line: counting up (subtraction)", 'mental-written'),
+  T(G_AR, 'expected', 'bar-model-total', "Bar model: find the total", 'mental-written'),
+  T(G_AR, 'expected', 'bar-model-part', "Bar model: find the missing part", 'mental-written'),
+  T(G_AR, 'expected', 'bar-model-compare', "Bar model: how many more?", 'mental-written'),
+  T(G_AR, 'expected', 'word-problem', "Word problems", 'mental-written'),
+  T(G_AR, 'expected', 'estimate-sum', "Estimate to check reasonableness", 'estimation'),
+  T(G_AR, 'expected', 'is-it-reasonable', "Is the answer reasonable?", 'estimation'),
+  T(G_AR, 'expected', 'choose-strategy', "Choose an efficient strategy", 'choose-strategies'),
+  T(G_AR, 'expected', 'constant-difference', "Constant difference", 'choose-strategies'),
+  T(G_AR, 'expected', 'bridging', "Bridging to a friendly number", 'choose-strategies'),
+  T(G_AR, 'expected', 'onl-constant-difference', "Number line: constant difference", 'choose-strategies'),
+  T(G_AR, 'expected', 'onl-draw-your-own', "Number line: draw your own jumps", 'choose-strategies'),
+  T(G_AR, 'expected', 'calculator-or-not', "Calculator or mental strategy?", 'choose-strategies'),
+  T(G_AR, 'expected', 'bar-model-draw', "Draw a bar model and solve", 'choose-strategies'),
+  T(G_AR, 'expected', 'multistep-word', "Multi-step word problems", 'choose-strategies'),
+  T(G_AR, 'expected', 'add-decimals', "Add decimals", 'decimals'),
+  T(G_AR, 'expected', 'subtract-decimals', "Subtract decimals", 'decimals'),
+  T(G_AR, 'expected', 'money-totals', "Money totals and change", 'decimals'),
+  T(G_AR, 'expected', 'bar-model-decimals', "Bar model with money and decimals", 'decimals')
+  ]
+});

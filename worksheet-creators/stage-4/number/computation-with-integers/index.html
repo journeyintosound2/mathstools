@@ -46,6 +46,7 @@
     .stmtRow:first-child{border-top:0;padding-top:0}
     .stmtText{margin:0 0 8px;font-size:13.5px;font-weight:850;color:#334155;line-height:1.35}
     .stmtText .n{display:inline-grid;place-items:center;min-width:22px;height:22px;border-radius:7px;background:#eef2ff;color:#1d4ed8;font-size:12px;font-weight:1000;margin-right:7px}
+    .stmtText .part{display:inline-block;font-size:11px;font-weight:1000;color:#0369a1;background:#e0f2fe;border-radius:6px;padding:1px 6px;margin-right:7px;vertical-align:1px}
     .stmtNone{font-size:13px;font-weight:800;color:#94a3b8;font-style:italic}
     .btnRow{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:flex-end}
     button{border:none;border-radius:14px;padding:12px 16px;font-weight:1000;cursor:pointer;background:#f3f4f6;color:#111827;transition:transform .04s ease,filter .15s ease,opacity .2s ease;user-select:none;font-size:16px;font-family:var(--uiFont)}
@@ -67,7 +68,7 @@
     .lineLabel{font-size:7.5pt;font-weight:950;color:var(--muted);line-height:1.1}
     .lineBox{height:6.5mm;border:1.3px solid #111827;border-radius:2.2mm;background:#fff}
     .pageBody{flex:1 1 auto;display:flex;flex-direction:column;gap:3mm;padding-top:3mm;min-height:0}
-    .row{display:grid;grid-template-columns:1fr 1fr;gap:3mm;flex:0 0 auto}
+    .row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:3mm;flex:0 0 auto}
     .row.wide{grid-template-columns:1fr}
     .pageFooter{flex:0 0 auto;padding-top:2mm;border-top:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between;gap:10px;font-weight:950;color:#111827;font-size:7.5pt}
     .pageFooter a{color:#2563eb;text-decoration:none;font-weight:1000}
@@ -91,7 +92,7 @@
     .frs{position:absolute;margin-left:-.7em}
     sup{font-size:.7em;line-height:0}
     .dtab{border-collapse:collapse;margin:1.6mm auto 0;font-size:9pt;font-variant-numeric:tabular-nums}
-    .dtab th,.dtab td{border:1px solid #94a3b8;padding:1mm 2.4mm;text-align:center}
+    .dtab th,.dtab td{border:1px solid #94a3b8;padding:1mm 1.8mm;text-align:center;overflow-wrap:normal;word-break:normal;hyphens:none}
     .dtab th{background:#f1f5f9;font-weight:850}
     .dtab td.q{background:#fef9c3;font-weight:900}
     .dtab.rows th{text-align:left}
@@ -104,6 +105,7 @@
     .prompt-indented-line{display:block;margin-top:.8mm}
     .why .math-expression,.why .prompt-indented-line,.ansBox .math-expression,.ansBox .prompt-indented-line{display:inline;margin:0 .2em;font-size:1em;text-align:inherit}
     .tcap{font-size:.84em;font-weight:800;color:var(--muted);text-align:center;margin-top:1.2mm}
+    .ansRow.part{margin-top:1.6mm}.ansRow.part>span{font-weight:900}
     .subs{list-style:none;margin:1.6mm 0 0;padding:0;display:flex;flex-direction:column;gap:1.4mm}
     .subs .sl{font-weight:900;margin-right:1.2mm}
     .qDiag{display:flex;justify-content:center;align-items:center;margin-top:2mm;min-width:0}
@@ -398,7 +400,7 @@
     const lead = (div.textContent || '').replace(/\s+/g, ' ').trim();
     if (!lead || lead.length > 170) return '';
     let t = '';
-    try { t = translate(lead, lang(), { topic: CFG.translateTopic || CFG.topic, type: q.type || '' }) || ''; } catch (e) { t = ''; }
+    try { t = translate(lead, lang(), { topic: q.topic || CFG.translateTopic || CFG.topic, type: q.rgType || q.type || '' }) || ''; } catch (e) { t = ''; }
     t = String(t).replace(/[\u2066-\u2069\u200e\u200f]/g, '').replace(/\s+([:،؛.؟])/g, '$1');
     if (!t || FALLBACKS.test(t)) return '';
     // a real translation: no English words left over, every maths token kept once, no stray punctuation
@@ -431,7 +433,8 @@
       ? `<div class="workBox"><span class="workTag">${isEn() ? LANG.en.working : L().working + ' · ' + LANG.en.working}</span></div>` : '';
     const ans = key
       ? `<div class="ansRow">${ansLabel}<div class="ansBox key">${answerHTML(q) || '—'}</div></div>${toggleWhy.checked && q.why ? `<div class="why">${q.why}</div>` : ''}`
-      : (needsBox ? `<div class="ansRow">${ansLabel}<div class="ansBox"></div>${unitAfter}</div>` : '');
+      : (needsBox ? (q.partLabels ? q.partLabels.map(l => `<div class="ansRow part"><span>${l}</span><div class="ansBox"></div></div>`).join('')
+                                   : `<div class="ansRow">${ansLabel}<div class="ansBox"></div>${unitAfter}</div>`) : '');
     return `<div class="qCard" data-type="${q.type}">` +
       `<div class="qHead"><span class="qNum">Q${idx}</span><div class="qPrompt${loc ? ' bi' : ''}">${loc ? `<span class="loc">${loc}</span>` : ''}<span class="enLine">${prompt}</span>${body}</div></div>` +
       (diag ? `<div class="qDiag" data-d="1"></div>` : '') +
@@ -447,7 +450,7 @@
 
   /* ---- pages: measure every card at its printed width, then pack ---- */
   function headerHTML(key, p, total) {
-    const lv = lastPaper.level === 'basic' ? 'Basic' : 'Expected';
+    const lv = levelName(lastPaper.level);
     const enTitle = `${CFG.topic} — ${key ? 'Answer key' : 'Worksheet'} (${lv})`;
     const locT = isEn() ? '' : `<span class="loc" dir="rtl">${key ? L().answerKey : L().worksheet} (${lv})</span>`;
     const sub = `${key ? 'Answer key' : 'Worksheet'} — ${isEn() ? 'Page' : L().page + ' / Page'} ${p} / ${total}`;
@@ -468,7 +471,8 @@
     const items = qs.map((q, i) => {
       half.innerHTML = cardHTML(q, i + 1, key); hydrate(half.firstChild, q, key);
       const card = half.firstChild;
-      const over = card.scrollWidth > card.clientWidth + 2 || [...card.querySelectorAll('svg,table,.opts')].some(e => e.getBoundingClientRect().width > card.clientWidth - 6);
+      const ccs = getComputedStyle(card), edge = card.getBoundingClientRect().right - parseFloat(ccs.paddingRight) + 1;
+      const over = card.scrollWidth > card.clientWidth + 2 || [...card.querySelectorAll('svg,table,.opts,.big')].some(e => e.getBoundingClientRect().right > edge);
       let wide = !!q.wide || over, h;
       if (wide) { full.innerHTML = cardHTML(q, i + 1, key); hydrate(full.firstChild, q, key); h = full.firstChild.getBoundingClientRect().height; }
       else h = card.getBoundingClientRect().height;
@@ -506,7 +510,7 @@
       page.className = 'page' + (isEn() ? '' : ' lang-rtl') + (key ? ' answerKeyPage' : '');
       // Whatever the page has left is shared out as working room.
       const extra = Math.max(0, avail - pg.used - 2);
-      const each = Math.min(extra / pg.rows.length, key ? 0 : 260);
+      const each = key ? 0 : Math.min(extra / pg.rows.length, p < pages.length - 1 ? Infinity : 260);   // a page cut short by a tall next row keeps all its room
       page.innerHTML = headerHTML(key, p + 1, pages.length) + '<div class="pageBody"></div>' + footerHTML();
       const body = page.querySelector('.pageBody');
       pg.rows.forEach(r => {
@@ -542,6 +546,12 @@
 
   /* ---- the paper ---- */
   const typesAt = lv => TYPES.filter(t => t.level === lv);
+  const levelName = lv => ((CFG && CFG.levelNames) || { basic: 'Basic', expected: 'Expected' })[lv];
+  function setupLevels() {
+    // a level with no question types (a Part B-only Stage 3 outcome) is not offered
+    [...levelSel.options].forEach(o => { o.textContent = levelName(o.value); o.hidden = o.disabled = !typesAt(o.value).length; });
+    if (levelSel.selectedOptions[0] && levelSel.selectedOptions[0].disabled) levelSel.value = [...levelSel.options].find(o => !o.disabled).value;
+  }
   function activeIds() { return typesAt(levelSel.value).map(t => t.id).filter(id => { const b = document.getElementById('chk_' + id); return b && b.checked; }); }
   function clampCount() { return Math.max(1, Math.min(48, Math.round(Number(countInp.value) || CFG.defaultCount || 12))); }
   function generate() {
@@ -578,12 +588,12 @@
 
   /* ---- the controls ---- */
   function renderChecks() {
-    const lv = levelSel.value, other = lv === 'basic' ? 'Expected' : 'Basic';
+    const lv = levelSel.value, other = levelName(lv === 'basic' ? 'expected' : 'basic');
     chkWrap.innerHTML = CFG.statements.map((s, i) => {
       const here = typesAt(lv).filter(t => t.stmt === s.id);
       const chips = here.map(t => `<label class="chk" title="${t.paper ? 'Written for paper (not in the online quiz)' : 'Also in the whole-topic quiz'}"><input type="checkbox" id="chk_${t.id}" checked> ${t.label}${t.paper ? ' <span class="wTag">paper</span>' : ''}</label>`).join('');
       const none = `<span class="stmtNone">Covered in the ${other} paper.</span>`;
-      return `<div class="stmtRow"><p class="stmtText"><span class="n">${i + 1}</span>${s.text}</p><div class="checks">${chips || none}</div></div>`;
+      return `<div class="stmtRow"><p class="stmtText"><span class="n">${i + 1}</span>${s.part ? `<span class="part">Part ${s.part}</span>` : ''}${s.text}</p><div class="checks">${chips || none}</div></div>`;
     }).join('');
     updateSelectBtn(); updatePill();
   }
@@ -607,7 +617,9 @@
     (CFG.paperTypes || []).forEach(t => TYPES.push(Object.assign({ paper: true }, t)));
     // keep each level's list in its intended climbing order
     if (CFG.order) TYPES.sort((a, b) => (CFG.order.indexOf(a.id) + 1 || 999) - (CFG.order.indexOf(b.id) + 1 || 999));
-    try { const s = localStorage.getItem(CFG.langKey); if (s && LANG[s]) languageSel.value = s; } catch (e) {}
+    if (CFG.noLanguage) { languageSel.value = 'en'; languageSel.parentNode.hidden = true; }   // no translations for this topic yet
+    else try { const s = localStorage.getItem(CFG.langKey); if (s && LANG[s]) languageSel.value = s; } catch (e) {}
+    setupLevels();
     renderChecks();
   }
 
@@ -633,7 +645,7 @@
   toggleMix.addEventListener('change', () => { if (lastPaper) generate(); });
   $('genBtn').addEventListener('click', generate);
   $('printBtn').addEventListener('click', () => window.print());
-  $('resetBtn').addEventListener('click', () => { out.innerHTML = ''; lastPaper = null; levelSel.value = 'basic'; countInp.value = String(CFG.defaultCount || 12); toggleWorking.checked = false; toggleWhy.checked = true; toggleMix.checked = false; renderChecks(); });
+  $('resetBtn').addEventListener('click', () => { out.innerHTML = ''; lastPaper = null; levelSel.value = 'basic'; setupLevels(); countInp.value = String(CFG.defaultCount || 12); toggleWorking.checked = false; toggleWhy.checked = true; toggleMix.checked = false; renderChecks(); });
 })();
 </script>
 <script type="module">
@@ -650,6 +662,15 @@ const RG = (() => {
     `${t.caption ? `<div class="tcap">${RM(t.caption)}</div>` : ''}<table class="dtab">${t.rows.map((row, r) =>
       `<tr>${row.map((c, i) => (t.headerRow === true && r === 0) || i === 0 ? `<th>${RM(c)}</th>` : `<td>${RM(c)}</td>`).join('')}</tr>`).join('')}</table>`;
   const L = i => `(${'abcdefgh'[i]})`;
+  // rough printed width of a table (cells only break between words): too wide for half a page → the card spans the row
+  const tableWide = t => {
+    if (!t || !Array.isArray(t.rows) || !t.rows.length) return false;
+    const plain = v => String(v == null ? '' : v).replace(/\[\[[^\]]*\]\]|<[^>]*>/g, 'xx');
+    const cols = Math.max(...t.rows.map(r => r.length));
+    let w = 0;
+    for (let c = 0; c < cols; c++) w += 15 + 6.6 * Math.max(2, ...t.rows.map(r => Math.max(0, ...plain(r[c]).split(/\s+/).map(x => x.length))));
+    return w > 300;
+  };
   function correctIndex(choices, answer) {
     const a = String(answer == null ? '' : answer).trim();
     const m = /^\(?([A-F])\)?(?:[\s.:)]|$)/.exec(a);
@@ -660,9 +681,17 @@ const RG = (() => {
   }
   function adapt(q) {
     if (!q) return null;
-    if ((q.subparts || []).some(p => p.diagram)) return null;
+    // one picture in the parts (an area model to complete in part a) is shown with the stem
+    const subD = (q.subparts || []).filter(p => p.diagram);
+    if (subD.length > 1 || (subD.length && q.diagram)) return null;
+    if (subD.length) q = Object.assign({}, q, { diagram: subD[0].diagram });
     const out = { prompt: RM(q.prompt) + table(q.table), mode: 'none', why: (q.working || []).map(RM).join(' &nbsp;·&nbsp; ') };
-    if (q.diagram && q.diagram.engine) out.diagram = { engine: q.diagram.engine, config: q.diagram.config || {}, scale: 1.0, maxH: 330 };
+    if (q.diagram && q.diagram.engine) {
+      const blankAxes = q.diagram.config && q.diagram.config.blank;   // empty axes to draw on: give them room
+      out.diagram = { engine: q.diagram.engine, config: q.diagram.config || {}, scale: blankAxes ? 1.45 : 1.0, maxH: blankAxes ? 470 : 330 };
+    }
+    // answered by drawing on the picture: no answer box on the worksheet (the key still says what to draw)
+    if (/^(construct-|draw-hands|draw-transformation|complete-symmetric|plot-point|design-generator)/.test(q.type || '')) out.noAnswerBox = true;
     if (q.diagramSpace) { out.drawSpace = 30; }
     if (Array.isArray(q.choices) && q.choices.length) {
       if (new Set(q.choices.map(c => String(c).trim())).size !== q.choices.length) return null;
@@ -677,9 +706,10 @@ const RG = (() => {
       out.answerHTML = q.subparts.map((p, i) => `${p.label || L(i)} ${RM(p.answer)}`).join('<br>');
       const w = q.subparts.flatMap(p => p.working || []);
       if (w.length) out.why = w.map(RM).join(' &nbsp;·&nbsp; ');
-      out.drawSpace = Math.max(out.drawSpace || 0, 8 * q.subparts.length);
+      out.partLabels = q.subparts.map((p, i) => p.label || L(i));   // one answer line per part
     }
-    out.loc = null;
+    if (tableWide(q.table) || (q.subparts || []).some(p => tableWide(p.table))) out.wide = true;
+    out.loc = null; out.topic = q.topic || ''; out.rgType = q.type || '';
     return out;
   }
   /* one worksheet type from one bank type, at one level */
