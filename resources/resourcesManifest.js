@@ -692,7 +692,17 @@ window.MMT_RESOURCES = {
           code: "MA4-PRO-C-01",
           path: "Core",
           statement: "solves problems involving the probabilities of simple chance experiments",
-          resources: []
+          resources: [
+            {
+              title: "Bin Toss — Is the $50 Prize Worth It?",
+              type: "pdf",
+              file: "bin-toss-worksheet.pdf",
+              ideas: ["chance-experiments", "complementary"],
+              note: "6-page student worksheet for the Bin Toss tool — predict, record 30 throws, relative frequency, graph the estimate settling, set a break-even price, play for money, then extension problems. Teacher answers on page 7.",
+              year: "Years 7–8",
+              tags: ["worksheet", "experimental probability", "relative frequency", "complementary events", "expected outcomes", "bin toss", "financial", "spot the mistake"]
+            }
+          ]
         }
       ]
     }

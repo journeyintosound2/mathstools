@@ -32,6 +32,7 @@ def statements():
 
 
 def main():
+    subprocess.run([sys.executable, os.path.join(HERE, 'frame/make_shell.py')], check=True, stdout=subprocess.DEVNULL)
     shell = open(os.path.join(HERE, 'frame/shell.html'), encoding='utf-8').read()
     grid = open(os.path.join(HERE, 'frame/grid.js'), encoding='utf-8').read()
     stmts = statements()

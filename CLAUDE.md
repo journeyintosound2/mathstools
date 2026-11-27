@@ -127,6 +127,54 @@
 > * Not built yet: lesson plan, worksheet, student quiz (greyed in Tools). Jeff's old Day 2 sheet's "Money Paid" used $15 where the
 >   price cell was $20; the tool counts every player's money in and each winner's prize out instead.
 >
+> **NEW (2026-11-27): BIN TOSS — PRINTABLE STUDENT WORKSHEET (PDF).** `resources/stage-4/probability/bin-toss-worksheet.pdf`
+> (7 A4 pages: A predict on a likelihood line · B record 30 throws, relative frequency as fraction/decimal/%, P(in) + P(out) = 1,
+> running relative frequency table + graph grid · C set a price (worked example 6/20, $20 → $500; break-even = P(in) × $50) ·
+> D play for money + spot the mistake (Jordan's $15-for-$20 slip, from Jeff's old Day 2 sheet) · E extension (complementary,
+> three distances, biggest prize, "exactly 30", hook-a-duck) + reflect · p7 teacher notes and answers). Listed in
+> resourcesManifest.js under MA4-PRO-C-01 and linked from the tool's Tools menu, which now holds ONLY that worksheet plus greyed
+> Lesson plan / Student Quiz (Jeff 2026-11-27: the related-interactive links were removed). The tool also lost its Set up step
+> (7 steps now) and money rounds put the profit graph first and largest in the Graph tab. The PDF was rendered from HTML with
+> Chromium (Inter). Source: `tools/pdf-worksheets/bin-toss/` (`build.py` + `ws.css` → `render.py`, Playwright; needs `logo.png` =
+> a copy of `icons/icon-192.png` beside it). Re-render and copy the PDF over after any edit.
+>
+> **NEW (2026-11-27, latest): WHOLE-TOPIC WORKSHEETS — THE PAPER REBUILT (frame v2), LENGTH + ALGEBRAIC TECHNIQUES MOVED ONTO IT.**
+> Jeff: bring every whole-topic worksheet up to the Counting Strategies creator's quality, with NO wasted space (his examples: the old
+> Length paper, 6 big cards a page, and Integers, cards stretched into tall empty boxes). All 37 whole-topic creators (16 Stage 4 + 21
+> Stage 3) now share one paper engine; URLs, question types and options are unchanged.
+> * **The frame is now in parts:** `tools/whole-topic-worksheets/frame/head.html + controls.css + paper.css + pwa.html + body.html`,
+>   joined into `frame/shell.html` by `frame/make_shell.py` (assemble.py runs it first). Edit the parts, never shell.html.
+> * **The paper (body.html):** one SECTION per content statement (letter badge + statement), in syllabus order. Short questions with
+>   the same instruction and one expression ("Calculate:", "Simplify.", "Write … as a decimal") become ONE card with parts a, b, c, d
+>   (`splitPrompt`/`drillable`/`makeCards`; inline "Calculate <maths>." counts). Every card is MEASURED in a probe page: too wide →
+>   across the page; a tall narrow diagram → beside the words (`side`); drill parts in 1–3 columns. `makeRows` pairs cards of
+>   similar height, or sets a tall card beside two short ones (`stack`), choosing the least wasted height; a lone card goes across.
+>   `paginate`: a heading never sits alone; if the next row won't fit, a later row of the same section that fits moves up.
+>   Section headings are measured per section (long statements wrap). Numbers are given in reading order after layout.
+> * **No wasted space — "Fill the pages" (on by default):** `generate()` also deals a POOL of spare questions (2× the count, every
+>   ticked type). `layout()` binary-searches the most spare questions that keep the same number of pages, then greedily adds any
+>   other spare that fits and leaves less empty room (no type more than one above the most-asked type), then `fillPages` puts a row of
+>   that page's own section into any gap ≥ 16 mm; whatever still remains ≥ 15 mm becomes a ruled "Working space" box. The pill says
+>   "24 questions (12 + 12 to fill the pages)". Measurements are cached per draw (`MCACHE`), so this takes ~0.2–0.4 s.
+> * **Answers:** inline answer lines (`.ablank`, sized from the answer's length, unit printed after it) at the foot of each card;
+>   MC = circle a letter, T/F = circle a word (no box); drawing questions have none; long answers get ruled lines; RG multi-part
+>   questions get a line under each part (`q.subq` — NOT `q.parts`, the ratio quiz bank uses that name). **Working space** =
+>   "Where a question needs it" (default: a TYPE whose key reasons have ≥ 2 "=", ≥ 3 with a diagram), every question, or none.
+>   Working lines and long-answer lines GROW when a card is set beside a taller one (`:has()` rules), so stretch is writing room.
+> * **Key** = the same pages in the same order, answers written in green with the reason; a key page that runs longer is drawn
+>   smaller with an exact `transform: scale` (≥ 0.8, `.keyScale`) — NOT css zoom, which reflowed text unpredictably — else it runs on.
+> * Header: title + "Stage 4 · MA4-INT-C-01 · Basic", Name/Date lines (switch); footer "millsmathstools.au · Topic … Page n of N".
+>   Number badges: green = core types, orange = types only on the harder paper. Diagram labels are kept ≥ 9.5 px (stem-and-leaf).
+> * **Page hooks:** `CFG.options` (selects/switches in the Options band, read with `WSF.opt(id)`, `regen` = new questions),
+>   `CFG.css`, `CFG.intro()` (a line at the top of page 1), question fields `diagram.build()` + `diagram.fit` (a page's own SVG,
+>   trimmed to its ink at a fixed scale), `answerHTML`/`loc` as functions of the language, `keyPrompt` (e.g. a filled-in table).
+> * **Length** (`pages/length.js`) and **Algebraic Techniques** (`pages/algebraic-techniques.js`) were bespoke; their generators,
+>   figures and AR/FA prompt lines were copied from the old pages onto the frame (Length keeps rounding / mix units / equal-side /
+>   right-angle options; both gained key reasons; Algebraic Techniques' expressions now come as drill parts). Same URLs, same types.
+> * **test.py** now plays 5–9 papers per level (languages, working all/none, fill on/off) and fails on: fewer questions than asked, key
+>   ≠ worksheet count, anything past a page or card, answers on student pages, missing diagrams, undefined/NaN printed, or (fill on) a
+>   page ending with > 24 mm empty. It also reports cards with a blank over 32 mm. All 37 pass.
+>
 > **NEW (2026-11-27, later): WHOLE-TOPIC WORKSHEET CREATORS — ONE PER OUTCOME, ON ONE FRAME (Stage 4 and Stage 3 done; Stage 5 next).**
 > Jeff: every outcome gets a whole-topic worksheet creator (Basic + Expected, every content statement), shown on Resources by Stage
 > in a LIGHT-BLUE band at the foot of the outcome, above the yellow whole-topic quiz band, and never under a content statement.

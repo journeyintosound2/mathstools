@@ -49,12 +49,14 @@ const RG = (() => {
     }
     if (out.mode !== 'mc') out.answerHTML = RM(q.answer);
     if (Array.isArray(q.subparts) && q.subparts.length) {
-      out.prompt += `<ol class="subs">${q.subparts.map((p, i) => `<li><span class="sl">${p.label || L(i)}</span> ${RM(p.prompt)}${table(p.table)}${p.choices ? ' ' + p.choices.map((c, k) => `${'ABCDEF'[k]}. ${RM(c)}`).join(' &nbsp; ') : ''}</li>`).join('')}</ol>`;
-      out.answerHTML = q.subparts.map((p, i) => `${p.label || L(i)} ${RM(p.answer)}`).join('<br>');
+      // each part gets its own answer line, under the part
+      out.subq = q.subparts.map((p, i) => ({ label: p.label || L(i), answer: RM(p.answer),
+        html: ' ' + RM(p.prompt) + table(p.table) + (p.choices ? ' ' + p.choices.map((c, k) => `${'ABCDEF'[k]}. ${RM(c)}`).join(' &nbsp; ') : '') }));
+      out.answerHTML = out.subq.map(p => `${p.label} ${p.answer}`).join('<br>');
       const w = q.subparts.flatMap(p => p.working || []);
       if (w.length) out.why = w.map(RM).join(' &nbsp;·&nbsp; ');
-      out.partLabels = q.subparts.map((p, i) => p.label || L(i));   // one answer line per part
     }
+    out.steps = (q.working || []).length;
     if (tableWide(q.table) || (q.subparts || []).some(p => tableWide(p.table))) out.wide = true;
     out.loc = null; out.topic = q.topic || ''; out.rgType = q.type || '';
     return out;

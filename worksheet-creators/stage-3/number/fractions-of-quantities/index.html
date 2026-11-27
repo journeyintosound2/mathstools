@@ -6,7 +6,8 @@
   <title>Fractions: Fractions of Quantities — Worksheet Maker</title>
   <!--
     Fractions: Fractions of Quantities (MA3-RQF-02) — whole-topic worksheet creator.
-    BUILT FILE. The shared frame (this page's layout, A4 pages, answer key,
+    BUILT FILE. The shared frame (frame/*.css + frame/body.html, joined by
+    frame/make_shell.py; this page's layout, A4 pages, answer key,
     languages) and this outcome's own question code were assembled by
     assemble.py from frame/shell.html + pages/s3-fraction-quantities.js. Edit those parts
     and re-assemble rather than editing the frame here, so every whole-topic
@@ -56,59 +57,113 @@
     .mmtFooter{position:fixed;left:0;right:0;bottom:0;height:var(--footer-h);display:flex;align-items:center;justify-content:center;padding:0 12px;background:rgba(255,255,255,.92);border-top:1px solid rgba(229,231,235,.95);backdrop-filter:blur(8px);z-index:500;font-weight:900;color:#111827;text-align:center;font-size:13px}
     .mmtFooter a{color:#2563eb;text-decoration:none;font-weight:950}.mmtFooter a:hover{text-decoration:underline}
 
-    /* ================= A4 pages: the preview IS the print ================= */
-    .outWrap{margin-top:14px;display:flex;flex-direction:column;align-items:center;gap:14px}
-    .page{width:210mm;height:297mm;background:#fff;border:1px solid var(--border);box-shadow:0 10px 26px rgba(15,23,42,.08);display:flex;flex-direction:column;padding:7mm 7.5mm 5mm;overflow:hidden;position:relative}
-    .pageHeader{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding-bottom:2.2mm;border-bottom:1px solid #e5e7eb;flex:0 0 auto}
-    .hdrTitle{font-weight:1000;font-size:12.5pt;line-height:1.15}
-    .hdrTitle .loc{display:block;font-size:.8em;color:var(--muted);font-weight:900}
-    .hdrSub{color:var(--muted);font-weight:850;font-size:8.5pt;margin-top:1mm}
-    .nameDate{display:flex;gap:4mm;align-items:flex-end;margin-left:auto}
-    .lineField{display:flex;flex-direction:column;gap:1mm;min-width:34mm}
-    .lineLabel{font-size:7.5pt;font-weight:950;color:var(--muted);line-height:1.1}
-    .lineBox{height:6.5mm;border:1.3px solid #111827;border-radius:2.2mm;background:#fff}
-    .pageBody{flex:1 1 auto;display:flex;flex-direction:column;gap:3mm;padding-top:3mm;min-height:0}
-    .row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:3mm;flex:0 0 auto}
-    .row.wide{grid-template-columns:1fr}
-    .pageFooter{flex:0 0 auto;padding-top:2mm;border-top:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between;gap:10px;font-weight:950;color:#111827;font-size:7.5pt}
-    .pageFooter a{color:#2563eb;text-decoration:none;font-weight:1000}
-    .pageFooter .oc{font-family:ui-monospace,Menlo,Consolas,monospace;color:var(--muted);font-weight:800}
 
-    /* ================= a question card ================= */
-    .qCard{border:1px solid #d5dae1;border-radius:2.6mm;padding:2.4mm 3mm 2.6mm;background:#fff;display:flex;flex-direction:column;min-width:0;height:100%;break-inside:avoid}
-    .qHead{display:flex;gap:2.2mm;align-items:flex-start}
-    .qNum{flex:0 0 auto;font-weight:1000;font-size:9.5pt;color:#fff;background:#1e3a8a;border-radius:1.6mm;padding:.5mm 1.6mm;line-height:1.25;margin-top:.3mm}
-    .qPrompt{flex:1;min-width:0;font-size:10pt;line-height:1.38;font-weight:650;color:var(--ink);overflow-wrap:anywhere}
-    .qPrompt .loc{display:block;direction:rtl;text-align:right;font-weight:800;margin-bottom:.6mm;font-size:1.02em}
-    .qPrompt .enLine{display:block}
-    .qPrompt.bi .enLine{font-size:.9em;color:#374151}
-    .qPrompt b,.qPrompt strong{font-weight:850}
+    .sw{display:inline-flex;align-items:center;gap:10px;cursor:pointer;user-select:none;font-weight:900;font-size:14.5px;margin:0}
+    .sw input{position:absolute;opacity:0;width:0;height:0}
+    .sw .track{position:relative;width:46px;height:27px;border-radius:999px;background:#cbd5e1;transition:.16s ease;flex:0 0 auto}
+    .sw .track::after{content:"";position:absolute;top:3px;left:3px;width:21px;height:21px;border-radius:50%;background:#fff;box-shadow:0 2px 5px rgba(0,0,0,.28);transition:.16s ease}
+    .sw input:checked + .track{background:var(--ans)}
+    .sw input:checked + .track::after{transform:translateX(19px)}
+    .sw input:focus-visible + .track{box-shadow:0 0 0 4px rgba(37,99,235,.25)}
+    .swRow{display:flex;gap:12px 24px;flex-wrap:wrap;align-items:center;margin-top:12px}
+    .note{margin:10px 0 0;font-size:12.6px;font-weight:800;color:var(--muted);line-height:1.5}
+    .note b{color:var(--ink)}
+
+    /* =====================================================================
+       THE PAPER — an A4 page whose writing area is 196 × 281 mm, the same
+       on screen and in print, so what is packed on screen is what prints.
+       ===================================================================== */
+    .outWrap{margin-top:14px;display:flex;flex-direction:column;align-items:center;gap:14px}
+    .page{width:210mm;height:297mm;background:#fff;border:1px solid var(--border);border-radius:18px;box-shadow:0 10px 26px rgba(15,23,42,.08);overflow:hidden;
+      padding:8mm 7mm;display:flex;flex-direction:column;position:relative}
+    .pageHeader{padding:0 0 1.8mm;border-bottom:2px solid #111827;display:flex;align-items:flex-end;justify-content:space-between;gap:10px;flex:0 0 auto}
+    .hdrTitle{font-weight:1000;font-size:15px;line-height:1.15}
+    .hdrTitle .loc{display:block;font-size:.86em;margin-bottom:.4mm}
+    .hdrSub{color:var(--muted);font-weight:850;font-size:11px;margin-top:2px}
+    .nameDate{display:flex;gap:8px;align-items:flex-end;flex:0 0 auto}
+    .lineField{display:flex;flex-direction:column;gap:3px;width:120px}
+    .lineField.wide{width:170px}
+    .lineLabel{font-size:10px;font-weight:950;color:var(--muted)}
+    .lineBox{height:19px;border-bottom:1.6px solid #111827}
+    .pageBody{flex:1 1 auto;display:flex;flex-direction:column;gap:2.6mm;padding-top:2.6mm;min-height:0;overflow:hidden}
+    .intro{font-size:12.2px;font-weight:850;color:#374151;line-height:1.35;margin:0}
+    .pageFooter{flex:0 0 auto;padding:1.4mm 0 0;border-top:1px solid rgba(229,231,235,.95);display:flex;align-items:center;justify-content:space-between;font-weight:900;color:var(--muted);font-size:10px}
+    .pageFooter a{color:#2563eb;text-decoration:none;font-weight:1000}
+
+    /* sections: one per content statement */
+    .secHead{display:flex;align-items:center;gap:7px;margin:.8mm 0 -.6mm;flex:0 0 auto}
+    .secLetter{display:inline-grid;place-items:center;min-width:6mm;height:6mm;border-radius:1.6mm;background:#111827;color:#fff;font-size:12px;font-weight:1000;flex:0 0 auto}
+    .secTitle{font-size:12.6px;font-weight:1000;line-height:1.2}
+    .secCont{font-size:10.5px;font-weight:850;color:var(--muted);white-space:nowrap}
+
+    /* rows: two cards side by side, a tall card beside two short ones, or one card across */
+    .row{display:grid;gap:3mm;grid-template-columns:minmax(0,1fr) minmax(0,1fr);flex:0 0 auto}
+    .row.one{grid-template-columns:minmax(0,1fr)}
+    .stack{display:flex;flex-direction:column;gap:3mm;min-width:0}
+    .stack > .qCard:last-child{flex:1 1 auto}
+
+    /* a question card */
+    .qCard{border:1.3px solid #cfd5dd;border-radius:10px;padding:2.4mm 3mm 2.8mm;display:flex;flex-direction:column;gap:2mm;min-width:0;background:#fff}
+    .qCard.side{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:3mm;align-items:stretch}
+    .qMain{display:flex;flex-direction:column;gap:2mm;min-width:0}
+    .qCard.side .qDiag{margin:0;align-self:center}
+    .qTop{display:flex;align-items:flex-start;gap:7px}
+    .qNum{min-width:22px;height:22px;padding:0 6px;border-radius:999px;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:1000;flex:0 0 auto}
+    .qNum.lv1{background:linear-gradient(180deg,#4ade80,#16a34a)}
+    .qNum.lv2{background:linear-gradient(180deg,#fb923c,#ea580c)}
+    .qText{flex:1;min-width:0;font-size:13px;font-weight:750;line-height:1.36;color:var(--ink);overflow-wrap:anywhere;padding-top:1px}
+    .qText .loc{display:block;direction:rtl;text-align:right;font-weight:850;margin-bottom:.8mm;font-size:1.04em}
+    .qText .enLine{display:block}
+    .qText.bi .enLine{font-size:.9em;color:#374151}
+    .qText b,.qText strong{font-weight:900}
     .m{font-family:var(--mathFont);font-weight:500;font-size:1.08em;white-space:nowrap}
-    .qPrompt .big{display:block;margin-top:1.6mm;font-family:var(--mathFont);font-size:1.4em;font-weight:500;text-align:center}
-    .qPrompt .say{display:block;margin-top:1.6mm;font-weight:800;text-align:center;color:#1e3a8a;background:#f5f8ff;border:1px solid #dbe5ff;border-radius:2mm;padding:1.4mm 2mm}
-    .qPrompt .sub{display:block;margin-top:1mm;font-size:.84em;color:var(--muted);font-weight:650}
-    .fr{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;font-family:var(--mathFont);font-weight:500;line-height:1.05;margin:0 .12em;font-size:.95em}
-    .frn{border-bottom:1.3px solid currentColor;padding:0 .18em}.frd{padding:0 .18em}
+    .qText .big{display:block;margin-top:1.6mm;font-family:var(--mathFont);font-size:1.3em;font-weight:500;text-align:center}
+    .qText .say{display:block;margin-top:1.6mm;font-weight:800;text-align:center;color:#1e3a8a;background:#f5f8ff;border:1px solid #dbe5ff;border-radius:2mm;padding:1.4mm 2mm}
+    .qText .sub{display:block;margin-top:1mm;font-size:.86em;color:var(--muted);font-weight:700}
+    .fr,.math-frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;font-family:var(--mathFont);font-weight:500;line-height:1.05;margin:0 .12em;font-size:.95em}
+    .frn,.math-frac span:first-child{border-bottom:1.3px solid currentColor;padding:0 .18em}.frd,.math-frac span:last-child{padding:0 .18em}
     .frs{position:absolute;margin-left:-.7em}
     sup{font-size:.7em;line-height:0}
-    .dtab{border-collapse:collapse;margin:1.6mm auto 0;font-size:9pt;font-variant-numeric:tabular-nums}
-    .dtab th,.dtab td{border:1px solid #94a3b8;padding:1mm 1.8mm;text-align:center;overflow-wrap:normal;word-break:normal;hyphens:none}
-    .dtab th{background:#f1f5f9;font-weight:850}
+    .dtab{border-collapse:collapse;margin:1.6mm auto 0;font-size:11.5px;font-weight:700;font-variant-numeric:tabular-nums}
+    .dtab th,.dtab td{border:1.2px solid #94a3b8;padding:1mm 1.8mm;text-align:center;overflow-wrap:normal;word-break:normal;hyphens:none}
+    .dtab th{background:#f3f4f6;font-weight:900}
     .dtab td.q{background:#fef9c3;font-weight:900}
     .dtab.rows th{text-align:left}
     .dtab td.blank{min-width:9mm}
-    .dataList{font-family:var(--mathFont);font-size:1.06em;word-spacing:.12em;line-height:1.5;background:#f8fafc;border:1px dashed #cbd5e1;border-radius:2mm;padding:1.2mm 2.4mm;display:block;margin-top:1.4mm}
-    .math-frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;font-family:var(--mathFont);font-weight:500;line-height:1.05;margin:0 .12em;font-size:.95em}
-    .math-frac span:first-child{border-bottom:1.3px solid currentColor;padding:0 .18em}.math-frac span:last-child{padding:0 .18em}
+    .dataList{font-family:var(--mathFont);font-size:1.06em;word-spacing:.12em;line-height:1.5;background:#f8fafc;border:1px dashed #cbd5e1;border-radius:2mm;padding:1.2mm 2.4mm;display:block;margin-top:1.4mm;font-weight:500}
     .math-expression{display:block;margin-top:1.4mm;text-align:center;font-family:var(--mathFont);font-size:1.25em;font-weight:500}
     .math-inline,.math-relation,.value-item{font-family:var(--mathFont);font-weight:500;white-space:nowrap}
     .prompt-indented-line{display:block;margin-top:.8mm}
-    .why .math-expression,.why .prompt-indented-line,.ansBox .math-expression,.ansBox .prompt-indented-line{display:inline;margin:0 .2em;font-size:1em;text-align:inherit}
     .tcap{font-size:.84em;font-weight:800;color:var(--muted);text-align:center;margin-top:1.2mm}
-    .ansRow.part{margin-top:1.6mm}.ansRow.part>span{font-weight:900}
-    .subs{list-style:none;margin:1.6mm 0 0;padding:0;display:flex;flex-direction:column;gap:1.4mm}
-    .subs .sl{font-weight:900;margin-right:1.2mm}
-    .qDiag{display:flex;justify-content:center;align-items:center;margin-top:2mm;min-width:0}
+
+    /* multiple choice and true / false: circle one */
+    .opts{display:grid;grid-template-columns:1fr 1fr;gap:1.4mm 4mm;font-size:12.4px;font-weight:750;margin-left:29px}
+    .opts.long{grid-template-columns:1fr}
+    .opt{display:flex;gap:1.8mm;align-items:baseline;min-width:0}
+    .opt .L{flex:0 0 auto;display:inline-grid;place-items:center;width:5mm;height:5mm;border:1.3px solid #334155;border-radius:50%;font-size:10px;font-weight:1000}
+    .opt.right .L{background:var(--ans);border-color:var(--ans);color:#fff}
+    .opt.right{color:#15803d}
+    .tfRow{display:flex;gap:7mm;justify-content:center;font-weight:950;font-size:12.4px}
+    .tfRow span{border:1.3px solid #334155;border-radius:99px;padding:.6mm 4.5mm}
+    .tfRow span.right{background:var(--ans);border-color:var(--ans);color:#fff}
+
+    /* parts (a), (b) … and grouped drill items */
+    .subs{list-style:none;margin:0 0 0 29px;padding:0;display:flex;flex-direction:column;gap:1.8mm;font-size:12.6px;font-weight:750;line-height:1.35}
+    .subs li{display:flex;flex-direction:column;gap:1mm}
+    .subs .sl{font-weight:1000;margin-right:1.4mm}
+    .subs .pAns{display:flex;justify-content:flex-end;align-items:flex-end;gap:5px}
+    .items{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2.6mm 5mm;margin-left:29px}
+    .items.c1{grid-template-columns:minmax(0,1fr)}
+    .items.c3{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .item{display:flex;align-items:flex-end;gap:4px;min-width:0;font-size:13px}
+    .item .il{font-weight:1000;font-size:12px;align-self:center;margin-right:1mm}
+    .item .ix{font-family:var(--mathFont);font-size:15.5px;font-weight:500;white-space:nowrap}
+    .item .ix .big,.item .ix .math-expression{display:inline;margin:0;font-size:1em;text-align:left}
+    .item .ieq{font-family:var(--mathFont);font-size:15.5px;margin:0 1px}
+    .item .ablank{flex:1 1 auto;min-width:12mm;max-width:none}
+
+    /* diagrams */
+    .qDiag{display:flex;justify-content:center;align-items:center;min-width:0}
     .qDiag svg{max-width:100%;height:auto}
     .qDiag .engHolder{display:flex;flex-direction:column;align-items:center;max-width:100%}
     .diagMissing{color:var(--muted);font-weight:800;padding:6mm}
@@ -121,29 +176,37 @@
     .qgrid .lnl{font:700 15px var(--mathFont);stroke:#fff;stroke-width:4px}
     .qgrid .pt{stroke:#fff;stroke-width:2}
     .qgrid .ptl{font:800 16px var(--uiFont);fill:#0f172a;stroke:#fff;stroke-width:4px}
-    .opts{display:grid;grid-template-columns:1fr 1fr;gap:1.2mm 4mm;margin-top:2mm;font-size:9.6pt;font-weight:700}
-    .opts.long{grid-template-columns:1fr}
-    .opt{display:flex;gap:1.6mm;align-items:baseline;min-width:0}
-    .opt .L{flex:0 0 auto;display:inline-grid;place-items:center;width:4.6mm;height:4.6mm;border:1.2px solid #334155;border-radius:50%;font-size:7.6pt;font-weight:1000}
-    .opt.right .L{background:var(--ans);border-color:var(--ans);color:#fff}
-    .opt.right{color:#15803d}
-    .tfRow{display:flex;gap:7mm;justify-content:center;margin-top:2mm;font-weight:900;font-size:9.6pt}
-    .tfRow span{border:1.2px solid #334155;border-radius:99px;padding:.6mm 4mm}
-    .tfRow span.right{background:var(--ans);border-color:var(--ans);color:#fff}
-    .qFill{flex:1 1 auto;min-height:2mm}
-    .drawBox{margin-top:1.8mm;border:1.2px dashed #94a3b8;border-radius:2mm;flex:0 0 auto;position:relative}
+
+    /* writing room */
+    .drawBox{border:1.3px dashed #9aa3af;border-radius:2mm;flex:0 0 auto;position:relative}
     .drawBox.sq{background-image:linear-gradient(#cbd5e1 1px,transparent 1px),linear-gradient(90deg,#cbd5e1 1px,transparent 1px);background-size:5mm 5mm;background-position:-1px -1px;border-style:solid;border-color:#94a3b8}
-    .drawBox .workTag{font-size:6.5pt;font-weight:950;color:#94a3b8;padding:.4mm 1.4mm;display:block;letter-spacing:.08em;text-transform:uppercase}
-    .workBox{margin-top:1.6mm;border:1.2px dashed #cbd5e1;border-radius:2mm;height:24mm;background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 7.4mm,#e2e8f0 7.4mm,#e2e8f0 calc(7.4mm + 1px));background-position:0 1.6mm;flex:0 0 auto}
-    .workBox .workTag{font-size:6.5pt;font-weight:950;color:#94a3b8;padding:.4mm 1.4mm;display:block;letter-spacing:.08em;text-transform:uppercase}
-    .ansRow{margin-top:1.8mm;display:flex;align-items:center;justify-content:flex-end;gap:1.6mm;flex-wrap:wrap;flex:0 0 auto}
-    .ansLabel{font-weight:950;font-size:9pt;line-height:1.05;text-align:right}
-    .ansLabel .loc{display:block}
-    .ansLabel .en{display:block;font-size:.78em;opacity:.75}
-    .ansBox{min-width:34mm;width:46%;height:7mm;border:1.3px solid #111827;border-radius:2.2mm;background:#fff}
-    .ansUnit{font-family:var(--mathFont);font-weight:600;font-size:10pt}
-    .ansBox.key{display:flex;align-items:center;justify-content:center;width:auto;min-width:34mm;max-width:100%;height:auto;min-height:7mm;padding:.8mm 2.6mm;font-family:var(--mathFont);font-weight:800;font-size:10.5pt;color:var(--ans);border-color:var(--ans);background:rgba(22,163,74,.07);text-align:center;line-height:1.25}
-    .why{margin-top:1.2mm;font-size:7.8pt;font-weight:700;color:#475569;line-height:1.35;border-left:2px solid #bbf7d0;padding-left:2mm}
+    .drawBox .workTag{font-size:8.5px;font-weight:950;color:#94a3b8;padding:.4mm 1.4mm;display:block;letter-spacing:.08em;text-transform:uppercase}
+    .lines{background:repeating-linear-gradient(180deg,transparent 0 6.6mm,#c9ced6 6.6mm calc(6.6mm + 1px))}
+    .work{min-height:20.4mm;flex:1 0 20.4mm;margin-left:29px}
+    /* a card set beside a taller one grows its writing lines, not a blank */
+    .qCard:has(.work) .spacer,.qCard:has(.ansLine.full) .spacer,.qMain:has(.work) .spacer{flex:0 0 0}
+    .ansLine.full{flex:1 0 auto}
+    .ansLine.full .lines{flex:1 0 13.4mm;min-height:13.4mm}
+    .spacer{flex:1 1 auto;min-height:0}
+    .ansLine{display:flex;align-items:flex-end;justify-content:flex-end;gap:5px;font-size:12px;font-weight:900;flex-wrap:wrap;line-height:1.2;flex:0 0 auto}
+    .ansLine .al{color:#374151}
+    .ansLine .al .loc{margin-right:3px}
+    .ansLine .unit{font-family:var(--mathFont);font-size:14px;font-weight:500}
+    .ansLine.full{justify-content:stretch;flex-direction:column;align-items:stretch;gap:0}
+    .ablank{display:inline-block;min-width:24mm;border-bottom:1.5px solid #111827;height:5.4mm}
+    .ablank.sm{min-width:15mm}.ablank.md{min-width:26mm}.ablank.lg{min-width:38mm}.ablank.xl{min-width:56mm}
+    .gapBox{border:1.3px dashed #9aa3af;border-radius:10px;padding:2.2mm 3mm;display:flex;flex-direction:column;gap:1.6mm;flex:0 0 auto}
+    .gapBox .gT{font-size:11px;font-weight:950;color:#6b7280;letter-spacing:.06em;text-transform:uppercase}
+    .gapBox .lines{flex:1 1 auto}
+
+    /* answer key: the same pages, answers written in */
+    .keyScale{display:flex;flex-direction:column;gap:2.6mm;transform-origin:top center;flex:0 0 auto}
+    .isKey .qCard{border-color:#bbf7d0;background:#f7fdf9}
+    .keyAns{display:inline-block;min-width:15mm;border-bottom:1.5px solid #15803d;color:#15803d;font-family:var(--mathFont);font-weight:700;font-size:14px;padding:0 1.2mm;text-align:center;line-height:1.3}
+    .keyAns .math-expression,.keyAns .prompt-indented-line,.keyAns .big{display:inline;margin:0 .2em;font-size:1em;text-align:inherit}
+    .keyText{font-size:10.8px;font-weight:800;color:#14532d;line-height:1.4;background:#ecfdf3;border-radius:6px;padding:1.2mm 2mm;margin-left:29px}
+    .keyText .math-expression,.keyText .prompt-indented-line,.keyText .big{display:inline;margin:0 .2em;font-size:1em;text-align:inherit}
+    .item .keyAns{flex:1 1 auto;text-align:left}
     .lang-rtl .hdrTitle .loc,.lang-rtl .lineLabel .loc{direction:rtl}
 
     @media(max-width:880px){
@@ -151,12 +214,12 @@
       .outWrap{align-items:flex-start;overflow-x:auto}
     }
     @media print{
-      @page{size:A4;margin:0}
-      html,body{background:#fff;padding:0;margin:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+      @page{size:A4;margin:8mm 7mm}
+      html,body{width:210mm;height:auto;background:#fff;padding:0;margin:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
       .topbar,.card > :not(.outWrap),.mmtFooter{display:none!important}
       .wrap{max-width:none;margin:0;padding:0}.card{box-shadow:none;border:none;border-radius:0;padding:0;background:#fff}
       .outWrap{margin:0;gap:0;display:block}
-      .page{border:none;box-shadow:none;page-break-after:always;break-after:page;margin:0}
+      .page{margin:0;border:none;border-radius:0;box-shadow:none;width:auto;height:281mm;padding:0;page-break-after:always;break-after:page}
       .page:last-child{page-break-after:auto;break-after:auto}
     }
   </style>
@@ -179,7 +242,7 @@
 
   <div class="wrap"><div class="card">
     <h1 class="title">Fractions: Fractions of Quantities — Worksheet Maker</h1>
-    <p class="subtitle"><span class="code">MA3-RQF-02</span> Printable A4 worksheets with a completed answer key, covering every content statement in the outcome. <strong>Part B</strong>: build up to the whole from a given fractional part; find fractional quantities of whole numbers (halves, quarters, fifths and tenths).</p>
+    <p class="subtitle"><span class="code">MA3-RQF-02</span> Printable A4 worksheets with an answer key, covering every content statement in the outcome. <strong>Part B</strong>: build up to the whole from a given fractional part; find fractional quantities of whole numbers (halves, quarters, fifths and tenths).</p>
 
     <div class="band">
       <p class="bandLabel">The paper</p>
@@ -187,6 +250,7 @@
         <div><label for="levelSel">Level</label><select id="levelSel"><option value="basic" selected>Basic</option><option value="expected">Expected</option></select></div>
         <div><label for="languageSel">Worksheet language</label><select id="languageSel"><option value="en" selected>English</option><option value="ar">Arabic (العربية)</option><option value="fa">Farsi / Persian (فارسی)</option></select></div>
         <div><label for="countInp">Number of questions</label><input id="countInp" type="number" min="1" max="48" value="12"></div>
+        <div><label for="workSel">Working space</label><select id="workSel"><option value="auto" selected>Where a question needs it</option><option value="all">Under every question</option><option value="none">None</option></select></div>
       </div>
     </div>
 
@@ -197,11 +261,14 @@
 
     <div class="band">
       <p class="bandLabel">Options</p>
-      <div class="checks">
-        <label class="chk"><input id="toggleWorking" type="checkbox"> Working space under each question</label>
-        <label class="chk"><input id="toggleWhy" type="checkbox" checked> Reasons in the answer key</label>
-        <label class="chk"><input id="toggleMix" type="checkbox"> Mix the question order</label>
+      <div id="pageOpts" class="fieldGrid" hidden></div>
+      <div class="swRow">
+        <label class="sw"><input type="checkbox" id="toggleFill" checked><span class="track"></span><span>Fill the pages</span></label>
+        <label class="sw"><input type="checkbox" id="toggleName" checked><span class="track"></span><span>Name and date</span></label>
+        <label class="sw"><input type="checkbox" id="toggleWhy" checked><span class="track"></span><span>Reasons in the answer key</span></label>
+        <label class="sw"><input type="checkbox" id="toggleMix"><span class="track"></span><span>Mix the order</span></label>
       </div>
+      <p class="note">Questions are grouped by <b>content statement</b>, in syllabus order, and short questions of the same kind are set as parts (a), (b), (c) of one question. <b>Fill the pages</b> adds a few more questions where a page would otherwise end with empty space. Working lines go where a question needs them; numbers in <b style="color:#16a34a">green</b> are the core questions and in <b style="color:#ea580c">orange</b> the harder ones. The answer key has the same pages, with the answers written in.</p>
     </div>
 
     <div class="band">
@@ -231,39 +298,53 @@
 <script src="/assessment/exam-builder/engines/statistics/statistics-engine.js?v=df1df9ca"></script>
 <script src="/assessment/exam-builder/engines/fdp/fdp-engine.js?v=e9f7769c"></script>
 <script>
-/* ===================== WHOLE-TOPIC WORKSHEET FRAME ======================
+/* ===================== WHOLE-TOPIC WORKSHEET FRAME (v2) ==================
    Shared by every whole-topic worksheet creator. The page script after this
-   one calls WSF.page(config, types); a page built on its whole-topic quiz
-   also loads that quiz's bank, which calls MMTQ.run(bank) and hands its
-   generators over here, so the quiz and the worksheet ask the same things.
+   one calls WSF.page(config); a page built on its whole-topic quiz also loads
+   that quiz's bank, which calls MMTQ.run(bank) and hands its generators over.
 
-   A QUESTION (from a quiz bank or written for paper) is
+   A QUESTION is
      { prompt:html, diagram?, keyDiagram?, mode, value/unit/dp/pre (num),
-       options/correct (mc), truth (tf), x/y (coord/plot), answerHTML?, why? }
+       options/correct (mc), truth (tf), x/y (coord/plot), answerHTML?, why?,
+       subq?:[{label,html,answer}] (parts of a multi-part question), drawSpace?, grid5?,
+       work?, keyPrompt?, wide?, loc? }
+
+   THE PAPER (2026-11-27, modelled on the Counting Strategies creator):
+   * one SECTION per content statement, in syllabus order, lettered A, B, C…;
+   * short questions of the same kind and wording become ONE card with parts
+     (a), (b)… (a "drill" card);
+   * every card is measured at its printed size; a tall narrow diagram goes
+     BESIDE the words; cards are paired with a partner of a similar height, or a
+     tall card is set beside two short ones, so no card stands half empty;
+   * pages are filled from the top; if a row will not fit, a later row of the
+     same section that does fit moves up; with "Fill the pages" on, room left
+     at the foot of a page is filled with more questions of that section;
+   * the answer key has the same pages in the same order, answers written in.
    ======================================================================== */
 (() => {
   'use strict';
   const C = window.MMTQCore;
   const SITE = 'https://www.millsmathstools.au';
+  const MM = 3.7795;
   const $ = id => document.getElementById(id);
-  const levelSel = $('levelSel'), languageSel = $('languageSel'), countInp = $('countInp'),
-        chkWrap = $('chkWrap'), out = $('out'), probe = $('probe'),
-        toggleWorking = $('toggleWorking'), toggleWhy = $('toggleWhy'), toggleMix = $('toggleMix'),
+  const levelSel = $('levelSel'), languageSel = $('languageSel'), countInp = $('countInp'), workSel = $('workSel'),
+        chkWrap = $('chkWrap'), out = $('out'), probe = $('probe'), pageOpts = $('pageOpts'),
+        toggleFill = $('toggleFill'), toggleName = $('toggleName'), toggleWhy = $('toggleWhy'), toggleMix = $('toggleMix'),
         totalPill = $('totalPill'), selectBtn = $('selectBtn');
 
   /* Page words in Arabic and Farsi: the site's existing ones (as on the
      Length creator). A topic title with no existing translation stays in
      English. */
   const LANG = {
-    en: { dir:'ltr', worksheet:'Worksheet', answerKey:'Answer key', page:'Page', name:'Name', date:'Date', answer:'Answer:', working:'Working', trueW:'True', falseW:'False' },
-    ar: { dir:'rtl', worksheet:'ورقة عمل', answerKey:'دليل الإجابات', page:'صفحة', name:'الاسم', date:'التاريخ', answer:'الإجابة:', working:'الحل', trueW:'صح', falseW:'خطأ' },
-    fa: { dir:'rtl', worksheet:'برگه تمرین', answerKey:'پاسخ‌نامه', page:'صفحه', name:'نام', date:'تاریخ', answer:'پاسخ:', working:'راه حل', trueW:'درست', falseW:'نادرست' }
+    en: { dir:'ltr', worksheet:'Worksheet', answerKey:'Answer key', page:'Page', name:'Name', date:'Date', answer:'Answer', working:'Working', trueW:'True', falseW:'False' },
+    ar: { dir:'rtl', worksheet:'ورقة عمل', answerKey:'دليل الإجابات', page:'صفحة', name:'الاسم', date:'التاريخ', answer:'الإجابة', working:'الحل', trueW:'صح', falseW:'خطأ' },
+    fa: { dir:'rtl', worksheet:'برگه تمرین', answerKey:'پاسخ‌نامه', page:'صفحه', name:'نام', date:'تاریخ', answer:'پاسخ', working:'راه حل', trueW:'درست', falseW:'نادرست' }
   };
   const lang = () => languageSel.value;
   const isEn = () => lang() === 'en';
   const L = () => LANG[lang()] || LANG.en;
 
-  let CFG = null, TYPES = [], BANK = null, lastPaper = null, translate = null, booted = false;
+  let CFG = null, TYPES = [], BANK = null, lastPaper = null, translate = null, booted = false, OPTS = {};
 
   /* ---- the Cartesian plane, copied from the whole-topic quiz engine ---- */
   function grid(o) {
@@ -325,23 +406,41 @@
   }
 
 
-  /* ---- diagrams: a Revision Generator engine, the plane, or plain html ---- */
+  /* ---- diagrams: a Revision Generator engine, the plane, an svg, or html ---- */
   function engineFor(name) {
     return window['MMT_' + String(name).replace(/-engine$/, '').toUpperCase().replace(/-/g, '_') + '_ENGINE'];
   }
-  /* Draw at a constant scale, trimmed to the ink, so a label is the same
-     size in every question; capped so a tall figure cannot take the page. */
-  function drawDiagram(host, d) {
+  /* Drawn at a constant scale, trimmed to the ink, so a label is the same
+     size in every question; capped (capMM) so no figure takes the page. */
+  function drawDiagram(host, d, capMM) {
     host.innerHTML = '';
     if (!d) return;
-    if (d.html) { host.innerHTML = d.html; return; }
+    if (d.build) d = Object.assign({}, d, { html: d.build() });   // a page's own figure, drawn now (its switches may have changed)
+    const cap = (capMM || 56) * MM;
+    if (d.html) {
+      host.innerHTML = d.html;
+      host.querySelectorAll(':scope > svg').forEach(svg => {
+        if (d.fit) {
+          try {
+            const bb = svg.getBBox(), p = d.pad == null ? 8 : d.pad;
+            if (bb.width > 4 && bb.height > 4) {
+              svg.setAttribute('viewBox', `${bb.x - p} ${bb.y - p} ${bb.width + 2 * p} ${bb.height + 2 * p}`);
+              svg.removeAttribute('width'); svg.removeAttribute('height');
+              svg.style.width = Math.round((bb.width + 2 * p) * d.fit) + 'px';
+            }
+          } catch (e) { /* not laid out yet */ }
+        } else if (d.wMM) svg.style.width = d.wMM + 'mm';
+        svg.style.maxWidth = '100%'; svg.style.height = 'auto'; svg.style.maxHeight = Math.min(cap, (d.hMM || 999) * MM) + 'px';
+      });
+      return;
+    }
     if (d.grid) {
-      // squared paper: about 5.5 mm a unit (unitMM), capped in height
+      // squared paper: about 5 mm a unit (unitMM), capped in height
       const o = d.grid, g = grid(Object.assign({}, o, { interactive: false }));
-      const cell = o.cell || 34, u = (o.unitMM || 5.5) * 3.7795 / cell;
+      const cell = o.cell || 34, u = (o.unitMM || 5) * MM / cell;
       const vb = g.getAttribute('viewBox').split(' ').map(Number);
-      let w = vb[2] * u, h = vb[3] * u; const cap = (o.maxMM || 92) * 3.7795;
-      if (h > cap) { w *= cap / h; h = cap; }
+      let w = vb[2] * u, h = vb[3] * u; const c2 = Math.min(cap, (o.maxMM || 80) * MM);
+      if (h > c2) { w *= c2 / h; h = c2; }
       g.style.width = Math.round(w) + 'px'; g.style.height = Math.round(h) + 'px';
       host.appendChild(g); return;
     }
@@ -358,10 +457,13 @@
           const p = 10;
           svg.setAttribute('viewBox', `${bb.x - p} ${bb.y - p} ${bb.width + 2 * p} ${bb.height + 2 * p}`);
           svg.removeAttribute('width'); svg.removeAttribute('height');
-          const k = (d.scale || 1.15) * 0.62;
+          let k = (d.scale || 1.15) * 0.56;
+          // labels no smaller than about 9.5 px on paper (a stem-and-leaf plot is all text)
+          const fs = [...svg.querySelectorAll('text')].map(t => parseFloat(getComputedStyle(t).fontSize) || 0).filter(Boolean).sort((a, b) => a - b);
+          if (fs.length) { const mid = fs[Math.floor(fs.length / 2)]; if (mid * k < 9.5) k = Math.min(k * 2.2, 9.5 / mid); }
           svg.style.width = Math.round((bb.width + 2 * p) * k) + 'px';
           svg.style.maxWidth = '100%'; svg.style.height = 'auto';
-          svg.style.maxHeight = (d.maxH ? d.maxH * 0.62 : 230) + 'px';
+          svg.style.maxHeight = Math.min(cap, d.maxH ? d.maxH * 0.56 : cap) + 'px';
         }
       } catch (e) { /* not laid out yet */ }
     });
@@ -369,12 +471,19 @@
 
   /* ---- answers ---- */
   function answerHTML(q) {
+    if (typeof q.answerHTML === 'function') return q.answerHTML(lang());
     if (q.answerHTML) return q.answerHTML;
+    if (q.subq) return q.subq.map(p => `${p.label} ${p.answer}`).join('<br>');
     if (q.mode === 'mc') { const o = q.options[q.correct]; return /^\s*[A-F][:.)]/.test(strip(o)) ? o : `${'ABCDEF'[q.correct]} &nbsp;${o}`; }
     if (q.mode === 'tf') return q.truth ? 'True' : 'False';
     if (q.mode === 'num') return (q.pre || '') + C.fmt(q.value, q.dp == null ? 4 : q.dp, q.dp != null && q.dp > 0) + (q.unit ? (q.unit === '°' ? '°' : ' ' + q.unit) : '');
     if (q.mode === 'coord' || q.mode === 'plot') return `(${C.fmt(q.x)}, ${C.fmt(q.y)})`;
     return '';
+  }
+  /* the answer as written on the key's answer line (a number's unit stays printed after the line) */
+  function keyAnswer(q) {
+    if (q.mode === 'num' && !q.answerHTML && q.unit) return (q.pre || '') + C.fmt(q.value, q.dp == null ? 4 : q.dp, q.dp != null && q.dp > 0);
+    return answerHTML(q);
   }
   const strip = h => { const d = document.createElement('div'); d.innerHTML = String(h); return (d.textContent || '').replace(/\s+/g, ' ').trim(); };
 
@@ -387,18 +496,17 @@
   }
 
   /* Arabic/Farsi: only the opening instruction is translated, and only when
-     the Revision Generator's curated phrases have a real translation for it.
-     Its catch-all lines ("answer the question below") are not used. */
+     the Revision Generator's curated phrases have a real translation for it. */
   const FALLBACKS = /أجب عن السؤال أدناه|به پرسش زیر پاسخ دهید|استخدم المعلومات الإنجليزية|از اطلاعات انگلیسی زیر/;
-  function localLine(q) {
-    if (isEn() || !translate) return '';
-    if (q.loc && q.loc[lang()]) return q.loc[lang()];
-    // the opening instruction only, up to the first display block
-    const html = String(paperPrompt(q.prompt));
+  function localLine(q, html) {
+    if (isEn() || (!translate && !q.loc)) return '';
+    const own = typeof q.loc === 'function' ? q.loc(lang()) : q.loc && q.loc[lang()];
+    if (own) return own;
+    if (!translate) return '';
+    html = String(html == null ? paperPrompt(q.prompt) : html);
     const cut = html.search(/<span class="(big|say|dataList|sub|math-expression|prompt-indented-line)"|<table|<br|<div|<ol/);
     const div = document.createElement('div');
     div.innerHTML = cut > 0 ? html.slice(0, cut) : html;
-    // protect the maths: each maths element becomes a token the phrases carry through
     const keep = [];
     const MATHS = '.m, .fr, sup, sub, .math-frac, .math-inline, .math-relation, .value-item';
     div.querySelectorAll(MATHS).forEach(el => {
@@ -409,9 +517,8 @@
     if (!lead || lead.length > 170) return '';
     let t = '';
     try { t = translate(lead, lang(), { topic: q.topic || CFG.translateTopic || CFG.topic, type: q.rgType || q.type || '' }) || ''; } catch (e) { t = ''; }
-    t = String(t).replace(/[\u2066-\u2069\u200e\u200f]/g, '').replace(/\s+([:،؛.؟])/g, '$1');
+    t = String(t).replace(/[⁦-⁩‎‏]/g, '').replace(/\s+([:،؛.؟])/g, '$1');
     if (!t || FALLBACKS.test(t)) return '';
-    // a real translation: no English words left over, every maths token kept once, no stray punctuation
     const words = t.replace(/QQ\d+QQ/g, ' ').match(/[A-Za-z]{2,}/g) || [];
     if (words.some(w => !/^(HCF|LCM|km|cm|mm|kg|mL|ml|m|g|L|h|min|s|cos|sin|tan|ii?i?|iv)$/.test(w))) return '';
     for (let i = 0; i < keep.length; i++) if ((t.match(new RegExp(`QQ${i}QQ`, 'g')) || []).length !== 1) return '';
@@ -419,144 +526,576 @@
     return C.esc(t).replace(/\s*QQ(\d+)QQ\s*/g, (m, i) => ` <bdi dir="ltr">${keep[+i]}</bdi> `).trim();
   }
 
-  /* ---- one card ---- */
-  function cardHTML(q, idx, key) {
-    if (q.mode === 'plot' && q.grid && !q.diagram) { q.diagram = { grid: q.grid }; q.noAnswerBox = true; }
+  /* ============================ CARDS ============================ */
+  /* A prompt that is an instruction followed by ONE display (an expression)
+     and nothing else can be set as a part of a drill card. */
+  const DISPLAY = 'span.big, span.math-expression';
+  const INLINE = 'span.m, span.math-inline';
+  function splitPrompt(html) {
+    const div = document.createElement('div'); div.innerHTML = paperPrompt(html);
+    const kids = [...div.childNodes];
+    let i = kids.findIndex(n => n.nodeType === 1 && n.matches(DISPLAY));
+    if (i < 0) {
+      // "Calculate <maths>." — an instruction ending in one piece of maths
+      const els = kids.map((n, k) => [n, k]).filter(([n]) => n.nodeType === 1 || strip(n.textContent));
+      const lastEl = els[els.length - 1], prev = els[els.length - 2];
+      let cand = null;
+      if (lastEl && lastEl[0].nodeType === 1 && lastEl[0].matches(INLINE)) cand = lastEl[1];
+      else if (lastEl && lastEl[0].nodeType === 3 && /^[.?:]$/.test(strip(lastEl[0].textContent)) && prev && prev[0].nodeType === 1 && prev[0].matches(INLINE)) cand = prev[1];
+      if (cand == null || cand === 0) return null;
+      i = cand;
+      const lead0 = kids.slice(0, i).map(n => n.nodeType === 1 ? n.outerHTML : C.esc(n.textContent)).join('').trim().replace(/\s*$/, '');
+      if (!/^[A-Z][^.?]*$/.test(strip(lead0)) || kids.slice(0, i).some(n => n.nodeType === 1 && !n.matches('b,strong'))) return null;
+      return strip(lead0).length > 80 ? null : { lead: lead0.replace(/:?$/, ':'), display: kids[i].outerHTML };
+    }
+    const after = kids.slice(i + 1).map(n => n.nodeType === 1 ? n.outerHTML : n.textContent).join('');
+    if (strip(after)) return null;
+    const lead = kids.slice(0, i).map(n => n.nodeType === 1 ? n.outerHTML : C.esc(n.textContent)).join('').trim();
+    if (!strip(lead) || strip(lead).length > 140) return null;
+    const d = kids[i]; d.removeAttribute('style');
+    return { lead, display: d.innerHTML };
+  }
+  function drillable(q) {
+    if (q.diagram || q.subq || q.options || q.drawSpace || q.noAnswerBox || q.wide || q.mode === 'mc' || q.mode === 'tf' || q.mode === 'plot' || q.mode === 'coord') return null;
+    const s = splitPrompt(q.prompt);
+    if (!s) return null;
+    if (strip(keyAnswer(q)).length > 22 || strip(s.display).length > 34) return null;
+    return s;
+  }
+  const EQ_LEAD = /^(calculate|simplify|evaluate|expand|factorise|find the value|work out|write .{0,30}as a single power|write .{0,30}in index form|convert)/i;
+
+  function needsWork(q) {
+    const w = workSel.value;
+    if (w === 'none') return false;
+    if (q.mode === 'mc' || q.mode === 'tf' || q.mode === 'plot' || q.noAnswerBox || q.drawSpace || q.noWorking) return false;
+    if (w === 'all') return true;
+    if (q.work != null) return !!q.work;
+    return !!(lastPaper && lastPaper.workTypes && lastPaper.workTypes.has(q.type));
+  }
+  /* A type needs working space when its questions take two or more steps
+     (three when there is a diagram to read from). */
+  function workTypesOf(qs) {
+    const set = new Set();
+    qs.forEach(q => {
+      // the key's reason is the working: count its calculations
+      const steps = (strip(q.why || '').match(/=/g) || []).length;
+      if (steps >= (q.diagram ? 3 : 2)) set.add(q.type);
+    });
+    return set;
+  }
+  function blankClass(a) {
+    const n = strip(a).length;
+    return n <= 3 ? 'sm' : n <= 9 ? 'md' : n <= 18 ? 'lg' : 'xl';
+  }
+  const lvClass = q => (lastPaper && lastPaper.level === 'expected' && !BASIC_LABELS.has(q.label)) ? 'lv2' : 'lv1';
+  let BASIC_LABELS = new Set();
+
+  function ansLabel() { return isEn() ? LANG.en.answer : `<span class="loc">${L().answer}</span>${LANG.en.answer}`; }
+  function answerLine(q, key) {
+    if (q.mode === 'tf' || q.mode === 'mc' || q.noAnswerBox || q.mode === 'plot') return '';
+    const a = keyAnswer(q), n = strip(a).length;
+    const unit = q.mode === 'num' && q.unit && !q.answerHTML ? `<span class="unit">${q.unit === '°' ? '°' : q.unit}</span>` : '';
+    if (key) return `<div class="ansLine"><span class="al">${ansLabel()}</span><span class="keyAns">${a || '—'}</span>${unit}</div>`;
+    if (n > 40) return `<div class="ansLine full"><span class="al">${ansLabel()}</span><div class="lines"></div></div>`;
+    return `<div class="ansLine"><span class="al">${ansLabel()}</span><span class="ablank ${blankClass(a)}"></span>${unit}</div>`;
+  }
+  function whyHTML(q, key) { return key && toggleWhy.checked && q.why ? `<div class="keyText">${q.why}</div>` : ''; }
+
+  /* one card: a single question, or a drill card of several parts */
+  function cardHTML(card, num, key) {
+    const q0 = card.items[0];
+    const numH = `<span class="qNum ${lvClass(q0)}">${num}</span>`;
+    if (card.drill) {
+      const loc = localLine(q0, card.lead);
+      const eq = EQ_LEAD.test(strip(card.lead));
+      const items = card.items.map((q, i) => `<div class="item"><span class="il">${'abcdefgh'[i]}</span><span class="ix">${q._display}</span>${eq ? '<span class="ieq">=</span>' : ''}` +
+        (key ? `<span class="keyAns">${keyAnswer(q)}</span>` : `<span class="ablank"></span>`) +
+        (q.mode === 'num' && q.unit && !q.answerHTML ? `<span class="unit">${q.unit}</span>` : '') + `</div>`).join('');
+      const whys = key && toggleWhy.checked ? card.items.map((q, i) => q.why ? `<b>${'abcdefgh'[i]}</b> ${q.why}` : '').filter(Boolean).join(' &nbsp; ') : '';
+      return `<div class="qCard drill" data-type="${q0.type}" data-n="${card.items.length}">` +
+        `<div class="qTop">${numH}<div class="qText${loc ? ' bi' : ''}">${loc ? `<span class="loc">${loc}</span>` : ''}<span class="enLine">${card.lead}</span></div></div>` +
+        `<div class="items c${card.cols || 2}">${items}</div>` + (whys ? `<div class="keyText">${whys}</div>` : '') + `</div>`;
+    }
+    const q = q0;
     const loc = localLine(q);
-    const prompt = paperPrompt(q.prompt);
     let body = '';
     if (q.mode === 'mc' && q.options) {
-      const long = q.options.some(o => strip(o).length > 26);
+      const long = q.options.some(o => strip(o).length > 22);
       body += `<div class="opts${long ? ' long' : ''}">` + q.options.map((o, k) =>
         `<div class="opt${key && k === q.correct ? ' right' : ''}"><span class="L">${'ABCDEF'[k]}</span><span>${o}</span></div>`).join('') + '</div>';
     }
-    if (q.mode === 'tf') {
-      body += `<div class="tfRow"><span class="${key && q.truth ? 'right' : ''}">${isEn() ? 'True' : L().trueW + ' / True'}</span><span class="${key && !q.truth ? 'right' : ''}">${isEn() ? 'False' : L().falseW + ' / False'}</span></div>`;
-    }
-    const diag = (key && q.keyDiagram) || q.diagram || (key && q.mode === 'plot' && q.grid) || null;
-    const ansLabel = isEn() ? `<span>${LANG.en.answer}</span>` : `<span class="loc" dir="rtl">${L().answer}</span><span class="en">${LANG.en.answer}</span>`;
-    const needsBox = !(q.mode === 'tf') && !(q.noAnswerBox);
-    const unitAfter = !key && q.mode === 'num' && q.unit && q.unit !== '°' ? `<span class="ansUnit">${q.unit}</span>` : (!key && q.unit === '°' && q.mode === 'num' ? '<span class="ansUnit">°</span>' : '');
-    const work = !key && toggleWorking.checked && !q.noWorking
-      ? `<div class="workBox"><span class="workTag">${isEn() ? LANG.en.working : L().working + ' · ' + LANG.en.working}</span></div>` : '';
-    const ans = key
-      ? `<div class="ansRow">${ansLabel}<div class="ansBox key">${answerHTML(q) || '—'}</div></div>${toggleWhy.checked && q.why ? `<div class="why">${q.why}</div>` : ''}`
-      : (needsBox ? (q.partLabels ? q.partLabels.map(l => `<div class="ansRow part"><span>${l}</span><div class="ansBox"></div></div>`).join('')
-                                   : `<div class="ansRow">${ansLabel}<div class="ansBox"></div>${unitAfter}</div>`) : '');
-    return `<div class="qCard" data-type="${q.type}">` +
-      `<div class="qHead"><span class="qNum">Q${idx}</span><div class="qPrompt${loc ? ' bi' : ''}">${loc ? `<span class="loc">${loc}</span>` : ''}<span class="enLine">${prompt}</span>${body}</div></div>` +
-      (diag ? `<div class="qDiag" data-d="1"></div>` : '') +
-      (!key && q.drawSpace ? `<div class="drawBox${q.grid5 ? ' sq' : ''}" style="height:${q.drawSpace}mm"><span class="workTag">${q.drawTag || ''}</span></div>` : '') +
-      `<div class="qFill"></div>${work}${ans}</div>`;
+    if (q.mode === 'tf') body += `<div class="tfRow"><span class="${key && q.truth ? 'right' : ''}">${isEn() ? 'True' : L().trueW + ' / True'}</span><span class="${key && !q.truth ? 'right' : ''}">${isEn() ? 'False' : L().falseW + ' / False'}</span></div>`;
+    if (q.subq) body += `<ol class="subs">${q.subq.map(p => `<li><div><span class="sl">${p.label}</span>${p.html}</div>` +
+      (key ? `<div class="pAns"><span class="keyAns">${p.answer}</span></div>` : `<div class="pAns"><span class="ablank ${blankClass(p.answer)}"></span></div>`) + `</li>`).join('')}</ol>`;
+    const diag = (key && q.keyDiagram) || q.diagram || (q.mode === 'plot' && q.grid) ? '<div class="qDiag"></div>' : '';
+    const draw = !key && q.drawSpace ? `<div class="drawBox${q.grid5 ? ' sq' : ''}" style="height:${q.drawSpace}mm"><span class="workTag">${q.drawTag || ''}</span></div>` : '';
+    const work = !key && needsWork(q) ? `<div class="work lines"></div>` : '';
+    const ans = q.subq ? '' : answerLine(q, key);
+    const top = `<div class="qTop">${numH}<div class="qText${loc ? ' bi' : ''}">${loc ? `<span class="loc">${loc}</span>` : ''}<span class="enLine">${paperPrompt(key && q.keyPrompt ? q.keyPrompt : q.prompt)}</span></div></div>`;
+    const cls = `qCard${card.side ? ' side' : ''}`;
+    if (card.side) return `<div class="${cls}" data-type="${q.type}" data-n="1"><div class="qMain">${top}${body}${draw}${work}<div class="spacer"></div>${ans}${whyHTML(q, key)}</div>${diag}</div>`;
+    return `<div class="${cls}" data-type="${q.type}" data-n="1">${top}${body}${diag}${draw}${work}<div class="spacer"></div>${ans}${whyHTML(q, key)}</div>`;
   }
-  function hydrate(el, q, key) {
+  function hydrate(el, card, key) {
     const host = el.querySelector('.qDiag'); if (!host) return;
+    const q = card.items[0];
     let d = (key && q.keyDiagram) || q.diagram;
+    if (!d && q.mode === 'plot' && q.grid) d = { grid: q.grid };
     if (key && q.mode === 'plot' && d && d.grid) d = { grid: Object.assign({}, d.grid, { points: (d.grid.points || []).concat([{ x: q.x, y: q.y, color: '#16a34a', label: `(${C.fmt(q.x)}, ${C.fmt(q.y)})` }]) }) };
-    drawDiagram(host, d);
+    drawDiagram(host, d, card.wide ? 74 : 56);
   }
 
-  /* ---- pages: measure every card at its printed width, then pack ---- */
-  function headerHTML(key, p, total) {
-    const lv = levelName(lastPaper.level);
-    const enTitle = `${CFG.topic} — ${key ? 'Answer key' : 'Worksheet'} (${lv})`;
-    const locT = isEn() ? '' : `<span class="loc" dir="rtl">${key ? L().answerKey : L().worksheet} (${lv})</span>`;
-    const sub = `${key ? 'Answer key' : 'Worksheet'} — ${isEn() ? 'Page' : L().page + ' / Page'} ${p} / ${total}`;
-    const field = (w, en) => `<div class="lineField"><div class="lineLabel">${isEn() ? en : `<span class="loc">${w}</span> ${en}`}</div><div class="lineBox"></div></div>`;
-    const nd = key ? '' : `<div class="nameDate">${field(L().name, 'Name')}${field(L().date, 'Date')}</div>`;
-    return `<div class="pageHeader"><div><div class="hdrTitle">${locT}${enTitle}</div><div class="hdrSub">${sub}</div></div>${nd}</div>`;
+  /* group a section's questions into cards: like drill questions share a card */
+  function makeCards(qs) {
+    const cards = [], open = new Map();
+    qs.forEach(q => {
+      if (q.mode === 'plot' && q.grid && !q.diagram) q.noAnswerBox = true;
+      const s = drillable(q);
+      if (s) {
+        q._display = s.display;
+        const k = strip(s.lead).toLowerCase().replace(/[.:]\s*$/, '');   // the same instruction, whatever the type
+        const c = open.get(k);
+        if (c && c.items.length < 4) { c.items.push(q); return; }
+        const nc = { items: [q], drill: true, lead: s.lead };
+        open.set(k, nc); cards.push(nc); return;
+      }
+      cards.push({ items: [q] });
+    });
+    // a drill "card" of one item is an ordinary question
+    cards.forEach(c => { if (c.drill && c.items.length === 1) { c.drill = false; } });
+    return cards;
   }
-  const footerHTML = () => `<div class="pageFooter"><span>This tool and more can be found at <a href="${SITE}">www.millsmathstools.au</a></span><span class="oc">${CFG.outcome}</span></div>`;
 
-  function measureRows(qs, key) {
-    // a probe page the same size as a real one
-    probe.innerHTML = `<div class="page${isEn() ? '' : ' lang-rtl'}">${headerHTML(key, 1, 1)}<div class="pageBody"><div class="row"><div id="pa"></div><div></div></div><div class="row wide"><div id="pw"></div></div></div>${footerHTML()}</div>`;
-    const pg = probe.firstChild, body = pg.querySelector('.pageBody');
-    const cs = getComputedStyle(body);
-    GAP = parseFloat(cs.rowGap) || 11;
-    const avail = body.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - 1;
-    const half = probe.querySelector('#pa'), full = probe.querySelector('#pw');
-    const items = qs.map((q, i) => {
-      half.innerHTML = cardHTML(q, i + 1, key); hydrate(half.firstChild, q, key);
-      const card = half.firstChild;
-      const ccs = getComputedStyle(card), edge = card.getBoundingClientRect().right - parseFloat(ccs.paddingRight) + 1;
-      const over = card.scrollWidth > card.clientWidth + 2 || [...card.querySelectorAll('svg,table,.opts,.big')].some(e => e.getBoundingClientRect().right > edge);
-      let wide = !!q.wide || over, h;
-      if (wide) { full.innerHTML = cardHTML(q, i + 1, key); hydrate(full.firstChild, q, key); h = full.firstChild.getBoundingClientRect().height; }
-      else h = card.getBoundingClientRect().height;
-      return { q, wide, h };
+  /* ============================ MEASURING ============================ */
+  let AVAIL = 0, AVAIL_KEY = 0, GAP = 11, SECH = 24;
+  function probePage(key) {
+    probe.innerHTML = `<div class="page${isEn() ? '' : ' lang-rtl'}${key ? ' isKey' : ''}">${headerHTML(key, 1, 1)}<div class="pageBody">${CFG.intro && !key ? `<p class="intro">${CFG.intro()}</p>` : ''}` +
+      `<div class="secHead"><span class="secLetter">A</span><span class="secTitle">Section</span></div><div class="row"><div id="pa"></div><div></div></div><div class="row one"><div id="pw"></div></div></div>${footerHTML(key, 1, 1)}</div>`;
+    const pg = probe.firstChild, body = pg.querySelector('.pageBody'), cs = getComputedStyle(body);
+    GAP = parseFloat(cs.rowGap) || 10;
+    SECH = pg.querySelector('.secHead').getBoundingClientRect().height;
+    const av = body.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - 2;
+    if (key) AVAIL_KEY = av - 4; else AVAIL = av - 4;   // a few px kept back for rounding
+    const intro = pg.querySelector('.intro');
+    return { half: pg.querySelector('#pa'), full: pg.querySelector('#pw'), introH: intro ? intro.getBoundingClientRect().height + GAP : 0 };
+  }
+  function renderInto(host, card, key) {
+    host.innerHTML = cardHTML(card, 99, key); const el = host.firstChild; hydrate(el, card, key); return el;
+  }
+  function overflows(el) {
+    const r = el.getBoundingClientRect(), cs = getComputedStyle(el), edge = r.right - parseFloat(cs.paddingRight) + 1;
+    return el.scrollWidth > el.clientWidth + 2 || [...el.querySelectorAll('svg,table,.opts,.big,.item .ix,.math-expression,.dataList')].some(e => e.getBoundingClientRect().right > edge);
+  }
+  /* decide each card's shape (half / across, words beside a tall diagram,
+     one or two drill columns) and measure its height, for the worksheet and
+     the key */
+  let MCACHE = new Map();
+  const cardKey = c => c.items.map(sigOf).join('#');
+  function measureCards(cards) {
+    const todo = cards.filter(card => {
+      const m = MCACHE.get(cardKey(card));
+      if (m) { Object.assign(card, m); return false; }
+      return true;
+    });
+    if (!todo.length) return;
+    let P = probePage(false);
+    todo.forEach(card => {
+      card.side = false; card.wide = !!card.items[0].wide; card.cols = 2;
+      if (card.drill) {
+        const n = card.items.length;
+        let el = renderInto(P.half, card, false);
+        const ix = [...el.querySelectorAll('.item')];
+        if (ix.some(i => i.scrollWidth > i.clientWidth + 1)) { card.cols = 1; el = renderInto(P.half, card, false); }
+        if (overflows(el)) card.wide = true;
+        if (card.wide) { card.cols = n >= 3 ? 3 : 2; el = renderInto(P.full, card, false); if ([...el.querySelectorAll('.item')].some(i => i.scrollWidth > i.clientWidth + 1)) { card.cols = 1; el = renderInto(P.full, card, false); } }
+        card.h = el.getBoundingClientRect().height;
+        return;
+      }
+      if (!card.wide) {
+        let el = renderInto(P.half, card, false);
+        const svg = el.querySelector('.qDiag svg');
+        if (svg) {
+          const r = svg.getBoundingClientRect(), inner = el.clientWidth;
+          if (r.height > r.width * 1.12 && r.width < inner * 0.52 && !card.items[0].drawSpace) { card.side = true; el = renderInto(P.half, card, false); }
+        }
+        if (overflows(el)) { card.wide = true; card.side = false; }
+        else card.h = el.getBoundingClientRect().height;
+      }
+      if (card.wide) {
+        let el = renderInto(P.full, card, false);
+        const svg = el.querySelector('.qDiag svg');
+        if (svg && !card.items[0].drawSpace) {
+          // across the page, a diagram sits beside the words
+          const r = svg.getBoundingClientRect();
+          if (r.width < el.clientWidth * 0.6) { card.side = true; el = renderInto(P.full, card, false); if (overflows(el)) { card.side = false; el = renderInto(P.full, card, false); } }
+        }
+        card.h = el.getBoundingClientRect().height;
+      }
+    });
+    P = probePage(true);
+    todo.forEach(card => {
+      card.hk = renderInto(card.wide ? P.full : P.half, card, true).getBoundingClientRect().height;
+      MCACHE.set(cardKey(card), { h: card.h, hk: card.hk, side: card.side, wide: card.wide, cols: card.cols });
     });
     probe.innerHTML = '';
-    return { items, avail };
   }
-  let GAP = 11;
-  function pack(items, avail) {
-    const rows = [];
-    for (let i = 0; i < items.length; i++) {
-      const a = items[i];
-      if (a.wide) { rows.push({ cells: [a], wide: true, h: a.h }); continue; }
-      const b = items[i + 1];
-      if (b && !b.wide) { rows.push({ cells: [a, b], h: Math.max(a.h, b.h) }); i++; }
-      else rows.push({ cells: [a], h: a.h });
+
+  /* ============================ ROWS ============================ */
+  /* A section's cards become rows. Across-the-page cards are rows of their
+     own; the others are paired with the card closest in height, or a tall
+     card is set beside two short ones when that wastes less. */
+  function makeRows(cards) {
+    const rows = [], half = [];
+    cards.forEach((c, i) => { c._i = i; if (c.wide) rows.push({ kind: 'one', cells: [c], h: c.h, hk: c.hk, o: i }); else half.push(c); });
+    // pairs by height: sorted, neighbours together (the least height left over)
+    const pairUp = list => {
+      const srt = list.slice().sort((a, b) => b.h - a.h), out = []; let waste = 0;
+      for (let k = 0; k + 1 < srt.length; k += 2) { out.push([srt[k], srt[k + 1]]); waste += srt[k].h - srt[k + 1].h; }
+      return { out, waste };
+    };
+    let plan = null;
+    if (half.length === 1) plan = { single: half[0], pairs: [], stack: null };
+    else if (half.length % 2 === 0) plan = { pairs: pairUp(half).out, stack: null };
+    else {
+      // an odd number: one tall card beside two short ones, chosen to waste least;
+      // or, failing a good fit, one card across the page
+      let best = null;
+      for (const T of half) for (let a = 0; a < half.length; a++) for (let b = a + 1; b < half.length; b++) {
+        const A = half[a], B = half[b];
+        if (A === T || B === T) continue;
+        const hh = A.h + B.h + GAP, rest = half.filter(c => c !== T && c !== A && c !== B), pu = pairUp(rest);
+        const w = Math.abs(T.h - hh) + pu.waste;
+        if (!best || w < best.w) best = { w, stack: [T, A, B], pairs: pu.out };
+      }
+      let single = null;
+      for (const c of half) {
+        const pu = pairUp(half.filter(x => x !== c)), w = pu.waste + c.h * 0.45;
+        if (!single || w < single.w) single = { w, single: c, pairs: pu.out };
+      }
+      plan = best && best.w <= single.w ? best : single;
     }
-    const pages = [];
-    let cur = [], used = 0;
-    rows.forEach(r => {
-      const need = r.h + (cur.length ? GAP : 0);
-      if (cur.length && used + need > avail) { pages.push({ rows: cur, used }); cur = []; used = 0; }
-      cur.push(r); used += r.h + (cur.length > 1 ? GAP : 0);
+    (plan.pairs || []).forEach(([A, B]) => { const pr = A._i < B._i ? [A, B] : [B, A]; rows.push({ kind: 'pair', cells: pr, h: Math.max(A.h, B.h), hk: Math.max(A.hk, B.hk), o: pr[0]._i }); });
+    if (plan.stack) {
+      const [T, A, B] = plan.stack, sh = [A, B].sort((x, y) => x._i - y._i);
+      rows.push({ kind: 'stack', cells: [T, sh[0], sh[1]], h: Math.max(T.h, A.h + B.h + GAP), hk: Math.max(T.hk, A.hk + B.hk + GAP), o: Math.min(T._i, sh[0]._i) });
+    }
+    if (plan.single) {
+      const T = plan.single;
+      T.wide = true; T.side = false; T._remeasure = true;
+      rows.push({ kind: 'one', cells: [T], h: T.h, hk: T.hk, o: T._i });
+    }
+    rows.sort((a, b) => a.o - b.o);
+    return rows;
+  }
+  function remeasure(rows) {
+    const todo = rows.filter(r => r.cells.some(c => c._remeasure));
+    if (!todo.length) return;
+    const need = todo.filter(r => { const m = MCACHE.get('L|' + cardKey(r.cells[0])); if (m) { Object.assign(r.cells[0], m); r.h = m.h; r.hk = m.hk; r.cells[0]._remeasure = false; return false; } return true; });
+    if (!need.length) return;
+    let P = probePage(false);
+    need.forEach(r => {
+      const c = r.cells[0];
+      let el = renderInto(P.full, c, false);
+      const svg = el.querySelector('.qDiag svg');
+      if (svg && !c.items[0].drawSpace && svg.getBoundingClientRect().width < el.clientWidth * 0.6) {
+        c.side = true; el = renderInto(P.full, c, false);
+        if (overflows(el)) { c.side = false; el = renderInto(P.full, c, false); }
+      }
+      c.h = el.getBoundingClientRect().height; r.h = c.h;
     });
-    if (cur.length) pages.push({ rows: cur, used });
+    P = probePage(true);
+    need.forEach(r => { const c = r.cells[0]; c.hk = renderInto(P.full, c, true).getBoundingClientRect().height; r.hk = c.hk; c._remeasure = false;
+      MCACHE.set('L|' + cardKey(c), { h: c.h, hk: c.hk, side: c.side, wide: true, cols: c.cols }); });
+    probe.innerHTML = '';
+  }
+
+  /* ============================ PAGES ============================ */
+  /* Sections flow down the pages. A section's heading never sits alone at
+     the foot of a page; when the next row will not fit, a later row of the
+     same section that does fit is moved up. */
+  function paginate(sections, introH) {
+    const pages = [];
+    let cur = null;
+    const newPage = () => { cur = { blocks: [], used: pages.length ? 0 : introH }; pages.push(cur); };
+    newPage();
+    sections.forEach(sec => {
+      const queue = sec.rows.slice();
+      let started = false;
+      while (queue.length) {
+        const head = !cur.blocks.length || cur.blocks[cur.blocks.length - 1].sec !== sec;
+        const hdr = head ? (sec.hh == null ? SECH : sec.hh) + GAP : 0;
+        const room = AVAIL - cur.used - (cur.blocks.length ? GAP : 0) - hdr;
+        let i = queue.findIndex(r => r.h <= room);
+        if (i < 0) {
+          if (!cur.blocks.length) i = 0;              // too tall for any page: it goes on its own
+          else { newPage(); continue; }
+        }
+        const r = queue.splice(i, 1)[0];
+        if (head) { const hh = sec.hh == null ? SECH : sec.hh; cur.blocks.push({ sec, head: true, cont: started, h: hh }); cur.used += (cur.blocks.length > 1 ? GAP : 0) + hh; }
+        cur.blocks.push({ sec, row: r, h: r.h }); cur.used += GAP + r.h;
+        started = true;
+      }
+    });
     return pages;
   }
-  function buildHalf(qs, key) {
-    const { items, avail } = measureRows(qs, key);
-    const pages = pack(items, avail);
-    let n = 0;
-    return pages.map((pg, p) => {
-      const page = document.createElement('div');
-      page.className = 'page' + (isEn() ? '' : ' lang-rtl') + (key ? ' answerKeyPage' : '');
-      // Whatever the page has left is shared out as working room.
-      const extra = Math.max(0, avail - pg.used - 2);
-      const each = key ? 0 : Math.min(extra / pg.rows.length, p < pages.length - 1 ? Infinity : 260);   // a page cut short by a tall next row keeps all its room
-      page.innerHTML = headerHTML(key, p + 1, pages.length) + '<div class="pageBody"></div>' + footerHTML();
-      const body = page.querySelector('.pageBody');
-      pg.rows.forEach(r => {
-        const row = document.createElement('div');
-        row.className = 'row' + (r.wide ? ' wide' : '');
-        row.style.minHeight = (r.h + each) + 'px';
-        r.cells.forEach(c => {
-          n++;
-          const holder = document.createElement('div');
-          holder.innerHTML = cardHTML(c.q, qs.indexOf(c.q) + 1, key);
-          const card = holder.firstChild; row.appendChild(card);
-        });
-        body.appendChild(row);
-      });
-      return page;
-    });
+
+  /* ============================ THE PAPER ============================ */
+  const typesAt = lv => TYPES.filter(t => t.level === lv);
+  const levelName = lv => ((CFG && CFG.levelNames) || { basic: 'Basic', expected: 'Expected' })[lv];
+  const stageOf = oc => { const m = /^MA(\d)/.exec(oc || ''); return m ? 'Stage ' + m[1] : ''; };
+  function headerHTML(key, p, total) {
+    const lv = lastPaper ? levelName(lastPaper.level) : '';
+    const title = `${CFG.topic}${key ? ' — Answer key' : ''}`;
+    const locT = isEn() ? '' : `<span class="loc" dir="rtl">${key ? L().answerKey : L().worksheet}</span>`;
+    const sub = [stageOf(CFG.outcome), CFG.outcome, lv].filter(Boolean).join(' · ');
+    const field = (w, en, cls) => `<div class="lineField${cls || ''}"><div class="lineLabel">${isEn() ? en : `<span class="loc">${w}</span> ${en}`}</div><div class="lineBox"></div></div>`;
+    const nd = key || !toggleName.checked ? '' : `<div class="nameDate">${field(L().name, 'Name', ' wide')}${field(L().date, 'Date')}</div>`;
+    return `<div class="pageHeader"><div><div class="hdrTitle">${locT}${title}</div><div class="hdrSub">${sub}</div></div>${nd}</div>`;
+  }
+  function footerHTML(key, p, total) {
+    return `<div class="pageFooter"><span><a href="${SITE}">millsmathstools.au</a> · ${CFG.topic}</span><span>${key ? 'Key · ' : ''}Page ${p} of ${total}</span></div>`;
+  }
+  function sectionsOf(qs) {
+    if (toggleMix.checked) return [{ id: '_mix', title: '', items: qs.slice() }];
+    const byId = new Map();
+    CFG.statements.forEach(s => byId.set(s.id, { id: s.id, title: s.short || s.text, items: [] }));
+    qs.forEach(q => { const s = byId.get(q.stmt); if (s) s.items.push(q); });
+    return [...byId.values()].filter(s => s.items.length);
+  }
+
+  /* With "Fill the pages" on, room at the foot of a page takes more
+     questions of the section the page ends in: a row of two, or one across. */
+  function fillPages(pages, sections) {
+    if (!toggleFill.checked || !lastPaper) return 0;
+    let added = 0;
+    const MIN = 16 * MM;
+    for (let p = 0; p < pages.length; p++) {
+      const pg = pages[p];
+      let guard = 0;
+      while (AVAIL - pg.used > MIN + GAP && guard++ < 6 && added < 24) {
+        const last = pg.blocks[pg.blocks.length - 1];
+        if (!last) break;
+        const sec = last.sec, room = AVAIL - pg.used - GAP;
+        const row = fillRow(sec, room);
+        if (!row) break;
+        pg.blocks.push({ sec, row, h: row.h, fill: true }); pg.used += GAP + row.h;
+        added += row.cells.reduce((s, c) => s + c.items.length, 0);
+      }
+    }
+    return added;
+  }
+  function fillRow(sec, room) {
+    const ids = new Set(activeIds());
+    const types = TYPES.filter(t => t.level === lastPaper.level && ids.has(t.id) && (sec.id === '_mix' || t.stmt === sec.id));
+    if (!types.length) return null;
+    const used = new Map(); lastPaper.qs.concat(lastPaper.fill || []).forEach(q => used.set(q.type, (used.get(q.type) || 0) + 1));
+    const order = C.shuffle(types).sort((a, b) => (used.get(a.id) || 0) - (used.get(b.id) || 0));
+    const P = probePage(false), K = () => probePage(true);
+    const cands = [];
+    const cache = (lastPaper.fillCache = lastPaper.fillCache || []);
+    const fromCache = cache.filter(q => !q._placed && types.some(t => t.id === q.type));
+    for (let k = 0; k < fromCache.length + order.length * 3 && cands.length < 10; k++) {
+      let q;
+      if (k < fromCache.length) q = fromCache[k];
+      else { const t = order[(k - fromCache.length) % order.length]; q = makeQ(t, lastPaper.seen); if (q) { lastPaper.seen.add(sigOf(q)); cache.push(q); } }
+      if (!q) continue;
+      const card = { items: [q] };
+      if (q.mode === 'plot' && q.grid && !q.diagram) q.noAnswerBox = true;
+      card.wide = !!q.wide;
+      let el = renderInto(card.wide ? P.full : P.half, card, false);
+      if (!card.wide && overflows(el)) { card.wide = true; el = renderInto(P.full, card, false); }
+      card.h = el.getBoundingClientRect().height;
+      if (card.h <= room) cands.push(card);
+    }
+    probe.innerHTML = '';
+    if (!cands.length) return null;
+    // two side by side if two fit, else the tallest one across the page
+    const halves = cands.filter(c => !c.wide).sort((a, b) => b.h - a.h);
+    let row = null;
+    if (halves.length >= 2) {
+      let best = null;
+      for (let a = 0; a < halves.length; a++) for (let b = a + 1; b < halves.length; b++) {
+        if (halves[a].items[0].type === halves[b].items[0].type && halves.length > 2 && types.length > 1) continue;
+        const h = Math.max(halves[a].h, halves[b].h), w = Math.abs(halves[a].h - halves[b].h);
+        if (!best || h - w * 2 > best.score) best = { score: h - w * 2, cells: [halves[a], halves[b]], h };
+      }
+      if (best) row = { kind: 'pair', cells: best.cells, h: best.h };
+    }
+    if (!row) {
+      const c = cands.sort((a, b) => b.h - a.h)[0];
+      if (!c.wide) { c.wide = true; const P2 = probePage(false); c.h = renderInto(P2.full, c, false).getBoundingClientRect().height; probe.innerHTML = ''; if (c.h > room) return null; }
+      row = { kind: 'one', cells: [c], h: c.h };
+    }
+    const KP = K();
+    row.cells.forEach(c => { c.hk = renderInto(c.wide ? KP.full : KP.half, c, true).getBoundingClientRect().height; });
+    probe.innerHTML = '';
+    row.hk = Math.max(...row.cells.map(c => c.hk));
+    row.cells.forEach(c => { c.items[0]._placed = true; lastPaper.fill.push(c.items[0]); });
+    return row;
+  }
+
+  function sigOf(q) { return q.type + '|' + (q.key || strip(q.prompt) + JSON.stringify(q.diagram && (q.diagram.config || q.diagram.grid || q.diagram.html) || '') + JSON.stringify(q.options || '')); }
+  function makeQ(t, seen, allowRepeat) {
+    let last = null;
+    for (let tries = 0; tries < 30; tries++) {
+      let c = null;
+      try { c = t.gen({ level: t.level, paper: true }); } catch (e) { console.warn(t.id, e); }
+      if (!c) continue;
+      c.type = t.id; c.label = t.label; c.stmt = t.stmt;
+      if (!seen.has(sigOf(c))) return c;
+      last = c;
+    }
+    return allowRepeat ? last : null;
+  }
+
+  function layoutOf(qs) {
+    const P0 = probePage(false); const introH = P0.introH; probe.innerHTML = '';
+    const sections = sectionsOf(qs).map((s, i) => Object.assign(s, { letter: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[i] }));
+    sections.forEach(s => { s.cards = makeCards(s.items); measureCards(s.cards); s.rows = makeRows(s.cards); remeasure(s.rows); });
+    measureHeads(sections);
+    return { pages: paginate(sections, introH), sections };
+  }
+  const withExtra = list => lastPaper.qs.concat(list).sort((a, b) => a._o - b._o);
+  const freeOf = L => L.pages.reduce((s, p) => s + Math.max(0, AVAIL - p.used), 0);
+  /* With "Fill the pages" on, the paper grows: the most extra questions
+     (dealt across every ticked type, so every section grows) that still fit
+     on the same number of pages; then any gap left at the foot of a page
+     takes a row from that page's own section. */
+  function layout() {
+    MCACHE = new Map();
+    lastPaper.fill = []; (lastPaper.fillCache || []).forEach(q => { q._placed = false; });
+    const pool = lastPaper.pool;
+    let chosen = [], L = layoutOf(withExtra([]));
+    if (toggleFill.checked && pool.length) {
+      const P = L.pages.length;
+      // the most spare questions, in dealing order, that keep the same number of pages …
+      if (AVAIL - L.pages[P - 1].used > AVAIL * 0.15) {
+        let lo = 0, hi = pool.length;
+        while (lo < hi) {
+          const mid = Math.ceil((lo + hi) / 2);
+          if (layoutOf(withExtra(pool.slice(0, mid))).pages.length <= P) lo = mid; else hi = mid - 1;
+        }
+        chosen = pool.slice(0, lo);
+        if (lo) L = layoutOf(withExtra(chosen));
+      }
+      // … then any other spare question that still fits and leaves less empty room
+      let free = freeOf(L);
+      const count = new Map(); lastPaper.qs.concat(chosen).forEach(x => count.set(x.type, (count.get(x.type) || 0) + 1));
+      const cap = Math.max(...count.values()) + 1;
+      for (const q of pool) {
+        if (chosen.includes(q) || free < 14 * MM || (count.get(q.type) || 0) >= cap) continue;
+        const L2 = layoutOf(withExtra(chosen.concat([q])));
+        const f2 = freeOf(L2);
+        if (L2.pages.length === P && f2 < free - 4 * MM) { chosen.push(q); L = L2; free = f2; count.set(q.type, (count.get(q.type) || 0) + 1); }
+      }
+    }
+    const added = chosen.length + fillPages(L.pages, L.sections);
+    lastPaper.m = chosen.length;
+    return { pages: L.pages, added };
+  }
+
+  function rowEl(row, numOf, key) {
+    const el = document.createElement('div');
+    el.className = 'row' + (row.kind === 'one' ? ' one' : '');
+    const card = c => { const h = document.createElement('div'); h.innerHTML = cardHTML(c, numOf(c), key); const e = h.firstChild; e._card = c; e.dataset.h = Math.round(key ? c.hk : c.h); return e; };
+    if (row.kind === 'stack') {
+      el.appendChild(card(row.cells[0]));
+      const st = document.createElement('div'); st.className = 'stack';
+      st.appendChild(card(row.cells[1])); st.appendChild(card(row.cells[2]));
+      el.appendChild(st);
+    } else row.cells.forEach(c => el.appendChild(card(c)));
+    return el;
   }
   function draw() {
     out.innerHTML = '';
     if (!lastPaper) return;
-    const { qs } = lastPaper;
-    const ws = buildHalf(qs, false), keyPages = buildHalf(qs, true);
-    ws.concat(keyPages).forEach(p => out.appendChild(p));
-    // diagrams are drawn once the cards are in the document
-    out.querySelectorAll('.qCard').forEach(card => {
-      const page = card.closest('.page');
-      const key = page.classList.contains('answerKeyPage');
-      const i = +card.querySelector('.qNum').textContent.slice(1) - 1;
-      hydrate(card, qs[i], key);
+    BASIC_LABELS = new Set(typesAt('basic').map(t => t.label));
+    const { pages, added } = layout();
+    // numbers in reading order: row by row, the tall card before the two beside it
+    const nums = new Map(); let n = 0;
+    pages.forEach(pg => pg.blocks.forEach(b => { if (b.row) b.row.cells.forEach(c => nums.set(c, ++n)); }));
+    const numOf = c => nums.get(c);
+    const total = pages.length;
+    const build = (pg, p, key, totalKey, from, upto) => {
+      const page = document.createElement('div');
+      page.className = 'page' + (isEn() ? '' : ' lang-rtl') + (key ? ' isKey answerKeyPage' : '');
+      page.innerHTML = headerHTML(key, p, key ? totalKey : total) + '<div class="pageBody"></div>' + footerHTML(key, p, key ? totalKey : total);
+      const body = page.querySelector('.pageBody');
+      if (p === 1 && !key && CFG.intro) body.insertAdjacentHTML('beforeend', `<p class="intro">${CFG.intro()}</p>`);
+      return { page, body };
+    };
+    const ws = pages.map((pg, i) => {
+      const { page, body } = build(pg, i + 1, false);
+      pg.blocks.forEach(b => {
+        if (b.head) { if (b.sec.title) body.insertAdjacentHTML('beforeend', secHeadHTML(b.sec, b.cont)); }
+        else body.appendChild(rowEl(b.row, numOf, false));
+      });
+      // what no question could fill becomes a box for working
+      const left = AVAIL - pg.used - GAP - 4;
+      if (left >= 15 * MM) body.insertAdjacentHTML('beforeend', `<div class="gapBox" style="height:${Math.floor(left)}px"><span class="gT">${isEn() ? 'Working space' : L().working + ' · Working space'}</span><div class="lines"></div></div>`);
+      return page;
     });
-    totalPill.textContent = `${qs.length} question${qs.length === 1 ? '' : 's'} · ${ws.length} page${ws.length === 1 ? '' : 's'} + ${keyPages.length}-page key`;
+    // the key: the same pages, in the same order. A key page whose answers
+    // run longer than the page is set smaller (down to 72%); past that it runs on.
+    const keyPlan = [];
+    pages.forEach((pg, i) => {
+      const need = pg.blocks.reduce((s, b, k) => s + (k ? GAP : 0) + (b.head ? b.h : b.row.hk), 0);
+      if (need <= AVAIL_KEY) { keyPlan.push({ blocks: pg.blocks, zoom: 1 }); return; }
+      if (AVAIL_KEY / need >= 0.8) { keyPlan.push({ blocks: pg.blocks, zoom: Math.floor((AVAIL_KEY - 10) / need * 1000) / 1000 }); return; }
+      let used = 0, blocks = [];
+      pg.blocks.forEach((b, k) => {
+        const h = b.head ? b.h : b.row.hk;
+        const nextRow = b.head ? pg.blocks[k + 1] : null;
+        const needHere = b.head ? h + GAP + (nextRow ? nextRow.row.hk : 0) : h;
+        if (blocks.length && used + GAP + needHere > AVAIL_KEY) {
+          keyPlan.push({ blocks, zoom: 1 }); blocks = []; used = 0;
+          if (!b.head) { blocks.push({ sec: b.sec, head: true, cont: true, h: b.sec.hh || SECH }); used = b.sec.hh || SECH; }
+        }
+        blocks.push(b); used += (blocks.length > 1 ? GAP : 0) + h;
+      });
+      keyPlan.push({ blocks, zoom: 1 });
+    });
+    const keyPages = keyPlan.map((kp, j) => {
+      const { page, body: body0 } = build(kp, j + 1, true, keyPlan.length);
+      let body = body0;
+      if (kp.zoom < 1) {
+        // the same layout, drawn a little smaller so the page holds it
+        body = document.createElement('div'); body.className = 'keyScale';
+        body.style.transform = `scale(${kp.zoom})`;
+        body0.appendChild(body);
+      }
+      kp.blocks.forEach(b => {
+        if (b.head) { if (b.sec.title) body.insertAdjacentHTML('beforeend', secHeadHTML(b.sec, b.cont)); }
+        else body.appendChild(rowEl(b.row, numOf, true));
+      });
+      return page;
+    });
+    ws.concat(keyPages).forEach(p => out.appendChild(p));
+    out.querySelectorAll('.qCard').forEach(el => hydrate(el, el._card, !!el.closest('.isKey')));
+    const asked = lastPaper.qs.length;
+    totalPill.textContent = `${asked + added} questions${added ? ` (${asked} + ${added} to fill the pages)` : ''} · ${ws.length} page${ws.length === 1 ? '' : 's'} + ${keyPages.length}-page key`;
+    lastPaper.layout = { pages: ws.length, keyPages: keyPages.length, added, avail: Math.round(AVAIL), used: pages.map(p => Math.round(p.used)),
+      blocks: pages.map(pg => pg.blocks.map(b => b.head ? 'H' + Math.round(b.h) : (b.fill ? 'F' : 'R') + Math.round(b.row.h)).join(' ')) };
+  }
+  function measureHeads(sections) {
+    const P = probePage(false), body = probe.querySelector('.pageBody');
+    sections.forEach(sec => {
+      if (!sec.title) { sec.hh = 0; return; }
+      const k = 'H|' + sec.title;
+      if (!MCACHE.has(k)) {
+        const d = document.createElement('div'); d.innerHTML = secHeadHTML(sec, true); body.appendChild(d.firstChild);
+        MCACHE.set(k, body.lastChild.getBoundingClientRect().height); body.lastChild.remove();
+      }
+      sec.hh = MCACHE.get(k);
+    });
+    probe.innerHTML = '';
+  }
+  function secHeadHTML(sec, cont) {
+    return `<div class="secHead"><span class="secLetter">${sec.letter}</span><span class="secTitle">${sec.title}</span>${cont ? '<span class="secCont">(continued)</span>' : ''}</div>`;
   }
 
-  /* ---- the paper ---- */
-  const typesAt = lv => TYPES.filter(t => t.level === lv);
-  const levelName = lv => ((CFG && CFG.levelNames) || { basic: 'Basic', expected: 'Expected' })[lv];
+  /* ---- generating ---- */
   function setupLevels() {
-    // a level with no question types (a Part B-only Stage 3 outcome) is not offered
     [...levelSel.options].forEach(o => { o.textContent = levelName(o.value); o.hidden = o.disabled = !typesAt(o.value).length; });
     if (levelSel.selectedOptions[0] && levelSel.selectedOptions[0].disabled) levelSel.value = [...levelSel.options].find(o => !o.disabled).value;
   }
@@ -574,34 +1113,39 @@
     while (plan.length < n) { if (!deck.length) deck = C.shuffle(types); plan.push(deck.pop()); }
     const seen = new Set(), qs = [];
     plan.forEach(t => {
-      let q = null;
-      for (let tries = 0; tries < 40; tries++) {
-        let c = null;
-        try { c = t.gen({ level: levelSel.value, paper: true }); } catch (e) { console.warn(t.id, e); }
-        if (!c) continue;
-        const sig = t.id + '|' + (c.key || strip(c.prompt) + JSON.stringify(c.diagram && (c.diagram.config || c.diagram.grid || c.diagram.html) || '') + JSON.stringify(c.options || ''));
-        q = c;
-        if (!seen.has(sig)) { seen.add(sig); break; }
-      }
+      const q = makeQ(t, seen, true);
       if (!q) return;
-      q.type = t.id; q.label = t.label; q.stmt = t.stmt;
-      q._o = toggleMix.checked ? Math.random() * 1000 : order.get(t.id) + Math.random() * 1.6;
+      seen.add(sigOf(q));
+      q._o = toggleMix.checked ? Math.random() * 1000 : order.get(t.id) + Math.random() * 0.01;
       qs.push(q);
     });
     qs.sort((a, b) => a._o - b._o);
-    lastPaper = { qs, level: levelSel.value };
+    // spare questions, dealt the same way, to grow the paper to the end of its last page
+    const pool = []; deck = [];
+    const want = Math.max(12, 2 * n);
+    for (let k = 0; k < want * 2 && pool.length < want; k++) {
+      if (!deck.length) deck = C.shuffle(types);
+      const t = deck.pop(), q = makeQ(t, seen);
+      if (!q) continue;
+      seen.add(sigOf(q));
+      q._o = toggleMix.checked ? Math.random() * 1000 : order.get(t.id) + Math.random() * 0.01;
+      pool.push(q);
+    }
+    lastPaper = { qs, pool, level: levelSel.value, seen };
+    lastPaper.workTypes = workTypesOf(qs.concat(pool));
     draw();
     out.firstElementChild && out.firstElementChild.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
+  function redraw() { if (lastPaper) draw(); }
 
   /* ---- the controls ---- */
   function renderChecks() {
     const lv = levelSel.value, other = levelName(lv === 'basic' ? 'expected' : 'basic');
     chkWrap.innerHTML = CFG.statements.map((s, i) => {
       const here = typesAt(lv).filter(t => t.stmt === s.id);
-      const chips = here.map(t => `<label class="chk" title="${t.paper ? 'Written for paper (not in the online quiz)' : 'Also in the whole-topic quiz'}"><input type="checkbox" id="chk_${t.id}" checked> ${t.label}${t.paper ? ' <span class="wTag">paper</span>' : ''}</label>`).join('');
+      const chips = here.map(t => `<label class="chk" title="${t.paper ? 'Written for paper (not in the online quiz)' : CFG.bank ? 'Also in the whole-topic quiz' : ''}"><input type="checkbox" id="chk_${t.id}" checked> ${t.label}${t.paper ? ' <span class="wTag">paper</span>' : ''}</label>`).join('');
       const none = `<span class="stmtNone">Covered in the ${other} paper.</span>`;
-      return `<div class="stmtRow"><p class="stmtText"><span class="n">${i + 1}</span>${s.part ? `<span class="part">Part ${s.part}</span>` : ''}${s.text}</p><div class="checks">${chips || none}</div></div>`;
+      return `<div class="stmtRow"><p class="stmtText"><span class="n">${'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[i]}</span>${s.part ? `<span class="part">Part ${s.part}</span>` : ''}${s.text}</p><div class="checks">${chips || none}</div></div>`;
     }).join('');
     updateSelectBtn(); updatePill();
   }
@@ -610,6 +1154,20 @@
     selectBtn.textContent = boxes.some(b => b.checked) ? 'Deselect all' : 'Select all';
   }
   function updatePill() { const n = clampCount(); totalPill.textContent = `${n} question${n === 1 ? '' : 's'} + answer key`; }
+
+  /* a page's own options (Length: rounding, units …) */
+  function renderPageOpts() {
+    const list = CFG.options || [];
+    pageOpts.hidden = !list.length;
+    pageOpts.innerHTML = list.map(o => o.type === 'select'
+      ? `<div><label for="opt_${o.id}">${o.label}</label><select id="opt_${o.id}">${o.choices.map(([v, t]) => `<option value="${v}"${v === o.def ? ' selected' : ''}>${t}</option>`).join('')}</select></div>`
+      : `<div style="align-self:end"><label class="sw"><input type="checkbox" id="opt_${o.id}"${o.def ? ' checked' : ''}><span class="track"></span><span>${o.label}</span></label></div>`).join('');
+    list.forEach(o => {
+      const el = $('opt_' + o.id);
+      OPTS[o.id] = o.type === 'select' ? el.value : el.checked;
+      el.addEventListener('change', () => { OPTS[o.id] = o.type === 'select' ? el.value : el.checked; if (lastPaper) (o.regen ? generate() : redraw()); });
+    });
+  }
 
   function boot() {
     if (booted) return; booted = true;
@@ -623,10 +1181,11 @@
       });
     }
     (CFG.paperTypes || []).forEach(t => TYPES.push(Object.assign({ paper: true }, t)));
-    // keep each level's list in its intended climbing order
     if (CFG.order) TYPES.sort((a, b) => (CFG.order.indexOf(a.id) + 1 || 999) - (CFG.order.indexOf(b.id) + 1 || 999));
-    if (CFG.noLanguage) { languageSel.value = 'en'; languageSel.parentNode.hidden = true; }   // no translations for this topic yet
+    if (CFG.noLanguage) { languageSel.value = 'en'; languageSel.parentNode.hidden = true; }
     else try { const s = localStorage.getItem(CFG.langKey); if (s && LANG[s]) languageSel.value = s; } catch (e) {}
+    if (CFG.css) { const st = document.createElement('style'); st.textContent = CFG.css; document.head.appendChild(st); }
+    renderPageOpts();
     setupLevels();
     renderChecks();
   }
@@ -637,23 +1196,24 @@
       countInp.value = String(cfg.defaultCount || 12);
       if (!cfg.bank) (document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', boot) : boot());
     },
-    C, grid, drawDiagram,
-    get types() { return TYPES; }, get statements() { return CFG ? CFG.statements : []; }, get paper() { return lastPaper; }, generate, answerHTML, cardHTML, boot
+    C, grid, drawDiagram, opt: id => OPTS[id], isEn, lang,
+    get types() { return TYPES; }, get statements() { return CFG ? CFG.statements : []; }, get paper() { return lastPaper; },
+    generate, answerHTML, boot, redraw
   };
   window.MMTQ = { run(bank) { BANK = bank; (document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', boot) : boot()); }, grid, drawDiagram, core: C };
 
-  import('/assessment/exam-builder/utils/translation.js?v=c4551780').then(m => { translate = m.translatePrompt; if (lastPaper && !isEn()) draw(); }).catch(() => { translate = null; });
+  import('/assessment/exam-builder/utils/translation.js?v=c4551780').then(m => { translate = m.translatePrompt; if (lastPaper && !isEn()) redraw(); }).catch(() => { translate = null; });
 
   levelSel.addEventListener('change', () => { out.innerHTML = ''; lastPaper = null; renderChecks(); });
-  languageSel.addEventListener('change', () => { try { localStorage.setItem(CFG.langKey, languageSel.value); } catch (e) {} draw(); });
+  languageSel.addEventListener('change', () => { try { localStorage.setItem(CFG.langKey, languageSel.value); } catch (e) {} redraw(); });
   chkWrap.addEventListener('change', updateSelectBtn);
   selectBtn.addEventListener('click', e => { e.preventDefault(); const boxes = [...chkWrap.querySelectorAll('input[type=checkbox]')], any = boxes.some(b => b.checked); boxes.forEach(b => b.checked = !any); updateSelectBtn(); });
   countInp.addEventListener('input', updatePill);
-  [toggleWorking, toggleWhy].forEach(el => el.addEventListener('change', draw));
+  [workSel, toggleWhy, toggleName, toggleFill].forEach(el => el.addEventListener('change', redraw));
   toggleMix.addEventListener('change', () => { if (lastPaper) generate(); });
   $('genBtn').addEventListener('click', generate);
-  $('printBtn').addEventListener('click', () => window.print());
-  $('resetBtn').addEventListener('click', () => { out.innerHTML = ''; lastPaper = null; levelSel.value = 'basic'; setupLevels(); countInp.value = String(CFG.defaultCount || 12); toggleWorking.checked = false; toggleWhy.checked = true; toggleMix.checked = false; renderChecks(); });
+  $('printBtn').addEventListener('click', () => { if (!lastPaper) generate(); window.print(); });
+  $('resetBtn').addEventListener('click', () => { out.innerHTML = ''; lastPaper = null; levelSel.value = 'basic'; setupLevels(); countInp.value = String(CFG.defaultCount || 12); workSel.value = 'auto'; toggleFill.checked = true; toggleName.checked = true; toggleWhy.checked = true; toggleMix.checked = false; renderPageOpts(); renderChecks(); });
 })();
 </script>
 <script type="module">
@@ -710,12 +1270,14 @@ const RG = (() => {
     }
     if (out.mode !== 'mc') out.answerHTML = RM(q.answer);
     if (Array.isArray(q.subparts) && q.subparts.length) {
-      out.prompt += `<ol class="subs">${q.subparts.map((p, i) => `<li><span class="sl">${p.label || L(i)}</span> ${RM(p.prompt)}${table(p.table)}${p.choices ? ' ' + p.choices.map((c, k) => `${'ABCDEF'[k]}. ${RM(c)}`).join(' &nbsp; ') : ''}</li>`).join('')}</ol>`;
-      out.answerHTML = q.subparts.map((p, i) => `${p.label || L(i)} ${RM(p.answer)}`).join('<br>');
+      // each part gets its own answer line, under the part
+      out.subq = q.subparts.map((p, i) => ({ label: p.label || L(i), answer: RM(p.answer),
+        html: ' ' + RM(p.prompt) + table(p.table) + (p.choices ? ' ' + p.choices.map((c, k) => `${'ABCDEF'[k]}. ${RM(c)}`).join(' &nbsp; ') : '') }));
+      out.answerHTML = out.subq.map(p => `${p.label} ${p.answer}`).join('<br>');
       const w = q.subparts.flatMap(p => p.working || []);
       if (w.length) out.why = w.map(RM).join(' &nbsp;·&nbsp; ');
-      out.partLabels = q.subparts.map((p, i) => p.label || L(i));   // one answer line per part
     }
+    out.steps = (q.working || []).length;
     if (tableWide(q.table) || (q.subparts || []).some(p => tableWide(p.table))) out.wide = true;
     out.loc = null; out.topic = q.topic || ''; out.rgType = q.type || '';
     return out;
