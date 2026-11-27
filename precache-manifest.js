@@ -1,6 +1,6 @@
 /* Written by tools/build-pwa.mjs — do not edit by hand. */
 self.MMT_PRECACHE = {
- "version": "e6a59b9ac5",
+ "version": "f6d309eff3",
  "files": [
   "./",
   "assessment/exam-builder/app.js",
@@ -749,6 +749,7 @@ self.MMT_PRECACHE = {
   "games/chess-kids.html",
   "games/chess.html",
   "games/closest-to-100.html",
+  "games/crack-the-equation-lesson-plan.html",
   "games/crack-the-equation.html",
   "games/crosswise.html",
   "games/dot-detective.html",

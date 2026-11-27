@@ -114,6 +114,10 @@
 >   (a ✗ was dropped — it reads as ×, a symbol in this game) or green/yellow/grey pencils; code-maker strip on/off; secret
 >   **written by students** or **printed** (a different one per sheet, 1–32 sheets, answer key on the teacher page); toggles for how to
 >   play, worked example, "Is it true?" working column, symbol tracker, reflection, names, teacher notes page.
+> * **Lesson plan** `games/crack-the-equation-lesson-plan.html` (one A4 page, print = preview): hook → demo online (Practice,
+>   Sweet/Mild, one false guess on purpose) → show the paper version → pairs play → wrap up, plus a marking example (secret
+>   15+27=42, guess 24+18=42, checked with CE.score) and support/extend. First row of the game's Tools menu; linked from the
+>   worksheet creator's topbar. The game is not filed under a syllabus outcome, so the plan carries no outcome codes.
 > * Every code-breaker row = tiles + a small mark box under each. `fitPage()` binary-searches the biggest tile (`--t`) that keeps
 >   the page inside A4 in an unzoomed probe (the `.spare` working box is removed while fitting, then shown only if ≥ 22 mm is left).
 >   Verified (Playwright): 10 configurations with nothing past the page, PDF page count = preview, game Tools menu at 1366/1024/390.

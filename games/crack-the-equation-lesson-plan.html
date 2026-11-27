@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- Crack the Equation — Lesson plan v1 (2026-11-27). ONE A4 page: demo the online game with the class,
+     then pairs play the paper version from worksheet-creators/games/crack-the-equation-pairs.html.
+     Reached from the game's Tools menu and the worksheet creator's topbar. The marking example
+     (secret 15+27=42, guess 24+18=42 → ↔ ■ ✓ ↔ ■ ✓ ✓ ✓) was checked with the game's own CE.score. -->
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#123b7a" />
+  <title>Crack the Equation — Lesson plan | Mills Maths Tools</title>
+  <style>
+    :root{
+      --bg:#f8fafc; --ink:#0f172a; --muted:#64748b; --border:#e2e8f0;
+      --blue:#2563eb; --blue2:#1d4ed8; --purple:#7c3aed; --navy:#1e3a8a;
+      --hit:#3f9b2b; --near:#f59e0b; --miss:#64748b;
+      --uiFont:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    }
+    *{box-sizing:border-box;}
+    body{margin:0;font-family:var(--uiFont);color:var(--ink);
+      background:radial-gradient(circle at top left,rgba(37,99,235,.14),transparent 32rem),
+                 radial-gradient(circle at top right,rgba(124,58,237,.12),transparent 34rem),var(--bg);}
+
+    .mmtTopbar{position:sticky;top:0;z-index:40;background:linear-gradient(135deg,#0f172a,#123b7a 55%,#2563eb);color:white;padding:12px 22px;display:grid;grid-template-columns:minmax(200px,1fr) auto minmax(200px,1fr);align-items:center;gap:16px;box-shadow:0 10px 28px rgba(15,23,42,.22);}
+    .mmtBrand{display:flex;align-items:center;gap:12px;justify-self:start;text-decoration:none;color:white;border-radius:14px;padding:6px 10px;margin-left:-10px;font-weight:900;}
+    .mmtBrand:hover{background:rgba(255,255,255,.12);}
+    .mmtBrandLogo{width:40px;height:40px;object-fit:contain;background:white;border-radius:6px;padding:3px;}
+    .mmtBrandText strong{display:block;font-size:1.12rem;line-height:1;letter-spacing:-.03em;}
+    .mmtBrandText span{display:block;font-size:.76rem;opacity:.82;font-weight:650;}
+    .mmtTopTitle{font-weight:850;font-size:clamp(1.15rem,1.9vw,1.6rem);letter-spacing:-.04em;text-align:center;white-space:nowrap;}
+    .actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap;}
+    .btn{font:inherit;cursor:pointer;border-radius:13px;padding:9px 13px;font-weight:900;font-size:14px;text-decoration:none;display:inline-flex;align-items:center;gap:6px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.14);color:white;transition:background .18s,transform .18s;}
+    .btn:hover{background:rgba(255,255,255,.24);transform:translateY(-1px);}
+    .btn.primary{background:#fff;color:var(--blue2);border-color:#fff;}
+    .btn.primary:hover{background:#eef2ff;}
+
+    .wrap{display:grid;justify-items:center;padding:22px 12px 30px;}
+    .page{--z:1;zoom:var(--z);width:210mm;height:297mm;background:#fff;box-shadow:0 14px 40px rgba(15,23,42,.18);overflow:hidden;display:flex;flex-direction:column;}
+
+    /* ---------------- header band ---------------- */
+    .hero{flex:0 0 auto;position:relative;background:linear-gradient(135deg,#0f172a,#123b7a 55%,#2563eb);color:#fff;padding:9mm 12mm 7.5mm;overflow:hidden;}
+    .hero::after{content:"";position:absolute;right:-18mm;top:-22mm;width:80mm;height:80mm;border-radius:50%;background:radial-gradient(circle,rgba(124,58,237,.55),transparent 65%);}
+    .kicker{font-size:8pt;font-weight:900;letter-spacing:.14em;text-transform:uppercase;opacity:.85;display:flex;align-items:center;gap:2mm;}
+    .kicker img{width:5mm;height:5mm;background:#fff;border-radius:1mm;padding:.4mm;}
+    .hero h1{margin:1.8mm 0 1mm;font-size:27pt;letter-spacing:-.045em;line-height:1;}
+    .hero p{margin:0;font-size:10.5pt;font-weight:700;opacity:.92;max-width:104mm;line-height:1.35;position:relative;z-index:1;}
+    .heroTiles{position:absolute;right:12mm;top:10mm;display:grid;gap:1.4mm;z-index:1;}
+    .heroTiles .row{display:flex;gap:1.2mm;}
+    .heroTiles span{width:7.4mm;height:7.4mm;border-radius:1.6mm;display:grid;place-items:center;font-weight:950;font-size:11pt;color:#fff;box-shadow:0 1mm 2.5mm rgba(0,0,0,.25);}
+    .g{background:var(--hit);} .y{background:var(--near);color:#3b1d02!important;} .b{background:#475569;}
+    .heroTiles .q span{background:rgba(255,255,255,.14);border:.35mm solid rgba(255,255,255,.4);box-shadow:none;}
+    .chips{display:flex;flex-wrap:wrap;gap:2mm;margin-top:4mm;position:relative;z-index:1;}
+    .chips span{font-size:8.6pt;font-weight:850;background:rgba(255,255,255,.14);border:.3mm solid rgba(255,255,255,.28);border-radius:10mm;padding:.9mm 3mm;}
+
+    /* ---------------- body ---------------- */
+    .body{flex:1;padding:6mm 12mm 0;display:flex;flex-direction:column;gap:4.5mm;}
+    .goals{display:grid;grid-template-columns:1fr 1.35fr;gap:4mm;}
+    .card{border:.35mm solid var(--border);border-radius:3.5mm;padding:3mm 4mm;background:#fff;}
+    .card h2{margin:0 0 1.5mm;font-size:8pt;font-weight:950;letter-spacing:.1em;text-transform:uppercase;color:var(--navy);display:flex;align-items:center;gap:1.6mm;}
+    .card p{margin:0;font-size:10pt;font-weight:750;line-height:1.35;}
+    .card ul{margin:0;padding:0;list-style:none;display:grid;gap:1mm;font-size:9.2pt;font-weight:700;line-height:1.3;}
+    .card ul li{display:flex;gap:1.8mm;}
+    .card ul li::before{content:"✓";color:var(--hit);font-weight:950;}
+    .li{background:linear-gradient(180deg,#eff6ff,#fff);border-color:#bfdbfe;}
+    .sc{background:linear-gradient(180deg,#f0fdf4,#fff);border-color:#bbf7d0;}
+
+    .main{display:grid;grid-template-columns:1.62fr 1fr;gap:5mm;flex:1;min-height:0;}
+    .sectionTitle{font-size:12pt;font-weight:950;letter-spacing:-.02em;margin:0 0 2.5mm;display:flex;align-items:center;gap:2mm;}
+    .sectionTitle small{font-size:8pt;font-weight:850;color:var(--muted);letter-spacing:0;}
+
+    /* timeline */
+    .steps{position:relative;display:grid;gap:2.6mm;}
+    .steps::before{content:"";position:absolute;left:4.6mm;top:5mm;bottom:6mm;width:.6mm;background:linear-gradient(#2563eb,#7c3aed,#3f9b2b);border-radius:1mm;}
+    .step{position:relative;display:grid;grid-template-columns:9.2mm 1fr;gap:3mm;align-items:start;}
+    .num{width:9.2mm;height:9.2mm;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:950;font-size:11pt;position:relative;z-index:1;box-shadow:0 0 0 1.2mm #fff;}
+    .s1 .num{background:#2563eb;} .s2 .num{background:#1d4ed8;} .s3 .num{background:#7c3aed;} .s4 .num{background:#3f9b2b;} .s5 .num{background:#f59e0b;}
+    .sbox{border:.35mm solid var(--border);border-radius:3mm;padding:2.2mm 3.2mm 2.4mm;background:#fff;}
+    .s2 .sbox{border-color:#bfdbfe;background:linear-gradient(180deg,#eff6ff,#fff 70%);}
+    .s4 .sbox{border-color:#bbf7d0;background:linear-gradient(180deg,#f0fdf4,#fff 70%);}
+    .shead{display:flex;align-items:center;gap:2mm;margin-bottom:1mm;}
+    .shead b{font-size:10.6pt;letter-spacing:-.015em;}
+    .time{margin-left:auto;font-size:7.8pt;font-weight:900;color:#334155;background:#f1f5f9;border-radius:10mm;padding:.5mm 2.2mm;white-space:nowrap;}
+    .tag{font-size:7.2pt;font-weight:950;letter-spacing:.06em;text-transform:uppercase;border-radius:1.4mm;padding:.35mm 1.6mm;}
+    .tag.on{background:#dbeafe;color:#1d4ed8;} .tag.pp{background:#dcfce7;color:#166534;}
+    .sbox ul{margin:0;padding-left:4mm;font-size:9pt;font-weight:650;line-height:1.36;color:#1e293b;}
+    .sbox li+li{margin-top:.5mm;}
+    .say{margin-top:1.2mm;font-size:8.8pt;font-weight:800;color:#334155;display:flex;gap:1.6mm;align-items:flex-start;}
+    .say i{font-style:normal;background:#fef3c7;color:#92400e;border-radius:1.2mm;padding:0 1.4mm;font-size:7.2pt;font-weight:950;letter-spacing:.05em;text-transform:uppercase;flex:0 0 auto;margin-top:.3mm;}
+
+    /* side column */
+    .side{display:flex;flex-direction:column;gap:4mm;}
+    .check{list-style:none;margin:0;padding:0;display:grid;gap:1.6mm;font-size:9pt;font-weight:700;line-height:1.3;}
+    .check li{display:grid;grid-template-columns:4.2mm minmax(0,1fr);gap:2mm;align-items:start;}
+    .card .check li::before{content:"";display:block;box-sizing:border-box;flex:none;width:3.6mm;height:3.6mm;border:.4mm solid #94a3b8;border-radius:.8mm;margin-top:.4mm;}
+    .check b{color:var(--navy);}
+    .mark{background:linear-gradient(180deg,#faf5ff,#fff);border-color:#ddd6fe;}
+    .mark h2{color:#5b21b6;}
+    .tiles{display:grid;grid-template-columns:12mm auto;gap:1.2mm 2mm;align-items:center;font-size:7.6pt;font-weight:900;color:#64748b;margin:1.5mm 0 2mm;}
+    .tl{display:flex;gap:.8mm;}
+    .tl span{width:5.6mm;height:5.6mm;border:.4mm solid #334155;border-radius:1.1mm;display:grid;place-items:center;font-size:10pt;font-weight:900;color:#0f172a;background:#fff;}
+    .tl.m span{height:5mm;border:.3mm solid transparent;font-size:9pt;}
+    .mk{display:inline-grid;place-items:center;border-radius:1mm;font-weight:950;}
+    .mk.g,.tl.m .g{background:#dcfce7;border-color:#86efac!important;color:#166534;}
+    .mk.y,.tl.m .y{background:#fef3c7;border-color:#fcd34d!important;color:#92400e!important;}
+    .mk.b,.tl.m .b{background:#64748b;border-color:#475569!important;color:transparent;}
+    .key{display:grid;gap:1.2mm;font-size:8.6pt;font-weight:750;line-height:1.25;}
+    .key div{display:flex;align-items:center;gap:2mm;}
+    .key .mk{width:5mm;height:5mm;border:.3mm solid;font-size:9pt;flex:0 0 auto;}
+    .tip{margin-top:2mm;font-size:8.2pt;font-weight:700;line-height:1.35;color:#4c1d95;background:#f5f3ff;border-radius:2mm;padding:1.6mm 2.4mm;}
+
+    .diff{display:grid;grid-template-columns:1fr;gap:3mm;}
+    .diff .card{display:flex;gap:3mm;align-items:flex-start;padding:2.6mm 3.6mm;}
+    .diff .ic{width:8mm;height:8mm;border-radius:2.2mm;display:grid;place-items:center;font-size:12pt;flex:0 0 auto;}
+    .sup .ic{background:#dcfce7;} .ext .ic{background:#fee2e2;}
+    .diff b{display:block;font-size:9.6pt;margin-bottom:.4mm;}
+    .diff .card>div{line-height:1.3;}
+    .diff span{font-size:8.7pt;font-weight:700;color:#334155;}
+
+    .foot{margin-top:auto;padding:3mm 12mm 6mm;display:flex;justify-content:space-between;font-size:7.6pt;font-weight:750;color:#64748b;border-top:.3mm solid var(--border);margin-left:12mm;margin-right:12mm;padding-left:0;padding-right:0;}
+    .foot b{color:var(--blue);}
+
+    @media(max-width:760px){
+      .mmtTopbar{position:relative;grid-template-columns:1fr;justify-items:start;gap:8px;padding:10px 14px;}
+      .mmtBrandText{display:none;}
+      .mmtTopTitle{text-align:left;white-space:normal;font-size:1.05rem;}
+    }
+    @media print{
+      @page{size:A4;margin:0;}
+      html,body{background:#fff!important;}
+      .mmtTopbar{display:none!important;}
+      .wrap{display:block;padding:0;}
+      .page{zoom:1!important;box-shadow:none;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    }
+  </style>
+<!-- mmt-pwa -->
+<link rel="manifest" href="../manifest.webmanifest">
+<meta name="theme-color" content="#1f3a5f">
+<link rel="apple-touch-icon" href="../icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="MMT">
+<script src="../pwa.js" defer></script>
+<!-- /mmt-pwa -->
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
+</head>
+<body>
+  <header class="mmtTopbar">
+    <a class="mmtBrand" href="https://www.millsmathstools.au" target="_self" aria-label="Back to Mills Maths Tools">
+      <img class="mmtBrandLogo" src="../assets/mmt.png" alt="Mills Maths Tools logo" />
+      <span class="mmtBrandText"><strong>MMT</strong><span>Mills Maths Tools</span></span>
+    </a>
+    <div class="mmtTopTitle">Crack the Equation — Lesson plan</div>
+    <div class="actions">
+      <a class="btn" href="crack-the-equation.html">🔢 Open the game</a>
+      <a class="btn" href="../worksheet-creators/games/crack-the-equation-pairs.html">📄 Make the worksheet</a>
+      <button class="btn primary" type="button" onclick="window.print()">🖨 Print</button>
+    </div>
+  </header>
+
+  <div class="wrap" id="wrap">
+    <article class="page" id="page">
+      <header class="hero">
+        <div class="kicker"><img src="../assets/mmt.png" alt="" />Mills Maths Tools · Lesson plan</div>
+        <h1>Crack the Equation</h1>
+        <p>Students find a hidden equation in six guesses. The catch: every guess has to be a true equation. Demo it online, then pairs play on paper.</p>
+        <div class="chips"><span>⏱ 40–45 minutes</span><span>👥 Whole class, then pairs</span><span>🎯 Fluency · order of operations</span><span>🎓 Years 5–10</span></div>
+        <div class="heroTiles" aria-hidden="true">
+          <div class="row"><span class="y">2</span><span class="b">4</span><span class="g">+</span><span class="y">1</span><span class="b">8</span><span class="g">=</span><span class="g">4</span><span class="g">2</span></div>
+          <div class="row"><span class="g">1</span><span class="g">5</span><span class="g">+</span><span class="g">2</span><span class="g">7</span><span class="g">=</span><span class="g">4</span><span class="g">2</span></div>
+          <div class="row q"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+        </div>
+      </header>
+
+      <div class="body">
+        <div class="goals">
+          <div class="card li"><h2>🎯 Learning intention</h2><p>Use clues and reasoning to find a hidden equation, checking every step is true.</p></div>
+          <div class="card sc"><h2>✅ Success criteria</h2><ul>
+            <li>I can write a true equation that fills an exact number of tiles.</li>
+            <li>I can check a guess is true, doing × and ÷ before + and −.</li>
+            <li>I can use the clues to make my next guess smarter.</li>
+          </ul></div>
+        </div>
+
+        <div class="main">
+          <section>
+            <h2 class="sectionTitle">Lesson flow <small>· about 40 minutes</small></h2>
+            <div class="steps">
+              <div class="step s1"><span class="num">1</span><div class="sbox">
+                <div class="shead"><b>Hook</b><span class="time">3 min</span></div>
+                <ul><li>Open the game on the board. Show the empty tiles.</li></ul>
+                <div class="say"><i>Say</i>“An equation is hiding here. Every guess must be true. Can we crack it in six?”</div>
+              </div></div>
+
+              <div class="step s2"><span class="num">2</span><div class="sbox">
+                <div class="shead"><b>Demo together</b><span class="tag on">Online</span><span class="time">10 min</span></div>
+                <ul><li><b>Practice</b> mode, <b>Sweet</b> or <b>Mild</b>. Students call out guesses; you type.</li>
+                  <li>After each guess, read the colours together: what do they tell us?</li>
+                  <li>Type one <b>false</b> guess on purpose. The game explains why it isn’t true.</li></ul>
+                <div class="say"><i>Ask</i>“Where could the = go?” · “What do the grey tiles rule out?”</div>
+              </div></div>
+
+              <div class="step s3"><span class="num">3</span><div class="sbox">
+                <div class="shead"><b>Show the paper version</b><span class="time">5 min</span></div>
+                <ul><li>Hand out the sheets. <b>Code-maker:</b> writes a secret on the top strip, checks it’s true, cuts it off, keeps it hidden.</li>
+                  <li>Model marking one guess with the key on the right.</li></ul>
+              </div></div>
+
+              <div class="step s4"><span class="num">4</span><div class="sbox">
+                <div class="shead"><b>Pairs play</b><span class="tag pp">Paper</span><span class="time">15–20 min</span></div>
+                <ul><li><b>Code-breaker</b> writes a guess and shows it’s true. Partner marks every tile.</li>
+                  <li>Swap jobs after each game.</li>
+                  <li>You: check strips are true <b>before</b> they’re cut.</li></ul>
+              </div></div>
+
+              <div class="step s5"><span class="num">5</span><div class="sbox">
+                <div class="shead"><b>Wrap up</b><span class="time">5 min</span></div>
+                <div class="say" style="margin-top:0"><i>Ask</i>“What was your best first guess? Why?” · “Who caught a guess that wasn’t true?”</div>
+              </div></div>
+            </div>
+          </section>
+
+          <aside class="side">
+            <div class="card"><h2>📦 Before the lesson</h2><ul class="check">
+              <li><span>Print the sheet: game → <b>Tools</b> → <b>Worksheet pairs creator</b>. One per student.</span></li>
+              <li><span>Scissors and pencils for each pair.</span></li>
+              <li><span>Game open on the board: <b>millsmathstools.au</b> → Crack the Equation.</span></li>
+            </ul></div>
+
+            <div class="card mark"><h2>✍️ Marking a guess</h2>
+              <div class="tiles">
+                <span>Secret</span><div class="tl"><span>1</span><span>5</span><span>+</span><span>2</span><span>7</span><span>=</span><span>4</span><span>2</span></div>
+                <span>Guess</span><div class="tl"><span>2</span><span>4</span><span>+</span><span>1</span><span>8</span><span>=</span><span>4</span><span>2</span></div>
+                <span>Marks</span><div class="tl m"><span class="y">↔</span><span class="b"></span><span class="g">✓</span><span class="y">↔</span><span class="b"></span><span class="g">✓</span><span class="g">✓</span><span class="g">✓</span></div>
+              </div>
+              <div class="key">
+                <div><span class="mk g">✓</span>Right symbol, right tile</div>
+                <div><span class="mk y">↔</span>In the equation, wrong tile</div>
+                <div><span class="mk b"></span>Shaded: not in the equation</div>
+              </div>
+              <div class="tip"><b>Tricky bit:</b> the 4 is shaded because the only 4 in the secret already has a ✓. Mark every ✓ first, then ↔ only for what’s left.</div>
+            </div>
+            <div class="diff">
+          <div class="card sup"><span class="ic">🌱</span><div><b>Support</b><span>Sweet level (+ and − only), 7–8 guesses, or print the secret equations on the strips.</span></div></div>
+          <div class="card ext"><span class="ic">🔥</span><div><b>Extend</b><span>Spicy level (order of operations matters), fewer guesses, or hard mode: keep every ✓, use every ↔.</span></div></div>
+            </div>
+          </aside>
+        </div>
+      </div>
+
+      <footer class="foot"><span><b>millsmathstools.au</b> · Crack the Equation</span><span>Game → Tools → Worksheet pairs creator</span></footer>
+    </article>
+  </div>
+
+<script>
+  /* Shrink the A4 page to fit narrow screens; print is always full size. */
+  (function(){
+    var page = document.getElementById('page'), wrap = document.getElementById('wrap');
+    function fit(){ var px = 210 * 96 / 25.4, w = wrap.clientWidth - 24; page.style.setProperty('--z', Math.min(1, w / px).toFixed(3)); }
+    fit(); window.addEventListener('resize', fit);
+  })();
+</script>
+</body>
+</html>
