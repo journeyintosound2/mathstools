@@ -106,7 +106,7 @@
 > `interactive-tools/stage-4/statistics-probability/bin-toss/index.html` (single file, Coin Flip's shell CSS copied, no Firebase),
 > under **MA4-PRO-C-01** (ideas chance-experiments, complementary; toolLinks row, homepage Interactive card, pill now 47 — it had
 > drifted to 44 for 46 cards). Built from Jeff's "Year 8 Bin toss" deck + "Bin toss results" workbook.
-> * **Eight steps** (`STEPS`): The challenge ($50 prize card, "How much would you charge to play?", optional class first-guess price)
+> * **seven steps** (`STEPS`): The challenge ($50 prize card, "How much would you charge to play?", optional class first-guess price)
 >   → Predict (the shared likelihood slider; OR type each student's guess — 20, 20%, 0.2, 1/5 — which become a dot plot under the
 >   scale and LOCK the slider to their mean, like Jeff's Averages sheet) → Set up (throw-from text, 20/30/50/no-limit throws, fair-test
 >   list) → Throw (big green IN / red OUT, keys I / O, U undo; paper-ball flight in SVG) → Results (P(in), P(out), prediction vs data
