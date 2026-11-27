@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- Crack the Equation — Worksheet pairs creator v1 (2026-11-27): a printable sheet so a class can
+     play Crack the Equation in pairs with a pencil. One student (the code-maker) writes a secret
+     equation on a strip at the top, checks it is true, cuts it off and keeps it hidden; the rest of
+     the sheet is the code-breaker's board, with a small box under every tile for the code-maker's
+     clue marks. Reached ONLY from the game's Tools menu (games/crack-the-equation.html).
+     The engine block below is COPIED VERBATIM from the game (`ceEngine`). Change the game's engine,
+     re-copy it here. The sheet uses CE.tryBuild (printed secrets, feasibility), CE.score (worked
+     example) and CE.show. -->
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#123b7a" />
+  <meta name="robots" content="noindex" />
+  <title>Crack the Equation — Worksheet pairs creator | Mills Maths Tools</title>
+  <style>
+    :root{
+      --bg:#f8fafc; --card:#ffffff; --ink:#0f172a; --muted:#64748b; --border:#e2e8f0;
+      --shadow:0 18px 45px rgba(15,23,42,.13);
+      --blue:#2563eb; --blue2:#1d4ed8; --purple:#7c3aed; --green:#6cbc4a; --green2:#49a529;
+      --red:#ef4444; --amber:#f59e0b; --btn:#eef2f7; --btnHover:#e5ebf3;
+      --hit:#3f9b2b; --near:#f59e0b; --miss:#475569;
+      --uiFont:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    }
+    *{box-sizing:border-box;}
+    html,body{min-height:100%;}
+    body{margin:0;font-family:var(--uiFont);color:var(--ink);
+      background:radial-gradient(circle at top left,rgba(37,99,235,.14),transparent 32rem),
+                 radial-gradient(circle at top right,rgba(124,58,237,.12),transparent 34rem),var(--bg);}
+    .hidden{display:none!important;}
+
+    .mmtTopbar{position:sticky;top:0;z-index:40;background:linear-gradient(135deg,#0f172a,#123b7a 55%,#2563eb);color:white;padding:14px 24px;display:grid;grid-template-columns:minmax(240px,1fr) auto minmax(240px,1fr);align-items:center;gap:18px;box-shadow:0 10px 28px rgba(15,23,42,.22);}
+    .mmtBrand{display:flex;align-items:center;gap:12px;justify-self:start;text-decoration:none;color:white;border-radius:14px;padding:8px 12px;margin-left:-12px;font-weight:900;transition:background .18s ease,transform .18s ease,box-shadow .18s ease;user-select:none;}
+    .mmtBrand:hover{background:rgba(255,255,255,.12);transform:translateY(-1px);box-shadow:0 0 10px rgba(124,58,237,.6),0 0 18px rgba(37,99,235,.4);}
+    .mmtBrandLogo{width:44px;height:44px;object-fit:contain;background:white;border-radius:6px;padding:3px;flex:0 0 auto;}
+    .mmtBrandText strong{display:block;font-size:1.18rem;line-height:1;letter-spacing:-.03em;color:white;}
+    .mmtBrandText span{display:block;font-size:.78rem;opacity:.82;font-weight:650;color:white;}
+    .mmtTopTitle{font-weight:850;font-size:clamp(1.25rem,2vw,1.7rem);letter-spacing:-.04em;text-align:center;color:white;white-space:nowrap;}
+    .actions{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-wrap:wrap;}
+
+    button,select,input{font:inherit;}
+    button,.btn{border:1px solid transparent;cursor:pointer;border-radius:14px;padding:11px 15px;font-weight:900;font-size:15px;transition:background .18s ease,transform .18s ease,box-shadow .18s ease,opacity .18s ease;user-select:none;font-family:var(--uiFont);text-decoration:none;display:inline-flex;align-items:center;gap:6px;}
+    button:hover,.btn:hover{transform:translateY(-1px);}
+    button:disabled{opacity:.45;cursor:not-allowed;transform:none;}
+    button:focus-visible,input:focus-visible,select:focus-visible,.btn:focus-visible{outline:none;box-shadow:0 0 0 4px rgba(37,99,235,.18);}
+    .mmtTopbar .btn{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,.14);color:white;}
+    .mmtTopbar .btn:hover{background:rgba(255,255,255,.22);}
+    .btn-primary{background:var(--blue);color:white;border-color:var(--blue);box-shadow:0 10px 24px rgba(37,99,235,.20);}
+    .btn-primary:hover{background:var(--blue2);}
+    .btn-soft{background:var(--btn);color:var(--ink);border-color:rgba(15,23,42,.08);}
+    .btn-soft:hover{background:var(--btnHover);}
+    input[type="number"],select{width:100%;border:1px solid var(--border);background:white;border-radius:14px;padding:11px 13px;color:var(--ink);outline:none;font-weight:800;font-size:16px;}
+    input:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 4px rgba(37,99,235,.12);}
+    select:disabled,input:disabled{background:#f1f5f9;color:#94a3b8;}
+    label{color:#334155;font-weight:850;font-size:.92rem;}
+
+    .layout{width:min(1340px,calc(100vw - 48px));margin:24px auto 14px;}
+    .card{background:rgba(255,255,255,.94);border:1px solid rgba(226,232,240,.9);border-radius:26px;box-shadow:var(--shadow);overflow:hidden;}
+    .ws-intro{display:flex;align-items:center;gap:16px;padding:4px 4px 0;}
+    .ws-intro-tiles{display:flex;gap:3px;flex:0 0 auto;}
+    .ws-intro-tiles span{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;font-weight:950;color:#fff;font-size:1rem;}
+    .ws-intro h1{margin:0 0 2px;font-size:1.45rem;letter-spacing:-.03em;}
+    .ws-intro p{margin:0;color:#475569;font-weight:700;line-height:1.4;}
+
+    /* ---------- controls (same shell as the other worksheet creators) ---------- */
+    .ws-card{padding:18px;display:grid;gap:16px;}
+    .ws-controls{display:grid;gap:12px;}
+    .ws-band{border-radius:20px;padding:14px 16px;background:#f8fafc;border:1px solid var(--border);}
+    .ws-band-title{font-weight:950;color:#1e3a8a;font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px;}
+    .ws-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;align-items:end;}
+    .ws-fields label{display:grid;gap:6px;}
+    .ws-seg-wrap{display:grid;gap:6px;}
+    .ws-lbl{color:#334155;font-weight:850;font-size:.92rem;}
+    .ws-seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:8px;}
+    .ws-seg button{display:grid;justify-items:center;gap:2px;padding:8px 6px;background:white;border:2px solid var(--border);color:#334155;font-size:.95rem;text-align:center;}
+    .ws-seg button small{color:var(--muted);font-weight:800;font-size:.72rem;line-height:1.25;}
+    .ws-seg button.on{border-color:var(--purple);background:#f5f3ff;color:#4c1d95;box-shadow:0 0 0 4px rgba(124,58,237,.10);}
+    .ws-seg.levels button{padding:9px 6px 8px;}
+    .ws-seg.levels .li{font-size:1.35rem;line-height:1;}
+    .ops-chips{display:flex;gap:8px;}
+    .ops-chips button{width:52px;height:46px;justify-content:center;padding:0;background:white;border:2px solid var(--border);color:#94a3b8;font-size:1.35rem;}
+    .ops-chips button.on{border-color:var(--blue);background:#eff6ff;color:#1d4ed8;box-shadow:0 0 0 4px rgba(37,99,235,.10);}
+    .ws-toggles{display:flex;flex-wrap:wrap;gap:10px 20px;margin-top:12px;}
+    .ws-toggles label{display:flex;align-items:center;gap:8px;font-weight:850;}
+    .ws-toggles label.off{opacity:.45;}
+    .ws-toggles input{width:20px;height:20px;accent-color:var(--blue);}
+    .ws-help{margin:10px 0 0;color:var(--muted);font-weight:700;font-size:.86rem;line-height:1.4;}
+    .ws-help b{color:#334155;}
+    .ws-warn{margin:10px 0 0;padding:9px 12px;border-radius:12px;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;font-weight:850;font-size:.88rem;line-height:1.4;}
+
+    /* The code-maker strip switch is the headline option, so it gets a card of its own. */
+    .strip-opt{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;padding:12px 14px;border-radius:16px;background:white;border:2px solid var(--border);margin-bottom:12px;}
+    .strip-opt.on{border-color:#c4b5fd;background:linear-gradient(180deg,#faf5ff,#fff);}
+    .strip-ic{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;font-size:1.5rem;background:#f5f3ff;}
+    .strip-opt b{display:block;font-weight:950;font-size:1rem;}
+    .strip-opt small{display:block;color:var(--muted);font-weight:750;margin-top:2px;line-height:1.35;font-size:.85rem;}
+    .switch{position:relative;width:54px;height:31px;flex:0 0 auto;}
+    .switch input{opacity:0;width:100%;height:100%;margin:0;position:absolute;inset:0;cursor:pointer;z-index:2;}
+    .switch span{position:absolute;inset:0;border-radius:999px;background:#cbd5e1;transition:background .2s;}
+    .switch span::after{content:"";position:absolute;top:3px;left:3px;width:25px;height:25px;border-radius:50%;background:white;box-shadow:0 2px 6px rgba(15,23,42,.25);transition:transform .2s;}
+    .switch input:checked + span{background:var(--purple);}
+    .switch input:checked + span::after{transform:translateX(23px);}
+    .switch input:focus-visible + span{box-shadow:0 0 0 4px rgba(124,58,237,.24);}
+
+    .ws-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+    .ws-summary{color:var(--muted);font-weight:800;font-size:.9rem;}
+    .ws-out{--wsZoom:1;display:grid;justify-items:center;gap:18px;padding:18px 0;background:#e2e8f0;border-radius:20px;min-height:200px;overflow:hidden;}
+
+    /* ====================================================== THE A4 PAGES
+       All sizes in mm/pt so the preview IS the print. --t is the code-breaker's tile, set by
+       fitPage() (the biggest that still fits the page); --st is the code-maker's tile. */
+    .ws-page{zoom:var(--wsZoom);width:210mm;height:297mm;padding:11mm 12mm 9mm;box-sizing:border-box;background:#fff;box-shadow:0 10px 30px rgba(15,23,42,.18);display:flex;flex-direction:column;gap:2.5mm;overflow:hidden;color:#0f172a;font-family:var(--uiFont);
+      --t:12mm; --st:10mm; --gap:calc(var(--t) * .16); --c:calc(var(--t) * .5);}
+    .ws-body{flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;gap:3mm;}
+    .ws-foot{font-size:7.5pt;color:#64748b;text-align:center;font-weight:700;display:flex;justify-content:space-between;}
+    .wl{display:block;border-bottom:.3mm solid #64748b;height:6.5mm;}
+
+    /* ---------- code-maker strip ---------- */
+    .cm{border:.45mm solid #7c3aed;border-radius:3.5mm;overflow:hidden;background:#fff;flex:0 0 auto;}
+    .cm-head{display:flex;align-items:center;gap:3mm;background:linear-gradient(135deg,#4c1d95,#7c3aed);color:#fff;padding:1.8mm 3.5mm;}
+    .cm-badge{font-weight:950;font-size:10.5pt;letter-spacing:-.01em;white-space:nowrap;}
+    .cm-sub{font-size:7.8pt;font-weight:750;opacity:.92;line-height:1.25;flex:1;}
+    .cm-sheet{font-size:7.5pt;font-weight:900;background:rgba(255,255,255,.18);border-radius:2mm;padding:.5mm 2mm;white-space:nowrap;}
+    .cm-inner{padding:2.4mm 3.5mm 2.6mm;display:grid;gap:2mm;background:#faf5ff;}
+    .cm-meta{display:flex;align-items:flex-end;gap:4mm;font-size:8.6pt;font-weight:850;color:#334155;}
+    .cm-meta .nm{display:flex;align-items:flex-end;gap:1.5mm;flex:0 0 62mm;}
+    .cm-meta .nm .wl{flex:1;height:5.5mm;}
+    .cm-rules{flex:1;display:flex;flex-wrap:wrap;gap:1.2mm;justify-content:flex-end;}
+    .cm-rules span{font-size:7.4pt;font-weight:850;color:#4c1d95;background:#fff;border:.3mm solid #ddd6fe;border-radius:2.5mm;padding:.35mm 1.8mm;white-space:nowrap;}
+    .cm-row{display:grid;grid-template-columns:auto max-content 1fr;gap:3.5mm;align-items:end;}
+    .cm-rl{font-size:8pt;font-weight:950;color:#4c1d95;min-width:13mm;align-self:center;line-height:1.1;}
+    .cm-rl small{display:block;font-size:6.8pt;color:#7c3aed;font-weight:800;}
+    .cm-tiles{display:flex;gap:calc(var(--st) * .14);}
+    .cm-tiles .t{width:var(--st);height:var(--st);border:.5mm solid #4c1d95;border-radius:1.6mm;background:#fff;display:grid;place-items:center;font-weight:900;font-size:calc(var(--st) * .62);line-height:1;color:#1e1b4b;}
+    .cm-chk{display:grid;gap:.6mm;align-self:stretch;align-content:end;}
+    .cm-chk small{font-size:7.2pt;font-weight:900;color:#6d28d9;text-transform:uppercase;letter-spacing:.05em;}
+    .cm-chk .wl{height:5.8mm;border-color:#a78bfa;}
+    .cm-key{display:flex;align-items:center;flex-wrap:wrap;gap:1.2mm 3.2mm;font-size:7.8pt;font-weight:800;color:#334155;border-top:.3mm dashed #c4b5fd;padding-top:1.8mm;line-height:1.3;}
+    .cm-key b{color:#4c1d95;}
+    .cm-key .k{display:inline-flex;align-items:center;gap:1.1mm;white-space:nowrap;}
+
+    .cut{position:relative;height:5mm;flex:0 0 auto;display:flex;align-items:center;justify-content:center;}
+    .cut::before{content:"";position:absolute;left:0;right:0;top:50%;border-top:.45mm dashed #64748b;}
+    .cut .sc{position:absolute;left:0;top:0;bottom:0;display:flex;align-items:center;background:#fff;padding-right:1.2mm;}
+    .cut .sc svg{width:5mm;height:5mm;display:block;}
+    .cut .txt{position:relative;background:#fff;padding:0 2.5mm;font-size:7.4pt;font-weight:900;color:#475569;letter-spacing:.04em;text-transform:uppercase;}
+
+    /* ---------- code-breaker header ---------- */
+    .ws-head{display:flex;justify-content:space-between;align-items:flex-end;gap:6mm;border-bottom:.6mm solid #1e3a8a;padding-bottom:2mm;flex:0 0 auto;}
+    .ws-brand{font-size:7.6pt;font-weight:900;color:#2563eb;letter-spacing:.08em;text-transform:uppercase;display:flex;align-items:center;gap:1.6mm;}
+    .ws-brand img{width:5mm;height:5mm;}
+    .ws-head h1{margin:.6mm 0 0;font-size:19pt;letter-spacing:-.035em;line-height:1.05;display:flex;align-items:center;gap:2.5mm;}
+    .ws-head h1 small{font-size:10pt;color:#475569;font-weight:800;letter-spacing:0;}
+    .ws-head h1 .mini{display:inline-flex;gap:.7mm;}
+    .ws-head h1 .mini i{width:3.2mm;height:3.2mm;border-radius:.8mm;display:block;}
+    .ws-name{display:grid;gap:2.4mm;font-size:9pt;font-weight:800;color:#334155;}
+    .ws-name div{display:flex;align-items:flex-end;gap:1.5mm;}
+    .ws-name .wl{width:44mm;height:5mm;}
+    .ws-chips{display:flex;flex-wrap:wrap;gap:1.5mm;flex:0 0 auto;}
+    .ws-chips span{font-size:8pt;font-weight:850;color:#1e3a8a;background:#eff6ff;border:.3mm solid #bfdbfe;border-radius:3mm;padding:.5mm 2.2mm;}
+    .ws-chips span.lv{background:#0f172a;color:#fff;border-color:#0f172a;}
+
+    /* ---------- info row: how to play | clue key + tracker ---------- */
+    .info{display:grid;grid-template-columns:1.35fr 1fr;gap:3mm;flex:0 0 auto;}
+    .info.solo{grid-template-columns:1fr;}
+    .box{border:.35mm solid #cbd5e1;border-radius:3mm;padding:2.3mm 3.2mm;break-inside:avoid;}
+    .box h2{margin:0 0 1.2mm;font-size:9.8pt;letter-spacing:-.01em;color:#1e3a8a;display:flex;align-items:center;gap:1.5mm;}
+    .rules{font-size:8.3pt;line-height:1.34;color:#1e293b;}
+    .rules ol{margin:0;padding-left:4.6mm;}
+    .rules li+li{margin-top:.6mm;}
+    .rules .fine{margin-top:1.2mm;color:#475569;font-size:7.8pt;}
+    .eg{--e:5.2mm;margin-top:1.6mm;padding-top:1.6mm;border-top:.3mm dashed #cbd5e1;display:grid;grid-template-columns:auto auto;gap:1mm 2.5mm;align-items:center;justify-content:start;font-size:7.6pt;font-weight:850;color:#475569;}
+    .eg .tl{display:flex;gap:.8mm;}
+    .eg .tl span{width:var(--e);height:var(--e);border:.35mm solid #334155;border-radius:1mm;display:grid;place-items:center;font-size:calc(var(--e) * .62);font-weight:900;color:#0f172a;}
+    .eg .eg-h{grid-column:1/-1;font-size:7.4pt;font-weight:900;color:#64748b;text-transform:uppercase;letter-spacing:.05em;}
+    .eg .tl.marks span{font-size:calc(var(--e) * .55);height:calc(var(--e) * .85);}
+    .side{display:grid;gap:2.4mm;align-content:start;}
+    .key{display:grid;gap:1.2mm;font-size:8pt;font-weight:800;color:#334155;}
+    .key div{display:flex;align-items:center;gap:2mm;line-height:1.2;}
+    .mk{display:inline-grid;place-items:center;width:5mm;height:5mm;border-radius:1mm;font-weight:950;font-size:9pt;flex:0 0 auto;border:.3mm solid transparent;}
+    .mk.g{background:#dcfce7;border-color:#86efac;color:#166534;}
+    .mk.y{background:#fef3c7;border-color:#fcd34d;color:#92400e;}
+    .mk.b{background:#64748b;border-color:#475569;color:transparent;}
+    .cl .mk{color:transparent;}
+    .cl .mk.g{background:var(--hit);border-color:var(--hit);}
+    .cl .mk.y{background:var(--near);border-color:var(--near);}
+    .cl .mk.b{background:#cbd5e1;border-color:#94a3b8;}
+    .key .note{font-size:7.3pt;color:#64748b;font-weight:750;display:block;}
+    .trkbar{display:flex;align-items:center;gap:2.5mm;padding:1.6mm 3mm;border:.35mm solid #cbd5e1;border-radius:3mm;flex:0 0 auto;}
+    .trkbar b{font-size:8.6pt;color:#1e3a8a;white-space:nowrap;}
+    .trk{display:flex;flex-wrap:nowrap;gap:1mm;}
+    .trk span{width:6.2mm;height:6.2mm;border:.35mm solid #94a3b8;border-radius:1.2mm;display:grid;place-items:center;font-weight:900;font-size:10pt;color:#1e293b;}
+    .trk span.op{background:#f1f5f9;}
+    .trk-note{font-size:7.2pt;color:#64748b;font-weight:750;line-height:1.25;}
+
+    /* ---------- the code-breaker board ---------- */
+    .cb{display:grid;gap:1.6mm;flex:0 0 auto;align-content:start;}
+    .cbs{display:grid;grid-template-columns:1fr 1fr;gap:5mm;flex:0 0 auto;}
+    .cbs .cb-res{flex-direction:column;align-items:flex-start;gap:1.6mm;}
+    .cbs .cb-res .f:last-child{flex-direction:column;align-items:flex-start;gap:1.2mm;}
+    .cb-title{display:flex;align-items:center;gap:2mm;font-size:9.5pt;font-weight:950;color:#0f172a;}
+    .cb-title .tag{color:#fff;background:#0f172a;border-radius:2mm;padding:.35mm 2.4mm;}
+    .cb-title small{color:#64748b;font-weight:800;font-size:8pt;}
+    .cb-grid{display:grid;grid-template-columns:7mm max-content minmax(52mm,1fr);column-gap:3.2mm;row-gap:calc(var(--t) * .2);align-items:start;}
+    .cb-grid.nochk{grid-template-columns:7mm max-content;justify-content:center;}
+    .cb-h{font-size:7.2pt;font-weight:900;color:#64748b;text-transform:uppercase;letter-spacing:.05em;line-height:1.15;align-self:end;}
+    .cb-n{display:grid;place-items:center;width:6.2mm;height:6.2mm;margin-top:calc((var(--t) - 6.2mm) / 2);border-radius:50%;background:#1e3a8a;color:#fff;font-weight:900;font-size:8.5pt;}
+    .cb-tiles{display:flex;gap:var(--gap);}
+    .cb-col{display:grid;justify-items:center;gap:calc(var(--t) * .09);}
+    .cb-col .t{width:var(--t);height:var(--t);border:.5mm solid #334155;border-radius:calc(var(--t) * .14);background:#fff;}
+    .cb-col .c{width:var(--c);height:var(--c);border:.32mm dashed #94a3b8;border-radius:1mm;background:#f8fafc;}
+    .cl .cb-col .c{border-style:solid;border-color:#94a3b8;background:#fff;}
+    .cb-chk{display:flex;flex-direction:column;justify-content:space-evenly;height:calc(var(--t) + var(--c) + var(--t) * .09);}
+    .cb-chk .wl{height:auto;flex:0 0 auto;border-color:#94a3b8;}
+    .cb-res{display:flex;align-items:flex-end;flex-wrap:wrap;gap:2mm 6mm;font-size:9pt;font-weight:850;color:#334155;padding:2mm 3mm;border-radius:2.5mm;background:#f8fafc;border:.3mm solid #e2e8f0;}
+    .cb-res .f{display:flex;align-items:flex-end;gap:1.5mm;}
+    .cb-res .f .wl{width:14mm;height:5.5mm;}
+    .cb-res .rv{display:flex;gap:.8mm;}
+    .cb-res .rv i{width:5.4mm;height:5.4mm;border:.35mm solid #94a3b8;border-radius:1mm;display:block;background:#fff;}
+    /* Whatever the board leaves becomes ruled working space (flex-basis 0, so it never changes
+       the fit); hidden when it would be a sliver. */
+    .spare{flex:1 1 0;min-height:0;border:.35mm solid #cbd5e1;border-radius:3mm;padding:2mm 3.2mm;display:flex;flex-direction:column;gap:1mm;overflow:hidden;}
+    .spare b{font-size:8.6pt;color:#1e3a8a;}
+    .spare b small{font-weight:750;color:#64748b;font-size:7.6pt;margin-left:1.5mm;}
+    .spare .lines{flex:1;background:repeating-linear-gradient(to bottom,transparent 0,transparent calc(8mm - .3mm),#cbd5e1 calc(8mm - .3mm),#cbd5e1 8mm);}
+    .spare.off{display:none;}
+    .reflect{font-size:8.6pt;font-weight:800;color:#1e293b;flex:0 0 auto;padding-top:1.6mm;padding-bottom:1.6mm;}
+    .reflect b{color:#1e3a8a;}
+    .reflect .wl{height:6.5mm;border-color:#94a3b8;}
+
+    /* ---------- teacher notes ---------- */
+    .tn{font-size:9.2pt;line-height:1.45;color:#1e293b;}
+    .tn h2{margin:3.5mm 0 1mm;font-size:11pt;color:#1e3a8a;}
+    .tn h2:first-child{margin-top:0;}
+    .tn ul,.tn ol{margin:0;padding-left:5mm;}
+    .tn li+li{margin-top:.9mm;}
+    .tn .callout{margin-top:2mm;padding:2.2mm 3mm;border-radius:2.5mm;background:#eff6ff;border:.3mm solid #bfdbfe;}
+    table.keytab{border-collapse:collapse;width:100%;font-size:9pt;margin-top:1.5mm;}
+    table.keytab th{background:#f1f5f9;color:#334155;font-weight:900;text-align:left;padding:1.2mm 2mm;border:.3mm solid #cbd5e1;font-size:8.2pt;}
+    table.keytab td{border:.3mm solid #cbd5e1;padding:1mm 2mm;font-weight:800;letter-spacing:.02em;}
+    table.keytab td:first-child{width:18mm;color:#64748b;}
+
+    @media(max-width:700px){
+      .mmtTopbar{position:relative;grid-template-columns:1fr auto;padding:10px 14px;gap:10px;}
+      .mmtBrandText{display:none;}
+      .mmtTopTitle{font-size:1.05rem;text-align:left;justify-self:start;white-space:normal;}
+      .actions{grid-column:1/-1;justify-content:flex-start;}
+      .actions .btn{padding:8px 12px;font-size:14px;min-height:38px;}
+      .layout{width:calc(100vw - 20px);margin:10px auto;}
+      .ws-card{padding:10px;}
+      .ws-intro{flex-direction:column;align-items:flex-start;}
+      .ws-fields{grid-template-columns:1fr;}
+      .ws-seg{grid-auto-flow:row;grid-template-columns:repeat(2,1fr);}
+      .ws-seg.levels{grid-template-columns:repeat(3,1fr);}
+      .strip-opt{grid-template-columns:1fr auto;}
+      .strip-ic{display:none;}
+    }
+    @media print{
+      @page{size:A4;margin:0;}
+      html,body{background:#fff!important;}
+      body>*:not(main){display:none!important;}
+      main.layout{width:auto!important;margin:0!important;}
+      #sheetPage{display:block!important;padding:0!important;border:0!important;box-shadow:none!important;background:none!important;border-radius:0!important;}
+      .ws-controls,.ws-intro{display:none!important;}
+      .ws-out{display:block!important;padding:0!important;background:none!important;border-radius:0!important;}
+      .ws-page{zoom:1!important;box-shadow:none!important;break-after:page;page-break-after:always;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+      .ws-page:last-child{break-after:auto;page-break-after:auto;}
+    }
+    #probe{position:absolute;left:-10000px;top:0;visibility:hidden;}
+    #probe .ws-page{zoom:1;}
+  </style>
+<!-- mmt-pwa -->
+<link rel="manifest" href="../../manifest.webmanifest">
+<meta name="theme-color" content="#1f3a5f">
+<link rel="apple-touch-icon" href="../../icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="MMT">
+<script src="../../pwa.js" defer></script>
+<!-- /mmt-pwa -->
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
+</head>
+<body>
+  <header class="mmtTopbar">
+    <a class="mmtBrand" href="https://www.millsmathstools.au" target="_self" aria-label="Back to Mills Maths Tools">
+      <img class="mmtBrandLogo" src="../../assets/mmt.png" alt="Mills Maths Tools logo" />
+      <span class="mmtBrandText"><strong>MMT</strong><span>Mills Maths Tools</span></span>
+    </a>
+    <div class="mmtTopTitle">Crack the Equation — Pairs worksheet</div>
+    <div class="actions">
+      <a class="btn" href="../../games/crack-the-equation.html">🔢 Back to the game</a>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="card ws-card" id="sheetPage">
+      <div class="ws-intro">
+        <div class="ws-intro-tiles" aria-hidden="true">
+          <span style="background:#3f9b2b">1</span><span style="background:#475569">2</span><span style="background:#f59e0b;color:#3b1d02">+</span><span style="background:#3f9b2b">5</span><span style="background:#475569">=</span>
+        </div>
+        <div>
+          <h1>Crack the Equation — play it in pairs on paper</h1>
+          <p>One student is the <b>code-maker</b>: they write a secret equation on the strip at the top, check it is true, then cut it off and keep it hidden. Their partner is the <b>code-breaker</b> and uses the rest of the sheet to crack it, one true guess at a time.</p>
+        </div>
+      </div>
+
+      <div class="ws-controls">
+        <div class="ws-band">
+          <div class="ws-band-title">The equation</div>
+          <div class="ws-seg-wrap">
+            <span class="ws-lbl">Level</span>
+            <div class="ws-seg levels" id="segLevel" role="group" aria-label="Level"></div>
+          </div>
+          <div class="ws-fields" style="margin-top:12px">
+            <label>Number of tiles
+              <select id="selLen"></select>
+            </label>
+            <div class="ws-seg-wrap">
+              <span class="ws-lbl">Operations allowed</span>
+              <div class="ops-chips" id="opsChips" role="group" aria-label="Operations allowed">
+                <button type="button" data-op="+" aria-label="plus">+</button>
+                <button type="button" data-op="-" aria-label="minus">−</button>
+                <button type="button" data-op="*" aria-label="times">×</button>
+                <button type="button" data-op="/" aria-label="divide">÷</button>
+              </div>
+            </div>
+            <label>Operations in each equation
+              <select id="selK">
+                <option value="1-1">Exactly 1 — like 12 + 7 = 19</option>
+                <option value="1-2">1 or 2</option>
+                <option value="2-2">Exactly 2</option>
+                <option value="2-3">2 or 3</option>
+                <option value="1-3">1, 2 or 3</option>
+                <option value="3-3">Exactly 3</option>
+              </select>
+            </label>
+          </div>
+          <div class="ws-toggles">
+            <label id="bodmasWrap"><input type="checkbox" id="tBodmas" /> Order of operations trap — mix × or ÷ with + or −, so working left to right gives the wrong answer</label>
+          </div>
+          <p class="ws-help" id="levelHelp"></p>
+          <div class="ws-warn hidden" id="feasWarn"></div>
+        </div>
+
+        <div class="ws-band">
+          <div class="ws-band-title">The sheet</div>
+          <div class="strip-opt" id="stripOpt">
+            <div class="strip-ic" aria-hidden="true">✂️</div>
+            <div><b>Code-maker strip at the top</b><small>The code-maker writes the secret equation on a strip, then cuts it off and keeps it. Turn it off and the whole sheet is the code-breaker's (the code-maker writes their equation on scrap paper).</small></div>
+            <label class="switch" aria-label="Code-maker strip"><input type="checkbox" id="tStrip" /><span></span></label>
+          </div>
+          <div class="ws-fields">
+            <label>Guesses allowed
+              <select id="selGuesses">
+                <option value="4">4 guesses</option>
+                <option value="5">5 guesses</option>
+                <option value="6">6 guesses (as in the game)</option>
+                <option value="7">7 guesses</option>
+                <option value="8">8 guesses</option>
+              </select>
+            </label>
+            <div class="ws-seg-wrap">
+              <span class="ws-lbl">Games on each sheet</span>
+              <div class="ws-seg" id="segGames" role="group" aria-label="Games on each sheet">
+                <button type="button" data-v="1">1<small>big tiles</small></button>
+                <button type="button" data-v="2">2<small>side by side · swap jobs</small></button>
+              </div>
+            </div>
+            <div class="ws-seg-wrap">
+              <span class="ws-lbl">How clues are marked</span>
+              <div class="ws-seg" id="segMarks" role="group" aria-label="How clues are marked">
+                <button type="button" data-v="symbols">✓ ↔ ■<small>any pen, any printer</small></button>
+                <button type="button" data-v="colours">Colours<small>green · yellow · grey pencils</small></button>
+              </div>
+            </div>
+            <label id="secretWrap">The secret equation
+              <select id="selSecret">
+                <option value="write">Students write their own</option>
+                <option value="print">Printed on the strip — different on every sheet</option>
+              </select>
+            </label>
+            <label id="sheetsWrap">Different sheets
+              <select id="selSheets"></select>
+            </label>
+          </div>
+          <div class="ws-toggles">
+            <label><input type="checkbox" id="tRules" /> How to play</label>
+            <label id="tExampleWrap"><input type="checkbox" id="tExample" /> Worked example</label>
+            <label id="tCheckWrap"><input type="checkbox" id="tCheck" /> “Is it true?” working column</label>
+            <label><input type="checkbox" id="tTracker" /> Symbol tracker</label>
+            <label><input type="checkbox" id="tReflect" /> Reflection question</label>
+            <label><input type="checkbox" id="tName" /> Names</label>
+            <label><input type="checkbox" id="tTeacher" /> Teacher notes page</label>
+          </div>
+          <p class="ws-help" id="sheetHelp"></p>
+        </div>
+
+        <div class="ws-actions">
+          <button class="btn-primary" id="printBtn" type="button">🖨 Print</button>
+          <button class="btn-soft hidden" id="reshuffleBtn" type="button">🎲 New equations</button>
+          <button class="btn-soft" id="resetBtn" type="button">Reset</button>
+          <span class="ws-summary" id="summary"></span>
+        </div>
+      </div>
+
+      <div class="ws-out" id="out" aria-label="Worksheet preview"></div>
+    </section>
+  </main>
+  <div id="probe" aria-hidden="true"></div>
+
+  <script id="ceEngine">
+  var CE = (function () {
+    'use strict';
+    var SYMBOLS = '0123456789+-*/=';
+    var SHOW = { '*': '×', '/': '÷', '-': '−', '+': '+', '=': '=' };
+    function show(ch) { return SHOW[ch] || ch; }
+    function isOp(ch) { return ch === '+' || ch === '-' || ch === '*' || ch === '/'; }
+
+    var LEVELS = [
+      { id: 'sweet',  icon: '🍬',  name: 'Sweet',       len: 6,  ops: '+-',   k: [1, 1], blurb: '6 tiles · + and − · one step' },
+      { id: 'mild',   icon: '🍃',  name: 'Mild',        len: 7,  ops: '+-*/', k: [1, 1], blurb: '7 tiles · all four operations · one step' },
+      { id: 'medium', icon: '🌶️', name: 'Medium',      len: 8,  ops: '+-*/', k: [1, 2], blurb: '8 tiles · one or two steps' },
+      { id: 'spicy',  icon: '🔥',  name: 'Spicy',       len: 8,  ops: '+-*/', k: [2, 2], bodmas: true, blurb: '8 tiles · two steps where the order matters' },
+      { id: 'extra',  icon: '🌋',  name: 'Extra Spicy', len: 10, ops: '+-*/', k: [2, 3], blurb: '10 tiles · up to three steps' }
+    ];
+    function level(id) { for (var i = 0; i < LEVELS.length; i++) if (LEVELS[i].id === id) return LEVELS[i]; return LEVELS[2]; }
+
+    /* ---------------------------------------------------- exact fractions */
+    function gcd(a, b) { a = Math.abs(a); b = Math.abs(b); while (b) { var t = a % b; a = b; b = t; } return a; }
+    function Q(n, d) { if (d === undefined) d = 1; if (d < 0) { n = -n; d = -d; } var g = gcd(n, d) || 1; return { n: n / g, d: d / g }; }
+    function qop(op, a, b) {
+      if (op === '+') return Q(a.n * b.d + b.n * a.d, a.d * b.d);
+      if (op === '-') return Q(a.n * b.d - b.n * a.d, a.d * b.d);
+      if (op === '*') return Q(a.n * b.n, a.d * b.d);
+      return Q(a.n * b.d, a.d * b.n);
+    }
+    function qstr(q) {
+      if (q.d === 1) return (q.n < 0 ? '−' : '') + Math.abs(q.n);
+      return (q.n < 0 ? '−' : '') + Math.abs(q.n) + '/' + q.d;
+    }
+    function qeq(a, b) { return a.n === b.n && a.d === b.d; }
+
+    /* --------------------------------------------------------- parsing */
+    // Split a left side into numbers and operators. null if it is not
+    // number (op number)*.
+    function parseSide(s) {
+      if (!/^\d+([+\-*/]\d+)*$/.test(s)) return null;
+      var nums = s.split(/[+\-*/]/);
+      var ops = s.replace(/\d+/g, '').split('');
+      return { nums: nums, ops: ops };
+    }
+    function exprStr(items) { // items: alternating number strings / ops
+      return items.map(function (x, i) { return i % 2 ? show(x) : x; }).join(' ');
+    }
+
+    /* Order of operations, one step at a time, for the working line.
+       Returns { value: Q, steps: [string], divZero: bool }. */
+    function evalSteps(nums, ops) {
+      var vals = nums.map(function (n) { return Q(parseInt(n, 10)); });
+      var o = ops.slice();
+      var steps = [exprStr(interleave(vals.map(qstr), o))];
+      var divZero = false;
+      function pass(set) {
+        var i = 0;
+        while (i < o.length) {
+          if (set.indexOf(o[i]) >= 0) {
+            if (o[i] === '/' && vals[i + 1].n === 0) { divZero = true; return false; }
+            vals.splice(i, 2, qop(o[i], vals[i], vals[i + 1]));
+            o.splice(i, 1);
+            steps.push(exprStr(interleave(vals.map(qstr), o)));
+          } else i++;
+        }
+        return true;
+      }
+      if (!pass('*/')) return { value: null, steps: steps, divZero: true };
+      pass('+-');
+      return { value: vals[0], steps: steps, divZero: divZero };
+    }
+    function interleave(a, b) { var out = []; for (var i = 0; i < a.length; i++) { out.push(a[i]); if (i < b.length) out.push(b[i]); } return out; }
+    // Straight left to right — the trap, used only to explain a guess.
+    function evalLTR(nums, ops) {
+      var v = Q(parseInt(nums[0], 10));
+      for (var i = 0; i < ops.length; i++) {
+        var b = Q(parseInt(nums[i + 1], 10));
+        if (ops[i] === '/' && b.n === 0) return null;
+        v = qop(ops[i], v, b);
+      }
+      return v;
+    }
+
+    /* ------------------------------------------------- is a guess allowed?
+       Returns { ok:true, lhs, rhs, value, steps } or { ok:false, code, msg,
+       steps?, ltr? }. The messages are written for a student. */
+    function check(g, len) {
+      if (typeof g !== 'string' || g.length !== len) return { ok: false, code: 'short', msg: 'Fill all ' + len + ' tiles first.' };
+      for (var i = 0; i < g.length; i++) if (SYMBOLS.indexOf(g[i]) < 0) return { ok: false, code: 'char', msg: 'Only digits, + − × ÷ and = can be used.' };
+      var eq = g.split('=');
+      if (eq.length !== 2) return { ok: false, code: 'equals', msg: eq.length < 2 ? 'An equation needs an = sign.' : 'Use exactly one = sign.' };
+      var lhs = eq[0], rhs = eq[1];
+      if (!rhs.length) return { ok: false, code: 'rhs', msg: 'Put the answer after the = sign.' };
+      if (!/^\d+$/.test(rhs)) return { ok: false, code: 'rhs', msg: 'The right of the = must be just a number — the answer. Put the calculation on the left.' };
+      if (!lhs.length) return { ok: false, code: 'lhs', msg: 'Put a calculation before the = sign.' };
+      var p = parseSide(lhs);
+      if (!p) {
+        if (isOp(lhs[0])) return { ok: false, code: 'lhs', msg: 'The calculation cannot start with a sign — every sign needs a number on each side.' };
+        if (isOp(lhs[lhs.length - 1])) return { ok: false, code: 'lhs', msg: 'A sign needs a number after it, before the =.' };
+        return { ok: false, code: 'lhs', msg: 'Two signs cannot sit next to each other.' };
+      }
+      if (!p.ops.length) return { ok: false, code: 'noop', msg: 'Use at least one + − × or ÷ on the left, like 3+4=7.' };
+      var all = p.nums.concat([rhs]);
+      for (var j = 0; j < all.length; j++) {
+        if (all[j].length > 1 && all[j][0] === '0') return { ok: false, code: 'zero', msg: 'No leading zeros — write ' + parseInt(all[j], 10) + ', not ' + all[j] + '.' };
+      }
+      var ev = evalSteps(p.nums, p.ops);
+      if (ev.divZero) return { ok: false, code: 'divzero', msg: 'You cannot divide by zero.' };
+      var target = Q(parseInt(rhs, 10));
+      if (!qeq(ev.value, target)) {
+        var ltr = evalLTR(p.nums, p.ops);
+        return {
+          ok: false, code: 'false', msg: 'That is not true.', steps: ev.steps, value: ev.value, rhs: rhs,
+          ltrTrap: !!(ltr && qeq(ltr, target) && p.ops.length > 1),
+          mixed: /[*\/]/.test(p.ops.join('')) && /[+\-]/.test(p.ops.join('')) && p.ops.length > 1
+        };
+      }
+      return { ok: true, lhs: lhs, rhs: rhs, value: ev.value, steps: ev.steps };
+    }
+
+    /* ------------------------------------------------------------ clues
+       Two passes so repeats are counted honestly: greens first, then
+       ambers from what is left, and anything extra is grey. */
+    function score(guess, answer) {
+      var n = answer.length, res = new Array(n), left = {};
+      for (var i = 0; i < n; i++) {
+        if (guess[i] === answer[i]) res[i] = 'g';
+        else left[answer[i]] = (left[answer[i]] || 0) + 1;
+      }
+      for (var k = 0; k < n; k++) {
+        if (res[k]) continue;
+        if (left[guess[k]] > 0) { res[k] = 'y'; left[guess[k]]--; }
+        else res[k] = 'b';
+      }
+      return res.join('');
+    }
+
+    /* Hard mode: greens must stay put and every amber/green symbol must be
+       used at least as often as the clues have proved. */
+    function hardModeProblem(guess, rows, marks) {
+      for (var r = 0; r < rows.length; r++) {
+        var need = {};
+        for (var i = 0; i < guess.length; i++) {
+          if (marks[r][i] === 'g' && guess[i] !== rows[r][i]) return 'Hard mode: tile ' + (i + 1) + ' must be ' + show(rows[r][i]) + '.';
+          if (marks[r][i] !== 'b') need[rows[r][i]] = (need[rows[r][i]] || 0) + 1;
+        }
+        for (var ch in need) {
+          var have = guess.split(ch).length - 1;
+          if (have < need[ch]) return 'Hard mode: your guess must use ' + show(ch) + (need[ch] > 1 ? ' ' + need[ch] + ' times' : '') + '.';
+        }
+      }
+      return '';
+    }
+
+    /* ------------------------------------------------------- the answers
+       Built number by number rather than searched for. A ÷ always divides
+       the term it belongs to exactly, so every step is a whole number. */
+    function rngFrom(seed) { // mulberry32
+      var a = seed >>> 0;
+      return function () { a |= 0; a = a + 0x6D2B79F5 | 0; var t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+    }
+    function hash(str) { var h = 2166136261; for (var i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+    function ri(rng, a, b) { return a + Math.floor(rng() * (b - a + 1)); }
+
+    function tryBuild(L, rng) {
+      var k = ri(rng, L.k[0], L.k[1]);
+      if (L.id === 'medium' && k === 1 && rng() < 0.35) k = 2; // medium leans to two steps
+      var ops = [];
+      for (var i = 0; i < k; i++) ops.push(L.ops[ri(rng, 0, L.ops.length - 1)]);
+      var md = ops.some(function (o) { return o === '*' || o === '/'; });
+      var as = ops.some(function (o) { return o === '+' || o === '-'; });
+      if (L.bodmas && !(md && as)) return null;
+      var maxMul = L.len >= 10 ? 15 : 12;
+      var nums = [], term = 0;
+      for (var j = 0; j <= k; j++) {
+        var prev = j ? ops[j - 1] : '+';
+        var n;
+        if (prev === '*') {
+          n = ri(rng, 2, maxMul); term *= n;
+        } else if (prev === '/') {
+          var ds = [];
+          for (var d = 2; d <= Math.min(term - 1, 20); d++) if (term % d === 0) ds.push(d);
+          if (!ds.length) return null;
+          n = ds[ri(rng, 0, ds.length - 1)]; term /= n;
+        } else {
+          var r = rng(), digits = r < 0.45 ? 1 : (L.len >= 10 && r > 0.9 ? 3 : 2);
+          var nextMD = ops[j] === '*' || ops[j] === '/';
+          if (nextMD && digits === 3) digits = 2;
+          n = digits === 1 ? ri(rng, nextMD ? 2 : 1, 9) : ri(rng, Math.pow(10, digits - 1), Math.pow(10, digits) - 1);
+          term = n;
+        }
+        nums.push(String(n));
+      }
+      var ev = evalSteps(nums, ops);
+      if (!ev.value || ev.value.d !== 1) return null;
+      var v = ev.value.n;
+      var lowLevel = L.id !== 'spicy' && L.id !== 'extra';
+      if (v < 0 || (lowLevel && v === 0)) return null;
+      // Below Extra Spicy the running total of the terms never dips under 0.
+      if (L.id !== 'extra') {
+        var terms = termValues(nums, ops), run = terms[0].v;
+        for (var t = 1; t < terms.length; t++) { run += terms[t].sign * terms[t].v; if (run < 0) return null; }
+      }
+      var s = interleave(nums, ops).join('') + '=' + v;
+      if (s.length !== L.len) return null;
+      if (L.bodmas) { var ltr = evalLTR(nums, ops); if (ltr && qeq(ltr, ev.value)) return null; }
+      return s;
+    }
+    function termValues(nums, ops) {
+      var out = [], cur = parseInt(nums[0], 10), sign = 1;
+      for (var i = 0; i < ops.length; i++) {
+        var b = parseInt(nums[i + 1], 10);
+        if (ops[i] === '*') cur *= b;
+        else if (ops[i] === '/') cur /= b;
+        else { out.push({ v: cur, sign: sign }); sign = ops[i] === '+' ? 1 : -1; cur = b; }
+      }
+      out.push({ v: cur, sign: sign });
+      return out;
+    }
+    function generate(levelId, rng) {
+      var L = level(levelId);
+      rng = rng || Math.random;
+      for (var i = 0; i < 200000; i++) { var s = tryBuild(L, rng); if (s) return s; }
+      throw new Error('Could not build an equation for ' + levelId);
+    }
+    function daily(levelId, dateKey) { return generate(levelId, rngFrom(hash('crack|' + dateKey + '|' + levelId))); }
+    function fromSeed(levelId, seed) { return generate(levelId, rngFrom(seed)); }
+    function working(eqn) {
+      var sides = eqn.split('='), p = parseSide(sides[0]);
+      return evalSteps(p.nums, p.ops).steps;
+    }
+    function pretty(eqn) { return eqn.replace(/[+\-*/=]/g, function (o) { return ' ' + show(o) + ' '; }); }
+
+    return {
+      LEVELS: LEVELS, level: level, show: show, isOp: isOp, check: check, score: score,
+      hardModeProblem: hardModeProblem, generate: generate, daily: daily, fromSeed: fromSeed,
+      rngFrom: rngFrom, hash: hash, working: working, pretty: pretty, qstr: qstr, tryBuild: tryBuild,
+      _evalSteps: evalSteps, _evalLTR: evalLTR, _parseSide: parseSide
+    };
+  })();
+  if (typeof module !== 'undefined') module.exports = CE;
+  </script>
+
+<script>
+(function(){
+'use strict';
+var $ = function(id){ return document.getElementById(id); };
+var KEY = 'mmtCrackPairs.v1';
+var KS = { '1-1':[1,1], '1-2':[1,2], '2-2':[2,2], '2-3':[2,3], '1-3':[1,3], '3-3':[3,3] };
+var DEFAULTS = { level:'medium', len:8, ops:'+-*/', k:'1-2', bodmas:false, guesses:6, games:1, marks:'symbols',
+  strip:true, secret:'write', sheets:6, seed:1, rules:true, example:true, check:true, tracker:true,
+  reflect:false, name:true, teacher:false };
+var O = Object.assign({}, DEFAULTS);
+try{ Object.assign(O, JSON.parse(localStorage.getItem(KEY) || '{}')); }catch(e){}
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(O)); }catch(e){} }
+function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+
+/* ------------------------------------------------------------ levels and the rules */
+function kOf(L){ return L.k[0] + '-' + L.k[1]; }
+function presetMatch(){
+  for (var i = 0; i < CE.LEVELS.length; i++){
+    var L = CE.LEVELS[i];
+    if (L.len === O.len && L.ops === O.ops && kOf(L) === O.k && !!L.bodmas === !!O.bodmas) return L.id;
+  }
+  return 'custom';
+}
+function applyLevel(id){
+  var L = CE.LEVELS.filter(function(x){ return x.id === id; })[0];
+  if (!L) return;
+  O.len = L.len; O.ops = L.ops; O.k = kOf(L); O.bodmas = !!L.bodmas;
+}
+function hasMD(){ return /[*\/]/.test(O.ops); }
+function hasAS(){ return /[+\-]/.test(O.ops); }
+function sanitize(){
+  O.len = Math.max(5, Math.min(12, parseInt(O.len, 10) || 8));
+  O.ops = '+-*/'.split('').filter(function(o){ return String(O.ops).indexOf(o) >= 0; }).join('') || '+';
+  if (!KS[O.k]) O.k = '1-2';
+  if (!(hasMD() && hasAS())) O.bodmas = false;
+  if (O.bodmas && KS[O.k][0] < 2) O.k = KS[O.k][1] >= 3 ? '2-3' : '2-2';
+  O.guesses = Math.max(4, Math.min(8, parseInt(O.guesses, 10) || 6));
+  O.games = O.games == 2 ? 2 : 1;
+  if (O.marks !== 'colours') O.marks = 'symbols';
+  if (!O.strip) O.secret = 'write';
+  if (O.secret !== 'print') O.secret = 'write';
+  O.sheets = Math.max(1, Math.min(40, parseInt(O.sheets, 10) || 6));
+  O.seed = parseInt(O.seed, 10) || 1;
+  O.level = presetMatch();
+}
+function model(){
+  if (O.level !== 'custom') return CE.level(O.level);
+  return { id:'custom', icon:'🛠️', name:'Custom', len:O.len, ops:O.ops, k:KS[O.k], bodmas:O.bodmas };
+}
+function opsShow(ops){ return ops.split('').map(CE.show).join(' '); }
+function kText(k, short){
+  var a = KS[k], w = short ? '' : (a[1] === 1 ? ' operation' : ' operations');
+  if (a[0] === a[1]) return (short ? '' : 'exactly ') + a[0] + w;
+  if (a[1] - a[0] === 1) return a[0] + ' or ' + a[1] + w;
+  return a[0] + ', 2 or ' + a[1] + w;
+}
+function rulesKey(){ return [O.len, O.ops, O.k, O.bodmas ? 1 : 0, O.level].join('|'); }
+
+/* Can this many tiles be made with these rules? Built by the GAME'S OWN builder, so the answer
+   is the same one the online game would give. Cached per rule set. */
+var FEAS = {};
+function feasible(){
+  var key = rulesKey();
+  if (key in FEAS) return FEAS[key];
+  var L = model(), rng = CE.rngFrom(CE.hash('feas|' + key)), got = null;
+  for (var i = 0; i < 60000 && !got; i++) got = CE.tryBuild(L, rng);
+  FEAS[key] = got;
+  return got;
+}
+function buildMany(n, tag){
+  var L = model(), rng = CE.rngFrom(CE.hash('pairs|' + tag + '|' + rulesKey())), out = [], seen = {};
+  for (var j = 0; j < n; j++){
+    var s = null;
+    for (var i = 0; i < 80000; i++){
+      var c = CE.tryBuild(L, rng);
+      if (c && !seen[c]){ s = c; break; }
+      if (c && !s && i > 40000) s = c; // a tiny rule set can run out of different equations
+    }
+    if (!s) return null;
+    seen[s] = 1; out.push(s);
+  }
+  return out;
+}
+
+/* ------------------------------------------------------------ pieces of the sheet */
+function tilesStr(str, cls){ return '<div class="' + cls + '">' + str.split('').map(function(ch){ return '<span class="t">' + esc(CE.show(ch)) + '</span>'; }).join('') + '</div>'; }
+function blankTiles(n, cls){ var h = ''; for (var i = 0; i < n; i++) h += '<span class="t"></span>'; return '<div class="' + cls + '">' + h + '</div>'; }
+var GLYPH = { g:'✓', y:'↔', b:'' }; // 'not in it' is a SHADED box: a ✗ looks like × and × is a symbol in this game
+var SCISSORS = '<svg viewBox="0 0 24 24" fill="none" stroke="#334155" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg>';
+function mk(m){ return '<span class="mk ' + m + '">' + GLYPH[m] + '</span>'; }
+
+function keyHTML(){
+  var col = O.marks === 'colours';
+  var rows = col
+    ? [['g','<b>Green</b> — right symbol, right tile'],['y','<b>Yellow</b> — it’s in the equation, wrong tile'],['b','<b>Grey</b> — it’s not in the equation']]
+    : [['g','<b>✓</b> — right symbol, right tile'],['y','<b>↔</b> — it’s in the equation, wrong tile'],['b','<b>Shaded</b> — it’s not in the equation']];
+  return '<div class="box' + (col ? ' cl' : '') + '"><h2>' + (col ? '🖍️' : '✍️') + ' The clues</h2><div class="key">' +
+    rows.map(function(r){ return '<div>' + mk(r[0]) + '<span>' + r[1] + '</span></div>'; }).join('') +
+    '<span class="note">' + (col ? 'Your partner colours the small box under each tile.' : 'Your partner marks the small box under each tile.') + '</span></div>' +
+    (O.rules && O.example ? exampleHTML() : '') + '</div>';
+}
+function trackerHTML(){
+  var h = '0123456789'.split('').map(function(d){ return '<span>' + d + '</span>'; }).join('') +
+    O.ops.split('').map(function(o){ return '<span class="op">' + CE.show(o) + '</span>'; }).join('');
+  return '<div class="trkbar"><b>🔎 Symbol tracker</b><div class="trk">' + h + '</div><div class="trk-note">Shade the symbols that aren’t in it.<br>Circle the ones that are.</div></div>';
+}
+var EXCACHE = {};
+function exampleHTML(){
+  var key = rulesKey();
+  if (!(key in EXCACHE)){
+    var L = model(), rng = CE.rngFrom(CE.hash('example|' + key)), s = null, g = null, best = null;
+    for (var i = 0; i < 60000 && !s; i++) s = CE.tryBuild(L, rng);
+    if (s){
+      // A guess with a bit of everything: at least one of each clue if we can find one.
+      for (var j = 0; j < 40000; j++){
+        var c = CE.tryBuild(L, rng);
+        if (!c || c === s) continue;
+        var sc = CE.score(c, s), kinds = (sc.indexOf('g') >= 0) + (sc.indexOf('y') >= 0) + (sc.indexOf('b') >= 0);
+        if (!best || kinds > best.k){ best = { g:c, sc:sc, k:kinds }; if (kinds === 3) break; }
+      }
+      g = best;
+    }
+    EXCACHE[key] = s && g ? { s:s, g:g.g, sc:g.sc } : null;
+  }
+  var ex = EXCACHE[key];
+  if (!ex) return '';
+  var col = O.marks === 'colours';
+  var e = Math.min(5.2, 52 / (O.len * 1.17));
+  return '<div class="eg' + (col ? ' cl' : '') + '" style="--e:' + e.toFixed(2) + 'mm"><span class="eg-h">Example</span><span>Secret</span>' + tilesStr(ex.s, 'tl') +
+    '<span>Guess</span>' + tilesStr(ex.g, 'tl') +
+    '<span>Marks</span><div class="tl marks">' + ex.sc.split('').map(function(m){ return '<span class="mk ' + m + '" style="width:var(--e)">' + (col ? '' : GLYPH[m]) + '</span>'; }).join('') + '</div></div>';
+}
+function rulesHTML(){
+  var L = model();
+  var noStrip = !O.strip;
+  var order = hasMD() && KS[O.k][1] >= 2 && hasAS();
+  return '<div class="box rules"><h2>📋 How to play</h2><ol>' +
+    '<li>Your partner, the <b>code-maker</b>, writes a secret equation that is <b>true</b> and fills exactly <b>' + O.len + ' tiles</b> — one digit or sign in each tile' + (noStrip ? ', somewhere you can’t see it' : '') + '.</li>' +
+    '<li>Write a guess in the tiles. <b>Every guess must be a true equation</b> with ' + O.len + ' tiles. ' + (O.check && O.games === 1 ? 'Show it’s true in the working column.' : 'Check it’s true before you hand it over.') + '</li>' +
+    '<li>Your partner marks each tile. A guess that isn’t true comes straight back — fix it first.</li>' +
+    '<li>Use the clues for your next guess. Crack it in ' + O.guesses + ' guesses or fewer!</li></ol>' +
+    '<div class="fine">Use ' + opsShow(O.ops) + ' · ' + kText(O.k) + ' · one = sign, with only the answer after it · no zeros at the front of a number · no answers below zero' +
+    (order ? ' · × and ÷ are worked out before + and −' : '') + (O.bodmas ? ' · mix × or ÷ with + or − so the order matters' : '') + '.</div>' +
+    '</div>';
+}
+function stripHTML(secrets, sheetNo){
+  var col = O.marks === 'colours';
+  var rows = '';
+  for (var g = 0; g < O.games; g++){
+    var tiles = secrets ? tilesStr(secrets[g], 'cm-tiles') : blankTiles(O.len, 'cm-tiles');
+    rows += '<div class="cm-row"><span class="cm-rl">' + (O.games === 2 ? 'Game ' + (g + 1) : 'My secret') + '<small>' + (O.games === 2 ? 'secret equation' : 'equation') + '</small></span>' + tiles +
+      '<div class="cm-chk"><small>Check it’s true</small><span class="wl"></span></div></div>';
+  }
+  var key = col
+    ? '<span class="k cl">' + mk('g') + 'green = right tile</span><span class="k cl">' + mk('y') + 'yellow = in it, wrong tile</span><span class="k cl">' + mk('b') + 'grey = not in it</span>'
+    : '<span class="k">' + mk('g') + 'right tile</span><span class="k">' + mk('y') + 'in it, wrong tile</span><span class="k">' + mk('b') + 'shade = not in it</span>';
+  return '<section class="cm">' +
+    '<div class="cm-head"><span class="cm-badge">🔐 Code-maker</span><span class="cm-sub">' +
+      (secrets ? 'Here is your secret equation. Check it’s true, then cut along the dotted line and keep this strip face down.' : 'Write your secret equation, check it’s true, then cut along the dotted line and keep this strip face down.') +
+      '</span>' + (sheetNo ? '<span class="cm-sheet">Sheet ' + sheetNo + '</span>' : '') + '</div>' +
+    '<div class="cm-inner">' +
+      '<div class="cm-meta">' + (O.name ? '<div class="nm">Name <span class="wl"></span></div>' : '') +
+        '<div class="cm-rules"><span>' + O.len + ' tiles</span><span>' + opsShow(O.ops) + '</span><span>' + kText(O.k) + '</span>' + (O.bodmas ? '<span>order matters</span>' : '') + '<span>only the answer after =</span></div></div>' +
+      rows +
+      '<div class="cm-key"><b>Mark each guess:</b>' + key + (col ? '<span>· colour the greens first; a symbol gets yellow only as many times as it is left over in your equation.</span>' : '<span>· mark every ✓ first; a symbol gets ↔ only as many times as it is left over in your equation.</span>') + '</div>' +
+    '</div></section>' +
+    '<div class="cut"><span class="sc">' + SCISSORS + '</span><span class="txt">Cut here · the code-maker keeps the strip · the code-breaker keeps the rest</span></div>';
+}
+function headHTML(sheetNo){
+  var L = model();
+  var mini = '<span class="mini"><i style="background:#3f9b2b"></i><i style="background:#f59e0b"></i><i style="background:#475569"></i></span>';
+  return '<div class="ws-head"><div><div class="ws-brand"><img src="../../assets/mmt.png" alt="" />Mills Maths Tools · Pairs game</div>' +
+    '<h1>' + mini + 'Crack the Equation <small>Code-breaker' + (sheetNo ? ' · Sheet ' + sheetNo : '') + '</small></h1></div>' +
+    (O.name ? '<div class="ws-name"><div>Name <span class="wl"></span></div><div>Partner <span class="wl"></span></div></div>' : '') + '</div>' +
+    '<div class="ws-chips"><span class="lv">' + L.icon + ' ' + esc(L.name) + '</span><span>' + O.len + ' tiles</span><span>' + opsShow(O.ops) + '</span><span>' + kText(O.k) + '</span>' +
+    (O.bodmas ? '<span>order of operations matters</span>' : '') + '<span>' + O.guesses + ' guesses</span></div>';
+}
+function boardHTML(g){
+  var col = O.marks === 'colours', chk = O.check && O.games === 1;
+  var rows = '';
+  for (var r = 0; r < O.guesses; r++){
+    var cols = '';
+    for (var i = 0; i < O.len; i++) cols += '<div class="cb-col"><span class="t"></span><span class="c"></span></div>';
+    rows += '<span class="cb-n">' + (r + 1) + '</span><div class="cb-tiles">' + cols + '</div>' +
+      (chk ? '<div class="cb-chk"><span class="wl"></span><span class="wl"></span></div>' : '');
+  }
+  var head = '<span></span><span class="cb-h">' + (O.games === 2 ? 'Your guess · partner marks the small boxes' : 'Your guess · your partner marks the small boxes') + '</span>' + (chk ? '<span class="cb-h">Is it true? Show the working</span>' : '');
+  var rv = ''; for (var k = 0; k < O.len; k++) rv += '<i></i>';
+  return '<div class="cb' + (col ? ' cl' : '') + '">' +
+    (O.games === 2 ? '<div class="cb-title"><span class="tag">Game ' + (g + 1) + '</span><small>' + (g === 0 ? 'first equation' : 'swap jobs, then go again') + '</small></div>' : '') +
+    '<div class="cb-grid' + (chk ? '' : ' nochk') + '">' + head + rows + '</div>' +
+    '<div class="cb-res"><span class="f">☐ Cracked it! Guesses used <span class="wl"></span></span><span class="f">The secret equation was <span class="rv">' + rv + '</span></span></div></div>';
+}
+function reflectHTML(){
+  return '<div class="reflect box"><b>💬 Think about it:</b> Which guess gave you the most information? What did its clues tell you?<span class="wl"></span><span class="wl"></span></div>';
+}
+function sheetHTML(secrets, sheetNo){
+  var info = O.rules ? '<div class="info">' + rulesHTML() + keyHTML() + '</div>' : '<div class="info solo">' + keyHTML() + '</div>';
+  var boards = O.games === 2 ? '<div class="cbs">' + boardHTML(0) + boardHTML(1) + '</div>' : boardHTML(0);
+  if (O.tracker) boards = trackerHTML() + boards;
+  return '<div class="ws-page"><div class="ws-body">' +
+    (O.strip ? stripHTML(secrets, sheetNo) : '') +
+    headHTML(sheetNo) + info + boards +
+    '<div class="spare"><b>✏️ Working space<small>' + (O.games === 2 || !O.check ? 'show that each guess is true' : 'for longer working') + '</small></b><div class="lines"></div></div>' +
+    (O.reflect ? reflectHTML() : '') +
+    '</div><div class="ws-foot"><span>millsmathstools.au · Crack the Equation</span><span>Play it online: millsmathstools.au/games/crack-the-equation.html</span></div></div>';
+}
+function teacherHTML(keyRows){
+  var L = model();
+  var order = hasMD() && hasAS() && KS[O.k][1] >= 2;
+  var keyTable = '';
+  if (keyRows){
+    var head = '<tr><th>Sheet</th>' + (O.games === 2 ? '<th>Game 1</th><th>Game 2</th>' : '<th>Secret equation</th>') + '</tr>';
+    keyTable = '<h2>Answer key — the printed secret equations</h2><table class="keytab">' + head + keyRows.map(function(r, i){
+      return '<tr><td>Sheet ' + (i + 1) + '</td>' + r.map(function(e){ return '<td>' + esc(CE.pretty(e)) + '</td>'; }).join('') + '</tr>';
+    }).join('') + '</table>';
+  }
+  return '<div class="ws-page"><div class="ws-body"><div class="ws-head"><div><div class="ws-brand"><img src="../../assets/mmt.png" alt="" />Mills Maths Tools · Teacher notes</div>' +
+    '<h1>Crack the Equation in pairs</h1></div></div>' +
+    '<div class="ws-chips"><span class="lv">' + L.icon + ' ' + esc(L.name) + '</span><span>' + O.len + ' tiles</span><span>' + opsShow(O.ops) + '</span><span>' + kText(O.k) + '</span><span>' + O.guesses + ' guesses</span></div>' +
+    '<div class="tn">' +
+    '<h2>Before you start</h2><ul><li>Play one round together on the board first with the online game (Practice mode, same level), so everyone sees what ' + (O.marks === 'colours' ? 'green, yellow and grey' : '✓, ↔ and a shaded box') + ' mean.</li>' +
+    '<li>Model a <b>false</b> guess and how it gets handed straight back — every guess has to be true, which is where the arithmetic happens.</li></ul>' +
+    '<h2>Running it</h2><ol>' +
+    (O.strip
+      ? '<li>Give every student a sheet. ' + (keyRows ? 'Each strip already has a secret equation printed on it; students check it is true (sheet numbers match the key below).' : 'Each student writes a secret equation on their strip and checks it is true.') + '</li><li>They cut along the dotted line and keep the strip face down. Pairs swap the rest of the sheet — or keep their own and both play at once, each cracking the other’s equation.</li>'
+      : '<li>Give every student a sheet. The code-maker writes their secret on scrap paper and keeps it hidden.</li>') +
+    '<li>The code-breaker writes a guess' + (O.check && O.games === 1 ? ' and shows it is true in the working column' : ' and shows it is true') + '. The code-maker checks it, then ' + (O.marks === 'colours' ? 'colours' : 'marks') + ' the small box under every tile.</li>' +
+    '<li>Stop at ' + O.guesses + ' guesses, reveal, then swap jobs' + (O.games === 2 ? ' for Game 2' : '') + '.</li></ol>' +
+    '<div class="callout"><b>Marking repeats</b> is the one rule students trip on. Mark every right-tile symbol first. A symbol then earns “in it, wrong tile” only as many times as it is still left over in the secret equation; any extra copies are “not in it”. The online game marks the same way.</div>' +
+    '<div class="callout" style="background:#fff7ed;border-color:#fed7aa"><b>Ask to see the strip before it is cut.</b> A secret equation that isn’t true, or doesn’t fill exactly ' + O.len + ' tiles, makes the game impossible to win.</div>' +
+    '<h2>Listen for</h2><ul><li>“The = has to be near the end, because the answer only has one or two digits.”</li><li>“If the answer is that big, one of the numbers has to be big too.”</li>' +
+    (order ? '<li>Order of operations: a student who works left to right (12 + 3 × 2 → 30) will hand over a guess that isn’t true. Ask them to show the working step by step.</li>' : '<li>Using a shaded box to rule a symbol out everywhere, not just in that tile.</li>') + '</ul>' +
+    '<h2>Make it harder</h2><ul><li><b>Hard mode:</b> every ✓ must stay where it is and every ↔ symbol must be used somewhere in the next guess.</li><li>Fewer guesses, or move up a level (Spicy forces the order of operations).</li><li>Afterwards: “What was your best first guess? Why?”</li></ul>' +
+    keyTable + '</div></div><div class="ws-foot"><span>millsmathstools.au · Crack the Equation</span><span>Teacher notes</span></div></div>';
+}
+
+/* ------------------------------------------------------------ fit the tile size
+   The biggest code-breaker tile that keeps everything inside the page. Measured on a real page
+   in an unzoomed probe, so it is the print. */
+var LAST = { t:12, st:10, pages:0 };
+function stripTile(){
+  var avail = 186 - 3.5 * 2 - 17 - 3.5 * 2 - 46; // padding, label, gaps, check column
+  return Math.max(6, Math.min(11, avail / (O.len + (O.len - 1) * 0.14)));
+}
+function fitPage(html){
+  var probe = $('probe');
+  probe.innerHTML = html;
+  var page = probe.querySelector('.ws-page'), body = page.querySelector('.ws-body');
+  var spare = page.querySelector('.spare'); if (spare) spare.remove();
+  var st = stripTile();
+  page.style.setProperty('--st', st.toFixed(2) + 'mm');
+  function fits(t){
+    page.style.setProperty('--t', t.toFixed(2) + 'mm');
+    if (body.scrollHeight > body.clientHeight + 1) return false;
+    var last = body.lastElementChild; // a few px spare so print rounding never clips the last box
+    if (last && last.getBoundingClientRect().bottom > body.getBoundingClientRect().bottom - 4) return false;
+    var grids = page.querySelectorAll('.cb-grid,.cb,.trkbar');
+    for (var i = 0; i < grids.length; i++) if (grids[i].scrollWidth > grids[i].clientWidth + 1 || grids[i].getBoundingClientRect().right > body.getBoundingClientRect().right + 1) return false;
+    var cm = page.querySelector('.cm-row');
+    if (cm && cm.scrollWidth > cm.clientWidth + 1) return false;
+    return true;
+  }
+  var lo = 5, hi = 17;
+  if (!fits(lo)){ probe.innerHTML = ''; return { t:lo, st:st, tight:true }; }
+  for (var k = 0; k < 14; k++){ var mid = (lo + hi) / 2; if (fits(mid)) lo = mid; else hi = mid; }
+  probe.innerHTML = '';
+  return { t:Math.floor(lo * 4) / 4, st:st, tight:false };
+}
+
+/* ------------------------------------------------------------ render */
+function render(){
+  var L = model();
+  var ok = feasible();
+  var warn = $('feasWarn');
+  if (!ok){
+    var a = KS[O.k];
+    var minLen = 2 * a[0] + 3;
+    warn.textContent = O.len < minLen
+      ? 'There aren’t enough tiles for ' + kText(O.k) + ' — an equation with ' + a[0] + ' operation' + (a[0] > 1 ? 's' : '') + ' needs at least ' + minLen + ' tiles. Add tiles or allow fewer operations.'
+      : 'Students would struggle to make an equation that fills exactly ' + O.len + ' tiles with these rules. Try fewer tiles, or allow more operations in each equation.';
+    warn.classList.remove('hidden');
+  } else warn.classList.add('hidden');
+
+  var secretsBySheet = null;
+  if (O.secret === 'print' && ok){
+    var flat = buildMany(O.sheets * O.games, O.seed);
+    if (flat){ secretsBySheet = []; for (var s = 0; s < O.sheets; s++) secretsBySheet.push(flat.slice(s * O.games, s * O.games + O.games)); }
+  }
+  var pages = [];
+  if (secretsBySheet) secretsBySheet.forEach(function(sec, i){ pages.push(sheetHTML(sec, i + 1)); });
+  else pages.push(sheetHTML(null, 0));
+  var fit = fitPage(pages[0]);
+  LAST = { t:fit.t, st:fit.st, pages:pages.length + (O.teacher ? 1 : 0), tight:fit.tight, secrets:secretsBySheet };
+  if (O.teacher) pages.push(teacherHTML(secretsBySheet));
+
+  $('out').innerHTML = pages.join('');
+  Array.prototype.forEach.call($('out').querySelectorAll('.ws-page'), function(p){
+    p.style.setProperty('--t', fit.t.toFixed(2) + 'mm');
+    p.style.setProperty('--st', fit.st.toFixed(2) + 'mm');
+  });
+  fitPreview();
+  Array.prototype.forEach.call($('out').querySelectorAll('.ws-page'), function(p){
+    var sp = p.querySelector('.spare'); if (!sp) return;
+    var mm = sp.getBoundingClientRect().height / p.getBoundingClientRect().height * 297;
+    sp.classList.toggle('off', mm < 22);
+  });
+
+  var nSheets = secretsBySheet ? secretsBySheet.length : 1;
+  $('summary').innerHTML = (secretsBySheet
+      ? nSheets + ' different sheet' + (nSheets > 1 ? 's' : '') + (O.teacher ? ' + teacher notes with the answer key' : '')
+      : '1 sheet — print one copy per student' + (O.teacher ? ' (teacher notes print as page 2)' : '')) +
+    ' · tiles ' + fit.t.toFixed(1) + ' mm' + (fit.tight ? ' · <span style="color:#b45309">tight — try fewer guesses or one game a sheet</span>' : '');
+}
+function fitPreview(){ var w = $('out').clientWidth, px = 210 * 96 / 25.4; $('out').style.setProperty('--wsZoom', Math.min(1, (w - 8) / px).toFixed(3)); }
+
+/* ------------------------------------------------------------ controls */
+function buildControls(){
+  $('segLevel').innerHTML = CE.LEVELS.map(function(L){
+    return '<button type="button" data-v="' + L.id + '"><span class="li">' + L.icon + '</span>' + L.name + '<small>' + L.len + ' tiles · ' + opsShow(L.ops) + '</small></button>';
+  }).join('') + '<button type="button" data-v="custom"><span class="li">🛠️</span>Custom<small>your own mix</small></button>';
+  var h = ''; for (var n = 5; n <= 12; n++) h += '<option value="' + n + '">' + n + ' tiles</option>';
+  $('selLen').innerHTML = h;
+  var s = ''; [1,2,4,6,8,10,12,15,20,24,25,28,30,32].forEach(function(n){ s += '<option value="' + n + '">' + n + ' sheet' + (n > 1 ? 's' : '') + '</option>'; });
+  $('selSheets').innerHTML = s;
+}
+function sync(){
+  document.querySelectorAll('#segLevel button').forEach(function(b){ b.classList.toggle('on', b.dataset.v === O.level); });
+  $('selLen').value = O.len;
+  document.querySelectorAll('#opsChips button').forEach(function(b){ var on = O.ops.indexOf(b.dataset.op) >= 0; b.classList.toggle('on', on); b.setAttribute('aria-pressed', String(on)); });
+  $('selK').value = O.k;
+  Array.prototype.forEach.call($('selK').options, function(o){ o.disabled = O.bodmas && KS[o.value][0] < 2; });
+  $('tBodmas').checked = O.bodmas;
+  var canB = hasMD() && hasAS();
+  $('tBodmas').disabled = !canB; $('bodmasWrap').classList.toggle('off', !canB);
+  $('bodmasWrap').title = canB ? '' : 'Allow × or ÷ AND + or − to use this.';
+  var L = model();
+  $('levelHelp').innerHTML = O.level === 'custom'
+    ? '<b>Custom:</b> ' + O.len + ' tiles · ' + opsShow(O.ops) + ' · ' + kText(O.k) + (O.bodmas ? ' · order of operations trap' : '') + '. Pick a level above to go back to the game’s settings.'
+    : '<b>' + L.icon + ' ' + L.name + '</b> is the same as the online game: ' + esc(L.blurb) + '. Change anything below and it becomes a custom level.';
+  $('selGuesses').value = O.guesses;
+  document.querySelectorAll('#segGames button').forEach(function(b){ b.classList.toggle('on', +b.dataset.v === O.games); });
+  document.querySelectorAll('#segMarks button').forEach(function(b){ b.classList.toggle('on', b.dataset.v === O.marks); });
+  $('tStrip').checked = O.strip; $('stripOpt').classList.toggle('on', O.strip);
+  $('selSecret').value = O.secret; $('selSecret').disabled = !O.strip;
+  $('secretWrap').title = O.strip ? '' : 'Printed secrets need the code-maker strip.';
+  $('sheetsWrap').classList.toggle('hidden', O.secret !== 'print');
+  $('selSheets').value = String(O.sheets);
+  if ($('selSheets').value !== String(O.sheets)){ var opt = document.createElement('option'); opt.value = O.sheets; opt.textContent = O.sheets + ' sheets'; $('selSheets').appendChild(opt); $('selSheets').value = String(O.sheets); }
+  $('reshuffleBtn').classList.toggle('hidden', O.secret !== 'print');
+  [['tRules','rules'],['tExample','example'],['tCheck','check'],['tTracker','tracker'],['tReflect','reflect'],['tName','name'],['tTeacher','teacher']].forEach(function(x){ $(x[0]).checked = !!O[x[1]]; });
+  $('tExample').disabled = !O.rules; $('tExampleWrap').classList.toggle('off', !O.rules);
+  $('tCheck').disabled = O.games === 2; $('tCheckWrap').classList.toggle('off', O.games === 2);
+  $('tCheckWrap').title = O.games === 2 ? 'Two games sit side by side, so there is no room for a working column. Students show their working on the back.' : '';
+  $('sheetHelp').innerHTML = O.strip
+    ? (O.secret === 'print'
+        ? 'Every sheet gets its own secret equation on the strip, made by the game’s own equation builder, so it is always true and the right length. Turn on <b>Teacher notes</b> for the answer key.'
+        : '<b>Both play at once:</b> each student writes a secret on their own strip and cuts it off, then pairs swap the rest of the sheet and crack each other’s equation.')
+    : 'No strip: the whole page is the code-breaker’s board. The code-maker writes their equation on scrap paper and keeps it hidden.';
+}
+function change(){ sanitize(); save(); sync(); render(); }
+function custom(fn){ return function(e){ fn(e); O.level = 'custom'; change(); }; }
+
+buildControls();
+$('segLevel').addEventListener('click', function(e){
+  var b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.v !== 'custom') applyLevel(b.dataset.v);
+  else if (O.level !== 'custom'){ O.level = 'custom'; save(); sync(); return; }
+  change();
+});
+$('selLen').addEventListener('change', function(e){ O.len = +e.target.value; change(); });
+$('opsChips').addEventListener('click', function(e){
+  var b = e.target.closest('button'); if (!b) return;
+  var op = b.dataset.op, has = O.ops.indexOf(op) >= 0;
+  if (has && O.ops.length === 1) return; // at least one operation
+  O.ops = has ? O.ops.replace(op, '') : O.ops + op;
+  change();
+});
+$('selK').addEventListener('change', function(e){ O.k = e.target.value; change(); });
+$('tBodmas').addEventListener('change', function(e){ O.bodmas = e.target.checked; change(); });
+$('selGuesses').addEventListener('change', function(e){ O.guesses = +e.target.value; change(); });
+document.querySelectorAll('#segGames button').forEach(function(b){ b.addEventListener('click', function(){ O.games = +b.dataset.v; change(); }); });
+document.querySelectorAll('#segMarks button').forEach(function(b){ b.addEventListener('click', function(){ O.marks = b.dataset.v; change(); }); });
+$('tStrip').addEventListener('change', function(e){ O.strip = e.target.checked; change(); });
+$('selSecret').addEventListener('change', function(e){ O.secret = e.target.value; if (O.secret === 'print' && !O.teacher) O.teacher = true; change(); });
+$('selSheets').addEventListener('change', function(e){ O.sheets = +e.target.value; change(); });
+[['tRules','rules'],['tExample','example'],['tCheck','check'],['tTracker','tracker'],['tReflect','reflect'],['tName','name'],['tTeacher','teacher']].forEach(function(x){
+  $(x[0]).addEventListener('change', function(e){ O[x[1]] = e.target.checked; change(); });
+});
+$('printBtn').addEventListener('click', function(){ window.print(); });
+$('reshuffleBtn').addEventListener('click', function(){ O.seed = (O.seed % 100000) + 1; change(); });
+$('resetBtn').addEventListener('click', function(){ O = Object.assign({}, DEFAULTS); change(); });
+var rz = 0; window.addEventListener('resize', function(){ clearTimeout(rz); rz = setTimeout(fitPreview, 120); });
+
+sanitize(); sync(); render();
+window.__WS__ = { get O(){ return O; }, set:function(p){ Object.assign(O, p); change(); }, render:render, get last(){ return LAST; }, defaults:DEFAULTS, feasible:feasible };
+})();
+</script>
+</body>
+</html>

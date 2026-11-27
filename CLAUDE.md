@@ -102,6 +102,23 @@
 > §2 "TWO folders", §3 deploy paths and §5's `mathstools-main 2` heading below
 > describe the OLD layout — this block supersedes them.
 >
+> **NEW (2026-11-27): CRACK THE EQUATION — WORKSHEET PAIRS CREATOR.** `worksheet-creators/games/crack-the-equation-pairs.html`
+> (single file, noindex), reached ONLY from a new **Tools ▾** menu in `games/crack-the-equation.html` (same pattern as the Nasty
+> Game: no homepage card, no toolLinks row). Pairs play on paper: the **code-maker** writes a secret equation on a purple strip at the
+> top, checks it is true, cuts along the dotted line and keeps it; the rest of the A4 is the **code-breaker's** board.
+> * **The game's `ceEngine` block is COPIED VERBATIM**; `tryBuild` was added to CE's export in BOTH files (game + worksheet) so the
+>   blocks stay identical. Change the game's engine → re-copy it. The sheet uses `CE.tryBuild` (printed secrets, the "can this many
+>   tiles be made?" warning), `CE.score` (worked example marks) and `CE.show`.
+> * Options: level (the game's five, or Custom: 5–12 tiles, + − × ÷ chips, operations per equation 1 / 1–2 / 2 / 2–3 / 1–3 / 3,
+>   order-of-operations trap); guesses 4–8; 1 game a sheet or 2 SIDE BY SIDE (no working column then); marks **✓ ↔ shaded**
+>   (a ✗ was dropped — it reads as ×, a symbol in this game) or green/yellow/grey pencils; code-maker strip on/off; secret
+>   **written by students** or **printed** (a different one per sheet, 1–32 sheets, answer key on the teacher page); toggles for how to
+>   play, worked example, "Is it true?" working column, symbol tracker, reflection, names, teacher notes page.
+> * Every code-breaker row = tiles + a small mark box under each. `fitPage()` binary-searches the biggest tile (`--t`) that keeps
+>   the page inside A4 in an unzoomed probe (the `.spare` working box is removed while fitting, then shown only if ≥ 22 mm is left).
+>   Verified (Playwright): 10 configurations with nothing past the page, PDF page count = preview, game Tools menu at 1366/1024/390.
+>   Options saved in `mmtCrackPairs.v1`; test hook `window.__WS__`.
+>
 > **NEW (2026-11-27): BIN TOSS: EXPERIMENTAL PROBABILITY — Stage 4 teaching tool** at
 > `interactive-tools/stage-4/statistics-probability/bin-toss/index.html` (single file, Coin Flip's shell CSS copied, no Firebase),
 > under **MA4-PRO-C-01** (ideas chance-experiments, complementary; toolLinks row, homepage Interactive card, pill now 47 — it had
