@@ -121,7 +121,8 @@ function factoriseDifferenceSquaresQuestion() {
     return q({ type: "factorise-difference-squares", marks: 1, prompt: `Factorise ${mono(p * p, { [x]: 2 })} ${MINUS} ${a * a}.`, answer: `${bin(p, a, x)}${bin(p, -a, x)}`, working: [`${mono(p * p, { [x]: 2 })} = (${mono(p, { [x]: 1 })})², ${a * a} = ${a}²`], space: SPACE_SIZES.SMALL, mcDistractors: [`${bin(p * p, a, x)}${bin(1, -a, x)}`, `${bin(p, -a, x)}²`], tags: ["factorise", "difference of squares"] });
   }
   if (v === "two-var") {
-    const p = randInt(1, 5); const r = randInt(1, 5);
+    // 4k² − 16n² must not share a factor first ((2k + 4n)(2k − 4n) is not complete)
+    let p; let r; do { p = randInt(1, 5); r = randInt(1, 5); } while (gcd(p, r) !== 1);
     return q({ type: "factorise-difference-squares", marks: 1, prompt: `Factorise ${joinTerms([mono(p * p, { [x]: 2 }), mono(-r * r, { [y]: 2 })])}.`, answer: `(${joinTerms([mono(p, { [x]: 1 }), mono(r, { [y]: 1 })])})(${joinTerms([mono(p, { [x]: 1 }), mono(-r, { [y]: 1 })])})`, working: ["A² − B² = (A + B)(A − B)"], space: SPACE_SIZES.SMALL, mcEligible: false, tags: ["factorise", "difference of squares"] });
   }
   const g = choice([2, 3, 5]); const a = randInt(1, 6);

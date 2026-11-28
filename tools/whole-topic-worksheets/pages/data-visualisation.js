@@ -32,7 +32,7 @@
     const cfg = { chartType: 'dot-plot', data, min: ctx[1], max: ctx[2], xLabel: ctx[0] };
     return {
       prompt: `Draw a dot plot of this data (${ctx[0].toLowerCase()}):<span class="dataList">${data.join(', ')}</span>`,
-      diagram: ST(Object.assign({ blank: true }, cfg), 1.45, 470), keyDiagram: ST(cfg, 1.45, 470), mode: 'none', noAnswerBox: true,
+      diagram: ST(Object.assign({ blank: true }, cfg), 1.75, 470), keyDiagram: ST(cfg, 1.75, 470), mode: 'none', noAnswerBox: true,
       answerHTML: `${n} dots in total`, why: 'One dot above the number line for each value; stack the dots for values that repeat.'
     };
   }

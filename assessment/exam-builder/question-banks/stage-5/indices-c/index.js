@@ -277,7 +277,9 @@ function fractionalIndexEvaluateQuestion() {
   if (v === "unit") {
     return q({ type: "fractional-index-evaluate", marks: 1, prompt: `Evaluate ${R.base}${sup(`1/${R.n}`)}.`, answer: String(R.r), working: [`${R.base}${sup(`1/${R.n}`)} = ${R.n === 2 ? "√" : R.n === 3 ? "∛" : `${R.n}th root of `}${R.base} = ${R.r}`], space: SPACE_SIZES.SMALL, mcDistractors: [String(R.base / R.n), String(R.base * R.n), rat(1, R.r)], tags: ["fractional index"] });
   }
-  const m = randInt(2, R.n === 2 ? 3 : R.n === 3 ? 2 : 3);
+  // the index must already be in simplest form: 2/2 or 2/4 is not a fractional index anyone writes
+  const ms = [2, 3].filter(k => k !== R.n && (R.n % k !== 0 || k === 1) && !(R.n % 2 === 0 && k % 2 === 0));
+  const m = choice(ms.length ? ms : [3]);
   if (R.r ** m > 1000) return fractionalIndexEvaluateQuestion();
   if (v === "power") {
     return q({ type: "fractional-index-evaluate", marks: 1, prompt: `Evaluate ${R.base}${sup(`${m}/${R.n}`)}.`, answer: String(R.r ** m), working: [`Root first: ${R.n === 2 ? "√" : R.n === 3 ? "∛" : `${R.n}th root of `}${R.base} = ${R.r}`, `Then the power: ${R.r}${sup(m)} = ${R.r ** m}`], space: SPACE_SIZES.SMALL, mcDistractors: [String(R.r * m), String(Math.round(R.base * m / R.n)), rat(1, R.r ** m)], tags: ["fractional index"] });

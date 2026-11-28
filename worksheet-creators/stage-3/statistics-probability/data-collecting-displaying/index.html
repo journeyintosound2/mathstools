@@ -108,7 +108,7 @@
     .qMain{display:flex;flex-direction:column;gap:2mm;min-width:0}
     .qCard.side .qDiag{margin:0;align-self:center}
     .qTop{display:flex;align-items:flex-start;gap:7px}
-    .qNum{min-width:22px;height:22px;padding:0 6px;border-radius:999px;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:1000;flex:0 0 auto}
+    .qNum{width:26px;height:22px;padding:0;border-radius:999px;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:1000;flex:0 0 auto}
     .qNum.lv1{background:linear-gradient(180deg,#4ade80,#16a34a)}
     .qNum.lv2{background:linear-gradient(180deg,#fb923c,#ea580c)}
     .qText{flex:1;min-width:0;font-size:13px;font-weight:750;line-height:1.36;color:var(--ink);overflow-wrap:anywhere;padding-top:1px}
@@ -167,6 +167,12 @@
     .qDiag svg{max-width:100%;height:auto}
     .qDiag .engHolder{display:flex;flex-direction:column;align-items:center;max-width:100%}
     .diagMissing{color:var(--muted);font-weight:800;padding:6mm}
+    .match{display:grid;grid-template-columns:auto 22mm auto;row-gap:2.2mm;align-items:center;justify-content:start;margin:2.5mm 0 1mm}
+    .match .mb{border:1.3px solid #111827;border-radius:2mm;padding:1.2mm 3.5mm;min-width:15mm;text-align:center;font-family:var(--mathFont);font-weight:500;font-size:1.05em;white-space:nowrap}
+    .match .mgap{display:flex;justify-content:space-between;padding:0 1.2mm}
+    .match .mgap i{width:1.6mm;height:1.6mm;border-radius:50%;background:#111827}
+    .qDiag:has(> .diagPart){gap:5mm;flex-wrap:wrap}
+    .qDiag > .diagPart{display:flex;justify-content:center;align-items:center;min-width:0;flex:0 1 auto}
     .qgrid .gl{stroke:#cbd5e1;stroke-width:1}
     .qgrid .ax{stroke:#0f172a;stroke-width:2}
     .qgrid .axh{fill:#0f172a}
@@ -295,7 +301,7 @@
 <script src="/assessment/exam-builder/engines/open-number-line/open-number-line-engine.js?v=54db8c11"></script>
 <script src="/assessment/exam-builder/engines/probability/probability-engine.js?v=5b67c74e"></script>
 <script src="/assessment/exam-builder/engines/solids/solids-engine.js?v=0cb27192"></script>
-<script src="/assessment/exam-builder/engines/statistics/statistics-engine.js?v=df1df9ca"></script>
+<script src="/assessment/exam-builder/engines/statistics/statistics-engine.js?v=a71e41cb"></script>
 <script>
 /* ===================== WHOLE-TOPIC WORKSHEET FRAME (v2) ==================
    Shared by every whole-topic worksheet creator. The page script after this
@@ -414,8 +420,12 @@
   function drawDiagram(host, d, capMM) {
     host.innerHTML = '';
     if (!d) return;
+    if (d.list) {   // two pictures for one question, side by side
+      d.list.forEach(x => { const part = document.createElement('div'); part.className = 'diagPart'; host.appendChild(part); drawDiagram(part, x, capMM); });
+      return;
+    }
     if (d.build) d = Object.assign({}, d, { html: d.build() });   // a page's own figure, drawn now (its switches may have changed)
-    const cap = (capMM || 56) * MM;
+    const cap = Math.max(capMM || 56, d.minCapMM || 0) * MM;   // a number plane to read or draw on may ask for more
     if (d.html) {
       host.innerHTML = d.html;
       host.querySelectorAll(':scope > svg').forEach(svg => {
@@ -451,7 +461,13 @@
     holder.querySelectorAll('svg').forEach(svg => {
       if (svg.parentElement && svg.parentElement.closest('svg')) return;
       try {
-        const bb = svg.getBBox();
+        // the ink, not counting clipped shapes: a shaded region is drawn huge and clipped to the plane,
+        // and getBBox ignores the clip, so it would shrink the whole picture to a corner
+        const clipped = [...svg.querySelectorAll('[clip-path]')];
+        clipped.forEach(e => { e.dataset.disp = e.style.display; e.style.display = 'none'; });
+        let bb = svg.getBBox();
+        clipped.forEach(e => { e.style.display = e.dataset.disp || ''; delete e.dataset.disp; });
+        if (!(bb.width > 4 && bb.height > 4)) bb = svg.getBBox();
         if (bb.width > 4 && bb.height > 4) {
           const p = 10;
           svg.setAttribute('viewBox', `${bb.x - p} ${bb.y - p} ${bb.width + 2 * p} ${bb.height + 2 * p}`);
@@ -459,7 +475,11 @@
           let k = (d.scale || 1.15) * 0.56;
           // labels no smaller than about 9.5 px on paper (a stem-and-leaf plot is all text)
           const fs = [...svg.querySelectorAll('text')].map(t => parseFloat(getComputedStyle(t).fontSize) || 0).filter(Boolean).sort((a, b) => a - b);
-          if (fs.length) { const mid = fs[Math.floor(fs.length / 2)]; if (mid * k < 9.5) k = Math.min(k * 2.2, 9.5 / mid); }
+          const mid = fs.length ? fs[Math.floor(fs.length / 2)] : 0;
+          const floor = d.minLabel || 9.5;   // a picture that is all text (a stem-and-leaf plot) reads at the size of the words
+          if (mid && mid * k < floor) k = Math.min(k * 2.2, floor / mid);
+          // a number plane is drawn at one size whatever its range (labels kept under ~13 px)
+          if (d.fitMM) k = Math.max(k, Math.min(d.fitMM * MM / Math.max(bb.width + 2 * p, bb.height + 2 * p), mid ? 13 / mid : 9));
           svg.style.width = Math.round((bb.width + 2 * p) * k) + 'px';
           svg.style.maxWidth = '100%'; svg.style.height = 'auto';
           svg.style.maxHeight = Math.min(cap, d.maxH ? d.maxH * 0.56 : cap) + 'px';
@@ -591,7 +611,9 @@
 
   function ansLabel() { return isEn() ? LANG.en.answer : `<span class="loc">${L().answer}</span>${LANG.en.answer}`; }
   function answerLine(q, key) {
-    if (q.mode === 'tf' || q.mode === 'mc' || q.noAnswerBox || q.mode === 'plot') return '';
+    if (q.mode === 'tf' || q.mode === 'mc' || q.mode === 'plot') return '';
+    // answered on the picture or in the table: the key still says what goes there
+    if (q.noAnswerBox) { const a = key ? keyAnswer(q) : ''; return strip(a) ? `<div class="keyText"><b>${isEn() ? LANG.en.answer : L().answer + ' · ' + LANG.en.answer}:</b> ${a}</div>` : ''; }
     const a = keyAnswer(q), n = strip(a).length;
     const unit = q.mode === 'num' && q.unit && !q.answerHTML ? `<span class="unit">${q.unit === '°' ? '°' : q.unit}</span>` : '';
     if (key) return `<div class="ansLine"><span class="al">${ansLabel()}</span><span class="keyAns">${a || '—'}</span>${unit}</div>`;
@@ -685,6 +707,13 @@
     const r = el.getBoundingClientRect(), cs = getComputedStyle(el), edge = r.right - parseFloat(cs.paddingRight) + 1;
     return el.scrollWidth > el.clientWidth + 2 || [...el.querySelectorAll('svg,table,.opts,.big,.item .ix,.math-expression,.dataList')].some(e => e.getBoundingClientRect().right > edge);
   }
+  function diagBox(el) {
+    const svgs = [...el.querySelectorAll('.qDiag svg')].filter(v => !(v.parentElement && v.parentElement.closest('svg')));
+    if (!svgs.length) return null;
+    const rs = svgs.map(v => v.getBoundingClientRect());
+    const l = Math.min(...rs.map(r => r.left)), t = Math.min(...rs.map(r => r.top));
+    return { width: Math.max(...rs.map(r => r.right)) - l, height: Math.max(...rs.map(r => r.bottom)) - t };
+  }
   /* decide each card's shape (half / across, words beside a tall diagram,
      one or two drill columns) and measure its height, for the worksheet and
      the key */
@@ -712,9 +741,9 @@
       }
       if (!card.wide) {
         let el = renderInto(P.half, card, false);
-        const svg = el.querySelector('.qDiag svg');
-        if (svg) {
-          const r = svg.getBoundingClientRect(), inner = el.clientWidth;
+        const r = diagBox(el);
+        if (r) {
+          const inner = el.clientWidth;
           if (r.height > r.width * 1.12 && r.width < inner * 0.52 && !card.items[0].drawSpace) { card.side = true; el = renderInto(P.half, card, false); }
         }
         if (overflows(el)) { card.wide = true; card.side = false; }
@@ -722,10 +751,9 @@
       }
       if (card.wide) {
         let el = renderInto(P.full, card, false);
-        const svg = el.querySelector('.qDiag svg');
-        if (svg && !card.items[0].drawSpace) {
+        const r = diagBox(el);
+        if (r && !card.items[0].drawSpace) {
           // across the page, a diagram sits beside the words
-          const r = svg.getBoundingClientRect();
           if (r.width < el.clientWidth * 0.6) { card.side = true; el = renderInto(P.full, card, false); if (overflows(el)) { card.side = false; el = renderInto(P.full, card, false); } }
         }
         card.h = el.getBoundingClientRect().height;
@@ -795,8 +823,8 @@
     need.forEach(r => {
       const c = r.cells[0];
       let el = renderInto(P.full, c, false);
-      const svg = el.querySelector('.qDiag svg');
-      if (svg && !c.items[0].drawSpace && svg.getBoundingClientRect().width < el.clientWidth * 0.6) {
+      const r0 = diagBox(el);
+      if (r0 && !c.items[0].drawSpace && r0.width < el.clientWidth * 0.6) {
         c.side = true; el = renderInto(P.full, c, false);
         if (overflows(el)) { c.side = false; el = renderInto(P.full, c, false); }
       }
@@ -933,7 +961,7 @@
     return row;
   }
 
-  function sigOf(q) { return q.type + '|' + (q.key || strip(q.prompt) + JSON.stringify(q.diagram && (q.diagram.config || q.diagram.grid || q.diagram.html) || '') + JSON.stringify(q.options || '')); }
+  function sigOf(q) { return q.type + '|' + (q.key || strip(q.prompt) + JSON.stringify(q.diagram && (q.diagram.config || q.diagram.grid || q.diagram.html || q.diagram.list) || '') + JSON.stringify(q.options || '')); }
   function makeQ(t, seen, allowRepeat) {
     let last = null;
     for (let tries = 0; tries < 30; tries++) {
@@ -963,7 +991,14 @@
   function layout() {
     MCACHE = new Map();
     lastPaper.fill = []; (lastPaper.fillCache || []).forEach(q => { q._placed = false; });
-    const pool = lastPaper.pool;
+    // spare questions, but not the same long question over and over: a type that does not share a
+    // drill card is used at most once more than the paper already has it (never more than 3 in all)
+    const base = new Map(); lastPaper.qs.forEach(x => base.set(x.type, (base.get(x.type) || 0) + 1));
+    const used = new Map(base);
+    const pool = lastPaper.pool.filter(q => {
+      const n = used.get(q.type) || 0, lim = drillable(q) ? 12 : Math.max(Math.min(3, (base.get(q.type) || 0) + 1), base.get(q.type) || 0);
+      if (n >= lim) return false; used.set(q.type, n + 1); return true;
+    });
     let chosen = [], L = layoutOf(withExtra([]));
     if (toggleFill.checked && pool.length) {
       const P = L.pages.length;
@@ -1071,10 +1106,34 @@
     });
     ws.concat(keyPages).forEach(p => out.appendChild(p));
     out.querySelectorAll('.qCard').forEach(el => hydrate(el, el._card, !!el.closest('.isKey')));
+    out.querySelectorAll('.page').forEach(fitBody);
     const asked = lastPaper.qs.length;
     totalPill.textContent = `${asked + added} questions${added ? ` (${asked} + ${added} to fill the pages)` : ''} · ${ws.length} page${ws.length === 1 ? '' : 's'} + ${keyPages.length}-page key`;
     lastPaper.layout = { pages: ws.length, keyPages: keyPages.length, added, avail: Math.round(AVAIL), used: pages.map(p => Math.round(p.used)),
       blocks: pages.map(pg => pg.blocks.map(b => b.head ? 'H' + Math.round(b.h) : (b.fill ? 'F' : 'R') + Math.round(b.row.h)).join(' ')) };
+  }
+  /* Safety net after drawing: the pages were planned from measured heights, but a page whose real
+     content still runs past its foot (a few px of a wrapped line) is set a touch smaller, never cut off. */
+  function fitBody(page) {
+    const body = page.querySelector('.pageBody'); if (!body || !body.firstElementChild) return;
+    const br = body.getBoundingClientRect();
+    const els = [...body.querySelectorAll('.secHead, .row, .gapBox, .qCard')];
+    if (!els.length) return;
+    const top = body.firstElementChild.getBoundingClientRect().top;
+    let foot = Math.max(...els.map(e => e.getBoundingClientRect().bottom));
+    if (foot <= br.bottom - 0.5) return;
+    const gb = body.querySelector(':scope > .gapBox');      // a working-space box gives way first
+    if (gb) {
+      const h = gb.getBoundingClientRect().height - (foot - br.bottom) - 3;
+      if (h >= 12 * MM) { gb.style.height = Math.floor(h) + 'px'; return; }
+      gb.remove(); foot = Math.max(...els.filter(e => e !== gb).map(e => e.getBoundingClientRect().bottom));
+      if (foot <= br.bottom - 0.5) return;
+    }
+    let sc = body.querySelector(':scope > .keyScale');
+    const cur = sc ? (parseFloat((/scale\(([\d.]+)\)/.exec(sc.style.transform) || [])[1]) || 1) : 1;
+    if (!sc) { sc = document.createElement('div'); sc.className = 'keyScale'; [...body.childNodes].forEach(n => sc.appendChild(n)); body.appendChild(sc); }
+    const k = Math.floor(cur * (br.bottom - 2 - top) / (foot - top) * 1000) / 1000;
+    sc.style.transform = `scale(${Math.max(0.6, k)})`;
   }
   function measureHeads(sections) {
     const P = probePage(false), body = probe.querySelector('.pageBody');
@@ -1216,8 +1275,8 @@
 })();
 </script>
 <script type="module">
-import { renderMathText } from '/assessment/exam-builder/renderers/question-renderer.js?v=2cac3fcf';
-import { generateStage3DataQuestions as G_DA } from '/assessment/exam-builder/question-banks/stage-3/data/index.js?v=e1f6db3e';
+import { renderMathText } from '/assessment/exam-builder/renderers/question-renderer.js?v=61c49e84';
+import { generateStage3DataQuestions as G_DA } from '/assessment/exam-builder/question-banks/stage-3/data/index.js?v=c2e6d6a6';
 /* ---- Revision Generator question → worksheet question ----
    The Revision Generator banks (assessment/exam-builder/question-banks) give
    { prompt, diagram:{engine,config}, table, choices, subparts, answer,
@@ -1246,20 +1305,55 @@ const RG = (() => {
     if (i < 0) i = choices.findIndex(c => a && String(c).trim() && a.includes(String(c).trim()));
     return i;
   }
+  /* match each thing on the left to one on the right: two columns of boxes, room between them for the lines */
+  const matching = m => !m || !Array.isArray(m.left) || !Array.isArray(m.right) ? '' :
+    `<div class="match">${Array.from({ length: Math.max(m.left.length, m.right.length) }, (_, i) =>
+      `<span class="mb">${RM(m.left[i] || '')}</span><span class="mgap"><i></i><i></i></span><span class="mb">${RM(m.right[i] || '')}</span>`).join('')}</div>`;
+  /* "Factorise 12ak + 18a²k fully." → the instruction, then the maths in its own span, so like
+     questions can share one drill card ("Factorise fully:" with four expressions under it) */
+  const LEADS = /^(Simplify|Expand and simplify|Expand|Factorise|Evaluate|Solve|Rationalise the denominator of)(\s+fully)?:?\s+(.+?)(\s+fully)?\.?$/;
+  function drillPrompt(q) {
+    if (q.table || q.diagram || (q.subparts || []).length || (q.choices || []).length) return null;
+    const m = LEADS.exec(String(q.prompt || '').trim());
+    if (!m) return null;
+    const maths = m[3], plain = maths.replace(/\[\[[^\]]*\]\]/g, 'x');
+    if (/[,;?]|\b(?!(?:sin|cos|tan|log|ln)\b)[A-Za-z]{3,}/.test(plain) || plain.length > 40) return null;
+    return `${m[1]}${m[2] || m[4] ? ' fully' : ''} <span class="m">${RM(maths)}</span>.`;
+  }
   function adapt(q) {
     if (!q) return null;
     // one picture in the parts (an area model to complete in part a) is shown with the stem
     const subD = (q.subparts || []).filter(p => p.diagram);
-    if (subD.length > 1 || (subD.length && q.diagram)) return null;
-    if (subD.length) q = Object.assign({}, q, { diagram: subD[0].diagram });
-    const out = { prompt: RM(q.prompt) + table(q.table), mode: 'none', why: (q.working || []).map(RM).join(' &nbsp;·&nbsp; ') };
-    if (q.diagram && q.diagram.engine) {
-      const blankAxes = q.diagram.config && q.diagram.config.blank;   // empty axes to draw on: give them room
-      out.diagram = { engine: q.diagram.engine, config: q.diagram.config || {}, scale: blankAxes ? 1.45 : 1.0, maxH: blankAxes ? 470 : 330 };
-    }
+    if (subD.length > 1) return null;
+    // a picture with the stem AND one in a part (a container, then four graphs to choose from): both, side by side
+    const pair = subD.length && q.diagram ? [q.diagram, subD[0].diagram] : null;
+    if (subD.length && !pair) q = Object.assign({}, q, { diagram: subD[0].diagram });
+    const out = { prompt: drillPrompt(q) || RM(q.prompt) + table(q.table) + matching(q.matching), mode: 'none', why: (q.working || []).map(RM).join(' &nbsp;·&nbsp; ') };
+    const conv = d => {
+      const blankAxes = d.config && d.config.blank;   // empty axes to draw on: give them room
+      // a number plane is read or drawn on: about 5 mm a unit, never squeezed into a thumbnail
+      if (/^plane(-engine)?$/.test(d.engine))
+        return d.config && d.config.diagramType === 'options'
+          ? { engine: d.engine, config: d.config, scale: 1.0, maxH: 560, minCapMM: 72, fitMM: 76 }     // four small graphs, A to D
+          : { engine: d.engine, config: d.config || {}, scale: 1.25, maxH: 520, minCapMM: 66, fitMM: 60 };
+      const o = { engine: d.engine, config: d.config || {}, scale: blankAxes ? 1.45 : 1.0, maxH: blankAxes ? 470 : 330 };
+      if (d.config && d.config.chartType === 'stem-leaf') o.minLabel = 13;
+      // a graph to read values from (an account over time, a scatter plot) is not a thumbnail either
+      if (/graph|scatter|line|travel/i.test((d.config && (d.config.diagramType || d.config.chartType)) || '')) { o.maxH = Math.max(o.maxH, 470); o.minCapMM = 62; }
+      return o;
+    };
+    if (pair) { if (pair.every(d => d.engine)) out.diagram = { list: pair.map(conv) }; else return null; }
+    else if (q.diagram && q.diagram.engine) out.diagram = conv(q.diagram);
     // answered by drawing on the picture: no answer box on the worksheet (the key still says what to draw)
     if (/^(construct-|draw-hands|draw-transformation|complete-symmetric|plot-point|design-generator)/.test(q.type || '')) out.noAnswerBox = true;
+    // the bank asks for no answer space: the answer goes in the table or on the picture
+    if (String(q.space || '').toLowerCase() === 'none' && (q.diagram || q.table || q.matching) && !(q.subparts || []).length && !(q.choices || []).length) out.noAnswerBox = true;
     if (q.diagramSpace) { out.drawSpace = 30; }
+    // asked to draw or sketch with nothing to draw on: a box to do it in
+    else if (!out.diagram) {
+      const said = [q.prompt].concat((q.subparts || []).map(p => p.prompt)).join(' ');
+      if (/\b(draw|sketch)\b/i.test(said) && !/possible to draw/i.test(said)) out.drawSpace = 46;
+    }
     if (Array.isArray(q.choices) && q.choices.length) {
       if (new Set(q.choices.map(c => String(c).trim())).size !== q.choices.length) return null;
       const i = correctIndex(q.choices, q.answer);
@@ -1277,6 +1371,8 @@ const RG = (() => {
       if (w.length) out.why = w.map(RM).join(' &nbsp;·&nbsp; ');
     }
     out.steps = (q.working || []).length;
+    // a proof is written out line by line: always give it working space
+    if (!out.subq && out.mode !== 'mc' && /\b(prove|show that)\b/i.test(String(q.prompt))) out.work = true;
     if (tableWide(q.table) || (q.subparts || []).some(p => tableWide(p.table))) out.wide = true;
     out.loc = null; out.topic = q.topic || ''; out.rgType = q.type || '';
     return out;

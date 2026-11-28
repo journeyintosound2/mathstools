@@ -2165,7 +2165,334 @@ window.MMT_TOOL_LINKS = {
       tags: ["quiz", "whole topic", "subset builder", "volume", "capacity", "prism", "cylinder", "views", "units"]
     }
   ],
+  "MA5-FIN-C-02": [
+    {
+      title: "Financial Mathematics B: Compound Interest and Depreciation — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-5/number/financial-mathematics-b/",
+      note: "Core outcome. Covers solve problems involving compound interest and depreciation. Basic keeps to the first steps of each content statement; Expected is the whole outcome. Every content statement, with an answer key and reasons. English only for now.",
+      tags: ["worksheet generator", "printable", "whole topic", "compound interest", "depreciation"]
+    }
+  ],
+
+  "MA5-ALG-P-02": [
+    {
+      title: "Algebraic Techniques C: Special Products and Factorising — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-5/algebra/algebraic-techniques-c/",
+      note: "Path outcome. Covers operate with algebraic fractions involving binomial numerators and numerical denominators; expand, factorise and simplify algebraic expressions including special products. Basic keeps to the first steps of each content statement; Expected is the whole outcome. Every content statement, with an answer key and reasons. English only for now.",
+      tags: ["worksheet generator", "printable", "whole topic", "special products", "difference of squares", "perfect squares", "non-monic", "completing the square"]
+    }
+  ],
+
+  "MA5-IND-C-01": [
+    {
+      title: "Indices A: Index Laws, Zero and Negative Indices — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-5/number/indices-a/",
+      note: "Core outcome. Covers extend and apply the index laws to variables, using positive-integer indices and the zero index; simplify algebraic products and quotients using index laws; apply index laws to numerical expressions with negative-integer indices. Basic keeps to the first steps of each content statement; Expected is the whole outcome. Every content statement, with an answer key and reasons. English only for now.",
+      tags: ["worksheet generator", "printable", "whole topic", "index laws", "zero index", "negative indices"]
+    }
+  ],
+
+  "MA5-IND-P-01": [
+    {
+      title: "Indices B: Negative Indices in Algebra — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-5/number/indices-b/",
+      note: "Path outcome. Covers apply index laws to algebraic expressions involving negative-integer indices. Basic keeps to the first steps of each content statement; Expected is the whole outcome. Every content statement, with an answer key and reasons. English only for now.",
+      tags: ["worksheet generator", "printable", "whole topic", "negative indices"]
+    }
+  ],
+
+  "MA5-IND-P-02": [
+    {
+      title: "Indices C: Surds and Fractional Indices — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-5/number/indices-c/",
+      note: "Path outcome. Covers describe surds; apply knowledge of surds to solve problems; describe and use fractional indices. Basic keeps to the first steps of each content statement; Expected is the whole outcome. Every content statement, with an answer key and reasons. English only for now.",
+      tags: ["worksheet generator", "printable", "whole topic", "surds", "rationalising", "fractional indices"]
+    }
+  ],
+
+  "MA5-LIN-C-01": [
+    {
+      title: "Linear Relationships A: Midpoint, Gradient and Distance — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-5/algebra/linear-relationships-a/",
+      note: "Core outcome. Covers find the midpoint and gradient of a line segment (interval) on the Cartesian plane; find the distance between 2 points located on the Cartesian plane; recognise and graph equations; examine parallel, horizontal and vertical lines. Basic keeps to the first steps of each content statement; Expected is the whole outcome. Every content statement, with an answer key and reasons. English only for now.",
+      tags: ["worksheet generator", "printable", "whole topic", "midpoint", "gradient", "distance", "straight line graphs"]
+    }
+  ],
+
+  "MA5-LIN-C-02": [
+    {
+      title: "Linear Relationships B: Gradient–Intercept Form — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-5/algebra/linear-relationships-b/",
+      note: "Core outcome. Covers examine the gradient/slope-intercept form; find the equations of parallel and perpendicular lines. Basic keeps to the first steps of each content statement; Expected is the whole outcome. Every content statement, with an answer key and reasons. English only for now.",
+      tags: ["worksheet generator", "printable", "whole topic", "y = mx + c", "parallel lines", "perpendicular lines"]
+    }
+  ],
+
+  "MA5-LIN-P-01": [
+    {
+      title: "Linear Relationships C: Coordinate Geometry and Transformations — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-5/algebra/linear-relationships-c/",
+      note: "Path outcome. Covers apply formulas to find the midpoint and gradient/slope of an interval on the Cartesian plane; apply the distance formula to find the distance between 2 points located on the Cartesian plane; use various forms of the equation of a straight line; solve problems by applying coordinate geometry formulas; identify line and rotational symmetries; describe translations, reflections in an axis, and rotations through multiples of 90 degrees on the Cartesian plane, using coordinates. Basic keeps to the first steps of each content statement; Expected is the whole outcome. Every content statement, with an answer key and reasons. English only for now.",
+      tags: ["worksheet generator", "printable", "whole topic", "coordinate geometry", "general form", "transformations", "symmetry"]
+    }
+  ],
+
+  "MA5-NLI-C-01": [
+    {
+      title: "Non-Linear Relationships A: Tables and Graphs — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-5/algebra/non-linear-relationships-a/",
+      note: "Core outcome. Covers examine the connection between algebraic and graphical representations of quadratics and exponentials. Basic keeps to the first steps of each content statement; Expected is the whole outcome. Every content statement, with an answer key and reasons. English only for now.",
+      tags: ["worksheet generator", "printable", "whole topic", "quadratics", "exponentials", "tables of values"]
+    }
+  ],
+
+  "MA5-NLI-C-02": [
+    {
+      title: "Non-Linear Relationships B: Parabolas and Exponential Curves — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-5/algebra/non-linear-relationships-b/",
+      note: "Core outcome. Covers graph and examine quadratic relationships; graph and examine exponential relationships; distinguish between linear, quadratic and exponential relationships by examining their graphical representations. Basic keeps to the first steps of each content statement; Expected is the whole outcome. Every content statement, with an answer key and reasons. English only for now.",
+      tags: ["worksheet generator", "printable", "whole topic", "parabolas", "exponential graphs"]
+    }
+  ],
+
+  "MA5-NLI-P-01": [
+    {
+      title: "Non-Linear Relationships C: Parabolas, Hyperbolas, Circles and More — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-5/algebra/non-linear-relationships-c/",
+      note: "Path outcome. Covers graph parabolas and describe their features and transformations; graph exponentials and describe their features and transformations; graph hyperbolas and describe their features and transformations; graph circles and describe their features and transformations; distinguish between different types of graphs by examining their algebraic and graphical representations and solve problems; graph and compare polynomial curves and describe their features and transformations. Basic keeps to the first steps of each content statement; Expected is the whole outcome. Every content statement, with an answer key and reasons. English only for now.",
+      tags: ["worksheet generator", "printable", "whole topic", "parabolas", "hyperbolas", "circles", "cubics", "transformations"]
+    }
+  ],
+
+  "MA5-RAT-P-01": [
+    {
+      title: "Variation and Rates of Change A: Direct and Inverse Variation — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-5/ratios-rates/variation-and-rates-a/",
+      note: "Path outcome. Covers identify and describe problems involving direct and inverse variation; identify and describe graphs involving direct and inverse variation; solve problems involving direct and inverse variation and examine the relationship between graphs and equations corresponding to proportionality. Basic keeps to the first steps of each content statement; Expected is the whole outcome. Every content statement, with an answer key and reasons. English only for now.",
+      tags: ["worksheet generator", "printable", "whole topic", "direct variation", "inverse variation"]
+    }
+  ],
+
+  "MA5-RAT-P-02": [
+    {
+      title: "Variation and Rates of Change B: Rates of Change — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-5/ratios-rates/variation-and-rates-b/",
+      note: "Path outcome. Covers analyse graphs that are decreasing or increasing at a constant rate; analyse the relationship between graphs and variable rates of change; construct graphical representations of rates of change. Basic keeps to the first steps of each content statement; Expected is the whole outcome. Every content statement, with an answer key and reasons. English only for now.",
+      tags: ["worksheet generator", "printable", "whole topic", "rates of change", "travel graphs"]
+    }
+  ],
+
+  "MA5-POL-P-01": [
+    {
+      title: "Polynomials — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-5/algebra/polynomials/",
+      note: "Path outcome. Covers define and operate with polynomials; divide polynomials; apply the factor and remainder theorems to solve problems; graph polynomials. Basic keeps to the first steps of each content statement; Expected is the whole outcome. Every content statement, with an answer key and reasons. English only for now.",
+      tags: ["worksheet generator", "printable", "whole topic", "polynomials", "factor theorem", "remainder theorem"]
+    }
+  ],
+
+  "MA5-LOG-P-01": [
+    {
+      title: "Logarithms — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-5/algebra/logarithms/",
+      note: "Path outcome. Covers examine logarithms both numerically and graphically; establish and apply the laws of logarithms to solve problems. Basic keeps to the first steps of each content statement; Expected is the whole outcome. Every content statement, with an answer key and reasons. English only for now.",
+      tags: ["worksheet generator", "printable", "whole topic", "logarithms", "log laws", "exponential equations"]
+    }
+  ],
+
+  "MA5-FNC-P-01": [
+    {
+      title: "Functions and Other Graphs — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-5/algebra/functions-and-other-graphs/",
+      note: "Path outcome. Covers define relations and functions, and use function notation; find the domain and range of a function and graph functions; graph regions corresponding to linear inequalities in one and 2 variables. Basic keeps to the first steps of each content statement; Expected is the whole outcome. Every content statement, with an answer key and reasons. English only for now.",
+      tags: ["worksheet generator", "printable", "whole topic", "functions", "domain and range", "inequality regions"]
+    }
+  ],
+
+  "MA5-MAG-C-01": [
+    {
+      title: "Numbers of Any Magnitude — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-5/number/numbers-of-any-magnitude/",
+      note: "Core outcome. Covers identify and describe very small and very large measurements; find absolute and percentage error; estimate and round numbers to a specified degree of accuracy; express numbers in scientific notation. Basic keeps to the first steps of each content statement; Expected is the whole outcome. Every content statement, with an answer key and reasons. English only for now.",
+      tags: ["worksheet generator", "printable", "whole topic", "scientific notation", "significant figures", "error", "SI prefixes"]
+    }
+  ],
+
+  "MA5-TRG-C-01": [
+    {
+      title: "Trigonometry A: Right-Angled Triangles — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-5/measurement-space/trigonometry-a/",
+      note: "Core outcome. Covers demonstrate and explain the constancy of trigonometric ratios for a given angle in right-angled triangles; apply trigonometry to solve right-angled triangle problems. Basic keeps to the first steps of each content statement; Expected is the whole outcome. Every content statement, with an answer key and reasons. English only for now.",
+      tags: ["worksheet generator", "printable", "whole topic", "trigonometry", "SOH CAH TOA", "right-angled triangles"]
+    }
+  ],
+
+  "MA5-TRG-C-02": [
+    {
+      title: "Trigonometry B: Elevation, Depression and Bearings — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-5/measurement-space/trigonometry-b/",
+      note: "Core outcome. Covers solve right-angled triangle problems involving angles of elevation and depression; solve right-angled triangle problems involving bearings. Basic keeps to the first steps of each content statement; Expected is the whole outcome. Every content statement, with an answer key and reasons. English only for now.",
+      tags: ["worksheet generator", "printable", "whole topic", "elevation", "depression", "bearings"]
+    }
+  ],
+
+  "MA5-TRG-P-01": [
+    {
+      title: "Trigonometry C: Non-Right-Angled Triangles and 3D Problems — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-5/measurement-space/trigonometry-c/",
+      note: "Path outcome. Covers solve 3-dimensional problems involving right-angled triangles; apply the sine, cosine and area rules to any triangle and solve related problems. Basic keeps to the first steps of each content statement; Expected is the whole outcome. Every content statement, with an answer key and reasons. English only for now.",
+      tags: ["worksheet generator", "printable", "whole topic", "sine rule", "cosine rule", "area rule", "3D trigonometry"]
+    }
+  ],
+
+  "MA5-ARE-C-01": [
+    {
+      title: "Area and Surface Area A: Composite Areas, Prisms and Cylinders — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-5/measurement-space/area-and-surface-area-a/",
+      note: "Core outcome. Covers solve problems involving areas and surface areas; develop and apply the formula for surface areas of cylinders; solve problems involving surface areas of cylinders and related composite solids. Basic keeps to the first steps of each content statement; Expected is the whole outcome. Every content statement, with an answer key and reasons. English only for now.",
+      tags: ["worksheet generator", "printable", "whole topic", "surface area", "prisms", "cylinders", "composite area"]
+    }
+  ],
+
+  "MA5-ARE-P-01": [
+    {
+      title: "Area and Surface Area B: Pyramids, Cones and Spheres — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-5/measurement-space/area-and-surface-area-b/",
+      note: "Path outcome. Covers solve problems involving surface areas. Basic keeps to the first steps of each content statement; Expected is the whole outcome. Every content statement, with an answer key and reasons. English only for now.",
+      tags: ["worksheet generator", "printable", "whole topic", "surface area", "pyramids", "cones", "spheres"]
+    }
+  ],
+
+  "MA5-VOL-C-01": [
+    {
+      title: "Volume A: Prisms, Cylinders and Composite Solids — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-5/measurement-space/volume-a/",
+      note: "Core outcome. Covers solve problems involving composite solids consisting of right prisms and cylinders. Basic keeps to the first steps of each content statement; Expected is the whole outcome. Every content statement, with an answer key and reasons. English only for now.",
+      tags: ["worksheet generator", "printable", "whole topic", "volume", "prisms", "cylinders", "capacity"]
+    }
+  ],
+
+  "MA5-VOL-P-01": [
+    {
+      title: "Volume B: Pyramids, Cones and Spheres — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-5/measurement-space/volume-b/",
+      note: "Path outcome. Covers solve problems involving volumes. Basic keeps to the first steps of each content statement; Expected is the whole outcome. Every content statement, with an answer key and reasons. English only for now.",
+      tags: ["worksheet generator", "printable", "whole topic", "volume", "pyramids", "cones", "spheres"]
+    }
+  ],
+
+  "MA5-GEO-C-01": [
+    {
+      title: "Properties of Geometrical Figures A: Similar Figures and Scale — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-5/measurement-space/geometrical-figures-a/",
+      note: "Core outcome. Covers identify and describe the properties of similar figures; solve problems using ratio and scale factors in similar figures. Basic keeps to the first steps of each content statement; Expected is the whole outcome. Every content statement, with an answer key and reasons. English only for now.",
+      tags: ["worksheet generator", "printable", "whole topic", "similar figures", "scale factor", "scale drawings"]
+    }
+  ],
+
+  "MA5-GEO-P-01": [
+    {
+      title: "Properties of Geometrical Figures B: Congruence, Similarity and Reasoning — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-5/measurement-space/geometrical-figures-b/",
+      note: "Path outcome. Covers identify and explain congruence; develop and use the conditions for congruent triangles; develop and apply the minimum conditions for triangles to be similar; establish and apply properties of similar shapes and solids; apply logical reasoning to numerical problems involving plane shapes. Basic keeps to the first steps of each content statement; Expected is the whole outcome. Every content statement, with an answer key and reasons. English only for now.",
+      tags: ["worksheet generator", "printable", "whole topic", "congruence", "similarity", "geometric reasoning"]
+    }
+  ],
+
+  "MA5-GEO-P-02": [
+    {
+      title: "Properties of Geometrical Figures C: Geometric Proofs — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-5/measurement-space/geometrical-figures-c/",
+      note: "Path outcome. Covers apply logical reasoning to proofs involving plane shapes. Basic keeps to the first steps of each content statement; Expected is the whole outcome. Every content statement, with an answer key and reasons. English only for now.",
+      tags: ["worksheet generator", "printable", "whole topic", "geometric proofs", "congruent triangles", "quadrilaterals"]
+    }
+  ],
+
+  "MA5-CIR-P-01": [
+    {
+      title: "Circle Geometry — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-5/measurement-space/circle-geometry/",
+      note: "Path outcome. Covers prove and apply angle and chord properties of circles; prove and apply tangent and secant properties of circles. Basic keeps to the first steps of each content statement; Expected is the whole outcome. Every content statement, with an answer key and reasons. English only for now.",
+      tags: ["worksheet generator", "printable", "whole topic", "circle geometry", "tangents", "chords", "cyclic quadrilaterals"]
+    }
+  ],
+
+  "MA5-NET-P-01": [
+    {
+      title: "Introduction to Networks — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-5/measurement-space/introduction-to-networks/",
+      note: "Path outcome. Covers examine and describe a graph/network; define a planar graph and apply Euler’s formula for planar graphs; explain the concept of Eulerian trails and circuits in the context of the Königsberg bridges problem. Basic keeps to the first steps of each content statement; Expected is the whole outcome. Every content statement, with an answer key and reasons. English only for now.",
+      tags: ["worksheet generator", "printable", "whole topic", "networks", "Euler", "planar graphs", "Eulerian trails"]
+    }
+  ],
+
+  "MA5-DAT-C-01": [
+    {
+      title: "Data Analysis A: Quartiles, Box Plots and Standard Deviation — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-5/statistics-probability/data-analysis-a/",
+      note: "Core outcome. Covers examine standard deviation as a measure of spread; determine quartiles and interquartile range; represent datasets using box plots and use them to compare datasets. Basic keeps to the first steps of each content statement; Expected is the whole outcome. Every content statement, with an answer key and reasons. English only for now.",
+      tags: ["worksheet generator", "printable", "whole topic", "box plots", "quartiles", "standard deviation"]
+    }
+  ],
+
+  "MA5-DAT-C-02": [
+    {
+      title: "Data Analysis B: Bivariate Data — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-5/statistics-probability/data-analysis-b/",
+      note: "Core outcome. Covers identify and describe numerical datasets involving 2 variables; represent datasets involving 2 numerical variables, using a scatter plot and a line of best fit, by eye; interpret data involving 2 numerical variables, using graphical representations. Basic keeps to the first steps of each content statement; Expected is the whole outcome. Every content statement, with an answer key and reasons. English only for now.",
+      tags: ["worksheet generator", "printable", "whole topic", "bivariate data", "scatter plots", "line of best fit"]
+    }
+  ],
+
+  "MA5-DAT-P-01": [
+    {
+      title: "Data Analysis C: Statistical Inquiries and Media Reports — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-5/statistics-probability/data-analysis-c/",
+      note: "Path outcome. Covers plan and conduct a statistical inquiry into a question of interest; examine reports of studies in digital media and elsewhere for information on their planning and implementation. Basic keeps to the first steps of each content statement; Expected is the whole outcome. Every content statement, with an answer key and reasons. English only for now.",
+      tags: ["worksheet generator", "printable", "whole topic", "sampling", "bias", "statistical inquiry"]
+    }
+  ],
+
   "MA5-ALG-P-01": [
+    {
+      title: "Algebraic Techniques B: Factorising and Binomial Products — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-5/algebra/algebraic-techniques-b/",
+      note: "Path outcome. Covers apply the 4 operations involving algebraic fractions with pronumerals in the denominator; factorise algebraic expressions by taking out a common algebraic factor; expand binomial products and factorise monic quadratic expressions. Basic keeps to the first steps of each content statement; Expected is the whole outcome. Every content statement, with an answer key and reasons. English only for now.",
+      tags: ["worksheet generator", "printable", "whole topic", "factorising", "binomial products", "monic quadratics"]
+    },
     {
       title: "Complete the Square",
       kind: "Teacher tool",
@@ -2186,6 +2513,13 @@ window.MMT_TOOL_LINKS = {
 
   "MA5-ALG-C-01": [
     {
+      title: "Algebraic Techniques A: Algebraic Fractions and Expanding — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-5/algebra/algebraic-techniques-a/",
+      note: "Core outcome. Covers apply the 4 operations to simplify algebraic fractions with numerical denominators; apply the distributive law to the expansion of algebraic expressions, and collect like terms where appropriate. Basic keeps to the first steps of each content statement; Expected is the whole outcome. Every content statement, with an answer key and reasons. English only for now.",
+      tags: ["worksheet generator", "printable", "whole topic", "algebraic fractions", "expanding", "factorising"]
+    },
+    {
       title: "Multi-Step Equations on the Double Number Line",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-4/algebra/multi-step-double-numberline/",
@@ -2203,6 +2537,13 @@ window.MMT_TOOL_LINKS = {
     }
   ],
   "MA5-EQU-C-01": [
+    {
+      title: "Equations A: Linear Equations — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-5/algebra/equations-a/",
+      note: "Core outcome. Covers solve linear equations involving up to 3 steps; solve linear equations involving one algebraic fraction; solve linear equations arising from word problems and substitution into formulas. Basic keeps to the first steps of each content statement; Expected is the whole outcome. Every content statement, with an answer key and reasons. English only for now.",
+      tags: ["worksheet generator", "printable", "whole topic", "linear equations", "algebraic fractions", "word problems"]
+    },
     {
       title: "Multi-Step Equations on the Double Number Line",
       kind: "Teacher tool",
@@ -2246,6 +2587,13 @@ window.MMT_TOOL_LINKS = {
   ],
   "MA5-EQU-P-01": [
     {
+      title: "Equations B: Quadratics, Cubics and Inequalities — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-5/algebra/equations-b/",
+      note: "Path outcome. Covers solve monic quadratic equations; solve cubic equations; solve linear inequalities and graph their solutions on a number line. Basic keeps to the first steps of each content statement; Expected is the whole outcome. Every content statement, with an answer key and reasons. English only for now.",
+      tags: ["worksheet generator", "printable", "whole topic", "quadratic equations", "cubic equations", "inequalities"]
+    },
+    {
       title: "Complete the Square",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-5/algebra/complete-the-square/",
@@ -2265,6 +2613,13 @@ window.MMT_TOOL_LINKS = {
 
   "MA5-EQU-P-02": [
     {
+      title: "Equations C: Literal, Quadratic and Simultaneous Equations — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-5/algebra/equations-c/",
+      note: "Path outcome. Covers solve linear equations involving algebraic fractions and equations of more than 3 steps; rearrange literal equations; solve quadratic equations using a variety of methods; solve linear simultaneous equations, both algebraically and graphically. Basic keeps to the first steps of each content statement; Expected is the whole outcome. Every content statement, with an answer key and reasons. English only for now.",
+      tags: ["worksheet generator", "printable", "whole topic", "literal equations", "quadratic formula", "simultaneous equations"]
+    },
+    {
       title: "Complete the Square",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-5/algebra/complete-the-square/",
@@ -2283,6 +2638,13 @@ window.MMT_TOOL_LINKS = {
   ],
 
   "MA5-TRG-P-02": [
+    {
+      title: "Trigonometry D: The Unit Circle and Trigonometric Equations — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-5/measurement-space/trigonometry-d/",
+      note: "Path outcome. Covers use the unit circle to define trigonometric functions and represent them graphically; solve trigonometric equations using exact values and the relationships between supplementary and complementary angles. Basic keeps to the first steps of each content statement; Expected is the whole outcome. Every content statement, with an answer key and reasons. English only for now.",
+      tags: ["worksheet generator", "printable", "whole topic", "unit circle", "exact values", "trigonometric equations"]
+    },
     {
       title: "The Unit Circle and the Trigonometric Ratios",
       kind: "Teacher tool",
@@ -2319,6 +2681,13 @@ window.MMT_TOOL_LINKS = {
 
   "MA5-FIN-C-01": [
     {
+      title: "Financial Mathematics A: Earning, Spending and Simple Interest — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-5/number/financial-mathematics-a/",
+      note: "Core outcome. Covers solve problems involving earning money; solve problems involving simple interest; solve problems involving spending money. Basic keeps to the first steps of each content statement; Expected is the whole outcome. Every content statement, with an answer key and reasons. English only for now.",
+      tags: ["worksheet generator", "printable", "whole topic", "earning money", "tax", "simple interest", "buying on terms"]
+    },
+    {
       title: "Financial Expectation Spinner",
       kind: "Teacher tool",
       url: "/interactive-tools/stage-5/statistics-probability/financial-expectation-spinner/",
@@ -2328,6 +2697,13 @@ window.MMT_TOOL_LINKS = {
   ],
 
   "MA5-PRO-C-01": [
+    {
+      title: "Probability A: Multistage Chance Experiments — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-5/statistics-probability/probability-a/",
+      note: "Core outcome. Covers describe multistage chance experiments involving independent and dependent events; solve problems for multistage chance experiments; design and use simulations to model and examine situations involving probability. Basic keeps to the first steps of each content statement; Expected is the whole outcome. Every content statement, with an answer key and reasons. English only for now.",
+      tags: ["worksheet generator", "printable", "whole topic", "probability", "tree diagrams", "multistage"]
+    },
     {
       title: "Probability Spinner Simulator",
       kind: "Teacher tool",
@@ -2355,6 +2731,13 @@ window.MMT_TOOL_LINKS = {
   ],
 
   "MA5-PRO-P-01": [
+    {
+      title: "Probability B: Venn Diagrams, Two-Way Tables and Conditional Probability — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-5/statistics-probability/probability-b/",
+      note: "Path outcome. Covers solve problems involving Venn diagrams and 2-way tables; use the language, 'if … then', 'given', 'of' and 'knowing that', to examine conditional statements and identify common mistakes in interpreting the language; describe mutually and non-mutually exclusive events using specific language and calculate related probabilities. Basic keeps to the first steps of each content statement; Expected is the whole outcome. Every content statement, with an answer key and reasons. English only for now.",
+      tags: ["worksheet generator", "printable", "whole topic", "Venn diagrams", "two-way tables", "conditional probability"]
+    },
     {
       title: "Venn Diagrams: Sorting Numbers",
       kind: "Teacher tool",

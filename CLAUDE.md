@@ -159,6 +159,50 @@
 > Chromium (Inter). Source: `tools/pdf-worksheets/bin-toss/` (`build.py` + `ws.css` → `render.py`, Playwright; needs `logo.png` =
 > a copy of `icons/icon-192.png` beside it). Re-render and copy the PDF over after any edit.
 >
+> **NEW (2026-11-28): STAGE 5 WHOLE-TOPIC WORKSHEET CREATORS — ALL 41 OUTCOMES, CORE AND PATH.**
+> `worksheet-creators/stage-5/<number|algebra|ratios-rates|measurement-space|statistics-probability>/<focus-area>/`
+> (e.g. `algebra/equations-c/`, `measurement-space/trigonometry-b/`), one page per outcome, on frame v2. Built by
+> `tools/whole-topic-worksheets/stage5.py` (writes `pages/s5-*.js` + the `pages.json` entries), then `assemble.py`.
+> * **Types are the Revision Generator's Stage 5 banks** (`question-banks/stage-5/*`), all 528 mapped, each to ONE
+>   content statement of its outcome, in syllabus order. The spec in `stage5.py` `OUT` is the place to change it:
+>   plain id = Basic and Expected, `+id` = Expected only, `-id` = Basic only, `bank:id` borrows from another bank
+>   (Linear C takes A's midpoint/distance types; Geometrical Figures B takes A's similar areas/volumes). The script
+>   refuses a page that leaves one of its own bank's types unmapped or a statement with no type.
+> * **Levels are Basic / Expected** (as Stage 4): Basic = the first steps of each content statement, Expected = the
+>   whole outcome. Each page says Core or Path in its subtitle. English only (the banks' `translations` are generic).
+> * Listings: a "Worksheet maker" row at the top of every MA5 outcome in `toolLinks.js` (32 outcome keys were new),
+>   `MMT_WHOLE_TOPIC_WORKSHEETS` lines (Stage 5 block after Stage 4) so Resources by Stage shows the blue band, and a
+>   "Stage 5 — whole topic" homepage grid that replaced the "coming soon" note (Worksheet pill 71 → 112).
+>   `tools/whole-topic-worksheets/wire5.py <dir>` does all three and is idempotent.
+> * **Frame / adapter changes (every whole-topic page was re-assembled):**
+>   - `rg-adapter.js`: a bank's `space: "none"` with a table, picture or `matching` → no answer box (answered on the
+>     page) and the KEY now prints that answer as "Answer: …" (`answerLine`); a picture in the stem AND one in a part
+>     (container filling) → `diagram.list`, drawn side by side; "draw/sketch" with nothing to draw on → a 46 mm box;
+>     "Prove / Show that" → working space; `matching` → two columns of boxes with dots for the lines; simple
+>     "Factorise/Expand/Simplify/Evaluate/Solve <maths>." prompts put the maths in a span so like questions share a
+>     drill card ("Factorise fully:" a–d). Number planes are drawn at one size (`fitMM` 60, `minCapMM` 66; A–D option
+>     sets 76) and graphs to read from (financial, scatter, travel) get room; stem-and-leaf text reads at word size.
+>   - `body.html`: `drawDiagram` measures ink WITHOUT clipped shapes (a shaded region is drawn huge and clipped —
+>     `getBBox` ignores the clip and shrank the plane into a corner); `diagBox()` measures all of a card's pictures
+>     together when choosing side layout; the page fill uses a non-drill type at most once more than the paper
+>     already has it (max 3), so a two-type section is not five "Sam factorised…" cards; and after drawing, `fitBody()`
+>     checks every page's REAL foot: a page still running past it (a few px of a wrapped line, seen once in 150
+>     Indices C papers) first shrinks its working-space box, then is set slightly smaller — never cut off.
+> * **Bugs fixed in shared code on the way:** `renderMathText` (question-renderer.js) DROPPED any `[[frac:a:b]]`
+>   with a 4+ digit number (the number grouping ran first, the token no longer matched, the clean-up deleted it) —
+>   also fixed for the Revision Generator itself. Banks: fractional indices like 100^(−2/2) (indices-c), a zero
+>   answer from 2(q − 3) − 2(q − 3) (algebraic-techniques-a), and "factorised" answers that were not fully factorised
+>   — x(6x − 3), 3ak(4 + 4a) (algebraic-techniques-b), (2k + 4n)(2k − 4n) (algebraic-techniques-c).
+> * **Dot plots to draw now have room** (`statistics-engine.js`, Jeff's feedback): a blank dot plot reserves
+>   max(tallest column + 1, 4) rows with faint dotted guides above each tick, and a blank stem-and-leaf plot gets a
+>   dotted line under each row's leaves; Stage 3 `construct-dot-plot` passes its data so the height is known. The
+>   two Stage 4 whole-topic quiz shells that load the engine had their `?v=` bumped.
+> * Verified: per-type sweep (533 types × 8, every diagram drawn, no null/undefined), an independent re-check of
+>   1,723 expand/factorise/simplify answers (numeric identity) and 1,127 equation answers (substitution), the RG
+>   harnesses (`tools/stage5.mjs` 31,680 questions, `verify.mjs`), `test.py` on all 78 whole-topic pages, and a
+>   visual pass over every Stage 5 page (catalogue papers with one of each type). `test.py` now allows a gradient or
+>   log that is legitimately "undefined".
+
 > **NEW (2026-11-27, latest): WHOLE-TOPIC WORKSHEETS — THE PAPER REBUILT (frame v2), LENGTH + ALGEBRAIC TECHNIQUES MOVED ONTO IT.**
 > Jeff: bring every whole-topic worksheet up to the Counting Strategies creator's quality, with NO wasted space (his examples: the old
 > Length paper, 6 big cards a page, and Integers, cards stretched into tall empty boxes). All 37 whole-topic creators (16 Stage 4 + 21
@@ -196,7 +240,7 @@
 >   ≠ worksheet count, anything past a page or card, answers on student pages, missing diagrams, undefined/NaN printed, or (fill on) a
 >   page ending with > 24 mm empty. It also reports cards with a blank over 32 mm. All 37 pass.
 >
-> **NEW (2026-11-27, later): WHOLE-TOPIC WORKSHEET CREATORS — ONE PER OUTCOME, ON ONE FRAME (Stage 4 and Stage 3 done; Stage 5 next).**
+> **NEW (2026-11-27, later): WHOLE-TOPIC WORKSHEET CREATORS — ONE PER OUTCOME, ON ONE FRAME (Stage 4 and Stage 3; Stage 5 followed on 2026-11-28).**
 > Jeff: every outcome gets a whole-topic worksheet creator (Basic + Expected, every content statement), shown on Resources by Stage
 > in a LIGHT-BLUE band at the foot of the outcome, above the yellow whole-topic quiz band, and never under a content statement.
 > * **Banner:** `resources/toolFamilies.js` `MMT_WHOLE_TOPIC_WORKSHEETS` (url → topic name, all 16 Stage 4). `resources/index.html`
@@ -253,7 +297,7 @@
 >     overflow); table cells break only between words; a page cut short by a tall next row now gives all its room to working space.
 >   * Wiring: 21 `MMT_WHOLE_TOPIC_WORKSHEETS` lines, a toolLinks row each (new keys MA3-RN-02, MA3-3DS-01, MA3-DATA-01, MA3-DATA-02),
 >     homepage "Stage 3 — whole topic" subhead with 21 cards (Worksheet pill 50 → 71).
-> * **NEXT: Stage 5 (41 outcomes)** — same approach as stage3.py, from `question-banks/stage-5/*` (Paths/levels: decide with Jeff).
+> * **Stage 5 (41 outcomes) is done** — `stage5.py`, levels Basic / Expected; see the 2026-11-28 entry above.
 >
 > **NEW (2026-11-27): ALGEBRAIC TECHNIQUES WORKSHEET CREATOR REBUILT on the Length creator's frame.**
 > `worksheet-creators/stage-4/algebra/algebraic-techniques/index.html` (single file) now uses the same shell as

@@ -346,7 +346,7 @@ function constructDotPlotQuestion() {
   return q({
     type: "construct-dot-plot", marks: 2,
     prompt: `Draw a dot plot of the ${ctx.name} for these ${data.length} ${ctx.unit}: ${listText(shuffle(data))}`,
-    diagram: stats({ chartType: "dot-plot", data: [], min: ctx.lo, max: ctx.hi, blank: true, xLabel: ctx.name[0].toUpperCase() + ctx.name.slice(1) }),
+    diagram: stats({ chartType: "dot-plot", data, min: ctx.lo, max: ctx.hi, blank: true, xLabel: ctx.name[0].toUpperCase() + ctx.name.slice(1) }),
     answer: `Dots: ${freq.map(r => `${r.value} → ${r.freq}`).join(", ")}`,
     working: ["Put one dot above the number line for each value.", ...freq.map(r => `${r.value}: ${r.freq} ${plural(r.freq, "dot")}`)],
     space: "none",

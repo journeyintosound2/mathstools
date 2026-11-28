@@ -54,7 +54,7 @@ async def main(slug, shots, N):
               const txt = strip(q.prompt) + ' || ' + strip(a) + ' || ' + strip(q.why || '') + ' || ' + (q.options || []).map(strip).join('|');
               if (!strip(q.prompt).trim()) { bad.push(t.id + ' empty prompt'); break; }
               if (!strip(a).trim()) { bad.push(t.id + ' empty answer: ' + strip(q.prompt).slice(0, 80)); break; }
-              if (RX.test(txt)) { bad.push(t.id + ' bad text: ' + txt.slice(0, 200)); break; }
+              if (RX.test(txt.replace(/(?:\\b(?:zero or|is|are|or|gradient|slope)|=)\\s+undefined\\b/gi, '').replace(/\\bUndefined\\b/g, ''))) { bad.push(t.id + ' bad text: ' + txt.slice(0, 200)); break; }
               if (q.mode === 'mc' && (q.correct == null || !q.options || q.correct >= q.options.length)) { bad.push(t.id + ' mc without a correct option'); break; }
               if (q.mode === 'mc' && new Set(q.options.map(strip)).size !== q.options.length) { bad.push(t.id + ' duplicate mc options: ' + q.options.map(strip).join(' | ')); break; }
             }
@@ -99,7 +99,7 @@ async def main(slug, shots, N):
                   if (!key && c.querySelector('.keyAns,.opt.right,.tfRow .right,.keyText')) o.leak++;
                   if (c.querySelector('.diagMissing')) o.missing++;
                   if (c.querySelector('.qText .loc')) o.bi++;
-                  if (/undefined|NaN|\[object/.test(c.textContent)) o.bad = (o.bad || []).concat([i + ':' + num + ':' + c.dataset.type]);
+                  if (/undefined|NaN|\[object/.test(c.textContent.replace(/(?:\\b(?:zero or|is|are|or|gradient|slope)|=)\\s+undefined\\b/gi, '').replace(/\\bUndefined\\b/g, ''))) o.bad = (o.bad || []).concat([i + ':' + num + ':' + c.dataset.type]);
                   const sp = c.querySelector(':scope > .spacer, :scope > .qMain > .spacer');
                   if (!key && sp && !c.classList.contains('side') && sp.getBoundingClientRect().height > 32 * MM) o.holes.push(i + ':' + num + ':' + Math.round(sp.getBoundingClientRect().height / MM) + 'mm:' + c.dataset.type);
                 });

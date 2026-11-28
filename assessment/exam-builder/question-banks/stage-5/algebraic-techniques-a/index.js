@@ -479,6 +479,8 @@ function expandTwoBracketsQuestion() {
   const c2 = choice([2, 3, 4, -2, -3]);
   const a = choice([2, 3, 4, -2, -3]);
   const b = choice([2, 3, 4, 5, -2, -3]);
+  // 2(q − 3) − 2(q − 3) simplifies to nothing at all: not a question
+  if (c1 + c2 === 0 || c1 * a + c2 * b === 0) return expandTwoBracketsQuestion();
   const answer = formatLinear(c1 + c2, c1 * a + c2 * b, variable);
   const op = c2 < 0 ? "−" : "+";
 
@@ -549,6 +551,8 @@ function mixedExpansionSimplificationQuestion() {
   const a = choice([2, 3, 4, -2, -3]);
   const b = choice([2, 3, 4, -2, -3]);
   const extraConstant = choice([2, 3, 4, -2, -3]);
+  // 3(r + 3) − 3(r + 2) − 3 is 0: nothing to write
+  if (c1 === c2 && c1 * a - c2 * b + extraConstant === 0) return mixedExpansionSimplificationQuestion();
   const answer = formatLinear(c1 - c2, c1 * a - c2 * b + extraConstant, variable);
 
   return algebraQuestion({

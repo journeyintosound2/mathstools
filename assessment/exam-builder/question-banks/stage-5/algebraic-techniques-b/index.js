@@ -136,7 +136,8 @@ function factoriseHcfQuestion() {
     return q({ type: "factorise-hcf", marks: 1, prompt: `Factorise ${joinTerms([mono(g * p, { [x]: 1 }), num(sub ? -g * r : g * r)])}.`, answer: `${g}(${lin(p, sub ? -r : r, x)})`, working: [`HCF of ${g * p} and ${g * r} is ${g}.`, `${g}(${lin(p, sub ? -r : r, x)})`], space: SPACE_SIZES.SMALL, mcDistractors: [`${g * p}(${x} ${sub ? MINUS : "+"} ${r})`, `${g}(${lin(p, sub ? -g * r : g * r, x)})`, `${g}${x}(${p} ${sub ? MINUS : "+"} ${r})`], tags: ["factorise", "HCF"] });
   }
   if (v === "pronumeral") {
-    const p = randInt(2, 9); const r = randInt(1, 9);
+    // p and r share no factor, or x(6x − 3) would not be the full factorisation
+    let p; let r; do { p = randInt(2, 9); r = randInt(1, 9); } while (gcd(p, r) !== 1);
     return q({ type: "factorise-hcf", marks: 1, prompt: `Factorise ${joinTerms([mono(p, { [x]: 2 }), mono(-r, { [x]: 1 })])}.`, answer: `${x}(${lin(p, -r, x)})`, working: [`Both terms contain ${x}.`], space: SPACE_SIZES.SMALL, mcDistractors: [`${x}²(${p} ${MINUS} ${r})`, `${x}(${p}${x} ${MINUS} ${r}${x})`, `${p}${x}(${x} ${MINUS} ${r})`], tags: ["factorise", "HCF"] });
   }
   if (v === "both") {
@@ -150,7 +151,7 @@ function factoriseHcfQuestion() {
     return q({ type: "factorise-hcf", marks: 2, prompt: `Factorise ${joinTerms([mono(g * t[0], { [x]: 3 }), mono(g * t[1], { [x]: 2 }), mono(g * t[2], { [x]: 1 })])} fully.`, answer: `${mono(g, { [x]: 1 })}(${poly([t[0], t[1], t[2]], x)})`, working: [`HCF: ${g}${x}`, `Divide each term by ${g}${x}.`], space: SPACE_SIZES.SMALL, mcDistractors: [`${g}(${poly([t[0], t[1], t[2], 0], x)})`, `${mono(g, { [x]: 2 })}(${poly([t[0], t[1], t[2]], x)})`], tags: ["factorise", "HCF"] });
   }
   const [a, b] = sample(V, 2).sort();
-  const p = randInt(1, 5); const r = randInt(2, 5);
+  let p; let r; do { p = randInt(1, 5); r = randInt(2, 5); } while (gcd(p, r) !== 1);
   return q({ type: "factorise-hcf", marks: 2, prompt: `Factorise ${joinTerms([mono(g * p, { [a]: 1, [b]: 1 }), mono(g * r, { [a]: 2, [b]: 1 })])} fully.`, answer: `${mono(g, { [a]: 1, [b]: 1 })}(${joinTerms([String(p), mono(r, { [a]: 1 })])})`, working: [`HCF: ${mono(g, { [a]: 1, [b]: 1 })}`], space: SPACE_SIZES.SMALL, mcDistractors: [`${mono(g, { [a]: 1 })}(${joinTerms([mono(p, { [b]: 1 }), mono(r, { [a]: 1, [b]: 1 })])})`, `${g}(${joinTerms([mono(p, { [a]: 1, [b]: 1 }), mono(r, { [a]: 2, [b]: 1 })])})`], tags: ["factorise", "HCF"] });
 }
 

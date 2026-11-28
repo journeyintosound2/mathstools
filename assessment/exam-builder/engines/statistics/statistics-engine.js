@@ -350,7 +350,11 @@ window.MMT_STATISTICS_ENGINE = (() => {
     vals.forEach(v => { counts[v] = (counts[v] || 0) + 1; });
     const tallest = Math.max(1, ...Object.values(counts));
     const dot = Math.min(gap * 0.36, 9);
-    const baseY = (c.title ? 40 : 16) + tallest * dot * 2.3 + 10;
+    // A blank plot (students draw the dots) keeps room for one more dot than
+    // the tallest stack, marked by faint guides, so a diagram trimmed to its
+    // ink still has space to draw in.
+    const rows = c.blank ? Math.max(tallest + 1, 4) : tallest;
+    const baseY = (c.title ? 40 : 16) + rows * dot * 2.3 + 10;
     const x0 = 36;
     const g = el("g");
     line(g, x0 - 14, baseY, x0 + (count - 1) * gap + 14, baseY, { width: 2.2 });
@@ -359,6 +363,7 @@ window.MMT_STATISTICS_ENGINE = (() => {
       const x = x0 + i * gap;
       line(g, x, baseY, x, baseY + 7);
       text(g, fmtTick(v), x, baseY + 20, { size: TEXT - 2 });
+      if (c.blank) line(g, x, baseY - 5, x, baseY - dot * 1.25 - (rows - 1) * dot * 2.2 - dot, { stroke: "#cbd5e1", width: 1.2, dash: "1.5 4.5" });
       if (!c.blank) {
         for (let k = 0; k < (counts[v] || 0); k++) {
           g.appendChild(el("circle", { cx: r1(x), cy: r1(baseY - dot * 1.25 - k * dot * 2.2), r: r1(dot), fill: c.hollow ? "#fff" : BAR_EDGE, stroke: BAR_EDGE, "stroke-width": 1.6 }));
@@ -396,6 +401,12 @@ window.MMT_STATISTICS_ENGINE = (() => {
         (r.leaves || []).forEach((lf, k) => text(g, lf, x1 + 12 + k * leafW, y));
         if (b2b) (r.left || []).forEach((lf, k) => text(g, lf, x0 - 12 - k * leafW, y));
       }
+    });
+    // a blank plot gets a faint writing line for each row's leaves
+    if (c.blank) rows.forEach((r, i) => {
+      const y = top + (i + 1) * lh - 5;
+      line(g, x1 + 8, y, x1 + 20 + (maxRight + 1) * leafW, y, { stroke: "#cbd5e1", width: 1.2, dash: "1.5 4.5" });
+      if (b2b) line(g, x0 - 8, y, x0 - 20 - (maxLeft + 1) * leafW, y, { stroke: "#cbd5e1", width: 1.2, dash: "1.5 4.5" });
     });
     line(g, x1, top, x1, top + rows.length * lh, { width: 2.2 });
     if (b2b) line(g, x0, top, x0, top + rows.length * lh, { width: 2.2 });
