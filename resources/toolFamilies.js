@@ -198,6 +198,23 @@ window.MMT_TOOL_FAMILIES = {
 };
 
 window.MMT_WHOLE_TOPIC_QUIZZES = {
+  /* ---- Early Stage 1 (Kindergarten; one level; read aloud, picture answers) ---- */
+  "/online-quizzes/early-stage-1/number/counting.html": "Counting and Seeing How Many",
+  "/online-quizzes/early-stage-1/number/numbers-to-20.html": "Numbers to 20",
+  "/online-quizzes/early-stage-1/number/adding-taking-away.html": "Adding and Taking Away",
+  "/online-quizzes/early-stage-1/number/parts-of-numbers.html": "Parts of Numbers to 10",
+  "/online-quizzes/early-stage-1/number/patterns.html": "Patterns",
+  "/online-quizzes/early-stage-1/number/sharing-equal-groups.html": "Sharing and Equal Groups",
+  "/online-quizzes/early-stage-1/measurement-space/position.html": "Position",
+  "/online-quizzes/early-stage-1/measurement-space/length.html": "Length",
+  "/online-quizzes/early-stage-1/measurement-space/half-a-length.html": "Half a Length",
+  "/online-quizzes/early-stage-1/measurement-space/2d-shapes.html": "2D Shapes",
+  "/online-quizzes/early-stage-1/measurement-space/area.html": "Area",
+  "/online-quizzes/early-stage-1/measurement-space/3d-objects.html": "3D Objects",
+  "/online-quizzes/early-stage-1/measurement-space/volume.html": "Volume and Capacity",
+  "/online-quizzes/early-stage-1/measurement-space/mass.html": "Mass",
+  "/online-quizzes/early-stage-1/measurement-space/time.html": "Time",
+  "/online-quizzes/early-stage-1/statistics-probability/data.html": "Data",
   /* ---- Stage 1 and Stage 2 (levels are the syllabus parts; read aloud) ---- */
   "/online-quizzes/stage-1/number/reading-ordering-numbers.html": "Reading and Ordering Numbers",
   "/online-quizzes/stage-1/number/partitioning-numbers.html": "Partitioning Numbers",
@@ -319,6 +336,23 @@ window.MMT_WHOLE_TOPIC_QUIZZES = {
 };
 
 window.MMT_WHOLE_TOPIC_WORKSHEETS = {
+  /* ---- Early Stage 1 (Kindergarten; very large print; the quiz's own questions) ---- */
+  "/worksheet-creators/early-stage-1/number/counting/": "Counting and Seeing How Many",
+  "/worksheet-creators/early-stage-1/number/numbers-to-20/": "Numbers to 20",
+  "/worksheet-creators/early-stage-1/number/adding-taking-away/": "Adding and Taking Away",
+  "/worksheet-creators/early-stage-1/number/parts-of-numbers/": "Parts of Numbers to 10",
+  "/worksheet-creators/early-stage-1/number/patterns/": "Patterns",
+  "/worksheet-creators/early-stage-1/number/sharing-equal-groups/": "Sharing and Equal Groups",
+  "/worksheet-creators/early-stage-1/measurement-space/position/": "Position",
+  "/worksheet-creators/early-stage-1/measurement-space/length/": "Length",
+  "/worksheet-creators/early-stage-1/measurement-space/half-a-length/": "Half a Length",
+  "/worksheet-creators/early-stage-1/measurement-space/2d-shapes/": "2D Shapes",
+  "/worksheet-creators/early-stage-1/measurement-space/area/": "Area",
+  "/worksheet-creators/early-stage-1/measurement-space/3d-objects/": "3D Objects",
+  "/worksheet-creators/early-stage-1/measurement-space/volume/": "Volume and Capacity",
+  "/worksheet-creators/early-stage-1/measurement-space/mass/": "Mass",
+  "/worksheet-creators/early-stage-1/measurement-space/time/": "Time",
+  "/worksheet-creators/early-stage-1/statistics-probability/data/": "Data",
   /* ---- Stage 1 and Stage 2 (levels are the syllabus parts; large print) ---- */
   "/worksheet-creators/stage-1/number/reading-ordering-numbers/": "Reading and Ordering Numbers",
   "/worksheet-creators/stage-1/number/partitioning-numbers/": "Partitioning Numbers",

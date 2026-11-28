@@ -56,7 +56,7 @@ async def main(slug, shots, N):
               if (!strip(a).trim()) { bad.push(t.id + ' empty answer: ' + strip(q.prompt).slice(0, 80)); break; }
               if (RX.test(txt.replace(/(?:\\b(?:zero or|is|are|or|gradient|slope)|=)\\s+undefined\\b/gi, '').replace(/\\bUndefined\\b/g, ''))) { bad.push(t.id + ' bad text: ' + txt.slice(0, 200)); break; }
               if (q.mode === 'mc' && (q.correct == null || !q.options || q.correct >= q.options.length)) { bad.push(t.id + ' mc without a correct option'); break; }
-              if (q.mode === 'mc' && new Set(q.options.map(strip)).size !== q.options.length) { bad.push(t.id + ' duplicate mc options: ' + q.options.map(strip).join(' | ')); break; }
+              if (q.mode === 'mc' && new Set(q.options.map(o => strip(o).trim() || o)).size !== q.options.length) { bad.push(t.id + ' duplicate mc options: ' + q.options.map(strip).join(' | ')); break; }
             }
           }
           return bad; }''', N)

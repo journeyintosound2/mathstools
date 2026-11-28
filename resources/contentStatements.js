@@ -2,7 +2,7 @@
    Mills Maths Tools — Resources by Stage : CONTENT STATEMENTS ("ideas")
    ----------------------------------------------------------------------------
    The content statements of the NSW Mathematics K–10 Syllabus (2022) for every
-   Stage 1, 2, 3, 4 and 5 outcome on the Resources by Stage page. On the page each
+   Early Stage 1 (Kindergarten) and Stage 1 to 5 outcome on the Resources by Stage page. On the page each
    statement is an "idea": click it and the resources filed under it open.
 
    WORDING: verbatim from NESA's own "Record of learning and achievement using
@@ -52,6 +52,67 @@ window.MMT_CONTENT = {
   },
 
   statements: {
+
+    /* ======================= EARLY STAGE 1 (Kindergarten) =======================
+       No parts (one year). "Recognise number patterns" is a content group of the syllabus that the
+       ES1 Record of learning document leaves out; it is listed here from the syllabus. */
+
+    "MAE-RWN-01": [
+      { id:"instantly-name", text:"Instantly name the number of objects within small collections" },
+      { id:"number-patterns", text:"Recognise number patterns" },
+      { id:"counting-sequence", text:"Use the counting sequence of ones flexibly" }
+    ],
+    "MAE-RWN-02": [
+      { id:"connect-counting-numerals", text:"Connect counting and numerals to quantities" }
+    ],
+    "MAE-CSQ-01": [
+      { id:"additive-relations", text:"Model additive relations and compare quantities" }
+    ],
+    "MAE-CSQ-02": [
+      { id:"part-whole-10", text:"Identify part–whole relationships in numbers up to 10" }
+    ],
+    "MAE-FG-01": [
+      { id:"patterns", text:"Copy, continue and create patterns" }
+    ],
+    "MAE-FG-02": [
+      { id:"equal-groups-sharing", text:"Investigate and form equal groups by sharing" },
+      { id:"record-grouping-sharing", text:"Record grouping and sharing" }
+    ],
+    "MAE-GM-01": [
+      { id:"position", group:"Position", text:"Describe position and movement of oneself" }
+    ],
+    "MAE-GM-02": [
+      { id:"length-compare", group:"Length", text:"Use direct and indirect comparisons to decide which is longer" }
+    ],
+    "MAE-GM-03": [
+      { id:"half-a-length", group:"Length", text:"Create half a length" }
+    ],
+    "MAE-2DS-01": [
+      { id:"sort-describe-name", group:"2D shapes", text:"Sort, describe and name familiar shapes" },
+      { id:"represent-shapes", group:"2D shapes", text:"Represent shapes" }
+    ],
+    "MAE-2DS-02": [
+      { id:"area", group:"Area", text:"Identify and compare area" }
+    ],
+    "MAE-3DS-01": [
+      { id:"explore-3d", group:"3D objects", text:"Explore familiar three-dimensional objects" }
+    ],
+    "MAE-3DS-02": [
+      { id:"filling-packing", group:"Volume", text:"Compare internal volume by filling and packing" },
+      { id:"volume-building", group:"Volume", text:"Compare volume by building" }
+    ],
+    "MAE-NSM-01": [
+      { id:"mass", group:"Mass", text:"Identify and compare mass using weight" }
+    ],
+    "MAE-NSM-02": [
+      { id:"duration", group:"Time", text:"Compare and order the duration of events using the language of time" },
+      { id:"days-of-week", group:"Time", text:"Connect days of the week to familiar events and actions" },
+      { id:"hour-time", group:"Time", text:"Tell time on the hour on analog and digital clocks" }
+    ],
+    "MAE-DATA-01": [
+      { id:"respond-collect", text:"Respond to questions, collect information and discuss possible outcomes of activities" },
+      { id:"organise-displays", text:"Organise objects into simple data displays and interpret the displays" }
+    ],
 
     /* ======================= STAGE 1 ======================= */
 

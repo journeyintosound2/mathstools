@@ -671,9 +671,9 @@ import { mountSchoolPicker, loadSchools } from "../shared/schoolPicker.js";
 import { ADVENTURE_NPCS, getStageTopics } from "../shared/adventureManifest.js";
 import { collection, query, where, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 // Chart.js is loaded as a classic global script in <head>; referenced as `Chart`.
-import { getEnabledTools, getAllTools } from "../shared/mmtToolRegistry.js?v=6e4f2e37";
-import { normaliseAchievement, summarise, rollupByStudent, toCSV, summaryText, partialLabel } from "../shared/resultUtils.js?v=7dceaf24";
-import { recordFitsTask } from "../shared/quizInsights.js?v=3117ec7e";
+import { getEnabledTools, getAllTools } from "../shared/mmtToolRegistry.js?v=4dbdc037";
+import { normaliseAchievement, summarise, rollupByStudent, toCSV, summaryText, partialLabel } from "../shared/resultUtils.js?v=63ef6fe1";
+import { recordFitsTask } from "../shared/quizInsights.js?v=b684aba5";
 
 const $ = (id)=>document.getElementById(id);
 let teacher=null, students=[], all=[], attemptsByCode=new Map();
@@ -1135,7 +1135,7 @@ const TOPIC_AREA_ORDER = ["Integers","Fractions, Decimals & Percentages","Number
 function topicAreaFor(t){ const id=(t.topics&&t.topics[0])||""; return TOPIC_AREA_NAME[id] || "Other"; }
 const FALLBACK_STRAND = { "measurement-space":"measurement-space", pythagoras:"measurement-space", area:"measurement-space", "statistics-probability":"statistics-probability" };
 const STRAND_COLOUR = { "number-algebra":"", "measurement-space":"teal", "statistics-probability":"purple" };
-const STAGE_YEARS = { "Stage 1":"Years 1–2", "Stage 2":"Years 3–4", "Stage 3":"Years 5–6", "Stage 4":"Years 7–8", "Stage 5":"Years 9–10", "Stage 6":"Years 11–12" };
+const STAGE_YEARS = { "Early Stage 1":"Kindergarten", "Stage 1":"Years 1–2", "Stage 2":"Years 3–4", "Stage 3":"Years 5–6", "Stage 4":"Years 7–8", "Stage 5":"Years 9–10", "Stage 6":"Years 11–12" };
 // These tabs always show, even with no quizzes yet, so a teacher can see where
 // Stage 5 will be. Any other stage gets a tab once it has a quiz.
 const STAGE_TABS_ALWAYS = ["Stage 3","Stage 4","Stage 5"];
@@ -1265,6 +1265,23 @@ const BUILDER_QUIZZES = [
   {toolId:"s1-data-collecting-quiz", title:"Collecting Data", launchUrl:"/online-quizzes/stage-1/statistics-probability/data-collecting.html", builderUrl:"/online-quizzes/stage-1/statistics-probability/data-collecting.html?builder=1"},
   {toolId:"s1-data-interpreting-quiz", title:"Reading Graphs and Tables", launchUrl:"/online-quizzes/stage-1/statistics-probability/data-interpreting.html", builderUrl:"/online-quizzes/stage-1/statistics-probability/data-interpreting.html?builder=1"},
   {toolId:"s1-chance-quiz", title:"Chance", launchUrl:"/online-quizzes/stage-1/statistics-probability/chance.html", builderUrl:"/online-quizzes/stage-1/statistics-probability/chance.html?builder=1"},
+  // Early Stage 1 (Kindergarten) whole-topic quizzes (2026-11-28): same engine, questions from online-quizzes/early-stage-1/topic-quiz/k.js. One level (k).
+  {toolId:"es1-counting-quiz", title:"Counting and Seeing How Many", launchUrl:"/online-quizzes/early-stage-1/number/counting.html", builderUrl:"/online-quizzes/early-stage-1/number/counting.html?builder=1"},
+  {toolId:"es1-numbers-to-20-quiz", title:"Numbers to 20", launchUrl:"/online-quizzes/early-stage-1/number/numbers-to-20.html", builderUrl:"/online-quizzes/early-stage-1/number/numbers-to-20.html?builder=1"},
+  {toolId:"es1-adding-taking-away-quiz", title:"Adding and Taking Away", launchUrl:"/online-quizzes/early-stage-1/number/adding-taking-away.html", builderUrl:"/online-quizzes/early-stage-1/number/adding-taking-away.html?builder=1"},
+  {toolId:"es1-parts-of-numbers-quiz", title:"Parts of Numbers to 10", launchUrl:"/online-quizzes/early-stage-1/number/parts-of-numbers.html", builderUrl:"/online-quizzes/early-stage-1/number/parts-of-numbers.html?builder=1"},
+  {toolId:"es1-patterns-quiz", title:"Patterns", launchUrl:"/online-quizzes/early-stage-1/number/patterns.html", builderUrl:"/online-quizzes/early-stage-1/number/patterns.html?builder=1"},
+  {toolId:"es1-sharing-equal-groups-quiz", title:"Sharing and Equal Groups", launchUrl:"/online-quizzes/early-stage-1/number/sharing-equal-groups.html", builderUrl:"/online-quizzes/early-stage-1/number/sharing-equal-groups.html?builder=1"},
+  {toolId:"es1-position-quiz", title:"Position", launchUrl:"/online-quizzes/early-stage-1/measurement-space/position.html", builderUrl:"/online-quizzes/early-stage-1/measurement-space/position.html?builder=1"},
+  {toolId:"es1-length-quiz", title:"Length", launchUrl:"/online-quizzes/early-stage-1/measurement-space/length.html", builderUrl:"/online-quizzes/early-stage-1/measurement-space/length.html?builder=1"},
+  {toolId:"es1-half-a-length-quiz", title:"Half a Length", launchUrl:"/online-quizzes/early-stage-1/measurement-space/half-a-length.html", builderUrl:"/online-quizzes/early-stage-1/measurement-space/half-a-length.html?builder=1"},
+  {toolId:"es1-2d-shapes-quiz", title:"2D Shapes", launchUrl:"/online-quizzes/early-stage-1/measurement-space/2d-shapes.html", builderUrl:"/online-quizzes/early-stage-1/measurement-space/2d-shapes.html?builder=1"},
+  {toolId:"es1-area-quiz", title:"Area", launchUrl:"/online-quizzes/early-stage-1/measurement-space/area.html", builderUrl:"/online-quizzes/early-stage-1/measurement-space/area.html?builder=1"},
+  {toolId:"es1-3d-objects-quiz", title:"3D Objects", launchUrl:"/online-quizzes/early-stage-1/measurement-space/3d-objects.html", builderUrl:"/online-quizzes/early-stage-1/measurement-space/3d-objects.html?builder=1"},
+  {toolId:"es1-volume-quiz", title:"Volume and Capacity", launchUrl:"/online-quizzes/early-stage-1/measurement-space/volume.html", builderUrl:"/online-quizzes/early-stage-1/measurement-space/volume.html?builder=1"},
+  {toolId:"es1-mass-quiz", title:"Mass", launchUrl:"/online-quizzes/early-stage-1/measurement-space/mass.html", builderUrl:"/online-quizzes/early-stage-1/measurement-space/mass.html?builder=1"},
+  {toolId:"es1-time-quiz", title:"Time", launchUrl:"/online-quizzes/early-stage-1/measurement-space/time.html", builderUrl:"/online-quizzes/early-stage-1/measurement-space/time.html?builder=1"},
+  {toolId:"es1-data-quiz", title:"Data", launchUrl:"/online-quizzes/early-stage-1/statistics-probability/data.html", builderUrl:"/online-quizzes/early-stage-1/statistics-probability/data.html?builder=1"},
 ];
 const BUILDER_IDS = new Set(BUILDER_QUIZZES.map(q=>q.toolId));
 
@@ -1275,8 +1292,8 @@ function loadSyllabus(){
   if(window.MMT_RESOURCES && window.MMT_TOOL_LINKS) return Promise.resolve(true);
   if(!syllabusP){
     const load=Promise.all([
-      window.MMT_RESOURCES ? null : loadScriptOnce(new URL("../../resources/resourcesManifest.js?v=a1305e32", location.href).href),
-      window.MMT_TOOL_LINKS ? null : loadScriptOnce(new URL("../../resources/toolLinks.js?v=abea4cc7", location.href).href),
+      window.MMT_RESOURCES ? null : loadScriptOnce(new URL("../../resources/resourcesManifest.js?v=57ce8ffc", location.href).href),
+      window.MMT_TOOL_LINKS ? null : loadScriptOnce(new URL("../../resources/toolLinks.js?v=c0c3c84e", location.href).href),
     ]).then(()=>true, ()=>{ syllabusP=null; return false; });
     syllabusP=Promise.race([load, new Promise(r=>setTimeout(()=>r(false), 5000))]);
   }
@@ -1297,7 +1314,7 @@ function cleanNote(n){
     .replace(/Sub-topic quiz links can be built from this page\.?/gi,"")
     .replace(/\s{2,}/g," ").trim();
 }
-function stageNum(s){ const m=/(\d+)/.exec(s||""); return m?Number(m[1]):99; }
+function stageNum(s){ if(/^early/i.test(s||"")) return 0; const m=/(\d+)/.exec(s||""); return m?Number(m[1]):99; }
 
 function buildCatalogue(){
   const R=window.MMT_RESOURCES, L=window.MMT_TOOL_LINKS;
@@ -1306,7 +1323,7 @@ function buildCatalogue(){
   if(!strandOrder.length){ strandOrder.push("number-algebra","measurement-space","statistics-probability"); Object.assign(strandName,{"number-algebra":"Number and Algebra","measurement-space":"Measurement and Space","statistics-probability":"Statistics and Probability"}); }
   const outcome={}, topics={};
   if(R) Object.keys(R).filter(k=>/^stage\d+$/.test(k)).forEach(k=>{
-    const stage="Stage "+k.slice(5);
+    const stage=k==="stage0"?"Early Stage 1":"Stage "+k.slice(5);   // stage0 = Early Stage 1 (Kindergarten)
     (R[k]||[]).forEach((tp,i)=>{
       const key=stage+"|"+tp.slug;
       topics[key]={ key, stage, name:tp.name, icon:tp.icon||"", strand:tp.strand||"number-algebra", order:i, quizzes:[] };
@@ -2647,7 +2664,7 @@ function openStudent(code, opts){
 // module can't load, the classic page below still opens.
 async function openResults(){
   try{
-    const m = await import("./analytics.js?v=b932573d");
+    const m = await import("./analytics.js?v=f48735b9");
     m.openAnalytics({
       get all(){ return all; }, get students(){ return students; }, get classes(){ return classes; },
       get dashAssignments(){ return dashAssignments; }, get teacher(){ return teacher; },

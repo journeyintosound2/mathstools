@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <title>Resources by Stage · Mills Maths Tools</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Teaching and revision resources organised by the NSW Mathematics K–10 Syllabus (2022) — every Stage 1 to 5 outcome broken into its content statements, each with the tools, quizzes, worksheets and files that teach it." />
+  <meta name="description" content="Teaching and revision resources organised by the NSW Mathematics K–10 Syllabus (2022) — every outcome from Kindergarten to Year 10 broken into its content statements, each with the tools, quizzes, worksheets and files that teach it." />
 
   <style>
     :root{
@@ -446,8 +446,9 @@
   <section class="card hero">
     <span class="eyebrow">📚 Resource library</span>
     <h1>Resources by Stage</h1>
-    <p>Every Stage 1 to Stage 5 outcome (Years 1–10) from the NSW Mathematics K–10 Syllabus (2022), broken into its <strong>content statements</strong>. Open a topic, then click a content statement to see the tools, quizzes, worksheets and files that teach that idea. Use <strong>Show</strong> to list one kind of resource across the whole stage.</p>
+    <p>Every outcome from Early Stage 1 (Kindergarten) to Stage 5 (Year 10) of the NSW Mathematics K–10 Syllabus (2022), broken into its <strong>content statements</strong>. Open a topic, then click a content statement to see the tools, quizzes, worksheets and files that teach that idea. Use <strong>Show</strong> to list one kind of resource across the whole stage.</p>
     <div class="hero-meta">
+      <span class="chip" id="s0Chip">🎯 Early Stage 1</span>
       <span class="chip" id="s1Chip">🎯 Stage 1</span>
       <span class="chip" id="s2Chip">🎯 Stage 2</span>
       <span class="chip" id="s3Chip">🎯 Stage 3</span>
@@ -461,6 +462,7 @@
 
   <section class="card controls" aria-label="Filter resources">
     <div class="stage-tabs" role="tablist" aria-label="Choose stage">
+      <button role="tab" id="tab-stage0" aria-selected="false" data-stage="stage0">Early Stage 1 · Kindergarten</button>
       <button role="tab" id="tab-stage1" aria-selected="false" data-stage="stage1">Stage 1 · Years 1–2</button>
       <button role="tab" id="tab-stage2" aria-selected="false" data-stage="stage2">Stage 2 · Years 3–4</button>
       <button role="tab" id="tab-stage3" aria-selected="false" data-stage="stage3">Stage 3 · Years 5–6</button>
@@ -497,15 +499,15 @@
     Stage 4 and Stage 5 outcomes keep their own <span class="badge core">Core</span> or <span class="badge path">Path</span> badge,
     with NESA's pathway note (Stn = Standard, Adv = Advanced, Ext = Extension).
     Stages 1, 2 and 3 carry no badge — Part A and Part B are an earlier-year / later-year emphasis of the <em>same</em> outcomes, and K–6 has no Core/Path distinction; the small <span class="idea-part" style="display:inline-grid;vertical-align:middle">A</span> or <span class="idea-part" style="display:inline-grid;vertical-align:middle">B</span> beside a Stage 1, 2 or 3 content statement says which part it comes from. Teaching an older class? Open an earlier stage's tab to find the same idea at a lower level for students who need it.
-    <br><br>The content statements are NESA's, word for word, as listed in its <em>Record of learning and achievement using syllabus content</em> documents for Stages 1–5. Where a Stage 1, 2 or 3 focus area lists several outcomes together, each statement sits under the outcome it serves. A resource that spans a whole outcome rather than one idea is listed under <em>Across the whole outcome</em>. Use <strong>Copy link to this idea</strong> to point a program or a Classroom post straight at one content statement.
+    <br><br>The content statements are NESA's, word for word, as listed in its <em>Record of learning and achievement using syllabus content</em> documents for Early Stage 1 to Stage 5. Where a Stage 1, 2 or 3 focus area lists several outcomes together, each statement sits under the outcome it serves. A resource that spans a whole outcome rather than one idea is listed under <em>Across the whole outcome</em>. Use <strong>Copy link to this idea</strong> to point a program or a Classroom post straight at one content statement.
   </section>
 
 </main>
 
-<script src="resourcesManifest.js?v=a1305e32"></script>
-<script src="toolLinks.js?v=abea4cc7"></script>
-<script src="toolFamilies.js?v=40974d53"></script>
-<script src="contentStatements.js?v=6e5b1225"></script>
+<script src="resourcesManifest.js?v=57ce8ffc"></script>
+<script src="toolLinks.js?v=c0c3c84e"></script>
+<script src="toolFamilies.js?v=cd18a538"></script>
+<script src="contentStatements.js?v=df0ed01c"></script>
 <script>
 (function(){
   "use strict";
@@ -529,7 +531,7 @@
   var countEl = document.getElementById('resultCount');
   var typeWrap = document.getElementById('typeFilter');
 
-  var STAGES = ['stage1','stage2','stage3','stage4','stage5'];
+  var STAGES = ['stage0','stage1','stage2','stage3','stage4','stage5'];   /* stage0 = Early Stage 1 (Kindergarten) */
   /* openIdea: "MA4-INT-C-01/four-operations" — forced open by a deep link */
   var state = { stage:'stage4', q:'', path:null, hasOnly:false, type:null, openIdea:null };
 
@@ -959,7 +961,7 @@
 
   /* Core/Path is a Stage 4–5 concept only — hide those pills on Stage 3. */
   function syncPathPills(){
-    var isS3 = /^stage[123]$/.test(state.stage);   /* K–6: no Core/Path */
+    var isS3 = /^stage[0123]$/.test(state.stage);   /* K–6: no Core/Path */
     pills.forEach(function(p){
       if(!p.dataset.path) return;
       p.hidden = isS3;
@@ -1133,10 +1135,12 @@
     var h = decodeURIComponent((location.hash || '').replace('#',''));
     if(!h) return;
 
-    var m = h.match(/^stage-?([12345])$/i);
+    if(/^(early-stage-1|es1|kindergarten)$/i.test(h)) h = 'stage-0';
+    var m = h.match(/^stage-?([012345])$/i);
     if(m){ state.openIdea = null; state.q = ''; search.value = ''; selectStage('stage' + m[1]); render(true); return; }
 
-    m = h.match(/^(MA([12345])(?:-[A-Z0-9]+)+?)(?:\/([a-z0-9-]+))?$/i);
+    m = h.match(/^(MA([E12345])(?:-[A-Z0-9]+)+?)(?:\/([a-z0-9-]+))?$/i);
+    if(m && /e/i.test(m[2])) m[2] = '0';   /* MAE-… = Early Stage 1 */
     if(!m) return;
     var code = m[1].toUpperCase();
     selectStage('stage' + m[2], { hash:false });
@@ -1160,6 +1164,7 @@
     var oc = ts.reduce(function(n,t){ return n + t.outcomes.length; }, 0);
     return ts.length + ' topics · ' + oc + ' outcomes · ' + statementCount(stage) + ' content statements';
   }
+  document.getElementById('s0Chip').textContent = '🎯 Early Stage 1 · ' + stageSummary('stage0');
   document.getElementById('s1Chip').textContent = '🎯 Stage 1 · ' + stageSummary('stage1');
   document.getElementById('s2Chip').textContent = '🎯 Stage 2 · ' + stageSummary('stage2');
   document.getElementById('s3Chip').textContent = '🎯 Stage 3 · ' + stageSummary('stage3');

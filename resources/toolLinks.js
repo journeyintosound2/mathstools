@@ -29,6 +29,279 @@
    ========================================================================== */
 
 window.MMT_TOOL_LINKS = {
+  /* ---------------- EARLY STAGE 1 (Kindergarten) ---------------- */
+  "MAE-RWN-01": [
+    {
+      title: "Counting and Seeing How Many",
+      kind: "Student quiz",
+      url: "/online-quizzes/early-stage-1/number/counting.html",
+      ideas: ["instantly-name", "number-patterns", "counting-sequence"],
+      note: "Whole-topic quiz for Kindergarten: Seeing how many without counting, dice and ten-frame patterns, and the number before, after and missing. Every question is read aloud by itself, answers are pictures to tap or a number on a number pad, and a missed question gets a second go. Question types can be chosen. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "early stage 1", "kindergarten", "read aloud", "counting and seeing how many"]
+    },
+    {
+      title: "Counting and Seeing How Many — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/early-stage-1/number/counting/",
+      note: "Printable whole-topic worksheet for Kindergarten: Seeing how many without counting, dice and ten-frame patterns, and the number before, after and missing. Very large print, a picture in every question, answers to circle or a number to write, and drawing questions. The same questions as the quiz, with an answer key.",
+      tags: ["worksheet generator", "printable", "whole topic", "large print", "early stage 1", "kindergarten", "counting and seeing how many"]
+    }
+  ],
+  "MAE-RWN-02": [
+    {
+      title: "Numbers to 20",
+      kind: "Student quiz",
+      url: "/online-quizzes/early-stage-1/number/numbers-to-20.html",
+      ideas: ["connect-counting-numerals"],
+      note: "Whole-topic quiz for Kindergarten: Counting collections to 20, matching numbers to collections, zero, teen numbers, and more, fewer, biggest and smallest. Every question is read aloud by itself, answers are pictures to tap or a number on a number pad, and a missed question gets a second go. Question types can be chosen. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "early stage 1", "kindergarten", "read aloud", "numbers to 20"]
+    },
+    {
+      title: "Numbers to 20 — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/early-stage-1/number/numbers-to-20/",
+      note: "Printable whole-topic worksheet for Kindergarten: Counting collections to 20, matching numbers to collections, zero, teen numbers, and more, fewer, biggest and smallest. Very large print, a picture in every question, answers to circle or a number to write, and drawing questions. The same questions as the quiz, with an answer key.",
+      tags: ["worksheet generator", "printable", "whole topic", "large print", "early stage 1", "kindergarten", "numbers to 20"]
+    }
+  ],
+  "MAE-CSQ-01": [
+    {
+      title: "Adding and Taking Away",
+      kind: "Student quiz",
+      url: "/online-quizzes/early-stage-1/number/adding-taking-away.html",
+      ideas: ["additive-relations"],
+      note: "Whole-topic quiz for Kindergarten: Putting two groups together, taking away, one more and one less, and comparing two groups. Every question is read aloud by itself, answers are pictures to tap or a number on a number pad, and a missed question gets a second go. Question types can be chosen. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "early stage 1", "kindergarten", "read aloud", "adding and taking away"]
+    },
+    {
+      title: "Adding and Taking Away — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/early-stage-1/number/adding-taking-away/",
+      note: "Printable whole-topic worksheet for Kindergarten: Putting two groups together, taking away, one more and one less, and comparing two groups. Very large print, a picture in every question, answers to circle or a number to write, and drawing questions. The same questions as the quiz, with an answer key.",
+      tags: ["worksheet generator", "printable", "whole topic", "large print", "early stage 1", "kindergarten", "adding and taking away"]
+    }
+  ],
+  "MAE-CSQ-02": [
+    {
+      title: "Parts of Numbers to 10",
+      kind: "Student quiz",
+      url: "/online-quizzes/early-stage-1/number/parts-of-numbers.html",
+      ideas: ["part-whole-10"],
+      note: "Whole-topic quiz for Kindergarten: Making 5 and 10, the two parts of a number, and how many are hiding. Every question is read aloud by itself, answers are pictures to tap or a number on a number pad, and a missed question gets a second go. Question types can be chosen. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "early stage 1", "kindergarten", "read aloud", "parts of numbers to 10"]
+    },
+    {
+      title: "Parts of Numbers to 10 — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/early-stage-1/number/parts-of-numbers/",
+      note: "Printable whole-topic worksheet for Kindergarten: Making 5 and 10, the two parts of a number, and how many are hiding. Very large print, a picture in every question, answers to circle or a number to write, and drawing questions. The same questions as the quiz, with an answer key.",
+      tags: ["worksheet generator", "printable", "whole topic", "large print", "early stage 1", "kindergarten", "parts of numbers to 10"]
+    }
+  ],
+  "MAE-FG-01": [
+    {
+      title: "Patterns",
+      kind: "Student quiz",
+      url: "/online-quizzes/early-stage-1/number/patterns.html",
+      ideas: ["patterns"],
+      note: "Whole-topic quiz for Kindergarten: What comes next, what is missing, which row repeats, and which part repeats. Every question is read aloud by itself, answers are pictures to tap or a number on a number pad, and a missed question gets a second go. Question types can be chosen. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "early stage 1", "kindergarten", "read aloud", "patterns"]
+    },
+    {
+      title: "Patterns — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/early-stage-1/number/patterns/",
+      note: "Printable whole-topic worksheet for Kindergarten: What comes next, what is missing, which row repeats, and which part repeats. Very large print, a picture in every question, answers to circle or a number to write, and drawing questions. The same questions as the quiz, with an answer key.",
+      tags: ["worksheet generator", "printable", "whole topic", "large print", "early stage 1", "kindergarten", "patterns"]
+    }
+  ],
+  "MAE-FG-02": [
+    {
+      title: "Sharing and Equal Groups",
+      kind: "Student quiz",
+      url: "/online-quizzes/early-stage-1/number/sharing-equal-groups.html",
+      ideas: ["equal-groups-sharing", "record-grouping-sharing"],
+      note: "Whole-topic quiz for Kindergarten: Equal or not equal, sharing onto plates, fair shares, and counting groups. Every question is read aloud by itself, answers are pictures to tap or a number on a number pad, and a missed question gets a second go. Question types can be chosen. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "early stage 1", "kindergarten", "read aloud", "sharing and equal groups"]
+    },
+    {
+      title: "Sharing and Equal Groups — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/early-stage-1/number/sharing-equal-groups/",
+      note: "Printable whole-topic worksheet for Kindergarten: Equal or not equal, sharing onto plates, fair shares, and counting groups. Very large print, a picture in every question, answers to circle or a number to write, and drawing questions. The same questions as the quiz, with an answer key.",
+      tags: ["worksheet generator", "printable", "whole topic", "large print", "early stage 1", "kindergarten", "sharing and equal groups"]
+    }
+  ],
+  "MAE-GM-01": [
+    {
+      title: "Position",
+      kind: "Student quiz",
+      url: "/online-quizzes/early-stage-1/measurement-space/position.html",
+      ideas: ["position"],
+      note: "Whole-topic quiz for Kindergarten: On, under and next to, between, left and right, front and back, and following steps. Every question is read aloud by itself, answers are pictures to tap or a number on a number pad, and a missed question gets a second go. Question types can be chosen. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "early stage 1", "kindergarten", "read aloud", "position"]
+    },
+    {
+      title: "Position — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/early-stage-1/measurement-space/position/",
+      note: "Printable whole-topic worksheet for Kindergarten: On, under and next to, between, left and right, front and back, and following steps. Very large print, a picture in every question, answers to circle or a number to write, and drawing questions. The same questions as the quiz, with an answer key.",
+      tags: ["worksheet generator", "printable", "whole topic", "large print", "early stage 1", "kindergarten", "position"]
+    }
+  ],
+  "MAE-GM-02": [
+    {
+      title: "Length",
+      kind: "Student quiz",
+      url: "/online-quizzes/early-stage-1/measurement-space/length.html",
+      ideas: ["length-compare"],
+      note: "Whole-topic quiz for Kindergarten: Longer and shorter, longest and shortest, taller, the same length, and comparing with a string. Every question is read aloud by itself, answers are pictures to tap or a number on a number pad, and a missed question gets a second go. Question types can be chosen. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "early stage 1", "kindergarten", "read aloud", "length"]
+    },
+    {
+      title: "Length — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/early-stage-1/measurement-space/length/",
+      note: "Printable whole-topic worksheet for Kindergarten: Longer and shorter, longest and shortest, taller, the same length, and comparing with a string. Very large print, a picture in every question, answers to circle or a number to write, and drawing questions. The same questions as the quiz, with an answer key.",
+      tags: ["worksheet generator", "printable", "whole topic", "large print", "early stage 1", "kindergarten", "length"]
+    }
+  ],
+  "MAE-GM-03": [
+    {
+      title: "Half a Length",
+      kind: "Student quiz",
+      url: "/online-quizzes/early-stage-1/measurement-space/half-a-length.html",
+      ideas: ["half-a-length"],
+      note: "Whole-topic quiz for Kindergarten: Ribbons cut in half, the halfway mark, and half of a tower. Every question is read aloud by itself, answers are pictures to tap or a number on a number pad, and a missed question gets a second go. Question types can be chosen. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "early stage 1", "kindergarten", "read aloud", "half a length"]
+    },
+    {
+      title: "Half a Length — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/early-stage-1/measurement-space/half-a-length/",
+      note: "Printable whole-topic worksheet for Kindergarten: Ribbons cut in half, the halfway mark, and half of a tower. Very large print, a picture in every question, answers to circle or a number to write, and drawing questions. The same questions as the quiz, with an answer key.",
+      tags: ["worksheet generator", "printable", "whole topic", "large print", "early stage 1", "kindergarten", "half a length"]
+    }
+  ],
+  "MAE-2DS-01": [
+    {
+      title: "2D Shapes",
+      kind: "Student quiz",
+      url: "/online-quizzes/early-stage-1/measurement-space/2d-shapes.html",
+      ideas: ["sort-describe-name", "represent-shapes"],
+      note: "Whole-topic quiz for Kindergarten: Naming and finding circles, squares, triangles and rectangles, sides and corners, sorting, and shapes in everyday things. Every question is read aloud by itself, answers are pictures to tap or a number on a number pad, and a missed question gets a second go. Question types can be chosen. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "early stage 1", "kindergarten", "read aloud", "2d shapes"]
+    },
+    {
+      title: "2D Shapes — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/early-stage-1/measurement-space/2d-shapes/",
+      note: "Printable whole-topic worksheet for Kindergarten: Naming and finding circles, squares, triangles and rectangles, sides and corners, sorting, and shapes in everyday things. Very large print, a picture in every question, answers to circle or a number to write, and drawing questions. The same questions as the quiz, with an answer key.",
+      tags: ["worksheet generator", "printable", "whole topic", "large print", "early stage 1", "kindergarten", "2d shapes"]
+    }
+  ],
+  "MAE-2DS-02": [
+    {
+      title: "Area",
+      kind: "Student quiz",
+      url: "/online-quizzes/early-stage-1/measurement-space/area.html",
+      ideas: ["area"],
+      note: "Whole-topic quiz for Kindergarten: Bigger and smaller shapes, biggest and smallest, and putting one shape on top of another. Every question is read aloud by itself, answers are pictures to tap or a number on a number pad, and a missed question gets a second go. Question types can be chosen. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "early stage 1", "kindergarten", "read aloud", "area"]
+    },
+    {
+      title: "Area — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/early-stage-1/measurement-space/area/",
+      note: "Printable whole-topic worksheet for Kindergarten: Bigger and smaller shapes, biggest and smallest, and putting one shape on top of another. Very large print, a picture in every question, answers to circle or a number to write, and drawing questions. The same questions as the quiz, with an answer key.",
+      tags: ["worksheet generator", "printable", "whole topic", "large print", "early stage 1", "kindergarten", "area"]
+    }
+  ],
+  "MAE-3DS-01": [
+    {
+      title: "3D Objects",
+      kind: "Student quiz",
+      url: "/online-quizzes/early-stage-1/measurement-space/3d-objects.html",
+      ideas: ["explore-3d"],
+      note: "Whole-topic quiz for Kindergarten: Objects that roll or stack, flat and curved, matching everyday objects, and sorting. Every question is read aloud by itself, answers are pictures to tap or a number on a number pad, and a missed question gets a second go. Question types can be chosen. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "early stage 1", "kindergarten", "read aloud", "3d objects"]
+    },
+    {
+      title: "3D Objects — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/early-stage-1/measurement-space/3d-objects/",
+      note: "Printable whole-topic worksheet for Kindergarten: Objects that roll or stack, flat and curved, matching everyday objects, and sorting. Very large print, a picture in every question, answers to circle or a number to write, and drawing questions. The same questions as the quiz, with an answer key.",
+      tags: ["worksheet generator", "printable", "whole topic", "large print", "early stage 1", "kindergarten", "3d objects"]
+    }
+  ],
+  "MAE-3DS-02": [
+    {
+      title: "Volume and Capacity",
+      kind: "Student quiz",
+      url: "/online-quizzes/early-stage-1/measurement-space/volume.html",
+      ideas: ["filling-packing", "volume-building"],
+      note: "Whole-topic quiz for Kindergarten: Which holds more, full, half full and empty, packing a box, and counting and comparing blocks. Every question is read aloud by itself, answers are pictures to tap or a number on a number pad, and a missed question gets a second go. Question types can be chosen. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "early stage 1", "kindergarten", "read aloud", "volume and capacity"]
+    },
+    {
+      title: "Volume and Capacity — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/early-stage-1/measurement-space/volume/",
+      note: "Printable whole-topic worksheet for Kindergarten: Which holds more, full, half full and empty, packing a box, and counting and comparing blocks. Very large print, a picture in every question, answers to circle or a number to write, and drawing questions. The same questions as the quiz, with an answer key.",
+      tags: ["worksheet generator", "printable", "whole topic", "large print", "early stage 1", "kindergarten", "volume and capacity"]
+    }
+  ],
+  "MAE-NSM-01": [
+    {
+      title: "Mass",
+      kind: "Student quiz",
+      url: "/online-quizzes/early-stage-1/measurement-space/mass.html",
+      ideas: ["mass"],
+      note: "Whole-topic quiz for Kindergarten: Heavier and lighter on a balance, the same mass, and heavy and light everyday things. Every question is read aloud by itself, answers are pictures to tap or a number on a number pad, and a missed question gets a second go. Question types can be chosen. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "early stage 1", "kindergarten", "read aloud", "mass"]
+    },
+    {
+      title: "Mass — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/early-stage-1/measurement-space/mass/",
+      note: "Printable whole-topic worksheet for Kindergarten: Heavier and lighter on a balance, the same mass, and heavy and light everyday things. Very large print, a picture in every question, answers to circle or a number to write, and drawing questions. The same questions as the quiz, with an answer key.",
+      tags: ["worksheet generator", "printable", "whole topic", "large print", "early stage 1", "kindergarten", "mass"]
+    }
+  ],
+  "MAE-NSM-02": [
+    {
+      title: "Time",
+      kind: "Student quiz",
+      url: "/online-quizzes/early-stage-1/measurement-space/time.html",
+      ideas: ["duration", "days-of-week", "hour-time"],
+      note: "Whole-topic quiz for Kindergarten: What takes longer, the order of a day, the days of the week, and o'clock on both kinds of clock. Every question is read aloud by itself, answers are pictures to tap or a number on a number pad, and a missed question gets a second go. Question types can be chosen. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "early stage 1", "kindergarten", "read aloud", "time"]
+    },
+    {
+      title: "Time — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/early-stage-1/measurement-space/time/",
+      note: "Printable whole-topic worksheet for Kindergarten: What takes longer, the order of a day, the days of the week, and o'clock on both kinds of clock. Very large print, a picture in every question, answers to circle or a number to write, and drawing questions. The same questions as the quiz, with an answer key.",
+      tags: ["worksheet generator", "printable", "whole topic", "large print", "early stage 1", "kindergarten", "time"]
+    }
+  ],
+  "MAE-DATA-01": [
+    {
+      title: "Data",
+      kind: "Student quiz",
+      url: "/online-quizzes/early-stage-1/statistics-probability/data.html",
+      ideas: ["respond-collect", "organise-displays"],
+      note: "Whole-topic quiz for Kindergarten: Reading a display made from objects: most, fewest, how many, how it was sorted, yes or no, and what could happen. Every question is read aloud by itself, answers are pictures to tap or a number on a number pad, and a missed question gets a second go. Question types can be chosen. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "early stage 1", "kindergarten", "read aloud", "data"]
+    },
+    {
+      title: "Data — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/early-stage-1/statistics-probability/data/",
+      note: "Printable whole-topic worksheet for Kindergarten: Reading a display made from objects: most, fewest, how many, how it was sorted, yes or no, and what could happen. Very large print, a picture in every question, answers to circle or a number to write, and drawing questions. The same questions as the quiz, with an answer key.",
+      tags: ["worksheet generator", "printable", "whole topic", "large print", "early stage 1", "kindergarten", "data"]
+    }
+  ],
   /* ---------------- STAGE 1 (Years 1–2) ---------------- */
   "MA1-RWN-01": [
     {

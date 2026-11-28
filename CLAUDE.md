@@ -259,6 +259,40 @@
 > Chromium (Inter). Source: `tools/pdf-worksheets/bin-toss/` (`build.py` + `ws.css` → `render.py`, Playwright; needs `logo.png` =
 > a copy of `icons/icon-192.png` beside it). Re-render and copy the PDF over after any edit.
 >
+> **NEW (2026-11-28, late night): EARLY STAGE 1 (KINDERGARTEN) — SYLLABUS, 16 QUIZZES AND 16 WORKSHEET CREATORS. THE PLATFORM IS K–10.**
+> * **ONE SOURCE FOR QUIZ AND PAPER: `online-quizzes/early-stage-1/topic-quiz/k.js`** (no Revision Generator bank exists for
+>   Kindergarten). It holds every question type as `T(outcome, statement id, type id, label, gen)` in the shared engine's question
+>   format, its own inline-SVG picture kit (icons in a 40 × 40 box; only ten-frames, dice and clocks use an engine), and the
+>   pencil-and-paper types `PT(…)` (draw, colour: 16 of them) that are included ONLY when a worksheet page loads the bank
+>   (`ON_PAPER` = `window.WSF` exists). 98 quiz types + 16 paper types. `kBank(code)` → the bank; `banks/<slug>.js` per outcome;
+>   shells `online-quizzes/early-stage-1/<strand>/<slug>.html` (built by the session's build_k.py from Stage 4's area.html).
+>   toolIds `es1-<slug>-quiz`, tool names `es1-<slug>-student-quiz`. Slugs: counting, numbers-to-20, adding-taking-away,
+>   parts-of-numbers, patterns, sharing-equal-groups (number); position, length, half-a-length, 2d-shapes, area, 3d-objects,
+>   volume, mass, time (measurement-space); data (statistics-probability).
+> * **Design for five- and six-year-olds (most cannot read):** one short sentence per question, read aloud by itself
+>   (`autoRead`) with the choices; nothing typed except a number on the number pad (answers never above 20); picture choices
+>   where possible (`speakOptions` gives each a spoken name — a COUNTING picture is spoken as "this box" and a numeral to find as
+>   "this number", so the read-aloud never gives the answer away); a picture in almost every question; one level
+>   ("Kindergarten", key `k`); 8 questions by default; second go; stars. Bank flags reuse Stage 1's (`young`, `year12`, …) —
+>   the engine was NOT changed.
+> * **Syllabus data:** `resourcesManifest.js` key **`stage0`** = Early Stage 1 (8 focus areas, 16 outcomes MAE-…),
+>   `contentStatements.js` 24 statements with no `part`. Source: NESA's ES1 Record of learning (content) document, Feb 2024, plus
+>   **"Recognise number patterns"** under MAE-RWN-01, which that document omits but the syllabus (as quoted in the NSW DoE ES1
+>   sample units) lists — check it against the syllabus page if in doubt. The statement → outcome split inside a focus area is
+>   Claude's reading, as for Stages 1–3.
+> * **"stage0" in code:** Resources by Stage has a sixth tab (first), `#stage-0` / `#early-stage-1` / `#MAE-…` deep links, no
+>   Core/Path pills; the teacher portal maps `stage0` → "Early Stage 1" (`buildCatalogue`), sorts it first (`stageNum`) and
+>   labels it Kindergarten (`STAGE_YEARS`). Registry `stage: "Early Stage 1"`; 16 `BUILDER_QUIZZES` rows.
+> * **Worksheets** `worksheet-creators/early-stage-1/<strand>/<slug>/`: `tools/whole-topic-worksheets/stagek.py` writes
+>   `pages/k-*.js` (bank mode: `stmtOf` read from k.js, `css` = very large print — 19px questions, 11 mm answer lines — 6
+>   questions by default, one level) and the pages.json entries; `assemble.py` now accepts an absolute `bank` path. test.py
+>   compares picture options by their markup (they have no text).
+> * Listings: toolLinks "Student quiz" + "Worksheet maker" row per MAE outcome, toolFamilies quiz and worksheet bands, homepage
+>   "Early Stage 1 — whole topic" grids (Online Quizzes pill 162, Worksheet Creator pill 164).
+> * Verified: every quiz type played at 1366 and 390 (accepted, picture drawn, no sideways scroll), every type viewed, test.py on
+>   all 16 worksheets, teacher builder + a task link for all 16, Resources by Stage (6 tabs, 24 statements, 16 + 16 bands, deep
+>   links). Not done: Early Stage 1 in the Revision Generator; access content points.
+>
 > **NEW (2026-11-28, night): STAGE 1 AND STAGE 2 WHOLE-TOPIC WORKSHEET CREATORS — 36 OUTCOMES, LARGE PRINT.**
 > `worksheet-creators/stage-1/<strand>/<slug>/` (16) and `worksheet-creators/stage-2/<strand>/<slug>/` (20), same slugs as the
 > whole-topic quizzes, on worksheet frame v2 (the frame itself was NOT changed, so no other page was re-assembled).
@@ -6303,7 +6337,7 @@ portal/PLACEMENT.md , portal/README.md   migration + structure notes
 
 ## 8. Open / future items
 - **Whole-topic quizzes:** every Stage 1 (16), Stage 2 (20), Stage 3 (21), Stage 4 (16) and Stage 5 (41) outcome now has one (2026-11-28). Follow-ups:
-  Arabic/Farsi for the shared-engine quizzes; multi-select answers; Early Stage 1 (their RG banks exist).
+  Arabic/Farsi for the shared-engine quizzes; multi-select answers (their RG banks exist).
 - **Student-quiz sign-in sweep:** 11 of 26 quizzes carry the v2 login block
   (adding-subtracting-fractions joined 2026-08-20).
   The other **15** still have bespoke inline sign-in and their own completion

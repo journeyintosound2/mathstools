@@ -47,7 +47,7 @@ def main():
         tags = '\n'.join('<script src="%s?v=%s"></script>' % (s, md5v(s)) for s in scripts)
         bank = ''
         if p.get('bank'):
-            b = QZ + 'banks/' + p['bank']
+            b = p['bank'] if p['bank'].startswith('/') else QZ + 'banks/' + p['bank']   # another stage's bank: an absolute path
             bank = '<script type="module" src="%s?v=%s"></script>' % (b, md5v(b))
         page_js = open(os.path.join(HERE, 'pages', slug + '.js'), encoding='utf-8').read()
         st = [dict({'id': s['id'], 'text': s['text']}, **({'part': s['part']} if s.get('part') else {})) for s in stmts[p['outcome']]]

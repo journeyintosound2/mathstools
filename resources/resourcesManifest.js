@@ -59,6 +59,189 @@ window.MMT_RESOURCES = {
   ],
 
   /* ==========================================================================
+     EARLY STAGE 1  (Kindergarten) — key "stage0". Outcomes and focus areas from the NSW
+     Mathematics K–10 Syllabus (2022). One year, so there is no Part A / Part B.
+     ========================================================================== */
+  stage0: [
+    {
+      slug: "representing-whole-numbers",
+      name: "Representing Whole Numbers",
+      strand: "number-algebra",
+      icon: "123",
+      collates: "Representing Whole Numbers",
+      blurb: "Seeing how many at a glance, counting forwards and backwards, and reading and making numbers to 20.",
+      outcomes: [
+        {
+          code: "MAE-RWN-01",
+          focusArea: "Representing Whole Numbers",
+          statement: "demonstrates an understanding of how whole numbers indicate quantity",
+          resources: []
+        },
+        {
+          code: "MAE-RWN-02",
+          focusArea: "Representing Whole Numbers",
+          statement: "reads numerals and represents whole numbers to at least 20",
+          resources: []
+        }
+      ]
+    },
+    {
+      slug: "combining-separating-quantities",
+      name: "Combining and Separating Quantities",
+      strand: "number-algebra",
+      icon: "+−",
+      collates: "Combining and Separating Quantities",
+      blurb: "Putting groups together, taking some away, comparing groups, and the parts of numbers to 10.",
+      outcomes: [
+        {
+          code: "MAE-CSQ-01",
+          focusArea: "Combining and Separating Quantities",
+          statement: "reasons about number relations to model addition and subtraction by combining and separating, and comparing collections",
+          resources: []
+        },
+        {
+          code: "MAE-CSQ-02",
+          focusArea: "Combining and Separating Quantities",
+          statement: "represents the relations between the parts that form the whole, with numbers up to 10",
+          resources: []
+        }
+      ]
+    },
+    {
+      slug: "forming-groups",
+      name: "Forming Groups",
+      strand: "number-algebra",
+      icon: "×÷",
+      collates: "Forming Groups",
+      blurb: "Repeating patterns, making equal groups and sharing fairly.",
+      outcomes: [
+        {
+          code: "MAE-FG-01",
+          focusArea: "Forming Groups",
+          statement: "recognises, describes and continues repeating patterns",
+          resources: []
+        },
+        {
+          code: "MAE-FG-02",
+          focusArea: "Forming Groups",
+          statement: "forms equal groups by sharing and counting collections of objects",
+          resources: []
+        }
+      ]
+    },
+    {
+      slug: "geometric-measure",
+      name: "Geometric Measure",
+      strand: "measurement-space",
+      icon: "📐",
+      collates: "Geometric Measure",
+      blurb: "Where things are, longer and shorter, and half of a length.",
+      outcomes: [
+        {
+          code: "MAE-GM-01",
+          focusArea: "Geometric Measure",
+          statement: "describes position and gives and follows simple directions",
+          resources: []
+        },
+        {
+          code: "MAE-GM-02",
+          focusArea: "Geometric Measure",
+          statement: "describes and compares lengths",
+          resources: []
+        },
+        {
+          code: "MAE-GM-03",
+          focusArea: "Geometric Measure",
+          statement: "identifies half the length and the halfway point",
+          resources: []
+        }
+      ]
+    },
+    {
+      slug: "two-dimensional-spatial-structure",
+      name: "Two-Dimensional Spatial Structure",
+      strand: "measurement-space",
+      icon: "▦",
+      collates: "Two-Dimensional Spatial Structure",
+      blurb: "Circles, squares, triangles and rectangles, and which shape covers more.",
+      outcomes: [
+        {
+          code: "MAE-2DS-01",
+          focusArea: "Two-Dimensional Spatial Structure",
+          statement: "sorts, describes, names and makes two-dimensional shapes, including triangles, circles, squares and rectangles",
+          resources: []
+        },
+        {
+          code: "MAE-2DS-02",
+          focusArea: "Two-Dimensional Spatial Structure",
+          statement: "describes and compares areas of similar shapes",
+          resources: []
+        }
+      ]
+    },
+    {
+      slug: "three-dimensional-spatial-structure",
+      name: "Three-Dimensional Spatial Structure",
+      strand: "measurement-space",
+      icon: "🧊",
+      collates: "Three-Dimensional Spatial Structure",
+      blurb: "Everyday 3D objects that roll and stack, and which holds more or uses more blocks.",
+      outcomes: [
+        {
+          code: "MAE-3DS-01",
+          focusArea: "Three-Dimensional Spatial Structure",
+          statement: "manipulates, describes and sorts three-dimensional objects",
+          resources: []
+        },
+        {
+          code: "MAE-3DS-02",
+          focusArea: "Three-Dimensional Spatial Structure",
+          statement: "describes and compares volumes",
+          resources: []
+        }
+      ]
+    },
+    {
+      slug: "non-spatial-measure",
+      name: "Non-Spatial Measure",
+      strand: "measurement-space",
+      icon: "⚖",
+      collates: "Non-Spatial Measure",
+      blurb: "Heavier and lighter, the days of the week, and o'clock times.",
+      outcomes: [
+        {
+          code: "MAE-NSM-01",
+          focusArea: "Non-Spatial Measure",
+          statement: "describes and compares the masses of objects",
+          resources: []
+        },
+        {
+          code: "MAE-NSM-02",
+          focusArea: "Non-Spatial Measure",
+          statement: "sequences events and reads hour time on clocks",
+          resources: []
+        }
+      ]
+    },
+    {
+      slug: "data",
+      name: "Data",
+      strand: "statistics-probability",
+      icon: "📊",
+      collates: "Data",
+      blurb: "Sorting things into a display and saying what it shows.",
+      outcomes: [
+        {
+          code: "MAE-DATA-01",
+          focusArea: "Data",
+          statement: "contributes to collecting data and interprets data displays made from objects",
+          resources: []
+        }
+      ]
+    }
+  ],
+
+  /* ==========================================================================
      STAGE 1  (Years 1–2) — outcomes and focus areas from the NSW Mathematics K–10
      Syllabus (2022). As in Stage 3, each focus area has a Part A and a Part B that
      carry the SAME outcomes, so the pair is one topic here. No Core / Path in K–6.
