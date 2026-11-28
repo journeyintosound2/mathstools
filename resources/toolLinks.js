@@ -29,6 +29,496 @@
    ========================================================================== */
 
 window.MMT_TOOL_LINKS = {
+  /* ---------------- STAGE 1 (Years 1–2) ---------------- */
+  "MA1-RWN-01": [
+    {
+      title: "Reading and Ordering Numbers",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-1/number/reading-ordering-numbers.html",
+      ideas: ["counting-ones", "number-patterns", "numbers-on-line", "counting-ones-tens"],
+      note: "Whole-topic quiz: Counting collections, ten-frames, tens and ones blocks, before and after, number charts, and ordering numbers to 1000. Part A and Parts A and B levels; question types can be chosen. Every question is read aloud by itself, numbers go in on a number pad, and a missed question gets a second go. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 1", "read aloud", "reading and ordering numbers"]
+    }
+  ],
+  "MA1-RWN-02": [
+    {
+      title: "Partitioning Numbers",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-1/number/partitioning-numbers.html",
+      ideas: ["groups-of-ten", "three-digit"],
+      note: "Whole-topic quiz: Teen numbers, splitting numbers into tens and ones (and hundreds), number lines and skip counting. Part A and Parts A and B levels; question types can be chosen. Every question is read aloud by itself, numbers go in on a number pad, and a missed question gets a second go. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 1", "read aloud", "partitioning numbers"]
+    }
+  ],
+  "MA1-CSQ-01": [
+    {
+      title: "Adding and Taking Away",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-1/number/adding-taking-away.html",
+      ideas: ["count-by-one", "number-bonds", "flexible-strategies", "equality", "additive-relations", "multiples-of-ten", "equality-problems"],
+      note: "Whole-topic quiz: Making ten, counting on and back, doubles and near doubles, missing parts, fact families and picture stories. Part A and Parts A and B levels; question types can be chosen. Every question is read aloud by itself, numbers go in on a number pad, and a missed question gets a second go. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 1", "read aloud", "adding and taking away"]
+    }
+  ],
+  "MA1-FG-01": [
+    {
+      title: "Equal Groups",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-1/number/equal-groups.html",
+      ideas: ["skip-counting", "skip-patterns", "equal-groups", "division", "combining-groups", "doubling-halving", "mult-div-problems"],
+      note: "Whole-topic quiz: Equal groups, skip counting, rows and arrays, sharing, halves of a collection and group stories. Part A and Parts A and B levels; question types can be chosen. Every question is read aloud by itself, numbers go in on a number pad, and a missed question gets a second go. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 1", "read aloud", "equal groups"]
+    }
+  ],
+  "MA1-GM-01": [
+    {
+      title: "Position",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-1/measurement-space/position.html",
+      ideas: ["follow-directions", "simple-maps"],
+      note: "Whole-topic quiz: Left and right, between, first to tenth, above and below, following steps and turns on a simple map. Part A and Parts A and B levels; question types can be chosen. Every question is read aloud by itself, numbers go in on a number pad, and a missed question gets a second go. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 1", "read aloud", "position"]
+    }
+  ],
+  "MA1-GM-02": [
+    {
+      title: "Length",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-1/measurement-space/length.html",
+      ideas: ["measure-informal", "compare-informal", "order-lengths", "formal-units"],
+      note: "Whole-topic quiz: Longer and shorter, measuring with cubes and paperclips, ordering lengths, and centimetres and metres. Part A and Parts A and B levels; question types can be chosen. Every question is read aloud by itself, numbers go in on a number pad, and a missed question gets a second go. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 1", "read aloud", "length"]
+    }
+  ],
+  "MA1-GM-03": [
+    {
+      title: "Halves, Quarters and Eighths",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-1/measurement-space/halves-quarters-eighths.html",
+      ideas: ["halves-quarters", "eighths"],
+      note: "Whole-topic quiz: Equal parts, halves and quarters of a length, halving again to make eighths, and fractions on a line. Part A and Parts A and B levels; question types can be chosen. Every question is read aloud by itself, numbers go in on a number pad, and a missed question gets a second go. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 1", "read aloud", "halves, quarters and eighths"]
+    }
+  ],
+  "MA1-2DS-01": [
+    {
+      title: "2D Shapes",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-1/measurement-space/2d-shapes.html",
+      ideas: ["classify-shapes", "slides-reflections", "combine-separate", "quarter-turns"],
+      note: "Whole-topic quiz: Naming shapes, sides and corners, straight and curved sides, quadrilaterals, turned shapes and matching halves. Part A and Parts A and B levels; question types can be chosen. Every question is read aloud by itself, numbers go in on a number pad, and a missed question gets a second go. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 1", "read aloud", "2d shapes"]
+    }
+  ],
+  "MA1-2DS-02": [
+    {
+      title: "Area",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-1/measurement-space/area.html",
+      ideas: ["compare-indirectly", "informal-units", "rows-columns"],
+      note: "Whole-topic quiz: Covering shapes with squares, comparing areas, and counting squares in rows and columns. Part A and Parts A and B levels; question types can be chosen. Every question is read aloud by itself, numbers go in on a number pad, and a missed question gets a second go. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 1", "read aloud", "area"]
+    }
+  ],
+  "MA1-3DS-01": [
+    {
+      title: "3D Objects",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-1/measurement-space/3d-objects.html",
+      ideas: ["recognise-objects", "sort-describe", "features"],
+      note: "Whole-topic quiz: Naming 3D objects, objects that roll or stack, flat faces, edges and corners, and the shapes of faces. Part A and Parts A and B levels; question types can be chosen. Every question is read aloud by itself, numbers go in on a number pad, and a missed question gets a second go. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 1", "read aloud", "3d objects"]
+    }
+  ],
+  "MA1-3DS-02": [
+    {
+      title: "Capacity and Volume",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-1/measurement-space/volume-capacity.html",
+      ideas: ["filling", "packing", "construct-cubes", "compare-containers", "compare-volumes"],
+      note: "Whole-topic quiz: Which holds more, cups to fill a container, ordering capacities, and counting and comparing blocks. Part A and Parts A and B levels; question types can be chosen. Every question is read aloud by itself, numbers go in on a number pad, and a missed question gets a second go. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 1", "read aloud", "capacity and volume"]
+    }
+  ],
+  "MA1-NSM-01": [
+    {
+      title: "Mass",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-1/measurement-space/mass.html",
+      ideas: ["investigate-balance", "compare-balance"],
+      note: "Whole-topic quiz: Heavier and lighter on a balance, mass in blocks, and comparing and ordering masses. Part A and Parts A and B levels; question types can be chosen. Every question is read aloud by itself, numbers go in on a number pad, and a missed question gets a second go. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 1", "read aloud", "mass"]
+    }
+  ],
+  "MA1-NSM-02": [
+    {
+      title: "Time",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-1/measurement-space/time.html",
+      ideas: ["months", "half-hour", "duration", "quarter-hour"],
+      note: "Whole-topic quiz: O'clock, half past, quarter past and quarter to, days, months, calendars and how long things take. Part A and Parts A and B levels; question types can be chosen. Every question is read aloud by itself, numbers go in on a number pad, and a missed question gets a second go. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 1", "read aloud", "time"]
+    }
+  ],
+  "MA1-DATA-01": [
+    {
+      title: "Collecting Data",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-1/statistics-probability/data-collecting.html",
+      ideas: ["ask-gather", "represent-describe", "question-of-interest", "create-interpret"],
+      note: "Whole-topic quiz: Sorting and counting, tally marks, lists and tables, and choosing a good survey question. Part A and Parts A and B levels; question types can be chosen. Every question is read aloud by itself, numbers go in on a number pad, and a missed question gets a second go. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 1", "read aloud", "collecting data"]
+    }
+  ],
+  "MA1-DATA-02": [
+    {
+      title: "Reading Graphs and Tables",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-1/statistics-probability/data-interpreting.html",
+      ideas: ["represent-describe", "create-interpret"],
+      note: "Whole-topic quiz: Reading tallies, picture graphs, tables and column graphs: most, least, how many more. Part A and Parts A and B levels; question types can be chosen. Every question is read aloud by itself, numbers go in on a number pad, and a missed question gets a second go. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 1", "read aloud", "reading graphs and tables"]
+    }
+  ],
+  "MA1-CHAN-01": [
+    {
+      title: "Chance",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-1/statistics-probability/chance.html",
+      ideas: ["possible-outcomes", "activities-chance"],
+      note: "Whole-topic quiz: Will, might or won't happen; spinners and bags of counters; likely, unlikely, certain and impossible. Part A and Parts A and B levels; question types can be chosen. Every question is read aloud by itself, numbers go in on a number pad, and a missed question gets a second go. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 1", "read aloud", "chance"]
+    }
+  ],
+  /* ---------------- STAGE 2 (Years 3–4) ---------------- */
+  "MA2-RN-01": [
+    {
+      title: "Whole Numbers",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-2/number/whole-numbers.html",
+      ideas: ["read-order-thousands", "partition-4-digits", "order-thousands", "rename-6-digits", "times-as-large"],
+      note: "Whole-topic quiz: Read, write, order and round numbers to tens of thousands with base-ten blocks, place-value charts and number lines. Part A and Parts A and B levels; question types can be chosen. Every question can be read aloud, word answers are tapped, and a missed question gets a second go. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 2", "read aloud", "whole numbers"]
+    },
+    {
+      title: "Place Value: Multiply & Divide by 10",
+      kind: "Teacher tool",
+      url: "/interactive-tools/stage-3/number/multiply-divide-by-ten/",
+      ideas: ["times-as-large"],
+      note: "The digits travel between place-value columns while the decimal point stays pinned — multiplying and dividing decimals by 10, 100 and 1000.",
+      tags: ["place value", "multiply by 10", "divide by 10", "powers of 10", "decimals"]
+    },
+    {
+      title: "Multiplying and Dividing by 10 — Student Quiz",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-3/number/multiply-divide-by-ten.html",
+      ideas: ["times-as-large"],
+      note: "Sweet to Spicy. The level decides how much of the place value board the student keeps. Saves to the student dashboard.",
+      tags: ["quiz", "place value", "powers of 10", "decimals"]
+    },
+    {
+      title: "Multiply & Divide by Powers of 10",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-3/number/multiply-divide-by-ten.html",
+      ideas: ["times-as-large"],
+      note: "Generates a printable worksheet with answers.",
+      tags: ["worksheet generator", "printable", "powers of 10", "decimals"]
+    },
+    {
+      title: "Multiply & Divide by 10 — Class Flash Cards",
+      kind: "Flash cards",
+      url: "/interactive-tools/stage-3/number/multiply-divide-by-ten/flash-cards.html",
+      ideas: ["times-as-large"],
+      note: "Whole-class projected flash card round.",
+      tags: ["flash cards", "fluency", "place value", "whole class"]
+    },
+    {
+      title: "The Nasty Game",
+      kind: "Game",
+      url: "/games/nasty-game.html",
+      ideas: ["read-order-thousands", "partition-4-digits", "order-thousands"],
+      note: "Roll a digit and place it in your own place value squares, or in an opponent's. Largest, smallest or closest-to-the-average totals win; 3–6 places, decimals, vs computer, pass and play, or online as a class.",
+      tags: ["game", "place value", "dice", "digits", "decimals", "multiplayer"]
+    }
+  ],
+  "MA2-RN-02": [
+    {
+      title: "Decimals",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-2/number/decimals.html",
+      ideas: ["tenths-hundredths", "fractions-decimals"],
+      note: "Whole-topic quiz: Tenths and hundredths on strips, grids and number lines; comparing and ordering decimals; money. Part B level; question types can be chosen. Every question can be read aloud, word answers are tapped, and a missed question gets a second go. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 2", "read aloud", "decimals"]
+    }
+  ],
+  "MA2-AR-01": [
+    {
+      title: "Addition and Subtraction",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-2/number/addition-subtraction.html",
+      ideas: ["add-subtract-connection", "select-strategies", "money-values", "partition-regroup", "money-budgeting"],
+      note: "Whole-topic quiz: Jump, split and compensation strategies, the column method, estimating, and word problems with bar models. Part A and Parts A and B levels; question types can be chosen. Every question can be read aloud, word answers are tapped, and a missed question gets a second go. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 2", "read aloud", "addition and subtraction"]
+    },
+    {
+      title: "Addition by Compensation",
+      kind: "Teacher tool",
+      url: "/interactive-tools/stage-3/number/addition-compensation/",
+      ideas: ["select-strategies", "partition-regroup"],
+      note: "Two piles of tiles in tens: drag tiles from one pile to the other so 36 + 49 becomes 35 + 50. No tile is ever made or lost, so the total can't change.",
+      tags: ["compensation", "addition", "mental strategies", "bridging to ten", "make a ten", "friendly numbers", "tens and ones", "rearranging"]
+    },
+    {
+      title: "Addition by Compensation — Student Quiz",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-3/number/addition-compensation.html",
+      ideas: ["select-strategies", "partition-regroup"],
+      note: "Sweet to Extra Spicy. The first three levels hand over the tile board (hundreds bundle into flats); the last two take it away. Saves to the student dashboard.",
+      tags: ["quiz", "compensation", "addition", "mental strategies", "make a ten", "three digit"]
+    },
+    {
+      title: "Constant Difference",
+      kind: "Teacher tool",
+      url: "/interactive-tools/stage-3/number/constant-difference/",
+      ideas: ["select-strategies", "partition-regroup"],
+      note: "Slide the gap between two numbers along an open number line: 83 − 28 becomes 85 − 30, and the difference never changes.",
+      tags: ["constant difference", "subtraction", "mental strategies", "open number line", "compensation", "bridging to ten", "difference", "same difference"]
+    },
+    {
+      title: "Constant Difference — Student Quiz",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-3/number/constant-difference.html",
+      ideas: ["select-strategies", "partition-regroup"],
+      note: "Sweet to Extra Spicy. The first three levels hand over the number line to slide; the last two take it away. Saves to the student dashboard.",
+      tags: ["quiz", "constant difference", "subtraction", "mental strategies", "open number line", "three digit"]
+    }
+  ],
+  "MA2-AR-02": [
+    {
+      title: "Missing Numbers: Adding and Subtracting",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-2/number/additive-number-sentences.html",
+      ideas: ["equality", "number-sentences"],
+      note: "Whole-topic quiz: Fact families, missing numbers and checking an answer with the inverse. Part A and Parts A and B levels; question types can be chosen. Every question can be read aloud, word answers are tapped, and a missed question gets a second go. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 2", "read aloud", "missing numbers: adding and subtracting"]
+    }
+  ],
+  "MA2-MR-01": [
+    {
+      title: "Multiplication and Division",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-2/number/multiplication-division.html",
+      ideas: ["patterns", "arrays-facts", "recall-facts", "related-multiples", "known-facts", "area-model", "number-properties", "multiples-of-10"],
+      note: "Whole-topic quiz: Equal groups, arrays, times tables, sharing and grouping, remainders, the area model and word problems. Part A and Parts A and B levels; question types can be chosen. Every question can be read aloud, word answers are tapped, and a missed question gets a second go. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 2", "read aloud", "multiplication and division"]
+    },
+    {
+      title: "Times Table Chart",
+      kind: "Teacher tool",
+      url: "/interactive-tools/stage-3/number/timestable-chart/",
+      ideas: ["arrays-facts", "recall-facts", "related-multiples", "number-properties"],
+      note: "The multiplication chart to 12 \u00d7 12, nine ways in. Click a fact and the chart zooms into its rectangle: count it row by row (the end of each row is a skip count), split it into facts you know (7 \u00d7 8 = 5 \u00d7 8 + 2 \u00d7 8, or 10 \u00d7 6 \u2212 1 \u00d7 6), divide it, or flip it over the diagonal. Then factors as rectangles, multiples, patterns to notice and wonder, and a cover-up mode for recall.",
+      tags: ["times tables", "timestable chart", "multiplication chart", "multiplication grid", "multiplication table", "arrays", "area model", "skip counting", "turnaround facts", "commutative", "fact families", "known facts", "distributive", "doubling", "halving", "multiplication", "division", "fraction of an amount", "factors", "multiples", "common multiples", "square numbers", "patterns", "notice and wonder", "recall", "visual", "whole-class teaching"]
+    },
+    {
+      title: "Printable Times Table Chart",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-3/number/times-table-chart-printable.html",
+      ideas: ["recall-facts", "related-multiples"],
+      note: "A colourful times table chart to print and laminate: five themed borders, nine colour patterns (rows of multiples, square numbers, turnarounds, L-shapes, same numbers, odd and even, last digits, multiples of up to three numbers), a key and a question. A4 or A3 posters or desk copies; ink saver, black and white, and blank charts to fill in.",
+      tags: ["printable", "poster", "times table chart", "timestable chart", "multiplication chart", "multiplication grid", "times tables", "classroom display", "desk chart", "laminate", "patterns", "multiples", "square numbers", "fill in"]
+    },
+    {
+      title: "Area Model \u2014 Multiplication & Perimeter",
+      kind: "Teacher tool",
+      url: "/interactive-tools/stage-4/measurement-space/perimeter-area-rectangle/",
+      ideas: ["area-model"],
+      note: "Split a rectangle by place value or any way you like and multiply part by part; the same splits break each edge into parts to add for the perimeter.",
+      tags: ["area", "perimeter", "rectangles", "area model", "partitioning", "partial products", "multiplication", "place value", "whole-class teaching"]
+    },
+    {
+      title: "Area Model \u2014 Multiplication (Student Quiz)",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-4/measurement-space/area-model.html",
+      ideas: ["area-model"],
+      note: "Ten questions with a live area model students split themselves: products of the pieces, missing numbers, spot the mistake, cut-out shapes. Teen \u00d7 one-digit up to three-digit \u00d7 two-digit. Saves to the student dashboard.",
+      tags: ["quiz", "multiplication", "area model", "partitioning", "partial products", "place value", "missing numbers", "spot the mistake", "sweet mild medium spicy", "student code login", "teacher dashboard"]
+    },
+    {
+      title: "Area Model \u2014 Worksheet Creator",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-4/measurement-space/perimeter-area-rectangle.html",
+      ideas: ["area-model"],
+      note: "Printable A4 from the area model tool: multiply with the model, two splits one answer, missing numbers, add the edges, make a ten, cut-out shapes and fluency. Area, perimeter or both; six number sizes as a ladder; splits drawn, faded or left blank; unit squares where they fit; answer key with reasons.",
+      tags: ["worksheet generator", "printable", "area model", "multiplication", "partitioning", "partial products", "perimeter", "addition strategies", "make a ten", "composite shapes", "answer key"]
+    },
+    {
+      title: "Closest to 100",
+      kind: "Game",
+      url: "/games/closest-to-100.html",
+      ideas: ["arrays-facts", "recall-facts"],
+      note: "Roll two dice, state the product, then draw the matching array on a hundred grid. Closest to 100 wins.",
+      tags: ["game", "dice", "arrays", "multiplication", "area", "two player"]
+    }
+  ],
+  "MA2-MR-02": [
+    {
+      title: "Missing Numbers: Multiplying and Dividing",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-2/number/multiplicative-number-sentences.html",
+      ideas: ["fact-families", "word-problems"],
+      note: "Whole-topic quiz: Multiplication and division fact families, missing numbers and balanced number sentences. Part A and Parts A and B levels; question types can be chosen. Every question can be read aloud, word answers are tapped, and a missed question gets a second go. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 2", "read aloud", "missing numbers: multiplying and dividing"]
+    }
+  ],
+  "MA2-PF-01": [
+    {
+      title: "Fractions",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-2/number/fractions.html",
+      ideas: ["fractional-parts", "unit-fractions-line", "equivalent-lengths", "greater-than-one"],
+      note: "Whole-topic quiz: Halves, quarters, eighths, thirds, fifths and tenths: naming, comparing, counting and placing fractions on a number line. Part A and Parts A and B levels; question types can be chosen. Every question can be read aloud, word answers are tapped, and a missed question gets a second go. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 2", "read aloud", "fractions"]
+    },
+    {
+      title: "Fraction Bar + Number Line",
+      kind: "Teacher tool",
+      url: "/interactive-tools/stage-4/number/fraction-bar-number-line/",
+      ideas: ["unit-fractions-line", "equivalent-lengths", "greater-than-one"],
+      note: "One fraction shown three ways: part-whole bar, point on a double number line, and as division. Denominators 2-100.",
+      tags: ["fractions", "decimals", "number line", "fraction bar", "division", "equivalence", "recurring"]
+    }
+  ],
+  "MA2-GM-01": [
+    {
+      title: "Maps and Directions",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-2/measurement-space/position.html",
+      ideas: ["movement-map", "grid-positions", "create-grid-maps", "describe-routes"],
+      note: "Whole-topic quiz: Grid maps, grid references, compass directions and following a path. Part A and Parts A and B levels; question types can be chosen. Every question can be read aloud, word answers are tapped, and a missed question gets a second go. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 2", "read aloud", "maps and directions"]
+    }
+  ],
+  "MA2-GM-02": [
+    {
+      title: "Length",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-2/measurement-space/length.html",
+      ideas: ["m-cm-mm", "scaled-instruments"],
+      note: "Whole-topic quiz: Measuring with a ruler in centimetres and millimetres, changing units and finding perimeters. Part A and Parts A and B levels; question types can be chosen. Every question can be read aloud, word answers are tapped, and a missed question gets a second go. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 2", "read aloud", "length"]
+    }
+  ],
+  "MA2-GM-03": [
+    {
+      title: "Angles",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-2/measurement-space/angles.html",
+      ideas: ["measures-of-turn", "compare-right-angle"],
+      note: "Whole-topic quiz: Comparing angles with a right angle, naming angles and angles as turns. Part A and Parts A and B levels; question types can be chosen. Every question can be read aloud, word answers are tapped, and a missed question gets a second go. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 2", "read aloud", "angles"]
+    }
+  ],
+  "MA2-2DS-01": [
+    {
+      title: "2D Shapes",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-2/measurement-space/2d-shapes.html",
+      ideas: ["features", "symmetry"],
+      note: "Whole-topic quiz: Sides, vertices and names of 2D shapes, parallel sides, regular shapes and lines of symmetry. Part A and Parts A and B levels; question types can be chosen. Every question can be read aloud, word answers are tapped, and a missed question gets a second go. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 2", "read aloud", "2d shapes"]
+    }
+  ],
+  "MA2-2DS-02": [
+    {
+      title: "Moving and Joining Shapes",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-2/measurement-space/transformations.html",
+      ideas: ["transform", "combine-split"],
+      note: "Whole-topic quiz: Splitting and joining shapes, and slides, flips and turns on a grid. Part B level; question types can be chosen. Every question can be read aloud, word answers are tapped, and a missed question gets a second go. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 2", "read aloud", "moving and joining shapes"]
+    }
+  ],
+  "MA2-2DS-03": [
+    {
+      title: "Area",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-2/measurement-space/area.html",
+      ideas: ["square-centimetres", "square-metres", "grid-structure", "compare-surfaces"],
+      note: "Whole-topic quiz: Area by counting squares, rows and columns, square centimetres and square metres. Part A and Parts A and B levels; question types can be chosen. Every question can be read aloud, word answers are tapped, and a missed question gets a second go. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 2", "read aloud", "area"]
+    }
+  ],
+  "MA2-3DS-01": [
+    {
+      title: "3D Objects",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-2/measurement-space/3d-objects.html",
+      ideas: ["models", "representations"],
+      note: "Whole-topic quiz: Naming 3D objects, faces, edges and vertices, prisms and pyramids, nets and straw models. Part A and Parts A and B levels; question types can be chosen. Every question can be read aloud, word answers are tapped, and a missed question gets a second go. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 2", "read aloud", "3d objects"]
+    }
+  ],
+  "MA2-3DS-02": [
+    {
+      title: "Capacity and Volume",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-2/measurement-space/volume-capacity.html",
+      ideas: ["litres", "metric-volume", "scaled-capacity"],
+      note: "Whole-topic quiz: Reading a measuring jug, litres and millilitres, and volume by counting cubes. Part B level; question types can be chosen. Every question can be read aloud, word answers are tapped, and a missed question gets a second go. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 2", "read aloud", "capacity and volume"]
+    }
+  ],
+  "MA2-NSM-01": [
+    {
+      title: "Mass",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-2/measurement-space/mass.html",
+      ideas: ["kilogram", "scaled-mass"],
+      note: "Whole-topic quiz: Balances, kilograms and grams, reading scales and mass problems. Part A and Parts A and B levels; question types can be chosen. Every question can be read aloud, word answers are tapped, and a missed question gets a second go. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 2", "read aloud", "mass"]
+    }
+  ],
+  "MA2-NSM-02": [
+    {
+      title: "Time",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-2/measurement-space/time.html",
+      ideas: ["analog-time", "digital-time", "am-pm"],
+      note: "Whole-topic quiz: Reading clocks to the minute, past and to, am and pm, how long things take, and timetables. Part A and Parts A and B levels; question types can be chosen. Every question can be read aloud, word answers are tapped, and a missed question gets a second go. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 2", "read aloud", "time"]
+    }
+  ],
+  "MA2-DATA-01": [
+    {
+      title: "Collecting and Graphing Data",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-2/statistics-probability/data-collecting-graphing.html",
+      ideas: ["collect", "tables-graphs", "collection-methods", "many-to-one"],
+      note: "Whole-topic quiz: Tally charts, survey questions, pictograms and planning a column graph and its scale. Part A and Parts A and B levels; question types can be chosen. Every question can be read aloud, word answers are tapped, and a missed question gets a second go. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 2", "read aloud", "collecting and graphing data"]
+    }
+  ],
+  "MA2-DATA-02": [
+    {
+      title: "Reading Tables and Graphs",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-2/statistics-probability/data-interpreting.html",
+      ideas: ["interpret-compare", "many-to-one"],
+      note: "Whole-topic quiz: Reading tally charts, tables, column graphs, pictograms and dot plots, with and without a scale. Part A and Parts A and B levels; question types can be chosen. Every question can be read aloud, word answers are tapped, and a missed question gets a second go. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 2", "read aloud", "reading tables and graphs"]
+    }
+  ],
+  "MA2-CHAN-01": [
+    {
+      title: "Chance",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-2/statistics-probability/chance.html",
+      ideas: ["possible-outcomes", "likelihood", "previous-events"],
+      note: "Whole-topic quiz: Chance words, listing outcomes, spinners and bags, fair games, and comparing results with what we expect. Part A and Parts A and B levels; question types can be chosen. Every question can be read aloud, word answers are tapped, and a missed question gets a second go. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 2", "read aloud", "chance"]
+    }
+  ],
   "MA3-RN-02": [
     {
       title: "Represents Numbers: Decimals",

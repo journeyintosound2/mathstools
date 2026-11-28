@@ -671,9 +671,9 @@ import { mountSchoolPicker, loadSchools } from "../shared/schoolPicker.js";
 import { ADVENTURE_NPCS, getStageTopics } from "../shared/adventureManifest.js";
 import { collection, query, where, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 // Chart.js is loaded as a classic global script in <head>; referenced as `Chart`.
-import { getEnabledTools, getAllTools } from "../shared/mmtToolRegistry.js?v=b5c97771";
-import { normaliseAchievement, summarise, rollupByStudent, toCSV, summaryText, partialLabel } from "../shared/resultUtils.js?v=6891cf2b";
-import { recordFitsTask } from "../shared/quizInsights.js?v=877822bd";
+import { getEnabledTools, getAllTools } from "../shared/mmtToolRegistry.js?v=6e4f2e37";
+import { normaliseAchievement, summarise, rollupByStudent, toCSV, summaryText, partialLabel } from "../shared/resultUtils.js?v=7dceaf24";
+import { recordFitsTask } from "../shared/quizInsights.js?v=3117ec7e";
 
 const $ = (id)=>document.getElementById(id);
 let teacher=null, students=[], all=[], attemptsByCode=new Map();
@@ -1248,6 +1248,23 @@ const BUILDER_QUIZZES = [
   {toolId:"s2-data-collecting-graphing-quiz", title:"Collecting and Graphing Data", launchUrl:"/online-quizzes/stage-2/statistics-probability/data-collecting-graphing.html", builderUrl:"/online-quizzes/stage-2/statistics-probability/data-collecting-graphing.html?builder=1"},
   {toolId:"s2-data-interpreting-quiz", title:"Reading Tables and Graphs", launchUrl:"/online-quizzes/stage-2/statistics-probability/data-interpreting.html", builderUrl:"/online-quizzes/stage-2/statistics-probability/data-interpreting.html?builder=1"},
   {toolId:"s2-chance-quiz", title:"Chance", launchUrl:"/online-quizzes/stage-2/statistics-probability/chance.html", builderUrl:"/online-quizzes/stage-2/statistics-probability/chance.html?builder=1"},
+  // Stage 1 whole-topic quizzes (2026-11-28): same engine, questions from online-quizzes/stage-1/topic-quiz/s1.js. Levels a / ab / b (the syllabus parts).
+  {toolId:"s1-reading-ordering-numbers-quiz", title:"Reading and Ordering Numbers", launchUrl:"/online-quizzes/stage-1/number/reading-ordering-numbers.html", builderUrl:"/online-quizzes/stage-1/number/reading-ordering-numbers.html?builder=1"},
+  {toolId:"s1-partitioning-numbers-quiz", title:"Partitioning Numbers", launchUrl:"/online-quizzes/stage-1/number/partitioning-numbers.html", builderUrl:"/online-quizzes/stage-1/number/partitioning-numbers.html?builder=1"},
+  {toolId:"s1-adding-taking-away-quiz", title:"Adding and Taking Away", launchUrl:"/online-quizzes/stage-1/number/adding-taking-away.html", builderUrl:"/online-quizzes/stage-1/number/adding-taking-away.html?builder=1"},
+  {toolId:"s1-equal-groups-quiz", title:"Equal Groups", launchUrl:"/online-quizzes/stage-1/number/equal-groups.html", builderUrl:"/online-quizzes/stage-1/number/equal-groups.html?builder=1"},
+  {toolId:"s1-position-quiz", title:"Position", launchUrl:"/online-quizzes/stage-1/measurement-space/position.html", builderUrl:"/online-quizzes/stage-1/measurement-space/position.html?builder=1"},
+  {toolId:"s1-length-quiz", title:"Length", launchUrl:"/online-quizzes/stage-1/measurement-space/length.html", builderUrl:"/online-quizzes/stage-1/measurement-space/length.html?builder=1"},
+  {toolId:"s1-halves-quarters-eighths-quiz", title:"Halves, Quarters and Eighths", launchUrl:"/online-quizzes/stage-1/measurement-space/halves-quarters-eighths.html", builderUrl:"/online-quizzes/stage-1/measurement-space/halves-quarters-eighths.html?builder=1"},
+  {toolId:"s1-2d-shapes-quiz", title:"2D Shapes", launchUrl:"/online-quizzes/stage-1/measurement-space/2d-shapes.html", builderUrl:"/online-quizzes/stage-1/measurement-space/2d-shapes.html?builder=1"},
+  {toolId:"s1-area-quiz", title:"Area", launchUrl:"/online-quizzes/stage-1/measurement-space/area.html", builderUrl:"/online-quizzes/stage-1/measurement-space/area.html?builder=1"},
+  {toolId:"s1-3d-objects-quiz", title:"3D Objects", launchUrl:"/online-quizzes/stage-1/measurement-space/3d-objects.html", builderUrl:"/online-quizzes/stage-1/measurement-space/3d-objects.html?builder=1"},
+  {toolId:"s1-volume-capacity-quiz", title:"Capacity and Volume", launchUrl:"/online-quizzes/stage-1/measurement-space/volume-capacity.html", builderUrl:"/online-quizzes/stage-1/measurement-space/volume-capacity.html?builder=1"},
+  {toolId:"s1-mass-quiz", title:"Mass", launchUrl:"/online-quizzes/stage-1/measurement-space/mass.html", builderUrl:"/online-quizzes/stage-1/measurement-space/mass.html?builder=1"},
+  {toolId:"s1-time-quiz", title:"Time", launchUrl:"/online-quizzes/stage-1/measurement-space/time.html", builderUrl:"/online-quizzes/stage-1/measurement-space/time.html?builder=1"},
+  {toolId:"s1-data-collecting-quiz", title:"Collecting Data", launchUrl:"/online-quizzes/stage-1/statistics-probability/data-collecting.html", builderUrl:"/online-quizzes/stage-1/statistics-probability/data-collecting.html?builder=1"},
+  {toolId:"s1-data-interpreting-quiz", title:"Reading Graphs and Tables", launchUrl:"/online-quizzes/stage-1/statistics-probability/data-interpreting.html", builderUrl:"/online-quizzes/stage-1/statistics-probability/data-interpreting.html?builder=1"},
+  {toolId:"s1-chance-quiz", title:"Chance", launchUrl:"/online-quizzes/stage-1/statistics-probability/chance.html", builderUrl:"/online-quizzes/stage-1/statistics-probability/chance.html?builder=1"},
 ];
 const BUILDER_IDS = new Set(BUILDER_QUIZZES.map(q=>q.toolId));
 
@@ -1258,8 +1275,8 @@ function loadSyllabus(){
   if(window.MMT_RESOURCES && window.MMT_TOOL_LINKS) return Promise.resolve(true);
   if(!syllabusP){
     const load=Promise.all([
-      window.MMT_RESOURCES ? null : loadScriptOnce(new URL("../../resources/resourcesManifest.js?v=2c0e07cc", location.href).href),
-      window.MMT_TOOL_LINKS ? null : loadScriptOnce(new URL("../../resources/toolLinks.js?v=0a3e0311", location.href).href),
+      window.MMT_RESOURCES ? null : loadScriptOnce(new URL("../../resources/resourcesManifest.js?v=a1305e32", location.href).href),
+      window.MMT_TOOL_LINKS ? null : loadScriptOnce(new URL("../../resources/toolLinks.js?v=c75a3710", location.href).href),
     ]).then(()=>true, ()=>{ syllabusP=null; return false; });
     syllabusP=Promise.race([load, new Promise(r=>setTimeout(()=>r(false), 5000))]);
   }
@@ -2630,7 +2647,7 @@ function openStudent(code, opts){
 // module can't load, the classic page below still opens.
 async function openResults(){
   try{
-    const m = await import("./analytics.js?v=e9f12cbd");
+    const m = await import("./analytics.js?v=b932573d");
     m.openAnalytics({
       get all(){ return all; }, get students(){ return students; }, get classes(){ return classes; },
       get dashAssignments(){ return dashAssignments; }, get teacher(){ return teacher; },

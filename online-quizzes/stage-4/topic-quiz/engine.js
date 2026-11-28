@@ -234,7 +234,9 @@
     const done = S.recs.filter(Boolean).length;
     $("progressFill").style.width = Math.round(done / n * 100) + "%";
     $("qCounter").textContent = S.qs.length ? `Question ${S.i + 1} of ${S.qs.length}` : "";
-    $("scoreNow").textContent = `${S.recs.filter(r => r && r.ok).length} correct`;
+    const got = S.recs.filter(r => r && r.ok).length;
+    if (BANK && BANK.stars) $("scoreNow").innerHTML = got ? `<span class="stars" aria-label="${got} stars">${"★".repeat(Math.min(got, 30))}</span>` : `<span class="starsNone">Get a star for each one you get right first go</span>`;
+    else $("scoreNow").textContent = `${got} correct`;
   }
 
   function insertAtCaret(input, text) {
@@ -269,6 +271,22 @@
     keys.forEach(k => { const b = document.createElement("button"); b.type = "button"; b.className = "key" + (k.length > 2 ? " wide" : "") + (k === "^" ? " hat" : k === "√" ? " root" : ""); b.textContent = k; b.title = "Type " + k; b.addEventListener("mousedown", e => e.preventDefault()); b.addEventListener("click", () => { const inp = target(); if (inp && !inp.disabled) insertAtCaret(inp, KEY_TEXT[k] != null ? KEY_TEXT[k] : k); }); kb.appendChild(b); });
     return kb;
   }
+  /* ---- number pad (bank.numPad; Stage 1): big digit buttons under a number box, so a 6-year-old
+     never needs the keyboard. On a touch screen the device keyboard is kept away. ---- */
+  const COARSE = (() => { try { return matchMedia("(pointer:coarse)").matches; } catch (e) { return false; } })();
+  function numPad(target) {
+    const pad = document.createElement("div"); pad.className = "numPad"; pad.setAttribute("aria-label", "Number pad");
+    ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "⌫"].forEach(k => {
+      const b = document.createElement("button"); b.type = "button"; b.className = "npKey" + (k === "⌫" ? " del" : ""); b.textContent = k; b.setAttribute("aria-label", k === "⌫" ? "Rub out" : k);
+      b.addEventListener("mousedown", e => e.preventDefault());
+      b.addEventListener("click", () => { const inp = target(); if (!inp || inp.disabled) return;
+        if (k === "⌫") { inp.value = inp.value.slice(0, -1); inp.dispatchEvent(new Event("input")); if (!COARSE) inp.focus(); }
+        else if (COARSE) { inp.value += k; inp.dispatchEvent(new Event("input")); } else insertAtCaret(inp, k); });
+      pad.appendChild(b);
+    });
+    return pad;
+  }
+  const padFor = q => BANK.numPad && (q.mode === "num" ? Number.isInteger(q.value) && q.value >= 0 : q.mode === "multi" && q.fields.every(f => f.q.mode !== "num" || (Number.isInteger(f.q.value) && f.q.value >= 0)) && q.fields.some(f => f.q.mode === "num"));
   /* ---- multi: an answer in two or more parts, a box (or a choice) for each ---- */
   function multiUI(q, rec, chk) {
     const box = document.createElement("div"); box.className = "multi" + (q.fields.some(f => f.name) ? "" : " noLab");
@@ -302,6 +320,7 @@
     const typed = box.querySelector("input.mAns");
     if (keys.length && typed) foot.appendChild(keyBar(keys.filter(k => k !== "−" || keys.length > 1 || true), () => last || typed));
     foot.appendChild(chk); box.appendChild(foot);
+    if (padFor(q) && typed) { box.querySelectorAll("input.mAns").forEach(x => { if (COARSE) x.setAttribute("inputmode", "none"); }); box.appendChild(numPad(() => last || [...box.querySelectorAll("input.mAns")].find(x => !x.value) || typed)); box.classList.add("hasPad"); }
     return box;
   }
 
@@ -381,6 +400,7 @@
       inp.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); e.stopPropagation(); S.recs[S.i] ? next() : submit(); } });
       if (rec) inp.value = rec.input == null ? "" : rec.input;
       pv.innerHTML = previewHTML(q, inp.value);
+      if (padFor(q)) { if (COARSE) inp.setAttribute("inputmode", "none"); area.appendChild(numPad(() => inp)); }
     }
     clearNudge();
     paintFeedback();
@@ -489,7 +509,18 @@
     }
     b.hidden = false;
     try { speechSynthesis.cancel(); } catch (e) {}
+    /* bank.autoRead (Stage 1): each new question is read out by itself; a switch beside the button turns that off. */
+    if (BANK.autoRead) {
+      let t = $("autoReadBtn");
+      if (!t) { t = document.createElement("button"); t.type = "button"; t.id = "autoReadBtn"; t.className = "autoReadBtn";
+        t.addEventListener("click", () => { AUTOREAD = !AUTOREAD; try { localStorage.setItem("mmtq-autoread", AUTOREAD ? "1" : "0"); } catch (e) {} paintAuto(); if (!AUTOREAD) { try { speechSynthesis.cancel(); } catch (e) {} } });
+        b.after(t); }
+      paintAuto();
+      if (AUTOREAD && !S.recs[S.i] && !S.miss[S.i] && S.spoken !== S.i) { S.spoken = S.i; setTimeout(() => { if (!S.recs[S.i] && !document.querySelector(".modalBack.open")) b.click(); }, 350); }
+    }
   }
+  let AUTOREAD = (() => { try { return localStorage.getItem("mmtq-autoread") !== "0"; } catch (e) { return true; } })();
+  function paintAuto() { const t = $("autoReadBtn"); if (!t) return; t.textContent = AUTOREAD ? "Auto read: on" : "Auto read: off"; t.classList.toggle("off", !AUTOREAD); t.setAttribute("aria-pressed", AUTOREAD ? "true" : "false"); t.title = "Read each new question aloud by itself"; }
 
   function isAuthOpen() { const o = $("mmtLoginOverlay"); return !!(o && o.style.display !== "none"); }
 
@@ -551,7 +582,7 @@
       row.querySelectorAll(".segBtn").forEach((b, k) => { b.disabled = true; const val = f.q.mode === "tf" ? k === 0 : k, right = f.q.mode === "tf" ? f.q.truth === (k === 0) : k === f.q.correct; b.classList.toggle("good", right); b.classList.toggle("bad", val === v && !right); });
       if (!ok && !row.querySelector(".mFix")) { const fx = document.createElement("span"); fx.className = "mFix"; fx.innerHTML = answerText(Object.assign({}, f.q, { pre: "" , answerHTML: f.q.answerHTML })); if (f.q.mode !== "mc" && f.q.mode !== "tf") row.querySelector(".mIn").appendChild(fx); }
     });
-    area.querySelectorAll(".key").forEach(k => k.disabled = true);
+    area.querySelectorAll(".key, .npKey").forEach(k => k.disabled = true);
     if (q.mode === "mc") area.querySelectorAll(".choice").forEach((b, k) => { b.disabled = true; b.classList.toggle("good", k === q.correct); b.classList.toggle("bad", k === r.input && !r.ok && !r.fixed); b.classList.toggle("sel", k === r.input); });
     if (q.mode === "tf") area.querySelectorAll(".choice").forEach(b => { const v = b.dataset.v === "true"; b.disabled = true; b.classList.toggle("good", v === q.truth); b.classList.toggle("bad", v === r.input && !r.ok); });
     if (q.mode === "plot") { const g = $("qDiagram")._grid; g && g.markAnswer && g.markAnswer(r.input, r.ok, [q.x, q.y]); }
@@ -609,7 +640,7 @@
 
   function start(level, typeIds, count) {
     S.level = level; S.typeIds = typeIds; S.count = count;
-    S.qs = buildPaper(level, typeIds, count); S.recs = []; S.miss = []; S.i = 0; S.done = false;
+    S.qs = buildPaper(level, typeIds, count); S.recs = []; S.miss = []; S.spoken = -1; S.i = 0; S.done = false;
     try { if (window.MMTSubmit && window.MMTSubmit.reset) window.MMTSubmit.reset(); } catch (e) {}
     closeModal("certModal");
     hideStart();
@@ -859,6 +890,7 @@
   function run(bank) {
     BANK = bank;
     if (bank.young) document.body.classList.add("young");
+    if (bank.year12) document.body.classList.add("year12");
     setupLevels();
     paintShell();
     wire();

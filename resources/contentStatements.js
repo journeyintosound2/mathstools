@@ -2,11 +2,11 @@
    Mills Maths Tools — Resources by Stage : CONTENT STATEMENTS ("ideas")
    ----------------------------------------------------------------------------
    The content statements of the NSW Mathematics K–10 Syllabus (2022) for every
-   Stage 3, 4 and 5 outcome on the Resources by Stage page. On the page each
+   Stage 1, 2, 3, 4 and 5 outcome on the Resources by Stage page. On the page each
    statement is an "idea": click it and the resources filed under it open.
 
    WORDING: verbatim from NESA's own "Record of learning and achievement using
-   syllabus content" documents (Stage 3, 4 and 5, February 2024), which list
+   syllabus content" documents (Stages 1 to 5, February 2024), which list
    every focus area's content statements. Stage 3 statements there carry a
    prefix such as "Whole numbers:" or "Length:" — it is kept here as `group`.
    © NSW Education Standards Authority for and on behalf of the Crown in right
@@ -18,9 +18,13 @@
 
      id     short slug, unique within its outcome. Resources point at it.
      text   the content statement, word for word.
-     part   Stage 3 only: "A" or "B" — which half of the focus area
+     part   Stages 1–3 only: "A" or "B" — which half of the focus area
             (a Year 5 / Year 6 emphasis of the same outcomes).
-     group  Stage 3 only: NESA's sub-heading ("Whole numbers", "Area", …).
+     group  Stages 1–3 only: NESA's sub-heading ("Whole numbers", "Area", …).
+
+   STAGES 1 AND 2 (added 2026-11-28): a statement is filed under the outcome it serves, as for
+   Stage 3. Two Data statements name both outcomes' work ("Represent … and describe the
+   displays", "Construct and interpret …"), so they are listed under BOTH Data outcomes.
 
    Stage 3 focus areas list their statements against several outcomes at once
    (Geometric measure A → MA3-GM-01/02/03). Each statement is filed under the
@@ -42,12 +46,210 @@
 window.MMT_CONTENT = {
 
   meta: {
-    source: "NSW Mathematics K–10 Syllabus (2022), NESA — content statements as listed in NESA's Record of learning and achievement using syllabus content (Stages 3–5, February 2024)",
+    source: "NSW Mathematics K–10 Syllabus (2022), NESA — content statements as listed in NESA's Record of learning and achievement using syllabus content (Stages 1–5, February 2024)",
     url: "https://curriculum.nsw.edu.au/learning-areas/mathematics/mathematics-k-10-2022",
-    checked: "2026-10-31"
+    checked: "2026-11-28"
   },
 
   statements: {
+
+    /* ======================= STAGE 1 ======================= */
+
+    "MA1-RWN-01": [
+      { id:"counting-ones", part:"A", text:"Use counting sequences of ones with two-digit numbers and beyond" },
+      { id:"number-patterns", part:"A", text:"Continue and create number patterns" },
+      { id:"numbers-on-line", part:"A", text:"Represent numbers on a line" },
+      { id:"counting-ones-tens", part:"B", text:"Use counting sequences of ones and tens flexibly" }
+    ],
+    "MA1-RWN-02": [
+      { id:"groups-of-ten", part:"A", text:"Represent the structure of groups of ten in whole numbers" },
+      { id:"three-digit", part:"B", text:"Form, regroup, and rename three-digit numbers" }
+    ],
+    "MA1-CSQ-01": [
+      { id:"count-by-one", part:"A", text:"Use advanced count-by-one strategies to solve addition and subtraction problems" },
+      { id:"number-bonds", part:"A", text:"Recognise and recall number bonds up to ten" },
+      { id:"flexible-strategies", part:"A", text:"Use flexible strategies to solve addition and subtraction problems" },
+      { id:"equality", part:"A", text:"Represent equality" },
+      { id:"additive-relations", part:"B", text:"Represent and reason about additive relations" },
+      { id:"multiples-of-ten", part:"B", text:"Form multiples of ten when adding and subtracting two-digit numbers" },
+      { id:"equality-problems", part:"B", text:"Use knowledge of equality to solve related problems" }
+    ],
+    "MA1-FG-01": [
+      { id:"skip-counting", part:"A", text:"Count in multiples using rhythmic and skip counting" },
+      { id:"skip-patterns", part:"A", text:"Use skip counting patterns" },
+      { id:"equal-groups", part:"A", text:"Model and use equal groups of objects to represent multiplication" },
+      { id:"division", part:"A", text:"Recognise and represent division" },
+      { id:"combining-groups", part:"B", text:"Represent and explain multiplication as the combining of equal groups" },
+      { id:"doubling-halving", part:"B", text:"Model doubling and halving with fractions" },
+      { id:"mult-div-problems", part:"B", text:"Represent multiplication and division problems" }
+    ],
+    "MA1-GM-01": [
+      { id:"follow-directions", part:"A", group:"Position", text:"Follow directions to familiar locations" },
+      { id:"simple-maps", part:"B", group:"Position", text:"Explore simple maps of familiar locations" }
+    ],
+    "MA1-GM-02": [
+      { id:"measure-informal", part:"A", group:"Length", text:"Measure the lengths of objects using uniform informal units" },
+      { id:"compare-informal", part:"A", group:"Length", text:"Compare lengths using uniform informal units" },
+      { id:"order-lengths", part:"B", group:"Length", text:"Compare and order lengths, using appropriate uniform informal units" },
+      { id:"formal-units", part:"B", group:"Length", text:"Recognise and use formal units to measure the lengths of objects" }
+    ],
+    "MA1-GM-03": [
+      { id:"halves-quarters", part:"A", group:"Length", text:"Subdivide lengths to find halves and quarters" },
+      { id:"eighths", part:"B", group:"Length", text:"Repeatedly halve lengths to form eighths" }
+    ],
+    "MA1-2DS-01": [
+      { id:"classify-shapes", part:"A", group:"2D shapes", text:"Recognise and classify shapes using obvious features" },
+      { id:"slides-reflections", part:"A", group:"2D shapes", text:"Transform shapes with slides and reflections" },
+      { id:"combine-separate", part:"B", group:"2D shapes", text:"Represent, combine and separate two-dimensional shapes" },
+      { id:"quarter-turns", part:"B", group:"2D shapes", text:"Identify and describe the orientation of shapes using quarter turns" }
+    ],
+    "MA1-2DS-02": [
+      { id:"compare-indirectly", part:"A", group:"Area", text:"Indirectly compare area" },
+      { id:"informal-units", part:"A", group:"Area", text:"Measure areas using uniform informal units" },
+      { id:"rows-columns", part:"B", group:"Area", text:"Compare rectangular areas using uniform square units of an appropriate size in rows and columns" }
+    ],
+    "MA1-3DS-01": [
+      { id:"recognise-objects", part:"A", group:"3D objects", text:"Recognise familiar three-dimensional objects" },
+      { id:"sort-describe", part:"A", group:"3D objects", text:"Sort and describe three-dimensional objects" },
+      { id:"features", part:"B", group:"3D objects", text:"Describe the features of three-dimensional objects" }
+    ],
+    "MA1-3DS-02": [
+      { id:"filling", part:"A", group:"Volume", text:"Measure and compare the internal volumes (capacities) of containers by filling" },
+      { id:"packing", part:"A", group:"Volume", text:"Measure the internal volume (capacity) of containers by packing" },
+      { id:"construct-cubes", part:"A", group:"Volume", text:"Construct volumes using cubes" },
+      { id:"compare-containers", part:"B", group:"Volume", text:"Compare containers based on internal volume (capacity) by filling and packing" },
+      { id:"compare-volumes", part:"B", group:"Volume", text:"Compare volumes using uniform informal units" }
+    ],
+    "MA1-NSM-01": [
+      { id:"investigate-balance", part:"A", group:"Mass", text:"Investigate mass using an equal-arm balance" },
+      { id:"compare-balance", part:"B", group:"Mass", text:"Compare the masses of objects using an equal-arm balance" }
+    ],
+    "MA1-NSM-02": [
+      { id:"months", part:"A", group:"Time", text:"Name and order the cycle of months" },
+      { id:"half-hour", part:"A", group:"Time", text:"Tell time to the half-hour" },
+      { id:"duration", part:"B", group:"Time", text:"Describe duration using units of time" },
+      { id:"quarter-hour", part:"B", group:"Time", text:"Tell time to the quarter-hour using the language of ‘past’ and ‘to’" }
+    ],
+    "MA1-DATA-01": [
+      { id:"ask-gather", part:"A", text:"Ask questions and gather data" },
+      { id:"represent-describe", part:"A", text:"Represent data with objects and drawings and describe the displays" },
+      { id:"question-of-interest", part:"B", text:"Identify a question of interest and gather relevant data" },
+      { id:"create-interpret", part:"B", text:"Create displays of data and interpret them" }
+    ],
+    "MA1-DATA-02": [
+      { id:"represent-describe", part:"A", text:"Represent data with objects and drawings and describe the displays" },
+      { id:"create-interpret", part:"B", text:"Create displays of data and interpret them" }
+    ],
+    "MA1-CHAN-01": [
+      { id:"possible-outcomes", part:"A", text:"Identify and describe possible outcomes" },
+      { id:"activities-chance", part:"B", text:"Identify and describe activities that involve chance" }
+    ],
+
+    /* ======================= STAGE 2 ======================= */
+
+    "MA2-RN-01": [
+      { id:"read-order-thousands", part:"A", group:"Whole numbers", text:"Read, represent and order numbers to thousands" },
+      { id:"partition-4-digits", part:"A", group:"Whole numbers", text:"Apply place value to partition and regroup numbers up to 4 digits" },
+      { id:"order-thousands", part:"B", group:"Whole numbers", text:"Order numbers in the thousands" },
+      { id:"rename-6-digits", part:"B", group:"Whole numbers", text:"Apply place value to partition, regroup and rename numbers up to 6 digits" },
+      { id:"times-as-large", part:"B", group:"Whole numbers", text:"Recognise and represent numbers that are 10, 100 or 1000 times as large" }
+    ],
+    "MA2-RN-02": [
+      { id:"tenths-hundredths", part:"B", group:"Decimals", text:"Extend the application of the place value system from whole numbers to tenths and hundredths" },
+      { id:"fractions-decimals", part:"B", group:"Decimals", text:"Make connections between fractions and decimal notation" }
+    ],
+    "MA2-AR-01": [
+      { id:"add-subtract-connection", part:"A", text:"Recognise and explain the connection between addition and subtraction" },
+      { id:"select-strategies", part:"A", text:"Select strategies flexibly to solve addition and subtraction problems of up to 3 digits" },
+      { id:"money-values", part:"A", text:"Represent money values in multiple ways" },
+      { id:"partition-regroup", part:"B", text:"Partition, rearrange and regroup numbers to at least 1000 to solve additive problems" },
+      { id:"money-budgeting", part:"B", text:"Apply addition and subtraction to familiar contexts, including money and budgeting" }
+    ],
+    "MA2-AR-02": [
+      { id:"equality", part:"A", text:"Use the principle of equality" },
+      { id:"number-sentences", part:"B", text:"Complete number sentences involving additive relations to find unknown quantities" }
+    ],
+    "MA2-MR-01": [
+      { id:"patterns", part:"A", text:"Generate and describe patterns" },
+      { id:"arrays-facts", part:"A", text:"Use arrays to establish multiplication facts from multiples of 2 and 4, 5 and 10" },
+      { id:"recall-facts", part:"A", text:"Recall multiplication facts of 2 and 4, 5 and 10 and related division facts" },
+      { id:"related-multiples", part:"B", text:"Investigate number sequences involving related multiples" },
+      { id:"known-facts", part:"B", text:"Use known number facts and strategies" },
+      { id:"area-model", part:"B", text:"Use the structure of the area model to represent multiplication and division" },
+      { id:"number-properties", part:"B", text:"Use number properties to find related multiplication facts" },
+      { id:"multiples-of-10", part:"B", text:"Operate with multiples of 10" }
+    ],
+    "MA2-MR-02": [
+      { id:"fact-families", part:"A", text:"Represent and solve problems involving multiplication fact families" },
+      { id:"word-problems", part:"B", text:"Represent and solve word problems with number sentences involving multiplication or division" }
+    ],
+    "MA2-PF-01": [
+      { id:"fractional-parts", part:"A", text:"Create fractional parts of a length using techniques other than repeated halving" },
+      { id:"unit-fractions-line", part:"A", text:"Model and represent unit fractions, and their multiples, to a complete whole on a number line" },
+      { id:"equivalent-lengths", part:"B", text:"Model equivalent fractions as lengths" },
+      { id:"greater-than-one", part:"B", text:"Represent fractional quantities equal to and greater than one" }
+    ],
+    "MA2-GM-01": [
+      { id:"movement-map", part:"A", group:"Position", text:"Interpret movement on a map" },
+      { id:"grid-positions", part:"A", group:"Position", text:"Locate positions on grid maps" },
+      { id:"create-grid-maps", part:"B", group:"Position", text:"Create and interpret grid maps" },
+      { id:"describe-routes", part:"B", group:"Position", text:"Use directional language and describe routes with grid maps" }
+    ],
+    "MA2-GM-02": [
+      { id:"m-cm-mm", part:"A", group:"Length", text:"Measure and compare objects using metres, centimetres and millimetres" },
+      { id:"scaled-instruments", part:"B", group:"Length", text:"Use scaled instruments to measure and compare lengths" }
+    ],
+    "MA2-GM-03": [
+      { id:"measures-of-turn", part:"A", group:"Angles", text:"Identify angles as measures of turn" },
+      { id:"compare-right-angle", part:"B", group:"Angles", text:"Compare angles to a right angle" }
+    ],
+    "MA2-2DS-01": [
+      { id:"features", part:"A", group:"2D shapes", text:"Compare and describe features of two-dimensional shapes" },
+      { id:"symmetry", part:"B", group:"2D shapes", text:"Create symmetrical patterns and shapes" }
+    ],
+    "MA2-2DS-02": [
+      { id:"transform", part:"A", group:"2D shapes", text:"Transform shapes by reflecting, translating and rotating" },
+      { id:"combine-split", part:"B", group:"2D shapes", text:"Create two-dimensional shapes that result from combining and splitting common shapes" }
+    ],
+    "MA2-2DS-03": [
+      { id:"square-centimetres", part:"A", group:"Area", text:"Use square centimetres to measure and estimate the areas of rectangles" },
+      { id:"square-metres", part:"A", group:"Area", text:"Use square metres to measure and estimate the areas of rectangles" },
+      { id:"grid-structure", part:"B", group:"Area", text:"Measure the areas of shapes using the grid structure" },
+      { id:"compare-surfaces", part:"B", group:"Area", text:"Compare surfaces using familiar metric units of area" }
+    ],
+    "MA2-3DS-01": [
+      { id:"models", part:"A", group:"3D objects", text:"Make models of three-dimensional objects to compare and describe key features" },
+      { id:"representations", part:"B", group:"3D objects", text:"Connect three-dimensional objects and two-dimensional representations" }
+    ],
+    "MA2-3DS-02": [
+      { id:"litres", part:"A", group:"Volume", text:"Measure and order containers using litres" },
+      { id:"metric-volume", part:"A", group:"Volume", text:"Compare objects using familiar metric units of volume" },
+      { id:"scaled-capacity", part:"B", group:"Volume", text:"Use scaled instruments to measure and compare capacities (internal volumes)" }
+    ],
+    "MA2-NSM-01": [
+      { id:"kilogram", part:"A", group:"Mass", text:"Compare objects using the kilogram" },
+      { id:"scaled-mass", part:"B", group:"Mass", text:"Use scaled instruments to measure and compare masses" }
+    ],
+    "MA2-NSM-02": [
+      { id:"analog-time", part:"A", group:"Time", text:"Represent and read analog time" },
+      { id:"digital-time", part:"B", group:"Time", text:"Represent and interpret digital time displays" },
+      { id:"am-pm", part:"B", group:"Time", text:"Use am and pm notation" }
+    ],
+    "MA2-DATA-01": [
+      { id:"collect", part:"A", text:"Collect discrete data" },
+      { id:"tables-graphs", part:"A", text:"Organise and display data using tables and graphs" },
+      { id:"collection-methods", part:"B", text:"Select and trial methods for data collection" },
+      { id:"many-to-one", part:"B", text:"Construct and interpret data displays with many-to-one scales" }
+    ],
+    "MA2-DATA-02": [
+      { id:"interpret-compare", part:"A", text:"Interpret and compare data" },
+      { id:"many-to-one", part:"B", text:"Construct and interpret data displays with many-to-one scales" }
+    ],
+    "MA2-CHAN-01": [
+      { id:"possible-outcomes", part:"A", text:"Identify possible outcomes from chance experiments" },
+      { id:"likelihood", part:"B", text:"Describe the likelihood of outcomes of chance events" },
+      { id:"previous-events", part:"B", text:"Identify when events are affected by previous events" }
+    ],
 
     /* ======================= STAGE 3 ======================= */
 

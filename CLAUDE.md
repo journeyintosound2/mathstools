@@ -259,6 +259,38 @@
 > Chromium (Inter). Source: `tools/pdf-worksheets/bin-toss/` (`build.py` + `ws.css` → `render.py`, Playwright; needs `logo.png` =
 > a copy of `icons/icon-192.png` beside it). Re-render and copy the PDF over after any edit.
 >
+> **NEW (2026-11-28, evening): THE PLATFORM NOW RUNS STAGE 1 TO STAGE 5 — STAGES 1 AND 2 ON RESOURCES BY STAGE + STAGE 1 WHOLE-TOPIC QUIZZES.**
+> * **Syllabus data (NESA, not paraphrase).** Outcome codes/statements from the NESA outcomes page; content statements word for
+>   word from NESA's *Record of learning and achievement using syllabus content* for Stage 1 and Stage 2 (Feb 2024) — the same
+>   source as Stages 3–5. `resourcesManifest.js` gained `stage1` (9 topics, 16 outcomes) and `stage2` (10 topics, 20 outcomes),
+>   each A/B focus-area pair collated into one topic as in Stage 3; `contentStatements.js` gained 57 + 63 statements with
+>   `part` A/B and NESA's sub-heading as `group`. A statement is filed under the outcome it serves (Position → GM-01, Length →
+>   GM-02, …); two Data statements that name both outcomes' work are listed under BOTH Data outcomes. Stage 1 has no fractions
+>   outcome: halves, quarters and eighths are MA1-GM-03.
+> * **Resources by Stage** (`resources/index.html`): five tabs (Stage 1 … Stage 5; `STAGES`, deep links `#stage1`,
+>   `#MA2-MR-01/area-model`), Core/Path pills hidden for Stages 1–3, tabs wrap under 980px. `toolLinks.js` has a "Student quiz"
+>   row for every MA1/MA2 outcome (`ideas` = all its statements) and **cross-lists existing tools DOWN to Stage 2** with their
+>   own ideas: ×10 place value family and the Nasty Game (MA2-RN-01), Addition by Compensation and Constant Difference
+>   (MA2-AR-01), Times Table Chart, its poster, the Area Model family and Closest to 100 (MA2-MR-01), Fraction Bar + Number
+>   Line (MA2-PF-01). `toolFamilies.js` lists the 36 new whole-topic quizzes. The teacher's task picker now files Stage 1 and 2
+>   quizzes under their syllabus topics (the registry `topicName` fallback is no longer reached, but left in).
+> * **Stage 1 quizzes: 16 outcomes**, `online-quizzes/stage-1/<strand>/<slug>.html`, questions from
+>   `online-quizzes/stage-1/topic-quiz/s1.js` + `s1-map.js` (BUILT from the RG Stage 1 banks' outcome tags; three capacity
+>   types tagged 3DS-01 by the bank are moved to 3DS-02). toolIds `s1-<slug>-quiz`. Levels Part A (usually Year 1) /
+>   Parts A and B (Year 2). 181 on-screen types, 3 paper-only (colour/draw). s1.js is ASSEMBLED like s2.js (same shared
+>   young-reader helpers; Stage 1 specs + `natural()` option order A–D / Yes–No).
+> * **Design for 6–8-year-olds (engine flags, all off for other stages):** `autoRead` — each new question is read out by
+>   itself (switch "Auto read: on/off", remembered in `mmtq-autoread`); `numPad` — big 0–9 pad under every whole-number box,
+>   device keyboard kept away on touch screens (`inputmode="none"`), in a multi-box question the pad types into the box that
+>   was tapped; `stars` — a ★ per first-go correct answer instead of "n correct"; plus Stage 2's `secondTry`, chosen word
+>   answers and larger type (`body.year12`). Anything the bank offers choices for and asks as "Which / Is / Can / About how…"
+>   is chosen, even when the answer is a number.
+> * Verified: Node harness for Stage 1 (every type × 30: answer accepted, wrong answer rejected, ≤ 25 words and ≤ 14 a
+>   sentence), every type of all 16 quizzes played at 1366 and 390, the number pad / auto read / stars checks, Resources by
+>   Stage (5 tabs, counts, 120 statements, 36 quiz bands, deep link, search, 390), the teacher builder for all 36 Stage 1–2
+>   quizzes placed under their syllabus topics, and Stage 3/4/5 regressions.
+> * Not done: Early Stage 1; worksheets for Stages 1–2; Arabic/Farsi.
+>
 > **NEW (2026-11-28, latest): STAGE 2 WHOLE-TOPIC QUIZZES — ALL 20 OUTCOMES (YEARS 3–4), SETTABLE FROM THE TEACHER PLATFORM.**
 > `online-quizzes/stage-2/<number|measurement-space|statistics-probability>/<slug>.html` (thin shells on the shared engine
 > `online-quizzes/stage-4/topic-quiz/`), questions made in `online-quizzes/stage-2/topic-quiz/s2.js` + `s2-map.js` from the
@@ -280,17 +312,15 @@
 >   Engine additions are all gated on `bank.young` / `bank.secondTry` / `bank.defaultCount`, so Stages 3–5 are unchanged.
 > * **s2.js is ASSEMBLED** (session scratch: head + s3.js's generic machinery copied + specs + tail). Fix a bug in s3.js's
 >   `auto`/`mc`/`numAns`… → port it. ~75 `spec()` entries turn paper wording into screen questions.
-> * **Stage 2 is NOT in the syllabus files** (no MA2 in resourcesManifest / toolLinks / contentStatements — no official content
->   statements to hand), so it is not on Resources by Stage. The teacher's task picker places these by a registry field,
->   **`topicName`** (each quiz = its own topic card, in registry order; `buildCatalogue` fallback), and a Stage 2 tab appears
->   because the stage has quizzes. `BUILDER_QUIZZES` has the 20 rows. Homepage: "Stage 2 — whole topic" grid (Online Quizzes
->   pill 110 → 130).
+> * Stage 2 was added to the syllabus files and Resources by Stage later the same day (see the entry above); the registry
+>   field **`topicName`** is only a fallback for a quiz with no toolLinks row. `BUILDER_QUIZZES` has the 20 rows. Homepage:
+>   "Stage 2 — whole topic" grid.
 > * Verified: Node harness (every type × 30–40: canonical answer accepted, a wrong answer rejected, no dead type, no constant
 >   answer, no chosen question saying "write", reading-load lint ≤ 34 words / ≤ 22 a sentence apart from lists), Playwright:
 >   every type of all 20 quizzes played at 1366 and 390 (0 fails), second-go rules (24 checks), save payload (fixed answers do
 >   not score, no typed answers), the Teacher Platform's own `obDescribe`/`obGenerate` driving all 20 builders, a task link, and
 >   Stage 3/4/5 regressions.
-> * Not done: Stage 2 on Resources by Stage (needs NESA content statements), Stage 1, Arabic/Farsi, a fluent check of the
+> * Not done: Arabic/Farsi, a fluent check of the
 >   device voices (the Web Speech voice is the device's own).
 >
 > **NEW (2026-11-28, last): STAGE 5 WHOLE-TOPIC QUIZZES — ALL 41 OUTCOMES (CORE AND PATH), SETTABLE FROM THE TEACHER PLATFORM.**
@@ -6251,8 +6281,8 @@ portal/PLACEMENT.md , portal/README.md   migration + structure notes
   **function first**, then push the website.
 
 ## 8. Open / future items
-- **Whole-topic quizzes:** every Stage 2 (20), Stage 3 (21), Stage 4 (16) and Stage 5 (41) outcome now has one (2026-11-28). Follow-ups:
-  Arabic/Farsi for the shared-engine quizzes; multi-select answers; Stage 1 on the same engine (Stage 2 done); Stage 2 on Resources by Stage (their RG banks exist).
+- **Whole-topic quizzes:** every Stage 1 (16), Stage 2 (20), Stage 3 (21), Stage 4 (16) and Stage 5 (41) outcome now has one (2026-11-28). Follow-ups:
+  Arabic/Farsi for the shared-engine quizzes; multi-select answers; Early Stage 1; whole-topic worksheets for Stages 1–2 (their RG banks exist).
 - **Student-quiz sign-in sweep:** 11 of 26 quizzes carry the v2 login block
   (adding-subtracting-fractions joined 2026-08-20).
   The other **15** still have bespoke inline sign-in and their own completion

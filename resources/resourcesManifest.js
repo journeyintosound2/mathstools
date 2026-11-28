@@ -59,6 +59,428 @@ window.MMT_RESOURCES = {
   ],
 
   /* ==========================================================================
+     STAGE 1  (Years 1–2) — outcomes and focus areas from the NSW Mathematics K–10
+     Syllabus (2022). As in Stage 3, each focus area has a Part A and a Part B that
+     carry the SAME outcomes, so the pair is one topic here. No Core / Path in K–6.
+     ========================================================================== */
+  stage1: [
+    {
+      slug: "representing-whole-numbers",
+      name: "Representing Whole Numbers",
+      strand: "number-algebra",
+      icon: "123",
+      collates: "Representing whole numbers A, B",
+      blurb: "Counting, reading, writing and ordering numbers to 1000, number lines, and tens and ones.",
+      outcomes: [
+        {
+          code: "MA1-RWN-01",
+          focusArea: "Representing whole numbers A & B",
+          statement: "applies an understanding of place value and the role of zero to read, write and order two- and three-digit numbers",
+          resources: []
+        },
+        {
+          code: "MA1-RWN-02",
+          focusArea: "Representing whole numbers A & B",
+          statement: "reasons about representations of whole numbers to 1000, partitioning numbers to use and record quantity values",
+          resources: []
+        }
+      ]
+    },
+    {
+      slug: "combining-separating-quantities",
+      name: "Combining and Separating Quantities",
+      strand: "number-algebra",
+      icon: "+−",
+      collates: "Combining and separating quantities A, B",
+      blurb: "Adding and taking away with number bonds, counting on and back, doubles, and making ten.",
+      outcomes: [
+        {
+          code: "MA1-CSQ-01",
+          focusArea: "Combining and separating quantities A & B",
+          statement: "uses number bonds and the relationship between addition and subtraction to solve problems involving partitioning",
+          resources: []
+        }
+      ]
+    },
+    {
+      slug: "forming-groups",
+      name: "Forming Groups",
+      strand: "number-algebra",
+      icon: "×÷",
+      collates: "Forming groups A, B",
+      blurb: "Skip counting, equal groups, arrays, sharing and grouping, doubling and halving.",
+      outcomes: [
+        {
+          code: "MA1-FG-01",
+          focusArea: "Forming groups A & B",
+          statement: "uses the structure of equal groups to solve multiplication problems, and shares or groups to solve division problems",
+          resources: []
+        }
+      ]
+    },
+    {
+      slug: "geometric-measure",
+      name: "Geometric Measure",
+      strand: "measurement-space",
+      icon: "📐",
+      collates: "Geometric measure A, B",
+      blurb: "Position and directions, measuring length with informal units, metres and centimetres, and halves, quarters and eighths of a length.",
+      outcomes: [
+        {
+          code: "MA1-GM-01",
+          focusArea: "Geometric measure A & B",
+          statement: "represents and describes the positions of objects in familiar locations",
+          resources: []
+        },
+        {
+          code: "MA1-GM-02",
+          focusArea: "Geometric measure A & B",
+          statement: "measures, records, compares and estimates lengths and distances using uniform informal units, as well as metres and centimetres",
+          resources: []
+        },
+        {
+          code: "MA1-GM-03",
+          focusArea: "Geometric measure A & B",
+          statement: "creates and recognises halves, quarters and eighths as part measures of a whole length",
+          resources: []
+        }
+      ]
+    },
+    {
+      slug: "two-dimensional-spatial-structure",
+      name: "Two-Dimensional Spatial Structure",
+      strand: "measurement-space",
+      icon: "▦",
+      collates: "Two-dimensional spatial structure A, B",
+      blurb: "Naming and sorting 2D shapes, slides, flips and quarter turns, and area in rows and columns.",
+      outcomes: [
+        {
+          code: "MA1-2DS-01",
+          focusArea: "Two-dimensional spatial structure A & B",
+          statement: "recognises, describes and represents shapes including quadrilaterals and other common polygons",
+          resources: []
+        },
+        {
+          code: "MA1-2DS-02",
+          focusArea: "Two-dimensional spatial structure A & B",
+          statement: "measures and compares areas using uniform informal units in rows and columns",
+          resources: []
+        }
+      ]
+    },
+    {
+      slug: "three-dimensional-spatial-structure",
+      name: "Three-Dimensional Spatial Structure",
+      strand: "measurement-space",
+      icon: "🧊",
+      collates: "Three-dimensional spatial structure A, B",
+      blurb: "Familiar 3D objects and their features, and capacity and volume by filling, packing and building.",
+      outcomes: [
+        {
+          code: "MA1-3DS-01",
+          focusArea: "Three-dimensional spatial structure A & B",
+          statement: "recognises, describes and represents familiar three-dimensional objects",
+          resources: []
+        },
+        {
+          code: "MA1-3DS-02",
+          focusArea: "Three-dimensional spatial structure A & B",
+          statement: "measures, records, compares and estimates internal volumes (capacities) and volumes using uniform informal units",
+          resources: []
+        }
+      ]
+    },
+    {
+      slug: "non-spatial-measure",
+      name: "Non-Spatial Measure",
+      strand: "measurement-space",
+      icon: "⚖",
+      collates: "Non-spatial measure A, B",
+      blurb: "Mass on an equal-arm balance, months and durations, and time to the half-hour and quarter-hour.",
+      outcomes: [
+        {
+          code: "MA1-NSM-01",
+          focusArea: "Non-spatial measure A & B",
+          statement: "measures, records, compares and estimates the masses of objects using uniform informal units",
+          resources: []
+        },
+        {
+          code: "MA1-NSM-02",
+          focusArea: "Non-spatial measure A & B",
+          statement: "describes, compares and orders durations of events, and reads half- and quarter-hour time",
+          resources: []
+        }
+      ]
+    },
+    {
+      slug: "data",
+      name: "Data",
+      strand: "statistics-probability",
+      icon: "📊",
+      collates: "Data A, B",
+      blurb: "Asking questions, gathering data, and making and reading picture graphs, tallies and tables.",
+      outcomes: [
+        {
+          code: "MA1-DATA-01",
+          focusArea: "Data A & B",
+          statement: "gathers and organises data, displays data in lists, tables and picture graphs",
+          resources: []
+        },
+        {
+          code: "MA1-DATA-02",
+          focusArea: "Data A & B",
+          statement: "reasons about representations of data to describe and interpret the results",
+          resources: []
+        }
+      ]
+    },
+    {
+      slug: "chance",
+      name: "Chance",
+      strand: "statistics-probability",
+      icon: "🎲",
+      collates: "Chance A, B",
+      blurb: "What will happen, might happen or won't happen, and activities that involve chance.",
+      outcomes: [
+        {
+          code: "MA1-CHAN-01",
+          focusArea: "Chance A & B",
+          statement: "recognises and describes the element of chance in everyday events",
+          resources: []
+        }
+      ]
+    }
+  ],
+
+  /* ==========================================================================
+     STAGE 2  (Years 3–4) — outcomes and focus areas from the NSW Mathematics K–10
+     Syllabus (2022). As in Stage 3, each focus area has a Part A and a Part B that
+     carry the SAME outcomes, so the pair is one topic here. No Core / Path in K–6.
+     ========================================================================== */
+  stage2: [
+    {
+      slug: "representing-numbers-place-value",
+      name: "Representing Numbers Using Place Value",
+      strand: "number-algebra",
+      icon: "123",
+      collates: "Representing numbers using place value A, B",
+      blurb: "Numbers to tens of thousands and beyond, partitioning and renaming, and decimals to hundredths.",
+      outcomes: [
+        {
+          code: "MA2-RN-01",
+          focusArea: "Representing numbers using place value A & B",
+          statement: "applies an understanding of place value and the role of zero to represent numbers to at least tens of thousands",
+          resources: []
+        },
+        {
+          code: "MA2-RN-02",
+          focusArea: "Representing numbers using place value A & B",
+          statement: "represents and compares decimals up to 2 decimal places using place value",
+          resources: []
+        }
+      ]
+    },
+    {
+      slug: "additive-relations",
+      name: "Additive Relations",
+      strand: "number-algebra",
+      icon: "+−",
+      collates: "Additive relations A, B",
+      blurb: "Flexible strategies for adding and subtracting 2- and 3-digit numbers, money, and missing numbers.",
+      outcomes: [
+        {
+          code: "MA2-AR-01",
+          focusArea: "Additive relations A & B",
+          statement: "selects and uses mental and written strategies for addition and subtraction involving 2- and 3-digit numbers",
+          resources: []
+        },
+        {
+          code: "MA2-AR-02",
+          focusArea: "Additive relations A & B",
+          statement: "completes number sentences involving addition and subtraction by finding missing values",
+          resources: []
+        }
+      ]
+    },
+    {
+      slug: "multiplicative-relations",
+      name: "Multiplicative Relations",
+      strand: "number-algebra",
+      icon: "×÷",
+      collates: "Multiplicative relations A, B",
+      blurb: "Arrays, multiplication and division facts to 10 × 10, the area model, and number sentences.",
+      outcomes: [
+        {
+          code: "MA2-MR-01",
+          focusArea: "Multiplicative relations A & B",
+          statement: "represents and uses the structure of multiplicative relations to 10 × 10 to solve problems",
+          resources: []
+        },
+        {
+          code: "MA2-MR-02",
+          focusArea: "Multiplicative relations A & B",
+          statement: "completes number sentences involving multiplication and division by finding missing values",
+          resources: []
+        }
+      ]
+    },
+    {
+      slug: "partitioned-fractions",
+      name: "Partitioned Fractions",
+      strand: "number-algebra",
+      icon: "½",
+      collates: "Partitioned fractions A, B",
+      blurb: "Halves, quarters, thirds and fifths as lengths on a number line, equivalent fractions, and fractions beyond one.",
+      outcomes: [
+        {
+          code: "MA2-PF-01",
+          focusArea: "Partitioned fractions A & B",
+          statement: "represents and compares halves, quarters, thirds and fifths as lengths on a number line and their related fractions formed by halving (eighths, sixths and tenths)",
+          resources: []
+        }
+      ]
+    },
+    {
+      slug: "geometric-measure",
+      name: "Geometric Measure",
+      strand: "measurement-space",
+      icon: "📐",
+      collates: "Geometric measure A, B",
+      blurb: "Grid maps and directions, length in metres, centimetres and millimetres, and angles compared with a right angle.",
+      outcomes: [
+        {
+          code: "MA2-GM-01",
+          focusArea: "Geometric measure A & B",
+          statement: "uses grid maps and directional language to locate positions and follow routes",
+          resources: []
+        },
+        {
+          code: "MA2-GM-02",
+          focusArea: "Geometric measure A & B",
+          statement: "measures and estimates lengths in metres, centimetres and millimetres",
+          resources: []
+        },
+        {
+          code: "MA2-GM-03",
+          focusArea: "Geometric measure A & B",
+          statement: "identifies angles and classifies them by comparing to a right angle",
+          resources: []
+        }
+      ]
+    },
+    {
+      slug: "two-dimensional-spatial-structure",
+      name: "Two-Dimensional Spatial Structure",
+      strand: "measurement-space",
+      icon: "▦",
+      collates: "Two-dimensional spatial structure A, B",
+      blurb: "Features of 2D shapes, symmetry, combining and splitting shapes, and area in square centimetres and square metres.",
+      outcomes: [
+        {
+          code: "MA2-2DS-01",
+          focusArea: "Two-dimensional spatial structure A & B",
+          statement: "compares two-dimensional shapes and describes their features",
+          resources: []
+        },
+        {
+          code: "MA2-2DS-02",
+          focusArea: "Two-dimensional spatial structure A & B",
+          statement: "performs transformations by combining and splitting two-dimensional shapes",
+          resources: []
+        },
+        {
+          code: "MA2-2DS-03",
+          focusArea: "Two-dimensional spatial structure A & B",
+          statement: "estimates, measures and compares areas using square centimetres and square metres",
+          resources: []
+        }
+      ]
+    },
+    {
+      slug: "three-dimensional-spatial-structure",
+      name: "Three-Dimensional Spatial Structure",
+      strand: "measurement-space",
+      icon: "🧊",
+      collates: "Three-dimensional spatial structure A, B",
+      blurb: "Prisms, pyramids and their nets, and capacity and volume in litres, millilitres and cubic centimetres.",
+      outcomes: [
+        {
+          code: "MA2-3DS-01",
+          focusArea: "Three-dimensional spatial structure A & B",
+          statement: "makes and sketches models and nets of three-dimensional objects including prisms and pyramids",
+          resources: []
+        },
+        {
+          code: "MA2-3DS-02",
+          focusArea: "Three-dimensional spatial structure A & B",
+          statement: "estimates, measures and compares capacities (internal volumes) using litres, millilitres and volumes using cubic centimetres",
+          resources: []
+        }
+      ]
+    },
+    {
+      slug: "non-spatial-measure",
+      name: "Non-Spatial Measure",
+      strand: "measurement-space",
+      icon: "⚖",
+      collates: "Non-spatial measure A, B",
+      blurb: "Mass in kilograms and grams, and analog and digital time with am and pm.",
+      outcomes: [
+        {
+          code: "MA2-NSM-01",
+          focusArea: "Non-spatial measure A & B",
+          statement: "estimates, measures and compares the masses of objects using kilograms and grams",
+          resources: []
+        },
+        {
+          code: "MA2-NSM-02",
+          focusArea: "Non-spatial measure A & B",
+          statement: "represents and interprets analog and digital time in hours, minutes and seconds",
+          resources: []
+        }
+      ]
+    },
+    {
+      slug: "data",
+      name: "Data",
+      strand: "statistics-probability",
+      icon: "📊",
+      collates: "Data A, B",
+      blurb: "Collecting data and making and reading tables, column graphs and dot plots, including many-to-one scales.",
+      outcomes: [
+        {
+          code: "MA2-DATA-01",
+          focusArea: "Data A & B",
+          statement: "collects discrete data and constructs graphs using a given scale",
+          resources: []
+        },
+        {
+          code: "MA2-DATA-02",
+          focusArea: "Data A & B",
+          statement: "interprets data in tables, dot plots and column graphs",
+          resources: []
+        }
+      ]
+    },
+    {
+      slug: "chance",
+      name: "Chance",
+      strand: "statistics-probability",
+      icon: "🎲",
+      collates: "Chance A, B",
+      blurb: "Possible outcomes, describing likelihood, and whether one event affects another.",
+      outcomes: [
+        {
+          code: "MA2-CHAN-01",
+          focusArea: "Chance A & B",
+          statement: "records and compares the results of chance experiments",
+          resources: []
+        }
+      ]
+    }
+  ],
+
+  /* ==========================================================================
      STAGE 3  (Years 5–6) — 21 outcomes across 20 focus areas
      ---------------------------------------------------------------------------
      NESA splits each Stage 3 focus area into Part A and Part B (a Year 5 /
