@@ -159,6 +159,20 @@
 > Chromium (Inter). Source: `tools/pdf-worksheets/bin-toss/` (`build.py` + `ws.css` → `render.py`, Playwright; needs `logo.png` =
 > a copy of `icons/icon-192.png` beside it). Re-render and copy the PDF over after any edit.
 >
+> **NEW (2026-11-28): WHOLE-TOPIC QUIZZES — ONE START SCREEN INSTEAD OF TWO POP-UPS.** The 11 quizzes on
+> `online-quizzes/stage-4/topic-quiz/engine.js` no longer open a "Choose your level" modal then a "question types" modal.
+> `buildStart()` builds `#startScreen` (a `<main>` before `#quizMain`, so the shells carry NO markup for it — the old
+> `#levelModal` / `#typesModal` blocks were removed from all 11 shells): eyebrow (Stage · Whole-topic quiz · outcome), title,
+> 1 Level (two radio cards, blurb = `bank.levels[l].sub`, arrow keys switch), 2 Question types (toggle tiles in the level's
+> colour, 2 columns, "n of m chosen", Select all / Clear all), and a sticky footer: 3 Questions (5 · 10 · 15 · 20 · 30) +
+> a live note ("Expected · 8 types · 15 questions", or "5 questions won't cover all 8 types", or red "Choose at least one")
+> + Start quiz. Choices remembered per topic in `localStorage mmt.topicQuiz.v1` (`{[bank.id]: {level, count, off}}` —
+> UNticked types are stored, so a type added to a bank later starts ticked). "Change level" (hidden while on the start
+> screen) and the certificate's "Change level" both call `showStart()`; mid-quiz it offers "← Back to my quiz". Enter
+> does nothing on the start screen. Builder (`?builder=1`) and task links (`?assignment=1`) are unchanged and never show
+> it. Verified (Playwright): all 11 start, prefs survive a reload, resume, cert → start, assignment + builder, fits
+> 1366×768 with no scroll (Area, Expected), Start on screen at 1280×720 / 1024×768 / 1920 / 390.
+>
 > **NEW (2026-11-28): STAGE 5 WHOLE-TOPIC WORKSHEET CREATORS — ALL 41 OUTCOMES, CORE AND PATH.**
 > `worksheet-creators/stage-5/<number|algebra|ratios-rates|measurement-space|statistics-probability>/<focus-area>/`
 > (e.g. `algebra/equations-c/`, `measurement-space/trigonometry-b/`), one page per outcome, on frame v2. Built by
