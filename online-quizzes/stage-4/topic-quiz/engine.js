@@ -457,159 +457,40 @@
   }
 
   /* ======================= Start screen (student) ===================
-     One page, not two pop-ups: the level, the question types and how many
-     questions sit together, so a student can see and change everything
-     before starting. Built here (the shells carry no markup for it). The
-     choices are remembered per topic (mmt.topicQuiz.v1); an unticked type is
-     stored as "off", so a type added to a bank later starts ticked. */
+     The level, question types and how many questions on one page, before the
+     quiz. The page itself is the shared component start-screen.js (the shell
+     loads it and start-screen.css before this file); this only hands it the
+     bank and says what Start and "Back to my quiz" do. */
   function openModal(id) { const m = $(id); m.classList.add("open"); m.setAttribute("aria-hidden", "false"); }
   function closeModal(id) { const m = $(id); m.classList.remove("open"); m.setAttribute("aria-hidden", "true"); }
-  const COUNTS = [5, 10, 15, 20, 30];
-  const PREF_KEY = "mmt.topicQuiz.v1";
-  const ST = { level: "basic", count: DEFAULT_COUNT, off: { basic: new Set(), expected: new Set() } };
-  const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-  function loadPrefs() {
-    try {
-      const all = JSON.parse(localStorage.getItem(PREF_KEY) || "{}"), p = all[BANK.id];
-      if (!p) return;
-      if (LEVEL_NAME[p.level]) ST.level = p.level;
-      if (COUNTS.includes(p.count)) ST.count = p.count;
-      ["basic", "expected"].forEach(l => { const ids = new Set(typesFor(l).map(t => t.id)); ST.off[l] = new Set((p.off && p.off[l] || []).filter(id => ids.has(id))); });
-    } catch (e) {}
-  }
-  function savePrefs() {
-    try {
-      const all = JSON.parse(localStorage.getItem(PREF_KEY) || "{}");
-      all[BANK.id] = { level: ST.level, count: ST.count, off: { basic: [...ST.off.basic], expected: [...ST.off.expected] } };
-      localStorage.setItem(PREF_KEY, JSON.stringify(all));
-    } catch (e) {}
-  }
-  const chosenTypes = () => typesFor(ST.level).filter(t => !ST.off[ST.level].has(t.id)).map(t => t.id);
-  const TICK = `<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 10.5l3.2 3.2L15 6.8" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-
-  function buildStart() {
-    if ($("startScreen")) return;
+  let SS = null;
+  function startScreen() {
+    if (SS) return SS;
     const m = /^MA(\d)/.exec(BANK.outcome || ""), stage = m ? `Stage ${m[1]}` : "";
-    const sec = document.createElement("main");
-    sec.className = "start"; sec.id = "startScreen"; sec.hidden = true;
-    sec.innerHTML = `
-      <div class="stCard">
-        <div class="stHead">
-          <div class="stHeadText">
-            <div class="stEyebrow">${[stage, "Whole-topic quiz", BANK.outcome].filter(Boolean).map(esc).join(" · ")}</div>
-            <h1 class="stTitle">${esc(BANK.title)}</h1>
-            <p class="stLead">Choose a level and the question types, then start. You get one try at each question.</p>
-          </div>
-          <button class="stResume" id="stResume" type="button" hidden>&larr; Back to my quiz</button>
-        </div>
-
-        <section class="stSec" aria-labelledby="stLvlH">
-          <h2 class="stH" id="stLvlH"><span class="stNum">1</span>Level</h2>
-          <div class="stLevels" id="stLevels" role="radiogroup" aria-labelledby="stLvlH"></div>
-        </section>
-
-        <section class="stSec" aria-labelledby="stTypesH">
-          <div class="stHRow">
-            <h2 class="stH" id="stTypesH"><span class="stNum">2</span>Question types</h2>
-            <span class="stTally" id="stTally"></span>
-            <button class="stLink" id="stAll" type="button"></button>
-          </div>
-          <div class="stTypes" id="stTypes" role="group" aria-labelledby="stTypesH"></div>
-        </section>
-
-        <div class="stFoot">
-          <div class="stCountWrap">
-            <span class="stH stHSmall" id="stCountH"><span class="stNum">3</span>Questions</span>
-            <div class="stCount" id="stCount" role="radiogroup" aria-labelledby="stCountH">
-              ${COUNTS.map(n => `<button type="button" role="radio" data-n="${n}">${n}</button>`).join("")}
-            </div>
-          </div>
-          <div class="stGoWrap">
-            <span class="stNote" id="stNote" aria-live="polite"></span>
-            <button class="stGo" id="stGo" type="button">Start quiz <span aria-hidden="true">&rarr;</span></button>
-          </div>
-        </div>
-      </div>`;
-    $("quizMain").before(sec);
-
-    $("stLevels").addEventListener("click", e => { const b = e.target.closest(".stLvl"); if (b) pickLevel(b.dataset.level); });
-    $("stLevels").addEventListener("keydown", e => {
-      if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(e.key)) return;
-      e.preventDefault(); pickLevel(ST.level === "basic" ? "expected" : "basic"); $("stLevels").querySelector(".stLvl.on").focus();
+    SS = window.MMTStartScreen.create({
+      before: $("quizMain"),
+      prefsId: BANK.id,
+      eyebrow: [stage, "Whole-topic quiz", BANK.outcome].filter(Boolean).join(" · "),
+      title: BANK.title,
+      counts: [5, 10, 15, 20, 30], defaultCount: DEFAULT_COUNT,
+      levels: () => ["basic", "expected"].map(l => ({ key: l, name: LEVEL_NAME[l], sub: BANK.levels[l].sub, types: typesFor(l).map(t => ({ id: t.id, html: t.label })) })),
+      onStart: (level, ids, n) => start(level, ids, n),
+      onResume: hideStart
     });
-    $("stTypes").addEventListener("click", e => {
-      const b = e.target.closest(".stType"); if (!b) return;
-      const off = ST.off[ST.level]; off.has(b.dataset.id) ? off.delete(b.dataset.id) : off.add(b.dataset.id);
-      paintTypes(); savePrefs();
-    });
-    $("stAll").addEventListener("click", () => {
-      const off = ST.off[ST.level];
-      if (off.size) off.clear(); else typesFor(ST.level).forEach(t => off.add(t.id));
-      paintTypes(); savePrefs();
-    });
-    $("stCount").addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; ST.count = Number(b.dataset.n); paintCount(); savePrefs(); });
-    $("stCount").addEventListener("keydown", e => {
-      const k = COUNTS.indexOf(ST.count), d = { ArrowLeft: -1, ArrowUp: -1, ArrowRight: 1, ArrowDown: 1 }[e.key];
-      if (d == null) return; e.preventDefault();
-      ST.count = COUNTS[Math.max(0, Math.min(COUNTS.length - 1, k + d))]; paintCount(); savePrefs();
-      $("stCount").querySelector('[aria-checked="true"]').focus();
-    });
-    $("stGo").addEventListener("click", () => { const ids = chosenTypes(); if (!ids.length) { paintNote(true); return; } start(ST.level, ids, ST.count); });
-    $("stResume").addEventListener("click", hideStart);
-  }
-  function pickLevel(l) { if (!LEVEL_NAME[l] || l === ST.level) return; ST.level = l; paintLevels(); paintTypes(true); savePrefs(); }
-  function paintLevels() {
-    $("stLevels").innerHTML = ["basic", "expected"].map(l => {
-      const on = l === ST.level;
-      return `<button class="stLvl ${l}${on ? " on" : ""}" type="button" role="radio" aria-checked="${on}" tabindex="${on ? 0 : -1}" data-level="${l}">
-        <span class="stRadio" aria-hidden="true"></span>
-        <span class="stLvlBody">
-          <span class="stLvlTop"><span class="stLvlName">${LEVEL_NAME[l]}</span><span class="stLvlMeta">${typesFor(l).length} types</span></span>
-          <span class="stLvlSub">${BANK.levels[l].sub}</span>
-        </span>
-      </button>`;
-    }).join("");
-  }
-  function paintTypes(swap) {
-    const box = $("stTypes"), off = ST.off[ST.level], list = typesFor(ST.level);
-    box.className = "stTypes " + ST.level + (swap && !reduceMotion ? " swap" : "");
-    box.innerHTML = list.map(t => `<button class="stType${off.has(t.id) ? "" : " on"}" type="button" aria-pressed="${!off.has(t.id)}" data-id="${t.id}"><span class="stBox">${TICK}</span><span class="stTypeLab">${t.label}</span></button>`).join("");
-    const n = list.length - off.size;
-    $("stTally").textContent = `${n} of ${list.length} chosen`;
-    $("stAll").textContent = off.size ? "Select all" : "Clear all";
-    paintNote(false);
-  }
-  function paintCount() {
-    $("stCount").querySelectorAll("button").forEach(b => { const on = Number(b.dataset.n) === ST.count; b.classList.toggle("on", on); b.setAttribute("aria-checked", String(on)); b.tabIndex = on ? 0 : -1; });
-    paintNote(false);
-  }
-  function paintNote(shout) {
-    const n = chosenTypes().length, note = $("stNote"), go = $("stGo");
-    go.classList.toggle("off", !n);
-    go.setAttribute("aria-disabled", String(!n));
-    note.classList.toggle("warn", !n);
-    note.classList.remove("shake");
-    if (!n) note.textContent = "Choose at least one question type.";
-    else if (ST.count < n) note.textContent = `${ST.count} questions won’t cover all ${n} types.`;
-    else note.textContent = `${LEVEL_NAME[ST.level]} · ${n} type${n === 1 ? "" : "s"} · ${ST.count} questions`;
-    if (shout && !n && !reduceMotion) { void note.offsetWidth; note.classList.add("shake"); }
+    return SS;
   }
   function showStart() {
-    buildStart();
     closeModal("certModal");
-    const inQuiz = S.qs.length && !S.done;
-    $("stResume").hidden = !inQuiz;
-    paintLevels(); paintTypes(); paintCount();
+    const inQuiz = !!(S.qs.length && !S.done);
+    startScreen().show({ inQuiz });
     $("quizMain").hidden = true;
-    $("startScreen").hidden = false;
     $("menuBtn").hidden = true;
     $("lvlChip").hidden = true;
     if (!inQuiz) $("progressFill").style.width = "0";
     document.body.classList.add("onStart");
-    window.scrollTo(0, 0);
   }
   function hideStart() {
-    const ss = $("startScreen"); if (ss) ss.hidden = true;
+    if (SS) SS.hide();
     document.body.classList.remove("onStart");
     $("menuBtn").hidden = ASSIGN;
     $("quizMain").hidden = false;
@@ -755,7 +636,7 @@
       lockToTask();
       start(level, ids, n);
     } else {
-      loadPrefs(); showStart();
+      showStart();
     }
   }
 

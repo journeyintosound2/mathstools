@@ -757,6 +757,9 @@
 <script src="/portal/shared/taskLock.js?v=936a76d6" data-hide="#teacherAssignBtn,#backBtn"></script>
 <link rel="stylesheet" href="/online-quizzes/stage-4/topic-quiz/legacy-skin.css?v=0f1142b5">
 <script src="/online-quizzes/stage-4/topic-quiz/legacy-skin.js?v=36252c6b" data-title="Computation with Integers — Whole-topic Quiz" defer></script>
+<link rel="stylesheet" href="/online-quizzes/stage-4/topic-quiz/start-screen.css?v=80f9843f">
+<script src="/online-quizzes/stage-4/topic-quiz/start-screen.js?v=86086bcc" defer></script>
+<script src="/online-quizzes/stage-4/topic-quiz/legacy-start.js?v=b418a9eb" defer data-id="integers" data-title="Computation with Integers" data-outcome="MA4-INT-C-01" data-basic="Place integers on a number line, add and subtract with a number line, compare and order integers, and multiply and divide integers." data-expected="Integers on a number line, calculations with all four operations, comparing expressions, combining signs and the order of operations."></script>
 </head>
 
 <body>
@@ -970,7 +973,9 @@
     source: assignmentParams.get('source') || 'teacher-link',
     id: assignmentParams.get('id') || ''
   };
-  window.MMTStudent = { mode: assignmentMode ? 'pending' : 'teacher', currentStudent:null };
+  // ?builder=1 = the teacher's link builder; the plain URL is the student quiz (sign in, then the start screen).
+  const builderMode = !assignmentMode && assignmentParams.get('builder') === '1';
+  window.MMTStudent = { mode: builderMode ? 'teacher' : 'pending', currentStudent:null };
   let db = null, auth = null, functions = null;
 
   function normaliseCode(code){ return String(code || '').trim().toUpperCase().replace(/[^A-Z0-9-]/g,''); }
@@ -989,7 +994,7 @@
     showMsg('Connection failed. You can still skip and complete the quiz.', 'bad');
   }
 
-  if(!assignmentMode){
+  if(builderMode){
     closeLogin();
     setChip('Teacher builder mode');
     document.getElementById('teacherModeChip')?.classList.add('show');
@@ -3195,15 +3200,17 @@ function scaleHardExpressions(){
     document.getElementById('studentLoginOverlay')?.classList.remove('hidden');
     window.addEventListener('mmt-student-access-ready', startAssignedQuizFromLink, { once:true });
     if(window.MMTFirebase?.mode && window.MMTFirebase.mode !== 'pending') startAssignedQuizFromLink();
-  }else{
+  }else if(new URLSearchParams(location.search).get('builder')==='1'){
     hardBackToMenu();
     openTeacherBuilder();
+  }else{
+    hardBackToMenu();   // the student start screen (legacy-start.js) takes over the level menu
   }
   // Was outside the IIFE, where scaleHardExpressions isn't in scope — so this
   // threw on load and hard expressions never re-scaled on resize or rotate.
   window.addEventListener("resize", scaleHardExpressions);
 })();
 </script>
-  <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
+  <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>

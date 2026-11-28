@@ -61,6 +61,9 @@
 <script src="/portal/shared/taskLock.js?v=936a76d6" data-restart="#menuBtn,#resetBtn" data-hide="#backBtn"></script>
 <link rel="stylesheet" href="/online-quizzes/stage-4/topic-quiz/legacy-skin.css?v=0f1142b5">
 <script src="/online-quizzes/stage-4/topic-quiz/legacy-skin.js?v=36252c6b" data-title="Equations — Whole-topic Quiz" defer></script>
+<link rel="stylesheet" href="/online-quizzes/stage-4/topic-quiz/start-screen.css?v=80f9843f">
+<script src="/online-quizzes/stage-4/topic-quiz/start-screen.js?v=86086bcc" defer></script>
+<script src="/online-quizzes/stage-4/topic-quiz/legacy-start.js?v=b418a9eb" defer data-id="equations" data-title="Equations" data-outcome="MA4-EQU-C-01" data-basic="One-step equations with all four operations, choosing the equation that matches a situation, and checking a solution by substituting." data-expected="Two-step equations including fractions and brackets, pronumerals on both sides, word problems, and solving x² = c and ax² = c."></script>
 </head>
 <body>
   <div class="wrap"><div class="panel">
@@ -392,9 +395,11 @@
   updateText();resetShell();
   if(new URLSearchParams(window.location.search).get('assignment')==='1' || new URLSearchParams(window.location.search).has('types')){
     hideOverlay(levelOverlay);
-  }else{
+  }else if(new URLSearchParams(location.search).get('builder')==='1'){
     const tm=document.getElementById('teacherModeChip'); if(tm)tm.classList.add('show');
     showOverlay(document.getElementById('teacherBuilderOverlay'));
+  }else{
+    showOverlay(levelOverlay);   // the student start screen (legacy-start.js) takes over the level menu
   }
 })();
 </script>
@@ -419,6 +424,8 @@
 
   const params = new URLSearchParams(window.location.search);
   const assignmentLinkMode = params.get('assignment') === '1' || params.has('types');
+  // ?builder=1 = the teacher's link builder; the plain URL is the student quiz (sign in, then the start screen).
+  const builderMode = !assignmentLinkMode && params.get('builder') === '1';
   const assignmentSettings = {
     assignmentMode: assignmentLinkMode,
     assignmentId: params.get('aid') || null,
@@ -466,10 +473,10 @@
     auth = getAuth(app);
     db = getFirestore(app);
     functions = getFunctions(app, 'us-central1');
-    if(assignmentLinkMode) showStudentMsg('Connected. Enter your code or skip.', 'info');
+    if(!builderMode) showStudentMsg('Connected. Enter your code or skip.', 'info');
   }catch(err){
     console.error(err);
-    if(assignmentLinkMode) showStudentMsg('Firebase connection failed. You can still skip and complete the quiz.', 'bad');
+    if(!builderMode) showStudentMsg('Firebase connection failed. You can still skip and complete the quiz.', 'bad');
   }
 
   function setBuilderLevel(level){
@@ -537,7 +544,7 @@
   });
   resetBuilderBtn?.addEventListener('click',()=>{setBuilderLevel('expected'); builderCount.value='15'; linkOut.value='';});
 
-  if(assignmentLinkMode){
+  if(!builderMode){
     mode = 'pending-login';
     teacherChip?.classList.remove('show');
     loginOverlay?.classList.remove('hidden');
@@ -550,6 +557,7 @@
   }
 
   function startAssignmentQuiz(){
+    if(!assignmentLinkMode) return;   // plain quiz: the start screen is already behind the sign-in
     const fallbackTypes = window.MMT_EQ_API.getTypes(assignmentSettings.level).map(t=>t.id);
     const ids = assignmentSettings.types.length ? assignmentSettings.types : fallbackTypes;
     window.MMT_EQ_API.startAssigned(assignmentSettings.level === 'expected' ? 'expected' : 'basic', ids, assignmentSettings.count || 15);
@@ -600,9 +608,10 @@
   window.MMT_EQ_FIREBASE = {
     getStatus(){ return { mode, assignmentLinkMode, currentStudent }; },
     async saveAchievement(state){
-      if(achievementSavedForRun) return;
-      if(!assignmentLinkMode || mode !== 'registered' || !currentStudent || !db) return;
-      achievementSavedForRun = true;
+      // One save per run (keyed to the run's question list), from a task link or the plain quiz.
+      if(achievementSavedForRun === state.questions) return;
+      if(mode !== 'registered' || !currentStudent || !db) return;
+      achievementSavedForRun = state.questions;
       try{
         const levelName = state.level === 'expected' ? 'Expected' : 'Basic';
         const total = (state.questions||[]).length;
@@ -639,11 +648,11 @@
           teacherName:currentStudent.teacherName || currentStudent.teacher || '',
           teacherCode:currentStudent.teacherCode || '',
           accessMode:'registered',
-          assignmentMode:true,
-          assignmentSource:'link',
-          assignmentId:assignmentSettings.assignmentId,
-          assignedTypes:assignmentSettings.types,
-          assignedCount:assignmentSettings.count,
+          assignmentMode:assignmentLinkMode,
+          assignmentSource:assignmentLinkMode ? 'link' : '',
+          assignmentId:assignmentLinkMode ? (assignmentSettings.assignmentId || '') : '',
+          assignedTypes:assignmentLinkMode ? assignmentSettings.types : [],
+          assignedCount:assignmentLinkMode ? assignmentSettings.count : 0,
           breakdown,
           createdAt:serverTimestamp(),
           dateClient:new Date().toISOString()
@@ -652,6 +661,6 @@
     }
   };
 </script>
-<!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>

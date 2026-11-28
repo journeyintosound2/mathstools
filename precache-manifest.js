@@ -1,6 +1,6 @@
 /* Written by tools/build-pwa.mjs — do not edit by hand. */
 self.MMT_PRECACHE = {
- "version": "f8b8eb79c9",
+ "version": "95207542ef",
  "files": [
   "./",
   "assessment/exam-builder/app.js",
@@ -1008,6 +1008,9 @@ self.MMT_PRECACHE = {
   "online-quizzes/stage-4/topic-quiz/engine.js",
   "online-quizzes/stage-4/topic-quiz/legacy-skin.css",
   "online-quizzes/stage-4/topic-quiz/legacy-skin.js",
+  "online-quizzes/stage-4/topic-quiz/legacy-start.js",
+  "online-quizzes/stage-4/topic-quiz/start-screen.css",
+  "online-quizzes/stage-4/topic-quiz/start-screen.js",
   "portal/admin/index.html",
   "portal/admin/teacherCsv.js",
   "portal/shared/adventureManifest.js",

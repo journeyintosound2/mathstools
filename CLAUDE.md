@@ -159,19 +159,47 @@
 > Chromium (Inter). Source: `tools/pdf-worksheets/bin-toss/` (`build.py` + `ws.css` → `render.py`, Playwright; needs `logo.png` =
 > a copy of `icons/icon-192.png` beside it). Re-render and copy the PDF over after any edit.
 >
-> **NEW (2026-11-28): WHOLE-TOPIC QUIZZES — ONE START SCREEN INSTEAD OF TWO POP-UPS.** The 11 quizzes on
-> `online-quizzes/stage-4/topic-quiz/engine.js` no longer open a "Choose your level" modal then a "question types" modal.
-> `buildStart()` builds `#startScreen` (a `<main>` before `#quizMain`, so the shells carry NO markup for it — the old
-> `#levelModal` / `#typesModal` blocks were removed from all 11 shells): eyebrow (Stage · Whole-topic quiz · outcome), title,
-> 1 Level (two radio cards, blurb = `bank.levels[l].sub`, arrow keys switch), 2 Question types (toggle tiles in the level's
-> colour, 2 columns, "n of m chosen", Select all / Clear all), and a sticky footer: 3 Questions (5 · 10 · 15 · 20 · 30) +
-> a live note ("Expected · 8 types · 15 questions", or "5 questions won't cover all 8 types", or red "Choose at least one")
-> + Start quiz. Choices remembered per topic in `localStorage mmt.topicQuiz.v1` (`{[bank.id]: {level, count, off}}` —
-> UNticked types are stored, so a type added to a bank later starts ticked). "Change level" (hidden while on the start
-> screen) and the certificate's "Change level" both call `showStart()`; mid-quiz it offers "← Back to my quiz". Enter
-> does nothing on the start screen. Builder (`?builder=1`) and task links (`?assignment=1`) are unchanged and never show
-> it. Verified (Playwright): all 11 start, prefs survive a reload, resume, cert → start, assignment + builder, fits
-> 1366×768 with no scroll (Area, Expected), Start on screen at 1280×720 / 1024×768 / 1920 / 390.
+> **NEW (2026-11-28): ALL 16 STAGE 4 WHOLE-TOPIC QUIZZES OPEN ON ONE START SCREEN (shared component).**
+> Replaces the "Choose your level" pop-up + "question types" pop-up (and, on the older five, the TEACHER BUILDER that
+> students used to land on). One page: eyebrow (Stage · Whole-topic quiz · outcome), title, 1 Level (two radio cards with
+> a blurb, arrow keys switch), 2 Question types (toggle tiles in the level's colour, "n of m chosen", Select/Clear all,
+> plus an Options row of switches if the quiz has any — Angle Relationships' diagram options), sticky footer 3 Questions
+> (5 · 10 · 15 · 20 · 30, filtered to the quiz's own min/max — Integers starts at 10) + a live note + Start quiz.
+> * **THE COMPONENT:** `online-quizzes/stage-4/topic-quiz/start-screen.js` (`MMTStartScreen.create({before, prefsId,
+>   eyebrow, title, levels:()=>[{key,name,alt,sub,types:[{id,html}],options}], counts, defaultCount, onStart, onResume})`
+>   → `show({inQuiz, level})`, `hide()`, `repaint()`) + `start-screen.css` (self-contained `--st-*` colours; resets use
+>   `:where(.start)` so they never outrank the component's own classes — a plain `.start button{font:inherit}` did and
+>   flattened every weight). Choices remembered per quiz in `localStorage mmt.topicQuiz.v1` (`{[prefsId]:{level, count,
+>   off:{level:[ids]}, opt}}` — UNticked types are stored, so a type added later starts ticked). Change it once, all 16 change.
+> * **The 11 shared-engine quizzes:** engine.js `startScreen()/showStart()/hideStart()` hand it the bank. Shells load
+>   `start-screen.css` after engine.css and `start-screen.js` before engine.js (the old `#levelModal/#typesModal` markup is
+>   gone). Topbar "Change level" opens it over a quiz in progress with "← Back to my quiz"; the certificate's "Change level"
+>   opens it fresh. Enter does nothing on it.
+> * **The older five (Integers, FDP, Algebraic Techniques, Equations, Angle Relationships):** keep their own engines.
+>   `topic-quiz/legacy-start.js` (head, `defer`, `data-id/-title/-outcome/-basic/-expected` = the blurbs) DRIVES THEIR OWN
+>   MENUS: at load it presses `.startPill[data-level]` and reads `#typesGrid` checkboxes (`value` or `data-id`) and any other
+>   id'd checkbox in `#typeOverlay` (an option, skipped if its wrapper has inline `display:none` for that level), once PER
+>   LANGUAGE in `#startLanguageSelect`, so a language switch never touches a quiz in progress; Start = press the pill, set the
+>   ticks / options / `#countInp`, press `#beginBtn`. Their `#levelOverlay/#typeOverlay` are hidden by CSS; a
+>   MutationObserver turns any attempt to open them (Back, "Back to level menu", reset) into the start screen. Reading the
+>   menus closes other overlays in FDP (its `openOverlay` closes all), so `scanAll()` puts back whatever was open (the sign-in).
+>   It adds its own "Change level" (`.stTopBtn`) to the legacy top bar (opens over the quiz, with Back to my quiz).
+> * **URL MODES OF THE OLDER FIVE CHANGED (same as the 11 now):** plain URL = STUDENT quiz: their own sign-in box
+>   (code or skip) → start screen → results save when signed in (assignmentMode false, assignmentId ''); `?builder=1` = the
+>   teacher link builder (was the plain URL); `?assignment=1…` task links unchanged. Per file: Integers `builderMode` in the
+>   Firebase module + boot; Algebraic `builderMode` + `openMenu()`; Equations `builderMode`, `startAssignmentQuiz` only on
+>   task links, and its save was task-link-only — now any signed-in run saves, one save per run (`achievementSavedForRun ===
+>   state.questions`); Angle + FDP clear their saved access session on the plain URL (a shared computer never signs in as the
+>   last student) and FDP's Back/Menu/Reset open the menu instead of the builder. Teacher Platform `BUILDER_QUIZZES` rows for
+>   the five now carry `builderUrl:"…?builder=1"` (the hidden-frame builder and the pop-up builder both use it), which also
+>   fixes old "whole quiz" tasks that stored the plain URL and opened the builder for students. Their Cloudflare tag was the
+>   old `defer` form; now the exact `type='module'` line.
+> * Verified (Playwright): 11 engine quizzes (start, prefs, resume, cert → start, assignment, builder, fits 1366×768, Start
+>   on screen 1280×720 → 390, a 9,540-question sweep with no undefined/NaN/missing diagram); the older five — sign-in shown on
+>   the plain URL and never the builder, start screen, level switch, untick a type, count 20 → "Question 1/20" at Expected,
+>   Change level + Back to my quiz, Back → start screen, level remembered, Farsi labels, `?builder=1` builder + a generated
+>   link without builder=1, that task link starting straight in; a stubbed-Firestore save from the plain URL (Equations,
+>   Integers) with assignmentMode false / assignmentId ''.
 >
 > **NEW (2026-11-28): STAGE 5 WHOLE-TOPIC WORKSHEET CREATORS — ALL 41 OUTCOMES, CORE AND PATH.**
 > `worksheet-creators/stage-5/<number|algebra|ratios-rates|measurement-space|statistics-probability>/<focus-area>/`
@@ -6003,9 +6031,8 @@ portal/PLACEMENT.md , portal/README.md   migration + structure notes
 
 ## 8. Open / future items
 - **Whole-topic quizzes (2026-11-02):** all 16 Stage 4 outcomes now have one. Follow-ups:
-  Arabic/Farsi for the 11 new ones; make the OLD five's plain URL a student quiz (their builder
-  to `?builder=1` + `builderUrl` in `BUILDER_QUIZZES`) so a "whole quiz" task stops opening the
-  teacher builder for students; Stage 5 whole-topic quizzes on the same engine (a bank per outcome).
+  Arabic/Farsi for the 11 new ones; (DONE 2026-11-28: the old five's plain URL is the student quiz
+  with the shared start screen, builder on `?builder=1`); Stage 5 whole-topic quizzes on the same engine (a bank per outcome).
 - **Student-quiz sign-in sweep:** 11 of 26 quizzes carry the v2 login block
   (adding-subtracting-fractions joined 2026-08-20).
   The other **15** still have bespoke inline sign-in and their own completion

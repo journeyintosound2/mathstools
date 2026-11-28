@@ -66,6 +66,9 @@
 <script src="/portal/shared/taskLock.js?v=936a76d6" data-restart="#menuBtn,#submitMenuBtn,#resetBtn" data-hide="#backBtn"></script>
 <link rel="stylesheet" href="/online-quizzes/stage-4/topic-quiz/legacy-skin.css?v=0f1142b5">
 <script src="/online-quizzes/stage-4/topic-quiz/legacy-skin.js?v=36252c6b" data-title="Angle Relationships — Whole-topic Quiz" defer></script>
+<link rel="stylesheet" href="/online-quizzes/stage-4/topic-quiz/start-screen.css?v=80f9843f">
+<script src="/online-quizzes/stage-4/topic-quiz/start-screen.js?v=86086bcc" defer></script>
+<script src="/online-quizzes/stage-4/topic-quiz/legacy-start.js?v=b418a9eb" defer data-id="angle-relationships" data-title="Angle Relationships" data-outcome="MA4-ANG-C-01" data-basic="Angles on a straight line, in a right angle and around a point, vertically opposite angles, and reading a protractor." data-expected="Corresponding, alternate and co-interior angles on parallel lines, and problems that mix every angle relationship."></script>
 </head>
 <body>
   <div class="wrap"><div class="panel">
@@ -666,6 +669,18 @@ function validTypeIds(level, ids){
 function initFromURL(){
   const params=new URLSearchParams(window.location.search);
   const assignmentMode=params.get('assignment')==='1'||params.has('types');
+  if(!assignmentMode && params.get('builder')!=='1'){
+    // The plain URL is the student quiz: sign in (or demo), then the start screen (legacy-start.js).
+    // The saved session is cleared so a shared computer never signs in as the last student.
+    clearAccessSession();
+    updateText();
+    initTeacherBuilder();
+    el('teacherModeChip')?.classList.remove('show');
+    el('accessChip')?.classList.remove('hidden');
+    el('changeCodeBtn')?.classList.remove('hidden');
+    requireAccess();
+    return;
+  }
   if(!assignmentMode){
     clearAccessSession();
     updateText();
@@ -697,6 +712,6 @@ updateText();
 initFromURL();
 })();
 </script>
-  <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
+  <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>

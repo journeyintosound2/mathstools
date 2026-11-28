@@ -110,6 +110,9 @@
 <script src="/portal/shared/taskLock.js?v=936a76d6" data-restart="#resetBtn" data-hide="#teacherAssignBtn,#backBtn"></script>
 <link rel="stylesheet" href="/online-quizzes/stage-4/topic-quiz/legacy-skin.css?v=0f1142b5">
 <script src="/online-quizzes/stage-4/topic-quiz/legacy-skin.js?v=36252c6b" data-title="Algebraic Techniques — Whole-topic Quiz" defer></script>
+<link rel="stylesheet" href="/online-quizzes/stage-4/topic-quiz/start-screen.css?v=80f9843f">
+<script src="/online-quizzes/stage-4/topic-quiz/start-screen.js?v=86086bcc" defer></script>
+<script src="/online-quizzes/stage-4/topic-quiz/legacy-start.js?v=b418a9eb" defer data-id="algebraic-techniques" data-title="Algebraic Techniques" data-outcome="MA4-ALG-C-01" data-basic="Algebraic notation, words to expressions, substitution, collecting like terms, multiplying and dividing terms, expanding a bracket and factorising by a number." data-expected="Multi-step expressions from words, substitution with two pronumerals, simplifying, expanding and simplifying, factorising, algebraic fractions and tables of values."></script>
 </head>
 <body>
   <div id="studentLoginOverlay" class="firebaseOverlay hidden" role="dialog" aria-modal="true" aria-labelledby="firebaseLoginTitle">
@@ -236,7 +239,9 @@
   function setChip(text){ chipText.textContent = text; chip.classList.add('show'); }
 
   const assignmentLinkMode = isAssignmentLink();
-  if(assignmentLinkMode){
+  // ?builder=1 = the teacher's link builder; the plain URL is the student quiz (sign in, then the start screen).
+  const builderMode = !assignmentLinkMode && new URLSearchParams(location.search).get('builder') === '1';
+  if(!builderMode){
     overlay.classList.remove('hidden');
   }else{
     overlay.classList.add('hidden');
@@ -876,9 +881,9 @@ function showQuestion(){const q=state.questions[state.index];state.answered=fals
 
   localize();
   resetQuizShell();
-  if(!applyAssignmentIfPresent()) openTeacherBuilderOnLoad();
+  if(!applyAssignmentIfPresent()){ if(new URLSearchParams(location.search).get('builder')==='1') openTeacherBuilderOnLoad(); else openMenu(); }
 })();
 </script>
-  <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
+  <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>
