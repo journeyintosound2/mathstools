@@ -194,7 +194,7 @@
 
     /* ---------- Topic (collapsible) ---------- */
     .topic-list{display:grid;gap:.6rem}
-    details.topic{background:#fff;border:1px solid var(--line);border-radius:var(--radius-sm);box-shadow:var(--shadow-sm);overflow:hidden;transition:border-color .15s ease,box-shadow .15s ease}
+    details.topic{background:#fff;border:1px solid var(--line);border-radius:var(--radius-sm);box-shadow:var(--shadow-sm);overflow:hidden;scroll-margin-top:150px;transition:border-color .15s ease,box-shadow .15s ease}
     details.topic:hover{border-color:rgba(29,78,216,.28)}
     details.topic[open]{box-shadow:var(--shadow-md);border-color:rgba(29,78,216,.30)}
     summary.topic-head{list-style:none;cursor:pointer;display:flex;align-items:center;gap:.85rem;padding:.95rem 1.05rem;user-select:none}
@@ -1129,8 +1129,10 @@
 
   /* deep links:
        #stage-3 / #stage-4 / #stage-5
+       #stage-4/fractions-decimals-percentages   one topic of that stage, opened (the homepage links here)
        #MA3-AR-01                         one outcome
-       #MA4-INT-C-01/four-operations      one outcome, that idea open */
+       #MA4-INT-C-01/four-operations      one outcome, that idea open
+     and ?q=words fills the search box (the homepage's "Search the syllabus view" link). */
   function applyHash(){
     var h = decodeURIComponent((location.hash || '').replace('#',''));
     if(!h) return;
@@ -1138,6 +1140,19 @@
     if(/^(early-stage-1|es1|kindergarten)$/i.test(h)) h = 'stage-0';
     var m = h.match(/^stage-?([012345])$/i);
     if(m){ state.openIdea = null; state.q = ''; search.value = ''; selectStage('stage' + m[1]); render(true); return; }
+
+    m = h.match(/^stage-?([012345])\/([a-z0-9-]+)$/i);
+    if(m){
+      state.openIdea = null; state.q = ''; search.value = '';
+      selectStage('stage' + m[1], { hash:false });
+      render(true);
+      var topicEl = out.querySelector('details.topic[data-slug="' + m[2].toLowerCase() + '"]');
+      if(topicEl){
+        topicEl.open = true;
+        if(topicEl.scrollIntoView) setTimeout(function(){ topicEl.scrollIntoView({ behavior:'smooth', block:'start' }); }, 60);
+      }
+      return;
+    }
 
     m = h.match(/^(MA([E12345])(?:-[A-Z0-9]+)+?)(?:\/([a-z0-9-]+))?$/i);
     if(m && /e/i.test(m[2])) m[2] = '0';   /* MAE-… = Early Stage 1 */
@@ -1176,6 +1191,17 @@
   renderTypePills();
   render(true);
   applyHash();
+  /* ?q=words (optionally with #stage-N): search for it, and if that stage has nothing, open the first stage that has */
+  var asked = new URLSearchParams(location.search).get('q');
+  if(asked && /^(#stage-?[0-5])?$/i.test(location.hash)){
+    search.value = asked.slice(0, 80); state.q = search.value.trim();
+    var first = state.stage, tryOrder = [first].concat(STAGES.filter(function(s){ return s !== first; })), found = false;
+    for(var si = 0; si < tryOrder.length && !found; si++){
+      selectStage(tryOrder[si], { hash:false }); render(true);
+      found = !!out.querySelector('details.topic');
+    }
+    if(!found){ selectStage(first, { hash:false }); render(true); }
+  }
 })();
 </script>
 <script>

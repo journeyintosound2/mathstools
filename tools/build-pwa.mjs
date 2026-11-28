@@ -2,6 +2,8 @@
 /* Mills Maths Tools — build the offline file list, and (optionally) add the PWA tags to every page.
 
    node tools/build-pwa.mjs            writes precache-manifest.js only (run before every push)
+                                       It first runs tools/build-home.mjs, which keeps the homepage's
+                                       finder data in step with the syllabus files.
    node tools/build-pwa.mjs --inject   also adds/refreshes the <head> block in every HTML page
    node tools/build-pwa.mjs --inject --dry-run   shows what it would change, writes nothing
 
@@ -58,6 +60,16 @@ function pwaBlock(prefix) {
     `<script src="${prefix}pwa.js" defer></script>`,
     '<!-- /mmt-pwa -->',
   ].join('\n');
+}
+
+// ---- The homepage first: its finder reads the cards on the page, and tools/build-home.mjs fills in what
+//      the syllabus files say about each one. Done before the walk so the version below includes the change.
+//      If it cannot run, index.html is left exactly as it is and the offline list is still written.
+try {
+  const { buildHome } = await import('./build-home.mjs');
+  console.log((await buildHome(ROOT, { dry: DRY })).summary);
+} catch (e) {
+  console.warn('[build-home] skipped, index.html left as it is: ' + e.message);
 }
 
 const all = (await walk(ROOT)).sort();

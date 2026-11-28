@@ -6,6 +6,7 @@
   installed home-screen app asks for the full list (`pwa.js` posts `mmt-save-all`), 4 at a
   time with pauses, missing files only, once per version (`mmt-meta`).
 - Before every push: run `node tools/build-pwa.mjs` and commit `precache-manifest.js`.
+  (It runs `tools/build-home.mjs` first, which keeps the homepage finder's data in step: commit `index.html` too if it changed.)
 - New pages: run `node tools/build-pwa.mjs --inject` once so they get the PWA tags.
 - **Pages that load their own separate .js/.css (2026-10-28):** reference them as `file.js?v=<first 8 of md5>`
   and change the `?v=` whenever the file changes. `sw.js` fetches any same-site `?v=` script or style
@@ -101,6 +102,59 @@
 > `node tools/build-pwa.mjs` → `git add -A && git commit && git push`.
 > §2 "TWO folders", §3 deploy paths and §5's `mathstools-main 2` heading below
 > describe the OLD layout — this block supersedes them.
+>
+> **NEW (2026-11-28, homepage): THE HOMEPAGE IS NOW A FINDER — "What are you teaching?"** `index.html`, still ONE
+> self-contained file (edit it directly). Project doc `claude/homepage-finder.md`. Test hook `window.__HOME__`.
+> * **The page:** nav (UNCHANGED, still the same block as `resources/index.html`) → a navy board: the heading, the search box
+>   (`#resourceSearch` inside `#findbar`; it sticks under the nav once the page scrolls), **"I teach"** = a K–10 number line
+>   (`#kline`: six stage buttons over eleven year marks; tick any stages; remembered on the device) and **"I need"** = kind chips
+>   with live counts → a shelf of pinned and recently opened resources → EITHER the home view (Try chips, six "Platforms and
+>   dashboards" tiles, New on the site, Featured this term) OR the results view (summary, strand select, Compact, Copy link,
+>   Clear all, topic index, rows).
+> * **THE CARDS ARE STILL THE CATALOGUE, THEY ARE JUST NOT SHOWN.** All `a.resource-card` elements live in
+>   `<section class="catalogue" id="catalogue">` between `<!-- mmt-catalogue -->` markers, hidden by `.js .catalogue{display:none}`
+>   (with scripts off they show as a plain grouped list). The finder script reads them into `ITEMS` and draws everything from
+>   that. **The MMT Screen launcher still reads the same cards and nav links, so the contract stands:** href, `h4`, `data-type`,
+>   `data-stage`, `data-topic`, `.outcome-code`, `data-search`, and `data-label` on nav links.
+> * **ADDING A RESOURCE:** add its card to the right group and grid in the catalogue (as before), add its `toolLinks.js` /
+>   `toolFamilies.js` rows, run `node tools/build-pwa.mjs`. **There are no pills, stat tiles or group counts to edit any more:**
+>   every number on the page is counted from the cards.
+> * **`tools/build-home.mjs`** (build-pwa runs it FIRST; also `node tools/build-home.mjs [--dry-run]`; idempotent; only touches
+>   cards between the catalogue markers; if it throws, build-pwa warns and leaves index.html alone). It writes onto each card,
+>   after `data-topic`: `data-stages` ("3 4" = path stage ∪ `data-stage` ∪ the stages of its outcome codes; "Years 7–10"
+>   non-games → 4 5; the Revision Generator → 1–5; puzzles, strategy games, dashboards and research → none = any stage),
+>   `data-codes` (own-stage outcome first), `data-fam` (a short family id: `MMT_TOOL_FAMILIES` plus a whole-topic worksheet and
+>   quiz with the same outcomes), `data-whole`, `data-note` (the toolLinks note) and `data-added` (TODAY if the card has none:
+>   that date drives "New on the site", the New tag for 21 days and the footer's "Latest addition"). It also rewrites the JSON
+>   between `<!-- mmt-home-data -->` markers: `topics` (the 71 syllabus topics) and `extras` (toolLinks rows and manifest files
+>   that have NO card: lesson plans, PDFs, slides, flash cards, 3 quizzes), which is how those became findable from the homepage.
+>   **Set by hand, never touched by the script:** `data-featured` (puts a card in Featured this term; currently 7),
+>   `data-for-stages="1 2 3"` (overrides the stage working-out for one card), and an existing `data-added`.
+> * **Rows:** with no kind chosen a row is ONE IDEA (a tool with its worksheet / quiz / lesson plan as buttons on the row; a
+>   whole-topic worksheet + quiz pair is one row). With a kind chosen it is one row per resource plus "Goes with". Browsing shows
+>   10 rows a group with "Show all n"; a search is one ranked list (first 60).
+> * **Search (`parseQuery`, `scoreOf`):** reads outcome codes, stage words ("year 9", "yr 3", "k-2", "stage 4", "kindergarten",
+>   "primary", "secondary") and kind words ("quiz", "worksheets", "game" → that kind, unless it finds nothing as a kind), then
+>   stems, synonyms (`SYN`: add one there) and a typo fix against the page's own vocabulary. Title matches outrank keyword
+>   matches. Nothing found → links to Resources by Stage with the same words and a mailto request.
+> * **URL = the state:** `/?q=…&stage=3,4&type=quiz&strand=number|measurement|statistics&topic=<slug>`; the old
+>   `/?cat=quiz#browse` still works (the Browse menu uses it). A URL that names anything ignores the remembered stages for that
+>   visit without forgetting them. localStorage `mmt.home.v1` = `{stages, dense, pins, recent, told}`.
+>   Keys: `/` or Ctrl/⌘+K = search, ↓ or Enter = into the list, ↑ ↓ = rows, Esc = clear.
+> * **Resources by Stage gained two links in** (`resources/index.html`): `#stage-4/<topic-slug>` opens that topic and scrolls to
+>   it; `?q=words` (optionally with `#stage-N`) fills its search and opens the first stage with a match. The homepage links to both.
+> * **Gone:** the hero and its stat tiles, the hand-typed `.group-count` pills, the old browse controller and category pages, the
+>   featured strip's own markup, the "Planned updates" section, the footer date typed by hand. Fixed on the way: the Perimeter of
+>   Plane Shapes QUIZ card was filed in the worksheet group; the homepage's Cloudflare tag was the old `defer` form at the foot
+>   of the page and is now the exact module line before `</head>`.
+> * **THIS BLOCK SUPERSEDES** the 2026-09-21 "search box moved up" entry (`.browse-shell`, `.findbar-head`, `enterSearch()` no
+>   longer exist), the 2026-09-19 note that a game's `group-count` pill is edited by hand, the 2026-08-31 note that the pills
+>   are hardcoded, and every "pill 47 → 48" in older entries (history only: do not go looking for a pill).
+> * **Tests:** `tools/home/check.py` (305 Playwright checks; serve the repo root on :8765 first; its header says which numbers
+>   are snapshots that change when resources are added). Also checked: all 437 local links on the page resolve to a file.
+> * **Open:** the strategy games and puzzles have no stage, so they list under every stage including Early Stage 1 (use
+>   `data-for-stages` to narrow one); the visible `data-stage` text on cards was left as it was (the finder uses `data-stages`);
+>   English only.
 >
 > **NEW (2026-11-27): CRACK THE EQUATION — WORKSHEET PAIRS CREATOR.** `worksheet-creators/games/crack-the-equation-pairs.html`
 > (single file, noindex), reached ONLY from a new **Tools ▾** menu in `games/crack-the-equation.html` (same pattern as the Nasty
