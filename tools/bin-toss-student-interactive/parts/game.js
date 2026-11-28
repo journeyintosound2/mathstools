@@ -1,4 +1,7 @@
 import * as THREE from './three.module.min.js?v=954c1c22';
+import {GLTFLoader} from './GLTFLoader.js?v=63b7d938';
+import {MeshoptDecoder} from './meshopt_decoder.module.js?v=cd7a7b72';
+import {clone as skClone} from './SkeletonUtils.js?v=1bac8aac';
 const P=window.BTP,$=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -11,9 +14,9 @@ const queueFor=price=>Math.max(0,Math.round(MAXQ*(1-price/PRIZE)));
 
 /* ---------------- saved state ---------------- */
 const STORE='mmt.binTossGame.v1';
-const S={spot:null,data:{front:[],middle:[],back:[]},days:[],angle:{front:45,middle:40,back:35},price:10,sound:true,seen:false};
+const S={spot:null,data:{front:[],middle:[],back:[]},days:[],angle:{front:45,middle:40,back:35},price:10,sound:true,seen:false,char:null};
 try{const s=JSON.parse(localStorage.getItem(STORE)||'null');
-  if(s&&s.data){for(const k of ['spot','days','price','sound','seen'])if(k in s)S[k]=s[k];
+  if(s&&s.data){for(const k of ['spot','days','price','sound','seen','char'])if(k in s)S[k]=s[k];
     for(const sp of P.SPOTS){if(Array.isArray(s.data[sp.id]))S.data[sp.id]=s.data[sp.id];if(s.angle&&s.angle[sp.id])S.angle[sp.id]=s.angle[sp.id]}
     if(!P.SPOTS.some(x=>x.id===S.spot))S.spot=null}}catch(e){}
 const save=()=>{try{localStorage.setItem(STORE,JSON.stringify(S))}catch(e){}};
@@ -189,7 +192,67 @@ function updConfetti(dt){
 }
 const QCOL=['#ef4444','#f59e0b','#10b981','#06b6d4','#8b5cf6','#ec4899','#84cc16','#f97316','#14b8a6','#6366f1','#e11d48','#0ea5e9'];
 const SKIN=['#f1c9a5','#e0ac69','#c68642','#8d5524','#ffdbac','#d9a066'],HAIR=['#3f2d20','#111827','#7c4a1e','#d4a017','#4b2e83','#a8552a'];
-function buildQueue(){for(let i=0;i<12;i++){const k=makeKid(QCOL[i%QCOL.length],{skin:SKIN[i%6],hair:HAIR[(i*5)%6]});k.arm.rotation.x=0;k.g.visible=false;scene.add(k.g);world.queue.push(k)}}
+
+/* ---------------- characters from Mills Maths Adventure ----------------
+   All 21 models share one 24-bone skeleton (Hips, Spine…, RightArm, RightForeArm, RightHand…) but none has a throwing clip.
+   So the throw is made in code: the arm bones are AIMED at directions for each moment of the throw (hold, wind up, release,
+   follow through). One set of directions works for every character, whatever its size or shape. */
+const CHARS=[
+  {id:'main1',name:'Explorer',grp:'Students'},{id:'main2',name:'Cool Cat',grp:'Students'},{id:'main3',name:'DJ Goat',grp:'Students'},
+  {id:'pip',name:'Pip',grp:'Number Island'},{id:'fern',name:'Fern',grp:'Number Island'},{id:'alby',name:'Alby',grp:'Number Island'},{id:'pete',name:'Pete',grp:'Number Island'},
+  {id:'mills',name:'Mr. Mills',grp:'Staff'},{id:'pearce',name:'Mr. Pearce',grp:'Staff'},{id:'mahoney',name:'Ms. Mahoney',grp:'Staff'},{id:'ewings',name:'Ms. Ewings',grp:'Staff'},
+  {id:'dawson',name:'Mr. Dawson',grp:'Staff'},{id:'heywood',name:'Mr. Heywood',grp:'Staff'},{id:'morgan',name:'Mr. Morgan',grp:'Staff'},{id:'bacon',name:'Ms. Bacon',grp:'Staff'},{id:'brookes',name:'Ms. Brookes',grp:'Staff'},
+  {id:'farmer',name:'Sunny',grp:'Fraction Farm'},{id:'farmer1',name:'The Milkman',grp:'Fraction Farm'},{id:'trevor',name:'Trevor',grp:'Fraction Farm'},{id:'steve',name:'Steve',grp:'Fraction Farm'},{id:'robot',name:'Robot',grp:'Fraction Farm'}
+];
+const CHAR_URL='../../../../../game-platforms/mills-maths-adventure/models/characters/';
+const charName=id=>(CHARS.find(c=>c.id===id)||{name:''}).name;
+const gltf=new GLTFLoader();gltf.setMeshoptDecoder(MeshoptDecoder);
+const modelCache={};
+function loadModel(id){
+  return modelCache[id]||(modelCache[id]=gltf.loadAsync(CHAR_URL+id+'.glb').then(g=>{
+    const sc=g.scene;sc.updateMatrixWorld(true);const bx=new THREE.Box3().setFromObject(sc),h=bx.max.y-bx.min.y;let sh=h*.7;
+    sc.traverse(o=>{if(o.isBone&&o.name==='RightArm'){const v=new THREE.Vector3();o.getWorldPosition(v);sh=v.y-bx.min.y}});
+    return {scene:sc,scale:clamp(1.05/sh,1.25/h,1.5/h),minY:bx.min.y};         // shoulders near 1.05 m; between 1.25 m and 1.5 m tall
+  }).catch(e=>{delete modelCache[id];throw e}));
+}
+function makeActor(m){
+  const root=new THREE.Group(),inner=skClone(m.scene);inner.rotation.y=Math.PI;inner.scale.setScalar(m.scale);inner.position.y=-m.minY*m.scale;root.add(inner);
+  const B={};inner.traverse(o=>{if(o.isBone)B[o.name]=o;if(o.isMesh){o.castShadow=true;o.frustumCulled=false}});
+  const bind={};for(const n of ['RightArm','RightForeArm','LeftArm','LeftForeArm','Spine','Spine01','Spine02'])if(B[n])bind[n]=B[n].quaternion.clone();
+  const low=B.Hips?B.Hips.children.find(c=>c.isBone&&/^Spine/.test(c.name)):null;
+  return {root,B,bind,low};
+}
+// directions in the thrower's own frame: +x right, +y up, -z forward
+const POSE={hold:{U:[.5,-.35,.2],F:[.05,.95,-.3],lean:0},wind:{U:[.45,.05,.8],F:[.1,.75,.65],lean:.2},rel:{U:[.2,.6,-.75],F:[.02,.8,-.6],lean:-.1},fol:{U:[.05,-.2,-.95],F:[-.15,-.6,-.75],lean:-.28}};
+const _a=new THREE.Vector3(),_b=new THREE.Vector3(),_d=new THREE.Vector3(),_t=new THREE.Vector3(),_q=new THREE.Quaternion(),_qw=new THREE.Quaternion(),_qp=new THREE.Quaternion(),_qr=new THREE.Quaternion();
+function turnWorld(bone,q){bone.getWorldQuaternion(_qw);bone.parent.getWorldQuaternion(_qp);bone.quaternion.copy(_qp.invert().multiply(_q.copy(q).multiply(_qw)))}
+function aimBone(bone,child,dir){if(!bone||!child)return;bone.updateWorldMatrix(true,true);_a.setFromMatrixPosition(bone.matrixWorld);_b.setFromMatrixPosition(child.matrixWorld);
+  _d.subVectors(_b,_a).normalize();turnWorld(bone,_qr.setFromUnitVectors(_d,dir))}
+function poseActor(a,x){
+  for(const n in a.bind)a.B[n].quaternion.copy(a.bind[n]);
+  if(x==null){a.root.updateMatrixWorld(true);return}
+  let A,Bk,t;if(x>=3.3){A=POSE.hold;Bk=POSE.wind;t=(x-3.3)/.4}else if(x>=2.786){A=POSE.rel;Bk=POSE.hold;t=(x-2.786)/.514}else{A=POSE.rel;Bk=POSE.fol;t=(2.786-x)/1.086}
+  t=clamp(t,0,1);a.root.updateWorldMatrix(true,false);a.root.getWorldQuaternion(_qp);const rq=_qp.clone();
+  const lean=A.lean+(Bk.lean-A.lean)*t;
+  if(a.low&&lean){_t.set(1,0,0).applyQuaternion(rq);turnWorld(a.low,_qr.setFromAxisAngle(_t,lean))}
+  const dir=(u,v)=>_t.set(u[0]+(v[0]-u[0])*t,u[1]+(v[1]-u[1])*t,u[2]+(v[2]-u[2])*t).normalize().applyQuaternion(rq);
+  aimBone(a.B.RightArm,a.B.RightForeArm,dir(A.U,Bk.U).clone());aimBone(a.B.RightForeArm,a.B.RightHand,dir(A.F,Bk.F).clone());
+  a.root.updateMatrixWorld(true);
+}
+/* A figure on the floor: one of the Adventure characters, or the simple block kid until its model has loaded (or if it can't). */
+class Fig{
+  constructor(shirt,o){this.g=new THREE.Group();this.box=makeKid(shirt,o);this.g.add(this.box.g);this.actors={};this.actor=null;this.id=null;this.armX=3.3;scene.add(this.g)}
+  use(id){this.id=id||null;if(!id){this.swap(null);return Promise.resolve()}
+    if(this.actors[id]){this.swap(this.actors[id]);return Promise.resolve()}
+    return loadModel(id).then(m=>{if(!this.actors[id])this.actors[id]=makeActor(m);if(this.id===id)this.swap(this.actors[id])}).catch(e=>{console.warn('character',id,e);if(this.id===id)this.swap(null)})}
+  swap(a){if(this.actor&&this.actor!==a)this.g.remove(this.actor.root);this.actor=a;this.box.g.visible=!a;if(a){this.g.add(a.root);this.setArm(this.armX)}}
+  tint(c){this.box.sm.color.set(c)}
+  setArm(x){this.armX=x;this.box.arm.rotation.x=x==null?0:x;if(this.actor)poseActor(this.actor,x)}
+  hand(out){this.g.updateMatrixWorld(true);
+    if(this.actor&&this.actor.B.RightHand){const B=this.actor.B;out.setFromMatrixPosition(B.RightHand.matrixWorld);if(B.RightForeArm){_a.setFromMatrixPosition(B.RightForeArm.matrixWorld);_d.subVectors(out,_a).normalize();out.addScaledVector(_d,.07)}return out}
+    out.set(0,-.36,0);return this.box.arm.localToWorld(out)}
+}
+function buildQueue(){for(let i=0;i<9;i++){const k=new Fig(QCOL[i%QCOL.length],{skin:SKIN[i%6],hair:HAIR[(i*5)%6]});k.setArm(null);k.g.visible=false;world.queue.push(k)}}
 
 function initScene(){
   renderer=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance'});
@@ -202,7 +265,7 @@ function initScene(){
   sun.shadow.mapSize.set(2048,2048);const sc=sun.shadow.camera;sc.left=-7;sc.right=7;sc.top=8;sc.bottom=-8;sc.near=.5;sc.far=20;sun.shadow.bias=-.0006;sun.shadow.radius=4;
   scene.add(sun,sun.target);
   buildRoom();buildBin();buildMarkers();buildAim();buildConfetti();buildQueue();
-  world.kid=makeKid('#2563eb');scene.add(world.kid.g);
+  world.kid=new Fig('#2563eb');if(S.char)world.kid.use(S.char);
   world.ball=makeBallMesh();scene.add(world.ball);
   resize();window.addEventListener('resize',resize);
 }
@@ -244,11 +307,11 @@ function aimArrow(){
   const show=phase==='aim'||phase==='power';world.arrow.visible=world.arc.visible=world.baseLine.visible=show;
 }
 function placeKid(){
-  const d=curSpot().d;world.kid.g.position.set(0,0,d);world.kid.g.visible=true;world.kid.arm.rotation.x=3.3;holdBall();
+  const d=curSpot().d;world.kid.g.position.set(0,0,d);world.kid.g.visible=true;world.kid.setArm(3.3);holdBall();
   for(const s of P.SPOTS){world.markers[s.id].g.visible=true;world.markers[s.id].disc.visible=s.id!==S.spot;world.markers[s.id].ring.material.opacity=0}
 }
 const handPos=new THREE.Vector3();
-function holdBall(){world.kid.g.updateMatrixWorld(true);handPos.set(0,-.36,0);world.kid.arm.localToWorld(handPos);world.ball.position.copy(handPos);world.ball.visible=true}
+function holdBall(){world.kid.hand(handPos);world.ball.position.copy(handPos);world.ball.visible=true}
 function clearThrows(){for(const t of world.trails)scene.remove(t);world.trails=[];for(const l of world.litter)scene.remove(l);world.litter=[]}
 
 /* ---------------- HUD ---------------- */
@@ -294,7 +357,7 @@ function introPanel(){
     <div class="steps3"><div><b><i>1</i>Practise</b>Pick a spot and throw. Every throw is data: in or out.</div>
       <div><b><i>2</i>Set your price</b>Use your data to work out how often people will win.</div>
       <div><b><i>3</i>Open the stall</b>Customers line up. Count the money. Did you make a profit?</div></div>
-    <div class="pBtns"><button class="pb main" data-act="spots" data-focus>${hasData()?'Keep going ›':'Let’s go ›'}</button></div>`);
+    <div class="pBtns"><button class="pb main" data-act="${S.char?'spots':'chars'}" data-focus>${hasData()?'Keep going ›':'Let’s go ›'}</button></div>`);
 }
 const hasData=()=>P.SPOTS.some(s=>S.data[s.id].length);
 function spotPanel(){
@@ -302,7 +365,7 @@ function spotPanel(){
   panel(`<div class="eyebrow">Choose your spot</div><h2>Where will people throw from?</h2>
     <div class="spotCards">${P.SPOTS.map(s=>{const c=cnt(s.id);return `<button class="spotCard" data-act="pick" data-v="${s.id}"><div class="m">${s.d} <small>metres</small></div><b>${s.name}</b>
       <span class="${c.n?'has':''}">${c.n?`Your data: ${c.in} in out of ${c.n} (${pct(c.in,c.n)})`:'No throws yet'}</span></button>`}).join('')}</div>
-    <p style="margin:12px 0 0;font-size:.88rem;color:#64748b">You can also tap an orange marker on the floor. Each spot keeps its own data.</p>`,{clear:true});
+    <p style="margin:12px 0 0;font-size:.88rem;color:#64748b">You can also tap an orange marker on the floor. Each spot keeps its own data. <button class="lnk" data-act="chars" style="margin-left:6px">Change character${S.char?': '+esc(charName(S.char)):''}</button></p>`,{clear:true});
 }
 function resultsPanel(){
   phase='results';show('controls',false);hint('');world.arrow.visible=world.arc.visible=world.baseLine.visible=false;
@@ -317,7 +380,7 @@ function resultsPanel(){
 }
 function queueH(n){let h='';for(let i=0;i<n;i++)h+=`<i style="--c:${QCOL[i%QCOL.length]}"></i>`;return h}
 function pricePanel(){
-  phase='price';stall=null;show('controls',false);show('skip',false);hint('');camFor('stall');renderStatus();
+  phase='price';stall=null;stallPool();show('controls',false);show('skip',false);hint('');camFor('stall');renderStatus();
   const c=cnt(S.spot),s=curSpot();
   panel(`<div class="eyebrow">Open the stall · ${s.name}</div><h2>How much will you charge to play?</h2>
     <p>Your data from here: <b>${c.in} in out of ${c.n}</b> (${pct(c.in,c.n)}). Your customers throw about as well as you. Every winner costs you <b>$50</b>.</p>
@@ -372,17 +435,23 @@ function helpPanel(){
 function logPanel(){const back=phase;
   panel(`<div class="eyebrow">Stall log</div><h2>Every day you’ve opened</h2>${logH()}
     <div class="pBtns"><button class="pb main" data-act="closeHelp" data-focus>Close</button></div>`,{wide:true});helpPanel.back=back}
+function charPanel(){
+  phase='char';hideGame();camFor('overview');helpPanel.back=null;
+  panel(`<div class="eyebrow">Choose your character</div><h2>Who’s throwing?</h2>
+    <div class="chGrid">${CHARS.map((c,i)=>`<button class="chCard${S.char===c.id?' on':''}" data-act="char" data-v="${c.id}" ${S.char===c.id?'data-focus':''}><span class="chImg" style="background-position:${(i%7)/6*100}% ${Math.floor(i/7)/2*100}%"></span><b>${c.name}</b></button>`).join('')}</div>
+    <p style="margin:12px 0 0;font-size:.85rem;color:#64748b">Characters from Mills Maths Adventure. They all throw the same: only your angle and timing matter.</p>`,{wide:true});
+}
 function hideGame(){show('controls',false);show('status',false);show('skip',false);hint('');world.kid.g.visible=false;world.ball.visible=false;world.arrow.visible=world.arc.visible=world.baseLine.visible=false;world.queue.forEach(k=>k.g.visible=false)}
 
 /* ---------------- practice flow ---------------- */
 function pickSpot(id){
   if(S.spot!==id)clearThrows();S.spot=id;save();stall=null;closePanel();world.queue.forEach(k=>k.g.visible=false);
-  world.kid.sm.color.set('#2563eb');placeKid();camFor('throw');
+  world.kid.tint('#2563eb');world.kid.use(S.char);placeKid();camFor('throw');
   const c=cnt(id);batchLeft=BATCH;startAim(true);
   if(!c.n)pop(`<span class="why">${curSpot().name}: ${BATCH} practice throws</span>`,1800);
 }
 function startAim(first){
-  phase='aim';stall=null;show('controls',true);show('skip',false);setAngle(S.angle[S.spot]||45,true);world.kid.arm.rotation.x=3.3;holdBall();setCtl();renderStatus();aimArrow();camFor('throw');
+  phase='aim';stall=null;show('controls',true);show('skip',false);setAngle(S.angle[S.spot]||45,true);world.kid.setArm(3.3);holdBall();setCtl();renderStatus();aimArrow();camFor('throw');
   hint(first&&!cnt(S.spot).n?'Drag the angle slider, then lock it in':'');
 }
 function lockAngle(){if(phase!=='aim')return;phase='power';meterT=0;power=0;SFX.lock();setCtl();hint('Press THROW! when the marker is in the green')}
@@ -436,18 +505,20 @@ function openStall(){
   const pv=$('predIn')?parseInt($('predIn').value,10):NaN,n=queueFor(S.price);
   if(n<1){pop('<span class="why">Nobody will pay that much. Try a lower price.</span>',1800);return}
   closePanel();clearThrows();save();
-  stall={spot:S.spot,price:S.price,n,i:0,wins:0,pred:isFinite(pv)?pv:null,model:customerModel(S.spot)};
+  stall={spot:S.spot,price:S.price,n,i:0,wins:0,pred:isFinite(pv)?pv:null,model:customerModel(S.spot),pool:stallPool()};
   timeScale=1.9;show('controls',false);show('skip',true);hint('');camFor('stall');placeKid();layoutQueue();renderStatus();SFX.lock();
   phase='after';afterT=.8;
 }
+let poolIds=null;
+function stallPool(){if(!poolIds){const o=CHARS.map(c=>c.id).filter(id=>id!==S.char);for(let i=o.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[o[i],o[j]]=[o[j],o[i]]}poolIds=o.slice(0,4);poolIds.forEach(id=>loadModel(id).catch(()=>{}))}return poolIds}
 function layoutQueue(){
   const d=curSpot().d,left=stall.n-stall.i-1;
   world.queue.forEach((k,j)=>{const on=j<left;k.g.visible=on;if(!on)return;const col=j%3,row=Math.floor(j/3);
     k.tx=-1.25-col*.48;k.tz=Math.min(R.z1-.5,d+.35+row*.5);if(!k.placed){k.g.position.set(k.tx,0,k.tz);k.placed=true}k.g.rotation.y=.5;
-    k.sm.color.set(QCOL[(stall.i+1+j)%QCOL.length])});
+    k.tint(QCOL[(stall.i+1+j)%QCOL.length]);const cid=stall.pool[(stall.i+1+j)%stall.pool.length];if(k.id!==cid)k.use(cid)});
 }
 function nextCustomer(){
-  const d=stall,m=d.model;world.kid.sm.color.set(QCOL[d.i%QCOL.length]);world.kid.arm.rotation.x=3.3;holdBall();layoutQueue();world.kid.g.position.y=0;
+  const d=stall,m=d.model;world.kid.tint(QCOL[d.i%QCOL.length]);world.kid.use(d.pool[d.i%d.pool.length]);world.kid.setArm(3.3);holdBall();layoutQueue();world.kid.g.position.y=0;
   launchPlan={spot:d.spot,angle:m.angle,power:clamp(m.mid+P.gauss()*m.sigma,0,100),nz:P.noise()};
   phase='wind';armT=0;renderStatus();
 }
@@ -472,21 +543,21 @@ function frame(now){
   camera.lookAt(cam.tgt);
   // markers pulse while choosing
   if(phase==='spot')for(const s of P.SPOTS){const m=world.markers[s.id];m.ring.material.opacity=.45+.35*Math.sin(cam.sway*4);m.ring.scale.setScalar(1+.08*Math.sin(cam.sway*4))}
-  if(phase==='aim'){world.kid.arm.rotation.x=3.3+Math.sin(cam.sway*2.2)*.04;holdBall()}
+  if(phase==='aim'){const pp=window.__BTG__&&window.__BTG__.pausePose;world.kid.setArm(pp!==undefined?pp:3.3+Math.sin(cam.sway*2.2)*.04);holdBall()}
   if(phase==='power'){
     meterT+=dt;const ph=(meterT/P.METER.period)%1;power=ph<.5?ph*200:(1-ph)*200;
     $('mark').style.bottom=power+'%';$('powRead').textContent=Math.round(power);
-    world.kid.arm.rotation.x=3.3+power/100*.35;holdBall();
+    world.kid.setArm(3.3+power/100*.35);holdBall();
   }
   if(phase==='wind'){
     armT+=dt*(stall?timeScale:1);const w=.2,sw=.11;
-    if(armT<w)world.kid.arm.rotation.x=3.3+(armT/w)*.4;
-    else{const u=Math.min(1,(armT-w)/sw);world.kid.arm.rotation.x=3.7-(3.7-2.786)*u*u;if(u>=1){release()}}
-    if(phase==='wind')holdBall();
+    let sw_u=0;if(armT<w)world.kid.setArm(3.3+(armT/w)*.4);
+    else{const u=Math.min(1,(armT-w)/sw);sw_u=u;world.kid.setArm(3.7-(3.7-2.786)*u*u);if(u>=1){release()}}
+    if(phase==='wind'){holdBall();if(sw_u>0&&launchPlan)world.ball.position.lerp(_a.set(P.REL.x,P.REL.y,P.spot(launchPlan.spot).d),sw_u*sw_u*sw_u)}
   }
   if(phase==='fly'){
     simAcc+=dt*(stall?timeScale:1);
-    if(world.kid.arm.rotation.x>1.7)world.kid.arm.rotation.x=Math.max(1.7,world.kid.arm.rotation.x-dt*9);
+    if(world.kid.armX>1.7)world.kid.setArm(Math.max(1.7,world.kid.armX-dt*7));
     while(simAcc>=P.DT&&!sim.done){P.step(sim,P.DT);simAcc-=P.DT;
       if(sim.ev){if(!firstEv&&sim.ev!=='in')firstEv={ev:sim.ev,x:sim.x,z:sim.z};
         if(sim.ev==='floor'||sim.ev==='wall'||sim.ev==='ceil'||sim.ev==='side')SFX.thud();else if(sim.ev==='rim')SFX.rim()}
@@ -528,17 +599,17 @@ document.addEventListener('keydown',e=>{
   else if(k==='Escape'&&phase==='power')unlock();
   else if(/^[123]$/.test(k)&&phase==='spot')pickSpot(P.SPOTS[+k-1].id);
 });
-function closeHelp(){const b=helpPanel.back;helpPanel.back=null;closePanel();if(b==='intro')introPanel();else if(b==='spot')spotPanel();else if(b==='results')resultsPanel();else if(b==='price')pricePanel();else if(b==='day'){phase='day';pricePanel()}else phase=b}
+function closeHelp(){const b=helpPanel.back;helpPanel.back=null;closePanel();if(b==='intro')introPanel();else if(b==='spot')spotPanel();else if(b==='char')charPanel();else if(b==='results')resultsPanel();else if(b==='price')pricePanel();else if(b==='day'){phase='day';pricePanel()}else phase=b}
 const ACT={
   spots(){closePanel();spotPanel()},pick(el){pickSpot(el.dataset.v)},
-  more(){closePanel();stall=null;world.queue.forEach(k=>k.g.visible=false);clearThrows();world.kid.sm.color.set('#2563eb');placeKid();batchLeft=BATCH;startAim()},
-  toPrice(){if(cnt(S.spot).n<MIN_DATA)return;closePanel();world.kid.sm.color.set('#2563eb');placeKid();pricePanel()},
+  more(){closePanel();stall=null;world.queue.forEach(k=>k.g.visible=false);clearThrows();world.kid.tint('#2563eb');world.kid.use(S.char);placeKid();batchLeft=BATCH;startAim()},
+  toPrice(){if(cnt(S.spot).n<MIN_DATA)return;closePanel();world.kid.tint('#2563eb');world.kid.use(S.char);placeKid();pricePanel()},
   price(el){S.price=clamp(S.price+ +el.dataset.v,1,49);paintPrice();SFX.tick()},open(){openStall()},closeHelp
 };
 document.addEventListener('click',e=>{const el=e.target.closest('[data-act]');if(el&&ACT[el.dataset.act]){ac();ACT[el.dataset.act](el)}});
 document.addEventListener('input',e=>{if(e.target.id==='priceIn'){S.price=+e.target.value;paintPrice()}else if(e.target.id==='predIn')e.target.value=e.target.value.replace(/\D/g,'')});
-$('helpBtn').addEventListener('click',()=>{if(['aim','intro','spot','results','price','day'].includes(phase)&&!helpPanel.back)helpPanel()});
-$('logBtn').addEventListener('click',()=>{if(['aim','intro','spot','results','price','day'].includes(phase)&&!helpPanel.back)logPanel()});
+$('helpBtn').addEventListener('click',()=>{if(['aim','intro','spot','char','results','price','day'].includes(phase)&&!helpPanel.back)helpPanel()});
+$('logBtn').addEventListener('click',()=>{if(['aim','intro','spot','char','results','price','day'].includes(phase)&&!helpPanel.back)logPanel()});
 function paintSound(){const b=$('soundBtn');b.setAttribute('aria-pressed',String(S.sound));b.innerHTML=S.sound?'&#128266;':'&#128263;'}
 $('soundBtn').addEventListener('click',()=>{S.sound=!S.sound;save();paintSound();if(S.sound)SFX.lock()});
 $('resetBtn').addEventListener('click',()=>{
@@ -547,8 +618,10 @@ $('resetBtn').addEventListener('click',()=>{
     <div class="pBtns"><button class="pb main" data-act="doReset">Yes, start again</button><button class="pb" data-act="cancelReset" data-focus>Keep my data</button></div>`);
   ACT.cancelReset.back=phase;
 });
-ACT.doReset=()=>{S.spot=null;S.data={front:[],middle:[],back:[]};S.days=[];S.price=10;S.angle={front:45,middle:40,back:35};save();clearThrows();stall=null;closePanel();introPanel()};
-ACT.cancelReset=()=>{const b=ACT.cancelReset.back;closePanel();if(b==='intro')introPanel();else if(b==='spot')spotPanel();else if(b==='results')resultsPanel();else if(b==='price'||b==='day')pricePanel();else if(b==='aim'||b==='power'){phase=b}else if(stall){phase='after';afterT=.2}};
+ACT.char=el=>{S.char=el.dataset.v;poolIds=null;save();world.kid.use(S.char);closePanel();spotPanel()};
+ACT.chars=()=>{closePanel();charPanel()};
+ACT.doReset=()=>{S.spot=null;S.char=null;poolIds=null;world.kid.use(null);S.data={front:[],middle:[],back:[]};S.days=[];S.price=10;S.angle={front:45,middle:40,back:35};save();clearThrows();stall=null;closePanel();introPanel()};
+ACT.cancelReset=()=>{const b=ACT.cancelReset.back;closePanel();if(b==='intro')introPanel();else if(b==='spot')spotPanel();else if(b==='char')charPanel();else if(b==='results')resultsPanel();else if(b==='price'||b==='day')pricePanel();else if(b==='aim'||b==='power'){phase=b}else if(stall){phase='after';afterT=.2}};
 // tap a floor marker to choose it
 const ray=new THREE.Raycaster(),ptr=new THREE.Vector2();
 function markerAt(e){const r=canvas.getBoundingClientRect();ptr.set((e.clientX-r.left)/r.width*2-1,-((e.clientY-r.top)/r.height)*2+1);ray.setFromCamera(ptr,camera);
@@ -564,5 +637,5 @@ try{
   introPanel();
   requestAnimationFrame(frame);
 }catch(err){$('loading').innerHTML='This game needs 3D graphics (WebGL), which this browser or device has switched off.<br><br><small>'+esc(err.message||err)+'</small>';console.error(err)}
-window.__BTG__={S,P,get phase(){return phase},get stall(){return stall},pickSpot,setAngle,lockAngle,doThrow,customerModel,queueFor,cnt,skipStall,
+window.__BTG__={S,P,get phase(){return phase},get stall(){return stall},pickSpot,setAngle,lockAngle,doThrow,customerModel,queueFor,cnt,skipStall,CHARS,world,loadModel,
   forceThrow(a,p){setAngle(a,true);phase='power';power=p;doThrow()},get sim(){return sim},setPower(p){power=p}};

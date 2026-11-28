@@ -1,6 +1,6 @@
 /* Written by tools/build-pwa.mjs — do not edit by hand. */
 self.MMT_PRECACHE = {
- "version": "9d98ea05b7",
+ "version": "bc5db8ceca",
  "files": [
   "./",
   "assessment/exam-builder/app.js",
@@ -890,7 +890,12 @@ self.MMT_PRECACHE = {
   "interactive-tools/stage-4/ratios-rates/divide-a-ratio/index.html",
   "interactive-tools/stage-4/ratios-rates/stacked-bar-ratio/index.html",
   "interactive-tools/stage-4/statistics-probability/bin-toss/index.html",
+  "interactive-tools/stage-4/statistics-probability/bin-toss/student-interactive/BufferGeometryUtils.js",
+  "interactive-tools/stage-4/statistics-probability/bin-toss/student-interactive/GLTFLoader.js",
+  "interactive-tools/stage-4/statistics-probability/bin-toss/student-interactive/SkeletonUtils.js",
+  "interactive-tools/stage-4/statistics-probability/bin-toss/student-interactive/chars.webp",
   "interactive-tools/stage-4/statistics-probability/bin-toss/student-interactive/index.html",
+  "interactive-tools/stage-4/statistics-probability/bin-toss/student-interactive/meshopt_decoder.module.js",
   "interactive-tools/stage-4/statistics-probability/bin-toss/student-interactive/three.module.min.js",
   "interactive-tools/stage-5/algebra/complete-the-square/index.html",
   "interactive-tools/stage-5/measurement-space/square-sum-chain/index.html",

@@ -5,11 +5,11 @@ with sync_playwright() as p:
     b=p.chromium.launch(args=['--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist'])
     ctx=b.new_context(viewport={'width':1366,'height':768});pg=ctx.new_page();errs=[]
     pg.on('pageerror',lambda e:errs.append(str(e)));pg.route('**/*cloudflareinsights.com/**',lambda r:r.abort())
-    pg.goto('http://localhost:8822/index.html');pg.wait_for_timeout(1200);E=pg.evaluate
+    pg.goto('http://localhost:8833/interactive-tools/stage-4/statistics-probability/bin-toss/student-interactive/index.html');pg.wait_for_timeout(1200);E=pg.evaluate
     pg.click('#soundBtn');chk('sound off',E("__BTG__.S.sound")==False)
     pg.click('#helpBtn');chk('help opens',pg.locator('.panel h2').inner_text().startswith('Throw'));pg.click('[data-act=closeHelp]')
     chk('back to intro',E("__BTG__.phase")=='intro')
-    pg.click('[data-act=spots]');pg.keyboard.press('1');pg.wait_for_timeout(600)
+    pg.click('[data-act=chars]');chk('21 characters',pg.locator('.chCard').count()==21);pg.click('[data-act=char][data-v=main2]');pg.wait_for_timeout(1500);chk('character saved + loaded',E("__BTG__.S.char")=='main2' and E("!!__BTG__.world.kid.actor"));pg.keyboard.press('1');pg.wait_for_timeout(600)
     chk('key 1 picks front',E("__BTG__.S.spot")=='front' and E("__BTG__.phase")=='aim')
     a0=int(pg.inner_text('#angRead'));pg.keyboard.press('ArrowUp');pg.keyboard.press('ArrowUp');chk('arrow keys change angle',int(pg.inner_text('#angRead'))==a0+2)
     bx=pg.locator('#angTrack').bounding_box();pg.mouse.move(bx['x']+bx['width']/2,bx['y']+bx['height']-5);pg.mouse.down();pg.mouse.move(bx['x']+bx['width']/2,bx['y']+bx['height']*0.5,steps=6);pg.mouse.up()

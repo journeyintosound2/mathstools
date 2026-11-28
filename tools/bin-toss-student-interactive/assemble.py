@@ -24,5 +24,9 @@ pwa='''<!-- Cloudflare Web Analytics --><script type='module' src='https://stati
 v=hashlib.md5(pathlib.Path('three.module.min.js').read_bytes()).hexdigest()[:8]
 game=(p/'game.js').read_text()
 assert "three.module.min.js?v="+v in game, v
-out=head+(p/'style.css').read_text()+'  </style>\n'+pwa+(p/'body.html').read_text()+'\n<script id="btPhysics">\n'+(p/'physics.js').read_text()+'</script>\n<script type="module">\n'+game+'</script>\n</body>\n</html>\n'
+css=(p/'style.css').read_text().replace('CHARSV',hashlib.md5(pathlib.Path('chars.webp').read_bytes()).hexdigest()[:8])
+out=head+css+'  </style>\n'+pwa+(p/'body.html').read_text()+'\n<script id="btPhysics">\n'+(p/'physics.js').read_text()+'</script>\n<script type="module">\n'+game+'</script>\n</body>\n</html>\n'
 pathlib.Path('index.html').write_text(out);print(len(out))
+import shutil
+D='/home/claude/site/interactive-tools/stage-4/statistics-probability/bin-toss/student-interactive/'
+for f in ['index.html','chars.webp','three.module.min.js']+['addons/'+x for x in ['GLTFLoader.js','BufferGeometryUtils.js','SkeletonUtils.js','meshopt_decoder.module.js']]:shutil.copy(f,D)

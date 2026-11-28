@@ -168,6 +168,19 @@
 >   as you"** (`customerModel`): the student's median angle + power ~ N(sweet-spot centre, σ) with σ = median |miss| / 0.6745 clamped
 >   1.6–7. The median makes deliberate bad practice throws useless (sandbagging 0/10 from the front still gives ~33% customers). mc2.js:
 >   customer rate tracks the player's own rate within a few points at every spot.
+> * **CHOOSE YOUR CHARACTER (2026-11-28): the 21 Adventure characters, with a throw made in code.** The game loads the glbs straight from
+>   `game-platforms/mills-maths-adventure/models/characters/<id>.glb` (relative `../../../../../`; nothing copied — **do not rename or
+>   remove those files** without updating `CHARS` in game.js). All 21 share one Meshy 24-bone skeleton with the same bone names, but none
+>   has a throwing clip, so no clip is played at all: `poseActor()` AIMS RightArm and RightForeArm (world-space, `aimBone`) at four key
+>   directions — hold, wind up, release, follow through (`POSE`) — and leans the lowest spine bone; everything else stays in the bind
+>   (A-) pose. One scalar `armX` (3.7 wind · 3.3 hold · 2.786 release · 1.7 follow) drives both the Adventure models and the block-kid
+>   fallback. The ball rides the hand and is eased onto the exact physics release point during the swing, so every character throws
+>   identically. Size: `clamp(1.05/shoulder, 1.25/h, 1.5/h)`. `Fig` = a figure that shows the block kid until its model loads (or if it
+>   fails). Stall customers = 4 random other characters (`stallPool`, preloaded on the price panel), cloned with SkeletonUtils; queue shows 9.
+>   Vendored beside index.html (three r170, imports patched to `./three.module.min.js?v=954c1c22` — the SAME URL as game.js or three loads
+>   twice): GLTFLoader.js, BufferGeometryUtils.js, SkeletonUtils.js, meshopt_decoder.module.js (the glbs are meshopt + webp). Picker
+>   thumbnails = one sprite `chars.webp` (7 × 3, order = `CHARS`), rendered by `tools/bin-toss-student-interactive/thumbs.html`; a new
+>   character needs a `CHARS` row and a re-rendered sprite. Saved as `S.char`.
 > * Missed balls stay on the floor and each throw's arc stays in the air (green in, red out) until the next batch. Sound = WebAudio synth, toggle.
 > * Verified: 29 Playwright checks (keys, real drag, lock/unlock, meter, 10 throws, reload keeps data, price, queue, skip, a full animated day,
 >   money adds up, reset), screenshots at 1366×768 and 390×780. Not done: saving results to the Student Platform, AR/FA, a hide-the-sweet-spot hard mode.
