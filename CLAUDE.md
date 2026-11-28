@@ -181,6 +181,7 @@
 >   twice): GLTFLoader.js, BufferGeometryUtils.js, SkeletonUtils.js, meshopt_decoder.module.js (the glbs are meshopt + webp). Picker
 >   thumbnails = one sprite `chars.webp` (7 × 3, order = `CHARS`), rendered by `tools/bin-toss-student-interactive/thumbs.html`; a new
 >   character needs a `CHARS` row and a re-rendered sprite. Saved as `S.char`.
+>   Winners celebrate (Jeff 2026-11-28): `poseCheer()` aims BOTH arms up and the figure hops for ~1 s (`cheerT`), in practice and for stall customers. Staff stay in the picker (Jeff's call).
 > * Missed balls stay on the floor and each throw's arc stays in the air (green in, red out) until the next batch. Sound = WebAudio synth, toggle.
 > * Verified: 29 Playwright checks (keys, real drag, lock/unlock, meter, 10 throws, reload keeps data, price, queue, skip, a full animated day,
 >   money adds up, reset), screenshots at 1366×768 and 390×780. Not done: saving results to the Student Platform, AR/FA, a hide-the-sweet-spot hard mode.

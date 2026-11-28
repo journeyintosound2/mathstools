@@ -642,6 +642,15 @@ function poseActor(a,x){
   aimBone(a.B.RightArm,a.B.RightForeArm,dir(A.U,Bk.U).clone());aimBone(a.B.RightForeArm,a.B.RightHand,dir(A.F,Bk.F).clone());
   a.root.updateMatrixWorld(true);
 }
+// a winner throws both arms up
+const CHEER={RU:[.4,.9,-.1],RF:[.12,1,-.1],LU:[-.4,.9,-.1],LF:[-.12,1,-.1]};
+function poseCheer(a){
+  for(const n in a.bind)a.B[n].quaternion.copy(a.bind[n]);
+  a.root.updateWorldMatrix(true,false);a.root.getWorldQuaternion(_qp);const rq=_qp.clone(),d=v=>new THREE.Vector3(v[0],v[1],v[2]).normalize().applyQuaternion(rq);
+  if(a.low){_t.set(1,0,0).applyQuaternion(rq);turnWorld(a.low,_qr.setFromAxisAngle(_t,.1))}
+  aimBone(a.B.RightArm,a.B.RightForeArm,d(CHEER.RU));aimBone(a.B.RightForeArm,a.B.RightHand,d(CHEER.RF));
+  aimBone(a.B.LeftArm,a.B.LeftForeArm,d(CHEER.LU));aimBone(a.B.LeftForeArm,a.B.LeftHand,d(CHEER.LF));a.root.updateMatrixWorld(true);
+}
 /* A figure on the floor: one of the Adventure characters, or the simple block kid until its model has loaded (or if it can't). */
 class Fig{
   constructor(shirt,o){this.g=new THREE.Group();this.box=makeKid(shirt,o);this.g.add(this.box.g);this.actors={};this.actor=null;this.id=null;this.armX=3.3;scene.add(this.g)}
@@ -650,6 +659,7 @@ class Fig{
     return loadModel(id).then(m=>{if(!this.actors[id])this.actors[id]=makeActor(m);if(this.id===id)this.swap(this.actors[id])}).catch(e=>{console.warn('character',id,e);if(this.id===id)this.swap(null)})}
   swap(a){if(this.actor&&this.actor!==a)this.g.remove(this.actor.root);this.actor=a;this.box.g.visible=!a;if(a){this.g.add(a.root);this.setArm(this.armX)}}
   tint(c){this.box.sm.color.set(c)}
+  cheer(){this.box.arm.rotation.x=3.05;if(this.actor)poseCheer(this.actor)}
   setArm(x){this.armX=x;this.box.arm.rotation.x=x==null?0:x;if(this.actor)poseActor(this.actor,x)}
   hand(out){this.g.updateMatrixWorld(true);
     if(this.actor&&this.actor.B.RightHand){const B=this.actor.B;out.setFromMatrixPosition(B.RightHand.matrixWorld);if(B.RightForeArm){_a.setFromMatrixPosition(B.RightForeArm.matrixWorld);_d.subVectors(out,_a).normalize();out.addScaledVector(_d,.07)}return out}
@@ -685,6 +695,7 @@ function camFor(mode){
 }
 
 /* ---------------- game state (not saved) ---------------- */
+let cheerT=0;
 let phase='load',batchLeft=0,angle=45,bandNow=null,power=0,meterT=0,sim=null,simAcc=0,timeScale=1,trail=null,firstEv=null,armT=0,stall=null,afterT=0,customerKid=null;
 const curSpot=()=>P.spot(S.spot);
 
@@ -874,7 +885,7 @@ function landed(){
   // keep the arc of this throw, faintly, like a record on the air
   const line=new THREE.Line(new THREE.BufferGeometry().setFromPoints(trail.pts),new THREE.LineBasicMaterial({color:isIn?'#15803d':'#ef4444',transparent:true,opacity:stall?.28:.5}));
   scene.add(line);world.trails.push(line);while(world.trails.length>(stall?14:8))scene.remove(world.trails.shift());
-  if(isIn){world.ball.visible=false;burst();SFX.in()}
+  if(isIn){world.ball.visible=false;burst();SFX.in();cheerT=stall?.7:1.15;world.kid.cheer()}
   else{const l=world.ball.clone();l.material=world.ball.material;scene.add(l);world.litter.push(l);while(world.litter.length>40)scene.remove(world.litter.shift());world.ball.visible=false;SFX.out()}
   if(stall){
     const d=stall;d.i++;if(isIn)d.wins++;
@@ -886,6 +897,7 @@ function landed(){
   renderStatus();phase='after';afterT=1.25;
 }
 function afterThrow(){
+  cheerT=0;world.kid.g.position.y=0;
   if(stall){if(stall.i>=stall.n){dayPanel();return}nextCustomer();return}
   if(batchLeft<=0){resultsPanel();return}
   startAim();
@@ -968,6 +980,7 @@ function frame(now){
     world.ball.position.set(sim.x,sim.y,sim.z);world.ball.rotation.x+=dt*9;world.ball.rotation.z+=dt*6;
     if(sim.done)landed();
   }
+  if(cheerT>0){cheerT-=dt*(stall?1:1);world.kid.g.position.y=cheerT>0?Math.abs(Math.sin(cheerT*11))*.13:0}
   if(phase==='after'){afterT-=dt;if(afterT<=0)afterThrow()}
   // queue shuffles forward; winners hop
   if(stall)world.queue.forEach(q=>{if(!q.g.visible)return;q.g.position.x+=(q.tx-q.g.position.x)*Math.min(1,dt*6);q.g.position.z+=(q.tz-q.g.position.z)*Math.min(1,dt*6)});
