@@ -1,0 +1,4 @@
+/* MA3-MR-01 Multiplicative Relations: Multiplying and Dividing — Stage 3 whole-topic quiz. The questions are made in ../s3.js
+   (from the Revision Generator's Stage 3 banks); the engine is ../../../stage-4/topic-quiz/engine.js. */
+import { stage3Bank } from "../s3.js?v=c4f13827";
+window.MMTQ.run(stage3Bank("MA3-MR-01", { related: [{"href": "/worksheet-creators/stage-3/number/multiplying-dividing/", "label": "Whole-topic worksheet", "small": "Print the same topic on paper, with answers"}, {"href": "/interactive-tools/stage-4/measurement-space/perimeter-area-rectangle/", "label": "Area Model — Multiplication & Perimeter", "small": "Teaching tool"}, {"href": "/interactive-tools/stage-3/number/halve-and-halve-again/", "label": "Halve and Halve Again", "small": "Teaching tool"}, {"href": "/interactive-tools/stage-3/number/division-grouping-bubbles/", "label": "Division by Grouping — Bubbles", "small": "Teaching tool"}] }));

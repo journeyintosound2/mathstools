@@ -1,0 +1,4 @@
+/* MA3-AR-01 Additive Relations — Stage 3 whole-topic quiz. The questions are made in ../s3.js
+   (from the Revision Generator's Stage 3 banks); the engine is ../../../stage-4/topic-quiz/engine.js. */
+import { stage3Bank } from "../s3.js?v=c4f13827";
+window.MMTQ.run(stage3Bank("MA3-AR-01", { related: [{"href": "/worksheet-creators/stage-3/number/additive-relations/", "label": "Whole-topic worksheet", "small": "Print the same topic on paper, with answers"}, {"href": "/interactive-tools/stage-3/number/addition-compensation/", "label": "Addition by Compensation", "small": "Teaching tool"}, {"href": "/interactive-tools/stage-3/number/constant-difference/", "label": "Constant Difference", "small": "Teaching tool"}, {"href": "/interactive-tools/stage-3/number/partition-splitter/", "label": "Partition Splitter", "small": "Teaching tool"}] }));

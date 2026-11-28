@@ -57,10 +57,23 @@
   const ASSIGN = !BUILDER && (PARAMS.get("assignment") === "1" || PARAMS.has("types"));
   const reduceMotion = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
   const LEVEL_NAME = { basic: "Basic", expected: "Expected" };
+  /* Levels come from the bank (Stage 3 uses the syllabus parts: { a:{name:"Part A"}, ab:{name:"Parts A and B"} },
+     or one level for a Part B-only outcome). LEVEL_KEYS = the bank's levels that have types, easiest first. */
+  let LEVEL_KEYS = ["basic", "expected"];
+  function setupLevels() {
+    const lv = BANK.levels || {};
+    Object.keys(lv).forEach(k => { if (lv[k] && lv[k].name) LEVEL_NAME[k] = lv[k].name; else if (!LEVEL_NAME[k]) LEVEL_NAME[k] = k; });
+    LEVEL_KEYS = Object.keys(lv).filter(k => typesFor(k).length);
+    if (!LEVEL_KEYS.length) LEVEL_KEYS = ["basic", "expected"].filter(k => typesFor(k).length);
+  }
+  const lastLevel = () => LEVEL_KEYS[LEVEL_KEYS.length - 1];
+  /* colour class: the first level green, the rest amber (as Basic / Expected) */
+  const levelCls = k => (k === "basic" || k === "expected") ? k : (LEVEL_KEYS.indexOf(k) === 0 && LEVEL_KEYS.length > 1 ? "basic" : "expected");
   const DEFAULT_COUNT = 15, MIN_COUNT = 5, MAX_COUNT = 60;
 
   let BANK = null;
-  const S = { level: null, typeIds: [], count: DEFAULT_COUNT, qs: [], recs: [], i: 0, mcPick: null, plotPt: null, done: false };
+  const S = { level: null, typeIds: [], count: DEFAULT_COUNT, qs: [], recs: [], i: 0, mcPick: null, plotPt: null, seq: [], nl: null, done: false };
+  const PICK_MODES = ["mc", "tf", "plot", "order", "nline"];   // answered by picking, not by typing
 
   /* ======================= Cartesian plane =========================== */
   /* opts: xMin,xMax,yMin,yMax, cell (px), points:[{x,y,label,color}],
@@ -166,6 +179,7 @@
     const holder = document.createElement("div"); holder.className = "engHolder";
     host.appendChild(holder);
     try { E.render(holder, d.config || {}); } catch (e) { console.warn("diagram", e); holder.innerHTML = `<div class="diagMissing">Diagram unavailable</div>`; return; }
+    if (d.caption) { const cap = document.createElement("div"); cap.className = "diagCap"; cap.textContent = d.caption; host.appendChild(cap); }
     holder.querySelectorAll("svg").forEach((svg, k) => {
       if (svg.closest("svg") !== svg && svg.parentElement.closest("svg")) return;
       try {
@@ -184,7 +198,7 @@
   }
 
   /* ======================= Paper ==================================== */
-  function typesFor(level) { return BANK.types.filter(t => t.level === level); }
+  function typesFor(level) { return BANK.types.filter(t => (t.levels || [t.level]).includes(level)); }
   function buildPaper(level, typeIds, n) {
     const types = typesFor(level).filter(t => typeIds.includes(t.id));
     if (!types.length) return [];
@@ -213,7 +227,7 @@
   function chipLevel() {
     const ch = $("lvlChip");
     if (!S.level) { ch.hidden = true; return; }
-    ch.hidden = false; ch.textContent = LEVEL_NAME[S.level]; ch.className = "lvlChip " + S.level;
+    ch.hidden = false; ch.textContent = LEVEL_NAME[S.level]; ch.className = "lvlChip " + levelCls(S.level);
   }
   function progress() {
     const n = S.qs.length || 1;
@@ -240,19 +254,29 @@
   function showQuestion() {
     const q = S.qs[S.i], rec = S.recs[S.i];
     S.mcPick = rec ? rec.input : null; S.plotPt = rec && q.mode === "plot" ? rec.input : null;
+    S.seq = rec && q.mode === "order" ? (rec.input || []).slice() : []; S.nl = rec && q.mode === "nline" ? rec.input : null;
     $("qType").textContent = q.label;
     $("qPrompt").innerHTML = q.prompt;
     const dh = $("qDiagram");
     const body = $("qBody");
-    body.classList.toggle("hasDiag", !!q.diagram || q.mode === "plot");
-    dh.hidden = !q.diagram && q.mode !== "plot";
-    if (q.mode === "plot") {
+    body.classList.toggle("hasDiag", !!q.diagram || q.mode === "plot" || q.mode === "nline");
+    dh.hidden = !q.diagram && q.mode !== "plot" && q.mode !== "nline";
+    paintSpeak(q);
+    if (q.mode === "nline") {
+      dh.innerHTML = "";
+      dh._nl = numberLine(dh, q, !rec);
+    } else if (q.mode === "plot") {
       dh.innerHTML = "";
       const g = grid(Object.assign({}, q.grid || {}, { interactive: !rec, onPick: (x, y) => { S.plotPt = [x, y]; $("plotRead").textContent = `Your point: (${C.fmt(x)}, ${C.fmt(y)})`; clearNudge(); } }));
       dh.appendChild(g);
       if (rec) { g.setPoint && g.setPoint(rec.input); }
       dh._grid = g;
     } else drawDiagram(dh, q.diagram);
+    // A long, flat picture (a number line, a bar model, a time line) reads better across the
+    // card, between the question and the answer box, than squeezed into the right column.
+    body.classList.toggle("wideDiag", q.mode === "nline" || !!(q.diagram && (q.diagram.wide || [...dh.querySelectorAll(".engHolder > svg, .engHolder svg")].some(v => {
+      const b = (v.getAttribute("viewBox") || "").split(/\s+/).map(Number); return b.length === 4 && b[3] > 0 && b[2] / b[3] > 2.6;
+    }))));
 
     const area = $("answerArea");
     // Check lives beside the answer box (or the plot read-out); park it back in the nav row first.
@@ -275,6 +299,13 @@
         wrap.appendChild(b);
       });
       area.appendChild(wrap);
+    } else if (q.mode === "order") {
+      area.appendChild(orderUI(q, rec, chk));
+    } else if (q.mode === "nline") {
+      const p = document.createElement("div"); p.className = "plotRead"; p.id = "plotRead";
+      p.textContent = rec ? "" : "Click the number line to place your mark.";
+      const row = document.createElement("div"); row.className = "inRow"; row.appendChild(p); row.appendChild(chk);
+      area.appendChild(row);
     } else if (q.mode === "plot") {
       const p = document.createElement("div"); p.className = "plotRead"; p.id = "plotRead";
       p.textContent = rec ? `Your point: (${C.fmt(rec.input[0])}, ${C.fmt(rec.input[1])})` : "Click the grid to place your point.";
@@ -284,10 +315,10 @@
       const row = document.createElement("div"); row.className = "inRow";
       row.innerHTML = `<label class="inLab" for="ans">Answer</label>${q.pre ? `<span class="aff">${q.pre}</span>` : ""}<input id="ans" class="ans" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="${q.mode === "num" && !q.keys ? "decimal" : "text"}" placeholder="${C.esc(q.placeholder || "")}">${q.unit ? `<span class="aff">${q.unit}</span>` : ""}`;
       area.appendChild(row);
-      const keys = q.keys || (q.mode === "pi" ? ["π"] : q.mode === "mono" ? ["^", "×"] : q.mode === "ratio" ? [":"] : q.mode === "coord" ? ["(", ",", ")", "−"] : q.mode === "linear" ? ["=", "+", "−", "x"] : null);
+      const keys = q.keys || (q.mode === "pi" ? ["π"] : q.mode === "mono" ? ["^", "×"] : q.mode === "ratio" ? [":"] : q.mode === "coord" ? ["(", ",", ")", "−"] : q.mode === "linear" ? ["=", "+", "−", "x"] : q.mode === "time" && q.fmt === "12" ? [":", "am", "pm"] : q.mode === "time" ? [":"] : q.mode === "rem" ? ["r"] : null);
       if (keys) {
         const kb = document.createElement("div"); kb.className = "keys"; kb.setAttribute("aria-label", "Symbol keys");
-        keys.forEach(k => { const b = document.createElement("button"); b.type = "button"; b.className = "key"; b.textContent = k; b.title = "Type " + k; b.addEventListener("mousedown", e => e.preventDefault()); b.addEventListener("click", () => { const inp = $("ans"); if (inp && !inp.disabled) insertAtCaret(inp, k === "−" ? "-" : k); }); kb.appendChild(b); });
+        keys.forEach(k => { const b = document.createElement("button"); b.type = "button"; b.className = "key"; b.textContent = k; b.title = "Type " + k; b.addEventListener("mousedown", e => e.preventDefault()); b.addEventListener("click", () => { const inp = $("ans"); if (inp && !inp.disabled) insertAtCaret(inp, k === "−" ? "-" : (k === "am" || k === "pm" || k === "r") ? " " + k : k); }); kb.appendChild(b); });
         row.appendChild(kb);
       }
       row.appendChild(chk);
@@ -304,6 +335,98 @@
     const inp = $("ans");
     if (inp && !rec && !document.querySelector(".modalBack.open") && !isAuthOpen()) setTimeout(() => { try { inp.focus({ preventScroll: true }); } catch (e) {} }, 30);
   }
+  /* ---- order: tap the items in order (Stage 3) ---- */
+  function orderUI(q, rec, chk) {
+    const box = document.createElement("div"); box.className = "ordBox";
+    const ends = q.ends || ["smallest", "largest"];
+    box.innerHTML = `<div class="ordRow"><span class="ordEnd">${C.esc(ends[0])}</span><div class="ordSlots"></div><span class="ordEnd">${C.esc(ends[1])}</span></div><div class="ordPool" aria-label="Items to order"></div><div class="ordHint">Tap the items in order. Tap a placed item to take it back.</div>`;
+    const slots = box.querySelector(".ordSlots"), pool = box.querySelector(".ordPool");
+    const paint = () => {
+      slots.innerHTML = q.items.map((_, k) => `<span class="ordSlot${S.seq[k] != null ? " full" : ""}">${S.seq[k] != null ? `<button type="button" class="ordTile" data-i="${S.seq[k]}">${q.items[S.seq[k]]}</button>` : `<i>${k + 1}</i>`}</span>`).join("");
+      pool.innerHTML = q.items.map((it, i) => S.seq.includes(i) ? "" : `<button type="button" class="ordTile" data-i="${i}">${it}</button>`).join("");
+      box.querySelectorAll(".ordTile").forEach(b => { b.disabled = !!S.recs[S.i]; });
+    };
+    box.addEventListener("click", e => {
+      const b = e.target.closest(".ordTile"); if (!b || S.recs[S.i]) return;
+      const i = Number(b.dataset.i), at = S.seq.indexOf(i);
+      if (at >= 0) S.seq.splice(at, 1); else S.seq.push(i);
+      clearNudge(); paint();
+    });
+    paint();
+    const row = document.createElement("div"); row.className = "inRow ordCheck"; row.appendChild(chk); box.appendChild(row);
+    return box;
+  }
+  /* ---- nline: click a number line to place a mark (Stage 3) ----
+     q.min, q.max, q.step (snap), q.labels: [{v, html}] under the line. No value is shown at the mark,
+     so the line can't be used to hunt for the answer. Arrow keys move the mark one tick. */
+  function numberLine(host, q, live) {
+    const NS = "http://www.w3.org/2000/svg", W = 680, H = 150, x0 = 40, x1 = 640, y = 70;
+    const n = Math.round((q.max - q.min) / q.step), X = v => x0 + (v - q.min) / (q.max - q.min) * (x1 - x0);
+    const svg = document.createElementNS(NS, "svg");
+    svg.setAttribute("viewBox", `0 0 ${W} ${H}`); svg.setAttribute("class", "nline" + (live ? " live" : ""));
+    svg.setAttribute("role", "slider"); svg.setAttribute("aria-label", "Number line"); svg.setAttribute("tabindex", live ? "0" : "-1");
+    svg.setAttribute("aria-valuemin", q.min); svg.setAttribute("aria-valuemax", q.max);
+    const el = (t, a, txt) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); if (txt != null) e.textContent = txt; svg.appendChild(e); return e; };
+    el("rect", { x: 0, y: 0, width: W, height: H, fill: "transparent" });
+    el("line", { x1: x0 - 14, y1: y, x2: x1 + 14, y2: y, class: "nlAxis" });
+    const major = new Set((q.labels || []).map(l => Math.round((l.v - q.min) / q.step)));
+    for (let k = 0; k <= n; k++) { const xx = X(q.min + k * q.step), big = major.has(k) || k === 0 || k === n; el("line", { x1: xx, y1: y - (big ? 14 : 9), x2: xx, y2: y + (big ? 14 : 9), class: big ? "nlTick big" : "nlTick" }); }
+    (q.labels || []).forEach(l => { const g = el("foreignObject", { x: X(l.v) - 40, y: y + 18, width: 80, height: 56 }); const d = document.createElement("div"); d.className = "nlLab"; d.innerHTML = l.html; g.appendChild(d); });
+    const mine = el("g", { class: "nlMine", visibility: "hidden" }); 
+    const mk = (g, cls) => { const p = document.createElementNS(NS, "path"); p.setAttribute("d", "M0 -6 L-11 -26 L11 -26 Z"); p.setAttribute("class", cls); g.appendChild(p); const c = document.createElementNS(NS, "circle"); c.setAttribute("r", 6); c.setAttribute("cy", 0); c.setAttribute("class", cls); g.appendChild(c); };
+    mk(mine, "nlPin");
+    const set = v => { S.nl = v; mine.setAttribute("visibility", "visible"); mine.setAttribute("transform", `translate(${X(v)},${y})`); svg.setAttribute("aria-valuenow", v); const pr = $("plotRead"); if (pr && live) pr.textContent = "Mark placed — press Check when you are happy."; clearNudge(); };
+    const sn = q.snap || q.step, ns = Math.round((q.max - q.min) / sn);   // clicks snap to q.snap (finer than the ticks if set)
+    const snap = px => { const k = Math.max(0, Math.min(ns, Math.round((px - x0) / (x1 - x0) * ns))); return Math.round((q.min + k * sn) * 1e9) / 1e9; };
+    if (live) {
+      svg.addEventListener("click", e => { if (S.recs[S.i]) return; const r = svg.getBoundingClientRect(); set(snap((e.clientX - r.left) / r.width * W)); });
+      svg.addEventListener("keydown", e => {
+        if (S.recs[S.i]) return;
+        const d = { ArrowLeft: -1, ArrowDown: -1, ArrowRight: 1, ArrowUp: 1 }[e.key]; if (!d) return; e.preventDefault();
+        const cur = S.nl == null ? q.min + Math.round(ns / 2) * sn : S.nl; set(Math.max(q.min, Math.min(q.max, Math.round((cur + d * sn) * 1e9) / 1e9)));
+      });
+    }
+    if (S.nl != null) set(S.nl);
+    host.appendChild(svg);
+    return {
+      mark(v, ok) {
+        if (v != null) set(v);
+        mine.querySelectorAll("path,circle").forEach(e => e.setAttribute("class", ok ? "nlPin good" : "nlPin bad"));
+        if (!ok) { const g = el("g", { class: "nlTrue", transform: `translate(${X(q.value)},${y})` }); mk(g, "nlPin good"); }
+        svg.classList.remove("live");
+      }
+    };
+  }
+  /* ---- read aloud (bank.readAloud; Stage 3). Fractions are read as words. ---- */
+  const DEN = { 2: ["half", "halves"], 3: ["third", "thirds"], 4: ["quarter", "quarters"], 5: ["fifth", "fifths"], 6: ["sixth", "sixths"], 7: ["seventh", "sevenths"], 8: ["eighth", "eighths"], 9: ["ninth", "ninths"], 10: ["tenth", "tenths"], 12: ["twelfth", "twelfths"], 100: ["hundredth", "hundredths"] };
+  function speakText(node) {
+    const c = node.cloneNode(true);
+    c.querySelectorAll(".fr").forEach(f => { const n = Number((f.querySelector(".frn") || {}).textContent), d = Number((f.querySelector(".frd") || {}).textContent); const w = DEN[d]; f.textContent = ` ${n} ${w ? w[n === 1 ? 0 : 1] : "over " + d} `; });
+    c.querySelectorAll("table").forEach(t => t.remove());
+    return c.textContent.replace(/□|_{2,}/g, " blank ").replace(/−/g, " minus ").replace(/×/g, " times ").replace(/÷/g, " divided by ").replace(/\s+/g, " ").trim();
+  }
+  let VOICE = null;
+  function pickVoice() { try { const vs = speechSynthesis.getVoices(); VOICE = vs.find(v => /en-AU/i.test(v.lang)) || vs.find(v => /^en-GB/i.test(v.lang)) || vs.find(v => /^en/i.test(v.lang)) || null; } catch (e) {} }
+  function paintSpeak(q) {
+    let b = $("speakBtn");
+    if (!BANK.readAloud || !("speechSynthesis" in window)) { if (b) b.hidden = true; return; }
+    if (!b) {
+      b = document.createElement("button"); b.type = "button"; b.id = "speakBtn"; b.className = "speakBtn"; b.title = "Read the question aloud"; b.setAttribute("aria-label", "Read the question aloud");
+      b.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>Read aloud</span>`;
+      b.addEventListener("click", () => {
+        try {
+          speechSynthesis.cancel(); if (!VOICE) pickVoice();
+          const u = new SpeechSynthesisUtterance(speakText($("qPrompt"))); if (VOICE) u.voice = VOICE; u.lang = (VOICE && VOICE.lang) || "en-AU"; u.rate = 0.92;
+          speechSynthesis.speak(u);
+        } catch (e) {}
+      });
+      $("qType").after(b);
+      try { speechSynthesis.onvoiceschanged = pickVoice; pickVoice(); } catch (e) {}
+    }
+    b.hidden = false;
+    try { speechSynthesis.cancel(); } catch (e) {}
+  }
+
   function isAuthOpen() { const o = $("mmtLoginOverlay"); return !!(o && o.style.display !== "none"); }
 
   function clearNudge() { const n = $("nudge"); n.hidden = true; n.textContent = ""; }
@@ -315,6 +438,11 @@
     if (q.mode === "tf") return q.truth ? "True" : "False";
     if (q.mode === "num") return (q.pre || "") + C.fmt(q.value, q.dp == null ? 4 : q.dp, q.dp != null && q.dp > 0) + (q.unit ? (q.unit === "°" ? "°" : " " + q.unit) : "");
     if (q.mode === "coord" || q.mode === "plot") return `(${C.fmt(q.x)}, ${C.fmt(q.y)})`;
+    if (q.mode === "order") return q.correct.map(i => q.items[i]).join(", ");
+    if (q.mode === "nline") return q.valueHTML || C.fmt(q.value);
+    if (q.mode === "rem") return `${q.quot} r ${q.rem}`;
+    if (q.mode === "pair") return `${q.pair[0]} × ${q.pair[1]}`;
+    if (q.mode === "text") return C.esc(q.accept[0]);
     return "";
   }
 
@@ -343,6 +471,9 @@
     if (q.mode === "mc") area.querySelectorAll(".choice").forEach((b, k) => { b.disabled = true; b.classList.toggle("good", k === q.correct); b.classList.toggle("bad", k === r.input && !r.ok); b.classList.toggle("sel", k === r.input); });
     if (q.mode === "tf") area.querySelectorAll(".choice").forEach(b => { const v = b.dataset.v === "true"; b.disabled = true; b.classList.toggle("good", v === q.truth); b.classList.toggle("bad", v === r.input && !r.ok); });
     if (q.mode === "plot") { const g = $("qDiagram")._grid; g && g.markAnswer && g.markAnswer(r.input, r.ok, [q.x, q.y]); }
+    if (q.mode === "nline") { const g = $("qDiagram")._nl; g && g.mark(r.input, r.ok); const pr = $("plotRead"); if (pr) pr.textContent = ""; }
+    if (q.mode === "order") area.querySelectorAll(".ordSlot").forEach((sl, k) => { sl.classList.toggle("good", r.input && r.input[k] === q.correct[k]); sl.classList.toggle("bad", !r.input || r.input[k] !== q.correct[k]); });
+    area.querySelectorAll(".ordTile").forEach(b => b.disabled = true);
   }
   const PRAISE = ["Correct!", "Nice work!", "Spot on!", "Yes!", "That’s it!", "Great thinking!"];
   const pickPraise = () => C.pick(PRAISE);
@@ -350,13 +481,15 @@
   function readInput(q) {
     if (q.mode === "mc" || q.mode === "tf") return S.mcPick;
     if (q.mode === "plot") return S.plotPt;
+    if (q.mode === "order") return S.seq.slice();
+    if (q.mode === "nline") return S.nl;
     const inp = $("ans"); return inp ? inp.value : "";
   }
   function submit() {
     if (S.recs[S.i]) return;
     const q = S.qs[S.i];
     const input = readInput(q);
-    if (q.mode !== "mc" && q.mode !== "tf" && q.mode !== "plot" && !String(input).trim()) { nudge("Type your answer first — or press Skip."); return; }
+    if (!PICK_MODES.includes(q.mode) && !String(input).trim()) { nudge("Type your answer first — or press Skip."); return; }
     const res = C.check(q, input);
     if (res.nudge) { nudge(res.nudge); const inp = $("ans"); if (inp) inp.focus(); return; }
     S.recs[S.i] = { ok: !!res.ok, input, swapped: !!res.swapped, type: q.type, label: q.label };
@@ -390,7 +523,8 @@
   /* ======================= Finish =================================== */
   function xpFor(pct, level) {
     const base = pct >= 100 ? 150 : pct >= 80 ? 75 : pct >= 60 ? 50 : pct >= 40 ? 25 : pct >= 10 ? 15 : 5;
-    const mult = level === "expected" ? 1.5 : 1;
+    const L = (BANK.levels || {})[level] || {};
+    const mult = L.xp != null ? L.xp : (level === "expected" || (level === lastLevel() && LEVEL_KEYS.length > 1 && level !== "basic")) ? 1.5 : 1;
     return { base, mult, xp: Math.round(base * mult) };
   }
   function finish() {
@@ -420,7 +554,7 @@
     const early = !!(window.MMTSubmit && window.MMTSubmit.isPartial && window.MMTSubmit.isPartial());
     if (early) { rec.hidden = false; rec.classList.add("partial"); rec.innerHTML = `<b>Submitted early:</b> ${total} of ${S.count} questions answered. ${ASSIGN ? "You can try again from your dashboard to improve your score before the task closes." : "Try again to finish the whole quiz."}`; }
     else if (target) { rec.hidden = false; rec.innerHTML = `<b>Practise next:</b> ${target.label}`; }
-    else if (S.level === "basic" && pct >= 80 && !ASSIGN) { rec.hidden = false; rec.innerHTML = `<b>Ready for more?</b> Try the Expected level.`; }
+    else if (S.level !== lastLevel() && pct >= 80 && !ASSIGN) { const nx = LEVEL_KEYS[LEVEL_KEYS.indexOf(S.level) + 1]; rec.hidden = false; rec.innerHTML = `<b>Ready for more?</b> Try ${C.esc(LEVEL_NAME[nx])}.`; }
     else rec.hidden = true;
     const X = xpFor(pct, S.level);
     const xpEarned = window.MMTSubmit && window.MMTSubmit.scaleXP ? window.MMTSubmit.scaleXP(X.xp) : X.xp;
@@ -473,7 +607,7 @@
       eyebrow: [stage, "Whole-topic quiz", BANK.outcome].filter(Boolean).join(" · "),
       title: BANK.title,
       counts: [5, 10, 15, 20, 30], defaultCount: DEFAULT_COUNT,
-      levels: () => ["basic", "expected"].map(l => ({ key: l, name: LEVEL_NAME[l], sub: BANK.levels[l].sub, types: typesFor(l).map(t => ({ id: t.id, html: t.label })) })),
+      levels: () => LEVEL_KEYS.map(l => ({ key: l, cls: levelCls(l), name: LEVEL_NAME[l], sub: (BANK.levels[l] || {}).sub || "", types: typesFor(l).map(t => ({ id: t.id, html: t.label })) })),
       onStart: (level, ids, n) => start(level, ids, n),
       onResume: hideStart
     });
@@ -503,6 +637,10 @@
     ov.classList.add("open");
     $("builderTitle").textContent = `${BANK.title} — create a student quiz link`;
     const sel = $("builderLevel"), types = $("builderTypes"), cnt = $("builderCount"), out = $("assignmentLinkOut");
+    // One toggle button per level of this bank (the Teacher Platform drives .levelToggleBtn[data-level]).
+    const tog = ov.querySelector(".levelToggle");
+    if (tog) { tog.innerHTML = LEVEL_KEYS.map(l => `<button class="levelToggleBtn" type="button" data-level="${l}">${C.esc(LEVEL_NAME[l])}</button>`).join(""); tog.style.gridTemplateColumns = `repeat(${LEVEL_KEYS.length},1fr)`; }
+    sel.innerHTML = LEVEL_KEYS.map(l => `<option value="${l}">${C.esc(LEVEL_NAME[l])}</option>`).join("");
     const btns = [...ov.querySelectorAll(".levelToggleBtn")];
     const summary = () => {
       const boxes = [...types.querySelectorAll("input[type=checkbox]")], on = boxes.filter(b => b.checked).length;
@@ -535,9 +673,9 @@
       try { await navigator.clipboard.writeText(out.value); $("copyAssignmentBtn").textContent = "Copied ✓"; setTimeout(() => $("copyAssignmentBtn").textContent = "Copy link", 1300); }
       catch (e) { out.focus(); out.select(); }
     });
-    $("resetBuilderBtn").addEventListener("click", () => { setLevel("expected"); cnt.value = String(DEFAULT_COUNT); });
+    $("resetBuilderBtn").addEventListener("click", () => { setLevel(lastLevel()); cnt.value = String(DEFAULT_COUNT); });
     $("builderPreview").addEventListener("click", () => { if (!out.value) generate(); if (out.value) window.open(out.value, "_blank", "noopener"); });
-    setLevel("expected");
+    setLevel(lastLevel());
   }
 
   /* ======================= Confetti ================================ */
@@ -623,12 +761,13 @@
 
   function run(bank) {
     BANK = bank;
+    setupLevels();
     paintShell();
     wire();
     if (BUILDER) { document.body.classList.add("builderMode"); initBuilder(); return; }
     loadAuth();
     if (ASSIGN) {
-      let level = (PARAMS.get("level") || "basic").toLowerCase(); if (!LEVEL_NAME[level]) level = "basic";
+      let level = (PARAMS.get("level") || LEVEL_KEYS[0]).toLowerCase(); if (!LEVEL_KEYS.includes(level)) level = LEVEL_KEYS[0];
       const valid = new Set(typesFor(level).map(t => t.id));
       let ids = (PARAMS.get("types") || "").split(",").map(s => s.trim()).filter(id => valid.has(id));
       if (!ids.length) ids = [...valid];

@@ -148,6 +148,30 @@
 > * Not built yet: lesson plan, worksheet, student quiz (greyed in Tools). Jeff's old Day 2 sheet's "Money Paid" used $15 where the
 >   price cell was $20; the tool counts every player's money in and each winner's prize out instead.
 >
+> **NEW (2026-11-28): BIN TOSS: STUDENT INTERACTIVE — a 3D game** at
+> `interactive-tools/stage-4/statistics-probability/bin-toss/student-interactive/` (index.html + vendored `three.module.min.js?v=954c1c22`,
+> three r170, MIT; plain three.js, NOT R3F — no build step). Under MA4-PRO-C-01 (toolLinks kind "Game", toolFamilies folds it into the
+> Bin Toss row, homepage Interactive card, pill 47 → 48); first row of the teaching tool's Tools menu. No Firebase / sign-in;
+> localStorage `mmt.binTossGame.v1`; test hook `window.__BTG__`. **SOURCE: `tools/bin-toss-student-interactive/`** (`parts/` physics.js,
+> game.js, style.css, body.html → `python3 assemble.py` next to a copy of three.module.min.js; `mc.js`/`mc2.js` Node calibration,
+> `behave.py` Playwright, needs `--use-angle=swiftshader`). Edit the parts, re-assemble, copy index.html across.
+> * **Flow:** intro → choose spot (Front 2 m / Middle 4 m / Back 6 m; cards, floor markers or keys 1–3; data kept per spot) → practice in
+>   batches of 10: vertical ANGLE slider (15–75°, ↑/↓) → Lock in → POWER meter (triangle wave, 2.4 s) → THROW (Space) → results (fraction,
+>   decimal, %, table of all spots) → set the cost to play ($1–$49) → stall day (customers auto-throw at ×1.9, Skip button) → day report
+>   (collected − paid out, expected winners from the data, break-even = P(in) × $50, verdict, stars at $1/$75/$150, log).
+> * **Physics is DOM-free** (`<script id="btPhysics">`, `var BTP`): bin rim R 0.2 m, H 0.42, ball 0.05, drag, rim/side/floor/wall/ceiling
+>   (2.8 m: steep throws from the back hit it). `BTP.band(spot, angle)` = the widest run of meter values that go in with no wobble = the
+>   green SWEET SPOT drawn on the meter (cached; none at some angles). Randomness = launch noise `NOISE {speed 1.4%, yaw 0.027 rad}` +
+>   the student's timing. Calibrated (mc.js): average timing ≈ 67% front / 39% middle / 22% back. Change R, NOISE or METER.period → re-run mc.js.
+> * **Cost to play (design decision):** the student OWNS the stall. Queue length falls as the price rises: `queueFor(p) = round(28 × (1 − p/50))`,
+>   so charging $50 is not the answer; best expected price sits halfway between break-even and the prize. **Customers throw "about as well
+>   as you"** (`customerModel`): the student's median angle + power ~ N(sweet-spot centre, σ) with σ = median |miss| / 0.6745 clamped
+>   1.6–7. The median makes deliberate bad practice throws useless (sandbagging 0/10 from the front still gives ~33% customers). mc2.js:
+>   customer rate tracks the player's own rate within a few points at every spot.
+> * Missed balls stay on the floor and each throw's arc stays in the air (green in, red out) until the next batch. Sound = WebAudio synth, toggle.
+> * Verified: 29 Playwright checks (keys, real drag, lock/unlock, meter, 10 throws, reload keeps data, price, queue, skip, a full animated day,
+>   money adds up, reset), screenshots at 1366×768 and 390×780. Not done: saving results to the Student Platform, AR/FA, a hide-the-sweet-spot hard mode.
+>
 > **NEW (2026-11-27): BIN TOSS — PRINTABLE STUDENT WORKSHEET (PDF).** `resources/stage-4/probability/bin-toss-worksheet.pdf`
 > (7 A4 pages: A predict on a likelihood line · B record 30 throws, relative frequency as fraction/decimal/%, P(in) + P(out) = 1,
 > running relative frequency table + graph grid · C set a price (worked example 6/20, $20 → $500; break-even = P(in) × $50) ·
@@ -158,6 +182,52 @@
 > (7 steps now) and money rounds put the profit graph first and largest in the Graph tab. The PDF was rendered from HTML with
 > Chromium (Inter). Source: `tools/pdf-worksheets/bin-toss/` (`build.py` + `ws.css` → `render.py`, Playwright; needs `logo.png` =
 > a copy of `icons/icon-192.png` beside it). Re-render and copy the PDF over after any edit.
+>
+> **NEW (2026-11-28, latest): STAGE 3 WHOLE-TOPIC QUIZZES — ALL 21 OUTCOMES, SETTABLE FROM THE TEACHER PLATFORM.**
+> `online-quizzes/stage-3/<number|measurement-space|statistics-probability>/<slug>.html` (same slugs as the Stage 3 whole-topic
+> worksheets: whole-numbers-integers, decimals, percentages, additive-relations, multiplying-dividing, number-sentences-patterns,
+> fractions, fractions-of-quantities, position, length, angles, 2d-shapes, area-rectangles, area-triangles-composite, 3d-objects,
+> volume-capacity, mass, time, data-collecting-displaying, data-interpreting, chance). They run on the SAME engine as the Stage 4
+> whole-topic quizzes (`online-quizzes/stage-4/topic-quiz/` core.js, engine.js, start screen, builder, marking, save) — the shells load
+> it from `../../stage-4/topic-quiz/`.
+> * **The questions:** `online-quizzes/stage-3/topic-quiz/s3.js` (ES module) turns the Revision Generator's Stage 3 banks
+>   (`assessment/exam-builder/question-banks/stage-3/*`, + Stage 4 `angles` vertically-opposite) into ONE-question, ONE-answer quiz
+>   items. `banks/<slug>.js` is two lines: `MMTQ.run(stage3Bank("MA3-…", {related}))`. Its `OUTCOMES` table is the worksheets' map
+>   (`tools/whole-topic-worksheets/stage3.py`): `[bank, type, part, statement]` per type — keep the two in step.
+>   - `auto()` reads the RG answer string: number + unit (unit printed after the box, $ before it), fraction token, h:mm (am/pm),
+>     "x h y min", "(a, b)", or words → multiple choice from `mcDistractors` or sibling answers (`pool()`, 90 samples cached).
+>   - `SPEC[bank][type]` where that is not enough: reword the prompt (open number lines ask "53 − 35 = ?"), pick one sub-part
+>     (faces/edges/vertices), MC from the prompt's own options (choose a unit), ORDER items (`mode:"order"`), click a NUMBER LINE
+>     (`mode:"nline"`; integers between ticks snap to 1 with ±1 tolerance), plot on a grid, `pair` (3 × 8), `rem` (17 r 1),
+>     `text` (grid reference). A spec returning null = try another question.
+>   - `PAPER_ONLY`: types that only work on paper (draw, construct, multi-part) are left to the worksheets. `NATIVE` quiz-only types
+>     fill their statements: `mr-word-problems` (MR-01 B), `gm-points-and-squares` (GM-01 A), `gm-order-lengths` (GM-02 B).
+>     **Every content statement of every outcome is asked**, and the Part A level covers every Part A statement (checked).
+>   - **Levels are the syllabus parts**, keys `a` / `ab` / `b`, names "Part A" / "Parts A and B" / "Part B". An outcome with only one
+>     part gets one level (Decimals, Area of Rectangles, Collecting Data = Part A; Percentages, Number Sentences, Fractions of
+>     Quantities, Composite Area = Part B). `bank.readAloud:true` = a Read aloud button on every question (en-AU voice, fractions as words).
+>   - Diagrams are the RG engines (the shell loads the ones its outcome uses, `?v=`), drawn at `DSCALE[engine]`.
+> * **Engine additions (all Stage 4 pages re-versioned; their suites re-run clean):** levels come from `bank.levels` (any keys);
+>   types may carry `levels:[…]`; modes `order`, `nline` (with `snap`/`tol`), `time`, `dur`, `pair`, `rem`, `text` (core.js has their
+>   checkers, `clean()` reads ½ ¼ ¾…); read aloud; diagram captions under the picture; a **wide layout** (`.wideDiag`): a long, flat
+>   picture (aspect > 2.6, a number line, a bar model, a time line) goes ACROSS the card between the question and the answer box — this
+>   also applies to Stage 4 (ratio bars, letter tiles, divided bars). Start screen: one level → one wide card.
+> * **RG fix:** mass-time `time-units` printed "4 weeks and 3 3 days" (plural() already adds the number).
+> * **Wiring:** 21 registry entries `s3-<slug>-quiz` (writes `tool: "s3-<slug>-student-quiz"`, masteryTopic `s3-…`, stage "Stage 3");
+>   21 `BUILDER_QUIZZES` rows with `builderUrl` (`?builder=1`); `customDetail` names levels via `LEVEL_LABEL`; toolLinks: a
+>   "Student quiz" row FIRST under each MA3 outcome, tagged "whole topic", `ideas` = every statement; `MMT_WHOLE_TOPIC_QUIZZES`
+>   Stage 3 block (yellow band on Resources by Stage); homepage "Stage 3 — whole topic" quiz subhead with 21 cards (pill 48 → 69).
+>   Student portal + quizInsights: `LEVEL_ORDER` gained part a / part b / parts a and b, and `levelKeyOf` maps a/ab/b to those
+>   (`LEVEL_ALIAS`) so a task link's `?level=a` matches a record saved as "Part A". `?v=` chain bumped: registry → resultUtils →
+>   quizInsights → analytics → teacher/student; toolLinks + toolFamilies in resources/index.html and the teacher portal.
+> * **Verified:** Node harness (every type × 40: own answer accepted by its own checker, a wrong one refused, MC options distinct with
+>   one right, no undefined/NaN/leftover tokens; 0 fails); Playwright played every type of every level of all 21 quizzes through the
+>   real UI (typing, clicking choices, ordering tiles, clicking the number line), every diagram drawn, no sideways scroll; the save
+>   payload (tool, level "Part A", levelKey, types[] with labels, `assignmentId`, no typed answers); an assignment link; the Teacher
+>   Platform's OWN `buildCatalogue` (all 21 filed under their Stage 3 topic as overview cards) and `obDescribe`/`obGenerate` driving
+>   every builder at every level (links match the choices). Stage 4: t.mjs 65 checks, sweep 9,540 questions, 0 fails.
+> * **Not done:** Arabic/Farsi (Stage 3 has no translation tables); `s3.js` imports the RG banks unversioned (a bank change reaches a
+>   returning browser one visit late).
 >
 > **NEW (2026-11-28): ALL 16 STAGE 4 WHOLE-TOPIC QUIZZES OPEN ON ONE START SCREEN (shared component).**
 > Replaces the "Choose your level" pop-up + "question types" pop-up (and, on the older five, the TEACHER BUILDER that
@@ -6030,7 +6100,7 @@ portal/PLACEMENT.md , portal/README.md   migration + structure notes
   **function first**, then push the website.
 
 ## 8. Open / future items
-- **Whole-topic quizzes (2026-11-02):** all 16 Stage 4 outcomes now have one. Follow-ups:
+- **Whole-topic quizzes:** all 16 Stage 4 outcomes (2026-11-02) and all 21 Stage 3 outcomes (2026-11-28) now have one. Follow-ups:
   Arabic/Farsi for the 11 new ones; (DONE 2026-11-28: the old five's plain URL is the student quiz
   with the shared start screen, builder on `?builder=1`); Stage 5 whole-topic quizzes on the same engine (a bank per outcome).
 - **Student-quiz sign-in sweep:** 11 of 26 quizzes carry the v2 login block

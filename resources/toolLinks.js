@@ -31,6 +31,14 @@
 window.MMT_TOOL_LINKS = {
   "MA3-RN-02": [
     {
+      title: "Represents Numbers: Decimals",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-3/number/decimals.html",
+      ideas: ["beyond-hundredths", "compare-decimals"],
+      note: "Whole-topic quiz: Place value to thousandths, decimals on a hundred grid and a number line, and comparing and ordering decimals. Part A (one level). Question types can be chosen; read aloud on every question.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 3", "decimals"]
+    },
+    {
       title: "Represents Numbers: Decimals — Whole Topic Worksheet",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-3/number/decimals/",
@@ -40,6 +48,14 @@ window.MMT_TOOL_LINKS = {
   ],
 
   "MA3-3DS-01": [
+    {
+      title: "3D Spatial Structure: 3D Objects",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-3/measurement-space/3d-objects.html",
+      ideas: ["prisms-pyramids", "3d-to-2d", "construct"],
+      note: "Whole-topic quiz: Naming prisms and pyramids, their faces, edges and vertices, nets, and views from the top, front and side. Part B adds building skeletal models of prisms and pyramids. Part A and Parts A and B levels. Question types can be chosen; read aloud on every question.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 3", "3d objects"]
+    },
     {
       title: "3D Spatial Structure: 3D Objects — Whole Topic Worksheet",
       kind: "Worksheet maker",
@@ -51,6 +67,14 @@ window.MMT_TOOL_LINKS = {
 
   "MA3-DATA-01": [
     {
+      title: "Data: Collecting and Displaying Data",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-3/statistics-probability/data-collecting-displaying.html",
+      ideas: ["collect", "tables-graphs"],
+      note: "Whole-topic quiz: Categorical and numerical data, choosing a graph and a scale, pictograms with a key, and two-way tables. Part A (one level). Question types can be chosen; read aloud on every question.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 3", "collecting and displaying data"]
+    },
+    {
       title: "Data: Collecting and Displaying Data — Whole Topic Worksheet",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-3/statistics-probability/data-collecting-displaying/",
@@ -61,6 +85,14 @@ window.MMT_TOOL_LINKS = {
 
   "MA3-DATA-02": [
     {
+      title: "Data: Interpreting Data",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-3/statistics-probability/data-interpreting.html",
+      ideas: ["describe-interpret", "compare-displays", "digital-media"],
+      note: "Whole-topic quiz: Reading column graphs with a scale, dot plots, line graphs and time lines. Part B adds side-by-side column graphs and data claims in the media. Part A and Parts A and B levels. Question types can be chosen; read aloud on every question.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 3", "interpreting data"]
+    },
+    {
       title: "Data: Interpreting Data — Whole Topic Worksheet",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-3/statistics-probability/data-interpreting/",
@@ -70,6 +102,14 @@ window.MMT_TOOL_LINKS = {
   ],
 
   "MA3-2DS-01": [
+    {
+      title: "2D Spatial Structure: Shapes and Transformations",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-3/measurement-space/2d-shapes.html",
+      ideas: ["classify-shapes", "dissect-transform"],
+      note: "Whole-topic quiz: Classifying triangles and quadrilaterals, their properties, and lines of symmetry. Part B adds translations, reflections and rotations on a grid. Part A and Parts A and B levels. Question types can be chosen; read aloud on every question.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 3", "2d shapes"]
+    },
     {
       title: "2D Spatial Structure: Shapes and Transformations — Whole Topic Worksheet",
       kind: "Worksheet maker",
@@ -88,6 +128,14 @@ window.MMT_TOOL_LINKS = {
   ],
 
   "MA3-2DS-02": [
+    {
+      title: "2D Spatial Structure: Area of Rectangles",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-3/measurement-space/area-rectangles.html",
+      ideas: ["hectares", "rectangles"],
+      note: "Whole-topic quiz: Choosing units of area including hectares and km², and finding the area of squares and rectangles. Part A (one level). Question types can be chosen; read aloud on every question.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 3", "area of rectangles"]
+    },
     {
       title: "2D Spatial Structure: Area of Rectangles — Whole Topic Worksheet",
       kind: "Worksheet maker",
@@ -155,6 +203,14 @@ window.MMT_TOOL_LINKS = {
 
   "MA3-2DS-03": [
     {
+      title: "2D Spatial Structure: Area of Composite Figures, Parallelograms and Triangles",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-3/measurement-space/area-triangles-composite.html",
+      ideas: ["composite", "parallelogram", "triangle"],
+      note: "Whole-topic quiz: The area of shapes made from rectangles, of parallelograms and of triangles. Part B (one level). Question types can be chosen; read aloud on every question.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 3", "area of composite figures, parallelograms and triangles"]
+    },
+    {
       title: "2D Spatial Structure: Area of Composite Figures, Parallelograms and Triangles — Whole Topic Worksheet",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-3/measurement-space/area-triangles-composite/",
@@ -205,6 +261,14 @@ window.MMT_TOOL_LINKS = {
 
   "MA3-3DS-02": [
     {
+      title: "3D Spatial Structure: Volume and Capacity",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-3/measurement-space/volume-capacity.html",
+      ideas: ["capacity-units", "displacement", "decimal-metric", "cubic-metres", "multiplicative-structure", "rectangular-prisms"],
+      note: "Whole-topic quiz: Units of capacity, reading a measuring jug, capacity problems, volume by displacement and converting mL and L. Part B adds cubic metres, volume by counting cubes and layers, and the volume of rectangular prisms. Part A and Parts A and B levels. Question types can be chosen; read aloud on every question.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 3", "volume and capacity"]
+    },
+    {
       title: "3D Spatial Structure: Volume and Capacity — Whole Topic Worksheet",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-3/measurement-space/volume-capacity/",
@@ -230,6 +294,14 @@ window.MMT_TOOL_LINKS = {
   ],
 
   "MA3-AR-01": [
+    {
+      title: "Additive Relations",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-3/number/additive-relations.html",
+      ideas: ["mental-written", "estimation", "choose-strategies", "decimals"],
+      note: "Whole-topic quiz: Adding and subtracting large numbers, open number lines, bar models, word problems and estimating to check. Part B adds choosing efficient strategies (constant difference, bridging) and adding and subtracting decimals and money. Part A and Parts A and B levels. Question types can be chosen; read aloud on every question.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 3", "addition and subtraction"]
+    },
     {
       title: "Additive Relations — Whole Topic Worksheet",
       kind: "Worksheet maker",
@@ -305,6 +377,14 @@ window.MMT_TOOL_LINKS = {
 
   "MA3-CHAN-01": [
     {
+      title: "Chance",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-3/statistics-probability/chance.html",
+      ideas: ["list-outcomes", "observed-expected", "random-generators", "trials"],
+      note: "Whole-topic quiz: Outcomes of chance experiments, chance words, the 0 to 1 scale, equally likely outcomes and probabilities as fractions. Part B adds expected and observed results, designing a spinner or bag, and small and large numbers of trials. Part A and Parts A and B levels. Question types can be chosen; read aloud on every question.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 3", "chance"]
+    },
+    {
       title: "Chance — Whole Topic Worksheet",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-3/statistics-probability/chance/",
@@ -338,6 +418,14 @@ window.MMT_TOOL_LINKS = {
   ],
 
   "MA3-GM-01": [
+    {
+      title: "Geometric Measure: Position",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-3/measurement-space/position.html",
+      ideas: ["cartesian", "four-quadrants"],
+      note: "Whole-topic quiz: Grid maps and grid references, reading and plotting points on a number plane, and the difference between the two. Part B adds points in all four quadrants. Part A and Parts A and B levels. Question types can be chosen; read aloud on every question.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 3", "position"]
+    },
     {
       title: "Geometric Measure: Position — Whole Topic Worksheet",
       kind: "Worksheet maker",
@@ -373,6 +461,14 @@ window.MMT_TOOL_LINKS = {
 
   "MA3-GM-02": [
     {
+      title: "Geometric Measure: Length",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-3/measurement-space/length.html",
+      ideas: ["metres-km", "perimeters", "decimal-metric", "convert-length", "compare-lengths"],
+      note: "Whole-topic quiz: Metres and kilometres, choosing units, and the perimeter of rectangles and other polygons. Part B adds lengths as decimals, converting between mm, cm, m and km, and comparing lengths in different units. Part A and Parts A and B levels. Question types can be chosen; read aloud on every question.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 3", "length"]
+    },
+    {
       title: "Geometric Measure: Length — Whole Topic Worksheet",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-3/measurement-space/length/",
@@ -398,6 +494,14 @@ window.MMT_TOOL_LINKS = {
   ],
 
   "MA3-GM-03": [
+    {
+      title: "Geometric Measure: Angles",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-3/measurement-space/angles.html",
+      ideas: ["measure-angles", "protractor", "straight-line-point", "intersecting-lines"],
+      note: "Whole-topic quiz: Naming types of angles, estimating angles in degrees, and reading a protractor. Part B adds angles on a straight line, angles at a point and vertically opposite angles. Part A and Parts A and B levels. Question types can be chosen; read aloud on every question.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 3", "angles"]
+    },
     {
       title: "Geometric Measure: Angles — Whole Topic Worksheet",
       kind: "Worksheet maker",
@@ -432,6 +536,14 @@ window.MMT_TOOL_LINKS = {
   ],
 
   "MA3-MR-01": [
+    {
+      title: "Multiplicative Relations: Multiplying and Dividing",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-3/number/multiplying-dividing.html",
+      ideas: ["products-factors", "partition-multiply", "multiply-2-digit", "remainders", "divide-1-digit", "estimate-check", "whole-numbers", "powers-of-10"],
+      note: "Whole-topic quiz: Arrays, factors and square numbers, area models for multiplying, dividing with and without remainders, and estimating to check. Part B adds solving multiplication and division problems and multiplying and dividing by 10, 100 and 1000. Part A and Parts A and B levels. Question types can be chosen; read aloud on every question.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 3", "multiplying and dividing"]
+    },
     {
       title: "Multiplicative Relations: Multiplying and Dividing — Whole Topic Worksheet",
       kind: "Worksheet maker",
@@ -613,6 +725,14 @@ window.MMT_TOOL_LINKS = {
 
   "MA3-MR-02": [
     {
+      title: "Multiplicative Relations: Number Sentences and Patterns",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-3/number/number-sentences-patterns.html",
+      ideas: ["equivalent-sentences", "patterns-multiples", "brackets-order"],
+      note: "Whole-topic quiz: Equivalent number sentences and unknowns, patterns made by multiples, common multiples, and brackets and the order of operations. Part B (one level). Question types can be chosen; read aloud on every question.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 3", "number sentences and patterns"]
+    },
+    {
       title: "Multiplicative Relations: Number Sentences and Patterns — Whole Topic Worksheet",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-3/number/number-sentences-patterns/",
@@ -733,6 +853,14 @@ window.MMT_TOOL_LINKS = {
 
   "MA3-NSM-01": [
     {
+      title: "Non-Spatial Measure: Mass",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-3/measurement-space/mass.html",
+      ideas: ["mass-units", "decimal-metric", "convert-mass"],
+      note: "Whole-topic quiz: Choosing units of mass, reading a scale, ordering masses and writing masses as decimals. Part B adds converting between g, kg and t and solving mass problems. Part A and Parts A and B levels. Question types can be chosen; read aloud on every question.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 3", "mass"]
+    },
+    {
       title: "Non-Spatial Measure: Mass — Whole Topic Worksheet",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-3/measurement-space/mass/",
@@ -759,6 +887,14 @@ window.MMT_TOOL_LINKS = {
 
   "MA3-NSM-02": [
     {
+      title: "Non-Spatial Measure: Time",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-3/measurement-space/time.html",
+      ideas: ["12-24-hour", "duration"],
+      note: "Whole-topic quiz: Reading clocks, 12-hour and 24-hour time and converting between them, and units of time. Part B adds durations, starting and finishing times, and timetables. Part A and Parts A and B levels. Question types can be chosen; read aloud on every question.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 3", "time"]
+    },
+    {
       title: "Non-Spatial Measure: Time — Whole Topic Worksheet",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-3/measurement-space/time/",
@@ -776,6 +912,14 @@ window.MMT_TOOL_LINKS = {
   ],
 
   "MA3-RN-01": [
+    {
+      title: "Represents Numbers: Whole Numbers and Integers",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-3/number/whole-numbers-integers.html",
+      ideas: ["millions", "partition-billion", "integers"],
+      note: "Whole-topic quiz: Read, write and order numbers into the millions, the value of each digit, rounding, and regrouping place values. Part B adds integers: placing them on a number line and reading temperatures below zero. Part A and Parts A and B levels. Question types can be chosen; read aloud on every question.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 3", "whole numbers and integers"]
+    },
     {
       title: "Represents Numbers: Whole Numbers and Integers — Whole Topic Worksheet",
       kind: "Worksheet maker",
@@ -851,6 +995,14 @@ window.MMT_TOOL_LINKS = {
 
   "MA3-RN-03": [
     {
+      title: "Represents Numbers: Percentages",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-3/number/percentages.html",
+      ideas: ["benchmark", "discounts"],
+      note: "Whole-topic quiz: Benchmark fractions, decimals and percentages, percentages of quantities, and discounts of 10%, 25% and 50%. Part B (one level). Question types can be chosen; read aloud on every question.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 3", "percentages"]
+    },
+    {
       title: "Represents Numbers: Percentages — Whole Topic Worksheet",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-3/number/percentages/",
@@ -868,6 +1020,14 @@ window.MMT_TOOL_LINKS = {
   ],
 
   "MA3-RQF-01": [
+    {
+      title: "Fractions: Comparing, Adding and Subtracting",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-3/number/fractions.html",
+      ideas: ["one-whole", "unit-fractions", "add-same-denominator", "fraction-division", "related-denominators", "equivalence-add"],
+      note: "Whole-topic quiz: Naming fractions of a whole, fractions on a number line, mixed numerals, comparing unit fractions, and adding and subtracting with the same denominator. Part B adds a fraction as a division, comparing and ordering related fractions, equivalent fractions and adding with related denominators. Part A and Parts A and B levels. Question types can be chosen; read aloud on every question.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 3", "fractions"]
+    },
     {
       title: "Fractions: Comparing, Adding and Subtracting — Whole Topic Worksheet",
       kind: "Worksheet maker",
@@ -910,6 +1070,14 @@ window.MMT_TOOL_LINKS = {
   ],
 
   "MA3-RQF-02": [
+    {
+      title: "Fractions: Fractions of Quantities",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-3/number/fractions-of-quantities.html",
+      ideas: ["build-whole", "fraction-of-quantity"],
+      note: "Whole-topic quiz: Building up to the whole from a part, and finding a fraction of a number, a collection or a measurement. Part B (one level). Question types can be chosen; read aloud on every question.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 3", "fractions of quantities"]
+    },
     {
       title: "Fractions: Fractions of Quantities — Whole Topic Worksheet",
       kind: "Worksheet maker",
@@ -2003,6 +2171,14 @@ window.MMT_TOOL_LINKS = {
       ideas: ["chance-experiments", "complementary"],
       note: "A $50 prize for getting a ball of paper in the bin. The class predicts the chance (or averages everyone's guesses), the teacher presses IN or OUT after each throw, and a spreadsheet and graph fill as they go. Then use the data to set a price to play and count the money. Saves on the computer, so Day 2 carries on; CSV download.",
       tags: ["probability", "experiment", "relative frequency", "experimental probability", "complementary events", "prediction", "spreadsheet", "expected number", "whole class", "bin toss"]
+    },
+    {
+      title: "Bin Toss: Student Interactive",
+      kind: "Game",
+      url: "/interactive-tools/stage-4/statistics-probability/bin-toss/student-interactive/",
+      ideas: ["chance-experiments", "complementary"],
+      note: "A 3D classroom game for students. Choose a spot (2 m, 4 m or 6 m), drag the angle slider, then stop the power meter in the sweet spot. Every throw is recorded as in or out to estimate P(in). Then set a cost to play, open the $50 prize stall and see whether it makes a profit. Saves on the device; no sign-in.",
+      tags: ["probability", "game", "3D", "experimental probability", "relative frequency", "break-even", "profit", "expected number", "student", "bin toss"]
     },
     {
       title: "Probability — Whole Topic Worksheet",

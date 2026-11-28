@@ -152,9 +152,10 @@
 
     function pickLevel(k) { if (k === ST.level || !LV.some(l => l.key === k)) return; ST.level = k; paintLevels(); paintTypes(true); save(); }
     function paintLevels() {
+      R("levels").classList.toggle("one", LV.length === 1);
       R("levels").innerHTML = LV.map(l => {
         const on = l.key === ST.level;
-        return `<button class="stLvl ${esc(l.key)}${on ? " on" : ""}" type="button" role="radio" aria-checked="${on}" tabindex="${on ? 0 : -1}" data-level="${esc(l.key)}">
+        return `<button class="stLvl ${esc(l.cls || l.key)}${on ? " on" : ""}" type="button" role="radio" aria-checked="${on}" tabindex="${on ? 0 : -1}" data-level="${esc(l.key)}">
           <span class="stRadio" aria-hidden="true"></span>
           <span class="stLvlBody">
             <span class="stLvlTop"><span class="stLvlName">${esc(l.name)}</span>${l.alt ? `<span class="stLvlAlt" dir="auto">${esc(l.alt)}</span>` : ""}<span class="stLvlMeta">${l.types.length} types</span></span>
@@ -166,7 +167,7 @@
     function paintTypes(swap) {
       const L = lv(ST.level), off = offSet(L.key);
       const box = R("types");
-      box.className = "stTypes " + L.key + (swap && !reduceMotion ? " swap" : "");
+      box.className = "stTypes " + (L.cls || L.key) + (swap && !reduceMotion ? " swap" : "");
       box.innerHTML = L.types.map(t => `<button class="stType${off.has(t.id) ? "" : " on"}" type="button" aria-pressed="${!off.has(t.id)}" data-id="${esc(t.id)}"><span class="stBox">${TICK}</span><span class="stTypeLab">${t.html}</span></button>`).join("");
       const on = L.types.length - L.types.filter(t => off.has(t.id)).length;
       R("tally").textContent = `${on} of ${L.types.length} chosen`;

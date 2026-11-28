@@ -252,9 +252,9 @@ import { initPortal, loginStudent, logout, getProfile, getRole, normaliseCode } 
 import { COLLECTIONS } from "../shared/firebaseConfig.js";
 import { getDb } from "../shared/codeExchangeClient.js?v=ca0c5c39";
 import { collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
-import { getEnabledTools } from "../shared/mmtToolRegistry.js?v=fb8c6118";
-import { normaliseAchievement, summarise, formatDate, partialLabel } from "../shared/resultUtils.js?v=e8b459a3";
-import { recordFitsTask } from "../shared/quizInsights.js?v=a940db1e";
+import { getEnabledTools } from "../shared/mmtToolRegistry.js?v=24d1881f";
+import { normaliseAchievement, summarise, formatDate, partialLabel } from "../shared/resultUtils.js?v=e17ad2d3";
+import { recordFitsTask } from "../shared/quizInsights.js?v=dff2b70a";
 
 const $ = (id) => document.getElementById(id);
 let all = [], current = null, tasks = [];
@@ -508,9 +508,11 @@ async function loadTasks(){
 // passes; only then is it finished. Results are matched by toolId and kept to
 // attempts made on/after the task was set (a minute's grace for clock skew),
 // so an old attempt from before the task existed doesn't tick it off.
-const LEVEL_ORDER=["sweet","mild","medium","spicy","extra spicy","extraspicy","extra hot","extrahot","basic","foundation","core","expected","advanced","extension","challenge"];
+const LEVEL_ORDER=["part a","part b","parts a and b","sweet","mild","medium","spicy","extra spicy","extraspicy","extra hot","extrahot","basic","foundation","core","expected","advanced","extension","challenge"];
 function cleanText(s){ return String(s??"").replace(/<[^>]*>/g," ").replace(/[^\p{L}\p{N}\s'’()+-]/gu,"").replace(/\s+/g," ").trim(); }
-function levelKeyOf(s){ return cleanText(s).toLowerCase().replace(/[-_]+/g," ").replace(/\s+/g," ").trim(); }
+// The Stage 3 whole-topic quizzes save level "Part A" with levelKey "a"; their task links say ?level=a|ab|b.
+const LEVEL_ALIAS={a:"part a",ab:"parts a and b",b:"part b"};
+function levelKeyOf(s){ const k=cleanText(s).toLowerCase().replace(/[-_]+/g," ").replace(/\s+/g," ").trim(); return LEVEL_ALIAS[k]||k; }
 function titleCase(s){ return s.replace(/\b\p{L}/gu,c=>c.toUpperCase()); }
 /** The level an attempt was played at: the quiz's own level name, else its
  *  levelKey, else a "level:x" tag in types[]. "" when the quiz has no levels. */

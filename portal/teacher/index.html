@@ -671,9 +671,9 @@ import { mountSchoolPicker, loadSchools } from "../shared/schoolPicker.js";
 import { ADVENTURE_NPCS, getStageTopics } from "../shared/adventureManifest.js";
 import { collection, query, where, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 // Chart.js is loaded as a classic global script in <head>; referenced as `Chart`.
-import { getEnabledTools, getAllTools } from "../shared/mmtToolRegistry.js?v=fb8c6118";
-import { normaliseAchievement, summarise, rollupByStudent, toCSV, summaryText, partialLabel } from "../shared/resultUtils.js?v=e8b459a3";
-import { recordFitsTask } from "../shared/quizInsights.js?v=a940db1e";
+import { getEnabledTools, getAllTools } from "../shared/mmtToolRegistry.js?v=24d1881f";
+import { normaliseAchievement, summarise, rollupByStudent, toCSV, summaryText, partialLabel } from "../shared/resultUtils.js?v=e17ad2d3";
+import { recordFitsTask } from "../shared/quizInsights.js?v=dff2b70a";
 
 const $ = (id)=>document.getElementById(id);
 let teacher=null, students=[], all=[], attemptsByCode=new Map();
@@ -1162,6 +1162,29 @@ const BUILDER_QUIZZES = [
   {toolId:"data-visualisation-quiz", title:"Data Classification and Visualisation", launchUrl:"/online-quizzes/stage-4/statistics-probability/data-classification-visualisation.html", builderUrl:"/online-quizzes/stage-4/statistics-probability/data-classification-visualisation.html?builder=1"},
   {toolId:"data-analysis-quiz", title:"Data Analysis", launchUrl:"/online-quizzes/stage-4/statistics-probability/data-analysis.html", builderUrl:"/online-quizzes/stage-4/statistics-probability/data-analysis.html?builder=1"},
   {toolId:"probability-quiz", title:"Probability", launchUrl:"/online-quizzes/stage-4/statistics-probability/probability.html", builderUrl:"/online-quizzes/stage-4/statistics-probability/probability.html?builder=1"},
+  // Stage 3 whole-topic quizzes (2026-11-28): same engine, questions from online-quizzes/stage-3/topic-quiz/s3.js.
+  // Their levels are the syllabus parts: ?level=a (Part A), ab (Parts A and B), b (Part B).
+  {toolId:"s3-whole-numbers-integers-quiz", title:"Represents Numbers: Whole Numbers and Integers", launchUrl:"/online-quizzes/stage-3/number/whole-numbers-integers.html", builderUrl:"/online-quizzes/stage-3/number/whole-numbers-integers.html?builder=1"},
+  {toolId:"s3-decimals-quiz", title:"Represents Numbers: Decimals", launchUrl:"/online-quizzes/stage-3/number/decimals.html", builderUrl:"/online-quizzes/stage-3/number/decimals.html?builder=1"},
+  {toolId:"s3-percentages-quiz", title:"Represents Numbers: Percentages", launchUrl:"/online-quizzes/stage-3/number/percentages.html", builderUrl:"/online-quizzes/stage-3/number/percentages.html?builder=1"},
+  {toolId:"s3-additive-relations-quiz", title:"Additive Relations", launchUrl:"/online-quizzes/stage-3/number/additive-relations.html", builderUrl:"/online-quizzes/stage-3/number/additive-relations.html?builder=1"},
+  {toolId:"s3-multiplying-dividing-quiz", title:"Multiplicative Relations: Multiplying and Dividing", launchUrl:"/online-quizzes/stage-3/number/multiplying-dividing.html", builderUrl:"/online-quizzes/stage-3/number/multiplying-dividing.html?builder=1"},
+  {toolId:"s3-number-sentences-patterns-quiz", title:"Multiplicative Relations: Number Sentences and Patterns", launchUrl:"/online-quizzes/stage-3/number/number-sentences-patterns.html", builderUrl:"/online-quizzes/stage-3/number/number-sentences-patterns.html?builder=1"},
+  {toolId:"s3-fractions-quiz", title:"Fractions: Comparing, Adding and Subtracting", launchUrl:"/online-quizzes/stage-3/number/fractions.html", builderUrl:"/online-quizzes/stage-3/number/fractions.html?builder=1"},
+  {toolId:"s3-fractions-of-quantities-quiz", title:"Fractions: Fractions of Quantities", launchUrl:"/online-quizzes/stage-3/number/fractions-of-quantities.html", builderUrl:"/online-quizzes/stage-3/number/fractions-of-quantities.html?builder=1"},
+  {toolId:"s3-position-quiz", title:"Geometric Measure: Position", launchUrl:"/online-quizzes/stage-3/measurement-space/position.html", builderUrl:"/online-quizzes/stage-3/measurement-space/position.html?builder=1"},
+  {toolId:"s3-length-quiz", title:"Geometric Measure: Length", launchUrl:"/online-quizzes/stage-3/measurement-space/length.html", builderUrl:"/online-quizzes/stage-3/measurement-space/length.html?builder=1"},
+  {toolId:"s3-angles-quiz", title:"Geometric Measure: Angles", launchUrl:"/online-quizzes/stage-3/measurement-space/angles.html", builderUrl:"/online-quizzes/stage-3/measurement-space/angles.html?builder=1"},
+  {toolId:"s3-2d-shapes-quiz", title:"2D Spatial Structure: Shapes and Transformations", launchUrl:"/online-quizzes/stage-3/measurement-space/2d-shapes.html", builderUrl:"/online-quizzes/stage-3/measurement-space/2d-shapes.html?builder=1"},
+  {toolId:"s3-area-rectangles-quiz", title:"2D Spatial Structure: Area of Rectangles", launchUrl:"/online-quizzes/stage-3/measurement-space/area-rectangles.html", builderUrl:"/online-quizzes/stage-3/measurement-space/area-rectangles.html?builder=1"},
+  {toolId:"s3-area-triangles-composite-quiz", title:"2D Spatial Structure: Area of Composite Figures, Parallelograms and Triangles", launchUrl:"/online-quizzes/stage-3/measurement-space/area-triangles-composite.html", builderUrl:"/online-quizzes/stage-3/measurement-space/area-triangles-composite.html?builder=1"},
+  {toolId:"s3-3d-objects-quiz", title:"3D Spatial Structure: 3D Objects", launchUrl:"/online-quizzes/stage-3/measurement-space/3d-objects.html", builderUrl:"/online-quizzes/stage-3/measurement-space/3d-objects.html?builder=1"},
+  {toolId:"s3-volume-capacity-quiz", title:"3D Spatial Structure: Volume and Capacity", launchUrl:"/online-quizzes/stage-3/measurement-space/volume-capacity.html", builderUrl:"/online-quizzes/stage-3/measurement-space/volume-capacity.html?builder=1"},
+  {toolId:"s3-mass-quiz", title:"Non-Spatial Measure: Mass", launchUrl:"/online-quizzes/stage-3/measurement-space/mass.html", builderUrl:"/online-quizzes/stage-3/measurement-space/mass.html?builder=1"},
+  {toolId:"s3-time-quiz", title:"Non-Spatial Measure: Time", launchUrl:"/online-quizzes/stage-3/measurement-space/time.html", builderUrl:"/online-quizzes/stage-3/measurement-space/time.html?builder=1"},
+  {toolId:"s3-data-collecting-displaying-quiz", title:"Data: Collecting and Displaying Data", launchUrl:"/online-quizzes/stage-3/statistics-probability/data-collecting-displaying.html", builderUrl:"/online-quizzes/stage-3/statistics-probability/data-collecting-displaying.html?builder=1"},
+  {toolId:"s3-data-interpreting-quiz", title:"Data: Interpreting Data", launchUrl:"/online-quizzes/stage-3/statistics-probability/data-interpreting.html", builderUrl:"/online-quizzes/stage-3/statistics-probability/data-interpreting.html?builder=1"},
+  {toolId:"s3-chance-quiz", title:"Chance", launchUrl:"/online-quizzes/stage-3/statistics-probability/chance.html", builderUrl:"/online-quizzes/stage-3/statistics-probability/chance.html?builder=1"},
 ];
 const BUILDER_IDS = new Set(BUILDER_QUIZZES.map(q=>q.toolId));
 
@@ -1173,7 +1196,7 @@ function loadSyllabus(){
   if(!syllabusP){
     const load=Promise.all([
       window.MMT_RESOURCES ? null : loadScriptOnce(new URL("../../resources/resourcesManifest.js?v=2c0e07cc", location.href).href),
-      window.MMT_TOOL_LINKS ? null : loadScriptOnce(new URL("../../resources/toolLinks.js?v=981d1935", location.href).href),
+      window.MMT_TOOL_LINKS ? null : loadScriptOnce(new URL("../../resources/toolLinks.js?v=a76fb058", location.href).href),
     ]).then(()=>true, ()=>{ syllabusP=null; return false; });
     syllabusP=Promise.race([load, new Promise(r=>setTimeout(()=>r(false), 5000))]);
   }
@@ -1493,10 +1516,12 @@ function otPaint(){
 // Normalise a full builder URL to a site-absolute path so the stored task works
 // on any origin (the teacher may build on localhost but students open it live).
 function siteRelUrl(u){ try{ const x=new URL(u, location.href); return x.pathname + x.search; }catch(e){ return u; } }
+// Level keys that are not their own name (the Stage 3 whole-topic quizzes use the syllabus parts).
+const LEVEL_LABEL = { a:"Part A", ab:"Parts A and B", b:"Part B" };
 function customDetail(url){
   try{
     const p=new URL(url, location.origin).searchParams; const bits=[];
-    const lv=p.get("level"); if(lv) bits.push(lv.charAt(0).toUpperCase()+lv.slice(1));
+    const lv=p.get("level"); if(lv) bits.push(LEVEL_LABEL[lv]||(lv.charAt(0).toUpperCase()+lv.slice(1)));
     const ty=(p.get("types")||"").split(",").filter(Boolean).length; if(ty) bits.push(`${ty} question type${ty===1?"":"s"}`);
     const n=p.get("count"); if(n) bits.push(`${n} questions`);
     return bits.join(" · ") || "Chosen question types";
@@ -2540,7 +2565,7 @@ function openStudent(code, opts){
 // module can't load, the classic page below still opens.
 async function openResults(){
   try{
-    const m = await import("./analytics.js?v=9e7f287a");
+    const m = await import("./analytics.js?v=aae8eeff");
     m.openAnalytics({
       get all(){ return all; }, get students(){ return students; }, get classes(){ return classes; },
       get dashAssignments(){ return dashAssignments; }, get teacher(){ return teacher; },

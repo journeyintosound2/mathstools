@@ -16,7 +16,7 @@
  * A new quiz that saves "key:right/total" strings needs nothing here; add its
  * keys to SKILL_LABELS for nicer names.
  */
-import { summarise } from "./resultUtils.js?v=8db063f7";
+import { summarise } from "./resultUtils.js?v=e17ad2d3";
 
 /* ---------- labels ---------- */
 export const SKILL_LABELS = {
@@ -45,14 +45,16 @@ const FACET_LABELS = {
   level: "Level", lang: "Language", quadrants: "Quadrants", model: "Model", estimate: "Estimate", op: "Operation", kind: "Question kind",
 };
 const LANG_NAMES = { ar: "Arabic", fa: "Farsi", en: "English" };
-export const LEVEL_ORDER = ["sweet","mild","medium","spicy","extra spicy","extraspicy","extra hot","extrahot","basic","foundation","core","expected","advanced","extension","challenge"];
+export const LEVEL_ORDER = ["part a","part b","parts a and b","sweet","mild","medium","spicy","extra spicy","extraspicy","extra hot","extrahot","basic","foundation","core","expected","advanced","extension","challenge"];
 
 function humanise(id) {
   const s = String(id || "").replace(/[_-]+/g, " ").replace(/([a-z])([A-Z])/g, "$1 $2").trim();
   return s ? s[0].toUpperCase() + s.slice(1) : "Question";
 }
 function cleanText(s) { return String(s ?? "").replace(/<[^>]*>/g, " ").replace(/[^\p{L}\p{N}\s'’()+\-/&,.]/gu, "").replace(/\s+/g, " ").trim(); }
-export function levelKeyOf(s) { return cleanText(s).toLowerCase().replace(/[-_]+/g, " ").replace(/\s+/g, " ").trim(); }
+// The Stage 3 whole-topic quizzes save level "Part A" with levelKey "a"; their task links say ?level=a|ab|b.
+const LEVEL_ALIAS = { a: "part a", ab: "parts a and b", b: "part b" };
+export function levelKeyOf(s) { const k = cleanText(s).toLowerCase().replace(/[-_]+/g, " ").replace(/\s+/g, " ").trim(); return LEVEL_ALIAS[k] || k; }
 const titleCase = (s) => s.replace(/\b\p{L}/gu, (c) => c.toUpperCase());
 
 /** The level an attempt was played at → { key, label } ("" when the quiz has no levels). */

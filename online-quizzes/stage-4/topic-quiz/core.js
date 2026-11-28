@@ -61,6 +61,7 @@
   }
 
   /* ---------- parsing ---------- */
+  const VULGAR = { "½": "1/2", "¼": "1/4", "¾": "3/4", "⅓": "1/3", "⅔": "2/3", "⅕": "1/5", "⅖": "2/5", "⅗": "3/5", "⅘": "4/5", "⅙": "1/6", "⅚": "5/6", "⅛": "1/8", "⅜": "3/8", "⅝": "5/8", "⅞": "7/8", "⅒": "1/10" };
   const SUPMAP = { "⁰": "0", "¹": "1", "²": "2", "³": "3", "⁴": "4", "⁵": "5", "⁶": "6", "⁷": "7", "⁸": "8", "⁹": "9", "⁻": "-" };
   /* Undo everything a keyboard or phone might do to a number: unicode minus
      signs, superscript digits, thin/no-break spaces, thousands commas. */
@@ -69,6 +70,7 @@
     s = s.replace(/[−–—‒]/g, "-").replace(/[   ]/g, " ");
     s = s.replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹⁻]+/g, m => "^" + m.split("").map(c => SUPMAP[c]).join(""));
     s = s.replace(/[×✕✖·∙]/g, "*").replace(/÷/g, "/");
+    s = s.replace(/(\d)?\s*([½¼¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞⅒])/g, (m, w, f) => (w ? w + " " : "") + VULGAR[f]);
     return s;
   }
   /* Drop thousands separators: "12,500" "12 500" → "12500". A comma that is
@@ -132,6 +134,8 @@
     if (q.form === "fraction" && !isFrac && !(Number.isInteger(target) && /^-?\d+$/.test(s))) return { nudge: "Right value — now write it as a fraction." };
     if (q.form === "decimal" && (isFrac || isPct)) return { nudge: "Right value — now write it as a decimal." };
     if (q.form === "percent" && !isPct) return { nudge: "Right value — now write it as a percentage (with %)." };
+    if (q.form === "mixed" && !/^-?\d+ \d+\/\d+$/.test(s) && !Number.isInteger(target)) return { nudge: "Right value — now write it as a mixed numeral, like 2 3/4." };
+    if (q.form === "improper" && !/^-?\d+\s*\/\s*\d+$/.test(s)) return { nudge: "Right value — now write it as an improper fraction, like 11/4." };
     if (isFrac && q.simplest !== false) {
       const m = /(\d+)\s*\/\s*(\d+)$/.exec(s);
       if (m && gcd(Number(m[1]), Number(m[2])) !== 1) return { nudge: "Right — now simplify your fraction fully." };
@@ -335,6 +339,74 @@
     return { ok: near(p.m, q.m) && near(p.b, q.b) };
   };
 
+  /* ---------- Stage 3 modes (2026-11-28) ---------- */
+  /* order: q.items (html), q.correct = item indexes in the right order; input = indexes as placed */
+  CHECK.order = (q, seq) => {
+    if (!Array.isArray(seq) || seq.length < q.items.length) return { nudge: "Put every item in your order first." };
+    return { ok: seq.every((v, i) => v === q.correct[i]) };
+  };
+  /* nline: click a number line; q.value, q.step (the tick spacing), q.snap (what a click snaps to,
+     default the step), q.tol (how far off still counts, default half a snap) */
+  CHECK.nline = (q, v) => (v == null ? { nudge: "Click the number line to place your mark first." }
+    : { ok: Math.abs(v - q.value) <= (q.tol != null ? q.tol : (q.snap || q.step) / 2 - 1e-9) + 1e-9 });
+  /* time: q.h (0–23), q.m; q.fmt "12" (needs am/pm) | "24" | "clock" (a clock face: am/pm not asked) */
+  function parseTime(raw) {
+    let s = String(raw == null ? "" : raw).trim().toLowerCase().replace(/\ba\.?\s*m\.?$/, "am").replace(/\bp\.?\s*m\.?$/, "pm").replace(/(\d)(am|pm)$/, "$1 $2").replace(/\./g, ":");
+    const m = /^(\d{1,2})\s*[:h]?\s*(\d{2})\s*(am|pm)?(\s*hours?)?$/.exec(s.replace(/\s+/g, " "));
+    if (!m) return null;
+    const h = Number(m[1]), min = Number(m[2]), ap = m[3] ? m[3][0] : null;
+    if (min > 59 || h > 24 || (ap && (h < 1 || h > 12))) return null;
+    return { h, m: min, ap, pad: m[1].length === 2 };
+  }
+  CHECK.time = (q, raw) => {
+    const t = parseTime(raw);
+    if (!t) return { nudge: q.fmt === "12" ? "Write a time like 7:45 am." : q.fmt === "24" ? "Write a 24-hour time like 19:45." : "Write a time like 7:45." };
+    if (q.fmt === "12") {
+      if (!t.ap) return { nudge: "Add am or pm." };
+      const h24 = (t.h % 12) + (t.ap === "p" ? 12 : 0);
+      return { ok: h24 === q.h && t.m === q.m };
+    }
+    if (q.fmt === "24") {
+      if (t.ap) return { nudge: "Write it in 24-hour time — no am or pm." };
+      return { ok: (t.h % 24) === q.h && t.m === q.m };
+    }
+    return { ok: (t.h % 12) === (q.h % 12) && t.m === q.m };
+  };
+  /* dur: q.mins; q.hm = must be written in hours and minutes */
+  function parseDur(raw) {
+    const s = String(raw == null ? "" : raw).toLowerCase().replace(/,/g, " ").replace(/\s+/g, " ").trim();
+    let m;
+    if ((m = /^(\d+)\s*(h|hr|hrs|hours?)\s*(?:and\s*)?(?:(\d+)\s*(m|min|mins|minutes?))?$/.exec(s))) return { mins: Number(m[1]) * 60 + Number(m[3] || 0), hm: true };
+    if ((m = /^(\d+)\s*(m|min|mins|minutes?)$/.exec(s))) return { mins: Number(m[1]), hm: false };
+    if ((m = /^(\d+):(\d{2})$/.exec(s))) return { mins: Number(m[1]) * 60 + Number(m[2]), hm: true };
+    return null;
+  }
+  CHECK.dur = (q, raw) => {
+    const d = parseDur(raw);
+    if (!d) return { nudge: "Write it like 1 h 25 min." };
+    if (d.mins !== q.mins) return { ok: false };
+    if (q.hm && !d.hm && q.mins >= 60) return { nudge: "Right amount — now write it in hours and minutes." };
+    return { ok: true };
+  };
+  /* pair: two numbers in either order (a factor pair, the sides of a rectangle) */
+  CHECK.pair = (q, raw) => {
+    const n = dropGroups(clean(raw)).match(/\d+(\.\d+)?/g);
+    if (!n || n.length !== 2) return { nudge: "Write two numbers, like 3 × 8." };
+    const a = Number(n[0]), b = Number(n[1]);
+    return { ok: (near(a, q.pair[0]) && near(b, q.pair[1])) || (near(a, q.pair[1]) && near(b, q.pair[0])) };
+  };
+  /* rem: a quotient and a remainder ("17 r 1", "17 remainder 1") */
+  CHECK.rem = (q, raw) => {
+    const s = dropGroups(clean(raw)).toLowerCase();
+    const m = /^(\d+)\s*(?:r|rem|remainder|R)?\.?\s*(\d+)?$/.exec(s.replace(/\s+/g, " ").trim());
+    if (!m) return { nudge: "Write it like 17 r 1." };
+    if (m[2] == null) return q.rem === 0 && Number(m[1]) === q.quot ? { ok: true } : Number(m[1]) === q.quot ? { nudge: "Right — now give the remainder too, like 17 r 1." } : { ok: false };
+    return { ok: Number(m[1]) === q.quot && Number(m[2]) === q.rem };
+  };
+  /* text: a short code typed exactly (a grid reference "C4"); q.accept = accepted answers */
+  const normText = v => String(v == null ? "" : v).toLowerCase().replace(/[^a-z0-9]/g, "");
+  CHECK.text = (q, raw) => (normText(raw) ? { ok: q.accept.map(normText).includes(normText(raw)) } : { nudge: "Type your answer." });
+
   CHECK.mc = (q, idx) => (idx == null ? { nudge: "Choose an answer." } : { ok: idx === q.correct });
   CHECK.tf = (q, v) => (v == null ? { nudge: "Choose True or False." } : { ok: v === q.truth });
 
@@ -355,7 +427,7 @@
   root.MMTQCore = {
     ri, pick, shuffle, sample, chance, gcd, lcm, round, isPrime,
     fmt, money, money2, sup, frac, fracText, esc, prettyPowers, MINUS,
-    clean, parseNumber, labelOffset, parsePi, parseMono, parseCoord, parseLinear,
+    clean, parseNumber, labelOffset, parsePi, parseMono, parseCoord, parseLinear, parseTime, parseDur,
     check, CHECK
   };
 })(typeof window !== "undefined" ? window : globalThis);

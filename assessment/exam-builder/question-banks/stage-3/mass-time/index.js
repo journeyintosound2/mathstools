@@ -450,7 +450,7 @@ function timeUnitsQuestion() {
   }
   if (v === "days") {
     const w = randInt(2, 6); const d = randInt(1, 6);
-    return make(`How many days are in ${w} weeks and ${d} ${plural(d, "day")}?`, `${w * 7 + d} days`, [`${w} × 7 = ${w * 7}`, `${w * 7} + ${d} = ${w * 7 + d} days`], [`${w * 10 + d} days`, `${w * 5 + d} days`, `${w + d} days`]);
+    return make(`How many days are in ${w} weeks and ${plural(d, "day")}?`, `${w * 7 + d} days`, [`${w} × 7 = ${w * 7}`, `${w * 7} + ${d} = ${w * 7 + d} days`], [`${w * 10 + d} days`, `${w * 5 + d} days`, `${w + d} days`]);
   }
   const f = choice([["a quarter of an hour", 15], ["three-quarters of an hour", 45], ["half an hour", 30], ["one-third of an hour", 20]]);
   return make(`How many minutes are in ${f[0]}?`, `${f[1]} min`, [`${f[0]} of 60 minutes = ${f[1]} min`], [`${f[1] === 15 ? 25 : 15} min`, `${f[1] + 10} min`, `${100 * f[1] / 60} min`]);

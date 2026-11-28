@@ -191,10 +191,36 @@ window.MMT_TOOL_FAMILIES = {
     "/interactive-tools/stage-5/measurement-space/unit-circle-trig-ratios/lesson-plan.html",
     "/flip-cards/unit-circle-related-angles.html",
     "/worksheet-creators/stage-5/measurement-space/unit-circle-trig.html"
+  ],
+  "/interactive-tools/stage-4/statistics-probability/bin-toss/": [
+    "/interactive-tools/stage-4/statistics-probability/bin-toss/student-interactive/"
   ]
 };
 
 window.MMT_WHOLE_TOPIC_QUIZZES = {
+  /* ---- Stage 3 (levels are the syllabus parts: Part A / Parts A and B, or Part B) ---- */
+  "/online-quizzes/stage-3/number/whole-numbers-integers.html": "Represents Numbers: Whole Numbers and Integers",
+  "/online-quizzes/stage-3/number/decimals.html": "Represents Numbers: Decimals",
+  "/online-quizzes/stage-3/number/percentages.html": "Represents Numbers: Percentages",
+  "/online-quizzes/stage-3/number/additive-relations.html": "Additive Relations",
+  "/online-quizzes/stage-3/number/multiplying-dividing.html": "Multiplicative Relations: Multiplying and Dividing",
+  "/online-quizzes/stage-3/number/number-sentences-patterns.html": "Multiplicative Relations: Number Sentences and Patterns",
+  "/online-quizzes/stage-3/number/fractions.html": "Fractions: Comparing, Adding and Subtracting",
+  "/online-quizzes/stage-3/number/fractions-of-quantities.html": "Fractions: Fractions of Quantities",
+  "/online-quizzes/stage-3/measurement-space/position.html": "Geometric Measure: Position",
+  "/online-quizzes/stage-3/measurement-space/length.html": "Geometric Measure: Length",
+  "/online-quizzes/stage-3/measurement-space/angles.html": "Geometric Measure: Angles",
+  "/online-quizzes/stage-3/measurement-space/2d-shapes.html": "2D Spatial Structure: Shapes and Transformations",
+  "/online-quizzes/stage-3/measurement-space/area-rectangles.html": "2D Spatial Structure: Area of Rectangles",
+  "/online-quizzes/stage-3/measurement-space/area-triangles-composite.html": "2D Spatial Structure: Area of Composite Figures, Parallelograms and Triangles",
+  "/online-quizzes/stage-3/measurement-space/3d-objects.html": "3D Spatial Structure: 3D Objects",
+  "/online-quizzes/stage-3/measurement-space/volume-capacity.html": "3D Spatial Structure: Volume and Capacity",
+  "/online-quizzes/stage-3/measurement-space/mass.html": "Non-Spatial Measure: Mass",
+  "/online-quizzes/stage-3/measurement-space/time.html": "Non-Spatial Measure: Time",
+  "/online-quizzes/stage-3/statistics-probability/data-collecting-displaying.html": "Data: Collecting and Displaying Data",
+  "/online-quizzes/stage-3/statistics-probability/data-interpreting.html": "Data: Interpreting Data",
+  "/online-quizzes/stage-3/statistics-probability/chance.html": "Chance",
+  /* ---- Stage 4 ---- */
   "/online-quizzes/stage-4/number/computation-with-integers.html":                         "Computation with Integers",
   "/online-quizzes/stage-4/number/fractions-decimals-percentages.html":                    "Fractions, Decimals and Percentages",
   "/online-quizzes/stage-4/number/indices.html":                                           "Indices",
