@@ -1,0 +1,1423 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Mass — Worksheet Maker</title>
+  <!--
+    Mass (MA1-NSM-01) — whole-topic worksheet creator.
+    BUILT FILE. The shared frame (frame/*.css + frame/body.html, joined by
+    frame/make_shell.py; this page's layout, A4 pages, answer key,
+    languages) and this outcome's own question code were assembled by
+    assemble.py from frame/shell.html + pages/s1-mass.js. Edit those parts
+    and re-assemble rather than editing the frame here, so every whole-topic
+    worksheet creator keeps the same frame. See CLAUDE.md (2026-11-27).
+  -->
+  <style>
+    :root{
+      --bg:#f6f7fb; --ink:#111827; --muted:#6b7280; --border:#e5e7eb;
+      --shadow:0 14px 40px rgba(0,0,0,.10); --radius:18px;
+      --blue:#2563eb; --ans:#16a34a; --footer-h:44px;
+      --mathFont:"Cambria Math","STIX Two Math","STIXGeneral","Times New Roman",serif;
+      --uiFont:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:var(--uiFont);background:radial-gradient(circle at top left,rgba(37,99,235,.10),transparent 30rem),radial-gradient(circle at top right,rgba(124,58,237,.09),transparent 30rem),var(--bg);color:var(--ink);padding-bottom:var(--footer-h)}
+    .topbar{position:sticky;top:0;z-index:20;background:linear-gradient(135deg,#0f172a,#123b7a 55%,#2563eb);color:white;padding:14px 24px;display:grid;grid-template-columns:minmax(180px,1fr) auto minmax(180px,1fr);align-items:center;gap:18px;box-shadow:0 10px 28px rgba(15,23,42,.22)}
+    .brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:white;justify-self:start;border-radius:14px;padding:8px 12px;margin-left:-12px;transition:background .18s ease,transform .18s ease,box-shadow .18s ease}
+    .brand:hover{background:rgba(255,255,255,.12);transform:translateY(-1px);box-shadow:0 0 10px rgba(124,58,237,.6),0 0 18px rgba(37,99,235,.4)}
+    .brand-logo{width:44px;height:44px;object-fit:contain;background:white;border-radius:6px;padding:3px}
+    .brand-text strong{display:block;font-size:1.18rem;line-height:1;letter-spacing:-.03em}.brand-text span{display:block;font-size:.78rem;opacity:.82;font-weight:650}
+    .top-title{font-weight:900;font-size:clamp(1.25rem,2vw,1.7rem);letter-spacing:-.04em;text-align:center}
+    .wrap{max-width:1280px;margin:14px auto 32px;padding:0 14px}
+    .card{background:rgba(255,255,255,.96);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;border:1px solid rgba(226,232,240,.9)}
+    .title{font-size:28px;font-weight:1000;letter-spacing:.2px;margin:0 0 4px}
+    .subtitle{margin:0 0 14px;color:var(--muted);font-weight:850;font-size:15px;line-height:1.35}
+    .subtitle .code{display:inline-block;font-family:ui-monospace,Menlo,Consolas,monospace;font-weight:800;font-size:13px;color:#1e3a8a;background:#eef2ff;border-radius:7px;padding:1px 7px;margin-right:4px}
+    .band{padding:12px;border:1px solid var(--border);border-radius:18px;background:linear-gradient(180deg,#fff,#f9fafb);margin-bottom:12px}
+    .bandLabel{font-weight:1000;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 10px}
+    .fieldGrid{display:grid;gap:14px 16px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+    label{display:block;font-weight:950;color:var(--ink);margin:0 0 7px;font-size:15px}
+    select,input[type="number"]{border:2px solid #e5e7eb;border-radius:14px;padding:12px 13px;font-weight:950;font-size:17px;background:#fff;width:100%;outline:none;font-family:var(--uiFont)}
+    .checks{display:flex;gap:9px 10px;flex-wrap:wrap;align-items:center}
+    .chk{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--border);background:#fff;border-radius:999px;padding:9px 12px;font-weight:950;font-size:14px;color:#111827;box-shadow:0 8px 18px rgba(0,0,0,.04);user-select:none;cursor:pointer}
+    .chk input{width:18px;height:18px;accent-color:var(--blue)}
+    .chk .wTag{font-size:10.5px;font-weight:900;color:#0369a1;background:#e0f2fe;border-radius:999px;padding:2px 7px;letter-spacing:.02em}
+    .stmtRow{padding:9px 0 11px;border-top:1px dashed var(--border)}
+    .stmtRow:first-child{border-top:0;padding-top:0}
+    .stmtText{margin:0 0 8px;font-size:13.5px;font-weight:850;color:#334155;line-height:1.35}
+    .stmtText .n{display:inline-grid;place-items:center;min-width:22px;height:22px;border-radius:7px;background:#eef2ff;color:#1d4ed8;font-size:12px;font-weight:1000;margin-right:7px}
+    .stmtText .part{display:inline-block;font-size:11px;font-weight:1000;color:#0369a1;background:#e0f2fe;border-radius:6px;padding:1px 6px;margin-right:7px;vertical-align:1px}
+    .stmtNone{font-size:13px;font-weight:800;color:#94a3b8;font-style:italic}
+    .btnRow{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:flex-end}
+    button{border:none;border-radius:14px;padding:12px 16px;font-weight:1000;cursor:pointer;background:#f3f4f6;color:#111827;transition:transform .04s ease,filter .15s ease,opacity .2s ease;user-select:none;font-size:16px;font-family:var(--uiFont)}
+    button:active{transform:scale(.98)}button.primary{background:#2563eb;color:#fff}button.ghost{background:#eef2ff;color:#1d4ed8}button.danger{background:#fee2e2;color:#991b1b}
+    .pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:8px 13px;font-weight:1000;font-size:14px;background:#eef2ff;color:#1d4ed8;margin-right:auto}
+    .warn{padding:12px;font-weight:950;color:#991b1b}
+    .mmtFooter{position:fixed;left:0;right:0;bottom:0;height:var(--footer-h);display:flex;align-items:center;justify-content:center;padding:0 12px;background:rgba(255,255,255,.92);border-top:1px solid rgba(229,231,235,.95);backdrop-filter:blur(8px);z-index:500;font-weight:900;color:#111827;text-align:center;font-size:13px}
+    .mmtFooter a{color:#2563eb;text-decoration:none;font-weight:950}.mmtFooter a:hover{text-decoration:underline}
+
+
+    .sw{display:inline-flex;align-items:center;gap:10px;cursor:pointer;user-select:none;font-weight:900;font-size:14.5px;margin:0}
+    .sw input{position:absolute;opacity:0;width:0;height:0}
+    .sw .track{position:relative;width:46px;height:27px;border-radius:999px;background:#cbd5e1;transition:.16s ease;flex:0 0 auto}
+    .sw .track::after{content:"";position:absolute;top:3px;left:3px;width:21px;height:21px;border-radius:50%;background:#fff;box-shadow:0 2px 5px rgba(0,0,0,.28);transition:.16s ease}
+    .sw input:checked + .track{background:var(--ans)}
+    .sw input:checked + .track::after{transform:translateX(19px)}
+    .sw input:focus-visible + .track{box-shadow:0 0 0 4px rgba(37,99,235,.25)}
+    .swRow{display:flex;gap:12px 24px;flex-wrap:wrap;align-items:center;margin-top:12px}
+    .note{margin:10px 0 0;font-size:12.6px;font-weight:800;color:var(--muted);line-height:1.5}
+    .note b{color:var(--ink)}
+
+    /* =====================================================================
+       THE PAPER — an A4 page whose writing area is 196 × 281 mm, the same
+       on screen and in print, so what is packed on screen is what prints.
+       ===================================================================== */
+    .outWrap{margin-top:14px;display:flex;flex-direction:column;align-items:center;gap:14px}
+    .page{width:210mm;height:297mm;background:#fff;border:1px solid var(--border);border-radius:18px;box-shadow:0 10px 26px rgba(15,23,42,.08);overflow:hidden;
+      padding:8mm 7mm;display:flex;flex-direction:column;position:relative}
+    .pageHeader{padding:0 0 1.8mm;border-bottom:2px solid #111827;display:flex;align-items:flex-end;justify-content:space-between;gap:10px;flex:0 0 auto}
+    .hdrTitle{font-weight:1000;font-size:15px;line-height:1.15}
+    .hdrTitle .loc{display:block;font-size:.86em;margin-bottom:.4mm}
+    .hdrSub{color:var(--muted);font-weight:850;font-size:11px;margin-top:2px}
+    .nameDate{display:flex;gap:8px;align-items:flex-end;flex:0 0 auto}
+    .lineField{display:flex;flex-direction:column;gap:3px;width:120px}
+    .lineField.wide{width:170px}
+    .lineLabel{font-size:10px;font-weight:950;color:var(--muted)}
+    .lineBox{height:19px;border-bottom:1.6px solid #111827}
+    .pageBody{flex:1 1 auto;display:flex;flex-direction:column;gap:2.6mm;padding-top:2.6mm;min-height:0;overflow:hidden}
+    .intro{font-size:12.2px;font-weight:850;color:#374151;line-height:1.35;margin:0}
+    .pageFooter{flex:0 0 auto;padding:1.4mm 0 0;border-top:1px solid rgba(229,231,235,.95);display:flex;align-items:center;justify-content:space-between;font-weight:900;color:var(--muted);font-size:10px}
+    .pageFooter a{color:#2563eb;text-decoration:none;font-weight:1000}
+
+    /* sections: one per content statement */
+    .secHead{display:flex;align-items:center;gap:7px;margin:.8mm 0 -.6mm;flex:0 0 auto}
+    .secLetter{display:inline-grid;place-items:center;min-width:6mm;height:6mm;border-radius:1.6mm;background:#111827;color:#fff;font-size:12px;font-weight:1000;flex:0 0 auto}
+    .secTitle{font-size:12.6px;font-weight:1000;line-height:1.2}
+    .secCont{font-size:10.5px;font-weight:850;color:var(--muted);white-space:nowrap}
+
+    /* rows: two cards side by side, a tall card beside two short ones, or one card across */
+    .row{display:grid;gap:3mm;grid-template-columns:minmax(0,1fr) minmax(0,1fr);flex:0 0 auto}
+    .row.one{grid-template-columns:minmax(0,1fr)}
+    .stack{display:flex;flex-direction:column;gap:3mm;min-width:0}
+    .stack > .qCard:last-child{flex:1 1 auto}
+
+    /* a question card */
+    .qCard{border:1.3px solid #cfd5dd;border-radius:10px;padding:2.4mm 3mm 2.8mm;display:flex;flex-direction:column;gap:2mm;min-width:0;background:#fff}
+    .qCard.side{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:3mm;align-items:stretch}
+    .qMain{display:flex;flex-direction:column;gap:2mm;min-width:0}
+    .qCard.side .qDiag{margin:0;align-self:center}
+    .qTop{display:flex;align-items:flex-start;gap:7px}
+    .qNum{width:26px;height:22px;padding:0;border-radius:999px;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:1000;flex:0 0 auto}
+    .qNum.lv1{background:linear-gradient(180deg,#4ade80,#16a34a)}
+    .qNum.lv2{background:linear-gradient(180deg,#fb923c,#ea580c)}
+    .qText{flex:1;min-width:0;font-size:13px;font-weight:750;line-height:1.36;color:var(--ink);overflow-wrap:anywhere;padding-top:1px}
+    .qText .loc{display:block;direction:rtl;text-align:right;font-weight:850;margin-bottom:.8mm;font-size:1.04em}
+    .qText .enLine{display:block}
+    .qText.bi .enLine{font-size:.9em;color:#374151}
+    .qText b,.qText strong{font-weight:900}
+    .m{font-family:var(--mathFont);font-weight:500;font-size:1.08em;white-space:nowrap}
+    .qText .big{display:block;margin-top:1.6mm;font-family:var(--mathFont);font-size:1.3em;font-weight:500;text-align:center}
+    .qText .say{display:block;margin-top:1.6mm;font-weight:800;text-align:center;color:#1e3a8a;background:#f5f8ff;border:1px solid #dbe5ff;border-radius:2mm;padding:1.4mm 2mm}
+    .qText .sub{display:block;margin-top:1mm;font-size:.86em;color:var(--muted);font-weight:700}
+    .fr,.math-frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;font-family:var(--mathFont);font-weight:500;line-height:1.05;margin:0 .12em;font-size:.95em}
+    .frn,.math-frac span:first-child{border-bottom:1.3px solid currentColor;padding:0 .18em}.frd,.math-frac span:last-child{padding:0 .18em}
+    .frs{position:absolute;margin-left:-.7em}
+    sup{font-size:.7em;line-height:0}
+    .dtab{border-collapse:collapse;margin:1.6mm auto 0;font-size:11.5px;font-weight:700;font-variant-numeric:tabular-nums}
+    .dtab th,.dtab td{border:1.2px solid #94a3b8;padding:1mm 1.8mm;text-align:center;overflow-wrap:normal;word-break:normal;hyphens:none}
+    .dtab th{background:#f3f4f6;font-weight:900}
+    .dtab td.q{background:#fef9c3;font-weight:900}
+    .dtab.rows th{text-align:left}
+    .dtab td.blank{min-width:9mm}
+    .dataList{font-family:var(--mathFont);font-size:1.06em;word-spacing:.12em;line-height:1.5;background:#f8fafc;border:1px dashed #cbd5e1;border-radius:2mm;padding:1.2mm 2.4mm;display:block;margin-top:1.4mm;font-weight:500}
+    .math-expression{display:block;margin-top:1.4mm;text-align:center;font-family:var(--mathFont);font-size:1.25em;font-weight:500}
+    .math-inline,.math-relation,.value-item{font-family:var(--mathFont);font-weight:500;white-space:nowrap}
+    .prompt-indented-line{display:block;margin-top:.8mm}
+    .tcap{font-size:.84em;font-weight:800;color:var(--muted);text-align:center;margin-top:1.2mm}
+
+    /* multiple choice and true / false: circle one */
+    .opts{display:grid;grid-template-columns:1fr 1fr;gap:1.4mm 4mm;font-size:12.4px;font-weight:750;margin-left:29px}
+    .opts.long{grid-template-columns:1fr}
+    .opt{display:flex;gap:1.8mm;align-items:baseline;min-width:0}
+    .opt .L{flex:0 0 auto;display:inline-grid;place-items:center;width:5mm;height:5mm;border:1.3px solid #334155;border-radius:50%;font-size:10px;font-weight:1000}
+    .opt.right .L{background:var(--ans);border-color:var(--ans);color:#fff}
+    .opt.right{color:#15803d}
+    .tfRow{display:flex;gap:7mm;justify-content:center;font-weight:950;font-size:12.4px}
+    .tfRow span{border:1.3px solid #334155;border-radius:99px;padding:.6mm 4.5mm}
+    .tfRow span.right{background:var(--ans);border-color:var(--ans);color:#fff}
+
+    /* parts (a), (b) … and grouped drill items */
+    .subs{list-style:none;margin:0 0 0 29px;padding:0;display:flex;flex-direction:column;gap:1.8mm;font-size:12.6px;font-weight:750;line-height:1.35}
+    .subs li{display:flex;flex-direction:column;gap:1mm}
+    .subs .sl{font-weight:1000;margin-right:1.4mm}
+    .subs .pAns{display:flex;justify-content:flex-end;align-items:flex-end;gap:5px}
+    .items{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2.6mm 5mm;margin-left:29px}
+    .items.c1{grid-template-columns:minmax(0,1fr)}
+    .items.c3{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .item{display:flex;align-items:flex-end;gap:4px;min-width:0;font-size:13px}
+    .item .il{font-weight:1000;font-size:12px;align-self:center;margin-right:1mm}
+    .item .ix{font-family:var(--mathFont);font-size:15.5px;font-weight:500;white-space:nowrap}
+    .item .ix .big,.item .ix .math-expression{display:inline;margin:0;font-size:1em;text-align:left}
+    .item .ieq{font-family:var(--mathFont);font-size:15.5px;margin:0 1px}
+    .item .ablank{flex:1 1 auto;min-width:12mm;max-width:none}
+
+    /* diagrams */
+    .qDiag{display:flex;justify-content:center;align-items:center;min-width:0}
+    .qDiag svg{max-width:100%;height:auto}
+    .qDiag .engHolder{display:flex;flex-direction:column;align-items:center;max-width:100%}
+    .diagMissing{color:var(--muted);font-weight:800;padding:6mm}
+    .match{display:grid;grid-template-columns:auto 22mm auto;row-gap:2.2mm;align-items:center;justify-content:start;margin:2.5mm 0 1mm}
+    .match .mb{border:1.3px solid #111827;border-radius:2mm;padding:1.2mm 3.5mm;min-width:15mm;text-align:center;font-family:var(--mathFont);font-weight:500;font-size:1.05em;white-space:nowrap}
+    .match .mgap{display:flex;justify-content:space-between;padding:0 1.2mm}
+    .match .mgap i{width:1.6mm;height:1.6mm;border-radius:50%;background:#111827}
+    .qDiag:has(> .diagPart){gap:5mm;flex-wrap:wrap}
+    .qDiag > .diagPart{display:flex;justify-content:center;align-items:center;min-width:0;flex:0 1 auto}
+    .qgrid .gl{stroke:#cbd5e1;stroke-width:1}
+    .qgrid .ax{stroke:#0f172a;stroke-width:2}
+    .qgrid .axh{fill:#0f172a}
+    .qgrid .axl{font:italic 700 16px var(--mathFont);fill:#0f172a}
+    .qgrid .tk{font:600 12.5px var(--uiFont);fill:#475569}
+    .qgrid .ln{stroke-width:3;stroke-linecap:round}
+    .qgrid .lnl{font:700 15px var(--mathFont);stroke:#fff;stroke-width:4px}
+    .qgrid .pt{stroke:#fff;stroke-width:2}
+    .qgrid .ptl{font:800 16px var(--uiFont);fill:#0f172a;stroke:#fff;stroke-width:4px}
+
+    /* writing room */
+    .drawBox{border:1.3px dashed #9aa3af;border-radius:2mm;flex:0 0 auto;position:relative}
+    .drawBox.sq{background-image:linear-gradient(#cbd5e1 1px,transparent 1px),linear-gradient(90deg,#cbd5e1 1px,transparent 1px);background-size:5mm 5mm;background-position:-1px -1px;border-style:solid;border-color:#94a3b8}
+    .drawBox .workTag{font-size:8.5px;font-weight:950;color:#94a3b8;padding:.4mm 1.4mm;display:block;letter-spacing:.08em;text-transform:uppercase}
+    .lines{background:repeating-linear-gradient(180deg,transparent 0 6.6mm,#c9ced6 6.6mm calc(6.6mm + 1px))}
+    .work{min-height:20.4mm;flex:1 0 20.4mm;margin-left:29px}
+    /* a card set beside a taller one grows its writing lines, not a blank */
+    .qCard:has(.work) .spacer,.qCard:has(.ansLine.full) .spacer,.qMain:has(.work) .spacer{flex:0 0 0}
+    .ansLine.full{flex:1 0 auto}
+    .ansLine.full .lines{flex:1 0 13.4mm;min-height:13.4mm}
+    .spacer{flex:1 1 auto;min-height:0}
+    .ansLine{display:flex;align-items:flex-end;justify-content:flex-end;gap:5px;font-size:12px;font-weight:900;flex-wrap:wrap;line-height:1.2;flex:0 0 auto}
+    .ansLine .al{color:#374151}
+    .ansLine .al .loc{margin-right:3px}
+    .ansLine .unit{font-family:var(--mathFont);font-size:14px;font-weight:500}
+    .ansLine.full{justify-content:stretch;flex-direction:column;align-items:stretch;gap:0}
+    .ablank{display:inline-block;min-width:24mm;border-bottom:1.5px solid #111827;height:5.4mm}
+    .ablank.sm{min-width:15mm}.ablank.md{min-width:26mm}.ablank.lg{min-width:38mm}.ablank.xl{min-width:56mm}
+    .gapBox{border:1.3px dashed #9aa3af;border-radius:10px;padding:2.2mm 3mm;display:flex;flex-direction:column;gap:1.6mm;flex:0 0 auto}
+    .gapBox .gT{font-size:11px;font-weight:950;color:#6b7280;letter-spacing:.06em;text-transform:uppercase}
+    .gapBox .lines{flex:1 1 auto}
+
+    /* answer key: the same pages, answers written in */
+    .keyScale{display:flex;flex-direction:column;gap:2.6mm;transform-origin:top center;flex:0 0 auto}
+    .isKey .qCard{border-color:#bbf7d0;background:#f7fdf9}
+    .keyAns{display:inline-block;min-width:15mm;border-bottom:1.5px solid #15803d;color:#15803d;font-family:var(--mathFont);font-weight:700;font-size:14px;padding:0 1.2mm;text-align:center;line-height:1.3}
+    .keyAns .math-expression,.keyAns .prompt-indented-line,.keyAns .big{display:inline;margin:0 .2em;font-size:1em;text-align:inherit}
+    .keyText{font-size:10.8px;font-weight:800;color:#14532d;line-height:1.4;background:#ecfdf3;border-radius:6px;padding:1.2mm 2mm;margin-left:29px}
+    .keyText .math-expression,.keyText .prompt-indented-line,.keyText .big{display:inline;margin:0 .2em;font-size:1em;text-align:inherit}
+    .item .keyAns{flex:1 1 auto;text-align:left}
+    .lang-rtl .hdrTitle .loc,.lang-rtl .lineLabel .loc{direction:rtl}
+
+    @media(max-width:880px){
+      .topbar{grid-template-columns:1fr auto;gap:10px}.top-title{grid-column:1/-1;grid-row:2;text-align:center}.brand-text span{display:none}
+      .outWrap{align-items:flex-start;overflow-x:auto}
+    }
+    @media print{
+      @page{size:A4;margin:8mm 7mm}
+      html,body{width:210mm;height:auto;background:#fff;padding:0;margin:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+      .topbar,.card > :not(.outWrap),.mmtFooter{display:none!important}
+      .wrap{max-width:none;margin:0;padding:0}.card{box-shadow:none;border:none;border-radius:0;padding:0;background:#fff}
+      .outWrap{margin:0;gap:0;display:block}
+      .page{margin:0;border:none;border-radius:0;box-shadow:none;width:auto;height:281mm;padding:0;page-break-after:always;break-after:page}
+      .page:last-child{page-break-after:auto;break-after:auto}
+    }
+  </style>
+<!-- mmt-pwa -->
+<link rel="manifest" href="../../../../manifest.webmanifest">
+<meta name="theme-color" content="#1f3a5f">
+<link rel="apple-touch-icon" href="../../../../icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="MMT">
+<script src="../../../../pwa.js" defer></script>
+<!-- /mmt-pwa -->
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="https://www.millsmathstools.au" aria-label="Back to Mills Maths Tools"><img src="../../../../assets/mmt.png" alt="Mills Maths Tools logo" class="brand-logo" onerror="this.style.visibility='hidden'"><div class="brand-text"><strong>MMT</strong><span>Mills Maths Tools</span></div></a>
+    <div class="top-title">Mass</div><div></div>
+  </header>
+
+  <div class="wrap"><div class="card">
+    <h1 class="title">Mass — Worksheet Maker</h1>
+    <p class="subtitle"><span class="code">MA1-NSM-01</span> Printable A4 worksheets with an answer key, covering every content statement in the outcome. <strong>Part A</strong> (usually Year 1): investigate mass using an equal-arm balance. <strong>Parts A and B</strong> (Year 2) add: compare the masses of objects using an equal-arm balance. Large print, a picture in most questions and room to write.</p>
+
+    <div class="band">
+      <p class="bandLabel">The paper</p>
+      <div class="fieldGrid">
+        <div><label for="levelSel">Level</label><select id="levelSel"><option value="basic" selected>Basic</option><option value="expected">Expected</option></select></div>
+        <div><label for="languageSel">Worksheet language</label><select id="languageSel"><option value="en" selected>English</option><option value="ar">Arabic (العربية)</option><option value="fa">Farsi / Persian (فارسی)</option></select></div>
+        <div><label for="countInp">Number of questions</label><input id="countInp" type="number" min="1" max="48" value="12"></div>
+        <div><label for="workSel">Working space</label><select id="workSel"><option value="auto" selected>Where a question needs it</option><option value="all">Under every question</option><option value="none">None</option></select></div>
+      </div>
+    </div>
+
+    <div class="band">
+      <p class="bandLabel">Question types — by content statement</p>
+      <div id="chkWrap"></div>
+    </div>
+
+    <div class="band">
+      <p class="bandLabel">Options</p>
+      <div id="pageOpts" class="fieldGrid" hidden></div>
+      <div class="swRow">
+        <label class="sw"><input type="checkbox" id="toggleFill" checked><span class="track"></span><span>Fill the pages</span></label>
+        <label class="sw"><input type="checkbox" id="toggleName" checked><span class="track"></span><span>Name and date</span></label>
+        <label class="sw"><input type="checkbox" id="toggleWhy" checked><span class="track"></span><span>Reasons in the answer key</span></label>
+        <label class="sw"><input type="checkbox" id="toggleMix"><span class="track"></span><span>Mix the order</span></label>
+      </div>
+      <p class="note">Questions are grouped by <b>content statement</b>, in syllabus order, and short questions of the same kind are set as parts (a), (b), (c) of one question. <b>Fill the pages</b> adds a few more questions where a page would otherwise end with empty space. Working lines go where a question needs them; numbers in <b style="color:#16a34a">green</b> are the core questions and in <b style="color:#ea580c">orange</b> the harder ones. The answer key has the same pages, with the answers written in.</p>
+    </div>
+
+    <div class="band">
+      <div class="btnRow">
+        <span class="pill" id="totalPill">12 questions + answer key</span>
+        <button id="selectBtn" class="ghost">Deselect all</button>
+        <button id="genBtn" class="primary">Generate worksheet</button>
+        <button id="printBtn" class="ghost">Print (Ctrl+P)</button>
+        <button id="resetBtn" class="danger">Reset</button>
+      </div>
+    </div>
+
+    <div id="out" class="outWrap"></div>
+    <div id="probe" aria-hidden="true" style="position:absolute;left:-10000px;top:0;visibility:hidden"></div>
+  </div></div>
+
+  <div class="mmtFooter">This tool and more can be found at&nbsp;<a href="https://www.millsmathstools.au">www.millsmathstools.au</a></div>
+
+<script src="/online-quizzes/stage-4/topic-quiz/core.js?v=96627278"></script>
+<script src="/assessment/exam-builder/engines/array-area/array-area-engine.js?v=5fb8ee11"></script>
+<script src="/assessment/exam-builder/engines/bar-model/bar-model-engine.js?v=dca5d6cf"></script>
+<script src="/assessment/exam-builder/engines/grid/grid-engine.js?v=37ae0f16"></script>
+<script src="/assessment/exam-builder/engines/length/length-engine.js?v=68aa5b24"></script>
+<script src="/assessment/exam-builder/engines/manipulatives/manipulatives-engine.js?v=74ef891a"></script>
+<script src="/assessment/exam-builder/engines/measure/measure-engine.js?v=a4ca5518"></script>
+<script src="/assessment/exam-builder/engines/open-number-line/open-number-line-engine.js?v=54db8c11"></script>
+<script src="/assessment/exam-builder/engines/probability/probability-engine.js?v=5b67c74e"></script>
+<script src="/assessment/exam-builder/engines/solids/solids-engine.js?v=0cb27192"></script>
+<script src="/assessment/exam-builder/engines/statistics/statistics-engine.js?v=a71e41cb"></script>
+<script src="/assessment/exam-builder/engines/volume/volume-engine.js?v=0f7c8c7d"></script>
+<script>
+/* ===================== WHOLE-TOPIC WORKSHEET FRAME (v2) ==================
+   Shared by every whole-topic worksheet creator. The page script after this
+   one calls WSF.page(config); a page built on its whole-topic quiz also loads
+   that quiz's bank, which calls MMTQ.run(bank) and hands its generators over.
+
+   A QUESTION is
+     { prompt:html, diagram?, keyDiagram?, mode, value/unit/dp/pre (num),
+       options/correct (mc), truth (tf), x/y (coord/plot), answerHTML?, why?,
+       subq?:[{label,html,answer}] (parts of a multi-part question), drawSpace?, grid5?,
+       work?, keyPrompt?, wide?, loc? }
+
+   THE PAPER (2026-11-27, modelled on the Counting Strategies creator):
+   * one SECTION per content statement, in syllabus order, lettered A, B, C…;
+   * short questions of the same kind and wording become ONE card with parts
+     (a), (b)… (a "drill" card);
+   * every card is measured at its printed size; a tall narrow diagram goes
+     BESIDE the words; cards are paired with a partner of a similar height, or a
+     tall card is set beside two short ones, so no card stands half empty;
+   * pages are filled from the top; if a row will not fit, a later row of the
+     same section that does fit moves up; with "Fill the pages" on, room left
+     at the foot of a page is filled with more questions of that section;
+   * the answer key has the same pages in the same order, answers written in.
+   ======================================================================== */
+(() => {
+  'use strict';
+  const C = window.MMTQCore;
+  const SITE = 'https://www.millsmathstools.au';
+  const MM = 3.7795;
+  const $ = id => document.getElementById(id);
+  const levelSel = $('levelSel'), languageSel = $('languageSel'), countInp = $('countInp'), workSel = $('workSel'),
+        chkWrap = $('chkWrap'), out = $('out'), probe = $('probe'), pageOpts = $('pageOpts'),
+        toggleFill = $('toggleFill'), toggleName = $('toggleName'), toggleWhy = $('toggleWhy'), toggleMix = $('toggleMix'),
+        totalPill = $('totalPill'), selectBtn = $('selectBtn');
+
+  /* Page words in Arabic and Farsi: the site's existing ones (as on the
+     Length creator). A topic title with no existing translation stays in
+     English. */
+  const LANG = {
+    en: { dir:'ltr', worksheet:'Worksheet', answerKey:'Answer key', page:'Page', name:'Name', date:'Date', answer:'Answer', working:'Working', trueW:'True', falseW:'False' },
+    ar: { dir:'rtl', worksheet:'ورقة عمل', answerKey:'دليل الإجابات', page:'صفحة', name:'الاسم', date:'التاريخ', answer:'الإجابة', working:'الحل', trueW:'صح', falseW:'خطأ' },
+    fa: { dir:'rtl', worksheet:'برگه تمرین', answerKey:'پاسخ‌نامه', page:'صفحه', name:'نام', date:'تاریخ', answer:'پاسخ', working:'راه حل', trueW:'درست', falseW:'نادرست' }
+  };
+  const lang = () => languageSel.value;
+  const isEn = () => lang() === 'en';
+  const L = () => LANG[lang()] || LANG.en;
+
+  let CFG = null, TYPES = [], BANK = null, lastPaper = null, translate = null, booted = false, OPTS = {};
+
+  /* ---- the Cartesian plane, copied from the whole-topic quiz engine ---- */
+  function grid(o) {
+    const NS = "http://www.w3.org/2000/svg";
+    const xMin = o.xMin ?? -6, xMax = o.xMax ?? 6, yMin = o.yMin ?? -6, yMax = o.yMax ?? 6;
+    const cell = o.cell || 34, pad = 26;
+    const W = (xMax - xMin) * cell + pad * 2, H = (yMax - yMin) * cell + pad * 2;
+    const X = x => pad + (x - xMin) * cell, Y = y => pad + (yMax - y) * cell;
+    const svg = document.createElementNS(NS, "svg");
+    svg.setAttribute("viewBox", `0 0 ${W} ${H}`); svg.setAttribute("class", "qgrid");
+    svg.setAttribute("role", "img"); svg.setAttribute("aria-label", "Cartesian plane");
+    const el = (n, a, txt) => { const e = document.createElementNS(NS, n); for (const k in a) e.setAttribute(k, a[k]); if (txt != null) e.textContent = txt; svg.appendChild(e); return e; };
+    for (let x = xMin; x <= xMax; x++) el("line", { x1: X(x), y1: Y(yMin), x2: X(x), y2: Y(yMax), class: "gl" });
+    for (let y = yMin; y <= yMax; y++) el("line", { x1: X(xMin), y1: Y(y), x2: X(xMax), y2: Y(y), class: "gl" });
+    if (yMin <= 0 && yMax >= 0) el("line", { x1: X(xMin) - 6, y1: Y(0), x2: X(xMax) + 10, y2: Y(0), class: "ax", "marker-end": "" });
+    if (xMin <= 0 && xMax >= 0) el("line", { x1: X(0), y1: Y(yMin) + 6, x2: X(0), y2: Y(yMax) - 10, class: "ax" });
+    if (yMin <= 0 && yMax >= 0) { el("path", { d: `M${X(xMax) + 14},${Y(0)} l-10,-5 v10 z`, class: "axh" }); el("text", { x: X(xMax) + 12, y: Y(0) - 10, class: "axl" }, "x"); }
+    if (xMin <= 0 && xMax >= 0) { el("path", { d: `M${X(0)},${Y(yMax) - 14} l-5,10 h10 z`, class: "axh" }); el("text", { x: X(0) + 12, y: Y(yMax) - 8, class: "axl" }, "y"); }
+    const ox = xMin <= 0 && xMax >= 0 ? X(0) : X(xMin), oy = yMin <= 0 && yMax >= 0 ? Y(0) : Y(yMin);
+    const step = o.labelStep || 1;
+    for (let x = xMin; x <= xMax; x += step) if (x !== 0) el("text", { x: X(x), y: oy + 15, class: "tk", "text-anchor": "middle" }, C.fmt(x));
+    for (let y = yMin; y <= yMax; y += step) if (y !== 0) el("text", { x: ox - 7, y: Y(y) + 4, class: "tk", "text-anchor": "end" }, C.fmt(y));
+    if (xMin <= 0 && xMax >= 0 && yMin <= 0 && yMax >= 0) el("text", { x: X(0) - 7, y: Y(0) + 15, class: "tk", "text-anchor": "end" }, "0");
+    // lines, clipped to the box
+    // Line labels go where they are farthest from other labels and from any crossing point.
+    const placed = [], cross = [];
+    (o.lines || []).forEach((L, i) => (o.lines || []).slice(i + 1).forEach(M2 => { if (L.m !== M2.m) { const x = (M2.b - L.b) / (L.m - M2.m); cross.push([X(x), Y(L.m * x + L.b)]); } }));
+    (o.lines || []).forEach(L => {
+      const pts = [];
+      const add = (x, y) => { if (x >= xMin - 1e-9 && x <= xMax + 1e-9 && y >= yMin - 1e-9 && y <= yMax + 1e-9) pts.push([x, y]); };
+      add(xMin, L.m * xMin + L.b); add(xMax, L.m * xMax + L.b);
+      if (L.m !== 0) { add((yMin - L.b) / L.m, yMin); add((yMax - L.b) / L.m, yMax); }
+      pts.sort((a, b) => a[0] - b[0]);
+      if (pts.length >= 2) {
+        const a = pts[0], b = pts[pts.length - 1];
+        el("line", { x1: X(a[0]), y1: Y(a[1]), x2: X(b[0]), y2: Y(b[1]), class: "ln", stroke: L.color || "#be123c" });
+        if (L.label) {
+          let best = null, bestD = -1;
+          [0.85, 0.72, 0.15, 0.28, 0.5].forEach(t => {
+            const px = X(a[0] + (b[0] - a[0]) * t), py = Y(a[1] + (b[1] - a[1]) * t);
+            const d = Math.min(1e9, ...placed.concat(cross).map(q => Math.hypot(q[0] - px, q[1] - py)));
+            if (d > bestD + 0.5) { bestD = d; best = [px, py]; }
+          });
+          placed.push(best);
+          // Step off the line at right angles (on the upper side), anchored so the text runs away from it.
+          let dx = X(b[0]) - X(a[0]), dy = Y(b[1]) - Y(a[1]); const len = Math.hypot(dx, dy) || 1; dx /= len; dy /= len;
+          let nx = -dy, ny = dx; if (ny > 0) { nx = -nx; ny = -ny; }
+          const anchor = Math.abs(nx) < 0.35 ? "middle" : nx > 0 ? "start" : "end";
+          const tx = el("text", { x: best[0] + nx * 12, y: best[1] + ny * 12 + (ny > -0.5 ? 5 : 0), class: "lnl", fill: L.color || "#be123c", "text-anchor": anchor }, L.label);
+          tx.setAttribute("paint-order", "stroke");
+        }
+      }
+    });
+    (o.points || []).forEach(p => {
+      el("circle", { cx: X(p.x), cy: Y(p.y), r: 6.5, class: "pt", fill: p.color || "#1d4ed8" });
+      if (p.label) { const t = el("text", { x: X(p.x) + 9, y: Y(p.y) - 9, class: "ptl" }, p.label); t.setAttribute("paint-order", "stroke"); }
+    });
+    return svg;
+  }
+
+
+  /* ---- diagrams: a Revision Generator engine, the plane, an svg, or html ---- */
+  function engineFor(name) {
+    return window['MMT_' + String(name).replace(/-engine$/, '').toUpperCase().replace(/-/g, '_') + '_ENGINE'];
+  }
+  /* Drawn at a constant scale, trimmed to the ink, so a label is the same
+     size in every question; capped (capMM) so no figure takes the page. */
+  function drawDiagram(host, d, capMM) {
+    host.innerHTML = '';
+    if (!d) return;
+    if (d.list) {   // two pictures for one question, side by side
+      d.list.forEach(x => { const part = document.createElement('div'); part.className = 'diagPart'; host.appendChild(part); drawDiagram(part, x, capMM); });
+      return;
+    }
+    if (d.build) d = Object.assign({}, d, { html: d.build() });   // a page's own figure, drawn now (its switches may have changed)
+    const cap = Math.max(capMM || 56, d.minCapMM || 0) * MM;   // a number plane to read or draw on may ask for more
+    if (d.html) {
+      host.innerHTML = d.html;
+      host.querySelectorAll(':scope > svg').forEach(svg => {
+        if (d.fit) {
+          try {
+            const bb = svg.getBBox(), p = d.pad == null ? 8 : d.pad;
+            if (bb.width > 4 && bb.height > 4) {
+              svg.setAttribute('viewBox', `${bb.x - p} ${bb.y - p} ${bb.width + 2 * p} ${bb.height + 2 * p}`);
+              svg.removeAttribute('width'); svg.removeAttribute('height');
+              svg.style.width = Math.round((bb.width + 2 * p) * d.fit) + 'px';
+            }
+          } catch (e) { /* not laid out yet */ }
+        } else if (d.wMM) svg.style.width = d.wMM + 'mm';
+        svg.style.maxWidth = '100%'; svg.style.height = 'auto'; svg.style.maxHeight = Math.min(cap, (d.hMM || 999) * MM) + 'px';
+      });
+      return;
+    }
+    if (d.grid) {
+      // squared paper: about 5 mm a unit (unitMM), capped in height
+      const o = d.grid, g = grid(Object.assign({}, o, { interactive: false }));
+      const cell = o.cell || 34, u = (o.unitMM || 5) * MM / cell;
+      const vb = g.getAttribute('viewBox').split(' ').map(Number);
+      let w = vb[2] * u, h = vb[3] * u; const c2 = Math.min(cap, (o.maxMM || 80) * MM);
+      if (h > c2) { w *= c2 / h; h = c2; }
+      g.style.width = Math.round(w) + 'px'; g.style.height = Math.round(h) + 'px';
+      host.appendChild(g); return;
+    }
+    const E = engineFor(d.engine);
+    if (!E || !E.render) { host.innerHTML = '<div class="diagMissing">Diagram unavailable</div>'; return; }
+    const holder = document.createElement('div'); holder.className = 'engHolder';
+    host.appendChild(holder);
+    try { E.render(holder, d.config || {}); } catch (e) { console.warn('diagram', e); holder.innerHTML = '<div class="diagMissing">Diagram unavailable</div>'; return; }
+    holder.querySelectorAll('svg').forEach(svg => {
+      if (svg.parentElement && svg.parentElement.closest('svg')) return;
+      try {
+        // the ink, not counting clipped shapes: a shaded region is drawn huge and clipped to the plane,
+        // and getBBox ignores the clip, so it would shrink the whole picture to a corner
+        const clipped = [...svg.querySelectorAll('[clip-path]')];
+        clipped.forEach(e => { e.dataset.disp = e.style.display; e.style.display = 'none'; });
+        let bb = svg.getBBox();
+        clipped.forEach(e => { e.style.display = e.dataset.disp || ''; delete e.dataset.disp; });
+        if (!(bb.width > 4 && bb.height > 4)) bb = svg.getBBox();
+        if (bb.width > 4 && bb.height > 4) {
+          const p = 10;
+          svg.setAttribute('viewBox', `${bb.x - p} ${bb.y - p} ${bb.width + 2 * p} ${bb.height + 2 * p}`);
+          svg.removeAttribute('width'); svg.removeAttribute('height');
+          let k = (d.scale || 1.15) * 0.56;
+          // labels no smaller than about 9.5 px on paper (a stem-and-leaf plot is all text)
+          const fs = [...svg.querySelectorAll('text')].map(t => parseFloat(getComputedStyle(t).fontSize) || 0).filter(Boolean).sort((a, b) => a - b);
+          const mid = fs.length ? fs[Math.floor(fs.length / 2)] : 0;
+          const floor = d.minLabel || 9.5;   // a picture that is all text (a stem-and-leaf plot) reads at the size of the words
+          if (mid && mid * k < floor) k = Math.min(k * 2.2, floor / mid);
+          // a number plane is drawn at one size whatever its range (labels kept under ~13 px)
+          if (d.fitMM) k = Math.max(k, Math.min(d.fitMM * MM / Math.max(bb.width + 2 * p, bb.height + 2 * p), mid ? 13 / mid : 9));
+          svg.style.width = Math.round((bb.width + 2 * p) * k) + 'px';
+          svg.style.maxWidth = '100%'; svg.style.height = 'auto';
+          svg.style.maxHeight = Math.min(cap, d.maxH ? d.maxH * 0.56 : cap) + 'px';
+        }
+      } catch (e) { /* not laid out yet */ }
+    });
+  }
+
+  /* ---- answers ---- */
+  function answerHTML(q) {
+    if (typeof q.answerHTML === 'function') return q.answerHTML(lang());
+    if (q.answerHTML) return q.answerHTML;
+    if (q.subq) return q.subq.map(p => `${p.label} ${p.answer}`).join('<br>');
+    if (q.mode === 'mc') { const o = q.options[q.correct]; return /^\s*[A-F][:.)]/.test(strip(o)) ? o : `${'ABCDEF'[q.correct]} &nbsp;${o}`; }
+    if (q.mode === 'tf') return q.truth ? 'True' : 'False';
+    if (q.mode === 'num') return (q.pre || '') + C.fmt(q.value, q.dp == null ? 4 : q.dp, q.dp != null && q.dp > 0) + (q.unit ? (q.unit === '°' ? '°' : ' ' + q.unit) : '');
+    if (q.mode === 'coord' || q.mode === 'plot') return `(${C.fmt(q.x)}, ${C.fmt(q.y)})`;
+    return '';
+  }
+  /* the answer as written on the key's answer line (a number's unit stays printed after the line) */
+  function keyAnswer(q) {
+    if (q.mode === 'num' && !q.answerHTML && q.unit) return (q.pre || '') + C.fmt(q.value, q.dp == null ? 4 : q.dp, q.dp != null && q.dp > 0);
+    return answerHTML(q);
+  }
+  const strip = h => { const d = document.createElement('div'); d.innerHTML = String(h); return (d.textContent || '').replace(/\s+/g, ' ').trim(); };
+
+  /* Screen wording becomes paper wording. */
+  function paperPrompt(p) {
+    return String(p)
+      .replace(/Click the grid to plot/g, 'Plot')
+      .replace(/click the grid to plot/g, 'plot')
+      .replace(/\bType your answer/g, 'Write your answer').replace(/\btype your answer/g, 'write your answer');
+  }
+
+  /* Arabic/Farsi: only the opening instruction is translated, and only when
+     the Revision Generator's curated phrases have a real translation for it. */
+  const FALLBACKS = /أجب عن السؤال أدناه|به پرسش زیر پاسخ دهید|استخدم المعلومات الإنجليزية|از اطلاعات انگلیسی زیر/;
+  function localLine(q, html) {
+    if (isEn() || (!translate && !q.loc)) return '';
+    const own = typeof q.loc === 'function' ? q.loc(lang()) : q.loc && q.loc[lang()];
+    if (own) return own;
+    if (!translate) return '';
+    html = String(html == null ? paperPrompt(q.prompt) : html);
+    const cut = html.search(/<span class="(big|say|dataList|sub|math-expression|prompt-indented-line)"|<table|<br|<div|<ol/);
+    const div = document.createElement('div');
+    div.innerHTML = cut > 0 ? html.slice(0, cut) : html;
+    const keep = [];
+    const MATHS = '.m, .fr, sup, sub, .math-frac, .math-inline, .math-relation, .value-item';
+    div.querySelectorAll(MATHS).forEach(el => {
+      if (el.parentElement && el.parentElement.closest(MATHS)) return;
+      keep.push(el.outerHTML); el.replaceWith(document.createTextNode(` QQ${keep.length - 1}QQ `));
+    });
+    const lead = (div.textContent || '').replace(/\s+/g, ' ').trim();
+    if (!lead || lead.length > 170) return '';
+    let t = '';
+    try { t = translate(lead, lang(), { topic: q.topic || CFG.translateTopic || CFG.topic, type: q.rgType || q.type || '' }) || ''; } catch (e) { t = ''; }
+    t = String(t).replace(/[⁦-⁩‎‏]/g, '').replace(/\s+([:،؛.؟])/g, '$1');
+    if (!t || FALLBACKS.test(t)) return '';
+    const words = t.replace(/QQ\d+QQ/g, ' ').match(/[A-Za-z]{2,}/g) || [];
+    if (words.some(w => !/^(HCF|LCM|km|cm|mm|kg|mL|ml|m|g|L|h|min|s|cos|sin|tan|ii?i?|iv)$/.test(w))) return '';
+    for (let i = 0; i < keep.length; i++) if ((t.match(new RegExp(`QQ${i}QQ`, 'g')) || []).length !== 1) return '';
+    if (/[:;,.]\s*[:;,.]|^\s*[:;,.]/.test(t.replace(/QQ\d+QQ/g, 'X'))) return '';
+    return C.esc(t).replace(/\s*QQ(\d+)QQ\s*/g, (m, i) => ` <bdi dir="ltr">${keep[+i]}</bdi> `).trim();
+  }
+
+  /* ============================ CARDS ============================ */
+  /* A prompt that is an instruction followed by ONE display (an expression)
+     and nothing else can be set as a part of a drill card. */
+  const DISPLAY = 'span.big, span.math-expression';
+  const INLINE = 'span.m, span.math-inline';
+  function splitPrompt(html) {
+    const div = document.createElement('div'); div.innerHTML = paperPrompt(html);
+    const kids = [...div.childNodes];
+    let i = kids.findIndex(n => n.nodeType === 1 && n.matches(DISPLAY));
+    if (i < 0) {
+      // "Calculate <maths>." — an instruction ending in one piece of maths
+      const els = kids.map((n, k) => [n, k]).filter(([n]) => n.nodeType === 1 || strip(n.textContent));
+      const lastEl = els[els.length - 1], prev = els[els.length - 2];
+      let cand = null;
+      if (lastEl && lastEl[0].nodeType === 1 && lastEl[0].matches(INLINE)) cand = lastEl[1];
+      else if (lastEl && lastEl[0].nodeType === 3 && /^[.?:]$/.test(strip(lastEl[0].textContent)) && prev && prev[0].nodeType === 1 && prev[0].matches(INLINE)) cand = prev[1];
+      if (cand == null || cand === 0) return null;
+      i = cand;
+      const lead0 = kids.slice(0, i).map(n => n.nodeType === 1 ? n.outerHTML : C.esc(n.textContent)).join('').trim().replace(/\s*$/, '');
+      if (!/^[A-Z][^.?]*$/.test(strip(lead0)) || kids.slice(0, i).some(n => n.nodeType === 1 && !n.matches('b,strong'))) return null;
+      return strip(lead0).length > 80 ? null : { lead: lead0.replace(/:?$/, ':'), display: kids[i].outerHTML };
+    }
+    const after = kids.slice(i + 1).map(n => n.nodeType === 1 ? n.outerHTML : n.textContent).join('');
+    if (strip(after)) return null;
+    const lead = kids.slice(0, i).map(n => n.nodeType === 1 ? n.outerHTML : C.esc(n.textContent)).join('').trim();
+    if (!strip(lead) || strip(lead).length > 140) return null;
+    const d = kids[i]; d.removeAttribute('style');
+    return { lead, display: d.innerHTML };
+  }
+  function drillable(q) {
+    if (q.diagram || q.subq || q.options || q.drawSpace || q.noAnswerBox || q.wide || q.mode === 'mc' || q.mode === 'tf' || q.mode === 'plot' || q.mode === 'coord') return null;
+    const s = splitPrompt(q.prompt);
+    if (!s) return null;
+    if (strip(keyAnswer(q)).length > 22 || strip(s.display).length > 34) return null;
+    return s;
+  }
+  const EQ_LEAD = /^(calculate|simplify|evaluate|expand|factorise|find the value|work out|write .{0,30}as a single power|write .{0,30}in index form|convert)/i;
+
+  function needsWork(q) {
+    const w = workSel.value;
+    if (w === 'none') return false;
+    if (q.mode === 'mc' || q.mode === 'tf' || q.mode === 'plot' || q.noAnswerBox || q.drawSpace || q.noWorking) return false;
+    if (w === 'all') return true;
+    if (q.work != null) return !!q.work;
+    return !!(lastPaper && lastPaper.workTypes && lastPaper.workTypes.has(q.type));
+  }
+  /* A type needs working space when its questions take two or more steps
+     (three when there is a diagram to read from). */
+  function workTypesOf(qs) {
+    const set = new Set();
+    qs.forEach(q => {
+      // the key's reason is the working: count its calculations
+      const steps = (strip(q.why || '').match(/=/g) || []).length;
+      if (steps >= (q.diagram ? 3 : 2)) set.add(q.type);
+    });
+    return set;
+  }
+  function blankClass(a) {
+    const n = strip(a).length;
+    return n <= 3 ? 'sm' : n <= 9 ? 'md' : n <= 18 ? 'lg' : 'xl';
+  }
+  const lvClass = q => (lastPaper && lastPaper.level === 'expected' && !BASIC_LABELS.has(q.label)) ? 'lv2' : 'lv1';
+  let BASIC_LABELS = new Set();
+
+  function ansLabel() { return isEn() ? LANG.en.answer : `<span class="loc">${L().answer}</span>${LANG.en.answer}`; }
+  function answerLine(q, key) {
+    if (q.mode === 'tf' || q.mode === 'mc' || q.mode === 'plot') return '';
+    // answered on the picture or in the table: the key still says what goes there
+    if (q.noAnswerBox) { const a = key ? keyAnswer(q) : ''; return strip(a) ? `<div class="keyText"><b>${isEn() ? LANG.en.answer : L().answer + ' · ' + LANG.en.answer}:</b> ${a}</div>` : ''; }
+    const a = keyAnswer(q), n = strip(a).length;
+    const unit = q.mode === 'num' && q.unit && !q.answerHTML ? `<span class="unit">${q.unit === '°' ? '°' : q.unit}</span>` : '';
+    if (key) return `<div class="ansLine"><span class="al">${ansLabel()}</span><span class="keyAns">${a || '—'}</span>${unit}</div>`;
+    if (n > 40) return `<div class="ansLine full"><span class="al">${ansLabel()}</span><div class="lines"></div></div>`;
+    return `<div class="ansLine"><span class="al">${ansLabel()}</span><span class="ablank ${blankClass(a)}"></span>${unit}</div>`;
+  }
+  function whyHTML(q, key) { return key && toggleWhy.checked && q.why ? `<div class="keyText">${q.why}</div>` : ''; }
+
+  /* one card: a single question, or a drill card of several parts */
+  function cardHTML(card, num, key) {
+    const q0 = card.items[0];
+    const numH = `<span class="qNum ${lvClass(q0)}">${num}</span>`;
+    if (card.drill) {
+      const loc = localLine(q0, card.lead);
+      const eq = EQ_LEAD.test(strip(card.lead));
+      const items = card.items.map((q, i) => `<div class="item"><span class="il">${'abcdefgh'[i]}</span><span class="ix">${q._display}</span>${eq ? '<span class="ieq">=</span>' : ''}` +
+        (key ? `<span class="keyAns">${keyAnswer(q)}</span>` : `<span class="ablank"></span>`) +
+        (q.mode === 'num' && q.unit && !q.answerHTML ? `<span class="unit">${q.unit}</span>` : '') + `</div>`).join('');
+      const whys = key && toggleWhy.checked ? card.items.map((q, i) => q.why ? `<b>${'abcdefgh'[i]}</b> ${q.why}` : '').filter(Boolean).join(' &nbsp; ') : '';
+      return `<div class="qCard drill" data-type="${q0.type}" data-n="${card.items.length}">` +
+        `<div class="qTop">${numH}<div class="qText${loc ? ' bi' : ''}">${loc ? `<span class="loc">${loc}</span>` : ''}<span class="enLine">${card.lead}</span></div></div>` +
+        `<div class="items c${card.cols || 2}">${items}</div>` + (whys ? `<div class="keyText">${whys}</div>` : '') + `</div>`;
+    }
+    const q = q0;
+    const loc = localLine(q);
+    let body = '';
+    if (q.mode === 'mc' && q.options) {
+      const long = q.options.some(o => strip(o).length > 22);
+      body += `<div class="opts${long ? ' long' : ''}">` + q.options.map((o, k) =>
+        `<div class="opt${key && k === q.correct ? ' right' : ''}"><span class="L">${'ABCDEF'[k]}</span><span>${o}</span></div>`).join('') + '</div>';
+    }
+    if (q.mode === 'tf') body += `<div class="tfRow"><span class="${key && q.truth ? 'right' : ''}">${isEn() ? 'True' : L().trueW + ' / True'}</span><span class="${key && !q.truth ? 'right' : ''}">${isEn() ? 'False' : L().falseW + ' / False'}</span></div>`;
+    if (q.subq) body += `<ol class="subs">${q.subq.map(p => `<li><div><span class="sl">${p.label}</span>${p.html}</div>` +
+      (key ? `<div class="pAns"><span class="keyAns">${p.answer}</span></div>` : `<div class="pAns"><span class="ablank ${blankClass(p.answer)}"></span></div>`) + `</li>`).join('')}</ol>`;
+    const diag = (key && q.keyDiagram) || q.diagram || (q.mode === 'plot' && q.grid) ? '<div class="qDiag"></div>' : '';
+    const draw = !key && q.drawSpace ? `<div class="drawBox${q.grid5 ? ' sq' : ''}" style="height:${q.drawSpace}mm"><span class="workTag">${q.drawTag || ''}</span></div>` : '';
+    const work = !key && needsWork(q) ? `<div class="work lines"></div>` : '';
+    const ans = q.subq ? '' : answerLine(q, key);
+    const top = `<div class="qTop">${numH}<div class="qText${loc ? ' bi' : ''}">${loc ? `<span class="loc">${loc}</span>` : ''}<span class="enLine">${paperPrompt(key && q.keyPrompt ? q.keyPrompt : q.prompt)}</span></div></div>`;
+    const cls = `qCard${card.side ? ' side' : ''}`;
+    if (card.side) return `<div class="${cls}" data-type="${q.type}" data-n="1"><div class="qMain">${top}${body}${draw}${work}<div class="spacer"></div>${ans}${whyHTML(q, key)}</div>${diag}</div>`;
+    return `<div class="${cls}" data-type="${q.type}" data-n="1">${top}${body}${diag}${draw}${work}<div class="spacer"></div>${ans}${whyHTML(q, key)}</div>`;
+  }
+  function hydrate(el, card, key) {
+    const host = el.querySelector('.qDiag'); if (!host) return;
+    const q = card.items[0];
+    let d = (key && q.keyDiagram) || q.diagram;
+    if (!d && q.mode === 'plot' && q.grid) d = { grid: q.grid };
+    if (key && q.mode === 'plot' && d && d.grid) d = { grid: Object.assign({}, d.grid, { points: (d.grid.points || []).concat([{ x: q.x, y: q.y, color: '#16a34a', label: `(${C.fmt(q.x)}, ${C.fmt(q.y)})` }]) }) };
+    drawDiagram(host, d, card.wide ? 74 : 56);
+  }
+
+  /* group a section's questions into cards: like drill questions share a card */
+  function makeCards(qs) {
+    const cards = [], open = new Map();
+    qs.forEach(q => {
+      if (q.mode === 'plot' && q.grid && !q.diagram) q.noAnswerBox = true;
+      const s = drillable(q);
+      if (s) {
+        q._display = s.display;
+        const k = strip(s.lead).toLowerCase().replace(/[.:]\s*$/, '');   // the same instruction, whatever the type
+        const c = open.get(k);
+        if (c && c.items.length < 4) { c.items.push(q); return; }
+        const nc = { items: [q], drill: true, lead: s.lead };
+        open.set(k, nc); cards.push(nc); return;
+      }
+      cards.push({ items: [q] });
+    });
+    // a drill "card" of one item is an ordinary question
+    cards.forEach(c => { if (c.drill && c.items.length === 1) { c.drill = false; } });
+    return cards;
+  }
+
+  /* ============================ MEASURING ============================ */
+  let AVAIL = 0, AVAIL_KEY = 0, GAP = 11, SECH = 24;
+  function probePage(key) {
+    probe.innerHTML = `<div class="page${isEn() ? '' : ' lang-rtl'}${key ? ' isKey' : ''}">${headerHTML(key, 1, 1)}<div class="pageBody">${CFG.intro && !key ? `<p class="intro">${CFG.intro()}</p>` : ''}` +
+      `<div class="secHead"><span class="secLetter">A</span><span class="secTitle">Section</span></div><div class="row"><div id="pa"></div><div></div></div><div class="row one"><div id="pw"></div></div></div>${footerHTML(key, 1, 1)}</div>`;
+    const pg = probe.firstChild, body = pg.querySelector('.pageBody'), cs = getComputedStyle(body);
+    GAP = parseFloat(cs.rowGap) || 10;
+    SECH = pg.querySelector('.secHead').getBoundingClientRect().height;
+    const av = body.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - 2;
+    if (key) AVAIL_KEY = av - 4; else AVAIL = av - 4;   // a few px kept back for rounding
+    const intro = pg.querySelector('.intro');
+    return { half: pg.querySelector('#pa'), full: pg.querySelector('#pw'), introH: intro ? intro.getBoundingClientRect().height + GAP : 0 };
+  }
+  function renderInto(host, card, key) {
+    host.innerHTML = cardHTML(card, 99, key); const el = host.firstChild; hydrate(el, card, key); return el;
+  }
+  function overflows(el) {
+    const r = el.getBoundingClientRect(), cs = getComputedStyle(el), edge = r.right - parseFloat(cs.paddingRight) + 1;
+    return el.scrollWidth > el.clientWidth + 2 || [...el.querySelectorAll('svg,table,.opts,.big,.item .ix,.math-expression,.dataList')].some(e => e.getBoundingClientRect().right > edge);
+  }
+  function diagBox(el) {
+    const svgs = [...el.querySelectorAll('.qDiag svg')].filter(v => !(v.parentElement && v.parentElement.closest('svg')));
+    if (!svgs.length) return null;
+    const rs = svgs.map(v => v.getBoundingClientRect());
+    const l = Math.min(...rs.map(r => r.left)), t = Math.min(...rs.map(r => r.top));
+    return { width: Math.max(...rs.map(r => r.right)) - l, height: Math.max(...rs.map(r => r.bottom)) - t };
+  }
+  /* decide each card's shape (half / across, words beside a tall diagram,
+     one or two drill columns) and measure its height, for the worksheet and
+     the key */
+  let MCACHE = new Map();
+  const cardKey = c => c.items.map(sigOf).join('#');
+  function measureCards(cards) {
+    const todo = cards.filter(card => {
+      const m = MCACHE.get(cardKey(card));
+      if (m) { Object.assign(card, m); return false; }
+      return true;
+    });
+    if (!todo.length) return;
+    let P = probePage(false);
+    todo.forEach(card => {
+      card.side = false; card.wide = !!card.items[0].wide; card.cols = 2;
+      if (card.drill) {
+        const n = card.items.length;
+        let el = renderInto(P.half, card, false);
+        const ix = [...el.querySelectorAll('.item')];
+        if (ix.some(i => i.scrollWidth > i.clientWidth + 1)) { card.cols = 1; el = renderInto(P.half, card, false); }
+        if (overflows(el)) card.wide = true;
+        if (card.wide) { card.cols = n >= 3 ? 3 : 2; el = renderInto(P.full, card, false); if ([...el.querySelectorAll('.item')].some(i => i.scrollWidth > i.clientWidth + 1)) { card.cols = 1; el = renderInto(P.full, card, false); } }
+        card.h = el.getBoundingClientRect().height;
+        return;
+      }
+      if (!card.wide) {
+        let el = renderInto(P.half, card, false);
+        const r = diagBox(el);
+        if (r) {
+          const inner = el.clientWidth;
+          if (r.height > r.width * 1.12 && r.width < inner * 0.52 && !card.items[0].drawSpace) { card.side = true; el = renderInto(P.half, card, false); }
+        }
+        if (overflows(el)) { card.wide = true; card.side = false; }
+        else card.h = el.getBoundingClientRect().height;
+      }
+      if (card.wide) {
+        let el = renderInto(P.full, card, false);
+        const r = diagBox(el);
+        if (r && !card.items[0].drawSpace) {
+          // across the page, a diagram sits beside the words
+          if (r.width < el.clientWidth * 0.6) { card.side = true; el = renderInto(P.full, card, false); if (overflows(el)) { card.side = false; el = renderInto(P.full, card, false); } }
+        }
+        card.h = el.getBoundingClientRect().height;
+      }
+    });
+    P = probePage(true);
+    todo.forEach(card => {
+      card.hk = renderInto(card.wide ? P.full : P.half, card, true).getBoundingClientRect().height;
+      MCACHE.set(cardKey(card), { h: card.h, hk: card.hk, side: card.side, wide: card.wide, cols: card.cols });
+    });
+    probe.innerHTML = '';
+  }
+
+  /* ============================ ROWS ============================ */
+  /* A section's cards become rows. Across-the-page cards are rows of their
+     own; the others are paired with the card closest in height, or a tall
+     card is set beside two short ones when that wastes less. */
+  function makeRows(cards) {
+    const rows = [], half = [];
+    cards.forEach((c, i) => { c._i = i; if (c.wide) rows.push({ kind: 'one', cells: [c], h: c.h, hk: c.hk, o: i }); else half.push(c); });
+    // pairs by height: sorted, neighbours together (the least height left over)
+    const pairUp = list => {
+      const srt = list.slice().sort((a, b) => b.h - a.h), out = []; let waste = 0;
+      for (let k = 0; k + 1 < srt.length; k += 2) { out.push([srt[k], srt[k + 1]]); waste += srt[k].h - srt[k + 1].h; }
+      return { out, waste };
+    };
+    let plan = null;
+    if (half.length === 1) plan = { single: half[0], pairs: [], stack: null };
+    else if (half.length % 2 === 0) plan = { pairs: pairUp(half).out, stack: null };
+    else {
+      // an odd number: one tall card beside two short ones, chosen to waste least;
+      // or, failing a good fit, one card across the page
+      let best = null;
+      for (const T of half) for (let a = 0; a < half.length; a++) for (let b = a + 1; b < half.length; b++) {
+        const A = half[a], B = half[b];
+        if (A === T || B === T) continue;
+        const hh = A.h + B.h + GAP, rest = half.filter(c => c !== T && c !== A && c !== B), pu = pairUp(rest);
+        const w = Math.abs(T.h - hh) + pu.waste;
+        if (!best || w < best.w) best = { w, stack: [T, A, B], pairs: pu.out };
+      }
+      let single = null;
+      for (const c of half) {
+        const pu = pairUp(half.filter(x => x !== c)), w = pu.waste + c.h * 0.45;
+        if (!single || w < single.w) single = { w, single: c, pairs: pu.out };
+      }
+      plan = best && best.w <= single.w ? best : single;
+    }
+    (plan.pairs || []).forEach(([A, B]) => { const pr = A._i < B._i ? [A, B] : [B, A]; rows.push({ kind: 'pair', cells: pr, h: Math.max(A.h, B.h), hk: Math.max(A.hk, B.hk), o: pr[0]._i }); });
+    if (plan.stack) {
+      const [T, A, B] = plan.stack, sh = [A, B].sort((x, y) => x._i - y._i);
+      rows.push({ kind: 'stack', cells: [T, sh[0], sh[1]], h: Math.max(T.h, A.h + B.h + GAP), hk: Math.max(T.hk, A.hk + B.hk + GAP), o: Math.min(T._i, sh[0]._i) });
+    }
+    if (plan.single) {
+      const T = plan.single;
+      T.wide = true; T.side = false; T._remeasure = true;
+      rows.push({ kind: 'one', cells: [T], h: T.h, hk: T.hk, o: T._i });
+    }
+    rows.sort((a, b) => a.o - b.o);
+    return rows;
+  }
+  function remeasure(rows) {
+    const todo = rows.filter(r => r.cells.some(c => c._remeasure));
+    if (!todo.length) return;
+    const need = todo.filter(r => { const m = MCACHE.get('L|' + cardKey(r.cells[0])); if (m) { Object.assign(r.cells[0], m); r.h = m.h; r.hk = m.hk; r.cells[0]._remeasure = false; return false; } return true; });
+    if (!need.length) return;
+    let P = probePage(false);
+    need.forEach(r => {
+      const c = r.cells[0];
+      let el = renderInto(P.full, c, false);
+      const r0 = diagBox(el);
+      if (r0 && !c.items[0].drawSpace && r0.width < el.clientWidth * 0.6) {
+        c.side = true; el = renderInto(P.full, c, false);
+        if (overflows(el)) { c.side = false; el = renderInto(P.full, c, false); }
+      }
+      c.h = el.getBoundingClientRect().height; r.h = c.h;
+    });
+    P = probePage(true);
+    need.forEach(r => { const c = r.cells[0]; c.hk = renderInto(P.full, c, true).getBoundingClientRect().height; r.hk = c.hk; c._remeasure = false;
+      MCACHE.set('L|' + cardKey(c), { h: c.h, hk: c.hk, side: c.side, wide: true, cols: c.cols }); });
+    probe.innerHTML = '';
+  }
+
+  /* ============================ PAGES ============================ */
+  /* Sections flow down the pages. A section's heading never sits alone at
+     the foot of a page; when the next row will not fit, a later row of the
+     same section that does fit is moved up. */
+  function paginate(sections, introH) {
+    const pages = [];
+    let cur = null;
+    const newPage = () => { cur = { blocks: [], used: pages.length ? 0 : introH }; pages.push(cur); };
+    newPage();
+    sections.forEach(sec => {
+      const queue = sec.rows.slice();
+      let started = false;
+      while (queue.length) {
+        const head = !cur.blocks.length || cur.blocks[cur.blocks.length - 1].sec !== sec;
+        const hdr = head ? (sec.hh == null ? SECH : sec.hh) + GAP : 0;
+        const room = AVAIL - cur.used - (cur.blocks.length ? GAP : 0) - hdr;
+        let i = queue.findIndex(r => r.h <= room);
+        if (i < 0) {
+          if (!cur.blocks.length) i = 0;              // too tall for any page: it goes on its own
+          else { newPage(); continue; }
+        }
+        const r = queue.splice(i, 1)[0];
+        if (head) { const hh = sec.hh == null ? SECH : sec.hh; cur.blocks.push({ sec, head: true, cont: started, h: hh }); cur.used += (cur.blocks.length > 1 ? GAP : 0) + hh; }
+        cur.blocks.push({ sec, row: r, h: r.h }); cur.used += GAP + r.h;
+        started = true;
+      }
+    });
+    return pages;
+  }
+
+  /* ============================ THE PAPER ============================ */
+  const typesAt = lv => TYPES.filter(t => t.level === lv);
+  const levelName = lv => ((CFG && CFG.levelNames) || { basic: 'Basic', expected: 'Expected' })[lv];
+  const stageOf = oc => { const m = /^MA(\d)/.exec(oc || ''); return m ? 'Stage ' + m[1] : ''; };
+  function headerHTML(key, p, total) {
+    const lv = lastPaper ? levelName(lastPaper.level) : '';
+    const title = `${CFG.topic}${key ? ' — Answer key' : ''}`;
+    const locT = isEn() ? '' : `<span class="loc" dir="rtl">${key ? L().answerKey : L().worksheet}</span>`;
+    const sub = [stageOf(CFG.outcome), CFG.outcome, lv].filter(Boolean).join(' · ');
+    const field = (w, en, cls) => `<div class="lineField${cls || ''}"><div class="lineLabel">${isEn() ? en : `<span class="loc">${w}</span> ${en}`}</div><div class="lineBox"></div></div>`;
+    const nd = key || !toggleName.checked ? '' : `<div class="nameDate">${field(L().name, 'Name', ' wide')}${field(L().date, 'Date')}</div>`;
+    return `<div class="pageHeader"><div><div class="hdrTitle">${locT}${title}</div><div class="hdrSub">${sub}</div></div>${nd}</div>`;
+  }
+  function footerHTML(key, p, total) {
+    return `<div class="pageFooter"><span><a href="${SITE}">millsmathstools.au</a> · ${CFG.topic}</span><span>${key ? 'Key · ' : ''}Page ${p} of ${total}</span></div>`;
+  }
+  function sectionsOf(qs) {
+    if (toggleMix.checked) return [{ id: '_mix', title: '', items: qs.slice() }];
+    const byId = new Map();
+    CFG.statements.forEach(s => byId.set(s.id, { id: s.id, title: s.short || s.text, items: [] }));
+    qs.forEach(q => { const s = byId.get(q.stmt); if (s) s.items.push(q); });
+    return [...byId.values()].filter(s => s.items.length);
+  }
+
+  /* With "Fill the pages" on, room at the foot of a page takes more
+     questions of the section the page ends in: a row of two, or one across. */
+  function fillPages(pages, sections) {
+    if (!toggleFill.checked || !lastPaper) return 0;
+    let added = 0;
+    const MIN = 16 * MM;
+    for (let p = 0; p < pages.length; p++) {
+      const pg = pages[p];
+      let guard = 0;
+      while (AVAIL - pg.used > MIN + GAP && guard++ < 6 && added < 24) {
+        const last = pg.blocks[pg.blocks.length - 1];
+        if (!last) break;
+        const sec = last.sec, room = AVAIL - pg.used - GAP;
+        const row = fillRow(sec, room);
+        if (!row) break;
+        pg.blocks.push({ sec, row, h: row.h, fill: true }); pg.used += GAP + row.h;
+        added += row.cells.reduce((s, c) => s + c.items.length, 0);
+      }
+    }
+    return added;
+  }
+  function fillRow(sec, room) {
+    const ids = new Set(activeIds());
+    const types = TYPES.filter(t => t.level === lastPaper.level && ids.has(t.id) && (sec.id === '_mix' || t.stmt === sec.id));
+    if (!types.length) return null;
+    const used = new Map(); lastPaper.qs.concat(lastPaper.fill || []).forEach(q => used.set(q.type, (used.get(q.type) || 0) + 1));
+    const order = C.shuffle(types).sort((a, b) => (used.get(a.id) || 0) - (used.get(b.id) || 0));
+    const P = probePage(false), K = () => probePage(true);
+    const cands = [];
+    const cache = (lastPaper.fillCache = lastPaper.fillCache || []);
+    const fromCache = cache.filter(q => !q._placed && types.some(t => t.id === q.type));
+    for (let k = 0; k < fromCache.length + order.length * 3 && cands.length < 10; k++) {
+      let q;
+      if (k < fromCache.length) q = fromCache[k];
+      else { const t = order[(k - fromCache.length) % order.length]; q = makeQ(t, lastPaper.seen); if (q) { lastPaper.seen.add(sigOf(q)); cache.push(q); } }
+      if (!q) continue;
+      const card = { items: [q] };
+      if (q.mode === 'plot' && q.grid && !q.diagram) q.noAnswerBox = true;
+      card.wide = !!q.wide;
+      let el = renderInto(card.wide ? P.full : P.half, card, false);
+      if (!card.wide && overflows(el)) { card.wide = true; el = renderInto(P.full, card, false); }
+      card.h = el.getBoundingClientRect().height;
+      if (card.h <= room) cands.push(card);
+    }
+    probe.innerHTML = '';
+    if (!cands.length) return null;
+    // two side by side if two fit, else the tallest one across the page
+    const halves = cands.filter(c => !c.wide).sort((a, b) => b.h - a.h);
+    let row = null;
+    if (halves.length >= 2) {
+      let best = null;
+      for (let a = 0; a < halves.length; a++) for (let b = a + 1; b < halves.length; b++) {
+        if (halves[a].items[0].type === halves[b].items[0].type && halves.length > 2 && types.length > 1) continue;
+        const h = Math.max(halves[a].h, halves[b].h), w = Math.abs(halves[a].h - halves[b].h);
+        if (!best || h - w * 2 > best.score) best = { score: h - w * 2, cells: [halves[a], halves[b]], h };
+      }
+      if (best) row = { kind: 'pair', cells: best.cells, h: best.h };
+    }
+    if (!row) {
+      const c = cands.sort((a, b) => b.h - a.h)[0];
+      if (!c.wide) { c.wide = true; const P2 = probePage(false); c.h = renderInto(P2.full, c, false).getBoundingClientRect().height; probe.innerHTML = ''; if (c.h > room) return null; }
+      row = { kind: 'one', cells: [c], h: c.h };
+    }
+    const KP = K();
+    row.cells.forEach(c => { c.hk = renderInto(c.wide ? KP.full : KP.half, c, true).getBoundingClientRect().height; });
+    probe.innerHTML = '';
+    row.hk = Math.max(...row.cells.map(c => c.hk));
+    row.cells.forEach(c => { c.items[0]._placed = true; lastPaper.fill.push(c.items[0]); });
+    return row;
+  }
+
+  function sigOf(q) { return q.type + '|' + (q.key || strip(q.prompt) + JSON.stringify(q.diagram && (q.diagram.config || q.diagram.grid || q.diagram.html || q.diagram.list) || '') + JSON.stringify(q.options || '')); }
+  function makeQ(t, seen, allowRepeat) {
+    let last = null;
+    for (let tries = 0; tries < 30; tries++) {
+      let c = null;
+      try { c = t.gen({ level: t.level, paper: true }); } catch (e) { console.warn(t.id, e); }
+      if (!c) continue;
+      c.type = t.id; c.label = t.label; c.stmt = t.stmt;
+      if (!seen.has(sigOf(c))) return c;
+      last = c;
+    }
+    return allowRepeat ? last : null;
+  }
+
+  function layoutOf(qs) {
+    const P0 = probePage(false); const introH = P0.introH; probe.innerHTML = '';
+    const sections = sectionsOf(qs).map((s, i) => Object.assign(s, { letter: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[i] }));
+    sections.forEach(s => { s.cards = makeCards(s.items); measureCards(s.cards); s.rows = makeRows(s.cards); remeasure(s.rows); });
+    measureHeads(sections);
+    return { pages: paginate(sections, introH), sections };
+  }
+  const withExtra = list => lastPaper.qs.concat(list).sort((a, b) => a._o - b._o);
+  const freeOf = L => L.pages.reduce((s, p) => s + Math.max(0, AVAIL - p.used), 0);
+  /* With "Fill the pages" on, the paper grows: the most extra questions
+     (dealt across every ticked type, so every section grows) that still fit
+     on the same number of pages; then any gap left at the foot of a page
+     takes a row from that page's own section. */
+  function layout() {
+    MCACHE = new Map();
+    lastPaper.fill = []; (lastPaper.fillCache || []).forEach(q => { q._placed = false; });
+    // spare questions, but not the same long question over and over: a type that does not share a
+    // drill card is used at most once more than the paper already has it (never more than 3 in all)
+    const base = new Map(); lastPaper.qs.forEach(x => base.set(x.type, (base.get(x.type) || 0) + 1));
+    const used = new Map(base);
+    const pool = lastPaper.pool.filter(q => {
+      const n = used.get(q.type) || 0, lim = drillable(q) ? 12 : Math.max(Math.min(3, (base.get(q.type) || 0) + 1), base.get(q.type) || 0);
+      if (n >= lim) return false; used.set(q.type, n + 1); return true;
+    });
+    let chosen = [], L = layoutOf(withExtra([]));
+    if (toggleFill.checked && pool.length) {
+      const P = L.pages.length;
+      // the most spare questions, in dealing order, that keep the same number of pages …
+      if (AVAIL - L.pages[P - 1].used > AVAIL * 0.15) {
+        let lo = 0, hi = pool.length;
+        while (lo < hi) {
+          const mid = Math.ceil((lo + hi) / 2);
+          if (layoutOf(withExtra(pool.slice(0, mid))).pages.length <= P) lo = mid; else hi = mid - 1;
+        }
+        chosen = pool.slice(0, lo);
+        if (lo) L = layoutOf(withExtra(chosen));
+      }
+      // … then any other spare question that still fits and leaves less empty room
+      let free = freeOf(L);
+      const count = new Map(); lastPaper.qs.concat(chosen).forEach(x => count.set(x.type, (count.get(x.type) || 0) + 1));
+      const cap = Math.max(...count.values()) + 1;
+      for (const q of pool) {
+        if (chosen.includes(q) || free < 14 * MM || (count.get(q.type) || 0) >= cap) continue;
+        const L2 = layoutOf(withExtra(chosen.concat([q])));
+        const f2 = freeOf(L2);
+        if (L2.pages.length === P && f2 < free - 4 * MM) { chosen.push(q); L = L2; free = f2; count.set(q.type, (count.get(q.type) || 0) + 1); }
+      }
+    }
+    const added = chosen.length + fillPages(L.pages, L.sections);
+    lastPaper.m = chosen.length;
+    return { pages: L.pages, added };
+  }
+
+  function rowEl(row, numOf, key) {
+    const el = document.createElement('div');
+    el.className = 'row' + (row.kind === 'one' ? ' one' : '');
+    const card = c => { const h = document.createElement('div'); h.innerHTML = cardHTML(c, numOf(c), key); const e = h.firstChild; e._card = c; e.dataset.h = Math.round(key ? c.hk : c.h); return e; };
+    if (row.kind === 'stack') {
+      el.appendChild(card(row.cells[0]));
+      const st = document.createElement('div'); st.className = 'stack';
+      st.appendChild(card(row.cells[1])); st.appendChild(card(row.cells[2]));
+      el.appendChild(st);
+    } else row.cells.forEach(c => el.appendChild(card(c)));
+    return el;
+  }
+  function draw() {
+    out.innerHTML = '';
+    if (!lastPaper) return;
+    BASIC_LABELS = new Set(typesAt('basic').map(t => t.label));
+    const { pages, added } = layout();
+    // numbers in reading order: row by row, the tall card before the two beside it
+    const nums = new Map(); let n = 0;
+    pages.forEach(pg => pg.blocks.forEach(b => { if (b.row) b.row.cells.forEach(c => nums.set(c, ++n)); }));
+    const numOf = c => nums.get(c);
+    const total = pages.length;
+    const build = (pg, p, key, totalKey, from, upto) => {
+      const page = document.createElement('div');
+      page.className = 'page' + (isEn() ? '' : ' lang-rtl') + (key ? ' isKey answerKeyPage' : '');
+      page.innerHTML = headerHTML(key, p, key ? totalKey : total) + '<div class="pageBody"></div>' + footerHTML(key, p, key ? totalKey : total);
+      const body = page.querySelector('.pageBody');
+      if (p === 1 && !key && CFG.intro) body.insertAdjacentHTML('beforeend', `<p class="intro">${CFG.intro()}</p>`);
+      return { page, body };
+    };
+    const ws = pages.map((pg, i) => {
+      const { page, body } = build(pg, i + 1, false);
+      pg.blocks.forEach(b => {
+        if (b.head) { if (b.sec.title) body.insertAdjacentHTML('beforeend', secHeadHTML(b.sec, b.cont)); }
+        else body.appendChild(rowEl(b.row, numOf, false));
+      });
+      // what no question could fill becomes a box for working
+      const left = AVAIL - pg.used - GAP - 4;
+      if (left >= 15 * MM) body.insertAdjacentHTML('beforeend', `<div class="gapBox" style="height:${Math.floor(left)}px"><span class="gT">${isEn() ? 'Working space' : L().working + ' · Working space'}</span><div class="lines"></div></div>`);
+      return page;
+    });
+    // the key: the same pages, in the same order. A key page whose answers
+    // run longer than the page is set smaller (down to 72%); past that it runs on.
+    const keyPlan = [];
+    pages.forEach((pg, i) => {
+      const need = pg.blocks.reduce((s, b, k) => s + (k ? GAP : 0) + (b.head ? b.h : b.row.hk), 0);
+      if (need <= AVAIL_KEY) { keyPlan.push({ blocks: pg.blocks, zoom: 1 }); return; }
+      if (AVAIL_KEY / need >= 0.8) { keyPlan.push({ blocks: pg.blocks, zoom: Math.floor((AVAIL_KEY - 10) / need * 1000) / 1000 }); return; }
+      let used = 0, blocks = [];
+      pg.blocks.forEach((b, k) => {
+        const h = b.head ? b.h : b.row.hk;
+        const nextRow = b.head ? pg.blocks[k + 1] : null;
+        const needHere = b.head ? h + GAP + (nextRow ? nextRow.row.hk : 0) : h;
+        if (blocks.length && used + GAP + needHere > AVAIL_KEY) {
+          keyPlan.push({ blocks, zoom: 1 }); blocks = []; used = 0;
+          if (!b.head) { blocks.push({ sec: b.sec, head: true, cont: true, h: b.sec.hh || SECH }); used = b.sec.hh || SECH; }
+        }
+        blocks.push(b); used += (blocks.length > 1 ? GAP : 0) + h;
+      });
+      keyPlan.push({ blocks, zoom: 1 });
+    });
+    const keyPages = keyPlan.map((kp, j) => {
+      const { page, body: body0 } = build(kp, j + 1, true, keyPlan.length);
+      let body = body0;
+      if (kp.zoom < 1) {
+        // the same layout, drawn a little smaller so the page holds it
+        body = document.createElement('div'); body.className = 'keyScale';
+        body.style.transform = `scale(${kp.zoom})`;
+        body0.appendChild(body);
+      }
+      kp.blocks.forEach(b => {
+        if (b.head) { if (b.sec.title) body.insertAdjacentHTML('beforeend', secHeadHTML(b.sec, b.cont)); }
+        else body.appendChild(rowEl(b.row, numOf, true));
+      });
+      return page;
+    });
+    ws.concat(keyPages).forEach(p => out.appendChild(p));
+    out.querySelectorAll('.qCard').forEach(el => hydrate(el, el._card, !!el.closest('.isKey')));
+    out.querySelectorAll('.page').forEach(fitBody);
+    const asked = lastPaper.qs.length;
+    totalPill.textContent = `${asked + added} questions${added ? ` (${asked} + ${added} to fill the pages)` : ''} · ${ws.length} page${ws.length === 1 ? '' : 's'} + ${keyPages.length}-page key`;
+    lastPaper.layout = { pages: ws.length, keyPages: keyPages.length, added, avail: Math.round(AVAIL), used: pages.map(p => Math.round(p.used)),
+      blocks: pages.map(pg => pg.blocks.map(b => b.head ? 'H' + Math.round(b.h) : (b.fill ? 'F' : 'R') + Math.round(b.row.h)).join(' ')) };
+  }
+  /* Safety net after drawing: the pages were planned from measured heights, but a page whose real
+     content still runs past its foot (a few px of a wrapped line) is set a touch smaller, never cut off. */
+  function fitBody(page) {
+    const body = page.querySelector('.pageBody'); if (!body || !body.firstElementChild) return;
+    const br = body.getBoundingClientRect();
+    const els = [...body.querySelectorAll('.secHead, .row, .gapBox, .qCard')];
+    if (!els.length) return;
+    const top = body.firstElementChild.getBoundingClientRect().top;
+    let foot = Math.max(...els.map(e => e.getBoundingClientRect().bottom));
+    if (foot <= br.bottom - 0.5) return;
+    const gb = body.querySelector(':scope > .gapBox');      // a working-space box gives way first
+    if (gb) {
+      const h = gb.getBoundingClientRect().height - (foot - br.bottom) - 3;
+      if (h >= 12 * MM) { gb.style.height = Math.floor(h) + 'px'; return; }
+      gb.remove(); foot = Math.max(...els.filter(e => e !== gb).map(e => e.getBoundingClientRect().bottom));
+      if (foot <= br.bottom - 0.5) return;
+    }
+    let sc = body.querySelector(':scope > .keyScale');
+    const cur = sc ? (parseFloat((/scale\(([\d.]+)\)/.exec(sc.style.transform) || [])[1]) || 1) : 1;
+    if (!sc) { sc = document.createElement('div'); sc.className = 'keyScale'; [...body.childNodes].forEach(n => sc.appendChild(n)); body.appendChild(sc); }
+    const k = Math.floor(cur * (br.bottom - 2 - top) / (foot - top) * 1000) / 1000;
+    sc.style.transform = `scale(${Math.max(0.6, k)})`;
+  }
+  function measureHeads(sections) {
+    const P = probePage(false), body = probe.querySelector('.pageBody');
+    sections.forEach(sec => {
+      if (!sec.title) { sec.hh = 0; return; }
+      const k = 'H|' + sec.title;
+      if (!MCACHE.has(k)) {
+        const d = document.createElement('div'); d.innerHTML = secHeadHTML(sec, true); body.appendChild(d.firstChild);
+        MCACHE.set(k, body.lastChild.getBoundingClientRect().height); body.lastChild.remove();
+      }
+      sec.hh = MCACHE.get(k);
+    });
+    probe.innerHTML = '';
+  }
+  function secHeadHTML(sec, cont) {
+    return `<div class="secHead"><span class="secLetter">${sec.letter}</span><span class="secTitle">${sec.title}</span>${cont ? '<span class="secCont">(continued)</span>' : ''}</div>`;
+  }
+
+  /* ---- generating ---- */
+  function setupLevels() {
+    [...levelSel.options].forEach(o => { o.textContent = levelName(o.value); o.hidden = o.disabled = !typesAt(o.value).length; });
+    if (levelSel.selectedOptions[0] && levelSel.selectedOptions[0].disabled) levelSel.value = [...levelSel.options].find(o => !o.disabled).value;
+  }
+  function activeIds() { return typesAt(levelSel.value).map(t => t.id).filter(id => { const b = document.getElementById('chk_' + id); return b && b.checked; }); }
+  function clampCount() { return Math.max(1, Math.min(48, Math.round(Number(countInp.value) || CFG.defaultCount || 12))); }
+  function generate() {
+    out.innerHTML = ''; lastPaper = null;
+    const ids = activeIds();
+    if (!ids.length) { out.innerHTML = '<div class="warn">Please tick at least one question type.</div>'; return; }
+    const n = clampCount(); countInp.value = String(n);
+    const order = new Map(typesAt(levelSel.value).map((t, i) => [t.id, i]));
+    const types = typesAt(levelSel.value).filter(t => ids.includes(t.id));
+    // every ticked type at least once, then dealt evenly
+    const plan = []; let deck = [];
+    while (plan.length < n) { if (!deck.length) deck = C.shuffle(types); plan.push(deck.pop()); }
+    const seen = new Set(), qs = [];
+    plan.forEach(t => {
+      const q = makeQ(t, seen, true);
+      if (!q) return;
+      seen.add(sigOf(q));
+      q._o = toggleMix.checked ? Math.random() * 1000 : order.get(t.id) + Math.random() * 0.01;
+      qs.push(q);
+    });
+    qs.sort((a, b) => a._o - b._o);
+    // spare questions, dealt the same way, to grow the paper to the end of its last page
+    const pool = []; deck = [];
+    const want = Math.max(12, 2 * n);
+    for (let k = 0; k < want * 2 && pool.length < want; k++) {
+      if (!deck.length) deck = C.shuffle(types);
+      const t = deck.pop(), q = makeQ(t, seen);
+      if (!q) continue;
+      seen.add(sigOf(q));
+      q._o = toggleMix.checked ? Math.random() * 1000 : order.get(t.id) + Math.random() * 0.01;
+      pool.push(q);
+    }
+    lastPaper = { qs, pool, level: levelSel.value, seen };
+    lastPaper.workTypes = workTypesOf(qs.concat(pool));
+    draw();
+    out.firstElementChild && out.firstElementChild.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  function redraw() { if (lastPaper) draw(); }
+
+  /* ---- the controls ---- */
+  function renderChecks() {
+    const lv = levelSel.value, other = levelName(lv === 'basic' ? 'expected' : 'basic');
+    chkWrap.innerHTML = CFG.statements.map((s, i) => {
+      const here = typesAt(lv).filter(t => t.stmt === s.id);
+      const chips = here.map(t => `<label class="chk" title="${t.paper ? 'Written for paper (not in the online quiz)' : CFG.bank ? 'Also in the whole-topic quiz' : ''}"><input type="checkbox" id="chk_${t.id}" checked> ${t.label}${t.paper ? ' <span class="wTag">paper</span>' : ''}</label>`).join('');
+      const none = `<span class="stmtNone">Covered in the ${other} paper.</span>`;
+      return `<div class="stmtRow"><p class="stmtText"><span class="n">${'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[i]}</span>${s.part ? `<span class="part">Part ${s.part}</span>` : ''}${s.text}</p><div class="checks">${chips || none}</div></div>`;
+    }).join('');
+    updateSelectBtn(); updatePill();
+  }
+  function updateSelectBtn() {
+    const boxes = [...chkWrap.querySelectorAll('input[type=checkbox]')];
+    selectBtn.textContent = boxes.some(b => b.checked) ? 'Deselect all' : 'Select all';
+  }
+  function updatePill() { const n = clampCount(); totalPill.textContent = `${n} question${n === 1 ? '' : 's'} + answer key`; }
+
+  /* a page's own options (Length: rounding, units …) */
+  function renderPageOpts() {
+    const list = CFG.options || [];
+    pageOpts.hidden = !list.length;
+    pageOpts.innerHTML = list.map(o => o.type === 'select'
+      ? `<div><label for="opt_${o.id}">${o.label}</label><select id="opt_${o.id}">${o.choices.map(([v, t]) => `<option value="${v}"${v === o.def ? ' selected' : ''}>${t}</option>`).join('')}</select></div>`
+      : `<div style="align-self:end"><label class="sw"><input type="checkbox" id="opt_${o.id}"${o.def ? ' checked' : ''}><span class="track"></span><span>${o.label}</span></label></div>`).join('');
+    list.forEach(o => {
+      const el = $('opt_' + o.id);
+      OPTS[o.id] = o.type === 'select' ? el.value : el.checked;
+      el.addEventListener('change', () => { OPTS[o.id] = o.type === 'select' ? el.value : el.checked; if (lastPaper) (o.regen ? generate() : redraw()); });
+    });
+  }
+
+  function boot() {
+    if (booted) return; booted = true;
+    if (BANK) {
+      const skip = new Set(CFG.skip || []);
+      BANK.types.forEach(t => {
+        if (skip.has(t.id)) return;
+        const stmt = (CFG.stmtOf || {})[t.id];
+        if (!stmt) console.warn('No content statement for quiz type', t.id);
+        TYPES.push({ id: t.id, level: t.level, label: (CFG.relabel || {})[t.id] || t.label, stmt, gen: t.gen, paper: false });
+      });
+    }
+    (CFG.paperTypes || []).forEach(t => TYPES.push(Object.assign({ paper: true }, t)));
+    if (CFG.order) TYPES.sort((a, b) => (CFG.order.indexOf(a.id) + 1 || 999) - (CFG.order.indexOf(b.id) + 1 || 999));
+    if (CFG.noLanguage) { languageSel.value = 'en'; languageSel.parentNode.hidden = true; }
+    else try { const s = localStorage.getItem(CFG.langKey); if (s && LANG[s]) languageSel.value = s; } catch (e) {}
+    if (CFG.css) { const st = document.createElement('style'); st.textContent = CFG.css; document.head.appendChild(st); }
+    renderPageOpts();
+    setupLevels();
+    renderChecks();
+  }
+
+  window.WSF = {
+    page(cfg) {
+      CFG = cfg;
+      countInp.value = String(cfg.defaultCount || 12);
+      if (!cfg.bank) (document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', boot) : boot());
+    },
+    C, grid, drawDiagram, opt: id => OPTS[id], isEn, lang,
+    get types() { return TYPES; }, get statements() { return CFG ? CFG.statements : []; }, get paper() { return lastPaper; },
+    generate, answerHTML, boot, redraw
+  };
+  window.MMTQ = { run(bank) { BANK = bank; (document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', boot) : boot()); }, grid, drawDiagram, core: C };
+
+  import('/assessment/exam-builder/utils/translation.js?v=c4551780').then(m => { translate = m.translatePrompt; if (lastPaper && !isEn()) redraw(); }).catch(() => { translate = null; });
+
+  levelSel.addEventListener('change', () => { out.innerHTML = ''; lastPaper = null; renderChecks(); });
+  languageSel.addEventListener('change', () => { try { localStorage.setItem(CFG.langKey, languageSel.value); } catch (e) {} redraw(); });
+  chkWrap.addEventListener('change', updateSelectBtn);
+  selectBtn.addEventListener('click', e => { e.preventDefault(); const boxes = [...chkWrap.querySelectorAll('input[type=checkbox]')], any = boxes.some(b => b.checked); boxes.forEach(b => b.checked = !any); updateSelectBtn(); });
+  countInp.addEventListener('input', updatePill);
+  [workSel, toggleWhy, toggleName, toggleFill].forEach(el => el.addEventListener('change', redraw));
+  toggleMix.addEventListener('change', () => { if (lastPaper) generate(); });
+  $('genBtn').addEventListener('click', generate);
+  $('printBtn').addEventListener('click', () => { if (!lastPaper) generate(); window.print(); });
+  $('resetBtn').addEventListener('click', () => { out.innerHTML = ''; lastPaper = null; levelSel.value = 'basic'; setupLevels(); countInp.value = String(CFG.defaultCount || 12); workSel.value = 'auto'; toggleFill.checked = true; toggleName.checked = true; toggleWhy.checked = true; toggleMix.checked = false; renderPageOpts(); renderChecks(); });
+})();
+</script>
+<script type="module">
+import { renderMathText } from '/assessment/exam-builder/renderers/question-renderer.js?v=61c49e84';
+import { generateMassTimeAQuestions as G_STAGE_1_MASS_TIME_A } from '/assessment/exam-builder/question-banks/stage-1/mass-time-a/index.js?v=cddaac3d';
+import { generateMassTimeBQuestions as G_STAGE_1_MASS_TIME_B } from '/assessment/exam-builder/question-banks/stage-1/mass-time-b/index.js?v=c0ecb76f';
+/* ---- Revision Generator question → worksheet question ----
+   The Revision Generator banks (assessment/exam-builder/question-banks) give
+   { prompt, diagram:{engine,config}, table, choices, subparts, answer,
+   working[] }. Prompts use its own markup ([[frac:a:b]] …), so they go
+   through its own renderMathText. The working lines become the key's reason. */
+const RG = (() => {
+  const RM = v => renderMathText(String(v == null ? '' : v));
+  const table = t => !t || !Array.isArray(t.rows) || !t.rows.length ? '' :
+    `${t.caption ? `<div class="tcap">${RM(t.caption)}</div>` : ''}<table class="dtab">${t.rows.map((row, r) =>
+      `<tr>${row.map((c, i) => (t.headerRow === true && r === 0) || i === 0 ? `<th>${RM(c)}</th>` : `<td>${RM(c)}</td>`).join('')}</tr>`).join('')}</table>`;
+  const L = i => `(${'abcdefgh'[i]})`;
+  // rough printed width of a table (cells only break between words): too wide for half a page → the card spans the row
+  const tableWide = t => {
+    if (!t || !Array.isArray(t.rows) || !t.rows.length) return false;
+    const plain = v => String(v == null ? '' : v).replace(/\[\[[^\]]*\]\]|<[^>]*>/g, 'xx');
+    const cols = Math.max(...t.rows.map(r => r.length));
+    let w = 0;
+    for (let c = 0; c < cols; c++) w += 15 + 6.6 * Math.max(2, ...t.rows.map(r => Math.max(0, ...plain(r[c]).split(/\s+/).map(x => x.length))));
+    return w > 300;
+  };
+  function correctIndex(choices, answer) {
+    const a = String(answer == null ? '' : answer).trim();
+    const m = /^\(?([A-F])\)?(?:[\s.:)]|$)/.exec(a);
+    if (m && choices.length > 'ABCDEF'.indexOf(m[1])) return 'ABCDEF'.indexOf(m[1]);
+    let i = choices.findIndex(c => String(c).trim() === a);
+    if (i < 0) i = choices.findIndex(c => a && String(c).trim() && a.includes(String(c).trim()));
+    return i;
+  }
+  /* match each thing on the left to one on the right: two columns of boxes, room between them for the lines */
+  const matching = m => !m || !Array.isArray(m.left) || !Array.isArray(m.right) ? '' :
+    `<div class="match">${Array.from({ length: Math.max(m.left.length, m.right.length) }, (_, i) =>
+      `<span class="mb">${RM(m.left[i] || '')}</span><span class="mgap"><i></i><i></i></span><span class="mb">${RM(m.right[i] || '')}</span>`).join('')}</div>`;
+  /* "Factorise 12ak + 18a²k fully." → the instruction, then the maths in its own span, so like
+     questions can share one drill card ("Factorise fully:" with four expressions under it) */
+  const LEADS = /^(Simplify|Expand and simplify|Expand|Factorise|Evaluate|Solve|Rationalise the denominator of)(\s+fully)?:?\s+(.+?)(\s+fully)?\.?$/;
+  function drillPrompt(q) {
+    if (q.table || q.diagram || (q.subparts || []).length || (q.choices || []).length) return null;
+    const m = LEADS.exec(String(q.prompt || '').trim());
+    if (!m) return null;
+    const maths = m[3], plain = maths.replace(/\[\[[^\]]*\]\]/g, 'x');
+    if (/[,;?]|\b(?!(?:sin|cos|tan|log|ln)\b)[A-Za-z]{3,}/.test(plain) || plain.length > 40) return null;
+    return `${m[1]}${m[2] || m[4] ? ' fully' : ''} <span class="m">${RM(maths)}</span>.`;
+  }
+  function adapt(q) {
+    if (!q) return null;
+    // one picture in the parts (an area model to complete in part a) is shown with the stem
+    const subD = (q.subparts || []).filter(p => p.diagram);
+    if (subD.length > 1) return null;
+    // a picture with the stem AND one in a part (a container, then four graphs to choose from): both, side by side
+    const pair = subD.length && q.diagram ? [q.diagram, subD[0].diagram] : null;
+    if (subD.length && !pair) q = Object.assign({}, q, { diagram: subD[0].diagram });
+    const out = { prompt: drillPrompt(q) || RM(q.prompt) + table(q.table) + matching(q.matching), mode: 'none', why: (q.working || []).map(RM).join(' &nbsp;·&nbsp; ') };
+    const conv = d => {
+      const blankAxes = d.config && d.config.blank;   // empty axes to draw on: give them room
+      // a number plane is read or drawn on: about 5 mm a unit, never squeezed into a thumbnail
+      if (/^plane(-engine)?$/.test(d.engine))
+        return d.config && d.config.diagramType === 'options'
+          ? { engine: d.engine, config: d.config, scale: 1.0, maxH: 560, minCapMM: 72, fitMM: 76 }     // four small graphs, A to D
+          : { engine: d.engine, config: d.config || {}, scale: 1.25, maxH: 520, minCapMM: 66, fitMM: 60 };
+      const o = { engine: d.engine, config: d.config || {}, scale: blankAxes ? 1.45 : 1.0, maxH: blankAxes ? 470 : 330 };
+      if (d.config && d.config.chartType === 'stem-leaf') o.minLabel = 13;
+      // a graph to read values from (an account over time, a scatter plot) is not a thumbnail either
+      if (/graph|scatter|line|travel/i.test((d.config && (d.config.diagramType || d.config.chartType)) || '')) { o.maxH = Math.max(o.maxH, 470); o.minCapMM = 62; }
+      return o;
+    };
+    if (pair) { if (pair.every(d => d.engine)) out.diagram = { list: pair.map(conv) }; else return null; }
+    else if (q.diagram && q.diagram.engine) out.diagram = conv(q.diagram);
+    // answered by drawing on the picture: no answer box on the worksheet (the key still says what to draw)
+    if (/^(construct-|draw-hands|draw-transformation|complete-symmetric|plot-point|design-generator)/.test(q.type || '')) out.noAnswerBox = true;
+    // the bank asks for no answer space: the answer goes in the table or on the picture
+    if (String(q.space || '').toLowerCase() === 'none' && (q.diagram || q.table || q.matching) && !(q.subparts || []).length && !(q.choices || []).length) out.noAnswerBox = true;
+    if (q.diagramSpace) { out.drawSpace = 30; }
+    // asked to draw or sketch with nothing to draw on: a box to do it in
+    else if (!out.diagram) {
+      const said = [q.prompt].concat((q.subparts || []).map(p => p.prompt)).join(' ');
+      if (/\b(draw|sketch)\b/i.test(said) && !/possible to draw/i.test(said)) out.drawSpace = 46;
+    }
+    if (Array.isArray(q.choices) && q.choices.length) {
+      if (new Set(q.choices.map(c => String(c).trim())).size !== q.choices.length) return null;
+      const i = correctIndex(q.choices, q.answer);
+      out.options = q.choices.map(RM);
+      if (i >= 0) { out.mode = 'mc'; out.correct = i; }
+      else out.prompt += `<ol class="subs">${out.options.map((o, k) => `<li><span class="sl">${'ABCDEF'[k]}</span> ${o}</li>`).join('')}</ol>`;
+    }
+    if (out.mode !== 'mc') out.answerHTML = RM(q.answer);
+    if (Array.isArray(q.subparts) && q.subparts.length) {
+      // each part gets its own answer line, under the part
+      out.subq = q.subparts.map((p, i) => ({ label: p.label || L(i), answer: RM(p.answer),
+        html: ' ' + RM(p.prompt) + table(p.table) + (p.choices ? ' ' + p.choices.map((c, k) => `${'ABCDEF'[k]}. ${RM(c)}`).join(' &nbsp; ') : '') }));
+      out.answerHTML = out.subq.map(p => `${p.label} ${p.answer}`).join('<br>');
+      const w = q.subparts.flatMap(p => p.working || []);
+      if (w.length) out.why = w.map(RM).join(' &nbsp;·&nbsp; ');
+    }
+    out.steps = (q.working || []).length;
+    // a proof is written out line by line: always give it working space
+    if (!out.subq && out.mode !== 'mc' && /\b(prove|show that)\b/i.test(String(q.prompt))) out.work = true;
+    if (tableWide(q.table) || (q.subparts || []).some(p => tableWide(p.table))) out.wide = true;
+    out.loc = null; out.topic = q.topic || ''; out.rgType = q.type || '';
+    return out;
+  }
+  /* one worksheet type from one bank type, at one level */
+  function type(gen, level, rgId, label, stmt) {
+    return { id: `${level === 'basic' ? 'b' : 'e'}-${rgId}`, level, label, stmt,
+      gen: () => { for (let t = 0; t < 6; t++) { const q = adapt((gen({ count: 1, allowedTypes: [rgId] }) || [])[0]); if (q) return q; } return null; } };
+  }
+  return { adapt, type, RM, table };
+})();
+
+const STATEMENTS = [{"id": "investigate-balance", "text": "Investigate mass using an equal-arm balance", "part": "A"}, {"id": "compare-balance", "text": "Compare the masses of objects using an equal-arm balance", "part": "B"}];
+/* Mass — MA1-NSM-01. BUILT by stage12.py: types from the Revision Generator Stage 1 banks, mapped to this
+   outcome's content statements. Part A statements are in both papers; Part B only in "Parts A and B".
+   Young pages: pictures are drawn larger (PIC) and the paper CSS is larger (css). */
+const PIC = 1.4;
+const Y = t => { const g = t.gen; t.gen = () => { const q = g(); const big = d => { if (d && !d.list) { d.scale = (d.scale || 1) * PIC; d.maxH = Math.round((d.maxH || 330) * PIC); d.minCapMM = Math.max(d.minCapMM || 0, 64); } };
+  if (q && q.diagram) { if (q.diagram.list) q.diagram.list.forEach(big); else big(q.diagram); } return q; }; return t; };
+const C = WSF.C;
+WSF.page({
+  topic: "Mass", outcome: 'MA1-NSM-01', langKey: 'mmt-s1-mass-ws-lang', bank: false, noLanguage: true,
+  defaultCount: 8, statements: STATEMENTS,
+  levelNames: { basic: 'Part A', expected: "Parts A and B" },
+  css: ".qText{font-size:17px;line-height:1.42;font-weight:700}.opts{font-size:16px;gap:2.6mm 5mm}.opt .L{width:6.4mm;height:6.4mm;font-size:12px}.tfRow{font-size:16px}.subs{font-size:16px}.dtab{font-size:14px}.ansLine{font-size:14.5px;min-height:10mm}.ansLine .unit{font-size:17px}.keyAns{font-size:17px}.item .ix,.item .ieq{font-size:19px}.qNum{width:30px;height:25px;font-size:13px}.secTitle{font-size:13.5px}.hdrTitle{font-size:17px}.lineLabel{font-size:11.5px}.ablank{height:9mm;min-width:30mm}.ablank.sm{min-width:22mm}.ablank.md{min-width:32mm}.lineBox{height:26px}",
+  paperTypes: [
+  Y(RG.type(G_STAGE_1_MASS_TIME_A, 'basic', 'heavier-lighter', "Heavier or lighter? (balance)", 'investigate-balance')),
+  Y(RG.type(G_STAGE_1_MASS_TIME_A, 'basic', 'mass-in-blocks', "Mass in blocks", 'investigate-balance')),
+  Y(RG.type(G_STAGE_1_MASS_TIME_A, 'basic', 'order-mass-blocks', "Order by mass", 'investigate-balance')),
+  Y(RG.type(G_STAGE_1_MASS_TIME_A, 'basic', 'which-heavier', "Which is heavier? (think)", 'investigate-balance')),
+  Y(RG.type(G_STAGE_1_MASS_TIME_A, 'expected', 'heavier-lighter', "Heavier or lighter? (balance)", 'investigate-balance')),
+  Y(RG.type(G_STAGE_1_MASS_TIME_A, 'expected', 'mass-in-blocks', "Mass in blocks", 'investigate-balance')),
+  Y(RG.type(G_STAGE_1_MASS_TIME_A, 'expected', 'order-mass-blocks', "Order by mass", 'investigate-balance')),
+  Y(RG.type(G_STAGE_1_MASS_TIME_A, 'expected', 'which-heavier', "Which is heavier? (think)", 'investigate-balance')),
+  Y(RG.type(G_STAGE_1_MASS_TIME_B, 'expected', 'balance-share', "Equal objects on a balance", 'compare-balance')),
+  Y(RG.type(G_STAGE_1_MASS_TIME_B, 'expected', 'blocks-difference', "How many blocks heavier?", 'compare-balance')),
+  Y(RG.type(G_STAGE_1_MASS_TIME_B, 'expected', 'heaviest-chain', "Heaviest of three", 'compare-balance'))
+  ]
+});
+
+</script>
+
+</body>
+</html>

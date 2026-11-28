@@ -38,6 +38,13 @@ window.MMT_TOOL_LINKS = {
       ideas: ["counting-ones", "number-patterns", "numbers-on-line", "counting-ones-tens"],
       note: "Whole-topic quiz: Counting collections, ten-frames, tens and ones blocks, before and after, number charts, and ordering numbers to 1000. Part A and Parts A and B levels; question types can be chosen. Every question is read aloud by itself, numbers go in on a number pad, and a missed question gets a second go. Saves to the student dashboard.",
       tags: ["quiz", "whole topic", "subset builder", "stage 1", "read aloud", "reading and ordering numbers"]
+    },
+    {
+      title: "Reading and Ordering Numbers — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-1/number/reading-ordering-numbers/",
+      note: "Printable whole-topic worksheet: Counting collections, ten-frames, tens and ones blocks, before and after, number charts, and ordering numbers to 1000. Large print, a picture in most questions and room to write. Part A, or Parts A and B; every content statement, with an answer key and reasons.",
+      tags: ["worksheet generator", "printable", "whole topic", "large print", "stage 1", "reading and ordering numbers"]
     }
   ],
   "MA1-RWN-02": [
@@ -48,6 +55,13 @@ window.MMT_TOOL_LINKS = {
       ideas: ["groups-of-ten", "three-digit"],
       note: "Whole-topic quiz: Teen numbers, splitting numbers into tens and ones (and hundreds), number lines and skip counting. Part A and Parts A and B levels; question types can be chosen. Every question is read aloud by itself, numbers go in on a number pad, and a missed question gets a second go. Saves to the student dashboard.",
       tags: ["quiz", "whole topic", "subset builder", "stage 1", "read aloud", "partitioning numbers"]
+    },
+    {
+      title: "Partitioning Numbers — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-1/number/partitioning-numbers/",
+      note: "Printable whole-topic worksheet: Teen numbers, splitting numbers into tens and ones (and hundreds), number lines and skip counting. Large print, a picture in most questions and room to write. Part A, or Parts A and B; every content statement, with an answer key and reasons.",
+      tags: ["worksheet generator", "printable", "whole topic", "large print", "stage 1", "partitioning numbers"]
     }
   ],
   "MA1-CSQ-01": [
@@ -58,6 +72,13 @@ window.MMT_TOOL_LINKS = {
       ideas: ["count-by-one", "number-bonds", "flexible-strategies", "equality", "additive-relations", "multiples-of-ten", "equality-problems"],
       note: "Whole-topic quiz: Making ten, counting on and back, doubles and near doubles, missing parts, fact families and picture stories. Part A and Parts A and B levels; question types can be chosen. Every question is read aloud by itself, numbers go in on a number pad, and a missed question gets a second go. Saves to the student dashboard.",
       tags: ["quiz", "whole topic", "subset builder", "stage 1", "read aloud", "adding and taking away"]
+    },
+    {
+      title: "Adding and Taking Away — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-1/number/adding-taking-away/",
+      note: "Printable whole-topic worksheet: Making ten, counting on and back, doubles and near doubles, missing parts, fact families and picture stories. Large print, a picture in most questions and room to write. Part A, or Parts A and B; every content statement, with an answer key and reasons.",
+      tags: ["worksheet generator", "printable", "whole topic", "large print", "stage 1", "adding and taking away"]
     }
   ],
   "MA1-FG-01": [
@@ -68,6 +89,13 @@ window.MMT_TOOL_LINKS = {
       ideas: ["skip-counting", "skip-patterns", "equal-groups", "division", "combining-groups", "doubling-halving", "mult-div-problems"],
       note: "Whole-topic quiz: Equal groups, skip counting, rows and arrays, sharing, halves of a collection and group stories. Part A and Parts A and B levels; question types can be chosen. Every question is read aloud by itself, numbers go in on a number pad, and a missed question gets a second go. Saves to the student dashboard.",
       tags: ["quiz", "whole topic", "subset builder", "stage 1", "read aloud", "equal groups"]
+    },
+    {
+      title: "Equal Groups — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-1/number/equal-groups/",
+      note: "Printable whole-topic worksheet: Equal groups, skip counting, rows and arrays, sharing, halves of a collection and group stories. Large print, a picture in most questions and room to write. Part A, or Parts A and B; every content statement, with an answer key and reasons.",
+      tags: ["worksheet generator", "printable", "whole topic", "large print", "stage 1", "equal groups"]
     }
   ],
   "MA1-GM-01": [
@@ -78,6 +106,13 @@ window.MMT_TOOL_LINKS = {
       ideas: ["follow-directions", "simple-maps"],
       note: "Whole-topic quiz: Left and right, between, first to tenth, above and below, following steps and turns on a simple map. Part A and Parts A and B levels; question types can be chosen. Every question is read aloud by itself, numbers go in on a number pad, and a missed question gets a second go. Saves to the student dashboard.",
       tags: ["quiz", "whole topic", "subset builder", "stage 1", "read aloud", "position"]
+    },
+    {
+      title: "Position — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-1/measurement-space/position/",
+      note: "Printable whole-topic worksheet: Left and right, between, first to tenth, above and below, following steps and turns on a simple map. Large print, a picture in most questions and room to write. Part A, or Parts A and B; every content statement, with an answer key and reasons.",
+      tags: ["worksheet generator", "printable", "whole topic", "large print", "stage 1", "position"]
     }
   ],
   "MA1-GM-02": [
@@ -88,6 +123,13 @@ window.MMT_TOOL_LINKS = {
       ideas: ["measure-informal", "compare-informal", "order-lengths", "formal-units"],
       note: "Whole-topic quiz: Longer and shorter, measuring with cubes and paperclips, ordering lengths, and centimetres and metres. Part A and Parts A and B levels; question types can be chosen. Every question is read aloud by itself, numbers go in on a number pad, and a missed question gets a second go. Saves to the student dashboard.",
       tags: ["quiz", "whole topic", "subset builder", "stage 1", "read aloud", "length"]
+    },
+    {
+      title: "Length — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-1/measurement-space/length/",
+      note: "Printable whole-topic worksheet: Longer and shorter, measuring with cubes and paperclips, ordering lengths, and centimetres and metres. Large print, a picture in most questions and room to write. Part A, or Parts A and B; every content statement, with an answer key and reasons.",
+      tags: ["worksheet generator", "printable", "whole topic", "large print", "stage 1", "length"]
     }
   ],
   "MA1-GM-03": [
@@ -98,6 +140,13 @@ window.MMT_TOOL_LINKS = {
       ideas: ["halves-quarters", "eighths"],
       note: "Whole-topic quiz: Equal parts, halves and quarters of a length, halving again to make eighths, and fractions on a line. Part A and Parts A and B levels; question types can be chosen. Every question is read aloud by itself, numbers go in on a number pad, and a missed question gets a second go. Saves to the student dashboard.",
       tags: ["quiz", "whole topic", "subset builder", "stage 1", "read aloud", "halves, quarters and eighths"]
+    },
+    {
+      title: "Halves, Quarters and Eighths — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-1/measurement-space/halves-quarters-eighths/",
+      note: "Printable whole-topic worksheet: Equal parts, halves and quarters of a length, halving again to make eighths, and fractions on a line. Large print, a picture in most questions and room to write. Part A, or Parts A and B; every content statement, with an answer key and reasons.",
+      tags: ["worksheet generator", "printable", "whole topic", "large print", "stage 1", "halves, quarters and eighths"]
     }
   ],
   "MA1-2DS-01": [
@@ -108,6 +157,13 @@ window.MMT_TOOL_LINKS = {
       ideas: ["classify-shapes", "slides-reflections", "combine-separate", "quarter-turns"],
       note: "Whole-topic quiz: Naming shapes, sides and corners, straight and curved sides, quadrilaterals, turned shapes and matching halves. Part A and Parts A and B levels; question types can be chosen. Every question is read aloud by itself, numbers go in on a number pad, and a missed question gets a second go. Saves to the student dashboard.",
       tags: ["quiz", "whole topic", "subset builder", "stage 1", "read aloud", "2d shapes"]
+    },
+    {
+      title: "2D Shapes — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-1/measurement-space/2d-shapes/",
+      note: "Printable whole-topic worksheet: Naming shapes, sides and corners, straight and curved sides, quadrilaterals, turned shapes and matching halves. Large print, a picture in most questions and room to write. Part A, or Parts A and B; every content statement, with an answer key and reasons.",
+      tags: ["worksheet generator", "printable", "whole topic", "large print", "stage 1", "2d shapes"]
     }
   ],
   "MA1-2DS-02": [
@@ -118,6 +174,13 @@ window.MMT_TOOL_LINKS = {
       ideas: ["compare-indirectly", "informal-units", "rows-columns"],
       note: "Whole-topic quiz: Covering shapes with squares, comparing areas, and counting squares in rows and columns. Part A and Parts A and B levels; question types can be chosen. Every question is read aloud by itself, numbers go in on a number pad, and a missed question gets a second go. Saves to the student dashboard.",
       tags: ["quiz", "whole topic", "subset builder", "stage 1", "read aloud", "area"]
+    },
+    {
+      title: "Area — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-1/measurement-space/area/",
+      note: "Printable whole-topic worksheet: Covering shapes with squares, comparing areas, and counting squares in rows and columns. Large print, a picture in most questions and room to write. Part A, or Parts A and B; every content statement, with an answer key and reasons.",
+      tags: ["worksheet generator", "printable", "whole topic", "large print", "stage 1", "area"]
     }
   ],
   "MA1-3DS-01": [
@@ -128,6 +191,13 @@ window.MMT_TOOL_LINKS = {
       ideas: ["recognise-objects", "sort-describe", "features"],
       note: "Whole-topic quiz: Naming 3D objects, objects that roll or stack, flat faces, edges and corners, and the shapes of faces. Part A and Parts A and B levels; question types can be chosen. Every question is read aloud by itself, numbers go in on a number pad, and a missed question gets a second go. Saves to the student dashboard.",
       tags: ["quiz", "whole topic", "subset builder", "stage 1", "read aloud", "3d objects"]
+    },
+    {
+      title: "3D Objects — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-1/measurement-space/3d-objects/",
+      note: "Printable whole-topic worksheet: Naming 3D objects, objects that roll or stack, flat faces, edges and corners, and the shapes of faces. Large print, a picture in most questions and room to write. Part A, or Parts A and B; every content statement, with an answer key and reasons.",
+      tags: ["worksheet generator", "printable", "whole topic", "large print", "stage 1", "3d objects"]
     }
   ],
   "MA1-3DS-02": [
@@ -138,6 +208,13 @@ window.MMT_TOOL_LINKS = {
       ideas: ["filling", "packing", "construct-cubes", "compare-containers", "compare-volumes"],
       note: "Whole-topic quiz: Which holds more, cups to fill a container, ordering capacities, and counting and comparing blocks. Part A and Parts A and B levels; question types can be chosen. Every question is read aloud by itself, numbers go in on a number pad, and a missed question gets a second go. Saves to the student dashboard.",
       tags: ["quiz", "whole topic", "subset builder", "stage 1", "read aloud", "capacity and volume"]
+    },
+    {
+      title: "Capacity and Volume — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-1/measurement-space/volume-capacity/",
+      note: "Printable whole-topic worksheet: Which holds more, cups to fill a container, ordering capacities, and counting and comparing blocks. Large print, a picture in most questions and room to write. Part A, or Parts A and B; every content statement, with an answer key and reasons.",
+      tags: ["worksheet generator", "printable", "whole topic", "large print", "stage 1", "capacity and volume"]
     }
   ],
   "MA1-NSM-01": [
@@ -148,6 +225,13 @@ window.MMT_TOOL_LINKS = {
       ideas: ["investigate-balance", "compare-balance"],
       note: "Whole-topic quiz: Heavier and lighter on a balance, mass in blocks, and comparing and ordering masses. Part A and Parts A and B levels; question types can be chosen. Every question is read aloud by itself, numbers go in on a number pad, and a missed question gets a second go. Saves to the student dashboard.",
       tags: ["quiz", "whole topic", "subset builder", "stage 1", "read aloud", "mass"]
+    },
+    {
+      title: "Mass — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-1/measurement-space/mass/",
+      note: "Printable whole-topic worksheet: Heavier and lighter on a balance, mass in blocks, and comparing and ordering masses. Large print, a picture in most questions and room to write. Part A, or Parts A and B; every content statement, with an answer key and reasons.",
+      tags: ["worksheet generator", "printable", "whole topic", "large print", "stage 1", "mass"]
     }
   ],
   "MA1-NSM-02": [
@@ -158,6 +242,13 @@ window.MMT_TOOL_LINKS = {
       ideas: ["months", "half-hour", "duration", "quarter-hour"],
       note: "Whole-topic quiz: O'clock, half past, quarter past and quarter to, days, months, calendars and how long things take. Part A and Parts A and B levels; question types can be chosen. Every question is read aloud by itself, numbers go in on a number pad, and a missed question gets a second go. Saves to the student dashboard.",
       tags: ["quiz", "whole topic", "subset builder", "stage 1", "read aloud", "time"]
+    },
+    {
+      title: "Time — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-1/measurement-space/time/",
+      note: "Printable whole-topic worksheet: O'clock, half past, quarter past and quarter to, days, months, calendars and how long things take. Large print, a picture in most questions and room to write. Part A, or Parts A and B; every content statement, with an answer key and reasons.",
+      tags: ["worksheet generator", "printable", "whole topic", "large print", "stage 1", "time"]
     }
   ],
   "MA1-DATA-01": [
@@ -168,6 +259,13 @@ window.MMT_TOOL_LINKS = {
       ideas: ["ask-gather", "represent-describe", "question-of-interest", "create-interpret"],
       note: "Whole-topic quiz: Sorting and counting, tally marks, lists and tables, and choosing a good survey question. Part A and Parts A and B levels; question types can be chosen. Every question is read aloud by itself, numbers go in on a number pad, and a missed question gets a second go. Saves to the student dashboard.",
       tags: ["quiz", "whole topic", "subset builder", "stage 1", "read aloud", "collecting data"]
+    },
+    {
+      title: "Collecting Data — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-1/statistics-probability/data-collecting/",
+      note: "Printable whole-topic worksheet: Sorting and counting, tally marks, lists and tables, and choosing a good survey question. Large print, a picture in most questions and room to write. Part A, or Parts A and B; every content statement, with an answer key and reasons.",
+      tags: ["worksheet generator", "printable", "whole topic", "large print", "stage 1", "collecting data"]
     }
   ],
   "MA1-DATA-02": [
@@ -178,6 +276,13 @@ window.MMT_TOOL_LINKS = {
       ideas: ["represent-describe", "create-interpret"],
       note: "Whole-topic quiz: Reading tallies, picture graphs, tables and column graphs: most, least, how many more. Part A and Parts A and B levels; question types can be chosen. Every question is read aloud by itself, numbers go in on a number pad, and a missed question gets a second go. Saves to the student dashboard.",
       tags: ["quiz", "whole topic", "subset builder", "stage 1", "read aloud", "reading graphs and tables"]
+    },
+    {
+      title: "Reading Graphs and Tables — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-1/statistics-probability/data-interpreting/",
+      note: "Printable whole-topic worksheet: Reading tallies, picture graphs, tables and column graphs: most, least, how many more. Large print, a picture in most questions and room to write. Part A, or Parts A and B; every content statement, with an answer key and reasons.",
+      tags: ["worksheet generator", "printable", "whole topic", "large print", "stage 1", "reading graphs and tables"]
     }
   ],
   "MA1-CHAN-01": [
@@ -188,6 +293,13 @@ window.MMT_TOOL_LINKS = {
       ideas: ["possible-outcomes", "activities-chance"],
       note: "Whole-topic quiz: Will, might or won't happen; spinners and bags of counters; likely, unlikely, certain and impossible. Part A and Parts A and B levels; question types can be chosen. Every question is read aloud by itself, numbers go in on a number pad, and a missed question gets a second go. Saves to the student dashboard.",
       tags: ["quiz", "whole topic", "subset builder", "stage 1", "read aloud", "chance"]
+    },
+    {
+      title: "Chance — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-1/statistics-probability/chance/",
+      note: "Printable whole-topic worksheet: Will, might or won't happen; spinners and bags of counters; likely, unlikely, certain and impossible. Large print, a picture in most questions and room to write. Part A, or Parts A and B; every content statement, with an answer key and reasons.",
+      tags: ["worksheet generator", "printable", "whole topic", "large print", "stage 1", "chance"]
     }
   ],
   /* ---------------- STAGE 2 (Years 3–4) ---------------- */
@@ -199,6 +311,13 @@ window.MMT_TOOL_LINKS = {
       ideas: ["read-order-thousands", "partition-4-digits", "order-thousands", "rename-6-digits", "times-as-large"],
       note: "Whole-topic quiz: Read, write, order and round numbers to tens of thousands with base-ten blocks, place-value charts and number lines. Part A and Parts A and B levels; question types can be chosen. Every question can be read aloud, word answers are tapped, and a missed question gets a second go. Saves to the student dashboard.",
       tags: ["quiz", "whole topic", "subset builder", "stage 2", "read aloud", "whole numbers"]
+    },
+    {
+      title: "Whole Numbers — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-2/number/whole-numbers/",
+      note: "Printable whole-topic worksheet: Read, write, order and round numbers to tens of thousands with base-ten blocks, place-value charts and number lines. Large print, a picture in most questions and room to write. Part A, or Parts A and B; every content statement, with an answer key and reasons.",
+      tags: ["worksheet generator", "printable", "whole topic", "large print", "stage 2", "whole numbers"]
     },
     {
       title: "Place Value: Multiply & Divide by 10",
@@ -249,6 +368,13 @@ window.MMT_TOOL_LINKS = {
       ideas: ["tenths-hundredths", "fractions-decimals"],
       note: "Whole-topic quiz: Tenths and hundredths on strips, grids and number lines; comparing and ordering decimals; money. Part B level; question types can be chosen. Every question can be read aloud, word answers are tapped, and a missed question gets a second go. Saves to the student dashboard.",
       tags: ["quiz", "whole topic", "subset builder", "stage 2", "read aloud", "decimals"]
+    },
+    {
+      title: "Decimals — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-2/number/decimals/",
+      note: "Printable whole-topic worksheet: Tenths and hundredths on strips, grids and number lines; comparing and ordering decimals; money. Large print, a picture in most questions and room to write. Part A, or Parts A and B; every content statement, with an answer key and reasons.",
+      tags: ["worksheet generator", "printable", "whole topic", "large print", "stage 2", "decimals"]
     }
   ],
   "MA2-AR-01": [
@@ -259,6 +385,13 @@ window.MMT_TOOL_LINKS = {
       ideas: ["add-subtract-connection", "select-strategies", "money-values", "partition-regroup", "money-budgeting"],
       note: "Whole-topic quiz: Jump, split and compensation strategies, the column method, estimating, and word problems with bar models. Part A and Parts A and B levels; question types can be chosen. Every question can be read aloud, word answers are tapped, and a missed question gets a second go. Saves to the student dashboard.",
       tags: ["quiz", "whole topic", "subset builder", "stage 2", "read aloud", "addition and subtraction"]
+    },
+    {
+      title: "Addition and Subtraction — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-2/number/addition-subtraction/",
+      note: "Printable whole-topic worksheet: Jump, split and compensation strategies, the column method, estimating, and word problems with bar models. Large print, a picture in most questions and room to write. Part A, or Parts A and B; every content statement, with an answer key and reasons.",
+      tags: ["worksheet generator", "printable", "whole topic", "large print", "stage 2", "addition and subtraction"]
     },
     {
       title: "Addition by Compensation",
@@ -301,6 +434,13 @@ window.MMT_TOOL_LINKS = {
       ideas: ["equality", "number-sentences"],
       note: "Whole-topic quiz: Fact families, missing numbers and checking an answer with the inverse. Part A and Parts A and B levels; question types can be chosen. Every question can be read aloud, word answers are tapped, and a missed question gets a second go. Saves to the student dashboard.",
       tags: ["quiz", "whole topic", "subset builder", "stage 2", "read aloud", "missing numbers: adding and subtracting"]
+    },
+    {
+      title: "Missing Numbers: Adding and Subtracting — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-2/number/additive-number-sentences/",
+      note: "Printable whole-topic worksheet: Fact families, missing numbers and checking an answer with the inverse. Large print, a picture in most questions and room to write. Part A, or Parts A and B; every content statement, with an answer key and reasons.",
+      tags: ["worksheet generator", "printable", "whole topic", "large print", "stage 2", "missing numbers: adding and subtracting"]
     }
   ],
   "MA2-MR-01": [
@@ -311,6 +451,13 @@ window.MMT_TOOL_LINKS = {
       ideas: ["patterns", "arrays-facts", "recall-facts", "related-multiples", "known-facts", "area-model", "number-properties", "multiples-of-10"],
       note: "Whole-topic quiz: Equal groups, arrays, times tables, sharing and grouping, remainders, the area model and word problems. Part A and Parts A and B levels; question types can be chosen. Every question can be read aloud, word answers are tapped, and a missed question gets a second go. Saves to the student dashboard.",
       tags: ["quiz", "whole topic", "subset builder", "stage 2", "read aloud", "multiplication and division"]
+    },
+    {
+      title: "Multiplication and Division — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-2/number/multiplication-division/",
+      note: "Printable whole-topic worksheet: Equal groups, arrays, times tables, sharing and grouping, remainders, the area model and word problems. Large print, a picture in most questions and room to write. Part A, or Parts A and B; every content statement, with an answer key and reasons.",
+      tags: ["worksheet generator", "printable", "whole topic", "large print", "stage 2", "multiplication and division"]
     },
     {
       title: "Times Table Chart",
@@ -369,6 +516,13 @@ window.MMT_TOOL_LINKS = {
       ideas: ["fact-families", "word-problems"],
       note: "Whole-topic quiz: Multiplication and division fact families, missing numbers and balanced number sentences. Part A and Parts A and B levels; question types can be chosen. Every question can be read aloud, word answers are tapped, and a missed question gets a second go. Saves to the student dashboard.",
       tags: ["quiz", "whole topic", "subset builder", "stage 2", "read aloud", "missing numbers: multiplying and dividing"]
+    },
+    {
+      title: "Missing Numbers: Multiplying and Dividing — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-2/number/multiplicative-number-sentences/",
+      note: "Printable whole-topic worksheet: Multiplication and division fact families, missing numbers and balanced number sentences. Large print, a picture in most questions and room to write. Part A, or Parts A and B; every content statement, with an answer key and reasons.",
+      tags: ["worksheet generator", "printable", "whole topic", "large print", "stage 2", "missing numbers: multiplying and dividing"]
     }
   ],
   "MA2-PF-01": [
@@ -379,6 +533,13 @@ window.MMT_TOOL_LINKS = {
       ideas: ["fractional-parts", "unit-fractions-line", "equivalent-lengths", "greater-than-one"],
       note: "Whole-topic quiz: Halves, quarters, eighths, thirds, fifths and tenths: naming, comparing, counting and placing fractions on a number line. Part A and Parts A and B levels; question types can be chosen. Every question can be read aloud, word answers are tapped, and a missed question gets a second go. Saves to the student dashboard.",
       tags: ["quiz", "whole topic", "subset builder", "stage 2", "read aloud", "fractions"]
+    },
+    {
+      title: "Fractions — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-2/number/fractions/",
+      note: "Printable whole-topic worksheet: Halves, quarters, eighths, thirds, fifths and tenths: naming, comparing, counting and placing fractions on a number line. Large print, a picture in most questions and room to write. Part A, or Parts A and B; every content statement, with an answer key and reasons.",
+      tags: ["worksheet generator", "printable", "whole topic", "large print", "stage 2", "fractions"]
     },
     {
       title: "Fraction Bar + Number Line",
@@ -397,6 +558,13 @@ window.MMT_TOOL_LINKS = {
       ideas: ["movement-map", "grid-positions", "create-grid-maps", "describe-routes"],
       note: "Whole-topic quiz: Grid maps, grid references, compass directions and following a path. Part A and Parts A and B levels; question types can be chosen. Every question can be read aloud, word answers are tapped, and a missed question gets a second go. Saves to the student dashboard.",
       tags: ["quiz", "whole topic", "subset builder", "stage 2", "read aloud", "maps and directions"]
+    },
+    {
+      title: "Maps and Directions — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-2/measurement-space/position/",
+      note: "Printable whole-topic worksheet: Grid maps, grid references, compass directions and following a path. Large print, a picture in most questions and room to write. Part A, or Parts A and B; every content statement, with an answer key and reasons.",
+      tags: ["worksheet generator", "printable", "whole topic", "large print", "stage 2", "maps and directions"]
     }
   ],
   "MA2-GM-02": [
@@ -407,6 +575,13 @@ window.MMT_TOOL_LINKS = {
       ideas: ["m-cm-mm", "scaled-instruments"],
       note: "Whole-topic quiz: Measuring with a ruler in centimetres and millimetres, changing units and finding perimeters. Part A and Parts A and B levels; question types can be chosen. Every question can be read aloud, word answers are tapped, and a missed question gets a second go. Saves to the student dashboard.",
       tags: ["quiz", "whole topic", "subset builder", "stage 2", "read aloud", "length"]
+    },
+    {
+      title: "Length — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-2/measurement-space/length/",
+      note: "Printable whole-topic worksheet: Measuring with a ruler in centimetres and millimetres, changing units and finding perimeters. Large print, a picture in most questions and room to write. Part A, or Parts A and B; every content statement, with an answer key and reasons.",
+      tags: ["worksheet generator", "printable", "whole topic", "large print", "stage 2", "length"]
     }
   ],
   "MA2-GM-03": [
@@ -417,6 +592,13 @@ window.MMT_TOOL_LINKS = {
       ideas: ["measures-of-turn", "compare-right-angle"],
       note: "Whole-topic quiz: Comparing angles with a right angle, naming angles and angles as turns. Part A and Parts A and B levels; question types can be chosen. Every question can be read aloud, word answers are tapped, and a missed question gets a second go. Saves to the student dashboard.",
       tags: ["quiz", "whole topic", "subset builder", "stage 2", "read aloud", "angles"]
+    },
+    {
+      title: "Angles — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-2/measurement-space/angles/",
+      note: "Printable whole-topic worksheet: Comparing angles with a right angle, naming angles and angles as turns. Large print, a picture in most questions and room to write. Part A, or Parts A and B; every content statement, with an answer key and reasons.",
+      tags: ["worksheet generator", "printable", "whole topic", "large print", "stage 2", "angles"]
     }
   ],
   "MA2-2DS-01": [
@@ -427,6 +609,13 @@ window.MMT_TOOL_LINKS = {
       ideas: ["features", "symmetry"],
       note: "Whole-topic quiz: Sides, vertices and names of 2D shapes, parallel sides, regular shapes and lines of symmetry. Part A and Parts A and B levels; question types can be chosen. Every question can be read aloud, word answers are tapped, and a missed question gets a second go. Saves to the student dashboard.",
       tags: ["quiz", "whole topic", "subset builder", "stage 2", "read aloud", "2d shapes"]
+    },
+    {
+      title: "2D Shapes — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-2/measurement-space/2d-shapes/",
+      note: "Printable whole-topic worksheet: Sides, vertices and names of 2D shapes, parallel sides, regular shapes and lines of symmetry. Large print, a picture in most questions and room to write. Part A, or Parts A and B; every content statement, with an answer key and reasons.",
+      tags: ["worksheet generator", "printable", "whole topic", "large print", "stage 2", "2d shapes"]
     }
   ],
   "MA2-2DS-02": [
@@ -437,6 +626,13 @@ window.MMT_TOOL_LINKS = {
       ideas: ["transform", "combine-split"],
       note: "Whole-topic quiz: Splitting and joining shapes, and slides, flips and turns on a grid. Part B level; question types can be chosen. Every question can be read aloud, word answers are tapped, and a missed question gets a second go. Saves to the student dashboard.",
       tags: ["quiz", "whole topic", "subset builder", "stage 2", "read aloud", "moving and joining shapes"]
+    },
+    {
+      title: "Moving and Joining Shapes — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-2/measurement-space/transformations/",
+      note: "Printable whole-topic worksheet: Splitting and joining shapes, and slides, flips and turns on a grid. Large print, a picture in most questions and room to write. Part A, or Parts A and B; every content statement, with an answer key and reasons.",
+      tags: ["worksheet generator", "printable", "whole topic", "large print", "stage 2", "moving and joining shapes"]
     }
   ],
   "MA2-2DS-03": [
@@ -447,6 +643,13 @@ window.MMT_TOOL_LINKS = {
       ideas: ["square-centimetres", "square-metres", "grid-structure", "compare-surfaces"],
       note: "Whole-topic quiz: Area by counting squares, rows and columns, square centimetres and square metres. Part A and Parts A and B levels; question types can be chosen. Every question can be read aloud, word answers are tapped, and a missed question gets a second go. Saves to the student dashboard.",
       tags: ["quiz", "whole topic", "subset builder", "stage 2", "read aloud", "area"]
+    },
+    {
+      title: "Area — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-2/measurement-space/area/",
+      note: "Printable whole-topic worksheet: Area by counting squares, rows and columns, square centimetres and square metres. Large print, a picture in most questions and room to write. Part A, or Parts A and B; every content statement, with an answer key and reasons.",
+      tags: ["worksheet generator", "printable", "whole topic", "large print", "stage 2", "area"]
     }
   ],
   "MA2-3DS-01": [
@@ -457,6 +660,13 @@ window.MMT_TOOL_LINKS = {
       ideas: ["models", "representations"],
       note: "Whole-topic quiz: Naming 3D objects, faces, edges and vertices, prisms and pyramids, nets and straw models. Part A and Parts A and B levels; question types can be chosen. Every question can be read aloud, word answers are tapped, and a missed question gets a second go. Saves to the student dashboard.",
       tags: ["quiz", "whole topic", "subset builder", "stage 2", "read aloud", "3d objects"]
+    },
+    {
+      title: "3D Objects — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-2/measurement-space/3d-objects/",
+      note: "Printable whole-topic worksheet: Naming 3D objects, faces, edges and vertices, prisms and pyramids, nets and straw models. Large print, a picture in most questions and room to write. Part A, or Parts A and B; every content statement, with an answer key and reasons.",
+      tags: ["worksheet generator", "printable", "whole topic", "large print", "stage 2", "3d objects"]
     }
   ],
   "MA2-3DS-02": [
@@ -467,6 +677,13 @@ window.MMT_TOOL_LINKS = {
       ideas: ["litres", "metric-volume", "scaled-capacity"],
       note: "Whole-topic quiz: Reading a measuring jug, litres and millilitres, and volume by counting cubes. Part B level; question types can be chosen. Every question can be read aloud, word answers are tapped, and a missed question gets a second go. Saves to the student dashboard.",
       tags: ["quiz", "whole topic", "subset builder", "stage 2", "read aloud", "capacity and volume"]
+    },
+    {
+      title: "Capacity and Volume — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-2/measurement-space/volume-capacity/",
+      note: "Printable whole-topic worksheet: Reading a measuring jug, litres and millilitres, and volume by counting cubes. Large print, a picture in most questions and room to write. Part A, or Parts A and B; every content statement, with an answer key and reasons.",
+      tags: ["worksheet generator", "printable", "whole topic", "large print", "stage 2", "capacity and volume"]
     }
   ],
   "MA2-NSM-01": [
@@ -477,6 +694,13 @@ window.MMT_TOOL_LINKS = {
       ideas: ["kilogram", "scaled-mass"],
       note: "Whole-topic quiz: Balances, kilograms and grams, reading scales and mass problems. Part A and Parts A and B levels; question types can be chosen. Every question can be read aloud, word answers are tapped, and a missed question gets a second go. Saves to the student dashboard.",
       tags: ["quiz", "whole topic", "subset builder", "stage 2", "read aloud", "mass"]
+    },
+    {
+      title: "Mass — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-2/measurement-space/mass/",
+      note: "Printable whole-topic worksheet: Balances, kilograms and grams, reading scales and mass problems. Large print, a picture in most questions and room to write. Part A, or Parts A and B; every content statement, with an answer key and reasons.",
+      tags: ["worksheet generator", "printable", "whole topic", "large print", "stage 2", "mass"]
     }
   ],
   "MA2-NSM-02": [
@@ -487,6 +711,13 @@ window.MMT_TOOL_LINKS = {
       ideas: ["analog-time", "digital-time", "am-pm"],
       note: "Whole-topic quiz: Reading clocks to the minute, past and to, am and pm, how long things take, and timetables. Part A and Parts A and B levels; question types can be chosen. Every question can be read aloud, word answers are tapped, and a missed question gets a second go. Saves to the student dashboard.",
       tags: ["quiz", "whole topic", "subset builder", "stage 2", "read aloud", "time"]
+    },
+    {
+      title: "Time — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-2/measurement-space/time/",
+      note: "Printable whole-topic worksheet: Reading clocks to the minute, past and to, am and pm, how long things take, and timetables. Large print, a picture in most questions and room to write. Part A, or Parts A and B; every content statement, with an answer key and reasons.",
+      tags: ["worksheet generator", "printable", "whole topic", "large print", "stage 2", "time"]
     }
   ],
   "MA2-DATA-01": [
@@ -497,6 +728,13 @@ window.MMT_TOOL_LINKS = {
       ideas: ["collect", "tables-graphs", "collection-methods", "many-to-one"],
       note: "Whole-topic quiz: Tally charts, survey questions, pictograms and planning a column graph and its scale. Part A and Parts A and B levels; question types can be chosen. Every question can be read aloud, word answers are tapped, and a missed question gets a second go. Saves to the student dashboard.",
       tags: ["quiz", "whole topic", "subset builder", "stage 2", "read aloud", "collecting and graphing data"]
+    },
+    {
+      title: "Collecting and Graphing Data — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-2/statistics-probability/data-collecting-graphing/",
+      note: "Printable whole-topic worksheet: Tally charts, survey questions, pictograms and planning a column graph and its scale. Large print, a picture in most questions and room to write. Part A, or Parts A and B; every content statement, with an answer key and reasons.",
+      tags: ["worksheet generator", "printable", "whole topic", "large print", "stage 2", "collecting and graphing data"]
     }
   ],
   "MA2-DATA-02": [
@@ -507,6 +745,13 @@ window.MMT_TOOL_LINKS = {
       ideas: ["interpret-compare", "many-to-one"],
       note: "Whole-topic quiz: Reading tally charts, tables, column graphs, pictograms and dot plots, with and without a scale. Part A and Parts A and B levels; question types can be chosen. Every question can be read aloud, word answers are tapped, and a missed question gets a second go. Saves to the student dashboard.",
       tags: ["quiz", "whole topic", "subset builder", "stage 2", "read aloud", "reading tables and graphs"]
+    },
+    {
+      title: "Reading Tables and Graphs — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-2/statistics-probability/data-interpreting/",
+      note: "Printable whole-topic worksheet: Reading tally charts, tables, column graphs, pictograms and dot plots, with and without a scale. Large print, a picture in most questions and room to write. Part A, or Parts A and B; every content statement, with an answer key and reasons.",
+      tags: ["worksheet generator", "printable", "whole topic", "large print", "stage 2", "reading tables and graphs"]
     }
   ],
   "MA2-CHAN-01": [
@@ -517,6 +762,13 @@ window.MMT_TOOL_LINKS = {
       ideas: ["possible-outcomes", "likelihood", "previous-events"],
       note: "Whole-topic quiz: Chance words, listing outcomes, spinners and bags, fair games, and comparing results with what we expect. Part A and Parts A and B levels; question types can be chosen. Every question can be read aloud, word answers are tapped, and a missed question gets a second go. Saves to the student dashboard.",
       tags: ["quiz", "whole topic", "subset builder", "stage 2", "read aloud", "chance"]
+    },
+    {
+      title: "Chance — Whole Topic Worksheet",
+      kind: "Worksheet maker",
+      url: "/worksheet-creators/stage-2/statistics-probability/chance/",
+      note: "Printable whole-topic worksheet: Chance words, listing outcomes, spinners and bags, fair games, and comparing results with what we expect. Large print, a picture in most questions and room to write. Part A, or Parts A and B; every content statement, with an answer key and reasons.",
+      tags: ["worksheet generator", "printable", "whole topic", "large print", "stage 2", "chance"]
     }
   ],
   "MA3-RN-02": [

@@ -259,6 +259,27 @@
 > Chromium (Inter). Source: `tools/pdf-worksheets/bin-toss/` (`build.py` + `ws.css` → `render.py`, Playwright; needs `logo.png` =
 > a copy of `icons/icon-192.png` beside it). Re-render and copy the PDF over after any edit.
 >
+> **NEW (2026-11-28, night): STAGE 1 AND STAGE 2 WHOLE-TOPIC WORKSHEET CREATORS — 36 OUTCOMES, LARGE PRINT.**
+> `worksheet-creators/stage-1/<strand>/<slug>/` (16) and `worksheet-creators/stage-2/<strand>/<slug>/` (20), same slugs as the
+> whole-topic quizzes, on worksheet frame v2 (the frame itself was NOT changed, so no other page was re-assembled).
+> * **Built by `tools/whole-topic-worksheets/stage12.py`** (writes `pages/s1-*.js`, `pages/s2-*.js` and the `pages.json` entries),
+>   then `assemble.py <root> <slugs>`. `OUT` maps every statement of every MA1/MA2 outcome to Revision Generator Stage 1/2 bank
+>   types (`bank:id` borrows from another bank, `stage-2/…:id` from another stage, `paper:id` = a pencil-and-paper type in `PAPER`:
+>   MA2-RN-01 times-as-large, MA2-AR-01 money-values, MA2-CHAN-01 previous-events). The script refuses an outcome whose statement
+>   list differs from contentStatements.js.
+> * **Levels are the syllabus parts, decided by the STATEMENT** (not the bank's a/b file): a type under a Part A statement is in
+>   both papers, under a Part B statement only in "Parts A and B". MA2-RN-02 has only Part B. English only (`noLanguage`).
+> * **Age settings (page-level, via `CFG.css` + a `Y()` wrapper in each page file):** Stage 1 question text 17px bold, options 16px,
+>   answer lines 9 mm tall, pictures ×1.4, 8 questions by default; Stage 2 15px, lines 7.4 mm, pictures ×1.22, 10 questions.
+>   Change `YOUNG_CSS`, `PIC`, `COUNT` in stage12.py, then re-run it and assemble.
+> * Listings (`wire12.py <dir>`, idempotent): a "Worksheet maker" row after each MA1/MA2 quiz row in toolLinks.js, 36
+>   `MMT_WHOLE_TOPIC_WORKSHEETS` lines (blue band on Resources by Stage), homepage "Stage 1 — whole topic" and "Stage 2 — whole
+>   topic" worksheet grids before Stage 3's (Worksheet pill 112 → 148). `toolLinks.js?v=` / `toolFamilies.js?v=` bumped in
+>   resources/index.html and the teacher portal.
+> * Verified: `test.py` on all 36 (coverage of every statement at the right level, every type × 30, 8 papers each: nothing past
+>   a page or card, key = worksheet, no answers on student pages, no missing pictures), PDFs viewed, Resources by Stage shows 16 + 20
+>   worksheet bands.
+>
 > **NEW (2026-11-28, evening): THE PLATFORM NOW RUNS STAGE 1 TO STAGE 5 — STAGES 1 AND 2 ON RESOURCES BY STAGE + STAGE 1 WHOLE-TOPIC QUIZZES.**
 > * **Syllabus data (NESA, not paraphrase).** Outcome codes/statements from the NESA outcomes page; content statements word for
 >   word from NESA's *Record of learning and achievement using syllabus content* for Stage 1 and Stage 2 (Feb 2024) — the same
@@ -6282,7 +6303,7 @@ portal/PLACEMENT.md , portal/README.md   migration + structure notes
 
 ## 8. Open / future items
 - **Whole-topic quizzes:** every Stage 1 (16), Stage 2 (20), Stage 3 (21), Stage 4 (16) and Stage 5 (41) outcome now has one (2026-11-28). Follow-ups:
-  Arabic/Farsi for the shared-engine quizzes; multi-select answers; Early Stage 1; whole-topic worksheets for Stages 1–2 (their RG banks exist).
+  Arabic/Farsi for the shared-engine quizzes; multi-select answers; Early Stage 1 (their RG banks exist).
 - **Student-quiz sign-in sweep:** 11 of 26 quizzes carry the v2 login block
   (adding-subtracting-fractions joined 2026-08-20).
   The other **15** still have bespoke inline sign-in and their own completion
