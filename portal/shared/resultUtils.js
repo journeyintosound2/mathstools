@@ -3,7 +3,7 @@
  * normalise compact `achievements` records, compute summary stats, build CSV +
  * copy-summary text. Used by both the Student and Teacher platforms.
  */
-import { toolIdForAchievement } from "./mmtToolRegistry.js?v=ec80fc0a";
+import { toolIdForAchievement } from "./mmtToolRegistry.js?v=b5c97771";
 
 export function num(v, d = 0) { const n = Number(v); return Number.isFinite(n) ? n : d; }
 

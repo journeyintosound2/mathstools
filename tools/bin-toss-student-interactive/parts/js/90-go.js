@@ -14,6 +14,7 @@ $('replayTag').addEventListener('click',endReplay);
   tr.addEventListener('pointermove',e=>{if(drag&&phase==='aim'){const a=Math.round(fromY(e.clientY));if(a!==angle)setAngle(a)}});
   const end=()=>{if(drag){drag=false;save()}};tr.addEventListener('pointerup',end);tr.addEventListener('pointercancel',end);
 })();
+const CHAR_OK=['intro','spot','char','predict','aim','power','results','price'];
 const OVERLAY_OK=['intro','spot','char','results','price','day','aim','quiz','reveal','predict','teacher','board'];
 function reopen(b){
   closePanel();
@@ -38,8 +39,14 @@ document.addEventListener('keydown',e=>{
 });
 function overlay(fn){if(!OVERLAY_OK.includes(phase)||helpPanel.back)return;fn()}
 const ACT={
-  spots(){closePanel();spotPanel()},pick(el){pickSpot(el.dataset.v)},chars(){closePanel();charPanel()},
-  char(el){S.char=el.dataset.v;poolIds=null;save();world.kid.use(S.char);closePanel();spotPanel()},
+  spots(){closePanel();spotPanel()},pick(el){pickSpot(el.dataset.v)},
+  /* Change character from anywhere between throws; afterwards go straight back to where you were. */
+  chars(){if(phase==='char')return;
+    if(!CHAR_OK.includes(phase)||helpPanel.back){toast(t('You can change character between throws'));return}
+    const b=['intro','spot'].includes(phase)?null:phase==='power'?'aim':phase;if(phase==='power')unlock();closePanel();charPanel(b)},
+  char(el){S.char=el.dataset.v;poolIds=null;save();world.kid.use(S.char);paintCharBtn();ACT.charBack()},
+  charBack(){const b=charPanel.back;charPanel.back=null;closePanel();if(!b||!S.spot){spotPanel();return}
+    placeKid();if(b==='price'){pricePanel();return}camFor('throw');if(b==='aim')startAim();else reopen(b)},
   more(){closePanel();stall=null;hideStallCast();clearThrows();world.kid.tint('#2563eb');world.kid.use(S.char);placeKid();batchLeft=BATCH;startAim()},
   toPrice(){if(cnt(S.spot).n<MIN_DATA)return;closePanel();queueUpload(true);world.kid.tint('#2563eb');world.kid.use(S.char);placeKid();pricePanel()},
   price(el){S.price=clamp(S.price+ +el.dataset.v,1,ceilFor(S.prize));paintPrice();SFX.tick()},
@@ -68,6 +75,8 @@ document.addEventListener('input',e=>{const id=e.target.id;
   if(id==='priceIn'){S.price=+e.target.value;paintPrice()}else if(id==='predIn')e.target.value=e.target.value.replace(/\D/g,'');else if(id==='spotPred')paintPred()});
 document.addEventListener('change',e=>{if(e.target.id==='tdCls'){TD.cls=e.target.value;curPanel()}});
 $('helpBtn').addEventListener('click',()=>overlay(helpPanel));
+$('charBtn').addEventListener('click',()=>{ac();ACT.chars()});
+addEventListener('resize',()=>{clearTimeout(paintCharBtn.t);paintCharBtn.t=setTimeout(paintCharBtn,150)});
 $('logBtn').addEventListener('click',()=>overlay(logPanel));
 $('goalBtn').addEventListener('click',()=>overlay(goalsPanel));
 $('acctChip').addEventListener('click',()=>{if(AUTH.mode==='student'){overlay(logPanel);return}if(['intro','spot','char','results','price','day','aim'].includes(phase)&&!helpPanel.back){closePanel();introPanel();setTimeout(()=>{const i=$('btCode');if(i)i.focus()},120)}});
@@ -93,7 +102,7 @@ setMenu.addEventListener('click',e=>{const el=e.target.closest('[data-set]');if(
       <div class="pBtns"><button class="pb main" data-act="doReset">${t('Yes, start again')}</button><button class="pb" data-act="cancelReset" data-focus>${t('Keep my data')}</button></div>`))}});
 setMenu.addEventListener('change',e=>{const k=e.target.dataset.set;if(k==='sound'){PREF.sound=e.target.checked;savePrefs();if(PREF.sound)SFX.lock()}
   else if(k==='hard'){PREF.hard=e.target.checked;savePrefs();drawZone();renderStatus();if(phase==='power')hint(PREF.hard?t('Hard mode: time it without the green'):t('Press THROW! when the marker is in the green'))}});
-function setLang(l){PREF.lang=l;savePrefs();paintStatic();paintMenu();renderStatus();setCtl();paintAccount();if(curPanel)curPanel()}
+function setLang(l){PREF.lang=l;savePrefs();paintStatic();paintMenu();renderStatus();setCtl();paintAccount();if(curPanel)curPanel();paintCharBtn()}
 function paintStatic(){document.querySelectorAll('[data-t]').forEach(el=>{el.textContent=t(el.dataset.t)});document.body.classList.toggle('rtlLang',L()!=='en')}
 // tap a floor marker to choose it
 const ray=new THREE.Raycaster(),ptr=new THREE.Vector2();
@@ -104,7 +113,7 @@ canvas.addEventListener('pointermove',e=>{canvas.style.cursor=phase==='spot'&&ma
 
 /* ---------------- go ---------------- */
 try{
-  initScene();paintStatic();paintAccount();paintGoalBtn();camFor('overview',true);
+  initScene();paintStatic();paintAccount();paintGoalBtn();paintCharBtn();camFor('overview',true);
   $('loading').hidden=true;
   introPanel();
   requestAnimationFrame(frame);

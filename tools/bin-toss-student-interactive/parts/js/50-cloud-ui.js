@@ -27,12 +27,12 @@ async function signIn(){
 }
 function afterStudentSignIn(code,profile){
   AUTH.mode='student';AUTH.student=profile;try{sessionStorage.setItem(CODE_KEY,code)}catch(e){}
-  loadStore(BASE_KEY+'.s.'+code);world.kid.use(S.char);poolIds=null;paintAccount();paintGoalBtn();queueUpload(true);
+  loadStore(BASE_KEY+'.s.'+code);world.kid.use(S.char);poolIds=null;paintAccount();paintGoalBtn();paintCharBtn();queueUpload(true);
 }
 async function signOut(){
   const cl=await cloud();if(cl)try{await cl.studentSignOut()}catch(e){}
   AUTH.mode='guest';AUTH.student=null;try{sessionStorage.removeItem(CODE_KEY)}catch(e){}
-  loadStore(BASE_KEY);world.kid.use(S.char);poolIds=null;paintAccount();paintGoalBtn();introPanel();
+  loadStore(BASE_KEY);world.kid.use(S.char);poolIds=null;paintAccount();paintGoalBtn();paintCharBtn();introPanel();
 }
 async function restoreStudent(){
   let code=null;try{code=sessionStorage.getItem(CODE_KEY)}catch(e){}

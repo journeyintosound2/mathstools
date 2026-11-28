@@ -148,6 +148,14 @@
 > * Not built yet: lesson plan, worksheet, student quiz (greyed in Tools). Jeff's old Day 2 sheet's "Money Paid" used $15 where the
 >   price cell was $20; the tool counts every player's money in and each winner's prize out instead.
 >
+> **NEW (2026-11-28, evening): BIN TOSS STUDENT INTERACTIVE — "CHANGE CHARACTER" WHILE PLAYING.** Topbar button `#charBtn`
+> (the current character's face cropped from `chars.webp` by `paintCharBtn()`/`FACE_Y`; words beside it only from 1800px,
+> a ⇄ badge below that; hidden under 340px) plus a "Change character" link in the practice status card. `ACT.chars` works in
+> `CHAR_OK` phases (intro, spot, predict, aim, power, results, price); mid-throw or mid-stall it toasts "You can change
+> character between throws". `charPanel(back)` remembers where you were and `ACT.charBack` returns there (same spot, same
+> throw count, same angle); the chooser has a Back button. Topbar fix at the same time: from 1500px down the grid is
+> `auto minmax(0,1fr) auto`, so the buttons can no longer slide under the title (they did at 1024–1100 before). Test: `t5.py`.
+>
 > **NEW (2026-11-28, later): BIN TOSS STUDENT INTERACTIVE v2 — SIGN-IN, EVERY THROW SAVED, TEACHER VIEW, CHECK FOR
 > UNDERSTANDING, EN/AR/FA. NEEDS A FUNCTION DEPLOY AND A RULES PUBLISH.** Supersedes the source notes in the block below.
 > * **SOURCE: `tools/bin-toss-student-interactive/parts/`** — `js/00-head … 90-go.js` are concatenated (in order) into ONE module;
@@ -250,6 +258,40 @@
 > (7 steps now) and money rounds put the profit graph first and largest in the Graph tab. The PDF was rendered from HTML with
 > Chromium (Inter). Source: `tools/pdf-worksheets/bin-toss/` (`build.py` + `ws.css` → `render.py`, Playwright; needs `logo.png` =
 > a copy of `icons/icon-192.png` beside it). Re-render and copy the PDF over after any edit.
+>
+> **NEW (2026-11-28, latest): STAGE 2 WHOLE-TOPIC QUIZZES — ALL 20 OUTCOMES (YEARS 3–4), SETTABLE FROM THE TEACHER PLATFORM.**
+> `online-quizzes/stage-2/<number|measurement-space|statistics-probability>/<slug>.html` (thin shells on the shared engine
+> `online-quizzes/stage-4/topic-quiz/`), questions made in `online-quizzes/stage-2/topic-quiz/s2.js` + `s2-map.js` from the
+> Revision Generator's Stage 2 banks (`question-banks/stage-2/*`); each `banks/<slug>.js` imports only its own RG bank(s) with
+> `?v=` (Stage 5 pattern). toolIds `s2-<slug>-quiz`, tool `s2-<slug>-student-quiz`, masteryTopic `s2-<slug>`.
+> * **Outcome = the tag each RG question carries** (`s2-map.js` is BUILT from the banks: rows `[bank, type, part]`). Levels are
+>   the syllabus parts: **Part A** (usually Year 3) / **Parts A and B** (Year 4); RN-02 Decimals, 2DS-02 and 3DS-02 are Part B
+>   only. 220 on-screen types; 12 are paper-only (`paper()`: draw/shade/describe tasks); 3 quiz-only types (`NATIVE`: choose a
+>   survey question, plan a column graph, × ÷ fact families).
+> * **Design rules for 8–10-year-olds (keep them):** (1) every question has **Read aloud**, and for young banks it reads the
+>   choices too (`speakAll`; `q.speakOptions` for symbols); (2) **a word is never typed** — word answers are chosen from the
+>   bank's OWN wrong answers (`mcBank`, never from other questions), only numerals, times and simple fractions are typed;
+>   (3) options are stripped of their reasons (`trimOpt`: "Regular — all sides…" → "Regular"), the reason goes in the feedback;
+>   (4) answers in parts use labelled boxes (`multi`: Groups / In each group / Altogether; Yes/No pairs); (5) a chosen question
+>   never says "Write/List" (`REWORD`), hard words are swapped (`EASY`), "Why?/Explain." sentences dropped (`DROP2`);
+>   (6) **second go** (`bank.secondTry`): a wrong first answer gets one more try with a hint, the tried option struck out;
+>   only a first-go answer scores (`rec.fixed` = right on the second go, saved as not correct); not for Yes/No or 2-option
+>   questions; (7) default 10 questions (`bank.defaultCount`), bigger type and tap targets (`body.young`).
+>   Engine additions are all gated on `bank.young` / `bank.secondTry` / `bank.defaultCount`, so Stages 3–5 are unchanged.
+> * **s2.js is ASSEMBLED** (session scratch: head + s3.js's generic machinery copied + specs + tail). Fix a bug in s3.js's
+>   `auto`/`mc`/`numAns`… → port it. ~75 `spec()` entries turn paper wording into screen questions.
+> * **Stage 2 is NOT in the syllabus files** (no MA2 in resourcesManifest / toolLinks / contentStatements — no official content
+>   statements to hand), so it is not on Resources by Stage. The teacher's task picker places these by a registry field,
+>   **`topicName`** (each quiz = its own topic card, in registry order; `buildCatalogue` fallback), and a Stage 2 tab appears
+>   because the stage has quizzes. `BUILDER_QUIZZES` has the 20 rows. Homepage: "Stage 2 — whole topic" grid (Online Quizzes
+>   pill 110 → 130).
+> * Verified: Node harness (every type × 30–40: canonical answer accepted, a wrong answer rejected, no dead type, no constant
+>   answer, no chosen question saying "write", reading-load lint ≤ 34 words / ≤ 22 a sentence apart from lists), Playwright:
+>   every type of all 20 quizzes played at 1366 and 390 (0 fails), second-go rules (24 checks), save payload (fixed answers do
+>   not score, no typed answers), the Teacher Platform's own `obDescribe`/`obGenerate` driving all 20 builders, a task link, and
+>   Stage 3/4/5 regressions.
+> * Not done: Stage 2 on Resources by Stage (needs NESA content statements), Stage 1, Arabic/Farsi, a fluent check of the
+>   device voices (the Web Speech voice is the device's own).
 >
 > **NEW (2026-11-28, last): STAGE 5 WHOLE-TOPIC QUIZZES — ALL 41 OUTCOMES (CORE AND PATH), SETTABLE FROM THE TEACHER PLATFORM.**
 > `online-quizzes/stage-5/<number|algebra|ratios-rates|measurement-space|statistics-probability>/<slug>.html` (same slugs as the
@@ -6209,8 +6251,8 @@ portal/PLACEMENT.md , portal/README.md   migration + structure notes
   **function first**, then push the website.
 
 ## 8. Open / future items
-- **Whole-topic quizzes:** every Stage 3 (21), Stage 4 (16) and Stage 5 (41) outcome now has one (2026-11-28). Follow-ups:
-  Arabic/Farsi for the shared-engine quizzes; multi-select answers; Stage 2 / Stage 1 on the same engine (their RG banks exist).
+- **Whole-topic quizzes:** every Stage 2 (20), Stage 3 (21), Stage 4 (16) and Stage 5 (41) outcome now has one (2026-11-28). Follow-ups:
+  Arabic/Farsi for the shared-engine quizzes; multi-select answers; Stage 1 on the same engine (Stage 2 done); Stage 2 on Resources by Stage (their RG banks exist).
 - **Student-quiz sign-in sweep:** 11 of 26 quizzes carry the v2 login block
   (adding-subtracting-fractions joined 2026-08-20).
   The other **15** still have bespoke inline sign-in and their own completion

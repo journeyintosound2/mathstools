@@ -55,6 +55,7 @@ T = {
 'Chance and variation': ('الحظ والتغيّر','شانس و تغییرپذیری'),
 'Chance of in': ('احتمال الدخول','احتمال داخل'),
 'Change character': ('غيّر الشخصية','تغییر شخصیت'),
+'You can change character between throws': ('يمكنك تغيير الشخصية بين الرميات','می‌توانید بین پرتاب‌ها شخصیت را عوض کنید'),
 'Change spot': ('غيّر المكان','تغییر نقطه'),
 'Characters from Mills Maths Adventure. They all throw the same: only your angle and timing matter.':
  ('شخصيات من مغامرة Mills Maths. كلها ترمي بالطريقة نفسها: المهم هو زاويتك وتوقيتك فقط.',

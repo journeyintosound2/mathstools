@@ -20,7 +20,7 @@ function renderStatus(){
     <div class="stThrow">${batchLeft>0?t('Throw {n} of {m}',{n:c.n+1,m:c.n+batchLeft}):t('{n} throws',{n:c.n})}</div><div class="dots">${dots}</div>
     <div class="counts"><div class="cnt in"><small>${t('In')} ✓</small><b>${c.in}</b></div><div class="cnt out"><small>${t('Out')} ✗</small><b>${c.out}</b></div>
       <div class="cnt p"><small>${t('Chance of in')}</small><b>${c.n?`<bdi dir="ltr">${c.in}/${c.n} <span>= ${pct(c.in,c.n)}</span></bdi>`:'–'}</b></div></div>
-    <div class="stLinks"><button class="lnk" data-act="spots">${t('Change spot')}</button>${c.n>=MIN_DATA?`<button class="lnk go" data-act="toPrice">${t('Open the stall')} ›</button>`:''}</div>
+    <div class="stLinks"><button class="lnk" data-act="spots">${t('Change spot')}</button><button class="lnk" data-act="chars">${t('Change character')}</button>${c.n>=MIN_DATA?`<button class="lnk go" data-act="toPrice">${t('Open the stall')} ›</button>`:''}</div>
     ${AUTH.mode==='student'?`<div class="saveLine ${pendingCount()?'wait':''}">${pendingCount()?t('{n} throws waiting to save',{n:pendingCount()}):t('Your throws are saved for your class')+' ✓'}</div>`:''}`;
   show('status',true);
 }
@@ -54,12 +54,18 @@ function introPanel(){
     ${accountBoxH()}
     <div class="pBtns"><button class="pb main" data-act="${S.char?'spots':'chars'}" data-focus>${hasData()?t('Keep going')+' ›':t('Let’s go')+' ›'}</button></div>`));
 }
-function charPanel(){
-  phase='char';hideGame();camFor('overview');helpPanel.back=null;
+function charPanel(back){
+  phase='char';hideGame();camFor('overview');helpPanel.back=null;charPanel.back=back||null;
   setPanel(()=>panel(`<div class="eyebrow">${t('Choose your character')}</div><h2>${tt('Who’s throwing?')}</h2>
     <div class="chGrid">${CHARS.map((c,i)=>`<button class="chCard${S.char===c.id?' on':''}" data-act="char" data-v="${c.id}" ${S.char===c.id?'data-focus':''}><span class="chImg" style="background-position:${(i%7)/6*100}% ${Math.floor(i/7)/2*100}%"></span><b>${esc(c.name)}</b></button>`).join('')}</div>
-    <p class="small">${tt('Characters from Mills Maths Adventure. They all throw the same: only your angle and timing matter.')}</p>`,{wide:true}));
+    <p class="small">${tt('Characters from Mills Maths Adventure. They all throw the same: only your angle and timing matter.')}</p>
+    ${charPanel.back?`<div class="pBtns"><button class="pb" data-act="charBack">&#8592; ${t('Back')}</button></div>`:''}`,{wide:true}));
 }
+/* the topbar shows the current character's face; it is also the way to change character mid-game */
+const FACE_Y={3:40,5:30,6:0,16:20,20:4};
+function paintCharBtn(){const b=$('charBtn');if(!b)return;const i=CHARS.findIndex(c=>c.id===S.char);b.hidden=i<0;if(i<0)return;
+  const k=($('charFace').offsetWidth||34)/76,x=(i%7)*160+42,y=Math.floor(i/7)*200+(FACE_Y[i]!=null?FACE_Y[i]:8);
+  $('charFace').style.backgroundPosition=`${-x*k}px ${-y*k}px`;b.title=t('Change character')+': '+charName(S.char);b.setAttribute('aria-label',b.title)}
 function spotPanel(){
   phase='spot';stall=null;hideGame();camFor('overview');for(const s of P.SPOTS){const m=world.markers[s.id];m.g.visible=true;m.disc.visible=true}
   setPanel(()=>panel(`<div class="eyebrow">${t('Choose your spot')}</div><h2>${tt('Where will people throw from?')}</h2>

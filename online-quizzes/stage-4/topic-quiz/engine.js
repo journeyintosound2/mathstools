@@ -72,7 +72,7 @@
   const DEFAULT_COUNT = 15, MIN_COUNT = 5, MAX_COUNT = 60;
 
   let BANK = null;
-  const S = { level: null, typeIds: [], count: DEFAULT_COUNT, qs: [], recs: [], i: 0, mcPick: null, plotPt: null, seq: [], nl: null, done: false };
+  const S = { level: null, typeIds: [], count: DEFAULT_COUNT, qs: [], recs: [], miss: [], i: 0, mcPick: null, plotPt: null, seq: [], nl: null, done: false };
   const PICK_MODES = ["mc", "tf", "plot", "order", "nline", "multi"];   // answered by picking, not by typing
 
   /* ======================= Cartesian plane =========================== */
@@ -457,7 +457,17 @@
     const c = node.cloneNode(true);
     c.querySelectorAll(".fr").forEach(f => { const n = Number((f.querySelector(".frn") || {}).textContent), d = Number((f.querySelector(".frd") || {}).textContent); const w = DEN[d]; f.textContent = ` ${n} ${w ? w[n === 1 ? 0 : 1] : "over " + d} `; });
     c.querySelectorAll("table").forEach(t => t.remove());
-    return c.textContent.replace(/□|_{2,}/g, " blank ").replace(/−/g, " minus ").replace(/×/g, " times ").replace(/÷/g, " divided by ").replace(/\s+/g, " ").trim();
+    return c.textContent.replace(/□|☐|_{2,}/g, " blank ").replace(/\bcm²/g, " square centimetres").replace(/\bm²/g, " square metres").replace(/\bcm³/g, " cubic centimetres").replace(/−/g, " minus ").replace(/×/g, " times ").replace(/÷/g, " divided by ").replace(/\s+/g, " ").trim();
+  }
+  /* Young readers (bank.young) hear the choices as well as the question. */
+  function speakAll() {
+    const q = S.qs[S.i]; let t = speakText($("qPrompt"));
+    if (BANK.young && q && q.mode === "mc") {
+      const parts = [...document.querySelectorAll("#answerArea .choice")].map((b, k) => `${"ABCDEF"[k]}: ${q.speakOptions ? q.speakOptions[k] : speakText(b.querySelector(".ct"))}`);
+      if (parts.length) t += ". The choices are. " + parts.join(". ") + ".";
+    }
+    if (BANK.young && q && q.mode === "multi") t += ". " + q.fields.map(f => f.name).filter(Boolean).map(n => { const d = document.createElement("span"); d.innerHTML = n; return speakText(d); }).join(". ");
+    return t;
   }
   let VOICE = null;
   function pickVoice() { try { const vs = speechSynthesis.getVoices(); VOICE = vs.find(v => /en-AU/i.test(v.lang)) || vs.find(v => /^en-GB/i.test(v.lang)) || vs.find(v => /^en/i.test(v.lang)) || null; } catch (e) {} }
@@ -470,7 +480,7 @@
       b.addEventListener("click", () => {
         try {
           speechSynthesis.cancel(); if (!VOICE) pickVoice();
-          const u = new SpeechSynthesisUtterance(speakText($("qPrompt"))); if (VOICE) u.voice = VOICE; u.lang = (VOICE && VOICE.lang) || "en-AU"; u.rate = 0.92;
+          const u = new SpeechSynthesisUtterance(speakAll()); if (VOICE) u.voice = VOICE; u.lang = (VOICE && VOICE.lang) || "en-AU"; u.rate = 0.92;
           speechSynthesis.speak(u);
         } catch (e) {}
       });
@@ -510,6 +520,14 @@
     const area = $("answerArea");
     const check = $("checkBtn"), skip = $("skipBtn"), nxt = $("nextBtn");
     $("prevBtn").disabled = S.i === 0;
+    const miss = !r && S.miss[S.i];
+    if (miss) {
+      fb.hidden = false; fb.className = "feedback retry";
+      fb.innerHTML = `<div class="fbHead">Not yet. Have another go!</div><div class="fbWhy">${q.hint || (q.diagram || q.mode === "nline" || q.mode === "plot" ? "Look closely at the picture, then try again." : "Read the question again slowly, then try again.")}</div>`;
+      if (q.mode === "mc") area.querySelectorAll(".choice").forEach((b, k) => { if (k === miss.input) { b.disabled = true; b.classList.add("tried"); } });
+      check.hidden = q.mode === "mc"; skip.hidden = false; nxt.hidden = true;
+      return;
+    }
     if (!r) {
       fb.hidden = true; fb.className = "feedback";
       check.hidden = false; skip.hidden = false; nxt.hidden = true;
@@ -519,12 +537,12 @@
     check.hidden = true; skip.hidden = true; nxt.hidden = false;
     nxt.textContent = S.i === S.qs.length - 1 ? "Finish ✓" : "Next →";
     fb.hidden = false;
-    fb.className = "feedback " + (r.ok ? "good" : "bad");
-    const head = r.ok ? pickPraise() : r.skipped ? "Skipped — here is the answer" : r.swapped ? "Not quite — check the order: x first, then y" : "Not quite";
-    fb.innerHTML = `<div class="fbHead">${r.ok ? "✓" : "✕"} ${head}</div>` +
-      (r.ok ? "" : `<div class="fbAns">Answer: <b>${answerText(q)}</b></div>`) +
+    fb.className = "feedback " + (r.ok ? "good" : r.fixed ? "fixed" : "bad");
+    const head = r.ok ? pickPraise() : r.fixed ? "You got it on your second go!" : r.skipped ? "Skipped — here is the answer" : r.swapped ? "Not quite — check the order: x first, then y" : "Not quite";
+    fb.innerHTML = `<div class="fbHead">${r.ok || r.fixed ? "✓" : "✕"} ${head}</div>` +
+      (r.ok || r.fixed ? "" : `<div class="fbAns">Answer: <b>${answerText(q)}</b></div>`) +
       (q.why ? `<div class="fbWhy">${q.why}</div>` : "");
-    const inp = $("ans"); if (inp) { inp.disabled = true; inp.classList.add(r.ok ? "good" : "bad"); }
+    const inp = $("ans"); if (inp) { inp.disabled = true; inp.classList.add(r.ok || r.fixed ? "good" : "bad"); }
     if (q.mode === "multi") area.querySelectorAll(".mRow").forEach((row, i) => {
       const f = q.fields[i], v = r.input ? r.input[i] : null; let ok = false;
       try { ok = !r.skipped && !(f.q.mode !== "mc" && f.q.mode !== "tf" && !String(v == null ? "" : v).trim()) && !!C.check(f.q, v).ok; } catch (e) {}
@@ -534,7 +552,7 @@
       if (!ok && !row.querySelector(".mFix")) { const fx = document.createElement("span"); fx.className = "mFix"; fx.innerHTML = answerText(Object.assign({}, f.q, { pre: "" , answerHTML: f.q.answerHTML })); if (f.q.mode !== "mc" && f.q.mode !== "tf") row.querySelector(".mIn").appendChild(fx); }
     });
     area.querySelectorAll(".key").forEach(k => k.disabled = true);
-    if (q.mode === "mc") area.querySelectorAll(".choice").forEach((b, k) => { b.disabled = true; b.classList.toggle("good", k === q.correct); b.classList.toggle("bad", k === r.input && !r.ok); b.classList.toggle("sel", k === r.input); });
+    if (q.mode === "mc") area.querySelectorAll(".choice").forEach((b, k) => { b.disabled = true; b.classList.toggle("good", k === q.correct); b.classList.toggle("bad", k === r.input && !r.ok && !r.fixed); b.classList.toggle("sel", k === r.input); });
     if (q.mode === "tf") area.querySelectorAll(".choice").forEach(b => { const v = b.dataset.v === "true"; b.disabled = true; b.classList.toggle("good", v === q.truth); b.classList.toggle("bad", v === r.input && !r.ok); });
     if (q.mode === "plot") { const g = $("qDiagram")._grid; g && g.markAnswer && g.markAnswer(r.input, r.ok, [q.x, q.y]); }
     if (q.mode === "nline") { const g = $("qDiagram")._nl; g && g.mark(r.input, r.ok); const pr = $("plotRead"); if (pr) pr.textContent = ""; }
@@ -559,12 +577,23 @@
     if (!PICK_MODES.includes(q.mode) && !String(input).trim()) { nudge("Type your answer first — or press Skip."); return; }
     const res = C.check(q, input);
     if (res.nudge) { nudge(res.nudge); const inp = $("ans") || (res.field != null ? document.querySelector(`.mRow[data-i="${res.field}"] input`) : null) || [...document.querySelectorAll("input.mAns")].find(x => !x.value.trim()); if (inp) inp.focus(); return; }
-    S.recs[S.i] = { ok: !!res.ok, input, swapped: !!res.swapped, type: q.type, label: q.label };
-    if (res.ok) confetti(0.55);
+    /* bank.secondTry (young students): a wrong FIRST answer gets one more go with a hint before
+       the answer is shown. Only a first go scores, so a fixed answer is saved as not correct. */
+    const missed = S.miss[S.i];
+    if (!res.ok && BANK.secondTry && !missed && canRetry(q)) {
+      S.miss[S.i] = { input };
+      if (q.mode === "mc") S.mcPick = null;
+      if (q.mode === "order") { showQuestion(); } else paintFeedback();
+      const inp = $("ans"); if (inp) { inp.focus(); try { inp.select(); } catch (e) {} }
+      return;
+    }
+    S.recs[S.i] = { ok: !!res.ok && !missed, fixed: !!res.ok && !!missed, input, swapped: !!res.swapped, type: q.type, label: q.label };
+    if (res.ok) confetti(missed ? 0.25 : 0.55);
     if (window.MMTSubmit && window.MMTSubmit.refresh) window.MMTSubmit.refresh();
     showQuestion();
     $("nextBtn").focus({ preventScroll: true });
   }
+  const canRetry = q => q.mode !== "tf" && !(q.mode === "mc" && q.options.length < 3);
   function skip() {
     if (S.recs[S.i]) return;
     S.recs[S.i] = { ok: false, skipped: true, input: null, type: S.qs[S.i].type, label: S.qs[S.i].label };
@@ -580,7 +609,7 @@
 
   function start(level, typeIds, count) {
     S.level = level; S.typeIds = typeIds; S.count = count;
-    S.qs = buildPaper(level, typeIds, count); S.recs = []; S.i = 0; S.done = false;
+    S.qs = buildPaper(level, typeIds, count); S.recs = []; S.miss = []; S.i = 0; S.done = false;
     try { if (window.MMTSubmit && window.MMTSubmit.reset) window.MMTSubmit.reset(); } catch (e) {}
     closeModal("certModal");
     hideStart();
@@ -673,7 +702,8 @@
       prefsId: BANK.id,
       eyebrow: [stage, BANK.stageNote, "Whole-topic quiz", BANK.outcome].filter(Boolean).join(" · "),
       title: BANK.title,
-      counts: [5, 10, 15, 20, 30], defaultCount: DEFAULT_COUNT,
+      lead: BANK.secondTry ? "Choose a level, then start. If you miss a question, you get one more go. Tap Read aloud to hear a question." : undefined,
+      counts: [5, 10, 15, 20, 30], defaultCount: BANK.defaultCount || DEFAULT_COUNT,
       levels: () => LEVEL_KEYS.map(l => ({ key: l, cls: levelCls(l), name: LEVEL_NAME[l], sub: (BANK.levels[l] || {}).sub || "", types: typesFor(l).map(t => ({ id: t.id, html: t.label })) })),
       onStart: (level, ids, n) => start(level, ids, n),
       onResume: hideStart
@@ -727,7 +757,7 @@
     const generate = () => {
       const ids = [...types.querySelectorAll("input:checked")].map(b => b.value);
       if (!ids.length) { $("builderWarn").hidden = false; return; }
-      let n = Math.round(Number(cnt.value) || DEFAULT_COUNT); n = Math.max(MIN_COUNT, Math.min(MAX_COUNT, n)); cnt.value = String(n);
+      let n = Math.round(Number(cnt.value) || BANK.defaultCount || DEFAULT_COUNT); n = Math.max(MIN_COUNT, Math.min(MAX_COUNT, n)); cnt.value = String(n);
       const u = new URL(location.href); u.search = ""; u.hash = "";
       u.searchParams.set("assignment", "1"); u.searchParams.set("level", sel.value);
       u.searchParams.set("types", ids.join(",")); u.searchParams.set("count", String(n));
@@ -740,7 +770,7 @@
       try { await navigator.clipboard.writeText(out.value); $("copyAssignmentBtn").textContent = "Copied ✓"; setTimeout(() => $("copyAssignmentBtn").textContent = "Copy link", 1300); }
       catch (e) { out.focus(); out.select(); }
     });
-    $("resetBuilderBtn").addEventListener("click", () => { setLevel(lastLevel()); cnt.value = String(DEFAULT_COUNT); });
+    $("resetBuilderBtn").addEventListener("click", () => { setLevel(lastLevel()); cnt.value = String(BANK.defaultCount || DEFAULT_COUNT); });
     $("builderPreview").addEventListener("click", () => { if (!out.value) generate(); if (out.value) window.open(out.value, "_blank", "noopener"); });
     setLevel(lastLevel());
   }
@@ -828,6 +858,7 @@
 
   function run(bank) {
     BANK = bank;
+    if (bank.young) document.body.classList.add("young");
     setupLevels();
     paintShell();
     wire();

@@ -671,9 +671,9 @@ import { mountSchoolPicker, loadSchools } from "../shared/schoolPicker.js";
 import { ADVENTURE_NPCS, getStageTopics } from "../shared/adventureManifest.js";
 import { collection, query, where, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 // Chart.js is loaded as a classic global script in <head>; referenced as `Chart`.
-import { getEnabledTools, getAllTools } from "../shared/mmtToolRegistry.js?v=ec80fc0a";
-import { normaliseAchievement, summarise, rollupByStudent, toCSV, summaryText, partialLabel } from "../shared/resultUtils.js?v=6d64d9ab";
-import { recordFitsTask } from "../shared/quizInsights.js?v=ae8fdb45";
+import { getEnabledTools, getAllTools } from "../shared/mmtToolRegistry.js?v=b5c97771";
+import { normaliseAchievement, summarise, rollupByStudent, toCSV, summaryText, partialLabel } from "../shared/resultUtils.js?v=6891cf2b";
+import { recordFitsTask } from "../shared/quizInsights.js?v=877822bd";
 
 const $ = (id)=>document.getElementById(id);
 let teacher=null, students=[], all=[], attemptsByCode=new Map();
@@ -1227,6 +1227,27 @@ const BUILDER_QUIZZES = [
   {toolId:"s5-data-analysis-c-quiz", title:"Data Analysis C: Statistical Inquiries and Media Reports", launchUrl:"/online-quizzes/stage-5/statistics-probability/data-analysis-c.html", builderUrl:"/online-quizzes/stage-5/statistics-probability/data-analysis-c.html?builder=1"},
   {toolId:"s5-probability-a-quiz", title:"Probability A: Multistage Chance Experiments", launchUrl:"/online-quizzes/stage-5/statistics-probability/probability-a.html", builderUrl:"/online-quizzes/stage-5/statistics-probability/probability-a.html?builder=1"},
   {toolId:"s5-probability-b-quiz", title:"Probability B: Venn Diagrams, Two-Way Tables and Conditional Probability", launchUrl:"/online-quizzes/stage-5/statistics-probability/probability-b.html", builderUrl:"/online-quizzes/stage-5/statistics-probability/probability-b.html?builder=1"},
+  // Stage 2 whole-topic quizzes (2026-11-28): same engine, questions from online-quizzes/stage-2/topic-quiz/s2.js. Levels a / ab / b (the syllabus parts).
+  {toolId:"s2-whole-numbers-quiz", title:"Whole Numbers", launchUrl:"/online-quizzes/stage-2/number/whole-numbers.html", builderUrl:"/online-quizzes/stage-2/number/whole-numbers.html?builder=1"},
+  {toolId:"s2-decimals-quiz", title:"Decimals", launchUrl:"/online-quizzes/stage-2/number/decimals.html", builderUrl:"/online-quizzes/stage-2/number/decimals.html?builder=1"},
+  {toolId:"s2-addition-subtraction-quiz", title:"Addition and Subtraction", launchUrl:"/online-quizzes/stage-2/number/addition-subtraction.html", builderUrl:"/online-quizzes/stage-2/number/addition-subtraction.html?builder=1"},
+  {toolId:"s2-additive-number-sentences-quiz", title:"Missing Numbers: Adding and Subtracting", launchUrl:"/online-quizzes/stage-2/number/additive-number-sentences.html", builderUrl:"/online-quizzes/stage-2/number/additive-number-sentences.html?builder=1"},
+  {toolId:"s2-multiplication-division-quiz", title:"Multiplication and Division", launchUrl:"/online-quizzes/stage-2/number/multiplication-division.html", builderUrl:"/online-quizzes/stage-2/number/multiplication-division.html?builder=1"},
+  {toolId:"s2-multiplicative-number-sentences-quiz", title:"Missing Numbers: Multiplying and Dividing", launchUrl:"/online-quizzes/stage-2/number/multiplicative-number-sentences.html", builderUrl:"/online-quizzes/stage-2/number/multiplicative-number-sentences.html?builder=1"},
+  {toolId:"s2-fractions-quiz", title:"Fractions", launchUrl:"/online-quizzes/stage-2/number/fractions.html", builderUrl:"/online-quizzes/stage-2/number/fractions.html?builder=1"},
+  {toolId:"s2-position-quiz", title:"Maps and Directions", launchUrl:"/online-quizzes/stage-2/measurement-space/position.html", builderUrl:"/online-quizzes/stage-2/measurement-space/position.html?builder=1"},
+  {toolId:"s2-length-quiz", title:"Length", launchUrl:"/online-quizzes/stage-2/measurement-space/length.html", builderUrl:"/online-quizzes/stage-2/measurement-space/length.html?builder=1"},
+  {toolId:"s2-angles-quiz", title:"Angles", launchUrl:"/online-quizzes/stage-2/measurement-space/angles.html", builderUrl:"/online-quizzes/stage-2/measurement-space/angles.html?builder=1"},
+  {toolId:"s2-2d-shapes-quiz", title:"2D Shapes", launchUrl:"/online-quizzes/stage-2/measurement-space/2d-shapes.html", builderUrl:"/online-quizzes/stage-2/measurement-space/2d-shapes.html?builder=1"},
+  {toolId:"s2-transformations-quiz", title:"Moving and Joining Shapes", launchUrl:"/online-quizzes/stage-2/measurement-space/transformations.html", builderUrl:"/online-quizzes/stage-2/measurement-space/transformations.html?builder=1"},
+  {toolId:"s2-area-quiz", title:"Area", launchUrl:"/online-quizzes/stage-2/measurement-space/area.html", builderUrl:"/online-quizzes/stage-2/measurement-space/area.html?builder=1"},
+  {toolId:"s2-3d-objects-quiz", title:"3D Objects", launchUrl:"/online-quizzes/stage-2/measurement-space/3d-objects.html", builderUrl:"/online-quizzes/stage-2/measurement-space/3d-objects.html?builder=1"},
+  {toolId:"s2-volume-capacity-quiz", title:"Capacity and Volume", launchUrl:"/online-quizzes/stage-2/measurement-space/volume-capacity.html", builderUrl:"/online-quizzes/stage-2/measurement-space/volume-capacity.html?builder=1"},
+  {toolId:"s2-mass-quiz", title:"Mass", launchUrl:"/online-quizzes/stage-2/measurement-space/mass.html", builderUrl:"/online-quizzes/stage-2/measurement-space/mass.html?builder=1"},
+  {toolId:"s2-time-quiz", title:"Time", launchUrl:"/online-quizzes/stage-2/measurement-space/time.html", builderUrl:"/online-quizzes/stage-2/measurement-space/time.html?builder=1"},
+  {toolId:"s2-data-collecting-graphing-quiz", title:"Collecting and Graphing Data", launchUrl:"/online-quizzes/stage-2/statistics-probability/data-collecting-graphing.html", builderUrl:"/online-quizzes/stage-2/statistics-probability/data-collecting-graphing.html?builder=1"},
+  {toolId:"s2-data-interpreting-quiz", title:"Reading Tables and Graphs", launchUrl:"/online-quizzes/stage-2/statistics-probability/data-interpreting.html", builderUrl:"/online-quizzes/stage-2/statistics-probability/data-interpreting.html?builder=1"},
+  {toolId:"s2-chance-quiz", title:"Chance", launchUrl:"/online-quizzes/stage-2/statistics-probability/chance.html", builderUrl:"/online-quizzes/stage-2/statistics-probability/chance.html?builder=1"},
 ];
 const BUILDER_IDS = new Set(BUILDER_QUIZZES.map(q=>q.toolId));
 
@@ -1290,8 +1311,10 @@ function buildCatalogue(){
     // Home stage (the registry's) first, so its topic is the one named in the cart.
     keys.sort((a,b)=> (topics[a].stage===t.stage?0:1)-(topics[b].stage===t.stage?0:1));
     if(!keys.length){
-      const stage=t.stage||"Other"; const name=topicAreaFor(t); const key=stage+"|~"+name;
-      if(!topics[key]){ const oi=TOPIC_AREA_ORDER.indexOf(name); topics[key]={ key, stage, name, icon:"", strand:FALLBACK_STRAND[(t.topics||[])[0]]||"number-algebra", order:900+(oi<0?50:oi), quizzes:[] }; }
+      // A registry entry may name its own topic (topicName): Stage 2's whole-topic quizzes do, because
+      // Stage 2 is not in the syllabus files, so each gets its own topic card in registry order.
+      const stage=t.stage||"Other"; const name=t.topicName||topicAreaFor(t); const key=stage+"|~"+name;
+      if(!topics[key]){ const oi=TOPIC_AREA_ORDER.indexOf(name); topics[key]={ key, stage, name, icon:"", strand:FALLBACK_STRAND[(t.topics||[])[0]]||"number-algebra", order:t.topicName?800+Object.keys(topics).length/1000:900+(oi<0?50:oi), quizzes:[] }; }
       keys=[key];
     }
     const q={ toolId:t.toolId, title:t.title, short:shortTitle(t.title), launchUrl:t.launchUrl||"", note:cleanNote(info&&info.note), overview:BUILDER_IDS.has(t.toolId), keys };
@@ -2607,7 +2630,7 @@ function openStudent(code, opts){
 // module can't load, the classic page below still opens.
 async function openResults(){
   try{
-    const m = await import("./analytics.js?v=6cbbf451");
+    const m = await import("./analytics.js?v=e9f12cbd");
     m.openAnalytics({
       get all(){ return all; }, get students(){ return students; }, get classes(){ return classes; },
       get dashAssignments(){ return dashAssignments; }, get teacher(){ return teacher; },
