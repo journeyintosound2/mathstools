@@ -1348,3 +1348,6 @@ exports.reviewAccessRequest = onCall({ secrets: [RESEND_API_KEY] }, async (reque
   }
   return { status: "approved", teacherCode, emailed, emailError };
 });
+
+// Bin Toss: Student Interactive (2026-11-28) — see binToss.js / binTossCore.js
+exports.recordBinTossThrows = require("./binToss").recordBinTossThrows;

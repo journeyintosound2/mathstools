@@ -466,12 +466,13 @@ function substituteIndicesQuestion() {
 
 function checkTheWorkingQuestion() {
   const x = choice(V);
-  const a = randInt(2, 5); const b = randInt(2, 5);
+  // a = b = 2 would make the "mistake" true: 2 + 2 = 2 × 2
+  let a = randInt(2, 5); const b = randInt(2, 5); if (a === 2 && b === 2) a = 3;
   const cases = [
     { shown: `${x}${sup(a)} × ${x}${sup(b)} = ${x}${sup(a * b)}`, ok: false, right: `${x}${sup(a + b)}`, why: "The indices should be ADDED when multiplying powers of the same base, not multiplied." },
     { shown: `(${x}${sup(a)})${sup(b)} = ${x}${sup(a + b)}`, ok: false, right: `${x}${sup(a * b)}`, why: "For a power of a power the indices are MULTIPLIED." },
     { shown: `(3${x})${sup(2)} = 3${x}²`, ok: false, right: `9${x}²`, why: "Both factors inside the bracket are squared: 3² = 9." },
-    { shown: `5${x}⁰ = 1`, ok: false, right: "5", why: "Only the x is raised to the power 0; 5 × 1 = 5." },
+    { shown: `5${x}⁰ = 1`, ok: false, right: "5", why: `Only the ${x} is raised to the power 0; 5 × 1 = 5.` },
     { shown: `${x}${sup(a + b)} ÷ ${x}${sup(b)} = ${x}${sup(a)}`, ok: true, right: `${x}${sup(a)}`, why: "Correct: subtract the indices." },
     { shown: `2${sup(-3)} = ${MINUS}8`, ok: false, right: "1/8", why: "A negative index means a reciprocal, not a negative number." }
   ];

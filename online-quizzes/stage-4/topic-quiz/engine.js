@@ -73,7 +73,7 @@
 
   let BANK = null;
   const S = { level: null, typeIds: [], count: DEFAULT_COUNT, qs: [], recs: [], i: 0, mcPick: null, plotPt: null, seq: [], nl: null, done: false };
-  const PICK_MODES = ["mc", "tf", "plot", "order", "nline"];   // answered by picking, not by typing
+  const PICK_MODES = ["mc", "tf", "plot", "order", "nline", "multi"];   // answered by picking, not by typing
 
   /* ======================= Cartesian plane =========================== */
   /* opts: xMin,xMax,yMin,yMax, cell (px), points:[{x,y,label,color}],
@@ -244,11 +244,65 @@
     input.dispatchEvent(new Event("input"));
   }
 
+  /* how to type it, shown under an empty algebra box: only the keys this answer needs */
+  function typingHint(q) {
+    const src = q.mode === "expr" ? q.expr : q.mode === "eqn" ? q.eqn : q.mode === "set" ? (q.values || []).join(" ") : "";
+    if (!src) return "";
+    const bits = [];
+    if (/\^/.test(src)) bits.push("<b>^</b> for a power (x^2)");
+    if (/\//.test(src)) bits.push("<b>/</b> for a fraction");
+    if (/sqrt|√/.test(src)) bits.push("<b>√</b> for a root");
+    return bits.length ? `<span class="pvHint">Type ${bits.join(", ")}.</span>` : "";
+  }
   function previewHTML(q, v) {
-    if (!v.trim()) return "";
+    if (!v.trim()) return typingHint(q);
     if (q.mode === "mono") return "= " + C.prettyPowers(v.replace(/\s*[x*]\s*/gi, " × "));
     if (q.mode === "pi") return "= " + C.esc(v).replace(/pi/gi, "π");
+    // algebra (Stage 5): show how the typing was read, set out as maths
+    if (C.preview) { const p = C.preview(q, v); if (p) return `<span class="pvLab">Reads as</span> ${p}`; if (p === "") return `<span class="pvLab pvWait">…</span>`; }
     return "";
+  }
+  const KEY_TEXT = { "−": "-", "am": " am", "pm": " pm", "r": " r", "× 10^": " × 10^", "×10^": " × 10^" };
+  const DEFAULT_KEYS = { expr: ["^", "(", ")", "/"], eqn: ["=", "^", "(", ")", "/"], set: ["−", ",", "/"], ineq: ["<", ">", "≤", "≥", "−"] };
+  function keyBar(keys, target) {
+    const kb = document.createElement("div"); kb.className = "keys"; kb.setAttribute("aria-label", "Symbol keys");
+    keys.forEach(k => { const b = document.createElement("button"); b.type = "button"; b.className = "key" + (k.length > 2 ? " wide" : "") + (k === "^" ? " hat" : k === "√" ? " root" : ""); b.textContent = k; b.title = "Type " + k; b.addEventListener("mousedown", e => e.preventDefault()); b.addEventListener("click", () => { const inp = target(); if (inp && !inp.disabled) insertAtCaret(inp, KEY_TEXT[k] != null ? KEY_TEXT[k] : k); }); kb.appendChild(b); });
+    return kb;
+  }
+  /* ---- multi: an answer in two or more parts, a box (or a choice) for each ---- */
+  function multiUI(q, rec, chk) {
+    const box = document.createElement("div"); box.className = "multi" + (q.fields.some(f => f.name) ? "" : " noLab");
+    S.multi = q.fields.map((f, i) => (rec && rec.input ? rec.input[i] : null));
+    let last = null; const keys = [];
+    q.fields.forEach((f, i) => {
+      const fq = f.q, row = document.createElement("div"); row.className = "mRow"; row.dataset.i = i;
+      const lab = `<span class="mLab">${f.name || ""}</span>`;
+      if (fq.mode === "mc" || fq.mode === "tf") {
+        const opts = fq.mode === "tf" ? ["True", "False"] : fq.options;
+        row.innerHTML = lab + `<span class="mIn"><span class="seg" role="group"></span></span>`;
+        const seg = row.querySelector(".seg");
+        opts.forEach((o, k) => { const b = document.createElement("button"); b.type = "button"; b.className = "segBtn"; b.innerHTML = o; const val = fq.mode === "tf" ? k === 0 : k;
+          if (S.multi[i] === val) b.classList.add("sel");
+          b.addEventListener("click", () => { if (S.recs[S.i]) return; S.multi[i] = val; seg.querySelectorAll(".segBtn").forEach(x => x.classList.toggle("sel", x === b)); clearNudge(); }); seg.appendChild(b); });
+      } else {
+        row.innerHTML = lab + `<span class="mIn">${fq.pre ? `<span class="aff">${fq.pre}</span>` : ""}<input class="ans mAns" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="${fq.mode === "num" ? "decimal" : "text"}" placeholder="${C.esc(fq.placeholder || "")}" aria-label="${C.esc((f.name || "") + " " + String(fq.pre || "").replace(/<[^>]+>/g, ""))}">${fq.unit ? `<span class="aff">${fq.unit}</span>` : ""}<span class="preview mPv"></span></span>`;
+        const inp = row.querySelector("input"), pv = row.querySelector(".mPv");
+        if (S.multi[i] != null) inp.value = S.multi[i];
+        const paint = () => { pv.innerHTML = previewHTML(fq, inp.value); };
+        inp.addEventListener("input", () => { S.multi[i] = inp.value; clearNudge(); paint(); });
+        inp.addEventListener("focus", () => { last = inp; });
+        inp.addEventListener("keydown", e => { if (e.key !== "Enter") return; e.preventDefault(); e.stopPropagation(); if (S.recs[S.i]) return next();
+          const all = [...box.querySelectorAll("input.mAns")], empty = all.find(x => !x.value.trim()); if (empty && empty !== inp) empty.focus(); else submit(); });
+        paint();
+        (fq.keys || DEFAULT_KEYS[fq.mode] || (fq.mode === "coord" ? ["(", ",", ")", "−"] : fq.mode === "num" || fq.mode === "frac" ? ["−"] : [])).forEach(k => { if (!keys.includes(k)) keys.push(k); });
+      }
+      box.appendChild(row);
+    });
+    const foot = document.createElement("div"); foot.className = "inRow mFoot";
+    const typed = box.querySelector("input.mAns");
+    if (keys.length && typed) foot.appendChild(keyBar(keys.filter(k => k !== "−" || keys.length > 1 || true), () => last || typed));
+    foot.appendChild(chk); box.appendChild(foot);
+    return box;
   }
 
   function showQuestion() {
@@ -301,6 +355,8 @@
       area.appendChild(wrap);
     } else if (q.mode === "order") {
       area.appendChild(orderUI(q, rec, chk));
+    } else if (q.mode === "multi") {
+      area.appendChild(multiUI(q, rec, chk));
     } else if (q.mode === "nline") {
       const p = document.createElement("div"); p.className = "plotRead"; p.id = "plotRead";
       p.textContent = rec ? "" : "Click the number line to place your mark.";
@@ -315,24 +371,22 @@
       const row = document.createElement("div"); row.className = "inRow";
       row.innerHTML = `<label class="inLab" for="ans">Answer</label>${q.pre ? `<span class="aff">${q.pre}</span>` : ""}<input id="ans" class="ans" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="${q.mode === "num" && !q.keys ? "decimal" : "text"}" placeholder="${C.esc(q.placeholder || "")}">${q.unit ? `<span class="aff">${q.unit}</span>` : ""}`;
       area.appendChild(row);
-      const keys = q.keys || (q.mode === "pi" ? ["π"] : q.mode === "mono" ? ["^", "×"] : q.mode === "ratio" ? [":"] : q.mode === "coord" ? ["(", ",", ")", "−"] : q.mode === "linear" ? ["=", "+", "−", "x"] : q.mode === "time" && q.fmt === "12" ? [":", "am", "pm"] : q.mode === "time" ? [":"] : q.mode === "rem" ? ["r"] : null);
-      if (keys) {
-        const kb = document.createElement("div"); kb.className = "keys"; kb.setAttribute("aria-label", "Symbol keys");
-        keys.forEach(k => { const b = document.createElement("button"); b.type = "button"; b.className = "key"; b.textContent = k; b.title = "Type " + k; b.addEventListener("mousedown", e => e.preventDefault()); b.addEventListener("click", () => { const inp = $("ans"); if (inp && !inp.disabled) insertAtCaret(inp, k === "−" ? "-" : (k === "am" || k === "pm" || k === "r") ? " " + k : k); }); kb.appendChild(b); });
-        row.appendChild(kb);
-      }
+      const keys = q.keys || DEFAULT_KEYS[q.mode] || (q.mode === "pi" ? ["π"] : q.mode === "mono" ? ["^", "×"] : q.mode === "ratio" ? [":"] : q.mode === "coord" ? ["(", ",", ")", "−"] : q.mode === "linear" ? ["=", "+", "−", "x"] : q.mode === "time" && q.fmt === "12" ? [":", "am", "pm"] : q.mode === "time" ? [":"] : q.mode === "rem" ? ["r"] : null);
+      if (keys && keys.length) row.appendChild(keyBar(keys, () => $("ans")));
+      if (["expr", "eqn", "set", "ineq"].includes(q.mode)) row.classList.add("algRow");
       row.appendChild(chk);
       const pv = document.createElement("div"); pv.className = "preview"; pv.id = "preview"; area.appendChild(pv);
       const inp = $("ans");
       inp.addEventListener("input", () => { clearNudge(); pv.innerHTML = previewHTML(q, inp.value); });
       inp.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); e.stopPropagation(); S.recs[S.i] ? next() : submit(); } });
-      if (rec) { inp.value = rec.input == null ? "" : rec.input; pv.innerHTML = previewHTML(q, inp.value); }
+      if (rec) inp.value = rec.input == null ? "" : rec.input;
+      pv.innerHTML = previewHTML(q, inp.value);
     }
     clearNudge();
     paintFeedback();
     progress();
     if (!rec && !reduceMotion) { const card = $("qCard"); card.classList.remove("pop"); void card.offsetWidth; card.classList.add("pop"); }
-    const inp = $("ans");
+    const inp = $("ans") || area.querySelector("input.mAns");
     if (inp && !rec && !document.querySelector(".modalBack.open") && !isAuthOpen()) setTimeout(() => { try { inp.focus({ preventScroll: true }); } catch (e) {} }, 30);
   }
   /* ---- order: tap the items in order (Stage 3) ---- */
@@ -443,6 +497,10 @@
     if (q.mode === "rem") return `${q.quot} r ${q.rem}`;
     if (q.mode === "pair") return `${q.pair[0]} × ${q.pair[1]}`;
     if (q.mode === "text") return C.esc(q.accept[0]);
+    if (q.mode === "ratio") return q.parts.map(v => C.fmt(v)).join(" : ");
+    if (q.mode === "expr" && C.alg) { const t = C.alg.parse(q.expr); return (q.pre ? q.pre + " " : "") + (t ? C.alg.html(t) : C.esc(q.expr)) + (q.unit ? " " + q.unit : ""); }
+    if ((q.mode === "eqn" || q.mode === "ineq" || q.mode === "set") && C.preview) return C.preview(q, q.mode === "eqn" ? q.eqn : q.mode === "set" ? q.values.join(", ") : `${q.v} ${q.op} ${q.value}`) || "";
+    if (q.mode === "multi") return q.fields.map(f => (f.name ? f.name + ": " : "") + answerText(f.q)).join("; &nbsp;");
     return "";
   }
 
@@ -467,6 +525,14 @@
       (r.ok ? "" : `<div class="fbAns">Answer: <b>${answerText(q)}</b></div>`) +
       (q.why ? `<div class="fbWhy">${q.why}</div>` : "");
     const inp = $("ans"); if (inp) { inp.disabled = true; inp.classList.add(r.ok ? "good" : "bad"); }
+    if (q.mode === "multi") area.querySelectorAll(".mRow").forEach((row, i) => {
+      const f = q.fields[i], v = r.input ? r.input[i] : null; let ok = false;
+      try { ok = !r.skipped && !(f.q.mode !== "mc" && f.q.mode !== "tf" && !String(v == null ? "" : v).trim()) && !!C.check(f.q, v).ok; } catch (e) {}
+      row.classList.add(ok ? "good" : "bad");
+      row.querySelectorAll("input").forEach(x => { x.disabled = true; x.classList.add(ok ? "good" : "bad"); });
+      row.querySelectorAll(".segBtn").forEach((b, k) => { b.disabled = true; const val = f.q.mode === "tf" ? k === 0 : k, right = f.q.mode === "tf" ? f.q.truth === (k === 0) : k === f.q.correct; b.classList.toggle("good", right); b.classList.toggle("bad", val === v && !right); });
+      if (!ok && !row.querySelector(".mFix")) { const fx = document.createElement("span"); fx.className = "mFix"; fx.innerHTML = answerText(Object.assign({}, f.q, { pre: "" , answerHTML: f.q.answerHTML })); if (f.q.mode !== "mc" && f.q.mode !== "tf") row.querySelector(".mIn").appendChild(fx); }
+    });
     area.querySelectorAll(".key").forEach(k => k.disabled = true);
     if (q.mode === "mc") area.querySelectorAll(".choice").forEach((b, k) => { b.disabled = true; b.classList.toggle("good", k === q.correct); b.classList.toggle("bad", k === r.input && !r.ok); b.classList.toggle("sel", k === r.input); });
     if (q.mode === "tf") area.querySelectorAll(".choice").forEach(b => { const v = b.dataset.v === "true"; b.disabled = true; b.classList.toggle("good", v === q.truth); b.classList.toggle("bad", v === r.input && !r.ok); });
@@ -483,6 +549,7 @@
     if (q.mode === "plot") return S.plotPt;
     if (q.mode === "order") return S.seq.slice();
     if (q.mode === "nline") return S.nl;
+    if (q.mode === "multi") return (S.multi || []).slice();
     const inp = $("ans"); return inp ? inp.value : "";
   }
   function submit() {
@@ -491,7 +558,7 @@
     const input = readInput(q);
     if (!PICK_MODES.includes(q.mode) && !String(input).trim()) { nudge("Type your answer first — or press Skip."); return; }
     const res = C.check(q, input);
-    if (res.nudge) { nudge(res.nudge); const inp = $("ans"); if (inp) inp.focus(); return; }
+    if (res.nudge) { nudge(res.nudge); const inp = $("ans") || (res.field != null ? document.querySelector(`.mRow[data-i="${res.field}"] input`) : null) || [...document.querySelectorAll("input.mAns")].find(x => !x.value.trim()); if (inp) inp.focus(); return; }
     S.recs[S.i] = { ok: !!res.ok, input, swapped: !!res.swapped, type: q.type, label: q.label };
     if (res.ok) confetti(0.55);
     if (window.MMTSubmit && window.MMTSubmit.refresh) window.MMTSubmit.refresh();
@@ -604,7 +671,7 @@
     SS = window.MMTStartScreen.create({
       before: $("quizMain"),
       prefsId: BANK.id,
-      eyebrow: [stage, "Whole-topic quiz", BANK.outcome].filter(Boolean).join(" · "),
+      eyebrow: [stage, BANK.stageNote, "Whole-topic quiz", BANK.outcome].filter(Boolean).join(" · "),
       title: BANK.title,
       counts: [5, 10, 15, 20, 30], defaultCount: DEFAULT_COUNT,
       levels: () => LEVEL_KEYS.map(l => ({ key: l, cls: levelCls(l), name: LEVEL_NAME[l], sub: (BANK.levels[l] || {}).sub || "", types: typesFor(l).map(t => ({ id: t.id, html: t.label })) })),

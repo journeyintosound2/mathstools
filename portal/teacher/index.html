@@ -671,9 +671,9 @@ import { mountSchoolPicker, loadSchools } from "../shared/schoolPicker.js";
 import { ADVENTURE_NPCS, getStageTopics } from "../shared/adventureManifest.js";
 import { collection, query, where, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 // Chart.js is loaded as a classic global script in <head>; referenced as `Chart`.
-import { getEnabledTools, getAllTools } from "../shared/mmtToolRegistry.js?v=24d1881f";
-import { normaliseAchievement, summarise, rollupByStudent, toCSV, summaryText, partialLabel } from "../shared/resultUtils.js?v=e17ad2d3";
-import { recordFitsTask } from "../shared/quizInsights.js?v=dff2b70a";
+import { getEnabledTools, getAllTools } from "../shared/mmtToolRegistry.js?v=ec80fc0a";
+import { normaliseAchievement, summarise, rollupByStudent, toCSV, summaryText, partialLabel } from "../shared/resultUtils.js?v=6d64d9ab";
+import { recordFitsTask } from "../shared/quizInsights.js?v=ae8fdb45";
 
 const $ = (id)=>document.getElementById(id);
 let teacher=null, students=[], all=[], attemptsByCode=new Map();
@@ -1185,6 +1185,48 @@ const BUILDER_QUIZZES = [
   {toolId:"s3-data-collecting-displaying-quiz", title:"Data: Collecting and Displaying Data", launchUrl:"/online-quizzes/stage-3/statistics-probability/data-collecting-displaying.html", builderUrl:"/online-quizzes/stage-3/statistics-probability/data-collecting-displaying.html?builder=1"},
   {toolId:"s3-data-interpreting-quiz", title:"Data: Interpreting Data", launchUrl:"/online-quizzes/stage-3/statistics-probability/data-interpreting.html", builderUrl:"/online-quizzes/stage-3/statistics-probability/data-interpreting.html?builder=1"},
   {toolId:"s3-chance-quiz", title:"Chance", launchUrl:"/online-quizzes/stage-3/statistics-probability/chance.html", builderUrl:"/online-quizzes/stage-3/statistics-probability/chance.html?builder=1"},
+  // Stage 5 whole-topic quizzes (2026-11-28): same engine, questions from online-quizzes/stage-5/topic-quiz/s5.js. Levels basic / expected.
+  {toolId:"s5-financial-mathematics-a-quiz", title:"Financial Mathematics A: Earning, Spending and Simple Interest", launchUrl:"/online-quizzes/stage-5/number/financial-mathematics-a.html", builderUrl:"/online-quizzes/stage-5/number/financial-mathematics-a.html?builder=1"},
+  {toolId:"s5-financial-mathematics-b-quiz", title:"Financial Mathematics B: Compound Interest and Depreciation", launchUrl:"/online-quizzes/stage-5/number/financial-mathematics-b.html", builderUrl:"/online-quizzes/stage-5/number/financial-mathematics-b.html?builder=1"},
+  {toolId:"s5-algebraic-techniques-a-quiz", title:"Algebraic Techniques A: Algebraic Fractions and Expanding", launchUrl:"/online-quizzes/stage-5/algebra/algebraic-techniques-a.html", builderUrl:"/online-quizzes/stage-5/algebra/algebraic-techniques-a.html?builder=1"},
+  {toolId:"s5-algebraic-techniques-b-quiz", title:"Algebraic Techniques B: Factorising and Binomial Products", launchUrl:"/online-quizzes/stage-5/algebra/algebraic-techniques-b.html", builderUrl:"/online-quizzes/stage-5/algebra/algebraic-techniques-b.html?builder=1"},
+  {toolId:"s5-algebraic-techniques-c-quiz", title:"Algebraic Techniques C: Special Products and Factorising", launchUrl:"/online-quizzes/stage-5/algebra/algebraic-techniques-c.html", builderUrl:"/online-quizzes/stage-5/algebra/algebraic-techniques-c.html?builder=1"},
+  {toolId:"s5-indices-a-quiz", title:"Indices A: Index Laws, Zero and Negative Indices", launchUrl:"/online-quizzes/stage-5/number/indices-a.html", builderUrl:"/online-quizzes/stage-5/number/indices-a.html?builder=1"},
+  {toolId:"s5-indices-b-quiz", title:"Indices B: Negative Indices in Algebra", launchUrl:"/online-quizzes/stage-5/number/indices-b.html", builderUrl:"/online-quizzes/stage-5/number/indices-b.html?builder=1"},
+  {toolId:"s5-indices-c-quiz", title:"Indices C: Surds and Fractional Indices", launchUrl:"/online-quizzes/stage-5/number/indices-c.html", builderUrl:"/online-quizzes/stage-5/number/indices-c.html?builder=1"},
+  {toolId:"s5-equations-a-quiz", title:"Equations A: Linear Equations", launchUrl:"/online-quizzes/stage-5/algebra/equations-a.html", builderUrl:"/online-quizzes/stage-5/algebra/equations-a.html?builder=1"},
+  {toolId:"s5-equations-b-quiz", title:"Equations B: Quadratics, Cubics and Inequalities", launchUrl:"/online-quizzes/stage-5/algebra/equations-b.html", builderUrl:"/online-quizzes/stage-5/algebra/equations-b.html?builder=1"},
+  {toolId:"s5-equations-c-quiz", title:"Equations C: Literal, Quadratic and Simultaneous Equations", launchUrl:"/online-quizzes/stage-5/algebra/equations-c.html", builderUrl:"/online-quizzes/stage-5/algebra/equations-c.html?builder=1"},
+  {toolId:"s5-linear-relationships-a-quiz", title:"Linear Relationships A: Midpoint, Gradient and Distance", launchUrl:"/online-quizzes/stage-5/algebra/linear-relationships-a.html", builderUrl:"/online-quizzes/stage-5/algebra/linear-relationships-a.html?builder=1"},
+  {toolId:"s5-linear-relationships-b-quiz", title:"Linear Relationships B: Gradient–Intercept Form", launchUrl:"/online-quizzes/stage-5/algebra/linear-relationships-b.html", builderUrl:"/online-quizzes/stage-5/algebra/linear-relationships-b.html?builder=1"},
+  {toolId:"s5-linear-relationships-c-quiz", title:"Linear Relationships C: Coordinate Geometry and Transformations", launchUrl:"/online-quizzes/stage-5/algebra/linear-relationships-c.html", builderUrl:"/online-quizzes/stage-5/algebra/linear-relationships-c.html?builder=1"},
+  {toolId:"s5-non-linear-relationships-a-quiz", title:"Non-Linear Relationships A: Tables and Graphs", launchUrl:"/online-quizzes/stage-5/algebra/non-linear-relationships-a.html", builderUrl:"/online-quizzes/stage-5/algebra/non-linear-relationships-a.html?builder=1"},
+  {toolId:"s5-non-linear-relationships-b-quiz", title:"Non-Linear Relationships B: Parabolas and Exponential Curves", launchUrl:"/online-quizzes/stage-5/algebra/non-linear-relationships-b.html", builderUrl:"/online-quizzes/stage-5/algebra/non-linear-relationships-b.html?builder=1"},
+  {toolId:"s5-non-linear-relationships-c-quiz", title:"Non-Linear Relationships C: Parabolas, Hyperbolas, Circles and More", launchUrl:"/online-quizzes/stage-5/algebra/non-linear-relationships-c.html", builderUrl:"/online-quizzes/stage-5/algebra/non-linear-relationships-c.html?builder=1"},
+  {toolId:"s5-variation-and-rates-a-quiz", title:"Variation and Rates of Change A: Direct and Inverse Variation", launchUrl:"/online-quizzes/stage-5/ratios-rates/variation-and-rates-a.html", builderUrl:"/online-quizzes/stage-5/ratios-rates/variation-and-rates-a.html?builder=1"},
+  {toolId:"s5-variation-and-rates-b-quiz", title:"Variation and Rates of Change B: Rates of Change", launchUrl:"/online-quizzes/stage-5/ratios-rates/variation-and-rates-b.html", builderUrl:"/online-quizzes/stage-5/ratios-rates/variation-and-rates-b.html?builder=1"},
+  {toolId:"s5-polynomials-quiz", title:"Polynomials", launchUrl:"/online-quizzes/stage-5/algebra/polynomials.html", builderUrl:"/online-quizzes/stage-5/algebra/polynomials.html?builder=1"},
+  {toolId:"s5-logarithms-quiz", title:"Logarithms", launchUrl:"/online-quizzes/stage-5/algebra/logarithms.html", builderUrl:"/online-quizzes/stage-5/algebra/logarithms.html?builder=1"},
+  {toolId:"s5-functions-and-other-graphs-quiz", title:"Functions and Other Graphs", launchUrl:"/online-quizzes/stage-5/algebra/functions-and-other-graphs.html", builderUrl:"/online-quizzes/stage-5/algebra/functions-and-other-graphs.html?builder=1"},
+  {toolId:"s5-numbers-of-any-magnitude-quiz", title:"Numbers of Any Magnitude", launchUrl:"/online-quizzes/stage-5/number/numbers-of-any-magnitude.html", builderUrl:"/online-quizzes/stage-5/number/numbers-of-any-magnitude.html?builder=1"},
+  {toolId:"s5-trigonometry-a-quiz", title:"Trigonometry A: Right-Angled Triangles", launchUrl:"/online-quizzes/stage-5/measurement-space/trigonometry-a.html", builderUrl:"/online-quizzes/stage-5/measurement-space/trigonometry-a.html?builder=1"},
+  {toolId:"s5-trigonometry-b-quiz", title:"Trigonometry B: Elevation, Depression and Bearings", launchUrl:"/online-quizzes/stage-5/measurement-space/trigonometry-b.html", builderUrl:"/online-quizzes/stage-5/measurement-space/trigonometry-b.html?builder=1"},
+  {toolId:"s5-trigonometry-c-quiz", title:"Trigonometry C: Non-Right-Angled Triangles and 3D Problems", launchUrl:"/online-quizzes/stage-5/measurement-space/trigonometry-c.html", builderUrl:"/online-quizzes/stage-5/measurement-space/trigonometry-c.html?builder=1"},
+  {toolId:"s5-trigonometry-d-quiz", title:"Trigonometry D: The Unit Circle and Trigonometric Equations", launchUrl:"/online-quizzes/stage-5/measurement-space/trigonometry-d.html", builderUrl:"/online-quizzes/stage-5/measurement-space/trigonometry-d.html?builder=1"},
+  {toolId:"s5-area-and-surface-area-a-quiz", title:"Area and Surface Area A: Composite Areas, Prisms and Cylinders", launchUrl:"/online-quizzes/stage-5/measurement-space/area-and-surface-area-a.html", builderUrl:"/online-quizzes/stage-5/measurement-space/area-and-surface-area-a.html?builder=1"},
+  {toolId:"s5-area-and-surface-area-b-quiz", title:"Area and Surface Area B: Pyramids, Cones and Spheres", launchUrl:"/online-quizzes/stage-5/measurement-space/area-and-surface-area-b.html", builderUrl:"/online-quizzes/stage-5/measurement-space/area-and-surface-area-b.html?builder=1"},
+  {toolId:"s5-volume-a-quiz", title:"Volume A: Prisms, Cylinders and Composite Solids", launchUrl:"/online-quizzes/stage-5/measurement-space/volume-a.html", builderUrl:"/online-quizzes/stage-5/measurement-space/volume-a.html?builder=1"},
+  {toolId:"s5-volume-b-quiz", title:"Volume B: Pyramids, Cones and Spheres", launchUrl:"/online-quizzes/stage-5/measurement-space/volume-b.html", builderUrl:"/online-quizzes/stage-5/measurement-space/volume-b.html?builder=1"},
+  {toolId:"s5-geometrical-figures-a-quiz", title:"Properties of Geometrical Figures A: Similar Figures and Scale", launchUrl:"/online-quizzes/stage-5/measurement-space/geometrical-figures-a.html", builderUrl:"/online-quizzes/stage-5/measurement-space/geometrical-figures-a.html?builder=1"},
+  {toolId:"s5-geometrical-figures-b-quiz", title:"Properties of Geometrical Figures B: Congruence, Similarity and Reasoning", launchUrl:"/online-quizzes/stage-5/measurement-space/geometrical-figures-b.html", builderUrl:"/online-quizzes/stage-5/measurement-space/geometrical-figures-b.html?builder=1"},
+  {toolId:"s5-geometrical-figures-c-quiz", title:"Properties of Geometrical Figures C: Geometric Proofs", launchUrl:"/online-quizzes/stage-5/measurement-space/geometrical-figures-c.html", builderUrl:"/online-quizzes/stage-5/measurement-space/geometrical-figures-c.html?builder=1"},
+  {toolId:"s5-circle-geometry-quiz", title:"Circle Geometry", launchUrl:"/online-quizzes/stage-5/measurement-space/circle-geometry.html", builderUrl:"/online-quizzes/stage-5/measurement-space/circle-geometry.html?builder=1"},
+  {toolId:"s5-introduction-to-networks-quiz", title:"Introduction to Networks", launchUrl:"/online-quizzes/stage-5/measurement-space/introduction-to-networks.html", builderUrl:"/online-quizzes/stage-5/measurement-space/introduction-to-networks.html?builder=1"},
+  {toolId:"s5-data-analysis-a-quiz", title:"Data Analysis A: Quartiles, Box Plots and Standard Deviation", launchUrl:"/online-quizzes/stage-5/statistics-probability/data-analysis-a.html", builderUrl:"/online-quizzes/stage-5/statistics-probability/data-analysis-a.html?builder=1"},
+  {toolId:"s5-data-analysis-b-quiz", title:"Data Analysis B: Bivariate Data", launchUrl:"/online-quizzes/stage-5/statistics-probability/data-analysis-b.html", builderUrl:"/online-quizzes/stage-5/statistics-probability/data-analysis-b.html?builder=1"},
+  {toolId:"s5-data-analysis-c-quiz", title:"Data Analysis C: Statistical Inquiries and Media Reports", launchUrl:"/online-quizzes/stage-5/statistics-probability/data-analysis-c.html", builderUrl:"/online-quizzes/stage-5/statistics-probability/data-analysis-c.html?builder=1"},
+  {toolId:"s5-probability-a-quiz", title:"Probability A: Multistage Chance Experiments", launchUrl:"/online-quizzes/stage-5/statistics-probability/probability-a.html", builderUrl:"/online-quizzes/stage-5/statistics-probability/probability-a.html?builder=1"},
+  {toolId:"s5-probability-b-quiz", title:"Probability B: Venn Diagrams, Two-Way Tables and Conditional Probability", launchUrl:"/online-quizzes/stage-5/statistics-probability/probability-b.html", builderUrl:"/online-quizzes/stage-5/statistics-probability/probability-b.html?builder=1"},
 ];
 const BUILDER_IDS = new Set(BUILDER_QUIZZES.map(q=>q.toolId));
 
@@ -1196,7 +1238,7 @@ function loadSyllabus(){
   if(!syllabusP){
     const load=Promise.all([
       window.MMT_RESOURCES ? null : loadScriptOnce(new URL("../../resources/resourcesManifest.js?v=2c0e07cc", location.href).href),
-      window.MMT_TOOL_LINKS ? null : loadScriptOnce(new URL("../../resources/toolLinks.js?v=a76fb058", location.href).href),
+      window.MMT_TOOL_LINKS ? null : loadScriptOnce(new URL("../../resources/toolLinks.js?v=0a3e0311", location.href).href),
     ]).then(()=>true, ()=>{ syllabusP=null; return false; });
     syllabusP=Promise.race([load, new Promise(r=>setTimeout(()=>r(false), 5000))]);
   }
@@ -2565,7 +2607,7 @@ function openStudent(code, opts){
 // module can't load, the classic page below still opens.
 async function openResults(){
   try{
-    const m = await import("./analytics.js?v=aae8eeff");
+    const m = await import("./analytics.js?v=6cbbf451");
     m.openAnalytics({
       get all(){ return all; }, get students(){ return students; }, get classes(){ return classes; },
       get dashAssignments(){ return dashAssignments; }, get teacher(){ return teacher; },

@@ -4,7 +4,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>Bin Toss: Student Interactive | Mills Maths Tools</title>
-  <meta name="description" content="A 3D classroom game. Choose your spot, set your throwing angle, time the power meter and collect data on how often the paper goes in the bin. Then set a cost to play and run the $50 prize stall for a profit." />
+  <meta name="description" content="A 3D classroom game. Choose your spot, set your throwing angle, time the power meter and collect data on how often the paper goes in the bin. Then set a cost to play and run the prize stall for a profit." />
+  <script src="/portal/shared/portalHandoff.js?v=16b9c759" data-input="#btCode" data-button="#btCodeGo"></script>
   <style>
 :root{--bg:#f8fafc;--ink:#0f172a;--muted:#64748b;--border:#e2e8f0;--soft:#f1f5f9;--blue:#2563eb;--blue-dark:#1d4ed8;
   --green:#16a34a;--green-dark:#15803d;--red:#dc2626;--orange:#f97316;--purple:#7c3aed;--amber:#f59e0b;
@@ -152,7 +153,7 @@ button,input{font:inherit}
 .pb{appearance:none;border:1px solid var(--border);background:#fff;border-radius:14px;padding:12px 16px;font-weight:900;cursor:pointer;color:var(--ink);font-size:.95rem}
 .pb:hover:not(:disabled){background:#eef2ff;border-color:#c7d2fe;color:var(--blue-dark)}
 .pb.main{flex:1 1 200px;border:none;color:#fff;background:linear-gradient(90deg,#2563eb,#7c3aed);box-shadow:0 8px 20px rgba(37,99,235,.3);font-size:1.05rem}
-.pb.main:hover:not(:disabled){filter:brightness(1.08);color:#fff}
+.pb.main:hover:not(:disabled){filter:brightness(1.08);color:#fff;background:linear-gradient(90deg,#2563eb,#7c3aed);border:none}
 .pb:disabled{opacity:.45;cursor:default}
 .spotCards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:6px}
 .spotCard{appearance:none;text-align:left;border:2px solid var(--border);background:#fff;border-radius:18px;padding:12px 13px;cursor:pointer;transition:.15s;color:var(--ink)}
@@ -232,6 +233,172 @@ details.log summary{font-weight:900;cursor:pointer}
   #hint{display:none}
 }
 @media (prefers-reduced-motion:reduce){.bigBtn.throw{animation:none}#pop .pp,#pop .why,.panel{animation:none}}
+
+/* ---------- v2: languages, sign-in, settings, learning, teacher ---------- */
+.tl{display:block}
+.el{display:block;font-size:.82em;color:#64748b;font-weight:600;margin-top:2px}
+h2 .el{font-size:.6em;letter-spacing:0}
+.btn .tl,.btn .el{display:inline}
+.small{margin:10px 0 0;font-size:.85rem;color:#64748b;line-height:1.45}
+.h3{margin:16px 0 6px;font-size:1rem;font-weight:900;letter-spacing:-.01em;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.panel.xwide{width:min(1180px,100%)}
+.acctBtn{display:inline-flex;align-items:center;gap:6px;padding:6px 8px 6px 10px}
+.chipOff{font-weight:800;opacity:.85}
+.chipGo{background:#fff;color:#1d4ed8;border-radius:9px;padding:3px 8px}
+.chipOn{color:#bbf7d0}
+#teachBtn.on{background:#dcfce7;border-color:#dcfce7;color:#166534}
+.menuWrap{position:relative}
+.setMenu{position:absolute;right:0;top:calc(100% + 8px);width:290px;background:#fff;color:var(--ink);border-radius:16px;box-shadow:0 18px 45px rgba(15,23,42,.3);padding:10px;z-index:60;display:grid;gap:6px}
+.mHead{font-size:.66rem;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-top:4px}
+.mNote{font-size:.72rem;color:var(--muted);line-height:1.3}
+.mRule{height:1px;background:var(--border);margin:4px 0}
+.mItem{appearance:none;border:none;background:none;text-align:left;padding:8px;border-radius:10px;font-weight:850;cursor:pointer;color:#b91c1c}
+.mItem:hover{background:#fef2f2}
+.mItem small,.sw small{display:block;font-weight:650;font-size:.72rem;color:var(--muted)}
+.sw{display:flex;align-items:center;gap:10px;font-weight:800;font-size:.9rem;cursor:pointer;padding:4px 2px}
+.sw input{position:absolute;opacity:0;width:0;height:0}
+.sw .track{width:38px;height:22px;border-radius:99px;background:#cbd5e1;position:relative;flex:0 0 auto;transition:.15s}
+.sw .track::after{content:"";position:absolute;left:3px;top:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:.15s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.sw input:checked+.track{background:var(--blue)}
+.sw input:checked+.track::after{left:19px}
+.sw input:focus-visible+.track{box-shadow:0 0 0 3px rgba(37,99,235,.35)}
+.segMini{display:inline-flex;gap:3px;background:var(--soft);border:1px solid var(--border);border-radius:11px;padding:3px}
+.segMini button{appearance:none;border:none;background:none;border-radius:8px;padding:5px 10px;font-weight:800;font-size:.8rem;cursor:pointer;color:var(--muted)}
+.segMini button.on{background:#fff;color:var(--ink);box-shadow:0 1px 4px rgba(15,23,42,.12)}
+.segMini.lang button{font-size:.86rem}
+#toast{left:50%;top:16px;transform:translateX(-50%);background:#0f172a;color:#fff;border-radius:16px;padding:10px 18px;font-weight:700;font-size:.92rem;text-align:center;box-shadow:0 14px 30px rgba(15,23,42,.35);max-width:min(440px,calc(100vw - 28px));z-index:30}
+#toast.go{animation:popIn .4s cubic-bezier(.2,1.6,.4,1) both}
+#replayTag{left:50%;top:14px;transform:translateX(-50%);appearance:none;border:none;border-radius:99px;background:#dc2626;color:#fff;font-weight:1000;letter-spacing:.12em;padding:8px 18px;cursor:pointer;box-shadow:0 10px 24px rgba(220,38,38,.35);animation:pulse 1s infinite}
+#replayTag small{letter-spacing:0;font-weight:700;opacity:.85;margin-left:6px}
+.saveLine{margin-top:8px;font-size:.74rem;font-weight:800;color:var(--green-dark)}
+.saveLine.wait{color:#b45309}
+.hardNote{color:#7c3aed!important}
+/* account box */
+.acct{border:1px solid var(--border);background:var(--soft);border-radius:16px;padding:12px 14px;display:grid;gap:8px;margin-top:4px}
+.acct.on{display:flex;align-items:center;gap:12px;background:#f0fdf4;border-color:#bbf7d0}
+.acct.on .dot{color:var(--green)}
+.acct.on div{flex:1}
+.acct small{display:block;color:var(--muted);font-weight:650;font-size:.82rem}
+.acctT b{font-size:.95rem}
+.acctF{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.acctF input{flex:1 1 140px;min-width:0;border:2px solid var(--border);border-radius:12px;padding:9px 12px;font-weight:800;font-size:1rem;letter-spacing:.04em;background:#fff}
+.acctF input:focus{outline:none;border-color:var(--blue)}
+.acctMsg{font-size:.84rem;font-weight:750;color:var(--muted);min-height:1.1em}
+.acctMsg.bad{color:#b91c1c}
+.pb.sm{padding:8px 12px;font-size:.86rem;border-radius:11px}
+.pb.quizB{background:#fef3c7;border-color:#fcd34d;color:#78350f}
+/* predictions */
+.lsl{margin:10px 0 4px}
+.lslRead{font-size:2.6rem;font-weight:1000;text-align:center;font-variant-numeric:tabular-nums;letter-spacing:-.03em}
+.lsl input[type=range]{width:100%;height:34px;-webkit-appearance:none;appearance:none;background:transparent}
+.lsl input[type=range]::-webkit-slider-runnable-track{height:12px;border-radius:99px;background:linear-gradient(90deg,#ef4444,#f97316,#eab308,#22c55e,#3b82f6)}
+.lsl input[type=range]::-moz-range-track{height:12px;border-radius:99px;background:linear-gradient(90deg,#ef4444,#f97316,#eab308,#22c55e,#3b82f6)}
+.lsl input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;border-radius:50%;background:#fff;border:3px solid #0f172a;margin-top:-8px;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.lsl input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;background:#fff;border:3px solid #0f172a}
+.lslWords{display:flex;justify-content:space-between;font-size:.66rem;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.prizePick{display:flex;align-items:center;gap:6px;margin:6px 0 2px;font-weight:850;color:var(--muted);font-size:.86rem}
+.seg{appearance:none;border:1px solid var(--border);background:#fff;border-radius:10px;padding:6px 12px;font-weight:900;cursor:pointer;color:var(--ink)}
+.seg:hover{background:#eef2ff}
+.seg.on{background:#7c3aed;border-color:#7c3aed;color:#fff}
+.nobody{font-weight:800;color:#b91c1c;font-size:.86rem;line-height:26px}
+.predBox{margin-top:12px;border:1px dashed #c4b5fd;background:#faf5ff;border-radius:16px;padding:10px 13px}
+.predQ{font-weight:850;margin-bottom:8px}
+.segRow{display:flex;gap:8px}
+.segRow .seg{flex:1;padding:9px}
+.predBox .predRow{margin-top:8px}
+.note.green{background:#f0fdf4;border:1px solid #bbf7d0;color:#14532d}
+.note.red{background:#fef2f2;border:1px solid #fecaca;color:#7f1d1d}
+/* long run */
+.longRun{margin-top:12px;border:1px solid var(--border);border-radius:16px;padding:10px 12px;background:#fff}
+.lrHead{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.lrHead span{font-size:.84rem;color:var(--muted);font-weight:700;flex:1 1 180px}
+.lrTxt{font-size:.9rem;margin:6px 0 0}
+.chartBox{position:relative;margin-top:8px}
+.chartBox svg{width:100%;height:auto;display:block}
+.chartBox .tip{position:absolute;transform:translate(-50%,-130%);background:#0f172a;color:#fff;font-size:.76rem;font-weight:800;border-radius:8px;padding:4px 8px;pointer-events:none;white-space:nowrap}
+/* quiz */
+.qDots{display:flex;gap:5px}
+.qDots i{width:12px;height:12px;border-radius:50%;background:#e2e8f0;display:block}
+.qDots i.now{box-shadow:0 0 0 2px #fff,0 0 0 4px var(--blue)}
+.qDots i.ok{background:var(--green-dark)}.qDots i.no{background:#f87171}
+.chipK{display:inline-block;margin-top:8px;border-radius:99px;background:#fef3c7;color:#92400e;font-size:.7rem;font-weight:900;letter-spacing:.1em;text-transform:uppercase;padding:4px 10px}
+.qH{font-size:clamp(1.15rem,2.4vw,1.45rem)!important;line-height:1.3!important}
+.numRow{display:flex;align-items:center;gap:8px;margin:8px 0 2px}
+.numRow input{width:140px;border:2px solid var(--border);border-radius:14px;padding:10px 12px;font-weight:900;font-size:1.4rem;text-align:center;font-variant-numeric:tabular-nums}
+.numRow input:focus{outline:none;border-color:var(--blue)}
+.numRow .pb{flex:0 0 auto}
+.numRow .u{font-size:1.4rem;font-weight:900;color:var(--muted)}
+.nudge{min-height:1.2em;font-size:.86rem;font-weight:800;color:#b45309}
+.mc{display:grid;gap:8px;margin:8px 0}
+.mcO{appearance:none;text-align:left;border:2px solid var(--border);background:#fff;border-radius:14px;padding:11px 14px;font-weight:750;font-size:.96rem;cursor:pointer;color:var(--ink);line-height:1.35}
+.mcO:hover:not(:disabled){border-color:var(--blue);background:#eff6ff}
+.mcO.right{border-color:#16a34a;background:#f0fdf4}
+.mcO.wrong{border-color:#dc2626;background:#fef2f2}
+.mcO:disabled{cursor:default}
+.qSum{list-style:none;padding:0;margin:8px 0;display:grid;gap:6px}
+.qSum li{border-radius:12px;padding:8px 12px;font-weight:800}
+.qSum li.ok{background:#f0fdf4;color:#14532d}.qSum li.no{background:#fef2f2;color:#7f1d1d}
+/* reveal */
+.rvLegend{display:flex;flex-wrap:wrap;gap:12px;font-size:.8rem;font-weight:800;color:#334155;margin:6px 0 4px}
+.rvLegend span{display:inline-flex;align-items:center;gap:6px}
+.rvLegend .mk{position:static;transform:none}
+.rvRow{display:grid;grid-template-columns:120px 1fr;gap:4px 14px;align-items:center;padding:12px 0;border-bottom:1px solid var(--border)}
+.rvName small{display:block;color:var(--muted);font-weight:700}
+.rvAxis{position:relative;height:74px;margin:0 10px;border-bottom:2px solid #334155}
+.rvAxis .tk{position:absolute;bottom:-20px;transform:translateX(-50%);font-size:.68rem;color:var(--muted);font-weight:700}
+.rvNums{grid-column:2;font-size:.8rem;color:#334155;margin-top:16px;font-weight:650}
+.mk{position:absolute;bottom:4px;transform:translateX(-50%);display:inline-block;width:16px;height:16px;border-radius:50%;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.mk.me{background:#2563eb;bottom:38px}.mk.cls{background:#c2410c;bottom:21px}.mk.all{background:#0f766e;width:18px;height:18px;bottom:3px}
+.mk.pme,.mk.pcls,.mk.ptch{border-radius:2px;width:0;height:0;border:8px solid transparent;border-bottom:13px solid;box-shadow:none;bottom:56px}
+.mk.pme{border-bottom-color:#2563eb}.mk.pcls{border-bottom-color:#c2410c}.mk.ptch{border-bottom-color:#7c3aed}
+.rvLegend .mk.pme,.rvLegend .mk.pcls,.rvLegend .mk.ptch{border-width:0 7px 12px;border-style:solid;border-color:transparent}
+.rvLegend .mk.pme{border-bottom-color:#2563eb}.rvLegend .mk.pcls{border-bottom-color:#c2410c}.rvLegend .mk.ptch{border-bottom-color:#7c3aed}
+/* goals, share */
+.goals{list-style:none;padding:0;margin:8px 0;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.goals li{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--border);border-radius:14px;padding:10px 12px;font-weight:800;font-size:.9rem;background:var(--soft);color:var(--muted)}
+.goals li.done{background:#fffbeb;border-color:#fcd34d;color:#78350f}
+.gi{font-size:1.1rem;line-height:1.2}
+.shareBox{margin-top:14px;border:1px solid var(--border);border-radius:14px;padding:10px 12px;display:grid;gap:8px;background:var(--soft)}
+.shareBox code{font-size:.82rem;white-space:normal;word-break:break-word;background:#fff;border-radius:8px;padding:8px;border:1px solid var(--border)}
+.shareBox .pb{justify-self:start}
+/* teacher */
+.dashHead{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.dashCtl{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.dashCtl label{font-weight:800;font-size:.84rem;color:var(--muted);display:flex;gap:6px;align-items:center}
+.dashCtl select{border:1px solid var(--border);border-radius:10px;padding:7px 9px;font-weight:800;font-size:.86rem}
+.kpis{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0 4px}
+.kpis div{flex:1 1 150px;border:1px solid var(--border);border-radius:14px;padding:8px 12px;background:var(--soft)}
+.kpis small{display:block;font-size:.66rem;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.kpis b{font-size:1.5rem;font-weight:950;font-variant-numeric:tabular-nums}
+.kpis span{font-size:.78rem;color:var(--muted);font-weight:700;margin-left:4px}
+.tb.dash td small{color:var(--muted);font-weight:650}
+.tPred{width:58px;border:1px solid var(--border);border-radius:8px;padding:4px 6px;font-weight:800;text-align:right}
+.dashGrid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.dashSvg{width:100%;height:auto;display:block}
+.legendS{display:flex;gap:12px;flex-wrap:wrap;font-size:.76rem;color:var(--muted);font-weight:700}
+.legendS i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-2px;margin-right:4px}
+.legendS .dotL{border-radius:50%;background:#0f766e}
+.tScroll{max-height:300px;overflow:auto;border:1px solid var(--border);border-radius:12px}
+.tScroll.short{max-height:230px}
+.tScroll .tb{margin:0}
+.tScroll thead th{position:sticky;top:0;background:#fff}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chipE{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:99px;padding:3px 4px 3px 10px;font-size:.84rem;background:#fff}
+.chipE .x{appearance:none;border:none;background:#f1f5f9;border-radius:50%;width:22px;height:22px;cursor:pointer;font-weight:900;color:var(--muted)}
+.dashSvg.wide{margin-top:10px}
+@media (max-width:900px){.dashGrid,.goals{grid-template-columns:1fr}.rvRow{grid-template-columns:1fr}.rvNums{grid-column:1}#goalBtn #goalCount{display:none}}
+@media (max-width:700px){.acctBtn .chipOff{display:none}#teachBtn{padding:9px 10px}}
+
+@media (max-width:1180px){.btn .lbl{display:none}}
+@media (max-width:700px){
+  .mmtTopbar{grid-template-columns:auto 1fr;gap:8px;padding:8px 10px}
+  .mmtTopTitle{display:none}
+  .topActions{gap:5px}
+  .topActions .btn{padding:8px 9px;font-size:13px}
+  .topActions .btn.icon{min-width:36px}
+  .mmtBrandLogo{width:36px;height:36px}
+}
+@media (max-width:420px){#teachBtn{font-size:0;padding:8px 9px}#teachBtn::before{content:"👩‍🏫";font-size:15px}}
   </style>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cf81850ba684422f95853dd3ff1b2a1f"}'></script><!-- End Cloudflare Web Analytics -->
 <!-- mmt-pwa -->
@@ -253,10 +420,13 @@ details.log summary{font-weight:900;cursor:pointer}
     </a>
     <div class="mmtTopTitle"><small>Student Interactive</small>Bin Toss: Run the Stall</div>
     <div class="topActions">
-      <button class="btn" id="helpBtn" type="button" title="How to play">? <span class="lbl">How to play</span></button>
-      <button class="btn" id="logBtn" type="button" title="Your stall log">&#128202; <span class="lbl">Stall log</span></button>
-      <button class="btn icon" id="soundBtn" type="button" aria-pressed="true" title="Sound on or off" aria-label="Sound on or off">&#128266;</button>
-      <button class="btn btn-primary" id="resetBtn" type="button" title="Clear everything and start again">Start again</button>
+      <button class="btn icon" id="helpBtn" type="button" title="How to play" aria-label="How to play">?</button>
+      <button class="btn" id="goalBtn" type="button" title="Challenges">🏆 <span id="goalCount">0/11</span></button>
+      <button class="btn" id="logBtn" type="button" title="My results">📊 <span class="lbl" data-t="My results">My results</span></button>
+      <div class="menuWrap"><button class="btn icon" id="setBtn" type="button" aria-haspopup="true" aria-expanded="false" title="Settings" aria-label="Settings">⚙</button>
+        <div class="setMenu" id="setMenu" hidden></div></div>
+      <button class="btn acctBtn" id="acctChip" type="button" title="Sign in"></button>
+      <button class="btn btn-primary" id="teachBtn" type="button" data-t="Teacher">Teacher</button>
     </div>
   </header>
 
@@ -271,17 +441,17 @@ details.log summary{font-weight:900;cursor:pointer}
         <div class="stepPills"><span id="pill1">1 Angle</span><span id="pill2">2 Power</span></div>
         <div class="ctlCols">
           <div class="ctl" id="ctlAngle">
-            <h4>Angle</h4>
+            <h4 id="hAngle">Angle</h4>
             <div class="read"><span id="angRead">45</span>°</div>
             <div class="vTrack" id="angTrack" role="slider" tabindex="0" aria-label="Throwing angle in degrees" aria-valuemin="15" aria-valuemax="75" aria-valuenow="45" aria-orientation="vertical">
               <div class="rail"></div><div class="fill" id="angFill"></div>
               <div id="angTicks"></div>
               <div class="thumb" id="angThumb">&#8597;</div>
             </div>
-            <div class="zoneNote">Drag up for a higher throw</div>
+            <div class="zoneNote" id="angNote">Drag up for a higher throw</div>
           </div>
           <div class="ctl off" id="ctlPower">
-            <h4>Power</h4>
+            <h4 id="hPower">Power</h4>
             <div class="read"><span id="powRead">0</span><small>%</small></div>
             <div class="meter" id="meter">
               <div class="bar"><div class="zone" id="zone"></div></div>
@@ -298,7 +468,9 @@ details.log summary{font-weight:900;cursor:pointer}
 
     <div class="hud" id="pop" aria-live="polite"></div>
     <div class="hud" id="hint" hidden></div>
-    <div class="hud" id="skip" hidden><button type="button" id="skipBtn">Skip to the end &#9193;</button></div>
+    <button class="hud" id="replayTag" type="button" hidden>&#9654; REPLAY <small>slow motion · tap to skip</small></button>
+    <div class="hud" id="skip" hidden><button type="button" id="skipBtn" data-t="Skip to the end ⏩">Skip to the end ⏩</button></div>
+    <div class="hud" id="toast" hidden role="status"></div>
 
     <div id="veil" hidden></div>
   </main>
@@ -400,48 +572,81 @@ var BTP=(function(){
 })();
 if(typeof module!=='undefined')module.exports=BTP;
 </script>
+<script id="btI18n">
+window.BT_I18N={"<b>1. Angle.</b> Drag the blue slider up or down (or use the arrow keys). The green sweet spot on the power meter shows how much power that angle needs.": {"ar": "<b>1. الزاوية.</b> اسحب المؤشر الأزرق إلى الأعلى أو الأسفل (أو استخدم مفاتيح الأسهم). المنطقة الخضراء على مقياس القوة تُظهر مقدار القوة الذي تحتاجه هذه الزاوية.", "fa": "<b>1. زاویه.</b> لغزنده‌ی آبی را بالا یا پایین بکشید (یا از کلیدهای جهت‌دار استفاده کنید). ناحیه‌ی سبز روی نشانگر قدرت نشان می‌دهد این زاویه چقدر قدرت لازم دارد."}, "<b>2. Power.</b> Lock in the angle, then press <b>THROW!</b> (or Space) when the marker is in the green. A scrunched-up ball wobbles, so even a good throw can miss.": {"ar": "<b>2. القوة.</b> ثبّت الزاوية، ثم اضغط <b>ارمِ!</b> (أو مفتاح المسافة) عندما يكون المؤشر في المنطقة الخضراء. الكرة الورقية تتمايل، لذلك قد تخطئ حتى الرمية الجيدة.", "fa": "<b>2. قدرت.</b> زاویه را ثابت کنید، سپس وقتی نشانگر در ناحیه‌ی سبز است <b>پرتاب!</b> (یا کلید فاصله) را بزنید. توپ کاغذی لق می‌زند، پس حتی یک پرتاب خوب هم ممکن است خطا برود."}, "<b>3. Data.</b> Every throw is recorded as in or out. In ÷ throws is your estimate of the chance: P(in).": {"ar": "<b>3. البيانات.</b> تُسجَّل كل رمية: داخل أو خارج. عدد الرميات الداخلة ÷ عدد الرميات هو تقديرك للاحتمال: P(in).", "fa": "<b>3. داده‌ها.</b> هر پرتاب به‌صورت داخل یا بیرون ثبت می‌شود. تعداد داخل ÷ تعداد پرتاب‌ها برآورد شما از احتمال است: P(in)."}, "<b>4. The stall.</b> Choose a cost to play. Customers throw about as well as you. Each one pays you the cost; each winner takes the prize. Profit = collected − paid out. Nobody will pay half the prize or more.": {"ar": "<b>4. الكشك.</b> اختر سعر اللعب. يرمي الزبائن بمهارة قريبة من مهارتك. كل زبون يدفع لك السعر، وكل فائز يأخذ الجائزة. الربح = المُحصَّل − المدفوع. لن يدفع أحد نصف الجائزة أو أكثر.", "fa": "<b>4. غرفه.</b> هزینه‌ی بازی را انتخاب کنید. مشتری‌ها تقریباً به خوبی شما پرتاب می‌کنند. هر کدام هزینه را به شما می‌دهد و هر برنده جایزه را می‌برد. سود = دریافتی − پرداختی. هیچ‌کس نصف جایزه یا بیشتر نمی‌پردازد."}, "<b>Break-even price</b> = P(in) × prize ≈ {pp} × {z} = <b>{b}</b>.": {"ar": "<b>سعر التعادل</b> = P(in) × الجائزة ≈ {pp} × {z} = <b>{b}</b>.", "fa": "<b>قیمت سربه‌سر</b> = P(in) × جایزه ≈ {pp} × {z} = <b>{b}</b>."}, "<b>What your data said:</b> P(in) ≈ {p}, so about {pp} × {n} = <b>{e}</b> winners. There were <b>{w}</b>.": {"ar": "<b>ما قالته بياناتك:</b> P(in) ≈ {p}، إذن حوالي {pp} × {n} = <b>{e}</b> فائزين. وكان العدد الفعلي <b>{w}</b>.", "fa": "<b>آنچه داده‌های شما گفت:</b> P(in) ≈ {p}، پس حدود {pp} × {n} = <b>{e}</b> برنده. در واقع <b>{w}</b> برنده بود."}, "A small number of players is a small sample. The long-run results get closer to what the probability predicts.": {"ar": "عدد قليل من اللاعبين هو عيّنة صغيرة. على المدى الطويل تقترب النتائج مما يتنبأ به الاحتمال.", "fa": "تعداد کم بازیکن یعنی نمونه‌ی کوچک. در درازمدت، نتایج به آنچه احتمال پیش‌بینی می‌کند نزدیک‌تر می‌شوند."}, "A stall charged <b>more</b> than its break-even price, but lost money on a day with 15 players. What is the best explanation?": {"ar": "كشك طلب سعراً <b>أعلى</b> من سعر التعادل، لكنه خسر مالاً في يوم فيه 15 لاعباً. ما أفضل تفسير؟", "fa": "یک غرفه قیمتی <b>بیشتر</b> از قیمت سربه‌سر گرفت، اما در روزی با 15 بازیکن ضرر کرد. بهترین توضیح چیست؟"}, "After {n} players: <b>{w}</b> winners ({p}), profit <b>{m}</b>. That is {per} per player. Your data predicted about {pe} per player (price − P(in) × prize).": {"ar": "بعد {n} لاعب: <b>{w}</b> فائزاً ({p})، والربح <b>{m}</b>. أي {per} لكل لاعب. توقعت بياناتك حوالي {pe} لكل لاعب (السعر − P(in) × الجائزة).", "fa": "بعد از {n} بازیکن: <b>{w}</b> برنده ({p})، سود <b>{m}</b>. یعنی {per} برای هر بازیکن. داده‌های شما حدود {pe} برای هر بازیکن پیش‌بینی کرده بود (قیمت − P(in) × جایزه)."}, "All MMT": {"ar": "كل طلاب MMT", "fa": "همه‌ی MMT"}, "All MMT students": {"ar": "كل طلاب MMT", "fa": "همه‌ی دانش‌آموزان MMT"}, "All your customers from here so far: <b>{w} in out of {n}</b> ({p}). More trials, better estimate.": {"ar": "كل زبائنك من هذا المكان حتى الآن: <b>{w} داخل من أصل {n}</b> ({p}). محاولات أكثر، تقدير أفضل.", "fa": "همه‌ی مشتری‌های شما از این نقطه تا الان: <b>{w} داخل از {n}</b> ({p}). آزمایش بیشتر، برآورد بهتر."}, "Angle": {"ar": "الزاوية", "fa": "زاویه"}, "Anyone who throws the paper ball <b>into the bin</b> wins a prize. Your job: choose a <b>cost to play</b> so the stall makes money.": {"ar": "كل من يرمي الكرة الورقية <b>داخل السلة</b> يربح جائزة. مهمتك: اختر <b>سعر اللعب</b> حتى يربح الكشك.", "fa": "هر کس توپ کاغذی را <b>داخل سطل</b> بیندازد جایزه می‌برد. کار شما: <b>هزینه‌ی بازی</b> را طوری انتخاب کنید که غرفه سود کند."}, "Auto": {"ar": "تلقائي", "fa": "خودکار"}, "Back": {"ar": "الخلف", "fa": "عقب"}, "Back of the room": {"ar": "آخر الصف", "fa": "ته کلاس"}, "Back to the game": {"ar": "العودة إلى اللعبة", "fa": "بازگشت به بازی"}, "Before you open: will today make a profit or a loss?": {"ar": "قبل أن تفتح: هل سيحقق اليوم ربحاً أم خسارة؟", "fa": "قبل از باز کردن: امروز سود می‌کنید یا ضرر؟"}, "Before you throw": {"ar": "قبل أن ترمي", "fa": "قبل از پرتاب"}, "Both give 30%, but 150 throws is a bigger sample than 10, so Leo’s estimate is likely to be closer to the true chance.": {"ar": "كلاهما يعطي 30%، لكن 150 رمية عيّنة أكبر من 10، لذلك تقدير ليو على الأرجح أقرب إلى الاحتمال الحقيقي.", "fa": "هر دو 30٪ می‌دهند، اما 150 پرتاب نمونه‌ای بزرگ‌تر از 10 است، پس برآورد لئو احتمالاً به احتمال واقعی نزدیک‌تر است."}, "Break-even price": {"ar": "سعر التعادل", "fa": "قیمت سربه‌سر"}, "Break-even prices don’t work for games of chance.": {"ar": "أسعار التعادل لا تنفع في ألعاب الحظ.", "fa": "قیمت سربه‌سر برای بازی‌های شانسی کار نمی‌کند."}, "Certain": {"ar": "مؤكد", "fa": "حتمی"}, "Challenge complete": {"ar": "تم إنجاز التحدي", "fa": "چالش کامل شد"}, "Challenges": {"ar": "التحديات", "fa": "چالش‌ها"}, "Chance and variation": {"ar": "الحظ والتغيّر", "fa": "شانس و تغییرپذیری"}, "Chance of in": {"ar": "احتمال الدخول", "fa": "احتمال داخل"}, "Change character": {"ar": "غيّر الشخصية", "fa": "تغییر شخصیت"}, "Change spot": {"ar": "غيّر المكان", "fa": "تغییر نقطه"}, "Characters from Mills Maths Adventure. They all throw the same: only your angle and timing matter.": {"ar": "شخصيات من مغامرة Mills Maths. كلها ترمي بالطريقة نفسها: المهم هو زاويتك وتوقيتك فقط.", "fa": "شخصیت‌هایی از ماجراجویی Mills Maths. همه یکسان پرتاب می‌کنند: فقط زاویه و زمان‌بندی شما مهم است."}, "Cheaper": {"ar": "أرخص", "fa": "ارزان‌تر"}, "Check": {"ar": "تحقّق", "fa": "بررسی"}, "Check your understanding": {"ar": "تحقّق من فهمك", "fa": "فهم خود را بسنجید"}, "Checking…": {"ar": "جارٍ التحقق…", "fa": "در حال بررسی…"}, "Choose profit or loss first": {"ar": "اختر ربحاً أو خسارة أولاً", "fa": "اول سود یا ضرر را انتخاب کنید"}, "Choose your character": {"ar": "اختر شخصيتك", "fa": "شخصیت خود را انتخاب کنید"}, "Choose your spot": {"ar": "اختر مكانك", "fa": "نقطه‌ی خود را انتخاب کنید"}, "Class": {"ar": "الصف", "fa": "کلاس"}, "Class prediction": {"ar": "توقع الصف", "fa": "پیش‌بینی کلاس"}, "Clear all your throws and stall days?": {"ar": "هل تريد مسح كل رمياتك وأيام الكشك؟", "fa": "همه‌ی پرتاب‌ها و روزهای غرفه پاک شود؟"}, "Clear your throws and stall days": {"ar": "امسح رمياتك وأيام الكشك", "fa": "پاک کردن پرتاب‌ها و روزهای غرفه"}, "Close": {"ar": "إغلاق", "fa": "بستن"}, "Collected": {"ar": "المُحصَّل", "fa": "دریافتی"}, "Complementary events": {"ar": "الحوادث المتتامة", "fa": "پیشامدهای متمم"}, "Copied": {"ar": "تم النسخ", "fa": "کپی شد"}, "Copy": {"ar": "نسخ", "fa": "کپی"}, "Correct!": {"ar": "صحيح!", "fa": "درست است!"}, "Cost": {"ar": "السعر", "fa": "هزینه"}, "Cost to play": {"ar": "سعر اللعب", "fa": "هزینه‌ی بازی"}, "Cost to play in dollars": {"ar": "سعر اللعب بالدولار", "fa": "هزینه‌ی بازی به دلار"}, "Could not save this result. Show your teacher this screen.": {"ar": "تعذّر حفظ هذه النتيجة. أرِ معلمك هذه الشاشة.", "fa": "این نتیجه ذخیره نشد. این صفحه را به معلم خود نشان دهید."}, "Could not sign in.": {"ar": "تعذّر تسجيل الدخول.", "fa": "ورود انجام نشد."}, "Customer": {"ar": "الزبون", "fa": "مشتری"}, "Customers line up. Count the money. Did you make a profit?": {"ar": "يصطف الزبائن. احسب المال. هل حققت ربحاً؟", "fa": "مشتری‌ها صف می‌کشند. پول را بشمارید. سود کردید؟"}, "Day": {"ar": "اليوم", "fa": "روز"}, "Day {n}": {"ar": "اليوم {n}", "fa": "روز {n}"}, "Dearer": {"ar": "أغلى", "fa": "گران‌تر"}, "Drag the angle slider, then lock it in": {"ar": "اسحب مؤشر الزاوية، ثم ثبّته", "fa": "لغزنده‌ی زاویه را بکشید، سپس ثابتش کنید"}, "Drag up for a higher throw": {"ar": "اسحب للأعلى لرمية أعلى", "fa": "برای پرتاب بلندتر بالا بکشید"}, "Each player wins {z} with chance P(in), so on average each player costs P(in) × {z} = {b}.": {"ar": "كل لاعب يربح {z} باحتمال P(in)، لذلك يكلّفك كل لاعب في المتوسط P(in) × {z} = {b}.", "fa": "هر بازیکن با احتمال P(in) مبلغ {z} می‌برد، پس هر بازیکن به‌طور میانگین P(in) × {z} = {b} هزینه دارد."}, "Estimate a probability": {"ar": "قدّر احتمالاً", "fa": "برآورد یک احتمال"}, "Even chance": {"ar": "فرصة متساوية", "fa": "شانس برابر"}, "Every throw is either in or out, so P(out) = 100% − P(in) = {p}%.": {"ar": "كل رمية إما داخل أو خارج، لذلك P(out) = 100% − P(in) = {p}%.", "fa": "هر پرتاب یا داخل است یا بیرون، پس P(out) = 100% − P(in) = {p}%."}, "Expected number": {"ar": "العدد المتوقع", "fa": "تعداد مورد انتظار"}, "Finish a day within $10 of $0": {"ar": "أنهِ يوماً بفرق لا يزيد عن 10$ عن الصفر", "fa": "یک روز را با فاصله‌ی حداکثر 10 دلار از صفر تمام کنید"}, "From the same spot, what is P(out) as a percentage?": {"ar": "من المكان نفسه، ما P(out) كنسبة مئوية؟", "fa": "از همان نقطه، P(out) به درصد چقدر است؟"}, "From the {s} you got <b>{a} in out of {n}</b>. What is P(in) as a percentage?": {"ar": "من {s} حصلت على <b>{a} داخل من أصل {n}</b>. ما P(in) كنسبة مئوية؟", "fa": "از {s} شما <b>{a} داخل از {n}</b> گرفتید. P(in) به درصد چقدر است؟"}, "Front": {"ar": "الأمام", "fa": "جلو"}, "Front row": {"ar": "الصف الأمامي", "fa": "ردیف جلو"}, "Get 3 in a row": {"ar": "أدخل 3 رميات متتالية", "fa": "3 پرتاب پشت سر هم داخل"}, "Get 5 in using hard mode": {"ar": "أدخل 5 رميات في الوضع الصعب", "fa": "5 پرتاب داخل در حالت سخت"}, "Get every question right in the check": {"ar": "أجب عن كل أسئلة التحقق بشكل صحيح", "fa": "همه‌ی پرسش‌های سنجش را درست جواب دهید"}, "Get one in from the back": {"ar": "أدخل رمية من آخر الصف", "fa": "یک پرتاب داخل از ته کلاس"}, "Got it": {"ar": "فهمت", "fa": "فهمیدم"}, "Graphics": {"ar": "الرسومات", "fa": "گرافیک"}, "Green = it goes in": {"ar": "الأخضر = تدخل", "fa": "سبز = داخل می‌رود"}, "Guest": {"ar": "ضيف", "fa": "مهمان"}, "Hard": {"ar": "صعب", "fa": "سخت"}, "Hard mode": {"ar": "الوضع الصعب", "fa": "حالت سخت"}, "Hard mode: no sweet spot": {"ar": "الوضع الصعب: لا توجد منطقة خضراء", "fa": "حالت سخت: بدون ناحیه‌ی سبز"}, "Hard mode: time it without the green": {"ar": "الوضع الصعب: اضبط التوقيت دون المنطقة الخضراء", "fa": "حالت سخت: بدون ناحیه‌ی سبز زمان‌بندی کنید"}, "Have a student code?": {"ar": "هل لديك رمز طالب؟", "fa": "کد دانش‌آموزی دارید؟"}, "High": {"ar": "عالية", "fa": "بالا"}, "Hit the side of the bin": {"ar": "اصطدمت بجانب السلة", "fa": "به کنار سطل خورد"}, "How does your estimate compare?": {"ar": "كيف يقارن تقديرك؟", "fa": "برآورد شما چطور مقایسه می‌شود؟"}, "How many can you complete?": {"ar": "كم تحدياً تستطيع إنجازه؟", "fa": "چند تا را می‌توانید کامل کنید؟"}, "How many winners do you expect?": {"ar": "كم فائزاً تتوقع؟", "fa": "چند برنده انتظار دارید؟"}, "How much will you charge to play?": {"ar": "كم ستطلب سعراً للعب؟", "fa": "برای بازی چقدر می‌گیرید؟"}, "How to play": {"ar": "طريقة اللعب", "fa": "روش بازی"}, "I expect about": {"ar": "أتوقع حوالي", "fa": "انتظار دارم حدود"}, "IN": {"ar": "داخل", "fa": "داخل"}, "If <b>{m}</b> people play from the {s}, about how many winners would you expect?": {"ar": "إذا لعب <b>{m}</b> شخصاً من {s}، فكم فائزاً تتوقع تقريباً؟", "fa": "اگر <b>{m}</b> نفر از {s} بازی کنند، حدوداً چند برنده انتظار دارید؟"}, "Impossible": {"ar": "مستحيل", "fa": "ناممکن"}, "In": {"ar": "داخل", "fa": "داخل"}, "In off the rim!": {"ar": "دخلت بعد الحافة!", "fa": "بعد از لبه داخل شد!"}, "In the queue": {"ar": "في الطابور", "fa": "در صف"}, "It hit the ceiling": {"ar": "اصطدمت بالسقف", "fa": "به سقف خورد"}, "Keep going": {"ar": "تابع", "fa": "ادامه"}, "Keep my data": {"ar": "احتفظ ببياناتي", "fa": "داده‌هایم بماند"}, "Language": {"ar": "اللغة", "fa": "زبان"}, "Leo’s, because it is based on more throws.": {"ar": "تقدير ليو، لأنه مبني على رميات أكثر.", "fa": "برآورد لئو، چون بر پایه‌ی پرتاب‌های بیشتری است."}, "Let’s go": {"ar": "هيا بنا", "fa": "برویم"}, "Likely": {"ar": "مرجّح", "fa": "محتمل"}, "Loading everyone’s throws…": {"ar": "جارٍ تحميل رميات الجميع…", "fa": "در حال بارگیری پرتاب‌های همه…"}, "Lock in angle": {"ar": "ثبّت الزاوية", "fa": "ثابت کردن زاویه"}, "Lock it in and throw": {"ar": "ثبّته وارمِ", "fa": "ثبت کن و پرتاب کن"}, "Loss": {"ar": "خسارة", "fa": "ضرر"}, "Low": {"ar": "منخفضة", "fa": "پایین"}, "Low graphics: fewer people in the queue and no shadows, for older devices.": {"ar": "رسومات منخفضة: عدد أقل في الطابور ودون ظلال، للأجهزة القديمة.", "fa": "گرافیک پایین: افراد کمتر در صف و بدون سایه، برای دستگاه‌های قدیمی‌تر."}, "Make $100 in one day": {"ar": "اربح 100$ في يوم واحد", "fa": "در یک روز 100 دلار سود کنید"}, "Make a profit": {"ar": "حقّق ربحاً", "fa": "سود کنید"}, "Make a profit from two different spots": {"ar": "حقّق ربحاً من مكانين مختلفين", "fa": "از دو نقطه‌ی مختلف سود کنید"}, "Mia got <b>3 in out of 10</b>. Leo, from the same spot, got <b>45 in out of 150</b>. Whose estimate of P(in) is more reliable?": {"ar": "حصلت ميا على <b>3 داخل من أصل 10</b>. وحصل ليو، من المكان نفسه، على <b>45 داخل من أصل 150</b>. أيّ التقديرين لـ P(in) أكثر موثوقية؟", "fa": "میا <b>3 داخل از 10</b> گرفت. لئو، از همان نقطه، <b>45 داخل از 150</b> گرفت. برآورد کدام‌یک از P(in) قابل‌اعتمادتر است؟"}, "Mia’s, because a short test is fairer.": {"ar": "تقدير ميا، لأن الاختبار القصير أكثر عدلاً.", "fa": "برآورد میا، چون آزمایش کوتاه منصفانه‌تر است."}, "Middle": {"ar": "الوسط", "fa": "وسط"}, "Middle of the room": {"ar": "وسط الصف", "fa": "وسط کلاس"}, "More practice": {"ar": "تدرّب أكثر", "fa": "تمرین بیشتر"}, "More throws give a better estimate.": {"ar": "رميات أكثر تعطي تقديراً أفضل.", "fa": "پرتاب‌های بیشتر برآورد بهتری می‌دهد."}, "My results": {"ar": "نتائجي", "fa": "نتایج من"}, "Neither: experiments can’t estimate a probability.": {"ar": "لا أحد منهما: التجارب لا تستطيع تقدير احتمال.", "fa": "هیچ‌کدام: آزمایش نمی‌تواند احتمال را برآورد کند."}, "Next question": {"ar": "السؤال التالي", "fa": "پرسش بعدی"}, "No stall days yet.": {"ar": "لا توجد أيام كشك بعد.", "fa": "هنوز روز غرفه‌ای نیست."}, "No sweet spot at this angle": {"ar": "لا توجد منطقة خضراء بهذه الزاوية", "fa": "با این زاویه ناحیه‌ی سبز وجود ندارد"}, "No sweet spot, faster meter": {"ar": "بلا منطقة خضراء، ومقياس أسرع", "fa": "بدون ناحیه‌ی سبز، نشانگر سریع‌تر"}, "No throws yet": {"ar": "لا رميات بعد", "fa": "هنوز پرتابی نیست"}, "Nobody pays {c} or more": {"ar": "لا أحد يدفع {c} أو أكثر", "fa": "هیچ‌کس {c} یا بیشتر نمی‌پردازد"}, "Nobody will pay that much to win {p}.": {"ar": "لن يدفع أحد هذا المبلغ ليربح {p}.", "fa": "هیچ‌کس این‌قدر نمی‌پردازد تا {p} ببرد."}, "Nobody will pay that much. Try a lower price.": {"ar": "لن يدفع أحد هذا المبلغ. جرّب سعراً أقل.", "fa": "هیچ‌کس این‌قدر نمی‌پردازد. قیمت کمتری امتحان کنید."}, "Not quite. The answer is {a}.": {"ar": "ليس تماماً. الإجابة هي {a}.", "fa": "نه کاملاً. پاسخ {a} است."}, "OUT": {"ar": "خارج", "fa": "بیرون"}, "Off the rim": {"ar": "ارتدت عن الحافة", "fa": "از لبه برگشت"}, "Open the stall": {"ar": "افتح الكشك", "fa": "غرفه را باز کنید"}, "Out": {"ar": "خارج", "fa": "بیرون"}, "P(in) × players = {p} × {m} ≈ {e}.": {"ar": "P(in) × عدد اللاعبين = {p} × {m} ≈ {e}.", "fa": "P(in) × تعداد بازیکنان = {p} × {m} ≈ {e}."}, "Paid out": {"ar": "المدفوع", "fa": "پرداختی"}, "Pick a spot and throw. Every throw is data: in or out.": {"ar": "اختر مكاناً وارمِ. كل رمية بيانات: داخل أو خارج.", "fa": "یک نقطه انتخاب کنید و پرتاب کنید. هر پرتاب یک داده است: داخل یا بیرون."}, "Player": {"ar": "اللاعب", "fa": "بازیکن"}, "Players": {"ar": "اللاعبون", "fa": "بازیکنان"}, "Power": {"ar": "القوة", "fa": "قدرت"}, "Practice": {"ar": "تدريب", "fa": "تمرین"}, "Practise": {"ar": "تدرّب", "fa": "تمرین کنید"}, "Predict a day right: profit or loss": {"ar": "توقّع نتيجة يوم بشكل صحيح: ربح أو خسارة", "fa": "نتیجه‌ی یک روز را درست پیش‌بینی کنید: سود یا ضرر"}, "Predicted": {"ar": "المتوقَّع", "fa": "پیش‌بینی"}, "Press THROW! when the marker is in the green": {"ar": "اضغط ارمِ! عندما يكون المؤشر في المنطقة الخضراء", "fa": "وقتی نشانگر در ناحیه‌ی سبز است پرتاب! را بزنید"}, "Prize": {"ar": "الجائزة", "fa": "جایزه"}, "Profit": {"ar": "الربح", "fa": "سود"}, "Question {i} of {n}": {"ar": "السؤال {i} من {n}", "fa": "پرسش {i} از {n}"}, "Same price, same customers, many more players:": {"ar": "السعر نفسه، الزبائن أنفسهم، ولاعبون أكثر بكثير:", "fa": "همان قیمت، همان مشتری‌ها، بازیکنان خیلی بیشتر:"}, "Sample size": {"ar": "حجم العيّنة", "fa": "اندازه‌ی نمونه"}, "Saved to your dashboard. Your teacher can see this result.": {"ar": "حُفظت في لوحتك. يستطيع معلمك رؤية هذه النتيجة.", "fa": "در داشبورد شما ذخیره شد. معلم شما این نتیجه را می‌بیند."}, "Saving to your class isn’t switched on yet. Your throws are kept on this device.": {"ar": "الحفظ لصفك غير مفعّل بعد. رمياتك محفوظة على هذا الجهاز.", "fa": "ذخیره برای کلاس شما هنوز فعال نیست. پرتاب‌هایتان روی همین دستگاه می‌ماند."}, "School fete": {"ar": "مهرجان المدرسة", "fa": "جشنواره‌ی مدرسه"}, "See my results": {"ar": "اعرض نتائجي", "fa": "دیدن نتایجم"}, "See the big picture": {"ar": "شاهد الصورة الكبيرة", "fa": "دیدن تصویر کلی"}, "Set my price": {"ar": "حدّد سعري", "fa": "تعیین قیمت"}, "Set your price": {"ar": "حدّد سعرك", "fa": "قیمت خود را تعیین کنید"}, "Share with your teacher": {"ar": "شارك مع معلمك", "fa": "با معلم خود به اشتراک بگذارید"}, "Sign in": {"ar": "تسجيل الدخول", "fa": "ورود"}, "Sign in to add your throws to the class data. Or just play as a guest.": {"ar": "سجّل الدخول لتضيف رمياتك إلى بيانات الصف. أو العب كضيف.", "fa": "وارد شوید تا پرتاب‌هایتان به داده‌های کلاس اضافه شود. یا فقط به‌عنوان مهمان بازی کنید."}, "Sign in with your student code to add your throws to the class data and see everyone’s results.": {"ar": "سجّل الدخول برمز الطالب لتضيف رمياتك إلى بيانات الصف وترى نتائج الجميع.", "fa": "با کد دانش‌آموزی وارد شوید تا پرتاب‌هایتان به داده‌های کلاس اضافه شود و نتایج همه را ببینید."}, "Sign out": {"ar": "تسجيل الخروج", "fa": "خروج"}, "Sign-in isn’t available right now. You can still play as a guest.": {"ar": "تسجيل الدخول غير متاح الآن. ما زال بإمكانك اللعب كضيف.", "fa": "ورود الان در دسترس نیست. هنوز می‌توانید به‌عنوان مهمان بازی کنید."}, "Signed in as {n}": {"ar": "تم تسجيل الدخول باسم {n}", "fa": "وارد شدید با نام {n}"}, "Skip": {"ar": "تخطَّ", "fa": "رد شدن"}, "Skip to the end ⏩": {"ar": "انتقل إلى النهاية ⏩", "fa": "پرش به پایان ⏩"}, "Sound": {"ar": "الصوت", "fa": "صدا"}, "Spot": {"ar": "المكان", "fa": "نقطه"}, "Stall days": {"ar": "أيام الكشك", "fa": "روزهای غرفه"}, "Stall log": {"ar": "سجل الكشك", "fa": "گزارش غرفه"}, "Stall open": {"ar": "الكشك مفتوح", "fa": "غرفه باز است"}, "Start again": {"ar": "ابدأ من جديد", "fa": "شروع دوباره"}, "Stop it in the green": {"ar": "أوقفه في المنطقة الخضراء", "fa": "در ناحیه‌ی سبز متوقفش کنید"}, "Straight in!": {"ar": "دخلت مباشرة!", "fa": "مستقیم داخل!"}, "Student code": {"ar": "رمز الطالب", "fa": "کد دانش‌آموز"}, "Switched to low graphics to keep it smooth": {"ar": "تم التحويل إلى رسومات منخفضة لتبقى اللعبة سلسة", "fa": "برای روان ماندن به گرافیک پایین تغییر کرد"}, "THROW!": {"ar": "ارمِ!", "fa": "پرتاب!"}, "Teacher": {"ar": "المعلم", "fa": "معلم"}, "Teacher’s prediction": {"ar": "توقع المعلم", "fa": "پیش‌بینی معلم"}, "That’s a solid amount of data.": {"ar": "هذه كمية جيدة من البيانات.", "fa": "این مقدار خوبی داده است."}, "The big picture": {"ar": "الصورة الكبيرة", "fa": "تصویر کلی"}, "The chance of getting it in changed during the day.": {"ar": "تغيّر احتمال الدخول خلال اليوم.", "fa": "احتمال داخل رفتن در طول روز تغییر کرد."}, "The more throws, the closer the estimate gets to the true chance. Thousands of throws make a very good estimate.": {"ar": "كلما زادت الرميات، اقترب التقدير من الاحتمال الحقيقي. آلاف الرميات تعطي تقديراً جيداً جداً.", "fa": "هرچه پرتاب بیشتر، برآورد به احتمال واقعی نزدیک‌تر. هزاران پرتاب برآورد بسیار خوبی می‌دهد."}, "The price must have been below break-even after all.": {"ar": "لا بد أن السعر كان أقل من سعر التعادل في الحقيقة.", "fa": "حتماً قیمت در واقع کمتر از سربه‌سر بوده است."}, "The prize is <b>{z}</b>. Using your P(in), what cost to play would make about <b>$0</b> profit in the long run?": {"ar": "الجائزة <b>{z}</b>. باستخدام P(in) الخاص بك، ما سعر اللعب الذي يعطي ربحاً قدره <b>0$</b> تقريباً على المدى الطويل؟", "fa": "جایزه <b>{z}</b> است. با P(in) خودتان، چه هزینه‌ای برای بازی در درازمدت حدود <b>0 دلار</b> سود می‌دهد؟"}, "They are equally reliable, because both are 30%.": {"ar": "هما متساويان في الموثوقية، لأن كليهما 30%.", "fa": "هر دو به یک اندازه قابل‌اعتمادند، چون هر دو 30٪ هستند."}, "This is your <b>estimate</b> of the chance that a throw from here goes in.": {"ar": "هذا هو <b>تقديرك</b> لاحتمال أن تدخل رمية من هذا المكان.", "fa": "این <b>برآورد</b> شما از احتمال داخل رفتن یک پرتاب از این نقطه است."}, "This removes your data from every spot and your stall log on this device.": {"ar": "سيؤدي هذا إلى حذف بياناتك من كل الأماكن وسجل الكشك على هذا الجهاز.", "fa": "این کار داده‌های شما از همه‌ی نقطه‌ها و گزارش غرفه را روی این دستگاه پاک می‌کند."}, "Throw 10 times from every spot": {"ar": "ارمِ 10 مرات من كل مكان", "fa": "از هر نقطه 10 بار پرتاب کنید"}, "Throw 50 times": {"ar": "ارمِ 50 مرة", "fa": "50 بار پرتاب کنید"}, "Throw at least {n} times from one spot first.": {"ar": "ارمِ {n} مرات على الأقل من مكان واحد أولاً.", "fa": "اول دست‌کم {n} بار از یک نقطه پرتاب کنید."}, "Throw {n} more": {"ar": "ارمِ {n} أخرى", "fa": "{n} پرتاب دیگر"}, "Throw {n} of {m}": {"ar": "الرمية {n} من {m}", "fa": "پرتاب {n} از {m}"}, "Throw, collect data, set a price": {"ar": "ارمِ، اجمع البيانات، حدّد سعراً", "fa": "پرتاب کن، داده جمع کن، قیمت بگذار"}, "Throws": {"ar": "الرميات", "fa": "پرتاب‌ها"}, "Today chance went against you: with only {n} players, that can happen.": {"ar": "اليوم كان الحظ ضدك: مع {n} لاعباً فقط، يمكن أن يحدث هذا.", "fa": "امروز شانس با شما نبود: با فقط {n} بازیکن، این ممکن است پیش بیاید."}, "Today went your way, but that was luck.": {"ar": "اليوم كان في صالحك، لكن ذلك كان حظاً.", "fa": "امروز به نفع شما شد، اما این شانس بود."}, "Too far: it hit the wall": {"ar": "بعيدة جداً: اصطدمت بالجدار", "fa": "خیلی دور: به دیوار خورد"}, "Too long": {"ar": "طويلة جداً", "fa": "خیلی بلند"}, "Too short": {"ar": "قصيرة جداً", "fa": "خیلی کوتاه"}, "Just wide to the left": {"ar": "انحرفت قليلاً إلى اليسار", "fa": "کمی به چپ رفت"}, "Just wide to the right": {"ar": "انحرفت قليلاً إلى اليمين", "fa": "کمی به راست رفت"}, "Try another price": {"ar": "جرّب سعراً آخر", "fa": "قیمت دیگری امتحان کنید"}, "Try new questions": {"ar": "جرّب أسئلة جديدة", "fa": "پرسش‌های تازه"}, "Type a number.": {"ar": "اكتب عدداً.", "fa": "یک عدد بنویسید."}, "Type your student code.": {"ar": "اكتب رمز الطالب الخاص بك.", "fa": "کد دانش‌آموزی خود را بنویسید."}, "Unlikely": {"ar": "غير مرجّح", "fa": "نامحتمل"}, "Use your data to work out how often people will win.": {"ar": "استخدم بياناتك لتحسب كم مرة سيربح الناس.", "fa": "با داده‌هایتان حساب کنید مردم چند وقت یک‌بار می‌برند."}, "We collected": {"ar": "حصّلنا", "fa": "دریافت کردیم"}, "We paid out": {"ar": "دفعنا", "fa": "پرداخت کردیم"}, "What happens in the long run?": {"ar": "ماذا يحدث على المدى الطويل؟", "fa": "در درازمدت چه می‌شود؟"}, "What percentage of your throws will go in from here?": {"ar": "ما النسبة المئوية لرمياتك التي ستدخل من هنا؟", "fa": "چند درصد از پرتاب‌های شما از اینجا داخل می‌رود؟"}, "What your data predicts": {"ar": "ما تتوقعه بياناتك", "fa": "پیش‌بینی داده‌های شما"}, "Where will people throw from?": {"ar": "من أين سيرمي الناس؟", "fa": "مردم از کجا پرتاب می‌کنند؟"}, "Who’s throwing?": {"ar": "من سيرمي؟", "fa": "چه کسی پرتاب می‌کند؟"}, "Winners": {"ar": "الفائزون", "fa": "برندگان"}, "With only 15 players, chance can go against you. Over many players it evens out.": {"ar": "مع 15 لاعباً فقط، قد يكون الحظ ضدك. ومع عدد كبير من اللاعبين يتوازن الأمر.", "fa": "با فقط 15 بازیکن، شانس ممکن است علیه شما باشد. با بازیکنان زیاد متعادل می‌شود."}, "Write it as a percentage, for example 30 rather than 0.3.": {"ar": "اكتبها كنسبة مئوية، مثلاً 30 بدلاً من 0.3.", "fa": "به‌صورت درصد بنویسید، مثلاً 30 به‌جای 0.3."}, "Yes, start again": {"ar": "نعم، ابدأ من جديد", "fa": "بله، از نو شروع کن"}, "You": {"ar": "أنت", "fa": "شما"}, "You broke even: $0": {"ar": "تعادلت: 0$", "fa": "سربه‌سر شدید: 0 دلار"}, "You can also tap an orange marker on the floor. Each spot keeps its own data.": {"ar": "يمكنك أيضاً النقر على علامة برتقالية على الأرض. لكل مكان بياناته الخاصة.", "fa": "می‌توانید روی یک نشانگر نارنجی روی زمین هم بزنید. هر نقطه داده‌های خودش را دارد."}, "You charged <b>{c}</b>, which is <b>above</b> break-even, so you expect a profit in the long run.": {"ar": "طلبت <b>{c}</b>، وهو <b>أعلى</b> من سعر التعادل، لذلك تتوقع ربحاً على المدى الطويل.", "fa": "شما <b>{c}</b> گرفتید که <b>بالاتر</b> از سربه‌سر است، پس در درازمدت انتظار سود دارید."}, "You charged <b>{c}</b>, which is <b>below</b> break-even. Each player costs you about {b} in prizes, so in the long run this price loses money.": {"ar": "طلبت <b>{c}</b>، وهو <b>أقل</b> من سعر التعادل. يكلّفك كل لاعب حوالي {b} من الجوائز، لذلك يخسر هذا السعر مالاً على المدى الطويل.", "fa": "شما <b>{c}</b> گرفتید که <b>پایین‌تر</b> از سربه‌سر است. هر بازیکن حدود {b} جایزه برایتان هزینه دارد، پس این قیمت در درازمدت ضرر می‌دهد."}, "You charged almost exactly the break-even price, so you expect to make about $0. Chance decides the rest.": {"ar": "طلبت تقريباً سعر التعادل بالضبط، لذلك تتوقع حوالي 0$. والحظ يقرر الباقي.", "fa": "شما تقریباً دقیقاً قیمت سربه‌سر را گرفتید، پس انتظار حدود 0 دلار دارید. بقیه را شانس تعیین می‌کند."}, "You expected about {w} winners; there were {x}.": {"ar": "توقعت حوالي {w} فائزين؛ وكان العدد {x}.", "fa": "انتظار حدود {w} برنده داشتید؛ {x} برنده بود."}, "You got {r} out of {n}": {"ar": "حصلت على {r} من {n}", "fa": "{r} از {n} گرفتید"}, "You predicted {p}%.": {"ar": "توقعت {p}%.", "fa": "شما {p}% پیش‌بینی کردید."}, "You predicted a profit.": {"ar": "توقعت ربحاً.", "fa": "شما سود پیش‌بینی کردید."}, "You predicted a loss.": {"ar": "توقعت خسارة.", "fa": "شما ضرر پیش‌بینی کردید."}, "Your answer": {"ar": "إجابتك", "fa": "پاسخ شما"}, "Your class": {"ar": "صفك", "fa": "کلاس شما"}, "Your data": {"ar": "بياناتك", "fa": "داده‌های شما"}, "Your data and your stall days": {"ar": "بياناتك وأيام الكشك", "fa": "داده‌ها و روزهای غرفه‌ی شما"}, "Your data from here: <b>{a} in out of {n}</b> ({p}). Your customers throw about as well as you.": {"ar": "بياناتك من هنا: <b>{a} داخل من أصل {n}</b> ({p}). يرمي زبائنك بمهارة قريبة من مهارتك.", "fa": "داده‌های شما از اینجا: <b>{a} داخل از {n}</b> ({p}). مشتری‌هایتان تقریباً به خوبی شما پرتاب می‌کنند."}, "Your data: {a} in out of {n} ({p})": {"ar": "بياناتك: {a} داخل من أصل {n} ({p})", "fa": "داده‌های شما: {a} داخل از {n} ({p})"}, "Your prediction": {"ar": "توقعك", "fa": "پیش‌بینی شما"}, "Your prediction as a percentage": {"ar": "توقعك كنسبة مئوية", "fa": "پیش‌بینی شما به درصد"}, "Your prediction is kept. At the end you’ll see how close you were.": {"ar": "سيُحفظ توقعك. في النهاية سترى كم كنت قريباً.", "fa": "پیش‌بینی شما نگه داشته می‌شود. در پایان می‌بینید چقدر نزدیک بودید."}, "Your stall lost {m}": {"ar": "خسر كشكك {m}", "fa": "غرفه‌ی شما {m} ضرر کرد"}, "Your stall made {m}!": {"ar": "ربح كشكك {m}!", "fa": "غرفه‌ی شما {m} سود کرد!"}, "Your throws are saved for your class": {"ar": "رمياتك محفوظة لصفك", "fa": "پرتاب‌هایتان برای کلاس ذخیره می‌شود"}, "Your throws are saved for your class.": {"ar": "رمياتك محفوظة لصفك.", "fa": "پرتاب‌هایتان برای کلاس ذخیره می‌شود."}, "You’re running the bin toss stall": {"ar": "أنت تدير كشك رمي الكرة في السلة", "fa": "شما غرفه‌ی پرتاب به سطل را می‌گردانید"}, "change the angle": {"ar": "غيّر الزاوية", "fa": "تغییر زاویه"}, "in out of": {"ar": "داخل من أصل", "fa": "داخل از"}, "metres": {"ar": "أمتار", "fa": "متر"}, "nobody": {"ar": "لا أحد", "fa": "هیچ‌کس"}, "optional": {"ar": "اختياري", "fa": "اختیاری"}, "players": {"ar": "لاعبين", "fa": "بازیکن"}, "sweet spot": {"ar": "المنطقة الخضراء", "fa": "ناحیه‌ی سبز"}, "winners": {"ar": "فائزين", "fa": "برنده"}, "{a} ÷ {n} = {d}, and {d} × 100 = {p}%.": {"ar": "{a} ÷ {n} = {d}، و {d} × 100 = {p}%.", "fa": "{a} ÷ {n} = {d}، و {d} × 100 = {p}%."}, "{n} players": {"ar": "{n} لاعب", "fa": "{n} بازیکن"}, "{n} throws": {"ar": "{n} رمية", "fa": "{n} پرتاب"}, "{n} throws by MMT students so far": {"ar": "{n} رمية لطلاب MMT حتى الآن", "fa": "{n} پرتاب دانش‌آموزان MMT تا الان"}, "{n} throws waiting to save": {"ar": "{n} رمية بانتظار الحفظ", "fa": "{n} پرتاب در انتظار ذخیره"}, "{n} person": {"ar": "{n} شخص", "fa": "{n} نفر"}, "{n} people": {"ar": "{n} أشخاص", "fa": "{n} نفر"}};
+</script>
 <script type="module">
 import * as THREE from './three.module.min.js?v=954c1c22';
 import {GLTFLoader} from './GLTFLoader.js?v=63b7d938';
 import {MeshoptDecoder} from './meshopt_decoder.module.js?v=cd7a7b72';
 import {clone as skClone} from './SkeletonUtils.js?v=1bac8aac';
 const P=window.BTP,$=id=>document.getElementById(id);
-const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
-const PRIZE=50,BATCH=10,MIN_DATA=10,MAXQ=28;
+const BATCH=10,MIN_DATA=10,MAXQ=40,PRIZES=[20,50,100];
 const money=v=>(v<0?'−$':'$')+Math.abs(Math.round(v)).toLocaleString('en-AU');
-const pct=(a,n)=>n?Math.round(a/n*1000)/10+'%':'–';
+const money2=v=>{const r=Math.round(v*100)/100;return (r<0?'−$':'$')+(Number.isInteger(r)?Math.abs(r):Math.abs(r).toFixed(2))};
+const pctN=(a,n)=>n?Math.round(a/n*1000)/10:0;
+const pct=(a,n)=>n?pctN(a,n)+'%':'–';
 const gcd=(a,b)=>b?gcd(b,a%b):a;
 const fracH=(a,n)=>{const g=gcd(a,n)||1;return `<span class="fr"><span>${a/g}</span><span>${n/g}</span></span>`};
-const queueFor=price=>Math.max(0,Math.round(MAXQ*(1-price/PRIZE)));
+const ceilFor=prize=>prize/2;                                   // nobody pays half the prize or more to play
+const queueFor=(price,prize)=>Math.max(0,Math.round(MAXQ*(1-price/ceilFor(prize))));
 
-/* ---------------- saved state ---------------- */
-const STORE='mmt.binTossGame.v1';
-const S={spot:null,data:{front:[],middle:[],back:[]},days:[],angle:{front:45,middle:40,back:35},price:10,sound:true,seen:false,char:null};
-try{const s=JSON.parse(localStorage.getItem(STORE)||'null');
-  if(s&&s.data){for(const k of ['spot','days','price','sound','seen','char'])if(k in s)S[k]=s[k];
-    for(const sp of P.SPOTS){if(Array.isArray(s.data[sp.id]))S.data[sp.id]=s.data[sp.id];if(s.angle&&s.angle[sp.id])S.angle[sp.id]=s.angle[sp.id]}
-    if(!P.SPOTS.some(x=>x.id===S.spot))S.spot=null}}catch(e){}
+/* ---------------- languages: English source text is the key ---------------- */
+const I18N=window.BT_I18N||{};
+const PREFS_KEY='mmt.binTossGame.prefs';
+const PREF={lang:'en',sound:true,low:null,hard:false,board:[],boardSpot:'back'};
+try{Object.assign(PREF,JSON.parse(localStorage.getItem(PREFS_KEY)||'{}'))}catch(e){}
+const savePrefs=()=>{try{localStorage.setItem(PREFS_KEY,JSON.stringify(PREF))}catch(e){}};
+const L=()=>PREF.lang;
+const fillV=(s,v)=>v?s.replace(/\{(\w+)\}/g,(m,k)=>k in v?v[k]:m):s;
+/* a var can be {spot:id}: the English line gets the English spot name, the translated line the translated one */
+const resolveV=(v,en)=>{if(!v)return v;const o={};for(const k in v){const x=v[k];o[k]=x&&typeof x==='object'&&x.spot?(en||L()==='en'?P.spot(x.spot).name.toLowerCase():t(P.spot(x.spot).name)):x}return o};
+const mathV=v=>{if(!v)return v;const o={};for(const k in v){const x=v[k];o[k]=(typeof x==='number'||/^[−\-$\d.,%/ ]+$/.test(String(x)))?`<bdi dir="ltr">${x}</bdi>`:x}return o};
+/* t(): one language, for buttons and labels. tt(): chosen language on top, English beneath, for sentences. */
+function t(en,v){const e=I18N[en],s=(L()!=='en'&&e&&e[L()])||en;v=resolveV(v);return fillV(s,L()==='en'?v:mathV(v))}
+function tt(en,v,tag){const tg=tag||'span';if(L()==='en'||!(I18N[en]&&I18N[en][L()]))return fillV(en,resolveV(v,true));
+  return `<${tg} class="tl" dir="rtl" lang="${L()}">${fillV(I18N[en][L()],mathV(resolveV(v)))}</${tg}><${tg} class="el">${fillV(en,resolveV(v,true))}</${tg}>`}
+
+/* ---------------- saved state: one store for guests, one per signed-in student ---------------- */
+const BASE_KEY='mmt.binTossGame.v1';
+let STORE=BASE_KEY;
+const blank=()=>({spot:null,data:{front:[],middle:[],back:[]},days:[],angle:{front:45,middle:40,back:35},price:10,prize:50,char:null,pred:{},predSent:{},goals:{},quiz:null,seen:false});
+const S=blank();
+function loadStore(key){
+  STORE=key;const b=blank();for(const k in S)delete S[k];Object.assign(S,b);
+  try{const s=JSON.parse(localStorage.getItem(key)||'null');
+    if(s&&s.data){for(const k of ['spot','days','price','prize','char','pred','predSent','goals','quiz','seen'])if(k in s&&s[k]!=null)S[k]=s[k];
+      for(const sp of P.SPOTS){if(Array.isArray(s.data[sp.id]))S.data[sp.id]=s.data[sp.id];if(s.angle&&s.angle[sp.id])S.angle[sp.id]=s.angle[sp.id]}
+      if(!P.SPOTS.some(x=>x.id===S.spot))S.spot=null;if(!PRIZES.includes(S.prize))S.prize=50}
+    if(key===BASE_KEY&&typeof s?.sound==='boolean'&&!localStorage.getItem(PREFS_KEY)){PREF.sound=s.sound}
+  }catch(e){}
+}
+loadStore(BASE_KEY);
 const save=()=>{try{localStorage.setItem(STORE,JSON.stringify(S))}catch(e){}};
 const cnt=id=>{const t=S.data[id]||[],n=t.length,k=t.filter(x=>x.in).length;return{n,in:k,out:n-k,p:n?k/n:0}};
+const allThrows=()=>P.SPOTS.reduce((a,s)=>a+S.data[s.id].length,0);
+const spotName=id=>t(P.spot(id).name);
 
 /* ---------------- sound (tiny synth, no files) ---------------- */
 let AC=null;
-function ac(){if(!S.sound)return null;try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume();return AC}catch(e){return null}}
-function tone(f,d,type,vol,when,slide){const a=ac();if(!a)return;const t=a.currentTime+(when||0),o=a.createOscillator(),g=a.createGain();
-  o.type=type||'sine';o.frequency.setValueAtTime(f,t);if(slide)o.frequency.exponentialRampToValueAtTime(slide,t+d);
-  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol||.12,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+d);
-  o.connect(g).connect(a.destination);o.start(t);o.stop(t+d+.02)}
-function noiseS(d,vol,freq,when){const a=ac();if(!a)return;const t=a.currentTime+(when||0),n=Math.floor(a.sampleRate*d),buf=a.createBuffer(1,n,a.sampleRate),ch=buf.getChannelData(0);
+function ac(){if(!PREF.sound)return null;try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume();return AC}catch(e){return null}}
+function tone(f,d,type,vol,when,slide){const a=ac();if(!a)return;const tm=a.currentTime+(when||0),o=a.createOscillator(),g=a.createGain();
+  o.type=type||'sine';o.frequency.setValueAtTime(f,tm);if(slide)o.frequency.exponentialRampToValueAtTime(slide,tm+d);
+  g.gain.setValueAtTime(0,tm);g.gain.linearRampToValueAtTime(vol||.12,tm+.01);g.gain.exponentialRampToValueAtTime(.0001,tm+d);
+  o.connect(g).connect(a.destination);o.start(tm);o.stop(tm+d+.02)}
+function noiseS(d,vol,freq,when){const a=ac();if(!a)return;const tm=a.currentTime+(when||0),n=Math.floor(a.sampleRate*d),buf=a.createBuffer(1,n,a.sampleRate),ch=buf.getChannelData(0);
   for(let i=0;i<n;i++)ch[i]=(Math.random()*2-1)*(1-i/n);
   const src=a.createBufferSource(),f=a.createBiquadFilter(),g=a.createGain();src.buffer=buf;f.type='bandpass';f.frequency.value=freq||900;f.Q.value=.7;g.gain.value=vol||.1;
-  src.connect(f).connect(g).connect(a.destination);src.start(t)}
+  src.connect(f).connect(g).connect(a.destination);src.start(tm)}
 const SFX={
   tick:()=>tone(660,.05,'square',.03),lock:()=>{tone(520,.08,'triangle',.1);tone(780,.1,'triangle',.1,.07)},
   whoosh:()=>noiseS(.28,.16,700),thud:()=>noiseS(.09,.12,220),rim:()=>{tone(300,.12,'triangle',.12,0,180);noiseS(.06,.08,1400)},
   in:()=>{[523,659,784,1047].forEach((f,i)=>tone(f,.16,'triangle',.13,i*.08));noiseS(.2,.06,2400,.05)},
   out:()=>tone(220,.28,'sine',.1,0,150),coin:()=>{tone(1320,.07,'square',.05);tone(1760,.12,'square',.05,.06)},
-  pay:()=>{tone(330,.14,'sawtooth',.06,0,220);tone(247,.2,'sawtooth',.06,.12,160)},win:()=>{[392,523,659,784,1047,1319].forEach((f,i)=>tone(f,.2,'triangle',.12,i*.09))}
+  pay:()=>{tone(330,.14,'sawtooth',.06,0,220);tone(247,.2,'sawtooth',.06,.12,160)},win:()=>{[392,523,659,784,1047,1319].forEach((f,i)=>tone(f,.2,'triangle',.12,i*.09))},
+  badge:()=>{[784,988,1319].forEach((f,i)=>tone(f,.18,'triangle',.11,i*.1))}
 };
 
 /* ---------------- three.js scene ---------------- */
@@ -596,17 +801,20 @@ function updConfetti(dt){
 const QCOL=['#ef4444','#f59e0b','#10b981','#06b6d4','#8b5cf6','#ec4899','#84cc16','#f97316','#14b8a6','#6366f1','#e11d48','#0ea5e9'];
 const SKIN=['#f1c9a5','#e0ac69','#c68642','#8d5524','#ffdbac','#d9a066'],HAIR=['#3f2d20','#111827','#7c4a1e','#d4a017','#4b2e83','#a8552a'];
 
+
 /* ---------------- characters from Mills Maths Adventure ----------------
    All 21 models share one 24-bone skeleton (Hips, Spine…, RightArm, RightForeArm, RightHand…) but none has a throwing clip.
    So the throw is made in code: the arm bones are AIMED at directions for each moment of the throw (hold, wind up, release,
-   follow through). One set of directions works for every character, whatever its size or shape. */
+   follow through). One set of directions works for every character, whatever its size or shape. Walking uses each model's
+   own walk clip, with the hip translation taken out so the code decides where the figure goes. */
 const CHARS=[
-  {id:'main1',name:'Explorer',grp:'Students'},{id:'main2',name:'Cool Cat',grp:'Students'},{id:'main3',name:'DJ Goat',grp:'Students'},
-  {id:'pip',name:'Pip',grp:'Number Island'},{id:'fern',name:'Fern',grp:'Number Island'},{id:'alby',name:'Alby',grp:'Number Island'},{id:'pete',name:'Pete',grp:'Number Island'},
-  {id:'mills',name:'Mr. Mills',grp:'Staff'},{id:'pearce',name:'Mr. Pearce',grp:'Staff'},{id:'mahoney',name:'Ms. Mahoney',grp:'Staff'},{id:'ewings',name:'Ms. Ewings',grp:'Staff'},
-  {id:'dawson',name:'Mr. Dawson',grp:'Staff'},{id:'heywood',name:'Mr. Heywood',grp:'Staff'},{id:'morgan',name:'Mr. Morgan',grp:'Staff'},{id:'bacon',name:'Ms. Bacon',grp:'Staff'},{id:'brookes',name:'Ms. Brookes',grp:'Staff'},
-  {id:'farmer',name:'Sunny',grp:'Fraction Farm'},{id:'farmer1',name:'The Milkman',grp:'Fraction Farm'},{id:'trevor',name:'Trevor',grp:'Fraction Farm'},{id:'steve',name:'Steve',grp:'Fraction Farm'},{id:'robot',name:'Robot',grp:'Fraction Farm'}
+  {id:'main1',name:'Explorer'},{id:'main2',name:'Cool Cat'},{id:'main3',name:'DJ Goat'},
+  {id:'pip',name:'Pip'},{id:'fern',name:'Fern'},{id:'alby',name:'Alby'},{id:'pete',name:'Pete'},
+  {id:'mills',name:'Mr. Mills'},{id:'pearce',name:'Mr. Pearce'},{id:'mahoney',name:'Ms. Mahoney'},{id:'ewings',name:'Ms. Ewings'},
+  {id:'dawson',name:'Mr. Dawson'},{id:'heywood',name:'Mr. Heywood'},{id:'morgan',name:'Mr. Morgan'},{id:'bacon',name:'Ms. Bacon'},{id:'brookes',name:'Ms. Brookes'},
+  {id:'farmer',name:'Sunny'},{id:'farmer1',name:'The Milkman'},{id:'trevor',name:'Trevor'},{id:'steve',name:'Steve'},{id:'robot',name:'Robot'}
 ];
+const WALK_CLIP={main1:'Running'};                              // main1's clip names are shifted: "Running" holds the walk
 const CHAR_URL='../../../../../game-platforms/mills-maths-adventure/models/characters/';
 const charName=id=>(CHARS.find(c=>c.id===id)||{name:''}).name;
 const gltf=new GLTFLoader();gltf.setMeshoptDecoder(MeshoptDecoder);
@@ -615,18 +823,27 @@ function loadModel(id){
   return modelCache[id]||(modelCache[id]=gltf.loadAsync(CHAR_URL+id+'.glb').then(g=>{
     const sc=g.scene;sc.updateMatrixWorld(true);const bx=new THREE.Box3().setFromObject(sc),h=bx.max.y-bx.min.y;let sh=h*.7;
     sc.traverse(o=>{if(o.isBone&&o.name==='RightArm'){const v=new THREE.Vector3();o.getWorldPosition(v);sh=v.y-bx.min.y}});
-    return {scene:sc,scale:clamp(1.05/sh,1.25/h,1.5/h),minY:bx.min.y};         // shoulders near 1.05 m; between 1.25 m and 1.5 m tall
+    let walk=g.animations.find(c=>c.name===(WALK_CLIP[id]||'Walking'))||g.animations.find(c=>/walk/i.test(c.name))||null;
+    if(walk){walk=walk.clone();walk.tracks=walk.tracks.filter(tr=>!/^Hips\.position$/.test(tr.name))}
+    return {scene:sc,walk,scale:clamp(1.05/sh,1.25/h,1.5/h),minY:bx.min.y};   // shoulders near 1.05 m; between 1.25 m and 1.5 m tall
   }).catch(e=>{delete modelCache[id];throw e}));
 }
 function makeActor(m){
   const root=new THREE.Group(),inner=skClone(m.scene);inner.rotation.y=Math.PI;inner.scale.setScalar(m.scale);inner.position.y=-m.minY*m.scale;root.add(inner);
-  const B={};inner.traverse(o=>{if(o.isBone)B[o.name]=o;if(o.isMesh){o.castShadow=true;o.frustumCulled=false}});
+  const B={},all=[];inner.traverse(o=>{if(o.isBone){B[o.name]=o;all.push([o,o.quaternion.clone(),o.position.clone()])}if(o.isMesh){o.castShadow=true;o.frustumCulled=false}});
   const bind={};for(const n of ['RightArm','RightForeArm','LeftArm','LeftForeArm','Spine','Spine01','Spine02'])if(B[n])bind[n]=B[n].quaternion.clone();
   const low=B.Hips?B.Hips.children.find(c=>c.isBone&&/^Spine/.test(c.name)):null;
-  return {root,B,bind,low};
+  let mixer=null,walk=null;if(m.walk){mixer=new THREE.AnimationMixer(inner);walk=mixer.clipAction(m.walk)}
+  return {root,B,bind,low,all,mixer,walk};
 }
-// directions in the thrower's own frame: +x right, +y up, -z forward
+function restAll(a){for(const [b,q,p] of a.all){b.quaternion.copy(q);b.position.copy(p)}}
+// directions in the figure's own frame: +x right, +y up, -z forward
 const POSE={hold:{U:[.5,-.35,.2],F:[.05,.95,-.3],lean:0},wind:{U:[.45,.05,.8],F:[.1,.75,.65],lean:.2},rel:{U:[.2,.6,-.75],F:[.02,.8,-.6],lean:-.1},fol:{U:[.05,-.2,-.95],F:[-.15,-.6,-.75],lean:-.28}};
+const SHAPES={
+  cheer:{RU:[.4,.9,-.1],RF:[.12,1,-.1],LU:[-.4,.9,-.1],LF:[-.12,1,-.1],lean:.1},           // a winner: both arms up
+  groan:{RU:[.75,.55,-.2],RF:[-.75,.55,-.1],LU:[-.75,.55,-.2],LF:[.75,.55,-.1],lean:.18}, // the stall owner pays out: hands on head
+  pump:{RU:[.55,-.1,-.25],RF:[-.1,.95,-.25],lean:-.05}                                    // the stall owner keeps the money: fist pump
+};
 const _a=new THREE.Vector3(),_b=new THREE.Vector3(),_d=new THREE.Vector3(),_t=new THREE.Vector3(),_q=new THREE.Quaternion(),_qw=new THREE.Quaternion(),_qp=new THREE.Quaternion(),_qr=new THREE.Quaternion();
 function turnWorld(bone,q){bone.getWorldQuaternion(_qw);bone.parent.getWorldQuaternion(_qp);bone.quaternion.copy(_qp.invert().multiply(_q.copy(q).multiply(_qw)))}
 function aimBone(bone,child,dir){if(!bone||!child)return;bone.updateWorldMatrix(true,true);_a.setFromMatrixPosition(bone.matrixWorld);_b.setFromMatrixPosition(child.matrixWorld);
@@ -634,70 +851,85 @@ function aimBone(bone,child,dir){if(!bone||!child)return;bone.updateWorldMatrix(
 function poseActor(a,x){
   for(const n in a.bind)a.B[n].quaternion.copy(a.bind[n]);
   if(x==null){a.root.updateMatrixWorld(true);return}
-  let A,Bk,t;if(x>=3.3){A=POSE.hold;Bk=POSE.wind;t=(x-3.3)/.4}else if(x>=2.786){A=POSE.rel;Bk=POSE.hold;t=(x-2.786)/.514}else{A=POSE.rel;Bk=POSE.fol;t=(2.786-x)/1.086}
-  t=clamp(t,0,1);a.root.updateWorldMatrix(true,false);a.root.getWorldQuaternion(_qp);const rq=_qp.clone();
-  const lean=A.lean+(Bk.lean-A.lean)*t;
+  let A,Bk,k;if(x>=3.3){A=POSE.hold;Bk=POSE.wind;k=(x-3.3)/.4}else if(x>=2.786){A=POSE.rel;Bk=POSE.hold;k=(x-2.786)/.514}else{A=POSE.rel;Bk=POSE.fol;k=(2.786-x)/1.086}
+  k=clamp(k,0,1);a.root.updateWorldMatrix(true,false);a.root.getWorldQuaternion(_qp);const rq=_qp.clone();
+  const lean=A.lean+(Bk.lean-A.lean)*k;
   if(a.low&&lean){_t.set(1,0,0).applyQuaternion(rq);turnWorld(a.low,_qr.setFromAxisAngle(_t,lean))}
-  const dir=(u,v)=>_t.set(u[0]+(v[0]-u[0])*t,u[1]+(v[1]-u[1])*t,u[2]+(v[2]-u[2])*t).normalize().applyQuaternion(rq);
+  const dir=(u,v)=>_t.set(u[0]+(v[0]-u[0])*k,u[1]+(v[1]-u[1])*k,u[2]+(v[2]-u[2])*k).normalize().applyQuaternion(rq);
   aimBone(a.B.RightArm,a.B.RightForeArm,dir(A.U,Bk.U).clone());aimBone(a.B.RightForeArm,a.B.RightHand,dir(A.F,Bk.F).clone());
   a.root.updateMatrixWorld(true);
 }
-// a winner throws both arms up
-const CHEER={RU:[.4,.9,-.1],RF:[.12,1,-.1],LU:[-.4,.9,-.1],LF:[-.12,1,-.1]};
-function poseCheer(a){
+function poseShape(a,sh){
   for(const n in a.bind)a.B[n].quaternion.copy(a.bind[n]);
   a.root.updateWorldMatrix(true,false);a.root.getWorldQuaternion(_qp);const rq=_qp.clone(),d=v=>new THREE.Vector3(v[0],v[1],v[2]).normalize().applyQuaternion(rq);
-  if(a.low){_t.set(1,0,0).applyQuaternion(rq);turnWorld(a.low,_qr.setFromAxisAngle(_t,.1))}
-  aimBone(a.B.RightArm,a.B.RightForeArm,d(CHEER.RU));aimBone(a.B.RightForeArm,a.B.RightHand,d(CHEER.RF));
-  aimBone(a.B.LeftArm,a.B.LeftForeArm,d(CHEER.LU));aimBone(a.B.LeftForeArm,a.B.LeftHand,d(CHEER.LF));a.root.updateMatrixWorld(true);
+  if(a.low&&sh.lean){_t.set(1,0,0).applyQuaternion(rq);turnWorld(a.low,_qr.setFromAxisAngle(_t,sh.lean))}
+  if(sh.RU){aimBone(a.B.RightArm,a.B.RightForeArm,d(sh.RU));aimBone(a.B.RightForeArm,a.B.RightHand,d(sh.RF))}
+  if(sh.LU){aimBone(a.B.LeftArm,a.B.LeftForeArm,d(sh.LU));aimBone(a.B.LeftForeArm,a.B.LeftHand,d(sh.LF))}
+  a.root.updateMatrixWorld(true);
 }
 /* A figure on the floor: one of the Adventure characters, or the simple block kid until its model has loaded (or if it can't). */
 class Fig{
-  constructor(shirt,o){this.g=new THREE.Group();this.box=makeKid(shirt,o);this.g.add(this.box.g);this.actors={};this.actor=null;this.id=null;this.armX=3.3;scene.add(this.g)}
+  constructor(shirt,o){this.g=new THREE.Group();this.box=makeKid(shirt,o);this.g.add(this.box.g);this.actors={};this.actor=null;this.id=null;this.armX=3.3;this.mode='arm';this.walking=false;scene.add(this.g)}
   use(id){this.id=id||null;if(!id){this.swap(null);return Promise.resolve()}
     if(this.actors[id]){this.swap(this.actors[id]);return Promise.resolve()}
     return loadModel(id).then(m=>{if(!this.actors[id])this.actors[id]=makeActor(m);if(this.id===id)this.swap(this.actors[id])}).catch(e=>{console.warn('character',id,e);if(this.id===id)this.swap(null)})}
-  swap(a){if(this.actor&&this.actor!==a)this.g.remove(this.actor.root);this.actor=a;this.box.g.visible=!a;if(a){this.g.add(a.root);this.setArm(this.armX)}}
+  swap(a){if(this.actor&&this.actor!==a){this.stopWalk();this.g.remove(this.actor.root)}this.actor=a;this.box.g.visible=!a;if(a){this.g.add(a.root);this.reapply()}}
+  reapply(){if(this.walking&&this.actor&&this.actor.walk){this.actor.walk.reset().play();return}if(this.mode==='arm')this.setArm(this.armX);else this.shape(this.mode)}
   tint(c){this.box.sm.color.set(c)}
-  cheer(){this.box.arm.rotation.x=3.05;if(this.actor)poseCheer(this.actor)}
-  setArm(x){this.armX=x;this.box.arm.rotation.x=x==null?0:x;if(this.actor)poseActor(this.actor,x)}
+  cheer(){this.shape('cheer')}
+  shape(name){this.mode=name;const sh=SHAPES[name];this.box.arm.rotation.x=name==='pump'?3.0:3.05;if(this.actor&&!this.walking){restAll(this.actor);poseShape(this.actor,sh)}}
+  setArm(x){this.mode='arm';this.armX=x;this.box.arm.rotation.x=x==null?0:x;if(this.actor&&!this.walking){if(this._restNeeded){restAll(this.actor);this._restNeeded=false}poseActor(this.actor,x)}}
+  startWalk(){this.walking=true;const a=this.actor;if(a&&a.walk){a.walk.reset();a.walk.timeScale=1.15;a.walk.play()}}
+  stopWalk(){if(!this.walking)return;this.walking=false;const a=this.actor;if(a&&a.walk){a.walk.stop();restAll(a);this._restNeeded=false}this.box.g.position.y=0}
+  update(dt){if(this.walking){if(this.actor&&this.actor.mixer)this.actor.mixer.update(dt);else this.box.g.position.y=Math.abs(Math.sin(performance.now()/90))*.05}}
   hand(out){this.g.updateMatrixWorld(true);
     if(this.actor&&this.actor.B.RightHand){const B=this.actor.B;out.setFromMatrixPosition(B.RightHand.matrixWorld);if(B.RightForeArm){_a.setFromMatrixPosition(B.RightForeArm.matrixWorld);_d.subVectors(out,_a).normalize();out.addScaledVector(_d,.07)}return out}
     out.set(0,-.36,0);return this.box.arm.localToWorld(out)}
 }
 function buildQueue(){for(let i=0;i<9;i++){const k=new Fig(QCOL[i%QCOL.length],{skin:SKIN[i%6],hair:HAIR[(i*5)%6]});k.setArm(null);k.g.visible=false;world.queue.push(k)}}
 
+let sun=null;
 function initScene(){
   renderer=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance'});
-  renderer.setPixelRatio(Math.min(2,window.devicePixelRatio||1));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+  renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
   scene=new THREE.Scene();scene.background=new THREE.Color('#dbeafe');
   camera=new THREE.PerspectiveCamera(50,1,.1,40);
   scene.add(new THREE.HemisphereLight('#ffffff','#f3e6c8',1.5));
   scene.add(new THREE.AmbientLight('#ffffff',.75));
-  const sun=new THREE.DirectionalLight('#fff7e6',1.25);sun.position.set(5.5,5.5,6.5);sun.target.position.set(0,0,3);sun.castShadow=true;
+  sun=new THREE.DirectionalLight('#fff7e6',1.25);sun.position.set(5.5,5.5,6.5);sun.target.position.set(0,0,3);sun.castShadow=true;
   sun.shadow.mapSize.set(2048,2048);const sc=sun.shadow.camera;sc.left=-7;sc.right=7;sc.top=8;sc.bottom=-8;sc.near=.5;sc.far=20;sun.shadow.bias=-.0006;sun.shadow.radius=4;
   scene.add(sun,sun.target);
   buildRoom();buildBin();buildMarkers();buildAim();buildConfetti();buildQueue();
   world.kid=new Fig('#2563eb');if(S.char)world.kid.use(S.char);
+  world.owner=new Fig('#2563eb');world.owner.g.visible=false;
+  world.walker=new Fig('#2563eb');world.walker.g.visible=false;
   world.ball=makeBallMesh();scene.add(world.ball);
-  resize();window.addEventListener('resize',resize);
+  applyGfx();resize();window.addEventListener('resize',resize);
+}
+const lowGfx=()=>PREF.low===true;
+function applyGfx(){
+  if(!renderer)return;const low=lowGfx();
+  renderer.setPixelRatio(low?1:Math.min(2,window.devicePixelRatio||1));
+  sun.castShadow=!low;renderer.shadowMap.needsUpdate=true;resize();
 }
 function resize(){const w=stage.clientWidth,h=stage.clientHeight;if(!w||!h)return;renderer.setSize(w,h,false);camera.aspect=w/h;camera.fov=w/h<.8?70:w/h<1.25?60:50;camera.updateProjectionMatrix()}
 
 /* ---------------- camera rig ---------------- */
 const cam={pos:new THREE.Vector3(3,2.6,9),tgt:new THREE.Vector3(0,.8,2),gp:new THREE.Vector3(3,2.6,9),gt:new THREE.Vector3(0,.8,2),sway:0};
-function camTo(p,t,snap){cam.gp.set(...p);cam.gt.set(...t);if(snap){cam.pos.copy(cam.gp);cam.tgt.copy(cam.gt)}}
-function camFor(mode){
+function camTo(p,tg,snap){cam.gp.set(...p);cam.gt.set(...tg);if(snap){cam.pos.copy(cam.gp);cam.tgt.copy(cam.gt)}}
+function camFor(mode,snap){
   const d=S.spot?P.spot(S.spot).d:4,narrow=camera.aspect<.8;
-  if(mode==='overview')camTo([2.6,2.5,9.2],[-.2,.6,2.6]);
-  else if(mode==='throw')camTo(narrow?[.9,2.15,d+3.1]:[1.45,2.05,d+2.9],[narrow?.1:-.35,.55,d-3]);
-  else if(mode==='stall')camTo(narrow?[1.6,3.0,d+3.4]:[2.7,2.75,d+3.3],[-.7,.5,d-2.4]);
+  if(mode==='overview')camTo([2.6,2.5,9.2],[-.2,.6,2.6],snap);
+  else if(mode==='throw')camTo(narrow?[.9,2.15,d+3.1]:[1.45,2.05,d+2.9],[narrow?.1:-.35,.55,d-3],snap);
+  else if(mode==='stall')camTo(narrow?[1.6,3.0,d+3.4]:[2.7,2.75,d+3.3],[-.7,.5,d-2.4],snap);
+  else if(mode==='replay')camTo([1.05,.8,.95],[0,.4,.05],snap);
 }
 
 /* ---------------- game state (not saved) ---------------- */
-let cheerT=0;
-let phase='load',batchLeft=0,angle=45,bandNow=null,power=0,meterT=0,sim=null,simAcc=0,timeScale=1,trail=null,firstEv=null,armT=0,stall=null,afterT=0,customerKid=null;
+let phase='load',batchLeft=0,angle=45,bandNow=null,power=0,meterT=0,sim=null,simAcc=0,timeScale=1,trail=null,firstEv=null,armT=0,
+    stall=null,afterT=0,cheerT=0,launchPlan=null,rec=null,rimIdx=-1,replay=null,walk=null,ownerT=0,streak=0,hardStreak=0;
 const curSpot=()=>P.spot(S.spot);
+const meterPeriod=()=>PREF.hard?1.6:P.METER.period;
 
 function setAngle(a,quiet){
   angle=clamp(Math.round(a),P.ANGLE.min,P.ANGLE.max);if(S.spot)S.angle[S.spot]=angle;
@@ -707,207 +939,90 @@ function setAngle(a,quiet){
 }
 function drawZone(){
   const z=$('zone'),zl=$('zoneL'),nt=$('zoneNote');
-  if(bandNow){z.hidden=false;zl.hidden=false;z.style.bottom=bandNow.lo+'%';z.style.height=Math.max(1.6,bandNow.w)+'%';zl.style.bottom=bandNow.mid+'%';nt.className='zoneNote';nt.textContent=phase==='power'?'Stop it in the green':'Green = it goes in'}
-  else{z.hidden=true;zl.hidden=true;nt.className='noZone';nt.textContent='No sweet spot at this angle'}
+  if(PREF.hard){z.hidden=true;zl.hidden=true;nt.className='noZone hardNote';nt.textContent=t('Hard mode: no sweet spot');return}
+  if(bandNow){z.hidden=false;zl.hidden=false;z.style.bottom=bandNow.lo+'%';z.style.height=Math.max(1.6,bandNow.w)+'%';zl.style.bottom=bandNow.mid+'%';zl.textContent=t('sweet spot');nt.className='zoneNote';nt.textContent=phase==='power'?t('Stop it in the green'):t('Green = it goes in')}
+  else{z.hidden=true;zl.hidden=true;nt.className='noZone';nt.textContent=t('No sweet spot at this angle')}
 }
 function aimArrow(){
   if(!S.spot){world.arrow.visible=world.arc.visible=world.baseLine.visible=false;return}
   const d=curSpot().d,a=angle*Math.PI/180,yaw=Math.atan2(-P.REL.x,-d),dir=new THREE.Vector3(Math.cos(a)*Math.sin(yaw),Math.sin(a),Math.cos(a)*Math.cos(yaw));
   const o=new THREE.Vector3(P.REL.x,P.REL.y,d);
   world.arrow.position.copy(o);world.arrow.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),dir);
-  const pts=[];for(let i=0;i<=20;i++){const t=a*i/20;pts.push(new THREE.Vector3(o.x+.34*Math.cos(t)*Math.sin(yaw),o.y+.34*Math.sin(t),o.z+.34*Math.cos(t)*Math.cos(yaw)))}
+  const pts=[];for(let i=0;i<=20;i++){const k=a*i/20;pts.push(new THREE.Vector3(o.x+.34*Math.cos(k)*Math.sin(yaw),o.y+.34*Math.sin(k),o.z+.34*Math.cos(k)*Math.cos(yaw)))}
   world.arc.geometry.setFromPoints(pts);
   world.baseLine.geometry.setFromPoints([o,new THREE.Vector3(o.x+.8*Math.sin(yaw),o.y,o.z+.8*Math.cos(yaw))]);world.baseLine.computeLineDistances();
   const show=phase==='aim'||phase==='power';world.arrow.visible=world.arc.visible=world.baseLine.visible=show;
 }
 function placeKid(){
-  const d=curSpot().d;world.kid.g.position.set(0,0,d);world.kid.g.visible=true;world.kid.setArm(3.3);holdBall();
+  const d=curSpot().d;world.kid.g.position.set(0,0,d);world.kid.g.rotation.y=0;world.kid.g.visible=true;world.kid.setArm(3.3);holdBall();
   for(const s of P.SPOTS){world.markers[s.id].g.visible=true;world.markers[s.id].disc.visible=s.id!==S.spot;world.markers[s.id].ring.material.opacity=0}
 }
 const handPos=new THREE.Vector3();
 function holdBall(){world.kid.hand(handPos);world.ball.position.copy(handPos);world.ball.visible=true}
-function clearThrows(){for(const t of world.trails)scene.remove(t);world.trails=[];for(const l of world.litter)scene.remove(l);world.litter=[]}
+function clearThrows(){for(const tr of world.trails)scene.remove(tr);world.trails=[];for(const l of world.litter)scene.remove(l);world.litter=[]}
 
-/* ---------------- HUD ---------------- */
-function show(id,on){$(id).hidden=!on}
-function hint(t){const h=$('hint');if(t){h.textContent=t;h.hidden=false}else h.hidden=true}
-function pop(html,ms){const p=$('pop');p.innerHTML=html;clearTimeout(pop.t);pop.t=setTimeout(()=>{p.innerHTML=''},ms||1300)}
-function renderStatus(){
-  const el=$('statusCard');if(!S.spot){show('status',false);return}
-  const s=curSpot(),c=cnt(S.spot);
-  if(stall){
-    const d=stall;el.innerHTML=`<div class="stTop"><span class="chip money">Stall open</span><span class="stSpot">${s.name}</span></div>
-      <div class="qRow"><span>Cost to play <b>${money(d.price)}</b> · Prize <b>$50</b></span></div>
-      <div class="qRow"><span>Customer <b>${Math.min(d.i+(phase==='day'?0:1),d.n)}</b> of <b>${d.n}</b></span><span>Winners <b>${d.wins}</b></span></div>
-      <div class="moneyG"><div class="cnt"><small>Collected</small><b>${money(d.i*d.price)}</b></div><div class="cnt"><small>Paid out</small><b>${money(d.wins*PRIZE)}</b></div>
-      <div class="cnt wide"><small>Profit</small><b class="${d.i*d.price-d.wins*PRIZE>0?'pos':d.i*d.price-d.wins*PRIZE<0?'neg':''}">${money(d.i*d.price-d.wins*PRIZE)}</b></div></div>`;
-    show('status',true);return}
-  const t=S.data[S.spot],start=Math.max(0,t.length-(BATCH-batchLeft)-(t.length%BATCH===0&&batchLeft===0?BATCH:0));
-  const dots=t.map((x,i)=>`<i class="${x.in?'in':'out'}" title="Throw ${i+1}: ${x.in?'in':'out'}"></i>`).join('')+(batchLeft>0?'<i class="now"></i>'+'<i></i>'.repeat(batchLeft-1):'');
-  el.innerHTML=`<div class="stTop"><span class="chip">Practice</span><span class="stSpot">${s.name} · ${s.d} m</span></div>
-    <div class="stThrow">${batchLeft>0?`Throw ${c.n+1} of ${c.n+batchLeft}`:`${c.n} throws`}</div><div class="dots">${dots}</div>
-    <div class="counts"><div class="cnt in"><small>In ✓</small><b>${c.in}</b></div><div class="cnt out"><small>Out ✗</small><b>${c.out}</b></div>
-      <div class="cnt p"><small>Chance of in</small><b>${c.n?`${c.in}/${c.n} <span>= ${pct(c.in,c.n)}</span>`:'–'}</b></div></div>
-    <div class="stLinks"><button class="lnk" data-act="spots">Change spot</button>${c.n>=MIN_DATA?'<button class="lnk go" data-act="toPrice">Open the stall ›</button>':''}</div>`;
-  show('status',true);
-}
-function setCtl(){
-  const aim=phase==='aim',pw=phase==='power';
-  $('ctlAngle').className='ctl '+(aim?'on':'off');$('ctlPower').className='ctl '+(pw?'on':'off');
-  $('pill1').className=aim?'on':'done';$('pill2').className=pw?'on':'';
-  const b=$('actBtn');b.disabled=!(aim||pw);b.className='bigBtn'+(pw?' throw':'');b.innerHTML=pw?'THROW! <kbd>Space</kbd>':'Lock in angle <kbd>Space</kbd>';
-  $('unlockBtn').hidden=!pw;drawZone();
-}
-
-/* ---------------- panels ---------------- */
-const veil=$('veil');
-function panel(html,o){veil.className=o&&o.clear?'clear':'';veil.innerHTML=`<div class="panel ${o&&o.wide?'wide':''}" role="dialog" aria-modal="true">${html}</div>`;veil.hidden=false;const f=veil.querySelector('[data-focus]');if(f)setTimeout(()=>f.focus(),60)}
-function closePanel(){veil.hidden=true;veil.innerHTML=''}
-const PRIZE_SVG=`<svg viewBox="0 0 230 120" aria-hidden="true"><rect x="3" y="3" width="224" height="114" rx="12" fill="#fde68a" stroke="#b45309" stroke-width="3"/><rect x="13" y="13" width="204" height="94" rx="8" fill="none" stroke="#d97706" stroke-width="2" stroke-dasharray="5 4"/><circle cx="60" cy="60" r="30" fill="#fbbf24" stroke="#b45309" stroke-width="2.5"/><text x="60" y="71" text-anchor="middle" font-size="30" font-weight="900" fill="#92400e" font-family="system-ui,sans-serif">$</text><text x="152" y="66" text-anchor="middle" font-size="44" font-weight="900" fill="#78350f" font-family="system-ui,sans-serif">$50</text><text x="152" y="92" text-anchor="middle" font-size="16" font-weight="900" letter-spacing="4" fill="#92400e" font-family="system-ui,sans-serif">PRIZE</text></svg>`;
-function introPanel(){
-  phase='intro';hideGame();camFor('overview');
-  panel(`<div class="prizeRow">${PRIZE_SVG}<div><div class="eyebrow">School fete</div><h2>You’re running the bin toss stall</h2></div></div>
-    <p style="margin-top:12px">Anyone who throws the paper ball <b>into the bin</b> wins <b>$50</b>. Your job: choose a <b>cost to play</b> so the stall makes money.</p>
-    <div class="steps3"><div><b><i>1</i>Practise</b>Pick a spot and throw. Every throw is data: in or out.</div>
-      <div><b><i>2</i>Set your price</b>Use your data to work out how often people will win.</div>
-      <div><b><i>3</i>Open the stall</b>Customers line up. Count the money. Did you make a profit?</div></div>
-    <div class="pBtns"><button class="pb main" data-act="${S.char?'spots':'chars'}" data-focus>${hasData()?'Keep going ›':'Let’s go ›'}</button></div>`);
-}
-const hasData=()=>P.SPOTS.some(s=>S.data[s.id].length);
-function spotPanel(){
-  phase='spot';stall=null;hideGame();camFor('overview');for(const s of P.SPOTS){const m=world.markers[s.id];m.g.visible=true;m.disc.visible=true}
-  panel(`<div class="eyebrow">Choose your spot</div><h2>Where will people throw from?</h2>
-    <div class="spotCards">${P.SPOTS.map(s=>{const c=cnt(s.id);return `<button class="spotCard" data-act="pick" data-v="${s.id}"><div class="m">${s.d} <small>metres</small></div><b>${s.name}</b>
-      <span class="${c.n?'has':''}">${c.n?`Your data: ${c.in} in out of ${c.n} (${pct(c.in,c.n)})`:'No throws yet'}</span></button>`}).join('')}</div>
-    <p style="margin:12px 0 0;font-size:.88rem;color:#64748b">You can also tap an orange marker on the floor. Each spot keeps its own data. <button class="lnk" data-act="chars" style="margin-left:6px">Change character${S.char?': '+esc(charName(S.char)):''}</button></p>`,{clear:true});
-}
-function resultsPanel(){
-  phase='results';show('controls',false);hint('');world.arrow.visible=world.arc.visible=world.baseLine.visible=false;
-  const c=cnt(S.spot),s=curSpot(),dec=Math.round(c.p*1000)/1000;
-  const rows=P.SPOTS.map(x=>{const k=cnt(x.id);return `<tr class="${x.id===S.spot?'cur':''}"><td>${x.name} (${x.d} m)</td><td class="r">${k.n?k.in:'–'}</td><td class="r">${k.n||'–'}</td><td class="r">${k.n?pct(k.in,k.n):'–'}</td></tr>`}).join('');
-  panel(`<div class="eyebrow">Your data · ${s.name}</div>
-    <div class="bigFrac"><div class="n">${c.in} <small>in out of</small> ${c.n}</div>
-      <div class="eq">P(in) ≈ ${fracH(c.in,c.n)} = ${dec} = ${pct(c.in,c.n)}</div></div>
-    <p>This is your <b>estimate</b> of the chance that a throw from here goes in. ${c.n<30?'More throws give a better estimate.':'That’s a solid amount of data.'}</p>
-    <table class="tb"><thead><tr><th>Spot</th><th class="r">In</th><th class="r">Throws</th><th class="r">P(in)</th></tr></thead><tbody>${rows}</tbody></table>
-    <div class="pBtns"><button class="pb main" data-act="toPrice" data-focus>Set my price ›</button><button class="pb" data-act="more">Throw ${BATCH} more</button><button class="pb" data-act="spots">Change spot</button></div>`);
-}
-function queueH(n){let h='';for(let i=0;i<n;i++)h+=`<i style="--c:${QCOL[i%QCOL.length]}"></i>`;return h}
-function pricePanel(){
-  phase='price';stall=null;stallPool();show('controls',false);show('skip',false);hint('');camFor('stall');renderStatus();
-  const c=cnt(S.spot),s=curSpot();
-  panel(`<div class="eyebrow">Open the stall · ${s.name}</div><h2>How much will you charge to play?</h2>
-    <p>Your data from here: <b>${c.in} in out of ${c.n}</b> (${pct(c.in,c.n)}). Your customers throw about as well as you. Every winner costs you <b>$50</b>.</p>
-    <div class="priceRow"><button class="stepper" data-act="price" data-v="-1" aria-label="Cheaper">−</button><div class="priceBig" id="priceBig"></div><button class="stepper" data-act="price" data-v="1" aria-label="Dearer">+</button>
-      <input class="hr" type="range" id="priceIn" min="1" max="49" step="1" value="${S.price}" aria-label="Cost to play in dollars"></div>
-    <div class="qRow" style="margin-top:2px"><span>In the queue: <b class="qCount" id="qCount"></b></span><span>The dearer it is, the shorter the queue</span></div>
-    <div class="queue" id="queueIcons"></div>
-    <div class="predRow"><label for="predIn">I expect about</label><input id="predIn" inputmode="numeric" maxlength="2" placeholder="?" aria-label="How many winners do you expect?"><span>winners</span><small>(optional: check your thinking)</small></div>
-    <div class="pBtns"><button class="pb main" data-act="open" data-focus>Open the stall ›</button><button class="pb" data-act="more">More practice</button><button class="pb" data-act="spots">Change spot</button></div>`);
-  paintPrice();
-}
-function paintPrice(){const n=queueFor(S.price);$('priceBig').textContent='$'+S.price;$('qCount').textContent=n+(n===1?' person':' people');$('queueIcons').innerHTML=queueH(n);$('priceIn').value=S.price}
-function starsH(p){const k=p>=150?3:p>=75?2:p>0?1:0;return `<div class="stars" title="${k} star${k===1?'':'s'}"><b>${'★'.repeat(k)}</b>${'★'.repeat(3-k)}</div>`}
-function logH(){
-  if(!S.days.length)return '<p style="margin:8px 0 0">No stall days yet.</p>';
-  let N=0,Wn=0;const rows=S.days.map((d,i)=>{N+=d.n;Wn+=d.wins;return `<tr><td>${i+1}</td><td>${P.spot(d.spot).short}</td><td class="r">${money(d.price)}</td><td class="r">${d.n}</td><td class="r">${d.wins}</td><td class="r ${d.profit>0?'pos':d.profit<0?'neg':''}"><b>${money(d.profit)}</b></td></tr>`}).join('');
-  return `<table class="tb"><thead><tr><th>Day</th><th>Spot</th><th class="r">Cost</th><th class="r">Players</th><th class="r">Winners</th><th class="r">Profit</th></tr></thead><tbody>${rows}</tbody></table>`;
-}
-function dayPanel(){
-  phase='day';show('skip',false);const d=stall,c=cnt(d.spot),col=d.n*d.price,paid=d.wins*PRIZE,pr=col-paid,be=c.p*PRIZE,exp=c.p*d.n;
-  const day={spot:d.spot,price:d.price,n:d.n,wins:d.wins,profit:pr};S.days.push(day);save();renderStatus();
-  const best=Math.max(...S.days.map(x=>x.profit)),isBest=pr===best&&S.days.length>1&&pr>0;
-  const sameSpot=S.days.filter(x=>x.spot===d.spot),cn=sameSpot.reduce((a,x)=>a+x.n,0),cw=sameSpot.reduce((a,x)=>a+x.wins,0);
-  const expTxt=Math.round(exp*10)/10;
-  let verdict;
-  if(d.price<be-.5)verdict=`You charged <b>${money(d.price)}</b>, which is <b>below</b> break-even. Each player costs you about ${money(be)} in prizes, so in the long run this price loses money${pr>0?', even though today went your way':''}.`;
-  else if(d.price>be+.5)verdict=`You charged <b>${money(d.price)}</b>, which is <b>above</b> break-even, so you expect a profit${pr<0?'. Today chance went against you: with only '+d.n+' players, that can happen':''}.`;
-  else verdict=`You charged almost exactly the break-even price, so you expect to make about $0. Chance decides the rest.`;
-  const pred=d.pred!=null?`<br>You predicted <b>${d.pred}</b> winner${d.pred===1?'':'s'}.`:'';
-  if(pr>0)SFX.win();
-  panel(`<div class="dayHead"><div><div class="eyebrow">Day ${S.days.length} · ${P.spot(d.spot).name}</div><h2>${pr>0?`Your stall made ${money(pr)}!`:pr<0?`Your stall lost ${money(-pr)}`:'You broke even: $0'}</h2></div>${starsH(pr)}</div>
-    <table class="tb"><tbody><tr><td>We collected</td><td>${d.n} × ${money(d.price)}</td><td class="r"><b>${money(col)}</b></td></tr>
-      <tr><td>We paid out</td><td>${d.wins} winner${d.wins===1?'':'s'} × $50</td><td class="r"><b>${money(paid)}</b></td></tr>
-      <tr class="tot"><td>Profit</td><td>${money(col)} − ${money(paid)}</td><td class="r ${pr>0?'pos':pr<0?'neg':''}">${money(pr)}</td></tr></tbody></table>
-    <div class="note blue"><b>What your data said:</b> P(in) ≈ ${pct(c.in,c.n)}, so about ${Math.round(c.p*100)/100} × ${d.n} = <b>${expTxt}</b> winners. There ${d.wins===1?'was':'were'} <b>${d.wins}</b>.${pred}</div>
-    <div class="note violet"><b>Break-even price</b> = P(in) × $50 ≈ ${Math.round(c.p*100)/100} × $50 = <b>${money(be)}</b>. ${verdict}</div>
-    ${sameSpot.length>1?`<div class="note amber">All your customers from here so far: <b>${cw} in out of ${cn}</b> (${pct(cw,cn)}). Your own throws said ${pct(c.in,c.n)}. More trials, better estimate.</div>`:''}
-    ${isBest?'<p style="margin:10px 0 0;font-weight:900;color:#b45309">★ Your best day so far!</p>':''}
-    <div class="pBtns"><button class="pb main" data-act="toPrice" data-focus>Try another price ›</button><button class="pb" data-act="more">More practice</button><button class="pb" data-act="spots">Change spot</button></div>
-    <details class="log"><summary>Stall log (${S.days.length} day${S.days.length===1?'':'s'})</summary>${logH()}</details>`,{wide:true});
-}
-function helpPanel(){
-  const back=phase;
-  panel(`<div class="eyebrow">How to play</div><h2>Throw, collect data, set a price</h2>
-    <p><b>1. Angle.</b> Drag the blue slider up or down (or use <span class="kbd">↑</span> <span class="kbd">↓</span>). The green sweet spot on the power meter shows how much power that angle needs. Some angles have a bigger sweet spot than others.</p>
-    <p><b>2. Power.</b> Lock in the angle, then press <b>THROW!</b> (or <span class="kbd">Space</span>) when the marker is in the green. A scrunched-up ball wobbles, so even a good throw can miss.</p>
-    <p><b>3. Data.</b> Every throw is recorded as in or out. In ÷ throws is your estimate of the chance: P(in).</p>
-    <p><b>4. The stall.</b> Choose a cost to play. Customers throw about as well as you. Each one pays you the cost; each winner takes $50. Profit = collected − paid out.</p>
-    <div class="pBtns"><button class="pb main" data-act="closeHelp" data-focus>Got it</button></div>`);
-  helpPanel.back=back;
-}
-function logPanel(){const back=phase;
-  panel(`<div class="eyebrow">Stall log</div><h2>Every day you’ve opened</h2>${logH()}
-    <div class="pBtns"><button class="pb main" data-act="closeHelp" data-focus>Close</button></div>`,{wide:true});helpPanel.back=back}
-function charPanel(){
-  phase='char';hideGame();camFor('overview');helpPanel.back=null;
-  panel(`<div class="eyebrow">Choose your character</div><h2>Who’s throwing?</h2>
-    <div class="chGrid">${CHARS.map((c,i)=>`<button class="chCard${S.char===c.id?' on':''}" data-act="char" data-v="${c.id}" ${S.char===c.id?'data-focus':''}><span class="chImg" style="background-position:${(i%7)/6*100}% ${Math.floor(i/7)/2*100}%"></span><b>${c.name}</b></button>`).join('')}</div>
-    <p style="margin:12px 0 0;font-size:.85rem;color:#64748b">Characters from Mills Maths Adventure. They all throw the same: only your angle and timing matter.</p>`,{wide:true});
-}
-function hideGame(){show('controls',false);show('status',false);show('skip',false);hint('');world.kid.g.visible=false;world.ball.visible=false;world.arrow.visible=world.arc.visible=world.baseLine.visible=false;world.queue.forEach(k=>k.g.visible=false)}
-
-/* ---------------- practice flow ---------------- */
+/* ---------------- practice ---------------- */
 function pickSpot(id){
-  if(S.spot!==id)clearThrows();S.spot=id;save();stall=null;closePanel();world.queue.forEach(k=>k.g.visible=false);
+  if(S.spot!==id)clearThrows();S.spot=id;save();stall=null;closePanel();hideStallCast();
   world.kid.tint('#2563eb');world.kid.use(S.char);placeKid();camFor('throw');
-  const c=cnt(id);batchLeft=BATCH;startAim(true);
-  if(!c.n)pop(`<span class="why">${curSpot().name}: ${BATCH} practice throws</span>`,1800);
+  batchLeft=BATCH;
+  if(S.pred[id]==null&&!cnt(id).n){predictPanel(id);return}
+  startAim(true);
 }
 function startAim(first){
-  phase='aim';stall=null;show('controls',true);show('skip',false);setAngle(S.angle[S.spot]||45,true);world.kid.setArm(3.3);holdBall();setCtl();renderStatus();aimArrow();camFor('throw');
-  hint(first&&!cnt(S.spot).n?'Drag the angle slider, then lock it in':'');
+  phase='aim';stall=null;closePanel();show('controls',true);show('skip',false);setAngle(S.angle[S.spot]||45,true);world.kid.setArm(3.3);holdBall();setCtl();renderStatus();aimArrow();camFor('throw');
+  hint(first&&!cnt(S.spot).n?t('Drag the angle slider, then lock it in'):'');
 }
-function lockAngle(){if(phase!=='aim')return;phase='power';meterT=0;power=0;SFX.lock();setCtl();hint('Press THROW! when the marker is in the green')}
+function lockAngle(){if(phase!=='aim')return;phase='power';meterT=0;power=0;SFX.lock();setCtl();hint(PREF.hard?t('Hard mode: time it without the green'):t('Press THROW! when the marker is in the green'))}
 function unlock(){if(phase!=='power')return;phase='aim';setCtl();$('mark').style.bottom='0%';$('powRead').textContent='0';hint('')}
 function doThrow(){
   if(phase!=='power')return;phase='wind';armT=0;setCtl();hint('');
-  launchPlan={spot:S.spot,angle,power,nz:P.noise()};
+  launchPlan={spot:S.spot,angle,power,nz:(window.__BTG__&&window.__BTG__.nz)||P.noise()};
 }
-let launchPlan=null;
 function release(){
-  const L=launchPlan;sim=P.launch(L.spot,L.angle,L.power,L.nz);simAcc=0;firstEv=null;phase='fly';SFX.whoosh();
+  const Lp=launchPlan;sim=P.launch(Lp.spot,Lp.angle,Lp.power,Lp.nz);simAcc=0;firstEv=null;phase='fly';SFX.whoosh();
   world.arrow.visible=world.arc.visible=world.baseLine.visible=false;
-  trail={pts:[new THREE.Vector3(sim.x,sim.y,sim.z)],n:0};
+  trail={pts:[new THREE.Vector3(sim.x,sim.y,sim.z)],n:0};rec=[sim.x,sim.y,sim.z];rimIdx=-1;
 }
 function landed(){
   const isIn=sim.result==='in',res={in:isIn,rim:sim.rim,ceil:sim.ceil,first:firstEv},why=P.describe(res,S.spot);
-  // keep the arc of this throw, faintly, like a record on the air
   const line=new THREE.Line(new THREE.BufferGeometry().setFromPoints(trail.pts),new THREE.LineBasicMaterial({color:isIn?'#15803d':'#ef4444',transparent:true,opacity:stall?.28:.5}));
   scene.add(line);world.trails.push(line);while(world.trails.length>(stall?14:8))scene.remove(world.trails.shift());
   if(isIn){world.ball.visible=false;burst();SFX.in();cheerT=stall?.7:1.15;world.kid.cheer()}
-  else{const l=world.ball.clone();l.material=world.ball.material;scene.add(l);world.litter.push(l);while(world.litter.length>40)scene.remove(world.litter.shift());world.ball.visible=false;SFX.out()}
+  else{const l=world.ball.clone();l.material=world.ball.material;scene.add(l);world.litter.push(l);while(world.litter.length>(lowGfx()?15:40))scene.remove(world.litter.shift());world.ball.visible=false;SFX.out()}
   if(stall){
     const d=stall;d.i++;if(isIn)d.wins++;
-    pop(`<span class="pp ${isIn?'in':'out'}">${isIn?'IN ✓':'OUT ✗'}</span><span class="cash ${isIn?'neg':'pos'}">${isIn?`+${money(d.price)} − $50`:`+${money(d.price)}`}</span>`,800);
-    setTimeout(isIn?SFX.pay:SFX.coin,isIn?350:60);renderStatus();phase='after';afterT=isIn?.75:.4;return;
+    pop(`<span class="pp ${isIn?'in':'out'}">${isIn?t('IN')+' ✓':t('OUT')+' ✗'}</span><span class="cash ${isIn?'neg':'pos'}"><bdi dir="ltr">${isIn?`+${money(d.price)} − ${money(d.prize)}`:`+${money(d.price)}`}</bdi></span>`,800);
+    setTimeout(isIn?SFX.pay:SFX.coin,isIn?350:60);ownerReact(isIn);renderStatus();phase='after';afterT=isIn?.75:.4;return;
   }
-  S.data[S.spot].push({a:launchPlan.angle,p:Math.round(launchPlan.power*10)/10,in:isIn});batchLeft--;save();
-  pop(`<span class="pp ${isIn?'in':'out'}">${isIn?'IN ✓':'OUT ✗'}</span><span class="why">${why}</span>`,1300);
-  renderStatus();phase='after';afterT=1.25;
+  const r={a:launchPlan.angle,p:Math.round(launchPlan.power*10)/10,in:isIn};if(PREF.hard)r.h=1;if(AUTH.mode==='student')r.up=0;
+  S.data[S.spot].push(r);batchLeft--;save();
+  streak=isIn?streak+1:0;if(PREF.hard&&isIn)hardStreak++;
+  pop(`<span class="pp ${isIn?'in':'out'}">${isIn?t('IN')+' ✓':t('OUT')+' ✗'}</span><span class="why">${t(why)}</span>`,1300);
+  renderStatus();checkGoals({throwIn:isIn});queueUpload();
+  phase='after';afterT=1.25;
+  if(sim.rim&&rimIdx>=0&&!lowGfx())startReplay();
 }
 function afterThrow(){
   cheerT=0;world.kid.g.position.y=0;
-  if(stall){if(stall.i>=stall.n){dayPanel();return}nextCustomer();return}
+  if(stall){if(stall.i>=stall.n){endDay();return}nextCustomer();return}
   if(batchLeft<=0){resultsPanel();return}
   startAim();
 }
+
+/* ---------------- slow-motion replay of rim shots ---------------- */
+function startReplay(){
+  const from=Math.max(0,rimIdx-96),pts=[];for(let i=from*3;i<rec.length;i+=3)pts.push([rec[i],rec[i+1],rec[i+2]]);
+  replay={pts,t:0,dur:pts.length/120/.32,keep:{p:cam.pos.clone(),t:cam.tgt.clone()}};phase='replay';
+  world.ball.visible=true;camFor('replay',true);$('replayTag').hidden=false;
+}
+function endReplay(){if(!replay)return;replay=null;$('replayTag').hidden=true;world.ball.visible=false;camFor('throw',true);phase='after';afterT=.35}
 
 /* ---------------- the stall ---------------- */
 /* Customers throw about as well as the student did: same favourite angle, and the same spread of power around the sweet spot.
    The spread is measured robustly (median miss), so throwing badly on purpose in practice does not make customers bad. */
 function customerModel(id){
-  const t=S.data[id],withBand=t.map(x=>({x,b:P.band(id,x.a)})).filter(o=>o.b);
+  const tr=S.data[id],withBand=tr.map(x=>({x,b:P.band(id,x.a)})).filter(o=>o.b);
   let ang;
   if(withBand.length){const as=withBand.map(o=>o.x.a).sort((a,b)=>a-b);ang=as[Math.floor(as.length/2)]}
   else{ang=40;let best=null;for(let a=P.ANGLE.min;a<=P.ANGLE.max;a+=5){const b=P.band(id,a);if(b&&(!best||b.w>best.w)){best=b;ang=a}}}
@@ -916,85 +1031,646 @@ function customerModel(id){
   const med=errs.length?errs[Math.floor(errs.length/2)]:4;
   return {angle:ang,mid:b.mid,sigma:clamp(med/0.6745,1.6,7)};
 }
-function openStall(){
-  const pv=$('predIn')?parseInt($('predIn').value,10):NaN,n=queueFor(S.price);
-  if(n<1){pop('<span class="why">Nobody will pay that much. Try a lower price.</span>',1800);return}
-  closePanel();clearThrows();save();
-  stall={spot:S.spot,price:S.price,n,i:0,wins:0,pred:isFinite(pv)?pv:null,model:customerModel(S.spot),pool:stallPool()};
-  timeScale=1.9;show('controls',false);show('skip',true);hint('');camFor('stall');placeKid();layoutQueue();renderStatus();SFX.lock();
-  phase='after';afterT=.8;
-}
+const customerThrow=(id,m)=>P.run(id,m.angle,clamp(m.mid+P.gauss()*m.sigma,0,100),P.noise()).in;
 let poolIds=null;
 function stallPool(){if(!poolIds){const o=CHARS.map(c=>c.id).filter(id=>id!==S.char);for(let i=o.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[o[i],o[j]]=[o[j],o[i]]}poolIds=o.slice(0,4);poolIds.forEach(id=>loadModel(id).catch(()=>{}))}return poolIds}
-function layoutQueue(){
-  const d=curSpot().d,left=stall.n-stall.i-1;
-  world.queue.forEach((k,j)=>{const on=j<left;k.g.visible=on;if(!on)return;const col=j%3,row=Math.floor(j/3);
-    k.tx=-1.25-col*.48;k.tz=Math.min(R.z1-.5,d+.35+row*.5);if(!k.placed){k.g.position.set(k.tx,0,k.tz);k.placed=true}k.g.rotation.y=.5;
-    k.tint(QCOL[(stall.i+1+j)%QCOL.length]);const cid=stall.pool[(stall.i+1+j)%stall.pool.length];if(k.id!==cid)k.use(cid)});
+function openStall(pred){
+  const n=queueFor(S.price,S.prize);if(n<1)return;
+  closePanel();clearThrows();save();
+  stall={spot:S.spot,price:S.price,prize:S.prize,n,i:0,wins:0,pred,model:customerModel(S.spot),pool:stallPool(),fps:{t:0,f:0}};
+  timeScale=1.9;show('controls',false);show('skip',true);hint('');camFor('stall');
+  world.kid.g.visible=false;world.ball.visible=false;placeOwner();layoutQueue(true);renderStatus();SFX.lock();
+  phase='after';afterT=.5;
+}
+function placeOwner(){
+  const o=world.owner,d=curSpot().d;o.tint('#2563eb');o.use(S.char);o.g.position.set(.62,0,-.38);o.g.rotation.y=Math.atan2(.62,-(d+.38));o.setArm(null);o.g.visible=true;
+}
+function ownerReact(isIn){const o=world.owner;if(!o.g.visible)return;o.shape(isIn?'groan':'pump');ownerT=isIn?1.1:.7}
+function hideStallCast(){world.queue.forEach(k=>k.g.visible=false);world.owner.g.visible=false;world.walker.g.visible=false;world.walker.stopWalk()}
+const queueSpot=(j,d)=>{const col=j%3,row=Math.floor(j/3);return [-1.25-col*.48,Math.min(P.ROOM.z1-.5,d+.35+row*.5)]};
+function layoutQueue(first){
+  const d=curSpot().d,left=stall.n-stall.i-(first?0:1),cap=lowGfx()?3:9;
+  world.queue.forEach((k,j)=>{const on=j<Math.min(left,cap);k.g.visible=on;if(!on)return;const [x,z]=queueSpot(j,d);k.tx=x;k.tz=z;
+    if(!k.placed||first){k.g.position.set(x,0,z);k.placed=true}k.g.rotation.y=.5;
+    const ci=stall.i+(first?0:1)+j;k.tint(QCOL[ci%QCOL.length]);const cid=stall.pool[ci%stall.pool.length];if(k.id!==cid)k.use(cid);k.setArm(null)});
 }
 function nextCustomer(){
-  const d=stall,m=d.model;world.kid.tint(QCOL[d.i%QCOL.length]);world.kid.use(d.pool[d.i%d.pool.length]);world.kid.setArm(3.3);holdBall();layoutQueue();world.kid.g.position.y=0;
+  const d=stall,m=d.model,cid=d.pool[d.i%d.pool.length],col=QCOL[d.i%QCOL.length],dz=curSpot().d;
+  world.kid.g.visible=false;world.ball.visible=false;
   launchPlan={spot:d.spot,angle:m.angle,power:clamp(m.mid+P.gauss()*m.sigma,0,100),nz:P.noise()};
-  phase='wind';armT=0;renderStatus();
+  if(lowGfx()){toLine(cid,col);return}
+  const [x,z]=queueSpot(0,dz),w=world.walker;w.tint(col);w.use(cid);w.g.position.set(x,0,z);w.g.visible=true;w.startWalk();
+  if(world.queue[0])world.queue[0].g.visible=false;
+  layoutQueue(false);
+  walk={x0:x,z0:z,t:0,dur:Math.hypot(x,z-dz)/1.35,cid,col};phase='walk';
+}
+function toLine(cid,col){
+  const w=world.walker;w.stopWalk();w.g.visible=false;walk=null;
+  world.kid.tint(col);world.kid.use(cid);world.kid.g.rotation.y=0;world.kid.g.position.set(0,0,curSpot().d);world.kid.g.visible=true;world.kid.setArm(3.3);holdBall();
+  if(lowGfx())layoutQueue(false);
+  phase='wind';armT=-.15;renderStatus();
 }
 function skipStall(){
   if(!stall||phase==='day')return;const d=stall,m=d.model;
-  if(phase==='fly'||phase==='wind'){const r=sim&&phase==='fly'?null:null}
-  // finish the throw in the air as it would have landed, then run the rest without drawing them
   if(phase==='fly'){while(!sim.done)P.step(sim,P.DT);d.i++;if(sim.result==='in')d.wins++}
-  while(d.i<d.n){const r=P.run(d.spot,m.angle,clamp(m.mid+P.gauss()*m.sigma,0,100),P.noise());d.i++;if(r.in)d.wins++}
-  world.ball.visible=false;$('pop').innerHTML='';dayPanel();
+  if(phase==='wind'||phase==='walk'){}
+  while(d.i<d.n){d.i++;if(customerThrow(d.spot,m))d.wins++}
+  world.ball.visible=false;$('pop').innerHTML='';endDay();
+}
+function endDay(){
+  phase='day';show('skip',false);const d=stall,c=cnt(d.spot),pr=d.n*d.price-d.wins*d.prize;
+  const day={spot:d.spot,price:d.price,prize:d.prize,n:d.n,wins:d.wins,profit:pr,p:c.p,pred:d.pred&&d.pred.result||null,predW:d.pred&&d.pred.winners!=null?d.pred.winners:null,at:Date.now()};
+  S.days.push(day);save();renderStatus();hideStallCast();world.kid.g.visible=false;
+  if(pr>0)SFX.win();
+  checkGoals({day});
+  dayPanel(day,S.days.length);
 }
 
 /* ---------------- main loop ---------------- */
 let last=0;
 function frame(now){
   const dt=Math.min(.1,(now-last)/1000||0);last=now;
-  // camera
   cam.sway+=dt;const k=1-Math.pow(.0015,dt);
   const gt=cam.gt.clone();if(phase==='fly'&&sim)gt.lerp(new THREE.Vector3(sim.x,sim.y,sim.z),.3);
   cam.pos.lerp(cam.gp,k);cam.tgt.lerp(gt,k);
-  camera.position.copy(cam.pos);if(phase==='intro'||phase==='spot'){camera.position.x+=Math.sin(cam.sway*.35)*.25;camera.position.y+=Math.sin(cam.sway*.27)*.06}
+  camera.position.copy(cam.pos);if(phase==='intro'||phase==='spot'||phase==='char'){camera.position.x+=Math.sin(cam.sway*.35)*.25;camera.position.y+=Math.sin(cam.sway*.27)*.06}
   camera.lookAt(cam.tgt);
-  // markers pulse while choosing
   if(phase==='spot')for(const s of P.SPOTS){const m=world.markers[s.id];m.ring.material.opacity=.45+.35*Math.sin(cam.sway*4);m.ring.scale.setScalar(1+.08*Math.sin(cam.sway*4))}
   if(phase==='aim'){const pp=window.__BTG__&&window.__BTG__.pausePose;world.kid.setArm(pp!==undefined?pp:3.3+Math.sin(cam.sway*2.2)*.04);holdBall()}
   if(phase==='power'){
-    meterT+=dt;const ph=(meterT/P.METER.period)%1;power=ph<.5?ph*200:(1-ph)*200;
+    meterT+=dt;const ph=(meterT/meterPeriod())%1;power=ph<.5?ph*200:(1-ph)*200;
     $('mark').style.bottom=power+'%';$('powRead').textContent=Math.round(power);
     world.kid.setArm(3.3+power/100*.35);holdBall();
   }
+  if(phase==='walk'&&walk){
+    walk.t+=dt*timeScale;const u=Math.min(1,walk.t/walk.dur),w=world.walker,dz=curSpot().d;
+    const x=walk.x0*(1-u),z=walk.z0+(dz-walk.z0)*u;w.g.position.set(x,0,z);w.g.rotation.y=u<.85?Math.atan2(-(0-walk.x0),-(dz-walk.z0)):0;
+    w.update(dt*timeScale);if(u>=1)toLine(walk.cid,walk.col);
+  }
   if(phase==='wind'){
-    armT+=dt*(stall?timeScale:1);const w=.2,sw=.11;
-    let sw_u=0;if(armT<w)world.kid.setArm(3.3+(armT/w)*.4);
-    else{const u=Math.min(1,(armT-w)/sw);sw_u=u;world.kid.setArm(3.7-(3.7-2.786)*u*u);if(u>=1){release()}}
-    if(phase==='wind'){holdBall();if(sw_u>0&&launchPlan)world.ball.position.lerp(_a.set(P.REL.x,P.REL.y,P.spot(launchPlan.spot).d),sw_u*sw_u*sw_u)}
+    armT+=dt*(stall?timeScale:1);const w=.2,sw=.11;let su=0;
+    if(armT<0){}else if(armT<w)world.kid.setArm(3.3+(armT/w)*.4);
+    else{const u=Math.min(1,(armT-w)/sw);su=u;world.kid.setArm(3.7-(3.7-2.786)*u*u);if(u>=1){release()}}
+    if(phase==='wind'){holdBall();if(su>0&&launchPlan)world.ball.position.lerp(_a.set(P.REL.x,P.REL.y,P.spot(launchPlan.spot).d),su*su*su)}
   }
   if(phase==='fly'){
     simAcc+=dt*(stall?timeScale:1);
-    if(world.kid.armX>1.7)world.kid.setArm(Math.max(1.7,world.kid.armX-dt*7));
+    if(world.kid.armX>1.7&&world.kid.mode==='arm')world.kid.setArm(Math.max(1.7,world.kid.armX-dt*7));
     while(simAcc>=P.DT&&!sim.done){P.step(sim,P.DT);simAcc-=P.DT;
       if(sim.ev){if(!firstEv&&sim.ev!=='in')firstEv={ev:sim.ev,x:sim.x,z:sim.z};
+        if(sim.ev==='rim'&&rimIdx<0)rimIdx=rec.length/3;
         if(sim.ev==='floor'||sim.ev==='wall'||sim.ev==='ceil'||sim.ev==='side')SFX.thud();else if(sim.ev==='rim')SFX.rim()}
-      if(++trail.n%6===0&&!sim.inBin&&trail.pts.length<400&&!firstEv)trail.pts.push(new THREE.Vector3(sim.x,sim.y,sim.z))}
+      if(++trail.n%2===0)rec.push(sim.x,sim.y,sim.z);
+      if(trail.n%6===0&&!sim.inBin&&trail.pts.length<400&&!firstEv)trail.pts.push(new THREE.Vector3(sim.x,sim.y,sim.z))}
     world.ball.position.set(sim.x,sim.y,sim.z);world.ball.rotation.x+=dt*9;world.ball.rotation.z+=dt*6;
     if(sim.done)landed();
   }
-  if(cheerT>0){cheerT-=dt*(stall?1:1);world.kid.g.position.y=cheerT>0?Math.abs(Math.sin(cheerT*11))*.13:0}
+  if(phase==='replay'&&replay){
+    replay.t+=dt;const i=Math.min(replay.pts.length-1,Math.floor(replay.t*120*.32));const p=replay.pts[i];world.ball.position.set(p[0],p[1],p[2]);world.ball.rotation.x+=dt*3;
+    if(replay.t>=replay.dur+.5)endReplay();
+  }
+  if(cheerT>0){cheerT-=dt;world.kid.g.position.y=cheerT>0?Math.abs(Math.sin(cheerT*11))*.13:0}
+  if(ownerT>0){ownerT-=dt;if(ownerT<=0)world.owner.setArm(null)}
   if(phase==='after'){afterT-=dt;if(afterT<=0)afterThrow()}
-  // queue shuffles forward; winners hop
-  if(stall)world.queue.forEach(q=>{if(!q.g.visible)return;q.g.position.x+=(q.tx-q.g.position.x)*Math.min(1,dt*6);q.g.position.z+=(q.tz-q.g.position.z)*Math.min(1,dt*6)});
+  if(stall){
+    world.queue.forEach(q=>{if(!q.g.visible)return;q.g.position.x+=(q.tx-q.g.position.x)*Math.min(1,dt*6);q.g.position.z+=(q.tz-q.g.position.z)*Math.min(1,dt*6)});
+    autoGfx(dt);
+  }
   updConfetti(dt);
-  if(world.bin.scale.y!==1)world.bin.scale.y+=(1-world.bin.scale.y)*Math.min(1,dt*10);
   renderer.render(scene,camera);
   requestAnimationFrame(frame);
 }
+/* If the stall is running slowly (older iPads), switch to low graphics once, by itself. */
+function autoGfx(dt){
+  if(PREF.low!==null||!stall)return;const f=stall.fps;f.t+=dt;f.f++;
+  if(f.t>=3){if(f.f/f.t<24){PREF.low=true;savePrefs();applyGfx();layoutQueue(false);toast(t('Switched to low graphics to keep it smooth'))}else{PREF.low=PREF.low===null?null:PREF.low;f.t=-1e9}}
+}
+
+/* ---------------- HUD ---------------- */
+function show(id,on){$(id).hidden=!on}
+function hint(s){const h=$('hint');if(s){h.textContent=s;h.hidden=false}else h.hidden=true}
+function pop(html,ms){const p=$('pop');p.innerHTML=html;clearTimeout(pop.t);pop.t=setTimeout(()=>{p.innerHTML=''},ms||1300)}
+function toast(html){const el=$('toast');el.innerHTML=html;el.hidden=false;el.classList.remove('go');void el.offsetWidth;el.classList.add('go');clearTimeout(toast.t);toast.t=setTimeout(()=>{el.hidden=true},3400)}
+function renderStatus(){
+  const el=$('statusCard');if(!S.spot||!['aim','power','wind','fly','after','replay','walk','results'].includes(phase)&&!stall){show('status',false);return}
+  const s=curSpot(),c=cnt(S.spot);
+  if(stall){
+    const d=stall,pr=d.i*d.price-d.wins*d.prize;
+    el.innerHTML=`<div class="stTop"><span class="chip money">${t('Stall open')}</span><span class="stSpot">${spotName(S.spot)}</span></div>
+      <div class="qRow"><span>${t('Cost to play')} <b><bdi dir="ltr">${money(d.price)}</bdi></b> · ${t('Prize')} <b><bdi dir="ltr">${money(d.prize)}</bdi></b></span></div>
+      <div class="qRow"><span>${t('Customer')} <b><bdi dir="ltr">${Math.min(d.i+(phase==='day'?0:1),d.n)} / ${d.n}</bdi></b></span><span>${t('Winners')} <b>${d.wins}</b></span></div>
+      <div class="moneyG"><div class="cnt"><small>${t('Collected')}</small><b><bdi dir="ltr">${money(d.i*d.price)}</bdi></b></div><div class="cnt"><small>${t('Paid out')}</small><b><bdi dir="ltr">${money(d.wins*d.prize)}</bdi></b></div>
+      <div class="cnt wide"><small>${t('Profit')}</small><b class="${pr>0?'pos':pr<0?'neg':''}"><bdi dir="ltr">${money(pr)}</bdi></b></div></div>`;
+    show('status',true);return}
+  const tr=S.data[S.spot];
+  const dots=tr.slice(-30).map((x,i)=>`<i class="${x.in?'in':'out'}"></i>`).join('')+(batchLeft>0?'<i class="now"></i>'+'<i></i>'.repeat(Math.max(0,batchLeft-1)):'');
+  el.innerHTML=`<div class="stTop"><span class="chip">${t('Practice')}${PREF.hard?' · '+t('Hard'):''}</span><span class="stSpot">${spotName(S.spot)} · <bdi dir="ltr">${s.d} m</bdi></span></div>
+    <div class="stThrow">${batchLeft>0?t('Throw {n} of {m}',{n:c.n+1,m:c.n+batchLeft}):t('{n} throws',{n:c.n})}</div><div class="dots">${dots}</div>
+    <div class="counts"><div class="cnt in"><small>${t('In')} ✓</small><b>${c.in}</b></div><div class="cnt out"><small>${t('Out')} ✗</small><b>${c.out}</b></div>
+      <div class="cnt p"><small>${t('Chance of in')}</small><b>${c.n?`<bdi dir="ltr">${c.in}/${c.n} <span>= ${pct(c.in,c.n)}</span></bdi>`:'–'}</b></div></div>
+    <div class="stLinks"><button class="lnk" data-act="spots">${t('Change spot')}</button>${c.n>=MIN_DATA?`<button class="lnk go" data-act="toPrice">${t('Open the stall')} ›</button>`:''}</div>
+    ${AUTH.mode==='student'?`<div class="saveLine ${pendingCount()?'wait':''}">${pendingCount()?t('{n} throws waiting to save',{n:pendingCount()}):t('Your throws are saved for your class')+' ✓'}</div>`:''}`;
+  show('status',true);
+}
+function setCtl(){
+  const aim=phase==='aim',pw=phase==='power';
+  $('ctlAngle').className='ctl '+(aim?'on':'off');$('ctlPower').className='ctl '+(pw?'on':'off');
+  $('pill1').className=aim?'on':'done';$('pill2').className=pw?'on':'';
+  $('pill1').textContent='1 '+t('Angle');$('pill2').textContent='2 '+t('Power');
+  $('hAngle').textContent=t('Angle');$('hPower').textContent=t('Power');$('angNote').textContent=t('Drag up for a higher throw');
+  const b=$('actBtn');b.disabled=!(aim||pw);b.className='bigBtn'+(pw?' throw':'');b.innerHTML=pw?t('THROW!')+' <kbd>Space</kbd>':t('Lock in angle')+' <kbd>Space</kbd>';
+  $('unlockBtn').hidden=!pw;$('unlockBtn').innerHTML='&#8592; '+t('change the angle');drawZone();
+}
+
+/* ---------------- panels ---------------- */
+const veil=$('veil');let curPanel=null;
+function panel(html,o){veil.className=o&&o.clear?'clear':'';veil.innerHTML=`<div class="panel ${o&&o.wide?'wide':''} ${o&&o.xwide?'xwide':''}" role="dialog" aria-modal="true">${html}</div>`;veil.hidden=false;
+  const f=veil.querySelector('[data-focus]');if(f)setTimeout(()=>f.focus({preventScroll:true}),60)}
+function closePanel(){veil.hidden=true;veil.innerHTML='';curPanel=null}
+function setPanel(fn){curPanel=fn;fn()}                   // remembered so a language change can redraw it
+const prizeSVG=p=>`<svg viewBox="0 0 230 120" aria-hidden="true"><rect x="3" y="3" width="224" height="114" rx="12" fill="#fde68a" stroke="#b45309" stroke-width="3"/><rect x="13" y="13" width="204" height="94" rx="8" fill="none" stroke="#d97706" stroke-width="2" stroke-dasharray="5 4"/><circle cx="60" cy="60" r="30" fill="#fbbf24" stroke="#b45309" stroke-width="2.5"/><text x="60" y="71" text-anchor="middle" font-size="30" font-weight="900" fill="#92400e" font-family="system-ui,sans-serif">$</text><text x="152" y="66" text-anchor="middle" font-size="${p>=100?38:44}" font-weight="900" fill="#78350f" font-family="system-ui,sans-serif">$${p}</text><text x="152" y="92" text-anchor="middle" font-size="16" font-weight="900" letter-spacing="4" fill="#92400e" font-family="system-ui,sans-serif">PRIZE</text></svg>`;
+function hideGame(){show('controls',false);show('status',false);show('skip',false);hint('');world.kid.g.visible=false;world.ball.visible=false;world.arrow.visible=world.arc.visible=world.baseLine.visible=false;hideStallCast()}
+const hasData=()=>P.SPOTS.some(s=>S.data[s.id].length);
+
+function introPanel(){
+  phase='intro';hideGame();camFor('overview');
+  setPanel(()=>panel(`<div class="prizeRow">${prizeSVG(S.prize)}<div><div class="eyebrow">${t('School fete')}</div><h2>${tt('You’re running the bin toss stall',null,'span')}</h2></div></div>
+    <p style="margin-top:12px">${tt('Anyone who throws the paper ball <b>into the bin</b> wins a prize. Your job: choose a <b>cost to play</b> so the stall makes money.')}</p>
+    <div class="steps3"><div><b><i>1</i>${t('Practise')}</b>${tt('Pick a spot and throw. Every throw is data: in or out.')}</div>
+      <div><b><i>2</i>${t('Set your price')}</b>${tt('Use your data to work out how often people will win.')}</div>
+      <div><b><i>3</i>${t('Open the stall')}</b>${tt('Customers line up. Count the money. Did you make a profit?')}</div></div>
+    ${accountBoxH()}
+    <div class="pBtns"><button class="pb main" data-act="${S.char?'spots':'chars'}" data-focus>${hasData()?t('Keep going')+' ›':t('Let’s go')+' ›'}</button></div>`));
+}
+function charPanel(){
+  phase='char';hideGame();camFor('overview');helpPanel.back=null;
+  setPanel(()=>panel(`<div class="eyebrow">${t('Choose your character')}</div><h2>${tt('Who’s throwing?')}</h2>
+    <div class="chGrid">${CHARS.map((c,i)=>`<button class="chCard${S.char===c.id?' on':''}" data-act="char" data-v="${c.id}" ${S.char===c.id?'data-focus':''}><span class="chImg" style="background-position:${(i%7)/6*100}% ${Math.floor(i/7)/2*100}%"></span><b>${esc(c.name)}</b></button>`).join('')}</div>
+    <p class="small">${tt('Characters from Mills Maths Adventure. They all throw the same: only your angle and timing matter.')}</p>`,{wide:true}));
+}
+function spotPanel(){
+  phase='spot';stall=null;hideGame();camFor('overview');for(const s of P.SPOTS){const m=world.markers[s.id];m.g.visible=true;m.disc.visible=true}
+  setPanel(()=>panel(`<div class="eyebrow">${t('Choose your spot')}</div><h2>${tt('Where will people throw from?')}</h2>
+    <div class="spotCards">${P.SPOTS.map(s=>{const c=cnt(s.id);return `<button class="spotCard" data-act="pick" data-v="${s.id}"><div class="m"><bdi dir="ltr">${s.d}</bdi> <small>${t('metres')}</small></div><b>${spotName(s.id)}</b>
+      <span class="${c.n?'has':''}">${c.n?t('Your data: {a} in out of {n} ({p})',{a:c.in,n:c.n,p:pct(c.in,c.n)}):t('No throws yet')}</span></button>`}).join('')}</div>
+    <p class="small">${tt('You can also tap an orange marker on the floor. Each spot keeps its own data.')} <button class="lnk" data-act="chars">${t('Change character')}${S.char?': '+esc(charName(S.char)):''}</button></p>`,{clear:true}));
+}
+/* Before the first throw from a spot: predict, so the data has something to be compared with. */
+function predictPanel(id){
+  phase='predict';show('controls',false);hint('');
+  const v=S.pred[id]!=null?S.pred[id]:50;
+  setPanel(()=>{panel(`<div class="eyebrow">${t('Before you throw')} · ${spotName(id)}</div><h2>${tt('What percentage of your throws will go in from here?')}</h2>
+    <div class="lsl"><div class="lslRead" id="predRead">${v}%</div><input type="range" id="spotPred" min="0" max="100" step="5" value="${v}" aria-label="${esc(t('Your prediction as a percentage'))}">
+      <div class="lslWords"><span>${t('Impossible')}</span><span>${t('Unlikely')}</span><span>${t('Even chance')}</span><span>${t('Likely')}</span><span>${t('Certain')}</span></div></div>
+    <p class="small">${tt('Your prediction is kept. At the end you’ll see how close you were.')}</p>
+    <div class="pBtns"><button class="pb main" data-act="predGo" data-v="${id}" data-focus>${t('Lock it in and throw')} ›</button><button class="pb" data-act="predSkip">${t('Skip')}</button></div>`);paintPred()});
+}
+function paintPred(){const i=$('spotPred');if(!i)return;const v=+i.value;$('predRead').textContent=v+'%';$('predRead').style.color=lcol(v/100);i.style.setProperty('--fill',v+'%')}
+function lcol(p){const st=[[239,68,68],[249,115,22],[234,179,8],[34,197,94],[59,130,246]],x=clamp(p,0,1)*4,i=Math.min(3,Math.floor(x)),f=x-i,a=st[i],b=st[i+1];return `rgb(${a.map((v,k)=>Math.round(v+(b[k]-v)*f)).join(',')})`}
+
+function resultsPanel(){
+  phase='results';show('controls',false);hint('');world.arrow.visible=world.arc.visible=world.baseLine.visible=false;renderStatus();
+  setPanel(()=>{const c=cnt(S.spot),dec=Math.round(c.p*1000)/1000,pr=S.pred[S.spot];
+    const rows=P.SPOTS.map(x=>{const k=cnt(x.id);return `<tr class="${x.id===S.spot?'cur':''}"><td>${spotName(x.id)} (<bdi dir="ltr">${x.d} m</bdi>)</td><td class="r">${k.n?k.in:'–'}</td><td class="r">${k.n||'–'}</td><td class="r">${k.n?pct(k.in,k.n):'–'}</td><td class="r">${S.pred[x.id]!=null?S.pred[x.id]+'%':'–'}</td></tr>`}).join('');
+    panel(`<div class="eyebrow">${t('Your data')} · ${spotName(S.spot)}</div>
+      <div class="bigFrac"><div class="n"><bdi dir="ltr">${c.in}</bdi> <small>${t('in out of')}</small> <bdi dir="ltr">${c.n}</bdi></div>
+        <div class="eq" dir="ltr">P(in) ≈ ${fracH(c.in,c.n)} = ${dec} = ${pct(c.in,c.n)}</div></div>
+      <p>${tt('This is your <b>estimate</b> of the chance that a throw from here goes in.')} ${c.n<30?tt('More throws give a better estimate.'):tt('That’s a solid amount of data.')}${pr!=null?' '+tt('You predicted {p}%.',{p:pr}):''}</p>
+      <table class="tb"><thead><tr><th>${t('Spot')}</th><th class="r">${t('In')}</th><th class="r">${t('Throws')}</th><th class="r">P(in)</th><th class="r">${t('Predicted')}</th></tr></thead><tbody>${rows}</tbody></table>
+      <div class="pBtns"><button class="pb main" data-act="toPrice" data-focus>${t('Set my price')} ›</button><button class="pb" data-act="more">${t('Throw {n} more',{n:BATCH})}</button><button class="pb" data-act="spots">${t('Change spot')}</button></div>`)});
+}
+function queueH(n){let h='';for(let i=0;i<n;i++)h+=`<i style="--c:${QCOL[i%QCOL.length]}"></i>`;return h}
+let dayPred=null;
+function pricePanel(){
+  phase='price';stall=null;show('controls',false);show('skip',false);hint('');camFor('stall');renderStatus();stallPool();dayPred={result:null,winners:null};
+  if(S.price>=ceilFor(S.prize))S.price=Math.max(1,Math.round(ceilFor(S.prize)*.4));
+  setPanel(()=>{const c=cnt(S.spot),cl=ceilFor(S.prize);
+    panel(`<div class="eyebrow">${t('Open the stall')} · ${spotName(S.spot)}</div><h2>${tt('How much will you charge to play?')}</h2>
+      <p>${tt('Your data from here: <b>{a} in out of {n}</b> ({p}). Your customers throw about as well as you.',{a:c.in,n:c.n,p:pct(c.in,c.n)})}</p>
+      <div class="prizePick"><span>${t('Prize')}</span>${PRIZES.map(p=>`<button class="seg ${S.prize===p?'on':''}" data-act="prize" data-v="${p}"><bdi dir="ltr">$${p}</bdi></button>`).join('')}</div>
+      <div class="priceRow"><button class="stepper" data-act="price" data-v="-1" aria-label="${esc(t('Cheaper'))}">−</button><div class="priceBig" id="priceBig"></div><button class="stepper" data-act="price" data-v="1" aria-label="${esc(t('Dearer'))}">+</button>
+        <input class="hr" type="range" id="priceIn" min="1" max="${cl}" step="1" value="${S.price}" aria-label="${esc(t('Cost to play in dollars'))}"></div>
+      <div class="qRow" style="margin-top:2px"><span>${t('In the queue')}: <b class="qCount" id="qCount"></b></span><span id="ceilNote"></span></div>
+      <div class="queue" id="queueIcons"></div>
+      <div class="predBox"><div class="predQ">${tt('Before you open: will today make a profit or a loss?')}</div>
+        <div class="segRow"><button class="seg" data-act="dayPred" data-v="profit">${t('Profit')}</button><button class="seg" data-act="dayPred" data-v="loss">${t('Loss')}</button></div>
+        <div class="predRow"><label for="predIn">${t('I expect about')}</label><input id="predIn" inputmode="numeric" maxlength="3" placeholder="?" aria-label="${esc(t('How many winners do you expect?'))}"><span>${t('winners')}</span><small>(${t('optional')})</small></div></div>
+      <div class="pBtns"><button class="pb main" id="openBtn" data-act="open" disabled>${t('Open the stall')} ›</button><button class="pb" data-act="more">${t('More practice')}</button><button class="pb" data-act="spots">${t('Change spot')}</button></div>`);paintPrice()});
+}
+function paintPrice(){
+  if(!$('priceBig'))return;const n=queueFor(S.price,S.prize),cl=ceilFor(S.prize);
+  $('priceBig').textContent='$'+S.price;$('qCount').innerHTML=n?t(n===1?'{n} person':'{n} people',{n}):t('nobody');$('queueIcons').innerHTML=n?queueH(n):`<span class="nobody">${t('Nobody will pay that much to win {p}.',{p:money(S.prize)})}</span>`;
+  $('priceIn').value=S.price;$('priceIn').max=cl;$('ceilNote').innerHTML=t('Nobody pays {c} or more',{c:money(cl)});
+  document.querySelectorAll('[data-act=dayPred]').forEach(b=>b.classList.toggle('on',dayPred&&dayPred.result===b.dataset.v));
+  const ob=$('openBtn');if(ob){ob.disabled=!n||!(dayPred&&dayPred.result);ob.title=!n?t('Nobody will pay that much. Try a lower price.'):!(dayPred&&dayPred.result)?t('Choose profit or loss first'):''}
+}
+function starsH(p){const k=p>=100?3:p>=50?2:p>0?1:0;return `<div class="stars" title="${k}"><b>${'★'.repeat(k)}</b>${'★'.repeat(3-k)}</div>`}
+function logH(){
+  if(!S.days.length)return `<p style="margin:8px 0 0">${t('No stall days yet.')}</p>`;
+  const rows=S.days.map((d,i)=>`<tr><td>${i+1}</td><td>${t(P.spot(d.spot).short)}</td><td class="r"><bdi dir="ltr">${money(d.price)}</bdi></td><td class="r"><bdi dir="ltr">${money(d.prize||50)}</bdi></td><td class="r">${d.n}</td><td class="r">${d.wins}</td><td class="r ${d.profit>0?'pos':d.profit<0?'neg':''}"><b><bdi dir="ltr">${money(d.profit)}</bdi></b></td></tr>`).join('');
+  return `<table class="tb"><thead><tr><th>${t('Day')}</th><th>${t('Spot')}</th><th class="r">${t('Cost')}</th><th class="r">${t('Prize')}</th><th class="r">${t('Players')}</th><th class="r">${t('Winners')}</th><th class="r">${t('Profit')}</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+function dayPanel(d,num){
+  setPanel(()=>{const c={p:d.p},col=d.n*d.price,paid=d.wins*d.prize,pr=d.profit,be=d.p*d.prize,exp=d.p*d.n,pp=Math.round(d.p*100)/100;
+    let verdict;
+    if(d.price<be-.5)verdict=tt('You charged <b>{c}</b>, which is <b>below</b> break-even. Each player costs you about {b} in prizes, so in the long run this price loses money.',{c:money(d.price),b:money2(be)});
+    else if(d.price>be+.5)verdict=tt('You charged <b>{c}</b>, which is <b>above</b> break-even, so you expect a profit in the long run.',{c:money(d.price)});
+    else verdict=tt('You charged almost exactly the break-even price, so you expect to make about $0. Chance decides the rest.');
+    const luck=(d.price>be+.5&&pr<0)?' '+tt('Today chance went against you: with only {n} players, that can happen.',{n:d.n}):(d.price<be-.5&&pr>0)?' '+tt('Today went your way, but that was luck.'):'';
+    const sameSpot=S.days.filter(x=>x.spot===d.spot),cn=sameSpot.reduce((a,x)=>a+x.n,0),cw=sameSpot.reduce((a,x)=>a+x.wins,0);
+    const predOK=d.pred?((d.pred==='profit'&&pr>0)||(d.pred==='loss'&&pr<0)):null;
+    panel(`<div class="dayHead"><div><div class="eyebrow">${t('Day {n}',{n:num})} · ${spotName(d.spot)}</div><h2>${pr>0?tt('Your stall made {m}!',{m:money(pr)}):pr<0?tt('Your stall lost {m}',{m:money(-pr)}):tt('You broke even: $0')}</h2></div>${starsH(pr)}</div>
+      <table class="tb" dir="ltr"><tbody><tr><td>${t('We collected')}</td><td>${d.n} × ${money(d.price)}</td><td class="r"><b>${money(col)}</b></td></tr>
+        <tr><td>${t('We paid out')}</td><td>${d.wins} × ${money(d.prize)}</td><td class="r"><b>${money(paid)}</b></td></tr>
+        <tr class="tot"><td>${t('Profit')}</td><td>${money(col)} − ${money(paid)}</td><td class="r ${pr>0?'pos':pr<0?'neg':''}">${money(pr)}</td></tr></tbody></table>
+      ${d.pred?`<div class="note ${predOK?'green':'red'}">${predOK?'✓ ':'✗ '}${tt(d.pred==='profit'?'You predicted a profit.':'You predicted a loss.')}${d.predW!=null?' '+tt('You expected about {w} winners; there were {x}.',{w:d.predW,x:d.wins}):''}</div>`:''}
+      <div class="note blue">${tt('<b>What your data said:</b> P(in) ≈ {p}, so about {pp} × {n} = <b>{e}</b> winners. There were <b>{w}</b>.',{p:pct(Math.round(d.p*1000),1000),pp,n:d.n,e:Math.round(exp*10)/10,w:d.wins})}</div>
+      <div class="note violet">${tt('<b>Break-even price</b> = P(in) × prize ≈ {pp} × {z} = <b>{b}</b>.',{pp,z:money(d.prize),b:money2(be)})} ${verdict}${luck}</div>
+      ${sameSpot.length>1?`<div class="note amber">${tt('All your customers from here so far: <b>{w} in out of {n}</b> ({p}). More trials, better estimate.',{w:cw,n:cn,p:pct(cw,cn)})}</div>`:''}
+      <div class="longRun" id="longRun"><div class="lrHead"><b>${t('What happens in the long run?')}</b><span>${t('Same price, same customers, many more players:')}</span>
+        <button class="pb sm" data-act="long" data-v="100">${t('{n} players',{n:100})}</button><button class="pb sm" data-act="long" data-v="1000">${t('{n} players',{n:1000})}</button></div><div id="lrOut"></div></div>
+      <div class="pBtns"><button class="pb main" data-act="toPrice" data-focus>${t('Try another price')} ›</button><button class="pb quizB" data-act="quiz">${t('Check your understanding')} ›</button><button class="pb" data-act="more">${t('More practice')}</button><button class="pb" data-act="spots">${t('Change spot')}</button></div>
+      <details class="log"><summary>${t('Stall log')} (${S.days.length})</summary>${logH()}</details>`,{wide:true})});
+  dayPanel.day=d;
+}
+function helpPanel(){
+  const back=phase;
+  setPanel(()=>panel(`<div class="eyebrow">${t('How to play')}</div><h2>${tt('Throw, collect data, set a price')}</h2>
+    <p>${tt('<b>1. Angle.</b> Drag the blue slider up or down (or use the arrow keys). The green sweet spot on the power meter shows how much power that angle needs.')}</p>
+    <p>${tt('<b>2. Power.</b> Lock in the angle, then press <b>THROW!</b> (or Space) when the marker is in the green. A scrunched-up ball wobbles, so even a good throw can miss.')}</p>
+    <p>${tt('<b>3. Data.</b> Every throw is recorded as in or out. In ÷ throws is your estimate of the chance: P(in).')}</p>
+    <p>${tt('<b>4. The stall.</b> Choose a cost to play. Customers throw about as well as you. Each one pays you the cost; each winner takes the prize. Profit = collected − paid out. Nobody will pay half the prize or more.')}</p>
+    <div class="pBtns"><button class="pb main" data-act="closeHelp" data-focus>${t('Got it')}</button></div>`));
+  helpPanel.back=back;
+}
+function logPanel(){const back=phase;
+  setPanel(()=>panel(`<div class="eyebrow">${t('My results')}</div><h2>${tt('Your data and your stall days')}</h2>
+    <table class="tb"><thead><tr><th>${t('Spot')}</th><th class="r">${t('In')}</th><th class="r">${t('Throws')}</th><th class="r">P(in)</th><th class="r">${t('Predicted')}</th></tr></thead><tbody>
+    ${P.SPOTS.map(x=>{const k=cnt(x.id);return `<tr><td>${spotName(x.id)}</td><td class="r">${k.n?k.in:'–'}</td><td class="r">${k.n||'–'}</td><td class="r">${k.n?pct(k.in,k.n):'–'}</td><td class="r">${S.pred[x.id]!=null?S.pred[x.id]+'%':'–'}</td></tr>`}).join('')}</tbody></table>
+    <h3 class="h3">${t('Stall days')}</h3>${logH()}
+    <div class="shareBox"><div class="eyebrow">${t('Share with your teacher')}</div><code id="shareTxt" dir="ltr">${esc(summaryText())}</code><button class="pb sm" data-act="copySum">${t('Copy')}</button></div>
+    <div class="pBtns"><button class="pb main" data-act="closeHelp" data-focus>${t('Close')}</button></div>`,{wide:true}));helpPanel.back=back}
+function summaryText(){
+  const nm=AUTH.mode==='student'&&AUTH.student?AUTH.student.name+' · ':'';
+  const parts=P.SPOTS.filter(x=>cnt(x.id).n).map(x=>{const k=cnt(x.id);return `${P.spot(x.id).short} ${x.d}m: ${k.in}/${k.n} (${pct(k.in,k.n)})`});
+  const best=S.days.length?Math.max(...S.days.map(d=>d.profit)):null;
+  return `Bin Toss · ${nm}${parts.join(' · ')||'no throws yet'}${best!=null?` · best day ${money(best)}`:''}${S.quiz?` · check ${S.quiz.best}/${S.quiz.total}`:''}`;
+}
+
+/* ---------------- challenges ---------------- */
+const GOALS=[
+  {id:'streak3',name:'Get 3 in a row'},
+  {id:'back',name:'Get one in from the back'},
+  {id:'throws50',name:'Throw 50 times'},
+  {id:'allSpots',name:'Throw 10 times from every spot'},
+  {id:'hard5',name:'Get 5 in using hard mode'},
+  {id:'profit',name:'Make a profit'},
+  {id:'big',name:'Make $100 in one day'},
+  {id:'twoSpots',name:'Make a profit from two different spots'},
+  {id:'even',name:'Finish a day within $10 of $0'},
+  {id:'predict',name:'Predict a day right: profit or loss'},
+  {id:'quiz',name:'Get every question right in the check'}
+];
+function award(id){if(S.goals[id])return;S.goals[id]=Date.now();save();SFX.badge();toast(`🏆 <b>${t('Challenge complete')}</b><br>${t(GOALS.find(g=>g.id===id).name)}`);paintGoalBtn()}
+function checkGoals(ev){
+  ev=ev||{};
+  if(streak>=3)award('streak3');
+  if(ev.throwIn&&S.spot==='back')award('back');
+  if(allThrows()>=50)award('throws50');
+  if(P.SPOTS.every(s=>S.data[s.id].length>=10))award('allSpots');
+  if(P.SPOTS.reduce((a,s)=>a+S.data[s.id].filter(x=>x.h&&x.in).length,0)>=5)award('hard5');
+  const d=ev.day;
+  if(d){if(d.profit>0)award('profit');if(d.profit>=100)award('big');
+    if(new Set(S.days.filter(x=>x.profit>0).map(x=>x.spot)).size>=2)award('twoSpots');
+    if(Math.abs(d.profit)<=10)award('even');
+    if(d.pred&&((d.pred==='profit'&&d.profit>0)||(d.pred==='loss'&&d.profit<0)))award('predict')}
+  if(ev.quizPerfect)award('quiz');
+}
+function paintGoalBtn(){const n=GOALS.filter(g=>S.goals[g.id]).length;$('goalCount').textContent=`${n}/${GOALS.length}`}
+function goalsPanel(){const back=phase;
+  setPanel(()=>panel(`<div class="eyebrow">${t('Challenges')}</div><h2>${tt('How many can you complete?')}</h2>
+    <ul class="goals">${GOALS.map(g=>`<li class="${S.goals[g.id]?'done':''}"><span class="gi">${S.goals[g.id]?'🏆':'○'}</span>${tt(g.name)}</li>`).join('')}</ul>
+    <div class="pBtns"><button class="pb main" data-act="closeHelp" data-focus>${t('Close')}</button></div>`));helpPanel.back=back}
+
+/* ---------------- the long run: same price, same customers, many more players ---------------- */
+function longRun(n){
+  const d=dayPanel.day;if(!d)return;const m=customerModel(d.spot),ys=[];let prof=0,w=0;
+  for(let i=0;i<n;i++){const ok=customerThrow(d.spot,m);if(ok)w++;prof+=d.price-(ok?d.prize:0);ys.push(prof)}
+  const perExp=d.price-d.p*d.prize,per=prof/n;
+  $('lrOut').innerHTML=lineChartH({series:[{name:t('Profit'),ys,color:'#7c3aed'}],ref:{name:t('What your data predicts'),slope:perExp},xLab:t('players'),yFmt:money,end:money(prof),id:'lr'})+
+    `<p class="lrTxt">${tt('After {n} players: <b>{w}</b> winners ({p}), profit <b>{m}</b>. That is {per} per player. Your data predicted about {pe} per player (price − P(in) × prize).',{n,w,p:pct(w,n),m:money(prof),per:money2(per),pe:money2(perExp)})}</p>`;
+  wireChart('lr',ys,money);
+}
+/* one-axis line chart; a dashed reference line through 0 with a given slope */
+function lineChartH(o){
+  const W=560,H=200,Lm=56,Rm=16,T=14,B=30,pw=W-Lm-Rm,ph=H-T-B,n=o.series[0].ys.length;
+  const ref=o.ref?Array.from({length:n},(_,i)=>(i+1)*o.ref.slope):[];
+  const all=[0,...o.series.flatMap(s=>s.ys),...ref],lo=Math.min(...all),hi=Math.max(...all),st=niceStep(Math.max(1,hi-lo)),yMin=Math.floor(lo/st)*st,yMax=Math.max(yMin+st,Math.ceil(hi/st)*st);
+  const X=i=>Lm+(n<=1?pw/2:i/(n-1)*pw),Y=v=>T+ph-(v-yMin)/(yMax-yMin)*ph;
+  let g='';for(let v=yMin;v<=yMax+1e-9;v+=st)g+=`<path d="M${Lm} ${Y(v)}H${W-Rm}" stroke="${v===0?'#94a3b8':'#e2e8f0'}" stroke-width="1"/><text x="${Lm-6}" y="${Y(v)+4}" text-anchor="end" font-size="11" fill="#64748b">${o.yFmt(v)}</text>`;
+  const xs=niceStep(n);for(let k=xs;k<=n;k+=xs)g+=`<text x="${X(k-1)}" y="${H-12}" text-anchor="middle" font-size="11" fill="#64748b">${k}</text>`;
+  g+=`<text x="${W-Rm}" y="${H-1}" text-anchor="end" font-size="10.5" font-weight="700" fill="#94a3b8">${esc(o.xLab)}</text>`;
+  const path=ys=>ys.map((v,i)=>`${i?'L':'M'}${X(i).toFixed(1)} ${Y(v).toFixed(1)}`).join('');
+  let s='';if(o.ref)s+=`<path d="${path(ref)}" fill="none" stroke="#475569" stroke-width="2" stroke-dasharray="6 5"/><text x="${X(Math.floor(n*.62))}" y="${Y(ref[Math.floor(n*.62)]||0)+(o.ref.slope<0?22:-10)}" text-anchor="middle" font-size="11.5" font-weight="800" fill="#334155" paint-order="stroke" stroke="#fff" stroke-width="4">${esc(o.ref.name)}</text>`;
+  for(const se of o.series)s+=`<path class="ln" d="${path(se.ys)}" fill="none" stroke="${se.color}" stroke-width="2.2" stroke-linejoin="round"/>`;
+  const ly=o.series[0].ys[n-1];s+=`<circle cx="${X(n-1)}" cy="${Y(ly)}" r="5" fill="${o.series[0].color}" stroke="#fff" stroke-width="2"/><text x="${X(n-1)-8}" y="${Y(ly)+(Y(ly)<T+20?18:-10)}" text-anchor="end" font-size="12.5" font-weight="900" fill="#0f172a" paint-order="stroke" stroke="#fff" stroke-width="4">${esc(o.end)}</text>`;
+  return `<div class="chartBox" data-chart="${o.id}" data-n="${n}" data-l="${Lm}" data-pw="${pw}"><svg viewBox="0 0 ${W} ${H}" dir="ltr" role="img" aria-label="${esc(o.series[0].name)}">${g}${s}<path class="xh" stroke="#334155" stroke-width="1" opacity=".5"/><rect class="hit" x="${Lm}" y="${T}" width="${pw}" height="${ph}" fill="transparent"/></svg><div class="tip" hidden></div></div>`;
+}
+function niceStep(n){const raw=n/5,p=Math.pow(10,Math.floor(Math.log10(raw||1)));for(const m of [1,2,5,10])if(m*p>=raw)return m*p;return 10*p}
+function wireChart(id,ys,fmt){
+  const box=document.querySelector(`.chartBox[data-chart="${id}"]`);if(!box)return;const svg=box.querySelector('svg'),hit=box.querySelector('.hit'),tip=box.querySelector('.tip'),xh=box.querySelector('.xh');
+  const n=+box.dataset.n,Lm=+box.dataset.l,pw=+box.dataset.pw,pts=svg.querySelector('.ln').getAttribute('d').slice(1).split('L').map(s=>s.split(' ').map(Number));
+  hit.addEventListener('pointermove',e=>{const b=svg.getBoundingClientRect(),sx=(e.clientX-b.left)/b.width*560,i=clamp(Math.round((sx-Lm)/pw*(n-1)),0,n-1),[px,py]=pts[i];
+    xh.setAttribute('d',`M${px} 14V170`);tip.hidden=false;tip.style.left=(px/560*100)+'%';tip.style.top=(py/200*b.height)+'px';
+    tip.textContent=`${t('Player')} ${i+1}: ${fmt(ys[i])}`});
+  hit.addEventListener('pointerleave',()=>{tip.hidden=true;xh.setAttribute('d','')});
+}
+
+/* ---------------- check for understanding ---------------- */
+let QZ=null;
+function quizSpot(){let best=null;for(const s of P.SPOTS){const c=cnt(s.id);if(c.n>=MIN_DATA&&(!best||c.n>cnt(best).n))best=s.id}return best}
+function buildQuiz(){
+  const sp=quizSpot();if(!sp)return null;const c=cnt(sp),ex=c.in/c.n*100,prize=S.prize;
+  const m=[20,40,50,60,80,200].sort(()=>Math.random()-.5)[0];
+  const sh=(a)=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+  return {spot:sp,i:0,items:[
+    {key:'estimate',label:'Estimate a probability',q:['From the {s} you got <b>{a} in out of {n}</b>. What is P(in) as a percentage?',{s:{spot:sp},a:c.in,n:c.n}],unit:'%',ans:ex,ok:v=>Math.abs(v-ex)<=.51,show:`${Math.round(ex*10)/10}%`,
+      why:['{a} ÷ {n} = {d}, and {d} × 100 = {p}%.',{a:c.in,n:c.n,d:Math.round(c.in/c.n*1000)/1000,p:Math.round(ex*10)/10}],nudge:v=>v>0&&v<=1&&ex>1?'Write it as a percentage, for example 30 rather than 0.3.':null},
+    {key:'complement',label:'Complementary events',q:['From the same spot, what is P(out) as a percentage?'],unit:'%',ans:100-ex,ok:(v,prev)=>Math.abs(v-(100-ex))<=.51||(prev!=null&&Math.abs(v-(100-prev))<=.51),show:`${Math.round((100-ex)*10)/10}%`,
+      why:['Every throw is either in or out, so P(out) = 100% − P(in) = {p}%.',{p:Math.round((100-ex)*10)/10}]},
+    {key:'expected',label:'Expected number',q:['If <b>{m}</b> people play from the {s}, about how many winners would you expect?',{m,s:{spot:sp}}],unit:'',ans:ex/100*m,ok:v=>Math.abs(v-ex/100*m)<=1.01,show:String(Math.round(ex/100*m*10)/10),
+      why:['P(in) × players = {p} × {m} ≈ {e}.',{p:Math.round(c.in/c.n*1000)/1000,m,e:Math.round(ex/100*m*10)/10}]},
+    {key:'breakeven',label:'Break-even price',q:['The prize is <b>{z}</b>. Using your P(in), what cost to play would make about <b>$0</b> profit in the long run?',{z:money(prize)}],unit:'$',ans:ex/100*prize,ok:v=>Math.abs(v-ex/100*prize)<=1.01,show:money2(ex/100*prize),
+      why:['Each player wins {z} with chance P(in), so on average each player costs P(in) × {z} = {b}.',{z:money(prize),b:money2(ex/100*prize)}]},
+    {key:'luck',label:'Chance and variation',q:['A stall charged <b>more</b> than its break-even price, but lost money on a day with 15 players. What is the best explanation?'],
+      opts:sh([{t:'With only 15 players, chance can go against you. Over many players it evens out.',ok:true},{t:'The price must have been below break-even after all.'},{t:'The chance of getting it in changed during the day.'},{t:'Break-even prices don’t work for games of chance.'}]),
+      why:['A small number of players is a small sample. The long-run results get closer to what the probability predicts.']},
+    {key:'sample',label:'Sample size',q:['Mia got <b>3 in out of 10</b>. Leo, from the same spot, got <b>45 in out of 150</b>. Whose estimate of P(in) is more reliable?'],
+      opts:sh([{t:'Leo’s, because it is based on more throws.',ok:true},{t:'Mia’s, because a short test is fairer.'},{t:'They are equally reliable, because both are 30%.'},{t:'Neither: experiments can’t estimate a probability.'}]),
+      why:['Both give 30%, but 150 throws is a bigger sample than 10, so Leo’s estimate is likely to be closer to the true chance.']}
+  ],res:[],given:[]};
+}
+function quizPanel(){
+  if(!QZ||QZ.done){QZ=buildQuiz();if(!QZ){toast(t('Throw at least {n} times from one spot first.',{n:MIN_DATA}));return}}
+  phase='quiz';hideGame();
+  setPanel(()=>{const it=QZ.items[QZ.i],r=QZ.res[QZ.i];
+    const body=it.opts?`<div class="mc">${it.opts.map((o,k)=>`<button class="mcO ${r?(o.ok?'right':(QZ.given[QZ.i]===k?'wrong':'')):''}" data-act="mc" data-v="${k}" ${r?'disabled':''}>${tt(o.t)}</button>`).join('')}</div>`
+      :`<div class="numRow" dir="ltr">${it.unit==='$'?'<span class="u">$</span>':''}<input id="qIn" inputmode="decimal" autocomplete="off" ${r?'disabled':''} value="${r?esc(QZ.given[QZ.i]):''}" aria-label="${esc(t('Your answer'))}">${it.unit==='%'?'<span class="u">%</span>':''}<button class="pb main sm" data-act="qCheck" ${r?'disabled':''}>${t('Check')}</button></div><div class="nudge" id="qNudge"></div>`;
+    const fb=r?`<div class="note ${r.ok?'green':'red'}">${r.ok?'✓ '+t('Correct!'):'✗ '+t('Not quite. The answer is {a}.',{a:it.opts?'':`<bdi dir="ltr">${it.show}</bdi>`}).replace(/\s+\.$/,'.')} ${tt(it.why[0],it.why[1])}</div>`:'';
+    panel(`<div class="dayHead"><div class="eyebrow">${t('Check your understanding')} · ${t('Question {i} of {n}',{i:QZ.i+1,n:QZ.items.length})}</div><div class="qDots">${QZ.items.map((x,k)=>`<i class="${QZ.res[k]?(QZ.res[k].ok?'ok':'no'):k===QZ.i?'now':''}"></i>`).join('')}</div></div>
+      <div class="chipK">${t(it.label)}</div><h2 class="qH">${tt(it.q[0],it.q[1])}</h2>${body}${fb}
+      <div class="pBtns">${r?`<button class="pb main" data-act="qNext" data-focus>${QZ.i<QZ.items.length-1?t('Next question')+' ›':t('See my results')+' ›'}</button>`:''}<button class="pb" data-act="qLeave">${t('Back to the game')}</button></div>`,{wide:true});
+    if(!r&&!it.opts)setTimeout(()=>{const i=$('qIn');if(i)i.focus({preventScroll:true})},80)});
+}
+function qAnswer(v){
+  const it=QZ.items[QZ.i];if(QZ.res[QZ.i])return;
+  if(it.opts){const ok=!!it.opts[v].ok;QZ.given[QZ.i]=v;QZ.res[QZ.i]={ok}}
+  else{const raw=String($('qIn').value||'').replace(/[$%,\s]/g,'');const x=parseFloat(raw);
+    if(!isFinite(x)){$('qNudge').textContent=t('Type a number.');return}
+    const nd=it.nudge&&it.nudge(x);if(nd&&!QZ.nudged){QZ.nudged=true;$('qNudge').textContent=t(nd);return}
+    const prev=QZ.i===1&&QZ.res[0]?parseFloat(QZ.given[0]):null;
+    QZ.given[QZ.i]=raw;QZ.res[QZ.i]={ok:!!it.ok(x,prev)}}
+  QZ.nudged=false;(QZ.res[QZ.i].ok?SFX.in:SFX.out)();curPanel();
+}
+function quizDone(){
+  QZ.done=true;const right=QZ.res.filter(r=>r.ok).length,total=QZ.items.length;
+  S.quiz={best:Math.max(right,S.quiz?S.quiz.best:0),total,last:right,at:Date.now()};save();
+  if(right===total)checkGoals({quizPerfect:true});
+  saveResult(right,total);
+  setPanel(()=>panel(`<div class="eyebrow">${t('Check your understanding')}</div><h2>${tt('You got {r} out of {n}',{r:right,n:total})}</h2>
+    <ul class="qSum">${QZ.items.map((it,k)=>`<li class="${QZ.res[k].ok?'ok':'no'}">${QZ.res[k].ok?'✓':'✗'} ${t(it.label)}${QZ.res[k].ok?'':` — <bdi dir="ltr">${it.opts?'':it.show}</bdi>`}</li>`).join('')}</ul>
+    <div id="saveMsg" class="small"></div>
+    <div class="pBtns"><button class="pb main" data-act="reveal" data-focus>${t('See the big picture')} ›</button><button class="pb" data-act="qAgain">${t('Try new questions')}</button><button class="pb" data-act="qLeave">${t('Back to the game')}</button></div>`,{wide:true}));
+}
+
+/* ---------------- the big picture: you, your class, every MMT student, and the predictions ---------------- */
+async function revealPanel(){
+  phase='reveal';hideGame();
+  setPanel(()=>panel(`<div class="eyebrow">${t('The big picture')}</div><h2>${tt('Loading everyone’s throws…')}</h2>`,{wide:true}));
+  let glob=null,cls=null,tp=null;
+  try{const cl=await cloud();if(cl){glob=await cl.loadGlobal();if(AUTH.mode==='student'){const r=await cl.loadStudentReveal();cls=r.cls;tp=r.pred}}}catch(e){console.warn(e)}
+  revealPanel.data={glob,cls,tp};
+  setPanel(()=>{const {glob,cls,tp}=revealPanel.data;
+    const rows=P.SPOTS.map(s=>{const me=cnt(s.id),c=cls&&cls.spots&&cls.spots[s.id],g=glob&&glob.spots[s.id];
+      const mk=(v,cl,lab)=>v==null?'':`<i class="mk ${cl}" style="left:${clamp(v,0,100)}%" title="${esc(lab)}: ${Math.round(v)}%"></i>`;
+      const cavg=c&&c.predN?c.predSum/c.predN:null;
+      return `<div class="rvRow"><div class="rvName"><b>${spotName(s.id)}</b><small dir="ltr">${s.d} m</small></div>
+        <div class="rvAxis">${[0,25,50,75,100].map(v=>`<span class="tk" style="left:${v}%">${v}%</span>`).join('')}
+          ${mk(g&&g.n?g.in/g.n*100:null,'all',t('All MMT students'))}${mk(c&&c.n?c.in/c.n*100:null,'cls',t('Your class'))}${mk(me.n?me.p*100:null,'me',t('You'))}
+          ${mk(S.pred[s.id],'pme',t('Your prediction'))}${mk(cavg,'pcls',t('Class prediction'))}${mk(tp&&tp[s.id]!=null?tp[s.id]:null,'ptch',t('Teacher’s prediction'))}</div>
+        <div class="rvNums" dir="ltr">${me.n?`${t('You')}: ${me.in}/${me.n} = ${pct(me.in,me.n)}`:''}${c&&c.n?` · ${t('Class')}: ${pct(c.in,c.n)} (${c.n})`:''}${g&&g.n?` · ${t('All MMT')}: <b>${pct(g.in,g.n)}</b> (${g.n.toLocaleString('en-AU')})`:''}</div></div>`}).join('');
+    const tot=glob?P.SPOTS.reduce((a,s)=>a+(glob.spots[s.id]?glob.spots[s.id].n:0),0):0;
+    panel(`<div class="eyebrow">${t('The big picture')}</div><h2>${glob&&tot?tt('{n} throws by MMT students so far',{n:tot.toLocaleString('en-AU')}):tt('How does your estimate compare?')}</h2>
+      <div class="rvLegend"><span><i class="mk me"></i>${t('You')}</span>${cls?`<span><i class="mk cls"></i>${t('Your class')}</span>`:''}${glob&&tot?`<span><i class="mk all"></i>${t('All MMT students')}</span>`:''}<span><i class="mk pme"></i>${t('Your prediction')}</span>${cls?`<span><i class="mk pcls"></i>${t('Class prediction')}</span>`:''}${tp?`<span><i class="mk ptch"></i>${t('Teacher’s prediction')}</span>`:''}</div>
+      ${rows}
+      <p class="small">${glob&&tot?tt('The more throws, the closer the estimate gets to the true chance. Thousands of throws make a very good estimate.'):tt('Sign in with your student code to add your throws to the class data and see everyone’s results.')}</p>
+      <div class="pBtns"><button class="pb main" data-act="qLeave" data-focus>${t('Back to the game')}</button></div>`,{wide:true})});
+}
+
+/* ---------------- sign-in and saving ----------------
+   Firebase only loads when it is needed (dynamic import), so the game still runs when gstatic.com is blocked or offline. */
+const AUTH={mode:'guest',student:null,teacher:null,saving:false,saveBroken:false};
+let cloudP=null;
+function cloud(){if(!cloudP)cloudP=import('./cloud.js?v=77da7201').catch(e=>{console.warn('cloud unavailable',e);cloudP=null;return null});return cloudP}
+const CODE_KEY='mmt-btg-code';
+function accountBoxH(){
+  if(AUTH.mode==='student')return `<div class="acct on"><span class="dot">●</span><div><b>${esc(AUTH.student.name)}</b><small>${t('Your throws are saved for your class.')}</small></div><button class="lnk" data-act="signOut">${t('Sign out')}</button></div>`;
+  return `<div class="acct"><div class="acctT"><b>${t('Have a student code?')}</b><small>${t('Sign in to add your throws to the class data. Or just play as a guest.')}</small></div>
+    <div class="acctF"><input id="btCode" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="${esc(t('Student code'))}" aria-label="${esc(t('Student code'))}"><button class="pb sm" id="btCodeGo" data-act="signIn">${t('Sign in')}</button></div><div class="acctMsg" id="btCodeMsg"></div></div>`;
+}
+function paintAccount(){
+  const c=$('acctChip');
+  c.innerHTML=AUTH.mode==='student'?`<span class="chipOn">● ${esc(AUTH.student.firstName||AUTH.student.name)}</span>`:`<span class="chipOff">${t('Guest')}</span><span class="chipGo">${t('Sign in')}</span>`;
+  $('teachBtn').classList.toggle('on',!!AUTH.teacher);
+}
+async function signIn(){
+  const inp=$('btCode'),msg=$('btCodeMsg');if(!inp)return;const code=String(inp.value||'').trim().toUpperCase().replace(/[^A-Z0-9-]/g,'');
+  if(!code){msg.textContent=t('Type your student code.');return}
+  msg.className='acctMsg';msg.textContent=t('Checking…');$('btCodeGo').disabled=true;
+  const cl=await cloud();
+  if(!cl){msg.className='acctMsg bad';msg.textContent=t('Sign-in isn’t available right now. You can still play as a guest.');$('btCodeGo').disabled=false;return}
+  const r=await cl.studentSignIn(code);$('btCodeGo')&&($('btCodeGo').disabled=false);
+  if(!r.ok){msg.className='acctMsg bad';msg.textContent=r.error||t('Could not sign in.');return}
+  afterStudentSignIn(code,r.profile);toast('✓ '+t('Signed in as {n}',{n:esc(r.profile.name)}));
+  if(curPanel)curPanel();
+}
+function afterStudentSignIn(code,profile){
+  AUTH.mode='student';AUTH.student=profile;try{sessionStorage.setItem(CODE_KEY,code)}catch(e){}
+  loadStore(BASE_KEY+'.s.'+code);world.kid.use(S.char);poolIds=null;paintAccount();paintGoalBtn();queueUpload(true);
+}
+async function signOut(){
+  const cl=await cloud();if(cl)try{await cl.studentSignOut()}catch(e){}
+  AUTH.mode='guest';AUTH.student=null;try{sessionStorage.removeItem(CODE_KEY)}catch(e){}
+  loadStore(BASE_KEY);world.kid.use(S.char);poolIds=null;paintAccount();paintGoalBtn();introPanel();
+}
+async function restoreStudent(){
+  let code=null;try{code=sessionStorage.getItem(CODE_KEY)}catch(e){}
+  if(!code)return;const cl=await cloud();if(!cl)return;const r=await cl.studentSignIn(code);
+  if(r.ok){afterStudentSignIn(code,r.profile);if(curPanel)curPanel()}
+}
+/* Throws are sent in batches; anything not yet sent waits on the device (marked up:0) and goes next time. */
+function pending(){const out=[];for(const s of P.SPOTS)S.data[s.id].forEach(r=>{if(r.up===0)out.push([s.id,r])});return out}
+const pendingCount=()=>AUTH.mode==='student'?pending().length:0;
+async function queueUpload(force){
+  if(AUTH.mode!=='student'||AUTH.saving||AUTH.saveBroken)return;const pd=pending();if(!pd.length||(!force&&pd.length<BATCH))return;
+  AUTH.saving=true;const cl=await cloud();if(!cl){AUTH.saving=false;return}
+  const take=pd.slice(0,20),preds={};for(const s of P.SPOTS)if(S.pred[s.id]!=null&&!S.predSent[s.id]&&take.some(x=>x[0]===s.id))preds[s.id]=S.pred[s.id];
+  const r=await cl.recordThrows({throws:take.map(([s,x])=>({s,a:x.a,p:x.p,i:x.in?1:0,h:x.h?1:0})),preds});
+  AUTH.saving=false;
+  if(r.ok){take.forEach(x=>{x[1].up=1});for(const k in preds)S.predSent[k]=true;save();renderStatus();if(pending().length>=(force?1:BATCH))queueUpload(force)}
+  else if(r.missing){AUTH.saveBroken=true;toast(t('Saving to your class isn’t switched on yet. Your throws are kept on this device.'))}
+  else console.warn('save throws',r.error);
+}
+async function saveResult(right,total){
+  if(AUTH.mode!=='student')return;const cl=await cloud();if(!cl)return;queueUpload(true);
+  const best=S.days.length?Math.max(...S.days.map(d=>d.profit)):0;
+  const types=QZ.items.map((it,k)=>({typeId:'bt-'+it.key,label:it.label,correct:QZ.res[k].ok?1:0,total:1}));
+  types.push('throws:'+allThrows(),'days:'+S.days.length,'bestProfit:'+best,'spot:'+QZ.spot);if(L()!=='en')types.push('lang:'+L());if(PREF.hard)types.push('hard:on');
+  const r=await cl.saveAchievement({tool:'bin-toss-student-interactive',topic:'statistics-probability',score:right,total,masteryTopic:'bin-toss',types,
+    certificateText:`Bin Toss: ${right}/${total} · ${allThrows()} throws · best day ${money(best)}`});
+  const m=$('saveMsg');if(m)m.textContent=r&&r.saved?'✓ '+t('Saved to your dashboard. Your teacher can see this result.'):t('Could not save this result. Show your teacher this screen.');
+}
+
+/* ---------------- teacher ---------------- */
+function teacherPanel(){
+  if(AUTH.teacher){teacherDash();return}
+  const back=phase;helpPanel.back=back;
+  setPanel(()=>panel(`<div class="eyebrow">Teacher</div><h2>See your class's throws</h2>
+    <p>Sign in with your teacher code to see every throw your students have made, your class's predictions and results, and the totals for all MMT students.</p>
+    <div class="acct"><div class="acctF"><input id="tCode" autocomplete="off" autocapitalize="characters" placeholder="Teacher code" aria-label="Teacher code"><input id="tPin" type="password" placeholder="PIN" aria-label="PIN" hidden><button class="pb sm" id="tGo" data-act="tSignIn">Sign in</button></div><div class="acctMsg" id="tMsg"></div></div>
+    <div class="pBtns"><button class="pb" data-act="board">Class board (no sign-in)</button><button class="pb" data-act="closeHelp">Close</button></div>`,{wide:true}));
+}
+async function tSignIn(){
+  const code=String($('tCode').value||'').trim().toUpperCase(),pin=$('tPin').value,msg=$('tMsg');if(!code){msg.textContent='Type your teacher code.';return}
+  msg.className='acctMsg';msg.textContent='Checking…';const cl=await cloud();if(!cl){msg.className='acctMsg bad';msg.textContent='Sign-in isn’t available right now.';return}
+  const r=await cl.teacherSignIn(code,pin);
+  if(!r.ok){msg.className='acctMsg bad';msg.textContent=r.error;if(/pin/i.test(r.error||''))$('tPin').hidden=false;return}
+  AUTH.teacher=r.profile;paintAccount();teacherDash();
+}
+async function restoreTeacher(){const cl=await cloud();if(!cl)return;const p=await cl.teacherRestore();if(p){AUTH.teacher=p;paintAccount()}}
+const TD={cls:'all',spot:'back',sample:'class',data:null};
+const SPOT_COL={front:'#2563eb',middle:'#c2410c',back:'#0f766e'};
+async function teacherDash(reload){
+  phase='teacher';hideGame();helpPanel.back=helpPanel.back||'intro';
+  if(!TD.data||reload){setPanel(()=>panel(`<div class="eyebrow">Teacher view</div><h2>Loading your class's throws…</h2>`,{xwide:true}));
+    const cl=await cloud();try{TD.data=await cl.loadTeacher()}catch(e){TD.data={error:String(e&&e.message||e)}}}
+  setPanel(renderDash);
+}
+function sumSpots(docs){const o={};for(const s of P.SPOTS)o[s.id]={n:0,in:0,predSum:0,predN:0,ang:{},cpN:[],cpIn:[]};
+  for(const d of docs)for(const s of P.SPOTS){const x=d.spots&&d.spots[s.id];if(!x)continue;const y=o[s.id];y.n+=x.n||0;y.in+=x.in||0;y.predSum+=x.predSum||0;y.predN+=x.predN||0;
+    for(const a in x.ang||{}){y.ang[a]=y.ang[a]||{n:0,in:0};y.ang[a].n+=x.ang[a].n||0;y.ang[a].in+=x.ang[a].in||0}
+    if(docs.length===1){y.cpN=x.cpN||[];y.cpIn=x.cpIn||[]}}
+  return o}
+function renderDash(){
+  const D=TD.data||{};const nm=AUTH.teacher&&(AUTH.teacher.teacherName||AUTH.teacher.name)||'';
+  if(D.error){panel(`<div class="eyebrow">Teacher view</div><h2>Couldn't load the class data</h2><p>${esc(D.error)}</p><p class="small">If this is the first time, the Bin Toss rules may not be published yet in the Firebase Console.</p><div class="pBtns"><button class="pb" data-act="tReload">Try again</button><button class="pb" data-act="closeHelp">Close</button></div>`,{xwide:true});return}
+  const classes=D.classes||[],cl=TD.cls==='all'?classes:classes.filter(c=>c.className===TD.cls),cs=sumSpots(cl),gs=D.glob?D.glob.spots:{},pr=D.pred||{};
+  const studs=(D.students||[]).filter(s=>TD.cls==='all'||s.className===TD.cls).sort((a,b)=>(a.name||'').localeCompare(b.name||''));
+  const kpi=P.SPOTS.map(s=>{const c=cs[s.id],g=gs[s.id]||{n:0,in:0};return `<tr><td><b style="color:${SPOT_COL[s.id]}">●</b> ${s.name} <small>(${s.d} m)</small></td>
+    <td class="r"><input class="tPred" type="number" min="0" max="100" step="1" data-spot="${s.id}" value="${pr[s.id]!=null?pr[s.id]:''}" placeholder="–" aria-label="Your prediction for ${s.name}">%</td>
+    <td class="r">${c.predN?Math.round(c.predSum/c.predN)+'% <small>('+c.predN+')</small>':'–'}</td>
+    <td class="r"><b>${c.n?pct(c.in,c.n):'–'}</b> <small>${c.n?c.in+'/'+c.n:''}</small></td>
+    <td class="r"><b>${g.n?pct(g.in,g.n):'–'}</b> <small>${g.n?g.n.toLocaleString('en-AU')+' throws':''}</small></td></tr>`}).join('');
+  const totC=P.SPOTS.reduce((a,s)=>a+cs[s.id].n,0),totG=P.SPOTS.reduce((a,s)=>a+((gs[s.id]||{}).n||0),0);
+  const stRows=studs.map(s=>`<tr><td>${esc(s.name||s.studentCode)}<small> ${esc(s.className||'')}</small></td>${P.SPOTS.map(p=>{const x=s.spots&&s.spots[p.id];return `<td class="r">${x&&x.n?`${x.in}/${x.n} <small>${pct(x.in,x.n)}</small>`:'–'}</td>`}).join('')}<td class="r">${s.n||0}</td><td class="r"><small>${P.SPOTS.map(p=>{const x=s.spots&&s.spots[p.id];return x&&x.pred!=null?x.pred+'%':'–'}).join(' · ')}</small></td></tr>`).join('');
+  const recentSrc=TD.sample==='all'?(D.glob?D.glob.recent:[]):cl.flatMap(c=>c.recent||[]);
+  const recent=recentSrc.map(parseRec).filter(Boolean).sort((a,b)=>b.ts-a.ts).slice(0,40);
+  panel(`<div class="dashHead"><div><div class="eyebrow">Teacher view · ${esc(nm)}</div><h2>Bin Toss: your class's throws</h2></div>
+      <div class="dashCtl"><label>Class <select id="tdCls">${['all',...classes.map(c=>c.className)].map(c=>`<option value="${esc(c)}" ${TD.cls===c?'selected':''}>${c==='all'?'All my classes':esc(c)}</option>`).join('')}</select></label>
+      <button class="pb sm" data-act="tReload">↻ Refresh</button><button class="pb sm" data-act="csv">Download all throws (CSV)</button><button class="pb sm" data-act="board">Class board</button><button class="pb sm" data-act="tSignOut">Sign out</button></div></div>
+    <div class="kpis"><div><small>Your class</small><b>${totC.toLocaleString('en-AU')}</b><span>throws</span></div><div><small>Students</small><b>${studs.length}</b><span>with data</span></div><div><small>All MMT students</small><b>${totG.toLocaleString('en-AU')}</b><span>throws</span></div></div>
+    <h3 class="h3">Predictions and results</h3>
+    <table class="tb dash"><thead><tr><th>Spot</th><th class="r">Your prediction</th><th class="r">Class prediction (average)</th><th class="r">Class result</th><th class="r">All MMT students</th></tr></thead><tbody>${kpi}</tbody></table>
+    <div class="small">Type your predictions before the class plays, then press <button class="lnk" data-act="tSavePred">Save my predictions</button>. Students see them only at the very end, beside their own. <span id="tPredMsg"></span></div>
+    <div class="dashGrid"><div><h3 class="h3">How the class estimate settles</h3>${settleChart(cs,TD.cls==='all'&&classes.length>1)}</div>
+      <div><h3 class="h3">Chance of in by angle <span class="segMini">${P.SPOTS.map(s=>`<button class="${TD.spot===s.id?'on':''}" data-act="tdSpot" data-v="${s.id}">${s.short}</button>`).join('')}</span></h3>${angleChart(cs[TD.spot],gs[TD.spot])}</div></div>
+    <h3 class="h3">Students</h3>
+    <div class="tScroll"><table class="tb dash"><thead><tr><th>Student</th>${P.SPOTS.map(s=>`<th class="r">${s.short} (${s.d} m)</th>`).join('')}<th class="r">Throws</th><th class="r">Predictions F · M · B</th></tr></thead><tbody>${stRows||'<tr><td colspan="6">No throws saved yet. Students sign in with their code on the game\'s first screen.</td></tr>'}</tbody></table></div>
+    <h3 class="h3">A sample of recent throws <span class="segMini"><button class="${TD.sample==='class'?'on':''}" data-act="tdSample" data-v="class">Your class</button><button class="${TD.sample==='all'?'on':''}" data-act="tdSample" data-v="all">All MMT</button></span></h3>
+    <div class="tScroll short"><table class="tb dash"><thead><tr><th>When</th><th>Spot</th><th class="r">Angle</th><th class="r">Power</th><th>Result</th></tr></thead><tbody>${recent.map(r=>`<tr><td><small>${ago(r.ts)}</small></td><td>${P.spot(r.s).name}</td><td class="r">${r.a}°</td><td class="r">${r.p}%</td><td>${r.i?'<b class="pos">In ✓</b>':'<span class="neg">Out ✗</span>'}${r.h?' <small>hard</small>':''}</td></tr>`).join('')||'<tr><td colspan="5">None yet.</td></tr>'}</tbody></table></div>
+    <div class="pBtns"><button class="pb" data-act="closeHelp">Back to the game</button></div>`,{xwide:true});
+}
+const SPC={f:'front',m:'middle',b:'back'};
+function parseRec(s){const p=String(s).split('|');if(p.length<5)return null;return {s:SPC[p[0]]||'back',a:+p[1],p:+p[2],i:p[3]==='1',ts:+p[4],h:p[5]==='1'}}
+function ago(ts){const s=Math.max(0,Date.now()/1000-ts);return s<90?'just now':s<5400?Math.round(s/60)+' min ago':s<172800?Math.round(s/3600)+' h ago':Math.round(s/86400)+' days ago'}
+function settleChart(cs,mixed){
+  if(mixed)return `<p class="small">Choose one class to see how its estimate settled throw by throw.</p>`;
+  const W=520,H=220,Lm=44,Rm=70,T=12,B=30,pw=W-Lm-Rm,ph=H-T-B;let maxN=0;for(const s of P.SPOTS)maxN=Math.max(maxN,...(cs[s.id].cpN||[0]));
+  if(!maxN)return `<p class="small">The graph appears once a spot has 10 throws.</p>`;
+  const X=n=>Lm+n/maxN*pw,Y=v=>T+ph-v/100*ph;let g='';
+  for(const v of [0,25,50,75,100])g+=`<path d="M${Lm} ${Y(v)}H${W-Rm}" stroke="#e2e8f0"/><text x="${Lm-6}" y="${Y(v)+4}" text-anchor="end" font-size="11" fill="#64748b">${v}%</text>`;
+  const st=niceStep(maxN);for(let k=st;k<=maxN;k+=st)g+=`<text x="${X(k)}" y="${H-12}" text-anchor="middle" font-size="11" fill="#64748b">${k}</text>`;
+  g+=`<text x="${W-Rm}" y="${H-1}" text-anchor="end" font-size="10.5" font-weight="700" fill="#94a3b8">throws</text>`;
+  for(const s of P.SPOTS){const c=cs[s.id];if(!c.cpN||!c.cpN.length)continue;const d=c.cpN.map((n,i)=>`${i?'L':'M'}${X(n).toFixed(1)} ${Y(c.cpIn[i]/n*100).toFixed(1)}`).join('');const ln=c.cpN.length-1,ly=Y(c.cpIn[ln]/c.cpN[ln]*100);
+    g+=`<path d="${d}" fill="none" stroke="${SPOT_COL[s.id]}" stroke-width="2.2" stroke-linejoin="round"/><circle cx="${X(c.cpN[ln])}" cy="${ly}" r="4.5" fill="${SPOT_COL[s.id]}" stroke="#fff" stroke-width="2"/><text x="${X(c.cpN[ln])+8}" y="${ly+4}" font-size="11.5" font-weight="800" fill="#0f172a">${s.short}</text>`}
+  return `<svg viewBox="0 0 ${W} ${H}" class="dashSvg" role="img" aria-label="Class relative frequency of in, by number of throws">${g}</svg>`;
+}
+function angleChart(c,g){
+  const W=520,H=220,Lm=44,Rm=12,T=12,B=30,pw=W-Lm-Rm,ph=H-T-B,angs=[];for(let a=15;a<=75;a+=5)angs.push(a);
+  const bw=pw/angs.length,X=i=>Lm+i*bw,Y=v=>T+ph-v/100*ph;let s='';
+  for(const v of [0,25,50,75,100])s+=`<path d="M${Lm} ${Y(v)}H${W-Rm}" stroke="#e2e8f0"/><text x="${Lm-6}" y="${Y(v)+4}" text-anchor="end" font-size="11" fill="#64748b">${v}%</text>`;
+  let any=false;
+  angs.forEach((a,i)=>{const ga=g&&g.ang&&g.ang[a],ca=c&&c.ang&&c.ang[a];s+=`<text x="${X(i)+bw/2}" y="${H-12}" text-anchor="middle" font-size="10.5" fill="#64748b">${a}°</text>`;
+    if(ga&&ga.n>=5){any=true;const v=ga.in/ga.n*100;s+=`<rect x="${X(i)+3}" y="${Y(v)}" width="${bw-6}" height="${Math.max(0,T+ph-Y(v))}" rx="3" fill="#99f6e4"><title>All MMT, ${a}°: ${pct(ga.in,ga.n)} of ${ga.n}</title></rect>`}
+    if(ca&&ca.n>=3){any=true;const v=ca.in/ca.n*100;s+=`<circle cx="${X(i)+bw/2}" cy="${Y(v)}" r="6" fill="#0f766e" stroke="#fff" stroke-width="2"><title>Your class, ${a}°: ${pct(ca.in,ca.n)} of ${ca.n}</title></circle>`}});
+  if(!any)return `<p class="small">Not enough throws at this spot yet.</p>`;
+  return `<svg viewBox="0 0 ${W} ${H}" class="dashSvg" role="img" aria-label="Chance of in by throwing angle">${s}</svg><div class="legendS"><span><i style="background:#99f6e4"></i>All MMT students</span><span><i class="dotL"></i>Your class</span><span>Angles with fewer than 5 throws are left out.</span></div>`;
+}
+async function tSavePred(){
+  const o={};document.querySelectorAll('.tPred').forEach(i=>{const v=i.value===''?null:clamp(Math.round(+i.value),0,100);o[i.dataset.spot]=v});
+  const cl=await cloud(),m=$('tPredMsg');const r=await cl.savePredictions(o);
+  if(r.ok){TD.data.pred=o;m.textContent='✓ Saved';m.className='pos'}else{m.textContent='Could not save: '+r.error;m.className='neg'}
+}
+async function downloadCSV(){
+  const cl=await cloud();const rows=await cl.loadAllThrows();
+  const head=['Student','Class','Spot','Distance (m)','Angle','Power (%)','Result','Hard mode','Saved at'];
+  const q=v=>{let s=String(v==null?'':v);if(/^[=+\-@]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"'};
+  const lines=[head.map(q).join(',')].concat(rows.map(r=>[r.name,r.className,P.spot(r.s).name,P.spot(r.s).d,r.a,r.p,r.i?'In':'Out',r.h?'Yes':'No',r.at].map(q).join(',')));
+  const blob=new Blob(['﻿'+lines.join('\r\n')],{type:'text/csv'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`Bin Toss throws - ${new Date().toISOString().slice(0,10)}.csv`;document.body.appendChild(a);a.click();a.remove();
+}
+
+/* ---------------- class board: everyone's estimate of the same chance ---------------- */
+function boardPanel(){
+  phase='board';hideGame();helpPanel.back=helpPanel.back||'intro';
+  setPanel(()=>{const sp=PREF.boardSpot,ent=PREF.board.filter(e=>e.spot===sp),tot=ent.reduce((a,e)=>a+e.n,0),ins=ent.reduce((a,e)=>a+e.a,0);
+    const ests=ent.map(e=>e.a/e.n*100),mean=ests.length?ests.reduce((a,b)=>a+b,0)/ests.length:0;
+    panel(`<div class="dashHead"><div><div class="eyebrow">Class board</div><h2>Everyone's estimate of the same chance</h2></div>
+      <div class="segMini">${P.SPOTS.map(s=>`<button class="${sp===s.id?'on':''}" data-act="bSpot" data-v="${s.id}">${s.name} (${s.d} m)</button>`).join('')}</div></div>
+      <p class="small">Students read out their result from <b>My results</b> (for example <b>7/25</b>). Type each one and press Enter.${AUTH.teacher?' Or <button class="lnk" data-act="bFill">fill it from your class\'s saved throws</button>.':''}</p>
+      <div class="acctF"><input id="bName" placeholder="Name (optional)" aria-label="Name"><input id="bVal" placeholder="7/25" aria-label="In out of throws" dir="ltr"><button class="pb sm" data-act="bAdd">Add</button></div><div class="acctMsg" id="bMsg"></div>
+      ${boardPlot(ests,tot?ins/tot*100:null,mean)}
+      <div class="kpis"><div><small>Estimates</small><b>${ent.length}</b></div><div><small>Spread</small><b>${ests.length?Math.round(Math.min(...ests))+'–'+Math.round(Math.max(...ests))+'%':'–'}</b></div><div><small>All the throws together</small><b>${tot?pct(ins,tot):'–'}</b><span>${tot?ins+' in out of '+tot:''}</span></div></div>
+      <div class="chips">${ent.map((e,i)=>`<span class="chipE">${esc(e.name||'')} <b dir="ltr">${e.a}/${e.n}</b> <button class="x" data-act="bDel" data-v="${PREF.board.indexOf(e)}" aria-label="Remove">×</button></span>`).join('')}</div>
+      <p class="small">Ask: why are the estimates different? Which ones would you trust most? Why is "all the throws together" the best estimate?</p>
+      <div class="pBtns"><button class="pb" data-act="bClear">Clear this spot</button><button class="pb" data-act="${AUTH.teacher?'teacher':'closeHelp'}">${AUTH.teacher?'Teacher view':'Close'}</button></div>`,{xwide:true})});
+  setTimeout(()=>{const i=$('bVal');if(i)i.focus()},80);
+}
+function boardPlot(ests,pool,mean){
+  const W=760,H=150,Lm=20,Rm=20,pw=W-Lm-Rm,X=v=>Lm+v/100*pw,base=110;let s='';
+  for(let v=0;v<=100;v+=10)s+=`<path d="M${X(v)} ${base}v6" stroke="#94a3b8"/><text x="${X(v)}" y="${base+20}" text-anchor="middle" font-size="12" fill="#64748b">${v}%</text>`;
+  s+=`<path d="M${Lm} ${base}H${W-Rm}" stroke="#334155" stroke-width="1.5"/>`;
+  const stack={};ests.forEach(v=>{const b=Math.round(v/2)*2;stack[b]=(stack[b]||0)+1;s+=`<circle cx="${X(v)}" cy="${base-8-(stack[b]-1)*13}" r="6" fill="#2563eb" stroke="#fff" stroke-width="1.5"/>`});
+  if(pool!=null)s+=`<path d="M${X(pool)} 8V${base}" stroke="#0f766e" stroke-width="2.5" stroke-dasharray="5 4"/><text x="${X(pool)+6}" y="20" font-size="12.5" font-weight="800" fill="#0f766e">All together ${Math.round(pool*10)/10}%</text>`;
+  return `<svg viewBox="0 0 ${W} ${H}" class="dashSvg wide" role="img" aria-label="Dot plot of each student's estimate">${s}</svg>`;
+}
+function boardAdd(){
+  const v=String($('bVal').value||'').trim(),m=v.match(/^(\d+)\s*(?:\/|out of|of)\s*(\d+)$/i),msg=$('bMsg');
+  if(!m||+m[2]<1||+m[1]>+m[2]){msg.className='acctMsg bad';msg.textContent='Type it as in/throws, for example 7/25.';return}
+  PREF.board.push({spot:PREF.boardSpot,name:String($('bName').value||'').trim().slice(0,30),a:+m[1],n:+m[2]});savePrefs();curPanel();
+}
+function boardFill(){
+  const studs=(TD.data&&TD.data.students||[]).filter(s=>TD.cls==='all'||s.className===TD.cls);let k=0;
+  PREF.board=PREF.board.filter(e=>e.spot!==PREF.boardSpot);
+  for(const s of studs){const x=s.spots&&s.spots[PREF.boardSpot];if(x&&x.n){PREF.board.push({spot:PREF.boardSpot,name:(s.name||'').split(' ')[0],a:x.in,n:x.n});k++}}
+  savePrefs();curPanel();
+}
 
 /* ---------------- input ---------------- */
-function act(){if(phase==='aim')lockAngle();else if(phase==='power')doThrow()}
+function act(){if(phase==='aim')lockAngle();else if(phase==='power')doThrow();else if(phase==='replay')endReplay()}
 $('actBtn').addEventListener('click',act);
 $('unlockBtn').addEventListener('click',unlock);
 $('skipBtn').addEventListener('click',skipStall);
+$('replayTag').addEventListener('click',endReplay);
 (function angleSlider(){
   const tr=$('angTrack'),tk=$('angTicks');let h='';
   for(let a=15;a<=75;a+=15){const f=(a-P.ANGLE.min)/(P.ANGLE.max-P.ANGLE.min)*100;h+=`<div class="tick" style="bottom:${f}%"></div><div class="tickL" style="bottom:${f}%">${a}°</div>`}
@@ -1005,56 +1681,105 @@ $('skipBtn').addEventListener('click',skipStall);
   tr.addEventListener('pointermove',e=>{if(drag&&phase==='aim'){const a=Math.round(fromY(e.clientY));if(a!==angle)setAngle(a)}});
   const end=()=>{if(drag){drag=false;save()}};tr.addEventListener('pointerup',end);tr.addEventListener('pointercancel',end);
 })();
+const OVERLAY_OK=['intro','spot','char','results','price','day','aim','quiz','reveal','predict','teacher','board'];
+function reopen(b){
+  closePanel();
+  if(b==='intro')introPanel();else if(b==='spot')spotPanel();else if(b==='char')charPanel();else if(b==='results')resultsPanel();
+  else if(b==='price')pricePanel();else if(b==='day'){phase='day';dayPanel(dayPanel.day||S.days[S.days.length-1],S.days.length)}
+  else if(b==='quiz'){phase='quiz';quizPanel()}else if(b==='reveal'&&revealPanel.data){phase='reveal';curPanel=null;revealPanel()}
+  else if(b==='predict')predictPanel(S.spot);else if(b==='teacher')teacherDash();else if(b==='board')boardPanel();
+  else if(b==='aim'||b==='power'){phase=b;setCtl()}else introPanel();
+}
+function closeHelp(){const b=helpPanel.back;helpPanel.back=null;reopen(b)}
 document.addEventListener('keydown',e=>{
-  if(/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)){if(e.key==='Enter'&&e.target.id==='predIn')openStall();return}
-  const k=e.key;
-  if(!veil.hidden&&!veil.classList.contains('clear')){if(k==='Escape'&&(helpPanel.back))closeHelp();return}
+  const k=e.key,id=e.target.id;
+  if(/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)){
+    if(k==='Enter'){if(id==='btCode')signIn();else if(id==='tCode'||id==='tPin')tSignIn();else if(id==='qIn')qAnswer();else if(id==='bVal'||id==='bName')boardAdd();else if(id==='predIn'&&!$('openBtn').disabled)ACT.open()}
+    return}
+  if(k==='Escape'){if(!$('setMenu').hidden){closeMenu();return}if(phase==='replay'){endReplay();return}if(helpPanel.back){closeHelp();return}if(phase==='power'){unlock();return}}
+  if(!veil.hidden&&!veil.classList.contains('clear'))return;
   if(k===' '||k==='Enter'){if(e.target.closest&&e.target.closest('button')&&e.target.id!=='actBtn')return;e.preventDefault();act()}
   else if(k==='ArrowUp'&&phase==='aim'){e.preventDefault();setAngle(angle+1)}
   else if(k==='ArrowDown'&&phase==='aim'){e.preventDefault();setAngle(angle-1)}
-  else if(k==='Escape'&&phase==='power')unlock();
   else if(/^[123]$/.test(k)&&phase==='spot')pickSpot(P.SPOTS[+k-1].id);
 });
-function closeHelp(){const b=helpPanel.back;helpPanel.back=null;closePanel();if(b==='intro')introPanel();else if(b==='spot')spotPanel();else if(b==='char')charPanel();else if(b==='results')resultsPanel();else if(b==='price')pricePanel();else if(b==='day'){phase='day';pricePanel()}else phase=b}
+function overlay(fn){if(!OVERLAY_OK.includes(phase)||helpPanel.back)return;fn()}
 const ACT={
-  spots(){closePanel();spotPanel()},pick(el){pickSpot(el.dataset.v)},
-  more(){closePanel();stall=null;world.queue.forEach(k=>k.g.visible=false);clearThrows();world.kid.tint('#2563eb');world.kid.use(S.char);placeKid();batchLeft=BATCH;startAim()},
-  toPrice(){if(cnt(S.spot).n<MIN_DATA)return;closePanel();world.kid.tint('#2563eb');world.kid.use(S.char);placeKid();pricePanel()},
-  price(el){S.price=clamp(S.price+ +el.dataset.v,1,49);paintPrice();SFX.tick()},open(){openStall()},closeHelp
+  spots(){closePanel();spotPanel()},pick(el){pickSpot(el.dataset.v)},chars(){closePanel();charPanel()},
+  char(el){S.char=el.dataset.v;poolIds=null;save();world.kid.use(S.char);closePanel();spotPanel()},
+  more(){closePanel();stall=null;hideStallCast();clearThrows();world.kid.tint('#2563eb');world.kid.use(S.char);placeKid();batchLeft=BATCH;startAim()},
+  toPrice(){if(cnt(S.spot).n<MIN_DATA)return;closePanel();queueUpload(true);world.kid.tint('#2563eb');world.kid.use(S.char);placeKid();pricePanel()},
+  price(el){S.price=clamp(S.price+ +el.dataset.v,1,ceilFor(S.prize));paintPrice();SFX.tick()},
+  prize(el){S.prize=+el.dataset.v;S.price=Math.min(S.price,ceilFor(S.prize)-1);save();curPanel();SFX.tick()},
+  dayPred(el){dayPred.result=el.dataset.v;paintPrice();SFX.tick()},
+  open(){const w=parseInt(($('predIn')||{}).value,10);dayPred.winners=isFinite(w)?w:null;openStall({...dayPred})},
+  predGo(el){const v=+$('spotPred').value;S.pred[el.dataset.v]=v;save();closePanel();startAim(true)},
+  predSkip(){closePanel();startAim(true)},
+  long(el){longRun(+el.dataset.v)},
+  quiz(){closePanel();QZ=null;quizPanel()},qCheck(){qAnswer()},mc(el){qAnswer(+el.dataset.v)},
+  qNext(){if(QZ.i<QZ.items.length-1){QZ.i++;curPanel()}else quizDone()},qAgain(){QZ=null;quizPanel()},
+  qLeave(){closePanel();if(S.spot&&cnt(S.spot).n>=MIN_DATA){placeKid();pricePanel()}else spotPanel()},
+  reveal(){revealPanel()},
+  closeHelp,signIn(){signIn()},signOut(){signOut()},copySum(){navigator.clipboard&&navigator.clipboard.writeText(summaryText()).then(()=>toast('✓ '+t('Copied')))},
+  teacher(){helpPanel.back=helpPanel.back||phase;teacherPanel()},tSignIn(){tSignIn()},tReload(){teacherDash(true)},
+  async tSignOut(){const cl=await cloud();if(cl)await cl.teacherSignOut();AUTH.teacher=null;TD.data=null;paintAccount();closeHelp()},
+  tSavePred(){tSavePred()},csv(){downloadCSV()},tdSpot(el){TD.spot=el.dataset.v;curPanel()},tdSample(el){TD.sample=el.dataset.v;curPanel()},
+  board(){helpPanel.back=helpPanel.back||phase;boardPanel()},bSpot(el){PREF.boardSpot=el.dataset.v;savePrefs();curPanel()},bAdd(){boardAdd()},
+  bDel(el){PREF.board.splice(+el.dataset.v,1);savePrefs();curPanel()},bClear(){PREF.board=PREF.board.filter(e=>e.spot!==PREF.boardSpot);savePrefs();curPanel()},bFill(){boardFill()},
+  doReset(){S.spot=null;S.data={front:[],middle:[],back:[]};S.days=[];S.price=10;S.prize=50;S.pred={};S.predSent={};S.goals={};S.quiz=null;S.angle={front:45,middle:40,back:35};
+    const ch=S.char;save();clearThrows();stall=null;poolIds=null;helpPanel.back=null;paintGoalBtn();closePanel();S.char=ch;introPanel()},
+  cancelReset(){closeHelp()}
 };
-document.addEventListener('click',e=>{const el=e.target.closest('[data-act]');if(el&&ACT[el.dataset.act]){ac();ACT[el.dataset.act](el)}});
-document.addEventListener('input',e=>{if(e.target.id==='priceIn'){S.price=+e.target.value;paintPrice()}else if(e.target.id==='predIn')e.target.value=e.target.value.replace(/\D/g,'')});
-$('helpBtn').addEventListener('click',()=>{if(['aim','intro','spot','char','results','price','day'].includes(phase)&&!helpPanel.back)helpPanel()});
-$('logBtn').addEventListener('click',()=>{if(['aim','intro','spot','char','results','price','day'].includes(phase)&&!helpPanel.back)logPanel()});
-function paintSound(){const b=$('soundBtn');b.setAttribute('aria-pressed',String(S.sound));b.innerHTML=S.sound?'&#128266;':'&#128263;'}
-$('soundBtn').addEventListener('click',()=>{S.sound=!S.sound;save();paintSound();if(S.sound)SFX.lock()});
-$('resetBtn').addEventListener('click',()=>{
-  helpPanel.back=null;
-  panel(`<div class="eyebrow">Start again</div><h2>Clear all your throws and stall days?</h2><p>This removes your data from every spot and your stall log on this device.</p>
-    <div class="pBtns"><button class="pb main" data-act="doReset">Yes, start again</button><button class="pb" data-act="cancelReset" data-focus>Keep my data</button></div>`);
-  ACT.cancelReset.back=phase;
-});
-ACT.char=el=>{S.char=el.dataset.v;poolIds=null;save();world.kid.use(S.char);closePanel();spotPanel()};
-ACT.chars=()=>{closePanel();charPanel()};
-ACT.doReset=()=>{S.spot=null;S.char=null;poolIds=null;world.kid.use(null);S.data={front:[],middle:[],back:[]};S.days=[];S.price=10;S.angle={front:45,middle:40,back:35};save();clearThrows();stall=null;closePanel();introPanel()};
-ACT.cancelReset=()=>{const b=ACT.cancelReset.back;closePanel();if(b==='intro')introPanel();else if(b==='spot')spotPanel();else if(b==='char')charPanel();else if(b==='results')resultsPanel();else if(b==='price'||b==='day')pricePanel();else if(b==='aim'||b==='power'){phase=b}else if(stall){phase='after';afterT=.2}};
+document.addEventListener('click',e=>{const el=e.target.closest('[data-act]');if(el&&ACT[el.dataset.act]&&!el.disabled){ac();ACT[el.dataset.act](el)}});
+document.addEventListener('input',e=>{const id=e.target.id;
+  if(id==='priceIn'){S.price=+e.target.value;paintPrice()}else if(id==='predIn')e.target.value=e.target.value.replace(/\D/g,'');else if(id==='spotPred')paintPred()});
+document.addEventListener('change',e=>{if(e.target.id==='tdCls'){TD.cls=e.target.value;curPanel()}});
+$('helpBtn').addEventListener('click',()=>overlay(helpPanel));
+$('logBtn').addEventListener('click',()=>overlay(logPanel));
+$('goalBtn').addEventListener('click',()=>overlay(goalsPanel));
+$('acctChip').addEventListener('click',()=>{if(AUTH.mode==='student'){overlay(logPanel);return}if(['intro','spot','char','results','price','day','aim'].includes(phase)&&!helpPanel.back){closePanel();introPanel();setTimeout(()=>{const i=$('btCode');if(i)i.focus()},120)}});
+$('teachBtn').addEventListener('click',()=>{if(['intro','spot','char','results','price','day','aim','quiz','reveal'].includes(phase)&&!helpPanel.back)ACT.teacher()});
+/* settings menu */
+const setMenu=$('setMenu');
+function openMenu(){paintMenu();setMenu.hidden=false;$('setBtn').setAttribute('aria-expanded','true')}
+function closeMenu(){setMenu.hidden=true;$('setBtn').setAttribute('aria-expanded','false')}
+$('setBtn').addEventListener('click',e=>{e.stopPropagation();setMenu.hidden?openMenu():closeMenu()});
+document.addEventListener('click',e=>{if(!setMenu.hidden&&!e.target.closest('#setMenu')&&!e.target.closest('#setBtn'))closeMenu()});
+function paintMenu(){
+  setMenu.innerHTML=`<div class="mHead">${t('Language')}</div><div class="segMini lang">${[['en','English'],['ar','العربية'],['fa','فارسی']].map(([k,n])=>`<button class="${L()===k?'on':''}" data-set="lang" data-v="${k}">${n}</button>`).join('')}</div>
+    <label class="sw"><input type="checkbox" data-set="sound" ${PREF.sound?'checked':''}><span class="track"></span><span>${t('Sound')}</span></label>
+    <label class="sw"><input type="checkbox" data-set="hard" ${PREF.hard?'checked':''}><span class="track"></span><span>${t('Hard mode')}<small>${t('No sweet spot, faster meter')}</small></span></label>
+    <div class="mHead">${t('Graphics')}</div><div class="segMini">${[['auto','Auto'],['low','Low'],['high','High']].map(([k,n])=>`<button class="${(PREF.low===null?'auto':PREF.low?'low':'high')===k?'on':''}" data-set="gfx" data-v="${k}">${t(n)}</button>`).join('')}</div>
+    <small class="mNote">${t('Low graphics: fewer people in the queue and no shadows, for older devices.')}</small>
+    <div class="mRule"></div><button class="mItem" data-set="reset">${t('Start again')}<small>${t('Clear your throws and stall days')}</small></button>`;
+}
+setMenu.addEventListener('click',e=>{const el=e.target.closest('[data-set]');if(!el||el.tagName==='INPUT')return;const k=el.dataset.set;
+  if(k==='lang')setLang(el.dataset.v);else if(k==='gfx'){PREF.low=el.dataset.v==='auto'?null:el.dataset.v==='low';savePrefs();applyGfx();if(stall)layoutQueue(false);paintMenu()}
+  else if(k==='reset'){closeMenu();if(!['intro','spot','char','results','price','day','aim'].includes(phase))return;helpPanel.back=phase;
+    setPanel(()=>panel(`<div class="eyebrow">${t('Start again')}</div><h2>${tt('Clear all your throws and stall days?')}</h2><p>${tt('This removes your data from every spot and your stall log on this device.')}</p>
+      <div class="pBtns"><button class="pb main" data-act="doReset">${t('Yes, start again')}</button><button class="pb" data-act="cancelReset" data-focus>${t('Keep my data')}</button></div>`))}});
+setMenu.addEventListener('change',e=>{const k=e.target.dataset.set;if(k==='sound'){PREF.sound=e.target.checked;savePrefs();if(PREF.sound)SFX.lock()}
+  else if(k==='hard'){PREF.hard=e.target.checked;savePrefs();drawZone();renderStatus();if(phase==='power')hint(PREF.hard?t('Hard mode: time it without the green'):t('Press THROW! when the marker is in the green'))}});
+function setLang(l){PREF.lang=l;savePrefs();paintStatic();paintMenu();renderStatus();setCtl();paintAccount();if(curPanel)curPanel()}
+function paintStatic(){document.querySelectorAll('[data-t]').forEach(el=>{el.textContent=t(el.dataset.t)});document.body.classList.toggle('rtlLang',L()!=='en')}
 // tap a floor marker to choose it
 const ray=new THREE.Raycaster(),ptr=new THREE.Vector2();
 function markerAt(e){const r=canvas.getBoundingClientRect();ptr.set((e.clientX-r.left)/r.width*2-1,-((e.clientY-r.top)/r.height)*2+1);ray.setFromCamera(ptr,camera);
   const hit=ray.intersectObjects(P.SPOTS.map(s=>world.markers[s.id].disc))[0];return hit?hit.object.userData.spot:null}
-veil.addEventListener('pointerdown',e=>{if(phase==='spot'&&e.target===veil){}});
-canvas.addEventListener('pointerdown',e=>{if(phase==='spot'){const id=markerAt(e);if(id)pickSpot(id)}});
+canvas.addEventListener('pointerdown',e=>{if(phase==='spot'){const id=markerAt(e);if(id)pickSpot(id)}else if(phase==='replay')endReplay()});
 canvas.addEventListener('pointermove',e=>{canvas.style.cursor=phase==='spot'&&markerAt(e)?'pointer':'default'});
 
 /* ---------------- go ---------------- */
 try{
-  initScene();paintSound();camFor('overview');cam.pos.copy(cam.gp);cam.tgt.copy(cam.gt);
+  initScene();paintStatic();paintAccount();paintGoalBtn();camFor('overview',true);
   $('loading').hidden=true;
   introPanel();
   requestAnimationFrame(frame);
+  restoreStudent();restoreTeacher();
 }catch(err){$('loading').innerHTML='This game needs 3D graphics (WebGL), which this browser or device has switched off.<br><br><small>'+esc(err.message||err)+'</small>';console.error(err)}
-window.__BTG__={S,P,get phase(){return phase},get stall(){return stall},pickSpot,setAngle,lockAngle,doThrow,customerModel,queueFor,cnt,skipStall,CHARS,world,loadModel,
-  forceThrow(a,p){setAngle(a,true);phase='power';power=p;doThrow()},get sim(){return sim},setPower(p){power=p}};
+window.__BTG__={S,P,PREF,AUTH,TD,get phase(){return phase},get stall(){return stall},get QZ(){return QZ},pickSpot,setAngle,lockAngle,doThrow,customerModel,queueFor,cnt,skipStall,CHARS,world,loadModel,
+  forceThrow(a,p){setAngle(a,true);phase='power';power=p;doThrow()},get sim(){return sim},setPower(p){power=p},setLang,longRun,buildQuiz,pending,summaryText};
+
 </script>
 </body>
 </html>

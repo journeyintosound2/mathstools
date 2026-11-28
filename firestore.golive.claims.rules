@@ -213,6 +213,44 @@ service cloud.firestore {
       allow read, write: if isAdmin();
     }
 
+    // Bin Toss: Student Interactive (2026-11-28). Every throw record is written ONLY by the
+    // recordBinTossThrows Cloud Function (Admin SDK), which takes the student, teacher and class
+    // from the verified token. Stall customers are simulated in the browser and never sent.
+    //  * binTossStats/global_s0..9: all-MMT totals, counts only, no names. Anyone may read them
+    //    (guests see "all MMT students" at the end of the game).
+    //  * binTossStats/c_*: one class's totals, no names. That teacher, and students in that class.
+    //  * binTossStudents/{code}: per-student totals WITH the name. The student and their teacher.
+    //  * binTossThrows: raw batches (the teacher's CSV). The student and their teacher.
+    //  * binTossPredictions/{teacherCode}: the teacher's own predictions, written by that teacher;
+    //    students of that teacher may read them (shown at the end of the game).
+    match /binTossStats/{id} {
+      allow get: if id.matches('^global_s[0-9]+$');
+      allow read: if isAdmin()
+                  || (isTeacher() && resource.data.teacherCode == myTeacher())
+                  || (isStudent() && resource.data.teacherCode == myTeacher()
+                      && resource.data.className == request.auth.token.className);
+      allow write: if false;
+    }
+    match /binTossStudents/{studentCode} {
+      allow read: if isAdmin()
+                  || (isStudent() && myStudent() == studentCode)
+                  || (isTeacher() && resource.data.teacherCode == myTeacher());
+      allow write: if false;
+    }
+    match /binTossThrows/{id} {
+      allow read: if isAdmin()
+                  || (isStudent() && resource.data.studentCode == myStudent())
+                  || (isTeacher() && resource.data.teacherCode == myTeacher());
+      allow write: if false;
+    }
+    match /binTossPredictions/{teacherCode} {
+      allow get: if isAdmin() || (isTeacher() && myTeacher() == teacherCode)
+                 || (isStudent() && request.auth.token.teacherCode == teacherCode);
+      allow create, update: if isTeacher() && myTeacher() == teacherCode
+                 && request.resource.data.teacherCode == myTeacher();
+      allow list, delete: if false;
+    }
+
     // Everything else — including identity writes and any other collection
     // (e.g. best-effort platform-progress writes) — is denied.
     match /{document=**} {

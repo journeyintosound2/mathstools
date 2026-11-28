@@ -16,7 +16,7 @@
  * A new quiz that saves "key:right/total" strings needs nothing here; add its
  * keys to SKILL_LABELS for nicer names.
  */
-import { summarise } from "./resultUtils.js?v=e17ad2d3";
+import { summarise } from "./resultUtils.js?v=6d64d9ab";
 
 /* ---------- labels ---------- */
 export const SKILL_LABELS = {

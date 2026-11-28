@@ -2177,7 +2177,7 @@ window.MMT_TOOL_LINKS = {
       kind: "Game",
       url: "/interactive-tools/stage-4/statistics-probability/bin-toss/student-interactive/",
       ideas: ["chance-experiments", "complementary"],
-      note: "A 3D classroom game for students. Choose a spot (2 m, 4 m or 6 m), drag the angle slider, then stop the power meter in the sweet spot. Every throw is recorded as in or out to estimate P(in). Then set a cost to play, open the $50 prize stall and see whether it makes a profit. Saves on the device; no sign-in.",
+      note: "A 3D classroom game for students. Choose a character (from Mills Maths Adventure) and a spot (2, 4 or 6 m), predict, set the angle and stop the power meter. Every throw is data for P(in). Set a cost to play (nobody pays half the prize or more), predict profit or loss, run the stall, see the long run, then answer 6 check-for-understanding questions. Signed-in students save every throw and their result for the class; a teacher view in the game shows the class and all-MMT totals, predictions and a CSV. EN/AR/FA.",
       tags: ["probability", "game", "3D", "experimental probability", "relative frequency", "break-even", "profit", "expected number", "student", "bin toss"]
     },
     {
@@ -2343,6 +2343,14 @@ window.MMT_TOOL_LINKS = {
   ],
   "MA5-FIN-C-02": [
     {
+      title: "Financial Mathematics B: Compound Interest and Depreciation",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-5/number/financial-mathematics-b.html",
+      ideas: ["compound-depreciation"],
+      note: "Whole-topic quiz (Core outcome): Compound interest and depreciation, by repeated steps and by formula. Basic and Expected levels; question types can be chosen. Algebra is typed and set out as maths as it is read. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 5", "financial mathematics b"]
+    },
+    {
       title: "Financial Mathematics B: Compound Interest and Depreciation — Whole Topic Worksheet",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-5/number/financial-mathematics-b/",
@@ -2352,6 +2360,14 @@ window.MMT_TOOL_LINKS = {
   ],
 
   "MA5-ALG-P-02": [
+    {
+      title: "Algebraic Techniques C: Special Products and Factorising",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-5/algebra/algebraic-techniques-c.html",
+      ideas: ["binomial-numerators", "special-products"],
+      note: "Whole-topic quiz (Path outcome): Binomial numerators, special products, grouping, non-monic quadratics and completing the square. Basic and Expected levels; question types can be chosen. Algebra is typed and set out as maths as it is read. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 5", "algebraic techniques c"]
+    },
     {
       title: "Algebraic Techniques C: Special Products and Factorising — Whole Topic Worksheet",
       kind: "Worksheet maker",
@@ -2363,6 +2379,14 @@ window.MMT_TOOL_LINKS = {
 
   "MA5-IND-C-01": [
     {
+      title: "Indices A: Index Laws, Zero and Negative Indices",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-5/number/indices-a.html",
+      ideas: ["variables-zero", "products-quotients", "negative-numerical"],
+      note: "Whole-topic quiz (Core outcome): Index laws with variables, the zero index, and negative indices with numbers. Basic and Expected levels; question types can be chosen. Algebra is typed and set out as maths as it is read. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 5", "indices a"]
+    },
+    {
       title: "Indices A: Index Laws, Zero and Negative Indices — Whole Topic Worksheet",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-5/number/indices-a/",
@@ -2372,6 +2396,14 @@ window.MMT_TOOL_LINKS = {
   ],
 
   "MA5-IND-P-01": [
+    {
+      title: "Indices B: Negative Indices in Algebra",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-5/number/indices-b.html",
+      ideas: ["negative-algebraic"],
+      note: "Whole-topic quiz (Path outcome): Negative indices in algebraic expressions and fractions. Basic and Expected levels; question types can be chosen. Algebra is typed and set out as maths as it is read. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 5", "indices b"]
+    },
     {
       title: "Indices B: Negative Indices in Algebra — Whole Topic Worksheet",
       kind: "Worksheet maker",
@@ -2383,6 +2415,14 @@ window.MMT_TOOL_LINKS = {
 
   "MA5-IND-P-02": [
     {
+      title: "Indices C: Surds and Fractional Indices",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-5/number/indices-c.html",
+      ideas: ["describe-surds", "surd-problems", "fractional-indices"],
+      note: "Whole-topic quiz (Path outcome): Surds: simplifying, the four operations, rationalising, and fractional indices. Basic and Expected levels; question types can be chosen. Algebra is typed and set out as maths as it is read. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 5", "indices c"]
+    },
+    {
       title: "Indices C: Surds and Fractional Indices — Whole Topic Worksheet",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-5/number/indices-c/",
@@ -2392,6 +2432,14 @@ window.MMT_TOOL_LINKS = {
   ],
 
   "MA5-LIN-C-01": [
+    {
+      title: "Linear Relationships A: Midpoint, Gradient and Distance",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-5/algebra/linear-relationships-a.html",
+      ideas: ["midpoint-gradient", "distance", "graph-equations", "parallel-horizontal-vertical"],
+      note: "Whole-topic quiz (Core outcome): Midpoint, gradient and distance on the plane, graphing lines, and parallel, horizontal and vertical lines. Basic and Expected levels; question types can be chosen. Algebra is typed and set out as maths as it is read. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 5", "linear relationships a"]
+    },
     {
       title: "Linear Relationships A: Midpoint, Gradient and Distance — Whole Topic Worksheet",
       kind: "Worksheet maker",
@@ -2403,6 +2451,14 @@ window.MMT_TOOL_LINKS = {
 
   "MA5-LIN-C-02": [
     {
+      title: "Linear Relationships B: Gradient–Intercept Form",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-5/algebra/linear-relationships-b.html",
+      ideas: ["gradient-intercept", "parallel-perpendicular"],
+      note: "Whole-topic quiz (Core outcome): Gradient–intercept form, intercepts, and the equations of parallel and perpendicular lines. Basic and Expected levels; question types can be chosen. Algebra is typed and set out as maths as it is read. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 5", "linear relationships b"]
+    },
+    {
       title: "Linear Relationships B: Gradient–Intercept Form — Whole Topic Worksheet",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-5/algebra/linear-relationships-b/",
@@ -2412,6 +2468,14 @@ window.MMT_TOOL_LINKS = {
   ],
 
   "MA5-LIN-P-01": [
+    {
+      title: "Linear Relationships C: Coordinate Geometry and Transformations",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-5/algebra/linear-relationships-c.html",
+      ideas: ["midpoint-gradient-formulas", "distance-formula", "forms-of-a-line", "coordinate-problems", "symmetry", "transformations"],
+      note: "Whole-topic quiz (Path outcome): Coordinate geometry formulas, forms of a line, proofs on the plane, symmetry and transformations. Basic and Expected levels; question types can be chosen. Algebra is typed and set out as maths as it is read. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 5", "linear relationships c"]
+    },
     {
       title: "Linear Relationships C: Coordinate Geometry and Transformations — Whole Topic Worksheet",
       kind: "Worksheet maker",
@@ -2423,6 +2487,14 @@ window.MMT_TOOL_LINKS = {
 
   "MA5-NLI-C-01": [
     {
+      title: "Non-Linear Relationships A: Tables and Graphs",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-5/algebra/non-linear-relationships-a.html",
+      ideas: ["connections"],
+      note: "Whole-topic quiz (Core outcome): Tables of values and graphs of quadratics and exponentials. Basic and Expected levels; question types can be chosen. Algebra is typed and set out as maths as it is read. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 5", "non-linear relationships a"]
+    },
+    {
       title: "Non-Linear Relationships A: Tables and Graphs — Whole Topic Worksheet",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-5/algebra/non-linear-relationships-a/",
@@ -2432,6 +2504,14 @@ window.MMT_TOOL_LINKS = {
   ],
 
   "MA5-NLI-C-02": [
+    {
+      title: "Non-Linear Relationships B: Parabolas and Exponential Curves",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-5/algebra/non-linear-relationships-b.html",
+      ideas: ["quadratic", "exponential", "distinguish"],
+      note: "Whole-topic quiz (Core outcome): Features of parabolas and exponential curves, and telling linear, quadratic and exponential apart. Basic and Expected levels; question types can be chosen. Algebra is typed and set out as maths as it is read. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 5", "non-linear relationships b"]
+    },
     {
       title: "Non-Linear Relationships B: Parabolas and Exponential Curves — Whole Topic Worksheet",
       kind: "Worksheet maker",
@@ -2443,6 +2523,14 @@ window.MMT_TOOL_LINKS = {
 
   "MA5-NLI-P-01": [
     {
+      title: "Non-Linear Relationships C: Parabolas, Hyperbolas, Circles and More",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-5/algebra/non-linear-relationships-c.html",
+      ideas: ["parabolas", "exponentials", "hyperbolas", "circles", "distinguish", "polynomial-curves"],
+      note: "Whole-topic quiz (Path outcome): Parabolas, exponentials, hyperbolas, circles and cubics: features, sketches and transformations. Basic and Expected levels; question types can be chosen. Algebra is typed and set out as maths as it is read. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 5", "non-linear relationships c"]
+    },
+    {
       title: "Non-Linear Relationships C: Parabolas, Hyperbolas, Circles and More — Whole Topic Worksheet",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-5/algebra/non-linear-relationships-c/",
@@ -2452,6 +2540,14 @@ window.MMT_TOOL_LINKS = {
   ],
 
   "MA5-RAT-P-01": [
+    {
+      title: "Variation and Rates of Change A: Direct and Inverse Variation",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-5/ratios-rates/variation-and-rates-a.html",
+      ideas: ["variation-problems", "variation-graphs", "solve-variation"],
+      note: "Whole-topic quiz (Path outcome): Direct and inverse variation: tables, graphs, contexts and finding k. Basic and Expected levels; question types can be chosen. Algebra is typed and set out as maths as it is read. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 5", "variation and rates of change a"]
+    },
     {
       title: "Variation and Rates of Change A: Direct and Inverse Variation — Whole Topic Worksheet",
       kind: "Worksheet maker",
@@ -2463,6 +2559,14 @@ window.MMT_TOOL_LINKS = {
 
   "MA5-RAT-P-02": [
     {
+      title: "Variation and Rates of Change B: Rates of Change",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-5/ratios-rates/variation-and-rates-b.html",
+      ideas: ["constant-rate", "variable-rates", "construct-graphs"],
+      note: "Whole-topic quiz (Path outcome): Constant and variable rates of change, travel graphs, containers filling and sketching from a story. Basic and Expected levels; question types can be chosen. Algebra is typed and set out as maths as it is read. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 5", "variation and rates of change b"]
+    },
+    {
       title: "Variation and Rates of Change B: Rates of Change — Whole Topic Worksheet",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-5/ratios-rates/variation-and-rates-b/",
@@ -2472,6 +2576,14 @@ window.MMT_TOOL_LINKS = {
   ],
 
   "MA5-POL-P-01": [
+    {
+      title: "Polynomials",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-5/algebra/polynomials.html",
+      ideas: ["define-operate", "divide", "factor-remainder", "graph"],
+      note: "Whole-topic quiz (Path outcome): Operating with polynomials, division, the factor and remainder theorems, and polynomial graphs. Basic and Expected levels; question types can be chosen. Algebra is typed and set out as maths as it is read. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 5", "polynomials"]
+    },
     {
       title: "Polynomials — Whole Topic Worksheet",
       kind: "Worksheet maker",
@@ -2483,6 +2595,14 @@ window.MMT_TOOL_LINKS = {
 
   "MA5-LOG-P-01": [
     {
+      title: "Logarithms",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-5/algebra/logarithms.html",
+      ideas: ["examine", "laws"],
+      note: "Whole-topic quiz (Path outcome): Logarithmic and index form, the log laws, exponential equations and growth problems. Basic and Expected levels; question types can be chosen. Algebra is typed and set out as maths as it is read. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 5", "logarithms"]
+    },
+    {
       title: "Logarithms — Whole Topic Worksheet",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-5/algebra/logarithms/",
@@ -2492,6 +2612,14 @@ window.MMT_TOOL_LINKS = {
   ],
 
   "MA5-FNC-P-01": [
+    {
+      title: "Functions and Other Graphs",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-5/algebra/functions-and-other-graphs.html",
+      ideas: ["relations-functions", "domain-range", "inequality-regions"],
+      note: "Whole-topic quiz (Path outcome): Relations and functions, f(x) notation, domain and range, and regions from inequalities. Basic and Expected levels; question types can be chosen. Algebra is typed and set out as maths as it is read. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 5", "functions and other graphs"]
+    },
     {
       title: "Functions and Other Graphs — Whole Topic Worksheet",
       kind: "Worksheet maker",
@@ -2503,6 +2631,14 @@ window.MMT_TOOL_LINKS = {
 
   "MA5-MAG-C-01": [
     {
+      title: "Numbers of Any Magnitude",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-5/number/numbers-of-any-magnitude.html",
+      ideas: ["small-large", "error", "rounding", "scientific-notation"],
+      note: "Whole-topic quiz (Core outcome): SI prefixes, scientific notation, significant figures, and absolute and percentage error. Basic and Expected levels; question types can be chosen. Algebra is typed and set out as maths as it is read. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 5", "numbers of any magnitude"]
+    },
+    {
       title: "Numbers of Any Magnitude — Whole Topic Worksheet",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-5/number/numbers-of-any-magnitude/",
@@ -2512,6 +2648,14 @@ window.MMT_TOOL_LINKS = {
   ],
 
   "MA5-TRG-C-01": [
+    {
+      title: "Trigonometry A: Right-Angled Triangles",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-5/measurement-space/trigonometry-a.html",
+      ideas: ["constancy", "right-triangles"],
+      note: "Whole-topic quiz (Core outcome): Sine, cosine and tangent in right-angled triangles: sides, angles and practical problems. Basic and Expected levels; question types can be chosen. Algebra is typed and set out as maths as it is read. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 5", "trigonometry a"]
+    },
     {
       title: "Trigonometry A: Right-Angled Triangles — Whole Topic Worksheet",
       kind: "Worksheet maker",
@@ -2523,6 +2667,14 @@ window.MMT_TOOL_LINKS = {
 
   "MA5-TRG-C-02": [
     {
+      title: "Trigonometry B: Elevation, Depression and Bearings",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-5/measurement-space/trigonometry-b.html",
+      ideas: ["elevation-depression", "bearings"],
+      note: "Whole-topic quiz (Core outcome): Angles of elevation and depression, and true and compass bearings. Basic and Expected levels; question types can be chosen. Algebra is typed and set out as maths as it is read. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 5", "trigonometry b"]
+    },
+    {
       title: "Trigonometry B: Elevation, Depression and Bearings — Whole Topic Worksheet",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-5/measurement-space/trigonometry-b/",
@@ -2532,6 +2684,14 @@ window.MMT_TOOL_LINKS = {
   ],
 
   "MA5-TRG-P-01": [
+    {
+      title: "Trigonometry C: Non-Right-Angled Triangles and 3D Problems",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-5/measurement-space/trigonometry-c.html",
+      ideas: ["three-dimensional", "sine-cosine-area"],
+      note: "Whole-topic quiz (Path outcome): The sine, cosine and area rules, and three-dimensional right-angled triangle problems. Basic and Expected levels; question types can be chosen. Algebra is typed and set out as maths as it is read. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 5", "trigonometry c"]
+    },
     {
       title: "Trigonometry C: Non-Right-Angled Triangles and 3D Problems — Whole Topic Worksheet",
       kind: "Worksheet maker",
@@ -2543,6 +2703,14 @@ window.MMT_TOOL_LINKS = {
 
   "MA5-ARE-C-01": [
     {
+      title: "Area and Surface Area A: Composite Areas, Prisms and Cylinders",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-5/measurement-space/area-and-surface-area-a.html",
+      ideas: ["areas-surface-areas", "cylinder-formula", "cylinder-composite"],
+      note: "Whole-topic quiz (Core outcome): Composite areas, surface areas of prisms, and cylinders and related composite solids. Basic and Expected levels; question types can be chosen. Algebra is typed and set out as maths as it is read. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 5", "area and surface area a"]
+    },
+    {
       title: "Area and Surface Area A: Composite Areas, Prisms and Cylinders — Whole Topic Worksheet",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-5/measurement-space/area-and-surface-area-a/",
@@ -2552,6 +2720,14 @@ window.MMT_TOOL_LINKS = {
   ],
 
   "MA5-ARE-P-01": [
+    {
+      title: "Area and Surface Area B: Pyramids, Cones and Spheres",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-5/measurement-space/area-and-surface-area-b.html",
+      ideas: ["surface-areas"],
+      note: "Whole-topic quiz (Path outcome): Surface areas of pyramids, cones, spheres and composite solids. Basic and Expected levels; question types can be chosen. Algebra is typed and set out as maths as it is read. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 5", "area and surface area b"]
+    },
     {
       title: "Area and Surface Area B: Pyramids, Cones and Spheres — Whole Topic Worksheet",
       kind: "Worksheet maker",
@@ -2563,6 +2739,14 @@ window.MMT_TOOL_LINKS = {
 
   "MA5-VOL-C-01": [
     {
+      title: "Volume A: Prisms, Cylinders and Composite Solids",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-5/measurement-space/volume-a.html",
+      ideas: ["composite-solids"],
+      note: "Whole-topic quiz (Core outcome): Volumes of prisms, cylinders and composite solids, and capacity. Basic and Expected levels; question types can be chosen. Algebra is typed and set out as maths as it is read. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 5", "volume a"]
+    },
+    {
       title: "Volume A: Prisms, Cylinders and Composite Solids — Whole Topic Worksheet",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-5/measurement-space/volume-a/",
@@ -2572,6 +2756,14 @@ window.MMT_TOOL_LINKS = {
   ],
 
   "MA5-VOL-P-01": [
+    {
+      title: "Volume B: Pyramids, Cones and Spheres",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-5/measurement-space/volume-b.html",
+      ideas: ["volumes"],
+      note: "Whole-topic quiz (Path outcome): Volumes of pyramids, cones, spheres and composite solids. Basic and Expected levels; question types can be chosen. Algebra is typed and set out as maths as it is read. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 5", "volume b"]
+    },
     {
       title: "Volume B: Pyramids, Cones and Spheres — Whole Topic Worksheet",
       kind: "Worksheet maker",
@@ -2583,6 +2775,14 @@ window.MMT_TOOL_LINKS = {
 
   "MA5-GEO-C-01": [
     {
+      title: "Properties of Geometrical Figures A: Similar Figures and Scale",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-5/measurement-space/geometrical-figures-a.html",
+      ideas: ["similar-properties", "scale-factors"],
+      note: "Whole-topic quiz (Core outcome): Similar figures, scale factors, scale drawings and shadow problems. Basic and Expected levels; question types can be chosen. Algebra is typed and set out as maths as it is read. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 5", "properties of geometrical figures a"]
+    },
+    {
       title: "Properties of Geometrical Figures A: Similar Figures and Scale — Whole Topic Worksheet",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-5/measurement-space/geometrical-figures-a/",
@@ -2592,6 +2792,14 @@ window.MMT_TOOL_LINKS = {
   ],
 
   "MA5-GEO-P-01": [
+    {
+      title: "Properties of Geometrical Figures B: Congruence, Similarity and Reasoning",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-5/measurement-space/geometrical-figures-b.html",
+      ideas: ["congruence", "congruent-triangles", "similar-triangles", "similar-shapes-solids", "numerical-reasoning"],
+      note: "Whole-topic quiz (Path outcome): Congruence and similarity tests, and numerical reasoning with reasons. Basic and Expected levels; question types can be chosen. Algebra is typed and set out as maths as it is read. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 5", "properties of geometrical figures b"]
+    },
     {
       title: "Properties of Geometrical Figures B: Congruence, Similarity and Reasoning — Whole Topic Worksheet",
       kind: "Worksheet maker",
@@ -2603,6 +2811,14 @@ window.MMT_TOOL_LINKS = {
 
   "MA5-GEO-P-02": [
     {
+      title: "Properties of Geometrical Figures C: Geometric Proofs",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-5/measurement-space/geometrical-figures-c.html",
+      ideas: ["proofs"],
+      note: "Whole-topic quiz (Path outcome): Proofs with congruent and similar triangles, and properties of quadrilaterals. Basic and Expected levels; question types can be chosen. Algebra is typed and set out as maths as it is read. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 5", "properties of geometrical figures c"]
+    },
+    {
       title: "Properties of Geometrical Figures C: Geometric Proofs — Whole Topic Worksheet",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-5/measurement-space/geometrical-figures-c/",
@@ -2612,6 +2828,14 @@ window.MMT_TOOL_LINKS = {
   ],
 
   "MA5-CIR-P-01": [
+    {
+      title: "Circle Geometry",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-5/measurement-space/circle-geometry.html",
+      ideas: ["angle-chord", "tangent-secant"],
+      note: "Whole-topic quiz (Path outcome): Angle, chord, tangent and secant properties of circles, with reasons. Basic and Expected levels; question types can be chosen. Algebra is typed and set out as maths as it is read. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 5", "circle geometry"]
+    },
     {
       title: "Circle Geometry — Whole Topic Worksheet",
       kind: "Worksheet maker",
@@ -2623,6 +2847,14 @@ window.MMT_TOOL_LINKS = {
 
   "MA5-NET-P-01": [
     {
+      title: "Introduction to Networks",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-5/measurement-space/introduction-to-networks.html",
+      ideas: ["graphs-networks", "planar-euler", "eulerian"],
+      note: "Whole-topic quiz (Path outcome): Graphs and networks, weighted paths, planar graphs and Euler’s formula, and Eulerian trails. Basic and Expected levels; question types can be chosen. Algebra is typed and set out as maths as it is read. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 5", "introduction to networks"]
+    },
+    {
       title: "Introduction to Networks — Whole Topic Worksheet",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-5/measurement-space/introduction-to-networks/",
@@ -2632,6 +2864,14 @@ window.MMT_TOOL_LINKS = {
   ],
 
   "MA5-DAT-C-01": [
+    {
+      title: "Data Analysis A: Quartiles, Box Plots and Standard Deviation",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-5/statistics-probability/data-analysis-a.html",
+      ideas: ["standard-deviation", "quartiles-iqr", "box-plots"],
+      note: "Whole-topic quiz (Core outcome): Quartiles and IQR, box plots, outliers, and standard deviation. Basic and Expected levels; question types can be chosen. Algebra is typed and set out as maths as it is read. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 5", "data analysis a"]
+    },
     {
       title: "Data Analysis A: Quartiles, Box Plots and Standard Deviation — Whole Topic Worksheet",
       kind: "Worksheet maker",
@@ -2643,6 +2883,14 @@ window.MMT_TOOL_LINKS = {
 
   "MA5-DAT-C-02": [
     {
+      title: "Data Analysis B: Bivariate Data",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-5/statistics-probability/data-analysis-b.html",
+      ideas: ["describe-bivariate", "scatter-plots", "interpret-bivariate"],
+      note: "Whole-topic quiz (Core outcome): Bivariate data: scatter plots, association, lines of best fit and predictions. Basic and Expected levels; question types can be chosen. Algebra is typed and set out as maths as it is read. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 5", "data analysis b"]
+    },
+    {
       title: "Data Analysis B: Bivariate Data — Whole Topic Worksheet",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-5/statistics-probability/data-analysis-b/",
@@ -2653,6 +2901,14 @@ window.MMT_TOOL_LINKS = {
 
   "MA5-DAT-P-01": [
     {
+      title: "Data Analysis C: Statistical Inquiries and Media Reports",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-5/statistics-probability/data-analysis-c.html",
+      ideas: ["plan-inquiry", "media-reports"],
+      note: "Whole-topic quiz (Path outcome): Populations and samples, sampling methods, bias, and reading media reports. Basic and Expected levels; question types can be chosen. Algebra is typed and set out as maths as it is read. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 5", "data analysis c"]
+    },
+    {
       title: "Data Analysis C: Statistical Inquiries and Media Reports — Whole Topic Worksheet",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-5/statistics-probability/data-analysis-c/",
@@ -2662,6 +2918,14 @@ window.MMT_TOOL_LINKS = {
   ],
 
   "MA5-ALG-P-01": [
+    {
+      title: "Algebraic Techniques B: Factorising and Binomial Products",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-5/algebra/algebraic-techniques-b.html",
+      ideas: ["fractions-pronumerals", "common-factor", "binomial-monic"],
+      note: "Whole-topic quiz (Path outcome): Algebraic fractions with pronumeral denominators, common factors, binomial products and monic quadratics. Basic and Expected levels; question types can be chosen. Algebra is typed and set out as maths as it is read. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 5", "algebraic techniques b"]
+    },
     {
       title: "Algebraic Techniques B: Factorising and Binomial Products — Whole Topic Worksheet",
       kind: "Worksheet maker",
@@ -2689,6 +2953,14 @@ window.MMT_TOOL_LINKS = {
 
   "MA5-ALG-C-01": [
     {
+      title: "Algebraic Techniques A: Algebraic Fractions and Expanding",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-5/algebra/algebraic-techniques-a.html",
+      ideas: ["fractions-numerical", "distributive"],
+      note: "Whole-topic quiz (Core outcome): The four operations with algebraic fractions, expanding brackets, binomial products and common factors. Basic and Expected levels; question types can be chosen. Algebra is typed and set out as maths as it is read. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 5", "algebraic techniques a"]
+    },
+    {
       title: "Algebraic Techniques A: Algebraic Fractions and Expanding — Whole Topic Worksheet",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-5/algebra/algebraic-techniques-a/",
@@ -2713,6 +2985,14 @@ window.MMT_TOOL_LINKS = {
     }
   ],
   "MA5-EQU-C-01": [
+    {
+      title: "Equations A: Linear Equations",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-5/algebra/equations-a.html",
+      ideas: ["three-steps", "one-fraction", "word-problems"],
+      note: "Whole-topic quiz (Core outcome): Linear equations to three steps, one algebraic fraction, formulas and word problems. Basic and Expected levels; question types can be chosen. Algebra is typed and set out as maths as it is read. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 5", "equations a"]
+    },
     {
       title: "Equations A: Linear Equations — Whole Topic Worksheet",
       kind: "Worksheet maker",
@@ -2763,6 +3043,14 @@ window.MMT_TOOL_LINKS = {
   ],
   "MA5-EQU-P-01": [
     {
+      title: "Equations B: Quadratics, Cubics and Inequalities",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-5/algebra/equations-b.html",
+      ideas: ["monic-quadratic", "cubic", "inequalities"],
+      note: "Whole-topic quiz (Path outcome): Monic quadratic equations, simple cubics, and linear inequalities on a number line. Basic and Expected levels; question types can be chosen. Algebra is typed and set out as maths as it is read. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 5", "equations b"]
+    },
+    {
       title: "Equations B: Quadratics, Cubics and Inequalities — Whole Topic Worksheet",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-5/algebra/equations-b/",
@@ -2789,6 +3077,14 @@ window.MMT_TOOL_LINKS = {
 
   "MA5-EQU-P-02": [
     {
+      title: "Equations C: Literal, Quadratic and Simultaneous Equations",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-5/algebra/equations-c.html",
+      ideas: ["fractions-more-steps", "literal", "quadratic-methods", "simultaneous"],
+      note: "Whole-topic quiz (Path outcome): Harder linear equations, changing the subject, the quadratic formula and simultaneous equations. Basic and Expected levels; question types can be chosen. Algebra is typed and set out as maths as it is read. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 5", "equations c"]
+    },
+    {
       title: "Equations C: Literal, Quadratic and Simultaneous Equations — Whole Topic Worksheet",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-5/algebra/equations-c/",
@@ -2814,6 +3110,14 @@ window.MMT_TOOL_LINKS = {
   ],
 
   "MA5-TRG-P-02": [
+    {
+      title: "Trigonometry D: The Unit Circle and Trigonometric Equations",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-5/measurement-space/trigonometry-d.html",
+      ideas: ["unit-circle", "trig-equations"],
+      note: "Whole-topic quiz (Path outcome): The unit circle, exact values, the trigonometric graphs and trigonometric equations. Basic and Expected levels; question types can be chosen. Algebra is typed and set out as maths as it is read. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 5", "trigonometry d"]
+    },
     {
       title: "Trigonometry D: The Unit Circle and Trigonometric Equations — Whole Topic Worksheet",
       kind: "Worksheet maker",
@@ -2857,6 +3161,14 @@ window.MMT_TOOL_LINKS = {
 
   "MA5-FIN-C-01": [
     {
+      title: "Financial Mathematics A: Earning, Spending and Simple Interest",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-5/number/financial-mathematics-a.html",
+      ideas: ["earning", "simple-interest", "spending"],
+      note: "Whole-topic quiz (Core outcome): Wages, overtime, commission, tax, simple interest, and buying on terms or with loans. Basic and Expected levels; question types can be chosen. Algebra is typed and set out as maths as it is read. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 5", "financial mathematics a"]
+    },
+    {
       title: "Financial Mathematics A: Earning, Spending and Simple Interest — Whole Topic Worksheet",
       kind: "Worksheet maker",
       url: "/worksheet-creators/stage-5/number/financial-mathematics-a/",
@@ -2873,6 +3185,14 @@ window.MMT_TOOL_LINKS = {
   ],
 
   "MA5-PRO-C-01": [
+    {
+      title: "Probability A: Multistage Chance Experiments",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-5/statistics-probability/probability-a.html",
+      ideas: ["multistage", "multistage-problems", "simulations"],
+      note: "Whole-topic quiz (Core outcome): Multistage experiments with and without replacement, tree diagrams and simulations. Basic and Expected levels; question types can be chosen. Algebra is typed and set out as maths as it is read. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 5", "probability a"]
+    },
     {
       title: "Probability A: Multistage Chance Experiments — Whole Topic Worksheet",
       kind: "Worksheet maker",
@@ -2907,6 +3227,14 @@ window.MMT_TOOL_LINKS = {
   ],
 
   "MA5-PRO-P-01": [
+    {
+      title: "Probability B: Venn Diagrams, Two-Way Tables and Conditional Probability",
+      kind: "Student quiz",
+      url: "/online-quizzes/stage-5/statistics-probability/probability-b.html",
+      ideas: ["venn-two-way", "conditional-language", "mutually-exclusive"],
+      note: "Whole-topic quiz (Path outcome): Venn diagrams, two-way tables, conditional probability and mutually exclusive events. Basic and Expected levels; question types can be chosen. Algebra is typed and set out as maths as it is read. Saves to the student dashboard.",
+      tags: ["quiz", "whole topic", "subset builder", "stage 5", "probability b"]
+    },
     {
       title: "Probability B: Venn Diagrams, Two-Way Tables and Conditional Probability — Whole Topic Worksheet",
       kind: "Worksheet maker",
